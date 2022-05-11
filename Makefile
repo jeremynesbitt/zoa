@@ -38,7 +38,7 @@ OBJ:=${SRC:src/%.FOR=bin/%.o}
 bin/%.mod: src/%.f90
 	@echo Starting F90 Compilation	
 	@echo $(SRC90)
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $<
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) -o $@ 
 
 # Output FOR files into .o files	
 bin/%.o: src/%.FOR
@@ -52,7 +52,8 @@ $(GTKOBJ): $(GTK)
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -c $(GTK) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) -o $@ 
 
 # Compile f90 files first, then F77 Files
-all: $(GTKOBJ) $(OBJ90) $(OBJ) 
+#all: $(GTKOBJ) $(OBJ90) $(OBJ) 
+all:  $(OBJ90) $(OBJ) $(GTKOBJ) 
 	@echo $(GTKMID)
 	@echo $(GTKOBJ)
 	@echo Generating Executable	

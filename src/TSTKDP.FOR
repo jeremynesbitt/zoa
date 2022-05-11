@@ -87,6 +87,21 @@ C        CALL LIBLOAD(1)
 C        STOP
         END
 
+        SUBROUTINE getRayTraceOutput(res)
+        USE GLOBALS
+        IMPLICIT NONE
+
+        REAL*8 res(1:50,0:499)
+
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATMAI.INC'
+
+        res = RAYRAY
+
+        !PRINT *, "Test RAYRAY Output TSTKDP", RAYRAY(2,4)
+
+        END
+
         SUBROUTINE PROCESKDP(ftext)
           USE GLOBALS
           IMPLICIT NONE
