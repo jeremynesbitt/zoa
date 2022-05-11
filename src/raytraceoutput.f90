@@ -12,8 +12,10 @@ interface raytraceoutput
     module procedure :: raytraceoutput_constructor
 end interface raytraceoutput
 
-subroutine raytraceoutput_constructor(surface, x,y,z, x_angle, y_angle)
+contains
 
-end subroutine raytraceoutput_constructor
+type(raytraceoutput) function raytraceoutput_constructor(surface, x,y,z, x_angle, y_angle)
+
+end function raytraceoutput_constructor
 
 end module mod_raytraceoutput
