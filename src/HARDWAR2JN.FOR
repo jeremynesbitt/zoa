@@ -74,6 +74,7 @@ C      USE WINTERACTER
       REAL MINII1, MINII2, MAXII1, MAXII2
 
       type(rgbimage) :: animage
+      type(rgb) :: color
 
 
 
@@ -147,6 +148,8 @@ C     INITIALIZE CHARACTER ASPECT RATIO
       JJ_X=1.0
       JJ_Y=1.0
       ITRY=0
+
+      color = rgb(0,0,0)
 C
       PRINT *, "GRAOUT PRT ROUTINE"
       MINII1 = -1
@@ -215,7 +218,56 @@ C     NOW READ ANOTHER COMMAND
 C
 C     "PLOT COLTYP" = E
 C
+
       IF(STRINGER.EQ.'E') THEN
+C     SETTING THE FOREGROUND COLOR
+      COLPASS=II1
+      !IF(COLPASS.EQ.0)  COLTRUE=208
+      !IF(COLPASS.EQ.1)  COLTRUE=48
+      !IF(COLPASS.EQ.2)  COLTRUE=176
+      !IF(COLPASS.EQ.3)  COLTRUE=16
+      !IF(COLPASS.EQ.4)  COLTRUE=112
+      !IF(COLPASS.EQ.5)  COLTRUE=80
+      !IF(COLPASS.EQ.6)  COLTRUE=144
+      !IF(COLPASS.EQ.7)  COLTRUE=240
+      !IF(COLPASS.EQ.8)  COLTRUE=224
+      !IF(COLPASS.EQ.9)  COLTRUE=64
+      !IF(COLPASS.EQ.10) COLTRUE=192
+      !IF(COLPASS.EQ.11) COLTRUE=32
+      !IF(COLPASS.EQ.12) COLTRUE=128
+      !IF(COLPASS.EQ.13) COLTRUE=96
+      !IF(COLPASS.EQ.14) COLTRUE=160
+      !IF(COLPASS.EQ.15) COLTRUE=240
+
+      !IF(COLPASS.EQ.0)  color = rgb(255,255,255)
+      !IF(COLPASS.EQ.1)  color = rgb(255,255,0)
+      !IF(COLPASS.EQ.2)  color = rgb(255,0,255)
+      !IF(COLPASS.EQ.3)  color = rgb(195, 0, 0)
+      !IF(COLPASS.EQ.4)  color = rgb( 0,195,195)
+      !IF(COLPASS.EQ.5)  color = rgb( 0,195, 0)
+      !IF(COLPASS.EQ.6)  color = rgb( 0, 0,195)
+      IF(COLPASS.EQ.0)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.1)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.2)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.3)  color = rgb(0, 0, 0)
+      IF(COLPASS.EQ.4)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.5)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.6)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.7)  COLTRUE=240
+      IF(COLPASS.EQ.8)  COLTRUE=224
+      IF(COLPASS.EQ.9)  COLTRUE=64
+      IF(COLPASS.EQ.10) COLTRUE=192
+      IF(COLPASS.EQ.11) COLTRUE=32
+      IF(COLPASS.EQ.12) COLTRUE=128
+      IF(COLPASS.EQ.13) COLTRUE=96
+      IF(COLPASS.EQ.14) COLTRUE=160
+      IF(COLPASS.EQ.15) COLTRUE=240
+
+       !CALL IGrColourN(COLTRUE)
+               GO TO 300
+               END IF
+      ! Code that was working
+      IF(STRINGER.EQ.'EEEE') THEN
       IF(JK_TAG.EQ.13) GO TO 300
       IF(JK_TAG.EQ.23) GO TO 300
       IF(JK_TAG.EQ.1.OR.JK_TAG.EQ.3) GO TO 300
@@ -571,7 +623,10 @@ C       IF (II3.EQ.0) PRINT *, "PEN UP!"
          IF (MAXII2.LT.REAL(II2)) MAXII2 = REAL(II2)
 
 
-       CALL JK_MoveTo(INT(II1)-1999,INT(II2)+171,II3,II4, animage)
+
+
+       CALL JK_MoveTo(INT(II1)-1999,INT(II2)+171,II3,II4, animage,
+     1color)
                GO TO 300
                END IF
 C
@@ -686,7 +741,8 @@ C      CALL IOSCOMMAND(ABLE(1:N),2)
       END
 
 
-      SUBROUTINE JK_MOVETO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, animage)
+      SUBROUTINE JK_MOVETO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, animage,
+     1 color)
       use RCImageBasic
       use RCImageIO
       use RCImagePrimitive
@@ -694,6 +750,7 @@ C      USE WINTERACTER
       IMPLICIT NONE
       REAL INKER,XINC,YINC
       type (rgbImage) animage
+      type (rgb) color
       INTEGER MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,
      1MY_OLDIPEN
       REAL OX,OY,MY_OLDX,MY_OLDY,DELTADIST
@@ -707,6 +764,7 @@ C
       IF(MY_IPEN.EQ.0) THEN
 C     USER HAS THE PEN UP
 C     WE ARE JUST MOVING SOME PLACE SO RE-SET MY_DISTANCE TO ZERO
+
       MY_DISTANCE=0
 C     NOW MAKE THE MOVE
 C      CALL IGRMOVETO(MY_IX,MY_IY)
@@ -725,25 +783,59 @@ C     UPDATE OLD VALUES
 C
       IF(MY_IPEN.EQ.1) THEN
 C     USER HAS THE PEN DOWN
-
+      IF(MY_LINESTYLE.EQ.0) THEN
 C     SIMPLE SOLID LINE (TYPE 0)
 C      MY_OLDX=MY_IX
 C      MY_OLDY=MY_IY
-      OY=MY_OLDX
+
+       call draw_line(animage, point(MY_IX,MY_IY),
+     1 point(MY_OLDX, MY_OLDY), color)
+
+      OX=MY_OLDX
       OY=MY_OLDY
+
+      MY_OLDX = MY_IX
+      MY_OLDY = MY_IY
+
+
       MY_DISTANCE=0.0
       OLDDIST=0.0
       OLDDIST=0
       REMAIN=0.0
       OREMAIN=0.0
       !PRINT *, "DRAWING LINE"
-       call draw_line(animage, point(MY_OLDX,MY_OLDY),
-     1 point(MY_IX, MY_IY), rgb(0,0,0))
 
+
+      !OX=MY_OLDX
+      !OY=MY_OLDY
+      !MY_DISTANCE=0.0
+      !OLDDIST=0.0
+      !OLDDIST=0
+      !REMAIN=0.0
+      !OREMAIN=0.0
+      !PRINT *, "DRAWING LINE"
+       !call draw_line(animage, point(MY_OLDX,MY_OLDY),
+C     1 point(MY_IX, MY_IY), color)
+
+C*****************************************************************************
+C     UPDATE OLD VALUES
+C      MY_IX=MY_OLDX
+C      MY_IY=MY_OLDY
+
+C      MY_OLDIPEN=MY_IPEN
+
+C      MY_OLDX=MY_IX
+C      MY_OLDY=MY_IY
+       MY_OLDIPEN=MY_IPEN
 C      CALL IGRLINETO(MY_IX,MY_IY)
 
 
                        END IF
+      IF(MY_LINESTYLE.GT.0) THEN
+        PRINT *, "MY_LINESTYLE = ", MY_LINESTYLE
+                       END IF
+                       END IF
+
                        END
 
       SUBROUTINE RUN_WDRAW
@@ -817,6 +909,7 @@ C      USE WINTERACTER
 
       IMPLICIT NONE
       type(rgbimage) :: animage
+      type(rgb) :: color
       LOGICAL FIRST
       INTEGER CON_ARRAY,NX,NY,ZSTEP,ALLOERR
       REAL OPDPEAK,OPDPIT
@@ -1190,8 +1283,9 @@ C     NOW READ ANOTHER COMMAND
 
 C     "PLOT PLOTTO" = I
 C
+      color = rgb(0,0,0)
       IF(STRINGER.EQ.'I') THEN
-      CALL JK_MoveTo(INT(II1),INT(II2),II3,II4, animage)
+      CALL JK_MoveTo(INT(II1),INT(II2),II3,II4, animage, color)
                GO TO 300
                END IF
 C
