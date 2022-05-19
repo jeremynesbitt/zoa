@@ -19,7 +19,7 @@ subroutine plotLensData
     use global_widgets
     !use handlers
     use mod_barchart
-
+    use mod_plotopticalsystem
 
     use, intrinsic :: iso_c_binding
 
@@ -30,6 +30,9 @@ subroutine plotLensData
     REAL*8 raydata(1:50,0:499)
     REAL*8 x(1:10),y(1:10)
     type(barchart) :: plotter
+
+
+
 
     ftext = 'LIB GET 1 '
 
@@ -256,6 +259,8 @@ module handlers
   use gtk_hl_container
   use gtk_hl_button
 
+  use gtk_hl_chooser
+
   implicit none
   type(c_ptr)    :: my_window, entry, abut, ibut
   ! run_status is TRUE until the user closes the top window:
@@ -263,6 +268,30 @@ module handlers
   integer(c_int) :: boolresult
 
 contains
+  subroutine tst_plottingincairo
+  use mod_plotopticalsystem
+
+
+  character(len=256), dimension(:), allocatable :: new_files, tmp
+
+  integer(kind=c_int) :: ipick, i
+ character(len=100) :: ftext
+  PRINT *, "Before Mod Call, ", my_window
+
+  !ipick = hl_gtk_file_chooser_show(new_files, &
+  !       & create=FALSE, multiple=TRUE, filter=["image/*"], &
+  !       & parent=my_window, all=TRUE)
+
+  ftext = 'LIB GET 1 '
+  CALL PROCESKDP(ftext)
+  ftext = 'VIECO'
+  CALL PROCESKDP(ftext)
+  CALL WDRAWOPTICALSYSTEM
+  !CALL RUN_WDRAWOPTICALSYSTEM
+
+  end subroutine tst_plottingincairo
+
+
 
   subroutine plot_04(area)
     type(c_ptr), intent(in) :: area
@@ -816,7 +845,8 @@ contains
     button3 = gtk_button_new_with_mnemonic ("_Exit"//c_null_char)
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
     toggle1 = gtk_toggle_button_new_with_mnemonic ("_TstFunc"//c_null_char)
-    call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(plotLensData))
+    !call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(plotLensData))
+    call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(tst_plottingincairo))
 
     ! The spin buttons to set the parameters:
     label1 = gtk_label_new("real(c)"//c_null_char)
@@ -925,6 +955,8 @@ contains
     call gtk_window_set_child(my_window, box1)
     call gtk_window_set_mnemonics_visible (my_window, TRUE)
     call gtk_widget_show(my_window)
+
+
 
     ! We create a "pixbuffer" to store the pixels of the image:
     my_pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8_c_int, pixwidth, pixheight)
