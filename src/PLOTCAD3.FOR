@@ -3811,6 +3811,8 @@ C
       ALLOCATE(CLPDAT(M1:M2,M3,M1:M4,M5),STAT=ALLOERR)
           CLPDAT(0:360,1:3,0:M4,1:2)=0.0
 C
+      PRINT *, "PLTCOB Routine Starting..."
+
                 JJ=1
 C
                 X=0.0D0
@@ -4251,6 +4253,8 @@ C
                 VIEPH=(PII/180.0D0)*VIEPHI
                 VIEAL=(PII/180.0D0)*VIEALF
 C
+
+      PRINT *, "PLTEDG ROUTINE Starting.."
 C     MAKE SURE YOU HAVE VERTEX DATA WITHOUT OFFSETS AND SET TO
 C     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
                         GLSURF=-99

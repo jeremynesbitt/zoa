@@ -3780,6 +3780,7 @@ C
                 II=SURFACEI
                         NOPLOT=.FALSE.
                         IF(DF5.EQ.0) NOPLOT=.TRUE.
+       PRINT *, "PLTCAP Routine Starting..."
 C
                            DO KKK=1,2
 C         KKK IS USED TO PERFORM MIRROR BACKING PLOTS WHEN KKK=2

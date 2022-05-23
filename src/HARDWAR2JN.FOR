@@ -150,6 +150,7 @@ C     INITIALIZE CHARACTER ASPECT RATIO
       ITRY=0
 
       color = rgb(0,0,0)
+      COLTRUE = 0
 C
       PRINT *, "GRAOUT PRT ROUTINE"
       MINII1 = -1
@@ -161,6 +162,7 @@ C
       IF(J.GE.NEUTTOTAL+1) GO TO 999
       READ(NEUTARRAY(J),1001) STRINGER
      1,I1,I2,I3,I4,I5,I6,I7,I8
+      !PRINT *, "STRINGER = ", STRINGER
  1001 FORMAT(A1,I5,I5,I5,I5,I5,I5,I5,I5)
       II1=(I1)
       II2=(I2)
@@ -222,6 +224,10 @@ C
       IF(STRINGER.EQ.'E') THEN
 C     SETTING THE FOREGROUND COLOR
       COLPASS=II1
+      IF (COLTRUE.NE.COLPASS) THEN
+         PRINT *, "COLPASS CHANGED NEWVAL = ", COLPASS
+         COLTRUE = COLPASS
+      END IF
       !IF(COLPASS.EQ.0)  COLTRUE=208
       !IF(COLPASS.EQ.1)  COLTRUE=48
       !IF(COLPASS.EQ.2)  COLTRUE=176
@@ -239,20 +245,21 @@ C     SETTING THE FOREGROUND COLOR
       !IF(COLPASS.EQ.14) COLTRUE=160
       !IF(COLPASS.EQ.15) COLTRUE=240
 
-      !IF(COLPASS.EQ.0)  color = rgb(255,255,255)
-      !IF(COLPASS.EQ.1)  color = rgb(255,255,0)
-      !IF(COLPASS.EQ.2)  color = rgb(255,0,255)
-      !IF(COLPASS.EQ.3)  color = rgb(195, 0, 0)
-      !IF(COLPASS.EQ.4)  color = rgb( 0,195,195)
-      !IF(COLPASS.EQ.5)  color = rgb( 0,195, 0)
-      !IF(COLPASS.EQ.6)  color = rgb( 0, 0,195)
-      IF(COLPASS.EQ.0)  color = rgb(0,0,0)
-      IF(COLPASS.EQ.1)  color = rgb(0,0,0)
-      IF(COLPASS.EQ.2)  color = rgb(0,0,0)
-      IF(COLPASS.EQ.3)  color = rgb(0, 0, 0)
-      IF(COLPASS.EQ.4)  color = rgb(0,0,0)
-      IF(COLPASS.EQ.5)  color = rgb(0,0,0)
-      IF(COLPASS.EQ.6)  color = rgb(0,0,0)
+      IF(COLPASS.EQ.0)  color = rgb(255,255,255)
+      IF(COLPASS.EQ.1)  color = rgb(255,255,0)
+      IF(COLPASS.EQ.2)  color = rgb(255,0,255)
+      IF(COLPASS.EQ.3)  color = rgb(195, 0, 0)
+      IF(COLPASS.EQ.4)  color = rgb( 0,195,195)
+      IF(COLPASS.EQ.5)  color = rgb( 0,195, 0)
+      IF(COLPASS.EQ.6)  color = rgb( 0, 0,195)
+
+      !IF(COLPASS.EQ.0)  color = rgb(0,0,0)
+      !IF(COLPASS.EQ.1)  color = rgb(0,0,0)
+      !IF(COLPASS.EQ.2)  color = rgb(0,0,0)
+      !IF(COLPASS.EQ.3)  color = rgb(0, 0, 0)
+      !IF(COLPASS.EQ.4)  color = rgb(0,0,0)
+      !IF(COLPASS.EQ.5)  color = rgb(0,0,0)
+      !IF(COLPASS.EQ.6)  color = rgb(0,0,0)
       IF(COLPASS.EQ.7)  COLTRUE=240
       IF(COLPASS.EQ.8)  COLTRUE=224
       IF(COLPASS.EQ.9)  COLTRUE=64
@@ -261,7 +268,7 @@ C     SETTING THE FOREGROUND COLOR
       IF(COLPASS.EQ.12) COLTRUE=128
       IF(COLPASS.EQ.13) COLTRUE=96
       IF(COLPASS.EQ.14) COLTRUE=160
-      IF(COLPASS.EQ.15) COLTRUE=240
+      IF(COLPASS.EQ.15) color = rgb(64,64,64)
 
        !CALL IGrColourN(COLTRUE)
                GO TO 300
@@ -692,6 +699,7 @@ C     "PLOT END" = B
       I6=0
       I7=0
       I8=0
+      PRINT *, "GRAOUT B STRINGER = ", STRINGER
       END IF
       IF(J.EQ.NEUTTOTAL+1.AND.STRINGER(1:1).EQ.'B') THEN
       PRINT *, "DEBUG"
@@ -705,9 +713,9 @@ C      CALL IGrHardCopy('S')
        PRINT *, "MAX II1", MAXII1
        PRINT *, "MAX II2", MAXII2
 
-       open(unit=10, file='outputimage.ppm', status='unknown')
+       !open(unit=10, file='outputimage.ppm', status='unknown')
 
-       call output_ppm(10, animage)
+       !call output_ppm(10, animage)
        call convertRGBtoPixBuf(animage)
 
        ! Doesn't work
@@ -842,29 +850,41 @@ C      CALL IGRLINETO(MY_IX,MY_IY)
 C     THIS IS THE DRIVER ROUTINE FOR SENDING GRAPHICS TO
 C     A GRAPHIC WINDOW
 C      USE WINTERACTER
+      use handlers
+
       IMPLICIT NONE
       !CALL GRAOUTPRT(8,"VIECO")
        !PRINT *, "RUN_WDRAW"
       ! CALL RUN_WPLOT('08'//'BMP.BMP') !CEELINE=JK_TAG//(GRFILN(1:12))
       INCLUDE 'DATMAI.INC'
 
-      INPUT = "GRAOUT BMP"
-      CALL PROCES
-      !LOGICAL EXISD
+
+      ! HACK TO USE GRAOUT INSTEAD OF DRAW
+      !INPUT = "GRAOUT BMP"
+      !CALL PROCES
+
+      !PRINT *, "ABOUT TO CALL WDRAWOPTICAL SYSTEM FROM RUN_WDRAW"
+      !PRINT *, "BEFORE my_window is ", my_window
+      !call WDRAWOPTICALSYSTEM
+
+
+      LOGICAL EXISD
       !INCLUDE 'DATMAI.INC'
-      !CALL WDRAW
-      !RETURN
+      CALL WDRAW
+      RETURN
       END
        SUBROUTINE WDRAW
        USE GLOBALS
 C       USE WINTERACTER
+        USE mod_plotopticalsystem
        IMPLICIT NONE
        LOGICAL FIRST
        INTEGER NCOL256,ID,IDRAW1,ISKEY,INFO,IWX,IWY,IX,IY
-       INCLUDE 'DATHGR.INC'
-       INCLUDE 'DATMAI.INC'
-      INCLUDE 'RESOURCE.INC'
-       COMMON/DRAWI1/IDRAW1
+       INTEGER NEUTTOTAL
+       !INCLUDE 'DATHGR.INC'
+       !INCLUDE 'DATMAI.INC'
+      !INCLUDE 'RESOURCE.INC'
+       !COMMON/DRAWI1/IDRAW1
        !TYPE(WIN_STYLE) DRW
 C     GET LOCATION AND SIZE OF CURRENT WINDOW
 C      IWX=WInfoWindow(1)
@@ -891,9 +911,12 @@ C      CALL WindowOpenChild(DRW,IDRAW1)
 C      CALL IGRPALETTERGB(223,0,0,0)
 C      CALL IGRPALETTERGB(0,255,255,255)
 C      CALL IGrColourN(223)
-      OUTLYNE = "CALL DRAW ROUTINE"
-      CALL SHOWIT(99)
-      CALL DRAW(1,FIRST,ISKEY)
+      !OUTLYNE = "CALL DRAW ROUTINE"
+      !CALL SHOWIT(99)
+      !CALL DRAW(1,FIRST,ISKEY)
+      PRINT *, "ABOUT TO CALL WDRAWOPTICAL SYSTEM FROM RUN_WDRAW"
+      !PRINT *, "BEFORE my_window is ", my_window
+      call WDRAWOPTICALSYSTEM
 C      CALL WindowCloseChild(IDRAW1)
 C      CALL WindowSelect(1)
  10   CONTINUE

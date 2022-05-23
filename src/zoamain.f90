@@ -282,11 +282,12 @@ contains
   !       & create=FALSE, multiple=TRUE, filter=["image/*"], &
   !       & parent=my_window, all=TRUE)
 
-  ftext = 'LIB GET 1 '
+  !ftext = 'LIB GET 1 '
+  ftext = 'CV2PRG DoubleGauss.seq'
   CALL PROCESKDP(ftext)
   ftext = 'VIECO'
   CALL PROCESKDP(ftext)
-  CALL WDRAWOPTICALSYSTEM
+  !CALL WDRAWOPTICALSYSTEM
   !CALL RUN_WDRAWOPTICALSYSTEM
 
   end subroutine tst_plottingincairo
