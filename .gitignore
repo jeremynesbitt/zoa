@@ -1,0 +1,9 @@
+/bin
+
+*.icloud
+
+.DS_Store
+
+.cproject
+
+.project
