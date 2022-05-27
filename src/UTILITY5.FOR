@@ -4083,8 +4083,8 @@ C       HERE WE CALL SUBROUTINE MACMOD
       IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
                         RETURN
         END IF
-        WRITE(OUTLYNE, *), "F5 = ", F5, " F10 = ", F10, " F11 = ", F11
-        CALL SHOWIT(19)
+        !WRITE(OUTLYNE, *), "F5 = ", F5, " F10 = ", F10, " F11 = ", F11
+        !CALL SHOWIT(19)
 C
         IF(F5.EQ.1.AND.F10.EQ.0.OR.F5.EQ.1.AND.F11.EQ.0) THEN
 C               WE ARE IN THE LENS INPUT ROUTINE

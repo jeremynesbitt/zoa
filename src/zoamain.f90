@@ -205,6 +205,7 @@ module global_widgets
   integer(kind=c_int) :: nch, rowstride, width, height, pixwidth, pixheight
   logical :: computing = .false.
   character(LEN=80) :: string
+  type(c_ptr) :: app
 end module global_widgets
 
 module handlers
@@ -241,12 +242,24 @@ module handlers
   & gtk_entry_get_buffer, gtk_entry_buffer_get_text, &
   & gtk_text_tag_new, gtk_entry_buffer_set_text, &
   & gtk_text_tag_table_new, gtk_text_buffer_insert_markup, &
-  & gtk_text_buffer_apply_tag, gtk_text_view_scroll_to_mark
-  
-  use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
-  & g_object_set_property, g_value_set_interned_string, g_variant_new_boolean
-  use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, c_null_char, C_NEW_LINE
+  & gtk_text_buffer_apply_tag, gtk_text_view_scroll_to_mark, &
+  & gtk_widget_get_display, gtk_css_provider_new, &
+  & gtk_toggle_button_get_active, gtk_statusbar_get_context_id, &
+  & gtk_style_context_add_provider_for_display, gtk_css_provider_load_from_data, &
+  & gtk_application_window_set_show_menubar, gtk_window_maximize, gtk_window_unmaximize, &
+  & gtk_application_set_menubar, gtk_widget_set_name, gtk_window_present
 
+
+  use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
+  & g_object_set_property, g_value_set_interned_string, g_variant_new_boolean, &
+  & g_menu_new, g_menu_item_new, g_action_map_add_action, g_menu_append_item, &
+  & g_object_unref, g_menu_append_section, g_menu_append_submenu, &
+  & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
+  & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
+  & g_action_change_state, g_application_quit, g_simple_action_set_state
+
+  use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, c_null_char, C_NEW_LINE
+  use, intrinsic :: iso_fortran_env, only: int64
   ! Pl Plot based inputs
   use, intrinsic :: iso_c_binding
   use cairo, only: cairo_get_target, cairo_image_surface_get_height, &
@@ -262,14 +275,14 @@ module handlers
   use gtk_hl_chooser
 
   implicit none
-  type(c_ptr)    :: my_window, entry, abut, ibut
+  type(c_ptr)    :: my_window, entry, abut, ibut, provider
   ! run_status is TRUE until the user closes the top window:
   integer(c_int) :: run_status = TRUE
   integer(c_int) :: boolresult
 
 contains
   subroutine tst_plottingincairo
-  use mod_plotopticalsystem
+  !use mod_plotopticalsystem
 
 
   character(len=256), dimension(:), allocatable :: new_files, tmp
@@ -284,6 +297,8 @@ contains
 
   !ftext = 'LIB GET 1 '
   ftext = 'CV2PRG DoubleGauss.seq'
+  CALL PROCESKDP(ftext)
+  ftext = 'COLORSET RAYS 2'
   CALL PROCESKDP(ftext)
   ftext = 'VIECO'
   CALL PROCESKDP(ftext)
@@ -521,9 +536,9 @@ contains
     use cairo, only: cairo_paint
     use gdk, only: gdk_cairo_set_source_pixbuf
     use global_widgets, only: my_pixbuf
- 
+
     type(c_ptr), value, intent(in)    :: widget, my_cairo_context, gdata
-    integer(c_int), value, intent(in) :: width, height    
+    integer(c_int), value, intent(in) :: width, height
 
     ! We redraw the pixbuf:
     call gdk_cairo_set_source_pixbuf(my_cairo_context, my_pixbuf, 0d0, 0d0)
@@ -542,38 +557,6 @@ contains
     integer                        :: iterations
 
 
-
-
-    if (.not. computing) then
-
-      ! Get computation parameters:
-      c = gtk_spin_button_get_value (spinButton1) + &
-          & (0d0, 1d0)*gtk_spin_button_get_value (spinButton2)
-      iterations = INT(gtk_spin_button_get_value (spinButton3))
-
-      ! Print them in the text buffer:
-      write(string, '("c=",F9.6,"+i*",F9.6,"   ", I8, " iterations")') c, iterations
-      call gtk_text_buffer_insert_at_cursor (buffer, string//C_NEW_LINE &
-                                           & //c_null_char, -1_c_int)
-
-      message_id = gtk_statusbar_push (statusBar, gtk_statusbar_get_context_id(&
-                                     & statusBar, "Julia"//c_null_char),&
-                                     & "Computing..."//c_null_char)
-
-      ! Compute the image:
-      ! CALL TSTKDP
-      call Julia_set(-2d0, +2d0, -2d0, +2d0, c, iterations)
-
-      ! If Julia_set() was quitted because of a delete_event, we can not use
-      ! the statusBar because it has been destroyed:
-      if (run_status == TRUE) then
-        message_id = gtk_statusbar_push (statusBar, gtk_statusbar_get_context_id(&
-                                       & statusBar, "Julia"//c_null_char),&
-                                       & "Finished."//c_null_char)
-      end if
-    else
-      print *, "Already computing !"
-    end if
   end subroutine firstbutton
 
   ! GtkComboBox signal emitted when the user selects predifined c values of
@@ -629,22 +612,7 @@ contains
     type(c_ptr), value, intent(in) :: widget, gdata
     integer(c_int)                 :: cstatus, message_id
 
-    ! Save the picture if the computation is finished:
-    if (.not. computing) then
-      ! https://developer.gnome.org/gdk-pixbuf/stable/gdk-pixbuf-File-saving.html
-      ! https://mail.gnome.org/archives/gtk-list/2004-October/msg00186.html
-      cstatus = gdk_pixbuf_savev(my_pixbuf, "julia.png"//c_null_char, &
-                & "png"//c_null_char, c_null_ptr, c_null_ptr, c_null_ptr);
 
-      if (cstatus == TRUE) then
-        string = "Successfully saved: julia.png"//c_null_char
-      else
-        string = "Failed"//c_null_char
-      end if
-
-      message_id = gtk_statusbar_push (statusBar, gtk_statusbar_get_context_id(&
-                         & statusBar, "Julia"//c_null_char), TRIM(string))
-    end if
   end subroutine secondbutton
 
   ! GtkToggleButton signal emitted when the "Pause" button is clicked.
@@ -663,7 +631,7 @@ contains
       call gtk_text_buffer_insert_at_cursor (buffer, &
               & "In pause"//C_NEW_LINE//c_null_char, -1_c_int)
       message_id = gtk_statusbar_push (statusBar, gtk_statusbar_get_context_id(&
-                                      &statusBar, "Julia"//c_null_char), &
+                                      &statusBar, "ZOA"//c_null_char), &
                                       &"In pause..."//c_null_char)
       ! The Pause loop must handle events in order to avoid the blocking of
       ! the GUI:
@@ -677,7 +645,7 @@ contains
                             & "Not in pause"//C_NEW_LINE//c_null_char, -1_c_int)
       ! Remove the "In pause..." message from the status bar:
       call gtk_statusbar_pop (statusBar, gtk_statusbar_get_context_id(statusBar,&
-                            & "Julia"//c_null_char))
+                            & "ZOA"//c_null_char))
     end if
   end subroutine firstToggle
 
@@ -804,36 +772,49 @@ contains
     end if
   end subroutine entry_text
 
+
+
+
   ! Callback function for the signal "activate" emitted by g_application_run().
   ! We use a subroutine because it should return void.
   ! The GUI is defined here.
-  subroutine activate(app, gdata) bind(c)
+  subroutine activate(app2, gdata) bind(c)
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_f_pointer, c_null_funptr
     use gdk_pixbuf, only: gdk_pixbuf_get_n_channels, gdk_pixbuf_get_pixels, &
                       & gdk_pixbuf_get_rowstride, gdk_pixbuf_new
-    use global_widgets
+    !use global_widgets
     use GLOBALS
+    use zoamenubar
     implicit none
-    type(c_ptr), value, intent(in)  :: app, gdata
+    type(c_ptr), value, intent(in)  :: gdata, app2
     ! Pointers toward our GTK widgets:
     type(c_ptr)    :: table, button1, button2, button3, box1
     type(c_ptr)    :: label1, label2, label3, label4
     type(c_ptr)    :: toggle1, expander, notebook, notebookLabel1, notebookLabel2
     type(c_ptr)    :: linkButton, iterPtr, iterGUI, notebookLabel3
     integer(c_int) :: message_id, firstTab, secondTab, thirdTab
+    type(c_ptr) :: act_fullscreen, act_color, act_quit, display
+    type(c_ptr) :: menubar, menu, section1, section2, section3, &
+      & menu_item_red, menu_item_green, &
+      & menu_item_blue, menu_item_quit, menu_item_fullscreen, lb
 
 
 
     ! Create the window:
     my_window = gtk_application_window_new(app)
-    call g_signal_connect(my_window, "destroy"//c_null_char, &
-                        & c_funloc(destroy_signal))
+    !call g_signal_connect(my_window, "destroy"//c_null_char, &
+    !                    & c_funloc(destroy_signal))
    ! Don't forget that C strings must end with a null char:
-    call gtk_window_set_title(my_window, "Julia Set"//c_null_char)
+    call gtk_window_set_title(my_window, "ZOA Optical Analysis"//c_null_char)
     ! Properties of the main window :
     width  = 700
     height = 700
     call gtk_window_set_default_size(my_window, width, height)
+
+
+    lb = gtk_label_new (""//c_null_char)
+    call gtk_widget_set_name (lb, "lb"//c_null_char)  ! the name is used by CSS Selector.
+    call gtk_window_set_child (my_window, lb)
 
     !******************************************************************
     ! Adding widgets in the window:
@@ -871,8 +852,8 @@ contains
 
     ! A clickable URL link:
     linkButton = gtk_link_button_new_with_label ( &
-                          &"http://en.wikipedia.org/wiki/Julia_set"//c_null_char,&
-                          &"More on Julia sets"//c_null_char)
+                          &"http://www.ecalculations.com"//c_null_char,&
+                          &"More on KDP2"//c_null_char)
 
     ! A table container will contain buttons and labels:
     table = gtk_grid_new ()
@@ -919,7 +900,7 @@ contains
 
     textView = gtk_text_view_new ()
     buffer = gtk_text_view_get_buffer (textView)
-    call gtk_text_buffer_set_text (buffer, "Julia Set"//C_NEW_LINE// &
+    call gtk_text_buffer_set_text (buffer, &
         & "You can copy this text and even edit it !"//C_NEW_LINE//c_null_char,&
         & -1_c_int)
     scrolled_window = gtk_scrolled_window_new()
@@ -930,7 +911,7 @@ contains
     secondTab = gtk_notebook_append_page (notebook, scrolled_window, notebookLabel2)
 
     !  Need unique item for third window
-    drawing_area_plot = hl_gtk_drawing_area_new(size=[800,600], &
+    drawing_area_plot = hl_gtk_drawing_area_new(size=[800,500], &
          & has_alpha=FALSE)
     thirdTab  = gtk_notebook_append_page (notebook, drawing_area_plot, notebookLabel3)
 
@@ -943,7 +924,7 @@ contains
     ! The window status bar can be used to print messages:
     statusBar = gtk_statusbar_new ()
     message_id = gtk_statusbar_push (statusBar, gtk_statusbar_get_context_id(statusBar, &
-                & "Julia"//c_null_char), "Waiting..."//c_null_char)
+                & "ZOA"//c_null_char), "Waiting..."//c_null_char)
     call gtk_box_append(box1, statusBar)
 
     ! CMD Entry TextBox
@@ -951,11 +932,6 @@ contains
          & "Enter text here for command interpreter"//c_null_char, &
          & activate=c_funloc(name_enter))
     call gtk_box_append(box1, entry)
-
-    ! Let's finalize the GUI:
-    call gtk_window_set_child(my_window, box1)
-    call gtk_window_set_mnemonics_visible (my_window, TRUE)
-    call gtk_widget_show(my_window)
 
 
 
@@ -969,8 +945,18 @@ contains
     pixel = char(0)
     !******************************************************************
 
-    ! If you don't show it, nothing will appear on screen...
+    call populatezoamenubar(app, my_window)
+
+
+    ! Let's finalize the GUI:
+    call gtk_window_set_child(my_window, box1)
+    call gtk_window_set_mnemonics_visible (my_window, TRUE)
     call gtk_widget_show(my_window)
+
+    call gtk_window_present (my_window)
+
+    ! If you don't show it, nothing will appear on screen...
+    !call gtk_widget_show(my_window)
     !call gtk_text_buffer_get_end_iter(buffer, iterPtr)
     !PRINT *, "ITER PTR IS ", iterPtr
     !call c_f_pointer(iterPtr, iterGUI)
@@ -983,79 +969,8 @@ contains
 
   end subroutine activate
 
-  !*********************************************
-  ! Julia Set
-  ! http://en.wikipedia.org/wiki/Julia_set
-  ! The scientific computing is done here
-  !*********************************************
-  subroutine Julia_set(xmin, xmax, ymin, ymax, c, itermax)
-    use, intrinsic :: iso_c_binding
-    use global_widgets
 
-    integer    :: i, j, k, p, itermax
-    double precision :: x, y, xmin, xmax, ymin, ymax ! coordinates in the complex plane
-    complex(kind(1d0)) :: c, z
-    double precision :: scx, scy       ! scales
-    integer(1) :: red, green, blue     ! rgb color
-    double precision :: t0, t1
 
-    computing = .true.
-    call cpu_time(t0)
-
-    scx = ((xmax - xmin) / pixwidth)   ! x scale
-    scy = ((ymax - ymin) / pixheight)  ! y scale
-
-    ! We compute the colour of each pixel (i,j):
-    do i=0, pixwidth-1
-      ! We provoke a draw event only once in a while to improve performances:
-      if (mod(i,10) == 0) then
-        call gtk_widget_queue_draw(my_drawing_area)
-      end if
-
-      x = xmin + scx * i
-      do j=0, pixheight-1
-        y = ymin + scy * j
-        z = x + y*(0d0,1d0)   ! Starting point
-        k = 1
-        do while ((k <= itermax) .and. ((real(z)**2+aimag(z)**2)<4d0))
-          z = z*z + c
-          k = k + 1
-        end do
-
-        if (k>itermax) then
-          ! Black pixel:
-          red   = 0
-          green = 0
-          blue  = 0
-        else
-          ! Colour palette:
-          red   = int(min(255, k*2),  KIND=1)
-          green = int(min(255, k*5),  KIND=1)
-          blue  = int(min(255, k*10), KIND=1)
-        end if
-
-        ! We write in the pixbuffer:
-        p = i * nch + j * rowstride + 1
-        pixel(p)   = char(red)
-        pixel(p+1) = char(green)
-        pixel(p+2) = char(blue)
-
-        ! This subroutine processes GTK events that occurs during the computation:
-        call pending_events()
-        if (run_status == FALSE) return ! Exit subroutine if we had a delete event.
-      end do
-    end do
-
-    ! Final update of the display:
-    call gtk_widget_queue_draw(my_drawing_area)
-
-    computing = .false.
-
-    call cpu_time(t1)
-    write(string, '("System time = ",F8.3, " s")') t1-t0
-    call gtk_text_buffer_insert_at_cursor (buffer, &
-                                      & string//C_NEW_LINE//c_null_char, -1_c_int)
-  end subroutine Julia_set
 
 subroutine convertRGBtoPixBuf(animage)
 
@@ -1084,7 +999,7 @@ subroutine convertRGBtoPixBuf(animage)
     tmppixheight = 7400
     tmppixwidth  = 5652
     call rescalergbImage(animage, newimage, 7400, 5652, 500, 500)
-    
+
     ! dummy
      ! We create a "pixbuffer" to store the pixels of the image:
     my_tmppixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8_c_int, tmppixheight, tmppixwidth)
@@ -1127,7 +1042,7 @@ subroutine convertRGBtoPixBuf(animage)
         ! We write in the pixbuffer:
         p = i * nch + j * rowstride + 1
         !PRINT *, i, ",", j
-        
+
         !call get_pixel(animage, int(x), int(y), rgbPixel)
         call get_pixel(newimage, int(x), int(y), rgbPixel)
         !PRINT *, rgbPixel
@@ -1174,11 +1089,11 @@ end subroutine convertRGBtoPixBuf
 end module handlers
 
 !*******************************************************************************
-! In the main program, we declare the GTK application, connect it to its 
-! "activate" function where we will create the GUI, 
+! In the main program, we declare the GTK application, connect it to its
+! "activate" function where we will create the GUI,
 ! and finally call the GLib main loop.
 !*******************************************************************************
-program julia_pixbuf
+program zoa_program
  !subroutine julia_pixbuf
   use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char, c_null_ptr
   ! We will use those GTK functions and values. The "only" statement can improve
@@ -1186,8 +1101,8 @@ program julia_pixbuf
   use gtk, only: gtk_application_new, G_APPLICATION_FLAGS_NONE
   use g, only: g_application_run, g_object_unref
   use handlers
-
-  use GLOBALS
+  use global_widgets
+  !use GLOBALS
 
 
 
@@ -1197,7 +1112,7 @@ program julia_pixbuf
 
 
   integer(c_int)     :: status
-  type(c_ptr)        :: app
+  !type(c_ptr)        :: app
 
 
 
@@ -1206,7 +1121,10 @@ program julia_pixbuf
   ! https://developer.gnome.org/gio/stable/GApplication.html#g-application-id-is-valid
   app = gtk_application_new("gtk-fortran.examples.julia_pixbuf"//c_null_char, &
                             & G_APPLICATION_FLAGS_NONE)
-  ! The activate signal will be sent by g_application_run(). 
+
+  PRINT *, "APP IN Main Program is ", app
+
+  ! The activate signal will be sent by g_application_run().
   ! The c_funloc() function returns the C address of the callback function.
   ! The c_null_ptr means no data is transfered to the callback function.
   call g_signal_connect(app, "activate"//c_null_char, c_funloc(activate), &
@@ -1224,6 +1142,4 @@ program julia_pixbuf
   ! Memory is freed:
   call g_object_unref(app)
 
-end program julia_pixbuf
-!end subroutine julia_pixbuf
-
+end program zoa_program
