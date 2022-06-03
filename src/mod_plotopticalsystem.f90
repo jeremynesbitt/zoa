@@ -1,9 +1,4 @@
 
-
-
-
-
-
 module mod_plotopticalsystem
 
 
@@ -14,26 +9,43 @@ module mod_plotopticalsystem
   use gtk_hl_container
   use gtk_hl_progress
   use gtk_hl_button
-  use gtk, only: gtk_button_new, gtk_window_set_child, gtk_window_destroy, &
-       & gtk_progress_bar_new, gtk_widget_show, gtk_window_new, &
-       & gtk_init, gtk_drawing_area_new, gtk_drawing_area_set_content_width, &
-       & gtk_drawing_area_set_content_height, gtk_drawing_area_set_draw_func, &
-       & gtk_window_set_mnemonics_visible, gtk_widget_queue_draw
+  use gtk_hl_tree
+  use gtk
+  ! use gtk, only: gtk_button_new, gtk_window_set_child, gtk_window_destroy, &
+  !      & gtk_progress_bar_new, gtk_widget_show, gtk_window_new, &
+  !      & gtk_init, gtk_drawing_area_new, gtk_drawing_area_set_content_width, &
+  !      & gtk_drawing_area_set_content_height, gtk_drawing_area_set_draw_func, &
+  !      & gtk_window_set_mnemonics_visible, gtk_widget_queue_draw, &
+  !      & gtk_expander_new_with_mnemonic, gtk_expander_set_child, &
+  !      & gtk_expander_set_expanded, gtk_combo_box_text_new, gtk_combo_box_text_get_active_text, &
+  !      & gtk_combo_box_text_append_text, gtk_combo_box_set_active, gtk_list_store_newv, &
+  !      & gtk_list_store_append, gtk_list_store_get_type, gtk_list_store_set_value, &
+  !      & gtk_combo_box_new_with_model_and_entry
   use gtk_hl_chooser
-  use g, only: g_usleep, g_main_context_iteration, g_main_context_pending
+!  use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
+!      & g_value_init
+  use g
 
   implicit none
   type(c_ptr) :: win,bar,pbar,qbut, box
   integer(kind=c_int) :: run_status = TRUE
   integer(c_int) :: boolresult
-  type(c_ptr) :: ld_window, cairo_drawing_area !Put this here to debug issue with plotting
+  type(c_ptr) :: ld_window = c_null_ptr
+  type(c_ptr) :: cairo_drawing_area !Put this here to debug issue with plotting
+
+  type(c_ptr) ::  combo_plotorientation
+
+
+
 
 contains
   subroutine my_destroy(widget, gdata) bind(c)
     type(c_ptr), value :: widget, gdata
     print *, "Exit called"
     run_status = FALSE
-    call gtk_window_destroy(win)
+
+    call gtk_window_destroy(ld_window)
+    ld_window = c_null_ptr
   end subroutine my_destroy
 
 
@@ -1318,34 +1330,11 @@ SUBROUTINE WDRAWOPTICALSYSTEM
     character(len=256), dimension(:), allocatable :: new_files, tmp
     logical, pointer :: idelete
     integer(kind=c_int) :: ipick, i
-    type(c_ptr) :: ld_window
 
 
 
 
-
-    !COMMON my_window
-
-       !INCLUDE 'DATHGR.INC'
-       !INCLUDE 'DATMAI.INC'
-      !INCLUDE 'RESOURCE.INC'
-       !COMMON/DRAWI1/IDRAW1
-      ! COMMON NEUTARRAY
-      ! TYPE(WIN_STYLE) DRW
-!     GET LOCATION AND SIZE OF CURRENT WINDOW
-      !IWX=WInfoWindow(1)
-      !IWY=WInfoWindow(2)
-      !IX=WInfoWindow(5)
-      !IY=WInfoWindow(6)
-       !DRW%FLAGS = SysMenuOn + MinButton + MaxButton
-       !DRW%X      = IX+50
-       !DRW%Y      = IY-50
-       !DRW%WIDTH  = IWX*.75
-       !DRW%HEIGHT = IWX*.525
-       !DRW%TITLE  ='Graphics Display Window'
-       !DRW%MENUID = IDM_GRAPHICWINDOW
-
-       PRINT *, "After Mod Call, ", my_window
+       !PRINT *, "After Mod Call, ", my_window
        !PRINT *, "NEUTARRAY is ", NEUTARRAY
 
        FIRST=.TRUE.
@@ -1367,12 +1356,11 @@ SUBROUTINE WDRAWOPTICALSYSTEM
 
 
 
-    call lens_draw_new(my_window)
-    !ipick = hl_gtk_file_chooser_show(new_files, &
-    !     & create=FALSE, multiple=TRUE, filter=["image/*"], &
-    !     & parent=my_window, all=TRUE)
-
-      !win = hl_gtk_window_new("Progress"//c_null_char, destroy=c_funloc(my_destroy))
+    if (.not. c_associated(ld_window))  THEN
+        call lens_draw_new(my_window)
+    else
+       call gtk_widget_queue_draw(cairo_drawing_area)
+    end if
 
     !call DRAWDEBUG
       !CALL DRAWOPTICALSYSTEM(1,FIRST,ISKEY)
@@ -1384,62 +1372,300 @@ SUBROUTINE WDRAWOPTICALSYSTEM
                         RETURN
                         END
 
+subroutine combo_tmp_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use gtk_sup, only: c_f_string_copy
+
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double)                 :: x, y
+  character(len=50)                        :: choice
+  character(len=512)             :: my_string
+  type(gtktreeiter), target :: tree_iter
+
+  type(c_ptr)  :: model
+
+  type(c_ptr)  :: val, cstr, ival
+
+  type(gvalue), target :: result, iresult
+
+
+  type(integer)  :: tmpresult, ivalue
+
+  ! For HL function
+  !character(len=*) :: hl_string
+
+
+  PRINT *, "In callback, pointer is ", gdata
+  !tree_iter = c_null_ptr
+  tmpresult = gtk_combo_box_get_active_iter(widget, c_loc(tree_iter))
+  !tree_iter = gtk_combo_box_get_active_iter(gdata)
+
+  !PRINT *, "tree_iter is ", tree_iter
+
+  model = gtk_combo_box_get_model(widget)
+  val = c_loc(result)
+  call gtk_tree_model_get_value(model, c_loc(tree_iter), 1_c_int, val)
+
+  !cstr = g_value_get_string(result)
+
+  cstr = g_value_get_string(val)
+  call convert_c_string(cstr, choice)
+
+!        cstr = g_value_get_string(val)
+!          call convert_c_string(cstr, svalue)
+  PRINT *, "CHOICE is ", choice
+
+  ! Get ING
+  ival = c_loc(iresult)
+  call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
+  ivalue = g_value_get_int(ival)
+
+  PRINT *, "Integer Index is ", ivalue
+
+  ! Use HL function
+  !call hl_gtk_list_tree_get_gvalue(val, G_TYPE_STRING, svalue=hl_string)
+
+
+
+  !if tree_iter is not None:
+  !    model = combo.get_model()
+!      row_id, name = model[tree_iter][:2]
+  !     print("Selected: ID=%d, name=%s" % (row_id, name))
+  ! else:
+  !     entry = combo.get_child()
+  !     print("Entered: %s" % entry.get_text())
+
+  ! Get the value selected by the user:
+  !call c_f_string_copy( gtk_combo_box_text_get_active_text(gdata), my_string)
+  !read(my_string, *) choice
+
+  !PRINT *, "CHOICE = ", my_string
+  PRINT *, "Callback works!"
+end subroutine combo_tmp_callback
+
+
+subroutine combo_fieldsymmetry_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use gtk_sup, only: c_f_string_copy
+  use hl_gtk_zoa
+
+
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double)                 :: x, y
+  integer :: id_selected
+  !character(len=50)                        :: choice
+  !character(len=512)             :: my_string
+
+  ! Get the value selected by the user:
+  !call c_f_string_copy( gtk_combo_box_text_get_active_text(combo_plotorientation), my_string)
+  !read(my_string, *) choice
+
+  !PRINT *, "CHOICE = ", my_string
+
+  id_selected = hl_zoa_combo_get_selected_list2_id(widget)
+
+
+  call ld_settings % set_field_symmetry(id_selected)
+
+  if (ld_settings%changed.eq.1) THEN
+     ld_settings%changed = 0
+     call lens_draw_replot()
+
+  end if
+
+
+end subroutine combo_fieldsymmetry_callback
+
+
+subroutine combo_plotorientation_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use gtk_sup, only: c_f_string_copy
+  use hl_gtk_zoa
+
+
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double)                 :: x, y
+  integer :: id_selected
+  !character(len=50)                        :: choice
+  !character(len=512)             :: my_string
+
+  ! Get the value selected by the user:
+  !call c_f_string_copy( gtk_combo_box_text_get_active_text(combo_plotorientation), my_string)
+  !read(my_string, *) choice
+
+  !PRINT *, "CHOICE = ", my_string
+
+  id_selected = hl_zoa_combo_get_selected_list2_id(widget)
+
+
+  call ld_settings % set_plot_orientation(id_selected)
+
+  if (ld_settings%changed.eq.1) THEN
+     ld_settings%changed = 0
+     call lens_draw_replot()
+
+  end if
+
+
+end subroutine combo_plotorientation_callback
+
+  subroutine lens_draw_settings_dialog(box1)
+
+    use hl_gtk_zoa
+
+    type(c_ptr), intent(inout) :: box1
+
+    type(c_ptr)     :: table, expander
+
+    type(c_ptr)  :: label_plotorientation, label_fieldsymmetry
+
+    type(c_ptr)  :: lstmp, gtype, cbox, cbox_field
+
+
+
+    integer(kind=c_int), parameter :: ncols=2
+    integer(kind=type_kind), dimension(ncols), target :: coltypes = &
+         & [G_TYPE_INT, G_TYPE_STRING]
+
+    type(gtktreeiter), target :: iter
+    type(gvalue), target :: valt, vali
+    type(c_ptr) :: val
+
+    type(c_ptr) :: list, combo_tmp
+    !type(gvalue), target :: modelv, columnv
+    !type(c_ptr) :: pmodel, pcolumn, model
+    !integer(kind=c_int) :: icol
+    !character(len=20), dimension(4) :: vals_plotorientation
+    character(kind=c_char, len=20), dimension(4) :: vals_plotorientation
+    integer(c_int), dimension(4) :: refs_plotorientation
+
+    character(kind=c_char, len=40), dimension(2) :: vals_fieldsymmetry
+    integer(c_int), dimension(2) :: refs_fieldsymmetry
+
+    vals_plotorientation = [character(len=20) :: "YZ - Plane Layout", "XZ - Plane Layout", &
+         &"XY - Plane Layout", "Orthographic"]
+
+    refs_plotorientation = [ID_LENSDRAW_YZ_PLOT_ORIENTATION, &
+                          & ID_LENSDRAW_XZ_PLOT_ORIENTATION, &
+                          & ID_LENSDRAW_XY_PLOT_ORIENTATION, 1407]
+
+    call hl_gtk_combo_box_list2_new(cbox, refs_plotorientation, vals_plotorientation, 1700_c_int)
+    call g_signal_connect (cbox, "changed"//c_null_char, c_funloc(combo_plotorientation_callback), c_null_ptr)
+
+
+    vals_fieldsymmetry =  [character(len=40) :: "Plot Upper and Lower Fields of View", &
+    & "Plot Upper Fields Only"]
+
+    refs_fieldsymmetry = [ID_LENSDRAW_PLOT_WHOLE_FIELD, ID_LENSDRAW_PLOT_HALF_FIELD]
+
+    call hl_gtk_combo_box_list2_new(cbox_field, refs_fieldsymmetry, vals_fieldsymmetry, 1700_c_int)
+    call g_signal_connect (cbox_field, "changed"//c_null_char, c_funloc(combo_fieldsymmetry_callback), c_null_ptr)
+
+
+    lstmp = gtk_list_store_newv(ncols, c_loc(coltypes))
+
+
+    ! Initialize the GValues
+
+    val = c_loc(vali)
+    val = g_value_init(val, G_TYPE_INT)
+    val = c_loc(valt)
+    val = g_value_init(val, G_TYPE_STRING)
+
+    ! Create the list store
+    !store = gtk_list_store_newv(NUM_COLS, c_loc(ctypes))
+
+    ! Append row 1 and add data
+    call gtk_list_store_append(lstmp, c_loc(iter))
+    call g_value_set_int(c_loc(vali), 51_c_int)
+    call gtk_list_store_set_value(lstmp, c_loc(iter), 0_c_int, c_loc(vali))
+    call g_value_set_static_string(c_loc(valt), "Heinz El-Mann"//c_null_char)
+    call gtk_list_store_set_value(lstmp, c_loc(iter), 1_c_int, &
+         & c_loc(valt))
+
+
+   ! Append row 1 and add data
+   call gtk_list_store_append(lstmp, c_loc(iter))
+   call g_value_set_int(c_loc(vali), 101_c_int)
+   call gtk_list_store_set_value(lstmp, c_loc(iter), 0_c_int, c_loc(vali))
+   call g_value_set_static_string(c_loc(valt), "Shaquille O-NEAL"//c_null_char)
+   call gtk_list_store_set_value(lstmp, c_loc(iter), 1_c_int, &
+        & c_loc(valt))
+
+  combo_tmp = gtk_combo_box_new_with_model_and_entry(lstmp)
+  call g_signal_connect (combo_tmp, "changed"//c_null_char, c_funloc(combo_tmp_callback), c_null_ptr)
+  call gtk_combo_box_set_entry_text_column(combo_tmp, 1_c_int)
+  call gtk_combo_box_set_active(combo_tmp, 0_c_int)
+
+  PRINT *, "Before callback, pointer is ", combo_tmp
+
+
+
+    !list = hl_gtk_listn_new(renderers="combo")
+
+    !gtype = gtk_list_store_get_type()
+    !lstmp = gtk_list_store_newv(1_c_int, gtype)
+
+    ! The combo box with predifined values of interesting Julia sets:
+    label_plotorientation = gtk_label_new("Plot Orientation:"//c_null_char)
+    label_fieldsymmetry   = gtk_label_new("Field Symmetry:"//c_null_char)
+
+
+    !call g_signal_connect (combo_plotorientation, "changed"//c_null_char, c_funloc(combo_plotorientation_callback))
+
+    ! A table container will contain buttons and labels:
+    table = gtk_grid_new ()
+    call gtk_grid_set_column_homogeneous(table, TRUE)
+    call gtk_grid_set_row_homogeneous(table, TRUE)
+    ! call gtk_grid_attach(table, button1, 0_c_int, 3_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, button2, 1_c_int, 3_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, button3, 3_c_int, 3_c_int, 1_c_int, 1_c_int)
+    !  call gtk_grid_attach(table, label1, 0_c_int, 0_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, label2, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, label3, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, spinButton1, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, spinButton2, 1_c_int, 1_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, spinButton3, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
+    ! call gtk_grid_attach(table, linkButton, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, label_plotorientation, 0_c_int, 0_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, cbox, 0_c_int, 1_c_int, 1_c_int,1_c_int)
+
+    call gtk_grid_attach(table, label_fieldsymmetry, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, cbox_field, 1_c_int, 1_c_int, 1_c_int,1_c_int)
+
+
+    ! The table is contained in an expander, which is contained in the vertical box:
+    expander = gtk_expander_new_with_mnemonic ("_The parameters:"//c_null_char)
+    call gtk_expander_set_child(expander, table)
+    call gtk_expander_set_expanded(expander, TRUE)
+
+    ! We create a vertical box container:
+    box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
+    call gtk_box_append(box1, expander)
+
+    !call gtk_box_append(box1, ld_window)
+    call gtk_widget_set_vexpand (box1, FALSE)
+
+
+
+  end subroutine lens_draw_settings_dialog
 
 
   subroutine lens_draw_new(parent_window)
 
 
     type(c_ptr) :: parent_window
-    !type(hl_gtk_chooser_info), intent(out), target :: chooser_info
-    !character(len=*), intent(out), optional :: cdir
-    !integer(kind=c_int), intent(in), optional :: directory, create, multiple
-    !integer(kind=c_int), intent(in), optional :: allow_uri, show_hidden
-    !integer(kind=c_int), intent(in), optional :: confirm_overwrite
-    !character(kind=c_char), dimension(*), intent(in), optional :: title, initial_dir, initial_file
-    !integer(kind=c_int), intent(in), optional :: current
-    !character(len=*), dimension(:), intent(in), optional :: filter
-    !character(len=*), dimension(:), intent(in), optional :: filter_name
-    !type(c_ptr), intent(in), optional :: parent
-    !integer(kind=c_int), intent(in), optional :: all
-    !integer(kind=c_int), intent(in), dimension(2), optional :: wsize
-    !integer(kind=c_int), intent(in), optional :: edit_filters
-
-    ! Create a file chooser widget.
-    !
-    ! CHOOSER_INFO: hl_gtk_chooser_info: required: IDs and flags of various
-    !       subwidgets needed to process the dialog actions.
-    ! CDIR: string: optional: The directory from which they were chosen.
-    ! DIRECTORY: boolean: optional: Set to TRUE to select directories
-    !       instead of files.
-    ! CREATE: boolean: optional: Set to FALSE to prohibit creating new files.
-    ! MULTIPLE: boolean: optional: Set to TRUE to allow the selection of
-    !       multiple files.
-    ! ALLOW_URI: boolean: optional: GTK<=3: Set to TRUE to allow nonlocal selections.
-    ! SHOW_HIDDEN: boolean: optional: GTK<=3: Set to TRUE to show hidden files.
-    ! CONFIRM_OVERWRITE: boolean: optional: GTK<=3: Set to TRUE to request
-    !       confirmation of an overwrite (only used if CREATE
-    !       is TRUE).
-    ! TITLE: string: optional: Title for the window.
-    ! INITIAL_DIR: string: optional: Set the initial directory here instead
-    !       of the current directory.
-    ! CURRENT: boolean: optional: Use to force start in current directory.
-    ! INITIAL_FILE: string: optional: Set the initial file selection.
-    ! FILTER: string(): optional:  The file selection filter. Elements
-    !       may either be patterns or mime types. Each filter is a
-    !       comma-separated list of patterns
-    ! FILTER_NAME: string(): optional: Names for the filters
-    ! PARENT: c_ptr: optional: Parent window for the dialogue.
-    ! ALL: boolean: optional: Set to TRUE to add an all-files filter pattern
-    ! WSIZE: c_int(2): optional: Set the size for the dialog.
-    ! EDIT_FILTERS: boolean: optional: GTK<=3: Set to TRUE to proves an entry window
-    !       to add extra filters.
-    !-
 
     type(c_ptr) :: content, junk, gfilter
     integer(kind=c_int) :: icreate, idir, action, lval
     integer(kind=c_int) :: i, idx0, idx1
     type(c_ptr)     :: my_drawing_area
     integer(c_int)  :: width, height
+
+    type(c_ptr)     :: table, expander, box1
 
     ! Create a modal dialogue
     ld_window = gtk_window_new()
@@ -1462,6 +1688,9 @@ SUBROUTINE WDRAWOPTICALSYSTEM
        call gtk_window_set_destroy_with_parent(ld_window, TRUE)
     !end if
 
+
+    call lens_draw_settings_dialog(box1)
+
     cairo_drawing_area = gtk_drawing_area_new()
     call gtk_drawing_area_set_content_width(cairo_drawing_area, width)
     call gtk_drawing_area_set_content_height(cairo_drawing_area, height)
@@ -1471,11 +1700,59 @@ SUBROUTINE WDRAWOPTICALSYSTEM
     !               & c_funloc(TESTCAIRO2), c_null_ptr, c_null_funptr)
 
     PRINT *, "FINISHED WITH DRAWOPTICALSYSTEM"
-    call gtk_window_set_child(ld_window, cairo_drawing_area)
+    call gtk_box_append(box1, cairo_drawing_area)
+    !call gtk_window_set_child(ld_window, cairo_drawing_area)
+    call gtk_window_set_child(ld_window, box1)
+    call gtk_widget_set_vexpand (box1, FALSE)
+
+    call g_signal_connect(ld_window, "destroy"//c_null_char, c_funloc(my_destroy), c_null_ptr)
+
+
     call gtk_window_set_mnemonics_visible (ld_window, TRUE)
     !call gtk_widget_queue_draw(my_drawing_area)
     call gtk_widget_show(ld_window)
+
+
     PRINT *, "SHOULD SEE GRAPHICS NOW!"
 end subroutine lens_draw_new
+
+
+subroutine lens_draw_replot()
+
+
+  character(len=40) :: command, qual_word
+  character(len=100) :: ftext
+
+  command = "VIECO"
+
+
+  ! Original logic in LENSED.INC
+  select case (ld_settings%field_symmetery)
+  case (ID_LENSDRAW_PLOT_HALF_FIELD)
+       ftext = 'VIESYM OFF'
+       CALL PROCESKDP(ftext)
+  case (ID_LENSDRAW_PLOT_WHOLE_FIELD)
+       ftext = 'VIESYM ON'
+       CALL PROCESKDP(ftext)
+  end select
+
+  select case (ld_settings%plot_orientation)
+
+  case (ID_LENSDRAW_YZ_PLOT_ORIENTATION)
+       qual_word = "YZ"
+  case (ID_LENSDRAW_XZ_PLOT_ORIENTATION)
+      qual_word = "XZ"
+  case (ID_LENSDRAW_XY_PLOT_ORIENTATION)
+      qual_word = "XY"
+  case DEFAULT
+      qual_word = " "
+  end select
+
+    ftext = trim(command)//" "//trim(qual_word)
+
+    PRINT *, "Command is ", ftext
+    CALL PROCESKDP(ftext)
+
+end subroutine lens_draw_replot
 
 end module

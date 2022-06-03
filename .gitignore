@@ -2,8 +2,20 @@
 
 *.icloud
 
+*.mod
+
 .DS_Store
 
 .cproject
 
 .project
+
+.settings/org.eclipse.photran.core.prefs
+
+.tags
+
+/Abandoned
+
+/Archive
+
+/EDITOR
