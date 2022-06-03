@@ -1,0 +1,3 @@
+module hl_gtk_combo_box_list2_new
+
+end module hl_gtk_combo_box_list2_new
