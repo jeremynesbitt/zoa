@@ -1,4 +1,5 @@
 
+
 module mod_plotopticalsystem
 
 
@@ -11,6 +12,7 @@ module mod_plotopticalsystem
   use gtk_hl_button
   use gtk_hl_tree
   use gtk
+
   ! use gtk, only: gtk_button_new, gtk_window_set_child, gtk_window_destroy, &
   !      & gtk_progress_bar_new, gtk_widget_show, gtk_window_new, &
   !      & gtk_init, gtk_drawing_area_new, gtk_drawing_area_set_content_width, &
@@ -34,11 +36,15 @@ module mod_plotopticalsystem
   type(c_ptr) :: cairo_drawing_area !Put this here to debug issue with plotting
 
   type(c_ptr) ::  combo_plotorientation
+  type(c_ptr) ::  spinButton_azimuth, spinButton_elevation
 
-
-
+  REAL :: kdp_width = 10500
+  REAL :: kdp_height = 7050
 
 contains
+
+
+
   subroutine my_destroy(widget, gdata) bind(c)
     type(c_ptr), value :: widget, gdata
     print *, "Exit called"
@@ -192,13 +198,15 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
     REAL :: scaleFactor, fontScaleFactor
 
 
+
+
     !   INTEGER NCOL256,ID,IDRAW1,ISKEY,INFO,IWX,IWY,IX,IY, NEUTTOTAL
 
     !type(c_ptr), value, intent(in) :: widget
     character(len=256), dimension(:), allocatable :: new_files, tmp
     logical, pointer :: idelete
     integer(kind=c_int) :: ipick
-    type(c_ptr) :: ld_window, cairo_scaleFactor
+    type(c_ptr) :: cairo_scaleFactor
 
     INTEGER  NEUTTOTAL
     !PRINT *, "Trying to draw system!"
@@ -265,6 +273,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       COMMON/COLCOM/COLPASS,COLTRUE
       REAL JJ_X,JJ_Y
       COMMON/ASPECTER/JJ_X,JJ_Y
+
+      REAL*8 sf
  !     INCLUDE 'DATMAI.INC'
  !     INCLUDE 'DATHGR.INC'
 !     INITIALIZE CHARACTER ASPECT RATIO
@@ -273,6 +283,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
 
      scaleFactor = 1! 0.1
      fontScaleFactor = 20
+
+
      DEBUG = 0
       PRINT *, "STARTING TO DRAW LENS"
                        J=1
@@ -319,7 +331,14 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
       call cairo_set_line_width(my_cairo_context, fontScaleFactor*1d0)
 
+      !call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
+      CALL getVIECOScaleFactor(sf)
+      PRINT *, "SCFAY IN DRAW OPTICAL SYSTEM IS ", sf
       call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
+      !call cairo_scale(my_cairo_context, 2.22/sf*1d0, 2.22/sf*1d0)
+      !call cairo_scale(my_cairo_context, sf/222*1d0, sf/222*1d0)
+
+      !call cairo_translate(my_cairo_context, 0*1d0, 5*height*1d0)
       call cairo_set_font_size(my_cairo_context, 5*fontScaleFactor*1d0)
       !call cairo_stroke(my_cairo_context)
 
@@ -476,8 +495,10 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       IA=0.0
       IB=35.0
 
+      !call cairo_move_to(my_cairo_context, scaleFactor*(REAL(II1)+IA)*1d0, &
+      !& scaleFactor*(REAL(II2)+IB)*1d0)
       call cairo_move_to(my_cairo_context, scaleFactor*(REAL(II1)+IA)*1d0, &
-      & scaleFactor*(REAL(II2)+IB)*1d0)
+      & scaleFactor*(kdp_height-REAL(II2)+IB)*1d0)
       IF (II3.NE.0) PRINT *, "SHOULD BE CALLING IGrCharRotate"
 !      CALL IGrCharRotate(REAL(II3))
 !      CALL
@@ -642,7 +663,8 @@ SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
 !     NOW MAKE THE MOVE
       !CALL IGRMOVETO(MY_IX,MY_IY)
       !PRINT *, "MOVE TO PEN UP!"
-      call cairo_move_to(my_cairo_context, MY_IX*1d0, MY_IY*1d0)
+      PRINT *, "MY_IX = ", MY_IX, " MY_IY = ", MY_IY
+      call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       !call cairo_stroke_preserve(my_cairo_context)
       !UPDATE OLD VALUES
       MY_OLDX=MY_IX
@@ -671,9 +693,9 @@ SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
       REMAIN=0.0
       OREMAIN=0.0
       !PRINT *, "WRITE LINE!"
-      call cairo_line_to(my_cairo_context, MY_IX*1d0, MY_IY*1d0)
+      call cairo_line_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       call cairo_stroke(my_cairo_context)
-      call cairo_move_to(my_cairo_context, MY_IX*1d0, MY_IY*1d0)
+      call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       !call gtk_window_set_child(ld_window, my_drawing_area)
       !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
       call gtk_widget_queue_draw(cairo_drawing_area)
@@ -1355,7 +1377,7 @@ SUBROUTINE WDRAWOPTICALSYSTEM
       !CALL IGrColourN(223)
 
 
-
+    ! Only support one window at present.
     if (.not. c_associated(ld_window))  THEN
         call lens_draw_new(my_window)
     else
@@ -1371,6 +1393,43 @@ SUBROUTINE WDRAWOPTICALSYSTEM
  10   CONTINUE
                         RETURN
                         END
+subroutine spin_firstSurface_callback (widget, gdata ) bind(c)
+   use iso_c_binding
+   type(c_ptr), value, intent(in) :: widget, gdata
+   integer surfaceIndex
+
+   surfaceIndex = INT(gtk_spin_button_get_value (widget))
+
+   call ld_settings % set_start_surface(surfaceIndex)
+
+   PRINT *, "NEW FIRST SURFACE ", surfaceIndex
+
+   if (ld_settings%changed.eq.1) THEN
+      ld_settings%changed = 0
+      call lens_draw_replot()
+
+   end if
+
+end subroutine spin_firstSurface_callback
+
+subroutine spin_endSurface_callback (widget, gdata ) bind(c)
+   use iso_c_binding
+   type(c_ptr), value, intent(in) :: widget, gdata
+   integer surfaceIndex
+
+   surfaceIndex = INT(gtk_spin_button_get_value (widget))
+
+   call ld_settings % set_end_surface(surfaceIndex)
+
+   PRINT *, "NEW LAST SURFACE ", surfaceIndex
+
+   if (ld_settings%changed.eq.1) THEN
+      ld_settings%changed = 0
+      call lens_draw_replot()
+
+   end if
+
+end subroutine spin_endSurface_callback
 
 subroutine combo_tmp_callback (widget, gdata ) bind(c)
   use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
@@ -1445,6 +1504,125 @@ subroutine combo_tmp_callback (widget, gdata ) bind(c)
 end subroutine combo_tmp_callback
 
 
+
+subroutine spin_autoScale_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use gtk_sup, only: c_f_string_copy
+  use hl_gtk_zoa
+
+
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double)                 :: x, y
+  integer :: id_selected
+  !character(len=50)                        :: choice
+  !character(len=512)             :: my_string
+  real :: scaleFactor
+
+  ! Get the value selected by the user:
+  !call c_f_string_copy( gtk_combo_box_text_get_active_text(combo_plotorientation), my_string)
+  !read(my_string, *) choice
+
+  !PRINT *, "CHOICE = ", my_string
+   scaleFactor = real(gtk_spin_button_get_value (widget))
+
+   PRINT *, "Scale Factor is, ", scaleFactor
+
+  call ld_settings % set_scaleFactor(scaleFactor)
+
+   if (ld_settings%changed.eq.1) THEN
+      ld_settings%changed = 0
+      call lens_draw_replot()
+
+   end if
+
+
+end subroutine spin_autoScale_callback
+
+subroutine spin_elevation_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use hl_gtk_zoa
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real :: elevation
+
+  elevation = real(gtk_spin_button_get_value (widget))
+
+  call ld_settings % set_elevation(elevation)
+  PRINT *, "ELEVATION IS ", ld_settings % elevation
+
+   if (ld_settings%changed.eq.1) THEN
+      ld_settings%changed = 0
+      call lens_draw_replot()
+
+   end if
+
+
+end subroutine spin_elevation_callback
+
+subroutine spin_azimuth_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use hl_gtk_zoa
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real :: azimuth
+
+  azimuth = real(gtk_spin_button_get_value (widget))
+
+  call ld_settings % set_azimuth(azimuth)
+
+  PRINT *, "AZIMUTH IS ", ld_settings%azimuth
+
+   if (ld_settings%changed.eq.1) THEN
+      ld_settings%changed = 0
+      call lens_draw_replot()
+
+   end if
+
+
+end subroutine spin_azimuth_callback
+
+subroutine combo_autoScale_callback (widget, gdata ) bind(c)
+  use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
+  use gtk_sup, only: c_f_string_copy
+  use hl_gtk_zoa
+
+
+
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double)                 :: x, y
+  integer :: id_selected
+  !character(len=50)                        :: choice
+  !character(len=512)             :: my_string
+
+  ! Get the value selected by the user:
+  !call c_f_string_copy( gtk_combo_box_text_get_active_text(combo_plotorientation), my_string)
+  !read(my_string, *) choice
+
+  !PRINT *, "CHOICE = ", my_string
+
+  id_selected = hl_zoa_combo_get_selected_list2_id(widget)
+
+  PRINT *, "Autoscale idx is ", id_selected
+
+  if (id_selected.eq.ID_LENSDRAW_MANUALSCALE) THEN
+     call gtk_widget_set_sensitive(gdata, TRUE)
+   else
+     call gtk_widget_set_sensitive(gdata, FALSE)
+  end if
+
+  call ld_settings % set_autoScale(id_selected)
+
+  if (ld_settings%changed.eq.1) THEN
+     ld_settings%changed = 0
+     call lens_draw_replot()
+
+  end if
+
+
+end subroutine combo_autoScale_callback
+
+
 subroutine combo_fieldsymmetry_callback (widget, gdata ) bind(c)
   use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
   use gtk_sup, only: c_f_string_copy
@@ -1500,6 +1678,13 @@ subroutine combo_plotorientation_callback (widget, gdata ) bind(c)
 
   id_selected = hl_zoa_combo_get_selected_list2_id(widget)
 
+  if (id_selected.eq.ID_LENSDRAW_ORTHO_PLOT_ORIENTATION) THEN
+    call gtk_widget_set_sensitive(spinButton_azimuth, TRUE)
+    call gtk_widget_set_sensitive(spinButton_elevation, TRUE)
+  else
+    call gtk_widget_set_sensitive(spinButton_azimuth, FALSE)
+    call gtk_widget_set_sensitive(spinButton_elevation, FALSE)
+  end if
 
   call ld_settings % set_plot_orientation(id_selected)
 
@@ -1522,9 +1707,9 @@ end subroutine combo_plotorientation_callback
 
     type(c_ptr)  :: label_plotorientation, label_fieldsymmetry
 
-    type(c_ptr)  :: lstmp, gtype, cbox, cbox_field
+    type(c_ptr)  :: lstmp, gtype, cbox, cbox_field, cbox_scale
 
-
+    integer(kind=c_int) :: lastSurface
 
     integer(kind=c_int), parameter :: ncols=2
     integer(kind=type_kind), dimension(ncols), target :: coltypes = &
@@ -1539,18 +1724,33 @@ end subroutine combo_plotorientation_callback
     !type(c_ptr) :: pmodel, pcolumn, model
     !integer(kind=c_int) :: icol
     !character(len=20), dimension(4) :: vals_plotorientation
+
+    type(c_ptr) :: label_first, label_last, spinButton_firstSurface, spinButton_lastSurface
+
+    type(c_ptr) :: label_azimuth, label_elevation
+
+    type(c_ptr) :: spinButton_scaleFactor
+
     character(kind=c_char, len=20), dimension(4) :: vals_plotorientation
     integer(c_int), dimension(4) :: refs_plotorientation
 
     character(kind=c_char, len=40), dimension(2) :: vals_fieldsymmetry
     integer(c_int), dimension(2) :: refs_fieldsymmetry
 
+    character(kind=c_char, len=40), dimension(2) :: vals_scaleFactor
+    integer(c_int), dimension(2) :: refs_scaleFactor
+
+
+
     vals_plotorientation = [character(len=20) :: "YZ - Plane Layout", "XZ - Plane Layout", &
          &"XY - Plane Layout", "Orthographic"]
 
     refs_plotorientation = [ID_LENSDRAW_YZ_PLOT_ORIENTATION, &
                           & ID_LENSDRAW_XZ_PLOT_ORIENTATION, &
-                          & ID_LENSDRAW_XY_PLOT_ORIENTATION, 1407]
+                          & ID_LENSDRAW_XY_PLOT_ORIENTATION, &
+                          & ID_LENSDRAW_ORTHO_PLOT_ORIENTATION]
+
+
 
     call hl_gtk_combo_box_list2_new(cbox, refs_plotorientation, vals_plotorientation, 1700_c_int)
     call g_signal_connect (cbox, "changed"//c_null_char, c_funloc(combo_plotorientation_callback), c_null_ptr)
@@ -1564,6 +1764,18 @@ end subroutine combo_plotorientation_callback
     call hl_gtk_combo_box_list2_new(cbox_field, refs_fieldsymmetry, vals_fieldsymmetry, 1700_c_int)
     call g_signal_connect (cbox_field, "changed"//c_null_char, c_funloc(combo_fieldsymmetry_callback), c_null_ptr)
 
+    vals_scaleFactor = [character(len=40) :: "Autoscale (Default)", "Manual Scale"]
+    refs_scaleFactor = [ID_LENSDRAW_AUTOSCALE, ID_LENSDRAW_MANUALSCALE]
+
+
+    spinButton_scaleFactor = gtk_spin_button_new (gtk_adjustment_new(.045*1d0,0d0,1000*1d0,1d0,1d0,0d0),2d0, 3_c_int)
+    call gtk_widget_set_sensitive(spinButton_scaleFactor, FALSE)
+    call g_signal_connect (spinButton_scaleFactor, "changed"//c_null_char, c_funloc(spin_autoScale_callback), c_null_ptr)
+
+    call hl_gtk_combo_box_list2_new(cbox_scale, refs_scaleFactor, vals_scaleFactor, 1700_c_int)
+    call g_signal_connect (cbox_scale, "changed"//c_null_char, c_funloc(combo_autoScale_callback), spinButton_scaleFactor)
+
+
 
     lstmp = gtk_list_store_newv(ncols, c_loc(coltypes))
 
@@ -1575,43 +1787,55 @@ end subroutine combo_plotorientation_callback
     val = c_loc(valt)
     val = g_value_init(val, G_TYPE_STRING)
 
-    ! Create the list store
-    !store = gtk_list_store_newv(NUM_COLS, c_loc(ctypes))
-
-    ! Append row 1 and add data
-    call gtk_list_store_append(lstmp, c_loc(iter))
-    call g_value_set_int(c_loc(vali), 51_c_int)
-    call gtk_list_store_set_value(lstmp, c_loc(iter), 0_c_int, c_loc(vali))
-    call g_value_set_static_string(c_loc(valt), "Heinz El-Mann"//c_null_char)
-    call gtk_list_store_set_value(lstmp, c_loc(iter), 1_c_int, &
-         & c_loc(valt))
-
-
-   ! Append row 1 and add data
-   call gtk_list_store_append(lstmp, c_loc(iter))
-   call g_value_set_int(c_loc(vali), 101_c_int)
-   call gtk_list_store_set_value(lstmp, c_loc(iter), 0_c_int, c_loc(vali))
-   call g_value_set_static_string(c_loc(valt), "Shaquille O-NEAL"//c_null_char)
-   call gtk_list_store_set_value(lstmp, c_loc(iter), 1_c_int, &
-        & c_loc(valt))
-
-  combo_tmp = gtk_combo_box_new_with_model_and_entry(lstmp)
-  call g_signal_connect (combo_tmp, "changed"//c_null_char, c_funloc(combo_tmp_callback), c_null_ptr)
-  call gtk_combo_box_set_entry_text_column(combo_tmp, 1_c_int)
-  call gtk_combo_box_set_active(combo_tmp, 0_c_int)
-
-  PRINT *, "Before callback, pointer is ", combo_tmp
 
 
 
-    !list = hl_gtk_listn_new(renderers="combo")
+   !gdouble value,
+   !gdouble lower,
+   !gdouble upper,
+   !gdouble step_increment,
+   !gdouble page_increment,
+   !gdouble page_size);
 
-    !gtype = gtk_list_store_get_type()
-    !lstmp = gtk_list_store_newv(1_c_int, gtype)
+
+    !Spin buttons for selecting which surfaces to plot
+    call getOpticalSystemLastSurface(lastSurface)
+    label_first = gtk_label_new("First Surface"//c_null_char)
+    spinButton_firstSurface = gtk_spin_button_new (gtk_adjustment_new(1d0,1d0,(lastSurface-1)*1d0,1d0,1d0,0d0),2d0, 0_c_int)
+
+    label_last = gtk_label_new("Last Surface"//c_null_char)
+    spinButton_lastSurface = gtk_spin_button_new (gtk_adjustment_new(lastSurface*1d0,2d0,lastSurface*1d0, &
+    & 1d0,1d0,0d0),2d0, 0_c_int)
+
+    call g_signal_connect (spinButton_firstSurface, "value_changed"//c_null_char, c_funloc(spin_firstSurface_callback), c_null_ptr)
+    call g_signal_connect (spinButton_lastSurface, "value_changed"//c_null_char, c_funloc(spin_endSurface_callback), c_null_ptr)
+
+    !call g_signal_connect (spinButton_lastSurface, "value_changed"//c_null_char, c_funloc(spin_firstSurface_callback), c_null_ptr)
+
+
+
+    ! Spin Buttons for 3D Layout
+    label_elevation = gtk_label_new("Elevation Angle [deg]"//c_null_char)
+    spinButton_elevation = gtk_spin_button_new (gtk_adjustment_new(26.2d0,0d0,180*1d0,10d0,1d0,0d0),2d0, 1_c_int)
+
+    label_azimuth = gtk_label_new("Azimuth Angle [deg]"//c_null_char)
+    spinButton_azimuth = gtk_spin_button_new (gtk_adjustment_new(232.2d0,0d0,360*1d0, &
+    & 10d0,1d0,0d0),2d0, 1_c_int)
+
+    !Default disable these
+    call gtk_widget_set_sensitive(spinButton_elevation, FALSE)
+    call gtk_widget_set_sensitive(spinButton_azimuth, FALSE)
+
+    call g_signal_connect (spinButton_elevation, "value_changed"//c_null_char, c_funloc(spin_elevation_callback), c_null_ptr)
+    call g_signal_connect (spinButton_azimuth, "value_changed"//c_null_char, c_funloc(spin_azimuth_callback), c_null_ptr)
+
 
     ! The combo box with predifined values of interesting Julia sets:
     label_plotorientation = gtk_label_new("Plot Orientation:"//c_null_char)
     label_fieldsymmetry   = gtk_label_new("Field Symmetry:"//c_null_char)
+
+
+
 
 
     !call g_signal_connect (combo_plotorientation, "changed"//c_null_char, c_funloc(combo_plotorientation_callback))
@@ -1635,6 +1859,21 @@ end subroutine combo_plotorientation_callback
 
     call gtk_grid_attach(table, label_fieldsymmetry, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, cbox_field, 1_c_int, 1_c_int, 1_c_int,1_c_int)
+
+    call gtk_grid_attach(table, label_first, 2_c_int, 1_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, label_last, 2_c_int, 2_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, spinButton_firstSurface, 3_c_int, 1_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, spinButton_lastSurface, 3_c_int, 2_c_int, 1_c_int, 1_c_int)
+
+    call gtk_grid_attach(table, label_elevation, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, label_azimuth, 0_c_int, 3_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, spinButton_elevation, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, spinButton_azimuth, 1_c_int, 3_c_int, 1_c_int, 1_c_int)
+
+    call gtk_grid_attach(table, cbox_scale, 2_c_int, 3_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, spinButton_scaleFactor, 3_c_int, 3_c_int, 1_c_int, 1_c_int)
+    !call gtk_grid_attach(table, spinButton_azimuth, 1_c_int, 3_c_int, 1_c_int, 1_c_int)
+
 
 
     ! The table is contained in an expander, which is contained in the vertical box:
@@ -1694,6 +1933,7 @@ end subroutine combo_plotorientation_callback
     cairo_drawing_area = gtk_drawing_area_new()
     call gtk_drawing_area_set_content_width(cairo_drawing_area, width)
     call gtk_drawing_area_set_content_height(cairo_drawing_area, height)
+
     call gtk_drawing_area_set_draw_func(cairo_drawing_area, &
                    & c_funloc(DRAWOPTICALSYSTEM), c_null_ptr, c_null_funptr)
     !call gtk_drawing_area_set_draw_func(cairo_drawing_area, &
@@ -1722,12 +1962,15 @@ subroutine lens_draw_replot()
 
   character(len=40) :: command, qual_word
   character(len=100) :: ftext
+  character(len=3)   :: AJ, AK
+  character(len=23) :: autoScale_text, AW2, AW3
+
 
   command = "VIECO"
 
 
   ! Original logic in LENSED.INC
-  select case (ld_settings%field_symmetery)
+  select case (ld_settings%field_symmetry)
   case (ID_LENSDRAW_PLOT_HALF_FIELD)
        ftext = 'VIESYM OFF'
        CALL PROCESKDP(ftext)
@@ -1744,11 +1987,61 @@ subroutine lens_draw_replot()
       qual_word = "XZ"
   case (ID_LENSDRAW_XY_PLOT_ORIENTATION)
       qual_word = "XY"
+  case (ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)
+       qual_word = "ORTHO"
+        !CALL DTOA23(ld_settings%elevation,AW2)
+        !CALL DTOA23(ld_settings%azimuth,AW3)
+        WRITE(AW2, *) ld_settings%elevation
+        WRITE(AW3, *) ld_settings%azimuth
+
+        ftext ='PLOT VIEW,'//AW2//','//AW3
+        PRINT *, "ORTHO TEXT IS ", ftext
+        !PRINT *, "LD Settings Elevation, Azimuth is ", ld_settings%elevation, ",", ld_settings%azimuth
+        CALL PROCESKDP(ftext)
   case DEFAULT
       qual_word = " "
   end select
 
-    ftext = trim(command)//" "//trim(qual_word)
+
+  !INPUT='VIECO,'//','//AJ//','//AK//',1'
+
+!      AUTOSCALE
+!        CALL ITOAA(ISTARTSURF,AJ)
+!        CALL ITOAA(ISTOPSURF,AK)
+!        INPUT='VIECO,'//','//AJ//','//AK//',1'
+!        CALL PROCES
+
+  ! Start and End Surface
+  CALL ITOAA(ld_settings%start_surface, AJ)
+  CALL ITOAA(ld_settings%end_surface, AK)
+
+  PRINT *, "AJ = ", AJ, " AK = ", AK
+
+    !ftext= trim('VIECO,'//','//AJ//','//AK//',1')
+    !PRINT *, ftext
+
+    ! Working
+    !ftext = trim(command)//" "//trim(qual_word)
+
+  if (ld_settings%autoScale.eq.ID_LENSDRAW_MANUALSCALE) THEN
+      !write(autoScale_text, *), ",", ld_settings%scaleFactor, ","
+      !autoScale_text = trim(",,")
+      Call DTOA23(ld_settings%scaleFactor,autoScale_text)
+      PRINT *, ",", ld_settings%scaleFactor, ","
+      WRITE(autoScale_text, *) ld_settings%scaleFactor
+
+  else
+      autoScale_text = trim("")
+  end if
+
+
+    !ftext = trim(command)//" "//trim(qual_word)//autoScale_text//AJ//","//AK//",0"
+
+    ftext = trim(command)//" "//trim(qual_word)//","//autoScale_text//","//AJ//","//AK//",0,1"
+    !if (ld_settings%plot_orientation.eq.ID_LENSDRAW_ORTHO_PLOT_ORIENTATION) THEN
+    !  ftext = ftext//",1"
+    !end if
+
 
     PRINT *, "Command is ", ftext
     CALL PROCESKDP(ftext)

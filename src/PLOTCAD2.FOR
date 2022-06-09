@@ -2143,7 +2143,8 @@ C
                         END IF
       IF(DF4.EQ.1.OR.DF4.EQ.0.AND.W4.EQ.0.0D0) DFLAG=0
       IF(DF4.EQ.0.AND.W4.NE.0.0D0) DFLAG=1
-C
+
+         PRINT *, "LINE 2147 W1 = ", W1
         VIEWQ=WQ
         VIEW1=W1
         VIEW2=W2
@@ -2163,6 +2164,8 @@ C
       CALL SHOWIT(1)
       OUTLYNE='PLEASE WAIT...'
       CALL SHOWIT(1)
+
+      PRINT *, "SCALE FACTOR AT START OF VIE IS ", SCFAY
 C
 C******************************************
 C
@@ -2250,6 +2253,9 @@ C             XSHIFT
               END IF
 C
 C     SET UP THE SCALE FACTOR
+      PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
+      PRINT *, "VDF1 Equals ", VDF1
+      PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
               IF(VDF1.EQ.0) THEN
                         AUTSL=.FALSE.
                         SCFAYP=1.0D0/VIEW1
@@ -2270,7 +2276,7 @@ C     SET UP THE SCALE FACTOR
                         PLSC=.FALSE.
                         ELSE
                         END IF
-C
+      PRINT *, "AFTER SCALE FACTOR DONE, IT IS ", SCFAY
 C     SCALE FACTOR DONE
 C
 C     NOW SET LOOK VECTOR
@@ -2302,6 +2308,8 @@ C     NOW SET LOOK VECTOR
               CALL PROCES
               REST_KDP(1)=RESTINPT(1)
                 END IF
+              PRINT *, "LINE 2311, SCFAY IS ", SCFAY
+
 C
 C  GUT RAY
               SAVE_KDP(1)=SAVEINPT(1)
@@ -2318,13 +2326,16 @@ C
       WW4=1.0D0
       NOCOAT=.TRUE.
               GRASET=.TRUE.
+        PRINT *, "LINE 2329, SCFAY IS ", SCFAY
         IF(CACOCHVIE.EQ.1) CACOCH=1
               CALL RAYTRA
+              PRINT *, "LINE 2332, SCFAY IS ", SCFAY
               REST_KDP(1)=RESTINPT(1)
 C
 
               SAVE_KDP(1)=SAVEINPT(1)
               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+              PRINT *, "LINE 2338, SCFAY IS ", SCFAY
               REST_KDP(1)=RESTINPT(1)
 C
       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
@@ -2350,7 +2361,9 @@ C             PLOT PROFY
               STI=0
               SST=0
               PRINT *, "CALL PLTPRO1 PROFY"
+              PRINT *, "LINE 2362, SCFAY IS ", SCFAY
               CALL PLTPRO1
+              PRINT *, "LINE 2364, SCFAY IS ", SCFAY
               REST_KDP(1)=RESTINPT(1)
               END IF
       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
@@ -3160,165 +3173,164 @@ C     NOW CLAPS,PROFS AND EDGES
       ! JN 5/22/22 - Comment out this section as it is giving strange
       ! results with the DoubleGauss.seq test system.  cannot figure out
       ! why so punt for now
-!      IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-!C     PLOT PROFY
-!              SAVE_KDP(1)=SAVEINPT(1)
-!C             PLOT PROFY
-!              W1=VIEW2
-!              W2=VIEW3
-!               W3=90.0D0
-!              S1=VS2
-!              S2=VS3
-!              S3=1
-!              S4=0
-!              S5=0
-!              SN=1
-!              DF1=VDF2
-!              DF2=VDF3
-!              DF3=0
-!              DF4=1
-!              DF5=1
-!              WQ='PROF'
-!              SQ=1
-!              STI=0
-!              SST=0
-!              PRINT *, "CALL PLTPRO1 PROFY VIEWQ YZ OR ORTHO OR XY"
 !
-!              CALL PLTPRO1
-!              REST_KDP(1)=RESTINPT(1)
-!              END IF
-!      IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-!C     PLOT EDGEY
-!              SAVE_KDP(1)=SAVEINPT(1)
-!C             PLOT EDGEY
-!              W1=VIEW2
-!              W2=VIEW3
-!              S1=VS2
-!              S2=VS3
-!              S3=0
-!              S4=0
-!              S5=0
-!              SN=1
-!              DF1=VDF2
-!              DF2=VDF3
-!              DF3=1
-!              DF4=1
-!              DF5=1
-!              WQ='EDGEY'
-!              SQ=1
-!              STI=0
-!              SST=0
-!              CALL PLTEDG
-!              REST_KDP(1)=RESTINPT(1)
-!              END IF
-!C
-!      IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-!C     PLOT PROFX
-!              SAVE_KDP(1)=SAVEINPT(1)
-!C             PLOT PROFX
-!              W1=VIEW2
-!              W2=VIEW3
-!               W3=0.0D0
-!              S1=VS2
-!              S2=VS3
-!              S3=1
-!              S4=0
-!              S5=0
-!              SN=1
-!              DF1=VDF2
-!              DF2=VDF3
-!              DF3=0
-!              DF4=1
-!              DF5=1
-!              WQ='PROF'
-!              SQ=1
-!              STI=0
-!              SST=0
-!              PRINT *, "CALL PLTPRO1 PROFX"
-!              CALL PLTPRO1
-!              REST_KDP(1)=RESTINPT(1)
-!              END IF
-!      IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-!C     PLOT EDGEX
-!              SAVE_KDP(1)=SAVEINPT(1)
-!C             PLOT EDGEX
-!              W1=VIEW2
-!              W2=VIEW3
-!              S1=VS2
-!              S2=VS3
-!              S3=0
-!              S4=0
-!              S5=0
-!              SN=1
-!              DF1=VDF2
-!              DF2=VDF3
-!              DF3=1
-!              DF4=1
-!              DF5=1
-!              WQ='EDGEX'
-!              SQ=1
-!              STI=0
-!              SST=0
-!              CALL PLTEDG
-!              REST_KDP(1)=RESTINPT(1)
-!              END IF
-!C
-!      IF(VIEWQ.EQ.'XY'.OR.VIEWQ.EQ.'ORTHO') THEN
-!C     PLOT CLAP
-!              SAVE_KDP(1)=SAVEINPT(1)
-!C             PLOT CLAP
-!              W1=VIEW2
-!              W2=VIEW3
-!              S1=VS2
-!              S2=VS3
-!              S3=0
-!              S4=0
-!              S5=0
-!              SN=1
-!              DF1=VDF2
-!              DF2=VDF3
-!              DF3=1
-!              DF4=1
-!              DF5=1
-!              WQ='CLAP'
-!              SQ=1
-!              STI=0
-!              SST=0
-!                        SFI=1.0D0
-!                        DO I=INT(W1),INT(W2)
-!      IF(ALENS(127,I).NE.0.0D0) THEN
-!                       DO J=1,INT(ALENS(127,I))
-!                   MDX=MULTCLAP(J,1,I)
-!                   MDY=MULTCLAP(J,2,I)
-!                   GAMGAM=MULTCLAP(J,3,I)
-!                   CALL PLTCLP(1,I,SFI,MDX,MDY,GAMGAM)
-!                       END DO
-!                       ELSE
-!                   CALL PLTCLP(1,I,SFI,0.0D0,0.0D0,0.0D0)
-!                       END IF
-!      IF(ALENS(127,I).NE.0.0D0) THEN
-!                       DO J=1,INT(ALENS(127,I))
-!                   MDX=MULTCLAP(J,1,I)
-!                   MDY=MULTCLAP(J,2,I)
-!                   GAMGAM=MULTCLAP(J,3,I)
-!                   CALL PLTCLP(2,I,SFI,MDX,MDY,GAMGAM)
-!                       END DO
-!                       ELSE
-!                   CALL PLTCLP(2,I,SFI,0.0D0,0.0D0,0.0D0)
-!                       END IF
-!                   IF(ALENS(128,I).NE.0.0D0) THEN
-!                       DO J=1,INT(ALENS(128,I))
-!                   MDX=MULTCOBS(J,1,I)
-!                   MDY=MULTCOBS(J,2,I)
-!                   GAMGAM=MULTCOBS(J,3,I)
-!                   CALL PLTCOB(I,MDX,MDY,GAMGAM)
-!                       END DO
-!                       ELSE
-!                   CALL PLTCOB(I,0.0D0,0.0D0,0.0D0)
-!                       END IF
+!       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+! C     PLOT PROFY
+!               SAVE_KDP(1)=SAVEINPT(1)
+! C             PLOT PROFY
+!               W1=VIEW2
+!               W2=VIEW3
+!                W3=90.0D0
+!               S1=VS2
+!               S2=VS3
+!               S3=1
+!               S4=0
+!               S5=0
+!               SN=1
+!               DF1=VDF2
+!               DF2=VDF3
+!               DF3=0
+!               DF4=1
+!               DF5=1
+!               WQ='PROF'
+!               SQ=1
+!               STI=0
+!               SST=0
+!               CALL PLTPRO1
+!               REST_KDP(1)=RESTINPT(1)
+!               END IF
+!       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+! C     PLOT EDGEY
+!               SAVE_KDP(1)=SAVEINPT(1)
+! C             PLOT EDGEY
+!               W1=VIEW2
+!               W2=VIEW3
+!               S1=VS2
+!               S2=VS3
+!               S3=0
+!               S4=0
+!               S5=0
+!               SN=1
+!               DF1=VDF2
+!               DF2=VDF3
+!               DF3=1
+!               DF4=1
+!               DF5=1
+!               WQ='EDGEY'
+!               SQ=1
+!               STI=0
+!               SST=0
+!               CALL PLTEDG
+!               REST_KDP(1)=RESTINPT(1)
+!               END IF
+! C
+!       IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+! C     PLOT PROFX
+!               SAVE_KDP(1)=SAVEINPT(1)
+! C             PLOT PROFX
+!               W1=VIEW2
+!               W2=VIEW3
+!                W3=0.0D0
+!               S1=VS2
+!               S2=VS3
+!               S3=1
+!               S4=0
+!               S5=0
+!               SN=1
+!               DF1=VDF2
+!               DF2=VDF3
+!               DF3=0
+!               DF4=1
+!               DF5=1
+!               WQ='PROF'
+!               SQ=1
+!               STI=0
+!               SST=0
+!               CALL PLTPRO1
+!               REST_KDP(1)=RESTINPT(1)
+!               END IF
+!       IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+! C     PLOT EDGEX
+!               SAVE_KDP(1)=SAVEINPT(1)
+! C             PLOT EDGEX
+!               W1=VIEW2
+!               W2=VIEW3
+!               S1=VS2
+!               S2=VS3
+!               S3=0
+!               S4=0
+!               S5=0
+!               SN=1
+!               DF1=VDF2
+!               DF2=VDF3
+!               DF3=1
+!               DF4=1
+!               DF5=1
+!               WQ='EDGEX'
+!               SQ=1
+!               STI=0
+!               SST=0
+!               CALL PLTEDG
+!               REST_KDP(1)=RESTINPT(1)
+!               END IF
+! C
+!       IF(VIEWQ.EQ.'XY'.OR.VIEWQ.EQ.'ORTHO') THEN
+! C     PLOT CLAP
+!               SAVE_KDP(1)=SAVEINPT(1)
+! C             PLOT CLAP
+!               W1=VIEW2
+!               W2=VIEW3
+!               S1=VS2
+!               S2=VS3
+!               S3=0
+!               S4=0
+!               S5=0
+!               SN=1
+!               DF1=VDF2
+!               DF2=VDF3
+!               DF3=1
+!               DF4=1
+!               DF5=1
+!               WQ='CLAP'
+!               SQ=1
+!               STI=0
+!               SST=0
+!                         SFI=1.0D0
+!                         DO I=INT(W1),INT(W2)
+!       IF(ALENS(127,I).NE.0.0D0) THEN
+!                        DO J=1,INT(ALENS(127,I))
+!                    MDX=MULTCLAP(J,1,I)
+!                    MDY=MULTCLAP(J,2,I)
+!                    GAMGAM=MULTCLAP(J,3,I)
+!                    CALL PLTCLP(1,I,SFI,MDX,MDY,GAMGAM)
 !                        END DO
-!              REST_KDP(1)=RESTINPT(1)
-!              END IF
+!                        ELSE
+!                    CALL PLTCLP(1,I,SFI,0.0D0,0.0D0,0.0D0)
+!                        END IF
+!       IF(ALENS(127,I).NE.0.0D0) THEN
+!                        DO J=1,INT(ALENS(127,I))
+!                    MDX=MULTCLAP(J,1,I)
+!                    MDY=MULTCLAP(J,2,I)
+!                    GAMGAM=MULTCLAP(J,3,I)
+!                    CALL PLTCLP(2,I,SFI,MDX,MDY,GAMGAM)
+!                        END DO
+!                        ELSE
+!                    CALL PLTCLP(2,I,SFI,0.0D0,0.0D0,0.0D0)
+!                        END IF
+!                    IF(ALENS(128,I).NE.0.0D0) THEN
+!                        DO J=1,INT(ALENS(128,I))
+!                    MDX=MULTCOBS(J,1,I)
+!                    MDY=MULTCOBS(J,2,I)
+!                    GAMGAM=MULTCOBS(J,3,I)
+!                    CALL PLTCOB(I,MDX,MDY,GAMGAM)
+!                        END DO
+!                        ELSE
+!                    CALL PLTCOB(I,0.0D0,0.0D0,0.0D0)
+!                        END IF
+!                         END DO
+!               REST_KDP(1)=RESTINPT(1)
+!               END IF
+!
 C     PLOT SCALE FACTOR
 C     DO A FRAME
       COLPAS=COLLBL
@@ -4025,6 +4037,7 @@ C
 C     STEP 1: CONVERT USING AN APPROPRIATE SCALE FACTOR
 C               CALCULATING AN APPROPRIATE FACTOR IF NECESSARY
 C
+      PRINT *, "SCFAY LINE 4033 IS ", SCFAY
       Y=(Y/SCFAY)*1000.0D0
 C
       X=(X/SCFAX)*1000.0D0
@@ -5485,6 +5498,8 @@ C     THE ARRAYS NOW HAVE GLOBAL SURFACE PROFILE DATA IN THEM
 C
 C     6.IF NEEDED, DETERMINE SCALE FACTORS AND PLOT RANGE
 C
+      PRINT *, "ABOUT TO CALL PLTSC2 FROM PLTPRO1..."
+      PRINT *, "BEFORE CALLING, SCALE FACTOR IS ", SCFAY
       CALL PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
 C
 C     7.CYCLE THROUGH THE THE ARRAYS, APPLY SCALE FACTORS

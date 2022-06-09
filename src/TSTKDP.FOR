@@ -1,9 +1,9 @@
 
-        
+
         SUBROUTINE TSTKDP
         USE GLOBALS
         IMPLICIT NONE
-        
+
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATCFG.INC'
         INCLUDE 'DATMAC.INC'
@@ -12,24 +12,24 @@
         INCLUDE 'DATSPD.INC'
         INCLUDE 'DATSP1.INC'
         INCLUDE 'DATHGR.INC'
-        
-        INTEGER CATLIST        
-        
+
+        INTEGER CATLIST
+
         !
-        
+
         PRINT *, "Done with Init KDP"
 C        CALL GCATLOAD(CATLIST)
-        
-        
 
-        
+
+
+
         WRITE ( *, '(a)' ) '  Hello, world!'
-        
+
 
 
 C	    NRECL = 1
 C        LIBLEN = 'LIBLEN/'
-        
+
 C        CALL KDPSUB
         CALL INITKDP
 
@@ -80,11 +80,27 @@ C       Provide Continuous Command Line input
 
 C        CALL LLIB
 
-C                        END IF    
+C                        END IF
 C
 
 C        CALL LIBLOAD(1)
 C        STOP
+        END
+
+        SUBROUTINE getOpticalSystemLastSurface(res)
+        USE GLOBALS
+        IMPLICIT NONE
+
+        INTEGER res
+
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATMAI.INC'
+
+        res = INT(SYSTEM(20))
+
+        PRINT *, "Last Surface index is ", res
+
+
         END
 
         SUBROUTINE getRayTraceOutput(res)
@@ -100,7 +116,20 @@ C        STOP
 
         !PRINT *, "Test RAYRAY Output TSTKDP", RAYRAY(2,4)
 
+        PRINT *, "Size of RAYRAY is ", size(RAYRAY)
+
         END
+
+        SUBROUTINE getVIECOScaleFactor(scaleFactor)
+              IMPLICIT NONE
+              INCLUDE 'DATLEN.INC'
+
+              REAL*8, INTENT(INOUT) :: scaleFactor
+
+              scaleFactor = SCFAY
+
+        END
+
 
         SUBROUTINE PROCESKDP(ftext)
           USE GLOBALS
@@ -127,4 +156,3 @@ C        STOP
         CALL SHOWIT(19)
 
         END
-

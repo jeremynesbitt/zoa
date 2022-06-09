@@ -80,7 +80,7 @@ contains
 
   character(len=256), dimension(:), allocatable :: new_files, tmp
 
-  integer(kind=c_int) :: ipick, i
+  integer(kind=c_int) :: ipick, i, endSurface
  character(len=100) :: ftext
   PRINT *, "Before Mod Call, ", my_window
 
@@ -93,6 +93,8 @@ contains
   CALL PROCESKDP(ftext)
   ftext = 'COLORSET RAYS 2'
   CALL PROCESKDP(ftext)
+  call getOpticalSystemLastSurface(endSurface)
+  call ld_settings%set_end_surface(endSurface)
   ftext = 'VIECO'
   CALL PROCESKDP(ftext)
   !CALL WDRAWOPTICALSYSTEM
@@ -616,8 +618,9 @@ contains
     ! The four buttons:
     button1 = gtk_button_new_with_mnemonic ("_Compute"//c_null_char)
     call g_signal_connect (button1, "clicked"//c_null_char, c_funloc(firstbutton))
-    button2 = gtk_button_new_with_mnemonic ("_Save as PNG"//c_null_char)
+    button2 = gtk_button_new_with_mnemonic ("Test _PLPLOT"//c_null_char)
     call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(secondbutton))
+    call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(plotLensData))
     button3 = gtk_button_new_with_mnemonic ("_Exit"//c_null_char)
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
     toggle1 = gtk_toggle_button_new_with_mnemonic ("_TstFunc"//c_null_char)

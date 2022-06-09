@@ -209,7 +209,9 @@ program zoa_program
   use gtk, only: gtk_application_new, G_APPLICATION_FLAGS_NONE
   use g, only: g_application_run, g_object_unref
   use handlers
+  use zoa_ui
   use global_widgets
+
   !use GLOBALS
 
 
@@ -231,6 +233,7 @@ program zoa_program
                             & G_APPLICATION_FLAGS_NONE)
 
   ! UI Settings Initialization
+
   ld_settings = lens_draw_settings()
 
   PRINT *, "APP IN Main Program is ", app

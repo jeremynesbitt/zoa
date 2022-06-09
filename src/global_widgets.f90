@@ -3,6 +3,7 @@ module global_widgets
   use gtk_hl_entry
   use zoa_ui
 
+
   type(c_ptr) :: my_pixbuf, my_drawing_area, spinButton1, spinButton2, spinButton3
   type(c_ptr) :: textView, buffer, scrolled_window, statusBar, combo1
   type(c_ptr) :: drawing_area_plot

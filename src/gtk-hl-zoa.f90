@@ -141,6 +141,7 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
   use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
   use gtk_sup, only: c_f_string_copy
   use global_widgets
+  
 
 
   type(c_ptr), value, intent(in) :: widget, gdata
