@@ -2144,7 +2144,7 @@ C
       IF(DF4.EQ.1.OR.DF4.EQ.0.AND.W4.EQ.0.0D0) DFLAG=0
       IF(DF4.EQ.0.AND.W4.NE.0.0D0) DFLAG=1
 
-         PRINT *, "LINE 2147 W1 = ", W1
+         !PRINT *, "LINE 2147 W1 = ", W1
         VIEWQ=WQ
         VIEW1=W1
         VIEW2=W2
@@ -2165,13 +2165,13 @@ C
       OUTLYNE='PLEASE WAIT...'
       CALL SHOWIT(1)
 
-      PRINT *, "SCALE FACTOR AT START OF VIE IS ", SCFAY
+      !PRINT *, "SCALE FACTOR AT START OF VIE IS ", SCFAY
 C
 C******************************************
 C
         IF(.NOT.VIEOVERLAY) THEN
 C       NOT A VIE OVERLAY
-                        PRINT *, "VIEOVERLAY IS FALSE"
+                        !PRINT *, "VIEOVERLAY IS FALSE"
                         CALL PLTDEV1
                         GRASET=.TRUE.
 C     DO A FRAME
@@ -2253,9 +2253,9 @@ C             XSHIFT
               END IF
 C
 C     SET UP THE SCALE FACTOR
-      PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
-      PRINT *, "VDF1 Equals ", VDF1
-      PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
+      !PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
+      !PRINT *, "VDF1 Equals ", VDF1
+      !PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
               IF(VDF1.EQ.0) THEN
                         AUTSL=.FALSE.
                         SCFAYP=1.0D0/VIEW1
@@ -2276,7 +2276,7 @@ C     SET UP THE SCALE FACTOR
                         PLSC=.FALSE.
                         ELSE
                         END IF
-      PRINT *, "AFTER SCALE FACTOR DONE, IT IS ", SCFAY
+      !PRINT *, "AFTER SCALE FACTOR DONE, IT IS ", SCFAY
 C     SCALE FACTOR DONE
 C
 C     NOW SET LOOK VECTOR
@@ -2308,7 +2308,7 @@ C     NOW SET LOOK VECTOR
               CALL PROCES
               REST_KDP(1)=RESTINPT(1)
                 END IF
-              PRINT *, "LINE 2311, SCFAY IS ", SCFAY
+              !PRINT *, "LINE 2311, SCFAY IS ", SCFAY
 
 C
 C  GUT RAY
@@ -2326,10 +2326,10 @@ C
       WW4=1.0D0
       NOCOAT=.TRUE.
               GRASET=.TRUE.
-        PRINT *, "LINE 2329, SCFAY IS ", SCFAY
+        !PRINT *, "LINE 2329, SCFAY IS ", SCFAY
         IF(CACOCHVIE.EQ.1) CACOCH=1
               CALL RAYTRA
-              PRINT *, "LINE 2332, SCFAY IS ", SCFAY
+              !PRINT *, "LINE 2332, SCFAY IS ", SCFAY
               REST_KDP(1)=RESTINPT(1)
 C
 
@@ -2360,10 +2360,15 @@ C             PLOT PROFY
               SQ=1
               STI=0
               SST=0
-              PRINT *, "CALL PLTPRO1 PROFY"
-              PRINT *, "LINE 2362, SCFAY IS ", SCFAY
+              !PRINT *, "CALL PLTPRO1 PROFY"
+              !PRINT *, "LINE 2362, SCFAY IS ", SCFAY
+              PRINT *, "Before PLTPRO1 , W1,W2, ", W1, ",", W2
+              PRINT *, "Before PLTPRO1 , S1,S2, ", S1, ",", S2
+              PRINT *, "Before PLTPRO1 , DF1,DF2, ", DF1, ",", DF2
+
+
               CALL PLTPRO1
-              PRINT *, "LINE 2364, SCFAY IS ", SCFAY
+              !PRINT *, "LINE 2364, SCFAY IS ", SCFAY
               REST_KDP(1)=RESTINPT(1)
               END IF
       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
@@ -4898,8 +4903,13 @@ C
 C SUB PLTPRO1.FOR
         SUBROUTINE PLTPRO1
         USE GLOBALS
+C        USE testHDF5
+        use h5fortran
 C
         IMPLICIT NONE
+
+       type(hdf5_file) :: h5f
+
 C
 C       THIS ROUTINE DOES THE PLOT PROF COMMAND AT THE CMD LEVEL
 C
@@ -4936,6 +4946,8 @@ C
         INCLUDE 'DATLEN.INC'
 C
       REAL*8 PRO
+      INTEGER :: xx, yy, zz
+
 C
       DIMENSION PRO(:,:,:)
       ALLOCATABLE :: PRO
@@ -4957,7 +4969,7 @@ C
         STARTPOINT(1:4,1:3,0:I)=0.0D0
         STOPPOINT(1:4,1:3,0:I)=0.0D0
 
-      PRINT *, "PLTPRO1 ROUTINE STARTING..."
+      !PRINT *, "PLTPRO1 ROUTINE STARTING..."
 
 C
       IF(MSG) THEN
@@ -4975,7 +4987,9 @@ C
       M4=INT(SYSTEM(20))
       DEALLOCATE (PRO,STAT=ALLOERR)
       ALLOCATE (PRO(M1,M2,M3:M4),STAT=ALLOERR)
+
       PRO(1:360,1:4,0:M4)=0.0D0
+
 C
                 X=0.0D0
                 Y=0.0D0
@@ -5129,6 +5143,8 @@ C
 C     CYCLE THROUGH ALL THE SURFACES BUT SKIP SURFACES WITH MULTIPLE
 C     APERTURE DEFS ON IT
 C
+
+
                 DO II=STASUR,STPSUR
       YESONE1=.FALSE.
       YESONE2=.FALSE.
@@ -5741,12 +5757,33 @@ C     DO NEXT SURFACE
  51                     CONTINUE
                         END DO
 C     DO SECOND PASS FOR MIRROR BACKING
+      !PRINT *, PRO
+      if (STASUR.GT.2.AND.STPSUR.LT.8) then
+        call h5write('ppro_sub.h5','/p', PRO)
+        call hdf5_close()
+      else
+        call h5write('ppro.h5','/p', PRO)
+        call hdf5_close()
+      end if
+      ! open(17,file='values.dat',action='write')
+      ! !write(17,'(2I5)') n,m
+      ! do xx=1,SIZE(P1ARAY,1)
+      ! do yy=1,SIZE(P1ARAY,2)
+      ! do zz=0,SIZE(P1ARAY,3)-1
+      ! write(17, *) xx, ",", yy, ",", zz, ",", PRO(xx,yy,zz)
+      ! end do
+      ! end do
+      ! end do
+      ! close(17)
+      !*write(17,*) !skip a line not required enddo close(17)
+      !PRINT *, PRO
       DEALLOCATE(PRO,STAT=ALLOERR)
                         END DO
         FIXUP=.FALSE.
                         DO I=0,INT(SYSTEM(20))
       IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,I).NE.0.0D0) THEN
         IF(ALENS(110,I).NE.0.0D0) THEN
+          PRINT *, "LINE 5755 PLTPRO1 Executed!"
       CALL PENMV1(STARTPOINT(1,1,I),STARTPOINT(1,2,I),0)
       CALL PENMV1(STOPPOINT(1,1,I),STOPPOINT(1,2,I),1)
       CALL PENMV1(STARTPOINT(2,1,I),STARTPOINT(2,2,I),0)
@@ -5766,6 +5803,51 @@ C     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
                         ELSE
                         END IF
       LNTYPE=OLLNTP
+
+      if (STASUR.GT.2.AND.STPSUR.LT.8) then
+       call h5write('startpoint_sub.h5','/f', STARTPOINT)
+       call hdf5_close()
+       call h5write('stoppoint_sub.h', '/l', STOPPOINT)
+       call hdf5_close()
+      else
+       call h5write('startpoint.h5','/f', STARTPOINT)
+       call hdf5_close()
+       call h5write('stoppoint.h', '/l', STOPPOINT)
+       call hdf5_close()
+        
+      end if
+
+      !call h5write('PROTEST.h5','/x', PRO)
+      !call h5write('p1aray.h5','/p1', P1ARAY)
+      !call h5write('pro4.h5','/pro', PRO)
+
+      !call h5write('PRO.h5','/pro', PRO)
+
+      !call tstwrite
+      ! call h5f%open('startpoint.h5', action='w')
+      ! call h5f%write('/f', STARTPOINT)
+      ! call h5f%close()
+       ! call h5f%open('stoppoint.h5', action='w')
+       ! call h5f%write('/f', STOPPOINT)
+       ! call h5f%close()
+      PRINT *, "PRO Size is ", SIZE(PRO,1), " ", SIZE(PRO,2)
+      PRINT *, "PRO Sisze is ", SIZE(PRO,3), " ", SIZE(PRO)
+      !call h5write('PRO.h5', '/x', P1ARAY)
+
+
+      ! open(17,file='values.dat',action='write')
+      ! !write(17,'(2I5)') n,m
+      ! do xx=1,SIZE(P1ARAY,1)
+      ! do yy=1,SIZE(P1ARAY,2)
+      ! do zz=1,SIZE(P1ARAY,3)
+      ! write(17, *) xx, ",", yy, ",", zz, ",", P1ARAY(xx,yy,zz)
+      ! end do
+      ! end do
+      ! end do
+      !*write(17,*) !skip a line not required enddo close(17)
+
+
+
       DEALLOCATE(STARTPOINT,STOPPOINT,PRO,STAT=ALLOERR)
       DEALLOCATE (PRO,STARTPOINT,STOPPOINT,STAT=ALLOERR)
                         LNTYPE=0

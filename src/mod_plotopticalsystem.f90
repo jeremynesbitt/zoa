@@ -41,6 +41,9 @@ module mod_plotopticalsystem
   REAL :: kdp_width = 10500
   REAL :: kdp_height = 7050
 
+  real :: elevation_default = 26.2
+  real :: azimuth_default = 232.2
+
 contains
 
 
@@ -333,7 +336,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
 
       !call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
       CALL getVIECOScaleFactor(sf)
-      PRINT *, "SCFAY IN DRAW OPTICAL SYSTEM IS ", sf
+      !PRINT *, "SCFAY IN DRAW OPTICAL SYSTEM IS ", sf
       call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
       !call cairo_scale(my_cairo_context, 2.22/sf*1d0, 2.22/sf*1d0)
       !call cairo_scale(my_cairo_context, sf/222*1d0, sf/222*1d0)
@@ -355,7 +358,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       IF(STRINGER.EQ.'E') THEN
 !     SETTING THE FOREGROUND COLOR
        IF (II1.NE.COLPASS) THEN
-         PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
+         !PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
          !COLTRUE = COLPASS
       END IF
 
@@ -422,7 +425,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       !IF(II1.EQ.13) CALL IGrPaletteRGB(0,000,191,000)
       !IF(II1.EQ.14) CALL IGrPaletteRGB(0,000,000,191)
       !IF(II1.EQ.15) CALL IGrPaletteRGB(0,000,000,000)
-      PRINT *, "G II1 = ", II1
+      !PRINT *, "G II1 = ", II1
 !     DEFINE DARK GREY AS BLACK
       !CALL IGRPALETTERGB(240,0,0,0)
       !CALL IGrViewport(-510.0,-510.0,10510.0,7510.0)
@@ -467,8 +470,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       READ(NEUTARRAY(J),1003)C1D
       AB='                    '
       C1=AB//AB//AB//AB
-      PRINT *, "STRINGER D ", C1A, " ", C1B, " ", C1C, " ", C1D
-      PRINT *, "OTHER VALS ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6
+      !PRINT *, "STRINGER D ", C1A, " ", C1B, " ", C1C, " ", C1D
+      !PRINT *, "OTHER VALS ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6
 
  !     call cairo_move_to(my_cairo_context, (REAL(II1))*.1d0, &
  !     & (REAL(II2))*.1d0)
@@ -588,7 +591,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
                END IF  ! STRINGER D PLOT TEXT
 
       IF(STRINGER.EQ.'I') THEN
-      IF (DEBUG.EQ.1) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
+      IF (DEBUG.EQ.1.AND.II3.NE.0) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
       CALL JK_MoveToCAIRO(scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, my_cairo_context)
 
                GO TO 300
@@ -625,14 +628,14 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       I8=0
       END IF
       IF(J.EQ.NEUTTOTAL+1.AND.STRINGER(1:1).EQ.'B') THEN
-      PRINT *, "DEBUG"
+      !PRINT *, "DEBUG"
 !      CALL IGrHardCopy('S')
 
                END IF
 
       GO TO 300
  999           CONTINUE
-      PRINT *, "EXITING ROUTINE!"
+      PRINT *, "EXITING DRAWING ROUTINE!"
 
 
       RETURN
@@ -663,7 +666,7 @@ SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
 !     NOW MAKE THE MOVE
       !CALL IGRMOVETO(MY_IX,MY_IY)
       !PRINT *, "MOVE TO PEN UP!"
-      PRINT *, "MY_IX = ", MY_IX, " MY_IY = ", MY_IY
+      !PRINT *, "MY_IX = ", MY_IX, " MY_IY = ", MY_IY
       call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       !call cairo_stroke_preserve(my_cairo_context)
       !UPDATE OLD VALUES
@@ -1775,21 +1778,6 @@ end subroutine combo_plotorientation_callback
     call hl_gtk_combo_box_list2_new(cbox_scale, refs_scaleFactor, vals_scaleFactor, 1700_c_int)
     call g_signal_connect (cbox_scale, "changed"//c_null_char, c_funloc(combo_autoScale_callback), spinButton_scaleFactor)
 
-
-
-    lstmp = gtk_list_store_newv(ncols, c_loc(coltypes))
-
-
-    ! Initialize the GValues
-
-    val = c_loc(vali)
-    val = g_value_init(val, G_TYPE_INT)
-    val = c_loc(valt)
-    val = g_value_init(val, G_TYPE_STRING)
-
-
-
-
    !gdouble value,
    !gdouble lower,
    !gdouble upper,
@@ -1833,9 +1821,6 @@ end subroutine combo_plotorientation_callback
     ! The combo box with predifined values of interesting Julia sets:
     label_plotorientation = gtk_label_new("Plot Orientation:"//c_null_char)
     label_fieldsymmetry   = gtk_label_new("Field Symmetry:"//c_null_char)
-
-
-
 
 
     !call g_signal_connect (combo_plotorientation, "changed"//c_null_char, c_funloc(combo_plotorientation_callback))
@@ -1887,6 +1872,10 @@ end subroutine combo_plotorientation_callback
 
     !call gtk_box_append(box1, ld_window)
     call gtk_widget_set_vexpand (box1, FALSE)
+
+    ! Try to fix a bug
+    call ld_settings%set_elevation(elevation_default)
+    call ld_settings%set_azimuth(azimuth_default)
 
 
 

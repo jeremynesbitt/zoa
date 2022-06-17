@@ -1812,13 +1812,13 @@ C     NOW WRITE THE ARRAY VALUES
       USE GLOBALS
       IMPLICIT NONE
       CHARACTER STRINGER*1,NEUTLINE*42
-      INTEGER I1,I2,I3,I4,I5,I6,I7,I8,I
+      INTEGER I1,I2,I3,I4,I5,I6,I7,I8,I, I9
       INTEGER II1,II2,II3,II4,II5,II6,II7,II8
+
       INCLUDE 'DATHGR.INC'
       INCLUDE 'DATMAI.INC'
 
 C      PRINT *, "MY_PLOT CALLED"
-
 
 
       I1=(II1)
@@ -3229,7 +3229,7 @@ C
 
       !PRINT *, OUTLYNE
 
-C    TODO:  Abstract this so it works with different outputs.  
+C    TODO:  Abstract this so it works with different outputs.
 C           for now hack to print to terminal
 C      WRITE (*, '(a)') 'Call to SHOWIT'
        IF (II.LT.2) THEN
@@ -3250,7 +3250,7 @@ C      WRITE (*, '(a)') 'Call to SHOWIT'
        RETURN
 
        END IF
-      
+
 
 C       ADDED 1/20/2004
         IF(OUTLYNE(1:1).EQ.' ') OUTLYNE(1:139)=OUTLYNE(2:139)//' '

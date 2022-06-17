@@ -39,7 +39,8 @@ module handlers
   & gtk_css_provider_load_from_data, &
   & gtk_application_window_set_show_menubar, gtk_window_maximize, &
   & gtk_window_unmaximize, &
-  & gtk_application_set_menubar, gtk_widget_set_name, gtk_window_present
+  & gtk_application_set_menubar, gtk_widget_set_name, gtk_window_present, &
+  & gtk_combo_box_text_new_with_entry
 
 
   use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
@@ -547,6 +548,54 @@ contains
 
   end subroutine name_enter
 
+  subroutine callback_editbox(widget, data) bind(c)
+
+
+         USE GLOBALS
+         use global_widgets
+        IMPLICIT NONE
+
+    type(c_ptr), value :: widget, data
+    type(c_ptr) :: buff2, tag, tagTable, gBool
+    type(c_ptr) :: page, enter, iterPtr, gColor, buffInsert
+    type(gtktextiter), target :: iter, startIter, endIter
+    character(len=100) :: ftext
+    character(len=20)  :: txtColor
+
+    PRINT *, "In callback!"
+
+    if (c_associated(data)) then
+       entry = data
+    else
+       entry = widget
+    end if
+    buff2 = gtk_combo_box_text_get_active_text(entry)
+    buff2 = gtk_entry_get_buffer(entry)
+    call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
+    print *, "Entered name as:",trim(ftext)
+
+    ! Log results
+    txtColor = "blue"
+    call updateTerminalLog(ftext, txtColor)
+
+    ! Clear Input
+    !call gtk_entry_buffer_set_text(buff2, c_null_char,-1_c_int)
+
+    !call pending_events()
+
+    ! Finally actually process the command
+    CALL PROCESKDP(ftext)
+
+    ! Make sure we are at the bottom of the scroll window
+    !buffInsert = gtk_text_buffer_get_insert(buffer)
+    !gBool = g_variant_new_boolean(True)
+    !call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
+    !&  True, 0.5_c_double, 0.5_c_double)
+
+
+
+  end subroutine callback_editbox
+
   subroutine entry_text(widget, gdata) bind(c)
 
 
@@ -725,9 +774,12 @@ contains
     call gtk_box_append(box1, statusBar)
 
     ! CMD Entry TextBox
+    !entry = gtk_combo_box_text_new_with_entry()
     entry = hl_gtk_entry_new(60_c_int, editable=TRUE, tooltip = &
          & "Enter text here for command interpreter"//c_null_char, &
          & activate=c_funloc(name_enter))
+    !call g_signal_connect(entry, "activate"//c_null_char, c_funloc(callback_editbox), c_null_ptr)
+
     call gtk_box_append(box1, entry)
 
 

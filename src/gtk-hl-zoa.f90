@@ -73,6 +73,7 @@ subroutine hl_gtk_combo_box_list2_new(cbox, refsArray, valsArray, ID_SETTING)
   call gtk_combo_box_set_active(cbox, 0_c_int)
 
 
+
 end subroutine hl_gtk_combo_box_list2_new
 
 function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
@@ -141,7 +142,7 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
   use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer
   use gtk_sup, only: c_f_string_copy
   use global_widgets
-  
+
 
 
   type(c_ptr), value, intent(in) :: widget, gdata
