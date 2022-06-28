@@ -32,8 +32,6 @@ module mod_plotopticalsystem
   type(c_ptr) :: win,bar,pbar,qbut, box
   integer(kind=c_int) :: run_status = TRUE
   integer(c_int) :: boolresult
-  type(c_ptr) :: ld_window = c_null_ptr
-  type(c_ptr) :: cairo_drawing_area !Put this here to debug issue with plotting
 
   type(c_ptr) ::  combo_plotorientation
   type(c_ptr) ::  spinButton_azimuth, spinButton_elevation
@@ -182,6 +180,17 @@ SUBROUTINE TESTCAIRO2(widget, my_cairo_context, win_width, win_height, gdata) bi
 
 END SUBROUTINE TESTCAIRO2
 
+SUBROUTINE IGRLINETO(my_cairo_context, X,Y)
+  REAL, intent(IN) :: X,Y
+  type(c_ptr), value, intent(in)    :: my_cairo_context
+      call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+      call cairo_stroke(my_cairo_context)
+      call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+      !call gtk_window_set_child(ld_window, my_drawing_area)
+      !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
+      call gtk_widget_queue_draw(cairo_drawing_area)
+
+END SUBROUTINE IGRLINETO
 
 SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gdata) bind(c)
 
@@ -358,7 +367,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
       IF(STRINGER.EQ.'E') THEN
 !     SETTING THE FOREGROUND COLOR
        IF (II1.NE.COLPASS) THEN
-         !PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
+         PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
          !COLTRUE = COLPASS
       END IF
 
@@ -370,16 +379,16 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
 
 !      IF(COLPASS.EQ.1)  PRINT *, "COL PASS = 1!!"
       IF(COLPASS.EQ.2)  call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.0d0, 1.0d0)
-      IF(COLPASS.EQ.3)  COLTRUE=16
-      IF(COLPASS.EQ.4)  COLTRUE=112
-      IF(COLPASS.EQ.5)  COLTRUE=80
-      IF(COLPASS.EQ.6)  COLTRUE=144
-      IF(COLPASS.EQ.7)  COLTRUE=240
-      IF(COLPASS.EQ.8)  COLTRUE=224
-      IF(COLPASS.EQ.9)  COLTRUE=64
+      IF(COLPASS.EQ.3)  call cairo_set_source_rgb(my_cairo_context, .75d0, 0.0d0, 0.0d0)
+      IF(COLPASS.EQ.4)  call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.75d0, 0.75d0)
+      IF(COLPASS.EQ.5)  call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.75d0, 0.0d0)
+      IF(COLPASS.EQ.6)  call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.75d0)
+      IF(COLPASS.EQ.7)  call cairo_set_source_rgb(my_cairo_context, 0.25d0, 0.25d0, 0.25d0)
+      IF(COLPASS.EQ.8)  call cairo_set_source_rgb(my_cairo_context, 0.51d0, 0.51d0, 0.51d0)
+      IF(COLPASS.EQ.9)  call cairo_set_source_rgb(my_cairo_context, 0.51d0, 0.51d0, 0.0d0)
       IF(COLPASS.EQ.10) COLTRUE=192
       IF(COLPASS.EQ.11) COLTRUE=32
-      IF(COLPASS.EQ.12) COLTRUE=128
+      IF(COLPASS.EQ.12) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.513d0, 0.513d0)
       IF(COLPASS.EQ.13) COLTRUE=96
       IF(COLPASS.EQ.14) COLTRUE=160
       IF(COLPASS.EQ.15) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
@@ -592,7 +601,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
 
       IF(STRINGER.EQ.'I') THEN
       IF (DEBUG.EQ.1.AND.II3.NE.0) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
-      CALL JK_MoveToCAIRO(scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, my_cairo_context)
+      CALL JK_MoveToCAIRO(STRINGER, scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, my_cairo_context, &
+      & REAL(II5), REAL(II6), REAL(II7), REAL(II8))
 
                GO TO 300
                END IF
@@ -600,8 +610,11 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
 !     "PLOT PLOTTOC" = J
 !
       IF(STRINGER.EQ.'J') THEN
-
+        ! PRINT *, "STRINGER = J!"
       !CALL JK_MoveToC(REAL(II1),REAL(II2),II3,II4,II5,II6,II7,II8)
+      CALL JK_MoveToCAIRO(STRINGER, scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, &
+      & my_cairo_context, REAL(II5), REAL(II6), REAL(II7), REAL(II8))
+
                GO TO 300
                END IF
 !
@@ -642,96 +655,208 @@ SUBROUTINE DRAWOPTICALSYSTEM(widget, my_cairo_context, win_width, win_height, gd
 
 END SUBROUTINE DRAWOPTICALSYSTEM
 
-
-
-SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
+SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context, II5,II6,II7,II8)
       !USE WINTERACTER
+      use iso_c_binding, only : c_f_pointer
       IMPLICIT NONE
       type(c_ptr), value, intent(in)    ::  my_cairo_context
-      REAL INKER,MY_IX,MY_IY,XINC,YINC
+      character*1, intent(in)  :: STRINGER
+      REAL, optional :: II5, II6, II7, II8
+      REAL INKER,MY_IX,MY_IY
       INTEGER MY_IPEN,MY_LINESTYLE, &
       MY_OLDIPEN
       REAL OX,OY,MY_OLDX,MY_OLDY,DELTADIST
       COMMON/MYLINESTUFF/OX,OY,MY_OLDX,MY_OLDY,MY_OLDIPEN
-      REAL MY_DISTANCE,X,Y,OLDDIST
+      REAL MY_DISTANCE,OLDDIST
+      integer :: X, Y, XINC, YINC
       REAL REMAIN,OREMAIN,MYMOD
+      REAL R5,R6,R7,R8
+      integer :: units_long, unit_center
       COMMON/HOWFAR/MY_DISTANCE,OLDDIST,REMAIN,OREMAIN
       REAL SLOPE
+      real*8, target :: dashes = 1.0
+      type(c_ptr) :: dashes_ptr
       INKER=2.0
-!
+      R5=II5
+      R6=II6
+      R7=II7
+      R8=II8
+
+      !PRINT *, "R5, R6 = ", R5, " ", R6
+      !PRINT *, "R7, R8 = ", R7, " ", R8
+
+
       IF(MY_IPEN.EQ.0) THEN
 !     USER HAS THE PEN UP
 !     WE ARE JUST MOVING SOME PLACE SO RE-SET MY_DISTANCE TO ZERO
-      MY_DISTANCE=0
+         MY_DISTANCE=0
 !     NOW MAKE THE MOVE
       !CALL IGRMOVETO(MY_IX,MY_IY)
       !PRINT *, "MOVE TO PEN UP!"
       !PRINT *, "MY_IX = ", MY_IX, " MY_IY = ", MY_IY
-      call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
+         call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       !call cairo_stroke_preserve(my_cairo_context)
       !UPDATE OLD VALUES
-      MY_OLDX=MY_IX
-      MY_OLDY=MY_IY
-      OX=MY_OLDX
-      OY=MY_OLDY
-      MY_OLDIPEN=MY_IPEN
-      REMAIN=0.0
-      OREMAIN=0.0
-      MY_DISTANCE=0.0
-      OLDDIST=0.0
+         MY_OLDX=MY_IX
+         MY_OLDY=MY_IY
+         OX=MY_OLDX
+         OY=MY_OLDY
+         MY_OLDIPEN=MY_IPEN
+         REMAIN=0.0
+         OREMAIN=0.0
+         MY_DISTANCE=0.0
+         OLDDIST=0.0
                        RETURN
                        END IF
 !
       IF(MY_IPEN.EQ.1) THEN
 !     USER HAS THE PEN DOWN
-      IF(MY_LINESTYLE.EQ.0) THEN
-!     SIMPLE SOLID LINE (TYPE 0)
-      MY_OLDX=MY_IX
-      MY_OLDY=MY_IY
-      OY=MY_OLDX
-      OY=MY_OLDY
-      MY_DISTANCE=0.0
-      OLDDIST=0.0
-      OLDDIST=0
-      REMAIN=0.0
-      OREMAIN=0.0
-      !PRINT *, "WRITE LINE!"
-      call cairo_line_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
-      call cairo_stroke(my_cairo_context)
-      call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
-      !call gtk_window_set_child(ld_window, my_drawing_area)
-      !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
-      call gtk_widget_queue_draw(cairo_drawing_area)
-      !call gtk_widget_show(ld_window)
-      !PRINT *, "SHOULD SEE GRAPHICS NOW!"
-      !call DEBUGPROMPT
-      !CALL IGRLINETO(MY_IX,MY_IY)
+        IF(MY_LINESTYLE.EQ.0) THEN
+  !     SIMPLE SOLID LINE (TYPE 0)
+        IF (STRINGER.EQ.'I') THEN
+          MY_OLDX=MY_IX
+          MY_OLDY=MY_IY
+          OY=MY_OLDX
+          OY=MY_OLDY
+          MY_DISTANCE=0.0
+          OLDDIST=0.0
+          OLDDIST=0
+          REMAIN=0.0
+          OREMAIN=0.0
+          !PRINT *, "WRITE LINE!"
+          call IGRLINETO(my_cairo_context, MY_IX, MY_IY)
+          !call cairo_line_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
+          !call cairo_stroke(my_cairo_context)
+          !call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
+          !call gtk_window_set_child(ld_window, my_drawing_area)
+          !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
+          !call gtk_widget_queue_draw(cairo_drawing_area)
+          !call gtk_widget_show(ld_window)
+          !PRINT *, "SHOULD SEE GRAPHICS NOW!"
+          !call DEBUGPROMPT
+          !CALL IGRLINETO(MY_IX,MY_IY)
+        ELSE IF (STRINGER.EQ.'J') THEN
+        !  PRINT *, "IN STRINGER J Loop"
+
+    !     SOLID LINE
+    !     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
+    !
+    !     NOW DRAW THE LINE
+          IF((MY_IX-MY_OLDX).NE.0.0) THEN
+          SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
+                       IF(MY_IX.GE.MY_OLDX) XINC=INT(INKER)
+                       IF(MY_IX.LT.MY_OLDX) XINC=-INT(INKER)
+         !PRINT *, "MY_OLDX ", MY_OLDX
+         !PRINT *, "MY_IX ", MY_IX
+         !PRINT *, "OX, OX = ", OX, " ", OY
+
+          DO X=INT(MY_OLDX),INT(MY_IX),XINC
+                         !PRINT *, "X = ", X
+          Y=((SLOPE*(X-OX))+OY)
+    !    DRAW LINE
+          IF(X.GE.R5.AND.X.LE.R6.AND.Y.GE.R7.AND.Y.LE.R8) THEN
+
+            !PRINT *, " X Y ", X, " ", Y
+          !  PRINT *, "Drawing J Line"
+          call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+          call cairo_stroke(my_cairo_context)
+          call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+          call gtk_widget_queue_draw(cairo_drawing_area)
+    !      CALL IGRLINETO(X,Y)
+
+                       ELSE
+    !      CALL IGRMOVETO(X,Y)
+           PRINT *, "J Move To "
+           call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+
+                       END IF
+          !call gtk_widget_queue_draw(cairo_drawing_area)
+          OX=X
+          OY=Y
+                           END DO
+    !     UPDATE OLD VALUES
+          ! PRINT *, "Update Old Values"
+          MY_OLDX=MY_IX
+          MY_OLDY=MY_IY
+          OX=MY_OLDX
+          OY=MY_OLDY
+          MY_OLDIPEN=MY_IPEN
+                           ELSE
+    !     LINE IS VERTICAL
+                       IF(MY_IY.GE.MY_OLDY) YINC=INT(INKER)
+                       IF(MY_IY.LT.MY_OLDY) YINC=-INT(INKER)
+                       DO Y=INT(MY_OLDY),INT(MY_IY),YINC
+          X=MY_IX
+    !     DRAW LINE
+          IF(X.GE.R5.AND.X.LE.R6.AND.Y.GE.R7.AND.Y.LE.R8) THEN
+            !PRINT *, " X Y ", X, " ", Y
+            PRINT *, "Drawing J Vertical Line"
+          call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+          call cairo_stroke(my_cairo_context)
+          call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+          call gtk_widget_queue_draw(cairo_drawing_area)
+    !      CALL IGRLINETO(X,Y)
+
+                       ELSE
+    !      CALL IGRMOVETO(X,Y)
+           call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+                       END IF
+
+          OX=X
+          OY=Y
+                       END DO
+                     END IF ! Stringer J logic
+
+        END IF
                        RETURN
                        ELSE
                        END IF
 !*****************************************************************************
-      IF(MY_LINESTYLE.EQ.1) THEN
-!     DOTTED LINE, 10 UNITS LONG ON 40 UNIT CENTERS
+      IF(MY_LINESTYLE.GT.0) THEN
+         PRINT *, "LINESTYLE = ", MY_LINESTYLE
+         select case (MY_LINESTYLE)
+         case (1)
+  !     DOTTED LINE, 10 UNITS LONG ON 40 UNIT CENTERS
+           units_long = 10
+           unit_center = 40
+        case(2)
+             units_long = 40
+             unit_center = 100
+!     DASHED LINE, 40 UNITS LONG ON 100 UNIT CENTERS
+!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
+         end select
+
+
 !     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
 !
 !     NOW DRAW THE LINE
       IF((MY_IX-MY_OLDX).NE.0.0) THEN
       SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
+                   IF(MY_IX.GE.MY_OLDX) XINC=INT(INKER)
+                   IF(MY_IX.LT.MY_OLDX) XINC=-INT(INKER)
+                   DO X=INT(MY_OLDX),INT(MY_IX),XINC
       Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
+      DELTADIST= (SQRT(((OX-X)**2) +((OY-Y)**2)))
       OLDDIST=MY_DISTANCE
       MY_DISTANCE=MY_DISTANCE+DELTADIST
       OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/40)*40.0
+      MYMOD=REAL(INT(MY_DISTANCE)/unit_center)*unit_center*1d0
       REMAIN=(MY_DISTANCE-MYMOD)
-      IF(OREMAIN.LT.10.0.AND.REMAIN.LT.10.0) THEN
+      IF(OREMAIN.LT.units_long.AND.REMAIN.LT.units_long) THEN
 !     DRAW LINE
-      !CALL IGRLINETO(X,Y)
+      IF(STRINGER.EQ.'I') THEN
+        call cairo_set_dash(my_cairo_context, c_loc(dashes), 1, 0d0)
+        CALL IGRLINETO(my_cairo_context, REAL(X),REAL(Y))
+        !call cairo_set_dash(my_cairo_context, c_loc(dashes), 0, 0d0)
+      END IF
+
+      IF (STRINGER.EQ.'J'.AND.X.GE.R5.AND.X.LE.R6.AND.Y.GE.R7.AND.Y.LE.R8) THEN
+            CALL IGRLINETO(my_cairo_context, REAL(X),REAL(Y))
+      ELSE
+
+      call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+      END IF
+
       OX=X
       OY=Y
                    ELSE
@@ -743,18 +868,17 @@ SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
                        END DO
                        ELSE
 !     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
+                   IF(MY_IY.GE.MY_OLDY) YINC=INT(INKER)
+                   IF(MY_IY.LT.MY_OLDY) YINC=-INT(INKER)
+                   DO Y=INT(MY_OLDY),INT(MY_IY),YINC
       X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
+      DELTADIST= (SQRT((OY-Y)**2))
       OLDDIST=MY_DISTANCE
       MY_DISTANCE=MY_DISTANCE+DELTADIST
       OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/40)*40.0
+      MYMOD=REAL(INT(MY_DISTANCE)/unit_center)*unit_center*1d0
       REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.10.0.AND.REMAIN.LT.10.0) THEN
+      IF(OREMAIN.LT.units_long.AND.REMAIN.LT.units_long) THEN
 !     DRAW LINE
       !CALL IGRLINETO(X,Y)
       OX=X
@@ -771,559 +895,11 @@ SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
 !     NOT LINE TYPE 1
                        END IF
 !*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.2) THEN
-!     DASHED LINE, 40 UNITS LONG ON 100 UNIT CENTERS
-!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/100)*100.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.40.0.AND.REMAIN.LT.40.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/100)*100.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.40.0.AND.REMAIN.LT.40.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 2
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.3) THEN
-!     60 UNIT DASH,60 UNIT SPACE, 20 UNIT DASH, 60 UNIT
-!     SPACE ON 200 UNIT CENTERS
-!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/200)*200.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.60.0.AND.REMAIN.LT.60.0.OR. &
-      OREMAIN.GT.120.0.AND.REMAIN.GT.120.0.AND. &
-      OREMAIN.LT.140.0.AND.REMAIN.LT.140.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/200)*200.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.60.0.AND.REMAIN.LT.60.0.OR. &
-      OREMAIN.GT.120.0.AND.REMAIN.GT.120.0.AND. &
-      OREMAIN.LT.140.0.AND.REMAIN.LT.140.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 3
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.4) THEN
-!     60 UNIT DASH,60 UNIT SPACE, 20 UNIT DASH, 60 UNIT SPACE, 20 UNIT DASH
-!     60 UNIT SPACE ON 280 UNIT CENTERS
-!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/280)*280.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.60.0.AND.REMAIN.LT.60.0.OR. &
-      OREMAIN.GT.120.0.AND.REMAIN.GT.120.0.AND. &
-      OREMAIN.LT.140.0.AND.REMAIN.LT.140.0.OR. &
-      OREMAIN.GT.200.0.AND.REMAIN.GT.200.0.AND. &
-      OREMAIN.LT.220.0.AND.REMAIN.LT.220.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/280)*280.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.60.0.AND.REMAIN.LT.60.0.OR. &
-      OREMAIN.GT.120.0.AND.REMAIN.GT.120.0.AND. &
-      OREMAIN.LT.140.0.AND.REMAIN.LT.140.0.OR. &
-      OREMAIN.GT.200.0.AND.REMAIN.GT.200.0.AND. &
-      OREMAIN.LT.220.0.AND.REMAIN.LT.220.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 4
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.5) THEN
-!     80 UNIT DASH,60 UNIT SPACE, 20 UNIT DASH, 60 UNIT SPACE, 20 UNIT DASH
-!     60 UNIT SPACE A 20 UNIT DASH AND A 60 UNIT SPACE ON 380 UNIT CENTERS
-!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/380)*380.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.80.0.AND.REMAIN.LT.80.0.OR. &
-      OREMAIN.GT.140.0.AND.REMAIN.GT.140.0.AND. &
-      OREMAIN.LT.160.0.AND.REMAIN.LT.160.0.OR. &
-      OREMAIN.GT.220.0.AND.REMAIN.GT.220.0.AND. &
-      OREMAIN.LT.240.0.AND.REMAIN.LT.240.0.OR. &
-      OREMAIN.GT.300.0.AND.REMAIN.GT.300.0.AND. &
-      OREMAIN.LT.320.0.AND.REMAIN.LT.320.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/380)*380.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.80.0.AND.REMAIN.LT.80.0.OR. &
-      OREMAIN.GT.140.0.AND.REMAIN.GT.140.0.AND. &
-      OREMAIN.LT.160.0.AND.REMAIN.LT.160.0.OR. &
-      OREMAIN.GT.220.0.AND.REMAIN.GT.220.0.AND. &
-      OREMAIN.LT.240.0.AND.REMAIN.LT.240.0.OR. &
-      OREMAIN.GT.300.0.AND.REMAIN.GT.300.0.AND. &
-      OREMAIN.LT.320.0.AND.REMAIN.LT.320.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 5
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.6) THEN
-!     80 UNIT DASH,60 UNIT SPACE, 80 UNIT DASH, 60 UNIT SPACE, 20 UNIT DASH
-!     60 UNIT SPACE A 20 UNIT DASH AND A 60 UNIT SPACE ON 440 UNIT CENTERS
-!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/440)*440.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.80.0.AND.REMAIN.LT.80.0.OR. &
-      OREMAIN.GT.140.0.AND.REMAIN.GT.140.0.AND. &
-      OREMAIN.LT.220.0.AND.REMAIN.LT.220.0.OR. &
-      OREMAIN.GT.280.0.AND.REMAIN.GT.280.0.AND. &
-      OREMAIN.LT.300.0.AND.REMAIN.LT.300.0.OR. &
-      OREMAIN.GT.360.0.AND.REMAIN.GT.360.0.AND. &
-      OREMAIN.LT.380.0.AND.REMAIN.LT.380.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/440)*440.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.80.0.AND.REMAIN.LT.80.0.OR. &
-      OREMAIN.GT.140.0.AND.REMAIN.GT.140.0.AND. &
-      OREMAIN.LT.220.0.AND.REMAIN.LT.220.0.OR. &
-      OREMAIN.GT.280.0.AND.REMAIN.GT.280.0.AND. &
-      OREMAIN.LT.300.0.AND.REMAIN.LT.300.0.OR. &
-      OREMAIN.GT.360.0.AND.REMAIN.GT.360.0.AND. &
-      OREMAIN.LT.380.0.AND.REMAIN.LT.380.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 6
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.7) THEN
-!     80 UNIT DASH,60 UNIT SPACE, 80 UNIT DASH, 60 UNIT SPACE, 80 UNIT DASH
-!     60 UNIT SPACE A 20 UNIT DASH AND A 60 UNIT SPACE ON 500 UNIT CENTERS
-!     WE ARE DRAWING TO SOME PLACE SO UPDATE MY_DISTANCE
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      SQRT(((OX-X)**2) &
-      +((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/500)*500.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.80.0.AND.REMAIN.LT.80.0.OR. &
-      OREMAIN.GT.140.0.AND.REMAIN.GT.140.0.AND. &
-      OREMAIN.LT.220.0.AND.REMAIN.LT.220.0.OR. &
-      OREMAIN.GT.280.0.AND.REMAIN.GT.280.0.AND. &
-      OREMAIN.LT.360.0.AND.REMAIN.LT.360.0.OR. &
-      OREMAIN.GT.420.0.AND.REMAIN.GT.420.0.AND. &
-      OREMAIN.LT.440.0.AND.REMAIN.LT.440.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/500)*500.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.80.0.AND.REMAIN.LT.80.0.OR. &
-      OREMAIN.GT.140.0.AND.REMAIN.GT.140.0.AND. &
-      OREMAIN.LT.220.0.AND.REMAIN.LT.220.0.OR. &
-      OREMAIN.GT.280.0.AND.REMAIN.GT.280.0.AND. &
-      OREMAIN.LT.360.0.AND.REMAIN.LT.360.0.OR. &
-      OREMAIN.GT.420.0.AND.REMAIN.GT.420.0.AND. &
-      OREMAIN.LT.440.0.AND.REMAIN.LT.440.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 7
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.8) THEN
-!     200 UNIT DASH ON 280 UNIT CENTERS
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(REAL(MY_IY)-REAL(MY_OLDY))/(REAL(MY_IX)-REAL(MY_OLDX))
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/280)*280.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.200.0.AND.REMAIN.LT.200.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/280)*280.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.200.0.AND.REMAIN.LT.200.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 8
-                       END IF
-!*****************************************************************************
-!*****************************************************************************
-      IF(MY_LINESTYLE.EQ.9) THEN
-!     200 UNIT DASH 60 UNIT SPACE, 60 UNIT DASH 60 UNIT SPACE
-!     ON 380 CENTERS
-!
-!     NOW DRAW THE LINE
-      IF((MY_IX-MY_OLDX).NE.0.0) THEN
-      SLOPE=(MY_IY-MY_OLDY)/(MY_IX-MY_OLDX)
-                   IF(MY_IX.GE.MY_OLDX) XINC=INKER
-                   IF(MY_IX.LT.MY_OLDX) XINC=-INKER
-                   DO X=MY_OLDX,MY_IX,XINC
-      Y=((SLOPE*(X-OX))+OY)
-      DELTADIST= &
-      (SQRT(((OX-X)**2) &
-      +((OY-Y)**2)))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/380)*380.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.200.0.AND.REMAIN.LT.200.0.OR. &
-      OREMAIN.GT.260.0.AND.REMAIN.GT.260.0.AND. &
-      OREMAIN.LT.320.0.AND.REMAIN.LT.320.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                       END DO
-                       ELSE
-!     LINE IS VERTICAL
-                   IF(MY_IY.GE.MY_OLDY) YINC=INKER
-                   IF(MY_IY.LT.MY_OLDY) YINC=-INKER
-                   DO Y=MY_OLDY,MY_IY,YINC
-      X=MY_IX
-      DELTADIST= &
-       (SQRT((OY-Y)**2))
-      OLDDIST=MY_DISTANCE
-      MY_DISTANCE=MY_DISTANCE+DELTADIST
-      OREMAIN=REMAIN
-      MYMOD=REAL(INT(MY_DISTANCE)/380)*380.0
-      REMAIN=MY_DISTANCE-MYMOD
-      IF(OREMAIN.LT.200.0.AND.REMAIN.LT.200.0.OR. &
-      OREMAIN.GT.260.0.AND.REMAIN.GT.260.0.AND. &
-      OREMAIN.LT.320.0.AND.REMAIN.LT.320.0) THEN
-!     DRAW LINE
-      !CALL IGRLINETO(X,Y)
-      OX=X
-      OY=Y
-                   ELSE
-!     MOVE
-      !CALL IGRMOVETO(X,Y)
-      OX=X
-      OY=Y
-                   END IF
-                   END DO
-                       END IF
-                       ELSE
-!     NOT LINE TYPE 9
-                       END IF
+
+
 !*****************************************************************************
 !     UPDATE OLD VALUES
+      !PRINT *, "Update OLD VALUES"
       MY_OLDX=MY_IX
       MY_OLDY=MY_IY
       OX=MY_OLDX
@@ -1335,12 +911,16 @@ SUBROUTINE JK_MOVETOCAIRO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, my_cairo_context)
                         RETURN
                         END
 
+
 SUBROUTINE WDRAWOPTICALSYSTEM
 
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
        use handlers
+       use zoa_ui
+       use mod_plotrayfan, only: ray_fan_plot_check_status !ray_fan_new
+       use mod_lens_draw_settings
        !USE WINTERACTER
        IMPLICIT NONE
 
@@ -1378,7 +958,11 @@ SUBROUTINE WDRAWOPTICALSYSTEM
       !CALL IGRPALETTERGB(223,0,0,0)
       !CALL IGRPALETTERGB(0,255,255,255)
       !CALL IGrColourN(223)
+    PRINT *, "Active Plot is ", active_plot
 
+
+    select case (active_plot)
+    case (ID_NEWPLOT_LENSDRAW)
 
     ! Only support one window at present.
     if (.not. c_associated(ld_window))  THEN
@@ -1386,6 +970,21 @@ SUBROUTINE WDRAWOPTICALSYSTEM
     else
        call gtk_widget_queue_draw(cairo_drawing_area)
     end if
+
+  case (ID_NEWPLOT_RAYFAN)
+
+    ! Only support one window at present.
+    PRINT *, "RAY FAN Plotting Initiated!"
+    call ray_fan_plot_check_status()
+    !if (.not. c_associated(rf_window))  THEN
+    !    PRINT *, "Call New Ray Fan Window"
+    !    call ray_fan_new(my_window)
+    !else
+    !   PRINT *, "Redraw Ray Fan "
+    !   call gtk_widget_queue_draw(rf_cairo_drawing_area)
+    !end if
+    !PRINT *, "READY TO PLOT!"
+  end select
 
     !call DRAWDEBUG
       !CALL DRAWOPTICALSYSTEM(1,FIRST,ISKEY)
@@ -1644,7 +1243,7 @@ subroutine combo_fieldsymmetry_callback (widget, gdata ) bind(c)
   !read(my_string, *) choice
 
   !PRINT *, "CHOICE = ", my_string
-
+  PRINT *, "Field Symmetry Callback initiated!"
   id_selected = hl_zoa_combo_get_selected_list2_id(widget)
 
 
@@ -1890,8 +1489,8 @@ end subroutine combo_plotorientation_callback
     type(c_ptr) :: content, junk, gfilter
     integer(kind=c_int) :: icreate, idir, action, lval
     integer(kind=c_int) :: i, idx0, idx1
-    type(c_ptr)     :: my_drawing_area
-    integer(c_int)  :: width, height
+    !type(c_ptr)     :: my_drawing_area
+    !integer(c_int)  :: width, height
 
     type(c_ptr)     :: table, expander, box1
 
@@ -1954,6 +1553,8 @@ subroutine lens_draw_replot()
   character(len=3)   :: AJ, AK
   character(len=23) :: autoScale_text, AW2, AW3
 
+
+  PRINT *, "LENS DRAW REPLOT INIITIATED"
 
   command = "VIECO"
 

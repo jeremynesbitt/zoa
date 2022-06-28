@@ -1,6 +1,7 @@
 C SUB CMDER.FOR
         SUBROUTINE CMDER
         USE GLOBALS
+        use zoa_ui
 C
         IMPLICIT NONE
 C
@@ -2744,6 +2745,8 @@ C
      1  WC.EQ.'PLTNFAN'.AND.F17.EQ.0.OR.
      1  WC.EQ.'PLOTFANS'.AND.F17.EQ.0) THEN
        PLOTCAPCON=.FALSE.
+       active_plot = ID_NEWPLOT_RAYFAN
+
         CALL PPLOTT
         RETURN
         END IF
@@ -2753,12 +2756,14 @@ C
      4  WC.EQ.'PFANCAP'.AND.F17.EQ.0.OR.
      5  WC.EQ.'PFANSSI'.AND.F17.EQ.0) THEN
        PLOTCAPCON=.FALSE.
+       active_plot = ID_NEWPLOT_RAYFAN
         CALL PPLOTT
         RETURN
         END IF
         IF(WC.EQ.'PLTXYFAN'.AND.F17.EQ.0.OR.
      1  WC.EQ.'PLTYXFAN'.AND.F17.EQ.0) THEN
        PLOTCAPCON=.FALSE.
+       active_plot = ID_NEWPLOT_RAYFAN
         CALL PPLOTT
         RETURN
         END IF
@@ -2794,6 +2799,7 @@ C
         END IF
         IF(WC.EQ.'VIE'.OR.WC.EQ.'VIECO') THEN
         CACOCHVIE=0
+        active_plot = ID_NEWPLOT_LENSDRAW
         IF(WC.EQ.'VIECO') CACOCHVIE=1
         F34=1
         MSG=.FALSE.
@@ -2826,6 +2832,7 @@ C
         RETURN
         END IF
         IF(WC.EQ.'DRAW'.OR.WC.EQ.'LISTDRAW') THEN
+        !active_plot = ID_NEWPLOT_LENSDRAW
         CALL PPLOTT
         RETURN
         END IF
@@ -2835,11 +2842,13 @@ C        CALL REPLAYFILE
 C        RETURN
 C        END IF
         IF(WC.EQ.'DRAWFAN') THEN
+        active_plot = ID_NEWPLOT_RAYFAN
         CALL PPLOTT
         PLOTCAPCON=.FALSE.
         RETURN
         END IF
         IF(WC.EQ.'PLT_FAN') THEN
+        active_plot = ID_NEWPLOT_RAYFAN
         CALL PPLOTT
         PLOTCAPCON=.FALSE.
         RETURN
