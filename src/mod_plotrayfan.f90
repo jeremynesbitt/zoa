@@ -23,8 +23,6 @@ module mod_plotrayfan
 
   integer(kind=c_int) :: run_status = TRUE
 
-  REAL :: kdp_width = 10500
-  REAL :: kdp_height = 7050
 
 contains
 
@@ -407,7 +405,7 @@ end subroutine callback_ray_fan_settings
 
 
   subroutine ray_fan_new(parent_window)
-    use mod_plotopticalsystem, only: DRAWOPTICALSYSTEM
+    use kdp_draw, only: DRAWOPTICALSYSTEM
 
     type(c_ptr) :: parent_window
     !type(c_ptr), value :: rf_window

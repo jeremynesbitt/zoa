@@ -23,9 +23,9 @@ module global_widgets
   type(c_ptr) :: rf_cairo_drawing_area !Put this here to debug issue with plotting
 
   type(c_ptr) :: ld_window = c_null_ptr
-  !type(c_ptr) :: rf_window = c_null_ptr
+  type(c_ptr) :: ld_cairo_drawing_area !Put this here to debug issue with plotting
 
-  type(c_ptr) :: cairo_drawing_area !Put this here to debug issue with plotting
-
+  REAL :: kdp_width = 10500
+  REAL :: kdp_height = 7050
 
 end module global_widgets

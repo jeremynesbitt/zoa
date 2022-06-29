@@ -876,7 +876,7 @@ C      USE WINTERACTER
        SUBROUTINE WDRAW
        USE GLOBALS
 C       USE WINTERACTER
-        USE mod_plotopticalsystem
+        use kdp_interfaces
        IMPLICIT NONE
        LOGICAL FIRST
        INTEGER NCOL256,ID,IDRAW1,ISKEY,INFO,IWX,IWY,IX,IY
@@ -1386,4 +1386,3 @@ C      IF(J.EQ.NEUTTOTAL+1) THEN
 
        call free_img(animage)
                END
-
