@@ -54,6 +54,8 @@ SUBROUTINE TESTCAIRO(widget, my_cairo_context, win_width, win_height, gdata) bin
 
 END SUBROUTINE TESTCAIRO
 
+
+
 SUBROUTINE TESTCAIRO2(widget, my_cairo_context, win_width, win_height, gdata) bind(c)
 
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
@@ -89,6 +91,8 @@ SUBROUTINE TESTCAIRO2(widget, my_cairo_context, win_width, win_height, gdata) bi
 
 
     call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
+
+
     call cairo_set_line_width(my_cairo_context, 4d0)
     call cairo_move_to(my_cairo_context, (0.5*win_height)*1d0, (0.5*win_width)*1d0)
     call cairo_line_to(my_cairo_context, (0.5*win_height)*1d0, (0.5*win_width+200)*1d0)
@@ -116,15 +120,61 @@ SUBROUTINE TESTCAIRO2(widget, my_cairo_context, win_width, win_height, gdata) bi
 
 END SUBROUTINE TESTCAIRO2
 
+SUBROUTINE TESTCAIRO3(widget, my_cairo_context, win_width, win_height, gdata) bind(c)
+
+  !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
+
+       USE GLOBALS
+       use handlers
+
+       !USE WINTERACTER
+    IMPLICIT NONE
+
+    type(c_ptr), value, intent(in)    :: widget, my_cairo_context, gdata
+    integer(c_int), value, intent(in) :: win_width, win_height
+    integer                           :: cstatus
+    integer                           :: t
+
+    call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
+
+    call cairo_rectangle (my_cairo_context, (win_width/4)*1d0, (win_height/2)*1d0, 200d0, 200d0);
+    call cairo_fill (my_cairo_context);
+
+    ! Manual way (just to check lower level commands)
+
+    call cairo_move_to (my_cairo_context, (win_width/4)*3d0, (win_height/2)*1d0)
+    call cairo_rel_line_to (my_cairo_context, 200d0, 0d0)
+    call cairo_rel_line_to (my_cairo_context, 0d0, 200d0);
+    call cairo_rel_line_to (my_cairo_context, -200d0, 0d0);
+    call cairo_close_path (my_cairo_context);
+    call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.0d0, 0.0d0)
+
+    call cairo_fill(my_cairo_context)
+
+    ! Manual way 2 (just to check lower level commands)
+
+    call cairo_move_to (my_cairo_context, (win_width/4)*3d0, (win_height/2-300)*1d0)
+    call cairo_line_to (my_cairo_context, (win_width/4)*3d0+200d0, (win_height/2-300)*1d0)
+    call cairo_line_to (my_cairo_context, (win_width/4)*3d0+200d0, (win_height/2-300)*1d0+200d0)
+    call cairo_line_to (my_cairo_context, (win_width/4)*3d0, (win_height/2-300)*1d0+200d0);
+    !call cairo_stroke(my_cairo_context)
+    call cairo_close_path (my_cairo_context);
+    call cairo_set_source_rgba(my_cairo_context, 0.0d0, 0.0d0, 0.0d0, 0.5d0)
+    call cairo_fill(my_cairo_context)
+
+END SUBROUTINE TESTCAIRO3
+
 SUBROUTINE IGRLINETO(my_cairo_context, cairo_drawing_area, X,Y)
   REAL, intent(IN) :: X,Y
   type(c_ptr), value, intent(in)    :: my_cairo_context, cairo_drawing_area
       call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
-      call cairo_stroke(my_cairo_context)
-      call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+
+      !call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+
+
       !call gtk_window_set_child(ld_window, my_drawing_area)
       !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
-      call gtk_widget_queue_draw(cairo_drawing_area)
+      !call gtk_widget_queue_draw(cairo_drawing_area)
 
 END SUBROUTINE IGRLINETO
 
@@ -303,19 +353,43 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 !
       IF(STRINGER.EQ.'E') THEN
 !     SETTING THE FOREGROUND COLOR
-       IF (II1.NE.COLPASS) THEN
-         PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
+       !IF (II1.NE.COLPASS) THEN
+      !   PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
          !COLTRUE = COLPASS
-      END IF
+      !END IF
+
+! C               COLORS AND THEIR INTEGER CODES
+! C
+! C               0 = WHITE
+! C               1 = LIGHT YELLOW
+! C               2 = LIGHT MAGENTA
+! C               3 = LIGHT RED
+! C               4 = LIGHT CYAN
+! C               5 = LIGHT GREEN
+! C               6 = LIGHT BLUE
+! C               7 = DARK GREY
+! C               8 = LIGHT GREY
+! C               9 = DARK YELLOW
+! C              10 = DARK MAGENTA
+! C              11 = DARK RED
+! C              12 = DARK CYAN
+! C              13 = DARK GREEN
+! C              14 = DARK BLUE
+! C              15 = BLACK
+! C
 
       COLPASS=II1
 
       IF(COLPASS.EQ.0)  call cairo_set_source_rgb(my_cairo_context, 1.0d0, 1.0d0, 1.0d0)
 !      IF(COLPASS.EQ.1)  call cairo_set_source_rgb(my_cairo_context, 1.0d0, 1.0d0, 0.0d0)
-      IF(COLPASS.EQ.1)  call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
+      IF(COLPASS.EQ.1)  call cairo_set_source_rgba(my_cairo_context, 0.75d0, 0.75d0, 0.0d0, (1-REAL(II2)/100.0)*1d0)
 
 !      IF(COLPASS.EQ.1)  PRINT *, "COL PASS = 1!!"
-      IF(COLPASS.EQ.2)  call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.0d0, 1.0d0)
+      IF(COLPASS.EQ.2)  call cairo_set_source_rgba(my_cairo_context, 1.0d0, 0.0d0, 1.0d0, (1-REAL(II2)/100.0)*1d0)
+      !IF(COLPASS.EQ.2)  call cairo_set_source_rgba(my_cairo_context, .51d0, .51d0, 0.0d0, (1-REAL(II2)/100.0)*1d0)
+
+      !IF(COLPASS.EQ.2)  call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.0d0, 1.0d0)
+      IF(COLPASS.EQ.2.AND.II2.GT.0)  PRINT *, "Alpha is ", (1-REAL(II2)/100.0)*1d0
       IF(COLPASS.EQ.3)  call cairo_set_source_rgb(my_cairo_context, .75d0, 0.0d0, 0.0d0)
       IF(COLPASS.EQ.4)  call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.75d0, 0.75d0)
       IF(COLPASS.EQ.5)  call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.75d0, 0.0d0)
@@ -327,7 +401,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       IF(COLPASS.EQ.11) COLTRUE=32
       IF(COLPASS.EQ.12) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.513d0, 0.513d0)
       IF(COLPASS.EQ.13) COLTRUE=96
-      IF(COLPASS.EQ.14) COLTRUE=160
+      IF(COLPASS.EQ.14) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.513d0)
       IF(COLPASS.EQ.15) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
 
       call cairo_set_line_width(my_cairo_context, fontScaleFactor*1d0)
@@ -559,7 +633,16 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 !
 !     JN Deleted STRINGER = K
       IF(STRINGER.EQ.'K') GO TO 300
+
+      IF(STRINGER.EQ.'L') THEN
+        PRINT *, "Stringer L Called!"
+        !call cairo_move_to(my_cairo_context, REAL(II1)*1d0, (kdp_height-REAL(II2))*1d0)
+        call cairo_close_path(my_cairo_context)
+
+        call cairo_fill(my_cairo_context)
+
 !
+      END IF
 
 !     "PLOT END" = B
       IF(J.EQ.NEUTTOTAL+1) THEN
@@ -633,6 +716,9 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
       !CALL IGRMOVETO(MY_IX,MY_IY)
       !PRINT *, "MOVE TO PEN UP!"
       !PRINT *, "MY_IX = ", MY_IX, " MY_IY = ", MY_IY
+      ! Need to draw the current path before moving the pen, hence the call here to
+      ! cairo_stroke
+         call cairo_stroke(my_cairo_context)
          call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       !call cairo_stroke_preserve(my_cairo_context)
       !UPDATE OLD VALUES
@@ -698,14 +784,15 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
             !PRINT *, " X Y ", X, " ", Y
           !  PRINT *, "Drawing J Line"
           call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
-          call cairo_stroke(my_cairo_context)
-          call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
-          call gtk_widget_queue_draw(cairo_drawing_area)
+          !call cairo_stroke(my_cairo_context)
+          !call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+          !call gtk_widget_queue_draw(cairo_drawing_area)
     !      CALL IGRLINETO(X,Y)
 
                        ELSE
     !      CALL IGRMOVETO(X,Y)
            PRINT *, "J Move To "
+           call cairo_stroke(my_cairo_context)
            call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
 
                        END IF

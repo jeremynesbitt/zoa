@@ -543,7 +543,7 @@ end subroutine combo_plotorientation_callback
 
   subroutine lens_draw_new(parent_window)
 
-    use kdp_draw, only: DRAWOPTICALSYSTEM
+    use kdp_draw, only: DRAWOPTICALSYSTEM, TESTCAIRO2, TESTCAIRO3
     type(c_ptr) :: parent_window
 
     type(c_ptr) :: content, junk, gfilter
@@ -585,7 +585,7 @@ end subroutine combo_plotorientation_callback
     call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
                    & c_funloc(DRAWOPTICALSYSTEM), c_null_ptr, c_null_funptr)
     !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
-    !               & c_funloc(TESTCAIRO2), c_null_ptr, c_null_funptr)
+    !               & c_funloc(TESTCAIRO3), c_null_ptr, c_null_funptr)
 
     PRINT *, "FINISHED WITH DRAWOPTICALSYSTEM"
     call gtk_box_append(box1, ld_cairo_drawing_area)

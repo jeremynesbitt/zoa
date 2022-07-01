@@ -4905,6 +4905,7 @@ C SUB PLTPRO1.FOR
         USE GLOBALS
 C        USE testHDF5
         use h5fortran
+
 C
         IMPLICIT NONE
 
@@ -5433,6 +5434,7 @@ C               CYCLE THROUGH THE NEXT DATA PAIR
                         END DO
 C
 C               CYCLE THROUGH THE NEXT SURFACE
+
                         END DO
 C
 C     3. THE ARRAYS NOW HAVE LOCAL X,Y AND Z VALUES STORED IN THEM
@@ -5754,16 +5756,24 @@ C     NOW DO THE EDGES AT THE OBSCURATIONS
                         ELSE
                         END IF
 C     DO NEXT SURFACE
+! TEMP
+          IF (I.EQ.5) THEN
+       CALL MY_COLTYP_ALPHA(COLFILL, 50)
+       PRINT *, "COLFILL IS ", COLFILL
+       CALL FILLSURF(STARTPOINT(1,1,I),STARTPOINT(1,2,I),1)
+       CALL MY_COLTYP(COLPAS)
+          END IF
+
  51                     CONTINUE
                         END DO
 C     DO SECOND PASS FOR MIRROR BACKING
       !PRINT *, PRO
       if (STASUR.GT.2.AND.STPSUR.LT.8) then
-        call h5write('ppro_sub.h5','/p', PRO)
-        call hdf5_close()
+        !call h5write('ppro_sub.h5','/p', PRO)
+        !call hdf5_close()
       else
-        call h5write('ppro.h5','/p', PRO)
-        call hdf5_close()
+        !call h5write('ppro.h5','/p', PRO)
+        !call hdf5_close()
       end if
       ! open(17,file='values.dat',action='write')
       ! !write(17,'(2I5)') n,m
@@ -5783,7 +5793,7 @@ C     DO SECOND PASS FOR MIRROR BACKING
                         DO I=0,INT(SYSTEM(20))
       IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,I).NE.0.0D0) THEN
         IF(ALENS(110,I).NE.0.0D0) THEN
-          PRINT *, "LINE 5755 PLTPRO1 Executed!"
+          !PRINT *, "LINE 5755 PLTPRO1 Executed!"
       CALL PENMV1(STARTPOINT(1,1,I),STARTPOINT(1,2,I),0)
       CALL PENMV1(STOPPOINT(1,1,I),STOPPOINT(1,2,I),1)
       CALL PENMV1(STARTPOINT(2,1,I),STARTPOINT(2,2,I),0)
@@ -5804,18 +5814,18 @@ C     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
                         END IF
       LNTYPE=OLLNTP
 
-      if (STASUR.GT.2.AND.STPSUR.LT.8) then
-       call h5write('startpoint_sub.h5','/f', STARTPOINT)
-       call hdf5_close()
-       call h5write('stoppoint_sub.h', '/l', STOPPOINT)
-       call hdf5_close()
-      else
-       call h5write('startpoint.h5','/f', STARTPOINT)
-       call hdf5_close()
-       call h5write('stoppoint.h', '/l', STOPPOINT)
-       call hdf5_close()
-        
-      end if
+      !if (STASUR.GT.2.AND.STPSUR.LT.8) then
+       !call h5write('startpoint_sub.h5','/f', STARTPOINT)
+       !call hdf5_close()
+       !call h5write('stoppoint_sub.h', '/l', STOPPOINT)
+       !call hdf5_close()
+      !else
+       !call h5write('startpoint.h5','/f', STARTPOINT)
+       !call hdf5_close()
+       !call h5write('stoppoint.h', '/l', STOPPOINT)
+       !call hdf5_close()
+
+      !end if
 
       !call h5write('PROTEST.h5','/x', PRO)
       !call h5write('p1aray.h5','/p1', P1ARAY)
@@ -5830,8 +5840,8 @@ C     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
        ! call h5f%open('stoppoint.h5', action='w')
        ! call h5f%write('/f', STOPPOINT)
        ! call h5f%close()
-      PRINT *, "PRO Size is ", SIZE(PRO,1), " ", SIZE(PRO,2)
-      PRINT *, "PRO Sisze is ", SIZE(PRO,3), " ", SIZE(PRO)
+      !PRINT *, "PRO Size is ", SIZE(PRO,1), " ", SIZE(PRO,2)
+      !PRINT *, "PRO Sisze is ", SIZE(PRO,3), " ", SIZE(PRO)
       !call h5write('PRO.h5', '/x', P1ARAY)
 
 

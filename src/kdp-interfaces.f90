@@ -102,4 +102,58 @@ SUBROUTINE WDRAWOPTICALSYSTEM
                         RETURN
                         END
 
+
+ !      SUBROUTINE MY_COLTYP_ALPHA(COLPAS, alpha)
+ !      USE GLOBALS
+ !      IMPLICIT NONE
+ !      CHARACTER STRINGER*1,NEUTLINE*42
+ !      INTEGER COLPAS, NEUTTOTAL, MAXNEUTRAL
+ !      ! alpha here is 100x * transparency to keep it an integer
+ !      INTEGER, optional :: alpha
+ !      INTEGER I1,I2,I3,I4,I5,I6,I7,I8
+ !      INTEGER II1,II2,II3,II4,II5,II6,II7,II8
+ !
+ !      COMMON NEUTTOTAL, MAXNEUTRAL, NEUTARRAY
+ !
+ !      !INCLUDE 'DATHGR.INC'
+ !      !INCLUDE 'DATMAI.INC'
+ !
+ !      if (.not.present(alpha)) alpha = 0
+ !
+ !
+ !      I1=COLPAS
+ !      I2=alpha
+ !      I3=0
+ !      I4=0
+ !      I5=0
+ !      I6=0
+ !      I7=0
+ !      I8=0
+ !      IF(I1.GT.99999) I1=99999
+ !      IF(I2.GT.99999) I2=99999
+ !      IF(I3.GT.99999) I3=99999
+ !      IF(I4.GT.99999) I4=99999
+ !      IF(I5.GT.99999) I5=99999
+ !      IF(I6.GT.99999) I6=99999
+ !      IF(I7.GT.99999) I7=99999
+ !      IF(I8.GT.99999) I8=99999
+ !      IF(I1.LT.-9999) I1=-9999
+ !      IF(I2.LT.-9999) I2=-9999
+ !      IF(I3.LT.-9999) I3=-9999
+ !      IF(I4.LT.-9999) I4=-9999
+ !      IF(I5.LT.-9999) I5=-9999
+ !      IF(I6.LT.-9999) I6=-9999
+ !      IF(I7.LT.-9999) I7=-9999
+ !      IF(I8.LT.-9999) I8=-9999
+ !      STRINGER='E'
+ !      NEUTTOTAL=NEUTTOTAL+1
+ !      PRINT 1000, STRINGER, I1,I2,I3,I4,I5,I6,I7,I8
+ !      WRITE(NEUTLINE,1000) STRINGER, I1,I2,I3,I4,I5,I6,I7,I8
+ !      IF(NEUTTOTAL+1.GE.MAXNEUTRAL/2) CALL RESIZE_NEUT
+ !      NEUTARRAY(NEUTTOTAL+1)=NEUTLINE
+ !
+ ! 1000 FORMAT(A1,I5,I5,I5,I5,I5,I5,I5,I5)
+ !                        RETURN
+ !                        END
+
 end module kdp_interfaces

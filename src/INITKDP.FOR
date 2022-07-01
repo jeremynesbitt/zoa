@@ -136,7 +136,7 @@ C
 C       MAX SAVE/REST = 36 8/24/2006
 C
         CALL MY_NDPEXC
-        PRINT *, "Got to Line 140"   
+        PRINT *, "Got to Line 140"
 C
 C     NO NSS SURFACES
       SYSTEM(102)=0.0D0
@@ -295,7 +295,7 @@ C      CALL GETOPSYS(ID_SYSTEM)
 C     Set to one
 	  ID_SYSTEM = 1
 	  PRINT *, "Got to line 285"
-      
+
 C     SET USING OLD REFERENCE RAY DATA TO FALSE
 C
       USEOLREF=.FALSE.
@@ -632,8 +632,8 @@ C     INITIALIZE ALL COLORS TO THEIR DEFAULTS
                 COLRAY=15
                 COLCLP=3
                 COLCOB=9
-                COLEDG=1
-                COLPRO=1
+                COLEDG=15
+                COLPRO=15
                 COLAXS=15
                 COLBAC=0
 C
@@ -652,6 +652,7 @@ C
                 COLLBL=15
                 COLSPE=15
                 COLPEN=15
+                COLFILL = 1
 C
                 N=11
 C
@@ -1313,7 +1314,7 @@ C
         CALL CLOSE_FILE(20,1)
 C       PROCEDD WITHOUT ATTEMPED FUNCTION LOADING
                         END IF
-                        
+
 C                        PRINT *, "Got to line 1301"
 C
 C***********************************************************************
@@ -1551,7 +1552,7 @@ C       FIX THE DOGTAG
 C
         EXIS22=.FALSE.
         EXIS27=.FALSE.
-        
+
       INQUIRE(FILE=LIBLEN//'LIB.DAT',EXIST=EXIS22)
       INQUIRE(FILE=LIBLEN//'LIBTAG.DAT',EXIST=EXIS27)
       PRINT *, EXIS22
@@ -1600,8 +1601,8 @@ C                        PRINT *, "Got to line 1582"
 C
 C
        PRINT *, "GOT TO LINE 1582"
-      
-      
+
+
       IF(CMDLINE(1:5).EQ.'BATCH') THEN
         EXIS44=.FALSE.
         OPEN44=.FALSE.
@@ -1656,7 +1657,7 @@ C     READ AND PROCESS INSTRUCTIONS
                 END IF
                 END DO
                 ELSE
-                
+
                 END IF
         IF(F16.EQ.1.AND.INPUT(1:3).NE.'EOM') GO TO 9677
         IF(F16.EQ.1.AND.INPUT(1:3).EQ.'EOM') THEN
