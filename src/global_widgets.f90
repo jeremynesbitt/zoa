@@ -4,6 +4,7 @@ module global_widgets
   use zoa_ui
   use mod_ray_fan_settings
   use mod_lens_draw_settings
+  use kdp_data_types
 
 
   type(c_ptr) :: my_pixbuf, my_drawing_area, spinButton1, spinButton2, spinButton3
@@ -18,12 +19,16 @@ module global_widgets
   ! UI Parameters
   type(lens_draw_settings) :: ld_settings
   type(ray_fan_settings)   :: rf_settings
+  type(lens_data)  :: curr_lens_data
+  type(paraxial_ray_trace_data) :: curr_par_ray_trace
 
   type(c_ptr) :: rf_window = c_null_ptr
   type(c_ptr) :: rf_cairo_drawing_area !Put this here to debug issue with plotting
 
   type(c_ptr) :: ld_window = c_null_ptr
   type(c_ptr) :: ld_cairo_drawing_area !Put this here to debug issue with plotting
+
+  type(c_ptr) :: lens_editor_window = c_null_ptr
 
   REAL :: kdp_width = 10500
   REAL :: kdp_height = 7050

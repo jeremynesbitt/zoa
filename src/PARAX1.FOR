@@ -15,6 +15,7 @@ C
 C
         COMMON/PRCOM/WV,ITYP
 C
+
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
       INTEGER WWVN
@@ -2718,6 +2719,7 @@ C
                         END
 C SUB PAROUT.FOR
         SUBROUTINE PAROUT
+        use global_widgets
 C
         IMPLICIT NONE
 C
@@ -2787,6 +2789,17 @@ C
         IF(WC.EQ.'PRTX') WRITE(OUTLYNE,6012)
         IF(WC.EQ.'PRTY') WRITE(OUTLYNE,6015)
       CALL SHOWIT(0)
+C     Dump data to paraxial ray trace interface
+      call curr_par_ray_trace%add_lens_data(curr_lens_data)
+      PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
+      curr_par_ray_trace%marginal_ray_height = PXTRAY(1,0:SF)
+      curr_par_ray_trace%marginal_ray_angle = PXTRAY(2,0:SF)
+      curr_par_ray_trace%chief_ray_height = PXTRAY(3,0:SF)
+      curr_par_ray_trace%chief_ray_angle = PXTRAY(4,0:SF)
+      curr_par_ray_trace%chief_ray_aoi = PXTRAY(7,0:SF)
+      curr_par_ray_trace%marginal_ray_aoi = PXTRAY(5,0:SF)
+      
+
                         DO I=0,SF
                         DO J=1,8
         IF(DABS(PXTRAX(J,I)).LT.1.0D-14) PXTRAX(J,I)=0.0D0

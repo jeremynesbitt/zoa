@@ -3792,6 +3792,7 @@ C       OUTPUT IMAGE SURFACE WITH FRACTIONAL OUTPUT HEADER
                         END
 C SUB PRRAY.FOR
         SUBROUTINE PRRAY
+        use global_widgets
 C
         IMPLICIT NONE
 C
@@ -3888,6 +3889,8 @@ C
                         RETURN
                         END IF
                         END IF
+
+
 C
 C       SET AMODE
         IF(DEG) THEN
@@ -3928,11 +3931,18 @@ C
         IF(WC.EQ.'PRXYI')WRITE(OUTLYNE,6000)
         IF(WC.EQ.'PRXYIP')WRITE(OUTLYNE,7000)
       CALL SHOWIT(0)
+
                         DO 10 I=NEWOBJ,SF
+C       DUMP DATA TO OUTPUT
+         XA=RAYRAY(11,I)
+         YA=RAYRAY(12,I)
+         CALL RS(XA,YA)
+
+
         IF(WC.EQ.'PRXYZ') THEN
-        XA=RAYRAY(11,I)
-        YA=RAYRAY(12,I)
-        CALL RS(XA,YA)
+         XA=RAYRAY(11,I)
+         YA=RAYRAY(12,I)
+         CALL RS(XA,YA)
         IF(DEG) THEN
         WRITE(OUTLYNE,2000)I,RAYRAY(1,I),RAYRAY(2,I)
      1  ,RAYRAY(3,I),((180.0D0/PII)*XA),

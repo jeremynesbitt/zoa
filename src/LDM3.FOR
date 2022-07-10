@@ -2700,6 +2700,7 @@ C     IF NUMERIC INPUT, SHUT OFF FLOAT
                         END
 C SUB SRTG.FOR
         SUBROUTINE SRTG(LBT,RTGERROR)
+        use global_widgets
 C
         IMPLICIT NONE
 C
@@ -2716,6 +2717,7 @@ C
       LOGICAL AIRY,LBT,SPECF,RTGERROR
 C
       COMMON/NSIN/NF,INDEX,DISP,VNUM,PARTL
+
       integer idraw1
        COMMON/DRAWI1/IDRAW1
 C
@@ -2788,6 +2790,11 @@ C
       CALL SHOWIT(0)
                         ELSE
                         END IF
+
+C     Dump data to interface modules
+      call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
+      curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
+
                         DO 10 I=0,INT(SYSTEM(20))
                 NF=I
         CALL SINDEX
@@ -2800,6 +2807,18 @@ C
                         SPEC=' '
         SPECC=AA//AA//AA//'               '
                         SPECF=.TRUE.
+C     Dump data to interface
+        curr_lens_data % radii(I+1) = RD
+        PRINT *, "I = ", I
+        PRINT *, " RD = ", RD
+        PRINT *, "Data says it is ", curr_lens_data%radii(I+1)
+        WRITE(*,1000)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2),
+     1INDEX,VNUM
+        curr_lens_data % curvatures(I+1) = ALENS(1,I)
+        curr_lens_data % thicknesses(I+1) = ALENS(3,I)
+        curr_lens_data % surf_index(I+1) = INDEX
+        curr_lens_data % surf_vnum(I+1) = VNUM
+        curr_lens_data % glassnames(I+1) = GLANAM(I,1) // GLANAM(I,2)
 C       CONIC
         IF(ALENS(2,I).NE.0.0D0) SPEC='*'
 C       ASPHERIC
@@ -2873,6 +2892,7 @@ C      WRITE(OUTLYNE,2501)
 C      CALL SHOWIT(0)
                        END IF
         WRITE(OUTLYNE,2000)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2)
+
       CALL SHOWIT(0)
       IF(SPECF) THEN
       CALL SHRINKSPEC(SPECC)
@@ -2886,6 +2906,7 @@ C      CALL SHOWIT(0)
                         END IF
                         ELSE
         WRITE(OUTLYNE,2500)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2)
+
       CALL SHOWIT(0)
       IF(SPECF) THEN
       CALL SHRINKSPEC(SPECC)
@@ -3017,9 +3038,12 @@ C
         IF(DABS(VNUM).LT.100.0D0)
      1WRITE(OUTLYNE,1005)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2),
      1INDEX,VNUM
+      !PRINT *, "Writing here?  3036"
       IF(DABS(VNUM).GE.100.0D0)
      1WRITE(OUTLYNE,1000)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2),
      1INDEX,VNUM
+      PRINT *, "Writing here?  3040"
+
       CALL SHOWIT(0)
       IF(SPECF) THEN
       CALL SHRINKSPEC(SPECC)
@@ -3071,9 +3095,11 @@ C
         IF(DABS(VNUM).LT.100.0D0)
      1WRITE(OUTLYNE,1005)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2),
      1INDEX,VNUM
+      PRINT *, "Writing here?  3092"
         IF(DABS(VNUM).GE.100.0D0)
      1WRITE(OUTLYNE,1000)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2),
      1INDEX,VNUM
+      PRINT *, "Writing here?  3096"
       CALL SHOWIT(0)
       IF(SPECF) THEN
       CALL SHRINKSPEC(SPECC)
@@ -3378,6 +3404,7 @@ C       NOT 0
                         END IF
 C
  10                     CONTINUE
+
                         RETURN
                         ELSE
 C       QUALIFIER NOT "ALL"
@@ -3841,6 +3868,7 @@ C       NSS SURFACE
         IF(HEADIN) WRITE(OUTLYNE,5000)
         IF(HEADIN) CALL SHOWIT(0)
       WRITE(OUTLYNE,2500) I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2)
+
       CALL SHOWIT(0)
       IF(SPECF) THEN
       CALL SHRINKSPEC(SPECC)
@@ -4111,7 +4139,9 @@ C       NSS SURFACE
       IF(SPECC(1:1).EQ.' ') SPECC(1:75)=SPECC(2:75)//' '
       IF(SPECC(1:1).NE.' ') GO TO 20
                        END DO
+
  20   IF(SPECC(1:1).EQ.',') SPECC(1:75)=SPECC(2:75)//' '
+
                    RETURN
                    END
 C SUB SPL23.FOR

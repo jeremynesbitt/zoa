@@ -2,6 +2,23 @@ module kdp_interfaces
 
 contains
 
+subroutine EDITOR
+  use lens_editor
+  use global_widgets
+  use handlers
+
+    if (.not. c_associated(lens_editor_window))  THEN
+       PRINT *, "Call New Lens Editor Window"
+       call lens_editor_new(my_window)
+    else
+      PRINT *, "Do nothing..lens editor exists. "
+
+    end if
+
+
+
+end subroutine EDITOR
+
 SUBROUTINE RUN_WDRAWOPTICALSYSTEM
 !     THIS IS THE DRIVER ROUTINE FOR SENDING GRAPHICS TO
 !     A GRAPHIC WINDOW

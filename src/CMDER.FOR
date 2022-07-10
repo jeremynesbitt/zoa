@@ -2,8 +2,10 @@ C SUB CMDER.FOR
         SUBROUTINE CMDER
         USE GLOBALS
         use zoa_ui
+        use kdp_interfaces, only: EDITOR
 C
         IMPLICIT NONE
+        
 C
         CHARACTER DDATE*10,TTIME*8,FILNM*10,NM*8,TTTIM*8,DDDAT*10
      1,AI*3,OWC*8,OWQ*8,HNAM*8,AI4*4

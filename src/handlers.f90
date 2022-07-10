@@ -40,7 +40,9 @@ module handlers
   & gtk_application_window_set_show_menubar, gtk_window_maximize, &
   & gtk_window_unmaximize, &
   & gtk_application_set_menubar, gtk_widget_set_name, gtk_window_present, &
-  & gtk_combo_box_text_new_with_entry
+  & gtk_combo_box_text_new_with_entry, gtk_combo_box_set_active, &
+  & gtk_entry_set_activates_default, gtk_widget_set_focus_on_click, &
+  & gtk_widget_set_can_focus
 
 
   use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
@@ -49,7 +51,8 @@ module handlers
   & g_object_unref, g_menu_append_section, g_menu_append_submenu, &
   & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
   & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
-  & g_action_change_state, g_application_quit, g_simple_action_set_state
+  & g_action_change_state, g_application_quit, g_simple_action_set_state, &
+  & g_signal_override_class_handler
 
   use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, &
   & c_null_char, C_NEW_LINE
@@ -75,6 +78,123 @@ module handlers
   integer(c_int) :: boolresult
 
 contains
+
+  subroutine proto_symfunc
+
+    use global_widgets
+    !use handlers
+    use mod_barchart
+    use mod_plotopticalsystem
+  !use mod_plotopticalsystem
+
+
+  character(len=256), dimension(:), allocatable :: new_files, tmp
+
+  integer(kind=c_int) :: ipick, i, endSurface, ii
+ character(len=100) :: ftext
+ CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
+ CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A12, A12)"
+ real, allocatable :: w(:), symcalc(:)
+ real :: w_sum, s_sum, aplanatic, imageNA
+ integer :: totalSurfaces
+ integer, allocatable ::  surfaceno(:)
+  type(barchart) :: plotter
+
+  !PRINT *, "Before Mod Call, ", my_window
+
+  !ipick = hl_gtk_file_chooser_show(new_files, &
+  !       & create=FALSE, multiple=TRUE, filter=["image/*"], &
+  !       & parent=my_window, all=TRUE)
+
+  !ftext = 'LIB GET 1 '
+  ftext = 'CV2PRG DoubleGauss.seq'
+  CALL PROCESKDP(ftext)
+
+  ftext = 'RTG ALL'
+  CALL PROCESKDP(ftext)
+
+
+  ftext = 'COLORSET RAYS 2'
+  CALL PROCESKDP(ftext)
+  call getOpticalSystemLastSurface(endSurface)
+  call ld_settings%set_end_surface(endSurface)
+  ftext = 'VIECO'
+  CALL PROCESKDP(ftext)
+
+  ftext = 'PXTY ALL'
+  CALL PROCESKDP(ftext)
+
+  ! Compute lens weight and symmetry
+  allocate(w(curr_lens_data % num_surfaces-2), symcalc(curr_lens_data % num_surfaces-2), surfaceno(curr_lens_data % num_surfaces-2))
+
+  WRITE (*, FMTHDR), "Surface", "w_j", "s_j"
+
+  do ii = 2, curr_lens_data % num_surfaces - 1
+     w(ii-1) = - (curr_lens_data % surf_index(ii) - curr_lens_data % surf_index(ii-1)) &
+     & * curr_par_ray_trace % marginal_ray_height(ii) * curr_lens_data % curvatures(ii) &
+     & / curr_lens_data % surf_index(curr_lens_data % num_surfaces) &
+     & / curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)
+     w_sum = w_sum + w(ii-1)*w(ii-1)
+
+     !PRINT *, "Check Ref Stop ", curr_lens_data % ref_stop
+    !PRINT *, "SURF INDEX ", curr_lens_data % surf_index(ii)
+    !PRINT *, "AOI is ", curr_par_ray_trace % chief_ray_aoi(ii)
+    !allocate(symcalc(curr_lens_data % num_surfaces-2))
+
+      totalSurfaces = curr_lens_data % num_surfaces
+      aplanatic = curr_par_ray_trace % marginal_ray_angle(ii) / curr_lens_data % surf_index(ii)
+      aplanatic = aplanatic - curr_par_ray_trace % marginal_ray_angle(ii-1) / curr_lens_data % surf_index(ii-1)
+      imageNA = curr_lens_data%surf_index(totalSurfaces) * curr_par_ray_trace%marginal_ray_angle(totalSurfaces)
+
+      !PRINT *, "IMAGE NA is ", imageNA
+      !PRINT *, "APLANATIC IS ", aplanatic
+      !PRINT *, "Marginal Ray Angle is ", curr_par_ray_trace % marginal_ray_angle(ii)
+      !PRINT *, "Surface Index is ", curr_lens_data % surf_index(ii)
+
+      symcalc(ii-1) = aplanatic * curr_lens_data % surf_index(ii) * curr_par_ray_trace % chief_ray_aoi(ii) &
+      & / ((curr_lens_data % surf_index(curr_lens_data%ref_stop)* curr_par_ray_trace % chief_ray_aoi(curr_lens_data%ref_stop)) &
+      & * imageNA)
+
+      symcalc(ii-1) = curr_lens_data % surf_index(ii) * curr_par_ray_trace % chief_ray_aoi(ii)
+
+      !PRINT *, "FIrst Term is ", symcalc(ii-1)
+
+      symcalc(ii-1) = symcalc(ii-1) /curr_lens_data%surf_index(curr_lens_data%ref_stop)
+      symcalc(ii-1) = symcalc(ii-1) /curr_par_ray_trace%chief_ray_aoi(curr_lens_data%ref_stop)
+      symcalc(ii-1) = symcalc(ii-1)*aplanatic/imageNA
+
+
+      s_sum = s_sum + symcalc(ii-1)*symcalc(ii-1)
+
+      surfaceno(ii-1) = ii-1
+
+      WRITE(*, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+
+  end do
+
+  w_sum = SQRT(w_sum/(curr_lens_data % num_surfaces-2))
+  s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
+
+  !PRINT *, " w is ", w
+  PRINT *, " w_sum is ", w_sum
+
+  !PRINT *, " s is ", symcalc
+  PRINT *, " s_sum is ", s_sum
+
+
+    !call barchart2(x,y)
+    ! print *, "Calling Plotter"
+     plotter = barchart(drawing_area_plot,surfaceno,abs(w))
+     call plotter % drawPlot()
+    ! print *, "Done calling plotter"
+
+  !PRINT *, "Paraxial Data tst ", curr_par_ray_trace%marginal_ray_height
+
+  !CALL WDRAWOPTICALSYSTEM
+  !CALL RUN_WDRAWOPTICALSYSTEM
+
+end subroutine proto_symfunc
+
   subroutine tst_plottingincairo
   !use mod_plotopticalsystem
 
@@ -634,7 +754,7 @@ contains
     type(c_ptr), value, intent(in)  :: gdata, app2
     ! Pointers toward our GTK widgets:
     type(c_ptr)    :: table, button1, button2, button3, box1
-    type(c_ptr)    :: label1, label2, label3, label4
+    type(c_ptr)    :: label1, label2, label3, label4, entry2, keyevent, controller_k
     type(c_ptr)    :: toggle1, expander, notebook, notebookLabel1, notebookLabel2
     type(c_ptr)    :: linkButton, iterPtr, iterGUI, notebookLabel3
     integer(c_int) :: message_id, firstTab, secondTab, thirdTab
@@ -642,6 +762,7 @@ contains
     type(c_ptr) :: menubar, menu, section1, section2, section3, &
       & menu_item_red, menu_item_green, &
       & menu_item_blue, menu_item_quit, menu_item_fullscreen, lb
+    logical :: tstResult
 
 
 
@@ -674,7 +795,8 @@ contains
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
     toggle1 = gtk_toggle_button_new_with_mnemonic ("_TstFunc"//c_null_char)
     !call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(plotLensData))
-    call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(tst_plottingincairo))
+    !call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(tst_plottingincairo))
+    call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(proto_symfunc))
 
     ! The spin buttons to set the parameters:
     label1 = gtk_label_new("real(c)"//c_null_char)
@@ -758,7 +880,7 @@ contains
 
     !  Need unique item for third window
     drawing_area_plot = hl_gtk_drawing_area_new(size=[800,500], &
-         & has_alpha=FALSE)
+         & has_alpha=FALSE, key_press_event=c_funloc(key_event_h))
     thirdTab  = gtk_notebook_append_page (notebook, drawing_area_plot, notebookLabel3)
 
     call gtk_box_append(box1, notebook)
@@ -774,13 +896,40 @@ contains
     call gtk_box_append(box1, statusBar)
 
     ! CMD Entry TextBox
-    !entry = gtk_combo_box_text_new_with_entry()
+
     entry = hl_gtk_entry_new(60_c_int, editable=TRUE, tooltip = &
          & "Enter text here for command interpreter"//c_null_char, &
          & activate=c_funloc(name_enter))
-    !call g_signal_connect(entry, "activate"//c_null_char, c_funloc(callback_editbox), c_null_ptr)
+    !entry2 = gtk_combo_box_text_new_with_entry()
+    !call gtk_combo_box_set_active(entry2, 1_c_int)
+    !call gtk_entry_set_activates_default(entry2, TRUE)
+    !call gtk_combo_box_text_insert_text(entry2, 0_c_int, ".."//c_null_char)
+  !  call g_signal_connect(entry2, "activate"//c_null_char, c_funloc(callback_editbox), c_null_ptr)
+    !keyevent = gtk_event_controller_key_new()
+    !call g_signal_connect(keyevent, "key-pressed"//c_null_char, c_funloc(callback_editbox), entry2)
+
+    !call g_signal_connect(entry, "key-pressed"//c_null_char, c_funloc(callback_editbox), c_null_ptr)
+    !tmp code to test key pressed event
+    controller_k = gtk_event_controller_key_new()
+
+
+    !call gtk_widget_add_controller(my_drawing_area, controller_k)
+    !call gtk_widget_set_focusable(my_drawing_area, TRUE)
+
+    !tstResult = gtk_event_controller_key_forward(controller_k, entry2)
+
+    call gtk_widget_add_controller(entry, controller_k)
+    call g_signal_connect(controller_k, "key-pressed"//c_null_char, &
+               & c_funloc(key_event_h), c_null_ptr)
+
+    !call gtk_widget_set_focusable(entry2, TRUE)
+    !call gtk_widget_set_can_focus(entry2, FALSE)
+    !call gtk_widget_set_focus_on_click(entry2, FALSE)
+    !call gtk_widget_grab_focus(entry2)
 
     call gtk_box_append(box1, entry)
+    !all gtk_box_append(box1, entry2)
+    call gtk_widget_set_vexpand (box1, TRUE)
 
 
 
@@ -932,7 +1081,33 @@ subroutine convertRGBtoPixBuf(animage)
 end subroutine convertRGBtoPixBuf
 
 
+  function key_event_h(controller, keyval, keycode, state, gdata) result(ret) bind(c)
 
+    use gdk, only: gdk_device_get_name, gdk_keyval_from_name, gdk_keyval_name
+  use gtk, only: gtk_window_set_child, gtk_window_destroy, &
+       & gtk_widget_queue_draw, gtk_widget_show, gtk_init, TRUE, FALSE, &
+       & GDK_CONTROL_MASK, &
+       & CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, &
+       & gtk_event_controller_get_current_event_device, &
+       & gtk_gesture_single_get_current_button
+    type(c_ptr), value, intent(in) :: controller, gdata
+    integer(c_int), value, intent(in) :: keyval, keycode, state
+    logical(c_bool) :: ret
+    character(len=20) :: keyname
+    integer(kind=c_int) :: key_q
+
+    call convert_c_string(gdk_keyval_name(keyval), keyname)
+    print *, "Keyval: ",keyval," Name: ", trim(keyname), "      Keycode: ", &
+             & keycode, " Modifier: ", state
+
+    key_q = gdk_keyval_from_name("q"//c_null_char)
+    ! CTRL+Q will close the program:
+    if ((iand(state, GDK_CONTROL_MASK) /= 0).and.(keyval == key_q)) then
+      call gtk_window_destroy(my_window)
+    end if
+
+    ret = .true.
+  end function key_event_h
 
 
 end module handlers

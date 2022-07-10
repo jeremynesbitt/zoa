@@ -238,8 +238,11 @@ program zoa_program
 
   ld_settings = lens_draw_settings()
   rf_settings = ray_fan_settings()
+  curr_lens_data = lens_data()
+
 
   PRINT *, "APP IN Main Program is ", app
+
 
   ! The activate signal will be sent by g_application_run().
   ! The c_funloc() function returns the C address of the callback function.

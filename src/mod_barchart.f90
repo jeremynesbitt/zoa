@@ -21,9 +21,11 @@ type :: barchart
     !integer, allocatable :: surface(:)
     type(c_ptr) :: area
 
-    real*8 ::  x(10), y(10)
-    character(len=100) :: title, xlabel, ylabel
-    character(len=20)  :: labelFontColor
+    real*8 ::  x(11), y(11)
+    character(len=100) :: title = 'untitled'
+    character(len=100) :: xlabel = ' x '
+    character(len=100) :: ylabel = ' y '
+    character(len=20)  :: labelFontColor = "BLACK"
     !character(kind=plchar_vector) :: title, xlabel, ylabel
     !character(len=100) :: xlabel
     !character(len=100) :: ylabel
@@ -48,10 +50,12 @@ contains
 
 type(barchart) function barchart_constructor(area, x, y) result(self)
 
-
+    implicit none
 
     type(c_ptr), intent(in) :: area
-    real*8, intent(in) ::  x(10), y(10)
+    real*8, intent(in) ::  x(11), y(11)
+
+
 
     !character(len=100) :: title, xlabel, ylabel
 
@@ -64,7 +68,7 @@ type(barchart) function barchart_constructor(area, x, y) result(self)
     self%x = x
     self%y = y
 
-    self%title = trim("untitled")
+    self % title = trim("untitled")
     self % xlabel = trim("           x axis")
 
     self % ylabel = "y axis"

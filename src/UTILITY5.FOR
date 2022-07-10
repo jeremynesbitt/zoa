@@ -8526,6 +8526,8 @@ C
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATLEN.INC'
       SURFER=0
+
+      PRINT *, "CV2PRG Starting.."
 C
       TOR='? '
       TIL='?'
@@ -8664,6 +8666,7 @@ C
       TEMPB(1:5000)=BL1024
       TEMPC(1:5000)=BL1024
 C
+      PRINT *, "About to close files?"
 C     CLOSE IT IF OPEN AND KEEP IY
       CALL CLOSE_FILE(37,1)
       CALL CLOSE_FILE(38,0)

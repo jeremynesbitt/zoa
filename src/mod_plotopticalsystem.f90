@@ -588,6 +588,12 @@ end subroutine combo_plotorientation_callback
     !               & c_funloc(TESTCAIRO3), c_null_ptr, c_null_funptr)
 
     PRINT *, "FINISHED WITH DRAWOPTICALSYSTEM"
+    PRINT *, "LENS DATA SURFACES IS ", curr_lens_data % num_surfaces
+    IF (curr_lens_data%num_surfaces.GT.0) THEN
+      PRINT *, "RADII ARE ", curr_lens_data%radii
+      PRINT *, "THICKNESSES ARE ", curr_lens_data%thicknesses
+    END IF
+
     call gtk_box_append(box1, ld_cairo_drawing_area)
     !call gtk_window_set_child(ld_window, ld_cairo_drawing_area)
     call gtk_window_set_child(ld_window, box1)
