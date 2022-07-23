@@ -2,6 +2,89 @@ module kdp_interfaces
 
 contains
 
+subroutine POWSYM
+
+
+   use global_widgets
+
+  integer :: ii
+ character(len=100) :: ftext
+ CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
+ CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A12, A12)"
+ real, allocatable :: w(:), symcalc(:)
+ real :: w_sum, s_sum, aplanatic, imageNA
+ integer :: totalSurfaces
+ integer, allocatable ::  surfaceno(:)
+
+   PRINT *, "New Command POWSYM in kdp_interfaces!"
+
+  ftext = 'RTG ALL'
+  CALL PROCESKDP(ftext)
+
+  ftext = 'PXTY ALL'
+  CALL PROCESKDP(ftext)
+
+  ! Compute lens weight and symmetry
+  allocate(w(curr_lens_data % num_surfaces-2), symcalc(curr_lens_data % num_surfaces-2), surfaceno(curr_lens_data % num_surfaces-2))
+
+  WRITE (*, FMTHDR), "Surface", "w_j", "s_j"
+
+  do ii = 2, curr_lens_data % num_surfaces - 1
+     w(ii-1) = - (curr_lens_data % surf_index(ii) - curr_lens_data % surf_index(ii-1)) &
+     & * curr_par_ray_trace % marginal_ray_height(ii) * curr_lens_data % curvatures(ii) &
+     & / curr_lens_data % surf_index(curr_lens_data % num_surfaces) &
+     & / curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)
+     w_sum = w_sum + w(ii-1)*w(ii-1)
+
+     !PRINT *, "Check Ref Stop ", curr_lens_data % ref_stop
+    !PRINT *, "SURF INDEX ", curr_lens_data % surf_index(ii)
+    !PRINT *, "AOI is ", curr_par_ray_trace % chief_ray_aoi(ii)
+    !allocate(symcalc(curr_lens_data % num_surfaces-2))
+
+      totalSurfaces = curr_lens_data % num_surfaces
+      aplanatic = curr_par_ray_trace % marginal_ray_angle(ii) / curr_lens_data % surf_index(ii)
+      aplanatic = aplanatic - curr_par_ray_trace % marginal_ray_angle(ii-1) / curr_lens_data % surf_index(ii-1)
+      imageNA = curr_lens_data%surf_index(totalSurfaces) * curr_par_ray_trace%marginal_ray_angle(totalSurfaces)
+
+      !PRINT *, "IMAGE NA is ", imageNA
+      !PRINT *, "APLANATIC IS ", aplanatic
+      !PRINT *, "Marginal Ray Angle is ", curr_par_ray_trace % marginal_ray_angle(ii)
+      !PRINT *, "Surface Index is ", curr_lens_data % surf_index(ii)
+
+      symcalc(ii-1) = aplanatic * curr_lens_data % surf_index(ii) * curr_par_ray_trace % chief_ray_aoi(ii) &
+      & / ((curr_lens_data % surf_index(curr_lens_data%ref_stop)* curr_par_ray_trace % chief_ray_aoi(curr_lens_data%ref_stop)) &
+      & * imageNA)
+
+      symcalc(ii-1) = curr_lens_data % surf_index(ii) * curr_par_ray_trace % chief_ray_aoi(ii)
+
+      !PRINT *, "FIrst Term is ", symcalc(ii-1)
+
+      symcalc(ii-1) = symcalc(ii-1) /curr_lens_data%surf_index(curr_lens_data%ref_stop)
+      symcalc(ii-1) = symcalc(ii-1) /curr_par_ray_trace%chief_ray_aoi(curr_lens_data%ref_stop)
+      symcalc(ii-1) = symcalc(ii-1)*aplanatic/imageNA
+
+
+      s_sum = s_sum + symcalc(ii-1)*symcalc(ii-1)
+
+      surfaceno(ii-1) = ii-1
+
+      WRITE(*, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+
+  end do
+
+  w_sum = SQRT(w_sum/(curr_lens_data % num_surfaces-2))
+  s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
+
+  !PRINT *, " w is ", w
+  PRINT *, " w_sum is ", w_sum
+
+  !PRINT *, " s is ", symcalc
+  PRINT *, " s_sum is ", s_sum
+
+
+
+end subroutine POWSYM
+
 subroutine EDITOR
   use lens_editor
   use global_widgets

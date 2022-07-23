@@ -1092,6 +1092,8 @@ C     COSINE OF BEEB IS ZERO
                         END
 C SUB OCD.FOR
         SUBROUTINE OCD
+
+        use global_widgets
 C
         IMPLICIT NONE
 C
@@ -1322,6 +1324,8 @@ C       TMAG
                         ELSE
                 TMAGY=0.0
                         END IF
+C               DUMP DATA TO PARAX Module
+                curr_par_ray_trace%t_mag = TMAGY                      
                 IF(DABS(PXTRAX(5,0)).GE.1.0D-15) THEN
                 TMAGX=PXTRAX(5,J)/PXTRAX(5,0)
                         ELSE
@@ -1495,6 +1499,9 @@ C
  80     FORMAT('YZ-PLANE FIRST ORDER OPERATING CONDITIONS')
  90     FORMAT('XZ-PLANE FIRST ORDER OPERATING CONDITIONS')
                         END
+
+
+
 C SUB PRPIK.FOR
         SUBROUTINE PRPIK
 C

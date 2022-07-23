@@ -2,10 +2,10 @@ C SUB CMDER.FOR
         SUBROUTINE CMDER
         USE GLOBALS
         use zoa_ui
-        use kdp_interfaces, only: EDITOR
+        use kdp_interfaces, only: EDITOR, POWSYM
 C
         IMPLICIT NONE
-        
+
 C
         CHARACTER DDATE*10,TTIME*8,FILNM*10,NM*8,TTTIM*8,DDDAT*10
      1,AI*3,OWC*8,OWQ*8,HNAM*8,AI4*4
@@ -409,6 +409,11 @@ C       PART DRAWINGS
         END IF
         IF(WC.EQ.'ECHO')THEN
         CALL ECHO
+        RETURN
+        END IF
+        IF(WC.EQ.'POWSYM') THEN
+          PRINT *, "Calling POWSYM FROM CMDER"
+          CALL POWSYM
         RETURN
         END IF
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.

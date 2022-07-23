@@ -7,9 +7,9 @@ module global_widgets
   use kdp_data_types
 
 
-  type(c_ptr) :: my_pixbuf, my_drawing_area, spinButton1, spinButton2, spinButton3
-  type(c_ptr) :: textView, buffer, scrolled_window, statusBar, combo1
-  type(c_ptr) :: drawing_area_plot
+  type(c_ptr) :: my_pixbuf, my_drawing_area
+  type(c_ptr) :: textView, buffer, statusBar
+  type(c_ptr) :: drawing_area_plot, notebook
   character(kind=c_char), dimension(:), pointer :: pixel
   integer(kind=c_int) :: nch, rowstride, width, height, pixwidth, pixheight
   logical :: computing = .false.
@@ -32,5 +32,7 @@ module global_widgets
 
   REAL :: kdp_width = 10500
   REAL :: kdp_height = 7050
+
+  logical :: debug_messages = FALSE
 
 end module global_widgets

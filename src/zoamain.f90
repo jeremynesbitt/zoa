@@ -18,7 +18,7 @@ subroutine plotLensData
     USE GLOBALS
     use global_widgets
     !use handlers
-    use mod_barchart
+    use zoa_plot
     use mod_plotopticalsystem
 
     use, intrinsic :: iso_c_binding
@@ -28,7 +28,7 @@ subroutine plotLensData
     character(len=100) :: ftext
     integer :: i
     REAL*8 raydata(1:50,0:499)
-    REAL*8 x(1:10),y(1:10)
+    REAL :: x(1:11),y(1:11)
     type(barchart) :: plotter
 
 
@@ -52,9 +52,9 @@ subroutine plotLensData
 
     PRINT *, "Test RAYRAY Output ", rayData(2,1:10)
 
-    y = rayData(2,1:10)
+    y = rayData(2,1:11)
     i = 1
-    do while (i<=10)
+    do while (i<=11)
      x(i) = i
      i = i+1
      end do
@@ -62,7 +62,8 @@ subroutine plotLensData
 
     !call barchart2(x,y)
     print *, "Calling Plotter"
-    plotter = barchart(drawing_area_plot,x,y)
+    !plotter = barchart(drawing_area_plot,x,y)
+    call plotter % initialize(drawing_area_plot,real(x),real(y))
     call plotter % drawPlot()
     print *, "Done calling plotter"
 
@@ -231,7 +232,7 @@ program zoa_program
   ! First, let's create a GTK application (it will initialize GTK).
   ! The application ID must contain at least one point:
   ! https://developer.gnome.org/gio/stable/GApplication.html#g-application-id-is-valid
-  app = gtk_application_new("gtk-fortran.examples.julia_pixbuf"//c_null_char, &
+  app = gtk_application_new("zoa.optical-analysis"//c_null_char, &
                             & G_APPLICATION_FLAGS_NONE)
 
   ! UI Settings Initialization
@@ -257,7 +258,7 @@ program zoa_program
   ! https://developer.gnome.org/gio/stable/GApplication.html#g-application-run
   status = g_application_run(app, 0_c_int, c_null_ptr)
 
-  print *, "You have exited the GLib main loop, bye, bye..."
+  print *, "You have exited the program.  Cleaning up"
 
   ! Memory is freed:
   call g_object_unref(app)

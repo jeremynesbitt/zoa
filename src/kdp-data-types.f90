@@ -19,6 +19,7 @@ end type lens_data
            real, allocatable ::  marginal_ray_height(:), marginal_ray_angle(:), &
            & chief_ray_height(:), chief_ray_angle(:), marginal_ray_aoi(:), &
            & chief_ray_aoi(:)
+           real :: t_mag = 0
     contains
 
 
@@ -63,14 +64,15 @@ select type (self)
 type is (lens_data)
         ! no further initialization required
     class is (paraxial_ray_trace_data)
-        PRINT *, "Adding to paraxial object!"
+      !  PRINT *, "Adding to paraxial object!"
+      if (.not. allocated(self%marginal_ray_height)) THEN
         allocate(self%marginal_ray_height(self%num_surfaces))
         allocate(self%marginal_ray_angle(self%num_surfaces))
         allocate(self%chief_ray_height(self%num_surfaces))
         allocate(self%chief_ray_angle(self%num_surfaces))
         allocate(self%chief_ray_aoi(self%num_surfaces))
         allocate(self%marginal_ray_aoi(self%num_surfaces))
-
+      end if
     class default
       ! give error for unexpected/unsupported type
          stop 'initialize: unexpected type for sh object!'

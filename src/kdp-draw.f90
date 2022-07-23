@@ -140,6 +140,10 @@ SUBROUTINE TESTCAIRO3(widget, my_cairo_context, win_width, win_height, gdata) bi
     call cairo_rectangle (my_cairo_context, (win_width/4)*1d0, (win_height/2)*1d0, 200d0, 200d0);
     call cairo_fill (my_cairo_context);
 
+    call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.0d0, 0.0d0)
+    call cairo_rectangle (my_cairo_context, (win_width/4)*1d0, (win_height/2-300)*1d0, 200d0, 200d0);
+
+
     ! Manual way (just to check lower level commands)
 
     call cairo_move_to (my_cairo_context, (win_width/4)*3d0, (win_height/2)*1d0)
@@ -150,6 +154,15 @@ SUBROUTINE TESTCAIRO3(widget, my_cairo_context, win_width, win_height, gdata) bi
     call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.0d0, 0.0d0)
 
     call cairo_fill(my_cairo_context)
+    ! Test drawing outline
+    call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
+
+    call cairo_move_to (my_cairo_context, (win_width/4)*3d0, (win_height/2)*1d0)
+    call cairo_rel_line_to (my_cairo_context, 200d0, 0d0)
+    call cairo_rel_line_to (my_cairo_context, 0d0, 200d0);
+    call cairo_rel_line_to (my_cairo_context, -200d0, 0d0);
+    call cairo_stroke(my_cairo_context)
+    ! call cairo_close_path (my_cairo_context);
 
     ! Manual way 2 (just to check lower level commands)
 

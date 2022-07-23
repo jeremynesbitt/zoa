@@ -546,6 +546,76 @@ end subroutine combo_plotorientation_callback
     use kdp_draw, only: DRAWOPTICALSYSTEM, TESTCAIRO2, TESTCAIRO3
     type(c_ptr) :: parent_window
 
+    type(c_ptr) :: content, junk, gfilter, tab_label
+    integer(kind=c_int) :: icreate, idir, action, lval
+    integer(kind=c_int) :: i, idx0, idx1, location
+    !type(c_ptr)     :: my_drawing_area
+    !integer(c_int)  :: width, height
+
+    type(c_ptr)     :: table, expander, box1
+
+    ! Create a modal dialogue
+    !ld_window = gtk_window_new()
+    !call gtk_window_set_modal(di, TRUE)
+    !title = "Lens Draw Window"
+    !if (present(title)) call gtk_window_set_title(dialog, title)
+    !call gtk_window_set_title(ld_window, "Lens Draw Window"//c_null_char)
+    !if (present(wsize)) then
+    !   call gtk_window_set_default_size(dialog, wsize(1),&
+    !        & wsize(2))
+    !else
+
+    width = 1000
+    height = 700
+    !     call gtk_window_set_default_size(ld_window, width, height)
+    !end if
+
+    !if (present(parent)) then
+    !   call gtk_window_set_transient_for(ld_window, parent_window)
+    !   call gtk_window_set_destroy_with_parent(ld_window, TRUE)
+    !end if
+
+
+    call lens_draw_settings_dialog(ld_window)
+
+    ld_cairo_drawing_area = gtk_drawing_area_new()
+    call gtk_drawing_area_set_content_width(ld_cairo_drawing_area, width)
+    call gtk_drawing_area_set_content_height(ld_cairo_drawing_area, height)
+
+    call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
+                   & c_funloc(DRAWOPTICALSYSTEM), c_null_ptr, c_null_funptr)
+    !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
+    !               & c_funloc(TESTCAIRO3), c_null_ptr, c_null_funptr)
+
+    PRINT *, "FINISHED WITH DRAWOPTICALSYSTEM"
+    PRINT *, "LENS DATA SURFACES IS ", curr_lens_data % num_surfaces
+    IF (curr_lens_data%num_surfaces.GT.0) THEN
+      PRINT *, "RADII ARE ", curr_lens_data%radii
+      PRINT *, "THICKNESSES ARE ", curr_lens_data%thicknesses
+    END IF
+
+    call gtk_box_append(ld_window, ld_cairo_drawing_area)
+    !call gtk_window_set_child(ld_window, ld_cairo_drawing_area)
+    !call gtk_window_set_child(ld_window, box1)
+    call gtk_widget_set_vexpand (ld_window, FALSE)
+
+    !call g_signal_connect(ld_window, "destroy"//c_null_char, c_funloc(my_destroy), c_null_ptr)
+    tab_label = gtk_label_new_with_mnemonic("_Lens Draw"//c_null_char)
+    location = gtk_notebook_append_page(notebook, ld_window, tab_label)
+
+    !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
+    !call gtk_widget_queue_draw(my_drawing_area)
+    !call gtk_widget_show(ld_window)
+
+
+    PRINT *, "SHOULD SEE GRAPHICS NOW!"
+end subroutine lens_draw_new
+
+  subroutine lens_draw_old(parent_window)
+
+    use kdp_draw, only: DRAWOPTICALSYSTEM, TESTCAIRO2, TESTCAIRO3
+    type(c_ptr) :: parent_window
+
     type(c_ptr) :: content, junk, gfilter
     integer(kind=c_int) :: icreate, idir, action, lval
     integer(kind=c_int) :: i, idx0, idx1
@@ -608,8 +678,7 @@ end subroutine combo_plotorientation_callback
 
 
     PRINT *, "SHOULD SEE GRAPHICS NOW!"
-end subroutine lens_draw_new
-
+end subroutine
 
 subroutine lens_draw_replot()
 

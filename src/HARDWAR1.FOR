@@ -3344,17 +3344,19 @@ C      WRITE (*, '(a)') 'Call to SHOWIT'
        !PRINT *, OUTLYNE
        call gtk_text_buffer_insert_at_cursor(buffer,
      1 OUTLYNE//C_NEW_LINE//c_null_char, -1_c_int)
-       call pending_events()
+       !call pending_events()
        END IF
 
        IF (II.EQ.19) THEN
-       !PRINT *, OUTLYNE
 
-       txtColor = "red"
-       call updateTerminalLog(OUTLYNE, txtColor)
+         if (debug_messages) THEN
+
+            txtColor = "red"
+            call updateTerminalLog(OUTLYNE, txtColor)
+          end IF
 
 
-       call pending_events()
+       !call pending_events()
        RETURN
 
        END IF

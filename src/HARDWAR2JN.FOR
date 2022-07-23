@@ -716,7 +716,7 @@ C      CALL IGrHardCopy('S')
        !open(unit=10, file='outputimage.ppm', status='unknown')
 
        !call output_ppm(10, animage)
-       call convertRGBtoPixBuf(animage)
+       !call convertRGBtoPixBuf(animage)
 
        ! Doesn't work
        !! call rgbimage_write(this, )
@@ -1382,7 +1382,8 @@ C      IF(J.EQ.NEUTTOTAL+1) THEN
  7             CONTINUE
                GO TO 300
        ! CLeanup
-       call convertRGBtoPixBuf(animage)
+       !This is in the abandoned files for now.
+       !call convertRGBtoPixBuf(animage)
 
        call free_img(animage)
                END
