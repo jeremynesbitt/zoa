@@ -1214,6 +1214,9 @@ C
                 RAYEXT=.FALSE.
                 POLEXT=.FALSE.
                 FAIL=.TRUE.
+
+      OUTLYNE = "GOT TO LINE 1218 IN INITKDP!"
+      CALL SHOWIT(19)
 C
 C***********************************************************************
 C
@@ -1224,6 +1227,8 @@ C***********************************************************************
 C       INITIALIZE MACRO FUNCTIONS
         EXISMC=.FALSE.
         INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISMC)
+        WRITE(OUTLYNE, *) "EXISMC IN INITKDP RETURNS ", EXISMC
+        CALL SHOWIT(19)
         IF(EXISMC) THEN
 C       LOAD FUNCTIONS
         OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=

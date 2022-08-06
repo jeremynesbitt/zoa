@@ -654,6 +654,7 @@ C
      8  ,LLTEST,NW2,NW1,MAXLL,KLI
 C
         LOGICAL EXST
+        INTEGER rec30
 C
         COMMON/MIJ/MMIJ
 C
@@ -1138,9 +1139,16 @@ C
                 CALL MACFAL
                 RETURN
                 END IF
+        inquire(iolength=rec30) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),
+     1  MACNW(2,L),MACNW(3,L),MACNW(4,L),MACNW(5,L),MACSTA(1,L),
+     2  MACSTA(2,L),MACSTA(3,L),MACSTA(4,L),MACSTA(5,L),MACSTA(6,L),
+     3  MACSTA(7,L),MACSTA(8,L),MACSTA(9,L),MACSTA(10,L),MACSTA(11,L),
+     4  MACSTA(12,L),MACSTA(13,L),MACSTA(14,L),MACSTA(15,L),MACSTA(16,L)
+     5  ,MACSTA(17,L),MACSTA(18,L),MACSTA(19,L),MACSTA(20,L)
+
 C
         OPEN(UNIT=30,ACCESS='DIRECT',FILE=LIBMAC//FILNAM,FORM=
-     1  'UNFORMATTED',RECL=(55*NRECL),STATUS='UNKNOWN')
+     1  'UNFORMATTED',RECL=rec30,STATUS='UNKNOWN')
 C
 C       THE FIRST RECORD OF THE SOURCE MACRO IS AT RECORD 1
 C       THAT WILL BE LINE 0
@@ -1368,8 +1376,15 @@ C
                         NF=MMIJ
                 CALL MACFIL
 C
+        inquire(iolength=rec30) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),
+     1  MACNW(2,L),MACNW(3,L),MACNW(4,L),MACNW(5,L),MACSTA(1,L),
+     2  MACSTA(2,L),MACSTA(3,L),MACSTA(4,L),MACSTA(5,L),MACSTA(6,L),
+     3  MACSTA(7,L),MACSTA(8,L),MACSTA(9,L),MACSTA(10,L),MACSTA(11,L),
+     4  MACSTA(12,L),MACSTA(13,L),MACSTA(14,L),MACSTA(15,L),MACSTA(16,L)
+     5  ,MACSTA(17,L),MACSTA(18,L),MACSTA(19,L),MACSTA(20,L)
+
         OPEN(UNIT=30,ACCESS='DIRECT',FILE=LIBMAC//FILNAM,FORM=
-     1  'UNFORMATTED',RECL=(55*NRECL),STATUS='UNKNOWN')
+     1  'UNFORMATTED',RECL=rec30,STATUS='UNKNOWN')
 C
 C       NOW WRITE THE BODY OF THE MACRO STARTING AT RECORD 1
 C
@@ -1663,7 +1678,7 @@ C       THEREFORE TO REPLACE THE CURRENT LINE IN A MACRO
 C       WITH (SET A 2)
 C       WE TYPE EITHER:
 C               RE,:SET A 2
-C       OR      RE :SET A 2
+C       OR      RE :SET A 2©©
 C
 C       REMEMBER AN ALPHANUMERIC STRING MUST BE DELIMITED
 C       BY A : UNLESS IT IS THE SPECIAL INTERROGATOR (?).
@@ -1974,6 +1989,8 @@ C
         INCLUDE 'DATMAC.INC'
         INCLUDE 'DATMAI.INC'
 C
+        PRINT *, "IN MACSAV ROUTINE!"
+
         IF(STI.EQ.1) THEN
         OUTLYNE=
      1  '"MACSAVE" SAVES THE CURRENT MACRO LIBRARY FILES'
@@ -1996,6 +2013,9 @@ C
 C       ***************************************************************
                         EXISJK=.FALSE.
         INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
+        PRINT *, "FILE PATH IS ", LIBMAC//'MAC.DAT'
+        PRINT *, "EXISJK IS ", EXISJK
+
         IF(.NOT.EXISJK) THEN
         OUTLYNE='"MACRO FILES DO NOT YET EXIST'
       CALL SHOWIT(1)
@@ -2901,6 +2921,12 @@ C
                        CALL MACFAL
                        RETURN
                        END IF
+
+      ! What this does is change the output to a file and dumps the macro list
+      ! to MAC_EDIT.DAT.
+      ! Looks like after the editor is closed, MREFRESH is called which reads
+      ! the contents of MAC_EDIT.DAT into the command terminal
+
       SAVE_KDP(8)=SAVEINPT(8)
       INPUT='OUT NULL'
       CALL PROCES
@@ -2910,7 +2936,7 @@ C
       INPUT='LMEDIT '//TRIM(WQ)
       CALL PROCES
       REST_KDP(8)=RESTINPT(8)
-C
+C     As far as I can tell, 'FL' sets a logical flag called IS to TRUE only
       SAVE_KDP(8)=SAVEINPT(8)
       INPUT='FL'
       CALL PROCES
@@ -2921,30 +2947,31 @@ C
       CALL PROCES
       REST_KDP(8)=RESTINPT(8)
 C
+C     JN - FOr Testing, comment out the rest of this temporarily
       SAVE_KDP(8)=SAVEINPT(8)
       INPUT='MFL '//TRIM(WQ)
       CALL PROCES
       REST_KDP(8)=RESTINPT(8)
-C
+! C
       SAVE_KDP(8)=SAVEINPT(8)
       INPUT='OUT TP'
       CALL PROCES
       REST_KDP(8)=RESTINPT(8)
-C
-      SAVE_KDP(8)=SAVEINPT(8)
-      INPUT='MAC_EDIT MAC_EDIT.DAT'
-      CALL PROCES
-      REST_KDP(8)=RESTINPT(8)
-C
-      SAVE_KDP(8)=SAVEINPT(8)
-      INPUT='OUT TP'
-      CALL PROCES
-      REST_KDP(8)=RESTINPT(8)
-C
-      SAVE_KDP(8)=SAVEINPT(8)
-      INPUT='IN TP'
-      CALL PROCES
-      REST_KDP(8)=RESTINPT(8)
+! C
+!       SAVE_KDP(8)=SAVEINPT(8)
+!       INPUT='MAC_EDIT MAC_EDIT.DAT'
+!       CALL PROCES
+!       REST_KDP(8)=RESTINPT(8)
+! C
+!       SAVE_KDP(8)=SAVEINPT(8)
+!       INPUT='OUT TP'
+!       CALL PROCES
+!       REST_KDP(8)=RESTINPT(8)
+! C
+!       SAVE_KDP(8)=SAVEINPT(8)
+!       INPUT='IN TP'
+!       CALL PROCES
+!       REST_KDP(8)=RESTINPT(8)
                         RETURN
                         END
 C SUB MMDEL.FOR
@@ -3391,6 +3418,8 @@ C       CHECK THE FUNCTION DIRECTORY IF REQUIRED
         IF(WC.EQ.'FUN08   ') KLI=8
         IF(WC.EQ.'FUN09   ') KLI=9
         IF(WC.EQ.'FUN10   ') KLI=10
+
+        PRINT *, "MACRUN BEING EXECUTED!"
 C     ALLOW FUN NAMES IN MERIT AND UPDATE MERIT
       IF(F27.EQ.1.OR.F27.EQ.2) KLI=0
         IF(KLI.NE.0.AND.FUNEXT(KLI)) THEN

@@ -12,6 +12,7 @@ C       THE NUMERIC ENTRY W1, IS THE SURFACE DESIGNATOR
 C       FOR PRINTOUT OF ONE SURFACE'S DATA ONLY
 C
         CHARACTER TYPE1*5,TYPE2*3
+
 C
         INTEGER TCNT,DCNT,TAD,DEC,TADCNT
 C
@@ -2791,9 +2792,7 @@ C
                         ELSE
                         END IF
 
-C     Dump data to interface modules
-      call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
-      curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
+
 
                         DO 10 I=0,INT(SYSTEM(20))
                 NF=I
@@ -2808,17 +2807,17 @@ C     Dump data to interface modules
         SPECC=AA//AA//AA//'               '
                         SPECF=.TRUE.
 C     Dump data to interface
-        curr_lens_data % radii(I+1) = RD
-        PRINT *, "I = ", I
-        PRINT *, " RD = ", RD
-        PRINT *, "Data says it is ", curr_lens_data%radii(I+1)
+        !curr_lens_data % radii(I+1) = RD
+        !PRINT *, "I = ", I
+        !PRINT *, " RD = ", RD
+        !PRINT *, "Data says it is ", curr_lens_data%radii(I+1)
         WRITE(*,1000)I,SPEC,RD,ALENS(3,I),GLANAM(I,1),GLANAM(I,2),
      1INDEX,VNUM
-        curr_lens_data % curvatures(I+1) = ALENS(1,I)
-        curr_lens_data % thicknesses(I+1) = ALENS(3,I)
-        curr_lens_data % surf_index(I+1) = INDEX
-        curr_lens_data % surf_vnum(I+1) = VNUM
-        curr_lens_data % glassnames(I+1) = GLANAM(I,1) // GLANAM(I,2)
+        !curr_lens_data % curvatures(I+1) = ALENS(1,I)
+        !curr_lens_data % thicknesses(I+1) = ALENS(3,I)
+        !curr_lens_data % surf_index(I+1) = INDEX
+        !curr_lens_data % surf_vnum(I+1) = VNUM
+        !curr_lens_data % glassnames(I+1) = GLANAM(I,1) // GLANAM(I,2)
 C       CONIC
         IF(ALENS(2,I).NE.0.0D0) SPEC='*'
 C       ASPHERIC

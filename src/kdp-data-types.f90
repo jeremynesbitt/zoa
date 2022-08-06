@@ -45,11 +45,13 @@ subroutine set_num_surfaces(self, input)
   integer, intent(in) :: input
 
   self%num_surfaces = input
-  allocate(self%radii(self%num_surfaces), self%thicknesses(self%num_surfaces))
-  allocate(self%curvatures(self%num_surfaces))
+  if (.not.allocated(self%radii)) THEN
+    allocate(self%radii(self%num_surfaces), self%thicknesses(self%num_surfaces))
+    allocate(self%curvatures(self%num_surfaces))
 
-  allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
-  allocate(character(40) :: self%glassnames(self%num_surfaces))
+    allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
+    allocate(character(40) :: self%glassnames(self%num_surfaces))
+  END IF
 end subroutine set_num_surfaces
 
 subroutine add_lens_data(self, lens_data_obj)

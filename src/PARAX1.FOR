@@ -421,6 +421,7 @@ C       ITYP NOT 2
 C SUB PRTRA.FOR
         SUBROUTINE PRTRA
 C
+        use global_widgets
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -433,11 +434,13 @@ C       CALLS TO PIKRES FOR EACH SURFACE FROM THIS
 C       SUBROUTINE. THE COLOR CONTRIBUTIONS FOR THE YZ PLANE
 C       ARE CALCULATED WITH A CALL TO CCOL(1) AND XZ BY CCOL(2).
 C
-        INTEGER LL,CW,ITYPEP,I,J,JK,L,K,ITYP,SLV1,SLV2,COMI
+        INTEGER LL,CW,ITYPEP,I,J,JK,L,K,ITYP,SLV1,SLV2,COMI, SF, JJ
 C
         COMMON/PTYPER/ITYPEP
 C
         COMMON/CSLVRS/SLV1,SLV2
+
+        REAL*8 RD, INDEX, VNUM
 C
         REAL*8 SYS13,TMP15A,TMP15B,
      1  CON,CURV,TMP17A,TMP17B,WV
@@ -460,6 +463,34 @@ C
       IF(INT(SYSTEM(11)).EQ.9) WWVN=74
       IF(INT(SYSTEM(11)).EQ.10) WWVN=75
 C
+
+      OUTLYNE = "PRTRA ROUTINE STARTED! "
+      CALL SHOWIT(19)
+
+C       Update Lens data class
+C     Dump data to interface modules
+      call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
+      curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
+      DO JJ=0,INT(SYSTEM(20))
+        CALL SINDEXJN(JJ, INDEX, VNUM)
+        IF(ALENS(1,JJ).EQ.0.0D0) THEN
+                        RD=0.0D0
+                        ELSE
+                        RD=1.0D0/(ALENS(1,JJ))
+                        END IF
+
+C     Dump data to interface
+        curr_lens_data % radii(JJ+1) = RD
+        curr_lens_data % curvatures(JJ+1) = ALENS(1,JJ)
+        curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)
+        curr_lens_data % surf_index(JJ+1) = INDEX
+        curr_lens_data % surf_vnum(JJ+1) = VNUM
+        curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
+        PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
+        PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
+      END DO
+
+
                         CON=SYSTEM(15)
         IF(ITYPEP.EQ.1.OR.ITYPEP.EQ.3) THEN
 C
@@ -2468,6 +2499,24 @@ C
  8000                     CONTINUE
 C       PARAXIAL TRACE COMPLETED
                         END IF
+C    Populate data object
+C     Dump data to paraxial ray trace interface
+      SF = INT(SYSTEM(20))
+      call curr_par_ray_trace%add_lens_data(curr_lens_data)
+      PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
+      curr_par_ray_trace%marginal_ray_height = PXTRAY(1,0:SF)
+      curr_par_ray_trace%marginal_ray_angle = PXTRAY(2,0:SF)
+      curr_par_ray_trace%chief_ray_height = PXTRAY(3,0:SF)
+      curr_par_ray_trace%chief_ray_angle = PXTRAY(4,0:SF)
+      curr_par_ray_trace%chief_ray_aoi = PXTRAY(7,0:SF)
+      curr_par_ray_trace%marginal_ray_aoi = PXTRAY(5,0:SF)
+C       TMAG
+                IF(DABS(PXTRAY(5,0)).GE.1.0D-15) THEN
+                curr_par_ray_trace%t_mag=PXTRAY(5,SF)/PXTRAY(5,0)
+                        ELSE
+                curr_par_ray_trace%t_mag=0.0
+                        END IF
+
 C
                         ELSE
 C       ITYPEP NOT 2 OR 3)
@@ -2522,6 +2571,7 @@ C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
 C
+
                 CW=INT(SYSTEM(11))
                 AITYPE=1
                         CALL AB357
@@ -2719,7 +2769,7 @@ C
                         END
 C SUB PAROUT.FOR
         SUBROUTINE PAROUT
-        use global_widgets
+
 C
         IMPLICIT NONE
 C
@@ -2789,16 +2839,8 @@ C
         IF(WC.EQ.'PRTX') WRITE(OUTLYNE,6012)
         IF(WC.EQ.'PRTY') WRITE(OUTLYNE,6015)
       CALL SHOWIT(0)
-C     Dump data to paraxial ray trace interface
-      call curr_par_ray_trace%add_lens_data(curr_lens_data)
-      PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
-      curr_par_ray_trace%marginal_ray_height = PXTRAY(1,0:SF)
-      curr_par_ray_trace%marginal_ray_angle = PXTRAY(2,0:SF)
-      curr_par_ray_trace%chief_ray_height = PXTRAY(3,0:SF)
-      curr_par_ray_trace%chief_ray_angle = PXTRAY(4,0:SF)
-      curr_par_ray_trace%chief_ray_aoi = PXTRAY(7,0:SF)
-      curr_par_ray_trace%marginal_ray_aoi = PXTRAY(5,0:SF)
-      
+
+
 
                         DO I=0,SF
                         DO J=1,8

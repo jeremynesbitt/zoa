@@ -136,7 +136,7 @@ C
 C       MAX SAVE/REST = 36 8/24/2006
 C
         CALL MY_NDPEXC
-        PRINT *, "Got to Line 140"   
+        PRINT *, "Got to Line 140"
 C
 C     NO NSS SURFACES
       SYSTEM(102)=0.0D0
@@ -282,8 +282,8 @@ C WINTER
 C      CALL GETOPSYS(ID_SYSTEM)
 C     Set to one
 	  ID_SYSTEM = 1
-	  PRINT *, "Got to line 285"
-      
+	  !PRINT *, "Got to line 285"
+
 C     SET USING OLD REFERENCE RAY DATA TO FALSE
 C
       USEOLREF=.FALSE.
@@ -1297,7 +1297,7 @@ C
         CALL CLOSE_FILE(20,1)
 C       PROCEDD WITHOUT ATTEMPED FUNCTION LOADING
                         END IF
-                        
+
 C                        PRINT *, "Got to line 1301"
 C
 C***********************************************************************
@@ -1358,7 +1358,7 @@ C
       CALL PROCES
         MULTICOM=.FALSE.
 C
-      PRINT *, "Got to line 1361"
+    !  PRINT *, "Got to line 1361"
 
 C     INITIALIZE OPERAND VALUES AND DESCRIPTORS
                        I=MAXOPT
@@ -1535,7 +1535,7 @@ C       FIX THE DOGTAG
 C
         EXIS22=.FALSE.
         EXIS27=.FALSE.
-        
+
       INQUIRE(FILE=LIBLEN//'LIB.DAT',EXIST=EXIS22)
       INQUIRE(FILE=LIBLEN//'LIBTAG.DAT',EXIST=EXIS27)
         IF(EXIS22) THEN
@@ -1581,7 +1581,7 @@ C
 C
 C
        PRINT *, "GOT TO LINE 1582"
-      
+
 
       IF(CMDLINE(1:5).EQ.'BATCH') THEN
         EXIS44=.FALSE.

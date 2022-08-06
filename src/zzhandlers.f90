@@ -102,6 +102,7 @@ contains
  character(len=100) :: ftext, strTitle
  CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
  CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A5, A5)"
+ character(len=100) :: logText
  real, ALLOCATABLE :: w(:), symcalc(:)
  real :: w_sum, s_sum, aplanatic, imageNA
  integer :: totalSurfaces
@@ -125,7 +126,7 @@ contains
   CALL PROCESKDP(ftext)
 
 
-  ftext = 'COLORSET RAYS 2'
+  ftext = 'COLORSET RAYS 6'
   CALL PROCESKDP(ftext)
   call getOpticalSystemLastSurface(endSurface)
   call ld_settings%set_end_surface(endSurface)
@@ -151,7 +152,9 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   PRINT *, "SIZE OF w is ", size(w)
   PRINT *, "SIZE of no_surfaces is ", size(surfaceno)
 
-  WRITE (*, FMTHDR), "Surface", "w_j", "s_j"
+  WRITE (logText, FMTHDR), "Surface", "w_j", "s_j"
+  call updateTerminalLog(logText, "black")
+
 
   do ii = 2, curr_lens_data % num_surfaces - 1
      w(ii-1) = -1/(1-curr_par_ray_trace%t_mag)
@@ -193,7 +196,9 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
       surfaceno(ii-1) = ii-1
 
-      WRITE(*, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+      WRITE(logText, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+      call updateTerminalLog(logText, "black")
+
 
   end do
 
@@ -201,11 +206,12 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
 
   !PRINT *, " w is ", w
-  PRINT *, " w_sum is ", w_sum
+  WRITE(logText, *), " w_sum is ", w_sum
+  call updateTerminalLog(logText, "black")
 
   !PRINT *, " s is ", symcalc
-  PRINT *, " s_sum is ", s_sum
-
+  WRITE(logText, *), " s_sum is ", s_sum
+  call updateTerminalLog(logText, "black")
 
     !call barchart2(x,y)
     ! print *, "Calling Plotter"
@@ -504,20 +510,45 @@ end subroutine proto_symfunc
       ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
 
 
-      character(len=100) :: ftext
-      character(len=20)  :: txtColor
+      character(len=*), intent(in) :: ftext
+      character(len=*), intent(in)  :: txtColor
 
       !type(c_ptr) :: buff2, tag, tagTable
       !type(c_ptr) :: page, enter, iterPtr, gColor
       type(gtktextiter), target :: iter, startIter, endIter
+      logical :: scrollResult
+      type(c_ptr) ::  buffInsert
 
+      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
 
       call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
 
-
+      !PRINT *, "ABOUT TO CALL MARKUP "
+      !TODO Sometimes an empty ftext is sent to this function and GTK throws a
+      !warnting.  Need to figure out how to detect empty string (this is not working)
+    if (ftext.ne."  ") THEN
       call gtk_text_buffer_insert_markup(buffer, c_loc(endIter), &
       & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
       & //c_null_char, -1_c_int)
+    END IF
+
+      !PRINT *, "MARKUP TEXT IS ", "<span foreground='"//trim(txtColor)//"'>"//trim(ftext)//"</span>"//C_NEW_LINE &
+      !& //c_null_char
+      !PRINT *, "LEN of ftext is ", len(trim(ftext))
+
+      !call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
+
+      !scrollResult = gtk_text_view_scroll_to_iter(textView, c_loc(endIter), 0.5_c_double, &
+      !&  True, 0.0_c_double, 1.0_c_double)
+      ! Make sure we are at the bottom of the scroll window
+
+
+      ! Way that wasn't working, originally in name_enter
+      ! Make sure we are at the bottom of the scroll window
+      buffInsert = gtk_text_buffer_get_insert(buffer)
+     !gBool = g_variant_new_boolean(True)
+      call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
+      &  True, 0.0_c_double, 1.0_c_double)
 
       !PRINT *, trim(txtColor)
       !PRINT *, "blue"
@@ -544,9 +575,16 @@ end subroutine proto_symfunc
       !with start and end Iter, but did not spend enough time debugging
 
       ! Update command history for a simple way for the user to get previous commands
-      command_history(command_index) = ftext
-      command_index = command_index + 1
-      command_search = command_index
+      if (txtColor.eq."blue") then
+        if (command_index.LT.99) THEN
+
+         command_history(command_index) = ftext
+         command_index = command_index + 1
+         command_search = command_index
+       END IF
+     END IF
+
+      call pending_events()
 
   end
 
@@ -560,7 +598,7 @@ end subroutine proto_symfunc
 
     type(c_ptr), value :: widget, data
     type(c_ptr) :: buff2, tag, tagTable, gBool
-    type(c_ptr) :: page, enter, iterPtr, gColor, buffInsert
+    type(c_ptr) :: page, enter, iterPtr, gColor
     type(gtktextiter), target :: iter, startIter, endIter
     character(len=100) :: ftext
     character(len=20)  :: txtColor
@@ -586,12 +624,6 @@ end subroutine proto_symfunc
 
     ! Finally actually process the command
     CALL PROCESKDP(ftext)
-
-    ! Make sure we are at the bottom of the scroll window
-    buffInsert = gtk_text_buffer_get_insert(buffer)
-    !gBool = g_variant_new_boolean(True)
-    call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
-    &  True, 0.5_c_double, 0.5_c_double)
 
 
 
@@ -688,6 +720,7 @@ end subroutine proto_symfunc
     call gtk_notebook_set_group_name(notebook,"0"//c_null_char)
 
     textView = gtk_text_view_new ()
+
     buffer = gtk_text_view_get_buffer (textView)
     call gtk_text_buffer_set_text (buffer, &
         & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
@@ -768,7 +801,7 @@ end subroutine proto_symfunc
 
     !call gtk_window_set_interactive_debugging(TRUE)
 
-    call populatezoamenubar(app, my_window)
+    call populatezoamenubar(my_window)
 
 
     ! Let's finalize the GUI:

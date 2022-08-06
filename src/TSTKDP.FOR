@@ -15,6 +15,7 @@
 
         INTEGER CATLIST
 
+
         !
 
         PRINT *, "Done with Init KDP"
@@ -144,15 +145,15 @@ C        STOP
         INCLUDE 'DATSP1.INC'
         INCLUDE 'DATHGR.INC'
 
-        character(len=100) :: ftext
+        character(len=*), intent(in) :: ftext
 
-        WRITE(OUTLYNE,*) "PROCESKDP START F5 = ", F5
-        CALL SHOWIT(19)
+        !WRITE(OUTLYNE,*) "PROCESKDP START F5 = ", F5
+        !CALL SHOWIT(19)
 
         INPUT = trim(ftext)
         CALL PROCES
 
-        WRITE(OUTLYNE,*) "PROCESKDP END F5 = ", F5
-        CALL SHOWIT(19)
+        !WRITE(OUTLYNE,*) "PROCESKDP END F5 = ", F5
+        !CALL SHOWIT(19)
 
         END

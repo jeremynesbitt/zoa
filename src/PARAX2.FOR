@@ -80,6 +80,8 @@ C
         INV=-((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-
      1  (PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
         IF(DABS(INV).LE.1.0D-10) THEN
+                        OUTLYNE = "CALLING MACFAL FROM AB357"
+                        CALL SHOWIT(19)
                         CALL MACFAL
                         RETURN
                         END IF
@@ -796,9 +798,13 @@ C
                 SF=INT(SYSTEM(20))
         INV=-((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-
      1  (PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+        WRITE(OUTLYNE, *) "AB357 INV = ", INV
+        CALL SHOWIT(19)
         IF(DABS(INV).LE.1.0D-10) THEN
-                        CALL MACFAL
-                        RETURN
+                        OUTLYNE = "INV VERY SMALL"
+                        CALL SHOWIT(19)
+                        !CALL MACFAL
+                        !RETURN
                         END IF
 C
                         DO 15 I=0,INT(SYSTEM(20))

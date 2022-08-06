@@ -19,6 +19,9 @@ C
         INCLUDE 'DATSUB.INC'
         OF5=F5
         OF6=F6
+
+        OUTLYNE = "LNSEOS ROUTINE STARTING! "
+        CALL SHOWIT(19)
 C
         IF(CFLDCNT.EQ.0) THEN
 C       SET UP THREE FIELD OF VIEW POSITIONS AT 0 .7 AND 1.0
@@ -75,11 +78,21 @@ C       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
                 END IF
                 END IF
                        CALL LNSEOS1
+                       OUTLYNE = "LNSEOS1 CALL FINISHED 81"
+                       CALL SHOWIT(19)
         IF(OF5.EQ.1) THEN
 C     SET PARAXIAL FLAGS TO FALSE
                 CALL PRTRB
+                OUTLYNE = "DONE WITH PRTRB"
+                CALL SHOWIT(19)
+                OUTLYNE = "ABOUT TO CALL PRTRC"
+                CALL SHOWIT(19)
                 CALL PRTRC
+                  OUTLYNE = "DONE WITH PRTRC"
+                  CALL SHOWIT(19)
                 CALL PRTRD
+                        OUTLYNE = "DONE WITH PRTRD"
+                        CALL SHOWIT(19)
                 END IF
                        RETURN
                        END IF
@@ -112,6 +125,8 @@ C       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
                 END IF
                 END IF
                        CALL LNSEOS1
+                       OUTLYNE = "LNSEOS1 CALL FINISHED 120"
+                       CALL SHOWIT(19)
         IF(OF5.EQ.1) THEN
 C     SET PARAXIAL FLAGS TO FALSE
                 CALL PRTRB
@@ -155,6 +170,8 @@ C       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
                 END IF
                 END IF
                        CALL LNSEOS1
+                      OUTLYNE = "LNSEOS1 CALL FINISHED 165"
+                      CALL SHOWIT(19)
 C       REFRESH 357 ABERRATIONS
         IF(OF5.EQ.1) THEN
 C     SET PARAXIAL FLAGS TO FALSE
@@ -498,6 +515,8 @@ C       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
                 END IF
                 END IF
                        CALL LNSEOS1
+                       OUTLYNE = "LNSEOS1 CALL FINISHED 510"
+                       CALL SHOWIT(19)
         IF(OF5.EQ.1) THEN
 C     SET PARAXIAL FLAGS TO FALSE
                 CALL PRTRB
@@ -601,6 +620,7 @@ C     NO TILT RET
 C SUB LNSEOS1.FOR
         SUBROUTINE LNSEOS1
         USE GLOBALS
+        
 C     NOTE ON 11/04/96 THIS ROUTINE ONLY HAS ONE SUCCESSFUL RETURN
 C     AND IT IS AT THE BOTTOM OF THE ROUTINE
 C
@@ -611,11 +631,13 @@ C       HANDLES THE COMMAND EOS WHEN ISSUED FROM THE NEW LENS INPUT
 C       OR LENS UPDATE MODE.
 C
         LOGICAL REDOLNSEOS,JKOFF,BADGLS,ERCODE,TRYES,LPASS1
+          REAL*8 RD,INDEX,VNUM
 C
         COMMON/GLSBAD/BADGLS
+
 C
         INTEGER KIL,IST,LST,ITYPEP,CFI,CFJ,CFF12,IPASS1,IPASS2
-     6  ,KKKK,I,II,III,SLVMRK,ITT,IFF,TESTIT,J,K,ZZTOP
+     6  ,KKKK,I,II,III,SLVMRK,ITT,IFF,TESTIT,J,K,ZZTOP, JJ
 C
         COMMON/DPIKER/CFI,CFJ,CFF12
 C
@@ -628,6 +650,10 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
+
+
+        OUTLYNE = "LNSEOS1 Routine Starting!"
+        CALL SHOWIT(19)
 C       IF F28 OR F31 ARE 1, WE ARE IN OPTIM OR TOLER
 C       AND SOME THINGS GET SKIPPED
         SKIP=.FALSE.
@@ -663,6 +689,9 @@ C
                         END SELECT
 C
                    REDOLNSEOS=.FALSE.
+
+
+
 C       999 IS A RE-ENTRY POINT
  999               CONTINUE
                         SELECT CASE (SKIP)
@@ -699,6 +728,8 @@ C       THIS HELPS OVERFLOWING ON MACHINES.
                         END DO
 C       RESET NEWOBJ,NEWREF AND NEWIMG
                 CALL RESSUR
+                OUTLYNE = "JUST FINISHED RESSUR"
+                CALL SHOWIT(19)
 C
        IF(SYSTEM(18).EQ.1.0D0) SYSTEM(19)=1.0D0
        IF(SYSTEM(18).EQ.0.0D0) SYSTEM(19)=0.0D0
@@ -715,6 +746,8 @@ C       SET REFEXT TO FALSE AND NULL TO TRUE
         GSPDEXT=.FALSE.
         CPFNEXT=.FALSE.
         CALL DELPSF
+        OUTLYNE = "JUST FINISHED DELPSF"
+        CALL SHOWIT(19)
                         END IF
                         END SELECT
       II=INT(SYSTEM(20))
@@ -729,6 +762,8 @@ C       LENS INPUT, UNLOAD THE GRID FILES
         GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
         GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
         CALL GRIDS(1,0,LPASS1)
+        OUTLYNE = "JUST FINISHED GRIDS"
+        CALL SHOWIT(19)
                 END IF
 C
 C     RESOLVE FICT GLASS TYPE IN OPTIM AND TOLER
@@ -743,6 +778,8 @@ C     FIX LEADING COLON IN GLASS NAME
       IF(GLANMP(I,2)(1:1).EQ.':') GLANMP(I,2)(1:13)=GLANMP(I,2)(2:13)
                       END DO
                 CALL GLSRES
+                OUTLYNE = "JUST FINISHED GLSRES"
+                CALL SHOWIT(19)
                         END IF
 C
       IF(LNSTYP.EQ.1) THEN
@@ -766,7 +803,11 @@ C
                 BADGLS=.FALSE.
                 IF(F22.EQ.1) THEN
                 CALL GLSRES
+                OUTLYNE = "JUST FINISHED GLSRES"
+                CALL SHOWIT(19)
                 IF(BADGLS) THEN
+                  OUTLYNE = "BADGLS IS TRUE"
+                  CALL SHOWIT(19)
 C     DO THE MESSAGE
         OUTLYNE=
      1  'WARNING: CURRENT LENS HAS GLASS INPUT ERRORS'
@@ -807,6 +848,8 @@ C
                 F22=0
                 SYSTEM(25)=0.0D0
                 NEWREF=SYSTEM(25)
+                OUTLYNE = "ABOUT TO CALL MACFAL "
+                CALL SHOWIT(19)
                 CALL MACFAL
                 RETURN
                 END IF
@@ -820,6 +863,8 @@ C
                 F22=0
                 SYSTEM(25)=0.0D0
                 NEWREF=SYSTEM(25)
+                  OUTLYNE = "ABOUT TO CALL MACFAL "
+                  CALL SHOWIT(19)
                 CALL MACFAL
                 RETURN
                 END IF
@@ -1182,8 +1227,7 @@ C
       TFDELT=0.001D0
       TFDIRECTION= 2
           END IF
-                OUTLYNE = "LINE 1195 LDM15"
-                CALL SHOWIT(19)
+
                 IF(F5.EQ.1) F5=0
                 IF(F6.EQ.1) F6=0
                 F1=1
@@ -1590,7 +1634,11 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
+                OUTLYNE = "ABOUT TO CALL PRTRA "
+                CALL SHOWIT(19)
                 CALL PRTRA
+                OUTLYNE = "JUST FINISHED PRTRA"
+                CALL SHOWIT(19)
                ITYPEP=1
                 CALL FADJ
                         ELSE
@@ -1661,8 +1709,12 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
+                OUTLYNE = "ABOUT TO CALL PRTRA "
+                CALL SHOWIT(19)
                 CALL PRTRA
       ITYPEP=2
+                OUTLYNE = "ABOUT TO CALL FADJ"
+                CALL SHOWIT(19)
                 CALL FADJ
                         ELSE
 C       MODE NOT CORRECT
@@ -1735,8 +1787,12 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
+                OUTLYNE = "ABOUT TO CALL PRTRA "
+                CALL SHOWIT(19)
                 CALL PRTRA
                ITYPEP=1
+                OUTLYNE = "ABOUT TO CALL ERADJ "
+                CALL SHOWIT(19)
                 CALL ERADJ
                         ELSE
       IF(LNSTYP.EQ.1) THEN
@@ -1806,8 +1862,12 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
+                OUTLYNE = "ABOUT TO CALL PRTRA "
+                CALL SHOWIT(19)
                 CALL PRTRA
                    ITYPEP=2
+                 OUTLYNE = "ABOUT TO CALL ERADJ"
+                 CALL SHOWIT(19)
                 CALL ERADJ
                         ELSE
       IF(LNSTYP.EQ.1) THEN
@@ -1889,7 +1949,11 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
+              OUTLYNE = "ABOUT TO CALL PRTRA"
+              CALL SHOWIT(19)
                         CALL PRTRA
+              OUTLYNE = "JUST CALLED PRTRA"
+              CALL SHOWIT(19)
 C
       IF(SYSTEM(83).NE.0.0D0.AND.SYSTEM(26).NE.-99.0D0.OR.
      1SYSTEM(84).NE.0.0D0.AND.SYSTEM(26).NE.-99.0D0) THEN
@@ -1965,6 +2029,8 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
 C
                         CALL PRTRA
+                      OUTLYNE = "JUST CALLED PRTRA"
+                      CALL SHOWIT(19)
 
       IF(ALENS(9,INT(SYSTEM(26))).EQ.1.0D0.AND.
      1ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
@@ -2033,6 +2099,8 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
 C
                         CALL PRTRA
+                        OUTLYNE = "JUST CALLED PRTRA "
+                        CALL SHOWIT(19)
                         END IF
                         END IF
 C
@@ -2106,6 +2174,8 @@ C       EQUAL TO THE CURRENT DATA UNLESS LNSTYP = 3
       IF(LNSTYP.EQ.1.OR.LNSTYP.EQ.2) THEN
                 IF(F12.EQ.1) THEN
                  CALL CTOP
+                 OUTLYNE = "CTOP JUST FINISHED"
+                 CALL SHOWIT(19)
 C************************************************************
 C               PERMANENT LENS UPDATED
 C       F12 NOT 1, PROCEED
@@ -2377,6 +2447,8 @@ C     SET UP THE FAST ACCESS CFG ARRAYS FOR OPTIMIZATION
 C     IF THERE ARE CONFIGS
 
       IF(INT(SYSTEM(56)).GT.1.AND.LNSTYP.NE.3) CALL AUXCFG
+      OUTLYNE = "JUST FINISHED AUXCFG CHECK"
+      CALL SHOWIT(19)
 C
 C     INITIALIZE THE FRONT FOCAL LENGTH, BACK FOCAL LENGTH
 C     AND ENTRANCE TO EXIT PUPIL MAG VARIABLES BASED ON
@@ -2577,7 +2649,11 @@ C     ON THE AFFECTED SURFACES
                            DO I=0,INT(SYSTEM(20))
       IF(ALENS(25,I).EQ.1.0D0.OR.ALENS(25,I).EQ.-1.0D0.OR.
      1ALENS(25,I).EQ.5.0D0) THEN
+        OUTLYNE = "ABOUT TO CHECK PIVDEC"
+        CALL SHOWIT(19)
         IF(ALENS(59,I).EQ.1.0D0) CALL PIVDEC(I)
+        OUTLYNE = "JUST FINISHED PIVDEC CHECK"
+        CALL SHOWIT(19)
                            END IF
                            END DO
       ERCODE=.FALSE.
@@ -2586,6 +2662,8 @@ C     THIS CALL FINDS ILLEGAL TILT RETS AND TILT AUTOS WHICH PRECEED
 C     TILT RETS AND FIXES THEM
                    CALL TILT_RETURN(ERCODE,TRYES)
       IF(ERCODE) THEN
+        OUTLYNE = "ERCODE IS TRUE in LNSEOS1"
+        CALL SHOWIT(19)
 C     THERE WERE ERRORS RESOLVING TILT RETURN, CALL MACFAL
 C     AND SET ERCODE TO .FALSE.
       ERCODE=.FALSE.
@@ -2597,6 +2675,8 @@ C     RESOLVE TILT RETURNS INTO TILTS AND DECENTER VALUES
 C     ON SURFACES
 C
                        CALL RETRES
+                       OUTLYNE = "RETRES ROUTINE FINISHED "
+                       CALL SHOWIT(19)
 C
                        END IF
 C     FORCE IMAGE SURFACE TO HAVE ZERO THICKNESS
@@ -2616,9 +2696,13 @@ C     THE FINAL SURFACE ALWAYS HAS ZERO THICKNESS
       IF(.NOT.REDOLNSEOS) THEN
       IF(SYSTEM(94).NE.0.0D0.OR.SYSTEM(98).NE.0.0D0) THEN
                 CALL REDOXOBJ(REDOLNSEOS)
+                OUTLYNE = "REDOXOBJ FINISHED"
+                CALL SHOWIT(19)
                    END IF
       IF(SYSTEM(95).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
                 CALL REDOYOBJ(REDOLNSEOS)
+                  OUTLYNE = "REDOYOBJ FINISHED"
+                  CALL SHOWIT(19)
                    END IF
                    ELSE
 C     DONE

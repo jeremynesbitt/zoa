@@ -483,8 +483,8 @@ C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATHGR.INC'
 
-        OUTLYNE = "PDRAW SUBROUTINE"
-        CALL SHOWIT(19)
+        !OUTLYNE = "PDRAW SUBROUTINE"
+        !CALL SHOWIT(19)
 C       CHECK SYNTAX
         IF(SST.EQ.1.OR.SN.EQ.1.OR.SQ.EQ.1) THEN
       OUTLYNE='"DRAW" TAKES NO ADDITIONAL INPUT'
@@ -3352,6 +3352,7 @@ C      WRITE (*, '(a)') 'Call to SHOWIT'
          if (debug_messages) THEN
 
             txtColor = "red"
+            PRINT *, OUTLYNE
             call updateTerminalLog(OUTLYNE, txtColor)
           end IF
 

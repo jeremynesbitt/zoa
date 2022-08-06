@@ -33,6 +33,6 @@ module global_widgets
   REAL :: kdp_width = 10500
   REAL :: kdp_height = 7050
 
-  logical :: debug_messages = FALSE
+  logical :: debug_messages = TRUE
 
 end module global_widgets

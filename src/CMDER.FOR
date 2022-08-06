@@ -2,6 +2,7 @@ C SUB CMDER.FOR
         SUBROUTINE CMDER
         USE GLOBALS
         use zoa_ui
+        use handlers
         use kdp_interfaces, only: EDITOR, POWSYM
 C
         IMPLICIT NONE
@@ -71,6 +72,10 @@ C     REMEMBER ORIGINAL REFLOC SETTING FOR MULTIPLE FOV DIFFRACTION
 C     CALCULATIONS
       OREFLOC=REFLOC
       LASTCOMWRD=WC
+
+      call updateTerminalLog(INPUT, "blue")
+      !PRINT *, "WC = ", WC
+
 C
 C ******************************************************************************
 C
@@ -560,22 +565,20 @@ C       DO A FORCED RETURN TO CFG1
 C       CALL TO LSTAT( LENS LIBRARY STATUS)
         IF(WC.EQ.'LSTAT')  THEN
         IF(SN.EQ.1.OR.SST.EQ.1.OR.SQ.EQ.1) THEN
-        OUTLYNE=
-     1  '"LSTAT" TAKES NO EXPLICIT INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C      CALL LSTAT
+          OUTLYNE='"LSTAT" TAKES NO EXPLICIT INPUT'
+          CALL SHOWIT(1)
+          OUTLYNE='RE-ENTER COMMAND'
+          CALL SHOWIT(1)
+          CALL MACFAL
+          RETURN
+        END IF
+
+          CALL myLSTAT
         RETURN
         END IF
 C               LENS LIBRARY COMMANDS
         IF(WC.EQ.'LIB') THEN
         OPTMES=.FALSE.
-        WRITE(OUTLYNE, *) "CMDER 569 F5 = ", F5
-        CALL SHOWIT(19)
         CALL LLIB
         OPTMES=.TRUE.
         RETURN
@@ -1075,7 +1078,9 @@ C        CALL SPIDER
         RETURN
         END IF
         IF(WC.EQ.'LOADMAC') THEN
-        CALL MACARRAY_LOAD(NUMINLIST)
+          OUTLYNE = "LOADMAC COMMAND DISABLED"
+          CALL SHOWIT(1)
+        !CALL MACARRAY_LOAD(NUMINLIST)
         RETURN
         END IF
         IF(WC.EQ.'OCDY'.OR.WC.EQ.'OCDX') THEN

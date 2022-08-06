@@ -552,7 +552,7 @@ end subroutine combo_plotorientation_callback
     !type(c_ptr)     :: my_drawing_area
     !integer(c_int)  :: width, height
 
-    type(c_ptr)     :: table, expander, box1
+    type(c_ptr)     :: table, expander, box1, scrolled_tab
 
     ! Create a modal dialogue
     !ld_window = gtk_window_new()
@@ -601,7 +601,9 @@ end subroutine combo_plotorientation_callback
 
     !call g_signal_connect(ld_window, "destroy"//c_null_char, c_funloc(my_destroy), c_null_ptr)
     tab_label = gtk_label_new_with_mnemonic("_Lens Draw"//c_null_char)
-    location = gtk_notebook_append_page(notebook, ld_window, tab_label)
+    scrolled_tab = gtk_scrolled_window_new()
+    call gtk_scrolled_window_set_child(scrolled_tab, ld_window)
+    location = gtk_notebook_append_page(notebook, scrolled_tab, tab_label)
 
     !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
     !call gtk_widget_queue_draw(my_drawing_area)

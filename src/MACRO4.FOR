@@ -581,11 +581,17 @@ C
         CALL MACIN(DWW1)
                         RETURN
                         END
-        SUBROUTINE MACARRAY_LOAD(NUMINLIST)
+        SUBROUTINE MACARRAY_LOAD(NUMINLIST, MACARRAY)
         IMPLICIT NONE
+C       ARRAY TO SUPPORT MACRO GUI
+
+
+        CHARACTER(len=8), dimension(1024), intent(inout) :: MACARRAY
+        INTEGER, intent(inout) :: NUMINLIST
+
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATMAC.INC'
-        INTEGER OLDOUT,OLDIN,I,J,NUMINLIST
+        INTEGER OLDOUT,OLDIN,I,J, rec9
         CHARACTER*132 LINE
         MACARRAY(1:1024)='        '
         CALL CLOSE_FILE(9,0)
@@ -600,12 +606,14 @@ C
         OUT=OLDOUT
         IN=OLDIN
         CALL CLOSE_FILE(9,1)
+        inquire(iolength=rec9) LINE
         OPEN(UNIT=9,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='EDITTEXT.DAT'
+     1  ,FORM='FORMATTED',RECL=rec9, FILE='EDITTEXT.DAT'
      2  ,STATUS='UNKNOWN')
         REWIND(9)
         I=1
  1      READ(9,25,ERR=90,END=90) LINE
+        !PRINT *, "LINE is ", LINE
         IF(I.GE.3) MACARRAY(I-2)=LINE(1:8)
         I=I+1
         GO TO 1
@@ -613,5 +621,7 @@ C
         CALL CLOSE_FILE(9,0)
  25     FORMAT(A132)
         NUMINLIST=I-2
+        !PRINT *, "MACARRAY IS ", MACARRAY
+        !PRINT *, "NUMINLIST IS ", NUMINLIST
         RETURN
         END

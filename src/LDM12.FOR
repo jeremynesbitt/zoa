@@ -3280,7 +3280,7 @@ C
         CHARACTER FLNAME*12,NAME*13,NUMBER*13,FLTP*12
 C
         INTEGER I,J,TOTAL,COUNT,LASCNT,GNUMBER1,GNUMBER2
-        INTEGER rec11, rec15
+        INTEGER rec11, rec15, unit
 C
       EXTERNAL GNUMBER1,GNUMBER2
 C
@@ -3435,22 +3435,24 @@ C               PROCEED
 
         inquire(iolength=rec11) TOTAL
         inquire(iolength=rec15) NAME,NUMBER,A0,A1,
-     1  A2,A3,A4,A5            
-
+     1  A2,A3,A4,A5
+        inquire(FILE=LIBGLA//FLNAME, number=unit)
+        if (unit.GT.0) CLOSE(UNIT=36, STATUS='KEEP')
+        PRINT *, "INQ ", unit
         OPEN(UNIT=36,ACCESS='DIRECT',FILE=LIBGLA//FLNAME,
      1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
         READ(UNIT=36,REC=1) TOTAL
         CLOSE(UNIT=36, STATUS='KEEP')
 
         OPEN(UNIT=36,ACCESS='DIRECT',FILE=LIBGLA//FLNAME,
-     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')  
+     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
 
 C        OPEN(UNIT=36,ACCESS='DIRECT',FILE=LIBGLA//FLNAME,
 C     1  FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
 C        PRINT *, "LDM12 About to crash ", LIBGLA//FLNAME
 C        READ(UNIT=36,REC=1) TOTAL
                         DO 300 J=2,TOTAL+1
-                        
+
         READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
         IF(GLANAM(I,2).EQ.NAME.OR.GLANAM(I,2).EQ.NUMBER) THEN
       ALENS(122,I)=GNUMBER1(NUMBER)
@@ -4541,23 +4543,23 @@ C        READ(UNIT=36,REC=1) TOTAL
 
         inquire(iolength=rec11) TOTAL
         inquire(iolength=rec15) NAME,NUMBER,A0,A1,
-     1  A2,A3,A4,A5            
+     1  A2,A3,A4,A5
 
         OPEN(UNIT=36,ACCESS='DIRECT',FILE=LIBGLA//FLNAME,
      1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
         READ(UNIT=36,REC=1) TOTAL
         CLOSE(UNIT=36, STATUS='KEEP')
-        
+
         OPEN(UNIT=36,ACCESS='DIRECT',FILE=LIBGLA//FLNAME,
-     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')        
-     
+     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
+
 
 
         PRINT *, "WORKING LDM12"
 C        PRINT *, LIBGLA//FLNAME
 C        PRINT *, TOTAL
 C        PRINT *, NRECL
-                        DO J=2,TOTAL+1                        
+                        DO J=2,TOTAL+1
         READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
         IF(GLANAM(I,2).EQ.NAME.OR.GLANAM(I,2).EQ.NUMBER) THEN
       ALENS(122,I)=GNUMBER1(NUMBER)

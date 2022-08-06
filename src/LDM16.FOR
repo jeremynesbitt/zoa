@@ -1,5 +1,5 @@
 C SUB LSTAT.FOR
-        SUBROUTINE LSTAT
+        SUBROUTINE myLSTAT
 C
         IMPLICIT NONE
 C
@@ -1336,8 +1336,7 @@ C
         OUTLYNE = "LLIBRY ROUTINE"
         CALL SHOWIT(19)
 
-        WRITE(OUTLYNE,*) "LLIBRY 1339 F5= ", F5
-        CALL SHOWIT(19)
+
 C
 C       SET ALL=0
                         ALL=0
@@ -1571,6 +1570,7 @@ C       IF ALL=1 THEN WE MUST SEARCH FOR AN AVALIABLE SLOT
 C
 C       ***************************************************************
                         EXISJK=.FALSE.
+
         INQUIRE(FILE=LIBLEN//'LIB.DAT',EXIST=EXISJK)
         IF(.NOT.EXISJK) THEN
         IF(LIBLEN.NE.'LIBLEN\') THEN
@@ -1596,16 +1596,22 @@ C       ***************************************************************
                         CALL MACFAL
                         RETURN
                         END IF
-C       ***************************************************************
+C       OLD WAY OF OPENING OPENING FILE
+C        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
+C     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
 
+
+C       ***************************************************************
+        inquire(iolength=rec22) II, DATA
         OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+     1  FORM='UNFORMATTED',RECL=rec22,STATUS='UNKNOWN')
         IF(EXISTAG)
      1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LIBLEN//'LIBTAG.DAT',
      1FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
         IF(ALL.EQ.1) THEN
                 DO 10 I=1,999
         READ(UNIT=22,REC=4*(I-1)+1) II,DATA
+        PRINT *, "II = ", " DATA = ", DATA
         !READ(UNIT=22,REC=I) II,DATA
         IF(EXISTAG) THEN
                         DO J=1,10
@@ -1629,7 +1635,8 @@ C       PROCEED WITH STORAGE
                         ELSE
 C       ALL NOT 1 SET II=INT(W1)
                         II=INT(W1)
-        READ(UNIT=22,REC=II) J,DATA
+        !READ(UNIT=22,REC=II) J,DATA
+        READ(UNIT=22,REC=4*(II-1)+1) J,DATA
         IF(EXISTAG) THEN
                         DO JJ=1,10
         READ(UNIT=27,REC=II-1+JJ) IDTAG(JJ)(1:75)
@@ -1646,8 +1653,7 @@ C       SLOT OCCUPIED
                         END IF
                         END IF
 C       FILE THE NUMBER AND NAME IN THE LIBRARY
-                WRITE(OUTLYNE, *) "LDM16 1647 F5 =", F5
-                CALL SHOWIT(19)
+
                 CALL MYDATE(DDATE)
                 CALL MYTIME(TTIME)
                         DDDAT=DDATE
@@ -1658,9 +1664,9 @@ C       FILE THE NUMBER AND NAME IN THE LIBRARY
         LIP=WS
                         END IF
                 LLIP=DDATE//' '//TTIME//' '//LIP(1:59)
-        WRITE(UNIT=22,REC=II) II,LLIP
-        WRITE(OUTLYNE, *) "LDM16 1660 F5 =", F5
-        CALL SHOWIT(19)
+        !WRITE(UNIT=22,REC=II) II,LLIP
+        WRITE(UNIT=22,REC=4*(II-1)+1) II,LLIP
+
         CALL DOGTAG
         IF(EXISTAG) THEN
                         DO J=1,10
@@ -1673,8 +1679,7 @@ C
 C       NOW DETERMINE WHICH OF THE 999 LENS LIBRARY FILES
 C       TO USE
 C
-                WRITE(OUTLYNE, *) "LDM16 1674 F5 =", F5
-                CALL SHOWIT(19)
+
                         N=II
                         CALL CCOONN(N,AN)
         IF(N.GT.0.AND.N.LE.9) FN='LIB00'//AN(3:3)//'.DAT'
@@ -1778,6 +1783,7 @@ C           PRINT *, "II, DATA", II, " ", DATA
 C        END DO
 C        READ(UNIT=22,REC=INT(W1)) II,DATA
         READ(UNIT=22,REC=4*(INT(W1)-1)+1) II,DATA
+        PRINT *, "II = ", II, " DATA = ", DATA
         !WRITE(OUTLYNE,*) "II, DATA", II, " ", DATA
         !CALL SHOWIT(19)
 C        CLOSE(27,STATUS='KEEP')
@@ -1807,12 +1813,10 @@ C
 C       NOW DETERMINE WHICH OF THE 999 LENS LIBRARY FILES
 C       TO USE
 
-                WRITE(OUTLYNE, *) "LDM16 1808 F5 =", F5
-                CALL SHOWIT(19)
+
                         N=II
                         CALL CCOONN(N,AN)
-                WRITE(OUTLYNE, *) "LDM16 1812 F5 =", F5
-                CALL SHOWIT(19)
+
         IF(N.GT.0.AND.N.LE.9) FN='LIB00'//AN(3:3)//'.DAT'
         IF(N.GT.9.AND.N.LE.99) FN='LIB0'//AN(2:3)//'.DAT'
         IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
@@ -1847,8 +1851,7 @@ C     SET OPCNT,VBCNT AND DEREXT TO CORRECT VALUES
                          VBCNT=0
                         DEREXT=.FALSE.
       ITERROR=.FALSE.
-                WRITE(OUTLYNE, *) "LDM16 1847 F5 =", F5
-                CALL SHOWIT(19)
+
       CALL ITER(0,0,ITERROR)
                         FMTEXT=.FALSE.
                         FMTFLG=.FALSE.
@@ -1947,8 +1950,7 @@ C
       WRITE(OUTLYNE,*) "RESTORED LIBRARY LENS NO. ", II
 
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)'LDM 16 F5=', F5
-      CALL SHOWIT(19)
+  
                         RETURN
                         END IF
 C

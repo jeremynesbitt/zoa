@@ -5676,17 +5676,17 @@ C
                 WQ=QUALWD(I)
                 WS=STRING(I)
 
-                PRINT *, "INPUT IS ", INPUT
-                WRITE(OUTLYNE, *) "WC = ", WC, "WQ = ",WQ, "WS = ", WS
-                CALL SHOWIT(19)
+                !PRINT *, "PRO3 INPUT IS ", INPUT
+                !WRITE(OUTLYNE, *) "WC = ", WC, "WQ = ",WQ, "WS = ", WS
+                !CALL SHOWIT(19)
 
                 W1=NW1(I)
                 W2=NW2(I)
                 W3=NW3(I)
                 W4=NW4(I)
                 W5=NW5(I)
-                WRITE(OUTLYNE, *) "W1= ", W1, "W2= ", W2, "W3= ", NW3(I)
-                CALL SHOWIT(19)
+                !WRITE(OUTLYNE, *) "W1= ", W1, "W2= ", W2, "W3= ", NW3(I)
+                !CALL SHOWIT(19)
                 SB1=STATBL(I)
                 SB2=STBLK2(I)
                 SC1=STATCO(I)
@@ -5716,8 +5716,8 @@ C
                 IF(DF3.EQ.2) DF3=1
                 IF(DF4.EQ.2) DF4=1
                 IF(DF5.EQ.2) DF5=1
-                WRITE(OUTLYNE, *) "DF1= ", DF1, "DF2= ", DF2
-                CALL SHOWIT(19)
+                !WRITE(OUTLYNE, *) "DF1= ", DF1, "DF2= ", DF2
+                !CALL SHOWIT(19)
 C       CORRECTION MADE ON 2/10/88
 C       FOR ANY NUMERIC WORD WITH A DEFAULT VALUE, THE
 C       CORRESPONDING S1 TO S5 SHOULD BE SET TO 0

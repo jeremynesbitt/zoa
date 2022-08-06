@@ -420,6 +420,79 @@ C       DON'T INCREMENT SURF AND SYSTEM(20)
                         END IF
 C
                         END
+
+        SUBROUTINE SINDEXJN(surfIndex, INDEX, VNUM)
+C
+        IMPLICIT NONE
+C
+C       THIS IS SUBROUTINE SINDEX. THIS IS THE SUBROUTINE WHICH
+C       HANDLES THE INDEX,DISPERSION AND V-NUMBER CALCULATIONS
+C       FOR THE RTG AND CTG COMMANDS
+C
+        REAL*8, intent(INOUT) :: INDEX
+        REAL*8 DISP,DISA,DISB,PARTL
+        REAL*8, INTENT(INOUT) :: VNUM
+
+C
+        INTEGER, INTENT(IN) :: surfIndex
+C
+        COMMON DISP,PARTL
+C
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATMAI.INC'
+C
+C       THE CONTROL WAVLENGTH NUMBER IS STORED IN SYSTEM(11)
+C
+        IF(SYSTEM(11).EQ.1.0) INDEX=ALENS(46,surfIndex)
+        IF(SYSTEM(11).EQ.2.0) INDEX=ALENS(47,surfIndex)
+        IF(SYSTEM(11).EQ.3.0) INDEX=ALENS(48,surfIndex)
+        IF(SYSTEM(11).EQ.4.0) INDEX=ALENS(49,surfIndex)
+        IF(SYSTEM(11).EQ.5.0) INDEX=ALENS(50,surfIndex)
+        IF(SYSTEM(11).EQ.6.0) INDEX=ALENS(71,surfIndex)
+        IF(SYSTEM(11).EQ.7.0) INDEX=ALENS(72,surfIndex)
+        IF(SYSTEM(11).EQ.8.0) INDEX=ALENS(73,surfIndex)
+        IF(SYSTEM(11).EQ.9.0) INDEX=ALENS(74,surfIndex)
+        IF(SYSTEM(11).EQ.10.0) INDEX=ALENS(75,surfIndex)
+
+        PRINT *, "ALENS IS ", ALENS(46:50,surfIndex)
+C
+C       THE PRIMARY WAVELENGTH PAIR NUMBERS ARE STORED IN
+C       SYSTEM(7) AND SYSTEM(8)
+C
+        IF(SYSTEM(7).EQ.1.0) DISA=ALENS(46,surfIndex)
+        IF(SYSTEM(7).EQ.2.0) DISA=ALENS(47,surfIndex)
+        IF(SYSTEM(7).EQ.3.0) DISA=ALENS(48,surfIndex)
+        IF(SYSTEM(7).EQ.4.0) DISA=ALENS(49,surfIndex)
+        IF(SYSTEM(7).EQ.5.0) DISA=ALENS(50,surfIndex)
+        IF(SYSTEM(7).EQ.6.0) DISA=ALENS(71,surfIndex)
+        IF(SYSTEM(7).EQ.7.0) DISA=ALENS(72,surfIndex)
+        IF(SYSTEM(7).EQ.8.0) DISA=ALENS(73,surfIndex)
+        IF(SYSTEM(7).EQ.9.0) DISA=ALENS(74,surfIndex)
+        IF(SYSTEM(7).EQ.10.0) DISA=ALENS(75,surfIndex)
+        IF(SYSTEM(8).EQ.1.0) DISB=ALENS(46,surfIndex)
+        IF(SYSTEM(8).EQ.2.0) DISB=ALENS(47,surfIndex)
+        IF(SYSTEM(8).EQ.3.0) DISB=ALENS(48,surfIndex)
+        IF(SYSTEM(8).EQ.4.0) DISB=ALENS(49,surfIndex)
+        IF(SYSTEM(8).EQ.5.0) DISB=ALENS(50,surfIndex)
+        IF(SYSTEM(8).EQ.6.0) DISB=ALENS(71,surfIndex)
+        IF(SYSTEM(8).EQ.7.0) DISB=ALENS(72,surfIndex)
+        IF(SYSTEM(8).EQ.8.0) DISB=ALENS(73,surfIndex)
+        IF(SYSTEM(8).EQ.9.0) DISB=ALENS(74,surfIndex)
+        IF(SYSTEM(8).EQ.10.0) DISB=ALENS(74,surfIndex)
+C
+                DISP=DABS(DISA)-DABS(DISB)
+C       CALC V-NUMBER
+C
+                IF(DISP.EQ.0.0D0) THEN
+                VNUM=0.0D0
+                PARTL=0.0D0
+                ELSE
+                VNUM=(DABS(INDEX)-1.0)/(DISP)
+                PARTL=(DABS(INDEX)-DISB)/(DISP)
+                END IF
+                        RETURN
+                        END
+
 C SUB SINDEX.FOR
         SUBROUTINE SINDEX
 C
