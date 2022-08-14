@@ -92,14 +92,14 @@ C        STOP
         USE GLOBALS
         IMPLICIT NONE
 
-        INTEGER res
+        INTEGER, intent(inout) :: res
 
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
         res = INT(SYSTEM(20))
 
-        PRINT *, "Last Surface index is ", res
+        PRINT *, "Last Surface index TSTKDP is ", res
 
 
         END

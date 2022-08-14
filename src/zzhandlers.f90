@@ -1,7 +1,7 @@
 module handlers
   use global_widgets
   use GLOBALS
-  use lens_analysis
+  !use lens_analysis
   use gtk
   ! , only: gtk_application_window_new, gtk_window_destroy, &
   ! & g_signal_connect, g_signal_connect_swapped, &
@@ -92,7 +92,7 @@ contains
     use global_widgets
     !use handlers
     use zoa_plot
-    use mod_plotopticalsystem
+  !  use mod_plotopticalsystem
   !use mod_plotopticalsystem
 
 
@@ -674,7 +674,7 @@ end subroutine proto_symfunc
     ! The four buttons:
 
     button2 = gtk_button_new_with_mnemonic ("Test _PLPLOT"//c_null_char)
-    call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(plotLensData))
+    !call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(plotLensData))
     button3 = gtk_button_new_with_mnemonic ("_Exit"//c_null_char)
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
     toggle1 = gtk_button_new_with_mnemonic ("_TstFunc"//c_null_char)
@@ -685,20 +685,20 @@ end subroutine proto_symfunc
 
 
     ! A clickable URL link:
-    linkButton = gtk_link_button_new_with_label ( &
-                          &"http://www.ecalculations.com"//c_null_char,&
-                          &"More on KDP2"//c_null_char)
+    !linkButton = gtk_link_button_new_with_label ( &
+    !                      &"http://www.ecalculations.com"//c_null_char,&
+    !                      &"More on KDP2"//c_null_char)
 
     ! A table container will contain buttons and labels:
     table = gtk_grid_new ()
     call gtk_grid_set_column_homogeneous(table, TRUE)
     call gtk_grid_set_row_homogeneous(table, TRUE)
 
-    call gtk_grid_attach(table, button2, 1_c_int, 3_c_int, 1_c_int, 1_c_int)
-    call gtk_grid_attach(table, button3, 3_c_int, 3_c_int, 1_c_int, 1_c_int)
-    call gtk_grid_attach(table, linkButton, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, button2, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, button3, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
+    !call gtk_grid_attach(table, linkButton, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
 
-    call gtk_grid_attach(table, toggle1, 2_c_int, 3_c_int, 1_c_int,1_c_int)
+    call gtk_grid_attach(table, toggle1, 2_c_int, 0_c_int, 1_c_int,1_c_int)
 
     ! The table is contained in an expander, which is contained in the vertical box:
     expander = gtk_expander_new_with_mnemonic ("_The parameters:"//c_null_char)
@@ -706,7 +706,7 @@ end subroutine proto_symfunc
     call gtk_expander_set_expanded(expander, TRUE)
 
     ! We create a vertical box container:
-    box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
+    box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int);
     call gtk_box_append(box1, expander)
 
     ! We need a widget where to draw our pixbuf.
@@ -720,6 +720,7 @@ end subroutine proto_symfunc
     call gtk_notebook_set_group_name(notebook,"0"//c_null_char)
 
     textView = gtk_text_view_new ()
+    call gtk_text_view_set_editable(textView, FALSE)
 
     buffer = gtk_text_view_get_buffer (textView)
     call gtk_text_buffer_set_text (buffer, &
@@ -742,7 +743,7 @@ end subroutine proto_symfunc
 
     ! Having an issue where every time I try to detach a tab the main window
     ! freezes, so disabling this for now.  Hopefully this can get resolved
-    call gtk_notebook_set_tab_detachable(notebook, scroll_ptr, TRUE)
+    !call gtk_notebook_set_tab_detachable(notebook, scroll_ptr, TRUE)
 
     !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTab), notebook)
     call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)

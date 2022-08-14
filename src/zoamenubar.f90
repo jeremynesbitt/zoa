@@ -102,6 +102,8 @@ contains
     type(c_ptr) :: act_macrosave, menu_item_macrosave, menu_item_macrorestore, act_macrorestore
     type(c_ptr) :: act_macromanual, menu_item_macromanual
 
+    type(c_ptr) :: act_editlensrad, menu_item_editlensrad
+
     ! Menu Bar funcionality
     act_fullscreen = g_simple_action_new_stateful ("fullscreen"//c_null_char, &
                                   & c_null_ptr, g_variant_new_boolean (FALSE))
@@ -155,6 +157,14 @@ contains
 
     ! Lens Menu
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)
+
+    !Edit Lens
+    act_editlensrad = g_simple_action_new("EditLensRad"//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, act_editlensrad)
+    call g_signal_connect (act_editlensrad, "activate"//c_null_char, c_funloc(zoa_editLensRadUI), win)
+    menu_item_editlensrad = g_menu_item_new ("Edit Lens (Radius Mode)"//c_null_char, "win.EditLensRad"//c_null_char)
+    call g_menu_append_item (menu_lens, menu_item_editlensrad)
+
 
     ! Lens Sub Menus
 
@@ -343,6 +353,13 @@ contains
       ftext = "OCDY"
       CALL PROCESKDP(ftext)
 
+
+  end subroutine
+
+  subroutine zoa_editLensRadUI(act, avalue, win) bind(c)
+    type(c_ptr), value, intent(in) :: act, avalue, win
+
+    call PROCESKDP('EDIT')
 
   end subroutine
 

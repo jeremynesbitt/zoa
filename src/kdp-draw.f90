@@ -191,6 +191,8 @@ SUBROUTINE IGRLINETO(my_cairo_context, cairo_drawing_area, X,Y)
 
 END SUBROUTINE IGRLINETO
 
+
+
 SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata) bind(c)
 
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
@@ -287,6 +289,21 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       COMMON/ASPECTER/JJ_X,JJ_Y
 
       REAL*8 sf
+
+    integer(kind=c_int), pointer :: ID_SETTING
+
+    call c_f_pointer(gdata, ID_SETTING)
+    select case (ID_SETTING)
+    case (ID_NEWPLOT_LENSDRAW)
+
+        PRINT *, "DRAWOS CALLED FROM LENSDRAW"
+
+  case (ID_NEWPLOT_RAYFAN)
+      PRINT *, "DRAWOS CALLED FROM RAYFAN"
+
+  end select
+
+
  !     INCLUDE 'DATMAI.INC'
  !     INCLUDE 'DATHGR.INC'
 !     INITIALIZE CHARACTER ASPECT RATIO

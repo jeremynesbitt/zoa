@@ -41,6 +41,7 @@ end module mod_lens_editor_settings
 
 
 module mod_lens_draw_settings
+  use zoa_ui
 
 type  lens_draw_settings
       integer plot_orientation
@@ -64,6 +65,7 @@ contains
     procedure, public, pass(self) :: set_scaleFactor
     procedure, public, pass(self) :: set_elevation
     procedure, public, pass(self) :: set_azimuth
+    procedure, public, pass(self) :: lens_draw_replot
 
 
 
@@ -82,8 +84,11 @@ type(lens_draw_settings) function lens_draw_settings_constructor() result(self)
      self%changed= 0
      self%field_symmetry = ID_LENSDRAW_PLOT_WHOLE_FIELD
      self%start_surface = 1
+     self%end_surface = 13
      call getOpticalSystemLastSurface(self%end_surface)
-     PRINT *, "END SURFACE IS ", self%end_surface
+     PRINT *, "******************** END SURFACE CONSTRUCTOR ", self%end_surface
+     !WRITE(OUTLYNE, *), "END SURFACE IN LD SETTINGS CONSTRUCTOR ", self%end_surface
+     !CALL SHOWIT(19)
 
      self%scaleFactor = .045
      self%autoScale = ID_LENSDRAW_AUTOSCALE
@@ -217,6 +222,102 @@ end subroutine set_scaleFactor
 
   end subroutine is_lens_draw_setting
 
+subroutine lens_draw_replot(self)
+
+  class(lens_draw_settings) :: self
+
+
+  character(len=40) :: command, qual_word
+  character(len=100) :: ftext
+  character(len=3)   :: AJ, AK
+  character(len=23) :: autoScale_text, AW2, AW3
+
+
+  PRINT *, "LENS DRAW REPLOT INIITIATED"
+  PRINT *, "LAST SURFACE IS LENS DRAW REPLOT", self%end_surface
+
+  command = "VIECO"
+
+
+  ! Original logic in LENSED.INC
+  select case (self%field_symmetry)
+  case (ID_LENSDRAW_PLOT_HALF_FIELD)
+       ftext = 'VIESYM OFF'
+       CALL PROCESKDP(ftext)
+  case (ID_LENSDRAW_PLOT_WHOLE_FIELD)
+       ftext = 'VIESYM ON'
+       CALL PROCESKDP(ftext)
+  end select
+
+  select case (self%plot_orientation)
+
+  case (ID_LENSDRAW_YZ_PLOT_ORIENTATION)
+       qual_word = "YZ"
+  case (ID_LENSDRAW_XZ_PLOT_ORIENTATION)
+      qual_word = "XZ"
+  case (ID_LENSDRAW_XY_PLOT_ORIENTATION)
+      qual_word = "XY"
+  case (ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)
+       qual_word = "ORTHO"
+        !CALL DTOA23(ld_settings%elevation,AW2)
+        !CALL DTOA23(ld_settings%azimuth,AW3)
+        WRITE(AW2, *) self%elevation
+        WRITE(AW3, *) self%azimuth
+
+        ftext ='PLOT VIEW,'//AW2//','//AW3
+        PRINT *, "ORTHO TEXT IS ", ftext
+        !PRINT *, "LD Settings Elevation, Azimuth is ", ld_settings%elevation, ",", ld_settings%azimuth
+        CALL PROCESKDP(ftext)
+  case DEFAULT
+      qual_word = " "
+  end select
+
+
+  !INPUT='VIECO,'//','//AJ//','//AK//',1'
+
+!      AUTOSCALE
+!        CALL ITOAA(ISTARTSURF,AJ)
+!        CALL ITOAA(ISTOPSURF,AK)
+!        INPUT='VIECO,'//','//AJ//','//AK//',1'
+!        CALL PROCES
+
+  ! Start and End Surface
+  CALL ITOAA(self%start_surface, AJ)
+  CALL ITOAA(self%end_surface, AK)
+
+  PRINT *, "AJ = ", AJ, " AK = ", AK
+
+    !ftext= trim('VIECO,'//','//AJ//','//AK//',1')
+    !PRINT *, ftext
+
+    ! Working
+    !ftext = trim(command)//" "//trim(qual_word)
+
+  if (self%autoScale.eq.ID_LENSDRAW_MANUALSCALE) THEN
+      !write(autoScale_text, *), ",", ld_settings%scaleFactor, ","
+      !autoScale_text = trim(",,")
+      Call DTOA23(self%scaleFactor,autoScale_text)
+      PRINT *, ",", self%scaleFactor, ","
+      WRITE(autoScale_text, *) self%scaleFactor
+
+  else
+      autoScale_text = trim("")
+  end if
+
+
+    !ftext = trim(command)//" "//trim(qual_word)//autoScale_text//AJ//","//AK//",0"
+
+    ftext = trim(command)//" "//trim(qual_word)//","//autoScale_text//","//AJ//","//AK//",0,1"
+    !if (ld_settings%plot_orientation.eq.ID_LENSDRAW_ORTHO_PLOT_ORIENTATION) THEN
+    !  ftext = ftext//",1"
+    !end if
+
+
+    PRINT *, "Command is ", ftext
+    CALL PROCESKDP(ftext)
+
+end subroutine lens_draw_replot
+
 
 end module mod_lens_draw_settings
 
@@ -249,6 +350,7 @@ interface ray_fan_settings
 end interface ray_fan_settings
 
 contains
+
 type(ray_fan_settings) function ray_fan_settings_constructor() result(self)
     self%fan_type = ID_RAYFAN_Y_FAN
     self%fan_wfe  = ID_RAYFAN_TRANSVERSE_RAY

@@ -18,7 +18,8 @@ SRCETC :=  $(wildcard etc/*.f90)
 # Option to only have shared object and not executable. TODO switch with a flag
 # PROG = src/TSTKDP.FOR
 GTK  = src/zoamain.f90
-GLOB  = src/zoa-ui.f90
+GLOBFOR = src/globals.FOR src/nssmod.FOR
+GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoamenubar.f90 src/zzhandlers.f90 src/kdp-draw.f90 src/ROUTEDRAWING.f90 src/lens-editor.f90 src/zoa-tab.f90 src/mod_plotrayfan.f90 src/kdp-interfaces.f90  src/mod_plotopticalsystem.f90
 IFACES = src/kdp-interfaces.f90
 
 GTKMID = ${GTK:.f90=.mod}
@@ -35,6 +36,7 @@ SRC90 := $(wildcard src/*.f90)
 SRC90 := $(filter-out $(GTK) $(GLOB) $(IFACES),$(SRC90))
 OBJ90:=${SRC90:src/%.f90=bin/%.mod}
 GLOBOBJ = ${GLOB:src/%.f90=bin/%.mod}
+GLOBFOROBJ = bin/globals.o bin/nssmod.o
 IFACESOBJ = ${IFACES:src/%.f90=bin/%.mod}
 OBJETC :=  ${SRCETC:etc/%.f90=bin/%.mod}
 
@@ -48,31 +50,40 @@ OBJ:=${SRC:src/%.FOR=bin/%.o}
 
 	
 # Output F90 files into .mod files
+	#@echo $(SRC90)
+	#@echo $(GLOB)
+	#@echo $(IFACES)
 bin/%.mod: src/%.f90
 #$(OBJ90)/$(SRC90): $(GLOBOBJ)
-	@echo Starting F90 Compilation	
-	@echo $(SRC90)
-	@echo $(GLOB)
-	@echo $(IFACES)
+	@echo F90 Compilation	
+
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
 
 # Output FOR files into .o files	
-bin/%.o: src/%.FOR
-	@echo Starting Compilation	
 #	@echo $(OBJ)
+bin/%.o: src/%.FOR
+	@echo FOR Compilation	
+
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags h5fortran)
 
 $(OBJETC):etc/*.f90
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
 
+#$(IFACESOBJ):$(IFACES)
+#$(IFACESOBJ):bin/%.mod : src/%.f90
+#	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
 
-$(IFACESOBJ):$(IFACES)
+	#@echo $(GTKOBJ)	
+#$(GLOBOBJ): $(GLOB)
+$(GLOBOBJ): bin/%.mod : src/%.f90
+	@echo Starting Global Compilation
+
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
 
-$(GLOBOBJ): $(GLOB)
-	@echo Starting Compilation
-	@echo $(GTKOBJ)	
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
+$(GLOBFOROBJ): bin/%.o : src/%.FOR
+	@echo Starting Global Compilation
+
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags)
 
 
 $(GTKOBJ): $(GTK)
@@ -83,7 +94,7 @@ $(GTKOBJ): $(GTK)
 # Compile f90 files first, then F77 Files
 #all: $(GTKOBJ) $(OBJ90) $(OBJ) 
 #all:  $(OBJ90) $(OBJ) $(GLOBOBJ) $(GTKOBJ) 
-all:  $(GLOBOBJ) $(OBJETC) $(OBJ90) $(IFACESOBJ) $(OBJ) $(GTKOBJ) 
+all:  $(OBJETC) $(GLOBFOROBJ) $(GLOBOBJ) $(OBJ90) $(OBJ) $(GTKOBJ) 
 	@echo $(GTKMID)
 	@echo $(GTKOBJ)
 	@echo $(GLOBOBJ)
@@ -94,7 +105,7 @@ all:  $(GLOBOBJ) $(OBJETC) $(OBJ90) $(IFACESOBJ) $(OBJ) $(GTKOBJ)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -shared -ffree-form -g -Og -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) 
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) $$(pkg-config --libs plplot-fortran)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $(GLOBOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran)
-	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90)  $(GLOBOBJ) $(IFACESOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib 
+	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib 
 
 #$(pkg-config --libs --cflags h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib
 
@@ -104,3 +115,4 @@ glob: $(GLOBOBJ)
 clean:
 	rm -f bin/*.o
 	rm -f bin/*.mod
+	rm -f *.mod

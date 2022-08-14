@@ -12,6 +12,7 @@ module mod_plotopticalsystem
   use gtk_hl_button
   use gtk_hl_tree
   use gtk
+  use kdp_interfaces
 
   ! use gtk, only: gtk_button_new, gtk_window_set_child, gtk_window_destroy, &
   !      & gtk_progress_bar_new, gtk_widget_show, gtk_window_new, &
@@ -68,7 +69,8 @@ subroutine spin_firstSurface_callback (widget, gdata ) bind(c)
 
    if (ld_settings%changed.eq.1) THEN
       ld_settings%changed = 0
-      call lens_draw_replot()
+      call ld_settings%lens_draw_replot()
+      !call WDRAWOPTICALSYSTEM()
 
    end if
 
@@ -83,11 +85,12 @@ subroutine spin_endSurface_callback (widget, gdata ) bind(c)
 
    call ld_settings % set_end_surface(surfaceIndex)
 
-   PRINT *, "NEW LAST SURFACE ", surfaceIndex
+   PRINT *, "NEW LAST SURFACE SPIN CALLBACK ", surfaceIndex
 
    if (ld_settings%changed.eq.1) THEN
       ld_settings%changed = 0
-      call lens_draw_replot()
+      call ld_settings%lens_draw_replot()
+      !call WDRAWOPTICALSYSTEM
 
    end if
 
@@ -194,7 +197,8 @@ subroutine spin_autoScale_callback (widget, gdata ) bind(c)
 
    if (ld_settings%changed.eq.1) THEN
       ld_settings%changed = 0
-      call lens_draw_replot()
+      call ld_settings%lens_draw_replot()
+      !call WDRAWOPTICALSYSTEM
 
    end if
 
@@ -215,8 +219,8 @@ subroutine spin_elevation_callback (widget, gdata ) bind(c)
 
    if (ld_settings%changed.eq.1) THEN
       ld_settings%changed = 0
-      call lens_draw_replot()
-
+      call ld_settings%lens_draw_replot()
+      !call WDRAWOPTICALSYSTEM
    end if
 
 
@@ -237,8 +241,8 @@ subroutine spin_azimuth_callback (widget, gdata ) bind(c)
 
    if (ld_settings%changed.eq.1) THEN
       ld_settings%changed = 0
-      call lens_draw_replot()
-
+      call ld_settings%lens_draw_replot()
+      !call WDRAWOPTICALSYSTEM
    end if
 
 
@@ -277,8 +281,8 @@ subroutine combo_autoScale_callback (widget, gdata ) bind(c)
 
   if (ld_settings%changed.eq.1) THEN
      ld_settings%changed = 0
-     call lens_draw_replot()
-
+     call ld_settings%lens_draw_replot()
+     !call WDRAWOPTICALSYSTEM
   end if
 
 
@@ -311,8 +315,8 @@ subroutine combo_fieldsymmetry_callback (widget, gdata ) bind(c)
 
   if (ld_settings%changed.eq.1) THEN
      ld_settings%changed = 0
-     call lens_draw_replot()
-
+     call ld_settings%lens_draw_replot()
+     !call WDRAWOPTICALSYSTEM
   end if
 
 
@@ -352,8 +356,8 @@ subroutine combo_plotorientation_callback (widget, gdata ) bind(c)
 
   if (ld_settings%changed.eq.1) THEN
      ld_settings%changed = 0
-     call lens_draw_replot()
-
+     call ld_settings%lens_draw_replot()
+      !call WDRAWOPTICALSYSTEM
   end if
 
 
@@ -544,6 +548,8 @@ end subroutine combo_plotorientation_callback
   subroutine lens_draw_new(parent_window)
 
     use kdp_draw, only: DRAWOPTICALSYSTEM, TESTCAIRO2, TESTCAIRO3
+    USE ROUTEMOD
+
     type(c_ptr) :: parent_window
 
     type(c_ptr) :: content, junk, gfilter, tab_label
@@ -553,6 +559,8 @@ end subroutine combo_plotorientation_callback
     !integer(c_int)  :: width, height
 
     type(c_ptr)     :: table, expander, box1, scrolled_tab
+
+    integer, target :: TARGET_LENSDRAW_PLOT   = ID_NEWPLOT_LENSDRAW
 
     ! Create a modal dialogue
     !ld_window = gtk_window_new()
@@ -574,7 +582,7 @@ end subroutine combo_plotorientation_callback
     !   call gtk_window_set_transient_for(ld_window, parent_window)
     !   call gtk_window_set_destroy_with_parent(ld_window, TRUE)
     !end if
-
+    call getOpticalSystemLastSurface(ld_settings%end_surface)
 
     call lens_draw_settings_dialog(ld_window)
 
@@ -582,17 +590,25 @@ end subroutine combo_plotorientation_callback
     call gtk_drawing_area_set_content_width(ld_cairo_drawing_area, width)
     call gtk_drawing_area_set_content_height(ld_cairo_drawing_area, height)
 
+    !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
+    !               & c_funloc(DRAWOPTICALSYSTEM), c_null_ptr, c_null_funptr)
+    !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
+    !               & c_funloc(DRAWOPTICALSYSTEM), c_null_ptr, c_null_funptr)
     call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
-                   & c_funloc(DRAWOPTICALSYSTEM), c_null_ptr, c_null_funptr)
+                   & c_funloc(ROUTEDRAWING), c_loc(TARGET_LENSDRAW_PLOT), c_null_funptr)
+    !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
+    !               & c_funloc(DRAWOPTICALSYSTEM), c_loc(TARGET_LENSDRAW_PLOT), c_null_funptr)
+    !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
+    !               & c_funloc(lens_draw_replot), c_null_ptr, c_null_funptr)
     !call gtk_drawing_area_set_draw_func(ld_cairo_drawing_area, &
     !               & c_funloc(TESTCAIRO3), c_null_ptr, c_null_funptr)
 
-    PRINT *, "FINISHED WITH DRAWOPTICALSYSTEM"
-    PRINT *, "LENS DATA SURFACES IS ", curr_lens_data % num_surfaces
-    IF (curr_lens_data%num_surfaces.GT.0) THEN
-      PRINT *, "RADII ARE ", curr_lens_data%radii
-      PRINT *, "THICKNESSES ARE ", curr_lens_data%thicknesses
-    END IF
+    !PRINT *, "FINISHED WITH DRAWOPTICALSYSTEM"
+    !PRINT *, "LENS DATA SURFACES IS ", curr_lens_data % num_surfaces
+    !IF (curr_lens_data%num_surfaces.GT.0) THEN
+    !  PRINT *, "RADII ARE ", curr_lens_data%radii
+    !  PRINT *, "THICKNESSES ARE ", curr_lens_data%thicknesses
+    !END IF
 
     call gtk_box_append(ld_window, ld_cairo_drawing_area)
     !call gtk_window_set_child(ld_window, ld_cairo_drawing_area)
@@ -604,6 +620,7 @@ end subroutine combo_plotorientation_callback
     scrolled_tab = gtk_scrolled_window_new()
     call gtk_scrolled_window_set_child(scrolled_tab, ld_window)
     location = gtk_notebook_append_page(notebook, scrolled_tab, tab_label)
+    call gtk_notebook_set_current_page(notebook, location)
 
     !call gtk_window_set_mnemonics_visible (ld_window, TRUE)
     !call gtk_widget_queue_draw(my_drawing_area)
@@ -682,97 +699,6 @@ end subroutine lens_draw_new
     PRINT *, "SHOULD SEE GRAPHICS NOW!"
 end subroutine
 
-subroutine lens_draw_replot()
 
-
-  character(len=40) :: command, qual_word
-  character(len=100) :: ftext
-  character(len=3)   :: AJ, AK
-  character(len=23) :: autoScale_text, AW2, AW3
-
-
-  PRINT *, "LENS DRAW REPLOT INIITIATED"
-
-  command = "VIECO"
-
-
-  ! Original logic in LENSED.INC
-  select case (ld_settings%field_symmetry)
-  case (ID_LENSDRAW_PLOT_HALF_FIELD)
-       ftext = 'VIESYM OFF'
-       CALL PROCESKDP(ftext)
-  case (ID_LENSDRAW_PLOT_WHOLE_FIELD)
-       ftext = 'VIESYM ON'
-       CALL PROCESKDP(ftext)
-  end select
-
-  select case (ld_settings%plot_orientation)
-
-  case (ID_LENSDRAW_YZ_PLOT_ORIENTATION)
-       qual_word = "YZ"
-  case (ID_LENSDRAW_XZ_PLOT_ORIENTATION)
-      qual_word = "XZ"
-  case (ID_LENSDRAW_XY_PLOT_ORIENTATION)
-      qual_word = "XY"
-  case (ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)
-       qual_word = "ORTHO"
-        !CALL DTOA23(ld_settings%elevation,AW2)
-        !CALL DTOA23(ld_settings%azimuth,AW3)
-        WRITE(AW2, *) ld_settings%elevation
-        WRITE(AW3, *) ld_settings%azimuth
-
-        ftext ='PLOT VIEW,'//AW2//','//AW3
-        PRINT *, "ORTHO TEXT IS ", ftext
-        !PRINT *, "LD Settings Elevation, Azimuth is ", ld_settings%elevation, ",", ld_settings%azimuth
-        CALL PROCESKDP(ftext)
-  case DEFAULT
-      qual_word = " "
-  end select
-
-
-  !INPUT='VIECO,'//','//AJ//','//AK//',1'
-
-!      AUTOSCALE
-!        CALL ITOAA(ISTARTSURF,AJ)
-!        CALL ITOAA(ISTOPSURF,AK)
-!        INPUT='VIECO,'//','//AJ//','//AK//',1'
-!        CALL PROCES
-
-  ! Start and End Surface
-  CALL ITOAA(ld_settings%start_surface, AJ)
-  CALL ITOAA(ld_settings%end_surface, AK)
-
-  PRINT *, "AJ = ", AJ, " AK = ", AK
-
-    !ftext= trim('VIECO,'//','//AJ//','//AK//',1')
-    !PRINT *, ftext
-
-    ! Working
-    !ftext = trim(command)//" "//trim(qual_word)
-
-  if (ld_settings%autoScale.eq.ID_LENSDRAW_MANUALSCALE) THEN
-      !write(autoScale_text, *), ",", ld_settings%scaleFactor, ","
-      !autoScale_text = trim(",,")
-      Call DTOA23(ld_settings%scaleFactor,autoScale_text)
-      PRINT *, ",", ld_settings%scaleFactor, ","
-      WRITE(autoScale_text, *) ld_settings%scaleFactor
-
-  else
-      autoScale_text = trim("")
-  end if
-
-
-    !ftext = trim(command)//" "//trim(qual_word)//autoScale_text//AJ//","//AK//",0"
-
-    ftext = trim(command)//" "//trim(qual_word)//","//autoScale_text//","//AJ//","//AK//",0,1"
-    !if (ld_settings%plot_orientation.eq.ID_LENSDRAW_ORTHO_PLOT_ORIENTATION) THEN
-    !  ftext = ftext//",1"
-    !end if
-
-
-    PRINT *, "Command is ", ftext
-    CALL PROCESKDP(ftext)
-
-end subroutine lens_draw_replot
 
 end module

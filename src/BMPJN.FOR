@@ -239,7 +239,7 @@ C        CALL WRGBsplit(ABMPDATA24(L),IR,IG,IB)
         SUBROUTINE PLOTIMAGEARRAY(I,LENBMP,TRIMMER)
 
         USE GLOBALS
-        USE csv_file
+        !USE csv_file
         IMPLICIT NONE
         INTEGER I,J,K,L
         INTEGER LENBMP, lun
@@ -652,4 +652,3 @@ C       CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
 
        return
        end subroutine pixout
-

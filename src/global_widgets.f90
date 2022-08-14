@@ -16,6 +16,7 @@ module global_widgets
   character(LEN=80) :: string
   type(c_ptr) :: app
 
+
   ! UI Parameters
   type(lens_draw_settings) :: ld_settings
   type(ray_fan_settings)   :: rf_settings
@@ -33,6 +34,6 @@ module global_widgets
   REAL :: kdp_width = 10500
   REAL :: kdp_height = 7050
 
-  logical :: debug_messages = TRUE
+  logical :: debug_messages = FALSE
 
 end module global_widgets
