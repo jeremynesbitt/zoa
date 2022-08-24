@@ -47,7 +47,7 @@ type :: zoaplot
 
 contains
     !procedure, public :: initialize
-
+    procedure, public :: initialize => zp_init
     procedure, public, pass(self) :: drawPlot
     procedure, public, pass(self) :: setLabelFont
     procedure, private, pass(self) :: getAxesLimits
@@ -76,7 +76,7 @@ contains
 
 end type barchart
 
-  type, extends(zoaplot) :: multiplot
+  type :: multiplot
         !> The collection of plot objects.
         type(list) :: m_plots
         !> The number of rows of plots.
@@ -87,6 +87,8 @@ end type barchart
         character(len = 100) :: m_title
         !> Has a title?
         logical :: m_hasTitle = .false.
+        type(c_ptr) :: area = c_null_ptr
+        type(c_ptr) :: cc = c_null_ptr
         !> The BNUPLOT terminal object to target.
         !class(terminal), pointer :: m_terminal => null()
     contains
@@ -120,7 +122,7 @@ contains
 ! Candidate for submodule for multiplot
     subroutine mp_init(self, area, m, n)
         class(multiplot), intent(inout) :: self
-        type(c_ptr), intent(in) :: area
+        type(c_ptr) :: area
         integer, intent(in) :: m,n
         integer :: i
         !real, allocatable :: xin(:), yin(:)
@@ -133,6 +135,7 @@ contains
         !allocate(self%y(arraysize))
 
         self%area = area
+        PRINT *, "AREA PTR IS ", self%area
 
         self%m_rows = m
         self%m_cols = n
@@ -185,9 +188,9 @@ contains
 
     subroutine mp_draw(self)
 
-        class(multiplot), intent(in) :: self
+        class(multiplot):: self
 
-        type(c_ptr)  :: cc, cs
+        type(c_ptr)  :: cc, cs, isurface
         character(len=20) :: string
         character(len=25) :: geometry
         integer :: m, n
@@ -210,9 +213,28 @@ contains
              & 127, 85, 170/)
 
         PRINT *, "Starting mp_plot routine"
+        PRINT *, "DRAWING AREA PTR IS ", self%area
+
+        isurface = g_object_get_data(self%area, "backing-surface")
+    ! Create the backing surface
+
+    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+    !call g_object_set_data(self%area, "backing-surface", isurface)
+        PRINT *, "isurface in mp_draw is ", isurface
+        if (.not. c_associated(isurface)) then
+           PRINT *, "mp_draw :: Backing surface is NULL"
+          isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+          isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+          call g_object_set_data(self%area, "backing-surface", isurface)
+        end if
+
         cc = hl_gtk_drawing_area_cairo_new(self%area)
         cs = cairo_get_target(cc)
+        !self%cc = self%area
+        !cs = cairo_get_target(self%area)
 
+        PRINT *, "AFTER CS DEFINED"
         !  Initialize plplot
         call plscmap0(rval, gval, bval)
 
@@ -271,10 +293,59 @@ contains
 
         !    Don't forget to call PLEND to finish off!
         call plend
-        call hl_gtk_drawing_area_cairo_destroy(cc)
+        call gtk_widget_queue_draw(self%area)
+        call hl_gtk_drawing_area_cairo_destroy(self%cc)
 
         end subroutine
 
+! TODO - How to combine this with barchart_init?
+    subroutine zp_init(self, area, x, y, xlabel, ylabel, title)
+      !import zoa_plot
+      class(zoaplot), intent(inout) :: self
+      type(c_ptr), intent(in) :: area
+      real ::  x(:), y(:)
+      character(len=100), optional :: xlabel, ylabel, title
+      integer :: arraysize
+
+      arraysize = size(x)
+
+      !allocate(self%x(arraysize))
+      !allocate(self%y(arraysize))
+      PRINT *, "ARRAY SIZE IS ", arraysize
+
+
+      self%area = area
+      self%x = x
+      self%y = y
+
+      !self % title = trim("untitled")
+      !self % xlabel = trim("           x axis")
+
+      !self % ylabel = "y axis"
+
+      self % labelFontColor = trim("BLACK")
+      self % dataColorCode = PL_PLOT_RED
+
+    if (present(title)) then
+       self%title = title
+    else
+       self%title = 'untitled'
+    end if
+
+
+    if (present(xlabel)) then
+       self%xlabel = xlabel
+    else
+       self%xlabel = 'x'
+    end if
+
+    if (present(ylabel)) then
+       self%ylabel = ylabel
+    else
+       self%ylabel = 'y'
+    end if
+
+  end subroutine
 
 !! Canidate for dubmodule for zoaplot
     subroutine bc_init(self, area, x, y, xlabel, ylabel, title)
@@ -369,52 +440,23 @@ contains
 
     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
 
-    real(kind=pl_test_flt) :: y0(10)
-    real(kind=pl_test_flt) :: pos(5)   = (/0.0_pl_test_flt, 0.25_pl_test_flt, 0.5_pl_test_flt, 0.75_pl_test_flt, 1.0_pl_test_flt/)
-    real(kind=pl_test_flt) :: red(5)   = (/0.0_pl_test_flt, 0.25_pl_test_flt, 0.5_pl_test_flt, 1.0_pl_test_flt, 1.0_pl_test_flt/)
-    real(kind=pl_test_flt) :: green(5) = (/1.0_pl_test_flt, 0.5_pl_test_flt, 0.5_pl_test_flt, 0.5_pl_test_flt, 1.0_pl_test_flt/)
-    real(kind=pl_test_flt) :: blue(5)  = (/1.0_pl_test_flt, 1.0_pl_test_flt, 0.5_pl_test_flt, 0.25_pl_test_flt, 0.0_pl_test_flt/)
 
-    ! Define colour map 0 to match the "GRAFFER" colour table in
-    ! place of the PLPLOT default.
-    integer, parameter, dimension(16) :: rval = (/255, 0, 255, &
-         & 0, 0, 0, 255, 255, 255, 127, 0, 0, 127, 255, 85, 170/),&
-         & gval = (/ 255, 0, 0, 255, 0, 255, 0, 255, 127, 255, 255, 127,&
-         & 0, 0, 85, 170/), &
-         & bval = (/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
-         & 127, 85, 170/)
-
-
-    cc = hl_gtk_drawing_area_cairo_new(self%area)
-    cs = cairo_get_target(cc)
-
-    !  Initialize plplot
-    call plscmap0(rval, gval, bval)
-    call plsdev("extcairo")
-
-    ! By default the "extcairo" driver does not reset the background
-    ! This is equivalent to the command line option "-drvopt set_background=1"
-    plsetopt_rc = plsetopt("drvopt", "set_background=1")
-    if (plsetopt_rc .ne. 0) stop "plsetopt error"
-
-    ! The "extcairo" device doesn't read the size from the context.
-    write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
-         & cairo_image_surface_get_height(cs)
-    plsetopt_rc = plsetopt( 'geometry', geometry)
-    if (plsetopt_rc .ne. 0) stop "plsetopt error"
-
-    call plinit()
-
-    call pl_cmd(PLESC_DEVINIT, cc)
-
-    call pladv(0)
-    call plvsta
+    !call plvsta
     !call plwind( 1980._pl_test_flt, 1990._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
-    call getAxesLimits(self, xmin, xmax, ymin, ymax)
 
-    !call plwind( -1._pl_test_flt, 11._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
+    call getAxesLimits(self, xmin, xmax, ymin, ymax)
     call plwind(xmin, xmax, ymin, ymax)
-    call plbox( 'bcgnt', 1._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
+    call plbox( 'bcgnt', 0._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
+    ! PRINT *, "XMIN, XMAX are ", xmin, ",", xmax
+    ! PRINT *, "YMIN, YMAX are ", ymin, ",", ymax
+    ! PRINT *, "x is ", self%x
+    ! PRINT *, "y is ", self%y
+
+  !  call plwind( -1._pl_test_flt, 11._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
+
+    !call plwind(xmin, xmax, ymin, ymax)
+    !call plbox( 'bcgnt', 1._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
+
     !call plbox( 'bcgnt', 1._pl_test_flt, 0, 'bnstv', 0._pl_test_flt, 0 )
 
     !call plbox('bcfghlnst', 0.0_plflt, 0, 'bcghnstv', 0.0_plflt, 0)
@@ -423,35 +465,40 @@ contains
     !call pllab( 'Surface', 'Y Position [mm]', '#frPLplot Example 12' )
     !call pllab( 'Surface', trim('Y Position [mm]')//c_null_char, '#frPLplot Example 12' )
     call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
+    !call plscmap1l(.true.,pos,red,green,blue)
 
+    call plcol0(self%dataColorCode)
 
-    y0 = (/ 5, 15, 12, 24, 28, 30, 20, 8, 12, 3 /)
+    call plpsty(0)
 
-    call plscmap1l(.true.,pos,red,green,blue)
+    call plline(self%x,self%y)
 
-    do i = 1, size(self%x)
-        !       call plcol0(i + 1)
-        !call plcol1(real(i,kind=pl_test_flt)/9.0_pl_test_flt)
-        call plcol0(2)
-        !call plcol1(real(1,kind=pl_test_flt))
-        !call plcol1(1.0_pl_test_fit)
-        call plpsty(0)
-        !call plfbox( 1980._pl_test_flt+i, y(i+1) )
-        call barChartBox(self%x(i), self%y(i) )
-        !write (string, '(i0)') int(y0(i))
+    call plcol0(self%dataColorCode)
 
-        !call plptex( x(i+1), y(i+1), &
-        !       1._pl_test_flt, 0._pl_test_flt, 0.5_pl_test_flt, string )
-        !call plptex( 1980._pl_test_flt+i+0.5_pl_test_flt, y0(i+1)+1._pl_test_flt, &
-        !       1._pl_test_flt, 0._pl_test_flt, 0.5_pl_test_flt, string )
-
-        !write (string, '(i0)')1980+i
-        !call plmtex( 'b', 1._pl_test_flt, (i+1)*0.1_pl_test_flt-0.05_pl_test_flt, 0.5_pl_test_flt, string )
-    enddo
+    !
+    ! do i = 1, size(self%x)
+    !     !       call plcol0(i + 1)
+    !     !call plcol1(real(i,kind=pl_test_flt)/9.0_pl_test_flt)
+    !     call plcol0(2)
+    !     !call plcol1(real(1,kind=pl_test_flt))
+    !     !call plcol1(1.0_pl_test_fit)
+    !     call plpsty(0)
+    !     !call plfbox( 1980._pl_test_flt+i, y(i+1) )
+    !     call barChartBox(self%x(i), self%y(i) )
+    !     !write (string, '(i0)') int(y0(i))
+    !
+    !     !call plptex( x(i+1), y(i+1), &
+    !     !       1._pl_test_flt, 0._pl_test_flt, 0.5_pl_test_flt, string )
+    !     !call plptex( 1980._pl_test_flt+i+0.5_pl_test_flt, y0(i+1)+1._pl_test_flt, &
+    !     !       1._pl_test_flt, 0._pl_test_flt, 0.5_pl_test_flt, string )
+    !
+    !     !write (string, '(i0)')1980+i
+    !     !call plmtex( 'b', 1._pl_test_flt, (i+1)*0.1_pl_test_flt-0.05_pl_test_flt, 0.5_pl_test_flt, string )
+    ! enddo
 
     !    Don't forget to call PLEND to finish off!
-    call plend
-    call hl_gtk_drawing_area_cairo_destroy(cc)
+    !call plend
+    !call hl_gtk_drawing_area_cairo_destroy(cc)
 
     end subroutine drawPlot
 

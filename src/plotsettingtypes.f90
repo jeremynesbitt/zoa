@@ -332,6 +332,7 @@ type ray_fan_settings
    real minPupil
    integer numRays
    integer wavelength
+   logical autoplotupdate
 
  contains
     procedure, public, pass(self) :: ray_fan_is_changed
@@ -341,6 +342,7 @@ type ray_fan_settings
     procedure, public, pass(self) :: set_min_pupil
     procedure, public, pass(self) :: set_num_rays
     procedure, public, pass(self) :: set_ray_fan_wavelength
+    procedure, public :: replot => ray_fan_replot
 
 
 end type ray_fan_settings
@@ -357,6 +359,7 @@ type(ray_fan_settings) function ray_fan_settings_constructor() result(self)
     self%maxPupil = 1.0
     self%minPupil = -1.0
     self%numRays = 11
+    self%autoplotupdate = .TRUE.
     self%wavelength = 2 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
 
 end function ray_fan_settings_constructor
@@ -375,6 +378,7 @@ subroutine set_ray_fan(self, ID_SETTING)
   if (self%fan_type.ne.ID_SETTING) THEN
      self%fan_type = ID_SETTING
      self%changed = 1
+     if (self%autoplotupdate) call self%replot()
   end if
 
 
@@ -387,6 +391,7 @@ subroutine set_max_pupil(self, ID_SETTING)
   if (self%maxPupil.ne.ID_SETTING) THEN
      self%maxPupil = ID_SETTING
      self%changed = 1
+     if (self%autoplotupdate) call self%replot()
   end if
 
 
@@ -399,6 +404,7 @@ subroutine set_min_pupil(self, ID_SETTING)
   if (self%minPupil.ne.ID_SETTING) THEN
      self%minPupil = ID_SETTING
      self%changed = 1
+     if (self%autoplotupdate) call self%replot()
   end if
 
 
@@ -411,6 +417,7 @@ subroutine set_num_rays(self, ID_SETTING)
   if (self%numRays.ne.ID_SETTING) THEN
      self%numRays = ID_SETTING
      self%changed = 1
+     if (self%autoplotupdate) call self%replot()
   end if
 
 
@@ -423,6 +430,7 @@ subroutine set_ray_fan_wavelength(self, ID_SETTING)
   if (self%wavelength.ne.ID_SETTING) THEN
      self%wavelength = ID_SETTING
      self%changed = 1
+     if (self%autoplotupdate) call self%replot()
   end if
 
 
@@ -435,9 +443,250 @@ subroutine set_fan_wfe(self, ID_SETTING)
   if (self%fan_wfe.ne.ID_SETTING) THEN
      self%fan_wfe = ID_SETTING
      self%changed = 1
+     if (self%autoplotupdate) call self%replot()
   end if
 
 
 end subroutine set_fan_wfe
 
+subroutine ray_fan_replot(self)
+  class(ray_fan_settings), intent(inout) :: self
+
+  character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
+  character(len=100) :: ftext
+
+!
+!       SIMPLE FANS
+!
+!
+        !IF(MESSAGE%WIN.EQ.IDD_FAN1) THEN
+        !CALL WDIALOGSELECT(IDD_FAN1)
+        !SELECT CASE(MESSAGE%VALUE1)
+        !CASE (IDOK)
+!       MAX PUPIL HT
+        !CALL WDIALOGGETDOUBLE(IDF_MIN,DW1)
+
+!       MIN PUPIL HT
+        !CALL WDIALOGGETDOUBLE(IDF_MAX,DW2)
+
+!       PLOT FAN SCALE
+        !CALL WDIALOGGETDOUBLE(IDF_SSI,SSI)
+        !CALL DTOA23(SSI,ASSI)
+
+!       NUMBER OF RAYS IN FAN
+        !CALL WDIALOGGETINTEGER(IDF_NUM,INUM)
+
+!       FAN WAVELENGTH
+        !CALL WDIALOGGETINTEGER(IDF_WAV,IWAV)
+!
+!       FAN PRIMARY TYPE
+!       1=YFAN
+!       2=XFAN
+!       3=PFAN
+!       4=NFAN
+        !CALL WDIALOGGETRADIOBUTTON(IDF_FT1,ISET)
+!
+!       FAN SECONDARY TYPE
+!       1=TRANSVERSE
+!       2=OPD
+!       3=CD
+!       4=LA
+        !CALL WDIALOGGETRADIOBUTTON(IDF_Q1,JSET)
+!
+!       PLOTTING ON OR OFF
+!       0=NO PLOT
+!       1=PLOT
+        !CALL WDIALOGGETCHECKBOX(IDF_PLOT,ISTATE)
+!
+!       PLOTTING AUTOSCALE FACTOR
+!       1=AUTOSCALE
+!       0=NO AUTOSCALE
+        !CALL WDIALOGGETCHECKBOX(IDF_AUTOSSI,KSTATE)
+        !IF(KSTATE.EQ.1.AND.SSI.EQ.0.0D0) THEN
+        !KSTATE=1
+        !CALL WDIALOGPUTCHECKBOX(IDF_AUTOSSI,KSTATE)
+        !                END IF
+!
+!       TRACE THE CORRECT CHIEF RAY
+        !CALL CHIEFTRACE
+!
+        select case (self%fan_type)
+          case (ID_RAYFAN_Y_FAN)
+                PART1='YFAN '
+          case (ID_RAYFAN_X_FAN)
+                PART1='XFAN '
+          case (ID_RAYFAN_P_FAN)
+                PART1='PFAN '
+          case (ID_RAYFAN_N_FAN)
+                PART1='NFAN '
+          case DEFAULT
+               PART1='YFAN '
+        end select
+!
+        select case (self%fan_wfe)
+        case (ID_RAYFAN_TRANSVERSE_RAY)
+        PART2='     '
+      case (ID_RAYFAN_TRANSVERSE_OPD)
+        PART2='OPD  '
+      case (ID_RAYFAN_CHROMATIC)
+        PART2='CD   '
+      case (ID_RAYFAN_LONGITUDINAL)
+        PART2='LA   '
+      case DEFAULT
+        PART2 = '    '
+      end select
+!
+        !CALL DTOA23(DW1,AW1)
+        !CALL DTOA23(DW2,AW2)
+        CALL ITOAA(self%numRays, A6)
+        CALL ITOAA(self%wavelength, AJ)
+
+        PRINT *, "Max Pupil ", self%maxPupil
+        PRINT *, "Min Pupil ", self%minPupil
+        PRINT *, "NumRays ", self%numRays
+        PRINT *, "Wavelength ", self%wavelength
+
+        WRITE(AW2, *) self%maxPupil
+        WRITE(AW1, *) self%minPupil
+        !WRITE(A6, *)  self%numRays
+        !WRITE(AJ, *)  self%wavelength
+        !CALL ITOAA(IWAV,AJ)
+        !CALL ITOA6(INUM,A6)
+!
+        ftext=PART1//TRIM(PART2)//','//AW1//','//AW2//','//AJ//','//A6
+        PRINT *, ftext
+        CALL PROCESKDP(ftext)
+        !                IF(ISTATE.EQ.1) THEN
+!       PLOTTING
+        !                IF(KSTATE.EQ.0) THEN
+!       USE SCALE
+        !INPUT='DRAWFAN,'//ASSI//',1'
+        !CALL PROCES
+        !                ELSE
+!       AUTO SCALE
+        ftext='DRAWFAN,,1'
+        CALL PROCESKDP(ftext)
+        ftext = 'DRAW'
+        CALL PROCESKDP(ftext)
+        !                END IF
+        !CALL GRAPHOUTPUT
+        !                END IF
+
+        !END SELECT
+        !                        END IF
+!
+
+end subroutine ray_fan_replot
+
+
 end module mod_ray_fan_settings
+
+module mod_ast_fc_dist_settings
+ use zoa_ui
+
+type ast_fc_dist_settings
+   integer ast_field_dir
+   integer ast_numRays
+   integer changed
+   integer wavelength
+   logical autoplotupdate
+
+ contains
+    procedure, public :: is_changed => ast_fc_dist_is_changed
+    procedure, public, pass(self) :: set_ast_field_dir
+    procedure, public, pass(self) :: set_ast_num_rays
+    !procedure, public, pass(self) :: set_ray_fan_wavelength
+    procedure, public :: replot => ast_fc_dist_replot
+
+
+end type ast_fc_dist_settings
+
+interface ast_fc_dist_settings
+  module procedure :: ast_fc_dist_settings_constructor
+end interface ast_fc_dist_settings
+
+contains
+
+type(ast_fc_dist_settings) function ast_fc_dist_settings_constructor() result(self)
+    self%ast_field_dir = ID_AST_FIELD_Y
+    self%ast_numRays = 10
+    self%autoplotupdate = .TRUE.
+    self%wavelength = 2 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
+
+end function
+
+function ast_fc_dist_is_changed(self) result(flag)
+  class(ast_fc_dist_settings), intent(in) :: self
+  integer :: flag
+  flag = self%changed
+end function
+
+subroutine set_ast_field_dir(self, ID_SETTING)
+  class(ast_fc_dist_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  if (self%ast_field_dir.ne.ID_SETTING) THEN
+     self%ast_field_dir = ID_SETTING
+     self%changed = 1
+     PRINT *, "AST FIELD DIR CHANGED!"
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+end subroutine
+
+subroutine set_ast_num_rays(self, ID_SETTING)
+  class(ast_fc_dist_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  PRINT *, "NUM RAYS TO SET IS ", ID_SETTING
+  PRINT *, "NUM OF CURRENT RAYS IS ", self%ast_numRays
+
+  if (self%ast_numRays.ne.ID_SETTING) THEN
+     self%ast_numRays = ID_SETTING
+     self%changed = 1
+     PRINT *, "NUM AST RAYS CHANGED!"
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+end subroutine
+
+subroutine ast_fc_dist_replot(self)
+  class(ast_fc_dist_settings), intent(inout) :: self
+
+  character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
+  character(len=100) :: ftext
+
+        ! CASE(IDF_AST)
+        ! CALL WDIALOGGETRADIOBUTTON(IDF_PL3,ISET)
+        ! CALL WDIALOGGETINTEGER(IDF_N2,JSET)
+        ! CALL WDIALOGGETCHECKBOX(IDF_PLOTIT2,KSET)
+        ! IF(JSET.LT.10) JSET=10
+        ! IF(JSET.GT.50) JSET=50
+        ! WRITE(OUTLYNE,*) ' '
+        ! CALL SHOWIT(1)
+        ! IF(ISET.EQ.1) WRITE(INPUT,*) 'AST,0,,',JSET
+        ! IF(ISET.EQ.2) WRITE(INPUT,*) 'AST,90,,',JSET
+        ! CALL PROCES
+        ! IF(KSET.EQ.1) THEN
+        ! INPUT='PLTAST,,1'
+        ! CALL PROCES
+        ! CALL GRAPHOUTPUT
+        !
+       select case (self%ast_field_dir)
+       case (ID_AST_FIELD_Y)
+         ftext = 'AST,0,,'
+       case (ID_AST_FIELD_X)
+         ftext = 'AST,90,,'
+       end select
+       CALL ITOAA(self%ast_numRays, A6)
+       PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", trim(ftext)//A6
+       CALL PROCESKDP(trim(ftext)//A6)
+
+
+       CALL PROCESKDP('PLTAST 1')
+!
+
+end subroutine
+
+
+end module

@@ -702,9 +702,11 @@ C
 C
         INCLUDE 'DATMAI.INC'
 C
+
 C       DERIVATIVE 1 (D11) IS:
         IF((X1LAST-X1ONE).EQ.0.0D0)THEN
                 D11=0.0D0
+                PRINT *, "0 in RAYDERIV!"
                         ELSE
 C
                 D11=(RXLAST-RXONE)/(X1LAST-X1ONE)
@@ -714,6 +716,7 @@ C
 C       DERIVATIVE 2 (D12) IS:
         IF((Y1LAST-Y1ONE).EQ.0.0D0) THEN
                 D12=0.0D0
+                PRINT *, "0 in RAYDERIV!"
                         ELSE
 C
                 D12=(RXLAST-RXONE)/(Y1LAST-Y1ONE)
@@ -723,6 +726,7 @@ C
 C       DERIVATIVE 3 (D21) IS:
         IF((X1LAST-X1ONE).EQ.0.0D0) THEN
                 D21=0.0D0
+                PRINT *, "0 in RAYDERIV!"
                         ELSE
 C
                 D21=(RYLAST-RYONE)/(X1LAST-X1ONE)
@@ -732,6 +736,7 @@ C
 C       DERIVATIVE 4 (D22) IS:
         IF((Y1LAST-Y1ONE).EQ.0.0D0) THEN
                 D22=0.0D0
+                PRINT *, "0 in RAYDERIV!"
                         ELSE
 C
                 D22=(RYLAST-RYONE)/(Y1LAST-Y1ONE)
@@ -750,6 +755,7 @@ C
         INCLUDE 'DATMAI.INC'
 C
 C       DERIVATIVE 1 (D11) IS:
+      PRINT *, "CRAYDERIV ROUTINE STARTED!"
         IF((X1LAST-X1ONE).EQ.0.0D0)THEN
                 D11=0.0D0
                         ELSE
@@ -787,4 +793,3 @@ C
                        RETURN
                        END
 C      THIS IS THE EIGHTH FILE OF RAYTRACING ROUTINES
-

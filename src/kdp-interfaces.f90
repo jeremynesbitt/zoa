@@ -20,8 +20,7 @@ subroutine POWSYM
  real :: w_sum, s_sum, aplanatic, imageNA
  integer :: totalSurfaces
  integer, ALLOCATABLE ::  surfaceno(:)
-  type(barchart) :: plotter, bar1, bar2
-  type(multiplot) :: mplt
+
 
    PRINT *, "New Command POWSYM in kdp_interfaces!"
 
@@ -144,8 +143,45 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   !PRINT *, "Paraxial Data tst ", curr_par_ray_trace%marginal_ray_height
 
 ! Multiplot
+  call POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
+
+
+end subroutine POWSYM
+
+subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
+
+   use global_widgets
+
+  use zoa_plot
+  use zoa_tab
+  use gtk_draw_hl
+  implicit none
+
+ real, intent(in) :: w(:), symcalc(:)
+ real, intent(in) :: w_sum, s_sum
+ integer, intent(in) ::  surfaceno(:)
+
+ character(len=100) :: strTitle
+  type(barchart) :: bar1, bar2
+  type(multiplot) :: mplt
+  type(c_ptr) :: localcanvas
+  type(zoatab) :: powsym_tab
+
+  PRINT *, "About to init POWSYM Tab"
+
+  call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
+
+    localcanvas = hl_gtk_drawing_area_new(size=[1200,500], &
+         & has_alpha=FALSE)
+
+  powsym_tab%canvas = localcanvas
+
+  PRINT *, "POWSYM Initialized!"
+
   WRITE(strTitle, "(A15, F10.3)"), "Power:  w = ", w_sum
-  call mplt%initialize(drawing_area_plot, 2,1)
+  call mplt%initialize(powsym_tab%canvas, 2,1)
+  !call mplt%initialize(drawing_area_plot, 2,1)
+  PRINT *, "MPLOT INITIALIZED!"
   call bar1%initialize(c_null_ptr, real(surfaceno),abs(w), &
   & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
   & title=trim(strTitle)//c_null_char)
@@ -159,7 +195,10 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   call mplt%set(2,1,bar2)
   call mplt%draw()
 
-end subroutine POWSYM
+  PRINT *, "ABOUT TO FINALIZE NEW TAB!"
+  call powsym_tab%finalizeWindow()
+
+end subroutine
 
 subroutine EDITOR
   use lens_editor

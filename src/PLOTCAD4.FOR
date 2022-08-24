@@ -3222,6 +3222,8 @@ C
                            DO I=1,FEND
       CALL MY_PLOTC(IX(I),IY(I),1,LT,3000,7000,1500,5000)
                            END DO
+      PRINT *, "ABOUT TO CALL PENUP IN PLOTFUNC4!"                     
+      CALL MY_PLOTC(IX(1),IY(1),0,0,3000,7000,1500,5000)
       DEALLOCATE(IX,IY,STAT=ALLOERR)
                        END
       SUBROUTINE PLOTFUNC3(X,Y,FEND,LLIM,ULIM,LFUNC,UFUNC,SPNUM)
@@ -3269,6 +3271,7 @@ C
                            DO I=2,SPNUM
       CALL MY_PLOTC(IX(I),IY(I),1,0,3000,7000,1500,5000)
                            END DO
+
       DEALLOCATE(IX,IY,XX,YY,Y2,XXX,YYY,STAT=ALLOERR)
                        END
       SUBROUTINE PLOTBOX

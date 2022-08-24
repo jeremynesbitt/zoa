@@ -4,6 +4,133 @@ module kdp_draw
    use global_widgets
 contains
 
+ subroutine plot_ast_fc_dist(localcanvas)
+
+        USE GLOBALS
+        use handlers
+        use zoa_plot
+        use g
+
+
+     IMPLICIT NONE
+
+     type(c_ptr)   :: localcanvas, my_cairo_context
+     !type(c_ptr), value :: gdata
+     type(c_ptr) ::  isurface
+     !integer(c_int), value, intent(in) :: win_width, win_height
+     type(zoaplot) :: plotter, lin1, lin2
+     type(multiplot) :: mplt
+     type(barchart) :: bar1, bar2
+     integer :: numPts
+
+      REAL:: DDTA(0:50)
+
+      REAL:: FLDAN(0:50)
+
+      !COMMON FLDAN, DDTA
+
+
+   !type(zoatab) :: astfcdist_tab
+!
+!   PRINT *, "About to init POWSYM Tab"
+!
+!   call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
+!
+
+!
+  ! astfcdist_tab%canvas = localcanvas
+!
+!   PRINT *, "POWSYM Initialized!"
+!
+!   WRITE(strTitle, "(A15, F10.3)"), "Power:  w = ", w_sum
+
+
+    ! isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200_c_int, 500_c_int)
+    ! isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+    ! call g_object_set_data(ast_cairo_drawing_area, "backing-surface", isurface)
+    !
+
+    isurface = g_object_get_data(localcanvas, "backing-surface")
+    PRINT *, "isurface is ", isurface
+    if (.not. c_associated(isurface)) then
+       PRINT *, "new astig plot :: Backing surface in ast_cairo_ is NULL"
+       return
+    end if
+
+
+    ! isurface = g_object_get_data(localcanvas, "backing-surface")
+    ! PRINT *, "isurface is ", isurface
+    ! if (.not. c_associated(isurface)) then
+    !    PRINT *, "new astig plot :: Backing surface is NULL"
+    !
+    ! end if
+  !PRINT *, "CALLING PLOT_04"
+   !call plot_04debug(localcanvas)
+   !call gtk_widget_queue_draw(localcanvas)
+   !call plot_04(ast_cairo_drawing_area)
+
+
+
+
+  PRINT *, "PLOT_AST_FC_DIST Called! "
+  PRINT *, "MY CAIRO CONTEXT PTR IS ", my_cairo_context
+  call getAstigCalcResult(DDTA, FLDAN, numPts)
+   !PRINT *, "DDTA is ", DDTA
+   !PRINT *, "FLDAN is ", FLDAN
+   call mplt%initialize(localcanvas, 2,1)
+   !mplt%cc = my_cairo_context
+   !call mplt%initialize(my_cairo_context, 2,1)
+   !
+ !call mplt%initialize(drawing_area_plot, 2,1)
+!   PRINT *, "MPLOT INITIALIZED!"
+   call lin1%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
+   & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+   & title='tmp'//c_null_char)
+   call bar1%initialize(c_null_ptr, REAL(DDTA(1:10)),FLDAN(1:10), &
+   & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+   & title='tmp'//c_null_char)
+
+
+   call lin2%initialize(c_null_ptr, REAL(DDTA),FLDAN, &
+   & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+   & title='tmp'//c_null_char)
+
+   call bar2%initialize(c_null_ptr, REAL(DDTA),FLDAN, &
+  & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+   & title='tmp'//c_null_char)
+!   !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+!   WRITE(strTitle, "(A15, F10.3)"), "Symmetry:  s = ", s_sum
+
+   call mplt%set(1,1,lin1)
+   call mplt%set(2,1,lin2)
+
+   !call mplt%set(1,1,bar1)
+   !call mplt%set(2,1,bar2)
+
+   call mplt%draw()
+
+    !call gtk_widget_queue_draw(localcanvas)
+    !call hl_gtk_drawing_area_cairo_destroy(cc)
+
+!
+!   PRINT *, "ABOUT TO FINALIZE NEW TAB!"
+!   call powsym_tab%finalizeWindow()
+!
+!
+!                        XMINJK1=1.0E20
+!                        XMAXJK1=-1.0E20
+!                        DO I=0,PNTNUM
+!                        Y(I+1)=FLDAN(I)
+!                X1(I+1)=REAL(DDTA(I))
+!           IF(REAL(DDTA(I)).GT.XMAXJK1) XMAXJK1=REAL(DDTA(I))
+!           IF(REAL(DDTA(I)).LT.XMINJK1) XMINJK1=REAL(DDTA(I))
+!                        X(I+1)=X1(I+1)
+!                        END DO
+!
+! end subroutine
+
+end subroutine
+
 SUBROUTINE TESTCAIRO(widget, my_cairo_context, win_width, win_height, gdata) bind(c)
 
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
@@ -347,6 +474,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       II6=(I6)
       II7=(I7)
       II8=(I8)
+      WRITE(*,2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
 !
 !     "PLOT NEW" STRINGER = A
 !
@@ -383,10 +511,10 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 !
       IF(STRINGER.EQ.'E') THEN
 !     SETTING THE FOREGROUND COLOR
-       !IF (II1.NE.COLPASS) THEN
+      !  IF (II1.NE.COLPASS) THEN
       !   PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
-         !COLTRUE = COLPASS
-      !END IF
+      !    COLTRUE = COLPASS
+      ! END IF
 
 ! C               COLORS AND THEIR INTEGER CODES
 ! C
@@ -653,7 +781,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       IF(STRINGER.EQ.'J') THEN
         ! PRINT *, "STRINGER = J!"
       !CALL JK_MoveToC(REAL(II1),REAL(II2),II3,II4,II5,II6,II7,II8)
-      CALL JK_MoveToCAIRO(STRINGER, scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, &
+      !PRINT *, "J II1 II2 are ", II1, ",", II2
+      CALL JK_MoveToCAIRO('I', scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, &
       REAL(II5), REAL(II6), REAL(II7), REAL(II8), my_cairo_context, cairo_drawing_area)
 
                GO TO 300
@@ -869,7 +998,7 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
                        END IF
 !*****************************************************************************
       IF(MY_LINESTYLE.GT.0) THEN
-         PRINT *, "LINESTYLE = ", MY_LINESTYLE
+         !PRINT *, "LINESTYLE = ", MY_LINESTYLE
          select case (MY_LINESTYLE)
          case (1)
   !     DOTTED LINE, 10 UNITS LONG ON 40 UNIT CENTERS

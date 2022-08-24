@@ -213,6 +213,7 @@ program zoa_program
   use zoa_ui
   use mod_ray_fan_settings
   use mod_lens_draw_settings
+  use mod_ast_fc_dist_settings
   use global_widgets
 
   !use GLOBALS
@@ -240,6 +241,7 @@ program zoa_program
   ld_settings = lens_draw_settings()
   rf_settings = ray_fan_settings()
   curr_lens_data = lens_data()
+  ast_settings = ast_fc_dist_settings()
 
 
   PRINT *, "APP IN Main Program is ", app

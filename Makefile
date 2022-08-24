@@ -19,7 +19,7 @@ SRCETC :=  $(wildcard etc/*.f90)
 # PROG = src/TSTKDP.FOR
 GTK  = src/zoamain.f90
 GLOBFOR = src/globals.FOR src/nssmod.FOR
-GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoamenubar.f90 src/zzhandlers.f90 src/kdp-draw.f90 src/ROUTEDRAWING.f90 src/lens-editor.f90 src/zoa-tab.f90 src/mod_plotrayfan.f90 src/kdp-interfaces.f90  src/mod_plotopticalsystem.f90
+GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoamenubar.f90 src/zzhandlers.f90 src/kdp-draw.f90 src/ROUTEDRAWING.f90 src/lens-editor.f90 src/zoa-tab.f90 src/mod_plotrayfan.f90 src/ui-ast-fc-dist.f90 src/kdp-interfaces.f90  src/mod_plotopticalsystem.f90
 IFACES = src/kdp-interfaces.f90
 
 GTKMID = ${GTK:.f90=.mod}
@@ -33,7 +33,7 @@ GTKOBJ = bin/zoamain.mod
 
 # SRC := $(filter-out $(PROG),$(SRC))
 SRC90 := $(wildcard src/*.f90)
-SRC90 := $(filter-out $(GTK) $(GLOB) $(IFACES),$(SRC90))
+SRC90 := $(filter-out $(GTK) $(GLOB),$(SRC90))
 OBJ90:=${SRC90:src/%.f90=bin/%.mod}
 GLOBOBJ = ${GLOB:src/%.f90=bin/%.mod}
 GLOBFOROBJ = bin/globals.o bin/nssmod.o

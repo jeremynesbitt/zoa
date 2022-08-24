@@ -43,6 +43,16 @@ subroutine set_num_surfaces(self, input)
 
   class(lens_data), intent(inout) :: self
   integer, intent(in) :: input
+  if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
+    PRINT *, "NEED TO DEALLOCATE?"
+    DEALLOCATE(self%radii)
+    DEALLOCATE(self%thicknesses)
+    DEALLOCATE(self%curvatures)
+    DEALLOCATE(self%surf_index)
+    DEALLOCATE(self%surf_vnum)
+    DEALLOCATE(self%glassnames)
+  end if
+
 
   self%num_surfaces = input
   if (.not.allocated(self%radii)) THEN

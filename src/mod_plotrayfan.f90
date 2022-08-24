@@ -26,7 +26,7 @@ module mod_plotrayfan
 
 contains
 
-  subroutine ray_fan_plot_check_status
+  subroutine ray_fan_plot_check_status()
         use handlers
 
         if (.not. c_associated(rf_window))  THEN
@@ -111,11 +111,7 @@ subroutine callback_ray_fan_settings (widget, gdata ) bind(c)
 
   end select
 
-   if (rf_settings%changed.eq.1) THEN
-      rf_settings%changed = 0
-      call ray_fan_replot()
-
-   end if
+  ! Currently autoreplotting will happen in the settings module
 
 end subroutine callback_ray_fan_settings
 
@@ -405,6 +401,7 @@ end subroutine callback_ray_fan_settings
 
   subroutine ray_fan_new(parent_window)
     use zoa_tab
+    use ROUTEMOD
     implicit none
 
     type(c_ptr) :: parent_window
@@ -424,6 +421,9 @@ end subroutine callback_ray_fan_settings
 
     integer, target :: TARGET_RAYFAN_MAX_PUPIL   = ID_RAYFAN_MAX_PUPIL
     integer, target :: TARGET_RAYFAN_MIN_PUPIL   = ID_RAYFAN_MIN_PUPIL
+
+    integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
+
 
     character(kind=c_char, len=20), dimension(4) :: vals_fantype
     integer(c_int), dimension(4) :: refs_fantype
@@ -450,6 +450,11 @@ end subroutine callback_ray_fan_settings
                   & ID_RAYFAN_LONGITUDINAL]
 
     call rayfantab%initialize(parent_window, "Ray Fan Output", ID_NEWPLOT_RAYFAN)
+    call gtk_drawing_area_set_draw_func(rayfantab%canvas, &
+                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
+
+
+
 
     call rayfantab%addListBoxSetting("Ray Fan", refs_fantype, vals_fantype, &
     & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_FANTYPE))
@@ -508,6 +513,8 @@ end subroutine callback_ray_fan_settings
 
 
     call rayfantab%finalizeWindow()
+    rf_window = rayfantab%box1
+    rf_cairo_drawing_area = rayfantab%canvas
 
   end subroutine
 
@@ -576,133 +583,6 @@ end subroutine callback_ray_fan_settings
     PRINT *, "SHOULD SEE GRAPHICS NOW!"
 end subroutine
 
-subroutine ray_fan_replot
-
-  character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
-  character(len=100) :: ftext
-
-!
-!       SIMPLE FANS
-!
-!
-        !IF(MESSAGE%WIN.EQ.IDD_FAN1) THEN
-        !CALL WDIALOGSELECT(IDD_FAN1)
-        !SELECT CASE(MESSAGE%VALUE1)
-        !CASE (IDOK)
-!       MAX PUPIL HT
-        !CALL WDIALOGGETDOUBLE(IDF_MIN,DW1)
-
-!       MIN PUPIL HT
-        !CALL WDIALOGGETDOUBLE(IDF_MAX,DW2)
-
-!       PLOT FAN SCALE
-        !CALL WDIALOGGETDOUBLE(IDF_SSI,SSI)
-        !CALL DTOA23(SSI,ASSI)
-
-!       NUMBER OF RAYS IN FAN
-        !CALL WDIALOGGETINTEGER(IDF_NUM,INUM)
-
-!       FAN WAVELENGTH
-        !CALL WDIALOGGETINTEGER(IDF_WAV,IWAV)
-!
-!       FAN PRIMARY TYPE
-!       1=YFAN
-!       2=XFAN
-!       3=PFAN
-!       4=NFAN
-        !CALL WDIALOGGETRADIOBUTTON(IDF_FT1,ISET)
-!
-!       FAN SECONDARY TYPE
-!       1=TRANSVERSE
-!       2=OPD
-!       3=CD
-!       4=LA
-        !CALL WDIALOGGETRADIOBUTTON(IDF_Q1,JSET)
-!
-!       PLOTTING ON OR OFF
-!       0=NO PLOT
-!       1=PLOT
-        !CALL WDIALOGGETCHECKBOX(IDF_PLOT,ISTATE)
-!
-!       PLOTTING AUTOSCALE FACTOR
-!       1=AUTOSCALE
-!       0=NO AUTOSCALE
-        !CALL WDIALOGGETCHECKBOX(IDF_AUTOSSI,KSTATE)
-        !IF(KSTATE.EQ.1.AND.SSI.EQ.0.0D0) THEN
-        !KSTATE=1
-        !CALL WDIALOGPUTCHECKBOX(IDF_AUTOSSI,KSTATE)
-        !                END IF
-!
-!       TRACE THE CORRECT CHIEF RAY
-        !CALL CHIEFTRACE
-!
-        select case (rf_settings%fan_type)
-          case (ID_RAYFAN_Y_FAN)
-                PART1='YFAN '
-          case (ID_RAYFAN_X_FAN)
-                PART1='XFAN '
-          case (ID_RAYFAN_P_FAN)
-                PART1='PFAN '
-          case (ID_RAYFAN_N_FAN)
-                PART1='NFAN '
-          case DEFAULT
-               PART1='YFAN '
-        end select
-!
-        select case (rf_settings%fan_wfe)
-        case (ID_RAYFAN_TRANSVERSE_RAY)
-        PART2='     '
-      case (ID_RAYFAN_TRANSVERSE_OPD)
-        PART2='OPD  '
-      case (ID_RAYFAN_CHROMATIC)
-        PART2='CD   '
-      case (ID_RAYFAN_LONGITUDINAL)
-        PART2='LA   '
-      case DEFAULT
-        PART2 = '    '
-      end select
-!
-        !CALL DTOA23(DW1,AW1)
-        !CALL DTOA23(DW2,AW2)
-        CALL ITOAA(rf_settings%numRays, A6)
-        CALL ITOAA(rf_settings%wavelength, AJ)
-
-        PRINT *, "Max Pupil ", rf_settings%maxPupil
-        PRINT *, "Min Pupil ", rf_settings%minPupil
-        PRINT *, "NumRays ", rf_settings%numRays
-        PRINT *, "Wavelength ", rf_settings%wavelength
-
-        WRITE(AW2, *) rf_settings%maxPupil
-        WRITE(AW1, *) rf_settings%minPupil
-        !WRITE(A6, *)  rf_settings%numRays
-        !WRITE(AJ, *)  rf_settings%wavelength
-        !CALL ITOAA(IWAV,AJ)
-        !CALL ITOA6(INUM,A6)
-!
-        ftext=PART1//TRIM(PART2)//','//AW1//','//AW2//','//AJ//','//A6
-        PRINT *, ftext
-        CALL PROCESKDP(ftext)
-        !                IF(ISTATE.EQ.1) THEN
-!       PLOTTING
-        !                IF(KSTATE.EQ.0) THEN
-!       USE SCALE
-        !INPUT='DRAWFAN,'//ASSI//',1'
-        !CALL PROCES
-        !                ELSE
-!       AUTO SCALE
-        ftext='DRAWFAN,,1'
-        CALL PROCESKDP(ftext)
-        ftext = 'DRAW'
-        CALL PROCESKDP(ftext)
-        !                END IF
-        !CALL GRAPHOUTPUT
-        !                END IF
-
-        !END SELECT
-        !                        END IF
-!
-
-end subroutine ray_fan_replot
 
 function wrap_integer_parameter(ID_SETTING) result(output_ptr)
     use iso_c_binding

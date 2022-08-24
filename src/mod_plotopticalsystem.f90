@@ -36,7 +36,7 @@ module mod_plotopticalsystem
 
   type(c_ptr) ::  combo_plotorientation
   type(c_ptr) ::  spinButton_azimuth, spinButton_elevation
-
+  type(c_ptr) :: spinButton_scaleFactor
 
   real :: elevation_default = 26.2
   real :: azimuth_default = 232.2
@@ -363,6 +363,65 @@ subroutine combo_plotorientation_callback (widget, gdata ) bind(c)
 
 end subroutine combo_plotorientation_callback
 
+subroutine callback_lens_draw_settings (widget, gdata ) bind(c)
+   use iso_c_binding
+   use hl_gtk_zoa
+   use zoa_ui
+   implicit none
+   type(c_ptr), value, intent(in) :: widget, gdata
+   integer :: int_value
+
+  integer(kind=c_int), pointer :: ID_SETTING
+
+  call c_f_pointer(gdata, ID_SETTING)
+
+  !PRINT *, "Integer Passed is ", ID_SETTING
+
+  !PRINT *, "Pointer Passed is ", gdata
+
+  select case (ID_SETTING)
+
+  case (ID_LENSDRAW_FIELD_SYMMETRY)
+    call ld_settings % set_field_symmetry(hl_zoa_combo_get_selected_list2_id(widget))
+
+  case (ID_LENSDRAW_PLOT_ORIENTATION)
+    call ld_settings % set_plot_orientation(hl_zoa_combo_get_selected_list2_id(widget))
+
+  case (ID_LENSDRAW_SCALE)
+
+    call ld_settings % set_autoScale(hl_zoa_combo_get_selected_list2_id(widget))
+
+      if (hl_zoa_combo_get_selected_list2_id(widget).eq.ID_LENSDRAW_MANUALSCALE) THEN
+         call gtk_widget_set_sensitive(spinButton_scaleFactor, TRUE)
+       else
+         call gtk_widget_set_sensitive(spinButton_scaleFactor, FALSE)
+      end if
+
+  case (ID_LENS_FIRSTSURFACE)
+    call ld_settings % set_start_surface(INT(gtk_spin_button_get_value (widget)))
+
+  case (ID_LENS_LASTSURFACE)
+    call ld_settings % set_end_surface(INT(gtk_spin_button_get_value (widget)))
+
+  case (ID_LENSDRAW_AZIMUTH)
+    call ld_settings % set_azimuth(REAL(gtk_spin_button_get_value (widget)))
+
+  case (ID_LENSDRAW_ELEVATION)
+    call ld_settings % set_elevation(REAL(gtk_spin_button_get_value (widget)))
+
+
+  case (ID_LENSDRAW_AUTOSCALE_VALUE)
+    call ld_settings % set_scaleFactor(REAL(gtk_spin_button_get_value (widget)))
+
+
+  end select
+
+  ! Currently autoreplotting will happen in the settings module
+
+end subroutine
+
+
+
   subroutine lens_draw_settings_dialog(box1)
 
     use hl_gtk_zoa
@@ -395,7 +454,7 @@ end subroutine combo_plotorientation_callback
 
     type(c_ptr) :: label_azimuth, label_elevation
 
-    type(c_ptr) :: spinButton_scaleFactor
+
 
     character(kind=c_char, len=20), dimension(4) :: vals_plotorientation
     integer(c_int), dimension(4) :: refs_plotorientation

@@ -274,7 +274,7 @@ end subroutine proto_symfunc
 
 
   subroutine plot_04(area)
-    type(c_ptr), intent(in) :: area
+    type(c_ptr), intent(inout) :: area
 
     type(c_ptr)  :: cc, cs
     integer :: i
@@ -348,6 +348,82 @@ end subroutine proto_symfunc
 
   end subroutine plot_04
 
+  subroutine plot_04debug(area)
+    type(c_ptr), intent(inout) :: area
+
+    type(c_ptr)  :: cc, cs
+    integer :: i
+    character(len=25) :: geometry
+
+    ! needed for use as functions instead of subroutines
+    integer :: plparseopts_rc
+    integer :: plsetopt_rc
+
+    ! Define colour map 0 to match the "GRAFFER" colour table in
+    ! place of the PLPLOT default.
+    integer, parameter, dimension(16) :: rval = (/255, 0, 255, &
+         & 0, 0, 0, 255, 255, 255, 127, 0, 0, 127, 255, 85, 170/),&
+         & gval = (/ 255, 0, 0, 255, 0, 255, 0, 255, 127, 255, 255, 127,&
+         & 0, 0, 85, 170/), &
+         & bval = (/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
+         & 127, 85, 170/)
+
+    !  Process command-line arguments
+
+    ! 4/10/22 have to comment out this to get it to compile.  Not sure why
+    ! Go back and try to manually compile examples to debug it
+    print *, "PL PARSE FULL = ", PL_PARSE_FULL
+    !plparseopts_rc = plparseopts(PL_PARSE_FULL)
+
+    !if (plparseopts_rc .ne. 0) stop "plparseopts error"
+
+
+    ! Get a cairo context from the drawing area.
+    !do i=1,2
+    i = 1
+       cc = hl_gtk_drawing_area_cairo_new(area)
+       cs = cairo_get_target(cc)
+    !end do
+
+    !  Initialize plplot
+    call plscmap0(rval, gval, bval)
+    call plsdev("extcairo")
+
+    ! By default the "extcairo" driver does not reset the background
+    ! This is equivalent to the command line option "-drvopt set_background=1"
+    plsetopt_rc = plsetopt("drvopt", "set_background=1")
+    if (plsetopt_rc .ne. 0) stop "plsetopt error"
+
+    ! The "extcairo" device doesn't read the size from the context.
+    write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
+         & cairo_image_surface_get_height(cs)
+    plsetopt_rc = plsetopt( 'geometry', geometry)
+    if (plsetopt_rc .ne. 0) stop "plsetopt error"
+
+    ! Initialize
+    call plinit
+
+    ! Tell the "extcairo" driver where the context is located. This must be
+    ! done AFTER the plstar or plinit call.
+    print *, "ABOUT TO pl_cmd"
+    call pl_cmd(PLESC_DEVINIT, cc)
+
+    call plfont(2)   ! Roman font
+    call plot1(0)
+
+    ! Now continue the plot on the other surface
+    !call pl_cmd(PLESC_DEVINIT, cc(2))
+
+    !call plot1(1)
+
+    call plend
+
+    !call hl_gtk_drawing_area_cairo_destroy(cc)
+    !call hl_gtk_drawing_area_cairo_destroy(cc(2))
+
+  end subroutine plot_04debug
+
+
   subroutine plot1(type)
     use plplot, PI => PL_PI
     implicit none
@@ -356,6 +432,7 @@ end subroutine proto_symfunc
     real(kind=plflt) :: freql(0:100),ampl(0:100),phase(0:100), freq, f0
     integer          :: i, type
     integer          :: nlegend
+    real(kind=plflt) :: Xtst(0:50), Ytst(0:50)
 
     real(kind=plflt) :: legend_width, legend_height
     integer          :: opt_array(MAX_NLEGEND), text_colors(MAX_NLEGEND), &
@@ -399,6 +476,11 @@ end subroutine proto_symfunc
     endif
     !      Plot ampl vs freq.
     call plcol0(2)
+    !call PROCESKDP('VIECO')
+    !call PROCESKDP('AST')
+    !call getAstigCalcResult(Xtst(0:10), Ytst(0:10))
+    !call plline(Xtst,Ytst)
+
     call plline(freql,ampl)
     call plcol0(2)
     call plptex(1.6_plflt, -30.0_plflt, 1.0_plflt, -20.0_plflt, 0.5_plflt, &
@@ -754,7 +836,7 @@ end subroutine proto_symfunc
     call gtk_box_append(box1, notebook)
     call gtk_widget_set_vexpand (box1, TRUE)
 
-    !call plot_04(drawing_area_plot)
+    call plot_04(drawing_area_plot)
     !call x12f(drawing_area_plot)
 
     ! The window status bar can be used to print messages:
@@ -800,7 +882,7 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    !call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(TRUE)
 
     call populatezoamenubar(my_window)
 

@@ -543,6 +543,8 @@ C
         INCLUDE 'DATLEN.INC'
         REAL*8 RAL,RBE,CGAM,SGAM,RGAM
 C
+        PRINT *, "IN LENUP ROUTINE"
+
         IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
                 CALL MESCOM
                         RETURN
@@ -1950,7 +1952,7 @@ C
       WRITE(OUTLYNE,*) "RESTORED LIBRARY LENS NO. ", II
 
       CALL SHOWIT(1)
-  
+
                         RETURN
                         END IF
 C

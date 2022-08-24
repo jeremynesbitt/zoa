@@ -804,7 +804,7 @@ C
                         OUTLYNE = "INV VERY SMALL"
                         CALL SHOWIT(19)
                         !CALL MACFAL
-                        !RETURN
+                        RETURN
                         END IF
 C
                         DO 15 I=0,INT(SYSTEM(20))

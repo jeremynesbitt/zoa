@@ -3418,6 +3418,7 @@ C       RAY
         TRYX=0.0D0
         TRYY=0.0D0
         TRYZ=0.0D0
+
         CALL REFRAY(WPAS)
         CALL IPLANE_TILT
         CALL CLPCEN
@@ -3429,6 +3430,8 @@ C       RAY
                         GSPDEXT=.FALSE.
                         IF(.NOT.NULL) FOBYES=.FALSE.
                 IF(MSG) THEN
+              WRITE(OUTLYNE,*)  "WPAS in REFRAY FAILURE IS ", WPAS
+              CALL SHOWIT(19)
       CALL RAYDOC
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',RAYCOD(2)
       CALL SHOWIT(1)
@@ -4394,6 +4397,9 @@ C     SET UP ANGLE FACTERS
                    END IF
       AWW1=W1/SCLFACY
       AWW2=W2/SCLFACX
+
+      OUTLYNE = "STARTING FFOB ROUTINE"
+      CALL SHOWIT(19)
 C
 C       CHECK FOR STRING INPUT
         IF(STI.EQ.1) THEN
@@ -5632,6 +5638,8 @@ C       INITIALIZE RAYCOD
                         GSPDEXT=.FALSE.
                         IF(.NOT.NULL) FOBYES=.FALSE.
                 IF(MSG) THEN
+            WRITE(OUTLYNE,*)  "OBJ in REFRAY FAILURE IS ", OBJLEVEL
+            CALL SHOWIT(19)
       CALL RAYDOC
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',RAYCOD(2)
       CALL SHOWIT(1)

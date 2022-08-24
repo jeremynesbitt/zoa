@@ -3896,6 +3896,7 @@ C
         END IF
         IF(WC.EQ.'PLTAST'.OR.WC.EQ.'PLTDIST'.OR.WC.EQ.'PLTFLDCV'
      1.OR.WC.EQ.'PLTFDIST') THEN
+        active_plot = ID_PLOTTYPE_AST
         CALL PLTFIELD
         RETURN
         END IF

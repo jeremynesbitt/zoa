@@ -3352,7 +3352,7 @@ C      WRITE (*, '(a)') 'Call to SHOWIT'
          if (debug_messages) THEN
 
             txtColor = "red"
-            PRINT *, OUTLYNE
+            !PRINT *, OUTLYNE
             call updateTerminalLog(OUTLYNE, txtColor)
           end IF
 

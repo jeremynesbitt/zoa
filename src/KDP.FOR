@@ -294,7 +294,7 @@ C     SET PROGRAM RANDOM NUMBER GENERATOR
       SN=0
       SQ=0
       SST=0
-      STI=0
+      STI=1
       MSEED=1618033.
       CALL RANDSET
 C

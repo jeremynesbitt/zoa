@@ -61,7 +61,6 @@ module zoamenubar
   use plplot, PI => PL_PI
   use plplot_extra
   use gtk_draw_hl
-  use plplot_extra
   use gtk_hl_container
   use gtk_hl_button
 

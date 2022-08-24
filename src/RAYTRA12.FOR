@@ -41,6 +41,9 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
+
+        !OUTLYNE = "REFRAY ROUTINE STARTED! "
+        !CALL SHOWIT(19)
                         KKKK=0
                         KKK=0
                         YAIMOL=0.0D0
@@ -260,6 +263,8 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                    CALL MACFAL
                    RETURN
@@ -288,6 +293,8 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 296"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                    CALL MACFAL
                    RETURN
@@ -309,6 +316,8 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 319"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                    CALL MACFAL
                    RETURN
@@ -330,6 +339,8 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 342"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                    CALL MACFAL
                    RETURN
@@ -352,6 +363,8 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 366"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                    CALL MACFAL
                    RETURN
@@ -495,6 +508,12 @@ C       STATEMENT NEAR THE END OF THIS ROUTINE.
 C       IF KKK EXCEEDS NRAITR TRIES, PRINT RAY ITERRATION ERROR
 C       AND STOP SEARCHING.
         IF(KKK.GT.NRAITR) THEN
+                   !OUTLYNE = "GOING TO SEND REF RAY FAILURE 511"
+                   !CALL SHOWIT(19)
+C                   PRINT *, "KKK is ", KKK
+C                   WRITE(OUTLYNE, *), "ERROR VECTOR IS ",
+C     1   DSQRT(((CX-XCHIEF_TARGET)**2)+((CY-YCHIEF_TARGET)**2))
+C                   CALL SHOWIT(19)
                    GO TO 14
                         ELSE
                 STOPP=0
@@ -631,6 +650,10 @@ C     NO REFERENCE RAY SOLUTION, REF RAY FAILURE
                 STOPP=1
                 RAYCOD(1)=8
                 RAYCOD(2)=I
+                IF (KKK.EQ.10) THEN
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 647"
+                CALL SHOWIT(19)
+                END IF
                 REFEXT=.FALSE.
         IF(.NOT.NULL) FOBYES=.FALSE.
         IF(.NOT.NULL.AND.F34.EQ.0) CALL MACFAL
@@ -707,6 +730,8 @@ C
                         CALL HITSUR
                 MSG=.TRUE.
       IF(STOPP.EQ.1) THEN
+                        OUTLYNE = "SETTING CHIEF RAY TO FALSE 725"
+                        CALL SHOWIT(19)
                         REFEXT=.FALSE.
                         RETURN
                         END IF
@@ -882,6 +907,8 @@ C
                 REFRY(21,I)=NOLD
         REFRY(22,I)=REFRY(22,(I-1))+REFRY(7,I)
       IF(STOPP.EQ.1.AND.KKKK.NE.0.AND.KKKK.GE.NRAITR) THEN
+              OUTLYNE = "GOING TO SEND REF RAY FAILURE 904"
+              CALL SHOWIT(19)
                        GO TO 14
                         ELSE
                    STOPP=0
@@ -894,6 +921,9 @@ C       NEWOBJ+1 SO THAT THE RAY HEIGHT AT NEWR IS WITHIN
 C       AIMTOL . MAXIMUN NUMBER OF ITERRATIONS IS
 C       NRAITR. (DEFAULT IS 100). DEFAULT AIMTOL IS 1.0D-6.
 C
+        !PRINT *, "AIMTOL = ", AIMTOL
+        !PRINT *, "CAIMTOL = ", CAIMTOL
+
         IF(I.EQ.NEWREF) THEN
 C       CALCULATE TARX AND TARY
         IF(ALENS(9,I).GE.1.0D0.AND.ALENS(9,I).LE.6.0D0.AND.
@@ -914,8 +944,10 @@ C       NO CLAP OF REF SURF.
                         TARY=0.0D0
                         END IF
 C
+
         IF(DSQRT(((TARX-X)**2)+((TARY-Y)**2)).LE.AIMTOL
      1.OR.SYSTEM(62).EQ.0.0D0) THEN
+        PRINT *, "AIM IS GOOD ENOUGH"
 C       AIM IS GOOD ENOUGH, PROCEED
                         GO TO 100
                         ELSE
@@ -1010,6 +1042,7 @@ C
  10             CONTINUE
 C     NOW IF RYIM OR RXIM ARE IN EFFECT, ITERATE THE CHEIF RAY
 C     TO HIT THE IMAGE SURFACE AT THE CORRECT POINT
+      PRINT *, "ABOUT TO DO ERRORVEC CHECK for ", I
                         IF(SYSTEM(98).LT.0.0D0) THEN
                         CX=REFRY(1,NEWIMG)
                         CY=REFRY(2,NEWIMG)
@@ -1020,6 +1053,7 @@ C     TO HIT THE IMAGE SURFACE AT THE CORRECT POINT
       ERRORVEC=DSQRT(((CX-XCHIEF_TARGET)**2)+((CY-YCHIEF_TARGET)**2))
       IF(SYSTEM(98).NE.0.0D0.AND.SYSTEM(99).NE.0.0D0.AND.
      1ERRORVEC.GT.CAIMTOL) THEN
+      PRINT *, "Error Vector too big?"
       IF(KKKK.EQ.1) THEN
                         IF(SYSTEM(98).LT.0.0D0) THEN
                         OLDCX=REFRY(1,NEWIMG)
@@ -1046,6 +1080,8 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 1066"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                    CALL MACFAL
                    RETURN
@@ -1089,11 +1125,13 @@ C     NO REFERENCE RAY SOLUTION, REF RAY FAILURE
                 STOPP=1
                 RAYCOD(1)=8
                 RAYCOD(2)=I
+                OUTLYNE = "SETTING CHIEF RAY TO FALSE 1111"
+                CALL SHOWIT(19)
                 REFEXT=.FALSE.
                 IF(MSG) THEN
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
       CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'AIMED CHIEF RAY COULD NOT HIT THE DEFINED TARGET'
+      WRITE(OUTLYNE,*)'AIMED CHIEF RAY COULD NOT HIT THE DEFINED TARGET'
       CALL SHOWIT(1)
         IF(.NOT.NULL) FOBYES=.FALSE.
         IF(.NOT.NULL.AND.F34.EQ.0) CALL MACFAL
@@ -1115,6 +1153,10 @@ C
         END IF
                         ELSE
 C     TARGET MET!
+      PRINT *, "TARGET MET FOR SURFACE ", NEWOBJ
+      PRINT *, "Alternate Object Surface ", NEWOBJ
+      PRINT *, "Alternate Image Surface ", NEWIMG
+
                         END IF
                         RETURN
                         END
