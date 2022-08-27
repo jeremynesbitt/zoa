@@ -68,6 +68,19 @@ module zoamenubar
 
 
     implicit NONE
+    !addNewMenuItemThatExecutesCommand(topLevelMenu, menuitemText, menuItemEvenName, arrayOfCommands)
+
+    type zoamenucommand
+      type(c_ptr) :: menuItem, menuAction
+      !character(len=*) :: menuItemText
+      !character(len=*) :: menuItemEventName
+      !character(len=*) :: arrayOfCommands(:)
+
+
+    contains
+      procedure, public :: addCommandMenuItem
+
+    end type
 
 ! type zoamenubar
 !
@@ -102,6 +115,12 @@ contains
     type(c_ptr) :: act_macromanual, menu_item_macromanual
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
+
+    type(zoamenucommand) :: tstMenuType
+    character(len=100), target :: tstTarget = "TestCommandTarget"
+    character(len=100), target :: tstTarget2 = "TestMemoryLoss"
+
+    character(len=100), pointer :: tstPtr
 
     ! Menu Bar funcionality
     act_fullscreen = g_simple_action_new_stateful ("fullscreen"//c_null_char, &
@@ -139,6 +158,10 @@ contains
     menu_item_macrosave = g_menu_item_new ("Save Macro Directory"//c_null_char, "win.MacroSave"//c_null_char)
     call g_menu_append_item (menu_macro, menu_item_macrosave)
 
+    !Pseudocode for new type
+    !addNewMenuItemThatExecutesCommand(topLevelMenu, menuitemText, menuItemEvenName, arrayOfCommands)
+
+
     ! Restore Macro
     act_macrorestore = g_simple_action_new("MacroRestore"//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, act_macrorestore)
@@ -152,6 +175,14 @@ contains
     call g_signal_connect (act_macromanual, "activate"//c_null_char, c_funloc(zoa_macromanualUI), win)
     menu_item_macromanual = g_menu_item_new ("Open Macro Manual"//c_null_char, "win.MacroManual"//c_null_char)
     call g_menu_append_item (menu_macro, menu_item_macromanual)
+
+    ! Test new type
+    !tstPtr => tstTarget
+    !call tstMenuType%addCommandMenuItem(menu_macro, "TestText", "TestEvent", tstPtr, win)
+    call tstMenuType%addCommandMenuItem(menu_macro, "TestText", "TestEvent", tstTarget, win)
+    call tstMenuType%addCommandMenuItem(menu_macro, "TestSecond", "TestSecondEvent", tstTarget2, win)
+
+    !call tstMenuType%addCommandMenuItem(menu_macro, "TestText", "TestEvent", "TestCommand", win)
 
 
     ! Lens Menu
@@ -427,6 +458,72 @@ contains
 
     print *, "QUIT!"
     call g_application_quit (app)
+  end subroutine
+
+  !addNewMenuItemThatExecutesCommand(topLevelMenu, menuitemText, menuItemEvenName, arrayOfCommands)
+  subroutine genericMenuCommandCallback(act, param, gdata) bind(c)
+    use gtk_sup
+
+    type(c_ptr), value, intent(in) :: act, param, gdata
+    character(len=80) :: fstring
+
+    call C_F_string_ptr(gdata, fstring)
+    !call convert_c_string_scalar(gdata, fstring)
+
+    !character, pointer :: fstring(:)
+    !call c_f_pointer(gdata, fstring, [5])
+
+    print *, "Test!"
+    print *, "fstring is ", fstring
+
+  end subroutine
+
+  subroutine addCommandMenuItem(self, topLevelMenu, menuItemText, menuItemEventName, singleCommand, win)
+    use g
+
+    class(zoamenucommand) :: self
+    integer :: numCommands
+    type(c_ptr) :: topLevelMenu, win
+    character(len=*) :: menuItemText, menuItemEventName
+    character(len=*), target, intent(in) :: singleCommand
+    character(len=80), pointer :: ptr
+    ! Working
+  !  character(len=*), pointer :: singleCommand
+
+
+    !character(len=*), intent(in) :: singleCommand
+
+    !character(len=80), target :: stringOutput
+    !character(len=80), pointer :: ptr
+
+    !stringOutput = trim(singleCommand)
+    ptr =>singleCommand
+
+    !PRINT *, "String Output is ", stringOutput
+
+
+    !type(c_ptr),  target :: arrayOutput
+
+    !act_macrorestore = g_simple_action_new("MacroRestore"//c_null_char, c_null_ptr)
+    !call g_action_map_add_action (win, act_macrorestore)
+    !call g_signal_connect (act_macrorestore, "activate"//c_null_char, c_funloc(zoa_macrorestoreUI), win)
+    !menu_item_macrorestore = g_menu_item_new ("Restore Macro Directory"//c_null_char, "win.MacroRestore"//c_null_char)
+    !call g_menu_append_item (menu_macro, menu_item_macrorestore)
+
+    !self%menuItem = g_menu_new()
+    !call g_menu_append_submenu (topLevelMenu, menuItemText//c_null_char, self%menuItem)
+
+
+    !!
+    self%menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, self%menuAction)
+    !Working
+    !call g_signal_connect (self%menuAction, "activate"//c_null_char, c_funloc(genericMenuCommandCallback), c_loc(singleCommand))
+    call g_signal_connect (self%menuAction, "activate"//c_null_char, c_funloc(genericMenuCommandCallback), c_loc(ptr))
+    PRINT *, "menuItemEventName is ", menuItemEventName
+    self%menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
+    call g_menu_append_item (topLevelMenu, self%menuItem)
+
   end subroutine
 
 end module zoamenubar

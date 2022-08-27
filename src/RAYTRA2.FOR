@@ -1081,6 +1081,7 @@ C
                         END
 C SUB GETZEE1.FOR
         SUBROUTINE GETZEE1
+        use ieee_arithmetic
 C
         IMPLICIT NONE
 C
@@ -1094,15 +1095,20 @@ C
 C
       INTEGER JIM
 C
-        LOGICAL ZEEERR
+        LOGICAL ZEEERR, DEBUGZEE
         COMMON/ERRZEE/ZEEERR
+
+        COMMON DEBUGZEE
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
       ZEEERR=.FALSE.
+
       HV0=0.0D0
       HV1=0.0D0
       HV2=0.0D0
+
+      !PRINT *, "DEBUGZEE IS ", DEBUGZEE
 C
 C       SURFACE IS CONIC OR SPHERE
         CV=ALENS(1,1)
@@ -1110,6 +1116,15 @@ C       SURFACE IS CONIC OR SPHERE
         IF(CC.EQ.-1.0D0.AND.CV.GT.0.0D0) ZTEST=1.0D20
         IF(CC.EQ.-1.0D0.AND.CV.LT.0.0D0) ZTEST=-1.0D20
         IF(CC.NE.-1.0D0) ZTEST=1.0D0/((CC+1.0D0)*CV)
+
+      if (DEBUGZEE) THEN
+        PRINT *, "GETZEE1 1121 YC IS ", YC
+
+        if (ieee_is_nan(YC)) THEN
+          PRINT *, "YC Nan Input to GETZEE1"
+          DEBUGZEE = .FALSE.
+        END IF
+      END IF
 C     COMPUTE DIR COS DIRECTLY FROM POSITIONS IN ALL CASES
 C
       XA=XC
@@ -1126,6 +1141,10 @@ C     CONVERT TO NEWOBJ COORD SYSTEM
                 ZA=R_TZ
       MAG=DSQRT(((XSTRT-XA)**2)+((YSTRT-YA)**2)
      1+((ZSTRT-ZA)**2))
+1235    FORMAT(G15.7, G15.7, G15.7, G15.7,G15.7, G15.7)
+        !PRINT *, "MAG IN GETZEE1 is ", MAG
+        !PRINT 1235, XA, XSTRT, YSTRT, YA, ZA, ZSTRT
+
         R_L=(XA-XSTRT)/MAG
         R_M=(YA-YSTRT)/MAG
         R_N=(ZA-ZSTRT)/MAG
@@ -1138,6 +1157,13 @@ C
                    XA=XC
                    YA=YC
                    ZA=ZC
+        IF (DEBUGZEE) THEN
+          PRINT *, "GETZEE1 1155 YC IS ", YC
+          IF (ieee_is_nan(YC)) THEN
+            PRINT *, "GETZEE1 1152 YC Nan"
+            DEBUGZEE = .FALSE.
+          END IF
+        END IF
                 DO JIM=1,2
       IF(JIM.EQ.1) THEN
                 R_L=0.0D0
@@ -1152,6 +1178,12 @@ C
                         R_X=XA
                         R_Y=YA
                         R_Z=ZA
+
+        !IF (ieee_is_nan(R_Y)) THEN
+        !  PRINT *, "R_Y is nan 1158. YA=", YA
+        !END IF
+
+
 C
 C       NOW INTERSECT THE SPHERE OR CONIC AT NEWOBJ+1
 C       THE FOLLOWING CALCULATIONS ARE INTERMEDIATE STEPS:
@@ -1189,6 +1221,17 @@ C       CASE OF ONLY ONE INTERSECTION POINT
         YC=(R_Y+(HV0*R_M))
         ZC=(R_Z+(HV0*R_N))
                         END IF
+        IF (DEBUGZEE) THEN
+          PRINT *, "GETZEE1 1219 YC IS ", YC
+          IF (ieee_is_nan(YC)) THEN
+            PRINT *, "GETZEE1 1209 YC Nan"
+            DEBUGZEE = .FALSE.
+          END IF
+        END IF
+        !IF (ieee_is_nan(YC)) THEN
+        !  PRINT *, "YC is nan.  HV0 = ",HV0, "R_Y=",R_Y
+        !END IF
+
         IF(INTERS.EQ.2) THEN
 C       CASE OF TWO INTERSECTION POINTS
       IF(DABS(HV1).LE.DABS(HV2)) THEN
@@ -1200,10 +1243,40 @@ C       CASE OF TWO INTERSECTION POINTS
         YC=(R_Y+(HV2*R_M))
         ZC=(R_Z+(HV2*R_N))
                         END IF
+        IF (DEBUGZEE) THEN
+          IF (ieee_is_nan(YC)) THEN
+            PRINT *, "GETZEE1 1226 YC Nan"
+            PRINT *, "R_Y is ", R_Y
+            PRINT *, "HV1 = ", HV1
+            PRINT *, "HV2 = ", HV2
+            PRINT *, "R_M = ", R_M
+            PRINT *, "R_X ", R_X, "R_Y ", R_Y, "R_Z ", R_Z
+            PRINT *, "R_M ", R_M, "R_M ", R_M, "R_N ", R_N
+            PRINT *, "MAG = ", MAG
+            PRINT 1235, XA, XSTRT, YA,YSTRT, ZA, ZSTRT
+        !R_L=(XA-XSTRT)/MAG
+        !R_M=(YA-YSTRT)/MAG
+        !R_N=(ZA-ZSTRT)/MAG
+
+            DEBUGZEE = .FALSE.
+          END IF
+        END IF
+        !IF (ieee_is_nan(YC)) THEN
+        !  PRINT *, "YC is nan. R_Y=", R_Y, "HV1=",HV1
+        !END IF
+      if (DEBUGZEE) THEN
+          PRINT *, "GETZEE1 1249 YC IS ", YC
+          IF (ieee_is_nan(YC)) THEN
+            PRINT *, " AT END OF GETZEE1 YC Nan"
+            DEBUGZEE = .FALSE.
+          END IF
+      end if
                         END IF
 C     COORDINATES ARE IN COORDINATE SYSTEM OF THE NEWOBJ+1 SURFACE
                         END DO
+
                         RETURN
+
                         END
 C SUB HITFLA.FOR
         SUBROUTINE HITFLA(OR_N,OR_Z)

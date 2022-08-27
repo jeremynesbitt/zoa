@@ -299,6 +299,7 @@ C
 C SUB SAGFLT.FOR
         SUBROUTINE SAGFLT(I,X,Y,SAG)
 C
+        use ieee_arithmetic, only: ieee_is_nan
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SAGFLT.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -308,6 +309,7 @@ C
         INTEGER I
 C
         REAL*8 Z,X,Y,SAG
+
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
@@ -315,6 +317,9 @@ C
 C       SURFACE I IS PLANO AND MAY CONTAIN 2ND, 4TH, 6TH, 8TH AND 10TH ORDER
 C       ASPHERIC TERMS AND SPECIAL SURFACE SHAPES.
 C
+        PRINT *, "SAGCODE in SAGFLT is ", SAGCODE
+
+
         IF(ALENS(133,I).NE.0.0D0) CALL SAGARRAY(I,X,Y)
 C
       IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.1) THEN
@@ -328,6 +333,13 @@ C
      1     ((((X**2)+(Y**2))**8)*ALENS(83,I))+
      1     ((((X**2)+(Y**2))**9)*ALENS(84,I))+
      1     ((((X**2)+(Y**2))**10)*ALENS(85,I))
+           ! JN - for Afocal systems this term can
+           ! lead to NaN in gfortran hence this call
+           if (ieee_is_nan(SAG)) SAG = 0.0D0
+           !PRINT *, "X ", X, "Y ", Y
+           !PRINT *, "SAG in SAGFLT SAGCODE 0 is ", SAG
+           !PRINT *, "10th order ", ((((X**2)+(Y**2))**10)*ALENS(85,I))
+
                ELSE
                SAG=0.0D0
                END IF
@@ -1326,6 +1338,7 @@ C
                         END
 C SUB SAGRET.FOR
         SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
+
 C       THIS DOES SPECIAL SURFACES NOW
 C
         IMPLICIT NONE
@@ -1357,9 +1370,12 @@ C
 C       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
         IF(ALENS(1,I).EQ.0.0D0
      1  .AND.ALENS(23,I).EQ.0.0D0) THEN
+                 !PRINT *, "SAGRET CALLING SAGFLT"
                  CALL SAGFLT(I,X,Y,SAG)
+                 !PRINT *, "SAG AFTER SAGFLG ", SAG
         IF(DABS(SAG).LT.1E-15) SAG=0.0D0
                       Z=SAG
+                      !if (ieee_is_nan(Z)) Z = 0
                         RETURN
                         END IF
 C       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
@@ -1373,9 +1389,12 @@ C       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
                         RETURN
                         END IF
 C                       PROCEED
+      !PRINT *, "SAGRET CALLING SAGASP"
       CALL SAGASP(I,X,Y,SAG)
+      !PRINT *, "SAG AFTER SAGASP ", SAG
         IF(DABS(SAG).LT.1E-15) SAG=0.0D0
                        Z=SAG
+                       !if (ieee_is_nan(Z)) Z = 0
                         RETURN
                         END IF
         IF(ALENS(23,I).NE.0.0D0) THEN
@@ -1418,9 +1437,11 @@ C       X-TORIC
                    RETURN
                         END IF
 C                       PROCEED
+        !PRINT *, "SAGRET CALLING SAGANA"
         CALL SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY,SAG,I)
         IF(DABS(SAG).LT.1E-15) SAG=0.0D0
                       Z=SAG
+                      !if (ieee_is_nan(Z)) Z = 0
                         RETURN
                         END IF
                         END

@@ -44,6 +44,7 @@ C
 
         !OUTLYNE = "REFRAY ROUTINE STARTED! "
         !CALL SHOWIT(19)
+
                         KKKK=0
                         KKK=0
                         YAIMOL=0.0D0
@@ -428,6 +429,8 @@ C     TEL ON,ALL RAYS ARE PARALLEL
                         END IF
                         ELSE
 C     RAY AIMING IS ON
+      !PRINT *, "TRYY = ", TRYY
+      !PRINT *, "YFOBB0 = ", YFOBB0
          X1AIM=TRYX+XFOBB0
          Y1AIM=TRYY+YFOBB0
          Z1AIM=TRYZ+ZFOBB0
@@ -441,6 +444,11 @@ C     SAVE VERY FIRST X1AIM,Y1AIM, Z1AIM
                STY=Y1AIM
                STZ=Z1AIM
 C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
+               !IF (KKK.EQ.1) THEN
+               !PRINT *, "YAIMOL LINE 445 is ", YAIMOL
+               !PRINT *, "YC LINE 445 is ", YC
+             !END IF
+
                         XAIMOL=XC
                         YAIMOL=YC
                         ZAIMOL=ZC
@@ -947,7 +955,7 @@ C
 
         IF(DSQRT(((TARX-X)**2)+((TARY-Y)**2)).LE.AIMTOL
      1.OR.SYSTEM(62).EQ.0.0D0) THEN
-        PRINT *, "AIM IS GOOD ENOUGH"
+        ! PRINT *, "AIM IS GOOD ENOUGH"
 C       AIM IS GOOD ENOUGH, PROCEED
                         GO TO 100
                         ELSE
@@ -978,12 +986,18 @@ C       IN THIS CASE WE SET THE SURFACE 1 AIMING POINTS
 C       EQUAL TO THE OLD AIM POINTS PLUS A SMALL DELTA
 C       IN ORDER TO CALCULATE DERIVATIVES.
 C
+
       Y1AIM=YAIMOL+DDELY
       X1AIM=XAIMOL+DDELX
       Z1AIM=ZAIMOL
       XC=X1AIM
       YC=Y1AIM
       ZC=Z1AIM
+1234    FORMAT(I3, G15.7, G15.7, G15.7)
+      !PRINT *, "KKK=1"
+      !PRINT *, "DDELY = ", DDELY
+      !PRINT *, "YAIMOL = ", YAIMOL
+      !PRINT 1234, KKK, XC, YC, ZC
       XC1=XC
       YC1=YC
       ZC1=ZC
@@ -1007,6 +1021,9 @@ C       CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !IF (KKK.LT.2) PRINT *, "KKK, X1AIM, Y1AIM, Z1AIM"
+        !PRINT 1234, KKK, X1AIM, Y1AIM, Z1AIM
+
                         GO TO 9
                         END IF
 C       THIS IS NOT THE FIRST REFINEMENT, KKK NOT = 1
@@ -1032,6 +1049,9 @@ C       CALL NEWDEL
         IF(DELFAIL) THEN
                         GO TO 14
                         ELSE
+        !IF (KKK.LT.2) PRINT *, "KKK, X1AIM, Y1AIM, Z1AIM"
+        !PRINT 1234, KKK, X1AIM, Y1AIM, Z1AIM
+
                         GO TO 9
                         END IF
 C       NOT AT THE REFERENCE SURFACE, NO RAY AIMING NEEDED
@@ -1042,7 +1062,7 @@ C
  10             CONTINUE
 C     NOW IF RYIM OR RXIM ARE IN EFFECT, ITERATE THE CHEIF RAY
 C     TO HIT THE IMAGE SURFACE AT THE CORRECT POINT
-      PRINT *, "ABOUT TO DO ERRORVEC CHECK for ", I
+      !PRINT *, "ABOUT TO DO ERRORVEC CHECK for ", I
                         IF(SYSTEM(98).LT.0.0D0) THEN
                         CX=REFRY(1,NEWIMG)
                         CY=REFRY(2,NEWIMG)
@@ -1153,9 +1173,9 @@ C
         END IF
                         ELSE
 C     TARGET MET!
-      PRINT *, "TARGET MET FOR SURFACE ", NEWOBJ
-      PRINT *, "Alternate Object Surface ", NEWOBJ
-      PRINT *, "Alternate Image Surface ", NEWIMG
+      !PRINT *, "TARGET MET FOR SURFACE ", NEWOBJ
+      !PRINT *, "Alternate Object Surface ", NEWOBJ
+      !PRINT *, "Alternate Image Surface ", NEWIMG
 
                         END IF
                         RETURN
