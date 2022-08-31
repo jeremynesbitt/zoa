@@ -4907,12 +4907,12 @@ C SUB PLTPRO1.FOR
         SUBROUTINE PLTPRO1
         USE GLOBALS
 C        USE testHDF5
-        use h5fortran
+        !use h5fortran
 
 C
         IMPLICIT NONE
 
-       type(hdf5_file) :: h5f
+       !type(hdf5_file) :: h5f
 
 C
 C       THIS ROUTINE DOES THE PLOT PROF COMMAND AT THE CMD LEVEL

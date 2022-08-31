@@ -57,17 +57,17 @@ bin/%.mod: src/%.f90
 #$(OBJ90)/$(SRC90): $(GLOBOBJ)
 	@echo F90 Compilation	
 
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) 
 
 # Output FOR files into .o files	
 #	@echo $(OBJ)
 bin/%.o: src/%.FOR
 	@echo FOR Compilation	
 
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags h5fortran)
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $<
 
 $(OBJETC):etc/*.f90
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) 
 
 #$(IFACESOBJ):$(IFACES)
 #$(IFACESOBJ):bin/%.mod : src/%.f90
@@ -78,7 +78,7 @@ $(OBJETC):etc/*.f90
 $(GLOBOBJ): bin/%.mod : src/%.f90
 	@echo Starting Global Compilation
 
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) 
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) 
 
 $(GLOBFOROBJ): bin/%.o : src/%.FOR
 	@echo Starting Global Compilation
@@ -89,7 +89,7 @@ $(GLOBFOROBJ): bin/%.o : src/%.FOR
 $(GTKOBJ): $(GTK)
 	@echo Starting Compilation
 	@echo $(GTKOBJ)	
-	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -c $(GTK) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran) -o $@ 
+	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -c $(GTK) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) -o $@ 
 
 # Compile f90 files first, then F77 Files
 #all: $(GTKOBJ) $(OBJ90) $(OBJ) 
