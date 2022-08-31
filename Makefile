@@ -105,7 +105,7 @@ all:  $(OBJETC) $(GLOBFOROBJ) $(GLOBOBJ) $(OBJ90) $(OBJ) $(GTKOBJ)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -shared -ffree-form -g -Og -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) 
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) $$(pkg-config --libs plplot-fortran)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $(GLOBOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran)
-	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib 
+	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot)
 
 #$(pkg-config --libs --cflags h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib
 
