@@ -90,6 +90,7 @@ SUBROUTINE WDRAWOPTICALSYSTEM
     else
       PRINT *, "Redraw Astig "
       !call ast_settings%replot()
+      PRINT *, "PTR is ", ast_cairo_drawing_area
       call plot_ast_fc_dist(ast_cairo_drawing_area)
       !call gtk_widget_queue_draw(ast_cairo_drawing_area)
     end if

@@ -53,6 +53,7 @@ contains
     procedure, private, pass(self) :: getAxesLimits
     procedure, private, pass(self) :: getLabelFontCode
     procedure, public, pass(self) :: setDataColorCode
+    procedure, public, pass(self) :: addXYPlot
 
 end type
 
@@ -473,34 +474,28 @@ contains
 
     call plline(self%x,self%y)
 
-    call plcol0(self%dataColorCode)
+    !call plcol0(self%dataColorCode)
+    call plcol0(getLabelFontCode(self))
 
-    !
-    ! do i = 1, size(self%x)
-    !     !       call plcol0(i + 1)
-    !     !call plcol1(real(i,kind=pl_test_flt)/9.0_pl_test_flt)
-    !     call plcol0(2)
-    !     !call plcol1(real(1,kind=pl_test_flt))
-    !     !call plcol1(1.0_pl_test_fit)
-    !     call plpsty(0)
-    !     !call plfbox( 1980._pl_test_flt+i, y(i+1) )
-    !     call barChartBox(self%x(i), self%y(i) )
-    !     !write (string, '(i0)') int(y0(i))
-    !
-    !     !call plptex( x(i+1), y(i+1), &
-    !     !       1._pl_test_flt, 0._pl_test_flt, 0.5_pl_test_flt, string )
-    !     !call plptex( 1980._pl_test_flt+i+0.5_pl_test_flt, y0(i+1)+1._pl_test_flt, &
-    !     !       1._pl_test_flt, 0._pl_test_flt, 0.5_pl_test_flt, string )
-    !
-    !     !write (string, '(i0)')1980+i
-    !     !call plmtex( 'b', 1._pl_test_flt, (i+1)*0.1_pl_test_flt-0.05_pl_test_flt, 0.5_pl_test_flt, string )
-    ! enddo
-
-    !    Don't forget to call PLEND to finish off!
-    !call plend
-    !call hl_gtk_drawing_area_cairo_destroy(cc)
 
     end subroutine drawPlot
+
+    subroutine addXYPlot(self, X, Y)
+
+        implicit none
+        class(zoaplot), intent(in) :: self
+        real, dimension(:), intent(in) :: X,Y
+
+    call plcol0(self%dataColorCode)
+    call plpsty(0)
+    call plline(X,Y)
+    PRINT *, "X IS ", X
+    call plcol0(getLabelFontCode(self))
+
+    !TODO - need to check if plot needs to be rescaled
+
+
+  end subroutine
 
     subroutine setLabelFont(self, desiredColor)
 

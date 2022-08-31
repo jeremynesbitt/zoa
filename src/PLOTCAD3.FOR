@@ -2747,6 +2747,8 @@ C
      1,X2(1:51),XMINJK2,XMAXJK2,XRAN2,XRAN,XMAXJK,XMINJK,X(1:51)
 C
       INTEGER NX,NY,COLPAS,MYJK,DFLAG,I,PNTNUM,NT1ANG,NT1SIZ
+
+      LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
 C
       COMMON/NUMPNT/PNTNUM,ORI,FACTY
 C
@@ -2762,55 +2764,39 @@ C
       MYJK=0
 C
       IF(WC.EQ.'PLTDIST') THEN
-        IF(STI.EQ.1) THEN
-      OUTLYNE=
-     1'"PLTDIST" PLOTS EXISTING DISTORTION VALUES'
-      CALL SHOWIT(1)
-                        RETURN
-                        ELSE
-                        END IF
-        IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-        OUTLYNE=
-     1  '"PLTDIST" TAKES NO QUALIFIER OR STRING INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-        IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-        OUTLYNE=
-     1  '"PLTDIST" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-C
+
+        PRINT *, "STI is ", STI
+
+        IF (COMMANDINFOCHECK(
+     1  "PLTDIST PLOTS EXISTING DISTORTION VALUES")) RETURN
+
+        IF (STRINGINPUTCHECK('PLTDIST')) RETURN
+        IF (.NOT.CHECKMAXFLOATINPUTS('PLTDIST', 2)) RETURN
+
 C     PLT DIST
       IF(.NOT.DISEXT) THEN
         OUTLYNE=
      1  'DISTORTION VALUES DO NOT EXIST'
-      CALL SHOWIT(1)
+        CALL SHOWIT(1)
         OUTLYNE='NO ACTION TAKEN'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                       RETURN
-                       END IF
+        CALL SHOWIT(1)
+        CALL MACFAL
+        RETURN
+      END IF
+
       IF(PNTNUM.LT.10) THEN
         OUTLYNE=
      1  'LESS THAN 10 DISTORION VALUES IN TABLE'
-      CALL SHOWIT(1)
+        CALL SHOWIT(1)
         OUTLYNE='NO ACTION TAKEN'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                       RETURN
-                       END IF
+        CALL SHOWIT(1)
+        CALL MACFAL
+        RETURN
+      END IF
+
       IF(DF2.EQ.1.OR.DF2.EQ.0.AND.W2.EQ.0.0D0) DFLAG=0
       IF(DF2.EQ.0.AND.W2.NE.0.0D0) DFLAG=1
+
 C     GENERATE GRAPHIC
 C     DO A PLOT NEW
                         DEVTYP=1
@@ -2965,34 +2951,14 @@ C
                        END IF
                        RETURN
                        END IF
+
       IF(WC.EQ.'PLTFDIST') THEN
-        IF(STI.EQ.1) THEN
-        OUTLYNE=
-     1  '"PLTFDIST" PLOTS EXISTING DISTORTION VALUES'
-      CALL SHOWIT(1)
-                        RETURN
-                        ELSE
-                        END IF
-        IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-        OUTLYNE=
-     1  '"PLTFDIST" TAKES NO QUALIFIER OR STRING INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-        IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-        OUTLYNE=
-     1  '"PLTFDIST" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
+
+        IF (COMMANDINFOCHECK(
+     1  "PLTFDIST PLOTS EXISTING DISTORTION VALUES")) RETURN
+        IF (STRINGINPUTCHECK('PLTFDIST')) RETURN
+        IF (.NOT.CHECKMAXFLOATINPUTS('PLTFDIST', 2)) RETURN
+
 C
 C     PLTFDIST
       IF(.NOT.FDISEXT) THEN
@@ -3642,6 +3608,383 @@ C     DATA PLOTTING DONE
                        RETURN
                        END IF
                        END
+        SUBROUTINE PLTFIELDNEW
+        USE GLOBALS
+C
+        IMPLICIT NONE
+C
+C     THIS PLOTS FIELD ABERATIONS
+C
+      CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20
+     1,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
+C
+      REAL*8 WOR1(0:50),WOR2(0:50),RANGE
+     1,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
+C
+      REAL LLIM,ULIM,UFLIM,LFLIM,DELX1,FLDAN(0:50)
+C
+      COMMON/FIFI/FLDAN
+C
+      REAL X1(1:51),Y(1:51),XRAN1,YRAN,YMINJK,XMINJK1,XMAXJK1,YMAXJK
+     1,X2(1:51),XMINJK2,XMAXJK2,XRAN2,XRAN,XMAXJK,XMINJK,X(1:51)
+C
+      INTEGER NX,NY,COLPAS,MYJK,DFLAG,I,PNTNUM,NT1ANG,NT1SIZ
+
+      LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
+C
+      COMMON/NUMPNT/PNTNUM,ORI,FACTY
+C
+      LOGICAL ASTEXT,FLDEXT,DISEXT,FDISEXT
+      COMMON/FIELDEXT/ASTEXT,FLDEXT,DISEXT,FDISEXT
+C
+      COMMON/ABSSS/WOR1,WOR2,DTA11,DTA22,DDTA,ADTA
+C
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATHGR.INC'
+C
+      MYJK=0
+C
+
+      CALL PLTFIELDERRORCHECKING
+
+      IF(DF2.EQ.1.OR.DF2.EQ.0.AND.W2.EQ.0.0D0) DFLAG=0
+      IF(DF2.EQ.0.AND.W2.NE.0.0D0) DFLAG=1
+
+C     GENERATE GRAPHIC
+C     DO A PLOT NEW
+      DEVTYP=1
+      LOOKY=0.0D0
+      LOOKX=-1.0D0
+      LOOKZ=0.0D0
+      CALL PLTDEV
+      GRASET=.TRUE.
+      PLEXIS=.TRUE.
+C     SET LETTER SIZE AND ANGLE
+      BL20='                    '
+      BLNOTE=BL20//BL20//BL20//BL20
+                        NT1SIZ=1
+                        NT1ANG=0
+      CALL MY_SETCHARASPECT(1.5,1.5)
+C     LIFT PEN, MOVE TO FRAME START
+C
+      CALL PLOTBOX
+C
+      COLPAS=COLLBL
+      CALL MY_COLTYP(COLPAS)
+C     DO THE PLOTTING OF THE LENS IDENTIFIER
+C     AT X=200, Y=500
+      NT1SIZ=1
+      NT1ANG=0
+      IF(STMPT) CALL MYTIME(TMY)
+      IF(STMPD) CALL MYDATE(DTY)
+        IF(.NOT.STMPT.AND..NOT.STMPD) NNTT1=LI
+        IF(STMPT.AND.STMPD) NNTT1=TMY//' '//DTY//LI
+        IF(STMPT.AND..NOT.STMPD) NNTT1=TMY//' '//LI
+        IF(.NOT.STMPT.AND.STMPD) NNTT1=DTY//LI
+                IF(NNTT1.NE.BLNOTE) THEN
+        CALL MY_JUSTSTRING(200,500,NNTT1(1:80),NT1ANG,NT1SIZ,3,3)
+                        ELSE
+C     LI BLANK, NOT ACTION
+                        END IF
+C
+      RANGE=ORI
+      WRITE(B,101) RANGE
+      READ(B,200) CRANGE
+101   FORMAT(F8.3)
+200   FORMAT(A8)
+      NNTT1='ORIENTATION ANGLE = '
+C
+      CALL MY_JUSTSTRING(200,250,NNTT1(1:20),NT1ANG,NT1SIZ,3,3)
+
+      NNTT1=CRANGE//' '//'DEGREES'
+C
+      CALL MY_JUSTSTRING(1700,250,NNTT1(1:16),NT1ANG,NT1SIZ,3,3)
+C
+C     HERE GO THE REAL PLOTTING COMMANDS
+C     **********************************
+C     THE FUNCTIONAL VALUES ARE IN THE ARRAYS DDTA
+C     THE INDEPENDENT VARIABLE IS THE LIST OF
+C     RADIAL FIELD POSITIONS WHICH WILL BE GENERATED AND PLACED
+C     IN THE 'Y' ARRAY
+C     LOAD Y
+       XMINJK1=1.0E20
+       XMAXJK1=-1.0E20
+       DO I=0,PNTNUM
+       Y(I+1)=FLDAN(I)
+          SELECT CASE (WC)
+             CASE ('PLTDIST')
+               X1(I+1)=REAL(DDTA(I))
+             CASE ('PLTFDIST')
+               X1(I+1)=REAL(DDTA(I))
+             CASE ('PLTAST')
+               X1(I+1)=REAL(ADTA(I))
+            CASE ('PLTFLDCV')
+               X1(I+1)=REAL(DTA11(I))
+               X2(I+1)=REAL(DTA22(I))
+               IF(REAL(DTA11(I)).GT.XMAXJK1) XMAXJK1=REAL(DTA11(I))
+               IF(REAL(DTA22(I)).GT.XMAXJK2) XMAXJK2=REAL(DTA22(I))
+               IF(REAL(DTA11(I)).LT.XMINJK1) XMINJK1=REAL(DTA11(I))
+               IF(REAL(DTA22(I)).LT.XMINJK2) XMINJK2=REAL(DTA22(I))
+          END SELECT
+
+          IF(REAL(X1(I+1)).GT.XMAXJK1) XMAXJK1=REAL(X1(I+1))
+          IF(REAL(X1(I+1)).LT.XMINJK1) XMINJK1=REAL(X1(I+1))
+          X(I+1)=X1(I+1)
+          END DO
+      YMAXJK=Y(PNTNUM+1)
+      YMINJK=Y(1)
+C
+      YRAN=ABS(YMAXJK-YMINJK)
+      XRAN1=ABS(XMAXJK1-XMINJK1)
+          XRAN=XRAN1
+      IF(DF1.EQ.0) XRAN=ABS(W1)
+          XMINJK=XMINJK1
+          XMAXJK=XMAXJK1
+C
+C       PROCEED
+C
+C       PLOT THE AXES
+C
+C       CORRECT SCALING IS IMPORTANT
+C
+
+C     Y-AXIS LABELS - Common to all plots
+C
+      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+      LABY='F.O.V.(deg)                             '
+      NY=11
+                   ELSE
+      IF(SYSTEM(6).EQ.1.0D0)
+     1LABY='OBJECT HT.(in)                          '
+      IF(SYSTEM(6).EQ.2.0D0)
+     1LABY='OBJECT HT.(cm)                          '
+      IF(SYSTEM(6).EQ.3.0D0)
+     1LABY='OBJECT HT.(mm)                          '
+      IF(SYSTEM(6).EQ.4.0D0)
+     1LABY='OBJECT HT.(meter)                       '
+      IF(SYSTEM(6).EQ.1.0D0)
+     1NY=14
+      IF(SYSTEM(6).EQ.2.0D0)
+     1NY=14
+      IF(SYSTEM(6).EQ.3.0D0)
+     1NY=14
+      IF(SYSTEM(6).EQ.4.0D0)
+     1NY=17
+                   END IF
+
+C     X-AXIS LABELS RANGE
+          SELECT CASE (WC)
+             CASE ('PLTDIST')
+                     LABX='% Distortion                            '
+                     NX=12
+             CASE ('PLTFDIST')
+                     LABX='% Fisheye Distortion                    '
+                     NX=20
+             CASE ('PLTAST')
+
+          IF(SYSTEM(30).GE.3.0D0) THEN
+          LABX='ASTIGMATISM [YZ-XZ] (diopter)           '
+          NX=29
+                       ELSE
+          IF(SYSTEM(6).EQ.1.0D0)
+     1LABX='ASTIGMATISM [YZ-XZ] (in)                '
+          IF(SYSTEM(6).EQ.2.0D0)
+     1LABX='ASTIGMATISM [YZ-XZ] (cm)                '
+          IF(SYSTEM(6).EQ.3.0D0)
+     1LABX='ASTIGMATISM [YZ-XZ] (mm)                '
+          IF(SYSTEM(6).EQ.4.0D0)
+     1LABX='ASTIGMATISM [YZ-XZ] (meter)             '
+          IF(SYSTEM(6).EQ.1.0D0)
+     1NX=24
+          IF(SYSTEM(6).EQ.2.0D0)
+     1NX=24
+          IF(SYSTEM(6).EQ.3.0D0)
+     1NX=24
+          IF(SYSTEM(6).EQ.4.0D0)
+     1NX=26
+                       END IF
+          COLPAS=COLFRM
+          CALL MY_COLTYP(COLPAS)
+            CASE ('PLTFLDCV')
+      IF(SYSTEM(30).GE.3.0D0) THEN
+      LABX='FIELD CURVATURE [YZ-XZ] (diopter)       '
+      NX=33
+                   ELSE
+      IF(SYSTEM(6).EQ.1.0D0)
+     1LABX='FIELD CURVATURE [YZ-XZ] (in)            '
+      IF(SYSTEM(6).EQ.2.0D0)
+     1LABX='FIELD CURVATURE [YZ-XZ] (cm)            '
+      IF(SYSTEM(6).EQ.3.0D0)
+     1LABX='FIELD CURVATURE [YZ-XZ] (mm)            '
+      IF(SYSTEM(6).EQ.4.0D0)
+     1LABX='FIELD CURVATURE[YZ-XZ] (meter)          '
+      IF(SYSTEM(6).EQ.1.0D0)
+     1NX=28
+      IF(SYSTEM(6).EQ.2.0D0)
+     1NX=28
+      IF(SYSTEM(6).EQ.3.0D0)
+     1NX=28
+      IF(SYSTEM(6).EQ.4.0D0)
+     1NX=29
+                   END IF
+      COLPAS=COLFRM
+      CALL MY_COLTYP(COLPAS)
+          END SELECT
+
+
+
+C
+C     PLOT THE AXES AND TICS
+      CALL PLOTAXES2
+C     PLOT THE HORIZONTAL AXIS NAME
+      CALL PLOTHNAME(LABX,NX)
+C     PLOT THE VERTICAL AXIS NAME
+      CALL PLOTVNAME(LABY,NY)
+
+C     PLOT THE VALUES FOR THE TIC MARKS
+      DELX1=(YMAXJK)/2.0
+      LLIM=0.0
+      CALL PLOTVVAL2(LLIM,DELX1)
+      IF(DABS(DBLE(XMAXJK)).GT.DABS(DBLE(XMINJK))) THEN
+      XMAXJK=DABS(DBLE(XMAXJK))
+      XMINJK=-DABS(DBLE(XMAXJK))
+                       ELSE
+      XMAXJK=DABS(DBLE(XMINJK))
+      XMINJK=-DABS(DBLE(XMINJK))
+                       END IF
+      DELX1=(XMAXJK-XMINJK)/4.0
+      CALL PLOTHVAL2(XMINJK,DELX1)
+C
+      LLIM=XMINJK
+      ULIM=XMAXJK
+      UFLIM=YMAXJK
+      LFLIM=0.0
+      CALL PLOTFUNC4(X,Y,PNTNUM+1,XMINJK,XMAXJK,YMINJK,YMAXJK,0)
+      IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+
+      ! Field Curvature Specific Plotting
+      IF (WC.EQ.'PLTFLDCV') THEN
+         CALL PLOTFUNC4(X2,Y,PNTNUM+1,XMINJK,XMAXJK,YMINJK,YMAXJK,3)
+         COLPAS=COLLBL
+          CALL MY_COLTYP(COLPAS)
+
+C     NOW THE LEGEND
+        CALL MY_PLOT(200,6500,0,0,0,10000,0,7000)
+        CALL MY_PLOT(1200,6500,1,0,0,10000,0,7000)
+        CALL MY_PLOT(1300,6500,0,0,0,10000,0,7000)
+        NNTT1=' = YZ-PLANE FIELD CURVATURE'
+        CALL MY_JUSTSTRING(1300,6500,NNTT1(1:27),NT1ANG,NT1SIZ,3,3)
+
+        CALL MY_PLOT(200,6300,0,0,0,10000,0,7000)
+        CALL MY_PLOT(1200,6300,1,3,0,10000,0,7000)
+        CALL MY_PLOT(1300,6300,0,0,0,10000,0,7000)
+        NNTT1=' = XZ-PLANE FIELD CURVATURE'
+        CALL MY_JUSTSTRING(1300,6300,NNTT1(1:27),NT1ANG,NT1SIZ,3,3)
+      END IF
+
+
+C     **********************************
+C     DATA PLOTTING DONE
+C
+      IF(DFLAG.EQ.0) THEN
+                        SAVE_KDP(1)=SAVEINPT(1)
+                        INPUT='DRAW'
+                        CALL PROCES
+                        REST_KDP(1)=RESTINPT(1)
+                       END IF
+                       RETURN
+
+      END
+
+      SUBROUTINE PLTFIELDERRORCHECKING
+        USE GLOBALS
+C
+        IMPLICIT NONE
+C
+C     THIS PLOTS FIELD ABERATIONS
+C
+      CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20
+     1,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
+C
+      REAL*8 WOR1(0:50),WOR2(0:50),RANGE
+     1,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
+C
+      REAL LLIM,ULIM,UFLIM,LFLIM,DELX1
+C
+      REAL X1(1:51),Y(1:51),XRAN1,YRAN,YMINJK,XMINJK1,XMAXJK1,YMAXJK
+     1,X2(1:51),XMINJK2,XMAXJK2,XRAN2,XRAN,XMAXJK,XMINJK,X(1:51)
+C
+      INTEGER NX,NY,COLPAS,MYJK,DFLAG,I,PNTNUM,NT1ANG,NT1SIZ
+
+      LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
+      LOGICAL :: dataExists
+C
+      COMMON/NUMPNT/PNTNUM,ORI,FACTY
+C
+      LOGICAL ASTEXT,FLDEXT,DISEXT,FDISEXT
+      COMMON/FIELDEXT/ASTEXT,FLDEXT,DISEXT,FDISEXT
+C
+      COMMON/ABSSS/WOR1,WOR2,DTA11,DTA22,DDTA,ADTA
+C
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATHGR.INC'
+C
+C     HELP PRINTING FIRST
+      SELECT CASE (WC)
+         CASE ('PLTDIST')
+           IF (COMMANDINFOCHECK(
+     1     "PLTDIST PLOTS EXISTING DISTORTION VALUES")) RETURN
+         CASE ('PLTFDIST')
+           IF (COMMANDINFOCHECK(
+     1  "PLTFDIST PLOTS EXISTING DISTORTION VALUES")) RETURN
+        CASE ('PLTAST')
+        IF (COMMANDINFOCHECK(
+     1  "PLTAST PLOTS ASTIGMATISM VALUES")) RETURN
+        CASE ('PLTFLDCV')
+          IF (COMMANDINFOCHECK(
+     1  "PLTFLDCV PLOTS EXISTING FIELD CURVATURE VALUES")) RETURN
+      END SELECT
+
+      ! General Checks
+        IF (STRINGINPUTCHECK(WC)) RETURN
+        IF (.NOT.CHECKMAXFLOATINPUTS(WC, 2)) RETURN
+
+      IF(PNTNUM.LT.10) THEN
+        OUTLYNE=
+     1  'LESS THAN 10 VALUES IN TABLE FOR ' // WC
+        CALL SHOWIT(1)
+        OUTLYNE='NO ACTION TAKEN'
+        CALL SHOWIT(1)
+        CALL MACFAL
+        RETURN
+      END IF
+
+      ! Back to command specific checking that data exists
+      dataExists = .TRUE.
+      SELECT CASE (WC)
+         CASE ('PLTDIST')
+           IF(.NOT.DISEXT) dataExists = .FALSE.
+         CASE ('PLTFDIST')
+           IF(.NOT.FDISEXT) dataExists = .FALSE.
+         CASE ('PLTAST')
+          IF(.NOT.ASTEXT) dataExists = .FALSE.
+        CASE ('PLTFLDCV')
+          IF(.NOT.FLDEXT) dataExists = .FALSE.
+      END SELECT
+
+      if (.not.dataExists) THEN
+          OUTLYNE= WC // "VALUES DO NOT EXIST"
+          CALL SHOWIT(1)
+          OUTLYNE='NO ACTION TAKEN'
+          CALL SHOWIT(1)
+          CALL MACFAL
+          RETURN
+      END IF
+
+       END SUBROUTINE
+
 C SUB PLTDSH.FOR
         SUBROUTINE PLTDSH
         USE GLOBALS

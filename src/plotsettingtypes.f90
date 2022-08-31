@@ -590,6 +590,11 @@ type ast_fc_dist_settings
    integer changed
    integer wavelength
    logical autoplotupdate
+   character(len=140) ::astcalccmd
+   character(len=140) ::distcalccmd
+   character(len=140) ::fccalccmd
+
+
 
  contains
     procedure, public :: is_changed => ast_fc_dist_is_changed
@@ -612,6 +617,10 @@ type(ast_fc_dist_settings) function ast_fc_dist_settings_constructor() result(se
     self%ast_numRays = 10
     self%autoplotupdate = .TRUE.
     self%wavelength = 2 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
+    self%astcalccmd = "AST"
+    self%distcalccmd = "DIST"
+    self%fccalccmd = "FLDCV"
+
 
 end function
 
@@ -674,15 +683,19 @@ subroutine ast_fc_dist_replot(self)
         !
        select case (self%ast_field_dir)
        case (ID_AST_FIELD_Y)
-         ftext = 'AST,0,,'
+         ftext = ',0,,'
        case (ID_AST_FIELD_X)
-         ftext = 'AST,90,,'
+         ftext = ',90,,'
        end select
        CALL ITOAA(self%ast_numRays, A6)
-       PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", trim(ftext)//A6
-       CALL PROCESKDP(trim(ftext)//A6)
+       self%astcalccmd = 'AST'//trim(ftext)//A6
+       PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", self%astcalccmd
+       CALL PROCESKDP(self%astcalccmd)
 
+       self%distcalccmd = 'DIST'//trim(ftext)//A6
+       self%fccalccmd   = 'FLDCV'//trim(ftext)//A6
 
+       PRINT *, "ABOUT TO TRIGGER REPLOT!"
        CALL PROCESKDP('PLTAST 1')
 !
 

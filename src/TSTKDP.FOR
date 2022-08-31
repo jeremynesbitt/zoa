@@ -104,7 +104,13 @@ C        STOP
 
         END
 
-        SUBROUTINE getAstigCalcResult(X1, Y, numPts)
+        SUBROUTINE getFieldCalcResult(X1, X2, Y, numPts, calcCode)
+      ! This routine currently assumes that the AST command was just run and
+      ! gets the data from the output arrays.
+      IMPLICIT NONE
+
+      integer, intent(in) :: calcCode
+
       CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20
      1,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
 C
@@ -116,7 +122,7 @@ C
       COMMON/FIFI/FLDAN
 C
       REAL XRAN1,YRAN,YMINJK,XMINJK1,XMAXJK1,YMAXJK
-     1,X2(1:51),XMINJK2,XMAXJK2,XRAN2,XRAN,XMAXJK,XMINJK,X(1:51)
+     1,XMINJK2,XMAXJK2,XRAN2,XRAN,XMAXJK,XMINJK,X(1:51)
 C
       INTEGER NX,NY,COLPAS,MYJK,DFLAG,I,PNTNUM,NT1ANG,NT1SIZ
 C
@@ -127,7 +133,7 @@ C
 C
       COMMON/ABSSS/WOR1,WOR2,DTA11,DTA22,DDTA,ADTA
 
-      REAL, intent(inout) :: X1(0:50), Y(0:50)
+      REAL, intent(inout) :: X1(0:50), Y(0:50), X2(0:50)
       integer, intent(inout) :: numPts
 
 
@@ -137,12 +143,21 @@ C
         INCLUDE 'DATHGR.INC'
 C
 
+        select case (calcCode)
 
-        X1 = REAL(ADTA)
+        case (1)
+          X1 = REAL(ADTA)
+        case(2)
+          X1 = REAL(DDTA)
+        case(3)
+           X1 = REAL(DTA11)
+           X2 = REAL(DTA22)
+        END SELECT
+
         Y  = REAL(FLDAN)
         numPts = PNTNUM
-        PRINT *, "X is ", X1
-        PRINT *, "Y is ", Y
+        !PRINT *, "X is ", X1
+        !PRINT *, "Y is ", Y
 
         end subroutine
 

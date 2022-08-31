@@ -18,12 +18,12 @@ contains
      !type(c_ptr), value :: gdata
      type(c_ptr) ::  isurface
      !integer(c_int), value, intent(in) :: win_width, win_height
-     type(zoaplot) :: plotter, lin1, lin2
+     type(zoaplot) :: lin1, lin2, lin3
      type(multiplot) :: mplt
-     type(barchart) :: bar1, bar2
-     integer :: numPts
 
-      REAL:: DDTA(0:50)
+     integer :: numPts, numPtsDist, numPtsFC
+
+      REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
 
       REAL:: FLDAN(0:50)
 
@@ -74,10 +74,10 @@ contains
 
   PRINT *, "PLOT_AST_FC_DIST Called! "
   PRINT *, "MY CAIRO CONTEXT PTR IS ", my_cairo_context
-  call getAstigCalcResult(DDTA, FLDAN, numPts)
+  call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
    !PRINT *, "DDTA is ", DDTA
    !PRINT *, "FLDAN is ", FLDAN
-   call mplt%initialize(localcanvas, 2,1)
+   call mplt%initialize(localcanvas, 3,1)
    !mplt%cc = my_cairo_context
    !call mplt%initialize(my_cairo_context, 2,1)
    !
@@ -86,26 +86,37 @@ contains
    call lin1%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
    & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
    & title='tmp'//c_null_char)
-   call bar1%initialize(c_null_ptr, REAL(DDTA(1:10)),FLDAN(1:10), &
-   & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
-   & title='tmp'//c_null_char)
 
 
-   call lin2%initialize(c_null_ptr, REAL(DDTA),FLDAN, &
-   & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+ ! Temporary hack to plot distortion
+ CALL PROCESKDP(ast_settings%distcalccmd)
+
+  call getFieldCalcResult(xDist, x2FC, yDist, numPtsDist, 2)
+
+
+   call lin2%initialize(c_null_ptr, REAL(xDist(0:numPtsDist)),yDist(0:numPtsDist), &
+   & xlabel='Distortion (%)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
    & title='tmp'//c_null_char)
 
-   call bar2%initialize(c_null_ptr, REAL(DDTA),FLDAN, &
-  & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+  CALL PROCESKDP(ast_settings%fccalccmd)
+  call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
+
+
+   call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
+   & xlabel='Field Curvature '//c_null_char, ylabel='FOV (deg)'//c_null_char, &
    & title='tmp'//c_null_char)
-!   !PRINT *, "Bar chart color code is ", bar1%dataColorCode
-!   WRITE(strTitle, "(A15, F10.3)"), "Symmetry:  s = ", s_sum
+   call lin3%addXYPlot(X2FC,FLDAN)
+
+   !call lin2%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
+   !& xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
+   !& title='tmp'//c_null_char)
+
 
    call mplt%set(1,1,lin1)
    call mplt%set(2,1,lin2)
+   call mplt%set(3,1,lin3)
 
-   !call mplt%set(1,1,bar1)
-   !call mplt%set(2,1,bar2)
+
 
    call mplt%draw()
 
