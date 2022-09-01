@@ -14,7 +14,17 @@ module zoa_plot
 
    implicit none
 
-   type(list) :: m_data
+   ! Private type to keep track of plot data
+   type :: plotdata2d
+     real, allocatable ::  x(:), y(:)
+     integer :: dataColorCode, lineStyleCode
+
+   contains
+     procedure, public :: initialize => plotdata2d_init
+
+   end type
+
+
    ! Constants for plotting
    integer, parameter :: PL_PLOT_BLACK = 15
    integer, parameter :: PL_PLOT_RED = 2
@@ -44,6 +54,9 @@ type :: zoaplot
     character(len=20)  :: labelFontColor = "BLACK"
     !character(len=20)  :: labelDataColor = "BLACK"
     integer :: dataColorCode = 0 !  See PL_PLOT paramaters for decoding
+    integer :: numSeries = 0
+    type(plotdata2d), dimension(9) :: plotdatalist
+
 
 contains
     !procedure, public :: initialize
@@ -53,6 +66,7 @@ contains
     procedure, private, pass(self) :: getAxesLimits
     procedure, private, pass(self) :: getLabelFontCode
     procedure, public, pass(self) :: setDataColorCode
+    procedure, public, pass(self) :: setLineStyleCode
     procedure, public, pass(self) :: addXYPlot
 
 end type
@@ -162,6 +176,7 @@ contains
         ! Process
         ind = self%m_rows * (j - 1) + i
         call self%m_plots%set(ind, plotter)
+        PRINT *, "END MP_SET"
     end subroutine
 
     function mp_get(self,i,j) result(plotter)
@@ -299,6 +314,30 @@ contains
 
         end subroutine
 
+
+    subroutine plotdata2d_init(self, x, y, dataColorCode, lineStyleCode)
+      class(plotdata2d), intent(inout) :: self
+      real, intent(in) :: x(:), y(:)
+      integer, optional, intent(in) :: dataColorCode, lineStyleCode
+      !character(len=40), optional :: dataColor, lineStyle
+
+      self%x = x
+      self%y = y
+
+      if (present(dataColorCode)) then
+         self%dataColorCode = dataColorCode
+      else
+         self%dataColorCode = PL_PLOT_RED
+      end if
+
+      if (present(lineStyleCode)) then
+         self%lineStyleCode = lineStyleCode
+      else
+         self%lineStyleCode = 1
+      end if
+
+    end subroutine
+
 ! TODO - How to combine this with barchart_init?
     subroutine zp_init(self, area, x, y, xlabel, ylabel, title)
       !import zoa_plot
@@ -306,18 +345,27 @@ contains
       type(c_ptr), intent(in) :: area
       real ::  x(:), y(:)
       character(len=100), optional :: xlabel, ylabel, title
-      integer :: arraysize
+      integer :: arraysize, i
+      !type(plotdata2d) :: zpinitdata
 
       arraysize = size(x)
 
-      !allocate(self%x(arraysize))
-      !allocate(self%y(arraysize))
+      allocate(self%x(arraysize))
+      allocate(self%y(arraysize))
       PRINT *, "ARRAY SIZE IS ", arraysize
 
 
       self%area = area
+      Print *, "About to crash before x/y assignment?"
+
+      if(allocated(self%x)) PRINT *, "X ALLOCATED BEFORE ASSIGNMENT!"
+
       self%x = x
       self%y = y
+
+      if(allocated(self%x)) PRINT *, "X ALLOCATED AFTER ASSIGNMENT!"
+
+
 
       !self % title = trim("untitled")
       !self % xlabel = trim("           x axis")
@@ -326,6 +374,7 @@ contains
 
       self % labelFontColor = trim("BLACK")
       self % dataColorCode = PL_PLOT_RED
+
 
     if (present(title)) then
        self%title = title
@@ -345,6 +394,18 @@ contains
     else
        self%ylabel = 'y'
     end if
+
+    ! PRINT *, "About to crash?"
+    !   do i = 1, 9
+    !       call self%plotdatalist%push(i)
+    !   end do
+
+    self%numSeries = self%numSeries + 1
+    call self%plotdatalist(self%numSeries)%initialize(x,y)
+
+    ! call zpinitdata%initialize(x,y)
+
+    ! call self%plotdatalist%set(self%numSeries, zpinitdata)
 
   end subroutine
 
@@ -355,12 +416,12 @@ contains
       type(c_ptr), intent(in) :: area
       real ::  x(:), y(:)
       character(len=100), optional :: xlabel, ylabel, title
-      integer :: arraysize
+      integer :: arraysize, i
 
       arraysize = size(x)
 
-      !allocate(self%x(arraysize))
-      !allocate(self%y(arraysize))
+      allocate(self%x(arraysize))
+      allocate(self%y(arraysize))
       PRINT *, "ARRAY SIZE IS ", arraysize
 
 
@@ -394,6 +455,11 @@ contains
     else
        self%ylabel = 'y'
     end if
+
+    ! PRINT *, "About to crash?"
+    !   do i = 1, 9
+    !       call self%plotdatalist%push(i)
+    !   end do
 
   end subroutine
 
@@ -441,6 +507,9 @@ contains
 
     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
 
+    ! Getter for dataSeries - separate routine?
+    class(plotdata2d), pointer :: dataSeries
+    class(*), pointer :: item
 
     !call plvsta
     !call plwind( 1980._pl_test_flt, 1990._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
@@ -448,34 +517,37 @@ contains
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     call plwind(xmin, xmax, ymin, ymax)
     call plbox( 'bcgnt', 0._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
-    ! PRINT *, "XMIN, XMAX are ", xmin, ",", xmax
-    ! PRINT *, "YMIN, YMAX are ", ymin, ",", ymax
-    ! PRINT *, "x is ", self%x
-    ! PRINT *, "y is ", self%y
 
-  !  call plwind( -1._pl_test_flt, 11._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
-
-    !call plwind(xmin, xmax, ymin, ymax)
-    !call plbox( 'bcgnt', 1._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
-
-    !call plbox( 'bcgnt', 1._pl_test_flt, 0, 'bnstv', 0._pl_test_flt, 0 )
-
-    !call plbox('bcfghlnst', 0.0_plflt, 0, 'bcghnstv', 0.0_plflt, 0)
-    !call plcol0(1)
     call plcol0(getLabelFontCode(self))
-    !call pllab( 'Surface', 'Y Position [mm]', '#frPLplot Example 12' )
-    !call pllab( 'Surface', trim('Y Position [mm]')//c_null_char, '#frPLplot Example 12' )
     call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
-    !call plscmap1l(.true.,pos,red,green,blue)
 
-    call plcol0(self%dataColorCode)
 
-    call plpsty(0)
-
-    call plline(self%x,self%y)
 
     !call plcol0(self%dataColorCode)
-    call plcol0(getLabelFontCode(self))
+    !call plpsty(0)
+    !call plline(self%x,self%y)
+    !call plcol0(getLabelFontCode(self))
+
+
+
+        ! Process
+        ! item => self%plotdatalist%get(self%numSeries)
+        ! select type (item)
+        ! class is (plotdata2d)
+        !     dataSeries => item
+        !     PRINT *, "dataSeries x is ", dataSeries%x
+        ! end select
+
+    do i=1,self%numSeries
+      call plcol0(self%plotDataList(i)%dataColorCode)
+      ! PL PLOT Area fill
+      call plpsty(0)
+      ! PL PLOT Line Style
+      call pllsty(self%plotdatalist(i)%lineStyleCode)
+      call plline(self%plotdatalist(i)%x, &
+      &           self%plotdatalist(i)%y)
+      call plcol0(getLabelFontCode(self))
+    end do
 
 
     end subroutine drawPlot
@@ -483,17 +555,11 @@ contains
     subroutine addXYPlot(self, X, Y)
 
         implicit none
-        class(zoaplot), intent(in) :: self
+        class(zoaplot), intent(inout) :: self
         real, dimension(:), intent(in) :: X,Y
 
-    call plcol0(self%dataColorCode)
-    call plpsty(0)
-    call plline(X,Y)
-    PRINT *, "X IS ", X
-    call plcol0(getLabelFontCode(self))
-
-    !TODO - need to check if plot needs to be rescaled
-
+        self%numSeries = self%numSeries + 1
+        call self%plotdatalist(self%numSeries)%initialize(X,Y)
 
   end subroutine
 
@@ -507,10 +573,17 @@ contains
 
     end subroutine setLabelFont
 
+   subroutine setLineStyleCode(self, code)
+      class(zoaplot), intent(inout) :: self
+      integer, intent(in) :: code
+      self%plotdatalist(self%numSeries)%lineStyleCode = code
+   end subroutine
+
     subroutine setDataColorCode(self, code)
       class(zoaplot), intent(inout) :: self
       integer, intent(in) :: code
       self%dataColorCode = code
+      self%plotdatalist(self%numSeries)%dataColorCode = code
     end subroutine
 
     function getLabelFontCode(self) result(r)

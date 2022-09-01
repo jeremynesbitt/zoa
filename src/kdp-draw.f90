@@ -105,7 +105,9 @@ contains
    call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
    & xlabel='Field Curvature '//c_null_char, ylabel='FOV (deg)'//c_null_char, &
    & title='tmp'//c_null_char)
-   call lin3%addXYPlot(X2FC,FLDAN)
+   call lin3%addXYPlot(X2FC(0:numPtsFC),FLDAN(0:numPtsFC))
+   call lin3%setDataColorCode(PL_PLOT_BLUE)
+   call lin3%setLineStyleCode(4)
 
    !call lin2%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
    !& xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &

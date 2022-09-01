@@ -3894,10 +3894,15 @@ C
         CALL FIELDABS
         RETURN
         END IF
-        IF(WC.EQ.'PLTAST'.OR.WC.EQ.'PLTDIST'.OR.WC.EQ.'PLTFLDCV'
-     1.OR.WC.EQ.'PLTFDIST') THEN
+        IF(WC.EQ.'PLTAST') THEN
         active_plot = ID_PLOTTYPE_AST
         CALL PLTFIELD
+        RETURN
+        END IF
+        IF (WC.EQ.'PLTDIST'.OR.WC.EQ.'PLTFLDCV'
+     1      .OR.WC.EQ.'PLTFDIST') THEN
+        OUTLYNE = "TO PLOT PLEASE USE PLTAST.  THANKS!"
+        CALL SHOWIT(1)
         RETURN
         END IF
         IF(WC.EQ.'PLTGOTF')  THEN
