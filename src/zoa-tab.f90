@@ -1,8 +1,9 @@
 module zoa_tab
   use gtk
-  use global_widgets
-  use iso_c_binding
+  !use global_widgets
+  use gtk_hl_container
   use collections
+
 
 ! pseudocode for zoatab
 
@@ -19,8 +20,60 @@ module zoa_tab
 ! obj. addKDPPLot (direct from NEUTARRAY)
 ! obj.addCustomSetting(fanarray, selections) % need to think  about this some more
 ! obj.replotviafunction(funcname) ! this already exists
+
+! New Zoa tab
+! All tabs are zoatabs in main window
+! Tabs can be either plots or message (assume new types could be supported)
+! Store all tabs in a list
+! FOr each tab, need to be able to get drawing area and what type of plot
+! it is (eg lens draw, ray fan)
+
+! Eg when draw is called from KDP
+! foreach tab in zoatab
+! if isplot, get plottype.  If plottype = desired plot, replot.  else new tab
+! When lens is edited
+! For each tab in zoatab
+! if (depends on lens design) then trigger replot
+
+! Make new zoatabplot and zoatabmsg
+! Force all gtk and plplot stuff into separate modules for possible replacement?
+! zoatab
+! zoatabplot
+! zoatabsettings
+
+! TODO
+! Add abstract interface to replot function
+! Put all settings inside zoaplotManager (extend zoatab?)
+! in WDRAW Change to something like call zoaTabMgr%updatePlot(PlotID)
+! This would hide the drawing pointers and the settings from the KDP side.
+! Also means that zoatabData needs to get built after all of the setting modules
+! So where to put zoaTabMgr?
+
+type zoatabData
+  integer :: typeCode
+  type(c_ptr) :: canvas
+
+end type
+
+type  zoatabManager
+
+  type(zoatabData), dimension(99) :: tabInfo
+  type(c_ptr) :: buffer
+  type(c_ptr) :: textView
+  integer :: tabNum = 0
+  type(c_ptr) :: notebook
+
+ contains
+
+   procedure :: addMsgTab
+   procedure :: addPlotTab
+   procedure :: updateMsgBuffer
+
+ end type
+
+
 type zoatab
-     type(c_ptr) :: canvas, box1, tab_label
+     type(c_ptr) :: canvas, box1, tab_label, notebook
      integer(c_int)  :: width = 1000
      integer(c_int)  ::  height = 700
      integer :: numSettings = 0
@@ -28,6 +81,7 @@ type zoatab
      type(list) :: widgets
      integer(kind=c_int) :: ID_PLOTTYPE
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
+
 
 
  contains
@@ -41,10 +95,139 @@ type zoatab
    procedure, public, pass(self) :: addSpinBoxSetting
 
 
-
-
 end type
-contains
+
+
+
+contains ! for module
+
+
+! This doubles as an init routine
+subroutine addMsgTab(self, notebook, winTitle)
+
+    class(zoatabManager) :: self
+    type(c_ptr) :: notebook, buffer, scrollWin, label
+    character(len=*) :: winTitle
+    integer(c_int) :: tabPos
+
+    self%notebook = notebook
+
+    self%textView = gtk_text_view_new ()
+    call gtk_text_view_set_editable(self%textView, FALSE)
+
+    self%buffer = gtk_text_view_get_buffer (self%textView)
+    call gtk_text_buffer_set_text (self%buffer, &
+        & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
+        & -1_c_int)
+    scrollWin = gtk_scrolled_window_new()
+    label = gtk_label_new(winTitle//c_null_char)
+
+    call gtk_scrolled_window_set_child(scrollWin, self%textView)
+    tabPos = gtk_notebook_append_page (self%notebook, scrollWin, label)
+
+
+end subroutine
+
+  subroutine updateMsgBuffer(self, ftext, txtColor)
+      USE GLOBALS
+
+      IMPLICIT NONE
+
+      ! This routine is to update the terminal log, and is
+      ! abstracted in case the method (font color, bold) needs to be changed
+
+      ! The way implemented is to use the pango / markup interface
+      ! See for some examples
+      ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
+
+      class(zoatabManager) :: self
+      character(len=*), intent(in) :: ftext
+      character(len=*), intent(in)  :: txtColor
+
+      type(gtktextiter), target :: iter, startIter, endIter
+      logical :: scrollResult
+      type(c_ptr) ::  buffInsert
+
+      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
+
+      call gtk_text_buffer_get_end_iter(self%buffer, c_loc(endIter))
+
+      !PRINT *, "ABOUT TO CALL MARKUP "
+      !TODO Sometimes an empty ftext is sent to this function and GTK throws a
+      !warnting.  Need to figure out how to detect empty string (this is not working)
+    if (ftext.ne."  ") THEN
+      call gtk_text_buffer_insert_markup(self%buffer, c_loc(endIter), &
+      & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
+      & //c_null_char, -1_c_int)
+    END IF
+
+      !PRINT *, "MARKUP TEXT IS ", "<span foreground='"//trim(txtColor)//"'>"//trim(ftext)//"</span>"//C_NEW_LINE &
+      !& //c_null_char
+      !PRINT *, "LEN of ftext is ", len(trim(ftext))
+
+      !call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
+
+      !scrollResult = gtk_text_view_scroll_to_iter(textView, c_loc(endIter), 0.5_c_double, &
+      !&  True, 0.0_c_double, 1.0_c_double)
+      ! Make sure we are at the bottom of the scroll window
+
+
+      ! Way that wasn't working, originally in name_enter
+      ! Make sure we are at the bottom of the scroll window
+      buffInsert = gtk_text_buffer_get_insert(self%buffer)
+     !gBool = g_variant_new_boolean(True)
+      call gtk_text_view_scroll_to_mark(self%textView, buffInsert, 0.0_c_double, &
+      &  True, 0.0_c_double, 1.0_c_double)
+
+      !PRINT *, trim(txtColor)
+      !PRINT *, "blue"
+
+      !call gtk_text_buffer_insert_markup(buffer, c_loc(endIter), &
+      !& "<span foreground='blue'>"//">> "//ftext//"</span>"//C_NEW_LINE &
+      !& //c_null_char, -1_c_int)
+
+      ! create a new property tag and change the color
+      !tag = gtk_text_tag_new("blue_fg")
+      !call g_value_set_interned_string(gColor, "blue"//c_null_char)
+      !call g_object_set_property(tag, "foreground"//c_null_char, gColor)
+      !call gtk_text_buffer_get_start_iter(buffer, c_loc(startIter))
+
+      !Insert text
+      !call gtk_text_buffer_insert_at_cursor(buffer, &
+      ! & ">> "//ftext//C_NEW_LINE//c_null_char, -1_c_int)
+
+      ! Get gtkIter and update text with nbew property tag
+      ! call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
+      !call gtk_text_buffer_apply_tag(buffer, tag, c_loc(startIter), c_loc(endIter))
+
+      !When I ran this, nothing changed.  Suspect there is some issue
+      !with start and end Iter, but did not spend enough time debugging
+
+  end
+
+subroutine addPlotTab(self, PLOT_CODE, extcanvas)
+
+    class(zoatabManager) :: self
+    character(len=*) :: winTitle
+    type(c_ptr), optional :: extcanvas
+    integer :: PLOT_CODE
+    PRINT *, "TST"
+    self%tabNum = self%tabNum+1
+
+    select case (PLOT_CODE)
+
+    case (ID_NEWPLOT_RAYFAN)
+        winTitle = "Ray Fan"
+        plotObj = ray_fan_settings()
+
+    end select
+
+    call plotObj%new_plot()
+    self%tabInfo(self%tabNum)%plotObj = plotObj
+    self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
+
+
+end subroutine
 
  subroutine initialize(self, parent_window, tabTitle, ID_PLOTTYPE)
 
@@ -53,7 +236,7 @@ contains
 
     class(zoatab) :: self
 
-    type(c_ptr) :: parent_window ! currently unused
+    type(c_ptr) :: parent_window
     integer(kind=c_int) :: ID_PLOTTYPE
     character(len=*) :: tabTitle
     type(c_ptr) :: tab_label, scrolled_tab
@@ -62,6 +245,9 @@ contains
 
     self%tab_label = gtk_label_new(tabTitle//c_null_char)
     self%ID_PLOTTYPE = ID_PLOTTYPE
+    PRINT *, "ABOUT TO ASSIGN NOTEBOOK PTR"
+    PRINT *, "NOTEBOOK PTR IS "
+    self%notebook = parent_window
 
     self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
 
@@ -207,8 +393,8 @@ contains
     scrolled_tab = gtk_scrolled_window_new()
     PRINT *, "SETTING CHILD FOR SCROLLED TAB"
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
-    location = gtk_notebook_append_page(notebook, scrolled_tab, self%tab_label)
-    call gtk_notebook_set_current_page(notebook, location)
+    location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+    call gtk_notebook_set_current_page(self%notebook, location)
 
 
     call gtk_widget_set_name(self%box1, "TestLabel"//c_null_char)
@@ -247,55 +433,5 @@ contains
         end select
 
     end function
- !
- ! subroutine createCairoDrawingArea(self)
- !
- !     !use kdp_interfaces, only : ROUTEDRAWING
- !     !use kdp_draw, only: DRAWOPTICALSYSTEM
- !     use ROUTEMOD
- !
- !     class(zoatab), intent(inout) :: self
- !     ! This save parameter may be a hack.  I added this because I need to pass
- !     ! the ID_SETTING to the drawing function, but if I just define this as
- !     ! a target, the value the pointer references dhanges after I end this
- !     ! routine.  Fortran does not support defining a variable in a type as
- !     ! target, so the way I found around this is to save this value, which
- !     ! forces it to persist.
- !     integer(kind=c_int), target, save :: TARGET_NEWPLOT
- !
- !     type(c_ptr) :: fordebug
- !     integer(kind=c_int), pointer :: debugInt
- !
- !
- !     self%canvas = gtk_drawing_area_new()
- !     TARGET_NEWPLOT = self%ID_PLOTTYPE
- !
- !     call gtk_drawing_area_set_content_width(self%canvas, self%width)
- !     call gtk_drawing_area_set_content_height(self%canvas, self%height)
- !
- !     ! Does this go in a finalize tab routine?
- !     !call gtk_drawing_area_set_draw_func(self%zoatab_cda, &
- !    !            & c_funloc(DRAWOPTICALSYSTEM), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
- !    if (self%ID_PLOTTYPE > 0) THEN
- !      PRINT *, "TARGET TO SEND TO ROUTEDRAWING IS ", TARGET_NEWPLOT
- !      !fordebug = c_loc(TARGET_NEWPLOT)
- !      !PRINT *, "PRINT FOR PTR IS ", fordebug
- !      !call c_f_pointer(fordebug, debugInt)
- !      !PRINT *, "After pointer copy, Integer is ", debugInt\
- !      !allocate(self%DEBUG_PLOTTYPE)
- !      !self%DEBUG_PLOTTYPE = ID_NEWPLOT_RAYFAN
- !      !PRINT *, "DEBUG_PLOTTYPE IS ", c_loc(self%DEBUG_PLOTTYPE)
- !     !call gtk_drawing_area_set_draw_func(self%canvas, &
- !    !            & c_funloc(ROUTEDRAWING), c_loc(self%DEBUG_PLOTTYPE), c_null_funptr)
- !    !PRINT *, "AFTER GTK DRAWING "
- !
- !     call gtk_drawing_area_set_draw_func(self%canvas, &
- !                & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT), c_null_funptr)
- !
- !    end if
- !
- !
- ! end subroutine
-
 
 end module zoa_tab

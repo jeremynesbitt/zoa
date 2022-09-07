@@ -35,7 +35,7 @@ subroutine ast_fc_dist_new(parent_window)
   refs_ast_fieldxy = [ID_AST_FIELD_Y, ID_AST_FIELD_X]
 
 
-  call astfcdist_tab%initialize(parent_window, "Astig FC Dist", ID_PLOTTYPE_AST)
+  call astfcdist_tab%initialize(notebook, "Astig FC Dist", ID_PLOTTYPE_AST)
   ! Create backing surface
 
   !isurface = cairo_image_surface_create(s_type, szx, szy)

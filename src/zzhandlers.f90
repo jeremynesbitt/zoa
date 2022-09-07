@@ -60,7 +60,7 @@ module handlers
 
   use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, &
   & c_null_char, C_NEW_LINE
-  use, intrinsic :: iso_fortran_env, only: int64
+
   ! Pl Plot based inputs
   use, intrinsic :: iso_c_binding
   use cairo, only: cairo_get_target, cairo_image_surface_get_height, &
@@ -74,6 +74,7 @@ module handlers
   use gtk_hl_button
 
   use gtk_hl_chooser
+  use zoa_tab
 
   implicit none
   type(c_ptr)    :: my_window, entry, abut, ibut, provider
@@ -83,6 +84,7 @@ module handlers
   character(len=256), dimension(100) ::  command_history
   integer :: command_index = 1
   integer :: command_search = 1
+  type(zoatabManager) :: zoaTabMgr
 
 
 contains
@@ -578,7 +580,7 @@ end subroutine proto_symfunc
   end subroutine pending_events
 
 
-  subroutine updateTerminalLog(ftext, txtColor)
+  subroutine updateTerminalLog2(ftext, txtColor)
       USE GLOBALS
       use global_widgets
 
@@ -671,6 +673,32 @@ end subroutine proto_symfunc
   end
 
 
+  subroutine updateTerminalLog(ftext, txtColor)
+      USE GLOBALS
+      use global_widgets
+
+      IMPLICIT NONE
+
+      character(len=*), intent(in) :: ftext
+      character(len=*), intent(in)  :: txtColor
+
+
+      call zoatabMgr%updateMsgBuffer(ftext, txtColor)
+
+      ! Update command history for a simple way for the user to get previous commands
+      if (txtColor.eq."blue") then
+        if (command_index.LT.99) THEN
+
+         command_history(command_index) = ftext
+         command_index = command_index + 1
+         command_search = command_index
+       END IF
+     END IF
+
+      call pending_events()
+
+  end subroutine
+
   subroutine name_enter(widget, data) bind(c)
 
 
@@ -722,6 +750,8 @@ end subroutine proto_symfunc
     !use global_widgets
     use GLOBALS
     use zoamenubar
+    use zoa_tab
+
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
     ! Pointers toward our GTK widgets:
@@ -736,6 +766,7 @@ end subroutine proto_symfunc
       & menu_item_red, menu_item_green, &
       & menu_item_blue, menu_item_quit, menu_item_fullscreen
     logical :: tstResult
+
 
 
 
@@ -791,30 +822,39 @@ end subroutine proto_symfunc
     box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int);
     call gtk_box_append(box1, expander)
 
-    ! We need a widget where to draw our pixbuf.
-    ! The drawing area is contained in the vertical box:
 
-    ! We define a notebook with two tabs "Graphics" and "Messages":
+    ! This object is the container for all the plot and message tabs attach
+    ! here
     notebook = gtk_notebook_new ()
     call gtk_widget_set_vexpand (notebook, TRUE)
 
+   !call zoaTabMgr%initialize(notebook)
 
+
+    ! Theorecticzlly needed for detaching.
     call gtk_notebook_set_group_name(notebook,"0"//c_null_char)
 
-    textView = gtk_text_view_new ()
-    call gtk_text_view_set_editable(textView, FALSE)
+    !Pseudocode
+    !  msgtab = zoatabmsg%initialize(title)
+    ! tabList(1) = msgTab
 
-    buffer = gtk_text_view_get_buffer (textView)
-    call gtk_text_buffer_set_text (buffer, &
-        & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
-        & -1_c_int)
-    scroll_win_detach = gtk_scrolled_window_new()
-    notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
+    call zoatabMgr%addMsgTab(notebook, "Messages")
+    buffer = zoaTabMgr%buffer
+
+    ! textView = gtk_text_view_new ()
+    ! call gtk_text_view_set_editable(textView, FALSE)
+    !
+    ! buffer = gtk_text_view_get_buffer (textView)
+    ! call gtk_text_buffer_set_text (buffer, &
+    !     & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
+    !     & -1_c_int)
+    ! scroll_win_detach = gtk_scrolled_window_new()
+    ! notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
+    !
+    ! call gtk_scrolled_window_set_child(scroll_win_detach, textView)
+    ! secondTab = gtk_notebook_append_page (notebook, scroll_win_detach, notebookLabel2)
+
     notebookLabel3 = gtk_label_new_with_mnemonic("_XYPlot"//c_null_char)
-
-    call gtk_scrolled_window_set_child(scroll_win_detach, textView)
-    secondTab = gtk_notebook_append_page (notebook, scroll_win_detach, notebookLabel2)
-
     !  Need unique item for third window
     scroll_ptr = gtk_scrolled_window_new()
 

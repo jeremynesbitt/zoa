@@ -8,6 +8,7 @@ module global_widgets
   use kdp_data_types
 
 
+
   type(c_ptr) :: my_pixbuf, my_drawing_area
   type(c_ptr) :: textView, buffer, statusBar
   type(c_ptr) :: drawing_area_plot, notebook
