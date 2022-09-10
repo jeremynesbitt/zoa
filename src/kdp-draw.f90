@@ -7,7 +7,7 @@ contains
  subroutine plot_ast_fc_dist(localcanvas)
 
         USE GLOBALS
-        use handlers
+        !use handlers
         use zoa_plot
         use g
 
@@ -149,7 +149,7 @@ SUBROUTINE TESTCAIRO(widget, my_cairo_context, win_width, win_height, gdata) bin
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
-       use handlers
+       !use handlers
 
        !USE WINTERACTER
     IMPLICIT NONE
@@ -201,7 +201,7 @@ SUBROUTINE TESTCAIRO2(widget, my_cairo_context, win_width, win_height, gdata) bi
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
-       use handlers
+       !use handlers
 
        !USE WINTERACTER
     IMPLICIT NONE
@@ -265,7 +265,7 @@ SUBROUTINE TESTCAIRO3(widget, my_cairo_context, win_width, win_height, gdata) bi
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
-       use handlers
+       !use handlers
 
        !USE WINTERACTER
     IMPLICIT NONE
@@ -338,7 +338,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
-       use handlers
+       !use handlers
 
        !USE WINTERACTER
     IMPLICIT NONE
@@ -487,7 +487,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       II6=(I6)
       II7=(I7)
       II8=(I8)
-      WRITE(*,2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
+      IF (DEBUG.EQ.1) WRITE(*,2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
 !
 !     "PLOT NEW" STRINGER = A
 !

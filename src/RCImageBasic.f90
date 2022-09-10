@@ -125,6 +125,7 @@ contains
     end where
   end subroutine normalize_img
 
+
   subroutine alloc_img(img, w, h)
     type(rgbimage) :: img
     integer, intent(in) :: w, h
@@ -154,7 +155,7 @@ contains
        img%blue = mod(abs(color%blue), 256)
     end if
   end subroutine fill_img
-  
+
   subroutine put_pixel(img, x, y, color)
     type(rgbimage), intent(inout) :: img
     integer, intent(in) :: x, y
@@ -200,69 +201,69 @@ contains
         write(fileHandle) 'P6', achar(10)
         write(fileHandle) trim(adjustl(w)), ' ', trim(adjustl(h)), achar(10)
         write(fileHandle) '225', achar(10)
-        
+
         ! Now the actual image
-        write(fileHandle) ( ( (achar(img(i,j,k)), k=1,3),i=1,ubound(img,1)), j=1,ubound(img,2) ) 
+        write(fileHandle) ( ( (achar(img(i,j,k)), k=1,3),i=1,ubound(img,1)), j=1,ubound(img,2) )
         close(fileHandle)
     end subroutine write_ppm
-    
+
  subroutine average_colors(color1, color2, color3, color4, colorOut)
-    
+
     implicit none
-    
+
     type(rgb), intent(in) :: color1, color2, color3, color4
     type(rgb), intent(inout) :: colorOut
     integer :: red, green, blue
-    
+
     red = color1%red + color2%red + color3%red + color4%red
     green = color1%green + color2%green + color3%green + color4%green
     blue = color1%blue + color2%blue + color3%blue + color4%blue
-    
+
     colorOut%red   = int(red/4)
     colorOut%green = int(green/4)
     colorOut%blue  = int(blue/4)
-    
-    
+
+
     end subroutine average_colors
-    
+
  subroutine rescalergbImage(imageIn, imageOut, inX, inY, outX, outY)
-      
+
      implicit none
-     
+
      type(rgbimage), intent(inout) :: imageOut
      type(rgbimage), intent(in) :: imageIn
      type(rgb)  :: color1, color2, color3, color4, colorOut
      integer inX, inY, outX, outY, x1, x2, y1, y2
      integer ii,jj
      real scaleX, scaleY
-     
+
      scaleX = inX/outX
      scaleY = inY/outY
-     
+
      call alloc_img(imageOut, outX, outY)
-     
+
      do ii=1, outX
 
       x2 = CEILING(scaleX*ii)
       x1 = x2-1
-      
+
       do jj=1, outY
          y2 = CEILING(scaleY*jj)
          y1 = y2-1
-         
+
          call get_pixel(imageIn, x1, y1, color1)
          call get_pixel(imageIn, x1, y2, color2)
          call get_pixel(imageIn, x2, y1, color3)
          call get_pixel(imageIn, x2, y2, color4)
-         
+
          call average_colors(color1, color2, color3, color4, colorOut)
-         
-         call put_pixel(imageOut, ii, jj, colorOut) 
-         
+
+         call put_pixel(imageOut, ii, jj, colorOut)
+
          end do
          end do
-     
- 
- end subroutine rescalergbImage    
+
+
+ end subroutine rescalergbImage
 
 end module RCImageBasic

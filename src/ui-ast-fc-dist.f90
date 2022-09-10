@@ -9,7 +9,7 @@ subroutine ast_fc_dist_new(parent_window)
   use kdp_draw, only: plot_ast_fc_dist
   use gtk_draw_hl
   use g
-  use handlers, only: plot_04debug
+  !use handlers, only: plot_04debug
   implicit none
 
   type(c_ptr) :: parent_window, localcanvas, isurface

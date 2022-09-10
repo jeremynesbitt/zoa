@@ -239,7 +239,7 @@ program zoa_program
   ! UI Settings Initialization
 
   ld_settings = lens_draw_settings()
-  rf_settings = ray_fan_settings()
+
   curr_lens_data = lens_data()
   ast_settings = ast_fc_dist_settings()
 

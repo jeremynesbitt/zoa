@@ -14,6 +14,7 @@ contains
     write(u, '(I0,'' '',I0)') img%width, img%height
     write(u, '(A)') '255'
 
+
     do j=1, img%height
        do i=1, img%width
           write(u, '(3A1)', advance='no') achar(img%red(i,j)), achar(img%green(i,j)), &

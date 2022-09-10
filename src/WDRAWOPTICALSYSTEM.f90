@@ -65,19 +65,20 @@ SUBROUTINE WDRAWOPTICALSYSTEM
     end if
 
   case (ID_NEWPLOT_RAYFAN)
-
+    PRINT *, "ABOUT TO CHECK IF WE NEED RAYFAN PLOT"
+    call zoatabMgr%newPlotIfNeeded(ID_NEWPLOT_RAYFAN)
     ! Only support one window at present.
-    PRINT *, "RAY FAN Plotting Initiated!"
-    !call ray_fan_plot_check_status()
-    if (.not. c_associated(rf_window))  THEN
-       PRINT *, "Call New Ray Fan Window"
-       call ray_fan_new(my_window)
-    else
-      PRINT *, "Redraw Ray Fan "
-      !call rf_settings%replot()
-      call gtk_widget_queue_draw(rf_cairo_drawing_area)
-    end if
-    PRINT *, "READY TO PLOT!"
+    ! PRINT *, "RAY FAN Plotting Initiated!"
+    ! !call ray_fan_plot_check_status()
+    ! if (.not. c_associated(rf_window))  THEN
+    !    PRINT *, "Call New Ray Fan Window"
+    !    call ray_fan_new(my_window)
+    ! else
+    !   PRINT *, "Redraw Ray Fan "
+    !   !call rf_settings%replot()
+    !   call gtk_widget_queue_draw(rf_cairo_drawing_area)
+    ! end if
+    ! PRINT *, "READY TO PLOT!"
 
    case (ID_PLOTTYPE_AST)
 

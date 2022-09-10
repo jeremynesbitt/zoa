@@ -69,12 +69,12 @@ module handlers
   use plplot, PI => PL_PI
   use plplot_extra
   use gtk_draw_hl
-  use plplot_extra
   use gtk_hl_container
   use gtk_hl_button
 
   use gtk_hl_chooser
   use zoa_tab
+  use zoa_tab_manager
 
   implicit none
   type(c_ptr)    :: my_window, entry, abut, ibut, provider
@@ -84,7 +84,7 @@ module handlers
   character(len=256), dimension(100) ::  command_history
   integer :: command_index = 1
   integer :: command_search = 1
-  type(zoatabManager) :: zoaTabMgr
+  type(zoatabManager) :: zoatabMgr
 
 
 contains
@@ -828,6 +828,7 @@ end subroutine proto_symfunc
     notebook = gtk_notebook_new ()
     call gtk_widget_set_vexpand (notebook, TRUE)
 
+
    !call zoaTabMgr%initialize(notebook)
 
 
@@ -869,6 +870,9 @@ end subroutine proto_symfunc
 
     !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTab), notebook)
     call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
+
+    call g_signal_connect(notebook, 'switch-page'//c_null_char, c_funloc(setActivePlot), c_null_ptr)
+
 
     !print *, "Notebook ptr is ", notebook
     !print *, "Detachable Tab is ", scroll_ptr
@@ -941,6 +945,27 @@ end subroutine proto_symfunc
 
 
   end subroutine activate
+
+ subroutine setActivePlot(parent_notebook, selected_page, page_index, gdata) bind(c)
+        type(c_ptr), value :: selected_page, parent_notebook, page_index, gdata
+        type(c_ptr) :: newwin, newnotebook, newlabel, box2, scrolled_win
+        type(c_ptr) :: stringPtr
+        integer :: newtab
+        character(len=20) :: winTitle
+
+        PRINT *, "TAB SWITCH EVENT DETECTED! "
+        PRINT *, "page_index is ", page_index
+        stringPtr = gtk_notebook_get_tab_label_text(parent_notebook, selected_page)
+
+        PRINT *, "stringPtr is ", stringPtr
+        call convert_c_string(stringPtr, winTitle)
+        PRINT *, "Window Title is ", trim(winTitle)
+
+        active_plot = ID_NEWPLOT_RAYFAN
+
+
+
+ end subroutine
 
   subroutine detachTabTst(parent_notebook, widget) bind(c)
         type(c_ptr), value :: widget, parent_notebook

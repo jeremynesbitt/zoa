@@ -32,8 +32,9 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
     use zoa_ui
     use global_widgets
+    !use handlers
     !use mod_plotopticalsystem, only: lens_draw_replot
-    !use mod_plotrayfan, only: ray_fan_replot
+    use mod_plotrayfan
     use kdp_draw, only: DRAWOPTICALSYSTEM
 
     IMPLICIT NONE
@@ -43,7 +44,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     integer(c_int), value, intent(in) :: win_width, win_height
     integer(kind=c_int), pointer :: ID_SETTING
 
-    PRINT *, "gdata before c_f_pointer call in ROUTEDRAWING ", gdata
+    !PRINT *, "gdata before c_f_pointer call in ROUTEDRAWING ", gdata
     call c_f_pointer(gdata, ID_SETTING)
 
 
@@ -56,6 +57,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
        call ld_settings%lens_draw_replot()
   case (ID_NEWPLOT_RAYFAN)
       PRINT *, "REROUTE TO RAY FAN REPLOT!"
+      !call zoatabMgr%newPlotIfNeeded(ID_NEWPLOT_RAYFAN)
       call rf_settings%replot()
     case (ID_PLOTTYPE_AST)
       PRINT *, "REROUTE TO Astig Replot!"
@@ -74,14 +76,14 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 end SUBROUTINE
 
 
-subroutine debugPLPLOT(canvas)
-     use handlers, only: plot_04
-     implicit none
-     type(c_ptr) :: canvas
-
-     call plot_04(canvas)
-
-end subroutine
+! subroutine debugPLPLOT(canvas)
+!      use handlers, only: plot_04
+!      implicit none
+!      type(c_ptr) :: canvas
+!
+!      call plot_04(canvas)
+!
+! end subroutine
 end module
 
 ! Copyright (C) 2011

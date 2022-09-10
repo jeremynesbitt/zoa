@@ -22,9 +22,10 @@ module mod_plotrayfan
   implicit none
 
   integer(kind=c_int) :: run_status = TRUE
-
+  type(ray_fan_settings)   :: rf_settings
 
 contains
+
 
   subroutine rf_my_destroy(widget, gdata) bind(c)
     ! added this dependency to allow for windows to close / reopoen
@@ -52,7 +53,7 @@ contains
     !
     !gdata = c_null_ptr
 
-    rf_window = c_null_ptr
+    !rf_window = c_null_ptr
 
   end subroutine rf_my_destroy
 
@@ -103,9 +104,10 @@ subroutine callback_ray_fan_settings (widget, gdata ) bind(c)
 end subroutine callback_ray_fan_settings
 
 
-  subroutine ray_fan_new(parent_window)
+  subroutine ray_fan_new(rayfantab)
     use zoa_tab
     use ROUTEMOD
+    use kdp_draw, only: DRAWOPTICALSYSTEM
     implicit none
 
     type(c_ptr) :: parent_window
@@ -135,6 +137,8 @@ end subroutine callback_ray_fan_settings
     character(kind=c_char, len=40), dimension(4) :: vals_wfetype
     integer(c_int), dimension(4) :: refs_wfetype
 
+    rf_settings = ray_fan_settings()
+
     vals_fantype = [character(len=20) :: "Y - Fan", "X - Fan", &
          &"P - Fan", "N - Fan"]
 
@@ -153,10 +157,7 @@ end subroutine callback_ray_fan_settings
                   & ID_RAYFAN_CHROMATIC, &
                   & ID_RAYFAN_LONGITUDINAL]
 
-    call rayfantab%initialize(notebook, "Ray Fan Output", ID_NEWPLOT_RAYFAN)
-    call gtk_drawing_area_set_draw_func(rayfantab%canvas, &
-                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
-
+    !call rayfantab%initialize(notebook, "Ray Fan Output", ID_NEWPLOT_RAYFAN)
 
 
 
@@ -217,8 +218,11 @@ end subroutine callback_ray_fan_settings
 
 
     call rayfantab%finalizeWindow()
-    rf_window = rayfantab%box1
-    rf_cairo_drawing_area = rayfantab%canvas
+    !call rf_settings%replot()
+    !call DRAWOPTICALSYSTEM(rayfantab%canvas, c_null_ptr, rayfantab%width, rayfantab%height, c_null_ptr)
+
+    !rf_window = rayfantab%box1
+    !rf_cairo_drawing_area = rayfantab%canvas
 
   end subroutine
 
