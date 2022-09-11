@@ -3,7 +3,7 @@ module ui_ast_fc_dist
   use global_widgets
 contains
 
-subroutine ast_fc_dist_new(parent_window)
+subroutine ast_fc_dist_new(astfcdist_tab)
   use zoa_tab
   use ROUTEMOD
   use kdp_draw, only: plot_ast_fc_dist
@@ -35,7 +35,7 @@ subroutine ast_fc_dist_new(parent_window)
   refs_ast_fieldxy = [ID_AST_FIELD_Y, ID_AST_FIELD_X]
 
 
-  call astfcdist_tab%initialize(notebook, "Astig FC Dist", ID_PLOTTYPE_AST)
+  !call astfcdist_tab%initialize(notebook, "Astig FC Dist", ID_PLOTTYPE_AST)
   ! Create backing surface
 
   !isurface = cairo_image_surface_create(s_type, szx, szy)
@@ -47,12 +47,12 @@ subroutine ast_fc_dist_new(parent_window)
     !call g_object_set_data(astfcdist_tab%canvas, "backing-surface", isurface)
 
 
-  ast_cairo_drawing_area = astfcdist_tab%canvas
+  !ast_cairo_drawing_area = astfcdist_tab%canvas
   if (usePLPLOT == 1) THEN
     PRINT *, "Plotting Astig via PL PLOT!"
     astfcdist_tab%canvas = hl_gtk_drawing_area_new(size=[1200,500], &
           & has_alpha=FALSE)
-    ast_cairo_drawing_area = astfcdist_tab%canvas
+    !ast_cairo_drawing_area = astfcdist_tab%canvas
           !& has_alpha=FALSE, expose_event=c_funloc(plot_ast_fc_dist), &
           !& data_expose=c_loc(TARGET_PLOTTYPE_AST))
           !ast_cairo_drawing_area = astfcdist_tab%canvas
@@ -74,8 +74,8 @@ subroutine ast_fc_dist_new(parent_window)
   ! astfcdist_tab%canvas = localcanvas
   else
 
-    call gtk_drawing_area_set_draw_func(astfcdist_tab%canvas, &
-                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_PLOTTYPE_AST), c_null_funptr)
+    !call gtk_drawing_area_set_draw_func(astfcdist_tab%canvas, &
+    !                & c_funloc(ROUTEDRAWING), c_loc(TARGET_PLOTTYPE_AST), c_null_funptr)
   end if
 
   call astfcdist_tab%addListBoxSetting("Field Type", refs_ast_fieldxy, vals_ast_fieldxy, &
@@ -97,8 +97,8 @@ subroutine ast_fc_dist_new(parent_window)
 
 
   call astfcdist_tab%finalizeWindow()
-  ast_window = astfcdist_tab%box1
-  PRINT *, "AT END OF new astig plot, canvas ptr is ", astfcdist_tab%canvas
+  !ast_window = astfcdist_tab%box1
+  !PRINT *, "AT END OF new astig plot, canvas ptr is ", astfcdist_tab%canvas
 
 
 

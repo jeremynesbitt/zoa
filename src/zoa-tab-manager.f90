@@ -30,6 +30,8 @@ type  zoatabManager
 
  end type
 
+
+
 contains
 
 ! This doubles as an init routine
@@ -54,6 +56,7 @@ subroutine addMsgTab(self, notebook, winTitle)
 
     call gtk_scrolled_window_set_child(scrollWin, self%textView)
     tabPos = gtk_notebook_append_page (self%notebook, scrollWin, label)
+    PRINT *, "Notebook ptr is ", self%notebook
 
 
 end subroutine
@@ -135,37 +138,68 @@ end subroutine
 
   end
 
-subroutine addPlotTab(self, PLOT_CODE, extcanvas)
+function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
   use zoa_ui
   use mod_plotrayfan
+  use ui_ast_fc_dist
   use ROUTEMOD
 
     class(zoatabManager) :: self
+    character(len=80), optional :: inputTitle
     character(len=80) :: winTitle
     type(c_ptr), optional :: extcanvas
     class(*), pointer :: tabObj
     integer :: PLOT_CODE
-    type(zoatab) :: rf_tab
+    type(zoatab) :: new_tab
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
 
 
-    
+
     self%tabNum = self%tabNum+1
+
+      if (.not.present(inputTitle)) THEN
+        winTitle = "Generic Plot"
+      else
+        winTitle = inputTitle
+      end if
+
+
 
     select case (PLOT_CODE)
 
     case (ID_NEWPLOT_RAYFAN)
-        winTitle = "Ray Fan"
+        if (.not.present(inputTitle)) THEN
+          winTitle = "Ray Fan"
+        else
+          winTitle = inputTitle
+        end if
+        PRINT *, "RAY FAN NEW PLOT STARTING "
+
+        PRINT *, "winTitle is ", winTitle
 
         !plotObj = ray_fan_settings()
         !tabObj => rayfantab
-        call rf_tab%initialize(self%notebook, winTitle, ID_NEWPLOT_RAYFAN)
+        call new_tab%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_RAYFAN)
         !newPlot => ray_fan_new(tabObj) ! not sure how to legally do this
-        call ray_fan_new(rf_tab)
-        call gtk_drawing_area_set_draw_func(rf_tab%canvas, &
+        call ray_fan_new(new_tab)
+        call gtk_drawing_area_set_draw_func(new_tab%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
 
+    case (-1) ! This means we just add to
+        PRINT *, "Generic Plot being added"
+        !PRINT *, "Notebook ptr is ", self%notebook
+        call new_tab%initialize(self%notebook, winTitle, PLOT_CODE)
 
+
+        if (present(extcanvas)) new_tab%canvas = extcanvas
+
+    case (ID_PLOTTYPE_AST)
+        winTitle = "Astig Field Curv Dist"
+        !call astfcdist_tab%initialize() = zoatabMgr%addPlotTab(ID_PLOTTYPE_AST, "Astig FC Dist")
+        call new_tab%initialize(self%notebook, trim(winTitle), PLOT_CODE)
+
+
+        call ast_fc_dist_new(new_tab)
 
 
     end select
@@ -175,31 +209,34 @@ subroutine addPlotTab(self, PLOT_CODE, extcanvas)
     !call newPlot()
     !self%tabInfo(self%tabNum)%plotObj = plotObj
     self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
-    self%tabInfo(self%tabNum)%canvas = rf_tab%canvas
+    self%tabInfo(self%tabNum)%canvas = new_tab%canvas
     !self%tabInfo(self%tabNum)%typeCode
 
-end subroutine
+end function
 
  subroutine newPlotIfNeeded(self, PLOT_CODE)
 
     class(zoatabManager) :: self
     integer, intent(in) :: PLOT_CODE
-    logical :: plotFound = .FALSE.
+    logical :: plotFound
     integer :: i, tabPos
+    type(zoatab) :: newtab
 
-
+    PRINT *, "Searching for existing plot..."
+    plotFound = .FALSE.
     DO i = 1,self%tabNum
       if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
          plotFound = .TRUE.
          tabPos = i
+         PRINT *, "Found existing plot at tab ", tabPos
 
        end if
 
     END DO
-
+    PRINT *, "After search, plotFound is ", plotFound
     if (.not.plotFound) THEN
       PRINT *, "New plot needed!"
-      call self%addPlotTab(PLOT_CODE)
+      newtab = self%addPlotTab(PLOT_CODE)
     else
       call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
     end if

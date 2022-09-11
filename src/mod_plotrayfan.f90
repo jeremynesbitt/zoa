@@ -17,14 +17,270 @@ module mod_plotrayfan
 
   use g
   use zoa_ui
-  use mod_ray_fan_settings
+!  use mod_ray_fan_settings
 
   implicit none
+
+type ray_fan_settings
+   integer fan_type
+   integer fan_wfe
+   integer changed
+   real maxPupil
+   real minPupil
+   integer numRays
+   integer wavelength
+   logical autoplotupdate
+
+ contains
+    procedure, public, pass(self) :: ray_fan_is_changed
+    procedure, public, pass(self) :: set_ray_fan
+    procedure, public, pass(self) :: set_fan_wfe
+    procedure, public, pass(self) :: set_max_pupil
+    procedure, public, pass(self) :: set_min_pupil
+    procedure, public, pass(self) :: set_num_rays
+    procedure, public, pass(self) :: set_ray_fan_wavelength
+    procedure, public :: replot => ray_fan_replot
+
+
+end type ray_fan_settings
+
+interface ray_fan_settings
+  module procedure :: ray_fan_settings_constructor
+end interface ray_fan_settings
+
 
   integer(kind=c_int) :: run_status = TRUE
   type(ray_fan_settings)   :: rf_settings
 
 contains
+
+
+type(ray_fan_settings) function ray_fan_settings_constructor() result(self)
+    self%fan_type = ID_RAYFAN_Y_FAN
+    self%fan_wfe  = ID_RAYFAN_TRANSVERSE_RAY
+    self%maxPupil = 1.0
+    self%minPupil = -1.0
+    self%numRays = 11
+    self%autoplotupdate = .TRUE.
+    self%wavelength = 2 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
+
+end function ray_fan_settings_constructor
+
+
+function ray_fan_is_changed(self) result(flag)
+  class(ray_fan_settings), intent(in) :: self
+  integer :: flag
+  flag = self%changed
+end function ray_fan_is_changed
+
+subroutine set_ray_fan(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  if (self%fan_type.ne.ID_SETTING) THEN
+     self%fan_type = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+
+end subroutine set_ray_fan
+
+subroutine set_max_pupil(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  real, intent(in) :: ID_SETTING
+
+  if (self%maxPupil.ne.ID_SETTING) THEN
+     self%maxPupil = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+
+end subroutine set_max_pupil
+
+subroutine set_min_pupil(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  real, intent(in) :: ID_SETTING
+
+  if (self%minPupil.ne.ID_SETTING) THEN
+     self%minPupil = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+
+end subroutine set_min_pupil
+
+subroutine set_num_rays(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  if (self%numRays.ne.ID_SETTING) THEN
+     self%numRays = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+
+end subroutine set_num_rays
+
+subroutine set_ray_fan_wavelength(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  if (self%wavelength.ne.ID_SETTING) THEN
+     self%wavelength = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+
+end subroutine set_ray_fan_wavelength
+
+subroutine set_fan_wfe(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  if (self%fan_wfe.ne.ID_SETTING) THEN
+     self%fan_wfe = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+
+end subroutine set_fan_wfe
+
+subroutine ray_fan_replot(self)
+  class(ray_fan_settings), intent(inout) :: self
+
+  character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
+  character(len=100) :: ftext
+
+!
+!       SIMPLE FANS
+!
+!
+        !IF(MESSAGE%WIN.EQ.IDD_FAN1) THEN
+        !CALL WDIALOGSELECT(IDD_FAN1)
+        !SELECT CASE(MESSAGE%VALUE1)
+        !CASE (IDOK)
+!       MAX PUPIL HT
+        !CALL WDIALOGGETDOUBLE(IDF_MIN,DW1)
+
+!       MIN PUPIL HT
+        !CALL WDIALOGGETDOUBLE(IDF_MAX,DW2)
+
+!       PLOT FAN SCALE
+        !CALL WDIALOGGETDOUBLE(IDF_SSI,SSI)
+        !CALL DTOA23(SSI,ASSI)
+
+!       NUMBER OF RAYS IN FAN
+        !CALL WDIALOGGETINTEGER(IDF_NUM,INUM)
+
+!       FAN WAVELENGTH
+        !CALL WDIALOGGETINTEGER(IDF_WAV,IWAV)
+!
+!       FAN PRIMARY TYPE
+!       1=YFAN
+!       2=XFAN
+!       3=PFAN
+!       4=NFAN
+        !CALL WDIALOGGETRADIOBUTTON(IDF_FT1,ISET)
+!
+!       FAN SECONDARY TYPE
+!       1=TRANSVERSE
+!       2=OPD
+!       3=CD
+!       4=LA
+        !CALL WDIALOGGETRADIOBUTTON(IDF_Q1,JSET)
+!
+!       PLOTTING ON OR OFF
+!       0=NO PLOT
+!       1=PLOT
+        !CALL WDIALOGGETCHECKBOX(IDF_PLOT,ISTATE)
+!
+!       PLOTTING AUTOSCALE FACTOR
+!       1=AUTOSCALE
+!       0=NO AUTOSCALE
+        !CALL WDIALOGGETCHECKBOX(IDF_AUTOSSI,KSTATE)
+        !IF(KSTATE.EQ.1.AND.SSI.EQ.0.0D0) THEN
+        !KSTATE=1
+        !CALL WDIALOGPUTCHECKBOX(IDF_AUTOSSI,KSTATE)
+        !                END IF
+!
+!       TRACE THE CORRECT CHIEF RAY
+        !CALL CHIEFTRACE
+!
+        select case (self%fan_type)
+          case (ID_RAYFAN_Y_FAN)
+                PART1='YFAN '
+          case (ID_RAYFAN_X_FAN)
+                PART1='XFAN '
+          case (ID_RAYFAN_P_FAN)
+                PART1='PFAN '
+          case (ID_RAYFAN_N_FAN)
+                PART1='NFAN '
+          case DEFAULT
+               PART1='YFAN '
+        end select
+!
+        select case (self%fan_wfe)
+        case (ID_RAYFAN_TRANSVERSE_RAY)
+        PART2='     '
+      case (ID_RAYFAN_TRANSVERSE_OPD)
+        PART2='OPD  '
+      case (ID_RAYFAN_CHROMATIC)
+        PART2='CD   '
+      case (ID_RAYFAN_LONGITUDINAL)
+        PART2='LA   '
+      case DEFAULT
+        PART2 = '    '
+      end select
+!
+        !CALL DTOA23(DW1,AW1)
+        !CALL DTOA23(DW2,AW2)
+        CALL ITOAA(self%numRays, A6)
+        CALL ITOAA(self%wavelength, AJ)
+
+        PRINT *, "Max Pupil ", self%maxPupil
+        PRINT *, "Min Pupil ", self%minPupil
+        PRINT *, "NumRays ", self%numRays
+        PRINT *, "Wavelength ", self%wavelength
+
+        WRITE(AW2, *) self%maxPupil
+        WRITE(AW1, *) self%minPupil
+        !WRITE(A6, *)  self%numRays
+        !WRITE(AJ, *)  self%wavelength
+        !CALL ITOAA(IWAV,AJ)
+        !CALL ITOA6(INUM,A6)
+!
+        ftext=PART1//TRIM(PART2)//','//AW1//','//AW2//','//AJ//','//A6
+        PRINT *, ftext
+        CALL PROCESKDP(ftext)
+        !                IF(ISTATE.EQ.1) THEN
+!       PLOTTING
+        !                IF(KSTATE.EQ.0) THEN
+!       USE SCALE
+        !INPUT='DRAWFAN,'//ASSI//',1'
+        !CALL PROCES
+        !                ELSE
+!       AUTO SCALE
+        ftext='DRAWFAN,,1'
+        CALL PROCESKDP(ftext)
+        ftext = 'DRAW'
+        CALL PROCESKDP(ftext)
+        !                END IF
+        !CALL GRAPHOUTPUT
+        !                END IF
+
+        !END SELECT
+        !                        END IF
+!
+
+end subroutine ray_fan_replot
+
+
 
 
   subroutine rf_my_destroy(widget, gdata) bind(c)
@@ -106,7 +362,7 @@ end subroutine callback_ray_fan_settings
 
   subroutine ray_fan_new(rayfantab)
     use zoa_tab
-    use ROUTEMOD
+    !use ROUTEMOD
     use kdp_draw, only: DRAWOPTICALSYSTEM
     implicit none
 

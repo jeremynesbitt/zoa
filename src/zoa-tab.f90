@@ -84,7 +84,7 @@ contains ! for module
 
  subroutine initialize(self, parent_window, tabTitle, ID_PLOTTYPE)
 
-    use ROUTEMOD
+    !use ROUTEMOD
     implicit none
 
     class(zoatab) :: self
@@ -286,5 +286,31 @@ contains ! for module
         end select
 
     end function
+
+ subroutine createCairoDrawingAreaForDraw(canvas, width, height, ID_PLOTTYPE)
+     use gtk, only: gtk_drawing_area_new, gtk_drawing_area_set_content_width, &
+     & gtk_drawing_area_set_content_height, gtk_drawing_area_set_draw_func
+     use gtk_draw_hl
+     !use kdp_interfaces, only : ROUTEDRAWING
+     !use kdp_draw, only: DRAWOPTICALSYSTEM
+
+     type(c_ptr), intent(inout) :: canvas
+     integer(kind=c_int), intent(in)  :: width, height, ID_PLOTTYPE
+
+     integer(kind=c_int), target :: TARGET_NEWPLOT
+     if (ID_PLOTTYPE > 0) THEN
+        canvas = gtk_drawing_area_new()
+        !  canvas = hl_gtk_drawing_area_new(size=[width, height])
+        !TARGET_NEWPLOT = ID_PLOTTYPE
+
+        call gtk_drawing_area_set_content_width(canvas, width)
+        call gtk_drawing_area_set_content_height(canvas, height)
+      end if
+
+
+
+
+ end subroutine
+
 
 end module zoa_tab

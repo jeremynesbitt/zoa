@@ -211,7 +211,7 @@ program zoa_program
   use g, only: g_application_run, g_object_unref
   use handlers
   use zoa_ui
-  use mod_ray_fan_settings
+  !use mod_ray_fan_settings
   use mod_lens_draw_settings
   use mod_ast_fc_dist_settings
   use global_widgets

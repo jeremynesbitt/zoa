@@ -84,18 +84,19 @@ SUBROUTINE WDRAWOPTICALSYSTEM
 
     ! Only support one window at present.
     PRINT *, "AST Plotting Initiated!"
+    call zoatabMgr%newPlotIfNeeded(ID_PLOTTYPE_AST)
     !call ray_fan_plot_check_status()
-    if (.not. c_associated(ast_window))  THEN
-       PRINT *, "Call New Ast"
-       call ast_fc_dist_new(my_window)
-    else
-      PRINT *, "Redraw Astig "
+    !if (.not. c_associated(ast_window))  THEN
+    !   PRINT *, "Call New Ast"
+    !   call ast_fc_dist_new(my_window)
+    !else
+    !  PRINT *, "Redraw Astig "
       !call ast_settings%replot()
-      PRINT *, "PTR is ", ast_cairo_drawing_area
-      call plot_ast_fc_dist(ast_cairo_drawing_area)
+    !  PRINT *, "PTR is ", ast_cairo_drawing_area
+    !  call plot_ast_fc_dist(ast_cairo_drawing_area)
       !call gtk_widget_queue_draw(ast_cairo_drawing_area)
-    end if
-    PRINT *, "READY TO PLOT!"
+    !end if
+    !PRINT *, "READY TO PLOT!"
   end select
 
 10 CONTINUE
