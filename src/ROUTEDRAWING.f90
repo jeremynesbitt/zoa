@@ -9,8 +9,9 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     use zoa_ui
     use global_widgets
     !use handlers
-    !use mod_plotopticalsystem, only: lens_draw_replot
+    use mod_plotopticalsystem
     use mod_plotrayfan
+    use ui_ast_fc_dist
     use kdp_draw, only: DRAWOPTICALSYSTEM
 
     IMPLICIT NONE
@@ -30,13 +31,13 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
        PRINT *, "REROUTE TO LENS DRAW REPLOT "
-       call ld_settings%lens_draw_replot()
+       call ld_settings%replot()
   case (ID_NEWPLOT_RAYFAN)
       PRINT *, "REROUTE TO RAY FAN REPLOT!"
       !call zoatabMgr%newPlotIfNeeded(ID_NEWPLOT_RAYFAN)
       call rf_settings%replot()
     case (ID_PLOTTYPE_AST)
-      PRINT *, "REROUTE TO Astig Replot!"
+        PRINT *, "REROUTE TO Astig Replot!"
         call ast_settings%replot()
         !call plot_ast_fc_dist(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)
         RETURN

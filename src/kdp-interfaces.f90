@@ -155,6 +155,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   use zoa_plot
   use zoa_tab
   use gtk_draw_hl
+  !use zoa_tab_manager
+  use handlers
   implicit none
 
  real, intent(in) :: w(:), symcalc(:)
@@ -180,7 +182,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
     localcanvas = hl_gtk_drawing_area_new(size=[1200,500], &
          & has_alpha=FALSE)
 
-  powsym_tab%canvas = localcanvas
+  !powsym_tab%canvas = localcanvas
+  powsym_tab = zoatabMgr%addPlotTab(-1, "Power and Symmetry", localcanvas)
 
   PRINT *, "POWSYM Initialized!"
 

@@ -130,8 +130,8 @@ contains
 
   ftext = 'COLORSET RAYS 6'
   CALL PROCESKDP(ftext)
-  call getOpticalSystemLastSurface(endSurface)
-  call ld_settings%set_end_surface(endSurface)
+  !call getOpticalSystemLastSurface(endSurface)
+  !call ld_settings%set_end_surface(endSurface)
   ftext = 'VIECO'
   CALL PROCESKDP(ftext)
 
@@ -264,8 +264,8 @@ end subroutine proto_symfunc
   CALL PROCESKDP(ftext)
   ftext = 'COLORSET RAYS 2'
   CALL PROCESKDP(ftext)
-  call getOpticalSystemLastSurface(endSurface)
-  call ld_settings%set_end_surface(endSurface)
+  !call getOpticalSystemLastSurface(endSurface)
+  !call ld_settings%set_end_surface(endSurface)
   ftext = 'VIECO'
   CALL PROCESKDP(ftext)
   !CALL WDRAWOPTICALSYSTEM

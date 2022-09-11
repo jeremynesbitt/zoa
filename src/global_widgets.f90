@@ -2,9 +2,6 @@ module global_widgets
   use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float
   use gtk_hl_entry
   use zoa_ui
-  use mod_ray_fan_settings
-  use mod_lens_draw_settings
-  use mod_ast_fc_dist_settings
   use kdp_data_types
 
 
@@ -20,18 +17,10 @@ module global_widgets
 
 
   ! UI Parameters
-  type(lens_draw_settings) :: ld_settings
 
-  type(ast_fc_dist_settings) :: ast_settings
+
   type(lens_data)  :: curr_lens_data
   type(paraxial_ray_trace_data) :: curr_par_ray_trace
-
-
-  type(c_ptr) :: ld_window = c_null_ptr
-  type(c_ptr) :: ld_cairo_drawing_area
-
-  type(c_ptr) :: ast_window = c_null_ptr
-  type(c_ptr) :: ast_cairo_drawing_area
 
   type(c_ptr) :: lens_editor_window = c_null_ptr
 

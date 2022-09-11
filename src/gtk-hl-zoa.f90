@@ -200,7 +200,7 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
   PRINT *, "Callback works!"
 
   !call update_zoa_ui_settings_and_replot(ivalue)
-  call ld_settings % set_plot_orientation(ivalue)
+  !call ld_settings % set_plot_orientation(ivalue)
   !
   ! if (ld_settings%changed.eq.1) THEN
   !    ld_settings%changed = 0

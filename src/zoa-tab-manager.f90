@@ -141,6 +141,7 @@ end subroutine
 function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
   use zoa_ui
   use mod_plotrayfan
+  use mod_plotopticalsystem
   use ui_ast_fc_dist
   use ROUTEMOD
 
@@ -149,9 +150,10 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
     character(len=80) :: winTitle
     type(c_ptr), optional :: extcanvas
     class(*), pointer :: tabObj
-    integer :: PLOT_CODE
+    integer, intent(in) :: PLOT_CODE
     type(zoatab) :: new_tab
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
+    integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
 
 
 
@@ -166,6 +168,25 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
 
 
     select case (PLOT_CODE)
+
+    case (ID_NEWPLOT_LENSDRAW)
+        if (.not.present(inputTitle)) THEN
+          winTitle = "Lens Draw"
+        else
+          winTitle = inputTitle
+        end if
+        PRINT *, "Lens Draw NEW PLOT STARTING "
+
+        PRINT *, "winTitle is ", winTitle
+
+        !plotObj = ray_fan_settings()
+        !tabObj => rayfantab
+        call new_tab%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
+        !newPlot => ray_fan_new(tabObj) ! not sure how to legally do this
+        call lens_draw_new_2(new_tab)
+        call gtk_drawing_area_set_draw_func(new_tab%canvas, &
+                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)
+
 
     case (ID_NEWPLOT_RAYFAN)
         if (.not.present(inputTitle)) THEN
@@ -210,6 +231,7 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
     !self%tabInfo(self%tabNum)%plotObj = plotObj
     self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
     self%tabInfo(self%tabNum)%canvas = new_tab%canvas
+    PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(self%tabNum)%typeCode
     !self%tabInfo(self%tabNum)%typeCode
 
 end function
@@ -222,20 +244,23 @@ end function
     integer :: i, tabPos
     type(zoatab) :: newtab
 
-    PRINT *, "Searching for existing plot..."
+    PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.
     DO i = 1,self%tabNum
       if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
+          PRINT *, "Found existing plot at tab ", i
+          PRINT *, "Type code is ", self%tabInfo(i)%typeCode
+          PRINT *, "PLOT_CODE is ", PLOT_CODE
          plotFound = .TRUE.
          tabPos = i
-         PRINT *, "Found existing plot at tab ", tabPos
+
 
        end if
 
     END DO
     PRINT *, "After search, plotFound is ", plotFound
     if (.not.plotFound) THEN
-      PRINT *, "New plot needed!"
+      PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
       newtab = self%addPlotTab(PLOT_CODE)
     else
       call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
