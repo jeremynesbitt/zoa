@@ -10,7 +10,7 @@ type zoatabData
   integer :: typeCode
   !class(*), pointer :: plotObj
   type(c_ptr) :: canvas
-  class(zoatab), allocatable :: settings
+  class(ui_settings), allocatable :: settings
 
 end type
 
@@ -105,19 +105,12 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
 
         !plotObj = ray_fan_settings()
         !tabObj => rayfantab
-
+        call new_tab%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
         !newPlot => ray_fan_new(tabObj) ! not sure how to legally do this
-        !call lens_draw_new_2(new_tab)
-
-        !call lens_draw_new_2(self%notebook)
-
-       PRINT *, "About to allocate type in new lens draw plot"
-       allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
-       self%tabInfo(self%tabNum)%settings = lens_draw_settings()
-       call self%tabInfo(self%tabNum)%settings%newPlot(self%notebook)
-       self%tabInfo(self%tabNum)%canvas = self%tabInfo(self%tabNum)%settings%canvas
-        call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%canvas, &
+        call lens_draw_new_2(new_tab)
+        call gtk_drawing_area_set_draw_func(new_tab%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)
+
 
     case (ID_NEWPLOT_RAYFAN)
         if (.not.present(inputTitle)) THEN
@@ -159,14 +152,14 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
     !call newPlot()
     !self%tabInfo(self%tabNum)%plotObj = plotObj
     self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
-    !self%tabInfo(self%tabNum)%canvas = new_tab%canvas
+    self%tabInfo(self%tabNum)%canvas = new_tab%canvas
     PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(self%tabNum)%typeCode
 
     ! Temp Code to test replotting
-    ! if (PLOT_CODE.EQ.ID_NEWPLOT_LENSDRAW) then
-    !    PRINT *, "Defining Lens Type Settings"
-    !    allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
-    !  end if
+    if (PLOT_CODE.EQ.ID_NEWPLOT_LENSDRAW) then
+       PRINT *, "Defining Lens Type Settings"
+       allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
+     end if
 
 
 end function
