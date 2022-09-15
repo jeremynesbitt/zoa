@@ -631,6 +631,7 @@ end subroutine proto_symfunc
       ! Make sure we are at the bottom of the scroll window
       buffInsert = gtk_text_buffer_get_insert(buffer)
      !gBool = g_variant_new_boolean(True)
+     PRINT *, "textView ptr is ", textView
       call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
       &  True, 0.0_c_double, 1.0_c_double)
 
@@ -682,8 +683,79 @@ end subroutine proto_symfunc
       character(len=*), intent(in) :: ftext
       character(len=*), intent(in)  :: txtColor
 
+      type(gtktextiter), target :: iter, startIter, endIter
+      logical :: scrollResult
+      type(c_ptr) ::  buffInsert
 
-      call zoatabMgr%updateMsgBuffer(ftext, txtColor)
+
+
+      ! This routine is to update the terminal log, and is
+      ! abstracted in case the method (font color, bold) needs to be changed
+
+      ! The way implemented is to use the pango / markup interface
+      ! See for some examples
+      ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
+
+
+
+
+      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
+
+      call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
+
+      !PRINT *, "ABOUT TO CALL MARKUP "
+      !TODO Sometimes an empty ftext is sent to this function and GTK throws a
+      !warnting.  Need to figure out how to detect empty string (this is not working)
+    if (ftext.ne."  ") THEN
+      call gtk_text_buffer_insert_markup(buffer, c_loc(endIter), &
+      & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
+      & //c_null_char, -1_c_int)
+    END IF
+
+      !PRINT *, "MARKUP TEXT IS ", "<span foreground='"//trim(txtColor)//"'>"//trim(ftext)//"</span>"//C_NEW_LINE &
+      !& //c_null_char
+      !PRINT *, "LEN of ftext is ", len(trim(ftext))
+
+      !call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
+
+      !scrollResult = gtk_text_view_scroll_to_iter(textView, c_loc(endIter), 0.5_c_double, &
+      !&  True, 0.0_c_double, 1.0_c_double)
+      ! Make sure we are at the bottom of the scroll window
+
+
+      ! Way that wasn't working, originally in name_enter
+      ! Make sure we are at the bottom of the scroll window
+      buffInsert = gtk_text_buffer_get_insert(buffer)
+     !gBool = g_variant_new_boolean(True)
+      call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
+      &  True, 0.0_c_double, 1.0_c_double)
+
+      !PRINT *, trim(txtColor)
+      !PRINT *, "blue"
+
+      !call gtk_text_buffer_insert_markup(buffer, c_loc(endIter), &
+      !& "<span foreground='blue'>"//">> "//ftext//"</span>"//C_NEW_LINE &
+      !& //c_null_char, -1_c_int)
+
+      ! create a new property tag and change the color
+      !tag = gtk_text_tag_new("blue_fg")
+      !call g_value_set_interned_string(gColor, "blue"//c_null_char)
+      !call g_object_set_property(tag, "foreground"//c_null_char, gColor)
+      !call gtk_text_buffer_get_start_iter(buffer, c_loc(startIter))
+
+      !Insert text
+      !call gtk_text_buffer_insert_at_cursor(buffer, &
+      ! & ">> "//ftext//C_NEW_LINE//c_null_char, -1_c_int)
+
+      ! Get gtkIter and update text with nbew property tag
+      ! call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
+      !call gtk_text_buffer_apply_tag(buffer, tag, c_loc(startIter), c_loc(endIter))
+
+      !When I ran this, nothing changed.  Suspect there is some issue
+      !with start and end Iter, but did not spend enough time debugging
+
+
+      !call zoatabMgr%updateMsgBuffer(ftext, txtColor)
 
       ! Update command history for a simple way for the user to get previous commands
       if (txtColor.eq."blue") then
@@ -755,7 +827,7 @@ end subroutine proto_symfunc
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
     ! Pointers toward our GTK widgets:
-    type(c_ptr)    :: scroll_win_detach
+    type(c_ptr)    :: scroll_win_detach, win_msg, pane
     type(c_ptr)    :: table, button2, button3, box1, scroll_ptr
     type(c_ptr)    :: entry2, keyevent, controller_k
     type(c_ptr)    :: toggle1, expander, notebookLabel1, notebookLabel2
@@ -818,8 +890,10 @@ end subroutine proto_symfunc
     call gtk_expander_set_child(expander, table)
     call gtk_expander_set_expanded(expander, TRUE)
 
+
+
     ! We create a vertical box container:
-    box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int);
+    box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int)
     call gtk_box_append(box1, expander)
 
 
@@ -839,25 +913,30 @@ end subroutine proto_symfunc
     !  msgtab = zoatabmsg%initialize(title)
     ! tabList(1) = msgTab
 
-    call zoatabMgr%addMsgTab(notebook, "Messages")
-    buffer = zoaTabMgr%buffer
 
-    ! textView = gtk_text_view_new ()
-    ! call gtk_text_view_set_editable(textView, FALSE)
+    !buffer = zoaTabMgr%buffer
+
+     textView = gtk_text_view_new ()
+     call gtk_text_view_set_editable(textView, FALSE)
     !
-    ! buffer = gtk_text_view_get_buffer (textView)
+     buffer = gtk_text_view_get_buffer (textView)
     ! call gtk_text_buffer_set_text (buffer, &
     !     & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
     !     & -1_c_int)
-    ! scroll_win_detach = gtk_scrolled_window_new()
-    ! notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
+     scroll_win_detach = gtk_scrolled_window_new()
+     notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
     !
-    ! call gtk_scrolled_window_set_child(scroll_win_detach, textView)
+     call gtk_scrolled_window_set_child(scroll_win_detach, textView)
     ! secondTab = gtk_notebook_append_page (notebook, scroll_win_detach, notebookLabel2)
+
+
+    call zoatabMgr%addMsgTab(notebook, "Messages")
+    !zoatabMgr%buffer = buffer
 
     notebookLabel3 = gtk_label_new_with_mnemonic("_XYPlot"//c_null_char)
     !  Need unique item for third window
     scroll_ptr = gtk_scrolled_window_new()
+
 
     drawing_area_plot = hl_gtk_drawing_area_new(size=[1200,500], &
          & has_alpha=FALSE, key_press_event=c_funloc(key_event_h))
@@ -876,11 +955,24 @@ end subroutine proto_symfunc
 
     !print *, "Notebook ptr is ", notebook
     !print *, "Detachable Tab is ", scroll_ptr
+    win_msg = gtk_window_new()
+    call gtk_window_set_default_size(win_msg, 200_c_int, 500_c_int)
 
-    call gtk_box_append(box1, notebook)
+    pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
+    call gtk_paned_set_start_child(pane, scroll_win_detach)
+    call gtk_paned_set_end_child(pane, notebook)
+
+
+    call gtk_scrolled_window_set_min_content_width(scroll_win_detach, 200_c_int)
+
+    call gtk_box_append(box1,pane)
+    call gtk_scrolled_window_set_min_content_width(notebook, 700_c_int)
+
+    call gtk_widget_set_hexpand(notebook, TRUE)
+
     call gtk_widget_set_vexpand (box1, TRUE)
+    !call plot_04(drawing_area_plot)
 
-    call plot_04(drawing_area_plot)
     !call x12f(drawing_area_plot)
 
     ! The window status bar can be used to print messages:

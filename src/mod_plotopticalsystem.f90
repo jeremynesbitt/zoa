@@ -12,6 +12,7 @@ module mod_plotopticalsystem
   use gtk_hl_button
   use gtk_hl_tree
   use gtk
+  use zoa_ui
   !use kdp_interfaces
 
   ! use gtk, only: gtk_button_new, gtk_window_set_child, gtk_window_destroy, &
@@ -32,7 +33,7 @@ module mod_plotopticalsystem
   implicit none
 
 
-type  lens_draw_settings
+type, extends (ui_settings) ::  lens_draw_settings
       integer plot_orientation
       integer field_symmetry
       integer changed
@@ -80,6 +81,7 @@ end interface lens_draw_settings
 
   real :: elevation_default = 26.2
   real :: azimuth_default = 232.2
+
 
 contains
 

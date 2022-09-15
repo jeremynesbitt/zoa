@@ -1,6 +1,13 @@
 module zoa_ui
     implicit none
 
+! To extent this type to support easier plotting
+type ui_settings
+
+contains
+  procedure :: replot => ui_settings_replot
+end type
+
 integer, parameter :: ID_NEWPLOT_LENSDRAW = 1001
 integer, parameter :: ID_NEWPLOT_RAYFAN   = 1002
 integer, parameter :: ID_PLOTTYPE_GENERIC = 1000
@@ -56,5 +63,12 @@ integer, parameter :: ID_AST_FIELD_Y = 1533
 
 integer :: active_plot = -1
 
+contains
+subroutine ui_settings_replot(self)
+  class(ui_settings) :: self
+
+  PRINT *, "This is a dummy proc which should not be called AFAIK"
+
+end subroutine
 
 end module zoa_ui

@@ -3,6 +3,7 @@ module lens_editor
 
   use GLOBALS
   use global_widgets
+  use handlers
   use cairo
 !  use gth_hl
   use gtk_hl_container
@@ -102,6 +103,7 @@ end subroutine callback_lens_editor_settings
 
     ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
          & changed=c_funloc(list_select),&
+         & edited=c_funloc(lens_edited),&
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
          & sortable=sortable, editable=editable)
 
@@ -263,6 +265,82 @@ end subroutine lens_editor_replot
 
     call gtk_widget_set_sensitive(but, FALSE)
   end subroutine del_row
+
+  subroutine lens_edited(renderer, path, text, gdata) bind(c)
+    !type(c_ptr), value, intent(in) :: list, gdata
+
+    type(c_ptr), value :: renderer, path, text, gdata
+    character(len=40) :: kdptext
+
+
+    ! Default callback for tree cell edited.
+    !
+    ! RENDERER: c_ptr: required: The renderer which sent the signal
+    ! PATH: c_ptr: required: The path at which to insert
+    ! TEXT: c_ptr: required: The text to insert
+    ! GDATA: c_ptr: required: User data, not used.
+    !
+    ! The column number is passed via the "column-number" gobject data value.
+    ! The treeview containing the cell is passed via the "view" gobject
+    ! data value.
+    ! The row number is passed as a string in the PATH argument.
+    !
+    ! This routine is not normally called by the application developer.
+    !-
+
+    character(len=200) :: fpath, ftext
+    integer(kind=c_int), allocatable, dimension(:) :: irow
+    integer(kind=c_int), pointer :: icol
+    integer :: i, n
+    type(c_ptr) :: tree, pcol
+
+    PRINT *, "CALLING LENS EDITED PROC!"
+
+    call convert_c_string(path, fpath)
+    pcol = g_object_get_data(renderer, "column-number"//c_null_char)
+    call c_f_pointer(pcol, icol)
+    call convert_c_string(text, ftext)
+
+    n = 0
+    do i = 1, len_trim(fpath)
+       if (fpath(i:i) == ":") then
+          n = n+1
+          fpath(i:i) = ' '   ! : is not a separator for a Fortran read
+       end if
+    end do
+    allocate(irow(n+1))
+    read(fpath, *) irow
+    tree = g_object_get_data(renderer, "view"//c_null_char)
+
+    call hl_gtk_tree_set_cell(tree, irow, icol, &
+         & svalue=trim(ftext))
+
+    PRINT *, "New value is ", trim(ftext)
+    PRINT *, "Selected Row is ", irow
+
+    ! Try to update lens system
+    call PROCESKDP('U L')
+    WRITE(kdptext, *) 'CHG ' ,irow
+    call PROCESKDP(kdptext)
+    call PROCESKDP("RD "//trim(ftext))
+    call PROCESKDP('EOS')
+
+    call zoatabMgr%rePlotIfNeeded()
+        ! INPUT='U L'
+        ! CALL PROCES
+        ! WRITE(INPUT,*) 'CHG ',J
+        ! CALL PROCES
+        ! WRITE(INPUT,*) 'RD ',TEMPCV
+        ! CALL PROCES
+        ! INPUT='EOS'
+        ! CALL PROCES
+
+    deallocate(irow)
+
+
+
+
+  end subroutine
 
   subroutine list_select(list, gdata) bind(c)
     type(c_ptr), value, intent(in) :: list, gdata
