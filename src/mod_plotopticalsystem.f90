@@ -13,6 +13,7 @@ module mod_plotopticalsystem
   use gtk_hl_tree
   use gtk
   use zoa_ui
+  use zoa_tab
   !use kdp_interfaces
 
   ! use gtk, only: gtk_button_new, gtk_window_set_child, gtk_window_destroy, &
@@ -68,6 +69,13 @@ interface lens_draw_settings
     module procedure :: lens_draw_settings_constructor
 end interface lens_draw_settings
 
+
+type, extends(zoatab) :: lensdrawtab
+
+contains
+  procedure :: newPlot => lens_draw_new_2
+
+end type
 
 
   type(lens_draw_settings) :: ld_settings
@@ -396,14 +404,14 @@ subroutine callback_lens_draw_settings (widget, gdata ) bind(c)
 end subroutine
 
 
-  subroutine lens_draw_new_2(lenstab)
+  subroutine lens_draw_new_2(self)
     use zoa_tab
     !use ROUTEMOD
     use kdp_draw, only: DRAWOPTICALSYSTEM
     implicit none
 
     !type(c_ptr) :: parent_window
-    type(zoatab) :: lenstab
+    class(lensdrawtab) :: self
 
     type(c_ptr) :: spinButton_firstSurface, spinButton_lastSurface
     ! Added these target parameters to have only one callback function and satisfy
@@ -462,11 +470,11 @@ end subroutine
     ld_settings = lens_draw_settings()
 
 
-    call lenstab%addListBoxSetting("Plot Orientation:", refs_plotorientation, &
+    call self%addListBoxSetting("Plot Orientation:", refs_plotorientation, &
     & vals_plotorientation, c_funloc(callback_lens_draw_settings), &
     & c_loc(TARGET_LENSDRAW_PLOT_ORIENTATION))
 
-    call lenstab%addListBoxSetting("Field Symmetry:", refs_fieldsymmetry, &
+    call self%addListBoxSetting("Field Symmetry:", refs_fieldsymmetry, &
     & vals_fieldsymmetry, c_funloc(callback_lens_draw_settings), &
     & c_loc(TARGET_LENSDRAW_FIELD_SYMMETRY))
 
@@ -482,7 +490,7 @@ end subroutine
                                                                 & digits=0_c_int)
 
 
-    call lenstab%addSpinBoxSetting("First Surface", spinButton_firstSurface, &
+    call self%addSpinBoxSetting("First Surface", spinButton_firstSurface, &
     & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENS_FIRSTSURFACE))
 
 
@@ -494,7 +502,7 @@ end subroutine
                                                                 & page_size=0d0),climb_rate=2d0, &
                                                                 & digits=0_c_int)
 
-    call lenstab%addSpinBoxSetting("Last Surface", spinButton_lastSurface, &
+    call self%addSpinBoxSetting("Last Surface", spinButton_lastSurface, &
     & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENS_LASTSURFACE))
 
 
@@ -507,7 +515,7 @@ end subroutine
                                                                 & page_size=0d0),climb_rate=2d0, &
                                                                 & digits=1_c_int)
 
-    call lenstab%addSpinBoxSetting("Elevation", spinButton_elevation, &
+    call self%addSpinBoxSetting("Elevation", spinButton_elevation, &
     & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENSDRAW_ELEVATION))
 
     ! Spin Buttons for 3D Layout
@@ -519,7 +527,7 @@ end subroutine
                                                                 & page_size=0d0),climb_rate=2d0, &
                                                                 & digits=1_c_int)
 
-    call lenstab%addSpinBoxSetting("Azimuth", spinButton_azimuth, &
+    call self%addSpinBoxSetting("Azimuth", spinButton_azimuth, &
     & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENSDRAW_AZIMUTH))
 
 
@@ -533,17 +541,17 @@ end subroutine
 
     call gtk_widget_set_sensitive(spinButton_scaleFactor, FALSE)
 
-    call lenstab%addListBoxSetting("Auto or Manual Scale", refs_scaleFactor, &
+    call self%addListBoxSetting("Auto or Manual Scale", refs_scaleFactor, &
     & vals_scaleFactor, c_funloc(callback_lens_draw_settings), &
     & c_loc(TARGET_LENSDRAW_SCALE))
 
 
-    call lenstab%addSpinBoxSetting("Manual Scale Factor", spinButton_scaleFactor, &
+    call self%addSpinBoxSetting("Manual Scale Factor", spinButton_scaleFactor, &
     & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENSDRAW_AUTOSCALE_VALUE))
 
 
 
-    call lenstab%finalizeWindow()
+    call self%finalizeWindow()
 
   end subroutine
 

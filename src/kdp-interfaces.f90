@@ -171,7 +171,7 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 
   PRINT *, "About to init POWSYM Tab"
   PRINT *, "NOTEBOOK PTR IS ", notebook
-  !call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
+  call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
   !call zoaTabMgr%addPlotTab("Power and Symmetry", ID_PLOTTYPE_GENERIC)
 
   !tabObj = zoaTabMgr%addPlotTab("Power and Symmetry", ID_PLOTTYPE_GENERIC)
@@ -182,8 +182,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
     localcanvas = hl_gtk_drawing_area_new(size=[1200,500], &
          & has_alpha=FALSE)
 
-  !powsym_tab%canvas = localcanvas
-  powsym_tab = zoatabMgr%addPlotTab(-1, "Power and Symmetry", localcanvas)
+  powsym_tab%canvas = localcanvas
+  !powsym_tab = zoatabMgr%addPlotTab(-1, "Power and Symmetry", localcanvas)
 
   PRINT *, "POWSYM Initialized!"
 
@@ -206,6 +206,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 
   PRINT *, "ABOUT TO FINALIZE NEW TAB!"
   call powsym_tab%finalizeWindow()
+
+
 
 end subroutine
 

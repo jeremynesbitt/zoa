@@ -17,11 +17,12 @@ module mod_plotrayfan
 
   use g
   use zoa_ui
+  use zoa_tab
 !  use mod_ray_fan_settings
 
   implicit none
 
-type ray_fan_settings
+type, extends (ui_settings) :: ray_fan_settings
    integer fan_type
    integer fan_wfe
    integer changed
@@ -48,6 +49,13 @@ interface ray_fan_settings
   module procedure :: ray_fan_settings_constructor
 end interface ray_fan_settings
 
+
+type, extends(zoatab) :: rayfantab
+
+contains
+  procedure :: newPlot => ray_fan_new
+
+end type
 
   integer(kind=c_int) :: run_status = TRUE
   type(ray_fan_settings)   :: rf_settings
@@ -152,7 +160,7 @@ subroutine set_fan_wfe(self, ID_SETTING)
 end subroutine set_fan_wfe
 
 subroutine ray_fan_replot(self)
-  class(ray_fan_settings), intent(inout) :: self
+  class(ray_fan_settings) :: self
 
   character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
   character(len=100) :: ftext
@@ -360,14 +368,14 @@ subroutine callback_ray_fan_settings (widget, gdata ) bind(c)
 end subroutine callback_ray_fan_settings
 
 
-  subroutine ray_fan_new(rayfantab)
+  subroutine ray_fan_new(self)
     use zoa_tab
     !use ROUTEMOD
     use kdp_draw, only: DRAWOPTICALSYSTEM
     implicit none
 
     type(c_ptr) :: parent_window
-    type(zoatab) :: rayfantab
+    class(rayfantab) :: self
 
     type(c_ptr) :: spinButton_maxPupil, spinButton_minPupil, spinButton_numRays, &
     & spinButton_wavelength
@@ -417,10 +425,10 @@ end subroutine callback_ray_fan_settings
 
 
 
-    call rayfantab%addListBoxSetting("Ray Fan", refs_fantype, vals_fantype, &
+    call self%addListBoxSetting("Ray Fan", refs_fantype, vals_fantype, &
     & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_FANTYPE))
 
-    call rayfantab%addListBoxSetting("Aberration Type", refs_wfetype, vals_wfetype, &
+    call self%addListBoxSetting("Aberration Type", refs_wfetype, vals_wfetype, &
     & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_WFETYPE))
 
 
@@ -441,10 +449,10 @@ end subroutine callback_ray_fan_settings
                                                                 & page_size=0d0),climb_rate=2d0, &
                                                                 & digits=3_c_int)
 
-    call rayfantab%addSpinBoxSetting("Maximum Pupil Value", spinButton_maxPupil, &
+    call self%addSpinBoxSetting("Maximum Pupil Value", spinButton_maxPupil, &
     & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_MAX_PUPIL))
 
-    call rayfantab%addSpinBoxSetting("Minimum Pupil Value", spinButton_minPupil, &
+    call self%addSpinBoxSetting("Minimum Pupil Value", spinButton_minPupil, &
     & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_MIN_PUPIL))
 
 
@@ -466,14 +474,14 @@ end subroutine callback_ray_fan_settings
                                                                 & digits=0_c_int)
 
 
-   call rayfantab%addSpinBoxSetting("Number of Rays in the Fan", spinButton_numRays, &
+   call self%addSpinBoxSetting("Number of Rays in the Fan", spinButton_numRays, &
    & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_NUMRAYS))
 
-  call rayfantab%addSpinBoxSetting("Wavelength to Trace", spinButton_wavelength, &
+  call self%addSpinBoxSetting("Wavelength to Trace", spinButton_wavelength, &
   & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_WAVELENGTH))
 
 
-    call rayfantab%finalizeWindow()
+    call self%finalizeWindow()
     !call rf_settings%replot()
     !call DRAWOPTICALSYSTEM(rayfantab%canvas, c_null_ptr, rayfantab%width, rayfantab%height, c_null_ptr)
 

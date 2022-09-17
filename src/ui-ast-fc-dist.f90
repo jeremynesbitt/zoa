@@ -3,9 +3,10 @@ module ui_ast_fc_dist
   use global_widgets
   use zoa_ui
   use iso_c_binding
+  use zoa_tab
 
 
-type ast_fc_dist_settings
+type, extends(ui_settings) :: ast_fc_dist_settings
    integer ast_field_dir
    integer ast_numRays
    integer changed
@@ -31,6 +32,12 @@ end type ast_fc_dist_settings
 interface ast_fc_dist_settings
   module procedure :: ast_fc_dist_settings_constructor
 end interface ast_fc_dist_settings
+
+
+type, extends(zoatab) :: astfcdist_tab
+contains
+  procedure :: newPlot => ast_fc_dist_new
+end type
 
   type(ast_fc_dist_settings) :: ast_settings
 
@@ -96,7 +103,7 @@ subroutine set_ast_num_rays(self, ID_SETTING)
 end subroutine
 
 subroutine ast_fc_dist_replot(self)
-  class(ast_fc_dist_settings), intent(inout) :: self
+  class(ast_fc_dist_settings) :: self
 
   character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
   character(len=100) :: ftext
@@ -139,7 +146,7 @@ end subroutine
 
 
 
-subroutine ast_fc_dist_new(astfcdist_tab)
+subroutine ast_fc_dist_new(self)
   use zoa_tab
   !use ROUTEMOD
   !use kdp_draw, only: plot_ast_fc_dist
@@ -149,7 +156,7 @@ subroutine ast_fc_dist_new(astfcdist_tab)
   implicit none
 
   type(c_ptr) :: parent_window, localcanvas, isurface
-  type(zoatab) :: astfcdist_tab
+  class(astfcdist_tab) :: self
 
   type(c_ptr) :: spinButton_numRays, spinButton_wavelength
   integer :: usePLPLOT = 1
@@ -188,17 +195,17 @@ subroutine ast_fc_dist_new(astfcdist_tab)
   !ast_cairo_drawing_area = astfcdist_tab%canvas
   if (usePLPLOT == 1) THEN
     PRINT *, "Plotting Astig via PL PLOT!"
-    astfcdist_tab%canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+    self%canvas = hl_gtk_drawing_area_new(size=[1200,500], &
           & has_alpha=FALSE)
 
-          ast_settings = ast_fc_dist_settings(astfcdist_tab%canvas)
+          ast_settings = ast_fc_dist_settings(self%canvas)
     !ast_cairo_drawing_area = astfcdist_tab%canvas
           !& has_alpha=FALSE, expose_event=c_funloc(plot_ast_fc_dist), &
           !& data_expose=c_loc(TARGET_PLOTTYPE_AST))
           !ast_cairo_drawing_area = astfcdist_tab%canvas
     !call plot_04debug(astfcdist_tab%canvas)
           !call debugPLPLOT(astfcdist_tab%canvas)
-          call plot_ast_fc_dist(astfcdist_tab%canvas)
+          call plot_ast_fc_dist(self%canvas)
 
     ! isurface = g_object_get_data(astfcdist_tab%canvas, "backing-surface")
     ! PRINT *, "isurface is ", isurface
@@ -218,7 +225,7 @@ subroutine ast_fc_dist_new(astfcdist_tab)
     !                & c_funloc(ROUTEDRAWING), c_loc(TARGET_PLOTTYPE_AST), c_null_funptr)
   end if
 
-  call astfcdist_tab%addListBoxSetting("Field Type", refs_ast_fieldxy, vals_ast_fieldxy, &
+  call self%addListBoxSetting("Field Type", refs_ast_fieldxy, vals_ast_fieldxy, &
   & c_funloc(callback_ast_fc_dist_settings), c_loc(TARGET_AST_FIELDXY))
 
 
@@ -232,11 +239,11 @@ subroutine ast_fc_dist_new(astfcdist_tab)
 
 
 
- call astfcdist_tab%addSpinBoxSetting("Number of Rays", spinButton_numRays, &
+ call self%addSpinBoxSetting("Number of Rays", spinButton_numRays, &
  & c_funloc(callback_ast_fc_dist_settings), c_loc(TARGET_AST_NUMRAYS))
 
 
-  call astfcdist_tab%finalizeWindow()
+  call self%finalizeWindow()
   !ast_window = astfcdist_tab%box1
   !PRINT *, "AT END OF new astig plot, canvas ptr is ", astfcdist_tab%canvas
 

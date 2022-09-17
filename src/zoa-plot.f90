@@ -69,6 +69,7 @@ contains
     procedure, public, pass(self) :: setLineStyleCode
     procedure, public, pass(self) :: addXYPlot
 
+
 end type
 
 type, extends(zoaplot) :: barchart

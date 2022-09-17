@@ -11,6 +11,7 @@ type zoatabData
   !class(*), pointer :: plotObj
   type(c_ptr) :: canvas
   class(ui_settings), allocatable :: settings
+  class(zoatab), allocatable :: tabObj
 
 end type
 
@@ -62,7 +63,7 @@ subroutine addMsgTab(self, notebook, winTitle)
 
 end subroutine
 
-function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
+subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
   use mod_plotrayfan
   use mod_plotopticalsystem
@@ -75,7 +76,8 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
     type(c_ptr), optional :: extcanvas
     class(*), pointer :: tabObj
     integer, intent(in) :: PLOT_CODE
-    type(zoatab) :: new_tab
+    !type(zoatab) :: new_tab
+    class(zoatab), allocatable :: new_tab
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
     integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
 
@@ -103,12 +105,10 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
 
         PRINT *, "winTitle is ", winTitle
 
-        !plotObj = ray_fan_settings()
-        !tabObj => rayfantab
-        call new_tab%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
-        !newPlot => ray_fan_new(tabObj) ! not sure how to legally do this
-        call lens_draw_new_2(new_tab)
-        call gtk_drawing_area_set_draw_func(new_tab%canvas, &
+        allocate(lensdrawtab :: self%tabInfo(self%tabNum)%tabObj)
+        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
+        call self%tabInfo(self%tabNum)%tabObj%newPlot()
+        call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)
 
 
@@ -122,12 +122,11 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
 
         PRINT *, "winTitle is ", winTitle
 
-        !plotObj = ray_fan_settings()
-        !tabObj => rayfantab
-        call new_tab%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_RAYFAN)
-        !newPlot => ray_fan_new(tabObj) ! not sure how to legally do this
-        call ray_fan_new(new_tab)
-        call gtk_drawing_area_set_draw_func(new_tab%canvas, &
+        allocate(rayfantab :: self%tabInfo(self%tabNum)%tabObj)
+        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_RAYFAN)
+        call self%tabInfo(self%tabNum)%tabObj%newPlot()
+
+        call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
 
     case (-1) ! This means we just add to
@@ -140,9 +139,9 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
 
     case (ID_PLOTTYPE_AST)
         winTitle = "Astig Field Curv Dist"
-        !call astfcdist_tab%initialize() = zoatabMgr%addPlotTab(ID_PLOTTYPE_AST, "Astig FC Dist")
-        call new_tab%initialize(self%notebook, trim(winTitle), PLOT_CODE)
-        call ast_fc_dist_new(new_tab)
+        allocate(astfcdist_tab :: self%tabInfo(self%tabNum)%tabObj)
+        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_AST)
+        call self%tabInfo(self%tabNum)%tabObj%newPlot()
 
 
     end select
@@ -152,7 +151,8 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
     !call newPlot()
     !self%tabInfo(self%tabNum)%plotObj = plotObj
     self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
-    self%tabInfo(self%tabNum)%canvas = new_tab%canvas
+    !self%tabInfo(self%tabNum)%canvas = new_tab%canvas
+    self%tabInfo(self%tabNum)%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
     PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(self%tabNum)%typeCode
 
     ! Temp Code to test replotting
@@ -162,7 +162,7 @@ function addPlotTab(self, PLOT_CODE, inputTitle, extcanvas) result(new_tab)
      end if
 
 
-end function
+end subroutine
 
  subroutine newPlotIfNeeded(self, PLOT_CODE)
 
@@ -189,7 +189,7 @@ end function
     PRINT *, "After search, plotFound is ", plotFound
     if (.not.plotFound) THEN
       PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
-      newtab = self%addPlotTab(PLOT_CODE)
+      call self%addPlotTab(PLOT_CODE)
     else
       call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
     end if

@@ -73,6 +73,8 @@ type zoatab
    procedure, public, pass(self) :: finalizeWindow
    procedure, private, pass(self) :: addLabelandWidget
    procedure, public, pass(self) :: addSpinBoxSetting
+   procedure, public, pass(self) :: newPlot => zoatab_newPlot
+
 
 
 end type
@@ -311,6 +313,14 @@ contains ! for module
 
 
  end subroutine
+
+subroutine zoatab_newPlot(self)
+
+  class(zoatab) :: self
+  !type(c_ptr) :: parent_window
+  PRINT *, "Dummy Function never used, only by children"
+
+end subroutine
 
 
 end module zoa_tab
