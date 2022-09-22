@@ -77,7 +77,7 @@ module handlers
   use zoa_tab_manager
 
   implicit none
-  type(c_ptr)    :: my_window, entry, abut, ibut, provider
+  type(c_ptr)    :: my_window, entry,  provider
   ! run_status is TRUE until the user closes the top window:
   integer(c_int) :: run_status = TRUE
   integer(c_int) :: boolresult
@@ -839,9 +839,6 @@ end subroutine proto_symfunc
       & menu_item_blue, menu_item_quit, menu_item_fullscreen
     logical :: tstResult
 
-
-
-
     ! Create the window:
     my_window = gtk_application_window_new(app)
     !call g_signal_connect(my_window, "destroy"//c_null_char, &
@@ -927,6 +924,8 @@ end subroutine proto_symfunc
      notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
     !
      call gtk_scrolled_window_set_child(scroll_win_detach, textView)
+     call gtk_widget_set_size_request(scroll_win_detach, 200_c_int, -1_c_int)
+     call gtk_widget_set_size_request(notebook, 500_c_int, -1_c_int)
     ! secondTab = gtk_notebook_append_page (notebook, scroll_win_detach, notebookLabel2)
 
 
@@ -955,15 +954,15 @@ end subroutine proto_symfunc
 
     !print *, "Notebook ptr is ", notebook
     !print *, "Detachable Tab is ", scroll_ptr
-    win_msg = gtk_window_new()
-    call gtk_window_set_default_size(win_msg, 200_c_int, 500_c_int)
 
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, scroll_win_detach)
     call gtk_paned_set_end_child(pane, notebook)
 
 
+
     call gtk_scrolled_window_set_min_content_width(scroll_win_detach, 200_c_int)
+
 
     call gtk_box_append(box1,pane)
     call gtk_scrolled_window_set_min_content_width(notebook, 700_c_int)

@@ -77,7 +77,7 @@ subroutine set_ast_field_dir(self, ID_SETTING)
      PRINT *, "AST FIELD DIR CHANGED!"
      if (self%autoplotupdate) then
         call self%replot()
-        call plot_ast_fc_dist(self%canvas)
+        !call plot_ast_fc_dist(self%canvas)
       end if
   end if
 
@@ -86,17 +86,29 @@ end subroutine
 subroutine set_ast_num_rays(self, ID_SETTING)
   class(ast_fc_dist_settings), intent(inout) :: self
   integer, intent(in) :: ID_SETTING
+  integer :: val
 
   PRINT *, "NUM RAYS TO SET IS ", ID_SETTING
   PRINT *, "NUM OF CURRENT RAYS IS ", self%ast_numRays
 
-  if (self%ast_numRays.ne.ID_SETTING) THEN
-     self%ast_numRays = ID_SETTING
+  if (ID_SETTING.GT.10.AND.ID_SETTING.LT.50) Then
+     val = ID_SETTING
+   else
+     if (ID_SETTING < 10 ) val = 10
+     if (ID_SETTING > 50 ) val = 50
+  end if
+
+
+  if (self%ast_numRays.ne.val) THEN
+
+     self%ast_numRays = val
+
+
      self%changed = 1
      PRINT *, "NUM AST RAYS CHANGED!"
      if (self%autoplotupdate) then
          call self%replot()
-         call plot_ast_fc_dist(self%canvas)
+         !call plot_ast_fc_dist(self%canvas)
        end if
   end if
 
@@ -106,7 +118,7 @@ subroutine ast_fc_dist_replot(self)
   class(ast_fc_dist_settings) :: self
 
   character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
-  character(len=100) :: ftext
+  character(len=5) :: ftext
 
         ! CASE(IDF_AST)
         ! CALL WDIALOGGETRADIOBUTTON(IDF_PL3,ISET)
@@ -126,20 +138,25 @@ subroutine ast_fc_dist_replot(self)
         !
        select case (self%ast_field_dir)
        case (ID_AST_FIELD_Y)
-         ftext = ',0,,'
+         ftext = ",0,,  "
        case (ID_AST_FIELD_X)
-         ftext = ',90,,'
+         ftext = ",90,, "
+       case default
+         ftext = ",0,,  "
        end select
        CALL ITOAA(self%ast_numRays, A6)
        self%astcalccmd = 'AST'//trim(ftext)//A6
-       PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", self%astcalccmd
-       CALL PROCESKDP(self%astcalccmd)
+       PRINT *, "Num rays is ", self%ast_numRays
+       PRINT *, "ftext ", trim(ftext), " A6 ", A6
+       PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", 'AST'//trim(ftext)//A6
+       CALL PROCESKDP('AST'//trim(ftext)//A6)
 
        self%distcalccmd = 'DIST'//trim(ftext)//A6
        self%fccalccmd   = 'FLDCV'//trim(ftext)//A6
 
        PRINT *, "ABOUT TO TRIGGER REPLOT!"
        CALL PROCESKDP('PLTAST 1')
+       call plot_ast_fc_dist(self%canvas)
 !
 
 end subroutine
@@ -234,7 +251,7 @@ subroutine ast_fc_dist_new(self)
                                                               & upper=50d0, &
                                                               & step_increment=1d0, &
                                                               & page_increment=1d0, &
-                                                              & page_size=0d0),climb_rate=1d0, &
+                                                              & page_size=1d0),climb_rate=1d0, &
                                                               & digits=0_c_int)
 
 
@@ -264,24 +281,15 @@ subroutine callback_ast_fc_dist_settings (widget, gdata ) bind(c)
 
   call c_f_pointer(gdata, ID_SETTING)
 
-  !PRINT *, "Integer Passed is ", ID_SETTING
-
-  !PRINT *, "Pointer Passed is ", gdata
-
   select case (ID_SETTING)
 
   case (ID_AST_FIELDXY)
     call ast_settings % set_ast_field_dir(hl_zoa_combo_get_selected_list2_id(widget))
 
   case (ID_RAYFAN_NUMRAYS)
-    PRINT *, "NUM RAYS IN CALLBACK!"
-
     call ast_settings % set_ast_num_rays(INT(gtk_spin_button_get_value (widget)))
 
-
   end select
-
-  ! Currently autoreplotting will happen in the settings module
 
 end subroutine
 
@@ -339,22 +347,8 @@ end subroutine
     end if
 
 
-    ! isurface = g_object_get_data(localcanvas, "backing-surface")
-    ! PRINT *, "isurface is ", isurface
-    ! if (.not. c_associated(isurface)) then
-    !    PRINT *, "new astig plot :: Backing surface is NULL"
-    !
-    ! end if
-  !PRINT *, "CALLING PLOT_04"
-   !call plot_04debug(localcanvas)
-   !call gtk_widget_queue_draw(localcanvas)
-   !call plot_04(ast_cairo_drawing_area)
-
-
-
-
   PRINT *, "PLOT_AST_FC_DIST Called! "
-  PRINT *, "MY CAIRO CONTEXT PTR IS ", my_cairo_context
+  PRINT *, "Canvas PTR is ", localcanvas
   call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
    !PRINT *, "DDTA is ", DDTA
    !PRINT *, "FLDAN is ", FLDAN

@@ -4336,7 +4336,7 @@ C
                         END
 C SUB FFOB.FOR
         SUBROUTINE FFOB
-          use ieee_arithmetic, only: ieee_is_nan
+          !use ieee_arithmetic, only: ieee_is_nan
         USE GLOBALS
 C
         IMPLICIT NONE
@@ -4404,8 +4404,8 @@ C     SET UP ANGLE FACTERS
 
       OUTLYNE = "STARTING FFOB ROUTINE"
       CALL SHOWIT(19)
-      call megaDebugLogger('FFOB')
-      PRINT *, "YSTRT FOBBS BEGINNING IS ", YSTRT
+      !call megaDebugLogger('FFOB')
+      !PRINT *, "YSTRT FOBBS BEGINNING IS ", YSTRT
 C
 C       CHECK FOR STRING INPUT
         IF(STI.EQ.1) THEN
@@ -4515,7 +4515,7 @@ C
 C
       IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
       IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
-      PRINT *, "YSTRT FOBBS 4516 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 4516 =", YSTRT
 C
       IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
       IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
@@ -4706,7 +4706,7 @@ C     NOT ANGIN
 C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       CALL SHOWIT(1)
                         END IF
-                PRINT *, "STOPP=1 4691"
+                !PRINT *, "STOPP=1 4691"
                 STOPP=1
                 RAYCOD(1)=16
                 RAYCOD(2)=NEWOBJ
@@ -4716,7 +4716,7 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                    END IF
         Z1AIM=SYSTEM(89)+ZSAG
                        END IF
-      PRINT *, "TRYY 4710 IS ", TRYY
+      !PRINT *, "TRYY 4710 IS ", TRYY
       TRYX=X1AIM
       TRYY=Y1AIM
       TRYZ=Z1AIM
@@ -4724,14 +4724,14 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       YC=TRYY
       ZC=TRYZ
       ZEEERR=.FALSE.
-      PRINT *, "TRYY 4710 IS ", TRYY
+      !PRINT *, "TRYY 4710 IS ", TRYY
       IF(ALENS(1,NEWOBJ+1).NE.0.0D0)
      1CALL GETZEE1
 C     STARTING INTERSECTION POINT ON SURF 1 IS
       TRYX=XC
       TRYY=YC
       TRYZ=ZC
-      PRINT *, "TRYY 4716 IS ", TRYY
+      !PRINT *, "TRYY 4716 IS ", TRYY
 C
                         FANEXT=.FALSE.
 C
@@ -4845,7 +4845,7 @@ C       CHECK FOR LEGAL WAVELENGTH BOUNDS
      1'REFERENCE RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
       CALL SHOWIT(1)
                         END IF
-                PRINT *, "STOPP=1 4827"
+                !PRINT *, "STOPP=1 4827"
                 STOPP=1
                 RAYCOD(1)=11
                 RAYCOD(2)=NEWOBJ
@@ -5045,11 +5045,11 @@ C       RAY
         TRYX=0.0D0
         TRYY=0.0D0
         TRYZ=0.0D0
-      PRINT *, "STOP IN 5027 is ", STOPP
+      !PRINT *, "STOP IN 5027 is ", STOPP
         CALL REFRAY(OBJLEVEL)
         CALL IPLANE_TILT
         CALL CLPCEN
-      PRINT *, "STOP IN 5030 is ", STOPP
+      !PRINT *, "STOP IN 5030 is ", STOPP
       IF(STOPP.EQ.1) THEN
           REFEXT=.FALSE.
           CPFNEXT=.FALSE.
@@ -5077,7 +5077,7 @@ C       RAY
      1F31.EQ.0) CALL MACFAL
         RETURN
       ELSE
-                        PRINT *, "STOPP IN 5059 is ", STOPP
+                        !PRINT *, "STOPP IN 5059 is ", STOPP
                         STOPP=0
                         REFEXT=.TRUE.
                         IF(.NOT.NULL) FOBYES=.FALSE.
@@ -5387,7 +5387,7 @@ C
 C
       IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
       IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
-      PRINT *, "YSTRT FOBBS 5381 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 5381 =", YSTRT
 C
       IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
       IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
@@ -5450,7 +5450,7 @@ C     AND DEPTH.
       IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
       IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
       IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
-      PRINT *, "YSTRT FOBBS 5444 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 5444 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
                IF(SAGERR) THEN
@@ -5470,19 +5470,19 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
 
            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
 
-        PRINT *, "ALENS(3,NEWOBJ) ",ALENS(3,NEWOBJ),"SAG ",ZSAG
-        PRINT *, "ZSTRT FOBBS 5465 ", ZSTRT
+        !PRINT *, "ALENS(3,NEWOBJ) ",ALENS(3,NEWOBJ),"SAG ",ZSAG
+        !PRINT *, "ZSTRT FOBBS 5465 ", ZSTRT
                         ELSE
 C     USE Y HEIGHT OF CLAP WITH OFFSETS
       IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
       XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 5468 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 5468 =", YSTRT
                            ELSE
       XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 5472 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 5472 =", YSTRT
                            END IF
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -5500,14 +5500,14 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                    CALL MACFAL
                    RETURN
                    END IF
-      if (ieee_is_nan(ZSAG)) ZSAG = 0
+      !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
-      PRINT *, "ZSTRT FOBBS 5496 ", ZSTRT
+      !PRINT *, "ZSTRT FOBBS 5496 ", ZSTRT
                         END IF
       IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 5495 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 5495 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
                IF(SAGERR) THEN
@@ -5524,15 +5524,15 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                    CALL MACFAL
                    RETURN
                    END IF
-      if (ieee_is_nan(ZSAG)) ZSAG = 0
+      !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
-      PRINT *, "ZSTRT FOBBS 5519 ", ZSTRT
+      !PRINT *, "ZSTRT FOBBS 5519 ", ZSTRT
                         END IF
       IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.
      1ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 5518 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 5518 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
                IF(SAGERR) THEN
@@ -5549,9 +5549,9 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                    CALL MACFAL
                    RETURN
                    END IF
-      if (ieee_is_nan(ZSAG)) ZSAG = 0
+      !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
-      PRINT *, "ZSTRT FOBBS 5543 ", ZSTRT
+      !PRINT *, "ZSTRT FOBBS 5543 ", ZSTRT
                         END IF
                         END IF
                         END IF

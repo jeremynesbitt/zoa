@@ -110,7 +110,8 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         call self%tabInfo(self%tabNum)%tabObj%newPlot()
         call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)
-
+        allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
+        self%tabInfo(self%tabNum)%settings = ld_settings
 
     case (ID_NEWPLOT_RAYFAN)
         if (.not.present(inputTitle)) THEN
@@ -128,6 +129,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
 
         call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
+      allocate(ray_fan_settings :: self%tabInfo(self%tabNum)%settings )
 
     case (-1) ! This means we just add to
         PRINT *, "Generic Plot being added"
@@ -142,6 +144,10 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         allocate(astfcdist_tab :: self%tabInfo(self%tabNum)%tabObj)
         call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_AST)
         call self%tabInfo(self%tabNum)%tabObj%newPlot()
+        allocate(ast_fc_dist_settings :: self%tabInfo(self%tabNum)%settings )
+        self%tabInfo(self%tabNum)%settings = ast_settings
+        !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
+
 
 
     end select
@@ -150,16 +156,11 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     !call tabObj%initialize(self%notebook, winTitle, ID_NEWPLOT_RAYFAN)
     !call newPlot()
     !self%tabInfo(self%tabNum)%plotObj = plotObj
+    PRINT *, "DEBUG:  PLOT_CODE is ", PLOT_CODE
     self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
     !self%tabInfo(self%tabNum)%canvas = new_tab%canvas
     self%tabInfo(self%tabNum)%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
     PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(self%tabNum)%typeCode
-
-    ! Temp Code to test replotting
-    if (PLOT_CODE.EQ.ID_NEWPLOT_LENSDRAW) then
-       PRINT *, "Defining Lens Type Settings"
-       allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
-     end if
 
 
 end subroutine
@@ -175,13 +176,13 @@ end subroutine
     PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.
     DO i = 1,self%tabNum
+       PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
       if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
           PRINT *, "Found existing plot at tab ", i
           PRINT *, "Type code is ", self%tabInfo(i)%typeCode
           PRINT *, "PLOT_CODE is ", PLOT_CODE
          plotFound = .TRUE.
          tabPos = i
-
 
        end if
 
@@ -191,7 +192,12 @@ end subroutine
       PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
       call self%addPlotTab(PLOT_CODE)
     else
-      call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
+      if (PLOT_CODE.EQ.ID_PLOTTYPE_AST) then
+        !call self%tabInfo(tabPos)%settings%replot()
+      else
+        call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
+      end if
+      !
     end if
 
  end subroutine
@@ -199,22 +205,10 @@ end subroutine
   subroutine rePlotIfNeeded(self)
 
      class(zoatabManager) :: self
-     !integer, intent(in) :: PLOT_CODE
-     logical :: plotFound
-     integer :: i, tabPos
-     type(zoatab) :: newtab
+     integer :: i
 
-     !plotFound = .FALSE.
      DO i = 1,self%tabNum
-       if(self%tabInfo(i)%typeCode == ID_NEWPLOT_LENSDRAW) THEN
-           PRINT *, "Found lens draw plot at tab ", i
            call self%tabInfo(i)%settings%replot()
-
-!          plotFound = .TRUE.
-!          tabPos = i
-
-        end if
-
      END DO
 
 

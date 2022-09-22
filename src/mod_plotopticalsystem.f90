@@ -266,6 +266,8 @@ subroutine lens_draw_replot(self)
 
   command = "VIECO"
 
+  ! It is possible for the end surface to have been updated since init
+  call getOpticalSystemLastSurface(self%end_surface)
 
   ! Original logic in LENSED.INC
   select case (self%field_symmetry)

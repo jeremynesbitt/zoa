@@ -22,7 +22,9 @@ module lens_editor
 
 
   type(c_ptr) :: ihscrollcontain,ihlist, &
-       &  qbut, dbut, lbl
+       &  qbut, dbut, lbl, ibut
+
+  integer(kind=c_int) :: numEditorRows
 
 
 contains
@@ -38,7 +40,7 @@ contains
     !call cairo_destroy(rf_cairo_drawing_area)
     !call gtk_widget_unparent(gdata)
     !call g_object_unref(rf_cairo_drawing_area)
-    call gtk_window_destroy(widget)
+    call gtk_window_destroy(gdata)
 
     lens_editor_window = c_null_ptr
 
@@ -110,24 +112,8 @@ end subroutine callback_lens_editor_settings
     PRINT *, "ihlist created!  ", ihlist
 
     ! Now put 10 top level rows into it
-     do i=1,curr_lens_data%num_surfaces
-        call hl_gtk_tree_ins(ihlist, row = (/ -1_c_int /))
-    !    write(line,"('List entry number ',I0)") i
-    !    ltr=len_trim(line)+1
-    !    line(ltr:ltr)=c_null_char
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=0_c_int, &
-             & ivalue=(i-1))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=1_c_int, &
-             & fvalue=curr_lens_data%radii(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=2_c_int, &
-             & fvalue=curr_lens_data%thicknesses(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=3_c_int, &
-             & svalue=curr_lens_data%glassnames(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=4_c_int, &
-             & fvalue=curr_lens_data%surf_index(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=5_c_int, &
-             & fvalue=curr_lens_data%surf_vnum(i))
-     end do
+
+    call loadLensData()
 
     ! Add some child rows
     ! do j = 2, 6, 2
@@ -153,14 +139,20 @@ end subroutine callback_lens_editor_settings
 
     box1 = hl_gtk_box_new()
     ! It is the scrollcontainer that is placed into the box.
+        call gtk_widget_set_vexpand (ihscrollcontain, FALSE)
+        call gtk_widget_set_hexpand (ihscrollcontain, FALSE)
+
     call hl_gtk_box_pack(box1, ihscrollcontain)
 
     PRINT *, "PACKING FIRST CONTAINER!"
 
-    ! Add a note about editable columns
-    lbl = gtk_label_new("The ""Name"" and ""3N"" columns are editable"&
-         & //c_null_char)
-    call hl_gtk_box_pack(box1, lbl)
+
+    ! Delete selected row
+    ibut = hl_gtk_button_new("Insert row"//c_null_char, &
+         & clicked=c_funloc(ins_row), &
+         & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+
+    call hl_gtk_box_pack(box1, ibut)
 
     ! Delete selected row
     dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
@@ -170,7 +162,7 @@ end subroutine callback_lens_editor_settings
     call hl_gtk_box_pack(box1, dbut)
 
     ! Also a quit button
-    qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(lens_editor_destroy))
+    qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(lens_editor_destroy), data=lens_editor_window)
     call hl_gtk_box_pack(box1,qbut)
 
     PRINT *, "END OF LENS EDITOR DIALOG SUB"
@@ -207,8 +199,8 @@ end subroutine callback_lens_editor_settings
     !        & wsize(2))
     !else
 
-    width = 1000
-    height = 700
+    width = 700
+    height = 400
        call gtk_window_set_default_size(lens_editor_window, width, height)
     !end if
 
@@ -225,7 +217,7 @@ end subroutine callback_lens_editor_settings
     !call gtk_box_append(box1, rf_cairo_drawing_area)
     !call gtk_window_set_child(lens_editor_window, rf_cairo_drawing_area)
     call gtk_window_set_child(lens_editor_window, box1)
-    call gtk_widget_set_vexpand (box1, FALSE)
+
 
     call g_signal_connect(lens_editor_window, "destroy"//c_null_char, c_funloc(lens_editor_destroy), lens_editor_window)
 
@@ -247,13 +239,14 @@ subroutine lens_editor_replot
 
 end subroutine lens_editor_replot
 
- subroutine del_row(but, gdata) bind(c)
+ subroutine ins_row(but, gdata) bind(c)
     type(c_ptr), value, intent(in) :: but, gdata
-    integer(kind=c_int), dimension(:,:), allocatable :: selections
+    integer(kind=c_int), dimension(:,:), allocatable :: iset
     integer(kind=c_int), dimension(:), allocatable :: dep
     integer(kind=c_int) :: nsel
+    character(len=40) :: kdptext
 
-    nsel = hl_gtk_tree_get_selections(ihlist, selections, &
+    nsel = hl_gtk_tree_get_selections(ihlist, iset, &
          & depths=dep)
 
     if (nsel /= 1) then
@@ -261,9 +254,92 @@ end subroutine lens_editor_replot
        return
     end if
 
-    call hl_gtk_tree_rem(ihlist, selections(:dep(1),1))
+    PRINT *, "Insert Method!"
+
+    !call hl_gtk_tree_rem(ihlist, selections(:dep(1),1))
+
+    call PROCESKDP('U L')
+    WRITE(kdptext,*) 'CHG,', iset(1,1)
+        call PROCESKDP(kdptext)
+        call PROCESKDP('INS')
+        call PROCESKDP('EOS')
+        call PROCESKDP('OUT TP')
+
+! C               CALL PROCES
+!                 INPUT='U L'
+!                 CALL PROCES
+!                 WRITE(INPUT,*) 'CHG,',ISET
+!                 CALL PROCES
+!                 INPUT='INS'
+!                 CALL PROCES
+!                 INPUT='EOS'
+!                 CALL PROCES
+!                 INPUT='OUT TP'
+!                 CALL PROCES
+
+
+    !call hl_gtk_tree_ins(ihlist, absrow=iset(1,1))
 
     call gtk_widget_set_sensitive(but, FALSE)
+
+    call refreshLensDataStruct()
+    call loadLensData()
+    call zoatabMgr%rePlotIfNeeded()
+
+
+  end subroutine
+
+ subroutine del_row(but, gdata) bind(c)
+    type(c_ptr), value, intent(in) :: but, gdata
+    integer(kind=c_int), dimension(:,:), allocatable :: iset
+    integer(kind=c_int), dimension(:), allocatable :: dep
+    integer(kind=c_int) :: nsel
+    integer(kind=c_int) :: lastSurface
+    character(len=40) :: kdptext
+
+    nsel = hl_gtk_tree_get_selections(ihlist, iset, &
+         & depths=dep)
+
+    if (nsel /= 1) then
+       print *, "Not a single selection"
+       return
+    end if
+
+    PRINT *, "iset = ", iset(1,1)
+    call getOpticalSystemLastSurface(lastSurface)
+
+
+        IF(iset(1,1) == 0) THEN
+            call updateTerminalLog('OBJECT SURFACE MAY NOT BE DELETED', "black")
+            return
+        END IF
+        IF(iset(1,1) == lastSurface) THEN
+          call updateTerminalLog('IMAGE SURFACE MAY NOT BE DELETED', "black")
+           return
+        END IF
+        ! IF(INT(SYSTEM(20)).LE.3) THEN
+        !    WRITE(OUTLYNE,*) 'LENS IS OF MINIMUM SIZE, NO MORE SURFACES MAY BE DELETED'
+        !    CALL SHOWIT(1)
+        !    return
+        ! END IF
+
+        call PROCESKDP('OUT NULL')
+        call PROCESKDP('U L')
+        WRITE(kdptext,*) 'CHG,', iset(1,1)
+        call PROCESKDP(kdptext)
+        call PROCESKDP('DEL')
+        call PROCESKDP('EOS')
+        call PROCESKDP('OUT TP')
+
+
+    call hl_gtk_tree_rem(ihlist, iset(:dep(1),1))
+
+    call gtk_widget_set_sensitive(but, FALSE)
+
+    call refreshLensDataStruct()
+    call loadLensData()
+    call zoatabMgr%rePlotIfNeeded()
+
   end subroutine del_row
 
   subroutine lens_edited(renderer, path, text, gdata) bind(c)
@@ -271,6 +347,7 @@ end subroutine lens_editor_replot
 
     type(c_ptr), value :: renderer, path, text, gdata
     character(len=40) :: kdptext
+
 
 
     ! Default callback for tree cell edited.
@@ -293,6 +370,8 @@ end subroutine lens_editor_replot
     integer(kind=c_int), pointer :: icol
     integer :: i, n
     type(c_ptr) :: tree, pcol
+    integer(kind=c_int), parameter :: ID_ROW_RADIUS = 1
+    integer(kind=c_int), parameter :: ID_ROW_THICKNESS = 2
 
     PRINT *, "CALLING LENS EDITED PROC!"
 
@@ -319,11 +398,27 @@ end subroutine lens_editor_replot
     PRINT *, "Selected Row is ", irow
 
     ! Try to update lens system
-    call PROCESKDP('U L')
-    WRITE(kdptext, *) 'CHG ' ,irow
-    call PROCESKDP(kdptext)
-    call PROCESKDP("RD "//trim(ftext))
-    call PROCESKDP('EOS')
+    select case (irow(1))
+  case (ID_ROW_RADIUS)
+        call PROCESKDP('U L')
+        WRITE(kdptext, *) 'CHG ' ,irow
+        call PROCESKDP(kdptext)
+        call PROCESKDP("RD "//trim(ftext))
+        call PROCESKDP('EOS')
+
+      case (ID_ROW_THICKNESS)
+        PRINT *, "Thickness changed!"
+        call PROCESKDP('U L')
+        WRITE(kdptext, *) 'CHG ' ,irow
+        call PROCESKDP(kdptext)
+        call PROCESKDP("TH "//trim(ftext))
+        call PROCESKDP('EOS')
+
+
+
+
+  end select
+
 
     call zoatabMgr%rePlotIfNeeded()
         ! INPUT='U L'
@@ -386,11 +481,54 @@ end subroutine lens_editor_replot
        !      &' log(n):',F7.5,' Odd?: ',a)", trim(name), &
        !      & n, n3, n4, nlog, nodd
        call gtk_widget_set_sensitive(dbut, TRUE)
+       call gtk_widget_set_sensitive(ibut, TRUE)
     else
        call gtk_widget_set_sensitive(dbut, FALSE)
+       call gtk_widget_set_sensitive(ibut, FALSE)
     end if
 
     deallocate(selections)
   end subroutine list_select
+
+  subroutine updateSurfaceNumbers()
+
+    integer :: i
+
+    do i = 1, numEditorRows
+
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=0_c_int, &
+             & ivalue=(i-1))
+        end do
+
+
+  end subroutine
+
+  subroutine loadLensData()
+
+    integer :: i
+
+    !Make sure we start froms scratch
+    call hl_gtk_tree_rem(ihlist)
+
+     do i=1,curr_lens_data%num_surfaces
+        call hl_gtk_tree_ins(ihlist, row = (/ -1_c_int /))
+    !    write(line,"('List entry number ',I0)") i
+    !    ltr=len_trim(line)+1
+    !    line(ltr:ltr)=c_null_char
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=0_c_int, &
+             & ivalue=(i-1))
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=1_c_int, &
+             & fvalue=curr_lens_data%radii(i))
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=2_c_int, &
+             & fvalue=curr_lens_data%thicknesses(i))
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=3_c_int, &
+             & svalue=curr_lens_data%glassnames(i))
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=4_c_int, &
+             & fvalue=curr_lens_data%surf_index(i))
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=5_c_int, &
+             & fvalue=curr_lens_data%surf_vnum(i))
+     end do
+
+  end subroutine
 
 end module lens_editor

@@ -63,6 +63,7 @@ integer, parameter :: ID_AST_FIELD_Y = 1533
 
 integer :: active_plot = -1
 
+
 contains
 subroutine ui_settings_replot(self)
   class(ui_settings) :: self
