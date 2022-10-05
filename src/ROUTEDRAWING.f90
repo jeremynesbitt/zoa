@@ -39,8 +39,6 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     case (ID_PLOTTYPE_AST)
         PRINT *, "REROUTE TO Astig Replot!"
         call ast_settings%replot()
-        !call plot_ast_fc_dist(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)
-        RETURN
 
   case default
       PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING

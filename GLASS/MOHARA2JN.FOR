@@ -76,39 +76,10 @@ C 200            END DO
  5000           CONTINUE
         PRINT*,'READ COMPLETE'
         CLOSE(UNIT=10,STATUS='KEEP')
-        
-        inquire(iolength=rec11) JJ
-        inquire(iolength=rec15) NAME(1),NUMBER(1),A0(1),A1(1),
-     1  A2(1),A3(1),A4(1),A5(1)            
 
-        OPEN(UNIT=30,ACCESS='DIRECT',FILE='OHARA.BIN',
-     1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
-        WRITE(UNIT=30,REC=1) JJ
-        CLOSE(UNIT=30, STATUS='KEEP')
-        print*,jj
-        OPEN(UNIT=30,ACCESS='DIRECT',FILE='OHARA.BIN',
-     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')        
-                DO 6000 I=1,JJ
-        PRINT*,NAME(I),NUMBER(I),A0(I),A1(I),
-     1  A2(I),A3(I),A4(I),A5(I)
-        WRITE(UNIT=30,REC=I+1) NAME(I),NUMBER(I),A0(I),A1(I),
-     1  A2(I),A3(I),A4(I),A5(I)
- 6000           CONTINUE
-        PRINT*,'WRITE COMPLETE'
-                CLOSE(UNIT=30)        
-        
-C        OPEN(UNIT=30,ACCESS='DIRECT',FILE='OHARA.BIN',
-C     1  FORM='UNFORMATTED',RECL=132,STATUS='UNKNOWN')
-C        WRITE(UNIT=30,REC=1) JJ
-C        print*,jj
-C                DO 6000 I=1,JJ
-C        PRINT*,NAME(I),NUMBER(I),A0(I),A1(I),
-C     1  A2(I),A3(I),A4(I),A5(I)
-C        WRITE(UNIT=30,REC=I+1) NAME(I),NUMBER(I),A0(I),A1(I),
-C     1  A2(I),A3(I),A4(I),A5(I)
-C 6000           CONTINUE
-C        PRINT*,'WRITE COMPLETE'
-C                CLOSE(UNIT=30)
+        CALL WRITEKDPGLASSLIB('OHARA.BIN', JJ, NAME, NUMBER, A0,
+     1  A1, A2, A3,A4,A5)
+
  100    FORMAT(A20)
  105    FORMAT(A13)
                 STOP

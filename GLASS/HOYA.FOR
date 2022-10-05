@@ -6,10 +6,15 @@ C
      1  DUMMY*20,N*20
 C
         INTEGER I,J,JJ
+        logical fileExists
 C
         DOUBLE PRECISION A0(1:5000),A1(1:5000),
      1  A2(1:5000),A3(1:5000),A4(1:5000),A5(1:5000)
 C
+        inquire(file='HOYA.DAT', exist=fileExists)
+
+        PRINT *, "FILE EXIST FLAG IS ", fileExists
+
         OPEN(UNIT=10,ACCESS='SEQUENTIAL',FILE='HOYA.DAT',
      1  FORM='FORMATTED',STATUS='UNKNOWN')
         REWIND (UNIT=10)
@@ -75,19 +80,11 @@ C
  5000           CONTINUE
         PRINT*,'READ COMPLETE'
         CLOSE(UNIT=10,STATUS='KEEP')
-        OPEN(UNIT=30,ACCESS='DIRECT',FILE='HOYA.BIN',
-     1  FORM='UNFORMATTED',RECL=132,STATUS='UNKNOWN')
-        WRITE(UNIT=30,REC=1) JJ
-        print*,jj
-                DO 6000 I=1,JJ
-        PRINT*,NAME(I),NUMBER(I),A0(I),A1(I),
-     1  A2(I),A3(I),A4(I),A5(I)
-        WRITE(UNIT=30,REC=I+1) NAME(I),NUMBER(I),A0(I),A1(I),
-     1  A2(I),A3(I),A4(I),A5(I)
- 6000           CONTINUE
-        PRINT*,'WRITE COMPLETE'
-                CLOSE(UNIT=30)
- 100    FORMAT(A20)
+        CALL WRITEKDPGLASSLIB('HOYA.BIN', JJ, NAME, NUMBER, A0,
+     1  A1, A2, A3,A4,A5)
+
+        PRINT *, "IT WORKED!"
+ 100    FORMAT(A23)
  105    FORMAT(A13)
                 STOP
                 END

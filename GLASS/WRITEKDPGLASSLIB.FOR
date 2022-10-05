@@ -4,33 +4,33 @@ C  SUB NAMES
 
 		IMPLICIT NONE
 
-        CHARACTER FILENAME*32
+        CHARACTER(len=*) :: FILENAME
         CHARACTER NAME(1:5000)*13,NUMBER(1:5000)*13,
      1  DUMMY*20,N*20
 C
         INTEGER I,TOTAL,rec11,rec15
-        
+
         CHARACTER NAMELOG*13, NUMBERLOG*13
-        
+
 C
 C
         DOUBLE PRECISION A0(1:5000),A1(1:5000),
-     1  A2(1:5000),A3(1:5000),A4(1:5000),A5(1:5000)        
+     1  A2(1:5000),A3(1:5000),A4(1:5000),A5(1:5000)
 
         DOUBLE PRECISION A0LOG, A1LOG, A2LOG, A3LOG, A4LOG, A5LOG
 
 
         inquire(iolength=rec11) TOTAL
         inquire(iolength=rec15) NAME(1),NUMBER(1),A0(1),A1(1),
-     1  A2(1),A3(1),A4(1),A5(1)      
-        
+     1  A2(1),A3(1),A4(1),A5(1)
+
         OPEN(UNIT=30,ACCESS='DIRECT',FILE=FILENAME,
      1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
         WRITE(UNIT=30,REC=1) TOTAL
         CLOSE(UNIT=30, STATUS='KEEP')
         print*,TOTAL
         OPEN(UNIT=30,ACCESS='DIRECT',FILE=FILENAME,
-     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')        
+     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
                 DO 6000 I=1,TOTAL
         PRINT*,NAME(I),NUMBER(I),A0(I),A1(I),
      1  A2(I),A3(I),A4(I),A5(I)
@@ -41,21 +41,21 @@ C
                 CLOSE(UNIT=30)
 
 C   Practice reading file
-  
+
         OPEN(UNIT=36,ACCESS='DIRECT',FILE=FILENAME,
      1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
         READ(UNIT=36,REC=1) TOTAL
         CLOSE(UNIT=36,STATUS='KEEP')
         PRINT *, TOTAL
-C        PRINT *, "LDM13 okay SCHOTT.BIN ", TOTAL       
+C        PRINT *, "LDM13 okay SCHOTT.BIN ", TOTAL
         OPEN(UNIT=36,ACCESS='DIRECT',FILE=FILENAME,
-     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN') 
+     1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
                         DO 7000 I=1,TOTAL
         READ(UNIT=36,REC=I+1)NAMELOG,NUMBERLOG,A0LOG,A1LOG,
      1  A2LOG,A3LOG,A4LOG,A5LOG
         PRINT*,NAMELOG,NUMBERLOG,A0LOG,A1LOG,
      1  A2LOG,A3LOG,A4LOG,A5LOG
- 7000         CONTINUE       
-        CLOSE(UNIT=36)   
-                
+ 7000         CONTINUE
+        CLOSE(UNIT=36)
+
         END

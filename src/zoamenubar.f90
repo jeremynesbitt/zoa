@@ -88,6 +88,7 @@ contains
   subroutine populatezoamenubar(win)
 
     use zoa_macro_ui
+    use zoa_glass_ui
 
     type(c_ptr), intent(in) :: win
 
@@ -105,6 +106,8 @@ contains
     type(c_ptr) :: act_macromanual, menu_item_macromanual
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
+
+    type(c_ptr) :: act_glassDisplay, menu_item_glass
 
 
     character(len=100), target :: tstTarget = "TestCommandTarget"
@@ -202,7 +205,11 @@ contains
 
     call g_menu_append_item (menu_lens, menu_item_drawLens)
 
-
+    act_glassDisplay = g_simple_action_new("GlassDisplay"//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, act_glassdisplay)
+    call g_signal_connect (act_glassDisplay, "activate"//c_null_char, c_funloc (glassmanagerUI), win)
+    menu_item_glass = g_menu_item_new ("Display Glass"//c_null_char, "win.GlassDisplay"//c_null_char)
+    call g_menu_append_item (menu_lens, menu_item_glass)
 
 
     menu_paraxial = g_menu_new()
@@ -357,7 +364,12 @@ contains
     !call g_action_change_state (act, param)
   end subroutine
 
-
+  ! subroutine glassdisplay_activated(act, param, win) bind(c)
+  !     use zoa_glass_ui
+  !     type(c_ptr), value, intent(in) :: act, param, win
+  !     call glassmanagerUI()
+  !
+  ! end subroutine
 
   subroutine quit_activated (act, param, win) bind(c)
     type(c_ptr), value, intent(in) :: act, param, win

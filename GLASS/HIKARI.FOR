@@ -72,19 +72,8 @@ C
  5000           CONTINUE
         PRINT*,'READ COMPLETE'
         CLOSE(UNIT=10,STATUS='KEEP')
-        OPEN(UNIT=30,ACCESS='DIRECT',FILE='HIKARI.BIN',
-     1  FORM='UNFORMATTED',RECL=132,STATUS='UNKNOWN')
-        WRITE(UNIT=30,REC=1) JJ
-                DO 6000 I=1,JJ
-        PRINT*,NAME(I),NUMBER(I),A0(I),A1(I),
-     1  A2(I),A3(I),A4(I),A5(I)
-        WRITE(UNIT=30,REC=I+1) NAME(I),NUMBER(I),A0(I),A1(I),
-     1  A2(I),A3(I),A4(I),A5(I)
-        pause
- 6000           CONTINUE
-        PRINT*,'WRITE COMPLETE'
-        PRINT*,JJ,' ENTRIES'
-                CLOSE(UNIT=30)
+        CALL WRITEKDPGLASSLIB('HIKARI.BIN', JJ, NAME, NUMBER, A0,
+     1  A1, A2, A3,A4,A5) 
  100    FORMAT(A23)
  105    FORMAT(A13)
                 STOP
