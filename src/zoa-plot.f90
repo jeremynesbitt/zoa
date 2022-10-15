@@ -544,9 +544,14 @@ contains
       ! PL PLOT Area fill
       call plpsty(0)
       ! PL PLOT Line Style
+      if (self%plotdatalist(i)%lineStyleCode > -1) THEN
       call pllsty(self%plotdatalist(i)%lineStyleCode)
       call plline(self%plotdatalist(i)%x, &
       &           self%plotdatalist(i)%y)
+    else ! Scatter Plot
+      call plstring(self%plotdatalist(i)%x, &
+      &           self%plotdatalist(i)%y, '*')
+    end if
       call plcol0(getLabelFontCode(self))
     end do
 

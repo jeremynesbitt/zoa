@@ -68,6 +68,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use mod_plotrayfan
   use mod_plotopticalsystem
   use ui_ast_fc_dist
+  use ui_spot
   use ROUTEMOD
 
     class(zoatabManager) :: self
@@ -148,6 +149,14 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         self%tabInfo(self%tabNum)%settings = ast_settings
         !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
 
+    case (ID_PLOTTYPE_SPOT)
+        winTitle = "Spot Diagram"
+        allocate(spot_tab :: self%tabInfo(self%tabNum)%tabObj)
+        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_SPOT)
+        call self%tabInfo(self%tabNum)%tabObj%newPlot()
+        allocate(spot_settings :: self%tabInfo(self%tabNum)%settings )
+        self%tabInfo(self%tabNum)%settings = spot_struct_settings
+        !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
 
 
     end select
@@ -192,8 +201,9 @@ end subroutine
       PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
       call self%addPlotTab(PLOT_CODE)
     else
-      if (PLOT_CODE.EQ.ID_PLOTTYPE_AST) then
-        !call self%tabInfo(tabPos)%settings%replot()
+      !if (PLOT_CODE.EQ.ID_PLOTTYPE_AST.OR.PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
+      if (PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then  
+        call self%tabInfo(tabPos)%settings%replot()
       else
         call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
       end if

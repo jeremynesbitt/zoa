@@ -12,6 +12,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     use mod_plotopticalsystem
     use mod_plotrayfan
     use ui_ast_fc_dist
+    use ui_spot
     use kdp_draw, only: DRAWOPTICALSYSTEM
 
     IMPLICIT NONE
@@ -39,6 +40,9 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     case (ID_PLOTTYPE_AST)
         PRINT *, "REROUTE TO Astig Replot!"
         call ast_settings%replot()
+    case (ID_PLOTTYPE_SPOT)
+        call spot_struct_settings%replot()
+
 
   case default
       PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
