@@ -239,12 +239,13 @@ program zoa_program
 
 
 
-  PRINT *, "APP IN Main Program is ", app
+  !PRINT *, "APP IN Main Program is ", app
 
 
   ! The activate signal will be sent by g_application_run().
   ! The c_funloc() function returns the C address of the callback function.
   ! The c_null_ptr means no data is transfered to the callback function.
+  PRINT *, "About to connect app in main program"
   call g_signal_connect(app, "activate"//c_null_char, c_funloc(activate), &
                       & c_null_ptr)
 

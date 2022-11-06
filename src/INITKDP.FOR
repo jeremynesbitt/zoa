@@ -7,6 +7,7 @@ C                   END
         SUBROUTINE INITKDP
         USE GLOBALS
         USE NSSMOD
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -22,6 +23,7 @@ C
 C       THE COMPLETE LIST OF VALID PROGRAM COMMANDS IS GIVEN
 C       WHERE THE ARRAY WCC IS DEFINED IN NAMES.FOR
 C
+        character (len=255) :: cwd, homedir
         REAL*8 VIEROT
 C
       INTEGER OLDOUTOLD,FOTLIM,VIEXOF,VIEYOF,N3,OIN,OLD_JUL,NOW_JUL
@@ -75,7 +77,7 @@ C
 C
         COMMON/ANGMOD/DEG,RAD,TANG
 C
-        LOGICAL OPEN11,OPEN12,OPEN13,EXISMC
+        LOGICAL OPEN11,OPEN12,OPEN13,EXISMC, EXISTFP
 C
         COMMON/FFL/FLG
 C
@@ -116,6 +118,8 @@ C
 C
       REAL MSEED
       COMMON/SEEDER/MSEED
+      !character(len=256) :: basePath
+      character(len=1) :: fileSep
 C
         LOGICAL EXIS48,OPEN48
         LOGICAL TABEXIST
@@ -137,6 +141,27 @@ C       MAX SAVE/REST = 36 8/24/2006
 C
         CALL MY_NDPEXC
         PRINT *, "Got to Line 140"
+
+        basePath = getZoaPath()
+        fileSep = getFileSep()
+        PRINT *, "File Path is ", basePath
+
+        !EXISTFP=.FALSE.
+        !INQUIRE(FILE='tstFilePath.txt',EXIST=EXISTFP)
+
+        open(unit=1,file=
+     1 '/Users/jeremy/Library/Application Support/Zoa/initkdp.log'
+     2 ,status='replace',form='formatted')
+        write(1,*) 'Got to line 140'
+        !write(1,*) 'File Path Test Result is ', EXISTFP
+        !INQUIRE(FILE='Info.plist',EXIST=EXISTFP)
+        !write(1,*) 'File Path Test Result is ', EXISTFP
+        !Call GETARG(0,basePath)
+        !write(1,*) 'Base Path is ', basePath
+
+
+        !PRINT *, "Desired file path is ", getZoaPath()
+      !  close(1)
 C
 C     NO NSS SURFACES
       SYSTEM(102)=0.0D0
@@ -293,8 +318,13 @@ C     LIN/LOG PSF SCALING
 C WINTER
 C      CALL GETOPSYS(ID_SYSTEM)
 C     Set to one
-	  ID_SYSTEM = 1
-	  PRINT *, "Got to line 285"
+	    ID_SYSTEM = 1
+	    PRINT *, "Got to line 285"
+
+      write(1,*) 'Got to line 300'
+      call getcwd(cwd)
+      call get_environment_variable("HOME", homedir)
+      write(1,*) 'Home Dir is ', trim(homedir)
 
 C     SET USING OLD REFERENCE RAY DATA TO FALSE
 C
@@ -315,18 +345,14 @@ C     ADDED 1/12/99
 C
       ROTSAGFL=.FALSE.
 C
+
+      write(1,*) 'Got to line 326'
+
 C     NO STREHL RATIO EXISTS YET
-                   RSTREHL_EXIST=.FALSE.
+
+      RSTREHL_EXIST=.FALSE.
+
 C
-C     REMOVE ALL TRACES OF THE GUI MODE OUTPUT FILES
-      OPEN(UNIT=80,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='GUITOTAL.DAT'
-     2  ,STATUS='UNKNOWN')
-      OPEN(UNIT=81,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='GUILAST.DAT'
-     2  ,STATUS='UNKNOWN')
-      CALL CLOSE_FILE(80,0)
-      CALL CLOSE_FILE(81,0)
 C
 C     NEXT TWO VARIABLE TRACK STATUS FOR CAPFNIN COMMAND
 C
@@ -360,6 +386,9 @@ C     THIS IS USED WHEN GETTING A DERIVATIVE VALUE
       PLTLBL=.FALSE.
       LBLSURF=-99
 C
+
+
+      write(1,*) 'Got to line 372'
 C     SET MACRO OVERWRITEING NOW ALWAYS ON
                ORITEM=.TRUE.
 C
@@ -369,17 +398,19 @@ C     SET VSYM TO .TRUE.
                VSYM=.TRUE.
 C     SET APPEND TO FALSE FOR EDITTEXT.DAT, CARDTEXT.DAT AND PUNCH.DAT
       OPEN(UNIT=19,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='SENSIOUT.DAT'
+     1  ,FORM='FORMATTED',FILE=basePath//'SENSIOUT.DAT'
      2  ,STATUS='UNKNOWN')
       CALL CLOSE_FILE(19,0)
       OPEN(UNIT=19,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='ISENSOUT.DAT'
+     1  ,FORM='FORMATTED',FILE=basePath//'ISENSOUT.DAT'
      2  ,STATUS='UNKNOWN')
       CALL CLOSE_FILE(19,0)
       OPEN(UNIT=19,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='MONTEOUT.DAT'
+     1  ,FORM='FORMATTED',FILE=basePath//'MONTEOUT.DAT'
      2  ,STATUS='UNKNOWN')
       CALL CLOSE_FILE(19,0)
+
+      write(1,*) 'Got to line 394'
 C
           APPEND=.FALSE.
           ALLSET=.FALSE.
@@ -501,9 +532,10 @@ C     FOOTPRINT GRID SEMI-EXTENT = 8
 C
 C     SET DIFFRACTION SPACE TO "I"
           SPACEBALL=2
+      write(1,*) 'Got to line 516'
 C
-      OPEN (UNIT=98,BLANK='NULL'
-     1,FILE='NUL')
+!      OPEN (UNIT=98,BLANK='NULL'
+!     1,FILE=basePath//'NUL')
 C
 C     DEFAULTS FOR VIE PLOTS
               VIEXOF=0.0D0
@@ -697,15 +729,15 @@ C       WINDOWS
                   CURLENS='CURLENS\'
                         ELSE
 C       LINUX
-                  LIBLEN='LIBLEN/'
-                  LIBMAC='LIBMAC/'
-                  LIBTRA='LIBTRA/'
-                  LIBSPO='LIBSPO/'
-                  LIBAUT='LIBAUT/'
-                  LIBPLO='LIBPLO/'
-                  NSSDIR='NSSDIR/'
-                  LIBGLA='LIBGLA/'
-                  CURLENS='CURLENS/'
+                  LIBLEN=basePath//'LIBLEN'//fileSep
+                  LIBMAC=basePath//'LIBMAC/'
+                  LIBTRA=basePath//'LIBTRA/'
+                  LIBSPO=basePath//'LIBSPO/'
+                  LIBAUT=basePath//'LIBAUT/'
+                  LIBPLO=basePath//'LIBPLO/'
+                  NSSDIR=basePath//'NSSDIR/'
+                  LIBGLA=basePath//'LIBGLA/'
+                  CURLENS=basePath//'CURLENS/'
                         END IF
 C
 C       SET DEFAULTS FOR "GLOBAL" RAYTRACE OPTION
@@ -793,6 +825,11 @@ C
       MAXSUR=499
       MAXMAC=999
       MAXCFG=75
+
+        write(1,*) 'Got to line 800'
+
+
+
 C
       ALLOCATE(
      1NUMHITS(0:MAXSUR),STAT=ALLOERR)
@@ -1216,6 +1253,7 @@ C
                 FAIL=.TRUE.
 
       OUTLYNE = "GOT TO LINE 1218 IN INITKDP!"
+      write(1,*) 'Got to line 1227'
       CALL SHOWIT(19)
 C
 C***********************************************************************
@@ -1344,7 +1382,9 @@ C               ARE INITIALIZED AND STORED IN ARRAY WCC WHICH IS PASSED
 C               VIA COMWDS COMMON. THIS IS DONE IN SUBROUTINE 'NAMES'
 C
                         PRINT *, "ABOUT to Call NAMES"
+                        write(1,*) 'Got to line 1385'
                         CALL NAMES
+                        write(1,*) 'Got to line 1387'
 C
                 PRINT *, "POST NAMES"
                 IN  = 5
@@ -1362,25 +1402,29 @@ C       A DEFAULTS.DAT FILE EXISTS. IF SO, READ AND PROCESS THE
 C       INSTRUCTIONS THERE.
 C
         OPEN(UNIT=16,ACCESS='SEQUENTIAL',
-     1  BLANK='NULL',FORM='FORMATTED',FILE='DEFAULTS.DAT',
+     1  BLANK='NULL',FORM='FORMATTED',FILE=basePath//'DEFAULTS.DAT',
      1  STATUS='UNKNOWN')
                 DO I=1,99999
         READ(UNIT=16,FMT=100,END=9887,ERR=9877) INPUT(1:140)
         MULTICOM=.TRUE.
+        write(1,*) 'Got to line 1410'
         CALL PROCES
         MULTICOM=.FALSE.
                 END DO
  9887   CALL CLOSE_FILE(16,1)
+      write(1,*) 'Got to line 1415'
       INPUT='FIELDS RESET'
         MULTICOM=.TRUE.
       CALL PROCES
         MULTICOM=.FALSE.
       INPUT='RAYS RESET'
         MULTICOM=.TRUE.
+      write(1,*) 'Got to line 1422'
       CALL PROCES
         MULTICOM=.FALSE.
 C
       PRINT *, "Got to line 1361"
+      write(1,*) 'Got to line 1393'
 
 C     INITIALIZE OPERAND VALUES AND DESCRIPTORS
                        I=MAXOPT
@@ -1524,10 +1568,10 @@ C       DFGRID=1 (HEX) OR =2 FOR (RECT-THE DEFAULT)
                 IN=5
 
                    EXIS7=.FALSE.
-        INQUIRE(FILE='PRINTER.TXT',EXIST=EXIS7)
+        INQUIRE(FILE=basePath//'PRINTER.TXT',EXIST=EXIS7)
         IF(EXIS7) THEN
         OPEN(UNIT=7,
-     1  BLANK='NULL',FORM='FORMATTED',FILE='PRINTER.TXT',
+     1  BLANK='NULL',FORM='FORMATTED',FILE=basePath//'PRINTER.TXT',
      1  STATUS='UNKNOWN')
       CALL CLOSE_FILE(7,0)
                    END IF
@@ -1611,12 +1655,12 @@ C
       IF(CMDLINE(1:5).EQ.'BATCH') THEN
         EXIS44=.FALSE.
         OPEN44=.FALSE.
-        INQUIRE(FILE='BATCH.DAT',EXIST=EXIS44)
-        INQUIRE(FILE='BATCH.DAT',OPENED=OPEN44)
+        INQUIRE(FILE=basePath//'BATCH.DAT',EXIST=EXIS44)
+        INQUIRE(FILE=basePath//'BATCH.DAT',OPENED=OPEN44)
       IF(EXIS44) THEN
       IF(OPEN44) CALL CLOSE_FILE(44,1)
 C     OPEN AND PROCESS CONTENTS
-      OPEN(UNIT=44,ACCESS='SEQUENTIAL',FILE='BATCH.DAT',
+      OPEN(UNIT=44,ACCESS='SEQUENTIAL',FILE=basePath//'BATCH.DAT',
      1FORM='FORMATTED',STATUS='UNKNOWN')
       REWIND(UNIT=44)
 
@@ -1734,5 +1778,8 @@ C
 
       PRINT *, "GOT TO LINE 1713"
       PRINT *, IN
+      write(1,*) 'Got to line 1783 - end of INITKDP'
+      close(1)
+      RETURN
 
         END

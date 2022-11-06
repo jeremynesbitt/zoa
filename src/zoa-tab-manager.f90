@@ -58,7 +58,7 @@ subroutine addMsgTab(self, notebook, winTitle)
 
     !call gtk_scrolled_window_set_child(scrollWin, self%textView)
     !tabPos = gtk_notebook_append_page (self%notebook, scrollWin, label)
-    PRINT *, "Notebook ptr is ", self%notebook
+    !PRINT *, "Notebook ptr is ", self%notebook
 
 
 end subroutine
@@ -202,7 +202,7 @@ end subroutine
       call self%addPlotTab(PLOT_CODE)
     else
       !if (PLOT_CODE.EQ.ID_PLOTTYPE_AST.OR.PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
-      if (PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then  
+      if (PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
         call self%tabInfo(tabPos)%settings%replot()
       else
         call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)

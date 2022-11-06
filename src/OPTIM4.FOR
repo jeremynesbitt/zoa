@@ -322,22 +322,28 @@ C     QUERRIES FIELDS AND RAYS FOR OPTIMIZATION
                         RETURN
                         END
       SUBROUTINE RFRESET
+      use zoa_file_handler
       IMPLICIT NONE
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATLEN.INC'
       IF(WC.EQ.'FIELDS') THEN
-        OPEN(UNIT=16,ACCESS='SEQUENTIAL',
-     1  BLANK='NULL',FORM='FORMATTED',FILE='FIELDS.DAT',
-     1  STATUS='UNKNOWN')
-      CALL CLOSE_FILE(16,0)
+
+               CALL clear_file("FIELDS.DAT")
+
+C     !    OPEN(UNIT=16,ACCESS='SEQUENTIAL',
+C     ! 1  BLANK='NULL',FORM='FORMATTED',FILE='FIELDS.DAT',
+C     ! 1  STATUS='UNKNOWN')
+C      CALL CLOSE_FILE(16,0)
                 CALL NEWFIELD
                    RETURN
                    END IF
       IF(WC.EQ.'RAYS') THEN
-        OPEN(UNIT=16,ACCESS='SEQUENTIAL',
-     1  BLANK='NULL',FORM='FORMATTED',FILE='RAYS.DAT',
-     1  STATUS='UNKNOWN')
-      CALL CLOSE_FILE(16,0)
+
+                call clear_file('RAYS.DAT')
+C     !    OPEN(UNIT=16,ACCESS='SEQUENTIAL',
+C     ! 1  BLANK='NULL',FORM='FORMATTED',FILE='RAYS.DAT',
+C     ! 1  STATUS='UNKNOWN')
+C      ! CALL CLOSE_FILE(16,0)
                 CALL NEWRAY
                    RETURN
                    END IF

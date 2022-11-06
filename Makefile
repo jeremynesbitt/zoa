@@ -14,12 +14,14 @@ FFLAGS= -static-libgfortran -static-libgcc -mmacosx-version-min=12.3 -fPIC -fno-
 LFLAGS= -static-libgfortran -static-libgcc -mmacosx-version-min=12.3 -fPIC -fno-align-commons -fPIC#optimization (for level 3) flags, compiler warnings and the strictest adherence to the latest standards
 # Dropped flags -fconvert=swap 
 SRC := $(wildcard src/*.FOR)
+# Files for preprocessing to support different OS / etc (eventually)
+SRCCPP := $(wildcard src/*.F90)
 SRCETC :=  $(wildcard etc/*.f90)
 # Option to only have shared object and not executable. TODO switch with a flag
 # PROG = src/TSTKDP.FOR
 GTK  = src/zoamain.f90
 GLOBFOR = src/globals.FOR src/nssmod.FOR
-GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoamenubar.f90 src/zzhandlers.f90 src/kdp-draw.f90 src/ROUTEDRAWING.f90 src/lens-editor.f90 src/zoa-tab.f90 src/mod_plotrayfan.f90 src/ui-ast-fc-dist.f90 src/kdp-interfaces.f90  src/mod_plotopticalsystem.f90
+GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoa-glass-ui.f90 src/zoamenubar.f90 src/zoa-tab.f90 src/kdp-draw.f90 src/mod_plotrayfan.f90 src/mod_plotopticalsystem.f90  src/ui-ast-fc-dist.f90 src/ui-spot.f90 src/ROUTEDRAWING.f90 src/zoa-tab-manager.f90  src/zzhandlers.f90 src/lens-editor.f90 src/kdp-interfaces.f90  src/WDRAWOPTICALSYSTEM.f90
 IFACES = src/kdp-interfaces.f90
 
 GTKMID = ${GTK:.f90=.mod}
@@ -39,6 +41,8 @@ GLOBOBJ = ${GLOB:src/%.f90=bin/%.mod}
 GLOBFOROBJ = bin/globals.o bin/nssmod.o
 IFACESOBJ = ${IFACES:src/%.f90=bin/%.mod}
 OBJETC :=  ${SRCETC:etc/%.f90=bin/%.mod}
+OBJCPP :=  ${SRCCPP:src/%.F90=bin/%.mod}
+
 
 #MID90=${SRC:.f90=.o} #substitute .f90 with .o
 #MID=${SRC:.FOR=.o} #substitute .FOR with .o
@@ -85,6 +89,10 @@ $(GLOBFOROBJ): bin/%.o : src/%.FOR
 
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags)
 
+$(OBJCPP): bin/%.mod : src/%.F90
+	@echo Starting Global Compilation
+
+	$(FORTRAN_COMPILER) $(FFLAGS) -DMACOS  -g -Og -o $@ -c $< 
 
 $(GTKOBJ): $(GTK)
 	@echo Starting Compilation
@@ -94,7 +102,7 @@ $(GTKOBJ): $(GTK)
 # Compile f90 files first, then F77 Files
 #all: $(GTKOBJ) $(OBJ90) $(OBJ) 
 #all:  $(OBJ90) $(OBJ) $(GLOBOBJ) $(GTKOBJ) 
-all:  $(OBJETC) $(GLOBFOROBJ) $(GLOBOBJ) $(OBJ90) $(OBJ) $(GTKOBJ) 
+all:  $(OBJETC) $(GLOBFOROBJ) $(OBJCPP) $(GLOBOBJ) $(OBJ90) $(OBJ) $(GTKOBJ) 
 	@echo $(GTKMID)
 	@echo $(GTKOBJ)
 	@echo $(GLOBOBJ)
@@ -105,7 +113,7 @@ all:  $(OBJETC) $(GLOBFOROBJ) $(GLOBOBJ) $(OBJ90) $(OBJ) $(GTKOBJ)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -shared -ffree-form -g -Og -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) 
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) $$(pkg-config --libs plplot-fortran)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $(GLOBOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran)
-	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot)
+	$(FORTRAN_COMPILER) $(LFLAGS) -DMACOS -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90) $(OBJCPP)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot)
 
 #$(pkg-config --libs --cflags h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib
 

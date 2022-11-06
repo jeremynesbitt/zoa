@@ -11,6 +11,7 @@ end type
 integer, parameter :: ID_NEWPLOT_LENSDRAW = 1001
 integer, parameter :: ID_NEWPLOT_RAYFAN   = 1002
 integer, parameter :: ID_PLOTTYPE_GENERIC = 1000
+integer, parameter :: ID_PLOTTYPE_SPOT     = 1003
 
 integer, parameter :: ID_LENSDRAW_PLOT_ORIENTATION = 1401
 integer, parameter :: ID_LENSDRAW_YZ_PLOT_ORIENTATION = 1406

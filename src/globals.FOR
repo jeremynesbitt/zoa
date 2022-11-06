@@ -1,6 +1,8 @@
       MODULE GLOBALS
 C
       PUBLIC
+
+      character(len=256) :: basePath
 C
 C     PROCESS ONE OR 20 COMMANDS
 C

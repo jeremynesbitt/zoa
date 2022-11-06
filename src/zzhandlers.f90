@@ -839,6 +839,11 @@ end subroutine proto_symfunc
       & menu_item_blue, menu_item_quit, menu_item_fullscreen
     logical :: tstResult
 
+
+    open(unit=2,file='/Users/jeremy/Library/Application Support/Zoa/results.out',status='replace',form='formatted')
+    write(2,*) 'Test Output for Logger'
+
+
     ! Create the window:
     my_window = gtk_application_window_new(app)
     !call g_signal_connect(my_window, "destroy"//c_null_char, &
@@ -896,6 +901,8 @@ end subroutine proto_symfunc
 
     ! This object is the container for all the plot and message tabs attach
     ! here
+    PRINT *, "Create Notebook Object"
+    write(2,*) 'Create Notebook Object'
     notebook = gtk_notebook_new ()
     call gtk_widget_set_vexpand (notebook, TRUE)
 
@@ -936,7 +943,7 @@ end subroutine proto_symfunc
     !  Need unique item for third window
     scroll_ptr = gtk_scrolled_window_new()
 
-
+    PRINT *, "Create Drawing Area (not being used)"
     drawing_area_plot = hl_gtk_drawing_area_new(size=[1200,500], &
          & has_alpha=FALSE, key_press_event=c_funloc(key_event_h))
     call gtk_scrolled_window_set_child(scroll_ptr, drawing_area_plot)
@@ -955,6 +962,8 @@ end subroutine proto_symfunc
     !print *, "Notebook ptr is ", notebook
     !print *, "Detachable Tab is ", scroll_ptr
 
+    PRINT *, "Create Paned Window"
+    write(2,*) 'Create Paned Window'
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, scroll_win_detach)
     call gtk_paned_set_end_child(pane, notebook)
@@ -965,7 +974,7 @@ end subroutine proto_symfunc
 
 
     call gtk_box_append(box1,pane)
-    call gtk_scrolled_window_set_min_content_width(notebook, 700_c_int)
+    !call gtk_scrolled_window_set_min_content_width(notebook, 700_c_int)
 
     call gtk_widget_set_hexpand(notebook, TRUE)
 
@@ -1017,8 +1026,8 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
-
+    call gtk_window_set_interactive_debugging(FALSE)
+    write(2,*) 'Create Menu Bar'
     call populatezoamenubar(my_window)
 
 
@@ -1029,11 +1038,15 @@ end subroutine proto_symfunc
 
     call gtk_window_present (my_window)
 
+    write(2,*) 'About to init KDP'
 
     ! INIT KDP
     CALL INITKDP
 
+    PRINT *, "DONE WITH INITKDP!"
 
+    write(2,*) 'Finished init KDP, exiting activate routine'
+    close(2)
 
   end subroutine activate
 
