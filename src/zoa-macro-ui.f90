@@ -5,6 +5,7 @@ module zoa_macro_ui
       use gtk_hl_button
       use gtk_hl_entry
       use gtk_hl_dialog
+      use GLOBALS
 
       type(c_ptr) :: ihlist
       type(c_ptr) :: macrorun, macroedit, macrogroup, macrolist
@@ -145,6 +146,7 @@ module zoa_macro_ui
     CHARACTER(len=8), dimension(1024) :: MACARRAY
 
     call hl_gtk_list1_rem(ihlist)
+    call logger%logText("About to call MACARRAY_LOAD")
     ! Now put 10 rows into it
     CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
     PRINT *, "NUMINLIST IS ", NUMINLIST

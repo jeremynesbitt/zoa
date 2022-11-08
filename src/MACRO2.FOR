@@ -58,6 +58,7 @@ C       IF YOU GOT HERE THEN IPT140 WAS ALL BLANK
         END
 C SUB MSTAT.FOR
         SUBROUTINE MSTAT
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -65,6 +66,7 @@ C       THIS SUBROUTINE RETURNS THE NUMBER OF MACROS
 C       CURRENTLY ON FILE IN THE MACRO DIRECTORY
 C
         INTEGER LK,LN,OC,J,I,K
+        INTEGER fileID
 C
         LOGICAL EXISJK
 C
@@ -96,20 +98,19 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
 C
         J=0
 C       J COUNTS THE NUMBER OF NON-BLANK ENTRIES IN THE DIRECTORY.
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10) NM,LK,LN,OC,STAMP
+        READ(fileID,REC=I,ERR=10) NM,LK,LN,OC,STAMP
         IF(OC.EQ.1) J=J+1
  10     CONTINUE
 C
         K=(MAXMAC)-J
 C       CLOSE UNIT 20 TO I/O
 C
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(fileID,1)
       WRITE(OUTLYNE,*)J,' MACROS ON FILE.'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'ROOM FOR',K,' MORE MACROS'
@@ -636,6 +637,7 @@ C       PRODUCE OUTPUT. WRITE NUMERIC WORDS EVEN IF ALL ZERO.
         END
 C SUB MOD2.FOR
         SUBROUTINE MOD2
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -648,6 +650,7 @@ C
         LOGICAL EXISJK
 C
         COMMON/NXT/WCN,WQN,WSN
+        INTEGER :: fileID
 C
         INTEGER NDEL,
      6  MMIJ,NCRLIN,OCRLIN,NF,I,J,JK,L,K,KK
@@ -1365,10 +1368,9 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
 C
-        WRITE(UNIT=20,REC=MMIJ) MCDIR1(MMIJ),MCDIR2(1,(MMIJ))
+        WRITE(fileID,REC=MMIJ) MCDIR1(MMIJ),MCDIR2(1,(MMIJ))
      1  ,MCDIR2(2,(MMIJ)),MCDIR2(3,(MMIJ)),MCDIR3(MMIJ)
 C
 C       FIND A FILE FOR THE MACRO BODY
@@ -1431,7 +1433,7 @@ C       NOT AT EOM
      5  ,MACSTA(17,L),MACSTA(18,L),MACSTA(19,L),MACSTA(20,L)
  301     CONTINUE
         CALL CLOSE_FILE(30,1)
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(fileID,1)
         KLI=0
         IF(MCDIR1(MMIJ).EQ.'FUN01   ')  KLI=1
         IF(MCDIR1(MMIJ).EQ.'FUN02   ')  KLI=2
@@ -2287,6 +2289,7 @@ C     RESTORE I/I
                         END
 C SUB MMFLN.FOR
         SUBROUTINE MMFLN
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -2301,7 +2304,7 @@ C
       DIMENSION COMM_ARRAY(:)
       ALLOCATABLE :: COMM_ARRAY
 C
-        INTEGER AKK,ALLOERR
+        INTEGER AKK,ALLOERR, fileID
 C
         COMMON/STAT13/LINCUR,LINBOT
 C
@@ -2314,6 +2317,7 @@ C       FOR EACH MACRO FOR WHICH THE MACRO KEY MATCHES THE MACRO LOCK.
 C       IF THE SPECIAL KEY (-1) IS USED, ALL MACRO NAMES
 C       ARE LISTED.
 C
+        PRINT *, "LIBMAC is ", LIBMAC
         IF(SST.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE=
      1  '"MFLC" ONLY TAKES QUALIFIER INPUT'
@@ -2332,7 +2336,8 @@ C
 C
 C       ***************************************************************
                         EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
+
+        INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=EXISJK)
         IF(.NOT.EXISJK) THEN
         OUTLYNE='"MACRO FILES DO NOT YET EXIST'
       CALL SHOWIT(1)
@@ -2342,8 +2347,8 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        PRINT *, "MMFLN File Path is ", LIBMAC//'MAC.DAT'
+        fileID = open_mac_dat()
 C
 C       INITIALIZE ASORT TO ALL BLANKS
 C
@@ -2352,7 +2357,7 @@ C
         J=0
 C       J COUNTS THE NUMBER OF NON-BLANK ENTRIES IN THE DIRECTORY.
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
+        READ(fileID,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
      1  MCDIR2(3,I),MCDIR3(I)
         IF(MCDIR2(3,(I)).EQ.1) J=J+1
  10     CONTINUE
@@ -2398,9 +2403,11 @@ C       NOW PRINT THEM
                         END
 C SUB MMFLC.FOR
         SUBROUTINE MMFLC
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
+        INTEGER :: fileID
         INTEGER NKEY,NF,IFF,
      1  I
 C
@@ -2464,8 +2471,7 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
 C
         DO 10 I=1,MAXMAC
         READ(UNIT=20,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
@@ -2515,11 +2521,13 @@ C
                 END
 C SUB MMFLC1.FOR
         SUBROUTINE MMFLC1
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
         INTEGER NKEY,NF,IFF,
      1  I
+        INTEGER fileID
 C
       COMMON/IFFY/IFF
 C
@@ -2558,11 +2566,10 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
 C
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
+        READ(fileID,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
      1  MCDIR2(3,I),MCDIR3(I)
 C
 C       THE INITIAL VALUES STORED IN MAC.DAT ARE:
@@ -2609,6 +2616,7 @@ C
                 END
 C SUB MMFL.FOR
         SUBROUTINE MMFL
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -2618,6 +2626,7 @@ C
      1  NF,I
 C
         COMMON/NEFER/NF
+        integer fileID
 C
         CHARACTER NAME*8
 C
@@ -2631,6 +2640,7 @@ C       THE MACRO IS READ FROM THE FILE MAC.DAT AND IS
 C       WRITTEN TO THE CURRENT OUTPUT DEVICE.
 C       MAC.DAT WILL ALWAYS BE UNIT=20.
 C
+        PRINT *, "LIBMAC is ", LIBMAC
         IF(SST.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE=
      1  '"MFL" ONLY TAKES QUALIFIER INPUT'
@@ -2654,7 +2664,9 @@ C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
                         EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
+        INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=EXISJK)
+        PRINT *, "File path is ", '"'//trim(LIBMAC)//'MAC.DAT'//'"'
+        PRINT *, "EXIST IS ", EXISJK
         IF(.NOT.EXISJK) THEN
         OUTLYNE='"MACRO FILES DO NOT YET EXIST'
       CALL SHOWIT(1)
@@ -2664,12 +2676,14 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
-C
+        I=1
+        fileID = open_mac_dat()
+
+
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
+        READ(fileID,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
      1  MCDIR2(3,I),MCDIR3(I)
+        PRINT *, "MACRO NAME ", MCDIR1(I)
 C
 C
 C
@@ -2685,7 +2699,7 @@ C
 C
 
  10     CONTINUE
-                CALL CLOSE_FILE(20,1)
+                CALL CLOSE_FILE(fileID,1)
 C
 C       SEARCHES OF THIS MACRO DIRECTORY ARE NOW MADE TO DETERMINE
 C       IF THE MACRO REQUESTED WITH ITS KEY IS ON FILE.
@@ -2738,6 +2752,7 @@ C       DON'T CALL MACOUT
                 END
 C SUB MMEDIT.FOR
         SUBROUTINE MMEDIT
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -2766,7 +2781,7 @@ C
 C
 C       W1 IS USED TO PASS THE MACRO LOCK IF ONE IS DESIRED
 C
-        INTEGER NKEY
+        INTEGER NKEY, fileID
      1  ,M1,M2,M3,NEXTM3,MMIJ,FLAGA
 
         COMMON/MIJ/MMIJ
@@ -2807,13 +2822,13 @@ C       OPEN UNIT 20 FOR I/O
 C
         NKEY=0.0D0
 C
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
+
         J=0
         M3=0
         FLAGA=0
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10) MNAME,M1,M2,NEXTM3,STAMP
+        READ(fileID,REC=I,ERR=10) MNAME,M1,M2,NEXTM3,STAMP
         M3=M3+NEXTM3
         IF(WQ.EQ.MNAME.AND.NKEY.EQ.M1) THEN
                 J=1
@@ -2976,6 +2991,7 @@ C     JN - FOr Testing, comment out the rest of this temporarily
                         END
 C SUB MMDEL.FOR
         SUBROUTINE MMDEL
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -2988,6 +3004,7 @@ C
 C       THIS SUBROUTINE IS USED TO DELETE A MACRO
 C
         INTEGER OCC,MACLOC,IMACEN,KEY,NF
+        INTEGER :: fileID
 C
         CHARACTER MACNAM*8,NAME*8,
      1  FILNAM*10
@@ -3043,11 +3060,10 @@ C       ***************************************************************
 C       PROCEED
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
 C
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10) MACNAM,MACLOC,IMACEN,OCC,STAMP
+        READ(fileID,REC=I,ERR=10) MACNAM,MACLOC,IMACEN,OCC,STAMP
 C
 C       MACNAN IS THE MACRO NAME, MACLOC IS THE MACRO LOCK,
 C       IMACEN IS THE MACRO LENGTH IN LINES, AND OCC IS A FLAG
@@ -3375,6 +3391,7 @@ C
                         END
 C SUB MACRUN.FOR
         SUBROUTINE MACRUN(MACYES)
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -3390,7 +3407,7 @@ C
 C
         LOGICAL EXISJK
 
-        INTEGER ACCCNT,ACCSUB
+        INTEGER ACCCNT,ACCSUB, fileID
 C
         COMMON/ACCSB2/ACCSUB,ACCCNT
 C
@@ -3465,11 +3482,10 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        fileID = open_mac_dat()
 C
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
+        READ(fileID,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
      1  MCDIR2(3,I),MCDIR3(I)
 C
 C       THE INITIAL VALUES STORED IN MAC.DAT ARE:

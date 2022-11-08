@@ -70,7 +70,7 @@ bin/%.o: src/%.FOR
 
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $<
 
-$(OBJETC):etc/*.f90
+$(OBJETC):bin/%.mod : etc/%.f90
 	$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot) 
 
 #$(IFACESOBJ):$(IFACES)
@@ -93,6 +93,7 @@ $(OBJCPP): bin/%.mod : src/%.F90
 	@echo Starting Global Compilation
 
 	$(FORTRAN_COMPILER) $(FFLAGS) -DMACOS  -g -Og -o $@ -c $< 
+	#$(FORTRAN_COMPILER) $(FFLAGS) -g -Og -o $@ -c $< 
 
 $(GTKOBJ): $(GTK)
 	@echo Starting Compilation
@@ -103,17 +104,16 @@ $(GTKOBJ): $(GTK)
 #all: $(GTKOBJ) $(OBJ90) $(OBJ) 
 #all:  $(OBJ90) $(OBJ) $(GLOBOBJ) $(GTKOBJ) 
 all:  $(OBJETC) $(GLOBFOROBJ) $(OBJCPP) $(GLOBOBJ) $(OBJ90) $(OBJ) $(GTKOBJ) 
-	@echo $(GTKMID)
-	@echo $(GTKOBJ)
-	@echo $(GLOBOBJ)
-	@echo Generating Executable	
+	
+	@echo $(OBJETC)
+
 #	@echo $(OBJ)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -g -Og -o bin/KDPJN $(OBJ) $(OBJ90)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -g -Og -o bin/HELLOWORLD.so $(OBJ) $(OBJ90)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -shared -ffree-form -g -Og -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) 
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $$(pkg-config --libs gtk-4-fortran) $$(pkg-config --libs plplot-fortran)
 #	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJ90) $(GTKOBJ) $(GLOBOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot h5fortran)
-	$(FORTRAN_COMPILER) $(LFLAGS) -DMACOS -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90) $(OBJCPP)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot)
+	$(FORTRAN_COMPILER) $(LFLAGS) -o bin/ZOA $(OBJ) $(OBJETC) $(OBJ90) $(OBJCPP)  $(GLOBOBJ) $(GTKOBJ) $$(pkg-config --libs --cflags gtk-4-fortran plplot-fortran plplot)
 
 #$(pkg-config --libs --cflags h5fortran hdf5_fortran hdf5_hl_fortran) -rpath /usr/local/HDF_Group/HDF5/1.13.2/lib
 

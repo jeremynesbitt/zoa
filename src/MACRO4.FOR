@@ -35,7 +35,7 @@ C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
                         EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
+        INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=EXISJK)
         IF(.NOT.EXISJK) THEN
         OUTLYNE='"MACRO FILES DO NOT YET EXIST'
       CALL SHOWIT(1)
@@ -45,7 +45,7 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
+        OPEN(UNIT=20,ACCESS='DIRECT',FILE=trim(LIBMAC)//'MAC.DAT',FORM=
      1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
 C
         READ(UNIT=20,REC=NF,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
@@ -60,7 +60,7 @@ C       ARE USED TO STORE A MACRO.
 C
                 CALL MACFIL
       EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
+        INQUIRE(FILE=trim(LIBMAC)//FILNAM,EXIST=EXST)
         IF(.NOT.EXST) THEN
         OUTLYNE=
      1  'MACRO BODY FILE '//FILNAM//' MISSING'
@@ -83,8 +83,9 @@ C
      5  ,MACSTA(17,L),MACSTA(18,L),MACSTA(19,L),MACSTA(20,L)
 
 C
-        OPEN(UNIT=30,ACCESS='DIRECT',FILE=LIBMAC//FILNAM,FORM=
-     1  'UNFORMATTED',RECL=(rec30),STATUS='UNKNOWN')
+        OPEN(UNIT=30,ACCESS='DIRECT',
+     1    FILE=trim(LIBMAC)//FILNAM,FORM=
+     2  'UNFORMATTED',RECL=(rec30),STATUS='UNKNOWN')
 C
 C       NOW DETERMINE THE LOCATION OF THE MACRO BODY.
 C
@@ -582,6 +583,7 @@ C
                         RETURN
                         END
         SUBROUTINE MACARRAY_LOAD(NUMINLIST, MACARRAY)
+          use GLOBALS
         IMPLICIT NONE
 C       ARRAY TO SUPPORT MACRO GUI
 
@@ -608,8 +610,8 @@ C       ARRAY TO SUPPORT MACRO GUI
         CALL CLOSE_FILE(9,1)
         inquire(iolength=rec9) LINE
         OPEN(UNIT=9,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',RECL=rec9, FILE='EDITTEXT.DAT'
-     2  ,STATUS='UNKNOWN')
+     1  ,FORM='FORMATTED',RECL=rec9,
+     2   FILE=trim(basePath)//'EDITTEXT.DAT',STATUS='UNKNOWN')
         REWIND(9)
         I=1
  1      READ(9,25,ERR=90,END=90) LINE
@@ -621,7 +623,7 @@ C       ARRAY TO SUPPORT MACRO GUI
         CALL CLOSE_FILE(9,0)
  25     FORMAT(A132)
         NUMINLIST=I-2
-        !PRINT *, "MACARRAY IS ", MACARRAY
-        !PRINT *, "NUMINLIST IS ", NUMINLIST
+        PRINT *, "MACARRAY IS ", MACARRAY
+        PRINT *, "NUMINLIST IS ", NUMINLIST
         RETURN
         END

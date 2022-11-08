@@ -8,6 +8,7 @@ C                   END
         USE GLOBALS
         USE NSSMOD
         use zoa_file_handler
+        use zoa_logger
 C
         IMPLICIT NONE
 C
@@ -144,15 +145,18 @@ C
 
         basePath = getZoaPath()
         fileSep = getFileSep()
+
+        logger = zoaLogger(basePath)
+        call logger%logText("Blah Blah Blah")
+
+
         PRINT *, "File Path is ", basePath
 
         !EXISTFP=.FALSE.
         !INQUIRE(FILE='tstFilePath.txt',EXIST=EXISTFP)
 
-        open(unit=1,file=
-     1 '/Users/jeremy/Library/Application Support/Zoa/initkdp.log'
-     2 ,status='replace',form='formatted')
-        write(1,*) 'Got to line 140'
+
+        call logger%logText('Got to line 140')
         !write(1,*) 'File Path Test Result is ', EXISTFP
         !INQUIRE(FILE='Info.plist',EXIST=EXISTFP)
         !write(1,*) 'File Path Test Result is ', EXISTFP
@@ -319,12 +323,7 @@ C WINTER
 C      CALL GETOPSYS(ID_SYSTEM)
 C     Set to one
 	    ID_SYSTEM = 1
-	    PRINT *, "Got to line 285"
 
-      write(1,*) 'Got to line 300'
-      call getcwd(cwd)
-      call get_environment_variable("HOME", homedir)
-      write(1,*) 'Home Dir is ', trim(homedir)
 
 C     SET USING OLD REFERENCE RAY DATA TO FALSE
 C
@@ -346,7 +345,7 @@ C
       ROTSAGFL=.FALSE.
 C
 
-      write(1,*) 'Got to line 326'
+
 
 C     NO STREHL RATIO EXISTS YET
 
@@ -388,7 +387,6 @@ C     THIS IS USED WHEN GETTING A DERIVATIVE VALUE
 C
 
 
-      write(1,*) 'Got to line 372'
 C     SET MACRO OVERWRITEING NOW ALWAYS ON
                ORITEM=.TRUE.
 C
@@ -397,20 +395,10 @@ C     SET VIGOFF TO .FALSE.
 C     SET VSYM TO .TRUE.
                VSYM=.TRUE.
 C     SET APPEND TO FALSE FOR EDITTEXT.DAT, CARDTEXT.DAT AND PUNCH.DAT
-      OPEN(UNIT=19,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=basePath//'SENSIOUT.DAT'
-     2  ,STATUS='UNKNOWN')
-      CALL CLOSE_FILE(19,0)
-      OPEN(UNIT=19,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=basePath//'ISENSOUT.DAT'
-     2  ,STATUS='UNKNOWN')
-      CALL CLOSE_FILE(19,0)
-      OPEN(UNIT=19,ACCESS='APPEND',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=basePath//'MONTEOUT.DAT'
-     2  ,STATUS='UNKNOWN')
-      CALL CLOSE_FILE(19,0)
+      call clear_file('SENSIOUT.DAT')
+      call clear_file('ISENSOUT.DAT')
+      call clear_file('MONTEOUT.DAT')
 
-      write(1,*) 'Got to line 394'
 C
           APPEND=.FALSE.
           ALLSET=.FALSE.
@@ -532,7 +520,6 @@ C     FOOTPRINT GRID SEMI-EXTENT = 8
 C
 C     SET DIFFRACTION SPACE TO "I"
           SPACEBALL=2
-      write(1,*) 'Got to line 516'
 C
 !      OPEN (UNIT=98,BLANK='NULL'
 !     1,FILE=basePath//'NUL')
@@ -729,8 +716,8 @@ C       WINDOWS
                   CURLENS='CURLENS\'
                         ELSE
 C       LINUX
-                  LIBLEN=basePath//'LIBLEN'//fileSep
-                  LIBMAC=basePath//'LIBMAC/'
+                  LIBLEN=trim(basePath)//'LIBLEN'//fileSep
+                  LIBMAC=trim(basePath)//'LIBMAC/'
                   LIBTRA=basePath//'LIBTRA/'
                   LIBSPO=basePath//'LIBSPO/'
                   LIBAUT=basePath//'LIBAUT/'
@@ -739,6 +726,8 @@ C       LINUX
                   LIBGLA=basePath//'LIBGLA/'
                   CURLENS=basePath//'CURLENS/'
                         END IF
+
+        PRINT *, "LIBMAC IS ", LIBMAC
 C
 C       SET DEFAULTS FOR "GLOBAL" RAYTRACE OPTION
         GLOBE=.FALSE.
@@ -826,7 +815,7 @@ C
       MAXMAC=999
       MAXCFG=75
 
-        write(1,*) 'Got to line 800'
+      !  write(1,*) 'Got to line 800'
 
 
 
@@ -1253,7 +1242,7 @@ C
                 FAIL=.TRUE.
 
       OUTLYNE = "GOT TO LINE 1218 IN INITKDP!"
-      write(1,*) 'Got to line 1227'
+      !write(1,*) 'Got to line 1227'
       CALL SHOWIT(19)
 C
 C***********************************************************************
@@ -1382,9 +1371,9 @@ C               ARE INITIALIZED AND STORED IN ARRAY WCC WHICH IS PASSED
 C               VIA COMWDS COMMON. THIS IS DONE IN SUBROUTINE 'NAMES'
 C
                         PRINT *, "ABOUT to Call NAMES"
-                        write(1,*) 'Got to line 1385'
+                        !write(1,*) 'Got to line 1385'
                         CALL NAMES
-                        write(1,*) 'Got to line 1387'
+                        !write(1,*) 'Got to line 1387'
 C
                 PRINT *, "POST NAMES"
                 IN  = 5
@@ -1402,29 +1391,29 @@ C       A DEFAULTS.DAT FILE EXISTS. IF SO, READ AND PROCESS THE
 C       INSTRUCTIONS THERE.
 C
         OPEN(UNIT=16,ACCESS='SEQUENTIAL',
-     1  BLANK='NULL',FORM='FORMATTED',FILE=basePath//'DEFAULTS.DAT',
-     1  STATUS='UNKNOWN')
+     1  BLANK='NULL',FORM='FORMATTED',
+     1  FILE=trim(basePath)//'DEFAULTS.DAT',STATUS='UNKNOWN')
                 DO I=1,99999
         READ(UNIT=16,FMT=100,END=9887,ERR=9877) INPUT(1:140)
         MULTICOM=.TRUE.
-        write(1,*) 'Got to line 1410'
+        !write(1,*) 'Got to line 1410'
         CALL PROCES
         MULTICOM=.FALSE.
                 END DO
  9887   CALL CLOSE_FILE(16,1)
-      write(1,*) 'Got to line 1415'
+      !write(1,*) 'Got to line 1415'
       INPUT='FIELDS RESET'
         MULTICOM=.TRUE.
       CALL PROCES
         MULTICOM=.FALSE.
       INPUT='RAYS RESET'
         MULTICOM=.TRUE.
-      write(1,*) 'Got to line 1422'
+      !write(1,*) 'Got to line 1422'
       CALL PROCES
         MULTICOM=.FALSE.
 C
-      PRINT *, "Got to line 1361"
-      write(1,*) 'Got to line 1393'
+      !PRINT *, "Got to line 1361"
+      !write(1,*) 'Got to line 1393'
 
 C     INITIALIZE OPERAND VALUES AND DESCRIPTORS
                        I=MAXOPT
@@ -1451,7 +1440,7 @@ C       LOAD INITIAL LENS DATA
           IN=89
         OPTMES=.FALSE.
       EXIS89=.FALSE.
-        INQUIRE(FILE=CURLENS//'LENSTEXT.DAT',EXIST=EXIS89)
+        INQUIRE(FILE=trim(CURLENS)//'LENSTEXT.DAT',EXIST=EXIS89)
                 IF(EXIS89) THEN
 C       LENSTEXT EXISTS, READ IT
 C
@@ -1460,10 +1449,10 @@ C               THAT IS USED TO RESTORE THE LAST CURRENT LENS
 C               FROM UNIT 89
 C
          OPEN(UNIT=89,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=CURLENS//'LENSTEXT.DAT'
+     1  ,FORM='FORMATTED',FILE=trim(CURLENS)//'LENSTEXT.DAT'
      2  ,STATUS='UNKNOWN')
         REWIND(UNIT=89)
-        PRINT *, "Got to line 1400"
+        !PRINT *, "Got to line 1400"
  3141   READ(UNIT=89,FMT=100,END=8888,ERR=8887) INPUT(1:140)
         IF(INPUT(1:3).EQ.'OUT') GO TO 3141
       IF(INPUT(1:1).EQ.' ') INPUT(1:140)=INPUT(2:140)//' '
@@ -1534,7 +1523,7 @@ C     NO LENSTEXT EXISTS,OR AN ERROR EXITSED
                         END IF
           IN=OLDIN
         OPTMES=.TRUE.
-        PRINT *, "Got to line 1470"
+        !PRINT *, "Got to line 1470"
 C
 C       SET UP DEFAULT MERIT FUNCTION CONDITIONS
 C       DFGRID=1 (HEX) OR =2 FOR (RECT-THE DEFAULT)
@@ -1568,7 +1557,7 @@ C       DFGRID=1 (HEX) OR =2 FOR (RECT-THE DEFAULT)
                 IN=5
 
                    EXIS7=.FALSE.
-        INQUIRE(FILE=basePath//'PRINTER.TXT',EXIST=EXIS7)
+        INQUIRE(FILE=trim(basePath)//'PRINTER.TXT',EXIST=EXIS7)
         IF(EXIS7) THEN
         OPEN(UNIT=7,
      1  BLANK='NULL',FORM='FORMATTED',FILE=basePath//'PRINTER.TXT',
@@ -1776,10 +1765,8 @@ C      GO TO 1
       END IF
 C
 
-      PRINT *, "GOT TO LINE 1713"
-      PRINT *, IN
-      write(1,*) 'Got to line 1783 - end of INITKDP'
-      close(1)
+      call logger%logText('Got to line 1783 - end of INITKDP')
+      
       RETURN
 
         END

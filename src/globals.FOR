@@ -1,8 +1,10 @@
       MODULE GLOBALS
+      use zoa_logger
 C
       PUBLIC
 
       character(len=256) :: basePath
+      type(zoaLogger) :: logger
 C
 C     PROCESS ONE OR 20 COMMANDS
 C
