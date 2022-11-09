@@ -1,3 +1,66 @@
+        SUBROUTINE DOESLIBDATEXIST(EXISJK, EXISTAG)
+          LOGICAL, intent(inout) :: EXISJK,EXISTAG
+          INCLUDE 'DATMAI.INC'
+          INCLUDE 'DATLEN.INC'
+
+                        EXISJK=.FALSE.
+        INQUIRE(FILE=trim(LIBLEN)//'LIB.DAT',EXIST=EXISJK)
+                        EXISTAG=.FALSE.
+        INQUIRE(FILE=trim(LIBLEN)//'LIBTAG.DAT',EXIST=EXISTAG)
+         IF (.NOT.EXISJK) THEN
+        WRITE(OUTLYNE, *) 'LENS LIBRARY NOT FOUND IN ', trim(LIBLEN)
+        CALL SHOWIT(1)
+        OUTLYNE='TO INITIALIZE IT, USE "ILF" AND "PROCEED"'
+        CALL SHOWIT(1)
+        OUTLYNE='BE CAREFUL, YOU MIGHT BE DELETING YOUR LENS LIBRARY'
+        CALL SHOWIT(1)
+        OUTLYNE='BACK UP THE LENS LIBRARY FIRST WITH'
+        CALL SHOWIT(1)
+        OUTLYNE='THE "LIBSAVE" COMMAND'
+        CALL SHOWIT(1)
+
+                        CALL MACFAL
+                        RETURN
+         END IF
+
+        END SUBROUTINE
+
+        SUBROUTINE OPENLIBDAT(fileID)
+
+        IMPLICIT NONE
+
+        INTEGER :: rec22, II, fileID
+        INCLUDE 'DATMAI.INC'
+        CHARACTER DATA*80
+
+        inquire(iolength=rec22) II, DATA
+        fileID = 22
+
+        OPEN(UNIT=fileID,ACCESS='DIRECT',
+     1  FILE=trim(LIBLEN)//'LIB.DAT',
+     1  FORM='UNFORMATTED',RECL=rec22,STATUS='UNKNOWN')
+
+        END SUBROUTINE
+
+        SUBROUTINE OPENLIBTAGDAT(fileID)
+
+        IMPLICIT NONE
+
+        INTEGER :: rec27, fileID
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+
+        inquire(iolength=rec27) IDTAG(1)(1:75)
+        fileID = 27
+
+      OPEN(UNIT=fileID,ACCESS='DIRECT',
+     1  FILE=trim(LIBLEN)//'LIBTAG.DAT',
+     1  FORM='UNFORMATTED',RECL=rec27,STATUS='UNKNOWN')
+
+
+        END SUBROUTINE
+
+
 C SUB LSTAT.FOR
         SUBROUTINE myLSTAT
 C
@@ -7,7 +70,7 @@ C       THIS SUBROUTINE RETURNS THE NUMBER OF LENSES
 C       CURRENTLY ON FILE IN THE LENS LIBRARAY
 C
 C
-        INTEGER I,J,K,II,JJ
+        INTEGER I,J,K,II,JJ, uLIB, uLIBTAG
 C
         LOGICAL EXISJK,EXISTAG
 C
@@ -18,45 +81,12 @@ C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
 C
-C       OPEN UNIT 20 FOR I/O
-C
-C       ***************************************************************
-        !PRINT *, "LSTAT ROUTINE"
+        CALL DOESLIBDATEXIST(EXISJK, EXISTAG)
 
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBLEN//'LIB.DAT',EXIST=EXISJK)
-                        EXISTAG=.FALSE.
-        INQUIRE(FILE=LIBLEN//'LIBTAG.DAT',EXIST=EXISTAG)
-        IF(.NOT.EXISJK) THEN
-        IF(LIBLEN.NE.'LIBLEN\') THEN
-        WRITE(OUTLYNE,*)
-     1  'THE LENS LIBRARY IN LIBRARY DIRECTORY = ',LIBLEN
-        CALL SHOWIT(1)
-        OUTLYNE='DOES NOT EXIST. BEFORE USING "ILF" AND "PROCEED"'
-        CALL SHOWIT(1)
-        OUTLYNE='MAKE SURE YOU CHANGE TO THE DESIRED LENS LIBRARY'
-        CALL SHOWIT(1)
-                        ELSE
-        OUTLYNE='"THE DEFAULT LENS LIBRARY DOES NOT YET EXIST'
-        CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "ILF" AND "PROCEED"'
-        CALL SHOWIT(1)
-        OUTLYNE='BE CAREFUL, YOU MIGHT BE DELEATING YOUR LENS LIBRARY'
-        CALL SHOWIT(1)
-        OUTLYNE='BACK UP THE LENS LIBRARY FIRST WITH'
-        CALL SHOWIT(1)
-        OUTLYNE='THE "LIBSAVE" COMMAND'
-        CALL SHOWIT(1)
-                        END IF
-                        CALL MACFAL
-                        RETURN
-                        END IF
 C       ***************************************************************
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-      IF(EXISTAG)
-     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LIBLEN//'LIBTAG.DAT',
-     1FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+        call OPENLIBDAT(uLIB)
+      IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+
                         J=0
                         JJ=0
                         K=0
@@ -86,7 +116,7 @@ C
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'ROOM FOR',K,' MORE LENSES IN LENS LIBRARY'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)'LENS DIRECTORY IS CURRENTLY: ',LIBLEN
+      WRITE(OUTLYNE,*)'LENS DIRECTORY IS CURRENTLY: ',trim(LIBLEN)
       CALL SHOWIT(1)
                         RETURN
                         END
@@ -1324,7 +1354,7 @@ C
      1OLDSQ,OLDSN,OLDIN,IREND,N3,JJ,OLDOUT1
 C
         INTEGER
-     4  FLG(0:20),SUR,ALL,IEND,rec22,rec27
+     4  FLG(0:20),SUR,ALL,IEND,rec27, uLIB, uLIBTAG
 C
         COMMON/FFL/FLG
 C
@@ -1333,8 +1363,8 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATSUB.INC'
 C
-        EXISTAG=.FALSE.
-        INQUIRE(FILE=LIBLEN//'LIBTAG.DAT',EXIST=EXISTAG)
+
+        CALL DOESLIBDATEXIST(EXISJK, EXISTAG)
         OUTLYNE = "LLIBRY ROUTINE"
         CALL SHOWIT(19)
 
@@ -1571,49 +1601,20 @@ C
 C       IF ALL=1 THEN WE MUST SEARCH FOR AN AVALIABLE SLOT
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
 
-        INQUIRE(FILE=LIBLEN//'LIB.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        IF(LIBLEN.NE.'LIBLEN\') THEN
-        WRITE(OUTLYNE,*)
-     1  'THE LENS LIBRARY IN LIBRARY DIRECTORY = ',LIBLEN
-        CALL SHOWIT(1)
-        OUTLYNE='DOES NOT EXIST. BEFORE USING "ILF" AND "PROCEED"'
-        CALL SHOWIT(1)
-        OUTLYNE='MAKE SURE YOU CHANGE TO THE DESIRED LENS LIBRARY'
-        CALL SHOWIT(1)
-                        ELSE
-        OUTLYNE='"THE DEFAULT LENS LIBRARY DOES NOT YET EXIST'
-        CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "ILF" AND "PROCEED"'
-        CALL SHOWIT(1)
-        OUTLYNE='BE CAREFUL, YOU MIGHT BE DELEATING YOUR LENS LIBRARY'
-        CALL SHOWIT(1)
-        OUTLYNE='BACK UP THE LENS LIBRARY FIRST WITH'
-        CALL SHOWIT(1)
-        OUTLYNE='THE "LIBSAVE" COMMAND'
-        CALL SHOWIT(1)
-                        END IF
-                        CALL MACFAL
-                        RETURN
-                        END IF
 C       OLD WAY OF OPENING OPENING FILE
 C        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
 C     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
 
 
 C       ***************************************************************
-        inquire(iolength=rec22) II, DATA
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=rec22,STATUS='UNKNOWN')
-        IF(EXISTAG)
-     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LIBLEN//'LIBTAG.DAT',
-     1FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+        call OPENLIBDAT(uLIB)
+        IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+
         IF(ALL.EQ.1) THEN
                 DO 10 I=1,999
         READ(UNIT=22,REC=4*(I-1)+1) II,DATA
-        PRINT *, "II = ", " DATA = ", DATA
+        !PRINT *, "II = ", " DATA = ", DATA
         !READ(UNIT=22,REC=I) II,DATA
         IF(EXISTAG) THEN
                         DO J=1,10
@@ -1692,7 +1693,7 @@ C
      2  ,STATUS='UNKNOWN')
                 CALL CLOSE_FILE(33,0)
          OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=LIBLEN//FN
+     1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
      2  ,STATUS='UNKNOWN')
 C
 C**********************************************************
@@ -1741,42 +1742,19 @@ C       IN IT IS VACANT, PRINT MESAGE AND STOP
 C
 C       ***************************************************************
           IF(WQ.EQ.'GET')   LNDIR= LIBLEN
-          IF(WQ.EQ.'GETMG') LNDIR='LIBLMG\'
-          IF(WQ.EQ.'GETES') LNDIR='LIBLES\'
-          IF(WQ.EQ.'GETNC') LNDIR='LIBLNC\'
-          IF(WQ.EQ.'GETSH') LNDIR='LIBLSH\'
-          IF(WQ.EQ.'GETRO') LNDIR='LIBLRO\'
-      IF(WC(1:3).EQ.'LIB'.AND.WQ(1:3).EQ.'GET') LIBGET=.TRUE.
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LNDIR//'LIB.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        !PRINT *, "MESSAGE LINE 1729"
-        WRITE(OUTLYNE,*)
-     1  'THE LENS LIBRARY IN LIBRARY DIRECTORY = ',LNDIR
-        CALL SHOWIT(1)
-        OUTLYNE='DOES NOT EXIST'
-        CALL SHOWIT(1)
-        OUTLYNE='USE THE "LODLENS" MACRO TO RELOAD THE OFF-THE-SHELF'
-        CALL SHOWIT(1)
-        OUTLYNE='LENS LIBRARIES'
-        CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+
+
         !PRINT *, "IN LIBLOAD"
         !WRITE(OUTLINE,*) LNDIR//'LIB.DAT'
         !CALL SHOWIT(19)
 C       ***************************************************************
-        inquire(iolength=rec22) II, DATA
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LNDIR//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=rec22,STATUS='UNKNOWN')
-      IF(EXISTAG)
+
+        call OPENLIBDAT(uLIB)
+      IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
 
 C     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LNDIR//'LIBTAG.DAT',
 C     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-     1inquire(iolength=rec27) IDTAG(1)(1:75)
-      OPEN(UNIT=27,ACCESS='DIRECT',FILE=LNDIR//'LIBTAG.DAT',
-     1  FORM='UNFORMATTED',RECL=rec27,STATUS='UNKNOWN')
+
         !PRINT *, "rec27 ", rec27
         !PRINT *, "INT(W1)", INT(W1)
 C        DO J=1,10
@@ -1824,7 +1802,7 @@ C       TO USE
         IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
         PRINT *, "OPEN UNIT=33 FILE"
          OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=LNDIR//FN
+     1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
      2  ,STATUS='UNKNOWN', ACTION='READ')
 C**********************************************************
         REFEXT=.FALSE.
@@ -1965,33 +1943,10 @@ C       OF THE LENS LIBRARY DIRECTORY LIB.DAT
 C
 C       ***************************************************************
           IF(WQ.EQ.'P')   LNDIR= LIBLEN
-          IF(WQ.EQ.'PMG') LNDIR='LIBLMG\'
-          IF(WQ.EQ.'PES') LNDIR='LIBLES\'
-          IF(WQ.EQ.'PNC') LNDIR='LIBLNC\'
-          IF(WQ.EQ.'PSH') LNDIR='LIBLSH\'
-          IF(WQ.EQ.'PRO') LNDIR='LIBLRO\'
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LNDIR//'LIB.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        !PRINT *, "MESSAGE LINE 1914"
-        WRITE(OUTLYNE,*)
-     1  'THE LENS LIBRARY IN LIBRARY DIRECTORY = ',LNDIR
-        CALL SHOWIT(1)
-        OUTLYNE='DOES NOT EXIST'
-        CALL SHOWIT(1)
-        OUTLYNE='USE THE "LODLENS" MACRO TO RELOAD THE OFF-THE-SHELF'
-        CALL SHOWIT(1)
-        OUTLYNE='LENS LIBRARIES'
-        CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C       ***************************************************************
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LNDIR//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-      IF(EXISTAG)
-     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LNDIR//'LIBTAG.DAT',
-     1FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+
+      IF(EXISJK) CALL OPENLIBDAT(uLIB)
+      IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+
         IF(ALL.EQ.1) THEN
                         LCNT=0
  123    FORMAT(1X)
@@ -2140,11 +2095,9 @@ C       ***************************************************************
                         RETURN
                         END IF
 C       ***************************************************************
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-      IF(EXISTAG)
-     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LIBLEN//'LIBTAG.DAT',
-     1FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+        CALL OPENLIBDAT(uLIB)
+      IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+
         READ(UNIT=22,REC=INT(W1))II,DATA
         IF(EXISTAG) THEN
                         DO J=1,10
@@ -2214,11 +2167,9 @@ C       ***************************************************************
                         END IF
 C       ***************************************************************
                         DO 8191 I=INT(W1),INT(W2)
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',
-     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-      IF(EXISTAG)
-     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LIBLEN//'LIBTAG.DAT',
-     1FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+        call OPENLIBDAT(uLIB)
+      IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+
         READ(UNIT=22,REC=I) II,DATA
         IF(EXISTAG) THEN
                         DO J=1,10
