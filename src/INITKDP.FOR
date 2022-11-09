@@ -396,9 +396,9 @@ C     SET VIGOFF TO .FALSE.
 C     SET VSYM TO .TRUE.
                VSYM=.TRUE.
 C     SET APPEND TO FALSE FOR EDITTEXT.DAT, CARDTEXT.DAT AND PUNCH.DAT
-      call clear_file('SENSIOUT.DAT')
-      call clear_file('ISENSOUT.DAT')
-      call clear_file('MONTEOUT.DAT')
+      call clear_file(trim(basePath)//'SENSIOUT.DAT')
+      call clear_file(trim(basePath)//'ISENSOUT.DAT')
+      call clear_file(trim(basePath)//'MONTEOUT.DAT')
 
 C
           APPEND=.FALSE.
@@ -1529,7 +1529,7 @@ C       DFGRID=1 (HEX) OR =2 FOR (RECT-THE DEFAULT)
 
                    EXIS7=.FALSE.
         INQUIRE(FILE=trim(basePath)//'PRINTER.TXT',EXIST=EXIS7)
-        IF(EXIS7) call clear_file('PRINTER.TXT')
+        IF(EXIS7) call clear_file(trim(basePath)//'PRINTER.TXT')
 
                    EXIS7=.FALSE.
 

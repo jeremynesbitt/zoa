@@ -323,12 +323,13 @@ C     QUERRIES FIELDS AND RAYS FOR OPTIMIZATION
                         END
       SUBROUTINE RFRESET
       use zoa_file_handler
+      use GLOBALS
       IMPLICIT NONE
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATLEN.INC'
       IF(WC.EQ.'FIELDS') THEN
 
-               CALL clear_file("FIELDS.DAT")
+               CALL clear_file(trim(basePath)//"FIELDS.DAT")
 
 C     !    OPEN(UNIT=16,ACCESS='SEQUENTIAL',
 C     ! 1  BLANK='NULL',FORM='FORMATTED',FILE='FIELDS.DAT',
@@ -339,7 +340,7 @@ C      CALL CLOSE_FILE(16,0)
                    END IF
       IF(WC.EQ.'RAYS') THEN
 
-                call clear_file('RAYS.DAT')
+                call clear_file(trim(basePath)//'RAYS.DAT')
 C     !    OPEN(UNIT=16,ACCESS='SEQUENTIAL',
 C     ! 1  BLANK='NULL',FORM='FORMATTED',FILE='RAYS.DAT',
 C     ! 1  STATUS='UNKNOWN')

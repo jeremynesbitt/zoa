@@ -46,7 +46,7 @@ module zoa_file_handler
           character(len=*) :: fName
 
          OPEN(UNIT=16,ACCESS='SEQUENTIAL',BLANK='NULL',FORM='FORMATTED', &
-        &  FILE=trim(basePath)//fName,STATUS='UNKNOWN')
+        &  FILE=fName,STATUS='UNKNOWN')
         CLOSE(16)
 
       end subroutine
@@ -78,7 +78,7 @@ module zoa_file_handler
         character(len=20)  :: STAMP
           INTEGER :: M1, M2, M3
 
-        INCLUDE 'DATMAI.INC'  
+        INCLUDE 'DATMAI.INC'
 
         inquire(iolength=recLength) MNAME, M1, M2, M3, STAMP
 

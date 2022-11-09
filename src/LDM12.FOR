@@ -2,6 +2,7 @@ C       TWELFTH FILE FOR LENS DATABASE MANAGER FILES
 
 C SUB ILF.FOR
        SUBROUTINE ILF
+         use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -21,12 +22,9 @@ C
 C       OPEN UNIT 22 FOR I/O
 C       OPEN UNIT 27 FOR I/O
 C
-        OPEN(UNIT=22,ACCESS='DIRECT',FILE=LIBLEN//'LIB.DAT',FORM=
-     1  'UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-      CALL CLOSE_FILE(22,0)
-        OPEN(UNIT=27,ACCESS='DIRECT',FILE=LIBLEN//'LIBTAG.DAT',FORM=
-     1  'UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
-      CALL CLOSE_FILE(27,0)
+        call clear_file(trim(LIBLEN)//'LIB.DAT')
+        call clear_file(trim(LIBLEN)//'LIBTAG.DAT')
+
                       DO N=1,999
                         CALL CCOONN(N,AN)
         IF(N.GT.0.AND.N.LE.9) FN='LIB00'//AN(3:3)//'.DAT'
