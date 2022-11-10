@@ -421,6 +421,9 @@ C       PART DRAWINGS
           CALL POWSYM
         RETURN
         END IF
+        IF(WC.EQ.'TSTCMDS') THEN
+          CALL TestCommands
+        END IF
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.
      1  WC.EQ.'SPSRF'.AND.WQ.NE.'OFF')THEN
       IF(RAYCLEAR) THEN
