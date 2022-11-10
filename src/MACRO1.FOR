@@ -331,10 +331,11 @@ C
                 END
 C SUB EEOM.FOR
        SUBROUTINE EEOM
+         use zoa_file_handler
 C
         IMPLICIT NONE
 C
-        INTEGER OCC,MACLOC
+        INTEGER OCC,MACLOC, uMAC
      5  ,IMACEN,MCLOC1,IMCEN1,
      6  NF,I,K,L,KLI,rec30,rec20
 C
@@ -386,23 +387,12 @@ C
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-        PRINT *, "EEOM ROUTINE"
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uMAC = open_mac_dat()
 C
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
+        READ(UNIT=uMAC,REC=I,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
 C
 C       MCNAN1 IS THE MACRO NAME, MCLOC1 IS THE MACRO LOCK,
 C       IMCEN1 IS THE MACRO LENGTH IN LINES, AND OCC IS A FLAG
@@ -425,7 +415,7 @@ C
         MCDIR2(3,I)=OCC
         MCDIR3(I)=STAMP
  10     CONTINUE
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uMAC,1)
 C
 C       SEARCHES OF THIS MACRO DIRECTORY ARE NOW MADE TO DETERMINE
 C       HOW AND WHERE TO STORE EACH NEW OR UPDATED MACRO
@@ -440,22 +430,11 @@ C       SEARCH THE DIRECTORY FOR A MACRO OF THE SAME NAME AS THE MACRO
 C       TO BE FILED.
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
         I=1
-        inquire(iolength=rec20) MCDIR1(I),MCDIR2(1,I),
-     1  MCDIR2(2,I),MCDIR2(3,I),MCDIR3(I)
+
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(rec20),STATUS='UNKNOWN')
+        uMAC = open_mac_dat()
 C
         DO 20 I=1,MAXMAC
         IF(MCDIR1(I).EQ.MACNAM) THEN
@@ -473,9 +452,9 @@ C
                         TTTIM=TTIME
                 MCDIR3(I)=TTIME//'  '//DDATE
 C
-        WRITE(UNIT=20,REC=I) MCDIR1(I),MCDIR2(1,I),
+        WRITE(UNIT=uMAC,REC=I) MCDIR1(I),MCDIR2(1,I),
      1  MCDIR2(2,I),MCDIR2(3,I),MCDIR3(I)
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uMAC,1)
 C       THE MACRO FILE TO STORE IN IS DETERMINED BY THE VALUE OF I
 C
 C       SUBROUTINE MACFIL IS CALLED WHICH RETURNS THE STRING
@@ -605,21 +584,11 @@ C
                         TTTIM=TTIME
                 MCDIR3(I)=TTIME//'  '//DDATE
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
-         OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uMAC = open_mac_dat()
 C
-        WRITE(UNIT=20,REC=I) MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
+        WRITE(UNIT=uMAC,REC=I) MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
      1  MCDIR2(3,I),MCDIR3(I)
 C
 C
@@ -717,7 +686,7 @@ C
                         ELSE
 C       NOT A FUNCTION
                         END IF
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uMAC,1)
 C
 C       NOW THAT A MACRO IS FILED AND THE DIRECTORY IS UPDATED
 C       IT IS TIME TO AUTOMATICALLY RETURN TO THE PROGRAM

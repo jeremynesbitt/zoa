@@ -742,6 +742,7 @@ C       MACSTA(19,IMAC) AND MACSTA(20,IMAC) NOT YET USED
                 END
 C SUB MACCOM.FOR
         SUBROUTINE MACCOM
+          use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -752,7 +753,7 @@ C       CAUSES THE ITH MACRO'S LEADING COMMENTS TO BE OUTPUT
 C       TO THE DEFAULT OUTPUT DEVICE.
 C
         INTEGER OCC,MCLOC1,IMCEN1
-     1  ,NF,K,L,I
+     1  ,NF,K,L,I, uLIB
 C
         CHARACTER MCNAM1*8,FILNAM*10,STAMP*20
 
@@ -767,21 +768,11 @@ C
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uLIB = open_mac_dat()
 C
-        READ(UNIT=20,REC=NF,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
+        READ(UNIT=uLIB,REC=NF,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
 
 C
 C       MCNAM1 IS THE MACRO NAME, MCLOC1 IS THE MACRO LOCK,
@@ -812,7 +803,7 @@ C
         CALL READMACROFILE(LIBMAC//FILNAM)
 !
 
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uLIB,1)
 C
 C       THE MACRO ARRAYS ARE NOW LOADED. NOW REFORMAT AND OUTPUT.
 C
@@ -862,6 +853,7 @@ C
                         END
 C SUB MACCOM1.FOR
         SUBROUTINE MACCOM1
+          use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -872,7 +864,7 @@ C       CAUSES THE ITH MACRO'S LEADING COMMENTS TO BE OUTPUT
 C       TO THE DEFAULT OUTPUT DEVICE.
 C
         INTEGER OCC,MCLOC1,IMCEN1
-     1  ,NF,K,L,I
+     1  ,NF,K,L,I, uLIB
 C
         CHARACTER MCNAM1*8,FILNAM*10,STAMP*20
 
@@ -888,21 +880,11 @@ C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
       MAC_COM1='                                        '
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uLIB = open_mac_dat()
 C
-        READ(UNIT=20,REC=NF,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
+        READ(UNIT=uLIB,REC=NF,ERR=10) MCNAM1,MCLOC1,IMCEN1,OCC,STAMP
 
 C
 C       MCNAM1 IS THE MACRO NAME, MCLOC1 IS THE MACRO LOCK,
@@ -923,7 +905,7 @@ C
                 END IF
 C
         CALL READMACROFILE(LIBMAC//FILNAM)
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uLIB,1)
 C
 C       THE MACRO ARRAYS ARE NOW LOADED. NOW REFORMAT AND OUTPUT.
 C
@@ -966,6 +948,7 @@ C
                         END
 C SUB MACEDT.FOR
         SUBROUTINE MACEDT
+          use zoa_file_handler
 C
         IMPLICIT NONE
 
@@ -973,7 +956,7 @@ C
 C
         LOGICAL EXST,EXISJK
 C
-        INTEGER MMIJ,NF
+        INTEGER MMIJ,NF, uLIB
 C
         CHARACTER FILNAM*10
 C
@@ -1011,27 +994,15 @@ C
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-C       PROCEED
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uLIB = open_mac_dat()
 C
         DO 10 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I)
+        READ(UNIT=uLIB,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I)
      1  ,MCDIR2(3,I),MCDIR3(I)
  10     CONTINUE
-                CALL CLOSE_FILE(20,1)
+                CALL CLOSE_FILE(uLIB,1)
 C
 C       IF MMIJ = 0 THEN FIND A BLANK SPOT IN THE DIRECTORY
 C       ELSE MMIJ DESIGNATES THE MACRO TO BE MEDITED.

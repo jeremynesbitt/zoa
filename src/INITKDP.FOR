@@ -1253,10 +1253,7 @@ C       INITIALIZE TIMER
 C
 C***********************************************************************
 C       INITIALIZE MACRO FUNCTIONS
-        EXISMC=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISMC)
-        WRITE(OUTLYNE, *) "EXISMC IN INITKDP RETURNS ", EXISMC
-        CALL SHOWIT(19)
+        call does_mac_dat_exist(EXISMC)
         IF(EXISMC) THEN
 C       LOAD FUNCTIONS
         macID = open_mac_dat()

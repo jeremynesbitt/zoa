@@ -488,20 +488,14 @@ C
         INCLUDE 'DATMAI.INC'
 C
 C
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
+        call does_mac_dat_exist(EXISJK)
+
         IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
+
                       F1=1
                       F2=0
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-C       PROCEED
-                        END IF
+        END IF
+
 C
         CALL MAXLNN(WQ,MAXLL,MAXLIN)
         I=(MAXLL-1)

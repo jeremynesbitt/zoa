@@ -351,6 +351,7 @@ C      ! CALL CLOSE_FILE(16,0)
                    END
 C SUB MACDMP.FOR
         SUBROUTINE MACDMP
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -364,6 +365,7 @@ C
      1,AI2*2,AI3*3,BF1*1,BF2*2,BF3*3
 C
       INTEGER OLDMODOP,I,J,M1,M2,M3,NEXTM3,OLDCFGOP,OLDCFGVB
+      INTEGER uLIB
 C
       LOGICAL EXISJK
 C
@@ -427,31 +429,21 @@ C
 C     DOES THE INDICATED MACRO EXIST ALREADY, IF SO STOP AND
 C     ISSUE AN ERROR MESSAGE.
 C
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        WRITE(OUTLYNE,*)'"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,*)'TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uLIB = open_mac_dat()
         J=0
         M3=0
         DO 1010 I=1,MAXMAC
-        READ(UNIT=20,REC=I,ERR=1010) MNAME,M1,M2,NEXTM3,STAMP
+        READ(UNIT=uLIB,REC=I,ERR=1010) MNAME,M1,M2,NEXTM3,STAMP
         M3=M3+NEXTM3
         IF(WQ.EQ.MNAME) J=J+1
  1010   CONTINUE
 C               CLOSE UNIT 20
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uLIB,1)
         IF(J.GT.0) THEN
 C       THERE ALREADY WAS A MACRO OF THE SAME NAME ON FILE
         WRITE(OUTLYNE,*)
@@ -1221,6 +1213,7 @@ C       ALL LOADED, CLOSE FILE
                         END
 C SUB TOLDMP.FOR
         SUBROUTINE TOLDMP
+          use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -1234,6 +1227,7 @@ C
       CHARACTER BF1*1,AI1*1,OPNNMM*3,MNAME*8,STAMP*20,BWORD*8
 C
       INTEGER OLDMODOP,II,I,J,M1,M2,M3,NEXTM3,OLDCFGOP,OLDCFGVB
+      INTEGER uLIB
 C
       LOGICAL EXISJK
 C
@@ -1275,31 +1269,21 @@ C
 C     DOES THE INDICATED MACRO EXIST ALREADY, IF SO STOP AND
 C     ISSUE AN ERROR MESSAGE.
 C
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        WRITE(OUTLYNE,*)'"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,*)'TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-        OPEN(UNIT=20,ACCESS='DIRECT',FILE=LIBMAC//'MAC.DAT',FORM=
-     1  'UNFORMATTED',RECL=(40*NRECL),STATUS='UNKNOWN')
+        uLIB = open_mac_dat()
         J=0
         M3=0
         DO 1010 I=1,MAXMAC
-        READ(UNIT=20,REC=I,err=1010) MNAME,M1,M2,NEXTM3,STAMP
+        READ(UNIT=uLIB,REC=I,err=1010) MNAME,M1,M2,NEXTM3,STAMP
         M3=M3+NEXTM3
         IF(WQ.EQ.MNAME) J=J+1
  1010   CONTINUE
 C               CLOSE UNIT 20
-        CALL CLOSE_FILE(20,1)
+        CALL CLOSE_FILE(uLIB,1)
         IF(J.GT.0) THEN
 C       THERE ALREADY WAS A MACRO OF THE SAME NAME ON FILE
         WRITE(OUTLYNE,*)
