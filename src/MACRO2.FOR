@@ -87,16 +87,7 @@ C
                         RETURN
                         END IF
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
         fileID = open_mac_dat()
 C
@@ -635,6 +626,7 @@ C       PRODUCE OUTPUT. WRITE NUMERIC WORDS EVEN IF ALL ZERO.
  501    FORMAT(I3,A76)
  2000   RETURN
         END
+
 C SUB MOD2.FOR
         SUBROUTINE MOD2
         use zoa_file_handler
@@ -1357,16 +1349,7 @@ C       OPEN UNIT 20 FOR I/O
 C
 
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
         fileID = open_mac_dat()
 C
@@ -2013,19 +1996,7 @@ C
                         END IF
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        PRINT *, "FILE PATH IS ", LIBMAC//'MAC.DAT'
-        PRINT *, "EXISJK IS ", EXISJK
-
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
 C
         OUTLYNE=
@@ -2460,16 +2431,7 @@ C
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
         fileID = open_mac_dat()
 C
@@ -2560,11 +2522,7 @@ C
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
         fileID = open_mac_dat()
 C
@@ -2790,16 +2748,7 @@ C
         INCLUDE 'DATMAI.INC'
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
 C       SET FLAGS
                 F1=0
@@ -3047,18 +2996,7 @@ C       DELETED.
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-C       PROCEED
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
         fileID = open_mac_dat()
 C
@@ -3471,16 +3409,7 @@ C
 C       OPEN UNIT 20 FOR I/O
 C
 C       ***************************************************************
-                        EXISJK=.FALSE.
-        INQUIRE(FILE=LIBMAC//'MAC.DAT',EXIST=EXISJK)
-        IF(.NOT.EXISJK) THEN
-        OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-        OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
+        call does_mac_dat_exist(EXISJK)
 C       ***************************************************************
         fileID = open_mac_dat()
 C

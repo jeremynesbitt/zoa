@@ -627,3 +627,21 @@ C       ARRAY TO SUPPORT MACRO GUI
         PRINT *, "NUMINLIST IS ", NUMINLIST
         RETURN
         END
+
+        subroutine does_mac_dat_exist(boolResult)
+
+         logical :: boolResult
+
+          INCLUDE 'DATMAI.INC'
+
+          INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=boolResult)
+          IF(.NOT.boolResult) THEN
+            OUTLYNE='"MACRO FILES DO NOT YET EXIST'
+            CALL SHOWIT(1)
+            OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+          END IF
+
+        end subroutine
