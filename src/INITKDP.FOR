@@ -723,9 +723,9 @@ C       LINUX
                   LIBSPO=basePath//'LIBSPO/'
                   LIBAUT=basePath//'LIBAUT/'
                   LIBPLO=basePath//'LIBPLO/'
-                  NSSDIR=basePath//'NSSDIR/'
-                  LIBGLA=basePath//'LIBGLA/'
-                  CURLENS=basePath//'CURLENS/'
+                  NSSDIR=trim(basePath)//'NSSDIR/'
+                  LIBGLA=trim(basePath)//'LIBGLA/'
+                  CURLENS=trim(basePath)//'CURLENS/'
                         END IF
 
         PRINT *, "LIBMAC IS ", LIBMAC

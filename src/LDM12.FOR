@@ -31,7 +31,7 @@ C
         IF(N.GT.9.AND.N.LE.99) FN='LIB0'//AN(2:3)//'.DAT'
         IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
         EXISJK=.FALSE.
-        INQUIRE(FILE=LIBLEN//FN,EXIST=EXISJK)
+        INQUIRE(FILE=trim(LIBLEN)//FN,EXIST=EXISJK)
         IF(EXISJK) THEN
          OPEN(UNIT=22,ACCESS='SEQUENTIAL',BLANK='NULL'
      1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
@@ -1793,6 +1793,7 @@ C     ASSIGN NEW VALUES
                         END
 C SUB GLSRIN.FOR
         SUBROUTINE GLSRIN
+          USE GLOBALS
 C
         IMPLICIT NONE
 C
@@ -1959,6 +1960,7 @@ C
 C     REGULAR GLASS CATALOG
 C
       EXIS36=.FALSE.
+        call logger%logText('Looking for '//trim(LIBGLA)//FLNAME)
         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
         IF(EXIS36) THEN
 C               PROCEED
@@ -3309,6 +3311,9 @@ C
 C       SET BADGLS
                         BADGLS=.FALSE.
         GOGO=.TRUE.
+        WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(0,1)
+        call logger%logText(OUTLYNE)
+
 C
 C
 C       DETERMINE MINIMUM AND MAX SYSTEM WAVELENGTHS
@@ -4479,6 +4484,8 @@ C     LAST TRY IS THE RUSSIAN CATALOG
                         GO TO 10
                         END IF
                         BADGLS=.TRUE.
+      WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(I,1)
+        call logger%logText(OUTLYNE)
       WRITE(OUTLYNE,*)
      1  'WARNING: FOR SURFACE ',I
       CALL SHOWIT(1)
