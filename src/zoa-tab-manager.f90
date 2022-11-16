@@ -70,6 +70,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use ui_ast_fc_dist
   use ui_spot
   use ROUTEMOD
+  use GLOBALS
 
     class(zoatabManager) :: self
     character(len=80), optional :: inputTitle
@@ -82,6 +83,8 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
     integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
 
+
+    call logger%logText('Adding Tab (addPlotTab Sub)')
 
 
     self%tabNum = self%tabNum+1
@@ -97,12 +100,12 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     select case (PLOT_CODE)
 
     case (ID_NEWPLOT_LENSDRAW)
+        call logger%logText('Lens Draw New Plot Starting')
         if (.not.present(inputTitle)) THEN
           winTitle = "Lens Draw"
         else
           winTitle = inputTitle
         end if
-        PRINT *, "Lens Draw NEW PLOT STARTING "
 
         PRINT *, "winTitle is ", winTitle
 
@@ -114,13 +117,14 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
         self%tabInfo(self%tabNum)%settings = ld_settings
 
+
     case (ID_NEWPLOT_RAYFAN)
+      call logger%logText('Ray Fan New Plot Starting')
         if (.not.present(inputTitle)) THEN
           winTitle = "Ray Fan"
         else
           winTitle = inputTitle
         end if
-        PRINT *, "RAY FAN NEW PLOT STARTING "
 
         PRINT *, "winTitle is ", winTitle
 
@@ -141,6 +145,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         if (present(extcanvas)) new_tab%canvas = extcanvas
 
     case (ID_PLOTTYPE_AST)
+        call logger%logText('Astig FC Dist Tab being added')
         winTitle = "Astig Field Curv Dist"
         allocate(astfcdist_tab :: self%tabInfo(self%tabNum)%tabObj)
         call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_AST)
@@ -150,6 +155,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
 
     case (ID_PLOTTYPE_SPOT)
+        call logger%logText('Spot Diagram Starting')
         winTitle = "Spot Diagram"
         allocate(spot_tab :: self%tabInfo(self%tabNum)%tabObj)
         call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_SPOT)
@@ -170,7 +176,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     !self%tabInfo(self%tabNum)%canvas = new_tab%canvas
     self%tabInfo(self%tabNum)%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
     PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(self%tabNum)%typeCode
-
+    call logger%logText('Tab Info finished populating in addPlotTab ')
 
 end subroutine
 

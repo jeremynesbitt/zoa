@@ -620,7 +620,7 @@ C     NO TILT RET
 C SUB LNSEOS1.FOR
         SUBROUTINE LNSEOS1
         USE GLOBALS
-        
+
 C     NOTE ON 11/04/96 THIS ROUTINE ONLY HAS ONE SUCCESSFUL RETURN
 C     AND IT IS AT THE BOTTOM OF THE ROUTINE
 C
@@ -777,6 +777,7 @@ C     FIX LEADING COLON IN GLASS NAME
       IF(GLANAM(I,2)(1:1).EQ.':') GLANAM(I,2)(1:13)=GLANAM(I,2)(2:13)
       IF(GLANMP(I,2)(1:1).EQ.':') GLANMP(I,2)(1:13)=GLANMP(I,2)(2:13)
                       END DO
+                call logger%logText('About to call GLSRES 780')
                 CALL GLSRES
                 OUTLYNE = "JUST FINISHED GLSRES"
                 CALL SHOWIT(19)
@@ -802,6 +803,7 @@ C     FIX LEADING COLON IN GLASS NAME
 C
                 BADGLS=.FALSE.
                 IF(F22.EQ.1) THEN
+                call logger%logText('About to call GLSRES 806')   
                 CALL GLSRES
                 OUTLYNE = "JUST FINISHED GLSRES"
                 CALL SHOWIT(19)

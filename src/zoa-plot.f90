@@ -1,6 +1,7 @@
 !Module for bar chart plotting
 module zoa_plot
     use collections
+    use GLOBALS
     use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_null_char
 
     !use handlers
@@ -205,6 +206,7 @@ contains
 
     subroutine mp_draw(self)
 
+
         class(multiplot):: self
 
         type(c_ptr)  :: cc, cs, isurface
@@ -251,9 +253,10 @@ contains
         !self%cc = self%area
         !cs = cairo_get_target(self%area)
 
-        PRINT *, "AFTER CS DEFINED"
+        call logger%logText("AFTER CS DEFINED")
         !  Initialize plplot
         call plscmap0(rval, gval, bval)
+        call logger%logText("AFTER PLPLOT MAP CALLED")
 
         !call plscolbg(1,1,1)
         call plsdev("extcairo")
@@ -261,6 +264,7 @@ contains
         ! By default the "extcairo" driver does not reset the background
         ! This is equivalent to the command line option "-drvopt set_background=1"
         plsetopt_rc = plsetopt("drvopt", "set_background=1")
+        call logger%logText("AFTER PLPLOT Background set")
         if (plsetopt_rc .ne. 0) stop "plsetopt error"
 
     !      Process command-line arguments
@@ -273,8 +277,10 @@ contains
         ! The "extcairo" device doesn't read the size from the context.
         write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
              & cairo_image_surface_get_height(cs)
-        plsetopt_rc = plsetopt( 'geometry', geometry)
-        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+        call logger%logText('GEOMETRY IS '//geometry)
+        !plsetopt_rc = plsetopt( 'geometry', geometry)
+        call logger%logText("AFTER plsetopt") 
+        !if (plsetopt_rc .ne. 0) stop "plsetopt error"
 
         !call plinit()
         !  Divide page into 2x2 plots
@@ -474,7 +480,7 @@ contains
 
             call getAxesLimits(self, xmin, xmax, ymin, ymax)
             call plwind(xmin, xmax, ymin, ymax)
-            call plbox( 'bcgnt', 0._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
+            call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
             call plcol0(getLabelFontCode(self))
             call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
             !call plscmap1l(.true.,pos,red,green,blue)
@@ -508,6 +514,7 @@ contains
 
     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
 
+
     ! Getter for dataSeries - separate routine?
     class(plotdata2d), pointer :: dataSeries
     class(*), pointer :: item
@@ -517,7 +524,7 @@ contains
 
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     call plwind(xmin, xmax, ymin, ymax)
-    call plbox( 'bcgnt', 0._pl_test_flt, 0, 'bcgntv', 0._pl_test_flt, 0 )
+    call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
 
     call plcol0(getLabelFontCode(self))
     call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)

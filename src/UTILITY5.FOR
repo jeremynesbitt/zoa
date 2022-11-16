@@ -8659,7 +8659,10 @@ C
  10                             CONTINUE
       CVFILENAMELENGTH=N
       EXIS37=.FALSE.
-      INQUIRE(FILE=CVFILENAME(1:N),EXIST=EXIS37)
+      INQUIRE(
+     1 FILE=trim(basePath)//'CodeV'//
+     1 getFileSep()//CVFILENAME(1:N),
+     1 EXIST=EXIS37)
                IF(.NOT.EXIS37) THEN
       OUTLYNE='NO CODE V INPUT FILE EXISTS TO READ'
       CALL SHOWIT(1)
@@ -8956,6 +8959,7 @@ C     INI
                         END DO
  121                   CONTINUE
                         SAVE_KDP(1)=SAVEINPT(1)
+      call logger%logText('About to set INI '//TEMPC(I))                  
       INPUT='INI '//TEMPC(I)(J1+1:J2-1)
       IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
       IF(INPUT(1:20).NE.AA) CALL PROCES
@@ -9554,6 +9558,8 @@ C     REMOVE BLANKS
       IF(TEMPC(I)(1:1).EQ.' ') TEMPC(I)(1:1024)=TEMPC(I)(2:1024)//' '
                         END DO
 C     DETERMINE GLASS NAME
+      WRITE(OUTLYNE, *) 'TEMPC is ', TEMPC(I)(1:20)
+      call logger%logText(OUTLYNE)
                         DO J=1,1024
       IF(TEMPC(I)(J:J).EQ.'_') THEN
       IF(TEMPC(I)(J+1:J+1).EQ.'S'.AND.TEMPC(I)(1:4).EQ.'BAF2') THEN
