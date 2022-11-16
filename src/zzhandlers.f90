@@ -104,7 +104,7 @@ contains
  character(len=100) :: ftext, strTitle
  CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
  CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A5, A5)"
- character(len=100) :: logText
+ character(len=100) :: consText
  real, ALLOCATABLE :: w(:), symcalc(:)
  real :: w_sum, s_sum, aplanatic, imageNA
  integer :: totalSurfaces
@@ -154,8 +154,8 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   PRINT *, "SIZE OF w is ", size(w)
   PRINT *, "SIZE of no_surfaces is ", size(surfaceno)
 
-  WRITE (logText, FMTHDR), "Surface", "w_j", "s_j"
-  call updateTerminalLog(logText, "black")
+  WRITE (consText, FMTHDR), "Surface", "w_j", "s_j"
+  call updateTerminalLog(consText, "black")
 
 
   do ii = 2, curr_lens_data % num_surfaces - 1
@@ -198,8 +198,8 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
       surfaceno(ii-1) = ii-1
 
-      WRITE(logText, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
-      call updateTerminalLog(logText, "black")
+      WRITE(consText, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+      call updateTerminalLog(consText, "black")
 
 
   end do
@@ -208,12 +208,12 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
 
   !PRINT *, " w is ", w
-  WRITE(logText, *), " w_sum is ", w_sum
-  call updateTerminalLog(logText, "black")
+  WRITE(consText, *), " w_sum is ", w_sum
+  call updateTerminalLog(consText, "black")
 
   !PRINT *, " s is ", symcalc
-  WRITE(logText, *), " s_sum is ", s_sum
-  call updateTerminalLog(logText, "black")
+  WRITE(consText, *), " s_sum is ", s_sum
+  call updateTerminalLog(consText, "black")
 
     !call barchart2(x,y)
     ! print *, "Calling Plotter"
@@ -840,8 +840,6 @@ end subroutine proto_symfunc
     logical :: tstResult
 
 
-    open(unit=2,file='/Users/jeremy/Library/Application Support/Zoa/results.out',status='replace',form='formatted')
-    write(2,*) 'Test Output for Logger'
 
 
     ! Create the window:
@@ -902,7 +900,6 @@ end subroutine proto_symfunc
     ! This object is the container for all the plot and message tabs attach
     ! here
     PRINT *, "Create Notebook Object"
-    write(2,*) 'Create Notebook Object'
     notebook = gtk_notebook_new ()
     call gtk_widget_set_vexpand (notebook, TRUE)
 
@@ -963,7 +960,6 @@ end subroutine proto_symfunc
     !print *, "Detachable Tab is ", scroll_ptr
 
     PRINT *, "Create Paned Window"
-    write(2,*) 'Create Paned Window'
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, scroll_win_detach)
     call gtk_paned_set_end_child(pane, notebook)
@@ -1027,7 +1023,6 @@ end subroutine proto_symfunc
 
 
     call gtk_window_set_interactive_debugging(FALSE)
-    write(2,*) 'Create Menu Bar'
     call populatezoamenubar(my_window)
 
 
@@ -1038,15 +1033,11 @@ end subroutine proto_symfunc
 
     call gtk_window_present (my_window)
 
-    write(2,*) 'About to init KDP'
-
     ! INIT KDP
     CALL INITKDP
 
     PRINT *, "DONE WITH INITKDP!"
 
-    write(2,*) 'Finished init KDP, exiting activate routine'
-    close(2)
 
   end subroutine activate
 
