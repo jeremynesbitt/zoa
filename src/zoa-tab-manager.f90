@@ -67,6 +67,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
   use mod_plotrayfan
   use mod_plotopticalsystem
+  use ui_rmsfield
   use ui_ast_fc_dist
   use ui_spot
   use ROUTEMOD
@@ -82,6 +83,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     class(zoatab), allocatable :: new_tab
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
     integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
+    integer, target :: TARGET_PLOTTYPE_RMSFIELD   = ID_PLOTTYPE_RMSFIELD
 
 
     call logger%logText('Adding Tab (addPlotTab Sub)')
@@ -95,7 +97,10 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         winTitle = inputTitle
       end if
 
+    if (allocated(self%tabInfo(self%tabNum)%tabObj)) THEN
+      call logger%logText("tabObj already allocated?" )
 
+    end if
 
     select case (PLOT_CODE)
 
@@ -135,6 +140,8 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
       allocate(ray_fan_settings :: self%tabInfo(self%tabNum)%settings )
+      self%tabInfo(self%tabNum)%settings = rf_settings
+
 
     case (-1) ! This means we just add to
         PRINT *, "Generic Plot being added"
@@ -164,6 +171,15 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         self%tabInfo(self%tabNum)%settings = spot_struct_settings
         !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
 
+    case (ID_PLOTTYPE_RMSFIELD)
+        call logger%logText('New RMS Field Diagram Starting')
+        winTitle = "RMS vs Field"
+        allocate(rmsfieldtab :: self%tabInfo(self%tabNum)%tabObj)
+        !allocate(rmsfield_tab :: self%tabInfo(self%tabNum)%tabObj)
+        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
+        call self%tabInfo(self%tabNum)%tabObj%newPlot()
+        allocate(rmsfield_settings :: self%tabInfo(self%tabNum)%settings )
+        self%tabInfo(self%tabNum)%settings = rmsfield_struct_settings
 
     end select
 
@@ -208,11 +224,12 @@ end subroutine
       call self%addPlotTab(PLOT_CODE)
     else
       !if (PLOT_CODE.EQ.ID_PLOTTYPE_AST.OR.PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
-      if (PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
+      if (PLOT_CODE.EQ.ID_PLOTTYPE_SPOT.OR.PLOT_CODE.EQ.ID_PLOTTYPE_RMSFIELD) then
         call self%tabInfo(tabPos)%settings%replot()
       else
         call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
       end if
+
       !
     end if
 

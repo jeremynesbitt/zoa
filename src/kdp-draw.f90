@@ -178,11 +178,43 @@ SUBROUTINE TESTCAIRO3(widget, my_cairo_context, win_width, win_height, gdata) bi
 
 END SUBROUTINE TESTCAIRO3
 
+SUBROUTINE PRINTUSERTODEVICE(my_cairo_context,X,Y)
+  type(c_ptr), value, intent(in)    :: my_cairo_context
+  real(kind=c_double), intent(in), value :: X,Y
+
+  REAL(kind=c_double), target :: Xtgt, Ytgt
+  !REAL(kind=c_double), target :: Ytgt
+  type(c_ptr) :: Xptr, Yptr
+  real(kind=c_double), pointer :: Xtmp, Ytmp
+
+
+      Xtgt = X
+      Ytgt = Y
+      Xptr = c_loc(Xtgt)
+      Yptr = c_loc(Ytgt)
+
+      call cairo_user_to_device(my_cairo_context, Xptr, Yptr)
+      call c_f_pointer(Xptr, Xtmp)
+      call c_f_pointer(Yptr, Ytmp)
+      !PRINT *, "Cairo Line to Device X = ", Xtmp, " Y = ", Ytmp
+
+END SUBROUTINE
+
 SUBROUTINE IGRLINETO(my_cairo_context, cairo_drawing_area, X,Y)
   REAL, intent(IN) :: X,Y
+  REAL(kind=c_double), target :: Xtgt = 1000.0
+  REAL(kind=c_double), target :: Ytgt = 1000.0
+  type(c_ptr) :: Xptr, Yptr
+  real(kind=c_double), pointer :: Xtmp, Ytmp
   type(c_ptr), value, intent(in)    :: my_cairo_context, cairo_drawing_area
-      call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+      call cairo_line_to(my_cairo_context, X*1d0, Y*1d0)
 
+      !PRINT *, "Cairo Line to X = ", X, " Y = ", Y
+
+      CALL PRINTUSERTODEVICE(my_cairo_context, X*1d0, Y*1d0)
+
+
+      !PRINT *, "IGRLINETO being called!"
       !call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
 
 
@@ -312,10 +344,11 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       JJ_Y=1.0
 
      scaleFactor = 1! 0.1
-     fontScaleFactor = 20
 
 
      DEBUG = 0
+     CALL PRINTNEUTARRAY
+
       PRINT *, "STARTING TO DRAW LENS"
                        J=1
       READ(NEUTARRAY(1),1000) NEUTTOTAL
@@ -360,12 +393,28 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 !     THIS LETS COLOR 0 BE RE-DEFINED AS ANY BACKGROUND COLOR DESIRED
       !CALL IGRPALETTERGB(240,0,0,0)
       call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
-      call cairo_set_line_width(my_cairo_context, fontScaleFactor*1d0)
 
       !call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
       CALL getVIECOScaleFactor(sf)
       !PRINT *, "SCFAY IN DRAW OPTICAL SYSTEM IS ", sf
+    select case (ID_SETTING)
+    case (ID_PLOTTYPE_RMSFIELD)
+       call cairo_scale(my_cairo_context, .8*1d0, .8*1d0)
+       kdp_height = 0
+       fontScaleFactor = 1
+
+
+
+  case default
       call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
+      kdp_height = 7050.0
+      fontScaleFactor = 20
+
+
+  end select
+
+      call cairo_set_line_width(my_cairo_context, fontScaleFactor*1d0)
+
       !call cairo_scale(my_cairo_context, 2.22/sf*1d0, 2.22/sf*1d0)
       !call cairo_scale(my_cairo_context, sf/222*1d0, sf/222*1d0)
 
@@ -643,7 +692,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
                END IF  ! STRINGER D PLOT TEXT
 
       IF(STRINGER.EQ.'I') THEN
-      IF (DEBUG.EQ.1.AND.II3.NE.0) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
+      !IF (DEBUG.EQ.1.AND.II3.NE.0) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
       CALL JK_MoveToCAIRO(STRINGER, scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, &
       REAL(II5), REAL(II6), REAL(II7), REAL(II8), my_cairo_context, cairo_drawing_area)
 
@@ -751,6 +800,7 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
       !PRINT *, "MY_IX = ", MY_IX, " MY_IY = ", MY_IY
       ! Need to draw the current path before moving the pen, hence the call here to
       ! cairo_stroke
+         !PRINT *, "Cairo Stroke call"
          call cairo_stroke(my_cairo_context)
          call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
       !call cairo_stroke_preserve(my_cairo_context)
@@ -782,7 +832,8 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
           REMAIN=0.0
           OREMAIN=0.0
           !PRINT *, "WRITE LINE!"
-          call IGRLINETO(my_cairo_context, cairo_drawing_area, MY_IX, MY_IY)
+          !PRINT *, "R6 is ", R6, "kdp_height is ", kdp_height
+          call IGRLINETO(my_cairo_context, cairo_drawing_area, MY_IX, REAL(kdp_height-MY_IY))
           !call cairo_line_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
           !call cairo_stroke(my_cairo_context)
           !call cairo_move_to(my_cairo_context, MY_IX*1d0, (kdp_height-MY_IY)*1d0)
@@ -814,16 +865,11 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
     !    DRAW LINE
           IF(X.GE.R5.AND.X.LE.R6.AND.Y.GE.R7.AND.Y.LE.R8) THEN
 
-            !PRINT *, " X Y ", X, " ", Y
-          !  PRINT *, "Drawing J Line"
-          call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
-          !call cairo_stroke(my_cairo_context)
-          !call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
-          !call gtk_widget_queue_draw(cairo_drawing_area)
-    !      CALL IGRLINETO(X,Y)
+          call IGRLINETO(my_cairo_context, cairo_drawing_area, MY_IX, REAL(kdp_height-MY_IY))
+          !call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
 
                        ELSE
-    !      CALL IGRMOVETO(X,Y)
+
            PRINT *, "J Move To "
            call cairo_stroke(my_cairo_context)
            call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
@@ -850,7 +896,8 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
           IF(X.GE.R5.AND.X.LE.R6.AND.Y.GE.R7.AND.Y.LE.R8) THEN
             !PRINT *, " X Y ", X, " ", Y
             PRINT *, "Drawing J Vertical Line"
-          call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
+          call IGRLINETO(my_cairo_context, cairo_drawing_area, MY_IX, REAL(kdp_height-MY_IY))
+          !call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
           call cairo_stroke(my_cairo_context)
           call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
           call gtk_widget_queue_draw(cairo_drawing_area)
@@ -905,12 +952,12 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
 !     DRAW LINE
       IF(STRINGER.EQ.'I') THEN
         call cairo_set_dash(my_cairo_context, c_loc(dashes), 1, 0d0)
-        CALL IGRLINETO(my_cairo_context, cairo_drawing_area, REAL(X),REAL(Y))
+        CALL IGRLINETO(my_cairo_context, cairo_drawing_area, REAL(X),REAL(kdp_height-Y))
         !call cairo_set_dash(my_cairo_context, c_loc(dashes), 0, 0d0)
       END IF
 
       IF (STRINGER.EQ.'J'.AND.X.GE.R5.AND.X.LE.R6.AND.Y.GE.R7.AND.Y.LE.R8) THEN
-            CALL IGRLINETO(my_cairo_context, cairo_drawing_area, REAL(X),REAL(Y))
+            CALL IGRLINETO(my_cairo_context, cairo_drawing_area, REAL(X),REAL(kdp_height-Y))
       ELSE
 
       call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)

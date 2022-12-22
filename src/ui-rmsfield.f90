@@ -1,4 +1,4 @@
-module ui_modname
+module ui_rmsfield
   use gtk
   use global_widgets
   use zoa_ui
@@ -6,34 +6,34 @@ module ui_modname
   use zoa_tab
 
 
-type, extends(ui_settings) :: newui_settings
+type, extends(ui_settings) :: rmsfield_settings
    integer changed
    logical autoplotupdate
    type(c_ptr) :: canvas
 
 
  contains
-    procedure, public :: is_changed => newui_is_changed
-    procedure, public :: replot => newui_replot
+    procedure, public :: is_changed => rmsfield_is_changed
+    procedure, public :: replot => rmsfield_replot
 
 
 end type
 
-interface newui_settings
-  module procedure :: newui_constructor
+interface rmsfield_settings
+  module procedure :: rmsfield_constructor
 end interface
 
 
-type, extends(zoatab) :: newui_tab
+type, extends(zoatab) :: rmsfieldtab
 contains
-  procedure :: newPlot => newui_new
+  procedure :: newPlot => rmsfield_new
 end type
 
-  type(newui_settings) :: newui_struct_settings
+  type(rmsfield_settings) :: rmsfield_struct_settings
 
 contains
 
-type(newui_settings) function newui_constructor(canvas) result(self)
+type(rmsfield_settings) function rmsfield_constructor(canvas) result(self)
 
     type(c_ptr) :: canvas
     self%autoplotupdate = .TRUE.
@@ -41,24 +41,24 @@ type(newui_settings) function newui_constructor(canvas) result(self)
 
 end function
 
-function newui_is_changed(self) result(flag)
-  class(newui_settings), intent(in) :: self
+function rmsfield_is_changed(self) result(flag)
+  class(rmsfield_settings), intent(in) :: self
   integer :: flag
   flag = self%changed
 end function
 
-subroutine newui_replot(self)
-  class(newui_settings) :: self
+subroutine rmsfield_replot(self)
+  class(rmsfield_settings) :: self
 
   character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
   character(len=5) :: ftext
-       PRINT *, "About to call plot_spot for replot"
-       call plot_newui(self%canvas)
+       PRINT *, "About to call plot_rmsfield for replot"
+       call plot_rmsfield(self%canvas)
 !
 end subroutine
 
 
-subroutine newui_new(self)
+subroutine rmsfield_new(self)
   use zoa_tab
   use gtk_draw_hl
   use g
@@ -66,33 +66,33 @@ subroutine newui_new(self)
   implicit none
 
   type(c_ptr) :: parent_window, localcanvas, isurface
-  class(newui_tab) :: self
+  class(rmsfieldtab) :: self
   integer :: usePLPLOT = 1
 
-  PRINT *, "newui new plot initiated!"
+  PRINT *, "rmsfield new plot initiated!"
 
 
   !ast_cairo_drawing_area = astfcdist_tab%canvas
   if (usePLPLOT == 1) THEN
-    PRINT *, "Plotting newui via PL PLOT!"
+    PRINT *, "Plotting rmsfield via PL PLOT!"
     self%canvas = hl_gtk_drawing_area_new(size=[700,500], &
           & has_alpha=FALSE)
 
-          newui_struct_settings = newui_settings(self%canvas)
+          rmsfield_struct_settings = rmsfield_settings(self%canvas)
 
-          call newui_spot(self%canvas)
+          call plot_rmsfield(self%canvas)
+          call self%finalizeWindow
   else
 
     !call gtk_drawing_area_set_draw_func(astfcdist_tab%canvas, &
     !                & c_funloc(ROUTEDRAWING), c_loc(TARGET_PLOTTYPE_AST), c_null_funptr)
   end if
 
-  call self%finalizeWindow()
 
 end subroutine
 
 
-subroutine callback_newui_settings (widget, gdata ) bind(c)
+subroutine callback_rmsfield_settings (widget, gdata ) bind(c)
    use iso_c_binding
    use hl_gtk_zoa
    use zoa_ui
@@ -107,7 +107,7 @@ subroutine callback_newui_settings (widget, gdata ) bind(c)
 
 end subroutine
 
- subroutine plot_newui(localcanvas)
+ subroutine plot_rmsfield(localcanvas)
 
         USE GLOBALS
         !use handlers
@@ -126,8 +126,9 @@ end subroutine
 
      integer :: numPts, numPtsDist, numPtsFC
 
-     REAL :: x, y
+     REAL, dimension(10) :: x, y
 
+    call logger%logText('plot_rmsfield routine started')
     isurface = g_object_get_data(localcanvas, "backing-surface")
     PRINT *, "isurface is ", isurface
     if (.not. c_associated(isurface)) then
@@ -143,12 +144,12 @@ end subroutine
 
     call xyscat1%initialize(c_null_ptr, x, y, &
     & xlabel=' (in)'//c_null_char, ylabel='(in)'//c_null_char, &
-    & title='newui Diagram'//c_null_char)
+    & title='rmsfield Diagram'//c_null_char)
     call xyscat1%setLineStyleCode(-1)
     !&  REAL(pack((DSPOTT(2,:)-SUM(DSPOTT(2,:)/SIZE(DSPOTT(2,:)))), &
 
     call mplt%set(1,1,xyscat1)
-
+    !call xyscat1%drawPlot
     call mplt%draw()
 
 end subroutine

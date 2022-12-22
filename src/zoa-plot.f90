@@ -278,9 +278,9 @@ contains
         write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
              & cairo_image_surface_get_height(cs)
         call logger%logText('GEOMETRY IS '//geometry)
-        !plsetopt_rc = plsetopt( 'geometry', geometry)
-        call logger%logText("AFTER plsetopt") 
-        !if (plsetopt_rc .ne. 0) stop "plsetopt error"
+        plsetopt_rc = plsetopt( 'geometry', geometry)
+        call logger%logText("AFTER plsetopt")
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
 
         !call plinit()
         !  Divide page into 2x2 plots
@@ -303,7 +303,7 @@ contains
             !and a margin around the other three sides of five character heights).
             call plvsta
             plotter => self%get(m,n)
-            PRINT *, "Starting to Draw Plot from Plotter"
+            call logger%logText("Starting to Draw Plot from Plotter")
             call plotter%drawPlot
 
 
@@ -474,12 +474,27 @@ contains
     class(barchart), intent(in) :: self
     integer :: i
     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
+    type(c_ptr) :: isurface
 
 
 
 
             call getAxesLimits(self, xmin, xmax, ymin, ymax)
             call plwind(xmin, xmax, ymin, ymax)
+        isurface = g_object_get_data(self%area, "backing-surface")
+    ! Create the backing surface
+
+    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+    !call g_object_set_data(self%area, "backing-surface", isurface)
+        PRINT *, "isurface in mp_draw is ", isurface
+        if (.not. c_associated(isurface)) then
+           PRINT *, "mp_draw :: Backing surface is NULL"
+          isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+          isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+          call g_object_set_data(self%area, "backing-surface", isurface)
+        end if
+
             call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
             call plcol0(getLabelFontCode(self))
             call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
@@ -505,7 +520,7 @@ contains
     subroutine drawPlot(self)
         class(zoaplot), intent(in) :: self
 
-    type(c_ptr)  :: cc, cs
+    type(c_ptr)  :: cc, cs, isurface
     character(len=20) :: string
     character(len=25) :: geometry
     integer :: i
@@ -524,6 +539,21 @@ contains
 
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     call plwind(xmin, xmax, ymin, ymax)
+
+        isurface = g_object_get_data(self%area, "backing-surface")
+    ! Create the backing surface
+
+    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+    !call g_object_set_data(self%area, "backing-surface", isurface)
+        PRINT *, "isurface in mp_draw is ", isurface
+        if (.not. c_associated(isurface)) then
+           PRINT *, "mp_draw :: Backing surface is NULL"
+          isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+          isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+          call g_object_set_data(self%area, "backing-surface", isurface)
+        end if
+
     call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
 
     call plcol0(getLabelFontCode(self))
@@ -575,6 +605,191 @@ contains
         call self%plotdatalist(self%numSeries)%initialize(X,Y)
 
   end subroutine
+
+!
+!     subroutine kdp_drawPlot(self)
+!
+!       use kdp_plot_impl
+!         class(zoaplot), intent(in) :: self
+!
+!     type(c_ptr)  :: cc, cs, isurface
+!     character(len=20) :: string
+!     character(len=25) :: geometry
+!
+!     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
+!
+!     ! Getter for dataSeries - separate routine?
+!     class(plotdata2d), pointer :: dataSeries
+!     class(*), pointer :: item
+!
+!       CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
+!
+!       REAL*8 WOR1(0:50),WOR2(0:50),RANGE,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
+!
+!       REAL LLIM,ULIM,UFLIM,LFLIM,DELX1,FLDAN(0:50)
+!
+!       COMMON/FIFI/FLDAN
+!
+!       REAL X1(1:51),Y(1:51),XRAN1,YRAN,YMINJK,XMINJK1,XMAXJK1,YMAXJK,X2(1:51),XMINJK2,XMAXJK2,XRAN2,XRAN,XMAXJK,XMINJK,X(1:51)
+!
+!       INTEGER NX,NY,COLPAS,MYJK,DFLAG,I,PNTNUM,NT1ANG,NT1SIZ
+!
+!       LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
+!
+!       COMMON/NUMPNT/PNTNUM,ORI,FACTY
+!
+!       LOGICAL ASTEXT,FLDEXT,DISEXT,FDISEXT
+!       COMMON/FIELDEXT/ASTEXT,FLDEXT,DISEXT,FDISEXT
+!
+!       COMMON/ABSSS/WOR1,WOR2,DTA11,DTA22,DDTA,ADTA
+!
+!         INCLUDE 'DATMAI.INC'
+!         INCLUDE 'DATLEN.INC'
+!         INCLUDE 'DATHGR.INC'
+!
+!       MYJK=0
+!
+!       IF(DF2.EQ.1.OR.DF2.EQ.0.AND.W2.EQ.0.0D0) DFLAG=0
+!       IF(DF2.EQ.0.AND.W2.NE.0.0D0) DFLAG=1
+!
+! !     GENERATE GRAPHIC
+! !     DO A PLOT NEW
+!       DEVTYP=1
+!       LOOKY=0.0D0
+!       LOOKX=-1.0D0
+!       LOOKZ=0.0D0
+!       CALL PLTDEV
+!       GRASET=.TRUE.
+!       PLEXIS=.TRUE.
+! !     SET LETTER SIZE AND ANGLE
+!       BL20='                    '
+!       BLNOTE=BL20//BL20//BL20//BL20
+!                         NT1SIZ=1
+!                         NT1ANG=0
+!       PRINT *, "zoa-plot NEUTTOTAL IS ", NEUTTOTAL
+!       CALL MY_SETCHARASPECT(1.5,1.5)
+!       PRINT *, "zoa-plot NEUTTOTAL IS ", NEUTTOTAL
+! !     LIFT PEN, MOVE TO FRAME START
+! !
+!       CALL PLOTBOX
+! !
+!       COLPAS=COLLBL
+!       CALL MY_COLTYP(COLPAS)
+! !     DO THE PLOTTING OF THE LENS IDENTIFIER
+! !     AT X=200, Y=500
+!       NT1SIZ=1
+!       NT1ANG=0
+!       IF(STMPT) CALL MYTIME(TMY)
+!       IF(STMPD) CALL MYDATE(DTY)
+!         IF(.NOT.STMPT.AND..NOT.STMPD) NNTT1=LI
+!         IF(STMPT.AND.STMPD) NNTT1=TMY//' '//DTY//LI
+!         IF(STMPT.AND..NOT.STMPD) NNTT1=TMY//' '//LI
+!         IF(.NOT.STMPT.AND.STMPD) NNTT1=DTY//LI
+!                 IF(NNTT1.NE.BLNOTE) THEN
+!         CALL MY_JUSTSTRING(200,500,NNTT1(1:80),NT1ANG,NT1SIZ,3,3)
+!                         ELSE
+! !     LI BLANK, NOT ACTION
+!                         END IF
+!
+!       RANGE=ORI
+!       WRITE(B,101) RANGE
+!       READ(B,200) CRANGE
+! 101   FORMAT(F8.3)
+! 200   FORMAT(A8)
+!       NNTT1='ORIENTATION ANGLE = '
+! !
+!       CALL MY_JUSTSTRING(200,250,NNTT1(1:20),NT1ANG,NT1SIZ,3,3)
+!
+!       NNTT1=CRANGE//' '//'DEGREES'
+! !
+!       CALL MY_JUSTSTRING(1700,250,NNTT1(1:16),NT1ANG,NT1SIZ,3,3)
+!
+! !     HERE GO THE REAL PLOTTING COMMANDS
+! !     **********************************
+! !     THE FUNCTIONAL VALUES ARE IN THE ARRAYS DDTA
+! !     THE INDEPENDENT VARIABLE IS THE LIST OF
+! !     RADIAL FIELD POSITIONS WHICH WILL BE GENERATED AND PLACED
+! !     IN THE 'Y' ARRAY
+! !     LOAD Y
+!       PNTNUM = 9
+!
+!        XMINJK1=1.0E20
+!        XMAXJK1=-1.0E20
+!
+!       YMAXJK=self%y(PNTNUM)
+!       YMINJK=self%y(1)
+! !
+!       YRAN=ABS(YMAXJK-YMINJK)
+!       XRAN1=ABS(XMAXJK1-XMINJK1)
+!           XRAN=XRAN1
+!       IF(DF1.EQ.0) XRAN=ABS(W1)
+!           XMINJK=XMINJK1
+!           XMAXJK=XMAXJK1
+!
+!
+!       CALL PRINTNEUTARRAY
+! !     PLOT THE AXES AND TICS
+!       call plot_axes(700,1000,.1,.1,0)
+!       !CALL PLOTAXES2
+!       PRINT *, "AFTER PLOTAXES2 PRINTING NEUTARRAY"
+!       CALL PRINTNEUTARRAY
+!
+! !     COMMENT OUT BELOW FOR DEBUGGING
+! !
+! ! !     PLOT THE HORIZONTAL AXIS NAME
+! !       CALL PLOTHNAME("xlabel",11)
+! ! !     PLOT THE VERTICAL AXIS NAME
+! !       CALL PLOTVNAME("ylabel",11)
+! !
+! ! !     PLOT THE VALUES FOR THE TIC MARKS
+! !       DELX1=(YMAXJK)/2.0
+! !       LLIM=0.0
+! !       CALL PLOTVVAL2(YMINJK,DELX1)
+! !       XMINJK = self%x(1)
+! !       XMAXJK = self%x(9)
+! !       !CALL PLOTUXAXIS(XMINJK,XMAXJK)
+! !       ! IF(DABS(DBLE(XMAXJK)).GT.DABS(DBLE(XMINJK))) THEN
+! !       ! XMAXJK=DABS(DBLE(XMAXJK))
+! !       ! XMINJK=-DABS(DBLE(XMAXJK))
+! !       !                  ELSE
+! !       ! XMAXJK=DABS(DBLE(XMINJK))
+! !       ! XMINJK=-DABS(DBLE(XMINJK))
+! !       !                  END IF
+! !       DELX1=(XMAXJK-XMINJK)/4.0
+! !
+! !       ! For some reason this call isn't doing anything.
+! !       CALL PLOTHVAL2(XMINJK+1,YMAXJK/2.0)
+! !
+! !       LLIM=XMINJK
+! !       ULIM=XMAXJK
+! !       UFLIM=YMAXJK
+! !       LFLIM=0.0
+! !       PRINT *, "XMINJK is ", XMINJK
+! !       PRINT *, "XMAXJK is ", XMAXJK
+! !       PRINT *, "YMINJK is ", YMINJK
+! !       PRINT *, "YMAXJK is ", YMAXJK
+! !
+! !       call logger%logText('About to call plotfunc4')
+! !       CALL PLOTFUNC4(self%x,self%y,10,XMINJK,XMAXJK,YMINJK,YMAXJK,0)
+! !       !CALL PLOTFUNC1(self%x,self%y,10,XMINJK,XMAXJK,YMINJK,YMAXJK,0)
+! !       IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+!       call logger%logText('Done with plotfunc4')
+!
+!
+! !     **********************************
+! !     DATA PLOTTING DONE
+!
+!       IF(DFLAG.EQ.0) THEN
+!                         SAVE_KDP(1)=SAVEINPT(1)
+!                         INPUT='DRAW'
+!                         CALL PROCES
+!                         REST_KDP(1)=RESTINPT(1)
+!                        END IF
+!                        RETURN
+!
+!
+!     end subroutine
+
 
     subroutine setLabelFont(self, desiredColor)
 

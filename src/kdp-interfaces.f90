@@ -15,7 +15,7 @@ subroutine POWSYM
  character(len=100) :: ftext, strTitle
  CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
  CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A5, A5)"
- character(len=100) :: logText
+ character(len=100) :: conLong
  real, ALLOCATABLE :: w(:), symcalc(:)
  real :: w_sum, s_sum, aplanatic, imageNA
  integer :: totalSurfaces
@@ -68,8 +68,8 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   PRINT *, "SIZE OF w is ", size(w)
   PRINT *, "SIZE of no_surfaces is ", size(surfaceno)
 
-  WRITE (logText, FMTHDR), "Surface", "w_j", "s_j"
-  call updateTerminalLog(logText, "black")
+  WRITE (conLong, FMTHDR), "Surface", "w_j", "s_j"
+  call updateTerminalLog(conLong, "black")
 
 
   do ii = 2, curr_lens_data % num_surfaces - 1
@@ -112,8 +112,8 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
       surfaceno(ii-1) = ii-1
 
-      WRITE(logText, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
-      call updateTerminalLog(logText, "black")
+      WRITE(conLong, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+      call updateTerminalLog(conLong, "black")
 
 
   end do
@@ -122,12 +122,12 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
 
   !PRINT *, " w is ", w
-  WRITE(logText, *), " w_sum is ", w_sum
-  call updateTerminalLog(logText, "black")
+  WRITE(conLong, *), " w_sum is ", w_sum
+  call updateTerminalLog(conLong, "black")
 
   !PRINT *, " s is ", symcalc
-  WRITE(logText, *), " s_sum is ", s_sum
-  call updateTerminalLog(logText, "black")
+  WRITE(conLong, *), " s_sum is ", s_sum
+  call updateTerminalLog(conLong, "black")
 
     !call barchart2(x,y)
     ! print *, "Calling Plotter"
@@ -208,6 +208,39 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   call powsym_tab%finalizeWindow()
 
 
+
+end subroutine
+
+subroutine RMSFIELD
+use GLOBALS
+use global_widgets
+use handlers, only : updateTerminalLog
+ use zoa_plot
+   call logger%logText('RMSField Routine Starting')
+
+   call RMSFIELD_PLOT
+
+end subroutine
+
+subroutine RMSFIELD_PLOT
+   use global_widgets
+
+  use zoa_plot
+  use zoa_tab
+  use zoa_ui
+  !use zoa_tab_manager
+  use gtk_draw_hl
+  !use zoa_tab_manager
+  use handlers
+  implicit none
+  type(c_ptr) :: localcanvas
+
+  !  localcanvas = hl_gtk_drawing_area_new(size=[1200,500], &
+  !       & has_alpha=FALSE)
+
+
+  !call zoatabMgr%addPlotTab(ID_PLOTTYPE_RMSFIELD, inputTitle='RMS Field Plot', extcanvas=localcanvas)
+  call PROCESKDP('DRAW')
 
 end subroutine
 

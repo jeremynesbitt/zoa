@@ -5,7 +5,7 @@ module lens_analysis
 
    !use global_widgets
    use plplot
-   use plplot_extra
+   !use plplot_extra
    use gtk_draw_hl
   use cairo, only: cairo_get_target, cairo_image_surface_get_height, &
        & cairo_image_surface_get_width
@@ -129,7 +129,7 @@ subroutine x12f(area, x, y)
 
     call plinit()
 
-    call pl_cmd(PLESC_DEVINIT, cc)
+    !call plcmd(PLESC_DEVINIT, cc)
 
     call pladv(0)
     call plvsta

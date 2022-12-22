@@ -80,3 +80,58 @@ C
 
 
       end subroutine
+
+      subroutine PRINTNEUTARRAY()
+
+        USE GLOBALS
+        IMPLICIT NONE
+
+        INCLUDE 'DATHGR.INC'
+
+        INTEGER :: J, I1,I2,I3,I4,I5,I6,I7,I8
+        REAL :: RRR1, RRR2
+        CHARACTER(len=1) :: STRINGER
+        CHARACTER(len=20) :: C1A,C1B,C1C,C1D
+
+        PRINT *, "PRINTING OUT CURRENT STATE OF NEUTARRAY"
+        PRINT *, "NEUTTOTAL IS ", NEUTTOTAL
+        J=2
+        DO WHILE (J<NEUTTOTAL)
+          !PRINT *,"J=",J
+
+        READ(NEUTARRAY(J),2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
+
+
+ 2000 FORMAT(A1,I5,I5,I5,I5,I5,I5,I5,I5)
+
+          WRITE(*,2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
+
+          IF(STRINGER.EQ.'F') THEN
+          !     SETTING THE CHARACTER ASPECT
+                J=J+1
+ 3000 FORMAT(E15.7,E15.7,11X)
+                READ(NEUTARRAY(J),3000) RRR1,RRR2
+          WRITE(*,3000) RRR1, RRR2
+          END IF
+
+
+      IF(STRINGER.EQ.'D') THEN
+
+!     PLOTTING A STRING
+                   J=J+1
+ 1003 FORMAT(A20,22X)
+      READ(NEUTARRAY(J),1003)C1A
+                   J=J+1
+      READ(NEUTARRAY(J),1003)C1B
+                   J=J+1
+      READ(NEUTARRAY(J),1003)C1C
+                   J=J+1
+      READ(NEUTARRAY(J),1003)C1D
+      PRINT *, C1A//C1B//C1C//C1D
+      END IF
+
+          J = J+1
+        END DO
+
+
+      end subroutine

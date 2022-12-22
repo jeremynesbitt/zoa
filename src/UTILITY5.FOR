@@ -8959,7 +8959,9 @@ C     INI
                         END DO
  121                   CONTINUE
                         SAVE_KDP(1)=SAVEINPT(1)
-      call logger%logText('About to set INI '//TEMPC(I))                  
+      call logger%logText('About to set INI '//TEMPC(I))
+      PRINT *, "J1 = ", J1
+      PRINT *, "J2 = ", J2                 
       INPUT='INI '//TEMPC(I)(J1+1:J2-1)
       IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
       IF(INPUT(1:20).NE.AA) CALL PROCES

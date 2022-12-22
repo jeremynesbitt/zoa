@@ -86,6 +86,14 @@ module handlers
   integer :: command_search = 1
   type(zoatabManager) :: zoatabMgr
 
+  ! interface
+  !    subroutine pl_cmd(cmd, arg) bind(c)
+  !      use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+  !      integer(kind=c_int), value :: cmd
+  !      type(c_ptr), value :: arg
+  !    end subroutine pl_cmd
+  ! end interface
+  !
 
 contains
 
@@ -275,8 +283,13 @@ end subroutine proto_symfunc
 
 
 
-  subroutine plot_04(area)
+  subroutine plot_04_macos(area)
+    use plfortrandemolib
+
+    implicit none
+    character(len=80) :: driver
     type(c_ptr), intent(inout) :: area
+    logical :: ptrCheck
 
     type(c_ptr)  :: cc, cs
     integer :: i
@@ -294,6 +307,93 @@ end subroutine proto_symfunc
          & 0, 0, 85, 170/), &
          & bval = (/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
          & 127, 85, 170/)
+
+
+
+    ! Get a cairo context from the drawing area.
+    !do i=1,2
+    i = 1
+       cc = hl_gtk_drawing_area_cairo_new(area)
+       cs = cairo_get_target(cc)
+    !end do
+
+    !  Initialize plplot
+    call plscmap0(rval, gval, bval)
+    !call plgdev(driver)
+    !PRINT *, "DRIVER is ", driver
+
+    call plsdev("extcairo")
+    call plinit()
+    call logger%logText("About to record cc pointer")
+    ptrCheck = c_associated(cc)
+    write(driver, *) "CC ptrCheck is ", ptrCheck
+    call logger%logText(trim(driver))
+    !write(driver, *) "CairoContext is ", cc
+    if (c_associated(cc)) then
+      call logger%logText("Cairo Context Pointer Assigned")
+    else
+      call logger%logText("Cario Context Pointer Null")
+    end if
+    !call plcmd(PLESC_DEVINIT, cc)
+
+    ! By default the "extcairo" driver does not reset the background
+    ! This is equivalent to the command line option "-drvopt set_background=1"
+    !plsetopt_rc = plsetopt("drvopt", "set_background=1")
+    !if (plsetopt_rc .ne. 0) stop "plsetopt error"
+
+    ! The "extcairo" device doesn't read the size from the context.
+    !write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
+    !     & cairo_image_surface_get_height(cs)
+    !plsetopt_rc = plsetopt( 'geometry', geometry)
+    !if (plsetopt_rc .ne. 0) stop "plsetopt error"
+
+    ! Initialize
+
+    ! Tell the "extcairo" driver where the context is located. This must be
+    ! done AFTER the plstar or plinit call.
+    !print *, "ABOUT TO pl_cmd"
+
+    call plfont(2)   ! Roman font
+    call plot1(0)
+
+    ! Now continue the plot on the other surface
+    !call pl_cmd(PLESC_DEVINIT, cc(2))
+
+    !call plot1(1)
+
+    call plend
+
+    call hl_gtk_drawing_area_cairo_destroy(cc)
+    !call hl_gtk_drawing_area_cairo_destroy(cc(2))
+
+  end subroutine
+
+  subroutine plot_04(area)
+
+    use plplot_extra
+
+    implicit none
+
+    type(c_ptr), intent(inout) :: area
+
+    type(c_ptr)  :: cc, cs
+    integer :: i
+    character(len=25) :: geometry
+
+    ! needed for use as functions instead of subroutines
+    integer :: plparseopts_rc
+    integer :: plsetopt_rc
+
+
+    ! Define colour map 0 to match the "GRAFFER" colour table in
+    ! place of the PLPLOT default.
+    integer, parameter, dimension(16) :: rval = (/255, 0, 255, &
+         & 0, 0, 0, 255, 255, 255, 127, 0, 0, 127, 255, 85, 170/),&
+         & gval = (/ 255, 0, 0, 255, 0, 255, 0, 255, 127, 255, 255, 127,&
+         & 0, 0, 85, 170/), &
+         & bval = (/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
+         & 127, 85, 170/)
+
 
     !  Process command-line arguments
 
@@ -339,7 +439,7 @@ end subroutine proto_symfunc
     call plot1(0)
 
     ! Now continue the plot on the other surface
-    !call pl_cmd(PLESC_DEVINIT, cc(2))
+    !call plcmd(PLESC_DEVINIT, cc(2))
 
     !call plot1(1)
 
@@ -408,7 +508,7 @@ end subroutine proto_symfunc
     ! Tell the "extcairo" driver where the context is located. This must be
     ! done AFTER the plstar or plinit call.
     print *, "ABOUT TO pl_cmd"
-    call pl_cmd(PLESC_DEVINIT, cc)
+    !call plcmd(PLESC_DEVINIT, cc)
 
     call plfont(2)   ! Roman font
     call plot1(0)
@@ -975,8 +1075,8 @@ end subroutine proto_symfunc
     call gtk_widget_set_hexpand(notebook, TRUE)
 
     call gtk_widget_set_vexpand (box1, TRUE)
-    !call plot_04(drawing_area_plot)
 
+     call plot_04(drawing_area_plot)
     !call x12f(drawing_area_plot)
 
     ! The window status bar can be used to print messages:
@@ -1037,6 +1137,7 @@ end subroutine proto_symfunc
     CALL INITKDP
 
     PRINT *, "DONE WITH INITKDP!"
+    !call plot_04(drawing_area_plot)
 
 
   end subroutine activate
