@@ -175,7 +175,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         call logger%logText('New RMS Field Diagram Starting')
         winTitle = "RMS vs Field"
         allocate(rmsfieldtab :: self%tabInfo(self%tabNum)%tabObj)
-        !allocate(rmsfield_tab :: self%tabInfo(self%tabNum)%tabObj)
         call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
         call self%tabInfo(self%tabNum)%tabObj%newPlot()
         allocate(rmsfield_settings :: self%tabInfo(self%tabNum)%settings )

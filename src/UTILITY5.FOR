@@ -8961,8 +8961,11 @@ C     INI
                         SAVE_KDP(1)=SAVEINPT(1)
       call logger%logText('About to set INI '//TEMPC(I))
       PRINT *, "J1 = ", J1
-      PRINT *, "J2 = ", J2                 
+      IF (J2.GT.1024) J2 = 1024
+      PRINT *, "J2 = ", J2
+
       INPUT='INI '//TEMPC(I)(J1+1:J2-1)
+      PRINT *, "INI Input is " // INPUT
       IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
       IF(INPUT(1:20).NE.AA) CALL PROCES
                         END IF
@@ -9248,6 +9251,7 @@ C     STRIP LEADING BLANKS
      1,D23.15)
                         SAVE_KDP(1)=SAVEINPT(1)
                         INPUT(1:132)=OUTLYNE2(1:132)
+                        PRINT *, "Spectral Weight " // INPUT
                         IF(INPUT(1:20).NE.AA) CALL PROCES
                         REST_KDP(1)=RESTINPT(1)
       TEMPC(I)(1:1024)=BL1024(1:1024)
@@ -9322,7 +9326,10 @@ C     XTO
                                 END IF
 C     DIM
       IF(TEMPC(I)(1:3).EQ.'DIM') THEN
+        PRINT *, "CV2PRG DIM " //TEMPC(I)
+        PRINT *, "Unit check is " //TEMPC(I)(7:7)
       IF(TEMPC(I)(7:7).EQ.'M') THEN
+                        PRINT *, "Setting units to mm"
                         SAVE_KDP(1)=SAVEINPT(1)
                         INPUT='UNITS MM'
                         IF(INPUT(1:20).NE.AA) CALL PROCES

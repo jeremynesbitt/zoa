@@ -3,7 +3,7 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
-        use kdp_interfaces, only: EDITOR, POWSYM
+        use kdp_interfaces, only: EDITOR, POWSYM, RMSFIELD
 C
         IMPLICIT NONE
 
@@ -421,8 +421,14 @@ C       PART DRAWINGS
           CALL POWSYM
         RETURN
         END IF
+
         IF(WC.EQ.'TSTCMDS') THEN
           CALL TestCommands
+        END IF
+        IF(WC.EQ.'RMSFIELD') THEN
+          active_plot = ID_PLOTTYPE_RMSFIELD
+          CALL RMSFIELD
+        RETURN
         END IF
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.
      1  WC.EQ.'SPSRF'.AND.WQ.NE.'OFF')THEN
