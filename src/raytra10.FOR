@@ -1539,6 +1539,7 @@ C       NO RAY EXITS OR NO REF RAY
 C SUB LOPDS.FOR
         SUBROUTINE LOPDS(REFERR,TPT)
 C
+        USE GLOBALS
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE LOPD.FOR. THIS SUBROUTINE IS
@@ -1725,23 +1726,30 @@ C       THIS IS THE REFERENCE SPHERE CENTER LOCATION.
         XREFI=REFRY(1,NEWIMG)
         YREFI=REFRY(2,NEWIMG)
         ZREFI=REFRY(3,NEWIMG)
+        call logger%logTextWithNum("XREFI=",XREFI)
+        call logger%logTextWithNum("YREFI=",YREFI)
+        call logger%logTextWithNum("ZREFI=",ZREFI)
+
+
         IF(ALENS(3,(NEWIMG-1)).EQ.0.0D0.OR.ALENS(3,(NEWIMG-1)).NE.
      10.0D0.AND..NOT.LDIF2) THEN
 C       DIST FROM I-1 TO I IS ZERO OF LDIF2 IS FALSE AND DIST NOT 0
 C       DO AN INTERNAL "ASTOP EX" ADJUSTMENT
         IF(DABS(PXTRAY(5,NEWIMG)*1.0D-15).LT.
      1DABS(PXTRAY(6,NEWIMG))) THEN
-        RAD=(PXTRAY(5,NEWIMG)/PXTRAY(6,NEWIMG))
-        RREF=RAD
-                        END IF
+              RAD=(PXTRAY(5,NEWIMG)/PXTRAY(6,NEWIMG))
+              RREF=RAD
+
+        END IF
         IF(DABS(PXTRAY(5,NEWIMG)*1.0D-15).GE.
      1DABS(PXTRAY(6,NEWIMG))) THEN
 C       REF RAY IS TELECENTRIC, SET RAD INFINITY
-                       RAD=1.0D20
-        RREF=RAD
-                        END IF
+            RAD=1.0D20
+            RREF=RAD
+        END IF
 C       USE EXISTING THICKNESS OF NEWIMG-1 AS RAD
-                RAD=ALENS(3,NEWIMG-1)
+        ELSE
+        RAD=ALENS(3,NEWIMG-1)
         RREF=RAD
                         END IF
 C
@@ -1758,6 +1766,9 @@ C
 C       THE LENGTH FROM THE REFERENCE SPHERE
 C       TO THE FINAL SURFACE ALONG THE "OTHER" RAY IS:
 C
+        call logger%logTextWithNum("Ref Sphere Radius is ",RAD)
+        call logger%logTextWithNum("Ref Sphere Distance is ",RCOR)
+
         AL=DSPOT(1)-XREFI
         BE=DSPOT(2)-YREFI
         GA=DSPOT(3)-ZREFI
@@ -1775,6 +1786,10 @@ C       SOLVE FOR LEN
         ARG=((B**2)-(4.0D0*A*C))
         IF(ARG.LT.0.0D0) THEN
       IF(TPT.EQ.1) THEN
+        PRINT *, "A=", A
+        PRINT *, "B=", B
+        PRINT *, "C=", C
+        PRINT *, "ARG=", ARG
         OUTLYNE='RAY(S) COULD NOT INTERSECT REFERENCE SPHERE'
       CALL SHOWIT(1)
         OUTLYNE=
