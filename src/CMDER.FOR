@@ -3,7 +3,7 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
-        use kdp_interfaces, only: EDITOR, POWSYM, RMSFIELD
+        use kdp_interfaces, only: EDITOR, POWSYM, RMSFIELD, FIR
 C
         IMPLICIT NONE
 
@@ -430,6 +430,7 @@ C       PART DRAWINGS
           CALL RMSFIELD
         RETURN
         END IF
+        IF(WC.EQ.'FIR') CALL FIR
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.
      1  WC.EQ.'SPSRF'.AND.WQ.NE.'OFF')THEN
       IF(RAYCLEAR) THEN

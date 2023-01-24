@@ -211,12 +211,41 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 
 end subroutine
 
+subroutine FIR
+  use GLOBALS
+  implicit none
+
+  call logger%logText("FIR Called!")
+
+end subroutine
+
 subroutine RMSFIELD
 use GLOBALS
 use global_widgets
 use handlers, only : updateTerminalLog
  use zoa_plot
+   character(len=23) :: ffieldstr
+   integer :: ii
+   integer :: numPoints = 10
+
+   INCLUDE 'DATMAI.INC'
+
+   ! do ii = 0, numPoints
+   !   write(ffieldstr, *), REAL(ii)/REAL(numPoints)
+   !   CALL PROCESKDP("FOB "// ffieldstr)
+   !   CALL PROCESKDP("CAPFN")
+   !   CALL PROCESKDP("SHO RMSOPD")
+   !
+   !   PRINT *, "REG9 9 is ", REG(9)
+   !
+   !   !PRINT *, "FOB " // ffieldstr
+   !
+   ! end do
+
+
    call logger%logText('RMSField Routine Starting')
+
+
 
    call RMSFIELD_PLOT
 
