@@ -21,6 +21,18 @@
 
         END FUNCTION
 
+      ! LOGICAL FUNCTION  NUMERICINPUTCHECK
+      !
+      !   IMPLICIT NONE
+      !
+      !   INCLUDE "DATMAI.INC"
+      !
+      !   IF(SN.EQ.1.OR.SQ.EQ.1)
+      !
+      !
+      !
+      ! END FUNCTION
+
       LOGICAL FUNCTION STRINGINPUTCHECK(CMDSTR)
 
          IMPLICIT NONE
@@ -90,3 +102,22 @@ C
         END IF
 
       END FUNCTION
+
+      subroutine getInputStringLength(CVFILENAME, CVFILENAMELENGTH)
+
+        implicit none
+
+        character(len=80) :: CVFILENAME
+        integer, intent(inout) :: CVFILENAMELENGTH
+        integer :: I
+
+        CVFILENAMELENGTH = 0
+        DO I=80,1,-1
+              IF(CVFILENAME(I:I).NE.' ') THEN
+                CVFILENAMELENGTH=I
+                EXIT
+              END IF
+        END DO
+
+
+      end subroutine

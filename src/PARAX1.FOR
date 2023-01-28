@@ -422,6 +422,7 @@ C SUB PRTRA.FOR
         SUBROUTINE PRTRA
 C
         use global_widgets
+        use parax_calcs
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -2516,6 +2517,7 @@ C       TMAG
                         ELSE
                 curr_par_ray_trace%t_mag=0.0
                         END IF
+
 
 C
                         ELSE

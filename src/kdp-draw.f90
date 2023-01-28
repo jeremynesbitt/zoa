@@ -347,7 +347,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
 
      DEBUG = 0
-     CALL PRINTNEUTARRAY
+     IF (DEBUG.EQ.1) CALL PRINTNEUTARRAY
 
       PRINT *, "STARTING TO DRAW LENS"
                        J=1

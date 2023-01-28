@@ -323,6 +323,9 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
                         END
 C
         SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
+
+        USE GLOBALS
+
         IMPLICIT NONE
         REAL*8 MF1,MF2,D11,D12,D21,D22,DDELX,DDELY,XC1,YC1,ZC1
         LOGICAL DELFAIL
@@ -331,6 +334,9 @@ C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
 C
+        !call logger%logTextWithNum("NEWDEL Start Y1AIM=",Y1AIM)
+
+
         IF(D11.EQ.0.0D0.AND.D12.EQ.0.0D0.AND.D21.EQ.0.0D0
      1  .AND.D22.EQ.0.0D0) THEN
 C       NO SOLUTION EXISTS TO AIM REF RAY TO AIMTOL
@@ -385,6 +391,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+       !call logger%logTextWithNum("NEWDEL End 394 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
         IF(D11.NE.0.0D0.AND.
@@ -420,6 +427,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        call logger%logTextWithNum("NEWDEL End 430 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
         IF(D21.NE.0.0D0.AND.
@@ -455,6 +463,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 466 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
         IF(D21.NE.0.0D0.AND.
@@ -490,6 +499,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 502 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
         IF(D11.NE.0.0D0.AND.
@@ -525,6 +535,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 538 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
         IF(D12.NE.0.0D0.AND.
@@ -560,6 +571,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 574 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
 
@@ -593,6 +605,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 608 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
 C       SPECIAL SOLUTION 2
@@ -625,6 +638,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 641 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
 C       SPECIAL SOLUTION 3
@@ -657,6 +671,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 674 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
 C       SPECIAL SOLUTION 4
@@ -689,6 +704,7 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
 C       NOW THE COORDINATES ARE IN THE NEWOBJ COORD SYSTEM
+        !call logger%logTextWithNum("NEWDEL End 707 Y1AIM=",Y1AIM)
                         RETURN
                         END IF
                         END

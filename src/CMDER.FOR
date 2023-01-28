@@ -430,7 +430,7 @@ C       PART DRAWINGS
           CALL RMSFIELD
         RETURN
         END IF
-        IF(WC.EQ.'FIR') CALL FIR
+        IF(WC.EQ.'FIR') CALL FIR !; RETURN
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.
      1  WC.EQ.'SPSRF'.AND.WQ.NE.'OFF')THEN
       IF(RAYCLEAR) THEN

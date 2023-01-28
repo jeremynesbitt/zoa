@@ -1,5 +1,14 @@
 module kdp_data_types
 
+
+type sys_config
+
+    integer :: imgSurface
+  contains
+    procedure, public, pass(self) :: getImageSurface
+
+end type
+
 type lens_data
 
   integer num_surfaces, ref_stop
@@ -38,6 +47,14 @@ type(lens_data) function lens_data_constructor() result(self)
     self%num_surfaces = -1
 
 end function lens_data_constructor
+
+subroutine getImageSurface(self, intSurf)
+    class(sys_config), intent(inout) :: self
+    integer, intent(inout) :: intSurf
+    include "DATMAI.INC"
+    intSurf = NEWIMG
+
+end subroutine
 
 subroutine set_num_surfaces(self, input)
 

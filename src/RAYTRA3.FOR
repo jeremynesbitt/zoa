@@ -194,6 +194,10 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATMAC.INC'
+
+
+      PRINT *, "NR1 being called"
+
       IF(LN.NE.0.0D0) SNGX=LN/DABS(LN)
       IF(MN.NE.0.0D0) SNGY=MN/DABS(MN)
       IF(NN.NE.0.0D0) SNGZ=NN/DABS(NN)
@@ -983,6 +987,8 @@ C      IF(ZPASS.LE.ZZEMIN) ZZEMIN=ZPASS
                         END
 C SUB NR2.FOR
         SUBROUTINE NR2(ERRR)
+
+        USE Globals
 C
         IMPLICIT NONE
 C
@@ -1017,6 +1023,8 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAC.INC'
 C
+      !PRINT *, "NR2 Being called"
+      !call logger%logTextWithNum("ALENS(8,R_I) = ", ALENS(8,R_I))
       IF(LN.NE.0.0D0) SNGX=LN/DABS(LN)
       IF(MN.NE.0.0D0) SNGY=MN/DABS(MN)
       IF(NN.NE.0.0D0) SNGZ=NN/DABS(NN)
@@ -1045,6 +1053,7 @@ C     WE GOT A REAL SPECIAL SURFACE WHICH NEEDS FINIT DIFFERENCE
 C     SURFACE SLOPE CALCS IF SURFACE IS TYPE 5 OR THE COEFS ARE NOT
 C     ALL ZERO
       IF(ALENS(34,R_I).GT.0.0D0) THEN
+
                 IF(FTFL01(1,R_I).NE.0.0D0) DIFCAL=.TRUE.
                 IF(FTFL01(2,R_I).NE.0.0D0) DIFCAL=.TRUE.
                 IF(FTFL01(3,R_I).NE.0.0D0) DIFCAL=.TRUE.
@@ -1162,6 +1171,9 @@ C
         C45=ALENS(85,R_I)
         C5=ALENS(2,R_I)
         C6=(ALENS(1,R_I))
+
+
+        !IF(DIFCAL) call logger%logText("DIFCAL ON")
 C
 C       NOW REFINE TO INTERSECT WITH THE ASPHERIC
 C
@@ -1177,7 +1189,11 @@ C       DEFORMATION TERMS
 C       C41 TO C45 ARE THE 12TH THROUGH 20TH ORDER ASPHERIC
 C       DEFORMATION TERMS
 C
+        !call logger%logTextWithNum("NR2 Start R_X ", R_X)
+        !call logger%logTextWithNum("NR2 Start R_Y ", R_Y)
+
 C       CALCULATE INTERSECTION
+
                 DO 10 I=1,NRAITR
 C
         Q=(1.0D0-((C5+1.0D0)*(C6**2)*
@@ -1199,6 +1215,13 @@ C
         Q=DSQRT(Q)
         Q=1.0D0+Q
         DEL=DELSUR
+        !call logger%logTextWithNum("NR2 Iter ", I)
+        !call logger%logTextWithNum("Q = ", Q)
+        !call logger%logTextWithNum("C5 = ", C5)
+        !call logger%logTextWithNum("C6 = ", C6)
+
+
+
 C
 C     X AND Y DERIVATIVES OF THE SURFACE ARE CALCULATED HERE:
 C     FUNCTION FNZ2 EVALUATES THE FUNCTION
@@ -1207,6 +1230,9 @@ C
         ERRR=.FALSE.
         FNXP=-DER2X(FUNC2X,R_X,DELSUR,ERRR)
         FNYP=-DER2Y(FUNC2Y,R_Y,DELSUR,ERRR)
+        !call logger%logTextWithNum("FNXP is ", FNXP)
+        !call logger%logTextWithNum("FNYP is ", FNYP)
+
         IF(ERRR) RETURN
                          ELSE
          FNXP=-(
@@ -1237,6 +1263,7 @@ C       ZCAL WILL EQUAL Z SO THAT F(X,Y,Z)=0
         HV1=ZCAL-R_Z
         HV2=((R_L*LN)+(R_M*MN)+(R_N*NN))
         HV=HV1/HV2
+        !call logger%logTextWithNum("Aspheric correction term is", HV)
 C       NEW X,Y AND Z ARE
         XP=R_X+(HV*R_L)
         YP=R_Y+(HV*R_M)
@@ -1268,6 +1295,8 @@ C       SHOULD WE CONTINUE?
                         END IF
         Q=DSQRT(Q)
         Q=1.0D0+Q
+        !call logger%logTextWithNum("Aspheric R_Y  is", R_Y)
+        !call logger%logTextWithNum("Aspheric Q term is", Q)
 C
 C     X AND Y DERIVATIVES OF THE SURFACE ARE CALCULATED HERE:
 C     FUNCTION FNZ2 EVALUATES THE FUNCTION
@@ -1276,6 +1305,8 @@ C
         ERRR=.FALSE.
         FNXP=-DER2X(FUNC2X,R_X,DELSUR,ERRR)
         FNYP=-DER2Y(FUNC2Y,R_Y,DELSUR,ERRR)
+        !call logger%logTextWithNum("FNXP is ", FNXP)
+        !call logger%logTextWithNum("FNYP is ", FNYP)
         IF(ERRR) RETURN
                          ELSE
          FNXP=-(
@@ -1296,6 +1327,7 @@ C
                 MN=FNYP/MAG
                 NN=FNZP/MAG
                 STOPP=0
+      !call logger%logTextWithNum("Mag is ", MAG)
                 RETURN
                 ELSE
 C       KEEP TRYING
@@ -1341,6 +1373,7 @@ C
 C
       INTEGER IPASS1
 C
+      REAL*8 T1,T2,T3,T4,T5,T6,T7,T8,T9,T10
       REAL*8 XPASS,YPASS,ZPASS
       REAL*8 ZZEMAX,ZZEMIN,DA34
       REAL*8 JK_WAVE
@@ -1383,6 +1416,64 @@ C
      1 ((((AAX**2)+(AAY**2))**9)*AAC44)+
      1 ((((AAX**2)+(AAY**2))**10)*AAC45)+
      1 ((AAC6*((AAX**2)+(AAY**2)))/AQ)
+
+      !FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q
+      !AC41,AC42,AC43,AC44,AC45)
+
+      ! call logger%logTextWithNum("FNZ2 AAC1=",AC1)
+      ! call logger%logTextWithNum("FNZ2 AAC2=",AC2)
+      ! call logger%logTextWithNum("FNZ2 AAC3=",AC3)
+      ! call logger%logTextWithNum("FNZ2 AAC4=",AC4)
+      ! call logger%logTextWithNum("FNZ2 AAC41=",AC41)
+      ! call logger%logTextWithNum("FNZ2 AAC42=",AC42)
+      ! call logger%logTextWithNum("FNZ2 AAC43=",AC43)
+      ! call logger%logTextWithNum("FNZ2 AAC44=",AC44)
+      ! call logger%logTextWithNum("FNZ2 AAC45=",AC45)
+      ! call logger%logTextWithNum("FNZ2 AAX=",AX)
+      ! call logger%logTextWithNum("FNZ2 AAY=",AY)
+      ! call logger%logTextWithNum("FNZ2 AAC6=",AC6)
+      ! call logger%logTextWithNum("FNZ2 AQ=",Q)
+      !
+      ! PRINT *, "TroubleTermis? ", ((((AX**2)+(AY**2))**6)*AC41)
+      ! PRINT *, "Term w/o Asphere ",(((AX**2)+(AY**2))**6)
+      ! T1 = ((((AX**2)+(AY**2))**2)*AC1)
+      ! T2 = ((((AX**2)+(AY**2))**3)*AC2)
+      ! T3 = ((((AX**2)+(AY**2))**4)*AC3)
+      ! T4 = ((((AX**2)+(AY**2))**5)*AC4)
+      ! T5 = ((((AX**2)+(AY**2))**6)*AC41)
+      ! T6 = ((((AX**2)+(AY**2))**7)*AC42)
+      ! T7 = ((((AX**2)+(AY**2))**8)*AC43)
+      ! T8 = ((((AX**2)+(AY**2))**9)*AC44)
+      ! T9 = ((((AX**2)+(AY**2))**10)*AC45)
+      ! T10 = ((AC6*((AX**2)+(AY**2)))/Q)
+      !
+      ! PRINT *, "Total is ", T1+T2+T3+T4+T5+T6+T7+T8+T9+T10
+      !
+      ! call logger%logTextWithNum("T1=",T1)
+      ! call logger%logTextWithNum("T2=",T2)
+      ! call logger%logTextWithNum("T3=",T3)
+      ! call logger%logTextWithNum("T4=",T4)
+      ! call logger%logTextWithNum("T5=",T5)
+      ! call logger%logTextWithNum("T6=",T6)
+      ! call logger%logTextWithNum("T7=",T7)
+      ! call logger%logTextWithNum("T8=",T8)
+      ! call logger%logTextWithNum("T9=",T9)
+      ! call logger%logTextWithNum("T10=",T10)
+      !
+      ! call logger%logTextWithNum("FNZ2 AAC3=",AC3)
+      ! call logger%logTextWithNum("FNZ2 AAC4=",AC4)
+      ! call logger%logTextWithNum("FNZ2 AAC41=",AC41)
+      ! call logger%logTextWithNum("FNZ2 AAC42=",AC42)
+      ! call logger%logTextWithNum("FNZ2 AAC43=",AC43)
+      ! call logger%logTextWithNum("FNZ2 AAC44=",AC44)
+      ! call logger%logTextWithNum("FNZ2 AAC45=",AC45)
+      ! call logger%logTextWithNum("FNZ2 AAX=",AX)
+      ! call logger%logTextWithNum("FNZ2 AAY=",AY)
+      ! call logger%logTextWithNum("FNZ2 AAC6=",AC6)
+      ! call logger%logTextWithNum("FNZ2 AQ=",Q)
+
+      !call logger%logTextWithNum("FNZ2 Result=",FNZZ2)
+
 C
 C     IF SPECIAL SURFACE TYPE 1, 2 OR 3 ARE TO BE APPLIED
 C     THEY ARE APPLIED HERE

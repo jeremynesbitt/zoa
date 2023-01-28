@@ -3440,6 +3440,1096 @@ C       THE CMD LEVEL COMMANDS YFAN, XFAN, NFAN AND PFAN.
 C       IT IS CALLED BY CMDER.FOR.
 C
         CHARACTER UNI*11,FANNAM*8,FANQAL*8
+
+        LOGICAL FANEXT,RIM
+        COMMON/RIMSHT/RIM
+        COMMON/FANEXI/FANEXT
+      INTEGER FANWAV
+      COMMON/FANNER/FANWAV
+        COMMON/PASFAN/FANNAM,FANQAL
+        INTEGER J,JJ,IX,WWRF,WWVN
+C
+        REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,
+     1  LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,
+     2  LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,
+     3  WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,
+     4  JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
+C
+        LOGICAL FOBB0
+     1  ,FOBB0X,FOBB0Y
+C
+        COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
+C
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATHGR.INC'
+
+
+      JA=COS_A_ANG
+      JB=COS_B_ANG
+      IF(INT(LFOB(4)).EQ.1) WWRF=46
+      IF(INT(LFOB(4)).EQ.2) WWRF=47
+      IF(INT(LFOB(4)).EQ.3) WWRF=48
+      IF(INT(LFOB(4)).EQ.4) WWRF=49
+      IF(INT(LFOB(4)).EQ.5) WWRF=50
+      IF(INT(LFOB(4)).EQ.6) WWRF=71
+      IF(INT(LFOB(4)).EQ.7) WWRF=72
+      IF(INT(LFOB(4)).EQ.8) WWRF=73
+      IF(INT(LFOB(4)).EQ.9) WWRF=74
+      IF(INT(LFOB(4)).EQ.10) WWRF=75
+C
+        FANEXT=.FALSE.
+C
+C       CHECK FOR STRING INPUT
+        IF(SST.EQ.1) THEN
+        OUTLYNE='"'//WC(1:4)//'" TAKES NO STRING INPUT'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+C       PROCEED
+                        END IF
+C       CHECK FOR VALID QUALIFIER INPUT
+        IF(SQ.EQ.1) THEN
+        IF(WQ.NE.'OPD'.AND.WQ.NE.'CD'.AND.WQ.NE.'LA') THEN
+        OUTLYNE=
+     1  '"'//WC(1:4)//'" ENTERED WITH INVALID QUALIFIER INPUT'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+C       QUALIFIERS ARE VALID, PROCEED
+                        END IF
+C       NO QUALIFIERS
+                        END IF
+
+C       CHECK IF REFEXT=.FALSE. IF SO STOP AND PRINT  MESSAGE
+C
+        IF(.NOT.REFEXT) THEN
+C       NO CHIEF RAY EXISTS, STOP
+        OUTLYNE=
+     1  'AN "FOB" COMMAND MUST BE ISSUED BEFORE FANS CAN BE TRACED'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+                        END IF
+C
+C       CHECK FOR VALID WAVELENGTH NUMBER IF NOT DEFAULT
+C       IT MUST BE 1,2,3,4 OR 5. IF DEFAULT, IT BECOMES THE
+C       CONTROL WAVELENGTH.
+C
+        IF(DF3.EQ.1) THEN
+                        DF3=0
+                        WW3=SYSTEM(11)
+                        FANWAV=INT(WW3)
+                        WVN=WW3
+      IF(INT(WW3).EQ.1) WWVN=46
+      IF(INT(WW3).EQ.2) WWVN=47
+      IF(INT(WW3).EQ.3) WWVN=48
+      IF(INT(WW3).EQ.4) WWVN=49
+      IF(INT(WW3).EQ.5) WWVN=50
+      IF(INT(WW3).EQ.6) WWVN=71
+      IF(INT(WW3).EQ.7) WWVN=72
+      IF(INT(WW3).EQ.8) WWVN=73
+      IF(INT(WW3).EQ.9) WWVN=74
+      IF(INT(WW3).EQ.10) WWVN=75
+                        ELSE
+
+C       WAVELENGTH NUMBER NOT DEFAULT
+        IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0
+     1  .AND.W3.NE.4.0D0.AND.W3.NE.5.0D0.AND.
+     1  W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0
+     1  .AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
+        OUTLYNE=
+     1  'INVALID WAVELENGTH NUMBER'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+                        ELSE
+C       WAVELENGTH NUMBER OK, PROCEED
+                        WW3=W3
+                        FANWAV=INT(WW3)
+                        WVN=WW3
+      IF(INT(WW3).EQ.1) WWVN=46
+      IF(INT(WW3).EQ.2) WWVN=47
+      IF(INT(WW3).EQ.3) WWVN=48
+      IF(INT(WW3).EQ.4) WWVN=49
+      IF(INT(WW3).EQ.5) WWVN=50
+      IF(INT(WW3).EQ.6) WWVN=71
+      IF(INT(WW3).EQ.7) WWVN=72
+      IF(INT(WW3).EQ.8) WWVN=73
+      IF(INT(WW3).EQ.9) WWVN=74
+      IF(INT(WW3).EQ.10) WWVN=75
+                        END IF
+                        END IF
+C
+C       RESOLVE DEFAULT OFFSET
+        IF(DF5.EQ.1) THEN
+                OFFSET=0.0D0
+                ELSE
+C       OFFSET NOT DEFAULT, USE VALUE OF W5
+                OFFSET=W5
+                END IF
+C
+C       CHECK FOR VALID NUMBER OF RAYS. MUST BE POSITIVE
+C       AND GREATER THAN 1 IF NOT DEFAULT. IF DEFAULT, VALUE
+C       IS DETERMINED BY SYMMETRY CONDITIONS LATER.
+                IF(DF4.EQ.0) THEN
+C       RAY NUMBER NOT DEFAULT
+                FW4=DABS(DABS(W4)-W4)
+        IF(W4.LE.1.0D0.OR.FW4.NE.0.0D0) THEN
+C       NUMBER OF RAYS NOT OK
+        OUTLYNE='INVALID NUMBER OF RAYS REQUESTED'
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'NUMBER OF RAYS MUST BE AN INTEGER AND GREATER THAN 1'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+                        END IF
+C       DETERMINATION OF NUMBER OF RAYS DONE LATER
+                        END IF
+C
+C       WHEN FANS IS CALLED FROM THE CMD LEVEL,
+C       CLEAR APERTURE/OBSCURATION CHECKING IS SET
+C       TO "ON" BY SETTING CACOCH=1.
+C
+                        CACOCH=1
+C
+C       SET DEFAULT NUMERICS
+        IF(FOBB0) THEN
+C       ON-AXIS, GO FROM 0 TO 1 DO HALF FAN IF ROTATIONAL SYMMETRY EXISTS
+C       SYMMETRY CHECK
+        IF(SYSTEM(28).EQ.1.0D0.AND.SYSTEM(48).EQ.1.0D0) THEN
+        IF(DF1.EQ.1) W1=0.0D0
+        IF(DF4.EQ.1) W4=6.0D0
+                        ELSE
+        IF(DF1.EQ.1) W1=-1.0D0
+        IF(DF4.EQ.1) W4=11.0D0
+                        END IF
+        IF(DF2.EQ.1) W2=+1.0D0
+                        ELSE
+C       NOT ON AXIS DO FULL FAN
+        IF(DF1.EQ.1) W1=-1.0D0
+        IF(DF2.EQ.1) W2=1.0D0
+        IF(DF4.EQ.1) W4=11.0D0
+                        END IF
+C       DELTA IS THE RELATIVE APERTURE DELTA BETWEEN RAYS
+        DELTA=(W2-W1)/(W4-1.0D0)
+C
+        IF(W1.GE.W2) THEN
+        OUTLYNE='FOR THE "'//WC(1:4)//'" COMMAND'
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'NUMERIC WORD #1 MUST BE LESS THAN NUMERIC WORD #2'
+      CALL SHOWIT(1)
+        OUTLYNE= 'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+                        END IF
+C
+C       NOW LIMITS, DELTA(RELATED TO THE NUMBER OF RAYS),
+C       WAVLENGTH NUMBER AND OFFSET HAVE BEEN DETERMINED.
+                LOWERL=W1
+C       WAVLENGTH NUMBER WAS W3
+C               DELTA (SET ABOVE)
+C               NUMBER OF RAYS WAS (W4)
+C               OFFSET WAS W5
+C       AT THIS POINT MSG=FALSE
+C
+C       NOW DETERMINE THE LIMITS OF THE DO LOOP FOR THE
+C       ACTUAL FAN TRACE, THE INCREMENT, AND THE ALGORITHM
+C       FOR GOING FROM ONE VALUE TO THE NEXT.
+C
+C       THE LOWER LIMIT IS LOWERL
+C       THE INCREMENT IS DELTA
+C       THE OFFSET IS OFFSET
+C
+C       THE ACTUAL COORDINATES OF THE RAYS TO BE TRACED (AT
+C       THE REFERENCE SURFACE) ARE DETERMINED IN RAYTRA. ALL THAT NEEDS
+C       BE SENT TO RAYTRA IS THE RELATIVE APERTURE POSITIONS.
+C       CIRCULAR AND RECTANGULAR PUPILS ARE RESOLVED IN RAYTRA.FOR.
+C
+C       THE WALELENGTH NUMBER IS WW3
+C
+C       IF PUPIL IS SET TO RECT, TEMPORARILY RESET IT TO CIRCULAR
+C       AS FANS ARE ONLY DEFINED FOR A CIRCULAR PUPIL DEFINITION
+C       DUE TO THE PRESENCE OF PFAN AND NFAN. IN THIS TEMPORARY
+C       REDEFINITION, WE DON'T CHANGE THE VALUE OF SAX OR A
+C       CLAPX ON THE REFERENCE SURFACE, WE JUST DON'T USE IT.
+C
+        IF(SYSTEM(6).EQ.1.0D0) UNI='INCHES     '
+        IF(SYSTEM(6).EQ.2.0D0) UNI='CENTIMETERS'
+        IF(SYSTEM(6).EQ.3.0D0) UNI='MILLIMETERS'
+        IF(SYSTEM(6).EQ.4.0D0) UNI='METERS     '
+        LCW=SYSTEM(INT(SYSTEM(11)))
+        LPWP1=SYSTEM(INT(SYSTEM(7)))
+        LPWP2=SYSTEM(INT(SYSTEM(8)))
+        LSWP1=SYSTEM(INT(SYSTEM(9)))
+        LSWP2=SYSTEM(INT(SYSTEM(10)))
+C       NO QUALIFIER
+        IF(SQ.EQ.0) THEN
+        WRITE(OUTLYNE,1000) UNI
+      CALL SHOWIT(0)
+ 1000   FORMAT('TRANSVERSE ABERRATION TABLE : UNITS = '
+     1  ,A11)
+        IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
+        IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
+        IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
+        IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
+      CALL SHOWIT(0)
+        IF(SYSTEM(30).EQ.3.0D0) THEN
+        WRITE(OUTLYNE,9999)
+      CALL SHOWIT(0)
+        END IF
+        IF(SYSTEM(30).EQ.4.0D0) THEN
+        WRITE(OUTLYNE,8888)
+      CALL SHOWIT(0)
+        END IF
+ 9999   FORMAT(
+     1  'MODE IS AFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
+ 8888   FORMAT(
+     1  'MODE IS UAFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
+ 1001   FORMAT('RAY FAN TRACED IS A  "YFAN"')
+ 1002   FORMAT('RAY FAN TRACED IS AN "XFAN"')
+ 1003   FORMAT('RAY FAN TRACED IS AN "NFAN"')
+ 1004   FORMAT('RAY FAN TRACED IS A  "PFAN"')
+        WRITE(OUTLYNE,1005) OFFSET
+      CALL SHOWIT(0)
+ 1005   FORMAT(
+     1  'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+        WRITE(OUTLYNE,2005) SYSTEM(INT(WW3))
+      CALL SHOWIT(0)
+ 2005   FORMAT(
+     1  'WAVLENGTH = ',G14.6,' MICRONS')
+                        END IF
+        IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'
+     1  .AND.SYSTEM(30).EQ.4.0D0) THEN
+        OUTLYNE=
+     1  'THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+                        RETURN
+                        END IF
+C       QUALIFIER "LA"
+        IF(WQ.EQ.'LA') THEN
+        WRITE(OUTLYNE,1100) UNI
+      CALL SHOWIT(0)
+ 1100   FORMAT('LONGITUDINAL ABERRATION TABLE : UNITS ='
+     1  ,A11)
+        IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
+        IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
+        IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
+        IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,1005) OFFSET
+      CALL SHOWIT(0)
+        WRITE(OUTLYNE,2005) SYSTEM(INT(WW3))
+      CALL SHOWIT(0)
+                        END IF
+C       QUALIFIER "CD"
+        IF(WQ.EQ.'CD') THEN
+        WRITE(OUTLYNE,1200) UNI
+      CALL SHOWIT(0)
+ 1200   FORMAT(
+     1  'PRIMARY/SECONDARY CHROMATIC DIFFERENCE TABLE : UNITS = '
+     1  ,A11)
+        IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
+        IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
+        IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
+        IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
+      CALL SHOWIT(0)
+        IF(SYSTEM(30).EQ.3.0D0) THEN
+        WRITE(OUTLYNE,9995)
+      CALL SHOWIT(0)
+        END IF
+        IF(SYSTEM(30).EQ.4.0D0) THEN
+        WRITE(OUTLYNE,8885)
+      CALL SHOWIT(0)
+        END IF
+ 9995   FORMAT(
+     1  'MODE IS AFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
+ 8885   FORMAT(
+     1  'MODE IS UAFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
+        WRITE(OUTLYNE,1006) OFFSET
+      CALL SHOWIT(0)
+ 1006   FORMAT(
+     1  'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+        WRITE(OUTLYNE,1008) LCW
+      CALL SHOWIT(0)
+ 1008   FORMAT('CONTROL WAVELENGTH = ',G14.6,' MICRONS')
+ 1009   FORMAT('PRIMARY WAVELENGTH PAIR    = ',
+     1  G14.6,' AND ',G14.6,' MICRONS')
+ 1010   FORMAT('SECONDARY WAVELENGTH PAIR  = ',
+     1  G14.6,' AND ',G14.6,' MICRONS')
+        WRITE(OUTLYNE,1009) LPWP1,LPWP2
+      CALL SHOWIT(0)
+        WRITE(OUTLYNE,1010) LSWP1,LSWP2
+      CALL SHOWIT(0)
+                        END IF
+C       QUALIFIER "OPD"
+        IF(WQ.EQ.'OPD') THEN
+        WRITE(OUTLYNE,1300) UNI
+      CALL SHOWIT(0)
+ 1300   FORMAT('OPTICAL PATH DIFFERENCE TABLE : UNITS = '
+     1  ,A11)
+        IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
+        IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
+        IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
+        IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
+      CALL SHOWIT(0)
+        WRITE(OUTLYNE,1011) OFFSET
+      CALL SHOWIT(0)
+ 1011   FORMAT(
+     1  'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+        WRITE(OUTLYNE,2011) SYSTEM(INT(WW3))
+      CALL SHOWIT(0)
+ 2011   FORMAT(
+     1  'OPD REFERENCE WAVLENGTH = ',G14.6,' MICRONS')
+                        END IF
+C
+C       NOW PRINT THE COLUMN HEADINGS FOR THE OUTPUT.
+C
+C       ********************
+C
+C       QUALIFIER "     "
+        IF(SQ.EQ.0) THEN
+        WRITE(OUTLYNE,5000)
+      CALL SHOWIT(0)
+ 5000   FORMAT(1X)
+        IF(WC.EQ.'YFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,5001)
+      CALL SHOWIT(0)
+ 5001   FORMAT(' REL AP HT ',9X,'DX ',17X,'DY ')
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,5002)
+      CALL SHOWIT(0)
+ 5002   FORMAT(' REL AP HT ',9X,'DXA',17X,'DYA')
+                        END IF
+                        END IF
+        IF(WC.EQ.'XFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,5001)
+      CALL SHOWIT(0)
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,5002)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+        IF(WC.EQ.'NFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,5003)
+      CALL SHOWIT(0)
+ 5003   FORMAT(' REL AP HT ',9X,'DN ',17X,'DP ',17X,'DR')
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,5004)
+      CALL SHOWIT(0)
+ 5004   FORMAT(' REL AP HT ',9X,'DNA',17X,'DPA',17X,'DRA')
+                        END IF
+                        END IF
+        IF(WC.EQ.'PFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,5003)
+      CALL SHOWIT(0)
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,5004)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+C       QUALIFIER NOT BLANK
+                        END IF
+C
+C       ********************
+C       ********************
+C
+C       QUALIFIER "OPD"
+        IF(WQ.EQ.'OPD') THEN
+        WRITE(OUTLYNE,5000)
+      CALL SHOWIT(0)
+        IF(WC.EQ.'YFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+ 6001   FORMAT(' REL AP HT ',3X,' OPD (LENS UNITS) ',
+     1  4X,'OPD (WAVE UNITS)')
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+        IF(WC.EQ.'XFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+        IF(WC.EQ.'NFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+        IF(WC.EQ.'PFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,6001)
+      CALL SHOWIT(0)
+                        ELSE
+C                       MODE AFOCAL
+        WRITE(OUTLYNE,6001)
+                        END IF
+                        END IF
+C       QUALIFIER NOT "OPD"
+                        END IF
+C
+C       ********************
+C       ********************
+C
+C       QUALIFIER "CD"
+        IF(WQ.EQ.'CD') THEN
+        WRITE(OUTLYNE,5000)
+      CALL SHOWIT(0)
+        IF(WC.EQ.'YFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,7001)
+      CALL SHOWIT(0)
+ 7001   FORMAT(
+     1  ' REL AP HT ',4X,'PCDX',10X,'PCDY',10X,'SCDX',10X,'SCDY')
+                        ELSE
+C       MODE AFOCAL
+        WRITE(OUTLYNE,7002)
+      CALL SHOWIT(0)
+ 7002   FORMAT(
+     1  ' REL AP HT ',4X,'PCDXA',9X,'PCDYA',9X,'SCDXA',9X,'SCDYA')
+                        END IF
+                        END IF
+        IF(WC.EQ.'XFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,7001)
+      CALL SHOWIT(0)
+                        ELSE
+C       MODE AFOCAL
+        WRITE(OUTLYNE,7002)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+        IF(WC.EQ.'NFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,7003)
+      CALL SHOWIT(0)
+ 7003   FORMAT(
+     1  ' REL AP HT ',4X,'PCDN',10X,'PCDP',10X,'SCDN',10X,'SCDP')
+                        ELSE
+C       MODE AFOCAL
+        WRITE(OUTLYNE,7004)
+      CALL SHOWIT(0)
+ 7004   FORMAT(
+     1  ' REL AP HT ',4X,'PCDNA',9X,'PCDPA',9X,'SCDNA',9X,'SCDPA')
+                        END IF
+                        END IF
+        IF(WC.EQ.'PFAN') THEN
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        WRITE(OUTLYNE,7003)
+      CALL SHOWIT(0)
+                        ELSE
+C       MODE AFOCAL
+        WRITE(OUTLYNE,7004)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+C       QUALIFIER NOT CD
+                        END IF
+C
+C       ********************
+C       ********************
+C
+C       QUALIFIER "LA"
+        IF(WQ.EQ.'LA') THEN
+        WRITE(OUTLYNE,5000)
+      CALL SHOWIT(0)
+        IF(WC.EQ.'YFAN') THEN
+        WRITE(OUTLYNE,8001)
+      CALL SHOWIT(0)
+ 8001   FORMAT(
+     1  ' REL AP HT ',4X,'LAX ',10X,'LAY ',10X,'DTX ',10X,'DTY ')
+                        END IF
+        IF(WC.EQ.'XFAN') THEN
+        WRITE(OUTLYNE,8001)
+      CALL SHOWIT(0)
+                        END IF
+        IF(WC.EQ.'NFAN') THEN
+        WRITE(OUTLYNE,8002)
+      CALL SHOWIT(0)
+ 8002   FORMAT(
+     1  ' REL AP HT ',4X,'LAN ',10X,'LAP ',10X,'DTN ',10X,'DTP ')
+                        END IF
+        IF(WC.EQ.'PFAN') THEN
+        WRITE(OUTLYNE,8002)
+      CALL SHOWIT(0)
+                        END IF
+C       QUALIFIER NOT LA
+                        END IF
+C
+C       ********************
+C
+                XI=LOWERL
+        DO 100 IX=1,(INT(W4))
+C
+        IF(DABS(XI).LE.1D-15) XI=0.0D0
+C       FOR EACH XI COUNTED
+C       FOR YFANS
+        IF(WC.EQ.'YFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=OFFSET
+C       RELATIVE Y COORDINATE IS:
+                        YY=XI
+                        END IF
+C       FOR XFANS
+        IF(WC.EQ.'XFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=XI
+C       RELATIVE Y COORDINATE IS:
+                        YY=OFFSET
+                        END IF
+C       FOR NFANS
+        IF(WC.EQ.'NFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=(XI-OFFSET)/(DSQRT(2.0D0))
+C       RELATIVE Y COORDINATE IS:
+                        YY=(XI+OFFSET)/(DSQRT(2.0D0))
+                        END IF
+C       FOR PFANS
+        IF(WC.EQ.'PFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=(XI+OFFSET)/(DSQRT(2.0D0))
+C       RELATIVE Y COORDINATE IS:
+                        YY=-(XI-OFFSET)/(DSQRT(2.0D0))
+                        END IF
+C
+C       NOW CALL RAYTRA TO TRACE THE SPECIFIC RAY
+                        WWQ='        '
+                        WW1=YY
+                        WW2=XX
+C
+        IF(SQ.EQ.0) THEN
+        RAYCOD(1)=0
+        RAYCOD(2)=-1
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        PRINT *, "YFAN bf raytrace XX = ", XX
+        PRINT *, "YFAN bf raytrace YY = ", YY
+
+          SAVE_KDP(1)=SAVEINPT(1)
+
+        ! PRINT *, "RAYCOD b4 FOB call is", RAYCOD(1)
+        ! WRITE(INPUT, *), "FOB ", YY, XX
+        ! PRINT *, INPUT
+        ! CALL PROCES
+        !
+        ! REST_KDP(1)=RESTINPT(1)
+        ! PRINT *, "RAYCOD after FOB call is", RAYCOD(1)
+
+        !PRINT *, "REFRAY after FOB call is", REFRY
+
+        CALL RAYTRA
+        PRINT *, "RAYCOD after RAYTRA call is", RAYCOD(1)
+      F58=0
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
+        YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
+        RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
+                        ELSE
+C       MOD AFOCAL
+        XXDIF=RAYRAY(11,NEWIMG)
+     1  -REFRY(11,NEWIMG)
+      IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII)
+      IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII)
+      IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0
+      IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII)
+        YYDIF=RAYRAY(12,NEWIMG)
+     1  -REFRY(12,NEWIMG)
+      IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII)
+      IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII)
+      IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0
+      IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII)
+
+        COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+
+     1  (RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+
+     1  (RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
+        IF(COSARG.LT.0.0D0) COSARG=-COSARG
+        IF(COSARG.GT.1.0D0) COSARG=1.0D0
+        RRDIF=DACOS(COSARG)
+      IF((RRDIF).GT.(PII)) RRDIF=RRDIF-(TWOPII)
+      IF((RRDIF).LT.(-PII)) RRDIF=RRDIF+(TWOPII)
+      IF(ABS(RRDIF).EQ.ABS(TWOPII)) RRDIF=0.0D0
+      IF((RRDIF).LT.(-TWOPII)) RRDIF=RRDIF+(TWOPII)
+                        END IF
+C
+        IF(WC.EQ.'XFAN'.OR.WC.EQ.'YFAN') THEN
+        IF(RAYCOD(1).EQ.0.0D0) THEN
+        IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
+        IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
+        WRITE(OUTLYNE,991)XI,XXDIF,YYDIF
+        PRINT *, "CONSOLE should say ", OUTLYNE
+      CALL SHOWIT(0)
+ 991    FORMAT(F11.6,2X,G18.10,2X,G18.10)
+                        ELSE
+        WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
+      CALL SHOWIT(0)
+ 992    FORMAT(F11.6,
+     1  ' RAY FAILURE CODE = ',I2,' AT SURFACE = '
+     2  ,I3)
+                        END IF
+                        ELSE
+C       WC IS NFAN OR PFAN
+        IF(RAYCOD(1).EQ.0.0D0) THEN
+      IF(WC.EQ.'PFAN') THEN
+        IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
+        IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
+      XTEMP=(XXDIF*DCOS(PII/4.0D0))+(YYDIF*DSIN(PII/4.0D0))
+      YTEMP=(YYDIF*DCOS(PII/4.0D0))-(XXDIF*DSIN(PII/4.0D0))
+      XXDIF=XTEMP
+      YYDIF=YTEMP
+                       END IF
+      IF(WC.EQ.'NFAN') THEN
+        IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
+        IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
+      XTEMP=(XXDIF*DCOS(-PII/4.0D0))+(YYDIF*DSIN(-PII/4.0D0))
+      YTEMP=(YYDIF*DCOS(-PII/4.0D0))-(XXDIF*DSIN(-PII/4.0D0))
+      XXDIF=XTEMP
+      YYDIF=YTEMP
+                       END IF
+        IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
+        IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
+      IF(WC.EQ.'PFAN') WRITE(OUTLYNE,9991)XI,-XXDIF,-YYDIF,RRDIF
+      IF(WC.EQ.'NFAN') WRITE(OUTLYNE,9991)XI,YYDIF,XXDIF,RRDIF
+      CALL SHOWIT(0)
+ 9991   FORMAT(F11.6,2X,G18.10,2X,G18.10,2X,G18.10)
+                        ELSE
+        WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
+      CALL SHOWIT(0)
+                        END IF
+                        END IF
+C       NOT (BLANK) QUALIFIER
+                        END IF
+C
+        IF(WQ.EQ.'OPD') THEN
+        RAYCOD(1)=0
+        RAYCOD(2)=-1
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        GRASET=.FALSE.
+        DXFSET=.FALSE.
+        CALL RAYTRA
+      F58=0
+                IF(RAYEXT.AND.REFEXT) THEN
+                OOPD=0.0D0
+                RCOR=0.0D0
+                OCOR=0.0D0
+        IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
+        IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
+                DO J=JJ,NEWIMG
+        OOPD=OOPD+RAYRAY(7,J)
+     1-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+                      END DO
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+C               RCOR=0.0D0
+C               OCOR=0.0D0
+                CALL FOPD
+C       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
+C       REFERENCE SPHERES.
+        OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+
+     1  (RCOR*ALENS(WWVN,NEWOBJ))
+                RCOR=0.0D0
+                OCOR=0.0D0
+                CENCEN=.FALSE.
+                CALL LOPD
+        OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+
+     1  (RCOR*ALENS(WWVN,NEWIMG-1))
+                        ELSE
+C       MODE AFOCAL
+C               RCOR=0.0D0
+C               OCOR=0.0D0
+                CALL FOPD
+C       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
+C       REFERENCE SPHERES.
+        OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+
+     1  (RCOR*ALENS(WWVN,NEWOBJ))
+                RCOR=0.0D0
+                OCOR=0.0D0
+                CENCEN=.FALSE.
+                CALL LOPD
+        OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+
+     1  (RCOR*ALENS(WWVN,NEWIMG-1))
+                        END IF
+        IF(DABS(OOPD).LT.1.0D-15) OOPD=0.0D0
+
+C     CALCULATE LEN IN WAVES AT THE REFERENCE RAY WAVELENGTH
+      IF(FANWAV.GE.1.AND.FANWAV.LE.5) THEN
+          WAV=SYSTEM(FANWAV)
+                      END IF
+      IF(FANWAV.GE.6.AND.FANWAV.LE.10) THEN
+          WAV=SYSTEM(FANWAV+65)
+                      END IF
+        IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*
+     1  ((1.0D-3)/(25.4D0))
+        IF(SYSTEM(6).EQ.2.0D0) WAV=WAV*(1.0D-4)
+        IF(SYSTEM(6).EQ.3.0D0) WAV=WAV*(1.0D-3)
+        IF(SYSTEM(6).EQ.4.0D0) WAV=WAV*(1.0D-6)
+        OOPD=-OOPD
+      IF(REVSTR) OOPD=-OOPD
+        OPDW=OOPD/WAV
+                        ELSE
+C     RAY FAILED OR NO REF RAY
+                        OOPD=0.0D0
+                        OPDW=0.0D0
+                        END IF
+C
+        IF(RAYCOD(1).EQ.0.0D0) THEN
+C       IF OPD IN WAVES IS LESS THAN 0.0001 WAVES, SET OPDS TO ZERO
+        WRITE(OUTLYNE,993)XI,OOPD,OPDW
+      CALL SHOWIT(0)
+ 993    FORMAT(F9.4,4X,G18.10,5X,G13.5)
+                        ELSE
+        WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
+      CALL SHOWIT(0)
+                        END IF
+C       NOT (OPD) QUALIFIER
+                        END IF
+C
+        IF(WQ.EQ.'CD') THEN
+        RAYCOD(1)=0
+        RAYCOD(2)=-1
+        WW3=SYSTEM(7)
+        WVN=WW3
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        GRASET=.FALSE.
+        DXFSET=.FALSE.
+        CALL RAYTRA
+      F58=0
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        PW11=RAYRAY(1,NEWIMG)
+        PW12=RAYRAY(2,NEWIMG)
+                        ELSE
+C       MODE AFOCAL
+        PW11=RAYRAY(11,NEWIMG)
+        PW12=RAYRAY(12,NEWIMG)
+                        END IF
+        WW3=SYSTEM(8)
+        WVN=WW3
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        GRASET=.FALSE.
+        DXFSET=.FALSE.
+        CALL RAYTRA
+      F58=0
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        PW21=RAYRAY(1,NEWIMG)
+        PW22=RAYRAY(2,NEWIMG)
+                        ELSE
+C       MODE AFOCAL
+        PW21=RAYRAY(11,NEWIMG)
+        PW22=RAYRAY(12,NEWIMG)
+                        END IF
+        WW3=SYSTEM(9)
+        WVN=WW3
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        GRASET=.FALSE.
+        DXFSET=.FALSE.
+        CALL RAYTRA
+      F58=0
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        SW11=RAYRAY(1,NEWIMG)
+        SW12=RAYRAY(2,NEWIMG)
+                        ELSE
+C       MODE AFOCAL
+        SW11=RAYRAY(11,NEWIMG)
+        SW12=RAYRAY(12,NEWIMG)
+                        END IF
+        WW3=SYSTEM(10)
+        WVN=WW3
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        GRASET=.FALSE.
+        DXFSET=.FALSE.
+        CALL RAYTRA
+      F58=0
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        SW21=RAYRAY(1,NEWIMG)
+        SW22=RAYRAY(2,NEWIMG)
+                        ELSE
+C       MODE AFOCAL
+        SW21=RAYRAY(11,NEWIMG)
+        SW22=RAYRAY(12,NEWIMG)
+                        END IF
+C       PRIMARY PAIR
+C       X-VALUE
+        DIF1=PW11-PW21
+        IF(SYSTEM(30).GT.2.0D0) THEN
+C     AFOCAL
+      IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
+      IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
+      IF(ABS(DIF1).EQ.ABS(TWOPII)) DIF1=0.0D0
+      IF((DIF1).LT.(-TWOPII)) DIF1=DIF1+(TWOPII)
+              END IF
+C       Y-VALUE
+        DIF2=PW12-PW22
+        IF(SYSTEM(30).GT.2.0D0) THEN
+C     AFOCAL
+      IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
+      IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
+      IF(ABS(DIF2).EQ.ABS(TWOPII)) DIF2=0.0D0
+      IF((DIF2).LT.(-TWOPII)) DIF2=DIF2+(TWOPII)
+              END IF
+C       SECONDARY PAIR
+C       X-VALUE
+        DIF3=SW11-SW21
+        IF(SYSTEM(30).GT.2.0D0) THEN
+C     AFOCAL
+      IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
+      IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
+      IF(ABS(DIF3).EQ.ABS(TWOPII)) DIF3=0.0D0
+      IF((DIF3).LT.(-TWOPII)) DIF3=DIF3+(TWOPII)
+              END IF
+C       Y-VALUE
+        DIF4=SW12-SW22
+        IF(SYSTEM(30).GT.2.0D0) THEN
+C     AFOCAL
+      IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
+      IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)
+      IF(ABS(DIF4).EQ.ABS(TWOPII)) DIF4=0.0D0
+      IF((DIF4).LT.(-TWOPII)) DIF4=DIF4+(TWOPII)
+              END IF
+        IF(RAYCOD(1).EQ.0.0D0) THEN
+      IF(WC.EQ.'PFAN') THEN
+      IF(DABS(DIF1).LE.1.0D-7) DIF1=0.0D0
+      IF(DABS(DIF2).LE.1.0D-7) DIF2=0.0D0
+      IF(DABS(DIF3).LE.1.0D-7) DIF3=0.0D0
+      IF(DABS(DIF4).LE.1.0D-7) DIF4=0.0D0
+      TEMP1=(DIF1*DCOS(PII/4.0D0))+(DIF2*DSIN(PII/4.0D0))
+      TEMP2=(DIF2*DCOS(PII/4.0D0))-(DIF1*DSIN(PII/4.0D0))
+      TEMP3=(DIF3*DCOS(PII/4.0D0))+(DIF4*DSIN(PII/4.0D0))
+      TEMP4=(DIF4*DCOS(PII/4.0D0))-(DIF3*DSIN(PII/4.0D0))
+      DIF1=-TEMP1
+      DIF2=-TEMP2
+      DIF3=-TEMP3
+      DIF4=-TEMP4
+                       END IF
+      IF(WC.EQ.'NFAN') THEN
+      IF(DABS(DIF1).LE.1.0D-7) DIF1=0.0D0
+      IF(DABS(DIF2).LE.1.0D-7) DIF2=0.0D0
+      IF(DABS(DIF3).LE.1.0D-7) DIF3=0.0D0
+      IF(DABS(DIF4).LE.1.0D-7) DIF4=0.0D0
+      TEMP1=(DIF1*DCOS(-PII/4.0D0))+(DIF2*DSIN(-PII/4.0D0))
+      TEMP2=(DIF2*DCOS(-PII/4.0D0))-(DIF1*DSIN(-PII/4.0D0))
+      TEMP3=(DIF3*DCOS(-PII/4.0D0))+(DIF4*DSIN(-PII/4.0D0))
+      TEMP4=(DIF4*DCOS(-PII/4.0D0))-(DIF3*DSIN(-PII/4.0D0))
+      DIF1=TEMP1
+      DIF2=TEMP2
+      DIF3=TEMP3
+      DIF4=TEMP4
+                       END IF
+      IF(DABS(DIF1).LE.1.0D-7) DIF1=0.0D0
+      IF(DABS(DIF2).LE.1.0D-7) DIF2=0.0D0
+      IF(DABS(DIF3).LE.1.0D-7) DIF3=0.0D0
+      IF(DABS(DIF4).LE.1.0D-7) DIF4=0.0D0
+      IF(WC.EQ.'NFAN') WRITE(OUTLYNE,994)XI,DIF2,DIF1,DIF4,DIF3
+      IF(WC.NE.'NFAN') WRITE(OUTLYNE,994)XI,DIF1,DIF2,DIF3,DIF4
+      CALL SHOWIT(0)
+ 994    FORMAT(F9.4,2X,G12.4,2X,G12.4,2X,G12.4,2X,G12.4)
+                        ELSE
+       WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
+      CALL SHOWIT(0)
+                        END IF
+C
+C       NOT CD
+                        END IF
+C
+        IF(WQ.EQ.'LA') THEN
+        RAYCOD(1)=0
+        RAYCOD(2)=-1
+                RV=.FALSE.
+      IF(WC.EQ.'YFAN') THEN
+        IF(REAL(WW1).LT.0.001.AND.WW1.GT.0.0D0)WW1=0.01D0
+        IF(REAL(WW1).GT.-0.001.AND.WW1.LT.0.0D0)WW1=-0.01D0
+        IF(REAL(WW1).EQ.0.0) WW1=.0001D0
+                   END IF
+      IF(WC.EQ.'XFAN') THEN
+        IF(REAL(WW2).LT.0.001.AND.WW2.GT.0.0D0)WW2=0.001D0
+        IF(REAL(WW2).GT.-0.001.AND.WW2.LT.0.0D0)WW2=0.-001D0
+        IF(REAL(WW2).EQ.0.0) WW2=.0001D0
+                   END IF
+      IF(WC.EQ.'NFAN'.OR.WC.EQ.'PFAN') THEN
+        IF(REAL(WW1).LT.0.001.AND.WW1.GT.0.0D0)WW1=0.001D0
+        IF(REAL(WW2).LT.0.001.AND.WW2.GT.0.0D0)WW2=0.001D0
+        IF(REAL(WW1).GT.-0.001.AND.WW1.LT.0.0D0)WW1=-0.001D0
+        IF(REAL(WW2).GT.-0.001.AND.WW2.LT.0.0D0)WW2=-0.001D0
+        IF(REAL(WW1).EQ.0.0) WW1=.0001D0
+        IF(REAL(WW2).EQ.0.0) WW2=.0001D0
+                   END IF
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        GRASET=.FALSE.
+        DXFSET=.FALSE.
+        CALL RAYTRA
+      F58=0
+C       CALCULATION OF LA IN XZ AND YZ PLANE.
+        DX=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
+        DY=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
+        LLR=RAYRAY(4,NEWIMG)
+        MMR=RAYRAY(5,NEWIMG)
+        NNR=RAYRAY(6,NEWIMG)
+        LLP=REFRY(4,NEWIMG)
+        MMP=REFRY(5,NEWIMG)
+        NNP=REFRY(6,NEWIMG)
+      IF(WC.NE.'NFAN'.AND.WC.NE.'PFAN') THEN
+      DTX=((LLR/NNR)-(LLP/NNP))
+      DTY=((MMR/NNR)-(MMP/NNP))
+                   END IF
+      IF(WC.EQ.'PFAN') THEN
+      TEMP1=(DX*DCOS(PII/4.0D0))+(DY*DSIN(PII/4.0D0))
+      TEMP2=(DY*DCOS(PII/4.0D0))-(DX*DSIN(PII/4.0D0))
+      DX=-TEMP1
+      DY=-TEMP2
+      TEMP3=(LLR*DCOS(PII/4.0D0))+(MMR*DSIN(PII/4.0D0))
+      TEMP4=(MMR*DCOS(PII/4.0D0))-(LLR*DSIN(PII/4.0D0))
+      LLR=TEMP3
+      MMR=TEMP4
+      TEMP3=(LLP*DCOS(PII/4.0D0))+(MMP*DSIN(PII/4.0D0))
+      TEMP4=(MMP*DCOS(PII/4.0D0))-(LLP*DSIN(PII/4.0D0))
+      LLP=TEMP3
+      MMP=TEMP4
+      DTX=((LLR/NNR)-(LLP/NNP))
+      DTY=((MMR/NNR)-(MMP/NNP))
+                       END IF
+      IF(WC.EQ.'NFAN') THEN
+      TEMP1=(DX*DCOS(-PII/4.0D0))+(DY*DSIN(-PII/4.0D0))
+      TEMP2=(DY*DCOS(-PII/4.0D0))-(DX*DSIN(-PII/4.0D0))
+      DX=TEMP1
+      DY=TEMP2
+      TEMP3=(LLR*DCOS(-PII/4.0D0))+(MMR*DSIN(-PII/4.0D0))
+      TEMP4=(MMR*DCOS(-PII/4.0D0))-(LLR*DSIN(-PII/4.0D0))
+      LLR=TEMP3
+      MMR=TEMP4
+      TEMP3=(LLP*DCOS(-PII/4.0D0))+(MMP*DSIN(-PII/4.0D0))
+      TEMP4=(MMP*DCOS(-PII/4.0D0))-(LLP*DSIN(-PII/4.0D0))
+      LLP=TEMP3
+      MMP=TEMP4
+      DTX=((LLR/NNR)-(LLP/NNP))
+      DTY=((MMR/NNR)-(MMP/NNP))
+                       END IF
+        IF(DX.EQ.0.0D0.OR.DTX.EQ.0.0D0) LAX=0.0D0
+        IF(DTX.NE.0.0D0) LAX=DX/DTX
+        IF(DY.EQ.0.0D0.OR.DTY.EQ.0.0D0) LAY=0.0D0
+        IF(DTY.NE.0.0D0) LAY=DY/DTY
+        IF(RAYCOD(1).EQ.0.0D0) THEN
+      IF(WC.EQ.'NFAN') WRITE(OUTLYNE,995)XI,LAY,LAX,DTY,DTX
+      IF(WC.NE.'NFAN') WRITE(OUTLYNE,995)XI,LAX,LAY,DTX,DTY
+      CALL SHOWIT(0)
+ 995    FORMAT(F9.4,2X,G12.4,2X,G12.4,2X,G12.4,2X,G12.4)
+                        ELSE
+        WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
+      CALL SHOWIT(0)
+                        END IF
+C
+C       NOT LA
+                        END IF
+C
+       ! Where Update is made for next iteration
+       PRINT *, "Delta is ", DELTA
+                XI=LOWERL+(DBLE(IX)*DELTA)
+ 100                    CONTINUE
+C
+        IF(.NOT.RIM) FANEXT=.TRUE.
+        FANNAM(1:8)=WC(1:8)
+        FANQAL(1:8)=WQ(1:8)
+C     SET FANTYP AND QALTYP IN PREPARATION FOR USE WITH USER-DEFINED
+C     FAN PLOTTING. tHESE WILL BE OVERWRITTEN IS REGULAR FAN PLOTTING
+C     IS PERFORMED
+        IF(FANNAM.EQ.'YFAN    ') FANTYP=1
+        IF(FANNAM.EQ.'XFAN    ') FANTYP=2
+        IF(FANNAM.EQ.'NFAN    ') FANTYP=3
+        IF(FANNAM.EQ.'PFAN    ') FANTYP=4
+        IF(FANQAL.EQ.'        ') QALTYP=0
+        IF(FANQAL.EQ.'OPD     ') QALTYP=1
+        IF(FANQAL.EQ.'CD      ') QALTYP=2
+        IF(FANQAL.EQ.'LA      ') QALTYP=3
+C                        PLEXIS=.FALSE.
+C                        DEVTYP=0
+C                        GRASET=.FALSE.
+                        RETURN
+                        END
+
+C SUB FANS.FOR
+        SUBROUTINE FANSOLD
+C
+        IMPLICIT NONE
+C
+C       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
+C       THE CMD LEVEL COMMANDS YFAN, XFAN, NFAN AND PFAN.
+C       IT IS CALLED BY CMDER.FOR.
+C
+        CHARACTER UNI*11,FANNAM*8,FANQAL*8
 C
         LOGICAL FANEXT,RIM
 C
@@ -4060,6 +5150,13 @@ C
       WW4=1.0D0
       F58=1
       NOCOAT=.TRUE.
+        PRINT *, "YFAN bf raytrace XX = ", XX
+        PRINT *, "YFAN bf raytrace YY = ", YY
+
+        !WRITE(INPUT, *), "FOB ", YY, XX
+        !PRINT *, INPUT
+        !CALL PROCES
+
         CALL RAYTRA
       F58=0
         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN

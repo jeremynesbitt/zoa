@@ -115,7 +115,15 @@ end subroutine
         use g
 
 
-     IMPLICIT NONE
+   IMPLICIT NONE
+   character(len=23) :: ffieldstr
+   integer :: ii
+   integer :: numPoints = 10
+
+
+
+
+
 
      type(c_ptr)   :: localcanvas, my_cairo_context
      !type(c_ptr), value :: gdata
@@ -126,7 +134,23 @@ end subroutine
 
      integer :: numPts, numPtsDist, numPtsFC
 
-     REAL, dimension(10) :: x, y
+     REAL, dimension(11) :: x, y
+
+     INCLUDE 'DATMAI.INC'
+
+     do ii = 0, numPoints
+       x(ii+1) = REAL(ii)/REAL(numPoints)
+       write(ffieldstr, *), x(ii+1)
+       CALL PROCESKDP("FOB "// ffieldstr)
+       CALL PROCESKDP("CAPFN")
+       CALL PROCESKDP("SHO RMSOPD")
+       y(ii+1) = 1000.0*REG(9)
+
+       !PRINT *, "REG9 9 is ", REG(9)
+
+       !PRINT *, "FOB " // ffieldstr
+
+     end do
 
     call logger%logText('plot_rmsfield routine started')
     isurface = g_object_get_data(localcanvas, "backing-surface")
@@ -138,8 +162,8 @@ end subroutine
 
     call mplt%initialize(localcanvas, 1,1)
 
-    x = [1,2,3,4,5,6,7,8,9,10]
-    y = [1,2,3,4,5,6,7,8,9,10]
+    !x = [1,2,3,4,5,6,7,8,9,10]
+    !y = [1,2,3,4,5,6,7,8,9,10]
     !call filterRawSpotData(x,y)
 
     call xyscat1%initialize(c_null_ptr, x, y, &

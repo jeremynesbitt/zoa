@@ -332,20 +332,7 @@ C     AND DEPTH.
       IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
                         ELSE
 C     USE Y HEIGHT OF CLAP WITH OFFSETS
@@ -359,20 +346,7 @@ C     USE Y HEIGHT OF CLAP WITH OFFSETS
                            END IF
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
       IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
@@ -380,20 +354,7 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
       IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.
@@ -4338,6 +4299,7 @@ C SUB FFOB.FOR
         SUBROUTINE FFOB
           !use ieee_arithmetic, only: ieee_is_nan
         USE GLOBALS
+
 C
         IMPLICIT NONE
 C
@@ -4373,7 +4335,7 @@ C
         COMMON/FANEXI/FANEXT
 C
 C       FOBB0=TRUE FOR ON AXIS AND FALSE FOR OFF AXIS
-        LOGICAL FOBB0,FOBB0X,FOBB0Y
+        LOGICAL FOBB0,FOBB0X,FOBB0Y, boolResult
 C
         COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
 C
@@ -4402,7 +4364,7 @@ C     SET UP ANGLE FACTERS
       AWW1=W1/SCLFACY
       AWW2=W2/SCLFACX
 
-      OUTLYNE = "STARTING FFOB ROUTINE"
+      call logger%logText("STARTING FFOB ROUTINE")
       CALL SHOWIT(19)
       !call megaDebugLogger('FFOB')
       !PRINT *, "YSTRT FOBBS BEGINNING IS ", YSTRT
@@ -4451,11 +4413,15 @@ C       CHECK FOR STRING INPUT
                         END IF
       IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.
      1SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+
+      call logger%logText("FFOB Object Angle Loop ")
+
       IF(DF3.EQ.0.AND.W3.NE.0.0D0) THEN
                    W3=0.0D0
                    DF3=1
                    S3=0
                    END IF
+
 C     OBJECT ANGLES INPUT
       ANGIN=.TRUE.
 C     REF OBJ HT INPUT AS ANGLE
@@ -4466,14 +4432,8 @@ C     THIS NEEDS MODIFICATION FOR FRACTIONS OF FIELD ANGLES
 C
       ANGJK1=AWW1
       ANGJK2=AWW2
-      IF(ANGJK1.GT.89.9999D0.AND.
-     1ANGJK1.LT.90.0001D0.OR.
-     2ANGJK1.LT.-89.9999D0.AND.
-     3ANGJK1.GT.-90.0001D0.OR.
-     4ANGJK1.GT.-270.0001D0.AND.
-     5ANGJK1.LT.-269.9999D0.OR.
-     6ANGJK1.GT.269.9999D0.AND.
-     7ANGJK1.LT.270.0001D0) THEN
+      call ISYFIELDANGLE90DEGREES(ANGJK1, boolResult)
+      IF(boolResult) THEN
       IF(DF2.EQ.0) THEN
       OUTLYNE='THE Y-FIELD ANGLE IS 90.0 OR -90.0 DEGREES'
       CALL SHOWIT(1)
@@ -4484,29 +4444,8 @@ C
                    S2=0
                    END IF
                    END IF
-      IF(ANGJK1.GT.89.9999D0.AND.
-     1ANGJK1.LT.90.0001D0)  ANGJK1=89.9999D0
-
-      IF(ANGJK1.LT.-89.9999D0.AND.
-     1ANGJK1.GT.-90.0001D0) ANGJK1=-89.9999D0
-
-      IF(ANGJK1.GT.-270.0001D0.AND.
-     1ANGJK1.LT.-269.9999D0) ANGJK1=89.9999D0
-
-      IF(ANGJK1.GT.269.9999D0.AND.
-     1ANGJK1.LT.270.0001D0) ANGJK1=-89.9999D0
-
-      IF(ANGJK2.GT.89.9999D0.AND.
-     1ANGJK2.LT.90.0001D0)  ANGJK2=89.9999D0
-
-      IF(ANGJK2.LT.-89.9999D0.AND.
-     1ANGJK2.GT.-90.0001D0) ANGJK2=-89.9999D0
-
-      IF(ANGJK2.GT.-270.0001D0.AND.
-     1ANGJK2.LT.-269.9999D0) ANGJK2=89.9999D0
-
-      IF(ANGJK2.GT.269.9999D0.AND.
-     1ANGJK2.LT.270.0001D0) ANGJK2=-89.9999D0
+      call ADJUSTANGLEIFCLOSETO90(ANGJK1)
+      call ADJUSTANGLEIFCLOSETO90(ANGJK2)
 
 C     ANGLES IN RADIANS ARE:
 C
@@ -4566,8 +4505,10 @@ C
       IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
                        ELSE
+
 C     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
+      call logger%logText("FFOB Object Height Loop ")
 C
       IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
 C     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
@@ -4578,82 +4519,44 @@ C     AND DEPTH.
       IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
       IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
       IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
-      PRINT *, "YSTRT FOBBS 4579 =", YSTRT
+      PRINT *, "YSTRT =", YSTRT
+      PRINT *, "XSTRT =", YSTRT
       PRINT *, "SYSTEM(14) ",SYSTEM(14),"SYSTEM(16) ",SYSTEM(16)
       PRINT *, "PXTRAY(5,NEWOBJ) ", PXTRAY(5,NEWOBJ)
       PRINT *, "NEWOBJ ", NEWOBJ
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                PRINT *, "STOPP=1 4584"
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
-        !if (ieee_is_nan(ZSAG)) ZSAG = 0
-        ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
-                        ELSE
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
+      ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+      call logger%logTextWithReal("Z start = ",ZSTRT)
+
+      ELSE
+      call logger%logText("USE Y HEIGHT OF CLAP WITH OFFSETS")
 C     USE Y HEIGHT OF CLAP WITH OFFSETS
       IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-      XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-      YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 4604 =", YSTRT
-                           ELSE
-      XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-      YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 4608 =", YSTRT
-                           END IF
+         XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
+         YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      ELSE
+         XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
+         YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+      END IF
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                PRINT *, "STOPP=1 4612"
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
                    !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
-                        END IF
+      END IF
+
       IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
       PRINT *, "YSTRT FOBBS 4632 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                PRINT *, "STOPP=1 4634"
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
       !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
@@ -4664,21 +4567,7 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       PRINT *, "YSTRT FOBBS 4656 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                PRINT *, "STOPP=1 4657"
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
       !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
@@ -4697,24 +4586,16 @@ C     NOT ANGIN
         X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
         Y1AIM=PXTRAY(5,(NEWOBJ+1))
         Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+        call logger%logTextWithNum("Surf = ", IISURF)
+        call logger%logTextWithReal("X1 Aim = ", X1AIM)
+        call logger%logTextWithReal("Y1 Aim = ", X1AIM)
+
       IISURF=NEWOBJ+1
+
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                !PRINT *, "STOPP=1 4691"
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
-        Z1AIM=SYSTEM(89)+ZSAG
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
+      Z1AIM=SYSTEM(89)+ZSAG
                        END IF
       !PRINT *, "TRYY 4710 IS ", TRYY
       TRYX=X1AIM
@@ -4733,23 +4614,24 @@ C     STARTING INTERSECTION POINT ON SURF 1 IS
       TRYZ=ZC
       !PRINT *, "TRYY 4716 IS ", TRYY
 C
-                        FANEXT=.FALSE.
+      FANEXT=.FALSE.
 C
 C       INITIALIZE RAYCOD
                 RAYCOD(1)=0
                 RAYCOD(2)=-1
 C
 C       SET RAYEXT TO FALSE AND FAIL TO TRUE
-                        RAYEXT=.FALSE.
-                        POLEXT=.FALSE.
-                        FAIL=.TRUE.
+        RAYEXT=.FALSE.
+        POLEXT=.FALSE.
+        FAIL=.TRUE.
 C       SET REFEXT AND STOPP
                         STOPP=0
                         REFEXT=.TRUE.
                         SPDEXT=.FALSE.
                         GSPDEXT=.FALSE.
                         CPFNEXT=.FALSE.
-                        CALL DELPSF
+        CALL DELPSF
+        ! JN why is this here?  why can't you check validity earlier?
         IF(SYSTEM(63).EQ.1.AND.S5.EQ.1) THEN
         OUTLYNE='"FOB" TAKES NO NUMERIC WORD #5 INPUT'
       CALL SHOWIT(1)
@@ -4770,11 +4652,12 @@ C       THE CONTROL WAVELENGTH
         IF(DF4.EQ.1) W4=SYSTEM(11)
         IF(DF4.EQ.1) WVN=SYSTEM(11)
         IF(DF5.EQ.1) THEN
-      IF(WC.EQ.'FOB') THEN
-                FT=0.0D0
-                FS=0.0D0
-                   END IF
-                        END IF
+           IF(WC.EQ.'FOB') THEN
+              FT=0.0D0
+              FS=0.0D0
+            END IF
+        END IF
+      ! JN:  Same as above.  Can this be checked before now?
       IF(DF5.EQ.0) THEN
       IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ') THEN
       OUTLYNE='OBJECT, REFERENCE AND IMAGE SURFACES MAY NOT BE'
@@ -4818,162 +4701,11 @@ C       CHECK FOR NATURE OF QUALIFIER WORD
 C       NO QUALIFIER,PROCEED
                         END IF
 C       CHECK FOR LEGAL WAVELENGTH BOUNDS
-        IF(INT(W4).NE.1.AND.
-     1INT(W4).NE.2.AND.
-     1INT(W4).NE.3.AND.
-     1INT(W4).NE.4.AND.
-     1INT(W4).NE.5.AND.
-     1INT(W4).NE.6.AND.
-     1INT(W4).NE.7.AND.
-     1INT(W4).NE.8.AND.
-     1INT(W4).NE.9.AND.
-     1INT(W4).NE.10) THEN
-        OUTLYNE='WAVELENGTH NUMBER BEYOND LEGAL BOUNDS'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-      IF(W4.GE.1.0D0.AND.W4.LE.5.0D0) THEN
-      IF(SYSTEM(INT(W4)).EQ.0.0D0) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'REFERENCE RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
-      CALL SHOWIT(1)
-                        END IF
-                !PRINT *, "STOPP=1 4827"
-                STOPP=1
-                RAYCOD(1)=11
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                IF(.NOT.NULL) CALL MACFAL
-                        RETURN
-                        END IF
-                        END IF
-      IF(W4.GE.6.0D0.AND.W4.LE.10.0D0) THEN
-      IF(SYSTEM(65+INT(W4)).EQ.0.0D0) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'REFERENCE RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=11
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                IF(.NOT.NULL) CALL MACFAL
-                      RETURN
-                      END IF
-                      END IF
-C
-C       PROCESS W5 IF IT IS NOT DEFAULT
-C
-        IF(DF5.NE.1) THEN
-      IF(WC.EQ.'FOB') THEN
-C       W5 NOT DEFAULT
-               W5=DABS(W5)
-C
-        NEWOBJ=INT(W5/1000000.0D0)
-        NEWREF=INT(DMOD(W5,1000000.0D0)/1000.0D0)
-        NEWIMG=INT(DMOD(W5,1000.0D0))
-      IF(NEWREF.LE.NEWOBJ.OR.NEWIMG.LE.NEWOBJ.OR.NEWIMG.LE.
-     1NEWREF) THEN
-        OUTLYNE='INVALID SURFACE ORDER IN SURFACE RE-ASSIGNMENT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C
-                      DO I=0,NEWREF
-      IF(ALENS(25,I).EQ.2.0D0.OR.ALENS(25,I).EQ.3.0D0) THEN
-        OUTLYNE='A "TILT AUTO" OR "TILT AUTOM" IS NOT ALLOWED'
-      CALL SHOWIT(1)
-        OUTLYNE='BEFORE OR ON THE NEW REFERENCE SURFACE'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                NEWOBJ=0
-                NEWREF=INT(SYSTEM(25))
-                NEWIMG=INT(SYSTEM(20))
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-                        END DO
-C
-        IF(NEWREF.LT.0.OR.NEWREF.GT.INT(SYSTEM(20)))THEN
-        OUTLYNE='NEW REFERENCE SURFACE NUMBER BEYOND LEGAL BOUNDS'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                NEWOBJ=0
-                NEWREF=INT(SYSTEM(25))
-                NEWIMG=INT(SYSTEM(20))
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(NEWIMG.LT.0.OR.NEWIMG.GT.INT(SYSTEM(20))) THEN
-        OUTLYNE='NEW IMAGE SURFACE NUMBER BEYOND LEGAL BOUNDS'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                NEWOBJ=0
-                NEWREF=INT(SYSTEM(25))
-                NEWIMG=INT(SYSTEM(20))
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(NEWOBJ.LT.0.OR.NEWOBJ.GT.INT(SYSTEM(20)))THEN
-        OUTLYNE='NEW OBJECT SURFACE NUMBER BEYOND LEGAL BOUNDS'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                NEWOBJ=0
-                NEWREF=INT(SYSTEM(25))
-                NEWIMG=INT(SYSTEM(20))
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(NEWOBJ.GE.NEWREF.OR.NEWOBJ.GE.NEWIMG.OR.
-     1  NEWREF.GE.NEWIMG)THEN
-        OUTLYNE=
-     1  'NEW OBJECT/REFERENCE/IMAGE SURFACES ILLEGALLY ORDERED'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                NEWOBJ=0
-                NEWREF=INT(SYSTEM(25))
-                NEWIMG=INT(SYSTEM(20))
-                        REFEXT=.FALSE.
-                        CALL MACFAL
-                        RETURN
-                        END IF
-                        END IF
-      IF(WC.EQ.'IFOB') THEN
-                       WW5=W5
-                       END IF
-C
-C       IF W5 WAS DEFAULT, IT WAS SET TO 0.0 ABOVE
-                        END IF
-C
-        IF(WQ.EQ.'NULL') THEN
-                        NULL=.TRUE.
-                        ELSE
-                        NULL=.FALSE.
-                        END IF
-C
+      CALL CHECKWAVELENGTHBOUNDS()
+
+      CALL CHECK_OBJ_REF_IMG_SURFACES()
+
+
 C       NOW THE DEFAULTS HAVE BEEN SET
 C       NOW CALL THE SUBROUTINE WHICH STARTS THE REFERENCE
 C       RAY RAY TRACE. THIS IS REFRAY.
@@ -5453,20 +5185,7 @@ C     AND DEPTH.
       !PRINT *, "YSTRT FOBBS 5444 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
 
@@ -5486,20 +5205,7 @@ C     USE Y HEIGHT OF CLAP WITH OFFSETS
                            END IF
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
       !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
       !PRINT *, "ZSTRT FOBBS 5496 ", ZSTRT
@@ -5510,20 +5216,7 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       !PRINT *, "YSTRT FOBBS 5495 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
       !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
       !PRINT *, "ZSTRT FOBBS 5519 ", ZSTRT
@@ -5535,20 +5228,7 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       !PRINT *, "YSTRT FOBBS 5518 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
       !if (ieee_is_nan(ZSAG)) ZSAG = 0
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
       !PRINT *, "ZSTRT FOBBS 5543 ", ZSTRT
@@ -5570,20 +5250,7 @@ C     NOT ANGIN
         Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
         Z1AIM=SYSTEM(89)+ZSAG
                        END IF
       TRYX=X1AIM
@@ -5606,13 +5273,17 @@ C     STARTING INTERSECTION POINT ON SURF 1 IS
       !PRINT *, "TRYY 5572 IS ", TRYY
         FACTER=-(DABS(SERLIM)+DABS(SERINC))
         ICNTEST=INT(DABS(2.0D0*SERLIM)/DABS(SERINC))
-        !PRINT *, "ICNTEST IS ", ICNTEST
         ICNT=0
  992  CONTINUE
       CALL REFRAY(OBJLEVEL)
       CALL IPLANE_TILT
         CALL CLPCEN
       IF(STOPP.EQ.1.AND.ICNT.LE.ICNTEST) THEN
+        IF(ICNT.EQ.0) THEN
+          call logger%logText("REF RAY Failed!")
+          call logger%logTextWithNum("ICNTEST is ",ICNTEST)
+        END IF
+
                STOPP=0
                REFEXT=.TRUE.
 C       INITIALIZE RAYCOD
@@ -5634,6 +5305,7 @@ C       INITIALIZE RAYCOD
       IF(ALENS(1,NEWOBJ+1).NE.0.0D0) CALL GETZEE1
       !PRINT *, "FOBBS 5602 POST GETZEE1 YC IS ", YC
       IF(ZEEERR) THEN
+        call logger%logText("GetZee1 Failed after RefRay failed!")
       XC=TRYX
       YC=TRYY
       ZC=TRYZ
@@ -5647,6 +5319,7 @@ C       INITIALIZE RAYCOD
                        END IF
         FACTER=-(DABS(SERLIM)+DABS(SERINC))
         ICNTEST=INT(DABS(2.0D0*SERLIM)/DABS(SERINC))
+        call logger%logTextWithNum("ICNTEST 5322 = ", ICNTEST)
         !PRINT *, "ICNTEST IS ", ICNTEST
         !PRINT *, "STOPP IS ", STOPP
         ICNT=0
@@ -5694,7 +5367,8 @@ C       INITIALIZE RAYCOD
           FACTER=FACTER+DABS(SERINC)
           XA=0.0D0
           YA=0.0D0
-          ZA=FACTER
+          ! JN MOD 
+          ZA=ZA + FACTER
           TRYX=XA
           TRYY=YA
           TRYZ=ZA
@@ -5733,10 +5407,12 @@ C       INITIALIZE RAYCOD
             TRYZ=ZC
             !PRINT *, "TRYY 5684 is ", TRYY
             ICNT=ICNT+1
+            call logger%logTextWithNum("ICNT 5409 = ",ICNT)
             GO TO 993
           END IF
        END IF
       IF(STOPP.EQ.1.AND.ICNT.GT.ICNTEST) THEN
+        call logger%logText("FOBBS Fail STOPP ICNTEST")
                         REFEXT=.FALSE.
                         CPFNEXT=.FALSE.
                         CALL DELPSF
@@ -5955,3 +5631,264 @@ C
      1  2X,'T-FOCUS POS.',4X,'S-FOCUS POS.')
  301    FORMAT(G10.2,2X,G10.2,2X,G10.2)
                         END
+
+
+      subroutine ISYFIELDANGLE90DEGREES(ANGJK, boolResult)
+        use GLOBALS
+
+        real*8, intent(in) :: ANGJK
+        logical, intent(inout) :: boolresult
+        character(len=140) :: tmpTxt
+
+        boolResult = .FALSE.
+        WRITE(tmpTxt, *) "Checking Angle Input ", ANGJK
+
+        call logger%logText(trim(tmpTxt))
+
+      IF(ANGJK.GT.89.9999D0.AND.
+     1ANGJK1.LT.90.0001D0.OR.
+     2ANGJK1.LT.-89.9999D0.AND.
+     3ANGJK1.GT.-90.0001D0.OR.
+     4ANGJK1.GT.-270.0001D0.AND.
+     5ANGJK1.LT.-269.9999D0.OR.
+     6ANGJK1.GT.269.9999D0.AND.
+     7ANGJK1.LT.270.0001D0) THEN
+        boolResult = .TRUE.
+      end if
+
+      end subroutine
+
+      subroutine ADJUSTANGLEIFCLOSETO90(ANG)
+        use GLOBALS
+        real*8, intent(inout) :: ANG
+        character(len=140) :: tmpTxt
+
+        !write(tmpTxt, *) "Checking if Angle is close to n90  ", ANG
+        !call logger%logText(tmpTxt)
+      IF(ANGJK.GT.89.9999D0.AND.
+     1 ANGJK.LT.90.0001D0)  ANGJK1=89.9999D0
+
+      IF(ANGJK.LT.-89.9999D0.AND.
+     1 ANGJK.GT.-90.0001D0) ANGJK=-89.9999D0
+
+      IF(ANGJK.GT.-270.0001D0.AND.
+     1 ANGJK.LT.-269.9999D0) ANGJK=89.9999D0
+
+      IF(ANGJK.GT.269.9999D0.AND.
+     1 ANGJK.LT.270.0001D0) ANGJK=-89.9999D0
+
+      !write(tmpTxt, *) "Updated Angle  ", ANG
+      !call logger%logText(tmpTxt)
+
+      end subroutine
+
+      subroutine HANDLESAGRETFAILURE(MSG, NEWOBJ)
+        integer, intent(in) :: NEWOBJ
+        logical, intent(in) :: MSG
+
+        INTEGER STOPP
+        COMMON/RAYSTP/STOPP
+        LOGICAL REFEXT,NULL,FAIL,RAYEXT,GPRAYEXT
+        COMMON/RFEXIT/REFEXT,NULL
+        COMMON/RAYC/RAYCOD
+        INTEGER RAYCOD(1:2),REFITR,MRAYS
+        CHARACTER*140 OUTLYNE
+        CHARACTER*256 OUTLYNE_LONG
+        COMMON/REPLWRIT/OUTLYNE,OUTLYNE_LONG
+
+
+          IF(MSG) THEN
+          WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
+          CALL SHOWIT(1)
+          END IF
+
+        STOPP=1
+        RAYCOD(1)=16
+        RAYCOD(2)=NEWOBJ
+        REFEXT=.FALSE.
+        CALL MACFAL
+        RETURN
+
+      end subroutine
+
+      subroutine CHECKWAVELENGTHBOUNDS()
+        use GLOBALS
+        implicit none
+
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATSPD.INC'
+
+        IF(INT(W4).NE.1.AND.
+     1INT(W4).NE.2.AND.
+     1INT(W4).NE.3.AND.
+     1INT(W4).NE.4.AND.
+     1INT(W4).NE.5.AND.
+     1INT(W4).NE.6.AND.
+     1INT(W4).NE.7.AND.
+     1INT(W4).NE.8.AND.
+     1INT(W4).NE.9.AND.
+     1INT(W4).NE.10) THEN
+        OUTLYNE='WAVELENGTH NUMBER BEYOND LEGAL BOUNDS'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+      IF(W4.GE.1.0D0.AND.W4.LE.5.0D0) THEN
+      IF(SYSTEM(INT(W4)).EQ.0.0D0) THEN
+                IF(MSG) THEN
+      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1'REFERENCE RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
+      CALL SHOWIT(1)
+                        END IF
+          !PRINT *, "STOPP=1 4827"
+          STOPP=1
+          RAYCOD(1)=11
+          RAYCOD(2)=NEWOBJ
+          REFEXT=.FALSE.
+          IF(.NOT.NULL) CALL MACFAL
+          RETURN
+      END IF
+                        END IF
+      IF(W4.GE.6.0D0.AND.W4.LE.10.0D0) THEN
+      IF(SYSTEM(65+INT(W4)).EQ.0.0D0) THEN
+                IF(MSG) THEN
+      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1'REFERENCE RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
+      CALL SHOWIT(1)
+                        END IF
+                STOPP=1
+                RAYCOD(1)=11
+                RAYCOD(2)=NEWOBJ
+                REFEXT=.FALSE.
+                IF(.NOT.NULL) CALL MACFAL
+                      RETURN
+                      END IF
+                      END IF
+
+      end subroutine
+
+      SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
+
+        use GLOBALS
+        implicit none
+
+        integer :: I
+
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATSPD.INC'
+
+
+
+C
+C       PROCESS W5 IF IT IS NOT DEFAULT
+C
+        IF(DF5.NE.1) THEN
+      IF(WC.EQ.'FOB') THEN
+C       W5 NOT DEFAULT
+               W5=DABS(W5)
+C
+        NEWOBJ=INT(W5/1000000.0D0)
+        NEWREF=INT(DMOD(W5,1000000.0D0)/1000.0D0)
+        NEWIMG=INT(DMOD(W5,1000.0D0))
+      IF(NEWREF.LE.NEWOBJ.OR.NEWIMG.LE.NEWOBJ.OR.NEWIMG.LE.
+     1NEWREF) THEN
+        OUTLYNE='INVALID SURFACE ORDER IN SURFACE RE-ASSIGNMENT'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+C
+                      DO I=0,NEWREF
+      IF(ALENS(25,I).EQ.2.0D0.OR.ALENS(25,I).EQ.3.0D0) THEN
+        OUTLYNE='A "TILT AUTO" OR "TILT AUTOM" IS NOT ALLOWED'
+      CALL SHOWIT(1)
+        OUTLYNE='BEFORE OR ON THE NEW REFERENCE SURFACE'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                NEWOBJ=0
+                NEWREF=INT(SYSTEM(25))
+                NEWIMG=INT(SYSTEM(20))
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+                        END DO
+C
+        IF(NEWREF.LT.0.OR.NEWREF.GT.INT(SYSTEM(20)))THEN
+        OUTLYNE='NEW REFERENCE SURFACE NUMBER BEYOND LEGAL BOUNDS'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                NEWOBJ=0
+                NEWREF=INT(SYSTEM(25))
+                NEWIMG=INT(SYSTEM(20))
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+        IF(NEWIMG.LT.0.OR.NEWIMG.GT.INT(SYSTEM(20))) THEN
+        OUTLYNE='NEW IMAGE SURFACE NUMBER BEYOND LEGAL BOUNDS'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                NEWOBJ=0
+                NEWREF=INT(SYSTEM(25))
+                NEWIMG=INT(SYSTEM(20))
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+        IF(NEWOBJ.LT.0.OR.NEWOBJ.GT.INT(SYSTEM(20)))THEN
+        OUTLYNE='NEW OBJECT SURFACE NUMBER BEYOND LEGAL BOUNDS'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                NEWOBJ=0
+                NEWREF=INT(SYSTEM(25))
+                NEWIMG=INT(SYSTEM(20))
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+        IF(NEWOBJ.GE.NEWREF.OR.NEWOBJ.GE.NEWIMG.OR.
+     1  NEWREF.GE.NEWIMG)THEN
+        OUTLYNE=
+     1  'NEW OBJECT/REFERENCE/IMAGE SURFACES ILLEGALLY ORDERED'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                NEWOBJ=0
+                NEWREF=INT(SYSTEM(25))
+                NEWIMG=INT(SYSTEM(20))
+                        REFEXT=.FALSE.
+                        CALL MACFAL
+                        RETURN
+                        END IF
+                        END IF
+      IF(WC.EQ.'IFOB') THEN
+                       WW5=W5
+                       END IF
+C
+C       IF W5 WAS DEFAULT, IT WAS SET TO 0.0 ABOVE
+                        END IF
+C
+        IF(WQ.EQ.'NULL') THEN
+                        NULL=.TRUE.
+                        ELSE
+                        NULL=.FALSE.
+                        END IF
+C
+      END SUBROUTINE

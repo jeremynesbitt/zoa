@@ -1925,6 +1925,7 @@ C       TELECENTRIC AIMING IS ON
 C
  989                  CONTINUE
       IF(RAYCOD(1).EQ.1.AND.KKK.GT.1) THEN
+                        PRINT *, "RAYTRA FAILED LINE 1928 RAYTRA5.FOR"
                         STOPP=1
                         RAYEXT=.FALSE.
                         POLEXT=.FALSE.
@@ -2038,6 +2039,10 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
                END IF
+      !call logger%logTextWithNum("RAYTRAY Init Y1AIM = ",Y1AIM)
+      !call logger%logTextWithNum("RAYTRAY Init R_TY = ", R_TY)
+
+
       IF(ITRACE) THEN
 C     ILLUMINATION TRACE
 C     TANGENTS OF CHIEF RAY SLOPE
@@ -2128,9 +2133,18 @@ C
 C     NOT ILLUMINATION TRACING
       MAG=DSQRT(((XSTRT-X1AIM)**2)+((YSTRT-Y1AIM)**2)
      1+((ZSTRT-Z1AIM)**2))
+
+
         LSTART=(X1AIM-XSTRT)/MAG
         MSTART=(Y1AIM-YSTRT)/MAG
         NSTART=(Z1AIM-ZSTRT)/MAG
+
+      !call logger%logTextWithNum("RAYTRA AIM Iter is ",KKK)
+      !call logger%logTextWithNum("RAYTRA Mag is ",MAG)
+      !call logger%logTextWithNum("RAYTRA MSTART is ",MSTART)
+      !call logger%logTextWithNum("RAYTRA Y1AIM is ", Y1AIM)
+      !call logger%logTextWithNum("RAYTRA NSTART is ",NSTART)
+
                    NINTY=.FALSE.
       IF(NSTART.LT.0.0D0) NINTY=.TRUE.
       IF(NINTY) RVSTART=.TRUE.
@@ -2194,6 +2208,8 @@ C     CALCULATE X1AIM,Y1AIM AND Z1AIM IN THE COORDINATE SYSTEM OBJ SURF
 C     DON'T NEED BAKONE HERE
       X1AIM=WW2WW*ALENS(3,0)
       Y1AIM=WW1WW*ALENS(3,0)
+      !call logger%logTextWithNum("RAYTRA Y1AIM 2209 is ",Y1AIM)
+
       Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -2366,6 +2382,7 @@ C
       IF(RAYRAY(24,R_I-1).LT.0.0D0) POSRAY=.FALSE.
                         CALL HITSUR
                         IF(STOPP.EQ.1) THEN
+                          PRINT *, "RAYTRA Failed 2370"
                         RAYEXT=.FALSE.
                         POLEXT=.FALSE.
                         RETURN
@@ -2870,6 +2887,7 @@ C       NO CLAP ON REF SURF OR MULTI-CLAP
                         END IF
 C
         TEST=DSQRT(((TARX-X)**2)+((TARY-Y)**2))
+        !call logger%logTextWithNum("RAYTRA AIMTOL CHECK IS ", TEST)
         IF(TEST.LE.AIMTOL
      1.OR.SYSTEM(62).EQ.0.0D0.OR.ITRACE) THEN
 C       AIM IS GOOD ENOUGH, PROCEED
@@ -2944,6 +2962,16 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
 C       THIS IS NOT THE FIRST REFINEMENT, KKK NOT = 1
                         END IF
 C
+      ! call logger%logTextWithNum("RayDeriv for Ray Iter", KKK)
+      ! call logger%logTextWithNum("X1Last = ", X1LAST)
+      ! call logger%logTextWithNum("Y1Last = ", Y1LAST)
+      ! call logger%logTextWithNum("X1One = ", X1ONE)
+      ! call logger%logTextWithNum("Y1One = ", Y1ONE)
+      ! call logger%logTextWithNum("RYOne = ", RYONE)
+      ! call logger%logTextWithNum("RYLast = ", RYLAST)
+
+
+
       CALL RAYDERIV(X1LAST,Y1LAST,X1ONE,Y1ONE
      1,RXONE,RYONE,RXLAST,RYLAST,D11,D12,D21,D22)
 C
@@ -2960,6 +2988,9 @@ C
                 MF2=TARY-RYLAST
         DELFAIL=.FALSE.
         CALL NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
+
+        !call logger%logTextWithNum("DDELY is ", DDELY)
+
         IF(DELFAIL) THEN
                         RETURN
                         ELSE
@@ -3021,6 +3052,7 @@ C     NO CLAP/COBS CHECK FOR TYPE 24 SPECIAL SURFACE
       JK3=MULTCOBS(JK,3,R_I)
       CALL CACHEK(JK1,JK2,JK3,2)
       IF(RAYCOD(1).NE.0) THEN
+                   PRINT *, "RAYTRA FAILED RAYCOD=1 RAYTRA5.FOR L 3025"
                    SPDCD1=RAYCOD(1)
                    SPDCD2=RAYCOD(2)
                    STOPP=1
@@ -3676,6 +3708,8 @@ C
         LSTART=(X1AIM-XSTRT)/MAG
         MSTART=(Y1AIM-YSTRT)/MAG
         NSTART=(Z1AIM-ZSTRT)/MAG
+
+
                    NINTY=.FALSE.
       IF(NSTART.LT.0.0D0) NINTY=.TRUE.
       IF(NINTY) RVSTART=.TRUE.

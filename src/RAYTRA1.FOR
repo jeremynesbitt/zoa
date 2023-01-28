@@ -3949,12 +3949,12 @@ C       CHECK FOR STRING INPUT
 C JRN Modified to deal with compiler failure of comparing logical to double
                 W3=DBLE(NEWIMG)
 C                W3 = MERGE(1., 0., DBLE(NEWIMG) == 0)
-                
+
 C                SPSURF=W3
                 SPSURF = MERGE(1, 0, W3==0)
                 ELSE
 C                SPSURF=W3
-                SPSURF = MERGE(1, 0, W3==0)                
+                SPSURF = MERGE(1, 0, W3==0)
                 END IF
 
         IARRAY_DIM=INT(W1)

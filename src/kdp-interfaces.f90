@@ -213,7 +213,14 @@ end subroutine
 
 subroutine FIR
   use GLOBALS
+  use parax_calcs
+  use global_widgets
+
   implicit none
+  real :: epRad, epPos
+
+  call calcExitPupil(epRad, epPos)
+  !PRINT *, "Angle is ", curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)
 
   call logger%logText("FIR Called!")
 

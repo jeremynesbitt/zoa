@@ -42,8 +42,7 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
-        !OUTLYNE = "REFRAY ROUTINE STARTED! "
-        !CALL SHOWIT(19)
+        !call logger%logText("Reference Ray Routine Started")
 
                         KKKK=0
                         KKK=0
@@ -154,30 +153,8 @@ C
 C     ANGLES IN RADIANS ARE:
       ANGJK1=AWW1
       ANGJK2=AWW2
-
-      IF(ANGJK1.GT.89.9999D0.AND.
-     1ANGJK1.LT.90.0001D0)  ANGJK1=89.9999D0
-
-      IF(ANGJK1.LT.-89.9999D0.AND.
-     1ANGJK1.GT.-90.0001D0) ANGJK1=-89.9999D0
-
-      IF(ANGJK1.GT.-270.0001D0.AND.
-     1ANGJK1.LT.-269.9999D0) ANGJK1=89.9999D0
-
-      IF(ANGJK1.GT.269.9999D0.AND.
-     1ANGJK1.LT.270.0001D0) ANGJK1=-89.9999D0
-
-      IF(ANGJK2.GT.89.9999D0.AND.
-     1ANGJK2.LT.90.0001D0)  ANGJK2=89.9999D0
-
-      IF(ANGJK2.LT.-89.9999D0.AND.
-     1ANGJK2.GT.-90.0001D0) ANGJK2=-89.9999D0
-
-      IF(ANGJK2.GT.-270.0001D0.AND.
-     1ANGJK2.LT.-269.9999D0) ANGJK2=89.9999D0
-
-      IF(ANGJK2.GT.269.9999D0.AND.
-     1ANGJK2.LT.270.0001D0) ANGJK2=-89.9999D0
+      CALL ADJUSTANGLEIFCLOSETO90(ANGJK1)
+      CALL ADJUSTANGLEIFCLOSETO90(ANGJK2)
 
 C
       YYANG=ANGJK1*PII/180.0D0
@@ -254,22 +231,8 @@ C     AND DEPTH.
                                 END IF
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                OUTLYNE = "SETTING CHIEF RAY TO FALSE"
-                CALL SHOWIT(19)
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
         ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
                         ELSE
 C     USE Y HEIGHT OF CLAP WITH OFFSETS
@@ -284,68 +247,28 @@ C     USE Y HEIGHT OF CLAP WITH OFFSETS
                        END IF
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                OUTLYNE = "SETTING CHIEF RAY TO FALSE 296"
-                CALL SHOWIT(19)
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
       ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
       IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=WW2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=WW1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
       IISURF=NEWOBJ
+
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                OUTLYNE = "SETTING CHIEF RAY TO FALSE 319"
-                CALL SHOWIT(19)
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
       ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
       IF(ALENS(9,NEWOBJ).EQ.6.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=WW2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=WW1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
       IISURF=NEWOBJ
+
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                OUTLYNE = "SETTING CHIEF RAY TO FALSE 342"
-                CALL SHOWIT(19)
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
       ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
       IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LE.4.0D0.AND.
@@ -353,23 +276,10 @@ C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
       XSTRT=WW2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=WW1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
       IISURF=NEWOBJ
+
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                OUTLYNE = "SETTING CHIEF RAY TO FALSE 366"
-                CALL SHOWIT(19)
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+      IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
       ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
                         END IF
                         END IF
@@ -395,12 +305,15 @@ C     CALC AIM POINTS IF RYIM OR RXIM ARE IN EFFECT
       IF(SYSTEM(99).NE.0.0D0) THEN
       YCHIEF_TARGET=(WW1*SYSTEM(97))
                         END IF
+
+
 C
 C                       THE CHIEF RAY TARGETS HAVE BEEN COMPUTED
 C
  9898                   CONTINUE
                         KKKK=KKKK+1
                         KKK=0
+
 C     THE ABOVE CONTINUATION IS THE RE-ENTRY POINT FOR CHIEF RAY
 C     ITERATION
 C
@@ -421,6 +334,7 @@ C     TEL OFF
         Z1AIM=SYSTEM(89)
                         ELSE
 C     TEL ON,ALL RAYS ARE PARALLEL
+      call logger%logText("Telecentric Ray Aiming On!")
       IF(SYSTEM(16).NE.0.0D0) X1AIM=XSTRT
       IF(SYSTEM(16).EQ.0.0D0) X1AIM=0.0D0
       IF(SYSTEM(14).NE.0.0D0) Y1AIM=YSTRT
@@ -431,6 +345,8 @@ C     TEL ON,ALL RAYS ARE PARALLEL
 C     RAY AIMING IS ON
       !PRINT *, "TRYY = ", TRYY
       !PRINT *, "YFOBB0 = ", YFOBB0
+
+
          X1AIM=TRYX+XFOBB0
          Y1AIM=TRYY+YFOBB0
          Z1AIM=TRYZ+ZFOBB0
@@ -513,6 +429,7 @@ C       STATEMENT NEAR THE END OF THIS ROUTINE.
  9                      CONTINUE
                         RV=.FALSE.
                         KKK=KKK+1
+
 C       IF KKK EXCEEDS NRAITR TRIES, PRINT RAY ITERRATION ERROR
 C       AND STOP SEARCHING.
         IF(KKK.GT.NRAITR) THEN
@@ -674,6 +591,13 @@ C     WHICH ARE BETTER THAN THE ONES BASED ON THE PARAXIAL TRACE
 C     TEMP SET NOREF TO .TRUE. SO ERROR MESSAGE IS ISSUED
 C
                 DO 10 I=(NEWOBJ+1),ISYS20
+        IF (I.EQ.0) THEN
+          call logger%logText("Ray Aiming Surface 0")
+          call logger%logTextWithNum("X Start is ", X)
+          call logger%logTextWithNum("Y Start is ", Y)
+        END IF
+
+
 C
 C       WE ARE CURRENTLY AT SURFACE I-1 AND KNOW WHERE
 C       WE ARE AND WHICH DIRECTION WE WANT TO GO.
@@ -738,11 +662,10 @@ C
                         CALL HITSUR
                 MSG=.TRUE.
       IF(STOPP.EQ.1) THEN
-                        OUTLYNE = "SETTING CHIEF RAY TO FALSE 725"
-                        CALL SHOWIT(19)
-                        REFEXT=.FALSE.
-                        RETURN
-                        END IF
+          !call logger%logTextWithNum("Failed to hit surface",I)
+          REFEXT=.FALSE.
+          RETURN
+        END IF
                 X=R_X
                 Y=R_Y
                 Z=R_Z
@@ -955,10 +878,28 @@ C
 
         IF(DSQRT(((TARX-X)**2)+((TARY-Y)**2)).LE.AIMTOL
      1.OR.SYSTEM(62).EQ.0.0D0) THEN
+      call logger%logTextWithNum("Within Aiming Tolerance for Surf",I)
+
+
         ! PRINT *, "AIM IS GOOD ENOUGH"
 C       AIM IS GOOD ENOUGH, PROCEED
                         GO TO 100
                         ELSE
+      call logger%logTextWithNum("Aiming not good enough for iteration "
+     1,KKK)
+      call logger%logTextWithNum("Aiming Result is "
+     1,DSQRT(((TARX-X)**2)+((TARY-Y)**2)))
+
+          call logger%logTextWithNum("X1Aim = ", X1AIM)
+          call logger%logTextWithNum("Y1Aim = ", Y1AIM)
+      IF (KKK.EQ.1) Then
+        call logger%logTextWithNum("X Chief Ray Target = ",
+     1 XCHIEF_TARGET)
+        call logger%logTextWithNum("Y Chief Ray Target = ",
+     2 YCHIEF_TARGET)
+      END IF
+
+
 C       AIM NOT GOOD ENOUGH, IMPROVE GUESS
                         END IF
 C
@@ -1060,52 +1001,45 @@ C
  100            CONTINUE
 C
  10             CONTINUE
+
+      call logger%logTextWithNum("CDDELX = ", CDDELX)
+      call logger%logTextWithNum("CDDELY = ", CDDELY)
+      call logger%logTextWithNum("YSTRT = ", YSTRT)
+ 
 C     NOW IF RYIM OR RXIM ARE IN EFFECT, ITERATE THE CHEIF RAY
 C     TO HIT THE IMAGE SURFACE AT THE CORRECT POINT
-      !PRINT *, "ABOUT TO DO ERRORVEC CHECK for ", I
-                        IF(SYSTEM(98).LT.0.0D0) THEN
-                        CX=REFRY(1,NEWIMG)
-                        CY=REFRY(2,NEWIMG)
-                                ELSE
-                        CX=REFRY(11,NEWIMG)*180.0D0/PII
-                        CY=REFRY(12,NEWIMG)*180.0D0/PII
+      call logger%logTextWithNum("System(98) is ", SYSTEM(98))
+
+      IF(SYSTEM(98).LT.0.0D0) THEN
+         CX=REFRY(1,NEWIMG)
+         CY=REFRY(2,NEWIMG)
+      ELSE
+        CX=REFRY(11,NEWIMG)*180.0D0/PII
+        CY=REFRY(12,NEWIMG)*180.0D0/PII
                                 END IF
       ERRORVEC=DSQRT(((CX-XCHIEF_TARGET)**2)+((CY-YCHIEF_TARGET)**2))
       IF(SYSTEM(98).NE.0.0D0.AND.SYSTEM(99).NE.0.0D0.AND.
      1ERRORVEC.GT.CAIMTOL) THEN
       PRINT *, "Error Vector too big?"
       IF(KKKK.EQ.1) THEN
-                        IF(SYSTEM(98).LT.0.0D0) THEN
-                        OLDCX=REFRY(1,NEWIMG)
-                        OLDCY=REFRY(2,NEWIMG)
-                                ELSE
-                        OLDCX=REFRY(11,NEWIMG)*180.0D0/PII
-                        OLDCY=REFRY(12,NEWIMG)*180.0D0/PII
-                                END IF
+        IF(SYSTEM(98).LT.0.0D0) THEN
+          OLDCX=REFRY(1,NEWIMG)
+          OLDCY=REFRY(2,NEWIMG)
+        ELSE
+          OLDCX=REFRY(11,NEWIMG)*180.0D0/PII
+          OLDCY=REFRY(12,NEWIMG)*180.0D0/PII
+        END IF
 C     FIRST TIME
         OXSTRT=XSTRT
         OYSTRT=YSTRT
+
       XSTRT=XSTRT+CDDELX
       YSTRT=YSTRT+CDDELY
 C     COMPUTE THE APROPRIATE ZSTRT VALUE
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
-               IF(SAGERR) THEN
-                IF(MSG) THEN
-      WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
-      CALL SHOWIT(1)
-C     WRITE(OUTLYNE,*)'SPECIFIED OBJECT POINT DOES NOT EXIST'
-      CALL SHOWIT(1)
-                        END IF
-                STOPP=1
-                RAYCOD(1)=16
-                RAYCOD(2)=NEWOBJ
-                OUTLYNE = "SETTING CHIEF RAY TO FALSE 1066"
-                CALL SHOWIT(19)
-                REFEXT=.FALSE.
-                   CALL MACFAL
-                   RETURN
-                   END IF
+        IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
+
       ZSTRT=ZSAG
                         GO TO 9898
                         ELSE

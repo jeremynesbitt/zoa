@@ -653,6 +653,7 @@ C     DETERMINE THE ANGLE OF THE FULL RAY
                         END
 C SUB HITASP.FOR
         SUBROUTINE HITASP(OR_N,OR_Z)
+        USE GLOBALS
 C
         IMPLICIT NONE
 C
@@ -687,6 +688,8 @@ C
         INCLUDE 'DATLEN.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
+
+      !call logger%logTextWithNum("HitAsp Started for surf ", R_I)
                         PHASE=0.0D0
       HV0=0.0D0
       HV1=0.0D0
@@ -1061,6 +1064,7 @@ C
      1DABS(ALENS(34,R_I)).NE.19.0D0.AND.
      1DABS(ALENS(34,R_I)).NE.20.0D0.OR.ALENS(103,R_I).EQ.1.0D0) THEN
                         ERR=.FALSE.
+       !call logger%logTextWithNum("Call NR2 for surface ", R_I)
                         CALL NR2(ERR)
         IF(ERR) THEN
                         IF(MSG) THEN

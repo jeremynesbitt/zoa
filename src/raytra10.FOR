@@ -1726,9 +1726,9 @@ C       THIS IS THE REFERENCE SPHERE CENTER LOCATION.
         XREFI=REFRY(1,NEWIMG)
         YREFI=REFRY(2,NEWIMG)
         ZREFI=REFRY(3,NEWIMG)
-        call logger%logTextWithNum("XREFI=",XREFI)
-        call logger%logTextWithNum("YREFI=",YREFI)
-        call logger%logTextWithNum("ZREFI=",ZREFI)
+        !call logger%logTextWithNum("XREFI=",XREFI)
+        !call logger%logTextWithNum("YREFI=",YREFI)
+        !call logger%logTextWithNum("ZREFI=",ZREFI)
 
 
         IF(ALENS(3,(NEWIMG-1)).EQ.0.0D0.OR.ALENS(3,(NEWIMG-1)).NE.
@@ -1766,8 +1766,8 @@ C
 C       THE LENGTH FROM THE REFERENCE SPHERE
 C       TO THE FINAL SURFACE ALONG THE "OTHER" RAY IS:
 C
-        call logger%logTextWithNum("Ref Sphere Radius is ",RAD)
-        call logger%logTextWithNum("Ref Sphere Distance is ",RCOR)
+        !call logger%logTextWithNum("Ref Sphere Radius is ",RAD)
+        !call logger%logTextWithNum("Ref Sphere Distance is ",RCOR)
 
         AL=DSPOT(1)-XREFI
         BE=DSPOT(2)-YREFI
