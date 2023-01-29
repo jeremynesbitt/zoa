@@ -10,6 +10,11 @@ type zoaLogger
 
 contains
   procedure, public :: logText
+  procedure, public :: logTextWithReal
+  procedure, public :: logTextWithNum
+  procedure, public :: logTextWithInt
+  procedure, private :: writeLogToDisk
+
   FINAL :: closeLogFile
 end type
 
@@ -34,7 +39,7 @@ type(zoaLogger) function zoaLogger_constructor(path) result(self)
 
 end function
 
-subroutine logText(self, logTxt)
+subroutine writeLogToDisk(self, logTxt)
   class(zoaLogger) :: self
   character(len=*), intent(in) :: logTxt
   logical :: fileOpen
@@ -44,17 +49,61 @@ subroutine logText(self, logTxt)
   inquire(unit=self%fileID, opened=fileOpen)
   inquire(iolength=recL) logTxt
   close(self%fileID, status='KEEP')
-  !open(unit=self%fileID,file=self%logFileName,access='append',recl=recL,form='formatted')
-    open(unit=self%fileID,file=self%logFileName,access='append',form='formatted')
-     !    OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,
-     ! 1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
-     !    READ(UNIT=fileID,REC=1) TOTAL
-     !    CLOSE(UNIT=fileID, STATUS='KEEP')
-  !write(self%fileID, rec=self%recNo) logTxt
+  open(unit=self%fileID,file=self%logFileName,access='append',form='formatted')
   write(self%fileID, *) logTxt
-  !PRINT *, "LOG OPEN FLAG IS ", fileOpen
-  PRINT *, "LOGTXT IS ", logTxt
 
+  PRINT *, logTxt
+
+end subroutine
+
+subroutine logTextWithNum(self, logTxt, value)
+    use ISO_FORTRAN_ENV
+    class(zoaLogger) :: self
+    character(len=*), intent(in) :: logTxt
+    class(*), intent(in) :: value
+
+    select type(value)
+    type is (real(real64))
+      call self%logTextWithReal(logTxt, value)
+    type is (integer)
+      call self%logTextWithInt(logTxt, value)
+    end select
+
+
+  end subroutine
+
+subroutine logTextWithInt(self, logTxt, value)
+    class(zoaLogger) :: self
+    character(len=*), intent(in) :: logTxt
+    integer, intent(in) :: value
+    character(len=140) :: tmpTxt
+
+    WRITE(tmpTxt, *) logTxt, value
+
+    call self%writeLogToDisk(tmpTxt)
+
+end subroutine
+
+subroutine logTextWithReal(self, logTxt, realVar)
+    class(zoaLogger) :: self
+    character(len=*), intent(in) :: logTxt
+    real*8, intent(in) :: realVar
+
+    character(len=140) :: tmpTxt
+
+    WRITE(tmpTxt, *) logTxt, realVar
+
+    call self%writeLogToDisk(tmpTxt)
+
+
+end subroutine
+
+
+subroutine logText(self, logTxt)
+  class(zoaLogger) :: self
+  character(len=*), intent(in) :: logTxt
+
+  call self%writeLogToDisk(logTxt)
 
 end subroutine
 
