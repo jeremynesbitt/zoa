@@ -3,6 +3,7 @@ C       THIRD FILE OF CAPFN/SPOT ROUTINES
 C SUB SPOT.FOR
 
         SUBROUTINE SPOT
+
 C
         IMPLICIT NONE
 C
@@ -968,6 +969,7 @@ C     RAY FAILED
                         END
 C SUB SPOPD2.FOR
         SUBROUTINE SPOPD2(REFERR,TPT)
+          use referencespherecalcs
 C
         IMPLICIT NONE
 C
