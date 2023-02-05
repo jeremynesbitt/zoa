@@ -13,6 +13,7 @@ contains
 !
         use global_widgets
         USE GLOBALS
+
         IMPLICIT NONE
 
         integer :: refSphereAlgo
@@ -22,15 +23,8 @@ contains
 !       OPD DUE TO THE IMAGE REFERENCE SPHERE. (FOR AFOCAL
 !       SYSTEMS THIS WILL BE A FLAT REFERENCE SURFACE)
 !
-        REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
-        YREFI,RAD,AL,BE,GA,A,B,C,LEN,LEN1,LO,LOOX,LOOY,MO,MOOX,MOOY, &
-        LEN2,Q,ARG,ZREFI,SIGNB,RL0,RM0,RN0,NO,NOOX,NOOY,THYNUM,THXNUM, &
-        RRX0,RRZ0,T,RX0,RY0,RZ0,RRY0,M0,L0,N0,XA,THXDEN,THYDEN, &
-        YA,ZA,LLL,MMM,NNN
-!
-      INTEGER TPT
+        INTEGER TPT
 
-!
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATSPD.INC'
@@ -59,12 +53,11 @@ contains
 !       AT THE FINAL SURFACE (NEWIMG-1). WITH THIS DEFINITION,
 !       THE CORRECTION TERM FOR THE REFERENCE RAY IS ALWAYS
 !       ZERO.
-                        RCOR=0.0D0
-                        OCOR=updateOCOR(TC_PERFECT)
+            RCOR=0.0D0
+            OCOR=updateOCOR(TC_PERFECT)
+            REFERR=.FALSE.
 
-        REFERR=.FALSE.
-  
-                        END IF
+        END IF
 !
 !       CASE OF AFOCAL SYSTEMS
 !
@@ -108,18 +101,20 @@ contains
 
       IF(DABS(RCOR).GT.1.0D10.OR.DABS(OCOR).GT.1.0D10) THEN
 !     INFINITE REFERENCE SPHERE
-      RCOR=0.0D0
+
 !     OCOR IS THE DISTANCE ALONG THE RAY BETWEEN AN INTERSECTION
 !     WITH A PLANE PERPENDICULAR TO A PARALLEL RAY WHICH PASSES
 !     THROUGH A POINT ON THE IMAGE SURFACE WHERE THE CHIEF RAY
 !     HITS
-                        RCOR=0.0D0
-                        OCOR=updateOCOR(TC_INFRAD)
+        RCOR=0.0D0
+        OCOR=updateOCOR(TC_INFRAD)
 
-                       END IF
+     END IF
 
-                        RETURN
-                        END
+      PRINT *, "RCOR = ", RCOR
+      PRINT *, "OCOR = ", OCOR
+
+      end subroutine
 
 function updateOCOR(typeCode) result(opdCorrection)
 ! TODO:  CLean up inputs
@@ -137,11 +132,7 @@ function updateOCOR(typeCode) result(opdCorrection)
 !       OPD DUE TO THE IMAGE REFERENCE SPHERE. (FOR AFOCAL
 !       SYSTEMS THIS WILL BE A FLAT REFERENCE SURFACE)
 !
-        REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
-        YREFI,RAD,AL,BE,GA,A,B,C,LEN,LEN1,LO,LOOX,LOOY,MO,MOOX,MOOY, &
-        LEN2,Q,ARG,ZREFI,SIGNB,RL0,RM0,RN0,NO,NOOX,NOOY,THYNUM,THXNUM, &
-        RRX0,RRZ0,T,RX0,RY0,RZ0,RRY0,M0,L0,N0,XA,THXDEN,THYDEN, &
-        YA,ZA,LLL,MMM,NNN
+        REAL*8 :: T,XA,YA,ZA
 !
       INTEGER TPT
 
@@ -227,15 +218,13 @@ end function
 
 function getImageReferenceSphereAlgo() result(res)
 
-  use GLOBALS
+
   IMPLICIT NONE
 
   integer :: res
 
-        INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATSP1.INC'
+
 
 ! Comments from original code unless otherwise noted
 res = 0
@@ -261,6 +250,8 @@ IF(.NOT.EXPAUT.OR.EXPAUT.AND..NOT.LDIF2) res = RF_CHIEF_PARAX
 !     EXIT PUPIL
 !       THIS IS JUST AS IN CODE-V AND IS THE DEFAULT WHEN THE PROGRAM
 !     BEGINS
+
+
 
 end function
 

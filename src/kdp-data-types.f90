@@ -6,6 +6,8 @@ type sys_config
     integer :: imgSurface
   contains
     procedure, public, pass(self) :: getImageSurface
+    procedure, public, pass(self) :: isFocalSystem
+    procedure, public, pass(self) :: isTelecentric
 
 end type
 
@@ -19,6 +21,7 @@ type lens_data
 contains
   procedure, public, pass(self) :: set_num_surfaces
   procedure, public, pass(self)  :: add_lens_data
+  procedure, public, pass(self) :: imageSurfaceIsIdeal
   !procedure, private, pass(self) ::
 
 end type lens_data
@@ -81,6 +84,8 @@ subroutine set_num_surfaces(self, input)
   END IF
 end subroutine set_num_surfaces
 
+
+
 subroutine add_lens_data(self, lens_data_obj)
    class(lens_data) :: self
    type(lens_data) lens_data_obj
@@ -108,5 +113,36 @@ type is (lens_data)
     end select
 
  end subroutine add_lens_data
+
+function imageSurfaceIsIdeal(self) result(boolResult)
+    class(lens_data) :: self
+    logical :: boolResult
+
+    !  IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ' &
+    !  .OR.GLANAM(INT(SYSTEM(20))-1,2).EQ.'IDEAL        ') THEN
+
+    boolResult = .FALSE.
+
+  end function
+
+function isFocalSystem(self) result(boolResult)
+
+  class(sys_config) :: self
+  logical :: boolResult
+
+  include "DATLEN.INC"
+
+  boolResult = .FALSE.
+  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) boolResult = .TRUE.
+
+end function
+
+function isTelecentric(self) result(boolResult)
+  class(sys_config) :: self
+  logical :: boolResult
+
+  boolResult = .FALSE.
+
+end function
 
 end module kdp_data_types
