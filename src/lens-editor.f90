@@ -398,7 +398,8 @@ end subroutine lens_editor_replot
     PRINT *, "Selected Row is ", irow
 
     ! Try to update lens system
-    select case (irow(1))
+    !select case (irow(1))
+    select case (icol)
   case (ID_ROW_RADIUS)
         call PROCESKDP('U L')
         WRITE(kdptext, *) 'CHG ' ,irow
