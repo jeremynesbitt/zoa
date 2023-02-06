@@ -59,6 +59,8 @@ integer, parameter :: ID_RAYFAN_WAVELENGTH = 1515
 
 integer, parameter :: ID_RAYFAN_MAX_PUPIL = 1516
 integer, parameter :: ID_RAYFAN_MIN_PUPIL = 1517
+integer, parameter :: ID_RAYFAN_IMGSURF = 1518
+integer, parameter :: ID_RAYFAN_FOB = 1519
 
 integer, parameter :: ID_PLOTTYPE_AST = 1525
 integer, parameter :: ID_AST_FIELDXY = 1531

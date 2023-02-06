@@ -31,6 +31,8 @@ type, extends (ui_settings) :: ray_fan_settings
    integer numRays
    integer wavelength
    logical autoplotupdate
+   integer imageSurface
+   real fracField
 
  contains
     procedure, public, pass(self) :: ray_fan_is_changed
@@ -39,6 +41,8 @@ type, extends (ui_settings) :: ray_fan_settings
     procedure, public, pass(self) :: set_max_pupil
     procedure, public, pass(self) :: set_min_pupil
     procedure, public, pass(self) :: set_num_rays
+    procedure, public, pass(self) :: set_fracField
+    procedure, public, pass(self) :: set_imgSurface
     procedure, public, pass(self) :: set_ray_fan_wavelength
     procedure, public :: replot => ray_fan_replot
 
@@ -70,7 +74,10 @@ type(ray_fan_settings) function ray_fan_settings_constructor() result(self)
     self%minPupil = -1.0
     self%numRays = 11
     self%autoplotupdate = .TRUE.
-    self%wavelength = 2 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
+    self%wavelength = 1 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
+    self%imageSurface = curr_lens_data%num_surfaces
+    self%fracField = 1.0
+
 
 end function ray_fan_settings_constructor
 
@@ -117,8 +124,31 @@ subroutine set_min_pupil(self, ID_SETTING)
      if (self%autoplotupdate) call self%replot()
   end if
 
-
 end subroutine set_min_pupil
+
+subroutine set_imgSurface(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  integer, intent(in) :: ID_SETTING
+
+  if (self%imageSurface.ne.ID_SETTING) THEN
+     self%imageSurface = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+end subroutine
+
+subroutine set_fracField(self, ID_SETTING)
+  class(ray_fan_settings), intent(inout) :: self
+  real, intent(in) :: ID_SETTING
+
+  if (self%fracField.ne.ID_SETTING) THEN
+     self%fracField = ID_SETTING
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+end subroutine
 
 subroutine set_num_rays(self, ID_SETTING)
   class(ray_fan_settings), intent(inout) :: self
@@ -162,7 +192,7 @@ end subroutine set_fan_wfe
 subroutine ray_fan_replot(self)
   class(ray_fan_settings) :: self
 
-  character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
+  character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23, AIMG*3, fField*23
   character(len=100) :: ftext
 
 !
@@ -246,6 +276,14 @@ subroutine ray_fan_replot(self)
         PART2 = '    '
       end select
 !
+        ! Set Field
+        WRITE(fField, *) self%fracField
+        CALL PROCESKDP("FOB "//fField)
+
+        ! Set Image Surface
+        CALL ITOAA(self%imageSurface, AIMG)
+        CALL PROCESKDP("PLOTFANS NEWIMG ,"//AIMG)
+
         !CALL DTOA23(DW1,AW1)
         !CALL DTOA23(DW2,AW2)
         CALL ITOAA(self%numRays, A6)
@@ -360,6 +398,12 @@ subroutine callback_ray_fan_settings (widget, gdata ) bind(c)
   case (ID_RAYFAN_MIN_PUPIL)
     call rf_settings % set_min_pupil(REAL(gtk_spin_button_get_value (widget)))
 
+  case (ID_RAYFAN_IMGSURF)
+    call rf_settings % set_imgSurface(INT(gtk_spin_button_get_value (widget)))
+
+  case (ID_RAYFAN_FOB)
+    call rf_settings % set_fracField(REAL(gtk_spin_button_get_value (widget)))
+
 
   end select
 
@@ -378,7 +422,7 @@ end subroutine callback_ray_fan_settings
     class(rayfantab) :: self
 
     type(c_ptr) :: spinButton_maxPupil, spinButton_minPupil, spinButton_numRays, &
-    & spinButton_wavelength
+    & spinButton_wavelength, spinButton_imgSurface, spinButton_fracField
     ! Added these target parameters to have only one callback function and satisfy
     ! requirement to have a target attribute for a pointer for gtk.  I could not
     ! find a more elegant solution, and this seems better than a bunch of small
@@ -393,6 +437,9 @@ end subroutine callback_ray_fan_settings
     integer, target :: TARGET_RAYFAN_MIN_PUPIL   = ID_RAYFAN_MIN_PUPIL
 
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
+    integer, target :: TARGET_RAYFAN_IMGSURF = ID_RAYFAN_IMGSURF
+    integer, target :: TARGET_RAYFAN_FOB     = ID_RAYFAN_FOB
+
 
 
     character(kind=c_char, len=20), dimension(4) :: vals_fantype
@@ -480,6 +527,27 @@ end subroutine callback_ray_fan_settings
   call self%addSpinBoxSetting("Wavelength to Trace", spinButton_wavelength, &
   & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_WAVELENGTH))
 
+  spinButton_imgSurface = gtk_spin_button_new (gtk_adjustment_new(value=(curr_lens_data%num_surfaces-2)*1d0, &
+                                                              & lower=0d0, &
+                                                              & upper=(curr_lens_data%num_surfaces-2)*1d0, &
+                                                              & step_increment=1d0, &
+                                                              & page_increment=1d0, &
+                                                              & page_size=0d0),climb_rate=1d0, &
+                                                              & digits=0_c_int)
+
+  spinButton_fracField = gtk_spin_button_new (gtk_adjustment_new(value=1d0, &
+                                                              & lower=0d0, &
+                                                              & upper=1d0, &
+                                                              & step_increment=0.05d0, &
+                                                              & page_increment=.1d0, &
+                                                              & page_size=0d0),climb_rate=2d0, &
+                                                              & digits=3_c_int)
+
+   call self%addSpinBoxSetting("Image Surface", spinButton_imgSurface, &
+   & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_IMGSURF))
+
+  call self%addSpinBoxSetting("Fractional Field", spinButton_fracField, &
+  & c_funloc(callback_ray_fan_settings), c_loc(TARGET_RAYFAN_FOB))
 
     call self%finalizeWindow()
     !call rf_settings%replot()
