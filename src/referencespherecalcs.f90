@@ -111,8 +111,8 @@ contains
 
      END IF
 
-      PRINT *, "RCOR = ", RCOR
-      PRINT *, "OCOR = ", OCOR
+      !PRINT *, "RCOR = ", RCOR
+      !PRINT *, "OCOR = ", OCOR
 
       end subroutine
 
