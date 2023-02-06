@@ -34,9 +34,8 @@
         COMMON/OPTKIL/KILOPT
 !
         CHARACTER(LEN=255) :: LIBMAC, OLIBMAC, LIBLEN
-        CHARACTER LIBTRA*255                                            &
-     &  ,LIBSPO*7,LIBGLA*255,LIBAUT*7,LIBPLO*7,MYEDIT*8,DIRLEN*80       &
-     &  ,CURLENS*255
+        CHARACTER LIBTRA*255,CURLENS*255,LIBSPO*255                       &
+     &  ,LIBGLA*255,LIBAUT*7,LIBPLO*7,MYEDIT*8,DIRLEN*80
 !
         COMMON/EDTEDT/MYEDIT
 !

@@ -1964,6 +1964,7 @@ C
         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
         IF(EXIS36) THEN
 C               PROCEED
+        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
                         DO 300 J=2,TOTAL+1
         READ(UNIT=uG,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -2262,6 +2263,7 @@ C     SEARCH 5 EXISTING CATALOGS
         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
         IF(EXIS36) THEN
 C               PROCEED
+        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
         READ(UNIT=36,REC=1) TOTAL
                         DO J=2,TOTAL+1
@@ -2584,6 +2586,7 @@ C     SEARCH 5 EXISTING CATALOGS
         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
         IF(EXIS36) THEN
 C               PROCEED
+        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
         READ(UNIT=36,REC=1) TOTAL
                         DO J=2,TOTAL+1
@@ -3434,6 +3437,7 @@ C               PROCEED
         inquire(FILE=trim(LIBGLA)//FLNAME, number=unit)
         if (unit.GT.0) CLOSE(UNIT=36, STATUS='KEEP')
         PRINT *, "INQ ", unit
+        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
 
                         DO 300 J=2,TOTAL+1
@@ -3742,6 +3746,7 @@ C               PROCEED
 
 
         CLOSE(UNIT=36, STATUS='KEEP')
+        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
                         DO J=2,TOTAL+1
         READ(UNIT=uG,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -4516,7 +4521,7 @@ C               PROCEED
 C        OPEN(UNIT=36,ACCESS='DIRECT',FILE=LIBGLA//FLNAME,
 C     1  FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
 C        READ(UNIT=36,REC=1) TOTAL
-
+        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
 
         PRINT *, "WORKING LDM12"

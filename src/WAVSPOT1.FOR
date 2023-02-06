@@ -1528,6 +1528,7 @@ C
                         END
 C SUB OPDLOD.FOR
         SUBROUTINE OPDLOD
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -1551,6 +1552,7 @@ C
         COMMON/ACDATA/ACCUM,CCOL
 C
         INTEGER III,JJ,KK,ALLOERR
+        integer :: rec64
 C
         REAL*8 DWW1,DWW2,DWW3,DWW4,
      1  TERM,FF3,RHO,THETA
@@ -1679,14 +1681,16 @@ C       NO CLAP ON REF SURF.
                       END IF
                         END IF
 C
-        OPEN(UNIT=64,ACCESS='DIRECT',FILE=LIBSPO//'OPDDAT.DAT',
-     1  FORM='UNFORMATTED',RECL=(10*NRECL),STATUS='UNKNOWN')
-      CALL CLOSE_FILE(64,0)
+  !      OPEN(UNIT=64,ACCESS='DIRECT',FILE=LIBSPO//'OPDDAT.DAT',
+  !   1  FORM='UNFORMATTED',RECL=(10*NRECL),STATUS='UNKNOWN')
+  !    CALL CLOSE_FILE(64,0)
+       call clear_file(LIBSPO//'OPDDAT.DAT')
+       inquire(iolength=rec64) DWW1,DWW2,DWW3,DWW4
 C
 C     OPEN OPDDAT.DAT
 C
         OPEN(UNIT=64,ACCESS='DIRECT',FILE=LIBSPO//'OPDDAT.DAT',
-     1  FORM='UNFORMATTED',RECL=(10*NRECL),STATUS='UNKNOWN')
+     1  FORM='UNFORMATTED',RECL=rec64,STATUS='UNKNOWN')
                       KK=1
               DO IIP=2,ITOT
 C     LOAD DSPOT(*) WITH DSPOTT(*,ID)

@@ -720,15 +720,17 @@ C       LINUX
                   LIBLEN=trim(basePath)//'LIBLEN'//fileSep
                   LIBMAC=trim(basePath)//'LIBMAC/'
                   LIBTRA=basePath//'LIBTRA/'
-                  LIBSPO=basePath//'LIBSPO/'
+                  LIBSPO=trim(basePath)//'LIBSPO'//fileSep
                   LIBAUT=basePath//'LIBAUT/'
                   LIBPLO=basePath//'LIBPLO/'
                   NSSDIR=trim(basePath)//'NSSDIR/'
-                  LIBGLA=trim(basePath)//'LIBGLA/'
+                  LIBGLA=trim(basePath)//'LIBGLA'//fileSep
                   CURLENS=trim(basePath)//'CURLENS/'
                         END IF
 
         PRINT *, "LIBMAC IS ", LIBMAC
+        PRINT *, "LIBGLA IS ", LIBGLA
+        PRINT *, "TRIM(LIBGLA) IS ", trim(LIBGLA)
 C
 C       SET DEFAULTS FOR "GLOBAL" RAYTRACE OPTION
         GLOBE=.FALSE.
