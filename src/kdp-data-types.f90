@@ -1,4 +1,7 @@
 module kdp_data_types
+     integer, parameter :: ASPH_NON_TORIC    = 1
+     integer, parameter :: ASPH_TORIC_AXIS_Y = 2
+     integer, parameter :: ASPH_TORIC_AXIS_X = 3
 
 
 type sys_config
@@ -25,6 +28,20 @@ contains
   !procedure, private, pass(self) ::
 
 end type lens_data
+
+type, extends(lens_data) :: aspheric_surf_data
+    integer, allocatable :: surface_type(:)
+    logical, allocatable :: advancedSurf(:)
+    real, dimension(:), allocatable :: conic_constant, toric_conic_constant
+    !real :: conic_constant, toric_conic_constant
+    real, dimension(:,:), allocatable :: asphereTerms !Second dim is 10
+    real, dimension(:,:), allocatable  :: anamorphicTerms !Second term is 4
+
+  contains
+    procedure, public, pass(self) :: updateAsphereTable
+
+
+end type
 
  type, extends(lens_data) :: paraxial_ray_trace_data
            !integer, allocatable :: surface(:)
@@ -144,5 +161,54 @@ function isTelecentric(self) result(boolResult)
   boolResult = .FALSE.
 
 end function
+
+ subroutine updateAsphereTable(self, maxSurf)
+   class(aspheric_surf_data), intent(inout) :: self
+
+   integer :: I, maxSurf
+
+   include "DATLEN.INC"
+
+   if (allocated(self%conic_constant)) deallocate(self%conic_constant)
+   allocate(self%conic_constant(maxSurf))
+
+
+   ! Logic taken from the LOADSHEET.INC routine.
+   do I = 0,maxSurf
+
+        IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
+                        ALENS(2,I)=0.0D0
+                        END IF
+        IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
+                        ALENS(43,I)=0.0D0
+                        END IF
+        IF(ALENS(4,I).EQ.0.0D0.AND.ALENS(5,I).EQ.0.0D0.AND.     &
+     &  ALENS(6,I).EQ.0.0D0.AND.ALENS(7,I).EQ.0.0D0.AND.        &
+     &  ALENS(81,I).EQ.0.0D0.AND.ALENS(82,I).EQ.0.0D0.AND.      &
+     &  ALENS(83,I).EQ.0.0D0.AND.ALENS(84,I).EQ.0.0D0.AND.      &
+     &  ALENS(85,I).EQ.0.0D0.AND.ALENS(43,I).EQ.0.0D0) THEN
+                        ALENS(8,I)=0.0D0
+                        END IF
+        IF(ALENS(23,I).NE.0.0D0.OR.ALENS(8,I).NE.0.0D0.OR.      &
+     &  ALENS(2,I).NE.0.0D0.OR.ALENS(4,I).NE.0.0D0.OR.          &
+     &  ALENS(5,I).NE.0.0D0.OR.ALENS(6,I).NE.0.0D0.OR.          &
+     &  ALENS(7,I).NE.0.0D0.OR.ALENS(36,I).NE.0.0D0.OR.         &
+     &  ALENS(37,I).NE.0.0D0.OR.ALENS(38,I).NE.0.0D0.OR.        &
+     &  ALENS(39,I).NE.0.0D0.OR.ALENS(40,I).NE.0.0D0.OR.        &
+     &  ALENS(41,I).NE.0.0D0.OR.ALENS(43,I).NE.0.0D0.OR.        &
+     &  ALENS(81,I).NE.0.0D0.OR.ALENS(82,I).NE.0.0D0.OR.        &
+     &  ALENS(83,I).NE.0.0D0.OR.ALENS(85,I).NE.0.0D0.OR.        &
+     &  ALENS(85,I).NE.0.0D0) THEN
+        PRINT *, "FOUND ASPHERE AT index ", I
+        self%conic_constant(I+1) = ALENS(2,I)
+        !PRINT *, ALENS(1:85,I)
+      else
+        self%conic_constant(I+1) = 0.0  
+       END IF
+     end do
+
+     PRINT *, "Conic Constant Array is ", self%conic_constant
+
+   end subroutine
 
 end module kdp_data_types

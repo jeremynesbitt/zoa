@@ -22,7 +22,7 @@ module lens_editor
 
 
   type(c_ptr) :: ihscrollcontain,ihlist, &
-       &  qbut, dbut, lbl, ibut
+       &  qbut, dbut, lbl, ibut, ihAsph, ihScrollAsph
 
   integer(kind=c_int) :: numEditorRows
 
@@ -115,28 +115,6 @@ end subroutine callback_lens_editor_settings
 
     call loadLensData()
 
-    ! Add some child rows
-    ! do j = 2, 6, 2
-    !    call hl_gtk_tree_ins(ihlist, row = (/ j, -1_c_int /), count=5)
-    !    do i = 1, 5
-    !       write(line,"('List entry number',I0,':',I0)") j+1,i
-    !       ltr=len_trim(line)+1
-    !       line(ltr:ltr)=c_null_char
-    !       call hl_gtk_tree_set_cell(ihlist, row=(/ j, i-1_c_int/), col=0_c_int, &
-    !            & svalue=line)
-    !       call hl_gtk_tree_set_cell(ihlist, row=(/ j, i-1_c_int/), col=1_c_int, &
-    !            & ivalue=i)
-    !       call hl_gtk_tree_set_cell(ihlist, row=(/ j, i-1_c_int/), col=2_c_int, &
-    !            & ivalue=3_c_int*i)
-    !       call hl_gtk_tree_set_cell(ihlist, row=(/ j, i-1_c_int/), col=3_c_int, &
-    !            & fvalue=log10(real(i)))
-    !       call hl_gtk_tree_set_cell(ihlist, row=(/ j, i-1_c_int/), col=4_c_int, &
-    !            & l64value=int(i,c_int64_t)**4)
-    !       call hl_gtk_tree_set_cell(ihlist, row=(/ j, i-1_c_int/), col=5_c_int, &
-    !            & ivalue=mod(i,2_c_int))
-    !    end do
-    ! end do
-
     box1 = hl_gtk_box_new()
     ! It is the scrollcontainer that is placed into the box.
         call gtk_widget_set_vexpand (ihscrollcontain, FALSE)
@@ -177,11 +155,11 @@ end subroutine callback_lens_editor_settings
 
     type(c_ptr) :: content, junk, gfilter
     integer(kind=c_int) :: icreate, idir, action, lval
-    integer(kind=c_int) :: i, idx0, idx1
-    !type(c_ptr)     :: my_drawing_area
+    integer(kind=c_int) :: i, idx0, idx1, pageIdx
     !integer(c_int)  :: width, height
 
-    type(c_ptr)     :: table, expander, box1
+    type(c_ptr)  :: table, expander, box1, nbk, basicLabel, boxAperture, boxAsphere
+    type(c_ptr)  :: lblAperture, AsphLabel
 
     PRINT *, "ABOUT TO FIRE UP LENS EDITOR WINDOW!"
 
@@ -211,12 +189,24 @@ end subroutine callback_lens_editor_settings
 
 
     call lens_editor_settings_dialog(box1)
+    call lens_editor_asphere_dialog(boxAsphere)
+
+    !call lens_editor_aperture(boxAperture)
+
+    !call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
+    !location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+    nbk = gtk_notebook_new()
+    basicLabel = gtk_label_new_with_mnemonic("_Basic"//c_null_char)
+    pageIdx = gtk_notebook_append_page(nbk, box1, basicLabel)
+
+    AsphLabel = gtk_label_new_with_mnemonic("_Asphere"//c_null_char)
+    pageIdx = gtk_notebook_append_page(nbk, boxAsphere, AsphLabel)
 
 
     PRINT *, "FINISHED WITH LENS EDITOR"
     !call gtk_box_append(box1, rf_cairo_drawing_area)
     !call gtk_window_set_child(lens_editor_window, rf_cairo_drawing_area)
-    call gtk_window_set_child(lens_editor_window, box1)
+    call gtk_window_set_child(lens_editor_window, nbk)
 
 
     call g_signal_connect(lens_editor_window, "destroy"//c_null_char, c_funloc(lens_editor_destroy), lens_editor_window)
@@ -438,6 +428,18 @@ end subroutine lens_editor_replot
 
   end subroutine
 
+subroutine asph_edited(renderer, path, text, gdata) bind(c)
+  !type(c_ptr), value, intent(in) :: list, gdata
+
+  type(c_ptr), value :: renderer, path, text, gdata
+
+end subroutine
+
+subroutine asph_select(list, gdata) bind(c)
+  type(c_ptr), value, intent(in) :: list, gdata
+
+end subroutine
+
   subroutine list_select(list, gdata) bind(c)
     type(c_ptr), value, intent(in) :: list, gdata
     integer(kind=c_int) :: nsel
@@ -529,6 +531,90 @@ end subroutine lens_editor_replot
         call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=5_c_int, &
              & fvalue=curr_lens_data%surf_vnum(i))
      end do
+
+  end subroutine
+
+  subroutine loadAphereDataIntoTable()
+
+    integer :: i
+
+    !Make sure we start froms scratch
+    call hl_gtk_tree_rem(ihAsph)
+
+     do i=1,curr_lens_data%num_surfaces
+        call hl_gtk_tree_ins(ihAsph, row = (/ -1_c_int /))
+    !    write(line,"('List entry number ',I0)") i
+    !    ltr=len_trim(line)+1
+    !    line(ltr:ltr)=c_null_char
+        call hl_gtk_tree_set_cell(ihAsph, absrow=i-1_c_int, col=0_c_int, &
+             & ivalue=(i-1))
+        call hl_gtk_tree_set_cell(ihAsph, absrow=i-1_c_int, col=1_c_int, &
+             & svalue="TMP"//c_null_char)
+        call hl_gtk_tree_set_cell(ihAsph, absrow=i-1_c_int, col=2_c_int, &
+             & fvalue=curr_asph_data%conic_constant(i))
+
+        ! call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=3_c_int, &
+        !      & svalue=curr_lens_data%glassnames(i))
+        ! call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=4_c_int, &
+        !      & fvalue=curr_lens_data%surf_index(i))
+        ! call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=5_c_int, &
+        !      & fvalue=curr_lens_data%surf_vnum(i))
+     end do
+
+  end subroutine
+
+  subroutine lens_editor_asphere_dialog(boxAsph)
+
+    use hl_gtk_zoa
+    use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
+    implicit none
+
+    type(c_ptr), intent(inout) :: boxAsph
+
+    character(len=35) :: line
+    integer(kind=c_int) :: i, ltr, j
+    integer(kind=type_kind), dimension(3) :: ctypes
+    character(len=20), dimension(3) :: titles
+    integer(kind=c_int), dimension(3) :: sortable, editable
+
+    PRINT *, "LENS EDITOR Asphere DIALOG SUB STARTING!"
+    ! Now make a multi column list with multiple selections enabled
+    ctypes = (/ G_TYPE_INT, &
+                G_TYPE_STRING, &
+                G_TYPE_FLOAT /)
+    !ctypes = (/ G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, &
+    !     & G_TYPE_UINT64, G_TYPE_BOOLEAN /)
+    sortable = (/ FALSE, FALSE, FALSE /)
+    editable = (/ FALSE, FALSE, TRUE /)
+
+    titles(1) = "Surface"
+    titles(2) = "Type"
+    titles(3) = "Conic Constant"
+    !titles(4) = "Glass"
+    !titles(5) = "Index"
+    !titles(6) = "Abbe"
+
+    ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
+         & changed=c_funloc(asph_select),&
+         & edited=c_funloc(asph_edited),&
+         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
+         & sortable=sortable, editable=editable)
+
+    !PRINT *, "ihlist created!  ", ihlist
+
+    ! Now put 10 top level rows into it
+    call loadAphereDataIntoTable()
+    !call loadLensData()
+
+    boxAsph = hl_gtk_box_new()
+    ! It is the scrollcontainer that is placed into the box.
+        call gtk_widget_set_vexpand (ihScrollAsph, FALSE)
+        call gtk_widget_set_hexpand (ihScrollAsph, FALSE)
+
+    call hl_gtk_box_pack(boxAsph, ihScrollAsph)
+
+    PRINT *, "PACKING FIRST CONTAINER!"
+
 
   end subroutine
 

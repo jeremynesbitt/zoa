@@ -21,6 +21,7 @@ module global_widgets
   type(sys_config) :: sysConfig
   type(lens_data)  :: curr_lens_data
   type(paraxial_ray_trace_data) :: curr_par_ray_trace
+  type(aspheric_surf_data) :: curr_asph_data
 
   type(c_ptr) :: lens_editor_window = c_null_ptr
 

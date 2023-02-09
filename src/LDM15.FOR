@@ -619,6 +619,7 @@ C     NO TILT RET
                         END
 C SUB LNSEOS1.FOR
         SUBROUTINE LNSEOS1
+        use global_widgets
         USE GLOBALS
 
 C     NOTE ON 11/04/96 THIS ROUTINE ONLY HAS ONE SUCCESSFUL RETURN
@@ -803,7 +804,7 @@ C     FIX LEADING COLON IN GLASS NAME
 C
                 BADGLS=.FALSE.
                 IF(F22.EQ.1) THEN
-                call logger%logText('About to call GLSRES 806')   
+                call logger%logText('About to call GLSRES 806')
                 CALL GLSRES
                 OUTLYNE = "JUST FINISHED GLSRES"
                 CALL SHOWIT(19)
@@ -2716,6 +2717,7 @@ C     DONE
                    F22=0
                    GO TO 999
                    END IF
+      call curr_asph_data%updateAsphereTable(INT(SYSTEM(20)))
 
                         RETURN
                         END
