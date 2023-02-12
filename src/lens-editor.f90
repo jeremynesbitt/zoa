@@ -49,6 +49,8 @@ module lens_editor
   integer, parameter :: DTYPE_FLOAT = 2
   integer, parameter :: DTYPE_STRING = 3
 
+  integer(kind=c_int), parameter :: ID_COL_RADIUS = 2
+  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 3
 
 contains
 
@@ -335,8 +337,6 @@ end subroutine lens_editor_replot
     integer(kind=c_int), pointer :: icol
     integer :: i, n
     type(c_ptr) :: tree, pcol
-    integer(kind=c_int), parameter :: ID_ROW_RADIUS = 1
-    integer(kind=c_int), parameter :: ID_ROW_THICKNESS = 2
 
     PRINT *, "CALLING LENS EDITED PROC!"
 
@@ -364,15 +364,15 @@ end subroutine lens_editor_replot
 
     ! Try to update lens system
     !select case (irow(1))
-    select case (icol)
-  case (ID_ROW_RADIUS)
+    select case (icol+1) ! start with index 1 to align with lens_edit_col arrays
+  case (ID_COL_RADIUS)
         call PROCESKDP('U L')
         WRITE(kdptext, *) 'CHG ' ,irow
         call PROCESKDP(kdptext)
         call PROCESKDP("RD "//trim(ftext))
         call PROCESKDP('EOS')
 
-      case (ID_ROW_THICKNESS)
+      case (ID_COL_THICKNESS)
         PRINT *, "Thickness changed!"
         call PROCESKDP('U L')
         WRITE(kdptext, *) 'CHG ' ,irow
@@ -430,8 +430,8 @@ subroutine buildBasicTable(firstTime)
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
 
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
-    call basicTypes(2)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
-    call basicTypes(3)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
+    call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
+    call basicTypes(ID_COL_THICKNESS)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
     call basicTypes(4)%initialize("Glass"     , G_TYPE_STRING, FALSE, FALSE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
     call basicTypes(5)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
@@ -491,7 +491,7 @@ subroutine buildAsphereTable(firstTime)
     PRINT *, "About to define ihAsph"
 
     ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
-         & changed=c_funloc(asph_select),&
+         & changed=c_funloc(list_select),&
          & edited=c_funloc(asph_edited),&
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
          & sortable=sortable, editable=editable)
