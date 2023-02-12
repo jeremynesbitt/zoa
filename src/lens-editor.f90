@@ -36,10 +36,6 @@ module lens_editor
     procedure, public, pass(self) :: getElementInt
     procedure, public, pass(self) :: getElementFloat
     procedure, public, pass(self) :: getElementString
-    final :: destructor
-
-
-
 
   end type
 
@@ -73,33 +69,6 @@ contains
 
   end subroutine lens_editor_destroy
 
-
-
-subroutine callback_lens_editor_settings (widget, gdata ) bind(c)
-   use iso_c_binding
-   use hl_gtk_zoa
-   use zoa_ui
-   implicit none
-   type(c_ptr), value, intent(in) :: widget, gdata
-   integer :: int_value
-
-  integer(kind=c_int), pointer :: ID_SETTING
-
-  call c_f_pointer(gdata, ID_SETTING)
-
-  PRINT *, "Integer Passed is ", ID_SETTING
-
-  PRINT *, "Pointer Passed is ", gdata
-
-
-   !if (rf_settings%changed.eq.1) THEN
-  !    rf_settings%changed = 0
-  !    call lens_editor_replot()
-
-   !end if
-
-end subroutine callback_lens_editor_settings
-
   subroutine lens_editor_basic_dialog(box1)
 
     use hl_gtk_zoa
@@ -110,49 +79,15 @@ end subroutine callback_lens_editor_settings
 
     character(len=35) :: line
     integer(kind=c_int) :: i, ltr, j
-    integer(kind=c_int), PARAMETER :: ncols = 5
-    type(lens_edit_col), dimension(ncols) :: basicTypes
-    integer(kind=type_kind), dimension(ncols) :: ctypes
-    character(len=20), dimension(ncols) :: titles
-    integer(kind=c_int), dimension(ncols) :: sortable, editable
-    integer, allocatable, dimension(:) :: surfIdx
-
-    allocate(surfIdx(curr_lens_data%num_surfaces))
-    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
-
-    call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
-    call basicTypes(2)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
-    call basicTypes(3)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
-    call basicTypes(4)%initialize("Glass"     , G_TYPE_STRING, FALSE, FALSE, &
-    & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
-    call basicTypes(5)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
 
 
-    do i=1,ncols
-      ctypes(i) = basicTypes(i)%coltype
-      sortable(i) = basicTypes(i)%sortable
-      editable(i) = basicTypes(i)%editable
-      titles(i) = basicTypes(i)%coltitle
+    call buildBasicTable(.TRUE.)
 
-    end do
-
-
-    ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
-         & changed=c_funloc(list_select),&
-         & edited=c_funloc(lens_edited),&
-         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
-         & sortable=sortable, editable=editable)
-
-    PRINT *, "ihlist created!  ", ihlist
-
-    ! Now put 10 top level rows into it
-    call populatelensedittable(ihlist, basicTypes,ncols)
     !call loadLensData()
 
     box1 = hl_gtk_box_new()
     ! It is the scrollcontainer that is placed into the box.
-        call gtk_widget_set_vexpand (ihscrollcontain, FALSE)
-        call gtk_widget_set_hexpand (ihscrollcontain, FALSE)
+    call gtk_widget_set_vexpand (ihscrollcontain, FALSE)
 
     call hl_gtk_box_pack(box1, ihscrollcontain)
 
@@ -226,7 +161,7 @@ end subroutine callback_lens_editor_settings
     call lens_editor_basic_dialog(box1)
 
     !call lens_editor_asphere_dialog(boxAsphere)
-    call lens_editor_asphere_dialog_2(boxAsphere)
+    call lens_editor_asphere_dialog(boxAsphere)
 
 
     !call lens_editor_aperture(boxAperture)
@@ -310,8 +245,9 @@ end subroutine lens_editor_replot
 
     call gtk_widget_set_sensitive(but, FALSE)
 
-    call refreshLensDataStruct()
-    call loadLensData()
+    call refreshLensDataStruct() ! Is this really needed?  Does 'EOS' do this for free?
+    call buildBasicTable(.FALSE.)
+    !call loadLensData()
     call zoatabMgr%rePlotIfNeeded()
 
 
@@ -365,7 +301,8 @@ end subroutine lens_editor_replot
     call gtk_widget_set_sensitive(but, FALSE)
 
     call refreshLensDataStruct()
-    call loadLensData()
+    call buildBasicTable(.FALSE.)
+    !call loadLensData()
     call zoatabMgr%rePlotIfNeeded()
 
   end subroutine del_row
@@ -478,6 +415,96 @@ subroutine asph_select(list, gdata) bind(c)
 
 end subroutine
 
+subroutine buildBasicTable(firstTime)
+
+    logical :: firstTime
+    integer(kind=c_int), PARAMETER :: ncols = 5
+    type(lens_edit_col), dimension(ncols) :: basicTypes
+    integer(kind=type_kind), dimension(ncols) :: ctypes
+    character(len=20), dimension(ncols) :: titles
+    integer(kind=c_int), dimension(ncols) :: sortable, editable
+    integer, allocatable, dimension(:) :: surfIdx
+    integer :: i
+
+    allocate(surfIdx(curr_lens_data%num_surfaces))
+    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+    call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
+    call basicTypes(2)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
+    call basicTypes(3)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
+    call basicTypes(4)%initialize("Glass"     , G_TYPE_STRING, FALSE, FALSE, &
+    & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
+    call basicTypes(5)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
+
+    do i=1,ncols
+      ctypes(i) = basicTypes(i)%coltype
+      sortable(i) = basicTypes(i)%sortable
+      editable(i) = basicTypes(i)%editable
+      titles(i) = basicTypes(i)%coltitle
+
+    end do
+
+    if (firstTime) then
+    ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
+         & changed=c_funloc(list_select),&
+         & edited=c_funloc(lens_edited),&
+         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
+         & sortable=sortable, editable=editable)
+
+         PRINT *, "ihlist created!  ", ihlist
+    end if
+
+    !call buildTree(ihList, basicTypes)
+
+    ! Now put 10 top level rows into it
+    call populatelensedittable(ihlist, basicTypes,ncols)
+end subroutine
+
+subroutine buildAsphereTable(firstTime)
+
+    logical :: firstTime
+    integer, parameter :: ncols = 3
+    type(lens_edit_col) :: asphereTypes(ncols)
+    integer(kind=type_kind), dimension(ncols) :: ctypes
+    character(len=20), dimension(ncols) :: titles
+    integer(kind=c_int), dimension(ncols) :: sortable, editable
+    integer, allocatable, dimension(:) :: surfIdx
+    integer :: i
+
+    allocate(surfIdx(curr_lens_data%num_surfaces))
+    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+
+    PRINT *, "LENS EDITOR Asphere DIALOG SUB STARTING!"
+    ! Now make a multi column list with multiple selections enabled
+    call asphereTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
+    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, FALSE, curr_lens_data%glassnames, curr_lens_data%num_surfaces)
+    call asphereTypes(3)%initialize("Conic Constant", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
+
+    do i=1,ncols
+      ctypes(i) = asphereTypes(i)%coltype
+      sortable(i) = asphereTypes(i)%sortable
+      editable(i) = asphereTypes(i)%editable
+      titles(i) = asphereTypes(i)%coltitle
+    end do
+
+    PRINT *, "About to define ihAsph"
+
+    ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
+         & changed=c_funloc(asph_select),&
+         & edited=c_funloc(asph_edited),&
+         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
+         & sortable=sortable, editable=editable)
+
+    !PRINT *, "ihlist created!  ", ihlist
+
+    ! Now put 10 top level rows into it
+    call populatelensedittable(ihAsph, asphereTypes, ncols)
+    !call loadAphereDataIntoTable()
+    !call loadLensData()
+
+end subroutine
+
   subroutine list_select(list, gdata) bind(c)
     type(c_ptr), value, intent(in) :: list, gdata
     integer(kind=c_int) :: nsel
@@ -585,37 +612,7 @@ end subroutine
 
   end subroutine
 
-  subroutine loadLensData()
-
-    integer :: i
-
-    !Make sure we start froms scratch
-    call hl_gtk_tree_rem(ihlist)
-
-     do i=1,curr_lens_data%num_surfaces
-        call hl_gtk_tree_ins(ihlist, row = (/ -1_c_int /))
-    !    write(line,"('List entry number ',I0)") i
-    !    ltr=len_trim(line)+1
-    !    line(ltr:ltr)=c_null_char
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=0_c_int, &
-             & ivalue=(i-1))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=1_c_int, &
-             & fvalue=curr_lens_data%radii(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=2_c_int, &
-             & fvalue=curr_lens_data%thicknesses(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=3_c_int, &
-             & svalue=curr_lens_data%glassnames(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=4_c_int, &
-             & fvalue=curr_lens_data%surf_index(i))
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=5_c_int, &
-             & fvalue=curr_lens_data%surf_vnum(i))
-     end do
-
-  end subroutine
-
-
-
-  subroutine lens_editor_asphere_dialog_2(boxAsph)
+  subroutine lens_editor_asphere_dialog(boxAsph)
 
     use hl_gtk_zoa
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
@@ -625,45 +622,9 @@ end subroutine
 
     character(len=35) :: line
     integer(kind=c_int) :: i, ltr, j
-    integer, parameter :: ncols = 3
-    type(lens_edit_col) :: asphereTypes(ncols)
-    integer(kind=type_kind), dimension(ncols) :: ctypes
-    character(len=20), dimension(ncols) :: titles
-    integer(kind=c_int), dimension(ncols) :: sortable, editable
-    integer, allocatable, dimension(:) :: surfIdx
-
-    allocate(surfIdx(curr_lens_data%num_surfaces))
-    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
 
 
-    PRINT *, "LENS EDITOR Asphere DIALOG SUB STARTING!"
-    ! Now make a multi column list with multiple selections enabled
-    call asphereTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
-    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, FALSE, curr_lens_data%glassnames, curr_lens_data%num_surfaces)
-    call asphereTypes(3)%initialize("Conic Constant", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
-
-    do i=1,ncols
-      ctypes(i) = asphereTypes(i)%coltype
-      sortable(i) = asphereTypes(i)%sortable
-      editable(i) = asphereTypes(i)%editable
-      titles(i) = asphereTypes(i)%coltitle
-
-    end do
-
-    PRINT *, "About to define ihAsph"
-
-    ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
-         & changed=c_funloc(asph_select),&
-         & edited=c_funloc(asph_edited),&
-         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
-         & sortable=sortable, editable=editable)
-
-    !PRINT *, "ihlist created!  ", ihlist
-
-    ! Now put 10 top level rows into it
-    call populatelensedittable(ihAsph, asphereTypes, ncols)
-    !call loadAphereDataIntoTable()
-    !call loadLensData()
+    call buildAsphereTable(.TRUE.)
 
     boxAsph = hl_gtk_box_new()
     ! It is the scrollcontainer that is placed into the box.
@@ -742,11 +703,5 @@ end subroutine
     res = self%dataString(idx)
 
   end function
-
-  subroutine destructor(self)
-    type(lens_edit_col) :: self
-    PRINT *, "Destructor called!"
-
-  end subroutine
 
 end module lens_editor
