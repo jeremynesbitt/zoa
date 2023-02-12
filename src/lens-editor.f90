@@ -20,11 +20,38 @@ module lens_editor
 
   implicit none
 
+  type lens_edit_col
+    integer(kind=type_kind) :: coltype
+    character(len=20) :: coltitle
+    integer(kind=c_int) :: sortable, editable
+    integer :: dtype
+    class(*), allocatable, dimension(:) :: data
+    integer, allocatable, dimension(:)  :: dataInt
+    real, allocatable, dimension(:)  :: dataFloat
+    character(len=40), allocatable, dimension(:) :: dataString
+
+
+  contains
+    procedure, public, pass(self) :: initialize => le_col_init
+    procedure, public, pass(self) :: getElementInt
+    procedure, public, pass(self) :: getElementFloat
+    procedure, public, pass(self) :: getElementString
+    final :: destructor
+
+
+
+
+  end type
+
 
   type(c_ptr) :: ihscrollcontain,ihlist, &
        &  qbut, dbut, lbl, ibut, ihAsph, ihScrollAsph
 
   integer(kind=c_int) :: numEditorRows
+
+  integer, parameter :: DTYPE_INT = 1
+  integer, parameter :: DTYPE_FLOAT = 2
+  integer, parameter :: DTYPE_STRING = 3
 
 
 contains
@@ -73,6 +100,211 @@ subroutine callback_lens_editor_settings (widget, gdata ) bind(c)
 
 end subroutine callback_lens_editor_settings
 
+  subroutine lens_editor_basic_dialog(box1)
+
+    use hl_gtk_zoa
+    use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
+    implicit none
+
+    type(c_ptr), intent(inout) :: box1
+
+    character(len=35) :: line
+    integer(kind=c_int) :: i, ltr, j
+    integer(kind=c_int), PARAMETER :: ncols = 5
+    type(lens_edit_col), dimension(ncols) :: basicTypes
+    integer(kind=type_kind), dimension(ncols) :: ctypes
+    character(len=20), dimension(ncols) :: titles
+    integer(kind=c_int), dimension(ncols) :: sortable, editable
+    integer, allocatable, dimension(:) :: surfIdx
+
+    allocate(surfIdx(curr_lens_data%num_surfaces))
+    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+    ctypes = (/ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING, &
+         & G_TYPE_FLOAT /)
+    !ctypes = (/ G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, &
+    !     & G_TYPE_UINT64, G_TYPE_BOOLEAN /)
+    sortable = (/ FALSE, FALSE, FALSE, FALSE, FALSE /)
+    editable = (/ FALSE, TRUE, TRUE, FALSE, FALSE /)
+
+    titles(1) = "Surface"
+    titles(2) = "Radius"
+    titles(3) = "Thickness"
+    titles(4) = "Glass"
+    titles(5) = "Index"
+
+    call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
+    call basicTypes(2)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
+    call basicTypes(3)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
+    call basicTypes(4)%initialize("Glass"     , G_TYPE_STRING, FALSE, FALSE, &
+    & curr_lens_data%glassnames, curr_lens_data%num_surfaces )  
+    call basicTypes(5)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
+
+
+    ! do i=1,ncols
+    !   ctypes(i) = basicTypes(i)%coltype
+    !   sortable(i) = basicTypes(i)%sortable
+    !   editable(i) = basicTypes(i)%editable
+    !   titles(i) = basicTypes(i)%coltitle
+    !
+    ! end do
+
+
+    PRINT *, "about to define ihlist"
+    PRINT *, "cyptes is ", ctypes
+    PRINT *, "titles is ", titles
+    PRINT *, "sortable is ", sortable
+    PRINT *, "editable is ", editable
+    ihscrollcontain = c_null_ptr
+    PRINT *, "ihlist= ", ihlist
+    PRINT *, "ihscrollcontain= ", ihscrollcontain
+
+    ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
+         & changed=c_funloc(list_select),&
+         & edited=c_funloc(lens_edited),&
+         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
+         & sortable=sortable, editable=editable)
+
+    PRINT *, "ihlist created!  ", ihlist
+
+    ! Now put 10 top level rows into it
+    call populatelensedittable(ihlist, basicTypes,ncols)
+    !call loadLensData()
+
+    box1 = hl_gtk_box_new()
+    ! It is the scrollcontainer that is placed into the box.
+        call gtk_widget_set_vexpand (ihscrollcontain, FALSE)
+        call gtk_widget_set_hexpand (ihscrollcontain, FALSE)
+
+    call hl_gtk_box_pack(box1, ihscrollcontain)
+
+    PRINT *, "PACKING FIRST CONTAINER!"
+
+
+    ! Delete selected row
+    ibut = hl_gtk_button_new("Insert row"//c_null_char, &
+         & clicked=c_funloc(ins_row), &
+         & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+
+    call hl_gtk_box_pack(box1, ibut)
+
+    ! Delete selected row
+    dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
+         & clicked=c_funloc(del_row), &
+         & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+
+    call hl_gtk_box_pack(box1, dbut)
+
+    ! Also a quit button
+    qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(lens_editor_destroy), data=lens_editor_window)
+    call hl_gtk_box_pack(box1,qbut)
+
+    PRINT *, "END OF LENS EDITOR DIALOG SUB"
+
+  end subroutine lens_editor_basic_dialog
+
+  subroutine lens_editor_settings_dialog_2(box1)
+
+    use hl_gtk_zoa
+    use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
+    implicit none
+
+    type(c_ptr), intent(inout) :: box1
+
+    character(len=35) :: line
+    integer(kind=c_int) :: i, ltr, j
+    integer, parameter :: ncols = 5
+    type(lens_edit_col), dimension(ncols) :: basicTypes
+    integer(kind=type_kind), dimension(ncols) :: ctypes
+    character(len=20), dimension(ncols) :: titles
+    integer(kind=c_int), dimension(ncols) :: sortable, editable
+    integer, allocatable, dimension(:) :: surfIdx
+
+    allocate(surfIdx(curr_lens_data%num_surfaces))
+    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+    ctypes = (/ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING, &
+         & G_TYPE_FLOAT /)
+
+    call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
+    call basicTypes(2)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
+    call basicTypes(3)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
+    call basicTypes(4)%initialize("Glass"     , G_TYPE_STRING, FALSE, FALSE, &
+    & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
+
+
+    PRINT *, "size of glassnames is ", len(curr_lens_data%glassnames)
+    !PRINT *, "glassnames array is ", curr_lens_data%glassnames
+    !PRINT *, "basictypes array is ", basicTypes(4)%dataString
+    PRINT *, "size of basicTypes is ", size(basicTypes)
+
+    PRINT *, "LENS EDITOR DIALOG SUB STARTING!"
+    ! Now make a multi column list with multiple selections enabled
+    ctypes = (/ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING, &
+         & G_TYPE_FLOAT /)
+    !ctypes = (/ G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, &
+    !     & G_TYPE_UINT64, G_TYPE_BOOLEAN /)
+    sortable = (/ FALSE, FALSE, FALSE, FALSE, FALSE /)
+    editable = (/ FALSE, TRUE, TRUE, FALSE, FALSE /)
+
+    titles(1) = "Surface"
+    titles(2) = "Radius"
+    titles(3) = "Thickness"
+    titles(4) = "Glass"
+    titles(5) = "Index"
+    !titles(6) = "Abbe"
+
+    PRINT *, "about to define ihlist"
+    PRINT *, "cyptes is ", ctypes
+    PRINT *, "titles is ", titles
+    PRINT *, "sortable is ", sortable
+    PRINT *, "editable is ", editable
+
+    ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
+         & changed=c_funloc(list_select),&
+         & edited=c_funloc(lens_edited),&
+         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
+         & sortable=sortable, editable=editable)
+
+    PRINT *, "ihlist created!  ", ihlist
+
+    ! Now put 10 top level rows into it
+
+    !call loadLensData_2()
+    call populatelensedittable(c_null_ptr,basicTypes,ncols)
+
+    box1 = hl_gtk_box_new()
+    ! It is the scrollcontainer that is placed into the box.
+        call gtk_widget_set_vexpand (ihscrollcontain, FALSE)
+        call gtk_widget_set_hexpand (ihscrollcontain, FALSE)
+
+    call hl_gtk_box_pack(box1, ihscrollcontain)
+
+    PRINT *, "PACKING FIRST CONTAINER!"
+
+
+    ! Delete selected row
+    ibut = hl_gtk_button_new("Insert row"//c_null_char, &
+         & clicked=c_funloc(ins_row), &
+         & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+
+    call hl_gtk_box_pack(box1, ibut)
+
+    ! Delete selected row
+    dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
+         & clicked=c_funloc(del_row), &
+         & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+
+    call hl_gtk_box_pack(box1, dbut)
+
+    ! Also a quit button
+    qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(lens_editor_destroy), data=lens_editor_window)
+    call hl_gtk_box_pack(box1,qbut)
+
+    PRINT *, "END OF LENS EDITOR DIALOG SUB"
+
+  end subroutine
+
   subroutine lens_editor_settings_dialog(box1)
 
     use hl_gtk_zoa
@@ -102,6 +334,12 @@ end subroutine callback_lens_editor_settings
     titles(4) = "Glass"
     titles(5) = "Index"
     titles(6) = "Abbe"
+
+    PRINT *, "about to define ihlist"
+    PRINT *, "cyptes is ", ctypes
+    PRINT *, "titles is ", titles
+    PRINT *, "sortable is ", sortable
+    PRINT *, "editable is ", editable
 
     ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
          & changed=c_funloc(list_select),&
@@ -188,7 +426,9 @@ end subroutine callback_lens_editor_settings
     !end if
 
 
-    call lens_editor_settings_dialog(box1)
+    !call lens_editor_settings_dialog_2(box1)
+    call lens_editor_basic_dialog(box1)
+
     call lens_editor_asphere_dialog(boxAsphere)
 
     !call lens_editor_aperture(boxAperture)
@@ -506,6 +746,47 @@ end subroutine
 
   end subroutine
 
+  subroutine populatelensedittable(ihObj, colObj, m)
+    type(c_ptr) :: ihObj
+    type(lens_edit_col), dimension(*) :: colObj
+    integer :: i,j
+    integer(kind=c_int) :: m
+
+    !m = size(colObj,DIM=1)
+
+    call hl_gtk_tree_rem(ihlist)
+
+     do i=1,curr_lens_data%num_surfaces
+        call hl_gtk_tree_ins(ihlist, row = (/ -1_c_int /))
+
+        do j=1,m
+          select case(colObj(j)%dtype)
+
+          case(DTYPE_INT)
+
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
+             & ivalue=colObj(j)%getElementInt(i))
+
+         case (DTYPE_FLOAT)
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
+             & fvalue=colObj(j)%getElementFloat(i))
+
+        case (DTYPE_STRING)
+             PRINT *, "j is ", j
+             PRINT *, "i is ", i
+
+             PRINT *, "Val is ", colObj(j)%getElementString(i)
+
+        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
+             & svalue=colObj(j)%getElementString(i))
+        !  call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
+        !       & svalue="TMP")
+        end select
+      end do
+     end do
+
+  end subroutine
+
   subroutine loadLensData()
 
     integer :: i
@@ -533,6 +814,34 @@ end subroutine
      end do
 
   end subroutine
+
+
+subroutine loadLensData_2()
+
+  integer :: i
+
+  !Make sure we start froms scratch
+  call hl_gtk_tree_rem(ihlist)
+
+   do i=1,curr_lens_data%num_surfaces
+      call hl_gtk_tree_ins(ihlist, row = (/ -1_c_int /))
+  !    write(line,"('List entry number ',I0)") i
+  !    ltr=len_trim(line)+1
+  !    line(ltr:ltr)=c_null_char
+      call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=0_c_int, &
+           & ivalue=(i-1))
+      call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=1_c_int, &
+           & fvalue=curr_lens_data%radii(i))
+      call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=2_c_int, &
+           & fvalue=curr_lens_data%thicknesses(i))
+      call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=3_c_int, &
+           & svalue=curr_lens_data%glassnames(i))
+      call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=4_c_int, &
+           & fvalue=curr_lens_data%surf_index(i))
+   end do
+
+end subroutine
+
 
   subroutine loadAphereDataIntoTable()
 
@@ -615,6 +924,77 @@ end subroutine
 
     PRINT *, "PACKING FIRST CONTAINER!"
 
+
+  end subroutine
+
+  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows)
+    class(lens_edit_col), intent(inout) :: self
+    integer(kind=type_kind) :: coltype
+    integer, optional :: numRows
+    character(len=*) :: title
+    integer(kind=c_int) :: sortable, editable
+    class(*), dimension(:), intent(in) :: data
+    integer :: m
+
+    m = size(data)
+
+    self%coltitle = title
+    self%coltype = coltype
+    self%sortable = sortable
+    self%editable = editable
+
+
+    select type(data)
+    type is (real)
+      self%dtype = DTYPE_FLOAT
+      allocate(real::self%data(m))
+      allocate(self%dataFloat(m))
+      self%dataFloat = data
+    type is (integer)
+      self%dtype = DTYPE_INT
+      allocate(integer::self%data(m))
+      allocate(self%dataInt(m))
+      self%dataInt=data
+    type is (character(*))
+      self%dtype = DTYPE_STRING
+      !PRINT *, "String length is ? ", size(self%data,1)
+      !PRINT *, "m = ", m
+      !m = len(self%data(1))
+      allocate(character(len=40)::self%data(numRows))
+      allocate(character(len=40) :: self%dataString(numRows))
+      self%dataString = data
+    end select
+    !self%data = data
+
+  end subroutine
+
+  function getElementInt(self, idx) result(res)
+    class(lens_edit_col) :: self
+    integer :: idx
+    integer :: res
+    res = self%dataInt(idx)
+
+  end function
+
+  function getElementFloat(self, idx) result(res)
+    class(lens_edit_col) :: self
+    integer :: idx
+    real :: res
+    res = self%dataFloat(idx)
+
+  end function
+
+  function getElementString(self, idx) result(res)
+    class(lens_edit_col) :: self
+    integer :: idx
+    character(len=20) :: res
+    res = self%dataString(idx)
+
+  end function
+
+  subroutine destructor(self)
+    type(lens_edit_col) :: self
+    PRINT *, "Destructor called!"
 
   end subroutine
 
