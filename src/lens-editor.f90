@@ -48,9 +48,22 @@ module lens_editor
   integer, parameter :: DTYPE_INT = 1
   integer, parameter :: DTYPE_FLOAT = 2
   integer, parameter :: DTYPE_STRING = 3
+  integer, parameter :: DTYPE_SCIENTIFIC = 4
 
   integer(kind=c_int), parameter :: ID_COL_RADIUS = 2
   integer(kind=c_int), parameter :: ID_COL_THICKNESS = 3
+
+  integer(kind=c_int), parameter :: ID_COL_ASPH_A = 4
+  integer(kind=c_int), parameter :: ID_COL_ASPH_B = 5
+  integer(kind=c_int), parameter :: ID_COL_ASPH_C = 6
+  integer(kind=c_int), parameter :: ID_COL_ASPH_D = 7
+  integer(kind=c_int), parameter :: ID_COL_ASPH_E = 8
+  integer(kind=c_int), parameter :: ID_COL_ASPH_F = 9
+  integer(kind=c_int), parameter :: ID_COL_ASPH_G = 10
+  integer(kind=c_int), parameter :: ID_COL_ASPH_H = 11
+  integer(kind=c_int), parameter :: ID_COL_ASPH_I = 12
+
+
 
 contains
 
@@ -407,11 +420,111 @@ subroutine asph_edited(renderer, path, text, gdata) bind(c)
   !type(c_ptr), value, intent(in) :: list, gdata
 
   type(c_ptr), value :: renderer, path, text, gdata
+    character(len=200) :: fpath, ftext
+    character(len=40) :: kdptext
+    integer(kind=c_int), allocatable, dimension(:) :: irow
+    integer(kind=c_int), pointer :: icol
+    integer :: i, n
+    type(c_ptr) :: tree, pcol
+    real :: fVal
+    integer :: ios
+
+    PRINT *, "CALLING ASPHERE EDITED PROC!"
+
+    call convert_c_string(path, fpath)
+    pcol = g_object_get_data(renderer, "column-number"//c_null_char)
+    call c_f_pointer(pcol, icol)
+    call convert_c_string(text, ftext)
+
+    PRINT *, "ftext is ", ftext
+
+
+
+    read( ftext, *, iostat=ios)  fVal
+
+    PRINT *, "ios is ", ios
+
+    if (ios == 0)  THEN !Valid number
+
+    n = 0
+    do i = 1, len_trim(fpath)
+       if (fpath(i:i) == ":") then
+          n = n+1
+          fpath(i:i) = ' '   ! : is not a separator for a Fortran read
+       end if
+    end do
+    print *, "n = ", n
+    allocate(irow(n+1))
+    read(fpath, *) irow
+    PRINT *, "Selected Row is ", irow
+
+      call updateAsphereCoefficient(irow(1),INT(icol),ftext)
+
+
+      ! call PROCESKDP('U L')
+      ! WRITE(kdptext, *) 'CHG ' ,irow
+      ! PRINT *, "kdptext is ", kdptext
+      ! call PROCESKDP(kdptext)
+      !   !IF(ALENS(8,J).EQ.0.0D0) THEN
+      ! call PROCESKDP('ASPH')
+      ! call PROCESKDP('AD '//trim(ftext))
+      ! call PROCESKDP('EOS')
+      ! call buildAsphereTable(.FALSE.)
+      ! call zoatabMgr%rePlotIfNeeded()
+
+    end if
+
+    !PRINT *, "fVal is ", fVal
+
 
 end subroutine
 
-subroutine asph_select(list, gdata) bind(c)
-  type(c_ptr), value, intent(in) :: list, gdata
+subroutine updateAsphereCoefficient(irow,icol,ftext)
+
+    integer(kind=c_int) :: irow, icol
+    character(len=*) :: ftext
+    character(len=1) :: asphVar
+    character(len=40) :: kdptext
+
+    PRINT *, "irow is ", irow
+    PRINT *, "icol is ", icol
+    PRINT *, "ftext is ", ftext
+
+    select case (icol+1)
+
+    case (ID_COL_ASPH_A)
+      asphVar = 'D'
+    case (ID_COL_ASPH_B)
+      asphVar = 'E'
+    case (ID_COL_ASPH_C)
+      asphVar = 'F'
+    case (ID_COL_ASPH_D)
+      asphVar = 'G'
+    case (ID_COL_ASPH_E)
+      asphVar = 'H'
+    case (ID_COL_ASPH_F)
+      asphVar = 'I'
+    case (ID_COL_ASPH_G)
+      asphVar = 'J'
+    case (ID_COL_ASPH_H)
+      asphVar = 'K'
+    case (ID_COL_ASPH_I)
+      asphVar = 'L'
+
+    end select
+
+
+      call PROCESKDP('U L')
+      WRITE(kdptext, *) 'CHG ' ,irow
+      PRINT *, "kdptext is ", kdptext
+      call PROCESKDP(kdptext)
+        !IF(ALENS(8,J).EQ.0.0D0) THEN
+      call PROCESKDP('ASPH')
+      call PROCESKDP('A'//asphVar//' '//trim(ftext))
+      call PROCESKDP('EOS')
+      call buildAsphereTable(.FALSE.)
+      call zoatabMgr%rePlotIfNeeded()
+
 
 end subroutine
 
@@ -463,7 +576,7 @@ end subroutine
 subroutine buildAsphereTable(firstTime)
 
     logical :: firstTime
-    integer, parameter :: ncols = 3
+    integer, parameter :: ncols = 11
     type(lens_edit_col) :: asphereTypes(ncols)
     integer(kind=type_kind), dimension(ncols) :: ctypes
     character(len=20), dimension(ncols) :: titles
@@ -480,6 +593,28 @@ subroutine buildAsphereTable(firstTime)
     call asphereTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
     call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, FALSE, curr_lens_data%glassnames, curr_lens_data%num_surfaces)
     call asphereTypes(3)%initialize("Conic Constant", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
+    call asphereTypes(ID_COL_ASPH_A)%initialize("A (h^4)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,1), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_B)%initialize("B (h^6)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,2), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_C)%initialize("C (h^8)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,3), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_D)%initialize("D (h^10)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,4), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_E)%initialize("E (h^12)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,5), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_F)%initialize("F (h^14)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,6), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_G)%initialize("G (h^16)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,7), dtype=DTYPE_SCIENTIFIC)
+    call asphereTypes(ID_COL_ASPH_H)%initialize("H (h^18)", G_TYPE_STRING, FALSE, TRUE, &
+    & curr_asph_data%asphereTerms(:,8), dtype=DTYPE_SCIENTIFIC)
+
+
+    !asphereTypes(4)%dtype = DTYPE_SCIENTIFIC
+    !asphereTypes(4)%coltype = G_TYPE_STRING
+
+
 
     do i=1,ncols
       ctypes(i) = asphereTypes(i)%coltype
@@ -489,12 +624,13 @@ subroutine buildAsphereTable(firstTime)
     end do
 
     PRINT *, "About to define ihAsph"
-
+    if (firstTime) then
     ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
          & changed=c_funloc(list_select),&
          & edited=c_funloc(asph_edited),&
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
          & sortable=sortable, editable=editable)
+       end if
 
     !PRINT *, "ihlist created!  ", ihlist
 
@@ -574,6 +710,7 @@ end subroutine
   subroutine populatelensedittable(ihObj, colObj, m)
     type(c_ptr) :: ihObj
     type(lens_edit_col), dimension(*) :: colObj
+    character(len=23) :: AVAL
     integer :: i,j
     integer(kind=c_int) :: m
 
@@ -597,18 +734,30 @@ end subroutine
              & fvalue=colObj(j)%getElementFloat(i))
 
         case (DTYPE_STRING)
-             PRINT *, "j is ", j
-             PRINT *, "i is ", i
-
-             PRINT *, "Val is ", colObj(j)%getElementString(i)
 
         call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
              & svalue=colObj(j)%getElementString(i))
         !  call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
         !       & svalue="TMP")
+
+      case (DTYPE_SCIENTIFIC) ! Actually float but need to convert to string for display
+        PRINT *, "Value to convert is ", colObj(j)%getElementFloat(i)
+         call converttoscientificnotationstring(colObj(j)%getElementFloat(i), AVAL)
+          call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
+               & svalue=AVAL)
+
         end select
       end do
      end do
+
+  end subroutine
+
+  subroutine converttoscientificnotationstring(fVal, strVal)
+     real :: fVal
+     character(len=23), intent(inout) :: strVal
+
+     WRITE(strVal, "(E10.4)") fVal
+
 
   end subroutine
 
@@ -639,10 +788,11 @@ end subroutine
   end subroutine
 
 
-  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows)
+  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows, dtype)
     class(lens_edit_col), intent(inout) :: self
     integer(kind=type_kind) :: coltype
     integer, optional :: numRows
+    integer, optional :: dtype
     character(len=*) :: title
     integer(kind=c_int) :: sortable, editable
     class(*), dimension(:), intent(in) :: data
@@ -658,7 +808,16 @@ end subroutine
 
     select type(data)
     type is (real)
-      self%dtype = DTYPE_FLOAT
+      if (present(dtype)) THEN
+          if (dtype == DTYPE_SCIENTIFIC) THEN
+        ! Store data as float but will be shown as string
+          self%dtype = dtype
+         PRINT *, "Scientific Column!"
+       end if
+
+      Else
+         self%dtype = DTYPE_FLOAT
+       end if
       allocate(real::self%data(m))
       allocate(self%dataFloat(m))
       self%dataFloat = data

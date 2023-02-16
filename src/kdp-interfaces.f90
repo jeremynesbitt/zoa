@@ -288,6 +288,7 @@ subroutine EDITOR
     if (.not. c_associated(lens_editor_window))  THEN
        PRINT *, "Call New Lens Editor Window"
        call lens_editor_new(my_window)
+       PRINT *, "Lens editor call finished!"
     else
       PRINT *, "Do nothing..lens editor exists. "
 

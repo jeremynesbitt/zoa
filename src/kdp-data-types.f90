@@ -171,6 +171,8 @@ end function
 
    if (allocated(self%conic_constant)) deallocate(self%conic_constant)
    allocate(self%conic_constant(maxSurf))
+   if (allocated(self%asphereTerms)) deallocate(self%asphereTerms)
+   allocate(self%asphereTerms(maxSurf,8))
 
 
    ! Logic taken from the LOADSHEET.INC routine.
@@ -202,12 +204,18 @@ end function
         PRINT *, "FOUND ASPHERE AT index ", I
         self%conic_constant(I+1) = ALENS(2,I)
         !PRINT *, ALENS(1:85,I)
+        self%asphereTerms(I+1,1:4) = ALENS(4:7,I)
+        self%asphereTerms(I+1,5:8) = ALENS(81:84,I)
+        !PRINT *, "ASPHRE TErms ", self%asphereTerms(I+1,:)
+        PRINT "(E10.4)", self%asphereTerms(I+1,1)
       else
-        self%conic_constant(I+1) = 0.0  
+        self%conic_constant(I+1) = 0.0
+        self%asphereTerms(I+1,:) = 0.0
        END IF
      end do
 
-     PRINT *, "Conic Constant Array is ", self%conic_constant
+
+     !PRINT *, "Conic Constant Array is ", self%conic_constant
 
    end subroutine
 
