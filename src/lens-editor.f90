@@ -9,7 +9,8 @@ module lens_editor
   use gtk_hl_container
   use gtk_hl_progress
   use gtk_hl_button
-  use gtk_hl_tree
+  !use gtk_hl_tree
+  use hl_zoa_tree_tmp
   use gtk
 
   use gtk_hl_chooser
@@ -582,16 +583,27 @@ subroutine buildAsphereTable(firstTime)
     character(len=20), dimension(ncols) :: titles
     integer(kind=c_int), dimension(ncols) :: sortable, editable
     integer, allocatable, dimension(:) :: surfIdx
+    character(len=10), dimension(ncols) :: colModel
     integer :: i
+
+    character(kind=c_char, len=4),dimension(2) :: valsArray
+    integer(c_int), dimension(2) :: refsArray
+
 
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+    valsArray(1) = "Tst1"
+    valsArray(2) = "Tst2"
+    refsArray(1) = 0
+    refsArray(1) = 1
+
 
 
     PRINT *, "LENS EDITOR Asphere DIALOG SUB STARTING!"
     ! Now make a multi column list with multiple selections enabled
     call asphereTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
-    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, FALSE, curr_lens_data%glassnames, curr_lens_data%num_surfaces)
+    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, TRUE, curr_lens_data%glassnames, curr_lens_data%num_surfaces)
     call asphereTypes(3)%initialize("Conic Constant", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
     call asphereTypes(ID_COL_ASPH_A)%initialize("A (h^4)", G_TYPE_STRING, FALSE, TRUE, &
     & curr_asph_data%asphereTerms(:,1), dtype=DTYPE_SCIENTIFIC)
@@ -610,6 +622,17 @@ subroutine buildAsphereTable(firstTime)
     call asphereTypes(ID_COL_ASPH_H)%initialize("H (h^18)", G_TYPE_STRING, FALSE, TRUE, &
     & curr_asph_data%asphereTerms(:,8), dtype=DTYPE_SCIENTIFIC)
 
+    colModel(1) = 'text'
+    colModel(2) = 'combo'
+    colModel(3) = 'text'
+    colModel(4) = 'text'
+    colModel(5) = 'text'
+    colModel(6) = 'text'
+    colModel(7) = 'text'
+    colModel(8) = 'text'
+    colModel(9) = 'text'
+    colModel(10) = 'text'
+    colModel(11) = 'text'
 
     !asphereTypes(4)%dtype = DTYPE_SCIENTIFIC
     !asphereTypes(4)%coltype = G_TYPE_STRING
@@ -624,12 +647,15 @@ subroutine buildAsphereTable(firstTime)
     end do
 
     PRINT *, "About to define ihAsph"
+       PRINT *, "buildAsphere valsArray is ", valsArray
+       PRINT *, "buildAsphere refsArray is ", refsArray    
     if (firstTime) then
     ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
          & changed=c_funloc(list_select),&
          & edited=c_funloc(asph_edited),&
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
-         & sortable=sortable, editable=editable)
+         & sortable=sortable, editable=editable, renderers=colModel, &
+         & valsArray=valsArray, refsArray=refsArray)
        end if
 
     !PRINT *, "ihlist created!  ", ihlist
