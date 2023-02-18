@@ -3,7 +3,7 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
-        use kdp_interfaces, only: EDITOR, POWSYM, RMSFIELD, FIR
+        use kdp_interfaces !, only: EDITOR, POWSYM, RMSFIELD, FIR, SYSCONFIGUI
 C
         IMPLICIT NONE
 
@@ -421,6 +421,10 @@ C       PART DRAWINGS
           CALL POWSYM
         RETURN
         END IF
+        IF(WC.EQ.'SYSCON') THEN
+            CALL SYSCONFIGUI
+          RETURN
+        END IF
 
         IF(WC.EQ.'TSTCMDS') THEN
           CALL TestCommands
@@ -433,7 +437,7 @@ C       PART DRAWINGS
         IF(WC.EQ.'FIR') THEN
           CALL FIR !; RETURN
         RETURN
-        END IF  
+        END IF
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.
      1  WC.EQ.'SPSRF'.AND.WQ.NE.'OFF')THEN
       IF(RAYCLEAR) THEN

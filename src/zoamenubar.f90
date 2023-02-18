@@ -107,7 +107,8 @@ contains
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
 
-    type(c_ptr) :: act_glassDisplay, menu_item_glass
+    type(c_ptr) :: act_glassDisplay, menu_item_glass, menu_item_editsysconfig
+    type(c_ptr) :: act_sysconfig
 
 
     character(len=100), target :: tstTarget = "TestCommandTarget"
@@ -186,6 +187,12 @@ contains
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)
 
     !Edit Lens
+    act_sysconfig   = g_simple_action_new("EditSysConfig"//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, act_sysconfig)
+    call g_signal_connect (act_sysconfig, "activate"//c_null_char, c_funloc(editSysConfigUI), win)
+    menu_item_editsysconfig = g_menu_item_new ("System Configuration"//c_null_char, "win.EditSysConfig"//c_null_char)
+    call g_menu_append_item (menu_lens, menu_item_editsysconfig)
+
     act_editlensrad = g_simple_action_new("EditLensRad"//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, act_editlensrad)
     call g_signal_connect (act_editlensrad, "activate"//c_null_char, c_funloc(zoa_editLensRadUI), win)
@@ -296,6 +303,13 @@ contains
       ftext = "OCDY"
       CALL PROCESKDP(ftext)
 
+
+  end subroutine
+
+  subroutine editSysConfigUI(act, avalue, win) bind(c)
+
+     type(c_ptr), value, intent(in) :: act, avalue, win
+     call PROCESKDP('SYSCONFIG')
 
   end subroutine
 

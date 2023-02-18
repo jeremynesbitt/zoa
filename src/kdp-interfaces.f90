@@ -298,6 +298,24 @@ subroutine EDITOR
 
 end subroutine EDITOR
 
+
+subroutine SYSCONFIGUI
+  use ui_sys_config
+  use global_widgets
+  use handlers
+
+    if (.not. c_associated(sys_config_window))  THEN
+       PRINT *, "Call New Sys Config Window"
+       call sys_config_new(my_window)
+
+    else
+      PRINT *, "Do nothing..sys config window exists. "
+
+    end if
+
+end subroutine
+
+
 SUBROUTINE RUN_WDRAWOPTICALSYSTEM
 !     THIS IS THE DRIVER ROUTINE FOR SENDING GRAPHICS TO
 !     A GRAPHIC WINDOW
