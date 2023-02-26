@@ -4,15 +4,45 @@ module kdp_data_types
      integer, parameter :: ASPH_TORIC_AXIS_X = 3
 
 
+type idText
+  integer :: ID
+  character(len=40) :: text
+end type
+! Scratch for a better way of defining aperture
+! type apertureOption
+!   integer :: aperCode
+!   character(len=20) :: aperCompactName
+!   character(len=40) :: aperDisplayName
+!  contains
+!    functionToGetApertureFromSystem
+! end type
+
 type sys_config
 
     integer :: imgSurface
+    character(len=40) :: currApertureName
+    type(idText), allocatable :: aperOptions(:)
+    type(idText), allocatable :: refFieldOptions(:)
+  character(len=40), dimension(3) :: possibleApertureNames ! = ["ObjectHeight",&
+    real, dimension(2) :: refApertureDiameter
+  !  & "ObjectAngle", "ParaxialImageHeight"]
   contains
     procedure, public, pass(self) :: getImageSurface
     procedure, public, pass(self) :: isFocalSystem
     procedure, public, pass(self) :: isTelecentric
+    !procedure, public, pass(self) :: getPossibleApertueSettings
+    !procedure, public, pass(self) :: getCurrentApertueSetting
+    procedure, public, pass(self) :: getApertureFromSystemArr
+    procedure, public, pass(self) :: getFieldRefFromSystemArr
+    procedure, public, pass(self) :: updateParameters
+    !procedure, public, pass(self) :: setApertue
+
 
 end type
+
+interface sys_config
+  module procedure :: sys_config_constructor
+end interface
 
 type lens_data
 
@@ -218,5 +248,118 @@ end function
      !PRINT *, "Conic Constant Array is ", self%conic_constant
 
    end subroutine
+
+   type(sys_config) function sys_config_constructor() result(self)
+
+     allocate(idText :: self%aperOptions(3))
+     allocate(idText :: self%refFieldOptions(3))
+
+     self%aperOptions(1)%text = "Entrance Pupil Diameter"
+     self%aperOptions(1)%id = 101
+
+     self%aperOptions(2)%text = "Object Space NA"
+     self%aperOptions(2)%id = 102
+
+     self%aperOptions(3)%text = "Stop Surface Aperture"
+     self%aperOptions(3)%id = 103
+
+     self%refFieldOptions(1)%text = "Object Height"
+     self%refFieldOptions(1)%id = 101
+
+     self%refFieldOptions(2)%text = "Object Angle"
+     self%refFieldOptions(2)%id = 102
+
+     self%refFieldOptions(3)%text = "Paraxial Image Height"
+     self%refFieldOptions(3)%id = 103
+
+     call self%updateParameters()
+
+
+   end function
+
+   subroutine updateParameters(self)
+     class(sys_config), intent(inout) :: self
+     include "DATLEN.INC"
+
+     self%refApertureDiameter(1) = (2.0D0*SYSTEM(13))
+     self%refApertureDiameter(2) = (2.0D0*SYSTEM(12))
+
+   end subroutine
+
+   subroutine getApertureFromSystemArr(self)
+     class(sys_config), intent(inout) :: self
+
+   end subroutine
+
+   subroutine getFieldRefFromSystemArr(self)
+
+
+     class(sys_config), intent(inout) :: self
+     include "DATLEN.INC"
+
+
+        if (SYSTEM(60).EQ.1.AND.SYSTEM(61).EQ.1.AND.SYSTEM(18).EQ.0) THEN
+          self%currApertureName = "Object Height"
+        else if (SYSTEM(60).EQ.1.AND.SYSTEM(61).EQ.1.AND.SYSTEM(18).EQ.1) THEN
+          self%currApertureName = "Object Angle"
+        else if (SYSTEM(94).EQ.-1.AND.SYSTEM(95).EQ.-1) THEN
+          self%currApertureName = "Paraxial Image Height"
+        else if (SYSTEM(98).EQ.-1.AND.SYSTEM(99).EQ.-1) THEN
+          self%currApertureName = "Real Image Height"
+
+        end if
+        ! CASE (IDF_B1)
+        ! SYSTEM(60)=1.0D0
+        ! SYSTEM(61)=1.0D0
+        ! SYSTEM(18)=0.0D0
+        ! SYSTEM(94)=0.0D0
+        ! SYSTEM(95)=0.0D0
+        ! SYSTEM(98)=0.0D0
+        ! SYSTEM(99)=0.0D0
+        ! INCLUDE 'NONSURF3FRESH.INC'
+        ! CASE (IDF_B2)
+        ! SYSTEM(60)=1.0D0
+        ! SYSTEM(61)=1.0D0
+        ! SYSTEM(18)=1.0D0
+        ! SYSTEM(94)=0.0D0
+        ! SYSTEM(95)=0.0D0
+        ! SYSTEM(98)=0.0D0
+        ! SYSTEM(99)=0.0D0
+        ! INCLUDE 'NONSURF3FRESH.INC'
+        ! CASE (IDF_B3)
+        ! SYSTEM(60)=0.0D0
+        ! SYSTEM(61)=0.0D0
+        ! SYSTEM(94)=-1.0D0
+        ! SYSTEM(95)=-1.0D0
+        ! SYSTEM(98)=0.0D0
+        ! SYSTEM(99)=0.0D0
+        ! INCLUDE 'NONSURF3FRESH.INC'
+        ! CASE (IDF_B4)
+        ! SYSTEM(60)=0.0D0
+        ! SYSTEM(61)=0.0D0
+        ! SYSTEM(94)=-1.0D0
+        ! SYSTEM(95)=-1.0D0
+        ! SYSTEM(98)=0.0D0
+        ! SYSTEM(99)=0.0D0
+        ! INCLUDE 'NONSURF3FRESH.INC'
+        ! CASE (IDF_B5)
+        ! SYSTEM(60)=0.0D0
+        ! SYSTEM(61)=0.0D0
+        ! SYSTEM(98)=-1.0D0
+        ! SYSTEM(99)=-1.0D0
+        ! SYSTEM(94)=0.0D0
+        ! SYSTEM(95)=0.0D0
+        ! INCLUDE 'NONSURF3FRESH.INC'
+        ! CASE (IDF_B6)
+        ! SYSTEM(60)=0.0D0
+        ! SYSTEM(61)=0.0D0
+        ! SYSTEM(98)=1.0D0
+        ! SYSTEM(99)=1.0D0
+        ! SYSTEM(94)=0.0D0
+        ! SYSTEM(95)=0.0D0
+        ! INCLUDE 'NONSURF3FRESH.INC'
+
+   end subroutine
+
 
 end module kdp_data_types

@@ -236,6 +236,7 @@ program zoa_program
   ! UI Settings Initialization
 
   curr_lens_data = lens_data()
+  sysConfig = sys_config()
 
 
 

@@ -68,6 +68,7 @@ type zoatab
    procedure, public, pass(self) :: initialize
    !procedure, private, pass(self) :: createCairoDrawingArea
    procedure, public, pass(self) :: addListBoxSetting
+   procedure, public, pass(self) :: addListBoxSettingTextID
    procedure, private, pass(self) :: buildSettings
    procedure, private, pass(self) :: settingobj_get
    procedure, public, pass(self) :: finalizeWindow
@@ -153,6 +154,45 @@ contains ! for module
 
  end subroutine
  ! Should this go in a separate type?
+ subroutine addListBoxSettingTextID(self, labelText, list, callbackFunc, callbackData)
+
+  use hl_gtk_zoa
+  use kdp_data_types
+
+   class(zoatab) :: self
+   character(len=*), intent(in) :: labelText
+   type(c_funptr), intent(in)   :: callbackFunc
+   type(c_ptr), optional, intent(in)   :: callbackData
+
+  type(idText) :: list(:)
+  character(kind=c_char, len=40), allocatable :: vals_tmp(:)
+  integer(c_int), allocatable :: refs_tmp(:)
+  integer :: ii, nOpts
+
+
+  ! Test code for entry
+  nOpts = size(list)
+  !PRINT *, "nOpts is ", nOpts
+  allocate(vals_tmp(nOpts))
+  allocate(refs_tmp(nOpts))
+
+  do ii=1,nOpts
+    vals_tmp(ii) = list(ii)%text
+    refs_tmp(ii) = list(ii)%id
+
+  end do
+
+  if (present(callbackData)) then
+    call addListBoxSetting(self, labelText, refs_tmp, vals_tmp, &
+    & callbackFunc, callbackData)
+   else
+    call addListBoxSetting(self, labelText, refs_tmp, vals_tmp, &
+    & callbackFunc)
+  end if
+
+end subroutine
+
+
  subroutine addListBoxSetting(self, labelText, refArray, valArray, callbackFunc, callbackData)
 
    use hl_gtk_zoa

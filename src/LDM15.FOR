@@ -2718,6 +2718,8 @@ C     DONE
                    GO TO 999
                    END IF
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20)))
+      call sysConfig%updateParameters()
+
 
                         RETURN
                         END
