@@ -3,6 +3,12 @@ module kdp_data_types
      integer, parameter :: ASPH_TORIC_AXIS_Y = 2
      integer, parameter :: ASPH_TORIC_AXIS_X = 3
 
+     integer, parameter :: APER_ENTR_PUPIL_DIAMETER = 102
+     integer, parameter :: APER_OBJECT_NA = 103
+     integer, parameter :: APER_STOP_SURFACE = 104
+
+
+
 
 type idText
   integer :: ID
@@ -35,6 +41,7 @@ type sys_config
     procedure, public, pass(self) :: getApertureFromSystemArr
     procedure, public, pass(self) :: getFieldRefFromSystemArr
     procedure, public, pass(self) :: updateParameters
+    procedure, public, pass(self) :: updateApertureSelectionByCode
     !procedure, public, pass(self) :: setApertue
 
 
@@ -255,13 +262,13 @@ end function
      allocate(idText :: self%refFieldOptions(3))
 
      self%aperOptions(1)%text = "Entrance Pupil Diameter"
-     self%aperOptions(1)%id = 101
+     self%aperOptions(1)%id = APER_ENTR_PUPIL_DIAMETER
 
      self%aperOptions(2)%text = "Object Space NA"
-     self%aperOptions(2)%id = 102
+     self%aperOptions(2)%id = APER_OBJECT_NA
 
      self%aperOptions(3)%text = "Stop Surface Aperture"
-     self%aperOptions(3)%id = 103
+     self%aperOptions(3)%id = APER_STOP_SURFACE
 
      self%refFieldOptions(1)%text = "Object Height"
      self%refFieldOptions(1)%id = 101
@@ -358,6 +365,52 @@ end function
         ! SYSTEM(94)=0.0D0
         ! SYSTEM(95)=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
+
+   end subroutine
+
+   subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, boolXYSame)
+     class(sys_config), intent(inout) :: self
+     integer, intent(in) :: ID_SELECTION
+     real :: xAp, yAp
+     logical :: boolXYSame
+     character(len=23) :: strXAp, strYAp
+
+     select case (ID_SELECTION)
+
+     case (APER_OBJECT_NA)
+       PRINT *, "Define Aperture by Object NA"
+       PRINT *, "xAp = ", xAp
+       PRINT *, "yAp =  ", yAp
+
+     case (APER_ENTR_PUPIL_DIAMETER)
+       PRINT *, "Define Aperture by Entrance Pupil Diameter"
+
+!       SAY/SAX
+!        CALL WDIALOGGETDOUBLE(IDF_X,DW1)
+!        CALL WDIALOGGETDOUBLE(IDF_Y,DW2)
+        xApertureRadius = xAp/2.0
+        yApertureRadius = yAp/2.0
+
+        PRINT *, "xApertureRadius is ", xApertureRadius
+
+        CALL DTOA23(xApertureRadius,strXAp)
+        CALL DTOA23(yApertureRadius,strYAp)
+        call PROCESKDP('U L')
+        IF(boolXYSame) THEN
+         call PROCESKDP('SAY,'//strYAp)
+         call PROCESKDP('SAX,'//strYAp)
+        ELSE
+         call PROCESKDP('SAY,'//strYAp)
+         call PROCESKDP('SAX,'//strXAp)
+       END IF
+       call PROCESKDP('EOS')
+
+
+
+     case (APER_STOP_SURFACE)
+       PRINT *, "Define Aperture by Stop Surface"
+
+     end select
 
    end subroutine
 

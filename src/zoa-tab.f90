@@ -98,7 +98,9 @@ contains ! for module
     type(c_ptr) :: tab_label, scrolled_tab
     integer :: i
 
+    self%numSettings = 0
 
+    PRINT *, "tabTitle is ", tabTitle
     self%tab_label = gtk_label_new(tabTitle//c_null_char)
     self%ID_PLOTTYPE = ID_PLOTTYPE
     PRINT *, "ABOUT TO ASSIGN NOTEBOOK PTR"
@@ -154,7 +156,7 @@ contains ! for module
 
  end subroutine
  ! Should this go in a separate type?
- subroutine addListBoxSettingTextID(self, labelText, list, callbackFunc, callbackData)
+ subroutine addListBoxSettingTextID(self, labelText, set, callbackFunc, callbackData)
 
   use hl_gtk_zoa
   use kdp_data_types
@@ -164,21 +166,21 @@ contains ! for module
    type(c_funptr), intent(in)   :: callbackFunc
    type(c_ptr), optional, intent(in)   :: callbackData
 
-  type(idText) :: list(:)
+  type(idText) :: set(:)
   character(kind=c_char, len=40), allocatable :: vals_tmp(:)
   integer(c_int), allocatable :: refs_tmp(:)
   integer :: ii, nOpts
 
 
   ! Test code for entry
-  nOpts = size(list)
+  nOpts = size(set)
   !PRINT *, "nOpts is ", nOpts
   allocate(vals_tmp(nOpts))
   allocate(refs_tmp(nOpts))
 
   do ii=1,nOpts
-    vals_tmp(ii) = list(ii)%text
-    refs_tmp(ii) = list(ii)%id
+    vals_tmp(ii) = set(ii)%text
+    refs_tmp(ii) = set(ii)%id
 
   end do
 
@@ -239,6 +241,8 @@ end subroutine
       else
         maxRow = (self%numSettings+1)/2
     end if
+
+    PRINT *, "maxRow is ", maxRow
 
    do i=1, maxRow
      ! Label

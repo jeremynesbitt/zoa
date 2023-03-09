@@ -39,6 +39,12 @@ end type
 ! Variables
   type(sysconfigtab) :: sysconfigwindow
 
+  integer, parameter :: ID_SYSCON_APERTURE = 7040
+  integer, parameter :: ID_SYSCON_FIELDTYPE = 7041
+
+  type(c_ptr) :: spinButton_xAperture, spinButton_yAperture
+
+
 
 contains
 
@@ -47,8 +53,18 @@ contains
     type(c_ptr), value :: widget, gdata
     type(c_ptr) :: isurface
     print *, "Exit called"
-    call gtk_window_destroy(gdata)
+    call gtk_window_destroy(sys_config_window)
     sys_config_window = c_null_ptr
+    !call sysconfigwindow%labels%clear
+    !call sysconfigwindow%widgets%clear
+    sysconfigwindow%canvas = c_null_ptr
+    sysconfigwindow%box1 = c_null_ptr
+    sysconfigwindow%notebook = c_null_ptr
+    sysconfigwindow%tab_label = c_null_ptr
+
+
+
+
 
   end subroutine
 
@@ -130,12 +146,13 @@ subroutine sys_config_new(parent_window)
   type(c_ptr)  :: boxAperture, lblAperture
 
   type(c_ptr)  :: table, expander, box1, nbk, basicLabel, boxAsphere
-  type(c_ptr)  :: AsphLabel, spinButton_xAperture, spinButton_yAperture
-
+  type(c_ptr)  :: AsphLabel
   integer, parameter :: ID_SYS_APERTURE = 7037
   integer, parameter :: ID_TST1 = 7038
   integer, parameter :: ID_TST2 = 7039
-  integer, target :: TARGET_TST = 7040
+  integer, target :: TARGET_APERTURE = ID_SYSCON_APERTURE
+  integer, target :: TARGET_FIELD = ID_SYSCON_FIELDTYPE
+
 
   integer, target :: TARGET_X_APERTURE = 7050
   integer, target :: TARGET_Y_APERTURE = 7051
@@ -200,7 +217,7 @@ subroutine sys_config_new(parent_window)
 
     call sysconfigwindow%addListBoxSettingTextID("Aperture ",  &
     & sysConfig%aperOptions, c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_TST))
+    & c_loc(TARGET_APERTURE))
 
     spinButton_xAperture = gtk_spin_button_new (gtk_adjustment_new( &
                                                       & value=sysConfig%refApertureDiameter(1)*1d0, &
@@ -229,7 +246,7 @@ subroutine sys_config_new(parent_window)
 
     call sysconfigwindow%addListBoxSettingTextID("Field ",  &
     & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_TST))
+    & c_loc(TARGET_FIELD))
 
   call sysconfigwindow%finalizeWindow()
 
@@ -272,13 +289,36 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    implicit none
    type(c_ptr), value, intent(in) :: widget, gdata
    integer :: int_value
+   real :: xAp, yAp
 
   integer(kind=c_int), pointer :: ID_SETTING
 
   call c_f_pointer(gdata, ID_SETTING)
 
-  PRINT *, "SYS CONFIG IS ", ID_SETTING
-  int_value = hl_zoa_combo_get_selected_list2_id(widget)
+  !PRINT *, "SYS CONFIG IS ", ID_SETTING
+
+
+  select case (ID_SETTING)
+
+  case (ID_SYSCON_APERTURE)
+    int_value = hl_zoa_combo_get_selected_list2_id(widget)
+    PRINT *, "Aperture Selection for ", int_value
+    yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
+    xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
+    call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, .TRUE.)
+
+  call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureDiameter(1)*1d0)
+  call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureDiameter(2)*1d0)
+
+  case (ID_SYSCON_FIELDTYPE)
+    int_value = hl_zoa_combo_get_selected_list2_id(widget)
+    PRINT *, "Field Type Selection for ", int_value
+
+  case default
+    PRINT *, "Nothing selected"
+
+  end select
+
 
   !PRINT *, "Value ID is ", hl_zoa_combo_get_selected_list2_id(widget)
 
