@@ -2156,6 +2156,7 @@ C
  200                    CONTINUE
                         END DO
 C       ALL DONE
+          PRINT *, "FIXVAR ROUTINE ENDED!"
                         RETURN
                         END
       SUBROUTINE FIELDS
