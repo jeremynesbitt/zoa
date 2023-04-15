@@ -1,3 +1,10 @@
+! Desired behavior:
+! for each section
+! add ui elements with options
+! set options based on KDP / sysconfig type call setValues(ID_SECTION))
+! make subtype of ui settings that keeps track of widgets and has a function
+! that can update
+
 module ui_sys_config
   use GLOBALS
   use global_widgets
@@ -15,6 +22,7 @@ module ui_sys_config
 
   use g
   use zoa_ui
+  use settings_obj
   !use mod_lens_editor_settings
 
   implicit none
@@ -28,8 +36,19 @@ module ui_sys_config
 !
 !
 ! end
+type, extends(zoa_settings_obj) :: ui_aperture_settings
+
+  type(c_ptr) :: apertureType
+  integer :: idxBoolXYSame
+
+contains
+  procedure, public, pass(self) :: createUI => createApertureSettingsUI
+  procedure, public, pass(self) :: updateSettings => updateApertureSettingsUI
+
+end type
 
 type, extends(zoatab) :: sysconfigtab
+
 
 contains
   procedure :: newPlot => sys_config_new_plot
@@ -38,15 +57,92 @@ end type
 
 ! Variables
   type(sysconfigtab) :: sysconfigwindow
+  type(ui_aperture_settings) :: uiApertureSettings
 
   integer, parameter :: ID_SYSCON_APERTURE = 7040
   integer, parameter :: ID_SYSCON_FIELDTYPE = 7041
+  integer, parameter :: ID_SYSCON_APERTURE_XYSAME = 7042
 
   type(c_ptr) :: spinButton_xAperture, spinButton_yAperture
 
 
 
 contains
+
+  subroutine createApertureSettingsUI(self)
+    class(ui_aperture_settings) :: self
+    integer, parameter :: ID_SYS_APERTURE = 7037
+    integer, parameter :: ID_TST1 = 7038
+    integer, parameter :: ID_TST2 = 7039
+    integer, target :: TARGET_APERTURE = ID_SYSCON_APERTURE
+    integer, target :: TARGET_FIELD = ID_SYSCON_FIELDTYPE
+    integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
+
+
+    integer, target :: TARGET_X_APERTURE = 7050
+    integer, target :: TARGET_Y_APERTURE = 7051
+
+
+    call self%addListBoxTextID("Aperture ",  &
+    & sysConfig%aperOptions, c_funloc(callback_sys_config_settings), &
+    & c_loc(TARGET_APERTURE))
+
+    ! TODO:  Find a better way of doing this (too risky if parent changes)
+    self%apertureType = self%getWidget(self%numSettings)
+
+
+    spinButton_xAperture = gtk_spin_button_new (gtk_adjustment_new( &
+                                                     & value=sysConfig%refApertureValue(1)*1d0, &
+                                                               & lower=0d0, &
+                                                               & upper=10000000d0, &
+                                                               & step_increment=0.05d0, &
+                                                               & page_increment=.1d0, &
+                                                               & page_size=0d0),climb_rate=2d0, &
+                                                               & digits=3_c_int)
+
+    call self%addSpinBox("X Aperture Value", spinButton_xAperture, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE))
+
+    !call sysconfigwindow%addSpinBoxSetting("X Aperture Value", spinButton_xAperture, &
+    !& c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE))
+
+
+
+    spinButton_yAperture = gtk_spin_button_new (gtk_adjustment_new(&
+                                                     & value=sysConfig%refApertureValue(2)*1d0, &
+                                                               & lower=0d0, &
+                                                               & upper=10000000d0, &
+                                                               & step_increment=0.05d0, &
+                                                               & page_increment=.1d0, &
+                                                               & page_size=0d0),climb_rate=2d0, &
+                                                               & digits=3_c_int)
+
+    call self%addSpinBox("Y Aperture Value", spinButton_yAperture, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE))
+
+    !call sysconfigwindow%addSpinBoxSetting("Y Aperture Value", spinButton_yAperture, &
+    !& c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE))
+
+    call self%addListBoxTextID("Field ",  &
+    & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
+    & c_loc(TARGET_FIELD))
+
+    call self%addCheckBox("XY Symmetric", c_funloc(callback_sys_config_settings), &
+    & c_loc(TARGET_XYSAME))
+    self%idxBoolXYSame = self%numSettings
+
+
+  end subroutine
+
+  subroutine updateApertureSettingsUI(self)
+    use hl_gtk_zoa
+    class(ui_aperture_settings) :: self
+
+    !call hl_zoa_combo_set_selected_by_list2_id(self%apertureType, sysConfig%currApertureID)
+    call hl_zoa_combo_set_selected_by_list2_id(self%getWidget(1), sysConfig%currApertureID)
+
+
+  end subroutine
 
   subroutine sys_config_destroy(widget, gdata) bind(c)
 
@@ -147,15 +243,8 @@ subroutine sys_config_new(parent_window)
 
   type(c_ptr)  :: table, expander, box1, nbk, basicLabel, boxAsphere
   type(c_ptr)  :: AsphLabel
-  integer, parameter :: ID_SYS_APERTURE = 7037
-  integer, parameter :: ID_TST1 = 7038
-  integer, parameter :: ID_TST2 = 7039
-  integer, target :: TARGET_APERTURE = ID_SYSCON_APERTURE
-  integer, target :: TARGET_FIELD = ID_SYSCON_FIELDTYPE
 
 
-  integer, target :: TARGET_X_APERTURE = 7050
-  integer, target :: TARGET_Y_APERTURE = 7051
 
 
     !character(kind=c_char, len=20), dimension(2) :: vals_tst
@@ -181,74 +270,20 @@ subroutine sys_config_new(parent_window)
      call gtk_window_set_transient_for(sys_config_window, parent_window)
      call gtk_window_set_destroy_with_parent(sys_config_window, TRUE)
 
-  !call lens_editor_basic_dialog(box1)
+     call uiApertureSettings%initialize(numListColumns=1, winWidth=width, name="_Aperture:")
 
-  !call lens_editor_asphere_dialog(boxAsphere)
-  !call lens_editor_asphere_dialog(boxAsphere)
-
-  ! call buildApertureSettings(boxAperture)
-  !call lens_editor_aperture(boxAperture)
-
-  !call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
-  !location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
-  nbk = gtk_notebook_new()
-
-  ! Test code for entry
-  nOpts = size(sysConfig%aperOptions)
-  PRINT *, "nOpts is ", nOpts
-  allocate(vals_tst(nOpts))
-  allocate(refs_tst(nOpts))
-
-  do ii=1,nOpts
-    vals_tst(ii) = sysConfig%aperOptions(ii)%text
-    refs_tst(ii) = sysConfig%aperOptions(ii)%id
-
-  end do
-   PRINT *, "refs_tst is ", refs_tst
-
-  call sysconfigwindow%initialize(nbk, "Aperture", ID_SYS_APERTURE)
-    !vals_tst = [character(len=20) :: "Tst1", "Tst2"]
-
-    !refs_tst = [ID_TST1, ID_TST2]
+     call uiApertureSettings%createUI()
 
 
-    !call sysconfigwindow%addListBoxSetting("Aperture ", refs_tst, vals_tst, &
-    !& c_funloc(callback_sys_config_settings), c_loc(TARGET_TST))
 
-    call sysconfigwindow%addListBoxSettingTextID("Aperture ",  &
-    & sysConfig%aperOptions, c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_APERTURE))
+    ! call sysconfigwindow%addListBoxSettingTextID("Field ",  &
+    ! & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
+    ! & c_loc(TARGET_FIELD))
+    expander = uiApertureSettings%build()
+    call uiApertureSettings%updateSettings()
 
-    spinButton_xAperture = gtk_spin_button_new (gtk_adjustment_new( &
-                                                      & value=sysConfig%refApertureDiameter(1)*1d0, &
-                                                                & lower=0d0, &
-                                                                & upper=10000000d0, &
-                                                                & step_increment=0.05d0, &
-                                                                & page_increment=.1d0, &
-                                                                & page_size=0d0),climb_rate=2d0, &
-                                                                & digits=3_c_int)
-
-    call sysconfigwindow%addSpinBoxSetting("X Aperture Value", spinButton_xAperture, &
-    & c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE))
-
-    spinButton_yAperture = gtk_spin_button_new (gtk_adjustment_new(&
-                                                      & value=sysConfig%refApertureDiameter(2)*1d0, &
-                                                                & lower=0d0, &
-                                                                & upper=10000000d0, &
-                                                                & step_increment=0.05d0, &
-                                                                & page_increment=.1d0, &
-                                                                & page_size=0d0),climb_rate=2d0, &
-                                                                & digits=3_c_int)
-
-    call sysconfigwindow%addSpinBoxSetting("Y Aperture Value", spinButton_yAperture, &
-    & c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE))
-
-
-    call sysconfigwindow%addListBoxSettingTextID("Field ",  &
-    & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_FIELD))
-
-  call sysconfigwindow%finalizeWindow()
+    call gtk_window_set_child(sys_config_window, expander)
+  ! call sysconfigwindow%finalizeWindow()
 
   !lblAperture = gtk_label_new_with_mnemonic("_Aperture"//c_null_char)
   !pageIdx = gtk_notebook_append_page(nbk, boxAperture, basicLabel)
@@ -260,13 +295,15 @@ subroutine sys_config_new(parent_window)
   PRINT *, "FINISHED Setting up system config ui"
   !call gtk_box_append(box1, rf_cairo_drawing_area)
   !call gtk_window_set_child(sys_config_window, rf_cairo_drawing_area)
-  call gtk_window_set_child(sys_config_window, nbk)
+!  call gtk_window_set_child(sys_config_window, nbk)
 
 
   call g_signal_connect(sys_config_window, "destroy"//c_null_char, c_funloc(sys_config_destroy), sys_config_window)
 
 
   call gtk_window_set_mnemonics_visible (sys_config_window, TRUE)
+
+  !call hl_zoa_combo_set_selected_by_list2_id()
 
   call gtk_widget_show(sys_config_window)
 
@@ -290,6 +327,7 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    type(c_ptr), value, intent(in) :: widget, gdata
    integer :: int_value
    real :: xAp, yAp
+   integer :: xySame
 
   integer(kind=c_int), pointer :: ID_SETTING
 
@@ -297,18 +335,25 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
 
   !PRINT *, "SYS CONFIG IS ", ID_SETTING
 
+    xySame = gtk_check_button_get_active(uiApertureSettings%getWidget(uiApertureSettings%idxBoolXYSame))
+    PRINT *, "xySame is ", xySame
 
   select case (ID_SETTING)
 
   case (ID_SYSCON_APERTURE)
+
+
+
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
     PRINT *, "Aperture Selection for ", int_value
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
     xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
-    call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, .TRUE.)
+    !xySame = gtk_check_button_get_active ()
 
-  call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureDiameter(1)*1d0)
-  call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureDiameter(2)*1d0)
+    call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
+
+  call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
+  call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
 
   case (ID_SYSCON_FIELDTYPE)
     int_value = hl_zoa_combo_get_selected_list2_id(widget)

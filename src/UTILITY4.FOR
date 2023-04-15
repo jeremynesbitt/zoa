@@ -1840,7 +1840,7 @@ C
                        END DO
  50   CONTINUE
       IF(IV.GT.20) IV=20
-C Comment out WINTER      
+C Comment out WINTER
 C      IF(IV.EQ.0.OR.IV.GT.20)  THEN
 C      CALL PUT_PROMPT('INPUT ',6)
 C      CALL GET_RESPONSE(ASTRING,80)
@@ -3586,13 +3586,18 @@ C
 C       THIS SUBROUTINE USES WRITE AND READS TO AN INTERNAL
 C       FILE TO CONVERT REAL*8 TO G23.15
 C
-        REAL*8 VAL
+        REAL VAL
 C
-        CHARACTER B*140,AVAL*23
+        CHARACTER B*140
+        CHARACTER(LEN=23) :: AVAL
 C
 C
+                PRINT *, "VAL is ", VAL
+
+
                 WRITE(B,100) VAL
                 READ(B,110) AVAL
+                PRINT *, "B is ", B
  10             CONTINUE
  100            FORMAT(G23.15)
  110            FORMAT(A23)

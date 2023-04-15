@@ -1122,7 +1122,7 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(FALSE)
+    call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 

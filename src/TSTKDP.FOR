@@ -164,13 +164,18 @@ C
         subroutine refreshLensDataStruct()
           use global_widgets
 
+
+          implicit none
+
           integer :: JJ
-          REAL*8 SYSTEM(1:150),ALENS(1:160,0:499)
-          CHARACTER GLANAM(0:499,1:2)
+          !REAL*8 SYSTEM(1:150),ALENS(1:160,0:499)
+          !CHARACTER GLANAM(0:499,1:2)
           REAL*8 RD, INDEX, VNUM
 
-          COMMON/LENS1/SYSTEM,ALENS
-          COMMON/GLNAME/GLANAM
+          INCLUDE "DATLEN.INC"
+
+          !COMMON/LENS1/SYSTEM,ALENS
+          !COMMON/GLNAME/GLANAM
 
 
         call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
@@ -190,8 +195,9 @@ C
           curr_lens_data % surf_index(JJ+1) = INDEX
           curr_lens_data % surf_vnum(JJ+1) = VNUM
       curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
-          PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
-          PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
+          !PRINT *, "GLANAM IS ", GLANAM(JJ,1) // GLANAM(JJ,2)
+          !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
+          !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
         END DO
 
 
