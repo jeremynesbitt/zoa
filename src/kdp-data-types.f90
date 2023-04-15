@@ -6,6 +6,7 @@ module kdp_data_types
      integer, parameter :: APER_ENTR_PUPIL_DIAMETER = 102
      integer, parameter :: APER_OBJECT_NA = 103
      integer, parameter :: APER_STOP_SURFACE = 104
+     integer, PARAMETER :: APER_FNO = 105
 
 
 
@@ -27,10 +28,11 @@ type sys_config
 
     integer :: imgSurface
     character(len=40) :: currApertureName
+    integer :: currApertureID
     type(idText), allocatable :: aperOptions(:)
     type(idText), allocatable :: refFieldOptions(:)
   character(len=40), dimension(3) :: possibleApertureNames ! = ["ObjectHeight",&
-    real, dimension(2) :: refApertureDiameter
+    real, dimension(2) :: refApertureValue
   !  & "ObjectAngle", "ParaxialImageHeight"]
   contains
     procedure, public, pass(self) :: getImageSurface
@@ -130,6 +132,7 @@ subroutine set_num_surfaces(self, input)
 
   self%num_surfaces = input
   if (.not.allocated(self%radii)) THEN
+    PRINT *, "Allocating values in lens data to repopulate"
     allocate(self%radii(self%num_surfaces), self%thicknesses(self%num_surfaces))
     allocate(self%curvatures(self%num_surfaces))
 
@@ -288,18 +291,45 @@ end function
      class(sys_config), intent(inout) :: self
      include "DATLEN.INC"
 
-     self%refApertureDiameter(1) = (2.0D0*SYSTEM(13))
-     self%refApertureDiameter(2) = (2.0D0*SYSTEM(12))
+     call self%getApertureFromSystemArr()
+     select case (self%currApertureID)
+
+     case (APER_ENTR_PUPIL_DIAMETER)
+
+       self%refApertureValue(1) = (2.0D0*SYSTEM(13))
+       self%refApertureValue(2) = (2.0D0*SYSTEM(12))
+
+     case (APER_OBJECT_NA)
+        self%refApertureValue(1) = SYSTEM(66)
+        self%refApertureValue(2) = SYSTEM(65)
+
+
+     end select
+
 
    end subroutine
 
    subroutine getApertureFromSystemArr(self)
      class(sys_config), intent(inout) :: self
+     include "DATLEN.INC"
 
+     if (SYSTEM(64).EQ.0.AND.SYSTEM(67).EQ.0.AND.SYSTEM(83).EQ.0) then
+       self%currApertureID = APER_ENTR_PUPIL_DIAMETER
+     else if (SYSTEM(64).EQ.1) then
+       self%currApertureID = APER_OBJECT_NA
+     else if (SYSTEM(83).EQ.1) then
+       self%currApertureID = APER_STOP_SURFACE
+     else if (SYSTEM(67).EQ.1) then
+       self%currApertureID = APER_FNO
+     end if
+
+           ! PRINT *, "SYSTEM(64) is ", SYSTEM(64) ! NAOY
+           ! PRINT *, "SYSTEM(67) is ", SYSTEM(67) ! F-number
+           ! PRINT *, "SYSTEM(83) is ", SYSTEM(83) ! FLOAT
+           !
    end subroutine
 
    subroutine getFieldRefFromSystemArr(self)
-
 
      class(sys_config), intent(inout) :: self
      include "DATLEN.INC"
@@ -368,12 +398,15 @@ end function
 
    end subroutine
 
-   subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, boolXYSame)
+   subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
      class(sys_config), intent(inout) :: self
      integer, intent(in) :: ID_SELECTION
      real :: xAp, yAp
-     logical :: boolXYSame
+     integer :: xySame
      character(len=23) :: strXAp, strYAp
+
+     include "DATLEN.INC"
+
 
      select case (ID_SELECTION)
 
@@ -381,6 +414,17 @@ end function
        PRINT *, "Define Aperture by Object NA"
        PRINT *, "xAp = ", xAp
        PRINT *, "yAp =  ", yAp
+
+        CALL DTOA23(xAp,strXAp)
+        CALL DTOA23(yAp,strYAp)
+        call PROCESKDP('U L')
+        IF(xySame.EQ.1) THEN
+         call PROCESKDP('NAOY,'//strYAp)
+        ELSE
+         call PROCESKDP('NAOY,'//strYAp)
+         call PROCESKDP('NAOX,'//strXAp)
+       END IF
+       call PROCESKDP('EOS')
 
      case (APER_ENTR_PUPIL_DIAMETER)
        PRINT *, "Define Aperture by Entrance Pupil Diameter"
@@ -396,7 +440,7 @@ end function
         CALL DTOA23(xApertureRadius,strXAp)
         CALL DTOA23(yApertureRadius,strYAp)
         call PROCESKDP('U L')
-        IF(boolXYSame) THEN
+        IF(xySame.EQ.1) THEN
          call PROCESKDP('SAY,'//strYAp)
          call PROCESKDP('SAX,'//strYAp)
         ELSE
@@ -405,12 +449,24 @@ end function
        END IF
        call PROCESKDP('EOS')
 
-
-
      case (APER_STOP_SURFACE)
        PRINT *, "Define Aperture by Stop Surface"
+       call PROCESKDP('U L')
+        IF(xySame.EQ.1) THEN
+          CALL PROCESKDP('SAY FLOAT')
+        ELSE
+          CALL PROCESKDP('SAY FLOAT')
+          CALL PROCESKDP('SAX FLOAT')
+        END IF
+        call PROCESKDP('EOS')
+
 
      end select
+
+     PRINT *, "SYSTEM(64) is ", SYSTEM(64) ! NAOY
+     PRINT *, "SYSTEM(67) is ", SYSTEM(67) ! F-number
+     PRINT *, "SYSTEM(83) is ", SYSTEM(83) ! FLOAT
+
 
    end subroutine
 

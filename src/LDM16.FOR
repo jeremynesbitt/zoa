@@ -563,6 +563,7 @@ C
                         END
 C SUB LENUP.FOR
         SUBROUTINE LENUP
+        use handlers
 C
         IMPLICIT NONE
 C
@@ -573,7 +574,8 @@ C
         INCLUDE 'DATLEN.INC'
         REAL*8 RAL,RBE,CGAM,SGAM,RGAM
 C
-        PRINT *, "IN LENUP ROUTINE"
+        !PRINT *, "IN LENUP ROUTINE"
+        call updateTerminalLog(INPUT, "red")
 
         IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
                 CALL MESCOM

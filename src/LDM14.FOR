@@ -454,7 +454,7 @@ C
         IF(SYSTEM(11).EQ.9.0) INDEX=ALENS(74,surfIndex)
         IF(SYSTEM(11).EQ.10.0) INDEX=ALENS(75,surfIndex)
 
-        PRINT *, "ALENS IS ", ALENS(46:50,surfIndex)
+        !PRINT *, "ALENS IS ", ALENS(46:50,surfIndex)
 C
 C       THE PRIMARY WAVELENGTH PAIR NUMBERS ARE STORED IN
 C       SYSTEM(7) AND SYSTEM(8)

@@ -269,6 +269,23 @@ end subroutine lens_editor_replot
 
   end subroutine
 
+ function ITOC(intVal) result(output)
+   integer :: intVal
+   character(len=100) :: output
+   character(len=80) :: B
+   !PRINT *, "val is ", intVal
+   write(output, *) intVal
+
+   !output = 'C'
+   !PRINT *, "intVal is", intVal
+   !WRITE(B,'(I2)') intVal
+   !READ(B,'(A2)') output
+   !write(output, '(I2)') intVal
+   !PRINT *, "output is ", output
+
+ end function
+
+
  subroutine del_row(but, gdata) bind(c)
     type(c_ptr), value, intent(in) :: but, gdata
     integer(kind=c_int), dimension(:,:), allocatable :: iset
@@ -282,7 +299,8 @@ end subroutine lens_editor_replot
 
     if (nsel /= 1) then
        print *, "Not a single selection"
-       return
+       print *, "end selection is ", iset(nsel,1)
+       !return
     end if
 
     PRINT *, "iset = ", iset(1,1)
@@ -305,11 +323,21 @@ end subroutine lens_editor_replot
 
         call PROCESKDP('OUT NULL')
         call PROCESKDP('U L')
-        WRITE(kdptext,*) 'CHG,', iset(1,1)
-        call PROCESKDP(kdptext)
-        call PROCESKDP('DEL')
+        !WRITE(kdptext,*) 'CHG,', iset(1,1)
+
+        !call PROCESKDP(kdptext)
+        !PRINT *, "ITOC TEST "
+        !PRINT *, "ITOC TEST ", ITOC(INT(1))
+        !PRINT *, 'DEL, '//ITOC(iset(1,1))
+        if (nsel.EQ.1) then
+           PRINT *, 'DEL, '//ITOC(iset(1,1))
+           call PROCESKDP('DEL, '//ITOC(iset(1,1)))
+        else
+          call PROCESKDP('DEL, '//ITOC(iset(1,1))//','//ITOC(iset(nsel,1)))
+        end if
+        !call PROCESKDP('DEL')
         call PROCESKDP('EOS')
-        call PROCESKDP('OUT TP')
+        !call PROCESKDP('OUT TP')
 
 
     call hl_gtk_tree_rem(ihlist, iset(:dep(1),1))
@@ -318,8 +346,11 @@ end subroutine lens_editor_replot
 
     call refreshLensDataStruct()
     call buildBasicTable(.FALSE.)
+    call buildAsphereTable(.FALSE.)
     !call loadLensData()
+    PRINT *, "About to try replot"
     call zoatabMgr%rePlotIfNeeded()
+    PRINT *, "Done with replot"
 
   end subroutine del_row
 
@@ -646,9 +677,9 @@ subroutine buildAsphereTable(firstTime)
       titles(i) = asphereTypes(i)%coltitle
     end do
 
-    PRINT *, "About to define ihAsph"
-       PRINT *, "buildAsphere valsArray is ", valsArray
-       PRINT *, "buildAsphere refsArray is ", refsArray    
+    !PRINT *, "About to define ihAsph"
+    !   PRINT *, "buildAsphere valsArray is ", valsArray
+    !   PRINT *, "buildAsphere refsArray is ", refsArray
     if (firstTime) then
     ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
          & changed=c_funloc(list_select),&
@@ -661,7 +692,9 @@ subroutine buildAsphereTable(firstTime)
     !PRINT *, "ihlist created!  ", ihlist
 
     ! Now put 10 top level rows into it
+    PRINT *, "About to Populate UI Table"
     call populatelensedittable(ihAsph, asphereTypes, ncols)
+    PRINT *, "Done Populating UI Table"
     !call loadAphereDataIntoTable()
     !call loadLensData()
 
@@ -686,12 +719,9 @@ end subroutine
     end if
 
     ! Find and print the selected row(s)
-    print *, nsel,"Rows selected"
-    print *, "Depths", dep
-    print *, "Rows"
-    do i = 1, nsel
-       print *, selections(:dep(i),i)
-    end do
+    ! do i = 1, nsel
+    !    print *, selections(:dep(i),i)
+    ! end do
 
     if (nsel == 1) then
        call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 0_c_int, &
@@ -706,14 +736,14 @@ end subroutine
        !      & fvalue=nlog)
        ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 5_c_int,&
        !      & svalue=nodd)
-      print *, "first column is , ", n
+      !print *, "first column is , ", n
        ! print "('Name: ',a,' N:',I3,' 3N:',I4,' N**4:',I7,&
        !      &' log(n):',F7.5,' Odd?: ',a)", trim(name), &
        !      & n, n3, n4, nlog, nodd
        call gtk_widget_set_sensitive(dbut, TRUE)
        call gtk_widget_set_sensitive(ibut, TRUE)
     else
-       call gtk_widget_set_sensitive(dbut, FALSE)
+       call gtk_widget_set_sensitive(dbut, TRUE)
        call gtk_widget_set_sensitive(ibut, FALSE)
     end if
 
@@ -767,7 +797,7 @@ end subroutine
         !       & svalue="TMP")
 
       case (DTYPE_SCIENTIFIC) ! Actually float but need to convert to string for display
-        PRINT *, "Value to convert is ", colObj(j)%getElementFloat(i)
+        !PRINT *, "Value to convert is ", colObj(j)%getElementFloat(i)
          call converttoscientificnotationstring(colObj(j)%getElementFloat(i), AVAL)
           call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
                & svalue=AVAL)

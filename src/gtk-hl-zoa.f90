@@ -138,6 +138,54 @@ function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
 
 end function hl_zoa_combo_get_selected_list2_id
 
+subroutine hl_zoa_combo_set_selected_by_list2_id(widget, targetValue)
+  type (c_ptr) :: widget
+  integer(kind=c_int) :: targetValue
+  integer :: boolResult
+
+  type(gtktreeiter), target :: tree_iter
+
+  type(c_ptr)  :: model, ival
+  type(gvalue), target :: iresult
+  type(integer)  :: ivalue
+
+  model = gtk_combo_box_get_model(widget)
+  boolResult = gtk_tree_model_get_iter_first(model, c_loc(tree_iter))
+
+  PRINT *, "targetValue is ", targetValue
+
+
+
+
+  do while(boolResult.EQ.1)
+    ival = c_loc(iresult)
+    call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
+    ivalue = g_value_get_int(ival)
+    PRINT *, "ivalue is ", ivalue
+  if (ivalue.EQ.targetValue) then
+    PRINT *, "Found correct combo entry to display!"
+    call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
+    return
+  else
+    boolResult = gtk_tree_model_iter_next(model, c_loc(tree_iter))
+    if (boolResult.EQ.0) then
+      PRINT *, "Reached end of model and no suitable matches found"
+      return
+    end if
+  end if
+  end do
+
+!do while not at end
+!get value from iteration
+!if value==targetvalue
+! call gtk_combo_box_set_active_iter(widget, currIter)
+! else
+! call gtk_tree_model_iter_next(model, iter)
+
+end subroutine
+
+
+
 subroutine combo_setting_callback (widget, gdata) bind(c)
 
   use, intrinsic :: iso_c_binding, only: c_double, c_f_pointer

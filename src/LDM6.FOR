@@ -3873,6 +3873,8 @@ C
                 FTFL01(1:96,J)=FTFL01(1:96,(J+1))
                         END DO
                         DO J=SURF,K
+                PRINT *, "GLANAM(J,1) is ", GLANAM(J,1)
+                PRINT *, "GLANAM(J,2) is ", GLANAM(J,2)         
                 GLANAM(J,1)=GLANAM((J+1),1)
                 GLANAM(J,2)=GLANAM((J+1),2)
                 SOLVE(0:9,J) = SOLVE(0:9,(J+1))
