@@ -1856,6 +1856,33 @@ C
         XSTRT=REFRY(1,NEWOBJ)
         YSTRT=REFRY(2,NEWOBJ)
         ZSTRT=REFRY(3,NEWOBJ)
+
+        ! JN:  If object distance is at infinity, starting pos
+        ! should be based on aperture diameter
+        ! if(objectDistanceAtinfinity) then
+        !  YSTRT = rayRatio*epd/2
+        ! PRINT *, "WWQ is ", WWQ
+        ! PRINT *, "WW1 is ", WW1
+        ! PRINT *, "WW2 is ", WW2
+        ! PRINT *, "WW3 is ", WW3
+        ! PRINT *, "SAY is ",  SYSTEM(12)
+        ! PRINT *, "SAX is ",  SYSTEM(13)
+        ! TODO fix this prototype code to better match
+        ! pseudocode above
+        !  IF(ABS(SYSTEM(14)).GT.1E16) THEN
+        !
+        !   CALL PROCESKDP("SHO ENPOSZ")
+        !   PRINT *, "Entrance pupil position ", REG(9)
+        !   PRINT *, "Last FOB Y is ", LFOB(1)
+        !   PRINT *, "SYSTEM(14) ", SYSTEM(14)
+        !   !PRINT *, "TST YSTRT ", LFOB(1)*REG(9)*TAND(SYSTEM(21))
+        !   !SYSTEM(14)
+        !   YSTRT = WW1*SYSTEM(12)-LFOB(1)*REG(9)*TAND(SYSTEM(21))
+        !   XSTRT = WW2*SYSTEM(13)
+        ! END IF
+        !PRINT *, "YSTRT is ", YSTRT
+
+
 C
 C       THE WAVELENGTH NUMBER FOR THE RAY TRACE IS:
 C       INT(WW3) OR INT(SYSTEM(11))
@@ -2039,8 +2066,8 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
                END IF
-      !call logger%logTextWithNum("RAYTRAY Init Y1AIM = ",Y1AIM)
-      !call logger%logTextWithNum("RAYTRAY Init R_TY = ", R_TY)
+      call logger%logTextWithNum("RAYTRAY Init Y1AIM = ",Y1AIM)
+      call logger%logTextWithNum("RAYTRAY Init R_TY = ", R_TY)
 
 
       IF(ITRACE) THEN

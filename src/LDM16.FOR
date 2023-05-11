@@ -1691,7 +1691,7 @@ C
         IF(N.GT.9.AND.N.LE.99) FN='LIB0'//AN(2:3)//'.DAT'
         IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
          OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=LIBLEN//FN
+     1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
      2  ,STATUS='UNKNOWN')
                 CALL CLOSE_FILE(33,0)
          OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
@@ -2071,7 +2071,7 @@ C
         IF(SING.EQ.1) THEN
 C       ***************************************************************
                         EXISJK=.FALSE.
-        INQUIRE(FILE=LIBLEN//'LIB.DAT',EXIST=EXISJK)
+        INQUIRE(FILE=trim(LIBLEN)//'LIB.DAT',EXIST=EXISJK)
         IF(.NOT.EXISJK) THEN
         IF(LIBLEN.NE.'LIBLEN\') THEN
         WRITE(OUTLYNE,*)
@@ -2100,7 +2100,9 @@ C       ***************************************************************
         CALL OPENLIBDAT(uLIB)
       IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
 
-        READ(UNIT=22,REC=INT(W1))II,DATA
+        !READ(UNIT=22,REC=INT(W1))II,DATA
+        READ(UNIT=uLIB, REC=4*(INT(W1)-1)+1) II, DATA
+        PRINT *, "LIB DEL 2104 II = ", II
         IF(EXISTAG) THEN
                         DO J=1,10
         READ(UNIT=27,REC=INT(W1)-1+J) IDTAG(J)(1:75)
@@ -2118,8 +2120,10 @@ C       PROCEED WITH DELETION
                         II=0
                         DATA=AA//AA//AA//AA
         PRINT *, "PROCEED WITH DELETION"
-        WRITE(UNIT=22,REC=INT(W1))II,DATA
-        IF(EXISTAG) WRITE(UNIT=27,REC=INT(W1)) AA//AA//AA//AA(1:15)
+        WRITE(UNIT=uLIB, REC=4*(INT(W1)-1)+1) II, DATA
+        IF(EXISTAG) THEN
+          WRITE(UNIT=27,REC=4*(INT(W1)-1)+1) AA//AA//AA//AA(1:15)
+        END IF
                 CALL CLOSE_FILE(22,1)
         IF(EXISTAG)  CALL CLOSE_FILE(27,1)
                         II=INT(W1)
@@ -2173,6 +2177,7 @@ C       ***************************************************************
       IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
 
         READ(UNIT=22,REC=I) II,DATA
+        PRINT *, "LIB DEL II = ", II
         IF(EXISTAG) THEN
                         DO J=1,10
         READ(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)

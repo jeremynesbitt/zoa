@@ -2833,7 +2833,8 @@ C
         IF(WC.EQ.'VIECO') CACOCHVIE=1
         F34=1
         MSG=.FALSE.
-        CALL VIE(CACOCHVIE)
+        !CALL VIE(CACOCHVIE)
+        CALL VIE_NEW(CACOCHVIE)
         F34=0
         MSG=.TRUE.
         CACOCH=0

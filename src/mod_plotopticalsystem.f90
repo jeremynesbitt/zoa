@@ -40,6 +40,9 @@ type, extends (ui_settings) ::  lens_draw_settings
       integer changed
       integer start_surface
       integer end_surface
+      integer min_field_rays
+      integer max_field_rays
+      integer num_field_rays
       real    scaleFactor
       integer autoScale
       real elevation
@@ -57,6 +60,8 @@ contains
     procedure, public, pass(self) :: set_scaleFactor
     procedure, public, pass(self) :: set_elevation
     procedure, public, pass(self) :: set_azimuth
+    procedure, public, pass(self) :: set_field_rays
+
     procedure :: replot => lens_draw_replot
 
 
@@ -85,7 +90,7 @@ end type
 
   type(c_ptr) ::  combo_plotorientation
   type(c_ptr) ::  spinButton_azimuth, spinButton_elevation
-  type(c_ptr) :: spinButton_scaleFactor
+  type(c_ptr) :: spinButton_scaleFactor, spinButton_numFieldRays
 
   real :: elevation_default = 26.2
   real :: azimuth_default = 232.2
@@ -101,6 +106,9 @@ type(lens_draw_settings) function lens_draw_settings_constructor() result(self)
      self%field_symmetry = ID_LENSDRAW_PLOT_WHOLE_FIELD
      self%start_surface = 1
      self%end_surface = 13
+     self%min_field_rays = 3
+     self%max_field_rays = 15
+     self%num_field_rays = 5
      call getOpticalSystemLastSurface(self%end_surface)
      PRINT *, "******************** END SURFACE CONSTRUCTOR ", self%end_surface
      !WRITE(OUTLYNE, *), "END SURFACE IN LD SETTINGS CONSTRUCTOR ", self%end_surface
@@ -234,6 +242,19 @@ subroutine set_scaleFactor(self, scaleFactor)
 
 end subroutine set_scaleFactor
 
+subroutine set_field_rays(self, num_field_rays)
+  class(lens_draw_settings), intent(inout) :: self
+  integer, intent(in) :: num_field_rays
+
+  if (self%num_field_rays.ne.num_field_rays) THEN
+
+     self%num_field_rays = num_field_rays
+     self%changed = 1
+     if (self%autoplotupdate) call self%replot()
+  end if
+
+end subroutine
+
   subroutine update_zoa_ui_settings_and_replot(ID_SETTING)
 
     integer, intent(in) :: ID_SETTING
@@ -366,8 +387,11 @@ subroutine callback_lens_draw_settings (widget, gdata ) bind(c)
 
   select case (ID_SETTING)
 
-  case (ID_LENSDRAW_FIELD_SYMMETRY)
-    call ld_settings % set_field_symmetry(hl_zoa_combo_get_selected_list2_id(widget))
+  case (ID_LENSDRAW_NUM_FIELD_RAYS)
+    call ld_settings % set_field_rays(INT(gtk_spin_button_get_value (widget)))
+
+  !case (ID_LENSDRAW_FIELD_SYMMETRY)
+  !  call ld_settings % set_field_symmetry(hl_zoa_combo_get_selected_list2_id(widget))
 
   case (ID_LENSDRAW_PLOT_ORIENTATION)
     call ld_settings % set_plot_orientation(hl_zoa_combo_get_selected_list2_id(widget))
@@ -433,6 +457,8 @@ end subroutine
 
     integer, target :: TARGET_LENSDRAW_ELEVATION = ID_LENSDRAW_ELEVATION
     integer, target :: TARGET_LENSDRAW_AUTOSCALE_VALUE = ID_LENSDRAW_AUTOSCALE_VALUE
+    integer, target :: TARGET_LENSDRAW_NUM_FIELD_RAYS = ID_LENSDRAW_NUM_FIELD_RAYS
+
 
     integer(kind=c_int) :: lastSurface
 
@@ -446,10 +472,27 @@ end subroutine
     integer(c_int), dimension(2) :: refs_scaleFactor
 
 
+    ld_settings = lens_draw_settings()
+
+
+
     vals_fieldsymmetry =  [character(len=40) :: "Plot Upper and Lower Fields of View", &
     & "Plot Upper Fields Only"]
 
     refs_fieldsymmetry = [ID_LENSDRAW_PLOT_WHOLE_FIELD, ID_LENSDRAW_PLOT_HALF_FIELD]
+
+
+    PRINT *, "value is ", ld_settings%num_field_rays*1d0
+    PRINT *, "lower is ", ld_settings%min_field_rays*1d0
+    PRINT *, "upper is ", ld_settings%max_field_rays*1d0
+    spinButton_numFieldRays = gtk_spin_button_new (gtk_adjustment_new(value=ld_settings%num_field_rays*1d0, &
+                                                                & lower=ld_settings%min_field_rays*1d0, &
+                                                                & upper=ld_settings%max_field_rays*1d0, &
+                                                                & step_increment=2d0, &
+                                                                & page_increment=1d0, &
+                                                                & page_size=0d0),climb_rate=2d0, &
+                                                                & digits=0_c_int)
+
 
     vals_scaleFactor = [character(len=40) :: "Autoscale (Default)", "Manual Scale"]
     refs_scaleFactor = [ID_LENSDRAW_AUTOSCALE, ID_LENSDRAW_MANUALSCALE]
@@ -469,16 +512,17 @@ end subroutine
     refs_scaleFactor = [ID_LENSDRAW_AUTOSCALE, ID_LENSDRAW_MANUALSCALE]
 
 
-    ld_settings = lens_draw_settings()
-
 
     call self%addListBoxSetting("Plot Orientation:", refs_plotorientation, &
     & vals_plotorientation, c_funloc(callback_lens_draw_settings), &
     & c_loc(TARGET_LENSDRAW_PLOT_ORIENTATION))
 
-    call self%addListBoxSetting("Field Symmetry:", refs_fieldsymmetry, &
-    & vals_fieldsymmetry, c_funloc(callback_lens_draw_settings), &
-    & c_loc(TARGET_LENSDRAW_FIELD_SYMMETRY))
+    ! call self%addListBoxSetting("Field Symmetry:", refs_fieldsymmetry, &
+    ! & vals_fieldsymmetry, c_funloc(callback_lens_draw_settings), &
+    ! & c_loc(TARGET_LENSDRAW_FIELD_SYMMETRY))
+
+    call self%addSpinBoxSetting("Num Rays Per Field", spinButton_numFieldRays, &
+    & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENSDRAW_NUM_FIELD_RAYS))
 
 
     call getOpticalSystemLastSurface(lastSurface)

@@ -8,6 +8,12 @@ module kdp_data_types
      integer, parameter :: APER_STOP_SURFACE = 104
      integer, PARAMETER :: APER_FNO = 105
 
+     integer, parameter :: FIELD_OBJECT_HEIGHT = 202
+     integer, parameter :: FIELD_OBJECT_ANGLE_DEG = 203
+     integer, parameter :: FIELD_PARAX_IMAGE_HEIGHT = 204
+     integer, parameter :: FIELD_PARAX_IMAGE_SLOPE_TAN = 205
+     integer, PARAMETER :: FIELD_REAL_IMAGE_HEIGHT = 206
+     integer, PARAMETER :: FIELD_REAL_IMAGE_HEIGHT_DEG = 207
 
 
 
@@ -28,11 +34,16 @@ type sys_config
 
     integer :: imgSurface
     character(len=40) :: currApertureName
-    integer :: currApertureID
+    integer :: currApertureID, currFieldID
     type(idText), allocatable :: aperOptions(:)
     type(idText), allocatable :: refFieldOptions(:)
+    real, dimension(2) :: refFieldValue
+    real, dimension(2,10) :: relativeFields
+    integer :: numFields
   character(len=40), dimension(3) :: possibleApertureNames ! = ["ObjectHeight",&
     real, dimension(2) :: refApertureValue
+  !TODO:  Where to define max field points instead of hard coded?
+  integer, dimension(10) :: fieldColorCodes
   !  & "ObjectAngle", "ParaxialImageHeight"]
   contains
     procedure, public, pass(self) :: getImageSurface
@@ -44,6 +55,7 @@ type sys_config
     procedure, public, pass(self) :: getFieldRefFromSystemArr
     procedure, public, pass(self) :: updateParameters
     procedure, public, pass(self) :: updateApertureSelectionByCode
+    procedure, public, pass(self) :: setNumFields
     !procedure, public, pass(self) :: setApertue
 
 
@@ -88,6 +100,7 @@ end type
            & chief_ray_height(:), chief_ray_angle(:), marginal_ray_aoi(:), &
            & chief_ray_aoi(:)
            real :: t_mag = 0
+           real :: EPD = 0 ! EPD = entrance pupil diameter
     contains
 
 
@@ -134,9 +147,11 @@ subroutine set_num_surfaces(self, input)
   if (.not.allocated(self%radii)) THEN
     PRINT *, "Allocating values in lens data to repopulate"
     allocate(self%radii(self%num_surfaces), self%thicknesses(self%num_surfaces))
+    PRINT *, "About to allocate curvatures"
     allocate(self%curvatures(self%num_surfaces))
-
+    PRINT *, "About to allocate indices"
     allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
+    PRINT *, "About to allocate glass names"
     allocate(character(40) :: self%glassnames(self%num_surfaces))
   END IF
 end subroutine set_num_surfaces
@@ -260,6 +275,9 @@ end function
    end subroutine
 
    type(sys_config) function sys_config_constructor() result(self)
+     use zoa_ui
+
+     include "DATLEN.INC"
 
      allocate(idText :: self%aperOptions(3))
      allocate(idText :: self%refFieldOptions(3))
@@ -274,13 +292,21 @@ end function
      self%aperOptions(3)%id = APER_STOP_SURFACE
 
      self%refFieldOptions(1)%text = "Object Height"
-     self%refFieldOptions(1)%id = 101
+     self%refFieldOptions(1)%id = FIELD_OBJECT_HEIGHT
 
-     self%refFieldOptions(2)%text = "Object Angle"
-     self%refFieldOptions(2)%id = 102
+     self%refFieldOptions(2)%text = "Object Angle (deg)"
+     self%refFieldOptions(2)%id = FIELD_OBJECT_ANGLE_DEG
 
      self%refFieldOptions(3)%text = "Paraxial Image Height"
-     self%refFieldOptions(3)%id = 103
+     self%refFieldOptions(3)%id = FIELD_PARAX_IMAGE_HEIGHT
+
+     self%numFields = CFLDCNT
+     self%relativeFields = CFLDS
+
+     self%fieldColorCodes = [ID_COLOR_RED, ID_COLOR_GREEN, ID_COLOR_BLUE, &
+     & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
+     & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
+
 
      call self%updateParameters()
 
@@ -303,8 +329,47 @@ end function
         self%refApertureValue(1) = SYSTEM(66)
         self%refApertureValue(2) = SYSTEM(65)
 
-
      end select
+
+    !TODO:  Split into separate proc?
+     call self%getFieldRefFromSystemArr()
+
+
+     select case (self%currFieldID)
+
+     case (FIELD_OBJECT_HEIGHT)
+
+       self%refFieldValue(1) = SYSTEM(16)
+       self%refFieldValue(2) = SYSTEM(14)
+
+     case (FIELD_OBJECT_ANGLE_DEG)
+
+       self%refFieldValue(1) = SYSTEM(23) !SYSTEM(16)
+       self%refFieldValue(2) = SYSTEM(21) !SYSTEM(14)
+
+     case (FIELD_PARAX_IMAGE_HEIGHT)
+           self%refFieldValue(1) = SYSTEM(92) !SYSTEM(16)
+           self%refFieldValue(2) = SYSTEM(93) !SYSTEM(14)
+
+     case (FIELD_PARAX_IMAGE_SLOPE_TAN)
+           self%refFieldValue(1) = SYSTEM(92) !SYSTEM(16)
+           self%refFieldValue(2) = SYSTEM(93) !SYSTEM(14)
+
+     case (FIELD_REAL_IMAGE_HEIGHT)
+           self%refFieldValue(1) = SYSTEM(96) !SYSTEM(16)
+           self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
+     case (FIELD_REAL_IMAGE_HEIGHT_DEG)
+           self%refFieldValue(1) = SYSTEM(96) !SYSTEM(16)
+           self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
+
+     end select ! Reference Field
+
+     PRINT *, "Ref Fields XY are ", self%refFieldValue
+
+     self%numFields = CFLDCNT
+     self%relativeFields = CFLDS
+
+
 
 
    end subroutine
@@ -330,19 +395,26 @@ end function
    end subroutine
 
    subroutine getFieldRefFromSystemArr(self)
+    !use handlers
 
      class(sys_config), intent(inout) :: self
      include "DATLEN.INC"
 
-
+        PRINT *, "Getting Field Reference From System Array"
         if (SYSTEM(60).EQ.1.AND.SYSTEM(61).EQ.1.AND.SYSTEM(18).EQ.0) THEN
-          self%currApertureName = "Object Height"
+          PRINT *, "FIELD OBJECT HEIGHT SETTING FOUND"
+          self%currFieldID = FIELD_OBJECT_HEIGHT
+          !self%currApertureName = "Object Height"
         else if (SYSTEM(60).EQ.1.AND.SYSTEM(61).EQ.1.AND.SYSTEM(18).EQ.1) THEN
-          self%currApertureName = "Object Angle"
+          PRINT *, "FIELD OBJECT ANGLE DEGREE SETTING FOUND"
+            self%currFieldID = FIELD_OBJECT_ANGLE_DEG
+           !self%currApertureName = "Object Angle"
         else if (SYSTEM(94).EQ.-1.AND.SYSTEM(95).EQ.-1) THEN
-          self%currApertureName = "Paraxial Image Height"
+          self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT
+          !self%currApertureName = "Paraxial Image Height"
         else if (SYSTEM(98).EQ.-1.AND.SYSTEM(99).EQ.-1) THEN
-          self%currApertureName = "Real Image Height"
+          self%currFieldID = FIELD_REAL_IMAGE_HEIGHT
+          !self%currApertureName = "Real Image Height"
 
         end if
         ! CASE (IDF_B1)
@@ -395,6 +467,17 @@ end function
         ! SYSTEM(94)=0.0D0
         ! SYSTEM(95)=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
+
+   end subroutine
+
+   subroutine setNumFields(self, numFields)
+     class(sys_config), intent(inout) :: self
+     integer, intent(in) :: numFields
+     include "DATLEN.INC"
+
+     CFLDCNT = numFields
+     self%numFields = numFields
+     PRINT *, "Updating Number of Fields to ", self%numFields
 
    end subroutine
 

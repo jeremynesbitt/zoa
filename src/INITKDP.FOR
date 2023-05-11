@@ -726,6 +726,7 @@ C       LINUX
                   NSSDIR=trim(basePath)//'NSSDIR/'
                   LIBGLA=trim(basePath)//'LIBGLA'//fileSep
                   CURLENS=trim(basePath)//'CURLENS/'
+                  !CURLENS=trim(basePath)//'CURLENS/'
                         END IF
 
         PRINT *, "LIBMAC IS ", LIBMAC
@@ -1424,6 +1425,7 @@ C
         REWIND(UNIT=89)
         !PRINT *, "Got to line 1400"
  3141   READ(UNIT=89,FMT=100,END=8888,ERR=8887) INPUT(1:140)
+        PRINT *, "READ CURLENS INPUT IS ", INPUT(1:140)
         IF(INPUT(1:3).EQ.'OUT') GO TO 3141
       IF(INPUT(1:1).EQ.' ') INPUT(1:140)=INPUT(2:140)//' '
       IF(INPUT(1:1).EQ.' ') INPUT(1:140)=INPUT(2:140)//' '

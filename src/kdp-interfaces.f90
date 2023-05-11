@@ -224,6 +224,9 @@ subroutine FIR
 
   call logger%logText("FIR Called!")
 
+  PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
+
+
 end subroutine
 
 subroutine RMSFIELD

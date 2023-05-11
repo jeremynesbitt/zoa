@@ -6,13 +6,14 @@ module settings_obj
 
   type zoa_settings_obj
 
-     type(c_ptr) :: expander, table
+     type(c_ptr) :: expander, table, list
      integer :: numSettings = 0
      type(list) :: labels
      type(list) :: widgets
      integer(c_int)  :: width
      integer :: columnLayout = 2
      character(len=40) :: name
+
 contains
    procedure, public, pass(self) :: initialize => init_settingsgen
    procedure, public, pass(self) :: addListBox
@@ -23,6 +24,7 @@ contains
    procedure, public, pass(self) :: getWidget
    procedure, private, pass(self) :: addLabelandWidget
    procedure, public, pass(self) :: addSpinBox
+   procedure, public, pass(self) :: addListTable
 
 
   end type
@@ -42,6 +44,8 @@ subroutine init_settingsgen(self, numListColumns, winWidth, name)
 
    self%numSettings = 0
    self%columnLayout = 2 ! Default
+
+   self%list = c_null_ptr
 
    ! Initialize list of settings.  At present, support no more than 16 settings
    do i = 1, 16
@@ -97,7 +101,7 @@ subroutine addCheckBox(self, labelText, callbackFunc, callbackData, initial_stat
           call gtk_check_button_set_active(newwidget, initial_state)
     else
       call gtk_check_button_set_active(newwidget, 1)
-    end if  
+    end if
 
 
   call g_signal_connect (newwidget, "toggled"//c_null_char, callbackFunc, callbackData)
@@ -115,6 +119,13 @@ subroutine addCheckBox(self, labelText, callbackFunc, callbackData, initial_stat
 
 end subroutine
 
+subroutine addListTable(self, inlist)
+  class(zoa_settings_obj) :: self
+  type(c_ptr) :: inlist
+
+  self%list = inlist
+
+end subroutine
 
 subroutine addSpinBox(self, labelText, spinButton, callbackFunc, callbackData)
   implicit none
@@ -269,7 +280,7 @@ function build(self) result(expander)
   implicit none
   class(zoa_settings_obj) :: self
 
-  type(c_ptr) :: expander
+  type(c_ptr) :: expander, boxlist
   integer(kind=c_int) :: i
   integer :: maxRow
 
@@ -314,7 +325,15 @@ function build(self) result(expander)
    ! Create Settings Box
    ! The table is contained in an expander, which is contained in the vertical box:
    expander = gtk_expander_new_with_mnemonic (trim(self%name)//c_null_char)
-   call gtk_expander_set_child(expander, self%table)
+  if (.not. c_associated(self%list)) then
+    call gtk_expander_set_child(expander, self%table)
+  else
+   boxlist = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int)
+   call gtk_box_append(boxlist, self%table)
+   call gtk_box_append(boxlist, self%list)
+   call gtk_expander_set_child(expander, boxlist)
+  end if
+
    call gtk_expander_set_expanded(expander, FALSE)
 
 end function

@@ -34,6 +34,7 @@ integer, parameter :: ID_LENSDRAW_MANUALSCALE         = 1412
 integer, parameter :: ID_LENSDRAW_AZIMUTH         = 1413
 integer, parameter :: ID_LENSDRAW_ELEVATION         = 1414
 integer, parameter :: ID_LENSDRAW_AUTOSCALE_VALUE         = 1418
+integer, parameter :: ID_LENSDRAW_NUM_FIELD_RAYS    = 1419
 
 integer, parameter :: ID_LENS_FIRSTSURFACE         = 1415
 integer, parameter :: ID_LENS_LASTSURFACE         = 1416
@@ -67,9 +68,41 @@ integer, parameter :: ID_AST_FIELDXY = 1531
 integer, parameter :: ID_AST_FIELD_X = 1532
 integer, parameter :: ID_AST_FIELD_Y = 1533
 
-
-
 integer :: active_plot = -1
+
+! C               0 = WHITE
+! C               1 = LIGHT YELLOW
+! C               2 = LIGHT MAGENTA
+! C               3 = LIGHT RED
+! C               4 = LIGHT CYAN
+! C               5 = LIGHT GREEN
+! C               6 = LIGHT BLUE
+! C               7 = DARK GREY
+! C               8 = LIGHT GREY
+! C               9 = DARK YELLOW
+! C              10 = DARK MAGENTA
+! C              11 = DARK RED
+! C              12 = DARK CYAN
+! C              13 = DARK GREEN
+! C              14 = DARK BLUE
+! C              15 = BLACK
+integer, parameter :: ID_COLOR_WHITE = 0
+integer, parameter :: ID_COLOR_YELLOW = 1
+integer, parameter :: ID_COLOR_MAGENTA = 2
+integer, parameter :: ID_COLOR_RED = 3
+integer, parameter :: ID_COLOR_CYAN = 4
+integer, parameter :: ID_COLOR_GREEN = 5
+integer, parameter :: ID_COLOR_BLUE = 6
+integer, parameter :: ID_COLOR_GREY = 7
+integer, parameter :: ID_COLOR_BLACK = 15
+
+
+
+
+
+
+
+
 
 
 contains

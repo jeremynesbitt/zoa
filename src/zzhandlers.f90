@@ -799,7 +799,7 @@ end subroutine proto_symfunc
 
 
 
-      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
+      PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
 
       call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
 
@@ -868,6 +868,7 @@ end subroutine proto_symfunc
      END IF
 
       call pending_events()
+      PRINT *, "End of updateterminallog"
 
   end subroutine
 
@@ -1122,7 +1123,7 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 
@@ -1135,6 +1136,7 @@ end subroutine proto_symfunc
 
     ! INIT KDP
     CALL INITKDP
+    call refreshLensDataStruct()
 
     PRINT *, "DONE WITH INITKDP!"
     !call plot_04(drawing_area_plot)

@@ -4587,6 +4587,7 @@ C     IF FINISHED, LIFT PEN
 C
 C     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE P1ARAY ARRAY
 C
+
       COLPAS=COLRAY
       CALL MY_COLTYP(COLPAS)
         FIXUP=.FALSE.
@@ -4609,6 +4610,8 @@ C     TEST IF LAST POINT IS NEW POINT, IF SO DON'T MOVE
      1CALL PENMV1A(P1ARAY(I,1,1),P1ARAY(I,2,1),P1ARAY(I,3,1))
                        END IF
                         END DO
+      ! Add a Pen up move here to force drawing of last ray in correct color
+      CALL PENMV1A(0,0,0)
       COLPAS=COLLBL
       CALL MY_COLTYP(COLPAS)
       NORAYPLOT=.FALSE.

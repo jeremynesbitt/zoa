@@ -449,6 +449,7 @@ end subroutine lens_editor_replot
   end subroutine
 
 subroutine asph_edited(renderer, path, text, gdata) bind(c)
+  use hl_gtk_zoa
   !type(c_ptr), value, intent(in) :: list, gdata
 
   type(c_ptr), value :: renderer, path, text, gdata
@@ -460,7 +461,9 @@ subroutine asph_edited(renderer, path, text, gdata) bind(c)
     type(c_ptr) :: tree, pcol
     real :: fVal
     integer :: ios
+    integer(kind=c_int), pointer :: ID_SETTING
 
+    call c_f_pointer(gdata, ID_SETTING)
     PRINT *, "CALLING ASPHERE EDITED PROC!"
 
     call convert_c_string(path, fpath)
@@ -470,6 +473,9 @@ subroutine asph_edited(renderer, path, text, gdata) bind(c)
 
     PRINT *, "ftext is ", ftext
 
+    ID_SETTING = hl_zoa_combo_get_selected_list2_id(renderer)
+    PRINT *, "ID_SETTING is ", ID_SETTING
+    !PRINT *, "IOS is ", ios
 
 
     read( ftext, *, iostat=ios)  fVal

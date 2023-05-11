@@ -717,7 +717,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       IF(STRINGER.EQ.'K') GO TO 300
 
       IF(STRINGER.EQ.'L') THEN
-        PRINT *, "Stringer L Called!"
+        !PRINT *, "Stringer L Called!"
         !call cairo_move_to(my_cairo_context, REAL(II1)*1d0, (kdp_height-REAL(II2))*1d0)
         call cairo_close_path(my_cairo_context)
 

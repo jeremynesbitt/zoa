@@ -181,7 +181,7 @@ contains
        & data_toggled, edited_spin, data_edited_spin, &
        & edited_combo, data_edited_combo, changed_combo, data_changed_combo,&
        & toggled_radio, data_toggled_radio,  &
-       & hscroll_policy, vscroll_policy) result(list)
+       & hscroll_policy, vscroll_policy, valsArray, refsArray) result(list)
 
     type(c_ptr) :: list
     type(c_ptr), intent(out), optional :: scroll
@@ -205,6 +205,10 @@ contains
          & data_changed_combo, data_toggled_radio
     integer(kind=c_int), dimension(:), allocatable, intent(out), optional, target :: colnos
     integer(kind=c_int), intent(in), optional :: hscroll_policy, vscroll_policy
+    ! Arrays for combo box model
+    character(kind=c_char, len=*), optional, intent(in), dimension(:) :: valsArray
+    integer(c_int), optional, intent(in), dimension(:) :: refsArray
+
 
     ! Make a multi column list
     !
@@ -392,7 +396,8 @@ contains
             & changed_combo=changed_combo, &
             & data_changed_combo=data_changed_combo, &
             & toggled_radio=toggled_radio, &
-            & data_toggled_radio=data_toggled_radio)
+            & data_toggled_radio=data_toggled_radio, &
+            & valsArray=valsArray, refsArray=refsArray)
 
     end do
 
@@ -1874,6 +1879,93 @@ contains
 
   end subroutine hl_gtk_tree_get_cell
 
+  subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
+    type(c_ptr), intent(in) :: view
+    integer(kind=c_int), intent(in) :: row, colno, targetValue
+    integer(kind=c_int) :: ivalue
+    type(gvalue), target :: iresult
+
+    ! Set the selected item in a combo cell renderer.
+    !
+    ! VIEW: c_ptr: required: The list view containing the cell.
+    ! ROW: int: required: The row number of the cell
+    ! COLNO: int: required: The column number with the cell
+    ! SELECTION: int: required: The element of the combo to set.
+    !-
+
+    type(c_ptr) :: store, pstring, col, rlist, renderer, pmodel, model, ival
+    type(gvalue), target :: stringv, modelv
+    type(gtktreeiter), target :: viter, citer
+    integer(kind=c_int) :: valid
+    integer :: boolResult
+
+    ! Get list store
+    store = gtk_tree_view_get_model(view)
+
+    ! Get the iterator of the row
+    call clear_gtktreeiter(viter)
+    valid = gtk_tree_model_iter_nth_child(store, c_loc(viter), C_NULL_PTR, row)
+    if (.not. c_f_logical(valid)) return
+
+    ! Find the renderer for the column
+    col = gtk_tree_view_get_column(view, colno)
+    rlist = gtk_cell_layout_get_cells(col)
+    renderer = g_list_nth_data(rlist, 0_c_int)
+    call g_list_free(rlist)
+
+    ! Find the model for the combobox
+    pmodel = c_loc(modelv)
+    pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+    call g_object_get_property(renderer, "model"//c_null_char, pmodel)
+    model = g_value_get_object(pmodel)
+
+    boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
+
+    ival = c_loc(iresult)
+    call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
+    ivalue = g_value_get_int(ival)
+    PRINT *, "ivalue is ", ivalue
+
+  do while(boolResult.EQ.1)
+    ival = c_loc(iresult)
+    call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
+    ivalue = g_value_get_int(ival)
+    PRINT *, "ivalue is ", ivalue
+  if (ivalue.EQ.targetValue) then
+    PRINT *, "Found correct combo entry to display!"
+       pstring = c_loc(stringv)
+       pstring = g_value_init(pstring, G_TYPE_STRING)
+       call g_value_unset(pstring)
+
+       call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, pstring)
+       call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
+
+    !call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
+    return
+  else
+    boolResult = gtk_tree_model_iter_next(model, c_loc(citer))
+    if (boolResult.EQ.0) then
+      PRINT *, "Reached end of model and no suitable matches found"
+      return
+    end if
+  end if
+  end do
+
+    !
+    ! call clear_gtktreeiter(citer)
+    ! valid = gtk_tree_model_iter_nth_child(model, c_loc(citer), &
+    !      & c_null_ptr, selection)
+    ! if (c_f_logical(valid)) then
+    !    pstring = c_loc(stringv)
+    !    pstring = g_value_init(pstring, G_TYPE_STRING)
+    !    call g_value_unset(pstring)
+    !   ! call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, pstring)
+    !   ! JN:  Hack to test my model.  TODO:  Do not leave it like this!!!
+    !    call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, pstring)
+    !    call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
+    ! end if
+  end subroutine
+
   !+
   subroutine hl_gtk_listn_combo_set_select(view, row, colno, selection)
     type(c_ptr), intent(in) :: view
@@ -1919,11 +2011,90 @@ contains
        pstring = c_loc(stringv)
        pstring = g_value_init(pstring, G_TYPE_STRING)
        call g_value_unset(pstring)
-       call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, pstring)
+      ! call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, pstring)
+      ! JN:  Hack to test my model.  TODO:  Do not leave it like this!!!
+       call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, pstring)
        call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
     end if
   end subroutine hl_gtk_listn_combo_set_select
   !+
+
+  subroutine hl_gtk_tree_combo_set_by_list_id(view, row, colno, absrow, targetValue)
+    type(c_ptr), intent(in) :: view
+    integer(kind=c_int), dimension(:), intent(in), optional :: row
+    integer(kind=c_int), intent(in), optional ::  colno, absrow, targetValue
+    integer(kind=c_int) :: ivalue
+    type(gvalue), target :: iresult
+
+    type(c_ptr) :: store, pstring, col, rlist, renderer, pmodel, model, ival
+    type(gvalue), target :: modelv
+    type(gtktreeiter), target :: viter, citer
+    integer(kind=c_int) :: valid
+    integer :: boolResult
+
+    ! Get list store
+    store = gtk_tree_view_get_model(view)
+
+    ! Get the iterator of the row
+    if (present(row)) then
+       valid = hl_gtk_tree_row_iter(C_NULL_PTR, viter, row, model=store)
+    else if (present(absrow)) then
+       valid = hl_gtk_tree_abs_iter(C_NULL_PTR, viter, absrow, model=store)
+    else
+       valid=FALSE
+    end if
+    if (.not. c_f_logical(valid)) return
+
+    ! Find the renderer for the column
+    col = gtk_tree_view_get_column(view, colno)
+    rlist = gtk_cell_layout_get_cells(col)
+    renderer = g_list_nth_data(rlist, 0_c_int)
+    call g_list_free(rlist)
+
+    ! Find the model for the combobox
+    pmodel = c_loc(modelv)
+    pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+    call g_object_get_property(renderer, "model"//c_null_char, pmodel)
+    model = g_value_get_object(pmodel)
+
+    boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
+
+  do while(boolResult.EQ.1)
+    ival = c_loc(iresult)
+    call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
+    ivalue = g_value_get_int(ival)
+    PRINT *, "ivalue is ", ivalue
+  if (ivalue.EQ.targetValue) then
+    PRINT *, "Found correct combo entry to display!"
+       call g_value_unset(pstring)
+       pstring = g_value_init(pstring, G_TYPE_STRING)
+       call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, pstring)
+       call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
+
+    !call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
+    return
+  else
+    !boolResult = gtk_tree_model_iter_next(model, c_loc(tree_iter))
+    if (boolResult.EQ.0) then
+      PRINT *, "Reached end of model and no suitable matches found"
+      return
+    end if
+  end if
+  end do
+
+
+    ! call clear_gtktreeiter(citer)
+    ! valid = gtk_tree_model_iter_nth_child(model, c_loc(citer), &
+    !      & c_null_ptr, selection)
+    ! if (c_f_logical(valid)) then
+    !    call g_value_unset(pstring)
+    !    pstring = g_value_init(pstring, G_TYPE_STRING)
+    !    call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, pstring)
+    !    call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
+    ! end if
+
+  end subroutine
+
   subroutine hl_gtk_tree_combo_set_select(view, row, colno, absrow, selection)
     type(c_ptr), intent(in) :: view
     integer(kind=c_int), dimension(:), intent(in), optional :: row
@@ -2422,9 +2593,13 @@ contains
 
     case(hl_gtk_cell_combo)
        renderer = gtk_cell_renderer_combo_new()
-       PRINT *, "cell_combo valsArray is ", valsArray
-       PRINT *, "cell_combo refsArray is ", refsArray
+       !PRINT *, "cell_combo valsArray is ", valsArray
+       !PRINT *, "cell_combo refsArray is ", refsArray
+       if (present(valsArray)) then
        call hl_gtk_list_tree_combo_model_attach(renderer, valsArray, refsArray)
+     else
+       call hl_gtk_list_tree_combo_model_attach_orig(renderer)
+     end if
        editable_property = "editable"//c_null_char
 
     case(hl_gtk_cell_spinner)
@@ -2554,8 +2729,9 @@ contains
                    call g_signal_connect(renderer, "edited"//c_null_char, &
                         & edited_combo, data_edited_combo)
                 else
+                   ! TODO:  Fix this somehow?
                    call g_signal_connect(renderer, "edited"//c_null_char, &
-                        & edited_combo)
+                        & edited_combo, view)
                 end if
              else if (present(edited)) then
                 if (present(data_edited)) then
@@ -3306,6 +3482,64 @@ contains
     end if
   end subroutine hl_gtk_list_tree_config_spin
 
+
+ !TODO:  Need to clean up / reconcile the orig and hacked one below
+ !+
+  subroutine hl_gtk_list_tree_combo_model_attach_orig(renderer, cmodel, colno)
+    type(c_ptr), intent(in) :: renderer
+    type(c_ptr), intent(in), optional :: cmodel
+    integer(kind=c_int), optional, intent(in) :: colno
+
+    ! Create a tree model suitable for a GtkCellRendererCombo and attach
+    ! it to the renderer.
+    !
+    ! RENDERER: c_ptr: required: The renderer to which the model
+    ! 		will be attached.
+    ! CMODEL: c_ptr: optional: A custom model for the combobox
+    ! COLNO: int: optional: Which column of the custom model contains
+    ! 		the text.
+    !
+    ! This routine is automatically called by the list/tree constructor if needed.
+    ! To explicitly set a different model, use one of its aliases
+    ! hl_gtk_listn_combo_set_model or hl_gtk_tree_combo_set_model.
+    ! The default model is a 1-column list with the strings (indices can
+    ! be obtained from the PATH argument in the edited hander.
+    !-
+
+    integer(kind=c_int), parameter :: ncols=1
+    integer(kind=type_kind), dimension(ncols), target :: coltypes = &
+         & [G_TYPE_STRING]
+    type(gvalue), target :: modelv, columnv
+    type(c_ptr) :: pmodel, pcolumn, model
+    integer(kind=c_int) :: icol
+
+    ! Create the model
+    if (present(cmodel)) then
+       model = cmodel
+       if (present(colno)) then
+          icol = colno
+       else
+          icol = 0
+       end if
+    else
+       model = gtk_list_store_newv(ncols, c_loc(coltypes))
+       icol = 0
+    end if
+
+    ! Attach it to the renderer.
+    pmodel = c_loc(modelv)
+    pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+    call g_value_set_object(pmodel, model)
+    call g_object_set_property(renderer, "model"//c_null_char, pmodel)
+
+    ! Tell the renderer that the text is in column 0
+    pcolumn = c_loc(columnv)
+    pcolumn = g_value_init(pcolumn, G_TYPE_INT)
+    call g_value_set_int(pcolumn, icol)
+    call g_object_set_property(renderer, "text-column"//c_null_char, &
+         & pcolumn)
+  end subroutine hl_gtk_list_tree_combo_model_attach_orig
+
   !+
   subroutine hl_gtk_list_tree_combo_model_attach(renderer, valsArray, refsArray, cmodel, colno)
     type(c_ptr), intent(in) :: renderer
@@ -3428,7 +3662,7 @@ contains
     call g_value_set_int(pcolumn, 1)
     call g_object_set_property(renderer, "text-column"//c_null_char, &
          & pcolumn)
-    
+
 
     ! Tell the renderer that the text is in column 0 - ORIGINAL CODE
     ! pcolumn = c_loc(columnv)
