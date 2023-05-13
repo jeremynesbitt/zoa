@@ -14,8 +14,8 @@ module ui_sys_config
   use gtk_hl_container
   use gtk_hl_progress
   use gtk_hl_button
-  !use gtk_hl_tree
-  use hl_zoa_tree_tmp
+  use gtk_hl_tree
+  !use hl_zoa_tree_tmp
   use gtk
 
   use gtk_hl_chooser
@@ -250,7 +250,10 @@ end subroutine
     call hl_gtk_listn_set_cell(locallist, irow, icol, &
          & svalue=trim(ftext))
 
-
+   ! Only want to update field points.  Ignore updates for other columns
+   ! This could be handled better than checking column number I'm sure.
+   PRINT *, "icol is ", icol
+   if (icol < 3 ) THEN
    read(ftext,'(f200.0)') cellData
 
    print *, "Row selection is ", cellData
@@ -258,13 +261,14 @@ end subroutine
    print *, "icol is ", icol
 
    sysConfig%relativeFields(icol, irow+1) = cellData
+   end if
 
    !sysConfig%fieldColorCodes(rowSelection+1) = ivalue
 
   end subroutine
 
   subroutine ccell_changed(renderer, path, iter, gdata) bind(c)
-    use hl_gtk_zoa
+    !use hl_gtk_zoa
     type(c_ptr), value, intent(in) :: renderer, path, gdata
     type(c_ptr), target :: iter
     type(gvalue), target :: modelv
@@ -338,6 +342,8 @@ end subroutine
 
 
 function createFieldPointSelectionTable(self) result(base)
+  use hl_gtk_zoa
+
   implicit none
   class(ui_field_settings) :: self
 
@@ -406,8 +412,10 @@ ihlist = hl_gtk_listn_new(types=ctypes, &
      & edited=c_funloc(cell_edited), & !toggled=c_funloc(cell_clicked), &
      !& toggled_radio=c_funloc(rcell_clicked), &
      !& edited_combo=c_funloc(ccell_edit), &
-     & changed_combo=c_funloc(ccell_changed), &
-     & valsArray=valsArray, refsArray=refsArray)
+     & changed_combo=c_funloc(ccell_changed)) !, &
+     !& valsArray=valsArray, refsArray=refsArray)
+
+call hl_gtk_listn_attach_combo_box_model(ihlist, 3_c_int, valsArray, refsArray)
 
 PRINT *, "FPS:  Created ihlist"
 
