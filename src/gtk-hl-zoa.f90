@@ -2,6 +2,9 @@
 ! in gtk-fortran fo zoa.  Most functions revolve around supporting
 ! combo boxes with a model that has a unique integer attached to each user
 ! selectable string to avoid using string comparison when identifing ui choices
+! TODO:  Some refactoring is needed here (eg model creation)
+! Could probably also refactor some 
+
 module hl_gtk_zoa
     use iso_c_binding
     use gtk

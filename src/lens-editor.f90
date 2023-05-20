@@ -9,8 +9,9 @@ module lens_editor
   use gtk_hl_container
   use gtk_hl_progress
   use gtk_hl_button
-  !use gtk_hl_tree
-  use hl_zoa_tree_tmp
+  use gtk_hl_tree
+  use hl_gtk_zoa
+  !use hl_zoa_tree_tmp
   use gtk
 
   use gtk_hl_chooser
@@ -30,6 +31,8 @@ module lens_editor
     integer, allocatable, dimension(:)  :: dataInt
     real, allocatable, dimension(:)  :: dataFloat
     character(len=40), allocatable, dimension(:) :: dataString
+    integer(c_int), allocatable, dimension(:) :: refsArray
+    integer :: colModel
 
 
   contains
@@ -46,10 +49,17 @@ module lens_editor
 
   integer(kind=c_int) :: numEditorRows
 
+  integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
+  integer, parameter :: ID_EDIT_ASPH_TORIC_Y = 1002
+  integer, parameter :: ID_EDIT_ASPH_TORIC_X = 1003
+
+
+
   integer, parameter :: DTYPE_INT = 1
   integer, parameter :: DTYPE_FLOAT = 2
   integer, parameter :: DTYPE_STRING = 3
   integer, parameter :: DTYPE_SCIENTIFIC = 4
+  integer, parameter :: COL_MODEL_COMBO = 5
 
   integer(kind=c_int), parameter :: ID_COL_RADIUS = 2
   integer(kind=c_int), parameter :: ID_COL_THICKNESS = 3
@@ -220,13 +230,12 @@ end subroutine lens_editor_replot
 
  subroutine ins_row(but, gdata) bind(c)
     type(c_ptr), value, intent(in) :: but, gdata
-    integer(kind=c_int), dimension(:,:), allocatable :: iset
+    integer(kind=c_int), dimension(:), allocatable :: iset
     integer(kind=c_int), dimension(:), allocatable :: dep
     integer(kind=c_int) :: nsel
     character(len=40) :: kdptext
 
-    nsel = hl_gtk_tree_get_selections(ihlist, iset, &
-         & depths=dep)
+    nsel = hl_gtk_listn_get_selections(ihlist, iset)
 
     if (nsel /= 1) then
        print *, "Not a single selection"
@@ -238,7 +247,7 @@ end subroutine lens_editor_replot
     !call hl_gtk_tree_rem(ihlist, selections(:dep(1),1))
 
     call PROCESKDP('U L')
-    WRITE(kdptext,*) 'CHG,', iset(1,1)
+    WRITE(kdptext,*) 'CHG,', iset(1)
         call PROCESKDP(kdptext)
         call PROCESKDP('INS')
         call PROCESKDP('EOS')
@@ -288,30 +297,29 @@ end subroutine lens_editor_replot
 
  subroutine del_row(but, gdata) bind(c)
     type(c_ptr), value, intent(in) :: but, gdata
-    integer(kind=c_int), dimension(:,:), allocatable :: iset
+    integer(kind=c_int), dimension(:), allocatable :: iset
     integer(kind=c_int), dimension(:), allocatable :: dep
     integer(kind=c_int) :: nsel
     integer(kind=c_int) :: lastSurface
     character(len=40) :: kdptext
 
-    nsel = hl_gtk_tree_get_selections(ihlist, iset, &
-         & depths=dep)
+    nsel = hl_gtk_listn_get_selections(ihlist, iset)
 
     if (nsel /= 1) then
        print *, "Not a single selection"
-       print *, "end selection is ", iset(nsel,1)
+       print *, "end selection is ", iset(nsel)
        !return
     end if
 
-    PRINT *, "iset = ", iset(1,1)
+    PRINT *, "iset = ", iset(1)
     call getOpticalSystemLastSurface(lastSurface)
 
 
-        IF(iset(1,1) == 0) THEN
+        IF(iset(1) == 0) THEN
             call updateTerminalLog('OBJECT SURFACE MAY NOT BE DELETED', "black")
             return
         END IF
-        IF(iset(1,1) == lastSurface) THEN
+        IF(iset(1) == lastSurface) THEN
           call updateTerminalLog('IMAGE SURFACE MAY NOT BE DELETED', "black")
            return
         END IF
@@ -330,17 +338,17 @@ end subroutine lens_editor_replot
         !PRINT *, "ITOC TEST ", ITOC(INT(1))
         !PRINT *, 'DEL, '//ITOC(iset(1,1))
         if (nsel.EQ.1) then
-           PRINT *, 'DEL, '//ITOC(iset(1,1))
-           call PROCESKDP('DEL, '//ITOC(iset(1,1)))
+           PRINT *, 'DEL, '//ITOC(iset(1))
+           call PROCESKDP('DEL, '//ITOC(iset(1)))
         else
-          call PROCESKDP('DEL, '//ITOC(iset(1,1))//','//ITOC(iset(nsel,1)))
+          call PROCESKDP('DEL, '//ITOC(iset(1))//','//ITOC(iset(nsel)))
         end if
         !call PROCESKDP('DEL')
         call PROCESKDP('EOS')
         !call PROCESKDP('OUT TP')
 
 
-    call hl_gtk_tree_rem(ihlist, iset(:dep(1),1))
+    call hl_gtk_listn_rem(ihlist, iset(1))
 
     call gtk_widget_set_sensitive(but, FALSE)
 
@@ -378,10 +386,17 @@ end subroutine lens_editor_replot
     !-
 
     character(len=200) :: fpath, ftext
-    integer(kind=c_int), allocatable, dimension(:) :: irow
+    integer(kind=c_int) :: irow
     integer(kind=c_int), pointer :: icol
     integer :: i, n
     type(c_ptr) :: tree, pcol
+
+!! Temp
+    character(len=7) :: rstring
+    real(kind=c_double) :: dval
+    type(gvalue), target :: svalue
+    type(c_ptr) :: val_ptr
+
 
     PRINT *, "CALLING LENS EDITED PROC!"
 
@@ -390,6 +405,16 @@ end subroutine lens_editor_replot
     call c_f_pointer(pcol, icol)
     call convert_c_string(text, ftext)
 
+    ! Experimental Code
+
+    rstring = "orange"
+    val_ptr = c_loc(svalue)
+    val_ptr = g_value_init(val_ptr, G_TYPE_STRING)
+
+    call g_value_set_string(val_ptr, trim(rstring)//c_null_char)
+    call g_object_set_property(renderer, "background"//c_null_char, val_ptr)
+    ! End Experimental Code
+
     n = 0
     do i = 1, len_trim(fpath)
        if (fpath(i:i) == ":") then
@@ -397,11 +422,11 @@ end subroutine lens_editor_replot
           fpath(i:i) = ' '   ! : is not a separator for a Fortran read
        end if
     end do
-    allocate(irow(n+1))
+    !allocate(irow(n+1))
     read(fpath, *) irow
     tree = g_object_get_data(renderer, "view"//c_null_char)
 
-    call hl_gtk_tree_set_cell(tree, irow, icol, &
+    call hl_gtk_listn_set_cell(tree, irow, icol, &
          & svalue=trim(ftext))
 
     PRINT *, "New value is ", trim(ftext)
@@ -427,7 +452,6 @@ end subroutine lens_editor_replot
 
 
 
-
   end select
 
 
@@ -441,7 +465,7 @@ end subroutine lens_editor_replot
         ! INPUT='EOS'
         ! CALL PROCES
 
-    deallocate(irow)
+    !deallocate(irow)
 
 
 
@@ -596,7 +620,7 @@ subroutine buildBasicTable(firstTime)
     end do
 
     if (firstTime) then
-    ihlist = hl_gtk_tree_new(ihscrollcontain, types=ctypes, &
+    ihlist = hl_gtk_listn_new(ihscrollcontain, types=ctypes, &
          & changed=c_funloc(list_select),&
          & edited=c_funloc(lens_edited),&
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
@@ -622,25 +646,32 @@ subroutine buildAsphereTable(firstTime)
     integer, allocatable, dimension(:) :: surfIdx
     character(len=10), dimension(ncols) :: colModel
     integer :: i
-
-    character(kind=c_char, len=4),dimension(2) :: valsArray
-    integer(c_int), dimension(2) :: refsArray
+    integer, parameter :: numAsphTypes = 3
+    character(kind=c_char, len=20),dimension(numAsphTypes) :: valsArray
+    integer(c_int), dimension(numAsphTypes) :: refsArray
+    type(c_ptr) :: colTmp
 
 
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
 
-    valsArray(1) = "Tst1"
-    valsArray(2) = "Tst2"
-    refsArray(1) = 0
-    refsArray(1) = 1
+
+
+    valsArray(1) = "Non-Toric"
+    valsArray(2) = "Toric Parallel to Y"
+    valsArray(3) = "Toric Parallel to X"
+
+    refsArray(1) = ID_EDIT_ASPH_NONTORIC
+    refsArray(2) = ID_EDIT_ASPH_TORIC_Y
+    refsArray(3) = ID_EDIT_ASPH_TORIC_X
+
 
 
 
     PRINT *, "LENS EDITOR Asphere DIALOG SUB STARTING!"
     ! Now make a multi column list with multiple selections enabled
     call asphereTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
-    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, TRUE, curr_lens_data%glassnames, curr_lens_data%num_surfaces)
+    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, TRUE, data=valsArray, numRows=numAsphTypes , refsArray=refsArray)
     call asphereTypes(3)%initialize("Conic Constant", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
     call asphereTypes(ID_COL_ASPH_A)%initialize("A (h^4)", G_TYPE_STRING, FALSE, TRUE, &
     & curr_asph_data%asphereTerms(:,1), dtype=DTYPE_SCIENTIFIC)
@@ -687,15 +718,26 @@ subroutine buildAsphereTable(firstTime)
     !   PRINT *, "buildAsphere valsArray is ", valsArray
     !   PRINT *, "buildAsphere refsArray is ", refsArray
     if (firstTime) then
-    ihAsph = hl_gtk_tree_new(ihScrollAsph, types=ctypes, &
+    ihAsph = hl_gtk_listn_new(ihScrollAsph, types=ctypes, &
          & changed=c_funloc(list_select),&
          & edited=c_funloc(asph_edited),&
-         &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
-         & sortable=sortable, editable=editable, renderers=colModel, &
-         & valsArray=valsArray, refsArray=refsArray)
+         &  multiple=FALSE, height=250_c_int, swidth=400_c_int, titles=titles, &
+         & sortable=sortable, editable=editable, renderers=colModel) !, &
+
+!         & valsArray=valsArray, refsArray=refsArray)
        end if
 
+   call hl_gtk_listn_attach_combo_box_model(ihScrollAsph, 1_c_int, valsArray, refsArray)
+
+
+
+
     !PRINT *, "ihlist created!  ", ihlist
+    !colTmp = gtk_tree_view_get_column(ihAsph, 3_c_int)
+    !call gtk_column_view_column_set_fixed_width(colTmp, 0_c_int)
+    !call gtk_tree_view_column_set_max_width(colTmp, 0_c_int)
+    ! Did not test code of this,but in debug window this works.
+    !call gtk_tree_view_column_set_visible(colTmp, 0_c_int)
 
     ! Now put 10 top level rows into it
     PRINT *, "About to Populate UI Table"
@@ -709,7 +751,7 @@ end subroutine
   subroutine list_select(list, gdata) bind(c)
     type(c_ptr), value, intent(in) :: list, gdata
     integer(kind=c_int) :: nsel
-    integer(kind=c_int), dimension(:,:), allocatable :: selections
+    integer(kind=c_int), dimension(:), allocatable :: selections
     integer(kind=c_int), dimension(:), allocatable :: dep
     integer(kind=c_int) :: n, n3
     integer(kind=c_int64_t) :: n4
@@ -717,8 +759,7 @@ end subroutine
     character(len=30) :: name
     character(len=10) :: nodd
     integer :: i
-    nsel = hl_gtk_tree_get_selections(C_NULL_PTR, selections, selection=list, &
-         & depths=dep)
+    nsel = hl_gtk_listn_get_selections(C_NULL_PTR, selections)
     if (nsel == 0) then
        print *, "No selection"
        return
@@ -730,7 +771,7 @@ end subroutine
     ! end do
 
     if (nsel == 1) then
-       call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 0_c_int, &
+       call hl_gtk_listn_set_cell(ihlist, selections(1), 0_c_int, &
             & ivalue=n)
        ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 1_c_int, &
        !      & ivalue=n)
@@ -762,7 +803,7 @@ end subroutine
 
     do i = 1, numEditorRows
 
-        call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=0_c_int, &
+        call hl_gtk_listn_set_cell(ihlist, row=i-1_c_int, col=0_c_int, &
              & ivalue=(i-1))
         end do
 
@@ -778,34 +819,42 @@ end subroutine
 
     !m = size(colObj,DIM=1)
 
-    call hl_gtk_tree_rem(ihObj)
+    call hl_gtk_listn_rem(ihObj)
 
      do i=1,curr_lens_data%num_surfaces
-        call hl_gtk_tree_ins(ihObj, row = (/ -1_c_int /))
+        call hl_gtk_listn_ins(ihObj, count = 1_c_int)
 
         do j=1,m
           select case(colObj(j)%dtype)
 
           case(DTYPE_INT)
 
-        call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
+        call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
              & ivalue=colObj(j)%getElementInt(i))
 
          case (DTYPE_FLOAT)
-        call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
+        call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
              & fvalue=colObj(j)%getElementFloat(i))
 
         case (DTYPE_STRING)
+          PRINT *, "col Model is ", colObj(j)%colModel
 
-        call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
+        if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
+          PRINT *, "Updating combo box for column ", j
+          call hl_gtk_listn_combo_set_by_list_id(ihObj, i-1_c_int, (j-1), &
+               & ASPH_NON_TORIC)
+        else
+          call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
              & svalue=colObj(j)%getElementString(i))
+        end if
+
         !  call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
         !       & svalue="TMP")
 
       case (DTYPE_SCIENTIFIC) ! Actually float but need to convert to string for display
         !PRINT *, "Value to convert is ", colObj(j)%getElementFloat(i)
          call converttoscientificnotationstring(colObj(j)%getElementFloat(i), AVAL)
-          call hl_gtk_tree_set_cell(ihObj, absrow=i-1_c_int, col=(j-1), &
+          call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
                & svalue=AVAL)
 
         end select
@@ -850,13 +899,14 @@ end subroutine
   end subroutine
 
 
-  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows, dtype)
+  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows, dtype, refsArray)
     class(lens_edit_col), intent(inout) :: self
     integer(kind=type_kind) :: coltype
     integer, optional :: numRows
     integer, optional :: dtype
     character(len=*) :: title
     integer(kind=c_int) :: sortable, editable
+    integer(c_int), dimension(:), optional :: refsArray
     class(*), dimension(:), intent(in) :: data
     integer :: m
 
@@ -866,6 +916,8 @@ end subroutine
     self%coltype = coltype
     self%sortable = sortable
     self%editable = editable
+
+    self%colModel = 0 ! TODO:  Flesh out this more if it works post prototype
 
 
     select type(data)
@@ -896,6 +948,12 @@ end subroutine
       allocate(character(len=40)::self%data(numRows))
       allocate(character(len=40) :: self%dataString(numRows))
       self%dataString = data
+      if (present(refsArray)) then
+        allocate(integer(c_int) :: self%refsArray(numRows))
+        self%refsArray = refsArray
+        self%colModel = COL_MODEL_COMBO
+        PRINT *, "Set Col Model to ", self%colModel
+      end if
     end select
     !self%data = data
 

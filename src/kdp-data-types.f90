@@ -40,6 +40,12 @@ type sys_config
     real, dimension(2) :: refFieldValue
     real, dimension(2,10) :: relativeFields
     integer :: numFields
+
+    ! Wavelength Data
+    real, dimension(10) :: wavelengths
+    real, dimension(10) :: spectralWeights
+    integer :: refWavelengthIndex
+
   character(len=40), dimension(3) :: possibleApertureNames ! = ["ObjectHeight",&
     real, dimension(2) :: refApertureValue
   !TODO:  Where to define max field points instead of hard coded?
@@ -369,8 +375,12 @@ end function
      self%numFields = CFLDCNT
      self%relativeFields = CFLDS
 
-
-
+     ! Wavelengths
+     self%wavelengths(1:5) = SYSTEM(1:5)
+     self%wavelengths(6:10) = SYSTEM(71:75)
+     self%spectralWeights(1:5) = SYSTEM(31:35)
+     self%spectralWeights(6:10) = SYSTEM(76:80)
+     self%refWavelengthIndex = INT(SYSTEM(11))
 
    end subroutine
 
