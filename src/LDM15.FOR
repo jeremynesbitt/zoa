@@ -2717,7 +2717,7 @@ C     DONE
                    F22=0
                    GO TO 999
                    END IF
-      call curr_asph_data%updateAsphereTable(INT(SYSTEM(20)))
+      call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
 
 

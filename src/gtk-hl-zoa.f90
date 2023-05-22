@@ -3,7 +3,7 @@
 ! combo boxes with a model that has a unique integer attached to each user
 ! selectable string to avoid using string comparison when identifing ui choices
 ! TODO:  Some refactoring is needed here (eg model creation)
-! Could probably also refactor some 
+! Could probably also refactor some
 
 module hl_gtk_zoa
     use iso_c_binding
@@ -222,10 +222,10 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
   !character(len=*) :: hl_string
 
 
-  PRINT *, "In callback, pointer is ", gdata
+  !PRINT *, "In callback, pointer is ", gdata
   call c_f_pointer(gdata, interfaceData)
 
-  PRINT *, "In callback, data is ", interfaceData
+  !PRINT *, "In callback, data is ", interfaceData
   !tree_iter = c_null_ptr
   tmpresult = gtk_combo_box_get_active_iter(widget, c_loc(tree_iter))
   !tree_iter = gtk_combo_box_get_active_iter(gdata)

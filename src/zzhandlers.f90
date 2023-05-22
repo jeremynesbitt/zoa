@@ -58,8 +58,8 @@ module handlers
   & g_action_change_state, g_application_quit, g_simple_action_set_state, &
   & g_signal_override_class_handler
 
-  use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, &
-  & c_null_char, C_NEW_LINE
+  !use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, &
+  !& c_null_char, C_NEW_LINE
 
   ! Pl Plot based inputs
   use, intrinsic :: iso_c_binding
@@ -264,7 +264,7 @@ end subroutine proto_symfunc
 
   integer(kind=c_int) :: ipick, i, endSurface
  character(len=100) :: ftext
-  PRINT *, "Before Mod Call, ", my_window
+  !PRINT *, "Before Mod Call, ", my_window
 
 
   !ftext = 'LIB GET 1 '
@@ -284,7 +284,7 @@ end subroutine proto_symfunc
 
 
   subroutine plot_04_macos(area)
-    use plfortrandemolib
+  
 
     implicit none
     character(len=80) :: driver
@@ -731,7 +731,7 @@ end subroutine proto_symfunc
       ! Make sure we are at the bottom of the scroll window
       buffInsert = gtk_text_buffer_get_insert(buffer)
      !gBool = g_variant_new_boolean(True)
-     PRINT *, "textView ptr is ", textView
+     !PRINT *, "textView ptr is ", textView
       call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
       &  True, 0.0_c_double, 1.0_c_double)
 

@@ -161,7 +161,7 @@ contains
     ! Create a modal dialogue
     lens_editor_window = gtk_window_new()
 
-        PRINT *, "LENS EDITOR WINDOW PTR IS ", lens_editor_window
+        !PRINT *, "LENS EDITOR WINDOW PTR IS ", lens_editor_window
 
     !call gtk_window_set_modal(di, TRUE)
     !title = "Lens Draw Window"
@@ -186,7 +186,7 @@ contains
     !call lens_editor_settings_dialog_2(box1)
     call lens_editor_basic_dialog(box1)
 
-    !call lens_editor_asphere_dialog(boxAsphere)
+
     call lens_editor_asphere_dialog(boxAsphere)
 
 
@@ -626,7 +626,7 @@ subroutine buildBasicTable(firstTime)
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
          & sortable=sortable, editable=editable)
 
-         PRINT *, "ihlist created!  ", ihlist
+         !PRINT *, "ihlist created!  ", ihlist
     end if
 
     !call buildTree(ihList, basicTypes)
@@ -718,7 +718,7 @@ subroutine buildAsphereTable(firstTime)
     !   PRINT *, "buildAsphere valsArray is ", valsArray
     !   PRINT *, "buildAsphere refsArray is ", refsArray
     if (firstTime) then
-    ihAsph = hl_gtk_listn_new(ihScrollAsph, types=ctypes, &
+    ihAsph = hl_gtk_listn_new(scroll=ihScrollAsph, types=ctypes, &
          & changed=c_funloc(list_select),&
          & edited=c_funloc(asph_edited),&
          &  multiple=FALSE, height=250_c_int, swidth=400_c_int, titles=titles, &
@@ -727,8 +727,7 @@ subroutine buildAsphereTable(firstTime)
 !         & valsArray=valsArray, refsArray=refsArray)
        end if
 
-   call hl_gtk_listn_attach_combo_box_model(ihScrollAsph, 1_c_int, valsArray, refsArray)
-
+   call hl_gtk_listn_attach_combo_box_model(ihAsph, 1_c_int, valsArray, refsArray)
 
 
 
@@ -743,6 +742,7 @@ subroutine buildAsphereTable(firstTime)
     PRINT *, "About to Populate UI Table"
     call populatelensedittable(ihAsph, asphereTypes, ncols)
     PRINT *, "Done Populating UI Table"
+    !call hl_gtk_box_pack(ihScrollAsph, ihAsph)
     !call loadAphereDataIntoTable()
     !call loadLensData()
 
@@ -814,13 +814,13 @@ end subroutine
     type(c_ptr) :: ihObj
     type(lens_edit_col), dimension(*) :: colObj
     character(len=23) :: AVAL
-    integer :: i,j
-    integer(kind=c_int) :: m
+    !integer :: i,j
+    integer(kind=c_int) :: i,j,m
 
     !m = size(colObj,DIM=1)
 
     call hl_gtk_listn_rem(ihObj)
-
+    PRINT *, "Number of entries in loop is ", curr_lens_data%num_surfaces
      do i=1,curr_lens_data%num_surfaces
         call hl_gtk_listn_ins(ihObj, count = 1_c_int)
 
@@ -841,8 +841,8 @@ end subroutine
 
         if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
           PRINT *, "Updating combo box for column ", j
-          call hl_gtk_listn_combo_set_by_list_id(ihObj, i-1_c_int, (j-1), &
-               & ASPH_NON_TORIC)
+          call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &
+               & targetValue=ID_EDIT_ASPH_NONTORIC)
         else
           call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
              & svalue=colObj(j)%getElementString(i))
@@ -911,6 +911,7 @@ end subroutine
     integer :: m
 
     m = size(data)
+    PRINT *, "Number of rols in le_col_init is ", m
 
     self%coltitle = title
     self%coltype = coltype
