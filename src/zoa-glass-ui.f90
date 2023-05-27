@@ -61,13 +61,13 @@ module zoa_glass_ui
     ! Now put 10 rows into it
     CALL GCATLOAD(NUMINLIST, CATARRAY)
     !CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
-    !PRINT *, "NUMINLIST IS ", NUMINLIST
+    PRINT *, "NUMINLIST IS ", NUMINLIST
     do i=1,NUMINLIST-1
        !write(line,"('List entry number ',I0)") i
        !ltr=len_trim(line)+1
        line = CATARRAY(i)
        !line(ltr:ltr)=c_null_char
-       !print *, line
+       print *, line
        call hl_gtk_list1_ins(ihlist, line//c_null_char)
 
     end do

@@ -357,6 +357,7 @@ subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
   integer(kind=c_int) :: valid
   integer :: boolResult
 
+
   ! Get list store
   store = gtk_tree_view_get_model(view)
 
@@ -374,23 +375,18 @@ subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
   ! Find the model for the combobox
   pmodel = c_loc(modelv)
   pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+
   call g_object_get_property(renderer, "model"//c_null_char, pmodel)
   model = g_value_get_object(pmodel)
 
   boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
 
-  ival = c_loc(iresult)
-  call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
-  ivalue = g_value_get_int(ival)
-  PRINT *, "ivalue is ", ivalue
-
 do while(boolResult.EQ.1)
   ival = c_loc(iresult)
   call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
-  PRINT *, "ivalue is ", ivalue
 if (ivalue.EQ.targetValue) then
-  PRINT *, "Found correct combo entry to display!"
+     PRINT *, "Found correct combo entry to display!"
      pstring = c_loc(stringv)
      pstring = g_value_init(pstring, G_TYPE_STRING)
      call g_value_unset(pstring)
@@ -422,6 +418,46 @@ end do
   !    call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, pstring)
   !    call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
   ! end if
+
+
+end subroutine
+
+subroutine set_listn_column_color(view, col, colorTxt)
+
+   implicit none
+
+   type(c_ptr) :: view
+   integer(kind=c_int) :: col
+   character(len=*) :: colorTxt
+
+   integer :: i
+   type(c_ptr) :: colptr, rlist, renderer
+    type(gvalue), target :: svalue
+    type(c_ptr) :: val_ptr
+
+
+
+    ! Find the renderer for the column
+    colptr = gtk_tree_view_get_column(view, col)
+    rlist = gtk_cell_layout_get_cells(colptr)
+    renderer = g_list_nth_data(rlist, 0_c_int)
+    call g_list_free(rlist)
+    !
+    ! ! Find the model for the combobox
+    ! pmodel = c_loc(modelv)
+    ! pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+    ! call g_object_get_property(renderer, "model"//c_null_char, pmodel)
+    ! model = g_value_get_object(pmodel)
+    !
+    !
+     !rstring = "orange"
+    val_ptr = c_loc(svalue)
+    val_ptr = g_value_init(val_ptr, G_TYPE_STRING)
+
+    PRINT *, "Updating column with color ", colorTxt
+    call g_value_set_string(val_ptr, trim(colorTxt)//c_null_char)
+    call g_object_set_property(renderer, "background"//c_null_char, val_ptr)
+    !
 end subroutine
 
 end module hl_gtk_zoa

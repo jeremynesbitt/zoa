@@ -284,7 +284,7 @@ end subroutine proto_symfunc
 
 
   subroutine plot_04_macos(area)
-  
+
 
     implicit none
     character(len=80) :: driver
@@ -1077,7 +1077,7 @@ end subroutine proto_symfunc
 
     call gtk_widget_set_vexpand (box1, TRUE)
 
-     call plot_04(drawing_area_plot)
+     !call plot_04(drawing_area_plot)
     !call x12f(drawing_area_plot)
 
     ! The window status bar can be used to print messages:
@@ -1123,7 +1123,7 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    !call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 

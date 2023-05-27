@@ -405,16 +405,6 @@ end subroutine lens_editor_replot
     call c_f_pointer(pcol, icol)
     call convert_c_string(text, ftext)
 
-    ! Experimental Code
-
-    rstring = "orange"
-    val_ptr = c_loc(svalue)
-    val_ptr = g_value_init(val_ptr, G_TYPE_STRING)
-
-    call g_value_set_string(val_ptr, trim(rstring)//c_null_char)
-    call g_object_set_property(renderer, "background"//c_null_char, val_ptr)
-    ! End Experimental Code
-
     n = 0
     do i = 1, len_trim(fpath)
        if (fpath(i:i) == ":") then
@@ -633,6 +623,7 @@ subroutine buildBasicTable(firstTime)
 
     ! Now put 10 top level rows into it
     call populatelensedittable(ihlist, basicTypes,ncols)
+    call set_listn_column_color(ihlist, 0_c_int, "orange")
 end subroutine
 
 subroutine buildAsphereTable(firstTime)
@@ -759,34 +750,17 @@ end subroutine
     character(len=30) :: name
     character(len=10) :: nodd
     integer :: i
-    nsel = hl_gtk_listn_get_selections(C_NULL_PTR, selections)
+    nsel = hl_gtk_listn_get_selections(C_NULL_PTR, selections, list)
     if (nsel == 0) then
        print *, "No selection"
        return
     end if
 
-    ! Find and print the selected row(s)
-    ! do i = 1, nsel
-    !    print *, selections(:dep(i),i)
-    ! end do
 
     if (nsel == 1) then
-       call hl_gtk_listn_set_cell(ihlist, selections(1), 0_c_int, &
-            & ivalue=n)
-       ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 1_c_int, &
-       !      & ivalue=n)
-       ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 2_c_int, &
-       !      & ivalue=n3)
-       ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 4_c_int, &
-       !      & l64value=n4)
-       ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 3_c_int, &
-       !      & fvalue=nlog)
-       ! call hl_gtk_tree_get_cell(ihlist, selections(:dep(1),1), 5_c_int,&
-       !      & svalue=nodd)
-      !print *, "first column is , ", n
-       ! print "('Name: ',a,' N:',I3,' 3N:',I4,' N**4:',I7,&
-       !      &' log(n):',F7.5,' Odd?: ',a)", trim(name), &
-       !      & n, n3, n4, nlog, nodd
+       !call hl_gtk_listn_set_cell(ihlist, selections(1), 0_c_int, &
+      !      & ivalue=n)
+
        call gtk_widget_set_sensitive(dbut, TRUE)
        call gtk_widget_set_sensitive(ibut, TRUE)
     else
@@ -825,7 +799,10 @@ end subroutine
         call hl_gtk_listn_ins(ihObj, count = 1_c_int)
 
         do j=1,m
+       
+
           select case(colObj(j)%dtype)
+
 
           case(DTYPE_INT)
 
@@ -837,10 +814,8 @@ end subroutine
              & fvalue=colObj(j)%getElementFloat(i))
 
         case (DTYPE_STRING)
-          PRINT *, "col Model is ", colObj(j)%colModel
 
         if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
-          PRINT *, "Updating combo box for column ", j
           call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &
                & targetValue=ID_EDIT_ASPH_NONTORIC)
         else

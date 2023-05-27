@@ -4364,7 +4364,9 @@ C
 C     HERE IS WHERE THE CODE GOES TO PLOT THE RAYS INSIDE THE NSS SURFACE
                IF(STPSUR.LT.STASUR) STPSUR=STASUR
                         DO I=STASUR,STPSUR
-      IF(NUMHITS(I-1).GT.1.AND.I.GE.1) THEN
+      IF(I.GE.1) THEN
+
+      IF(NUMHITS(I-1).GT.1) THEN
 C     THERE ARE NSS RAY POINTS TO PLOT BEFORE PLOTTING TO THE RAY COORDINATE
 C     AT SURFACE I
                                 DO J=2,NUMHITS(I-1)
@@ -4461,6 +4463,7 @@ C     MOVE TO NEW POSITION WITH LOWERED PEN
       P1ARAY(I-1,3,J+1)=1
         IF(.NOT.PLEXIS) PLEXIS=.TRUE.
                         END DO
+                        END IF
                         END IF
 C     PLOT TO THE RAY COORDINATE AT SURFACE I
       X=GLPRAY(1,I)
@@ -4592,12 +4595,14 @@ C
       CALL MY_COLTYP(COLPAS)
         FIXUP=.FALSE.
                         DO I=STASUR,STPSUR
-                        IF(I.GE.1.AND.NUMHITS(I-1).GT.1) THEN
+                        IF(I.GE.1) THEN
+                          IF(NUMHITS(I-1).GT.1) THEN
 C                       PLOT NSS RAY DATA FIRST
                         DO J=2,NUMHITS(I-1)
       CALL PENMV1A(
      1P1ARAY(I-1,1,J+1),P1ARAY(I-1,2,J+1),P1ARAY(I-1,3,J+1))
                         END DO
+                        END IF
                         END IF
       IF(I.EQ.STASUR)
      1CALL PENMV1A(P1ARAY(I,1,1),P1ARAY(I,2,1),P1ARAY(I,3,1))
@@ -5630,18 +5635,23 @@ C     FIRST CLAP PROFILE
 C     PUT INSTRUCTIONS IN P1ARAY TO DROP PEN AND DRAW
       DRAPRO=PRO(J,4,I)
       IF(J.EQ.1) IPST=0
-      IF(J.GT.1.AND.DRAPRO.EQ.1.0D0.AND.PRO((J-1),4,I).EQ.0.0D0) IPST=0
-      IF(J.GT.1.AND.DRAPRO.EQ.1.0D0.AND.PRO((J-1),4,I).EQ.1.0D0) IPST=1
-      IF(J.GT.1.AND.DRAPRO.EQ.0.0D0) IPST=0
-      IF(PRO(J,1,I).GT.1.0D6) PRO(J,1,I)=1.0D6
-      IF(PRO(J,2,I).GT.1.0D6) PRO(J,2,I)=1.0D6
-      IF(PRO(J,1,I).LT.-1.0D6) PRO(J,1,I)=-1.0D6
-      IF(PRO(J,2,I).LT.-1.0D6) PRO(J,2,I)=-1.0D6
-      IX=INT(PRO(J,1,I))
-      IY=INT(PRO(J,2,I))
-      P1ARAY(J,1,1)=IX
-      P1ARAY(J,2,1)=IY
-      P1ARAY(J,3,1)=IPST
+      IF(J.GT.1) THEN
+        IF(DRAPRO.EQ.1.0D0.AND.PRO((J-1),4,I).EQ.0.0D0) IPST=0
+        IF(DRAPRO.EQ.1.0D0.AND.PRO((J-1),4,I).EQ.1.0D0) IPST=1
+        IF(DRAPRO.EQ.0.0D0) IPST=0
+      END IF
+      IF(J.GT.0) THEN
+       IF(PRO(J,1,I).GT.1.0D6) PRO(J,1,I)=1.0D6
+       IF(PRO(J,2,I).GT.1.0D6) PRO(J,2,I)=1.0D6
+       IF(PRO(J,1,I).LT.-1.0D6) PRO(J,1,I)=-1.0D6
+       IF(PRO(J,2,I).LT.-1.0D6) PRO(J,2,I)=-1.0D6
+       IX=INT(PRO(J,1,I))
+       IY=INT(PRO(J,2,I))
+       P1ARAY(J,1,1)=IX
+       P1ARAY(J,2,1)=IY
+       P1ARAY(J,3,1)=IPST
+      END IF
+
         IF(.NOT.PLEXIS) PLEXIS=.TRUE.
                 END DO
 C     FINISHED WITH THAT PROFILE, LIFT PEN

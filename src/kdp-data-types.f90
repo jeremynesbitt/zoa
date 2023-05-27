@@ -237,7 +237,7 @@ end function
 
 
    ! Logic taken from the LOADSHEET.INC routine.
-   do I = 0,maxSurf
+   do I = 0,maxSurf-1
 
         IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
                         ALENS(2,I)=0.0D0

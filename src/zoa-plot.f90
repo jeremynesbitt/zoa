@@ -152,7 +152,7 @@ contains
         !allocate(self%y(arraysize))
 
         self%area = area
-        PRINT *, "AREA PTR IS ", self%area
+        !PRINT *, "AREA PTR IS ", self%area
 
         self%m_rows = m
         self%m_cols = n
@@ -351,7 +351,7 @@ contains
       class(zoaplot), intent(inout) :: self
       type(c_ptr), intent(in) :: area
       real ::  x(:), y(:)
-      character(len=100), optional :: xlabel, ylabel, title
+      character(len=*), optional :: xlabel, ylabel, title
       integer :: arraysize, i
       !type(plotdata2d) :: zpinitdata
 

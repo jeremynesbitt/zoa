@@ -3586,9 +3586,17 @@ C  (C) Copr. 1986-92 Numerical Recipes Software *)-+ZV.
 
         integer, intent(inout) :: fileID
         integer :: recLength
+        character(len=42) :: dummyVar ! for record allocation only
+
+
+        if(.not.allocated(NEUTARRAY)) THEN
+          inquire(iolength=recLength) dummyVar
+        else
+          inquire(iolength=recLength) NEUTARRAY(1)
+        END IF
 
         fileID = 28
-        inquire(iolength=recLength) NEUTARRAY(1)
+
 
       OPEN(fileID
      1,FILE=trim(basePath)//'NEUTRAL.DAT',

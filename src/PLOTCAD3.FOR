@@ -4566,7 +4566,7 @@ C
      1,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO
      2,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
 C
-      INTEGER COLPAS,IX,IY,I,II,IPST,J,K
+      INTEGER COLPAS,IX,IY,I,II,IPST,J,K, SKIPNEXT
 C
         LOGICAL NOPLOT
 C
@@ -5297,9 +5297,11 @@ C     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
       IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
                         END IF
                         END IF
-        IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
-                        IPST=1
-                        END IF
+        IF(I.GT.1) THEN
+          IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
+            IPST=1
+          END IF
+        END IF
 C
       IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
       IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
@@ -5319,9 +5321,19 @@ C
       COLPAS=COLEDG
       CALL MY_COLTYP(COLPAS)
         FIXUP=.FALSE.
+
                         DO IK=STASUR,STPSUR
-      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
-     1ALENS(127,IK-1).NE.0.0D0) THEN
+        ! Original code did not compile with checkflags
+  !      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
+  !   1ALENS(127,IK-1).NE.0.0D0) THEN
+        SKIPNEXT = 0
+        IF(ALENS(127,IK).NE.0.0D0) SKIPNEXT = 1
+        IF((IK-1).GT.-1) THEN
+          IF(IK.NE.STASUR.AND.ALENS(127,IK-1).NE.0.0D0) THEN
+            SKIPNEXT=1
+          END IF
+        END IF
+          IF(SKIPNEXT.EQ.1) THEN
                         ELSE
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
@@ -5377,9 +5389,12 @@ C     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
                         END IF
                         END IF
                         END IF
+        IF(I.GT.0) THEN
+
         IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
                         IPST=1
                         END IF
+        END IF
       IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
       IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
       IF(EDGE(J,1,I).LT.-1.0D6) EDGE(J,1,I)=-1.0D6
@@ -5399,8 +5414,16 @@ C
       CALL MY_COLTYP(COLPAS)
         FIXUP=.FALSE.
                         DO IK=STASUR,STPSUR
-      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
-     1ALENS(127,IK-1).NE.0.0D0) THEN
+        SKIPNEXT = 0
+        IF(ALENS(127,IK).NE.0.0D0) SKIPNEXT = 1
+        IF((IK-1).GT.-1) THEN
+          IF(IK.NE.STASUR.AND.ALENS(127,IK-1).NE.0.0D0) THEN
+            SKIPNEXT=1
+          END IF
+        END IF
+          IF(SKIPNEXT.EQ.1) THEN
+!      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
+!     1ALENS(127,IK-1).NE.0.0D0) THEN
                         ELSE
 C
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0

@@ -419,7 +419,7 @@ contains
     type(c_ptr) :: topLevelMenu, win
     character(len=*) :: menuItemText, menuItemEventName
     character(len=*), target, intent(in) :: singleCommand
-    character(len=80), pointer :: ptr
+    character(len=100), pointer :: ptr
     type(c_ptr) ::menuAction, menuItem
 
     ptr =>singleCommand

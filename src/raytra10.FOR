@@ -608,7 +608,8 @@ C       THE CURRENT ENTRY FOR GLPRY REPRESENTS THE RAY AT THE BEGINNING
 C       OF AN NSS OR GRIN ENVIRONMENT. NOW POPULATE THE ARRAY
 C       GLOBAL_MULTIRAY_DATA STORED AT I TO REPRESENT THE INTERMEDIATE
 C       RAY COORDINATES BETWEEN I AND I+1
-                        IF(I.GE.1.AND.NUMHITS(I-1).GT.1) THEN
+                        IF(I.GE.1) THEN
+                          IF(NUMHITS(I-1).GT.1) THEN
                         DO N_HITS=1,NUMHITS(I-1)
         X00=VERTEX(1,I-1)
         Y00=VERTEX(2,I-1)
@@ -672,6 +673,7 @@ C
         GLOBAL_MULTIREF_DATA(21,I-1,N_HITS)=NO1
                         END DO
                         END IF
+                      END IF
 
  10                     CONTINUE
 C       ALL GLOBAL TRANSFORMATIONS ARE COMPLETE

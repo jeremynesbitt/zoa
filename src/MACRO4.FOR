@@ -349,7 +349,7 @@ C
         IF(LINE1.NE.BLIN80) CALL SHOWIT(0)
         END IF
         IF(OUT.EQ.8.OR.OUT.EQ.9.OR.OUT.EQ.10.OR.OUT.EQ.97) THEN
-        IF(LINE2.NE.BLIN13) CALL NO_BLANK(LINE2,139)
+        IF(LINE2.NE.BLIN13) CALL NO_BLANK(LINE2,140)
         IF(LINE2.NE.BLIN13) CALL NO_ZEROS(LINE2,139)
         IF(LINE2.NE.BLIN13) WRITE(OUTLYNE,*) TRIM(LINE2)
         IF(LINE2.NE.BLIN13) CALL SHOWIT(2)
@@ -380,7 +380,7 @@ C     IS LINE BLANK? IF YES RETURN
                         END IF
                         END DO
                          J=2
-                        DO I=1,N
+                        DO I=1,N-1
       IF(STRING(J:J+1).EQ.' ,') THEN
       STRING(1:N)=STRING(1:J-1)//STRING(J+1:N)//' '
                         ELSE
@@ -388,7 +388,7 @@ C     IS LINE BLANK? IF YES RETURN
                         END IF
                         END DO
                          J=2
-                        DO I=1,N
+                        DO I=1,N-1
       IF(STRING(J:J+1).EQ.', ') THEN
       STRING(1:N)=STRING(1:J)//STRING(J+2:N)//' '
                         ELSE

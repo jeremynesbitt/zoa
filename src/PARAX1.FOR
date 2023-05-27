@@ -422,7 +422,7 @@ C SUB PRTRA.FOR
         SUBROUTINE PRTRA
 C
         use global_widgets
-        use parax_calcs
+
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -2502,9 +2502,11 @@ C       PARAXIAL TRACE COMPLETED
                         END IF
 C    Populate data object
 C     Dump data to paraxial ray trace interface
+
       SF = INT(SYSTEM(20))
       call curr_par_ray_trace%add_lens_data(curr_lens_data)
       PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
+
       curr_par_ray_trace%marginal_ray_height = PXTRAY(1,0:SF)
       curr_par_ray_trace%marginal_ray_angle = PXTRAY(2,0:SF)
       curr_par_ray_trace%chief_ray_height = PXTRAY(3,0:SF)
@@ -2517,6 +2519,7 @@ C       TMAG
                         ELSE
                 curr_par_ray_trace%t_mag=0.0
                         END IF
+
 
 
 C
@@ -2616,7 +2619,7 @@ C       NOW CALL PRCOL(SYSTEM(7),1)
                         CALL PRCOL
 C       SWAP COLY INTO PXTRAY
                         I=INT(SYSTEM(20))
-                        PXTRAY(1:8,0:0)=COLY(1:8,0:I)
+                        PXTRAY(1:8,0:I)=COLY(1:8,0:I)
                         CW=INT(SYSTEM(7))
                         AITYPE=1
                         CALL AB357
