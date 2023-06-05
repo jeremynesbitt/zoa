@@ -165,10 +165,11 @@ end subroutine
     !x = [1,2,3,4,5,6,7,8,9,10]
     !y = [1,2,3,4,5,6,7,8,9,10]
     !call filterRawSpotData(x,y)
-
+    !PRINT *, "Field Units are ", sysConfig%refFieldOptions(sysConfig%currFieldID)%text
     call xyscat1%initialize(c_null_ptr, x, y, &
-    & xlabel=' (in)'//c_null_char, ylabel='(in)'//c_null_char, &
-    & title='rmsfield Diagram'//c_null_char)
+    & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+    & ylabel='RMS Error [mWaves]'//c_null_char, &
+    & title='Wavefront Error vs Field'//c_null_char)
     call xyscat1%setLineStyleCode(-1)
     !&  REAL(pack((DSPOTT(2,:)-SUM(DSPOTT(2,:)/SIZE(DSPOTT(2,:)))), &
 
