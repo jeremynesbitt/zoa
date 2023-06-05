@@ -236,19 +236,24 @@ contains
         PRINT *, "Starting mp_plot routine"
         PRINT *, "DRAWING AREA PTR IS ", self%area
 
-        isurface = g_object_get_data(self%area, "backing-surface")
-    ! Create the backing surface
 
-    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
-    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    !call g_object_set_data(self%area, "backing-surface", isurface)
-        PRINT *, "isurface in mp_draw is ", isurface
+
+        ! Added if statement 6/5 b/c I don't think this is adding any value when area is undefined
+        isurface = c_null_ptr
+        if (c_associated(self%area)) then
+
+          isurface = g_object_get_data(self%area, "backing-surface")
+          PRINT *, "isurface in mp_draw is ", isurface
+        end if
+
         if (.not. c_associated(isurface)) then
            PRINT *, "mp_draw :: Backing surface is NULL"
           isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
         end if
+
+        PRINT *, "self%area is now", self%area
 
         cc = hl_gtk_drawing_area_cairo_new(self%area)
         cs = cairo_get_target(cc)
@@ -547,13 +552,11 @@ contains
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     call plwind(xmin, xmax, ymin, ymax)
 
-        isurface = g_object_get_data(self%area, "backing-surface")
-        PRINT *, "self%area is ", self%area
-    ! Create the backing surface
+        isurface = c_null_ptr
+        if (c_associated(self%area)) then
+          isurface = g_object_get_data(self%area, "backing-surface")
+          PRINT *, "self%area is ", self%area
 
-    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
-    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    !call g_object_set_data(self%area, "backing-surface", isurface)
         PRINT *, "isurface in mp_draw is ", isurface
         if (.not. c_associated(isurface)) then
            PRINT *, "mp_draw :: Backing surface is NULL"
@@ -561,6 +564,16 @@ contains
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
         end if
+
+        end if
+    ! Create the backing surface
+
+    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+    !call g_object_set_data(self%area, "backing-surface", isurface)
+
+
+        !PRINT *, "self%area is now ", self%area
 
     call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
 
