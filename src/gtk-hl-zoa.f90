@@ -382,9 +382,13 @@ subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
   boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
 
 do while(boolResult.EQ.1)
+  PRINT *, "Before error?"
   ival = c_loc(iresult)
+  PRINT *, "After ival"
   call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
+  PRINT *, "after get valu"
   ivalue = g_value_get_int(ival)
+  PRINT *, "after get_int"
 if (ivalue.EQ.targetValue) then
      PRINT *, "Found correct combo entry to display!"
      pstring = c_loc(stringv)
@@ -397,6 +401,7 @@ if (ivalue.EQ.targetValue) then
   !call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
   return
 else
+  call g_value_unset(ival)
   boolResult = gtk_tree_model_iter_next(model, c_loc(citer))
   if (boolResult.EQ.0) then
     PRINT *, "Reached end of model and no suitable matches found"

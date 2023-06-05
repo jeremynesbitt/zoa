@@ -203,6 +203,7 @@ C       LENO REVERSE COMPLETED.
 C       DO A LENO CV (CODE-V). THIS OPERATION REMOVES
 C       ALL PIKUPS, SOLVES, AND ALTERNATE
 C       CONFIGURATIONS.
+                        PRINT *, "LENO CV Being executed..."
                         CALL LENHDCV
                         DO I=0,INT(SYSTEM(20))
                         CALL LENSFCV(I)

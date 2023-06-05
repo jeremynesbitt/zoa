@@ -183,6 +183,7 @@ contains
 
     function mp_get(self,i,j) result(plotter)
         ! Arguments
+        implicit none
 
         class(multiplot), intent(in) :: self
         integer, intent(in) :: i, j
@@ -197,6 +198,7 @@ contains
         item => self%m_plots%get(ind)
         select type (item)
         class is (zoaplot)
+            PRINT *, "Found Zoaplot obj!"
             plotter => item
         class default
             nullify(plotter)
@@ -408,6 +410,8 @@ contains
     !   end do
 
     self%numSeries = self%numSeries + 1
+
+    ! Comment out 6/5 to try and debug a crash
     call self%plotdatalist(self%numSeries)%initialize(x,y)
 
     ! call zpinitdata%initialize(x,y)
@@ -422,7 +426,7 @@ contains
       class(barchart), intent(inout) :: self
       type(c_ptr), intent(in) :: area
       real ::  x(:), y(:)
-      character(len=100), optional :: xlabel, ylabel, title
+      character(len=*), optional :: xlabel, ylabel, title
       integer :: arraysize, i
 
       arraysize = size(x)
@@ -467,6 +471,9 @@ contains
     !   do i = 1, 9
     !       call self%plotdatalist%push(i)
     !   end do
+    self%numSeries = self%numSeries + 1
+    !call self%plotdatalist(self%numSeries)%initialize(x,y)
+
 
   end subroutine
 
@@ -541,6 +548,7 @@ contains
     call plwind(xmin, xmax, ymin, ymax)
 
         isurface = g_object_get_data(self%area, "backing-surface")
+        PRINT *, "self%area is ", self%area
     ! Create the backing surface
 
     !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
@@ -557,6 +565,7 @@ contains
     call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
 
     call plcol0(getLabelFontCode(self))
+
     call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
 

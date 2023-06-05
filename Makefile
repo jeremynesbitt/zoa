@@ -10,8 +10,8 @@
 
 # Change this line if you are using a different Fortran compiler
 FORTRAN_COMPILER = gfortran
-FFLAGS= -static-libgfortran -static-libgcc -mmacosx-version-min=12.3 -fPIC -fno-align-commons -fPIC#optimization (for level 3) flags, compiler warnings and the strictest adherence to the latest standards
-LFLAGS= -static-libgfortran -static-libgcc -mmacosx-version-min=12.3 -fPIC -fno-align-commons -fPIC#optimization (for level 3) flags, compiler warnings and the strictest adherence to the latest standards
+FFLAGS= -static-libgfortran -static-libgcc -mmacosx-version-min=12.5 -fPIC -fno-align-commons -fPIC -fcheck=bounds #optimization (for level 3) flags, compiler warnings and the strictest adherence to the latest standards
+LFLAGS= -static-libgfortran -static-libgcc -mmacosx-version-min=12.5 -fPIC -fno-align-commons -fPIC -fcheck=bounds #optimization (for level 3) flags, compiler warnings and the strictest adherence to the latest standards
 # Dropped flags -fconvert=swap
 SRC := $(wildcard src/*.FOR)
 # Files for preprocessing to support different OS / etc (eventually)
@@ -21,7 +21,7 @@ SRCETC :=  $(wildcard etc/*.f90)
 # PROG = src/TSTKDP.FOR
 GTK  = src/zoamain.f90
 GLOBFOR = src/globals.FOR src/nssmod.FOR
-GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoa-glass-ui.f90 src/zoamenubar.f90 src/zoa-tab.f90 src/kdp-draw.f90 src/mod_plotrayfan.f90 src/mod_plotopticalsystem.f90  src/ui-ast-fc-dist.f90 src/ui-spot.f90 src/ui-rmsfield.f90 src/ROUTEDRAWING.f90 src/zoa-tab-manager.f90  src/zzhandlers.f90 src/lens-editor.f90 src/parax_calcs.f90 src/kdp-interfaces.f90  src/WDRAWOPTICALSYSTEM.f90
+GLOB  = src/zoa-ui.f90 src/plotsettingtypes.f90 src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90 src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoa-glass-ui.f90 src/zoamenubar.f90 src/zoa-tab.f90 src/kdp-draw.f90 src/mod_plotrayfan.f90 src/mod_plotopticalsystem.f90  src/ui-ast-fc-dist.f90 src/ui-spot.f90 src/ui-rmsfield.f90 src/ROUTEDRAWING.f90 src/zoa-tab-manager.f90  src/zzhandlers.f90 src/ui-sys-config.f90 src/lens-editor.f90 src/parax_calcs.f90 src/kdp-interfaces.f90  src/WDRAWOPTICALSYSTEM.f90
 IFACES = src/kdp-interfaces.f90
 
 GTKMID = ${GTK:.f90=.mod}

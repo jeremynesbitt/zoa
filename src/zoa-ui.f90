@@ -68,6 +68,7 @@ integer, parameter :: ID_AST_FIELDXY = 1531
 integer, parameter :: ID_AST_FIELD_X = 1532
 integer, parameter :: ID_AST_FIELD_Y = 1533
 
+
 integer :: active_plot = -1
 
 ! C               0 = WHITE

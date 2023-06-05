@@ -15,7 +15,10 @@ module kdp_data_types
      integer, PARAMETER :: FIELD_REAL_IMAGE_HEIGHT = 206
      integer, PARAMETER :: FIELD_REAL_IMAGE_HEIGHT_DEG = 207
 
-
+     integer, parameter :: LENS_UNITS_INCHES = 1
+     integer, parameter :: LENS_UNITS_CM = 2
+     integer, parameter :: LENS_UNITS_MM = 3
+     integer, parameter :: LENS_UNITS_M = 4
 
 type idText
   integer :: ID
@@ -30,13 +33,16 @@ end type
 !    functionToGetApertureFromSystem
 ! end type
 
+! sys_config - try to collect all the SYSTEM variables into
+! more human readable variables
 type sys_config
 
     integer :: imgSurface
     character(len=40) :: currApertureName
-    integer :: currApertureID, currFieldID
+    integer :: currApertureID, currFieldID, currLensUnitsID
     type(idText), allocatable :: aperOptions(:)
     type(idText), allocatable :: refFieldOptions(:)
+    type(idText), allocatable :: lensUnits(:)
     real, dimension(2) :: refFieldValue
     real, dimension(2,10) :: relativeFields
     integer :: numFields
@@ -62,8 +68,10 @@ type sys_config
     procedure, public, pass(self) :: updateParameters
     procedure, public, pass(self) :: updateApertureSelectionByCode
     procedure, public, pass(self) :: setNumFields
-    !procedure, public, pass(self) :: setApertue
-
+    procedure, public, pass(self) :: setRefWavelengthIndex
+    procedure, public, pass(self) :: setWavelengths
+    procedure, public, pass(self) :: setSpectralWeights
+    procedure, public, pass(self) :: setRelativeFields
 
 end type
 
@@ -287,6 +295,7 @@ end function
 
      allocate(idText :: self%aperOptions(3))
      allocate(idText :: self%refFieldOptions(3))
+     allocate(idText :: self%lensUnits(4))
 
      self%aperOptions(1)%text = "Entrance Pupil Diameter"
      self%aperOptions(1)%id = APER_ENTR_PUPIL_DIAMETER
@@ -305,6 +314,20 @@ end function
 
      self%refFieldOptions(3)%text = "Paraxial Image Height"
      self%refFieldOptions(3)%id = FIELD_PARAX_IMAGE_HEIGHT
+
+     self%lensUnits(1)%text = "inches"
+     self%lensUnits(1)%id = LENS_UNITS_INCHES
+
+     self%lensUnits(2)%text = "cm"
+     self%lensUnits(2)%id = LENS_UNITS_CM
+
+     self%lensUnits(3)%text = "mm"
+     self%lensUnits(3)%id = LENS_UNITS_MM
+
+     self%lensUnits(4)%text = "meters"
+     self%lensUnits(4)%id = LENS_UNITS_M
+
+
 
      self%numFields = CFLDCNT
      self%relativeFields = CFLDS
@@ -381,6 +404,8 @@ end function
      self%spectralWeights(1:5) = SYSTEM(31:35)
      self%spectralWeights(6:10) = SYSTEM(76:80)
      self%refWavelengthIndex = INT(SYSTEM(11))
+
+     self%currLensUnitsID = SYSTEM(6)
 
    end subroutine
 
@@ -491,6 +516,55 @@ end function
 
    end subroutine
 
+   subroutine setRefWavelengthIndex(self, refWavelengthIdx)
+     class(sys_config), intent(inout) :: self
+     integer, intent(in) :: refWavelengthIdx
+     include "DATLEN.INC"
+
+     self%refWavelengthIndex = refWavelengthIdx
+     SYSTEM(11) = REAL(self%refWavelengthIndex)
+
+   end subroutine
+
+   subroutine setWavelengths(self, index, wavelength)
+     class(sys_config), intent(inout) :: self
+     integer, intent(in) :: index
+     real, intent(in) :: wavelength
+     include "DATLEN.INC"
+
+     self%wavelengths(index) = wavelength
+
+     SYSTEM(1:5) = self%wavelengths(1:5)
+     SYSTEM(71:75) = self%wavelengths(6:10)
+
+   end subroutine
+
+   subroutine setSpectralWeights(self, index, weight)
+     class(sys_config), intent(inout) :: self
+     integer, intent(in) :: index
+     real, intent(in) :: weight
+     include "DATLEN.INC"
+
+     self%spectralWeights(index) = weight
+
+     SYSTEM(31:35) = self%spectralWeights(1:5)
+     SYSTEM(76:80) = self%spectralWeights(6:10)
+
+   end subroutine
+
+   subroutine setRelativeFields(self, col, row, value)
+     implicit none
+     class(sys_config), intent(inout) :: self
+     integer, intent(in) :: col, row
+     real, intent(in) :: value
+     include "DATLEN.INC"
+
+
+     self%relativeFields(col, row) = value
+     CFLDS = self%relativeFields
+   end subroutine
+
+
    subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
      class(sys_config), intent(inout) :: self
      integer, intent(in) :: ID_SELECTION
@@ -500,6 +574,7 @@ end function
 
      include "DATLEN.INC"
 
+     !self%currApertureID = ID_SELECTION
 
      select case (ID_SELECTION)
 
@@ -559,6 +634,9 @@ end function
      PRINT *, "SYSTEM(64) is ", SYSTEM(64) ! NAOY
      PRINT *, "SYSTEM(67) is ", SYSTEM(67) ! F-number
      PRINT *, "SYSTEM(83) is ", SYSTEM(83) ! FLOAT
+
+     ! Make sure we have the up to date values
+     call self%updateParameters()
 
 
    end subroutine

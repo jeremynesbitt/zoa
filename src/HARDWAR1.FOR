@@ -3383,6 +3383,7 @@ C       USED ONLY IN COMMA DELIMITED TABLE OUTPUT
                         END IF
 C
       IF(I.EQ.10) THEN
+      PRINT *, "LENO Output Activated!"
       I=0
       STRIPOUT=OUTLYNE
       IPASS1=139
@@ -3392,6 +3393,7 @@ C
       IPASS1=139
       CALL ONE_BLANK(STRIPOUT,IPASS1)
       OUTLYNE=STRIPOUT
+      call updateTerminalLog(OUTLYNE, "black")
                END IF
       IF(I.EQ.11) THEN
       I=0

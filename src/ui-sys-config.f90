@@ -81,6 +81,8 @@ end type
   integer, parameter :: ID_SYSCON_FIELD_NUM = 7043
   integer, parameter :: ID_SYSCON_WAVELENGTH_NUM = 8001
   integer, parameter :: ID_SYSCON_WAVELENGTH_REF = 8002
+  integer, parameter :: ID_SYSCON_Y_APERTURE = 7050
+  integer, parameter :: ID_SYSCON_X_APERTURE = 7051
 
 
   type(c_ptr) :: spinButton_xAperture, spinButton_yAperture
@@ -100,8 +102,8 @@ contains
     integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
 
 
-    integer, target :: TARGET_X_APERTURE = 7050
-    integer, target :: TARGET_Y_APERTURE = 7051
+    integer, target :: TARGET_X_APERTURE = ID_SYSCON_X_APERTURE
+    integer, target :: TARGET_Y_APERTURE = ID_SYSCON_Y_APERTURE
 
 
     call self%addListBoxTextID("Aperture ",  &
@@ -242,7 +244,8 @@ end subroutine
    print *, "irow is ", irow
    print *, "icol is ", icol
 
-   sysConfig%relativeFields(icol, irow+1) = cellData
+   call sysConfig%setRelativeFields(icol, irow+1, cellData)
+   !sysConfig%relativeFields(icol, irow+1) = cellData
    end if
 
    !sysConfig%fieldColorCodes(rowSelection+1) = ivalue
@@ -420,15 +423,16 @@ do i=1,nrows
    !write(line,"('List entry number ',I0)") i
 
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
+
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
         & fvalue=sysConfig%relativeFields(1,i))
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
         & fvalue=sysConfig%relativeFields(2,i))
-
+     PRINT *, "Before error?"
      call hl_gtk_listn_combo_set_by_list_id(ihlist, i-1_c_int, 3_c_int, &
           & targetValue=sysConfig%fieldColorCodes(i))
-
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 10_c_int, logvalue= i==4)
+       PRINT *, "After Error?"
+   !call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 10_c_int, logvalue= i==4)
 end do
 
 
@@ -557,7 +561,7 @@ subroutine sys_config_new(parent_window)
     integer :: nOpts, ii
 
 
-
+  call sysConfig%updateParameters() ! Just in case any out of sync values
   PRINT *, "ABOUT TO FIRE UP SYS CONFIG WINDOW!"
 
   ! Create a modal dialogue
@@ -668,14 +672,39 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
 
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
     PRINT *, "Aperture Selection for ", int_value
+    if (int_value.NE.sysConfig%currApertureID) THEN
+       yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
+       xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
+       !xySame = gtk_check_button_get_active ()
+       call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
+     end if
+
+  !call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
+  !call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
+
+case (ID_SYSCON_Y_APERTURE)
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
+    if (xySame.EQ.1) then
+      call gtk_spin_button_set_value(spinButton_xAperture, &
+      & REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
+      PRINT *, "Updating Aperture in KDP"
+      call sysConfig%updateApertureSelectionByCode(int_value, yAp, yAp, xySame)
+    else
+      xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
+      call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
+    end if
+
+case (ID_SYSCON_X_APERTURE)
     xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
-    !xySame = gtk_check_button_get_active ()
-
-    call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
-
-  call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
-  call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
+    if (xySame.EQ.1) then
+      ! Ignore change essentially
+      call gtk_spin_button_set_value(spinButton_xAperture, &
+      & REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
+    else
+      xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
+      yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
+      call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
+    end if
 
   case (ID_SYSCON_FIELDTYPE)
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
@@ -683,6 +712,9 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
 
   case (ID_SYSCON_FIELD_NUM)
        call sysConfig%setNumFields(INT(gtk_spin_button_get_value (spinButton_numFields)))
+
+  case (ID_SYSCON_WAVELENGTH_REF)
+       call sysConfig%setRefWavelengthIndex(INT(gtk_spin_button_get_value (spinButton_refWavelength)))
 
 
 
@@ -706,7 +738,7 @@ subroutine createWavelengthSettingsUI(self)
   !integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
 
   spinButton_refWavelength =   gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=2*1d0, &
+                                                     & value=sysConfig%refWavelengthIndex*1d0, &
                                                                & lower=1d0, &
                                                                & upper=10d0, &
                                                                & step_increment=1d0, &
@@ -910,9 +942,11 @@ end function
    read(ftext,'(f200.0)') cellData
    select case (icol)
    case (1)
-     sysConfig%wavelengths(irow+1) = cellData
+     call sysConfig%setWavelengths(irow+1,cellData)
+     !sysConfig%wavelengths(irow+1) = cellData
    case (2)
-     sysConfig%spectralWeights(irow+1) = cellData
+     call sysConfig%setSpectralWeights(irow+1,cellData)
+     !sysConfig%spectralWeights(irow+1) = cellData
 
    end select
 

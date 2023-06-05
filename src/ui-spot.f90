@@ -12,6 +12,10 @@ type, extends(ui_settings) :: spot_settings
    integer changed
    integer wavelength
    logical autoplotupdate
+   type(idText), allocatable :: spotRays(:)
+   !integer, dimension(3), allocatable :: rayDensityMinMax
+   integer currSpotRaySetting
+   integer currRayDensity
    type(c_ptr) :: canvas
    character(len=140) ::astcalccmd
    character(len=140) ::distcalccmd
@@ -39,6 +43,12 @@ contains
 end type
 
   type(spot_settings) :: spot_struct_settings
+  type(c_ptr) :: spinButton_spotRayDensity
+  integer, parameter :: ID_SPOT_RAND = 1601
+  integer, parameter :: ID_SPOT_RECT = 1602
+  integer, parameter :: ID_SPOT_RING = 1603
+  integer, parameter :: ID_SPOT_RAYDENSITY = 1604
+
 
 contains
 
@@ -56,6 +66,22 @@ type(spot_settings) function spot_constructor(canvas) result(self)
 
     self%canvas = canvas
 
+    PRINT *, "Spot Constructor Called!"
+    PRINT *, "Canvas is ", self%canvas
+
+    allocate(idText :: self%spotRays(3))
+
+    self%spotRays(1)%text = "Rectangular"
+    self%spotRays(1)%id = ID_SPOT_RECT
+
+
+    self%spotRays(2)%text = "Random"
+    self%spotRays(2)%id = ID_SPOT_RAND
+
+    self%spotRays(3)%text = "Rings"
+    self%spotRays(3)%id = ID_SPOT_RING
+
+    self%currSpotRaySetting = ID_SPOT_RING
 
 
 end function
@@ -71,6 +97,7 @@ subroutine spot_replot(self)
 
   character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
   character(len=5) :: ftext
+       call PROCESKDP('SPD')
        PRINT *, "About to call plot_spot for replot"
        call plot_spot(self%canvas)
 !
@@ -99,23 +126,16 @@ subroutine spot_new(self)
   ! find a more elegant solution, and this seems better than a bunch of small
   ! callback functions
   !integer, target :: TARGET_RAYFAN_WAVELENGTH  = ID_WAVELENGTH
-  integer, target :: TARGET_AST_FIELDXY = ID_AST_FIELDXY
-  integer, target :: TARGET_AST_NUMRAYS  = ID_RAYFAN_NUMRAYS
-  integer, target :: TARGET_PLOTTYPE_AST  = ID_PLOTTYPE_AST
+
+  integer, target :: TARGET_SPOT_RAYDENSITY  = ID_SPOT_RAYDENSITY
 
   character(kind=c_char, len=20), dimension(2) :: vals_ast_fieldxy
   integer(c_int), dimension(2) :: refs_ast_fieldxy
 
 
 
-
-  vals_ast_fieldxy = [character(len=20) :: "Y Field", "X Field"]
-
-  refs_ast_fieldxy = [ID_AST_FIELD_Y, ID_AST_FIELD_X]
-
-
   PRINT *, "Spot diagram new plot initiated!"
-  PRINT *, "DSPOTT is ", DSPOTT
+  !PRINT *, "DSPOTT is ", DSPOTT
 
   !call astfcdist_tab%initialize(notebook, "Astig FC Dist", ID_PLOTTYPE_AST)
   ! Create backing surface
@@ -146,13 +166,9 @@ subroutine spot_new(self)
     !                & c_funloc(ROUTEDRAWING), c_loc(TARGET_PLOTTYPE_AST), c_null_funptr)
   end if
 
-  call self%addListBoxSetting("Field Type", refs_ast_fieldxy, vals_ast_fieldxy, &
-  & c_funloc(callback_spot_settings), c_loc(TARGET_AST_FIELDXY))
-
-
-  spinButton_numRays = gtk_spin_button_new (gtk_adjustment_new(value=10d0, &
-                                                              & lower=10d0, &
-                                                              & upper=50d0, &
+  spinButton_spotRayDensity = gtk_spin_button_new (gtk_adjustment_new(value=10d0, &
+                                                              & lower=1d0, &
+                                                              & upper=1000d0, &
                                                               & step_increment=1d0, &
                                                               & page_increment=1d0, &
                                                               & page_size=1d0),climb_rate=1d0, &
@@ -160,8 +176,9 @@ subroutine spot_new(self)
 
 
 
- call self%addSpinBoxSetting("Number of Rays", spinButton_numRays, &
- & c_funloc(callback_spot_settings), c_loc(TARGET_AST_NUMRAYS))
+
+ call self%addSpinBoxSetting("Ray Density", spinButton_spotRayDensity, &
+ & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_RAYDENSITY))
 
 
   call self%finalizeWindow()
@@ -218,7 +235,7 @@ end subroutine
 
      REAL :: x, y
 
-
+    PRINT *, "PLOT_SPOT Started!"
 
 
     isurface = g_object_get_data(localcanvas, "backing-surface")
@@ -230,21 +247,29 @@ end subroutine
 
     call mplt%initialize(localcanvas, 1,1)
 
-    PRINT *, "X SPOT ", REAL(DSPOTT(1,:))
-    PRINT *, "Y SPOT ", REAL(DSPOTT(2,:))
+    !PRINT *, "X SPOT ", REAL(DSPOTT(1,:))
+    !PRINT *, "Y SPOT ", REAL(DSPOTT(2,:))
 
     !call filterRawSpotData(x,y)
+    PRINT *, "label is"
+    PRINT *, "label is ", sysConfig%lensUnits(sysConfig%currLensUnitsID)%text
+
 
     call xyscat1%initialize(c_null_ptr, REAL(pack(DSPOTT(1,:),DSPOTT(1,:) /= 0)), &
     &                                   REAL(pack(DSPOTT(2,:), DSPOTT(2,:) /= 0)), &
-    & xlabel=' (in)'//c_null_char, ylabel='(in)'//c_null_char, &
+    !call xyscat1%initialize(c_null_ptr, REAL(DSPOTT(1,:)), &
+    !&                                   REAL(DSPOTT(2,:)), &
+    & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+    & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+    !& xlabel=' (x)'//c_null_char, ylabel='(y)'//c_null_char, &
     & title='Spot Diagram'//c_null_char)
     call xyscat1%setLineStyleCode(-1)
     !&  REAL(pack((DSPOTT(2,:)-SUM(DSPOTT(2,:)/SIZE(DSPOTT(2,:)))), &
 
 
     call mplt%set(1,1,xyscat1)
-
+    PRINT *, "localcanvas ", localcanvas
+    PRINT *, "mplot area ", mplt%area
     call mplt%draw()
 
 
