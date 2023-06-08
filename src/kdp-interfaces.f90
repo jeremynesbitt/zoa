@@ -279,6 +279,7 @@ subroutine RMSFIELD_PLOT
 
 
   !call zoatabMgr%addPlotTab(ID_PLOTTYPE_RMSFIELD, inputTitle='RMS Field Plot', extcanvas=localcanvas)
+  call PROCESKDP('PLOT NEW') ! This needs to be called at some point
   call PROCESKDP('DRAW')
 
 end subroutine

@@ -63,6 +63,8 @@ module lens_editor
 
   integer(kind=c_int), parameter :: ID_COL_RADIUS = 2
   integer(kind=c_int), parameter :: ID_COL_THICKNESS = 3
+  integer(kind=c_int), parameter :: ID_COL_GLASS = 4
+
 
   integer(kind=c_int), parameter :: ID_COL_ASPH_A = 4
   integer(kind=c_int), parameter :: ID_COL_ASPH_B = 5
@@ -363,10 +365,13 @@ end subroutine lens_editor_replot
   end subroutine del_row
 
   subroutine lens_edited(renderer, path, text, gdata) bind(c)
+
+    use glass_manager
     !type(c_ptr), value, intent(in) :: list, gdata
 
     type(c_ptr), value :: renderer, path, text, gdata
     character(len=40) :: kdptext
+    character(len=13) :: catalogName
 
 
 
@@ -438,6 +443,14 @@ end subroutine lens_editor_replot
         WRITE(kdptext, *) 'CHG ' ,irow
         call PROCESKDP(kdptext)
         call PROCESKDP("TH "//trim(ftext))
+        call PROCESKDP('EOS')
+      case (ID_COL_GLASS)
+        call findCatalogNameFromGlassName(ftext, catalogName)
+        PRINT *, "Glass entry request is ", ftext
+        call PROCESKDP('U L')
+        WRITE(kdptext, *) 'CHG ' ,irow
+        call PROCESKDP(kdptext)
+        call PROCESKDP(catalogName//' '//ftext)
         call PROCESKDP('EOS')
 
 
@@ -597,7 +610,7 @@ subroutine buildBasicTable(firstTime)
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
     call basicTypes(ID_COL_THICKNESS)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
-    call basicTypes(4)%initialize("Glass"     , G_TYPE_STRING, FALSE, FALSE, &
+    call basicTypes(ID_COL_GLASS)%initialize("Glass"     , G_TYPE_STRING, FALSE, TRUE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
     call basicTypes(5)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
 
@@ -799,7 +812,7 @@ end subroutine
         call hl_gtk_listn_ins(ihObj, count = 1_c_int)
 
         do j=1,m
-       
+
 
           select case(colObj(j)%dtype)
 
@@ -958,5 +971,35 @@ end subroutine
     res = self%dataString(idx)
 
   end function
+
+  ! subroutine findGlassByName(cName)
+  !
+  !   implicit none
+  !   character(len=*), intent(in) :: cName
+  !   character(len=13) :: compStr
+  !   integer :: JJ, maxVal, cLen
+  !   include "DATLEN.INC"
+  !
+  !   maxVal = size(GLANAM,DIM=1)
+  !
+  !   compStr = "             "
+  !   cLen = len(cName)
+  !   if (cLen.LT.13) then
+  !     compStr(1:cLen) = cName
+  !   else
+  !     compStr(1:13) = cName(1:13)
+  !
+  !   end if
+  !
+  !   do JJ=0,maxVal-1
+  !     PRINT *, GLANAM(JJ,2)
+  !     if (compStr.eq.GLANAM(JJ,2)) then
+  !       PRINT *, "Found Glass in Catalog ", GLANAM(JJ,1)
+  !       return
+  !     end if
+  !
+  !   end do
+  !
+  ! end subroutine
 
 end module lens_editor

@@ -799,13 +799,14 @@ end subroutine proto_symfunc
 
 
 
-      PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
+      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
 
       call gtk_text_buffer_get_end_iter(buffer, c_loc(endIter))
 
       !PRINT *, "ABOUT TO CALL MARKUP "
       !TODO Sometimes an empty ftext is sent to this function and GTK throws a
       !warnting.  Need to figure out how to detect empty string (this is not working)
+    !PRINT *, "debug ftext is ", ftext
     if (ftext.ne."  ") THEN
       call gtk_text_buffer_insert_markup(buffer, c_loc(endIter), &
       & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
@@ -868,7 +869,7 @@ end subroutine proto_symfunc
      END IF
 
       call pending_events()
-      PRINT *, "End of updateterminallog"
+      !PRINT *, "End of updateterminallog"
 
   end subroutine
 

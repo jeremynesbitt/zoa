@@ -63,11 +63,8 @@ module zoa_glass_ui
     !CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
     PRINT *, "NUMINLIST IS ", NUMINLIST
     do i=1,NUMINLIST-1
-       !write(line,"('List entry number ',I0)") i
-       !ltr=len_trim(line)+1
+
        line = CATARRAY(i)
-       !line(ltr:ltr)=c_null_char
-       print *, line
        call hl_gtk_list1_ins(ihlist, line//c_null_char)
 
     end do
@@ -113,12 +110,12 @@ module zoa_glass_ui
     ! It is the scrollcontainer that is placed into the box.
     call hl_gtk_box_pack(base, ihscrollcontain)
 
-    macrorun = gtk_check_button_new_with_label("Run"//c_null_char)
-    macroedit = gtk_check_button_new_with_label("Edit"//c_null_char)
-    macrolist = gtk_check_button_new_with_label("List"//c_null_char)
-    macrorename = gtk_check_button_new_with_label("Rename"//c_null_char)
-    macrocopy = gtk_check_button_new_with_label("Copy"//c_null_char)
-    macrodelete = gtk_check_button_new_with_label("Delete"//c_null_char)
+    ! macrorun = gtk_check_button_new_with_label("Run"//c_null_char)
+    ! macroedit = gtk_check_button_new_with_label("Edit"//c_null_char)
+    ! macrolist = gtk_check_button_new_with_label("List"//c_null_char)
+    ! macrorename = gtk_check_button_new_with_label("Rename"//c_null_char)
+    ! macrocopy = gtk_check_button_new_with_label("Copy"//c_null_char)
+    ! macrodelete = gtk_check_button_new_with_label("Delete"//c_null_char)
 
     ! macrogroup = gtk_window_group_new()
     ! call gtk_check_button_set_group(macrorun, macroedit)

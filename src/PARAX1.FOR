@@ -486,9 +486,10 @@ C     Dump data to interface
         curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)
         curr_lens_data % surf_index(JJ+1) = INDEX
         curr_lens_data % surf_vnum(JJ+1) = VNUM
-        curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
-        PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
-        PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
+        !curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
+        curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,2)
+        !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
+        !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
       END DO
 
 

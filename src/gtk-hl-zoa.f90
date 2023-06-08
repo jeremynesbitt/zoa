@@ -161,16 +161,12 @@ subroutine hl_zoa_combo_set_selected_by_list2_id(widget, targetValue)
 
   PRINT *, "targetValue is ", targetValue
 
-
-
-
   do while(boolResult.EQ.1)
     ival = c_loc(iresult)
     call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
     ivalue = g_value_get_int(ival)
-    PRINT *, "ivalue is ", ivalue
   if (ivalue.EQ.targetValue) then
-    PRINT *, "Found correct combo entry to display!"
+    ! PRINT *, "Found correct combo entry to display!"
     call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
     return
   else
@@ -382,15 +378,11 @@ subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
   boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
 
 do while(boolResult.EQ.1)
-  PRINT *, "Before error?"
   ival = c_loc(iresult)
-  PRINT *, "After ival"
   call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
-  PRINT *, "after get valu"
   ivalue = g_value_get_int(ival)
-  PRINT *, "after get_int"
 if (ivalue.EQ.targetValue) then
-     PRINT *, "Found correct combo entry to display!"
+
      pstring = c_loc(stringv)
      pstring = g_value_init(pstring, G_TYPE_STRING)
      call g_value_unset(pstring)
@@ -398,7 +390,6 @@ if (ivalue.EQ.targetValue) then
      call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, pstring)
      call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
 
-  !call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
   return
 else
   call g_value_unset(ival)
@@ -409,21 +400,6 @@ else
   end if
 end if
 end do
-
-  !
-  ! call clear_gtktreeiter(citer)
-  ! valid = gtk_tree_model_iter_nth_child(model, c_loc(citer), &
-  !      & c_null_ptr, selection)
-  ! if (c_f_logical(valid)) then
-  !    pstring = c_loc(stringv)
-  !    pstring = g_value_init(pstring, G_TYPE_STRING)
-  !    call g_value_unset(pstring)
-  !   ! call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, pstring)
-  !   ! JN:  Hack to test my model.  TODO:  Do not leave it like this!!!
-  !    call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, pstring)
-  !    call gtk_list_store_set_value(store, c_loc(viter), colno, pstring)
-  ! end if
-
 
 end subroutine
 

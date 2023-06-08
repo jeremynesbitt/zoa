@@ -244,7 +244,7 @@ contains
 
           isurface = g_object_get_data(self%area, "backing-surface")
           PRINT *, "isurface in mp_draw is ", isurface
-        end if
+
 
         if (.not. c_associated(isurface)) then
            PRINT *, "mp_draw :: Backing surface is NULL"
@@ -252,13 +252,12 @@ contains
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
         end if
+        end if
 
         PRINT *, "self%area is now", self%area
 
         cc = hl_gtk_drawing_area_cairo_new(self%area)
         cs = cairo_get_target(cc)
-        !self%cc = self%area
-        !cs = cairo_get_target(self%area)
 
         call logger%logText("AFTER CS DEFINED")
         !  Initialize plplot

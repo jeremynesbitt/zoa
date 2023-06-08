@@ -1849,7 +1849,7 @@ C     WQ WAS MATL OR RUSSIAN
       WRITE(OUTLYNE,249)
       CALL SHOWIT(0)
                       END IF
-      IF(WQ.EQ.'RUSSIAN') CALL GLASSP_RUSSIAN1
+      !IF(WQ.EQ.'RUSSIAN') CALL GLASSP_RUSSIAN1
                       END IF
                         ELSE
                         END IF
@@ -1918,7 +1918,7 @@ C     OHARAMULTI
       IF(FLNAME.EQ.'OHARAMULTI  ') THEN
           CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,
      1                      A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,
+          CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,
      1                      A1,A2,A3,A4,A5)
       END IF
 
@@ -1983,6 +1983,8 @@ C     GLCAT/GLASS SEARCH
       SELECT CASE (FLAG)
 
        CASE (1)
+        !PRINT *, "FLNAME is ", FLNAME
+        !PRINT *, "CATNAME is ", CATNAME
         WRITE(OUTLYNE,110) CATNAME,NAME,NUMBER
         CALL SHOWIT(0)
        CASE (2)
@@ -2008,7 +2010,7 @@ C      PRINT *, "DONE WITH RECORD ",J
 
 
       CHARACTER(len=13) :: NAME,NUMBER, CATNAME, NAME1, NAME2
-      CHARACTER(len=12) :: FLNAME
+      CHARACTER(len=*) :: FLNAME
       REAL*8 A0,A1,A2,A3,A4,A5,LAMUPP,LAMLOW
       include "DATMAI.INC"
 C
@@ -2032,7 +2034,7 @@ C
  120  FORMAT('GLASS NAME   = ',A13)
 
 
-      WRITE(OUTLYNE,121) NUMBER
+      !WRITE(OUTLYNE,121) NUMBER
       CALL SHOWIT(0)
  121  FORMAT('GLASS NUMBER = ',A13)
  122  FORMAT('          A0 = ',G23.15)
