@@ -5,6 +5,7 @@ module zoa_glass_ui
       use gtk_hl_button
       use gtk_hl_entry
       use gtk_hl_dialog
+      use global_widgets
 
       type(c_ptr) :: ihlist
       type(c_ptr) :: macrorun, macroedit, macrogroup, macrolist
@@ -34,8 +35,10 @@ module zoa_glass_ui
           deallocate(selections)
 
           ! Get text to display in secend window
+          call ioConfig%setTextBuffer(ID_TERMINAL_GLASS)
+          call hl_gtk_text_view_delete(c_null_ptr, buffer=ioConfig%txtBuffer)
           CALL PROCESKDP('GLASSP '//svalue)
-
+          call ioConfig%setTextBuffer(ID_TERMINAL_DEFAULT)
 
 
           ! Get index at wavelengths of interest
@@ -84,7 +87,7 @@ module zoa_glass_ui
       implicit none
       type(c_ptr), value, intent(in) :: act, param, win
       type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
-      type(c_ptr) :: macroentrylabel
+      type(c_ptr) :: macroentrylabel, textView, buffer
 
       integer, target :: iappend=0, idel=0
       integer :: ltr
@@ -107,9 +110,16 @@ module zoa_glass_ui
          & title="List of Available Glasses"//c_null_char)
 
     call populateglasslist()
+
+    textView = gtk_text_view_new ()
+    call gtk_text_view_set_editable(textView, FALSE)
+        !
+    buffer = gtk_text_view_get_buffer (textView)
+    call ioConfig%registerTextBuffer(buffer, ID_TERMINAL_GLASS)
+
     ! It is the scrollcontainer that is placed into the box.
     call hl_gtk_box_pack(base, ihscrollcontain)
-
+    call gtk_box_append(base, textView)
     ! macrorun = gtk_check_button_new_with_label("Run"//c_null_char)
     ! macroedit = gtk_check_button_new_with_label("Edit"//c_null_char)
     ! macrolist = gtk_check_button_new_with_label("List"//c_null_char)

@@ -110,6 +110,8 @@ contains
     type(c_ptr) :: act_glassDisplay, menu_item_glass, menu_item_editsysconfig
     type(c_ptr) :: act_sysconfig
 
+    type(c_ptr) :: menu_import
+
 
     character(len=100), target :: tstTarget = "TestCommandTarget"
     character(len=100), target :: tstTarget2 = "TestMemoryLoss"
@@ -117,6 +119,8 @@ contains
     character(len=100), pointer :: tstPtr
 
     character(len=100), target :: pltAst = "PLTAST 1"
+    character(len=100), target :: pltSpd = "PLTSPD"
+    character(len=100), target :: cv2prg = "CV2PRG DoubleGauss.seq"
 
     ! Menu Bar funcionality
     act_fullscreen = g_simple_action_new_stateful ("fullscreen"//c_null_char, &
@@ -131,12 +135,15 @@ contains
 
     menubar = g_menu_new ()
     menu = g_menu_new ()
+    menu_import = g_menu_new()
 
     menu_lens = g_menu_new()
     menu_macro = g_menu_new()
     menu_imagEval = g_menu_new()
 
-    call g_menu_append_submenu (menubar, "ZOA"//c_null_char, menu)
+    call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
+    call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
+
 
     call g_menu_append_submenu (menubar, "Macro"//c_null_char, menu_macro)
 
@@ -182,6 +189,10 @@ contains
     !call tstMenuType%addCommandMenuItem(menu_macro, "TestText", "TestEvent", "TestCommand", win)
     call addCommandMenuItem(menu_imagEval, "Plot Astigmatism, Distortion, and Field Curvature", &
     & "PltAst", pltAst, win)
+
+    call addCommandMenuItem(menu_imagEval, "Spot Diagram", &
+    & "PltSPD", pltSpd, win)
+
 
     ! Lens Menu
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)
@@ -278,6 +289,8 @@ contains
 
     !call g_menu_append_section (menu_lens, "Draw Lens"//c_null_char, section1_lens)
 
+    call addCommandMenuItem(menu_import, "CodeV .seq File", &
+    & "CV2PRG", cv2prg, win)
 
     !PRINT *, "APP In Activate is ", app
     call gtk_application_set_menubar (app, menubar)
@@ -309,7 +322,7 @@ contains
   subroutine editSysConfigUI(act, avalue, win) bind(c)
 
      type(c_ptr), value, intent(in) :: act, avalue, win
-     call PROCESKDP('SYSCONFIG')
+     call PROCESKDP('SYSCON')
 
   end subroutine
 
@@ -433,5 +446,49 @@ contains
     call g_menu_append_item (topLevelMenu, menuItem)
 
   end subroutine
+
+  subroutine open_file(filename) 
+
+    character(len=120), intent(inout) :: filename
+    integer(kind=c_int) :: isel
+    character(len=120), dimension(:), allocatable :: chfile
+    character(len=30), dimension(2) :: filters
+    character(len=30), dimension(2) :: filtnames
+    character(len=200) :: inln
+    integer :: ios
+    integer :: idxs
+
+    filters(1) = "*.seq"
+    filters(2) = "*.txt"
+    filtnames(1) = "CodeV Sequence Files"
+    filtnames(2) = "Plain Text"
+
+    isel = hl_gtk_file_chooser_show(chfile, create=FALSE,&
+         & title="Select input file"//c_null_char, filter=filters, &
+         & filter_name=filtnames, wsize=(/ 600_c_int, 400_c_int /), &
+         & edit_filters=TRUE, &
+         & parent=app, all=TRUE)
+    print *, "isel = hl_gtk_file_chooser_show=", isel
+    if (isel == FALSE) return   ! No selection made
+
+    filename = chfile(1)
+    deallocate(chfile)
+
+    !open(37, file=filename, action='read')
+    !call hl_gtk_text_view_delete(tedit)
+    !do
+    !   read(37,"(A)",iostat=ios) inln
+    !   if (ios /= 0) exit
+    !   call hl_gtk_text_view_insert(tedit, (/ trim(inln)//c_new_line /))
+    !end do
+    !close(37)
+    !idxs = index(filename, '/', .true.)+1
+    !call gtk_window_set_title(window, trim(filename(idxs:))//c_null_char)
+
+    ! We manually reset the changed flag as the text box signal handler sets it.
+
+    !file_is_changed = .FALSE.
+
+  end subroutine open_file
 
 end module zoamenubar

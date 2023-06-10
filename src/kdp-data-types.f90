@@ -1,4 +1,5 @@
 module kdp_data_types
+     use iso_c_binding, only:  c_ptr
      integer, parameter :: ASPH_NON_TORIC    = 1
      integer, parameter :: ASPH_TORIC_AXIS_Y = 2
      integer, parameter :: ASPH_TORIC_AXIS_X = 3
@@ -75,8 +76,23 @@ type sys_config
 
 end type
 
+
+
 interface sys_config
   module procedure :: sys_config_constructor
+end interface
+
+type io_config
+   type(c_ptr) :: txtBuffer
+   type(c_ptr), allocatable :: allBuffers(:)
+
+   contains
+      procedure, public, pass(self) :: setTextBuffer
+      procedure, public, pass(self) :: registerTextBuffer
+end type
+
+interface io_config
+  module procedure :: io_config_constructor
 end interface
 
 type lens_data
@@ -341,6 +357,44 @@ end function
 
 
    end function
+
+type(io_config) function io_config_constructor() result(self)
+  use zoa_ui
+  use iso_c_binding, only: c_null_ptr
+  !implicit none
+
+    allocate(c_ptr :: self%allBuffers(3))
+
+
+    self%txtBuffer = c_null_ptr
+
+
+   end function
+
+   subroutine registerTextBuffer(self, buffer, idBuffer)
+     use zoa_ui
+     class(io_config) :: self
+     type(c_ptr) :: buffer
+     integer :: idBuffer
+
+     ! TODO:  Add error checking here
+     self%allBuffers(idBuffer) = buffer
+
+     !select case (idBuffer)
+     !case (ID_TERMINAL_DEFAULT)
+
+   end subroutine
+
+   subroutine setTextBuffer(self, idBuffer)
+     use zoa_ui
+     class(io_config) :: self
+
+     integer :: idBuffer
+
+     ! TODO:  Add error checking here
+     self%txtBuffer = self%allBuffers(idBuffer)
+
+   end subroutine
 
    subroutine updateParameters(self)
      class(sys_config), intent(inout) :: self

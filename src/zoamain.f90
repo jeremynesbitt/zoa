@@ -237,6 +237,7 @@ program zoa_program
 
   curr_lens_data = lens_data()
   sysConfig = sys_config()
+  ioConfig = io_config()
 
 
 
@@ -259,7 +260,9 @@ program zoa_program
 
   print *, "You have exited the program.  Cleaning up"
 
+  call PROCESKDP('EXIT')
   ! Memory is freed:
   call g_object_unref(app)
+
 
 end program zoa_program

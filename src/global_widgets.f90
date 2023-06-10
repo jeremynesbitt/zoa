@@ -19,6 +19,7 @@ module global_widgets
   ! UI Parameters
 
   type(sys_config) :: sysConfig
+  type(io_config)  :: ioConfig
   type(lens_data)  :: curr_lens_data
   type(paraxial_ray_trace_data) :: curr_par_ray_trace
   type(aspheric_surf_data) :: curr_asph_data

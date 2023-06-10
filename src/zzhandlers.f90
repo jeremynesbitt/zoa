@@ -71,6 +71,7 @@ module handlers
   use gtk_draw_hl
   use gtk_hl_container
   use gtk_hl_button
+  use zoa_ui
 
   use gtk_hl_chooser
   use zoa_tab
@@ -84,6 +85,7 @@ module handlers
   character(len=256), dimension(100) ::  command_history
   integer :: command_index = 1
   integer :: command_search = 1
+  integer :: terminalOutput = ID_TERMINAL_DEFAULT
   type(zoatabManager) :: zoatabMgr
 
   ! interface
@@ -786,6 +788,68 @@ end subroutine proto_symfunc
       type(gtktextiter), target :: iter, startIter, endIter
       logical :: scrollResult
       type(c_ptr) ::  buffInsert
+      type(c_ptr) ::  txtBuffer
+
+
+
+      ! This routine is to update the terminal log, and is
+      ! abstracted in case the method (font color, bold) needs to be changed
+
+      ! The way implemented is to use the pango / markup interface
+      ! See for some examples
+      ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
+
+
+
+
+      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
+
+      txtBuffer = ioConfig%txtBuffer
+      call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
+
+      !PRINT *, "ABOUT TO CALL MARKUP "
+      !TODO Sometimes an empty ftext is sent to this function and GTK throws a
+      !warnting.  Need to figure out how to detect empty string (this is not working)
+    !PRINT *, "debug ftext is ", ftext
+    if (ftext.ne."  ") THEN
+      call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
+      & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
+      & //c_null_char, -1_c_int)
+    END IF
+
+      buffInsert = gtk_text_buffer_get_insert(txtBuffer)
+     !gBool = g_variant_new_boolean(True)
+      PRINT *, "Before Warning?"
+      call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
+      &  True, 0.0_c_double, 1.0_c_double)
+      PRINT *, "After Warning?"
+    ! Update command history for a simple way for the user to get previous commands
+      if (txtColor.eq."blue") then
+        if (command_index.LT.99) THEN
+
+         command_history(command_index) = ftext
+         command_index = command_index + 1
+         command_search = command_index
+       END IF
+     END IF
+
+      call pending_events()
+      !PRINT *, "End of updateterminallog"
+
+  end subroutine
+
+  subroutine updateTerminalLogOld(ftext, txtColor)
+      USE GLOBALS
+      use global_widgets
+
+      IMPLICIT NONE
+
+      character(len=*), intent(in) :: ftext
+      character(len=*), intent(in)  :: txtColor
+
+      type(gtktextiter), target :: iter, startIter, endIter
+      logical :: scrollResult
+      type(c_ptr) ::  buffInsert
 
 
 
@@ -872,6 +936,7 @@ end subroutine proto_symfunc
       !PRINT *, "End of updateterminallog"
 
   end subroutine
+
 
   subroutine name_enter(widget, data) bind(c)
 
@@ -1023,6 +1088,9 @@ end subroutine proto_symfunc
      call gtk_text_view_set_editable(textView, FALSE)
     !
      buffer = gtk_text_view_get_buffer (textView)
+     call ioConfig%registerTextBuffer(buffer, ID_TERMINAL_DEFAULT)
+     call ioConfig%setTextBuffer(ID_TERMINAL_DEFAULT)
+
     ! call gtk_text_buffer_set_text (buffer, &
     !     & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
     !     & -1_c_int)
