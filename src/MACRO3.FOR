@@ -4215,6 +4215,40 @@ C
 
        END
 
+       SUBROUTINE WRITEMACROFILE(macrofilename)
+         use zoa_file_handler
+         CHARACTER(len=*) :: macrofilename
+         INTEGER L, K, uFile
+
+         !COMMON/NEFER/NF
+         COMMON/MACID2/MACLOC,IMACEN
+
+         INCLUDE 'DATMAC.INC'
+         INCLUDE 'DATMAI.INC'
+
+
+         uFile = open_macro_file(macrofilename)
+C       NOW LETS LOAD THE MACRO ARRAYS WITH THE CONTENTS OF
+C       THE NF TH MACRO. WE DO THIS FROM MAC.DAT (UNIT=20)
+C
+C       NOW READ THE BODY OF THE MACRO STARTING AT RECORD 1
+C
+        DO 40 K=1,(IMACEN)
+        L=K-1
+C        PRINT *, "L = ", L
+C        PRINT *, "MACCW(L) = ", MACCW(L)
+        WRITE(UNIT=uFile,REC=K) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),
+     1  MACNW(2,L),MACNW(3,L),MACNW(4,L),MACNW(5,L),MACSTA(1,L),
+     2  MACSTA(2,L),MACSTA(3,L),MACSTA(4,L),MACSTA(5,L),MACSTA(6,L),
+     3  MACSTA(7,L),MACSTA(8,L),MACSTA(9,L),MACSTA(10,L),MACSTA(11,L),
+     4  MACSTA(12,L),MACSTA(13,L),MACSTA(14,L),MACSTA(15,L),MACSTA(16,L)
+     5  ,MACSTA(17,L),MACSTA(18,L),MACSTA(19,L),MACSTA(20,L)
+C
+ 40     CONTINUE
+        CALL CLOSE_FILE(uFile,1)
+
+       END
+
        SUBROUTINE DOESMACROFILEEXIST(FILNAM, EXST)
          INCLUDE 'DATMAC.INC'
          INCLUDE 'DATMAI.INC'
