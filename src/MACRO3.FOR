@@ -1206,7 +1206,6 @@ C
         L=0
         CALL READMACROFILE(trim(LIBMAC)//FILNAM)
 
-        PRINT *, "MACRO LOADED"
                         ELSE
         NESFUN(NEST)=.TRUE.
 
@@ -4197,6 +4196,7 @@ C       THE NF TH MACRO. WE DO THIS FROM MAC.DAT (UNIT=20)
 C
 C       NOW READ THE BODY OF THE MACRO STARTING AT RECORD 1
 C
+        PRINT *, "Number of records expected is ", MCDIR2(2,NF)
         DO 30 K=1,(MCDIR2(2,NF))
         L=K-1
         READ(UNIT=30,REC=K) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),

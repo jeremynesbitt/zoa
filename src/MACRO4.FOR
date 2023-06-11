@@ -388,7 +388,7 @@ C     IS LINE BLANK? IF YES RETURN
                         END IF
                         END DO
                          J=2
-                        DO I=1,N-1
+                        DO I=1,N-2
       IF(STRING(J:J+1).EQ.', ') THEN
       STRING(1:N)=STRING(1:J)//STRING(J+2:N)//' '
                         ELSE

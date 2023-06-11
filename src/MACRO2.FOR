@@ -110,6 +110,7 @@ C
                         END
 C SUB MSAVE.FOR
         SUBROUTINE MSAVE
+
 C
         IMPLICIT NONE
 C
@@ -143,6 +144,7 @@ C
                         END
 C SUB MREFRESH.FOR
         SUBROUTINE MREFRESH
+        USE GLOBALS
 C
         IMPLICIT NONE
 C
@@ -172,7 +174,7 @@ C       "MREFRESH" COMMAND
                         RETURN
                         END IF
       EXISMED=.FALSE.
-      INQUIRE(FILE='MAC_EDIT.DAT',EXIST=EXISMED)
+      INQUIRE(FILE=trim(basePath)//'MAC_EDIT.DAT',EXIST=EXISMED)
       IF(EXISMED) THEN
       SAVE_KDP(17)=SAVEINPT(17)
       INPUT='IN FILE MAC_EDIT.DAT'
