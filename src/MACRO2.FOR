@@ -1119,21 +1119,12 @@ C       READ FROM MACRO (JK)
 C
                 NF=JK
                 CALL MACFIL
-      EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-      WRITE(OUTLYNE,*)
-     1  'MACRO BODY FILE ',FILNAM,' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1 'REPAIR PROCEDURE'
-      CALL SHOWIT(1)
-                CALL MACFAL
-                RETURN
-                END IF
+                 EXST=.FALSE.
+                 CALL DOESMACROFILEEXIST(FILNAM, EXST)
+                 IF(.NOT.EXST) THEN
+                   CALL MACFAL
+                   RETURN
+                 END IF
         inquire(iolength=rec30) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),
      1  MACNW(2,L),MACNW(3,L),MACNW(4,L),MACNW(5,L),MACSTA(1,L),
      2  MACSTA(2,L),MACSTA(3,L),MACSTA(4,L),MACSTA(5,L),MACSTA(6,L),
@@ -1233,20 +1224,12 @@ C
                 NF=JK
                 CALL MACFIL
       EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-      WRITE(OUTLYNE,*)
-     1 'MACRO BODY FILE ',FILNAM,' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'REPAIR PROCEDURE'
-      CALL SHOWIT(1)
-                CALL MACFAL
-                RETURN
-                END IF
+               EXST=.FALSE.
+               CALL DOESMACROFILEEXIST(FILNAM, EXST)
+               IF(.NOT.EXST) THEN
+                 CALL MACFAL
+                 RETURN
+               END IF
 C
         OPEN(UNIT=30,ACCESS='DIRECT',FILE=LIBMAC//FILNAM,FORM=
      1  'UNFORMATTED',RECL=(55*NRECL),STATUS='UNKNOWN')
@@ -3044,15 +3027,13 @@ C
 C       NOW THE FILE CONTAINING THE MACRO BODY IS DELETED
                 NF=I
                 CALL MACFIL
-      EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-      WRITE(OUTLYNE,*)'MACRO BODY FILE ',FILNAM,' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE='MACRO NAME ENTRY WILL BE DELETED'
-      CALL SHOWIT(1)
-                END IF
-        OPEN(UNIT=30,ACCESS='DIRECT',FILE=LIBMAC//FILNAM,FORM=
+         EXST=.FALSE.
+         CALL DOESMACROFILEEXIST(FILNAM, EXST)
+         IF(.NOT.EXST) THEN
+           CALL MACFAL
+           RETURN
+         END IF
+        OPEN(UNIT=30,ACCESS='DIRECT',FILE=trim(LIBMAC)//FILNAM,FORM=
      1  'UNFORMATTED',RECL=(55*NRECL),STATUS='UNKNOWN')
       CALL CLOSE_FILE(30,0)
       WRITE(OUTLYNE,*)'MACRO ',NAME,' DELETED'

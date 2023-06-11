@@ -31,23 +31,15 @@ C
 C
         IF(.NOT.NESFUN(NEST)) THEN
         CALL MACFIL
-      EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-        OUTLYNE=
-     1  'MACRO BODY FILE '//FILNAM//' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'REPAIR PROCEDURE'
-      CALL SHOWIT(1)
-                CALL MACFAL
-                RETURN
-                END IF
 
-        CALL READMACROFILE(LIBMAC//FILNAM)
+         EXST=.FALSE.
+         CALL DOESMACROFILEEXIST(FILNAM, EXST)
+         IF(.NOT.EXST) THEN
+           CALL MACFAL
+           RETURN
+         END IF
+
+        CALL READMACROFILE(trim(LIBMAC)//FILNAM)
 
 C
                         ELSE
@@ -786,21 +778,13 @@ C
 C       NOW DETERMINE THE LOCATION OF THE MACRO BODY.
 C
         CALL MACFIL
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-        OUTLYNE=
-     1  'MACRO BODY FILE '//FILNAM//' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'REPAIR PROCEDURE'
-      CALL SHOWIT(1)
-                CALL MACFAL
-                RETURN
-                END IF
-        CALL READMACROFILE(LIBMAC//FILNAM)
+           EXST=.FALSE.
+           CALL DOESMACROFILEEXIST(FILNAM, EXST)
+           IF(.NOT.EXST) THEN
+             CALL MACFAL
+             RETURN
+           END IF
+        CALL READMACROFILE(trim(LIBMAC)//FILNAM)
 !
 
         CALL CLOSE_FILE(uLIB,1)
@@ -904,7 +888,7 @@ C
                 RETURN
                 END IF
 C
-        CALL READMACROFILE(LIBMAC//FILNAM)
+        CALL READMACROFILE(trim(LIBMAC)//FILNAM)
         CALL CLOSE_FILE(uLIB,1)
 C
 C       THE MACRO ARRAYS ARE NOW LOADED. NOW REFORMAT AND OUTPUT.
@@ -1033,23 +1017,14 @@ C               YES THERE WAS
 C
                 NF=MMIJ
                 CALL MACFIL
-      EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-        OUTLYNE=
-     1  'MACRO BODY FILE '//FILNAM//' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'REPAIR PROCEDURE'
-      CALL SHOWIT(1)
-                CALL MACFAL
-                RETURN
-                END IF
+                 EXST=.FALSE.
+                 CALL DOESMACROFILEEXIST(FILNAM, EXST)
+                 IF(.NOT.EXST) THEN
+                   CALL MACFAL
+                   RETURN
+                 END IF
 
-         CALL READMACROFILE(LIBMAC//FILNAM)
+         CALL READMACROFILE(trim(LIBMAC)//FILNAM)
 
 C               SET CURRENT LINE
                         CURLIN=0
@@ -1220,22 +1195,16 @@ C
         IF(.NOT.FUN) THEN
         NESFUN(NEST)=.FALSE.
                 CALL MACFIL
-      EXST=.FALSE.
-        INQUIRE(FILE=LIBMAC//FILNAM,EXIST=EXST)
-        IF(.NOT.EXST) THEN
-        OUTLYNE='MACRO BODY FILE '//FILNAM//' MISSING'
-      CALL SHOWIT(1)
-        OUTLYNE='MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
-      CALL SHOWIT(1)
-        OUTLYNE='REPAIR PROCEDURE'
-      CALL SHOWIT(1)
-                CALL MACFAL
-                RETURN
-                END IF
+         EXST=.FALSE.
+         CALL DOESMACROFILEEXIST(FILNAM, EXST)
+         IF(.NOT.EXST) THEN
+           CALL MACFAL
+           RETURN
+         END IF
                 NESTIJ(0)=NF
 C
         L=0
-        CALL READMACROFILE(LIBMAC//FILNAM)
+        CALL READMACROFILE(trim(LIBMAC)//FILNAM)
 
         PRINT *, "MACRO LOADED"
                         ELSE
@@ -4243,5 +4212,24 @@ C
         CALL CLOSE_FILE(30,1)
 
 
+
+       END
+
+       SUBROUTINE DOESMACROFILEEXIST(FILNAM, EXST)
+         INCLUDE 'DATMAC.INC'
+         INCLUDE 'DATMAI.INC'
+         LOGICAL, intent(inout) :: EXST
+         CHARACTER FILNAM*10
+
+
+          INQUIRE(FILE=trim(LIBMAC)//FILNAM,EXIST=EXST)
+          IF(.NOT.EXST) THEN
+          OUTLYNE='MACRO BODY FILE '//FILNAM//' MISSING'
+          CALL SHOWIT(1)
+          OUTLYNE='MACRO FILE DAMAGED, SEE REFERENCE MANUAL FOR'
+          CALL SHOWIT(1)
+          OUTLYNE='REPAIR PROCEDURE'
+          CALL SHOWIT(1)
+          END IF
 
        END
