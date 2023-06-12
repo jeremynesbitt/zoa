@@ -2067,6 +2067,8 @@ C     SAVE I/O
                         END
 C SUB LIBSAV.FOR
         SUBROUTINE LIBSAV
+        use GLOBALS
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -2113,10 +2115,7 @@ C       ***************************************************************
                         END IF
 C       ***************************************************************
 C     DELETE CURRENT LIBSAV.DAT
-        OPEN(UNIT=31,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='LIBSAV.DAT'
-     2  ,STATUS='UNKNOWN')
-      CALL CLOSE_FILE(31,0)
+      call clear_file(trim(basePath)//'LIBSAV.DAT')
       IF(ALLSTOP) THEN
         ALLSTOP=.FALSE.
         RETURN
@@ -2150,6 +2149,8 @@ C     RESTORE I/0
                         END
 C SUB LIBRES.FOR
         SUBROUTINE LIBRES
+        use GLOBALS
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -2183,7 +2184,7 @@ C
 C
 C       ***************************************************************
                         EXISJK=.FALSE.
-        INQUIRE(FILE='LIBSAV.DAT',EXIST=EXISJK)
+        INQUIRE(FILE=trim(basePath)//'LIBSAV.DAT',EXIST=EXISJK)
         IF(.NOT.EXISJK) THEN
         OUTLYNE='"LIBSAV.DAT" DOES NOT EXIST'
       CALL SHOWIT(1)
@@ -2196,10 +2197,7 @@ C       ***************************************************************
                         END IF
 C       ***************************************************************
 C     DELETE CURRENT EDITTEXT.DAT
-        OPEN(UNIT=9,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='EDITTEXT.DAT'
-     2  ,STATUS='UNKNOWN')
-      CALL CLOSE_FILE(9,0)
+      call clear_file(trim(basePath)//'EDITTEXT.DAT')
       CALL CLOSE_FILE(31,1)
 C
 C     SAVE I/O
@@ -2210,10 +2208,7 @@ C     SAVE I/O
           CALL PROCES
 C     RESTORE I/I
       REST_KDP(1)=RESTINPT(1)
-        OPEN(UNIT=31,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='LIBSAV.DAT'
-     2  ,STATUS='UNKNOWN')
-        CALL CLOSE_FILE(31,1)
+      call clear_file(trim(basePath)//'LIBSAV.DAT')
 C     SAVE I/O
           SAVE_KDP(1)=SAVEINPT(1)
       INPUT='INPUT FILE LIBSAV.DAT'

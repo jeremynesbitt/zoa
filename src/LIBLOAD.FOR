@@ -1,4 +1,5 @@
         SUBROUTINE LIBLOAD(LIBLIST)
+        USE GLOBALS  
         IMPLICIT NONE
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
@@ -14,7 +15,7 @@
         CALL CLOSE_FILE(9,1)
         WRITE ( *, '(a)' ) '  Hello from LIBLOAD!'
         OPEN(UNIT=9,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE='EDITTEXT.DAT'
+     1  ,FORM='FORMATTED',FILE=trim(basePath)//'EDITTEXT.DAT'
      2  ,STATUS='UNKNOWN')
         WRITE ( *, '(a)' ) ' LIBLOAD AFTER LOADING FILE!'
         REWIND(9)

@@ -46,16 +46,24 @@
 
         IMPLICIT NONE
 
-        INTEGER :: rec27, fileID
+        INTEGER :: rec27
+        logical :: existTag
+        integer, intent(inout) :: fileID
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
 
+        INQUIRE(FILE=trim(LIBLEN)//'LIBTAG.DAT',EXIST=existTag)
+        if(existTag) then
         inquire(iolength=rec27) IDTAG(1)(1:75)
         fileID = 27
 
       OPEN(UNIT=fileID,ACCESS='DIRECT',
      1  FILE=trim(LIBLEN)//'LIBTAG.DAT',
      1  FORM='UNFORMATTED',RECL=rec27,STATUS='UNKNOWN')
+
+       else
+         fileID = -1
+       end if
 
 
         END SUBROUTINE
@@ -91,14 +99,8 @@ C       ***************************************************************
                         JJ=0
                         K=0
                         DO 10 I=1,999
-        READ(UNIT=22,REC=I) II,DATA
-        !PRINT *, "DATA ",DATA
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
-        !PRINT *, "IDTAG ", IDTAG(J)(1:75)
-                        END DO
-                        END IF
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, I, II,
+     1 DATA, IDTAG)
         IF(II.NE.0) THEN
 C       FOUND A STORED LENS
                         J=J+1
@@ -109,8 +111,8 @@ C
         K=999-JJ
 C       CLOSE UNIT 20 TO I/O
 C
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
 C
       WRITE(OUTLYNE,*) JJ,' LENSES ON FILE.'
       CALL SHOWIT(1)
@@ -1327,8 +1329,52 @@ C        CALL MY_CLS
                 END IF
         RETURN
         END
+
+        SUBROUTINE READLENSLIBLINEANDTAG(ioLIB, ioTAG, recNum, idx,
+     1DATA, IDTAG)
+          implicit none
+          integer, intent(in) :: ioLIB, ioTag, recNum
+          integer, intent(inout) :: idx
+          CHARACTER(len=80), intent(inout) :: DATA
+          character(len=75), dimension(10), intent(inout) :: IDTAG
+          integer :: J
+
+
+        READ(UNIT=ioLIB,REC=recNum) idx,DATA
+        !PRINT *, "DATA ",DATA
+        IF(ioTag.GT.-1) THEN
+         DO J=1,10
+           READ(UNIT=ioTag,REC=recNum-1+J) IDTAG(J)(1:75)
+         END DO
+        END IF
+
+        END
+
+        SUBROUTINE WRITELENSLIBLINEANDTAG(ioLIB, ioTAG, recNum, idx,
+     1DATA, IDTAG, boolCallDogTag)
+          implicit none
+          integer, intent(inout) :: ioLIB, ioTag, recNum
+          integer, intent(in) :: idx
+          CHARACTER(len=80), intent(in) :: DATA
+          character(len=75), dimension(10), intent(in) :: IDTAG
+          logical :: boolCallDogTag
+          integer :: J
+
+
+        WRITE(UNIT=ioLIB,REC=recNum) idx,DATA
+        !PRINT *, "DATA ",DATA
+        IF (boolCallDogTag) CALL DOGTAG
+        IF(ioTag.GT.-1) THEN
+         DO J=1,10
+           WRITE(UNIT=ioTag,REC=recNum-1+J) IDTAG(J)(1:75)
+         END DO
+        END IF
+
+        END
+
 C SUB LLIBRY.FOR
         SUBROUTINE LLIBRY
+        use zoa_file_handler
 C
         IMPLICIT NONE
 C
@@ -1346,7 +1392,7 @@ C
      1  LLIP*80,WCOLD*8,DDATE*10,TTIME*8,AN*3
      2  ,FN*10,NM*8,TTTIM*8,DDDAT*10,LNDIR*7
 C
-        LOGICAL EXISJK,EXISTAG,GETERROR,OPEN9
+        LOGICAL EXISJK,EXISTAG,GETERROR,OPEN9, EXISTFN
 C
       COMMON/ERRORGET/GETERROR
 C
@@ -1615,15 +1661,17 @@ C       ***************************************************************
 
         IF(ALL.EQ.1) THEN
                 DO 10 I=1,999
-        READ(UNIT=22,REC=4*(I-1)+1) II,DATA
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, I, II,
+     1 DATA, IDTAG)
+        !READ(UNIT=22,REC=4*(I-1)+1) II,DATA
         !PRINT *, "II = ", " DATA = ", DATA
         !READ(UNIT=22,REC=I) II,DATA
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=4*((I-1+J)-1)+1) IDTAG(J)(1:75)
+        !IF(EXISTAG) THEN
+        !                DO J=1,10
+        !READ(UNIT=27,REC=4*((I-1+J)-1)+1) IDTAG(J)(1:75)
         !READ(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
+        !                END DO
+        !                END IF
         IF(II.EQ.0) THEN
 C       FOUND AN EMPTY SLOT
                         II=I
@@ -1641,12 +1689,9 @@ C       PROCEED WITH STORAGE
 C       ALL NOT 1 SET II=INT(W1)
                         II=INT(W1)
         !READ(UNIT=22,REC=II) J,DATA
-        READ(UNIT=22,REC=4*(II-1)+1) J,DATA
-        IF(EXISTAG) THEN
-                        DO JJ=1,10
-        READ(UNIT=27,REC=II-1+JJ) IDTAG(JJ)(1:75)
-                        END DO
-                        END IF
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, II, J,
+     1 DATA, IDTAG)
+
         IF(J.NE.0) THEN
 C       SLOT OCCUPIED
       WRITE(OUTLYNE,*)'LENS LIBRARY FILE NO. ',J,' OCCUPIED'
@@ -1670,16 +1715,18 @@ C       FILE THE NUMBER AND NAME IN THE LIBRARY
                         END IF
                 LLIP=DDATE//' '//TTIME//' '//LIP(1:59)
         !WRITE(UNIT=22,REC=II) II,LLIP
-        WRITE(UNIT=22,REC=4*(II-1)+1) II,LLIP
+      call WRITELENSLIBLINEANDTAG(uLIB, uLIBTAG, II, II,
+     1 LLIP, IDTAG, .TRUE.)
+        !WRITE(UNIT=22,REC=4*(II-1)+1) II,LLIP
 
-        CALL DOGTAG
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        WRITE(UNIT=27,REC=II-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+        !CALL DOGTAG
+        !IF(EXISTAG) THEN
+        !                DO J=1,10
+        !WRITE(UNIT=27,REC=II-1+J) IDTAG(J)(1:75)
+        !                END DO
+        !                END IF
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
 C
 C       NOW DETERMINE WHICH OF THE 999 LENS LIBRARY FILES
 C       TO USE
@@ -1690,10 +1737,7 @@ C
         IF(N.GT.0.AND.N.LE.9) FN='LIB00'//AN(3:3)//'.DAT'
         IF(N.GT.9.AND.N.LE.99) FN='LIB0'//AN(2:3)//'.DAT'
         IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
-         OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
-     2  ,STATUS='UNKNOWN')
-                CALL CLOSE_FILE(33,0)
+         call clear_file(trim(LIBLEN)//FN)
          OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
      1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
      2  ,STATUS='UNKNOWN')
@@ -1754,30 +1798,13 @@ C       ***************************************************************
         call OPENLIBDAT(uLIB)
       IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
 
-C     1OPEN(UNIT=27,ACCESS='DIRECT',FILE=LNDIR//'LIBTAG.DAT',
-C     1  FORM='UNFORMATTED',RECL=(84*NRECL),STATUS='UNKNOWN')
+      call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, INT(W1), II,
+     1 DATA, IDTAG)
 
-        !PRINT *, "rec27 ", rec27
-        !PRINT *, "INT(W1)", INT(W1)
-C        DO J=1,10
-C           READ(UNIT=22,REC=J) II,DATA
-C           PRINT *, "II, DATA", II, " ", DATA
-C        END DO
-C        READ(UNIT=22,REC=INT(W1)) II,DATA
-        READ(UNIT=22,REC=4*(INT(W1)-1)+1) II,DATA
-        PRINT *, "II = ", II, " DATA = ", DATA
-        !WRITE(OUTLYNE,*) "II, DATA", II, " ", DATA
-        !CALL SHOWIT(19)
-C        CLOSE(27,STATUS='KEEP')
+        !READ(UNIT=22,REC=4*(INT(W1)-1)+1) II,DATA
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
 
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=INT(W1)-1+J) IDTAG(J)(1:75)
-                        PRINT *, IDTAG(J)(1:75)
-                        END DO
-                        END IF
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
         GETERROR=.FALSE.
         IF(II.EQ.0) THEN
         GETERROR=.TRUE.
@@ -1802,10 +1829,16 @@ C       TO USE
         IF(N.GT.0.AND.N.LE.9) FN='LIB00'//AN(3:3)//'.DAT'
         IF(N.GT.9.AND.N.LE.99) FN='LIB0'//AN(2:3)//'.DAT'
         IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
-        PRINT *, "OPEN UNIT=33 FILE"
+
+        INQUIRE(FILE=trim(LIBLEN)//FN,EXIST=EXISTFN)
+        IF (EXISTFN) THEN
          OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
      1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
      2  ,STATUS='UNKNOWN', ACTION='READ')
+        ELSE
+      WRITE(OUTLYNE, *) "ERROR UNABLE TO OPEN ", trim(LIBLEN)//FN
+          RETURN
+        END IF
 C**********************************************************
         REFEXT=.FALSE.
 C
@@ -1953,22 +1986,17 @@ C       ***************************************************************
                         LCNT=0
  123    FORMAT(1X)
                 WRITE(OUTLYNE,123)
-        CALL SHOWIT(0)
+                CALL SHOWIT(0)
                         DO 817 I=1,999
-        READ(UNIT=22,REC=I) II,DATA
-        !WRITE(OUTLYNE, *) "II = ", II, " DATA = ", DATA
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, I, II,
+     1 DATA, IDTAG)
         IF(II.EQ.0) THEN
 C       FOUND AN EMPTY SLOT
 C       NO OUTPUT
                 GO TO 817
                         ELSE
 C       NOT EMPTY, WRITE OUTPUT
-                        LCNT=LCNT+1
+        LCNT=LCNT+1
         IF(I.LT.10) THEN
         WRITE(OUTLYNE,3994)I,DATA(1:75)
         CALL SHOWIT(0)
@@ -1986,8 +2014,8 @@ C       NOT EMPTY, WRITE OUTPUT
  3997   FORMAT(I3,1X,A75)
                         END IF
  817                    CONTINUE
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
         IF(LCNT.EQ.0) THEN
         WRITE(OUTLYNE,3995)
         CALL SHOWIT(0)
@@ -1997,14 +2025,10 @@ C       NOT EMPTY, WRITE OUTPUT
                         RETURN
                         END IF
         IF(SING.EQ.1) THEN
-        READ(UNIT=22,REC=INT(W1))II,DATA
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=INT(W1)-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, INT(W1), II,
+     1 DATA, IDTAG)
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
         IF(II.NE.0) THEN
         I=INT(W1)
         IF(I.LT.10) THEN
@@ -2030,12 +2054,9 @@ C       NOT EMPTY, WRITE OUTPUT
 C
 C       PRINT SEVERAL ENTRIES
                         DO 819 I=INT(W1),INT(W2)
-        READ(UNIT=22,REC=I) II,DATA
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, I, II,
+     1 DATA, IDTAG)
+
         IF(II.EQ.0) THEN
 C       FOUND AN EMPTY SLOT
 C       NO OUTPUT
@@ -2056,8 +2077,8 @@ C       NOT EMPTY, WRITE OUTPUT
                         END IF
                         END IF
  819                    CONTINUE
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
                         RETURN
 C
                         END IF
@@ -2099,15 +2120,9 @@ C       ***************************************************************
 C       ***************************************************************
         CALL OPENLIBDAT(uLIB)
       IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, INT(W1), II,
+     1 DATA, IDTAG)
 
-        !READ(UNIT=22,REC=INT(W1))II,DATA
-        READ(UNIT=uLIB, REC=4*(INT(W1)-1)+1) II, DATA
-        PRINT *, "LIB DEL 2104 II = ", II
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=INT(W1)-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
         IF(II.EQ.0) THEN
       WRITE(OUTLYNE,*)'LENS LIBRARY FILE NO. ',INT(W1),' ALREADY EMPTY'
       CALL SHOWIT(1)
@@ -2120,12 +2135,14 @@ C       PROCEED WITH DELETION
                         II=0
                         DATA=AA//AA//AA//AA
         PRINT *, "PROCEED WITH DELETION"
-        WRITE(UNIT=uLIB, REC=4*(INT(W1)-1)+1) II, DATA
+!      call WRITELENSLIBLINEANDTAG(uLIB, uLIBTAG, INT(W1), II,
+!     1 DATA, IDTAG, .FALSE.)
+        WRITE(UNIT=uLIB, REC=INT(W1)) II, DATA
         IF(EXISTAG) THEN
-          WRITE(UNIT=27,REC=4*(INT(W1)-1)+1) AA//AA//AA//AA(1:15)
+          WRITE(UNIT=uLIBTAG,REC=INT(W1)) AA//AA//AA//AA(1:15)
         END IF
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG)  CALL CLOSE_FILE(27,1)
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG)  CALL CLOSE_FILE(uLIBTAG,1)
                         II=INT(W1)
 C       DUMP THE LIBRARY FILE
                         N=II
@@ -2175,36 +2192,33 @@ C       ***************************************************************
                         DO 8191 I=INT(W1),INT(W2)
         call OPENLIBDAT(uLIB)
       IF(EXISTAG) CALL OPENLIBTAGDAT(uLIBTAG)
+       call READLENSLIBLINEANDTAG(uLIB, uLIBTAG, I, II,
+     1 DATA, IDTAG)
 
-        READ(UNIT=22,REC=I) II,DATA
-        PRINT *, "LIB DEL II = ", II
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        READ(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
         IF(II.EQ.0) THEN
 C       FOUND AN EMPTY SLOT
 C       NO DELETION
       WRITE(OUTLYNE,*)'LENS LIBRARY FILE NO. ',I,' ALREADY EMPTY'
       CALL SHOWIT(1)
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
                         CALL MACFAL
                 GO TO 8191
                         ELSE
 C       NOT EMPTY, DELETE ENTRY
                         II=0
                         DATA=AA//AA//AA//AA
-        WRITE(UNIT=22,REC=I)II,DATA
-        CALL DOGTAG
-        IF(EXISTAG) THEN
-                        DO J=1,10
-        WRITE(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
-                        END DO
-                        END IF
-                CALL CLOSE_FILE(22,1)
-        IF(EXISTAG) CALL CLOSE_FILE(27,1)
+      call WRITELENSLIBLINEANDTAG(uLIB, uLIBTAG, I, II,
+     1 DATA, IDTAG, .TRUE.)
+        !WRITE(UNIT=22,REC=I)II,DATA
+        !CALL DOGTAG
+        !IF(EXISTAG) THEN
+        !                DO J=1,10
+        !WRITE(UNIT=27,REC=I-1+J) IDTAG(J)(1:75)
+        !                END DO
+        !                END IF
+                CALL CLOSE_FILE(uLIB,1)
+        IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
                         II=I
 C       DUMP THE LIBRARY FILE
                         N=II

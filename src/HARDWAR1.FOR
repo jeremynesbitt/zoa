@@ -3359,6 +3359,7 @@ C       ADDED 1/20/2004
         FFORM=TRIM('A'//A3)
                 END IF
         FFORM='('//TRIM(FFORM)//')'
+        !PRINT *, "FFORM is ", FFORM
 C
 C     NO OUTPUT CAN EVER BE DONE TO 0 OR 1 WHEN OUTPUT NULL IS IN EFFECT
       IF(I.EQ.1.AND.OUT.EQ.98.OR.I.EQ.0.AND.OUT.EQ.98) RETURN
@@ -3385,7 +3386,7 @@ C       USED ONLY IN COMMA DELIMITED TABLE OUTPUT
                         END IF
 C
       IF(I.EQ.10) THEN
-      PRINT *, "LENO Output Activated!"
+      !PRINT *, "LENO Output Activated!"
       I=0
       STRIPOUT=OUTLYNE
       IPASS1=139
@@ -3474,7 +3475,7 @@ C        Call MY_IWinOutStringXYSCROLL(OUTLYNE(1:IPASS1),IPASS1)
                        ELSE
         IF(I.NE.5) THEN
         LL=MY_LEN(OUTLYNE)
-        WRITE(OUTY,FMT=FFORM) OLYNE
+        IF (LL.NE.0) WRITE(OUTY,FMT=FFORM) OLYNE
         IF(OUTY.EQ.6) THEN
       IPASS1=79
 C WINTER
