@@ -2603,7 +2603,7 @@ C       ***************************************************************
         DO 10 I=1,MAXMAC
         READ(fileID,REC=I,ERR=10)MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
      1  MCDIR2(3,I),MCDIR3(I)
-        PRINT *, "MACRO NAME ", MCDIR1(I)
+        !PRINT *, "MACRO NAME ", MCDIR1(I)
 C
 C
 C

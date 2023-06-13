@@ -20,6 +20,7 @@ module zoa_macro_ui
     integer, pointer :: fdata
     integer(kind=c_int) :: nsel
     integer(kind=c_int), dimension(:), allocatable :: selections
+    type(c_ptr) :: buffer
     character(len=8) :: svalue
 
     if (c_associated(gdata)) then
@@ -33,10 +34,11 @@ module zoa_macro_ui
           print *, selections
           call hl_gtk_list1_get_cell(ihlist, selections(1), svalue)
           print *, "TXT IS ", svalue
-          call ioConfig%setTextBuffer(ID_TERMINAL_MACRO)
-          call hl_gtk_text_view_delete(c_null_ptr, buffer=ioConfig%txtBuffer)
+          call ioConfig%setTextView(ID_TERMINAL_MACRO)
+          buffer = gtk_text_view_get_buffer(ioConfig%textView)
+          call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)
           CALL PROCESKDP('MFL '//svalue)
-          call ioConfig%setTextBuffer(ID_TERMINAL_DEFAULT)
+          call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
           deallocate(selections)
 
        else    ! Delete the selected row
@@ -198,119 +200,6 @@ module zoa_macro_ui
 
   end subroutine
 
-    subroutine zoa_macrooperationsUI_working(act, param, win) bind(c)
-
-      implicit none
-      type(c_ptr), value, intent(in) :: act, param, win
-      type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
-      type(c_ptr) :: macroentrylabel
-
-      integer, target :: iappend=0, idel=0
-      integer :: ltr
-
-
-
-      print *, "Macro Operations Selected!"
-
-      ! Create the window:
-      ihwin = gtk_window_new()
-      call gtk_window_set_title(ihwin, "Macro Operations"//c_null_char)
-
-      call gtk_window_set_default_size(ihwin, 300_c_int, 600_c_int)
-
-      ! Now make a column box & put it into the window
-      base = hl_gtk_box_new()
-      call gtk_window_set_child(ihwin, base)
-
-    ! Now make a single column list with multiple selections enabled
-
-    ihlist = hl_gtk_list1_new(ihscrollcontain, changed=c_funloc(macrolist_select),&
-         & data=c_loc(idel), multiple=FALSE, height=400_c_int, &
-         & title="List of Available Macros"//c_null_char)
-
-    call populatemacrolist()
-    ! It is the scrollcontainer that is placed into the box.
-    call hl_gtk_box_pack(base, ihscrollcontain)
-
-    macrorun = gtk_check_button_new_with_label("Run"//c_null_char)
-    macroedit = gtk_check_button_new_with_label("Edit"//c_null_char)
-    macrolist = gtk_check_button_new_with_label("List"//c_null_char)
-    macrorename = gtk_check_button_new_with_label("Rename"//c_null_char)
-    macrocopy = gtk_check_button_new_with_label("Copy"//c_null_char)
-    macrodelete = gtk_check_button_new_with_label("Delete"//c_null_char)
-
-    macrogroup = gtk_window_group_new()
-    call gtk_check_button_set_group(macrorun, macroedit)
-    call gtk_check_button_set_group(macrolist, macrorun)
-    call gtk_check_button_set_group(macrorename, macrorun)
-    call gtk_check_button_set_group(macrocopy, macrorun)
-    call gtk_check_button_set_group(macrodelete, macrorun)
-
-    call gtk_check_button_set_active(macrorun, 1_c_int)
-
-
-    !call gtk_check_button_set_group(macroedit, macrogroup)
-
-    call hl_gtk_box_pack(base, macrorun)
-    call hl_gtk_box_pack(base, macroedit)
-    call hl_gtk_box_pack(base, macrolist)
-    call hl_gtk_box_pack(base, macrorename)
-    call hl_gtk_box_pack(base, macrocopy)
-    call hl_gtk_box_pack(base, macrodelete)
-
-     macroentrylabel = gtk_label_new("Target Name for Macro rename or copy"//c_null_char)
-
-     macroentry = hl_gtk_entry_new(editable=TRUE)
-     call hl_gtk_box_pack(base, macroentrylabel)
-     call hl_gtk_box_pack(base, macroentry)
-
-
-
-
-
-
-    ! Make row box put it in the column box and put an editable
-    ! 1-line text widget and a button in it
-    jbox = hl_gtk_box_new(horizontal=TRUE)
-    call hl_gtk_box_pack(base, jbox)
-
-    ! newline = hl_gtk_entry_new(len=35_c_int, editable=TRUE, &
-    !      & activate=c_funloc(text_cr), data=c_loc(iappend), &
-    !      & tooltip="Enter some text followed by <CR>"//c_new_line//&
-    !      &"then click 'Append' to add it to the list"//c_null_char)
-    ! call hl_gtk_box_pack(jbox, newline)
-    abut = hl_gtk_button_new("Run Macro"//c_null_char, clicked=c_funloc(macrorun_click),&
-         & data=c_loc(iappend))
-    call hl_gtk_box_pack(jbox, abut)
-
-    ! Make a row box and put it in the main box
-    ! jbox2 = hl_gtk_box_new(horizontal=TRUE)
-    ! call hl_gtk_box_pack(base, jbox2)
-    ! ! Make a checkbox button and put it in the row box
-    ! dbut = hl_gtk_check_button_new("Delete line"//c_null_char,&
-    !      & toggled=c_funloc(del_toggle), initial_state=FALSE, &
-    !      & data=c_loc(idel), &
-    !      & tooltip="Set this then click on a line to delete it"//c_null_char)
-    ! call hl_gtk_box_pack(jbox2, dbut)
-    !
-    ! ! And a delete all button.
-    ! dabut = hl_gtk_button_new("Clear"//c_null_char, clicked=c_funloc(delete_all))
-    ! call hl_gtk_box_pack(jbox2, dabut)
-    !
-    ! ! And a swap rows button
-    ! swbut = hl_gtk_button_new("Swap rows"//c_null_char, clicked=c_funloc(swap_rows))
-    ! call hl_gtk_box_pack(jbox2, swbut)
-
-    ! Also a quit button
-    qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(macroui_destroy), &
-    & data=ihwin)
-    call hl_gtk_box_pack(base,qbut)
-
-    ! realize the window
-    call gtk_widget_show(ihwin)
-
-    end subroutine
-
     subroutine zoa_macrooperationsUI(act, param, win) bind(c)
 
       implicit none
@@ -394,7 +283,7 @@ module zoa_macro_ui
      call gtk_widget_set_size_request(rightPane, 200_c_int, -1_c_int)
     !
      buffer = gtk_text_view_get_buffer (textView)
-     call ioConfig%registerTextBuffer(buffer, ID_TERMINAL_MACRO)
+     call ioConfig%registerTextView(textView, ID_TERMINAL_MACRO)
 
 ! It is the scrollcontainer that is placed into the box.
     !call hl_gtk_box_pack(rightPane, textView)

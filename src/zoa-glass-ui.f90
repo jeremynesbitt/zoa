@@ -35,10 +35,11 @@ module zoa_glass_ui
           deallocate(selections)
 
           ! Get text to display in secend window
-          call ioConfig%setTextBuffer(ID_TERMINAL_GLASS)
-          call hl_gtk_text_view_delete(c_null_ptr, buffer=ioConfig%txtBuffer)
+          call ioConfig%setTextView(ID_TERMINAL_GLASS)
+          buffer = gtk_text_view_get_buffer(ioConfig%textView)
+          call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)
           CALL PROCESKDP('GLASSP '//svalue)
-          call ioConfig%setTextBuffer(ID_TERMINAL_DEFAULT)
+          call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
 
           ! Get index at wavelengths of interest
@@ -115,7 +116,7 @@ module zoa_glass_ui
     call gtk_text_view_set_editable(textView, FALSE)
         !
     buffer = gtk_text_view_get_buffer (textView)
-    call ioConfig%registerTextBuffer(buffer, ID_TERMINAL_GLASS)
+    call ioConfig%registerTextView(textView, ID_TERMINAL_GLASS)
 
     ! It is the scrollcontainer that is placed into the box.
     call hl_gtk_box_pack(base, ihscrollcontain)

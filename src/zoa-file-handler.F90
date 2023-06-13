@@ -91,5 +91,30 @@ module zoa_file_handler
 
       end function
 
+      function open_macro_file(fileName) result(fileID)
+         use GLOBALS
+        implicit none
+
+        integer :: fileID, rec30, L
+        character(len=*) :: fileName
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATMAC.INC'
+
+        fileID = 30
+        L = 1
+
+        inquire(iolength=rec30) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),   &
+     &  MACNW(2,L),MACNW(3,L),MACNW(4,L),MACNW(5,L),MACSTA(1,L),          &
+     &  MACSTA(2,L),MACSTA(3,L),MACSTA(4,L),MACSTA(5,L),MACSTA(6,L),      &
+     &  MACSTA(7,L),MACSTA(8,L),MACSTA(9,L),MACSTA(10,L),MACSTA(11,L),    &
+     &  MACSTA(12,L),MACSTA(13,L),MACSTA(14,L),MACSTA(15,L),MACSTA(16,L), &
+     &  MACSTA(17,L),MACSTA(18,L),MACSTA(19,L),MACSTA(20,L)
+
+
+        OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=trim(LIBMAC)//fileName,FORM= &
+     &  'UNFORMATTED',RECL=rec30,STATUS='UNKNOWN')
+
+      end function
+
 
 end module

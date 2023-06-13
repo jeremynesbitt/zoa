@@ -83,12 +83,12 @@ interface sys_config
 end interface
 
 type io_config
-   type(c_ptr) :: txtBuffer
+   type(c_ptr) :: textView
    type(c_ptr), allocatable :: allBuffers(:)
 
    contains
-      procedure, public, pass(self) :: setTextBuffer
-      procedure, public, pass(self) :: registerTextBuffer
+      procedure, public, pass(self) :: setTextView
+      procedure, public, pass(self) :: registerTextView
 end type
 
 interface io_config
@@ -366,33 +366,33 @@ type(io_config) function io_config_constructor() result(self)
     allocate(c_ptr :: self%allBuffers(3))
 
 
-    self%txtBuffer = c_null_ptr
+    self%textView = c_null_ptr
 
 
    end function
 
-   subroutine registerTextBuffer(self, buffer, idBuffer)
+   subroutine registerTextView(self, textView, idTextView)
      use zoa_ui
      class(io_config) :: self
-     type(c_ptr) :: buffer
-     integer :: idBuffer
+     type(c_ptr) :: textView
+     integer :: idTextView
 
      ! TODO:  Add error checking here
-     self%allBuffers(idBuffer) = buffer
+     self%allBuffers(idTextView) = textView
 
      !select case (idBuffer)
      !case (ID_TERMINAL_DEFAULT)
 
    end subroutine
 
-   subroutine setTextBuffer(self, idBuffer)
+   subroutine setTextView(self, idTextView)
      use zoa_ui
      class(io_config) :: self
 
-     integer :: idBuffer
+     integer :: idTextView
 
      ! TODO:  Add error checking here
-     self%txtBuffer = self%allBuffers(idBuffer)
+     self%textView = self%allBuffers(idTextView)
 
    end subroutine
 

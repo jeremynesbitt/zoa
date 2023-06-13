@@ -804,7 +804,7 @@ end subroutine proto_symfunc
 
       !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
 
-      txtBuffer = ioConfig%txtBuffer
+      txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
       call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
 
       !PRINT *, "ABOUT TO CALL MARKUP "
@@ -819,10 +819,10 @@ end subroutine proto_symfunc
 
       buffInsert = gtk_text_buffer_get_insert(txtBuffer)
      !gBool = g_variant_new_boolean(True)
-      PRINT *, "Before Warning?"
-      call gtk_text_view_scroll_to_mark(textView, buffInsert, 0.0_c_double, &
+      !PRINT *, "Before Warning?"
+      call gtk_text_view_scroll_to_mark(ioConfig%textView, buffInsert, 0.0_c_double, &
       &  True, 0.0_c_double, 1.0_c_double)
-      PRINT *, "After Warning?"
+      !PRINT *, "After Warning?"
     ! Update command history for a simple way for the user to get previous commands
       if (txtColor.eq."blue") then
         if (command_index.LT.99) THEN
@@ -1088,8 +1088,8 @@ end subroutine proto_symfunc
      call gtk_text_view_set_editable(textView, FALSE)
     !
      buffer = gtk_text_view_get_buffer (textView)
-     call ioConfig%registerTextBuffer(buffer, ID_TERMINAL_DEFAULT)
-     call ioConfig%setTextBuffer(ID_TERMINAL_DEFAULT)
+     call ioConfig%registerTextView(textView, ID_TERMINAL_DEFAULT)
+     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
     ! call gtk_text_buffer_set_text (buffer, &
     !     & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
