@@ -59,11 +59,15 @@ module lens_editor
   integer, parameter :: DTYPE_FLOAT = 2
   integer, parameter :: DTYPE_STRING = 3
   integer, parameter :: DTYPE_SCIENTIFIC = 4
+  integer, parameter :: DTYPE_BOOLEAN = 5
+
   integer, parameter :: COL_MODEL_COMBO = 5
 
-  integer(kind=c_int), parameter :: ID_COL_RADIUS = 2
-  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 3
-  integer(kind=c_int), parameter :: ID_COL_GLASS = 4
+  integer(kind=c_int), parameter :: ID_COL_RADIUS = 3
+  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 4
+  integer(kind=c_int), parameter :: ID_COL_GLASS = 5
+  integer(kind=c_int), parameter :: ID_COL_INDEX = 6
+
 
 
   integer(kind=c_int), parameter :: ID_COL_ASPH_A = 4
@@ -596,23 +600,39 @@ end subroutine
 subroutine buildBasicTable(firstTime)
 
     logical :: firstTime
-    integer(kind=c_int), PARAMETER :: ncols = 5
+    integer(kind=c_int), PARAMETER :: ncols = 6
+    character(len=10), dimension(ncols) :: colModel
     type(lens_edit_col), dimension(ncols) :: basicTypes
     integer(kind=type_kind), dimension(ncols) :: ctypes
     character(len=20), dimension(ncols) :: titles
     integer(kind=c_int), dimension(ncols) :: sortable, editable
     integer, allocatable, dimension(:) :: surfIdx
+    integer, allocatable, dimension(:) :: isRefSurface
+
     integer :: i
 
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
 
+    allocate(isRefSurface(curr_lens_data%num_surfaces))
+    isRefSurface = 0*isRefSurface
+    isRefSurface(curr_lens_data%ref_stop) = 1
+
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
+    call basicTypes(2)%initialize("Ref"    , G_TYPE_BOOLEAN, FALSE, TRUE, isRefSurface)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
     call basicTypes(ID_COL_THICKNESS)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
     call basicTypes(ID_COL_GLASS)%initialize("Glass"     , G_TYPE_STRING, FALSE, TRUE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
-    call basicTypes(5)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
+    call basicTypes(ID_COL_INDEX)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
+
+    colModel(1) = 'text'
+    colModel(2) = 'radio'
+    colModel(3) = 'text'
+    colModel(4) = 'text'
+    colModel(5) = 'text'
+    colModel(6) = 'text'
+
 
     do i=1,ncols
       ctypes(i) = basicTypes(i)%coltype
@@ -627,7 +647,8 @@ subroutine buildBasicTable(firstTime)
          & changed=c_funloc(list_select),&
          & edited=c_funloc(lens_edited),&
          &  multiple=TRUE, height=250_c_int, swidth=400_c_int, titles=titles, &
-         & sortable=sortable, editable=editable)
+         & sortable=sortable, editable=editable, renderers=colModel, &
+         & toggled_radio=c_funloc(refstop_clicked))
 
          !PRINT *, "ihlist created!  ", ihlist
     end if
@@ -752,6 +773,61 @@ subroutine buildAsphereTable(firstTime)
 
 end subroutine
 
+  subroutine refstop_clicked(renderer, path, gdata) bind(c)
+    type(c_ptr), value, intent(in) :: renderer, path, gdata
+
+
+    ! Default callback for a toggle button in a list
+    !
+    ! RENDERER |  c_ptr |  required |  The renderer which sent the signal
+    ! PATH |  c_ptr |  required |  The path at which to insert
+    ! GDATA |  c_ptr |  required |  User data, Not used.
+    !
+    ! The column number is passed via the "column-number" gobject data value.
+    ! The treeview containing the cell is passed via the "view" gobject
+    ! data value.
+    ! The row number is passed as a string in the PATH argument.
+    ! This routine is not normally called by the application developer.
+    !-
+    character(len=200) :: fpath
+    integer(c_int) :: irow
+    integer(c_int), pointer :: icol
+    integer(c_int) :: i
+    type(c_ptr) :: pcol, list
+    logical :: state
+    integer(c_int) :: nrows
+    character(len=40) :: kdptext
+
+    call convert_c_string(path, fpath)
+    read(fpath, *) irow
+
+    pcol = g_object_get_data(renderer, "column-number"//c_null_char)
+    call c_f_pointer(pcol, icol)
+
+    list = g_object_get_data(renderer, "view"//c_null_char)
+
+    state = c_f_logical(gtk_cell_renderer_toggle_get_active(renderer))
+    print *, irow, state
+
+    if (state) return ! Don't act on an unset
+
+    ! Find the first iterator
+    nrows = gtk_tree_model_iter_n_children (gtk_tree_view_get_model(list), &
+         & c_null_ptr)
+    do i = 0,nrows-1
+       call hl_gtk_listn_set_cell(list, i, icol, &
+            & logvalue= i == irow)
+    end do
+    CALL PROCESKDP('U L')
+    WRITE(kdptext, *) 'CHG ' ,irow
+    call PROCESKDP(kdptext)
+    call PROCESKDP('ASTOP')
+    call PROCESKDP('REFS')
+    call PROCESKDP('EOS')
+
+
+  end subroutine refstop_clicked
+
   subroutine list_select(list, gdata) bind(c)
     type(c_ptr), value, intent(in) :: list, gdata
     integer(kind=c_int) :: nsel
@@ -845,6 +921,12 @@ end subroutine
           call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
                & svalue=AVAL)
 
+      case (DTYPE_BOOLEAN)
+          call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
+               & ivalue=colObj(j)%getElementInt(i))
+
+
+
         end select
       end do
      end do
@@ -899,7 +981,6 @@ end subroutine
     integer :: m
 
     m = size(data)
-    PRINT *, "Number of rols in le_col_init is ", m
 
     self%coltitle = title
     self%coltype = coltype
@@ -910,6 +991,10 @@ end subroutine
 
 
     select type(data)
+    ! type is (logical)
+    !   self%dtype = DTYPE_BOOLEAN
+    !   allocate(integer::self%data(m))
+    !   self%dataInt = data
     type is (real)
       if (present(dtype)) THEN
           if (dtype == DTYPE_SCIENTIFIC) THEN
