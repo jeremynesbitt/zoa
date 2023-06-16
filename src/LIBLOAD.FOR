@@ -1,17 +1,21 @@
-        SUBROUTINE LIBLOAD(LIBLIST)
-        USE GLOBALS  
+        SUBROUTINE LIBLOAD(LIBLIST, LIBARRAY)
+        USE GLOBALS
         IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATMAI.INC'
+        !INCLUDE 'DATLEN.INC'
         INTEGER I,LIBLIST
         CHARACTER*132 LINE,TEMP80
+        CHARACTER(len=80), dimension(999) :: LIBARRAY
         WRITE ( *, '(a)' ) '  Hello from LIBLOAD!'
-        INPUT='OUT ED'
-        CALL PROCES
-        INPUT='LIB P'
-        CALL PROCES
-        INPUT='OUT TP'
-        CALL PROCES
+        CALL PROCESKDP('OUT ED')
+        CALL PROCESKDP('LIB P')
+        CALL PROCESKDP('OUT TP')
+        !INPUT='OUT ED'
+        !CALL PROCES
+        !INPUT='LIB P'
+        !CALL PROCES
+        !INPUT='OUT TP'
+        !CALL PROCES
         CALL CLOSE_FILE(9,1)
         WRITE ( *, '(a)' ) '  Hello from LIBLOAD!'
         OPEN(UNIT=9,ACCESS='SEQUENTIAL',BLANK='NULL'

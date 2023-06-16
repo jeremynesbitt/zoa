@@ -89,6 +89,7 @@ contains
 
     use zoa_macro_ui
     use zoa_glass_ui
+    use ui_lens_library
 
     type(c_ptr), intent(in) :: win
 
@@ -109,6 +110,8 @@ contains
 
     type(c_ptr) :: act_glassDisplay, menu_item_glass, menu_item_editsysconfig
     type(c_ptr) :: act_sysconfig
+    type(c_ptr) :: act_lenslib, menu_item_lenslib
+
 
     type(c_ptr) :: menu_import
 
@@ -162,6 +165,8 @@ contains
     menu_item_macrosave = g_menu_item_new ("Save Macro Directory"//c_null_char, "win.MacroSave"//c_null_char)
     call g_menu_append_item (menu_macro, menu_item_macrosave)
 
+
+
     !Pseudocode for new type
     !addNewMenuItemThatExecutesCommand(topLevelMenu, menuitemText, menuItemEvenName, arrayOfCommands)
 
@@ -209,6 +214,14 @@ contains
     call g_signal_connect (act_editlensrad, "activate"//c_null_char, c_funloc(zoa_editLensRadUI), win)
     menu_item_editlensrad = g_menu_item_new ("Edit Lens (Radius Mode)"//c_null_char, "win.EditLensRad"//c_null_char)
     call g_menu_append_item (menu_lens, menu_item_editlensrad)
+
+    ! Lens Library
+    act_lenslib = g_simple_action_new("LensLib"//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, act_lenslib)
+    call g_signal_connect (act_lenslib, "activate"//c_null_char, c_funloc(create_lenslibraryUI), win)
+    menu_item_lenslib = g_menu_item_new ("Lens Library"//c_null_char, "win.LensLib"//c_null_char)
+    call g_menu_append_item (menu_lens, menu_item_lenslib)
+
 
 
     ! Lens Sub Menus
@@ -447,7 +460,7 @@ contains
 
   end subroutine
 
-  subroutine open_file(filename) 
+  subroutine open_file(filename)
 
     character(len=120), intent(inout) :: filename
     integer(kind=c_int) :: isel

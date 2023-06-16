@@ -103,6 +103,7 @@ integer, parameter :: ID_COLOR_BLACK = 15
 integer, parameter :: ID_TERMINAL_DEFAULT = 1
 integer, parameter :: ID_TERMINAL_GLASS = 2
 integer, parameter :: ID_TERMINAL_MACRO = 3
+integer, parameter :: ID_TERMINAL_LENSLIB  = 4
 
 
 

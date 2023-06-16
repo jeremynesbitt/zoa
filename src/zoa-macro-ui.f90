@@ -206,7 +206,7 @@ module zoa_macro_ui
       type(c_ptr), value, intent(in) :: act, param, win
       type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
       type(c_ptr) :: macroentrylabel, textView, buffer, pane, rightPane
-      type(c_ptr) :: leftPane, boxWin
+      type(c_ptr) :: leftPane, boxWin, rightPaneLabel, boxRight
       integer, target :: iappend=0, idel=0
       integer :: ltr
 
@@ -275,11 +275,18 @@ module zoa_macro_ui
 
      textView = gtk_text_view_new ()
      call gtk_text_view_set_editable(textView, FALSE)
+     boxRight = hl_gtk_box_new()
+
 
      rightPane = gtk_scrolled_window_new()
+     rightPaneLabel = gtk_label_new("Macro Contents"//c_null_char)
+
+     call gtk_box_append(boxRight, rightPaneLabel)
+     call gtk_box_append(boxRight, textView)
 
 
-     call gtk_scrolled_window_set_child(rightPane, textView)
+     !call gtk_scrolled_window_set_child(rightPane, textView)
+     call gtk_scrolled_window_set_child(rightPane, boxRight)
      call gtk_widget_set_size_request(rightPane, 200_c_int, -1_c_int)
     !
      buffer = gtk_text_view_get_buffer (textView)

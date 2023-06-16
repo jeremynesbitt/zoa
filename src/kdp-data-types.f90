@@ -363,7 +363,9 @@ type(io_config) function io_config_constructor() result(self)
   use iso_c_binding, only: c_null_ptr
   !implicit none
 
-    allocate(c_ptr :: self%allBuffers(3))
+
+  ! Size of array needs to match max # of ID_TERMINAL parameter in zoa-ui
+    allocate(c_ptr :: self%allBuffers(4))
 
 
     self%textView = c_null_ptr

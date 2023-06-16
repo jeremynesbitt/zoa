@@ -667,6 +667,7 @@ end subroutine proto_symfunc
     print *, "Your destroy_signal() function has been invoked !"
     ! Some functions and subroutines need to know that it's finished:
     run_status = FALSE
+    call PROCESKDP('EXIT')
     call gtk_window_destroy(my_window)
   end subroutine destroy_signal
 
