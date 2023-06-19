@@ -1012,8 +1012,8 @@ end subroutine proto_symfunc
 
     ! Create the window:
     my_window = gtk_application_window_new(app)
-    !call g_signal_connect(my_window, "destroy"//c_null_char, &
-    !                    & c_funloc(destroy_signal))
+    call g_signal_connect(my_window, "destroy"//c_null_char, &
+                        & c_funloc(destroy_signal))
    ! Don't forget that C strings must end with a null char:
     call gtk_window_set_title(my_window, "ZOA Optical Analysis"//c_null_char)
     ! Properties of the main window :
@@ -1124,7 +1124,7 @@ end subroutine proto_symfunc
     !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTab), notebook)
     call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
 
-    call g_signal_connect(notebook, 'switch-page'//c_null_char, c_funloc(setActivePlot), c_null_ptr)
+    !call g_signal_connect(notebook, 'switch-page'//c_null_char, c_funloc(setActivePlot), c_null_ptr)
 
 
     !print *, "Notebook ptr is ", notebook
@@ -1193,7 +1193,7 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    !call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 

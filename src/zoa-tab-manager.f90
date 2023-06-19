@@ -29,6 +29,8 @@ type  zoatabManager
    procedure :: addPlotTab
    procedure :: newPlotIfNeeded
    procedure :: rePlotIfNeeded
+   procedure :: removePlotTab
+   procedure, private :: findTabIndex
 
  end type
 
@@ -63,6 +65,26 @@ subroutine addMsgTab(self, notebook, winTitle)
 
 end subroutine
 
+function  findTabIndex(self) result(newTabIndex)
+  class(zoatabManager) :: self
+  integer :: i
+  integer :: newTabIndex
+
+  do i=1,self%tabNum
+    if (.not.ALLOCATED(self%tabInfo(i)%tabObj)) then
+        PRINT *, "Found empty slot at ", i
+        newTabIndex = i
+        return
+      end if
+  end do
+
+  ! If we get here then add at the end
+  PRINT *, "Increment max number of tabs"
+  self%tabNum = self%tabNum + 1
+  newTabIndex = self%tabNum
+
+end function
+
 subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
   use mod_plotrayfan
@@ -72,24 +94,31 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use ui_spot
   use ROUTEMOD
   use GLOBALS
+  implicit none
 
     class(zoatabManager) :: self
     character(len=80), optional :: inputTitle
     character(len=80) :: winTitle
+    character(len=3) :: outChar
     type(c_ptr), optional :: extcanvas
     class(*), pointer :: tabObj
     integer, intent(in) :: PLOT_CODE
+    type(c_ptr) :: currPage
+    integer(kind=c_int) :: currPageIndex
     !type(zoatab) :: new_tab
     class(zoatab), allocatable :: new_tab
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
     integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
     integer, target :: TARGET_PLOTTYPE_RMSFIELD   = ID_PLOTTYPE_RMSFIELD
+    integer :: idx
 
 
     call logger%logText('Adding Tab (addPlotTab Sub)')
 
+    idx = self%findTabIndex()
 
-    self%tabNum = self%tabNum+1
+
+    !self%tabNum = self%tabNum+1
 
       if (.not.present(inputTitle)) THEN
         winTitle = "Generic Plot"
@@ -97,7 +126,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         winTitle = inputTitle
       end if
 
-    if (allocated(self%tabInfo(self%tabNum)%tabObj)) THEN
+    if (allocated(self%tabInfo(idx)%tabObj)) THEN
       call logger%logText("tabObj already allocated?" )
 
     end if
@@ -114,13 +143,13 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
 
         PRINT *, "winTitle is ", winTitle
 
-        allocate(lensdrawtab :: self%tabInfo(self%tabNum)%tabObj)
-        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
-        call self%tabInfo(self%tabNum)%tabObj%newPlot()
-        call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
+        allocate(lensdrawtab :: self%tabInfo(idx)%tabObj)
+        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
+        call self%tabInfo(idx)%tabObj%newPlot()
+        call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)
-        allocate(lens_draw_settings :: self%tabInfo(self%tabNum)%settings )
-        self%tabInfo(self%tabNum)%settings = ld_settings
+        allocate(lens_draw_settings :: self%tabInfo(idx)%settings )
+        self%tabInfo(idx)%settings = ld_settings
 
 
     case (ID_NEWPLOT_RAYFAN)
@@ -133,14 +162,14 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
 
         PRINT *, "winTitle is ", winTitle
 
-        allocate(rayfantab :: self%tabInfo(self%tabNum)%tabObj)
-        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_RAYFAN)
-        call self%tabInfo(self%tabNum)%tabObj%newPlot()
+        allocate(rayfantab :: self%tabInfo(idx)%tabObj)
+        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_RAYFAN)
+        call self%tabInfo(idx)%tabObj%newPlot()
 
-        call gtk_drawing_area_set_draw_func(self%tabInfo(self%tabNum)%tabObj%canvas, &
+        call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
-      allocate(ray_fan_settings :: self%tabInfo(self%tabNum)%settings )
-      self%tabInfo(self%tabNum)%settings = rf_settings
+      allocate(ray_fan_settings :: self%tabInfo(idx)%settings )
+      self%tabInfo(idx)%settings = rf_settings
 
 
     case (-1) ! This means we just add to
@@ -154,44 +183,49 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     case (ID_PLOTTYPE_AST)
         call logger%logText('Astig FC Dist Tab being added')
         winTitle = "Astig Field Curv Dist"
-        allocate(astfcdist_tab :: self%tabInfo(self%tabNum)%tabObj)
-        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_AST)
-        call self%tabInfo(self%tabNum)%tabObj%newPlot()
-        allocate(ast_fc_dist_settings :: self%tabInfo(self%tabNum)%settings )
-        self%tabInfo(self%tabNum)%settings = ast_settings
-        !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
+        allocate(astfcdist_tab :: self%tabInfo(idx)%tabObj)
+        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_AST)
+        call self%tabInfo(idx)%tabObj%newPlot()
+        allocate(ast_fc_dist_settings :: self%tabInfo(idx)%settings )
+        self%tabInfo(idx)%settings = ast_settings
+        !self%tabInfo(idx)%settings%canvas = self%tabInfo(idx)%tabObj%canvas
 
     case (ID_PLOTTYPE_SPOT)
         call logger%logText('Spot Diagram Starting')
         winTitle = "Spot Diagram"
-        allocate(spot_tab :: self%tabInfo(self%tabNum)%tabObj)
-        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_SPOT)
-        call self%tabInfo(self%tabNum)%tabObj%newPlot()
-        allocate(spot_settings :: self%tabInfo(self%tabNum)%settings )
-        self%tabInfo(self%tabNum)%settings = spot_struct_settings
-        !self%tabInfo(self%tabNum)%settings%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
+        allocate(spot_tab :: self%tabInfo(idx)%tabObj)
+        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_SPOT)
+        call self%tabInfo(idx)%tabObj%newPlot()
+        allocate(spot_settings :: self%tabInfo(idx)%settings )
+        self%tabInfo(idx)%settings = spot_struct_settings
+        !self%tabInfo(idx)%settings%canvas = self%tabInfo(idx)%tabObj%canvas
 
     case (ID_PLOTTYPE_RMSFIELD)
         call logger%logText('New RMS Field Diagram Starting')
         winTitle = "RMS vs Field"
-        allocate(rmsfieldtab :: self%tabInfo(self%tabNum)%tabObj)
-        call self%tabInfo(self%tabNum)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
-        call self%tabInfo(self%tabNum)%tabObj%newPlot()
-        allocate(rmsfield_settings :: self%tabInfo(self%tabNum)%settings )
-        self%tabInfo(self%tabNum)%settings = rmsfield_struct_settings
+        allocate(rmsfieldtab :: self%tabInfo(idx)%tabObj)
+        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
+        call self%tabInfo(idx)%tabObj%newPlot()
+        allocate(rmsfield_settings :: self%tabInfo(idx)%settings )
+        self%tabInfo(idx)%settings = rmsfield_struct_settings
 
     end select
 
     !call plotObj%new_plot()
     !call tabObj%initialize(self%notebook, winTitle, ID_NEWPLOT_RAYFAN)
     !call newPlot()
-    !self%tabInfo(self%tabNum)%plotObj = plotObj
+    !self%tabInfo(idx)%plotObj = plotObj
     PRINT *, "DEBUG:  PLOT_CODE is ", PLOT_CODE
-    self%tabInfo(self%tabNum)%typeCode = PLOT_CODE
-    !self%tabInfo(self%tabNum)%canvas = new_tab%canvas
-    self%tabInfo(self%tabNum)%canvas = self%tabInfo(self%tabNum)%tabObj%canvas
-    PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(self%tabNum)%typeCode
+    self%tabInfo(idx)%typeCode = PLOT_CODE
+    !self%tabInfo(idx)%canvas = new_tab%canvas
+    self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
+    PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(idx)%typeCode
     call logger%logText('Tab Info finished populating in addPlotTab ')
+
+    currPageIndex = gtk_notebook_get_current_page(self%notebook)
+    currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
+    WRITE(outChar, '(I0.3)') idx
+    call gtk_widget_set_name(currPage, outChar)
 
 end subroutine
 
@@ -242,6 +276,22 @@ end subroutine
      DO i = 1,self%tabNum
            call self%tabInfo(i)%settings%replot()
      END DO
+
+
+  end subroutine
+
+  subroutine removePlotTab(self, tabIndex, tabInfoIndex)
+
+    class(zoatabManager) :: self
+    integer, intent(in) :: tabIndex, tabInfoIndex
+
+    call gtk_notebook_remove_page(self%notebook, tabIndex)
+
+    DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
+    self%tabInfo(tabInfoIndex)%typeCode = -1
+    DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
+    self%tabInfo(tabInfoIndex)%canvas = c_null_ptr
+
 
 
   end subroutine

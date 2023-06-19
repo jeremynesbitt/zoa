@@ -419,10 +419,12 @@ type zoatab
 
 end type
 
-
+interface
+  subroutine close_zoaTab2
+  end subroutine
+end interface
 
 contains ! for module
-
 
  subroutine initialize(self, parent_window, tabTitle, ID_PLOTTYPE)
 
@@ -434,12 +436,30 @@ contains ! for module
     type(c_ptr) :: parent_window
     integer(kind=c_int) :: ID_PLOTTYPE
     character(len=*) :: tabTitle
-    type(c_ptr) :: tab_label, scrolled_tab
+    type(c_ptr) :: tab_label, scrolled_tab, head, btn
     integer :: i
+    integer, target :: ID_TARGET
 
-
+    ID_TARGET = ID_PLOTTYPE
     PRINT *, "tabTitle is ", tabTitle
-    self%tab_label = gtk_label_new(tabTitle//c_null_char)
+    ! Set up button for exiting
+    self%tab_label = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+    !self%tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
+    tab_label = gtk_label_new(tabTitle//c_null_char)
+    call hl_gtk_box_pack(self%tab_label, tab_label)
+    !call gtk_box_append(head, tab_label)
+    btn = gtk_button_new_from_icon_name ("gtk-close")
+    call gtk_button_set_has_frame (btn, FALSE)
+    call gtk_widget_set_focus_on_click (btn, FALSE)
+    call hl_gtk_box_pack (self%tab_label, btn);
+    call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab2), c_loc(ID_TARGET))
+    !self%tab_label = head
+    !self%tab_label = tab_label
+
+    PRINT *, "Created tab label ", self%tab_label
+    call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
+
+
     self%ID_PLOTTYPE = ID_PLOTTYPE
     PRINT *, "ABOUT TO ASSIGN NOTEBOOK PTR"
     PRINT *, "NOTEBOOK PTR IS "
