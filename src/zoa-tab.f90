@@ -420,7 +420,7 @@ type zoatab
 end type
 
 interface
-  subroutine close_zoaTab2
+  subroutine close_zoaTab
   end subroutine
 end interface
 
@@ -452,7 +452,7 @@ contains ! for module
     call gtk_button_set_has_frame (btn, FALSE)
     call gtk_widget_set_focus_on_click (btn, FALSE)
     call hl_gtk_box_pack (self%tab_label, btn);
-    call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab2), c_loc(ID_TARGET))
+    call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
     !self%tab_label = head
     !self%tab_label = tab_label
 
