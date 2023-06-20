@@ -82,7 +82,8 @@ module handlers
   ! run_status is TRUE until the user closes the top window:
   integer(c_int) :: run_status = TRUE
   integer(c_int) :: boolresult
-  character(len=256), dimension(100) ::  command_history
+  integer, parameter :: cmdHistorySize = 500
+  character(len=256), dimension(cmdHistorySize) ::  command_history
   integer :: command_index = 1
   integer :: command_search = 1
   integer :: terminalOutput = ID_TERMINAL_DEFAULT
@@ -764,7 +765,7 @@ end subroutine proto_symfunc
 
       ! Update command history for a simple way for the user to get previous commands
       if (txtColor.eq."blue") then
-        if (command_index.LT.99) THEN
+        if (command_index.LT.cmdHistorySize) THEN
 
          command_history(command_index) = ftext
          command_index = command_index + 1
@@ -826,11 +827,15 @@ end subroutine proto_symfunc
       !PRINT *, "After Warning?"
     ! Update command history for a simple way for the user to get previous commands
       if (txtColor.eq."blue") then
-        if (command_index.LT.99) THEN
+        if (command_index.LT.cmdHistorySize+1) THEN
 
          command_history(command_index) = ftext
          command_index = command_index + 1
          command_search = command_index
+       else ! array full
+         command_history(1:cmdHistorySize-1) = command_history(2:cmdHistorySize)
+         command_history(cmdHistorySize) = ftext
+
        END IF
      END IF
 
@@ -1396,40 +1401,46 @@ end subroutine proto_symfunc
     logical(c_bool) :: ret
     character(len=20) :: keyname
     integer(kind=c_int) :: key_up, key_down
+    type(gtktextiter), target :: iter
+    integer(kind=c_int) :: result
 
     call convert_c_string(gdk_keyval_name(keyval), keyname)
-    print *, "Keyval: ",keyval," Name: ", trim(keyname), "      Keycode: ", &
-             & keycode, " Modifier: ", state
+    !print *, "Keyval: ",keyval," Name: ", trim(keyname), "      Keycode: ", &
+    !         & keycode, " Modifier: ", state
 
     key_up = gdk_keyval_from_name("Up"//c_null_char)
     key_down = gdk_keyval_from_name("Down"//c_null_char)
 
     if (keyval == key_up) then
-      PRINT *, "Capturing Up!"
+      !PRINT *, "Capturing Up!"
       if (command_search.GT.1) THEN
         command_search = command_search - 1
-        PRINT *, "CMD IS ", command_history(command_search)
-        buff = gtk_entry_get_buffer(entry)
-        call gtk_entry_buffer_set_text(buff, command_history(command_search), -1)
+        call updateTerminalFromCommandHistory(entry, command_search)
       end if
-
-      !call gtk_window_destroy(my_window)
     end if
 
     if (keyval == key_down) then
-      PRINT *, "Capturing Down!"
+      !PRINT *, "Capturing Down!"
       if (command_search.LT.command_index) THEN
         command_search = command_search + 1
-        PRINT *, "CMD IS ", command_history(command_search)
-        buff = gtk_entry_get_buffer(entry)
-        call gtk_entry_buffer_set_text(buff, command_history(command_search), -1)
+        call updateTerminalFromCommandHistory(entry, command_search)
       end if
-
-      !call gtk_window_destroy(my_window)
     end if
 
     ret = .true.
   end function key_event_h
+
+  subroutine updateTerminalFromCommandHistory(entry, idx)
+
+    implicit none
+    type(c_ptr) :: entry, buffer
+    integer :: idx
+
+        buffer = gtk_entry_get_buffer(entry)
+        call gtk_entry_buffer_set_text(buffer, command_history(idx), -1)
+        call gtk_editable_set_position(entry, len(trim(command_history(idx))))
+
+  end subroutine
 
 
 end module handlers

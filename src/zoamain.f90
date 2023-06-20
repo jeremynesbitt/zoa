@@ -194,8 +194,12 @@ subroutine x12f(area, x, y)
 
 end module lens_analysis
 
-
+! This method should eventually go somewhere else IMO, but for not have it here
 subroutine close_zoaTab()
+  ! being specific in imports here because had some compiler errors during a clean
+  ! build when I just used import handlers.  Never confirmed root cause, but suspect
+  ! there was some isuse where I was importing handlers but it imported zoa_tab
+  ! where the interface for this method was being defined
   use iso_c_binding
   use handlers, only: zoatabMgr
   use gtk, only:  gtk_notebook_get_nth_page, gtk_notebook_get_current_page, gtk_widget_get_name
