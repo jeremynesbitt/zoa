@@ -1,3 +1,5 @@
+! Created this module to try and consolidate file io for this program
+!
 module zoa_file_handler
 
       !INTEGER ID_SYSTEM
@@ -115,6 +117,65 @@ module zoa_file_handler
      &  'UNFORMATTED',RECL=rec30,STATUS='UNKNOWN')
 
       end function
+
+      subroutine saveCommandHistoryToFile(command_history, command_index)
+        implicit none
+        character(len=*), intent(in) :: command_history(:)
+        integer :: command_index
+        character(len=1024) :: filePath
+        logical :: existFlag
+        integer :: recLen, i
+
+        filePath = trim(getZoaPath())//getFileSep()//'command_history.dat'
+
+        inquire(file=filePath,EXIST=existFlag)
+        if(existFlag) call clear_file(filePath)
+
+        inquire(iolength=recLen) command_history(1)
+
+
+        OPEN(UNIT=16,ACCESS='DIRECT',FILE=trim(filePath), FORM='UNFORMATTED', &
+        & RECL=recLen,STATUS='UNKNOWN')
+
+        if(command_index.GT.size(command_history)) command_index = size(command_history)
+
+        do i=1, command_index
+          write(unit=16, rec=i) command_history(i)
+        end do
+        close(UNIT=16)
+
+      end subroutine
+
+      subroutine readCommandHistoryFromFile(command_history, command_index)
+
+        implicit none
+        character(len=*), intent(inout) :: command_history(:)
+        integer, intent(inout) :: command_index
+        character(len=1024) :: filePath
+        logical :: existFlag
+        integer :: recLen, i
+
+        filePath = trim(getZoaPath())//getFileSep()//'command_history.dat'
+
+        inquire(file=filePath,EXIST=existFlag)
+        if(existFlag) then
+
+          inquire(iolength=recLen) command_history(1)
+          OPEN(UNIT=16,ACCESS='DIRECT',FILE=trim(filePath), FORM='UNFORMATTED', &
+          & RECL=recLen,STATUS='UNKNOWN')
+
+        do i=1, size(command_history)
+          read(unit=16, rec=i, err=77) command_history(i)
+        end do
+
+
+        PRINT *, "Command History is ", command_history
+77      PRINT *, "End of file is record ", i
+        command_index = i
+        close(unit=16)
+        return
+        end if
+      end subroutine
 
 
 end module

@@ -663,11 +663,13 @@ end subroutine proto_symfunc
 
   ! Our callback function before destroying the window:
   recursive subroutine destroy_signal(widget, event, gdata) bind(c)
+    use zoa_file_handler, only: saveCommandHistoryToFile
     type(c_ptr), value, intent(in) :: widget, event, gdata
 
     print *, "Your destroy_signal() function has been invoked !"
     ! Some functions and subroutines need to know that it's finished:
     run_status = FALSE
+    call saveCommandHistoryToFile(command_history, command_index)
     call PROCESKDP('EXIT')
     call gtk_window_destroy(my_window)
   end subroutine destroy_signal
@@ -992,6 +994,7 @@ end subroutine proto_symfunc
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_f_pointer, c_null_funptr
     use gdk_pixbuf, only: gdk_pixbuf_get_n_channels, gdk_pixbuf_get_pixels, &
                       & gdk_pixbuf_get_rowstride, gdk_pixbuf_new
+    use zoa_file_handler, only: readCommandHistoryFromFile
     !use global_widgets
     use GLOBALS
     use zoamenubar
@@ -1152,6 +1155,8 @@ end subroutine proto_symfunc
 
     call gtk_widget_set_vexpand (box1, TRUE)
 
+
+
      !call plot_04(drawing_area_plot)
     !call x12f(drawing_area_plot)
 
@@ -1166,6 +1171,8 @@ end subroutine proto_symfunc
     entry = hl_gtk_entry_new(60_c_int, editable=TRUE, tooltip = &
          & "Enter text here for command interpreter"//c_null_char, &
          & activate=c_funloc(name_enter))
+
+    call readCommandHistoryFromFile(command_history, command_index)
     !entry2 = gtk_combo_box_text_new_with_entry()
     !call gtk_combo_box_set_active(entry2, 1_c_int)
     !call gtk_entry_set_activates_default(entry2, TRUE)

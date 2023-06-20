@@ -250,14 +250,7 @@ program zoa_program
   use zoa_ui
   use global_widgets
 
-  !use GLOBALS
-
-
-
-
   implicit none
-
-
 
   integer(c_int)     :: status
   !type(c_ptr)        :: app
@@ -296,7 +289,6 @@ program zoa_program
   status = g_application_run(app, 0_c_int, c_null_ptr)
 
   print *, "You have exited the program.  Cleaning up"
-
 
   ! Memory is freed:
   call g_object_unref(app)
