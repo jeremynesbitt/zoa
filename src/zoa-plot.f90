@@ -69,6 +69,7 @@ contains
     procedure, public, pass(self) :: setDataColorCode
     procedure, public, pass(self) :: setLineStyleCode
     procedure, public, pass(self) :: addXYPlot
+    procedure, public, pass(self) :: updatePlotData
 
 
 end type
@@ -369,14 +370,14 @@ contains
 
 
       self%area = area
-      Print *, "About to crash before x/y assignment?"
+      !Print *, "About to crash before x/y assignment?"
 
-      if(allocated(self%x)) PRINT *, "X ALLOCATED BEFORE ASSIGNMENT!"
+      !if(allocated(self%x)) PRINT *, "X ALLOCATED BEFORE ASSIGNMENT!"
 
       self%x = x
       self%y = y
 
-      if(allocated(self%x)) PRINT *, "X ALLOCATED AFTER ASSIGNMENT!"
+      !if(allocated(self%x)) PRINT *, "X ALLOCATED AFTER ASSIGNMENT!"
 
 
 
@@ -549,6 +550,8 @@ contains
     !call plwind( 1980._pl_test_flt, 1990._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
 
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
+    PRINT *, "Axes Limits ymin is ", ymin
+    PRINT *, "Axes Limits ymaxs is ", ymax
     call plwind(xmin, xmax, ymin, ymax)
 
         isurface = c_null_ptr
@@ -613,6 +616,7 @@ contains
       call plcol0(getLabelFontCode(self))
     end do
 
+    PRINT *, "ydata is ", self%plotdatalist(1)%y
 
     end subroutine drawPlot
 
@@ -625,6 +629,26 @@ contains
         self%numSeries = self%numSeries + 1
         call self%plotdatalist(self%numSeries)%initialize(X,Y)
 
+  end subroutine
+
+  subroutine updatePlotData(self, x, y, seriesNum)
+    class(zoaplot) :: self
+    real :: x(:), y(:)
+    integer :: seriesNum
+
+    deallocate(self%x)
+    deallocate(self%y)
+    allocate(self%x(size(x)))
+    allocate(self%y(size(y)))
+
+    deallocate(self%plotdatalist(seriesNum)%x)
+    deallocate(self%plotdatalist(seriesNum)%y)
+    allocate(self%plotdatalist(seriesNum)%x(size(x)))
+    allocate(self%plotdatalist(seriesNum)%y(size(y)))
+
+    self%plotdatalist(seriesNum)%x = x
+    self%plotdatalist(seriesNum)%y = y
+    
   end subroutine
 
 !

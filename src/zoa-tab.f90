@@ -3,6 +3,7 @@
 module settings_obj
   use gtk
   use collections
+  use zoa_plot
 
   type zoa_settings_obj
 
@@ -141,7 +142,7 @@ subroutine addSpinBox(self, labelText, spinButton, callbackFunc, callbackData)
 
   ! Create Objects
   newlabel = gtk_label_new(labelText//c_null_char)
-  call g_signal_connect (spinButton, "changed"//c_null_char, callbackFunc, callbackData)
+  call g_signal_connect (spinButton, "value-changed"//c_null_char, callbackFunc, callbackData)
 
   ! Update settings lists
   call self%addLabelandWidget(newlabel, spinButton)
@@ -346,6 +347,7 @@ module zoa_tab
   use gtk_hl_container
   use collections
   use settings_obj
+  use global_widgets, only: uiSettingCommands, uiSetCmdsIdx
 
 
 
@@ -401,9 +403,10 @@ type zoatab
      integer(c_int)  :: width = 1000
      integer(c_int)  ::  height = 700
      type(zoa_settings_obj) :: settings
+     type(zoaplot) :: zPlot ! Should this be in a derived type instead?
      integer(kind=c_int) :: ID_PLOTTYPE
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
-
+     procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
 
 
  contains
@@ -413,11 +416,23 @@ type zoatab
    procedure, public, pass(self) :: addListBoxSettingTextID
    procedure, public, pass(self) :: finalizeWindow
    procedure, public, pass(self) :: addSpinBoxSetting
+   procedure, public, pass(self) :: addSpinButton_runCommand
+   procedure, public, pass(self) :: createGenericSinglePlot
+   procedure, public, pass(self) :: updateGenericSinglePlot
    procedure, public, pass(self) :: newPlot => zoatab_newPlot
 
 
 
 end type
+
+abstract interface
+  subroutine myinterface(self)
+    import :: zoatab
+   class(zoatab) :: self
+  end subroutine
+end interface
+
+
 
 interface
   subroutine close_zoaTab
@@ -456,21 +471,128 @@ contains ! for module
     !self%tab_label = head
     !self%tab_label = tab_label
 
-    PRINT *, "Created tab label ", self%tab_label
+    !PRINT *, "Created tab label ", self%tab_label
     call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
 
 
     self%ID_PLOTTYPE = ID_PLOTTYPE
-    PRINT *, "ABOUT TO ASSIGN NOTEBOOK PTR"
-    PRINT *, "NOTEBOOK PTR IS "
     self%notebook = parent_window
 
     self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
 
     !call self%createCairoDrawingArea()
     call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
+    PRINT *, "Cairo Drawing Area is ", self%canvas
 
     call self%settings%initialize()
+    PRINT *, "Done with zoatab type initialization"
+
+ end subroutine
+
+subroutine createGenericSinglePlot(self, x, y, xlabel, ylabel, title, lineTypeCode)
+  use zoa_plot
+  implicit none
+  class(zoatab) :: self
+  real, intent(in) :: x(:), y(:)
+  character(len=*), intent(in), optional :: xlabel, ylabel, title
+  integer, optional :: lineTypeCode
+
+  type(c_ptr) ::  isurface
+  type(multiplot) :: mplt
+
+  ! Need a backing surface for PLPLOT
+  self%canvas = hl_gtk_drawing_area_new(size=[700,500], &
+          & has_alpha=FALSE)
+
+          !rmsfield_struct_settings = rmsfield_settings(self%canvas)
+    PRINT *, "canvas in createNewPlot is", self%canvas
+    isurface = g_object_get_data(self%canvas, "backing-surface")
+    PRINT *, "isurface is ", isurface
+    if (.not. c_associated(isurface)) then
+       PRINT *, "error:  new plot :: Backing surface is NULL"
+
+       return
+    end if
+
+    call mplt%initialize(self%canvas, 1,1)
+
+    call self%zPlot%initialize(c_null_ptr, x, y, &
+    & xlabel=xlabel, &
+    & ylabel=ylabel, &
+    & title=title)
+    call self%zPlot%setLineStyleCode(lineTypeCode)
+
+    call mplt%set(1,1,self%zPlot)
+    call mplt%draw()
+
+
+
+  ! Need settings to be defined firsr
+  !call self%finalizeWindow()
+
+end subroutine
+
+subroutine updateGenericSinglePlot(self, x, y)
+  class(zoatab) :: self
+  real :: x(:), y(:)
+  type(multiplot) :: mplt
+
+  !call self%zPlot%updatePlotData(x, y, 1)
+  self%zPlot%x = x
+  self%zPlot%y = y
+
+  self%zPlot%plotdatalist(1)%x = x
+  self%zPlot%plotdatalist(1)%y = y
+
+  call mplt%initialize(self%canvas, 1,1)
+
+  call mplt%set(1,1,self%zPlot)
+  call self%zPlot%setLineStyleCode(-1)
+  call mplt%draw()
+
+end subroutine
+
+subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits, command)
+  implicit none
+  class(zoatab) :: self
+  real, intent(in) :: value, lower, upper
+  integer(kind=c_int), intent(in) :: digits
+  character(len=*), intent(in) :: labelTxt
+  character(len=*), intent(in) :: command
+  type(c_ptr) :: spinBtn, spinLbl
+
+  spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
+                                                    & lower=lower*1d0, &
+                                                    & upper=upper*1d0, &
+                                                    & step_increment=2d0, &
+                                                    & page_increment=1d0, &
+                                                    & page_size=0d0), &
+                                                    & climb_rate=2d0, &
+                                                    & digits=digits)
+
+    ! This is a bit sketchy IMO, but it is a way to use a single method to simply
+    ! apply setting commands
+    uiSettingCommands(uiSetCmdsIdx) = command
+
+    call self%addSpinBoxSetting(labelTxt, spinBtn, &
+    & c_funloc(callback_runCommandFromSpinBox), c_loc(uiSettingCommands(uiSetCmdsIdx)))
+
+    uiSetCmdsIdx = uiSetCmdsIdx +1
+
+
+
+end subroutine
+
+ subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
+   type(c_ptr), value, intent(in) :: widget, gdata
+
+
+  character(len=140), pointer :: command_base
+
+  call c_f_pointer(gdata, command_base)
+
+  PRINT *, "command_base is ", command_base
+
 
  end subroutine
 

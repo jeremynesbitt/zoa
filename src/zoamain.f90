@@ -269,6 +269,8 @@ program zoa_program
   sysConfig = sys_config()
   ioConfig = io_config()
 
+  allocate(uiSettingCommands(500))
+
 
 
   !PRINT *, "APP IN Main Program is ", app

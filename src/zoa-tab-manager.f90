@@ -30,6 +30,11 @@ type  zoatabManager
    procedure :: newPlotIfNeeded
    procedure :: rePlotIfNeeded
    procedure :: removePlotTab
+   procedure :: doesPlotExist
+   procedure :: addPlotTabFromObj
+   procedure :: addGenericPlotTab
+   procedure :: updateGenericPlotTab
+   procedure :: finalizeNewPlotTab
    procedure, private :: findTabIndex
 
  end type
@@ -203,11 +208,24 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     case (ID_PLOTTYPE_RMSFIELD)
         call logger%logText('New RMS Field Diagram Starting')
         winTitle = "RMS vs Field"
-        allocate(rmsfieldtab :: self%tabInfo(idx)%tabObj)
+        allocate(zoatab :: self%tabInfo(idx)%tabObj)
+        self%tabInfo(idx)%tabObj%newGenericSinglePlot => genPlot_sandbox
+        !self%tabInfo%(idx)%tabObj%newPlot()
         call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
-        call self%tabInfo(idx)%tabObj%newPlot()
+        !call self%tabInfo(idx)%tabObj%newGenericSinglePlot()
+        call self%tabInfo(idx)%tabObj%newGenericSinglePlot()
         allocate(rmsfield_settings :: self%tabInfo(idx)%settings )
         self%tabInfo(idx)%settings = rmsfield_struct_settings
+
+
+    ! case (ID_PLOTTYPE_RMSFIELD)
+    !     call logger%logText('New RMS Field Diagram Starting')
+    !     winTitle = "RMS vs Field"
+    !     allocate(rmsfieldtab :: self%tabInfo(idx)%tabObj)
+    !     call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
+    !     call self%tabInfo(idx)%tabObj%newPlot()
+    !     allocate(rmsfield_settings :: self%tabInfo(idx)%settings )
+    !     self%tabInfo(idx)%settings = rmsfield_struct_settings
 
     end select
 
@@ -229,20 +247,116 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
 
 end subroutine
 
- subroutine newPlotIfNeeded(self, PLOT_CODE)
-
+subroutine finalizeNewPlotTab(self, idx)
     class(zoatabManager) :: self
-    integer, intent(in) :: PLOT_CODE
-    logical :: plotFound
-    integer :: i, tabPos
-    type(zoatab) :: newtab
+    integer :: idx
+
+    type(c_ptr) :: currPage
+    integer(kind=c_int) :: currPageIndex
+    character(len=3) :: outChar
+
+    call self%tabInfo(idx)%tabObj%finalizeWindow()
+
+    ! This part is to enable close tab functionality
+    currPageIndex = gtk_notebook_get_current_page(self%notebook)
+    currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
+    WRITE(outChar, '(I0.3)') idx
+    call gtk_widget_set_name(currPage, outChar//c_null_char)
+
+
+end subroutine
+
+function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, title, linetypecode) result(idx)
+  class(zoatabManager) :: self
+  integer :: PLOT_CODE
+  real :: x(:), y(:)
+  character(len=*) :: tabTitle, xlabel, ylabel, title
+  integer :: linetypecode
+  integer :: idx
+
+
+   idx = self%findTabIndex()
+    PRINT *, "idx is ", idx
+    call logger%logText('New Generic Tab Starting')
+
+    allocate(zoatab :: self%tabInfo(idx)%tabObj)
+    call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
+    call self%tabInfo(idx)%tabObj%createGenericSinglePlot(x,y,xlabel,ylabel,title, linetypecode)
+    allocate(ui_settings :: self%tabInfo(idx)%settings )
+    ! Right now there is no settings object.  This object is only
+    ! used for replot.  Need a better solution for this
+    !self%tabInfo(idx)%settings = tabObj%settings
+
+    self%tabInfo(idx)%typeCode = PLOT_CODE
+    self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
+    !call self%tabInfo(idx)%tabObj%finalizeWindow()
+
+
+
+end function
+
+subroutine updateGenericPlotTab(self, objIdx, x, y)
+  class(zoatabManager) :: self
+  real :: x(:), y(:)
+  integer :: objIdx
+
+  call self%tabInfo(objIdx)%tabObj%updateGenericSinglePlot(x,y)
+
+end subroutine
+
+
+subroutine addPlotTabFromObj(self, tabObj)
+   implicit none
+   class(zoatabManager) :: self
+   class(zoatab) :: tabObj
+   integer :: PLOT_CODE
+   integer :: idx
+    type(c_ptr) :: currPage
+    integer(kind=c_int) :: currPageIndex
+    character(len=3) :: outChar
+
+   PLOT_CODE = tabObj%ID_PLOTTYPE
+   idx = self%findTabIndex()
+    PRINT *, "idx is ", idx
+    call logger%logText('New RMS Field Diagram Starting')
+    PRINT *, "Allocated tabObj before allocation ", allocated(self%tabInfo(idx)%tabObj)
+    !allocate(zoatab :: self%tabInfo(idx)%tabObj)
+
+    self%tabInfo(idx)%tabObj = tabObj
+    PRINT *, "Allocated tabObj after allocation ", allocated(self%tabInfo(idx)%tabObj)
+
+    allocate(ui_settings :: self%tabInfo(idx)%settings )
+    ! Right now there is no settings object.  This object is only
+    ! used for replot.  Need a better solution for this
+    !self%tabInfo(idx)%settings = tabObj%settings
+
+    self%tabInfo(idx)%typeCode = PLOT_CODE
+    self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
+    call self%tabInfo(idx)%tabObj%finalizeWindow()
+
+    ! This part is to enable close tab functionality
+    currPageIndex = gtk_notebook_get_current_page(self%notebook)
+    currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
+    WRITE(outChar, '(I0.3)') idx
+    call gtk_widget_set_name(currPage, outChar//c_null_char)
+
+end subroutine
+
+ function doesPlotExist(self, PLOT_CODE, idxObj) result(plotFound)
+   class(zoatabManager) :: self
+   integer, intent(in) :: PLOT_CODE
+   logical :: plotFound
+   integer, intent(inout) :: idxObj
+   integer :: i
 
     PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.
+    idxObj = -1
     DO i = 1,self%tabNum
        PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
       if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
           PRINT *, "Found existing plot at tab ", i
+          idxObj = i
           PRINT *, "Type code is ", self%tabInfo(i)%typeCode
           PRINT *, "PLOT_CODE is ", PLOT_CODE
          plotFound = .TRUE.
@@ -252,6 +366,18 @@ end subroutine
 
     END DO
     PRINT *, "After search, plotFound is ", plotFound
+
+ end function
+
+ subroutine newPlotIfNeeded(self, PLOT_CODE)
+
+    class(zoatabManager) :: self
+    integer, intent(in) :: PLOT_CODE
+    logical :: plotFound
+    integer :: i, tabPos
+    type(zoatab) :: newtab
+
+    plotFound = self%doesPlotExist(PLOT_CODE, tabPos)
     if (.not.plotFound) THEN
       PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
       call self%addPlotTab(PLOT_CODE)
@@ -274,7 +400,12 @@ end subroutine
      integer :: i
 
      DO i = 1,self%tabNum
-           call self%tabInfo(i)%settings%replot()
+           if (self%tabInfo(i)%typeCode.EQ.ID_PLOTTYPE_RMSFIELD) then
+              PRINT *, "RMS FIELD REPLOT REQUESTED"
+              CALL PROCESKDP('RMSFIELD')
+          else
+            call self%tabInfo(i)%settings%replot()
+          end if
      END DO
 
 
@@ -286,10 +417,15 @@ end subroutine
     integer, intent(in) :: tabIndex, tabInfoIndex
 
     call gtk_notebook_remove_page(self%notebook, tabIndex)
+    PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
+    PRINT *, "About to deallocate tabObj for index ", tabInfoIndex
+    PRINT *, "allocated test ", allocated(self%tabInfo(tabInfoIndex)%tabObj)
 
     DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
     self%tabInfo(tabInfoIndex)%typeCode = -1
+    PRINT *, "About to deallocate ui settings obj"
     DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
+    PRINT *, "Set canvas to NULL"
     self%tabInfo(tabInfoIndex)%canvas = c_null_ptr
 
 

@@ -68,7 +68,7 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   PRINT *, "SIZE OF w is ", size(w)
   PRINT *, "SIZE of no_surfaces is ", size(surfaceno)
 
-  WRITE (conLong, FMTHDR), "Surface", "w_j", "s_j"
+  WRITE(conLong, FMTHDR) "Surface", "w_j", "s_j"
   call updateTerminalLog(conLong, "black")
 
 
@@ -112,7 +112,7 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
       surfaceno(ii-1) = ii-1
 
-      WRITE(conLong, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
+      WRITE(conLong, FMT1) surfaceno(ii-1), w(ii-1), symcalc(ii-1)
       call updateTerminalLog(conLong, "black")
 
 
@@ -122,11 +122,11 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
 
   !PRINT *, " w is ", w
-  WRITE(conLong, *), " w_sum is ", w_sum
+  WRITE(conLong, *) " w_sum is ", w_sum
   call updateTerminalLog(conLong, "black")
 
   !PRINT *, " s is ", symcalc
-  WRITE(conLong, *), " s_sum is ", s_sum
+  WRITE(conLong, *) " s_sum is ", s_sum
   call updateTerminalLog(conLong, "black")
 
     !call barchart2(x,y)
@@ -187,7 +187,7 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 
   PRINT *, "POWSYM Initialized!"
 
-  WRITE(strTitle, "(A15, F10.3)"), "Power:  w = ", w_sum
+  WRITE(strTitle, "(A15, F10.3)") "Power:  w = ", w_sum
   call mplt%initialize(powsym_tab%canvas, 2,1)
   !call mplt%initialize(drawing_area_plot, 2,1)
   PRINT *, "MPLOT INITIALIZED!"
@@ -195,7 +195,7 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
   & title=trim(strTitle)//c_null_char)
   !PRINT *, "Bar chart color code is ", bar1%dataColorCode
-  WRITE(strTitle, "(A15, F10.3)"), "Symmetry:  s = ", s_sum
+  WRITE(strTitle, "(A15, F10.3)") "Symmetry:  s = ", s_sum
   call bar2%initialize(c_null_ptr, real(surfaceno),abs(symcalc), &
   & xlabel='Surface No'//c_null_char, ylabel='s'//c_null_char, &
   & title=trim(strTitle)//c_null_char)
@@ -208,6 +208,22 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   call powsym_tab%finalizeWindow()
 
 
+end subroutine
+
+subroutine SPR
+  use global_widgets, only:  sysConfig
+  !call checkCommandInput(typeCode, allowableQualWords)
+  ! Type:  QualWord+N_nums
+  PRINT *, "SPR Command Hooks in place"
+  !Pseudo code
+  ! if doesPlotExist is false
+  !     create genericPlotObj
+  !  call zoaTabMgr to addPlotTab with already created object
+  ! else
+  ! update data for plot
+  ! get object index from zoaTabMgr and call some sort of replot routine with new x/y data?
+
+  !select case()
 
 end subroutine
 
@@ -257,7 +273,8 @@ use handlers, only : updateTerminalLog
 
 
 
-   call RMSFIELD_PLOT
+   !call RMSFIELD_PLOT
+   call rmsfield_ideal
 
 end subroutine
 
@@ -331,6 +348,86 @@ SUBROUTINE RUN_WDRAWOPTICALSYSTEM
       RETURN
 END SUBROUTINE RUN_WDRAWOPTICALSYSTEM
 
+!pseudocode for rms_field minimal effort
+! One method that processes inputs and provides x,y data (possible?)
+! RMSFIELD_XY
+! code to get x and y series from data
+! ask zoaTabMgr if plotCode exists
+! if yes, then this is a replot call.  Attach xy data to obj and call replot
+! if no, then this is a new plot call.  create object (include title, x/y label, etc) and
+! call addPlot in zoatabmgr
+! For this, should move all settings into settings object and replot into zoaTab obj?
+! this works if I only use commands for settings, then replot has an easier time.  Just
+! assume have new xy or label data for that matter and redo.
+! With this, just need to make methods and add new ID to zoa_ui.  Much cleaner.
 
+subroutine rmsfield_ideal
+
+       USE GLOBALS
+       !use handlers
+       use zoa_tab, only: zoatab
+       use handlers, only: zoatabMgr
+       use global_widgets, only:  sysConfig
+       use zoa_ui
+       use iso_c_binding, only:  c_ptr, c_null_char
+
+
+  IMPLICIT NONE
+  character(len=23) :: ffieldstr
+  integer :: ii, objIdx
+  integer :: numPoints = 10
+  logical :: replot
+
+    type(c_ptr)   :: localcanvas
+    type(zoatab) :: newtab
+
+    REAL, dimension(11) :: x, y
+
+    INCLUDE 'DATMAI.INC'
+
+    do ii = 0, numPoints
+      x(ii+1) = REAL(ii)/REAL(numPoints)
+      write(ffieldstr, *) x(ii+1)
+      CALL PROCESKDP("FOB "// ffieldstr)
+      CALL PROCESKDP("CAPFN")
+      CALL PROCESKDP("SHO RMSOPD")
+      y(ii+1) = 1000.0*REG(9)
+
+      !PRINT *, "REG9 9 is ", REG(9)
+
+      !PRINT *, "FOB " // ffieldstr
+
+    end do
+
+    replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_RMSFIELD, objIdx)
+
+    if (replot) then
+      PRINT *, "RMS FIELD REPLOT REQUESTED.  NOW JUST FIGURE OUT HOW TO DO IT :)"
+      call zoatabMgr%updateGenericPlotTab(objIdx, x, y)
+      !call zoatabMgr%updateXYData(objIdx, x, y)
+      !call zoatabMgr%updatePlot(objIdx)
+
+    else
+      objIdx = zoatabMgr%addGenericPlotTab(ID_PLOTTYPE_RMSFIELD, "RMS vs Field"//c_null_char, x,y, &
+      & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+         & ylabel='RMS Error [mWaves]'//c_null_char, &
+         & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
+      !call newtab%initialize(zoatabMgr%notebook, "RMS Wavefront Error vs Field", ID_PLOTTYPE_RMSFIELD)
+      !call newtab%createGenericSinglePlot(x,y,xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+      !   & ylabel='RMS Error [mWaves]'//c_null_char, &
+      !   & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
+
+      ! Add settings
+
+      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test", 1.0, 0.0, 10.0, 1, "Passed?")
+      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "Pass Working?")
+
+      ! Create Plot + settings tab
+      call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+    end if
+
+end subroutine
 
 end module kdp_interfaces
