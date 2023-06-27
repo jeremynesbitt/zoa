@@ -14,6 +14,8 @@ module global_widgets
   logical :: computing = .false.
   character(LEN=80) :: string
   type(c_ptr) :: app
+  character(len=150), pointer :: uiSettingCommands(:)
+  integer :: uiSetCmdsIdx = 1
 
 
   ! UI Parameters

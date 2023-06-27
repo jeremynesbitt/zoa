@@ -632,6 +632,7 @@ contains
   end subroutine
 
   subroutine updatePlotData(self, x, y, seriesNum)
+    implicit none
     class(zoaplot) :: self
     real :: x(:), y(:)
     integer :: seriesNum
@@ -640,6 +641,8 @@ contains
     deallocate(self%y)
     allocate(self%x(size(x)))
     allocate(self%y(size(y)))
+    self%x = x
+    self%y = y
 
     deallocate(self%plotdatalist(seriesNum)%x)
     deallocate(self%plotdatalist(seriesNum)%y)
@@ -648,7 +651,7 @@ contains
 
     self%plotdatalist(seriesNum)%x = x
     self%plotdatalist(seriesNum)%y = y
-    
+
   end subroutine
 
 !

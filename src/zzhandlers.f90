@@ -1173,6 +1173,10 @@ end subroutine proto_symfunc
          & activate=c_funloc(name_enter))
 
     call readCommandHistoryFromFile(command_history, command_index)
+    PRINT *, "command_index is ", command_index
+    PRINT *, "command history at command index is ", command_history(command_index)
+    IF(command_index.GT.1) PRINT *, "prior command is ",command_history(command_index-1)
+
     !entry2 = gtk_combo_box_text_new_with_entry()
     !call gtk_combo_box_set_active(entry2, 1_c_int)
     !call gtk_entry_set_activates_default(entry2, TRUE)
@@ -1429,8 +1433,8 @@ end subroutine proto_symfunc
     if (keyval == key_down) then
       !PRINT *, "Capturing Down!"
       if (command_search.LT.command_index) THEN
-        command_search = command_search + 1
-        call updateTerminalFromCommandHistory(entry, command_search)
+          command_search = command_search + 1
+          call updateTerminalFromCommandHistory(entry, command_search)
       end if
     end if
 
@@ -1444,8 +1448,12 @@ end subroutine proto_symfunc
     integer :: idx
 
         buffer = gtk_entry_get_buffer(entry)
-        call gtk_entry_buffer_set_text(buffer, command_history(idx), -1)
-        call gtk_editable_set_position(entry, len(trim(command_history(idx))))
+        if(idx.GT.cmdHistorySize.OR.idx.LT.1) THEN
+          call gtk_entry_buffer_set_text(buffer, ' ', -1)
+        else
+          call gtk_entry_buffer_set_text(buffer, command_history(idx), -1)
+          call gtk_editable_set_position(entry, len(trim(command_history(idx))))
+        end if
 
   end subroutine
 

@@ -35,6 +35,7 @@ type  zoatabManager
    procedure :: addGenericPlotTab
    procedure :: updateGenericPlotTab
    procedure :: finalizeNewPlotTab
+   procedure :: updateInputCommand
    procedure, private :: findTabIndex
 
  end type
@@ -428,6 +429,37 @@ end subroutine
     PRINT *, "Set canvas to NULL"
     self%tabInfo(tabInfoIndex)%canvas = c_null_ptr
 
+
+
+  end subroutine
+
+  subroutine updateInputCommand(self, objIdx, inputCmd)
+    use global_widgets, only: uiSettingCommands, uiSetCmdsIdx
+    implicit none
+
+    class(zoatabManager) :: self
+    integer, intent(in) :: objIdx
+    character(len=*) :: inputCmd
+    character(len=150) :: cmdOnly
+
+    integer :: i, cmdLoc, tokLoc
+
+    self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+     cmdLoc = index(inputCmd, ",")
+     if (cmdLoc.GT.0) cmdOnly = inputCmd(1:cmdLoc-1)
+
+    do i=1,uiSetCmdsIdx
+      cmdLoc = index(uiSettingCommands(i), trim(cmdOnly))
+      if (cmdLoc.GT.0) then
+         PRINT *, "Update command ", uiSettingCommands(i)! //" to "//inputCmd
+         tokLoc = index(uiSettingCommands(i), "--")
+
+         uiSettingCommands(i) = uiSettingCommands(i)(1:tokLoc+1)//trim(inputCmd)
+         PRINT *, "New Command is ", uiSettingCommands(i)
+         return
+       end if
+    end do
 
 
   end subroutine

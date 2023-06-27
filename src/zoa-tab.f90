@@ -406,6 +406,7 @@ type zoatab
      type(zoaplot) :: zPlot ! Should this be in a derived type instead?
      integer(kind=c_int) :: ID_PLOTTYPE
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
+     character(len=140) :: plotCommand
      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
 
 
@@ -537,12 +538,12 @@ subroutine updateGenericSinglePlot(self, x, y)
   real :: x(:), y(:)
   type(multiplot) :: mplt
 
-  !call self%zPlot%updatePlotData(x, y, 1)
-  self%zPlot%x = x
-  self%zPlot%y = y
+  call self%zPlot%updatePlotData(x, y, 1)
+  !self%zPlot%x = x
+  !self%zPlot%y = y
 
-  self%zPlot%plotdatalist(1)%x = x
-  self%zPlot%plotdatalist(1)%y = y
+  !self%zPlot%plotdatalist(1)%x = x
+  !self%zPlot%plotdatalist(1)%y = y
 
   call mplt%initialize(self%canvas, 1,1)
 
@@ -572,8 +573,8 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
 
     ! This is a bit sketchy IMO, but it is a way to use a single method to simply
     ! apply setting commands
-    uiSettingCommands(uiSetCmdsIdx) = command
-
+    uiSettingCommands(uiSetCmdsIdx) = trim(command)//"--"//self%plotCommand//c_null_char
+    PRINT *, "spin button command is ", uiSettingCommands(uiSetCmdsIdx)
     call self%addSpinBoxSetting(labelTxt, spinBtn, &
     & c_funloc(callback_runCommandFromSpinBox), c_loc(uiSettingCommands(uiSetCmdsIdx)))
 
@@ -584,15 +585,88 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
 end subroutine
 
  subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
+   use command_utils, only:  removeLeadingBlanks
+   implicit none
    type(c_ptr), value, intent(in) :: widget, gdata
+   real(c_double) :: realData
+  character(len=23) :: ffieldstr
+  character(len=140) :: cmdOrig
+  character(len=10) :: cmdToUpdate
+  character(len=150) :: cmdNew
 
+  integer :: locDelim
 
-  character(len=140), pointer :: command_base
+  character(len=150), pointer :: command_base
 
   call c_f_pointer(gdata, command_base)
 
-  PRINT *, "command_base is ", command_base
+  locDelim = INDEX(command_base, "--")
+  cmdToUpdate = command_base(1:locDelim-1)
+  cmdOrig = command_base(locDelim+2:len(command_base))
 
+
+  realData = gtk_spin_button_get_value(widget)
+
+   write(ffieldstr, *) real(realData)
+
+    ffieldstr = adjustl(ffieldstr)
+
+   !call removeLeadingBlanks(ffieldstr)
+
+   PRINT *, "cmdOrig is ", cmdOrig
+   PRINT *, "cmdToupdate is ", cmdToUpdate
+   PRINT *, "newVal is ", ffieldstr
+
+  call updateCommand(cmdOrig, cmdToUpdate(1:locDelim-1), ffieldstr, cmdNew)
+
+  PRINT *, "New Command is ", cmdNew
+  !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
+
+  CALL PROCESKDP(cmdNew)
+
+ end subroutine
+
+ subroutine updateCommand(cmdOrig, cmdToUpdate, newVal, cmdNew)
+   use command_utils, only:  parseCommandIntoTokens
+   implicit none
+   character(len=*) :: cmdOrig
+   character(len=*) :: cmdToUpdate
+   character(len=*) :: newVal
+   character(len=150), intent(inout) :: cmdNew
+   character(len=80) :: tokens(40)
+   character(len=1), parameter :: blank = " "
+   integer :: locComma, locCmd, i, numTokens, j
+
+   ! Original command should have a ,
+   locComma = 0
+   locComma = index(cmdOrig, ',')
+   PRINT *, "locComma is ", locComma
+   if (locComma.LT.1) then
+      cmdNew = trim(cmdOrig)//", "//cmdToUpdate(1:len(cmdToUpdate)-1)//blank//trim(newVal)
+
+
+      !PRINT *, "New command is supposed to be ", cmdOrig//", "//cmdToUpdate//" "//newVal
+   else
+      locCmd = 0
+      call parseCommandIntoTokens(cmdOrig(locComma+2:len(cmdOrig)), tokens, numTokens)
+      do i=1,numTokens
+        locCmd = index(tokens(i), cmdToUpdate(1:len(cmdToUpdate)-1))
+        if (locCmd.GT.0) then
+          PRINT *, "Found command to update!"
+          tokens(i+1) = trim(newVal)
+          ! Build New Command, should be separate method
+          cmdNew = cmdOrig(1:locComma)
+          do j=1,numTokens
+            cmdNew = trim(cmdNew)//" "//trim(tokens(j))
+          end do
+          PRINT *, "new command from token found loop is ", cmdNew
+          return
+        end if
+        end do
+        ! If we got here it means command was not found.  Add to end of initial command
+        cmdNew = trim(cmdOrig)//" "//cmdToUpdate//" "//newVal
+
+   end if
 
  end subroutine
 

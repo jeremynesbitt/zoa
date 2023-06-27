@@ -212,9 +212,40 @@ end subroutine
 
 subroutine SPR
   use global_widgets, only:  sysConfig
+  integer :: fst, lst
+  character(len=80) :: subString
+  character(len=80) :: tokens(40)
+  integer  :: tokenLen(40)
   !call checkCommandInput(typeCode, allowableQualWords)
   ! Type:  QualWord+N_nums
+  include "DATMAI.INC"
   PRINT *, "SPR Command Hooks in place"
+
+  PRINT *, "Alphanumeric string is ", WS
+
+
+  !Test String Tokenizer
+  subString = WS
+  fst = INDEX(WS, ' ', BACK=.FALSE.)
+  lst = INDEX(WS, ' ', BACK=.TRUE.)
+  i = 1
+  PRINT *, "fst is ", fst
+  PRINT *, "lst is ", lst
+  do while (fst > 1)
+     fst = INDEX(subString, ' ', BACK=.FALSE.)
+     lst = INDEX(subString, ' ', BACK=.TRUE.)
+     tokens(i) = subString(1:fst-1)
+     tokenLen(i) = fst-1
+     i = i+1
+     if (fst<80) subString = subString(fst+1:80)
+     PRINT *, "substring is ", subString
+     PRINT *, "fst is ", fst
+     PRINT *, "lst is ", lst
+  end do
+
+  PRINT *, "tokens ", tokens(1:i-2)
+  PRINT *, "Token Length = ", tokenLen(1:i-2)
+
   !Pseudo code
   ! if doesPlotExist is false
   !     create genericPlotObj
@@ -365,8 +396,9 @@ subroutine rmsfield_ideal
 
        USE GLOBALS
        !use handlers
+       use command_utils
        use zoa_tab, only: zoatab
-       use handlers, only: zoatabMgr
+       use handlers, only: zoatabMgr, updateTerminalLog
        use global_widgets, only:  sysConfig
        use zoa_ui
        use iso_c_binding, only:  c_ptr, c_null_char
@@ -374,6 +406,7 @@ subroutine rmsfield_ideal
 
   IMPLICIT NONE
   character(len=23) :: ffieldstr
+  character(len=40) :: inputCmd
   integer :: ii, objIdx
   integer :: numPoints = 10
   logical :: replot
@@ -381,31 +414,49 @@ subroutine rmsfield_ideal
     type(c_ptr)   :: localcanvas
     type(zoatab) :: newtab
 
-    REAL, dimension(11) :: x, y
+    REAL, allocatable :: x(:), y(:)
 
     INCLUDE 'DATMAI.INC'
 
-    do ii = 0, numPoints
-      x(ii+1) = REAL(ii)/REAL(numPoints)
+      PRINT *, "W1 is ", W1
+      PRINT *, "DF1 is ", DF1
+      PRINT *, "W2 is ", W2
+      PRINT *, "DF2 is ", DF2
+      PRINT *, "S1 is ", S1
+      PRINT *, "INPUT IS ", INPUT
+      PRINT *, "Alphanumeric is ", WS
+      call updateTerminalLog(INPUT, "blue")
+      inputCmd = INPUT
+
+    if(cmdOptionExists('NUMPTS')) then
+      numPoints = INT(getCmdInputValue('NUMPTS'))
+    else
+      numPoints = 10
+    end if
+
+    PRINT *, "numPoints is ", numPoints
+
+    allocate(x(numPoints))
+    allocate(y(numPoints))
+
+    do ii = 0, numPoints-1
+      x(ii+1) = REAL(ii)/REAL(numPoints-1)
       write(ffieldstr, *) x(ii+1)
       CALL PROCESKDP("FOB "// ffieldstr)
       CALL PROCESKDP("CAPFN")
       CALL PROCESKDP("SHO RMSOPD")
       y(ii+1) = 1000.0*REG(9)
-
-      !PRINT *, "REG9 9 is ", REG(9)
-
-      !PRINT *, "FOB " // ffieldstr
-
     end do
 
     replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_RMSFIELD, objIdx)
 
     if (replot) then
-      PRINT *, "RMS FIELD REPLOT REQUESTED.  NOW JUST FIGURE OUT HOW TO DO IT :)"
+      PRINT *, "RMS FIELD REPLOT REQUESTED"
+      PRINT *, "Input Command was ", inputCmd
+      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+      !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
       call zoatabMgr%updateGenericPlotTab(objIdx, x, y)
-      !call zoatabMgr%updateXYData(objIdx, x, y)
-      !call zoatabMgr%updatePlot(objIdx)
 
     else
       objIdx = zoatabMgr%addGenericPlotTab(ID_PLOTTYPE_RMSFIELD, "RMS vs Field"//c_null_char, x,y, &
@@ -418,8 +469,9 @@ subroutine rmsfield_ideal
       !   & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
 
       ! Add settings
-
-      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test", 1.0, 0.0, 10.0, 1, "Passed?")
+      zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
+      & 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
       call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "Pass Working?")
 
       ! Create Plot + settings tab
