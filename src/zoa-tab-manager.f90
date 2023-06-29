@@ -282,6 +282,7 @@ function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, titl
 
     allocate(zoatab :: self%tabInfo(idx)%tabObj)
     call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
+    self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
     call self%tabInfo(idx)%tabObj%createGenericSinglePlot(x,y,xlabel,ylabel,title, linetypecode)
     allocate(ui_settings :: self%tabInfo(idx)%settings )
     ! Right now there is no settings object.  This object is only
@@ -401,9 +402,9 @@ end subroutine
      integer :: i
 
      DO i = 1,self%tabNum
-           if (self%tabInfo(i)%typeCode.EQ.ID_PLOTTYPE_RMSFIELD) then
-              PRINT *, "RMS FIELD REPLOT REQUESTED"
-              CALL PROCESKDP('RMSFIELD')
+           if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
+              PRINT *, "CMD Based REPLOT REQUESTED"
+              call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           else
             call self%tabInfo(i)%settings%replot()
           end if

@@ -211,50 +211,79 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 end subroutine
 
 subroutine SPR
-  use global_widgets, only:  sysConfig
-  integer :: fst, lst
-  character(len=80) :: subString
-  character(len=80) :: tokens(40)
-  integer  :: tokenLen(40)
-  !call checkCommandInput(typeCode, allowableQualWords)
-  ! Type:  QualWord+N_nums
-  include "DATMAI.INC"
-  PRINT *, "SPR Command Hooks in place"
 
-  PRINT *, "Alphanumeric string is ", WS
+    USE GLOBALS
+    use command_utils
+    use handlers, only: zoatabMgr, updateTerminalLog
+    use global_widgets, only:  sysConfig
+    use zoa_ui
+    use iso_c_binding, only:  c_ptr, c_null_char
 
 
-  !Test String Tokenizer
-  subString = WS
-  fst = INDEX(WS, ' ', BACK=.FALSE.)
-  lst = INDEX(WS, ' ', BACK=.TRUE.)
-  i = 1
-  PRINT *, "fst is ", fst
-  PRINT *, "lst is ", lst
-  do while (fst > 1)
-     fst = INDEX(subString, ' ', BACK=.FALSE.)
-     lst = INDEX(subString, ' ', BACK=.TRUE.)
-     tokens(i) = subString(1:fst-1)
-     tokenLen(i) = fst-1
-     i = i+1
-     if (fst<80) subString = subString(fst+1:80)
-     PRINT *, "substring is ", subString
-     PRINT *, "fst is ", fst
-     PRINT *, "lst is ", lst
-  end do
+    IMPLICIT NONE
 
-  PRINT *, "tokens ", tokens(1:i-2)
-  PRINT *, "Token Length = ", tokenLen(1:i-2)
+    character(len=23) :: ffieldstr
+    character(len=40) :: inputCmd
+    integer :: ii, objIdx
+    integer :: numPoints = 10
+    logical :: replot
 
-  !Pseudo code
-  ! if doesPlotExist is false
-  !     create genericPlotObj
-  !  call zoaTabMgr to addPlotTab with already created object
-  ! else
-  ! update data for plot
-  ! get object index from zoaTabMgr and call some sort of replot routine with new x/y data?
 
-  !select case()
+    REAL, allocatable :: x(:), y(:)
+
+    INCLUDE 'DATMAI.INC'
+
+    !call checkCommandInput(ID_CMD_ALPHA)
+
+    call updateTerminalLog(INPUT, "blue")
+    inputCmd = INPUT
+
+    if(cmdOptionExists('NUMPTS')) then
+    numPoints = INT(getCmdInputValue('NUMPTS'))
+    end if
+
+
+    PRINT *, "numPoints is ", numPoints
+
+    allocate(x(numPoints))
+    allocate(y(numPoints))
+
+    do ii = 0, numPoints-1
+      x(ii+1) = REAL(ii)/REAL(numPoints-1)
+      write(ffieldstr, *) x(ii+1)
+      CALL PROCESKDP("FOB "// ffieldstr)
+      CALL PROCESKDP("SPD")
+      !CALL PROCESKDP("SHO RMSOPD")
+      y(ii+1) = REG(10)
+    end do
+
+    replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_SPOT_VS_FIELD, objIdx)
+
+    if (replot) then
+    PRINT *, "SPOT RMS VS FIELD REPLOT REQUESTED"
+    PRINT *, "Input Command was ", inputCmd
+    call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+    !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+    call zoatabMgr%updateGenericPlotTab(objIdx, x, y)
+
+    else
+    objIdx = zoatabMgr%addGenericPlotTab(ID_PLOTTYPE_SPOT_VS_FIELD, "Spot RMS vs Field"//c_null_char, x,y, &
+    & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
+      & ylabel="RMS ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
+      & title='Spot RMS Size vs Field'//c_null_char, linetypecode=-1)
+
+    ! Add settings
+    zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
+    & 10.0, 1.0, 20.0, 1, "NUMP2"//c_null_char)
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+
+    ! Create Plot + settings tab
+    call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+    end if
 
 end subroutine
 
@@ -395,9 +424,7 @@ END SUBROUTINE RUN_WDRAWOPTICALSYSTEM
 subroutine rmsfield_ideal
 
        USE GLOBALS
-       !use handlers
        use command_utils
-       use zoa_tab, only: zoatab
        use handlers, only: zoatabMgr, updateTerminalLog
        use global_widgets, only:  sysConfig
        use zoa_ui
@@ -405,34 +432,27 @@ subroutine rmsfield_ideal
 
 
   IMPLICIT NONE
+
   character(len=23) :: ffieldstr
   character(len=40) :: inputCmd
   integer :: ii, objIdx
   integer :: numPoints = 10
   logical :: replot
 
-    type(c_ptr)   :: localcanvas
-    type(zoatab) :: newtab
 
     REAL, allocatable :: x(:), y(:)
 
     INCLUDE 'DATMAI.INC'
 
-      PRINT *, "W1 is ", W1
-      PRINT *, "DF1 is ", DF1
-      PRINT *, "W2 is ", W2
-      PRINT *, "DF2 is ", DF2
-      PRINT *, "S1 is ", S1
-      PRINT *, "INPUT IS ", INPUT
-      PRINT *, "Alphanumeric is ", WS
+      !call checkCommandInput(ID_CMD_ALPHA)
+
       call updateTerminalLog(INPUT, "blue")
       inputCmd = INPUT
 
     if(cmdOptionExists('NUMPTS')) then
       numPoints = INT(getCmdInputValue('NUMPTS'))
-    else
-      numPoints = 10
     end if
+
 
     PRINT *, "numPoints is ", numPoints
 
@@ -463,16 +483,12 @@ subroutine rmsfield_ideal
       & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
          & ylabel='RMS Error [mWaves]'//c_null_char, &
          & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
-      !call newtab%initialize(zoatabMgr%notebook, "RMS Wavefront Error vs Field", ID_PLOTTYPE_RMSFIELD)
-      !call newtab%createGenericSinglePlot(x,y,xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-      !   & ylabel='RMS Error [mWaves]'//c_null_char, &
-      !   & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
 
       ! Add settings
       zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
       call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
       & 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
-      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "Pass Working?")
+      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
 
       ! Create Plot + settings tab
       call zoaTabMgr%finalizeNewPlotTab(objIdx)

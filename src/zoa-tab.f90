@@ -407,6 +407,7 @@ type zoatab
      integer(kind=c_int) :: ID_PLOTTYPE
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
      character(len=140) :: plotCommand
+     logical :: cmdBasedPlot
      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
 
 
@@ -455,6 +456,8 @@ contains ! for module
     type(c_ptr) :: tab_label, scrolled_tab, head, btn
     integer :: i
     integer, target :: ID_TARGET
+
+    self%cmdBasedPlot = .FALSE. ! Default
 
     ID_TARGET = ID_PLOTTYPE
     PRINT *, "tabTitle is ", tabTitle
@@ -565,7 +568,7 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
   spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
                                                     & lower=lower*1d0, &
                                                     & upper=upper*1d0, &
-                                                    & step_increment=2d0, &
+                                                    & step_increment=1d0, &
                                                     & page_increment=1d0, &
                                                     & page_size=0d0), &
                                                     & climb_rate=2d0, &

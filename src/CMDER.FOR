@@ -417,12 +417,15 @@ C       PART DRAWINGS
         RETURN
         END IF
         IF(WC.EQ.'POWSYM') THEN
-          PRINT *, "Calling POWSYM FROM CMDER"
           CALL POWSYM
         RETURN
         END IF
         IF(WC.EQ.'SYSCON') THEN
             CALL SYSCONFIGUI
+          RETURN
+        END IF
+        IF(WC.EQ.'SPR') THEN
+          CALL SPR
           RETURN
         END IF
 

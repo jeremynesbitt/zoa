@@ -73,6 +73,9 @@ type sys_config
     procedure, public, pass(self) :: setWavelengths
     procedure, public, pass(self) :: setSpectralWeights
     procedure, public, pass(self) :: setRelativeFields
+    procedure, public, pass(self) :: getFieldText
+    procedure :: getLensUnitsText
+
 
 end type
 
@@ -696,6 +699,30 @@ type(io_config) function io_config_constructor() result(self)
 
 
    end subroutine
+
+   function getFieldText(self) result(fldText)
+     implicit none
+     class(sys_config) :: self
+     character(len=150) :: fldText
+
+     fldText = self%lensUnits(self%currLensUnitsID)%text
+     PRINT *, "currFieldID is ", self%currFieldID
+     if (self%currFieldID.EQ.FIELD_OBJECT_ANGLE_DEG) then
+       fldText = "Object Angle [deg]"
+     end if
+
+   end function
+
+   function getLensUnitsText(self) result(lenText)
+     implicit none
+     class(sys_config) :: self
+     character(len=10) :: lenText
+
+     lenText = self%lensUnits(self%currLensUnitsID)%text
+
+   end function
+
+
 
 
 end module kdp_data_types

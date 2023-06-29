@@ -169,9 +169,9 @@ module zoa_file_handler
         end do
 
 
-        PRINT *, "Command History is ", command_history
+        !PRINT *, "Command History is ", command_history
 77      PRINT *, "End of file is record ", i
-        command_index = i
+        command_index = i-1
         close(unit=16)
         return
         end if
