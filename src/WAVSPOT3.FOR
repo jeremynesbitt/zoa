@@ -3173,13 +3173,18 @@ C
 C     CALCULATE CENTROID LOCATIONS
         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
 C     FOCAL SYSTEMS
+                PRINT *, "DEBUG, FOCAL SYSTEM"
                 CENTX=SPA
                 CENTY=SPC
                         ELSE
 C     AFOCAL SYSTEMS
+                  PRINT *, "DEBUG, AFOCAL SYSTEM"
                 CENTX=AFSPB
                 CENTY=AFSPD
                         END IF
+                PRINT *, "DEBUG:  CENTX ", CENTX
+                PRINT *, "DEBUG:  CENTY ", CENTY
+
 C     GET RID OF REDICULOIUSLY SMALL VALUES
         IF(DABS(CENTX).LT.1.0D-10) CENTX=0.0D0
         IF(DABS(CENTY).LT.1.0D-10) CENTY=0.0D0
@@ -3287,6 +3292,12 @@ C       Y ONLY
         RSSY=2.0D0*(DSQRT(AMSSY/W))
         RSS=(RSSX+RSSY)/2.0D0
                         END IF
+        PRINT *, "DEBUG:  MSSX ", MSSX
+        PRINT *, "DEBUG:  MSSY ", MSSY
+        PRINT *, "DEBUG:  AMSSX ", AMSSX
+        PRINT *, "DEBUG:  AMSSY ", AMSSY
+
+
 C     RESET SP VARS FOR CENT
                 SPA=OSPA
                 SPC=OSPC
@@ -3413,6 +3424,9 @@ C     AFOCAL, NO MOVE TO BEST SPOT SIZE
         IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
         IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
         IF(SYSTEM(6).EQ.4.0) UN='METERS'
+
+        PRINT *, "DEBUG:  SYSTEM(30) is ", SYSTEM(30)
+
         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
         RMSX=2.0D0*(DSQRT(MSSX/W))
         RMSY=2.0D0*(DSQRT(MSSY/W))
@@ -3427,6 +3441,10 @@ C     AFOCAL, NO MOVE TO BEST SPOT SIZE
                    RMSY=RMSY/JA
                    RMS=(RMSX+RMSY)/2.0D0
                        END IF
+      ! JN:  Changed RMS calc to be RSS of X and Y value instead of
+      ! average.
+      RMS = DSQRT(RMSX*RMSX+RMSY*RMSY)
+      PRINT *, "DEBUG:  RMS Calc is ", RMS
                        REG(40)=REG(9)
                         REG(11)=RMSY
                         REG(10)=RMSX
