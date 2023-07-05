@@ -5,6 +5,8 @@ module zoa_file_handler
       !INTEGER ID_SYSTEM
       !COMMON/SYSTEMID/ID_SYSTEM
 
+      character(len=1024) :: codevdir
+
     contains
 
       function getFileSep() result(res)
@@ -39,6 +41,12 @@ module zoa_file_handler
             PRINT *, "Path for files is ", trim(path)
 #endif
          PRINT *, "Path for files is ", trim(path)
+
+        ! Since this method essentially serves as an initialization
+        ! add this here.  Should probably go somewhere else.
+        codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
+
+
         end function
 
         subroutine clear_file(fName)
@@ -177,5 +185,34 @@ module zoa_file_handler
         end if
       end subroutine
 
+subroutine setCodeVDir(newDir)
+  implicit none
+  character(len=*) :: newDir
+
+  codevdir = newDir
+
+end subroutine
+
+function getCodeVDir() result(res)
+  use GLOBALS, only : basePath
+  implicit none
+  character(len=250) :: res
+
+  !codevdir = trim(basePath)//'CodeV'//getFileSep()
+  res = codevdir
+
+
+end function
+
+function getFileNameFromPath(fileName) result(res)
+  character(len=*) :: fileName
+  character(len=500) :: res
+  integer :: slashLoc
+
+  slashLoc = index(filename, getFileSep(), BACK=.TRUE.)
+
+  res = fileName(slashLoc+1:len(fileName))
+
+end function
 
 end module

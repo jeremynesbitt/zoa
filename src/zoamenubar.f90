@@ -91,6 +91,7 @@ contains
     use zoa_glass_ui
     use ui_lens_library
 
+
     type(c_ptr), intent(in) :: win
 
     type(c_ptr) :: act_fullscreen, act_color, act_quit, display, provider
@@ -124,6 +125,7 @@ contains
     character(len=100), target :: pltAst = "PLTAST 1"
     character(len=100), target :: pltSpd = "PLTSPD"
     character(len=100), target :: cv2prg = "CV2PRG DoubleGauss.seq"
+    character(len=100), target :: syscon = "SYSCON"
 
     ! Menu Bar funcionality
     act_fullscreen = g_simple_action_new_stateful ("fullscreen"//c_null_char, &
@@ -203,11 +205,13 @@ contains
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)
 
     !Edit Lens
-    act_sysconfig   = g_simple_action_new("EditSysConfig"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_sysconfig)
-    call g_signal_connect (act_sysconfig, "activate"//c_null_char, c_funloc(editSysConfigUI), win)
-    menu_item_editsysconfig = g_menu_item_new ("System Configuration"//c_null_char, "win.EditSysConfig"//c_null_char)
-    call g_menu_append_item (menu_lens, menu_item_editsysconfig)
+    call addCommandMenuItem(menu_imagEval, "System Configuration", &
+    & "SYSCON", syscon, win)
+    !act_sysconfig   = g_simple_action_new("EditSysConfig"//c_null_char, c_null_ptr)
+    !call g_action_map_add_action (win, act_sysconfig)
+    !call g_signal_connect (act_sysconfig, "activate"//c_null_char, c_funloc(editSysConfigUI), win)
+    !menu_item_editsysconfig = g_menu_item_new ("System Configuration"//c_null_char, "win.EditSysConfig"//c_null_char)
+    !call g_menu_append_item (menu_lens, menu_item_editsysconfig)
 
     act_editlensrad = g_simple_action_new("EditLensRad"//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, act_editlensrad)
@@ -224,12 +228,13 @@ contains
 
 
 
+    !call addCommandMenuItem(menu_imagEval, "Spot Diagram", &
+    !& "PltSPD", pltSpd, win)
     ! Lens Sub Menus
+    call addFuncMenuItem(menu_lens, "Tst Draw Lens", "TstDrawLens", c_funloc(drawLens_activated), win)
 
     act_drawLens = g_simple_action_new("DrawLens"//c_null_char, c_null_ptr)
-
     call g_action_map_add_action (win, act_drawLens)
-
     call g_signal_connect (act_drawLens, "activate"//c_null_char, c_funloc(drawLens_activated), win)
 
     menu_item_drawLens = g_menu_item_new ("Draw Lens"//c_null_char, "win.DrawLens"//c_null_char)
@@ -302,8 +307,13 @@ contains
 
     !call g_menu_append_section (menu_lens, "Draw Lens"//c_null_char, section1_lens)
 
-    call addCommandMenuItem(menu_import, "CodeV .seq File", &
-    & "CV2PRG", cv2prg, win)
+    !call addFuncMenuItem(menu_import, "CodeV .seq File", &
+    !& "CV2PRG", c_funloc(ui_open_file), win)
+
+    call addFuncMenuItem(menu_import, "CodeV .seq file", "ImpCodeV", c_funloc(import_codeV), win)
+
+    !call addCommandMenuItem(menu_import, "CodeV .seq File", &
+    !& "CV2PRG", cv2prg, win)
 
     !PRINT *, "APP In Activate is ", app
     call gtk_application_set_menubar (app, menubar)
@@ -346,22 +356,40 @@ contains
 
   end subroutine
 
+  subroutine import_codev(act, avalue, win) bind(c)
+    use zoa_file_handler, only: getFileNameFromPath, getCodeVDir, setCodeVDir
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    character(len=500) :: existingCodeVDir
+    logical :: fileSelected
+
+
+    fileSelected = ui_open_file(win, fileName, cdir)
+
+    if (fileSelected) then
+
+     PRINT *, "fileName is ", trim(fileName)
+     PRINT *, "fileDirectory is is ", trim(cdir)
+
+     PRINT *, "Just file name is ", trim(getFileNameFromPath(fileName))
+
+     ! Set CodeV Dir
+     existingCodeVDir = getCodeVDir()
+     call setCodeVDir(trim(cdir))
+     CALL PROCESKDP('CV2PRG '//trim(getFileNameFromPath(fileName)))
+     call setCodeVDir(trim(existingCodeVDir))
+    end if
+    ! Restore CodeVDir
+
+  end subroutine
+
   subroutine drawLens_activated (act, avalue, win) bind(c)
     type(c_ptr), value, intent(in) :: act, avalue, win
 
+     character(len=100) :: ftext
 
-    character(len=100) :: ftext
-     !PRINT *, "Callback working!"
 
-     !ipick = hl_gtk_file_chooser_show(new_files, &
-     !       & create=FALSE, multiple=TRUE, filter=["image/*"], &
-     !       & parent=my_window, all=TRUE)
-
-     !ftext = 'LIB GET 1 '
-     ftext = 'CV2PRG DoubleGauss.seq'
-     CALL PROCESKDP(ftext)
-     ftext = 'COLORSET RAYS 2'
-     CALL PROCESKDP(ftext)
      ftext = 'VIECO'
      CALL PROCESKDP(ftext)
 
@@ -426,17 +454,30 @@ contains
     character(len=80) :: fstring
 
     call C_F_string_ptr(gdata, fstring)
-    !call convert_c_string_scalar(gdata, fstring)
 
-    !character, pointer :: fstring(:)
-    !call c_f_pointer(gdata, fstring, [5])
-
-    !print *, "Test!"
-    print *, "fstring is ", fstring
     CALL PROCESKDP(fstring)
 
   end subroutine
 
+  subroutine addFuncMenuItem(topLevelMenu, menuItemText, menuItemEventName, funcPointer, win)
+    integer :: numCommands
+    type(c_ptr) :: topLevelMenu, win
+    character(len=*) :: menuItemText, menuItemEventName
+    type(c_funptr) :: funcPointer
+
+    character(len=100), pointer :: ptr
+    type(c_ptr) ::menuAction, menuItem
+
+
+
+    menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, menuAction)
+    call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_null_ptr)
+    PRINT *, "menuItemEventName is ", menuItemEventName
+    menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
+    call g_menu_append_item (topLevelMenu, menuItem)
+
+  end subroutine
 
   subroutine addCommandMenuItem(topLevelMenu, menuItemText, menuItemEventName, singleCommand, win)
     use g
@@ -503,5 +544,48 @@ contains
     !file_is_changed = .FALSE.
 
   end subroutine open_file
+
+
+function ui_open_file(parent_window, filename, cdir) result(fileSelected)
+  use iso_c_binding
+  use gtk_hl_chooser
+  use zoa_file_handler, only : getCodeVDir
+  implicit none
+  type(c_ptr), value, intent(in) :: parent_window
+  character(len=*), intent(inout) :: filename
+  character(len=*), intent(inout) :: cdir
+  logical :: fileSelected
+
+  integer(kind=c_int) :: isel
+  character(len=120), dimension(:), allocatable :: chfile
+  character(len=30), dimension(2) :: filters
+  character(len=30), dimension(2) :: filtnames
+  character(len=200) :: inln
+  integer :: ios
+  integer :: idxs
+
+  filters(1) = "*.seq"
+  filters(2) = "*.txt"
+  filtnames(1) = "CodeV .seq File"
+  filtnames(2) = ".txt File"
+  fileSelected = .TRUE.
+
+  isel = hl_gtk_file_chooser_show(chfile, cdir=cdir, create=FALSE,&
+       & title="Select input file"//c_null_char, filter=filters, &
+       & filter_name=filtnames, wsize=(/ 600_c_int, 400_c_int /), &
+       & edit_filters=TRUE, initial_dir=trim(getCodeVDir()), &
+       & parent=parent_window, all=TRUE)
+  print *, "isel = hl_gtk_file_chooser_show=", isel
+  if (isel == FALSE) then
+    fileSelected = .FALSE.
+    return
+  else   ! No selection made
+
+    filename = chfile(1)
+    deallocate(chfile)
+  end if
+
+end function
+
 
 end module zoamenubar

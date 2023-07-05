@@ -253,8 +253,8 @@ subroutine SPR
       write(ffieldstr, *) x(ii+1)
       CALL PROCESKDP("FOB "// ffieldstr)
       CALL PROCESKDP("SPD")
-      !CALL PROCESKDP("SHO RMSOPD")
-      y(ii+1) = REG(10)
+      CALL PROCESKDP("SHO RMS")
+      y(ii+1) = REG(9)
     end do
 
     replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_SPOT_VS_FIELD, objIdx)
@@ -492,6 +492,87 @@ subroutine rmsfield_ideal
 
       ! Create Plot + settings tab
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+    end if
+
+end subroutine
+
+subroutine PLTZERN
+
+    USE GLOBALS
+    use command_utils
+    use handlers, only: zoatabMgr, updateTerminalLog
+    use global_widgets, only:  sysConfig
+    use zoa_ui
+    use iso_c_binding, only:  c_ptr, c_null_char
+
+
+    IMPLICIT NONE
+
+    character(len=23) :: ffieldstr
+    character(len=40) :: inputCmd
+    integer :: ii, objIdx
+    integer :: numPoints = 10
+    logical :: replot
+
+    REAL, allocatable :: xdat(:), ydat(:)
+
+    REAL*8 X(1:96)
+    COMMON/SOLU/X
+
+    INCLUDE 'DATMAI.INC'
+
+    !call checkCommandInput(ID_CMD_ALPHA)
+
+    call updateTerminalLog(INPUT, "blue")
+    inputCmd = INPUT
+
+    if(cmdOptionExists('NUMPTS')) then
+    numPoints = INT(getCmdInputValue('NUMPTS'))
+    end if
+
+
+    PRINT *, "numPoints is ", numPoints
+
+    allocate(xdat(numPoints))
+    allocate(ydat(numPoints))
+
+    do ii = 0, numPoints-1
+      xdat(ii+1) = REAL(ii)/REAL(numPoints-1)
+      write(ffieldstr, *) xdat(ii+1)
+      CALL PROCESKDP("FOB "// ffieldstr)
+      CALL PROCESKDP("CAPFN")
+      CALL PROCESKDP("FITZERN")
+
+      !CALL PROCESKDP("SHO RMSOPD")
+      ydat(ii+1) = X(8)
+    end do
+
+    replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
+
+    if (replot) then
+    PRINT *, "SPOT RMS VS FIELD REPLOT REQUESTED"
+    PRINT *, "Input Command was ", inputCmd
+    call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+    !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+    call zoatabMgr%updateGenericPlotTab(objIdx, xdat, ydat)
+
+    else
+    objIdx = zoatabMgr%addGenericPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, "Zernike Coefficient Vs Field"//c_null_char, xdat,ydat, &
+    & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
+      & ylabel="Error ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
+      & title='Zernike vs Field'//c_null_char, linetypecode=-1)
+
+    ! Add settings
+    zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
+    & 10.0, 1.0, 20.0, 1, "NUMP2"//c_null_char)
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+
+    ! Create Plot + settings tab
+    call zoaTabMgr%finalizeNewPlotTab(objIdx)
 
 
     end if

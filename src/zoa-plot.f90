@@ -887,9 +887,9 @@ contains
     real(kind=pl_test_flt), intent(inout) :: xmin, xmax, ymin, ymax
 
     xmin = minval(self%x)
-    xmax = maxval(self%x)
+    xmax = 1.05*maxval(self%x)
     ymin = minval(self%y)
-    ymax = maxval(self%y)
+    ymax = 1.05*maxval(self%y)
 
     end subroutine getAxesLimits
 

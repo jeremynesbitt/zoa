@@ -428,6 +428,10 @@ C       PART DRAWINGS
           CALL SPR
           RETURN
         END IF
+        IF(WC.EQ.'PLTZERN') THEN
+          CALL PLTZERN
+          RETURN
+        END IF
 
         IF(WC.EQ.'TSTCMDS') THEN
           CALL TestCommands
