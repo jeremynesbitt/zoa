@@ -437,14 +437,37 @@
                         END DO
               REST_KDP(1)=RESTINPT(1)
               END IF
+
+! Compute relative angles
+
+      IF(.NOT.VIGOFF) THEN
+       ! For any YZ Calls
+       CALL VIGCAL(10,YVHI,YVLO,2)
+
+      ELSE
+        ! TODO:  Not sure this is the logic I want when VIGOFF
+        YVHI=1.0D0
+        YVLO=-1.0D0
+      END IF
+      ! For any XZ related calls
+      IF(.NOT.VIGOFF) THEN
+        CALL VIGCAL(10,XVHI,XVLO,1)
+      ELSE
+        XVHI=1.0D0
+        XVLO=-1.0D0
+      END IF
+
+
+       numRays = ld_settings%num_field_rays
+       numFields = sysConfig%numFields
+
 !
 !     OTHER RAYS
 !
 !     Y FIELDS OF VIEW ARE DONE WHEN VIEW IS YZ, XY OR ORTHO
       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
 
-       numRays = ld_settings%num_field_rays
-       numFields = sysConfig%numFields
+     !   CALL VIE_RSI(xF,yF,xA,yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE, RAYEXT)
 
        do jj = 1, numFields
 
@@ -453,37 +476,13 @@
           WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj)
           CALL PROCES
           REST_KDP(1)=RESTINPT(1)
-              IF(.NOT.VIGOFF) THEN
-                ! TODO:  Need to confirm that VIGCAL should be in this loop.
-                CALL VIGCAL(10,VHI,VLO,2)
-                YVHI=VHI
-                YVLO=VLO
-             ELSE
-               YVHI=1.0D0
-               YVLO=-1.0D0
-             END IF
-
-          SAVE_KDP(1)=SAVEINPT(1)
-
 
     do ii = 0, numRays-1
       relAngle = YVLO + ii*(YVHI-YVLO)/(numRays-1)
       SAVE_KDP(1)=SAVEINPT(1)
-      WW1 = relAngle
-      WW2=0.0D0
-      WW3=SYSTEM(11)
-      WVN=WW3
-      MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-      GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
+      call VIE_TRACERAY(0.0D0, relAngle, sysConfig%refWavelengthIndex, &
+      & VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
+      REST_KDP(1)=RESTINPT(1)
   end do ! Angles
  end do  !  Fields
 
@@ -493,9 +492,6 @@
 
  ! X Fields (if necessesary)
  IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-
-       numRays = ld_settings%num_field_rays
-       numFields = sysConfig%numFields
 
        PRINT *, "Plotting X for VIEW ", VIEWQ
 
@@ -507,46 +503,16 @@
               & , ' ' , sysConfig%relativeFields(1,jj)
               CALL PROCES
               REST_KDP(1)=RESTINPT(1)
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,2)
-      YVHI=VHI
-      YVLO=VLO
-                   ELSE
-      YVHI=1.0D0
-      YVLO=-1.0D0
-                   END IF
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,1)
-      XVHI=VHI
-      XVLO=VLO
-                   ELSE
-      XVHI=1.0D0
-      XVLO=-1.0D0
-                   END IF
-               SAVE_KDP(1)=SAVEINPT(1)
 
-
-do ii = 0, numRays-1
-  ! Note relAngle is X now not Y.
-  relAngle = XVLO + ii*(XVHI-XVLO)/(numRays-1)
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1 =0.0D0
-              WW2=relAngle
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-              WW4=1.0D0
-              NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-  end do ! Angles
- end do  !  Fields
+        do ii = 0, numRays-1
+          ! Note relAngle is X now not Y.
+          relAngle = XVLO + ii*(XVHI-XVLO)/(numRays-1)
+          SAVE_KDP(1)=SAVEINPT(1)
+      call VIE_TRACERAY(relAngle, 0.0D0, sysConfig%refWavelengthIndex, &
+      & VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
+      REST_KDP(1)=RESTINPT(1)
+         end do ! Angles
+        end do  !  Fields
 
 END IF ! X plotting
 
@@ -631,6 +597,31 @@ subroutine VIE_EDGE(xory, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
               STI=0
               SST=0
               CALL PLTEDG
+
+
+end subroutine
+
+subroutine VIE_TRACERAY(xA, yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
+  use ISO_FORTRAN_ENV, only: real64
+  implicit none
+  INTEGER VDF2,VDF3,VS2,VS3
+  REAL(real64) ::  xA, yA, VIEW2,VIEW3
+  integer :: rW, CACOCHVIE
+
+  include "DATMAI.INC"
+  include "DATLEN.INC"
+
+      WW1 = yA
+      WW2=  xA
+      WW3=  rW
+      WVN=WW3
+      MSG=.FALSE.
+      WW4=1.0D0
+      NOCOAT=.TRUE.
+      GRASET=.TRUE.
+        IF(CACOCHVIE.EQ.1) CACOCH=1
+              CALL RAYTRA
+              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
 
 
 end subroutine
