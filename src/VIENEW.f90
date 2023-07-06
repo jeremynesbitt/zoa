@@ -3,6 +3,7 @@
           use global_widgets
           use handlers, only:  updateterminallog
           use mod_plotopticalsystem
+          use ISO_FORTRAN_ENV, only: real64
 !
 
         IMPLICIT NONE
@@ -10,7 +11,7 @@
 !
 !       THIS PROGRAM CONTROLS THE "VIE" AND "VIECO" COMMANDS
 !
-      REAL*8 VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO, relAngle
+      REAL(real64) :: VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO, relAngle
 
       integer :: numRays, ii, jj, numFields
 
@@ -25,13 +26,12 @@
 !
       CHARACTER VIEWQ*8
 !
-      REAL*8 VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
+      REAL(real64) ::  VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
 !
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAC.INC'
-!       JN ADD HACK to figure out plotting
-!        INCLUDE 'DATHGR.INC'
+
 !
         PRINT *, "VIE ROUTINE STARTING..."
 
@@ -360,8 +360,9 @@
 !
 
               SAVE_KDP(1)=SAVEINPT(1)
+              ! Test comment out- this ray should get plotted later
               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              PRINT *, "LINE 2338, SCFAY IS ", SCFAY
+              !PRINT *, "LINE 2338, SCFAY IS ", SCFAY
               REST_KDP(1)=RESTINPT(1)
 !
       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
@@ -388,9 +389,9 @@
               SST=0
               !PRINT *, "CALL PLTPRO1 PROFY"
               !PRINT *, "LINE 2362, SCFAY IS ", SCFAY
-              PRINT *, "Before PLTPRO1 , W1,W2, ", W1, ",", W2
-              PRINT *, "Before PLTPRO1 , S1,S2, ", S1, ",", S2
-              PRINT *, "Before PLTPRO1 , DF1,DF2, ", DF1, ",", DF2
+              !PRINT *, "Before PLTPRO1 , W1,W2, ", W1, ",", W2
+              !PRINT *, "Before PLTPRO1 , S1,S2, ", S1, ",", S2
+              !PRINT *, "Before PLTPRO1 , DF1,DF2, ", DF1, ",", DF2
 
 
               CALL PLTPRO1
@@ -535,21 +536,104 @@
 !     Y FIELDS OF VIEW ARE DONE WHEN VIEW IS YZ, XY OR ORTHO
       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
 
-numRays = ld_settings%num_field_rays ! TODO:  Abstract and have selectable
-numFields = sysConfig%numFields !3 ! TODO:  Abstract and selectable
-!fFields =  sysConfig%relativeFields
-![0.0, 0.7, 1.0] ! TODO:  Abstract and selectable
-PRINT *, "NUM FIELDS IS ", numFields
-do jj = 1, numFields
+       numRays = ld_settings%num_field_rays
+       numFields = sysConfig%numFields
+
+       do jj = 1, numFields
+
+          SAVE_KDP(1)=SAVEINPT(1)
+          COLRAY = sysConfig%fieldColorCodes(jj)
+          WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj)
+          CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+              IF(.NOT.VIGOFF) THEN
+                ! TODO:  Need to confirm that VIGCAL should be in this loop.
+                CALL VIGCAL(10,VHI,VLO,2)
+                YVHI=VHI
+                YVLO=VLO
+             ELSE
+               YVHI=1.0D0
+               YVLO=-1.0D0
+             END IF
+
+          SAVE_KDP(1)=SAVEINPT(1)
 
 
-              !CALL MY_COLTYP(jj+2)
+    do ii = 0, numRays-1
+      relAngle = YVLO + ii*(YVHI-YVLO)/(numRays-1)
+      SAVE_KDP(1)=SAVEINPT(1)
+      WW1 = relAngle
+      WW2=0.0D0
+      WW3=SYSTEM(11)
+      WVN=WW3
+      MSG=.FALSE.
+      WW4=1.0D0
+      NOCOAT=.TRUE.
+      GRASET=.TRUE.
+        IF(CACOCHVIE.EQ.1) CACOCH=1
+              CALL RAYTRA
+              REST_KDP(1)=RESTINPT(1)
+!
+              SAVE_KDP(1)=SAVEINPT(1)
+              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+              REST_KDP(1)=RESTINPT(1)
+  end do ! Angles
+ end do  !  Fields
 
+       IF(VIEWQ.NE.'YZ') THEN
+ !     PLUS X-RAY
+               SAVE_KDP(1)=SAVEINPT(1)
+               WW1=0.0D0
+               WW2=XVHI
+               WW3=SYSTEM(11)
+               WVN=WW3
+               MSG=.FALSE.
+               WW4=1.0D0
+               NOCOAT=.TRUE.
+               GRASET=.TRUE.
+         IF(CACOCHVIE.EQ.1) CACOCH=1
+               CALL RAYTRA
+               REST_KDP(1)=RESTINPT(1)
+ !
+               SAVE_KDP(1)=SAVEINPT(1)
+               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+               REST_KDP(1)=RESTINPT(1)
+ !     MINUS X-RAY
+               SAVE_KDP(1)=SAVEINPT(1)
+               WW1=0.0D0
+               WW2=XVLO
+               WW3=SYSTEM(11)
+               WVN=WW3
+               MSG=.FALSE.
+               WW4=1.0D0
+               NOCOAT=.TRUE.
+               GRASET=.TRUE.
+         IF(CACOCHVIE.EQ.1) CACOCH=1
+               CALL RAYTRA
+               REST_KDP(1)=RESTINPT(1)
+ !
+               SAVE_KDP(1)=SAVEINPT(1)
+               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+               REST_KDP(1)=RESTINPT(1)
+       END IF
+       END IF ! YZ plotting
+
+
+
+ ! X Fields (if necessesary)
+ IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+
+       numRays = ld_settings%num_field_rays
+       numFields = sysConfig%numFields
+
+       PRINT *, "Plotting X for VIEW ", VIEWQ
+
+       do jj = 1, numFields
 
               SAVE_KDP(1)=SAVEINPT(1)
               COLRAY = sysConfig%fieldColorCodes(jj)
-              WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj)
-              !INPUT='FOB'
+              WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj) &
+              & , ' ' , sysConfig%relativeFields(1,jj)
               CALL PROCES
               REST_KDP(1)=RESTINPT(1)
       IF(.NOT.VIGOFF) THEN
@@ -569,32 +653,14 @@ do jj = 1, numFields
       XVLO=-1.0D0
                    END IF
                SAVE_KDP(1)=SAVEINPT(1)
-! !     GUT RAY A SECOND TIME
-!               WW1=0.0D0
-!               WW2=0.0D0
-!               WW3=SYSTEM(11)
-!               WVN=WW3
-!               MSG=.FALSE.
-!       WW4=1.0D0
-!       NOCOAT=.TRUE.
-!               GRASET=.TRUE.
-        ! IF(CACOCHVIE.EQ.1) CACOCH=1
-        !       CALL RAYTRA
-        !       REST_KDP(1)=RESTINPT(1)
-        !       SAVE_KDP(1)=SAVEINPT(1)
-        !       IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-        !       REST_KDP(1)=RESTINPT(1)
 
 
 do ii = 0, numRays-1
-  !relAngle = YVHI + ii*(YVLO-YVHI)/(numRays-1)
-  relAngle = YVLO + ii*(YVHI-YVLO)/(numRays-1)
-  PRINT *, "relAngle is ", relAngle
+  ! Note relAngle is X now not Y.
+  relAngle = XVLO + ii*(XVHI-XVLO)/(numRays-1)
               SAVE_KDP(1)=SAVEINPT(1)
-              WW1 = relAngle
-              !WW1=YVHI
-              !PRINT *, "YVHI  is ", YVHI
-              WW2=0.0D0
+              WW1 =0.0D0
+              WW2=relAngle
               WW3=SYSTEM(11)
               WVN=WW3
               MSG=.FALSE.
@@ -609,379 +675,385 @@ do ii = 0, numRays-1
               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
               REST_KDP(1)=RESTINPT(1)
   end do ! Angles
-
  end do  !  Fields
 
 
-!! UNCOMMENT OUT AFTER RAY COLOR DEBUGGING!!!
 
-      IF(VIEWQ.NE.'YZ') THEN
-!     PLUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVHI
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-              WW4=1.0D0
-              NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
+END IF ! X plotting
+
+! Remove after XZ and XY testing is done (original coee will be in original VIE
+! routine)
 !
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     MINUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVLO
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-              WW4=1.0D0
-              NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
+!       IF(VIEWQ.NE.'YZ') THEN
+! !     PLUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVHI
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!               WW4=1.0D0
+!               NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     MINUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVLO
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!               WW4=1.0D0
+!               NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+!       END IF
+!       END IF ! YZ plotting
+
 !
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-      END IF
-      END IF ! YZ plotting
+!
+!       IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+! !     DO XZ PLANE FIELDS
+! !
+! !     FIRST FOB 0
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               INPUT='FOB'
+!               CALL PROCES
+!               REST_KDP(1)=RESTINPT(1)
+!       IF(.NOT.VIGOFF) THEN
+!       CALL VIGCAL(10,VHI,VLO,2)
+!       YVHI=VHI
+!       YVLO=VLO
+!                    ELSE
+!       YVHI=1.0D0
+!       YVLO=-1.0D0
+!                    END IF
+!       IF(.NOT.VIGOFF) THEN
+!       CALL VIGCAL(10,VHI,VLO,1)
+!       XVHI=VHI
+!       XVLO=VLO
+!                    ELSE
+!       XVHI=1.0D0
+!       XVLO=-1.0D0
+!                    END IF
+! !     FIRST MARGINAL RAYS
+!       IF(VIEWQ.NE.'XZ') THEN
+! !     PLUS Y-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=YVHI
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     MINUS Y-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=YVLO
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+!                END IF
+! !     PLUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVHI
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     MINUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVLO
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     TOP X FOV
+! !     FIRST FOB 0 1
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               INPUT='FOB 0 1'
+!               CALL PROCES
+!               REST_KDP(1)=RESTINPT(1)
+!       IF(.NOT.VIGOFF) THEN
+!       CALL VIGCAL(10,VHI,VLO,1)
+!       XVHI=VHI
+!       XVLO=VLO
+!                    ELSE
+!       XVHI=1.0D0
+!       XVLO=-1.0D0
+!                    END IF
+!       IF(.NOT.VIGOFF) THEN
+!       CALL VIGCAL(10,VHI,VLO,2)
+!       YVHI=VHI
+!       YVLO=VLO
+!                    ELSE
+!       YVHI=1.0D0
+!       YVLO=-1.0D0
+!                    END IF
+! !
+! !     FIRST MARGINAL RAYS
+! !     GUT RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     FIRST MARGINAL RAYS
+!       IF(VIEWQ.NE.'XZ') THEN
+! !     PLUS Y-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=YVHI
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     MINUS Y-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=YVLO
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+!                END IF
+! !     PLUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVHI
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     MINUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVLO
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     BOTTOM X FOV
+! !     FOB 0 -1
+!               SAVE_KDP(1)=SAVEINPT(1)
+!       IF(VSYM) INPUT='FOB 0 -1'
+!       IF(.NOT.VSYM) INPUT='FOB 0 0.7'
+!               CALL PROCES
+!               REST_KDP(1)=RESTINPT(1)
+!       IF(.NOT.VIGOFF) THEN
+!       CALL VIGCAL(10,VHI,VLO,1)
+!       XVHI=VHI
+!       XVLO=VLO
+!                    ELSE
+!       XVHI=1.0D0
+!       XVLO=-1.0D0
+!                    END IF
+!       IF(.NOT.VIGOFF) THEN
+!       CALL VIGCAL(10,VHI,VLO,2)
+!       YVHI=VHI
+!       YVLO=VLO
+!                    ELSE
+!       YVHI=1.0D0
+!       YVLO=-1.0D0
+!                    END IF
+! !
+! !     FIRST MARGINAL RAYS
+! !     GUT RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !
+! !     FIRST MARGINAL RAYS
+!       IF(VIEWQ.NE.'XZ') THEN
+!               call updateTerminalLog("Not XY Marginal Ray being plotted", "black")
+!               !PRINT *, "Not XY Marginal ray being plotted"
+! !     PLUS Y-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=YVHI
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+!
+! !     MINUS Y-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=YVLO
+!               WW2=0.0D0
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+!                END IF
+! !     PLUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVHI
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+! !     MINUS X-RAY
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               WW1=0.0D0
+!               WW2=XVLO
+!               WW3=SYSTEM(11)
+!               WVN=WW3
+!               MSG=.FALSE.
+!       WW4=1.0D0
+!       NOCOAT=.TRUE.
+!               GRASET=.TRUE.
+!         IF(CACOCHVIE.EQ.1) CACOCH=1
+!               CALL RAYTRA
+!               REST_KDP(1)=RESTINPT(1)
+! !
+!               SAVE_KDP(1)=SAVEINPT(1)
+!               IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+!               REST_KDP(1)=RESTINPT(1)
+!               ELSE
+! !     NOT YZ PLANE FIELDS
+!               END IF
 
 
 
-      IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-!     DO XZ PLANE FIELDS
-!
-!     FIRST FOB 0
-              SAVE_KDP(1)=SAVEINPT(1)
-              INPUT='FOB'
-              CALL PROCES
-              REST_KDP(1)=RESTINPT(1)
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,2)
-      YVHI=VHI
-      YVLO=VLO
-                   ELSE
-      YVHI=1.0D0
-      YVLO=-1.0D0
-                   END IF
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,1)
-      XVHI=VHI
-      XVLO=VLO
-                   ELSE
-      XVHI=1.0D0
-      XVLO=-1.0D0
-                   END IF
-!     FIRST MARGINAL RAYS
-      IF(VIEWQ.NE.'XZ') THEN
-!     PLUS Y-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=YVHI
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     MINUS Y-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=YVLO
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-               END IF
-!     PLUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVHI
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     MINUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVLO
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     TOP X FOV
-!     FIRST FOB 0 1
-              SAVE_KDP(1)=SAVEINPT(1)
-              INPUT='FOB 0 1'
-              CALL PROCES
-              REST_KDP(1)=RESTINPT(1)
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,1)
-      XVHI=VHI
-      XVLO=VLO
-                   ELSE
-      XVHI=1.0D0
-      XVLO=-1.0D0
-                   END IF
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,2)
-      YVHI=VHI
-      YVLO=VLO
-                   ELSE
-      YVHI=1.0D0
-      YVLO=-1.0D0
-                   END IF
-!
-!     FIRST MARGINAL RAYS
-!     GUT RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     FIRST MARGINAL RAYS
-      IF(VIEWQ.NE.'XZ') THEN
-!     PLUS Y-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=YVHI
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     MINUS Y-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=YVLO
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-               END IF
-!     PLUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVHI
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     MINUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVLO
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     BOTTOM X FOV
-!     FOB 0 -1
-              SAVE_KDP(1)=SAVEINPT(1)
-      IF(VSYM) INPUT='FOB 0 -1'
-      IF(.NOT.VSYM) INPUT='FOB 0 0.7'
-              CALL PROCES
-              REST_KDP(1)=RESTINPT(1)
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,1)
-      XVHI=VHI
-      XVLO=VLO
-                   ELSE
-      XVHI=1.0D0
-      XVLO=-1.0D0
-                   END IF
-      IF(.NOT.VIGOFF) THEN
-      CALL VIGCAL(10,VHI,VLO,2)
-      YVHI=VHI
-      YVLO=VLO
-                   ELSE
-      YVHI=1.0D0
-      YVLO=-1.0D0
-                   END IF
-!
-!     FIRST MARGINAL RAYS
-!     GUT RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!
-!     FIRST MARGINAL RAYS
-      IF(VIEWQ.NE.'XZ') THEN
-              call updateTerminalLog("Not XY Marginal Ray being plotted", "black")
-              !PRINT *, "Not XY Marginal ray being plotted"
-!     PLUS Y-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=YVHI
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-
-!     MINUS Y-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=YVLO
-              WW2=0.0D0
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-               END IF
-!     PLUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVHI
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-!     MINUS X-RAY
-              SAVE_KDP(1)=SAVEINPT(1)
-              WW1=0.0D0
-              WW2=XVLO
-              WW3=SYSTEM(11)
-              WVN=WW3
-              MSG=.FALSE.
-      WW4=1.0D0
-      NOCOAT=.TRUE.
-              GRASET=.TRUE.
-        IF(CACOCHVIE.EQ.1) CACOCH=1
-              CALL RAYTRA
-              REST_KDP(1)=RESTINPT(1)
-!
-              SAVE_KDP(1)=SAVEINPT(1)
-              IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
-              REST_KDP(1)=RESTINPT(1)
-              ELSE
-!     NOT YZ PLANE FIELDS
-              END IF
 !     NOW CLAPS,PROFS AND EDGES
 
       ! JN 5/22/22 - Comment out this section as it is giving strange
@@ -989,9 +1061,9 @@ do ii = 0, numRays-1
       ! why so punt for now
 !
 !       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-! C     PLOT PROFY
+! !     PLOT PROFY
 !               SAVE_KDP(1)=SAVEINPT(1)
-! C             PLOT PROFY
+! !             PLOT PROFY
 !               W1=VIEW2
 !               W2=VIEW3
 !                W3=90.0D0
@@ -1014,9 +1086,9 @@ do ii = 0, numRays-1
 !               REST_KDP(1)=RESTINPT(1)
 !               END IF
 !       IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-! C     PLOT EDGEY
+! !     PLOT EDGEY
 !               SAVE_KDP(1)=SAVEINPT(1)
-! C             PLOT EDGEY
+! !             PLOT EDGEY
 !               W1=VIEW2
 !               W2=VIEW3
 !               S1=VS2
@@ -1037,11 +1109,11 @@ do ii = 0, numRays-1
 !               CALL PLTEDG
 !               REST_KDP(1)=RESTINPT(1)
 !               END IF
-! C
+!
 !       IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-! C     PLOT PROFX
+! !     PLOT PROFX
 !               SAVE_KDP(1)=SAVEINPT(1)
-! C             PLOT PROFX
+! !             PLOT PROFX
 !               W1=VIEW2
 !               W2=VIEW3
 !                W3=0.0D0
@@ -1064,9 +1136,9 @@ do ii = 0, numRays-1
 !               REST_KDP(1)=RESTINPT(1)
 !               END IF
 !       IF(VIEWQ.EQ.'XZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
-! C     PLOT EDGEX
+! !     PLOT EDGEX
 !               SAVE_KDP(1)=SAVEINPT(1)
-! C             PLOT EDGEX
+! !             PLOT EDGEX
 !               W1=VIEW2
 !               W2=VIEW3
 !               S1=VS2
@@ -1087,11 +1159,11 @@ do ii = 0, numRays-1
 !               CALL PLTEDG
 !               REST_KDP(1)=RESTINPT(1)
 !               END IF
-! C
+!
 !       IF(VIEWQ.EQ.'XY'.OR.VIEWQ.EQ.'ORTHO') THEN
-! C     PLOT CLAP
+! !     PLOT CLAP
 !               SAVE_KDP(1)=SAVEINPT(1)
-! C             PLOT CLAP
+! !             PLOT CLAP
 !               W1=VIEW2
 !               W2=VIEW3
 !               S1=VS2
@@ -1144,7 +1216,7 @@ do ii = 0, numRays-1
 !                         END DO
 !               REST_KDP(1)=RESTINPT(1)
 !               END IF
-!
+
 !     PLOT SCALE FACTOR
 !     DO A FRAME
       COLPAS=COLLBL
@@ -1161,3 +1233,42 @@ do ii = 0, numRays-1
                END IF
                         RETURN
                         END
+
+subroutine VIEPROF(angProf, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
+  INTEGER VDF2,VDF3,VS2,VS3
+  REAL(real64) ::  VIEW2,VIEW3
+  REAL(real64) :: angProf ! 1 for Y, 0 for X
+
+  implicit none
+
+              SAVE_KDP(1)=SAVEINPT(1)
+!             PLOT PROF common vars
+              W1=VIEW2
+              W2=VIEW3
+              W3=angProf
+              S1=VS2
+              S2=VS3
+              S3=1
+              S4=0
+              S5=0
+              SN=1
+              DF1=VDF2
+              DF2=VDF3
+              DF3=0
+              DF4=1
+              DF5=1
+              WQ='PROF'
+              SQ=1
+              STI=0
+              SST=0
+
+
+              CALL PLTPRO1
+              !PRINT *, "LINE 2364, SCFAY IS ", SCFAY
+              REST_KDP(1)=RESTINPT(1)
+
+
+
+
+
+end subroutine
