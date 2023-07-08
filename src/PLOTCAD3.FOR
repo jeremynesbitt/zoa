@@ -4429,6 +4429,8 @@ C     LEFT HAND CORNER
                         END IF
                         END DO
 C
+       PRINT *, "PLTCOB Line 4432"
+       PRINT *, "ALENS(16,I) is ", ALENS(16,SURFACEI)
                         I=SURFACEI
       IF(ALENS(16,I).NE.0.0D0) THEN
 C     NOW DRAW THE COBS AT SURFACE I
@@ -4451,6 +4453,7 @@ C     PUT INSTRUCTIONS IN P1ARAY TO DROP PEN AND DRAW
                 END DO
 C     FINISHED WITH THAT COBS, LIFT PEN
       IPST=0
+      PRINT *, "PLTCOB Pen up!"
 C     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE P1ARAY ARRAY
 C
 C     LINE TYPE SETTING
@@ -4467,6 +4470,7 @@ C     SOLID OR INVISIBLE (NO DASHES FOR COBS AS OF 4/21/00)
                         LNTYPE=0
                         ELSE
 C     LEAVE LINE ALONE
+
                         END IF
                         IF(CLRR.NE.-1) THEN
       FIXUP=.FALSE.
@@ -4478,12 +4482,17 @@ C     LEAVE LINE ALONE
                         END IF
       CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END DO
+
                         CALL FILCOB
                         ELSE
+             PRINT *, "PLTCOB 4488"
                         CLRR=0
                         END IF
       LNTYPE=OLLNTP
                         ELSE
+            PRINT *, "PLTCOB 4493"
+            ! Need to call PENMV to trigger draw
+            CALL PENMV1(0,0,0)                
                         END IF
 C
 C     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
@@ -5141,9 +5150,11 @@ C     IN ALL OTHER CASES, DRAW THE EDGE.
       IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
                         END IF
                         END IF
-        IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
+      IF(I.GT.STASUR) THEN
+        IF (GLANAM(I-1,1).EQ.'MYGLASS') THEN
                         IPST=1
                         END IF
+      END IF
 C
       IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
       IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
@@ -5164,6 +5175,8 @@ C
       CALL MY_COLTYP(COLPAS)
         FIXUP=.FALSE.
                         DO IK=STASUR,STPSUR
+        IF(IK.GT.STASUR) THEN
+
       IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
      1ALENS(127,IK-1).NE.0.0D0) THEN
                         ELSE
@@ -5172,6 +5185,7 @@ C
         IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0
      1  .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
+      END IF
       IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0)
      1CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
@@ -5221,9 +5235,11 @@ C     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
                         END IF
                         END IF
                         END IF
-        IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
-                        IPST=1
-                        END IF
+        IF(I.GT.STASUR) THEN
+           IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
+              IPST=1
+           END IF
+        END IF
       IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
       IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
       IF(EDGE(J,1,I).LT.-1.0D6) EDGE(J,1,I)=-1.0D6
@@ -5243,6 +5259,7 @@ C
       CALL MY_COLTYP(COLPAS)
         FIXUP=.FALSE.
                         DO IK=STASUR,STPSUR
+      IF(IK.GT.STASUR) THEN
       IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
      1ALENS(127,IK-1).NE.0.0D0) THEN
                         ELSE
@@ -5251,6 +5268,7 @@ C
         IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0
      1  .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
+      END IF
       IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0)
      1CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF

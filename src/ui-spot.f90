@@ -7,20 +7,19 @@ module ui_spot
 
 
 type, extends(ui_settings) :: spot_settings
-   integer ast_field_dir
-   integer ast_numRays
+
    integer changed
    integer wavelength
+   integer num_rings
+   integer num_rand_rays
+   integer rect_grid
    logical autoplotupdate
    type(idText), allocatable :: spotRays(:)
    !integer, dimension(3), allocatable :: rayDensityMinMax
    integer currSpotRaySetting
    integer currRayDensity
    type(c_ptr) :: canvas
-   character(len=140) ::astcalccmd
-   character(len=140) ::distcalccmd
-   character(len=140) ::fccalccmd
-
+   character(len=1024) :: plotCmd
 
 
  contains
@@ -28,6 +27,8 @@ type, extends(ui_settings) :: spot_settings
 
     !procedure, public, pass(self) :: set_ray_fan_wavelength
     procedure, public :: replot => spot_replot
+    procedure :: buildPlotCommand
+    procedure :: enableSpotUISettingsByTraceType
 
 
 end type spot_settings
@@ -44,10 +45,10 @@ end type
 
   type(spot_settings) :: spot_struct_settings
   type(c_ptr) :: spinButton_spotRayDensity
-  integer, parameter :: ID_SPOT_RAND = 1601
-  integer, parameter :: ID_SPOT_RECT = 1602
-  integer, parameter :: ID_SPOT_RING = 1603
+  type(c_ptr) :: sB_rectGrid, sB_randnum, sB_ringNum, sB, raysPerRing
+
   integer, parameter :: ID_SPOT_RAYDENSITY = 1604
+
 
 
 contains
@@ -55,14 +56,8 @@ contains
 type(spot_settings) function spot_constructor(canvas) result(self)
 
     type(c_ptr) :: canvas
-
-    self%ast_field_dir = ID_AST_FIELD_Y
-    self%ast_numRays = 10
     self%autoplotupdate = .TRUE.
-    self%wavelength = 2 ! TODO NEED TO GET DEFAULT WAVELENGTH FROM PRESCRIPTION
-    self%astcalccmd = "AST"
-    self%distcalccmd = "DIST"
-    self%fccalccmd = "FLDCV"
+    !self%wavelength =
 
     self%canvas = canvas
 
@@ -87,9 +82,22 @@ type(spot_settings) function spot_constructor(canvas) result(self)
 end function
 
 function spot_is_changed(self) result(flag)
-  class(spot_settings), intent(in) :: self
+  class(spot_settings), intent(inout) :: self
   integer :: flag
-  flag = self%changed
+  character(len=1024) :: tstCmd
+
+  tstCmd = self%plotCmd
+  PRINT *, "tstCmd is ", trim(tstCmd)
+  call self%buildPlotCommand
+  PRINT *, "plotCmd is ", trim(self%plotCmd)
+  if (trim(tstCmd) /= trim(self%plotCmd)) then
+     self%changed = 1
+   else
+     self%changed = 0
+   end if
+
+    flag = self%changed
+
 end function
 
 subroutine spot_replot(self)
@@ -97,10 +105,66 @@ subroutine spot_replot(self)
 
   character PART1*5, PART2*5, AJ*3, A6*3, AW1*23, AW2*23
   character(len=5) :: ftext
-       call PROCESKDP('SPD')
+       call PROCESKDP(self%plotCmd)
        PRINT *, "About to call plot_spot for replot"
        call plot_spot(self%canvas)
 !
+
+end subroutine
+
+subroutine buildPlotCommand(self)
+  implicit none
+  class(spot_settings) :: self
+  character(len=9) :: fieldstr
+  integer :: i
+
+  include "DATSP1.INC"
+
+  self%plotCmd = 'SPOT ' ! Null it out
+
+  select case (self%currSpotRaySetting)
+  case (ID_SPOT_RAND)
+    write(fieldstr, '(I9)') self%num_rand_rays
+    self%plotCmd = "SPOT RAND;RANNUM "//trim(adjustl(fieldstr))//";SPD"
+  case (ID_SPOT_RECT)
+    write(fieldstr, '(I9)') self%rect_grid
+    self%plotCmd = "SPOT RECT;RECT "//trim(adjustl(fieldstr))//";SPD"
+  case (ID_SPOT_RING)
+    ! This is a bit of a hack.  redistribute ring number and rays per ring
+    ! using KDP vars.  this should probably be moved to this type eventually
+    do i=1,self%num_rings
+          RINGRAD(i) = (REAL(i)/self%num_rings)*1D0
+          RINGPNT(i) = 120
+    end do
+    write(fieldstr, '(I9)') self%num_rings
+    self%plotCmd = "SPOT RING;RINGS "//trim(adjustl(fieldstr))//";SPD"
+
+  end select
+
+  PRINT *, "Plot command is ", trim(self%plotCMD)
+
+
+end subroutine
+
+subroutine enableSpotUISettingsByTraceType(self)
+  class(spot_settings) :: self
+
+  select case (self%currSpotRaySetting)
+
+  case (ID_SPOT_RAND)
+         call gtk_widget_set_sensitive(sB_randnum, TRUE)
+         call gtk_widget_set_sensitive(sB_ringNum, FALSE)
+         call gtk_widget_set_sensitive(sB_rectGrid, FALSE)
+  case (ID_SPOT_RECT)
+         call gtk_widget_set_sensitive(sB_randnum, FALSE)
+         call gtk_widget_set_sensitive(sB_ringNum, FALSE)
+         call gtk_widget_set_sensitive(sB_rectGrid, TRUE)
+  case (ID_SPOT_RING)
+         call gtk_widget_set_sensitive(sB_randnum, FALSE)
+         call gtk_widget_set_sensitive(sB_ringNum, TRUE)
+         call gtk_widget_set_sensitive(sB_rectGrid, FALSE)
+  end select
+
 
 end subroutine
 
@@ -111,6 +175,7 @@ subroutine spot_new(self)
   !use ROUTEMOD
   !use kdp_draw, only: plot_ast_fc_dist
   use gtk_draw_hl
+  use kdp_data_types, only: idText
   use g
   use GLOBALS
   !use handlers, only: plot_04debug
@@ -119,7 +184,9 @@ subroutine spot_new(self)
   type(c_ptr) :: parent_window, localcanvas, isurface
   class(spot_tab) :: self
 
+
   type(c_ptr) :: spinButton_numRays, spinButton_wavelength
+  type(idText) :: spotTrace(3)
   integer :: usePLPLOT = 1
   ! Added these target parameters to have only one callback function and satisfy
   ! requirement to have a target attribute for a pointer for gtk.  I could not
@@ -128,25 +195,31 @@ subroutine spot_new(self)
   !integer, target :: TARGET_RAYFAN_WAVELENGTH  = ID_WAVELENGTH
 
   integer, target :: TARGET_SPOT_RAYDENSITY  = ID_SPOT_RAYDENSITY
+  integer, target :: TARGET_SPOT_TRACE_ALGO = ID_SPOT_TRACE_ALGO
+  integer, target :: TARGET_SPOT_GRID = ID_SPOT_RECT_GRID
+  integer, target :: TARGET_SPOT_RANDNUM = ID_SPOT_RAND_NUMRAYS
+  integer, target :: TARGET_SPOT_NUMRINGS = ID_SPOT_RING_NUMRINGS
+
 
   character(kind=c_char, len=20), dimension(2) :: vals_ast_fieldxy
   integer(c_int), dimension(2) :: refs_ast_fieldxy
+
+  include "DATSP1.INC"
 
 
 
   PRINT *, "Spot diagram new plot initiated!"
   !PRINT *, "DSPOTT is ", DSPOTT
+  spotTrace(1)%text = "Rectangle"
+  spotTrace(1)%id = ID_SPOT_RECT
 
-  !call astfcdist_tab%initialize(notebook, "Astig FC Dist", ID_PLOTTYPE_AST)
-  ! Create backing surface
+  spotTrace(2)%text = "Ring"
+  spotTrace(2)%id = ID_SPOT_RING
 
-  !isurface = cairo_image_surface_create(s_type, szx, szy)
-  !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-  !call g_object_set_data(astfcdist_tab%canvas, "backing-surface", isurface)
+  spotTrace(3)%text = "Random"
+  spotTrace(3)%id = ID_SPOT_RAND
 
-    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200_c_int, 500_c_int)
-    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    !call g_object_set_data(astfcdist_tab%canvas, "backing-surface", isurface)
+
 
 
   !ast_cairo_drawing_area = astfcdist_tab%canvas
@@ -156,6 +229,7 @@ subroutine spot_new(self)
           & has_alpha=FALSE)
 
           spot_struct_settings = spot_settings(self%canvas)
+
 
           call plot_spot(self%canvas)
 
@@ -174,18 +248,59 @@ subroutine spot_new(self)
                                                               & page_size=1d0),climb_rate=1d0, &
                                                               & digits=0_c_int)
 
+  !sB_rectGrid, sB_randnum, sB_ringNum, sB, raysPerRing
+
+  ! Defaults for this are currently set in INITKDP.FOR
+
+  sB_rectGrid = gtk_spin_button_new (gtk_adjustment_new(value=NRECT*1d0, &
+                                                              & lower=1d0, &
+                                                              & upper=300d0, &
+                                                              & step_increment=1d0, &
+                                                              & page_increment=1d0, &
+                                                              & page_size=1d0),climb_rate=1d0, &
+                                                              & digits=0_c_int)
 
 
+  sB_randNum = gtk_spin_button_new (gtk_adjustment_new(value=RNUMBR*1d0, &
+                                                              & lower=1d0, &
+                                                              & upper=100000000d0, &
+                                                              & step_increment=1d0, &
+                                                              & page_increment=1d0, &
+                                                              & page_size=1d0),climb_rate=1d0, &
+                                                              & digits=0_c_int)
 
- call self%addSpinBoxSetting("Ray Density", spinButton_spotRayDensity, &
- & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_RAYDENSITY))
+  sB_ringNum = gtk_spin_button_new (gtk_adjustment_new(value=RINGTOT*1d0, &
+                                                              & lower=1d0, &
+                                                              & upper=50d0, &
+                                                              & step_increment=1d0, &
+                                                              & page_increment=1d0, &
+                                                              & page_size=1d0),climb_rate=1d0, &
+                                                              & digits=0_c_int)
+
+  spot_struct_settings%currSpotRaySetting =  SPDTYPE
+  spot_struct_settings%num_rand_rays = RNUMBR
+  spot_struct_settings%num_rings = RINGTOT
+  spot_struct_settings%rect_grid = NRECT
+
+  call self%settings%addListBoxTextID("Spot Tracing Method", spotTrace, &
+  & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_TRACE_ALGO), &
+  & spot_struct_settings%currSpotRaySetting)
+
+
+ call self%addSpinBoxSetting("Rectangular Grid (nxn)", sB_rectGrid, &
+ & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_GRID))
+
+ call self%addSpinBoxSetting("Number of Rays (Random Only)", sB_randnum, &
+ & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_RANDNUM))
+
+ call self%addSpinBoxSetting("Number of Rings", sB_ringNum, &
+ & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_NUMRINGS))
+
+   call spot_struct_settings%buildPlotCommand()
+   call spot_struct_settings%enableSpotUISettingsByTraceType()
 
 
   call self%finalizeWindow()
-  !ast_window = astfcdist_tab%box1
-  !PRINT *, "AT END OF new astig plot, canvas ptr is ", astfcdist_tab%canvas
-
-
 
 end subroutine
 
@@ -202,15 +317,24 @@ subroutine callback_spot_settings (widget, gdata ) bind(c)
 
   call c_f_pointer(gdata, ID_SETTING)
 
-  ! select case (ID_SETTING)
-  !
-  ! case (ID_AST_FIELDXY)
-  !   call ast_settings % set_ast_field_dir(hl_zoa_combo_get_selected_list2_id(widget))
-  !
-  ! case (ID_RAYFAN_NUMRAYS)
-  !   call ast_settings % set_ast_num_rays(INT(gtk_spin_button_get_value (widget)))
-  !
-  ! end select
+  select case (ID_SETTING)
+
+  case (ID_SPOT_TRACE_ALGO)
+    spot_struct_settings%currSpotRaySetting = hl_zoa_combo_get_selected_list2_id(widget)
+    call spot_struct_settings%enableSpotUISettingsByTraceType()
+
+  case (ID_SPOT_RECT_GRID)
+    spot_struct_settings%rect_grid = INT(gtk_spin_button_get_value (widget))
+
+  case (ID_SPOT_RING_NUMRINGS)
+    spot_struct_settings%num_rings = INT(gtk_spin_button_get_value (widget))
+
+  case(ID_SPOT_RAND_NUMRAYS)
+      spot_struct_settings%num_rand_rays = INT(gtk_spin_button_get_value (widget))
+
+  end select
+
+  if (spot_struct_settings%is_changed().EQ.1) call spot_struct_settings%replot()
 
 end subroutine
 

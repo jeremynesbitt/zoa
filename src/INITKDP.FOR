@@ -577,26 +577,29 @@ C     PIXEL DEFAULT VALUES
 C
 C     DEFAULT VALUES FOR SPOT DIAGRAMS
           NRECT=10
-          RINGTOT=4
-          RNUMBR=200
+          RINGTOT=5
+          RNUMBR=2000
 C     RING GRID IS DEFAULT
           SPDTYPE=2
 C
           RINGRAD(0)=0.0D0
-          RINGRAD(1)=0.4D0
-          RINGRAD(2)=0.707D0
-          RINGRAD(3)=0.866D0
-          RINGRAD(4)=1.0D0
+          RINGRAD(1)=0.2D0
+          RINGRAD(2)=0.4D0
+          RINGRAD(3)=0.707D0
+          RINGRAD(4)=0.866D0
+          RINGRAD(5)=1.0D0
           RINGPNT(0)=1
-          RINGPNT(1)=8
-          RINGPNT(2)=8
-          RINGPNT(3)=8
-          RINGPNT(4)=8
+          RINGPNT(1)=80
+          RINGPNT(3)=100
+          RINGPNT(4)=160
+          RINGPNT(4)=200
+          RINGPNT(5)=320
           RINGANG(0)=0.0D0
           RINGANG(1)=0.0D0
           RINGANG(2)=0.0D0
           RINGANG(3)=0.0D0
           RINGANG(4)=0.0D0
+          RINGANG(5)=0.0D0
 C     DEFAULT VALUES FOR SPOT DIAGRAMS FOR OPTIM
           OPNRECT=10
           OPRINGTOT=4
@@ -650,7 +653,7 @@ C
 C     INITIALIZE ALL COLORS TO THEIR DEFAULTS
                 COLDEF=15
                 COLRAY=15
-                COLCLP=3
+                COLCLP=15
                 COLCOB=9
                 COLEDG=15
                 COLPRO=15

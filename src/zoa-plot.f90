@@ -616,7 +616,7 @@ contains
       call plcol0(getLabelFontCode(self))
     end do
 
-    PRINT *, "ydata is ", self%plotdatalist(1)%y
+    !PRINT *, "ydata is ", self%plotdatalist(1)%y
 
     end subroutine drawPlot
 

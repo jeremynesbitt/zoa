@@ -15,6 +15,7 @@ integer, parameter :: ID_PLOTTYPE_GENERIC = 1000
 integer, parameter :: ID_PLOTTYPE_SPOT     = 1003
 integer, parameter :: ID_PLOTTYPE_RMSFIELD     = 1011
 integer, parameter :: ID_PLOTTYPE_SPOT_VS_FIELD     = 1012
+integer, parameter :: ID_PLOTTYPE_ZERN_VS_FIELD     = 1013
 
 
 
@@ -69,6 +70,15 @@ integer, parameter :: ID_PLOTTYPE_AST = 1525
 integer, parameter :: ID_AST_FIELDXY = 1531
 integer, parameter :: ID_AST_FIELD_X = 1532
 integer, parameter :: ID_AST_FIELD_Y = 1533
+
+integer, parameter :: ID_SPOT_TRACE_ALGO = 1602
+integer, parameter :: ID_SPOT_RECT = 1
+integer, parameter :: ID_SPOT_RING = 2
+integer, parameter :: ID_SPOT_RAND = 3
+integer, parameter :: ID_SPOT_RECT_GRID = 1611
+integer, parameter :: ID_SPOT_RAND_NUMRAYS = 1612
+integer, parameter :: ID_SPOT_RING_NUMRINGS = 1613
+
 
 
 integer :: active_plot = -1

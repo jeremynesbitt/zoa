@@ -163,7 +163,8 @@ subroutine addLabelandWidget(self, newlabel, newwidget)
 end subroutine
 
 ! Should this go in a separate type?
-subroutine addListBoxTextID(self, labelText, set, callbackFunc, callbackData)
+subroutine addListBoxTextID(self, labelText, set, callbackFunc, &
+  & callbackData, defaultSetting)
 
  use hl_gtk_zoa
  use kdp_data_types
@@ -172,6 +173,7 @@ subroutine addListBoxTextID(self, labelText, set, callbackFunc, callbackData)
   character(len=*), intent(in) :: labelText
   type(c_funptr), intent(in)   :: callbackFunc
   type(c_ptr), optional, intent(in)   :: callbackData
+  integer, optional, intent(in) :: defaultSetting
 
  type(idText) :: set(:)
  character(kind=c_char, len=40), allocatable :: vals_tmp(:)
@@ -191,18 +193,30 @@ subroutine addListBoxTextID(self, labelText, set, callbackFunc, callbackData)
 
  end do
 
+ ! TODO:  This is a mess.  needs cleanup
  if (present(callbackData)) then
+   if (present(defaultSetting)) then
    call addListBox(self, labelText, refs_tmp, vals_tmp, &
-   & callbackFunc, callbackData)
+   & callbackFunc, callbackData, defaultSetting)
+ else
+     call addListBox(self, labelText, refs_tmp, vals_tmp, &
+     & callbackFunc, callbackData)
+   end if
   else
+    if (present(defaultSetting)) then
    call addListBox(self, labelText, refs_tmp, vals_tmp, &
-   & callbackFunc)
+   & callbackFunc, defaultSetting=defaultSetting)
+ else
+     call addListBox(self, labelText, refs_tmp, vals_tmp, &
+     & callbackFunc)
+   end if
  end if
 
 end subroutine
 
 
-subroutine addListBox(self, labelText, refArray, valArray, callbackFunc, callbackData)
+subroutine addListBox(self, labelText, refArray, valArray, &
+  & callbackFunc, callbackData, defaultSetting)
 
   use hl_gtk_zoa
   implicit none
@@ -211,6 +225,7 @@ subroutine addListBox(self, labelText, refArray, valArray, callbackFunc, callbac
   character(len=*), intent(in) :: labelText
   type(c_funptr), intent(in)   :: callbackFunc
   type(c_ptr), optional, intent(in)   :: callbackData
+  integer, optional, intent(in) :: defaultSetting
    character(kind=c_char, len=*) :: valArray(:)
    integer(c_int), dimension(:) :: refArray
 
@@ -221,6 +236,12 @@ subroutine addListBox(self, labelText, refArray, valArray, callbackFunc, callbac
   newlabel = gtk_label_new(labelText//c_null_char)
   call hl_gtk_combo_box_list2_new(newwidget, refArray, valArray)
   call g_signal_connect (newwidget, "changed"//c_null_char, callbackFunc, callbackData)
+
+    if (present(defaultSetting)) then
+      call hl_zoa_combo_set_selected_by_list2_id(newwidget, defaultSetting)
+    end if
+
+
 
   ! Update settings lists
   call self%addLabelandWidget(newlabel, newwidget)

@@ -4364,7 +4364,7 @@ C     SET UP ANGLE FACTERS
       AWW1=W1/SCLFACY
       AWW2=W2/SCLFACX
 
-      call logger%logText("STARTING FFOB ROUTINE")
+      !call logger%logText("STARTING FFOB ROUTINE")
       CALL SHOWIT(19)
       !call megaDebugLogger('FFOB')
       !PRINT *, "YSTRT FOBBS BEGINNING IS ", YSTRT
@@ -4414,7 +4414,7 @@ C       CHECK FOR STRING INPUT
       IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.
      1SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
 
-      call logger%logText("FFOB Object Angle Loop ")
+      !call logger%logText("FFOB Object Angle Loop ")
 
       IF(DF3.EQ.0.AND.W3.NE.0.0D0) THEN
                    W3=0.0D0
@@ -4508,7 +4508,7 @@ C
 
 C     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
-      call logger%logText("FFOB Object Height Loop ")
+      !call logger%logText("FFOB Object Height Loop ")
 C
       IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
 C     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
@@ -4519,20 +4519,20 @@ C     AND DEPTH.
       IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
       IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
       IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
-      PRINT *, "YSTRT =", YSTRT
-      PRINT *, "XSTRT =", YSTRT
-      PRINT *, "SYSTEM(14) ",SYSTEM(14),"SYSTEM(16) ",SYSTEM(16)
-      PRINT *, "PXTRAY(5,NEWOBJ) ", PXTRAY(5,NEWOBJ)
-      PRINT *, "NEWOBJ ", NEWOBJ
+      !PRINT *, "YSTRT =", YSTRT
+      !PRINT *, "XSTRT =", YSTRT
+      !PRINT *, "SYSTEM(14) ",SYSTEM(14),"SYSTEM(16) ",SYSTEM(16)
+      !PRINT *, "PXTRAY(5,NEWOBJ) ", PXTRAY(5,NEWOBJ)
+      !PRINT *, "NEWOBJ ", NEWOBJ
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
       ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
-      call logger%logTextWithReal("Z start = ",ZSTRT)
+      !call logger%logTextWithReal("Z start = ",ZSTRT)
 
       ELSE
-      call logger%logText("USE Y HEIGHT OF CLAP WITH OFFSETS")
+      !call logger%logText("USE Y HEIGHT OF CLAP WITH OFFSETS")
 C     USE Y HEIGHT OF CLAP WITH OFFSETS
       IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
@@ -4553,7 +4553,7 @@ C     USE Y HEIGHT OF CLAP WITH OFFSETS
       IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 4632 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 4632 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
@@ -4564,7 +4564,7 @@ C     USE Y HEIGHT OF CLAP WITH OFFSETS
      1ALENS(127,NEWOBJ).EQ.0.0D0) THEN
       XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
       YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
-      PRINT *, "YSTRT FOBBS 4656 =", YSTRT
+      !PRINT *, "YSTRT FOBBS 4656 =", YSTRT
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
@@ -4586,9 +4586,9 @@ C     NOT ANGIN
         X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
         Y1AIM=PXTRAY(5,(NEWOBJ+1))
         Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
-        call logger%logTextWithNum("Surf = ", IISURF)
-        call logger%logTextWithReal("X1 Aim = ", X1AIM)
-        call logger%logTextWithReal("Y1 Aim = ", X1AIM)
+        !call logger%logTextWithNum("Surf = ", IISURF)
+        !call logger%logTextWithReal("X1 Aim = ", X1AIM)
+        !call logger%logTextWithReal("Y1 Aim = ", X1AIM)
 
       IISURF=NEWOBJ+1
 
@@ -5280,8 +5280,8 @@ C     STARTING INTERSECTION POINT ON SURF 1 IS
         CALL CLPCEN
       IF(STOPP.EQ.1.AND.ICNT.LE.ICNTEST) THEN
         IF(ICNT.EQ.0) THEN
-          call logger%logText("REF RAY Failed!")
-          call logger%logTextWithNum("ICNTEST is ",ICNTEST)
+          !call logger%logText("REF RAY Failed!")
+          !call logger%logTextWithNum("ICNTEST is ",ICNTEST)
         END IF
 
                STOPP=0
@@ -5305,7 +5305,7 @@ C       INITIALIZE RAYCOD
       IF(ALENS(1,NEWOBJ+1).NE.0.0D0) CALL GETZEE1
       !PRINT *, "FOBBS 5602 POST GETZEE1 YC IS ", YC
       IF(ZEEERR) THEN
-        call logger%logText("GetZee1 Failed after RefRay failed!")
+        !call logger%logText("GetZee1 Failed after RefRay failed!")
       XC=TRYX
       YC=TRYY
       ZC=TRYZ
@@ -5319,7 +5319,7 @@ C       INITIALIZE RAYCOD
                        END IF
         FACTER=-(DABS(SERLIM)+DABS(SERINC))
         ICNTEST=INT(DABS(2.0D0*SERLIM)/DABS(SERINC))
-        call logger%logTextWithNum("ICNTEST 5322 = ", ICNTEST)
+        !call logger%logTextWithNum("ICNTEST 5322 = ", ICNTEST)
         !PRINT *, "ICNTEST IS ", ICNTEST
         !PRINT *, "STOPP IS ", STOPP
         ICNT=0
@@ -5367,7 +5367,7 @@ C       INITIALIZE RAYCOD
           FACTER=FACTER+DABS(SERINC)
           XA=0.0D0
           YA=0.0D0
-          ! JN MOD 
+          ! JN MOD
           ZA=ZA + FACTER
           TRYX=XA
           TRYY=YA
@@ -5407,12 +5407,12 @@ C       INITIALIZE RAYCOD
             TRYZ=ZC
             !PRINT *, "TRYY 5684 is ", TRYY
             ICNT=ICNT+1
-            call logger%logTextWithNum("ICNT 5409 = ",ICNT)
+            !call logger%logTextWithNum("ICNT 5409 = ",ICNT)
             GO TO 993
           END IF
        END IF
       IF(STOPP.EQ.1.AND.ICNT.GT.ICNTEST) THEN
-        call logger%logText("FOBBS Fail STOPP ICNTEST")
+        !call logger%logText("FOBBS Fail STOPP ICNTEST")
                         REFEXT=.FALSE.
                         CPFNEXT=.FALSE.
                         CALL DELPSF
@@ -5643,7 +5643,7 @@ C
         boolResult = .FALSE.
         WRITE(tmpTxt, *) "Checking Angle Input ", ANGJK
 
-        call logger%logText(trim(tmpTxt))
+        !call logger%logText(trim(tmpTxt))
 
       IF(ANGJK.GT.89.9999D0.AND.
      1ANGJK1.LT.90.0001D0.OR.

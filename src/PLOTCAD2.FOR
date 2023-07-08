@@ -5772,13 +5772,13 @@ C     NOW DO THE EDGES AT THE OBSCURATIONS
                         ELSE
                         END IF
 C     DO NEXT SURFACE
-! TEMP
-          IF (I.EQ.5) THEN
-       CALL MY_COLTYP_ALPHA(COLFILL, 50)
-       PRINT *, "COLFILL IS ", COLFILL
-       CALL FILLSURF(STARTPOINT(1,1,I),STARTPOINT(1,2,I),1)
-       CALL MY_COLTYP(COLPAS)
-          END IF
+! TEMP - testing how to fill a surface 
+!          IF (I.EQ.5) THEN
+!       CALL MY_COLTYP_ALPHA(COLFILL, 50)
+!       PRINT *, "COLFILL IS ", COLFILL
+!       CALL FILLSURF(STARTPOINT(1,1,I),STARTPOINT(1,2,I),1)
+!       CALL MY_COLTYP(COLPAS)
+!          END IF
 
  51                     CONTINUE
                         END DO

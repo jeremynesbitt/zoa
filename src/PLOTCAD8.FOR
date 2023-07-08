@@ -2219,6 +2219,8 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
+
+        PRINT *, "FILCOB Called"
 C
                         DO IK=0,360
 C     FILL THE POLYGON WITH A CROSS HASHED PATTERN
