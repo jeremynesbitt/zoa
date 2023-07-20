@@ -1019,77 +1019,11 @@ C
 C SUB MYSYS.FOR
         SUBROUTINE MYSYS
         IMPLICIT NONE
-      CHARACTER WWSS*80
-C
-      INTEGER N,I
-C
+
         INCLUDE 'DATMAI.INC'
-C
-      IF(WC(1:1).EQ.'S') THEN
-        IF(STI.EQ.1) THEN
-        OUTLYNE=
-     1'"SYS(TEM)" IS USED EXECUTE AN OPERATING SYSTEM COMMAND'
-      CALL SHOWIT(1)
-                        RETURN
-                        ELSE
-                        END IF
-        IF(SN.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"SYS(TEM)" ONLY TAKES STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-                        N=1
-                        DO I=80,1,-1
-                IF(WS(I:I).NE.' ') THEN
-                        N=I
-                        GO TO 10
-                        ELSE
-                        END IF
-                        END DO
- 10                     CONTINUE
-                        DO I=1,80
-      WWSS(I:I)=' '
-                       END DO
-      WWSS(1:N)=WS(1:N)
-                CALL JYSTEM(WWSS(1:N),N)
-                        END IF
-      IF(WC(1:1).EQ.'W') THEN
-        IF(STI.EQ.1) THEN
-        OUTLYNE=
-     1'"WSYS(TEM)" IS USED EXECUTE AN OPERATING SYSTEM COMMAND'
-      CALL SHOWIT(1)
-                        RETURN
-                        ELSE
-                        END IF
-        IF(SN.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"WSYS(TEM)" ONLY TAKES STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-                        N=1
-                        DO I=80,1,-1
-                IF(WS(I:I).NE.' ') THEN
-                        N=I
-                        GO TO 20
-                        ELSE
-                        END IF
-                        END DO
- 20                     CONTINUE
-                        DO I=1,80
-      WWSS(I:I)=' '
-                       END DO
-      WWSS(1:N)=WS(1:N)
-                CALL JYSTEM10(WWSS(1:N),N)
-                        END IF
-                        RETURN
+        OUTLYNE = "SYS(TEM) NOT SUPPORTED IN ZOA"
+        CALL SHOWIT(1)
+
         END
 C SUB NTOA2.FOR
         SUBROUTINE NTOA2(N1,N2,N3,N4,N5,BN1,BN2,BN3,BN4,BN5)

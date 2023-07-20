@@ -238,6 +238,7 @@ C
  40   FORMAT('CURRENT PLOT LIBRARY DIRECTORY IS (',A7,')')
                         END
         SUBROUTINE LENSLOC
+        use zoa_file_handler, only: getFileSep
 C
         IMPLICIT NONE
 C
@@ -290,12 +291,8 @@ C               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
                         ELSE
                         END IF
 C       INPUT OK
-        IF(ID_SYSTEM.EQ.3.OR.ID_SYSTEM.EQ.4) THEN
-C       WINDOWS
-        DIRLEN = TRIM(WS)//'\'
-                        ELSE
-        DIRLEN = TRIM(WS)//'/'
-                        END IF
+        DIRLEN = TRIM(WS)//getFileSep()
+
 C     DO THE DIRECTORIES EXIST ? IF NOT CREATE THEM
 C
       DIRNAMM=TRIM(WS)
@@ -345,13 +342,10 @@ C               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
                         RETURN
                         ELSE
                         END IF
-C       INPUT OK
-C
-C     LIST THE DIRECTORY
-C
-      DIRNAMM=TRIM('DIR '//TRIM(DIRLEN))
-      CALL MY_DIR(DIRNAMM,LEN(DIRNAMM))
-C
+      OUTLYNE = "LENSDIR COMMAND NOT SUPPORTED IN ZOA "
+      CALL SHOWIT(1)
+
+
                         RETURN
  10   FORMAT('THE CURRENT LENS DIRECTORY NAME IS:')
  11   FORMAT(A79)

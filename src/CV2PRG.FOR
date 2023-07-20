@@ -136,10 +136,15 @@ C
 
       EXIS37=.FALSE.
 
+
       INQUIRE(
-     1 FILE=trim(basePath)//'CodeV'//
-     1 getFileSep()//CVFILENAME(1:CVFILENAMELENGTH),
+     1 FILE=trim(getCodeVDir())//CVFILENAME(1:CVFILENAMELENGTH),
      1 EXIST=EXIS37)
+
+    !  INQUIRE(
+    ! 1 FILE=trim(basePath)//'CodeV'//
+    ! 1 getFileSep()//CVFILENAME(1:CVFILENAMELENGTH),
+    ! 1 EXIST=EXIS37)
 
       IF(.NOT.EXIS37) THEN
           OUTLYNE='NO CODE V INPUT FILE EXISTS TO READ'

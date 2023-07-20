@@ -46,7 +46,8 @@ type sys_config
     type(idText), allocatable :: lensUnits(:)
     real, dimension(2) :: refFieldValue
     real, dimension(2,10) :: relativeFields
-    integer :: numFields
+    integer :: numFields, numWavelengths
+    integer, dimension(10) :: wavelengthIndices
 
     ! Wavelength Data
     real, dimension(10) :: wavelengths
@@ -75,6 +76,7 @@ type sys_config
     procedure, public, pass(self) :: setRelativeFields
     procedure, public, pass(self) :: getFieldText
     procedure :: getLensUnitsText
+    procedure, private :: setNumberofWavelengths
 
 
 end type
@@ -596,6 +598,38 @@ type(io_config) function io_config_constructor() result(self)
      SYSTEM(1:5) = self%wavelengths(1:5)
      SYSTEM(71:75) = self%wavelengths(6:10)
 
+
+
+   end subroutine
+
+   subroutine setNumberofWavelengths(self)
+     ! record wavelngths with nonzero spectral weight.
+     ! mainly used for plotting
+     implicit none
+     class(sys_config), intent(inout) :: self
+     integer :: i
+     integer, dimension(10) :: nonzerowavelengths
+     !self%numWavelengths = 0
+     PRINT *, "Pack operation"
+     self%numWavelengths = size(pack(self%spectralWeights, self%spectralWeights /= 0))
+     self%wavelengthIndices(1:self%numWavelengths) =  &
+     & pack([(i,i=1,size(self%spectralWeights))],self%spectralWeights /= 0)
+
+     PRINT *, "numWavelengths is ", self%numWavelengths
+     PRINT *, "Wavelength indices is ", self%wavelengthIndices
+
+
+
+     !PRINT *, findloc(self%spectralWeights, self%spectralWeights /= 0)
+
+     ! do i=1,len(self%spectralWeights)
+     !   if (self%spectralWeights(i) > 0) then
+     !       self%numWavelengths = self%numWavelengths+1
+     !
+     !    end if
+     !
+     ! end do
+
    end subroutine
 
    subroutine setSpectralWeights(self, index, weight)
@@ -608,6 +642,8 @@ type(io_config) function io_config_constructor() result(self)
 
      SYSTEM(31:35) = self%spectralWeights(1:5)
      SYSTEM(76:80) = self%spectralWeights(6:10)
+
+     call self%setNumberOfWavelengths()
 
    end subroutine
 

@@ -481,6 +481,7 @@ C     Dump data to interface modules
                         END IF
 
 C     Dump data to interface
+        !TODO:  Move this to curr lens nmdule
         curr_lens_data % radii(JJ+1) = RD
         curr_lens_data % curvatures(JJ+1) = ALENS(1,JJ)
         curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)

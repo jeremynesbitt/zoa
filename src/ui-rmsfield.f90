@@ -24,6 +24,36 @@ interface rmsfield_settings
 end interface
 
 
+! type, extends(zoatab) :: genericSinglePlot
+!   procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
+! end type
+!
+! abstract interface
+!   subroutine myinterface(self)
+!     import :: genericSinglePlot
+!    class(genericSinglePlot) :: self
+!   end subroutine
+! end interface
+
+!pseudocode for rms_field minimal effort
+! One method that processes inputs and provides x,y data (possible?)
+! RMSFIELD_XY
+! code to get x and y series from data
+! ask zoaTabMgr if plotCode exists
+! if yes, then this is a replot call.  Attach xy data to obj and call replot
+! if no, then this is a new plot call.  create object (include title, x/y label, etc) and
+! call addPlot in zoatabmgr
+! For this, should move all settings into settings object and replot into zoaTab obj?
+! this works if I only use commands for settings, then replot has an easier time.  Just
+! assume have new xy or label data for that matter and redo.
+! With this, just need to make methods and add new ID to zoa_ui.  Much cleaner.
+
+! new zoatabObj
+! make a method (RMSFIELD_XY) that provides x and y data for plot (takes inputs from command line)
+! zoaTabObj%xydata => RMSFIELD_XY
+
+
+
 type, extends(zoatab) :: rmsfieldtab
 contains
   procedure :: newPlot => rmsfield_new
@@ -80,6 +110,10 @@ subroutine rmsfield_new(self)
 
           rmsfield_struct_settings = rmsfield_settings(self%canvas)
 
+          call self%addSpinButton_runCommand("Test", 1.0, 0.0, 10.0, 1, "Passed?")
+          call self%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "Pass Working?")
+
+
           call plot_rmsfield(self%canvas)
           call self%finalizeWindow
   else
@@ -91,6 +125,44 @@ subroutine rmsfield_new(self)
 
 end subroutine
 
+
+
+subroutine genPlot_sandbox(self)
+  use zoa_tab
+  use gtk_draw_hl
+  use g
+  use GLOBALS
+  implicit none
+
+  type(c_ptr) :: parent_window, localcanvas, isurface
+  class(zoatab) :: self
+  integer :: usePLPLOT = 1
+
+  PRINT *, "rmsfield new plot initiated!"
+
+
+  !ast_cairo_drawing_area = astfcdist_tab%canvas
+  if (usePLPLOT == 1) THEN
+    PRINT *, "Plotting rmsfield via PL PLOT!"
+    self%canvas = hl_gtk_drawing_area_new(size=[700,500], &
+          & has_alpha=FALSE)
+
+          rmsfield_struct_settings = rmsfield_settings(self%canvas)
+
+          call self%addSpinButton_runCommand("Test", 1.0, 0.0, 10.0, 1, "Passed?")
+          call self%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "Pass Working?")
+
+
+          call plot_rmsfield(self%canvas)
+          call self%finalizeWindow
+  else
+
+    !call gtk_drawing_area_set_draw_func(astfcdist_tab%canvas, &
+    !                & c_funloc(ROUTEDRAWING), c_loc(TARGET_PLOTTYPE_AST), c_null_funptr)
+  end if
+
+
+end subroutine
 
 subroutine callback_rmsfield_settings (widget, gdata ) bind(c)
    use iso_c_binding

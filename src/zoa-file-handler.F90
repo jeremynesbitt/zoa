@@ -6,18 +6,26 @@ module zoa_file_handler
       !COMMON/SYSTEMID/ID_SYSTEM
 
       character(len=1024) :: codevdir
+      integer :: ID_SYSTEM = -1000
+      integer, parameter :: ID_OS_WINDOWS = 3
+      integer, parameter :: ID_OS_MAC = 1
+      integer, parameter :: ID_OS_LINUX = 2
 
     contains
 
       function getFileSep() result(res)
 
+
+
         character(len=1) :: res
+
           !Windows
-          IF(ID_SYSTEM.EQ.3.OR.ID_SYSTEM.EQ.4) THEN
+          IF(ID_SYSTEM.EQ.ID_OS_WINDOWS) THEN
             res = '\'
           else !MacOS or Linux
             res = '/'
           end if
+          PRINT *, "In getFileSep ID_SYSTEM = ", ID_SYSTEM
       end function
 
       function getZoaPath() result(path)
@@ -36,16 +44,31 @@ module zoa_file_handler
             path = ''
 
 #ifdef MACOS
+            PRINT *, "MACOS IFDEF LOOP ACTIVATED!"
             call get_environment_variable("HOME", basepath)
             path = trim(basepath)//'/Library/Application Support/Zoa/'
             PRINT *, "Path for files is ", trim(path)
+            ID_SYSTEM = ID_OS_MAC
 #endif
-         PRINT *, "Path for files is ", trim(path)
+
+#ifdef WINDOWS
+           PRINT *, "WINDOWS IFDEF LOOP ACTIVATED!"
+           ID_SYSTEM = ID_OS_WINDOWS
+           PRINT *, "Path for files is ", trim(path)
+#endif
+
+#ifdef LINUX
+          ID_SYSTEM = ID_OS_LINUX
+          path = ''
+#endif
+
+
 
         ! Since this method essentially serves as an initialization
         ! add this here.  Should probably go somewhere else.
         codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
 
+        PRINT *, "Set ID_SYSTEM in getZoaPath to ", ID_SYSTEM
 
         end function
 
@@ -212,6 +235,15 @@ function getFileNameFromPath(fileName) result(res)
   slashLoc = index(filename, getFileSep(), BACK=.TRUE.)
 
   res = fileName(slashLoc+1:len(fileName))
+
+end function
+
+function getPermMacroDir() result(permDir)
+  ! Eventually want to support user changing directories
+  ! For now use this fcn to put all directory changes in
+  ! one place
+  character(len=500) :: permDir
+  permDir = trim(getZoaPath())//'PERMAC'//getFileSep()
 
 end function
 

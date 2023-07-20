@@ -26,6 +26,9 @@ contains
    procedure, private, pass(self) :: addLabelandWidget
    procedure, public, pass(self) :: addSpinBox
    procedure, public, pass(self) :: addListTable
+   procedure, public, pass(self) :: addFieldSelection
+   procedure, public, pass(self) :: addWavelengthSelection
+
 
 
   end type
@@ -115,6 +118,64 @@ subroutine addCheckBox(self, labelText, callbackFunc, callbackData, initial_stat
 
       ! Update settings lists
       call self%addLabelandWidget(newlabel, newwidget)
+
+
+
+end subroutine
+
+subroutine addFieldSelection(self, callbackFunc, callbackData)
+
+  use global_widgets, only :  sysConfig
+  implicit none
+  class(zoa_settings_obj) :: self
+  type(c_ptr) :: fieldWidget
+  type(c_funptr), intent(in)   :: callbackFunc
+  type(c_ptr), intent(in)   :: callbackData
+
+  ! Currently stuck on how to deal with this.  No way of knowing how
+  ! user may have called last FOB command; wanted this to be in terms
+  ! of official field points but can't guarantee this.  Maybe
+  ! show it blank initially if possible?
+
+  PRINT *, "Before fieldWidget, numfields is ", sysConfig%numFields
+  fieldWidget = gtk_spin_button_new (gtk_adjustment_new( value=1d0, &
+                                                              & lower=1d0, &
+                                                              & upper=REAL(sysConfig%numFields+1)*1d0, &
+                                                              & step_increment=1d0, &
+                                                              & page_increment=1d0, &
+                                                              & page_size=1d0),climb_rate=1d0, &
+                                                              & digits=0_c_int)
+
+   call self%addSpinBox("Field Point", fieldWidget, callbackFunc, callbackData)
+
+
+end subroutine
+
+subroutine addWavelengthSelection(self, callbackFunc, callbackData)
+
+  use global_widgets, only :  sysConfig
+  implicit none
+  class(zoa_settings_obj) :: self
+  type(c_ptr) :: wlWidget
+  type(c_funptr), intent(in)   :: callbackFunc
+  type(c_ptr), intent(in)   :: callbackData
+
+  ! Currently stuck on how to deal with this.  No way of knowing how
+  ! user may have called last FOB command; wanted this to be in terms
+  ! of official field points but can't guarantee this.  Maybe
+  ! show it blank initially if possible?
+
+
+  wlWidget = gtk_spin_button_new (gtk_adjustment_new( &
+                & value=REAL(sysConfig%refWavelengthIndex)*1d0, &
+                & lower=1d0, &
+                & upper=REAL(sysConfig%numWavelengths+1)*1d0, &
+                & step_increment=1d0, &
+                & page_increment=1d0, &
+                & page_size=1d0),climb_rate=1d0, &
+                & digits=0_c_int)
+
+   call self%addSpinBox("Wavelength", wlWidget, callbackFunc, callbackData)
 
 
 

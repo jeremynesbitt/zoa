@@ -78,6 +78,10 @@ integer, parameter :: ID_SPOT_RAND = 3
 integer, parameter :: ID_SPOT_RECT_GRID = 1611
 integer, parameter :: ID_SPOT_RAND_NUMRAYS = 1612
 integer, parameter :: ID_SPOT_RING_NUMRINGS = 1613
+integer, parameter :: ID_SPOT_FIELD = 1614
+integer, parameter :: ID_SPOT_WAVELENGTH = 1615
+
+
 
 
 

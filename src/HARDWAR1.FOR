@@ -49,14 +49,7 @@ C
                    END DO
                    RETURN
                    END
-C SUB MY_DIR.INC
-        SUBROUTINE MY_DIR(STRINGER,N)
-        IMPLICIT NONE
-        CHARACTER STRINGER*80
-        INTEGER I,N
- 10             CALL JYSTEM10(STRINGER(1:N),N)
-                        RETURN
-        END
+
         SUBROUTINE MACPAUSE
         IMPLICIT NONE
         INCLUDE 'DATMAI.INC'
@@ -239,76 +232,7 @@ C     CALL NDPEXC()
       RETURN
       END
 C SUB EDITOR.INC
-        SUBROUTINE EDITOR_OLD
-        IMPLICIT NONE
-C
-      LOGICAL FEXIST,OPEN7,OPEN8,OPEN9,OPEN10,OPEN30,PEXIST
-C
-        CHARACTER AS*80
-C
-      INTEGER N,I,N1,N2,ITEM
-C
-        INCLUDE 'DATMAI.INC'
-C
-        IF(SN.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"EDIT" ONLY TAKES STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-        IF(SST.EQ.0) THEN
-      OUTLYNE='NO FILE NAME WAS ISSUED WITH "EDIT"'
-      CALL SHOWIT(1)
-      OUTLYNE='EDITING THE DEFAULT FILE "EDITTEXT.DAT"'
-      CALL SHOWIT(1)
-        WS(1:12)='EDITTEXT.DAT'
-                        END IF
-C
-      CALL CLOSE_FILE(7,1)
-      CALL CLOSE_FILE(8,1)
-      CALL CLOSE_FILE(9,1)
-      CALL CLOSE_FILE(10,1)
-      CALL CLOSE_FILE(30,1)
-C
-C       EDIT FILE DESIGNATED BY WS
-C
-      AS=WS
-                        N2=0
-                        DO I=80,1,-1
-                        IF(AS(I:I).NE.' ') THEN
-                        N2=I
-                        GO TO 20
-                        ELSE
-                        END IF
-                        END DO
- 20                     CONTINUE
-      PEXIST=.FALSE.
-      INQUIRE(FILE='EDFILE.EXE',EXIST=PEXIST)
-      IF(PEXIST) THEN
-                        ELSE
-      OUTLYNE='THE "EDFILE.EXE" PROGRAM IS MISSING'
-      CALL SHOWIT(1)
-                        RETURN
-                        END IF
 
-      FEXIST=.FALSE.
-      INQUIRE(FILE=AS(1:N2),EXIST=FEXIST)
-      IF(.NOT.FEXIST) THEN
-      OPEN(UNIT=47,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=AS(1:N2)
-     2  ,STATUS='UNKNOWN')
-      CLOSE(47 )
-                        END IF
-      ITEM=ID_SYSTEM
-      IF(ITEM.EQ.3)
-     1CALL JYSTEM('START EDFILE.EXE 1'//AS(1:N2),N2+18)
-      IF(ITEM.EQ.4)
-     1CALL JYSTEM('CMD.EXE /c EDFILE.EXE 1'//AS(1:N2),N2+23)
-                        RETURN
-                        END
 C SUB OPENTSTP.INC
         SUBROUTINE OPENTSTP(FILENAME)
         IMPLICIT NONE
@@ -326,75 +250,43 @@ C
       CALL CLOSE_FILE(9,1)
       CALL CLOSE_FILE(10,1)
       CALL CLOSE_FILE(30,1)
+
+      OUTLYNE = "Open Test Plate not supported in Zoa (yet)"
+      CALL SHOWIT(1)
 C
 C       EDIT FILE DESIGNATED BY FILENAME
 C
-      AS(1:19)=FILENAME(1:19)
-                        N2=0
-                        DO I=19,1,-1
-                        IF(AS(I:I).NE.' ') THEN
-                        N2=I
-                        GO TO 20
-                        ELSE
-                        END IF
-                        END DO
- 20                     CONTINUE
-      PEXIST=.FALSE.
-      INQUIRE(FILE='EDFILE.EXE',EXIST=PEXIST)
-      IF(PEXIST) THEN
-                        ELSE
-      OUTLYNE='THE "EDFILE.EXE" PROGRAM IS MISSING'
-      CALL SHOWIT(1)
-                        RETURN
-                        END IF
-
-      FEXIST=.FALSE.
-      INQUIRE(FILE=AS(1:N2),EXIST=FEXIST)
-      IF(.NOT.FEXIST) THEN
-      OPEN(UNIT=47,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1  ,FORM='FORMATTED',FILE=AS(1:N2)
-     2  ,STATUS='UNKNOWN')
-      CLOSE(47 )
-                        END IF
-      CALL JYSTEM('START EDFILE.EXE 4'//AS(1:N2),N2+18)
-                        RETURN
+ !      AS(1:19)=FILENAME(1:19)
+ !                        N2=0
+ !                        DO I=19,1,-1
+ !                        IF(AS(I:I).NE.' ') THEN
+ !                        N2=I
+ !                        GO TO 20
+ !                        ELSE
+ !                        END IF
+ !                        END DO
+ ! 20                     CONTINUE
+ !      PEXIST=.FALSE.
+ !      INQUIRE(FILE='EDFILE.EXE',EXIST=PEXIST)
+ !      IF(PEXIST) THEN
+ !                        ELSE
+ !      OUTLYNE='THE "EDFILE.EXE" PROGRAM IS MISSING'
+ !      CALL SHOWIT(1)
+ !                        RETURN
+ !                        END IF
+ !
+ !      FEXIST=.FALSE.
+ !      INQUIRE(FILE=AS(1:N2),EXIST=FEXIST)
+ !      IF(.NOT.FEXIST) THEN
+ !      OPEN(UNIT=47,ACCESS='SEQUENTIAL',BLANK='NULL'
+ !     1  ,FORM='FORMATTED',FILE=AS(1:N2)
+ !     2  ,STATUS='UNKNOWN')
+ !      CLOSE(47 )
+ !                        END IF
+ !      !CALL JYSTEM('START EDFILE.EXE 4'//AS(1:N2),N2+18)
+ !                        RETURN
                         END
-      SUBROUTINE JYSTEM(STRING,N)
-      IMPLICIT NONE
-      INTEGER ITEM
-      INTEGER N
-      CHARACTER STRING*(*)
-      INCLUDE 'DATMAI.INC'
-      ITEM=ID_SYSTEM
-C     IF(ITEM.EQ.3)
-C WINTER
-C     1CALL MY_SYSTEM('COMMAND.COM /c '//STRING(1:N),(N+15))
-C      IF(ITEM.EQ.4)
-C     1CALL MY_SYSTEM('CMD.EXE /c '//STRING(1:N),(N+11))
-C      RETURN
-      END
-      SUBROUTINE JYSTEM10(STRING,N)
-      IMPLICIT NONE
-      INTEGER N
-      INTEGER ITEM
-      CHARACTER STRING*(*)
-      INCLUDE 'DATMAI.INC'
-      ITEM=ID_SYSTEM
-C     IF(N.LE.0) THEN
-C     IF(ITEM.EQ.3)
-C WINTER
-C     1CALL MY_SYSTEM2('COMMAND.COM /k ',15)
-C      IF(ITEM.EQ.4)
-C WINTER
-C     1CALL MY_SYSTEM2('CMD.EXE /k ',11)
-C                        ELSE
-C      IF(ITEM.EQ.3)
-C     1CALL MY_SYSTEM2('COMMAND.COM /k '//STRING(1:N),(N+15))
-C      IF(ITEM.EQ.4)
-C     1CALL MY_SYSTEM2('CMD.EXE /k '//STRING(1:N),(N+11))
-C                        END IF
-C      RETURN
-      END
+
       FUNCTION MY_LEN(STRING)
       IMPLICIT NONE
       CHARACTER (LEN=*) :: STRING

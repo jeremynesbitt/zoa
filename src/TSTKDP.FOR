@@ -31,7 +31,7 @@ C        CALL GCATLOAD(CATLIST)
 C	    NRECL = 1
 C        LIBLEN = 'LIBLEN/'
 
-C        CALL KDPSUB
+
         CALL INITKDP
 
         !INPUT = 'LIB GET 1 '

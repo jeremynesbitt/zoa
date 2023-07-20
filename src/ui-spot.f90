@@ -18,6 +18,7 @@ type, extends(ui_settings) :: spot_settings
    !integer, dimension(3), allocatable :: rayDensityMinMax
    integer currSpotRaySetting
    integer currRayDensity
+   integer idxWavelength, idxField
    type(c_ptr) :: canvas
    character(len=1024) :: plotCmd
 
@@ -116,31 +117,49 @@ subroutine buildPlotCommand(self)
   implicit none
   class(spot_settings) :: self
   character(len=9) :: fieldstr
+  character(len=2) :: charWL
+  character(len=80) :: charFLD
+  character(len=80) :: charTrace
   integer :: i
 
   include "DATSP1.INC"
 
   self%plotCmd = 'SPOT ' ! Null it out
 
+  call ITOA(spot_struct_settings%idxWavelength,charWL)
+  call ITOA(spot_struct_settings%idxField,charFld)
+
+  PRINT *, "charWL is ", charWL
+
+  WRITE(charFLD, *) "FOB ", &
+  & sysConfig%relativeFields(2,spot_struct_settings%idxField) &
+  & , ' ' , sysConfig%relativeFields(1,spot_struct_settings%idxField)
+
+  PRINT *, "charFLD is ", charFLD
+
   select case (self%currSpotRaySetting)
   case (ID_SPOT_RAND)
     write(fieldstr, '(I9)') self%num_rand_rays
-    self%plotCmd = "SPOT RAND;RANNUM "//trim(adjustl(fieldstr))//";SPD"
+    charTrace = "SPOT RAND;RANNUM "
+    !self%plotCmd = "SPOT RAND;RANNUM "//trim(adjustl(fieldstr))//";SPD "//charWL
   case (ID_SPOT_RECT)
     write(fieldstr, '(I9)') self%rect_grid
-    self%plotCmd = "SPOT RECT;RECT "//trim(adjustl(fieldstr))//";SPD"
+    charTrace = "SPOT RECT;RECT "
+    !self%plotCmd = "SPOT RECT;RECT "//trim(adjustl(fieldstr))//";SPD "//charWL
   case (ID_SPOT_RING)
     ! This is a bit of a hack.  redistribute ring number and rays per ring
     ! using KDP vars.  this should probably be moved to this type eventually
     do i=1,self%num_rings
           RINGRAD(i) = (REAL(i)/self%num_rings)*1D0
-          RINGPNT(i) = 120
+          RINGPNT(i) = INT(RINGRAD(i)*360)
     end do
     write(fieldstr, '(I9)') self%num_rings
-    self%plotCmd = "SPOT RING;RINGS "//trim(adjustl(fieldstr))//";SPD"
+    charTrace = "SPOT RING;RINGS "
+    !self%plotCmd = "SPOT RING;RINGS "//trim(adjustl(fieldstr))//";SPD "//charWL
 
   end select
-
+  self%plotCmd = trim(charFLD)//'; '//trim(charTrace)//" "// &
+  & trim(adjustl(fieldstr))//";SPD "//charWL
   PRINT *, "Plot command is ", trim(self%plotCMD)
 
 
@@ -178,6 +197,7 @@ subroutine spot_new(self)
   use kdp_data_types, only: idText
   use g
   use GLOBALS
+  use global_widgets, only: sysConfig
   !use handlers, only: plot_04debug
   implicit none
 
@@ -199,6 +219,8 @@ subroutine spot_new(self)
   integer, target :: TARGET_SPOT_GRID = ID_SPOT_RECT_GRID
   integer, target :: TARGET_SPOT_RANDNUM = ID_SPOT_RAND_NUMRAYS
   integer, target :: TARGET_SPOT_NUMRINGS = ID_SPOT_RING_NUMRINGS
+  integer, target :: TARGET_SPOT_FIELD = ID_SPOT_FIELD
+  integer, target :: TARGET_SPOT_WAVELENGTH = ID_SPOT_WAVELENGTH
 
 
   character(kind=c_char, len=20), dimension(2) :: vals_ast_fieldxy
@@ -229,6 +251,7 @@ subroutine spot_new(self)
           & has_alpha=FALSE)
 
           spot_struct_settings = spot_settings(self%canvas)
+          spot_struct_settings%idxWavelength = sysConfig%refWavelengthIndex
 
 
           call plot_spot(self%canvas)
@@ -282,6 +305,11 @@ subroutine spot_new(self)
   spot_struct_settings%num_rings = RINGTOT
   spot_struct_settings%rect_grid = NRECT
 
+  call self%settings%addFieldSelection(c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_FIELD))
+
+  call self%settings%addWavelengthSelection(c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_WAVELENGTH))
+
+
   call self%settings%addListBoxTextID("Spot Tracing Method", spotTrace, &
   & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_TRACE_ALGO), &
   & spot_struct_settings%currSpotRaySetting)
@@ -318,6 +346,13 @@ subroutine callback_spot_settings (widget, gdata ) bind(c)
   call c_f_pointer(gdata, ID_SETTING)
 
   select case (ID_SETTING)
+
+  case (ID_SPOT_WAVELENGTH)
+    spot_struct_settings%idxWavelength = INT(gtk_spin_button_get_value (widget))
+
+  case (ID_SPOT_FIELD)
+    spot_struct_settings%idxField = INT(gtk_spin_button_get_value (widget))
+
 
   case (ID_SPOT_TRACE_ALGO)
     spot_struct_settings%currSpotRaySetting = hl_zoa_combo_get_selected_list2_id(widget)
@@ -379,8 +414,10 @@ end subroutine
     PRINT *, "label is ", sysConfig%lensUnits(sysConfig%currLensUnitsID)%text
 
 
-    call xyscat1%initialize(c_null_ptr, REAL(pack(DSPOTT(1,:),DSPOTT(1,:) /= 0)), &
-    &                                   REAL(pack(DSPOTT(2,:), DSPOTT(2,:) /= 0)), &
+    call xyscat1%initialize(c_null_ptr, REAL(pack(DSPOTT(1,:), &
+    &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
+    &                                   REAL(pack(DSPOTT(2,:), &
+    &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
     !call xyscat1%initialize(c_null_ptr, REAL(DSPOTT(1,:)), &
     !&                                   REAL(DSPOTT(2,:)), &
     & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &

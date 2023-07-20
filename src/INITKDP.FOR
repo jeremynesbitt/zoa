@@ -1,9 +1,4 @@
-C ROUTINE KDP.FOR
-C        PROGRAM KDP
-C        IMPLICIT NONE
-C        CALL KDPSUB
-C                   STOP
-C                   END
+
         SUBROUTINE INITKDP
         USE GLOBALS
         USE NSSMOD
@@ -12,11 +7,7 @@ C                   END
 C
         IMPLICIT NONE
 C
-C       THIS IS CALLED BY THE MAIN ROUTINE PRG.FOR
-C
-C               THIS PROGRAM CONTROLS ALL INPUT AND OUTPUT AN D CAN
-C               CALL SUROUTINES WHICH CAN PERFORM ANY
-C               DESIRED COMPUTATION.
+C       THIS IS CALLED BY THE UI at program initialization
 C
 C       READ THE COMMENTS, THEY TELL YOU WHAT EVERYTHING
 C       DOES (SOMETIMES).
@@ -148,10 +139,10 @@ C
         fileSep = getFileSep()
 
         logger = zoaLogger(basePath)
-        call logger%logText("Blah Blah Blah")
+        call logger%logText("File Sep is "//fileSep)
 
 
-        PRINT *, "File Path is ", basePath
+        PRINT *, "File Path is ", trim(basePath)
 
         !EXISTFP=.FALSE.
         !INQUIRE(FILE='tstFilePath.txt',EXIST=EXISTFP)
@@ -319,11 +310,7 @@ C
 C     LIN/LOG PSF SCALING
       PSFLIN=1
       PSFLOG=2
-      ID_SYSTEM=-1000
-C WINTER
-C      CALL GETOPSYS(ID_SYSTEM)
-C     Set to one
-	    ID_SYSTEM = 1
+
 
 
 C     SET USING OLD REFERENCE RAY DATA TO FALSE
@@ -707,34 +694,21 @@ C     INITIALIZE ALTERNAMTE MACRO FUNCTION NAMES
               FNAMED(9)='FUN09'
               FNAMED(10)='FUN10'
                   DRWNAM='NEUTRAL.DAT'
-        IF(ID_SYSTEM.EQ.3.OR.ID_SYSTEM.EQ.4) THEN
-C       WINDOWS
-                  LIBLEN='LIBLEN\'
-                  LIBMAC='LIBMAC\'
-                  LIBTRA='LIBTRA\'
-                  LIBSPO='LIBSPO\'
-                  LIBAUT='LIBAUT\'
-                  LIBPLO='LIBPLO\'
-                  NSSDIR='NSSDIR\'
-                  LIBGLA='LIBGLA\'
-                  CURLENS='CURLENS\'
-                        ELSE
-C       LINUX
-                  LIBLEN=trim(basePath)//'LIBLEN'//fileSep
-                  LIBMAC=trim(basePath)//'LIBMAC/'
-                  LIBTRA=basePath//'LIBTRA/'
-                  LIBSPO=trim(basePath)//'LIBSPO'//fileSep
-                  LIBAUT=basePath//'LIBAUT/'
-                  LIBPLO=basePath//'LIBPLO/'
-                  NSSDIR=trim(basePath)//'NSSDIR/'
-                  LIBGLA=trim(basePath)//'LIBGLA'//fileSep
-                  CURLENS=trim(basePath)//'CURLENS/'
-                  !CURLENS=trim(basePath)//'CURLENS/'
-                        END IF
+ ! Set directories.  Base path and File separator should have been
+ ! set based on os
+              LIBLEN=trim(basePath)//'LIBLEN'//fileSep
+              LIBMAC=trim(basePath)//'LIBMAC'//fileSep
+              LIBTRA=trim(basePath)//'LIBTRA'//fileSep
+              LIBSPO=trim(basePath)//'LIBSPO'//fileSep
+              LIBAUT=basePath//'LIBAUT'//fileSep
+              LIBPLO=basePath//'LIBPLO'//fileSep
+              NSSDIR=trim(basePath)//'NSSDIR'//fileSep
+              LIBGLA=trim(basePath)//'LIBGLA'//fileSep
+              CURLENS=trim(basePath)//'CURLENS'//fileSep
 
-        PRINT *, "LIBMAC IS ", LIBMAC
-        PRINT *, "LIBGLA IS ", LIBGLA
-        PRINT *, "TRIM(LIBGLA) IS ", trim(LIBGLA)
+
+        PRINT *, "LIBMAC IS ", trim(LIBMAC)
+        PRINT *, "LIBGLA IS ", trim(LIBGLA)
 C
 C       SET DEFAULTS FOR "GLOBAL" RAYTRACE OPTION
         GLOBE=.FALSE.

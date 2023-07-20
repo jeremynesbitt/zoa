@@ -152,6 +152,7 @@ C
                          END
 C SUB CONTRO.FOR
         SUBROUTINE CONTRO
+        use zoa_file_handler, only: getPermMacroDir
 C
         IMPLICIT NONE
 C
@@ -2923,7 +2924,7 @@ C     SAVE THE "CURRENT" MACRO DIRECTORY NAME
         CALL MACRUN(MACYES)
 C     IF MACYES=0, TRY THE PERMANENT MACRO DIRECTORY
       IF(MACYES.EQ.0) THEN
-        LIBMAC='PERMAC/'
+        LIBMAC=trim(getPermMacroDir())
         CALL MACRUN(MACYES)
             END IF
 C     SET THE MACRO DIRECTOR BACK TO THE ORIGINAL "CURRENT" VALUE

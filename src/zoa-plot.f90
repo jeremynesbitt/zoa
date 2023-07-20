@@ -885,11 +885,24 @@ contains
 
     class(zoaplot), intent(in) :: self
     real(kind=pl_test_flt), intent(inout) :: xmin, xmax, ymin, ymax
+    real(kind=pl_test_flt) :: yrng, xrng
 
     xmin = minval(self%x)
-    xmax = 1.05*maxval(self%x)
+    xmax = maxval(self%x)
     ymin = minval(self%y)
-    ymax = 1.05*maxval(self%y)
+    ymax = maxval(self%y)
+
+    yrng = (ymax-ymin)
+    xrng = (xmax-xmin)
+
+    ymax = ymax + .05*yrng
+    ymin = ymin - .05*yrng
+
+    xmax = xmax + .05*xrng
+    xmin = xmin - .05*xrng
+
+    !if (ymax.LT.1) ymax = 1.05*ymax
+
 
     end subroutine getAxesLimits
 
