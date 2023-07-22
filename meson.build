@@ -65,7 +65,7 @@ if build_type == 'debug'
   '-static-libgcc',
   '-static-libgfortran',
   '-fPIC',
-  '-cpp'])  
+  '-cpp'])
 elif build_type == 'release'
   # -w inhibit all warning messages
   supported_arguments = fortran.get_supported_arguments([
@@ -97,10 +97,10 @@ subdir('etc')
 subdir('src')
 
 # Build target
-zoa_lib = library(
+zoa_lib = static_library(
   meson.project_name(),
   sources: srcs,
-  version: meson.project_version(),
+  #version: meson.project_version(),
   dependencies: zoa_deps,
   link_language: 'fortran'
 )
