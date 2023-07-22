@@ -8,6 +8,7 @@ C
       CHARACTER CVFILENAME*80,KDPFILENAME*80,CV_INPUT_STRING*1024
       character(len=6) :: readformat
       character(len=3) :: substr
+      character(len=1024) :: filePath
 C
       CHARACTER TEMPA*1024,TEMPB*1024,CVA*23,THA*23,AINDEX*8
      1,GLASSA*40,VALA*23,AA23*23,SUMSTRING*1024,OUTLYNE2*1024
@@ -135,10 +136,12 @@ C
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! End input error checking
 
       EXIS37=.FALSE.
+      filePath = trim(getCodeVDir())//getFileSep()// 
+     1 CVFILENAME(1:CVFILENAMELENGTH)
 
 
       INQUIRE(
-     1 FILE=trim(getCodeVDir())//CVFILENAME(1:CVFILENAMELENGTH),
+     1 FILE=trim(filePath),
      1 EXIST=EXIS37)
 
     !  INQUIRE(
@@ -216,9 +219,7 @@ C     CLOSE IT IF OPEN AND KEEP IY
       call logger%logText("CV2PRG Open File " // CVFILENAME)
 
       OPEN(UNIT=37,ACCESS='SEQUENTIAL',BLANK='NULL'
-     1,FORM='FORMATTED',
-     1 FILE=trim(basePath)//'CodeV'//
-     1 getFileSep()//CVFILENAME(1:CVFILENAMELENGTH)
+     1,FORM='FORMATTED',FILE=trim(filePath)
      2,STATUS='UNKNOWN')
       OPEN(UNIT=38,ACCESS='SEQUENTIAL',BLANK='NULL'
      1,FORM='FORMATTED',

@@ -372,12 +372,10 @@ contains
      PRINT *, "fileName is ", trim(fileName)
      PRINT *, "fileDirectory is is ", trim(cdir)
 
-     PRINT *, "Just file name is ", trim(getFileNameFromPath(fileName))
-
      ! Set CodeV Dir
      existingCodeVDir = getCodeVDir()
      call setCodeVDir(trim(cdir))
-     CALL PROCESKDP('CV2PRG '//trim(getFileNameFromPath(fileName)))
+     CALL PROCESKDP('CV2PRG '//trim(getFileNameFromPath(trim(fileName))))
      call setCodeVDir(trim(existingCodeVDir))
     end if
     ! Restore CodeVDir

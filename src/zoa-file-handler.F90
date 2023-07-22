@@ -228,11 +228,12 @@ function getCodeVDir() result(res)
 end function
 
 function getFileNameFromPath(fileName) result(res)
+  implicit none
   character(len=*) :: fileName
-  character(len=500) :: res
+  character(len=1500) :: res
   integer :: slashLoc
 
-  slashLoc = index(filename, getFileSep(), BACK=.TRUE.)
+  slashLoc = index(fileName, getFileSep(), BACK=.TRUE.)
 
   res = fileName(slashLoc+1:len(fileName))
 
