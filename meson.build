@@ -74,7 +74,7 @@ elif build_type == 'release'
   '-fno-align-commons',
   '-static-libgcc',
   '-static-libgfortran',
-  '-fPIC',
+  '-static',
   '-cpp'])
 endif
 
@@ -83,7 +83,9 @@ add_project_arguments(supported_arguments, language: 'fortran')
 dep0 = dependency('gtk-4-fortran', version: '>=4.3.0', required: true)
 dep3 = dependency('gtk4', version: '>4.0', required: true)
 dep1 = dependency('plplot', version: '>=5.13.0', required: true)
-dep2 = dependency('plplot-fortran', version: '>=5.13.0', required: true)
+dep2 = dependency('plplot-fortran',
+       version: '>=5.13.0',
+       required: true)
 
 zoa_deps = [dep0, dep3, dep1, dep2]
 
@@ -102,13 +104,17 @@ zoa_lib = static_library(
   sources: srcs,
   #version: meson.project_version(),
   dependencies: zoa_deps,
-  link_language: 'fortran'
+  link_language: 'fortran',
+  install: true
 )
+
+shared_lib = shared_library('tst', dependencies: zoa_deps, install:true)
 
 xtb_exe = executable(
   meson.project_name(),
   sources: prog,
   link_with: zoa_lib,
   dependencies:  zoa_deps,
-  link_language: 'fortran'
+  link_language: 'fortran',
+  install: true
 )

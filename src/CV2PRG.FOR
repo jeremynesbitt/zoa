@@ -2,6 +2,7 @@ C SUB CV2PRG.FOR
         SUBROUTINE CV2PRG
         USE GLOBALS
         use zoa_file_handler
+        use kdp_interfaces, only: OUTKDP
 C
         IMPLICIT NONE
 C
@@ -136,7 +137,7 @@ C
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! End input error checking
 
       EXIS37=.FALSE.
-      filePath = trim(getCodeVDir())//getFileSep()// 
+      filePath = trim(getCodeVDir())//getFileSep()//
      1 CVFILENAME(1:CVFILENAMELENGTH)
 
 
@@ -552,6 +553,8 @@ C     IN THE ARRAY WD WITH 0/1 OCCUPANCY FLAGS IN ARRAY WDEXIS
 C     THEN FILD LARGEST VALUE
 C     AS NEEDED.
 C     STRIP OFF 3 CHARACTERS
+      call OUTKDP("Entering YOB Loop")
+      call OUTKDP("Fieldtype is "//FIELDTYPE)
       TEMPC(I)(1:1024)=TEMPC(I)(4:1024)//'   '
 C     STRIP LEADING BLANKS
                         DO J=1,1024
@@ -582,7 +585,9 @@ C     STRIP LEADING BLANKS
       TEMPC(I)(1:1024)=BL1024(1:1024)
                         END IF
       IF(FIELDTYPE.EQ.'YOB') THEN
+      CALL OUTKDP('Really in FIELDTYPE YOB LOOP')
       WRITE(OUTLYNE2,2006) MAX
+      CALL OUTKDP(trim(OUTLYNE2))
  2006 FORMAT('SCY,',D23.15)
       CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
 

@@ -465,6 +465,7 @@ subroutine rmsfield_ideal
       CALL PROCESKDP("FOB "// ffieldstr)
       CALL PROCESKDP("CAPFN")
       CALL PROCESKDP("SHO RMSOPD")
+      x(ii+1) = x(ii+1)*sysConfig%refFieldValue(2)
       y(ii+1) = 1000.0*REG(9)
     end do
 
@@ -576,6 +577,20 @@ subroutine PLTZERN
 
 
     end if
+
+end subroutine
+
+subroutine OUTKDP(txt, i)
+  character(len=*) :: txt
+  integer :: code
+  integer, optional :: i
+
+  include "DATMAI.INC"
+
+  OUTLYNE = txt
+  code=1
+  if (present(i)) code=i
+  CALL SHOWIT(code)
 
 end subroutine
 

@@ -77,6 +77,7 @@ type sys_config
     procedure, public, pass(self) :: getFieldText
     procedure :: getLensUnitsText
     procedure, private :: setNumberofWavelengths
+    procedure, private, pass(self) :: setRefFieldKDP
 
 
 end type
@@ -470,6 +471,45 @@ type(io_config) function io_config_constructor() result(self)
 
    end subroutine
 
+   subroutine setRefFieldKDP(self)
+     ! hopefully temporary interface to set KDP system
+     ! vars based on ref field value and field type
+     implicit none
+     class(sys_config) :: self
+     include "DATLEN.INC"
+     
+     select case (self%currFieldID)
+
+     case (FIELD_OBJECT_HEIGHT)
+
+       SYSTEM(16) = self%refFieldValue(1)
+       SYSTEM(14) = self%refFieldValue(2)
+
+     case (FIELD_OBJECT_ANGLE_DEG)
+
+       SYSTEM(23) = self%refFieldValue(1)
+       SYSTEM(21) = self%refFieldValue(2)
+
+     case (FIELD_PARAX_IMAGE_HEIGHT)
+           SYSTEM(92) = self%refFieldValue(1)
+           SYSTEM(93) = self%refFieldValue(2)
+
+     case (FIELD_PARAX_IMAGE_SLOPE_TAN)
+           SYSTEM(92) = self%refFieldValue(1)
+           SYSTEM(93) = self%refFieldValue(2)
+
+     case (FIELD_REAL_IMAGE_HEIGHT)
+           SYSTEM(96) = self%refFieldValue(1)
+           SYSTEM(97) = self%refFieldValue(2)
+     case (FIELD_REAL_IMAGE_HEIGHT_DEG)
+           SYSTEM(96) = self%refFieldValue(1)
+           SYSTEM(97) = self%refFieldValue(2)
+
+     end select ! Reference Field
+
+
+   end subroutine
+
    subroutine getApertureFromSystemArr(self)
      class(sys_config), intent(inout) :: self
      include "DATLEN.INC"
@@ -647,16 +687,22 @@ type(io_config) function io_config_constructor() result(self)
 
    end subroutine
 
-   subroutine setRelativeFields(self, col, row, value)
+   subroutine setRelativeFields(self, col, row, newval)
      implicit none
      class(sys_config), intent(inout) :: self
      integer, intent(in) :: col, row
-     real, intent(in) :: value
+     real, intent(in) :: newval
      include "DATLEN.INC"
 
+     ! Need to convert from absolute to relative
+     if (self%refFieldValue(col) < newval) then
+        self%refFieldValue(col) = newval
+        call self%setRefFieldKDP()
+     end if
 
-     self%relativeFields(col, row) = value
+     self%relativeFields(col, row) = newval/self%refFieldValue(col)
      CFLDS = self%relativeFields
+
    end subroutine
 
 

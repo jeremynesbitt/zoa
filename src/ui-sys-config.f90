@@ -356,16 +356,11 @@ function createFieldPointSelectionTable(self) result(base)
     & ID_COLOR_GREEN, ID_COLOR_BLUE, ID_COLOR_GREY, &
     & ID_COLOR_BLACK ]
 
-
-
-
-
-
   ! Create the window:
 
   ! Now make a column box & put it into the window
   base = hl_gtk_box_new()
-  PRINT *, "FPS:  Created Base"
+
   ! Now make a multi column list with multiple selections enabled
   ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING]
   sortable = [ FALSE, FALSE, FALSE, FALSE ]
@@ -383,12 +378,6 @@ function createFieldPointSelectionTable(self) result(base)
 renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, &
      & hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
 
-PRINT *, "FPS:  About to create ihlist"
-PRINT *, "cyptes ", ctypes
-PRINT *, "width ", widths
-PRINT *, "editable ", editable
-PRINT *, "renderers ", renderers
-
 
 ihlist = hl_gtk_listn_new(types=ctypes, &
      !& changed=c_funloc(list_select),&
@@ -402,21 +391,6 @@ ihlist = hl_gtk_listn_new(types=ctypes, &
 
 call hl_gtk_listn_attach_combo_box_model(ihlist, 3_c_int, valsArray, refsArray)
 
-PRINT *, "FPS:  Created ihlist"
-
-!call hl_gtk_listn_config_combo(ihlist, 3_c_int, &
-!     & vals=['one  ', 'two  ', 'three'], &
-!     & has_entry=FALSE)
-
-
-
-
-! do i = 1, size(fmt_col)
-!    call hl_gtk_listn_set_cell_data_func(ihlist, fmt_col(i), &
-!         & func=c_funloc(display_dbl), &
-!         & data=c_loc(fmt_col(i)))
-! end do
-! Now put <nrows> rows into it
 
 call hl_gtk_listn_ins(ihlist, count=nrows)
 do i=1,nrows
@@ -425,13 +399,13 @@ do i=1,nrows
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
 
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
-        & fvalue=sysConfig%relativeFields(1,i))
+        & fvalue=sysConfig%refFieldValue(1)*sysConfig%relativeFields(1,i))
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-        & fvalue=sysConfig%relativeFields(2,i))
-     PRINT *, "Before error?"
-     call hl_gtk_listn_combo_set_by_list_id(ihlist, i-1_c_int, 3_c_int, &
-          & targetValue=sysConfig%fieldColorCodes(i))
-       PRINT *, "After Error?"
+        & fvalue=sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i))
+
+   call hl_gtk_listn_combo_set_by_list_id(ihlist, i-1_c_int, 3_c_int, &
+        & targetValue=sysConfig%fieldColorCodes(i))
+
    !call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 10_c_int, logvalue= i==4)
 end do
 
