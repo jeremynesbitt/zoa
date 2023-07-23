@@ -244,6 +244,7 @@ end subroutine
    print *, "irow is ", irow
    print *, "icol is ", icol
 
+
    call sysConfig%setRelativeFields(icol, irow+1, cellData)
    !sysConfig%relativeFields(icol, irow+1) = cellData
    end if
