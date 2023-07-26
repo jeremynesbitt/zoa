@@ -108,8 +108,6 @@ zoa_lib = static_library(
   install: true
 )
 
-shared_lib = shared_library('tst', dependencies: zoa_deps, install:true)
-
 xtb_exe = executable(
   meson.project_name(),
   sources: prog,
@@ -118,3 +116,10 @@ xtb_exe = executable(
   link_language: 'fortran',
   install: true
 )
+
+if system == 'darwin'
+  MacOSDir = meson.source_root() / 'MacOS'
+  install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
+  install_data(MacOSDir / 'Info.plist', install_dir : 'Contents')
+  meson.add_install_script(files('macos_install.script.sh'))
+endif
