@@ -4,7 +4,9 @@ echo ${MESON_INSTALL_PREFIX}
 
 mkdir -p "${MESON_INSTALL_PREFIX}"/Contents/libs
 
-dylibbundler -od -b -x "${MESON_INSTALL_PREFIX}"/Contents/MacOS/zoa -d "${MESON_INSTALL_PREFIX}"/Contents/libs -s /usr/local/lib/ -s /usr/local/gfortran/lib
+dylibbundler -od -b -x "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa -d "${MESON_INSTALL_PREFIX}"/Contents/libs -s /usr/local/lib/ -s /usr/local/gfortran/lib
+
+codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --entitlements "${MESON_SOURCE_ROOT}"/MacOS/zoa.entitlements --sign - "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
 
 
 #! dylibbundler -od -b -x Zoa.app/Contents/MacOS/zoa -d Zoa.app/Contents/libs

@@ -24,10 +24,10 @@
 # Modified from gtk-4-fortran by jrnesbitt (first commit: 2019-05-30)
 
 
-project('zoa', ['fortran', 'c'],
+project('Zoa', ['fortran', 'c'],
         version: '0.1.0',
         license: 'GPL3',
-        meson_version: '>=0.54')
+        meson_version: '>=0.60')
 
 
 # Print some informations:
@@ -56,11 +56,13 @@ if build_type == 'debug'
   warning_level = 2
   supported_arguments = fortran.get_supported_arguments([
   '-pthread',
-  '-pedantic',
-  '-Wtabs',
+  '-gdwarf-2',
+  '-Og',
+  #'-pedantic',
+  #'-Wtabs',
   '-fcheck=bounds',
-  '-fbacktrace',
-  '-Wno-unused-dummy-argument',
+  #'-fbacktrace',
+  #'-Wno-unused-dummy-argument',
   '-fno-align-commons',
   '-static-libgcc',
   '-static-libgfortran',
@@ -105,7 +107,7 @@ zoa_lib = static_library(
   #version: meson.project_version(),
   dependencies: zoa_deps,
   link_language: 'fortran',
-  install: true
+  install: false
 )
 
 xtb_exe = executable(
@@ -118,7 +120,7 @@ xtb_exe = executable(
 )
 
 if system == 'darwin'
-  MacOSDir = meson.source_root() / 'MacOS'
+  MacOSDir = meson.project_source_root() / 'MacOS'
   install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
   install_data(MacOSDir / 'Info.plist', install_dir : 'Contents')
   meson.add_install_script(files('macos_install.script.sh'))
