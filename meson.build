@@ -57,26 +57,35 @@ if build_type == 'debug'
   supported_arguments = fortran.get_supported_arguments([
   '-pthread',
   '-gdwarf-2',
-  '-Og',
+  '-g',
+  #'-Wall',
+  #'-fsanitize=address,undefined',
   #'-pedantic',
   #'-Wtabs',
-  '-fcheck=bounds',
-  #'-fbacktrace',
+  #'-fcheck=bounds',
+  '-fcheck=mem',
+  '-fcheck=pointer',
+  '-fcheck=bits',
+  '-fbacktrace',
   #'-Wno-unused-dummy-argument',
   '-fno-align-commons',
   '-static-libgcc',
   '-static-libgfortran',
   '-fPIC',
-  '-cpp'])
+  '-cpp',
+  '-rdynamic',
+  '-static'])
 elif build_type == 'release'
   # -w inhibit all warning messages
   supported_arguments = fortran.get_supported_arguments([
-  '-pthread',
-  '-w',
+  #'-pthread',
+  #'-w',
   '-fno-align-commons',
   '-static-libgcc',
   '-static-libgfortran',
-  '-static',
+  '-fPIC',
+  '-g',
+  '-O0',
   '-cpp'])
 endif
 
@@ -89,7 +98,7 @@ dep2 = dependency('plplot-fortran',
        version: '>=5.13.0',
        required: true)
 
-zoa_deps = [dep0, dep3, dep1, dep2]
+zoa_deps = [dep3, dep0, dep1, dep2]
 
 lib_deps = []
 
@@ -107,7 +116,8 @@ zoa_lib = static_library(
   #version: meson.project_version(),
   dependencies: zoa_deps,
   link_language: 'fortran',
-  install: false
+  install: true,
+  install_dir: 'Contents/libs'
 )
 
 xtb_exe = executable(
