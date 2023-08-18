@@ -157,7 +157,7 @@ module zoa_file_handler
         logical :: existFlag
         integer :: recLen, i
 
-        filePath = trim(getZoaPath())//getFileSep()//'command_history.dat'
+        filePath = trim(getZoaPath())//'command_history.dat'
 
         inquire(file=filePath,EXIST=existFlag)
         if(existFlag) call clear_file(filePath)

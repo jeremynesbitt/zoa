@@ -4,12 +4,16 @@ echo ${MESON_INSTALL_PREFIX}
 
 #mkdir -p "${MESON_INSTALL_PREFIX}"/Contents/libs
 xattr -cr "${MESON_INSTALL_PREFIX}"
-install_name_tool -change "@rpath/libgfortran.5.dylib" "/usr/local/gfortran/lib/libgfortran.5.dylib" "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
-"${MESON_SOURCE_ROOT}/bundle-dylibs.sh" "${MESON_INSTALL_PREFIX}"
+#install_name_tool -change "@rpath/libgfortran.5.dylib" "/usr/local/gfortran/lib/libgfortran.5.dylib" "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
+#install_name_tool -change "@rpath/libgtk-4-fortran.4.4.0.dylib" "/usr/local/lib/libgtk-4-fortran.4.4.0.dylib" "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
+#install_name_tool -change "@rpath/libgtk-fortran.4.4.0.dylib" "/usr/local/lib/libgtk-fortran.4.4.0.dylib" "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
+echo "${MESON_SOURCE_ROOT}/bundle-dylibs.sh" "${MESON_INSTALL_PREFIX}"
+#../bundle-dylibs.sh ./Zoa.app
+#"../bundle-dylibs.sh" "${MESON_INSTALL_PREFIX}"
 #install_name_tool -change "@rpath/libgtk-4-fortran.4.3.0.dylib" /usr/local/lib/libgtk-4-fortran.4.3.0.dylib "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
 #install_name_tool -change "@rpath/libplplot.17.dylib" /usr/local/lib/libplplot.17.dylib "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
 #install_name_tool -change "@rpath/libplplotfortran.0.dylib" /usr/local/lib/libplplotfortran.0.dylib "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
-#dylibbundler -od -b -x "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa -d "${MESON_INSTALL_PREFIX}"/Contents/libs -s /usr/local/lib/ -s /usr/local/gfortran/lib
+dylibbundler -od -b -x "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa -d "${MESON_INSTALL_PREFIX}"/Contents/libs -s /usr/local/gfortran/lib
 
 codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --entitlements "${MESON_SOURCE_ROOT}"/MacOS/app.entitlements --sign - "${MESON_INSTALL_PREFIX}"/Contents/MacOS/Zoa
 

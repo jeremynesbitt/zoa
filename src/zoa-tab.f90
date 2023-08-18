@@ -595,9 +595,11 @@ subroutine createGenericSinglePlot(self, x, y, xlabel, ylabel, title, lineTypeCo
     isurface = g_object_get_data(self%canvas, "backing-surface")
     PRINT *, "isurface is ", isurface
     if (.not. c_associated(isurface)) then
-       PRINT *, "error:  new plot :: Backing surface is NULL"
+       PRINT *, "error:  new plot :: Backing surface is NULL.  Adding one"
+       isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
+       isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+       call g_object_set_data(self%canvas, "backing-surface", isurface)
 
-       return
     end if
 
     call mplt%initialize(self%canvas, 1,1)

@@ -100,165 +100,6 @@ module handlers
 
 contains
 
-  subroutine proto_symfunc
-
-    use global_widgets
-    !use handlers
-    use zoa_plot
-  !  use mod_plotopticalsystem
-  !use mod_plotopticalsystem
-
-
-
-
-  integer(kind=c_int) :: ipick, i, endSurface, ii
- character(len=100) :: ftext, strTitle
- CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
- CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A5, A5)"
- character(len=100) :: consText
- real, ALLOCATABLE :: w(:), symcalc(:)
- real :: w_sum, s_sum, aplanatic, imageNA
- integer :: totalSurfaces
- integer, ALLOCATABLE ::  surfaceno(:)
-  type(barchart) :: plotter, bar1, bar2
-  type(multiplot) :: mplt
-
-  !PRINT *, "Before Mod Call, ", my_window
-
-  !ipick = hl_gtk_file_chooser_show(new_files, &
-  !       & create=FALSE, multiple=TRUE, filter=["image/*"], &
-  !       & parent=my_window, all=TRUE)
-
-  !ftext = 'LIB GET 1 '
-  !ftext = 'CV2PRG DoubleGauss.seq'
-  ftext = 'CV2PRG LithoBraat.seq'
-
-  CALL PROCESKDP(ftext)
-
-  ftext = 'RTG ALL'
-  CALL PROCESKDP(ftext)
-
-
-  ftext = 'COLORSET RAYS 6'
-  CALL PROCESKDP(ftext)
-  !call getOpticalSystemLastSurface(endSurface)
-  !call ld_settings%set_end_surface(endSurface)
-  ftext = 'VIECO'
-  CALL PROCESKDP(ftext)
-
-  ftext = 'PXTY ALL'
-  CALL PROCESKDP(ftext)
-
-  ftext = 'OCDY'
-  CALL PROCESKDP(ftext)
-
-
-PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
-
-
-
-  ! Compute lens weight and symmetry
-  allocate(w(curr_lens_data % num_surfaces-2))
-  allocate(symcalc(curr_lens_data % num_surfaces-2))
-  allocate(surfaceno(curr_lens_data % num_surfaces-2))
-
-  PRINT *, "SIZE OF w is ", size(w)
-  PRINT *, "SIZE of no_surfaces is ", size(surfaceno)
-
-  WRITE (consText, FMTHDR), "Surface", "w_j", "s_j"
-  call updateTerminalLog(consText, "black")
-
-
-  do ii = 2, curr_lens_data % num_surfaces - 1
-     w(ii-1) = -1/(1-curr_par_ray_trace%t_mag)
-     w(ii-1) = w(ii-1) * (curr_lens_data % surf_index(ii) - curr_lens_data % surf_index(ii-1)) &
-     & * curr_par_ray_trace % marginal_ray_height(ii) * curr_lens_data % curvatures(ii) &
-     & / curr_lens_data % surf_index(curr_lens_data % num_surfaces) &
-     & / curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)
-     w_sum = w_sum + w(ii-1)*w(ii-1)
-
-     !PRINT *, "Check Ref Stop ", curr_lens_data % ref_stop
-    !PRINT *, "SURF INDEX ", curr_lens_data % surf_index(ii)
-    !PRINT *, "AOI is ", curr_par_ray_trace % chief_ray_aoi(ii)
-    !allocate(symcalc(curr_lens_data % num_surfaces-2))
-
-      totalSurfaces = curr_lens_data % num_surfaces
-      aplanatic = curr_par_ray_trace % marginal_ray_angle(ii) / curr_lens_data % surf_index(ii)
-      aplanatic = aplanatic - curr_par_ray_trace % marginal_ray_angle(ii-1) / curr_lens_data % surf_index(ii-1)
-      imageNA = curr_lens_data%surf_index(totalSurfaces) * curr_par_ray_trace%marginal_ray_angle(totalSurfaces)
-
-      !PRINT *, "IMAGE NA is ", imageNA
-      !PRINT *, "APLANATIC IS ", aplanatic
-      !PRINT *, "Marginal Ray Angle is ", curr_par_ray_trace % marginal_ray_angle(ii)
-      !PRINT *, "Surface Index is ", curr_lens_data % surf_index(ii)
-      symcalc(ii-1) = 1/(1-curr_par_ray_trace%t_mag)
-      ! symcalc(ii-1) = symcalc(ii-1) * aplanatic * curr_lens_data % surf_index(ii) * curr_par_ray_trace % chief_ray_aoi(ii) &
-      ! & / ((curr_lens_data % surf_index(curr_lens_data%ref_stop)* curr_par_ray_trace % chief_ray_aoi(curr_lens_data%ref_stop)) &
-      ! & * imageNA)
-
-      symcalc(ii-1) = symcalc(ii-1) * curr_lens_data % surf_index(ii-1) * curr_par_ray_trace % chief_ray_aoi(ii)
-
-      !PRINT *, "FIrst Term is ", symcalc(ii-1)
-
-      symcalc(ii-1) = symcalc(ii-1) /curr_lens_data%surf_index(curr_lens_data%ref_stop)
-      symcalc(ii-1) = symcalc(ii-1) /curr_par_ray_trace%chief_ray_aoi(curr_lens_data%ref_stop)
-      symcalc(ii-1) = symcalc(ii-1)*aplanatic/imageNA
-
-
-      s_sum = s_sum + symcalc(ii-1)*symcalc(ii-1)
-
-      surfaceno(ii-1) = ii-1
-
-      WRITE(consText, FMT1), surfaceno(ii-1), w(ii-1), symcalc(ii-1)
-      call updateTerminalLog(consText, "black")
-
-
-  end do
-
-  w_sum = SQRT(w_sum/(curr_lens_data % num_surfaces-2))
-  s_sum = SQRT(s_sum/(curr_lens_data % num_surfaces-2))
-
-  !PRINT *, " w is ", w
-  WRITE(consText, *), " w_sum is ", w_sum
-  call updateTerminalLog(consText, "black")
-
-  !PRINT *, " s is ", symcalc
-  WRITE(consText, *), " s_sum is ", s_sum
-  call updateTerminalLog(consText, "black")
-
-    !call barchart2(x,y)
-    ! print *, "Calling Plotter"
-     !plotter = barchart(drawing_area_plot,surfaceno,abs(w))
-     !call plotter % initialize(drawing_area_plot,surfaceno,abs(w))
-
-     ! call plotter % setxlabel
-     ! call plotter % setMajorGridLines(TRUE)
-
-     !call plotter % drawPlot()
-    ! print *, "Done calling plotter"
-
-  !PRINT *, "Paraxial Data tst ", curr_par_ray_trace%marginal_ray_height
-
-! Multiplot
-  WRITE(strTitle, "(A15, F10.3)"), "Power:  w = ", w_sum
-  call mplt%initialize(drawing_area_plot, 2,1)
-  call bar1%initialize(c_null_ptr, real(surfaceno),abs(w), &
-  & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
-  & title=trim(strTitle)//c_null_char)
-  !PRINT *, "Bar chart color code is ", bar1%dataColorCode
-  WRITE(strTitle, "(A15, F10.3)"), "Symmetry:  s = ", s_sum
-  call bar2%initialize(c_null_ptr, real(surfaceno),abs(symcalc), &
-  & xlabel='Surface No'//c_null_char, ylabel='s'//c_null_char, &
-  & title=trim(strTitle)//c_null_char)
-  call bar2%setDataColorCode(PL_PLOT_BLUE)
-  call mplt%set(1,1,bar1)
-  call mplt%set(2,1,bar2)
-  call mplt%draw()
-
-  !CALL WDRAWOPTICALSYSTEM
-  !CALL RUN_WDRAWOPTICALSYSTEM
-
-end subroutine proto_symfunc
 
   subroutine tst_plottingincairo
   !use mod_plotopticalsystem
@@ -992,8 +833,6 @@ end subroutine proto_symfunc
   ! The GUI is defined here.
   subroutine activate(app2, gdata) bind(c)
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_f_pointer, c_null_funptr
-    use gdk_pixbuf, only: gdk_pixbuf_get_n_channels, gdk_pixbuf_get_pixels, &
-                      & gdk_pixbuf_get_rowstride, gdk_pixbuf_new
     use zoa_file_handler, only: readCommandHistoryFromFile
     !use global_widgets
     use GLOBALS
@@ -1038,12 +877,6 @@ end subroutine proto_symfunc
     !call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(plotLensData))
     button3 = gtk_button_new_with_mnemonic ("_Exit"//c_null_char)
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
-    toggle1 = gtk_button_new_with_mnemonic ("_TstFunc"//c_null_char)
-    !call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(plotLensData))
-    !call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(tst_plottingincairo))
-    call g_signal_connect (toggle1, "clicked"//c_null_char, c_funloc(proto_symfunc))
-
-
 
     ! A clickable URL link:
     !linkButton = gtk_link_button_new_with_label ( &
@@ -1059,7 +892,6 @@ end subroutine proto_symfunc
     call gtk_grid_attach(table, button3, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
     !call gtk_grid_attach(table, linkButton, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
 
-    call gtk_grid_attach(table, toggle1, 2_c_int, 0_c_int, 1_c_int,1_c_int)
 
     ! The table is contained in an expander, which is contained in the vertical box:
     expander = gtk_expander_new_with_mnemonic ("_The parameters:"//c_null_char)
@@ -1115,14 +947,17 @@ end subroutine proto_symfunc
     call zoatabMgr%addMsgTab(notebook, "Messages")
     !zoatabMgr%buffer = buffer
 
-    notebookLabel3 = gtk_label_new_with_mnemonic("_XYPlot"//c_null_char)
+    notebookLabel3 = gtk_label_new_with_mnemonic("_Intro"//c_null_char)
     !  Need unique item for third window
     scroll_ptr = gtk_scrolled_window_new()
 
-    PRINT *, "Create Drawing Area (not being used)"
-    drawing_area_plot = hl_gtk_drawing_area_new(size=[1200,500], &
-         & has_alpha=FALSE, key_press_event=c_funloc(key_event_h))
-    call gtk_scrolled_window_set_child(scroll_ptr, drawing_area_plot)
+    call populateSplashWindow(scroll_ptr)
+
+    !PRINT *, "Create Drawing Area (not being used)"
+    !drawing_area_plot = hl_gtk_drawing_area_new(size=[1200,500], &
+    !     & has_alpha=FALSE, key_press_event=c_funloc(key_event_h))
+    !call gtk_scrolled_window_set_child(scroll_ptr, drawing_area_plot)
+
     thirdTab  = gtk_notebook_append_page (notebook, scroll_ptr, notebookLabel3)
 
     ! Having an issue where every time I try to detach a tab the main window
@@ -1132,13 +967,7 @@ end subroutine proto_symfunc
     !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTab), notebook)
     call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
 
-    !call g_signal_connect(notebook, 'switch-page'//c_null_char, c_funloc(setActivePlot), c_null_ptr)
 
-
-    !print *, "Notebook ptr is ", notebook
-    !print *, "Detachable Tab is ", scroll_ptr
-
-    PRINT *, "Create Paned Window"
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, scroll_win_detach)
     call gtk_paned_set_end_child(pane, notebook)
@@ -1154,17 +983,6 @@ end subroutine proto_symfunc
     call gtk_widget_set_hexpand(notebook, TRUE)
 
     call gtk_widget_set_vexpand (box1, TRUE)
-
-
-
-     !call plot_04(drawing_area_plot)
-    !call x12f(drawing_area_plot)
-
-    ! The window status bar can be used to print messages:
-    !statusBar = gtk_statusbar_new ()
-    !message_id = gtk_statusbar_push (statusBar, gtk_statusbar_get_context_id(statusBar, &
-    !            & "ZOA"//c_null_char), "Waiting..."//c_null_char)
-    !call gtk_box_append(box1, statusBar)
 
     ! CMD Entry TextBox
 
@@ -1209,7 +1027,7 @@ end subroutine proto_symfunc
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 
@@ -1225,10 +1043,50 @@ end subroutine proto_symfunc
     call refreshLensDataStruct()
 
     PRINT *, "DONE WITH INITKDP!"
-    !call plot_04(drawing_area_plot)
 
 
   end subroutine activate
+
+subroutine populateSplashWindow(splashWin)
+  implicit none
+  type(c_ptr), intent(inout) :: splashWin
+  type(c_ptr) :: view, splashBuff
+
+
+    character(kind=c_char), dimension(:), allocatable :: string
+    character(kind=c_char), pointer, dimension(:) :: credit
+    type(c_ptr), dimension(:), allocatable :: c_ptr_array
+    integer :: i
+
+    view = gtk_text_view_new ();
+
+    splashBuff = gtk_text_view_get_buffer (view);
+
+
+
+    call gtk_text_buffer_set_text(splashBuff, "The gtk-fortran project &
+    & aims to offer scientists programming in Fortran a cross-platform library &
+    &to build Graphical User Interfaces (GUI)."//c_new_line//" Gtk-fortran&
+    & is a partial GTK / Fortran binding 100% written in Fortran, thanks&
+    & to the ISO_C_BINDING module for interoperability between C and Fortran,&
+    & which is a part of the Fortran 2003 standard."//c_new_line//" GTK &
+    &is a free software cross-platform graphical library available for &
+    &Linux, UNIX, Windows and MacOs."//c_null_char,-1)
+
+    !call gtk_text_buffer_set_text (splashBuff, "Hello, this is some text", -1);
+
+    !call gtk_about_dialog_set_website(dialog, &
+    !              & "https://github.com/vmagnin/gtk-fortran/wiki"//c_null_char)
+    !call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
+
+    call gtk_text_buffer_insert_at_cursor(splashBuff, "Hello, this is some text",-1)
+
+    call gtk_scrolled_window_set_child(splashWin, view)
+
+
+
+
+end subroutine
 
  subroutine setActivePlot(parent_notebook, selected_page, page_index, gdata) bind(c)
         type(c_ptr), value :: selected_page, parent_notebook, page_index, gdata
