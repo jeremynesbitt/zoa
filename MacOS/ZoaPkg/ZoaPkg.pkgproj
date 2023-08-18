@@ -1265,7 +1265,7 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>../../../../../../../../ZoaD/ZoaInstall.txt</string>
+							<string>ZoaInstall.txt</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
