@@ -1096,10 +1096,10 @@ end subroutine
         character(len=20) :: winTitle
 
         PRINT *, "TAB SWITCH EVENT DETECTED! "
-        PRINT *, "page_index is ", page_index
+        PRINT *, "page_index is ", LOC(page_index)
         stringPtr = gtk_notebook_get_tab_label_text(parent_notebook, selected_page)
 
-        PRINT *, "stringPtr is ", stringPtr
+        PRINT *, "stringPtr is ", LOC(stringPtr)
         call convert_c_string(stringPtr, winTitle)
         PRINT *, "Window Title is ", trim(winTitle)
 

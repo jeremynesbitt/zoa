@@ -80,14 +80,14 @@ elif build_type == 'release'
   supported_arguments = fortran.get_supported_arguments([
   #'-pthread',
   '-w',
-  '/Qdiag-disable:6375',
+  '/Qdiag-disable:remark',
   #'-fno-align-commons',
   #'-static-libgcc',
   #'-static-libgfortran',
   #'-fPIC',
   #'-g',
-  '-O0'])
-  #'-cpp'])
+  '-O0',
+  '/fpp'])
 endif
 
 add_project_arguments(supported_arguments, language: 'fortran')

@@ -53,6 +53,8 @@ module zoa_file_handler
 
 #ifdef WINDOWS
            PRINT *, "WINDOWS IFDEF LOOP ACTIVATED!"
+           call get_environment_variable("USERPROFILE", basepath)
+           path = trim(basepath)//'\OneDrive\Documents\Zoa\'
            ID_SYSTEM = ID_OS_WINDOWS
            PRINT *, "Path for files is ", trim(path)
 #endif
