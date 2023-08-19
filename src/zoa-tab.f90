@@ -331,10 +331,11 @@ end subroutine
          end if
 
         select type (item)
-        class is (c_ptr)
-            c_object => item
+        !class is (c_ptr)
+        !   
         class default
-            nullify(c_object)
+            c_object => item
+            !nullify(c_object)
         end select
 
     end function
@@ -349,10 +350,11 @@ function getWidget(self, ind) result(widget)
         PRINT *, "Index to get widget is ", ind
         item => self%widgets%get(ind)
         select type (item)
-        class is (c_ptr)
-            widget => item
+        !class is (c_ptr)
+        !    widget => item
         class default
-            nullify(widget)
+            widget => item
+            !nullify(widget)
         end select
         !widget = self%settingobj_get(ind, 1)
 
@@ -568,7 +570,7 @@ contains ! for module
 
     !call self%createCairoDrawingArea()
     call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
-    PRINT *, "Cairo Drawing Area is ", self%canvas
+    PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
 
     call self%settings%initialize()
     PRINT *, "Done with zoatab type initialization"
@@ -591,9 +593,9 @@ subroutine createGenericSinglePlot(self, x, y, xlabel, ylabel, title, lineTypeCo
           & has_alpha=FALSE)
 
           !rmsfield_struct_settings = rmsfield_settings(self%canvas)
-    PRINT *, "canvas in createNewPlot is", self%canvas
+    PRINT *, "canvas in createNewPlot is", LOC(self%canvas)
     isurface = g_object_get_data(self%canvas, "backing-surface")
-    PRINT *, "isurface is ", isurface
+    PRINT *, "isurface is ", LOC(isurface)
     if (.not. c_associated(isurface)) then
        PRINT *, "error:  new plot :: Backing surface is NULL.  Adding one"
        isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)

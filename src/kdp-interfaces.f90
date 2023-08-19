@@ -170,7 +170,7 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   type(zoatab) :: powsym_tab
 
   PRINT *, "About to init POWSYM Tab"
-  PRINT *, "NOTEBOOK PTR IS ", notebook
+  PRINT *, "NOTEBOOK PTR IS ", LOC(notebook)
   call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
   !call zoaTabMgr%addPlotTab("Power and Symmetry", ID_PLOTTYPE_GENERIC)
 

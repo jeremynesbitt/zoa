@@ -340,7 +340,7 @@ end subroutine
     !
 
     isurface = g_object_get_data(localcanvas, "backing-surface")
-    PRINT *, "isurface is ", isurface
+    PRINT *, "isurface is ", LOC(isurface)
     if (.not. c_associated(isurface)) then
        PRINT *, "new astig plot :: Backing surface in ast_cairo_ is NULL"
        return
@@ -348,7 +348,7 @@ end subroutine
 
 
   PRINT *, "PLOT_AST_FC_DIST Called! "
-  PRINT *, "Canvas PTR is ", localcanvas
+  PRINT *, "Canvas PTR is ", LOC(localcanvas)
   call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
    !PRINT *, "DDTA is ", DDTA
    !PRINT *, "FLDAN is ", FLDAN

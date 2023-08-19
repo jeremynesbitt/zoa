@@ -63,7 +63,7 @@ type(spot_settings) function spot_constructor(canvas) result(self)
     self%canvas = canvas
 
     PRINT *, "Spot Constructor Called!"
-    PRINT *, "Canvas is ", self%canvas
+    PRINT *, "Canvas is ", LOC(self%canvas)
 
     allocate(idText :: self%spotRays(3))
 
@@ -398,7 +398,7 @@ end subroutine
 
 
     isurface = g_object_get_data(localcanvas, "backing-surface")
-    PRINT *, "isurface is ", isurface
+    PRINT *, "isurface is ", LOC(isurface)
     if (.not. c_associated(isurface)) then
        PRINT *, "error:  new plot :: Backing surface is NULL"
        return
@@ -429,8 +429,8 @@ end subroutine
 
 
     call mplt%set(1,1,xyscat1)
-    PRINT *, "localcanvas ", localcanvas
-    PRINT *, "mplot area ", mplt%area
+    PRINT *, "localcanvas ", LOC(localcanvas)
+    PRINT *, "mplot area ", LOC(mplt%area)
     call mplt%draw()
 
 

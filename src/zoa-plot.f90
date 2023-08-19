@@ -235,7 +235,7 @@ contains
              & 127, 85, 170/)
 
         PRINT *, "Starting mp_plot routine"
-        PRINT *, "DRAWING AREA PTR IS ", self%area
+        PRINT *, "DRAWING AREA PTR IS ", LOC(self%area)
 
 
 
@@ -244,7 +244,7 @@ contains
         if (c_associated(self%area)) then
 
           isurface = g_object_get_data(self%area, "backing-surface")
-          PRINT *, "isurface in mp_draw is ", isurface
+          PRINT *, "isurface in mp_draw is ", LOC(isurface)
 
 
         if (.not. c_associated(isurface)) then
@@ -255,7 +255,7 @@ contains
         end if
         end if
 
-        PRINT *, "self%area is now", self%area
+        PRINT *, "self%area is now", LOC(self%area)
 
         cc = hl_gtk_drawing_area_cairo_new(self%area)
         cs = cairo_get_target(cc)
@@ -499,7 +499,7 @@ contains
     !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
     !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
     !call g_object_set_data(self%area, "backing-surface", isurface)
-        PRINT *, "isurface in mp_draw is ", isurface
+        PRINT *, "isurface in mp_draw is ", LOC(isurface)
         if (.not. c_associated(isurface)) then
            PRINT *, "mp_draw :: Backing surface is NULL"
           isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
@@ -557,9 +557,9 @@ contains
         isurface = c_null_ptr
         if (c_associated(self%area)) then
           isurface = g_object_get_data(self%area, "backing-surface")
-          PRINT *, "self%area is ", self%area
+          PRINT *, "self%area is ", LOC(self%area)
 
-        PRINT *, "isurface in mp_draw is ", isurface
+        PRINT *, "isurface in mp_draw is ", LOC(isurface)
         if (.not. c_associated(isurface)) then
            PRINT *, "mp_draw :: Backing surface is NULL"
           isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)

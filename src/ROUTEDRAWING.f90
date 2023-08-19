@@ -49,7 +49,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
   case default
       PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
-      PRINT *, "gdata is ", gdata
+      PRINT *, "gdata is ", LOC(gdata)
   end select
       PRINT *, "About to call Draw Optical System from Route Drawing"
       call DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)

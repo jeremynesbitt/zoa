@@ -51,7 +51,7 @@ module zoamenubar
   & g_action_change_state, g_application_quit, g_simple_action_set_state
 
 
-  use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, c_null_char, C_NEW_LINE
+  !use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, c_null_char, C_NEW_LINE
   use, intrinsic :: iso_fortran_env, only: int64
   ! Pl Plot based inputs
   use, intrinsic :: iso_c_binding

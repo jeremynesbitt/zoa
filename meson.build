@@ -79,14 +79,15 @@ elif build_type == 'release'
   # -w inhibit all warning messages
   supported_arguments = fortran.get_supported_arguments([
   #'-pthread',
-  #'-w',
-  '-fno-align-commons',
-  '-static-libgcc',
-  '-static-libgfortran',
-  '-fPIC',
-  '-g',
-  '-O0',
-  '-cpp'])
+  '-w',
+  '/Qdiag-disable:6375',
+  #'-fno-align-commons',
+  #'-static-libgcc',
+  #'-static-libgfortran',
+  #'-fPIC',
+  #'-g',
+  '-O0'])
+  #'-cpp'])
 endif
 
 add_project_arguments(supported_arguments, language: 'fortran')

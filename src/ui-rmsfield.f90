@@ -226,7 +226,7 @@ end subroutine
 
     call logger%logText('plot_rmsfield routine started')
     isurface = g_object_get_data(localcanvas, "backing-surface")
-    PRINT *, "isurface is ", isurface
+    PRINT *, "isurface is ", LOC(isurface)
     if (.not. c_associated(isurface)) then
        PRINT *, "error:  new plot :: Backing surface is NULL"
        return
