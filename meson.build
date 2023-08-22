@@ -40,7 +40,7 @@ osArg = ' '
 if system == 'darwin'
    osArg = '-DMACOS'
    message('System is Darwin')
-   message('- ' , globArg)
+   #message('- ' , globArg)
 endif
 if system == 'windows'
   osArg = '-DWINDOWS'
@@ -120,24 +120,14 @@ if fortran.get_id().contains('gcc')
   elif build_type == 'release'
     # -w inhibit all warning messages
     supported_arguments = fortran.get_supported_arguments([
-    #'-pthread',
+    '-pthread',
     '-w',
-    '/Qdiag-disable:remark',
-    #'-fno-align-commons',
-    #'-static-libgcc',
-    #'-static-libgfortran',
-    #'-fPIC',
-    #'-g',
-    '/traceback',
-    '/Od',
-    '/debug:full',
-    '/dbglibs',
-    '-O0',
-    '/winapp',
-    '/NODEFAULTLIB:library',
-    '/SUBSYSTEM:WINDOWS',
-    '/assume:byterecl',
-    '/fpp'])
+    '-fno-align-commons',
+    '-static-libgcc',
+    '-static-libgfortran',
+    '-fPIC',
+    '-g',
+    '-cpp'])
 endif
 
 
