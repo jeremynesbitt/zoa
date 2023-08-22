@@ -49,7 +49,7 @@ subroutine writeLogToDisk(self, logTxt)
   inquire(unit=self%fileID, opened=fileOpen)
   inquire(iolength=recL) logTxt
   close(self%fileID, status='KEEP')
-  open(unit=self%fileID,file=self%logFileName,access='append',form='formatted')
+  open(unit=self%fileID,file=self%logFileName,position='append',form='formatted')
   write(self%fileID, *) logTxt
 
   PRINT *, logTxt
