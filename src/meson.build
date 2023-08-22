@@ -194,4 +194,4 @@ srcs += files(
   'WAVSPOT8.FOR',
   )
 
-prog += files('zoamain.f90')
+prog += files('zoamain.F90')

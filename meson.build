@@ -36,61 +36,117 @@ message('Host machine system = '+system)
 build_type = get_option('buildtype')
 message('Build type: '+build_type)
 
-globArg = ' '
+osArg = ' '
 if system == 'darwin'
-   globArg = '-DMACOS'
+   osArg = '-DMACOS'
    message('System is Darwin')
    message('- ' , globArg)
 endif
 if system == 'windows'
-  globArg = '-DWINDOWS'
+  osArg = '-DWINDOWS'
   message('System is Windows')
+  fc_ld='link'
 endif
+
+bldArg = '' 
+if get_option('buildtype').startswith('release')
+   bldArg = '-D__RELEASE'
+endif
+
+if get_option('buildtype').contains('debug')
+   bldArg = '-D__DEBUG'
+endif
+
+globArg = [osArg, bldArg]
+
+message('Global Arguments are ', globArg)
 
 fortran = meson.get_compiler('fortran')
 
-add_global_arguments(globArg, language : 'fortran')
 
-# Define arguments for different build types (debug is default):
-if build_type == 'debug'
-  warning_level = 2
-  supported_arguments = fortran.get_supported_arguments([
-  '-pthread',
-  '-gdwarf-2',
-  '-g',
-  #'-Wall',
-  #'-fsanitize=address,undefined',
-  #'-pedantic',
-  #'-Wtabs',
-  #'-fcheck=bounds',
-  '-fcheck=mem',
-  '-fcheck=pointer',
-  '-fcheck=bits',
-  '-fbacktrace',
-  #'-Wno-unused-dummy-argument',
-  '-fno-align-commons',
-  '-static-libgcc',
-  '-static-libgfortran',
-  '-fPIC',
-  '-cpp',
-  '-rdynamic',
-  '-static'])
-elif build_type == 'release'
-  # -w inhibit all warning messages
-  supported_arguments = fortran.get_supported_arguments([
-  #'-pthread',
-  '-w',
-  '/Qdiag-disable:remark',
-  #'-fno-align-commons',
-  #'-static-libgcc',
-  #'-static-libgfortran',
-  #'-fPIC',
-  #'-g',
-  '-O0',
-  '/fpp'])
+if fortran.get_id().contains('intel-cl')
+  # Define arguments for different build types (debug is default):
+  if build_type == 'debug'
+    #warning_level = 2
+    supported_arguments = fortran.get_supported_arguments([
+    '-w',
+    '/Qdiag-disable:remark',
+    '/traceback',
+    '/Od',
+    '/debug:full',
+    '/dbglibs',
+    '/winapp',
+    '/assume:byterecl',
+    '/fpp'])
+  elif build_type == 'release'
+    # -w inhibit all warning messages
+    supported_arguments = fortran.get_supported_arguments([
+    #'-pthread',
+    '-w',
+    '/Qdiag-disable:remark',
+    '/O2',
+    '/DNDEBUG',
+    '/winapp',
+    '/assume:byterecl',
+    '/fpp'])
+  endif
 endif
 
+if fortran.get_id().contains('gcc')
+  # Define arguments for different build types (debug is default):
+  if build_type == 'debug'
+    warning_level = 2
+    supported_arguments = fortran.get_supported_arguments([
+    '-pthread',
+    '-gdwarf-2',
+    '-g',
+    #'-Wall',
+    #'-fsanitize=address,undefined',
+    #'-pedantic',
+    #'-Wtabs',
+    #'-fcheck=bounds',
+    '-fcheck=mem',
+    '-fcheck=pointer',
+    '-fcheck=bits',
+    '-fbacktrace',
+    #'-Wno-unused-dummy-argument',
+    '-fno-align-commons',
+    '-static-libgcc',
+    '-static-libgfortran',
+    '-fPIC',
+    '-cpp',
+    '-rdynamic',
+    '-static'])
+  elif build_type == 'release'
+    # -w inhibit all warning messages
+    supported_arguments = fortran.get_supported_arguments([
+    #'-pthread',
+    '-w',
+    '/Qdiag-disable:remark',
+    #'-fno-align-commons',
+    #'-static-libgcc',
+    #'-static-libgfortran',
+    #'-fPIC',
+    #'-g',
+    '/traceback',
+    '/Od',
+    '/debug:full',
+    '/dbglibs',
+    '-O0',
+    '/winapp',
+    '/NODEFAULTLIB:library',
+    '/SUBSYSTEM:WINDOWS',
+    '/assume:byterecl',
+    '/fpp'])
+endif
+
+
+endif
+
+
+add_global_arguments(globArg, language : 'fortran')
 add_project_arguments(supported_arguments, language: 'fortran')
+#add_project_link_arguments(['/ENTRY:mainCRTStartup', '/SUBSYSTEM:WINDOWS'], language: 'C')
 
 dep0 = dependency('gtk-4-fortran', version: '>=4.3.0', required: true)
 dep3 = dependency('gtk4', version: '>4.0', required: true)
@@ -121,11 +177,12 @@ zoa_lib = static_library(
   install_dir: 'Contents/libs'
 )
 
+thread_dep = dependency('threads')
 xtb_exe = executable(
   meson.project_name(),
   sources: prog,
   link_with: zoa_lib,
-  dependencies:  zoa_deps,
+  dependencies:  [zoa_deps, thread_dep],
   link_language: 'fortran',
   install: true
 )

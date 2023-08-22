@@ -202,22 +202,30 @@ end module lens_analysis
 ! and finally call the GLib main loop.
 !*******************************************************************************
 program zoa_program
- !subroutine julia_pixbuf
   use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char, c_null_ptr
-  ! We will use those GTK functions and values. The "only" statement can improve
-  ! significantly the compilation time:
   use gtk, only: gtk_application_new, G_APPLICATION_FLAGS_NONE
   use g, only: g_application_run, g_object_unref
   use handlers
   use zoa_ui
   use global_widgets
-
+#ifdef WINDOWS    
+    use kernel32
+    use user32
+    use ifwinty
+#endif    
   implicit none
 
   integer(c_int)     :: status
-  !type(c_ptr)        :: app
-
-
+#ifdef WINDOWS
+  integer(handle) :: console
+  integer :: closeWin
+#ifdef __RELEASE
+          PRINT *, "Hide console window"
+          console = GetConsoleWindow()         
+          closeWin = ShowWindow(console, SW_HIDE)
+#endif
+#endif
+ 
 
   ! First, let's create a GTK application (it will initialize GTK).
   ! The application ID must contain at least one point:
