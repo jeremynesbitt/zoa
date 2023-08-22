@@ -3,7 +3,8 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
-        use kdp_interfaces !, only: EDITOR, POWSYM, RMSFIELD, FIR, SYSCONFIGUI
+        use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR, 
+     1 SYSCONFIGUI, SPR, PLTZERN
 C
         IMPLICIT NONE
 
@@ -64,13 +65,13 @@ C
        !COMMON/KDPREST/REST_KDP
        !LOGICAL SAVE_KDP(1:200)
        !COMMON/KDPSAVE/SAVE_KDP
-       LOGICAL RESTINPT
-       LOGICAL SAVEINPT
-       EXTERNAL RESTINPT
-       EXTERNAL SAVEINPT
+       !LOGICAL RESTINPT
+       !LOGICAL SAVEINPT
+       !EXTERNAL RESTINPT
+       !EXTERNAL SAVEINPT
 
         INCLUDE 'DATLEN.INC'
-        !INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATSP1.INC'
         INCLUDE 'DATSPD.INC'
