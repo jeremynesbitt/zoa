@@ -188,7 +188,7 @@ contains
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
     ! Pointers toward our GTK widgets:
-    type(c_ptr)    :: scroll_win_detach, win_msg, pane
+    type(c_ptr)    :: scroll_win_detach, pane
     type(c_ptr)    :: table, button2, button3, box1, scroll_ptr
     type(c_ptr)    :: entry2, keyevent, controller_k
     type(c_ptr)    :: toggle1, expander, notebookLabel1, notebookLabel2
@@ -207,9 +207,9 @@ contains
     my_window = gtk_application_window_new(app)
     call g_signal_connect(my_window, "destroy"//c_null_char, &
                         & c_funloc(destroy_signal))
-   ! Don't forget that C strings must end with a null char:
+   
     call gtk_window_set_title(my_window, "Zoa Optical Analysis"//c_null_char)
-    ! Properties of the main window :
+
     width  = 1000
     height = 700
     call gtk_window_set_default_size(my_window, width, height)
@@ -219,8 +219,8 @@ contains
     !******************************************************************
     ! The four buttons:
 
-    button2 = gtk_button_new_with_mnemonic ("Test _PLPLOT"//c_null_char)
-    !call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(plotLensData))
+    button2 = gtk_button_new_with_mnemonic ("_Help"//c_null_char)
+    !call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(dispHelpScreen))
     button3 = gtk_button_new_with_mnemonic ("_Exit"//c_null_char)
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
 
@@ -236,82 +236,57 @@ contains
 
     call gtk_grid_attach(table, button2, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, button3, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
-    !call gtk_grid_attach(table, linkButton, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
-
-
-    ! The table is contained in an expander, which is contained in the vertical box:
-    expander = gtk_expander_new_with_mnemonic ("_The parameters:"//c_null_char)
-    call gtk_expander_set_child(expander, table)
-    call gtk_expander_set_expanded(expander, TRUE)
-
+  
 
 
     ! We create a vertical box container:
     box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int)
-    call gtk_box_append(box1, expander)
+    call gtk_box_append(box1, table)
 
 
-    ! This object is the container for all the plot and message tabs attach
-    ! here
     PRINT *, "Create Notebook Object"
     notebook = gtk_notebook_new ()
     call gtk_widget_set_vexpand (notebook, TRUE)
 
 
-   !call zoaTabMgr%initialize(notebook)
-
-
-    ! Theorecticzlly needed for detaching.
+    ! Theorecticzlly needed for detaching (detaching not working at present).
     call gtk_notebook_set_group_name(notebook,"0"//c_null_char)
 
-    !Pseudocode
-    !  msgtab = zoatabmsg%initialize(title)
-    ! tabList(1) = msgTab
-
-
-    !buffer = zoaTabMgr%buffer
 
      textView = gtk_text_view_new ()
      call gtk_text_view_set_editable(textView, FALSE)
     !
      buffer = gtk_text_view_get_buffer (textView)
+     ! This is done for some of the ui options, so we can funnel the output of a KDP
+     ! command to a different textView when convienent.
      call ioConfig%registerTextView(textView, ID_TERMINAL_DEFAULT)
      call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
-    ! call gtk_text_buffer_set_text (buffer, &
-    !     & "ZOA Log Message Window"//C_NEW_LINE//c_null_char,&
-    !     & -1_c_int)
      scroll_win_detach = gtk_scrolled_window_new()
      notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
-    !
+    
+    ! TODO:  Width of the two windows should be abstracted somewhere
      call gtk_scrolled_window_set_child(scroll_win_detach, textView)
      call gtk_widget_set_size_request(scroll_win_detach, 200_c_int, -1_c_int)
      call gtk_widget_set_size_request(notebook, 500_c_int, -1_c_int)
-    ! secondTab = gtk_notebook_append_page (notebook, scroll_win_detach, notebookLabel2)
 
 
     call zoatabMgr%addMsgTab(notebook, "Messages")
     !zoatabMgr%buffer = buffer
 
     notebookLabel3 = gtk_label_new_with_mnemonic("_Intro"//c_null_char)
-    !  Need unique item for third window
     scroll_ptr = gtk_scrolled_window_new()
 
     call populateSplashWindow(scroll_ptr)
 
-    !PRINT *, "Create Drawing Area (not being used)"
-    !drawing_area_plot = hl_gtk_drawing_area_new(size=[1200,500], &
-    !     & has_alpha=FALSE, key_press_event=c_funloc(key_event_h))
-    !call gtk_scrolled_window_set_child(scroll_ptr, drawing_area_plot)
 
     thirdTab  = gtk_notebook_append_page (notebook, scroll_ptr, notebookLabel3)
 
     ! Having an issue where every time I try to detach a tab the main window
-    ! freezes, so disabling this for now.  Hopefully this can get resolved
+    ! freezes, so disabling this for now.  Believe it is related to this bug:
     !call gtk_notebook_set_tab_detachable(notebook, scroll_ptr, TRUE)
 
-    !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTab), notebook)
-    call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
+    !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
 
 
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
@@ -410,9 +385,8 @@ subroutine populateSplashWindow(splashWin)
 
 
 
-    call gtk_text_buffer_set_text(splashBuff, "The gtk-fortran project &
-    & aims to offer scientists programming in Fortran a cross-platform library &
-    &to build Graphical User Interfaces (GUI)."//c_new_line//" Gtk-fortran&
+    call gtk_text_buffer_set_text(splashBuff, "Zoa Optical Analysis" &
+    & //c_new_line//" Gtk-fortran&
     & is a partial GTK / Fortran binding 100% written in Fortran, thanks&
     & to the ISO_C_BINDING module for interoperability between C and Fortran,&
     & which is a part of the Fortran 2003 standard."//c_new_line//" GTK &
@@ -425,7 +399,7 @@ subroutine populateSplashWindow(splashWin)
     !              & "https://github.com/vmagnin/gtk-fortran/wiki"//c_null_char)
     !call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
-    call gtk_text_buffer_insert_at_cursor(splashBuff, "Hello, this is some text",-1)
+    call gtk_text_buffer_insert_at_cursor(splashBuff, //c_new_line//"Hello, this is some text",-1)
 
     call gtk_scrolled_window_set_child(splashWin, view)
 
