@@ -16,5 +16,10 @@
     <string>Zoa</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+	<key>LSEnvironment</key>
+	<dict>
+		<key>GTK_EXE_PREFIX</key>
+		<string>Contents/libs/</string>
+	</dict>        
 </dict>
 </plist>

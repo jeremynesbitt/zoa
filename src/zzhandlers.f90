@@ -399,7 +399,7 @@ subroutine populateSplashWindow(splashWin)
     !              & "https://github.com/vmagnin/gtk-fortran/wiki"//c_null_char)
     !call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
-    call gtk_text_buffer_insert_at_cursor(splashBuff, //c_new_line//"Hello, this is some text",-1)
+    call gtk_text_buffer_insert_at_cursor(splashBuff, c_new_line//"Hello, this is some text",-1)
 
     call gtk_scrolled_window_set_child(splashWin, view)
 
