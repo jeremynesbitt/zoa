@@ -207,7 +207,7 @@ contains
     my_window = gtk_application_window_new(app)
     call g_signal_connect(my_window, "destroy"//c_null_char, &
                         & c_funloc(destroy_signal))
-   
+
     call gtk_window_set_title(my_window, "Zoa Optical Analysis"//c_null_char)
 
     width  = 1000
@@ -236,7 +236,7 @@ contains
 
     call gtk_grid_attach(table, button2, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, button3, 3_c_int, 0_c_int, 1_c_int, 1_c_int)
-  
+
 
 
     ! We create a vertical box container:
@@ -264,7 +264,7 @@ contains
 
      scroll_win_detach = gtk_scrolled_window_new()
      notebookLabel2 = gtk_label_new_with_mnemonic("_Messages"//c_null_char)
-    
+
     ! TODO:  Width of the two windows should be abstracted somewhere
      call gtk_scrolled_window_set_child(scroll_win_detach, textView)
      call gtk_widget_set_size_request(scroll_win_detach, 200_c_int, -1_c_int)
@@ -371,37 +371,74 @@ contains
 subroutine populateSplashWindow(splashWin)
   implicit none
   type(c_ptr), intent(inout) :: splashWin
-  type(c_ptr) :: view, splashBuff
+  type(c_ptr) :: view, splashBuff, box3, linkbutton
 
 
     character(kind=c_char), dimension(:), allocatable :: string
     character(kind=c_char), pointer, dimension(:) :: credit
     type(c_ptr), dimension(:), allocatable :: c_ptr_array
+    type(gtktextiter), target :: endIter
     integer :: i
 
+    box3 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
     view = gtk_text_view_new ();
+    call gtk_text_view_set_justification(view, GTK_JUSTIFY_CENTER)
 
     splashBuff = gtk_text_view_get_buffer (view);
 
+    call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
+       ! call gtk_text_buffer_insert_markup(splashBuff, c_loc(endIter), &
+       ! & "<span foreground=blue>Zoa</span>"//C_NEW_LINE &
+       ! & //c_null_char, -1_c_int)
+
+    !call gtk_text_buffer_insert_markup(splashBuff, c_loc(endIter), &
+    !    & "<span foreground="blue">"tst"</span>"//C_NEW_LINE &
+    !    & //c_null_char, -1_c_int)
+      ! & "<span foreground="blue" size="x-large" &
+      ! & >Zoa Optical Analysis</span>"//C_NEW_LINE &
+      ! & //c_null_char, -1_c_int)
+
+
+    ! <span foreground="blue" size="x-large">Blue text</span>
+    ! if (ftext.ne."  ") THEN
+    !   call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
+    !   & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
+    !   & //c_null_char, -1_c_int)
+    ! END IF
+
+
+
+    call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
+
+    call gtk_text_buffer_insert_markup(splashBuff, c_loc(endIter), &
+       & '<span foreground="blue" size="x-large"> &
+       &  Zoa Optical Analysis</span>'//C_NEW_LINE &
+       & //c_null_char, -1_c_int)
+    PRINT *, "Post Markup"
+
+    call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
     call gtk_text_buffer_set_text(splashBuff, "Zoa Optical Analysis" &
-    & //c_new_line//" Gtk-fortran&
-    & is a partial GTK / Fortran binding 100% written in Fortran, thanks&
-    & to the ISO_C_BINDING module for interoperability between C and Fortran,&
-    & which is a part of the Fortran 2003 standard."//c_new_line//" GTK &
-    &is a free software cross-platform graphical library available for &
-    &Linux, UNIX, Windows and MacOs."//c_null_char,-1)
-
-    !call gtk_text_buffer_set_text (splashBuff, "Hello, this is some text", -1);
+    & //c_new_line//c_new_line//c_new_line//"https://github.com/jnez137/zoa" &
+    & //c_new_line//c_null_char,-1)
 
     !call gtk_about_dialog_set_website(dialog, &
     !              & "https://github.com/vmagnin/gtk-fortran/wiki"//c_null_char)
     !call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
-    call gtk_text_buffer_insert_at_cursor(splashBuff, c_new_line//"Hello, this is some text",-1)
+    !call gtk_text_buffer_insert_at_cursor(splashBuff, c_new_line//"Hello, this is some text",-1)
 
-    call gtk_scrolled_window_set_child(splashWin, view)
+    ! A clickable URL link:
+    linkButton = gtk_link_button_new_with_label ( &
+                          &"https://github.com/jnez137/zoa"//c_null_char,&
+                          &"https://github.com/jnez137/zoa"//c_null_char)
+
+    call gtk_box_append(box3, view)
+    call gtk_box_append(box3, linkbutton)
+
+    !call gtk_scrolled_window_set_child(splashWin, view)
+    call gtk_scrolled_window_set_child(splashWin, box3)
 
 
 
