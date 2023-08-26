@@ -105,7 +105,7 @@ contains
 
     type(c_ptr) :: menu_macro, menu_item_macrooperations, act_macrooperations
     type(c_ptr) :: act_macrosave, menu_item_macrosave, menu_item_macrorestore, act_macrorestore
-    type(c_ptr) :: act_macromanual, menu_item_macromanual
+    type(c_ptr) :: act_macromanual, menu_item_macromanual, menu_edit
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
 
@@ -117,29 +117,18 @@ contains
     type(c_ptr) :: menu_import
 
 
-    character(len=100), target :: tstTarget = "TestCommandTarget"
-    character(len=100), target :: tstTarget2 = "TestMemoryLoss"
-
-    character(len=100), pointer :: tstPtr
-
-    character(len=100), target :: pltAst = "PLTAST 1"
-    character(len=100), target :: pltSpd = "PLTSPD"
+    character(len=100), target :: pltAst = "AST; PLTAST 1"
+    character(len=100), target :: pltSpd = "FOB 1; SPD; PLTSPD"
     character(len=100), target :: cv2prg = "CV2PRG DoubleGauss.seq"
     character(len=100), target :: syscon = "SYSCON"
-
-    ! Menu Bar funcionality
-    act_fullscreen = g_simple_action_new_stateful ("fullscreen"//c_null_char, &
-                                  & c_null_ptr, g_variant_new_boolean (FALSE))
-
-    act_color = g_simple_action_new_stateful ("color"//c_null_char, &
-                                  & g_variant_type_new("s"//c_null_char), &
-                                  & g_variant_new_string ("red"//c_null_char))
+    character(len=100), target :: drawCmd = "VIECO"
 
     act_quit = g_simple_action_new ("quit"//c_null_char, c_null_ptr)
 
 
     menubar = g_menu_new ()
     menu = g_menu_new ()
+    menu_edit = g_menu_new()
     menu_import = g_menu_new()
 
     menu_lens = g_menu_new()
@@ -148,8 +137,7 @@ contains
 
     call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
-
-
+    call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
     call g_menu_append_submenu (menubar, "Macro"//c_null_char, menu_macro)
 
     act_macrooperations = g_simple_action_new("MacroOperations"//c_null_char, c_null_ptr)
@@ -161,11 +149,11 @@ contains
     call g_menu_append_item (menu_macro, menu_item_macrooperations)
 
     ! Save Macro
-    act_macrosave = g_simple_action_new("MacroSave"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_macrosave)
-    call g_signal_connect (act_macrosave, "activate"//c_null_char, c_funloc(zoa_macrosaveUI), win)
-    menu_item_macrosave = g_menu_item_new ("Save Macro Directory"//c_null_char, "win.MacroSave"//c_null_char)
-    call g_menu_append_item (menu_macro, menu_item_macrosave)
+    !act_macrosave = g_simple_action_new("MacroSave"//c_null_char, c_null_ptr)
+    !call g_action_map_add_action (win, act_macrosave)
+    !call g_signal_connect (act_macrosave, "activate"//c_null_char, c_funloc(zoa_macrosaveUI), win)
+    !menu_item_macrosave = g_menu_item_new ("Save Macro Directory"//c_null_char, "win.MacroSave"//c_null_char)
+    !call g_menu_append_item (menu_macro, menu_item_macrosave)
 
 
 
@@ -174,24 +162,21 @@ contains
 
 
     ! Restore Macro
-    act_macrorestore = g_simple_action_new("MacroRestore"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_macrorestore)
-    call g_signal_connect (act_macrorestore, "activate"//c_null_char, c_funloc(zoa_macrorestoreUI), win)
-    menu_item_macrorestore = g_menu_item_new ("Restore Macro Directory"//c_null_char, "win.MacroRestore"//c_null_char)
-    call g_menu_append_item (menu_macro, menu_item_macrorestore)
+    !act_macrorestore = g_simple_action_new("MacroRestore"//c_null_char, c_null_ptr)
+    !call g_action_map_add_action (win, act_macrorestore)
+    !call g_signal_connect (act_macrorestore, "activate"//c_null_char, c_funloc(zoa_macrorestoreUI), win)
+    !menu_item_macrorestore = g_menu_item_new ("Restore Macro Directory"//c_null_char, "win.MacroRestore"//c_null_char)
+    !call g_menu_append_item (menu_macro, menu_item_macrorestore)
 
     ! Macro Manual
-    act_macromanual = g_simple_action_new("MacroManual"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_macromanual)
-    call g_signal_connect (act_macromanual, "activate"//c_null_char, c_funloc(zoa_macromanualUI), win)
-    menu_item_macromanual = g_menu_item_new ("Open Macro Manual"//c_null_char, "win.MacroManual"//c_null_char)
-    call g_menu_append_item (menu_macro, menu_item_macromanual)
+    !act_macromanual = g_simple_action_new("MacroManual"//c_null_char, c_null_ptr)
+    !call g_action_map_add_action (win, act_macromanual)
+    !call g_signal_connect (act_macromanual, "activate"//c_null_char, c_funloc(zoa_macromanualUI), win)
+    !menu_item_macromanual = g_menu_item_new ("Open Macro Manual"//c_null_char, "win.MacroManual"//c_null_char)
+    !call g_menu_append_item (menu_macro, menu_item_macromanual)
 
-    ! Test new type
-    !tstPtr => tstTarget
-    !call tstMenuType%addCommandMenuItem(menu_macro, "TestText", "TestEvent", tstPtr, win)
-    call addCommandMenuItem(menu_macro, "TestText", "TestEvent", tstTarget, win)
-    call addCommandMenuItem(menu_macro, "TestSecond", "TestSecondEvent", tstTarget2, win)
+    !call addCommandMenuItem(menu_macro, "TestText", "TestEvent", tstTarget, win)
+    !call addCommandMenuItem(menu_macro, "TestSecond", "TestSecondEvent", tstTarget2, win)
 
     !call tstMenuType%addCommandMenuItem(menu_macro, "TestText", "TestEvent", "TestCommand", win)
     call addCommandMenuItem(menu_imagEval, "Plot Astigmatism, Distortion, and Field Curvature", &
@@ -205,7 +190,7 @@ contains
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)
 
     !Edit Lens
-    call addCommandMenuItem(menu_imagEval, "System Configuration", &
+    call addCommandMenuItem(menu_edit, "System Configuration", &
     & "SYSCON", syscon, win)
     !act_sysconfig   = g_simple_action_new("EditSysConfig"//c_null_char, c_null_ptr)
     !call g_action_map_add_action (win, act_sysconfig)
@@ -227,19 +212,10 @@ contains
     call g_menu_append_item (menu_lens, menu_item_lenslib)
 
 
-
-    !call addCommandMenuItem(menu_imagEval, "Spot Diagram", &
-    !& "PltSPD", pltSpd, win)
     ! Lens Sub Menus
-    call addFuncMenuItem(menu_lens, "Tst Draw Lens", "TstDrawLens", c_funloc(drawLens_activated), win)
-
-    act_drawLens = g_simple_action_new("DrawLens"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_drawLens)
-    call g_signal_connect (act_drawLens, "activate"//c_null_char, c_funloc(drawLens_activated), win)
-
-    menu_item_drawLens = g_menu_item_new ("Draw Lens"//c_null_char, "win.DrawLens"//c_null_char)
-
-    call g_menu_append_item (menu_lens, menu_item_drawLens)
+    !call addFuncMenuItem(menu_lens, "Tst Draw Lens", "TstDrawLens", c_funloc(drawLens_activated), win)
+    call addCommandMenuItem(menu_lens, "Draw Lens", &
+    & "DrawLens", drawCmd, win)
 
     act_glassDisplay = g_simple_action_new("GlassDisplay"//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, act_glassdisplay)
@@ -268,41 +244,19 @@ contains
     section2 = g_menu_new ()
     section3 = g_menu_new ()
     section1_lens = g_menu_new()
-    menu_item_fullscreen = g_menu_item_new ("Full Screen"//c_null_char, "win.fullscreen"//c_null_char)
-    menu_item_red = g_menu_item_new ("Red"//c_null_char, "win.color::red"//c_null_char)
-    menu_item_green = g_menu_item_new ("Green"//c_null_char, "win.color::green"//c_null_char)
-    menu_item_blue = g_menu_item_new ("Blue"//c_null_char, "win.color::blue"//c_null_char)
     menu_item_quit = g_menu_item_new ("Quit"//c_null_char, "app.quit"//c_null_char)
 
-
-    call g_signal_connect (act_fullscreen, "change-state"//c_null_char, c_funloc(fullscreen_changed), win)
-    call g_signal_connect (act_color, "activate"//c_null_char, c_funloc (color_activated), win)
     call g_signal_connect (act_quit, "activate"//c_null_char, c_funloc (quit_activated), app)
 
 
-    call g_action_map_add_action (win, act_fullscreen)
-    call g_action_map_add_action (win, act_color)
     call g_action_map_add_action (app, act_quit)
-
-
-    call g_menu_append_item (section1, menu_item_fullscreen)
-    call g_menu_append_item (section2, menu_item_red)
-    call g_menu_append_item (section2, menu_item_green)
-    call g_menu_append_item (section2, menu_item_blue)
     call g_menu_append_item (section3, menu_item_quit)
 
     !call g_menu_append_item (section1_lens, menu_item_drawLens)
 
-    call g_object_unref (menu_item_red)
-    call g_object_unref (menu_item_green)
-    call g_object_unref (menu_item_blue)
-    call g_object_unref (menu_item_fullscreen)
     call g_object_unref (menu_item_quit)
 
-    call g_object_unref (menu_item_drawLens)
-
     call g_menu_append_section (menu, c_null_char, section1)
-    call g_menu_append_section (menu, "Color"//c_null_char, section2)
     call g_menu_append_section (menu, c_null_char, section3)
 
     !call g_menu_append_section (menu_lens, "Draw Lens"//c_null_char, section1_lens)
@@ -318,13 +272,6 @@ contains
     !PRINT *, "APP In Activate is ", app
     call gtk_application_set_menubar (app, menubar)
     call gtk_application_window_set_show_menubar (win, TRUE)
-
-    provider = gtk_css_provider_new ()
-    display = gtk_widget_get_display (win)
-    call gtk_css_provider_load_from_data (provider, "label#lb {background-color: red;}"//c_null_char, -1_c_size_t)
-    call gtk_style_context_add_provider_for_display (display, provider, 0)
-
-
 
   end subroutine
 
@@ -382,60 +329,6 @@ contains
 
   end subroutine
 
-  subroutine drawLens_activated (act, avalue, win) bind(c)
-    type(c_ptr), value, intent(in) :: act, avalue, win
-
-     character(len=100) :: ftext
-
-
-     ftext = 'VIECO'
-     CALL PROCESKDP(ftext)
-
-  end subroutine drawLens_activated
-
-
-  subroutine fullscreen_changed (act, avalue, win) bind(c)
-    !use handlers
-
-    type(c_ptr), value, intent(in) :: act, avalue, win
-    logical :: state
-
-    ! This is the correct way to convert a boolean integer to logical.
-    state = transfer(g_variant_get_boolean (avalue), state)
-
-    if (state) then
-      call gtk_window_maximize (win)
-    else
-      call gtk_window_unmaximize (win)
-    end if
-    call g_simple_action_set_state (act, avalue)
-  end subroutine
-
-  subroutine color_activated (act, param, win) bind(c)
-    type(c_ptr), value, intent(in) :: act, param, win
-    type(c_ptr) :: param_string
-    character(kind=c_char, len=40):: color, color_str
-
-    ! Get the C string from param
-    param_string = g_variant_get_string (param, c_null_ptr)
-
-    ! Convert it to a Fortran string
-    call convert_c_string(param_string, color_str)
-    print *, "The color will be: "//trim(color_str)//"!"
-
-    color = "label#lb {background-color: "//trim(color_str)//"; }"//c_null_char
-
-    print *, "Let's change the color!"
-    !call gtk_css_provider_load_from_data (provider, color, -1_int64)
-    !call g_action_change_state (act, param)
-  end subroutine
-
-  ! subroutine glassdisplay_activated(act, param, win) bind(c)
-  !     use zoa_glass_ui
-  !     type(c_ptr), value, intent(in) :: act, param, win
-  !     call glassmanagerUI()
-  !
-  ! end subroutine
 
   subroutine quit_activated (act, param, win) bind(c)
     type(c_ptr), value, intent(in) :: act, param, win

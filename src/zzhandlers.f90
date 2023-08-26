@@ -11,7 +11,8 @@ module handlers
   & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
   & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
   & g_action_change_state, g_application_quit, g_simple_action_set_state, &
-  & g_signal_override_class_handler, g_app_info_launch_default_for_uri
+  & g_signal_override_class_handler, g_app_info_launch_default_for_uri, &
+  & g_app_info_launch, g_app_info_get_default_for_type, g_file_new_for_uri
 
 
   use, intrinsic :: iso_c_binding
@@ -46,9 +47,69 @@ module handlers
 
 contains
 
+  subroutine dispHelpScreen(widget, event, gdata) bind(c)
+    use zoa_file_handler, only: getFileSep
+    !use gtk_hl_dialog, only: hl_gtk_about_dialog_show
+    type(c_ptr), value, intent(in) :: widget, event, gdata
+    type(c_ptr) :: helpwin, linkbutton, helpbox, helpbuff, helpview
+    character(len=1024) :: manPath
 
+    helpwin = gtk_window_new()
+    call gtk_window_set_default_size(helpwin, 300,200)
+    helpbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
+    helpview = gtk_text_view_new ();
+    helpbuff = gtk_text_view_get_buffer (helpview);
+
+    call gtk_text_buffer_set_text(helpbuff, "Zoa has no integrated help system." &
+    & //c_new_line//"The KDP-2 manual is the best resource to learn "&
+    & //c_new_line //"commands.  In addition, the macro examples are a " &
+    & //c_new_line// "good way to understand how the program works." &
+    & //c_new_line//"Online link below.  local copy should have been installed here:" &
+    & //c_new_line//trim(basePath)//"Manuals"//getFileSep() &
+    & //c_new_line,-1)
+
+
+    linkButton = gtk_link_button_new( &
+    &"https://github.com/jnez137/zoa/blob/main/Library/Manuals/Manual.pdf" &
+    & //c_null_char)
+    call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
+
+
+  !  call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
+    !uriResult = g_app_info_launch_default_for_uri("https://github.com/jnez137/zoa"//c_null_char, c_null_ptr, c_null_ptr)
+    call gtk_box_append(helpbox, helpview)
+    call gtk_box_append(helpbox, linkbutton)
+    !call gtk_box_append(box3, linkbutton)
+
+    !call gtk_scrolled_window_set_child(splashWin, view)
+    call gtk_window_set_child(helpwin, helpbox)
+    call gtk_window_present(helpwin)
+    !PRINT *, "file://"//trim(basePath)//"Manuals"//getFileSep()//"Manuals.pdf"
+    !WRITE(manPath, *) "file://"//trim(basePath)//"Manuals"//getFileSep()//"Manuals.pdf"
+    !PRINT *, trim(manPath)
+
+    ! call hl_gtk_about_dialog_show(name="Gtk-fortran", &
+    !      & authors = [character(len=14) :: "Jerry DeLisle", &
+    !      & "Vincent Magnin", "James Tappin", "Jens Hunger", "Kyle Horne"], &
+    !      & license_type=GTK_LICENSE_GPL_3_0, &
+    !      & comments = &
+    !      &"The gtk-fortran project aims to offer scientists programming "//&
+    !      &"in Fortran a cross-platform library to build Graphical User "//&
+    !      &"Interfaces (GUI)."//c_new_line// &
+    !      &"Gtk-fortran is a partial GTK / Fortran binding 100% written "//&
+    !      &"in Fortran, thanks to the ISO_C_BINDING module for "//&
+    !      &"interoperability between C and Fortran, which is a part of the "//&
+    !      &"Fortran 2003 standard. Gtk-Fortran also provides a number of "//&
+    !      &"'high-level' interfaces to common widgets."//&
+    !      &c_new_line//c_new_line// &
+    !      &"GTK is a free software cross-platform graphical library "//&
+    !      &"available for Linux, Unix, Windows and MacOs X."//C_NULL_CHAR, &
+    !      & website="https://github.com/jerryd/gtk-fortran/wiki"//C_NULL_CHAR,&
+    !      & parent=widget)
+
+  end subroutine
   ! Our callback function before destroying the window:
-  recursive subroutine destroy_signal(widget, event, gdata) bind(c)
+  subroutine destroy_signal(widget, event, gdata) bind(c)
     use zoa_file_handler, only: saveCommandHistoryToFile
     type(c_ptr), value, intent(in) :: widget, event, gdata
 
@@ -220,7 +281,7 @@ contains
     ! The four buttons:
 
     button2 = gtk_button_new_with_mnemonic ("_Help"//c_null_char)
-    !call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(dispHelpScreen))
+    call g_signal_connect (button2, "clicked"//c_null_char, c_funloc(dispHelpScreen))
     button3 = gtk_button_new_with_mnemonic ("_Exit"//c_null_char)
     call g_signal_connect (button3, "clicked"//c_null_char, c_funloc(destroy_signal))
 
@@ -389,33 +450,15 @@ subroutine populateSplashWindow(splashWin)
 
     call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
-       ! call gtk_text_buffer_insert_markup(splashBuff, c_loc(endIter), &
-       ! & "<span foreground=blue>Zoa</span>"//C_NEW_LINE &
-       ! & //c_null_char, -1_c_int)
-
-    !call gtk_text_buffer_insert_markup(splashBuff, c_loc(endIter), &
-    !    & "<span foreground="blue">"tst"</span>"//C_NEW_LINE &
-    !    & //c_null_char, -1_c_int)
-      ! & "<span foreground="blue" size="x-large" &
-      ! & >Zoa Optical Analysis</span>"//C_NEW_LINE &
-      ! & //c_null_char, -1_c_int)
-
-
-    ! <span foreground="blue" size="x-large">Blue text</span>
-    ! if (ftext.ne."  ") THEN
-    !   call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
-    !   & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
-    !   & //c_null_char, -1_c_int)
-    ! END IF
-
-
 
     call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
     call gtk_text_buffer_insert_markup(splashBuff, c_loc(endIter), &
-       & '<span foreground="blue" size="x-large"> &
-       &  Zoa Optical Analysis</span>'//C_NEW_LINE &
-       & //c_null_char, -1_c_int)
+       & c_new_line//'<span foreground="blue" size="x-large"> &
+       &  Zoa Optical Analysis</span>'//C_NEW_LINE// &
+       &  c_new_line//'<span foreground="blue" size="large"> &
+       &  Version 0.1.0 (beta)</span>' &
+       &  //c_null_char, -1_c_int)
     PRINT *, "Post Markup"
 
     call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
@@ -431,8 +474,7 @@ subroutine populateSplashWindow(splashWin)
     !call gtk_text_buffer_insert_at_cursor(splashBuff, c_new_line//"Hello, this is some text",-1)
 
     ! A clickable URL link:
-    linkButton = gtk_link_button_new_with_label ( &
-                          &"https://github.com/jnez137/zoa"//c_null_char,&
+    linkButton = gtk_link_button_new( &
                           &"https://github.com/jnez137/zoa"//c_null_char)
     call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
     !uriResult = g_app_info_launch_default_for_uri("https://github.com/jnez137/zoa"//c_null_char, c_null_ptr, c_null_ptr)
@@ -624,6 +666,20 @@ end subroutine
 
   end function
 
+  function open_pdf(widget, linkButton) result(boolGood) bind(c)
+    type(c_ptr) :: widget
+    type(c_ptr), value, intent(in) :: linkButton
+    integer :: boolGood
+    character(len=1024) :: strURI
+
+    call convert_c_string(gtk_link_button_get_uri(linkButton), strURI)
+
+    boolGood= g_app_info_launch(g_app_info_get_default_for_type(".pdf"//c_null_char,FALSE), &
+    & g_file_new_for_uri(strURI), c_null_ptr, c_null_ptr)
+
+    !boolGood = g_app_info_launch_default_for_uri(trim(strURI)//c_null_char, c_null_ptr, c_null_ptr)
+
+  end function
 
   function key_event_h(controller, keyval, keycode, state, gdata) result(ret) bind(c)
 
