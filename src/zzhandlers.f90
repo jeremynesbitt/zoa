@@ -11,7 +11,7 @@ module handlers
   & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
   & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
   & g_action_change_state, g_application_quit, g_simple_action_set_state, &
-  & g_signal_override_class_handler
+  & g_signal_override_class_handler, g_app_info_launch_default_for_uri
 
 
   use, intrinsic :: iso_c_binding
@@ -372,6 +372,7 @@ subroutine populateSplashWindow(splashWin)
   implicit none
   type(c_ptr), intent(inout) :: splashWin
   type(c_ptr) :: view, splashBuff, box3, linkbutton
+  integer :: uriResult
 
 
     character(kind=c_char), dimension(:), allocatable :: string
@@ -419,9 +420,9 @@ subroutine populateSplashWindow(splashWin)
 
     call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
-    call gtk_text_buffer_set_text(splashBuff, "Zoa Optical Analysis" &
-    & //c_new_line//c_new_line//c_new_line//"https://github.com/jnez137/zoa" &
-    & //c_new_line//c_null_char,-1)
+    !call gtk_text_buffer_set_text(splashBuff, "Zoa Optical Analysis" &
+    !& //c_new_line//c_new_line//c_new_line//"https://github.com/jnez137/zoa" &
+    !& //c_new_line//c_null_char,-1)
 
     !call gtk_about_dialog_set_website(dialog, &
     !              & "https://github.com/vmagnin/gtk-fortran/wiki"//c_null_char)
@@ -433,7 +434,8 @@ subroutine populateSplashWindow(splashWin)
     linkButton = gtk_link_button_new_with_label ( &
                           &"https://github.com/jnez137/zoa"//c_null_char,&
                           &"https://github.com/jnez137/zoa"//c_null_char)
-
+    call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
+    !uriResult = g_app_info_launch_default_for_uri("https://github.com/jnez137/zoa"//c_null_char, c_null_ptr, c_null_ptr)
     call gtk_box_append(box3, view)
     call gtk_box_append(box3, linkbutton)
 
@@ -610,6 +612,17 @@ end subroutine
         ! return new_notebook
 
   end subroutine
+
+  function open_url(widget, linkButton) result(boolGood) bind(c)
+    type(c_ptr) :: widget
+    type(c_ptr), value, intent(in) :: linkButton
+    integer :: boolGood
+    character(len=1024) :: strURI
+
+    call convert_c_string(gtk_link_button_get_uri(linkButton), strURI)
+    boolGood = g_app_info_launch_default_for_uri(trim(strURI)//c_null_char, c_null_ptr, c_null_ptr)
+
+  end function
 
 
   function key_event_h(controller, keyval, keycode, state, gdata) result(ret) bind(c)
