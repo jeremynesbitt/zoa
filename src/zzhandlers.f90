@@ -52,12 +52,26 @@ contains
     !use gtk_hl_dialog, only: hl_gtk_about_dialog_show
     type(c_ptr), value, intent(in) :: widget, event, gdata
     type(c_ptr) :: helpwin, linkbutton, helpbox, helpbuff, helpview
+    type(c_ptr) :: short1, shortControl
     character(len=1024) :: manPath
 
     helpwin = gtk_window_new()
     call gtk_window_set_default_size(helpwin, 300,200)
     helpbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
     helpview = gtk_text_view_new ();
+
+    !call gtk_widget_class_add_shortcut(helpview, &
+    !&
+
+    short1 = gtk_shortcut_new( &
+    & gtk_shortcut_trigger_parse_string("<Meta>c"//c_null_char), &
+    & gtk_signal_action_new("copy-clipboard"//c_null_char))
+    shortControl = gtk_shortcut_controller_new()
+    call gtk_shortcut_controller_add_shortcut(shortControl, short1)
+    call gtk_widget_add_controller(helpview, shortControl)
+
+    !)
+    !"<Meta>c"//c_null_char, "copy-clipboard"//c_null_char))
     helpbuff = gtk_text_view_get_buffer (helpview);
 
     call gtk_text_buffer_set_text(helpbuff, "Zoa has no integrated help system." &
