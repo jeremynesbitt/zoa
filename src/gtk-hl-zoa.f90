@@ -441,5 +441,49 @@ subroutine set_listn_column_color(view, col, colorTxt)
     !
 end subroutine
 
+subroutine addMacOSClipboardShortcuts(textView)
+  type(c_ptr), intent(inout) :: textView
+  type(c_ptr) :: scCut, scCopy, scPaste, scControl
+
+  scCopy = gtk_shortcut_new( &
+  & gtk_shortcut_trigger_parse_string("<Meta>c"//c_null_char), &
+  & gtk_signal_action_new("copy-clipboard"//c_null_char))
+
+  scCut = gtk_shortcut_new( &
+  & gtk_shortcut_trigger_parse_string("<Meta>x"//c_null_char), &
+  & gtk_signal_action_new("cut-clipboard"//c_null_char))
+
+  scPaste = gtk_shortcut_new( &
+  & gtk_shortcut_trigger_parse_string("<Meta>v"//c_null_char), &
+  & gtk_signal_action_new("paste-clipboard"//c_null_char))
+
+  scControl = gtk_shortcut_controller_new()
+  call gtk_shortcut_controller_add_shortcut(scControl, scCut)
+  call gtk_shortcut_controller_add_shortcut(scControl, scCopy)
+  call gtk_shortcut_controller_add_shortcut(scControl, scPaste)
+
+  call gtk_widget_add_controller(textView, scControl)
+
+
+end subroutine
+
+function hl_zoa_text_view_new() result(textView)
+! This fcn creates a gtk textView but changes
+! cut/copy/paste shortcuts depending on OS
+  use zoa_file_handler ! This module knows about OS.  Should probably move this
+  ! elsewhere
+  type(c_ptr) ::textView
+
+  textView = gtk_text_view_new()
+
+  if (ID_SYSTEM==ID_OS_MAC) then
+     call addMacOSClipboardShortcuts(textView)
+  end if
+
+
+
+
+end function
+
 
 end module hl_gtk_zoa
