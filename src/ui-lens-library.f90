@@ -145,6 +145,7 @@ end subroutine
 
 
     subroutine create_lenslibraryUI(act, param, win) bind(c)
+      use hl_gtk_zoa, only: hl_zoa_text_view_new
 
       implicit none
       type(c_ptr), value, intent(in) :: act, param, win
@@ -193,7 +194,7 @@ end subroutine
     call hl_gtk_box_pack(base, btn_del)
 
 
-     textView = gtk_text_view_new ()
+     textView = hl_zoa_text_view_new()
      call gtk_text_view_set_editable(textView, FALSE)
      boxRight = hl_gtk_box_new()
 

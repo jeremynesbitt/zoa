@@ -48,7 +48,8 @@ module zoamenubar
   & g_object_unref, g_menu_append_section, g_menu_append_submenu, &
   & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
   & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
-  & g_action_change_state, g_application_quit, g_simple_action_set_state
+  & g_action_change_state, g_application_quit, g_simple_action_set_state, &
+  & g_menu_item_set_attribute_value, g_variant_new_string
 
 
   !use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, c_null_char, C_NEW_LINE
@@ -112,6 +113,8 @@ contains
     type(c_ptr) :: act_glassDisplay, menu_item_glass, menu_item_editsysconfig
     type(c_ptr) :: act_sysconfig
     type(c_ptr) :: act_lenslib, menu_item_lenslib
+    type(c_ptr) :: act_tmp
+    character(len=1000) :: tmpDump
 
 
     type(c_ptr) :: menu_import
@@ -246,6 +249,9 @@ contains
     section1_lens = g_menu_new()
     menu_item_quit = g_menu_item_new ("Quit"//c_null_char, "app.quit"//c_null_char)
 
+    !call g_menu_item_set_attribute_value(menu_item_quit, "accel"//c_null_char, &
+    !& g_variant_new_string("<Meta>q"//c_null_char))
+
     call g_signal_connect (act_quit, "activate"//c_null_char, c_funloc (quit_activated), app)
 
 
@@ -270,14 +276,21 @@ contains
     !& "CV2PRG", cv2prg, win)
 
     !PRINT *, "APP In Activate is ", app
+
+    !call gtk_application_set_accels_for_action(app, &
+    !& "app.quit"//c_null_char, "<Meta>q"//c_null_char//c_null_char)
+
+
     call gtk_application_set_menubar (app, menubar)
+
+
     call gtk_application_window_set_show_menubar (win, TRUE)
+
+    !g_listenv
+
 
   end subroutine
 
-  !*************************************************
-  ! The three callback functions of the menu items:
-  !*************************************************
   subroutine paraxfirstorder_activated(act, avalue, data) bind(c)
       type(c_ptr), value, intent(in) :: act, avalue, data
 

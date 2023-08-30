@@ -650,7 +650,7 @@ subroutine buildBasicTable(firstTime)
          & sortable=sortable, editable=editable, renderers=colModel, &
          & toggled_radio=c_funloc(refstop_clicked))
 
-         !PRINT *, "ihlist created!  ", ihlist
+   !PRINT *, "ihlist created!  ", ihlist
     end if
 
     !call buildTree(ihList, basicTypes)

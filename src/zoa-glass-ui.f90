@@ -84,7 +84,7 @@ module zoa_glass_ui
   end subroutine
 
     subroutine glassmanagerUI(act, param, win) bind(c)
-
+      use hl_gtk_zoa, only: hl_zoa_text_view_new
       implicit none
       type(c_ptr), value, intent(in) :: act, param, win
       type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
@@ -112,7 +112,7 @@ module zoa_glass_ui
 
     call populateglasslist()
 
-    textView = gtk_text_view_new ()
+    textView = hl_zoa_text_view_new()
     call gtk_text_view_set_editable(textView, FALSE)
         !
     buffer = gtk_text_view_get_buffer (textView)

@@ -257,7 +257,8 @@ contains
 
   subroutine activate(app2, gdata) bind(c)
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_f_pointer, c_null_funptr
-    use zoa_file_handler, only: readCommandHistoryFromFile
+    use zoa_file_handler
+    use hl_gtk_zoa, only : hl_zoa_text_view_new, createNullTerminatedCString
     use GLOBALS
     use zoamenubar
     use zoa_tab
@@ -276,12 +277,30 @@ contains
       & menu_item_red, menu_item_green, &
       & menu_item_blue, menu_item_quit, menu_item_fullscreen
     logical :: tstResult
-
+  type(c_ptr) :: quit_action
 
 
 
     ! Create the window:
     my_window = gtk_application_window_new(app)
+
+  !/* quit */
+    quit_action = g_simple_action_new("quit"//c_null_char, c_null_ptr);
+    call g_signal_connect(quit_action, "activate"//c_null_char, &
+		 &  c_funloc(destroy_signal), app)
+    call g_action_map_add_action(app,quit_action)
+
+    !call gtk_application_set_accels_for_action(app, "app.quit"//c_null_char, c_ptr_array)
+    if (ID_SYSTEM.EQ.ID_OS_MAC) then
+    call gtk_application_set_accels_for_action(app, "app.quit"//c_null_char, &
+    & createNullTerminatedCString("<meta>q"//c_null_char))
+  elseif (ID_SYSTEM == ID_OS_WINDOWS ) then
+    call gtk_application_set_accels_for_action(app, "app.quit"//c_null_char, &
+    & createNullTerminatedCString("<ctrl>q"//c_null_char))
+  end if
+
+
+
     call g_signal_connect(my_window, "destroy"//c_null_char, &
                         & c_funloc(destroy_signal))
 
@@ -330,7 +349,8 @@ contains
     call gtk_notebook_set_group_name(notebook,"0"//c_null_char)
 
 
-     textView = gtk_text_view_new ()
+     !textView = gtk_text_view_new ()
+     textView = hl_zoa_text_view_new()
      call gtk_text_view_set_editable(textView, FALSE)
     !
      buffer = gtk_text_view_get_buffer (textView)
@@ -425,7 +445,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(FALSE)
+    call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 
@@ -451,10 +471,6 @@ subroutine populateSplashWindow(splashWin)
   type(c_ptr) :: view, splashBuff, box3, linkbutton
   integer :: uriResult
 
-
-    character(kind=c_char), dimension(:), allocatable :: string
-    character(kind=c_char), pointer, dimension(:) :: credit
-    type(c_ptr), dimension(:), allocatable :: c_ptr_array
     type(gtktextiter), target :: endIter
     integer :: i
 

@@ -135,7 +135,7 @@ C
         CALL MY_NDPEXC
         PRINT *, "Got to Line 140"
 
-        basePath = getZoaPath()
+        !basePath = getZoaPath()
         fileSep = getFileSep()
 
         logger = zoaLogger(basePath)
