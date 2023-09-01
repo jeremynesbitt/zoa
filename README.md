@@ -20,3 +20,22 @@ To build the source code, you will need cmake (gtk-fortran and plplot) and meson
 
 Instructions using the Homebrew package manager:
 brew install gtk4
+
+For windows:
+
+Install gtk4 using gvsbuild, following the instructions here
+
+gtk-fortran:
+Build with the following command in the Intel OneAPI
+set FC=ifort
+cmake .. -G "NMake Makefiles" -DPKG_CONFIG_EXECUTABLE=C:\gtk-build\gtk\x64\release\bin\pkg-config.exe -DCMAKE_INSTALL_PREFIX=C:\gtk-build\gtk\x64\release
+nmake
+nmake install
+
+do something similar for PLPLOT
+cmake .. -G "NMake Makefiles" -DBUILD_TEST=ON -DBUILD_SHARED_LIBS=ON -DPKG_CONFIG_EXECUTABLE=C:\gtk-build\gtk\x64\release\bin\pkg-config.exe -DCMAKE_INSTALL_PREFIX=C:\gtk-build\gtk\x64\release -DENABLE_fortran=ON -DTEST_DYNDRIVERS=ON
+nmake
+nmake install
+
+for Zoa
+meson setup .. --pkg-config-path=C:\gtk-build\gtk\x64\release\lib\pkgconfig 
