@@ -168,6 +168,15 @@ zoa_lib = static_library(
 )
 
 thread_dep = dependency('threads')
+
+if system == 'windows'
+  windows = import('windows')
+  resources = ['Windows/icon.ico']
+  prog += windows.compile_resources('Windows/zoawin.rc', depend_files: resources, include_directories: meson.project_source_root())
+
+
+endif
+
 xtb_exe = executable(
   meson.project_name(),
   sources: prog,
