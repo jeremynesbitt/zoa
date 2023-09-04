@@ -11,7 +11,7 @@ module zoa_macro_ui
       type(c_ptr) :: ihlist
       type(c_ptr) :: macrorun, macroedit, macrogroup, macrolist
       type(c_ptr) :: macrorename, macrocopy, macrodelete
-      type(c_ptr) :: macroentry, ihwin
+      type(c_ptr) :: macroentry, ihwin, macroTextView
   contains
 
  recursive subroutine macrolist_select(list, gdata) bind(c)
@@ -97,9 +97,10 @@ module zoa_macro_ui
           else if (gtk_check_button_get_active(macroedit).EQ.TRUE) THEN
                 !call getmacroeditboxText(entryText)
                 CALL PROCESKDP('MEDIT '//svalue)
-                print *, "About to call alert dialog"
-                call macroedit_alert()
-                print *, "Dialog Closed!"
+                call macroedit_savetofile(gtk_text_view_get_buffer(macroTextView))
+                !print *, "About to call alert dialog"
+                !call macroedit_alert()
+                !print *, "Dialog Closed!"
                 call PROCESKDP('MREFRESH')
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
@@ -126,6 +127,40 @@ module zoa_macro_ui
     buffer = gtk_entry_get_buffer(macroentry)
     call c_f_string_copy(gtk_entry_buffer_get_text(buffer), ftext)
     print *, "Entered name as:",trim(ftext)
+
+  end subroutine
+
+  subroutine macroedit_savetofile(buffer)
+    use kdp_interfaces, only: OUTKDP
+    use zoa_file_handler, only: delete_file
+
+    implicit none
+    type(c_ptr) :: buffer
+    type(gtktextiter), target :: iterStart, iterEnd
+    integer :: numLines, i, boolRet, stat
+    character(len=10000) :: bufferChar
+    character(len=1024) :: lineTxt
+
+    numLines = gtk_text_buffer_get_line_count(buffer)
+    ! Use existing KDP code to edit.  Dump the contents of the
+    ! buffer into MAC_EDIT.DAT.  Then when MREFRESH is called
+    ! it will read this file and update the appropriate macro
+    if (numLines > 1) then
+      !call clear_file(trim(basePath)//'MAC_EDIT.DAT')
+      call delete_file(trim(basePath)//'MAC_EDIT.DAT')
+      call PROCESKDP('OUTPUT FILE MAC_EDIT.DAT')
+    call gtk_text_buffer_get_start_iter(buffer, c_loc(iterStart))
+    do i=1,numLines
+      boolRet = gtk_text_buffer_get_iter_at_line(buffer, c_loc(iterEnd), i)
+      call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
+      & c_loc(iterStart),c_loc(iterEnd), FALSE), lineTxt)
+      if (i>1) call OUTKDP(trim(lineTxt),0)
+      PRINT *, "lineTxt is ", trim(lineTxt)
+      iterStart = iterEnd
+    end do
+      CALL CLOSE_FILE(31,1)
+      call PROCESKDP('OUTPUT TP')
+    end if
 
   end subroutine
 
@@ -205,14 +240,11 @@ module zoa_macro_ui
       implicit none
       type(c_ptr), value, intent(in) :: act, param, win
       type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
-      type(c_ptr) :: macroentrylabel, textView, buffer, pane, rightPane
+      type(c_ptr) :: macroentrylabel, buffer, pane, rightPane
       type(c_ptr) :: leftPane, boxWin, rightPaneLabel, boxRight
       integer, target :: iappend=0, idel=0
       integer :: ltr
 
-
-
-      print *, "Macro Operations Selected!"
 
       ! Create the window:
       ihwin = gtk_window_new()
@@ -274,8 +306,8 @@ module zoa_macro_ui
 
 
 
-     textView = hl_zoa_text_view_new()
-     call gtk_text_view_set_editable(textView, FALSE)
+     macroTextView = hl_zoa_text_view_new()
+     call gtk_text_view_set_editable(macroTextView, TRUE)
      boxRight = hl_gtk_box_new()
 
 
@@ -283,60 +315,25 @@ module zoa_macro_ui
      rightPaneLabel = gtk_label_new("Macro Contents"//c_null_char)
 
      call gtk_box_append(boxRight, rightPaneLabel)
-     call gtk_box_append(boxRight, textView)
+     call gtk_box_append(boxRight, macroTextView)
 
 
-     !call gtk_scrolled_window_set_child(rightPane, textView)
      call gtk_scrolled_window_set_child(rightPane, boxRight)
      call gtk_widget_set_size_request(rightPane, 200_c_int, -1_c_int)
     !
-     buffer = gtk_text_view_get_buffer (textView)
-     call ioConfig%registerTextView(textView, ID_TERMINAL_MACRO)
+     buffer = gtk_text_view_get_buffer (macroTextView)
+     PRINT *, "Buffer is ", LOC(buffer)
+     call ioConfig%registerTextView(macroTextView, ID_TERMINAL_MACRO)
 
-! It is the scrollcontainer that is placed into the box.
-    !call hl_gtk_box_pack(rightPane, textView)
     call gtk_window_set_child(leftPane, base)
 
-
-    !call gtk_window_set_child(ihwin, pane)
-    !call gtk_box_append(ihwin,pane)
-
-
-
-
-
-
-    ! Make row box put it in the column box and put an editable
-    ! 1-line text widget and a button in it
     jbox = hl_gtk_box_new(horizontal=TRUE)
     call hl_gtk_box_pack(base, jbox)
 
-    ! newline = hl_gtk_entry_new(len=35_c_int, editable=TRUE, &
-    !      & activate=c_funloc(text_cr), data=c_loc(iappend), &
-    !      & tooltip="Enter some text followed by <CR>"//c_new_line//&
-    !      &"then click 'Append' to add it to the list"//c_null_char)
-    ! call hl_gtk_box_pack(jbox, newline)
-    abut = hl_gtk_button_new("Run Macro"//c_null_char, clicked=c_funloc(macrorun_click),&
+    abut = hl_gtk_button_new("Execute Command"//c_null_char, &
+         & clicked=c_funloc(macrorun_click),&
          & data=c_loc(iappend))
     call hl_gtk_box_pack(jbox, abut)
-
-    ! Make a row box and put it in the main box
-    ! jbox2 = hl_gtk_box_new(horizontal=TRUE)
-    ! call hl_gtk_box_pack(base, jbox2)
-    ! ! Make a checkbox button and put it in the row box
-    ! dbut = hl_gtk_check_button_new("Delete line"//c_null_char,&
-    !      & toggled=c_funloc(del_toggle), initial_state=FALSE, &
-    !      & data=c_loc(idel), &
-    !      & tooltip="Set this then click on a line to delete it"//c_null_char)
-    ! call hl_gtk_box_pack(jbox2, dbut)
-    !
-    ! ! And a delete all button.
-    ! dabut = hl_gtk_button_new("Clear"//c_null_char, clicked=c_funloc(delete_all))
-    ! call hl_gtk_box_pack(jbox2, dabut)
-    !
-    ! ! And a swap rows button
-    ! swbut = hl_gtk_button_new("Swap rows"//c_null_char, clicked=c_funloc(swap_rows))
-    ! call hl_gtk_box_pack(jbox2, swbut)
 
     ! Also a quit button
     qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(macroui_destroy), &

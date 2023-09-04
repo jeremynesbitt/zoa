@@ -74,6 +74,16 @@ module zoa_file_handler
 
         end function
 
+        subroutine delete_file(fName)
+          implicit none
+          character(len=*) :: fName
+          integer :: stat
+
+           open(unit=1234, iostat=stat, file=fName, status='old')
+           if (stat == 0) close(1234, status='delete')
+
+        end subroutine
+
         subroutine clear_file(fName)
           use GLOBALS
           IMPLICIT NONE

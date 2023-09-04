@@ -359,8 +359,9 @@ end subroutine
  !call mplt%initialize(drawing_area_plot, 2,1)
 !   PRINT *, "MPLOT INITIALIZED!"
    call lin1%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
-   & xlabel='Astigmatism (in)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
-   & title='tmp'//c_null_char)
+   & xlabel='Astigmatism (in)'//c_null_char, &
+   & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+   & title=''//c_null_char)
 
 
  ! Temporary hack to plot distortion
@@ -370,16 +371,18 @@ end subroutine
 
 
    call lin2%initialize(c_null_ptr, REAL(xDist(0:numPtsDist)),yDist(0:numPtsDist), &
-   & xlabel='Distortion (%)'//c_null_char, ylabel='FOV (deg)'//c_null_char, &
-   & title='tmp'//c_null_char)
+   & xlabel='Distortion (%)'//c_null_char, &
+   & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+   & title=''//c_null_char)
 
   CALL PROCESKDP(ast_settings%fccalccmd)
   call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
 
 
    call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
-   & xlabel='Field Curvature '//c_null_char, ylabel='FOV (deg)'//c_null_char, &
-   & title='tmp'//c_null_char)
+   & xlabel='Field Curvature '//c_null_char, &
+   & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+   & title=''//c_null_char)
    call lin3%addXYPlot(X2FC(0:numPtsFC),FLDAN(0:numPtsFC))
    call lin3%setDataColorCode(PL_PLOT_BLUE)
    call lin3%setLineStyleCode(4)

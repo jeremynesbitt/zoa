@@ -48,7 +48,7 @@ end type
   type(c_ptr) :: spinButton_spotRayDensity
   type(c_ptr) :: sB_rectGrid, sB_randnum, sB_ringNum, sB, raysPerRing
 
-  integer, parameter :: ID_SPOT_RAYDENSITY = 1604
+  !integer, parameter :: ID_SPOT_RAYDENSITY = 1604
 
 
 
@@ -62,8 +62,8 @@ type(spot_settings) function spot_constructor(canvas) result(self)
 
     self%canvas = canvas
 
-    PRINT *, "Spot Constructor Called!"
-    PRINT *, "Canvas is ", LOC(self%canvas)
+    !PRINT *, "Spot Constructor Called!"
+    !PRINT *, "Canvas is ", LOC(self%canvas)
 
     allocate(idText :: self%spotRays(3))
 
@@ -160,7 +160,7 @@ subroutine buildPlotCommand(self)
   end select
   self%plotCmd = trim(charFLD)//'; '//trim(charTrace)//" "// &
   & trim(adjustl(fieldstr))//";SPD "//charWL
-  PRINT *, "Plot command is ", trim(self%plotCMD)
+  !PRINT *, "Plot command is ", trim(self%plotCMD)
 
 
 end subroutine
@@ -214,7 +214,7 @@ subroutine spot_new(self)
   ! callback functions
   !integer, target :: TARGET_RAYFAN_WAVELENGTH  = ID_WAVELENGTH
 
-  integer, target :: TARGET_SPOT_RAYDENSITY  = ID_SPOT_RAYDENSITY
+  !integer, target :: TARGET_SPOT_RAYDENSITY  = ID_SPOT_RAYDENSITY
   integer, target :: TARGET_SPOT_TRACE_ALGO = ID_SPOT_TRACE_ALGO
   integer, target :: TARGET_SPOT_GRID = ID_SPOT_RECT_GRID
   integer, target :: TARGET_SPOT_RANDNUM = ID_SPOT_RAND_NUMRAYS
@@ -230,7 +230,7 @@ subroutine spot_new(self)
 
 
 
-  PRINT *, "Spot diagram new plot initiated!"
+  !PRINT *, "Spot diagram new plot initiated!"
   !PRINT *, "DSPOTT is ", DSPOTT
   spotTrace(1)%text = "Rectangle"
   spotTrace(1)%id = ID_SPOT_RECT
@@ -241,10 +241,12 @@ subroutine spot_new(self)
   spotTrace(3)%text = "Random"
   spotTrace(3)%id = ID_SPOT_RAND
 
+  ! Get the current object field position
 
 
 
-  !ast_cairo_drawing_area = astfcdist_tab%canvas
+  !This has to be true now, but earlier this could be plotted
+  !Both in PlPlot and using the original KDP plotting code
   if (usePLPLOT == 1) THEN
     PRINT *, "Plotting Spot Diagram via PL PLOT!"
     self%canvas = hl_gtk_drawing_area_new(size=[700,500], &
@@ -304,6 +306,10 @@ subroutine spot_new(self)
   spot_struct_settings%num_rand_rays = RNUMBR
   spot_struct_settings%num_rings = RINGTOT
   spot_struct_settings%rect_grid = NRECT
+
+  !TODO  This needs to be fixed.  For now assume default spot is last field position
+  !Would like user to be able to control this
+  spot_struct_settings%idxField = sysConfig%numFields
 
   call self%settings%addFieldSelection(c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_FIELD))
 
@@ -394,7 +400,7 @@ end subroutine
 
      REAL :: x, y
 
-    PRINT *, "PLOT_SPOT Started!"
+    !PRINT *, "PLOT_SPOT Started!"
 
 
     isurface = g_object_get_data(localcanvas, "backing-surface")
@@ -429,8 +435,8 @@ end subroutine
 
 
     call mplt%set(1,1,xyscat1)
-    PRINT *, "localcanvas ", LOC(localcanvas)
-    PRINT *, "mplot area ", LOC(mplt%area)
+    !PRINT *, "localcanvas ", LOC(localcanvas)
+    !PRINT *, "mplot area ", LOC(mplt%area)
     call mplt%draw()
 
 

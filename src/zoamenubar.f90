@@ -122,7 +122,9 @@ contains
 
     character(len=100), target :: pltAst = "AST; PLTAST 1"
     character(len=100), target :: pltSpd = "FOB 1; SPD; PLTSPD"
-    character(len=100), target :: cv2prg = "CV2PRG DoubleGauss.seq"
+    character(len=100), target :: pltRMS = "RMSFIELD"
+    character(len=100), target :: pltSPR = "SPR"
+
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: drawCmd = "VIECO"
 
@@ -188,6 +190,11 @@ contains
     call addCommandMenuItem(menu_imagEval, "Spot Diagram", &
     & "PltSPD", pltSpd, win)
 
+    call addCommandMenuItem(menu_imagEval, "RMS Wavefront Error vs Field", &
+    & "RMSFIELD", pltRms, win)
+
+    call addCommandMenuItem(menu_imagEval, "Spot Size vs Field", &
+    & "PltSPR", pltSPR, win)
 
     ! Lens Menu
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)

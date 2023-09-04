@@ -137,14 +137,15 @@ subroutine addFieldSelection(self, callbackFunc, callbackData)
   ! of official field points but can't guarantee this.  Maybe
   ! show it blank initially if possible?
 
-  PRINT *, "Before fieldWidget, numfields is ", sysConfig%numFields
-  fieldWidget = gtk_spin_button_new (gtk_adjustment_new( value=1d0, &
-                                                              & lower=1d0, &
-                                                              & upper=REAL(sysConfig%numFields+1)*1d0, &
-                                                              & step_increment=1d0, &
-                                                              & page_increment=1d0, &
-                                                              & page_size=1d0),climb_rate=1d0, &
-                                                              & digits=0_c_int)
+  !PRINT *, "Before fieldWidget, numfields is ", sysConfig%numFields
+  fieldWidget = gtk_spin_button_new (gtk_adjustment_new( &
+     & value=REAL(sysConfig%numFields+1)*1d0, &
+     & lower=1d0, &
+     & upper=REAL(sysConfig%numFields+1)*1d0, &
+     & step_increment=1d0, &
+     & page_increment=1d0, &
+     & page_size=1d0),climb_rate=1d0, &
+     & digits=0_c_int)
 
    call self%addSpinBox("Field Point", fieldWidget, callbackFunc, callbackData)
 
@@ -332,7 +333,7 @@ end subroutine
 
         select type (item)
         !class is (c_ptr)
-        !   
+        !
         class default
             c_object => item
             !nullify(c_object)
