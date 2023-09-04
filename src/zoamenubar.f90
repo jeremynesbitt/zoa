@@ -384,7 +384,7 @@ contains
     menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, menuAction)
     call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_null_ptr)
-    PRINT *, "menuItemEventName is ", menuItemEventName
+    !PRINT *, "menuItemEventName is ", menuItemEventName
     menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
     call g_menu_append_item (topLevelMenu, menuItem)
 
@@ -406,7 +406,7 @@ contains
     menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, menuAction)
     call g_signal_connect (menuAction, "activate"//c_null_char, c_funloc(genericMenuCommandCallback), c_loc(ptr))
-    PRINT *, "menuItemEventName is ", menuItemEventName
+    !PRINT *, "menuItemEventName is ", menuItemEventName
     menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
     call g_menu_append_item (topLevelMenu, menuItem)
 

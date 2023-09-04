@@ -804,7 +804,7 @@ C     FIX LEADING COLON IN GLASS NAME
 C
                 BADGLS=.FALSE.
                 IF(F22.EQ.1) THEN
-                call logger%logText('About to call GLSRES 806')
+                !call logger%logText('About to call GLSRES 806')
                 CALL GLSRES
                 OUTLYNE = "JUST FINISHED GLSRES"
                 CALL SHOWIT(19)

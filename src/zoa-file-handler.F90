@@ -25,7 +25,7 @@ module zoa_file_handler
           else !MacOS or Linux
             res = '/'
           end if
-          PRINT *, "In getFileSep ID_SYSTEM = ", ID_SYSTEM
+          !PRINT *, "In getFileSep ID_SYSTEM = ", ID_SYSTEM
       end function
 
       function getZoaPath() result(path)
@@ -34,13 +34,8 @@ module zoa_file_handler
         integer :: tstifdef
 
 ! Cannot indent these c directives
-       PRINT *, "About to enter ifdef part... "
-! #ifdef MACOS
-! tstifdef = 1
-! #elif
-! tstifdef = 0
-! #endif
-! PRINT *, "tstifdef is ", tstifdef
+       !PRINT *, "About to enter ifdef part... "
+
             path = ''
 
 #ifdef MACOS
@@ -61,7 +56,7 @@ module zoa_file_handler
 
 #ifdef LINUX
           ID_SYSTEM = ID_OS_LINUX
-          path = ''
+          path = './Library/'
 #endif
 
 
@@ -70,7 +65,7 @@ module zoa_file_handler
         ! add this here.  Should probably go somewhere else.
         codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
 
-        PRINT *, "Set ID_SYSTEM in getZoaPath to ", ID_SYSTEM
+        !PRINT *, "Set ID_SYSTEM in getZoaPath to ", ID_SYSTEM
 
         end function
 

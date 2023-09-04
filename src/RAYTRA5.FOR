@@ -2066,8 +2066,8 @@ C     CALL BAKONE TO CONVERT TO NEWOBJ COORDINATES
                 Y1AIM=R_TY
                 Z1AIM=R_TZ
                END IF
-      call logger%logTextWithNum("RAYTRAY Init Y1AIM = ",Y1AIM)
-      call logger%logTextWithNum("RAYTRAY Init R_TY = ", R_TY)
+      !call logger%logTextWithNum("RAYTRAY Init Y1AIM = ",Y1AIM)
+      !call logger%logTextWithNum("RAYTRAY Init R_TY = ", R_TY)
 
 
       IF(ITRACE) THEN

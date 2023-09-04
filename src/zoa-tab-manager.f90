@@ -78,14 +78,14 @@ function  findTabIndex(self) result(newTabIndex)
 
   do i=1,self%tabNum
     if (.not.ALLOCATED(self%tabInfo(i)%tabObj)) then
-        PRINT *, "Found empty slot at ", i
+        !PRINT *, "Found empty slot at ", i
         newTabIndex = i
         return
       end if
   end do
 
   ! If we get here then add at the end
-  PRINT *, "Increment max number of tabs"
+  !PRINT *, "Increment max number of tabs"
   self%tabNum = self%tabNum + 1
   newTabIndex = self%tabNum
 
@@ -147,7 +147,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
           winTitle = inputTitle
         end if
 
-        PRINT *, "winTitle is ", winTitle
+        !PRINT *, "winTitle is ", winTitle
 
         allocate(lensdrawtab :: self%tabInfo(idx)%tabObj)
         call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
@@ -234,11 +234,11 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     !call tabObj%initialize(self%notebook, winTitle, ID_NEWPLOT_RAYFAN)
     !call newPlot()
     !self%tabInfo(idx)%plotObj = plotObj
-    PRINT *, "DEBUG:  PLOT_CODE is ", PLOT_CODE
+    !PRINT *, "DEBUG:  PLOT_CODE is ", PLOT_CODE
     self%tabInfo(idx)%typeCode = PLOT_CODE
     !self%tabInfo(idx)%canvas = new_tab%canvas
     self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
-    PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(idx)%typeCode
+    !PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(idx)%typeCode
     call logger%logText('Tab Info finished populating in addPlotTab ')
 
     currPageIndex = gtk_notebook_get_current_page(self%notebook)
@@ -277,7 +277,7 @@ function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, titl
 
 
    idx = self%findTabIndex()
-    PRINT *, "idx is ", idx
+    !PRINT *, "idx is ", idx
     call logger%logText('New Generic Tab Starting')
 
     allocate(zoatab :: self%tabInfo(idx)%tabObj)
@@ -319,13 +319,13 @@ subroutine addPlotTabFromObj(self, tabObj)
 
    PLOT_CODE = tabObj%ID_PLOTTYPE
    idx = self%findTabIndex()
-    PRINT *, "idx is ", idx
+    !PRINT *, "idx is ", idx
     call logger%logText('New RMS Field Diagram Starting')
-    PRINT *, "Allocated tabObj before allocation ", allocated(self%tabInfo(idx)%tabObj)
+    !PRINT *, "Allocated tabObj before allocation ", allocated(self%tabInfo(idx)%tabObj)
     !allocate(zoatab :: self%tabInfo(idx)%tabObj)
 
     self%tabInfo(idx)%tabObj = tabObj
-    PRINT *, "Allocated tabObj after allocation ", allocated(self%tabInfo(idx)%tabObj)
+    !PRINT *, "Allocated tabObj after allocation ", allocated(self%tabInfo(idx)%tabObj)
 
     allocate(ui_settings :: self%tabInfo(idx)%settings )
     ! Right now there is no settings object.  This object is only
@@ -351,23 +351,23 @@ end subroutine
    integer, intent(inout) :: idxObj
    integer :: i
 
-    PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
+    !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.
     idxObj = -1
     DO i = 1,self%tabNum
-       PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
+       !PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
       if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
-          PRINT *, "Found existing plot at tab ", i
+          !PRINT *, "Found existing plot at tab ", i
           idxObj = i
-          PRINT *, "Type code is ", self%tabInfo(i)%typeCode
-          PRINT *, "PLOT_CODE is ", PLOT_CODE
+          !PRINT *, "Type code is ", self%tabInfo(i)%typeCode
+          !PRINT *, "PLOT_CODE is ", PLOT_CODE
          plotFound = .TRUE.
          tabPos = i
 
        end if
 
     END DO
-    PRINT *, "After search, plotFound is ", plotFound
+    !PRINT *, "After search, plotFound is ", plotFound
 
  end function
 
@@ -381,7 +381,7 @@ end subroutine
 
     plotFound = self%doesPlotExist(PLOT_CODE, tabPos)
     if (.not.plotFound) THEN
-      PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
+      !PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
       call self%addPlotTab(PLOT_CODE)
     else
       !if (PLOT_CODE.EQ.ID_PLOTTYPE_AST.OR.PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
@@ -403,7 +403,7 @@ end subroutine
 
      DO i = 1,self%tabNum
            if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
-              PRINT *, "CMD Based REPLOT REQUESTED"
+              !PRINT *, "CMD Based REPLOT REQUESTED"
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           else
             call self%tabInfo(i)%settings%replot()
@@ -419,15 +419,15 @@ end subroutine
     integer, intent(in) :: tabIndex, tabInfoIndex
 
     call gtk_notebook_remove_page(self%notebook, tabIndex)
-    PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
-    PRINT *, "About to deallocate tabObj for index ", tabInfoIndex
-    PRINT *, "allocated test ", allocated(self%tabInfo(tabInfoIndex)%tabObj)
+    !PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
+    !PRINT *, "About to deallocate tabObj for index ", tabInfoIndex
+    !PRINT *, "allocated test ", allocated(self%tabInfo(tabInfoIndex)%tabObj)
 
     DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
     self%tabInfo(tabInfoIndex)%typeCode = -1
-    PRINT *, "About to deallocate ui settings obj"
+    !PRINT *, "About to deallocate ui settings obj"
     DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
-    PRINT *, "Set canvas to NULL"
+    !PRINT *, "Set canvas to NULL"
     self%tabInfo(tabInfoIndex)%canvas = c_null_ptr
 
 
@@ -453,11 +453,11 @@ end subroutine
     do i=1,uiSetCmdsIdx
       cmdLoc = index(uiSettingCommands(i), trim(cmdOnly))
       if (cmdLoc.GT.0) then
-         PRINT *, "Update command ", uiSettingCommands(i)! //" to "//inputCmd
+         !PRINT *, "Update command ", uiSettingCommands(i)! //" to "//inputCmd
          tokLoc = index(uiSettingCommands(i), "--")
 
          uiSettingCommands(i) = uiSettingCommands(i)(1:tokLoc+1)//trim(inputCmd)
-         PRINT *, "New Command is ", uiSettingCommands(i)
+         !PRINT *, "New Command is ", uiSettingCommands(i)
          return
        end if
     end do

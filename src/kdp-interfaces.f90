@@ -156,7 +156,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   use zoa_tab
   use gtk_draw_hl
   !use zoa_tab_manager
-  use handlers
+  use handlers, only: zoatabMgr, updateTerminalLog
+
   implicit none
 
  real, intent(in) :: w(:), symcalc(:)
@@ -169,8 +170,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   type(c_ptr) :: localcanvas
   type(zoatab) :: powsym_tab
 
-  PRINT *, "About to init POWSYM Tab"
-  PRINT *, "NOTEBOOK PTR IS ", LOC(notebook)
+  !PRINT *, "About to init POWSYM Tab"
+  !PRINT *, "NOTEBOOK PTR IS ", LOC(notebook)
   call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
   !call zoaTabMgr%addPlotTab("Power and Symmetry", ID_PLOTTYPE_GENERIC)
 
@@ -185,12 +186,12 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   powsym_tab%canvas = localcanvas
   !powsym_tab = zoatabMgr%addPlotTab(-1, "Power and Symmetry", localcanvas)
 
-  PRINT *, "POWSYM Initialized!"
+  !PRINT *, "POWSYM Initialized!"
 
   WRITE(strTitle, "(A15, F10.3)") "Power:  w = ", w_sum
   call mplt%initialize(powsym_tab%canvas, 2,1)
   !call mplt%initialize(drawing_area_plot, 2,1)
-  PRINT *, "MPLOT INITIALIZED!"
+  !PRINT *, "MPLOT INITIALIZED!"
   call bar1%initialize(c_null_ptr, real(surfaceno),abs(w), &
   & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
   & title=trim(strTitle)//c_null_char)
@@ -347,7 +348,8 @@ subroutine RMSFIELD_PLOT
   !use zoa_tab_manager
   use gtk_draw_hl
   !use zoa_tab_manager
-  use handlers
+  use handlers, only: zoatabMgr, updateTerminalLog
+
   implicit none
   type(c_ptr) :: localcanvas
 
@@ -364,7 +366,7 @@ end subroutine
 subroutine EDITOR
   use lens_editor
   use global_widgets
-  use handlers
+  use handlers, only: my_window
 
     if (.not. c_associated(lens_editor_window))  THEN
        PRINT *, "Call New Lens Editor Window"
@@ -383,7 +385,7 @@ end subroutine EDITOR
 subroutine SYSCONFIGUI
   use ui_sys_config
   use global_widgets
-  use handlers
+  use handlers, only: my_window
 
     if (.not. c_associated(sys_config_window))  THEN
        PRINT *, "Call New Sys Config Window"
@@ -580,18 +582,5 @@ subroutine PLTZERN
 
 end subroutine
 
-subroutine OUTKDP(txt, i)
-  character(len=*) :: txt
-  integer :: code
-  integer, optional :: i
-
-  include "DATMAI.INC"
-
-  OUTLYNE = txt
-  code=1
-  if (present(i)) code=i
-  CALL SHOWIT(code)
-
-end subroutine
 
 end module kdp_interfaces

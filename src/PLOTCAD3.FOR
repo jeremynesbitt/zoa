@@ -4492,7 +4492,7 @@ C     LEAVE LINE ALONE
                         ELSE
             PRINT *, "PLTCOB 4493"
             ! Need to call PENMV to trigger draw
-            CALL PENMV1(0,0,0)                
+            CALL PENMV1(0,0,0)
                         END IF
 C
 C     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
@@ -4608,7 +4608,7 @@ C
                 VIEAL=(PII/180.0D0)*VIEALF
 C
 
-      PRINT *, "PLTEDG ROUTINE Starting.."
+      !PRINT *, "PLTEDG ROUTINE Starting.."
 C     MAKE SURE YOU HAVE VERTEX DATA WITHOUT OFFSETS AND SET TO
 C     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
                         GLSURF=-99

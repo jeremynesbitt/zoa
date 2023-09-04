@@ -592,9 +592,9 @@ C     TEMP SET NOREF TO .TRUE. SO ERROR MESSAGE IS ISSUED
 C
                 DO 10 I=(NEWOBJ+1),ISYS20
         IF (I.EQ.0) THEN
-          call logger%logText("Ray Aiming Surface 0")
-          call logger%logTextWithNum("X Start is ", X)
-          call logger%logTextWithNum("Y Start is ", Y)
+          !call logger%logText("Ray Aiming Surface 0")
+          !call logger%logTextWithNum("X Start is ", X)
+          !call logger%logTextWithNum("Y Start is ", Y)
         END IF
 
 
@@ -878,20 +878,20 @@ C
 
         IF(DSQRT(((TARX-X)**2)+((TARY-Y)**2)).LE.AIMTOL
      1.OR.SYSTEM(62).EQ.0.0D0) THEN
-      call logger%logTextWithNum("Within Aiming Tolerance for Surf",I)
+      !call logger%logTextWithNum("Within Aiming Tolerance for Surf",I)
 
 
         ! PRINT *, "AIM IS GOOD ENOUGH"
 C       AIM IS GOOD ENOUGH, PROCEED
                         GO TO 100
-                        ELSE
-      call logger%logTextWithNum("Aiming not good enough for iteration "
-     1,KKK)
-      call logger%logTextWithNum("Aiming Result is "
-     1,DSQRT(((TARX-X)**2)+((TARY-Y)**2)))
-
-          call logger%logTextWithNum("X1Aim = ", X1AIM)
-          call logger%logTextWithNum("Y1Aim = ", Y1AIM)
+                      ELSE
+C     !  call logger%logTextWithNum("Aiming
+C     !1 not good enough for iteration " 1,KKK)
+C     !  call logger%logTextWithNum("Aiming Result is "
+C     ! 1,DSQRT(((TARX-X)**2)+((TARY-Y)**2)))
+C     !
+C     !      call logger%logTextWithNum("X1Aim = ", X1AIM)
+C     !      call logger%logTextWithNum("Y1Aim = ", Y1AIM)
       IF (KKK.EQ.1) Then
         call logger%logTextWithNum("X Chief Ray Target = ",
      1 XCHIEF_TARGET)
@@ -1002,13 +1002,13 @@ C
 C
  10             CONTINUE
 
-      call logger%logTextWithNum("CDDELX = ", CDDELX)
-      call logger%logTextWithNum("CDDELY = ", CDDELY)
-      call logger%logTextWithNum("YSTRT = ", YSTRT)
- 
+      !call logger%logTextWithNum("CDDELX = ", CDDELX)
+      !call logger%logTextWithNum("CDDELY = ", CDDELY)
+      !call logger%logTextWithNum("YSTRT = ", YSTRT)
+
 C     NOW IF RYIM OR RXIM ARE IN EFFECT, ITERATE THE CHEIF RAY
 C     TO HIT THE IMAGE SURFACE AT THE CORRECT POINT
-      call logger%logTextWithNum("System(98) is ", SYSTEM(98))
+      !call logger%logTextWithNum("System(98) is ", SYSTEM(98))
 
       IF(SYSTEM(98).LT.0.0D0) THEN
          CX=REFRY(1,NEWIMG)

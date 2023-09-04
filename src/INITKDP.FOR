@@ -133,7 +133,7 @@ C
 C       MAX SAVE/REST = 36 8/24/2006
 C
         CALL MY_NDPEXC
-        PRINT *, "Got to Line 140"
+        !PRINT *, "Got to Line 140"
 
         !basePath = getZoaPath()
         fileSep = getFileSep()
@@ -148,7 +148,7 @@ C
         !INQUIRE(FILE='tstFilePath.txt',EXIST=EXISTFP)
 
 
-        call logger%logText('Got to line 140')
+        !call logger%logText('Got to line 140')
         !write(1,*) 'File Path Test Result is ', EXISTFP
         !INQUIRE(FILE='Info.plist',EXIST=EXISTFP)
         !write(1,*) 'File Path Test Result is ', EXISTFP
@@ -1222,9 +1222,9 @@ C
                 POLEXT=.FALSE.
                 FAIL=.TRUE.
 
-      OUTLYNE = "GOT TO LINE 1218 IN INITKDP!"
+      ! = "GOT TO LINE 1218 IN INITKDP!"
       !write(1,*) 'Got to line 1227'
-      CALL SHOWIT(19)
+      !CALL SHOWIT(19)
 C
 C***********************************************************************
 C
@@ -1402,7 +1402,7 @@ C
         REWIND(UNIT=89)
         !PRINT *, "Got to line 1400"
  3141   READ(UNIT=89,FMT=100,END=8888,ERR=8887) INPUT(1:140)
-        PRINT *, "READ CURLENS INPUT IS ", INPUT(1:140)
+        !PRINT *, "READ CURLENS INPUT IS ", INPUT(1:140)
         IF(INPUT(1:3).EQ.'OUT') GO TO 3141
       IF(INPUT(1:1).EQ.' ') INPUT(1:140)=INPUT(2:140)//' '
       IF(INPUT(1:1).EQ.' ') INPUT(1:140)=INPUT(2:140)//' '
@@ -1545,7 +1545,7 @@ C     OPEN AND PROCESS CONTENTS
      1FORM='FORMATTED',STATUS='UNKNOWN')
       REWIND(UNIT=44)
 
-      PRINT *, "Got to line 1595"
+      !PRINT *, "Got to line 1595"
 C     READ AND PROCESS INSTRUCTIONS
         DO I=1,99999
         READ(UNIT=44,FMT=100,END=9743,ERR=9744) INPUT(1:140)
@@ -1657,7 +1657,7 @@ C      GO TO 1
       END IF
 C
 
-      call logger%logText('Got to line 1783 - end of INITKDP')
+      call logger%logText('End of INITKDP')
 
       RETURN
 

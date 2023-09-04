@@ -1837,6 +1837,7 @@ C       TO USE
      2  ,STATUS='UNKNOWN', ACTION='READ')
         ELSE
       WRITE(OUTLYNE, *) "ERROR UNABLE TO OPEN ", trim(LIBLEN)//FN
+      CALL SHOWIT(0)
           RETURN
         END IF
 C**********************************************************
@@ -2014,6 +2015,7 @@ C       NOT EMPTY, WRITE OUTPUT
  3997   FORMAT(I3,1X,A75)
                         END IF
  817                    CONTINUE
+
                 CALL CLOSE_FILE(uLIB,1)
         IF(EXISTAG) CALL CLOSE_FILE(uLIBTAG,1)
         IF(LCNT.EQ.0) THEN
@@ -2043,6 +2045,37 @@ C       NOT EMPTY, WRITE OUTPUT
         WRITE(OUTLYNE,3997)I,DATA(1:75)
         CALL SHOWIT(0)
                         END IF
+        !PRINT *, "Start output of whole file here"
+        ! JN:  Addded feature to print whole lens library file
+        ! for UI textview
+        ! TODO:  Refactor this
+
+          N=INT(W1)
+          CALL CCOONN(N,AN)
+
+        IF(N.GT.0.AND.N.LE.9) FN='LIB00'//AN(3:3)//'.DAT'
+        IF(N.GT.9.AND.N.LE.99) FN='LIB0'//AN(2:3)//'.DAT'
+        IF(N.GT.99.AND.N.LE.999) FN='LIB'//AN(1:3)//'.DAT'
+        INQUIRE(FILE=trim(LIBLEN)//FN,EXIST=EXISTFN)
+
+        IF (EXISTFN) THEN
+         OPEN(UNIT=33,ACCESS='SEQUENTIAL',BLANK='NULL'
+     1  ,FORM='FORMATTED',FILE=trim(LIBLEN)//FN
+     2  ,STATUS='UNKNOWN', ACTION='READ')
+        ELSE
+      WRITE(OUTLYNE, *) "ERROR UNABLE TO OPEN ", trim(LIBLEN)//FN
+      CALL SHOWIT(0)
+          RETURN
+        END IF
+
+        DO
+           READ(UNIT=33,FMT=100,END=3375,ERR=3375) OUTLYNE
+           CALL SHOWIT(0)
+        END DO
+ 3375   CALL CLOSE_FILE(33, 1)
+
+
+
                         RETURN
  9934   FORMAT('LENS LIBRARY ENTRY ',I3,' IS CURRENTLY EMPTY')
         ELSE

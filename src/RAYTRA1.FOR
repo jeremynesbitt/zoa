@@ -3000,10 +3000,10 @@ C
                 WW3=W3
                 WW4=W4
                 WVN=W3
-        PRINT *, "WWQ is ", WWQ
-        PRINT *, "WW1 is ", WW1
-        PRINT *, "WW2 is ", WW2
-        PRINT *, "WW3 is ", WW3        
+        !PRINT *, "WWQ is ", WWQ
+        !PRINT *, "WW1 is ", WW1
+        !PRINT *, "WW2 is ", WW2
+        !PRINT *, "WW3 is ", WW3
 C       THE CALL TO RAYTRA HAS INPUTS:
 C               QUALIFIER
 C               WW1

@@ -183,11 +183,11 @@ subroutine set_num_surfaces(self, input)
   if (.not.allocated(self%radii)) THEN
     PRINT *, "Allocating values in lens data to repopulate"
     allocate(self%radii(self%num_surfaces), self%thicknesses(self%num_surfaces))
-    PRINT *, "About to allocate curvatures"
+    !PRINT *, "About to allocate curvatures"
     allocate(self%curvatures(self%num_surfaces))
-    PRINT *, "About to allocate indices"
+    !PRINT *, "About to allocate indices"
     allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
-    PRINT *, "About to allocate glass names"
+    !PRINT *, "About to allocate glass names"
     allocate(character(40) :: self%glassnames(self%num_surfaces))
   END IF
 end subroutine set_num_surfaces
@@ -477,7 +477,7 @@ type(io_config) function io_config_constructor() result(self)
      implicit none
      class(sys_config) :: self
      include "DATLEN.INC"
-     
+
      select case (self%currFieldID)
 
      case (FIELD_OBJECT_HEIGHT)
