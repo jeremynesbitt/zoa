@@ -36,7 +36,7 @@ type  zoatabManager
    procedure :: updateGenericPlotTab
    procedure :: finalizeNewPlotTab
    procedure :: updateInputCommand
-   procedure, private :: findTabIndex
+   procedure :: findTabIndex
 
  end type
 
@@ -422,11 +422,14 @@ end subroutine
     !PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
     !PRINT *, "About to deallocate tabObj for index ", tabInfoIndex
     !PRINT *, "allocated test ", allocated(self%tabInfo(tabInfoIndex)%tabObj)
-
-    DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
+    if (allocated(self%tabInfo(tabInfoIndex)%tabObj)) then
+       DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
+    end if
     self%tabInfo(tabInfoIndex)%typeCode = -1
     !PRINT *, "About to deallocate ui settings obj"
-    DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
+    if (allocated(self%tabInfo(tabInfoIndex)%settings)) then
+       DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
+    end if
     !PRINT *, "Set canvas to NULL"
     self%tabInfo(tabInfoIndex)%canvas = c_null_ptr
 

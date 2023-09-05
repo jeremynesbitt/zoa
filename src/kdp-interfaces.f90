@@ -148,6 +148,10 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
 end subroutine POWSYM
 
+! This routine needs to be rewritten to be similar to the
+! rmsfield plot once the interface supports multiplots
+! Since it is outside the desired infrastructure it doesn't
+! support refresh plots or any settings
 subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 
    use global_widgets
@@ -170,9 +174,15 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   type(c_ptr) :: localcanvas
   type(zoatab) :: powsym_tab
 
+    type(c_ptr) :: currPage
+    integer(kind=c_int) :: currPageIndex
+    integer :: idx
+    character(len=3) :: outChar
+
   !PRINT *, "About to init POWSYM Tab"
   !PRINT *, "NOTEBOOK PTR IS ", LOC(notebook)
   call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
+  idx = zoatabMgr%findTabIndex()
   !call zoaTabMgr%addPlotTab("Power and Symmetry", ID_PLOTTYPE_GENERIC)
 
   !tabObj = zoaTabMgr%addPlotTab("Power and Symmetry", ID_PLOTTYPE_GENERIC)
@@ -205,9 +215,18 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   call mplt%set(2,1,bar2)
   call mplt%draw()
 
-  PRINT *, "ABOUT TO FINALIZE NEW TAB!"
+
+
+  !PRINT *, "ABOUT TO FINALIZE NEW TAB!"
   call powsym_tab%finalizeWindow()
 
+    ! Until this is ported to the new functionality, hard
+    ! code an idx so the app doesn't crash if the user tries to
+    ! close a tab
+    currPageIndex = gtk_notebook_get_current_page(notebook)
+    currPage = gtk_notebook_get_nth_page(notebook, currPageIndex)
+    WRITE(outChar, '(I0.3)') idx
+    call gtk_widget_set_name(currPage, outChar//c_null_char)
 
 end subroutine
 
