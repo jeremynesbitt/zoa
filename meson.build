@@ -118,6 +118,7 @@ add_global_arguments(globArg, language : 'fortran')
 add_project_arguments(supported_arguments, language: 'fortran')
 
 # Need > 4.4.1 due to bug fix for _set_accels binding
+# 
 dep0 = dependency('gtk-4-fortran', version: '>=4.4.1', required: true)
 dep3 = dependency('gtk4', version: '>4.0', required: true)
 dep1 = dependency('plplot', version: '>=5.13.0', required: true)
@@ -143,8 +144,8 @@ zoa_lib = static_library(
   #version: meson.project_version(),
   dependencies: zoa_deps,
   link_language: 'fortran',
-  install: true,
-  install_dir: 'Contents/libs'
+  install: false#,
+  #install_dir: 'Contents/libs'
 )
 
 thread_dep = dependency('threads')
