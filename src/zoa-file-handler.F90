@@ -63,6 +63,11 @@ module zoa_file_handler
            path = trim(basepath)//'\OneDrive\Documents\Zoa\'
            ID_SYSTEM = ID_OS_WINDOWS
            PRINT *, "Path for files is ", trim(path)
+           PLPLOT_LIB = trim(path)//'plplot'
+           setenv_result = g_setenv("PLPLOT_LIB"//c_null_char, trim(PLPLOT_LIB)//c_null_char, 1)
+           PRINT *, "setenv_result = ", setenv_result
+           call get_environment_variable("PLPLOT_LIB", pwd)
+           PRINT *, "Basepath is ", trim(pwd)           
 #endif
 
 #ifdef LINUX
