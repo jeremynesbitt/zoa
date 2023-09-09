@@ -29,9 +29,13 @@ module zoa_file_handler
       end function
 
       function getZoaPath() result(path)
+        use iso_c_binding, only: c_char, c_null_char
+        use g, only: g_setenv
 
         character(len=255) :: path, basepath
-        integer :: tstifdef
+        character(len=1024) :: pwd
+        character(kind=c_char, len=1224) :: PLPLOT_LIB
+        integer :: tstifdef, setenv_result
 
 ! Cannot indent these c directives
        !PRINT *, "About to enter ifdef part... "
@@ -44,6 +48,13 @@ module zoa_file_handler
             path = trim(basepath)//'/Library/Application Support/Zoa/'
             PRINT *, "Path for files is ", trim(path)
             ID_SYSTEM = ID_OS_MAC
+            ! Set PlPlot data directory
+            PLPLOT_LIB = trim(path)//'plplot'
+            setenv_result = g_setenv("PLPLOT_LIB"//c_null_char, trim(PLPLOT_LIB)//c_null_char, 1)
+            PRINT *, "setenv_result = ", setenv_result
+            call get_environment_variable("PLPLOT_LIB", pwd)
+            PRINT *, "Basepath is ", trim(pwd)
+
 #endif
 
 #ifdef WINDOWS

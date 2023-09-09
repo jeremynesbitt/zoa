@@ -407,7 +407,10 @@ end subroutine
     PRINT *, "isurface is ", LOC(isurface)
     if (.not. c_associated(isurface)) then
        PRINT *, "error:  new plot :: Backing surface is NULL"
-       return
+       isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
+       isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+       call g_object_set_data(localcanvas, "backing-surface", isurface)
+    
     end if
 
     call mplt%initialize(localcanvas, 1,1)
