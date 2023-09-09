@@ -58,6 +58,7 @@ if fortran.get_id().contains('intel-cl')
     '/winapp',
     '/assume:byterecl',
     '/fpp'])
+
   elif build_type == 'release'
     # -w inhibit all warning messages
     supported_arguments = fortran.get_supported_arguments([
@@ -69,6 +70,8 @@ if fortran.get_id().contains('intel-cl')
     '/winapp',
     '/assume:byterecl',
     '/fpp'])
+    add_project_link_arguments(['/NODEFAULTLIB:MSVCRTD'], language: 'fortran')
+
   endif
 endif
 
@@ -116,6 +119,7 @@ endif
 
 add_global_arguments(globArg, language : 'fortran')
 add_project_arguments(supported_arguments, language: 'fortran')
+
 
 # Need > 4.4.1 due to bug fix for _set_accels binding
 # 
