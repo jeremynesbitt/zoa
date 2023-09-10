@@ -6,7 +6,7 @@ Zoa was primarily written on MacOS, but the code will also run in Windows but ha
 
 # Using
 
-For Mac and Windows, the best way to use Zoa is to download the installer here.  
+For Mac and Windows, the best way to use Zoa is to download the installer here: https://github.com/jnez137/zoa/releases  
 
 For Linux it should be possible to build and run baes on the MacOS build instructions below, but it has not been tested.
 
@@ -14,7 +14,7 @@ For Linux it should be possible to build and run baes on the MacOS build instruc
 
 ## MacOS
 
-As mentioned above, the best way to get started is to download a release.  But if you want to build it yourself for development purposes, instructions are below:
+As mentioned above, the best way to get started is to download a release (https://github.com/jnez137/zoa/releases).  But if you want to build it yourself for development purposes, instructions are below:
 
 The following packages are needed to build Zoa:   
 * gtk4   
@@ -68,7 +68,7 @@ Note:  Zoa requires resources in ~/Library/Application Support/Zoa to properly w
 
 
 ## Windows   
-As mentioned above, the best way to get started is to download a release.  But if you want to build it yourself for development purposes, instructions are below:   
+As mentioned above, the best way to get started is to download a release (https://github.com/jnez137/zoa/releases).  But if you want to build it yourself for development purposes, instructions are below:   
 
 At present, for Windows the Intel Fortran classic compiler is required due to the issue reported here (https://github.com/vmagnin/gtk-fortran/issues/244); UIs such as the lens editor dialog box will crash the program using gfortran.  This prevents the theorectically easier path of using MSYS2 to get Zoa up and running.
 
@@ -115,7 +115,7 @@ If everything is done correctly (and my instructions above are accurate) everyth
 **Install**   
 Zoa uses Inno (https://jrsoftware.org/isinfo.php).  If you download this application, you can load the config file in the /Windows directory of the repository, compile and run and it should install it for you.  
 
-Zoa needs resource files in a specific location to run (eg glass libraries).  The installer will do this for you, but if you want to do it yourself you can copy the files to C:\Users\currUser\OneDrive\Documents\Zoa
+Zoa needs resource files in a specific location to run (eg glass libraries).  The installer will do this for you, but if you want to do it yourself you can copy the files to %APPDATA%\Zoa where %APPDATA% is an environment variable.
 
 Note:  The Windows build uses a trick to hide the command prompt window when it is built in release mode only.  If you want to hide the debugging information, add ```--buildtype=release``` to the meson setup command
 
