@@ -16,6 +16,8 @@ integer, parameter :: ID_PLOTTYPE_SPOT     = 1003
 integer, parameter :: ID_PLOTTYPE_RMSFIELD     = 1011
 integer, parameter :: ID_PLOTTYPE_SPOT_VS_FIELD     = 1012
 integer, parameter :: ID_PLOTTYPE_ZERN_VS_FIELD     = 1013
+integer, parameter :: ID_PLOTTYPE_POWSYM     = 1014
+
 
 
 

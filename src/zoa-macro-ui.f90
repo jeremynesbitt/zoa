@@ -70,12 +70,12 @@ module zoa_macro_ui
        if (nsel == 0) return
 
        if (fdata == 0) then
-              PRINT *, "RUN SELECTED!"
+              !PRINT *, "RUN SELECTED!"
               ! Find and print the selected row(s)
-              print *, nsel,"Rows selected"
-              print *, selections
+              !print *, nsel,"Rows selected"
+              !print *, selections
               call hl_gtk_list1_get_cell(ihlist, selections(1), svalue)
-              print *, "TXT IS ", svalue
+              !print *, "TXT IS ", svalue
               deallocate(selections)
 
           if (gtk_check_button_get_active(macrorun).EQ.TRUE) THEN
@@ -100,8 +100,9 @@ module zoa_macro_ui
                 call macroedit_savetofile(gtk_text_view_get_buffer(macroTextView))
                 !print *, "About to call alert dialog"
                 !call macroedit_alert()
-                !print *, "Dialog Closed!"
-                call PROCESKDP('MREFRESH')
+                !print *, "Dialog Closed!"  
+                CALL MREFRESH 
+                !call PROCESKDP('MREFRESH')
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrocopy).EQ.TRUE) THEN

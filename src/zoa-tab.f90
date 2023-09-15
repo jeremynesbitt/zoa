@@ -374,6 +374,9 @@ function build(self) result(expander)
    call gtk_grid_set_column_homogeneous(self%table, TRUE)
    call gtk_grid_set_row_homogeneous(self%table, TRUE)
 
+   ! The table is contained in an expander, which is contained in the vertical box:
+   expander = gtk_expander_new_with_mnemonic (trim(self%name)//c_null_char)
+
    if (self%numSettings.EQ.0) RETURN
 
    maxRow = self%numSettings
@@ -506,6 +509,7 @@ type zoatab
    procedure, public, pass(self) :: addSpinButton_runCommand
    procedure, public, pass(self) :: createGenericSinglePlot
    procedure, public, pass(self) :: updateGenericSinglePlot
+   procedure, public, pass(self) :: createGenericMultiPlot
    procedure, public, pass(self) :: newPlot => zoatab_newPlot
 
 
@@ -528,7 +532,7 @@ end interface
 
 contains ! for module
 
- subroutine initialize(self, parent_window, tabTitle, ID_PLOTTYPE)
+ subroutine initialize(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
 
     !use ROUTEMOD
     implicit none
@@ -537,6 +541,7 @@ contains ! for module
 
     type(c_ptr) :: parent_window
     integer(kind=c_int) :: ID_PLOTTYPE
+    type(c_ptr), optional :: canvas
     character(len=*) :: tabTitle
     type(c_ptr) :: tab_label, scrolled_tab, head, btn
     integer :: i
@@ -570,13 +575,41 @@ contains ! for module
     self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
 
     !call self%createCairoDrawingArea()
-    call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
-    PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
+    if (present(canvas)) then
+      self%canvas = canvas
+    else
+     call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
+     PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
+    end if
 
     call self%settings%initialize()
     PRINT *, "Done with zoatab type initialization"
 
  end subroutine
+
+subroutine createGenericMultiPlot(self, mplt)
+  use zoa_plot
+  implicit none
+  class(zoatab) :: self
+  type(multiplot) :: mplt
+  type(c_ptr) ::  isurface
+
+
+  PRINT *, "canvas in createGenericMultiPlot is", LOC(self%canvas)
+  isurface = g_object_get_data(mplt%area, "backing-surface")
+  PRINT *, "multiplot isurface is ", LOC(isurface)
+  if (.not. c_associated(isurface)) then
+     PRINT *, "error:  new plot :: Backing surface is NULL.  Adding one"
+     isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
+     isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+     call g_object_set_data(self%canvas, "backing-surface", isurface)
+     mplt%area = self%canvas
+
+  end if  
+
+  call mplt%draw()
+  
+end subroutine
 
 subroutine createGenericSinglePlot(self, x, y, xlabel, ylabel, title, lineTypeCode)
   use zoa_plot
@@ -822,6 +855,9 @@ end subroutine
 
     !call self%buildSettings()
     expander = self%settings%build()
+    PRINT *, "Expander is ", LOC(EXPANDER)
+    PRINT *, "Box ptr is ", LOC(self%box1)
+
     ! We create a vertical box container:
     call gtk_box_append(self%box1, expander)
     call gtk_widget_set_vexpand (self%box1, FALSE)

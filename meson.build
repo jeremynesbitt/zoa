@@ -77,7 +77,7 @@ if fortran.get_id().contains('gcc')
   if build_type == 'debug'
     warning_level = 2
     supported_arguments = fortran.get_supported_arguments([
-    '-pthread',
+    #'-pthread',
     '-gdwarf-2',
     '-g',
     #'-Wall',
@@ -100,7 +100,7 @@ if fortran.get_id().contains('gcc')
   elif build_type == 'release'
     # -w inhibit all warning messages
     supported_arguments = fortran.get_supported_arguments([
-    '-pthread',
+    #'-pthread',
     '-w',
     '-fno-align-commons',
     '-static-libgcc',
@@ -137,6 +137,8 @@ prog = []
 subdir('etc')
 subdir('src')
 
+thread_dep = dependency('threads')
+
 # Build target
 zoa_lib = static_library(
   meson.project_name(),
@@ -148,7 +150,6 @@ zoa_lib = static_library(
   #install_dir: 'Contents/libs'
 )
 
-thread_dep = dependency('threads')
 
 if system == 'windows'
   windows = import('windows')

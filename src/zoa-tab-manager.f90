@@ -33,6 +33,7 @@ type  zoatabManager
    procedure :: doesPlotExist
    procedure :: addPlotTabFromObj
    procedure :: addGenericPlotTab
+   procedure :: addGenericMultiPlotTab
    procedure :: updateGenericPlotTab
    procedure :: finalizeNewPlotTab
    procedure :: updateInputCommand
@@ -266,6 +267,32 @@ subroutine finalizeNewPlotTab(self, idx)
 
 
 end subroutine
+
+function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt)
+  class(zoatabManager) :: self
+  integer :: PLOT_CODE
+  character(len=*) :: tabTitle
+  type(multiplot) :: mplt
+  integer :: idx
+
+  idx = self%findTabIndex()
+  PRINT *, "IDX is ", idx
+
+  allocate(zoatab :: self%tabInfo(idx)%tabObj)
+  call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, mplt%area)
+  self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
+  call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
+  allocate(ui_settings :: self%tabInfo(idx)%settings )
+  ! Right now there is no settings object.  This object is only
+  ! used for replot.  Need a better solution for this
+  !self%tabInfo(idx)%settings = tabObj%settings
+
+  self%tabInfo(idx)%typeCode = PLOT_CODE
+  self%tabInfo(idx)%canvas = mplt%area
+  !call self%tabInfo(idx)%tabObj%finalizeWindow()
+
+
+end function
 
 function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, title, linetypecode) result(idx)
   class(zoatabManager) :: self
