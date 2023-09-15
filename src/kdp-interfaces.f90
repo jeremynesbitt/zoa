@@ -468,6 +468,23 @@ INCLUDE 'DATMAI.INC'
  call updateTerminalLog(INPUT, "blue")
  inputCmd = INPUT
 
+ canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+ & has_alpha=FALSE)
+
+ WRITE(strTitle, "(A15, F10.3)") "Power:  w = ", w_sum
+ call mplt%initialize(canvas, 2,1)
+
+ call bar1%initialize(c_null_ptr, real(surfaceno),abs(w), &
+ & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
+ & title=trim(strTitle)//c_null_char)
+ !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+ WRITE(strTitle, "(A15, F10.3)") "Symmetry:  s = ", s_sum
+ call bar2%initialize(c_null_ptr, real(surfaceno),abs(symcalc), &
+ & xlabel='Surface No'//c_null_char, ylabel='s'//c_null_char, &
+ & title=trim(strTitle)//c_null_char)
+ call bar2%setDataColorCode(PL_PLOT_BLUE)
+ call mplt%set(1,1,bar1)
+ call mplt%set(2,1,bar2)
 
 
 
@@ -479,27 +496,11 @@ if (replot) then
  call zoatabMgr%updateInputCommand(objIdx, inputCmd)
  !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
 
- ! call zoatabMgr%updateGenericPlotTab(objIdx, x, y)
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
 
 else
 
-  canvas = hl_gtk_drawing_area_new(size=[1200,500], &
-  & has_alpha=FALSE)
- 
-  WRITE(strTitle, "(A15, F10.3)") "Power:  w = ", w_sum
-  call mplt%initialize(canvas, 2,1)
 
-  call bar1%initialize(c_null_ptr, real(surfaceno),abs(w), &
-  & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
-  & title=trim(strTitle)//c_null_char)
-  !PRINT *, "Bar chart color code is ", bar1%dataColorCode
-  WRITE(strTitle, "(A15, F10.3)") "Symmetry:  s = ", s_sum
-  call bar2%initialize(c_null_ptr, real(surfaceno),abs(symcalc), &
-  & xlabel='Surface No'//c_null_char, ylabel='s'//c_null_char, &
-  & title=trim(strTitle)//c_null_char)
-  call bar2%setDataColorCode(PL_PLOT_BLUE)
-  call mplt%set(1,1,bar1)
-  call mplt%set(2,1,bar2)
   !call mplt%draw()
 
 

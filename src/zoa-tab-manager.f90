@@ -35,6 +35,7 @@ type  zoatabManager
    procedure :: addGenericPlotTab
    procedure :: addGenericMultiPlotTab
    procedure :: updateGenericPlotTab
+   procedure :: updateGenericMultiPlotTab
    procedure :: finalizeNewPlotTab
    procedure :: updateInputCommand
    procedure :: findTabIndex
@@ -268,7 +269,7 @@ subroutine finalizeNewPlotTab(self, idx)
 
 end subroutine
 
-function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt)
+function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   class(zoatabManager) :: self
   integer :: PLOT_CODE
   character(len=*) :: tabTitle
@@ -323,6 +324,15 @@ function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, titl
 
 
 end function
+
+subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
+  implicit none
+  class(zoatabManager) :: self
+  type(multiplot) :: mplt
+  integer :: objIdx
+
+  call self%tabInfo(objIdx)%tabObj%updateGenericMultiPlot(mplt)
+end subroutine
 
 subroutine updateGenericPlotTab(self, objIdx, x, y)
   class(zoatabManager) :: self

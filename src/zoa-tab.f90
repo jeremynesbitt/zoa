@@ -509,6 +509,7 @@ type zoatab
    procedure, public, pass(self) :: addSpinButton_runCommand
    procedure, public, pass(self) :: createGenericSinglePlot
    procedure, public, pass(self) :: updateGenericSinglePlot
+   procedure, public, pass(self) :: updateGenericMultiPlot
    procedure, public, pass(self) :: createGenericMultiPlot
    procedure, public, pass(self) :: newPlot => zoatab_newPlot
 
@@ -654,6 +655,13 @@ subroutine createGenericSinglePlot(self, x, y, xlabel, ylabel, title, lineTypeCo
   ! Need settings to be defined firsr
   !call self%finalizeWindow()
 
+end subroutine
+
+subroutine updateGenericMultiPlot(self, mplt)
+  class(zoatab) :: self
+  type(multiplot) :: mplt
+  mplt%area = self%canvas
+  call mplt%draw()
 end subroutine
 
 subroutine updateGenericSinglePlot(self, x, y)
