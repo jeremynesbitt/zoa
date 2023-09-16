@@ -84,8 +84,9 @@ C     CALCULATIONS
       OREFLOC=REFLOC
       LASTCOMWRD=WC
 
+
       !if(INPUT.EQ.'MREFRESH') call updateTerminalLog(INPUT, "blue")
-      !call updateTerminalLog(INPUT, "black")
+      call updateTerminalLog(INPUT, "black")
       !call sleep(1)
       !call pending_events()
       !PRINT *, "CMDER INPUT = ", INPUT

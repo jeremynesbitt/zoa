@@ -101,8 +101,8 @@ module zoa_macro_ui
                 !print *, "About to call alert dialog"
                 !call macroedit_alert()
                 !print *, "Dialog Closed!"  
-                CALL MREFRESH 
-                !call PROCESKDP('MREFRESH')
+                !CALL MREFRESH 
+                call PROCESKDP('MREFRESH')
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrocopy).EQ.TRUE) THEN
