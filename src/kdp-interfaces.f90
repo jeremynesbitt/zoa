@@ -566,6 +566,7 @@ subroutine rmsfield_ideal
 
 
     PRINT *, "numPoints is ", numPoints
+    
 
     allocate(x(numPoints))
     allocate(y(numPoints))
@@ -612,6 +613,142 @@ subroutine rmsfield_ideal
 
 end subroutine
 
+
+subroutine plot_seidel()
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: zoatabMgr, updateTerminalLog
+  use global_widgets, only:  sysConfig, curr_lens_data
+  use zoa_ui
+  use zoa_plot
+  use gtk_draw_hl 
+  use iso_c_binding, only:  c_ptr, c_null_char
+
+
+IMPLICIT NONE
+
+real, allocatable, dimension(:,:) :: seidel
+real, allocatable, dimension(:) :: surfIdx
+
+character(len=23) :: ffieldstr
+character(len=40) :: inputCmd
+integer :: ii, objIdx, jj
+integer :: numPoints = 10
+logical :: replot
+type(c_ptr) :: canvas
+type(barchart) :: bar1, bar2
+type(barchart), dimension(5) :: barGraphs
+integer, dimension(5) :: graphColors
+type(multiplot) :: mplt
+character(len=100) :: strTitle
+character(len=20), dimension(5) :: ftxt
+character(len=20), dimension(5) :: yLabels
+character(len=23) :: cmdTxt
+
+
+INCLUDE 'DATMAI.INC'
+
+CALL PROCESKDP('MAB3 ALL')
+
+allocate(seidel(5,curr_lens_data%num_surfaces))
+allocate(surfIdx(curr_lens_data%num_surfaces))
+
+
+ftxt(1) = "SHO SA3 "
+ftxt(2) = "SHO CMA3 "
+ftxt(3) = "SHO AST3 "
+ftxt(4) = "SHO PTZ3 "
+ftxt(5) = "SHO DIS3 "
+
+
+yLabels(1) = "Spherical"
+yLabels(2) = "Coma"
+yLabels(3) = "Astigmatism"
+yLabels(4) = "Curvature"
+yLabels(5) = "Distortion"
+
+graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
+& PL_PLOT_MAGENTA, PL_PLOT_CYAN]
+
+surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces-1)/)
+do ii=1,curr_lens_data%num_surfaces
+  do jj=1, 5
+   WRITE(cmdTxt, *) ii-1
+   call PROCESKDP(trim(ftxt(jj))//' '//trim(cmdTxt))
+   seidel(jj,ii) = reg(9)
+  end do
+   
+end do
+
+
+ !call checkCommandInput(ID_CMD_ALPHA)
+
+ call updateTerminalLog(INPUT, "blue")
+ inputCmd = INPUT
+
+ canvas = hl_gtk_drawing_area_new(size=[1200,800], &
+ & has_alpha=FALSE)
+
+
+ call mplt%initialize(canvas, 1,5)
+
+ do ii=1,5
+  call barGraphs(ii)%initialize(c_null_ptr, real(surfIdx),seidel(ii,:), &
+  & xlabel='Surface No'//c_null_char, ylabel=trim(yLabels(ii))//c_null_char, &
+  & title=' '//c_null_char)
+  call barGraphs(ii)%setDataColorCode(graphColors(ii))
+  barGraphs(ii)%useGridLines = .FALSE.
+ end do
+
+ do ii=1,5
+  call mplt%set(1,ii,barGraphs(ii))
+ end do
+
+!  call bar1%initialize(c_null_ptr, real(surfIdx),seidel(1,:), &
+!  & xlabel='Surface No'//c_null_char, ylabel='Spherical'//c_null_char, &
+!  & title=' '//c_null_char)
+
+!  call bar2%initialize(c_null_ptr, real(surfIdx),seidel(2,:), &
+!  & xlabel='Surface No'//c_null_char, ylabel='Coma'//c_null_char, &
+!  & title=' '//c_null_char)
+!  call bar2%setDataColorCode(PL_PLOT_BLUE)
+!  call mplt%set(1,1,bar1)
+!  call mplt%set(2,1,bar2)
+
+
+
+replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_SEIDEL, objIdx)
+
+if (replot) then
+ PRINT *, "POWSYM REPLOT REQUESTED"
+ PRINT *, "Input Command was ", inputCmd
+ call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+ !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+else
+
+
+  !call mplt%draw()
+
+
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_SEIDEL, "Seidel Aberrations"//c_null_char, mplt)
+
+ ! Add settings
+ PRINT *, "Really before crash?"
+ zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+ PRINT *, "Really after crash?"
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+end if
+
+end subroutine
+
 subroutine PLTZERN
 
     USE GLOBALS
@@ -648,6 +785,11 @@ subroutine PLTZERN
 
 
     PRINT *, "numPoints is ", numPoints
+    PRINT *, "WQ is ", WQ
+    PRINT *, "WC is ", WC
+    PRINT *, "WS is ", WS
+    PRINT *, "W1 is ", W1
+    PRINT *, "W2 is ", W2
 
     allocate(xdat(numPoints))
     allocate(ydat(numPoints))

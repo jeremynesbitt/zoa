@@ -102,7 +102,8 @@ module zoa_macro_ui
                 !call macroedit_alert()
                 !print *, "Dialog Closed!"  
                 !CALL MREFRESH 
-                call PROCESKDP('MREFRESH')
+                call PROCESKDP('IN FILE MAC_EDIT.DAT')
+                !call PROCESKDP('MREFRESH')
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrocopy).EQ.TRUE) THEN
@@ -155,7 +156,7 @@ module zoa_macro_ui
       call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
       & c_loc(iterStart),c_loc(iterEnd), FALSE), lineTxt)
       if (i>1) call OUTKDP(trim(lineTxt),0)
-      PRINT *, "lineTxt is ", trim(lineTxt)
+      !PRINT *, "lineTxt is ", trim(lineTxt)
       iterStart = iterEnd
     end do
       CALL CLOSE_FILE(31,1)

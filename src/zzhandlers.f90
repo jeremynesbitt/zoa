@@ -148,6 +148,75 @@ contains
 
   end subroutine pending_events
 
+  subroutine updateTerminalLog_debug(ftext, txtColor)
+    USE GLOBALS
+    use global_widgets
+
+    IMPLICIT NONE
+
+    character(len=*), intent(in) :: ftext
+    character(len=*), intent(in)  :: txtColor
+
+    type(gtktextiter), target :: iter, startIter, endIter
+    logical :: scrollResult
+    type(c_ptr) ::  buffInsert
+    type(c_ptr) ::  txtBuffer
+
+
+
+    ! This routine is to update the terminal log, and is
+    ! abstracted in case the method (font color, bold) needs to be changed
+
+    ! The way implemented is to use the pango / markup interface
+    ! See for some examples
+    ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
+
+
+
+
+    !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
+
+    txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
+    call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
+
+    !PRINT *, "ABOUT TO CALL MARKUP "
+    !TODO Sometimes an empty ftext is sent to this function and GTK throws a
+    !warnting.  Need to figure out how to detect empty string (this is not working)
+  !PRINT *, "debug ftext is ", ftext
+    
+  if (ftext.ne."  ") THEN
+    call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
+    & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
+    & //c_null_char, -1_c_int)
+  END IF
+
+    buffInsert = gtk_text_buffer_get_insert(txtBuffer)
+   !gBool = g_variant_new_boolean(True)
+    !PRINT *, "Before Warning?"
+    call gtk_text_view_scroll_to_mark(ioConfig%textView, buffInsert, 0.0_c_double, &
+    &  True, 0.0_c_double, 1.0_c_double)
+
+
+    !PRINT *, "After Warning?"
+  ! Update command history for a simple way for the user to get previous commands
+  !   if (txtColor.eq."blue") then
+  !     if (command_index.LT.cmdHistorySize+1) THEN
+
+  !      command_history(command_index) = ftext
+  !      command_index = command_index + 1
+  !      command_search = command_index
+  !    else ! array full
+  !      command_history(1:cmdHistorySize-1) = command_history(2:cmdHistorySize)
+  !      command_history(cmdHistorySize) = ftext
+
+  !    END IF
+  !  END IF
+
+    !call pending_events()
+    !PRINT *, "End of updateterminallog"
+
+end subroutine
+
   subroutine updateTerminalLog(ftext, txtColor)
       USE GLOBALS
       use global_widgets
@@ -445,7 +514,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 

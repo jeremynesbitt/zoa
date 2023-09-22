@@ -3031,7 +3031,9 @@ C       MODE IS AFOCAL
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
-                C2=(3.0D0*MAB3(2,I))/INV
+                !C2=(3.0D0*MAB3(2,I))/INV
+                !JN Remove factor of 3 for sagittal coma
+                C2=MAB3(2,I)/INV 
                 C3=MAB3(3,I)/INV
                 C4=MAB3(4,I)/INV
                 C5=MAB3(5,I)/INV
@@ -3055,7 +3057,9 @@ C               FOCAL OR AFOCAL, CONVERT
 C               UFOCAL OR UAFOCAL, DON'T CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)
-                C2=3.0D0*MAB3(2,I)
+                !C2=3.0D0*MAB3(2,I)
+                !JN remove factor of 3
+                C2=MAB3(2,I)
                 C3=MAB3(3,I)
                 C4=MAB3(4,I)
                 C5=MAB3(5,I)
@@ -3085,7 +3089,9 @@ C       IN ANY CASE, THE SURFACE CONTRIBUTIONS MUST BE SUMMED
                         DO 20 I=0,SF
         IF(WC.EQ.'MAB3') THEN
                 C1T=C1T+MAB3(1,I)
-                C2T=C2T+(3.0D0*MAB3(2,I))
+                !C2T=C2T+(3.0D0*MAB3(2,I))
+                !JN Remove factor of 3
+                C2T=C2T+MAB3(2,I)
                 C3T=C3T+MAB3(3,I)
                 C4T=C4T+MAB3(4,I)
                 C5T=C5T+MAB3(5,I)
@@ -3152,7 +3158,9 @@ C       QUALIFIER NOT "ALL"
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,SF)/INV
-                C2=(3.0D0*MAB3(2,SF))/INV
+                !C2=(3.0D0*MAB3(2,SF))/INV
+                !JN remove factor of 3
+                C2=MAB3(2,SF)/INV
                 C3=MAB3(3,SF)/INV
                 C4=MAB3(4,SF)/INV
                 C5=MAB3(5,SF)/INV
@@ -3178,7 +3186,9 @@ C               FOCAL OR AFOCAL, CONVERT
 C               UFOCAL OR UAFOCAL, DON'T CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,SF)
-                C2=3.0D0*MAB3(2,SF)
+                !C2=3.0D0*MAB3(2,SF)  
+                ! JN Remove factor of 3
+                C2=MAB3(2,SF)
                 C3=MAB3(3,SF)
                 C4=MAB3(4,SF)
                 C5=MAB3(5,SF)
@@ -3226,7 +3236,9 @@ C       THE SURFACE CONTRIBUTIONS MUST BE SUMMED
                         DO 220 I=0,SF
         IF(WC.EQ.'MAB3') THEN
                 C1T=C1T+MAB3(1,I)
-                C2T=C2T+(3.0D0*MAB3(2,I))
+                !C2T=C2T+(3.0D0*MAB3(2,I))
+                !JN Remove factor of 3
+                C2T=C2T+MAB3(2,I)
                 C3T=C3T+MAB3(3,I)
                 C4T=C4T+MAB3(4,I)
                 C5T=C5T+MAB3(5,I)
@@ -3296,7 +3308,9 @@ C
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
-                C2=(3.0D0*MAB3(2,I))/INV
+                !C2=(3.0D0*MAB3(2,I))/INV
+                !JN Remove factor of 3
+                C2=MAB3(2,I)/INV
                 C3=MAB3(3,I)/INV
                 C4=MAB3(4,I)/INV
                 C5=MAB3(5,I)/INV
@@ -3322,7 +3336,10 @@ C               FOCAL OR AFOCAL, CONVERT
 C               UFOCAL OR UAFOCAL, DON'T CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
-                C2=(3.0D0*MAB3(2,I))/INV
+                !C2=(3.0D0*MAB3(2,I))/INV
+                !JN Remove factor of 3
+
+                C2=MAB3(2,I)/INV
                 C3=MAB3(3,I)/INV
                 C4=MAB3(4,I)/INV
                 C5=MAB3(5,I)/INV
