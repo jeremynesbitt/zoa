@@ -628,32 +628,35 @@ subroutine plot_seidel()
 
 IMPLICIT NONE
 
+integer, parameter :: nS = 5 ! number of seidel terms to plot
 real, allocatable, dimension(:,:) :: seidel
 real, allocatable, dimension(:) :: surfIdx
 
 character(len=23) :: ffieldstr
 character(len=40) :: inputCmd
 integer :: ii, objIdx, jj
-integer :: numPoints = 10
 logical :: replot
 type(c_ptr) :: canvas
 type(barchart) :: bar1, bar2
-type(barchart), dimension(5) :: barGraphs
-integer, dimension(5) :: graphColors
+type(barchart), dimension(nS) :: barGraphs
+integer, dimension(nS) :: graphColors
 type(multiplot) :: mplt
 character(len=100) :: strTitle
-character(len=20), dimension(5) :: ftxt
-character(len=20), dimension(5) :: yLabels
+character(len=20), dimension(nS) :: ftxt
+character(len=20), dimension(nS) :: yLabels
 character(len=23) :: cmdTxt
 
 
 INCLUDE 'DATMAI.INC'
 
+call updateTerminalLog(INPUT, "blue")
+inputCmd = INPUT
+
 CALL PROCESKDP('MAB3 ALL')
 
-allocate(seidel(5,curr_lens_data%num_surfaces))
-allocate(surfIdx(curr_lens_data%num_surfaces))
-
+allocate(seidel(nS,curr_lens_data%num_surfaces+1))
+allocate(surfIdx(curr_lens_data%num_surfaces+1))
+PRINT *, "Post Allocate!"
 
 ftxt(1) = "SHO SA3 "
 ftxt(2) = "SHO CMA3 "
@@ -671,9 +674,9 @@ yLabels(5) = "Distortion"
 graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
 & PL_PLOT_MAGENTA, PL_PLOT_CYAN]
 
-surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces-1)/)
+surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
 do ii=1,curr_lens_data%num_surfaces
-  do jj=1, 5
+  do jj=1, nS
    WRITE(cmdTxt, *) ii-1
    call PROCESKDP(trim(ftxt(jj))//' '//trim(cmdTxt))
    seidel(jj,ii) = reg(9)
@@ -681,27 +684,33 @@ do ii=1,curr_lens_data%num_surfaces
    
 end do
 
+PRINT *, "Line 684"
+! Add Sums to Seidel array
+do jj=1,nS
+  call PROCESKDP(trim(ftxt(jj)))
+  seidel(jj,curr_lens_data%num_surfaces+1) = reg(9)
+ end do
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
- call updateTerminalLog(INPUT, "blue")
- inputCmd = INPUT
+
 
  canvas = hl_gtk_drawing_area_new(size=[1200,800], &
  & has_alpha=FALSE)
 
 
- call mplt%initialize(canvas, 1,5)
+ call mplt%initialize(canvas, 1,nS)
 
- do ii=1,5
-  call barGraphs(ii)%initialize(c_null_ptr, real(surfIdx),seidel(ii,:), &
-  & xlabel='Surface No'//c_null_char, ylabel=trim(yLabels(ii))//c_null_char, &
+ do jj=1,nS
+  call barGraphs(jj)%initialize(c_null_ptr, real(surfIdx),seidel(jj,:), &
+  & xlabel='Surface No (last item actually sum)'//c_null_char, & 
+  & ylabel=trim(yLabels(jj))//c_null_char, &
   & title=' '//c_null_char)
-  call barGraphs(ii)%setDataColorCode(graphColors(ii))
-  barGraphs(ii)%useGridLines = .FALSE.
+  call barGraphs(jj)%setDataColorCode(graphColors(jj))
+  barGraphs(jj)%useGridLines = .FALSE.
  end do
 
- do ii=1,5
+ do ii=1,nS
   call mplt%set(1,ii,barGraphs(ii))
  end do
 
@@ -721,7 +730,7 @@ end do
 replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_SEIDEL, objIdx)
 
 if (replot) then
- PRINT *, "POWSYM REPLOT REQUESTED"
+ PRINT *, "PLTSEI REPLOT REQUESTED"
  PRINT *, "Input Command was ", inputCmd
  call zoatabMgr%updateInputCommand(objIdx, inputCmd)
  !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
@@ -737,9 +746,8 @@ else
  objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_SEIDEL, "Seidel Aberrations"//c_null_char, mplt)
 
  ! Add settings
- PRINT *, "Really before crash?"
  zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
- PRINT *, "Really after crash?"
+ 
 
  ! Create Plot + settings tab
  call zoaTabMgr%finalizeNewPlotTab(objIdx)

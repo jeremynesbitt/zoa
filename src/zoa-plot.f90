@@ -178,12 +178,12 @@ contains
         ! Local Variables
         integer :: ind
 
-        PRINT *, "REACHED MP_SET!"
+        !PRINT *, "REACHED MP_SET!"
 
         ! Process
         ind = self%m_rows * (j - 1) + i
         call self%m_plots%set(ind, plotter)
-        PRINT *, "END MP_SET"
+        !PRINT *, "END MP_SET"
     end subroutine
 
     function mp_get(self,i,j) result(plotter)
@@ -203,7 +203,7 @@ contains
         item => self%m_plots%get(ind)
         select type (item)
         class is (zoaplot)
-            PRINT *, "Found Zoaplot obj!"
+            !PRINT *, "Found Zoaplot obj!"
             plotter => item
         class default
             nullify(plotter)
@@ -314,7 +314,7 @@ contains
             !and a margin around the other three sides of five character heights).
             call plvsta
             plotter => self%get(m,n)
-            call logger%logText("Starting to Draw Plot from Plotter")
+            !call logger%logText("Starting to Draw Plot from Plotter")
             call plotter%drawPlot
 
 
@@ -497,6 +497,7 @@ contains
 
             call getAxesLimits(self, xmin, xmax, ymin, ymax)
             call plwind(xmin, xmax, ymin, ymax)
+       if (c_associated(self%area)) then        
         isurface = g_object_get_data(self%area, "backing-surface")
     ! Create the backing surface
 
@@ -510,6 +511,7 @@ contains
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
         end if
+      end if
             call self%buildPlotCode()
             call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), 0.0_pl_test_flt, 0 ) 
             !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
@@ -898,7 +900,7 @@ contains
        else if (trim(self % labelFontColor) == trim("RED")) then
            r = 2
        end if
-       print *, "labelFontColor ", trim(self%labelFontColor)
+       !print *, "labelFontColor ", trim(self%labelFontColor)
     end function getLabelFontCode
 
     subroutine getAxesLimits(self, xmin, xmax, ymin, ymax)

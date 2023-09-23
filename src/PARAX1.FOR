@@ -422,8 +422,7 @@ C SUB PRTRA.FOR
         SUBROUTINE PRTRA
 C
         use global_widgets
-        use lens_editor, only: buildBasicTable, buildAsphereTable
-        use iso_c_binding, only: c_associated
+
 
         IMPLICIT NONE
 C
@@ -498,10 +497,7 @@ C     Dump data to interface
         !Refresh lens editor
       !PRINT *, "lens_editor_window is ", lens_editor_window
       !PRINT *, "c_Ass ", c_associated(lens_editor_window)
-      if (c_associated(lens_editor_window)) then
-        call buildBasicTable(.FALSE.)
-        call buildAsphereTable(.FALSE.)
-      end if      
+
 
                         CON=SYSTEM(15)
         IF(ITYPEP.EQ.1.OR.ITYPEP.EQ.3) THEN

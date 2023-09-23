@@ -660,7 +660,14 @@ end subroutine
 subroutine updateGenericMultiPlot(self, mplt)
   class(zoatab) :: self
   type(multiplot) :: mplt
-  mplt%area = self%canvas
+  if (c_associated(self%canvas)) then
+      
+      mplt%area = self%canvas
+  else
+    PRINT *, "Multiplot update canvas ptr is loose"
+    PRINT *, "mplt%area is ", LOC(mplt%area)
+     self%canvas = mplt%area
+  end if
   call mplt%draw()
 end subroutine
 

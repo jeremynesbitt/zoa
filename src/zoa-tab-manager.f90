@@ -440,7 +440,8 @@ end subroutine
 
      DO i = 1,self%tabNum
            if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
-              !PRINT *, "CMD Based REPLOT REQUESTED"
+              !PRINT *, "CMD Based REPLOT REQUESTED for tab ", i
+              !PRINT *, "CMD Stored is "
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           else
             call self%tabInfo(i)%settings%replot()
