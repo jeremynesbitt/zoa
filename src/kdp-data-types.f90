@@ -1,5 +1,6 @@
 module kdp_data_types
      use iso_c_binding, only:  c_ptr
+     use iso_fortran_env, only: real64
      integer, parameter :: ASPH_NON_TORIC    = 1
      integer, parameter :: ASPH_TORIC_AXIS_Y = 2
      integer, parameter :: ASPH_TORIC_AXIS_X = 3
@@ -137,6 +138,7 @@ end type
            & chief_ray_aoi(:)
            real :: t_mag = 0
            real :: EPD = 0 ! EPD = entrance pupil diameter
+           real(kind=real64), allocatable :: CSeidel(:,:), CXSeidel(:,:)
     contains
 
 

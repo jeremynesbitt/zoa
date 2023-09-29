@@ -1022,7 +1022,8 @@ C        CALL SPIDER
         IF(WC.EQ.'MAB3'.OR.WC.EQ.'XMAB3') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL PRTRC
-        CALL MMAB3
+        !CALL MMAB3
+        CALL MMAB3_NEW(1)
         RETURN
         END IF
         IF(WC.EQ.'MAB5'.OR.WC.EQ.'XMAB5') THEN

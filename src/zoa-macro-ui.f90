@@ -134,6 +134,7 @@ module zoa_macro_ui
 
   subroutine macroedit_savetofile(buffer)
     use zoa_file_handler, only: delete_file
+    use kdp_utils, only: OUTKDP
 
     implicit none
     type(c_ptr) :: buffer
@@ -355,22 +356,7 @@ module zoa_macro_ui
 
     end subroutine
 
-  !TODO find a better long term home for this.  At present, only
-  !this module is using it.  Was in kdp-interfaces but ninja did not like
-  !circular module references for some reason...
-  subroutine OUTKDP(txt, i)
-    character(len=*) :: txt
-    integer :: code
-    integer, optional :: i
 
-    include "DATMAI.INC"
-
-    OUTLYNE = txt
-    code=1
-    if (present(i)) code=i
-    CALL SHOWIT(code)
-
-  end subroutine
 
 
 end module

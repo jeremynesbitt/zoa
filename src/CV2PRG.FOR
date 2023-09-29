@@ -160,6 +160,7 @@ C
           RETURN
       END IF
 
+      
       call zoatabMgr%closeAllTabs("You are about to open a new 
      1 lens system.  This will invalidate all plots.   
      2 Press yes to close them.")

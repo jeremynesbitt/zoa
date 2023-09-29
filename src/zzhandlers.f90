@@ -236,7 +236,7 @@ contains
 
     buff2 = gtk_entry_get_buffer(entry)
     call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
-    print *, "Entered name as:",trim(ftext)
+    !print *, "Entered name as:",trim(ftext)
 
     ! Log results
     txtColor = "blue"
@@ -262,6 +262,7 @@ contains
     use GLOBALS
     use zoamenubar
     use zoa_tab
+    use hl_gtk_zoa
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -349,7 +350,7 @@ contains
     call gtk_notebook_set_group_name(notebook,"0"//c_null_char)
 
 
-     !textView = gtk_text_view_new ()
+   
      textView = hl_zoa_text_view_new()
      call gtk_text_view_set_editable(textView, FALSE)
     !
@@ -407,29 +408,19 @@ contains
     entry = hl_gtk_entry_new(60_c_int, editable=TRUE, tooltip = &
          & "Enter text here for command interpreter"//c_null_char, &
          & activate=c_funloc(name_enter))
-
+    
+    ! This does not work and I am not sure why.       
+    !call addMacOSClipboardShortcuts(entry)
+         
     call readCommandHistoryFromFile(command_history, command_index)
     PRINT *, "command_index is ", command_index
     PRINT *, "command history at command index is ", command_history(command_index)
     IF(command_index.GT.1) PRINT *, "prior command is ",command_history(command_index-1)
 
-    !entry2 = gtk_combo_box_text_new_with_entry()
-    !call gtk_combo_box_set_active(entry2, 1_c_int)
-    !call gtk_entry_set_activates_default(entry2, TRUE)
-    !call gtk_combo_box_text_insert_text(entry2, 0_c_int, ".."//c_null_char)
-  !  call g_signal_connect(entry2, "activate"//c_null_char, c_funloc(callback_editbox), c_null_ptr)
-    !keyevent = gtk_event_controller_key_new()
-    !call g_signal_connect(keyevent, "key-pressed"//c_null_char, c_funloc(callback_editbox), entry2)
-
-    !call g_signal_connect(entry, "key-pressed"//c_null_char, c_funloc(callback_editbox), c_null_ptr)
     !tmp code to test key pressed event
     controller_k = gtk_event_controller_key_new()
 
 
-    !call gtk_widget_add_controller(my_drawing_area, controller_k)
-    !call gtk_widget_set_focusable(my_drawing_area, TRUE)
-
-    !tstResult = gtk_event_controller_key_forward(controller_k, entry2)
 
     call gtk_widget_add_controller(entry, controller_k)
     call g_signal_connect(controller_k, "key-pressed"//c_null_char, &
