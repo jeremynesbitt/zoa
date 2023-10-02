@@ -572,7 +572,8 @@ C       3RD, 5TH AND 7TH ORDER ABERRATIONS
         END IF
         IF(WQ.EQ.'CMA3') THEN
         DO I=0,INT(SYSTEM(20))
-        V=V+(3.0D0*MAB3(2,I))
+        !V=V+(3.0D0*MAB3(2,I))
+        V=V+(MAB3(2,I))
         END DO
         END IF
         IF(WQ.EQ.'XCMA3') THEN

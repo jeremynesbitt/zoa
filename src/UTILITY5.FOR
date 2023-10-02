@@ -153,6 +153,10 @@ C
 C SUB CONTRO.FOR
         SUBROUTINE CONTRO
         use zoa_file_handler, only: getPermMacroDir
+        use global_widgets, only: lens_editor_window
+        use lens_editor, only: buildBasicTable, buildAsphereTable
+        use handlers, only: zoatabMgr
+        use iso_c_binding, only: c_associated        
 C
         IMPLICIT NONE
 C
@@ -4176,7 +4180,7 @@ C
 
 
         IF(F6.EQ.1.AND.F10.EQ.0.OR.F6.EQ.1.AND.F11.EQ.0) THEN
-          PRINT *, "LENS UPDATE ROUTINE"
+          !PRINT *, "LENS UPDATE ROUTINE"
 C
 C               WE ARE IN THE LENS UPDATE ROUTINE
 C
@@ -4196,8 +4200,8 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       CALL CONTG(WC1,WS1,SST1,IS)
                         IF(IS) THEN
                 CALL LENUP
-      PRINT *, "F31 = ", F31
-      PRINT *, "F28 = ", F28
+      !PRINT *, "F31 = ", F31
+      !PRINT *, "F28 = ", F28
       IF(WC.EQ.'EOS'.AND.F31.EQ.0.AND.F28.EQ.0) CALL FIXVAR
       IF(WC.EQ.'EOS'.AND.F31.EQ.0.AND.F28.EQ.0) CALL FIXCVAR
       IF(WC.EQ.'EOS'.AND.F31.EQ.0.AND.F28.EQ.0) CALL FIXTVAR
@@ -4207,6 +4211,11 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       IF(WC.EQ.'EOS') YESEOS=.TRUE.
       IF(WC.NE.'EOS') YESEOS=.FALSE.
 C     CALL RE_DISPLAY_LENS(YESEOS)
+      if (c_associated(lens_editor_window)) then
+        call buildBasicTable(.FALSE.)
+        call buildAsphereTable(.FALSE.)
+      end if   
+      call zoatabMgr%replotifneeded()      
                RETURN
                END IF
         IF(WC.EQ.'?') THEN
@@ -4985,7 +4994,7 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
 C       CHECK FOR VALID QUALIFIERS FOR UPDATE OR U
 C       ISSUED AT THE CMD LEVEL
       IF(F1.EQ.1.AND.F17.EQ.0.AND.WC.EQ.'U') THEN
-        PRINT *, "CHECK FOR VALID QUALIFIERS"
+        !PRINT *, "CHECK FOR VALID QUALIFIERS"
       IF(WQ.NE.'LENS'.AND.WQ.NE.'SPSRF'.AND.
      1WQ.NE.'CONFIGS'.AND.WQ.NE.'CONFIG'.AND.WQ
      2.NE.'VARIABLE'.AND.WQ.NE.'MERIT'.AND.WQ.NE.
@@ -5466,7 +5475,7 @@ C     LENS UPDATE
       INTEGER SST
       LOGICAL IS
 
-      PRINT *, "CONTG ROUTINE"
+      !PRINT *, "CONTG ROUTINE"
                         IS=.FALSE.
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.

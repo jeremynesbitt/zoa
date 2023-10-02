@@ -33,10 +33,13 @@ type  zoatabManager
    procedure :: doesPlotExist
    procedure :: addPlotTabFromObj
    procedure :: addGenericPlotTab
+   procedure :: addGenericMultiPlotTab
    procedure :: updateGenericPlotTab
+   procedure :: updateGenericMultiPlotTab
    procedure :: finalizeNewPlotTab
    procedure :: updateInputCommand
    procedure :: findTabIndex
+   procedure :: closeAllTabs
 
  end type
 
@@ -267,6 +270,31 @@ subroutine finalizeNewPlotTab(self, idx)
 
 end subroutine
 
+function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
+  class(zoatabManager) :: self
+  integer :: PLOT_CODE
+  character(len=*) :: tabTitle
+  type(multiplot) :: mplt
+  integer :: idx
+
+  idx = self%findTabIndex()
+
+  allocate(zoatab :: self%tabInfo(idx)%tabObj)
+  call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, mplt%area)
+  self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
+  call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
+  allocate(ui_settings :: self%tabInfo(idx)%settings )
+  ! Right now there is no settings object.  This object is only
+  ! used for replot.  Need a better solution for this
+  !self%tabInfo(idx)%settings = tabObj%settings
+
+  self%tabInfo(idx)%typeCode = PLOT_CODE
+  self%tabInfo(idx)%canvas = mplt%area
+  !call self%tabInfo(idx)%tabObj%finalizeWindow()
+
+
+end function
+
 function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, title, linetypecode) result(idx)
   class(zoatabManager) :: self
   integer :: PLOT_CODE
@@ -296,6 +324,15 @@ function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, titl
 
 
 end function
+
+subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
+  implicit none
+  class(zoatabManager) :: self
+  type(multiplot) :: mplt
+  integer :: objIdx
+
+  call self%tabInfo(objIdx)%tabObj%updateGenericMultiPlot(mplt)
+end subroutine
 
 subroutine updateGenericPlotTab(self, objIdx, x, y)
   class(zoatabManager) :: self
@@ -403,7 +440,8 @@ end subroutine
 
      DO i = 1,self%tabNum
            if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
-              !PRINT *, "CMD Based REPLOT REQUESTED"
+              !PRINT *, "CMD Based REPLOT REQUESTED for tab ", i
+              !PRINT *, "CMD Stored is "
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           else
             call self%tabInfo(i)%settings%replot()
@@ -417,6 +455,9 @@ end subroutine
 
     class(zoatabManager) :: self
     integer, intent(in) :: tabIndex, tabInfoIndex
+
+    PRINT *, "removePlotTab tabIndex is ", tabIndex
+    PRINT *, "removePlotTab tabInfoIndex is ", tabInfoIndex
 
     call gtk_notebook_remove_page(self%notebook, tabIndex)
     !PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
@@ -464,6 +505,42 @@ end subroutine
          return
        end if
     end do
+
+
+  end subroutine
+
+  subroutine closeAllTabs(self, dialogTxt)
+    use gtk_hl_dialog
+    implicit none
+    class(zoatabManager) :: self
+    character(len=*) :: dialogTxt
+    integer :: i, resp
+    character(len=80), dimension(3) :: msg
+
+    msg(1) ="You are about to open a new lens system"
+    msg(2) = "This will invalidate all open plots"
+    msg(3) = "Do you want to close all plots?"   
+
+    if (self%tabNum.EQ.0) return
+
+    resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+         & "Warning"//c_null_char)
+    if (resp == GTK_RESPONSE_YES) then
+
+       
+      ! This part is sketchy as if the way tabs are handled changes in the
+      ! future this could break.  The logic here is to set the first tab 
+      ! and delete the objects associated with that tab.  Since 
+      ! objects and tabs start out at a 1:1 correspondence, doing this 
+      ! tabNum times should guarantee all open plots are closed.
+      ! A more robust way if this causes proglems might be to clear 
+      ! all tabObjs and close all tabs independently
+      do i=1,self%tabNum
+        call gtk_notebook_set_current_page(self%notebook, 1)
+        call self%removePlotTab(1,i) ! This is dangerous to assume both indexes are the same.  TODO:  Need to look into this.
+      end do
+      self%tabNum = 0
+    end if
 
 
   end subroutine

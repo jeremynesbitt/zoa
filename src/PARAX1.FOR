@@ -423,6 +423,7 @@ C SUB PRTRA.FOR
 C
         use global_widgets
 
+
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -492,6 +493,10 @@ C     Dump data to interface
         !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
         !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
       END DO
+
+        !Refresh lens editor
+      !PRINT *, "lens_editor_window is ", lens_editor_window
+      !PRINT *, "c_Ass ", c_associated(lens_editor_window)
 
 
                         CON=SYSTEM(15)

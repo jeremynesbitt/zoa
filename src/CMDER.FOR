@@ -3,8 +3,8 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
-        use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR, 
-     1 SYSCONFIGUI, SPR, PLTZERN
+        use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
+     1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel
 C
         IMPLICIT NONE
 
@@ -84,8 +84,12 @@ C     CALCULATIONS
       OREFLOC=REFLOC
       LASTCOMWRD=WC
 
-      call updateTerminalLog(INPUT, "blue")
-      !PRINT *, "WC = ", WC
+
+      !if(INPUT.EQ.'MREFRESH') call updateTerminalLog(INPUT, "blue")
+      call updateTerminalLog(INPUT, "black")
+      !call sleep(1)
+      !call pending_events()
+      !PRINT *, "CMDER INPUT = ", INPUT
 
 C
 C ******************************************************************************
@@ -441,6 +445,10 @@ C       PART DRAWINGS
         END IF
         IF(WC.EQ.'PLTZERN') THEN
           CALL PLTZERN
+          RETURN
+        END IF
+        IF(WC.EQ.'PLTSEI') THEN
+          CALL plot_seidel
           RETURN
         END IF
 
@@ -1014,7 +1022,9 @@ C        CALL SPIDER
         IF(WC.EQ.'MAB3'.OR.WC.EQ.'XMAB3') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL PRTRC
-        CALL MMAB3
+        !CALL MMAB3
+        IF(WC.EQ.'MAB3') CALL MMAB3_NEW(1)
+        IF(WC.EQ.'XMAB3') CALL MMAB3_NEW(0)
         RETURN
         END IF
         IF(WC.EQ.'MAB5'.OR.WC.EQ.'XMAB5') THEN

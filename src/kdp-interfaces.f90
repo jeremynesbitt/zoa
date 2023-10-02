@@ -143,7 +143,8 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   !PRINT *, "Paraxial Data tst ", curr_par_ray_trace%marginal_ray_height
 
 ! Multiplot
-  call POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
+  !call POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
+  call powsym_ideal(surfaceno, w, w_sum, symcalc, s_sum)
 
 
 end subroutine POWSYM
@@ -217,8 +218,9 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
 
 
 
-  !PRINT *, "ABOUT TO FINALIZE NEW TAB!"
+  PRINT *, "ABOUT TO FINALIZE NEW TAB! Power Symmetry plot!"
   call powsym_tab%finalizeWindow()
+  PRINT *, "After finalize window in power symmetry plot"
 
     ! Until this is ported to the new functionality, hard
     ! code an idx so the app doesn't crash if the user tries to
@@ -429,6 +431,94 @@ SUBROUTINE RUN_WDRAWOPTICALSYSTEM
       RETURN
 END SUBROUTINE RUN_WDRAWOPTICALSYSTEM
 
+
+subroutine powsym_ideal(surfaceno, w, w_sum, symcalc, s_sum)
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: zoatabMgr, updateTerminalLog
+  use global_widgets, only:  sysConfig
+  use zoa_ui
+  use zoa_plot
+  use gtk_draw_hl 
+  use iso_c_binding, only:  c_ptr, c_null_char
+
+
+IMPLICIT NONE
+
+real, intent(in) :: w(:), symcalc(:)
+real, intent(in) :: w_sum, s_sum
+integer, intent(in) ::  surfaceno(:)
+
+character(len=23) :: ffieldstr
+character(len=40) :: inputCmd
+integer :: ii, objIdx
+integer :: numPoints = 10
+logical :: replot
+type(c_ptr) :: canvas
+type(barchart) :: bar1, bar2
+type(multiplot) :: mplt
+character(len=100) :: strTitle
+
+
+INCLUDE 'DATMAI.INC'
+
+ !call checkCommandInput(ID_CMD_ALPHA)
+
+ call updateTerminalLog(INPUT, "blue")
+ inputCmd = INPUT
+
+ canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+ & has_alpha=FALSE)
+
+ WRITE(strTitle, "(A15, F10.3)") "Power:  w = ", w_sum
+ call mplt%initialize(canvas, 2,1)
+
+ call bar1%initialize(c_null_ptr, real(surfaceno),abs(w), &
+ & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
+ & title=trim(strTitle)//c_null_char)
+ !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+ WRITE(strTitle, "(A15, F10.3)") "Symmetry:  s = ", s_sum
+ call bar2%initialize(c_null_ptr, real(surfaceno),abs(symcalc), &
+ & xlabel='Surface No'//c_null_char, ylabel='s'//c_null_char, &
+ & title=trim(strTitle)//c_null_char)
+ call bar2%setDataColorCode(PL_PLOT_BLUE)
+ call mplt%set(1,1,bar1)
+ call mplt%set(2,1,bar2)
+
+
+
+replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_POWSYM, objIdx)
+
+if (replot) then
+ PRINT *, "POWSYM REPLOT REQUESTED"
+ PRINT *, "Input Command was ", inputCmd
+ call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+ !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+else
+
+
+  !call mplt%draw()
+
+
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_POWSYM, "Power and Symmetry"//c_null_char, mplt)
+
+ ! Add settings
+ PRINT *, "Really before crash?"
+ zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+ PRINT *, "Really after crash?"
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+end if
+
+end subroutine
+
 !pseudocode for rms_field minimal effort
 ! One method that processes inputs and provides x,y data (possible?)
 ! RMSFIELD_XY
@@ -476,6 +566,7 @@ subroutine rmsfield_ideal
 
 
     PRINT *, "numPoints is ", numPoints
+    
 
     allocate(x(numPoints))
     allocate(y(numPoints))
@@ -506,6 +597,8 @@ subroutine rmsfield_ideal
          & ylabel='RMS Error [mWaves]'//c_null_char, &
          & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
 
+
+
       ! Add settings
       zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
       call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
@@ -517,6 +610,125 @@ subroutine rmsfield_ideal
 
 
     end if
+
+end subroutine
+
+
+subroutine plot_seidel()
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: zoatabMgr, updateTerminalLog
+  use global_widgets, only:  sysConfig, curr_lens_data,curr_par_ray_trace
+  use zoa_ui
+  use zoa_plot
+  use gtk_draw_hl 
+  use iso_c_binding, only:  c_ptr, c_null_char
+
+
+IMPLICIT NONE
+
+integer, parameter :: nS = 7 ! number of seidel terms to plot
+real, allocatable, dimension(:,:) :: seidel
+real, allocatable, dimension(:) :: surfIdx
+
+character(len=23) :: ffieldstr
+character(len=40) :: inputCmd
+integer :: ii, objIdx, jj
+logical :: replot
+type(c_ptr) :: canvas
+type(barchart), dimension(nS) :: barGraphs
+integer, dimension(nS) :: graphColors
+type(multiplot) :: mplt
+character(len=100) :: strTitle
+character(len=20), dimension(nS) :: yLabels
+character(len=23) :: cmdTxt
+
+
+INCLUDE 'DATMAI.INC'
+
+call updateTerminalLog(INPUT, "blue")
+inputCmd = INPUT
+
+CALL PROCESKDP('MAB3 ALL')
+
+allocate(seidel(nS,curr_lens_data%num_surfaces+1))
+allocate(surfIdx(curr_lens_data%num_surfaces+1))
+
+
+
+yLabels(1) = "Spherical"
+yLabels(2) = "Coma"
+yLabels(3) = "Astigmatism"
+yLabels(4) = "Distortion"
+yLabels(5) = "Curvature"
+yLabels(6) = "Axial Chromatic"
+yLabels(7) = "Lateral Chromatic"
+
+
+
+graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
+& PL_PLOT_MAGENTA, PL_PLOT_CYAN, PL_PLOT_GREY, PL_PLOT_BROWN]
+
+
+
+surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
+seidel(:,:) = curr_par_ray_trace%CSeidel(:,0:curr_lens_data%num_surfaces)
+
+PRINT *, "lbound of surfIdx is ", lbound(surfIdx)
+PRINT *, "lbound of seidel is ", lbound(seidel,2)
+PRINT *, "lbound of CSeidel is ", lbound(curr_par_ray_trace%CSeidel,1)
+PRINT *, "lbound of CSeidel is ", lbound(curr_par_ray_trace%CSeidel,2)
+
+
+
+ canvas = hl_gtk_drawing_area_new(size=[1200,800], &
+ & has_alpha=FALSE)
+
+
+ call mplt%initialize(canvas, 1,nS)
+
+ do jj=1,nS
+  call barGraphs(jj)%initialize(c_null_ptr, real(surfIdx),seidel(jj,:), &
+  & xlabel='Surface No (last item actually sum)'//c_null_char, & 
+  & ylabel=trim(yLabels(jj))//c_null_char, &
+  & title=' '//c_null_char)
+  call barGraphs(jj)%setDataColorCode(graphColors(jj))
+  barGraphs(jj)%useGridLines = .FALSE.
+ end do
+
+ do ii=1,nS
+  call mplt%set(1,ii,barGraphs(ii))
+ end do
+
+
+replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_SEIDEL, objIdx)
+
+if (replot) then
+ PRINT *, "PLTSEI REPLOT REQUESTED"
+ PRINT *, "Input Command was ", inputCmd
+ call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+ !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+else
+
+
+  !call mplt%draw()
+
+
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_SEIDEL, "Seidel Aberrations"//c_null_char, mplt)
+
+ ! Add settings
+ zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+ 
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+end if
 
 end subroutine
 
@@ -556,6 +768,11 @@ subroutine PLTZERN
 
 
     PRINT *, "numPoints is ", numPoints
+    PRINT *, "WQ is ", WQ
+    PRINT *, "WC is ", WC
+    PRINT *, "WS is ", WS
+    PRINT *, "W1 is ", W1
+    PRINT *, "W2 is ", W2
 
     allocate(xdat(numPoints))
     allocate(ydat(numPoints))

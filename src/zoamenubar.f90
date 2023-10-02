@@ -127,6 +127,7 @@ contains
 
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: drawCmd = "VIECO"
+    character(len=10), target :: seidelCmd = "PLTSEI"
 
     act_quit = g_simple_action_new ("quit"//c_null_char, c_null_ptr)
 
@@ -243,9 +244,10 @@ contains
     call g_signal_connect (act_firstorder, "activate"//c_null_char, c_funloc(paraxfirstorder_activated), win)
 
     menu_item_firstorder = g_menu_item_new ("First Order Parameters"//c_null_char, "win.ParaFirstOrder"//c_null_char)
-
     call g_menu_append_item (menu_paraxial, menu_item_firstorder)
 
+    call addCommandMenuItem(menu_paraxial, "Seidel Aberrations", &
+    & "Seidel", seidelCmd, win)
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 

@@ -53,6 +53,8 @@ type :: zoaplot
     character(len=100) :: xlabel = ' x '
     character(len=100) :: ylabel = ' y '
     character(len=20)  :: labelFontColor = "BLACK"
+    character(len=20)  :: xPlotCode, yPlotCode 
+    logical :: useGridLines = .TRUE.
     !character(len=20)  :: labelDataColor = "BLACK"
     integer :: dataColorCode = 0 !  See PL_PLOT paramaters for decoding
     integer :: numSeries = 0
@@ -70,16 +72,18 @@ contains
     procedure, public, pass(self) :: setLineStyleCode
     procedure, public, pass(self) :: addXYPlot
     procedure, public, pass(self) :: updatePlotData
+    procedure, private, pass(self) :: buildPlotCode
 
 
 end type
 
+!TODO:  Fold this into zoaplot by specifying barchart to get rid of this
+!separate type
 type, extends(zoaplot) :: barchart
 
     !integer, allocatable :: surface(:)
 
     !character(kind=plchar_vector) :: title, xlabel, ylabel
-    character(len=12) :: xPlotCode
     !character(len=100) :: ylabel
     !character(len=100) :: title = 'untitled'
     !character(len=100) :: xlabel = 'x'
@@ -174,12 +178,12 @@ contains
         ! Local Variables
         integer :: ind
 
-        PRINT *, "REACHED MP_SET!"
+        !PRINT *, "REACHED MP_SET!"
 
         ! Process
         ind = self%m_rows * (j - 1) + i
         call self%m_plots%set(ind, plotter)
-        PRINT *, "END MP_SET"
+        !PRINT *, "END MP_SET"
     end subroutine
 
     function mp_get(self,i,j) result(plotter)
@@ -199,7 +203,7 @@ contains
         item => self%m_plots%get(ind)
         select type (item)
         class is (zoaplot)
-            PRINT *, "Found Zoaplot obj!"
+            !PRINT *, "Found Zoaplot obj!"
             plotter => item
         class default
             nullify(plotter)
@@ -310,7 +314,7 @@ contains
             !and a margin around the other three sides of five character heights).
             call plvsta
             plotter => self%get(m,n)
-            call logger%logText("Starting to Draw Plot from Plotter")
+            !call logger%logText("Starting to Draw Plot from Plotter")
             call plotter%drawPlot
 
 
@@ -438,12 +442,12 @@ contains
 
       allocate(self%x(arraysize))
       allocate(self%y(arraysize))
-      PRINT *, "ARRAY SIZE IS ", arraysize
-
-
+ 
       self%area = area
       self%x = x
       self%y = y
+      
+
 
       !self % title = trim("untitled")
       !self % xlabel = trim("           x axis")
@@ -493,6 +497,7 @@ contains
 
             call getAxesLimits(self, xmin, xmax, ymin, ymax)
             call plwind(xmin, xmax, ymin, ymax)
+       if (c_associated(self%area)) then        
         isurface = g_object_get_data(self%area, "backing-surface")
     ! Create the backing surface
 
@@ -506,8 +511,12 @@ contains
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
         end if
-
-            call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
+      end if
+            call self%buildPlotCode()
+            call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), max(ymax,abs(ymin)), 0 ) 
+            !call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), 0.0_pl_test_flt, 0 ) 
+            
+            !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
             call plcol0(getLabelFontCode(self))
             call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
             !call plscmap1l(.true.,pos,red,green,blue)
@@ -651,6 +660,21 @@ contains
 
     self%plotdatalist(seriesNum)%x = x
     self%plotdatalist(seriesNum)%y = y
+
+  end subroutine
+
+  ! As needed, add more options to this 
+  subroutine buildPlotCode(self)
+    class(zoaplot) :: self
+
+    if (self%useGridLines) then
+      self%xPlotCode = 'bcgnt'
+      self%yPlotCode = 'bcgntv'
+    else
+      self%xPlotCode = 'bcgnt'
+      self%yPlotCode = 'bcgntv'
+    end if
+
 
   end subroutine
 
@@ -878,7 +902,7 @@ contains
        else if (trim(self % labelFontColor) == trim("RED")) then
            r = 2
        end if
-       print *, "labelFontColor ", trim(self%labelFontColor)
+       !print *, "labelFontColor ", trim(self%labelFontColor)
     end function getLabelFontCode
 
     subroutine getAxesLimits(self, xmin, xmax, ymin, ymax)
@@ -908,20 +932,22 @@ contains
 
     subroutine barChartBox(x0, y0)
         !real(kind=pl_test_flt) x0, y0, x(4), y(4)
-        real :: x0, y0, x(4), y(4)
+        real :: x0, y0, x(5), y(5)
 
 
 
-        x(1) = x0
-        y(1) = 0._pl_test_flt
-        x(2) = x0
+        x(1) = x0+0.25
+        y(1) = y0
+        x(2) = x0-0.25
         y(2) = y0
         !x(3) = x0+1._pl_test_flt
-        x(3) = x0+.5_pl_test_flt
-        y(3) = y0
+        x(3) = x0-0.25
+        y(3) = 0.0
         !x(4) = x0+1._pl_test_flt
-        x(4) = x0+.5_pl_test_flt
-        y(4) = 0._pl_test_flt
+        x(4) = x0+0.25
+        y(4) = 0.0
+        x(5) = x0+0.25
+        y(5) = y0
         call plfill(x, y)
         call plcol0(1)
         call pllsty(1)

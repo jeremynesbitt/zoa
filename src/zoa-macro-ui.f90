@@ -70,12 +70,12 @@ module zoa_macro_ui
        if (nsel == 0) return
 
        if (fdata == 0) then
-              PRINT *, "RUN SELECTED!"
+              !PRINT *, "RUN SELECTED!"
               ! Find and print the selected row(s)
-              print *, nsel,"Rows selected"
-              print *, selections
+              !print *, nsel,"Rows selected"
+              !print *, selections
               call hl_gtk_list1_get_cell(ihlist, selections(1), svalue)
-              print *, "TXT IS ", svalue
+              !print *, "TXT IS ", svalue
               deallocate(selections)
 
           if (gtk_check_button_get_active(macrorun).EQ.TRUE) THEN
@@ -100,8 +100,10 @@ module zoa_macro_ui
                 call macroedit_savetofile(gtk_text_view_get_buffer(macroTextView))
                 !print *, "About to call alert dialog"
                 !call macroedit_alert()
-                !print *, "Dialog Closed!"
-                call PROCESKDP('MREFRESH')
+                !print *, "Dialog Closed!"  
+                !CALL MREFRESH 
+                call PROCESKDP('IN FILE MAC_EDIT.DAT')
+                !call PROCESKDP('MREFRESH')
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrocopy).EQ.TRUE) THEN
@@ -132,6 +134,7 @@ module zoa_macro_ui
 
   subroutine macroedit_savetofile(buffer)
     use zoa_file_handler, only: delete_file
+    use kdp_utils, only: OUTKDP
 
     implicit none
     type(c_ptr) :: buffer
@@ -154,7 +157,7 @@ module zoa_macro_ui
       call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
       & c_loc(iterStart),c_loc(iterEnd), FALSE), lineTxt)
       if (i>1) call OUTKDP(trim(lineTxt),0)
-      PRINT *, "lineTxt is ", trim(lineTxt)
+      !PRINT *, "lineTxt is ", trim(lineTxt)
       iterStart = iterEnd
     end do
       CALL CLOSE_FILE(31,1)
@@ -353,22 +356,7 @@ module zoa_macro_ui
 
     end subroutine
 
-  !TODO find a better long term home for this.  At present, only
-  !this module is using it.  Was in kdp-interfaces but ninja did not like
-  !circular module references for some reason...
-  subroutine OUTKDP(txt, i)
-    character(len=*) :: txt
-    integer :: code
-    integer, optional :: i
 
-    include "DATMAI.INC"
-
-    OUTLYNE = txt
-    code=1
-    if (present(i)) code=i
-    CALL SHOWIT(code)
-
-  end subroutine
 
 
 end module

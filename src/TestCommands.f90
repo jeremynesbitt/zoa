@@ -2,6 +2,18 @@
 ! to catch issues during development
 subroutine TestCommands
   use GLOBALS
+  use kdp_utils, only: OUTKDP
+  implicit none
+  include "DATMAI.INC"
+
+
+  if (WQ.EQ.'MANGIN') then
+    CALL PROCESKDP("MAB3 ALL")
+    CALL PROCESKDP('MAB3')
+    CALL PROCESKDP('MAB3 I 2')
+    CALL PROCESKDP('MAB3 2')
+  else
+
 
   CALL PROCESKDP('MFL')
   CALL PROCESKDP('LIB P')
@@ -28,7 +40,7 @@ subroutine TestCommands
   CALL PROCESKDP('LIB GET 5')
   CALL PROCESKDP('LIB GET 2')
 
-
+  end if
 
   !CALL PROCESSKDP('SHO RMSOPD')
 

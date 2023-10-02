@@ -29,9 +29,9 @@ subroutine close_zoaTab()
   !cstr = g_value_get_string(val)
   call convert_c_string(cstr, choice)
 
- PRINT *, "CHOICE is ", choice
+ !PRINT *, "CHOICE is ", choice
  read(choice(1:3), '(I3)') tabInfoToDelete
- PRINT *, "After int conversion, ", tabInfoToDelete
+ !PRINT *, "After int conversion, ", tabInfoToDelete
 
  ! Close Tab
  call zoatabMgr%removePlotTab(currPageIndex, tabInfoToDelete)

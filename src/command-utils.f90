@@ -45,32 +45,145 @@ contains
 
   end function
 
-  function checkCommandInput(ID_CMD_TYPE, qual_words, qual_only_err_msg) result (goodInput)
+  function checkCommandInput(ID_CMD_TYPE, qual_words, qual_only_err_msg, max_num_terms) result (goodInput)
     ! qual_words - character array of words that are acceptable for this command
     !  EG for LIB qual words are PUT and GET
     ! qual_only_err_msg - override error message when input error is encountered
     !use handlers, only: updateTerminalLog
+    use kdp_utils
 
     implicit none
-    integer, intent(in) :: ID_CMD_TYPE ! only required argument
+    integer, intent(in) :: ID_CMD_TYPE(:) ! only required argument
+    integer, optional :: max_num_terms 
     character(len=*), optional :: qual_words(:)
     character(len=*), optional :: qual_only_err_msg
     type(command_parser) :: cp
     logical :: goodInput
+    integer :: i, numValidTypes, cmdToProcess
 
     include "DATMAI.INC"
 
-    select case (ID_CMD_TYPE)
+    goodInput = .TRUE. ! Innocent until proven guilty
+
+    if (size(ID_CMD_TYPE) > 1) then
+      ! Some commands support multiple types.  But only one type can exist at a time.  So check if two types aren't mixed
+      numValidTypes = 0
+      do i=1,size(ID_CMD_TYPE)
+        if (isCmdType(ID_CMD_TYPE(i))) then 
+           numValidTypes = numValidTypes + 1
+           cmdToProcess = ID_CMD_TYPE(i)
+        end if
+      end do
+      ! TODO:  Need to add a flag to tell this fcn that some input is required before enabling this.
+      ! if (numValidTypes == 0)
+      !    goodInput = .FALSE.
+      !    CALL OUTKDP("Error:  No Valid Inpus for command " //INPUT)
+
+      ! end if
+      if (numValidTypes > 1) then
+        goodInput = .FALSE.
+        ! TODO:  Add some 
+        call OUTKDP("Error:  Mixing of command types.  Please enter command again")
+        return
+      end if
+    else
+      cmdToProcess = ID_CMD_TYPE(1)
+    end if
+
+
+    select case (cmdToProcess)
     case (ID_CMD_ONLY)
 
     case (ID_CMD_QUAL)
+      numValidTypes = 0
+      if (present(qual_words)) then 
+        do i=1,size(qual_words)
+          if (trim(qual_words(i)).EQ.WQ) numValidTypes = numValidTypes+1
 
+        end do
+        if (numValidTypes.EQ.0) then 
+          goodInput = .FALSE.
+          if((present(qual_only_err_msg))) then
+            call OUTKDP(trim(qual_only_err_msg))
+          else
+            call OUTKDP("No valid qualifier words found.")
+            call OUTKDP("Please reenter command")
+          end if
+          RETURN
+        end if
+
+      end if
+    
+    case (ID_CMD_NUM)
+      if (present(max_num_terms)) then
+       
+      select case (max_num_terms) 
+
+      case (1)
+        if(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) then
+          goodInput = .FALSE.
+          call OUTKDP("Command takes no string or > 1 numeric input ")
+          RETURN        
+        end if
+
+      case (2)
+        if(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) then
+          goodInput = .FALSE.
+          call OUTKDP("Command takes no string or > 2 numeric input ")
+          RETURN        
+        end if
+
+      case (3)
+        if(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) then
+          goodInput = .FALSE.
+          call OUTKDP("Command takes no string or > 3 numeric input ")
+          RETURN        
+        end if  
+      case (4)
+        if(SST.EQ.1.OR.S5.EQ.1) then
+          goodInput = .FALSE.
+          call OUTKDP("Command takes no string or > 4 numeric input ")
+          RETURN        
+        end if   
+      end select
+    end if             
     case (ID_CMD_ALPHA)
 
 
 
     case default
 
+
+    end select
+
+
+  end function
+
+  function isCmdType(ID_CMD_TYPE) result(typeExists)
+
+    implicit none
+    logical :: typeExists
+    integer :: ID_CMD_TYPE
+
+    include "DATMAI.INC"
+
+    typeExists = .FALSE.
+    select case (ID_CMD_TYPE)
+
+    case (ID_CMD_ONLY)
+
+    case (ID_CMD_QUAL)
+      IF(SQ.EQ.1) typeExists = .TRUE.
+
+    case (ID_CMD_ALPHA)
+
+    case (ID_CMD_NUM)
+      IF (S1.EQ.1) typeExists = .TRUE.
+
+
+
+    case default
+      typeExists = .FALSE.
 
     end select
 
