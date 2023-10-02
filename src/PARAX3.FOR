@@ -3263,6 +3263,7 @@ C       SYSTEM(11),THE PRIMARY WAVELENTH PAIR NUMBERS
 C       ARE STORED IN SYSTEM(7) AND SYSTEM(8), AND THE SECONDARY
 C       WAVELENGTH PAIRS ARE STORED IN SYSTEM(9) AND SYSTEM(10)
 C
+
       IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5)
      1 CW= (INT(SYSTEM(11))+45)
       IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10)
@@ -3314,6 +3315,17 @@ C       AXIAL COLOR (PRIMARY)
         COLORY(1,I)=((PXTRAY(1,(INT(SYSTEM(20))))*PXTRAY(5,I))-
      1  (PXTRAY(5,(INT(SYSTEM(20))))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*
      2  ((DN/PN)-(DNP/J_NP))
+        PRINT *, "Color Seidel Debug"
+        PRINT *, "DN is ", DN
+        PRINT *, "PN is ", PN
+        PRINT *, "DNP is ", DNP
+        PRINT *, "J_NP is ", J_NP
+        PRINT *, "PW1 is ", PW1
+        PRINT *, "PW2 is ", PW2    
+        PRINT *, "SYSTEM(7) is ", SYSTEM(7)
+        PRINT *, "SYSTEM(8) is ", SYSTEM(8)
+
+
 C       LATERAL COLOR (PRIMARY)
         IF(PXTRAY(3,I).EQ.0.0D0) THEN
 C       CASE OF NORMAL INCIDENCE

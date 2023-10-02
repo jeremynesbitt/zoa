@@ -513,7 +513,9 @@ contains
         end if
       end if
             call self%buildPlotCode()
-            call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), 0.0_pl_test_flt, 0 ) 
+            call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), max(ymax,abs(ymin)), 0 ) 
+            !call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), 0.0_pl_test_flt, 0 ) 
+            
             !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
             call plcol0(getLabelFontCode(self))
             call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)

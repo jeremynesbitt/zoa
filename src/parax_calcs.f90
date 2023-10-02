@@ -114,6 +114,7 @@ module seidel_calcs
 
 
          subroutine calcSeidelTerms(INV)
+                ! This routine needs to be called by the MMAB3 routine at present so the MAB3 and COLOR arrays can be populated
             use ISO_FORTRAN_ENV, only: real64  
             use kdp_data_types  
             use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
@@ -131,18 +132,30 @@ module seidel_calcs
             if (allocated(curr_par_ray_trace%CXSeidel)) deallocate(curr_par_ray_trace%CXSeidel)
             
 
-            allocate(curr_par_ray_trace%CSeidel(7, curr_lens_data%num_surfaces+2))
-            allocate(curr_par_ray_trace%CXSeidel(7,curr_lens_data%num_surfaces+2))
+            allocate(curr_par_ray_trace%CSeidel(7, curr_lens_data%num_surfaces+1))
+            allocate(curr_par_ray_trace%CXSeidel(7,curr_lens_data%num_surfaces+1))
 
             ! Eventuall move MAB3 calc to this method
-            curr_par_ray_trace%CSeidel(1:7,0:curr_lens_data%num_surfaces-1)=MAB3(1:7,0:curr_lens_data%num_surfaces-1)
-            curr_par_ray_trace%CXSeidel(1:7,0:curr_lens_data%num_surfaces-1)=XMAB3(1:7,0:curr_lens_data%num_surfaces-1)
+            curr_par_ray_trace%CSeidel(1:5,0:curr_lens_data%num_surfaces-1)=MAB3(1:5,0:curr_lens_data%num_surfaces-1)
+            curr_par_ray_trace%CXSeidel(1:5,0:curr_lens_data%num_surfaces-1)=XMAB3(1:5,0:curr_lens_data%num_surfaces-1)
+
+            ! Chromatic Aberrations
+
+            curr_par_ray_trace%CSeidel(6:7,0:curr_lens_data%num_surfaces-1)=COLORY(1:2,0:curr_lens_data%num_surfaces-1)
+            curr_par_ray_trace%CXSeidel(6:7,0:curr_lens_data%num_surfaces-1)=COLORX(1:2,0:curr_lens_data%num_surfaces-1)
+
+            ! TODO:  ADD Inverse Calcs
+            if (.not.sysConfig%isUSystem()) then 
+                curr_par_ray_trace%CSeidel = curr_par_ray_trace%CSeidel/INV
+                curr_par_ray_trace%CXSeidel = curr_par_ray_trace%CXSeidel/INV
+            end if
+
 
 
             curr_par_ray_trace%CSeidel(:,curr_lens_data%num_surfaces) = 0.0
             curr_par_ray_trace%CXSeidel(:,curr_lens_data%num_surfaces) = 0.0
 
-            do i=0,curr_lens_data%num_surfaces
+            do i=0,curr_lens_data%num_surfaces-1
                 curr_par_ray_trace%CSeidel(:,curr_lens_data%num_surfaces) = &
                 & curr_par_ray_trace%CSeidel(:,curr_lens_data%num_surfaces) + &
                 & curr_par_ray_trace%CSeidel(:,i)

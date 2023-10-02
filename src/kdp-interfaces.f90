@@ -619,7 +619,7 @@ subroutine plot_seidel()
   USE GLOBALS
   use command_utils
   use handlers, only: zoatabMgr, updateTerminalLog
-  use global_widgets, only:  sysConfig, curr_lens_data
+  use global_widgets, only:  sysConfig, curr_lens_data,curr_par_ray_trace
   use zoa_ui
   use zoa_plot
   use gtk_draw_hl 
@@ -628,7 +628,7 @@ subroutine plot_seidel()
 
 IMPLICIT NONE
 
-integer, parameter :: nS = 5 ! number of seidel terms to plot
+integer, parameter :: nS = 7 ! number of seidel terms to plot
 real, allocatable, dimension(:,:) :: seidel
 real, allocatable, dimension(:) :: surfIdx
 
@@ -637,12 +637,10 @@ character(len=40) :: inputCmd
 integer :: ii, objIdx, jj
 logical :: replot
 type(c_ptr) :: canvas
-type(barchart) :: bar1, bar2
 type(barchart), dimension(nS) :: barGraphs
 integer, dimension(nS) :: graphColors
 type(multiplot) :: mplt
 character(len=100) :: strTitle
-character(len=20), dimension(nS) :: ftxt
 character(len=20), dimension(nS) :: yLabels
 character(len=23) :: cmdTxt
 
@@ -656,42 +654,31 @@ CALL PROCESKDP('MAB3 ALL')
 
 allocate(seidel(nS,curr_lens_data%num_surfaces+1))
 allocate(surfIdx(curr_lens_data%num_surfaces+1))
-PRINT *, "Post Allocate!"
 
-ftxt(1) = "SHO SA3 "
-ftxt(2) = "SHO CMA3 "
-ftxt(3) = "SHO AST3 "
-ftxt(4) = "SHO PTZ3 "
-ftxt(5) = "SHO DIS3 "
 
 
 yLabels(1) = "Spherical"
 yLabels(2) = "Coma"
 yLabels(3) = "Astigmatism"
-yLabels(4) = "Curvature"
-yLabels(5) = "Distortion"
+yLabels(4) = "Distortion"
+yLabels(5) = "Curvature"
+yLabels(6) = "Axial Chromatic"
+yLabels(7) = "Lateral Chromatic"
+
+
 
 graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
-& PL_PLOT_MAGENTA, PL_PLOT_CYAN]
+& PL_PLOT_MAGENTA, PL_PLOT_CYAN, PL_PLOT_GREY, PL_PLOT_BROWN]
+
+
 
 surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
-do ii=1,curr_lens_data%num_surfaces
-  do jj=1, nS
-   WRITE(cmdTxt, *) ii-1
-   call PROCESKDP(trim(ftxt(jj))//' '//trim(cmdTxt))
-   seidel(jj,ii) = reg(9)
-  end do
-   
-end do
+seidel(:,:) = curr_par_ray_trace%CSeidel(:,0:curr_lens_data%num_surfaces)
 
-PRINT *, "Line 684"
-! Add Sums to Seidel array
-do jj=1,nS
-  call PROCESKDP(trim(ftxt(jj)))
-  seidel(jj,curr_lens_data%num_surfaces+1) = reg(9)
- end do
-
- !call checkCommandInput(ID_CMD_ALPHA)
+PRINT *, "lbound of surfIdx is ", lbound(surfIdx)
+PRINT *, "lbound of seidel is ", lbound(seidel,2)
+PRINT *, "lbound of CSeidel is ", lbound(curr_par_ray_trace%CSeidel,1)
+PRINT *, "lbound of CSeidel is ", lbound(curr_par_ray_trace%CSeidel,2)
 
 
 
@@ -713,18 +700,6 @@ do jj=1,nS
  do ii=1,nS
   call mplt%set(1,ii,barGraphs(ii))
  end do
-
-!  call bar1%initialize(c_null_ptr, real(surfIdx),seidel(1,:), &
-!  & xlabel='Surface No'//c_null_char, ylabel='Spherical'//c_null_char, &
-!  & title=' '//c_null_char)
-
-!  call bar2%initialize(c_null_ptr, real(surfIdx),seidel(2,:), &
-!  & xlabel='Surface No'//c_null_char, ylabel='Coma'//c_null_char, &
-!  & title=' '//c_null_char)
-!  call bar2%setDataColorCode(PL_PLOT_BLUE)
-!  call mplt%set(1,1,bar1)
-!  call mplt%set(2,1,bar2)
-
 
 
 replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_SEIDEL, objIdx)

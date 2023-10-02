@@ -63,6 +63,7 @@ type sys_config
   contains
     procedure, public, pass(self) :: getImageSurface
     procedure, public, pass(self) :: isFocalSystem
+    procedure, public, pass(self) :: isUSystem 
     procedure, public, pass(self) :: isTelecentric
     !procedure, public, pass(self) :: getPossibleApertueSettings
     !procedure, public, pass(self) :: getCurrentApertueSetting
@@ -234,6 +235,25 @@ function imageSurfaceIsIdeal(self) result(boolResult)
     boolResult = .FALSE.
 
   end function
+ 
+ ! This may be sketchy.  Not sure if we ever need to distinguish between
+ ! UFocal and UAFocal
+ ! From the manual:  
+ ! If the qualifier "UAFOCAL" is specified, these paraxial based
+ ! aberrations will not be converted to transverse linear measure 
+!(i.e., they remain the direct sum of surface contribution coefficients).  
+function isUSystem(self) result(boolResult)
+  implicit none
+  class(sys_config) :: self
+  logical :: boolResult
+
+  include "DATLEN.INC"
+
+  boolResult = .FALSE.  
+  IF(SYSTEM(30).EQ.2.0D0.OR.SYSTEM(30).EQ.4.0D0) boolResult = .TRUE.
+
+  
+end function
 
 function isFocalSystem(self) result(boolResult)
 

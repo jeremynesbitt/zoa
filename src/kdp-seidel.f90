@@ -19,12 +19,13 @@ subroutine MMAB3_NEW(YFLAG)
             real(kind=real64), allocatable, dimension(:,:) :: CS, CXS
     
             REAL(kind=real64) :: INV
-            character(len=40), dimension(5) :: colHeaders
+            character(len=40), dimension(7) :: colHeaders
     
             INCLUDE 'DATLEN.INC'
             INCLUDE 'DATMAI.INC'
     
             CALL PRTRC
+            CALL PRTRB
     
     !       THE MAB3 AND XMAB3 COMMAND ACCEPTS QUALIFIER OR NUMERIC
     !       INPUT IN AN EITHER OR MODE. IT DOES NOT ACCEPT STING
@@ -53,14 +54,16 @@ subroutine MMAB3_NEW(YFLAG)
             colHeaders(1) = "Spherical"
             colHeaders(2) = "Coma"
             colHeaders(3) = "Astigmatism"
-            colHeaders(4) = "Field Curvature"
-            colHeaders(5) = "Distortion"
-            !colHeaders(6) = "Axial Chromatic"
-            !colHeaders(7) = "Lateral Chromatic"
+            colHeaders(4) = "Distortion"
+            colHeaders(5) = "Field Curvature"
+            colHeaders(6) = "Axial Chromatic"
+            colHeaders(7) = "Lateral Chromatic"
 
 
 
             INV = calcInvariant()  
+
+            PRINT *, "Invariant is ", INV
 
             call calcSeidelTerms(INV)
             ! CS(:,:)

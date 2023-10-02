@@ -480,7 +480,7 @@ subroutine populateSplashWindow(splashWin)
        & c_new_line//'<span foreground="blue" size="x-large"> &
        &  Zoa Optical Analysis</span>'//C_NEW_LINE// &
        &  c_new_line//'<span foreground="blue" size="large"> &
-       &  Version 0.1.0 (beta)</span>' &
+       &  Version 0.1.1 (beta)</span>' &
        &  //c_null_char, -1_c_int)
     PRINT *, "Post Markup"
 
