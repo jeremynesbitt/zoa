@@ -346,7 +346,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
      scaleFactor = 1! 0.1
 
 
-     DEBUG = 0
+     DEBUG = 1
      IF (DEBUG.EQ.1) CALL PRINTNEUTARRAY
 
       PRINT *, "STARTING TO DRAW LENS"
@@ -355,7 +355,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
  1000 FORMAT(I9,32X)
  300                   J=J+1
       IF(J.GE.NEUTTOTAL+1) GO TO 999
-      ! DEBUG ONLY!  REMOVE THIS second exit when done
+
 
       !IF(J.GE.(17*NEUTTOTAL/32)) DEBUG=1
       !IF(J.GE.(4590)) DEBUG=1

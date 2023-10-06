@@ -4163,6 +4163,7 @@ C     TEST IF LAST POINT IS NEW POINT, IF SO DON'T MOVE
 C SUB PLTRAE.FOR
         SUBROUTINE PLTRAE
         USE GLOBALS
+        use global_widgets, only: sysConfig
 C
         IMPLICIT NONE
 C
@@ -4345,6 +4346,21 @@ C     HERE IS WHERE REAL WORK BEGINS. FIRST PROJECT THE 3D WORLD COORDINATES
 C     OF THE VERTICIES ONTO THE 2D PLANE INDICATED BY THE PLOT LOOK/ PLOT VIEW
 C     DATA. THE DIRECTION COSINES OF THE LOOK VECTOR ARE LOOKX, LOOKY AND
 C     LOOKZ. THE TRANSFORMATIONS ARE:
+       
+      ! This is probably not the best solution, but the original
+      ! Code did not plot collimated rays from the first surface.
+      ! To fix this propogate back from the first surface to the leftmost
+      ! surface 
+      ! JN 10/6/23
+   
+      if (sysConfig%isObjectAfInf()) THEN
+         GLPRAY(3,0) = MINVAL(GLPRAY(3,1:STPSUR))-2.0
+         GLPRAY(2,0) = GLPRAY(2,1) - 
+     1   (GLPRAY(3,1)-GLPRAY(3,0))*TAN(ACOS(GLPRAY(9,1)))
+
+         PRINT *, "GLPRAY min Z is ", GLPRAY(3,0)
+      end if
+      !GLPRAY(2,2)+GLPRAY(3,1)*GLPRAY(9,1)
 C
       CALL ROT1
 C

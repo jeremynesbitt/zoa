@@ -65,6 +65,7 @@ type sys_config
     procedure, public, pass(self) :: isFocalSystem
     procedure, public, pass(self) :: isUSystem 
     procedure, public, pass(self) :: isTelecentric
+    procedure, public, pass(self) :: isObjectAfInf
     !procedure, public, pass(self) :: getPossibleApertueSettings
     !procedure, public, pass(self) :: getCurrentApertueSetting
     procedure, public, pass(self) :: getApertureFromSystemArr
@@ -264,6 +265,18 @@ function isFocalSystem(self) result(boolResult)
 
   boolResult = .FALSE.
   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) boolResult = .TRUE.
+
+end function
+
+function isObjectAfInf(self) result(boolResult)
+  class(sys_config) :: self
+  logical :: boolResult
+  include "DATLEN.INC"
+
+  boolResult = .FALSE.
+
+  if(DABS(ALENS(3,0)).GT.1E19) boolResult = .TRUE.
+  PRINT *, "Value being compared is ", ALENS(3,0)
 
 end function
 
