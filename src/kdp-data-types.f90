@@ -422,6 +422,7 @@ type(io_config) function io_config_constructor() result(self)
 
      ! TODO:  Add error checking here
      self%allBuffers(idTextView) = textView
+     PRINT *, "Set Text View Buffer to ", idTextView
 
      !select case (idBuffer)
      !case (ID_TERMINAL_DEFAULT)

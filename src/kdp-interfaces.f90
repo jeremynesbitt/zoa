@@ -402,6 +402,22 @@ subroutine EDITOR
 
 end subroutine EDITOR
 
+subroutine MACROUI
+  use zoa_macro_ui
+  use global_widgets, only: macro_ui_window
+  use handlers, only: my_window
+
+  if (.not. c_associated(macro_ui_window))  THEN
+    call zoa_macrooperationsUI(my_window)
+ else
+    call gtk_window_present(macro_ui_window)
+
+ end if 
+
+
+
+end subroutine MACROUI
+
 
 subroutine SYSCONFIGUI
   use ui_sys_config

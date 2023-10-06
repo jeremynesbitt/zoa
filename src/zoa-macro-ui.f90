@@ -11,7 +11,7 @@ module zoa_macro_ui
       type(c_ptr) :: ihlist
       type(c_ptr) :: macrorun, macroedit, macrogroup, macrolist
       type(c_ptr) :: macrorename, macrocopy, macrodelete
-      type(c_ptr) :: macroentry, ihwin, macroTextView
+      type(c_ptr) :: macroentry, macroTextView
   contains
 
  recursive subroutine macrolist_select(list, gdata) bind(c)
@@ -179,7 +179,7 @@ module zoa_macro_ui
 
     resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK, &
          & "ALERT"//c_null_char, &
-         & type=GTK_MESSAGE_WARNING, parent=ihwin)
+         & type=GTK_MESSAGE_WARNING, parent=macro_ui_window)
     print *, "hl_dialog.f90 resp=", resp
   end subroutine
 
@@ -210,7 +210,8 @@ module zoa_macro_ui
   subroutine macroui_destroy(widget, gdata) bind(c)
     type(c_ptr), value, intent(in) :: widget, gdata
 
-    print *, "Exit called"
+    macro_ui_window = c_null_ptr
+
     call gtk_window_destroy(gdata)
   end subroutine
 
@@ -237,10 +238,10 @@ module zoa_macro_ui
 
   end subroutine
 
-    subroutine zoa_macrooperationsUI(act, param, win) bind(c)
+    subroutine zoa_macrooperationsUI(win) bind(c)
       use hl_gtk_zoa, only: hl_zoa_text_view_new
       implicit none
-      type(c_ptr), value, intent(in) :: act, param, win
+      type(c_ptr), value, intent(in) ::  win
       type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
       type(c_ptr) :: macroentrylabel, buffer, pane, rightPane
       type(c_ptr) :: leftPane, boxWin, rightPaneLabel, boxRight
@@ -248,12 +249,13 @@ module zoa_macro_ui
       integer :: ltr
 
 
+
       ! Create the window:
-      ihwin = gtk_window_new()
+      macro_ui_window = gtk_window_new()
 
-      call gtk_window_set_title(ihwin, "Macro Operations"//c_null_char)
+      call gtk_window_set_title(macro_ui_window, "Macro Operations"//c_null_char)
 
-      call gtk_window_set_default_size(ihwin, 600_c_int, 600_c_int)
+      call gtk_window_set_default_size(macro_ui_window, 600_c_int, 600_c_int)
 
       ! Now make a column box & put it into the window
 
@@ -262,7 +264,7 @@ module zoa_macro_ui
       boxWin = hl_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5_c_int)
       call gtk_window_set_child(leftPane, base)
       !call gtk_window_set_child(leftPane, base)
-      call gtk_window_set_child(ihwin, boxWin)
+      call gtk_window_set_child(macro_ui_window, boxWin)
 
     ! Now make a single column list with multiple selections enabled
 
@@ -339,7 +341,7 @@ module zoa_macro_ui
 
     ! Also a quit button
     qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(macroui_destroy), &
-    & data=ihwin)
+    & data=macro_ui_window)
     call hl_gtk_box_pack(base,qbut)
 
     ! realize the window
@@ -352,7 +354,8 @@ module zoa_macro_ui
 
     call gtk_scrolled_window_set_min_content_width(rightPane, 200_c_int)
 
-    call gtk_widget_show(ihwin)
+
+    call gtk_widget_show(macro_ui_window)
 
     end subroutine
 

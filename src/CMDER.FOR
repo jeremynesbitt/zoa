@@ -4,7 +4,7 @@ C SUB CMDER.FOR
         use zoa_ui
         use handlers
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
-     1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel
+     1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI
 C
         IMPLICIT NONE
 
@@ -451,6 +451,10 @@ C       PART DRAWINGS
           CALL plot_seidel
           RETURN
         END IF
+        IF(WC.EQ.'MACROUI') THEN
+                CALL MACROUI
+                RETURN
+              END IF        
 
         IF(WC.EQ.'TSTCMDS') THEN
           CALL TestCommands

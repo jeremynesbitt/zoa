@@ -128,6 +128,8 @@ contains
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: drawCmd = "VIECO"
     character(len=10), target :: seidelCmd = "PLTSEI"
+    character(len=10), target :: macroCmd = "MACROUI"
+
 
     act_quit = g_simple_action_new ("quit"//c_null_char, c_null_ptr)
 
@@ -146,13 +148,16 @@ contains
     call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
     call g_menu_append_submenu (menubar, "Macro"//c_null_char, menu_macro)
 
-    act_macrooperations = g_simple_action_new("MacroOperations"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_macrooperations)
-    call g_signal_connect (act_macrooperations, "activate"//c_null_char, c_funloc(zoa_macrooperationsUI), win)
+    !act_macrooperations = g_simple_action_new("MacroOperations"//c_null_char, c_null_ptr)
+    !call g_action_map_add_action (win, act_macrooperations)
+    !call g_signal_connect (act_macrooperations, "activate"//c_null_char, c_funloc(zoa_macrooperationsUI), win)
 
-    menu_item_macrooperations = g_menu_item_new ("Macro Operations"//c_null_char, "win.MacroOperations"//c_null_char)
+    !menu_item_macrooperations = g_menu_item_new ("Macro Operations"//c_null_char, "win.MacroOperations"//c_null_char)
 
-    call g_menu_append_item (menu_macro, menu_item_macrooperations)
+    call addCommandMenuItem(menu_macro, "Macro Operations", &
+    & "MacroOperations", macroCmd, win)
+
+    !call g_menu_append_item (menu_macro, menu_item_macrooperations)
 
     ! Save Macro
     !act_macrosave = g_simple_action_new("MacroSave"//c_null_char, c_null_ptr)
