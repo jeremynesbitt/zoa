@@ -23,10 +23,27 @@ module command_utils
 
   integer, parameter :: ID_NUM_CMD_INPUT_TYPES = 10
 
+  type input_parsed_data
+
+      real :: inputNums(5)
+      integer :: maxNums
+      character(len=10) :: inputQualWord
+
+
+      contains
+      procedure :: initialize => init_parsed_data
+      
+
+  end type
+
+  type(input_parsed_data) :: currInputData
+
   ! Mimic existing structure for now; use methods for improved readability
   type command_parser
     !logical :: SST
     !character(len=80) :: WS
+
+
 
   contains
     procedure :: hasAlphaNumericInput
@@ -62,6 +79,8 @@ contains
     integer :: i, numValidTypes, cmdToProcess
 
     include "DATMAI.INC"
+
+    call currInputData%initialize()
 
     goodInput = .TRUE. ! Innocent until proven guilty
 
@@ -290,6 +309,33 @@ contains
     PRINT *, "out of loop locBlank is ", locBlank
     strCand = trim(subString)
     PRINT *, "Now strCand is ", strCand
+
+  end subroutine
+
+  subroutine init_parsed_data(self)
+    class(input_parsed_data) :: self
+     include "DATMAI.INC"
+     self%inputNums(1) = W1
+     self%inputNums(2) = W2
+     self%inputNums(3) = W3
+     self%inputNums(4) = W4
+     self%inputNums(5) = W5
+     if(S1.eq.0.and.S2.eq.0.and.S3.eq.0.and.S4.eq.0.and.S5.eq.0) then 
+       self%maxNums = 0
+     else if (S2.eq.0.and.S3.eq.0.and.S4.eq.0.and.S5.eq.0) then 
+      self%maxNums = 1
+     else if(S3.eq.0.and.S4.eq.0.and.S5.eq.0) then 
+      self%maxNums = 2
+     else if(S4.eq.0.and.S5.eq.0) then 
+      self%maxNums = 3
+     else if(S5.eq.0) then 
+      self%maxNums = 4
+     else if(S5.ne.0) then 
+      self%maxNums = 5
+     end if
+     
+
+
 
   end subroutine
 

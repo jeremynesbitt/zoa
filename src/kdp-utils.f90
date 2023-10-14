@@ -18,6 +18,16 @@ module kdp_utils
 
   end subroutine
 
+  function int2str(ipt) result(strInt)
+    integer :: ipt
+    character(len=20) :: strInt
+
+    write(strInt, '(I20)') ipt
+
+    strInt = ADJUSTL(strInt)
+
+  end function
+
   subroutine logDataVsSurface(dataArray, colHeaders, extraRowName, singleSurface)
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64

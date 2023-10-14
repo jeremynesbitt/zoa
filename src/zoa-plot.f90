@@ -59,12 +59,19 @@ type :: zoaplot
     integer :: dataColorCode = 0 !  See PL_PLOT paramaters for decoding
     integer :: numSeries = 0
     type(plotdata2d), dimension(9) :: plotdatalist
+    logical :: useLegend
+    ! AFAIK have to make character array a a fixed size
+    character(len=30)  :: legendNames(16)
+    integer :: numLegendNames
+
 
 
 contains
     !procedure, public :: initialize
     procedure, public :: initialize => zp_init
     procedure, public, pass(self) :: drawPlot
+    procedure, public, pass(self) :: addLegend
+    procedure, public, pass(self) :: drawLegend    
     procedure, public, pass(self) :: setLabelFont
     procedure, private, pass(self) :: getAxesLimits
     procedure, private, pass(self) :: getLabelFontCode
@@ -309,10 +316,17 @@ contains
             call pladv(0)
 
 
+            PRINT *, "About to set viewport"
+            PRINT *, "Use Legend is ", plotter%useLegend
+            if (plotter%useLegend) then
+              PRINT *, "setting smaller viewport"
+              call plvpor(.05, .95, .05, .8)
+            else
             !Selects the largest viewport within the subpage that leaves a
             !standard margin (left-hand margin of eight character heights,
-            !and a margin around the other three sides of five character heights).
-            call plvsta
+            !and a margin around the other three sides of five character heights).              
+              call plvsta
+            end if
             plotter => self%get(m,n)
             !call logger%logText("Starting to Draw Plot from Plotter")
             call plotter%drawPlot
@@ -392,6 +406,8 @@ contains
 
       self % labelFontColor = trim("BLACK")
       self % dataColorCode = PL_PLOT_RED
+
+      self % useLegend  = .FALSE.
 
 
     if (present(title)) then
@@ -561,6 +577,7 @@ contains
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     PRINT *, "Axes Limits ymin is ", ymin
     PRINT *, "Axes Limits ymaxs is ", ymax
+    if (self%useLegend) call plvpor(.05, .95, 0.2, .8)
     call plwind(xmin, xmax, ymin, ymax)
 
         isurface = c_null_ptr
@@ -625,9 +642,136 @@ contains
       call plcol0(getLabelFontCode(self))
     end do
 
+    if (self%useLegend) call self%drawLegend()
+
     !PRINT *, "ydata is ", self%plotdatalist(1)%y
 
     end subroutine drawPlot
+
+    subroutine addLegend(self, legendNames)
+
+      ! This is from example 4 - use as template to get legend working
+      class(zoaplot) :: self
+      character(len=*) :: legendNames(:)
+      integer :: i
+
+      self%useLegend = .TRUE.
+
+      do i=1,size(legendNames)
+        self%legendNames(i) = trim(legendNames(i))
+      end do
+
+      self%numLegendNames = size(legendNames)
+
+      PRINT *, "LegendNames is ", self%legendNames
+
+
+    end subroutine
+
+    subroutine drawLegend(self)
+
+      implicit none
+      
+      ! This is from example 4 - use as template to get legend working
+      class(zoaplot) :: self      
+       
+      integer           :: type, i
+      integer           :: nlegend
+      !integer :: nlegend = self%numLegendNames
+
+
+      real(kind=pl_test_flt)  :: legend_width, legend_height
+      integer           :: opt_array(self%numLegendNames), text_colors(self%numLegendNames), & 
+             line_colors(self%numLegendNames), &
+             line_styles(self%numLegendNames), symbol_colors(self%numLegendNames), symbol_numbers(self%numLegendNames)
+      real(kind=pl_test_flt)  :: line_widths(self%numLegendNames), symbol_scales(self%numLegendNames), &
+      & box_scales(self%numLegendNames)
+      integer           :: box_colors(self%numLegendNames), box_patterns(self%numLegendNames)
+      real(kind=pl_test_flt)  :: box_line_widths(self%numLegendNames)
+      character(len=5) :: text(self%numLegendNames)
+      character(len=20)  :: symbols(self%numLegendNames)      
+      character(len=20) :: texttest(self%numLegendNames)
+
+      nlegend = self%numLegendNames
+
+        !   Draw a legend
+        !   First legend entry.
+      do i=1,self%numLegendNames
+
+        opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
+        ! Todo:  Tie this to what was actually set
+        text_colors(i) = self%plotDataList(i)%dataColorCode 
+        line_colors(i) = self%plotDataList(i)%dataColorCode
+        line_styles(i) = 1
+        line_widths(i) = 1   
+        symbols(i) = '-'
+        text(i) = trim(self%legendNames(i))//c_null_char
+        box_scales(i) = 0.1
+        symbol_colors(i)  = self%plotDataList(i)%dataColorCode
+        symbol_scales(i)  = 1.0
+        symbol_numbers(i) = 2            
+      end do
+       
+      !text = self%legendNames(1:self%numLegendNames)
+
+      ! opt_array(1)   = PL_LEGEND_LINE
+      ! text_colors(1) = 4
+      ! text(1)        = 'Amplitude'
+      ! line_colors(1) = 4
+      ! line_styles(1) = 1
+      ! line_widths(1) = 1
+      !   note from the above opt_array the first symbol (and box) indices
+      !   do not have to be specified, at least in C. For Fortran we need
+      !   to set the symbols to be something, since the string is always
+      !   copied as part of the bindings.
+      !symbols(1) = ''      
+
+      !   note from the above opt_array the first symbol (and box) indices
+      !   do not have to be specified, at least in C. For Fortran we need
+      !   to set the symbols to be something, since the string is always
+      !   copied as part of the bindings.
+      !symbols(1) = ''
+
+      !   Second legend entry.
+
+      ! opt_array(2)      = PL_LEGEND_LINE + PL_LEGEND_SYMBOL
+      ! text_colors(2)    = 3
+      ! text(2)           = 'Phase shift'
+      ! line_colors(2)    = 3
+      ! line_styles(2)    = 1
+      ! line_widths(2)    = 1
+      ! symbol_colors(2)  = 3
+      ! symbol_scales(2)  = 1.0
+      ! symbol_numbers(2) = 4
+      ! symbols(2)        = "#(728)"
+
+      !   from the above opt_arrays we can completely ignore everything
+      !   to do with boxes. (Hence the size 0 for the associated arrays)
+
+      call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
+      !pllegend(p_legend_width, p_legend_height, opt, position, x, y, 
+      !plot_width, bg_color, bb_color, bb_style, nrow, ncolumn, 
+      !opt_array, text_offset, text_scale, text_spacing, 
+      !test_justification, text_colors, text, box_colors, 
+      !box_patterns, box_scales, box_line_widths, line_colors, 
+      !line_styles, line_widths, symbol_colors, symbol_scales, symbol_numbers, symbols)
+      call pllegend( legend_width, legend_height, &
+             PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
+             PL_POSITION_OUTSIDE + PL_POSITION_BOTTOM, &
+             0.0_pl_test_flt, +0.25_pl_test_flt, -0.05_pl_test_flt, 0, &
+             0, 0, 1, nlegend, &
+             opt_array, &
+             1.0_pl_test_flt, 1.0_pl_test_flt, 2.0_pl_test_flt, &
+             1.0_pl_test_flt, text_colors(1:nlegend), text(1:nlegend), &
+             box_colors(1:nlegend), box_patterns(1:nlegend), box_scales(1:nlegend), box_line_widths(1:nlegend), &
+             line_colors(1:nlegend), line_styles(1:nlegend), line_widths(1:nlegend), &
+             symbol_colors(1:nlegend), symbol_scales(1:nlegend), symbol_numbers(1:nlegend), symbols(1:nlegend) )
+
+
+      PRINT *, "legend_width is ", legend_width
+      PRINT *, "legend_height is ", legend_height
+
+    end subroutine
 
     subroutine addXYPlot(self, X, Y)
 
@@ -910,11 +1054,28 @@ contains
     class(zoaplot), intent(in) :: self
     real(kind=pl_test_flt), intent(inout) :: xmin, xmax, ymin, ymax
     real(kind=pl_test_flt) :: yrng, xrng
+    integer :: j
+
+    if (self%numSeries > 1) then
+      xmin = minval(self%plotdatalist(1)%x)
+      xmax = maxval(self%plotdatalist(1)%x)
+      ymin = minval(self%plotdatalist(1)%y)
+      ymax = maxval(self%plotdatalist(1)%y)     
+      do j=2,self%numSeries
+        xmin = min(xmin,minval(self%plotdatalist(j)%x))
+        xmax = max(xmax,maxval(self%plotdatalist(j)%x))
+        ymin = min(ymin,minval(self%plotdatalist(j)%y))
+        ymax = max(ymax,maxval(self%plotdatalist(j)%y))
+      end do
+
+    else
 
     xmin = minval(self%x)
     xmax = maxval(self%x)
     ymin = minval(self%y)
     ymax = maxval(self%y)
+
+    end if
 
     yrng = (ymax-ymin)
     xrng = (xmax-xmin)

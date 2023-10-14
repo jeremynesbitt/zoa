@@ -755,23 +755,95 @@ subroutine PLTZERN
     use handlers, only: zoatabMgr, updateTerminalLog
     use global_widgets, only:  sysConfig
     use zoa_ui
+    use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
+    use kdp_utils, only: OUTKDP, int2str
 
 
     IMPLICIT NONE
 
     character(len=23) :: ffieldstr
     character(len=40) :: inputCmd
-    integer :: ii, objIdx
+    integer :: ii, objIdx, minZ, maxZ, lambda
+    integer :: maxPlotZ = 9, numTermsToPlot
     integer :: numPoints = 10
     logical :: replot
+    type(multiplot) :: mplt
+    type(zoaplot) :: zernplot
+    type(c_ptr) :: canvas
 
-    REAL, allocatable :: xdat(:), ydat(:)
+    character(len=5), allocatable :: zLegend(:)
+
+    REAL, allocatable :: xdat(:), ydat(:,:)
 
     REAL*8 X(1:96)
     COMMON/SOLU/X
 
     INCLUDE 'DATMAI.INC'
+    ! Max 3 terms.  Terms 1 and 2 are min and max zernikes
+    ! Term 3 is the wavelength.  
+ 
+    if (.not.checkCommandInput([ID_CMD_NUM], max_num_terms=3)) then
+      call MACFAL
+      return
+    end if
+
+    ! Defaults
+    minZ = 4
+    maxZ = minZ+maxPlotZ-1
+    lambda = sysConfig%refWavelengthIndex
+
+    select case(currInputData%maxNums)
+
+    case (1)
+      minZ = INT(currInputData%inputNums(1))
+    case (2)
+      minZ = INT(currInputData%inputNums(1))
+      maxZ = INT(currInputData%inputNums(2))
+    case (3)
+      minZ = INT(currInputData%inputNums(1))
+      maxZ = INT(currInputData%inputNums(2))
+      lambda = INT(currInputData%inputNums(3))
+    end select
+    PRINT *, "MinZ is ", minZ
+    PRINT *, "MaxZ is ", maxZ
+    PRINT *, "Wavelength idx is ", lambda
+
+
+    
+    ! Error checking
+
+      if (minZ.LT.1.OR.minZ.GT.35) then
+        call OUTKDP("Error:  Lower Zernike must be between 1 and 35", 1)
+        call MACFAL
+        return
+      end if
+
+
+      if (maxZ.LT.1.OR.maxZ.GT.36) then
+        call OUTKDP("Error:  Upper Zernike must be between 1 and 35", 1)
+        call MACFAL
+        return
+      end if
+
+      numTermsToPlot = maxZ-minZ
+      if (numTermsToPlot.GT.maxPlotZ) then
+        call OUTKDP("Error:  Number of Terms must be less than or equal to 9", 1)
+        call MACFAL
+        return
+      end if
+
+
+      if (lambda.LT.1.OR.lambda.GT.10) then
+      call OUTKDP("Error:  Wavelength Index must be between 1 and 10", 1)
+      call MACFAL
+      return
+    end if      
+
+    ! Execute 
+    allocate(zLegend(maxZ-minZ))
+
+
 
     !call checkCommandInput(ID_CMD_ALPHA)
 
@@ -782,43 +854,67 @@ subroutine PLTZERN
     numPoints = INT(getCmdInputValue('NUMPTS'))
     end if
 
-
-    PRINT *, "numPoints is ", numPoints
-    PRINT *, "WQ is ", WQ
-    PRINT *, "WC is ", WC
-    PRINT *, "WS is ", WS
-    PRINT *, "W1 is ", W1
-    PRINT *, "W2 is ", W2
-
     allocate(xdat(numPoints))
-    allocate(ydat(numPoints))
+    allocate(ydat(numPoints,9))
 
     do ii = 0, numPoints-1
       xdat(ii+1) = REAL(ii)/REAL(numPoints-1)
       write(ffieldstr, *) xdat(ii+1)
       CALL PROCESKDP("FOB "// ffieldstr)
       CALL PROCESKDP("CAPFN")
-      CALL PROCESKDP("FITZERN")
+      write(ffieldstr, *) lambda
+      CALL PROCESKDP("FITZERN, "//ffieldstr)
 
       !CALL PROCESKDP("SHO RMSOPD")
-      ydat(ii+1) = X(8)
+
+      ydat(ii+1,1:numTermsToPlot) = X(minZ:maxZ)
     end do
+
+
+   
+    canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+    & has_alpha=FALSE)
+   
+    call mplt%initialize(canvas, 1,1)
+   
+    call zernplot%initialize(c_null_ptr, xdat,ydat(:,1), &
+    & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
+    & ylabel="Error ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
+    & title='Zernike Coefficients vs Field'//c_null_char)
+    zLegend(1) = 'Z'//trim(int2str(minZ))
+    do ii=2,numTermsToPlot
+      call zernplot%addXYPlot(xdat, ydat(:,ii))
+      call zernplot%setDataColorCode(2+ii)
+      !call zernplot%setLineStyleCode(4)
+      zLegend(ii) = 'Z'//trim(int2str(minZ+ii-1))
+      PRINT *, "value is ", 'Z'//trim(int2str(minZ+ii-1))
+
+    end do
+    call zernplot%addLegend(zLegend)
+    PRINT *, "zLegend is ", zLegend
+    PRINT *, "Final errors are ", ydat(10,:)
+
+    call mplt%set(1,1,zernplot)
 
     replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
 
     if (replot) then
-    PRINT *, "SPOT RMS VS FIELD REPLOT REQUESTED"
-    PRINT *, "Input Command was ", inputCmd
-    call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-    !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-
-    call zoatabMgr%updateGenericPlotTab(objIdx, xdat, ydat)
-
-    else
-    objIdx = zoatabMgr%addGenericPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, "Zernike Coefficient Vs Field"//c_null_char, xdat,ydat, &
-    & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
-      & ylabel="Error ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
-      & title='Zernike vs Field'//c_null_char, linetypecode=-1)
+      PRINT *, "Zernike REPLOT REQUESTED"
+      PRINT *, "Input Command was ", inputCmd
+      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+      !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+     
+      call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+     
+     else
+     
+     
+       !call mplt%draw()
+     
+     
+      objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, &
+      & "Zernike vs Field"//c_null_char, mplt)
+     
 
     ! Add settings
     zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
