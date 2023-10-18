@@ -3211,7 +3211,7 @@ C           for now hack to print to terminal
 C      WRITE (*, '(a)') 'Call to SHOWIT'
        IF (II.LT.2) THEN
        !PRINT *, OUTLYNE
-       call updateTerminalLog(OUTLYNE,
+       call updateTerminalLog(trim(OUTLYNE),
      1 "black")
 C       call gtk_text_buffer_insert_at_cursor(buffer,
 C     1 OUTLYNE//C_NEW_LINE//c_null_char, -1_c_int)

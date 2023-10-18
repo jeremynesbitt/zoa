@@ -161,6 +161,8 @@ contains
       logical :: scrollResult
       type(c_ptr) ::  buffInsert
       type(c_ptr) ::  txtBuffer
+      character(len=180) :: markup
+      integer(kind=c_int) :: iotst
 
 
 
@@ -184,9 +186,19 @@ contains
       !warnting.  Need to figure out how to detect empty string (this is not working)
     !PRINT *, "debug ftext is ", ftext
     if (ftext.ne."  ") THEN
-      call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
-      & "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
-      & //c_null_char, -1_c_int)
+      !call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
+      !& "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
+      !& //c_null_char, -1_c_int)
+      markup ="<span foreground='"//trim(txtColor)// &
+      & "'>"//trim(ftext)//"</span>"//C_NEW_LINE//c_null_char//c_null_char
+      ! Added this because for some strings, gtk would throw a parsing error
+      ! Could not fiure out the pattern but found that if I don't let gtk calc the
+      ! size of the buffer it seems to work every time
+      inquire(iolength=iotst) trim(markup)
+      !PRINT *, "iotst is ", iotst
+      !PRINT *, "len of markup is ", len(trim(markup))
+      call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), trim(markup), iotst)      
+      !print *, "markup txt is ", markup
     END IF
 
       buffInsert = gtk_text_buffer_get_insert(txtBuffer)

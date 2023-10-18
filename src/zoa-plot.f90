@@ -320,7 +320,8 @@ contains
             PRINT *, "Use Legend is ", plotter%useLegend
             if (plotter%useLegend) then
               PRINT *, "setting smaller viewport"
-              call plvpor(.05, .95, .05, .8)
+              call plvpor(.15, .85, .2, .8)
+        
             else
             !Selects the largest viewport within the subpage that leaves a
             !standard margin (left-hand margin of eight character heights,
@@ -577,7 +578,7 @@ contains
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     PRINT *, "Axes Limits ymin is ", ymin
     PRINT *, "Axes Limits ymaxs is ", ymax
-    if (self%useLegend) call plvpor(.05, .95, 0.2, .8)
+    !if (self%useLegend) call plvpor(.05, .95, 0.2, .8)
     call plwind(xmin, xmax, ymin, ymax)
 
         isurface = c_null_ptr

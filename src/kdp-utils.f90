@@ -28,6 +28,70 @@ module kdp_utils
 
   end function
 
+  subroutine logDataVsField(fldPoints, dataArray, colHeaders, extraRowName, singleSurface)
+    use global_widgets, only: curr_lens_data
+    use iso_fortran_env, only: real64
+    use iso_c_binding, only: c_null_char
+    implicit none
+
+    real, dimension(:) :: fldPoints
+    real, dimension(:,:) :: dataArray
+    character(len=*), dimension(:) :: colHeaders
+    character(len=*), optional :: extraRowName
+    integer, optional :: singleSurface
+    integer :: i, j, sStart, sEnd
+    character(len=1024) :: lineStr
+    character(len=230) :: entryStr
+
+    ! Print header
+    lineStr = 'Field'
+    do i=1,size(colHeaders)
+        lineStr = trim(lineStr)//'      '//trim(colHeaders(i))
+    end do
+    call OUTKDP("Data vs Field Position")
+    print *, "lineStr is ", trim(lineStr)
+    call OUTKDP(trim(lineStr)//c_null_char)
+    print *, "after OUTKDP call"
+    
+    if (present(singleSurface)) then
+        PRINT *, "SingleSurface is ", singleSurface
+        sStart = singleSurface
+        sEnd = singleSurface
+    else
+        sStart = 1
+        sEnd = size(fldPoints)
+
+    end if
+    PRINT *, "sStart is ", sStart
+    PRINT *, "sEnd is ", sEnd
+
+
+    do i=sStart,sEnd
+    !do i=0,curr_lens_data%num_surfaces   
+        write(entryStr, '(F12.5)') fldPoints(i)
+        lineStr = trim(adjustl(entryStr))
+        if (i == curr_lens_data%num_surfaces) then
+            if (present(extraRowName)) then
+                lineStr = extraRowName
+            else
+                lineStr = '   '
+            end if
+        end if
+            
+        do j=1,size(colHeaders)
+            write(entryStr, '(F12.5)') dataArray(i,j)
+            if (dataArray(j,i) > 0.0) then
+              !lineStr = trim(lineStr)//'    '//trim(entryStr)
+              lineStr = trim(lineStr)//blankStr(6)//trim(entryStr)
+            else
+              lineStr = trim(lineStr)//'    '//' '//trim(entryStr)
+            end if
+        end do
+        call OUTKDP(trim(lineStr))
+    end do
+
+  end subroutine
+
   subroutine logDataVsSurface(dataArray, colHeaders, extraRowName, singleSurface)
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64

@@ -757,7 +757,7 @@ subroutine PLTZERN
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
-    use kdp_utils, only: OUTKDP, int2str
+    use kdp_utils, only: OUTKDP, int2str, logDataVsField
 
 
     IMPLICIT NONE
@@ -866,10 +866,11 @@ subroutine PLTZERN
       CALL PROCESKDP("FITZERN, "//ffieldstr)
 
       !CALL PROCESKDP("SHO RMSOPD")
-
+      xdat(ii+1) = REAL(xdat(ii+1)*sysConfig%refFieldValue(2))
       ydat(ii+1,1:numTermsToPlot) = X(minZ:maxZ)
     end do
 
+  
 
    
     canvas = hl_gtk_drawing_area_new(size=[1200,500], &
@@ -879,7 +880,7 @@ subroutine PLTZERN
    
     call zernplot%initialize(c_null_ptr, xdat,ydat(:,1), &
     & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
-    & ylabel="Error ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
+    & ylabel="Coefficient [waves]"//c_null_char, &
     & title='Zernike Coefficients vs Field'//c_null_char)
     zLegend(1) = 'Z'//trim(int2str(minZ))
     do ii=2,numTermsToPlot
@@ -890,9 +891,13 @@ subroutine PLTZERN
       PRINT *, "value is ", 'Z'//trim(int2str(minZ+ii-1))
 
     end do
-    call zernplot%addLegend(zLegend)
-    PRINT *, "zLegend is ", zLegend
-    PRINT *, "Final errors are ", ydat(10,:)
+
+    call logDataVsField(xdat, ydat, zLegend(1:ii))
+    
+    call zernplot%addLegend(zLegend(1:ii))
+    
+    PRINT *, "zLegend is ", (zLegend(1:ii))
+    !PRINT *, "Final errors are ", ydat(10,:)
 
     call mplt%set(1,1,zernplot)
 
