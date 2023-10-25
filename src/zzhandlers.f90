@@ -161,7 +161,7 @@ contains
       logical :: scrollResult
       type(c_ptr) ::  buffInsert
       type(c_ptr) ::  txtBuffer
-      character(len=180) :: markup
+      character(len=280) :: markup
       integer(kind=c_int) :: iotst
 
 
@@ -492,7 +492,7 @@ subroutine populateSplashWindow(splashWin)
        & c_new_line//'<span foreground="blue" size="x-large"> &
        &  Zoa Optical Analysis</span>'//C_NEW_LINE// &
        &  c_new_line//'<span foreground="blue" size="large"> &
-       &  Version 0.1.1 (beta)</span>' &
+       &  Version '//zoaVersion// ' (beta)</span>' &
        &  //c_null_char, -1_c_int)
     PRINT *, "Post Markup"
 

@@ -18,6 +18,20 @@ program zoa_program
   implicit none
 
   integer(c_int)     :: status
+  
+
+#define __TST "0.1.0"
+
+#ifdef __VERSION
+  PRINT *, "Found Version!"
+!zoaVersion = __VERSION
+
+  !PRINT *, "Version is ", __VERSION
+
+#endif
+PRINT *, "Version is ", __VERSION
+zoaVersion = __VERSION
+
 
 !For windows only we need to hide the console window.
 !This solution is inspired by:

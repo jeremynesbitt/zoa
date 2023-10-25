@@ -8,6 +8,13 @@ module kdp_utils
 
     include "DATMAI.INC"
 
+    if(len(txt) > 140) then
+      PRINT *, "WARNING:  output text truncated due to input character length longer than OUTLYNE"
+      OUTLYNE_LONG = txt
+      call SHOWIT(20)
+    else
+    
+
     OUTLYNE = txt
 
     if (present(code))  then 
@@ -15,6 +22,8 @@ module kdp_utils
     else
         CALL SHOWIT(0)
     end if
+    
+  end if
 
   end subroutine
 
@@ -25,6 +34,85 @@ module kdp_utils
     write(strInt, '(I20)') ipt
 
     strInt = ADJUSTL(strInt)
+
+  end function
+
+  subroutine spaceDataForTable(xdata, ydata, xHeader, colHeaders, blankArray)
+    implicit none
+    real, dimension(:) :: xdata
+    real, dimension(:,:) :: ydata
+    character(len=*) :: xHeader
+    character(len=*), dimension(:) :: colHeaders
+    integer, dimension(:,:), intent(inout) :: blankArray
+    integer, dimension(size(blankArray,1),size(blankArray,2)) :: lengthArray
+    integer, dimension(size(blankArray,2)) :: maxPerColumn,  colStartPos
+    integer :: i,j
+    character(len=1024) :: lineStr
+    character(len=230) :: entryStr 
+    integer :: minBlankSpacing   
+
+    
+    !TODO:  This should be a parameter somwhere:
+    minBlankSpacing = 2
+
+    ! Need to figure out the size in character if each entry as printed
+    ! TODO :  Should get print format from some common source as the logging fcns
+    lengthArray(1,1) = len(xHeader)
+
+    do j=2,size(colHeaders)+1
+      lengthArray(1,j) = len(trim(colHeaders(j-1)))
+    end do
+
+    do i=1,size(xdata)
+      !do i=0,curr_lens_data%num_surfaces   
+          write(entryStr, '(F12.5)') xdata(i)
+          lineStr = trim(adjustl(entryStr))
+          lengthArray(i+1,1) = len(trim(lineStr))
+          do j=1,size(colHeaders)
+            write(entryStr, '(F12.5)') ydata(i,j)
+            lineStr = trim(adjustl(entryStr))
+            lengthArray(i+1,j+1) = len(trim(lineStr))            
+          end do
+    end do
+
+    !Now figure out max value per column
+    colStartPos(1) = 0
+    do j=1,size(colHeaders)+1
+      maxPerColumn(j) = maxval(lengthArray(:,j))
+      if (j > 1) then
+         colStartPos(j) = colStartPos(j-1) + maxPerColumn(j-1) + minBlankSpacing
+      end if
+    end do
+    PRINT *, "maxPercolumn is ", maxPerColumn
+    PRINT *, "colStartPos is ", colStartPos
+    PRINT *, "lengthArray of first row is ", lengthArray(1,:)
+    PRINT *, "lengthArray of fifth row is ", lengthArray(5,:)
+
+    ! Finally we are ready to populate the blankArray
+    ! size of blankArray is:
+    ! rows:  the size of the data + 1 (one extra row for headers)
+    ! cols:  the number of columns of dataArray +1 (xdata)
+    ! Do not actually need the blankArray values in the last column as there is
+    ! no spacing needed to next column
+    do i=1,size(xdata)+1
+          do j=1,size(blankArray,2)-1
+            blankArray(i,j) = colStartPos(j+1)-lengthArray(i,j)-colStartPos(j)
+         
+          end do
+    end do
+
+    PRINT *, "blankArray of fifth row is ", blankArray(5,:)
+
+
+
+  end subroutine
+
+  function int2char(iptInt) result(outputChar)
+    integer, intent(in) :: iptInt
+    character(len=80) :: outputChar
+    write(outputChar, '(I3)') iptInt
+
+    outputChar = adjustl(outputChar)
 
   end function
 
@@ -42,19 +130,34 @@ module kdp_utils
     integer :: i, j, sStart, sEnd
     character(len=1024) :: lineStr
     character(len=230) :: entryStr
+    integer, allocatable :: blankArray(:,:)
+
+    allocate(blankArray(size(fldPoints)+1,size(dataArray,2)+1))
+    call spaceDataForTable(fldPoints, dataArray, 'Field', colHeaders, blankArray)
+    print *, "blankArray for first row is ", blankArray(1,:)
+    print *, "colHeaders is ", colHeaders
+
 
     ! Print header
-    lineStr = 'Field'
-    do i=1,size(colHeaders)
-        lineStr = trim(lineStr)//'      '//trim(colHeaders(i))
+    !lineStr = 'Field'//blankStr(blankArray(1,1))
+    lineStr = 'Field'//blankStr(blankArray(1,1)+5)//trim(colHeaders(1))
+    print *, "lineStry is ", trim(lineStr)
+    do i=2,size(colHeaders)
+      print *, "len of lineStr is ", len(trim(lineStr))
+      lineStr = trim(lineStr)//blankStr(blankArray(1,i)+5)//trim(colHeaders(i))
+        
+        !lineStr = trim(lineStr)//blankStr(10)//trim(colHeaders(i))
     end do
     call OUTKDP("Data vs Field Position")
-    print *, "lineStr is ", trim(lineStr)
-    call OUTKDP(trim(lineStr)//c_null_char)
-    print *, "after OUTKDP call"
     
+    !print *, "len of lineStr is ", len(trim(lineStr))
+    !call updateTerminalLog(trim(lineStr), "black")
+    call OUTKDP(trim(lineStr)//c_null_char)
+   ! print *, "after OUTKDP call"
+   ! print *, "len of blankstr(6) is ", len(blankStr(6))
+    print *, trim(lineStr)
     if (present(singleSurface)) then
-        PRINT *, "SingleSurface is ", singleSurface
+       ! PRINT *, "SingleSurface is ", singleSurface
         sStart = singleSurface
         sEnd = singleSurface
     else
@@ -62,8 +165,8 @@ module kdp_utils
         sEnd = size(fldPoints)
 
     end if
-    PRINT *, "sStart is ", sStart
-    PRINT *, "sEnd is ", sEnd
+    !PRINT *, "sStart is ", sStart
+    !PRINT *, "sEnd is ", sEnd
 
 
     do i=sStart,sEnd
@@ -80,14 +183,22 @@ module kdp_utils
             
         do j=1,size(colHeaders)
             write(entryStr, '(F12.5)') dataArray(i,j)
-            if (dataArray(j,i) > 0.0) then
-              !lineStr = trim(lineStr)//'    '//trim(entryStr)
-              lineStr = trim(lineStr)//blankStr(6)//trim(entryStr)
-            else
-              lineStr = trim(lineStr)//'    '//' '//trim(entryStr)
-            end if
+            lineStr = trim(lineStr)//blankStr(blankArray(i+1,j))//trim(adjustl(entryStr))
+            ! if (i.EQ.6) then
+            !   PRINT *, "j is ", j
+            !   PRINT *, "blankArray is ", blankArray(i+1,j)
+            !   PRINT *, "len of blankStr is ", 
+            ! end if
+            ! if (dataArray(j,i) > 0.0) then
+            !   !lineStr = trim(lineStr)//'    '//trim(entryStr)
+            !   lineStr = trim(lineStr)//blankStr(6)//trim(entryStr)
+            ! else
+            !   lineStr = trim(lineStr)//'    '//' '//trim(entryStr)
+            ! end if
         end do
         call OUTKDP(trim(lineStr))
+        print *, trim(lineStr)
+        !PRINT *, "len of lineStr is ", len(trim(lineStr))
     end do
 
   end subroutine
@@ -95,6 +206,7 @@ module kdp_utils
   subroutine logDataVsSurface(dataArray, colHeaders, extraRowName, singleSurface)
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64
+    
     implicit none
 
     real(kind=real64), dimension(:,:) :: dataArray

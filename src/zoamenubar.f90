@@ -102,7 +102,7 @@ contains
 
     type(c_ptr) :: menu_lens, menu_item_drawLens, section1_lens, act_drawLens
     type(c_ptr) :: menu_paraxial, act_firstorder, menu_item_firstorder
-    type(c_ptr) :: menu_imagEval
+    type(c_ptr) :: menu_imagEval, menu_wavefront
 
     type(c_ptr) :: menu_macro, menu_item_macrooperations, act_macrooperations
     type(c_ptr) :: act_macrosave, menu_item_macrosave, menu_item_macrorestore, act_macrorestore
@@ -129,6 +129,8 @@ contains
     character(len=100), target :: drawCmd = "VIECO"
     character(len=10), target :: seidelCmd = "PLTSEI"
     character(len=10), target :: macroCmd = "MACROUI"
+    character(len=10), target :: zernFldCmd = "PLTZERN"
+
 
 
     act_quit = g_simple_action_new ("quit"//c_null_char, c_null_ptr)
@@ -142,6 +144,7 @@ contains
     menu_lens = g_menu_new()
     menu_macro = g_menu_new()
     menu_imagEval = g_menu_new()
+    menu_wavefront = g_menu_new()
 
     call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
@@ -253,6 +256,11 @@ contains
 
     call addCommandMenuItem(menu_paraxial, "Seidel Aberrations", &
     & "Seidel", seidelCmd, win)
+
+    call g_menu_append_submenu (menubar, "Wavefront Analysis"//c_null_char, menu_wavefront)
+
+    call addCommandMenuItem(menu_wavefront, "Zernike Coefficients vs Field", &
+    & "ZernikeVsField", zernFldCmd, win)
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 
@@ -404,7 +412,7 @@ contains
     type(c_ptr) :: topLevelMenu, win
     character(len=*) :: menuItemText, menuItemEventName
     character(len=*), target, intent(in) :: singleCommand
-    character(len=100), pointer :: ptr
+    character(len=len(singleCommand)), pointer :: ptr
     type(c_ptr) ::menuAction, menuItem
 
     ptr =>singleCommand

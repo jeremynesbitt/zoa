@@ -3273,6 +3273,10 @@ C
         IF(I.EQ.20) THEN
 C       OUTPUT INTENDED FOR UNIT=OUT (256 COL), UNIT 97
 C       USED ONLY IN COMMA DELIMITED TABLE OUTPUT
+        PRINT *, "IN RIGHT Block of SHOWIT"
+        PRINT *, "OUTLYNE_LONG IS ", OUTLYNE_LONG
+        call updateTerminalLog(trim(OUTLYNE_LONG), "black")
+
         WRITE(97,2000) OUTLYNE_LONG(1:256)
  2000   FORMAT(A256)
                         END IF

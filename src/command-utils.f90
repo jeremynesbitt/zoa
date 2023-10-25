@@ -209,11 +209,13 @@ contains
 
   end function
 
-  subroutine parseCommandIntoTokens(cmdInput, tokens, numTokens, tokenLen)
+  subroutine parseCommandIntoTokens(cmdInput, tokens, numTokens, iptDelim, tokenLen)
     implicit none
     character(len=*) :: cmdInput
     character(len=80) :: tokens(40)
-    integer :: numTokens, fst, lst, i
+    integer :: numTokens, fst, lst, i, abslst
+    character(len=1), optional :: iptDelim
+    character(len=1) :: delim
     integer, optional  :: tokenLen(40)
     character(len=150) :: subString
   !call checkCommandInput(typeCode, allowableQualWords)
@@ -224,16 +226,25 @@ contains
 
   if (.not.present(tokenLen))  PRINT *, "Tokenlen doesn't exist!"
 
+  if (.not.present(iptDelim))  then 
+     PRINT *, "Using blank as delimiter "
+     delim = " "
+  else
+     delim = iptDelim
+     
+  end if
+
+  PRINT *, "delim is ", delim
   !Test String Tokenizer
   subString = cmdInput
-  fst = INDEX(subString, ' ', BACK=.FALSE.)
-  lst = INDEX(subString, ' ', BACK=.TRUE.)
+  fst = INDEX(subString, delim, BACK=.FALSE.)
+  abslst = INDEX(subString, delim, BACK=.TRUE.)
+
+  print *, "End of string is ", cmdInput(abslst:len(cmdInput))
   i = 1
-  PRINT *, "fst is ", fst
-  PRINT *, "lst is ", lst
   do while (fst > 1)
-     fst = INDEX(subString, ' ', BACK=.FALSE.)
-     lst = INDEX(subString, ' ', BACK=.TRUE.)
+     fst = INDEX(subString, delim, BACK=.FALSE.)
+     lst = INDEX(subString, delim, BACK=.TRUE.)
        PRINT *, "fst is ", fst
        PRINT *, "lst is ", lst
      tokens(i) = subString(1:fst-1)
@@ -242,10 +253,20 @@ contains
      i = i+1
      if (fst<len(cmdInput)) subString = subString(fst+1:len(cmdInput))
   end do
+  ! Here we can miss the last token so just assign it to the end of the cmd input string
+  if (len(cmdInput) > abslst) then
+  !if (cmdInput(abslst+1:len(cmdInput)).ne." ") then
+    numTokens = i-1
+    tokens(numTokens) = cmdInput(abslst+1:len(cmdInput))
+    print *, "for token ", numTokens
+    print *, "substring is ", tokens(numTokens)
+  else
+    numTokens = i-2
+  end if
 
-  PRINT *, "tokens ", tokens(1:i-2)
+  PRINT *, "tokens ", tokens(1:numTokens)
   !if(present(tokenLen) PRINT *, "Token Length = ", tokenLen(1:i-2)
-  numTokens = i-2
+  
 
   end subroutine
 

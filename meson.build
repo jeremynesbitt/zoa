@@ -5,7 +5,8 @@
 # started from gtk-fortran meson.build file
 
 project('Zoa', ['fortran', 'c'],
-        version: '0.1.1',
+        version : run_command('zoa-version.sh', check : true).stdout().strip(),
+        # version: '0.1.1',
         license: 'GPL3',
         meson_version: '>=0.60')
 
@@ -15,7 +16,7 @@ system = host_machine.system()
 message('Host machine system = '+system)
 build_type = get_option('buildtype')
 message('Build type: '+build_type)
-
+versionArg = '-D__VERSION=' + '"' + meson.project_version() + '"' 
 osArg = ' '
 if system == 'darwin'
    osArg = '-DMACOS'
@@ -37,7 +38,7 @@ if get_option('buildtype').contains('debug')
    bldArg = '-D__DEBUG'
 endif
 
-globArg = [osArg, bldArg]
+globArg = [osArg, bldArg, versionArg]
 
 message('Global Arguments are ', globArg)
 
@@ -87,7 +88,7 @@ if fortran.get_id().contains('gcc')
     #'-fsanitize=address,undefined',
     #'-pedantic',
     #'-Wtabs',
-    #'-fcheck=bounds',
+    '-fcheck=bounds',
     '-fcheck=mem',
     '-fcheck=pointer',
     '-fcheck=bits',

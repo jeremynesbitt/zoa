@@ -775,6 +775,7 @@ subroutine PLTZERN
     character(len=5), allocatable :: zLegend(:)
 
     REAL, allocatable :: xdat(:), ydat(:,:)
+    
 
     REAL*8 X(1:96)
     COMMON/SOLU/X
@@ -826,7 +827,7 @@ subroutine PLTZERN
         return
       end if
 
-      numTermsToPlot = maxZ-minZ
+      numTermsToPlot = maxZ-minZ+1
       if (numTermsToPlot.GT.maxPlotZ) then
         call OUTKDP("Error:  Number of Terms must be less than or equal to 9", 1)
         call MACFAL
@@ -840,22 +841,29 @@ subroutine PLTZERN
       return
     end if      
 
-    ! Execute 
-    allocate(zLegend(maxZ-minZ))
+
 
 
 
     !call checkCommandInput(ID_CMD_ALPHA)
 
     call updateTerminalLog(INPUT, "blue")
-    inputCmd = INPUT
+    inputCmd = "PLTZERN, "//trim(int2str(minZ))//','//trim(int2str(maxZ))//','//trim(int2str(lambda))
+    !inputCmd = INPUT
 
     if(cmdOptionExists('NUMPTS')) then
     numPoints = INT(getCmdInputValue('NUMPTS'))
     end if
 
     allocate(xdat(numPoints))
-    allocate(ydat(numPoints,9))
+    allocate(ydat(numPoints,maxZ-minZ+1))
+    allocate(zLegend(size(ydat,2)))
+
+    PRINT *, "number of data columns is ", size(ydat,2)
+
+    
+
+
 
     do ii = 0, numPoints-1
       xdat(ii+1) = REAL(ii)/REAL(numPoints-1)
@@ -884,7 +892,9 @@ subroutine PLTZERN
     & title='Zernike Coefficients vs Field'//c_null_char)
     zLegend(1) = 'Z'//trim(int2str(minZ))
     do ii=2,numTermsToPlot
+      PRINT *, "ii is ", ii
       call zernplot%addXYPlot(xdat, ydat(:,ii))
+      PRINT *, "After Zernplot add"
       call zernplot%setDataColorCode(2+ii)
       !call zernplot%setLineStyleCode(4)
       zLegend(ii) = 'Z'//trim(int2str(minZ+ii-1))
@@ -892,11 +902,13 @@ subroutine PLTZERN
 
     end do
 
-    call logDataVsField(xdat, ydat, zLegend(1:ii))
+    !Test
     
-    call zernplot%addLegend(zLegend(1:ii))
+    call logDataVsField(xdat, ydat, zLegend)
     
-    PRINT *, "zLegend is ", (zLegend(1:ii))
+    call zernplot%addLegend(zLegend)
+    
+    PRINT *, "zLegend is ", (zLegend)
     !PRINT *, "Final errors are ", ydat(10,:)
 
     call mplt%set(1,1,zernplot)
@@ -923,9 +935,13 @@ subroutine PLTZERN
 
     ! Add settings
     zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
-    & 10.0, 1.0, 20.0, 1, "NUMP2"//c_null_char)
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Min Zernike Coefficient", &
+    & REAL(minZ), 1.0, 36.0, 1, "R1"//c_null_char)
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Max Zernike Coefficient", &
+    & REAL(maxZ), 2.0, 36.0, 1, "R2"//c_null_char)    
+    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Wavelength", &
+    & REAL(sysConfig%refWavelengthIndex), 1.0, REAL(sysConfig%numWavelengths), 1, "R3"//c_null_char)    
+    !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
 
     ! Create Plot + settings tab
     call zoaTabMgr%finalizeNewPlotTab(objIdx)

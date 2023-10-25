@@ -749,11 +749,10 @@ end subroutine
 
     ffieldstr = adjustl(ffieldstr)
 
-   !call removeLeadingBlanks(ffieldstr)
-
    PRINT *, "cmdOrig is ", cmdOrig
    PRINT *, "cmdToupdate is ", cmdToUpdate
    PRINT *, "newVal is ", ffieldstr
+
 
   call updateCommand(cmdOrig, cmdToUpdate(1:locDelim-1), ffieldstr, cmdNew)
 
@@ -774,6 +773,99 @@ end subroutine
    character(len=80) :: tokens(40)
    character(len=1), parameter :: blank = " "
    integer :: locComma, locCmd, i, numTokens, j
+   character(len=10), dimension(5) :: specialCmds
+   logical :: boolSpecialCmd
+
+
+   specialCmds(1) = "R1"
+   specialCmds(2) = "R2"
+   specialCmds(3) = "R3"
+   specialCmds(4) = "R4"
+   specialCmds(5) = "R5"
+
+   boolSpecialCmd = .FALSE.
+   print *, "cmdToUpdate is ", cmdToUpdate
+   do i=1,size(specialCmds)
+    print *, "specialCmds is ", trim(specialCmds(i))
+    !if (index(specialCmds(i),cmdToUpdate) > 0 ) then 
+      if (specialCmds(i) == cmdToUpdate(1:len(trim(specialCmds(i))))) then   
+      PRINT *, "Match found!"
+      boolSpecialCmd = .TRUE.
+    end if
+   end do
+ 
+   PRINT *, "LEN of cmdToUpdate is ", LEN(cmdToUpdate)
+   PRINT *, "cmdUpdate 1 is ", cmdToUpdate(1:1)
+   PRINT *, "cmdUpdate 2 is ", cmdToUpdate(2:2)
+   PRINT *, "cmdUpdate 3 is ", cmdToUpdate(3:3)
+
+   PRINT *, "LEN of RR is ", LEN("RR")
+
+
+  !  if(trim(adjustl(cmdToUpdate(1:2))) == "RR") then
+  !   PRINT *, "R1 Match found!"
+  !   boolSpecialCmd = .TRUE.
+  ! end if 
+
+  ! if("RR" == "RR") then
+  !   PRINT *, "RR Match found!"
+  !   boolSpecialCmd = .TRUE.
+  ! end if 
+
+   print *, "boolSpecialCmd is ", boolSpecialCmd
+   ! Hack because I can't figure out why string comparison isn't working (sigh)
+   !boolSpecialCmd = .TRUE.
+
+   ! What I want
+   ! some special command words that interpret where to put things
+   ! eg if I have a command that takes 5 numbers, if cmdToUpdate is "R1" then 
+   ! swap out first number in command for newVal
+   ! How to implement:
+   ! have a special value character array
+   ! start with if (cmdIsSpecial(cmdToUpdate, specialCommands)
+
+   ! If not, then origial code works
+   ! If yes, then 
+   ! If 
+   ! must do:  transform input command from any default to all commands populated
+
+   if (boolSpecialCmd) then
+    locComma = 0
+    locComma = index(cmdOrig, ',')
+    PRINT *, "Loc Comma is ", locComma
+    PRINT *, "cmdOrig is ", cmdOrig
+    call parseCommandIntoTokens(cmdOrig(locComma+2:len(cmdOrig)), tokens, numTokens, ",") 
+    select case (cmdToUpdate)
+      
+    case ("R1"//c_null_char)
+      PRINT *, "replacing token #1"
+      tokens(1) = newVal
+      PRINT *, "new Tokens is ", trim(tokens(1))
+      PRINT *, "Tokens(2) is ", tokens(2)
+      PRINT *, "Tokens(3) is ", tokens(3)
+
+    case ("R2")
+      tokens(2) = newVal
+    case ("R3")
+      tokens(3) = newVal
+    case ("R4")
+      tokens(4) = newVal
+    case ("R5")
+      tokens(5) = newVal
+    end select 
+          
+    cmdNew = cmdOrig(1:locComma)
+    do j=1,numTokens
+        if (j == 1) cmdNew = trim(cmdNew)//" "//trim(tokens(j))
+        if (j.NE.1) cmdNew = trim(cmdNew)//","//trim(tokens(j))
+        
+    end do
+    PRINT *, "new command from token found loop is ", cmdNew
+    return
+
+    
+   else
+
 
    ! Original command should have a ,
    locComma = 0
@@ -805,6 +897,7 @@ end subroutine
         cmdNew = trim(cmdOrig)//" "//cmdToUpdate//" "//newVal
 
    end if
+  end if
 
  end subroutine
 
