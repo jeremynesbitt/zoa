@@ -315,7 +315,7 @@ contains
           do n=1, self%m_cols
             call pladv(0)
 
-
+            plotter => self%get(m,n)
             PRINT *, "About to set viewport"
             PRINT *, "Use Legend is ", plotter%useLegend
             if (plotter%useLegend) then
@@ -327,8 +327,7 @@ contains
             !standard margin (left-hand margin of eight character heights,
             !and a margin around the other three sides of five character heights).              
               call plvsta
-            end if
-            plotter => self%get(m,n)
+            end if            
             !call logger%logText("Starting to Draw Plot from Plotter")
             call plotter%drawPlot
 
