@@ -19,20 +19,6 @@ program zoa_program
 
   integer(c_int)     :: status
   
-
-#define __TST "0.1.0"
-
-#ifdef __VERSION
-  PRINT *, "Found Version!"
-!zoaVersion = __VERSION
-
-  !PRINT *, "Version is ", __VERSION
-
-#endif
-PRINT *, "Version is ", __VERSION
-zoaVersion = __VERSION
-
-
 !For windows only we need to hide the console window.
 !This solution is inspired by:
 !https://stackoverflow.com/questions/29763647/how-to-make-a-program-that-does-not-display-the-console-window/29764309#29764309
@@ -45,6 +31,11 @@ zoaVersion = __VERSION
           closeWin = ShowWindow(console, SW_HIDE)
 #endif
 #endif
+#ifdef __VERSION
+  PRINT *, "Found Version!"
+#endif
+PRINT *, "Version is ", __VERSION
+zoaVersion = __VERSION
 
   app = gtk_application_new("zoa.optical-analysis"//c_null_char, &
                             & G_APPLICATION_FLAGS_NONE)

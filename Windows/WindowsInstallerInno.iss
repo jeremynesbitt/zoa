@@ -67,7 +67,7 @@ Source: "C:\gtk-build\gtk\x64\release\bin\cairo-script-interpreter-2.dll"; DestD
 Source: "C:\gtk-build\gtk\x64\release\bin\iconv.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\gtk-build\gtk\x64\release\bin\libexpat.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\gtk-build\gtk\x64\release\bin\pangoft2-1.0-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\gtk-build/gtk/x64/release/lib/plplot5.15.0/drivers/cairo.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\gtk-build/gtk/x64/release/lib/plplot5.15.0/drivers/cairo.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBIFCOREMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBMMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\SVML_DISPMD.DLL"; DestDir: "{app}"; Flags: ignoreversion

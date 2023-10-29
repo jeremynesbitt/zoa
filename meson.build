@@ -4,14 +4,16 @@
 # 
 # started from gtk-fortran meson.build file
 
+
 project('Zoa', ['fortran', 'c'],
-        version : run_command('zoa-version.sh', check : true).stdout().strip(),
+        version: files(meson.project_source_root() / 'version.txt'),
         # version: '0.1.1',
         license: 'GPL3',
         meson_version: '>=0.60')
 
 
 # Print some informations:
+#system = host_machine.system()
 system = host_machine.system()
 message('Host machine system = '+system)
 build_type = get_option('buildtype')
