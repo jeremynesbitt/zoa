@@ -77,7 +77,7 @@ Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\inte
 Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBIFCOREMDD.DLL"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBMMDD.DLL"; DestDir: "{app}"; Flags: ignoreversion
 
-Source: "C:\dev\zoa\Library\*"; DestDir: "{userdocs}\Zoa"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\dev\zoa\Library\*"; DestDir: "{userappdata}\Zoa"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

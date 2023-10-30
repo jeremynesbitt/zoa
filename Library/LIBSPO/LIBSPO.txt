@@ -1,0 +1,1 @@
+This directory is home to files such as OPDAT.DAT and SPOT.DAT
