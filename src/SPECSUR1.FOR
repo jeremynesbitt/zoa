@@ -232,6 +232,7 @@ C       COMMAND (SPSRF ON AND SPSRF OFF)
                         END
 C SUB SPSTAT.FOR
         SUBROUTINE SPSTAT
+      use zoa_file_handler, only: doesFileExist, isSPOFileOpen
 C     USED FOR FIELD AVERAGED SPOT DIAGRAM ANALYSIS IN CONJUNCTION
 C     WITH SPDSAVE OR SPDADD
 C
@@ -298,8 +299,7 @@ C
  10                CONTINUE
 C
 C       STATS
-        EXIS32=.FALSE.
-        INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',EXIST=EXIS32)
+        EXIS32=doesFileExist(trim(LIBSPO)//WQ(1:N)//'.DAT')
         IF(.NOT.EXIS32) THEN
 C       NO FILE EXISTS, ERROR AND STOP
         OUTLYNE='NO '//WQ(1:N)//'.DAT FILE EXISTS TO ANALYZE'
@@ -311,10 +311,9 @@ C       NO FILE EXISTS, ERROR AND STOP
                         END IF
         SPDEXT=.TRUE.
 C       SPOTS.DAT EXISTS, IF NOT OPEN, OPEN IT
-        OPEN32=.FALSE.
-        INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',OPENED=OPEN32)
+        OPEN32=isSPOFileOpen(WQ(1:N)//'.DAT')
         IF(.NOT.OPEN32) THEN
-        OPEN(UNIT=32,ACCESS='DIRECT',FILE=LIBSPO//WQ(1:N)//'.DAT',
+        OPEN(UNIT=32,ACCESS='DIRECT',FILE=trim(LIBSPO)//WQ(1:N)//'.DAT',
      1  FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
                         ELSE
 C       IT WAS OPENED, PROCEED

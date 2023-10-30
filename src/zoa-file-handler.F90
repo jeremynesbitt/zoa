@@ -12,6 +12,21 @@ module zoa_file_handler
       integer, parameter :: ID_OS_LINUX = 2
 
     contains
+      function isSPOFileOpen(fileTest) result(res)
+        include "DATMAI.INC"
+        character(len=*) :: fileTest
+        logical :: res
+        res = .FALSE.
+        INQUIRE(FILE=trim(LIBSPO)//fileTest,OPENED=res)
+      end function
+
+      function doesFileExist(fileTest) result(res)
+        character(len=*) :: fileTest
+        logical :: res
+        res = .FALSE.
+        INQUIRE(FILE=fileTest,EXIST=res)
+        
+      end function
 
       function getFileSep() result(res)
 

@@ -700,8 +700,8 @@ C     INITIALIZE ALTERNAMTE MACRO FUNCTION NAMES
               LIBMAC=trim(basePath)//'LIBMAC'//fileSep
               LIBTRA=trim(basePath)//'LIBTRA'//fileSep
               LIBSPO=trim(basePath)//'LIBSPO'//fileSep
-              LIBAUT=basePath//'LIBAUT'//fileSep
-              LIBPLO=basePath//'LIBPLO'//fileSep
+              LIBAUT=trim(basePath)//'LIBAUT'//fileSep
+              LIBPLO=trim(basePath)//'LIBPLO'//fileSep
               NSSDIR=trim(basePath)//'NSSDIR'//fileSep
               LIBGLA=trim(basePath)//'LIBGLA'//fileSep
               CURLENS=trim(basePath)//'CURLENS'//fileSep

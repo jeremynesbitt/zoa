@@ -3,6 +3,7 @@ C       SECOND FILE OF CAPFN/SPOT ROUTINES
 C SUB SUMSPREDSQ.FOR
         SUBROUTINE SUMSPREDSQ
         USE GLOBALS
+        use zoa_file_handler, only: doesFileExist, isSPOFileOpen
 C
         IMPLICIT NONE
 C
@@ -93,8 +94,7 @@ C     NUMERIC WORD #1
                         END IF
 C       PROCEED
 C
-      EXIS32=.FALSE.
-        INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',EXIST=EXIS32)
+      EXIS32 = doesFileExist(trim(LIBSPO)//WQ(1:N)//'.DAT')
                 IF(.NOT.EXIS32) THEN
         OUTLYNE=
      1  'NO SAVED AND SUMMED SPOT DIAGRAM DATA EXISTS'
@@ -136,10 +136,9 @@ C
 C
                 IRED=1
 C
-      OPEN32=.FALSE.
-      INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',OPENED=OPEN32)
+      OPEN32 = isSPOFileOpen(WQ(1:N)//'.DAT')
       IF(.NOT.OPEN32)
-     1  OPEN(UNIT=32,ACCESS='DIRECT',FILE=LIBSPO//WQ(1:N)//'.DAT',
+     1  OPEN(UNIT=32,ACCESS='DIRECT',FILE=trim(LIBSPO)//WQ(1:N)//'.DAT',
      1  FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
       READ(UNIT=32,REC=1) ITOT
        ALLOCATE(REDDAT1(ITOT),REDDAT2(ITOT),REDDAT3(ITOT),STAT=ALLOERR)
@@ -261,6 +260,7 @@ C     ENERGY CALCULATIONS ARE COMPLETE
                         END
 C SUB SPREDSQ.FOR
         SUBROUTINE SPREDSQ
+        use zoa_file_handler, only: doesFileExist, isSPOFileOpen
         USE GLOBALS
 C
         IMPLICIT NONE
@@ -427,8 +427,7 @@ C       PROCEED
 C
       IF(WC(1:1).EQ.'S') THEN
       SSPDEXT=.FALSE.
-      EXIS32=.FALSE.
-        INQUIRE(FILE=LIBSPO//'SPOTS.DAT',EXIST=EXIS32)
+      EXIS32=doesFileExist(trim(LIBSPO)//'SPOTS.DAT')
       IF(.NOT.EXIS32) THEN
       OUTLYNE='SUMMED SPOT DIAGRAM FILE "SPOTS.DAT"'
       CALL SHOWIT(1)
@@ -440,8 +439,8 @@ C
                        RETURN
                        END IF
 C       FILE EXISTS, IF NOT OPEN, OPEN IT
-      OPEN32=.FALSE.
-        INQUIRE(FILE=LIBSPO//'SPOTS.DAT',OPENED=OPEN32)
+      OPEN32=isSPOFileOpen('SPOTS.DAT')
+
         IF(.NOT.OPEN32) THEN
         OPEN(UNIT=32,ACCESS='DIRECT',FILE=LIBSPO//'SPOTS.DAT',
      1  FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
@@ -964,6 +963,7 @@ C
                         END
 C SUB SUMSPRED.FOR
         SUBROUTINE SUMSPRED
+        use zoa_file_handler, only: doesFileExist, isSPOFileOpen
         USE GLOBALS
 C
         IMPLICIT NONE
@@ -1057,9 +1057,8 @@ C     NUMERIC WORD #1
                         END IF
 C       PROCEED
 C
-      EXIS32=.FALSE.
-        INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',EXIST=EXIS32)
-                IF(.NOT.EXIS32) THEN
+      EXIS32 = doesFileExist(trim(LIBSPO)//WQ(1:N)//'.DAT')
+      IF(.NOT.EXIS32) THEN
         OUTLYNE=
      1  'NO SAVED AND SUMMED SPOT DIAGRAM DATA EXISTS'
       CALL SHOWIT(1)
@@ -1100,10 +1099,10 @@ C
 C
                 IRED=1
 C
-      OPEN32=.FALSE.
-      INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',OPENED=OPEN32)
+
+      OPEN32 = isSPOFileOpen(WQ(1:N)//'.DAT')      
       IF(.NOT.OPEN32)
-     1  OPEN(UNIT=32,ACCESS='DIRECT',FILE=LIBSPO//WQ(1:N)//'.DAT',
+     1  OPEN(UNIT=32,ACCESS='DIRECT',FILE=trim(LIBSPO)//WQ(1:N)//'.DAT',
      1  FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
       READ(UNIT=32,REC=1) ITOT
         ALLOCATE(REDDAT1(ITOT),REDDAT2(ITOT),REDDAT3(ITOT),STAT=ALLOERR)
@@ -1223,6 +1222,7 @@ C     ENERGY CALCULATIONS ARE COMPLETE
                         END
 C SUB SUMSTAT.FOR
         SUBROUTINE SUMSTAT
+          use zoa_file_handler, only: isSPOFileOpen
 C     USED FOR FIELD AVERAGED SPOT DIAGRAM ANALYSIS IN CONJUNCTION
 C     WITH SPD SAVE OR SPD SAVEADD BUT PRODUCES NO OUTPUT
 C
@@ -1252,10 +1252,9 @@ C
  10            CONTINUE
 C
 C       FILE EXISTS, IF NOT OPEN, OPEN IT
-      OPEN32=.FALSE.
-        INQUIRE(FILE=LIBSPO//WQ(1:N)//'.DAT',OPENED=OPEN32)
+      OPEN32=isSPOFileOpen(WQ(1:N)//'.DAT')
         IF(.NOT.OPEN32) THEN
-        OPEN(UNIT=32,ACCESS='DIRECT',FILE=LIBSPO//WQ(1:N)//'.DAT',
+        OPEN(UNIT=32,ACCESS='DIRECT',FILE=trim(LIBSPO)//WQ(1:N)//'.DAT',
      1  FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
                         ELSE
 C       IT WAS OPENED, PROCEED
@@ -1354,6 +1353,7 @@ C       MODE AFOCAL OR UAFOCAL
                         END
 C SUB SPRED.FOR
         SUBROUTINE SPRED
+        use zoa_file_handler, only: doesFileExist, isSPOFileOpen
         USE GLOBALS
 C
         IMPLICIT NONE
@@ -1589,8 +1589,7 @@ C       PROCEED
 C
       IF(WC(1:1).EQ.'S') THEN
       SSPDEXT=.FALSE.
-      EXIS32=.FALSE.
-        INQUIRE(FILE=LIBSPO//'SPOTS.DAT',EXIST=EXIS32)
+      EXIS32=doesFileExist(trim(LIBSPO)//'SPOTS.DAT') 
       IF(.NOT.EXIS32) THEN
       OUTLYNE='SUMMED SPOT DIAGRAM FILE "SPOTS.DAT"'
       CALL SHOWIT(1)
@@ -1603,10 +1602,9 @@ C
                        END IF
       IF(WC(1:1).EQ.'S') SSPDEXT=.TRUE.
 C       FILE EXISTS, IF NOT OPEN, OPEN IT
-      OPEN32=.FALSE.
-        INQUIRE(FILE=LIBSPO//'SPOTS.DAT',OPENED=OPEN32)
+      OPEN32=isSPOFileOpen('SPOTS.DAT')
         IF(.NOT.OPEN32) THEN
-        OPEN(UNIT=32,ACCESS='DIRECT',FILE=LIBSPO//'SPOTS.DAT',
+        OPEN(UNIT=32,ACCESS='DIRECT',FILE=trim(LIBSPO)//'SPOTS.DAT',
      1  FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
                         ELSE
 C       IT WAS OPENED, PROCEED

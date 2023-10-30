@@ -1348,6 +1348,7 @@ C       CHECK SYNTAX
                         END
 C SUB PLTSPD.FOR
         SUBROUTINE PLTSPD
+        use zoa_file_handler, only: doesFileExist
 C
         IMPLICIT NONE
 C
@@ -1450,8 +1451,7 @@ C
                        END IF
                        END IF
       IF(WQ.EQ.'SUM') THEN
-      EXIS32=.FALSE.
-      INQUIRE(FILE=LIBSPO//'SPOTS.DAT',EXIST=EXIS32)
+      EXIS32=doesFileExist(trim(LIBSPO)//'SPOTS.DAT')
       IF(.NOT.EXIS32) THEN
       OUTLYNE= 'NO SUMMED SPOT DIAGRAM EXISTS TO BE PLOTTED'
       CALL SHOWIT(1)

@@ -1801,6 +1801,7 @@ C     DATA OK CONTINUE
                         END
 C SUB LSFLSF.FOR
         SUBROUTINE LSFLSF
+            use zoa_file_handler, only: clear_file
 C
         IMPLICIT NONE
 C
@@ -2032,13 +2033,11 @@ C
 C     NOW PROCEED WITH THE DATA LOADING
 C
 C     OPEN AND CLOSE TO CLEAR
-        OPEN(UNIT=66,ACCESS='DIRECT',FILE=LIBSPO//'LSF.DAT',
-     1  FORM='UNFORMATTED',RECL=(10*NRECL),STATUS='UNKNOWN')
-      CALL CLOSE_FILE(66,0)
+      call clear_file(trim(LIBSPO)//'LSF.DAT')
 C
                 ILSF=1
 C
-        OPEN(UNIT=66,ACCESS='DIRECT',FILE=LIBSPO//'LSF.DAT',
+        OPEN(UNIT=66,ACCESS='DIRECT',FILE=trim(LIBSPO)//'LSF.DAT',
      1  FORM='UNFORMATTED',RECL=(10*NRECL),STATUS='UNKNOWN')
                         DO I=2,ITOT
 C     LOAD DSPOT(*) WITH DSPOTT(*,ID)
