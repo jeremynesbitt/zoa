@@ -4,7 +4,7 @@ C SUB CMDER.FOR
         use zoa_ui
         use handlers
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
-     1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI
+     1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST
 C
         IMPLICIT NONE
 
@@ -446,6 +446,10 @@ C       PART DRAWINGS
         IF(WC.EQ.'PLTZERN') THEN
           CALL PLTZERN
           RETURN
+        END IF
+        IF(WC.EQ.'PLT3DTST') THEN
+          CALL PLT3DTST
+          return
         END IF
         IF(WC.EQ.'PLTSEI') THEN
           CALL plot_seidel

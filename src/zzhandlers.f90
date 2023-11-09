@@ -273,7 +273,6 @@ contains
     use hl_gtk_zoa, only : hl_zoa_text_view_new, createNullTerminatedCString
     use GLOBALS
     use zoamenubar
-    use zoa_tab
     use hl_gtk_zoa
 
     implicit none

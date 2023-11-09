@@ -25,6 +25,14 @@ module zoa_plot
 
    end type
 
+   type :: plotdata3d
+     real(kind=pl_test_flt), allocatable :: x(:), y(:), z(:)
+     integer :: dataColorCode, lineStyleCode
+
+     contains
+     procedure, public :: initialize => plotdata3d_init
+    end type
+
 
    ! Constants for plotting
    integer, parameter :: PL_PLOT_BLACK = 15
@@ -44,6 +52,10 @@ module zoa_plot
    integer, parameter :: PL_PLOT_SALMON = 14
    integer, parameter :: PL_PLOT_WHITE = 0
 
+! For each plot type:  eg barchart, linechart, 3d surface, shades
+! Have a datatype that contains the data to plot and any unique settings
+! drawplot would draw upon this resource
+
 type :: zoaplot
 
     type(c_ptr) :: area
@@ -59,6 +71,7 @@ type :: zoaplot
     integer :: dataColorCode = 0 !  See PL_PLOT paramaters for decoding
     integer :: numSeries = 0
     type(plotdata2d), dimension(9) :: plotdatalist
+
     logical :: useLegend
     ! AFAIK have to make character array a a fixed size
     character(len=30)  :: legendNames(16)
@@ -80,7 +93,16 @@ contains
     procedure, public, pass(self) :: addXYPlot
     procedure, public, pass(self) :: updatePlotData
     procedure, private, pass(self) :: buildPlotCode
+    procedure, private, pass(self) :: checkBackingSurface
 
+
+end type
+
+type, extends(zoaplot) :: zoaPlot3d
+  type(plotdata3d), dimension(9) :: plotdatalist3d
+contains
+procedure, public ::  init3d => plot3d_initialize
+procedure, public :: drawPlot => drawPlot_plot3d
 
 end type
 
@@ -346,6 +368,31 @@ contains
 
         end subroutine
 
+        subroutine plotdata3d_init(self, x, y, z, dataColorCode, lineStyleCode)
+          class(plotdata3d), intent(inout) :: self
+          real, intent(in) :: x(:), y(:), z(:)
+          integer, optional, intent(in) :: dataColorCode, lineStyleCode
+          !character(len=40), optional :: dataColor, lineStyle
+    
+          self%x = x
+          self%y = y
+          self%z = z
+      
+    
+          if (present(dataColorCode)) then
+             self%dataColorCode = dataColorCode
+          else
+             self%dataColorCode = PL_PLOT_RED
+          end if
+    
+          if (present(lineStyleCode)) then
+             self%lineStyleCode = lineStyleCode
+          else
+             self%lineStyleCode = 1
+          end if
+    
+        end subroutine        
+
 
     subroutine plotdata2d_init(self, x, y, dataColorCode, lineStyleCode)
       class(plotdata2d), intent(inout) :: self
@@ -369,6 +416,52 @@ contains
       end if
 
     end subroutine
+
+    subroutine plot3d_initialize(self, area, x, y, z, xlabel, ylabel, title)
+      class(zoaPlot3d), intent(inout) :: self
+      type(c_ptr), intent(in) :: area
+      real ::  x(:), y(:), z(:)
+      character(len=*), optional :: xlabel, ylabel, title
+      integer :: arraysize, i
+      !type(plotdata2d) :: zpinitdata
+
+
+
+      self%area = area
+
+      self % labelFontColor = trim("BLACK")
+      self % dataColorCode = PL_PLOT_RED
+
+      self % useLegend  = .FALSE.
+
+
+    if (present(title)) then
+       self%title = title
+    else
+       self%title = 'untitled'
+    end if
+
+
+    if (present(xlabel)) then
+       self%xlabel = xlabel
+    else
+       self%xlabel = 'x'
+    end if
+
+    if (present(ylabel)) then
+       self%ylabel = ylabel
+    else
+       self%ylabel = 'y'
+    end if
+
+
+    self%numSeries = self%numSeries + 1
+
+    call self%plotdatalist3d(self%numSeries)%initialize(x,y,z)
+
+
+  end subroutine
+
 
 ! TODO - How to combine this with barchart_init?
     subroutine zp_init(self, area, x, y, xlabel, ylabel, title)
@@ -564,7 +657,7 @@ contains
     integer :: plparseopts_rc
     integer :: plsetopt_rc
 
-    real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
+    real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax, zmin, zmax
 
 
     ! Getter for dataSeries - separate routine?
@@ -647,6 +740,311 @@ contains
     !PRINT *, "ydata is ", self%plotdatalist(1)%y
 
     end subroutine drawPlot
+
+    subroutine drawPlot_plot3d(self)
+      
+      class(zoaPlot3d), intent(in) :: self
+
+      !type(c_ptr)  :: cc, cs, isurface
+      character(len=20) :: string
+      character(len=25) :: geometry
+      integer :: i, j
+      integer :: plparseopts_rc
+      integer :: plsetopt_rc
+      !integer :: xpts, ypts
+      ! TODO Fixt this hack!  should not be hard coded
+      integer, parameter :: xpts = 35
+      integer, parameter :: ypts = 45
+      integer, parameter :: nl = 16
+      real(kind=pl_test_flt) :: xg(xpts)
+      real(kind=pl_test_flt) :: yg(ypts)
+      real(kind=pl_test_flt) :: zg(xpts,ypts)
+      real(kind=pl_test_flt) :: clev(nl)
+      real(kind=pl_test_flt) :: lzmin, lzmax      
+
+
+      integer, parameter :: nlevel = 10
+      real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
+      real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
+      real(c_double) :: alt=90._c_double, az=00._c_double
+
+  
+      class(*), pointer :: item
+
+
+      !xpts = size(self%plotdatalist3d(1)%x)
+      !ypts = size(self%plotdatalist3d(1)%y)
+
+      !allocate(zg(xpts,ypts))
+
+      PRINT *, "drawPlot_plot3d started"
+      zmin = minval( self%plotdatalist3d(1)%z )
+      zmax = maxval( self%plotdatalist3d(1)%z )
+
+      xmin = minval(self%plotdatalist3d(1)%x)
+      ymin = minval(self%plotdatalist3d(1)%y)
+      xmax = maxval(self%plotdatalist3d(1)%x)
+      ymax = maxval(self%plotdatalist3d(1)%y)
+  
+      do i=1,xpts
+          xg(i) = xmin + (xmax-xmin)*(i-1._pl_test_flt)/(xpts-1._pl_test_flt)
+      enddo
+      do i=1,ypts
+          yg(i) = ymin + (ymax-ymin)*(i-1._pl_test_flt)/(ypts-1._pl_test_flt)
+      enddo
+
+      
+
+
+
+      step = (zmax-zmin)/(nlevel+1)
+      do i = 1, nlevel
+        clevel(i) = zmin + step*i
+     enddo
+
+      !call getAxesLimits(self, xmin, xmax, ymin, ymax)
+      call cmap1_init()
+      call plwind(xmin, xmax, ymin, ymax)
+
+      PRINT *, "About to check backing surface"
+
+      call self%checkBackingSurface()
+
+      !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
+      call plcol0(getLabelFontCode(self))
+      !call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
+
+      PRINT *, "About to plot series"
+      !call pllightsource(1._pl_test_flt, 1._pl_test_flt, 1._pl_test_flt)
+      !call pladv(0)
+      !call plclear()
+      !call plvpor(0.0_plflt, 1.0_plflt, 0.0_plflt, 0.9_plflt )
+      !call plwind(-1.0_plflt, 1.0_plflt, -0.9_plflt, 1.1_plflt )      
+      !call pladv(0)
+      do i=1,self%numSeries
+        !call plclear()
+        call plcol0(self%plotDataList3d(i)%dataColorCode)
+        print *, "b4 plgrid data"
+        call plgriddata(self%plotDataList3d(i)%x, self%plotDataList3d(i)%y, & 
+        self%plotDataList3d(i)%z, & 
+        xg, yg, zg, 1_c_int, 0.0_pl_test_flt)
+        print *, "after plgriddata"
+
+        call a2mnmx(zg, xpts, ypts, lzmin, lzmax, xpts)
+
+        lzmin = min(lzmin, zmin)
+        lzmax = max(lzmax, zmax)
+
+        lzmin = lzmin - 0.01_pl_test_flt
+        lzmax = lzmax + 0.01_pl_test_flt
+        do j=1,nl
+          clev(j) = lzmin + (lzmax-lzmin)/(nl-1._pl_test_flt)*(j-1._pl_test_flt)
+      enddo                
+        call plenv0(xmin, xmax, ymin, ymax, 2, 0)
+        call plcol0(15)
+        call pllab("X", "Y", 'tst'//c_null_char)
+        print *, "before plshades"
+        call plshades(zg, xmin, xmax, ymin, &
+               ymax, clev, 1._pl_test_flt, 0, 1._pl_test_flt, .true. )
+               print *, "after plshades"
+        call plcol0(2)        
+        ! PL PLOT Area fill
+        !call plpsty(0)
+        ! PL PLOT Line Style
+        !if (self%plotdatalist3d(i)%lineStyleCode > -1) THEN
+        !call pllsty(self%plotdatalist3d(i)%lineStyleCode)
+        !call plline(self%plotdatalist3d(i)%x, &
+        !call plcol0(3)
+        !call plmtex('t', 1.0_pl_test_flt, 0.5_pl_test_flt, 0.5_pl_test_flt, 'title'//c_null_char)
+     
+        !call plcol0(1)
+                  
+      end do
+
+
+  
+      PRINT *, "About to check legend status"
+      if (self%useLegend) call self%drawLegend()      
+  
+
+    end subroutine
+
+    subroutine cmap1_init()
+      implicit none
+      real(kind=pl_test_flt) i(2), h(2), l(2), s(2)
+
+      i(1) = 0._pl_test_flt
+      i(2) = 1._pl_test_flt
+
+      h(1) = 240._pl_test_flt
+      h(2) = 0._pl_test_flt
+
+      l(1) = 0.6_pl_test_flt
+      l(2) = 0.6_pl_test_flt
+
+      s(1) = 0.8_pl_test_flt
+      s(2) = 0.8_pl_test_flt
+
+      call plscmap1n(256)
+      call plscmap1l(.false., i, h, l, s)
+  end subroutine cmap1_init
+
+        !----------------------------------------------------------------------------
+    !      Subroutine a2mnmx
+    !      Minimum and the maximum elements of a 2-d array.
+
+    subroutine a2mnmx(f, nx, ny, fmin, fmax, xdim)
+      use plplot
+      implicit none
+
+      integer   i, j, nx, ny, xdim
+      real(kind=pl_test_flt) f(xdim, ny), fmin, fmax
+
+      fmax = f(1, 1)
+      fmin = fmax
+      do j = 1, ny
+          do  i = 1, nx
+              fmax = max(fmax, f(i, j))
+              fmin = min(fmin, f(i, j))
+          enddo
+      enddo
+  end subroutine a2mnmx
+
+    ! subroutine drawPlot_plot3d(self)
+      
+    !   class(zoaPlot3d), intent(in) :: self
+
+    !   !type(c_ptr)  :: cc, cs, isurface
+    !   character(len=20) :: string
+    !   character(len=25) :: geometry
+    !   integer :: i
+    !   integer :: plparseopts_rc
+    !   integer :: plsetopt_rc
+    !   integer :: xpts, ypts
+    !   integer, parameter :: nlevel = 10
+    !   real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
+    !   real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
+    !   real(c_double) :: alt=90._c_double, az=00._c_double
+  
+    !   class(*), pointer :: item
+
+    !   PRINT *, "drawPlot_plot3d started"
+    !   xmin = 0.0
+    !   ymin = 0.0
+    !   xmax = 1.0
+    !   ymax = 1.0
+      
+    !   xpts = size(self%plotdatalist3d(1)%x)
+    !   ypts = size(self%plotdatalist3d(1)%y)
+
+    !   zmin = minval( self%plotdatalist3d(1)%z(:xpts,:) )
+    !   zmax = maxval( self%plotdatalist3d(1)%z(:xpts,:) )
+  
+    !   step = (zmax-zmin)/(nlevel+1)
+    !   do i = 1, nlevel
+    !     clevel(i) = zmin + step*i
+    !  enddo
+
+    !   !call getAxesLimits(self, xmin, xmax, ymin, ymax)
+    !   call plwind(xmin, xmax, ymin, ymax)
+
+    !   PRINT *, "About to check backing surface"
+
+    !   call self%checkBackingSurface()
+
+    !   !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
+    !   call plcol0(getLabelFontCode(self))
+    !   !call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
+
+    !   PRINT *, "About to plot series"
+    !   call pllightsource(1._pl_test_flt, 1._pl_test_flt, 1._pl_test_flt)
+    !   call pladv(0)
+    !   call plclear()
+    !   call plvpor(0.0_plflt, 1.0_plflt, 0.0_plflt, 0.9_plflt )
+    !   call plwind(-1.0_plflt, 1.0_plflt, -0.9_plflt, 1.1_plflt )      
+    !   !call pladv(0)
+    !   do i=1,self%numSeries
+    !     !call plclear()
+    !     call plcol0(self%plotDataList3d(i)%dataColorCode)
+    !     ! PL PLOT Area fill
+    !     !call plpsty(0)
+    !     ! PL PLOT Line Style
+    !     !if (self%plotdatalist3d(i)%lineStyleCode > -1) THEN
+    !     !call pllsty(self%plotdatalist3d(i)%lineStyleCode)
+    !     !call plline(self%plotdatalist3d(i)%x, &
+    !     !call plcol0(3)
+    !     call plmtex('t', 1.0_pl_test_flt, 0.5_pl_test_flt, 0.5_pl_test_flt, 'title'//c_null_char)
+     
+    !     !call plcol0(1)
+    !     call plw3d(1.0_pl_test_flt, 1.0_pl_test_flt, 1.0_pl_test_flt, -1.0_pl_test_flt, &
+    !      1.0_pl_test_flt, -1.0_pl_test_flt, 1.0_pl_test_flt, zmin, zmax, alt,az)  
+    !     call plbox3('bnstu','x axis', 0.0_pl_test_flt, 0, &
+    !     'bnstu', 'y axis', 0.0_pl_test_flt, 0, &
+    !     'bcdmnstuv','z axis', 0.0_pl_test_flt, 0) 
+    !     !call plcol0(15)
+    !     call cmap1_init(0)
+    !     call plsurf3d(self%plotdatalist3d(i)%x(:xpts), self%plotdatalist3d(i)%y(:ypts), &
+    !     & self%plotdatalist3d(i)%z(:xpts,:ypts), MAG_COLOR, clevel(nlevel:1)) 
+                  
+    !   end do
+
+
+  
+    !   PRINT *, "About to check legend status"
+    !   if (self%useLegend) call self%drawLegend()      
+  
+
+    ! end subroutine    
+
+    !----------------------------------------------------------------------------
+  !   subroutine cmap1_init(gray)
+
+  !     !   For gray.eq.1, basic grayscale variation from half-dark
+  !     !   to light.  Otherwise, hue variations around the front of the
+  !     !   colour wheel from blue to green to red with constant lightness
+  !     !   and saturation.
+
+  !     integer          :: gray
+  !     real(kind=pl_test_flt) :: i(0:1), h(0:1), l(0:1), s(0:1)
+
+  !     !   left boundary
+  !     i(0) = 0._pl_test_flt
+  !     !   right boundary
+  !     i(1) = 1._pl_test_flt
+  !     if (gray == 1) then
+  !         !       hue -- low: red (arbitrary if s=0)
+  !         h(0) = 0.0_pl_test_flt
+  !         !       hue -- high: red (arbitrary if s=0)
+  !         h(1) = 0.0_pl_test_flt
+  !         !       lightness -- low: half-dark
+  !         l(0) = 0.5_pl_test_flt
+  !         !       lightness -- high: light
+  !         l(1) = 1.0_pl_test_flt
+  !         !       minimum saturation
+  !         s(0) = 0.0_pl_test_flt
+  !         !       minimum saturation
+  !         s(1) = 0.0_pl_test_flt
+  !     else
+  !         !       This combination of hues ranges from blue to cyan to green to yellow
+  !         !       to red (front of colour wheel) with constant lightness = 0.6
+  !         !       and saturation = 0.8.
+
+  !         !       hue -- low: blue
+  !         h(0) = 240._pl_test_flt
+  !         !       hue -- high: red
+  !         h(1) = 0.0_pl_test_flt
+  !         !       lightness -- low:
+  !         l(0) = 0.6_pl_test_flt
+  !         !       lightness -- high:
+  !         l(1) = 0.6_pl_test_flt
+  !         !       saturation
+  !         s(0) = 0.8_pl_test_flt
+  !         !       minimum saturation
+  !         s(1) = 0.8_pl_test_flt
+  !     endif
+  !     call plscmap1n(256)
+  !     call plscmap1l(.false., i, h, l, s)
+  ! end subroutine cmap1_init
 
     subroutine addLegend(self, legendNames)
 
@@ -781,6 +1179,29 @@ contains
 
         self%numSeries = self%numSeries + 1
         call self%plotdatalist(self%numSeries)%initialize(X,Y)
+
+  end subroutine
+
+  subroutine checkBackingSurface(self)
+    implicit none
+    class(zoaplot) :: self
+    type(c_ptr) :: isurface
+
+    isurface = c_null_ptr
+    if (c_associated(self%area)) then
+      isurface = g_object_get_data(self%area, "backing-surface")
+      PRINT *, "self%area is ", LOC(self%area)
+
+    !PRINT *, "isurface in mp_draw is ", LOC(isurface)
+    if (.not. c_associated(isurface)) then
+       PRINT *, "Backing surface is NULL.  Create one"
+       ! TODO:  Should not have hard coded size right here
+      isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+      isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+      call g_object_set_data(self%area, "backing-surface", isurface)
+    end if
+
+    end if   
 
   end subroutine
 
