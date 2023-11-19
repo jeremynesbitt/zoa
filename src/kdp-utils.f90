@@ -27,6 +27,18 @@ module kdp_utils
 
   end subroutine
 
+  function str2int(strIpt) result(val)
+    integer :: val
+    character(len=*) :: strIpt
+    character(len=80) :: strB
+
+    write(strB, '(A3)') strIpt
+    ! Not sure if this is needed
+    strB = adjustl(strB)
+    read(strB, '(I3)') val
+
+  end function
+
   function int2str(ipt) result(strInt)
     integer :: ipt
     character(len=20) :: strInt

@@ -3315,15 +3315,15 @@ C       AXIAL COLOR (PRIMARY)
         COLORY(1,I)=((PXTRAY(1,(INT(SYSTEM(20))))*PXTRAY(5,I))-
      1  (PXTRAY(5,(INT(SYSTEM(20))))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*
      2  ((DN/PN)-(DNP/J_NP))
-        PRINT *, "Color Seidel Debug"
-        PRINT *, "DN is ", DN
-        PRINT *, "PN is ", PN
-        PRINT *, "DNP is ", DNP
-        PRINT *, "J_NP is ", J_NP
-        PRINT *, "PW1 is ", PW1
-        PRINT *, "PW2 is ", PW2    
-        PRINT *, "SYSTEM(7) is ", SYSTEM(7)
-        PRINT *, "SYSTEM(8) is ", SYSTEM(8)
+        ! PRINT *, "Color Seidel Debug"
+        ! PRINT *, "DN is ", DN
+        ! PRINT *, "PN is ", PN
+        ! PRINT *, "DNP is ", DNP
+        ! PRINT *, "J_NP is ", J_NP
+        ! PRINT *, "PW1 is ", PW1
+        ! PRINT *, "PW2 is ", PW2    
+        ! PRINT *, "SYSTEM(7) is ", SYSTEM(7)
+        ! PRINT *, "SYSTEM(8) is ", SYSTEM(8)
 
 
 C       LATERAL COLOR (PRIMARY)

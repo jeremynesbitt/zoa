@@ -217,12 +217,14 @@ contains
     character(len=1), optional :: iptDelim
     character(len=1) :: delim
     integer, optional  :: tokenLen(40)
-    character(len=150) :: subString
+    character(len=:), allocatable :: subString
   !call checkCommandInput(typeCode, allowableQualWords)
   ! Type:  QualWord+N_nums
   include "DATMAI.INC"
 
   PRINT *, "Alphanumeric string is ", cmdInput
+
+  allocate(character(len=len(cmdInput)) :: subString)
 
   if (.not.present(tokenLen))  PRINT *, "Tokenlen doesn't exist!"
 
@@ -241,30 +243,49 @@ contains
   abslst = INDEX(subString, delim, BACK=.TRUE.)
 
   print *, "End of string is ", cmdInput(abslst:len(cmdInput))
-  i = 1
+  
+  if (fst==abslst) then
+    numTokens = 1
+    tokens(numTokens) = subString
+
+  else
+    i = 1  
+
+
+
   do while (fst > 1)
      fst = INDEX(subString, delim, BACK=.FALSE.)
      lst = INDEX(subString, delim, BACK=.TRUE.)
        PRINT *, "fst is ", fst
        PRINT *, "lst is ", lst
-     tokens(i) = subString(1:fst-1)
+     if (fst==lst) then
+       tokens(i) = subString(1:fst-2)
+       fst = 0 ! exit loop
+     else  
+       tokens(i) = subString(1:fst-1)
+     end if
      PRINT *, "token is ", tokens(i)
      if(present(tokenLen)) tokenLen(i) = fst-1
      i = i+1
      if (fst<len(cmdInput)) subString = subString(fst+1:len(cmdInput))
   end do
   ! Here we can miss the last token so just assign it to the end of the cmd input string
-  if (len(cmdInput) > abslst) then
+  !if (len(cmdInput) > abslst) then
   !if (cmdInput(abslst+1:len(cmdInput)).ne." ") then
+  !PRINT *, "i is ", i
     numTokens = i-1
+    if (numTokens > 0) then
     tokens(numTokens) = cmdInput(abslst+1:len(cmdInput))
-    print *, "for token ", numTokens
-    print *, "substring is ", tokens(numTokens)
-  else
-    numTokens = i-2
+     print *, "for token ", numTokens
+     print *, "substring is ", tokens(numTokens)
+    end if
+    
+  !else
+  !  numTokens = i-2
+  !end if
   end if
 
-  PRINT *, "tokens ", tokens(1:numTokens)
+  if (numTokens > 0 ) PRINT *, "tokens ", tokens(1:numTokens)
   !if(present(tokenLen) PRINT *, "Token Length = ", tokenLen(1:i-2)
   
 

@@ -1529,6 +1529,7 @@ C
 C SUB OPDLOD.FOR
         SUBROUTINE OPDLOD
         use zoa_file_handler
+        use global_widgets, only: curr_opd
 C
         IMPLICIT NONE
 C
@@ -1692,6 +1693,7 @@ C
         OPEN(UNIT=64,ACCESS='DIRECT',FILE=trim(LIBSPO)//'OPDDAT.DAT',
      1  FORM='UNFORMATTED',RECL=rec64,STATUS='UNKNOWN')
                       KK=1
+              PRINT *, "ITOT is ", ITOT        
               DO IIP=2,ITOT
 C     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP-1
@@ -1720,6 +1722,24 @@ C     NOT ENOUGH DATA FOR A FIT
                       END IF
 C
                       KK=1
+              if (allocated(curr_opd%X)) then
+                deallocate(curr_opd%X)
+                deallocate(curr_opd%Y)
+                deallocate(curr_opd%Z)
+
+
+              end if
+              allocate(curr_opd%X(ITOT-1))
+              allocate(curr_opd%Y(ITOT-1))
+              allocate(curr_opd%Z(ITOT-1))
+              curr_opd%numPts = ITOT-1
+              curr_opd%numx = INT(sqrt(real(curr_opd%numPts)))
+              curr_opd%numy = INT(sqrt(real(curr_opd%numPts)))
+
+              PRINT *, "OPDLOD numPts is ", curr_opd%numPts
+
+
+
               DO IIP=2,ITOT
 C     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP-1
@@ -1729,6 +1749,11 @@ C
           DWW2=DSPOT(5)/REFHT
           DWW3=DSPOT(4)/(TWOPII)
           DWW4=DSPOT(12)
+
+          curr_opd%X(ID) = DWW1
+          curr_opd%Y(ID) = DWW2
+          curr_opd%Z(ID) = DWW3
+
 C
       IF(DSPOT(16).EQ.W1) THEN
 C

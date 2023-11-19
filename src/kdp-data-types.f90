@@ -153,6 +153,12 @@ interface lens_data
   module procedure :: lens_data_constructor
 end interface lens_data
 
+type opd_data
+   real(kind=real64), allocatable :: X(:),Y(:),Z(:)
+   integer :: numPts, numx, numy
+
+end type
+
 contains
 
 type(lens_data) function lens_data_constructor() result(self)

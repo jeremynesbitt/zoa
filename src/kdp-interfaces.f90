@@ -402,6 +402,367 @@ subroutine EDITOR
 
 end subroutine EDITOR
 
+
+subroutine PLTOPD
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: zoatabMgr, updateTerminalLog
+  use global_widgets, only:  sysConfig, curr_opd
+  use kdp_utils, only: int2str
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use plotSettingParser
+
+
+IMPLICIT NONE
+
+character(len=23) :: ffieldstr
+character(len=40) :: inputCmd
+integer :: ii, i, j, objIdx
+integer :: numPoints = 10
+logical :: replot
+type(setting_parser) :: sp
+
+! desirable commands
+! n - density
+! w - wavelength
+! f - field
+! s - surface (i=image, o=object)
+! p - plot (future implementation eg image vs 3d Plot)
+! azi alt - azimuth and altitude for 3d plot
+! eg PLTOPD n64 w1 f3 si p0 azi30 alt60
+
+
+!REAL, allocatable :: x(:), y(:)
+
+
+    !   xdim is the leading dimension of z, xpts <= xdim is the leading
+    !   dimension of z that is defined.
+integer, parameter :: xdim=99, ydim=100, xpts=64, ypts=64
+real(kind=pl_test_flt)   :: x(xpts*ypts), y(xpts*ypts), z(xpts*ypts)
+real(kind=pl_test_flt)   :: xx(xpts*ypts), yy(xpts*ypts), r
+real(kind=pl_test_flt)   :: zlimited(xdim,ypts)
+integer :: index
+integer, parameter :: indexxmin = 1
+integer, parameter :: indexxmax = xpts
+integer            :: indexymin(xpts), indexymax(xpts)
+character(len=80) :: tokens(40)
+integer :: numTokens
+
+! parameters of ellipse (in x, y index coordinates) that limits the data.
+! x0, y0 correspond to the exact floating point centre of the index
+! range.
+! Note: using the Fortran convention of starting indices at 1
+real(kind=pl_test_flt), parameter :: x0 = 0.5_pl_test_flt * ( xpts + 1 )
+real(kind=pl_test_flt), parameter :: a  = 0.9_pl_test_flt * ( x0 - 1.0_pl_test_flt )
+real(kind=pl_test_flt), parameter :: y0 = 0.5_pl_test_flt * ( ypts + 1 )
+real(kind=pl_test_flt), parameter :: b  = 0.7_pl_test_flt * ( y0 - 1.0_pl_test_flt )
+real(kind=pl_test_flt)            :: square_root
+
+character (len=80) :: title(2) = &
+       (/'#frPLplot Example 8 - Alt=60, Az=30 ', &
+       '#frPLplot Example 8 - Alt=40, Az=-30'/)
+real(kind=pl_test_flt)   :: alt(2) = (/60.0_pl_test_flt, 40.0_pl_test_flt/)
+real(kind=pl_test_flt)   :: az(2)  = (/30.0_pl_test_flt,-30.0_pl_test_flt/)
+integer            :: rosen
+integer, parameter :: nlevel = 10
+integer :: plparseopts_rc
+real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
+
+real(kind=pl_test_flt)   :: dx, dy
+type(c_ptr) :: canvas
+!type(zoaPlot3d) :: zp3d 
+type(zoaPlotImg) :: zp3d 
+type(multiplot) :: mplt
+
+INCLUDE 'DATMAI.INC'
+
+PRINT *, "INPUT is ", INPUT
+
+call parseCommandIntoTokens(trim(INPUT), tokens, numTokens, " ") 
+call sp%initialize(tokens(1:numTokens))
+! Brainstorming
+! A ty;e that has getters for all possible options.
+! get cp%getWavelength
+! if there is a wavelength token, return it 
+! if not, return default
+! Need a build command function as well.
+! This should be tied to settings.  Every setting
+! should have a command associated with it
+! So another setting type with corresponding
+! add commands.
+! eg addWavefength(currValue)
+! This would add the setting and set the value
+! Then when setting changes it would be responsible for updating command
+
+ 
+
+PRINT *, "numTokens is ", numTokens
+!PRINT *, "Tokens are ", tokens(1:numTokens)
+
+!   Process command-line arguments
+plparseopts_rc = plparseopts(PL_PARSE_FULL)
+if(plparseopts_rc .ne. 0) stop "plparseopts error"
+
+CALL PROCESKDP('FOB 1')
+PRINT *, "Calling CAPFN"
+call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
+PRINT *, "Calling OPDLOD"
+call PROCESKDP('FITZERN')
+!call OPDLOD
+
+
+rosen = 0
+
+!   x(1:xpts) = (arange(xpts) - (xpts-1)/2.0_pl_test_flt) / ((xpts-1)/2.0_pl_test_flt)
+!   y(1:ypts) = (arange(ypts) - (ypts-1)/2.0_pl_test_flt) / ((ypts-1)/2.0_pl_test_flt)
+!
+
+dx = 2.0_pl_test_flt / (xpts - 1)
+dy = 2.0_pl_test_flt / (ypts - 1)
+
+do i = 1,xpts
+    x(i) = -1.0_pl_test_flt + (i-1) * dx
+enddo
+
+do j = 1,ypts
+    y(j) = -1.0_pl_test_flt + (j-1) * dy
+enddo
+
+index = 1
+do i=1,xpts    
+    do j=1,ypts
+      xx(index) = x(i)
+        yy(index) = y(j)
+            ! Sombrero function
+            r = sqrt(xx(index)**2 + yy(index)**2)
+            z(index) = exp(-r**2) * cos(2.0_pl_test_flt*PI*r)
+            index = index+1
+    enddo
+enddo
+print *, "index is ", index
+
+ !call checkCommandInput(ID_CMD_ALPHA)
+
+ call updateTerminalLog(INPUT, "blue")
+ inputCmd = INPUT
+
+if(cmdOptionExists('NUMPTS')) then
+ numPoints = INT(getCmdInputValue('NUMPTS'))
+end if
+
+
+
+
+PRINT *, "numPoints is ", numPoints
+canvas = hl_gtk_drawing_area_new(size=[600,600], &
+& has_alpha=FALSE)
+
+call mplt%initialize(canvas, 1,1)
+PRINT *, "size of X is ", size(curr_opd%X)
+!PRINT *, "X is ", real(curr_opd%X)
+ call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), & 
+ & real(curr_opd%Z), xpts, ypts, & 
+ & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
+ & title='Plot3dTst'//c_null_char)
+
+!  call zp3d%init3d(c_null_ptr, real(xx),real(yy), real(z), xpts, ypts, &
+!  & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
+!  & title='Plot3dTst'//c_null_char) 
+ 
+ !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+
+ call mplt%set(1,1,zp3d)
+
+
+
+replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_OPD, objIdx)
+
+if (replot) then
+ PRINT *, "Input Command was ", inputCmd
+ call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+else
+
+
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_OPD, "Optical Path Difference"//c_null_char, mplt)
+
+ ! Add settings
+
+ zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+end if
+
+
+
+end subroutine
+
+
+subroutine PLTIMTST
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: zoatabMgr, updateTerminalLog
+  use global_widgets, only:  sysConfig
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use plplot, PI => PL_PI
+  use plplot_extra
+
+
+IMPLICIT NONE
+
+character(len=23) :: ffieldstr
+character(len=40) :: inputCmd
+integer :: ii, i, j, objIdx
+integer :: numPoints = 10
+logical :: replot
+
+
+!REAL, allocatable :: x(:), y(:)
+
+
+    !   xdim is the leading dimension of z, xpts <= xdim is the leading
+    !   dimension of z that is defined.
+integer, parameter :: xdim=99, ydim=100, xpts=35, ypts=45
+real(kind=pl_test_flt)   :: x(xpts*ypts), y(xpts*ypts), z(xpts*ypts)
+real(kind=pl_test_flt)   :: xx(xpts*ypts), yy(xpts*ypts), r
+real(kind=pl_test_flt)   :: zlimited(xdim,ypts)
+integer :: index
+integer, parameter :: indexxmin = 1
+integer, parameter :: indexxmax = xpts
+integer            :: indexymin(xpts), indexymax(xpts)
+
+! parameters of ellipse (in x, y index coordinates) that limits the data.
+! x0, y0 correspond to the exact floating point centre of the index
+! range.
+! Note: using the Fortran convention of starting indices at 1
+real(kind=pl_test_flt), parameter :: x0 = 0.5_pl_test_flt * ( xpts + 1 )
+real(kind=pl_test_flt), parameter :: a  = 0.9_pl_test_flt * ( x0 - 1.0_pl_test_flt )
+real(kind=pl_test_flt), parameter :: y0 = 0.5_pl_test_flt * ( ypts + 1 )
+real(kind=pl_test_flt), parameter :: b  = 0.7_pl_test_flt * ( y0 - 1.0_pl_test_flt )
+real(kind=pl_test_flt)            :: square_root
+
+character (len=80) :: title(2) = &
+       (/'#frPLplot Example 8 - Alt=60, Az=30 ', &
+       '#frPLplot Example 8 - Alt=40, Az=-30'/)
+real(kind=pl_test_flt)   :: alt(2) = (/60.0_pl_test_flt, 40.0_pl_test_flt/)
+real(kind=pl_test_flt)   :: az(2)  = (/30.0_pl_test_flt,-30.0_pl_test_flt/)
+integer            :: rosen
+integer, parameter :: nlevel = 10
+integer :: plparseopts_rc
+real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
+
+real(kind=pl_test_flt)   :: dx, dy
+type(c_ptr) :: canvas
+type(zoaPlotImg) :: zpImg 
+type(multiplot) :: mplt
+
+INCLUDE 'DATMAI.INC'
+
+!   Process command-line arguments
+plparseopts_rc = plparseopts(PL_PARSE_FULL)
+if(plparseopts_rc .ne. 0) stop "plparseopts error"
+
+rosen = 0
+
+!   x(1:xpts) = (arange(xpts) - (xpts-1)/2.0_pl_test_flt) / ((xpts-1)/2.0_pl_test_flt)
+!   y(1:ypts) = (arange(ypts) - (ypts-1)/2.0_pl_test_flt) / ((ypts-1)/2.0_pl_test_flt)
+!
+
+dx = 2.0_pl_test_flt / (xpts - 1)
+dy = 2.0_pl_test_flt / (ypts - 1)
+
+do i = 1,xpts
+    x(i) = -1.0_pl_test_flt + (i-1) * dx
+enddo
+
+do j = 1,ypts
+    y(j) = -1.0_pl_test_flt + (j-1) * dy
+enddo
+
+index = 1
+do j=1,ypts    
+    do i=1,xpts
+      xx(index) = x(i)
+        yy(index) = y(j)
+            ! Sombrero function
+            r = sqrt(xx(index)**2 + yy(index)**2)
+            z(index) = exp(-r**2) * cos(2.0_pl_test_flt*PI*r)
+            index = index+1
+    enddo
+enddo
+print *, "index is ", index
+
+
+ !call checkCommandInput(ID_CMD_ALPHA)
+
+ call updateTerminalLog(INPUT, "blue")
+ inputCmd = INPUT
+
+if(cmdOptionExists('NUMPTS')) then
+ numPoints = INT(getCmdInputValue('NUMPTS'))
+end if
+
+
+PRINT *, "numPoints is ", numPoints
+canvas = hl_gtk_drawing_area_new(size=[600,600], &
+& has_alpha=FALSE)
+
+call mplt%initialize(canvas, 1,1)
+!print *, "x in PLT3DTST is ", real(x)
+
+!  call zp3d%init3d(c_null_ptr, real(xx),real(yy), real(z), xpts, ypts, &
+!  & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
+!  & title='Plot3dTst'//c_null_char)
+
+ call zpImg%init3d(c_null_ptr, real(xx),real(yy), real(z), xpts, ypts, &
+ & xlabel='No, an amplitude clipped sombrero'//c_null_char, ylabel=''//c_null_char, &
+ & title='Saturn?'//c_null_char)
+ !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+
+ call mplt%set(1,1,zpImg)
+
+
+
+replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_PLT3DTST, objIdx)
+
+if (replot) then
+ PRINT *, "Input Command was ", inputCmd
+ call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+else
+
+
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_PLT3DTST, "3D Plot Test"//c_null_char, mplt)
+
+ ! Add settings
+
+ zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+end if
+
+
+
+end subroutine
+
 subroutine PLT3DTST
 
   USE GLOBALS
@@ -487,8 +848,8 @@ do j = 1,ypts
 enddo
 
 index = 1
-do i=1,xpts    
-    do j=1,ypts
+do j=1,ypts    
+    do i=1,xpts
       xx(index) = x(i)
         yy(index) = y(j)
             ! Sombrero function
@@ -498,6 +859,7 @@ do i=1,xpts
     enddo
 enddo
 print *, "index is ", index
+
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
@@ -514,9 +876,13 @@ canvas = hl_gtk_drawing_area_new(size=[600,600], &
 & has_alpha=FALSE)
 
 call mplt%initialize(canvas, 1,1)
-print *, "x in PLT3DTST is ", real(x)
+!print *, "x in PLT3DTST is ", real(x)
 
- call zp3d%init3d(c_null_ptr, real(xx),real(yy), real(z), &
+!  call zp3d%init3d(c_null_ptr, real(xx),real(yy), real(z), xpts, ypts, &
+!  & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
+!  & title='Plot3dTst'//c_null_char)
+
+ call zp3d%init3d(c_null_ptr, real(xx),real(yy), real(z), xpts, ypts, &
  & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
  & title='Plot3dTst'//c_null_char)
  !PRINT *, "Bar chart color code is ", bar1%dataColorCode
