@@ -242,11 +242,25 @@ contains
   fst = INDEX(subString, delim, BACK=.FALSE.)
   abslst = INDEX(subString, delim, BACK=.TRUE.)
 
+  print *, "fst is ", fst
+  print *, "abslst is ", abslst
+  print *, "len of cmdInput is ", len(cmdInput)
+
   print *, "End of string is ", cmdInput(abslst:len(cmdInput))
   
+  ! Deal with case of one or two tokens.  I'm sure there is a more elegant way to do this
+  ! but this seems to work
   if (fst==abslst) then
-    numTokens = 1
-    tokens(numTokens) = subString
+    if (fst==0) then
+       numTokens = 1
+       tokens(numTokens) = subString
+    else
+      if (abslst < len(cmdInput)) then
+        numTokens = 2
+        tokens(1) = subString(1:fst-1)
+        tokens(2) = subString(abslst+1:len(cmdInput))
+      end if
+    end if
 
   else
     i = 1  
@@ -256,11 +270,13 @@ contains
   do while (fst > 1)
      fst = INDEX(subString, delim, BACK=.FALSE.)
      lst = INDEX(subString, delim, BACK=.TRUE.)
+       PRINT *, "i is ", i
        PRINT *, "fst is ", fst
        PRINT *, "lst is ", lst
      if (fst==lst) then
        tokens(i) = subString(1:fst-2)
        fst = 0 ! exit loop
+       i = i - 1
      else  
        tokens(i) = subString(1:fst-1)
      end if

@@ -507,6 +507,7 @@ type zoatab
    procedure, public, pass(self) :: finalizeWindow
    procedure, public, pass(self) :: addSpinBoxSetting
    procedure, public, pass(self) :: addSpinButton_runCommand
+   procedure, public, pass(self) :: addSpinButton_runCommand_2
    procedure, public, pass(self) :: createGenericSinglePlot
    procedure, public, pass(self) :: updateGenericSinglePlot
    procedure, public, pass(self) :: updateGenericMultiPlot
@@ -722,6 +723,83 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
 
 end subroutine
 
+subroutine addSpinButton_runCommand_2(self, labelTxt, value, lower, upper, digits, command)
+  implicit none
+  class(zoatab) :: self
+  real, intent(in) :: value, lower, upper
+  integer(kind=c_int), intent(in) :: digits
+  character(len=*), intent(in) :: labelTxt
+  character(len=*), intent(in) :: command
+  type(c_ptr) :: spinBtn, spinLbl
+
+  spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
+                                                    & lower=lower*1d0, &
+                                                    & upper=upper*1d0, &
+                                                    & step_increment=1d0, &
+                                                    & page_increment=1d0, &
+                                                    & page_size=0d0), &
+                                                    & climb_rate=2d0, &
+                                                    & digits=digits)
+
+    ! This is a bit sketchy IMO, but it is a way to use a single method to simply
+    ! apply setting commands
+    uiSettingCommands(uiSetCmdsIdx) = trim(command)//"--"//self%plotCommand//c_null_char
+    PRINT *, "spin button command is ", uiSettingCommands(uiSetCmdsIdx)
+    call self%addSpinBoxSetting(labelTxt, spinBtn, &
+    & c_funloc(callback_runCommandFromSpinBox_2), c_loc(uiSettingCommands(uiSetCmdsIdx)))
+
+    uiSetCmdsIdx = uiSetCmdsIdx +1
+
+
+
+end subroutine
+
+subroutine callback_runCommandFromSpinBox_2(widget, gdata ) bind(c)
+  use command_utils, only:  removeLeadingBlanks
+  use kdp_utils, only: int2str
+  implicit none
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double) :: realData
+  integer :: intVal
+ character(len=23) :: ffieldstr
+ character(len=140) :: cmdOrig
+ character(len=10) :: cmdToUpdate
+ character(len=150) :: cmdNew
+
+ integer :: locDelim
+
+ character(len=150), pointer :: command_base
+
+ call c_f_pointer(gdata, command_base)
+
+ locDelim = INDEX(command_base, "--")
+ cmdToUpdate = command_base(1:locDelim-1)
+ cmdOrig = command_base(locDelim+2:len(command_base))
+
+
+ !realData = gtk_spin_button_get_value(widget)
+ intVal = INT(gtk_spin_button_get_value(widget))
+ ffieldstr = int2str(intVal)
+
+  !write(ffieldstr, *) real(realData)
+
+   !ffieldstr = adjustl(ffieldstr)
+  PRINT *, "command_base is ", command_base
+  PRINT *, "locDelim is ", locDelim
+  PRINT *, "cmdOrig is ", cmdOrig
+  PRINT *, "cmdToupdate is ", cmdToUpdate
+  PRINT *, "newVal is ", trim(ffieldstr)
+
+
+ call updateCommand_2(cmdOrig, trim(cmdToUpdate), ffieldstr, cmdNew)
+
+ PRINT *, "New Command 2 is ", cmdNew
+ !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
+
+ CALL PROCESKDP(cmdNew)
+
+end subroutine
+
  subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
    use command_utils, only:  removeLeadingBlanks
    implicit none
@@ -762,6 +840,60 @@ end subroutine
   CALL PROCESKDP(cmdNew)
 
  end subroutine
+
+ subroutine updateCommand_2(cmdOrig, cmdToUpdate, newVal, cmdNew)
+  use command_utils, only:  parseCommandIntoTokens
+  implicit none
+  character(len=*) :: cmdOrig
+  character(len=*) :: cmdToUpdate
+  character(len=*) :: newVal
+  character(len=150), intent(inout) :: cmdNew
+  character(len=80) :: tokens(40)
+  character(len=1), parameter :: blank = " "
+  integer :: locBlank, locCmd, i, numTokens, j
+  character(len=10), dimension(5) :: specialCmds
+  logical :: boolSpecialCmd
+
+
+  PRINT *, "LEN of cmdToUpdate is ", LEN(cmdToUpdate)
+  PRINT *, "cmdUpdate is ", cmdToUpdate
+
+
+  
+  locBlank= 0
+  locBlank = index(cmdOrig, blank)
+  PRINT *, "locBlank is ", locBlank
+  if (locBlank.LT.1) then
+     cmdNew = trim(cmdOrig)//blank//cmdToUpdate//trim(newVal)
+
+
+     !PRINT *, "New command is supposed to be ", cmdOrig//", "//cmdToUpdate//" "//newVal
+  else
+     locCmd = 0
+     call parseCommandIntoTokens(cmdOrig(locBlank+1:len(cmdOrig)), tokens, numTokens, blank)
+     do i=1,numTokens
+       locCmd = index(tokens(i), cmdToUpdate)
+       if (locCmd.GT.0) then
+         PRINT *, "Found command to update!"
+         PRINT *, "tokens(i) is ", tokens(i)
+         PRINT *, "cmdToUpdate is ", cmdToUpdate(1:len(cmdToUpdate)-1)
+         tokens(i) = cmdToUpdate//trim(newVal)
+         ! Build New Command, should be separate method
+         cmdNew = cmdOrig(1:locBlank)
+         do j=1,numTokens
+           cmdNew = trim(cmdNew)//" "//trim(tokens(j))
+         end do
+         PRINT *, "new command from token found loop is ", cmdNew
+         return
+       end if
+       end do
+       ! If we got here it means command was not found.  Add to end of initial command
+       cmdNew = trim(cmdOrig)//" "//cmdToUpdate//newVal
+
+  end if
+
+
+end subroutine
 
  subroutine updateCommand(cmdOrig, cmdToUpdate, newVal, cmdNew)
    use command_utils, only:  parseCommandIntoTokens

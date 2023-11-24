@@ -33,6 +33,7 @@ srcs += files(
   'kdp-utils.f90',
   'command-utils.f90',
   'plotsettingtypes.f90',
+  'plot-setting-manager.f90',
   'kdp-data-types.f90',
   'global_widgets.f90',
   'gtk-hl-zoa.f90',
