@@ -232,6 +232,7 @@ subroutine setDensity(self, defDensity)
   end if
 
   wN = self%getIntFromToken('n')
+  PRINT *, "in setDensity wN is ", wN
   if(wN.GT.0) then
     self%density = wN
   end if
@@ -240,37 +241,16 @@ end subroutine
 
 subroutine setWavelength(self)
   use global_widgets, only: sysConfig
-  use kdp_utils, only: str2int
+  implicit none
   class(setting_parser), intent(inout) :: self
-  character(len=:), allocatable :: strTest
-  integer :: i, wC
+  integer :: wL
 
-  allocate(character(len=len(self%tokens(1))) :: strTest)
+  self%wavelengthIdx = sysConfig%refWavelengthIndex ! TODO:  Better default way?
+  wL = self%getIntFromToken('w')
+  if(wL.GT.0.and.wL.LT.(sysConfig%numWavelengths+1)) then
+    self%wavelengthIdx = wL
+  end if
 
-  do i=1, self%numTokens
-    strTest = self%tokens(i)
-    PRINT *, "strTest is ", strTest
-    self%wavelengthIdx = sysConfig%refWavelengthIndex
-    if (strTest(1:1) == 'w') then
-    wC = str2int(strTest(2:len(trim(strTest))))
-      PRINT *, "wC is ", wC
-      !PRINT *, "Num Wave is ", (sysConfig%numWavelengths+1)
-      !PRINT *, "Cond 1 is " (wC.GT.0)
-      !PRINT *, "Cond 2 is " (wC.LT.(sysConfig%numWavelengths+1))
-
-      PRINT *, "abstracted wC is ", self%getIntFromToken('w')
-
-      if (wC.GT.0.and.wC.LT.(sysConfig%numWavelengths+1)) then
-        PRINT *, "about to set wavelength index to ", wC
-        self%wavelengthIdx = wC
-      else
-        self%wavelengthIdx = sysConfig%refWavelengthIndex
-
-      end if
-
-    end if
-
-  end do
 
 end subroutine
 

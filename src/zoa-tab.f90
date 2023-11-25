@@ -487,7 +487,7 @@ module zoa_tab
 
 
 type zoatab
-     type(c_ptr) :: canvas, box1, tab_label, notebook
+     type(c_ptr) :: canvas, box1, tab_label, notebook, expander
      integer(c_int)  :: width = 1000
      integer(c_int)  ::  height = 700
      type(zoa_settings_obj) :: settings
@@ -1087,19 +1087,19 @@ end subroutine
    class(zoatab) :: self
 
    type(c_ptr) :: scrolled_tab
-    type(c_ptr) :: dcname, expander
+    type(c_ptr) :: dcname
     character(len=80) :: dname
 
    integer :: location
     PRINT *, "FINALIZING WINDOW in ZOATAB"
 
     !call self%buildSettings()
-    expander = self%settings%build()
-    PRINT *, "Expander is ", LOC(EXPANDER)
+    self%expander = self%settings%build()
+    PRINT *, "Expander is ", LOC(self%EXPANDER)
     PRINT *, "Box ptr is ", LOC(self%box1)
 
     ! We create a vertical box container:
-    call gtk_box_append(self%box1, expander)
+    call gtk_box_append(self%box1, self%expander)
     call gtk_widget_set_vexpand (self%box1, FALSE)
 
 

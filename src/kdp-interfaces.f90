@@ -417,6 +417,7 @@ subroutine PLTOPD
   use plplot_extra
   use plotSettingParser
   use plot_setting_manager
+  use gtk, only: gtk_expander_set_expanded
 
 
 IMPLICIT NONE
@@ -472,6 +473,7 @@ fldIdx = psm%getFieldSetting()
 xpts = psm%getDensitySetting(64, 8, 128)
 ypts = xpts
 inputCmd = trim(psm%sp%getCommand())
+call updateTerminalLog("After PSM Cmd is "//trim(inputCmd), "blue")
 
 
 
@@ -512,7 +514,7 @@ CALL PROCES
 PRINT *, "Calling CAPFN"
 call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
 PRINT *, "Calling OPDLOD"
-call PROCESKDP('FITZERN')
+call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
 !call OPDLOD
 
 
@@ -536,12 +538,33 @@ PRINT *, "size of X is ", size(curr_opd%X)
 
 replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_OPD, objIdx)
 
+
+
 if (replot) then
   inputCmd = trim(psm%sp%getCommand())
  PRINT *, "Input Command was ", inputCmd
- call zoatabMgr%updateInputCommand(objIdx, trim(inputCmd))
+ ! This is not the way I want to do this, but I have not come up with an elegant way to 
+ ! keep track of all settings for a given plot without custom methods
+ ! So here the trick is to close the plot, and open it with the new settings and expand
+ ! the settings tab assuming this is what the user was doing.
+ call close_zoaTab()
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_OPD, "Optical Path Difference"//c_null_char, mplt)
 
- call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+ ! Add settings
+ call psm%finalize(objIdx, trim(inputCmd))
+
+ !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+ call gtk_expander_set_expanded(zoatabMgr%tabInfo(objIdx)%tabObj%expander, TRUE)
+ 
+ !call zoatabMgr%updateInputCommand(objIdx, trim(inputCmd))
+
+ !call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+ !call psm%finalize(objIdx, trim(inputCmd))
+
 
 else
 
@@ -556,6 +579,7 @@ else
 
  ! Create Plot + settings tab
  call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
 
 
 end if

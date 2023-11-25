@@ -81,7 +81,7 @@ contains
 
         self%numSettings = 0
 
-       call parseCommandIntoTokens(strCmd, tokens, numTokens, " ") 
+       call parseCommandIntoTokens(trim(strCmd), tokens, numTokens, " ") 
        call self%sp%initialize(tokens(1:numTokens))
        PRINT *, "Wavelength is ", self%sp%getWavelength()
        PRINT *, "New CMD is ", self%sp%getCommand()
@@ -119,6 +119,7 @@ contains
         integer :: lambda
 
         self%numSettings = self%numSettings + 1
+        PRINT *, "numWavelengths is ", real(sysConfig%numWavelengths)
         call self%ps(self%numSettings)%initialize(SETTING_WAVELENGTH, & 
         & "Wavelength", real(lambda),1.0,real(sysConfig%numWavelengths), 'w', UITYPE_SPINBUTTON)
 

@@ -213,14 +213,12 @@ contains
     implicit none
     character(len=*) :: cmdInput
     character(len=80) :: tokens(40)
-    integer :: numTokens, fst, lst, i, abslst
+    integer :: numTokens, fst, lst, i, j, abslst
     character(len=1), optional :: iptDelim
     character(len=1) :: delim
     integer, optional  :: tokenLen(40)
     character(len=:), allocatable :: subString
-  !call checkCommandInput(typeCode, allowableQualWords)
-  ! Type:  QualWord+N_nums
-  include "DATMAI.INC"
+    integer :: tot
 
   PRINT *, "Alphanumeric string is ", cmdInput
 
@@ -236,7 +234,7 @@ contains
      
   end if
 
-  PRINT *, "delim is ", delim
+  !PRINT *, "delim is ", delim
   !Test String Tokenizer
   subString = cmdInput
   fst = INDEX(subString, delim, BACK=.FALSE.)
@@ -246,7 +244,7 @@ contains
   print *, "abslst is ", abslst
   print *, "len of cmdInput is ", len(cmdInput)
 
-  print *, "End of string is ", cmdInput(abslst:len(cmdInput))
+  !print *, "End of string is ", cmdInput(abslst:len(cmdInput))
   
   ! Deal with case of one or two tokens.  I'm sure there is a more elegant way to do this
   ! but this seems to work
@@ -263,9 +261,10 @@ contains
     end if
 
   else
-    i = 1  
+    i = 1 
+    tot = 0
 
-
+  ! Keep on extracting tokens until we run out of delimiters or find that fst=last (end of tokens)  
 
   do while (fst > 1)
      fst = INDEX(subString, delim, BACK=.FALSE.)
@@ -273,32 +272,45 @@ contains
        PRINT *, "i is ", i
        PRINT *, "fst is ", fst
        PRINT *, "lst is ", lst
-     if (fst==lst) then
-       tokens(i) = subString(1:fst-2)
-       fst = 0 ! exit loop
-       i = i - 1
-     else  
+
+     !if (fst==lst) then
+       ! We have the last token.  Need to exit loop
+     !  tokens(i) = subString(1:fst-2)
+     !  fst = 0 ! exit loop
+       ! This is to compensate for i = i +1 at end of loop.  The best thing I can say is that
+       ! this code works, but it is far from elegant
+     !  i = i - 1
+     !else  
        tokens(i) = subString(1:fst-1)
-     end if
+       tot = tot + fst
+       if (tot == abslst) then
+        ! We have reached the last token.  Exit here 
+        if (abslst < len(cmdInput)) then
+          i = i + 1
+          tokens(i) = cmdInput(tot+1:len(cmdInput))
+          numTokens = i
+          return
+        else
+          numTokens = 1
+          return
+       end if
+      end if
+     !end if
      PRINT *, "token is ", tokens(i)
+     PRINT *, "subString before removing token(i) is ", subString
+     PRINT *, "tot is ", tot
+     PRINT *, "remaining cmd is ", cmdInput(tot+1:len(cmdInput))
+     
+
      if(present(tokenLen)) tokenLen(i) = fst-1
      i = i+1
      if (fst<len(cmdInput)) subString = subString(fst+1:len(cmdInput))
+     PRINT *, "subString is ", subString
   end do
-  ! Here we can miss the last token so just assign it to the end of the cmd input string
-  !if (len(cmdInput) > abslst) then
-  !if (cmdInput(abslst+1:len(cmdInput)).ne." ") then
-  !PRINT *, "i is ", i
+
     numTokens = i-1
-    if (numTokens > 0) then
-    tokens(numTokens) = cmdInput(abslst+1:len(cmdInput))
-     print *, "for token ", numTokens
-     print *, "substring is ", tokens(numTokens)
-    end if
-    
-  !else
-  !  numTokens = i-2
-  !end if
+
+
   end if
 
   if (numTokens > 0 ) PRINT *, "tokens ", tokens(1:numTokens)

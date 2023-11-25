@@ -511,6 +511,8 @@ type(io_config) function io_config_constructor() result(self)
 
      self%currLensUnitsID = SYSTEM(6)
 
+     call self%setNumberofWavelengths()
+
    end subroutine
 
    subroutine setRefFieldKDP(self)
