@@ -453,7 +453,6 @@ integer :: numTokens
 integer :: lambda, fldIdx
 
 integer, parameter :: nlevel = 10
-integer :: plparseopts_rc
 real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
 
 real(kind=pl_test_flt)   :: dx, dy
@@ -501,11 +500,6 @@ call updateTerminalLog("After PSM Cmd is "//trim(inputCmd), "blue")
 
  
 
-!   Process command-line arguments
-plparseopts_rc = plparseopts(PL_PARSE_FULL)
-if(plparseopts_rc .ne. 0) stop "plparseopts error"
-
-
 WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
 & , ' ' , sysConfig%relativeFields(1, fldIdx)
 CALL PROCES
@@ -513,7 +507,8 @@ CALL PROCES
 !CALL PROCESKDP('FOB 1')
 PRINT *, "Calling CAPFN"
 call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
-PRINT *, "Calling OPDLOD"
+!call getOPDData(lambda)
+!PRINT *, "Calling OPDLOD"
 call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
 !call OPDLOD
 
@@ -529,8 +524,8 @@ PRINT *, "size of X is ", size(curr_opd%X)
 !PRINT *, "X is ", real(curr_opd%X)
  call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), & 
  & real(curr_opd%Z), xpts, ypts, & 
- & xlabel='Surface No'//c_null_char, ylabel='w'//c_null_char, &
- & title='Plot3dTst'//c_null_char)
+ & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
+ & title='Optical Path Difference'//c_null_char)
 
  call mplt%set(1,1,zp3d)
 
@@ -642,7 +637,6 @@ real(kind=pl_test_flt)   :: alt(2) = (/60.0_pl_test_flt, 40.0_pl_test_flt/)
 real(kind=pl_test_flt)   :: az(2)  = (/30.0_pl_test_flt,-30.0_pl_test_flt/)
 integer            :: rosen
 integer, parameter :: nlevel = 10
-integer :: plparseopts_rc
 real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
 
 real(kind=pl_test_flt)   :: dx, dy
@@ -652,11 +646,8 @@ type(multiplot) :: mplt
 
 INCLUDE 'DATMAI.INC'
 
-!   Process command-line arguments
-plparseopts_rc = plparseopts(PL_PARSE_FULL)
-if(plparseopts_rc .ne. 0) stop "plparseopts error"
 
-rosen = 0
+
 
 !   x(1:xpts) = (arange(xpts) - (xpts-1)/2.0_pl_test_flt) / ((xpts-1)/2.0_pl_test_flt)
 !   y(1:ypts) = (arange(ypts) - (ypts-1)/2.0_pl_test_flt) / ((ypts-1)/2.0_pl_test_flt)
@@ -1282,6 +1273,42 @@ subroutine rmsfield_ideal
 
 
     end if
+
+end subroutine
+
+subroutine getOPDData(lambda)
+  use iso_fortran_env, only: real64
+  implicit none
+  ! This is taken from PLOTCAPCO in PLOTCAD4.FOR.  
+  integer :: lambda, loopFlag, I, KKV, KKK
+  real(kind=real64) :: WVAL
+  
+  INCLUDE 'DATSP1.INC'
+  INCLUDE 'DATSPD.INC'  
+
+  loopFlag = 1
+
+  WVAL=real(lambda)
+  KKV=(ITOT-1)/NUMCOL
+  do while (loopFlag > 0 )
+  DO I=1,ITOT-1
+!    LOAD DSPOTT(*,ID) INTO DSPOT(*)
+     ID=I
+     CALL SPOTIT(4)
+
+     IF(DSPOT(16).EQ.WVAL) THEN
+      PRINT *, "Found wavelength data for index ", lambda
+      loopFlag = 0
+      KKK=NINT(SQRT(FLOAT(KKV)))
+      ! Need to define refht before calling this (add to curr_lens_data?)
+      !CALL CAPPLOT(1,I,REFHT,WVAL,KKV,KKK,1)
+      RETURN      
+      !KVAL=I
+
+          END IF
+
+          END DO
+        end do
 
 end subroutine
 

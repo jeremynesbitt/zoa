@@ -5205,11 +5205,13 @@ C
                         RETURN
                        END IF
 C
+      ! JN - do plot with separate routine, but want to use this 
+      ! routine to load proper wavelength so comment out.
 C     NOW CALL ROUTINES TO DO THE CONTOUR PLOT
-      IF(WQ.EQ.'CAPFNOPD') CALL CON_CAPPLOT(1,KVAL,REFHT,WVAL,KKV,KKK
-     1,IU)
-      IF(WQ.EQ.'CAPFNAPD') CALL CON_CAPPLOT(2,KVAL,REFHT,WVAL,KKV,KKK
-     1,IU)
+!       IF(WQ.EQ.'CAPFNOPD') CALL CON_CAPPLOT(1,KVAL,REFHT,WVAL,KKV,KKK
+!      1,IU)
+!       IF(WQ.EQ.'CAPFNAPD') CALL CON_CAPPLOT(2,KVAL,REFHT,WVAL,KKV,KKK
+!      1,IU)
 C
               RETURN
               END

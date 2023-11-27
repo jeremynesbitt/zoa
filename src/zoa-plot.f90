@@ -396,7 +396,7 @@ contains
           if (present(dataColorCode)) then
              self%dataColorCode = dataColorCode
           else
-             self%dataColorCode = PL_PLOT_RED
+             self%dataColorCode = PL_PLOT_BLACK
           end if
     
           if (present(lineStyleCode)) then
@@ -491,7 +491,7 @@ contains
     self%area = area
 
     self % labelFontColor = trim("BLACK")
-    self % dataColorCode = PL_PLOT_RED
+    self % dataColorCode = PL_PLOT_BLACK
 
     self % useLegend  = .FALSE.
 
@@ -881,7 +881,7 @@ end subroutine
       call self%checkBackingSurface()
 
       !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
-      call plcol0(getLabelFontCode(self))
+      call plcol0(15)
       !call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
       PRINT *, "About to plot series"
@@ -908,7 +908,8 @@ end subroutine
       enddo                
         call plenv0(xmin, xmax, ymin, ymax, 2, 0)
         call plcol0(15)
-        call pllab("X", "Y", 'tst'//c_null_char)
+        call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
+
         call plimage(reshape(self%plotDataList3d(i)%z, [xpts, ypts]), &
         & xmin, xmax, ymin, ymax, zmin, zmax, &
         & xmin, xmax, ymin, ymax)          

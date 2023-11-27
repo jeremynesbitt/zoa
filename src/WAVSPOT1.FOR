@@ -1535,7 +1535,9 @@ C
 C
         EXTERNAL FF3
 C
-        INTEGER SSN,SM,NP2,MP,COUNT,I,J,N,M,II,IIP
+        INTEGER SSN,SM,NP2,MP,COUNT,I,J,N,M,II,IIP, OPDCNT
+        INTEGER IWIW,NUMTOT,IW  
+        COMMON/IWIWIW/IWIW,NUMTOT,IW        
 C
       LOGICAL OPMAP,OPEN64
 C
@@ -1729,14 +1731,15 @@ C
 
 
               end if
-              allocate(curr_opd%X(ITOT-1))
-              allocate(curr_opd%Y(ITOT-1))
-              allocate(curr_opd%Z(ITOT-1))
-              curr_opd%numPts = ITOT-1
+              allocate(curr_opd%X(IWIW))
+              allocate(curr_opd%Y(IWIW))
+              allocate(curr_opd%Z(IWIW))
+              curr_opd%numPts = IWIW
               curr_opd%numx = INT(sqrt(real(curr_opd%numPts)))
               curr_opd%numy = INT(sqrt(real(curr_opd%numPts)))
 
               PRINT *, "OPDLOD numPts is ", curr_opd%numPts
+              PRINT *, "IWIW is ", IWIW
 
 
 
@@ -1744,18 +1747,22 @@ C
 C     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP-1
       CALL SPOTIT(4)
+ 
 C
-          DWW1=DSPOT(6)/REFHT
-          DWW2=DSPOT(5)/REFHT
-          DWW3=DSPOT(4)/(TWOPII)
-          DWW4=DSPOT(12)
 
-          curr_opd%X(ID) = DWW1
-          curr_opd%Y(ID) = DWW2
-          curr_opd%Z(ID) = DWW3
 
 C
       IF(DSPOT(16).EQ.W1) THEN
+        !PRINT *, "W1 for ID ", KK
+        DWW1=DSPOT(6)/REFHT
+        DWW2=DSPOT(5)/REFHT
+        DWW3=DSPOT(4)/(TWOPII)
+        DWW4=DSPOT(12)
+  
+        curr_opd%X(KK) = DWW1
+        curr_opd%Y(KK) = DWW2
+        curr_opd%Z(KK) = DWW3            
+   
 C
 C     DATA FOR DESIRED WAVELENGTH, PROCEED
 C
