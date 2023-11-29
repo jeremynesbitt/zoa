@@ -356,33 +356,10 @@ use handlers, only : updateTerminalLog
 
 
    !call RMSFIELD_PLOT
-   call rmsfield_ideal
+   call rmsfield_plot
 
 end subroutine
 
-subroutine RMSFIELD_PLOT
-   use global_widgets
-
-  use zoa_plot
-  use zoa_tab
-  use zoa_ui
-  !use zoa_tab_manager
-  use gtk_draw_hl
-  !use zoa_tab_manager
-  use handlers, only: zoatabMgr, updateTerminalLog
-
-  implicit none
-  type(c_ptr) :: localcanvas
-
-  !  localcanvas = hl_gtk_drawing_area_new(size=[1200,500], &
-  !       & has_alpha=FALSE)
-
-
-  !call zoatabMgr%addPlotTab(ID_PLOTTYPE_RMSFIELD, inputTitle='RMS Field Plot', extcanvas=localcanvas)
-  call PROCESKDP('PLOT NEW') ! This needs to be called at some point
-  call PROCESKDP('DRAW')
-
-end subroutine
 
 subroutine EDITOR
   use lens_editor
@@ -1195,7 +1172,7 @@ end subroutine
 ! assume have new xy or label data for that matter and redo.
 ! With this, just need to make methods and add new ID to zoa_ui.  Much cleaner.
 
-subroutine rmsfield_ideal
+subroutine rmsfield_plot
 
        USE GLOBALS
        use command_utils
@@ -1203,6 +1180,7 @@ subroutine rmsfield_ideal
        use global_widgets, only:  sysConfig
        use zoa_ui
        use iso_c_binding, only:  c_ptr, c_null_char
+       use plot_setting_manager
 
 
   IMPLICIT NONE
@@ -1215,17 +1193,17 @@ subroutine rmsfield_ideal
 
 
     REAL, allocatable :: x(:), y(:)
+    type(zoaplot_setting_manager) :: psm
 
     INCLUDE 'DATMAI.INC'
 
       !call checkCommandInput(ID_CMD_ALPHA)
 
       call updateTerminalLog(INPUT, "blue")
-      inputCmd = INPUT
 
-    if(cmdOptionExists('NUMPTS')) then
-      numPoints = INT(getCmdInputValue('NUMPTS'))
-    end if
+      call psm%initialize(trim(INPUT))
+      numPoints = psm%getDensitySetting(10, 5, 50)
+      inputCmd = trim(psm%sp%getCommand())      
 
 
     PRINT *, "numPoints is ", numPoints
@@ -1263,10 +1241,12 @@ subroutine rmsfield_ideal
 
 
       ! Add settings
-      zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
-      & 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
-      call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+      !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+      !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
+      !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
+      !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+      call psm%finalize(objIdx, trim(inputCmd))
 
       ! Create Plot + settings tab
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
