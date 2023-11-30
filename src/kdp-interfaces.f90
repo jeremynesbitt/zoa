@@ -240,6 +240,7 @@ subroutine SPR
     use global_widgets, only:  sysConfig
     use zoa_ui
     use iso_c_binding, only:  c_ptr, c_null_char
+    use plot_setting_manager
 
 
     IMPLICIT NONE
@@ -252,6 +253,7 @@ subroutine SPR
 
 
     REAL, allocatable :: x(:), y(:)
+    type(zoaplot_setting_manager) :: psm
 
     INCLUDE 'DATMAI.INC'
 
@@ -260,9 +262,9 @@ subroutine SPR
     call updateTerminalLog(INPUT, "blue")
     inputCmd = INPUT
 
-    if(cmdOptionExists('NUMPTS')) then
-    numPoints = INT(getCmdInputValue('NUMPTS'))
-    end if
+    call psm%initialize(trim(INPUT))
+    numPoints = psm%getDensitySetting(10, 5, 50)
+    inputCmd = trim(psm%sp%getCommand())      
 
 
     PRINT *, "numPoints is ", numPoints
@@ -296,10 +298,7 @@ subroutine SPR
       & title='Spot RMS Size vs Field'//c_null_char, linetypecode=-1)
 
     ! Add settings
-    zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
-    & 10.0, 1.0, 20.0, 1, "NUMP2"//c_null_char)
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+    call psm%finalize(objIdx, trim(inputCmd))
 
     ! Create Plot + settings tab
     call zoaTabMgr%finalizeNewPlotTab(objIdx)
@@ -402,7 +401,6 @@ IMPLICIT NONE
 character(len=23) :: ffieldstr
 character(len=40) :: inputCmd
 integer :: ii, i, j, objIdx
-integer :: numPoints = 10
 logical :: replot
 type(setting_parser) :: sp
 type(zoaplot_setting_manager) :: psm
@@ -1241,11 +1239,6 @@ subroutine rmsfield_plot
 
 
       ! Add settings
-      !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-
-      !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Number of Field Points", &
-      !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
-      !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
       call psm%finalize(objIdx, trim(inputCmd))
 
       ! Create Plot + settings tab
