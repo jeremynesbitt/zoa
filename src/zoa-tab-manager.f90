@@ -98,7 +98,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
   use mod_plotrayfan
   use mod_plotopticalsystem
-  use ui_rmsfield
   use ui_ast_fc_dist
   use ui_spot
   use ROUTEMOD
@@ -118,7 +117,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     class(zoatab), allocatable :: new_tab
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
     integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
-    integer, target :: TARGET_PLOTTYPE_RMSFIELD   = ID_PLOTTYPE_RMSFIELD
     integer :: idx
 
 
@@ -209,27 +207,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         self%tabInfo(idx)%settings = spot_struct_settings
         !self%tabInfo(idx)%settings%canvas = self%tabInfo(idx)%tabObj%canvas
 
-    case (ID_PLOTTYPE_RMSFIELD)
-        call logger%logText('New RMS Field Diagram Starting')
-        winTitle = "RMS vs Field"
-        allocate(zoatab :: self%tabInfo(idx)%tabObj)
-        self%tabInfo(idx)%tabObj%newGenericSinglePlot => genPlot_sandbox
-        !self%tabInfo%(idx)%tabObj%newPlot()
-        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
-        !call self%tabInfo(idx)%tabObj%newGenericSinglePlot()
-        call self%tabInfo(idx)%tabObj%newGenericSinglePlot()
-        allocate(rmsfield_settings :: self%tabInfo(idx)%settings )
-        self%tabInfo(idx)%settings = rmsfield_struct_settings
-
-
-    ! case (ID_PLOTTYPE_RMSFIELD)
-    !     call logger%logText('New RMS Field Diagram Starting')
-    !     winTitle = "RMS vs Field"
-    !     allocate(rmsfieldtab :: self%tabInfo(idx)%tabObj)
-    !     call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_RMSFIELD)
-    !     call self%tabInfo(idx)%tabObj%newPlot()
-    !     allocate(rmsfield_settings :: self%tabInfo(idx)%settings )
-    !     self%tabInfo(idx)%settings = rmsfield_struct_settings
 
     end select
 

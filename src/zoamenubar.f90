@@ -130,6 +130,7 @@ contains
     character(len=10), target :: seidelCmd = "PLTSEI"
     character(len=10), target :: macroCmd = "MACROUI"
     character(len=10), target :: zernFldCmd = "PLTZERN"
+    character(len=10), target :: opdPltCmd = "PLTOPD"    
 
 
 
@@ -261,6 +262,9 @@ contains
 
     call addCommandMenuItem(menu_wavefront, "Zernike Coefficients vs Field", &
     & "ZernikeVsField", zernFldCmd, win)
+
+    call addCommandMenuItem(menu_wavefront, "Optical Path Difference Plot", &
+    & "OPDPlot", opdPltCmd, win)
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 

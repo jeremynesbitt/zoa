@@ -48,7 +48,6 @@ srcs += files(
   'mod_plotopticalsystem.f90',
   'ui-ast-fc-dist.f90',
   'ui-spot.f90',
-  'ui-rmsfield.f90',
   'ROUTEDRAWING.f90',
   'zoa-tab-manager.f90',
   'zzhandlers.f90',

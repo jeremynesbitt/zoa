@@ -13,7 +13,6 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     use mod_plotrayfan
     use ui_ast_fc_dist
     use ui_spot
-    use ui_rmsfield
     use kdp_draw, only: DRAWOPTICALSYSTEM
 
     IMPLICIT NONE
@@ -43,8 +42,6 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
         call ast_settings%replot()
     case (ID_PLOTTYPE_SPOT)
         call spot_struct_settings%replot()
-      case (ID_PLOTTYPE_RMSFIELD)
-        call rmsfield_struct_settings%replot()
 
 
   case default
