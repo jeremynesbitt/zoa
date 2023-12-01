@@ -263,7 +263,7 @@ subroutine SPR
     inputCmd = INPUT
 
     call psm%initialize(trim(INPUT))
-    numPoints = psm%getDensitySetting(10, 5, 50)
+    numPoints = psm%addDensitySetting(10, 5, 50)
     inputCmd = trim(psm%sp%getCommand())      
 
 
@@ -442,9 +442,9 @@ PRINT *, "INPUT is ", INPUT
 call updateTerminalLog(INPUT, "blue")
 
 call psm%initialize(trim(INPUT))
-lambda = psm%getWavelengthSetting()
-fldIdx = psm%getFieldSetting()
-xpts = psm%getDensitySetting(64, 8, 128)
+lambda = psm%addWavelengthSetting()
+fldIdx = psm%addFieldSetting()
+xpts = psm%addDensitySetting(64, 8, 128)
 ypts = xpts
 inputCmd = trim(psm%sp%getCommand())
 call updateTerminalLog("After PSM Cmd is "//trim(inputCmd), "blue")
@@ -1200,7 +1200,7 @@ subroutine rmsfield_plot
       call updateTerminalLog(INPUT, "blue")
 
       call psm%initialize(trim(INPUT))
-      numPoints = psm%getDensitySetting(10, 5, 50)
+      numPoints = psm%addDensitySetting(10, 5, 50)
       inputCmd = trim(psm%sp%getCommand())      
 
 

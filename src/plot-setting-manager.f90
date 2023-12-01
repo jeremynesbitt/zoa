@@ -36,16 +36,10 @@ module plot_setting_manager
 
     contains
     procedure, public, pass(self) :: initialize => init_plotSettingManager
-    procedure, public, pass(self) :: addWavelength
+    procedure, public, pass(self) :: addWavelengthSetting
     procedure, public, pass(self) :: addFieldSetting
     procedure, public, pass(self) :: addDensitySetting
     procedure, public, pass(self) :: finalize
-    procedure, public, pass(self) :: getWavelengthSetting
-    procedure, public, pass(self) :: getFieldSetting
-    procedure, public, pass(self) :: getDensitySetting
-
-
-
 
 
     end type
@@ -83,40 +77,20 @@ contains
 
        call parseCommandIntoTokens(trim(strCmd), tokens, numTokens, " ") 
        call self%sp%initialize(tokens(1:numTokens))
-       PRINT *, "Wavelength is ", self%sp%getWavelength()
        PRINT *, "New CMD is ", self%sp%getCommand()
 
 
     end subroutine
 
-    subroutine addFieldSetting(self, fldIdx)
+
+    function addWavelengthSetting(self) result(lambda)
         use global_widgets, only: sysConfig
-        class(zoaplot_setting_manager) :: self
-        integer :: fldIdx
+        implicit none
 
-        self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initialize(SETTING_FIELD, & 
-        & "Field", real(fldIdx),1.0,real(sysConfig%numFields), 'f', UITYPE_SPINBUTTON)
-
-
-    end subroutine
-
-    subroutine addDensitySetting(self, n, minVal, maxVal)
-        use global_widgets, only: sysConfig
-        class(zoaplot_setting_manager) :: self
-        integer :: n, minVal, maxVal
-
-        self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initialize(SETTING_DENSITY, & 
-        & "Density", real(n),real(minVal),real(maxVal), 'n', UITYPE_SPINBUTTON)
-
-
-    end subroutine    
-
-    subroutine addWavelength(self, lambda)
-        use global_widgets, only: sysConfig
         class(zoaplot_setting_manager) :: self
         integer :: lambda
+
+        lambda = self%sp%checkForIntToken('w', sysConfig%refWavelengthIndex)
 
         self%numSettings = self%numSettings + 1
         PRINT *, "numWavelengths is ", real(sysConfig%numWavelengths)
@@ -124,38 +98,34 @@ contains
         & "Wavelength", real(lambda),1.0,real(sysConfig%numWavelengths), 'w', UITYPE_SPINBUTTON)
 
 
-    end subroutine
-
-    function getWavelengthSetting(self) result(val)
-        implicit none
-        class(zoaplot_setting_manager), intent(inout) :: self
-        integer:: val
-
-        val = self%sp%getWavelength()
-        call self%addWavelength(val)
-      
       end function   
 
-      function getFieldSetting(self) result(val)
+
+
+      function addFieldSetting(self) result(val)
+        use global_widgets, only: sysConfig
         implicit none
         class(zoaplot_setting_manager), intent(inout) :: self
         integer:: val
 
-        val = self%sp%getField()
-        call self%addFieldSetting(val)
+        val = self%sp%checkForIntToken('f', sysConfig%numFields)
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_FIELD, & 
+        & "Field", real(val),1.0,real(sysConfig%numFields), 'f', UITYPE_SPINBUTTON)
 
       
-      end function         
+      end function 
+     
 
-      function getDensitySetting(self, defaultVal, minVal, maxVal) result(val)
+      function addDensitySetting(self, defaultVal, minVal, maxVal) result(val)
         implicit none
         class(zoaplot_setting_manager), intent(inout) :: self
         integer:: val, defaultVal, minVal, maxVal
 
-        call self%sp%setDensity(defaultVal)
-
-        val = self%sp%getDensity()
-        call self%addDensitySetting(val, minVal, maxVal)
+        val = self%sp%checkForIntToken('n', defaultVal)
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_DENSITY, & 
+        & "Density", real(val),real(minVal),real(maxVal), 'n', UITYPE_SPINBUTTON)
 
       
       end function   

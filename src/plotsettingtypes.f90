@@ -80,14 +80,8 @@ type setting_parser
 
  contains
  procedure, public, pass(self) :: initialize  
- procedure, public, pass(self) :: getWavelength
- procedure, public, pass(self) :: getField
- procedure, public, pass(self) :: getDensity
- procedure, private, pass(self) :: setWavelength
  procedure, private, pass(self) :: getIntFromToken
- procedure, private, pass(self) :: setField
- procedure, public, pass(self) :: setDensity
-
+ procedure, public, pass(self) :: checkForIntToken
  procedure, private, pass(self) :: addToken
  procedure, public, pass(self) :: getCommand
 
@@ -105,10 +99,6 @@ subroutine initialize(self, tokens)
   PRINT *, "len of tkens is  ", len(tokens)
 
 
-  call self%setWavelength()
-  PRINT *, "Wavelength Index is ", self%wavelengthIdx
-  call self%setField()
-
 end subroutine
 
 function getCommand(self) result(strCmd)
@@ -124,6 +114,39 @@ function getCommand(self) result(strCmd)
 
 
 end function
+
+
+function checkForIntToken(self, prefix, defVal) result(val)
+  !If token exists, return value
+  !If not, add token and return default value
+  use kdp_utils, only: str2int
+  implicit none
+
+  class(setting_parser), intent(inout) :: self
+  character(len=*) :: prefix
+  integer :: defVal
+  integer :: val, i
+  character(len=:), allocatable :: strTest
+  logical :: addNewToken
+
+  allocate(character(len=len(self%tokens(1))) :: strTest)
+  val = defVal ! This is the default value for no result
+  addNewToken = .TRUE.
+
+  do i=1, self%numTokens
+    strTest = self%tokens(i)
+    if (strTest(1:len(prefix)) == prefix) then
+    addNewToken = .FALSE.
+    val = str2int(strTest(len(prefix)+1:len(trim(strTest))))
+    end if
+  end do
+
+  if (addNewToken) then
+    call self%addToken(prefix, defVal)
+  end if
+
+end function
+
 
 
 function getIntFromToken(self, prefix) result(val)
@@ -159,99 +182,5 @@ subroutine addToken(self, prefix, intVal)
 
 end subroutine
 
-! For the get methods, 
-function getWavelength(self) result(val)
-  implicit none
-  class(setting_parser), intent(inout) :: self
-  integer:: val
-
-  val = self%wavelengthIdx
-
-  if (self%getIntFromToken('w') == -1) then
-    call self%addToken('w', self%wavelengthIdx)
-  end if
-
-end function
-
-function getField(self) result(val)
-  implicit none
-  class(setting_parser), intent(inout) :: self
-  integer:: val
-
-  val = self%fieldIdx
-
-  if (self%getIntFromToken('f') == -1) then
-    call self%addToken('f', self%fieldIdx)
-  end if
-
-end function
-
-function getDensity(self) result(val)
-  implicit none
-  class(setting_parser), intent(inout) :: self
-  integer:: val
-
-  val = self%density
-
-  if (self%getIntFromToken('n') == -1) then
-    call self%addToken('n', self%density)
-  end if
-
-end function
-
-!!!!!!!!!!!!!!!!
-! Set routines !
-!!!!!!!!!!!!!!!!
-
-subroutine setField(self)
-  use global_widgets, only: sysConfig
-  implicit none
-  class(setting_parser), intent(inout) :: self
-  integer :: wF
-
-  self%fieldIdx = sysConfig%numFields ! TODO:  Better default way?
-  wF = self%getIntFromToken('f')
-  if(wF.GT.0.and.wF.LT.(sysConfig%numFields+1)) then
-    self%fieldIdx = wF
-  end if
-
-
-end subroutine
-
-subroutine setDensity(self, defDensity)
-  use global_widgets, only: sysConfig
-  implicit none
-  class(setting_parser), intent(inout) :: self
-  integer, optional :: defDensity
-  integer :: wN
-
-  if (present(defDensity)) then
-    self%density = defDensity 
-  else
-    self%density = 1 ! ??
-  end if
-
-  wN = self%getIntFromToken('n')
-  PRINT *, "in setDensity wN is ", wN
-  if(wN.GT.0) then
-    self%density = wN
-  end if
-
-end subroutine
-
-subroutine setWavelength(self)
-  use global_widgets, only: sysConfig
-  implicit none
-  class(setting_parser), intent(inout) :: self
-  integer :: wL
-
-  self%wavelengthIdx = sysConfig%refWavelengthIndex ! TODO:  Better default way?
-  wL = self%getIntFromToken('w')
-  if(wL.GT.0.and.wL.LT.(sysConfig%numWavelengths+1)) then
-    self%wavelengthIdx = wL
-  end if
-
-
-end subroutine
 
 end module
