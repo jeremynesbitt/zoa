@@ -82,7 +82,9 @@ type setting_parser
  procedure, public, pass(self) :: initialize  
  procedure, private, pass(self) :: getIntFromToken
  procedure, public, pass(self) :: checkForIntToken
+ procedure, public, pass(self) :: checkForStrToken
  procedure, private, pass(self) :: addToken
+ procedure, private, pass(self) :: addTokenStr
  procedure, public, pass(self) :: getCommand
 
 
@@ -148,6 +150,37 @@ function checkForIntToken(self, prefix, defVal) result(val)
 end function
 
 
+function checkForStrToken(self, prefix, defVal) result(val)
+  !If token exists, return value
+  !If not, add token and return default value
+  implicit none
+
+  class(setting_parser), intent(inout) :: self
+  character(len=*) :: prefix
+  character(len=*) :: defVal
+  character(len=10) :: val
+  integer :: i
+  character(len=:), allocatable :: strTest
+  logical :: addNewToken
+
+  allocate(character(len=len(self%tokens(1))) :: strTest)
+  val = defVal ! This is the default value for no result
+  addNewToken = .TRUE.
+
+  do i=1, self%numTokens
+    strTest = self%tokens(i)
+    if (strTest(1:len(prefix)) == prefix) then
+    addNewToken = .FALSE.
+    val = strTest(len(prefix)+1:len(trim(strTest)))
+    end if
+  end do
+
+  if (addNewToken) then
+    call self%addTokenStr(prefix, trim(defVal))
+  end if
+
+end function
+
 
 function getIntFromToken(self, prefix) result(val)
   use kdp_utils, only: str2int
@@ -169,6 +202,18 @@ function getIntFromToken(self, prefix) result(val)
   end do
 
 end function
+
+subroutine addTokenStr(self, prefix, strVal)
+  use kdp_utils, only: int2str
+  implicit none
+  class(setting_parser), intent(inout) :: self
+  character(len=*) :: prefix
+  character(len=*) :: strVal
+
+  self%numTokens = self%numTokens+1
+  self%tokens(self%numTokens) = prefix // strVal
+
+end subroutine
 
 subroutine addToken(self, prefix, intVal)
   use kdp_utils, only: int2str

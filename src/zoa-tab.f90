@@ -23,7 +23,7 @@ contains
    procedure, public, pass(self) :: build
    procedure, private, pass(self) :: settingobj_get
    procedure, public, pass(self) :: getWidget
-   procedure, private, pass(self) :: addLabelandWidget
+   procedure, public, pass(self) :: addLabelandWidget
    procedure, public, pass(self) :: addSpinBox
    procedure, public, pass(self) :: addListTable
    procedure, public, pass(self) :: addFieldSelection
@@ -507,7 +507,7 @@ type zoatab
    procedure, public, pass(self) :: finalizeWindow
    procedure, public, pass(self) :: addSpinBoxSetting
    procedure, public, pass(self) :: addSpinButton_runCommand
-   procedure, public, pass(self) :: addSpinButton_runCommand_2
+   procedure, public, pass(self) :: addEntry_runCommand
    procedure, public, pass(self) :: createGenericSinglePlot
    procedure, public, pass(self) :: updateGenericSinglePlot
    procedure, public, pass(self) :: updateGenericMultiPlot
@@ -692,6 +692,31 @@ subroutine updateGenericSinglePlot(self, x, y)
 
 end subroutine
 
+
+
+subroutine addEntry_runCommand(self, labelTxt, valueStr, command)
+  use gtk_hl_entry
+  implicit none
+  class(zoatab) :: self
+  character(len=*), intent(in) :: valueStr
+  character(len=*), intent(in) :: labelTxt
+  character(len=*), intent(in) :: command
+  type(c_ptr) :: entryBox, newLabel
+
+  entryBox = hl_gtk_entry_new(60_c_int, editable=TRUE, &
+  & activate=c_funloc(callback_runCommandFromSpinBox), data=self%box1)  
+
+    ! Store the commands in the name field of the widget, as we will have access to it 
+    ! in the callback fcn                                                
+    call gtk_widget_set_name(entryBox, trim(command)//c_null_char)
+
+    newlabel = gtk_label_new(labelTxt//c_null_char)
+
+    call self%settings%addLabelandWidget(newLabel, entryBox)
+
+
+end subroutine
+
 subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits, command)
   implicit none
   class(zoatab) :: self
@@ -710,51 +735,17 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
                                                     & climb_rate=2d0, &
                                                     & digits=digits)
 
-    ! This is a bit sketchy IMO, but it is a way to use a single method to simply
-    ! apply setting commands
-    uiSettingCommands(uiSetCmdsIdx) = trim(command)//"--"//self%plotCommand//c_null_char
-    PRINT *, "spin button command is ", uiSettingCommands(uiSetCmdsIdx)
+    ! Store the commands in the name field of the widget, as we will have access to it 
+    ! in the callback fcn                                                
+    call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
+
     call self%addSpinBoxSetting(labelTxt, spinBtn, &
-    & c_funloc(callback_runCommandFromSpinBox), c_loc(uiSettingCommands(uiSetCmdsIdx)))
-
-    uiSetCmdsIdx = uiSetCmdsIdx +1
-
+    & c_funloc(callback_runCommandFromSpinBox), self%box1)
 
 
 end subroutine
 
-subroutine addSpinButton_runCommand_2(self, labelTxt, value, lower, upper, digits, command)
-  implicit none
-  class(zoatab) :: self
-  real, intent(in) :: value, lower, upper
-  integer(kind=c_int), intent(in) :: digits
-  character(len=*), intent(in) :: labelTxt
-  character(len=*), intent(in) :: command
-  type(c_ptr) :: spinBtn, spinLbl
-
-  spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
-                                                    & lower=lower*1d0, &
-                                                    & upper=upper*1d0, &
-                                                    & step_increment=1d0, &
-                                                    & page_increment=1d0, &
-                                                    & page_size=0d0), &
-                                                    & climb_rate=2d0, &
-                                                    & digits=digits)
-
-    ! This is a bit sketchy IMO, but it is a way to use a single method to simply
-    ! apply setting commands
-    uiSettingCommands(uiSetCmdsIdx) = trim(command)//"--"//self%plotCommand//c_null_char
-    PRINT *, "spin button command is ", uiSettingCommands(uiSetCmdsIdx)
-    call self%addSpinBoxSetting(labelTxt, spinBtn, &
-    & c_funloc(callback_runCommandFromSpinBox_2), c_loc(uiSettingCommands(uiSetCmdsIdx)))
-
-    uiSetCmdsIdx = uiSetCmdsIdx +1
-
-
-
-end subroutine
-
-subroutine callback_runCommandFromSpinBox_2(widget, gdata ) bind(c)
+subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
   use command_utils, only:  removeLeadingBlanks
   use kdp_utils, only: int2str
   implicit none
@@ -765,83 +756,66 @@ subroutine callback_runCommandFromSpinBox_2(widget, gdata ) bind(c)
  character(len=140) :: cmdOrig
  character(len=10) :: cmdToUpdate
  character(len=150) :: cmdNew
-
+ type(c_ptr) :: cstr, buff2
+ character(len=50) :: choice
  integer :: locDelim
 
  character(len=150), pointer :: command_base
 
  call c_f_pointer(gdata, command_base)
 
- locDelim = INDEX(command_base, "--")
- cmdToUpdate = command_base(1:locDelim-1)
- cmdOrig = command_base(locDelim+2:len(command_base))
+ cstr = gtk_widget_get_name(widget)
+ call convert_c_string(cstr, cmdToUpdate)
+ cstr= gtk_widget_get_name(gdata) 
+ call convert_c_string(cstr, cmdOrig)
+
+
+ !locDelim = INDEX(command_base, "--")
+ !cmdToUpdate = command_base(1:locDelim-1)
+ !cmdOrig = command_base(locDelim+2:len(command_base))
+
+ !cstr = gtk_widget_get_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)))
 
 
  !realData = gtk_spin_button_get_value(widget)
- intVal = INT(gtk_spin_button_get_value(widget))
- ffieldstr = int2str(intVal)
+ !TODO:  Find a better way to tell if the widget is spin button vs entry or separate out fcns
+if (cmdToUpdate(1:1).NE.'c') then
+   intVal = INT(gtk_spin_button_get_value(widget))
+   ffieldstr = int2str(intVal)
+else
+  PRINT *, "entry box!"
+  buff2 = gtk_entry_get_buffer(widget)
+  call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)
+end if
+    
+
+
+
 
   !write(ffieldstr, *) real(realData)
 
    !ffieldstr = adjustl(ffieldstr)
-  PRINT *, "command_base is ", command_base
+  !PRINT *, "command_base is ", command_base
   PRINT *, "locDelim is ", locDelim
   PRINT *, "cmdOrig is ", cmdOrig
   PRINT *, "cmdToupdate is ", cmdToUpdate
   PRINT *, "newVal is ", trim(ffieldstr)
 
 
- call updateCommand_2(cmdOrig, trim(cmdToUpdate), ffieldstr, cmdNew)
+ call updateCommand(cmdOrig, trim(cmdToUpdate), ffieldstr, cmdNew)
 
  PRINT *, "New Command 2 is ", cmdNew
+ call gtk_Widget_set_name(gdata, trim(cmdNew)//c_null_char)
+ !call gtk_widget_set_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)), & 
+ !& cmdNew//c_null_char)
  !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
 
  CALL PROCESKDP(cmdNew)
 
 end subroutine
 
- subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
-   use command_utils, only:  removeLeadingBlanks
-   implicit none
-   type(c_ptr), value, intent(in) :: widget, gdata
-   real(c_double) :: realData
-  character(len=23) :: ffieldstr
-  character(len=140) :: cmdOrig
-  character(len=10) :: cmdToUpdate
-  character(len=150) :: cmdNew
 
-  integer :: locDelim
-
-  character(len=150), pointer :: command_base
-
-  call c_f_pointer(gdata, command_base)
-
-  locDelim = INDEX(command_base, "--")
-  cmdToUpdate = command_base(1:locDelim-1)
-  cmdOrig = command_base(locDelim+2:len(command_base))
-
-
-  realData = gtk_spin_button_get_value(widget)
-
-   write(ffieldstr, *) real(realData)
-
-    ffieldstr = adjustl(ffieldstr)
-
-   PRINT *, "cmdOrig is ", cmdOrig
-   PRINT *, "cmdToupdate is ", cmdToUpdate
-   PRINT *, "newVal is ", ffieldstr
-
-
-  call updateCommand(cmdOrig, cmdToUpdate(1:locDelim-1), ffieldstr, cmdNew)
-
-  PRINT *, "New Command is ", cmdNew
-  !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
-
-  CALL PROCESKDP(cmdNew)
-
- end subroutine
-
- subroutine updateCommand_2(cmdOrig, cmdToUpdate, newVal, cmdNew)
+ subroutine updateCommand(cmdOrig, cmdToUpdate, newVal, cmdNew)
   use command_utils, only:  parseCommandIntoTokens
   implicit none
   character(len=*) :: cmdOrig
@@ -894,144 +868,6 @@ end subroutine
 
 
 end subroutine
-
- subroutine updateCommand(cmdOrig, cmdToUpdate, newVal, cmdNew)
-   use command_utils, only:  parseCommandIntoTokens
-   implicit none
-   character(len=*) :: cmdOrig
-   character(len=*) :: cmdToUpdate
-   character(len=*) :: newVal
-   character(len=150), intent(inout) :: cmdNew
-   character(len=80) :: tokens(40)
-   character(len=1), parameter :: blank = " "
-   integer :: locComma, locCmd, i, numTokens, j
-   character(len=10), dimension(5) :: specialCmds
-   logical :: boolSpecialCmd
-
-
-   specialCmds(1) = "R1"
-   specialCmds(2) = "R2"
-   specialCmds(3) = "R3"
-   specialCmds(4) = "R4"
-   specialCmds(5) = "R5"
-
-   boolSpecialCmd = .FALSE.
-   print *, "cmdToUpdate is ", cmdToUpdate
-   do i=1,size(specialCmds)
-    print *, "specialCmds is ", trim(specialCmds(i))
-    !if (index(specialCmds(i),cmdToUpdate) > 0 ) then 
-      if (specialCmds(i) == cmdToUpdate(1:len(trim(specialCmds(i))))) then   
-      PRINT *, "Match found!"
-      boolSpecialCmd = .TRUE.
-    end if
-   end do
- 
-   PRINT *, "LEN of cmdToUpdate is ", LEN(cmdToUpdate)
-   PRINT *, "cmdUpdate 1 is ", cmdToUpdate(1:1)
-   PRINT *, "cmdUpdate 2 is ", cmdToUpdate(2:2)
-   PRINT *, "cmdUpdate 3 is ", cmdToUpdate(3:3)
-
-   PRINT *, "LEN of RR is ", LEN("RR")
-
-
-  !  if(trim(adjustl(cmdToUpdate(1:2))) == "RR") then
-  !   PRINT *, "R1 Match found!"
-  !   boolSpecialCmd = .TRUE.
-  ! end if 
-
-  ! if("RR" == "RR") then
-  !   PRINT *, "RR Match found!"
-  !   boolSpecialCmd = .TRUE.
-  ! end if 
-
-   print *, "boolSpecialCmd is ", boolSpecialCmd
-   ! Hack because I can't figure out why string comparison isn't working (sigh)
-   !boolSpecialCmd = .TRUE.
-
-   ! What I want
-   ! some special command words that interpret where to put things
-   ! eg if I have a command that takes 5 numbers, if cmdToUpdate is "R1" then 
-   ! swap out first number in command for newVal
-   ! How to implement:
-   ! have a special value character array
-   ! start with if (cmdIsSpecial(cmdToUpdate, specialCommands)
-
-   ! If not, then origial code works
-   ! If yes, then 
-   ! If 
-   ! must do:  transform input command from any default to all commands populated
-
-   if (boolSpecialCmd) then
-    locComma = 0
-    locComma = index(cmdOrig, ',')
-    PRINT *, "Loc Comma is ", locComma
-    PRINT *, "cmdOrig is ", cmdOrig
-    call parseCommandIntoTokens(cmdOrig(locComma+2:len(cmdOrig)), tokens, numTokens, ",") 
-    select case (cmdToUpdate)
-      
-    case ("R1"//c_null_char)
-      PRINT *, "replacing token #1"
-      tokens(1) = newVal
-      PRINT *, "new Tokens is ", trim(tokens(1))
-      PRINT *, "Tokens(2) is ", tokens(2)
-      PRINT *, "Tokens(3) is ", tokens(3)
-
-    case ("R2")
-      tokens(2) = newVal
-    case ("R3")
-      tokens(3) = newVal
-    case ("R4")
-      tokens(4) = newVal
-    case ("R5")
-      tokens(5) = newVal
-    end select 
-          
-    cmdNew = cmdOrig(1:locComma)
-    do j=1,numTokens
-        if (j == 1) cmdNew = trim(cmdNew)//" "//trim(tokens(j))
-        if (j.NE.1) cmdNew = trim(cmdNew)//","//trim(tokens(j))
-        
-    end do
-    PRINT *, "new command from token found loop is ", cmdNew
-    return
-
-    
-   else
-
-
-   ! Original command should have a ,
-   locComma = 0
-   locComma = index(cmdOrig, ',')
-   PRINT *, "locComma is ", locComma
-   if (locComma.LT.1) then
-      cmdNew = trim(cmdOrig)//", "//cmdToUpdate(1:len(cmdToUpdate)-1)//blank//trim(newVal)
-
-
-      !PRINT *, "New command is supposed to be ", cmdOrig//", "//cmdToUpdate//" "//newVal
-   else
-      locCmd = 0
-      call parseCommandIntoTokens(cmdOrig(locComma+2:len(cmdOrig)), tokens, numTokens)
-      do i=1,numTokens
-        locCmd = index(tokens(i), cmdToUpdate(1:len(cmdToUpdate)-1))
-        if (locCmd.GT.0) then
-          PRINT *, "Found command to update!"
-          tokens(i+1) = trim(newVal)
-          ! Build New Command, should be separate method
-          cmdNew = cmdOrig(1:locComma)
-          do j=1,numTokens
-            cmdNew = trim(cmdNew)//" "//trim(tokens(j))
-          end do
-          PRINT *, "new command from token found loop is ", cmdNew
-          return
-        end if
-        end do
-        ! If we got here it means command was not found.  Add to end of initial command
-        cmdNew = trim(cmdOrig)//" "//cmdToUpdate//" "//newVal
-
-   end if
-  end if
-
- end subroutine
 
  subroutine addSpinBoxSetting(self, labelText, spinButton, callbackFunc, callbackData)
    implicit none
@@ -1095,6 +931,7 @@ end subroutine
 
     !call self%buildSettings()
     self%expander = self%settings%build()
+    call gtk_widget_set_name(self%expander, self%plotCommand)
     PRINT *, "Expander is ", LOC(self%EXPANDER)
     PRINT *, "Box ptr is ", LOC(self%box1)
 
@@ -1114,7 +951,7 @@ end subroutine
     call gtk_notebook_set_current_page(self%notebook, location)
 
 
-    call gtk_widget_set_name(self%box1, "TestLabel"//c_null_char)
+    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
     !dcname = g_type_name(gtk_widget_get_type(self%zoatab_cda))
     !dcname = g_type_name_from_instance(self%zoatab_cda)
     !call c_f_string(dcname, dname)

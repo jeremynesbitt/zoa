@@ -511,29 +511,30 @@ replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_OPD, objIdx)
 
 
 if (replot) then
-  inputCmd = trim(psm%sp%getCommand())
- PRINT *, "Input Command was ", inputCmd
+
+  call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+  !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+  call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+  !inputCmd = trim(psm%sp%getCommand())
+
+ !PRINT *, "Input Command was ", inputCmd
  ! This is not the way I want to do this, but I have not come up with an elegant way to 
  ! keep track of all settings for a given plot without custom methods
  ! So here the trick is to close the plot, and open it with the new settings and expand
  ! the settings tab assuming this is what the user was doing.
- call close_zoaTab()
- objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_OPD, "Optical Path Difference"//c_null_char, mplt)
+ 
+  !call close_zoaTab()
+ !objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_OPD, "Optical Path Difference"//c_null_char, mplt)
 
 
  ! Add settings
- call psm%finalize(objIdx, trim(inputCmd))
+ !call psm%finalize(objIdx, trim(inputCmd))
 
- !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
 
  ! Create Plot + settings tab
- call zoaTabMgr%finalizeNewPlotTab(objIdx)
- call gtk_expander_set_expanded(zoatabMgr%tabInfo(objIdx)%tabObj%expander, TRUE)
- 
- !call zoatabMgr%updateInputCommand(objIdx, trim(inputCmd))
-
- !call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
- !call psm%finalize(objIdx, trim(inputCmd))
+! call zoaTabMgr%finalizeNewPlotTab(objIdx)
+! call gtk_expander_set_expanded(zoatabMgr%tabInfo(objIdx)%tabObj%expander, TRUE)
 
 
 else
@@ -1413,7 +1414,8 @@ subroutine PLTZERN
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
-    use kdp_utils, only: OUTKDP, int2str, logDataVsField
+    use kdp_utils, only: OUTKDP, int2str, logDataVsField, str2int
+    use plot_setting_manager
 
 
     IMPLICIT NONE
@@ -1421,12 +1423,14 @@ subroutine PLTZERN
     character(len=23) :: ffieldstr
     character(len=40) :: inputCmd
     integer :: ii, objIdx, minZ, maxZ, lambda
-    integer :: maxPlotZ = 9, numTermsToPlot
+    integer :: maxPlotZ = 9, numTermsToPlot, locE
     integer :: numPoints = 10
     logical :: replot
     type(multiplot) :: mplt
     type(zoaplot) :: zernplot
     type(c_ptr) :: canvas
+    type(zoaplot_setting_manager) :: psm
+    character(len=10) :: zernTxt
 
     character(len=5), allocatable :: zLegend(:)
 
@@ -1439,32 +1443,22 @@ subroutine PLTZERN
     INCLUDE 'DATMAI.INC'
     ! Max 3 terms.  Terms 1 and 2 are min and max zernikes
     ! Term 3 is the wavelength.  
+
+    PRINT *, "INPUT is ", INPUT
+   call updateTerminalLog(INPUT, "blue")
+
+    call psm%initialize(trim(INPUT))
+    lambda = psm%addWavelengthSetting()
+    zernTxt = psm%addZernikeSetting("5..9")
+    numPoints = psm%addDensitySetting(10,8,21)
+    PRINT *, "zernTxt is ", zernTxt
+    inputCmd = trim(psm%sp%getCommand())      
+
+    ! TODO:  Need zernike parser to get minZ and maxZ
+    locE = index(zernTxt, '..')
+    minZ = str2int(zernTxt(1:locE-1))
+    maxZ = str2int(zernTxt(locE+2:len(zernTxt)))
  
-    if (.not.checkCommandInput([ID_CMD_NUM], max_num_terms=3)) then
-      call MACFAL
-      return
-    end if
-
-    ! Defaults
-    minZ = 4
-    maxZ = minZ+maxPlotZ-1
-    lambda = sysConfig%refWavelengthIndex
-
-    select case(currInputData%maxNums)
-
-    case (1)
-      minZ = INT(currInputData%inputNums(1))
-    case (2)
-      minZ = INT(currInputData%inputNums(1))
-      maxZ = INT(currInputData%inputNums(2))
-    case (3)
-      minZ = INT(currInputData%inputNums(1))
-      maxZ = INT(currInputData%inputNums(2))
-      lambda = INT(currInputData%inputNums(3))
-    end select
-    PRINT *, "MinZ is ", minZ
-    PRINT *, "MaxZ is ", maxZ
-    PRINT *, "Wavelength idx is ", lambda
 
 
     
@@ -1504,12 +1498,10 @@ subroutine PLTZERN
     !call checkCommandInput(ID_CMD_ALPHA)
 
     call updateTerminalLog(INPUT, "blue")
-    inputCmd = "PLTZERN, "//trim(int2str(minZ))//','//trim(int2str(maxZ))//','//trim(int2str(lambda))
+    !inputCmd = "PLTZERN, "//trim(int2str(minZ))//','//trim(int2str(maxZ))//','//trim(int2str(lambda))
     !inputCmd = INPUT
 
-    if(cmdOptionExists('NUMPTS')) then
-    numPoints = INT(getCmdInputValue('NUMPTS'))
-    end if
+
 
     allocate(xdat(numPoints))
     allocate(ydat(numPoints,maxZ-minZ+1))
@@ -1587,18 +1579,11 @@ subroutine PLTZERN
      
       objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, &
       & "Zernike vs Field"//c_null_char, mplt)
-     
 
-    ! Add settings
-    zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Min Zernike Coefficient", &
-    & REAL(minZ), 1.0, 36.0, 1, "R1"//c_null_char)
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Max Zernike Coefficient", &
-    & REAL(maxZ), 2.0, 36.0, 1, "R2"//c_null_char)    
-    call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Wavelength", &
-    & REAL(sysConfig%refWavelengthIndex), 1.0, REAL(sysConfig%numWavelengths), 1, "R3"//c_null_char)    
-    !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+      ! Add settings
+      call psm%finalize(objIdx, trim(inputCmd))
 
+    
     ! Create Plot + settings tab
     call zoaTabMgr%finalizeNewPlotTab(objIdx)
 

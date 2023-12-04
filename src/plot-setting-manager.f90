@@ -14,16 +14,22 @@ module plot_setting_manager
     integer, parameter :: SETTING_WAVELENGTH = 1
     integer, parameter :: SETTING_FIELD = 2
     integer, parameter :: SETTING_DENSITY = 3
+    integer, parameter :: SETTING_ZERNIKE = 4
+
     integer, parameter :: UITYPE_SPINBUTTON = 1
+    integer, parameter :: UITYPE_ENTRY = 2
+
 
     type plot_setting
       integer ::  ID, uitype
       real :: min, max, default
       character(len=3) :: prefix !For command parsing
       character(len=80) :: label
+      character(len=10) :: defaultStr
 
       contains
        procedure, public, pass(self) :: initialize => init_setting
+       procedure, public, pass(self) :: initializeStr
          
 
 
@@ -39,6 +45,10 @@ module plot_setting_manager
     procedure, public, pass(self) :: addWavelengthSetting
     procedure, public, pass(self) :: addFieldSetting
     procedure, public, pass(self) :: addDensitySetting
+    procedure, public, pass(self) :: addZernikeSetting
+
+    !procedure, public, pass(self) :: addZernikeSetting
+
     procedure, public, pass(self) :: finalize
 
 
@@ -61,6 +71,23 @@ contains
         self%prefix = prefix
 
     end subroutine
+
+    subroutine initializeStr(self, ID_SETTING, label, default, prefix, ID_UITYPE)
+        class (plot_setting) :: self
+        integer :: ID_SETTING, ID_UITYPE
+        character(len=*) :: label, default, prefix
+  
+        self%ID = ID_SETTING
+        self%uitype = ID_UITYPE
+        self%label = label
+        self%default = 0.0
+        self%defaultStr = default
+        self%min = -1
+        self%max = -1
+        self%prefix = prefix
+
+    end subroutine
+    
     subroutine init_plotSettingManager(self, strCmd)
         use plotSettingParser
         use command_utils, only:  parseCommandIntoTokens
@@ -115,6 +142,21 @@ contains
 
       
       end function 
+
+      function addZernikeSetting(self, defVal) result(val)
+        use global_widgets, only: sysConfig
+        implicit none
+        class(zoaplot_setting_manager), intent(inout) :: self
+        character(len=*) :: defVal
+        character(len=10) :: val
+
+        val = self%sp%checkForStrToken('c', defVal)
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initializeStr(SETTING_ZERNIKE, & 
+        & "Zernike Coefficients", val, 'c', UITYPE_ENTRY)
+
+      
+      end function       
      
 
       function addDensitySetting(self, defaultVal, minVal, maxVal) result(val)
@@ -146,12 +188,16 @@ contains
         select case (self%ps(i)%uitype)
 
         case(UITYPE_SPINBUTTON)
-        call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_2( & 
+        call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
         & self%ps(i)%label, self%ps(i)%default, self%ps(i)%min, self%ps(i)%max, 1, &
         & trim(self%ps(i)%prefix))
         !"Number of Field Points", &
         !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
         !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+
+        case(UITYPE_ENTRY)
+        call zoaTabMgr%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
+        & self%ps(i)%label, self%ps(i)%defaultStr, trim(self%ps(i)%prefix))   
 
         end select 
         end do
