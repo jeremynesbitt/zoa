@@ -132,8 +132,8 @@ module seidel_calcs
             if (allocated(curr_par_ray_trace%CXSeidel)) deallocate(curr_par_ray_trace%CXSeidel)
             
 
-            allocate(curr_par_ray_trace%CSeidel(7, curr_lens_data%num_surfaces+1))
-            allocate(curr_par_ray_trace%CXSeidel(7,curr_lens_data%num_surfaces+1))
+            allocate(curr_par_ray_trace%CSeidel(7, 0:curr_lens_data%num_surfaces))
+            allocate(curr_par_ray_trace%CXSeidel(7,0:curr_lens_data%num_surfaces))
 
             ! Eventuall move MAB3 calc to this method
             curr_par_ray_trace%CSeidel(1:5,0:curr_lens_data%num_surfaces-1)=MAB3(1:5,0:curr_lens_data%num_surfaces-1)

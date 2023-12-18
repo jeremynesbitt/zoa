@@ -370,7 +370,8 @@ end subroutine lens_editor_replot
 
   subroutine lens_edited(renderer, path, text, gdata) bind(c)
 
-    use glass_manager
+    use glass_manager, only: parseModelGlassEntry, findCatalogNameFromGlassName
+    use kdp_utils, only: real2str
     !type(c_ptr), value, intent(in) :: list, gdata
 
     type(c_ptr), value :: renderer, path, text, gdata
@@ -405,6 +406,8 @@ end subroutine lens_editor_replot
     real(kind=c_double) :: dval
     type(gvalue), target :: svalue
     type(c_ptr) :: val_ptr
+    real*8 :: nd, vd
+    
 
 
     PRINT *, "CALLING LENS EDITED PROC!"
@@ -449,6 +452,17 @@ end subroutine lens_editor_replot
         call PROCESKDP("TH "//trim(ftext))
         call PROCESKDP('EOS')
       case (ID_COL_GLASS)
+        if (len(trim(ftext)).EQ.8.AND.ftext(5:5).EQ.'.') then
+          PRINT *, "Model Glass Entered!"
+          call parseModelGlassEntry(trim(ftext), nd, vd)
+          print *, "nd is ", real2str(nd)
+          print *, "vd is ", vd
+          call PROCESKDP('U L')
+          WRITE(kdptext, *) 'CHG ' ,irow
+          call PROCESKDP(kdptext)
+          call PROCESKDP('MODEL D'//trim(ftext)//','//real2str(nd)//','//real2str(vd))
+          call PROCESKDP('EOS')
+        else
         call findCatalogNameFromGlassName(ftext, catalogName)
         PRINT *, "Glass entry request is ", ftext
         call PROCESKDP('U L')
@@ -456,6 +470,7 @@ end subroutine lens_editor_replot
         call PROCESKDP(kdptext)
         call PROCESKDP(catalogName//' '//ftext)
         call PROCESKDP('EOS')
+        end if
 
 
 

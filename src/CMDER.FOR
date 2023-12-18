@@ -5,7 +5,7 @@ C SUB CMDER.FOR
         use handlers
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
-     2 PLTOPD, PLTIMTST
+     2 PLTOPD, PLTIMTST, NEWLENS
 C
         IMPLICIT NONE
 
@@ -455,7 +455,11 @@ C       PART DRAWINGS
         IF(WC.EQ.'PLTIMTST') THEN
                 CALL PLTIMTST
                 return
-              END IF        
+              END IF     
+        IF(WC.EQ.'NEWLENS') THEN
+        CALL NEWLENS
+        return
+        END IF                    
         IF(WC.EQ.'PLTOPD') THEN
                 CALL PLTOPD
                 return

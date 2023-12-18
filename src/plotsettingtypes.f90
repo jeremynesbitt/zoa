@@ -94,8 +94,13 @@ contains
 subroutine initialize(self, tokens)
   class(setting_parser), intent(inout) :: self
   character(len=*), dimension(:) :: tokens
+  integer :: i
 
-  self%tokens = tokens
+
+  do i=1,size(tokens)
+
+    self%tokens(i) = tokens(i)
+  end do
   self%numTokens = size(tokens)
   PRINT *, "numTokens is ", self%numTokens
   PRINT *, "len of tkens is  ", len(tokens)

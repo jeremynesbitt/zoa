@@ -4181,6 +4181,8 @@ C TODO:  Pass MACCW etc around somehow vs a global
          INCLUDE 'DATMAC.INC'
          INCLUDE 'DATMAI.INC'
 
+        L = 1 
+
         inquire(iolength=rec30) MACCW(L),MACQW(L),MACSTR(L),MACNW(1,L),
      1  MACNW(2,L),MACNW(3,L),MACNW(4,L),MACNW(5,L),MACSTA(1,L),
      2  MACSTA(2,L),MACSTA(3,L),MACSTA(4,L),MACSTA(5,L),MACSTA(6,L),

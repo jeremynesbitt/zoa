@@ -131,6 +131,7 @@ contains
     character(len=10), target :: macroCmd = "MACROUI"
     character(len=10), target :: zernFldCmd = "PLTZERN"
     character(len=10), target :: opdPltCmd = "PLTOPD"    
+    character(len=10), target :: newLensCmd = "NEWLENS"    
 
 
 
@@ -148,6 +149,8 @@ contains
     menu_wavefront = g_menu_new()
 
     call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
+    call addCommandMenuItem(menu, "New Lens", &
+    & "NewLens", newLensCmd, win)    
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
     call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
     call g_menu_append_submenu (menubar, "Macro"//c_null_char, menu_macro)
@@ -157,6 +160,8 @@ contains
     !call g_signal_connect (act_macrooperations, "activate"//c_null_char, c_funloc(zoa_macrooperationsUI), win)
 
     !menu_item_macrooperations = g_menu_item_new ("Macro Operations"//c_null_char, "win.MacroOperations"//c_null_char)
+
+
 
     call addCommandMenuItem(menu_macro, "Macro Operations", &
     & "MacroOperations", macroCmd, win)

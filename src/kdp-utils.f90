@@ -27,6 +27,30 @@ module kdp_utils
 
   end subroutine
 
+  function real2str(val) result(strOut)
+    real*8 :: val
+    character(len=23) :: strOut
+
+    write(strOut, '(D23.15)') val
+
+  end function
+
+  function str2real8(strIpt) result(val)
+    use iso_fortran_env, only: real64
+    character(len=*) :: strIpt
+    real(kind=real64) :: val
+    character(len=23) :: strR
+
+    PRINT *, "strIpt is ", strIpt
+
+    write(strR, *) strIpt
+    strR = adjustl(strR)
+    PRINT *, "strR is ", strR
+    read(strR, '(D23.15)') val
+    PRINT *, "Output val is ", val
+
+  end function
+
   function str2int(strIpt) result(val)
     integer :: val
     character(len=*) :: strIpt
@@ -262,8 +286,8 @@ module kdp_utils
         end if
             
         do j=1,size(colHeaders)
-            write(entryStr, '(F12.5)') dataArray(j,i)
-            if (dataArray(j,i) > 0.0) then
+            write(entryStr, '(F12.5)') dataArray(j,i+1) ! Surface starts at 0, passed array starts at 1?
+            if (dataArray(j,i+1) > 0.0) then
               !lineStr = trim(lineStr)//'    '//trim(entryStr)
               lineStr = trim(lineStr)//blankStr(6)//trim(entryStr)
             else

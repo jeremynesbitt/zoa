@@ -43,6 +43,25 @@ contains
 
  end function
 
+ subroutine parseModelGlassEntry(modelGlass, nd, vd)
+  use kdp_utils, only: str2int
+  character(len=*) :: modelGlass
+  real*8, intent(inout) :: nd, vd
+  character(len=3) :: nStr, vStr
+  
+  
+  ! Format is:  MXYZ.ABC
+  ! XYZ is index = 1
+  ! ABC is abbe number *10
+  nStr = modelGlass(2:5)
+  vStr = modelGlass(6:8)
+
+  nd = 1+ REAL(str2int(nStr))/1000.0
+  vd = REAL(str2int(vStr))/10.0
+
+
+ end subroutine
+
  subroutine findCatalogNameFromGlassName(glassName, catalogName)
       implicit none
       type(glassdb) :: gdb

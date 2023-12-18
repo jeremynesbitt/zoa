@@ -308,6 +308,68 @@ subroutine SPR
 
 end subroutine
 
+subroutine newLens 
+  use gtk_hl_dialog
+  use handlers, only: zoatabMgr, updateTerminalLog
+
+  implicit none  
+
+
+  integer :: resp
+  character(len=80), dimension(3) :: msg
+
+  ! Step 1:  Ask user if they are sure
+
+  msg(1) ="You are about to start a new lens system"
+  msg(2) = "Are you sure?"
+  msg(3) = "Press Cancel to abort."   
+
+  resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK_CANCEL, &
+       & "Warning"//c_null_char)
+  if (resp == GTK_RESPONSE_OK) then
+    ! Ask user if they want to save current lens
+    msg(1) = "Do you want to save current lens?"
+    msg(2) = "Yes to add to lens database"
+    msg(3) = "No to throw away"
+    resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+    & "Warning"//c_null_char)    
+    if (resp == GTK_RESPONSE_YES) then    
+      ! Add to database
+      call PROCESKDP('LIB PUT')
+    end if
+
+      ! Final question!  Ask the user if they want to close current tabs
+      call zoatabMgr%closeAllTabs("dummy text at present")
+
+      ! Finally at the new lens process.  
+
+
+      call PROCESKDP('LENS')
+      call PROCESKDP('WV, 0.635')
+      call PROCESKDP('UNITS MM')
+      call PROCESKDP('SAY, 10.0')
+      call PROCESKDP('CV, 0.0')
+      call PROCESKDP('TH, 0.10E+21')
+      call PROCESKDP('AIR')
+      call PROCESKDP('CV, 0.0')
+      call PROCESKDP('TH, 10.0')
+      call PROCESKDP('REFS')
+      call PROCESKDP('ASTOP')
+      call PROCESKDP('AIR')
+      call PROCESKDP('CV, 0.0')
+      call PROCESKDP('TH, 1.0')
+      call PROCESKDP('EOS')    
+
+else 
+  ! If user aborted, log it
+  call updateTerminalLog("New Lens Process Cancelled", "black")
+end if
+
+
+
+
+end subroutine
+
 subroutine FIR
   use GLOBALS
   use parax_calcs
