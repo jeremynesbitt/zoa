@@ -879,46 +879,17 @@ C       USE WINTERACTER
         use kdp_interfaces
        IMPLICIT NONE
        LOGICAL FIRST
-       INTEGER NCOL256,ID,IDRAW1,ISKEY,INFO,IWX,IWY,IX,IY
+       INTEGER ISKEY
        INTEGER NEUTTOTAL
-       !INCLUDE 'DATHGR.INC'
-       !INCLUDE 'DATMAI.INC'
-      !INCLUDE 'RESOURCE.INC'
-       !COMMON/DRAWI1/IDRAW1
-       !TYPE(WIN_STYLE) DRW
-C     GET LOCATION AND SIZE OF CURRENT WINDOW
-C      IWX=WInfoWindow(1)
-C      IWY=WInfoWindow(2)
-C      IX=WInfoWindow(5)
-C      IY=WInfoWindow(6)
-       !DRW%FLAGS = SysMenuOn + MinButton + MaxButton
-       !DRW%X      = IX+50
-       !DRW%Y      = IY-50
-       !DRW%WIDTH  = IWX*.75
-       !DRW%HEIGHT = IWX*.525
-       !DRW%TITLE  ='Graphics Display Window'
-       !DRW%MENUID = IDM_GRAPHICWINDOW
+
        FIRST=.TRUE.
        ISKEY=-999
        READ(NEUTARRAY(1),1000) NEUTTOTAL
  1000  FORMAT(I9,32X)
        IF(NEUTTOTAL.EQ.0) GO TO 10
-C     INITIALIZE SCREEN
-C     IDRAW1 IS THE WINDOW HANDLE
-C     DRW IS THE STRUCTURE WHICH PASSES CHILD WINDOW CHARACTERISTICS
-C     TO THE WINDOW
-C      CALL WindowOpenChild(DRW,IDRAW1)
-C      CALL IGRPALETTERGB(223,0,0,0)
-C      CALL IGRPALETTERGB(0,255,255,255)
-C      CALL IGrColourN(223)
-      !OUTLYNE = "CALL DRAW ROUTINE"
-      !CALL SHOWIT(99)
-      !CALL DRAW(1,FIRST,ISKEY)
-      !PRINT *, "ABOUT TO CALL WDRAWOPTICAL SYSTEM FROM RUN_WDRAW"
-      !PRINT *, "BEFORE my_window is ", my_window
+
       call WDRAWOPTICALSYSTEM
-C      CALL WindowCloseChild(IDRAW1)
-C      CALL WindowSelect(1)
+
  10   CONTINUE
                         RETURN
                         END
