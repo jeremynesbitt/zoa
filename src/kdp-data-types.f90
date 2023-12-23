@@ -17,6 +17,11 @@ module kdp_data_types
      integer, PARAMETER :: FIELD_REAL_IMAGE_HEIGHT = 206
      integer, PARAMETER :: FIELD_REAL_IMAGE_HEIGHT_DEG = 207
 
+     integer, parameter :: RAYAIM_PARAX = 303
+     integer, parameter :: RAYAIM_REAL = 304
+     integer, parameter :: RAYAIM_APLANATIC = 305
+     integer, PARAMETER :: RAYAIM_TELE = 306   
+
      integer, parameter :: LENS_UNITS_INCHES = 1
      integer, parameter :: LENS_UNITS_CM = 2
      integer, parameter :: LENS_UNITS_MM = 3
@@ -41,10 +46,11 @@ type sys_config
 
     integer :: imgSurface
     character(len=40) :: currApertureName
-    integer :: currApertureID, currFieldID, currLensUnitsID
+    integer :: currApertureID, currFieldID, currLensUnitsID, currRayAimID
     type(idText), allocatable :: aperOptions(:)
     type(idText), allocatable :: refFieldOptions(:)
     type(idText), allocatable :: lensUnits(:)
+    type(idText), allocatable :: rayAimOptions(:)
     real, dimension(2) :: refFieldValue
     real, dimension(2,10) :: relativeFields
     integer :: numFields, numWavelengths
@@ -69,9 +75,11 @@ type sys_config
     !procedure, public, pass(self) :: getPossibleApertueSettings
     !procedure, public, pass(self) :: getCurrentApertueSetting
     procedure, public, pass(self) :: getApertureFromSystemArr
+    procedure, public, pass(self) :: getRayAimFromSystemArr
     procedure, public, pass(self) :: getFieldRefFromSystemArr
     procedure, public, pass(self) :: updateParameters
     procedure, public, pass(self) :: updateApertureSelectionByCode
+    procedure, public, pass(self) :: updateRayAimSelectionByCode
     procedure, public, pass(self) :: setNumFields
     procedure, public, pass(self) :: setRefWavelengthIndex
     procedure, public, pass(self) :: setWavelengths
@@ -359,6 +367,7 @@ end function
      allocate(idText :: self%aperOptions(3))
      allocate(idText :: self%refFieldOptions(3))
      allocate(idText :: self%lensUnits(4))
+     allocate(idText :: self%rayAimOptions(4))
 
      self%aperOptions(1)%text = "Entrance Pupil Diameter"
      self%aperOptions(1)%id = APER_ENTR_PUPIL_DIAMETER
@@ -368,6 +377,19 @@ end function
 
      self%aperOptions(3)%text = "Stop Surface Aperture"
      self%aperOptions(3)%id = APER_STOP_SURFACE
+
+     self%rayAimOptions(1)%text = "Paraxial Only"
+     self%rayAimOptions(1)%id = RAYAIM_PARAX
+
+     self%rayAimOptions(2)%text = "Real, Aplanatic Off (Default)"
+     self%rayAimOptions(2)%id = RAYAIM_REAL
+
+     self%rayAimOptions(3)%text = "Real, Aplanatic On"
+     self%rayAimOptions(3)%id = RAYAIM_APLANATIC
+
+     self%rayAimOptions(4)%text = "Telecentric"
+     self%rayAimOptions(4)%id = RAYAIM_TELE     
+
 
      self%refFieldOptions(1)%text = "Object Height"
      self%refFieldOptions(1)%id = FIELD_OBJECT_HEIGHT
@@ -464,8 +486,10 @@ type(io_config) function io_config_constructor() result(self)
 
      end select
 
-    !TODO:  Split into separate proc?
-     call self%getFieldRefFromSystemArr()
+    
+
+    !  call self%getFieldRefFromSystemArr()
+
 
 
      select case (self%currFieldID)
@@ -551,6 +575,36 @@ type(io_config) function io_config_constructor() result(self)
 
      end select ! Reference Field
 
+
+   end subroutine
+
+   subroutine getRayAimFromSystemArr(self)
+    class(sys_config), intent(inout) :: self
+    include "DATLEN.INC"
+
+    ! Aplanatic on 
+    !SYSTEM(70)=1.0D0
+    !SYSTEM(62)=0.0D0
+    !SYSTEM(63)=0.0D0
+
+    !FROM LDM1.FOR
+
+    !SET  RAY AIMING ON
+    !SYSTEM(62)=1.0D0
+    !SET TEL OFF
+    !SYSTEM(63)=0.0D0
+    !SET AIMAPL OFF
+    !SYSTEM(70)=0.0D0
+
+    if (SYSTEM(70).EQ.1.AND.SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.0) then
+      self%currRayAimID = RAYAIM_APLANATIC
+    else if (SYSTEM(62).EQ.1.AND.SYSTEM(63).EQ.0.AND.SYSTEM(70).EQ.0) then
+      self%currRayAimID = RAYAIM_REAL
+    else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.0.AND.SYSTEM(70).EQ.0) then
+      self%currRayAimID = RAYAIM_PARAX
+    else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.1.AND.SYSTEM(70).EQ.0) then
+      self%currRayAimID = RAYAIM_TELE
+    end if
 
    end subroutine
 
@@ -825,6 +879,45 @@ type(io_config) function io_config_constructor() result(self)
 
 
    end subroutine
+
+   subroutine updateRayAimSelectionByCode(self, ID_SELECTION)
+    class(sys_config), intent(inout) :: self
+    integer, intent(in) :: ID_SELECTION
+    include "DATLEN.INC"
+
+    select case (ID_SELECTION)
+
+    ! !FROM LDM1.FOR
+
+    ! !SET  RAY AIMING ON
+    ! !SYSTEM(62)=1.0D0
+    ! !SET TEL OFF
+    ! !SYSTEM(63)=0.0D0
+    ! !SET AIMAPL OFF
+    ! !SYSTEM(70)=0.0D0
+
+     case (RAYAIM_PARAX)
+       SYSTEM(62) = 0.0D0
+       SYSTEM(63) = 0.0D0
+       SYSTEM(70) = 0.0D0
+     case (RAYAIM_REAL)
+      SYSTEM(62) = 1.0D0
+      SYSTEM(63) = 0.0D0
+      SYSTEM(70) = 0.0D0      
+    case (RAYAIM_APLANATIC)
+      SYSTEM(62) = 0.0D0
+      SYSTEM(63) = 0.0D0
+      SYSTEM(70) = 1.0D0      
+     case (RAYAIM_TELE)
+      SYSTEM(62) = 0.0D0
+      SYSTEM(63) = 1.0D0
+      SYSTEM(70) = 0.0D0 
+     end select    
+
+     self%currRayAimID = ID_SELECTION
+
+   end subroutine
+
 
    function getFieldText(self) result(fldText)
      implicit none

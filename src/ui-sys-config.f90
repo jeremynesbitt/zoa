@@ -56,6 +56,17 @@ contains
   procedure, public, pass(self) :: createWavelengthSelectionTable
 
 end type
+
+type, extends(zoa_settings_obj) :: ui_rayaim_settings
+
+  type(c_ptr) :: rayAimType
+  !integer :: idxBoolXYSame
+
+contains
+  procedure, public, pass(self) :: createUI => createRayAimSettingsUI
+  procedure, public, pass(self) :: updateSettings => updateRayAimSettingsUI
+
+end type
 ! interface ui_field_settings
 !   module procedure :: ui_field_settings_constructor
 ! end interface
@@ -73,6 +84,7 @@ end type
   type(ui_aperture_settings) :: uiApertureSettings
   type(ui_field_settings) :: uiFieldSettings
   type(ui_wavelength_settings) :: uiWavelengthSettings
+  type(ui_rayaim_settings) :: uiRayAimSettings
 
 
   integer, parameter :: ID_SYSCON_APERTURE = 7040
@@ -83,6 +95,7 @@ end type
   integer, parameter :: ID_SYSCON_WAVELENGTH_REF = 8002
   integer, parameter :: ID_SYSCON_Y_APERTURE = 7050
   integer, parameter :: ID_SYSCON_X_APERTURE = 7051
+  integer, parameter :: ID_SYSCON_RAYAIM = 7052
 
 
   type(c_ptr) :: spinButton_xAperture, spinButton_yAperture
@@ -157,6 +170,21 @@ contains
 
   end subroutine
 
+  subroutine createRayAimSettingsUI(self)
+    class(ui_rayaim_settings) :: self
+
+    integer, target :: TARGET_RAYAIM = ID_SYSCON_RAYAIM
+ 
+
+    call self%addListBoxTextID("Ray Aiming Method ",  &
+    & sysConfig%rayAimOptions, c_funloc(callback_sys_config_settings), &
+    & c_loc(TARGET_RAYAIM))
+
+    ! TODO:  Find a better way of doing this (too risky if parent changes)
+    self%rayAimType = self%getWidget(self%numSettings)
+
+  end subroutine
+
   subroutine updateApertureSettingsUI(self)
     use hl_gtk_zoa
     class(ui_aperture_settings) :: self
@@ -166,6 +194,15 @@ contains
 
 
   end subroutine
+
+  subroutine updateRayAimSettingsUI(self)
+    use hl_gtk_zoa
+    class(ui_rayaim_settings) :: self
+
+    !call hl_zoa_combo_set_selected_by_list2_id(self%apertureType, sysConfig%currApertureID)
+    call hl_zoa_combo_set_selected_by_list2_id(self%getWidget(1), sysConfig%currRayAimID)
+
+  end subroutine  
 
 !type(ui_field_settings)  function ui_field_settings_constructor() result(self)
 
@@ -445,6 +482,8 @@ end function
 
   end subroutine
 
+
+
 subroutine buildApertureSettings(boxAperture)
   type(c_ptr), intent(inout) :: boxAperture
 
@@ -523,7 +562,7 @@ subroutine sys_config_new(parent_window)
   type(c_ptr)  :: boxAperture, lblAperture
 
   type(c_ptr)  :: table, expander, box1, nbk, basicLabel, boxAsphere
-  type(c_ptr)  :: AsphLabel, expanderField, expanderWavelength
+  type(c_ptr)  :: AsphLabel, expanderField, expanderWavelength, expanderRayAim
 
 
 
@@ -573,6 +612,11 @@ subroutine sys_config_new(parent_window)
     expanderWavelength = uiWavelengthSettings%build()
     call uiWavelengthSettings%updateSettings()
 
+    call uiRayAimSettings%initialize(numListColumns=1, winWidth=width, name="_Ray Aiming:")
+    call uiRayAimSettings%createUI()
+    expanderRayAim = uiRayAimSettings%build()
+    call uiRayAimSettings%updateSettings()    
+
 
 
 
@@ -583,6 +627,7 @@ subroutine sys_config_new(parent_window)
     call gtk_box_append(box1, expander)
     call gtk_box_append(box1, expanderField)
     call gtk_box_append(box1, expanderWavelength)
+    call gtk_box_append(box1, expanderRayAim)
     call gtk_window_set_child(sys_config_window, box1)
 
   ! call sysconfigwindow%finalizeWindow()
@@ -657,6 +702,12 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
   !call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
   !call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
 
+  case (ID_SYSCON_RAYAIM)
+      int_value = hl_zoa_combo_get_selected_list2_id(widget)
+      if (int_value.NE.sysConfig%currRayAimID) THEN
+         call sysConfig%updateRayAimSelectionByCode(int_value)
+       end if         
+
 case (ID_SYSCON_Y_APERTURE)
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
     if (xySame.EQ.1) then
@@ -668,6 +719,7 @@ case (ID_SYSCON_Y_APERTURE)
       xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
       call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
     end if
+
 
 case (ID_SYSCON_X_APERTURE)
     xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
