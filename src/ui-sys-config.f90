@@ -735,7 +735,10 @@ case (ID_SYSCON_X_APERTURE)
 
   case (ID_SYSCON_FIELDTYPE)
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
-    PRINT *, "Field Type Selection for ", int_value
+    if (int_value.NE.sysConfig%currFieldID) THEN
+       call sysConfig%updateFieldSelectionByCode(int_value)
+    end if
+
 
   case (ID_SYSCON_FIELD_NUM)
        call sysConfig%setNumFields(INT(gtk_spin_button_get_value (spinButton_numFields)))

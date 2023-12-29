@@ -80,6 +80,7 @@ type sys_config
     procedure, public, pass(self) :: updateParameters
     procedure, public, pass(self) :: updateApertureSelectionByCode
     procedure, public, pass(self) :: updateRayAimSelectionByCode
+    procedure, public, pass(self) :: updateFieldSelectionByCode
     procedure, public, pass(self) :: setNumFields
     procedure, public, pass(self) :: setRefWavelengthIndex
     procedure, public, pass(self) :: setWavelengths
@@ -877,6 +878,67 @@ type(io_config) function io_config_constructor() result(self)
      ! Make sure we have the up to date values
      call self%updateParameters()
 
+
+   end subroutine
+
+   subroutine updateFieldSelectionByCode(self, ID_SELECTION)
+    class(sys_config), intent(inout) :: self
+    integer, intent(in) :: ID_SELECTION
+    include "DATLEN.INC"
+
+    select case (ID_SELECTION)
+    case (FIELD_OBJECT_HEIGHT)
+
+      SYSTEM(16) = self%refFieldValue(1)
+      SYSTEM(14) = self%refFieldValue(2) 
+      SYSTEM(92:93) = 0.0D0
+      SYSTEM(96:97) = 0.0D0
+      SYSTEM(21) = 0.0D0
+      SYSTEM(23) = 0.0D0
+    case (FIELD_OBJECT_ANGLE_DEG)
+
+      SYSTEM(23) = self%refFieldValue(1) 
+      SYSTEM(21) = self%refFieldValue(2) 
+      SYSTEM(14) = 0.0D0
+      SYSTEM(16) = 0.0D0
+      SYSTEM(92:93) = 0.0D0
+      SYSTEM(96:97) = 0.0D0      
+
+    case (FIELD_PARAX_IMAGE_HEIGHT)
+      SYSTEM(92) = self%refFieldValue(1)  
+      SYSTEM(93) = self%refFieldValue(2)      
+      SYSTEM(14) = 0.0D0
+      SYSTEM(16) = 0.0D0
+      SYSTEM(21) = 0.0D0
+      SYSTEM(23) = 0.0D0      
+      SYSTEM(96:97) = 0.0D0  
+
+    case (FIELD_PARAX_IMAGE_SLOPE_TAN)
+      SYSTEM(92) = self%refFieldValue(1) 
+      SYSTEM(93) = self%refFieldValue(2)
+      SYSTEM(14) = 0.0D0
+      SYSTEM(16) = 0.0D0
+      SYSTEM(21) = 0.0D0
+      SYSTEM(23) = 0.0D0    
+      SYSTEM(96:97) = 0.0D0  
+
+    case (FIELD_REAL_IMAGE_HEIGHT)
+      SYSTEM(96) = self%refFieldValue(1) 
+      SYSTEM(97) =  self%refFieldValue(2) 
+      SYSTEM(14) = 0.0D0
+      SYSTEM(16) = 0.0D0
+      SYSTEM(21) = 0.0D0
+      SYSTEM(23) = 0.0D0    
+      SYSTEM(92:93) = 0.0D0    
+    case (FIELD_REAL_IMAGE_HEIGHT_DEG)
+      SYSTEM(96) = self%refFieldValue(1) 
+      SYSTEM(97) = self%refFieldValue(2) 
+      SYSTEM(14) = 0.0D0
+      SYSTEM(16) = 0.0D0
+      SYSTEM(21) = 0.0D0
+      SYSTEM(23) = 0.0D0    
+      SYSTEM(92:93) = 0.0D0  
+    end select 
 
    end subroutine
 
