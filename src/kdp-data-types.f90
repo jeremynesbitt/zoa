@@ -489,7 +489,7 @@ type(io_config) function io_config_constructor() result(self)
 
     
 
-    !  call self%getFieldRefFromSystemArr()
+    call self%getFieldRefFromSystemArr()
 
 
 
@@ -891,27 +891,34 @@ type(io_config) function io_config_constructor() result(self)
 
       SYSTEM(16) = self%refFieldValue(1)
       SYSTEM(14) = self%refFieldValue(2) 
-      SYSTEM(92:93) = 0.0D0
-      SYSTEM(96:97) = 0.0D0
-      SYSTEM(21) = 0.0D0
-      SYSTEM(23) = 0.0D0
+      SYSTEM(60)=1.0D0
+      SYSTEM(61)=1.0D0
+      SYSTEM(18)=0.0D0
+      SYSTEM(94)=0.0D0
+      SYSTEM(95)=0.0D0
+      SYSTEM(98)=0.0D0
+      SYSTEM(99)=0.0D0
     case (FIELD_OBJECT_ANGLE_DEG)
 
       SYSTEM(23) = self%refFieldValue(1) 
       SYSTEM(21) = self%refFieldValue(2) 
-      SYSTEM(14) = 0.0D0
-      SYSTEM(16) = 0.0D0
-      SYSTEM(92:93) = 0.0D0
-      SYSTEM(96:97) = 0.0D0      
+      SYSTEM(60)=1.0D0
+      SYSTEM(61)=1.0D0
+      SYSTEM(18)=1.0D0
+      SYSTEM(94)=0.0D0
+      SYSTEM(95)=0.0D0
+      SYSTEM(98)=0.0D0
+      SYSTEM(99)=0.0D0      
 
     case (FIELD_PARAX_IMAGE_HEIGHT)
       SYSTEM(92) = self%refFieldValue(1)  
       SYSTEM(93) = self%refFieldValue(2)      
-      SYSTEM(14) = 0.0D0
-      SYSTEM(16) = 0.0D0
-      SYSTEM(21) = 0.0D0
-      SYSTEM(23) = 0.0D0      
-      SYSTEM(96:97) = 0.0D0  
+      SYSTEM(60)=0.0D0
+      SYSTEM(61)=0.0D0
+      SYSTEM(94)=-1.0D0
+      SYSTEM(95)=-1.0D0
+      SYSTEM(98)=0.0D0
+      SYSTEM(99)=0.0D0
 
     case (FIELD_PARAX_IMAGE_SLOPE_TAN)
       SYSTEM(92) = self%refFieldValue(1) 
