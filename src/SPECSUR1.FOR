@@ -1028,6 +1028,7 @@ C       NOW CALL LNSEOS
                         F6=1
                         F22=0
                         LNSTYP=1
+                        PRINT *, "About to call LNSEOS from SPSEOS"
                         CALL LNSEOS
                         RETURN
                         END

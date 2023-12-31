@@ -1220,6 +1220,140 @@ end if
 
 end subroutine
 
+subroutine PLTFAN()
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: zoatabMgr, updateTerminalLog
+  use global_widgets, only:  sysConfig, curr_ray_fan_data
+  use zoa_ui
+  use zoa_plot
+  use gtk_draw_hl 
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use plot_setting_manager
+
+
+IMPLICIT NONE
+
+
+character(len=23) :: ffieldstr
+character(len=40) :: inputCmd
+CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
+integer :: ii, objIdx
+integer :: numPoints, lambda 
+logical :: replot
+type(c_ptr) :: canvas
+type(zoaplot) :: lineplot(4)
+type(multiplot) :: mplt
+character(len=100) :: strTitle(4)
+character(len=1) :: strAxis(4)
+
+REAL, allocatable :: x(:), y(:,:)
+type(zoaplot_setting_manager) :: psm
+
+INCLUDE 'DATMAI.INC'
+INCLUDE 'DATLEN.INC'
+
+
+  !call checkCommandInput(ID_CMD_ALPHA)
+
+  call updateTerminalLog(INPUT, "blue")
+
+  call psm%initialize(trim(INPUT))
+  numPoints = psm%addDensitySetting(11, 5, 50)
+  lambda = psm%addWavelengthSetting()
+  inputCmd = trim(psm%sp%getCommand())      
+
+
+PRINT *, "numPoints is ", numPoints
+
+allocate(x(numPoints))
+allocate(y(numPoints,4))
+
+! Create Titles
+strTitle(1) = "On Axis, X Error "
+strTitle(2) = "On Axis, Y Error "
+strTitle(3) = "Max Field, X Error "
+strTitle(4) = "Max Field, Y Error "
+
+strAxis(1) = 'X'
+strAxis(2) = 'Y'
+strAxis(3) = 'X'
+strAxis(4) = 'Y'
+
+write(ffieldstr, FMTFAN) lambda,',',numPoints
+
+print *, "ffieldstr is ", trim(ffieldstr)
+
+CALL PROCESKDP("FOB 0")
+CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
+x = curr_ray_fan_data%relAper
+y(1:numPoints,1) = curr_ray_fan_data%xyfan(1:numPoints,1)
+CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+y(1:numPoints,2) = curr_ray_fan_data%xyfan(1:numPoints,2)
+! FOB 1
+CALL PROCESKDP("FOB 1")
+CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
+y(1:numPoints,3) = curr_ray_fan_data%xyfan(1:numPoints,1)
+CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+y(1:numPoints,4) = curr_ray_fan_data%xyfan(1:numPoints,2)
+
+
+
+
+ canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+ & has_alpha=FALSE)
+
+
+ call mplt%initialize(canvas, 2,2)
+
+ do ii=1,4
+
+ call lineplot(ii)%initialize(c_null_ptr, x,y(:,ii), &
+ & xlabel='Relative '//strAxis(ii)//' Pupil Position'//c_null_char, & 
+ & ylabel=strAxis(ii)//' Error ['// &
+ & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
+ & title=trim(strTitle(ii))//c_null_char)
+ !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+ end do
+ 
+ call mplt%set(1,1,lineplot(1))
+ call mplt%set(1,2,lineplot(2))
+ call mplt%set(2,1,lineplot(3))
+ call mplt%set(2,2,lineplot(4))
+
+
+
+
+replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_FAN, objIdx)
+
+if (replot) then
+ PRINT *, "FAN REPLOT REQUESTED"
+ PRINT *, "Input Command was ", inputCmd
+ call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+ !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+
+ call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+
+else
+
+
+  !call mplt%draw()
+
+
+ objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_FAN, "Ray Aberration Fan"//c_null_char, mplt)
+
+ ! Add settings
+ call psm%finalize(objIdx, trim(inputCmd))
+
+ ! Create Plot + settings tab
+ call zoaTabMgr%finalizeNewPlotTab(objIdx)
+
+
+end if
+
+end subroutine
+
 !pseudocode for rms_field minimal effort
 ! One method that processes inputs and provides x,y data (possible?)
 ! RMSFIELD_XY

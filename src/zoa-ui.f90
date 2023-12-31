@@ -20,6 +20,8 @@ integer, parameter :: ID_PLOTTYPE_POWSYM     = 1014
 integer, parameter :: ID_PLOTTYPE_SEIDEL     = 1015
 integer, parameter :: ID_PLOTTYPE_PLT3DTST     = 1016
 integer, parameter :: ID_PLOTTYPE_OPD     = 1017
+integer, parameter :: ID_PLOTTYPE_FAN     = 1018
+
 
 
 

@@ -3432,6 +3432,7 @@ C
                        END
 C SUB FANS.FOR
         SUBROUTINE FANS
+        use global_widgets, only: curr_ray_fan_data        
 C
         IMPLICIT NONE
 C
@@ -4011,6 +4012,17 @@ C       QUALIFIER NOT LA
 C
 C       ********************
 C
+        ! Store ray fan data type
+        if (allocated(curr_ray_fan_data%relAper)) then
+           deallocate(curr_ray_fan_data%relAper)
+           deallocate(curr_ray_fan_data%xyfan)
+        end if
+
+        allocate(curr_ray_fan_data%relAper(INT(W4)))
+        allocate(curr_ray_fan_data%xyfan(INT(W4),2))
+
+
+
                 XI=LOWERL
         DO 100 IX=1,(INT(W4))
 C
@@ -4496,8 +4508,14 @@ C       NOT LA
                         END IF
 C
        ! Where Update is made for next iteration
-       PRINT *, "Delta is ", DELTA
+       !PRINT *, "Delta is ", DELTA
+        curr_ray_fan_data%relAper(IX) = XI
+        curr_ray_fan_data%xyfan(IX,1) = XXDIF
+        curr_ray_fan_data%xyfan(IX,2) = YYDIF
+
+
                 XI=LOWERL+(DBLE(IX)*DELTA)
+                
  100                    CONTINUE
 C
         IF(.NOT.RIM) FANEXT=.TRUE.

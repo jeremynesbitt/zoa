@@ -154,8 +154,15 @@ end type
 
 
 
+
 end type paraxial_ray_trace_data
 
+type :: ray_fan_data
+
+   real, allocatable :: relAper(:) 
+   real, allocatable :: xyfan(:,:)
+
+end type
 
 
 interface lens_data

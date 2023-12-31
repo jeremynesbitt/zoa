@@ -153,7 +153,8 @@ C
 C SUB CONTRO.FOR
         SUBROUTINE CONTRO
         use zoa_file_handler, only: getPermMacroDir
-        use global_widgets, only: lens_editor_window
+        use global_widgets, only: lens_editor_window, 
+     1 curr_asph_data, sysConfig
         use lens_editor, only: buildBasicTable, buildAsphereTable
         use handlers, only: zoatabMgr
         use iso_c_binding, only: c_associated        
@@ -4211,10 +4212,13 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       IF(WC.EQ.'EOS') YESEOS=.TRUE.
       IF(WC.NE.'EOS') YESEOS=.FALSE.
 C     CALL RE_DISPLAY_LENS(YESEOS)
+      call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
+      call sysConfig%updateParameters()
       if (c_associated(lens_editor_window)) then
         call buildBasicTable(.FALSE.)
         call buildAsphereTable(.FALSE.)
       end if   
+      PRINT *, "IN EOS in CONTRO"
       call zoatabMgr%replotifneeded()      
                RETURN
                END IF

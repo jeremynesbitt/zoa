@@ -5,7 +5,7 @@ C SUB CMDER.FOR
         use handlers
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
-     2 PLTOPD, PLTIMTST, NEWLENS
+     2 PLTOPD, PLTIMTST, NEWLENS, PLTFAN
 C
         IMPLICIT NONE
 
@@ -467,6 +467,10 @@ C       PART DRAWINGS
         IF(WC.EQ.'PLTSEI') THEN
           CALL plot_seidel
           RETURN
+        END IF
+        IF(WC.EQ.'FAN') THEN
+                CALL PLTFAN
+                RETURN
         END IF
         IF(WC.EQ.'MACROUI') THEN
                 CALL MACROUI

@@ -131,7 +131,8 @@ contains
     character(len=10), target :: macroCmd = "MACROUI"
     character(len=10), target :: zernFldCmd = "PLTZERN"
     character(len=10), target :: opdPltCmd = "PLTOPD"    
-    character(len=10), target :: newLensCmd = "NEWLENS"    
+    character(len=10), target :: newLensCmd = "NEWLENS" 
+    character(len=10), target :: fanCmd = "FAN"    
 
 
 
@@ -270,6 +271,9 @@ contains
 
     call addCommandMenuItem(menu_wavefront, "Optical Path Difference Plot", &
     & "OPDPlot", opdPltCmd, win)
+
+    call addCommandMenuItem(menu_wavefront, "Transverse Aberration Ray Fans", &
+    & "FANPlot", fanCmd, win)    
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 
