@@ -48,6 +48,8 @@ C
      1HZ2(:),HOESUR(:),HOE(:),HWL(:),HOR(:)
       ALLOCATABLE :: HWL,HV1,HV2,HX1,HY1,HZ1,HX2,HY2,
      1HZ2,HOESUR,HOE,HOR
+
+      integer :: dotLoc
 C
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATLEN.INC'
@@ -1041,10 +1043,14 @@ C
      1TEMPC(I)(1:1).EQ.'4'.OR.TEMPC(I)(1:1).EQ.'5'.OR.
      1TEMPC(I)(1:1).EQ.'6'.OR.TEMPC(I)(1:1).EQ.'7'.OR.
      1TEMPC(I)(1:1).EQ.'8'.OR.TEMPC(I)(1:1).EQ.'9') THEN
-      AINDEX='1.'//TEMPC(I)(1:6)
-      AVNUMB=TEMPC(I)(8:9)//'.'//TEMPC(I)(10:13)
-      GLASSA='MODEL G'//TEMPC(I)(1:3)//
-     1TEMPC(I)(8:10)//','//AINDEX//','//AVNUMB
+      PRINT *, "Found Model Glass!"
+      dotLoc = INDEX(TEMPC(I), '.')
+      AINDEX='1.'//TEMPC(I)(1:dotLoc-1)
+      AVNUMB=TEMPC(I)(dotLoc+1:dotLoc+2)//'.'//
+     1TEMPC(I)(dotLoc+3:dotLoc+3)
+      GLASSA='MODEL G'//TEMPC(I)(1:dotLoc+3)//
+     1','//AINDEX//','//AVNUMB
+      PRINT *, "GLASSA is ", GLASSA
       TEMPC(I)(1:1024)=BL1024(1:1024)
       GO TO 7777
                         END IF
