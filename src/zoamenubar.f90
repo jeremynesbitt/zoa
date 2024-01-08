@@ -306,6 +306,8 @@ contains
     !& "CV2PRG", c_funloc(ui_open_file), win)
 
     call addFuncMenuItem(menu_import, "CodeV .seq file", "ImpCodeV", c_funloc(import_codeV), win)
+    call addFuncMenuItem(menu_import, "Zemax .zmx file", "ImpZemax", c_funloc(import_zemax), win)
+
 
     !call addCommandMenuItem(menu_import, "CodeV .seq File", &
     !& "CV2PRG", cv2prg, win)
@@ -348,6 +350,32 @@ contains
     type(c_ptr), value, intent(in) :: act, avalue, win
 
     call PROCESKDP('EDIT')
+
+  end subroutine
+
+  subroutine import_zemax(act, avalue, win) bind(c)
+    use zoa_file_handler, only: getFileNameFromPath, getCodeVDir, setCodeVDir
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    character(len=500) :: existingCodeVDir
+    logical :: fileSelected
+
+
+    fileSelected = ui_open_file(win, fileName, cdir)
+
+    if (fileSelected) then
+
+     PRINT *, "fileName is ", trim(fileName)
+     PRINT *, "fileDirectory is is ", trim(cdir)
+
+     ! Set CodeV Dir
+     existingCodeVDir = getCodeVDir()
+     call setCodeVDir(trim(cdir))
+     CALL PROCESKDP('ZMX2PRG '//trim(getFileNameFromPath(trim(fileName))))
+     call setCodeVDir(trim(existingCodeVDir))
+    end if
+    ! Restore CodeVDir
 
   end subroutine
 

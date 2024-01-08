@@ -2,6 +2,8 @@
 C SUB ZMX2PRG.FOR
         SUBROUTINE ZMX2PRG
         USE GLOBALS        
+        use zoa_file_handler
+        use handlers, only: zoatabMgr        
 C
         IMPLICIT NONE
 C
@@ -15,6 +17,7 @@ C
 
       CHARACTER OUTLYNE2*1024
       character(len=6) :: readformat
+      character(len=1024) :: filePath
 C
       LOGICAL EXIS37,EXIS38,OPEN37,OPEN38,SEMI,ADD,OLDADD
 C
@@ -122,7 +125,11 @@ C
  10                             CONTINUE
       ZMXFILENAMELENGTH=N
       EXIS37=.FALSE.
-      INQUIRE(FILE=trim(basePath)//ZMXFILENAME(1:N),EXIST=EXIS37)
+      filePath = trim(getCodeVDir())//getFileSep()//
+     1 ZMXFILENAME(1:N)  
+
+      INQUIRE(FILE=trim(filePath),EXIST=EXIS37)     
+    
                IF(.NOT.EXIS37) THEN
       OUTLYNE='NO ZEMAX INPUT FILE EXISTS TO READ'
       CALL SHOWIT(1)
@@ -475,6 +482,8 @@ C     SET DEFAULT UNITS TO MM SINCE THAT IS HOW ZEMAX WAKES UP
                                 END IF
 C     NAME
       IF(TEMPC(I)(1:4).EQ.'NAME') THEN
+      ! Need to enter lens input level.  Put it here for now  
+        CALL PROCESKDP('LENS')         
                         SAVE_KDP(1)=SAVEINPT(1)
       INPUT='LI '//TEMPC(I)(5:80)
       CALL PROCES
@@ -482,6 +491,11 @@ C     NAME
       TEMPC(I)(1:1024)=BL1024(1:1024)
                                 GO TO 8888
                                 END IF
+      IF(INDEX(TEMPC(I),'NOTE 1').GT.0) THEN
+        INPUT = 'LIC '//TEMPC(I)(8:80)
+        CALL PROCES
+        GO TO 8888
+      END IF                          
 C     COMM
       IF(TEMPC(I)(1:4).EQ.'COMM') THEN
       INPUT='LBL'//TEMPC(I)(5:80)
@@ -912,9 +926,7 @@ C     STOP
                                 GO TO 8888
                                 END IF
 C     UNIT
-      IF(TEMPC(I)(1:4).EQ.'UNIT') THEN
-      ! Need to enter lens input level.  Put it here for now  
-      CALL PROCESKDP('LENS')  
+      IF(TEMPC(I)(1:4).EQ.'UNIT') THEN 
       TEMPC(I)(1:1024)=TEMPC(I)(5:1024)//'    '
                         DO IC=1,1024
       IF(TEMPC(I)(1:1).EQ.' ') THEN
