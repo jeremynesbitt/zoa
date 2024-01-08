@@ -6144,7 +6144,7 @@ C
 
       SUBROUTINE OPENGLASSFILE(filePath, fileID, TOTAL)
         character(len=*) :: filePath
-        integer :: TOTAL, fileID, rec11, rec15
+        integer :: TOTAL, fileID, rec11, rec15, tstUnit
         CHARACTER(len=13) :: NAME,NUMBER
         REAL*8 A0,A1,A2,A3,A4,A5
 
@@ -6153,6 +6153,9 @@ C
         inquire(iolength=rec11) TOTAL
         inquire(iolength=rec15) NAME,NUMBER,A0,A1,
      1  A2,A3,A4,A5
+
+        inquire(FILE=filePath, number=tstUnit)
+        if (tstUnit.EQ.fileID) close(fileID)    
 
         OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,
      1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')

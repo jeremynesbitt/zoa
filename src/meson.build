@@ -194,6 +194,7 @@ srcs += files(
   'WAVSPOT6.FOR',
   'WAVSPOT7.FOR',
   'WAVSPOT8.FOR',
+  'ZMX2PRG.FOR'
   )
 
 prog += files('zoamain.F90')
