@@ -3,6 +3,8 @@ C SUB ZMX2PRG.FOR
         SUBROUTINE ZMX2PRG
         USE GLOBALS        
         use zoa_file_handler
+        use kdp_data_types, only: RAYAIM_PARAX, RAYAIM_REAL
+        use global_widgets, only : sysConfig
         use handlers, only: zoatabMgr        
 C
         IMPLICIT NONE
@@ -32,8 +34,14 @@ C
       INTEGER J,K,L,NADD,II,IC,OLDNADD,STRINGEND,WDEXIS(1:100),M
 C
       INTEGER NJ,J1,J2,IVALV,IWD(1:100),SURFER,FLDTYP,IPAR, SUB
+
+      INTEGER :: RAIM(5)
+      
+      CHARACTER(len=1) :: IS(5)
 C
       REAL*8 CV,TH,VALV,WD(1:100),MAX,CL1,CL2,CL3,CL4,CL5
+
+      REAL*8 :: rayError
 C
       REAL*8 CO1,CO2,CO3,CO4,CO5,VPAR
       character(len=3) :: substr
@@ -525,6 +533,36 @@ C     ENPD
       TEMPC(I)(1:1024)=BL1024(1:1024)
                                 GO TO 8888
                                 END IF
+      IF(INDEX(TEMPC(I),'RAIM').GT.0) THEN
+        ! Parse Ray aiming.  Looks like the format is
+        ! REAL INT INT INT INT INT
+        ! For Zoa, only the first INT is of interest (I think)
+        ! 0 is no ray aiming, 1 is paraxial, 2 is real
+      PRINT *, "String to Parse is ", TEMPC(I)(6:80)  
+ 3023 FORMAT(E6.1,A1,I1,A1,I1,A1,I1,A1,I1,A1,I1)
+        READ(TEMPC(I)(6:80), 3023) rayError, IS(1), RAIM(1), IS(2), 
+     1 RAIM(2), IS(3), RAIM(3), IS(4), RAIM(4), IS(5), RAIM(5)   
+       PRINT *, "RayError is ", rayError
+       PRINT *, "IS is ", IS
+       PRINT *, "RAIM(1) is ", RAIM(1)
+       PRINT *, "RAIM is ", RAIM
+
+       select case (RAIM(1))
+
+       case (0) ! Ray Aim off
+
+       case (1) ! Paraxial
+        PRINT *, "Paraxial Ray Aiming Set"
+        call sysConfig%updateRayAimSelectionByCode(RAYAIM_PARAX)
+
+       case (2) ! Real
+        PRINT *, "Real Ray Aiming Set"
+        call sysConfig%updateRayAimSelectionByCode(RAYAIM_REAL)
+
+       end select
+
+       GO TO 8888
+      END IF
 C     FLOA
       IF(TEMPC(I)(1:4).EQ.'FLOA') THEN
       WRITE(OUTLYNE,2085)
@@ -927,42 +965,34 @@ C     STOP
                                 END IF
 C     UNIT
       IF(TEMPC(I)(1:4).EQ.'UNIT') THEN 
-      TEMPC(I)(1:1024)=TEMPC(I)(5:1024)//'    '
-                        DO IC=1,1024
-      IF(TEMPC(I)(1:1).EQ.' ') THEN
-      TEMPC(I)(1:1024)=TEMPC(IC)(2:1024)//' '
-                        ELSE
-                        GO TO 34
-                        END IF
-                        END DO
- 34   CONTINUE
-      IF(TEMPC(I)(1:2).EQ.'MM') THEN
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS MM'
-                        CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
-      IF(TEMPC(I)(1:2).EQ.'CM') THEN
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS CM'
-                        CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
-      IF(TEMPC(I)(1:2).EQ.'IN') THEN
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS IN'
-                        CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
-      IF(TEMPC(I)(1:5).EQ.'METER') THEN
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS M'
-                        CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
-      TEMPC(I)(1:1024)=BL1024(1:1024)
-                                GO TO 8888
-                                END IF
+        IF(INDEX(TEMPC(I)(5:1024),'MM').GT.0) THEN
+            PRINT *, "Set Units to MM"
+            SAVE_KDP(1)=SAVEINPT(1)
+            INPUT='UNITS MM'
+            CALL PROCES
+            REST_KDP(1)=RESTINPT(1)   
+        ELSEIF(INDEX(TEMPC(I)(5:1024),'M ').GT.0) THEN             
+                SAVE_KDP(1)=SAVEINPT(1)
+                INPUT='UNITS M'
+                CALL PROCES
+                REST_KDP(1)=RESTINPT(1)                 
+        END IF        
+        IF(INDEX(TEMPC(I)(5:1024),'CM').GT.0) THEN
+            SAVE_KDP(1)=SAVEINPT(1)
+            INPUT='UNITS CM'
+            CALL PROCES
+            REST_KDP(1)=RESTINPT(1)
+        END IF            
+        IF(INDEX(TEMPC(I)(5:1024),'IN').GT.0) THEN
+            SAVE_KDP(1)=SAVEINPT(1)
+            INPUT='UNITS IN'
+            CALL PROCES
+            REST_KDP(1)=RESTINPT(1)
+        END IF    
+        
+
+        GO TO 8888
+        END IF
 C
 C     PROCESS EACH LINE INTO A KDP COMMAND AND THEN DISPLAY IT
       IF(TEMPC(I)(1:4).EQ.'SURF') THEN
