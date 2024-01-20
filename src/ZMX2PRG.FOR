@@ -1,4 +1,21 @@
 
+! Unsupported commands notes
+! GFAC - related to apodization setting 
+! GFAC 0 0 - Uniform 
+! GFAC 0 1 - Gaussian
+! GFAC 0 2 - Cosine cubed
+! ROPD - reference for OPD
+! ROPD 0 - Absolute
+! ROPD 1 - Infinity
+! ROPD 2 - Exit Pupil (recommended)
+! ROPD 3 - Absolute 2
+! PICB - Paraxial Rays
+! PICB 0 - Consider Coordinate Breaks
+! PICB 1 - Ignore Coordinate Breaks (recommended)
+! GLRS - global coordinate reference surface
+! MNUM - number of configurations and active one
+! eg MNUM 2 1 - two configs 1 active
+
 C SUB ZMX2PRG.FOR
         SUBROUTINE ZMX2PRG
         USE GLOBALS        

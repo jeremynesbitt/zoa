@@ -145,6 +145,56 @@ function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
 
 end function hl_zoa_combo_get_selected_list2_id
 
+! This function is not being used at present
+function hl_zoa_combo_get_list2id_by_text(renderer, selectedText) result(ivalue)
+  type(c_ptr) :: renderer
+  character(len=*) :: selectedText
+
+  type(gtktreeiter), target :: tree_iter
+  type(c_ptr)  :: model, sval, ival, cstr
+  character(len=50) :: choice
+  type(gvalue), target :: sresult
+  type(gvalue), target :: iresult
+
+  type(integer)  :: ivalue
+  integer :: boolResult
+
+
+  ivalue = -1
+  model = g_object_get_data(renderer, "model"//c_null_char)
+  boolResult = gtk_tree_model_get_iter_first(model, c_loc(tree_iter))
+
+  PRINT *, "targetValue is ", selectedText
+
+  do while(boolResult.EQ.1)
+    sval = c_loc(sresult)
+    call gtk_tree_model_get_value(model, c_loc(tree_iter), 1_c_int, sval)
+
+    cstr = g_value_get_string(sval)
+    call convert_c_string(cstr, choice)   
+
+    PRINT *, "Choice is ", choice
+
+  if (selectedText.EQ.choice) then
+     PRINT *, "Found correct combo entry!"
+     ival = c_loc(iresult)
+     call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
+     ivalue = g_value_get_int(ival)      
+     return
+    
+  else
+
+    boolResult = gtk_tree_model_iter_next(model, c_loc(tree_iter))
+    if (boolResult.EQ.0) then
+      PRINT *, "Reached end of model and no suitable matches found"
+      return
+    end if
+  end if
+  end do  
+
+
+end function
+
 subroutine hl_zoa_combo_set_selected_by_list2_id(widget, targetValue)
   type (c_ptr) :: widget
   integer(kind=c_int) :: targetValue
@@ -318,6 +368,9 @@ subroutine hl_gtk_listn_attach_combo_box_model(view, colno, valsArray, refsArray
     pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
     call g_value_set_object(pmodel, model)
     call g_object_set_property(renderer, "model"//c_null_char, pmodel)
+    PRINT *, "model set is ", loc(model)
+    ! Experiental code!!
+    call g_object_set_data(renderer, "model"//c_null_char, model)
   !  call g_object_set_property(renderer, "model"//c_null_char, model)
 
 
@@ -329,9 +382,99 @@ subroutine hl_gtk_listn_attach_combo_box_model(view, colno, valsArray, refsArray
     call g_object_set_property(renderer, "text-column"//c_null_char, &
          & pcolumn)
 
+    ! Need to invert this for list editing
+    ! Get model from renderer
+    ! Loop through values until get a match for text?   
+    ! See lines 375 in this file       
+
 
 end subroutine
 
+subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
+
+  type(c_ptr), intent(in) :: view
+  integer(kind=c_int), intent(in) :: row, colno 
+  character(len=*) ::  targetText
+  integer(kind=c_int) :: ivalue
+  type(gvalue), target :: iresult
+  integer :: ID_SETTING
+
+  ! Set the selected item in a combo cell renderer.
+  !
+  ! VIEW: c_ptr: required: The list view containing the cell.
+  ! ROW: int: required: The row number of the cell
+  ! COLNO: int: required: The column number with the cell
+  ! SELECTION: int: required: The element of the combo to set.
+  !-
+
+  type(c_ptr) :: store, pstring, col, rlist, renderer, pmodel, model, ival, sval, cstr
+  type(gvalue), target :: stringv, modelv
+  type(gtktreeiter), target :: viter, citer
+  integer(kind=c_int) :: valid
+  integer :: boolResult
+  character(len=50) :: choice
+  type(gvalue), target :: sresult
+
+  ! Get list store
+  store = gtk_tree_view_get_model(view)
+
+  ! Get the iterator of the row
+  call clear_gtktreeiter(viter)
+  valid = gtk_tree_model_iter_nth_child(store, c_loc(viter), C_NULL_PTR, row)
+  if (.not. c_f_logical(valid)) return
+
+  ! Find the renderer for the column
+  col = gtk_tree_view_get_column(view, colno)
+  rlist = gtk_cell_layout_get_cells(col)
+  renderer = g_list_nth_data(rlist, 0_c_int)
+  call g_list_free(rlist)
+
+  ! Find the model for the combobox
+  pmodel = c_loc(modelv)
+  pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+
+  call g_object_get_property(renderer, "model"//c_null_char, pmodel)
+  model = g_value_get_object(pmodel)
+
+  boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
+
+  PRINT *, "targetValue is ", targetText
+
+  do while(boolResult.EQ.1)
+    sval = c_loc(sresult)
+    call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, sval)
+
+    cstr = g_value_get_string(sval)
+    call convert_c_string(cstr, choice)   
+
+    PRINT *, "Choice is ", choice
+
+  if (targetText.EQ.choice) then
+     PRINT *, "Found correct combo entry!"
+     ival = c_loc(iresult)
+     call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
+     ivalue = g_value_get_int(ival)      
+     PRINT *, "ivalue is ", ivalue
+     ID_SETTING = ivalue
+
+     call gtk_list_store_set_value(store, c_loc(viter), colno, sval)
+
+
+
+     return
+    
+  else
+
+    boolResult = gtk_tree_model_iter_next(model, c_loc(citer))
+    if (boolResult.EQ.0) then
+      PRINT *, "Reached end of model and no suitable matches found"
+      return
+    end if
+  end if
+  end do  
+
+
+end subroutine
 
 subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
   type(c_ptr), intent(in) :: view

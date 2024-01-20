@@ -2601,6 +2601,7 @@ contains
        !PRINT *, "cell_combo valsArray is ", valsArray
        !PRINT *, "cell_combo refsArray is ", refsArray
        if (present(valsArray)) then
+         PRINT *,"Addach combo model "
        call hl_gtk_list_tree_combo_model_attach(renderer, valsArray, refsArray)
      else
        call hl_gtk_list_tree_combo_model_attach_orig(renderer)
@@ -3597,19 +3598,25 @@ contains
 
     PRINT *, "valsArray is ", valsArray
     PRINT *, "refsArray is ", refsArray
+    model = gtk_list_store_newv(ncols, c_loc(coltypes))
+    if (present(colno)) then
+      icol = colno
+   else
+      icol = 0
+   end if    
 
     ! Create the model
-    if (present(cmodel)) then
-       model = cmodel
-       if (present(colno)) then
-          icol = colno
-       else
-          icol = 0
-       end if
-    else
-       model = gtk_list_store_newv(ncols, c_loc(coltypes))
-       icol = 0
-    end if
+   !  if (present(cmodel)) then
+   !     model = cmodel
+   !     if (present(colno)) then
+   !        icol = colno
+   !     else
+   !        icol = 0
+   !     end if
+   !  else
+   !     model = gtk_list_store_newv(ncols, c_loc(coltypes))
+   !     icol = 0
+   !  end if
 
     ! Code to add model with int / string pair
 
@@ -3624,6 +3631,7 @@ contains
 
 
   do i = 1, size(valsArray)
+    PRINT *, "Adding to model"
 
     call gtk_list_store_append(model, c_loc(iter))
     call g_value_set_int(c_loc(vali), refsArray(i))
@@ -3643,7 +3651,7 @@ contains
   end do
 
   !call c_f_pointer(c_loc(ID_SETTING), data_callback)
-
+  PRINT *, "creating combo box"
   cbox = gtk_combo_box_new_with_model_and_entry(model)
 
   call gtk_combo_box_set_entry_text_column(cbox, 1_c_int)
@@ -3664,7 +3672,7 @@ contains
     ! Tell the renderer that the text is in column 1
     pcolumn = c_loc(columnv)
     pcolumn = g_value_init(pcolumn, G_TYPE_INT)
-    call g_value_set_int(pcolumn, 1)
+    call g_value_set_int(pcolumn, 1_c_int)
     call g_object_set_property(renderer, "text-column"//c_null_char, &
          & pcolumn)
 

@@ -113,12 +113,35 @@ interface io_config
   module procedure :: io_config_constructor
 end interface
 
+
+
+type pickup
+   integer :: surf, column
+   real :: scale, offset 
+
+end type
+
+! Eventually want this to take over storing of surface data, with 
+! lens data having gathering functions to create arrays
+
+type surface
+   integer :: surf_num, surf_type
+   real :: radius, thickness
+   character(len=40) :: glass
+   logical :: pickup_radius, pickup_thic
+   !type(pickup) :: pickup_radius, pickup_thic
+
+
+   
+end type
+
 type lens_data
 
   integer num_surfaces, ref_stop
   real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
-  & curvatures(:)
+  & curvatures(:), pickups(:,:,:)
   character(:), allocatable :: glassnames(:)
+
 
 contains
   procedure, public, pass(self) :: set_num_surfaces
@@ -202,6 +225,8 @@ subroutine set_num_surfaces(self, input)
     DEALLOCATE(self%surf_index)
     DEALLOCATE(self%surf_vnum)
     DEALLOCATE(self%glassnames)
+    DEALLOCATE(self%pickups)
+
   end if
 
 
@@ -215,6 +240,11 @@ subroutine set_num_surfaces(self, input)
     allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
     !PRINT *, "About to allocate glass names"
     allocate(character(40) :: self%glassnames(self%num_surfaces))
+    
+    ! For now just copy what is in DATLEN.INC
+    allocate(self%pickups(6,self%num_surfaces,45))
+
+ 
   END IF
 end subroutine set_num_surfaces
 

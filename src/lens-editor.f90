@@ -1,3 +1,15 @@
+! TODO:
+! make a single add_dialog function that works for every tab (using function pointer?)
+! abstract the adding of label to notebook tab to avoid making more ptr variables (or 
+! combine lines?)
+
+! Notes on dynamic columns
+! make a 2d array that has:  dim 1 all combo box IDs
+!                            dim 2 all currently selected values (for each row)
+! This should allow for seetings to be persisted, at least while editor is open
+! does not solve the row problem
+! Need to stop recreating data type and drawing UI during every update
+
 module lens_editor
 
 
@@ -10,10 +22,11 @@ module lens_editor
   use gtk_hl_progress
   use gtk_hl_button
   use gtk_hl_tree
+  !use hl_zoa_tree_tmp, only: hl_gtk_listn_new, hl_gtk_listn_get_selections, hl_gtk_listn_ins, &
+  !& hl_gtk_listn_set_cell, hl_gtk_listn_rem
   use hl_gtk_zoa
-  !use hl_zoa_tree_tmp
-  use gtk
 
+  use gtk
   use gtk_hl_chooser
 
   use g
@@ -22,6 +35,8 @@ module lens_editor
 
   implicit none
 
+
+  ! TODO:  Modifiy this so we can store values for combo entries
   type lens_edit_col
     integer(kind=type_kind) :: coltype
     character(len=20) :: coltitle
@@ -32,6 +47,8 @@ module lens_editor
     real, allocatable, dimension(:)  :: dataFloat
     character(len=40), allocatable, dimension(:) :: dataString
     integer(c_int), allocatable, dimension(:) :: refsArray
+    character(len=20), allocatable, dimension(:) :: valsArray
+
     integer :: colModel
 
 
@@ -45,13 +62,21 @@ module lens_editor
 
 
   type(c_ptr) :: ihscrollcontain,ihlist, &
-       &  qbut, dbut, lbl, ibut, ihAsph, ihScrollAsph
+       &  qbut, dbut, lbl, ibut, ihAsph, ihSolv, ihScrollAsph, ihScrollSolv
 
   integer(kind=c_int) :: numEditorRows
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
   integer, parameter :: ID_EDIT_ASPH_TORIC_Y = 1002
   integer, parameter :: ID_EDIT_ASPH_TORIC_X = 1003
+
+  integer, parameter :: ID_COMBO_SOLVE = 2000
+  integer, parameter :: ID_EDIT_SOLVE = 3
+  integer, parameter :: ID_EDIT_SOLVE_NONE = 2001
+  integer, parameter :: ID_EDIT_SOLVE_CURV = 2002
+  integer, parameter :: ID_EDIT_SOLVE_CENT_CURV = 2003
+  integer, parameter :: ID_EDIT_SOLVE_THICK = 2004
+  integer, parameter :: ID_EDIT_SOLVE_CA = 2005
 
 
 
@@ -80,6 +105,10 @@ module lens_editor
   integer(kind=c_int), parameter :: ID_COL_ASPH_H = 11
   integer(kind=c_int), parameter :: ID_COL_ASPH_I = 12
 
+
+  ! FOr each tab, data structure to store values
+  !integer, parameter :: ncols = 11
+  type(lens_edit_col) :: asphereTypes(11)  
 
 
 contains
@@ -160,6 +189,7 @@ contains
     !integer(c_int)  :: width, height
 
     type(c_ptr)  :: table, expander, box1, nbk, basicLabel, boxAperture, boxAsphere
+    type(c_ptr)  :: boxSolve, SolveLabel
     type(c_ptr)  :: lblAperture, AsphLabel
 
     PRINT *, "ABOUT TO FIRE UP LENS EDITOR WINDOW!"
@@ -195,6 +225,8 @@ contains
 
     call lens_editor_asphere_dialog(boxAsphere)
 
+    boxSolve = lens_editor_add_dialog(ID_EDIT_SOLVE)
+
 
     !call lens_editor_aperture(boxAperture)
 
@@ -207,6 +239,8 @@ contains
     AsphLabel = gtk_label_new_with_mnemonic("_Asphere"//c_null_char)
     pageIdx = gtk_notebook_append_page(nbk, boxAsphere, AsphLabel)
 
+    SolveLabel = gtk_label_new_with_mnemonic("_Solves"//c_null_char)
+    pageIdx = gtk_notebook_append_page(nbk, boxSolve, SolveLabel)
 
     PRINT *, "FINISHED WITH LENS EDITOR"
     !call gtk_box_append(box1, rf_cairo_drawing_area)
@@ -361,6 +395,8 @@ end subroutine lens_editor_replot
     call refreshLensDataStruct()
     call buildBasicTable(.FALSE.)
     call buildAsphereTable(.FALSE.)
+    call buildSolveTable(.FALSE.)
+
     !call loadLensData()
     PRINT *, "About to try replot"
     call zoatabMgr%rePlotIfNeeded()
@@ -494,6 +530,90 @@ end subroutine lens_editor_replot
 
   end subroutine
 
+  subroutine solv_edited(renderer, path, text, gdata) bind(c)
+    use hl_gtk_zoa
+    implicit none
+    !type(c_ptr), value, intent(in) :: list, gdata
+  
+    type(c_ptr), value :: renderer, path, text, gdata
+      character(len=200) :: ftext
+      integer :: row, col
+      integer(kind=c_int) :: ID_SETTING
+  
+      PRINT *, "CALLING SOLVE EDITED PROC!"
+      call convert_c_string(text, ftext)
+      call getRowAndColFromCallback(renderer, path, row, col)
+
+      PRINT *,"Row is ", row
+      PRINT *, "Col is ", col
+
+      if (col == 1) then
+        PRINT *, "Set by text"
+        call hl_gtk_combo_set_by_text(ihSolv, row, col, trim(ftext), ID_SETTING)
+        PRINT *, "ID_SETTING is ", ID_SETTING
+      end if      
+
+      ! How to update column names
+      ! Store array of editable column names and current names
+      ! Add callback to row being selected
+      ! When row is selected, update column names based on value of master row
+      
+
+  
+  
+  end subroutine
+
+subroutine getRowAndColFromCallback(widget, path, row, col) 
+  type(c_ptr), value :: widget, path
+  integer :: row, col
+  character(len=200) :: outStr
+  character(len=200) :: fpath
+
+  integer(kind=c_int), pointer :: icol
+  integer :: i, n
+  type(c_ptr) :: tree, pcol, treeCol, model
+  integer(kind=c_int), allocatable, dimension(:) :: irow
+
+
+  call convert_c_string(path, fpath)
+  pcol = g_object_get_data(widget, "column-number"//c_null_char)
+  call c_f_pointer(pcol, icol)
+
+  PRINT *, "icol is ", icol  
+
+  n = 0
+  do i = 1, len_trim(fpath)
+     if (fpath(i:i) == ":") then
+        n = n+1
+        fpath(i:i) = ' '   ! : is not a separator for a Fortran read
+     end if
+  end do
+  allocate(irow(n+1))
+  read(fpath, *) irow
+  PRINT *, "Selected Row is ", irow
+
+  ! Only return the first row if multiple are selected
+  row = irow(1)
+  
+
+end subroutine
+
+
+! This sub is a mess.
+! WHy?  I cannot seem to figure out how to go from whater object is
+! passed to this callback to get to the model I created for the combo box
+! So there are lots of fits and starts here
+! To get around this, I wrote a fcn that takes the text (which I can get)
+! To set it and get the ID, from a global variable I created when I created 
+! the object.  There must be a better way, but I can't find it...
+ ! By elimination, the widget is not
+ ! gtk_tree_view
+ ! gtk_tree_view_column
+ ! TODO:  I think I may have found part of the problem.  I may not have been setting the
+!  model properly.  I modified the attach method to set_data instead of just set_property
+ ! and now I see it.  But this does not tell me what value is currently set, so I'm not 
+ ! sure it helps me.       
+ ! 
 subroutine asph_edited(renderer, path, text, gdata) bind(c)
   use hl_gtk_zoa
   !type(c_ptr), value, intent(in) :: list, gdata
@@ -504,13 +624,20 @@ subroutine asph_edited(renderer, path, text, gdata) bind(c)
     integer(kind=c_int), allocatable, dimension(:) :: irow
     integer(kind=c_int), pointer :: icol
     integer :: i, n
-    type(c_ptr) :: tree, pcol
+    type(c_ptr) :: tree, pcol, treeCol, widget, model
     real :: fVal
     integer :: ios
-    integer(kind=c_int), pointer :: ID_SETTING
+    integer :: ID_SETTING
+    
+    !integer(kind=c_int), pointer :: ID_SETTING
+    type(c_ptr) :: col, rlist, rend2
+    type(gtktreeiter), target :: tree_iter
+    integer :: boolResult
 
-    call c_f_pointer(gdata, ID_SETTING)
+    !call c_f_pointer(gdata, ID_SETTING)
     PRINT *, "CALLING ASPHERE EDITED PROC!"
+    PRINT *, "widget ptr is ", LOC(renderer)
+    !PRINT *, "ID_SETTING IS ", ID_SETTING
 
     call convert_c_string(path, fpath)
     pcol = g_object_get_data(renderer, "column-number"//c_null_char)
@@ -519,16 +646,45 @@ subroutine asph_edited(renderer, path, text, gdata) bind(c)
 
     PRINT *, "ftext is ", ftext
 
-    ID_SETTING = hl_zoa_combo_get_selected_list2_id(renderer)
-    PRINT *, "ID_SETTING is ", ID_SETTING
+    PRINT *, "icol is ", icol
+
+    ! This does not work because the data is not stored in a GtkListStore object
+    model = g_object_get_data(renderer, "model"//c_null_char)
+    PRINT *, "model is ", loc(model)    
+    PRINT *, "before error?"
+    boolResult = gtk_tree_model_get_iter_first(model, c_loc(tree_iter))
+
+    PRINT *, "boolResult is ", boolResult
+
+
+
+     !tree = g_object_get_data(renderer, "model"//c_null_char)
+     !print *, "tree is ", LOC(tree)
+    ! 
+    ! widget = gtk_tree_view_column_get_widget(treeCol)
+
+    if (icol == 1) then
+
+            ! Find the renderer for the column
+      !col = gtk_tree_view_get_column(renderer, icol)
+      !rlist = gtk_cell_layout_get_cells(col)
+      !rend2= g_list_nth_data(rlist, 0_c_int)
+      !call g_list_free(rlist)
+
+        !ID_SETTING = hl_zoa_combo_get_list2id_by_text(rend2, trim(ftext))
+
+        !!!ID_SETTING = hl_zoa_combo_get_selected_list2_id(renderer)
+
+       !PRINT *, "ID_SETTING is ", ID_SETTING
+     end if
     !PRINT *, "IOS is ", ios
 
-
+    
     read( ftext, *, iostat=ios)  fVal
 
     PRINT *, "ios is ", ios
 
-    if (ios == 0)  THEN !Valid number
+
 
     n = 0
     do i = 1, len_trim(fpath)
@@ -541,6 +697,16 @@ subroutine asph_edited(renderer, path, text, gdata) bind(c)
     allocate(irow(n+1))
     read(fpath, *) irow
     PRINT *, "Selected Row is ", irow
+
+    if (icol == 1) then
+      PRINT *, "Set by text"
+      call hl_gtk_combo_set_by_text(ihAsph, irow(1), icol, trim(ftext), ID_SETTING)
+      PRINT *, "ID_SETTING is ", ID_SETTING
+    end if
+
+
+
+    if (ios == 0)  THEN !Valid number
 
       call updateAsphereCoefficient(irow(1),INT(icol),ftext)
 
@@ -606,6 +772,7 @@ subroutine updateAsphereCoefficient(irow,icol,ftext)
       call PROCESKDP('ASPH')
       call PROCESKDP('A'//asphVar//' '//trim(ftext))
       call PROCESKDP('EOS')
+      
       call buildAsphereTable(.FALSE.)
       call zoatabMgr%rePlotIfNeeded()
 
@@ -648,7 +815,7 @@ subroutine buildBasicTable(firstTime)
     colModel(5) = 'text'
     colModel(6) = 'text'
 
-
+    ! gathering step to be compabible with hl_gtk interface
     do i=1,ncols
       ctypes(i) = basicTypes(i)%coltype
       sortable(i) = basicTypes(i)%sortable
@@ -678,22 +845,24 @@ end subroutine
 subroutine buildAsphereTable(firstTime)
 
     logical :: firstTime
-    integer, parameter :: ncols = 11
-    type(lens_edit_col) :: asphereTypes(ncols)
-    integer(kind=type_kind), dimension(ncols) :: ctypes
-    character(len=20), dimension(ncols) :: titles
-    integer(kind=c_int), dimension(ncols) :: sortable, editable
+    integer(kind=type_kind), dimension(size(asphereTypes)) :: ctypes
+    character(len=20), dimension(size(asphereTypes)) :: titles
+    integer(kind=c_int), dimension(size(asphereTypes)) :: sortable, editable
     integer, allocatable, dimension(:) :: surfIdx
-    character(len=10), dimension(ncols) :: colModel
+    character(len=10), dimension(size(asphereTypes)) :: colModel
     integer :: i
     integer, parameter :: numAsphTypes = 3
     character(kind=c_char, len=20),dimension(numAsphTypes) :: valsArray
     integer(c_int), dimension(numAsphTypes) :: refsArray
     type(c_ptr) :: colTmp
 
+    integer, dimension(curr_lens_data%num_surfaces) :: defaultAsphereType
+
 
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+    defaultAsphereType = (/ (ID_EDIT_ASPH_NONTORIC, i=1,size(defaultAsphereType))/)
 
 
 
@@ -711,7 +880,9 @@ subroutine buildAsphereTable(firstTime)
     PRINT *, "LENS EDITOR Asphere DIALOG SUB STARTING!"
     ! Now make a multi column list with multiple selections enabled
     call asphereTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
-    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, TRUE, data=valsArray, numRows=numAsphTypes , refsArray=refsArray)
+    call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, TRUE, defaultAsphereType, &
+    & numRows=numAsphTypes , refsArray=refsArray, valsArray=valsArray)
+    !call asphereTypes(2)%initialize("Type", G_TYPE_STRING, FALSE, TRUE, data=valsArray, numRows=numAsphTypes , refsArray=refsArray)
     call asphereTypes(3)%initialize("Conic Constant", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
     call asphereTypes(ID_COL_ASPH_A)%initialize("A (h^4)", G_TYPE_STRING, FALSE, TRUE, &
     & curr_asph_data%asphereTerms(:,1), dtype=DTYPE_SCIENTIFIC)
@@ -747,7 +918,7 @@ subroutine buildAsphereTable(firstTime)
 
 
 
-    do i=1,ncols
+    do i=1,size(asphereTypes)
       ctypes(i) = asphereTypes(i)%coltype
       sortable(i) = asphereTypes(i)%sortable
       editable(i) = asphereTypes(i)%editable
@@ -763,11 +934,9 @@ subroutine buildAsphereTable(firstTime)
          & edited=c_funloc(asph_edited),&
          &  multiple=FALSE, height=250_c_int, swidth=400_c_int, titles=titles, &
          & sortable=sortable, editable=editable, renderers=colModel) !, &
-
-!         & valsArray=valsArray, refsArray=refsArray)
-       end if
-
-   call hl_gtk_listn_attach_combo_box_model(ihAsph, 1_c_int, valsArray, refsArray)
+         !& valsArray=valsArray, refsArray=refsArray)
+         call hl_gtk_listn_attach_combo_box_model(ihAsph, 1_c_int, valsArray, refsArray)
+        end if
 
 
 
@@ -780,13 +949,195 @@ subroutine buildAsphereTable(firstTime)
 
     ! Now put 10 top level rows into it
     PRINT *, "About to Populate UI Table"
-    call populatelensedittable(ihAsph, asphereTypes, ncols)
+    call populatelensedittable(ihAsph, asphereTypes, size(asphereTypes))
     PRINT *, "Done Populating UI Table"
     !call hl_gtk_box_pack(ihScrollAsph, ihAsph)
     !call loadAphereDataIntoTable()
     !call loadLensData()
 
 end subroutine
+
+subroutine buildSolveTable(firstTime)
+
+  logical :: firstTime
+  integer, parameter :: ncols = 5
+  type(lens_edit_col) :: solveTypes(ncols)
+  integer(kind=type_kind), dimension(ncols) :: ctypes
+  character(len=20), dimension(ncols) :: titles
+  integer(kind=c_int), dimension(ncols) :: sortable, editable
+  integer, allocatable, dimension(:) :: surfIdx
+  character(len=10), dimension(ncols) :: colModel
+  integer :: i
+  integer, parameter :: numSolveTypes = 5
+  character(kind=c_char, len=20),dimension(numSolveTypes) :: valsArray
+  integer(c_int), dimension(numSolveTypes) :: refsArray
+  integer, dimension(curr_lens_data%num_surfaces) :: defaultSolveType
+  type(c_ptr) :: colTmp
+
+
+
+  allocate(surfIdx(curr_lens_data%num_surfaces))
+  surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
+
+  defaultSolveType = (/ (ID_EDIT_SOLVE_NONE,i=1,curr_lens_data%num_surfaces)/)
+
+  ! Notes:
+  !  Need column titles to be a function of row
+  ! Each time a row is selected, update column names
+  valsArray(1) = "None"
+  valsArray(2) = "Curvature"
+  valsArray(3) = "Center of Curvature"
+  valsArray(4) = "Thickness"
+  valsArray(5) = "Clear Aperture"
+
+  refsArray(1) = ID_EDIT_SOLVE_NONE
+  refsArray(2) = ID_EDIT_SOLVE_CURV
+  refsArray(3) = ID_EDIT_SOLVE_CENT_CURV
+  refsArray(4) = ID_EDIT_SOLVE_THICK
+  refsArray(5) = ID_EDIT_SOLVE_CA
+
+
+
+  PRINT *, "LENS EDITOR Solve DIALOG SUB STARTING!"
+  ! Now make a multi column list with multiple selections enabled
+  call solveTypes(1)%initialize("Surface", G_TYPE_INT, FALSE, FALSE, surfIdx)
+  !call solveTypes(2)%initialize("Solve", G_TYPE_STRING, FALSE, TRUE, data=valsArray, numRows=numSolveTypes , refsArray=refsArray)
+  call solveTypes(2)%initialize("Solve", G_TYPE_STRING, FALSE, TRUE, defaultSolveType, &
+  &numRows=numSolveTypes , refsArray=refsArray, valsArray=valsArray)
+  
+  call solveTypes(3)%initialize("Param 1", G_TYPE_FLOAT, FALSE, TRUE, curr_asph_data%conic_constant)
+  call solveTypes(ID_COL_ASPH_A)%initialize("Param 2", G_TYPE_STRING, FALSE, TRUE, &
+  & curr_asph_data%asphereTerms(:,1), dtype=DTYPE_SCIENTIFIC)
+  call solveTypes(ID_COL_ASPH_B)%initialize("Param 3", G_TYPE_STRING, FALSE, TRUE, &
+  & curr_asph_data%asphereTerms(:,2), dtype=DTYPE_SCIENTIFIC)
+
+  colModel(1) = 'text'
+  colModel(2) = 'combo'
+  colModel(3) = 'text'
+  colModel(4) = 'text'
+  colModel(5) = 'text'
+
+
+  !asphereTypes(4)%dtype = DTYPE_SCIENTIFIC
+  !asphereTypes(4)%coltype = G_TYPE_STRING
+
+
+
+  do i=1,ncols
+    ctypes(i) = solveTypes(i)%coltype
+    sortable(i) = solveTypes(i)%sortable
+    editable(i) = solveTypes(i)%editable
+    titles(i) = solveTypes(i)%coltitle
+  end do
+
+  !PRINT *, "About to define ihAsph"
+  !   PRINT *, "buildAsphere valsArray is ", valsArray
+  !   PRINT *, "buildAsphere refsArray is ", refsArray
+  if (firstTime) then
+  ihSolv = hl_gtk_listn_new(scroll=ihScrollSolv, types=ctypes, &
+       & changed=c_funloc(list_select),&
+       & edited=c_funloc(solv_edited),&
+       &  multiple=FALSE, height=250_c_int, swidth=400_c_int, titles=titles, &
+       & sortable=sortable, editable=editable, renderers=colModel) !, &
+
+!         & valsArray=valsArray, refsArray=refsArray)
+     end if
+
+ call hl_gtk_listn_attach_combo_box_model(ihSolv, 1_c_int, valsArray, refsArray)
+
+call gtk_tree_view_set_activate_on_single_click(ihSolv, 1_c_int) 
+ call g_signal_connect(ihSolv, "row-activated"//c_null_char, c_funloc(row_selected))
+
+  
+
+
+
+  !PRINT *, "ihlist created!  ", ihlist
+  !colTmp = gtk_tree_view_get_column(ihAsph, 3_c_int)
+  !call gtk_column_view_column_set_fixed_width(colTmp, 0_c_int)
+  !call gtk_tree_view_column_set_max_width(colTmp, 0_c_int)
+  ! Did not test code of this,but in debug window this works.
+  !call gtk_tree_view_column_set_visible(colTmp, 0_c_int)
+
+  ! Now put 10 top level rows into it
+  PRINT *, "About to Populate UI Table"
+  call populatelensedittable(ihSolv, solveTypes, ncols, ID_COMBO_SOLVE)
+  PRINT *, "Done Populating UI Table"
+  !call hl_gtk_box_pack(ihScrollAsph, ihAsph)
+  !call loadAphereDataIntoTable()
+  !call loadLensData()
+
+end subroutine
+
+  subroutine row_selected(widget, gdata) bind(c)
+    type(c_ptr), value, intent(in) :: widget, gdata
+    integer :: row, col
+    integer(kind=c_int) :: nsel
+    integer(kind=c_int), dimension(:), allocatable :: selections
+    
+    ! Probably needs to move?
+    type(c_ptr) :: tree_col
+
+    ! Vars to move to another sub when working
+    type(c_ptr) :: store, cstr, sval
+    type(gtktreeiter), target :: viter
+    integer(kind=c_int) :: valid
+    character(len=50) :: choice
+    type(gvalue), target :: sresult
+
+    
+    PRINT *, "Signal activated!"
+    nsel = hl_gtk_listn_get_selections(ihSolv, selections)
+    PRINT *, "Selections(1) is ", selections(1)
+  
+   ! How to get column data
+    
+    ! Get list store
+    store = gtk_tree_view_get_model(ihSolv)
+
+    PRINT *, "Store is ", LOC(store)
+
+    ! Get the iterator of the row
+    call clear_gtktreeiter(viter)
+    valid = gtk_tree_model_iter_nth_child(store, c_loc(viter), C_NULL_PTR, selections(1))
+    if (.not. c_f_logical(valid)) return
+    PRINT *, "About to get value"
+    sval = c_loc(sresult)
+    call gtk_tree_model_get_value(store, c_loc(viter), 1_c_int, sval)
+
+    PRINT *, "About to get string"
+
+    cstr = g_value_get_string(sval)
+    call convert_c_string(cstr, choice)   
+
+    PRINT *, "Choice is ", choice    
+
+    tree_col = gtk_tree_view_get_column(ihSolv, 3_c_int)
+
+    if (selections(1) < 5) then
+      call gtk_tree_view_column_set_title(tree_col, "Tst"//c_null_char)
+    else 
+      call gtk_tree_view_column_set_title(tree_col, "Param1"//c_null_char)
+    end if
+
+
+
+    !// Modify a particular row
+    !path = gtk_tree_path_new_from_string ("4");
+    !gtk_tree_model_get_iter (GTK_TREE_MODEL (list_store),
+    !                         &iter,
+    !                         path);
+    !gtk_tree_path_free (path);
+
+    !gtk_tree_model_get_value (
+    !  GtkTreeModel* tree_model,
+    !  GtkTreeIter* iter,
+    !  int column,
+    !  GValue* value    
+
+
+
+  end subroutine
 
   subroutine refstop_clicked(renderer, path, gdata) bind(c)
     type(c_ptr), value, intent(in) :: renderer, path, gdata
@@ -888,12 +1239,13 @@ end subroutine
 
   end subroutine
 
-  subroutine populatelensedittable(ihObj, colObj, m)
+  subroutine populatelensedittable(ihObj, colObj, m, ID_COMBO)
     type(c_ptr) :: ihObj
     type(lens_edit_col), dimension(*) :: colObj
     character(len=23) :: AVAL
     !integer :: i,j
     integer(kind=c_int) :: i,j,m
+    integer, optional :: ID_COMBO
 
     !m = size(colObj,DIM=1)
 
@@ -909,23 +1261,27 @@ end subroutine
 
 
           case(DTYPE_INT)
+            if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
+          
+                PRINT *, "ihObj is ", LOC(ihObj)
+                call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &
+                    & targetValue=colObj(j)%getElementInt(i))
 
-        call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
-             & ivalue=colObj(j)%getElementInt(i))
+            else
+              call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
+              & ivalue=colObj(j)%getElementInt(i))
+            end if            
+
+
 
          case (DTYPE_FLOAT)
         call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
              & fvalue=colObj(j)%getElementFloat(i))
 
         case (DTYPE_STRING)
-
-        if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
-          call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &
-               & targetValue=ID_EDIT_ASPH_NONTORIC)
-        else
           call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
-             & svalue=colObj(j)%getElementString(i))
-        end if
+          & svalue=colObj(j)%getElementString(i))
+
 
         !  call hl_gtk_tree_set_cell(ihlist, absrow=i-1_c_int, col=(j-1), &
         !       & svalue="TMP")
@@ -970,11 +1326,14 @@ end subroutine
 
 
     call buildAsphereTable(.TRUE.)
+   
+
 
     boxAsph = hl_gtk_box_new()
     ! It is the scrollcontainer that is placed into the box.
         call gtk_widget_set_vexpand (ihScrollAsph, FALSE)
         call gtk_widget_set_hexpand (ihScrollAsph, FALSE)
+
 
     call hl_gtk_box_pack(boxAsph, ihScrollAsph)
 
@@ -983,8 +1342,35 @@ end subroutine
 
   end subroutine
 
+  function lens_editor_add_dialog(ID_TAB) result(boxNew)
 
-  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows, dtype, refsArray)
+    use hl_gtk_zoa
+    use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
+    implicit none
+
+    type(integer) :: ID_TAB
+
+    type(c_ptr) :: boxNew
+
+    boxNew = c_null_ptr
+
+    select case (ID_TAB)
+
+    case (ID_EDIT_SOLVE)
+      call buildSolveTable(.TRUE.)
+      boxNew = hl_gtk_box_new()
+      call gtk_widget_set_vexpand (ihScrollSolv, FALSE)
+      call gtk_widget_set_hexpand (ihScrollSolv, FALSE)      
+      call hl_gtk_box_pack(boxNew, ihScrollSolv)
+    end select
+   
+    PRINT *, "PACKING FIRST CONTAINER!"
+
+
+  end function
+
+
+  subroutine le_col_init(self, title, coltype, sortable, editable, data, numRows, dtype, refsArray, valsArray)
     class(lens_edit_col), intent(inout) :: self
     integer(kind=type_kind) :: coltype
     integer, optional :: numRows
@@ -992,6 +1378,7 @@ end subroutine
     character(len=*) :: title
     integer(kind=c_int) :: sortable, editable
     integer(c_int), dimension(:), optional :: refsArray
+    character(len=20), dimension(:), optional :: valsArray
     class(*), dimension(:), intent(in) :: data
     integer :: m
 
@@ -1029,6 +1416,15 @@ end subroutine
       allocate(integer::self%data(m))
       allocate(self%dataInt(m))
       self%dataInt=data
+      if (present(refsArray)) then
+        allocate(integer(c_int) :: self%refsArray(numRows))
+        allocate(character(len=20) :: self%valsArray(numRows))
+
+        self%refsArray = refsArray
+        self%valsArray = valsArray
+        self%colModel = COL_MODEL_COMBO
+        PRINT *, "Set Col Model to ", self%colModel
+      end if
     type is (character(*))
       self%dtype = DTYPE_STRING
       !PRINT *, "String length is ? ", size(self%data,1)
@@ -1037,12 +1433,7 @@ end subroutine
       allocate(character(len=40)::self%data(numRows))
       allocate(character(len=40) :: self%dataString(numRows))
       self%dataString = data
-      if (present(refsArray)) then
-        allocate(integer(c_int) :: self%refsArray(numRows))
-        self%refsArray = refsArray
-        self%colModel = COL_MODEL_COMBO
-        PRINT *, "Set Col Model to ", self%colModel
-      end if
+
     end select
     !self%data = data
 

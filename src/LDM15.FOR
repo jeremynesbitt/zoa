@@ -622,7 +622,7 @@ C     NO TILT RET
                         END
 C SUB LNSEOS1.FOR
         SUBROUTINE LNSEOS1
-        !use global_widgets
+        use global_widgets
         USE GLOBALS
 
 C     NOTE ON 11/04/96 THIS ROUTINE ONLY HAS ONE SUCCESSFUL RETURN
@@ -2720,8 +2720,8 @@ C     DONE
                    F22=0
                    GO TO 999
                    END IF
-      !call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
-      !call sysConfig%updateParameters()
+      call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
+      call sysConfig%updateParameters()
 
 
                         RETURN

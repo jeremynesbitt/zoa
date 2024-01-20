@@ -492,6 +492,15 @@ C     Dump data to interface
         curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,2)
         !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
         !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
+
+C       PRINT THE PIKUP
+
+        ! Pickup storage
+        curr_lens_data % pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
+
+        !ARE THERE MORE PIKUPS? IF NOT SET ALENS(32,SURF) TO ZERO.
+
+
       END DO
 
         !Refresh lens editor
