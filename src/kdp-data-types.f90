@@ -27,6 +27,9 @@ module kdp_data_types
      integer, parameter :: LENS_UNITS_MM = 3
      integer, parameter :: LENS_UNITS_M = 4
 
+     integer, parameter :: ID_PICKUP_RAD = 1
+     integer, parameter :: ID_PICKUP_THIC = 3     
+
 type idText
   integer :: ID
   character(len=40) :: text
@@ -116,8 +119,14 @@ end interface
 
 
 type pickup
-   integer :: surf, column
-   real :: scale, offset 
+   integer :: surf, surf_ref, column, ID_type
+   real(kind=real64) :: scale, offset 
+   character(len=10) :: pickupTxt
+
+   contains 
+     procedure, public, pass(self) :: setPickupText
+     procedure, public, pass(self) :: genKDPCMD
+
 
 end type
 
@@ -1047,6 +1056,34 @@ type(io_config) function io_config_constructor() result(self)
 
    end function
 
+
+   subroutine setPickupText(self)
+    class(pickup) :: self
+
+
+    select case (self%ID_type)
+
+    case(ID_PICKUP_RAD)
+      self%pickupTxt = "RD"
+    case(ID_PICKUP_THIC)
+      self%pickupTxt = "THIC"
+
+    end select
+
+  end subroutine
+
+  function genKDPCMD(self) result(outTxt)
+    use kdp_utils, only: int2str, real2str
+    class(pickup) :: self
+    character(len=280) :: outTxt
+
+    outTxt = "PIKUP "//trim(self%pickupTxt)//","// &
+    & trim(int2str(self%surf_ref))//","//trim(real2str(self%scale))// &
+    & ","//trim(real2str(self%offset))//","//"0.0,"    
+
+
+
+  end function
 
 
 

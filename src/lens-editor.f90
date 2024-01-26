@@ -31,6 +31,8 @@ module lens_editor
 
   use g
   use zoa_ui
+
+  use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC
   !use mod_lens_editor_settings
 
   implicit none
@@ -65,6 +67,10 @@ module lens_editor
        &  qbut, dbut, lbl, ibut, ihAsph, ihSolv, ihScrollAsph, ihScrollSolv
 
   integer(kind=c_int) :: numEditorRows
+  type(c_ptr) :: sbScale, sbOffset, dropDown
+
+  ! Pickup Globals:  TODO:  Must be a better way
+  type(pickup):: pData
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
   integer, parameter :: ID_EDIT_ASPH_TORIC_Y = 1002
@@ -88,10 +94,12 @@ module lens_editor
 
   integer, parameter :: COL_MODEL_COMBO = 5
 
+
   integer(kind=c_int), parameter :: ID_COL_RADIUS = 3
-  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 4
-  integer(kind=c_int), parameter :: ID_COL_GLASS = 5
-  integer(kind=c_int), parameter :: ID_COL_INDEX = 6
+  integer(kind=c_int), parameter :: ID_COL_RADIUS_PICKUP = 4
+  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 5
+  integer(kind=c_int), parameter :: ID_COL_GLASS = 7
+  integer(kind=c_int), parameter :: ID_COL_INDEX = 8
 
 
 
@@ -404,6 +412,7 @@ end subroutine lens_editor_replot
 
   end subroutine del_row
 
+
   subroutine lens_edited(renderer, path, text, gdata) bind(c)
 
     use glass_manager, only: parseModelGlassEntry, findCatalogNameFromGlassName
@@ -479,6 +488,19 @@ end subroutine lens_editor_replot
         call PROCESKDP(kdptext)
         call PROCESKDP("RD "//trim(ftext))
         call PROCESKDP('EOS')
+  case (ID_COL_RADIUS_PICKUP)
+    
+      PRINT *, "ftext is ", trim(ftext)
+      if (ftext(1:1).NE."P".AND.ftext(1:1).NE." ") then
+        ! Set it to blank
+        call hl_gtk_listn_set_cell(tree, irow, icol, &
+        & svalue=" ")       
+      else
+         call ui_pickup(irow, ID_PICKUP_RAD)
+      end if 
+
+
+
 
       case (ID_COL_THICKNESS)
         PRINT *, "Thickness changed!"
@@ -779,10 +801,26 @@ subroutine updateAsphereCoefficient(irow,icol,ftext)
 
 end subroutine
 
+function genPickupStr(ID_PICKUP_TYPE) result(pickupStr)
+
+  character(len=1), dimension(curr_lens_data%num_surfaces) :: pickupStr
+  integer :: ID_PICKUP_TYPE
+  integer :: i
+
+  do i=1,curr_lens_data%num_surfaces
+    pickupStr(i) = " "
+    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == 1) pickupStr(i) = "P" 
+
+  end do
+
+
+
+end function
+
 subroutine buildBasicTable(firstTime)
 
     logical :: firstTime
-    integer(kind=c_int), PARAMETER :: ncols = 6
+    integer(kind=c_int), PARAMETER :: ncols = 8
     character(len=10), dimension(ncols) :: colModel
     type(lens_edit_col), dimension(ncols) :: basicTypes
     integer(kind=type_kind), dimension(ncols) :: ctypes
@@ -790,8 +828,10 @@ subroutine buildBasicTable(firstTime)
     integer(kind=c_int), dimension(ncols) :: sortable, editable
     integer, allocatable, dimension(:) :: surfIdx
     integer, allocatable, dimension(:) :: isRefSurface
-
+  
     integer :: i
+
+    PRINT *, "Starting Basic Table Proc"
 
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
@@ -803,7 +843,11 @@ subroutine buildBasicTable(firstTime)
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
     call basicTypes(2)%initialize("Ref"    , G_TYPE_BOOLEAN, FALSE, TRUE, isRefSurface)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
+    call basicTypes(4)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupStr(ID_PICKUP_RAD), &
+    & curr_lens_data%num_surfaces )
     call basicTypes(ID_COL_THICKNESS)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
+    call basicTypes(6)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupStr(ID_PICKUP_THIC), &
+    & curr_lens_data%num_surfaces )  
     call basicTypes(ID_COL_GLASS)%initialize("Glass"     , G_TYPE_STRING, FALSE, TRUE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
     call basicTypes(ID_COL_INDEX)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
@@ -814,6 +858,8 @@ subroutine buildBasicTable(firstTime)
     colModel(4) = 'text'
     colModel(5) = 'text'
     colModel(6) = 'text'
+    colModel(7) = 'text'
+    colModel(8) = 'text'
 
     ! gathering step to be compabible with hl_gtk interface
     do i=1,ncols
@@ -838,6 +884,7 @@ subroutine buildBasicTable(firstTime)
     !call buildTree(ihList, basicTypes)
 
     ! Now put 10 top level rows into it
+    PRINT *, "About to populate lens edit basic table"
     call populatelensedittable(ihlist, basicTypes,ncols)
     call set_listn_column_color(ihlist, 0_c_int, "orange")
 end subroutine
@@ -1342,6 +1389,191 @@ end subroutine
 
   end subroutine
 
+
+  function getSurfacesAsCStringArray() result (c_ptr_array)
+    use kdp_utils, only : int2str
+
+    implicit none
+
+    integer :: i
+    type(c_ptr), dimension(curr_lens_data%num_surfaces+1) :: c_ptr_array
+    integer, dimension(curr_lens_data%num_surfaces) :: surfIdx
+    character(kind=c_char), dimension(:), allocatable :: strTmp
+    character(kind=c_char), pointer, dimension(:) :: ptrTmp
+
+
+    surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)   
+    
+    
+    do i = 1, size(surfIdx)
+      call f_c_string(trim(int2str(surfIdx(i))), strTmp)
+      allocate(ptrTmp(size(strTmp)))
+      ! A Fortran pointer toward the Fortran string:
+      ptrTmp(:) = strTmp(:)
+      ! Store the C address in the array:
+      c_ptr_array(i) = c_loc(ptrTmp(1))
+      nullify(ptrTmp)
+    end do
+    ! The array must be null terminated:
+    c_ptr_array(curr_lens_data%num_surfaces+1) = c_null_ptr
+
+  end function
+
+  ! Goals
+  ! Allow user to set pickup vals
+  ! Check integrity of entry
+  ! when closed, update kdp
+  subroutine ui_pickup(row, pickup_type)
+
+      use hl_gtk_zoa, only: hl_zoa_text_view_new
+      use kdp_utils, only:  int2str
+      implicit none
+
+      integer :: row, pickup_type
+
+     
+
+      type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
+      type(c_ptr) :: table, lblSurf, lblScale, lblOffset
+
+
+      pData%ID_type = pickup_type
+      call pData%setPickupText()
+      pData%surf = row
+      pData%surf_ref = INT(curr_lens_data%pickups(2,row+1,pickup_type))
+      pData%scale = curr_lens_data%pickups(3,row+1,pickup_type)
+      pData%offset = curr_lens_data%pickups(4,row+1,pickup_type)
+
+
+
+
+      ! Create the window:
+      win = gtk_window_new()
+
+      call gtk_window_set_title(win, "Set Pickup"//c_null_char)
+
+      ! I added this because I was using it in the pickup ui to find the surface we 
+      ! are modifying, but I moved this info to the pickup derived type
+      ! So this can be removed but I left it here for now
+      call gtk_widget_set_name(win, trim(int2str(row))//c_null_char)
+
+      call gtk_window_set_default_size(win, 300_c_int, 300_c_int)
+
+
+      boxWin = hl_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
+      call gtk_window_set_child(win, boxWin)
+
+      table = gtk_grid_new()
+      call gtk_grid_set_column_homogeneous(table, TRUE)
+      call gtk_grid_set_row_homogeneous(table, TRUE)      
+
+      dropDown = gtk_drop_down_new_from_strings(getSurfacesAsCStringArray())
+      call gtk_drop_down_set_selected(dropDown, INT(curr_lens_data%pickups(2,row+1,pickup_type)))
+
+      lblSurf = gtk_label_new("Surface"//c_null_char)
+      !gtk_grid_attach (GtkGrid *grid, GtkWidget *child, int column, int row, int width, int height);
+      call gtk_grid_attach(table, lblSurf, 0_c_int, 0_c_int, 1_c_int, 1_c_int)
+      call gtk_grid_attach(table, dropDown, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
+
+      lblScale = gtk_label_new("Scale"//c_null_char)
+      lblOffset = gtk_label_new("Offset"//c_null_char)
+
+      call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
+      call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
+
+      sbScale = gtk_spin_button_new (gtk_adjustment_new( &
+      & value=curr_lens_data%pickups(3,row+1,pickup_type)*1d0, &
+      & lower=-1000*1d0, &
+      & upper=1000*1d0, &
+      & step_increment=1d0, &
+      & page_increment=1d0, &
+      & page_size=0d0),climb_rate=2d0, &
+      & digits=3_c_int)
+
+      sbOffset = gtk_spin_button_new (gtk_adjustment_new( &
+      & value=curr_lens_data%pickups(4,row+1,pickup_type)*1d0, &
+      & lower=-1000*1d0, &
+      & upper=1000*1d0, &
+      & step_increment=1d0, &
+      & page_increment=1d0, &
+      & page_size=0d0),climb_rate=2d0, &
+      & digits=3_c_int)
+
+      call gtk_grid_attach(table, sbScale, 1_c_int, 1_c_int, 1_c_int, 1_c_int)
+      call gtk_grid_attach(table, sbOffset, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
+
+    ! Now make a single column list with multiple selections enabled
+
+
+    ! It is the scrollcontainer that is placed into the box.
+    call hl_gtk_box_pack(boxWin, table)
+
+    uBut = hl_gtk_button_new("Update"//c_null_char, &
+        & clicked=c_funloc(pickupUpdate_click), &
+        & data=win)
+       
+    cBut = hl_gtk_button_new("Cancel"//c_null_char, &
+         & clicked=c_funloc(pickupCancel_click), &
+         & data=win)         
+
+    call hl_gtk_box_pack(boxWin, uBut)
+    call hl_gtk_box_pack(boxWin, cBut)
+
+    call gtk_widget_show(win)
+    call gtk_window_set_modal(win, 1_c_int)
+    call gtk_window_set_transient_for(win, lens_editor_window)
+    
+
+  end subroutine
+
+  subroutine pickupUpdate_click(widget, gdata) bind(c)
+    use kdp_utils, only: int2str
+    type(c_ptr), value, intent(in) :: widget, gdata
+
+    PRINT *, "Button clicked!"
+    pData%scale = gtk_spin_button_get_value (sbScale)
+    pData%offset = gtk_spin_button_get_value (sbOffset)
+    pData%surf_ref = gtk_drop_down_get_selected(dropDown)
+
+  
+    ! It's time to update the pickup
+    CALL PROCESKDP('U L')
+    !CALL PROCESKDP("CHG, "//trim(choice))
+    CALL PROCESKDP("CHG, "//trim(int2str(pData%surf)))
+
+    call PROCESKDP(trim(pData%genKDPCMD()))
+
+    !CALL PROCESKDP("PIKUP "//trim(pData%pickupTxt)//","//trim(int2str(surfNum))//","//trim(real2str(scale))// &
+    !& ","//trim(real2str(offset))//","//"0.0,")
+
+    PRINT *, "Update cmd tst is ", trim(pData%genKDPCMD())
+
+    CALL PROCESKDP('EOS')
+
+    call refreshLensDataStruct()
+    call buildBasicTable(.FALSE.)
+    call zoatabMgr%rePlotIfNeeded()
+
+    call gtk_window_destroy(gdata)
+
+
+
+  end subroutine
+
+  subroutine pickupCancel_click(widget, parentWin) bind(c)
+    type(c_ptr), value, intent(in) :: widget, parentWin
+
+    PRINT *, "Button clicked!"
+
+    ! This is a bad design but not sure what else to do to get rid of the "P" entry without
+    ! yet another global
+    call refreshLensDataStruct()
+    call buildBasicTable(.FALSE.)
+    call zoatabMgr%rePlotIfNeeded()    
+    call gtk_window_destroy(parentWin)
+
+  end subroutine  
+
   function lens_editor_add_dialog(ID_TAB) result(boxNew)
 
     use hl_gtk_zoa
@@ -1408,15 +1640,23 @@ end subroutine
       Else
          self%dtype = DTYPE_FLOAT
        end if
+       if (allocated(self%data)) deallocate(self%data)
+       if (allocated(self%dataFloat)) deallocate(self%dataFloat)    
       allocate(real::self%data(m))
       allocate(self%dataFloat(m))
       self%dataFloat = data
     type is (integer)
       self%dtype = DTYPE_INT
+      if (allocated(self%data)) deallocate(self%data)
+      if (allocated(self%dataInt)) deallocate(self%dataInt)
+
       allocate(integer::self%data(m))
       allocate(self%dataInt(m))
       self%dataInt=data
       if (present(refsArray)) then
+        if (allocated(self%refsArray)) deallocate(self%refsArray)
+        if (allocated(self%valsArray)) deallocate(self%valsArray)
+        
         allocate(integer(c_int) :: self%refsArray(numRows))
         allocate(character(len=20) :: self%valsArray(numRows))
 

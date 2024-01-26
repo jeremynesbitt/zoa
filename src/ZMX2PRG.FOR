@@ -16,6 +16,7 @@
 ! MNUM - number of configurations and active one
 ! eg MNUM 2 1 - two configs 1 active
 
+
 C SUB ZMX2PRG.FOR
         SUBROUTINE ZMX2PRG
         USE GLOBALS        
