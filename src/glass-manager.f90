@@ -44,7 +44,7 @@ contains
  end function
 
  subroutine parseModelGlassEntry(modelGlass, nd, vd)
-  use kdp_utils, only: str2int
+  use type_utils, only: str2int
   character(len=*) :: modelGlass
   real*8, intent(inout) :: nd, vd
   character(len=3) :: nStr, vStr

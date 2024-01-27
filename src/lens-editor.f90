@@ -84,6 +84,10 @@ module lens_editor
   integer, parameter :: ID_EDIT_SOLVE_THICK = 2004
   integer, parameter :: ID_EDIT_SOLVE_CA = 2005
 
+  integer, parameter :: ID_MOD_NONE   = 3003
+  integer, parameter :: ID_MOD_PICKUP = 3004
+  integer, parameter :: ID_MOD_SOLVE  = 3005
+
 
 
   integer, parameter :: DTYPE_INT = 1
@@ -98,6 +102,7 @@ module lens_editor
   integer(kind=c_int), parameter :: ID_COL_RADIUS = 3
   integer(kind=c_int), parameter :: ID_COL_RADIUS_PICKUP = 4
   integer(kind=c_int), parameter :: ID_COL_THICKNESS = 5
+  integer(kind=c_int), parameter :: ID_COL_THIC_PICKUP = 6
   integer(kind=c_int), parameter :: ID_COL_GLASS = 7
   integer(kind=c_int), parameter :: ID_COL_INDEX = 8
 
@@ -416,29 +421,13 @@ end subroutine lens_editor_replot
   subroutine lens_edited(renderer, path, text, gdata) bind(c)
 
     use glass_manager, only: parseModelGlassEntry, findCatalogNameFromGlassName
-    use kdp_utils, only: real2str
+    use type_utils, only: real2str, int2str
     !type(c_ptr), value, intent(in) :: list, gdata
 
     type(c_ptr), value :: renderer, path, text, gdata
     character(len=40) :: kdptext
     character(len=13) :: catalogName
-
-
-
-    ! Default callback for tree cell edited.
-    !
-    ! RENDERER: c_ptr: required: The renderer which sent the signal
-    ! PATH: c_ptr: required: The path at which to insert
-    ! TEXT: c_ptr: required: The text to insert
-    ! GDATA: c_ptr: required: User data, not used.
-    !
-    ! The column number is passed via the "column-number" gobject data value.
-    ! The treeview containing the cell is passed via the "view" gobject
-    ! data value.
-    ! The row number is passed as a string in the PATH argument.
-    !
-    ! This routine is not normally called by the application developer.
-    !-
+    integer(kind=c_int) :: ID_SETTING
 
     character(len=200) :: fpath, ftext
     integer(kind=c_int) :: irow
@@ -455,12 +444,17 @@ end subroutine lens_editor_replot
     
 
 
+
+
     PRINT *, "CALLING LENS EDITED PROC!"
 
     call convert_c_string(path, fpath)
     pcol = g_object_get_data(renderer, "column-number"//c_null_char)
     call c_f_pointer(pcol, icol)
     call convert_c_string(text, ftext)
+
+    !call getRowAndColFromCallback(renderer, path, row, col)
+
 
     n = 0
     do i = 1, len_trim(fpath)
@@ -489,26 +483,66 @@ end subroutine lens_editor_replot
         call PROCESKDP("RD "//trim(ftext))
         call PROCESKDP('EOS')
   case (ID_COL_RADIUS_PICKUP)
-    
+       call hl_gtk_combo_set_by_text(ihlist, irow, icol, trim(ftext), ID_SETTING)
       PRINT *, "ftext is ", trim(ftext)
-      if (ftext(1:1).NE."P".AND.ftext(1:1).NE." ") then
-        ! Set it to blank
-        call hl_gtk_listn_set_cell(tree, irow, icol, &
-        & svalue=" ")       
-      else
-         call ui_pickup(irow, ID_PICKUP_RAD)
-      end if 
+      select case (ID_SETTING)
 
+        case (ID_MOD_PICKUP)
+           call ui_pickup(irow, ID_PICKUP_RAD)
+        case (ID_MOD_NONE)
+          pData%ID_type = ID_PICKUP_RAD
+          pData%surf = irow
+          call pData%setPickupText()
+          CALL PROCESKDP('U L')
+          CALL PROCESKDP('CHG, '//int2str(irow))
+          call PROCESKDP(pData%genKDPCMDToRemovePickup())
+          CALL PROCESKDP('EOS')
 
+          call refreshLensEditorUI()
 
+        end select 
 
-      case (ID_COL_THICKNESS)
+    case (ID_COL_THICKNESS)
         PRINT *, "Thickness changed!"
         call PROCESKDP('U L')
         WRITE(kdptext, *) 'CHG ' ,irow
         call PROCESKDP(kdptext)
         call PROCESKDP("TH "//trim(ftext))
         call PROCESKDP('EOS')
+
+    case (ID_COL_THIC_PICKUP)
+          ! TODO:  Abstract this into a sub since it is essentially identical to _RAD
+          call hl_gtk_combo_set_by_text(ihlist, irow, icol, trim(ftext), ID_SETTING)
+         PRINT *, "ftext is ", trim(ftext)
+         select case (ID_SETTING)
+   
+           case (ID_MOD_PICKUP)
+              call ui_pickup(irow, ID_PICKUP_THIC)
+           case (ID_MOD_NONE)
+             pData%ID_type = ID_PICKUP_THIC
+             pData%surf = irow
+             call pData%setPickupText()
+             CALL PROCESKDP('U L')
+             CALL PROCESKDP('CHG, '//int2str(irow))
+             call PROCESKDP(pData%genKDPCMDToRemovePickup())
+             CALL PROCESKDP('EOS')
+   
+             call refreshLensEditorUI()   
+           end select       
+
+           ! Remove pickup
+      
+
+      ! if (ftext(1:1).NE."P".AND.ftext(1:1).NE." ") then
+      !   ! Set it to blank
+      !   call hl_gtk_listn_set_cell(tree, irow, icol, &
+      !   & svalue=" ")       
+      ! else
+      !    call ui_pickup(irow, ID_PICKUP_RAD)
+      ! end if 
+
+
+
       case (ID_COL_GLASS)
         if (len(trim(ftext)).EQ.8.AND.ftext(5:5).EQ.'.') then
           PRINT *, "Model Glass Entered!"
@@ -549,6 +583,16 @@ end subroutine lens_editor_replot
 
 
 
+
+  end subroutine
+
+  subroutine refreshLensEditorUI()
+
+    implicit none
+
+    call refreshLensDataStruct()
+    call buildBasicTable(.FALSE.)
+    call zoatabMgr%rePlotIfNeeded()
 
   end subroutine
 
@@ -801,6 +845,24 @@ subroutine updateAsphereCoefficient(irow,icol,ftext)
 
 end subroutine
 
+function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
+
+  integer, dimension(curr_lens_data%num_surfaces) :: pickupArr
+  integer :: ID_PICKUP_TYPE
+  integer :: i
+  PRINT *, "About to set pickupArr"
+  do i=1,curr_lens_data%num_surfaces
+    pickupArr(i) = ID_MOD_NONE
+    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_RAD) pickupArr(i) = ID_MOD_PICKUP 
+    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_THIC) pickupArr(i) = ID_MOD_PICKUP 
+
+
+  end do
+  PRINT *, "Done with setting pickupArr ", pickupArr
+
+
+end function
+
 function genPickupStr(ID_PICKUP_TYPE) result(pickupStr)
 
   character(len=1), dimension(curr_lens_data%num_surfaces) :: pickupStr
@@ -828,9 +890,24 @@ subroutine buildBasicTable(firstTime)
     integer(kind=c_int), dimension(ncols) :: sortable, editable
     integer, allocatable, dimension(:) :: surfIdx
     integer, allocatable, dimension(:) :: isRefSurface
-  
+
+    integer, parameter :: numModTypes = 3
+    character(kind=c_char, len=20),dimension(numModTypes) :: valsArray
+    integer(c_int), dimension(numModTypes) :: refsArray
     integer :: i
 
+  
+    ! Notes:
+    !  Need column titles to be a function of row
+    ! Each time a row is selected, update column names
+    valsArray(1) = " "
+    valsArray(2) = "P"
+    valsArray(3) = "S"
+
+    refsArray(1) = ID_MOD_NONE
+    refsArray(2) = ID_MOD_PICKUP
+    refsArray(3) = ID_MOD_SOLVE
+   
     PRINT *, "Starting Basic Table Proc"
 
     allocate(surfIdx(curr_lens_data%num_surfaces))
@@ -843,11 +920,15 @@ subroutine buildBasicTable(firstTime)
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
     call basicTypes(2)%initialize("Ref"    , G_TYPE_BOOLEAN, FALSE, TRUE, isRefSurface)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
-    call basicTypes(4)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupStr(ID_PICKUP_RAD), &
-    & curr_lens_data%num_surfaces )
+    call basicTypes(4)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_RAD), &
+    & numRows=numModTypes, refsArray=refsArray, valsArray=valsArray )
+    !call basicTypes(4)%initialize("S", G_TYPE_STRING, FALSE, TRUE, tmpArray, &
+    !&numRows=numModTypes , refsArray=refsArray, valsArray=valsArray)    
+
     call basicTypes(ID_COL_THICKNESS)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
-    call basicTypes(6)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupStr(ID_PICKUP_THIC), &
-    & curr_lens_data%num_surfaces )  
+    call basicTypes(6)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_THIC), &
+    & numRows=numModTypes, refsArray=refsArray, valsArray=valsArray )  
+   
     call basicTypes(ID_COL_GLASS)%initialize("Glass"     , G_TYPE_STRING, FALSE, TRUE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
     call basicTypes(ID_COL_INDEX)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
@@ -855,9 +936,10 @@ subroutine buildBasicTable(firstTime)
     colModel(1) = 'text'
     colModel(2) = 'radio'
     colModel(3) = 'text'
-    colModel(4) = 'text'
+    colModel(4) = 'combo'
+    !colModel(4) = 'text'
     colModel(5) = 'text'
-    colModel(6) = 'text'
+    colModel(6) = 'combo'
     colModel(7) = 'text'
     colModel(8) = 'text'
 
@@ -882,6 +964,9 @@ subroutine buildBasicTable(firstTime)
     end if
 
     !call buildTree(ihList, basicTypes)
+    call hl_gtk_listn_attach_combo_box_model(ihlist, 3_c_int, valsArray, refsArray)
+    call hl_gtk_listn_attach_combo_box_model(ihlist, 5_c_int, valsArray, refsArray)
+
 
     ! Now put 10 top level rows into it
     PRINT *, "About to populate lens edit basic table"
@@ -1391,7 +1476,7 @@ end subroutine
 
 
   function getSurfacesAsCStringArray() result (c_ptr_array)
-    use kdp_utils, only : int2str
+    use type_utils, only : int2str
 
     implicit none
 
@@ -1426,7 +1511,7 @@ end subroutine
   subroutine ui_pickup(row, pickup_type)
 
       use hl_gtk_zoa, only: hl_zoa_text_view_new
-      use kdp_utils, only:  int2str
+      use type_utils, only:  int2str
       implicit none
 
       integer :: row, pickup_type
@@ -1527,7 +1612,7 @@ end subroutine
   end subroutine
 
   subroutine pickupUpdate_click(widget, gdata) bind(c)
-    use kdp_utils, only: int2str
+    use type_utils, only: int2str
     type(c_ptr), value, intent(in) :: widget, gdata
 
     PRINT *, "Button clicked!"
@@ -1614,7 +1699,10 @@ end subroutine
     class(*), dimension(:), intent(in) :: data
     integer :: m
 
+    PRINT *, "About to measure data"
+
     m = size(data)
+    PRINT *, "After data measurement "
 
     self%coltitle = title
     self%coltype = coltype
@@ -1646,6 +1734,8 @@ end subroutine
       allocate(self%dataFloat(m))
       self%dataFloat = data
     type is (integer)
+      PRINT *, "Integer type?"
+      PRINT *, "Size of data is ", m
       self%dtype = DTYPE_INT
       if (allocated(self%data)) deallocate(self%data)
       if (allocated(self%dataInt)) deallocate(self%dataInt)
@@ -1670,6 +1760,8 @@ end subroutine
       !PRINT *, "String length is ? ", size(self%data,1)
       !PRINT *, "m = ", m
       !m = len(self%data(1))
+      if (allocated(self%data)) deallocate(self%data)
+      if (allocated(self%dataString)) deallocate(self%dataString)    
       allocate(character(len=40)::self%data(numRows))
       allocate(character(len=40) :: self%dataString(numRows))
       self%dataString = data

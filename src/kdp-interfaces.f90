@@ -447,7 +447,7 @@ subroutine PLTOPD
   use command_utils
   use handlers, only: zoatabMgr, updateTerminalLog
   use global_widgets, only:  sysConfig, curr_opd
-  use kdp_utils, only: int2str
+  use type_utils, only: int2str
   use zoa_ui
   use zoa_plot
   use iso_c_binding, only:  c_ptr, c_null_char
@@ -1610,7 +1610,8 @@ subroutine PLTZERN
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
-    use kdp_utils, only: OUTKDP, int2str, logDataVsField, str2int
+    use kdp_utils, only: OUTKDP, logDataVsField
+    use type_utils, only: int2str, str2int
     use plot_setting_manager
 
 

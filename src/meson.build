@@ -29,6 +29,7 @@
 srcs += files(
   'globals.FOR',
   'nssmod.FOR',
+  'type-utils.f90',
   'zoa-ui.f90',
   'kdp-utils.f90',
   'command-utils.f90',

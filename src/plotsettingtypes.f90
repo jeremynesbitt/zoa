@@ -126,7 +126,7 @@ end function
 function checkForIntToken(self, prefix, defVal) result(val)
   !If token exists, return value
   !If not, add token and return default value
-  use kdp_utils, only: str2int
+  use type_utils, only: str2int
   implicit none
 
   class(setting_parser), intent(inout) :: self
@@ -188,7 +188,7 @@ end function
 
 
 function getIntFromToken(self, prefix) result(val)
-  use kdp_utils, only: str2int
+  use type_utils, only: str2int
   implicit none
 
   class(setting_parser), intent(in) :: self
@@ -209,7 +209,7 @@ function getIntFromToken(self, prefix) result(val)
 end function
 
 subroutine addTokenStr(self, prefix, strVal)
-  use kdp_utils, only: int2str
+  use type_utils, only: int2str
   implicit none
   class(setting_parser), intent(inout) :: self
   character(len=*) :: prefix
@@ -221,7 +221,7 @@ subroutine addTokenStr(self, prefix, strVal)
 end subroutine
 
 subroutine addToken(self, prefix, intVal)
-  use kdp_utils, only: int2str
+  use type_utils, only: int2str
   implicit none
   class(setting_parser), intent(inout) :: self
   character(len=*) :: prefix

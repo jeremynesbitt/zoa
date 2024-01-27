@@ -126,6 +126,7 @@ type pickup
    contains 
      procedure, public, pass(self) :: setPickupText
      procedure, public, pass(self) :: genKDPCMD
+     procedure, public, pass(self) :: genKDPCMDToRemovePickup
 
 
 end type
@@ -1066,25 +1067,33 @@ type(io_config) function io_config_constructor() result(self)
     case(ID_PICKUP_RAD)
       self%pickupTxt = "RD"
     case(ID_PICKUP_THIC)
-      self%pickupTxt = "THIC"
+      self%pickupTxt = "TH"
 
     end select
 
   end subroutine
 
   function genKDPCMD(self) result(outTxt)
-    use kdp_utils, only: int2str, real2str
+    use type_utils, only: int2str, real2str
     class(pickup) :: self
     character(len=280) :: outTxt
 
     outTxt = "PIKUP "//trim(self%pickupTxt)//","// &
     & trim(int2str(self%surf_ref))//","//trim(real2str(self%scale))// &
     & ","//trim(real2str(self%offset))//","//"0.0,"    
-
-
-
   end function
 
+  function genKDPCMDToRemovePickup(self) result(outTxt)
+    use type_utils, only: int2str, real2str
+    class(pickup) :: self
+    character(len=280) :: outTxt
+
+    outTxt = "PIKD "//trim(self%pickupTxt)//","// &
+    & trim(int2str(self%surf))//","    
+
+
+
+  end function  
 
 
 end module kdp_data_types

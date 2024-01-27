@@ -747,7 +747,7 @@ end subroutine
 
 subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
   use command_utils, only:  removeLeadingBlanks
-  use kdp_utils, only: int2str
+  use type_utils, only: int2str
   implicit none
   type(c_ptr), value, intent(in) :: widget, gdata
   real(c_double) :: realData
