@@ -497,6 +497,7 @@ C       PRINT THE PIKUP
 
         ! Pickup storage
         curr_lens_data % pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
+        curr_lens_data % solves(1:6,JJ+1) = SOLVE(1:6,JJ)
 
         !ARE THERE MORE PIKUPS? IF NOT SET ALENS(32,SURF) TO ZERO.
 

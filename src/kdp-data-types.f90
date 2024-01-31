@@ -28,7 +28,12 @@ module kdp_data_types
      integer, parameter :: LENS_UNITS_M = 4
 
      integer, parameter :: ID_PICKUP_RAD = 1
-     integer, parameter :: ID_PICKUP_THIC = 3     
+     integer, parameter :: ID_PICKUP_THIC = 3  
+     
+     ! Solves
+     integer, parameter :: ID_SOLVE_NONE = 0
+     integer, parameter :: ID_SOLVE_PY = 1 
+
 
 type idText
   integer :: ID
@@ -131,6 +136,35 @@ type pickup
 
 end type
 
+
+! I wanted this to be solve, but when I try to name it such,
+! I get a weird, internal compiler error in gfortran.  So ksolve it is!
+type ksolve
+   integer :: surf, ID_type
+   real(kind=real64) :: param1, param2
+   character(len=20) :: param1Name, param2Name 
+   character(len=10) :: solveTxt
+
+   contains 
+    procedure, public, pass(self) :: updateSolveData
+    procedure, public, pass(self) :: setSolveText
+    procedure, public, pass(self) :: genKDPCMDToSetSolve
+    procedure, public, pass(self) :: genKDPCMDToRemoveSolve
+
+
+end type
+
+! This is to store all the data needed for telling the user the 
+! type of solves available and how to interface it with the CLI
+type solve_options
+    character(len=40) :: uiText
+    integer :: id_solve, solve_type
+    character(len=4) :: cmd 
+    character(len=20) :: param1Name, param2Name 
+end type
+
+
+
 ! Eventually want this to take over storing of surface data, with 
 ! lens data having gathering functions to create arrays
 
@@ -149,7 +183,7 @@ type lens_data
 
   integer num_surfaces, ref_stop
   real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
-  & curvatures(:), pickups(:,:,:)
+  & curvatures(:), pickups(:,:,:), solves(:,:)
   character(:), allocatable :: glassnames(:)
 
 
@@ -236,6 +270,7 @@ subroutine set_num_surfaces(self, input)
     DEALLOCATE(self%surf_vnum)
     DEALLOCATE(self%glassnames)
     DEALLOCATE(self%pickups)
+    deallocate(self%solves)
 
   end if
 
@@ -253,6 +288,7 @@ subroutine set_num_surfaces(self, input)
     
     ! For now just copy what is in DATLEN.INC
     allocate(self%pickups(6,self%num_surfaces,45))
+    allocate(self%solves(9,self%num_surfaces))
 
  
   END IF
@@ -1094,6 +1130,81 @@ type(io_config) function io_config_constructor() result(self)
 
 
   end function  
+
+ 
+  subroutine updateSolveData(self, lData, row) 
+ 
+    class(ksolve) :: self
+    type(lens_data) :: lData
+    integer :: row
+    character(len=280) :: outTxt
+
+    ! From LDM1.FOR
+    ! IF(WC.EQ.'PY') SOLVE(6,SURF)=1.0D0
+    ! IF(WC.EQ.'PCY') SOLVE(6,SURF)=2.0D0
+    ! IF(WC.EQ.'CAY') SOLVE(6,SURF)=3.0D0
+    ! IF(WC.EQ.'PY'.OR.WC.EQ.'PCY'.OR.WC.EQ.'CAY') THEN
+    ! SOLVE(7,SURF)=W1
+    ! SOLVE(4,SURF)=0.0D0
+    ! SOLVE(3,SURF)=0.0D0
+    !         ELSE
+    !         END IF    
+    self%param1Name = "Not Used"
+    self%param2Name = "Not Used"
+    self%surf = row
+    self%ID_type = lData%solves(6,row)
+    call self%setSolveText()  
+
+    select case (self%ID_type)
+
+
+
+    case (ID_SOLVE_PY)
+      self%param1 = lData%solves(7,row)
+      self%param2 = lData%solves(4,row)
+      self%param1Name = "Axial Height"
+      self%param2Name = "Not Used"
+
+    end select 
+
+  end subroutine    
+
+  subroutine setSolveText(self)
+    class(ksolve) :: self
+
+    select case(self%ID_type)
+
+    case(ID_SOLVE_PY)
+      self%solveTxt = "PY"
+
+    end select
+
+  end subroutine
+
+  function genKDPCMDToSetSolve(self) result(outTxt)
+    use type_utils, only: int2str, real2str
+    class(ksolve) :: self
+    character(len=280) :: outTxt
+
+    ! TODO: Support other solves.  this is just a proof of concept
+
+    outTxt = trim(self%solveTxt)//", "//trim(real2str(self%param1))
+
+  end function
+
+  function genKDPCMDToRemoveSolve(self, surf) result(outTxt)
+    use type_utils, only: int2str, real2str
+    class(ksolve) :: self
+    integer :: surf
+    character(len=280) :: outTxt
+
+    ! TODO: Support other solves.  this is just a proof of concept
+
+    outTxt = "TSD, "//trim(int2str(surf)//","//trim(int2str(surf)))
+        
+  end function  
+
+
 
 
 end module kdp_data_types

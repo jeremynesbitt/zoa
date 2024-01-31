@@ -32,7 +32,7 @@ module lens_editor
   use g
   use zoa_ui
 
-  use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC
+  use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC, ID_SOLVE_NONE, ID_SOLVE_PY
   !use mod_lens_editor_settings
 
   implicit none
@@ -67,10 +67,14 @@ module lens_editor
        &  qbut, dbut, lbl, ibut, ihAsph, ihSolv, ihScrollAsph, ihScrollSolv
 
   integer(kind=c_int) :: numEditorRows
-  type(c_ptr) :: sbScale, sbOffset, dropDown
+  type(c_ptr) :: sbScale, sbOffset, dropDown, lblScale, lblOffset
 
-  ! Pickup Globals:  TODO:  Must be a better way
-  type(pickup):: pData
+  ! Pickup Global.  Since the ui for this is modal pseudo safe to just store
+  ! current pickup to be modded in this type.  Same idea with solve
+  type(pickup) :: pData
+  type(ksolve)  :: sData
+  type(solve_options), dimension(2) :: thick_solves
+
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
   integer, parameter :: ID_EDIT_ASPH_TORIC_Y = 1002
@@ -525,9 +529,13 @@ end subroutine lens_editor_replot
              CALL PROCESKDP('U L')
              CALL PROCESKDP('CHG, '//int2str(irow))
              call PROCESKDP(pData%genKDPCMDToRemovePickup())
+             call PROCESKDP(sData%genKDPCMDToRemoveSolve(irow))
              CALL PROCESKDP('EOS')
    
-             call refreshLensEditorUI()   
+             call refreshLensEditorUI()
+           case (ID_MOD_SOLVE)
+            PRINT *, "irow is", irow
+             call ui_solve(irow, ID_PICKUP_THIC)   
            end select       
 
            ! Remove pickup
@@ -855,6 +863,7 @@ function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
     pickupArr(i) = ID_MOD_NONE
     if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_RAD) pickupArr(i) = ID_MOD_PICKUP 
     if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_THIC) pickupArr(i) = ID_MOD_PICKUP 
+    if (curr_lens_data%solves(6,i).NE.0) pickupArr(i) = ID_MOD_SOLVE
 
 
   end do
@@ -1475,6 +1484,60 @@ end subroutine
   end subroutine
 
 
+  function getSolvesAsCStringArray(solve_type) result (c_ptr_array)
+    use type_utils, only : int2str
+    
+    implicit none
+    integer :: solve_type
+    integer :: i
+    
+    integer, dimension(curr_lens_data%num_surfaces) :: surfIdx
+    character(kind=c_char), dimension(:), allocatable :: strTmp
+    character(kind=c_char), pointer, dimension(:) :: ptrTmp
+    integer, parameter :: numThickSolves = size(thick_solves)
+    character(len=30), dimension(numThickSolves) :: thicSolves
+    type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
+
+    thick_solves(1)%id_solve = ID_SOLVE_NONE
+    thick_solves(1)%param1Name = "Not Used"
+    thick_solves(1)%param2Name = "Not Used"
+    thick_solves(1)%uiText = "None"
+    thick_solves(1)%cmd = ""
+  
+    thick_solves(2)%id_solve = ID_SOLVE_PY
+    thick_solves(2)%param1Name = "Axial Height"
+    thick_solves(2)%param2Name = "Not Used"
+    thick_solves(2)%uiText = "Paraxial Axial Height (PY)"
+    thick_solves(2)%cmd = "PY"  
+
+
+    !thicSolves(1) = "None"
+    !thicSolves(2) = "Paraxial Axial Height (PY)"
+    !thicSolves(3) = "X Paraxial Axial Height (PX)"
+    !thicSolves(4) = "Paraxial Chief Ray Height (PCY)"
+    !thicSolves(5) = "X Paraxial Chief Ray Height (PCX)"
+    !thicSolves(6) = "Clear Aperture Solve (CAY)"
+    !thicSolves(7) = "X Clear Aperture Solve (CAX)"
+    
+    ! TODO:  Implement RAD Solves once this is working
+
+    
+    do i = 1, size(thicSolves)
+      thicSolves(i) = trim(thick_solves(i)%uiText)
+      call f_c_string(trim(thicSolves(i)), strTmp)
+      allocate(ptrTmp(size(strTmp)))
+      ! A Fortran pointer toward the Fortran string:
+      ptrTmp(:) = strTmp(:)
+      ! Store the C address in the array:
+      c_ptr_array(i) = c_loc(ptrTmp(1))
+      nullify(ptrTmp)
+    end do
+    ! The array must be null terminated:
+    c_ptr_array(numThickSolves+1) = c_null_ptr
+
+  end function
+
+
   function getSurfacesAsCStringArray() result (c_ptr_array)
     use type_utils, only : int2str
 
@@ -1658,6 +1721,166 @@ end subroutine
     call gtk_window_destroy(parentWin)
 
   end subroutine  
+
+  subroutine ui_solve(row, solve_type)
+
+    use hl_gtk_zoa, only: hl_zoa_text_view_new
+    use type_utils, only:  int2str
+    implicit none
+
+    integer :: row, solve_type
+
+   
+
+    type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
+    type(c_ptr) :: table, lblSurf
+
+
+    !pData%ID_type = pickup_type
+    !call pData%setPickupText()
+    !pData%surf = row
+    !pData%surf_ref = INT(curr_lens_data%pickups(2,row+1,pickup_type))
+    !pData%scale = curr_lens_data%pickups(3,row+1,pickup_type)
+    !pData%offset = curr_lens_data%pickups(4,row+1,pickup_type)
+
+
+    call sData%updateSolveData(curr_lens_data, row)
+
+
+    ! Create the window:
+    win = gtk_window_new()
+
+    call gtk_window_set_title(win, "Set Solve"//c_null_char)
+
+    ! I added this because I was using it in the pickup ui to find the surface we 
+    ! are modifying, but I moved this info to the pickup derived type
+    ! So this can be removed but I left it here for now
+    call gtk_widget_set_name(win, trim(int2str(row))//c_null_char)
+
+    call gtk_window_set_default_size(win, 300_c_int, 300_c_int)
+
+
+    boxWin = hl_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
+    call gtk_window_set_child(win, boxWin)
+
+    table = gtk_grid_new()
+    call gtk_grid_set_column_homogeneous(table, TRUE)
+    call gtk_grid_set_row_homogeneous(table, TRUE)      
+
+    dropDown = gtk_drop_down_new_from_strings(getSolvesAsCStringArray(solve_type))
+
+    call g_signal_connect(dropDown, "notify::selected", c_funloc(solveTypeChanged), c_null_ptr)
+
+    !dropDown = gtk_drop_down_new_from_strings(getSurfacesAsCStringArray())
+    !call gtk_drop_down_set_selected(dropDown, INT(curr_lens_data%pickups(2,row+1,pickup_type)))
+
+    lblSurf = gtk_label_new("Solve Type"//c_null_char)
+    !gtk_grid_attach (GtkGrid *grid, GtkWidget *child, int column, int row, int width, int height);
+    call gtk_grid_attach(table, lblSurf, 0_c_int, 0_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, dropDown, 1_c_int, 0_c_int, 1_c_int, 1_c_int)
+
+    lblScale = gtk_label_new(trim(sData%param1Name)//c_null_char)
+    lblOffset = gtk_label_new(trim(sData%param2Name)//c_null_char)
+
+    call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
+
+    sbScale = gtk_spin_button_new (gtk_adjustment_new( &
+    & value=sData%param1*1d0, &
+    & lower=-1000*1d0, &
+    & upper=1000*1d0, &
+    & step_increment=1d0, &
+    & page_increment=1d0, &
+    & page_size=0d0),climb_rate=2d0, &
+    & digits=3_c_int)
+
+    sbOffset = gtk_spin_button_new (gtk_adjustment_new( &
+    & value=sData%param2*1d0, &
+    & lower=-1000*1d0, &
+    & upper=1000*1d0, &
+    & step_increment=1d0, &
+    & page_increment=1d0, &
+    & page_size=0d0),climb_rate=2d0, &
+    & digits=3_c_int)
+
+    call gtk_grid_attach(table, sbScale, 1_c_int, 1_c_int, 1_c_int, 1_c_int)
+    call gtk_grid_attach(table, sbOffset, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
+
+  ! Now make a single column list with multiple selections enabled
+
+
+  ! It is the scrollcontainer that is placed into the box.
+  call hl_gtk_box_pack(boxWin, table)
+
+  uBut = hl_gtk_button_new("Update"//c_null_char, &
+      & clicked=c_funloc(solveUpdate_click), &
+      & data=win)
+     
+  cBut = hl_gtk_button_new("Cancel"//c_null_char, &
+       & clicked=c_funloc(pickupCancel_click), &
+       & data=win)         
+
+  call hl_gtk_box_pack(boxWin, uBut)
+  call hl_gtk_box_pack(boxWin, cBut)
+
+  call gtk_widget_show(win)
+  call gtk_window_set_modal(win, 1_c_int)
+  call gtk_window_set_transient_for(win, lens_editor_window)
+  
+
+end subroutine
+
+subroutine solveTypeChanged(widget, parentWin) bind(c)
+  type(c_ptr), value, intent(in) :: widget, parentWin
+  integer :: selection
+
+  PRINT *, "Button clicked!"
+  selection = gtk_drop_down_get_selected(dropDown)+1 ! Since it starts from 0 in gtk
+  PRINT *, "Selection is ", selection
+  call gtk_label_set_label(lblScale, trim(thick_solves(selection)%param1Name)//c_null_char)
+  call gtk_label_set_label(lblOffset, trim(thick_solves(selection)%param2Name)//c_null_char)
+
+
+
+end subroutine  
+
+subroutine solveUpdate_click(widget, gdata) bind(c)
+  use type_utils, only: int2str
+  type(c_ptr), value, intent(in) :: widget, gdata
+  integer :: selection
+
+  PRINT *, "Button clicked!"
+  sData%param1 = gtk_spin_button_get_value (sbScale)
+  sData%param2 = gtk_spin_button_get_value (sbOffset)
+  selection = gtk_drop_down_get_selected(dropDown)+1
+  sData%ID_type = thick_solves(selection)%id_solve
+  call sData%setSolveText()
+  !sData% = gtk_drop_down_get_selected(dropDown)
+
+
+  ! It's time to update the pickup
+  CALL PROCESKDP('U L')
+  !CALL PROCESKDP("CHG, "//trim(choice))
+  CALL PROCESKDP("CHG, "//trim(int2str(sData%surf)))
+
+  call PROCESKDP(trim(sData%genKDPCMDToSetSolve()))
+
+  !CALL PROCESKDP("PIKUP "//trim(pData%pickupTxt)//","//trim(int2str(surfNum))//","//trim(real2str(scale))// &
+  !& ","//trim(real2str(offset))//","//"0.0,")
+
+  !PRINT *, "Update cmd tst is ", trim(pData%genKDPCMD())
+
+  CALL PROCESKDP('EOS')
+
+  call refreshLensDataStruct()
+  call buildBasicTable(.FALSE.)
+  call zoatabMgr%rePlotIfNeeded()
+
+  call gtk_window_destroy(gdata)
+
+
+
+end subroutine
 
   function lens_editor_add_dialog(ID_TAB) result(boxNew)
 
