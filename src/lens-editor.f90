@@ -32,7 +32,8 @@ module lens_editor
   use g
   use zoa_ui
 
-  use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC, ID_SOLVE_NONE, ID_SOLVE_PY
+  !use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC, ID_SOLVE_NONE, ID_SOLVE_PY
+  use kdp_data_types
   !use mod_lens_editor_settings
 
   implicit none
@@ -73,8 +74,7 @@ module lens_editor
   ! current pickup to be modded in this type.  Same idea with solve
   type(pickup) :: pData
   type(ksolve)  :: sData
-  type(solve_options), dimension(2) :: thick_solves
-
+  
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
   integer, parameter :: ID_EDIT_ASPH_TORIC_Y = 1002
@@ -861,14 +861,20 @@ function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
   PRINT *, "About to set pickupArr"
   do i=1,curr_lens_data%num_surfaces
     pickupArr(i) = ID_MOD_NONE
-    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_RAD) pickupArr(i) = ID_MOD_PICKUP 
-    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_THIC) pickupArr(i) = ID_MOD_PICKUP 
+    ! Look for Pickups First
+    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_RAD) then 
+        pickupArr(i) = ID_MOD_PICKUP 
+        return
+    end if
+    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_THIC) then 
+      pickupArr(i) = ID_MOD_PICKUP 
+      return
+    end if
+    ! If no pickups found, look for a solve
     if (curr_lens_data%solves(6,i).NE.0) pickupArr(i) = ID_MOD_SOLVE
 
 
   end do
-  PRINT *, "Done with setting pickupArr ", pickupArr
-
 
 end function
 
@@ -1391,7 +1397,7 @@ end subroutine
     !m = size(colObj,DIM=1)
 
     call hl_gtk_listn_rem(ihObj)
-    PRINT *, "Number of entries in loop is ", curr_lens_data%num_surfaces
+    !PRINT *, "Number of entries in loop is ", curr_lens_data%num_surfaces
      do i=1,curr_lens_data%num_surfaces
         call hl_gtk_listn_ins(ihObj, count = 1_c_int)
 
@@ -1404,7 +1410,6 @@ end subroutine
           case(DTYPE_INT)
             if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
           
-                PRINT *, "ihObj is ", LOC(ihObj)
                 call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &
                     & targetValue=colObj(j)%getElementInt(i))
 
@@ -1498,17 +1503,7 @@ end subroutine
     character(len=30), dimension(numThickSolves) :: thicSolves
     type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
 
-    thick_solves(1)%id_solve = ID_SOLVE_NONE
-    thick_solves(1)%param1Name = "Not Used"
-    thick_solves(1)%param2Name = "Not Used"
-    thick_solves(1)%uiText = "None"
-    thick_solves(1)%cmd = ""
-  
-    thick_solves(2)%id_solve = ID_SOLVE_PY
-    thick_solves(2)%param1Name = "Axial Height"
-    thick_solves(2)%param2Name = "Not Used"
-    thick_solves(2)%uiText = "Paraxial Axial Height (PY)"
-    thick_solves(2)%cmd = "PY"  
+
 
 
     !thicSolves(1) = "None"
@@ -1582,7 +1577,7 @@ end subroutine
      
 
       type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
-      type(c_ptr) :: table, lblSurf, lblScale, lblOffset
+      type(c_ptr) :: table, lblSurf
 
 
       pData%ID_type = pickup_type
@@ -1722,6 +1717,13 @@ end subroutine
 
   end subroutine  
 
+  !TODO:
+  !Move thic_solves data to kdp-data-types
+  !In kdp-data-types, when updateSolveDataIsCalled
+  !call a new method that finds which solve matches the 
+  !value found in the curr_lens_data and sets param names
+  !etc accordingly
+
   subroutine ui_solve(row, solve_type)
 
     use hl_gtk_zoa, only: hl_zoa_text_view_new
@@ -1732,7 +1734,7 @@ end subroutine
 
    
 
-    type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
+    type(c_ptr) :: win, boxWin, cBut, uBut
     type(c_ptr) :: table, lblSurf
 
 
@@ -1744,7 +1746,7 @@ end subroutine
     !pData%offset = curr_lens_data%pickups(4,row+1,pickup_type)
 
 
-    call sData%updateSolveData(curr_lens_data, row)
+    call sData%updateSolveData(curr_lens_data, row, solve_type)
 
 
     ! Create the window:
@@ -1769,7 +1771,7 @@ end subroutine
 
     dropDown = gtk_drop_down_new_from_strings(getSolvesAsCStringArray(solve_type))
 
-    call g_signal_connect(dropDown, "notify::selected", c_funloc(solveTypeChanged), c_null_ptr)
+    call g_signal_connect(dropDown, "notify::selected"//c_null_char, c_funloc(solveTypeChanged), c_null_ptr)
 
     !dropDown = gtk_drop_down_new_from_strings(getSurfacesAsCStringArray())
     !call gtk_drop_down_set_selected(dropDown, INT(curr_lens_data%pickups(2,row+1,pickup_type)))
@@ -1957,8 +1959,6 @@ end subroutine
       allocate(self%dataFloat(m))
       self%dataFloat = data
     type is (integer)
-      PRINT *, "Integer type?"
-      PRINT *, "Size of data is ", m
       self%dtype = DTYPE_INT
       if (allocated(self%data)) deallocate(self%data)
       if (allocated(self%dataInt)) deallocate(self%dataInt)
