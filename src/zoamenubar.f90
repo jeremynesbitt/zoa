@@ -131,7 +131,7 @@ contains
     character(len=10), target :: macroCmd = "MACROUI"
     character(len=10), target :: zernFldCmd = "PLTZERN"
     character(len=10), target :: opdPltCmd = "PLTOPD"    
-    character(len=10), target :: newLensCmd = "NEWLENS" 
+    character(len=10), target :: newLensCmd = "LEN NEW" 
     character(len=10), target :: fanCmd = "FAN"    
 
 

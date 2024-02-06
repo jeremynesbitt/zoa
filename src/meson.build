@@ -57,6 +57,7 @@ srcs += files(
   'lens-editor.f90',
   'parax_calcs.f90',
   'kdp-interfaces.f90',
+  'codeV-commands.f90',
   'WDRAWOPTICALSYSTEM.f90',
   'zoa-file-handler.f90',
   'kdp-interfaces.f90',

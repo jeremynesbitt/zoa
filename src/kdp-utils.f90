@@ -27,6 +27,15 @@ module kdp_utils
 
   end subroutine
 
+  function inLensUpdateLevel() result(boolResult)
+    logical :: boolResult
+    include "DATMAI.INC"
+
+    boolResult = .FALSE.
+    IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.
+
+  end function
+
   subroutine spaceDataForTable(xdata, ydata, xHeader, colHeaders, blankArray)
     implicit none
     real, dimension(:) :: xdata

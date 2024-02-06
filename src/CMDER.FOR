@@ -5,7 +5,8 @@ C SUB CMDER.FOR
         use handlers
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
-     2 PLTOPD, PLTIMTST, NEWLENS, PLTFAN
+     2 PLTOPD, PLTIMTST, PLTFAN
+        use codeV_commands
 C
         IMPLICIT NONE
 
@@ -456,10 +457,37 @@ C       PART DRAWINGS
                 CALL PLTIMTST
                 return
               END IF     
-        IF(WC.EQ.'NEWLENS') THEN
-        CALL NEWLENS
-        return
+        ! Support for CodeV 'LEN NEW' Command      
+        IF(WC.EQ.'LEN') THEN 
+          IF(WQ.EQ.'NEW') THEN
+             CALL NEWLENS
+              return
+          END IF
+          RETURN
         END IF                    
+        IF(WC.EQ.'TIT') THEN
+                CALL setLensTitle()
+                return
+              END IF   
+        IF(WC.EQ.'YAN') THEN
+                CALL setField('YAN')
+                return
+              END IF   
+        IF(WC.EQ.'WL') THEN
+                CALL setWavelength()
+                return
+              END IF    
+        IF(WC.EQ.'SO'.OR.WC.EQ.'S') then
+                CALL setSurfaceCodeVStyle(WC)
+                return
+              END IF          
+        IF(isSurfCommand(WC)) then
+                CALL setSurfaceCodeVStyle(WC)
+                return
+              END IF                         
+
+              
+
         IF(WC.EQ.'PLTOPD') THEN
                 CALL PLTOPD
                 return

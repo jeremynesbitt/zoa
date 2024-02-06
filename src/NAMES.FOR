@@ -1,5 +1,6 @@
 C SUB NAMES.FOR
         SUBROUTINE NAMES
+        use type_utils, only: int2str
 C
         IMPLICIT NONE
 C
@@ -1375,8 +1376,22 @@ C     WCC(2003)=' '
       WCC(2071)='PLT3DTST'
       WCC(2072)='PLTOPD'
       WCC(2073)='PLTIMTST'
-      WCC(2074)='NEWLENS'
+      ! This is to do LEN NEW CodeV command, but to adapt to KDP design
+      ! Use this as cmd and check if WQ is NEW to call code
+      WCC(2074)='LEN'
       WCC(2075)='FAN'
+      WCC(2076)='TIT' ! CodeV
+      WCC(2077)='YAN' ! CodeV
+      WCC(2078)='WL' ! CodeV
+      WCC(2079)='SO' ! CodeV
+      ! CodeV allows for 'Sk' where k is any surface.  Add these as names
+      WCC(2080)='S'
+      do I=1,499
+        WCC(2080+I) = 'S'//trim(int2str(I))
+      end do
+
+
+
 C
 C     2049 TO 4500 AVAILABLE FOR OPTICS
 C

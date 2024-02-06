@@ -153,7 +153,7 @@ C
 C SUB CONTRO.FOR
         SUBROUTINE CONTRO
         use zoa_file_handler, only: getPermMacroDir
-        use global_widgets, only: lens_editor_window, 
+        use global_widgets, only: lens_editor_window,
      1 curr_asph_data, sysConfig
         use lens_editor, only: buildBasicTable, buildAsphereTable
         use handlers, only: zoatabMgr
@@ -162,6 +162,7 @@ C
         IMPLICIT NONE
 C
         CHARACTER WCC(1:16000)*8,WC1*8,WQ1*8,WS1*80
+        LOGICAL :: boolResult
 C
         LOGICAL YESEOS,STP,IS,FNYES,FNYES1,NOGO,OHFUN,OREFEXT,ORAYEXT
 C
@@ -3008,6 +3009,7 @@ C               MACRO
       CALL SHOWIT(1)
                 END IF
           FNYES1=.FALSE.
+                PRINT *, "Checking Lens Edit fcns? "
                 IF(WC.EQ.'FUNC01  ') FNYES1=.TRUE.
                 IF(WC.EQ.'FUNC02  ') FNYES1=.TRUE.
                 IF(WC.EQ.'FUNC03  ') FNYES1=.TRUE.
@@ -5176,11 +5178,13 @@ C               IF(WC.EQ.'LOADSCOT')            IS=.TRUE.
                         RETURN
                         END
       SUBROUTINE CONTF(WC,WS,SST,IS)
+      
       IMPLICIT NONE
       CHARACTER WC*8,WS*80
       INTEGER SST
       LOGICAL IS
                         IS=.FALSE.
+                PRINT *, "Checking ", WC
 C       THIS IS THE LIST OF VALID LENS INPUT COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
@@ -5411,6 +5415,8 @@ C       THIS IS THE LIST OF VALID LENS INPUT COMMANDS
                 IF(WC.EQ.'THM')         IS=.TRUE.
                 IF(WC.EQ.'PRICE')       IS=.TRUE.
                 IF(WC.EQ.'AUTOFUNC')    IS=.TRUE.
+              
+
 C     BEGINNING OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'CCR')         IS=.TRUE.
                 IF(WC.EQ.'ROO')         IS=.TRUE.
@@ -5474,13 +5480,15 @@ C     END OF NON-SEQUENTIAL COMMANDS
                         END
       SUBROUTINE CONTG(WC,WS,SST,IS)
 C     LENS UPDATE
+      use codeV_commands, only: isCodeVCommand
       IMPLICIT NONE
       CHARACTER WC*8,WS*80
       INTEGER SST
       LOGICAL IS
 
-      !PRINT *, "CONTG ROUTINE"
+      PRINT *, "CONTG ROUTINE"
                         IS=.FALSE.
+                IF(isCodeVCommand(WC))  IS=.TRUE.        
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.

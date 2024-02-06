@@ -409,6 +409,48 @@ contains
 
   end subroutine
 
+  function getInputNumber(index) result(rslt)
+    use iso_fortran_env, only: real64
+    real(kind=real64) :: rslt
+
+    rslt = currInputData%inputNums(index)
+
+  end function
+
+  ! This is a special parsing as the title is enlcosed in single quotes
+  ! If this is in more commands abstract this
+  function parseTitleCommand() result(title)
+    implicit none
+    character(len=80) :: title
+    character(len=80) :: restOfString
+
+    character(len=5) :: cmdStr
+    integer :: lenInput, lQ, rQ
+    integer :: blankLoc
+    include "DATMAI.INC" ! To get INPUT
+
+    lenInput = len(trim(INPUT))
+
+    title = ""
+    blankLoc = INDEX(trim(INPUT), ' ', BACK=.FALSE.)
+    cmdStr = INPUT(1:blankLoc)
+    restOfString = INPUT(blankLoc+1:lenInput)
+
+    if(cmdStr.EQ.'TIT'.OR.cmdStr.EQ.'TITLE') then 
+      ! We have the right command to parse
+      lQ = INDEX(restOfString, '''', BACK=.FALSE.)
+      rQ = INDEX(restOfString, '''', BACK=.TRUE.)
+      if(lQ.NE.rQ.AND.rQ.GT.lQ) then
+        title = restOfString(lQ+1:rQ-1)
+      else
+        return ! No valid title found
+      end if
+    else
+      return ! No valid title found
+    end if
+
+  end function
+
 
 
 end module
