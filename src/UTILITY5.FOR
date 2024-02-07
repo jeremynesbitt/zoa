@@ -157,6 +157,8 @@ C SUB CONTRO.FOR
      1 curr_asph_data, sysConfig
         use lens_editor, only: buildBasicTable, buildAsphereTable
         use handlers, only: zoatabMgr
+        use codeV_commands, only: startCodeVLensUpdateCmd, 
+     1   isCodeVCommand
         use iso_c_binding, only: c_associated        
 C
         IMPLICIT NONE
@@ -4202,6 +4204,11 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       SST1=SST
       CALL CONTG(WC1,WS1,SST1,IS)
                         IF(IS) THEN
+                ! If command is a codeV command then call it here as the cmd
+                ! will need to be translated to something that will be accessed
+                ! in lenup
+                if (isCodeVCommand(WC)) call startCodeVLensUpdateCmd(WC)          
+
                 CALL LENUP
       !PRINT *, "F31 = ", F31
       !PRINT *, "F28 = ", F28

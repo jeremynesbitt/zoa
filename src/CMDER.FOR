@@ -463,30 +463,11 @@ C       PART DRAWINGS
              CALL NEWLENS
               return
           END IF
+          call setLens()
           RETURN
-        END IF                    
-        IF(WC.EQ.'TIT') THEN
-                CALL setLensTitle()
-                return
-              END IF   
-        IF(WC.EQ.'YAN') THEN
-                CALL setField('YAN')
-                return
-              END IF   
-        IF(WC.EQ.'WL') THEN
-                CALL setWavelength()
-                return
-              END IF    
-        IF(WC.EQ.'SO'.OR.WC.EQ.'S') then
-                CALL setSurfaceCodeVStyle(WC)
-                return
-              END IF          
-        IF(isSurfCommand(WC)) then
-                CALL setSurfaceCodeVStyle(WC)
-                return
-              END IF                         
-
-              
+        END IF  
+        ! Check if we have a CodeV command to execute
+        call startCodeVLensUpdateCmd(WC)
 
         IF(WC.EQ.'PLTOPD') THEN
                 CALL PLTOPD

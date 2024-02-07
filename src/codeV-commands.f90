@@ -6,15 +6,49 @@ module codeV_commands
 
     contains
 
+    subroutine startCodeVLensUpdateCmd(iptCmd)
+        character(len=*) :: iptCmd
+
+        IF(iptCmd.EQ.'TIT') THEN
+                CALL setLensTitle()
+                return
+              END IF   
+        IF(iptCmd.EQ.'YAN') THEN
+                CALL setField('YAN')
+                return
+              END IF   
+        IF(iptCmd.EQ.'WL') THEN
+                CALL setWavelength()
+                return
+              END IF    
+        IF(iptCmd.EQ.'SO'.OR.iptCmd.EQ.'S') then
+                CALL setSurfaceCodeVStyle(iptCmd)
+                return
+              END IF          
+        IF(isSurfCommand(iptCmd)) then
+                CALL setSurfaceCodeVStyle(iptCmd)
+                return
+              END IF                         
+        IF(iptCmd.EQ.'GO') then
+                CALL executeGo()
+                return
+              END IF         
+    end subroutine
+
     subroutine newLens 
         use gtk_hl_dialog
         use handlers, only: zoatabMgr, updateTerminalLog
+        use globals, only: basePath
       
         implicit none  
       
       
         integer :: resp
         character(len=80), dimension(3) :: msg
+
+        ! Temp vars
+        integer :: ios, n
+        character(len=200) :: line
       
         ! Step 1:  Ask user if they are sure
       
@@ -63,6 +97,23 @@ module codeV_commands
         call updateTerminalLog("New Lens Process Cancelled", "black")
       end if
       
+
+      ! Prototype for getting this from file
+      PRINT *, "attempting to open ",trim(basePath)//'Macros/newlens.zoa'
+      open(unit=9, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
+      if ( ios /= 0 ) stop "Error opening file "
+  
+      n = 0
+  
+      do
+          read(9, '(A)', iostat=ios) line
+          if (ios /= 0) then 
+            exit
+          else
+            call PROCESKDP(trim(line))
+          end if
+          n = n + 1
+      end do      
       
       
       
@@ -74,15 +125,13 @@ module codeV_commands
         use kdp_utils, only: inLensUpdateLevel
         include "DATMAI.INC"
 
-        PRINT *, "WS is ", WS
-        PRINT *, "INPUT is ", INPUT
-        PRINT *, "TITLE is ", parseTitleCommand()
+        call executeCodeVLensUpdateCommand('LI '// parseTitleCommand())
 
-        if (inLensUpdateLevel()) then
-            call PROCESKDP('LI '// parseTitleCommand())
-        else
-           call PROCESKDP('U L;LI '// parseTitleCommand()//';EOS')
-        end if
+        ! if (inLensUpdateLevel()) then
+        !     call PROCESKDP('LI '// parseTitleCommand())
+        ! else
+        !    call PROCESKDP('U L;LI '// parseTitleCommand()//';EOS')
+        ! end if
 
       end subroutine
 
@@ -99,16 +148,18 @@ module codeV_commands
 
         inputCheck = checkCommandInput([ID_CMD_NUM])
         if (inputCheck) then
-            
 
+    
         select case (strCmd)
         case('YAN')
-            if (inLensUpdateLevel()) then
-                PRINT *, 'SCY FANG,' // real2str(getInputNumber(1))
-                call PROCESKDP('SCY FANG,' // real2str(getInputNumber(1)))
-            else
-                call PROCESKDP('U L;SCY FANG, '// real2str(getInputNumber(1))//';EOS')
-            end if
+            call executeCodeVLensUpdateCommand('SCY FANG,' // real2str(getInputNumber(1)))
+    
+            ! if (inLensUpdateLevel()) then
+            !     PRINT *, 'SCY FANG,' // real2str(getInputNumber(1))
+            !     call PROCESKDP('SCY FANG,' // real2str(getInputNumber(1)))
+            ! else
+            !     call PROCESKDP('U L;SCY FANG, '// real2str(getInputNumber(1))//';EOS')
+            ! end if
 
         end select
     end if
@@ -138,6 +189,13 @@ module codeV_commands
 
       end subroutine      
 
+      subroutine executeGo()
+        use kdp_utils, only: inLensUpdateLevel
+
+        if (inLensUpdateLevel()) call PROCESKDP('EOS')
+
+      end subroutine
+
       function isSurfCommand(tstCmd) result(boolResult)
         use type_utils, only: int2str
         implicit none
@@ -163,17 +221,14 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(5) :: codeVCmds
+        character(len=3), dimension(6) :: codeVCmds
         integer :: i
 
-        PRINT *, "checking if lens update command is a CodeV command"
-        PRINT *, "tstCmd is ", tstCmd
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=5) :: 'YAN', 'TIT', 'WL', 'SO','S']
+        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
-            print *, "Comparing tst Cmd with ", codeVCmds(i)
             if (tstCmd.EQ.codeVCmds(i)) then
                 boolResult = .TRUE.
                 return
@@ -223,6 +278,30 @@ module codeV_commands
 
 
       end function
+
+      subroutine setLens()
+
+            ! Here I am creating a new default lens.
+            ! Not sure this is the right thing to do, but for now give it a go
+            call PROCESKDP('LENS')
+            call PROCESKDP('WV, 0.635')
+            call PROCESKDP('UNITS MM')
+            call PROCESKDP('SAY, 10.0')
+            call PROCESKDP('CV, 0.0')
+            call PROCESKDP('TH, 0.10E+21')
+            call PROCESKDP('AIR')
+            call PROCESKDP('CV, 0.0')
+            call PROCESKDP('TH, 10.0')
+            call PROCESKDP('REFS')
+            call PROCESKDP('ASTOP')
+            call PROCESKDP('AIR')
+            call PROCESKDP('CV, 0.0')
+            call PROCESKDP('TH, 1.0')
+            call PROCESKDP('EOS')    
+            call PROCESKDP('U L')
+      
+
+      end subroutine
 
 
       subroutine setSurfaceCodeVStyle(iptCmd)

@@ -32,7 +32,9 @@ module kdp_utils
     include "DATMAI.INC"
 
     boolResult = .FALSE.
-    IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.
+    !IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.
+    IF(F6.EQ.1.AND.F10.EQ.0.OR.F6.EQ.1.AND.F11.EQ.0) boolResult = .TRUE.
+    PRINT *, "Lens Update check is ", boolResult
 
   end function
 
