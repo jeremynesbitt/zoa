@@ -1389,6 +1389,10 @@ C     WCC(2003)=' '
       do I=1,499
         WCC(2080+I) = 'S'//trim(int2str(I))
       end do
+      WCC(2581) = 'DIM' ! CodeV
+      WCC(2582) = 'RDY' ! CodeV
+      WCC(2583) = 'THI' ! CodeV
+
 
 
 

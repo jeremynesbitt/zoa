@@ -190,7 +190,7 @@ type lens_data
 
 integer num_surfaces, ref_stop
 real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
-& curvatures(:), pickups(:,:,:), solves(:,:)
+& curvatures(:), pickups(:,:,:), solves(:,:), clearapertures(:)
 character(:), allocatable :: glassnames(:)
 
 
@@ -283,6 +283,8 @@ if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
  DEALLOCATE(self%glassnames)
  DEALLOCATE(self%pickups)
  deallocate(self%solves)
+ deallocate(self%clearapertures)
+
 
 end if
 
@@ -301,6 +303,7 @@ if (.not.allocated(self%radii)) THEN
  ! For now just copy what is in DATLEN.INC
  allocate(self%pickups(6,self%num_surfaces,45))
  allocate(self%solves(9,self%num_surfaces))
+ allocate(self%clearapertures(self%num_surfaces))
 
 
 END IF

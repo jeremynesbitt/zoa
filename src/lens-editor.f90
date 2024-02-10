@@ -92,6 +92,8 @@ module lens_editor
   integer, parameter :: ID_MOD_PICKUP = 3004
   integer, parameter :: ID_MOD_SOLVE  = 3005
 
+  integer, parameter :: ID_SURF_SPHERE = 1
+
 
 
   integer, parameter :: DTYPE_INT = 1
@@ -102,13 +104,14 @@ module lens_editor
 
   integer, parameter :: COL_MODEL_COMBO = 5
 
-
-  integer(kind=c_int), parameter :: ID_COL_RADIUS = 3
-  integer(kind=c_int), parameter :: ID_COL_RADIUS_PICKUP = 4
-  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 5
-  integer(kind=c_int), parameter :: ID_COL_THIC_PICKUP = 6
-  integer(kind=c_int), parameter :: ID_COL_GLASS = 7
-  integer(kind=c_int), parameter :: ID_COL_INDEX = 8
+  integer(kind=c_int), parameter :: ID_COL_SURFTYPE = 4
+  integer(kind=c_int), parameter :: ID_COL_RADIUS = 5
+  integer(kind=c_int), parameter :: ID_COL_RADIUS_PICKUP = 6
+  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 7
+  integer(kind=c_int), parameter :: ID_COL_THIC_PICKUP = 8
+  integer(kind=c_int), parameter :: ID_COL_GLASS = 9
+  integer(kind=c_int), parameter :: ID_COL_CLAP = 10
+  integer(kind=c_int), parameter :: ID_COL_INDEX = 11
 
 
 
@@ -894,10 +897,23 @@ function genPickupStr(ID_PICKUP_TYPE) result(pickupStr)
 
 end function
 
+function genSurfaceTypes() result(typeStr)
+
+  character(len=10), dimension(curr_lens_data%num_surfaces) :: typeStr
+  integer :: i
+
+  do i=1,curr_lens_data%num_surfaces
+    typeStr(i) = "Sphere"
+  end do
+
+
+
+end function
+
 subroutine buildBasicTable(firstTime)
 
     logical :: firstTime
-    integer(kind=c_int), PARAMETER :: ncols = 8
+    integer(kind=c_int), PARAMETER :: ncols = 11
     character(len=10), dimension(ncols) :: colModel
     type(lens_edit_col), dimension(ncols) :: basicTypes
     integer(kind=type_kind), dimension(ncols) :: ctypes
@@ -911,6 +927,11 @@ subroutine buildBasicTable(firstTime)
     integer(c_int), dimension(numModTypes) :: refsArray
     integer :: i
 
+    integer, parameter :: numSurfTypes = 1
+    character(kind=c_char, len=20),dimension(numSurfTypes) :: surfTypeNames
+    integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
+    
+
   
     ! Notes:
     !  Need column titles to be a function of row
@@ -922,6 +943,10 @@ subroutine buildBasicTable(firstTime)
     refsArray(1) = ID_MOD_NONE
     refsArray(2) = ID_MOD_PICKUP
     refsArray(3) = ID_MOD_SOLVE
+    
+    surfTypeNames(1) = "Sphere"
+    surfTypeIDs(1) = ID_SURF_SPHERE
+
    
     PRINT *, "Starting Basic Table Proc"
 
@@ -934,29 +959,44 @@ subroutine buildBasicTable(firstTime)
 
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
     call basicTypes(2)%initialize("Ref"    , G_TYPE_BOOLEAN, FALSE, TRUE, isRefSurface)
+    call basicTypes(3)%initialize("Surface Name"   , G_TYPE_STRING,   FALSE, FALSE, surfIdx)
+    call basicTypes(ID_COL_SURFTYPE)%initialize("Surface Type"   , G_TYPE_STRING,   FALSE, TRUE, genSurfaceTypes(), &
+    & numRows=numSurfTypes, refsArray=surfTypeIDs, valsArray=surfTypeNames)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
-    call basicTypes(4)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_RAD), &
+    call basicTypes(ID_COL_RADIUS_PICKUP)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_RAD), &
     & numRows=numModTypes, refsArray=refsArray, valsArray=valsArray )
     !call basicTypes(4)%initialize("S", G_TYPE_STRING, FALSE, TRUE, tmpArray, &
     !&numRows=numModTypes , refsArray=refsArray, valsArray=valsArray)    
 
     call basicTypes(ID_COL_THICKNESS)%initialize("Thickness" , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%thicknesses )
-    call basicTypes(6)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_THIC), &
+    call basicTypes(ID_COL_THIC_PICKUP)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_THIC), &
     & numRows=numModTypes, refsArray=refsArray, valsArray=valsArray )  
    
     call basicTypes(ID_COL_GLASS)%initialize("Glass"     , G_TYPE_STRING, FALSE, TRUE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
+    call basicTypes(ID_COL_CLAP)%initialize("Aperture" , G_TYPE_FLOAT, FALSE, TRUE, &
+    & curr_lens_data%clearapertures)    
     call basicTypes(ID_COL_INDEX)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
+
+    ! Notes for adding aperture
+    ! Start with circular aperture
+    ! Looks like it is stored here ALENS(10,EDIT_SURFACE)
+    ! Will need to call SETCLAP first as it seems like the default value is 0
+    ! Whether this is a good idea is TBD
+    ! Also would like to figure out CodeV command for this and get it supported
 
     colModel(1) = 'text'
     colModel(2) = 'radio'
     colModel(3) = 'text'
-    colModel(4) = 'combo'
+    colModel(4) = 'text'
+    colModel(ID_COL_RADIUS) = 'text'
+    colModel(ID_COL_RADIUS_PICKUP) = 'combo'
     !colModel(4) = 'text'
-    colModel(5) = 'text'
-    colModel(6) = 'combo'
-    colModel(7) = 'text'
-    colModel(8) = 'text'
+    colModel(ID_COL_THICKNESS) = 'text'
+    colModel(ID_COL_THIC_PICKUP) = 'combo'
+    colModel(ID_COL_GLASS) = 'text'
+    colModel(ID_COL_CLAP) = 'text' 
+    colModel(ID_COL_INDEX) = 'text'
 
     ! gathering step to be compabible with hl_gtk interface
     do i=1,ncols
@@ -979,8 +1019,9 @@ subroutine buildBasicTable(firstTime)
     end if
 
     !call buildTree(ihList, basicTypes)
-    call hl_gtk_listn_attach_combo_box_model(ihlist, 3_c_int, valsArray, refsArray)
-    call hl_gtk_listn_attach_combo_box_model(ihlist, 5_c_int, valsArray, refsArray)
+    call hl_gtk_listn_attach_combo_box_model(ihlist, (ID_COL_SURFTYPE-1), surfTypeNames, surfTypeIDs)
+    call hl_gtk_listn_attach_combo_box_model(ihlist, (ID_COL_RADIUS_PICKUP-1), valsArray, refsArray)
+    call hl_gtk_listn_attach_combo_box_model(ihlist, (ID_COL_THIC_PICKUP-1), valsArray, refsArray)
 
 
     ! Now put 10 top level rows into it
@@ -1421,8 +1462,20 @@ end subroutine
 
 
          case (DTYPE_FLOAT)
-        call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
-             & fvalue=colObj(j)%getElementFloat(i))
+          ! Special case - deal with infinity
+          if (j.EQ.ID_COL_THICKNESS) then
+            if (colObj(j)%getElementFloat(i).GT.(1e13)) then
+              call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
+             & svalue="Infinity")
+            else
+            call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
+              & fvalue=colObj(j)%getElementFloat(i))
+            end if
+          else
+            call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &
+              & fvalue=colObj(j)%getElementFloat(i))
+          end if            
+          
 
         case (DTYPE_STRING)
           call hl_gtk_listn_set_cell(ihObj, row=i-1_c_int, col=(j-1), &

@@ -467,7 +467,7 @@ C       PART DRAWINGS
           RETURN
         END IF  
         ! Check if we have a CodeV command to execute
-        call startCodeVLensUpdateCmd(WC)
+        If (startCodeVLensUpdateCmd(WC)) return
 
         IF(WC.EQ.'PLTOPD') THEN
                 CALL PLTOPD

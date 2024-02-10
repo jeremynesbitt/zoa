@@ -404,10 +404,20 @@ contains
       self%maxNums = 5
      end if
      
+     ! TODO:  only populate this if WQ is valid for this cmd
+     self%inputQualWord = WQ
+     
 
 
 
   end subroutine
+
+  function getQualWord() result(rslt)
+    character(len=10) :: rslt
+
+    rslt = currInputData%inputQualWord
+
+  end function  
 
   function getInputNumber(index) result(rslt)
     use iso_fortran_env, only: real64

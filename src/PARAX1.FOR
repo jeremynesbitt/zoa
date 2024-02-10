@@ -490,6 +490,7 @@ C     Dump data to interface
         curr_lens_data % surf_vnum(JJ+1) = VNUM
         !curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
         curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,2)
+        curr_lens_data % clearapertures(JJ+1) = ALENS(10,JJ)
         !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
         !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
 

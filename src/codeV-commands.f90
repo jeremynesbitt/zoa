@@ -6,33 +6,137 @@ module codeV_commands
 
     contains
 
-    subroutine startCodeVLensUpdateCmd(iptCmd)
-        character(len=*) :: iptCmd
+    function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
 
-        IF(iptCmd.EQ.'TIT') THEN
-                CALL setLensTitle()
-                return
-              END IF   
-        IF(iptCmd.EQ.'YAN') THEN
-                CALL setField('YAN')
-                return
-              END IF   
-        IF(iptCmd.EQ.'WL') THEN
-                CALL setWavelength()
-                return
-              END IF    
-        IF(iptCmd.EQ.'SO'.OR.iptCmd.EQ.'S') then
-                CALL setSurfaceCodeVStyle(iptCmd)
-                return
-              END IF          
+        character(len=*) :: iptCmd
+        logical :: boolResult
+
+        boolResult = .FALSE.
+
+        ! IF(iptCmd.EQ.'TIT') THEN
+        !         CALL setLensTitle()
+        !         return
+        !       END IF   
+        ! IF(iptCmd.EQ.'YAN') THEN
+        !         CALL setField('YAN')
+        !         return
+        !       END IF   
+        ! IF(iptCmd.EQ.'WL') THEN
+        !         CALL setWavelength()
+        !         return
+        !       END IF    
+        ! IF(iptCmd.EQ.'SO'.OR.iptCmd.EQ.'S') then
+        !         CALL setSurfaceCodeVStyle(iptCmd)
+        !         return
+        !       END IF          
+        ! IF(isSurfCommand(iptCmd)) then
+        !         CALL setSurfaceCodeVStyle(iptCmd)
+        !         return
+        !       END IF                         
+        ! IF(iptCmd.EQ.'GO') then
+        !         CALL executeGo()
+        !         return
+        !       END IF  
+        ! select case (iptCmd)
+
+        select case (iptCmd)
+
+        case('YAN')
+            CALL setField('YAN')
+            boolResult = .TRUE.
+            return
+        case('WL')
+            CALL setWavelength()
+            boolResult = .TRUE.
+            return            
+        case('SO','S')
+            CALL setSurfaceCodeVStyle(iptCmd)
+            boolResult = .TRUE.
+            return            
+        case('GO')
+            CALL executeGo()
+            boolResult = .TRUE.
+            return
+
+        case('TIT') 
+            CALL setLensTitle()
+            boolResult = .TRUE.
+            return            
+        case ('DIM')
+            call setDim()
+            boolResult = .TRUE.
+            return 
+        case ('THI')
+            call setThickness(iptCmd)
+            boolResult = .TRUE.
+            return 
+        case ('RDY')
+            call setRadius(iptCmd)
+            boolResult = .TRUE.
+            return                         
+        end select
+
+        ! Handle Sk separately
         IF(isSurfCommand(iptCmd)) then
-                CALL setSurfaceCodeVStyle(iptCmd)
-                return
-              END IF                         
-        IF(iptCmd.EQ.'GO') then
-                CALL executeGo()
-                return
-              END IF         
+            CALL setSurfaceCodeVStyle(iptCmd)
+            return
+          END IF            
+              
+    end function
+
+    subroutine setThickness(iptCmd)
+        use command_utils, only : checkCommandInput, getInputNumber
+        use type_utils, only: real2str, int2str
+        character(len=*) :: iptCmd
+        integer :: surfNum
+
+       
+        if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
+            surfNum = INT(getInputNumber(1))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; TH, ' // real2str(getInputNumber(2)))
+        end if                    
+
+    end subroutine
+
+    subroutine setRadius(iptCmd)
+        use command_utils, only : checkCommandInput, getInputNumber
+        use type_utils, only: real2str, int2str
+        character(len=*) :: iptCmd
+        integer :: surfNum
+
+       
+        if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
+            surfNum = INT(getInputNumber(1))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // real2str(getInputNumber(2)))
+        end if                    
+
+    end subroutine
+
+
+
+    subroutine setDim()
+        use command_utils
+        logical :: inputCheck
+
+         inputCheck = checkCommandInput([ID_CMD_QUAL], qual_words=['M', 'C', 'I'], &
+         &qual_only_err_msg="DIM Takes only M(mm), C(cm), or I(inches) as input")
+
+        ! TODO:  Get qual letter and direct to correct command
+        ! if (inputCheck) then
+            select case (getQualWord())
+
+            case ('M')
+                call executeCodeVLensUpdateCommand("UNITS MM")
+            case ('C')
+                call executeCodeVLensUpdateCommand("UNITS CM")
+            case ('I')
+                call executeCodeVLensUpdateCommand("UNITS IN")
+
+            end select
+
+
     end subroutine
 
     subroutine newLens 
@@ -221,12 +325,12 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(6) :: codeVCmds
+        character(len=3), dimension(9) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO']
+        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then

@@ -4207,7 +4207,11 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
                 ! If command is a codeV command then call it here as the cmd
                 ! will need to be translated to something that will be accessed
                 ! in lenup
-                if (isCodeVCommand(WC)) call startCodeVLensUpdateCmd(WC)          
+                if (isCodeVCommand(WC)) then 
+                   if(startCodeVLensUpdateCmd(WC)) then
+                     return
+                   end if
+                  end if
 
                 CALL LENUP
       !PRINT *, "F31 = ", F31
