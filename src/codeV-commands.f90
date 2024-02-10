@@ -73,7 +73,11 @@ module codeV_commands
         case ('RDY')
             call setRadius(iptCmd)
             boolResult = .TRUE.
-            return                         
+            return  
+        case ('INS')
+            call insertSurf()
+            boolResult = .TRUE.
+            return                                     
         end select
 
         ! Handle Sk separately
@@ -111,6 +115,24 @@ module codeV_commands
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // real2str(getInputNumber(2)))
         end if                    
+
+    end subroutine
+
+    subroutine insertSurf()
+        use command_utils, only : checkCommandInput, getInputNumber, getQualWord
+        use type_utils, only: real2str, int2str
+        integer :: surfNum
+
+        PRINT *, "Inside insertSurf"
+
+        if (checkCommandInput([ID_CMD_QUAL])) then
+            surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
+            PRINT *, "About to try cmd ", 'INSK, '//trim(int2str(surfNum))
+            call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
+        end if            
+
+
+
 
     end subroutine
 
@@ -325,12 +347,12 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(9) :: codeVCmds
+        character(len=3), dimension(10) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI']
+        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', 'INS']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then

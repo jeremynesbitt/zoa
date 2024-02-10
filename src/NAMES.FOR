@@ -283,7 +283,7 @@ C
                 WCC(258)='CLAPD'
                 WCC(259)='COBSD'
                 WCC(260)='ASID'
-                WCC(261)='INS'
+                WCC(261)='INSK' ! Was INS but since it conflicted with CodeV changed it to INSK
                 WCC(262)='DEL'
                 WCC(263)='RTG'
                 WCC(264)='CTG'
@@ -1392,6 +1392,8 @@ C     WCC(2003)=' '
       WCC(2581) = 'DIM' ! CodeV
       WCC(2582) = 'RDY' ! CodeV
       WCC(2583) = 'THI' ! CodeV
+      WCC(2584) = 'INS' ! CodeV
+
 
 
 

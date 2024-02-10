@@ -309,7 +309,7 @@ end subroutine lens_editor_replot
     call PROCESKDP('U L')
     WRITE(kdptext,*) 'CHG,', iset(1)
         call PROCESKDP(kdptext)
-        call PROCESKDP('INS')
+        call PROCESKDP('INSK')
         call PROCESKDP('EOS')
         call PROCESKDP('OUT TP')
 

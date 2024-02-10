@@ -292,4 +292,20 @@ function getPermMacroDir() result(permDir)
 
 end function
 
+!subroutine exportCurrentSessionToFile(fName)
+!  character(len=*) :: fName
+
+  ! FOr now, pseudocode
+   ! writeLine('LEN')
+   ! writeLine('TIT '//'//getLensSystemTitle()//')
+   ! writeLine(getPupilCmd)
+   ! writeLine(getFieldDefinition)
+   ! writeLine(getWavelength)
+   ! do i=1, numSurfaces
+   ! writeLine(surfaceData)
+   ! end do
+   ! writeLine('GO')
+
+!end subroutine
+
 end module

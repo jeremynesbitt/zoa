@@ -577,7 +577,7 @@ C
         REAL*8 RAL,RBE,CGAM,SGAM,RGAM
 C
         !PRINT *, "IN LENUP ROUTINE"
-        call updateTerminalLog(INPUT, "red")
+        !call updateTerminalLog(INPUT, "red")
 
         IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
                 CALL MESCOM
@@ -1055,7 +1055,7 @@ C       COMMAND (CHG,W1)
                 RETURN
                 END IF
 C       COMMAND (INS,W1)
-                IF(WC.EQ.'INS') THEN
+                IF(WC.EQ.'INSK') THEN
       IF(F12.NE.1) THEN
       OUTLYNE='"INS" ONLY WORKS IN CONFIGURATION #1 (MAIN CONFIG)'
       CALL SHOWIT(1)

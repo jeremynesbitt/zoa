@@ -90,6 +90,7 @@ if fortran.get_id().contains('gcc')
     #'-fsanitize=address,undefined',
     #'-pedantic',
     #'-Wtabs',
+    '-frecursive',
     '-fcheck=bounds',
     '-fcheck=mem',
     '-fcheck=pointer',

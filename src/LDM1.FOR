@@ -1579,7 +1579,7 @@ C
                         GO TO 200
                         ELSE
                         END IF
-        IF(WC.EQ.'INS') THEN
+        IF(WC.EQ.'INSK') THEN
         VA1=1
         VAL='"INS" INSERTS A NEW SURFACE'
                         GO TO 200

@@ -5801,7 +5801,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'PIKD')        IS=.TRUE.
                 IF(WC.EQ.'CLAPD')       IS=.TRUE.
                 IF(WC.EQ.'COBSD')       IS=.TRUE.
-                IF(WC.EQ.'INS')         IS=.TRUE.
+                IF(WC.EQ.'INSK')         IS=.TRUE.
                 IF(WC.EQ.'DEL')         IS=.TRUE.
                 IF(WC.EQ.'INR')         IS=.TRUE.
                 IF(WC.EQ.'INRD')        IS=.TRUE.
