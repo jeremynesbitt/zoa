@@ -81,7 +81,15 @@ module codeV_commands
         case ('GLA')
             call setGlass()
             boolResult = .TRUE.
-            return                                                 
+            return           
+        case ('PIM')
+            call setParaxialImageSolve()
+            boolResult = .TRUE.
+            return     
+        case ('EPD')
+            call setEPD()
+            boolResult = .TRUE.
+            return                                                                         
         end select
 
         ! Handle Sk separately
@@ -91,6 +99,38 @@ module codeV_commands
           END IF            
               
     end function
+
+    subroutine setEPD()
+        use command_utils
+        use type_utils, only: real2str
+        logical :: inputCheck
+
+         if(checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
+            call executeCodeVLensUpdateCommand('SAY '//real2str(getInputNumber(1)/2.0))
+         end if      
+
+
+
+        ! IF(WC.EQ.'EPD') THEN
+        !     IF(DF1.EQ.0) W1=W1/2.0D0
+        !     WC='SAY'
+        !             END IF        
+
+    end subroutine
+
+    subroutine setParaxialImageSolve()
+        use global_widgets, only: curr_lens_data
+        use type_utils, only: int2str
+        integer :: surfNum
+
+        ! Get surface before last surface and add solve
+        surfNum = curr_lens_data%num_surfaces - 2
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+        & '; PY, 0')            
+
+
+    end subroutine
+
 
     ! format:  GLA Sk GLASSNAME
     subroutine setGlass()
@@ -104,6 +144,8 @@ module codeV_commands
         integer :: numTokens
 
         include "DATMAI.INC"
+
+        call updateTerminalLog("Starting to update GLA ", "blue" )
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
 
@@ -413,12 +455,13 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(11) :: codeVCmds
+        character(len=3), dimension(13) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', 'INS', 'GLA']
+        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', &
+        & 'INS', 'GLA', 'PIM', 'EPD']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then

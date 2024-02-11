@@ -192,10 +192,7 @@ C
 
         IF(WC.EQ.'ANGLES') RETURN
         IF(WC.EQ.'MYGLASS') WC='GLASS'
-      IF(WC.EQ.'EPD') THEN
-        IF(DF1.EQ.0) W1=W1/2.0D0
-        WC='SAY'
-                END IF
+
       IF(WC.NE.'PLTCHRSH') CHRSHIFTEXT=.FALSE.
       IF(F3.NE.1.AND.F2.NE.1) THEN
       IF(WC(1:8).EQ.'SHO     '.AND.SQ.EQ.0.AND.S1.EQ.0) THEN
