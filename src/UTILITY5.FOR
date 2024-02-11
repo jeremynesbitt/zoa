@@ -5441,7 +5441,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'CAX')         IS=.TRUE.
                 IF(WC.EQ.'CLAP')        IS=.TRUE.
                 IF(WC.EQ.'COBS')        IS=.TRUE.
-                IF(WC.EQ.'GLA')         IS=.TRUE.
+                IF(WC.EQ.'GLAK')         IS=.TRUE.
                 IF(WC.EQ.'DEFORM')      IS=.TRUE.
                 IF(WC.EQ.'DELDEFOR')    IS=.TRUE.
                 IF(WC.EQ.'GLASS')       IS=.TRUE.
@@ -5697,7 +5697,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'CAX')         IS=.TRUE.
                 IF(WC.EQ.'CLAP')        IS=.TRUE.
                 IF(WC.EQ.'COBS')        IS=.TRUE.
-                IF(WC.EQ.'GLA')         IS=.TRUE.
+                IF(WC.EQ.'GLAK')         IS=.TRUE.
                 IF(WC.EQ.'GLASS')       IS=.TRUE.
                 IF(WC.EQ.'DEFORM')      IS=.TRUE.
                 IF(WC.EQ.'DELDEFOR')    IS=.TRUE.
@@ -7911,7 +7911,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'CAX')         IS=.TRUE.
                 IF(WC.EQ.'CLAP')        IS=.TRUE.
                 IF(WC.EQ.'COBS')        IS=.TRUE.
-                IF(WC.EQ.'GLA')         IS=.TRUE.
+                IF(WC.EQ.'GLAK')         IS=.TRUE.
                 IF(WC.EQ.'GLASS')       IS=.TRUE.
                 IF(WC.EQ.'DEFORM')      IS=.TRUE.
                 IF(WC.EQ.'DELDEFOR')    IS=.TRUE.

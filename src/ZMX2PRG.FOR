@@ -1605,7 +1605,7 @@ C     FIND NEXT BLANK
       IF(TEMPER(1:6).EQ.'MIRROR') GLASSA='REFL                       '
       IF(TEMPER(1:3).NE.'AIR'.AND.TEMPER(1:4).NE.'REFL'.AND.
      1TEMPER(1:6).NE.'MIRROR')
-     2GLASSA='GLA '//TEMPER(1:J-1)
+     2GLASSA='GLAK '//TEMPER(1:J-1)
       TEMPC(I)(1:1024)=BL1024(1:1024)
                                 GO TO 8888
                                 ELSE

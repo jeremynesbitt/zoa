@@ -950,7 +950,7 @@ C       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
                 IF(WC.EQ.'SCHOTT'.OR.
      1          WC.EQ.'OHARA'.OR.WC.EQ.'CHANCE'.OR.
      2          WC.EQ.'CORNIN'.OR.WC.EQ.'RADHARD'.OR.
-     3          WC.EQ.'MATL'.OR.WC.EQ.'GLA'.OR.
+     3          WC.EQ.'MATL'.OR.WC.EQ.'GLAK'.OR.
      4          WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.
      4          WC.EQ.'HIKARI'.OR.WC.EQ.'SCH2000'.OR.
      6          WC.EQ.'HOYA'.OR.WC.EQ.'GLCAT') THEN

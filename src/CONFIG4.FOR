@@ -2599,7 +2599,7 @@ C       QUALIFIER MUST BE 'DEL'
         IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'
      1  .OR.WC.EQ.'CHANCE'.OR.WC.EQ.'CORNIN'.OR.WC.EQ.'HIKARI'
      2  .OR.WC.EQ.'RADHARD'.OR.WC.EQ.'MATL'.OR.WC.EQ.'SCH2000'.OR.
-     3  WC.EQ.'GLCAT'.OR.WC.EQ.'GLA'.OR.WC.EQ.'RUSSIAN') THEN
+     3  WC.EQ.'GLCAT'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'RUSSIAN') THEN
         IF(SN.EQ.1.OR.SQ.EQ.1) THEN
 C
         IF(WQ.EQ.'SCHOTT') THEN
@@ -4560,7 +4560,7 @@ C
                 IF(ATEST(1:14).EQ.'PIKD     AETOR')AJJK=26
                 IF(ATEST(1:14).EQ.'PIKD     AFTOR')AJJK=27
                 IF(ATEST(1:14).EQ.'PIKD     AGTOR')AJJK=28
-                IF(ATEST(1:5).EQ.'GLA')AJJK=33
+                IF(ATEST(1:5).EQ.'GLAK')AJJK=33
                 IF(ATEST(1:5).EQ.'MODEL')AJJK=33
                 IF(ATEST(1:7).EQ.'GLASS')AJJK=33
                 IF(ATEST(1:6).EQ.'SCHOTT')AJJK=33

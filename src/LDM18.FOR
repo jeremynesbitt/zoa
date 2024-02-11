@@ -279,7 +279,7 @@ C       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
      2          WC.EQ.'CORNIN'.OR.WC.EQ.'MATL'.OR.
      6          WC.EQ.'HOYA'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'RADHARD'
      7          .OR.WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'HIKARI'
-     7          .OR.WC.EQ.'GLA')THEN
+     7          .OR.WC.EQ.'GLAK')THEN
                 CALL GLSCAT
         CALL FLUSHNEXT
                 RETURN
@@ -310,7 +310,7 @@ C       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
      2          WC.EQ.'CORNIN'.OR.WC.EQ.'MATL'.OR.
      6          WC.EQ.'HOYA'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'RADHARD'
      7          .OR.WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'HIKARI'
-     7          .OR.WC.EQ.'GLA')THEN
+     7          .OR.WC.EQ.'GLAK')THEN
                 CALL GLSCAT
         CALL FLUSHNEXT
                 RETURN

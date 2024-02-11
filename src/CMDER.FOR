@@ -836,7 +836,7 @@ C
         RETURN
         END IF
         IF(WC.EQ.'GLASSP') THEN
-        IF(WQ.EQ.'GLA'.AND.SST.EQ.0.OR.
+        IF(WQ.EQ.'GLAK'.AND.SST.EQ.0.OR.
      1WQ.EQ.'GLCAT'.AND.SST.EQ.0) THEN
                WQ='SCHOTT'
                CALL GLASSP
@@ -858,7 +858,7 @@ C
                CALL GLASSP
                WQ='RADHARD'
                CALL GLASSP
-               WQ='GLA'
+               WQ='GLAK'
                    ELSE
         IF(WS(1:1).EQ.':') WS(1:80)=WS(2:80)
         CALL GLASSP
@@ -3907,7 +3907,7 @@ C
         IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'.OR.
      1WC.EQ.'CORNIN'.OR.WC.EQ.'CHANCE'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.
      2'MATL'.OR.WC.EQ.'RADHARD'.OR.WC.EQ.'USER'.OR.WC.EQ.'HIKARI'
-     3.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'GLA'.OR.WC.EQ.'AIR'.OR.WC.EQ.
+     3.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR'.OR.WC.EQ.
      4'SCH2000') THEN
       IF(WS(1:1).EQ.':') WS(1:80)=WS(2:80)
         CALL GLSRIN

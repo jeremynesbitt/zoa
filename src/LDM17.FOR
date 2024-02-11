@@ -1350,7 +1350,7 @@ C       FOLLOWED BY THE SECOND FULL GLASS NAME EACH IN 2(A13) FORMAT
      1  GLANAM(I,1).EQ.'SCH2000'.OR.
      2  GLANAM(I,1).EQ.'HIKARI'.OR.GLANAM(I,1).EQ.'GLCAT'.OR.
      3  GLANAM(I,1).EQ.'MATL'.OR.GLANAM(I,1).EQ.'RUSSIAN'.OR.
-     4  GLANAM(I,1).EQ.'GLA'.OR.GLANAM(I,1).EQ.'RADHARD'.OR.
+     4  GLANAM(I,1).EQ.'GLAK'.OR.GLANAM(I,1).EQ.'RADHARD'.OR.
      5  GLANAM(I,1).EQ.'USER'.OR.GLANAM(I,1).EQ.'OHARA') THEN
         IF(GLANAM(I,2).NE.'AIR'.AND.GLANAM(I,2).NE.'REFL'.AND.
      1  GLANAM(I,2).NE.'REFLTIRO') THEN
@@ -3493,7 +3493,7 @@ C
         CALL SHOWIT(10)
                 RETURN
                 END IF
-      GLANAM(I,1)='GLA'
+      GLANAM(I,1)='GLAK'
                         DO J=1,6
                         IF(GLANAM(I,2)(J:J).EQ.' ') THEN
                         IG=J
@@ -3501,7 +3501,7 @@ C
                         END IF
                         END DO
  101                    CONTINUE
-        IF(GLANAM(I,1)(1:5).EQ.'GLA') THEN
+        IF(GLANAM(I,1)(1:5).EQ.'GLAK') THEN
       IF(IG.EQ.1)
      1WRITE(OUTLYNE,201)GLANAM(I,1)(1:6),GLANAM(I,2)(1:IG),ALENS(46,I),
      2ALENS(47,I),ALENS(48,I),ALENS(49,I),ALENS(50,I)

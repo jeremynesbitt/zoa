@@ -1019,7 +1019,7 @@ C     DETERMINE GLASS NAME
       IF(TEMPC(I)(J+1:J+1).EQ.'S'.AND.TEMPC(I)(1:4).EQ.'BAF2') THEN
       GLASSA='MATL '//TEMPC(I)(1:J-1)
                        ELSE
-      GLASSA='GLA '//TEMPC(I)(1:J-1)
+      GLASSA='GLAK '//TEMPC(I)(1:J-1)
                        END IF
       TEMPC(I)(1:1024)=BL1024(1:1024)
       GO TO 7777

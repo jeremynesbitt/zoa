@@ -798,7 +798,7 @@ C
                 IF(WC.EQ.'REFLTIR') MAT=1
                 IF(WC.EQ.'PERFECT') MAT=1
                 IF(WC.EQ.'IDEAL') MAT=1
-                IF(WC.EQ.'GLA') MAT=1
+                IF(WC.EQ.'GLAK') MAT=1
                 IF(WC.EQ.'GLASS') MAT=1
                 IF(WC.EQ.'MODEL') MAT=1
                 IF(WC.EQ.'OHARA') MAT=1

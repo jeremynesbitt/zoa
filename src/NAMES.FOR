@@ -241,7 +241,7 @@ C
                 WCC(216)='CAX'
                 WCC(217)='CLAP'
                 WCC(218)='COBS'
-                WCC(219)='GLA'
+                WCC(219)='GLAK'
                 WCC(220)='SCHOTT'
                 WCC(221)='OHARA'
                 WCC(222)='HOYA'
@@ -1393,6 +1393,8 @@ C     WCC(2003)=' '
       WCC(2582) = 'RDY' ! CodeV
       WCC(2583) = 'THI' ! CodeV
       WCC(2584) = 'INS' ! CodeV
+      WCC(2585) = 'GLA' ! CodeV
+
 
 
 

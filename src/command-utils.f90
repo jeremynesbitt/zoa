@@ -240,9 +240,9 @@ contains
   fst = INDEX(subString, delim, BACK=.FALSE.)
   abslst = INDEX(subString, delim, BACK=.TRUE.)
 
-  print *, "fst is ", fst
-  print *, "abslst is ", abslst
-  print *, "len of cmdInput is ", len(cmdInput)
+  !print *, "fst is ", fst
+  !print *, "abslst is ", abslst
+  !print *, "len of cmdInput is ", len(cmdInput)
 
   !print *, "End of string is ", cmdInput(abslst:len(cmdInput))
   
@@ -269,9 +269,9 @@ contains
   do while (fst > 1)
      fst = INDEX(subString, delim, BACK=.FALSE.)
      lst = INDEX(subString, delim, BACK=.TRUE.)
-       PRINT *, "i is ", i
-       PRINT *, "fst is ", fst
-       PRINT *, "lst is ", lst
+       !PRINT *, "i is ", i
+       !PRINT *, "fst is ", fst
+       !PRINT *, "lst is ", lst
 
      !if (fst==lst) then
        ! We have the last token.  Need to exit loop
@@ -296,16 +296,16 @@ contains
        end if
       end if
      !end if
-     PRINT *, "token is ", tokens(i)
-     PRINT *, "subString before removing token(i) is ", subString
-     PRINT *, "tot is ", tot
-     PRINT *, "remaining cmd is ", cmdInput(tot+1:len(cmdInput))
+     !PRINT *, "token is ", tokens(i)
+     !PRINT *, "subString before removing token(i) is ", subString
+     !PRINT *, "tot is ", tot
+     !PRINT *, "remaining cmd is ", cmdInput(tot+1:len(cmdInput))
      
 
      if(present(tokenLen)) tokenLen(i) = fst-1
      i = i+1
      if (fst<len(cmdInput)) subString = subString(fst+1:len(cmdInput))
-     PRINT *, "subString is ", subString
+     !PRINT *, "subString is ", subString
   end do
 
     numTokens = i-1

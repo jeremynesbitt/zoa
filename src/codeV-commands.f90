@@ -77,7 +77,11 @@ module codeV_commands
         case ('INS')
             call insertSurf()
             boolResult = .TRUE.
-            return                                     
+            return      
+        case ('GLA')
+            call setGlass()
+            boolResult = .TRUE.
+            return                                                 
         end select
 
         ! Handle Sk separately
@@ -87,6 +91,47 @@ module codeV_commands
           END IF            
               
     end function
+
+    ! format:  GLA Sk GLASSNAME
+    subroutine setGlass()
+        use command_utils, only : checkCommandInput, getInputNumber, parseCommandIntoTokens
+        use type_utils, only: real2str, int2str
+        use handlers, only: updateTerminalLog
+
+        !character(len=*) :: iptCmd
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            call updateTerminalLog("Tokens(3) is "//trim(tokens(3)), "blue" )
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; GLAK ' // trim(tokens(3)))            
+            PRINT *, "tokens(3) is ", trim(tokens(3))
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if                
+
+        
+
+        PRINT *, "tokens(1) is ", trim(tokens(2))
+        PRINT *, "tokens(2) is ", trim(tokens(3))
+        
+
+       
+        ! if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
+        !     surfNum = INT(getInputNumber(1))
+        !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+        !     & '; RD, ' // real2str(getInputNumber(2)))
+        ! end if                    
+
+    end subroutine
 
     subroutine setThickness(iptCmd)
         use command_utils, only : checkCommandInput, getInputNumber
@@ -123,7 +168,8 @@ module codeV_commands
         use type_utils, only: real2str, int2str
         integer :: surfNum
 
-        PRINT *, "Inside insertSurf"
+        !PRINT *, "Inside insertSurf"
+        ! TODO:  Add an error check for Sk in checkCommandInput
 
         if (checkCommandInput([ID_CMD_QUAL])) then
             surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
@@ -347,12 +393,12 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(10) :: codeVCmds
+        character(len=3), dimension(11) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', 'INS']
+        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', 'INS', 'GLA']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then
