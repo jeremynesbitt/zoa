@@ -469,41 +469,45 @@ C
       OUTLYNE = "PRTRA ROUTINE STARTED! "
       CALL SHOWIT(19)
 
+      
+
 C       Update Lens data class
 C     Dump data to interface modules
-      call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
-      curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
-      DO JJ=0,INT(SYSTEM(20))
-        CALL SINDEXJN(JJ, INDEX, VNUM)
-        IF(ALENS(1,JJ).EQ.0.0D0) THEN
-                        RD=0.0D0
-                        ELSE
-                        RD=1.0D0/(ALENS(1,JJ))
-                        END IF
+      call curr_lens_data%update()
 
-C     Dump data to interface
-        !TODO:  Move this to curr lens nmdule
-        curr_lens_data % radii(JJ+1) = RD
-        curr_lens_data % curvatures(JJ+1) = ALENS(1,JJ)
-        curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)
-        curr_lens_data % surf_index(JJ+1) = INDEX
-        curr_lens_data % surf_vnum(JJ+1) = VNUM
-        !curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
-        curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,2)
-        curr_lens_data % clearapertures(JJ+1) = ALENS(10,JJ)
-        !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
-        !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
+!       call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
+!       curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
+!       DO JJ=0,INT(SYSTEM(20))
+!         CALL SINDEXJN(JJ, INDEX, VNUM)
+!         IF(ALENS(1,JJ).EQ.0.0D0) THEN
+!                         RD=0.0D0
+!                         ELSE
+!                         RD=1.0D0/(ALENS(1,JJ))
+!                         END IF
 
-C       PRINT THE PIKUP
+! C     Dump data to interface
+!         !TODO:  Move this to curr lens nmdule
+!         curr_lens_data % radii(JJ+1) = RD
+!         curr_lens_data % curvatures(JJ+1) = ALENS(1,JJ)
+!         curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)
+!         curr_lens_data % surf_index(JJ+1) = INDEX
+!         curr_lens_data % surf_vnum(JJ+1) = VNUM
+!         !curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
+!         curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,2)
+!         curr_lens_data % clearapertures(JJ+1) = ALENS(10,JJ)
+!         !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
+!         !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
 
-        ! Pickup storage
-        curr_lens_data % pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
-        curr_lens_data % solves(1:6,JJ+1) = SOLVE(1:6,JJ)
+! C       PRINT THE PIKUP
 
-        !ARE THERE MORE PIKUPS? IF NOT SET ALENS(32,SURF) TO ZERO.
+!         ! Pickup storage
+!         curr_lens_data % pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
+!         curr_lens_data % solves(1:6,JJ+1) = SOLVE(1:6,JJ)
+
+!         !ARE THERE MORE PIKUPS? IF NOT SET ALENS(32,SURF) TO ZERO.
 
 
-      END DO
+!       END DO
 
         !Refresh lens editor
       !PRINT *, "lens_editor_window is ", lens_editor_window

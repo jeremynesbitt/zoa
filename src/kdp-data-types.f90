@@ -198,6 +198,7 @@ contains
 procedure, public, pass(self) :: set_num_surfaces
 procedure, public, pass(self)  :: add_lens_data
 procedure, public, pass(self) :: imageSurfaceIsIdeal
+procedure, public, pass(self) :: update => updateLensData
 !procedure, private, pass(self) ::
 
 end type lens_data
@@ -1303,6 +1304,51 @@ function genKDPCMDToRemoveSolve(self, surf) result(outTxt)
  outTxt = "TSD, "//trim(int2str(surf)//","//trim(int2str(surf)))
      
 end function  
+
+! Call this from KDP side when data is updated for lens system
+! Challenge is to find all the places in KDP where this happens
+subroutine updateLensData(self)
+  use iso_fortran_env, only: real64
+  implicit none
+  class(lens_data) :: self
+  integer :: JJ
+  real(kind=real64) :: INDEX, VNUM, RD
+  include "DATMAI.INC"
+  include "DATLEN.INC"
+
+  JJ = 0
+  PRINT *, "Surface numbe is ", INT(SYSTEM(20))
+  call self%set_num_surfaces(INT(SYSTEM(20)) + 1)
+  self%ref_stop = INT(SYSTEM(25)+1)
+  DO JJ=0,self%num_surfaces-1
+    PRINT *, "JJ is ", JJ
+    CALL SINDEXJN(JJ, INDEX, VNUM)
+    PRINT *, "JJ after SINDEXJN is ", JJ
+    PRINT *, "ALENS(1,JJ is ", ALENS(1,JJ)
+    IF(ALENS(1,JJ).EQ.0.0D0) THEN
+      RD=0.0D0
+    ELSE
+      RD=1.0D0/(ALENS(1,JJ))
+    END IF
+
+!     Dump data to interface
+    self%radii(JJ+1) = RD
+    self%curvatures(JJ+1) = ALENS(1,JJ)
+    self%thicknesses(JJ+1) = ALENS(3,JJ)
+    self%surf_index(JJ+1) = INDEX
+    self%surf_vnum(JJ+1) = VNUM
+    self%glassnames(JJ+1) = GLANAM(JJ,2)
+    self%clearapertures(JJ+1) = ALENS(10,JJ)
+
+    ! Pickup and Solvesstorage
+    self%pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
+    self%solves(1:6,JJ+1) = SOLVE(1:6,JJ)
+
+
+  END DO
+
+
+end subroutine
 
 
 
