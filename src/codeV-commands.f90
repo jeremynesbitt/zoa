@@ -67,11 +67,11 @@ module codeV_commands
             boolResult = .TRUE.
             return 
         case ('THI')
-            call setThickness(iptCmd)
+            call setThickness()
             boolResult = .TRUE.
             return 
         case ('RDY')
-            call setRadius(iptCmd)
+            call setRadius()
             boolResult = .TRUE.
             return  
         case ('INS')
@@ -133,34 +133,55 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setThickness(iptCmd)
-        use command_utils, only : checkCommandInput, getInputNumber
-        use type_utils, only: real2str, int2str
-        character(len=*) :: iptCmd
-        integer :: surfNum
+    subroutine setThickness()
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        implicit none
 
-       
-        if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
-            surfNum = INT(getInputNumber(1))
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; TH, ' // real2str(getInputNumber(2)))
-        end if                    
+            & '; TH, ' // trim(tokens(3)))          
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if       
 
     end subroutine
+    
+    !Format RDY Sk Val
+    subroutine setRadius()
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        implicit none
 
-    subroutine setRadius(iptCmd)
-        use command_utils, only : checkCommandInput, getInputNumber
-        use type_utils, only: real2str, int2str
-        character(len=*) :: iptCmd
         integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
 
-       
-        if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
-            surfNum = INT(getInputNumber(1))
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // real2str(getInputNumber(2)))
-        end if                    
-
+            & '; RD, ' // trim(tokens(3)))          
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if             
+       
     end subroutine
 
     subroutine insertSurf()
@@ -173,7 +194,6 @@ module codeV_commands
 
         if (checkCommandInput([ID_CMD_QUAL])) then
             surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
-            PRINT *, "About to try cmd ", 'INSK, '//trim(int2str(surfNum))
             call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
         end if            
 
