@@ -271,6 +271,29 @@ function getCodeVDir() result(res)
 
 end function
 
+function getZemaxDir() result(res)
+  use GLOBALS, only : basePath
+  implicit none
+  character(len=250) :: res
+
+  !codevdir = trim(basePath)//'CodeV'//getFileSep()
+  res = trim(basePath)//'Zemax'
+
+
+end function
+
+function getProjectDir() result(res)
+  use GLOBALS, only : basePath
+  implicit none
+  character(len=250) :: res
+
+  !codevdir = trim(basePath)//'CodeV'//getFileSep()
+  ! TODO:  Add a ui so users can set this themselves
+  res = trim(basePath)//'Projects'//getFileSep()
+
+
+end function
+
 function getFileNameFromPath(fileName) result(res)
   implicit none
   character(len=*) :: fileName

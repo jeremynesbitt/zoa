@@ -686,6 +686,7 @@ C
                         END
 C SUB SETCLAP.FOR
         SUBROUTINE SETCLAP
+        use global_widgets, only: curr_lens_data        
 C
         IMPLICIT NONE
 C
@@ -865,6 +866,7 @@ C       CHECK FOR NUMERIC INPUT
                    END IF
                        END DO
       DEALLOCATE(VERARRAY,STAT=ALLOERR)
+      call curr_lens_data%update()
                         RETURN
                         END IF
       IF(WQ.EQ.'REAL'.OR.WQ.EQ.'VREAL') THEN

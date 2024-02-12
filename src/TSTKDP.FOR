@@ -203,6 +203,14 @@ C
 
         end subroutine
 
+        subroutine LogTermFOR(newTxt)
+            use handlers, only : updateTerminalLog
+            implicit none
+            character(len=*) :: newTxt
+            call updateTerminalLog(newTxt, "blue")
+
+        end subroutine
+
         SUBROUTINE getRayTraceOutput(res)
         USE GLOBALS
         IMPLICIT NONE
@@ -256,3 +264,5 @@ C
         !CALL SHOWIT(19)
 
         END
+
+

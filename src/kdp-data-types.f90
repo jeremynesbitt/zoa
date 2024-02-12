@@ -1317,14 +1317,10 @@ subroutine updateLensData(self)
   include "DATLEN.INC"
 
   JJ = 0
-  PRINT *, "Surface numbe is ", INT(SYSTEM(20))
   call self%set_num_surfaces(INT(SYSTEM(20)) + 1)
   self%ref_stop = INT(SYSTEM(25)+1)
   DO JJ=0,self%num_surfaces-1
-    PRINT *, "JJ is ", JJ
     CALL SINDEXJN(JJ, INDEX, VNUM)
-    PRINT *, "JJ after SINDEXJN is ", JJ
-    PRINT *, "ALENS(1,JJ is ", ALENS(1,JJ)
     IF(ALENS(1,JJ).EQ.0.0D0) THEN
       RD=0.0D0
     ELSE

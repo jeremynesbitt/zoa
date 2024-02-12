@@ -152,6 +152,8 @@ contains
     call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
     call addCommandMenuItem(menu, "New Lens", &
     & "NewLens", newLensCmd, win)    
+    call addFuncMenuItem(menu, "Open .zoa File", "OpenZoa", c_funloc(open_zoa), win)
+
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
     call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
     call g_menu_append_submenu (menubar, "Macro"//c_null_char, menu_macro)
@@ -354,7 +356,7 @@ contains
   end subroutine
 
   subroutine import_zemax(act, avalue, win) bind(c)
-    use zoa_file_handler, only: getFileNameFromPath, getCodeVDir, setCodeVDir
+    use zoa_file_handler, only: getFileNameFromPath, getZemaxDir, getCodeVDir, setCodeVDir
     type(c_ptr), value, intent(in) :: act, avalue, win
     character(len=500) :: fileName
     character(len=500) :: cdir
@@ -362,7 +364,7 @@ contains
     logical :: fileSelected
 
 
-    fileSelected = ui_open_file(win, fileName, cdir)
+    fileSelected = ui_open_file(win, fileName, cdir, trim(getZemaxDir()), "*.zmx", "Zemax .zmx File")
 
     if (fileSelected) then
 
@@ -388,7 +390,7 @@ contains
     logical :: fileSelected
 
 
-    fileSelected = ui_open_file(win, fileName, cdir)
+    fileSelected = ui_open_file(win, fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV .seq File")
 
     if (fileSelected) then
 
@@ -404,6 +406,50 @@ contains
     ! Restore CodeVDir
 
   end subroutine
+
+  subroutine open_zoa(act, avalue, win) bind(c)
+    use zoa_file_handler, only: getFileNameFromPath, getFileSep, getProjectDir
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    character(len=500) :: existingCodeVDir
+    logical :: fileSelected
+
+    integer :: n, ios
+    character(len=256) :: line
+
+
+    fileSelected = ui_open_file(win, fileName, cdir, trim(getProjectDir()), "*.zoa", "Zoa FIle")
+
+    if (fileSelected) then
+
+     PRINT *, "fileName is ", trim(fileName)
+     PRINT *, "fileDirectory is is ", trim(cdir)
+
+
+     ! Open File and Proces (TODO move this somewhere else)
+     open(unit=99, file=trim(fileName), iostat=ios)
+     if ( ios /= 0 ) stop "Error opening file "
+ 
+     n = 0
+ 
+     do
+         read(99, '(A)', iostat=ios) line
+         if (ios /= 0) then 
+           call LogtermFOR("End of file?")
+           return
+         else
+           PRINT *, "LINE IS "
+           call LogTermFOR("LINE IS "//trim(line))
+           call PROCESKDP(trim(line))
+         end if
+         n = n + 1
+     end do      
+     
+    end if
+
+
+  end subroutine  
 
 
   subroutine quit_activated (act, param, win) bind(c)
@@ -513,7 +559,7 @@ contains
   end subroutine open_file
 
 
-function ui_open_file(parent_window, filename, cdir) result(fileSelected)
+function ui_open_file(parent_window, filename, cdir, startFileDir, iptFilter, iptFilterName) result(fileSelected)
   use iso_c_binding
   use gtk_hl_chooser
   use zoa_file_handler, only : getCodeVDir
@@ -521,6 +567,10 @@ function ui_open_file(parent_window, filename, cdir) result(fileSelected)
   type(c_ptr), value, intent(in) :: parent_window
   character(len=*), intent(inout) :: filename
   character(len=*), intent(inout) :: cdir
+  character(len=*), intent(in) :: startFileDir
+  character(len=*), intent(in) :: iptFilter
+  character(len=*), intent(in) :: iptFilterName
+
   logical :: fileSelected
 
   integer(kind=c_int) :: isel
@@ -531,16 +581,20 @@ function ui_open_file(parent_window, filename, cdir) result(fileSelected)
   integer :: ios
   integer :: idxs
 
-  filters(1) = "*.seq"
+  filters(1) = iptFilter
   filters(2) = "*.txt"
-  filtnames(1) = "CodeV .seq File"
+  filtnames(1) = iptFilterName
   filtnames(2) = ".txt File"
+  ! filters(1) = "*.seq"
+  ! filters(2) = "*.txt"
+  ! filtnames(1) = "CodeV .seq File"
+  ! filtnames(2) = ".txt File"  
   fileSelected = .TRUE.
 
   isel = hl_gtk_file_chooser_show(chfile, cdir=cdir, create=FALSE,&
        & title="Select input file"//c_null_char, filter=filters, &
        & filter_name=filtnames, wsize=(/ 600_c_int, 400_c_int /), &
-       & edit_filters=TRUE, initial_dir=trim(getCodeVDir()), &
+       & edit_filters=TRUE, initial_dir=startFileDir, &
        & parent=parent_window, all=TRUE)
   print *, "isel = hl_gtk_file_chooser_show=", isel
   if (isel == FALSE) then

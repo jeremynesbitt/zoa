@@ -154,7 +154,7 @@ C SUB CONTRO.FOR
         SUBROUTINE CONTRO
         use zoa_file_handler, only: getPermMacroDir
         use global_widgets, only: lens_editor_window,
-     1 curr_asph_data, sysConfig
+     1 curr_asph_data, sysConfig, curr_lens_data
         use lens_editor, only: buildBasicTable, buildAsphereTable
         use handlers, only: zoatabMgr
         use codeV_commands, only: startCodeVLensUpdateCmd, 
@@ -4121,6 +4121,7 @@ C               DURING THIS MODE.
       OUTLYNE = "ABOUT TO CALL LENIN"
       CALL SHOWIT(19)
                 CALL LENIN
+                call curr_lens_data%update()
       OUTLYNE = "GOT BACK FROM LENIN "
       CALL SHOWIT(19)
       LASTCOMWRD=WC
@@ -4222,6 +4223,7 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       IF(WC.EQ.'EOS') YESEOS=.TRUE.
       IF(WC.NE.'EOS') YESEOS=.FALSE.
 C     CALL RE_DISPLAY_LENS(YESEOS)
+      call curr_lens_data%update()
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
       if (c_associated(lens_editor_window)) then
