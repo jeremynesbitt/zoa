@@ -364,6 +364,9 @@ contains
    
      textView = hl_zoa_text_view_new()
      call gtk_text_view_set_editable(textView, FALSE)
+
+     ! Set a monospaced font so table output looks reasonable
+     call gtk_text_view_set_monospace(textView, 1_c_int) 
     !
      buffer = gtk_text_view_get_buffer (textView)
      ! This is done for some of the ui options, so we can funnel the output of a KDP
@@ -447,7 +450,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 

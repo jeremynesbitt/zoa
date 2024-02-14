@@ -312,17 +312,54 @@ subroutine FIR
   use GLOBALS
   use parax_calcs
   use global_widgets
+  use iso_fortran_env, only: real64
+  use type_utils, only: real2str
+  use handlers, only: updateTerminalLog
 
   implicit none
   real :: epRad, epPos
 
+  include "DATMAI.INC"
+
+
   call calcExitPupil(epRad, epPos)
+  call curr_lens_data%update()
+  PRINT *, "num surfaces is ", curr_lens_data%num_surfaces
   !PRINT *, "Angle is ", curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)
 
   call logger%logText("FIR Called!")
 
   PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
+  call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
+
+
+  call updateTerminalLog("INFINITE CONJUGATES", "blue")
+  call updateTerminalLog("EFL       "//trim(real2str(curr_par_ray_trace%EFL,4)),"blue")
+  call updateTerminalLog("BFL       "//trim(real2str(curr_par_ray_trace%BFL,4)),"blue")
+  call updateTerminalLog("FFL       "//trim(real2str(curr_par_ray_trace%FFL,4)),"blue")
+  call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+  call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
+  call updateTerminalLog("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
+  call updateTerminalLog("PARAXIAL IMAGE", "blue")
+  ! TODO:  Move this calc somewhere else
+  call PROCESKDP("GET GPCY")
+  call updateTerminalLog(" HT      "//trim(real2str(reg(9),4)),"blue")
+  call PROCESKDP("GET GPUCY")
+  call updateTerminalLog("ANG       "//trim(real2str(reg(9),4)),"blue")
+  call updateTerminalLog("ENTRANCE PUPIL", "blue")
+  call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
+  call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")
+  call updateTerminalLog("EXIT PUPIL", "blue")
+  call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%EXPUPDIA,4)),"blue")
+  call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%EXPUPPOS,4)),"blue")
+
+  call PROCESKDP("GET GPCY")
+  PRINT *, "GPCY IS ", reg(9)
+
+  call PROCESKDP("GET GPY")
+  PRINT *, "GPUY IS ", reg(9)
+  
 
 end subroutine
 

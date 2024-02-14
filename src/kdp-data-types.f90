@@ -217,6 +217,7 @@ contains
 
 end type
 
+!TODO:  Not sure it makes sense for this to extend lens_Data.  perhaps change move all this to parax_calcs.f90?
 type, extends(lens_data) :: paraxial_ray_trace_data
         !integer, allocatable :: surface(:)
         real, allocatable ::  marginal_ray_height(:), marginal_ray_angle(:), &
@@ -224,8 +225,10 @@ type, extends(lens_data) :: paraxial_ray_trace_data
         & chief_ray_aoi(:)
         real :: t_mag = 0
         real :: EPD = 0 ! EPD = entrance pupil diameter
+        real(kind=real64) :: EFL, BFL, FFL, FNUM, imageDistance, OAL, ENPUPDIA, EXPUPDIA, ENPUPPOS, EXPUPPOS
         real(kind=real64), allocatable :: CSeidel(:,:), CXSeidel(:,:)
  contains
+        procedure, public, pass(self) :: calculateFirstOrderParameters
 
 
 
@@ -1343,6 +1346,70 @@ subroutine updateLensData(self)
 
   END DO
 
+
+end subroutine
+
+subroutine calculateFirstOrderParameters(self, lData)
+  class(paraxial_ray_trace_data) :: self
+  type(lens_data) :: lData
+  integer :: I,J
+  include "DATLEN.INC"
+  self%EFL = 0.0
+  self%BFL = 0.0
+  self%FFL = 0.0
+  
+  ! EFL, BFL, FFL
+  I=0
+  J=lData%num_surfaces-2
+
+  !PRINT *, "J is ", J
+
+   IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
+   self%BFL=-(((PXTRAY(2,I)*PXTRAY(5,J))-(PXTRAY(6,I)*PXTRAY(1,J)))/ &
+   & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+                  ELSE
+   self%BFL=1.0D20
+                  END IF      
+   
+
+
+    IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
+    self%FFL=-(((PXTRAY(1,I+1)*PXTRAY(6,J))-(PXTRAY(2,J)*PXTRAY(5,I+1)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+                    ELSE
+    self%FFL=1.0D20
+                    END IF       
+                    
+    IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
+    self%EFL=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/ &
+    & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+      ELSE
+    self%EFL=1.0D20
+      END IF                    
+
+  I = 0
+  J = lData%num_surfaces-1
+  PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
+  IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
+    self%FNUM=-1.0D0/(2.0D0*PXTRAY(2,J))
+                    ELSE
+                    self%FNUM=0.0D0
+                    END IF  
+
+self%imageDistance = lData%thicknesses(lData%num_surfaces-1)
+self%OAL = 0.0
+do I=2, lData%num_surfaces-2
+  self%OAL = self%OAL + lData%thicknesses(I)
+end do
+
+!TODO:  move calcs of this here
+self%ENPUPDIA = ENDIAY
+self%EXPUPDIA = EXDIAY
+self%ENPUPPOS = ENPUZ
+self%EXPUPPOS = EXPUZ+self%imageDistance
+
+! Paraxial Image Calcs
+PRINT *, "PARAX IMAGE HT IS ", self%chief_ray_height(lData%num_surfaces)
+PRINT *, "PARAX IMAGE ANGLE IS ", self%chief_ray_angle(lData%num_surfaces)
 
 end subroutine
 

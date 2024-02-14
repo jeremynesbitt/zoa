@@ -1209,6 +1209,7 @@ C       STATE 1
 C               EFL
         I=0
         J=INT(SYSTEM(20))
+        PRINT *, "J is ", J
         EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*
      1  PXTRAY(6,I)))/
      2  ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
@@ -1218,6 +1219,7 @@ C               EFL
 C               BACK FOCAL DISTANCE
         BFD=ALENS(3,(J-1))
 C               F-NUMBER YZ
+        PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
         IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
         FNY=-1.0D0/(2.0D0*PXTRAY(2,J))
                         ELSE

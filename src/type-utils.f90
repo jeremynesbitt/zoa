@@ -4,11 +4,19 @@ module type_utils
     
     contains
  
-    function real2str(val) result(strOut)
+    function real2str(val, precision) result(strOut)
         real*8 :: val
         character(len=23) :: strOut
-    
-        write(strOut, '(D23.15)') val
+        integer, optional :: precision
+
+        if(present(precision)) then
+           write(strOut, '(F9.'//trim(int2str(precision))//')') val
+           !write(strOut, '(F9.4)') val
+        else
+            write(strOut, '(D23.15)') val
+        end if
+
+        strOut = adjustl(strOut)
     
       end function
     

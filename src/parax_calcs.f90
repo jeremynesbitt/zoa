@@ -2,6 +2,74 @@ module parax_calcs
 
 contains
 
+  function calcEFL() result(EFL)
+        use iso_fortran_env, only: real64
+        use global_widgets, only: curr_lens_data
+        implicit none
+        real(kind=real64) :: EFL
+        integer :: I, J
+        include "DATLEN.INC"
+
+        I=0
+        J=curr_lens_data%num_surfaces-2
+      
+        IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
+        EFL=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/ &
+        & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+          ELSE
+        EFL=1.0D20
+          END IF
+
+      
+  end function
+
+
+  function calcBFL() result(BFL)
+        use iso_fortran_env, only: real64
+        use global_widgets
+        implicit none
+        real(kind=real64) :: BFL
+        integer :: I, J
+        include "DATLEN.INC"
+
+        I=0
+        !J=curr_lens_data%num_surfaces-1
+        !PRINT *, "num surfaces is ", curr_lens_data%num_surfaces
+        J=curr_lens_data%num_surfaces-2
+
+        !PRINT *, "J is ", J
+
+         IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
+         BFL=-(((PXTRAY(2,I)*PXTRAY(5,J))-(PXTRAY(6,I)*PXTRAY(1,J)))/ &
+         & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+                        ELSE
+         BFL=1.0D20
+                        END IF        
+
+  end function
+
+  function calcFFL() result(FFL)
+        use iso_fortran_env, only: real64
+        use global_widgets
+        implicit none
+        real(kind=real64) :: FFL
+        integer :: I, J
+        include "DATLEN.INC"
+
+        I=0
+        !J=curr_lens_data%num_surfaces-1
+        !PRINT *, "num surfaces is ", curr_lens_data%num_surfaces
+        J=curr_lens_data%num_surfaces-2
+
+        IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
+        FFL=-(((PXTRAY(1,I+1)*PXTRAY(6,J))-(PXTRAY(2,J)*PXTRAY(5,I+1)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+                        ELSE
+        FFL=1.0D20
+                        END IF        
+
+
+  end function  
+
   subroutine calcExitPupil(epRadius, epPosition)
 
         real :: epRadius, epPosition, imgAngle
