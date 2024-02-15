@@ -3092,6 +3092,8 @@ C       WC NOT MAGX
                         END IF
 C
         IF(WC.EQ.'MAGY') THEN
+                PRINT *, "Check for extra solves"
+
 C       CHECK FOR EXTRA SOLVES
                         DO KK=I,J-1
         IF(ALENS(33,KK).NE.0.0D0) THEN

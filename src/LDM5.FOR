@@ -567,6 +567,11 @@ C       WC MUST BE 'MAGX'
       MAG=W1
       I=INT(W2)
       J=INT(W3)
+      PRINT *, "MAG is ", W1
+      PRINT *, "Surf1 is ", W2
+      PRINT *, "Surf2 is ", W3
+
+
 C       HERE IS WHERE THE MAGY ADJUSTMENT IS MADE BY CALLING
 C       SUBROUTINE MGYADJ.FOR
         CALL MGADJ(MAG,I,J)

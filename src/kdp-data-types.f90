@@ -223,9 +223,11 @@ type, extends(lens_data) :: paraxial_ray_trace_data
         real, allocatable ::  marginal_ray_height(:), marginal_ray_angle(:), &
         & chief_ray_height(:), chief_ray_angle(:), marginal_ray_aoi(:), &
         & chief_ray_aoi(:)
-        real :: t_mag = 0
+        real(kind=real64) :: t_mag = 0
         real :: EPD = 0 ! EPD = entrance pupil diameter
         real(kind=real64) :: EFL, BFL, FFL, FNUM, imageDistance, OAL, ENPUPDIA, EXPUPDIA, ENPUPPOS, EXPUPPOS
+        real(kind=real64) :: TT, objectDistance
+
         real(kind=real64), allocatable :: CSeidel(:,:), CXSeidel(:,:)
  contains
         procedure, public, pass(self) :: calculateFirstOrderParameters
@@ -391,9 +393,9 @@ logical :: boolResult
 include "DATLEN.INC"
 
 boolResult = .FALSE.
-
-if(DABS(ALENS(3,0)).GT.1E19) boolResult = .TRUE.
-PRINT *, "Value being compared is ", ALENS(3,0)
+! TODO:  Where do document quantitative definition of infinity?
+if(DABS(ALENS(3,0)).GT.1E11) boolResult = .TRUE.
+!PRINT *, "Value being compared is ", ALENS(3,0)
 
 end function
 
@@ -1391,6 +1393,7 @@ subroutine calculateFirstOrderParameters(self, lData)
   PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
   IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
     self%FNUM=-1.0D0/(2.0D0*PXTRAY(2,J))
+    PRINT *, "Object fnum ", -1.0D0/(2.0D0*PXTRAY(2,0))
                     ELSE
                     self%FNUM=0.0D0
                     END IF  
@@ -1400,6 +1403,13 @@ self%OAL = 0.0
 do I=2, lData%num_surfaces-2
   self%OAL = self%OAL + lData%thicknesses(I)
 end do
+
+self%TT = 0.0
+do I=1, lData%num_surfaces
+  self%TT = self%TT + lData%thicknesses(I)
+end do
+
+self%objectDistance = lData%thicknesses(1)
 
 !TODO:  move calcs of this here
 self%ENPUPDIA = ENDIAY

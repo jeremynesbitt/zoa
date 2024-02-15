@@ -1395,6 +1395,7 @@ C     WCC(2003)=' '
       WCC(2584) = 'INS' ! CodeV
       WCC(2585) = 'GLA' ! CodeV
       WCC(2586) = 'PIM' ! CodeV
+      WCC(2587) = 'CUY' ! CodeV
 
 
 

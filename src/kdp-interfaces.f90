@@ -333,12 +333,14 @@ subroutine FIR
 
   call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
 
+  print *, "Is Object at Infinity? ", sysConfig%isObjectAfInf()
 
   call updateTerminalLog("INFINITE CONJUGATES", "blue")
   call updateTerminalLog("EFL       "//trim(real2str(curr_par_ray_trace%EFL,4)),"blue")
   call updateTerminalLog("BFL       "//trim(real2str(curr_par_ray_trace%BFL,4)),"blue")
   call updateTerminalLog("FFL       "//trim(real2str(curr_par_ray_trace%FFL,4)),"blue")
   call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+  if (sysConfig%isObjectAfInf()) then
   call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
   call updateTerminalLog("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
   call updateTerminalLog("PARAXIAL IMAGE", "blue")
@@ -353,6 +355,17 @@ subroutine FIR
   call updateTerminalLog("EXIT PUPIL", "blue")
   call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%EXPUPDIA,4)),"blue")
   call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%EXPUPPOS,4)),"blue")
+  else
+    call updateTerminalLog("AT USED CONJUGATES", "blue")
+
+    call updateTerminalLog("RED       "//trim(real2str(-1*curr_par_ray_trace%t_mag,4)),"blue")
+    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+    call updateTerminalLog("OBJ DIS   "//trim(real2str(curr_par_ray_trace%objectDistance,4)),"blue")
+    call updateTerminalLog("TT        "//trim(real2str(curr_par_ray_trace%TT,4)),"blue")
+    call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
+    call updateTerminalLog("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
+  end if
+
 
   call PROCESKDP("GET GPCY")
   PRINT *, "GPCY IS ", reg(9)

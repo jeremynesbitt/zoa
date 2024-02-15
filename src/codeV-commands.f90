@@ -89,7 +89,12 @@ module codeV_commands
         case ('EPD')
             call setEPD()
             boolResult = .TRUE.
-            return                                                                         
+            return   
+        case ('CUY')
+            call setAngleSolve()
+            boolResult = .TRUE.
+            return             
+            
         end select
 
         ! Handle Sk separately
@@ -99,6 +104,45 @@ module codeV_commands
           END IF            
               
     end function
+    ! Format:  CUY Sk SOLVETYPE VAL
+    subroutine setAngleSolve()
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (numTokens > 2) then
+
+               select case (trim(tokens(3)))
+               case('UMY')
+                PRINT *, "In the right place!  How exciting!!"
+                PRINT *, "numTokens is ", numTokens
+                if (numTokens > 3 ) then
+                    call updateTerminalLog("Give it a try!", "blue")
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                    & '; PUY, ' // trim(tokens(4))) 
+                end if
+
+               end select 
+            else
+                call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
+            end if
+         
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if          
+
+    end subroutine
 
     subroutine setEPD()
         use command_utils
@@ -188,8 +232,9 @@ module codeV_commands
         include "DATMAI.INC"
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
-
+        PRINT *, "Token is ", trim(tokens(2))
         if(isSurfCommand(trim(tokens(2)))) then
+            PRINT *, "Token is ", trim(tokens(2))
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; TH, ' // trim(tokens(3)))          
@@ -438,8 +483,13 @@ module codeV_commands
         integer :: i
 
         boolResult = .FALSE.
-
         
+        ! Special case:  SO
+        if (tstCmd.EQ.'SO') then
+            boolResult = .TRUE.
+            return
+        end if
+
         do i=1,size(surfCmds)
             surfCmds(i) = 'S'//trim(int2str(i))
             if(tstCmd.EQ.surfCmds(i)) then
@@ -455,13 +505,13 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(13) :: codeVCmds
+        character(len=3), dimension(14) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
         codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', &
-        & 'INS', 'GLA', 'PIM', 'EPD']
+        & 'INS', 'GLA', 'PIM', 'EPD', 'CUY']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then
