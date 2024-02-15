@@ -3135,7 +3135,7 @@ C       EOS DONE
 C***********************************************************************
 C
 C       NOW DO WC=DEL
-        IF(WC.EQ.'DEL') THEN
+        IF(WC.EQ.'DELK') THEN
         IF(F52.NE.2) THEN
         WRITE(OUTLYNE,*)
      1  '"DEL" IS ONLY AVAILABLE FROM THE "UPDATE COMPVAR" LEVEL'

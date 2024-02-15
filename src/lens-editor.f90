@@ -398,12 +398,12 @@ end subroutine lens_editor_replot
         !PRINT *, "ITOC TEST ", ITOC(INT(1))
         !PRINT *, 'DEL, '//ITOC(iset(1,1))
         if (nsel.EQ.1) then
-           PRINT *, 'DEL, '//ITOC(iset(1))
-           call PROCESKDP('DEL, '//ITOC(iset(1)))
+           PRINT *, 'DELK, '//ITOC(iset(1))
+           call PROCESKDP('DELK, '//ITOC(iset(1)))
         else
-          call PROCESKDP('DEL, '//ITOC(iset(1))//','//ITOC(iset(nsel)))
+          call PROCESKDP('DELK, '//ITOC(iset(1))//','//ITOC(iset(nsel)))
         end if
-        !call PROCESKDP('DEL')
+        !call PROCESKDP('DELK')
         call PROCESKDP('EOS')
         !call PROCESKDP('OUT TP')
 

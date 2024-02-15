@@ -93,7 +93,7 @@ module ui_lens_library
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(btn_del).EQ.TRUE) THEN
                PRINT *, "Del Library Selected!"
-               CALL PROCESKDP('LIB DEL , '//svalue(1:3))
+               CALL PROCESKDP('LIB DELK , '//svalue(1:3))
                call populatelenslibrarylist()
                !CALL PROCESKDP('MFL '//svalue)
 

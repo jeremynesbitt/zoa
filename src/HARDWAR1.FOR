@@ -2578,7 +2578,7 @@ C       NW1 CAN BE 1 TO 999
 C       NW2 CAN BE 2 TO 999
 C       NW1 MUST BE LESS THAN NW2 IF NW2 NOT DEFAULT
 C
-                IF(WQ.EQ.'DEL') THEN
+                IF(WQ.EQ.'DELK') THEN
         IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       OUTLYNE=
      1  '"PLIB DEL" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
@@ -3006,7 +3006,7 @@ C       NOT LIB P
                         END IF
 C***********************************************************
 C       NOW LIB DEL
-                        IF(WQ.EQ.'DEL') THEN
+                        IF(WQ.EQ.'DELK') THEN
 C
 C       WHEN LIB DEL IS USED,DELETE SPECIFIC ENTRIES IN THE
 C       DIRECTORY AND DELETE SPECIFIC FILES

@@ -94,7 +94,11 @@ module codeV_commands
             call setAngleSolve()
             boolResult = .TRUE.
             return             
-            
+        case ('DEL')
+            call deleteStuff()
+            boolResult = .TRUE.
+            return                 
+
         end select
 
         ! Handle Sk separately
@@ -104,6 +108,55 @@ module codeV_commands
           END IF            
               
     end function
+
+    ! Format:  DEL SOL CUY S2
+    !          DEL PIM
+    subroutine deleteStuff()
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use global_widgets, only: curr_lens_data
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
+        ! command and figuring out what commands to translate it to
+        if(numTokens > 1 ) then
+        select case(trim(tokens(2))) 
+            case('PIM')
+                call updateTerminalLog("Deleting PIM", "blue")
+                surfNum = curr_lens_data%num_surfaces - 2
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; TSD ')          
+
+            case('SOL') ! Delete Solves
+                if(numTokens > 2) then
+                    call updateTerminalLog("Deleting Solve", "blue")
+                    select case(trim(tokens(3)))
+                    case('CUY')
+                        if (isSurfCommand(trim(tokens(4)))) then
+                            surfNum = getSurfNumFromSurfCommand(trim(tokens(4)))
+                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                            & '; CSDY ')                            
+                        end if
+                    end select
+                else
+                    call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
+                    end if 
+                
+
+            end select
+
+        end if
+
+    end subroutine
+
     ! Format:  CUY Sk SOLVETYPE VAL
     subroutine setAngleSolve()
         use command_utils, only : parseCommandIntoTokens
@@ -505,13 +558,13 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(14) :: codeVCmds
+        character(len=3), dimension(15) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
         codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', &
-        & 'INS', 'GLA', 'PIM', 'EPD', 'CUY']
+        & 'INS', 'GLA', 'PIM', 'EPD', 'CUY', 'DEL']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then

@@ -284,7 +284,7 @@ C
                 WCC(259)='COBSD'
                 WCC(260)='ASID'
                 WCC(261)='INSK' ! Was INS but since it conflicted with CodeV changed it to INSK
-                WCC(262)='DEL'
+                WCC(262)='DELK' ! Was DEL but changed to DELK to support CodeV DEL cmd
                 WCC(263)='RTG'
                 WCC(264)='CTG'
                 WCC(265)='U'
@@ -1396,6 +1396,8 @@ C     WCC(2003)=' '
       WCC(2585) = 'GLA' ! CodeV
       WCC(2586) = 'PIM' ! CodeV
       WCC(2587) = 'CUY' ! CodeV
+      WCC(2588) = 'DEL' ! CodeV
+
 
 
 

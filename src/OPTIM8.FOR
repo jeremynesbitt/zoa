@@ -998,7 +998,7 @@ C       EOS DONE
 C***********************************************************************
 C
 C       NOW DO WC=DEL
-        IF(WC.EQ.'DEL') THEN
+        IF(WC.EQ.'DELK') THEN
         IF(F53.NE.2) THEN
         WRITE(OUTLYNE,*)
      1  '"DEL" IS ONLY AVAILABLE FROM THE "UPDATE TOPER" LEVEL'
@@ -3726,7 +3726,7 @@ C       EOS DONE
 C***********************************************************************
 C
 C       NOW DO WC=DEL
-        IF(WC.EQ.'DEL') THEN
+        IF(WC.EQ.'DELK') THEN
         IF(F54.NE.2) THEN
         WRITE(OUTLYNE,*)
      1  '"DEL" IS ONLY AVAILABLE FROM THE "UPDATE FOCRIT" LEVEL'
@@ -6493,7 +6493,7 @@ C       EOS DONE
 C***********************************************************************
 C
 C       NOW DO WC=DEL
-        IF(WC.EQ.'DEL') THEN
+        IF(WC.EQ.'DELK') THEN
         IF(F27.NE.2) THEN
         WRITE(OUTLYNE,*)
      1  '"DEL" IS ONLY AVAILABLE FROM THE "UPDATE MERIT" LEVEL'

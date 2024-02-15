@@ -135,7 +135,7 @@ C
 C
 C               LENS LIBRARY COMMANDS
         IF(SQ.EQ.1.AND.
-     1  WQ.NE.'P'.AND.WQ.NE.'PUT'.AND.WQ.NE.'GET'.AND.WQ.NE.'DEL'
+     1  WQ.NE.'P'.AND.WQ.NE.'PUT'.AND.WQ.NE.'GET'.AND.WQ.NE.'DELK'
      1  .AND.WQ.NE.'GETES'.AND.WQ.NE.'GETMG'.AND.WQ.NE.'GETNC'.AND.
      1  WQ.NE.'GETSH'.AND.WQ.NE.'PNC'.AND.WQ.NE.
      1  'PMG'.AND.WQ.NE.'PES'.AND.WQ.NE.'PSH'.AND.
@@ -170,7 +170,7 @@ C               LENS LIBRARY COMMANDS
      2  'GETES'.OR.WQ.EQ.'GETNC'.OR.WQ.EQ.'GETSH'.OR.
      1  WQ.EQ.'PUT'.OR.WQ.EQ.'PRO'.OR.WQ.EQ.'GETRO'
      2  .OR.WQ.EQ.'GET'.OR.
-     3  WQ.EQ.'DEL') THEN
+     3  WQ.EQ.'DELK') THEN
         CALL LLIBRY
         CALL FIXCURLENS
         RETURN
@@ -1068,7 +1068,7 @@ C       COMMAND (INS,W1)
                 RETURN
                 END IF
 C       COMMAND (DEL,W1 W2)
-                IF(WC.EQ.'DEL') THEN
+                IF(WC.EQ.'DELK') THEN
       IF(F12.NE.1) THEN
       OUTLYNE='"DEL" ONLY WORKS IN CONFIGURATION #1 (MAIN CONFIG)'
       CALL SHOWIT(1)
@@ -1578,7 +1578,7 @@ C       NW1 CAN BE 1 TO 999
 C       NW2 CAN BE 2 TO 999
 C       NW1 MUST BE LESS THAN NW2 IF NW2 NOT DEFAULT
 C
-                IF(WQ.EQ.'DEL') THEN
+                IF(WQ.EQ.'DELK') THEN
         IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
         OUTLYNE='"LIB DEL" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
@@ -2117,7 +2117,7 @@ C
                         END IF
 C***********************************************************
 C       NOW LIB DEL
-                        IF(WQ.EQ.'DEL') THEN
+                        IF(WQ.EQ.'DELK') THEN
 C
 C       WHEN LIB DEL IS USED,DELETE SPECIFIC ENTRIES IN THE
 C       DIRECTORY AND DELETE SPECIFIC FILES

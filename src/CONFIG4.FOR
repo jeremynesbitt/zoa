@@ -2287,7 +2287,7 @@ C       JUST PLANE OLD ADJUST OR HOLD
                 RETURN
                 END IF
         IF(SQ.EQ.1) THEN
-        IF(WQ.NE.'DEL') THEN
+        IF(WQ.NE.'DELK') THEN
         WRITE(OUTLYNE,*)'INVALID QUALIFIER FOUND'
       CALL SHOWIT(1)
         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -2296,7 +2296,7 @@ C       JUST PLANE OLD ADJUST OR HOLD
                 CALL MACFAL
                 RETURN
                 ELSE
-C       QUALIFIER MUST BE 'DEL'
+C       QUALIFIER MUST BE 'DELK'
         IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
         IF(WC.EQ.'FNBY'.OR.WC.EQ.'FNBX') THEN
         WRITE(OUTLYNE,*)
@@ -2847,7 +2847,7 @@ C
                         END IF
                 IF(SQ.EQ.1) THEN
         IF(WQ.EQ.'EN'.OR.WQ.EQ.'EX'.OR.WQ.EQ.'ENEX'.OR.
-     1  WQ.EQ.'DEL') THEN
+     1  WQ.EQ.'DELK') THEN
                 RETURN
                 ELSE
         WRITE(OUTLYNE,*)'INVALID QUALIFIER FOUND'

@@ -61,7 +61,7 @@ C       THERE IS AN APERTURE STOP DEFINED
                         RETURN
                         ELSE
 C       NOT AT CMD LEVEL
-                        END IF
+                        END IF  
 C
 C
 C       BEHAVIOR AT LENS INPUT AND LENS UPDATE LEVEL
@@ -85,7 +85,7 @@ C
 C       IF (ASTOP DEL) IS ENTERED, REMOVE THE APERTURE STOP DEFINITION
 C       BY STORING -99 IN SYSTEM(26) AND 0.0 IN SYSTEM(27)
 C
-                IF(WQ.EQ.'DEL') THEN
+                IF(WQ.EQ.'DELK') THEN
                 SYSTEM(26)=-99.0D0
                 SYSTEM(27)=0.0
                 RETURN

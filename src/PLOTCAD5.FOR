@@ -145,7 +145,7 @@ C
 C
 C                PLOT LIBRARY COMMANDS
         IF(SQ.EQ.1.AND.
-     1  WQ.NE.'P'.AND.WQ.NE.'PUT'.AND.WQ.NE.'DEL'.AND.WQ.NE.'GET'
+     1  WQ.NE.'P'.AND.WQ.NE.'PUT'.AND.WQ.NE.'DELK'.AND.WQ.NE.'GET'
      1  )THEN
         OUTLYNE=
      1  'INVALID QUALIFIER WORD USED WITH THE "PLIB" COMMAND'
@@ -182,7 +182,7 @@ C                PLOT LIBRARY COMMANDS
                         RETURN
                         END IF
                         END IF
-      IF(WQ.EQ.'DEL') THEN
+      IF(WQ.EQ.'DELK') THEN
         IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
         OUTLYNE=
      1'"PLIB DEL" TAKES NO STRING OR NUMERIC WORD #3,#4 OR #5 INPUT'
@@ -204,7 +204,7 @@ C                PLOT LIBRARY COMMANDS
                         END IF
         IF(WQ.EQ.'P'.OR.
      1  WQ.EQ.'PUT'.OR.
-     2  WQ.EQ.'DEL'.OR.
+     2  WQ.EQ.'DELK'.OR.
      3  WQ.EQ.'GET') THEN
          CALL PLIBRY
          RETURN

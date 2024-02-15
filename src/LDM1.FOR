@@ -1573,15 +1573,15 @@ C
                         GO TO 200
                         ELSE
                         END IF
-        IF(WC.EQ.'DEL') THEN
+        IF(WC.EQ.'DELK') THEN
         VA1=1
-        VAL='"DEL" DELETES A SURFACE'
+        VAL='"DELK" DELETES A SURFACE'
                         GO TO 200
                         ELSE
                         END IF
         IF(WC.EQ.'INSK') THEN
         VA1=1
-        VAL='"INS" INSERTS A NEW SURFACE'
+        VAL='"INSK" INSERTS A NEW SURFACE'
                         GO TO 200
                         ELSE
                         END IF

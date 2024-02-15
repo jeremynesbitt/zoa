@@ -137,7 +137,7 @@ C
                         END IF
 C
 C       NOW DO WC=DEL
-        IF(WC.EQ.'DEL') THEN
+        IF(WC.EQ.'DELK') THEN
         IF(F29.NE.2) THEN
         WRITE(OUTLYNE,*)
      1  '"DEL" IS ONLY AVAILABLE FROM THE "UPDATE VARIABLE" LEVEL'

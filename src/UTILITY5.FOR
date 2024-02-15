@@ -5801,7 +5801,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'CLAPD')       IS=.TRUE.
                 IF(WC.EQ.'COBSD')       IS=.TRUE.
                 IF(WC.EQ.'INSK')         IS=.TRUE.
-                IF(WC.EQ.'DEL')         IS=.TRUE.
+                IF(WC.EQ.'DELK')         IS=.TRUE.
                 IF(WC.EQ.'INR')         IS=.TRUE.
                 IF(WC.EQ.'INRD')        IS=.TRUE.
                 IF(WC.EQ.'ZERO')        IS=.TRUE.
@@ -6961,7 +6961,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'C')           IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'CFG')         IS=.TRUE.
-                IF(WC.EQ.'DEL'.AND.F29.EQ.2)            IS=.TRUE.
+                IF(WC.EQ.'DELK'.AND.F29.EQ.2)            IS=.TRUE.
                         RETURN
                         END
       SUBROUTINE CONTO(WC,IS)
@@ -7427,7 +7427,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
       IF(WC.EQ.'DISPZ')  IS=.TRUE.
       IF(WC.EQ.'ROLLX')  IS=.TRUE.
       IF(WC.EQ.'ROLLY')  IS=.TRUE.
-                IF(WC.EQ.'DEL'.AND.F51.EQ.2)            IS=.TRUE.
+                IF(WC.EQ.'DELK'.AND.F51.EQ.2)            IS=.TRUE.
                         RETURN
                         END
       SUBROUTINE CONTQ(WC,F52,IS)
@@ -7705,7 +7705,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'C94')                         IS=.TRUE.
                 IF(WC.EQ.'C95')                         IS=.TRUE.
                 IF(WC.EQ.'C96')                         IS=.TRUE.
-                IF(WC.EQ.'DEL'.AND.F52.EQ.2)            IS=.TRUE.
+                IF(WC.EQ.'DELK'.AND.F52.EQ.2)            IS=.TRUE.
                         RETURN
                         END
       SUBROUTINE CONTR(WC,WQ,SQ,IS)

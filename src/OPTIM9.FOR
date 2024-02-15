@@ -860,8 +860,8 @@ C
 C       EOS DONE
 C***********************************************************************
 C
-C       NOW DO WC=DEL
-        IF(WC.EQ.'DEL') THEN
+C       NOW DO WC=DELK
+        IF(WC.EQ.'DELK') THEN
         IF(F51.NE.2) THEN
         WRITE(OUTLYNE,*)
      1  '"DEL" IS ONLY AVAILABLE FROM THE "UPDATE TVAR" LEVEL'
