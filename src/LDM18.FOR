@@ -519,7 +519,9 @@ C       COMMAND (FOOTBLOK)
                 END IF
 C       COMMANDS (PY,PX,PCY,PCX,CAY,CAX)
                 IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCY'
-     1  .OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX') THEN
+     1  .OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'
+     2  .OR.WC.EQ.'REDSLV') THEN
+                call LogTermFOR("Got to THSOLV call from LENIN!")
                 CALL THSOLV
       IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
       SYSTEM(63)=0.0D0

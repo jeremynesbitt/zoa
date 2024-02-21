@@ -461,6 +461,32 @@ contains
 
   end function
 
+  function isInputNumber(tstStr) result(boolResult)
+    implicit none
+    character(len=*) :: tstStr
+    logical :: boolResult
+    integer :: ierror, rerror, intVal
+    real :: realVal
+
+    
+    read(tstStr, '(i10)' , iostat=ierror) intval
+    read(tstStr, '(F9.4)', iostat=rerror) realVal
+
+    boolResult = .FALSE.
+
+    if (ierror == 0 .OR. rerror == 0) boolResult = .TRUE.
+
+    PRINT *, "DEBUG "
+    PRINT * , "Input String is ", tstStr
+    PRINT *, "ierror is ", ierror
+    PRINT *, "rerror is ", rerror
+    PRINT *, "boolResult is ", boolResult
+
+
+
+  end function
+
+
 
 
 end module

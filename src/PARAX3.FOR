@@ -3845,6 +3845,7 @@ C       CALL PIKRES FOR THE SURFACE K
 C
         IF(ALENS(32,K).NE.0.0D0) CALL PIKRES
 C
+        IF(K.GT.0) THEN
         PXTRAY(1,K)=PXTRAY(1,(K-1))+(ALENS(3,(K-1))*PXTRAY(2,(K-1)))
 C
                 IF(ALENS(23,K).EQ.2.0D0) THEN
@@ -3917,6 +3918,9 @@ C
                 PXTRAY(8,K)=((ALENS((WWVN),(K-1)))/
      1          (ALENS((WWVN),K)))*PXTRAY(7,K)
                         RETURN
+        ELSE
+            PRINT *, "Add logic for object surface here!"
+        END IF
                         END
 C SUB FINIXZ.FOR
         SUBROUTINE FINIXZ

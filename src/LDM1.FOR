@@ -2673,6 +2673,7 @@ C       F12 MAY BE ANY VALUE FROM 2 TO 100
                         END
 C SUB THSOLV.FOR
         SUBROUTINE THSOLV
+        use type_utils, only: real2str        
 C
         IMPLICIT NONE
 C
@@ -2686,7 +2687,7 @@ C
         INCLUDE 'DATLEN.INC'
 C
         IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCY'.OR.WC.EQ.'PCX'
-     1  .OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX') THEN
+     1  .OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'.OR.WC.EQ.'REDSLV') THEN
 C       COMMANDS WHICH MIGHT HAVE QUERRY
         IF(STI.EQ.1) THEN
 C
@@ -2725,6 +2726,8 @@ C
      1WRITE(OUTLYNE,106)SOLVE(3,SURF),SURF
  106    FORMAT('"CAX" = ',G23.15,' AT SURFACE #',I3)
                         END IF
+        ! Mag solve on first surface
+                        
       CALL SHOWIT(0)
 C
                         RETURN
@@ -2811,11 +2814,13 @@ C
                 RETURN
                 END IF
                 END IF
-C
+C       
+        IF(WC.EQ.'REDSLV') SOLVE(6,SURF) =7.0D0 ! JN Add solve 
         IF(WC.EQ.'PY') SOLVE(6,SURF)=1.0D0
         IF(WC.EQ.'PCY') SOLVE(6,SURF)=2.0D0
         IF(WC.EQ.'CAY') SOLVE(6,SURF)=3.0D0
-        IF(WC.EQ.'PY'.OR.WC.EQ.'PCY'.OR.WC.EQ.'CAY') THEN
+        IF(WC.EQ.'PY'.OR.WC.EQ.'PCY'.OR.WC.EQ.'CAY'
+     1  .OR.WC.EQ.'REDSLV') THEN
         SOLVE(7,SURF)=W1
         SOLVE(4,SURF)=0.0D0
         SOLVE(3,SURF)=0.0D0

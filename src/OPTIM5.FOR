@@ -2631,7 +2631,7 @@ C     RED
       S4=0
       S5=0
       SQ=1
-      WC='RED'
+      WC='REDK'
       WQ='ACC     '
       STI=0
       SST=0
@@ -2661,7 +2661,7 @@ C       CALL ROUTINE THAT CALCULATES THE RED CENT
       S4=0
       S5=0
       SQ=1
-      WC='RED'
+      WC='REDK'
       WQ='CACC    '
       STI=0
       SST=0

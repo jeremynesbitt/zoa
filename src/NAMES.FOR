@@ -592,7 +592,7 @@ C
                 WCC(587)='GEOLEICA'
                 WCC(588)='HEADINGS'
                 WCC(589)='SAG'
-                WCC(590)='RED'
+                WCC(590)='REDK' ! Was RED but due to CodeV conflict changed to REDK
                 WCC(591)='ESEDX'
                 WCC(592)='ESEDY'
                 WCC(593)='PLOTR'
@@ -1397,6 +1397,10 @@ C     WCC(2003)=' '
       WCC(2586) = 'PIM' ! CodeV
       WCC(2587) = 'CUY' ! CodeV
       WCC(2588) = 'DEL' ! CodeV
+      WCC(2589) = 'RED' ! CodeV
+      WCC(2590) = 'REDSLV' ! New KDP CMD TO support RED under the hood
+      WCC(2591) = 'SETC' ! New KDP CMD TO support RED under the hood
+      
 
 
 

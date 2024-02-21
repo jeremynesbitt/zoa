@@ -587,6 +587,8 @@ C       SUBROUTINE MGXADJ.FOR
                         END
 C SUB SLVRS.FOR
         SUBROUTINE SLVRS
+        use global_widgets, only: curr_par_ray_trace, curr_lens_data
+        use type_utils, only: int2str        
 C
         IMPLICIT NONE
 C
@@ -601,17 +603,18 @@ C
 C
         COMMON/FINER/FINY
 C
-        REAL*8 ARG,DIS,EDGVAL,SAGL,SAGLP1,N,J_NP
+        REAL*8 ARG,DIS,EDGVAL,SAGL,SAGLP1,N,J_NP, newThick
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-C
+C  
                         L=SLV1
         IF(SLV2.EQ.1) THEN
 C       THE SURFACE OF SOLVE EVALUATION IS THE PASSED PARAMETER L.
 C       NOW HANDLE ALL SOLVES ON SURFACE L
 C       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 C       AT THE CONTROL WAVELENGTH AT L-1 AND L
+      IF(L.NE.0) THEN
       IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
                 N=ALENS(45+INT(SYSTEM(11)),(L-1))
                 J_NP=ALENS(45+INT(SYSTEM(11)),(L))
@@ -620,6 +623,7 @@ C       AT THE CONTROL WAVELENGTH AT L-1 AND L
                 N=ALENS(65+INT(SYSTEM(11)),(L-1))
                 J_NP=ALENS(65+INT(SYSTEM(11)),(L))
                             END IF
+        END IF
 C
 C                       FIRST,CURVATURE SOLVES
 C***************************************************************************
@@ -1215,7 +1219,7 @@ C**************************************************************************
 C                       PY SOLVES
 C***************************************************************************
 C       IS THERE A PY SOLVE ON SURFACE L
-                IF(SOLVE(6,L).EQ.1.0D0) THEN
+                IF(SOLVE(6,L).EQ.1.0D0) THEN   
 C       YES THERE IS A PY SOLVE ON SURFACE L
 C       WHICH AFFECTS THE PY VALUE ON (L+1), HANDLE IT
 C       TH(L)=(SOLVE TARGET-PY(L))/PUY(L)
@@ -1414,6 +1418,24 @@ C       HANDLING OF CAY SOLVE IS COMPLETED
                         ELSE
 C       NO CAY SOLVE IS PRESENT, PROCEED
                         END IF
+
+        IF(SOLVE(6,L).EQ.7.0D0) THEN
+
+        !     DO I=1,8
+        !         PRINT *, "I IS ", I
+        !         PRINT *, "PXTRA ", PXTRAY(I,0:INT(SYSTEM(20)))
+
+        !     END DO
+
+            newThick = 
+     1 curr_par_ray_trace%getObjectThicknessToSetParaxialMag(
+     2-1*SOLVE(7,L), curr_lens_data)
+
+            ALENS(3,0) = newThick
+
+        END IF 
+                        
+
 C       FINISHED WITH POSSIBLE CAY SOLVES ON TH(L)
 C
 C               ALL SURFACE (L) SOLVES NOW HANDLED.
@@ -1432,6 +1454,14 @@ C       SLV2 NOT 1
 C
 C       THE SURFACE OF SOLVE EVALUATION IS THE PASSED PARAMETER L.
 C       NOW HANDLE ALL SOLVES ON SURFACE L
+        
+       ! JN:  First check if this is the object surface, since 
+       ! these refractive index simplifications break for L=0
+       ! Check for mag solve
+       
+
+       IF(L.GT.0) THEN 
+
 C       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 C       AT THE CONTROL WAVELENGTH AT L-1 AND L
       IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
@@ -1442,6 +1472,11 @@ C       AT THE CONTROL WAVELENGTH AT L-1 AND L
                 N=ALENS(65+INT(SYSTEM(11)),(L-1))
                 J_NP=ALENS(65+INT(SYSTEM(11)),(L))
                             END IF
+                                      
+        END IF
+
+        
+
 C
 C                       FIRST,CURVATURE SOLVES
 C***************************************************************************

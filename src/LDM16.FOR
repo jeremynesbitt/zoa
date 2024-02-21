@@ -566,6 +566,7 @@ C
 C SUB LENUP.FOR
         SUBROUTINE LENUP
         use handlers
+        use type_utils, only: real2str
 C
         IMPLICIT NONE
 C
@@ -1255,9 +1256,12 @@ C       COMMAND (GRTD)
 C       COMMANDS (PY,PX,PCY,PCX,CAY AND CAX)
 C       AND DELETIONS TSD
                 IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.
-     1  'PCY'.OR.WC.EQ.'TSD'.OR.
+     1  'PCY'.OR.WC.EQ.'TSD'.OR.WC.EQ.'REDSLV'.OR.
      1  WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX') THEN
+
                 CALL THSOLV
+
+                        
       IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
       SYSTEM(63)=0.0D0
       OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'

@@ -32,6 +32,7 @@ module type_utils
         strR = adjustl(strR)
         PRINT *, "strR is ", strR
         read(strR, '(D23.15)') val
+        read(strR, '(F9.5)') val
         PRINT *, "Output val is ", val
     
       end function

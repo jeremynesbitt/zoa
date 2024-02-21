@@ -46,17 +46,22 @@ contains
  subroutine parseModelGlassEntry(modelGlass, nd, vd)
   use type_utils, only: str2int
   character(len=*) :: modelGlass
+  integer :: dotLoc
   real*8, intent(inout) :: nd, vd
   character(len=3) :: nStr, vStr
   
   
   ! Format is:  MXYZ.ABC
-  ! XYZ is index = 1
+  ! XYZ is index - 1
   ! ABC is abbe number *10
-  nStr = modelGlass(2:5)
-  vStr = modelGlass(6:8)
+  dotLoc = INDEX(modelGlass, '.')
+  nStr = modelGlass(1:dotLoc-1)
+  PRINT *, "ModelGlass Start is ", modelGlass(1:dotLoc-1)
+  vStr = modelGlass(dotLoc+1:len(modelGlass))
 
-  nd = 1+ REAL(str2int(nStr))/1000.0
+  
+  ! Divide the number to the left of the . s.t. it is < 1.  Then add one to it to make the index
+  nd = 1+ REAL(str2int(nStr))/(10**(dotLoc-2))
   vd = REAL(str2int(vStr))/10.0
 
 

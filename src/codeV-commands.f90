@@ -91,13 +91,23 @@ module codeV_commands
             boolResult = .TRUE.
             return   
         case ('CUY')
-            call setAngleSolve()
+            call setCurvature()
             boolResult = .TRUE.
             return             
         case ('DEL')
             call deleteStuff()
             boolResult = .TRUE.
             return                 
+
+        case ('RED')
+            call setMagSolve()
+            boolResult = .TRUE.
+            return  
+
+        case ('SETC')
+            call execSetCodeVCmd()
+            boolResult = .TRUE.
+            return              
 
         end select
 
@@ -108,6 +118,58 @@ module codeV_commands
           END IF            
               
     end function
+
+    subroutine execSetCodeVCmd()
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str, str2real8, real2str
+        use global_widgets, only: curr_lens_data, curr_par_ray_trace
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
+        ! command and figuring out what commands to translate it to
+        if(numTokens > 1 ) then
+        select case(trim(tokens(2))) 
+            case('MAG') ! FORMAT SET MAX X
+                if(numTokens > 2) then
+                    call executeCodeVLensUpdateCommand('CHG 0;TH '// &
+                    real2str(curr_par_ray_trace%getObjectThicknessToSetParaxialMag( &
+                    & str2real8(trim(tokens(3))),curr_lens_data)))                            
+                else
+                    call updateTerminalLog("No Mag Value specified.  Please try again", "red")
+                end if 
+                
+
+            end select
+
+        end if
+    end subroutine
+
+    subroutine setMagSolve()
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use global_widgets, only: curr_lens_data
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+
+        call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)))          
+
+    end subroutine
 
     ! Format:  DEL SOL CUY S2
     !          DEL PIM
@@ -158,8 +220,8 @@ module codeV_commands
     end subroutine
 
     ! Format:  CUY Sk SOLVETYPE VAL
-    subroutine setAngleSolve()
-        use command_utils, only : parseCommandIntoTokens
+    subroutine setCurvature()
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
         implicit none
@@ -174,6 +236,11 @@ module codeV_commands
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (numTokens > 2) then
+               if (isInputNumber(trim(tokens(3)))) then ! FORMAT: CUY Sk VAL
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; CV, ' // trim(tokens(3)))
+               else                 
+                
 
                select case (trim(tokens(3)))
                case('UMY')
@@ -186,6 +253,7 @@ module codeV_commands
                 end if
 
                end select 
+            end if ! Tokens > 2 loop
             else
                 call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
             end if
@@ -231,14 +299,17 @@ module codeV_commands
 
     ! format:  GLA Sk GLASSNAME
     subroutine setGlass()
-        use command_utils, only : checkCommandInput, getInputNumber, parseCommandIntoTokens
+        use command_utils, only : checkCommandInput, getInputNumber, parseCommandIntoTokens, isInputNumber
+        use glass_manager, only: parseModelGlassEntry
         use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
+        use iso_fortran_env, only: real64
 
         !character(len=*) :: iptCmd
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
+        real(kind=real64) :: nd, vd
 
         include "DATMAI.INC"
 
@@ -248,10 +319,16 @@ module codeV_commands
 
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            call updateTerminalLog("Tokens(3) is "//trim(tokens(3)), "blue" )
+            if (isInputNumber(trim(tokens(3)))) then ! Assume user entered model glass
+                PRINT *, "Model Glass Entered!"
+                call parseModelGlassEntry(trim(tokens(3)), nd, vd)
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; MODEL D'//trim(tokens(3))//','//real2str(nd)//','//real2str(vd))    
+            else ! Assume it is glass name          
+            
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; GLAK ' // trim(tokens(3)))            
-            PRINT *, "tokens(3) is ", trim(tokens(3))
+            & '; GLAK ' // trim(tokens(3)))
+            end if            
         else
             call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
@@ -558,13 +635,14 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(15) :: codeVCmds
+        character(len=3), dimension(17) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', 'DIM', 'RDY', 'THI', &
-        & 'INS', 'GLA', 'PIM', 'EPD', 'CUY', 'DEL']
+        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
+        &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
+        & 'DEL', 'RED', 'SETC']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then

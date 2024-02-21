@@ -220,7 +220,7 @@ end type
 !TODO:  Not sure it makes sense for this to extend lens_Data.  perhaps change move all this to parax_calcs.f90?
 type, extends(lens_data) :: paraxial_ray_trace_data
         !integer, allocatable :: surface(:)
-        real, allocatable ::  marginal_ray_height(:), marginal_ray_angle(:), &
+        real(kind=real64), allocatable ::  marginal_ray_height(:), marginal_ray_angle(:), &
         & chief_ray_height(:), chief_ray_angle(:), marginal_ray_aoi(:), &
         & chief_ray_aoi(:)
         real(kind=real64) :: t_mag = 0
@@ -231,6 +231,7 @@ type, extends(lens_data) :: paraxial_ray_trace_data
         real(kind=real64), allocatable :: CSeidel(:,:), CXSeidel(:,:)
  contains
         procedure, public, pass(self) :: calculateFirstOrderParameters
+        procedure, public, pass(self) :: getObjectThicknessToSetParaxialMag
 
 
 
@@ -1422,6 +1423,61 @@ PRINT *, "PARAX IMAGE HT IS ", self%chief_ray_height(lData%num_surfaces)
 PRINT *, "PARAX IMAGE ANGLE IS ", self%chief_ray_angle(lData%num_surfaces)
 
 end subroutine
+
+function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
+  use type_utils, only: real2str
+  implicit none
+  class(paraxial_ray_trace_data) :: self
+  type(lens_data) :: lData
+  real(kind=real64) :: magTgt, t0, thick0, uk1, u01, uk2, u02
+  real(kind=real64) :: mag, y, uTgt, uSlope, uOffset
+  integer :: s1, s2
+  t0 = 10.0
+
+  ! Here is a brief description of the logic here
+  ! paraxial lateral magnification can be calculated as (nu)_k-1/(n0uo)
+  ! Where k-1 is the surface before image surface
+  ! Due to linearity of paraxial eqns, there is a linear relationship between
+  ! u_k-1 and u0.  u_k-1 = slope*u0 + offset
+  ! A way to figure out this slope and offset is to trace a ray with a slightly
+  ! different object distance.  This will change both u0 and u_k-1 and from the
+  ! original distance and the new distance can determine slope and offset.
+  ! Once you know this, can figure out new thickness with the following equation
+  ! magTgt = gamma/(slope*gamma+offset)
+  ! magTgt = new mag
+  ! gamma = y/t0, y is the marginal ray height on surface 2, and t0 is the new thicknesss
+   ! You can solve this for t0 and thus figure out the new thickness
+  ! JN 2/20/24
+
+
+  s2 = lData%num_surfaces
+  s1 = 1
+  uk1 = self%marginal_ray_angle(s2)
+  u01 = self%marginal_ray_angle(s1)
+
+  ! I don't actually use this here 
+  mag = lData%surf_index(s2)*self%marginal_ray_angle(s2) / &
+  & (lData%surf_index(s1)*self%marginal_ray_angle(s1))
+
+  ! Adjust object thickness by a bit and recalculate
+  thick0 = lData%thicknesses(1)
+  CALL PROCESKDP("THI SO "//real2str(thick0+1)) ! arbitrary to choose +1mm
+
+  uk2 = self%marginal_ray_angle(s2)
+  u02 = self%marginal_ray_angle(s1)
+
+  ! Compute Slope and Offset
+  uSlope = (uk2-uk1)/(u02-u01)
+  uOffset = uk1-u01*uSlope
+
+
+  CALL PROCESKDP("THI SO "//real2str(thick0))
+
+  ! Finally ready to calculate new thickness
+  t0 = -1*self%marginal_ray_height(s1+1)*(magTgt*uSlope-1)/(magTgt*uOffset)
+  call LogTermFOR("New Thickness is "//real2str(t0))
+
+end function
 
 
 

@@ -420,6 +420,7 @@ C       ITYP NOT 2
                         END
 C SUB PRTRA.FOR
         SUBROUTINE PRTRA
+        use type_utils, only: real2str        
 C
         use global_widgets
 
@@ -622,11 +623,20 @@ C       PICY'(0) AT OBJECT PICY'=PICY
 C
 C       THIS COMPLETES THE VALUES AT THE OBJECT SURFACE
 C
+        !JN:  If there is a mag solve set thickness here:
+         L = 0
+      IF(SOLVE(6,L).NE.0.0D0) THEN 
+        SLV1 = L
+        CALL SLVRS
+      END IF
+
       L=1
                        SLV1=L
                        SLV2=1
       IF(SOLVE(6,L).NE.0.0D0.OR.
-     1SOLVE(8,L).NE.0.0D0) CALL SLVRS
+     1SOLVE(8,L).NE.0.0D0) THEN 
+        CALL SLVRS
+       END IF
 C               INITIAL VALUES AT SURFACE 1
 C       CALL PIKRES FOR THE SURFACE 1
                COMI=1
@@ -729,7 +739,7 @@ C       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
                 DO 50 L=2,INT(SYSTEM(26))
 C               VALUES AT SURFACE L
                        SLV1=L
-                       SLV2=1
+                       SLV2=1               
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C       CALL PIKRES FOR THE SURFACE L
@@ -886,7 +896,7 @@ C
 C       THIS COMPLETES THE VALUES AT THE OBJECT SURFACE
                         L=1
                        SLV1=L
-                       SLV2=1
+                       SLV2=1                       
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C
@@ -985,7 +995,7 @@ C *****************************************************************************
 C       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
                         DO 70 L=2,INT(SYSTEM(26))
                        SLV1=L
-                       SLV2=1
+                       SLV2=1                  
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C               VALUES AT SURFACE L
@@ -1092,7 +1102,7 @@ C       APERTURE STOP SURFACE. REDEFINE IT AS L.
 C       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
 C       THIS IS DONE BY CALLING SUBROUTINE
                        SLV1=L
-                       SLV2=1
+                       SLV2=1                  
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C
@@ -1216,7 +1226,7 @@ C                       SOLVES ON SURFACE L
 C***************************************************************************
 C       HANDLE SOLVES ON SURFACE L BY CALLING SUBROUTINE
                        SLV1=L
-                       SLV2=1
+                       SLV2=1                           
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C
@@ -1376,7 +1386,7 @@ C       HERE. REDEFINE IT AS L.
 C       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE
 C       DO THIS BY CALLING SLVRS
                        SLV1=L
-                       SLV2=1
+                       SLV2=1                   
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C               ALL APERTURE STOP SURFACE SOLVES NOW HANDLED.
@@ -1496,7 +1506,7 @@ C                       NOW HANDLE SOLVES ON SURFACE L
 C***************************************************************************
 C       DO THIS BY CALLING SLVRS
                        SLV1=L
-                       SLV2=1
+                       SLV2=1                      
       IF(SOLVE(6,L).NE.0.0D0.OR.
      1SOLVE(8,L).NE.0.0D0) CALL SLVRS
 C       ALL SOLVES ON SURFACE L HANDLED

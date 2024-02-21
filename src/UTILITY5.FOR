@@ -1181,6 +1181,7 @@ C     PREDEFINED OPERAND NAMES SET OHFUN TO TRUE
       IF(WC.EQ.'FLCLTHY ') OHFUN=.TRUE.
       IF(WC.EQ.'FLCLTHX ') OHFUN=.TRUE.
       IF(WC.EQ.'FLCLTH  ') OHFUN=.TRUE.
+      IF(WC.EQ.'REDSLV')   OHFUN=.TRUE.
       IF(WC.EQ.'PY      ') OHFUN=.TRUE.
       IF(WC.EQ.'PX      ') OHFUN=.TRUE.
       IF(WC.EQ.'PCY     ') OHFUN=.TRUE.
@@ -1426,7 +1427,7 @@ C     PREDEFINED OPERAND NAMES SET OHFUN TO TRUE
       IF(WC.EQ.'GOTFP   ') OHFUN=.TRUE.
       IF(WC.EQ.'DOTFM  ') OHFUN=.TRUE.
       IF(WC.EQ.'DOTFP  ') OHFUN=.TRUE.
-      IF(WC.EQ.'RED     ') OHFUN=.TRUE.
+      IF(WC.EQ.'REDK     ') OHFUN=.TRUE.
       IF(WC.EQ.'REDCEN  ') OHFUN=.TRUE.
       IF(WC.EQ.'SYMX    ') OHFUN=.TRUE.
       IF(WC.EQ.'SYMY    ') OHFUN=.TRUE.
@@ -1867,6 +1868,7 @@ C     PREDEFINED TOL OPERAND NAMES SET OHFUN TO TRUE
       IF(WC.EQ.'FLCLTHY ') OHFUN=.TRUE.
       IF(WC.EQ.'FLCLTHX ') OHFUN=.TRUE.
       IF(WC.EQ.'FLCLTH  ') OHFUN=.TRUE.
+      IF(WC.EQ.'REDSLV')   OHFUN=.TRUE.
       IF(WC.EQ.'PY      ') OHFUN=.TRUE.
       IF(WC.EQ.'PX      ') OHFUN=.TRUE.
       IF(WC.EQ.'PCY     ') OHFUN=.TRUE.
@@ -2112,7 +2114,7 @@ C     PREDEFINED TOL OPERAND NAMES SET OHFUN TO TRUE
       IF(WC.EQ.'GOTFP   ') OHFUN=.TRUE.
       IF(WC.EQ.'DOTFM   ') OHFUN=.TRUE.
       IF(WC.EQ.'DOTFP   ') OHFUN=.TRUE.
-      IF(WC.EQ.'RED     ') OHFUN=.TRUE.
+      IF(WC.EQ.'REDK     ') OHFUN=.TRUE.
       IF(WC.EQ.'REDCEN  ') OHFUN=.TRUE.
       IF(WC.EQ.'SYMX    ') OHFUN=.TRUE.
       IF(WC.EQ.'SYMY    ') OHFUN=.TRUE.
@@ -2564,6 +2566,7 @@ C     PREDEFINED FOCRIT OPERAND NAMES SET OHFUN TO TRUE
       IF(WC.EQ.'FLCLTHY ') OHFUN=.TRUE.
       IF(WC.EQ.'FLCLTHX ') OHFUN=.TRUE.
       IF(WC.EQ.'FLCLTH  ') OHFUN=.TRUE.
+      IF(WC.EQ.'REDSLV')   OHFUN=.TRUE.
       IF(WC.EQ.'PY      ') OHFUN=.TRUE.
       IF(WC.EQ.'PX      ') OHFUN=.TRUE.
       IF(WC.EQ.'PCY     ') OHFUN=.TRUE.
@@ -2809,7 +2812,7 @@ C     PREDEFINED FOCRIT OPERAND NAMES SET OHFUN TO TRUE
       IF(WC.EQ.'GOTFP   ') OHFUN=.TRUE.
       IF(WC.EQ.'DOTFM   ') OHFUN=.TRUE.
       IF(WC.EQ.'DOTFP   ') OHFUN=.TRUE.
-      IF(WC.EQ.'RED     ') OHFUN=.TRUE.
+      IF(WC.EQ.'REDK     ') OHFUN=.TRUE.
       IF(WC.EQ.'REDCEN  ') OHFUN=.TRUE.
       IF(WC.EQ.'SYMX    ') OHFUN=.TRUE.
       IF(WC.EQ.'SYMY    ') OHFUN=.TRUE.
@@ -5431,6 +5434,7 @@ C     BEGINNING OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'CCR')         IS=.TRUE.
                 IF(WC.EQ.'ROO')         IS=.TRUE.
 C     END OF NON-SEQUENTIAL COMMANDS
+                IF(WC.EQ.'REDSLV')      IS=.TRUE.               
                 IF(WC.EQ.'PY')          IS=.TRUE.
                 IF(WC.EQ.'RAYERROR')    IS=.TRUE.
                 IF(WC.EQ.'PCY')         IS=.TRUE.
@@ -5688,6 +5692,7 @@ C     BEGINNING OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'ROO')         IS=.TRUE.
 C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'RAYERROR')    IS=.TRUE.
+                IF(WC.EQ.'REDSLV')      IS=.TRUE.
                 IF(WC.EQ.'PY')          IS=.TRUE.
                 IF(WC.EQ.'PCY')         IS=.TRUE.
                 IF(WC.EQ.'CAY')         IS=.TRUE.
@@ -7902,6 +7907,7 @@ C     BEGINNING OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'ROO')         IS=.TRUE.
 C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'RAYERROR')    IS=.TRUE.
+                IF(WC.EQ.'REDSLV')      IS=.TRUE.
                 IF(WC.EQ.'PY')          IS=.TRUE.
                 IF(WC.EQ.'PCY')         IS=.TRUE.
                 IF(WC.EQ.'CAY')         IS=.TRUE.
