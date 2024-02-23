@@ -74,6 +74,8 @@ module lens_editor
   ! current pickup to be modded in this type.  Same idea with solve
   type(pickup) :: pData
   type(ksolve)  :: sData
+
+  type(c_ptr) :: win_modal_solve
   
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
@@ -491,7 +493,7 @@ end subroutine lens_editor_replot
         call PROCESKDP('EOS')
   case (ID_COL_RADIUS_PICKUP)
        call hl_gtk_combo_set_by_text(ihlist, irow, icol, trim(ftext), ID_SETTING)
-      PRINT *, "ftext is ", trim(ftext)
+      
       select case (ID_SETTING)
 
         case (ID_MOD_PICKUP)
@@ -506,8 +508,10 @@ end subroutine lens_editor_replot
           CALL PROCESKDP('EOS')
 
           call refreshLensEditorUI()
-
+        case (ID_MOD_SOLVE)
+          call ui_solve(irow, ID_PICKUP_RAD) 
         end select 
+
 
     case (ID_COL_THICKNESS)
         PRINT *, "Thickness changed!"
@@ -1553,8 +1557,13 @@ end subroutine
     character(kind=c_char), dimension(:), allocatable :: strTmp
     character(kind=c_char), pointer, dimension(:) :: ptrTmp
     integer, parameter :: numThickSolves = size(thick_solves)
+    integer, parameter :: numCurvSolves = size(curv_solves)
+
     character(len=30), dimension(numThickSolves) :: thicSolves
-    type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
+    character(len=30), dimension(numCurvSolves) :: curvSolves
+
+    !type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
+    type(c_ptr), dimension(:), allocatable :: c_ptr_array
 
 
 
@@ -1569,8 +1578,12 @@ end subroutine
     
     ! TODO:  Implement RAD Solves once this is working
 
-    
-    do i = 1, size(thicSolves)
+    select case (solve_type)
+
+    case (ID_PICKUP_THIC)
+
+    allocate(c_ptr_array(numThickSolves+1))    
+    do i = 1, numThickSolves
       thicSolves(i) = trim(thick_solves(i)%uiText)
       call f_c_string(trim(thicSolves(i)), strTmp)
       allocate(ptrTmp(size(strTmp)))
@@ -1582,6 +1595,23 @@ end subroutine
     end do
     ! The array must be null terminated:
     c_ptr_array(numThickSolves+1) = c_null_ptr
+
+  case (ID_PICKUP_RAD)
+    allocate(c_ptr_array(numCurvSolves+1))  
+    do i = 1, numCurvSolves
+      curvSolves(i) = trim(curv_solves(i)%uiText)
+      call f_c_string(trim(curvSolves(i)), strTmp)
+      allocate(ptrTmp(size(strTmp)))
+      ! A Fortran pointer toward the Fortran string:
+      ptrTmp(:) = strTmp(:)
+      ! Store the C address in the array:
+      c_ptr_array(i) = c_loc(ptrTmp(1))
+      nullify(ptrTmp)
+    end do
+    ! The array must be null terminated:
+    c_ptr_array(numCurvSolves+1) = c_null_ptr    
+
+    end select
 
   end function
 
@@ -1783,11 +1813,15 @@ end subroutine
     use type_utils, only:  int2str
     implicit none
 
-    integer :: row, solve_type
+    integer :: row, solve_type, ii
+    ! This seems like an insane way of passing an integer but it works
+    integer, target :: ID_TGT_THIC = ID_PICKUP_THIC
+    integer, target :: ID_TGT_RAD = ID_PICKUP_RAD
+
 
    
 
-    type(c_ptr) :: win, boxWin, cBut, uBut
+    type(c_ptr) :: boxWin, cBut, uBut
     type(c_ptr) :: table, lblSurf
 
 
@@ -1798,25 +1832,27 @@ end subroutine
     !pData%scale = curr_lens_data%pickups(3,row+1,pickup_type)
     !pData%offset = curr_lens_data%pickups(4,row+1,pickup_type)
 
+    PRINT *, "Call Update Solve Data from ui_solve"
+    call sData%updateSolveData(curr_lens_data, row+1, solve_type)
+    PRINT *, "After Call Update Solve Data from ui_solve"
 
-    call sData%updateSolveData(curr_lens_data, row, solve_type)
 
 
     ! Create the window:
-    win = gtk_window_new()
+    win_modal_solve= gtk_window_new()
 
-    call gtk_window_set_title(win, "Set Solve"//c_null_char)
+    call gtk_window_set_title(win_modal_solve, "Set Solve"//c_null_char)
 
     ! I added this because I was using it in the pickup ui to find the surface we 
     ! are modifying, but I moved this info to the pickup derived type
     ! So this can be removed but I left it here for now
-    call gtk_widget_set_name(win, trim(int2str(row))//c_null_char)
+    call gtk_widget_set_name(win_modal_solve, trim(int2str(row))//c_null_char)
 
-    call gtk_window_set_default_size(win, 300_c_int, 300_c_int)
+    call gtk_window_set_default_size(win_modal_solve, 300_c_int, 300_c_int)
 
 
     boxWin = hl_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
-    call gtk_window_set_child(win, boxWin)
+    call gtk_window_set_child(win_modal_solve, boxWin)
 
     table = gtk_grid_new()
     call gtk_grid_set_column_homogeneous(table, TRUE)
@@ -1824,10 +1860,39 @@ end subroutine
 
     dropDown = gtk_drop_down_new_from_strings(getSolvesAsCStringArray(solve_type))
 
-    call g_signal_connect(dropDown, "notify::selected"//c_null_char, c_funloc(solveTypeChanged), c_null_ptr)
+    ! TODO:  Need to set selection based on users current solve.  I asume this is going to require
+    select case (solve_type)
+    case (ID_PICKUP_THIC)
+      do ii=1,size(thick_solves)
+        if (thick_solves(ii)%id_solve == sData%ID_type) then
+         call gtk_drop_down_set_selected(dropDown, ii-1)
+        end if
+      end do
+      !Insanity part 2
+      call g_signal_connect(dropDown, "notify::selected"//c_null_char, c_funloc(solveTypeChanged), c_loc(ID_TGT_THIC))
+      uBut = hl_gtk_button_new("Update"//c_null_char, &
+      & clicked=c_funloc(solveUpdate_click), &
+      & data=c_loc(ID_TGT_THIC))
+    case(ID_PICKUP_RAD)
+      do ii=1,size(curv_solves)
+        if (curv_solves(ii)%id_solve == sData%ID_type) then
+         call gtk_drop_down_set_selected(dropDown, ii-1)
+        end if
+      end do
+      !Insanity part 2
+      call g_signal_connect(dropDown, "notify::selected"//c_null_char, c_funloc(solveTypeChanged), c_loc(ID_TGT_RAD))
+      uBut = hl_gtk_button_new("Update"//c_null_char, &
+      & clicked=c_funloc(solveUpdate_click), &
+      & data=c_loc(ID_TGT_RAD))
+
+    end select
+
+    
+
+    
 
     !dropDown = gtk_drop_down_new_from_strings(getSurfacesAsCStringArray())
-    !call gtk_drop_down_set_selected(dropDown, INT(curr_lens_data%pickups(2,row+1,pickup_type)))
+    
 
     lblSurf = gtk_label_new("Solve Type"//c_null_char)
     !gtk_grid_attach (GtkGrid *grid, GtkWidget *child, int column, int row, int width, int height);
@@ -1867,34 +1932,43 @@ end subroutine
   ! It is the scrollcontainer that is placed into the box.
   call hl_gtk_box_pack(boxWin, table)
 
-  uBut = hl_gtk_button_new("Update"//c_null_char, &
-      & clicked=c_funloc(solveUpdate_click), &
-      & data=win)
+
      
   cBut = hl_gtk_button_new("Cancel"//c_null_char, &
        & clicked=c_funloc(pickupCancel_click), &
-       & data=win)         
+       & data=win_modal_solve)         
 
   call hl_gtk_box_pack(boxWin, uBut)
   call hl_gtk_box_pack(boxWin, cBut)
 
-  call gtk_widget_show(win)
-  call gtk_window_set_modal(win, 1_c_int)
-  call gtk_window_set_transient_for(win, lens_editor_window)
+  call gtk_widget_show(win_modal_solve)
+  call gtk_window_set_modal(win_modal_solve, 1_c_int)
+  call gtk_window_set_transient_for(win_modal_solve, lens_editor_window)
   
 
 end subroutine
 
-subroutine solveTypeChanged(widget, parentWin) bind(c)
-  type(c_ptr), value, intent(in) :: widget, parentWin
+subroutine solveTypeChanged(widget, gdata) bind(c)
+  type(c_ptr), value, intent(in) :: widget, gdata
   integer :: selection
+  integer(kind=c_int), pointer :: ID_SETTING
 
-  PRINT *, "Button clicked!"
-  selection = gtk_drop_down_get_selected(dropDown)+1 ! Since it starts from 0 in gtk
-  PRINT *, "Selection is ", selection
-  call gtk_label_set_label(lblScale, trim(thick_solves(selection)%param1Name)//c_null_char)
-  call gtk_label_set_label(lblOffset, trim(thick_solves(selection)%param2Name)//c_null_char)
+  call c_f_pointer(gdata, ID_SETTING)
 
+  select case(ID_SETTING)
+
+  case(ID_PICKUP_THIC)
+    selection = gtk_drop_down_get_selected(dropDown)+1 ! Since it starts from 0 in gtk
+    call gtk_label_set_label(lblScale, trim(thick_solves(selection)%param1Name)//c_null_char)
+    call gtk_label_set_label(lblOffset, trim(thick_solves(selection)%param2Name)//c_null_char)
+
+  case(ID_PICKUP_RAD)
+
+    selection = gtk_drop_down_get_selected(dropDown)+1 ! Since it starts from 0 in gtk
+    call gtk_label_set_label(lblScale, trim(curv_solves(selection)%param1Name)//c_null_char)
+    call gtk_label_set_label(lblOffset, trim(curv_solves(selection)%param2Name)//c_null_char)
+
+  end select
 
 
 end subroutine  
@@ -1902,36 +1976,40 @@ end subroutine
 subroutine solveUpdate_click(widget, gdata) bind(c)
   use type_utils, only: int2str
   type(c_ptr), value, intent(in) :: widget, gdata
+  integer, pointer :: ID_SETTING
   integer :: selection
 
+  call c_f_pointer(gdata, ID_SETTING)
   PRINT *, "Button clicked!"
   sData%param1 = gtk_spin_button_get_value (sbScale)
   sData%param2 = gtk_spin_button_get_value (sbOffset)
   selection = gtk_drop_down_get_selected(dropDown)+1
+
+  select case (ID_SETTING)
+  case(ID_PICKUP_THIC)
+
   sData%ID_type = thick_solves(selection)%id_solve
-  call sData%setSolveText()
+  call sData%setSolveText(thick_solves)
+  case(ID_PICKUP_RAD)
+    sData%ID_type = curv_solves(selection)%id_solve
+    call sData%setSolveText(curv_solves)
+  end select
+
+
+  !
+  
   !sData% = gtk_drop_down_get_selected(dropDown)
 
 
   ! It's time to update the pickup
-  CALL PROCESKDP('U L')
-  !CALL PROCESKDP("CHG, "//trim(choice))
-  CALL PROCESKDP("CHG, "//trim(int2str(sData%surf)))
-
-  call PROCESKDP(trim(sData%genKDPCMDToSetSolve()))
-
-  !CALL PROCESKDP("PIKUP "//trim(pData%pickupTxt)//","//trim(int2str(surfNum))//","//trim(real2str(scale))// &
-  !& ","//trim(real2str(offset))//","//"0.0,")
-
-  !PRINT *, "Update cmd tst is ", trim(pData%genKDPCMD())
-
-  CALL PROCESKDP('EOS')
+  CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf)) &
+  & //"; "//trim(sData%genKDPCMDToSetSolve())//";EOS")
 
   call refreshLensDataStruct()
   call buildBasicTable(.FALSE.)
   call zoatabMgr%rePlotIfNeeded()
 
-  call gtk_window_destroy(gdata)
+  call gtk_window_destroy(win_modal_solve)
 
 
 
@@ -1977,11 +2055,9 @@ end subroutine
     class(*), dimension(:), intent(in) :: data
     integer :: m
 
-    PRINT *, "About to measure data"
 
     m = size(data)
-    PRINT *, "After data measurement "
-
+  
     self%coltitle = title
     self%coltype = coltype
     self%sortable = sortable
@@ -2000,7 +2076,7 @@ end subroutine
           if (dtype == DTYPE_SCIENTIFIC) THEN
         ! Store data as float but will be shown as string
           self%dtype = dtype
-         PRINT *, "Scientific Column!"
+         !PRINT *, "Scientific Column!"
        end if
 
       Else
@@ -2029,7 +2105,7 @@ end subroutine
         self%refsArray = refsArray
         self%valsArray = valsArray
         self%colModel = COL_MODEL_COMBO
-        PRINT *, "Set Col Model to ", self%colModel
+        !PRINT *, "Set Col Model to ", self%colModel
       end if
     type is (character(*))
       self%dtype = DTYPE_STRING

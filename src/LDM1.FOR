@@ -3006,6 +3006,7 @@ C
      1          SOLVE(4,SF).NE.0.0D0.OR.SOLVE(6,SF).NE.0.0D0
      2          ) THEN
                 SOLVE(3:7,SF)=0.0D0
+                
         WRITE(OUTLYNE,*)
      1'SURFACE',SF,' :EXISTING THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)

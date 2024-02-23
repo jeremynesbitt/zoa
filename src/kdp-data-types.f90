@@ -31,7 +31,7 @@ module kdp_data_types
   integer, parameter :: ID_PICKUP_RAD = 1
   integer, parameter :: ID_PICKUP_THIC = 3  
   
-
+  ! These are options for the solve adjustment drop down lists.  
   integer, parameter :: ID_SOLVE_NONE = 0
   integer, parameter :: ID_SOLVE_PY = 1 
   integer, parameter :: ID_SOLVE_PX = 4 
@@ -39,6 +39,15 @@ module kdp_data_types
   integer, parameter :: ID_SOLVE_PCX = 5
   integer, parameter :: ID_SOLVE_CAY = 3
   integer, parameter :: ID_SOLVE_CAX = 6
+
+  integer, parameter :: ID_SOLVE_ = 1 
+  integer, parameter :: ID_SOLVE_APY = 4 
+  integer, parameter :: ID_SOLVE_APX = 2 
+  integer, parameter :: ID_SOLVE_APCY = 5
+  integer, parameter :: ID_SOLVE_APCX = 8
+  integer, parameter :: ID_SOLVE_PIY = 6
+  integer, parameter :: ID_SOLVE_PIX = 7
+  integer, parameter :: ID_SOLVE_PUY = 3
 
 
 
@@ -259,6 +268,7 @@ end type
 ! More definitions
   ! Solves
   type(solve_options), dimension(7) :: thick_solves
+  type(solve_options), dimension(8) :: curv_solves
 
 
 contains
@@ -856,6 +866,54 @@ subroutine init_solves()
  thick_solves(7)%uiText = "X Clear Aperture Solve (CAX)"
  thick_solves(7)%cmd = "CAX"  
 
+ curv_solves(1)%id_solve = ID_SOLVE_NONE
+ curv_solves(1)%param1Name = "Not Used"
+ curv_solves(1)%param2Name = "Not Used"
+ curv_solves(1)%uiText = "None"
+ curv_solves(1)%cmd = ""
+
+ curv_solves(2)%id_solve = ID_SOLVE_APY
+ curv_solves(2)%param1Name = "Not Used"
+ curv_solves(2)%param2Name = "Not Used"
+ curv_solves(2)%uiText = "Aplanatic Paraxial Axial Ray (APY)"
+ curv_solves(2)%cmd = "APY"  
+
+ curv_solves(3)%id_solve = ID_SOLVE_APX
+ curv_solves(3)%param1Name = "Not Used"
+ curv_solves(3)%param2Name = "Not Used"
+ curv_solves(3)%uiText = "X Aplanatic Paraxial Axial Ray (APX)"
+ curv_solves(3)%cmd = "PX"   
+
+ curv_solves(4)%id_solve = ID_SOLVE_APCY
+ curv_solves(4)%param1Name = "Not Used"
+ curv_solves(4)%param2Name = "Not Used"
+ curv_solves(4)%uiText = "Paraxial Chief Ray Angle (APCY)"
+ curv_solves(4)%cmd = "APCY"  
+
+ curv_solves(5)%id_solve = ID_SOLVE_APCX
+ curv_solves(5)%param1Name = "Not Used"
+ curv_solves(5)%param2Name = "Not Used"
+ curv_solves(5)%uiText = "X Paraxial Chief Ray Angle (APCX)"
+ curv_solves(5)%cmd = "APCX"   
+
+ curv_solves(6)%id_solve = ID_SOLVE_PIY
+ curv_solves(6)%param1Name = "Angle of Incidece"
+ curv_solves(6)%param2Name = "Not Used"
+ curv_solves(6)%uiText = "Paraxial Chief Ray AOI (PIY)"
+ curv_solves(6)%cmd = "PIY"  
+
+ curv_solves(7)%id_solve = ID_SOLVE_PIX
+ curv_solves(7)%param1Name = "Angle of Incidece"
+ curv_solves(7)%param2Name = "Not Used"
+ curv_solves(7)%uiText = "X Paraxial Chief Ray AOI (PIY)"
+ curv_solves(7)%cmd = "PIX"  
+
+ curv_solves(8)%id_solve = ID_SOLVE_PUY
+ curv_solves(8)%param1Name = "Paraxial Angle"
+ curv_solves(8)%param2Name = "Not Used"
+ curv_solves(8)%uiText = "Paraxial Axial Ray Slope Angle (HUY)"
+ curv_solves(8)%cmd = "PUY"  
+
     !thicSolves(1) = "None"
     !thicSolves(2) = "Paraxial Axial Height (PY)"
     !thicSolves(3) = "X Paraxial Axial Height (PX)"
@@ -866,23 +924,30 @@ subroutine init_solves()
 
 end subroutine
 
-function getSolveTypeTxt(id, solveOptions) result(solveCmd)
+subroutine setSolveText(self, solveOptions) 
   implicit none
+  class(ksolve) :: self
   type(solve_options), dimension(:) :: solveOptions
-  character(len=4) :: solveCmd
   integer :: id
   integer :: i
   
-  solveCmd = ""
+  
+  PRINT *, "ID is ", id
   do i=1,size(solveOptions)
-    if (solveOptions(i)%id_solve.EQ.id) then
-      solveCmd = solveOptions(i)%cmd
+    PRINT *, "solveOpptions id_solve is ", solveOptions(i)%id_solve
+    if (solveOptions(i)%id_solve.EQ.self%ID_type) then
+      PRINT *, "In correct Loop"
+      !self%uiText = solveOptions(i)%uiText
+      self%param1Name =  solveOptions(i)%param1Name
+      self%param2Name =  solveOptions(i)%param2Name
+      self%solveTxt = solveOptions(i)%cmd
+
     end if
 
   end do
 
 
-end function
+end subroutine
 
 subroutine setNumFields(self, numFields)
   class(sys_config), intent(inout) :: self
@@ -1235,6 +1300,8 @@ subroutine updateSolveData(self, lData, row, solve_type)
  integer :: row, solve_type
  character(len=280) :: outTxt
 
+ include "DATLEN.INC"
+
  ! From LDM1.FOR
  ! IF(WC.EQ.'PY') SOLVE(6,SURF)=1.0D0
  ! IF(WC.EQ.'PCY') SOLVE(6,SURF)=2.0D0
@@ -1245,48 +1312,49 @@ subroutine updateSolveData(self, lData, row, solve_type)
  ! SOLVE(3,SURF)=0.0D0
  !         ELSE
  !         END IF    
+
+
+
  self%param1Name = "Not Used"
  self%param2Name = "Not Used"
- self%surf = row
- self%ID_type = lData%solves(6,row)
- self%solve_type = solve_type
- call self%setSolveText()  
+ self%surf = row-1
+ ! TODO:  Add a constant somewhere or do something to make it easier to 
+ ! understand what is in solves array
 
- select case (self%ID_type)
-
-
-
- case (ID_SOLVE_PY)
-   self%param1 = lData%solves(7,row)
-   self%param2 = lData%solves(4,row)
-   self%param1Name = "Axial Height"
-   self%param2Name = "Not Used"
-
+ select case(solve_type)
+ case(ID_PICKUP_THIC)
+  self%ID_type = INT(lData%solves(6,row))
+  self%param1 =  lData%solves(7,row)
+ case(ID_PICKUP_RAD)
+  PRINT *, "lData solves(8,row) is ", lData%solves(8,row)
+  self%ID_type = INT(lData%solves(8,row))
+  self%param1 =  lData%solves(9,row)
  end select 
 
-end subroutine    
-
-subroutine setSolveText(self)
- class(ksolve) :: self
- integer :: solve_type
- 
+ self%solve_type = solve_type
+ !call self%setSolveFromType()
  select case(self%solve_type)
 
  case(ID_PICKUP_THIC)
-   self%solveTxt = getSolveTypeTxt(self%ID_type, thick_solves)
-   PRINT *, "SolveTxt is ", self%solveTxt
+  call self%setSolveText(thick_solves)
    !self%solveTxt = "PY"
+
+ case(ID_PICKUP_RAD)
+  call self%setSolveText(curv_solves)
+  !self%solveTxt = getSolveTypeTxt(self%ID_type, curv_solves)
 
  end select
 
-!  select case(self%ID_type)
+!  case (ID_SOLVE_PY)
+!    self%param1 = lData%solves(7,row)
+!    self%param2 = lData%solves(4,row)
+!    self%param1Name = "Axial Height"
+!    self%param2Name = "Not Used"
 
-!  case(ID_SOLVE_PY)
-!    self%solveTxt = "PY"
+!  end select 
 
-!  end select
+end subroutine    
 
-end subroutine
 
 function genKDPCMDToSetSolve(self) result(outTxt)
  use type_utils, only: int2str, real2str
@@ -1294,7 +1362,7 @@ function genKDPCMDToSetSolve(self) result(outTxt)
  character(len=280) :: outTxt
 
  ! TODO: Support other solves.  this is just a proof of concept
-
+ PRINT *, "About to set ",trim(self%solveTxt)//", "//trim(real2str(self%param1))
  outTxt = trim(self%solveTxt)//", "//trim(real2str(self%param1))
 
 end function
@@ -1344,7 +1412,7 @@ subroutine updateLensData(self)
 
     ! Pickup and Solvesstorage
     self%pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
-    self%solves(1:6,JJ+1) = SOLVE(1:6,JJ)
+    self%solves(1:9,JJ+1) = SOLVE(1:9,JJ)
 
 
   END DO
@@ -1431,7 +1499,11 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   type(lens_data) :: lData
   real(kind=real64) :: magTgt, t0, thick0, uk1, u01, uk2, u02
   real(kind=real64) :: mag, y, uTgt, uSlope, uOffset
+  real(kind=real64), dimension(5) :: tempSolveData
   integer :: s1, s2
+
+  include "DATLEN.INC"
+
   t0 = 10.0
 
   ! Here is a brief description of the logic here
@@ -1459,6 +1531,12 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   mag = lData%surf_index(s2)*self%marginal_ray_angle(s2) / &
   & (lData%surf_index(s1)*self%marginal_ray_angle(s1))
 
+  ! Need to turn off the solve if it is on.
+  ! TODO:  have a getter/setter fcn vs just having this global
+  tempSolveData(1:5) = SOLVE(3:7,0)
+  SOLVE(3:7,0) = 0.0D0
+
+
   ! Adjust object thickness by a bit and recalculate
   thick0 = lData%thicknesses(1)
   CALL PROCESKDP("THI SO "//real2str(thick0+1)) ! arbitrary to choose +1mm
@@ -1476,6 +1554,9 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   ! Finally ready to calculate new thickness
   t0 = -1*self%marginal_ray_height(s1+1)*(magTgt*uSlope-1)/(magTgt*uOffset)
   call LogTermFOR("New Thickness is "//real2str(t0))
+
+  !Restore Solve Data
+  SOLVE(3:7,0) = tempSolveData(1:5)
 
 end function
 

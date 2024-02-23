@@ -2605,6 +2605,7 @@ C       THERE IS A THICKNESS SOLVE. REMOVE IT
                 SOLVE(7,SURF)=0.0D0
                 SOLVE(4,SURF)=0.0D0
                 SOLVE(3,SURF)=0.0D0
+      call LogTermFOR("MAG SOLVE DELETED HERE?")          
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
                 ALENS(33,SURF)=0.0D0
