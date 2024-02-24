@@ -1400,6 +1400,7 @@ C     WCC(2003)=' '
       WCC(2589) = 'RED' ! CodeV
       WCC(2590) = 'REDSLV' ! New KDP CMD TO support RED under the hood
       WCC(2591) = 'SETC' ! New KDP CMD TO support RED under the hood
+      WCC(2592) = 'RMD' !CodeV
       
 
 

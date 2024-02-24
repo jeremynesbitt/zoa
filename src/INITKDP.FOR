@@ -4,6 +4,7 @@
         USE NSSMOD
         use zoa_file_handler
         use zoa_logger
+        use codeV_commands, only: initializeCmds
 C
         IMPLICIT NONE
 C
@@ -1660,7 +1661,7 @@ C      CALL USERINPT
 C      GO TO 1
       END IF
 C
-
+      call initializeCmds()
       call logger%logText('End of INITKDP')
 
       RETURN

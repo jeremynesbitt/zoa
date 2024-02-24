@@ -2,9 +2,38 @@
 
 module codeV_commands
 
+
+
+    type zoa_cmd
+      character(len=8) :: cmd
+      procedure (cmdImplementation), pointer, pass(self) :: execFunc
+
+    end type
+
+    abstract interface
+    subroutine cmdImplementation (self,iptStr)
+       import zoa_cmd
+       class(zoa_cmd) :: self
+       character(len=*) ::iptStr
+       !real, intent (in) :: z
+    end subroutine cmdImplementation 
+ end interface    
+
     character(len=4), dimension(500) :: surfCmds
+    type(zoa_cmd), dimension(2) :: zoaCmds
 
     contains
+
+    subroutine initializeCmds()
+        ! This is called when the program is initialized (currently INITKDP.FOR)
+
+        zoaCmds(1)%cmd = "RMD"
+        zoaCmds(1)%execFunc => execRMD
+        !zoaCmds(2)%cmd = 'WL'
+        !zoaCmds(2)%execFunc => setWavelength
+
+
+    end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
 
@@ -38,6 +67,14 @@ module codeV_commands
         !         return
         !       END IF  
         ! select case (iptCmd)
+        
+        ! Temp code for interface check
+        if (iptCmd == zoaCmds(1)%cmd) then
+            PRINT *, "About to crash with fcn pointer?"
+            call zoaCmds(1)%execFunc("Testing")
+            boolResult = .TRUE.
+            return
+        end if
 
         select case (iptCmd)
 
@@ -118,6 +155,15 @@ module codeV_commands
           END IF            
               
     end function
+
+    subroutine execRMD(self, iptStr)
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        PRINT *, "Plumbing worked!"
+        PRINT *, "IptStr is ", iptStr
+        PRINT *, "CMD is ", self%cmd
+
+    end subroutine
 
     subroutine execSetCodeVCmd()
         use command_utils, only : parseCommandIntoTokens
@@ -635,14 +681,14 @@ module codeV_commands
       function isCodeVCommand(tstCmd) result(boolResult)
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(17) :: codeVCmds
+        character(len=3), dimension(18) :: codeVCmds
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=3) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
+        codeVCmds = [character(len=4) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
         &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
-        & 'DEL', 'RED', 'SETC']
+        & 'DEL', 'RED', 'SETC', 'RMD']
         boolResult = .FALSE.
         do i=1,size(codeVCmds)
             if (tstCmd.EQ.codeVCmds(i)) then
