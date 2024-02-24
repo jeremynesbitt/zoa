@@ -866,38 +866,45 @@ function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
   integer :: ID_PICKUP_TYPE
   integer :: i
   PRINT *, "About to set pickupArr"
-  do i=1,curr_lens_data%num_surfaces
+  if (ID_PICKUP_TYPE == ID_PICKUP_RAD) PRINT *, "Size of array is ", size(pickupArr)
+
+
+  do i=1,size(pickupArr)
+    PRINT *, "i is ", i
     pickupArr(i) = ID_MOD_NONE
     ! Look for Pickups First
     if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_RAD) then 
         pickupArr(i) = ID_MOD_PICKUP 
-        return
+        
     end if
     if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_THIC) then 
       pickupArr(i) = ID_MOD_PICKUP 
-      return
+      
     end if
     ! If no pickups found, look for a solve
-    if (curr_lens_data%solves(6,i).NE.0) pickupArr(i) = ID_MOD_SOLVE
+    select case (ID_PICKUP_TYPE)
+    case(ID_PICKUP_RAD)
+       PRINT *, "Solve test is ", curr_lens_data%solves(8,:)
+       PRINT *, "i is ", i
+       PRINT *, "Solve RAD Tst is ", curr_lens_data%solves(8,i)
+       if (curr_lens_data%solves(8,i).NE.0) then 
+        PRINT *, "Setting RAD SOlve pickup for row ", i
+        pickupArr(i) = ID_MOD_SOLVE
+        PRINT *, " ", size(pickupArr)
+        
+       end if
+    case(ID_PICKUP_THIC)
+      !if (i == 1 ) then
+      PRINT *, "solves(6,i) is", curr_lens_data%solves(:,i)
+      !end if
+      if (curr_lens_data%solves(6,i).NE.0) then 
+        pickupArr(i) = ID_MOD_SOLVE
+        
+      end if
+    end select
 
 
   end do
-
-end function
-
-function genPickupStr(ID_PICKUP_TYPE) result(pickupStr)
-
-  character(len=1), dimension(curr_lens_data%num_surfaces) :: pickupStr
-  integer :: ID_PICKUP_TYPE
-  integer :: i
-
-  do i=1,curr_lens_data%num_surfaces
-    pickupStr(i) = " "
-    if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == 1) pickupStr(i) = "P" 
-
-  end do
-
-
 
 end function
 
@@ -969,6 +976,9 @@ subroutine buildBasicTable(firstTime)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
     call basicTypes(ID_COL_RADIUS_PICKUP)%initialize(" ", G_TYPE_STRING, FALSE, TRUE, genPickupArr(ID_PICKUP_RAD), &
     & numRows=numModTypes, refsArray=refsArray, valsArray=valsArray )
+
+    !PRINT *, "just to confirm, for RAD pickupArr is ", genPickupArr(ID_PICKUP_RAD)
+    
     !call basicTypes(4)%initialize("S", G_TYPE_STRING, FALSE, TRUE, tmpArray, &
     !&numRows=numModTypes , refsArray=refsArray, valsArray=valsArray)    
 
@@ -1454,6 +1464,9 @@ end subroutine
 
           case(DTYPE_INT)
             if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
+                if (j==ID_COL_RADIUS_PICKUP) then
+                  PRINT *, "Element is ", colObj(j)%getElementInt(i)
+                end if 
           
                 call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &
                     & targetValue=colObj(j)%getElementInt(i))
@@ -1546,11 +1559,11 @@ end subroutine
   end subroutine
 
 
-  function getSolvesAsCStringArray(solve_type) result (c_ptr_array)
+  function getSolvesAsCStringArray(solve_type, row) result (c_ptr_array)
     use type_utils, only : int2str
     
     implicit none
-    integer :: solve_type
+    integer :: solve_type, row
     integer :: i
     
     integer, dimension(curr_lens_data%num_surfaces) :: surfIdx
@@ -1564,6 +1577,8 @@ end subroutine
 
     !type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
     type(c_ptr), dimension(:), allocatable :: c_ptr_array
+
+    PRINT *, "row is ", row
 
 
 
@@ -1858,7 +1873,7 @@ end subroutine
     call gtk_grid_set_column_homogeneous(table, TRUE)
     call gtk_grid_set_row_homogeneous(table, TRUE)      
 
-    dropDown = gtk_drop_down_new_from_strings(getSolvesAsCStringArray(solve_type))
+    dropDown = gtk_drop_down_new_from_strings(getSolvesAsCStringArray(solve_type, row))
 
     ! TODO:  Need to set selection based on users current solve.  I asume this is going to require
     select case (solve_type)
@@ -1995,15 +2010,20 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
     call sData%setSolveText(curv_solves)
   end select
 
-
-  !
-  
-  !sData% = gtk_drop_down_get_selected(dropDown)
-
-
+  ! Update is either a solve or none.  If none, delete solve
+  ! on surface
+  if (sData%ID_type == ID_SOLVE_NONE) then
+    CALL PROCESKDP('U L ; '// &
+    & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
+  else   
   ! It's time to update the pickup
-  CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf)) &
-  & //"; "//trim(sData%genKDPCMDToSetSolve())//";EOS")
+    CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf)) &
+    & //"; "//trim(sData%genKDPCMDToSetSolve())//";EOS")
+  end if
+  
+
+
+
 
   call refreshLensDataStruct()
   call buildBasicTable(.FALSE.)

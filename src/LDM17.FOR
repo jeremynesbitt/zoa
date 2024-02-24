@@ -2678,6 +2678,13 @@ C       CAY SOLVE
         CALL SHOWIT(10)
  304    FORMAT('CAY     ,',G23.15)
                         END IF
+        ! Mag SOLVE
+        IF(SOLVE(6,I).EQ.7.0D0) THEN
+        WRITE(OUTLYNE,308)SOLVE(7,I)
+        CALL SHOWIT(10)
+ 308    FORMAT('REDSLV ,',G23.15)   
+        END IF                               
+                        
 C
 C       PX SOLVE
         IF(SOLVE(4,I).EQ.4.0D0) THEN

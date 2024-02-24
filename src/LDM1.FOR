@@ -2996,11 +2996,13 @@ C
                 RETURN
                            END IF
                           DO SF=INT(W1),INT(W2)
-        IF(SF.EQ.0) THEN
-        OUTLYNE='OBJECT SURFACE NEVER HAS SOLVES'
-      CALL SHOWIT(1)
-               GO TO 900
-                END IF
+          ! JN:  Comment this out because mag solve does depend
+          ! on object surface                      
+!         IF(SF.EQ.0) THEN
+!         OUTLYNE='OBJECT SURFACE NEVER HAS SOLVES'
+!       CALL SHOWIT(1)
+!                GO TO 900
+!                 END IF
 C
                 IF(SOLVE(6,SF).NE.0.0D0.OR.
      1          SOLVE(4,SF).NE.0.0D0.OR.SOLVE(6,SF).NE.0.0D0

@@ -13,7 +13,8 @@ module type_utils
            write(strOut, '(F9.'//trim(int2str(precision))//')') val
            !write(strOut, '(F9.4)') val
         else
-            write(strOut, '(D23.15)') val
+            !write(strOut, '(D23.15)') val
+            write(strOut, '(F9.5)') val
         end if
 
         strOut = adjustl(strOut)

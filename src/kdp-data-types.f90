@@ -39,6 +39,8 @@ module kdp_data_types
   integer, parameter :: ID_SOLVE_PCX = 5
   integer, parameter :: ID_SOLVE_CAY = 3
   integer, parameter :: ID_SOLVE_CAX = 6
+  integer, parameter :: ID_SOLVE_MAG = 7
+
 
   integer, parameter :: ID_SOLVE_ = 1 
   integer, parameter :: ID_SOLVE_APY = 4 
@@ -175,7 +177,7 @@ end type
 type solve_options
  character(len=40) :: uiText
  integer :: id_solve, solve_type
- character(len=4) :: cmd 
+ character(len=8) :: cmd 
  character(len=20) :: param1Name, param2Name 
 end type
 
@@ -267,7 +269,7 @@ end type
 
 ! More definitions
   ! Solves
-  type(solve_options), dimension(7) :: thick_solves
+  type(solve_options), dimension(8) :: thick_solves
   type(solve_options), dimension(8) :: curv_solves
 
 
@@ -866,6 +868,12 @@ subroutine init_solves()
  thick_solves(7)%uiText = "X Clear Aperture Solve (CAX)"
  thick_solves(7)%cmd = "CAX"  
 
+ thick_solves(8)%id_solve = ID_SOLVE_MAG
+ thick_solves(8)%param1Name = "Target Reduction"
+ thick_solves(8)%param2Name = "Not Used"
+ thick_solves(8)%uiText = "Mag Solve - Object Surf Only"
+ thick_solves(8)%cmd = "REDSLV"   
+
  curv_solves(1)%id_solve = ID_SOLVE_NONE
  curv_solves(1)%param1Name = "Not Used"
  curv_solves(1)%param2Name = "Not Used"
@@ -1362,8 +1370,8 @@ function genKDPCMDToSetSolve(self) result(outTxt)
  character(len=280) :: outTxt
 
  ! TODO: Support other solves.  this is just a proof of concept
- PRINT *, "About to set ",trim(self%solveTxt)//", "//trim(real2str(self%param1))
- outTxt = trim(self%solveTxt)//", "//trim(real2str(self%param1))
+ PRINT *, "About to set ",trim(self%solveTxt)//", "//trim(real2str(self%param1,4))
+ outTxt = trim(self%solveTxt)//" "//trim(real2str(self%param1,4))
 
 end function
 
@@ -1373,9 +1381,13 @@ function genKDPCMDToRemoveSolve(self, surf) result(outTxt)
  integer :: surf
  character(len=280) :: outTxt
 
- ! TODO: Support other solves.  this is just a proof of concept
-
- outTxt = "TSD, "//trim(int2str(surf)//","//trim(int2str(surf)))
+ PRINT *, "Removing solve from surface!"
+ select case (self%solve_type)
+ case (ID_PICKUP_THIC) 
+     outTxt = "TSD, "//trim(int2str(surf)//","//trim(int2str(surf)))
+ case (ID_PICKUP_RAD)
+  outTxt = "CSDY, "//trim(int2str(surf)//","//trim(int2str(surf)))
+ end select
      
 end function  
 
