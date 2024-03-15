@@ -436,7 +436,7 @@ module zoa_tab
   use collections
   use settings_obj
   use global_widgets, only: uiSettingCommands, uiSetCmdsIdx
-
+  
 
 
 ! pseudocode for zoatab
@@ -488,8 +488,8 @@ module zoa_tab
 
 type zoatab
      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
-     integer(c_int)  :: width = 1000
-     integer(c_int)  ::  height = 700
+     integer(c_int)  :: width = 1*1000 !1000
+     integer(c_int)  ::  height = 1*700 !700
      type(zoa_settings_obj) :: settings
      type(zoaplot) :: zPlot ! Should this be in a derived type instead?
      integer(kind=c_int) :: ID_PLOTTYPE
@@ -559,7 +559,7 @@ contains ! for module
     tab_label = gtk_label_new(tabTitle//c_null_char)
     call hl_gtk_box_pack(self%tab_label, tab_label)
     !call gtk_box_append(head, tab_label)
-    btn = gtk_button_new_from_icon_name ("gtk-close")
+    btn = gtk_button_new_from_icon_name ("window-close-symbolic")
     call gtk_button_set_has_frame (btn, FALSE)
     call gtk_widget_set_focus_on_click (btn, FALSE)
     call hl_gtk_box_pack (self%tab_label, btn);
@@ -919,10 +919,11 @@ end subroutine
 
  subroutine finalizeWindow(self)
    use g
+   use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
    implicit none
    class(zoatab) :: self
 
-   type(c_ptr) :: scrolled_tab
+   type(c_ptr) :: scrolled_tab, box_plotmanip, btn
     type(c_ptr) :: dcname
     character(len=80) :: dname
 
@@ -935,6 +936,9 @@ end subroutine
     PRINT *, "Expander is ", LOC(self%EXPANDER)
     PRINT *, "Box ptr is ", LOC(self%box1)
 
+    call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
+
+    call gtk_box_append(self%box1, box_plotmanip)
     ! We create a vertical box container:
     call gtk_box_append(self%box1, self%expander)
     call gtk_widget_set_vexpand (self%box1, FALSE)
@@ -992,6 +996,5 @@ subroutine zoatab_newPlot(self)
   PRINT *, "Dummy Function never used, only by children"
 
 end subroutine
-
 
 end module zoa_tab

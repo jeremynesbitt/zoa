@@ -1879,7 +1879,7 @@ end subroutine
     select case (solve_type)
     case (ID_PICKUP_THIC)
       do ii=1,size(thick_solves)
-        if (thick_solves(ii)%id_solve == sData%ID_type) then
+        if (thick_solves(ii)%id_solve == sData%id_solve) then
          call gtk_drop_down_set_selected(dropDown, ii-1)
         end if
       end do
@@ -1890,7 +1890,7 @@ end subroutine
       & data=c_loc(ID_TGT_THIC))
     case(ID_PICKUP_RAD)
       do ii=1,size(curv_solves)
-        if (curv_solves(ii)%id_solve == sData%ID_type) then
+        if (curv_solves(ii)%id_solve == sData%id_solve) then
          call gtk_drop_down_set_selected(dropDown, ii-1)
         end if
       end do
@@ -2003,16 +2003,16 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
   select case (ID_SETTING)
   case(ID_PICKUP_THIC)
 
-  sData%ID_type = thick_solves(selection)%id_solve
+  sData%id_solve = thick_solves(selection)%id_solve
   call sData%setSolveText(thick_solves)
   case(ID_PICKUP_RAD)
-    sData%ID_type = curv_solves(selection)%id_solve
+    sData%id_solve = curv_solves(selection)%id_solve
     call sData%setSolveText(curv_solves)
   end select
 
   ! Update is either a solve or none.  If none, delete solve
   ! on surface
-  if (sData%ID_type == ID_SOLVE_NONE) then
+  if (sData%ID_solve == ID_SOLVE_NONE) then
     CALL PROCESKDP('U L ; '// &
     & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
   else   

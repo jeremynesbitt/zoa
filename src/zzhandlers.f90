@@ -157,9 +157,9 @@ contains
       character(len=*), intent(in) :: ftext
       character(len=*), intent(in)  :: txtColor
 
-      type(gtktextiter), target :: iter, startIter, endIter
+      type(gtktextiter), target :: endIter
       logical :: scrollResult
-      type(c_ptr) ::  buffInsert
+      type(c_ptr) ::  scroll_win, vAdj
       type(c_ptr) ::  txtBuffer
       character(len=280) :: markup
       integer(kind=c_int) :: iotst
@@ -174,53 +174,36 @@ contains
       ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
 
 
-
-
-      !PRINT *, "TERMINAL LOG COLOR ARGUMENT IS ", txtColor
-
       txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
       call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
 
-      !PRINT *, "ABOUT TO CALL MARKUP "
-      !TODO Sometimes an empty ftext is sent to this function and GTK throws a
-      !warnting.  Need to figure out how to detect empty string (this is not working)
-    !PRINT *, "debug ftext is ", ftext
     if (ftext.ne."  ") THEN
-      !call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), &
-      !& "<span foreground='"//trim(txtColor)//"'>"//ftext//"</span>"//C_NEW_LINE &
-      !& //c_null_char, -1_c_int)
+
       markup ="<span foreground='"//trim(txtColor)// &
       & "'>"//trim(ftext)//"</span>"//C_NEW_LINE//c_null_char//c_null_char
       ! Added this because for some strings, gtk would throw a parsing error
       ! Could not fiure out the pattern but found that if I don't let gtk calc the
       ! size of the buffer it seems to work every time
       inquire(iolength=iotst) trim(markup)
-      !PRINT *, "iotst is ", iotst
-      !PRINT *, "len of markup is ", len(trim(markup))
-      call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), trim(markup), iotst)      
-      !print *, "markup txt is ", markup
+       call gtk_text_buffer_insert_markup(txtBuffer, c_loc(endIter), trim(markup), iotst)      
+     
     END IF
 
-      buffInsert = gtk_text_buffer_get_insert(txtBuffer)
-     !gBool = g_variant_new_boolean(True)
-      !PRINT *, "Before Warning?"
-      call gtk_text_view_scroll_to_mark(ioConfig%textView, buffInsert, 0.0_c_double, &
-      &  True, 0.0_c_double, 1.0_c_double)
-      !PRINT *, "After Warning?"
-    ! Update command history for a simple way for the user to get previous commands
-      if (txtColor.eq."blue") then
-        if (command_index.LT.cmdHistorySize+1) THEN
+      ! After some trial and error, here is how to make sure after the user enter a
+      ! command that it shows the output at the bottom of the screen.
 
-         command_history(command_index) = ftext
-         command_index = command_index + 1
-         command_search = command_index
-       else ! array full
-         command_history(1:cmdHistorySize-1) = command_history(2:cmdHistorySize)
-         command_history(cmdHistorySize) = ftext
+      ! Make sure the window has been updated from the insert command above
+      ! note: this is necessary based on testing
+      call pending_events ()
 
-       END IF
-     END IF
+      ! Get scroll window and v adjustment
+      scroll_win = gtk_widget_get_parent(ioConfig%textView)
+      vAdj = gtk_scrolled_window_get_vadjustment(scroll_win)
 
+      ! Set value to be upper limit - page size
+      call gtk_adjustment_set_value(vAdj, gtk_adjustment_get_upper(vAdj) - &
+      & gtk_adjustment_get_page_size(vAdj))
+      
       !call pending_events()
       !PRINT *, "End of updateterminallog"
 
@@ -250,9 +233,25 @@ contains
     call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
     !print *, "Entered name as:",trim(ftext)
 
+
+    
     ! Log results
     txtColor = "blue"
     call updateTerminalLog(ftext, txtColor)
+
+    ! Update command history for a simple way for the user to get previous commands
+    if (txtColor.eq."blue") then
+      if (command_index.LT.cmdHistorySize+1) THEN
+
+       command_history(command_index) = ftext
+       command_index = command_index + 1
+       command_search = command_index
+     else ! array full
+       command_history(1:cmdHistorySize-1) = command_history(2:cmdHistorySize)
+       command_history(cmdHistorySize) = ftext
+
+     END IF
+   END IF
 
     ! Clear Input
     call gtk_entry_buffer_set_text(buff2, c_null_char,-1_c_int)
@@ -427,6 +426,7 @@ contains
     !call addMacOSClipboardShortcuts(entry)
          
     call readCommandHistoryFromFile(command_history, command_index)
+    command_search = command_index
     PRINT *, "command_index is ", command_index
     PRINT *, "command history at command index is ", command_history(command_index)
     IF(command_index.GT.1) PRINT *, "prior command is ",command_history(command_index-1)
@@ -450,7 +450,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(FALSE)
+    call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 
@@ -770,9 +770,10 @@ end subroutine
 
         buffer = gtk_entry_get_buffer(entry)
         if(idx.GT.cmdHistorySize.OR.idx.LT.1) THEN
-          call gtk_entry_buffer_set_text(buffer, ' ', -1)
+          call gtk_entry_buffer_set_text(buffer, ' '//c_null_char, -1)
         else
-          call gtk_entry_buffer_set_text(buffer, command_history(idx), -1)
+          
+          call gtk_entry_buffer_set_text(buffer, command_history(idx)//c_null_char, -1)
           call gtk_editable_set_position(entry, len(trim(command_history(idx))))
         end if
 

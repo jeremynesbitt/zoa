@@ -915,7 +915,7 @@ C
         CALL STASPH
         RETURN
         END IF
-        IF(WC.EQ.'REF') THEN
+        IF(WC.EQ.'REFK') THEN
         CALL SREF
         RETURN
         END IF

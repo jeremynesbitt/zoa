@@ -31,7 +31,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
-       PRINT *, "REROUTE TO LENS DRAW REPLOT "
+       PRINT *, "REROUTE TO LENS DRAW REPLOT "           
        call ld_settings%replot()
   case (ID_NEWPLOT_RAYFAN)
       PRINT *, "REROUTE TO RAY FAN REPLOT!"

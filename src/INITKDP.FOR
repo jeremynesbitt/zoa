@@ -130,6 +130,8 @@ C
         INCLUDE 'DATSPD.INC'
         INCLUDE 'DATSP1.INC'
         INCLUDE 'DATHGR.INC'
+
+        call initializeCmds()
 C
 C       MAX SAVE/REST = 36 8/24/2006
 C
@@ -1661,7 +1663,7 @@ C      CALL USERINPT
 C      GO TO 1
       END IF
 C
-      call initializeCmds()
+      
       call logger%logText('End of INITKDP')
 
       RETURN

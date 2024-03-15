@@ -1,6 +1,7 @@
 C SUB NAMES.FOR
         SUBROUTINE NAMES
         use type_utils, only: int2str
+        use codeV_commands, only: zoaCmds
 C
         IMPLICIT NONE
 C
@@ -288,7 +289,7 @@ C
                 WCC(263)='RTG'
                 WCC(264)='CTG'
                 WCC(265)='U'
-                WCC(266)='REF'
+                WCC(266)='REFK' ! Was REF but changed to REFK due to conflict with CodeV command
                 WCC(267)='RIN'
                 WCC(268)='PLOT'
                 WCC(269)='MODE'
@@ -1400,15 +1401,9 @@ C     WCC(2003)=' '
       WCC(2589) = 'RED' ! CodeV
       WCC(2590) = 'REDSLV' ! New KDP CMD TO support RED under the hood
       WCC(2591) = 'SETC' ! New KDP CMD TO support RED under the hood
-      WCC(2592) = 'RMD' !CodeV
-      
-
-
-
-
-
-
-
+      do I=1,size(zoaCmds)
+        WCC(2591+I) = zoaCmds(I)%cmd
+      end do
 
 C
 C     2049 TO 4500 AVAILABLE FOR OPTICS

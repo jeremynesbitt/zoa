@@ -2,21 +2,60 @@
 module type_utils
 ! THis module should only contain methods that have no dependencies
     
+    type string
+       character(len=:), allocatable :: s
+    end type string    
+
     contains
+
  
-    function real2str(val, precision) result(strOut)
-        real*8 :: val
+    function real2str(val, precision, sci) result(strOut)
+        use iso_fortran_env, only: real64, real32
+
+        implicit none
+
+        class(*) :: val
+        real(kind=real64) :: valDP
+        real(kind=real32) :: valSP
         character(len=23) :: strOut
         integer, optional :: precision
+        logical, optional :: sci
 
-        if(present(precision)) then
-           write(strOut, '(F9.'//trim(int2str(precision))//')') val
-           !write(strOut, '(F9.4)') val
-        else
-            !write(strOut, '(D23.15)') val
-            write(strOut, '(F9.5)') val
-        end if
+        select type(val)
+        type is (real(real64))
+          valDP = val
 
+          if(present(sci)) then
+            write(strOut, '(D23.15)') valDP
+            return
+          end if
+
+          
+          if(present(precision)) then
+            write(strOut, '(F9.'//trim(int2str(precision))//')') valDP
+            !write(strOut, '(F9.4)') val
+         else
+             !
+             write(strOut, '(F9.5)') valDP
+         end if          
+          type is (real(real32))
+          valSP = val
+
+          if(present(sci)) then
+            write(strOut, '(D23.15)') valSP
+            return
+          end if          
+          if(present(precision)) then
+            write(strOut, '(F9.'//trim(int2str(precision))//')') valSP
+            !write(strOut, '(F9.4)') val
+         else
+             !write(strOut, '(D23.15)') val
+             write(strOut, '(F9.5)') valSP
+         end if    
+
+    end select
+        
+    
         strOut = adjustl(strOut)
     
       end function
@@ -67,7 +106,19 @@ module type_utils
     
         outputChar = adjustl(outputChar)
     
-      end function      
+      end function     
+      
+      function blankStr(strLen) result(blnk)
+        implicit none
+        character(:), allocatable :: blnk
+        integer :: strLen, i
+    
+        allocate(character(len=strLen) :: blnk)
+        do i=1,strLen
+            blnk(i:i) = ' '
+        end do 
+    
+      end function
 
 
 end module

@@ -77,18 +77,19 @@ type sys_config
  type(idText), allocatable :: refFieldOptions(:)
  type(idText), allocatable :: lensUnits(:)
  type(idText), allocatable :: rayAimOptions(:)
- real, dimension(2) :: refFieldValue
- real, dimension(2,10) :: relativeFields
+ real(kind=real64), dimension(2) :: refFieldValue
+ real(kind=real64), dimension(2,10) :: relativeFields
  integer :: numFields, numWavelengths
  integer, dimension(10) :: wavelengthIndices
+ character(len=80) :: lensTitle
 
  ! Wavelength Data
- real, dimension(10) :: wavelengths
- real, dimension(10) :: spectralWeights
+ real(kind=real64), dimension(10) :: wavelengths
+ real(kind=real64), dimension(10) :: spectralWeights
  integer :: refWavelengthIndex
 
 character(len=40), dimension(3) :: possibleApertureNames ! = ["ObjectHeight",&
- real, dimension(2) :: refApertureValue
+ real(kind=real64), dimension(2) :: refApertureValue
 !TODO:  Where to define max field points instead of hard coded?
 integer, dimension(10) :: fieldColorCodes
 !  & "ObjectAngle", "ParaxialImageHeight"]
@@ -116,6 +117,8 @@ contains
  procedure :: getLensUnitsText
  procedure, private :: setNumberofWavelengths
  procedure, private, pass(self) :: setRefFieldKDP
+ procedure, public, pass(self) :: genSaveOutputText
+
 
 
 end type
@@ -155,31 +158,34 @@ contains
 end type
 
 
-! I wanted this to be solve, but when I try to name it such,
-! I get a weird, internal compiler error in gfortran.  So ksolve it is!
-type ksolve
-integer :: surf, ID_type, solve_type
-real(kind=real64) :: param1, param2
-character(len=20) :: param1Name, param2Name 
-character(len=10) :: solveTxt
-
-contains 
- procedure, public, pass(self) :: updateSolveData
- procedure, public, pass(self) :: setSolveText
- procedure, public, pass(self) :: genKDPCMDToSetSolve
- procedure, public, pass(self) :: genKDPCMDToRemoveSolve
-
-
-end type
-
 ! This is to store all the data needed for telling the user the 
 ! type of solves available and how to interface it with the CLI
 type solve_options
  character(len=40) :: uiText
  integer :: id_solve, solve_type
- character(len=8) :: cmd 
+ character(len=8) :: cmd_kdp 
+ character(len=8) :: cmd_codeV 
+
  character(len=20) :: param1Name, param2Name 
 end type
+
+! I wanted this to be solve, but when I try to name it such,
+! I get a weird, internal compiler error in gfortran.  So ksolve it is!
+type, extends(solve_options) :: ksolve
+integer :: surf 
+real(kind=real64) :: param1, param2
+
+contains 
+ procedure, public, pass(self) :: updateSolveData
+ procedure, public, pass(self) :: setSolveText
+ procedure, public, pass(self) :: genKDPCMDToSetSolve
+ procedure, public, pass(self) :: genCodeVCMDToSetSolve
+ procedure, public, pass(self) :: genKDPCMDToRemoveSolve
+
+
+end type
+
+
 
 
 
@@ -203,6 +209,7 @@ integer num_surfaces, ref_stop
 real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
 & curvatures(:), pickups(:,:,:), solves(:,:), clearapertures(:)
 character(:), allocatable :: glassnames(:)
+type(ksolve), allocatable, dimension(:) :: thickSolves
 
 
 contains
@@ -210,6 +217,11 @@ procedure, public, pass(self) :: set_num_surfaces
 procedure, public, pass(self)  :: add_lens_data
 procedure, public, pass(self) :: imageSurfaceIsIdeal
 procedure, public, pass(self) :: update => updateLensData
+procedure, public, pass(self) :: genSaveOutputText => genLensDataSaveOutputText
+procedure, public, pass(self) :: isSolveOnSurface
+procedure, public, pass(self) :: setSolveData
+
+
 !procedure, private, pass(self) ::
 
 end type lens_data
@@ -303,6 +315,8 @@ if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
  DEALLOCATE(self%pickups)
  deallocate(self%solves)
  deallocate(self%clearapertures)
+ deallocate(self%thickSolves)
+
 
 
 end if
@@ -323,6 +337,7 @@ if (.not.allocated(self%radii)) THEN
  allocate(self%pickups(6,self%num_surfaces,45))
  allocate(self%solves(9,self%num_surfaces))
  allocate(self%clearapertures(self%num_surfaces))
+ allocate(self%thickSolves(self%num_surfaces))
 
 
 END IF
@@ -554,7 +569,7 @@ use iso_c_binding, only: c_null_ptr
 
 
 ! Size of array needs to match max # of ID_TERMINAL parameter in zoa-ui
- allocate(c_ptr :: self%allBuffers(4))
+ allocate(c_ptr :: self%allBuffers(5))
 
 
  self%textView = c_null_ptr
@@ -589,8 +604,11 @@ subroutine setTextView(self, idTextView)
 end subroutine
 
 subroutine updateParameters(self)
+  implicit none
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
+
+  self%lensTitle = trim(LI)
 
   call self%getApertureFromSystemArr()
   select case (self%currApertureID)
@@ -826,101 +844,136 @@ end subroutine
 
 subroutine init_solves()
 
+ thick_solves(1)%solve_type = ID_PICKUP_THIC
  thick_solves(1)%id_solve = ID_SOLVE_NONE
  thick_solves(1)%param1Name = "Not Used"
  thick_solves(1)%param2Name = "Not Used"
  thick_solves(1)%uiText = "None"
- thick_solves(1)%cmd = ""
+ thick_solves(1)%cmd_kdp = ""
+ thick_solves(1)%cmd_codeV = ""
 
+
+ thick_solves(2)%solve_type = ID_PICKUP_THIC
  thick_solves(2)%id_solve = ID_SOLVE_PY
  thick_solves(2)%param1Name = "Axial Height"
  thick_solves(2)%param2Name = "Not Used"
  thick_solves(2)%uiText = "Paraxial Axial Height (PY)"
- thick_solves(2)%cmd = "PY"  
+ thick_solves(2)%cmd_kdp = "PY"  
+ thick_solves(2)%cmd_codeV = "PIM"  
 
+ thick_solves(3)%solve_type = ID_PICKUP_THIC
  thick_solves(3)%id_solve = ID_SOLVE_PX
  thick_solves(3)%param1Name = "Axial Height"
  thick_solves(3)%param2Name = "Not Used"
  thick_solves(3)%uiText = "X Paraxial Axial Height (PX)"
- thick_solves(3)%cmd = "PX"   
+ thick_solves(3)%cmd_kdp = "PX" 
+ thick_solves(3)%cmd_codeV = ""   
 
+ thick_solves(4)%solve_type = ID_PICKUP_THIC
  thick_solves(4)%id_solve = ID_SOLVE_PCY
  thick_solves(4)%param1Name = "Chief Ray Height"
  thick_solves(4)%param2Name = "Not Used"
  thick_solves(4)%uiText = "Paraxial Chief Ray Height (PCY)"
- thick_solves(4)%cmd = "PCY"  
+ thick_solves(4)%cmd_kdp = "PCY"
+ thick_solves(4)%cmd_codeV = ""
 
+ thick_solves(5)%solve_type = ID_PICKUP_THIC
  thick_solves(5)%id_solve = ID_SOLVE_PCX
  thick_solves(5)%param1Name = "Chief Ray Height"
  thick_solves(5)%param2Name = "Not Used"
  thick_solves(5)%uiText = "X Paraxial Chief Ray Height (PCX)"
- thick_solves(5)%cmd = "PCX"   
+ thick_solves(5)%cmd_kdp = "PCX" 
+ thick_solves(5)%cmd_codeV = ""   
 
+ thick_solves(6)%solve_type = ID_PICKUP_THIC
  thick_solves(6)%id_solve = ID_SOLVE_CAY
  thick_solves(6)%param1Name = "Clear Aperture"
  thick_solves(6)%param2Name = "Not Used"
  thick_solves(6)%uiText = "Clear Aperture Solve (CAY)"
- thick_solves(6)%cmd = "CAY"  
+ thick_solves(6)%cmd_kdp = "CAY" 
+ thick_solves(6)%cmd_codeV = ""  
 
+ thick_solves(7)%solve_type = ID_PICKUP_THIC
  thick_solves(7)%id_solve = ID_SOLVE_CAX
  thick_solves(7)%param1Name = "Clear Aperture"
  thick_solves(7)%param2Name = "Not Used"
  thick_solves(7)%uiText = "X Clear Aperture Solve (CAX)"
- thick_solves(7)%cmd = "CAX"  
+ thick_solves(7)%cmd_kdp = "CAX" 
+ thick_solves(7)%cmd_codeV = ""  
 
+ thick_solves(8)%solve_type = ID_PICKUP_THIC
  thick_solves(8)%id_solve = ID_SOLVE_MAG
  thick_solves(8)%param1Name = "Target Reduction"
  thick_solves(8)%param2Name = "Not Used"
  thick_solves(8)%uiText = "Mag Solve - Object Surf Only"
- thick_solves(8)%cmd = "REDSLV"   
+ thick_solves(8)%cmd_kdp = "REDSLV"
+ thick_solves(8)%cmd_codeV = "RED"   
 
+ curv_solves(1)%solve_type = ID_PICKUP_RAD
  curv_solves(1)%id_solve = ID_SOLVE_NONE
  curv_solves(1)%param1Name = "Not Used"
  curv_solves(1)%param2Name = "Not Used"
  curv_solves(1)%uiText = "None"
- curv_solves(1)%cmd = ""
+ curv_solves(1)%cmd_kdp = ""
+ curv_solves(1)%cmd_codeV = ""
 
+ curv_solves(2)%solve_type = ID_PICKUP_RAD
  curv_solves(2)%id_solve = ID_SOLVE_APY
  curv_solves(2)%param1Name = "Not Used"
  curv_solves(2)%param2Name = "Not Used"
  curv_solves(2)%uiText = "Aplanatic Paraxial Axial Ray (APY)"
- curv_solves(2)%cmd = "APY"  
+ curv_solves(2)%cmd_kdp = "APY"  
+ curv_solves(2)%cmd_codeV = ""  
 
+ curv_solves(3)%solve_type = ID_PICKUP_RAD
  curv_solves(3)%id_solve = ID_SOLVE_APX
  curv_solves(3)%param1Name = "Not Used"
  curv_solves(3)%param2Name = "Not Used"
  curv_solves(3)%uiText = "X Aplanatic Paraxial Axial Ray (APX)"
- curv_solves(3)%cmd = "PX"   
+ curv_solves(3)%cmd_kdp = "PX"   
+ curv_solves(3)%cmd_codeV = ""   
 
+ curv_solves(4)%solve_type = ID_PICKUP_RAD
  curv_solves(4)%id_solve = ID_SOLVE_APCY
  curv_solves(4)%param1Name = "Not Used"
  curv_solves(4)%param2Name = "Not Used"
  curv_solves(4)%uiText = "Paraxial Chief Ray Angle (APCY)"
- curv_solves(4)%cmd = "APCY"  
+ curv_solves(4)%cmd_kdp = "APCY"  
+ curv_solves(5)%cmd_codeV = "APCY"  
 
+ curv_solves(5)%solve_type = ID_PICKUP_RAD
  curv_solves(5)%id_solve = ID_SOLVE_APCX
  curv_solves(5)%param1Name = "Not Used"
  curv_solves(5)%param2Name = "Not Used"
  curv_solves(5)%uiText = "X Paraxial Chief Ray Angle (APCX)"
- curv_solves(5)%cmd = "APCX"   
+ curv_solves(5)%cmd_kdp = "APCX"   
+ curv_solves(5)%cmd_codeV = ""   
 
+ curv_solves(6)%solve_type = ID_PICKUP_RAD
  curv_solves(6)%id_solve = ID_SOLVE_PIY
  curv_solves(6)%param1Name = "Angle of Incidece"
  curv_solves(6)%param2Name = "Not Used"
  curv_solves(6)%uiText = "Paraxial Chief Ray AOI (PIY)"
- curv_solves(6)%cmd = "PIY"  
+ curv_solves(6)%cmd_kdp = "PIY"  
+ curv_solves(6)%cmd_codeV = "PIY"  
 
+ curv_solves(7)%solve_type = ID_PICKUP_RAD
  curv_solves(7)%id_solve = ID_SOLVE_PIX
  curv_solves(7)%param1Name = "Angle of Incidece"
  curv_solves(7)%param2Name = "Not Used"
  curv_solves(7)%uiText = "X Paraxial Chief Ray AOI (PIY)"
- curv_solves(7)%cmd = "PIX"  
+ curv_solves(7)%cmd_kdp = "PIX"  
+ curv_solves(7)%cmd_codeV = "PIX" 
 
+ curv_solves(8)%solve_type = ID_PICKUP_RAD
  curv_solves(8)%id_solve = ID_SOLVE_PUY
  curv_solves(8)%param1Name = "Paraxial Angle"
  curv_solves(8)%param2Name = "Not Used"
  curv_solves(8)%uiText = "Paraxial Axial Ray Slope Angle (HUY)"
- curv_solves(8)%cmd = "PUY"  
+ curv_solves(8)%cmd_kdp = "PUY"  
+ curv_solves(8)%cmd_codeV = ""
+ 
+ 
 
     !thicSolves(1) = "None"
     !thicSolves(2) = "Paraxial Axial Height (PY)"
@@ -943,12 +996,16 @@ subroutine setSolveText(self, solveOptions)
   PRINT *, "ID is ", id
   do i=1,size(solveOptions)
     PRINT *, "solveOpptions id_solve is ", solveOptions(i)%id_solve
-    if (solveOptions(i)%id_solve.EQ.self%ID_type) then
+    if (solveOptions(i)%id_solve.EQ.self%id_solve) then
       PRINT *, "In correct Loop"
-      !self%uiText = solveOptions(i)%uiText
+      ! Brute force it for now
+      self%solve_type = solveOptions(i)%solve_type 
+      self%uiText = solveOptions(i)%uiText
       self%param1Name =  solveOptions(i)%param1Name
       self%param2Name =  solveOptions(i)%param2Name
-      self%solveTxt = solveOptions(i)%cmd
+      self%cmd_kdp = solveOptions(i)%cmd_kdp
+      self%cmd_codeV = solveOptions(i)%cmd_codeV
+
 
     end if
 
@@ -1035,6 +1092,96 @@ subroutine setSpectralWeights(self, index, weight)
   SYSTEM(76:80) = self%spectralWeights(6:10)
 
   call self%setNumberOfWavelengths()
+
+end subroutine
+
+subroutine genSaveOutputText(self, fID)
+  use type_utils, only: real2str, blankStr, int2str
+  class(sys_config) :: self
+  integer :: fID
+  integer :: ii
+  character(len=256) :: strOutLine
+  character(len=256) :: strWL, strWLwgt, strXFLD, strYFLD, strFLDWGT
+
+
+  PRINT *, "TIT is ", self%lensTitle
+  write(fID, *) "TIT "//self%lensTitle
+        ! Store dimensions
+  select case(self%currLensUnitsID)
+  case(LENS_UNITS_MM)
+    strOutLine = "DIM M"
+    PRINT *, "DIM M"
+    
+  case(LENS_UNITS_CM)
+    strOutLine = "DIM C"
+    PRINT *, "DIM C"
+  case(LENS_UNITS_INCHES)
+    strOutLine = "DIM I"
+    PRINT *, "DIM I"
+  end select
+  write(fID, *) trim(strOutLine)
+
+  ! Store Aperture
+  select case(self%currApertureID)
+  case(APER_ENTR_PUPIL_DIAMETER)
+    strOutLine = "EPD "//real2str(self%refApertureValue(2),4)
+     PRINT *, "EPD "//real2str(self%refApertureValue(2),4)
+  end select
+  write(fID, *) trim(strOutLine)
+
+  !Store Wavelength Info
+  strWL = 'WL'
+  do ii=1,self%numWavelengths
+    strWL = trim(strWL)//blankStr(5)//real2str(1000.0*self%wavelengths(ii),4)
+
+  end do
+  PRINT *, trim(strWL)
+  write(fID, *) trim(strWL)
+  ! Spectral Weights
+
+  if(self%numWavelengths > 1 ) then 
+    strWLwgt = 'WTW'
+    do ii=1,self%numWavelengths
+      strWLwgt = trim(strWLwgt)//blankStr(5)//real2str(100.0*self%spectralWeights(ii),4)
+    end do
+    PRINT *, trim(strWLwgt)
+    write(fID, *) trim(strWLwgt)
+    ! Print Ref wavelength
+    strOutLine = "REF "// int2str(self%refWavelengthIndex)
+    write(fID, *) trim(strOutLine)
+       
+    PRINT *, "REF ", int2str(self%refWavelengthIndex)
+
+  ! Store Field
+    select case(self%currFieldID)
+    case(FIELD_OBJECT_ANGLE_DEG)
+       strXFLD = 'XAN'
+       strYFLD = 'YAN'
+       do ii=1,self%numFields
+        strXFLD = trim(strXFLD)//blankStr(5)//real2str(self%refFieldValue(1)*self%relativeFields(1,ii),4)
+        strYFLD = trim(strYFLD)//blankStr(5)//real2str(self%refFieldValue(2)*self%relativeFields(2,ii),4)
+       end do
+       write(fID, *) trim(strXFLD)
+       write(fID, *) trim(strYFLD)
+       
+       PRINT *, trim(strXFLD)
+       PRINT *, trim(strYFLD)
+
+    end select
+
+    ! Field weights not supported, so for now just output all 100s
+    strFLDWGT = 'WTF'
+    do ii=1,self%numFields
+      strFLDWGT = trim(strFLDWGT)//blankStr(5)//'100'
+    end do
+    write(fID, *) trim(strFLDWGT)
+
+    print *, strFLDWGT
+
+  end if
+
+
+ 
 
 end subroutine
 
@@ -1331,11 +1478,11 @@ subroutine updateSolveData(self, lData, row, solve_type)
 
  select case(solve_type)
  case(ID_PICKUP_THIC)
-  self%ID_type = INT(lData%solves(6,row))
+  self%id_solve = INT(lData%solves(6,row))
   self%param1 =  lData%solves(7,row)
  case(ID_PICKUP_RAD)
   PRINT *, "lData solves(8,row) is ", lData%solves(8,row)
-  self%ID_type = INT(lData%solves(8,row))
+  self%id_solve = INT(lData%solves(8,row))
   self%param1 =  lData%solves(9,row)
  end select 
 
@@ -1369,11 +1516,25 @@ function genKDPCMDToSetSolve(self) result(outTxt)
  class(ksolve) :: self
  character(len=280) :: outTxt
 
- ! TODO: Support other solves.  this is just a proof of concept
- PRINT *, "About to set ",trim(self%solveTxt)//", "//trim(real2str(self%param1,4))
- outTxt = trim(self%solveTxt)//" "//trim(real2str(self%param1,4))
+ !PRINT *, "About to set ",trim(self%cmd_kdp)//", "//trim(real2str(self%param1,4))
+ outTxt = trim(self%cmd_kdp)//" "//trim(real2str(self%param1,4))
 
 end function
+
+function genCodeVCMDToSetSolve(self) result(outTxt)
+  use type_utils, only: int2str, real2str
+  class(ksolve) :: self
+  character(len=280) :: outTxt
+ 
+  !PRINT *, "About to set ",trim(self%cmd_kdp)//", "//trim(real2str(self%param1,4))
+  ! Special Case:  PIM 
+  if (self%cmd_codeV == 'PIM') Then
+    outTxt = trim(self%cmd_codeV)
+  else 
+     outTxt = trim(self%cmd_codeV)//" "//trim(real2str(self%param1,4))
+  end if
+ 
+ end function
 
 function genKDPCMDToRemoveSolve(self, surf) result(outTxt)
  use type_utils, only: int2str, real2str
@@ -1425,6 +1586,8 @@ subroutine updateLensData(self)
     ! Pickup and Solvesstorage
     self%pickups(1:6,JJ+1,1:45) = PIKUP(1:6,JJ,1:45)
     self%solves(1:9,JJ+1) = SOLVE(1:9,JJ)
+
+    self%thickSolves(JJ+1) = self%setSolveData(JJ+1,ID_PICKUP_THIC, thick_solves)
 
 
   END DO
@@ -1569,6 +1732,126 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
 
   !Restore Solve Data
   SOLVE(3:7,0) = tempSolveData(1:5)
+
+end function
+
+function isSolveOnSurface(self, surf) result(boolResult)
+  class(lens_data) :: self
+  integer :: surf
+  logical :: boolResult
+
+  boolResult = .FALSE.
+
+  if (self%solves(6,surf).NE.0.OR.self%solves(8,surf).NE.0) then
+    boolResult = .TRUE.
+
+  end if
+
+end function
+
+subroutine genLensDataSaveOutputText(self, fID)
+  use type_utils, only: real2str, blankStr, int2str
+  class(lens_data) :: self
+  integer :: fID
+  integer :: ii
+  character(len=256) :: strSurfLine
+  logical :: rdmFlag
+
+  rdmFlag = .TRUE.
+
+  ! Do Object SUrface
+  strSurfLine = 'SO'
+  if (rdmFlag) then
+    strSurfLine = 'SO'//blankStr(3)//real2str(self%radii(1),4)//blankStr(5)//real2str(self%thicknesses(1),sci=.TRUE.)// &
+    & blankStr(5)//self%glassnames(1)
+  else
+    strSurfLine = 'SO'//blankStr(3)//real2str(self%curvatures(1),4)//blankStr(5)//real2str(self%thicknesses(1))// &
+    & blankStr(5)//self%glassnames(1)    
+  end if
+  write(fID, *) trim(strSurfLine)
+  PRINT *, trim(strSurfLine)
+
+  do ii=2,self%num_surfaces-1
+    if(rdmFlag) then
+      strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
+      & blankStr(5)//real2str(self%thicknesses(ii),4)// &
+      & blankStr(5)//self%glassnames(ii)
+    else
+      strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%curvatures(ii),4)// &
+      & blankStr(5)//real2str(self%thicknesses(ii))// &
+      & blankStr(5)//self%glassnames(ii)    
+    end if      
+    write(fID, *) trim(strSurfLine)
+    PRINT *, trim(strSurfLine)
+    ! Check for ref stop
+    if (self%ref_stop == ii) PRINT *, "  STO"
+    ! pseudocode for now
+    !if (self%hasPickup(ii)) then
+    !  print *, self%getPickupTxt(ii)
+      if (self%isSolveOnSurface(ii)) then
+        print *, "Solve in surf ",ii
+        strSurfLine = self%thickSolves(ii)%genCodeVCMDToSetSolve()
+        write(fID, *) trim(strSurfLine)
+        print *, "Thic Solve code is ",strSurfLine
+      end if
+             
+    
+  end do
+
+  ! Do Image SUrface
+  
+  if (rdmFlag) then
+    strSurfLine = 'SI'//blankStr(3)//real2str(self%radii(self%num_surfaces),4)//blankStr(5)// &
+    & real2str(self%thicknesses(self%num_surfaces))//blankStr(5)//self%glassnames(self%num_surfaces)
+  else
+    strSurfLine = 'SI'//blankStr(3)//real2str(self%curvatures(self%num_surfaces),4)//blankStr(5)// &
+    & real2str(self%thicknesses(self%num_surfaces))//blankStr(5)//self%glassnames(self%num_surfaces)  
+  end if
+  write(fID, *) trim(strSurfLine)
+  PRINT *, trim(strSurfLine)  
+
+
+
+
+
+
+end subroutine
+
+function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
+  implicit none
+  class(lens_data) :: self
+  type(solve_options), dimension(:) :: solveOptions
+  type(ksolve) :: currSolve
+  integer :: surf, solve_type, id, col
+  integer :: i
+
+  select case (solve_type)
+
+  case (ID_PICKUP_THIC)
+    col = 6
+  case (ID_PICKUP_RAD)
+    col = 8
+  end select
+
+  id = INT(self%solves(col,surf))
+  
+  
+  do i=1,size(solveOptions)
+    if (solveOptions(i)%id_solve.EQ.id) then
+      ! Transfer data
+      currSolve%solve_type = solveOptions(i)%solve_type
+      currSolve%id_solve = id
+      currSolve%param1 = self%solves(col+1,surf)
+      currSolve%param1Name =  solveOptions(i)%param1Name
+      currSolve%param2Name =  solveOptions(i)%param2Name
+      currSolve%cmd_kdp = solveOptions(i)%cmd_kdp
+      currSolve%cmd_codeV = solveOptions(i)%cmd_codeV
+
+
+    end if
+
+  end do
+
 
 end function
 

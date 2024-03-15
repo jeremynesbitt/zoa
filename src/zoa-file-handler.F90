@@ -6,6 +6,7 @@ module zoa_file_handler
       !COMMON/SYSTEMID/ID_SYSTEM
 
       character(len=1024) :: codevdir
+      character(len=1024) :: savresDir
       integer :: ID_SYSTEM = -1000
       integer, parameter :: ID_OS_WINDOWS = 3
       integer, parameter :: ID_OS_MAC = 1
@@ -101,8 +102,64 @@ module zoa_file_handler
         ! Since this method essentially serves as an initialization
         ! add this here.  Should probably go somewhere else.
         codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
+        savresDir = trim(path)//getFileSep()//'Projects'//getFileSep()
 
         !PRINT *, "Set ID_SYSTEM in getZoaPath to ", ID_SYSTEM
+
+        end function
+
+        function getRestoreFilePath(fName) result(fullPath)
+          !use handlers, only: updateTerminalLog
+          implicit none
+          character(len=*) :: fName
+          character(len=1024) :: fullPath
+
+          fullPath = trim(savresDir)//fName
+          if (doesFileExist(trim(fullPath))) then
+            return
+          else
+            call LogTermFOR("Error:  File does not exist "//trim(fullPath))
+            !call updateTerminalLog("Error:  File does not exist "//trim(fullPath), "red")
+            fullPath = ""
+            return
+          end if
+            
+
+        end function
+
+
+        function open_file_to_sav_lens(fName) result(fID)
+          use gtk_hl_dialog
+          use iso_c_binding, only:  c_null_char
+          implicit none
+          character(len=*) :: fName
+          integer :: fID, stat, resp
+          character(len=80), dimension(2) :: msg
+
+          fID = 1111
+          ! This is to be stored in the savresDir
+
+          ! First check if file exists
+          if (doesFileExist(trim(savResDir)//fName)) then
+            ! Ask user if they want to overwrite
+            msg(1) = "Do you want to overwrite" 
+            msg(2) = fName//" ?" 
+            !msg(2) = "File "//fName//" ?"
+            resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+            & "Warning"//c_null_char)    
+            if (resp == GTK_RESPONSE_YES) then  
+              call LogTermFOR("Clearing file")  
+              call delete_file(trim(savResDir)//fName)
+            else
+              call LogTermFOR("Save cancelled to avoid overwriting previous file.")
+            end if            
+          end if
+          
+          
+          open(unit=fID, iostat=stat, file=trim(savResDir)//fName, &
+          & status='new', action="write")
+          if (stat /= 0) fID=0 ! Error
+          
 
         end function
 
@@ -128,6 +185,33 @@ module zoa_file_handler
 
       end subroutine
 
+      subroutine process_zoa_file(fileName)
+        implicit none
+        character(len=*) :: fileName
+        integer :: n, ios
+        character(len=256) :: line
+
+             
+        open(unit=99, file=trim(fileName), iostat=ios)
+        if ( ios /= 0 ) stop "Error opening file "
+    
+        n = 0
+    
+        do
+            read(99, '(A)', iostat=ios) line
+            if (ios /= 0) then 
+              call LogtermFOR("End of file")
+              close(99)
+              return
+            else
+              call LogTermFOR("Processing "//trim(line))
+              call PROCESKDP(trim(line))
+            end if
+            n = n + 1
+        end do      
+        
+
+      end subroutine
 
       function open_mac_dat() result(fileID)
 

@@ -231,6 +231,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
+       use type_utils, only: real2str
        !use handlers
 
        !USE WINTERACTER
@@ -347,7 +348,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
 
      DEBUG = 0
-     IF (DEBUG.EQ.1) CALL PRINTNEUTARRAY
+     !IF (DEBUG.EQ.1) CALL PRINTNEUTARRAY
 
       PRINT *, "STARTING TO DRAW LENS"
                        J=1
@@ -381,7 +382,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       II6=(I6)
       II7=(I7)
       II8=(I8)
-      IF (DEBUG.EQ.1) WRITE(*,2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
+      !IF (DEBUG.EQ.1) WRITE(*,2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
 !
 !     "PLOT NEW" STRINGER = A
 !
@@ -396,6 +397,12 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
       !call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
       CALL getVIECOScaleFactor(sf)
+      call logtermFOR("SF is "//real2str(sf))
+      call logtermFOR("ScaleFactor is "//real2str(scaleFactor))
+
+
+      !CALL getVIECOScaleFactor(scaleFactor)
+
       !PRINT *, "SCFAY IN DRAW OPTICAL SYSTEM IS ", sf
     select case (ID_SETTING)
     case (ID_PLOTTYPE_RMSFIELD)
@@ -407,7 +414,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
   case default
       call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
-      kdp_height = 7050.0
+      kdp_height = 1*7050.0 ! TODO:  Merge this with kdp_gen_plot variable
       fontScaleFactor = 20
 
 
@@ -692,7 +699,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
                END IF  ! STRINGER D PLOT TEXT
 
       IF(STRINGER.EQ.'I') THEN
-      !IF (DEBUG.EQ.1.AND.II3.NE.0) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
+      IF (DEBUG.EQ.1.AND.II3.NE.0) PRINT *, " ", II1, " ", II2, " ", II3, " ", II4, " ", II5, " ", II6, " ", II7, " ", II8
       CALL JK_MoveToCAIRO(STRINGER, scaleFactor*REAL(II1),scaleFactor*REAL(II2),II3,II4, &
       REAL(II5), REAL(II6), REAL(II7), REAL(II8), my_cairo_context, cairo_drawing_area)
 

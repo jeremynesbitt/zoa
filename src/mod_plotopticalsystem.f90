@@ -281,10 +281,6 @@ subroutine lens_draw_replot(self)
   character(len=3)   :: AJ, AK
   character(len=23) :: autoScale_text, AW2, AW3
 
-
-  PRINT *, "LENS DRAW REPLOT INIITIATED"
-  PRINT *, "LAST SURFACE IS LENS DRAW REPLOT", self%end_surface
-
   command = "VIECO"
 
   ! It is possible for the end surface to have been updated since init
@@ -315,7 +311,7 @@ subroutine lens_draw_replot(self)
         WRITE(AW3, *) self%azimuth
 
         ftext ='PLOT VIEW,'//AW2//','//AW3
-        PRINT *, "ORTHO TEXT IS ", ftext
+        !PRINT *, "ORTHO TEXT IS ", ftext
         !PRINT *, "LD Settings Elevation, Azimuth is ", ld_settings%elevation, ",", ld_settings%azimuth
         CALL PROCESKDP(ftext)
   case DEFAULT
@@ -335,35 +331,19 @@ subroutine lens_draw_replot(self)
   CALL ITOAA(self%start_surface, AJ)
   CALL ITOAA(self%end_surface, AK)
 
-  PRINT *, "AJ = ", AJ, " AK = ", AK
-
-    !ftext= trim('VIECO,'//','//AJ//','//AK//',1')
-    !PRINT *, ftext
-
-    ! Working
-    !ftext = trim(command)//" "//trim(qual_word)
 
   if (self%autoScale.eq.ID_LENSDRAW_MANUALSCALE) THEN
-      !write(autoScale_text, *), ",", ld_settings%scaleFactor, ","
-      !autoScale_text = trim(",,")
       Call DTOA23(self%scaleFactor,autoScale_text)
-      PRINT *, ",", self%scaleFactor, ","
       WRITE(autoScale_text, *) self%scaleFactor
 
   else
       autoScale_text = trim("")
   end if
 
-
-    !ftext = trim(command)//" "//trim(qual_word)//autoScale_text//AJ//","//AK//",0"
-
+     
     ftext = trim(command)//" "//trim(qual_word)//","//autoScale_text//","//AJ//","//AK//",0,1"
-    !if (ld_settings%plot_orientation.eq.ID_LENSDRAW_ORTHO_PLOT_ORIENTATION) THEN
-    !  ftext = ftext//",1"
-    !end if
+    !call LogTermFOR(trim(ftext))
 
-
-    PRINT *, "Command is ", ftext
     CALL PROCESKDP(ftext)
 
 end subroutine lens_draw_replot

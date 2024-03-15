@@ -317,30 +317,35 @@ subroutine FIR
   use handlers, only: updateTerminalLog
 
   implicit none
-  real :: epRad, epPos
+  !real(kind=real64) :: epRad, epPos
 
   include "DATMAI.INC"
 
+  ! TODO:  This needs cleanup
+  ! All these values should be calculated elsewhere
+  ! Make sure that calcs are correct for all focal/afocal conditions
 
-  call calcExitPupil(epRad, epPos)
+  !call calcExitPupil(epRad, epPos)
   call curr_lens_data%update()
-  PRINT *, "num surfaces is ", curr_lens_data%num_surfaces
+  !PRINT *, "num surfaces is ", curr_lens_data%num_surfaces
+  !call LogTermFOR("Exit Pupil Radius is "//real2str(epRad))
   !PRINT *, "Angle is ", curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)
 
-  call logger%logText("FIR Called!")
+  !call logger%logText("FIR Called!")
 
   PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
   call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
 
-  print *, "Is Object at Infinity? ", sysConfig%isObjectAfInf()
+  !print *, "Is Object at Infinity? ", sysConfig%isObjectAfInf()
 
   call updateTerminalLog("INFINITE CONJUGATES", "blue")
   call updateTerminalLog("EFL       "//trim(real2str(curr_par_ray_trace%EFL,4)),"blue")
   call updateTerminalLog("BFL       "//trim(real2str(curr_par_ray_trace%BFL,4)),"blue")
   call updateTerminalLog("FFL       "//trim(real2str(curr_par_ray_trace%FFL,4)),"blue")
-  call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+  
   if (sysConfig%isObjectAfInf()) then
+    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
   call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
   call updateTerminalLog("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
   call updateTerminalLog("PARAXIAL IMAGE", "blue")
@@ -356,10 +361,14 @@ subroutine FIR
   call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%EXPUPDIA,4)),"blue")
   call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%EXPUPPOS,4)),"blue")
   else
+    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%EFL / &
+    & curr_par_ray_trace%ENPUPDIA,4)),"blue")      
+    
     call updateTerminalLog("AT USED CONJUGATES", "blue")
 
     call updateTerminalLog("RED       "//trim(real2str(-1*curr_par_ray_trace%t_mag,4)),"blue")
-    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%imageDistance/ &
+    & curr_par_ray_trace%EXPUPDIA,4)),"blue")
     call updateTerminalLog("OBJ DIS   "//trim(real2str(curr_par_ray_trace%objectDistance,4)),"blue")
     call updateTerminalLog("TT        "//trim(real2str(curr_par_ray_trace%TT,4)),"blue")
     call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
@@ -367,11 +376,13 @@ subroutine FIR
   end if
 
 
-  call PROCESKDP("GET GPCY")
-  PRINT *, "GPCY IS ", reg(9)
+  !call PROCESKDP("GET GPCY")
+  !PRINT *, "GPCY IS ", reg(9)
 
-  call PROCESKDP("GET GPY")
-  PRINT *, "GPUY IS ", reg(9)
+  !call PROCESKDP("GET GPY")
+  !PRINT *, "GPUY IS ", reg(9)
+
+  !call LogTermFOR("Exit Pupil Diameter is "//real2str(curr_par_ray_trace%EXPUPDIA))
   
 
 end subroutine

@@ -71,8 +71,9 @@ contains
   end function  
 
   subroutine calcExitPupil(epRadius, epPosition)
+        use iso_fortran_env
 
-        real :: epRadius, epPosition, imgAngle
+        real(kind=real64) :: epRadius, epPosition, imgAngle
         integer :: newImage
         include "DATMAI.INC"
         include "DATLEN.INC"

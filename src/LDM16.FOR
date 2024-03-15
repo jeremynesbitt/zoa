@@ -462,7 +462,7 @@ C     PROCEED
                 CALL PROCES
                 INPUT='UNITS ?'
                 CALL PROCES
-                INPUT='REF'
+                INPUT='REFK'
                 CALL PROCES
                 INPUT='FLDSARE'
                 CALL PROCES

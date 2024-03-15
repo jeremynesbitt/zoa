@@ -437,9 +437,9 @@ do i=1,nrows
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
 
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
-        & fvalue=sysConfig%refFieldValue(1)*sysConfig%relativeFields(1,i))
+        & fvalue=REAL(sysConfig%refFieldValue(1)*sysConfig%relativeFields(1,i)))
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-        & fvalue=sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i))
+        & fvalue=REAL(sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i)))
 
    call hl_gtk_listn_combo_set_by_list_id(ihlist, i-1_c_int, 3_c_int, &
         & targetValue=sysConfig%fieldColorCodes(i))
@@ -927,9 +927,9 @@ do i=1,nrows
 
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
-        & fvalue=sysConfig%wavelengths(i))
+        & fvalue=REAL(sysConfig%wavelengths(i))) 
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-        & fvalue=sysConfig%spectralWeights(i))
+        & fvalue=REAL(sysConfig%spectralWeights(i)))
   end do
 
 

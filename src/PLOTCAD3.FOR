@@ -4504,57 +4504,7 @@ C     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
       DEALLOCATE(CLPDAT,STAT=ALLOERR)
                         RETURN
                         END
-C SUB PLTDEV1.FOR
-        SUBROUTINE PLTDEV1
-        USE GLOBALS
-        USE NSSMOD
-C
-        IMPLICIT NONE
-C
-C       THIS ROUTINE DOES THE "PLOT NEW" COMMAND AT THE CMD
-C       AND SPECT PROGRAM LEVELS
-C
-C
-      LOGICAL USCALEX,USCALEY
-      COMMON/SCALEU/USCALEX,USCALEY
-      REAL YL,YU
-      COMMON/YLYU/YL,YU
-      REAL XL,XU
-      COMMON/XLXU/XL,XU
-C
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATHGR.INC'
-C
-C       THIS ROUTINE SETS GRASET AND DEVTYP
-      OUTLYNE = "PLTDEV1 ROUTINE"
-      CALL SHOWIT(19)
-      GLOBE=.FALSE.
-      CALL PLTRST1
-      XL=0.0
-      XU=0.0
-      YL=0.0
-      YU=0.0
-                        DEVTYP=1
-                        GRASET=.TRUE.
-                       USCALEX=.FALSE.
-                       USCALEY=.FALSE.
-                        SCFAX=0.0D0
-                        SCFAY=0.0D0
-                        NSSSCFA=0.0D0
-        FIXUP=.FALSE.
-        POLDX=0.0D0
-        POLDY=0.0D0
-        POLDZ=0.0D0
-        PCURX=0.0D0
-        PCURY=0.0D0
-        PCURZ=0.0D0
-        PNEWX=0.0D0
-        PNEWY=0.0D0
-        PNEWZ=0.0D0
-                        CALL PSTART
-                        RETURN
-                        END
+
 C SUB PLTEDG.FOR
         SUBROUTINE PLTEDG
         USE GLOBALS

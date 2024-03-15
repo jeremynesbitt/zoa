@@ -114,6 +114,7 @@ module kdp_utils
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64
     use iso_c_binding, only: c_null_char
+    use type_utils, only: blankStr
     implicit none
 
     real, dimension(:) :: fldPoints
@@ -200,6 +201,7 @@ module kdp_utils
   subroutine logDataVsSurface(dataArray, colHeaders, extraRowName, singleSurface)
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64
+    use type_utils, only: blankStr
     
     implicit none
 
@@ -257,17 +259,7 @@ module kdp_utils
 
   end subroutine
 
-  function blankStr(strLen) result(blnk)
-    implicit none
-    character(:), allocatable :: blnk
-    integer :: strLen, i
 
-    allocate(character(len=strLen) :: blnk)
-    do i=1,strLen
-        blnk(i:i) = ' '
-    end do 
-
-  end function
 
 
 

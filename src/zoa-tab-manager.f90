@@ -118,6 +118,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
     integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
     integer :: idx
+    
 
 
     call logger%logText('Adding Tab (addPlotTab Sub)')
@@ -154,7 +155,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
         call self%tabInfo(idx)%tabObj%newPlot()
         call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)
+                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)     
         allocate(lens_draw_settings :: self%tabInfo(idx)%settings )
         self%tabInfo(idx)%settings = ld_settings
 
@@ -521,5 +522,7 @@ end subroutine
 
 
   end subroutine
+
+
 
 end module

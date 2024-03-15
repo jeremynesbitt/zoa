@@ -51,6 +51,7 @@ srcs += files(
   'ui-spot.f90',
   'ROUTEDRAWING.f90',
   'zoa-tab-manager.f90',
+  'zoa-plot-manip-toolbar.f90',
   'zzhandlers.f90',
   'ui-sys-config.f90',
   'glass-manager.f90',

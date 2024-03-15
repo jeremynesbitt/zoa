@@ -1,4 +1,18 @@
 ! THis module contains Code V style commands and translates them to KDP style commands
+! TODO:
+! Convert all subs here to new implemenation that accepts string input and zoa_cmd
+! Add useful things to zoa_cmd.  Some ideas
+! An identifier to describe the type of command (or commands) it is.  FOr example,
+! a lens update command or a plot command or a command that updates a plot
+! Or adding a description for help that explains the command
+! or an identifier that explains the type of command it is for error checking (eg 
+! command should be of format CMD Sk ACTION)
+! Other items
+! Should redirect output from UI to somewhere else (fake element) when calling KDP cmds
+! from codeV cmds.  For example, if the user enters in THI SO 125, in the ui will see
+! U L; CHO 0; TH 125; EOS.  While this is helpful for developers, not so for regular users
+! So add some logic that if not in debug mode, in exec codeV cmd, start by redirect output to 
+! fake textView, print code v cmd, then when done redirect output to window
 
 module codeV_commands
 
@@ -20,17 +34,29 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(2) :: zoaCmds
+    type(zoa_cmd), dimension(4) :: zoaCmds
 
     contains
 
     subroutine initializeCmds()
         ! This is called when the program is initialized (currently INITKDP.FOR)
+        use global_widgets, only: ioConfig
+        use hl_gtk_zoa, only : hl_zoa_text_view_new
+        use zoa_ui, only: ID_TERMINAL_KDPDUMP
+
+        ! Initialize textView to dump KDP print statements when needed
+        call ioConfig%registerTextView(hl_zoa_text_view_new(), ID_TERMINAL_KDPDUMP)
 
         zoaCmds(1)%cmd = "RMD"
         zoaCmds(1)%execFunc => execRMD
         !zoaCmds(2)%cmd = 'WL'
         !zoaCmds(2)%execFunc => setWavelength
+        zoaCmds(2)%cmd = "SAV"
+        zoaCmds(2)%execFunc => execSAV
+        zoaCmds(3)%cmd = "REF"
+        zoaCmds(3)%execFunc => execSetWavelengthIndex  
+        zoaCmds(4)%cmd = "RES"
+        zoaCmds(4)%execFunc => execRestore                
 
 
     end subroutine
@@ -38,7 +64,10 @@ module codeV_commands
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
 
         character(len=*) :: iptCmd
+        integer :: ii
         logical :: boolResult
+
+        include "DATMAI.INC"
 
         boolResult = .FALSE.
 
@@ -69,12 +98,14 @@ module codeV_commands
         ! select case (iptCmd)
         
         ! Temp code for interface check
-        if (iptCmd == zoaCmds(1)%cmd) then
-            PRINT *, "About to crash with fcn pointer?"
-            call zoaCmds(1)%execFunc("Testing")
+        do ii=1,size(zoaCmds)
+        if (iptCmd == zoaCmds(ii)%cmd) then
+            !PRINT *, "About to crash with fcn pointer?"
+            call zoaCmds(ii)%execFunc(INPUT)
             boolResult = .TRUE.
             return
         end if
+        end do
 
         select case (iptCmd)
 
@@ -156,20 +187,175 @@ module codeV_commands
               
     end function
 
-    subroutine execRMD(self, iptStr)
+    subroutine execRestore(self, iptStr)
+        use global_widgets, only: sysConfig, curr_lens_data
+        use zoa_file_handler
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        use zoa_file_handler, only: open_file_to_sav_lens
+        implicit none
+
         class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        PRINT *, "Plumbing worked!"
-        PRINT *, "IptStr is ", iptStr
-        PRINT *, "CMD is ", self%cmd
+        character(len=256) :: fName
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        character(len=256) :: fullPath
+        integer :: numTokens, locDot, fID
 
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        if (numTokens == 2 ) then
+            fName = trim(tokens(2))
+            locDot = INDEX(fName, '.')
+            if (locDot == 0) then
+                fName = trim(fName)//'.zoa'
+            end if
+            call LogTermFOR("File name to restore is "//trim(fName))
+            ! See if the file is in a known directory
+            fullPath = getRestoreFilePath(trim(fName))
+            if (len(trim(fullPath)) > 1) then
+                call process_zoa_file(fullPath)
+            else
+            call updateTerminalLog("File Not found in known directory!  Please try again or use UI", "red")
+            end if
+                   
+
+
+        else
+            call updateTerminalLog("No file given to restore!  Please try again", "red")
+
+        end if
+
+
+
+    end subroutine
+      
+
+    subroutine execSAV(self, iptStr)
+        use global_widgets, only: sysConfig, curr_lens_data
+
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        use zoa_file_handler, only: open_file_to_sav_lens
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens, locDot, fID
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call LogTermFOR("Number of tokens is "//int2str(numTokens))
+        if (numTokens > 1 ) then
+            fName = trim(tokens(2))
+            locDot = INDEX(fName, '.')
+            if (locDot == 0) then
+                fName = trim(fName)//'.zoa'
+            end if
+            call LogTermFOR("File name to save is "//trim(fName))
+        else
+            fName = 'default.zoa'
+
+        end if
+        fID = open_file_to_sav_lens(fName)
+        if (fID /= 0) then
+         
+           call sysConfig%genSaveOutputText(fID)
+           call curr_lens_data%genSaveOutputText(fID)
+           close(fID)
+        else
+            call LogTermFOR("Error!  fiD is "//int2str(fID))
+        end if
+
+
+        ! Save Presciption
+        !writeToFile('LEN NEW')
+        !PRINT *, "Lens Title is ", trim(LI)
+
+
+
+
+    end subroutine
+
+    subroutine execSetWavelengthIndex(self, iptStr)
+
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+
+        if(isSurfCommand(trim(tokens(2)))) then
+            call executeCodeVLensUpdateCommand('CW '//trim(tokens(2)))
+        else
+            call updateTerminalLog("No Wavelength Index Input.  Please try again", "red")
+            return            
+        end if
+
+    end subroutine
+
+    ! RMD Sk REFR REFL TIR
+    ! Change surface to refraction, reflection tir
+
+    subroutine execRMD(self, iptStr)
+
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        include "DATMAI.INC"
+
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if(numTokens > 2) then
+                select case(trim(tokens(3)))
+                case ('REFL')
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                    & '; REFL')
+                case ('REFR')
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                    & '; AIR')                    
+
+                case ('TIR')
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                    & '; REFLTIRO')                    
+                    
+
+                end select                          
+            else
+                call updateTerminalLog("No Surface Modifier Selected.  Please try again", "red")
+            end if         
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if  
     end subroutine
 
     subroutine execSetCodeVCmd()
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str, str2real8, real2str
         use global_widgets, only: curr_lens_data, curr_par_ray_trace
-        use handlers, only: updateTerminalLog
+        use handlers, only: updateTerminalLog        
         implicit none
 
         integer :: surfNum
@@ -678,20 +864,66 @@ module codeV_commands
 
       end function
 
+     ! This is a way to deal with this allocatable atring issue  
+!       type string
+!       character(len=:), allocatable :: s
+!    end type string
+! ! create an array of strings where each element is separately allocatable
+!    type(string) :: month(4)
+!    integer :: j   
+!    month(1)%s = 'January'   
+!    month(2)%s = 'February'
+!    month(3)%s = 'March'
+!    month(4)%s = 'April'
+!    print *, (month(j)%s, ' ', j=1,size(month))
+!    print *, (len(month(j)%s), j=1, size(month))
+
       function isCodeVCommand(tstCmd) result(boolResult)
+        use type_utils, only: string
+        implicit none 
+
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=3), dimension(18) :: codeVCmds
+        character(len=4), dimension(19) :: codeVCmds
+        type(string) :: tstCmds(17+size(zoaCmds))
         integer :: i
 
 
         ! TODO:  Find some better way to do this.  For now, brute force it
-        codeVCmds = [character(len=4) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
-        &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
-        & 'DEL', 'RED', 'SETC', 'RMD']
+        ! codeVCmds = [character(len=4) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
+        ! &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
+        ! & 'DEL', 'RED', 'SETC', 'AAA', 'AAA']
+        ! do i=1,size(zoaCmds)
+        !    codeVCmds(i+17) = zoaCmds(i)%cmd
+        ! end do
+
+        ! This hard coding of cmds is temporary, until I migrate these to new format
+
+        tstCmds(1)%s = 'YAN'
+        tstCmds(2)%s = 'TIT'
+        tstCmds(3)%s = 'WL'
+        tstCmds(4)%s = 'SO'
+        tstCmds(5)%s = 'S'
+        tstCmds(6)%s = 'GO'
+        tstCmds(7)%s = 'DIM'
+        tstCmds(8)%s = 'RDY'
+        tstCmds(9)%s = 'THI'
+        tstCmds(10)%s = 'INS'
+        tstCmds(11)%s = 'GLA'
+        tstCmds(12)%s = 'PIM'
+        tstCmds(13)%s = 'EPD'
+        tstCmds(14)%s = 'CUY'
+        tstCmds(15)%s = 'DEL'
+        tstCmds(16)%s = 'RED'
+        tstCmds(17)%s = 'SETC'
+        do i=1,size(zoaCmds)
+            tstCmds(17+i)%s = zoaCmds(i)%cmd
+        end do
+
+
         boolResult = .FALSE.
-        do i=1,size(codeVCmds)
-            if (tstCmd.EQ.codeVCmds(i)) then
+        do i=1,size(tstCmds)
+            if (tstCmds(i)%s.EQ.tstCmd) then
                 boolResult = .TRUE.
                 return
             end if
@@ -703,13 +935,22 @@ module codeV_commands
 
       subroutine executeCodeVLensUpdateCommand(iptCmd)
         use kdp_utils, only: inLensUpdateLevel
+        use global_widgets, only: ioConfig
+        use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
+
         implicit none
         character(len=*) :: iptCmd
+
+        ! Hide KDP Commands from user
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
+
         if (inLensUpdateLevel()) then               
             call PROCESKDP(iptCmd)
         else
             call PROCESKDP('U L;'// iptCmd //';EOS')
         end if
+
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
       end subroutine
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)
