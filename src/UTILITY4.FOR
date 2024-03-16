@@ -4336,7 +4336,7 @@ C
       WRITE(OUTLYNE,1000) I,GPREG(I)
       CALL SHOWIT(0)
                         END DO
- 1000 FORMAT('STO ',I6,',',D23.15)
+ 1000 FORMAT('STOK ',I6,',',D23.15)
                         RETURN
                         END
 C SUB GGPREG.FOR
@@ -4398,7 +4398,7 @@ C       BEFORE NEW STATISTICAL OPERATIONS ARE STARTED.
         CALL REGVAR_FIX
                         RETURN
                         END IF
-        IF(WC.EQ.'STO') THEN
+        IF(WC.EQ.'STOK') THEN
 C       THIS IS USED TO STORE THE NUMBER WHICH IS
 C       IN THE ACCUMULATOR INTO ONE OF THE MAXREG GENERAL PURPOSE
 C       STORAGE REGISTERS.

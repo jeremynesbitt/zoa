@@ -7,6 +7,8 @@ C SUB CMDER.FOR
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
      2 PLTOPD, PLTIMTST, PLTFAN
         use codeV_commands
+        use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
+     1 ID_TERMINAL_KDPDUMP   
 C
         IMPLICIT NONE
 
@@ -2890,7 +2892,8 @@ C
         CALL VIESYM
         RETURN
         END IF
-        IF(WC.EQ.'VIE'.OR.WC.EQ.'VIECO') THEN
+        !IF(WC.EQ.'VIE'.OR.WC.EQ.'VIECO') THEN
+        IF(WC.EQ.'VIECO') THEN        
         CACOCHVIE=0
         active_plot = ID_NEWPLOT_LENSDRAW
         PRINT *, "ACTIVE PLOT CHANGED DUE TO VIECO CALL!"
@@ -2898,7 +2901,9 @@ C
         F34=1
         MSG=.FALSE.
         !CALL VIE(CACOCHVIE)
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
         CALL VIE_NEW(CACOCHVIE)
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
         F34=0
         MSG=.TRUE.
         CACOCH=0

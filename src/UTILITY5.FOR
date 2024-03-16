@@ -587,7 +587,7 @@ C     NO MATER WHAT PROGRAM LEVEL WE ARE AT
       IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
                       RETURN
                       END IF
-      IF(WC.EQ.'STO') THEN
+      IF(WC.EQ.'STOK') THEN
                       CALL GGPREG
       LASTCOMWRD=WC
       LASTWASFOB=.FALSE.
@@ -807,7 +807,7 @@ C     WC AND MAKE OLD WC THE NEW WQ
                 IF(WC.EQ.'GET     ')   NOGO=.TRUE.
                 IF(WC.EQ.'AGET    ')   NOGO=.TRUE.
                 IF(WC.EQ.'RCL     ')   NOGO=.TRUE.
-                IF(WC.EQ.'STO     ')   NOGO=.TRUE.
+                IF(WC.EQ.'STOK    ')   NOGO=.TRUE.
                 IF(WC.EQ.'WRITE   ')   NOGO=.TRUE.
                 IF(WC.EQ.'MAXVAL  ')   NOGO=.TRUE.
                 IF(WC.EQ.'MINVAL  ')   NOGO=.TRUE.
@@ -1499,7 +1499,7 @@ C     WC AND MAKE OLD WC THE NEW WQ
                 IF(WC.EQ.'GET     ')   NOGO=.TRUE.
                 IF(WC.EQ.'AGET    ')   NOGO=.TRUE.
                 IF(WC.EQ.'RCL     ')   NOGO=.TRUE.
-                IF(WC.EQ.'STO     ')   NOGO=.TRUE.
+                IF(WC.EQ.'STOK    ')   NOGO=.TRUE.
                 IF(WC.EQ.'WRITE   ')   NOGO=.TRUE.
                 IF(WC.EQ.'MAXVAL  ')   NOGO=.TRUE.
                 IF(WC.EQ.'MINVAL  ')   NOGO=.TRUE.
@@ -2193,7 +2193,7 @@ C     WC AND MAKE OLD WC THE NEW WQ
                 IF(WC.EQ.'GET     ')   NOGO=.TRUE.
                 IF(WC.EQ.'AGET    ')   NOGO=.TRUE.
                 IF(WC.EQ.'RCL     ')   NOGO=.TRUE.
-                IF(WC.EQ.'STO     ')   NOGO=.TRUE.
+                IF(WC.EQ.'STOK    ')   NOGO=.TRUE.
                 IF(WC.EQ.'WRITE   ')   NOGO=.TRUE.
                 IF(WC.EQ.'MAXVAL  ')   NOGO=.TRUE.
                 IF(WC.EQ.'MINVAL  ')   NOGO=.TRUE.
@@ -3033,7 +3033,7 @@ C               MACRO
                 IF(WC.EQ.'GET     ') FNYES1=.TRUE.
                 IF(WC.EQ.'AGET    ') FNYES1=.TRUE.
                 IF(WC.EQ.'RCL     ') FNYES1=.TRUE.
-                IF(WC.EQ.'STO     ') FNYES1=.TRUE.
+                IF(WC.EQ.'STOK    ') FNYES1=.TRUE.
                 IF(WC.EQ.'WRITE   ') FNYES1=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') FNYES1=.TRUE.
                 IF(WC.EQ.'MINVAL  ') FNYES1=.TRUE.
@@ -3174,7 +3174,7 @@ C               MACRO
                 IF(WC.EQ.'GET     ') FNYES1=.TRUE.
                 IF(WC.EQ.'AGET    ') FNYES1=.TRUE.
                 IF(WC.EQ.'RCL     ') FNYES1=.TRUE.
-                IF(WC.EQ.'STO     ') FNYES1=.TRUE.
+                IF(WC.EQ.'STOK    ') FNYES1=.TRUE.
                 IF(WC.EQ.'WRITE   ') FNYES1=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') FNYES1=.TRUE.
                 IF(WC.EQ.'MINVAL  ') FNYES1=.TRUE.
@@ -3324,7 +3324,7 @@ C               MACRO
                 IF(WC.EQ.'GET     ') FNYES1=.TRUE.
                 IF(WC.EQ.'AGET    ') FNYES1=.TRUE.
                 IF(WC.EQ.'RCL     ') FNYES1=.TRUE.
-                IF(WC.EQ.'STO     ') FNYES1=.TRUE.
+                IF(WC.EQ.'STOK    ') FNYES1=.TRUE.
                 IF(WC.EQ.'WRITE   ') FNYES1=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') FNYES1=.TRUE.
                 IF(WC.EQ.'MINVAL  ') FNYES1=.TRUE.
@@ -3461,7 +3461,7 @@ C               MACRO
                 IF(WC.EQ.'GET     ') FNYES1=.TRUE.
                 IF(WC.EQ.'AGET    ') FNYES1=.TRUE.
                 IF(WC.EQ.'RCL     ') FNYES1=.TRUE.
-                IF(WC.EQ.'STO     ') FNYES1=.TRUE.
+                IF(WC.EQ.'STOK    ') FNYES1=.TRUE.
                 IF(WC.EQ.'WRITE   ') FNYES1=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') FNYES1=.TRUE.
                 IF(WC.EQ.'MINVAL  ') FNYES1=.TRUE.
@@ -3606,7 +3606,7 @@ C               MACRO
                 IF(WC.EQ.'GET     ') FNYES1=.TRUE.
                 IF(WC.EQ.'AGET    ') FNYES1=.TRUE.
                 IF(WC.EQ.'RCL     ') FNYES1=.TRUE.
-                IF(WC.EQ.'STO     ') FNYES1=.TRUE.
+                IF(WC.EQ.'STOK    ') FNYES1=.TRUE.
                 IF(WC.EQ.'WRITE   ') FNYES1=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') FNYES1=.TRUE.
                 IF(WC.EQ.'MINVAL  ') FNYES1=.TRUE.
@@ -3743,7 +3743,7 @@ C               MACRO
                 IF(WC.EQ.'GET     ') FNYES1=.TRUE.
                 IF(WC.EQ.'AGET    ') FNYES1=.TRUE.
                 IF(WC.EQ.'RCL     ') FNYES1=.TRUE.
-                IF(WC.EQ.'STO     ') FNYES1=.TRUE.
+                IF(WC.EQ.'STOK    ') FNYES1=.TRUE.
                 IF(WC.EQ.'WRITE   ') FNYES1=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') FNYES1=.TRUE.
                 IF(WC.EQ.'MINVAL  ') FNYES1=.TRUE.
@@ -5204,7 +5204,7 @@ C       THIS IS THE LIST OF VALID LENS INPUT COMMANDS
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
                 IF(WC.EQ.'ARCL    ') IS=.TRUE.
                 IF(WC.EQ.'STOAX   ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -5506,7 +5506,7 @@ C     LENS UPDATE
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -5820,7 +5820,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -6048,7 +6048,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -6276,7 +6276,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -6417,7 +6417,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -6567,7 +6567,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -6706,7 +6706,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -6846,7 +6846,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -7151,7 +7151,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -7444,7 +7444,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -7723,7 +7723,7 @@ C       CONFIGS INPUT AND UPDATE
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -8030,7 +8030,7 @@ C        ARE VALID AS WELL
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.
@@ -8269,7 +8269,7 @@ C
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
-                IF(WC.EQ.'STO     ') IS=.TRUE.
+                IF(WC.EQ.'STOK    ') IS=.TRUE.
                 IF(WC.EQ.'WRITE   ') IS=.TRUE.
                 IF(WC.EQ.'MAXVAL  ') IS=.TRUE.
                 IF(WC.EQ.'MINVAL  ') IS=.TRUE.

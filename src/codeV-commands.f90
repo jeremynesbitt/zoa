@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(4) :: zoaCmds
+    type(zoa_cmd), dimension(7) :: zoaCmds
 
     contains
 
@@ -56,8 +56,13 @@ module codeV_commands
         zoaCmds(3)%cmd = "REF"
         zoaCmds(3)%execFunc => execSetWavelengthIndex  
         zoaCmds(4)%cmd = "RES"
-        zoaCmds(4)%execFunc => execRestore                
-
+        zoaCmds(4)%execFunc => execRestore 
+        zoaCmds(5)%cmd = "VIE"
+        zoaCmds(5)%execFunc => execVie    
+        zoaCmds(6)%cmd = "SUR"
+        zoaCmds(6)%execFunc => execSUR                                
+        zoaCmds(7)%cmd = "STO"
+        zoaCmds(7)%execFunc => execSTO    
 
     end subroutine
 
@@ -186,6 +191,95 @@ module codeV_commands
           END IF            
               
     end function
+
+    subroutine execVie(self, iptStr)
+        use global_widgets, only: ioConfig
+        use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
+
+        implicit none
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        ! Temp Vars
+        Integer :: iStart, iNew
+        Real*8 :: rWait, rDT
+        ! End Temp Vars
+
+        
+        ! Hide KDP Commands from user
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+        call PROCESKDP('VIECO')
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
+
+
+    end subroutine
+
+    subroutine execSTO(self, iptStr)
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+    
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        character(len=256) :: fullPath
+        integer :: numTokens
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        if (numTokens == 2 ) then
+            if (isSurfCommand(trim(tokens(2)))) then
+                surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; ASTOP; REFS')
+            else
+
+            call updateTerminalLog("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
+            end if
+
+        else
+            call updateTerminalLog("No Surface identifier given!  Please try again", "red")
+
+        end if
+
+
+
+    end subroutine
+
+    subroutine execSUR(self, iptStr)
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+    
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        character(len=256) :: fullPath
+        integer :: numTokens, locDot, fID
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        if (numTokens == 2 ) then
+            if (isSurfCommand(trim(tokens(2)))) then
+                call logTermFOR("SUR Cmd here!")
+            else
+
+            call updateTerminalLog("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
+            end if
+
+        else
+            call updateTerminalLog("No Surface identifier given!  Please try again", "red")
+
+        end if
+
+
+
+    end subroutine
 
     subroutine execRestore(self, iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
@@ -860,6 +954,14 @@ module codeV_commands
 
         end do
 
+        ! SA for SUR command
+        if (tstCmd.EQ.'SA') then
+            boolResult = .TRUE.
+            return
+        end if        
+
+
+
 
 
       end function
@@ -933,16 +1035,26 @@ module codeV_commands
 
       end function
 
-      subroutine executeCodeVLensUpdateCommand(iptCmd)
+      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag)
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: ioConfig
         use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
 
         implicit none
         character(len=*) :: iptCmd
+        logical, optional :: debugFlag
+        logical :: redirectFlag
+
+        if(present(debugFlag)) then 
+            redirectFlag = .NOT.debugFlag
+        else
+            redirectFlag = .TRUE.
+        end if
+
+        PRINT *, "redirect flag is ", redirectFlag
 
         ! Hide KDP Commands from user
-        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
+        if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
 
         if (inLensUpdateLevel()) then               
             call PROCESKDP(iptCmd)
@@ -950,7 +1062,7 @@ module codeV_commands
             call PROCESKDP('U L;'// iptCmd //';EOS')
         end if
 
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+        if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
       end subroutine
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)

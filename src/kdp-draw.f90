@@ -397,8 +397,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
       !call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
       CALL getVIECOScaleFactor(sf)
-      call logtermFOR("SF is "//real2str(sf))
-      call logtermFOR("ScaleFactor is "//real2str(scaleFactor))
+      !call logtermFOR("SF is "//real2str(sf))
+      !call logtermFOR("ScaleFactor is "//real2str(scaleFactor))
 
 
       !CALL getVIECOScaleFactor(scaleFactor)
