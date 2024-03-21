@@ -47,6 +47,7 @@ srcs += files(
   'kdp-draw.f90',
   'mod_plotrayfan.f90',
   'mod_plotopticalsystem.f90',
+  'mod-lens-draw-tab.f90',
   'ui-ast-fc-dist.f90',
   'ui-spot.f90',
   'ROUTEDRAWING.f90',

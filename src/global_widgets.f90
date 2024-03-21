@@ -16,7 +16,7 @@ module global_widgets
   type(c_ptr) :: app
   character(len=150), pointer :: uiSettingCommands(:)
   integer :: uiSetCmdsIdx = 1
-  character(len=10) :: zoaVersion
+  
 
   ! UI Parameters
 

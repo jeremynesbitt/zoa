@@ -472,6 +472,7 @@ contains
   end subroutine activate
 
 subroutine populateSplashWindow(splashWin)
+  use GLOBALS, only: zoaVersion
   implicit none
   type(c_ptr), intent(inout) :: splashWin
   type(c_ptr) :: view, splashBuff, box3, linkbutton

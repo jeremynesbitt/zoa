@@ -98,6 +98,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
   use mod_plotrayfan
   use mod_plotopticalsystem
+  use mod_lens_draw_tab
   use ui_ast_fc_dist
   use ui_spot
   use ROUTEMOD
@@ -157,7 +158,9 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
                     & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)     
         allocate(lens_draw_settings :: self%tabInfo(idx)%settings )
+        ld_settings%useToolbar = .TRUE.
         self%tabInfo(idx)%settings = ld_settings
+
 
 
     case (ID_NEWPLOT_RAYFAN)
@@ -237,7 +240,10 @@ subroutine finalizeNewPlotTab(self, idx)
     integer(kind=c_int) :: currPageIndex
     character(len=3) :: outChar
 
-    call self%tabInfo(idx)%tabObj%finalizeWindow()
+    ! TODO:  Revisit this design.  I think it is bad but couldn't come up with a better way 
+    call LogTermFOR("Finalize New Plot Tab")
+    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%settings%useToolbar)
+
 
     ! This part is to enable close tab functionality
     currPageIndex = gtk_notebook_get_current_page(self%notebook)
@@ -349,7 +355,8 @@ subroutine addPlotTabFromObj(self, tabObj)
 
     self%tabInfo(idx)%typeCode = PLOT_CODE
     self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
-    call self%tabInfo(idx)%tabObj%finalizeWindow()
+    ! Bad design IMO
+    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%settings%useToolbar)
 
     ! This part is to enable close tab functionality
     currPageIndex = gtk_notebook_get_current_page(self%notebook)

@@ -10,6 +10,7 @@ program zoa_program
   use handlers
   use zoa_ui
   use global_widgets
+  use GLOBALS, only: zoaVersion
 #ifdef WINDOWS
     use kernel32
     use user32

@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(7) :: zoaCmds
+    type(zoa_cmd), dimension(509) :: zoaCmds
 
     contains
 
@@ -43,6 +43,9 @@ module codeV_commands
         use global_widgets, only: ioConfig
         use hl_gtk_zoa, only : hl_zoa_text_view_new
         use zoa_ui, only: ID_TERMINAL_KDPDUMP
+        use type_utils, only: int2str
+
+        integer :: i
 
         ! Initialize textView to dump KDP print statements when needed
         call ioConfig%registerTextView(hl_zoa_text_view_new(), ID_TERMINAL_KDPDUMP)
@@ -63,6 +66,14 @@ module codeV_commands
         zoaCmds(6)%execFunc => execSUR                                
         zoaCmds(7)%cmd = "STO"
         zoaCmds(7)%execFunc => execSTO    
+        zoaCmds(8)%cmd = "S"
+        zoaCmds(8)%execFunc => setSurfaceCodeVStyle    
+        zoaCmds(9)%cmd = "SO"
+        zoaCmds(9)%execFunc => setSurfaceCodeVStyle     
+        do i = 1,499
+            zoaCmds(9+i)%cmd = 'S'//trim(int2str(i))
+            zoaCmds(9+i)%execFunc => setSurfaceCodeVStyle    
+        end do
 
     end subroutine
 
@@ -122,10 +133,10 @@ module codeV_commands
             CALL setWavelength()
             boolResult = .TRUE.
             return            
-        case('SO','S')
-            CALL setSurfaceCodeVStyle(iptCmd)
-            boolResult = .TRUE.
-            return            
+        ! case('SO','S')
+        !     CALL setSurfaceCodeVStyle(iptCmd)
+        !     boolResult = .TRUE.
+        !     return            
         case('GO')
             CALL executeGo()
             boolResult = .TRUE.
@@ -185,10 +196,10 @@ module codeV_commands
         end select
 
         ! Handle Sk separately
-        IF(isSurfCommand(iptCmd)) then
-            CALL setSurfaceCodeVStyle(iptCmd)
-            return
-          END IF            
+        ! IF(isSurfCommand(iptCmd)) then
+        !     CALL setSurfaceCodeVStyle(iptCmd)
+        !     return
+        !   END IF            
               
     end function
 
@@ -250,23 +261,49 @@ module codeV_commands
 
     subroutine execSUR(self, iptStr)
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
+        use type_utils, only: int2str, blankStr, real2str
         use handlers, only: updateTerminalLog
+        use global_widgets, only: curr_lens_data
     
         implicit none
 
         class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=256) :: fName
-        integer :: surfNum
+        integer :: surfNum, ii
         character(len=80) :: tokens(40)
-        character(len=256) :: fullPath
+        character(len=256) :: fullLine
+        character(len=4)  :: surfTxt
+        integer :: refStop
         integer :: numTokens, locDot, fID
+
+        !numSurfaces = curr_lens_data%num_surfaces
+        !call LogTermFOR("Num Surfaces is "//trim(int2str(curr_lens_data%num_surfaces)))
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         if (numTokens == 2 ) then
             if (isSurfCommand(trim(tokens(2)))) then
                 call logTermFOR("SUR Cmd here!")
+                ! SA
+                fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(10)//"GLA"
+                call updateTerminalLog(trim(fullLine), "black")
+                do ii=1,curr_lens_data%num_surfaces
+                    surfTxt = blankStr(2)//trim(int2str(ii-1))//":"
+                    ! Special Cases
+                    if(ii==1)                           surfTxt = "OBJ:"
+                    if(ii==curr_lens_data%ref_stop)     surfTxt = "STO:"
+                    if(ii==curr_lens_data%num_surfaces) surfTxt = "IMG:"
+
+                    fullLine = surfTxt//blankStr(7)//trim(real2str(curr_lens_data%radii(ii),5))// &
+                    & blankStr(7)//trim(real2str(curr_lens_data%thicknesses(ii),4))//blankStr(10)// &
+                    & trim(curr_lens_data%glassnames(ii))
+                    call updateTerminalLog(trim(fullLine), "black")
+
+
+                end do
+
+
+
             else
 
             call updateTerminalLog("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
@@ -388,9 +425,11 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
-        if(isSurfCommand(trim(tokens(2)))) then
+        call LogTermFOR("NumberofTokens is "//trim(int2str(numTokens)))
+
+        if(numTokens == 2) then
             call executeCodeVLensUpdateCommand('CW '//trim(tokens(2)))
         else
             call updateTerminalLog("No Wavelength Index Input.  Please try again", "red")
@@ -639,7 +678,7 @@ module codeV_commands
 
         include "DATMAI.INC"
 
-        call updateTerminalLog("Starting to update GLA ", "blue" )
+        !call updateTerminalLog("Starting to update GLA ", "blue" )
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
 
@@ -1004,8 +1043,6 @@ module codeV_commands
         tstCmds(1)%s = 'YAN'
         tstCmds(2)%s = 'TIT'
         tstCmds(3)%s = 'WL'
-        tstCmds(4)%s = 'SO'
-        tstCmds(5)%s = 'S'
         tstCmds(6)%s = 'GO'
         tstCmds(7)%s = 'DIM'
         tstCmds(8)%s = 'RDY'
@@ -1021,6 +1058,7 @@ module codeV_commands
         do i=1,size(zoaCmds)
             tstCmds(17+i)%s = zoaCmds(i)%cmd
         end do
+
 
 
         boolResult = .FALSE.
@@ -1066,15 +1104,20 @@ module codeV_commands
       end subroutine
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)
-        use type_utils, only: str2int
+        use type_utils, only: str2int, int2str
+        use global_widgets, only: curr_lens_data
         character(len=*) :: iptCmd
         integer :: surfNum
 
         print *, "IPTCMD is ", iptCmd
         print *, "len of iptCmd is ", len(iptCmd)
 
-        if(len(iptCmd).EQ.1) then ! It is S, which is S1
-            surfNum = 1
+        if(len(iptCmd).EQ.1) then ! It is S, which means we have to add a surface before
+                                  ! the last surface.  
+            surfNum = curr_lens_data%num_surfaces-1
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            &  "; INSK "//trim(int2str(surfNum)))
+            !surfNum = 1
             return
         end if
         if(len(iptCmd).EQ.2) then
@@ -1119,22 +1162,61 @@ module codeV_commands
       end subroutine
 
 
-      subroutine setSurfaceCodeVStyle(iptCmd)
-        use command_utils, only : checkCommandInput, getInputNumber
-        use type_utils, only: real2str, int2str
-        character(len=*) :: iptCmd
-        integer :: surfNum
+      subroutine setSurfaceCodeVStyle(self, iptStr)
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog
+        
+    
+        implicit none
 
-        surfNum = getSurfNumFromSurfCommand(trim(iptCmd))
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        character(len=256) :: fullPath
+        integer :: numTokens
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+
+        select case(numTokens)
+        case (1)
+            call updateTerminalLog("No info given besides surface identifier!  Please try again", "red")
+        case (2) ! Curvature only
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            call LogTermFOR("Cmd to parse is "//trim(iptStr))
+        case (3) ! Curvature and thickness
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(2))//";TH, "// &
+            & trim(tokens(3)))            
+        case (4) ! Curvature, thickness, and glass
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(2))//";TH, "// &
+            & trim(tokens(3))//'; GLAK ' // trim(tokens(4)))                
+        end select
+    end subroutine
+
+
+        !        
+    !     (iptCmd)
+    !     use command_utils, only : checkCommandInput, getInputNumber
+    !     use type_utils, only: real2str, int2str
+    !     character(len=*) :: iptCmd
+    !     integer :: surfNum
+
+    !     surfNum = getSurfNumFromSurfCommand(trim(iptCmd))
 
         
        
-        if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // real2str(getInputNumber(1))//";TH, "// &
-            & real2str(getInputNumber(2)))
-        end if            
+    !     if (checkCommandInput([ID_CMD_NUM], max_num_terms=3)) then
+    !         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+    !         & '; RD, ' // real2str(getInputNumber(1))//";TH, "// &
+    !         & real2str(getInputNumber(2)))
+    !     end if            
 
-      end subroutine
+    !   end subroutine
 
 end module

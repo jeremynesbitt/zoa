@@ -399,6 +399,21 @@ function getPermMacroDir() result(permDir)
 
 end function
 
+function genOutputLineWithSpacing(blnk, p1, p2, p3, p4) result(outStr)
+  implicit none
+  character(len=*) :: blnk
+  character(len=*) :: p1, p2
+  character(len=*), optional :: p3, p4
+  character(len=1024) :: outStr
+  
+  
+  outStr = p1//blnk//p2
+
+  if(present(p3)) outStr = trim(outStr)//blnk//p3
+  if(present(p4)) outStr = trim(outStr)//blnk//p4
+
+end function
+
 !subroutine exportCurrentSessionToFile(fName)
 !  character(len=*) :: fName
 

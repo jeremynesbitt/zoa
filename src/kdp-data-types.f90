@@ -208,7 +208,7 @@ type lens_data
 integer num_surfaces, ref_stop
 real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
 & curvatures(:), pickups(:,:,:), solves(:,:), clearapertures(:)
-character(:), allocatable :: glassnames(:)
+character(:), allocatable :: glassnames(:) !, catalognames(:)
 type(ksolve), allocatable, dimension(:) :: thickSolves
 
 
@@ -312,6 +312,7 @@ if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
  DEALLOCATE(self%surf_index)
  DEALLOCATE(self%surf_vnum)
  DEALLOCATE(self%glassnames)
+ !DEALLOCATE(self%catalognames)
  DEALLOCATE(self%pickups)
  deallocate(self%solves)
  deallocate(self%clearapertures)
@@ -332,6 +333,7 @@ if (.not.allocated(self%radii)) THEN
  allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
  !PRINT *, "About to allocate glass names"
  allocate(character(40) :: self%glassnames(self%num_surfaces))
+ !allocate(character(40) :: self%catalognames(self%num_surfaces))
  
  ! For now just copy what is in DATLEN.INC
  allocate(self%pickups(6,self%num_surfaces,45))
@@ -1097,14 +1099,15 @@ end subroutine
 
 subroutine genSaveOutputText(self, fID)
   use type_utils, only: real2str, blankStr, int2str
+  use GLOBALS, only: zoaVersion
   class(sys_config) :: self
   integer :: fID
   integer :: ii
   character(len=256) :: strOutLine
   character(len=256) :: strWL, strWLwgt, strXFLD, strYFLD, strFLDWGT
 
-
-  PRINT *, "TIT is ", self%lensTitle
+  write(fID, *) "! Zoa "//zoaVersion
+  write(fID, *) "LEN NEW"
   write(fID, *) "TIT "//self%lensTitle
         ! Store dimensions
   select case(self%currLensUnitsID)
@@ -1580,7 +1583,12 @@ subroutine updateLensData(self)
     self%thicknesses(JJ+1) = ALENS(3,JJ)
     self%surf_index(JJ+1) = INDEX
     self%surf_vnum(JJ+1) = VNUM
+    if (GLANAM(JJ,2).NE.'AIR') then
     self%glassnames(JJ+1) = GLANAM(JJ,2)
+    else
+      self%glassnames(JJ+1) = ' '
+    end if
+    !self%catalognames(JJ+1) = GLANAM(JJ,1)
     self%clearapertures(JJ+1) = ALENS(10,JJ)
 
     ! Pickup and Solvesstorage
@@ -1749,12 +1757,16 @@ function isSolveOnSurface(self, surf) result(boolResult)
 
 end function
 
+
+
 subroutine genLensDataSaveOutputText(self, fID)
   use type_utils, only: real2str, blankStr, int2str
+  use zoa_file_handler, only: genOutputLineWithSpacing
   class(lens_data) :: self
   integer :: fID
   integer :: ii
-  character(len=256) :: strSurfLine
+  character(len=1024) :: strSurfLine
+  character(len=4) :: surfStr
   logical :: rdmFlag
 
   rdmFlag = .TRUE.
@@ -1762,8 +1774,10 @@ subroutine genLensDataSaveOutputText(self, fID)
   ! Do Object SUrface
   strSurfLine = 'SO'
   if (rdmFlag) then
-    strSurfLine = 'SO'//blankStr(3)//real2str(self%radii(1),4)//blankStr(5)//real2str(self%thicknesses(1),sci=.TRUE.)// &
-    & blankStr(5)//self%glassnames(1)
+    strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(real2str(self%radii(1),4)), &
+    & trim(real2str(self%thicknesses(1),sci=.TRUE.)), trim(self%glassnames(1)))
+    !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
+    !& trim(real2str(self%thicknesses(1),sci=.TRUE.))//blankStr(1)//trim(self%glassnames(1))
   else
     strSurfLine = 'SO'//blankStr(3)//real2str(self%curvatures(1),4)//blankStr(5)//real2str(self%thicknesses(1))// &
     & blankStr(5)//self%glassnames(1)    
@@ -1772,10 +1786,16 @@ subroutine genLensDataSaveOutputText(self, fID)
   PRINT *, trim(strSurfLine)
 
   do ii=2,self%num_surfaces-1
+    surfStr = 'S' !//trim(int2str(ii-1))
+    if (ii==2) surfStr = 'S1'
+    
     if(rdmFlag) then
-      strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
-      & blankStr(5)//real2str(self%thicknesses(ii),4)// &
-      & blankStr(5)//self%glassnames(ii)
+      strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
+      & trim(real2str(self%radii(ii),4)), trim(real2str(self%thicknesses(ii),4)), & 
+      & trim(self%glassnames(ii)))      
+      !strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
+      !& blankStr(5)//real2str(self%thicknesses(ii),4)// &
+      !& blankStr(5)//self%glassnames(ii)
     else
       strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%curvatures(ii),4)// &
       & blankStr(5)//real2str(self%thicknesses(ii))// &

@@ -3,6 +3,7 @@ module zoa_ui
 
 ! To extent this type to support easier plotting
 type ui_settings
+ logical :: useToolbar = .FALSE.
 
 contains
   procedure :: replot => ui_settings_replot

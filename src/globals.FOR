@@ -2,7 +2,8 @@
       use zoa_logger
 C
       PUBLIC
-
+      
+      character(len=10) :: zoaVersion
       character(len=256) :: basePath
       type(zoaLogger) :: logger
 C

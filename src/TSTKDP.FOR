@@ -162,43 +162,13 @@ C
         end subroutine
 
         subroutine refreshLensDataStruct()
-          use global_widgets
+          use global_widgets,only: curr_lens_data
 
 
           implicit none
 
-          integer :: JJ
-          !REAL*8 SYSTEM(1:150),ALENS(1:160,0:499)
-          !CHARACTER GLANAM(0:499,1:2)
-          REAL*8 RD, INDEX, VNUM
 
-          INCLUDE "DATLEN.INC"
-
-          !COMMON/LENS1/SYSTEM,ALENS
-          !COMMON/GLNAME/GLANAM
-
-
-        call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
-        curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
-        DO JJ=0,INT(SYSTEM(20))
-          CALL SINDEXJN(JJ, INDEX, VNUM)
-          IF(ALENS(1,JJ).EQ.0.0D0) THEN
-                          RD=0.0D0
-                          ELSE
-                          RD=1.0D0/(ALENS(1,JJ))
-                          END IF
-
-          ! Dump data to interface
-          curr_lens_data % radii(JJ+1) = RD
-          curr_lens_data % curvatures(JJ+1) = ALENS(1,JJ)
-          curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)
-          curr_lens_data % surf_index(JJ+1) = INDEX
-          curr_lens_data % surf_vnum(JJ+1) = VNUM
-      curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
-          !PRINT *, "GLANAM IS ", GLANAM(JJ,1) // GLANAM(JJ,2)
-          !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
-          !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
-        END DO
+          call curr_lens_data%update()     
 
 
         end subroutine

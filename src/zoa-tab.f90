@@ -391,7 +391,7 @@ function build(self) result(expander)
      end if
    end if
 
-   PRINT *, "maxRow is ", maxRow
+   !PRINT *, "maxRow is ", maxRow
 
   do i=1, maxRow
     ! Label
@@ -917,11 +917,12 @@ end subroutine
  end subroutine
 
 
- subroutine finalizeWindow(self)
+ subroutine finalizeWindow(self, useToolBar)
    use g
    use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
    implicit none
    class(zoatab) :: self
+   logical, optional :: useToolBar
 
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
     type(c_ptr) :: dcname
@@ -932,13 +933,21 @@ end subroutine
 
     !call self%buildSettings()
     self%expander = self%settings%build()
+    !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
     call gtk_widget_set_name(self%expander, self%plotCommand)
     PRINT *, "Expander is ", LOC(self%EXPANDER)
     PRINT *, "Box ptr is ", LOC(self%box1)
 
-    call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
+    if (present(useToolBar)) then
+      print *, "UseToolbar here, value ", useToolBar
+      if (useToolBar) then
+        call LogTermFOR("Here is where I would like to init toolbar!")
+       call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
+       call gtk_box_append(self%box1, box_plotmanip)
+    end if
+    end if
+    
 
-    call gtk_box_append(self%box1, box_plotmanip)
     ! We create a vertical box container:
     call gtk_box_append(self%box1, self%expander)
     call gtk_widget_set_vexpand (self%box1, FALSE)

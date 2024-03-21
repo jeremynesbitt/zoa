@@ -9,7 +9,7 @@
         PRINT *, "Glass CAT Load Module"
         INPUT='OUT ED'
         CALL PROCES
-        INPUT='GLASSP GLA'
+        INPUT='GLASSP GLAK'
         CALL PROCES
         INPUT='OUT TP'
         CALL PROCES
