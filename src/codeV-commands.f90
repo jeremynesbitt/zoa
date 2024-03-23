@@ -247,7 +247,7 @@ module codeV_commands
                 & '; ASTOP; REFS')
             else
 
-            call updateTerminalLog("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
+            call updateTerminalLog("STO Should have a surface identifier (S0, Sk, Si, SA)", "red")
             end if
 
         else
@@ -274,6 +274,9 @@ module codeV_commands
         character(len=80) :: tokens(40)
         character(len=256) :: fullLine
         character(len=4)  :: surfTxt
+        character(len=10) :: radTxt
+        character(len=10) :: thiTxt
+        character(len=40) :: glaTxt
         integer :: refStop
         integer :: numTokens, locDot, fID
 
@@ -285,7 +288,7 @@ module codeV_commands
             if (isSurfCommand(trim(tokens(2)))) then
                 call logTermFOR("SUR Cmd here!")
                 ! SA
-                fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(10)//"GLA"
+                fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(5)//"GLA"
                 call updateTerminalLog(trim(fullLine), "black")
                 do ii=1,curr_lens_data%num_surfaces
                     surfTxt = blankStr(2)//trim(int2str(ii-1))//":"
@@ -293,10 +296,25 @@ module codeV_commands
                     if(ii==1)                           surfTxt = "OBJ:"
                     if(ii==curr_lens_data%ref_stop)     surfTxt = "STO:"
                     if(ii==curr_lens_data%num_surfaces) surfTxt = "IMG:"
+                    if (curr_lens_data%radii(ii) == 0) then
+                        radTxt = 'INFINITY'
+                    else
+                        radTxt = real2str(curr_lens_data%radii(ii),5)
+                    end if
+                    if (curr_lens_data%thicknesses(ii) > 1e10) then
+                        thiTxt = 'INFINITY'
+                    else
+                        thiTxt = real2str(curr_lens_data%thicknesses(ii),5)
+                    end if
+                    glaTxt = curr_lens_data%glassnames(ii)
+                    if (glaTxt(1:1).NE.' ') then
+                    !else
+                        glaTxt = trim(curr_lens_data%glassnames(ii))//'_'//trim(curr_lens_data%catalognames(ii))
+                    end if                     
 
-                    fullLine = surfTxt//blankStr(7)//trim(real2str(curr_lens_data%radii(ii),5))// &
-                    & blankStr(7)//trim(real2str(curr_lens_data%thicknesses(ii),4))//blankStr(10)// &
-                    & trim(curr_lens_data%glassnames(ii))
+                    fullLine = surfTxt//blankStr(4)//trim(radTxt)// &
+                    & blankStr(4)//trim(thiTxt)//blankStr(10)// &
+                    & trim(glaTxt)
                     call updateTerminalLog(trim(fullLine), "black")
 
 

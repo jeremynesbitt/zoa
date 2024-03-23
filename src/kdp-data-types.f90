@@ -208,7 +208,8 @@ type lens_data
 integer num_surfaces, ref_stop
 real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
 & curvatures(:), pickups(:,:,:), solves(:,:), clearapertures(:)
-character(:), allocatable :: glassnames(:) !, catalognames(:)
+character(:), allocatable :: glassnames(:)
+character(:), allocatable :: catalognames(:)
 type(ksolve), allocatable, dimension(:) :: thickSolves
 
 
@@ -312,7 +313,7 @@ if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
  DEALLOCATE(self%surf_index)
  DEALLOCATE(self%surf_vnum)
  DEALLOCATE(self%glassnames)
- !DEALLOCATE(self%catalognames)
+ DEALLOCATE(self%catalognames)
  DEALLOCATE(self%pickups)
  deallocate(self%solves)
  deallocate(self%clearapertures)
@@ -332,8 +333,7 @@ if (.not.allocated(self%radii)) THEN
  !PRINT *, "About to allocate indices"
  allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
  !PRINT *, "About to allocate glass names"
- allocate(character(40) :: self%glassnames(self%num_surfaces))
- !allocate(character(40) :: self%catalognames(self%num_surfaces))
+ allocate(character(40) :: self%glassnames(self%num_surfaces), self%catalognames(self%num_surfaces))
  
  ! For now just copy what is in DATLEN.INC
  allocate(self%pickups(6,self%num_surfaces,45))
@@ -1583,12 +1583,10 @@ subroutine updateLensData(self)
     self%thicknesses(JJ+1) = ALENS(3,JJ)
     self%surf_index(JJ+1) = INDEX
     self%surf_vnum(JJ+1) = VNUM
-    if (GLANAM(JJ,2).NE.'AIR') then
     self%glassnames(JJ+1) = GLANAM(JJ,2)
-    else
-      self%glassnames(JJ+1) = ' '
-    end if
-    !self%catalognames(JJ+1) = GLANAM(JJ,1)
+    if (GLANAM(JJ,2).EQ.'AIR') self%glassnames(JJ+1) = ' '
+    if (GLANAM(JJ,2).EQ.'LAST SURFACE') self%glassnames(JJ+1) = ' '
+    self%catalognames(JJ+1) = GLANAM(JJ,1)
     self%clearapertures(JJ+1) = ALENS(10,JJ)
 
     ! Pickup and Solvesstorage
@@ -1804,7 +1802,10 @@ subroutine genLensDataSaveOutputText(self, fID)
     write(fID, *) trim(strSurfLine)
     PRINT *, trim(strSurfLine)
     ! Check for ref stop
-    if (self%ref_stop == ii) PRINT *, "  STO"
+    if (self%ref_stop == ii) then
+      strSurfLine = blankStr(2)//'STO S'//trim(int2str(ii-1))
+      write(fID, *) trim(strSurfLine)
+    end if
     ! pseudocode for now
     !if (self%hasPickup(ii)) then
     !  print *, self%getPickupTxt(ii)
