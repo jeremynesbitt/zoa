@@ -1179,6 +1179,18 @@ module codeV_commands
 
       end subroutine
 
+    function isSpecialGlass(tstStr) result(boolResult)
+        character(len=*) :: tstStr
+        logical :: boolResult
+
+        boolResult = .FALSE.
+
+        if(tstStr.EQ.'AIR') boolResult = .TRUE.
+        if(tstStr.EQ.'REFL') boolResult = .TRUE.
+
+
+    end function
+
 
       subroutine setSurfaceCodeVStyle(self, iptStr)
         use command_utils, only : parseCommandIntoTokens
@@ -1211,9 +1223,18 @@ module codeV_commands
             & trim(tokens(3)))            
         case (4) ! Curvature, thickness, and glass
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            if(.not.isSpecialGlass(trim(tokens(4)))) then
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3))//'; GLAK ' // trim(tokens(4)))                
+            & trim(tokens(3))//'; GLAK ' // trim(tokens(4)))
+            else
+                ! TODO:  This and the isSpecialGlass function should go somewhere else.
+                ! but first need to figure out if I really want to store this info in 
+                ! glassnames or create a new array for this info.
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; RD, ' // trim(tokens(2))//";TH, "// &
+                & trim(tokens(3))//';' // trim(tokens(4)))                
+            end if
         end select
     end subroutine
 
