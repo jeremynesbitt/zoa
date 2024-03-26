@@ -701,7 +701,10 @@ end subroutine
     character(len=1024) :: strURI
 
     call convert_c_string(gtk_link_button_get_uri(linkButton), strURI)
-    boolGood = g_app_info_launch_default_for_uri(trim(strURI)//c_null_char, c_null_ptr, c_null_ptr)
+    !call execute_command_line("open "//trim(strURI))
+    call execute_command_line("open http://www.google.com")
+
+    !boolGood = g_app_info_launch_default_for_uri(trim(strURI)//c_null_char, c_null_ptr, c_null_ptr)
 
   end function
 

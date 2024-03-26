@@ -304,17 +304,35 @@ module codeV_commands
                     if (curr_lens_data%thicknesses(ii) > 1e10) then
                         thiTxt = 'INFINITY'
                     else
-                        thiTxt = real2str(curr_lens_data%thicknesses(ii),5)
+                        
+                        if (curr_lens_data%thicknesses(ii) < 0) then
+                            thiTxt = real2str(curr_lens_data%thicknesses(ii),3)
+                        else
+                            thiTxt = real2str(curr_lens_data%thicknesses(ii),5)
+                        end if
+
                     end if
                     glaTxt = curr_lens_data%glassnames(ii)
+                    !TODO:  make this more elegant
                     if (glaTxt(1:1).NE.' ') then
                     !else
                         glaTxt = trim(curr_lens_data%glassnames(ii))//'_'//trim(curr_lens_data%catalognames(ii))
-                    end if                     
+                    end if 
+                    PRINT *, "glaTxt is ", glaTxt(1:4)
+                    PRINT *, "glaTxt check is ", (glaTxt(1:4).EQ.'REFL')
+                    if (glaTxt(1:4).EQ.'REFL') then
+                        glaTxt = ' '
+                        fullLine = surfTxt//blankStr(4)//trim(radTxt)// &
+                        & blankStr(4)//trim(thiTxt)//blankStr(5)//'REFL' &
+                        & //blankStr(5)//trim(glaTxt)         
+                    else
 
-                    fullLine = surfTxt//blankStr(4)//trim(radTxt)// &
-                    & blankStr(4)//trim(thiTxt)//blankStr(10)// &
-                    & trim(glaTxt)
+                        fullLine = surfTxt//blankStr(4)//trim(radTxt)// &
+                        & blankStr(4)//trim(thiTxt)//blankStr(10)// &
+                        & trim(glaTxt)
+                    end if                                       
+
+
                     call updateTerminalLog(trim(fullLine), "black")
 
 
@@ -445,7 +463,7 @@ module codeV_commands
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
-        call LogTermFOR("NumberofTokens is "//trim(int2str(numTokens)))
+        !call LogTermFOR("NumberofTokens is "//trim(int2str(numTokens)))
 
         if(numTokens == 2) then
             call executeCodeVLensUpdateCommand('CW '//trim(tokens(2)))
@@ -972,9 +990,9 @@ module codeV_commands
         if (inputCheck) then
             
             if (inLensUpdateLevel()) then               
-                call PROCESKDP('WV, ' // real2str(getInputNumber(1)/1000.0))
+                call PROCESKDP('WV, ' //trim(real2str(getInputNumber(1)/1000.0)))
             else
-                call PROCESKDP('U L;WV, ' // real2str(getInputNumber(1)/1000.0)//';EOS')
+                call PROCESKDP('U L;WV, ' //trim(real2str(getInputNumber(1)/1000.0))//';EOS')
             end if
 
     end if

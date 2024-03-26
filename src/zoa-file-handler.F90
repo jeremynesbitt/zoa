@@ -200,11 +200,11 @@ module zoa_file_handler
         do
             read(99, '(A)', iostat=ios) line
             if (ios /= 0) then 
-              call LogtermFOR("End of file")
+              !call LogtermFOR("End of file")
               close(99)
               return
             else
-              call LogTermFOR("Processing "//trim(line))
+              !call LogTermFOR("Processing "//trim(line))
               call PROCESKDP(trim(line))
             end if
             n = n + 1
