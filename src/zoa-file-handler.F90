@@ -35,10 +35,11 @@ module zoa_file_handler
       subroutine openHelpFile()
         implicit none
         character(len=1024) :: helpfilePath
+        integer(kind=c_int) :: browserResult
 #ifdef MACOS
       type(c_ptr) :: ptr_macbundledir
       character(len=1024) :: str_bundle_dir
-      integer(kind=c_int) :: browserResult
+      
 #endif
 
 #ifdef WINDOWS
