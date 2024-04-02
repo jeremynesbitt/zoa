@@ -566,7 +566,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/CodeV</string>
+													<string>../../Library/CodeV</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -582,7 +582,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/CURLENS</string>
+													<string>../../Library/CURLENS</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -598,7 +598,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/LIBGLA</string>
+													<string>../../Library/LIBGLA</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -614,7 +614,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/LIBLEN</string>
+													<string>../../Library/LIBLEN</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -630,7 +630,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/LIBMAC</string>
+													<string>../../Library/LIBMAC</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -646,7 +646,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/Manuals</string>
+													<string>../../Library/LIBSPO</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -662,7 +662,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/NSSDIR</string>
+													<string>../../Library/Macros</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -678,7 +678,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/OPTMAN</string>
+													<string>../../Library/Manuals</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -694,7 +694,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/PERMAC</string>
+													<string>../../Library/NSSDIR</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -710,7 +710,7 @@
 													<key>GID</key>
 													<integer>80</integer>
 													<key>PATH</key>
-													<string>../../LIbrary/plplot</string>
+													<string>../../Library/OPTMAN</string>
 													<key>PATH_TYPE</key>
 													<integer>1</integer>
 													<key>PERMISSIONS</key>
@@ -719,7 +719,39 @@
 													<integer>3</integer>
 													<key>UID</key>
 													<integer>0</integer>
-												</dict>												
+												</dict>
+												<dict>
+													<key>CHILDREN</key>
+													<array/>
+													<key>GID</key>
+													<integer>80</integer>
+													<key>PATH</key>
+													<string>../../Library/PERMAC</string>
+													<key>PATH_TYPE</key>
+													<integer>1</integer>
+													<key>PERMISSIONS</key>
+													<integer>493</integer>
+													<key>TYPE</key>
+													<integer>3</integer>
+													<key>UID</key>
+													<integer>0</integer>
+												</dict>
+												<dict>
+													<key>CHILDREN</key>
+													<array/>
+													<key>GID</key>
+													<integer>80</integer>
+													<key>PATH</key>
+													<string>../../Library/Projects</string>
+													<key>PATH_TYPE</key>
+													<integer>1</integer>
+													<key>PERMISSIONS</key>
+													<integer>493</integer>
+													<key>TYPE</key>
+													<integer>3</integer>
+													<key>UID</key>
+													<integer>0</integer>
+												</dict>
 											</array>
 											<key>GID</key>
 											<integer>80</integer>
@@ -1182,7 +1214,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>.1.1</string>
+				<string>.1.4</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>
