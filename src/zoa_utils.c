@@ -30,6 +30,7 @@
 
 #ifdef WINDOWS
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 #include <gio/gio.h>
@@ -49,8 +50,15 @@ browser_open_url (const char  *url)
 
 #ifdef WINDOWS
 
-  HINSTANCE hinst = ShellExecute (GetDesktopWindow(),
-                                  "open", url, NULL, NULL, SW_SHOW);
+  //HINSTANCE hinst = ShellExecute (GetDesktopWindow(),
+  //                                "open", url, NULL, NULL, SW_SHOW);
+  char str[1024];
+  strcpy(str, "open ");
+  strcat(str, url);
+
+  system(str);
+
+  return TRUE;                                  
 #endif
 
 
