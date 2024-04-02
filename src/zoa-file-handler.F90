@@ -33,7 +33,8 @@ module zoa_file_handler
     contains
 
       subroutine openHelpFile()
-        
+        implicit none
+        character(len=1024) :: helpfilePath
 #ifdef MACOS
       type(c_ptr) :: ptr_macbundledir
       character(len=1024) :: str_bundle_dir
@@ -41,7 +42,15 @@ module zoa_file_handler
       integer(kind=c_int) :: browserResult
 #endif
 
-!#ifdef WINDOWS
+#ifdef WINDOWS
+     helpfilePath = trim(getZoaPath())//getFileSep()//'help'// &
+     & getFileSep()//'html'//getFileSep()//'index.html'
+
+     call LogTermFOR("Loc is "//trim(helpfilePath))   
+     browserResult =  browser_open_url(trim(helpfilePath))
+
+
+#endif
 
 #ifdef MACOS
       call LogTermFOR("Testing123!")
@@ -56,6 +65,8 @@ module zoa_file_handler
       browserResult =  browser_open_url(trim(helpfilePath))
       !call LogTermFOR("Browser Result is "//int2str(browserResult))
 #endif      
+
+
 
 
       end subroutine
@@ -106,15 +117,15 @@ module zoa_file_handler
             path = ''
 
 #ifdef MACOS
-            PRINT *, "MACOS IFDEF LOOP ACTIVATED!"
+            !PRINT *, "MACOS IFDEF LOOP ACTIVATED!"
             call get_environment_variable("HOME", basepath)
             path = trim(basepath)//'/Library/Application Support/Zoa/'
-            PRINT *, "Path for files is ", trim(path)
+            !PRINT *, "Path for files is ", trim(path)
             ID_SYSTEM = ID_OS_MAC
             ! Set PlPlot data directory
             PLPLOT_LIB = trim(path)//'plplot'
             setenv_result = g_setenv("PLPLOT_LIB"//c_null_char, trim(PLPLOT_LIB)//c_null_char, 1)
-            PRINT *, "setenv_result = ", setenv_result
+            !PRINT *, "setenv_result = ", setenv_result
             call get_environment_variable("PWD", pwd)
             call LogTermFOR("PWD is "//trim(pwd))
             call get_environment_variable("PLPLOT_LIB", pwd)
@@ -124,21 +135,21 @@ module zoa_file_handler
 #endif
 
 #ifdef WINDOWS
-           PRINT *, "WINDOWS IFDEF LOOP ACTIVATED!"
+           !PRINT *, "WINDOWS IFDEF LOOP ACTIVATED!"
            call get_environment_variable("APPDATA", basepath)
            path = trim(basepath)//'\Zoa\'
            ID_SYSTEM = ID_OS_WINDOWS
-           PRINT *, "Path for files is ", trim(path)
+           !PRINT *, "Path for files is ", trim(path)
            PLPLOT_LIB = trim(path)//'plplot'
            setenv_result = g_setenv("PLPLOT_LIB"//c_null_char, trim(PLPLOT_LIB)//c_null_char, 1)
-           PRINT *, "setenv_result = ", setenv_result
+           !PRINT *, "setenv_result = ", setenv_result
            call get_environment_variable("PLPLOT_LIB", pwd)
-           PRINT *, "Basepath is ", trim(pwd)      
+           !PRINT *, "Basepath is ", trim(pwd)      
            XDG_DATA_DIR = trim(path)//'share' !\glib-2.0\schemas'
            setenv_result = g_setenv("XDG_DATA_DIRS"//c_null_char, trim(XDG_DATA_DIR)//c_null_char, 1)
-           PRINT *, "setenv_result = ", setenv_result
+           !PRINT *, "setenv_result = ", setenv_result
            call get_environment_variable("XDG_DATA_DIRS", pwd)
-           PRINT *, "XDG Path is ", trim(pwd)       
+           !PRINT *, "XDG Path is ", trim(pwd)       
 #endif
 
 #ifdef LINUX

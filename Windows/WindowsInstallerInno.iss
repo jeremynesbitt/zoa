@@ -79,6 +79,8 @@ Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\inte
 
 Source: "C:\dev\zoa\Library\*"; DestDir: "{userappdata}\Zoa"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+Source: "C:\dev\zoa\help\html\*"; DestDir: "{userappdata}\Zoa\help\html"; Flags: ignoreversion recursesubdirs createallsubdirs
+
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
