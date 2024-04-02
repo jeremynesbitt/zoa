@@ -1,6 +1,8 @@
 ! Created this module to try and consolidate file io for this program
 !
 module zoa_file_handler
+      use iso_c_binding
+      use gtk_sup, only: convert_c_string
 
       !INTEGER ID_SYSTEM
       !COMMON/SYSTEMID/ID_SYSTEM
@@ -12,7 +14,52 @@ module zoa_file_handler
       integer, parameter :: ID_OS_MAC = 1
       integer, parameter :: ID_OS_LINUX = 2
 
+      interface
+
+      function get_macos_bundle_dir() bind(c)
+        import :: c_ptr, c_char
+        type(c_ptr) :: get_macos_bundle_dir
+        !character(kind=c_char), dimension(*) :: file_name
+      end function
+    
+      
+      function browser_open_url (url) bind(c)
+        import :: c_int, c_char
+        character(kind=c_char), dimension(*) :: url
+        integer(c_int) :: browser_open_url
+      end function
+      end interface  
+
     contains
+
+      subroutine openHelpFile()
+        
+#ifdef MACOS
+      type(c_ptr) :: ptr_macbundledir
+      character(len=1024) :: str_bundle_dir
+      character(len=1024) :: helpfilePath
+      integer(kind=c_int) :: browserResult
+#endif
+
+!#ifdef WINDOWS
+
+#ifdef MACOS
+      call LogTermFOR("Testing123!")
+      ptr_macbundledir = get_macos_bundle_dir()
+      print *, "Ptr Loc is ", LOC(ptr_macbundledir)
+      call convert_c_string(ptr_macbundledir, str_bundle_dir)
+      helpfilePath = 'file:'//getFileSep()//getFileSep()//getFileSep()// &
+      & trim(str_bundle_dir)//getFileSep()//'Resources'//getFileSep()// &
+      & 'help'//getFileSep()//'html'//getFileSep()//'index.html'
+
+      call LogTermFOR("Loc is "//trim(helpfilePath))   
+      browserResult =  browser_open_url(trim(helpfilePath))
+      !call LogTermFOR("Browser Result is "//int2str(browserResult))
+#endif      
+
+
+      end subroutine
+
       function isSPOFileOpen(fileTest) result(res)
         include "DATMAI.INC"
         character(len=*) :: fileTest
@@ -68,8 +115,10 @@ module zoa_file_handler
             PLPLOT_LIB = trim(path)//'plplot'
             setenv_result = g_setenv("PLPLOT_LIB"//c_null_char, trim(PLPLOT_LIB)//c_null_char, 1)
             PRINT *, "setenv_result = ", setenv_result
+            call get_environment_variable("PWD", pwd)
+            call LogTermFOR("PWD is "//trim(pwd))
             call get_environment_variable("PLPLOT_LIB", pwd)
-            PRINT *, "Basepath is ", trim(pwd)
+            
             
 
 #endif

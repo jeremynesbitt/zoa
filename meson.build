@@ -44,6 +44,11 @@ globArg = [osArg, bldArg, versionArg]
 
 message('Global Arguments are ', globArg)
 
+#For C code, could use this api vs global arguments
+#But global arguments are working so never fully fleshed this out
+#eg see gtksourceview4 for example
+#config_h = configuration_data()
+
 fortran = meson.get_compiler('fortran')
 
 
@@ -140,6 +145,7 @@ lib_deps = []
 
 srcs = []
 prog = []
+src_c = []
 
 # Each of these subdirectories contain a meson.build file:
 subdir('etc')
@@ -147,12 +153,30 @@ subdir('src')
 
 thread_dep = dependency('threads')
 
+
+# Build for c interface code
+osx_c_args = []
+osx_c_args += '-xobjective-c'
+cocoa_dep = dependency('appleframeworks', modules : ['Cocoa'])
+add_global_arguments(osArg, language: 'c')
+
+c_lib = static_library(
+  'zoa_c_lib',
+  sources: src_c,
+  dependencies:  [cocoa_dep, thread_dep, dep3],
+  link_language: 'c',
+  c_args: osx_c_args,
+  install: false
+)
+
+c_dep = declare_dependency(link_with : c_lib)
+
 # Build target
 zoa_lib = static_library(
   meson.project_name(),
   sources: srcs,
   #version: meson.project_version(),
-  dependencies: zoa_deps,
+  dependencies: [zoa_deps, c_dep],
   link_language: 'fortran',
   install: false#,
   #install_dir: 'Contents/libs'
@@ -180,5 +204,6 @@ if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'
   install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
   install_data(MacOSDir / 'Info.plist', install_dir : 'Contents')
+  install_subdir(meson.project_source_root() / 'help/html', install_dir : 'Contents/Resources/help', strip_directory: false)
   meson.add_install_script(files('macos_install.script.sh'))
 endif

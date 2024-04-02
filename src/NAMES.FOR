@@ -1384,12 +1384,12 @@ C     WCC(2003)=' '
       WCC(2076)='TIT' ! CodeV
       WCC(2077)='YAN' ! CodeV
       WCC(2078)='WL' ! CodeV
-      WCC(2079)='SO' ! CodeV
+      !WCC(2079)='SO' ! CodeV
       ! CodeV allows for 'Sk' where k is any surface.  Add these as names
-      WCC(2080)='S'
-      do I=1,499
-        WCC(2080+I) = 'S'//trim(int2str(I))
-      end do
+      !WCC(2080)='S'
+      !do I=1,499
+      !  WCC(2080+I) = 'S'//trim(int2str(I))
+      !end do
       WCC(2581) = 'DIM' ! CodeV
       WCC(2582) = 'RDY' ! CodeV
       WCC(2583) = 'THI' ! CodeV

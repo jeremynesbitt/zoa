@@ -25,6 +25,8 @@
 # src/lens-editor.f90 src/parax_calcs.f90 src/kdp-interfaces.f90
 # src/WDRAWOPTICALSYSTEM.f90
 
+src_c += files('zoa_utils.c')
+
 
 srcs += files(
   'globals.FOR',

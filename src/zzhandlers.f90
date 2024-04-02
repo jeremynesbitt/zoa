@@ -45,83 +45,74 @@ module handlers
 
   type(zoatabManager) :: zoatabMgr
 
+
+
 contains
 
   subroutine dispHelpScreen(widget, event, gdata) bind(c)
-    use zoa_file_handler, only: getFileSep
-    use hl_gtk_zoa, only : hl_zoa_text_view_new
-    !use gtk_hl_dialog, only: hl_gtk_about_dialog_show
+    use zoa_file_handler, only: openHelpFile
+    use type_utils, only: int2str
+    !use type_utils, only: int2str
+    !use zoa_file_handler, only: getFileSep
+    !use hl_gtk_zoa, only : hl_zoa_text_view_new
+   
     type(c_ptr), value, intent(in) :: widget, event, gdata
-    type(c_ptr) :: helpwin, linkbutton, helpbox, helpbuff, helpview
-    type(c_ptr) :: short1, shortControl
-    character(len=1024) :: manPath
+    !type(c_ptr) :: helpwin, linkbutton, helpbox, helpbuff, helpview
+    !type(c_ptr) :: short1, shortControl
+    !character(len=1024) :: manPath
+    
+    ! Temp vars
+    ! type(c_ptr) :: ptr_macbundledir
+    ! character(len=1024) :: str_bundle_dir
+    ! character(len=1024) :: helpfilePath
+    ! integer(kind=c_int) :: browserResult
 
-    helpwin = gtk_window_new()
-    call gtk_window_set_default_size(helpwin, 300,200)
-    helpbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
-    !helpview = gtk_text_view_new ();
-    helpview = hl_zoa_text_view_new ();
-
-    !call gtk_widget_class_add_shortcut(helpview, &
-    !&
-
-    ! short1 = gtk_shortcut_new( &
-    ! & gtk_shortcut_trigger_parse_string("<Meta>c"//c_null_char), &
-    ! & gtk_signal_action_new("copy-clipboard"//c_null_char))
-    ! shortControl = gtk_shortcut_controller_new()
-    ! call gtk_shortcut_controller_add_shortcut(shortControl, short1)
-    ! call gtk_widget_add_controller(helpview, shortControl)
-
-    !)
-    !"<Meta>c"//c_null_char, "copy-clipboard"//c_null_char))
-    helpbuff = gtk_text_view_get_buffer (helpview);
-
-    call gtk_text_buffer_set_text(helpbuff, "Zoa has no integrated help system." &
-    & //c_new_line//"The KDP-2 manual is the best resource to learn "&
-    & //c_new_line //"commands.  In addition, the macro examples are a " &
-    & //c_new_line// "good way to understand how the program works." &
-    & //c_new_line//"Online link below.  local copy should have been installed here:" &
-    & //c_new_line//trim(basePath)//"Manuals"//getFileSep() &
-    & //c_new_line,-1)
+    
+    call openHelpFile()
 
 
-    linkButton = gtk_link_button_new( &
-    &"https://github.com/jnez137/zoa/blob/main/Library/Manuals/Manual.pdf" &
-    & //c_null_char)
-    call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
+
+    ! helpwin = gtk_window_new()
+    ! call gtk_window_set_default_size(helpwin, 300,200)
+    ! helpbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
+    ! !helpview = gtk_text_view_new ();
+    ! helpview = hl_zoa_text_view_new ();
+
+    ! helpbuff = gtk_text_view_get_buffer (helpview);
+
+    ! call gtk_text_buffer_set_text(helpbuff, "Zoa has no integrated help system." &
+    ! & //c_new_line//"The KDP-2 manual is the best resource to learn "&
+    ! & //c_new_line //"commands.  In addition, the macro examples are a " &
+    ! & //c_new_line// "good way to understand how the program works." &
+    ! & //c_new_line//"Online link below.  local copy should have been installed here:" &
+    ! & //c_new_line//trim(basePath)//"Manuals"//getFileSep() &
+    ! & //c_new_line,-1)
 
 
-  !  call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
-    !uriResult = g_app_info_launch_default_for_uri("https://github.com/jnez137/zoa"//c_null_char, c_null_ptr, c_null_ptr)
-    call gtk_box_append(helpbox, helpview)
-    call gtk_box_append(helpbox, linkbutton)
-    !call gtk_box_append(box3, linkbutton)
+    ! linkButton = gtk_link_button_new( &
+    ! &"https://github.com/jnez137/zoa/blob/main/Library/Manuals/Manual.pdf" &
+    ! & //c_null_char)
+    ! call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
 
-    !call gtk_scrolled_window_set_child(splashWin, view)
-    call gtk_window_set_child(helpwin, helpbox)
-    call gtk_window_present(helpwin)
-    !PRINT *, "file://"//trim(basePath)//"Manuals"//getFileSep()//"Manuals.pdf"
-    !WRITE(manPath, *) "file://"//trim(basePath)//"Manuals"//getFileSep()//"Manuals.pdf"
-    !PRINT *, trim(manPath)
+    ! call LogTermFOR("Testing123!")
+    ! ptr_macbundledir = get_macos_bundle_dir()
+    ! print *, "Ptr Loc is ", LOC(ptr_macbundledir)
+    ! call convert_c_string(ptr_macbundledir, str_bundle_dir)
+    ! helpfilePath = 'file:'//getFileSep()//getFileSep()//getFileSep()// &
+    ! & trim(str_bundle_dir)//getFileSep()//'Resources'//getFileSep()// &
+    ! & 'help'//getFileSep()//'html'//getFileSep()//'index.html'
+    
+    ! call LogTermFOR("Loc is "//trim(helpfilePath))   
+    ! browserResult =  browser_open_url(trim(helpfilePath))
+    ! call LogTermFOR("Browser Result is "//int2str(browserResult))
 
-    ! call hl_gtk_about_dialog_show(name="Gtk-fortran", &
-    !      & authors = [character(len=14) :: "Jerry DeLisle", &
-    !      & "Vincent Magnin", "James Tappin", "Jens Hunger", "Kyle Horne"], &
-    !      & license_type=GTK_LICENSE_GPL_3_0, &
-    !      & comments = &
-    !      &"The gtk-fortran project aims to offer scientists programming "//&
-    !      &"in Fortran a cross-platform library to build Graphical User "//&
-    !      &"Interfaces (GUI)."//c_new_line// &
-    !      &"Gtk-fortran is a partial GTK / Fortran binding 100% written "//&
-    !      &"in Fortran, thanks to the ISO_C_BINDING module for "//&
-    !      &"interoperability between C and Fortran, which is a part of the "//&
-    !      &"Fortran 2003 standard. Gtk-Fortran also provides a number of "//&
-    !      &"'high-level' interfaces to common widgets."//&
-    !      &c_new_line//c_new_line// &
-    !      &"GTK is a free software cross-platform graphical library "//&
-    !      &"available for Linux, Unix, Windows and MacOs X."//C_NULL_CHAR, &
-    !      & website="https://github.com/jerryd/gtk-fortran/wiki"//C_NULL_CHAR,&
-    !      & parent=widget)
+
+    ! call gtk_box_append(helpbox, helpview)
+    ! call gtk_box_append(helpbox, linkbutton)
+
+    ! call gtk_window_set_child(helpwin, helpbox)
+    ! call gtk_window_present(helpwin)
+
 
   end subroutine
   ! Our callback function before destroying the window:
@@ -451,7 +442,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 
@@ -702,9 +693,9 @@ end subroutine
 
     call convert_c_string(gtk_link_button_get_uri(linkButton), strURI)
     !call execute_command_line("open "//trim(strURI))
-    call execute_command_line("open http://www.google.com")
+    !call execute_command_line("open http://www.google.com")
 
-    !boolGood = g_app_info_launch_default_for_uri(trim(strURI)//c_null_char, c_null_ptr, c_null_ptr)
+    boolGood = g_app_info_launch_default_for_uri(trim(strURI)//c_null_char, c_null_ptr, c_null_ptr)
 
   end function
 
