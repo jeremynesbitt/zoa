@@ -38,7 +38,6 @@ module zoa_file_handler
 #ifdef MACOS
       type(c_ptr) :: ptr_macbundledir
       character(len=1024) :: str_bundle_dir
-      character(len=1024) :: helpfilePath
       integer(kind=c_int) :: browserResult
 #endif
 

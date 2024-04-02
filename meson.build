@@ -153,19 +153,27 @@ subdir('src')
 
 thread_dep = dependency('threads')
 
-
+c_args = []
+c_deps = []
+c_deps += thread_dep
+c_deps += dep3
 # Build for c interface code
-osx_c_args = []
-osx_c_args += '-xobjective-c'
+if system == 'darwin'
+
+c_args += '-xobjective-c'
 cocoa_dep = dependency('appleframeworks', modules : ['Cocoa'])
+c_deps += cocoa_dep
+
+endif
+
 add_global_arguments(osArg, language: 'c')
 
 c_lib = static_library(
   'zoa_c_lib',
   sources: src_c,
-  dependencies:  [cocoa_dep, thread_dep, dep3],
+  dependencies:  c_deps,
   link_language: 'c',
-  c_args: osx_c_args,
+  c_args: c_args,
   install: false
 )
 
