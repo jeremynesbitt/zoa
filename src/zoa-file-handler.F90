@@ -43,7 +43,7 @@ module zoa_file_handler
 #endif
 
 #ifdef WINDOWS
-     helpfilePath = trim(getZoaPath())//getFileSep()//'help'// &
+     helpfilePath = trim(getZoaPath())//'help'// &
      & getFileSep()//'html'//getFileSep()//'index.html'
 
      call LogTermFOR("Loc is "//trim(helpfilePath))   
