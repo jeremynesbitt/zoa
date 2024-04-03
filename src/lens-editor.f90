@@ -970,7 +970,10 @@ subroutine buildBasicTable(firstTime)
 
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
     call basicTypes(2)%initialize("Ref"    , G_TYPE_BOOLEAN, FALSE, TRUE, isRefSurface)
-    call basicTypes(3)%initialize("Surface Name"   , G_TYPE_STRING,   FALSE, FALSE, surfIdx)
+    !call basicTypes(3)%initialize("Surface Name"   , G_TYPE_STRING,   FALSE, FALSE, surfIdx)
+    call basicTypes(3)%initialize("Surface Name"   , G_TYPE_STRING,   FALSE, FALSE, &
+    & getSurfaceNames(), numRows=curr_lens_data%num_surfaces)
+
     call basicTypes(ID_COL_SURFTYPE)%initialize("Surface Type"   , G_TYPE_STRING,   FALSE, TRUE, genSurfaceTypes(), &
     & numRows=numSurfTypes, refsArray=surfTypeIDs, valsArray=surfTypeNames)
     call basicTypes(ID_COL_RADIUS)%initialize("Radius"    , G_TYPE_FLOAT, FALSE, TRUE, curr_lens_data%radii )
@@ -1630,6 +1633,18 @@ end subroutine
 
   end function
 
+  function getSurfaceNames() result(surfName_array)
+    include "DATLEN.INC"
+    character(len=40), dimension(curr_lens_data%num_surfaces) :: surfName_array
+    integer :: i
+    do i=1,curr_lens_data%num_surfaces-1
+      surfName_array(i) = LBL(i-1)(1:40)
+
+    end do
+
+
+  end function
+
 
   function getSurfacesAsCStringArray() result (c_ptr_array)
     use type_utils, only : int2str
@@ -2134,9 +2149,11 @@ end subroutine
       !m = len(self%data(1))
       if (allocated(self%data)) deallocate(self%data)
       if (allocated(self%dataString)) deallocate(self%dataString)    
+      
       allocate(character(len=40)::self%data(numRows))
       allocate(character(len=40) :: self%dataString(numRows))
       self%dataString = data
+      call logTermFOR("Proof this code does not always crash!")
 
     end select
     !self%data = data
