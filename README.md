@@ -2,7 +2,7 @@
 
 Zoa is intended to be a feature rich, cross platform optical designa and analysis tool.  It is built on KDP-2 (original code located http://www.ecalculations.com) with the primary changes being to migtrate the UI from using a commercial GUI toolset to gtk4 via the gtk-fortran language binding.  This change makes it possible to build and run the application using open source software, thereby reducing the barrier to develop new features and/or fixing issues.
 
-Zoa was primarily written on MacOS, but the code will also run in Windows but has not been tested thoroughly.
+Zoa was primarily written on MacOS, but the code will also run in Windows (testing has not been thorough).
 
 # Using
 
