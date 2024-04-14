@@ -1418,13 +1418,22 @@ C
                         END
 C SUB GLASSP.FOR
         SUBROUTINE GLASSP
+        use glass_manager
+        use command_utils, only : parseCommandIntoTokens
 C
         IMPLICIT NONE
+
+        character(len=80) :: tokens(40)
+        character(len=80) :: glassCand
+        integer :: numTokens
+
+               
+
 C
 C       THIS IS SUBROUTINE GLASSP WHICH IMPLEMENTS THE GLASSP
 C       COMMAND AT THE CMD LEVEL.
 C
-        INTEGER J,TOTAL
+        INTEGER J,TOTAL, i
 C
       REAL*8 A0,A1,A2,A3,A4,A5,LAMUPP,LAMLOW
 C
@@ -1470,20 +1479,13 @@ C
 C
       IF(SST.EQ.0.AND.SQ.EQ.0) THEN
 C     JUST GLASSP
-        WRITE(OUTLYNE,100)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,101)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,102)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,103)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,104)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,105)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,108)
-      CALL SHOWIT(0)
+            WRITE(OUTLYNE,100)
+            CALL SHOWIT(0)
+        do i=1,size(gdb%catalogDescriptions)
+            OUTLYNE = trim(gdb%catalogDescriptions(i))
+            CALL SHOWIT(0)
+        end do
+
         WRITE(OUTLYNE,106)
       CALL SHOWIT(0)
         WRITE(OUTLYNE,117)
@@ -1494,28 +1496,13 @@ C     JUST GLASSP
       CALL SHOWIT(0)
         WRITE(OUTLYNE,107)
       CALL SHOWIT(0)
-        WRITE(OUTLYNE,2107)
-      CALL SHOWIT(0)
-        WRITE(OUTLYNE,2081)
-      CALL SHOWIT(0)
         WRITE(OUTLYNE,2082)
       CALL SHOWIT(0)
         WRITE(OUTLYNE,2083)
       CALL SHOWIT(0)
  100  FORMAT(
      1'THE CURRENT PROGRAM GLASS CATALOG NAMES ARE:')
- 101  FORMAT(
-     110X,'"SCHOTT"   (Schott Optical Glass Catalog)')
- 102  FORMAT(
-     110X,'"HOYA"     (Hoya Optical Glass Catalog)')
- 103  FORMAT(
-     110X,'"OHARA"    (Ohara Optical Glass Catalog)')
- 104  FORMAT(
-     110X,'"CORNIN"   (Corning-France Optical Glass Catalog)')
- 105  FORMAT(
-     110X,'"CHANCE"   (Chance-Pilkington Optical Glass Catalog)')
- 108  FORMAT(
-     110X,'"HIKARI"   (HIKARI Optical Glass Catalog)')
+
  106  FORMAT(
      110X,'"GLCAT     (Searches all catalogs)')
  117  FORMAT(
@@ -1527,10 +1514,6 @@ C     JUST GLASSP
      110X,'              [but just by glass name or number]')
  107  FORMAT(
      110X,'"MATL"     (Special IR, UV, Visual Materials and Plastics)')
- 2107 FORMAT(
-     110X,'"RUSSIAN"  (SOVOPTICS glass catalog)')
- 2081 FORMAT(
-     110X,'"RADHARD"  (Radiation Resistant Optical Materials)')
  2082 FORMAT(
      110X,'"USER"     (Use "EDIT USER.DAT" from the command line)')
  2083 FORMAT(
@@ -1542,12 +1525,36 @@ C     QUALIFIER AND STRING NOT BLANK
       IF(SQ.EQ.1.AND.SST.EQ.0) THEN
 C     OPEN THE APPROPRIATE CATALOG AND DISPLAY THE GLASS NAMES
 C     AND NUMBERS
+        IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE.) THEN
+            call LogTermFOR("Not in .bin files!")
+            if(WQ.EQ.'MATL') then
+                  call LogTermFOR("Matl entered!")
+            end if
+        END IF
+
+        
+        IF(WQ.EQ.'MATL') THEN
+            CALL PRINTMATLGLASSES()
+            RETURN
+      END IF        
+
+      
+
+      ! Since some glasses are more than 8 characters parse the input 
+      ! instead of using WQ
+      !call parseCommandIntoTokens(trim(INPUT), tokens, numTokens, ' ') 
+      !glassCand = trim(tokens(2))
+
+      !call LogTermFOR("Can I use input? "//trim(glassCand))
+
 C       IS THE SURFACE CATALOG IMPLEMENTED ?
-        IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'
-     1  .AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'
-     2  .AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'
-     3  .AND.WQ.NE.'RUSSIAN'.AND.WQ.NE.'RADHARD'.AND.WQ.NE.'USER'
-     4  .AND.WQ.NE.'SCH2000') THEN
+        IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE.
+     2  .AND.WQ.NE.'GLAK'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL') THEN
+    !    IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'
+    ! 1  .AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'
+    ! 2  .AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'
+    ! 3  .AND.WQ.NE.'RUSSIAN'.AND.WQ.NE.'RADHARD'.AND.WQ.NE.'USER'
+    ! 4  .AND.WQ.NE.'SCH2000'.AND.WQ.NE.'SCH2023') THEN
 C     NOT A VALID CATALOG
         WRITE(OUTLYNE,*) WQ
         CALL SHOWIT(1)
@@ -1575,6 +1582,7 @@ C     DETERMINE FILE NAME
         IF(WQ.EQ.'CORNIN')   FLNAME='CORNIN.BIN  '
         IF(WQ.EQ.'CHANCE')   FLNAME='CHANCE.BIN  '
         IF(WQ.EQ.'RADHARD')  FLNAME='RADHARD.BIN  '
+        IF(WQ.EQ.'SCH2023')  FLNAME='SCH2023.BIN '
         IF(FLNAME.NE.'OHARAMULTI  ') THEN
 
           CALL READGLASSFILE(FLNAME, 1, NAME, NUMBER, A0,
@@ -1589,266 +1597,8 @@ C     DETERMINE FILE NAME
                         RETURN
                       ELSE
 C     WQ WAS MATL OR RUSSIAN
-      IF(WQ.EQ.'MATL') THEN
- 3000 FORMAT('MATL          ACRYLIC      ',
-     1'-   Acrylic (Lucite)')
-      WRITE(OUTLYNE,3000)
-      CALL SHOWIT(0)
- 3010 FORMAT('MATL          PLYSTY       ',
-     1'-   Polystyrene')
-      WRITE(OUTLYNE,3010)
-      CALL SHOWIT(0)
- 3020 FORMAT('MATL          POLYCARB     ',
-     1'-   Polycarbonate')
-      WRITE(OUTLYNE,3020)
-      CALL SHOWIT(0)
- 3030 FORMAT('MATL          SAN          ',
-     1'-   Copolymer Styrene-Acrylonitrile (SAN)')
-      WRITE(OUTLYNE,3030)
-      CALL SHOWIT(0)
 
- 200  FORMAT('MATL          GERMSC       ',
-     1'-   Single Crystal Germanium')
-      WRITE(OUTLYNE,200)
-      CALL SHOWIT(0)
- 201  FORMAT('MATL          GERMPC       ',
-     1'-   Poly-Crystalline Germanium')
-      WRITE(OUTLYNE,201)
-      CALL SHOWIT(0)
- 202  FORMAT('MATL          SILICON      ',
-     1'-   Silicon')
-      WRITE(OUTLYNE,202)
-      CALL SHOWIT(0)
- 203  FORMAT('MATL          IRG100       ',
-     1'-   Schott IRG100 Infrared Glass')
-      WRITE(OUTLYNE,203)
-      CALL SHOWIT(0)
- 204  FORMAT('MATL          ZNSE         ',
-     1'-   CVD Zinc Selenide (IRTRAN4)')
-      WRITE(OUTLYNE,204)
-      CALL SHOWIT(0)
- 205  FORMAT('MATL          ZNS          ',
-     1'-   CVD Zinc Sulfide (IRTRAN2)')
-      WRITE(OUTLYNE,205)
-      CALL SHOWIT(0)
-1215  FORMAT('MATL          IRTRAN1      ',
-     1'-   IRTRAN1 (Magnesium Fluoride (o) ray')
-      WRITE(OUTLYNE,1215)
-      CALL SHOWIT(0)
-1205  FORMAT('MATL          IRTRAN2      ',
-     1'-   IRTRAN2 (CVD Zinc Sulfide)')
-      WRITE(OUTLYNE,1205)
-      CALL SHOWIT(0)
-1217  FORMAT('MATL          IRTRAN3      ',
-     1'-   IRTRAN3 (Calcium Fluoride)')
-      WRITE(OUTLYNE,1217)
-      CALL SHOWIT(0)
-1204  FORMAT('MATL          IRTRAN4      ',
-     1'-   IRTRAN4 (CVD Zinc Selenide)')
-      WRITE(OUTLYNE,1204)
-      CALL SHOWIT(0)
-1218  FORMAT('MATL          IRTRAN5      ',
-     1'-   IRTRAN5 (Magnesium Oxide)')
-      WRITE(OUTLYNE,1218)
-      CALL SHOWIT(0)
-1214  FORMAT('MATL          IRTRAN6      ',
-     1'-   IRTRAN6 (Cadmium Telluride)')
-      WRITE(OUTLYNE,1214)
-      CALL SHOWIT(0)
- 206  FORMAT('MATL          CLRTRAN      ',
-     1'-   CVD CLEARTRAN')
-      WRITE(OUTLYNE,206)
-      CALL SHOWIT(0)
- 207  FORMAT('MATL          SILICA       ',
-     1'-   Fused Silica (SiO2)')
-      WRITE(OUTLYNE,1207)
-      CALL SHOWIT(0)
- 2071 FORMAT('MATL          SIO2         ',
-     1'-   Fused Silica (SiO2) (SILICA equiv.)')
-      WRITE(OUTLYNE,1207)
-      CALL SHOWIT(0)
- 1207 FORMAT('MATL          SUPRASIL     ',
-     1'-   Fused Silica (SiO2)')
-      WRITE(OUTLYNE,2207)
-      CALL SHOWIT(0)
- 2207 FORMAT('MATL          HOMOSIL      ',
-     1'-   Fused Silica (SiO2)')
-      WRITE(OUTLYNE,207)
-      CALL SHOWIT(0)
-      WRITE(OUTLYNE,2071)
-      CALL SHOWIT(0)
- 208  FORMAT('MATL          SAPPHIRE     ',
-     1'-  Sapphire (Al2O3) (o)rdinary ray')
-      WRITE(OUTLYNE,208)
-      CALL SHOWIT(0)
- 209  FORMAT('MATL          DYNASIL      ',
-     1'-   Synthetic Fused Silica')
-      WRITE(OUTLYNE,209)
-      CALL SHOWIT(0)
- 210  FORMAT('MATL          AMTIR1       ',
-     1'-   AMTIR-1')
-      WRITE(OUTLYNE,210)
-      CALL SHOWIT(0)
- 211  FORMAT('MATL          AMTIR3       ',
-     1'-   AMTIR-3 (TI 1173 Equivalent)')
-      WRITE(OUTLYNE,211)
-      CALL SHOWIT(0)
- 212  FORMAT('MATL          AS2S3        ',
-     1'-   Arsenic Trisulfide IR Glass')
-      WRITE(OUTLYNE,212)
-      CALL SHOWIT(0)
- 213  FORMAT('MATL          GAAS         ',
-     1'-   Gallium Arsenide')
-      WRITE(OUTLYNE,213)
-      CALL SHOWIT(0)
- 214  FORMAT('MATL          CDTE         ',
-     1'-   Cadmium Telluride (IRTRAN6)')
-      WRITE(OUTLYNE,214)
-      CALL SHOWIT(0)
- 215  FORMAT('MATL          MGF2(O)      ',
-     1'-   Magnesium Fluoride (IRTRAN1) (o) ray')
-      WRITE(OUTLYNE,215)
-      CALL SHOWIT(0)
-2215  FORMAT('MATL          MGF2         ',
-     1'-   Magnesium Fluoride (IRTRAN1) (o) ray')
-      WRITE(OUTLYNE,2215)
-      CALL SHOWIT(0)
- 216  FORMAT('MATL          MGF2(E)      ',
-     1'-   Magnesium Fluoride (IRTRAN1) (e) ray')
-      WRITE(OUTLYNE,216)
-      CALL SHOWIT(0)
- 217  FORMAT('MATL          CAF2         ',
-     1'-   Calcium Fluoride (IRTRAN3)')
-      WRITE(OUTLYNE,217)
-      CALL SHOWIT(0)
- 218  FORMAT('MATL          MGO          ',
-     1'-   Magnesium Oxide (IRTRAN5)')
-      WRITE(OUTLYNE,218)
-      CALL SHOWIT(0)
- 219  FORMAT('MATL          BAF2         ',
-     1'-   Barium Fluoride')
-      WRITE(OUTLYNE,219)
-      CALL SHOWIT(0)
- 220  FORMAT('MATL          KBR          ',
-     1'-   Potassium Bromide')
-      WRITE(OUTLYNE,220)
-      CALL SHOWIT(0)
- 221  FORMAT('MATL          CSI          ',
-     1'-   Cesium Iodide')
-      WRITE(OUTLYNE,221)
-      CALL SHOWIT(0)
- 222  FORMAT('MATL         CSBR          ',
-     1'-   Cesium Bromide')
-      WRITE(OUTLYNE,222)
-      CALL SHOWIT(0)
- 223  FORMAT('MATL         KRS5          ',
-     1'-   Thallium Bromoiodide (KRS-5)')
-      WRITE(OUTLYNE,223)
-      CALL SHOWIT(0)
- 224  FORMAT('MATL         SIO2O         ',
-     1'-   Crystalline Quartz (SiO2) (o) ray')
-      WRITE(OUTLYNE,224)
-      CALL SHOWIT(0)
- 225  FORMAT('MATL         SIO2E         ',
-     1'-   Crystalline Quartz (SiO2) (e) ray')
-      WRITE(OUTLYNE,225)
-      CALL SHOWIT(0)
- 226  FORMAT('MATL         NACL          ',
-     1'-   Sodium Chloride')
-      WRITE(OUTLYNE,226)
-      CALL SHOWIT(0)
- 227  FORMAT('MATL         LIF           ',
-     1'-   Lithium Fluoride')
-      WRITE(OUTLYNE,227)
-      CALL SHOWIT(0)
- 228  FORMAT('MATL         VIR3          ',
-     1'-   Corning VIR 3 Infrared Glass')
-      WRITE(OUTLYNE,228)
-      CALL SHOWIT(0)
- 229  FORMAT('MATL         9754          ',
-     1'-   Corning 9754 Infrared Glass')
-      WRITE(OUTLYNE,229)
-      CALL SHOWIT(0)
- 230  FORMAT('MATL         ALON          ',
-     1'-   Raytheon Aluminum Oxynitride')
-      WRITE(OUTLYNE,230)
-      CALL SHOWIT(0)
- 231  FORMAT('MATL         SPINEL        ',
-     1'-   Magnesium Aluminate Spinel (MgAl2O4)')
-      WRITE(OUTLYNE,231)
-      CALL SHOWIT(0)
- 232  FORMAT('MATL         CALAL         ',
-     1'-   Calcium Aluminate Glass')
-      WRITE(OUTLYNE,232)
-      CALL SHOWIT(0)
- 233  FORMAT('MATL         B270          ',
-     1'-   Schott B270 Glass')
-      WRITE(OUTLYNE,233)
-      CALL SHOWIT(0)
- 234  FORMAT('MATL         IRG2          ',
-     1'-   Schott IRG2 Glass')
-      WRITE(OUTLYNE,234)
-      CALL SHOWIT(0)
- 235  FORMAT('MATL         IRG3          ',
-     1'-   Schott IRG3 Glass')
-      WRITE(OUTLYNE,235)
-      CALL SHOWIT(0)
- 236  FORMAT('MATL         IRGN6         ',
-     1'-   Schott IRGN6 Glass')
-      WRITE(OUTLYNE,236)
-      CALL SHOWIT(0)
- 237  FORMAT('MATL         IRG7          ',
-     1'-   Schott IRG7 Glass')
-      WRITE(OUTLYNE,237)
-      CALL SHOWIT(0)
- 238  FORMAT('MATL         IRG9          ',
-     1'-   Schott IRG9 Glass')
-      WRITE(OUTLYNE,238)
-      CALL SHOWIT(0)
- 239  FORMAT('MATL         IRG11         ',
-     1'-   Schott IRG11 Glass')
-      WRITE(OUTLYNE,239)
-      CALL SHOWIT(0)
- 240  FORMAT('MATL         IRG15         ',
-     1'-   Schott IRG15 Glass')
-      WRITE(OUTLYNE,240)
-      CALL SHOWIT(0)
- 241  FORMAT('MATL         H2O           ',
-     1'-   Distilled Water')
-      WRITE(OUTLYNE,241)
-      CALL SHOWIT(0)
- 242  FORMAT('MATL         VAC           ',
-     1'-   Vacuum')
-      WRITE(OUTLYNE,242)
-      CALL SHOWIT(0)
- 243  FORMAT('MATL         ZNS-MS        ',
-     1'-   II-VI Multi-Spectral ZNS')
-      WRITE(OUTLYNE,243)
-      CALL SHOWIT(0)
- 244  FORMAT('MATL         CEF3          ',
-     1'-   Cerium Flouride for coatings')
-      WRITE(OUTLYNE,244)
-      CALL SHOWIT(0)
- 245  FORMAT('MATL         LA2O3         ',
-     1'-   Lanthanum Oxide for coatings')
-      WRITE(OUTLYNE,245)
-      CALL SHOWIT(0)
- 246  FORMAT('MATL         THF4          ',
-     1'-   Thorium Flouride for coatings')
-      WRITE(OUTLYNE,246)
-      CALL SHOWIT(0)
- 247  FORMAT('MATL         ZRO2          ',
-     1'-   Zirconium Oxide for coatings')
-      WRITE(OUTLYNE,247)
-      CALL SHOWIT(0)
- 248  FORMAT('MATL         DIAMOND       ',
-     1'-   Herzberger formula')
-      WRITE(OUTLYNE,248)
-      CALL SHOWIT(0)
- 249  FORMAT('MATL         YAG - Yittrium Aluminum Garnet')
-      WRITE(OUTLYNE,249)
-      CALL SHOWIT(0)
-                      END IF
+
       !IF(WQ.EQ.'RUSSIAN') CALL GLASSP_RUSSIAN1
                       END IF
                         ELSE
@@ -2098,4 +1848,270 @@ C
       CALL SHOWIT(0)
                         END IF
 
+      END SUBROUTINE
+
+      SUBROUTINE PRINTMATLGLASSES
+
+            INCLUDE 'DATLEN.INC'
+            INCLUDE 'DATMAI.INC'            
+
+ 3000 FORMAT('MATL          ACRYLIC      ',
+     1'-   Acrylic (Lucite)')
+      WRITE(OUTLYNE,3000)
+      CALL SHOWIT(0)
+ 3010 FORMAT('MATL          PLYSTY       ',
+     1'-   Polystyrene')
+      WRITE(OUTLYNE,3010)
+      CALL SHOWIT(0)
+ 3020 FORMAT('MATL          POLYCARB     ',
+     1'-   Polycarbonate')
+      WRITE(OUTLYNE,3020)
+      CALL SHOWIT(0)
+ 3030 FORMAT('MATL          SAN          ',
+     1'-   Copolymer Styrene-Acrylonitrile (SAN)')
+      WRITE(OUTLYNE,3030)
+      CALL SHOWIT(0)
+
+ 200  FORMAT('MATL          GERMSC       ',
+     1'-   Single Crystal Germanium')
+      WRITE(OUTLYNE,200)
+      CALL SHOWIT(0)
+ 201  FORMAT('MATL          GERMPC       ',
+     1'-   Poly-Crystalline Germanium')
+      WRITE(OUTLYNE,201)
+      CALL SHOWIT(0)
+ 202  FORMAT('MATL          SILICON      ',
+     1'-   Silicon')
+      WRITE(OUTLYNE,202)
+      CALL SHOWIT(0)
+ 203  FORMAT('MATL          IRG100       ',
+     1'-   Schott IRG100 Infrared Glass')
+      WRITE(OUTLYNE,203)
+      CALL SHOWIT(0)
+ 204  FORMAT('MATL          ZNSE         ',
+     1'-   CVD Zinc Selenide (IRTRAN4)')
+      WRITE(OUTLYNE,204)
+      CALL SHOWIT(0)
+ 205  FORMAT('MATL          ZNS          ',
+     1'-   CVD Zinc Sulfide (IRTRAN2)')
+      WRITE(OUTLYNE,205)
+      CALL SHOWIT(0)
+1215  FORMAT('MATL          IRTRAN1      ',
+     1'-   IRTRAN1 (Magnesium Fluoride (o) ray')
+      WRITE(OUTLYNE,1215)
+      CALL SHOWIT(0)
+1205  FORMAT('MATL          IRTRAN2      ',
+     1'-   IRTRAN2 (CVD Zinc Sulfide)')
+      WRITE(OUTLYNE,1205)
+      CALL SHOWIT(0)
+1217  FORMAT('MATL          IRTRAN3      ',
+     1'-   IRTRAN3 (Calcium Fluoride)')
+      WRITE(OUTLYNE,1217)
+      CALL SHOWIT(0)
+1204  FORMAT('MATL          IRTRAN4      ',
+     1'-   IRTRAN4 (CVD Zinc Selenide)')
+      WRITE(OUTLYNE,1204)
+      CALL SHOWIT(0)
+1218  FORMAT('MATL          IRTRAN5      ',
+     1'-   IRTRAN5 (Magnesium Oxide)')
+      WRITE(OUTLYNE,1218)
+      CALL SHOWIT(0)
+1214  FORMAT('MATL          IRTRAN6      ',
+     1'-   IRTRAN6 (Cadmium Telluride)')
+      WRITE(OUTLYNE,1214)
+      CALL SHOWIT(0)
+ 206  FORMAT('MATL          CLRTRAN      ',
+     1'-   CVD CLEARTRAN')
+      WRITE(OUTLYNE,206)
+      CALL SHOWIT(0)
+ 207  FORMAT('MATL          SILICA       ',
+     1'-   Fused Silica (SiO2)')
+      WRITE(OUTLYNE,1207)
+      CALL SHOWIT(0)
+ 2071 FORMAT('MATL          SIO2         ',
+     1'-   Fused Silica (SiO2) (SILICA equiv.)')
+      WRITE(OUTLYNE,1207)
+      CALL SHOWIT(0)
+ 1207 FORMAT('MATL          SUPRASIL     ',
+     1'-   Fused Silica (SiO2)')
+      WRITE(OUTLYNE,2207)
+      CALL SHOWIT(0)
+ 2207 FORMAT('MATL          HOMOSIL      ',
+     1'-   Fused Silica (SiO2)')
+      WRITE(OUTLYNE,207)
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2071)
+      CALL SHOWIT(0)
+ 208  FORMAT('MATL          SAPPHIRE     ',
+     1'-  Sapphire (Al2O3) (o)rdinary ray')
+      WRITE(OUTLYNE,208)
+      CALL SHOWIT(0)
+ 209  FORMAT('MATL          DYNASIL      ',
+     1'-   Synthetic Fused Silica')
+      WRITE(OUTLYNE,209)
+      CALL SHOWIT(0)
+ 210  FORMAT('MATL          AMTIR1       ',
+     1'-   AMTIR-1')
+      WRITE(OUTLYNE,210)
+      CALL SHOWIT(0)
+ 211  FORMAT('MATL          AMTIR3       ',
+     1'-   AMTIR-3 (TI 1173 Equivalent)')
+      WRITE(OUTLYNE,211)
+      CALL SHOWIT(0)
+ 212  FORMAT('MATL          AS2S3        ',
+     1'-   Arsenic Trisulfide IR Glass')
+      WRITE(OUTLYNE,212)
+      CALL SHOWIT(0)
+ 213  FORMAT('MATL          GAAS         ',
+     1'-   Gallium Arsenide')
+      WRITE(OUTLYNE,213)
+      CALL SHOWIT(0)
+ 214  FORMAT('MATL          CDTE         ',
+     1'-   Cadmium Telluride (IRTRAN6)')
+      WRITE(OUTLYNE,214)
+      CALL SHOWIT(0)
+ 215  FORMAT('MATL          MGF2(O)      ',
+     1'-   Magnesium Fluoride (IRTRAN1) (o) ray')
+      WRITE(OUTLYNE,215)
+      CALL SHOWIT(0)
+2215  FORMAT('MATL          MGF2         ',
+     1'-   Magnesium Fluoride (IRTRAN1) (o) ray')
+      WRITE(OUTLYNE,2215)
+      CALL SHOWIT(0)
+ 216  FORMAT('MATL          MGF2(E)      ',
+     1'-   Magnesium Fluoride (IRTRAN1) (e) ray')
+      WRITE(OUTLYNE,216)
+      CALL SHOWIT(0)
+ 217  FORMAT('MATL          CAF2         ',
+     1'-   Calcium Fluoride (IRTRAN3)')
+      WRITE(OUTLYNE,217)
+      CALL SHOWIT(0)
+ 218  FORMAT('MATL          MGO          ',
+     1'-   Magnesium Oxide (IRTRAN5)')
+      WRITE(OUTLYNE,218)
+      CALL SHOWIT(0)
+ 219  FORMAT('MATL          BAF2         ',
+     1'-   Barium Fluoride')
+      WRITE(OUTLYNE,219)
+      CALL SHOWIT(0)
+ 220  FORMAT('MATL          KBR          ',
+     1'-   Potassium Bromide')
+      WRITE(OUTLYNE,220)
+      CALL SHOWIT(0)
+ 221  FORMAT('MATL          CSI          ',
+     1'-   Cesium Iodide')
+      WRITE(OUTLYNE,221)
+      CALL SHOWIT(0)
+ 222  FORMAT('MATL         CSBR          ',
+     1'-   Cesium Bromide')
+      WRITE(OUTLYNE,222)
+      CALL SHOWIT(0)
+ 223  FORMAT('MATL         KRS5          ',
+     1'-   Thallium Bromoiodide (KRS-5)')
+      WRITE(OUTLYNE,223)
+      CALL SHOWIT(0)
+ 224  FORMAT('MATL         SIO2O         ',
+     1'-   Crystalline Quartz (SiO2) (o) ray')
+      WRITE(OUTLYNE,224)
+      CALL SHOWIT(0)
+ 225  FORMAT('MATL         SIO2E         ',
+     1'-   Crystalline Quartz (SiO2) (e) ray')
+      WRITE(OUTLYNE,225)
+      CALL SHOWIT(0)
+ 226  FORMAT('MATL         NACL          ',
+     1'-   Sodium Chloride')
+      WRITE(OUTLYNE,226)
+      CALL SHOWIT(0)
+ 227  FORMAT('MATL         LIF           ',
+     1'-   Lithium Fluoride')
+      WRITE(OUTLYNE,227)
+      CALL SHOWIT(0)
+ 228  FORMAT('MATL         VIR3          ',
+     1'-   Corning VIR 3 Infrared Glass')
+      WRITE(OUTLYNE,228)
+      CALL SHOWIT(0)
+ 229  FORMAT('MATL         9754          ',
+     1'-   Corning 9754 Infrared Glass')
+      WRITE(OUTLYNE,229)
+      CALL SHOWIT(0)
+ 230  FORMAT('MATL         ALON          ',
+     1'-   Raytheon Aluminum Oxynitride')
+      WRITE(OUTLYNE,230)
+      CALL SHOWIT(0)
+ 231  FORMAT('MATL         SPINEL        ',
+     1'-   Magnesium Aluminate Spinel (MgAl2O4)')
+      WRITE(OUTLYNE,231)
+      CALL SHOWIT(0)
+ 232  FORMAT('MATL         CALAL         ',
+     1'-   Calcium Aluminate Glass')
+      WRITE(OUTLYNE,232)
+      CALL SHOWIT(0)
+ 233  FORMAT('MATL         B270          ',
+     1'-   Schott B270 Glass')
+      WRITE(OUTLYNE,233)
+      CALL SHOWIT(0)
+ 234  FORMAT('MATL         IRG2          ',
+     1'-   Schott IRG2 Glass')
+      WRITE(OUTLYNE,234)
+      CALL SHOWIT(0)
+ 235  FORMAT('MATL         IRG3          ',
+     1'-   Schott IRG3 Glass')
+      WRITE(OUTLYNE,235)
+      CALL SHOWIT(0)
+ 236  FORMAT('MATL         IRGN6         ',
+     1'-   Schott IRGN6 Glass')
+      WRITE(OUTLYNE,236)
+      CALL SHOWIT(0)
+ 237  FORMAT('MATL         IRG7          ',
+     1'-   Schott IRG7 Glass')
+      WRITE(OUTLYNE,237)
+      CALL SHOWIT(0)
+ 238  FORMAT('MATL         IRG9          ',
+     1'-   Schott IRG9 Glass')
+      WRITE(OUTLYNE,238)
+      CALL SHOWIT(0)
+ 239  FORMAT('MATL         IRG11         ',
+     1'-   Schott IRG11 Glass')
+      WRITE(OUTLYNE,239)
+      CALL SHOWIT(0)
+ 240  FORMAT('MATL         IRG15         ',
+     1'-   Schott IRG15 Glass')
+      WRITE(OUTLYNE,240)
+      CALL SHOWIT(0)
+ 241  FORMAT('MATL         WATER          ',
+     1'-   Distilled Water')
+      WRITE(OUTLYNE,241)
+      CALL SHOWIT(0)
+ 242  FORMAT('MATL         VAC           ',
+     1'-   Vacuum')
+      WRITE(OUTLYNE,242)
+      CALL SHOWIT(0)
+ 243  FORMAT('MATL         ZNS-MS        ',
+     1'-   II-VI Multi-Spectral ZNS')
+      WRITE(OUTLYNE,243)
+      CALL SHOWIT(0)
+ 244  FORMAT('MATL         CEF3          ',
+     1'-   Cerium Flouride for coatings')
+      WRITE(OUTLYNE,244)
+      CALL SHOWIT(0)
+ 245  FORMAT('MATL         LA2O3         ',
+     1'-   Lanthanum Oxide for coatings')
+      WRITE(OUTLYNE,245)
+      CALL SHOWIT(0)
+ 246  FORMAT('MATL         THF4          ',
+     1'-   Thorium Flouride for coatings')
+      WRITE(OUTLYNE,246)
+      CALL SHOWIT(0)
+ 247  FORMAT('MATL         ZRO2          ',
+     1'-   Zirconium Oxide for coatings')
+      WRITE(OUTLYNE,247)
+      CALL SHOWIT(0)
+ 248  FORMAT('MATL         DIAMOND       ',
+     1'-   Herzberger formula')
+      WRITE(OUTLYNE,248)
+      CALL SHOWIT(0)
+ 249  FORMAT('MATL         YAG - Yittrium Aluminum Garnet')
+      WRITE(OUTLYNE,249)
+      CALL SHOWIT(0)
+            
       END SUBROUTINE

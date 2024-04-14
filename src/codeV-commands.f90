@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(509) :: zoaCmds
+    type(zoa_cmd), dimension(512) :: zoaCmds
 
     contains
 
@@ -69,10 +69,16 @@ module codeV_commands
         zoaCmds(8)%cmd = "S"
         zoaCmds(8)%execFunc => setSurfaceCodeVStyle    
         zoaCmds(9)%cmd = "SO"
-        zoaCmds(9)%execFunc => setSurfaceCodeVStyle     
+        zoaCmds(9)%execFunc => setSurfaceCodeVStyle   
+        zoaCmds(10)%cmd = 'WL'
+        zoaCmds(10)%execFunc => setWavelength    
+        zoaCmds(11)%cmd = 'STOP'
+        zoaCmds(11)%execFunc => execSTO  
+        zoaCmds(12)%cmd = 'YAN'
+        zoaCmds(12)%execFunc => setField                            
         do i = 1,499
-            zoaCmds(9+i)%cmd = 'S'//trim(int2str(i))
-            zoaCmds(9+i)%execFunc => setSurfaceCodeVStyle    
+            zoaCmds(12+i)%cmd = 'S'//trim(int2str(i))
+            zoaCmds(12+i)%execFunc => setSurfaceCodeVStyle    
         end do
 
     end subroutine
@@ -125,14 +131,14 @@ module codeV_commands
 
         select case (iptCmd)
 
-        case('YAN')
-            CALL setField('YAN')
-            boolResult = .TRUE.
-            return
-        case('WL')
-            CALL setWavelength()
-            boolResult = .TRUE.
-            return            
+        ! case('YAN')
+        !     CALL setField('YAN')
+        !     boolResult = .TRUE.
+        !     return
+        ! case('WL')
+        !     CALL setWavelength()
+        !     boolResult = .TRUE.
+        !     return            
         ! case('SO','S')
         !     CALL setSurfaceCodeVStyle(iptCmd)
         !     boolResult = .TRUE.
@@ -716,19 +722,20 @@ module codeV_commands
 
         !call updateTerminalLog("Starting to update GLA ", "blue" )
 
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(trim(INPUT), tokens, numTokens, ' ')
 
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (isInputNumber(trim(tokens(3)))) then ! Assume user entered model glass
-                PRINT *, "Model Glass Entered!"
+                !PRINT *, "Model Glass Entered!"
+                call LogTermFOR("Model Glass Entered! "//trim(tokens(3)))
                 call parseModelGlassEntry(trim(tokens(3)), nd, vd)
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; MODEL D'//trim(tokens(3))//','//real2str(nd)//','//real2str(vd))    
             else ! Assume it is glass name          
             
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; GLAK ' // trim(tokens(3)))
+            & '; GLAK ' // trim(tokens(3)), .TRUE.)
             end if            
         else
             call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
@@ -887,7 +894,7 @@ module codeV_commands
       
       
             call PROCESKDP('LENS')
-            call PROCESKDP('WV, 0.635')
+            call PROCESKDP('WV, 0.635, 0.0, 0.0, 0.0, 0.0')
             call PROCESKDP('UNITS MM')
             call PROCESKDP('SAY, 10.0')
             call PROCESKDP('CV, 0.0')
@@ -920,10 +927,12 @@ module codeV_commands
           if (ios /= 0) then 
             exit
           else
+            call LogTermFOR("About to exec "//trim(line))
             call PROCESKDP(trim(line))
           end if
           n = n + 1
       end do      
+      close(unit=9)
       
       
       
@@ -945,57 +954,88 @@ module codeV_commands
 
       end subroutine
 
-      subroutine setField(strCmd)
-        use command_utils
-        use type_utils, only: real2str
-        use kdp_utils, only: inLensUpdateLevel
-        implicit none
+      subroutine setField(self, iptStr)
+        ! TODO:  Support things other than YAN
+         use command_utils, only : parseCommandIntoTokens
+         use type_utils, only: int2str
+         use handlers, only: updateTerminalLog
+         implicit none
+ 
+         class(zoa_cmd) :: self
+         character(len=*) :: iptStr
+         character(len=1024) :: outStr
+         integer :: i,numFields
+         character(len=80) :: tokens(40)
+         integer :: numTokens
+ 
+         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
-        character(len=3) :: strCmd
-        logical :: inputCheck
-
-        PRINT *, "Setting Field"
-
-        inputCheck = checkCommandInput([ID_CMD_NUM])
-        if (inputCheck) then
-
-    
-        select case (strCmd)
-        case('YAN')
-            call executeCodeVLensUpdateCommand('SCY FANG,' // real2str(getInputNumber(1)))
-    
-            ! if (inLensUpdateLevel()) then
-            !     PRINT *, 'SCY FANG,' // real2str(getInputNumber(1))
-            !     call PROCESKDP('SCY FANG,' // real2str(getInputNumber(1)))
-            ! else
-            !     call PROCESKDP('U L;SCY FANG, '// real2str(getInputNumber(1))//';EOS')
-            ! end if
-
-        end select
-    end if
-
-      end subroutine
-
-      subroutine setWavelength()
-        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
-        use command_utils
-        use type_utils, only: real2str
-        use kdp_utils, only: inLensUpdateLevel
-        implicit none
-
-        logical :: inputCheck
-
-
-        inputCheck = checkCommandInput([ID_CMD_NUM])
-        if (inputCheck) then
+         numFields = numTokens-1
+         call PROCESKDP('FLDSMAX '//int2str(numFields))
+         do i=1,numFields
+            call PROCESKDP('FLDS '//int2str(i)//' 0 '//trim(tokens(i+1)))
             
-            if (inLensUpdateLevel()) then               
-                call PROCESKDP('WV, ' //trim(real2str(getInputNumber(1)/1000.0)))
-            else
-                call PROCESKDP('U L;WV, ' //trim(real2str(getInputNumber(1)/1000.0))//';EOS')
-            end if
+         end do
 
-    end if
+       end subroutine   
+       
+       ! Old set field
+    !     use command_utils
+    !     use type_utils, only: real2str
+    !     use kdp_utils, only: inLensUpdateLevel
+    !     implicit none
+
+    !     character(len=3) :: strCmd
+    !     logical :: inputCheck
+
+    !     PRINT *, "Setting Field"
+
+    !     inputCheck = checkCommandInput([ID_CMD_NUM])
+    !     if (inputCheck) then
+
+    
+    !     select case (strCmd)
+    !     case('YAN')
+    !         call executeCodeVLensUpdateCommand('SCY FANG,' // real2str(getInputNumber(1)))
+    
+    !         ! if (inLensUpdateLevel()) then
+    !         !     PRINT *, 'SCY FANG,' // real2str(getInputNumber(1))
+    !         !     call PROCESKDP('SCY FANG,' // real2str(getInputNumber(1)))
+    !         ! else
+    !         !     call PROCESKDP('U L;SCY FANG, '// real2str(getInputNumber(1))//';EOS')
+    !         ! end if
+
+    !     end select
+    ! end if
+
+    !   end subroutine
+
+      subroutine setWavelength(self, iptStr)
+       !TODO Support inputting up to 10 WL  See CV2PRG.FOR
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: real2str, str2real8
+        use handlers, only: updateTerminalLog
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=1024) :: outStr
+        integer :: i
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+
+        if (numTokens <= 6) then
+            outStr = 'WV, '
+            do i=2,numTokens
+                outStr = trim(outStr)//' '//trim(real2str(str2real8(trim(tokens(i)))/1000.0))
+
+            end do
+            call LogTermFOR("Outstr is "//trim(outStr))
+            call executeCodeVLensUpdateCommand(trim(outStr))
+
+        end if
 
       end subroutine      
 
@@ -1078,7 +1118,7 @@ module codeV_commands
 
         tstCmds(1)%s = 'YAN'
         tstCmds(2)%s = 'TIT'
-        tstCmds(3)%s = 'WL'
+        !tstCmds(3)%s = 'WL'
         tstCmds(6)%s = 'GO'
         tstCmds(7)%s = 'DIM'
         tstCmds(8)%s = 'RDY'

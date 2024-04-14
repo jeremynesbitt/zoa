@@ -127,7 +127,7 @@ module zoa_file_handler
             setenv_result = g_setenv("PLPLOT_LIB"//c_null_char, trim(PLPLOT_LIB)//c_null_char, 1)
             !PRINT *, "setenv_result = ", setenv_result
             call get_environment_variable("PWD", pwd)
-            call LogTermFOR("PWD is "//trim(pwd))
+            !call LogTermFOR("PWD is "//trim(pwd))
             call get_environment_variable("PLPLOT_LIB", pwd)
             
             

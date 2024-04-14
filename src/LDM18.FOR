@@ -1024,6 +1024,7 @@ C
 C
         REAL*8 LAMLOW,LAMUPP
 C
+        call LogTermFOR("Testing123 LAMHILO")
                 LAMLOW=0.0D0
                 LAMUPP=1.0D10
         IF(NAME1.EQ.'CHANCE       '
@@ -1042,6 +1043,10 @@ C
                 LAMLOW=0.3126D0
                 LAMUPP=2.3254D0
                         END IF
+        IF(NAME1.EQ.'SCH2023') THEN
+                LAMLOW=0.3126D0
+                LAMUPP=2.3254D0         
+        END IF               
         IF(NAME1.EQ.'MODEL        ') THEN
                 LAMLOW=0.3341D0
                 LAMUPP=2.3254D0
@@ -1281,7 +1286,7 @@ C     MATL CAT LIMITS
                 LAMLOW=0.001D0
                 LAMUPP=1.0D100
                         END IF
-        IF(NAME2.EQ.'H2O          ') THEN
+        IF(NAME2.EQ.'WATER          ') THEN
                 LAMLOW=0.1829D0
                 LAMUPP=1.968D0
                         END IF
@@ -1290,6 +1295,10 @@ c
                 LAMLOW=0.3126D0
                 LAMUPP=2.3254D0
                         END IF
+        IF(FLNAME.EQ.'SCH2023.BIN   ') THEN
+                LAMLOW=0.3126D0
+                LAMUPP=2.3254D0
+                        END IF                        
         IF(FLNAME.EQ.'OHARA-O.BIN ') THEN
                 LAMLOW=0.365D0
                 LAMUPP=1.100D0
@@ -1332,6 +1341,10 @@ c
         IF(NAME1.EQ.'SCH2000') THEN
                 LAMLOW=0.3126D0
                 LAMUPP=2.3254D0
+        END IF
+        IF(NAME1.EQ.'SCH2023') THEN
+                LAMLOW=0.3126D0
+                LAMUPP=2.3254D0                
                         END IF
 C RAD HARD LIMITS
       IF( NAME2.EQ.'BK7G18       '

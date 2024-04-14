@@ -2153,8 +2153,7 @@ end subroutine
       allocate(character(len=40)::self%data(numRows))
       allocate(character(len=40) :: self%dataString(numRows))
       self%dataString = data
-      call logTermFOR("Proof this code does not always crash!")
-
+   
     end select
     !self%data = data
 

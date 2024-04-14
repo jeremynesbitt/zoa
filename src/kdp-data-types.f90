@@ -1642,7 +1642,7 @@ subroutine calculateFirstOrderParameters(self, lData)
   J = lData%num_surfaces-1
   PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
   IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
-    self%FNUM=-1.0D0/(2.0D0*PXTRAY(2,J))
+    self%FNUM=-1.0D0/(2.0D0*PXTRAY(2,J))/lData%surf_index(J)
     PRINT *, "Object fnum ", -1.0D0/(2.0D0*PXTRAY(2,0))
                     ELSE
                     self%FNUM=0.0D0

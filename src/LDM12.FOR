@@ -1797,18 +1797,21 @@ C     ASSIGN NEW VALUES
 C SUB GLSRIN.FOR
         SUBROUTINE GLSRIN
           USE GLOBALS
+          use glass_manager
+          use type_utils, only: real2str
 C
         IMPLICIT NONE
 C
 C       IMPLICIT NONE
 C
         LOGICAL LOWER,EXIS36
+        logical :: boolResult
 C
         CHARACTER FLNAME*12,NAME*13,NUMBER*13,FLTP*12
 C
         CHARACTER*13 NAME1,NAME2
 C
-        INTEGER I,J,TOTAL,COUNT,LASCNT, uG
+        INTEGER I,J,TOTAL,COUNT,LASCNT, uG, gdb_loc
 C
         REAL*8 LMAX,LMIN,LAMBDA,A0,A1,
      2  A2,A3,A4,A5,PN,LAM(1:10),LAMLOW,
@@ -1833,6 +1836,9 @@ C
      1  ((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+
      2  ((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+
      2  ((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
+
+
+        call LogTermFOR("In GLSRIN")
 C
 C       DETERMINE MINIMUM AND MAX GLSWV WAVELENGTHS
         LMIN=GLSWV(1)
@@ -1896,34 +1902,12 @@ C
                       END IF
 C
 C       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
-        IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'CHANCE'.OR.WC.EQ.'SCH2000'
-     1  .OR.WC.EQ.'OHARA'.OR.WC.EQ.'CORNIN'
-     2  .OR.WC.EQ.'HOYA'.OR.WC.EQ.'GLAK'
-     5  .OR.WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'
-     6  .OR.WC.EQ.'GLCAT'.OR.WC.EQ.'RADHARD'
-     7  .OR.WC.EQ.'MATL'.OR.WC.EQ.'HIKARI') THEN
-      NAME1=WC//'     '
-      NAME2=WS(1:13)
-      FLNAME=' '
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-        OUTLYNE=
-     1  'THE GLASS - '//WS
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT GLSWV WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
- 200  FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,
-     1' MICRON(S)')
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS GLASS HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
+        IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'USER'
+     1  .OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'MATL') THEN
+
+        CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
+        IF (.NOT.boolResult) THEN        
+
                 GPREG(1)=1.0D0
                 GPREG(2)=1.0D0
                 GPREG(3)=1.0D0
@@ -1944,14 +1928,9 @@ C       COEFFICIENTS A0 TO A5 AND CALCULATE AND SET THE
 C       REFRACTIVE INDICES.
 C
                         FLTP='            '
-        IF(WC.EQ.'SCHOTT')   FLNAME='SCHOTT.BIN'
-        IF(WC.EQ.'SCH2000')  FLNAME='SCH2000.BIN'
-        IF(WC.EQ.'HOYA')     FLNAME='HOYA.BIN  '
-        IF(WC.EQ.'HIKARI')   FLNAME='HIKARI.BIN'
-        IF(WC.EQ.'OHARA')    FLTP='MULTIOHARA  '
-        IF(WC.EQ.'CORNIN')   FLNAME='CORNIN.BIN'
-        IF(WC.EQ.'CHANCE')   FLNAME='CHANCE.BIN'
-        IF(WC.EQ.'RADHARD')  FLNAME='RADHARD.BIN'
+        IF(gdb%isNameInCatalog(trim(WC), gdb_loc)) THEN
+                FLNAME=gdb%catalogFileNames(gdb_loc)
+        END IF
         IF(WC.EQ.'USER')     FLNAME='USER.DAT  '
         IF(WC.EQ.'GLCAT')    FLTP='MULTI       '
         IF(WC.EQ.'GLAK')      FLTP='MULTI       '
@@ -2240,340 +2219,366 @@ C     FLTP WAS NOT BLANK
                         END IF
 C
       IF(FLTP.EQ.'MULTI       '.AND.FLNAME.NE.'USER.DAT  ') THEN
-C     SEARCH 5 EXISTING CATALOGS
-                        LASCNT=0
-                        DO COUNT=1,9
-                LASCNT=COUNT
-                        IF(COUNT.EQ.1) FLNAME='SCHOTT.BIN'
-                        IF(COUNT.EQ.2) FLNAME='SCH2000.BIN'
-                        IF(COUNT.EQ.3) FLNAME='HOYA.BIN'
-                        IF(COUNT.EQ.4) FLNAME='OHARA.BIN'
-                        IF(COUNT.EQ.5) FLNAME='OHARA-O.BIN'
-                        IF(COUNT.EQ.6) FLNAME='CORNIN.BIN'
-                        IF(COUNT.EQ.7) FLNAME='CHANCE.BIN'
-                        IF(COUNT.EQ.8) FLNAME='RADHARD.BIN'
-                        IF(COUNT.EQ.9) FLNAME='HIKARI.BIN'
-                        IF(COUNT.EQ.1) WC='SCHOTT  '
-                        IF(COUNT.EQ.2) WC='SCH2000 '
-                        IF(COUNT.EQ.3) WC='HOYA    '
-                        IF(COUNT.EQ.4) WC='OHARA   '
-                        IF(COUNT.EQ.5) WC='OHARA   '
-                        IF(COUNT.EQ.6) WC='CORNIN  '
-                        IF(COUNT.EQ.7) WC='CHANCE  '
-                        IF(COUNT.EQ.8) WC='RADHARD '
-                        IF(COUNT.EQ.9) WC='HIKARI  '
-      EXIS36=.FALSE.
-        INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
-        IF(EXIS36) THEN
-C               PROCEED
-        PRINT *, "About to open ", trim(LIBGLA)//FLNAME
-        call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
-        READ(UNIT=36,REC=1) TOTAL
-                        DO J=2,TOTAL+1
-        READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-        IF(WS.EQ.NAME.OR.WS.EQ.NUMBER) THEN
-C     FOUND THE GLASS
-      IF(COUNT.EQ.1) WRITE(OUTLYNE,*) 'GLASS MFG. IS SCHOTT'
-      IF(COUNT.EQ.2) WRITE(OUTLYNE,*) 'GLASS MFG. IS SCHOTT(POST 2000)'
-      IF(COUNT.EQ.3) WRITE(OUTLYNE,*) 'GLASS MFG. IS HOYA'
-      IF(COUNT.EQ.4) WRITE(OUTLYNE,*) 'GLASS MFG. IS OHARA'
-      IF(COUNT.EQ.5) WRITE(OUTLYNE,*) 'GLASS MFG. IS OHARA'
-      IF(COUNT.EQ.6) WRITE(OUTLYNE,*) 'GLASS MFG. IS CORNING'
-      IF(COUNT.EQ.7) WRITE(OUTLYNE,*) 'GLASS MFG. IS CHANCE-PILKINGTON'
-      IF(COUNT.EQ.8) WRITE(OUTLYNE,*) 'GLASS MFG. IS HIKARI'
-      IF(COUNT.GE.1.AND.COUNT.LE.8) CALL SHOWIT(1)
-C
-C     NOW RECHECK THE WAVELENGTH RANGE
-      NAME1=WC//'     '
-      NAME2=WS(1:13)
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-      WRITE(OUTLYNE,*)
-     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'THE GLASS - '//WS
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
-                GPREG(1:5)=1.0D0
-                           END IF
-C       CALCULATE INDEX THEN RETURN
-        IF(LAM(1).EQ.0.0D0) THEN
-        GPREG(1)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(2).EQ.0.0D0) THEN
-        GPREG(2)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(3).EQ.0.0D0) THEN
-        GPREG(3)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(4).EQ.0.0D0) THEN
-        GPREG(4)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(5).EQ.0.0D0) THEN
-        GPREG(5)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(6).EQ.0.0D0) THEN
-        GPREG(6)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(7).EQ.0.0D0) THEN
-        GPREG(7)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(8).EQ.0.0D0) THEN
-        GPREG(8)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(9).EQ.0.0D0) THEN
-        GPREG(9)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                        END IF
-        IF(LAM(10).EQ.0.0D0) THEN
-        GPREG(10)=1.0D0
-                        ELSE
-C
-      IF(FLNAME.EQ.'HOYA.BIN')
-     1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'HIKARI.BIN')
-     1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CORNIN.BIN')
-     1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'CHANCE.BIN')
-     1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'RADHARD.BIN')
-     1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA-O.BIN')
-     1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-C
-      IF(FLNAME.EQ.'SCHOTT.BIN')
-     1  GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'SCH2000.BIN')
-     1  GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-      IF(FLNAME.EQ.'OHARA.BIN')
-     1  GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                        END IF
-                        RETURN
-                        ELSE
-C       KEEP SEARCHING THE CATALOG
-                        END IF
-                        END DO
+      call LogTermFOR("About to search all catalogs")
+      IF (gdb%isGlassInAnyCatalog(WS, COUNT)) THEN
+        WRITE(OUTLYNE,*) 'GLASS MFG. IS '//gdb%catalogs(COUNT)
+        CALL SHOWIT(1)
+
+        CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
+        IF (boolResult) THEN
+
+        DO J=1,10
+         GPREG(J) = gdb%calcIndexForCurrentGlass(LAM(J))
+         call LogTermFOR("Index is "//trim(real2str(GPREG(J))))
+        END DO
+
+      ELSE
 C       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
-        IF(LASCNT.EQ.8) THEN
+     
         OUTLYNE=
      1  'GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
       CALL SHOWIT(1)
         OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
       CALL SHOWIT(1)
-                GPREG(1:5)=1.0D0
-                        END IF
-C
-                        ELSE
-C       CATALOG REQUESTED NOT YET INSTALLED.
-        OUTLYNE=
-     1  WC//' GLASS CATALOG NOT YET INSTALLED'
-      CALL SHOWIT(1)
-        OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
-      CALL SHOWIT(1)
-                GPREG(1:5)=1.0D0
-                        END IF
-                        END DO
+                GPREG(1:10)=1.0D0        
+                     
+        END IF ! calc index
+       END IF ! glass catalog        
+
+                        !LASCNT=0
+!                         DO COUNT=1,9
+!                 LASCNT=COUNT
+!                         IF(COUNT.EQ.1) FLNAME='SCHOTT.BIN'
+!                         IF(COUNT.EQ.2) FLNAME='SCH2000.BIN'
+!                         IF(COUNT.EQ.3) FLNAME='HOYA.BIN'
+!                         IF(COUNT.EQ.4) FLNAME='OHARA.BIN'
+!                         IF(COUNT.EQ.5) FLNAME='OHARA-O.BIN'
+!                         IF(COUNT.EQ.6) FLNAME='CORNIN.BIN'
+!                         IF(COUNT.EQ.7) FLNAME='CHANCE.BIN'
+!                         IF(COUNT.EQ.8) FLNAME='RADHARD.BIN'
+!                         IF(COUNT.EQ.9) FLNAME='HIKARI.BIN'
+!                         IF(COUNT.EQ.1) WC='SCHOTT  '
+!                         IF(COUNT.EQ.2) WC='SCH2000 '
+!                         IF(COUNT.EQ.3) WC='HOYA    '
+!                         IF(COUNT.EQ.4) WC='OHARA   '
+!                         IF(COUNT.EQ.5) WC='OHARA   '
+!                         IF(COUNT.EQ.6) WC='CORNIN  '
+!                         IF(COUNT.EQ.7) WC='CHANCE  '
+!                         IF(COUNT.EQ.8) WC='RADHARD '
+!                         IF(COUNT.EQ.9) WC='HIKARI  '
+!       EXIS36=.FALSE.
+!         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
+!         IF(EXIS36) THEN
+! C               PROCEED
+!         call LogTermFOR("About to Open "//trim(LIBGLA)//FLNAME)
+!         !PRINT *, "About to open ", trim(LIBGLA)//FLNAME 
+!         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
+!         READ(UNIT=36,REC=1) TOTAL
+!                         DO J=2,TOTAL+1
+!         READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
+!         IF(WS.EQ.NAME.OR.WS.EQ.NUMBER) THEN
+! C     FOUND THE GLASS
+!       IF(COUNT.EQ.1) WRITE(OUTLYNE,*) 'GLASS MFG. IS SCHOTT'
+!       IF(COUNT.EQ.2) WRITE(OUTLYNE,*) 'GLASS MFG. IS SCHOTT(POST 2000)'
+!       IF(COUNT.EQ.3) WRITE(OUTLYNE,*) 'GLASS MFG. IS HOYA'
+!       IF(COUNT.EQ.4) WRITE(OUTLYNE,*) 'GLASS MFG. IS OHARA'
+!       IF(COUNT.EQ.5) WRITE(OUTLYNE,*) 'GLASS MFG. IS OHARA'
+!       IF(COUNT.EQ.6) WRITE(OUTLYNE,*) 'GLASS MFG. IS CORNING'
+!       IF(COUNT.EQ.7) WRITE(OUTLYNE,*) 'GLASS MFG. IS CHANCE-PILKINGTON'
+!       IF(COUNT.EQ.8) WRITE(OUTLYNE,*) 'GLASS MFG. IS HIKARI'
+!       IF(COUNT.GE.1.AND.COUNT.LE.8) CALL SHOWIT(1)
+! C
+! C     NOW RECHECK THE WAVELENGTH RANGE
+!       NAME1=WC//'     '
+!       NAME2=WS(1:13)
+!       CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+! C
+! C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
+!         IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
+!      1.AND.LMIN.NE.0.0D0) THEN
+! C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
+!       WRITE(OUTLYNE,*)
+!      1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
+!       CALL SHOWIT(1)
+!         OUTLYNE=
+!      1  'THE GLASS - '//WS
+!       CALL SHOWIT(1)
+!         OUTLYNE=
+!      1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
+!       CALL SHOWIT(1)
+!         WRITE(OUTLYNE,200) LAMLOW,LAMUPP
+!       CALL SHOWIT(1)
+!         OUTLYNE=
+!      1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
+!       CALL SHOWIT(1)
+!                 GPREG(1:5)=1.0D0
+!                            END IF
+! C       CALCULATE INDEX THEN RETURN
+!         IF(LAM(1).EQ.0.0D0) THEN
+!         GPREG(1)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(2).EQ.0.0D0) THEN
+!         GPREG(2)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(3).EQ.0.0D0) THEN
+!         GPREG(3)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(4).EQ.0.0D0) THEN
+!         GPREG(4)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(5).EQ.0.0D0) THEN
+!         GPREG(5)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(6).EQ.0.0D0) THEN
+!         GPREG(6)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(7).EQ.0.0D0) THEN
+!         GPREG(7)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(8).EQ.0.0D0) THEN
+!         GPREG(8)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(9).EQ.0.0D0) THEN
+!         GPREG(9)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!         IF(LAM(10).EQ.0.0D0) THEN
+!         GPREG(10)=1.0D0
+!                         ELSE
+! C
+!       IF(FLNAME.EQ.'HOYA.BIN')
+!      1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'HIKARI.BIN')
+!      1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CORNIN.BIN')
+!      1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'CHANCE.BIN')
+!      1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'RADHARD.BIN')
+!      1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA-O.BIN')
+!      1  GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+! C
+!       IF(FLNAME.EQ.'SCHOTT.BIN')
+!      1  GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'SCH2000.BIN')
+!      1  GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+!       IF(FLNAME.EQ.'OHARA.BIN')
+!      1  GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+!                         END IF
+!                         RETURN
+!                         ELSE
+! C       KEEP SEARCHING THE CATALOG
+!                         END IF
+!                         END DO
+! C       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
+!         IF(LASCNT.EQ.8) THEN
+!         OUTLYNE=
+!      1  'GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
+!       CALL SHOWIT(1)
+!         OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
+!       CALL SHOWIT(1)
+!                 GPREG(1:5)=1.0D0
+!                         END IF
+! C
+!                         ELSE
+! C       CATALOG REQUESTED NOT YET INSTALLED.
+!         OUTLYNE=
+!      1  WC//' GLASS CATALOG NOT YET INSTALLED'
+!       CALL SHOWIT(1)
+!         OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
+!       CALL SHOWIT(1)
+!                 GPREG(1:5)=1.0D0
+!                         END IF
+!                         END DO ! DO COUNT
                         ELSE
 C     FLTP NOT MULTI
                         END IF
@@ -2598,34 +2603,15 @@ C               PROCEED
 C     FOUND THE GLASS
       IF(COUNT.GE.1.AND.COUNT.LE.2) CALL SHOWIT(1)
 C     NOW RECHECK THE WAVELENGTH RANGE
-      NAME1=WC//'     '
-      NAME2=WS(1:13)
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-      WRITE(OUTLYNE,*)
-     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'THE GLASS - '//WS
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
+        CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
+        IF (boolResult) THEN
+
+                           ELSE
                 GPREG(1)=1.0D0
                 GPREG(2)=1.0D0
                 GPREG(3)=1.0D0
                 GPREG(4)=1.0D0
-                GPREG(5)=1.0D0
-                           ELSE
+                GPREG(5)=1.0D0                                
 C         PROCEED
                            END IF
 C       CALCULATE INDEX THEN RETURN
@@ -3192,7 +3178,7 @@ C
       CALL SPCGL(I,42)
                         RETURN
                         END IF
-      IF(WS.EQ.'H2O')     THEN
+      IF(WS.EQ.'WATER')     THEN
       CALL SPCGL(I,43)
                         RETURN
                         END IF
@@ -3266,8 +3252,13 @@ C       GLASS RESOLUTIONS COMPLETED
                         RETURN
                         END
 C SUB GLSRES.FOR
+! JN 4/14/24.  Major surgery to better support new catalogs and improve readability
+! When I started, this fnc was ~2000 lines
         SUBROUTINE GLSRES
         use GLOBALS
+        use global_widgets, only: sysConfig
+        use type_utils, only: real2str
+        use glass_manager
 C
         IMPLICIT NONE
 C
@@ -3278,11 +3269,13 @@ C       AN IMMEDIATE RETURN IS MADE IF A GLASS CAN NOT BE FOUND.
 C       ERROR MESSAGES SENT FROM HERE IN THAT CASE.
 C
         LOGICAL BADGLS,GOGO,EXIS36,LOWER,ISOK
+        logical boolResult
+        
 C
         CHARACTER FLNAME*12,NAME*13,NUMBER*13,FLTP*12
 C
         INTEGER I,J,TOTAL,COUNT,LASCNT,GNUMBER1,GNUMBER2
-        INTEGER unit, uG
+        INTEGER unit, uG, gdb_loc
 C
       EXTERNAL GNUMBER1,GNUMBER2
 C
@@ -3319,30 +3312,20 @@ C       SET BADGLS
         GOGO=.TRUE.
         WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(0,1)
         call logger%logText(OUTLYNE)
+        call LogTermFOR("In GLSRES")
 
 C
 C
 C       DETERMINE MINIMUM AND MAX SYSTEM WAVELENGTHS
-        IF(SYSTEM(1).NE.0.0D0) LMIN=SYSTEM(1)
-        IF(SYSTEM(2).LT.LMIN.AND.SYSTEM(2).NE.0.0D0) LMIN=SYSTEM(2)
-        IF(SYSTEM(3).LT.LMIN.AND.SYSTEM(3).NE.0.0D0) LMIN=SYSTEM(3)
-        IF(SYSTEM(4).LT.LMIN.AND.SYSTEM(4).NE.0.0D0) LMIN=SYSTEM(4)
-        IF(SYSTEM(5).LT.LMIN.AND.SYSTEM(5).NE.0.0D0) LMIN=SYSTEM(5)
-        IF(SYSTEM(71).LT.LMIN.AND.SYSTEM(71).NE.0.0D0) LMIN=SYSTEM(71)
-        IF(SYSTEM(72).LT.LMIN.AND.SYSTEM(72).NE.0.0D0) LMIN=SYSTEM(72)
-        IF(SYSTEM(73).LT.LMIN.AND.SYSTEM(73).NE.0.0D0) LMIN=SYSTEM(73)
-        IF(SYSTEM(75).LT.LMIN.AND.SYSTEM(74).NE.0.0D0) LMIN=SYSTEM(74)
-        IF(SYSTEM(75).LT.LMIN.AND.SYSTEM(75).NE.0.0D0) LMIN=SYSTEM(75)
-        IF(SYSTEM(1).NE.0.0D0) LMAX=SYSTEM(1)
-        IF(SYSTEM(2).GT.LMAX.AND.SYSTEM(2).NE.0.0D0) LMAX=SYSTEM(2)
-        IF(SYSTEM(3).GT.LMAX.AND.SYSTEM(3).NE.0.0D0) LMAX=SYSTEM(3)
-        IF(SYSTEM(4).GT.LMAX.AND.SYSTEM(4).NE.0.0D0) LMAX=SYSTEM(4)
-        IF(SYSTEM(5).GT.LMAX.AND.SYSTEM(5).NE.0.0D0) LMAX=SYSTEM(5)
-        IF(SYSTEM(71).GT.LMAX.AND.SYSTEM(71).NE.0.0D0) LMAX=SYSTEM(71)
-        IF(SYSTEM(72).GT.LMAX.AND.SYSTEM(72).NE.0.0D0) LMAX=SYSTEM(72)
-        IF(SYSTEM(73).GT.LMAX.AND.SYSTEM(73).NE.0.0D0) LMAX=SYSTEM(73)
-        IF(SYSTEM(75).GT.LMAX.AND.SYSTEM(74).NE.0.0D0) LMAX=SYSTEM(74)
-        IF(SYSTEM(75).GT.LMAX.AND.SYSTEM(75).NE.0.0D0) LMAX=SYSTEM(75)
+        LMIN = minval(
+     2 sysConfig%wavelengths(1:sysConfig%numWavelengths))
+        LMAX = maxval(
+     2 sysConfig%wavelengths(1:sysConfig%numWavelengths))
+
+        call LogTermFOR("LMIN is "//trim(real2str(LMIN)))
+        call LogTermFOR("LMAX is "//trim(real2str(LMAX)))
+        
+
 C       SET LAM1 TO LAM10 TO THE 10 WAVELENGTHS
                 LAM1=SYSTEM(1)
                 LAM2=SYSTEM(2)
@@ -3361,76 +3344,49 @@ C       IF THE SURFACE HAS A GLASS PIKUP, SKIP AND GO TO NEXT
 C       SURFACE. (JUST JUMP TO 10 AND GO TO THE NEXT SURFACE.
 C
         IF(PIKUP(1,I,20).NE.1.0D0) THEN
-C
+              
 C       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
-        IF(GLANAM(I,1).EQ.'SCHOTT'.OR.GLANAM(I,1).EQ.'CHANCE'
-     1  .OR.GLANAM(I,1).EQ.'SCH2000'
-     1  .OR.GLANAM(I,1).EQ.'CORNIN'.OR.GLANAM(I,1).EQ.'OHARA'
-     2  .OR.GLANAM(I,1).EQ.'HOYA'.OR.GLANAM(I,1).EQ.'GLCAT'
-     5  .OR.GLANAM(I,1).EQ.'USER'.OR.GLANAM(I,1).EQ.'RUSSIAN'
-     6  .OR.GLANAM(I,1).EQ.'RADHARD'.OR.GLANAM(I,1).EQ.'GLAK'
-     7  .OR.GLANAM(I,1).EQ.'MATL'.OR.GLANAM(I,1).EQ.'HIKARI') THEN
-        IF(GLANAM(I,1).EQ.'RUSSIAN') THEN
-      ISOK=.FALSE.
-                        CALL RUSSIAN2(I,LMIN,LMAX,ISOK)
-                        GO TO 10
-                        END IF
-      NAME1=GLANAM(I,1)
-      NAME2=GLANAM(I,2)
-      FLNAME=' '
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-                        BADGLS=.TRUE.
-      WRITE(OUTLYNE,*)
-     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'THE GLASS - '//GLANAM(I,2)
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
- 200  FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,
-     1' MICRON(S)')
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
-                        BADGLS=.TRUE.
+        IF(gdb%isNameInCatalog(GLANAM(I,1)).OR.
+     1  GLANAM(I,1).EQ.'USER'.OR.GLANAM(I,1).EQ.'GLAK'
+     2  .OR.GLANAM(I,1).EQ.'GLCAT'.OR.
+     3  GLANAM(I,1).EQ.'MATL') THEN  
+
+      CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult, 
+     1 GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+
+       if(.not.boolResult) then
+
+                BADGLS=.TRUE.
                 ALENS(122:123,I)=0.0D0
                 ALENS(46:50,I)=1.0D0
                 ALENS(71:75,I)=1.0D0
                       GO TO 10
-                        ELSE
+       end if
 C       PROCEED, THE GLASS IS DEFINED WITHIN THE CURRENT
 C       LENS SYSTEM WAVELENGTHS
-                        END IF
+                        
 C       NOW LOOK UP THE GLASS IN THE CATALOG, RETRIEVE THE
 C       COEFFICIENTS A0 TO A5 AND CALCULATE AND SET THE SURFACE
 C       REFRACTIVE INDICES.
 C
-                        FLTP='            '
-        IF(GLANAM(I,1).EQ.'SCHOTT')   FLNAME='SCHOTT.BIN'
-        IF(GLANAM(I,1).EQ.'SCH2000')  FLNAME='SCH2000.BIN'
-        IF(GLANAM(I,1).EQ.'HOYA')     FLNAME='HOYA.BIN  '
-        IF(GLANAM(I,1).EQ.'HIKARI')   FLNAME='HIKARI.BIN'
-        IF(GLANAM(I,1).EQ.'CORNIN')   FLNAME='CORNIN.BIN'
-        IF(GLANAM(I,1).EQ.'CHANCE')   FLNAME='CHANCE.BIN'
-        IF(GLANAM(I,1).EQ.'RADHARD')  FLNAME='RADHARD.BIN'
+        FLTP='            '
+        call LogTermFOR("GLANAM(I,1) is "//GLANAM(I,1))
+        IF(gdb%isNameInCatalog(GLANAM(I,1), gdb_loc)) THEN
+                FLNAME=gdb%catalogFileNames(gdb_loc)
+        END IF
         IF(GLANAM(I,1).EQ.'USER')     FLNAME='USER.DAT  '
         IF(GLANAM(I,1).EQ.'GLCAT')    FLTP='MULTI       '
         IF(GLANAM(I,1).EQ.'GLAK')      FLTP='MULTI       '
         IF(GLANAM(I,1).EQ.'MATL  ')   FLTP='MATL        '
         IF(GLANAM(I,1).EQ.'RUSSIAN')  FLTP='RUSSIAN     '
-        IF(GLANAM(I,1).EQ.'OHARA')    FLTP='MULTIOHARA  '
+
+        call LogTermFOR("FLNAME is "//FLNAME)
+
 C
       IF(FLTP.EQ.'            '.AND.FLNAME.NE.'USER.DAT  ') THEN
 C     REGULAR GLASS CATALOG
+
+        call LogTermFOR("About to open glass file")
 C
       EXIS36=.FALSE.
         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
@@ -3443,7 +3399,8 @@ C               PROCEED
         PRINT *, "About to open ", trim(LIBGLA)//FLNAME
         call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
 
-                        DO 300 J=2,TOTAL+1
+        DO J=2,TOTAL+1
+                !DO 300 J=2,TOTAL+1
 
         READ(UNIT=uG,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
         IF(GLANAM(I,2).EQ.NAME.OR.GLANAM(I,2).EQ.NUMBER) THEN
@@ -3453,6 +3410,7 @@ C       CALCULATE INDEX THEN GO TO 10 AND CONTINUE
         IF(LAM1.EQ.0.0D0) THEN
         ALENS(46,I)=1.0D0
                         ELSE
+       call LogTermFOR(" In refactor loop")                         
 C
       IF(FLNAME.EQ.'HOYA.BIN')
      1  ALENS(46,I)=PN(LAM1,A0,A1,A2,A3,A4,A5)
@@ -3694,7 +3652,8 @@ C
                         ELSE
 C       KEEP SEARCHING THE CATALOG
                         END IF
- 300                    CONTINUE
+                END DO ! Loop through glass file
+C 300                    CONTINUE
 C       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
                         BADGLS=.TRUE.
       WRITE(OUTLYNE,*)
@@ -3773,37 +3732,19 @@ C
      3  .OR.GLANAM(I,1).EQ.'HIKARI'.OR.GLANAM(I,1).EQ.'SCH2000') THEN
 C       SET CAT UPPER AND LOWER LAMBDA BOUNDS
 C     NOW RECHECK THE WAVELENGTH RANGE
-      NAME1=GLANAM(I,1)
-      NAME2=GLANAM(I,2)
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-                        BADGLS=.TRUE.
-      WRITE(OUTLYNE,*)
-     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'THE GLASS - '//GLANAM(I,2)
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
-                        BADGLS=.TRUE.
+      CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult, 
+     1 GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+
+       if(.not.boolResult) then
+
+                BADGLS=.TRUE.
                 ALENS(122:123,I)=0.0D0
                 ALENS(46:50,I)=1.0D0
                 ALENS(71:75,I)=1.0D0
                       GO TO 10
-                       ELSE
+       end if
 C     PROCEED
-                       END IF
+                       
                        END IF
 C       CALCULATE INDEX THEN GO TO 10 AND CONTINUE
       ALENS(122,I)=GNUMBER1(NUMBER)
@@ -3880,6 +3821,8 @@ C
       IF(FLNAME.EQ.'OHARA.BIN')
      1  ALENS(48,I)=PNSC(LAM3,A0,A1,A2,A3,A4,A5)
                         END IF
+        PRINT *, "ALENS 46-50 is ", ALENS(46:50,I)
+        PRINT *, "ALENS 71-75 is ", ALENS(71:75,I)                          
         IF(LAM4.EQ.0.0D0) THEN
         ALENS(49,I)=1.0D0
                         ELSE
@@ -3906,6 +3849,7 @@ C
                         END IF
         IF(LAM5.EQ.0.0D0) THEN
         ALENS(50,I)=1.0D0
+      
                         ELSE
 C
       IF(FLNAME.EQ.'HOYA.BIN')
@@ -4053,6 +3997,8 @@ C
 C       KEEP SEARCHING THE CATALOG
                         END IF
                         END DO
+
+
                         END IF
                         END DO
 C     NOTHING FOUND IN THE ABOVE CATALOGS
@@ -4136,37 +4082,19 @@ C                   GLANAM(I,1)='USER         '
        CALL CLOSE_FILE(36,1)
                         END IF
 C     MATL LIMITS
-      NAME1=GLANAM(I,1)
-      NAME2=GLANAM(I,2)
-      FLNAME=' '
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-                        BADGLS=.TRUE.
-      WRITE(OUTLYNE,*)
-     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'THE GLASS - '//GLANAM(I,2)
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
+      CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult, 
+     1 GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+
+       if(.not.boolResult) then
+
                         BADGLS=.TRUE.
                 ALENS(122:123,I)=0.0D0
                 ALENS(46:50,I)=1.0D0
                 ALENS(71:75,I)=1.0D0
                       GO TO 10
-                       ELSE
+       end if
 C     PROCEED
-                       END IF
+                       
 C
       IF(GLANAM(I,2).EQ.'GERMSC')  THEN
       CALL SPCGLS(I,1)
@@ -4414,7 +4342,7 @@ C
       GLANAM(I,1)='MATL         '
               GO TO 10
                         END IF
-      IF(GLANAM(I,2).EQ.'H2O')     THEN
+      IF(GLANAM(I,2).EQ.'WATER')     THEN
       CALL SPCGLS(I,43)
       GLANAM(I,1)='MATL         '
               GO TO 10
@@ -4539,37 +4467,19 @@ C        PRINT *, NRECL
 C     RESET GLCAT/GLASS TO MFG NAME
       IF(COUNT.EQ.1) GLANAM(I,1)='OHARA        '
       IF(COUNT.EQ.2) GLANAM(I,1)='OHARA        '
-      NAME1=GLANAM(I,1)
-      NAME2=GLANAM(I,2)
-      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-C
-C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
-     1.AND.LMIN.NE.0.0D0) THEN
-C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-                        BADGLS=.TRUE.
-      WRITE(OUTLYNE,*)
-     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'THE GLASS - '//GLANAM(I,2)
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
-      CALL SHOWIT(1)
-        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
-      CALL SHOWIT(1)
-        OUTLYNE=
-     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
-      CALL SHOWIT(1)
-                        BADGLS=.TRUE.
+      CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult, 
+     1 GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+
+       if(.not.boolResult) then      
+
+                BADGLS=.TRUE.
                 ALENS(122:123,I)=0.0D0
                 ALENS(46:50,I)=1.0D0
                 ALENS(71:75,I)=1.0D0
                       GO TO 10
-                       ELSE
+       end if
 C     PROCEED
-                       END IF
+                       
 C       CALCULATE INDEX THEN GO TO 10 AND CONTINUE
       ALENS(122,I)=GNUMBER1(NUMBER)
       ALENS(123,I)=GNUMBER2(NUMBER)
@@ -5160,7 +5070,7 @@ C
       CALL SPCGLS(I,42)
               GO TO 222
                         END IF
-      IF(GLANAM(I,2).EQ.'H2O')     THEN
+      IF(GLANAM(I,2).EQ.'WATER')     THEN
       CALL SPCGLS(I,43)
               GO TO 222
                         END IF
@@ -5251,6 +5161,7 @@ C       SURFACE HAD GLASS PIKUP ON IT
                         END IF
  10                     CONTINUE
 C
+
 C       GLASS RESOLUTIONS COMPLETED
         CALL CLOSE_FILE(36,1)
                         RETURN
@@ -6145,6 +6056,8 @@ C
                         RETURN
                         END
 
+                  
+
       SUBROUTINE OPENGLASSFILE(filePath, fileID, TOTAL)
         character(len=*) :: filePath
         integer :: TOTAL, fileID, rec11, rec15, tstUnit
@@ -6170,3 +6083,119 @@ C
 
 
       END SUBROUTINE
+
+      ! This should be refactored with the next one, but 
+      ! save for another day..
+
+      SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult, 
+     1 NAME1, NAME2, FLNAME, LMIN, LMAX, sI)
+        logical, intent(inout) :: boolResult
+        character(len=*) :: NAME1, NAME2, FLNAME
+        integer :: sI ! Surface Number
+
+        REAL*8 LMAX,LMIN,LAMLOW,LAMUPP
+ 
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATMAI.INC'        
+        
+
+        boolResult = .TRUE.
+
+      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+C
+C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
+        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
+     1.AND.LMIN.NE.0.0D0) THEN
+C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
+                        boolResult=.FALSE.
+      WRITE(OUTLYNE,*)
+     1  'GLASS DEFINITION WARNING: FOR SURFACE ',sI
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'THE GLASS - '//NAME2
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
+      CALL SHOWIT(1)
+        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
+      CALL SHOWIT(1)
+ 200  FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,
+     1' MICRON(S)')
+        OUTLYNE=
+     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
+      CALL SHOWIT(1)
+      END IF
+
+
+      END SUBROUTINE
+
+      SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
+        use type_utils, only: real2str
+
+        logical, intent(inout) :: boolResult
+        character(len=*) :: FLNAME
+        CHARACTER*13 NAME1,NAME2
+
+        REAL*8 LMAX,LMIN,LAMLOW,LAMUPP,PNSC      
+        
+        INCLUDE 'DATLEN.INC'
+        INCLUDE 'DATMAI.INC'       
+        
+        boolResult = .TRUE.
+
+C       DETERMINE MINIMUM AND MAX GLSWV WAVELENGTHS
+        LMIN=GLSWV(1)
+        IF(GLSWV(2).LT.LMIN) LMIN=GLSWV(2)
+        IF(GLSWV(3).LT.LMIN) LMIN=GLSWV(3)
+        IF(GLSWV(4).LT.LMIN) LMIN=GLSWV(4)
+        IF(GLSWV(5).LT.LMIN) LMIN=GLSWV(5)
+        LMAX=GLSWV(1)
+        IF(GLSWV(2).GT.LMAX) LMAX=GLSWV(2)
+        IF(GLSWV(3).GT.LMAX) LMAX=GLSWV(3)
+        IF(GLSWV(4).GT.LMAX) LMAX=GLSWV(4)
+        IF(GLSWV(5).GT.LMAX) LMAX=GLSWV(5)
+        IF(LMIN.EQ.0.0D0) LMIN=LMAX
+        IF(LMAX.EQ.0.0D0) LMAX=LMIN
+
+C
+C     NOW RECHECK THE WAVELENGTH RANGE
+      NAME1=WC//'     '
+      NAME2=WS(1:13)
+      call LogTermFOR("NAME1 is "//NAME1)
+      call LogTermFOR("FLNAME is "//FLNAME)
+      call LogTermFOR("NAME2 is "//NAME2)
+
+      CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+
+      call LogTermFOR("LAMUPP is "//trim(real2str(LAMUPP)))
+      call LogTermFOR("LAMLOW is "//trim(real2str(LAMLOW)))
+
+
+C
+C       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
+        IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW
+     1.AND.LMIN.NE.0.0D0) THEN
+
+        boolResult = .FALSE.
+
+C       STOP AND GO TO CMD LEVEL AND PRINT WARNING
+      WRITE(OUTLYNE,*)
+     1  'GLASS DEFINITION WARNING: FOR SURFACE ',I
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'THE GLASS - '//WS
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1  'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
+      CALL SHOWIT(1)
+        WRITE(OUTLYNE,200) LAMLOW,LAMUPP
+      CALL SHOWIT(1)
+        OUTLYNE=
+     1'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
+      CALL SHOWIT(1)
+                GPREG(1:5)=1.0D0
+                           END IF
+ 200  FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,
+     1' MICRON(S)')
+        
+       END SUBROUTINE      

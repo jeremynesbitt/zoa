@@ -3,12 +3,14 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
+        use glass_manager
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
-     2 PLTOPD, PLTIMTST, PLTFAN
+     2 PLTOPD, PLTIMTST, PLTFAN, PTSTUFF
         use codeV_commands
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
      1 ID_TERMINAL_KDPDUMP   
+        
 C
         IMPLICIT NONE
 
@@ -457,6 +459,10 @@ C       PART DRAWINGS
           CALL PLT3DTST
           return
         END IF
+        IF(WC.EQ.'PTSTUFF') THEN
+                CALL PTSTUFF
+                return
+              END IF             
         IF(WC.EQ.'PLTIMTST') THEN
                 CALL PLTIMTST
                 return
@@ -840,27 +846,13 @@ C
         IF(WC.EQ.'GLASSP') THEN
         IF(WQ.EQ.'GLAK'.AND.SST.EQ.0.OR.
      1WQ.EQ.'GLCAT'.AND.SST.EQ.0) THEN
-               WQ='SCHOTT'
-               CALL GLASSP
-               WQ='SCH2000'
-               CALL GLASSP
-               WQ='OHARA'
-               CALL GLASSP
-               WQ='HOYA'
-               CALL GLASSP
-               WQ='HIKARI'
-               CALL GLASSP
-               WQ='CORNIN'
-               CALL GLASSP
-               WQ='CHANCE'
-               CALL GLASSP
-               WQ='MATL'
-               CALL GLASSP
-               WQ='RUSSIAN'
-               CALL GLASSP
-               WQ='RADHARD'
-               CALL GLASSP
-               WQ='GLAK'
+        ! TODO:  Put all this in glass manager
+        do I=1,size(gdb%catalogs)
+          WQ = trim(gdb%catalogs(I))      
+          CALL GLASSP
+        end do
+           WQ='GLAK'
+
                    ELSE
         IF(WS(1:1).EQ.':') WS(1:80)=WS(2:80)
         CALL GLASSP
@@ -3909,11 +3901,14 @@ C
         CALL APOVERT
         RETURN
         END IF
-        IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'.OR.
-     1WC.EQ.'CORNIN'.OR.WC.EQ.'CHANCE'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.
-     2'MATL'.OR.WC.EQ.'RADHARD'.OR.WC.EQ.'USER'.OR.WC.EQ.'HIKARI'
-     3.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR'.OR.WC.EQ.
-     4'SCH2000') THEN
+        IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'GLCAT'.OR.WC.EQ.
+     1 'MATL'.OR.WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR') THEN
+   
+    !   IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'.OR.
+   !    1WC.EQ.'CORNIN'.OR.WC.EQ.'CHANCE'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.
+   !    2'MATL'.OR.WC.EQ.'RADHARD'.OR.WC.EQ.'USER'.OR.WC.EQ.'HIKARI'
+   !    3.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR'.OR.WC.EQ.
+    !   4'SCH2000') THEN
       IF(WS(1:1).EQ.':') WS(1:80)=WS(2:80)
         CALL GLSRIN
         RETURN

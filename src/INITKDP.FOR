@@ -5,6 +5,7 @@
         use zoa_file_handler
         use zoa_logger
         use codeV_commands, only: initializeCmds
+        use glass_manager
 C
         IMPLICIT NONE
 C
@@ -132,6 +133,7 @@ C
         INCLUDE 'DATHGR.INC'
 
         call initializeCmds()
+        gdb = glassdb()
 C
 C       MAX SAVE/REST = 36 8/24/2006
 C

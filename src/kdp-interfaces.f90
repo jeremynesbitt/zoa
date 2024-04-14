@@ -620,6 +620,19 @@ end if
 
 end subroutine
 
+subroutine PTSTUFF
+  use type_utils, only: real2str, int2str
+
+  integer :: i
+  
+  include "DATLEN.INC"
+  call LogTermFOR("ALENS DUMP")
+  do i=1,100
+    call LogTermFOR("i="//trim(int2str(i)//" "//real2str(ALENS(i,3))))
+
+  end do
+
+end subroutine
 
 subroutine PLTIMTST
 
