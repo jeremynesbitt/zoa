@@ -218,6 +218,9 @@ contains
         
         self%dataType = self%catalogDataTypes(gdb_loc)
 
+        close(unit=36)
+        return
+
       END IF
     END DO
   ELSE
