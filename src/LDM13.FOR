@@ -1532,7 +1532,12 @@ C     AND NUMBERS
             end if
         END IF
 
-        
+        ! This is a crutch that shoudl be addressed with a more
+        ! sophisticated glass database
+        IF(WQ.EQ.'SPECIAL') THEN
+            call PRINTSPECIALCATALOGMATERIALS()
+            return
+        END IF
         IF(WQ.EQ.'MATL') THEN
             CALL PRINTMATLGLASSES()
             RETURN
@@ -1584,7 +1589,6 @@ C     DETERMINE FILE NAME
         IF(WQ.EQ.'RADHARD')  FLNAME='RADHARD.BIN  '
         IF(WQ.EQ.'SCH2023')  FLNAME='SCH2023.BIN '
         IF(FLNAME.NE.'OHARAMULTI  ') THEN
-
           CALL READGLASSFILE(FLNAME, 1, NAME, NUMBER, A0,
      1                      A1,A2,A3,A4,A5)
                            ELSE
@@ -1847,6 +1851,25 @@ C
       WRITE(OUTLYNE,1127) A5
       CALL SHOWIT(0)
                         END IF
+
+      END SUBROUTINE
+
+
+      SUBROUTINE PRINTSPECIALCATALOGMATERIALS
+            use handlers, only:  updateTerminalLog
+            use glass_manager
+
+            integer :: i
+            INCLUDE 'DATLEN.INC'
+            INCLUDE 'DATMAI.INC'  
+
+            do i=1,size(specCat%names)
+                call updateTerminalLog('SPECIAL  '
+     1     //specCat%names(i), "black")
+
+            end do
+
+
 
       END SUBROUTINE
 

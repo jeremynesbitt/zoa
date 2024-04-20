@@ -3393,19 +3393,20 @@ C     REGULAR GLASS CATALOG
         call LogTermFOR("About to open glass file")
         IF (gdb%isGlassInCatalog(GLANAM(I,2), gdb_loc)) THEN
 
+
                 call LogTermFOR("Found Glass and updated coeffs!")
 
         DO J=1,5
-         call LogTermFOR("Wavelength is "//
-     1    real2str(sysConfig%wavelengths(J)))       
+         !call LogTermFOR("Wavelength is "//
+         !1    real2str(sysConfig%wavelengths(J)))       
          ALENS(45+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J))
-         call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
         END DO 
         DO J=1,4
          ALENS(70+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J+5))
-         call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
          
         END DO 
         
@@ -3440,6 +3441,8 @@ C     FLTP WAS NOT BLANK
 C
       IF(FLTP.EQ.'MULTI       ') THEN
       IF (gdb%isGlassInAnyCatalog(GLANAM(I,2), COUNT)) THEN
+                ! Update Glass Name
+        GLANAM(I,1) = gdb%catalogs(COUNT) 
 
         CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
         IF (boolResult) THEN
@@ -3448,12 +3451,12 @@ C
         DO J=1,5
          ALENS(45+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J))
-         call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
         END DO 
         DO J=1,5
          ALENS(70+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J+5))
-         call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
          
         END DO 
         ! SEE NOTE ABOVE FOR WHY THIS IS TEMPORARILY NECESSARy
