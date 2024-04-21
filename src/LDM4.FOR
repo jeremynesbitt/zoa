@@ -1247,6 +1247,11 @@ C
                         END
 
 C SUB SPCGLS.FOR
+! This sub is not called by anything anymore, but I leave it herae
+! as I have not fully transferred all the material data to the new 
+! Special catalog
+! JRN 4/20/24
+
       SUBROUTINE SPCGLS(I,MTYPE)
       IMPLICIT NONE
 C
