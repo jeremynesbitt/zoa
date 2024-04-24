@@ -1838,7 +1838,7 @@ C
      2  ((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 
 
-        call LogTermFOR("In GLSRIN")
+        !call LogTermFOR("In GLSRIN")
 C
 C       DETERMINE MINIMUM AND MAX GLSWV WAVELENGTHS
         LMIN=GLSWV(1)
@@ -2219,7 +2219,7 @@ C     FLTP WAS NOT BLANK
                         END IF
 C
       IF(FLTP.EQ.'MULTI       '.AND.FLNAME.NE.'USER.DAT  ') THEN
-      call LogTermFOR("About to search all catalogs")
+      !call LogTermFOR("About to search all catalogs")
       IF (gdb%isGlassInAnyCatalog(WS, COUNT)) THEN
         WRITE(OUTLYNE,*) 'GLASS MFG. IS '//gdb%catalogs(COUNT)
         CALL SHOWIT(1)
@@ -2229,7 +2229,7 @@ C
 
         DO J=1,10
          GPREG(J) = gdb%calcIndexForCurrentGlass(LAM(J))
-         call LogTermFOR("Index is "//trim(real2str(GPREG(J))))
+         !call LogTermFOR("Index is "//trim(real2str(GPREG(J))))
         END DO
 
       ELSE
@@ -3299,7 +3299,7 @@ C       SET BADGLS
         GOGO=.TRUE.
         WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(0,1)
         call logger%logText(OUTLYNE)
-        call LogTermFOR("In GLSRES")
+        !call LogTermFOR("In GLSRES")
 
         call sysConfig%updateParameters()
 C
@@ -3310,8 +3310,8 @@ C       DETERMINE MINIMUM AND MAX SYSTEM WAVELENGTHS
         LMAX = maxval(
      2 sysConfig%wavelengths(1:sysConfig%numWavelengths))
 
-        call LogTermFOR("LMIN is "//trim(real2str(LMIN)))
-        call LogTermFOR("LMAX is "//trim(real2str(LMAX)))
+        !call LogTermFOR("LMIN is "//trim(real2str(LMIN)))
+        !call LogTermFOR("LMAX is "//trim(real2str(LMAX)))
         
       DO 10 I=0,INT(SYSTEM(20))
       IF(LNSTYP.NE.1.AND.GLANAM(I,1).NE.'MODEL') GO TO 10
@@ -3344,36 +3344,34 @@ C       COEFFICIENTS A0 TO A5 AND CALCULATE AND SET THE SURFACE
 C       REFRACTIVE INDICES.
 C
         FLTP='            '
-        call LogTermFOR("GLANAM(I,1) is "//GLANAM(I,1))
+        !call LogTermFOR("GLANAM(I,1) is "//GLANAM(I,1))
         IF(gdb%isNameInCatalog(GLANAM(I,1), gdb_loc)) THEN
                 FLNAME=gdb%catalogFileNames(gdb_loc)
         END IF
         IF(GLANAM(I,1).EQ.'GLCAT')    FLTP='MULTI       '
         IF(GLANAM(I,1).EQ.'GLAK')      FLTP='MULTI       '
 
-        call LogTermFOR("FLNAME is "//FLNAME)
+        !call LogTermFOR("FLNAME is "//FLNAME)
 
 C
       IF(FLTP.EQ.'            ') THEN
 C     REGULAR GLASS CATALOG
 
-        call LogTermFOR("About to open glass file")
+        !call LogTermFOR("About to open glass file")
         IF (gdb%isGlassInCatalog(GLANAM(I,2), gdb_loc)) THEN
-
-
-                call LogTermFOR("Found Glass and updated coeffs!")
+           !call LogTermFOR("Found Glass and updated coeffs!")
 
         DO J=1,5
          !call LogTermFOR("Wavelength is "//
          !1    real2str(sysConfig%wavelengths(J)))       
          ALENS(45+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J))
-         call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
         END DO 
         DO J=1,4
          ALENS(70+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J+5))
-         call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
          
         END DO 
         
@@ -3408,27 +3406,27 @@ C
       IF (gdb%isGlassInAnyCatalog(GLANAM(I,2), COUNT)) THEN
                 ! Update Glass Name
         GLANAM(I,1) = gdb%catalogs(COUNT) 
-        call LogTermFOR("Found glass in catalog "//trim(GLANAM(I,1)))
+        !call LogTermFOR("Found glass in catalog "//trim(GLANAM(I,1)))
 
         CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
         IF (boolResult) THEN
 
                       
         DO J=1,5
-         call LogTermFOR("Wavelength is "
-     1    //real2str(sysConfig%wavelengths(J)))       
+         !call LogTermFOR("Wavelength is "
+    ! 1    //real2str(sysConfig%wavelengths(J)))       
          ALENS(45+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J))
-         call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
         END DO 
         DO J=1,5
          ALENS(70+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J+5))
-         call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
+         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
          
         END DO 
         ! SEE NOTE ABOVE FOR WHY THIS IS TEMPORARILY NECESSARy
-        call LogTermFOR("About to go to 10?")
+        !call LogTermFOR("About to go to 10?")
         GO TO 10
         
         END IF
@@ -4121,14 +4119,14 @@ C
 C     NOW RECHECK THE WAVELENGTH RANGE
       NAME1=WC//'     '
       NAME2=WS(1:13)
-      call LogTermFOR("NAME1 is "//NAME1)
-      call LogTermFOR("FLNAME is "//FLNAME)
-      call LogTermFOR("NAME2 is "//NAME2)
+      !call LogTermFOR("NAME1 is "//NAME1)
+      !call LogTermFOR("FLNAME is "//FLNAME)
+      !call LogTermFOR("NAME2 is "//NAME2)
 
       CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 
-      call LogTermFOR("LAMUPP is "//trim(real2str(LAMUPP)))
-      call LogTermFOR("LAMLOW is "//trim(real2str(LAMLOW)))
+      !call LogTermFOR("LAMUPP is "//trim(real2str(LAMUPP)))
+      !call LogTermFOR("LAMLOW is "//trim(real2str(LAMLOW)))
 
 
 C

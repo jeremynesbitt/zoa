@@ -358,7 +358,7 @@ C
 C               CHECK FOR STRING INPUT
 C               PRINT ERROR AND RETURN IF DISCOVERED.
 C
-        call LogTermFOR("In GLSCAT")
+        !call LogTermFOR("In GLSCAT")
 
         IF(SN.EQ.1) THEN
         OUTLYNE='"'//WC//'" zAKES NO NUMERIC INPUT'
@@ -374,8 +374,6 @@ C
                         ALENS(71:75,SURF)=1.0D0
                         GLANAM(SURF,1)=WC(1:8)//'   '
                         GLANAM(SURF,2)= WS(1:13)
-        call LogTermFOR("GLACAT RECORDED "//GLANAM(SURF,1))
-        call LogTermFOR("GLACAT RECORDED "//GLANAM(SURF,2))
 
                         F22=1
 C

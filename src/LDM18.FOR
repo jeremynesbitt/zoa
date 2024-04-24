@@ -277,7 +277,7 @@ C       COMMAND (N6,W1, TO N10,W1)
 C       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
       IF(gdb%isNameInCatalog(WC).OR.WC.EQ.'GLCAT'
      1   .OR.WC.EQ.'GLAK')THEN
-        call LogTermFOR("About to call GLSCAT for "//WC)
+        !call LogTermFOR("About to call GLSCAT for "//WC)
 !                 IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'SCH2000'.OR.
 !      1          WC.EQ.'OHARA'.OR.WC.EQ.'CHANCE'.OR.
 !      2          WC.EQ.'CORNIN'.OR.WC.EQ.'MATL'.OR.
@@ -525,7 +525,7 @@ C       COMMANDS (PY,PX,PCY,PCX,CAY,CAX)
                 IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCY'
      1  .OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'
      2  .OR.WC.EQ.'REDSLV') THEN
-                call LogTermFOR("Got to THSOLV call from LENIN!")
+                !call LogTermFOR("Got to THSOLV call from LENIN!")
                 CALL THSOLV
       IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
       SYSTEM(63)=0.0D0
@@ -1028,7 +1028,7 @@ C
 C
         REAL*8 LAMLOW,LAMUPP
 C
-        call LogTermFOR("Testing123 LAMHILO")
+        !call LogTermFOR("Testing123 LAMHILO")
                 LAMLOW=0.0D0
                 LAMUPP=1.0D10
         IF(NAME1.EQ.'CHANCE       '

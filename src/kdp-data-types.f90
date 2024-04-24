@@ -1593,7 +1593,7 @@ subroutine updateLensData(self)
     ! it in the original KDP code, but perhaps this is a mistake.
     if (GLANAM(JJ,2)(1:1).EQ.'D') then ! Check if this is a model glass
         if (isInputNumber(GLANAM(JJ,2)(2:13))) then
-          call LogTermFOR("Found Model Glas!")
+          !call LogTermFOR("Found Model Glas!")
           self%glassnames(JJ+1) = GLANAM(JJ,2)(2:13) 
         end if
     end if
@@ -1745,7 +1745,7 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
 
   ! Finally ready to calculate new thickness
   t0 = -1*self%marginal_ray_height(s1+1)*(magTgt*uSlope-1)/(magTgt*uOffset)
-  call LogTermFOR("New Thickness is "//real2str(t0))
+  !call LogTermFOR("New Thickness is "//real2str(t0))
 
   !Restore Solve Data
   SOLVE(3:7,0) = tempSolveData(1:5)

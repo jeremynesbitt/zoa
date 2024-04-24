@@ -189,10 +189,6 @@ C
         !WRITE(OUTLYNE,*)  "CONTROL INPUT IS ", WC(1:8)
         !CALL SHOWIT(19)
 
-
-
-        Call LogTermFOR("CONTROB WS is "//WS(1:13))
-
         IF(WC.EQ.'ANGLES') RETURN
         IF(WC.EQ.'MYGLASS') WC='GLASS'
 
@@ -4126,8 +4122,6 @@ C               DURING THIS MODE.
                 IF(IS) THEN
       OUTLYNE = "ABOUT TO CALL LENIN"
       CALL SHOWIT(19)
-      Call LogTermFOR("Calling LENIN INPUT "//INPUT)
-      Call LogTermFOR("GlassName is "//WS(1:13))
                 CALL LENIN
                 call curr_lens_data%update()
       OUTLYNE = "GOT BACK FROM LENIN "
@@ -5204,10 +5198,7 @@ C               IF(WC.EQ.'LOADSCOT')            IS=.TRUE.
                         IS=.FALSE.
                 PRINT *, "Checking ", WC
 C       THIS IS THE LIST OF VALID LENS INPUT COMMANDS
-                IF(gdb%isNameInCatalog(WC)) THEN
-                  IS=.TRUE.
-                  call LogTermFOR("Found IN CAT!")
-                END IF 
+                IF(gdb%isNameInCatalog(WC)) IS=.TRUE.
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
@@ -5470,23 +5461,13 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'INDEX')       IS=.TRUE.
                 IF(WC.EQ.'VNUM')        IS=.TRUE.
                 IF(WC.EQ.'DPART')       IS=.TRUE.
-                IF(WC.EQ.'SCHOTT')      IS=.TRUE.
-                IF(WC.EQ.'SCH2000')     IS=.TRUE.
                 IF(WC.EQ.'MULTCLAP')    IS=.TRUE.
                 IF(WC.EQ.'MULTCOBS')    IS=.TRUE.
                 IF(WC.EQ.'SPIDER')      IS=.TRUE.
                 IF(WC.EQ.'SPGR')        IS=.TRUE.
                 IF(WC.EQ.'MODEL')       IS=.TRUE.
-                IF(WC.EQ.'RADHARD')     IS=.TRUE.
-                IF(WC.EQ.'MATL')        IS=.TRUE.
-                IF(WC.EQ.'RUSSIAN')     IS=.TRUE.
                 IF(WC.EQ.'USER')        IS=.TRUE.
                 IF(WC.EQ.'GLCAT')       IS=.TRUE.
-                IF(WC.EQ.'OHARA')       IS=.TRUE.
-                IF(WC.EQ.'HOYA')        IS=.TRUE.
-                IF(WC.EQ.'HIKARI')      IS=.TRUE.
-                IF(WC.EQ.'CHANCE')      IS=.TRUE.
-                IF(WC.EQ.'CORNIN')      IS=.TRUE.
                 IF(WC.EQ.'AIR')         IS=.TRUE.
                 IF(WC.EQ.'COATING ')    IS=.TRUE.
                 IF(WC.EQ.'REFL')        IS=.TRUE.
@@ -5510,13 +5491,10 @@ C     LENS UPDATE
       INTEGER SST
       LOGICAL IS
 
-      PRINT *, "CONTG ROUTINE"
+      !PRINT *, "CONTG ROUTINE"
                         IS=.FALSE.
                 IF(isCodeVCommand(WC))  IS=.TRUE. 
-                IF(gdb%isNameInCatalog(WC)) THEN
-                  IS=.TRUE.
-                  call LogTermFOR("Found IN CAT!")
-                END IF       
+                IF(gdb%isNameInCatalog(WC)) IS=.TRUE.  
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
@@ -5719,23 +5697,13 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GLASS')       IS=.TRUE.
                 IF(WC.EQ.'DEFORM')      IS=.TRUE.
                 IF(WC.EQ.'DELDEFOR')    IS=.TRUE.
-                IF(WC.EQ.'SCHOTT')      IS=.TRUE.
-                IF(WC.EQ.'SCH2000')     IS=.TRUE.
                 IF(WC.EQ.'MULTCLAP')    IS=.TRUE.
                 IF(WC.EQ.'MULTCOBS')    IS=.TRUE.
                 IF(WC.EQ.'SPIDER')      IS=.TRUE.
                 IF(WC.EQ.'SPGR')        IS=.TRUE.
                 IF(WC.EQ.'MODEL')       IS=.TRUE.
-                IF(WC.EQ.'RADHARD')     IS=.TRUE.
-                IF(WC.EQ.'MATL')        IS=.TRUE.
-                IF(WC.EQ.'RUSSIAN')     IS=.TRUE.
                 IF(WC.EQ.'USER')        IS=.TRUE.
                 IF(WC.EQ.'GLCAT')       IS=.TRUE.
-                IF(WC.EQ.'OHARA')       IS=.TRUE.
-                IF(WC.EQ.'HOYA')        IS=.TRUE.
-                IF(WC.EQ.'HIKARI')      IS=.TRUE.
-                IF(WC.EQ.'CHANCE')      IS=.TRUE.
-                IF(WC.EQ.'CORNIN')      IS=.TRUE.
                 IF(WC.EQ.'AIR')         IS=.TRUE.
                 IF(WC.EQ.'COATING ')    IS=.TRUE.
                 IF(WC.EQ.'REFL')        IS=.TRUE.
@@ -7735,10 +7703,7 @@ C       CONFIGS INPUT AND UPDATE
       INTEGER SQ
       LOGICAL IS
                 IS=.FALSE.
-                IF(gdb%isNameInCatalog(WC)) THEN
-                  IS=.TRUE.
-                  call LogTermFOR("Found IN CAT!")
-                END IF
+                IF(gdb%isNameInCatalog(WC)) IS=.TRUE.
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
@@ -7939,23 +7904,13 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'GLASS')       IS=.TRUE.
                 IF(WC.EQ.'DEFORM')      IS=.TRUE.
                 IF(WC.EQ.'DELDEFOR')    IS=.TRUE.
-                IF(WC.EQ.'SCHOTT')      IS=.TRUE.
-                IF(WC.EQ.'SCH2000')     IS=.TRUE.
                 IF(WC.EQ.'MULTCLAP')    IS=.TRUE.
                 IF(WC.EQ.'MULTCOBS')    IS=.TRUE.
                 IF(WC.EQ.'SPIDER')      IS=.TRUE.
                 IF(WC.EQ.'SPGR')        IS=.TRUE.
                 IF(WC.EQ.'MODEL')       IS=.TRUE.
-                IF(WC.EQ.'RADHARD')     IS=.TRUE.
-                IF(WC.EQ.'MATL')        IS=.TRUE.
-                IF(WC.EQ.'RUSSIAN')     IS=.TRUE.
                 IF(WC.EQ.'USER')        IS=.TRUE.
                 IF(WC.EQ.'GLCAT')       IS=.TRUE.
-                IF(WC.EQ.'OHARA')       IS=.TRUE.
-                IF(WC.EQ.'HOYA')        IS=.TRUE.
-                IF(WC.EQ.'HIKARI')      IS=.TRUE.
-                IF(WC.EQ.'CHANCE')      IS=.TRUE.
-                IF(WC.EQ.'CORNIN')      IS=.TRUE.
                 IF(WC.EQ.'AIR')         IS=.TRUE.
                 IF(WC.EQ.'COATING ')    IS=.TRUE.
                 IF(WC.EQ.'REFL')        IS=.TRUE.

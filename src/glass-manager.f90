@@ -155,17 +155,17 @@ end function
   ! ABC is abbe number *10
   dotLoc = INDEX(modelGlass, '.')
   nStr = modelGlass(1:dotLoc-1)
-  call LogTermFOR("DEBUG: ModelGlass Start is "// modelGlass(1:dotLoc-1))
+  !call LogTermFOR("DEBUG: ModelGlass Start is "// modelGlass(1:dotLoc-1))
   vStr = modelGlass(dotLoc+1:len(modelGlass))
 
   
   ! Divide the number to the left of the . s.t. it is < 1.  Then add one to it to make the index
-  PRINT *, "Num is ", REAL(str2int(nStr))
-  PRINT *, "Dem is ", (10**(dotLoc-2))
+  !PRINT *, "Num is ", REAL(str2int(nStr))
+  !PRINT *, "Dem is ", (10**(dotLoc-2))
   nd = 1.0+ REAL(str2int(nStr))/(10**(dotLoc-1))
   vd = REAL(str2int(vStr))/10.0
-  PRINT *, "nd is ", nd
-  PRINT *, "vd is ", vd
+  !PRINT *, "nd is ", nd
+  !PRINT *, "vd is ", vd
 
 
 
@@ -427,7 +427,6 @@ end function
     n_l = self%calcPNSC(lambda)
 
    case(ID_SPECIAL)
-    call LogTermFOR("Should be updating glass!")
     n_l = specCat%calcSpecialIndex(lambda)
 
   end select
@@ -473,16 +472,14 @@ end function
       READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
       IF(strName.EQ.NAME) THEN
         boolResult = .TRUE.
-        call LogTermFOR("Found "//strName//" eq "//NAME)
-        call LogTermFOR("Old Coeff is "//real2str(self%coeffs(1)))
+        !call LogTermFOR("Found "//strName//" eq "//NAME)
         self%coeffs(1) = A0
         self%coeffs(2) = A1
         self%coeffs(3) = A2
         self%coeffs(4) = A3
         self%coeffs(5) = A4
         self%coeffs(6) = A5
-        call LogTermFOR("New Coeff is "//real2str(self%coeffs(1)))
-        
+
         self%dataType = self%catalogDataTypes(gdb_loc)
 
         close(unit=36)
@@ -533,7 +530,7 @@ end function
 
    do i=1,size(specCat%names)
     if (strName == specCat%names(i)) then
-      call LogTermFOR("Found Special Glass!")
+      !call LogTermFOR("Found Special Glass!")
       specCat%currName = specCat%names(i)
       boolResult = .TRUE.
       return
