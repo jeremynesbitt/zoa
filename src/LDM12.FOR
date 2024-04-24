@@ -3280,8 +3280,7 @@ C
       EXTERNAL GNUMBER1,GNUMBER2
 C
         REAL*8 LMAX,LMIN,LAMBDA,A0,A1,
-     2  A2,A3,A4,A5,PN,LAM1,LAM2,LAM3,LAM4,LAM5,LAMLOW,
-     3  LAMUPP,PNSC,LAM6,LAM7,LAM8,LAM9,LAM10
+     2  A2,A3,A4,A5,PN
 C
         COMMON/GLSBAD/BADGLS
 C
@@ -3314,19 +3313,7 @@ C       DETERMINE MINIMUM AND MAX SYSTEM WAVELENGTHS
         call LogTermFOR("LMIN is "//trim(real2str(LMIN)))
         call LogTermFOR("LMAX is "//trim(real2str(LMAX)))
         
-
-C       SET LAM1 TO LAM10 TO THE 10 WAVELENGTHS
-                LAM1=SYSTEM(1)
-                LAM2=SYSTEM(2)
-                LAM3=SYSTEM(3)
-                LAM4=SYSTEM(4)
-                LAM5=SYSTEM(5)
-                LAM6=SYSTEM(71)
-                LAM7=SYSTEM(72)
-                LAM8=SYSTEM(73)
-                LAM9=SYSTEM(74)
-                LAM10=SYSTEM(75)
-                        DO 10 I=0,INT(SYSTEM(20))
+      DO 10 I=0,INT(SYSTEM(20))
       IF(LNSTYP.NE.1.AND.GLANAM(I,1).NE.'MODEL') GO TO 10
 C
 C       IF THE SURFACE HAS A GLASS PIKUP, SKIP AND GO TO NEXT
@@ -3336,8 +3323,7 @@ C
               
 C       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
         IF(gdb%isNameInCatalog(GLANAM(I,1), gdb_loc).OR.
-     1  GLANAM(I,1).EQ.'GLAK'
-     2  .OR.GLANAM(I,1).EQ.'GLCAT') THEN  
+     1  GLANAM(I,1).EQ.'GLAK'.OR.GLANAM(I,1).EQ.'GLCAT') THEN  
 
       CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult, 
      1 GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
@@ -3364,8 +3350,6 @@ C
         END IF
         IF(GLANAM(I,1).EQ.'GLCAT')    FLTP='MULTI       '
         IF(GLANAM(I,1).EQ.'GLAK')      FLTP='MULTI       '
-        IF(GLANAM(I,1).EQ.'MATL  ')   FLTP='MATL        '
- 
 
         call LogTermFOR("FLNAME is "//FLNAME)
 
@@ -3384,12 +3368,12 @@ C     REGULAR GLASS CATALOG
          !1    real2str(sysConfig%wavelengths(J)))       
          ALENS(45+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J))
-         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
+         call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
         END DO 
         DO J=1,4
          ALENS(70+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J+5))
-         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
+         call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
          
         END DO 
         
@@ -3424,23 +3408,27 @@ C
       IF (gdb%isGlassInAnyCatalog(GLANAM(I,2), COUNT)) THEN
                 ! Update Glass Name
         GLANAM(I,1) = gdb%catalogs(COUNT) 
+        call LogTermFOR("Found glass in catalog "//trim(GLANAM(I,1)))
 
         CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
         IF (boolResult) THEN
 
                       
         DO J=1,5
+         call LogTermFOR("Wavelength is "
+     1    //real2str(sysConfig%wavelengths(J)))       
          ALENS(45+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J))
-         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
+         call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
         END DO 
         DO J=1,5
          ALENS(70+J,I) = gdb%calcIndexForCurrentGlass
      1   (sysConfig%wavelengths(J+5))
-         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
+         call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
          
         END DO 
         ! SEE NOTE ABOVE FOR WHY THIS IS TEMPORARILY NECESSARy
+        call LogTermFOR("About to go to 10?")
         GO TO 10
         
         END IF
@@ -3489,10 +3477,10 @@ C       THIS IS WHERE 'GLASS', 'AIR' AND 'REFL' AND 'MODEL'
 C       AND 'REFLTIR', 'REFLTIRO'
 C       'IDEAL' AND 'PERFECT' ARE TAKEN CARE OF.
       IF(GLANAM(I,1).EQ.'MODEL') CALL FICTRES(I)
-                        END IF
-                        ELSE
+        END IF
+      ELSE
 C       SURFACE HAD GLASS PIKUP ON IT
-                        END IF
+      END IF
  10                     CONTINUE
 C
 

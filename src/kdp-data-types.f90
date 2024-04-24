@@ -1135,17 +1135,17 @@ subroutine genSaveOutputText(self, fID)
   !Store Wavelength Info
   strWL = 'WL'
   do ii=1,self%numWavelengths
-    strWL = trim(strWL)//blankStr(5)//real2str(1000.0*self%wavelengths(ii),4)
+    strWL = trim(strWL)//blankStr(1)//real2str(1000.0*self%wavelengths(ii),4)
 
   end do
-  PRINT *, trim(strWL)
+  !PRINT *, trim(strWL)
   write(fID, *) trim(strWL)
   ! Spectral Weights
 
   if(self%numWavelengths > 1 ) then 
     strWLwgt = 'WTW'
     do ii=1,self%numWavelengths
-      strWLwgt = trim(strWLwgt)//blankStr(5)//real2str(100.0*self%spectralWeights(ii),4)
+      strWLwgt = trim(strWLwgt)//blankStr(1)//real2str(100.0*self%spectralWeights(ii),4)
     end do
     PRINT *, trim(strWLwgt)
     write(fID, *) trim(strWLwgt)
@@ -1161,8 +1161,8 @@ subroutine genSaveOutputText(self, fID)
        strXFLD = 'XAN'
        strYFLD = 'YAN'
        do ii=1,self%numFields
-        strXFLD = trim(strXFLD)//blankStr(5)//real2str(self%refFieldValue(1)*self%relativeFields(1,ii),4)
-        strYFLD = trim(strYFLD)//blankStr(5)//real2str(self%refFieldValue(2)*self%relativeFields(2,ii),4)
+        strXFLD = trim(strXFLD)//blankStr(1)//real2str(self%refFieldValue(1)*self%relativeFields(1,ii),4)
+        strYFLD = trim(strYFLD)//blankStr(1)//real2str(self%refFieldValue(2)*self%relativeFields(2,ii),4)
        end do
        write(fID, *) trim(strXFLD)
        write(fID, *) trim(strYFLD)
@@ -1559,6 +1559,7 @@ end function
 ! Challenge is to find all the places in KDP where this happens
 subroutine updateLensData(self)
   use iso_fortran_env, only: real64
+  use command_utils, only: isInputNumber
   implicit none
   class(lens_data) :: self
   integer :: JJ
@@ -1586,6 +1587,16 @@ subroutine updateLensData(self)
     self%glassnames(JJ+1) = GLANAM(JJ,2)
     if (GLANAM(JJ,2).EQ.'AIR') self%glassnames(JJ+1) = ' '
     if (GLANAM(JJ,2).EQ.'LAST SURFACE') self%glassnames(JJ+1) = ' '
+    ! The KDP code always puts a D in front of the model glass, but 
+    ! for UI input and file saving I don't want it there, so remove it
+    ! if it is there.  Figured this was less risky then trying to strip
+    ! it in the original KDP code, but perhaps this is a mistake.
+    if (GLANAM(JJ,2)(1:1).EQ.'D') then ! Check if this is a model glass
+        if (isInputNumber(GLANAM(JJ,2)(2:13))) then
+          call LogTermFOR("Found Model Glas!")
+          self%glassnames(JJ+1) = GLANAM(JJ,2)(2:13) 
+        end if
+    end if
     self%catalognames(JJ+1) = GLANAM(JJ,1)
     self%clearapertures(JJ+1) = ALENS(10,JJ)
 
@@ -1765,6 +1776,7 @@ subroutine genLensDataSaveOutputText(self, fID)
   integer :: ii
   character(len=1024) :: strSurfLine
   character(len=4) :: surfStr
+  !character(len=80) :: glassStr
   logical :: rdmFlag
 
   rdmFlag = .TRUE.
@@ -1786,6 +1798,9 @@ subroutine genLensDataSaveOutputText(self, fID)
   do ii=2,self%num_surfaces-1
     surfStr = 'S' !//trim(int2str(ii-1))
     if (ii==2) surfStr = 'S1'
+
+    !glassStr = self%glassnames(ii)
+    !if (isModelGlass(glassStr)) glassStr = set 
     
     if(rdmFlag) then
       strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
@@ -1806,6 +1821,14 @@ subroutine genLensDataSaveOutputText(self, fID)
       strSurfLine = blankStr(2)//'STO S'//trim(int2str(ii-1))
       write(fID, *) trim(strSurfLine)
     end if
+    ! Check for user specified clear aperture.  TODO:  Need to implement a more sophisticated
+    ! way to store CA info, as the geometry is not always circular.  But for now
+    ! just support circular until I get some to mkae it more abstract
+    if (self%clearapertures(ii).NE.0) then
+      strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%clearapertures(ii)))
+      write(fID, *) trim(strSurfLine)
+    end if
+
     ! pseudocode for now
     !if (self%hasPickup(ii)) then
     !  print *, self%getPickupTxt(ii)
@@ -1830,7 +1853,10 @@ subroutine genLensDataSaveOutputText(self, fID)
   end if
   write(fID, *) trim(strSurfLine)
   PRINT *, trim(strSurfLine)  
-
+  if (self%clearapertures(self%num_surfaces).NE.0) then
+    strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%clearapertures(self%num_surfaces)))
+    write(fID, *) trim(strSurfLine)
+  end if
 
 
 

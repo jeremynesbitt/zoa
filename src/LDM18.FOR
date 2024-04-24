@@ -29,6 +29,7 @@ C       INITIALIZE THE ARRAYS
                        END
 C SUB LENIN.FOR
         SUBROUTINE LENIN
+        use glass_manager
 C
         IMPLICIT NONE
 C
@@ -274,12 +275,15 @@ C       COMMAND (N6,W1, TO N10,W1)
                 RETURN
                 END IF
 C       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
-                IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'SCH2000'.OR.
-     1          WC.EQ.'OHARA'.OR.WC.EQ.'CHANCE'.OR.
-     2          WC.EQ.'CORNIN'.OR.WC.EQ.'MATL'.OR.
-     6          WC.EQ.'HOYA'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'RADHARD'
-     7          .OR.WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'HIKARI'
-     7          .OR.WC.EQ.'GLAK')THEN
+      IF(gdb%isNameInCatalog(WC).OR.WC.EQ.'GLCAT'
+     1   .OR.WC.EQ.'GLAK')THEN
+        call LogTermFOR("About to call GLSCAT for "//WC)
+!                 IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'SCH2000'.OR.
+!      1          WC.EQ.'OHARA'.OR.WC.EQ.'CHANCE'.OR.
+!      2          WC.EQ.'CORNIN'.OR.WC.EQ.'MATL'.OR.
+!      6          WC.EQ.'HOYA'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'RADHARD'
+!      7          .OR.WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'HIKARI'
+!      7          .OR.WC.EQ.'GLAK')THEN
                 CALL GLSCAT
         CALL FLUSHNEXT
                 RETURN

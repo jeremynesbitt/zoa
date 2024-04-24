@@ -703,6 +703,30 @@ module codeV_commands
 
     end subroutine
 
+    ! This function exists to update text used to set glass, especially to account
+    ! for model glass
+    function getSetGlassText(strInput) result(strOut)
+        use command_utils, only : isInputNumber
+        use glass_manager, only: parseModelGlassEntry
+        use type_utils, only: real2str
+        use iso_fortran_env, only: real64       
+        character(len=*) :: strInput
+        character(len=1024) :: strOut
+        real(kind=real64) :: nd, vd
+
+        if (isInputNumber(strInput)) then ! Assume user entered model glass
+            !PRINT *, "Model Glass Entered!"
+            call LogTermFOR("Model Glass Entered! "//strInput)
+            call parseModelGlassEntry(strInput, nd, vd)
+            strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)   
+            call LogTermFOR("STROUT is "//trim(strOut))
+        else ! Assume it is glass name          
+            strOut = 'GLAK ' // strInput
+        end if            
+
+
+    end function
+
 
     ! format:  GLA Sk GLASSNAME
     subroutine setGlass()
@@ -726,17 +750,8 @@ module codeV_commands
 
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            if (isInputNumber(trim(tokens(3)))) then ! Assume user entered model glass
-                !PRINT *, "Model Glass Entered!"
-                call LogTermFOR("Model Glass Entered! "//trim(tokens(3)))
-                call parseModelGlassEntry(trim(tokens(3)), nd, vd)
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; MODEL D'//trim(tokens(3))//','//real2str(nd)//','//real2str(vd))    
-            else ! Assume it is glass name          
-            
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; GLAK ' // trim(tokens(3)), .TRUE.)
-            end if            
+            & '; '//trim(getSetGlassText(trim(tokens(3)))))        
         else
             call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
@@ -1013,8 +1028,9 @@ module codeV_commands
       subroutine setWavelength(self, iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: real2str, str2real8
+        use type_utils, only: real2str, str2real8, int2str
         use handlers, only: updateTerminalLog
+        use global_widgets, only: sysConfig
         implicit none
 
         class(zoa_cmd) :: self
@@ -1026,14 +1042,19 @@ module codeV_commands
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
+        call LogTermFOR("setWL numTokens is "//int2str(numTokens))
+
         if (numTokens <= 6) then
             outStr = 'WV, '
             do i=2,numTokens
                 outStr = trim(outStr)//' '//trim(real2str(str2real8(trim(tokens(i)))/1000.0))
-
+                ! Set spectral weights; assume all equal to 1.0 here
+                call sysConfig%setSpectralWeights(i-1, 1.0)               
             end do
             call LogTermFOR("Outstr is "//trim(outStr))
             call executeCodeVLensUpdateCommand(trim(outStr))
+
+
 
         end if
 
@@ -1284,7 +1305,7 @@ module codeV_commands
             if(.not.isSpecialGlass(trim(tokens(4)))) then
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3))//'; GLAK ' // trim(tokens(4)))
+            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4))))) 
             else
                 ! TODO:  This and the isSpecialGlass function should go somewhere else.
                 ! but first need to figure out if I really want to store this info in 

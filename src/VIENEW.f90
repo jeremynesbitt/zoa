@@ -2783,3 +2783,920 @@ NORAYPLOT=.FALSE.
                         LNTYPE=0
                         RETURN
                         END
+! SUB PLTEDG.FOR
+        SUBROUTINE PLTEDG
+        USE GLOBALS
+!
+        IMPLICIT NONE
+!
+!       THIS ROUTINE DOES THE PLOT EDGEX/EDGEY COMMAND AT THE CMD LEVEL
+!
+      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
+      ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
+      ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2 &
+      ,X00,Y00,Z0,LX0,LY0,LZ0 &
+      ,X1,X2,Y1,Y2,MX0,MY0,MZ0,NX0,NY0,NZ0
+!
+      INTEGER M1,M2,M3,CAFLG,COFLG,IK,III,NO,ALLOERR
+!
+      REAL*8 XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT &
+      ,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO &
+      ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
+!
+      INTEGER COLPAS,IX,IY,I,II,IPST,J,K, SKIPNEXT
+!
+        LOGICAL NOPLOT
+!
+        INCLUDE 'DATMAI.INC'
+        INCLUDE 'DATLEN.INC'
+!
+      REAL EDGE
+      DIMENSION EDGE(:,:,:)
+      ALLOCATABLE :: EDGE
+!
+!     LOOK.VIEW TRANSFORMS
+
+      ROT1X(AX,AZ,APHI)=((AX*DCOS(APHI))-(AZ*DSIN(APHI)))
+      ROT1Z(AX,AZ,APHI)=((AX*DSIN(APHI))+(AZ*DCOS(APHI)))
+!
+      ROT2Z(AZ,AY,AALF)=((AZ*DCOS(AALF))+(AY*DSIN(AALF)))
+      ROT2Y(AZ,AY,AALF)=((-AZ*DSIN(AALF))+(AY*DCOS(AALF)))
+      LNTYPE=0
+!
+      M1=4
+      M2=0
+      M3=INT(SYSTEM(20))
+      DEALLOCATE (EDGE,STAT=ALLOERR)
+      ALLOCATE (EDGE(M1,M1,M2:M3),STAT=ALLOERR)
+                X=0.0D0
+                Y=0.0D0
+          EDGE(1:4,1:4,0:M3)=0.0
+!
+                VIEPH=(PII/180.0D0)*VIEPHI
+                VIEAL=(PII/180.0D0)*VIEALF
+!
+
+      !PRINT *, "PLTEDG ROUTINE Starting.."
+!     MAKE SURE YOU HAVE VERTEX DATA WITHOUT OFFSETS AND SET TO
+!     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
+                        GLSURF=-99
+                        DO I=NEWIMG,0,-1
+      IF(DABS(ALENS(3,I)).LE.1.0D10) GLSURF=I
+                        END DO
+      IF(GLSURF.EQ.-99) THEN
+                        GLOBE=.FALSE.
+      OUTLYNE='ALL SURFACES WERE OF INFINITE THICKNESS'
+      CALL SHOWIT(1)
+      OUTLYNE='NO OPTICAL SYSTEM PLOT COULD BE MADE'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END IF
+                        GLOBE=.TRUE.
+                        OFFX=0.0D0
+                        OFFY=0.0D0
+                        OFFZ=0.0D0
+                        OFFA=0.0D0
+                        OFFB=0.0D0
+                        OFFC=0.0D0
+                        CALL GLVERT
+                        GLOBE=.FALSE.
+      IF(MSG) THEN
+      OUTLYNE='GENERATING SURFACE EDGE DATA...'
+      CALL SHOWIT(1)
+                        END IF
+!
+!       CHECK SYNTAX
+        IF(SST.EQ.1) THEN
+        IF(WQ.EQ.'EDGEX')OUTLYNE= &
+        '"PLOT EDGEX" TAKES NO STRING INPUT'
+        IF(WQ.EQ.'EDGEY')OUTLYNE= &
+        '"PLOT EDGEY" TAKES NO STRING INPUT'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END IF
+        IF(S3.EQ.1.OR.S4.EQ.1) THEN
+        IF(WQ.EQ.'EDGEX')OUTLYNE= &
+        '"PLOT EDGEX" ONLY TAKES NUMERIC WORDS #1, #2 AND #5 INPUT'
+        IF(WQ.EQ.'EDGEY')OUTLYNE= &
+        '"PLOT EDGEY" ONLY TAKES NUMERIC WORDS #1, #2 AND #5 INPUT'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END IF
+                        NOPLOT=.FALSE.
+                        IF(DF5.EQ.0) NOPLOT=.TRUE.
+        IF(STI.EQ.1) THEN
+                 IF(WQ.EQ.'EDGEX')WRITE(OUTLYNE,800)
+                 IF(WQ.EQ.'EDGEY')WRITE(OUTLYNE,801)
+      CALL SHOWIT(1)
+ 800    FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT EDGEX"')
+ 801    FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT EDGEY"')
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        ELSE
+                        END IF
+        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+!       DEFAULT VALUES
+        IF(DF1.EQ.1) THEN
+        IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+                        W1=DBLE(1)
+                        ELSE
+                        W1=DBLE(0)
+                        END IF
+                        ELSE
+!       DF1 NOT 1, W1 EXPLICITLY ENTERED
+                        END IF
+                STASUR=INT(W1)
+        IF(DF2.EQ.1) THEN
+                        W2=DBLE(NEWIMG)
+                        ELSE
+!       DF2 NOT 1, W2 EXPLICITLY ENTERED
+                        END IF
+                STPSUR=INT(W2)
+        IF(INT(W1).LT.0) THEN
+!       INVALID NUMERIC WORD #1
+        OUTLYNE= &
+        'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END IF
+        IF(INT(W2).GT.NEWIMG) THEN
+!       INVALID NUMERIC WORD #2
+        OUTLYNE= &
+        'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END IF
+        IF(INT(W2).LE.INT(W1)) THEN
+!       W2 LESS THAN OR EQUAL TO W1
+        OUTLYNE= &
+        'NUMERIC WORD #2 MUST BE GREATER THAN NUMERIC WORD #1'
+      CALL SHOWIT(1)
+        OUTLYNE='RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+                        CALL MACFAL
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END IF
+!
+!       ALL INPUT IS OK, KEEP GOING
+!     THE ARRAY CONTAINING SURFACE EDGE DATA ARE:
+!
+!     EDGE(1:4,1:3,0:MAXSUR)
+!
+!     THE FIRST DIMENSION IS FOR THE DATA POINT NUMBER
+!     FOR YEDGE
+!               1=BOT   (CLAP)
+!               2=TOP   (CLAP)
+!               3=BOT   (COBS)
+!               4=TOP   (COBS)
+!     FOR YEDGE
+!               1=LFT   (CLAP)
+!               2=RHT   (CLAP)
+!               3=LFT   (COBS)
+!               4=RHT   (COBS)
+!     THE SECOND DIMENSION IS FOR THE X,Y AND Z COORDINATES OR THE POINT
+!
+!     WE NEED TO LOAD THE ARRAY BEFORE PLOTTING
+!
+!     THE PROCEDURE IS:
+!     1. DETERMINE THE MAXIMUM AND MINIMUM LOCAL X AND Y
+!               COORDINATES FOR A SURFACE FOR WHICH THE EDGE
+!               IS TO BE CALCULATED.
+!
+!     CYCLE THROUGH ALL THE SURFACES
+!
+                DO II=STASUR,STPSUR
+                X1=0.0D0
+                X2=0.0D0
+                Y1=0.0D0
+                Y2=0.0D0
+                XX1=0.0D0
+                XX2=0.0D0
+                YY1=0.0D0
+                YY2=0.0D0
+                XLFT=0.0D0
+                YLFT=0.0D0
+                XRHT=0.0D0
+                YRHT=0.0D0
+                XBOT=0.0D0
+                YBOT=0.0D0
+                XTOP=0.0D0
+                YTOP=0.0D0
+                XLFTO=0.0D0
+                YLFTO=0.0D0
+                XRHTO=0.0D0
+                YRHTO=0.0D0
+                XBOTO=0.0D0
+                YBOTO=0.0D0
+                XTOPO=0.0D0
+                YTOPO=0.0D0
+                CAFLG=0
+                COFLG=0
+                III=II
+!
+!     NOW FOR THE II SURFACE WE CALCULATE ALL THE END POINTS
+!
+      CALL CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT, &
+      YLFTO,XLFTO,YRHTO,XRHTO,XTOPO,YTOPO,XBOTO,YBOTO,CAFLG, &
+      COFLG,III &
+      ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ)
+!
+!
+      IF(WQ.EQ.'EDGEY') THEN
+                        EDGE(1,1,II)=XBOT
+                        EDGE(1,2,II)=YBOT
+                        EDGE(2,1,II)=XTOP
+                        EDGE(2,2,II)=YTOP
+                        EDGE(3,1,II)=XBOTO
+                        EDGE(3,2,II)=YBOTO
+                        EDGE(4,1,II)=XTOPO
+                        EDGE(4,2,II)=YTOPO
+                        ELSE
+                        END IF
+!
+                IF(WQ.EQ.'EDGEX') THEN
+                        EDGE(1,1,II)=XLFT
+                        EDGE(1,2,II)=YLFT
+                        EDGE(2,1,II)=XRHT
+                        EDGE(2,2,II)=YRHT
+                        EDGE(3,1,II)=XLFTO
+                        EDGE(3,2,II)=YLFTO
+                        EDGE(4,1,II)=XRHTO
+                        EDGE(4,2,II)=YRHTO
+                        ELSE
+                        END IF
+!
+!     NOW WE HAVE THE END POINTS, CYCLE THROUGH ALL FOUR PAIRS
+!
+!     2. USE APPROPRIATE CALLS TO THE SAGPLT.FOR ROUTINE
+!               TO CALCULATE THE SAG AND MAKE
+!               CETRAIN THE SIGN IS CORRECT FOR A LOCAL Z COORDINATE
+!
+                        IF(WQ.EQ.'EDGEX') THEN
+                        X1=XLFT2
+                        Y1=YLFT2
+                        X2=XRHT2
+                        Y2=YRHT2
+                        XX1=XLFTO
+                        YY1=YLFTO
+                        XX2=XRHTO
+                        YY2=YRHTO
+                        ELSE
+                        END IF
+                        IF(WQ.EQ.'EDGEY') THEN
+                        X1=XBOT2
+                        Y1=YBOT2
+                        X2=XTOP2
+                        Y2=YTOP2
+                        XX1=XBOTO
+                        YY1=YBOTO
+                        XX2=XTOPO
+                        YY2=YTOPO
+                        ELSE
+                        END IF
+                CALL SAGPLT(III,X1,Y1,Z,NO)
+                EDGE(1,3,II)=Z+ZDELZ
+                CALL SAGPLT(III,X2,Y2,Z,NO)
+                EDGE(2,3,II)=Z+ZDELZ
+                CALL SAGPLT(III,XX1,YY1,Z,NO)
+                EDGE(3,3,II)=Z+ZDELZ
+                CALL SAGPLT(III,XX2,YY2,Z,NO)
+                EDGE(4,3,II)=Z+ZDELZ
+!
+!               CYCLE THROUGH THE NEXT SURFACE
+                        END DO
+!
+!     3. THE ARRAYS NOW HAVE LOCAL X,Y AND Z VALUES STORED IN THEM
+!     CONVERT THE LOCAL X ANY Y EDGES TO GLOBAL NUMBERS
+!     GLOBAL VERTEX DATA IS
+                        DO II=STASUR,STPSUR
+        X00=VERTEX(1,II)
+        Y00=VERTEX(2,II)
+        Z0=VERTEX(3,II)
+        LX0=VERTEX(4,II)
+        MX0=VERTEX(5,II)
+        NX0=VERTEX(6,II)
+        LY0=VERTEX(7,II)
+        MY0=VERTEX(8,II)
+        NY0=VERTEX(9,II)
+        LZ0=VERTEX(10,II)
+        MZ0=VERTEX(11,II)
+        NZ0=VERTEX(12,II)
+                X=EDGE(1,1,II)
+                Y=EDGE(1,2,II)
+                Z=EDGE(1,3,II)
+!
+        X1=X00+((LX0*(X))+(LY0*(Y)) &
+        +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
+        +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
+        +(NZ0*(Z)))
+                EDGE(1,1,II)=X1
+                EDGE(1,2,II)=Y1
+                EDGE(1,3,II)=Z1
+                X=EDGE(2,1,II)
+                Y=EDGE(2,2,II)
+                Z=EDGE(2,3,II)
+!
+        X1=X00+((LX0*(X))+(LY0*(Y)) &
+        +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
+        +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
+        +(NZ0*(Z)))
+                EDGE(2,1,II)=X1
+                EDGE(2,2,II)=Y1
+                EDGE(2,3,II)=Z1
+                X=EDGE(3,1,II)
+                Y=EDGE(3,2,II)
+                Z=EDGE(3,3,II)
+!
+        X1=X00+((LX0*(X))+(LY0*(Y)) &
+        +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
+        +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
+        +(NZ0*(Z)))
+                EDGE(3,1,II)=X1
+                EDGE(3,2,II)=Y1
+                EDGE(3,3,II)=Z1
+                X=EDGE(4,1,II)
+                Y=EDGE(4,2,II)
+                Z=EDGE(4,3,II)
+!
+        X1=X00+((LX0*(X))+(LY0*(Y)) &
+        +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
+        +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
+        +(NZ0*(Z)))
+                EDGE(4,1,II)=X1
+                EDGE(4,2,II)=Y1
+                EDGE(4,3,II)=Z1
+                        END DO
+!
+!     4. NOW DETERMINE THE BEST PLACE FOR THE ROTATION POINT FOR
+!               PLOT LOOK/VIEW
+!
+                CALL ROT1
+!
+!     5.  CONVERT THE GLOBAL X ANY Y EDGES
+!               USING THE LOOK/VIEW VALUES
+                        DO II=STASUR,STPSUR
+                X=EDGE(1,1,II)
+                Y=EDGE(1,2,II)
+                Z=EDGE(1,3,II)
+      X=X-XROT
+      Y=Y-YROT
+      Z=Z-ZROT
+      XN=ROT1X(X,Z,VIEPH)
+      YN=Y
+      ZN=ROT1Z(X,Z,VIEPH)
+      X=XN
+      Y=YN
+      Z=ZN
+!
+      ZN=ROT2Z(Z,Y,VIEAL)
+      YN=ROT2Y(Z,Y,VIEAL)
+      XN=X
+      EDGE(1,1,II)=XN
+      EDGE(1,2,II)=YN
+      EDGE(1,3,II)=ZN
+                X=EDGE(2,1,II)
+                Y=EDGE(2,2,II)
+                Z=EDGE(2,3,II)
+      X=X-XROT
+      Y=Y-YROT
+      Z=Z-ZROT
+      XN=ROT1X(X,Z,VIEPH)
+      YN=Y
+      ZN=ROT1Z(X,Z,VIEPH)
+      X=XN
+      Y=YN
+      Z=ZN
+!
+      ZN=ROT2Z(Z,Y,VIEAL)
+      YN=ROT2Y(Z,Y,VIEAL)
+      XN=X
+      EDGE(2,1,II)=XN
+      EDGE(2,2,II)=YN
+      EDGE(2,3,II)=ZN
+                X=EDGE(3,1,II)
+                Y=EDGE(3,2,II)
+                Z=EDGE(3,3,II)
+      X=X-XROT
+      Y=Y-YROT
+      Z=Z-ZROT
+      XN=ROT1X(X,Z,VIEPH)
+      YN=Y
+      ZN=ROT1Z(X,Z,VIEPH)
+      X=XN
+      Y=YN
+      Z=ZN
+!
+      ZN=ROT2Z(Z,Y,VIEAL)
+      YN=ROT2Y(Z,Y,VIEAL)
+      XN=X
+      EDGE(3,1,II)=XN
+      EDGE(3,2,II)=YN
+      EDGE(3,3,II)=ZN
+                X=EDGE(4,1,II)
+                Y=EDGE(4,2,II)
+                Z=EDGE(4,3,II)
+      X=X-XROT
+      Y=Y-YROT
+      Z=Z-ZROT
+      XN=ROT1X(X,Z,VIEPH)
+      YN=Y
+      ZN=ROT1Z(X,Z,VIEPH)
+      X=XN
+      Y=YN
+      Z=ZN
+!
+      ZN=ROT2Z(Z,Y,VIEAL)
+      YN=ROT2Y(Z,Y,VIEAL)
+      XN=X
+      EDGE(4,1,II)=XN
+      EDGE(4,2,II)=YN
+      EDGE(4,3,II)=ZN
+                        END DO
+!
+!     THE ARRAYS NOW HAVE GLOBAL SURFACE EDGE DATA IN THEM
+!
+!     6.IF NEEDED, DETERMINE SCALE FACTORS AND PLOT RANGE
+!
+                CALL PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
+!
+!     7.CYCLE THROUGH THE THE ARRAYS, APPLY SCALE FACTORS
+!
+!     RIGHT NOW,COORDINATES ARE IN WORLD COORDINATES
+!     CONVERT THEM TO DEVICE INDEPENDENT GRAPHICS COORDINATES IN
+!     TWO STEPS.
+!
+!     THE WORLD X PLOTS TO THE PLOTTER X
+!     THE WORLD Y PLOTS TO THE PLOTTER Y
+!
+!     STEP 1: CONVERT USING AN APPROPRIATE SCALE FACTOR
+!               CALCULATING AN APPROPRIATE FACTOR IF NECESSARY
+!
+                        DO II=STASUR,STPSUR
+                        DO I=1,4
+                  EDGE(I,1,II)=(EDGE(I,1,II)/SCFAX)*1000.0D0
+                  EDGE(I,2,II)=(EDGE(I,2,II)/SCFAY)*1000.0D0
+                        END DO
+                        END DO
+!
+!     8. APPLY THE PLOT XSHIFT AND YSHIFT VALUES
+                        DO I=1,4
+                        DO II=STASUR,STPSUR
+      IF(LORIENT) CALL ORSHIFT
+      EDGE(I,1,II)=EDGE(I,1,II)+DBLE(PXSHFT)
+      EDGE(I,2,II)=EDGE(I,2,II)+3500.0D0+DBLE(PYSHFT)
+                        END DO
+                        END DO
+!
+!     9. SET THE PLOT JUSTIFICATION IF NEEDED
+!     IF THERE ARE X-OFFSETS (JUSTIFICATION) TO APPLY, DO THEM HERE.
+!
+!     NOW
+      IF(RCL.EQ.1.OR.RCL.EQ.-1) THEN
+      JUSOFF=500.0D0-((XMINI/SCFAX)*1000.0D0)
+                        RCL=-1
+                        ELSE
+                        END IF
+      IF(RCL.EQ.2.OR.RCL.EQ.-2) THEN
+                        RCL=-2
+                        JUSOFF=5000.0D0
+                        ELSE
+                        END IF
+      IF(RCL.EQ.3.OR.RCL.EQ.-3) THEN
+      JUSOFF=9500.0D0-((XMAXI/SCFAX)*1000.0D0)
+                        RCL=-3
+                        ELSE
+                        END IF
+!
+                        DO I=1,4
+                        DO II=STASUR,STPSUR
+      EDGE(I,1,II)=EDGE(I,1,II)+JUSOFF
+                        END DO
+                        END DO
+!     9. PLOT GAMMA
+!     IF THERE IS A NON-ZERO GAMMA SPECIFIED IN PLOT LOOK OR PLOT VIEW THEN
+!     ROTATE IN GAMMA ON THE SCREEN ABOUT THE CENTER OF THE SCREEN
+!     WHICH HAS COORDINATES X=5000.0D0,Y=3500.0D0
+!
+!     FIRST SHIFT THE COORDINATE ORIGIN TO THE CETER OF THE DISPLAY
+!
+                        DO I=1,4
+                        DO II=STASUR,STPSUR
+      EDGE(I,1,II)=EDGE(I,1,II)-5000.0D0
+      EDGE(I,2,II)=EDGE(I,2,II)-3500.0D0
+                        END DO
+                        END DO
+!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     FRAME IS NOW X AND Y
+
+      IF(DBLE(PGAMMA).NE.0.0D0) THEN
+      LKG=(PII/180.0D0)*DBLE(PGAMMA)
+
+                        DO I=1,4
+                        DO II=STASUR,STPSUR
+                X=EDGE(I,1,II)
+                Y=EDGE(I,2,II)
+                XNEW=((X*DCOS(LKG))-(Y*DSIN(LKG)))
+                YNEW=((X*DSIN(LKG))+(Y*DCOS(LKG)))
+                EDGE(I,1,II)=XNEW
+                EDGE(I,2,II)=YNEW
+                        END DO
+                        END DO
+                        ELSE
+                        END IF
+!     THE ROTATION IS DONE, NOW SHIFT THE ORIGIN BACK TO THE BOTTOM
+!     LEFT HAND CORNER
+                        DO I=1,4
+                        DO II=STASUR,STPSUR
+      EDGE(I,1,II)=EDGE(I,1,II)+5000.0D0
+      EDGE(I,2,II)=EDGE(I,2,II)+3500.0D0
+                        END DO
+                        END DO
+!
+        IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+!
+      IF(WQ.EQ.'EDGEX') THEN
+!     FIRST DO THE EDGES OF THE CLAPS
+!     DRAW THE X EDGES AND RETURN
+                        DO J=1,4
+      IF(J.EQ.1.OR.J.EQ.2) THEN
+                        DO I=STASUR,STPSUR
+      IF(I.EQ.0) THEN
+                        IPST=0
+                        ELSE
+!                       NOT OBJECT
+!
+!     NOW DRAW THE X EDGES OF THE CLAP AT SURFACE I
+!     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
+!
+!     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
+!     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
+!     DRAW THE EDGE. IF THE CURRENT SURFACE MATERIAL IS AIR, DON'T
+!     DRAW THE EDGE.
+!     IN ALL OTHER CASES, DRAW THE EDGE.
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
+      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
+      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
+      GLANAM(I-1,2).EQ.'REFL         '.AND. &
+      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                        IPST=0
+                        ELSE
+                        IPST=1
+      IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
+                        END IF
+                        END IF
+      IF(I.GT.STASUR) THEN
+        IF (GLANAM(I-1,1).EQ.'MYGLASS') THEN
+                        IPST=1
+                        END IF
+      END IF
+!
+      IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
+      IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
+      IF(EDGE(J,1,I).LT.-1.0D6) EDGE(J,1,I)=-1.0D6
+      IF(EDGE(J,2,I).LT.-1.0D6) EDGE(J,2,I)=-1.0D6
+      IX=INT(EDGE(J,1,I))
+      IY=INT(EDGE(J,2,I))
+      P1ARAY(I,1,1)=IX
+      P1ARAY(I,2,1)=IY
+      P1ARAY(I,3,1)=IPST
+        IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+                        END DO
+!     FINISHED WITH THAT EDGE, LIFT PEN
+      IPST=0
+!     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE P1ARAY ARRAY
+!
+      COLPAS=COLEDG
+      CALL MY_COLTYP(COLPAS)
+        FIXUP=.FALSE.
+                        DO IK=STASUR,STPSUR
+        IF(IK.GT.STASUR) THEN
+
+      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND. &
+      ALENS(127,IK-1).NE.0.0D0) THEN
+                        ELSE
+        IF(IK.EQ.0) P1ARAY(IK,3,1)=0
+        IF(IK.GT.0) THEN
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
+        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+                        END IF
+      END IF
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+                        END IF
+                        END DO
+!     NOW DO THE EDGES OF THE COBS
+                        ELSE
+!     J NOT 1 OR 2
+                        END IF
+!
+      IF(J.EQ.3.OR.J.EQ.4) THEN
+
+!     DRAW THE X EDGES AND RETURN
+                        DO I=STASUR,STPSUR
+!
+!     NOW DRAW THE X EDGES OF THE COBS AT SURFACE I
+!     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
+!
+      IF(I.EQ.0) THEN
+                        IPST=0
+                        ELSE
+!                       NOT OBJECT
+!
+!     NOW DRAW THE X EDGES OF THE CLAP AT SURFACE I
+!     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
+!
+!     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
+!     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
+!     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
+      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
+      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
+      GLANAM(I-1,2).EQ.'REFL         '.AND. &
+      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                        IPST=0
+                        ELSE
+      IF(ALENS(16,I).NE.0.0D0.AND.ALENS(16,I-1).NE.0.0D0) THEN
+                        IPST=1
+      IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
+                        ELSE
+                        IPST=0
+                        END IF
+                        END IF
+                        END IF
+        IF(I.GT.STASUR) THEN
+           IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
+              IPST=1
+           END IF
+        END IF
+      IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
+      IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
+      IF(EDGE(J,1,I).LT.-1.0D6) EDGE(J,1,I)=-1.0D6
+      IF(EDGE(J,2,I).LT.-1.0D6) EDGE(J,2,I)=-1.0D6
+      IX=INT(EDGE(J,1,I))
+      IY=INT(EDGE(J,2,I))
+      P1ARAY(I,1,1)=IX
+      P1ARAY(I,2,1)=IY
+      P1ARAY(I,3,1)=IPST
+        IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+                END DO
+!     FINISHED WITH THAT EDGE, LIFT PEN
+      IPST=0
+!     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE P1ARAY ARRAY
+!
+      COLPAS=COLEDG
+      CALL MY_COLTYP(COLPAS)
+        FIXUP=.FALSE.
+                        DO IK=STASUR,STPSUR
+      IF(IK.GT.STASUR) THEN
+      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND. &
+      ALENS(127,IK-1).NE.0.0D0) THEN
+                        ELSE
+        IF(IK.EQ.0) P1ARAY(IK,3,1)=0
+        IF(IK.GT.0) THEN
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
+        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+                        END IF
+      END IF
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+                        END IF
+                        END DO
+                        ELSE
+!     J NOT 3 OR 4
+                        END IF
+                        END DO
+                        ELSE
+!     NOT EDGEX
+                        END IF
+!
+      IF(WQ.EQ.'EDGEY') THEN
+!     FIRST DO THE EDGES OF THE CLAPS
+!     DRAW THE Y EDGES AND RETURN
+                        DO J=1,4
+      IF(J.EQ.1.OR.J.EQ.2) THEN
+                        DO I=STASUR,STPSUR
+      IF(I.EQ.0) THEN
+                        IPST=0
+                        ELSE
+!                       NOT OBJECT
+!
+!     NOW DRAW THE Y EDGES OF THE CLAP AT SURFACE I
+!     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
+!
+!     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
+!     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
+!     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
+      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
+      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
+      GLANAM(I-1,2).EQ.'REFL         '.AND. &
+      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                        IPST=0
+                        ELSE
+                        IPST=1
+      IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
+                        END IF
+                        END IF
+        IF(I.GT.1) THEN
+          IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
+            IPST=1
+          END IF
+        END IF
+!
+      IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
+      IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
+      IF(EDGE(J,1,I).LT.-1.0D6) EDGE(J,1,I)=-1.0D6
+      IF(EDGE(J,2,I).LT.-1.0D6) EDGE(J,2,I)=-1.0D6
+      IX=INT(EDGE(J,1,I))
+      IY=INT(EDGE(J,2,I))
+      P1ARAY(I,1,1)=IX
+      P1ARAY(I,2,1)=IY
+      P1ARAY(I,3,1)=IPST
+        IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+                        END DO
+!     FINISHED WITH THAT EDGE, LIFT PEN
+      IPST=0
+!     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE P1ARAY ARRAY
+!
+      COLPAS=COLEDG
+      CALL MY_COLTYP(COLPAS)
+        FIXUP=.FALSE.
+
+                        DO IK=STASUR,STPSUR
+        ! Original code did not compile with checkflags
+  !      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
+  !   1ALENS(127,IK-1).NE.0.0D0) THEN
+        SKIPNEXT = 0
+        IF(ALENS(127,IK).NE.0.0D0) SKIPNEXT = 1
+        IF((IK-1).GT.-1) THEN
+          IF(IK.NE.STASUR.AND.ALENS(127,IK-1).NE.0.0D0) THEN
+            SKIPNEXT=1
+          END IF
+        END IF
+          IF(SKIPNEXT.EQ.1) THEN
+                        ELSE
+        IF(IK.EQ.0) P1ARAY(IK,3,1)=0
+        IF(IK.GT.0) THEN
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
+        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+                        END IF
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+                        END IF
+                        END DO
+!     NOW DO THE EDGES OF THE COBS
+                        ELSE
+!     J NOT 1 OR 2
+                        END IF
+!
+      IF(J.EQ.3.OR.J.EQ.4) THEN
+
+!     DRAW THE Y EDGES AND RETURN
+                        DO I=STASUR,STPSUR
+!
+!     NOW DRAW THE Y EDGES OF THE COBS AT SURFACE I
+!     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
+!
+      IF(I.EQ.0) THEN
+                        IPST=0
+                        ELSE
+!                       NOT OBJECT
+!
+!     NOW DRAW THE X EDGES OF THE CLAP AT SURFACE I
+!     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
+!
+!     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
+!     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
+!     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
+      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
+      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
+      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
+      GLANAM(I-1,2).EQ.'REFL         '.AND. &
+      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
+      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                        IPST=0
+                        ELSE
+      IF(ALENS(16,I).NE.0.0D0.AND.ALENS(16,I-1).NE.0.0D0) THEN
+                        IPST=1
+      IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
+                        ELSE
+                        IPST=0
+                        END IF
+                        END IF
+                        END IF
+        IF(I.GT.0) THEN
+
+        IF(GLANAM(I-1,1).EQ.'MYGLASS') THEN
+                        IPST=1
+                        END IF
+        END IF
+      IF(EDGE(J,1,I).GT.1.0D6) EDGE(J,1,I)=1.0D6
+      IF(EDGE(J,2,I).GT.1.0D6) EDGE(J,2,I)=1.0D6
+      IF(EDGE(J,1,I).LT.-1.0D6) EDGE(J,1,I)=-1.0D6
+      IF(EDGE(J,2,I).LT.-1.0D6) EDGE(J,2,I)=-1.0D6
+      IX=INT(EDGE(J,1,I))
+      IY=INT(EDGE(J,2,I))
+      P1ARAY(I,1,1)=IX
+      P1ARAY(I,2,1)=IY
+      P1ARAY(I,3,1)=IPST
+        IF(.NOT.PLEXIS) PLEXIS=.TRUE.
+                END DO
+!     FINISHED WITH THAT EDGE, LIFT PEN
+      IPST=0
+!     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE P1ARAY ARRAY
+!
+      COLPAS=COLEDG
+      CALL MY_COLTYP(COLPAS)
+        FIXUP=.FALSE.
+                        DO IK=STASUR,STPSUR
+        SKIPNEXT = 0
+        IF(ALENS(127,IK).NE.0.0D0) SKIPNEXT = 1
+        IF((IK-1).GT.-1) THEN
+          IF(IK.NE.STASUR.AND.ALENS(127,IK-1).NE.0.0D0) THEN
+            SKIPNEXT=1
+          END IF
+        END IF
+          IF(SKIPNEXT.EQ.1) THEN
+!      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
+!     1ALENS(127,IK-1).NE.0.0D0) THEN
+                        ELSE
+!
+        IF(IK.EQ.0) P1ARAY(IK,3,1)=0
+        IF(IK.GT.0) THEN
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
+        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+                        END IF
+!
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+                        END IF
+                        END DO
+                        ELSE
+!     J NOT 3 OR 4
+                        END IF
+                        END DO
+                        ELSE
+!     NOT EDGEY
+                        END IF
+!
+!
+!     HERE WE DO THE PLOT LI AND PLOT AXIS DRAWING
+                        IF(.NOT.VIGFLG.AND.PLTVIG) THEN
+                        CALL VIGSHO
+                        VIGFLG=.TRUE.
+                        ELSE
+                        END IF
+      DEALLOCATE(EDGE,STAT=ALLOERR)
+                        RETURN
+                        END

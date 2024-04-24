@@ -128,15 +128,15 @@ contains
     ! here.  I just did a few to test it out
     ! I am not sure this is the long term best way to store this info
     ! so didn't want to do a bunch of converting only to convert again
-    self%names(1) = 'WATER2'
-    self%names(2) = 'ACRYLIC2'
-    self%names(3) = 'POLYSTYRENE2'
-    self%names(4) = 'POLYCARBONATE2'
-    self%names(5) = 'SAN2'
-    self%names(6) = 'SILICON2'
-    self%names(7) = 'SILICA2'
-    self%names(8) = 'SAPPHIRE2'
-    self%names(9) = 'DIAMOND2'
+    self%names(1) = 'WATER'
+    self%names(2) = 'ACRYLIC'
+    self%names(3) = 'POLYSTYRENE'
+    self%names(4) = 'POLYCARBONATE'
+    self%names(5) = 'SAN'
+    self%names(6) = 'SILICON'
+    self%names(7) = 'SILICA'
+    self%names(8) = 'SAPPHIRE'
+    self%names(9) = 'DIAMOND'
 
 
 
@@ -317,7 +317,7 @@ end function
       ((3.24263E-8)*(lambda**4))    
     end if      
     
-  case('LIF2')
+  case('LIF')
     if(lambda == 0.0) then
       n = 1.0
     else
@@ -328,7 +328,7 @@ end function
       -(0.00000557D0*(lambda**4))
     end if         
 
-  case('KBR2')
+  case('KBR')
     if(lambda == 0.0) then
       n = 1.0
     else
@@ -338,7 +338,7 @@ end function
       (0.007676D0/(lambda**2))+(0.0156569D0/((lambda**2)-0.0324D0)))
     end if         
 
-  case('SAPPHIRE2')
+  case('SAPPHIRE')
     if(lambda == 0.0) then
       n = 1.0
     else
@@ -350,7 +350,7 @@ end function
     end if         
 
 
-  case('WATER2')
+  case('WATER')
 !    INTERPOLATE THE H2O
                NUM=21
 

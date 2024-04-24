@@ -190,6 +190,9 @@ C
         !CALL SHOWIT(19)
 
 
+
+        Call LogTermFOR("CONTROB WS is "//WS(1:13))
+
         IF(WC.EQ.'ANGLES') RETURN
         IF(WC.EQ.'MYGLASS') WC='GLASS'
 
@@ -4123,6 +4126,8 @@ C               DURING THIS MODE.
                 IF(IS) THEN
       OUTLYNE = "ABOUT TO CALL LENIN"
       CALL SHOWIT(19)
+      Call LogTermFOR("Calling LENIN INPUT "//INPUT)
+      Call LogTermFOR("GlassName is "//WS(1:13))
                 CALL LENIN
                 call curr_lens_data%update()
       OUTLYNE = "GOT BACK FROM LENIN "
@@ -5191,7 +5196,7 @@ C               IF(WC.EQ.'LOADSCOT')            IS=.TRUE.
                         RETURN
                         END
       SUBROUTINE CONTF(WC,WS,SST,IS)
-      
+      use glass_manager
       IMPLICIT NONE
       CHARACTER WC*8,WS*80
       INTEGER SST
@@ -5199,6 +5204,10 @@ C               IF(WC.EQ.'LOADSCOT')            IS=.TRUE.
                         IS=.FALSE.
                 PRINT *, "Checking ", WC
 C       THIS IS THE LIST OF VALID LENS INPUT COMMANDS
+                IF(gdb%isNameInCatalog(WC)) THEN
+                  IS=.TRUE.
+                  call LogTermFOR("Found IN CAT!")
+                END IF 
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
@@ -5495,6 +5504,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
       SUBROUTINE CONTG(WC,WS,SST,IS)
 C     LENS UPDATE
       use codeV_commands, only: isCodeVCommand
+      use glass_manager
       IMPLICIT NONE
       CHARACTER WC*8,WS*80
       INTEGER SST
@@ -5502,7 +5512,11 @@ C     LENS UPDATE
 
       PRINT *, "CONTG ROUTINE"
                         IS=.FALSE.
-                IF(isCodeVCommand(WC))  IS=.TRUE.        
+                IF(isCodeVCommand(WC))  IS=.TRUE. 
+                IF(gdb%isNameInCatalog(WC)) THEN
+                  IS=.TRUE.
+                  call LogTermFOR("Found IN CAT!")
+                END IF       
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
@@ -5940,7 +5954,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'C')                           IS=.TRUE.
                 IF(WC.EQ.'M')                           IS=.TRUE.
                 IF(WC.EQ.'SPDEL')                       IS=.TRUE.
-                IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
+                !IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
                 IF(WC.EQ.'GENL')                        IS=.TRUE.
                 IF(WC.EQ.'C1')                          IS=.TRUE.
                 IF(WC.EQ.'C2')                          IS=.TRUE.
@@ -6168,7 +6182,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'C')                           IS=.TRUE.
                 IF(WC.EQ.'M')                           IS=.TRUE.
                 IF(WC.EQ.'SPDEL')                       IS=.TRUE.
-                IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
+                !IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
                 IF(WC.EQ.'GENL')                        IS=.TRUE.
                 IF(WC.EQ.'C1')                          IS=.TRUE.
                 IF(WC.EQ.'C2')                          IS=.TRUE.
@@ -7714,12 +7728,17 @@ C     END OF NON-SEQUENTIAL COMMANDS
                         RETURN
                         END
       SUBROUTINE CONTR(WC,WQ,SQ,IS)
+      use glass_manager  
 C       CONFIGS INPUT AND UPDATE
       IMPLICIT NONE
       CHARACTER WC*8,WQ*8
       INTEGER SQ
       LOGICAL IS
                 IS=.FALSE.
+                IF(gdb%isNameInCatalog(WC)) THEN
+                  IS=.TRUE.
+                  call LogTermFOR("Found IN CAT!")
+                END IF
                 IF(WC.EQ.'GET     ') IS=.TRUE.
                 IF(WC.EQ.'AGET    ') IS=.TRUE.
                 IF(WC.EQ.'RCL     ') IS=.TRUE.
@@ -8147,7 +8166,7 @@ C        ARE VALID AS WELL
                 IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'ON')        IS=.TRUE.
                 IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'OFF')       IS=.TRUE.
                 IF(WC.EQ.'SPDEL')                       IS=.TRUE.
-                IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
+                !IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
                 IF(WC.EQ.'GENL')                        IS=.TRUE.
                 IF(WC.EQ.'C1')                          IS=.TRUE.
                 IF(WC.EQ.'C2')                          IS=.TRUE.
