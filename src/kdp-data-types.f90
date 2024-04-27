@@ -113,6 +113,7 @@ contains
  procedure, public, pass(self) :: setWavelengths
  procedure, public, pass(self) :: setSpectralWeights
  procedure, public, pass(self) :: setRelativeFields
+ procedure, public, pass(self) :: setAbsoluteFields
  procedure, public, pass(self) :: getFieldText
  procedure :: getLensUnitsText
  procedure, private :: setNumberofWavelengths
@@ -1188,6 +1189,47 @@ subroutine genSaveOutputText(self, fID)
 
 end subroutine
 
+subroutine setAbsoluteFields(self, absFields, fieldDir)
+  ! fieldDir =1 : X
+  ! fieldDir =2 : Y
+  use type_utils, only: real2str, int2str
+  use iso_fortran_env, only: real64
+  implicit none
+
+  class(sys_config), intent(inout) :: self
+  real(kind=real64) :: absFields(:)
+  real(kind=real64) :: maxField
+  
+  integer, intent(in) :: fieldDir
+  integer :: i
+
+  include "DATLEN.INC"
+
+  ! Figure out which one is maximum
+  do i=1,size(absFields)
+    if (absFields(i) > maxField) maxField = absFields(i)
+  end do
+
+  ! TEMP FOR TESTING
+  !self%currFieldID = FIELD_OBJECT_ANGLE_DEG
+  ! Update zoa and kdp data structures
+  ! call LogTermFOR("Max FIeld is "//real2str(maxField))
+  ! self%refFieldValue(fieldDir) = maxField
+  ! call self%setRefFieldKDP()
+  ! call LogTermFOR("Max FIeld is "//real2str(self%refFieldValue(fieldDir)))
+
+  ! ! Update number of fields based on size of absFields
+  ! call LogTermFOR("Number of Fields is "//int2str(size(absFields)))
+  ! call self%setNumFields(size(absFields))
+  
+  ! Update vals
+  do i=1,size(absFields)
+    self%relativeFields(fieldDir, i) = absFields(i)
+  end do
+  CFLDS = self%relativeFields  
+
+end subroutine
+
 subroutine setRelativeFields(self, col, row, newval)
   implicit none
   class(sys_config), intent(inout) :: self
@@ -1842,14 +1884,14 @@ subroutine genLensDataSaveOutputText(self, fID)
     
   end do
 
-  ! Do Image SUrface
-  
+  ! Do Image SUrface.  
+
   if (rdmFlag) then
-    strSurfLine = 'SI'//blankStr(3)//real2str(self%radii(self%num_surfaces),4)//blankStr(5)// &
-    & real2str(self%thicknesses(self%num_surfaces))//blankStr(5)//self%glassnames(self%num_surfaces)
+    strSurfLine = 'SI'//blankStr(2)//trim(real2str(self%radii(self%num_surfaces),4))//blankStr(3)// &
+    & trim(real2str(self%thicknesses(self%num_surfaces)))//blankStr(3)//self%glassnames(self%num_surfaces)
   else
-    strSurfLine = 'SI'//blankStr(3)//real2str(self%curvatures(self%num_surfaces),4)//blankStr(5)// &
-    & real2str(self%thicknesses(self%num_surfaces))//blankStr(5)//self%glassnames(self%num_surfaces)  
+    strSurfLine = 'SI'//blankStr(2)//trim(real2str(self%curvatures(self%num_surfaces),4))//blankStr(3)// &
+    & trim(real2str(self%thicknesses(self%num_surfaces)))//blankStr(3)//self%glassnames(self%num_surfaces)  
   end if
   write(fID, *) trim(strSurfLine)
   PRINT *, trim(strSurfLine)  
@@ -1858,9 +1900,8 @@ subroutine genLensDataSaveOutputText(self, fID)
     write(fID, *) trim(strSurfLine)
   end if
 
-
-
-
+  ! Now that we are done send GO cmd to leave lens update level
+  write(fID, *) "GO"
 
 end subroutine
 

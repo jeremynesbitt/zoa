@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(512) :: zoaCmds
+    type(zoa_cmd), dimension(515) :: zoaCmds
 
     contains
 
@@ -54,32 +54,42 @@ module codeV_commands
         zoaCmds(1)%execFunc => execRMD
         !zoaCmds(2)%cmd = 'WL'
         !zoaCmds(2)%execFunc => setWavelength
-        zoaCmds(2)%cmd = "SAV"
-        zoaCmds(2)%execFunc => execSAV
-        zoaCmds(3)%cmd = "REF"
-        zoaCmds(3)%execFunc => execSetWavelengthIndex  
-        zoaCmds(4)%cmd = "RES"
-        zoaCmds(4)%execFunc => execRestore 
-        zoaCmds(5)%cmd = "VIE"
-        zoaCmds(5)%execFunc => execVie    
-        zoaCmds(6)%cmd = "SUR"
-        zoaCmds(6)%execFunc => execSUR                                
-        zoaCmds(7)%cmd = "STO"
-        zoaCmds(7)%execFunc => execSTO    
-        zoaCmds(8)%cmd = "S"
-        zoaCmds(8)%execFunc => setSurfaceCodeVStyle    
-        zoaCmds(9)%cmd = "SO"
-        zoaCmds(9)%execFunc => setSurfaceCodeVStyle   
-        zoaCmds(10)%cmd = 'WL'
-        zoaCmds(10)%execFunc => setWavelength    
-        zoaCmds(11)%cmd = 'STOP'
-        zoaCmds(11)%execFunc => execSTO  
-        zoaCmds(12)%cmd = 'YAN'
-        zoaCmds(12)%execFunc => setField                            
         do i = 1,499
-            zoaCmds(12+i)%cmd = 'S'//trim(int2str(i))
-            zoaCmds(12+i)%execFunc => setSurfaceCodeVStyle    
-        end do
+            zoaCmds(i)%cmd = 'S'//trim(int2str(i))
+            zoaCmds(i)%execFunc => setSurfaceCodeVStyle    
+        end do        
+        zoaCmds(500)%cmd = "SAV"
+        zoaCmds(500)%execFunc => execSAV
+        zoaCmds(501)%cmd = "REF"
+        zoaCmds(501)%execFunc => execSetWavelengthIndex  
+        zoaCmds(502)%cmd = "RES"
+        zoaCmds(502)%execFunc => execRestore 
+        zoaCmds(503)%cmd = "VIE"
+        zoaCmds(503)%execFunc => execVie    
+        zoaCmds(504)%cmd = "SUR"
+        zoaCmds(504)%execFunc => execSUR                                
+        zoaCmds(505)%cmd = "STO"
+        zoaCmds(505)%execFunc => execSTO    
+        zoaCmds(506)%cmd = "S"
+        zoaCmds(506)%execFunc => setSurfaceCodeVStyle    
+        zoaCmds(507)%cmd = "SO"
+        zoaCmds(507)%execFunc => setSurfaceCodeVStyle   
+        zoaCmds(508)%cmd = 'WL'
+        zoaCmds(508)%execFunc => setWavelength    
+        zoaCmds(509)%cmd = 'STOP'
+        zoaCmds(509)%execFunc => execSTO  
+        zoaCmds(510)%cmd = 'YAN'
+        zoaCmds(510)%execFunc => setField
+        zoaCmds(511)%cmd = 'XAN'
+        zoaCmds(511)%execFunc => setField                                    
+        zoaCmds(512)%cmd = 'CIR'
+        zoaCmds(512)%execFunc => execCIR  
+        zoaCmds(513)%cmd = 'SI'
+        zoaCmds(513)%execFunc => setSurfaceCodeVStyle 
+        zoaCmds(514)%cmd = 'WTW'
+        zoaCmds(514)%execFunc => setWavelengthWeights          
+        zoaCmds(515)%cmd = 'WTF'
+        zoaCmds(515)%execFunc => setFieldWeights 
 
     end subroutine
 
@@ -226,6 +236,37 @@ module codeV_commands
         call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
         call PROCESKDP('VIECO')
         call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
+
+
+    end subroutine
+
+    subroutine execCIR(self, iptStr)
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: real2str
+        use handlers, only: updateTerminalLog
+    
+        implicit none        
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        character(len=80) :: tokens(40)
+        character(len=256) :: fullPath
+        integer :: numTokens
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        if (numTokens == 2 ) then
+                call executeCodeVLensUpdateCommand('CLAP '//trim(tokens(2)),.TRUE.)
+            !else
+
+            !call updateTerminalLog("", "red")
+            !end if
+
+        else
+            call updateTerminalLog("No circular aperture identified", "red")
+
+        end if
+
 
 
     end subroutine
@@ -969,11 +1010,48 @@ module codeV_commands
 
       end subroutine
 
+      subroutine setFieldWeights(self, iptStr)
+        use handlers, only: updateTerminalLog
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        ! This is not implemented. 
+        call updateTerminalLog("Field Weights Command "//trim(iptStr)//" &
+        & Not supported", "black")
+
+      end subroutine
+
+      subroutine setWavelengthWeights(self, iptStr)
+        use strings
+        use type_utils, only: int2str, str2real8
+        use handlers, only: updateTerminalLog
+        use global_widgets, only: sysConfig
+        use iso_fortran_env, only: real64
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: i
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        do i=2,numTokens
+            call sysConfig%setSpectralWeights(i-1,real(str2real8(trim(tokens(i))),4))            
+        end do
+
+        end subroutine
+
+
       subroutine setField(self, iptStr)
         ! TODO:  Support things other than YAN
          use command_utils, only : parseCommandIntoTokens
-         use type_utils, only: int2str
+         use type_utils, only: int2str, str2real8
          use handlers, only: updateTerminalLog
+         use kdp_utils, only: inLensUpdateLevel
+         use global_widgets, only: sysConfig
+         use iso_fortran_env, only: real64
          implicit none
  
          class(zoa_cmd) :: self
@@ -982,15 +1060,47 @@ module codeV_commands
          integer :: i,numFields
          character(len=80) :: tokens(40)
          integer :: numTokens
+         real(kind=real64), allocatable :: absFields(:)
+
+         integer, parameter :: X_COL = 1
+         integer, parameter :: Y_COL = 2
+         integer :: FLD_COL
+
  
          call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
-         numFields = numTokens-1
-         call PROCESKDP('FLDSMAX '//int2str(numFields))
-         do i=1,numFields
-            call PROCESKDP('FLDS '//int2str(i)//' 0 '//trim(tokens(i+1)))
+         ! TODO:  Support more field types
+         if (tokens(1).EQ.'YAN') FLD_COL = Y_COL
+         if (tokens(1).EQ.'XAN') FLD_COL = X_COL
+
+
+         call LogTermFOR("IPTSTR is "//trim(iptStr))
+
+        ! PRINT *, "IPTSTR is ", trim(iptStr)
+        ! PRINT *, "number of Fields is ", numFields
+
+          numFields = numTokens-1
+          call LogTermFOR("Numfields is "//int2str(numFields))
+          allocate(absFields(numFields))
+          do i=1,numFields
+            absFields(i) = str2real8(trim(tokens(i+1)))
+          end do
+          call sysConfig%setAbsoluteFields(absFields, FLD_COL)
+
+
+         
+
+         ! Exit lens update level if we are there, since KDP doesn't support field updating
+         ! at that level
+        !  if (inLensUpdateLevel()) call PROCESKDP('EOS')
+        !  numFields = numTokens-1
+        !  call PROCESKDP('FLDS MAX '//trim(int2str(numFields)))
+        !  call LogTermFOR("cmd "//'FLDS MAX '//int2str(numFields))
+        !  do i=1,numFields
+        !     call PROCESKDP('FLDS '//trim(int2str(i))//' 0 '//trim(tokens(i+1)))
+        !     call LogTermFOR("cmd "//'FLDS '//trim(int2str(i))//' 0 '//trim(tokens(i+1)))
             
-         end do
+        !  end do
 
        end subroutine   
        
@@ -1089,6 +1199,11 @@ module codeV_commands
             end if
 
         end do
+
+        if (tstCmd.EQ.'SI') then
+            boolResult = .TRUE.
+            return
+        end if        
 
         ! SA for SUR command
         if (tstCmd.EQ.'SA') then
@@ -1190,11 +1305,17 @@ module codeV_commands
 
         ! Hide KDP Commands from user
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
+          
 
-        if (inLensUpdateLevel()) then               
+        if (inLensUpdateLevel()) then       
+            call LogTermFOR("About to call "//iptCmd)        
             call PROCESKDP(iptCmd)
         else
-            call PROCESKDP('U L;'// iptCmd //';EOS')
+            !call PROCESKDP('U L;'// iptCmd //';EOS')
+            ! Update - do not exit lens update level to better support stops
+            ! clear apertures, etc 
+            call LogTermFOR("About to call "//iptCmd)
+            call PROCESKDP('U L;'// iptCmd )
         end if
 
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
@@ -1206,8 +1327,8 @@ module codeV_commands
         character(len=*) :: iptCmd
         integer :: surfNum
 
-        print *, "IPTCMD is ", iptCmd
-        print *, "len of iptCmd is ", len(iptCmd)
+        !print *, "IPTCMD is ", iptCmd
+        !print *, "len of iptCmd is ", len(iptCmd)
 
         if(len(iptCmd).EQ.1) then ! It is S, which means we have to add a surface before
                                   ! the last surface.  
@@ -1220,6 +1341,11 @@ module codeV_commands
         if(len(iptCmd).EQ.2) then
             if (iptCmd(2:2).EQ.'O') then ! 'CMD is SO
                 surfNum = 0
+                return
+            end if
+            if (iptCmd(2:2).EQ.'I') then ! CMD is SI
+                surfNum = curr_lens_data%num_surfaces-1 ! Not sure thsi is correct
+                call LogTermFOR("DEBUG:  Setting SurfNum to "//int2str(surfNum))
                 return
             end if
         end if
@@ -1275,6 +1401,7 @@ module codeV_commands
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
+        use strings
         
     
         implicit none
@@ -1287,7 +1414,10 @@ module codeV_commands
         character(len=256) :: fullPath
         integer :: numTokens
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+
+        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        call LogTermFOR("In SetSurfCodeVStyle")
 
         select case(numTokens)
         case (1)
@@ -1295,24 +1425,35 @@ module codeV_commands
         case (2) ! Curvature only
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
             call LogTermFOR("Cmd to parse is "//trim(iptStr))
+            call LogTermFOR("tokens(2) is "//trim(tokens(2)))
+
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(2)), .TRUE.)              
         case (3) ! Curvature and thickness
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            ! KDP Does not allow setting image thickness.  So work around this for now
+            if (trim(tokens(1)).EQ.'SI') then
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; RD, ' // trim(tokens(2)), .TRUE.)   
+            else
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3)))            
+            & trim(tokens(3)), .TRUE.)        
+            end if    
         case (4) ! Curvature, thickness, and glass
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
             if(.not.isSpecialGlass(trim(tokens(4)))) then
+
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4))))) 
+            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4)))), .TRUE.) 
             else
                 ! TODO:  This and the isSpecialGlass function should go somewhere else.
                 ! but first need to figure out if I really want to store this info in 
                 ! glassnames or create a new array for this info.
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; RD, ' // trim(tokens(2))//";TH, "// &
-                & trim(tokens(3))//';' // trim(tokens(4)))                
+                & trim(tokens(3))//';' // trim(tokens(4)),.TRUE.)                
             end if
         end select
     end subroutine

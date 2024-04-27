@@ -264,7 +264,7 @@ module zoa_file_handler
               close(99)
               return
             else
-              !call LogTermFOR("Processing "//trim(line))
+              call LogTermFOR("Processing "//trim(line))
               call PROCESKDP(trim(line))
             end if
             n = n + 1
