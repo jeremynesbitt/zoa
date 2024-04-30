@@ -119,6 +119,9 @@ contains
  procedure, private :: setNumberofWavelengths
  procedure, private, pass(self) :: setRefFieldKDP
  procedure, public, pass(self) :: genSaveOutputText
+ procedure, public, pass(self) :: setFieldTypeFromString
+ procedure, public, pass(self) :: setMaxField
+
 
 
 
@@ -680,9 +683,31 @@ subroutine updateParameters(self)
 
 end subroutine
 
+! Was having some trouble with the setRefFieldKDP sub so wrote this one to figure out
+! what is going on.  Only one should survive...
+subroutine setMaxField(self)
+  use type_utils, only: real2str
+  implicit none
+  class(sys_config) :: self
+
+  select case (self%currFieldID)
+
+  case (FIELD_OBJECT_HEIGHT)
+
+    call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
+
+  case (FIELD_OBJECT_ANGLE_DEG)
+    call PROCESKDP("U L; SCY FANG"//trim(real2str(self%refFieldValue(2)))//';EOS')
+
+  end select ! Reference Field  
+  
+
+end subroutine
+
 subroutine setRefFieldKDP(self)
   ! hopefully temporary interface to set KDP system
   ! vars based on ref field value and field type
+  use type_utils, only: real2str
   implicit none
   class(sys_config) :: self
   include "DATLEN.INC"
@@ -691,13 +716,22 @@ subroutine setRefFieldKDP(self)
 
   case (FIELD_OBJECT_HEIGHT)
 
+    !SYSTEM(16) = self%refFieldValue(1)
     SYSTEM(16) = self%refFieldValue(1)
     SYSTEM(14) = self%refFieldValue(2)
+    
+    ! TODO:  For symmetric fields the value is the same.  If I want to support
+    ! asymmetric field settings need to change this
+    call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
+    call PROCESKDP("U L; SCX "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
     SYSTEM(23) = self%refFieldValue(1)
     SYSTEM(21) = self%refFieldValue(2)
+
+    call PROCESKDP("U L; SCY FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
+    call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
         SYSTEM(92) = self%refFieldValue(1)
@@ -746,6 +780,24 @@ subroutine getRayAimFromSystemArr(self)
  else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.1.AND.SYSTEM(70).EQ.0) then
    self%currRayAimID = RAYAIM_TELE
  end if
+
+end subroutine
+
+subroutine setFieldTypeFromString(self, iptStr)
+  class(sys_config), intent(inout) :: self
+  character(len=*) :: iptStr
+
+select case(iptStr)
+  case('YAN')
+    self%currFieldID = FIELD_OBJECT_ANGLE_DEG
+  case('XAN')
+    self%currFieldID = FIELD_OBJECT_ANGLE_DEG
+  case('YOB')
+    self%currFieldID = FIELD_OBJECT_HEIGHT
+  case('XOB')
+    self%currFieldID = FIELD_OBJECT_HEIGHT
+end select
+
 
 end subroutine
 
@@ -1209,6 +1261,12 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
   do i=1,size(absFields)
     if (absFields(i) > maxField) maxField = absFields(i)
   end do
+  ! NEEDS TESTING!
+  self%refFieldValue(fieldDir) = maxField
+  call self%updateFieldSelectionByCode(self%currFieldID)
+  call self%setRefFieldKDP()
+  !call self%setMaxField()
+
 
   ! TEMP FOR TESTING
   !self%currFieldID = FIELD_OBJECT_ANGLE_DEG
@@ -1224,7 +1282,9 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
   
   ! Update vals
   do i=1,size(absFields)
-    self%relativeFields(fieldDir, i) = absFields(i)
+    !self%relativeFields(fieldDir, i) = absFields(i)
+    self%relativeFields(fieldDir, i) = absFields(i)/maxField
+
   end do
   CFLDS = self%relativeFields  
 

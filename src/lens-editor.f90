@@ -512,6 +512,12 @@ end subroutine lens_editor_replot
           call ui_solve(irow, ID_PICKUP_RAD) 
         end select 
 
+      case (ID_COL_CLAP)
+        call PROCESKDP('U L')
+        WRITE(kdptext, *) 'CHG ' ,irow
+        call PROCESKDP(kdptext)
+        call PROCESKDP("CLAP "//trim(ftext))
+        call PROCESKDP('EOS')        
 
     case (ID_COL_THICKNESS)
         PRINT *, "Thickness changed!"
@@ -643,42 +649,6 @@ end subroutine lens_editor_replot
   
   
   end subroutine
-
-subroutine getRowAndColFromCallback(widget, path, row, col) 
-  type(c_ptr), value :: widget, path
-  integer :: row, col
-  character(len=200) :: outStr
-  character(len=200) :: fpath
-
-  integer(kind=c_int), pointer :: icol
-  integer :: i, n
-  type(c_ptr) :: tree, pcol, treeCol, model
-  integer(kind=c_int), allocatable, dimension(:) :: irow
-
-
-  call convert_c_string(path, fpath)
-  pcol = g_object_get_data(widget, "column-number"//c_null_char)
-  call c_f_pointer(pcol, icol)
-
-  PRINT *, "icol is ", icol  
-
-  n = 0
-  do i = 1, len_trim(fpath)
-     if (fpath(i:i) == ":") then
-        n = n+1
-        fpath(i:i) = ' '   ! : is not a separator for a Fortran read
-     end if
-  end do
-  allocate(irow(n+1))
-  read(fpath, *) irow
-  PRINT *, "Selected Row is ", irow
-
-  ! Only return the first row if multiple are selected
-  row = irow(1)
-  
-
-end subroutine
-
 
 ! This sub is a mess.
 ! WHy?  I cannot seem to figure out how to go from whater object is

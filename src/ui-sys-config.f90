@@ -10,6 +10,7 @@ module ui_sys_config
   use global_widgets
   use handlers
   use cairo
+  use iso_fortran_env, only: real64
 !  use gth_hl
   use gtk_hl_container
   use gtk_hl_progress
@@ -85,6 +86,8 @@ end type
   type(ui_field_settings) :: uiFieldSettings
   type(ui_wavelength_settings) :: uiWavelengthSettings
   type(ui_rayaim_settings) :: uiRayAimSettings
+
+  real(kind=real64) :: absFields(2,10)
 
 
   integer, parameter :: ID_SYSCON_APERTURE = 7040
@@ -240,57 +243,36 @@ subroutine createFieldSettingsUI(self)
 
 end subroutine
 
-  subroutine cell_edited(renderer, path, text, gdata) bind(c)
+  subroutine fields_edited(renderer, path, text, gdata) bind(c)
+    use hl_gtk_zoa
+    use iso_fortran_env, only: real64
     type(c_ptr), value :: renderer, path, text, gdata
-    real :: cellData
-    ! Default callback for list cell edited.
-    !
-    ! RENDERER: c_ptr: required: The renderer which sent the signal
-    ! PATH: c_ptr: required: The path at which to insert
-    ! TEXT: c_ptr: required: The text to insert
-    ! GDATA: c_ptr: required: User data, Not used.
-    !
-    ! The column number is passed via the "column-number" gobject data value.
-    ! The treeview containing the cell is passed via the "view" gobject
-    ! data value.
-    ! The row number is passed as a string in the PATH argument.
-    ! This routine is not normally called by the application developer.
-    !-
+    real(kind=real64) :: cellData
 
     character(len=200) :: fpath, ftext
-    integer(kind=c_int) :: irow
-    integer(kind=c_int), pointer :: icol
-    type(c_ptr) :: pcol, locallist
+    integer :: row, col
+    type(c_ptr) :: locallist
 
-    call convert_c_string(path, fpath)
-    read(fpath, *) irow
-    pcol = g_object_get_data(renderer, "column-number"//c_null_char)
-    call c_f_pointer(pcol, icol)
-    call convert_c_string(text, ftext)
+    call getRowAndColFromCallback(renderer, path, row, col) 
+    call convertCellData(text, ftext, realData=cellData)
+    
+    ! TODO:  Make this into a sub?
     locallist = g_object_get_data(renderer, "view"//c_null_char)
-    call hl_gtk_listn_set_cell(locallist, irow, icol, &
+    call hl_gtk_listn_set_cell(locallist, row, col, &
          & svalue=trim(ftext))
 
    ! Only want to update field points.  Ignore updates for other columns
    ! This could be handled better than checking column number I'm sure.
-   PRINT *, "icol is ", icol
-   if (icol < 3 ) THEN
-   read(ftext,'(f200.0)') cellData
+   if (col < 3 ) THEN
 
-   print *, "Row selection is ", cellData
-   print *, "irow is ", irow
-   print *, "icol is ", icol
-
-
-   call sysConfig%setRelativeFields(icol, irow+1, cellData)
-   !sysConfig%relativeFields(icol, irow+1) = cellData
+    absFields(col,row+1) = cellData
+    call sysConfig%setAbsoluteFields(reshape(absFields(col,:), [10]), col)
    end if
 
-   !sysConfig%fieldColorCodes(rowSelection+1) = ivalue
 
   end subroutine
 
-  subroutine ccell_changed(renderer, path, iter, gdata) bind(c)
+  subroutine fieldColorCodes_changed(renderer, path, iter, gdata) bind(c)
     !use hl_gtk_zoa
     type(c_ptr), value, intent(in) :: renderer, path, gdata
     type(c_ptr), target :: iter
@@ -361,7 +343,7 @@ end subroutine
     sysConfig%fieldColorCodes(rowSelection+1) = ivalue
 
 
-  end subroutine ccell_changed
+  end subroutine fieldColorCodes_changed
 
 
 function createFieldPointSelectionTable(self) result(base)
@@ -421,10 +403,10 @@ ihlist = hl_gtk_listn_new(types=ctypes, &
      !& changed=c_funloc(list_select),&
      & multiple=TRUE, titles=titles, width=widths, &
      & renderers=renderers, editable=editable, &
-     & edited=c_funloc(cell_edited), & !toggled=c_funloc(cell_clicked), &
+     & edited=c_funloc(fields_edited), & !toggled=c_funloc(cell_clicked), &
      !& toggled_radio=c_funloc(rcell_clicked), &
      !& edited_combo=c_funloc(ccell_edit), &
-     & changed_combo=c_funloc(ccell_changed)) !, &
+     & changed_combo=c_funloc(fieldColorCodes_changed)) !, &
      !& valsArray=valsArray, refsArray=refsArray)
 
 call hl_gtk_listn_attach_combo_box_model(ihlist, 3_c_int, valsArray, refsArray)
@@ -436,10 +418,14 @@ do i=1,nrows
 
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
 
+   absFields(1,i) = sysConfig%refFieldValue(1)*sysConfig%relativeFields(1,i)
+   absFields(2,i) = sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i)
+
+
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
-        & fvalue=REAL(sysConfig%refFieldValue(1)*sysConfig%relativeFields(1,i)))
+        & fvalue=REAL(absFields(1,i),4))
    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-        & fvalue=REAL(sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i)))
+        & fvalue=REAL(absFields(2,i),4))
 
    call hl_gtk_listn_combo_set_by_list_id(ihlist, i-1_c_int, 3_c_int, &
         & targetValue=sysConfig%fieldColorCodes(i))
@@ -938,44 +924,28 @@ do i=1,nrows
 end function
 
   subroutine wavelength_edited(renderer, path, text, gdata) bind(c)
+    use hl_gtk_zoa
+    use iso_fortran_env, only: real64
     type(c_ptr), value :: renderer, path, text, gdata
-    real :: cellData
-    ! Default callback for list cell edited.
-    !
-    ! RENDERER: c_ptr: required: The renderer which sent the signal
-    ! PATH: c_ptr: required: The path at which to insert
-    ! TEXT: c_ptr: required: The text to insert
-    ! GDATA: c_ptr: required: User data, Not used.
-    !
-    ! The column number is passed via the "column-number" gobject data value.
-    ! The treeview containing the cell is passed via the "view" gobject
-    ! data value.
-    ! The row number is passed as a string in the PATH argument.
-    ! This routine is not normally called by the application developer.
-    !-
+    real(kind=real64) :: cellData
+    character(len=200) :: ftext
+    integer :: row, col
+    type(c_ptr) :: locallist
 
-    character(len=200) :: fpath, ftext
-    integer(kind=c_int) :: irow
-    integer(kind=c_int), pointer :: icol
-    type(c_ptr) :: pcol, locallist
+    call getRowAndColFromCallback(renderer, path, row, col) 
+    call convertCellData(text, ftext, realData=cellData)
 
-    call convert_c_string(path, fpath)
-    read(fpath, *) irow
-    pcol = g_object_get_data(renderer, "column-number"//c_null_char)
-    call c_f_pointer(pcol, icol)
-    call convert_c_string(text, ftext)
     locallist = g_object_get_data(renderer, "view"//c_null_char)
-    call hl_gtk_listn_set_cell(locallist, irow, icol, &
+    call hl_gtk_listn_set_cell(locallist, row, col, &
          & svalue=trim(ftext))
 
 
-   read(ftext,'(f200.0)') cellData
-   select case (icol)
+   select case (col)
    case (1)
-     call sysConfig%setWavelengths(irow+1,cellData)
+     call sysConfig%setWavelengths(row+1,real(cellData,4))
      !sysConfig%wavelengths(irow+1) = cellData
    case (2)
-     call sysConfig%setSpectralWeights(irow+1,cellData)
+     call sysConfig%setSpectralWeights(row+1,real(cellData,4))
      !sysConfig%spectralWeights(irow+1) = cellData
 
    end select

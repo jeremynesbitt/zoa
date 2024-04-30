@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(515) :: zoaCmds
+    type(zoa_cmd), dimension(517) :: zoaCmds
 
     contains
 
@@ -89,7 +89,11 @@ module codeV_commands
         zoaCmds(514)%cmd = 'WTW'
         zoaCmds(514)%execFunc => setWavelengthWeights          
         zoaCmds(515)%cmd = 'WTF'
-        zoaCmds(515)%execFunc => setFieldWeights 
+        zoaCmds(515)%execFunc => setFieldWeights
+        zoaCmds(516)%cmd = 'YOB'
+        zoaCmds(516)%execFunc => setField
+        zoaCmds(517)%cmd = 'XOB'
+        zoaCmds(517)%execFunc => setField            
 
     end subroutine
 
@@ -141,10 +145,6 @@ module codeV_commands
 
         select case (iptCmd)
 
-        ! case('YAN')
-        !     CALL setField('YAN')
-        !     boolResult = .TRUE.
-        !     return
         ! case('WL')
         !     CALL setWavelength()
         !     boolResult = .TRUE.
@@ -739,7 +739,8 @@ module codeV_commands
         ! Get surface before last surface and add solve
         surfNum = curr_lens_data%num_surfaces - 2
         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-        & '; PY, 0')            
+        & '; PY, 0; GO') ! go added to make sure we exit update lens level            
+       
 
 
     end subroutine
@@ -1052,6 +1053,7 @@ module codeV_commands
          use kdp_utils, only: inLensUpdateLevel
          use global_widgets, only: sysConfig
          use iso_fortran_env, only: real64
+         use strings
          implicit none
  
          class(zoa_cmd) :: self
@@ -1067,17 +1069,14 @@ module codeV_commands
          integer :: FLD_COL
 
  
-         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+         !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+         call parse(trim(iptStr), ' ', tokens, numTokens)
 
          ! TODO:  Support more field types
-         if (tokens(1).EQ.'YAN') FLD_COL = Y_COL
-         if (tokens(1).EQ.'XAN') FLD_COL = X_COL
+         if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB') FLD_COL = Y_COL
+         if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB') FLD_COL = X_COL
 
-
-         call LogTermFOR("IPTSTR is "//trim(iptStr))
-
-        ! PRINT *, "IPTSTR is ", trim(iptStr)
-        ! PRINT *, "number of Fields is ", numFields
+         call sysConfig%setFieldTypeFromString(trim(tokens(1)))
 
           numFields = numTokens-1
           call LogTermFOR("Numfields is "//int2str(numFields))
@@ -1301,20 +1300,16 @@ module codeV_commands
             redirectFlag = .TRUE.
         end if
 
-        PRINT *, "redirect flag is ", redirectFlag
-
         ! Hide KDP Commands from user
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
           
 
-        if (inLensUpdateLevel()) then       
-            call LogTermFOR("About to call "//iptCmd)        
+        if (inLensUpdateLevel()) then              
             call PROCESKDP(iptCmd)
         else
             !call PROCESKDP('U L;'// iptCmd //';EOS')
             ! Update - do not exit lens update level to better support stops
             ! clear apertures, etc 
-            call LogTermFOR("About to call "//iptCmd)
             call PROCESKDP('U L;'// iptCmd )
         end if
 
@@ -1417,16 +1412,12 @@ module codeV_commands
 
         !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        call LogTermFOR("In SetSurfCodeVStyle")
 
         select case(numTokens)
         case (1)
             call updateTerminalLog("No info given besides surface identifier!  Please try again", "red")
         case (2) ! Curvature only
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            call LogTermFOR("Cmd to parse is "//trim(iptStr))
-            call LogTermFOR("tokens(2) is "//trim(tokens(2)))
-
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2)), .TRUE.)              
         case (3) ! Curvature and thickness

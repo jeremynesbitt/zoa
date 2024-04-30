@@ -626,9 +626,9 @@ subroutine PTSTUFF
   integer :: i
   
   include "DATLEN.INC"
-  call LogTermFOR("ALENS DUMP")
-  do i=1,123
-    call LogTermFOR("i="//trim(int2str(i)//" "//real2str(ALENS(i,3))))
+  call LogTermFOR("SYSTEM DUMP")
+  do i=1,150
+    call LogTermFOR("i="//trim(int2str(i)//" "//real2str(SYSTEM(i))))
 
   end do
 

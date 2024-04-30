@@ -207,7 +207,7 @@ end function
   select case(self%currName)
     ! Names must be defined in constructor first!
 
-  case('ACRYLIC2')
+  case('ACRYLIC')
     NUM = 13
 
     X(1:NUM) = (/0.36501D0,0.40466D0,0.43484D0 &
@@ -225,7 +225,7 @@ end function
        !call SPLINT(X,Y,Y2,NUM,lambda,n)
     end if    
 
-  case('POLYSTYRENE2')
+  case('POLYSTYRENE')
     NUM = 13
 
     X(1:NUM) = (/0.36501D0,0.40466D0,0.43484D0 &
@@ -243,7 +243,7 @@ end function
          !call SPLINT(X,Y,Y2,NUM,lambda,n)
       end if
 
-  case('POLYCARBONATE2')
+  case('POLYCARBONATE')
 
     NUM = 13
     
@@ -262,7 +262,7 @@ end function
        !call SPLINT(X,Y,Y2,NUM,lambda,n)
     end if
 
-  case('SAN2')
+  case('SAN')
 
     NUM = 13
 
@@ -281,7 +281,7 @@ end function
        !call SPLINT(X,Y,Y2,NUM,lambda,n)
     end if
 
-  case('SILICON2')
+  case('SILICON')
     if(lambda == 0.0) then
       n = 1.0
     else
@@ -292,7 +292,7 @@ end function
      +(0.000000148D0*(lambda**4))
     end if
 
-  case('SILICA2')
+  case('SILICA')
     if(lambda == 0.0) then
       n = 1.0
     else
@@ -304,7 +304,7 @@ end function
       )
     end if    
 
-  case('DIAMOND2')
+  case('DIAMOND')
     if(lambda == 0.0) then
       n = 1.0
     else

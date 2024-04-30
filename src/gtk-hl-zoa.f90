@@ -649,5 +649,66 @@ function createNullTerminatedCString(fstring) result(c_ptr_array)
 
 end function
 
+subroutine convertCellData(iptData, outText, realData, intData)
+  use type_utils, only: str2real8, str2int
+  use gtk_sup, only: convert_c_string
+  use iso_fortran_env, only: real64
+
+  type(c_ptr) :: iptData
+  character(len=*) :: outText
+  real(kind=real64), optional :: realData
+  integer, optional :: intData
+  character(len=200) :: ftext
+  
+  
+  call convert_c_string(iptData, ftext)
+
+  outText = trim(ftext)
+
+  PRINT *, "ftext is ", ftext
+  if (present(realData)) then
+    realData = str2real8(trim(ftext))
+  end if
+  if (present(intData)) then
+    intData = str2int(trim(ftext))
+  end if
+
+end subroutine
+
+subroutine getRowAndColFromCallback(widget, path, row, col) 
+  type(c_ptr), value :: widget, path
+  integer :: row, col
+  character(len=200) :: outStr
+  character(len=200) :: fpath
+
+  integer(kind=c_int), pointer :: icol
+  integer :: i, n
+  type(c_ptr) :: tree, pcol, treeCol, model
+  integer(kind=c_int), allocatable, dimension(:) :: irow
+
+
+  call convert_c_string(path, fpath)
+  pcol = g_object_get_data(widget, "column-number"//c_null_char)
+  call c_f_pointer(pcol, icol)
+
+  PRINT *, "icol is ", icol  
+
+  n = 0
+  do i = 1, len_trim(fpath)
+     if (fpath(i:i) == ":") then
+        n = n+1
+        fpath(i:i) = ' '   ! : is not a separator for a Fortran read
+     end if
+  end do
+  allocate(irow(n+1))
+  read(fpath, *) irow
+  PRINT *, "Selected Row is ", irow
+
+  ! Only return the first row if multiple are selected
+  row = irow(1)
+  col = icol
+  
+
+end subroutine
 
 end module hl_gtk_zoa
