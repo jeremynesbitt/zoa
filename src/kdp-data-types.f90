@@ -1165,15 +1165,11 @@ subroutine genSaveOutputText(self, fID)
         ! Store dimensions
   select case(self%currLensUnitsID)
   case(LENS_UNITS_MM)
-    strOutLine = "DIM M"
-    PRINT *, "DIM M"
-    
+    strOutLine = "DIM M" 
   case(LENS_UNITS_CM)
     strOutLine = "DIM C"
-    PRINT *, "DIM C"
   case(LENS_UNITS_INCHES)
     strOutLine = "DIM I"
-    PRINT *, "DIM I"
   end select
   write(fID, *) trim(strOutLine)
 
@@ -1181,7 +1177,6 @@ subroutine genSaveOutputText(self, fID)
   select case(self%currApertureID)
   case(APER_ENTR_PUPIL_DIAMETER)
     strOutLine = "EPD "//real2str(self%refApertureValue(2),4)
-     PRINT *, "EPD "//real2str(self%refApertureValue(2),4)
   end select
   write(fID, *) trim(strOutLine)
 
@@ -1200,30 +1195,30 @@ subroutine genSaveOutputText(self, fID)
     do ii=1,self%numWavelengths
       strWLwgt = trim(strWLwgt)//blankStr(1)//real2str(100.0*self%spectralWeights(ii),4)
     end do
-    PRINT *, trim(strWLwgt)
     write(fID, *) trim(strWLwgt)
     ! Print Ref wavelength
     strOutLine = "REF "// int2str(self%refWavelengthIndex)
     write(fID, *) trim(strOutLine)
        
-    PRINT *, "REF ", int2str(self%refWavelengthIndex)
-
   ! Store Field
     select case(self%currFieldID)
     case(FIELD_OBJECT_ANGLE_DEG)
        strXFLD = 'XAN'
        strYFLD = 'YAN'
+    case(FIELD_OBJECT_HEIGHT)
+       strXFLD = 'XOB'
+       strYFLD = 'YOB'
+
+    end select
+
+
        do ii=1,self%numFields
         strXFLD = trim(strXFLD)//blankStr(1)//real2str(self%refFieldValue(1)*self%relativeFields(1,ii),4)
         strYFLD = trim(strYFLD)//blankStr(1)//real2str(self%refFieldValue(2)*self%relativeFields(2,ii),4)
        end do
        write(fID, *) trim(strXFLD)
        write(fID, *) trim(strYFLD)
-       
-       PRINT *, trim(strXFLD)
-       PRINT *, trim(strYFLD)
 
-    end select
 
     ! Field weights not supported, so for now just output all 100s
     strFLDWGT = 'WTF'
@@ -1231,8 +1226,6 @@ subroutine genSaveOutputText(self, fID)
       strFLDWGT = trim(strFLDWGT)//blankStr(5)//'100'
     end do
     write(fID, *) trim(strFLDWGT)
-
-    print *, strFLDWGT
 
   end if
 

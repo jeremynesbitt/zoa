@@ -1072,6 +1072,10 @@ module codeV_commands
          !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
          call parse(trim(iptStr), ' ', tokens, numTokens)
 
+         do i=1,numTokens
+            call LogTermFOR("Token "//trim(tokens(i)))
+         end do
+
          ! TODO:  Support more field types
          if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB') FLD_COL = Y_COL
          if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB') FLD_COL = X_COL

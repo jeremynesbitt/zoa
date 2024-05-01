@@ -64,16 +64,16 @@ module type_utils
         use iso_fortran_env, only: real64
         character(len=*) :: strIpt
         real(kind=real64) :: val
-        character(len=23) :: strR
+        !character(len=23) :: strR
     
-        PRINT *, "strIpt is ", strIpt
-    
-        write(strR, *) strIpt
-        strR = adjustl(strR)
-        PRINT *, "strR is ", strR
-        read(strR, '(D23.15)') val
-        read(strR, '(F9.5)') val
-        PRINT *, "Output val is ", val
+
+        read(strIpt,*) val
+        ! write(strR, *) strIpt
+        ! strR = adjustl(strR)
+        ! PRINT *, "strR is ", strR
+        ! read(strR, '(D23.15)') val
+        ! read(strR, '(F9.5)') val
+        ! PRINT *, "Output val is ", val
     
       end function
     
