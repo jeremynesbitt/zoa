@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(517) :: zoaCmds
+    type(zoa_cmd), dimension(518) :: zoaCmds
 
     contains
 
@@ -93,7 +93,9 @@ module codeV_commands
         zoaCmds(516)%cmd = 'YOB'
         zoaCmds(516)%execFunc => setField
         zoaCmds(517)%cmd = 'XOB'
-        zoaCmds(517)%execFunc => setField            
+        zoaCmds(517)%execFunc => setField     
+        zoaCmds(518)%cmd = 'INS'
+        zoaCmds(518)%execFunc => insertSurf                    
 
     end subroutine
 
@@ -174,10 +176,10 @@ module codeV_commands
             call setRadius()
             boolResult = .TRUE.
             return  
-        case ('INS')
-            call insertSurf()
-            boolResult = .TRUE.
-            return      
+        ! case ('INS')
+        !     call insertSurf()
+        !     boolResult = .TRUE.
+        !     return      
         case ('GLA')
             call setGlass()
             boolResult = .TRUE.
@@ -866,18 +868,63 @@ module codeV_commands
        
     end subroutine
 
-    subroutine insertSurf()
-        use command_utils, only : checkCommandInput, getInputNumber, getQualWord
-        use type_utils, only: real2str, int2str
-        integer :: surfNum
+    subroutine insertSurf(self,iptStr)
+        use strings
+        use type_utils, only: int2str, str2real8, str2int
+        use handlers, only: updateTerminalLog
+        use global_widgets, only: sysConfig
+        use iso_fortran_env, only: real64
+        use command_utils, only: isInputNumber
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: surfNum, i, s0, sf, dotLoc
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens == 2) then
+            ! Treat special case of ..  TODO:  Should this be in getSurfNum(eg return array output?).  Seems messy
+            dotLoc = index(tokens(2),'..') 
+            if(dotLoc > 0) then
+                ! Assume input is Si..k
+                PRINT *, "dotLoc-1 is ", dotLoc-1
+                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
+                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
+                   s0 = str2int(tokens(2)(2:dotLoc-1))
+                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
+                   PRINT *, "s0 is ", s0
+                   PRINT *, "sf is ", sf
+                   do i=s0,sf
+                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)                           
+                   end do
+                else
+                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                end if
+            else ! No dots found
+    
+
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (surfNum.NE.-1) then
+               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+            else
+                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+            end if
+            end if
+        end if
+
+
+    
 
         !PRINT *, "Inside insertSurf"
         ! TODO:  Add an error check for Sk in checkCommandInput
 
-        if (checkCommandInput([ID_CMD_QUAL])) then
-            surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
-            call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
-        end if            
+        ! if (checkCommandInput([ID_CMD_QUAL])) then
+        !     surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
+        !     call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
+        ! end if            
 
 
 
@@ -1262,7 +1309,7 @@ module codeV_commands
         tstCmds(7)%s = 'DIM'
         tstCmds(8)%s = 'RDY'
         tstCmds(9)%s = 'THI'
-        tstCmds(10)%s = 'INS'
+        !tstCmds(10)%s = 'INS'
         tstCmds(11)%s = 'GLA'
         tstCmds(12)%s = 'PIM'
         tstCmds(13)%s = 'EPD'
@@ -1288,14 +1335,14 @@ module codeV_commands
 
       end function
 
-      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag)
+      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate)
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: ioConfig
         use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
 
         implicit none
         character(len=*) :: iptCmd
-        logical, optional :: debugFlag
+        logical, optional :: debugFlag, exitLensUpdate
         logical :: redirectFlag
 
         if(present(debugFlag)) then 
@@ -1317,17 +1364,24 @@ module codeV_commands
             call PROCESKDP('U L;'// iptCmd )
         end if
 
+        if(present(exitLensUpdate)) then
+            if(exitLensUpdate) CALL PROCESKDP('EOS')
+        end if
+
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
       end subroutine
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)
         use type_utils, only: str2int, int2str
         use global_widgets, only: curr_lens_data
+        use command_utils, only: isInputNumber
         character(len=*) :: iptCmd
         integer :: surfNum
 
         !print *, "IPTCMD is ", iptCmd
         !print *, "len of iptCmd is ", len(iptCmd)
+
+        surfnum = -1 ! For error checking
 
         if(len(iptCmd).EQ.1) then ! It is S, which means we have to add a surface before
                                   ! the last surface.  
@@ -1344,14 +1398,13 @@ module codeV_commands
             end if
             if (iptCmd(2:2).EQ.'I') then ! CMD is SI
                 surfNum = curr_lens_data%num_surfaces-1 ! Not sure thsi is correct
-                call LogTermFOR("DEBUG:  Setting SurfNum to "//int2str(surfNum))
+                !call LogTermFOR("DEBUG:  Setting SurfNum to "//int2str(surfNum))
                 return
             end if
         end if
 
         if(len(iptCmd).GT.1) then
-            surfNum = str2int(iptCmd(2:len(iptCmd)))
-            return
+            if (isInputNumber(iptCmd(2:len(iptCmd)))) surfNum = str2int(iptCmd(2:len(iptCmd)))
         end if
 
 
