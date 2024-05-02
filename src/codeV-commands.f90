@@ -959,7 +959,7 @@ module codeV_commands
     subroutine newLens 
         use gtk_hl_dialog
         use handlers, only: zoatabMgr, updateTerminalLog
-        use globals, only: basePath
+        use globals, only: basePath, TEST_MODE
       
         implicit none  
       
@@ -970,9 +970,11 @@ module codeV_commands
         ! Temp vars
         integer :: ios, n
         character(len=200) :: line
-      
+        
+        ! Only ask user for input if not in test mode
+        if (TEST_MODE.eqv..FALSE.) then
         ! Step 1:  Ask user if they are sure
-      
+        
         msg(1) ="You are about to start a new lens system"
         msg(2) = "Are you sure?"
         msg(3) = "Press Cancel to abort."   
@@ -997,30 +999,31 @@ module codeV_commands
             ! Finally at the new lens process.  
       
       
-            call PROCESKDP('LENS')
-            call PROCESKDP('WV, 0.635, 0.0, 0.0, 0.0, 0.0')
-            call PROCESKDP('UNITS MM')
-            call PROCESKDP('SAY, 10.0')
-            call PROCESKDP('CV, 0.0')
-            call PROCESKDP('TH, 0.10E+21')
-            call PROCESKDP('AIR')
-            call PROCESKDP('CV, 0.0')
-            call PROCESKDP('TH, 10.0')
-            call PROCESKDP('REFS')
-            call PROCESKDP('ASTOP')
-            call PROCESKDP('AIR')
-            call PROCESKDP('CV, 0.0')
-            call PROCESKDP('TH, 1.0')
-            call PROCESKDP('EOS')    
+            ! call PROCESKDP('LENS')
+            ! call PROCESKDP('WV, 0.635, 0.0, 0.0, 0.0, 0.0')
+            ! call PROCESKDP('UNITS MM')
+            ! call PROCESKDP('SAY, 10.0')
+            ! call PROCESKDP('CV, 0.0')
+            ! call PROCESKDP('TH, 0.10E+21')
+            ! call PROCESKDP('AIR')
+            ! call PROCESKDP('CV, 0.0')
+            ! call PROCESKDP('TH, 10.0')
+            ! call PROCESKDP('REFS')
+            ! call PROCESKDP('ASTOP')
+            ! call PROCESKDP('AIR')
+            ! call PROCESKDP('CV, 0.0')
+            ! call PROCESKDP('TH, 1.0')
+            ! call PROCESKDP('EOS')    
       
       else 
         ! If user aborted, log it
         call updateTerminalLog("New Lens Process Cancelled", "black")
       end if
+      end if
       
 
       ! Prototype for getting this from file
-      PRINT *, "attempting to open ",trim(basePath)//'Macros/newlens.zoa'
+      !PRINT *, "attempting to open ",trim(basePath)//'Macros/newlens.zoa'
       open(unit=9, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
       if ( ios /= 0 ) stop "Error opening file "
   

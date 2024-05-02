@@ -6,6 +6,8 @@ C
       character(len=10) :: zoaVersion
       character(len=256) :: basePath
       type(zoaLogger) :: logger
+
+      logical :: TEST_MODE = .FALSE.
 C
 C     PROCESS ONE OR 20 COMMANDS
 C

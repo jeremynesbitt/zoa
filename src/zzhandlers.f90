@@ -188,6 +188,8 @@ contains
       ! note: this is necessary based on testing
       call pending_events ()
 
+      if (TEST_MODE) call dumpToFile(trim(ftext))
+
       ! Get scroll window and v adjustment
       scroll_win = gtk_widget_get_parent(ioConfig%textView)
       vAdj = gtk_scrolled_window_get_vadjustment(scroll_win)
