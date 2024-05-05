@@ -2573,12 +2573,19 @@ C     NOW THE ENTRANCE AND EXIT PUPIL POSITIONS
           IF(DABS(PXTRAY(6,1)).EQ.0.0) THEN
           ENPOSY=-(ALENS(3,0))
                       ELSE
-          ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,1))
+          !ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,1))
+          ! JN:  The entrance pupil position was not being calculated per 
+          ! standard convention for infinite object distance.  The
+          ! chief ray angle that was being used was the angle 
+          ! after surface 1, not the angle at the object plane.  
+          ! Updated this to use the angle at the object plane (0 index)                                                       
+          ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,0))
                       END IF
           IF(DABS(PXTRAX(6,1)).EQ.0.0D0) THEN
           ENPOSX=-(ALENS(3,0))
                       ELSE
-          ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,1))
+          !ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,1))
+          ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,0))
                       END IF
           ENPUX=0.0D0
           ENPUY=0.0D0

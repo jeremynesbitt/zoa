@@ -1770,6 +1770,9 @@ self%objectDistance = lData%thicknesses(1)
 !TODO:  move calcs of this here
 self%ENPUPDIA = ENDIAY
 self%EXPUPDIA = EXDIAY
+! Entrance pupil position is where the unrefracted chief ray crosses the optical
+! axis.   
+
 self%ENPUPPOS = ENPUZ
 self%EXPUPPOS = EXPUZ+self%imageDistance
 

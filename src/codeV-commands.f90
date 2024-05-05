@@ -1087,6 +1087,7 @@ module codeV_commands
         integer :: numTokens
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+    
 
         do i=2,numTokens
             call sysConfig%setSpectralWeights(i-1,real(str2real8(trim(tokens(i))),4))            
@@ -1194,6 +1195,7 @@ module codeV_commands
         use type_utils, only: real2str, str2real8, int2str
         use handlers, only: updateTerminalLog
         use global_widgets, only: sysConfig
+        use strings
         implicit none
 
         class(zoa_cmd) :: self
@@ -1203,7 +1205,8 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
         call LogTermFOR("setWL numTokens is "//int2str(numTokens))
 
