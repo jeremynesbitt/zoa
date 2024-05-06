@@ -243,8 +243,8 @@ module codeV_commands
     end subroutine
 
     subroutine execCIR(self, iptStr)
-        use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: real2str
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
     
         implicit none        
@@ -254,20 +254,44 @@ module codeV_commands
         character(len=256) :: fName
         character(len=80) :: tokens(40)
         character(len=256) :: fullPath
-        integer :: numTokens
+        integer :: numTokens, surfNum
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
-        if (numTokens == 2 ) then
+        select case (numTokens)
+        ! CIR VAL for current surface    
+        case(2)
+        
+            ! Error Checking
+            if (isInputNumber(trim(tokens(2)))) then    
                 call executeCodeVLensUpdateCommand('CLAP '//trim(tokens(2)),.TRUE.)
-            !else
+           else
+             call updateTerminalLog( &
+             & "Error: unable to intepret number for input argument "//trim(tokens(2)), "red")
+             return
+           end if
 
-            !call updateTerminalLog("", "red")
-            !end if
+        ! CIR Sk VAL   
+        case(3)
 
-        else
-            call updateTerminalLog("No circular aperture identified", "red")
+            if (isSurfCommand(trim(tokens(2)))) then
+                surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+                if (isInputNumber(trim(tokens(3)))) then    
+                  call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; CLAP '//trim(tokens(3))//';GO')
+                else 
+                    call updateTerminalLog( &
+                    & "Error: unable to intepret number for input argument "//trim(tokens(3)), "red")
+                    return
+                end if
+            else 
+                call updateTerminalLog( &
+                & "Error: unable to intepret surface number for input argument "//trim(tokens(2)), "red")
+                return 
+            end if                         
 
-        end if
+
+        end select
+
 
 
 
@@ -795,7 +819,7 @@ module codeV_commands
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; '//trim(getSetGlassText(trim(tokens(3)))))        
+            & '; '//trim(getSetGlassText(trim(tokens(3))))//';GO')        
         else
             call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
@@ -834,7 +858,7 @@ module codeV_commands
             PRINT *, "Token is ", trim(tokens(2))
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; TH, ' // trim(tokens(3)))          
+            & '; TH, ' // trim(tokens(3))//';GO')          
         else
             call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
@@ -860,7 +884,7 @@ module codeV_commands
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(3)))          
+            & '; RD, ' // trim(tokens(3))//';GO')          
         else
             call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
