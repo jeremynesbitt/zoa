@@ -6,7 +6,7 @@ C SUB CMDER.FOR
         use glass_manager
         use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
-     2 PLTOPD, PLTIMTST, PLTFAN, PTSTUFF
+     2 PLTOPD, PLTIMTST, PLTFAN, PTSTUFF, Sandbox
         use codeV_commands
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
      1 ID_TERMINAL_KDPDUMP   
@@ -496,6 +496,9 @@ C       PART DRAWINGS
                 RETURN
               END IF        
 
+        IF(WC.EQ.'SANDBOX') THEN
+          CALL Sandbox
+        END IF              
         IF(WC.EQ.'TSTCMDS') THEN
           CALL TestCommands
         END IF

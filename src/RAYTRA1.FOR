@@ -686,7 +686,8 @@ C
                         END
 C SUB SETCLAP.FOR
         SUBROUTINE SETCLAP
-        use global_widgets, only: curr_lens_data        
+        use global_widgets, only: curr_lens_data  
+        use type_utils ! DEBUG      
 C
         IMPLICIT NONE
 C
@@ -870,6 +871,7 @@ C       CHECK FOR NUMERIC INPUT
                         RETURN
                         END IF
       IF(WQ.EQ.'REAL'.OR.WQ.EQ.'VREAL') THEN
+      call LogTermFOR("Real SETCLAP Loop")
       RWARN=0
       FWARN=0
       OLDLDIF2=LDIF2
@@ -1204,6 +1206,12 @@ C     PROCESS DATA
                END DO
 C
       DO I=0,INT(SYSTEM(20))
+        call LogTermFOR("Surf "//trim(int2str(I))//
+     1    " ALENS(9,1 ) "//trim(real2str(ALENS(9,I))) //
+     3    " ALENS(127,I) "//trim(real2str(ALENS(127,I))) //
+     4    " W1 is "//trim(real2str(W1)) //
+     5    " W2 is "//trim(real2str(W2))) 
+        PRINT *, "DUMMY(I) is ", DUMMMY(I)
       IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
                 IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
       RMAX=-1.0D10
@@ -1230,6 +1238,7 @@ C
       IF(XRAD.GT.RRAD) RRAD=XRAD
       IF(ALENS(9,I).EQ.0.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0
      1.AND.ALENS(127,I).EQ.0.0D0) THEN
+        call LogTermFOR("In here and RRAD is "//trim(real2str(RRAD)))
       ALENS(9,I)=1.0D0
       ALENS(10,I)=RRAD
       ALENS(11,I)=RRAD

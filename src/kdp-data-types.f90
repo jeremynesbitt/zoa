@@ -51,6 +51,9 @@ module kdp_data_types
   integer, parameter :: ID_SOLVE_PIX = 7
   integer, parameter :: ID_SOLVE_PUY = 3
 
+  ! Aperture types
+  integer, parameter :: ID_APER_CIRCULAR = 1
+
 
 
 type idText
@@ -207,6 +210,14 @@ logical :: pickup_radius, pickup_thic
 
 end type
 
+
+type surface_aperture
+   integer :: apertureType
+   logical :: userDefined
+   real(kind=real64) :: xRad, yRad
+   
+end type
+
 type lens_data
 
 integer num_surfaces, ref_stop
@@ -214,6 +225,7 @@ real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
 & curvatures(:), pickups(:,:,:), solves(:,:), clearapertures(:)
 character(:), allocatable :: glassnames(:)
 character(:), allocatable :: catalognames(:)
+type(surface_aperture), allocatable, dimension(:) :: clearAps
 type(ksolve), allocatable, dimension(:) :: thickSolves
 
 
@@ -310,7 +322,8 @@ subroutine set_num_surfaces(self, input)
 class(lens_data), intent(inout) :: self
 integer, intent(in) :: input
 if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
- PRINT *, "NEED TO DEALLOCATE?"
+ ! This is bad if I have somethign stored that I want to persist if the user changes
+ ! the number of lenses.  need to fix this. 
  DEALLOCATE(self%radii)
  DEALLOCATE(self%thicknesses)
  DEALLOCATE(self%curvatures)
@@ -322,6 +335,7 @@ if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
  deallocate(self%solves)
  deallocate(self%clearapertures)
  deallocate(self%thickSolves)
+ deallocate(self%clearAps)
 
 
 
@@ -344,6 +358,7 @@ if (.not.allocated(self%radii)) THEN
  allocate(self%solves(9,self%num_surfaces))
  allocate(self%clearapertures(self%num_surfaces))
  allocate(self%thickSolves(self%num_surfaces))
+ allocate(self%clearAps(self%num_surfaces))
 
 
 END IF

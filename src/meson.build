@@ -36,6 +36,7 @@ srcs += files(
   'kdp-utils.f90',
   'command-utils.f90',
   'plotsettingtypes.f90',
+  'clear-apertures.f90',
   'plot-setting-manager.f90',
   'kdp-data-types.f90',
   'global_widgets.f90',

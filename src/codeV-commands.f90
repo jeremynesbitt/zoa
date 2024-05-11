@@ -34,7 +34,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(518) :: zoaCmds
+    type(zoa_cmd), dimension(519) :: zoaCmds
 
     contains
 
@@ -95,7 +95,9 @@ module codeV_commands
         zoaCmds(517)%cmd = 'XOB'
         zoaCmds(517)%execFunc => setField     
         zoaCmds(518)%cmd = 'INS'
-        zoaCmds(518)%execFunc => insertSurf                    
+        zoaCmds(518)%execFunc => insertSurf   
+        zoaCmds(518)%cmd = 'CLI'
+        zoaCmds(518)%execFunc => execCLI                            
 
     end subroutine
 
@@ -890,6 +892,49 @@ module codeV_commands
             return
         end if             
        
+    end subroutine
+
+    ! CLI SA supported only at this time
+    subroutine execCLI(self,iptStr)
+        use strings
+        use type_utils, only: int2str, real2str, blankStr
+        use handlers, only: updateTerminalLog
+        use global_widgets, only: sysConfig, curr_lens_data
+        use iso_fortran_env, only: real64
+        use command_utils, only: isInputNumber
+        use clear_apertures
+        implicit none
+
+        class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: surfNum, i, s0, sf, dotLoc
+        character(len=80) :: tokens(40)
+        character(len=4)  :: surfTxt
+        integer :: numTokens
+        include "DATLEN.INC"
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        call check_clear_apertures(curr_lens_data)
+        call updateTerminalLog(blankStr(7)//"Y-FAN"//blankStr(5)//"X-FAN", "black")
+        do i=2,curr_lens_data%num_surfaces
+            surfTxt = blankStr(2)//trim(int2str(i-1))
+            ! Special Cases
+            if(i==1)                           surfTxt = "OBJ"
+            if(i==curr_lens_data%ref_stop)     surfTxt = "STO"
+            if(i==curr_lens_data%num_surfaces) surfTxt = "IMG"
+            call updateTerminalLog(trim(surfTxt)//blankStr(2)// &
+            & trim(real2str(curr_lens_data%clearAps(i)%yRad))//blankStr(5)// &
+            & trim(real2str(curr_lens_data%clearAps(i)%xRad)), "black")
+        end do
+
+        ! Display clear aperture per surface
+        ! do i = 1,curr_lens_data%num_surfaces
+        !     !call LogTermFOR("Surf is "//real2str(ALENS(10,i-1)))
+        !     call LogTermFOR("Surf is "//real2str(curr_lens_data%clearAps(i)%yRad))
+
+
+        ! end do
+
     end subroutine
 
     subroutine insertSurf(self,iptStr)

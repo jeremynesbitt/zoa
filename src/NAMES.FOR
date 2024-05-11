@@ -1383,7 +1383,7 @@ C     WCC(2003)=' '
       WCC(2075)='FAN'
       WCC(2076)='TIT' ! CodeV
       WCC(2077)='YAN' ! CodeV
-      WCC(2078)='WL' ! CodeV
+      WCC(2078)='SANDBOX' ! Cmd to test stuff
       !WCC(2079)='SO' ! CodeV
       ! CodeV allows for 'Sk' where k is any surface.  Add these as names
       !WCC(2080)='S'
