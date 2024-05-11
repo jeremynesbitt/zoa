@@ -902,6 +902,7 @@ subroutine buildBasicTable(firstTime)
     integer(kind=c_int), dimension(ncols) :: sortable, editable
     integer, allocatable, dimension(:) :: surfIdx
     integer, allocatable, dimension(:) :: isRefSurface
+    real(kind=real64), dimension(curr_lens_data%num_surfaces) :: clearApertures
 
     integer, parameter :: numModTypes = 3
     character(kind=c_char, len=20),dimension(numModTypes) :: valsArray
@@ -938,6 +939,9 @@ subroutine buildBasicTable(firstTime)
     isRefSurface = 0*isRefSurface
     isRefSurface(curr_lens_data%ref_stop) = 1
 
+    clearApertures = curr_lens_data%clearAps(1:curr_lens_data%num_surfaces)%yRad   
+    PRINT *, "clear Apertures is ", clearApertures
+
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)
     call basicTypes(2)%initialize("Ref"    , G_TYPE_BOOLEAN, FALSE, TRUE, isRefSurface)
     !call basicTypes(3)%initialize("Surface Name"   , G_TYPE_STRING,   FALSE, FALSE, surfIdx)
@@ -961,8 +965,11 @@ subroutine buildBasicTable(firstTime)
    
     call basicTypes(ID_COL_GLASS)%initialize("Glass"     , G_TYPE_STRING, FALSE, TRUE, &
     & curr_lens_data%glassnames, curr_lens_data%num_surfaces )
+    !call basicTypes(ID_COL_CLAP)%initialize("Aperture" , G_TYPE_FLOAT, FALSE, TRUE, &
+    !& curr_lens_data%clearapertures) 
     call basicTypes(ID_COL_CLAP)%initialize("Aperture" , G_TYPE_FLOAT, FALSE, TRUE, &
-    & curr_lens_data%clearapertures)    
+    & REAL(clearApertures))     
+    !PRINT *, "TST is ", curr_lens_data%clearAps(1:6)%yRad   
     call basicTypes(ID_COL_INDEX)%initialize("Index"     , G_TYPE_FLOAT, FALSE, FALSE, curr_lens_data%surf_index )
 
     ! Notes for adding aperture

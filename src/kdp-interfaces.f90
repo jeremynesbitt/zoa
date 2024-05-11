@@ -150,7 +150,7 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 end subroutine POWSYM
 
 subroutine Sandbox()
-  use clear_apertures
+  use kdp_data_types, only: check_clear_apertures
   use global_widgets
 
   call check_clear_apertures(curr_lens_data)

@@ -902,7 +902,7 @@ module codeV_commands
         use global_widgets, only: sysConfig, curr_lens_data
         use iso_fortran_env, only: real64
         use command_utils, only: isInputNumber
-        use clear_apertures
+        use kdp_data_types, only: check_clear_apertures
         implicit none
 
         class(zoa_cmd) :: self
@@ -926,14 +926,6 @@ module codeV_commands
             & trim(real2str(curr_lens_data%clearAps(i)%yRad))//blankStr(5)// &
             & trim(real2str(curr_lens_data%clearAps(i)%xRad)), "black")
         end do
-
-        ! Display clear aperture per surface
-        ! do i = 1,curr_lens_data%num_surfaces
-        !     !call LogTermFOR("Surf is "//real2str(ALENS(10,i-1)))
-        !     call LogTermFOR("Surf is "//real2str(curr_lens_data%clearAps(i)%yRad))
-
-
-        ! end do
 
     end subroutine
 

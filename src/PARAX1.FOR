@@ -475,29 +475,8 @@ C
 C       Update Lens data class
 C     Dump data to interface modules
       call curr_lens_data%update()
+      
 
-!       call curr_lens_data % set_num_surfaces(INT(SYSTEM(20)) + 1)
-!       curr_lens_data % ref_stop = INT(SYSTEM(25)+1)
-!       DO JJ=0,INT(SYSTEM(20))
-!         CALL SINDEXJN(JJ, INDEX, VNUM)
-!         IF(ALENS(1,JJ).EQ.0.0D0) THEN
-!                         RD=0.0D0
-!                         ELSE
-!                         RD=1.0D0/(ALENS(1,JJ))
-!                         END IF
-
-! C     Dump data to interface
-!         !TODO:  Move this to curr lens nmdule
-!         curr_lens_data % radii(JJ+1) = RD
-!         curr_lens_data % curvatures(JJ+1) = ALENS(1,JJ)
-!         curr_lens_data % thicknesses(JJ+1) = ALENS(3,JJ)
-!         curr_lens_data % surf_index(JJ+1) = INDEX
-!         curr_lens_data % surf_vnum(JJ+1) = VNUM
-!         !curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,1) // GLANAM(JJ,2)
-!         curr_lens_data % glassnames(JJ+1) = GLANAM(JJ,2)
-!         curr_lens_data % clearapertures(JJ+1) = ALENS(10,JJ)
-!         !PRINT *, "RADII IS ", curr_lens_data % radii(JJ+1)
-!         !PRINT *, "INDEX IS ", curr_lens_data % surf_index(JJ+1)
 
 ! C       PRINT THE PIKUP
 
