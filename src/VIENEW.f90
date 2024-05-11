@@ -26,19 +26,20 @@ end module
           use handlers, only:  updateterminallog
           use mod_plotopticalsystem
           use ISO_FORTRAN_ENV, only: real64
+          use DATLEN
+          use DATMAC
 !
 
         IMPLICIT NONE
 
+
 !
 !       THIS PROGRAM CONTROLS THE "VIE" AND "VIECO" COMMANDS
 !
-      REAL(real64) :: VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO, relAngle
+      REAL(real64) :: VIEROT,XVHI,XVLO,YVHI,YVLO, relAngle
 
       integer :: numRays, ii, jj, numFields
 
-      real, dimension(3) :: fFields
-!
       INTEGER DFLAG,VIEXOF,VIEYOF
 !
         COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
@@ -51,8 +52,8 @@ end module
       REAL(real64) ::  VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
 !
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
+        !INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATMAC.INC'
 
 !
         PRINT *, "VIE ROUTINE STARTING..."
@@ -628,13 +629,14 @@ end subroutine
 
 subroutine VIE_TRACERAY(xA, yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
   use ISO_FORTRAN_ENV, only: real64
+  use DATLEN
   implicit none
   INTEGER VDF2,VDF3,VS2,VS3
   REAL(real64) ::  xA, yA, VIEW2,VIEW3
   integer :: rW, CACOCHVIE
 
   include "DATMAI.INC"
-  include "DATLEN.INC"
+  !include "DATLEN.INC"
 
       WW1 = yA
       WW2=  xA
@@ -656,6 +658,7 @@ SUBROUTINE PLTRAE
   USE GLOBALS
   use global_widgets, only: sysConfig
   use kdp_plot_gen
+  use DATLEN
 !
   IMPLICIT NONE
 !
@@ -670,7 +673,7 @@ LOGICAL GGO
 INTEGER IX,IY,I,IPST,COLPAS,STOPAT,J
 !
   INCLUDE 'DATMAI.INC'
-  INCLUDE 'DATLEN.INC'
+  !INCLUDE 'DATLEN.INC'
 !
 !     LOOK.VIEW TRANSFORMS
 
@@ -1154,10 +1157,11 @@ NORAYPLOT=.FALSE.
 
 ! SUB VIERAY.FOR
       SUBROUTINE VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+      implicit none
       REAL*8 VIEW2,VIEW3
       INTEGER VDF2,VDF3,VS2,VS3
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATLEN.INC'
+      !INCLUDE 'DATLEN.INC'
 !             PLOT THE RAY
               W1=VIEW2
               W2=VIEW3
@@ -1184,6 +1188,7 @@ NORAYPLOT=.FALSE.
         SUBROUTINE PLTDEV1
         USE GLOBALS
         USE NSSMOD
+        use DATLEN, only: DEVTYP, GLOBE, GRASET, SCFAX, SCFAY
 
         IMPLICIT NONE
 !
@@ -1199,7 +1204,7 @@ NORAYPLOT=.FALSE.
       COMMON/XLXU/XL,XU
 !
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATLEN.INC'
         INCLUDE 'DATHGR.INC'
 !
 !       THIS ROUTINE SETS GRASET AND DEVTYP
@@ -1234,6 +1239,7 @@ NORAYPLOT=.FALSE.
 
         SUBROUTINE PSTART
           use kdp_plot_gen
+          use DATLEN, only: COLBAC, DEVTYP, PLEXIS, PPLI, LI
 !
         IMPLICIT NONE
 !
@@ -1245,7 +1251,7 @@ NORAYPLOT=.FALSE.
       COMMON/VIEWER/LLX,LLY,URX,URY
 !
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATLEN.INC'
         INCLUDE 'DATHGR.INC'
 !
         BLANK=AA//AA//AA//AA
@@ -1303,9 +1309,8 @@ NORAYPLOT=.FALSE.
       USE GLOBALS
       USE zoa_ui
       IMPLICIT NONE
-      INTEGER I,ALLOERR, fNeut
+      INTEGER ALLOERR
       INTEGER I1,I2,I3,I4,I5,I6,I7,I8
-      INTEGER II1,II2,II3,II4,II5,II6,II7,II8
       CHARACTER STRINGER*1,NEUTLINE*42
       INCLUDE 'DATHGR.INC'
       INCLUDE 'DATMAI.INC'
@@ -1362,9 +1367,12 @@ NORAYPLOT=.FALSE.
       SUBROUTINE PLOTBOX
         use kdp_plot_gen
         USE GLOBALS
+        use DATLEN, only: COLFRM
+        implicit none
 !     DOES THE BIG FRAME AROUND PLOTS
       INCLUDE 'DATHGR.INC'
-      INCLUDE 'DATLEN.INC'
+      !INCLUDE 'DATLEN.INC'
+      
       INTEGER COLPAS
 
       PRINT *, "RUNNING PLOTBOX ROUTINE"
@@ -1385,13 +1393,15 @@ NORAYPLOT=.FALSE.
 ! SUB PLTRST1.FOR
     SUBROUTINE PLTRST1
       use kdp_plot_gen
-!
+      use DATLEN
+
+      !
       IMPLICIT NONE
 !
 !       THIS ROUTINE RESETS PLOT PARAMETERS TO STARTING VALES
 !       AFTER PLOT DEV, PLOT SCREEN OR PLOT PRINTER
 !
-    INTEGER I,J,K,FANWAV
+    INTEGER I,FANWAV
 !
     INTEGER JK_WAV(1:10)
 !
@@ -1422,7 +1432,7 @@ NORAYPLOT=.FALSE.
     COMMON/USEFAN/XTENT,YTENT,CLIP
 !
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATLEN.INC'
+      !INCLUDE 'DATLEN.INC'
       INCLUDE 'DATSPD.INC'
       INCLUDE 'DATHGR.INC'
 !
@@ -1440,8 +1450,8 @@ NORAYPLOT=.FALSE.
 !
                       FSSIFLG=.FALSE.
                       FSSI=0.0D0
-                      FANAXX=width_mid!5000
-                      FANAXY=height_mid!3500
+                      FANAXX=INT(width_mid)!5000
+                      FANAXY=INT(height_mid)!3500
                       XTENT=2500
                       YTENT=2000
                       CLIP=0
@@ -1814,6 +1824,7 @@ NORAYPLOT=.FALSE.
         use kdp_plot_gen
         use type_utils, only: int2str
         USE GLOBALS
+        use DATLEN
 !        USE testHDF5
         !use h5fortran
 
@@ -1826,7 +1837,7 @@ NORAYPLOT=.FALSE.
 !       THIS ROUTINE DOES THE PLOT PROF COMMAND AT THE CMD LEVEL
 !
       REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
-      ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI,RANGE &
+      ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
       ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2,AX1,AX2,AY1,AY2,ZDELZ &
       ,X00,Y00,Z0,LX0,LY0,LZ0,ACALL1,ACALL2,XM,YM,ZCORR,ZDELZ1 &
       ,X1,X2,Y1,Y2,SLOPE,DELXX,DELYY,MX0,MY0,MZ0,NX0,NY0,NZ0
@@ -1838,12 +1849,12 @@ NORAYPLOT=.FALSE.
 !
       EXTERNAL INSIDEIT
 !
-      INTEGER M1,M2,M3,M4,CAFLG,COFLG,J,K,IK,III,NO,CLRR,ALLOERR &
+      INTEGER M1,M2,M3,M4,CAFLG,COFLG,J,IK,III,NO,CLRR,ALLOERR &
       ,COLPAS,KKK
 !
       REAL*8 XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,FRACRAD, &
       XMINO,YMINO,XMAXO,YMAXO,DRAPRO,THETA &
-      ,TEMP,YMIN2,XMIN2,YMAX2,XMAX2,CALL1,CALL2
+      ,YMIN2,XMIN2,YMAX2,XMAX2
 !
       INTEGER IX,IY,I,II,IPST
 !
@@ -1855,12 +1866,10 @@ NORAYPLOT=.FALSE.
 !
 !
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATLEN.INC'
 !
       REAL*8 PRO
-      INTEGER :: xx, yy, zz
 
-!
       DIMENSION PRO(:,:,:)
       ALLOCATABLE :: PRO
 
@@ -2786,6 +2795,7 @@ NORAYPLOT=.FALSE.
 ! SUB PLTEDG.FOR
         SUBROUTINE PLTEDG
         USE GLOBALS
+        USE DATLEN
 !
         IMPLICIT NONE
 !
@@ -2803,12 +2813,12 @@ NORAYPLOT=.FALSE.
       ,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO &
       ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
 !
-      INTEGER COLPAS,IX,IY,I,II,IPST,J,K, SKIPNEXT
+      INTEGER COLPAS,IX,IY,I,II,IPST,J,SKIPNEXT
 !
         LOGICAL NOPLOT
 !
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATLEN.INC'
 !
       REAL EDGE
       DIMENSION EDGE(:,:,:)
@@ -3022,26 +3032,26 @@ NORAYPLOT=.FALSE.
 !
 !
       IF(WQ.EQ.'EDGEY') THEN
-                        EDGE(1,1,II)=XBOT
-                        EDGE(1,2,II)=YBOT
-                        EDGE(2,1,II)=XTOP
-                        EDGE(2,2,II)=YTOP
-                        EDGE(3,1,II)=XBOTO
-                        EDGE(3,2,II)=YBOTO
-                        EDGE(4,1,II)=XTOPO
-                        EDGE(4,2,II)=YTOPO
+                        EDGE(1,1,II)=REAL(XBOT,4)
+                        EDGE(1,2,II)=reAL(YBOT,4)
+                        EDGE(2,1,II)=REAL(XTOP,4)
+                        EDGE(2,2,II)=REAL(YTOP,4)
+                        EDGE(3,1,II)=reAL(XBOTO,4)
+                        EDGE(3,2,II)=REAL(YBOTO,4)
+                        EDGE(4,1,II)=REAL(XTOPO,4)
+                        EDGE(4,2,II)=REAL(YTOPO,4)
                         ELSE
                         END IF
 !
                 IF(WQ.EQ.'EDGEX') THEN
-                        EDGE(1,1,II)=XLFT
-                        EDGE(1,2,II)=YLFT
-                        EDGE(2,1,II)=XRHT
-                        EDGE(2,2,II)=YRHT
-                        EDGE(3,1,II)=XLFTO
-                        EDGE(3,2,II)=YLFTO
-                        EDGE(4,1,II)=XRHTO
-                        EDGE(4,2,II)=YRHTO
+                        EDGE(1,1,II)=REAL(XLFT,4)
+                        EDGE(1,2,II)=REAL(YLFT,4)
+                        EDGE(2,1,II)=REAL(XRHT,4)
+                        EDGE(2,2,II)=REAL(YRHT,4)
+                        EDGE(3,1,II)=REAL(XLFTO,4)
+                        EDGE(3,2,II)=REAL(YLFTO,4)
+                        EDGE(4,1,II)=REAL(XRHTO,4)
+                        EDGE(4,2,II)=REAL(YRHTO,4)
                         ELSE
                         END IF
 !
@@ -3074,13 +3084,13 @@ NORAYPLOT=.FALSE.
                         ELSE
                         END IF
                 CALL SAGPLT(III,X1,Y1,Z,NO)
-                EDGE(1,3,II)=Z+ZDELZ
+                EDGE(1,3,II)=REAL(Z+ZDELZ,4)
                 CALL SAGPLT(III,X2,Y2,Z,NO)
-                EDGE(2,3,II)=Z+ZDELZ
+                EDGE(2,3,II)=REAL(Z+ZDELZ,4)
                 CALL SAGPLT(III,XX1,YY1,Z,NO)
-                EDGE(3,3,II)=Z+ZDELZ
+                EDGE(3,3,II)=REAL(Z+ZDELZ,4)
                 CALL SAGPLT(III,XX2,YY2,Z,NO)
-                EDGE(4,3,II)=Z+ZDELZ
+                EDGE(4,3,II)=REAL(Z+ZDELZ,4)
 !
 !               CYCLE THROUGH THE NEXT SURFACE
                         END DO
@@ -3111,12 +3121,12 @@ NORAYPLOT=.FALSE.
         +(MZ0*(Z)))
         Z1=Z0+((NX0*(X))+(NY0*(Y)) &
         +(NZ0*(Z)))
-                EDGE(1,1,II)=X1
-                EDGE(1,2,II)=Y1
-                EDGE(1,3,II)=Z1
-                X=EDGE(2,1,II)
-                Y=EDGE(2,2,II)
-                Z=EDGE(2,3,II)
+                EDGE(1,1,II)=REAL(X1,4)
+                EDGE(1,2,II)=REAL(Y1,4)
+                EDGE(1,3,II)=reAL(Z1,4)
+                X=REAL(EDGE(2,1,II),8)
+                Y=REAL(EDGE(2,2,II),8)
+                Z=REAL(EDGE(2,3,II),8)
 !
         X1=X00+((LX0*(X))+(LY0*(Y)) &
         +(LZ0*(Z)))
@@ -3124,12 +3134,12 @@ NORAYPLOT=.FALSE.
         +(MZ0*(Z)))
         Z1=Z0+((NX0*(X))+(NY0*(Y)) &
         +(NZ0*(Z)))
-                EDGE(2,1,II)=X1
-                EDGE(2,2,II)=Y1
-                EDGE(2,3,II)=Z1
-                X=EDGE(3,1,II)
-                Y=EDGE(3,2,II)
-                Z=EDGE(3,3,II)
+                EDGE(2,1,II)=REAL(X1,4)
+                EDGE(2,2,II)=ReAL(Y1,4)
+                EDGE(2,3,II)=REAL(Z1,4)
+                X=REAL(EDGE(3,1,II),8)
+                Y=REAL(EDGE(3,2,II),8)
+                Z=REAL(EDGE(3,3,II),8)
 !
         X1=X00+((LX0*(X))+(LY0*(Y)) &
         +(LZ0*(Z)))
@@ -3137,12 +3147,12 @@ NORAYPLOT=.FALSE.
         +(MZ0*(Z)))
         Z1=Z0+((NX0*(X))+(NY0*(Y)) &
         +(NZ0*(Z)))
-                EDGE(3,1,II)=X1
-                EDGE(3,2,II)=Y1
-                EDGE(3,3,II)=Z1
-                X=EDGE(4,1,II)
-                Y=EDGE(4,2,II)
-                Z=EDGE(4,3,II)
+                EDGE(3,1,II)=REAL(X1,4)
+                EDGE(3,2,II)=REAL(Y1,4)
+                EDGE(3,3,II)=REAL(Z1,4)
+                X=REAL(EDGE(4,1,II),8)
+                Y=REAL(EDGE(4,2,II),8)
+                Z=REAL(EDGE(4,3,II),8)
 !
         X1=X00+((LX0*(X))+(LY0*(Y)) &
         +(LZ0*(Z)))
@@ -3150,9 +3160,9 @@ NORAYPLOT=.FALSE.
         +(MZ0*(Z)))
         Z1=Z0+((NX0*(X))+(NY0*(Y)) &
         +(NZ0*(Z)))
-                EDGE(4,1,II)=X1
-                EDGE(4,2,II)=Y1
-                EDGE(4,3,II)=Z1
+                EDGE(4,1,II)=REAL(X1,4)
+                EDGE(4,2,II)=REAL(Y1,4)
+                EDGE(4,3,II)=REAL(Z1,4)
                         END DO
 !
 !     4. NOW DETERMINE THE BEST PLACE FOR THE ROTATION POINT FOR
@@ -3163,9 +3173,9 @@ NORAYPLOT=.FALSE.
 !     5.  CONVERT THE GLOBAL X ANY Y EDGES
 !               USING THE LOOK/VIEW VALUES
                         DO II=STASUR,STPSUR
-                X=EDGE(1,1,II)
-                Y=EDGE(1,2,II)
-                Z=EDGE(1,3,II)
+                X=REAL(EDGE(1,1,II),8)
+                Y=REAL(EDGE(1,2,II),8)
+                Z=REAL(EDGE(1,3,II),8)
       X=X-XROT
       Y=Y-YROT
       Z=Z-ZROT
@@ -3179,9 +3189,9 @@ NORAYPLOT=.FALSE.
       ZN=ROT2Z(Z,Y,VIEAL)
       YN=ROT2Y(Z,Y,VIEAL)
       XN=X
-      EDGE(1,1,II)=XN
-      EDGE(1,2,II)=YN
-      EDGE(1,3,II)=ZN
+      EDGE(1,1,II)=REAL(XN,4)
+      EDGE(1,2,II)=REAL(YN,4)
+      EDGE(1,3,II)=REAL(ZN,4)
                 X=EDGE(2,1,II)
                 Y=EDGE(2,2,II)
                 Z=EDGE(2,3,II)
@@ -3198,12 +3208,12 @@ NORAYPLOT=.FALSE.
       ZN=ROT2Z(Z,Y,VIEAL)
       YN=ROT2Y(Z,Y,VIEAL)
       XN=X
-      EDGE(2,1,II)=XN
-      EDGE(2,2,II)=YN
-      EDGE(2,3,II)=ZN
-                X=EDGE(3,1,II)
-                Y=EDGE(3,2,II)
-                Z=EDGE(3,3,II)
+      EDGE(2,1,II)=REAL(XN,4)
+      EDGE(2,2,II)=REAL(YN,4)
+      EDGE(2,3,II)=REAL(ZN,4)
+                X=REAL(EDGE(3,1,II),8)
+                Y=REAL(EDGE(3,2,II),8)
+                Z=REAL(EDGE(3,3,II),8)
       X=X-XROT
       Y=Y-YROT
       Z=Z-ZROT
@@ -3217,12 +3227,12 @@ NORAYPLOT=.FALSE.
       ZN=ROT2Z(Z,Y,VIEAL)
       YN=ROT2Y(Z,Y,VIEAL)
       XN=X
-      EDGE(3,1,II)=XN
-      EDGE(3,2,II)=YN
-      EDGE(3,3,II)=ZN
-                X=EDGE(4,1,II)
-                Y=EDGE(4,2,II)
-                Z=EDGE(4,3,II)
+      EDGE(3,1,II)=REAL(XN,4)
+      EDGE(3,2,II)=REAL(YN,4)
+      EDGE(3,3,II)=REAL(ZN,4)
+                X=REAL(EDGE(4,1,II),8)
+                Y=REAL(EDGE(4,2,II),8)
+                Z=REAL(EDGE(4,3,II),8)
       X=X-XROT
       Y=Y-YROT
       Z=Z-ZROT
@@ -3236,9 +3246,9 @@ NORAYPLOT=.FALSE.
       ZN=ROT2Z(Z,Y,VIEAL)
       YN=ROT2Y(Z,Y,VIEAL)
       XN=X
-      EDGE(4,1,II)=XN
-      EDGE(4,2,II)=YN
-      EDGE(4,3,II)=ZN
+      EDGE(4,1,II)=REAL(XN,4)
+      EDGE(4,2,II)=REAL(YN,4)
+      EDGE(4,3,II)=REAL(ZN,4)
                         END DO
 !
 !     THE ARRAYS NOW HAVE GLOBAL SURFACE EDGE DATA IN THEM
@@ -3261,8 +3271,8 @@ NORAYPLOT=.FALSE.
 !
                         DO II=STASUR,STPSUR
                         DO I=1,4
-                  EDGE(I,1,II)=(EDGE(I,1,II)/SCFAX)*1000.0D0
-                  EDGE(I,2,II)=(EDGE(I,2,II)/SCFAY)*1000.0D0
+                  EDGE(I,1,II)=(EDGE(I,1,II)/ReAL(SCFAX,4))*1000.0
+                  EDGE(I,2,II)=(EDGE(I,2,II)/REAL(SCFAY,4))*1000.0
                         END DO
                         END DO
 !
@@ -3270,8 +3280,8 @@ NORAYPLOT=.FALSE.
                         DO I=1,4
                         DO II=STASUR,STPSUR
       IF(LORIENT) CALL ORSHIFT
-      EDGE(I,1,II)=EDGE(I,1,II)+DBLE(PXSHFT)
-      EDGE(I,2,II)=EDGE(I,2,II)+3500.0D0+DBLE(PYSHFT)
+      EDGE(I,1,II)=EDGE(I,1,II)+REAL(DBLE(PXSHFT),4)
+      EDGE(I,2,II)=EDGE(I,2,II)+3500.0+REAL(DBLE(PYSHFT),4)
                         END DO
                         END DO
 !
@@ -3290,14 +3300,14 @@ NORAYPLOT=.FALSE.
                         ELSE
                         END IF
       IF(RCL.EQ.3.OR.RCL.EQ.-3) THEN
-      JUSOFF=9500.0D0-((XMAXI/SCFAX)*1000.0D0)
+      JUSOFF=9500.0D0-((XMAXI/REAL(SCFAX,4))*1000.0D0)
                         RCL=-3
                         ELSE
                         END IF
 !
                         DO I=1,4
                         DO II=STASUR,STPSUR
-      EDGE(I,1,II)=EDGE(I,1,II)+JUSOFF
+      EDGE(I,1,II)=EDGE(I,1,II)+REAL(JUSOFF,4)
                         END DO
                         END DO
 !     9. PLOT GAMMA
@@ -3309,8 +3319,8 @@ NORAYPLOT=.FALSE.
 !
                         DO I=1,4
                         DO II=STASUR,STPSUR
-      EDGE(I,1,II)=EDGE(I,1,II)-5000.0D0
-      EDGE(I,2,II)=EDGE(I,2,II)-3500.0D0
+      EDGE(I,1,II)=EDGE(I,1,II)-5000.0
+      EDGE(I,2,II)=EDGE(I,2,II)-3500.0
                         END DO
                         END DO
 !     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
@@ -3325,8 +3335,8 @@ NORAYPLOT=.FALSE.
                 Y=EDGE(I,2,II)
                 XNEW=((X*DCOS(LKG))-(Y*DSIN(LKG)))
                 YNEW=((X*DSIN(LKG))+(Y*DCOS(LKG)))
-                EDGE(I,1,II)=XNEW
-                EDGE(I,2,II)=YNEW
+                EDGE(I,1,II)=REAL(XNEW,4)
+                EDGE(I,2,II)=REAL(YNEW,4)
                         END DO
                         END DO
                         ELSE
@@ -3335,8 +3345,8 @@ NORAYPLOT=.FALSE.
 !     LEFT HAND CORNER
                         DO I=1,4
                         DO II=STASUR,STPSUR
-      EDGE(I,1,II)=EDGE(I,1,II)+5000.0D0
-      EDGE(I,2,II)=EDGE(I,2,II)+3500.0D0
+      EDGE(I,1,II)=EDGE(I,1,II)+5000.0
+      EDGE(I,2,II)=EDGE(I,2,II)+3500.0
                         END DO
                         END DO
 !
