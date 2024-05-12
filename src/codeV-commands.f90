@@ -20,14 +20,14 @@ module codeV_commands
 
     type zoa_cmd
       character(len=8) :: cmd
-      procedure (cmdImplementation), pointer, pass(self) :: execFunc
+      procedure (cmdImplementation), pointer, nopass :: execFunc
 
     end type
 
     abstract interface
-    subroutine cmdImplementation (self,iptStr)
+    subroutine cmdImplementation (iptStr)
        import zoa_cmd
-       class(zoa_cmd) :: self
+       !class(zoa_cmd) :: self
        character(len=*) ::iptStr
        !real, intent (in) :: z
     end subroutine cmdImplementation 
@@ -35,6 +35,9 @@ module codeV_commands
 
     character(len=4), dimension(500) :: surfCmds
     type(zoa_cmd), dimension(519) :: zoaCmds
+
+    integer :: cmd_loop = 0
+    integer, parameter :: VIE_LOOP = 1
 
     contains
 
@@ -223,39 +226,31 @@ module codeV_commands
               
     end function
 
-    subroutine execVie(self, iptStr)
-        use global_widgets, only: ioConfig
-        use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
+    subroutine execVie(iptStr)
 
         implicit none
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        ! Temp Vars
-        Integer :: iStart, iNew
-        Real*8 :: rWait, rDT
-        ! End Temp Vars
 
+
+        if(len(trim(iptStr)) > 3 ) then
+            call LogTermFOR("Warning; VIE accepts no input.  This will be ignored: "//trim(iptStr(4:len(iptStr))))
+        end if
+        ! Enter into VIE loop.  Once GO is entered, execute plot
+        cmd_loop = VIE_LOOP
         
-        ! Hide KDP Commands from user
-        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
-        call PROCESKDP('VIECO')
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
-
-
     end subroutine
 
-    subroutine execCIR(self, iptStr)
+    subroutine execCIR(iptStr)
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
     
         implicit none        
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        character(len=256) :: fName
         character(len=80) :: tokens(40)
-        character(len=256) :: fullPath
         integer :: numTokens, surfNum
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
@@ -299,19 +294,17 @@ module codeV_commands
 
     end subroutine
 
-    subroutine execSTO(self, iptStr)
+    subroutine execSTO(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
     
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        character(len=256) :: fName
         integer :: surfNum
         character(len=80) :: tokens(40)
-        character(len=256) :: fullPath
         integer :: numTokens
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
@@ -334,7 +327,7 @@ module codeV_commands
 
     end subroutine
 
-    subroutine execSUR(self, iptStr)
+    subroutine execSUR(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str, blankStr, real2str
         use handlers, only: updateTerminalLog
@@ -342,18 +335,16 @@ module codeV_commands
     
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        character(len=256) :: fName
-        integer :: surfNum, ii
+        integer :: ii
         character(len=80) :: tokens(40)
         character(len=256) :: fullLine
         character(len=4)  :: surfTxt
-        character(len=10) :: radTxt
-        character(len=10) :: thiTxt
+        character(len=23) :: radTxt
+        character(len=23) :: thiTxt
         character(len=40) :: glaTxt
-        integer :: refStop
-        integer :: numTokens, locDot, fID
+        integer :: numTokens
 
         !numSurfaces = curr_lens_data%num_surfaces
         !call LogTermFOR("Num Surfaces is "//trim(int2str(curr_lens_data%num_surfaces)))
@@ -429,8 +420,9 @@ module codeV_commands
 
     end subroutine
 
-    subroutine execRestore(self, iptStr)
-        use global_widgets, only: sysConfig, curr_lens_data
+    subroutine execRestore(iptStr)
+        !use global_widgets, only: curr_lens_data
+
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
@@ -438,13 +430,12 @@ module codeV_commands
         use zoa_file_handler, only: open_file_to_sav_lens
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=256) :: fName
-        integer :: surfNum
         character(len=80) :: tokens(40)
-        character(len=256) :: fullPath
-        integer :: numTokens, locDot, fID
+        character(len=1024) :: fullPath
+        integer :: numTokens, locDot
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         if (numTokens == 2 ) then
@@ -474,7 +465,7 @@ module codeV_commands
     end subroutine
       
 
-    subroutine execSAV(self, iptStr)
+    subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
 
         use command_utils, only : parseCommandIntoTokens
@@ -483,10 +474,9 @@ module codeV_commands
         use zoa_file_handler, only: open_file_to_sav_lens
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=256) :: fName
-        integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens, locDot, fID
 
@@ -523,16 +513,15 @@ module codeV_commands
 
     end subroutine
 
-    subroutine execSetWavelengthIndex(self, iptStr)
+    subroutine execSetWavelengthIndex(iptStr)
 
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
 
@@ -552,14 +541,14 @@ module codeV_commands
     ! RMD Sk REFR REFL TIR
     ! Change surface to refraction, reflection tir
 
-    subroutine execRMD(self, iptStr)
+    subroutine execRMD(iptStr)
 
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         integer :: surfNum
         character(len=80) :: tokens(40)
@@ -602,7 +591,6 @@ module codeV_commands
         use handlers, only: updateTerminalLog        
         implicit none
 
-        integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
 
@@ -631,11 +619,9 @@ module codeV_commands
     subroutine setMagSolve()
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
-        use global_widgets, only: curr_lens_data
         use handlers, only: updateTerminalLog
         implicit none
 
-        integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
 
@@ -744,7 +730,7 @@ module codeV_commands
     subroutine setEPD()
         use command_utils
         use type_utils, only: real2str
-        logical :: inputCheck
+        implicit none
 
          if(checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
             call executeCodeVLensUpdateCommand('SAY '//real2str(getInputNumber(1)/2.0))
@@ -810,7 +796,6 @@ module codeV_commands
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-        real(kind=real64) :: nd, vd
 
         include "DATMAI.INC"
 
@@ -895,23 +880,24 @@ module codeV_commands
     end subroutine
 
     ! CLI SA supported only at this time
-    subroutine execCLI(self,iptStr)
+    subroutine execCLI(iptStr)
         use strings
         use type_utils, only: int2str, real2str, blankStr
         use handlers, only: updateTerminalLog
-        use global_widgets, only: sysConfig, curr_lens_data
+        use global_widgets, only: curr_lens_data
         use iso_fortran_env, only: real64
         use command_utils, only: isInputNumber
         use kdp_data_types, only: check_clear_apertures
+        use DATLEN
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        integer :: surfNum, i, s0, sf, dotLoc
+        integer :: i
         character(len=80) :: tokens(40)
         character(len=4)  :: surfTxt
         integer :: numTokens
-        include "DATLEN.INC"
+        !include "DATLEN.INC"
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
         call check_clear_apertures(curr_lens_data)
@@ -929,16 +915,15 @@ module codeV_commands
 
     end subroutine
 
-    subroutine insertSurf(self,iptStr)
+    subroutine insertSurf(iptStr)
         use strings
         use type_utils, only: int2str, str2real8, str2int
         use handlers, only: updateTerminalLog
-        use global_widgets, only: sysConfig
         use iso_fortran_env, only: real64
         use command_utils, only: isInputNumber
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         integer :: surfNum, i, s0, sf, dotLoc
         character(len=80) :: tokens(40)
@@ -1122,9 +1107,9 @@ module codeV_commands
 
       end subroutine
 
-      subroutine setFieldWeights(self, iptStr)
+      subroutine setFieldWeights(iptStr)
         use handlers, only: updateTerminalLog
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
 
         ! This is not implemented. 
@@ -1133,7 +1118,7 @@ module codeV_commands
 
       end subroutine
 
-      subroutine setWavelengthWeights(self, iptStr)
+      subroutine setWavelengthWeights(iptStr)
         use strings
         use type_utils, only: int2str, str2real8
         use handlers, only: updateTerminalLog
@@ -1141,7 +1126,7 @@ module codeV_commands
         use iso_fortran_env, only: real64
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         integer :: i
         character(len=80) :: tokens(40)
@@ -1157,7 +1142,7 @@ module codeV_commands
         end subroutine
 
 
-      subroutine setField(self, iptStr)
+      subroutine setField(iptStr)
         ! TODO:  Support things other than YAN
          use command_utils, only : parseCommandIntoTokens
          use type_utils, only: int2str, str2real8
@@ -1168,9 +1153,8 @@ module codeV_commands
          use strings
          implicit none
  
-         class(zoa_cmd) :: self
+         !class(zoa_cmd) :: self
          character(len=*) :: iptStr
-         character(len=1024) :: outStr
          integer :: i,numFields
          character(len=80) :: tokens(40)
          integer :: numTokens
@@ -1250,7 +1234,7 @@ module codeV_commands
 
     !   end subroutine
 
-      subroutine setWavelength(self, iptStr)
+      subroutine setWavelength(iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: real2str, str2real8, int2str
@@ -1259,7 +1243,7 @@ module codeV_commands
         use strings
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=1024) :: outStr
         integer :: i
@@ -1283,12 +1267,25 @@ module codeV_commands
 
 
 
+
         end if
 
       end subroutine      
 
       subroutine executeGo()
+        use global_widgets, only: ioConfig
+        use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
         use kdp_utils, only: inLensUpdateLevel
+
+        if (cmd_loop == VIE_LOOP) then
+                ! Hide KDP Commands from user
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+        call PROCESKDP('VIECO')
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
+        cmd_loop = 0 ! Go back to base level
+        end if
+
+
 
         if (inLensUpdateLevel()) call PROCESKDP('EOS')
 
@@ -1354,7 +1351,6 @@ module codeV_commands
 
         logical :: boolResult
         character(len=*) :: tstCmd
-        character(len=4), dimension(19) :: codeVCmds
         type(string) :: tstCmds(17+size(zoaCmds))
         integer :: i
 
@@ -1516,7 +1512,7 @@ module codeV_commands
     end function
 
 
-      subroutine setSurfaceCodeVStyle(self, iptStr)
+      subroutine setSurfaceCodeVStyle(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
@@ -1525,12 +1521,10 @@ module codeV_commands
     
         implicit none
 
-        class(zoa_cmd) :: self
+        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        character(len=256) :: fName
         integer :: surfNum
         character(len=80) :: tokens(40)
-        character(len=256) :: fullPath
         integer :: numTokens
 
 

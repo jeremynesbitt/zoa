@@ -1596,7 +1596,7 @@ NORAYPLOT=.FALSE.
 !     RCL=2 MEANS CENTER JUSTIFY(DEFAULT VALUE)
 !     RCL=3 MEANS RIGHT JUSTIFY
               RCL=-2
-              JUSOFF=5000.0D0
+              JUSOFF=width_mid
 !
               ROTSET=.FALSE.
               XROT=0.0D0
@@ -2796,6 +2796,7 @@ NORAYPLOT=.FALSE.
         SUBROUTINE PLTEDG
         USE GLOBALS
         USE DATLEN
+        use kdp_plot_gen
 !
         IMPLICIT NONE
 !
@@ -3281,7 +3282,7 @@ NORAYPLOT=.FALSE.
                         DO II=STASUR,STPSUR
       IF(LORIENT) CALL ORSHIFT
       EDGE(I,1,II)=EDGE(I,1,II)+REAL(DBLE(PXSHFT),4)
-      EDGE(I,2,II)=EDGE(I,2,II)+3500.0+REAL(DBLE(PYSHFT),4)
+      EDGE(I,2,II)=EDGE(I,2,II)+REAL(height_mid,4)+REAL(DBLE(PYSHFT),4)
                         END DO
                         END DO
 !
@@ -3296,7 +3297,7 @@ NORAYPLOT=.FALSE.
                         END IF
       IF(RCL.EQ.2.OR.RCL.EQ.-2) THEN
                         RCL=-2
-                        JUSOFF=5000.0D0
+                        JUSOFF=width_mid
                         ELSE
                         END IF
       IF(RCL.EQ.3.OR.RCL.EQ.-3) THEN
@@ -3319,8 +3320,8 @@ NORAYPLOT=.FALSE.
 !
                         DO I=1,4
                         DO II=STASUR,STPSUR
-      EDGE(I,1,II)=EDGE(I,1,II)-5000.0
-      EDGE(I,2,II)=EDGE(I,2,II)-3500.0
+      EDGE(I,1,II)=EDGE(I,1,II)-REAL(width_mid,4)
+      EDGE(I,2,II)=EDGE(I,2,II)-REAL(height_mid,4)
                         END DO
                         END DO
 !     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
@@ -3345,8 +3346,8 @@ NORAYPLOT=.FALSE.
 !     LEFT HAND CORNER
                         DO I=1,4
                         DO II=STASUR,STPSUR
-      EDGE(I,1,II)=EDGE(I,1,II)+5000.0
-      EDGE(I,2,II)=EDGE(I,2,II)+3500.0
+      EDGE(I,1,II)=EDGE(I,1,II)+REAL(width_mid,4)
+      EDGE(I,2,II)=EDGE(I,2,II)+REAL(height_mid,4)
                         END DO
                         END DO
 !
