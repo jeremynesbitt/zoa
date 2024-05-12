@@ -487,7 +487,7 @@ C       PART DRAWINGS
           CALL plot_seidel
           RETURN
         END IF
-        IF(WC.EQ.'FAN') THEN
+        IF(WC.EQ.'PLTFAN') THEN
                 CALL PLTFAN
                 RETURN
         END IF

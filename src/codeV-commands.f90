@@ -15,6 +15,7 @@
 ! fake textView, print code v cmd, then when done redirect output to window
 
 module codeV_commands
+    use iso_fortran_env, only: real64
 
 
 
@@ -34,7 +35,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(519) :: zoaCmds
+    type(zoa_cmd), dimension(530) :: zoaCmds
 
     integer :: cmd_loop = 0
     integer, parameter :: VIE_LOOP = 1
@@ -101,6 +102,10 @@ module codeV_commands
         zoaCmds(518)%execFunc => insertSurf   
         zoaCmds(518)%cmd = 'CLI'
         zoaCmds(518)%execFunc => execCLI                            
+        zoaCmds(519)%cmd = 'FAN'
+        zoaCmds(519)%execFunc => execFAN        
+        zoaCmds(520)%cmd = 'RSI'
+        zoaCmds(520)%execFunc => execRSI                                    
 
     end subroutine
 
@@ -225,6 +230,207 @@ module codeV_commands
         !   END IF            
               
     end function
+
+    subroutine cmd_parser_get_real_pair(tokens, real1, real2) 
+    ! Look for 2 and only 2 inputs that don't have a string character in them    
+        use global_widgets, only: sysConfig
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2real8
+        use handlers, only: updateTerminalLog
+        implicit none
+        character(len=*), dimension(:) :: tokens
+        real(kind=real64) :: real1, real2
+        integer :: i, numRealInputs 
+
+        numRealInputs = 0
+
+        if(size(tokens) > 1) then
+            do i=2,size(tokens)
+                if (isInputNumber(tokens(i))) then
+                    numRealInputs = numRealInputs + 1
+                    select case(numRealInputs)
+                    case (1)
+                        real1 = str2real8(tokens(i))
+                    case (2)
+                        real2 = str2real8(tokens(i))
+                    case default
+                        call updateTerminalLog("Warning:  Detected more than two valid inputs.  Ignoring "//trim(tokens(i)), "red")
+
+                    end select
+                end if
+            end do
+        end if        
+
+    
+    end subroutine
+
+    function cmd_parser_get_integer_range(iptStr, intArr) result(goodResult)
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2int
+        use handlers, only: updateTerminalLog
+        implicit none
+        logical :: goodResult
+        character(len=*) :: iptStr
+        integer, allocatable :: intArr(:)
+        integer :: i, s0, sf, dotLoc
+
+        goodResult = .FALSE.
+        PRINT *, "CHecking input string ", iptStr
+        ! Check for ellipsis
+        dotLoc = index(iptStr,'..') 
+        if(dotLoc > 0) then
+            ! Require input to be i..k
+
+            if(isInputNumber(iptStr(2:dotLoc-1)).AND. &
+            &  isInputNumber(iptStr(dotLoc+2:len(iptStr)))) then
+               goodResult = .TRUE.
+               s0 = str2int(iptStr(1:dotLoc-1))
+               sf = str2int(iptStr(dotLoc+2:len(iptStr)))
+               intArr = (/ (i,i=s0,sf)/)
+            else
+                call updateTerminalLog("Error:  Could not convert input to X..Y "//iptStr, "red")
+            end if
+        else ! No dots found
+            if(isInputNumber(iptStr)) then
+            goodResult = .TRUE.
+            allocate(intArr(1))
+            intArr(1) = str2int(iptStr)
+            end if
+        end if
+
+
+    end function
+
+    function cmd_parser_get_int_input_for_prefix(prefix, tokens) result(fields)
+        use global_widgets, only: sysConfig
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2int
+        implicit none
+        character(len=*) :: prefix
+        character(len=*), dimension(:) :: tokens
+        integer, allocatable :: fields(:)
+        integer :: i
+        logical :: userDefined 
+
+        userDefined = .FALSE.
+        
+        if(size(tokens) > 1) then
+            do i=2,size(tokens)
+                if (tokens(i)(1:len(prefix)) == prefix ) then
+                    userDefined = cmd_parser_get_integer_range(tokens(i)(2:len(tokens(i))), fields)
+
+                    !if (isInputNumber(tokens(i)(2:len(tokens)))) then
+                    !    userDefined = .TRUE.
+                    !    allocate(fields(1))
+                    !    fields = str2int(tokens(i)(2:len(tokens)))
+                    !end if
+                end if
+                call LogTermFOR("Tokens "// tokens(i))
+
+            end do
+        end if
+
+        !Default is all fields
+        if (.NOT.userDefined) then
+        fields =  (/ (i,i=1,sysConfig%numFields)/)
+        end if
+
+
+
+
+    end function
+
+    ! This is a very important command that performs ray traces for a user defined
+    ! number of field points, wavelengths, and relative aperture locations
+    ! The output depends on the cmd level
+    ! For normal operation a table will be output with the results
+    ! If in VIE level it will save the rays intersection coordinates for use with plooting
+    ! Format RSI fi..k wi..k relApeX relApeY
+    subroutine execRSI(iptStr)
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: real2str, int2str
+        use handlers, only: updateTerminalLog
+        use type_utils, only: int2str
+    
+        implicit none        
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        integer, allocatable :: fields(:), wavelengths(:)
+        real(kind=real64) :: relApeX, relApeY
+        integer :: i
+        
+        ! Defaults
+        relApeX = 0.0
+        relApeY = 0.0
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        
+        fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
+        wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
+        call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY)
+        !fields = cmd_parser_get_fields(tokens(1:numTokens))
+        do i=1,size(fields)
+            call LogTermFOR("RSI fields are "//int2str(fields(i)))
+
+        end do
+        do i=1,size(wavelengths)
+            call LogTermFOR("RSI wavelengths are "//int2str(wavelengths(i)))
+        end do
+
+        call LogTermFOR("Relative X Aperture is " // real2str(relApeX))
+        call LogTermFOR("Relative Y Aperture is " // real2str(relApeY))
+
+
+
+        !select case (numTokens)
+        ! FAN K where K is number of rays for each field point 
+        !case(2)
+
+
+        !end select
+       !else
+         
+       !end if
+
+        
+    end subroutine
+
+    subroutine execFAN(iptStr)
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: real2str, int2str
+        use handlers, only: updateTerminalLog
+    
+        implicit none        
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        ! TODO:  Implement this
+        ! current plan is to translate what is entered into RSI cmds and add to some
+        ! array for processing once user enters GO
+
+        !if (cmd_loop == VIE_LOOP) then
+
+        
+        ! Error checking
+        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        !select case (numTokens)
+        ! FAN K where K is number of rays for each field point 
+        !case(2)
+
+
+        !end select
+       !else
+         
+       !end if
+
+        
+    end subroutine
+
 
     subroutine execVie(iptStr)
 

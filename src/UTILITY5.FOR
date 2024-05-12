@@ -159,7 +159,8 @@ C SUB CONTRO.FOR
         use handlers, only: zoatabMgr
         use codeV_commands, only: startCodeVLensUpdateCmd, 
      1   isCodeVCommand
-        use iso_c_binding, only: c_associated        
+        use iso_c_binding, only: c_associated  
+        use DATLEN      
 C
         IMPLICIT NONE
 C
@@ -183,7 +184,7 @@ C
         INCLUDE 'DATMAC.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATLEN.INC'
 
         !PRINT *, "CONTRO ROUTINE STARTED! "
         !WRITE(OUTLYNE,*)  "CONTROL INPUT IS ", WC(1:8)
