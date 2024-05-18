@@ -89,6 +89,19 @@ module type_utils
     
       end function
     
+      function bool2str(ipt) result(strBool)
+
+        logical :: ipt
+        character(len=20) :: strBool
+
+        if (ipt) then 
+          strBool = trim(int2str(1))
+        else
+          strBool = trim(int2str(0))
+        end if
+
+      end function
+
       function int2str(ipt) result(strInt)
         integer :: ipt
         character(len=20) :: strInt

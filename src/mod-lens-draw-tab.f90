@@ -52,8 +52,8 @@ module mod_lens_draw_tab
     character(kind=c_char, len=40), dimension(2) :: vals_scaleFactor
     integer(c_int), dimension(2) :: refs_scaleFactor
 
-
-    ld_settings = lens_draw_settings()
+    ! THis is now initialized in execVIE
+    !ld_settings = lens_draw_settings()
 
 
 
@@ -108,7 +108,7 @@ module mod_lens_draw_tab
 
     call getOpticalSystemLastSurface(lastSurface)
 
-    spinButton_firstSurface = gtk_spin_button_new (gtk_adjustment_new(value=1d0, &
+    spinButton_firstSurface = gtk_spin_button_new (gtk_adjustment_new(value=(ld_settings%start_surface)*1d0, &
                                                                 & lower=0d0, &
                                                                 & upper=(lastSurface-1)*1d0, &
                                                                 & step_increment=1d0, &
@@ -121,7 +121,7 @@ module mod_lens_draw_tab
     & c_funloc(callback_lens_draw_settings), c_loc(TARGET_LENS_FIRSTSURFACE))
 
 
-    spinButton_lastSurface = gtk_spin_button_new (gtk_adjustment_new(value=lastSurface*1d0, &
+    spinButton_lastSurface = gtk_spin_button_new (gtk_adjustment_new(value=(ld_settings%end_surface)*1d0, &
                                                                 & lower=2d0, &
                                                                 & upper=lastSurface*1d0, &
                                                                 & step_increment=1d0, &

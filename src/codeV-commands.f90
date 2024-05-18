@@ -35,10 +35,11 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(530) :: zoaCmds
+    type(zoa_cmd), dimension(531) :: zoaCmds
 
     integer :: cmd_loop = 0
     integer, parameter :: VIE_LOOP = 1
+    integer, parameter :: DRAW_LOOP = 2 ! While plot is being drawn
 
     contains
 
@@ -105,7 +106,9 @@ module codeV_commands
         zoaCmds(519)%cmd = 'FAN'
         zoaCmds(519)%execFunc => execFAN        
         zoaCmds(520)%cmd = 'RSI'
-        zoaCmds(520)%execFunc => execRSI                                    
+        zoaCmds(520)%execFunc => execRSI         
+        zoaCmds(521)%cmd = 'NBR'
+        zoaCmds(521)%execFunc => execNBR                                            
 
     end subroutine
 
@@ -230,16 +233,20 @@ module codeV_commands
         !   END IF            
               
     end function
-
-    subroutine cmd_parser_get_real_pair(tokens, real1, real2) 
+     
+    ! Would like to move these cmd_parser to command-utils, but there is a circulat
+    ! dependency due to updateTerminalLog I need to solve.  Sigh.
+    subroutine cmd_parser_get_real_pair(tokens, real1, real2, real1Bounds, real2Bounds) 
     ! Look for 2 and only 2 inputs that don't have a string character in them    
-        use global_widgets, only: sysConfig
         use command_utils, only: isInputNumber
         use type_utils, only: str2real8
         use handlers, only: updateTerminalLog
         implicit none
         character(len=*), dimension(:) :: tokens
         real(kind=real64) :: real1, real2
+        real(kind=real64) :: tmpVal
+        real, dimension(2), optional :: real1Bounds
+        real, dimension(2), optional :: real2Bounds
         integer :: i, numRealInputs 
 
         numRealInputs = 0
@@ -250,9 +257,31 @@ module codeV_commands
                     numRealInputs = numRealInputs + 1
                     select case(numRealInputs)
                     case (1)
-                        real1 = str2real8(tokens(i))
+                        if (present(real1Bounds)) then
+                            tmpVal = str2real8(tokens(i))
+                            if (tmpVal >= real1Bounds(1) .AND. tmpVal <= real1Bounds(2)) then
+                                real1 = tmpVal
+                            else
+                                call updateTerminalLog("Error:  Real 1 Input Outside Bounds "//trim(tokens(i)), "red")
+                                return
+                            end if
+                        else
+                            real1 = str2real8(tokens(i))
+                        end if
+
                     case (2)
-                        real2 = str2real8(tokens(i))
+                        if (present(real2Bounds)) then
+                            tmpVal = str2real8(tokens(i))
+                            if (tmpVal >= real1Bounds(1) .AND. tmpVal <= real1Bounds(2)) then
+                                real2 = tmpVal
+                            else
+                                call updateTerminalLog("Error:  Real 2 Input Outside Bounds "//trim(tokens(i)), "red")
+                                return
+                            end if
+                        else
+                            real2 = str2real8(tokens(i))
+                        end if                        
+                      
                     case default
                         call updateTerminalLog("Warning:  Detected more than two valid inputs.  Ignoring "//trim(tokens(i)), "red")
 
@@ -301,14 +330,14 @@ module codeV_commands
 
     end function
 
-    function cmd_parser_get_int_input_for_prefix(prefix, tokens) result(fields)
+    function cmd_parser_get_int_input_for_prefix(prefix, tokens) result(intArr)
         use global_widgets, only: sysConfig
         use command_utils, only: isInputNumber
         use type_utils, only: str2int
         implicit none
         character(len=*) :: prefix
         character(len=*), dimension(:) :: tokens
-        integer, allocatable :: fields(:)
+        integer, allocatable :: intArr(:)
         integer :: i
         logical :: userDefined 
 
@@ -317,7 +346,7 @@ module codeV_commands
         if(size(tokens) > 1) then
             do i=2,size(tokens)
                 if (tokens(i)(1:len(prefix)) == prefix ) then
-                    userDefined = cmd_parser_get_integer_range(tokens(i)(2:len(tokens(i))), fields)
+                    userDefined = cmd_parser_get_integer_range(tokens(i)(2:len(tokens(i))), intArr)
 
                     !if (isInputNumber(tokens(i)(2:len(tokens)))) then
                     !    userDefined = .TRUE.
@@ -332,7 +361,18 @@ module codeV_commands
 
         !Default is all fields
         if (.NOT.userDefined) then
-        fields =  (/ (i,i=1,sysConfig%numFields)/)
+
+            select case (prefix)
+
+            case ('f')
+                intArr =  (/ (i,i=1,sysConfig%numFields)/)
+            case ('w')
+                intArr =  (/ (i,i=1,sysConfig%numWavelengths)/)
+            case default
+                allocate(intArr(1))
+                intArr(1) = 0
+
+            end select
         end if
 
 
@@ -347,6 +387,7 @@ module codeV_commands
     ! If in VIE level it will save the rays intersection coordinates for use with plooting
     ! Format RSI fi..k wi..k relApeX relApeY
     subroutine execRSI(iptStr)
+        use global_widgets, only: sysConfig
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
@@ -359,7 +400,7 @@ module codeV_commands
         integer :: numTokens
         integer, allocatable :: fields(:), wavelengths(:)
         real(kind=real64) :: relApeX, relApeY
-        integer :: i
+        integer :: i, j
         
         ! Defaults
         relApeX = 0.0
@@ -369,7 +410,8 @@ module codeV_commands
         
         fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
         wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
-        call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY)
+        call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
+        & real1Bounds=[-1.0,1.0], real2Bounds=[-1.0,1.0])
         !fields = cmd_parser_get_fields(tokens(1:numTokens))
         do i=1,size(fields)
             call LogTermFOR("RSI fields are "//int2str(fields(i)))
@@ -383,67 +425,136 @@ module codeV_commands
         call LogTermFOR("Relative Y Aperture is " // real2str(relApeY))
 
 
-
-        !select case (numTokens)
-        ! FAN K where K is number of rays for each field point 
-        !case(2)
-
-
-        !end select
-       !else
-         
-       !end if
+        ! Now that we have inputs, trace all rays needed.
+        do i = 1,size(wavelengths)
+        do j = 1,size(fields)
+            !SAVE_KDP(1)=SAVEINPT(1)
+            
+            ! TODO:  Put COLRAY value into sysConfig (current field Color)
+            !COLRAY = sysConfig%fieldColorCodes(fields(j))
+            !WRITE(INPUT, *) "FOB ", )
+            CALL PROCESKDP("FOB "//trim(real2str(sysConfig%relativeFields(2,fields(j)))))
+            !REST_KDP(1)=RESTINPT(1)
+            
+  
+      ! Add loop for wavelengths      
+      ! By definition RSI only traces a ray of a single angle
+            !SAVE_KDP(1)=SAVEINPT(1)
+            CALL PROCESKDP("RAY "//real2str(relApeY)// &
+            & " "//real2str(relApeX)//" "//int2str(wavelengths(i)))      
+            CALL PROCESKDP("PRXYZ ALL")
+            !REST_KDP(1)=RESTINPT(1)
+    end do ! fields
+   end do  !  wavelengths        
 
         
     end subroutine
 
     subroutine execFAN(iptStr)
+        use strings
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str
+        use type_utils, only: real2str, int2str, str2int
         use handlers, only: updateTerminalLog
+        use global_widgets, only:  sysConfig
+        use mod_plotopticalsystem
+        use DATLEN, only: COLRAY
     
         implicit none        
 
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=80) :: tokens(40)
-        integer :: numTokens
+        real(kind=real64) :: relAngle
+        integer :: numTokens, ii, jj, numRays
+        logical :: goodCmd 
 
         ! TODO:  Implement this
         ! current plan is to translate what is entered into RSI cmds and add to some
         ! array for processing once user enters GO
 
-        !if (cmd_loop == VIE_LOOP) then
-
-        
-        ! Error checking
-        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
-        !select case (numTokens)
-        ! FAN K where K is number of rays for each field point 
-        !case(2)
+        goodCmd = .FALSE.
 
 
-        !end select
-       !else
-         
-       !end if
+        ! This may be broken this way.
+        ! New idea
+        ! when FAN is entered in CMD loop, only add custom ray cmd
+        ! If it is called after GO is entered (so not in VIE_LOOP)
+        ! then do the translation to RSI (or directly call VIE_NEW_TRACERAY)
 
-        
+        ! The advantage of this is all the prep work done in VIE_NEW_NEW is done 
+        ! before ray traces and this is more flexible for the future
+
+        ! could add an intermediate state (between GO and DRAW)
+
+        select case(cmd_loop)
+        case(VIE_LOOP)
+            ! Check if command is valid then add it to command bank
+
+            call parse(trim(iptStr), ' ', tokens, numTokens) 
+            if (numTokens ==2 ) then
+                if (isInputNumber(tokens(2))) then
+                   numRays = str2int(tokens(2)) 
+                   goodCmd = .TRUE.
+                   call ld_settings%addCustomRayCmd(iptStr)
+                end if
+            end if
+        case(DRAW_LOOP)
+            ! Execute command.  Assume it has been checked already for now.
+            call parse(trim(iptStr), ' ', tokens, numTokens) 
+            numRays = str2int(tokens(2)) 
+                   do ii=1,sysConfig%numFields
+                    COLRAY = sysConfig%fieldColorCodes(ii)
+                    call PROCESKDP("FOB "//real2str(sysConfig%relativeFields(2,ii))//' ' &
+                    & //real2str(sysConfig%relativeFields(1,ii)) )                     
+                      do jj=1,numRays
+                        relAngle = -1.0d0 + jj*(2.0d0)/(numRays-1)
+                        call VIE_NEW_TRACERAY(0, relAngle, sysConfig%refWavelengthIndex, ld_settings)
+                      end do
+                    end do
+                case default
+                    ! Do nothing
+                call updateTerminalLog("FAN not used at base level", "black")
+                end select
+
+
     end subroutine
 
-
+    ! Currently inputs are either 
+    ! VIE (new plot)
+    ! VIE P1 (update existing plot)
+    ! In the future when I support multiple plots then P1 will go to PX
     subroutine execVie(iptStr)
+        
+        use mod_plotopticalsystem
+        use strings
 
         implicit none
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
 
+        character(len=80) :: tokens(40)
+        integer :: numTokens
 
-        if(len(trim(iptStr)) > 3 ) then
-            call LogTermFOR("Warning; VIE accepts no input.  This will be ignored: "//trim(iptStr(4:len(iptStr))))
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens  == 2) then
+           if (tokens(2) == 'P1') then
+            ! Do not update lens draw settings
+            cmd_loop = VIE_LOOP
+            return
+           end if
         end if
+
+        !if(len(trim(iptStr)) > 3 ) then
+        !    call LogTermFOR("Warning; VIE accepts no input.  This will be ignored: "//trim(iptStr(4:len(iptStr))))
+        !end if
+
         ! Enter into VIE loop.  Once GO is entered, execute plot
         cmd_loop = VIE_LOOP
+        ld_settings = lens_draw_settings()
+
+        ! Psuedocode
+        ! curr_lens_settings = lens_settings_new
         
     end subroutine
 
@@ -1085,6 +1196,51 @@ module codeV_commands
        
     end subroutine
 
+    ! NBR ELE Si..j only supported
+    subroutine execNBR(iptStr)
+        use strings
+        use handlers, only: updateTerminalLog
+        use mod_plotopticalsystem, only: ld_settings
+        implicit none
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: boolResult
+        integer, allocatable :: surfaces(:)
+        !include "DATLEN.INC"
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+ 
+        boolResult = .FALSE.
+        if (numTokens > 2) then
+
+        select case(trim(tokens(2)))
+        case('ELE')
+            if(tokens(3)(1:1) == 'S') then
+                boolResult = cmd_parser_get_integer_range(tokens(3)(2:len(tokens(3))), surfaces)
+                if (boolResult) then
+                    if(cmd_loop == VIE_LOOP) then
+                        call LogTermFOR("Upating Surfaces in ld_settings")
+                        ld_settings%start_surface = surfaces(1)
+                        ld_settings%end_surface = surfaces(size(surfaces))
+                    end if
+                end if
+            end if
+        case default    
+            boolResult = .FALSE.
+        end select
+        end if
+        if (boolResult .EQV. .FALSE. ) then
+            call updateTerminalLog( &
+            & "Unable to parse command.  Expect NBR ELE Si..j Got " //trim(iptStr), "black")
+        end if
+
+
+
+    end subroutine
+
     ! CLI SA supported only at this time
     subroutine execCLI(iptStr)
         use strings
@@ -1480,14 +1636,25 @@ module codeV_commands
 
       subroutine executeGo()
         use global_widgets, only: ioConfig
-        use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
+        !use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
+        use zoa_ui
+        
         use kdp_utils, only: inLensUpdateLevel
+        use mod_plotopticalsystem, only: ld_settings
 
         if (cmd_loop == VIE_LOOP) then
                 ! Hide KDP Commands from user
-        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
-        call PROCESKDP('VIECO')
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
+        !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+        ! Temp for testing
+        cmd_loop = DRAW_LOOP
+        active_plot = ID_NEWPLOT_LENSDRAW
+        call VIE_NEW_NEW(ld_settings)
+        CALL PROCESKDP('DRAW')
+        !call VIE_NEW(1)
+        call LogTermFOR("Done with VIE NEW NEW")
+        !call PROCESKDP('VIECO')
+        ! CALL VIE_NEW(curr_lens_settings)
+        !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
         cmd_loop = 0 ! Go back to base level
         end if
 

@@ -2888,21 +2888,23 @@ C
         RETURN
         END IF
         !IF(WC.EQ.'VIE'.OR.WC.EQ.'VIECO') THEN
-        IF(WC.EQ.'VIECO') THEN        
-        CACOCHVIE=0
-        active_plot = ID_NEWPLOT_LENSDRAW
-        PRINT *, "ACTIVE PLOT CHANGED DUE TO VIECO CALL!"
-        IF(WC.EQ.'VIECO') CACOCHVIE=1
-        F34=1
-        MSG=.FALSE.
+        IF(WC.EQ.'VIECO') THEN    
+          call PROCESKDP('VIE')          
+        
+        !CACOCHVIE=0
+        !active_plot = ID_NEWPLOT_LENSDRAW
+        !PRINT *, "ACTIVE PLOT CHANGED DUE TO VIECO CALL!"
+        !IF(WC.EQ.'VIECO') CACOCHVIE=1
+        !F34=1
+        !MSG=.FALSE.
         !CALL VIE(CACOCHVIE)
-        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
-        CALL VIE_NEW(CACOCHVIE)
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-        F34=0
-        MSG=.TRUE.
-        CACOCH=0
-        CACOCHVIE=0
+        !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
+        !CALL VIE_NEW(CACOCHVIE)
+        !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+        !F34=0
+        !MSG=.TRUE.
+        !CACOCH=0
+        !CACOCHVIE=0
         RETURN
         END IF
         IF(WC.EQ.'SPDSSI') THEN

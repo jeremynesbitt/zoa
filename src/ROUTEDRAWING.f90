@@ -31,7 +31,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
-       PRINT *, "REROUTE TO LENS DRAW REPLOT "           
+       call LogTermFOR("REROUTE TO LENS DRAW REPLOT ")           
        call ld_settings%replot()
   case (ID_NEWPLOT_RAYFAN)
       PRINT *, "REROUTE TO RAY FAN REPLOT!"
@@ -48,48 +48,12 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
       PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
       PRINT *, "gdata is ", LOC(gdata)
   end select
-      PRINT *, "About to call Draw Optical System from Route Drawing"
+      call LogTermFOR("About to call Draw Optical System from Route Drawing")
       call DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)
 
 
 
 end SUBROUTINE
 
-
-! subroutine debugPLPLOT(canvas)
-!      use handlers, only: plot_04
-!      implicit none
-!      type(c_ptr) :: canvas
-!
-!      call plot_04(canvas)
-!
-! end subroutine
 end module
 
-! Copyright (C) 2011
-! Free Software Foundation, Inc.
-!
-! This file is part of the gtk-fortran GTK+ Fortran Interface library.
-!
-! This is free software; you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation; either version 3, or (at your option)
-! any later version.
-!
-! This software is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! Under Section 7 of GPL version 3, you are granted additional
-! permissions described in the GCC Runtime Library Exception, version
-! 3.1, as published by the Free Software Foundation.
-!
-! You should have received a copy of the GNU General Public License along with
-! this program; see the files COPYING3 and COPYING.RUNTIME respectively.
-! If not, see <http://www.gnu.org/licenses/>.
-! -----------------------------------------------------------------------------
-! Contributed by James Tappin
-! Some code derived from a demo program by "tadeboro" posted on the gtk forums.
-! Last modifications: 2013-01-31, vmagnin 2020-06-17 (GTK 4), 2020-08-25
-! -----------------------------------------------------------------------------

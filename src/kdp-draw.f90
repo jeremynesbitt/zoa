@@ -347,7 +347,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
      scaleFactor = 1! 0.1
 
 
-     DEBUG = 0
+     DEBUG = 1
      !IF (DEBUG.EQ.1) CALL PRINTNEUTARRAY
 
       PRINT *, "STARTING TO DRAW LENS"
@@ -357,16 +357,6 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
  300                   J=J+1
       IF(J.GE.NEUTTOTAL+1) GO TO 999
 
-
-      !IF(J.GE.(17*NEUTTOTAL/32)) DEBUG=1
-      !IF(J.GE.(4590)) DEBUG=1
-      !IF(J.GE.(4700)) GO TO 999
-      !IF(J.GE.(9*NEUTTOTAL/16)) GO TO 999
-
-      !IF(J.GE.(9*NEUTTOTAL/16)) DEBUG=1
-      !IF(J.GE.(4590)) DEBUG=1
-      !IF(J.GE.(4700)) GO TO 999
-      !IF(J.GE.(10*NEUTTOTAL/16)) GO TO 999
 
       READ(NEUTARRAY(J),2000) STRINGER,I1,I2,I3,I4,I5,I6,I7,I8
       !PRINT *, "STRINGER = ", STRINGER

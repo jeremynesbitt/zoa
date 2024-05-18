@@ -1497,7 +1497,7 @@ C       CHECK SYNTAX
                         RETURN
                         END IF
         IF(DF4.EQ.1) W4=0.0D0
-        IF(DF5.EQ.1) W5=3500.0D0
+        IF(DF5.EQ.1) W5=3500.0D0 ! Hard coded for image size of 7000?
                         LOOKX=W1
                         LOOKY=W2
                         LOOKZ=W3

@@ -35,6 +35,7 @@ module mod_plotopticalsystem
 
   implicit none
 
+  
 
 type, extends (ui_settings) ::  lens_draw_settings
       integer plot_orientation
@@ -50,6 +51,9 @@ type, extends (ui_settings) ::  lens_draw_settings
       real elevation
       real azimuth
       logical autoplotupdate
+      logical standardPlot
+      character(len=80) :: customPlotCommands(40)
+      integer nPC
 
 
 contains
@@ -64,6 +68,7 @@ contains
     procedure, public, pass(self) :: set_azimuth
     procedure, public, pass(self) :: set_field_rays
     !procedure, public, pass(self) :: init_toolbar
+    procedure, public, pass(self) :: addCustomRayCmd
 
     procedure :: replot => lens_draw_replot
 
@@ -117,8 +122,26 @@ type(lens_draw_settings) function lens_draw_settings_constructor() result(self)
      self%azimuth   = 232.2
      self%autoplotupdate = .TRUE.
 
+     self%standardPlot = .TRUE.
+     self%nPC = 0 ! reset plot to 0 custom inputs
+     
+
+
+
+
 
 end function lens_draw_settings_constructor
+
+subroutine addCustomRayCmd(self, iptStr)
+  class(lens_draw_settings), intent(inout) :: self
+  character(len=*) :: iptStr
+
+  if(self%standardPlot) self%standardPlot = .FALSE.
+  self%nPC = self%nPC+1
+  self%customPlotCommands(self%nPC) = iptStr
+
+end subroutine
+
 
 function is_changed(self) result(flag)
   class(lens_draw_settings), intent(in) :: self
@@ -351,7 +374,11 @@ subroutine lens_draw_replot(self)
     ftext = trim(command)//" "//trim(qual_word)//","//autoScale_text//","//AJ//","//AK//",0,1"
     !call LogTermFOR(trim(ftext))
 
-    CALL PROCESKDP(ftext)
+    
+    !CALL PROCESKDP(ftext)
+    CALL PROCESKDP('VIE P1')
+    CALL PROCESKDP('GO')
+
 
 end subroutine lens_draw_replot
 

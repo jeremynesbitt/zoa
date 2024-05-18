@@ -66,7 +66,7 @@ contains
     ! qual_words - character array of words that are acceptable for this command
     !  EG for LIB qual words are PUT and GET
     ! qual_only_err_msg - override error message when input error is encountered
-    !use handlers, only: updateTerminalLog
+
     !use kdp_utils
 
     implicit none
@@ -487,6 +487,8 @@ contains
   end function
 
 
+
+  
 
 
 end module
