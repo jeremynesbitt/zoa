@@ -450,6 +450,10 @@ module codeV_commands
         
     end subroutine
 
+    ! Options
+    ! FAN AB N - N rays for all fields in AB Plane 
+    ! FAN N  - N rays for all fields in YZ (default) plane 
+    ! FAN AB N Fi - N Rayls for field i in AB plane
     subroutine execFAN(iptStr)
         use strings
         use command_utils, only : parseCommandIntoTokens, isInputNumber
@@ -466,49 +470,70 @@ module codeV_commands
         character(len=80) :: tokens(40)
         real(kind=real64) :: relAngle
         integer :: numTokens, ii, jj, numRays
-        logical :: goodCmd 
+        integer, allocatable :: fields(:)
+        character(len=5) :: plotOrientation
+        logical :: goodCmd, yzFlag
 
-        ! TODO:  Implement this
-        ! current plan is to translate what is entered into RSI cmds and add to some
-        ! array for processing once user enters GO
+        
 
         goodCmd = .FALSE.
+        yzFlag = .TRUE.
 
-
-        ! This may be broken this way.
-        ! New idea
-        ! when FAN is entered in CMD loop, only add custom ray cmd
-        ! If it is called after GO is entered (so not in VIE_LOOP)
-        ! then do the translation to RSI (or directly call VIE_NEW_TRACERAY)
-
-        ! The advantage of this is all the prep work done in VIE_NEW_NEW is done 
-        ! before ray traces and this is more flexible for the future
-
-        ! could add an intermediate state (between GO and DRAW)
+        ! If user enters this during a VIE loop (in between VIE and GO)
+        ! then add command list
+        ! Then when draw is issued, it will come back here and translate
+        ! entry to a series of RSI commands
 
         select case(cmd_loop)
         case(VIE_LOOP)
-            ! Check if command is valid then add it to command bank
-
-            call parse(trim(iptStr), ' ', tokens, numTokens) 
-            if (numTokens ==2 ) then
-                if (isInputNumber(tokens(2))) then
-                   numRays = str2int(tokens(2)) 
-                   goodCmd = .TRUE.
-                   call ld_settings%addCustomRayCmd(iptStr)
-                end if
-            end if
+            ! Blindly add.  will check it for goodness later
+              goodCmd = .TRUE.
+              call ld_settings%addCustomRayCmd(iptStr)
+   
         case(DRAW_LOOP)
-            ! Execute command.  Assume it has been checked already for now.
+            ! Execute command.  Have to parse it to get options.
             call parse(trim(iptStr), ' ', tokens, numTokens) 
-            numRays = str2int(tokens(2)) 
-                   do ii=1,sysConfig%numFields
-                    COLRAY = sysConfig%fieldColorCodes(ii)
-                    call PROCESKDP("FOB "//real2str(sysConfig%relativeFields(2,ii))//' ' &
-                    & //real2str(sysConfig%relativeFields(1,ii)) )                     
+            ! TODO:  Is there a better way to parse this to reuse code?
+            
+            do ii=2,numTokens
+                ! Assume bare number is rays.  TODO check limits
+                if (isInputNumber(tokens(ii))) then
+                    numRays = str2int(tokens(ii))
+                    call LogTermFOR("Added numRays "//int2str(numRays))
+                end if
+                ! If there is a fi value, assume a single field point
+                if (tokens(ii)(1:1) == 'f' .OR. tokens(ii)(1:1) == 'F') then
+                    call LogTermFOR("Setting Fields from input "//tokens(ii))
+                    if (isInputNumber(tokens(ii)(2:len(tokens)))) then
+                        allocate(fields(1))
+                        fields(1) = str2int(tokens(ii)(2:len(tokens)))
+                        call LogTermFOR("Set field index to "//int2str(fields(1)))
+                    end if
+                end if
+                ! Look for XZ or YZ to check which rays to plot
+                if (tokens(ii) == 'YZ') yzFlag = .TRUE.
+                if (tokens(ii)  == 'XZ') yzFlag = .FALSE.
+            end do
+                   if(.not.allocated(fields)) then
+                    !Assume default of all fields
+                    allocate(fields(sysConfig%numFields))
+                       fields =  (/ (jj,jj=1,sysConfig%numFields)/)
+                end if
+
+
+                   ! Finally ready to set fields and plot.  TODO:  Convert to RSI command? 
+                   do ii=1,size(fields)
+                    COLRAY = sysConfig%fieldColorCodes(fields(ii))
+                    call PROCESKDP("FOB "//real2str(sysConfig%relativeFields(2,fields(ii))) &
+                    & //real2str(sysConfig%relativeFields(1,fields(ii))))    
                       do jj=1,numRays
                         relAngle = -1.0d0 + jj*(2.0d0)/(numRays-1)
-                        call VIE_NEW_TRACERAY(0, relAngle, sysConfig%refWavelengthIndex, ld_settings)
+                        if(yzFlag) then
+                          call VIE_NEW_TRACERAY(0.0d0, relAngle, sysConfig%refWavelengthIndex, ld_settings)
+                        else
+                            call VIE_NEW_TRACERAY(relAngle, 0.0d0,sysConfig%refWavelengthIndex, ld_settings)
+                        end if
+
                       end do
                     end do
                 case default
