@@ -72,7 +72,8 @@ SUBROUTINE VIE_NEW_NEW(vie_settings)
     !INCLUDE 'DATMAC.INC'
 
 !
-    PRINT *, "VIE ROUTINE STARTING..."
+    call LogTermFOR("VIE NEW NEW ROUTINE STARTING..")
+    PRINT *, "VIE NEW NEW ROUTINE STARTING..."
     CACOCHVIE = 1
 
 
@@ -1312,8 +1313,8 @@ CALL SHOWIT(1)
                   RETURN
                   ELSE
                   END IF
-  call LogTermFOR("In PLTRAIE W1 is "//real2str(W1))
-  call LogTermFOR("In PLTRAIE W2 is "//real2str(W2))
+  !call LogTermFOR("In PLTRAIE W1 is "//real2str(W1))
+  !call LogTermFOR("In PLTRAIE W2 is "//real2str(W2))
 
   IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
   IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
@@ -1338,8 +1339,8 @@ CALL SHOWIT(1)
                   END IF
          STASUR=INT(W1)
          STPSUR=INT(W2)
-      call LogTermFOR("In PLTRAIE STASUR is "//int2str(STASUR))
-      call LogTermFOR("In PLTRAIE STPSUR is "//int2str(STPSUR))
+      !call LogTermFOR("In PLTRAIE STASUR is "//int2str(STASUR))
+      !call LogTermFOR("In PLTRAIE STPSUR is "//int2str(STPSUR))
                 
 IF(STASUR.LT.NEWOBJ) STASUR=NEWOBJ
 IF(STPSUR.LT.NEWOBJ) STPSUR=NEWOBJ

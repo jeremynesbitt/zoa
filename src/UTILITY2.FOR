@@ -3902,7 +3902,8 @@ C
         !OUTLYNE= 'PROCES SUBROUTINE'
         !CALL SHOWIT(19)
 
-        !PRINT *, "PROCES SUBROUTINE STARTED, INPUT IS " // INPUT 
+        PRINT *, "PROCES SUBROUTINE STARTED, INPUT IS " // INPUT 
+        call LogTermFOR("PROCES IPT "//trim(INPUT))
         !PRINT *, "INPUT is ", INPUT
 
 

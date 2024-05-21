@@ -584,6 +584,7 @@ module codeV_commands
     end subroutine
 
     subroutine execCIR(iptStr)
+        use strings
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
@@ -595,7 +596,7 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens, surfNum
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
         select case (numTokens)
         ! CIR VAL for current surface    
         case(2)
@@ -1663,20 +1664,29 @@ module codeV_commands
         use global_widgets, only: ioConfig
         !use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
         use zoa_ui
-        
+        use handlers, only: zoatabMgr
         use kdp_utils, only: inLensUpdateLevel
         use mod_plotopticalsystem, only: ld_settings
+
+
 
         if (cmd_loop == VIE_LOOP) then
                 ! Hide KDP Commands from user
         !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
         ! Temp for testing
+        ! Do nothing if in update loop
+        if (inLensUpdateLevel()) then
+            call LogTermFOR("Will not draw in lens update level")
+            return
+        end if    
         cmd_loop = DRAW_LOOP
         active_plot = ID_NEWPLOT_LENSDRAW
         call VIE_NEW_NEW(ld_settings)
         CALL PROCESKDP('DRAW')
+        PRINT *, "After draw loop"
         !call VIE_NEW(1)
         call LogTermFOR("Done with VIE NEW NEW")
+        
         !call PROCESKDP('VIECO')
         ! CALL VIE_NEW(curr_lens_settings)
         !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
@@ -1685,7 +1695,10 @@ module codeV_commands
 
 
 
-        if (inLensUpdateLevel()) call PROCESKDP('EOS')
+        if (inLensUpdateLevel()) then 
+            call PROCESKDP('EOS')
+            call zoatabMgr%replotifneeded()
+        end if
 
       end subroutine
 

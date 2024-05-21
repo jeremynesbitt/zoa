@@ -311,7 +311,9 @@ subroutine lens_draw_replot(self)
   character(len=3)   :: AJ, AK
   character(len=23) :: autoScale_text, AW2, AW3
 
-  command = "VIECO"
+  PRINT *, "Lens Draw Replot started "
+
+  command = "VIE"
 
   ! It is possible for the end surface to have been updated since init
 

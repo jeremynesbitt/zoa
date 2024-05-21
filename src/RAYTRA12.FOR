@@ -892,12 +892,12 @@ C     ! 1,DSQRT(((TARX-X)**2)+((TARY-Y)**2)))
 C     !
 C     !      call logger%logTextWithNum("X1Aim = ", X1AIM)
 C     !      call logger%logTextWithNum("Y1Aim = ", Y1AIM)
-      IF (KKK.EQ.1) Then
-        call logger%logTextWithNum("X Chief Ray Target = ",
-     1 XCHIEF_TARGET)
-        call logger%logTextWithNum("Y Chief Ray Target = ",
-     2 YCHIEF_TARGET)
-      END IF
+      ! IF (KKK.EQ.1) Then
+        !call logger%logTextWithNum("X Chief Ray Target = ",
+      !1 XCHIEF_TARGET)
+      !   call logger%logTextWithNum("Y Chief Ray Target = ",
+      !2 YCHIEF_TARGET)
+      ! END IF
 
 
 C       AIM NOT GOOD ENOUGH, IMPROVE GUESS

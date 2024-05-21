@@ -2888,9 +2888,15 @@ C
         RETURN
         END IF
         !IF(WC.EQ.'VIE'.OR.WC.EQ.'VIECO') THEN
-        IF(WC.EQ.'VIECO') THEN    
+        IF(WC.EQ.'VIECO') THEN   
+          F34 = 1
+          PRINT *, "ABout to call VIE from CMDER"
+          call LogTermFOR("ABout to call VIE from CMDER")       
           call PROCESKDP('VIE')          
-        
+           F34=0
+           MSG=.TRUE.
+        !CACOCH=0
+        !CACOCHVIE=0       
         !CACOCHVIE=0
         !active_plot = ID_NEWPLOT_LENSDRAW
         !PRINT *, "ACTIVE PLOT CHANGED DUE TO VIECO CALL!"

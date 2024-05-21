@@ -486,11 +486,12 @@ end subroutine lens_editor_replot
     !select case (irow(1))
     select case (icol+1) ! start with index 1 to align with lens_edit_col arrays
   case (ID_COL_RADIUS)
+        !call PROCESKDP('RDY S'//trim(int2str(irow))//' '//trim(real2str(trim(ftext))))
         call PROCESKDP('U L')
         WRITE(kdptext, *) 'CHG ' ,irow
         call PROCESKDP(kdptext)
-        call PROCESKDP("RD "//trim(ftext))
-        call PROCESKDP('EOS')
+        call PROCESKDP("RD "//trim(ftext)//"; EOS")
+        !call PROCESKDP('EOS')
   case (ID_COL_RADIUS_PICKUP)
        call hl_gtk_combo_set_by_text(ihlist, irow, icol, trim(ftext), ID_SETTING)
       
@@ -513,11 +514,13 @@ end subroutine lens_editor_replot
         end select 
 
       case (ID_COL_CLAP)
-        call PROCESKDP('U L')
-        WRITE(kdptext, *) 'CHG ' ,irow
-        call PROCESKDP(kdptext)
-        call PROCESKDP("CLAP "//trim(ftext))
-        call PROCESKDP('EOS')        
+        CALL PROCESKDP('CIR S'//trim(int2str(irow))//' '//trim(ftext))
+        call refreshLensEditorUI()
+        !call PROCESKDP('U L')
+        !WRITE(kdptext, *) 'CHG ' ,irow
+        !call PROCESKDP(kdptext)
+        !call PROCESKDP("CLAP "//trim(ftext))
+        !call PROCESKDP('EOS')        
 
     case (ID_COL_THICKNESS)
         PRINT *, "Thickness changed!"
@@ -835,12 +838,12 @@ function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
   integer, dimension(curr_lens_data%num_surfaces) :: pickupArr
   integer :: ID_PICKUP_TYPE
   integer :: i
-  PRINT *, "About to set pickupArr"
-  if (ID_PICKUP_TYPE == ID_PICKUP_RAD) PRINT *, "Size of array is ", size(pickupArr)
+  !PRINT *, "About to set pickupArr"
+  !if (ID_PICKUP_TYPE == ID_PICKUP_RAD) PRINT *, "Size of array is ", size(pickupArr)
 
 
   do i=1,size(pickupArr)
-    PRINT *, "i is ", i
+    !PRINT *, "i is ", i
     pickupArr(i) = ID_MOD_NONE
     ! Look for Pickups First
     if (curr_lens_data%pickups(1,i,ID_PICKUP_TYPE) == ID_PICKUP_RAD) then 
@@ -854,18 +857,18 @@ function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
     ! If no pickups found, look for a solve
     select case (ID_PICKUP_TYPE)
     case(ID_PICKUP_RAD)
-       PRINT *, "Solve test is ", curr_lens_data%solves(8,:)
-       PRINT *, "i is ", i
-       PRINT *, "Solve RAD Tst is ", curr_lens_data%solves(8,i)
+       !PRINT *, "Solve test is ", curr_lens_data%solves(8,:)
+       !PRINT *, "i is ", i
+       !PRINT *, "Solve RAD Tst is ", curr_lens_data%solves(8,i)
        if (curr_lens_data%solves(8,i).NE.0) then 
-        PRINT *, "Setting RAD SOlve pickup for row ", i
+        !PRINT *, "Setting RAD SOlve pickup for row ", i
         pickupArr(i) = ID_MOD_SOLVE
-        PRINT *, " ", size(pickupArr)
+        !PRINT *, " ", size(pickupArr)
         
        end if
     case(ID_PICKUP_THIC)
       !if (i == 1 ) then
-      PRINT *, "solves(6,i) is", curr_lens_data%solves(:,i)
+      !PRINT *, "solves(6,i) is", curr_lens_data%solves(:,i)
       !end if
       if (curr_lens_data%solves(6,i).NE.0) then 
         pickupArr(i) = ID_MOD_SOLVE
@@ -1445,7 +1448,7 @@ end subroutine
           case(DTYPE_INT)
             if (colObj(j)%colModel.EQ.COL_MODEL_COMBO) then
                 if (j==ID_COL_RADIUS_PICKUP) then
-                  PRINT *, "Element is ", colObj(j)%getElementInt(i)
+                  !PRINT *, "Element is ", colObj(j)%getElementInt(i)
                 end if 
           
                 call hl_gtk_listn_combo_set_by_list_id(ihObj, row=i-1_c_int, colno=j-1_c_int, &

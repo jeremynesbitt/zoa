@@ -24,7 +24,7 @@ C
         OUTLYNE = "LNSEOS ROUTINE STARTING! "
         CALL SHOWIT(19)
 
-        call zoatabMgr%rePlotIfNeeded()
+        !call zoatabMgr%rePlotIfNeeded()
 C
         IF(CFLDCNT.EQ.0) THEN
 C       SET UP THREE FIELD OF VIEW POSITIONS AT 0 .7 AND 1.0

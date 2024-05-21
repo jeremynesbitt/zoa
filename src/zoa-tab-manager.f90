@@ -419,6 +419,7 @@ end subroutine
  end subroutine
 
   subroutine rePlotIfNeeded(self)
+    use codeV_commands, only: cmd_loop, DRAW_LOOP
 
      class(zoatabManager) :: self
      integer :: i
@@ -429,7 +430,7 @@ end subroutine
               !PRINT *, "CMD Stored is "
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           else
-            call self%tabInfo(i)%settings%replot()
+            if(cmd_loop /= DRAW_LOOP) call self%tabInfo(i)%settings%replot()
           end if
      END DO
 

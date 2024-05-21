@@ -186,6 +186,9 @@ C
         !INCLUDE 'DATLEN.INC'
 
         !PRINT *, "CONTRO ROUTINE STARTED! "
+        !call LogTermFOR("INPUT IS "//trim(INPUT))
+        PRINT *, "INPUT IS ", trim(INPUT)
+        !call sleep(3)
         !WRITE(OUTLYNE,*)  "CONTROL INPUT IS ", WC(1:8)
         !CALL SHOWIT(19)
 
@@ -2971,6 +2974,8 @@ C               MACRO
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F5.EQ.1) THEN
+          call LogTermFOR("INPUT "//trim(INPUT)) 
+          !call sleep(5)    
       OUTLYNE='INVALID LENS INPUT COMMAND'
       CALL SHOWIT(1)
       OUTLYNE=INPUT
@@ -4233,7 +4238,10 @@ C     CALL RE_DISPLAY_LENS(YESEOS)
         call buildAsphereTable(.FALSE.)
       end if   
       PRINT *, "IN EOS in CONTRO"
-      call zoatabMgr%replotifneeded()      
+      ! If I try to check this here, then when I have a VIE plot it will not update
+      ! TODO:  Fixt this.  I believe it is related to the logic in executeGO.  Need
+      ! to spend more time improving that sub to deal with traffic jams
+      !call zoatabMgr%replotifneeded()      
                RETURN
                END IF
         IF(WC.EQ.'?') THEN
@@ -4258,6 +4266,8 @@ C     CALL RE_DISPLAY_LENS(YESEOS)
         RETURN
         END IF
         END IF
+      call LogTermFOR("INPUT "//trim(INPUT)) 
+      !call sleep(5)  
       OUTLYNE='INVALID LENS UPDATE COMMAND'
       CALL SHOWIT(1)
                 CALL MACFAL

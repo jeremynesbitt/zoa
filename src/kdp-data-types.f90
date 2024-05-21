@@ -1713,6 +1713,7 @@ subroutine updateLensData(self)
     self%solves(1:9,JJ+1) = SOLVE(1:9,JJ)
 
     self%thickSolves(JJ+1) = self%setSolveData(JJ+1,ID_PICKUP_THIC, thick_solves)
+    call check_clear_apertures(self)
 
 
   END DO
