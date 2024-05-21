@@ -2974,7 +2974,7 @@ C               MACRO
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F5.EQ.1) THEN
-          call LogTermFOR("INPUT "//trim(INPUT)) 
+          !call LogTermFOR("INPUT "//trim(INPUT)) 
           !call sleep(5)    
       OUTLYNE='INVALID LENS INPUT COMMAND'
       CALL SHOWIT(1)
@@ -3015,7 +3015,7 @@ C               MACRO
       CALL SHOWIT(1)
                 END IF
           FNYES1=.FALSE.
-                PRINT *, "Checking Lens Edit fcns? "
+                
                 IF(WC.EQ.'FUNC01  ') FNYES1=.TRUE.
                 IF(WC.EQ.'FUNC02  ') FNYES1=.TRUE.
                 IF(WC.EQ.'FUNC03  ') FNYES1=.TRUE.
@@ -4109,8 +4109,8 @@ C       HERE WE CALL SUBROUTINE MACMOD
         !CALL SHOWIT(19)
 C
         IF(F5.EQ.1.AND.F10.EQ.0.OR.F5.EQ.1.AND.F11.EQ.0) THEN
-          OUTLYNE = "CONTRO IN LENS INPUT ROUTINE"
-          CALL SHOWIT(19)
+          !OUTLYNE = "CONTRO IN LENS INPUT ROUTINE"
+          !CALL SHOWIT(19)
 C               WE ARE IN THE LENS INPUT ROUTINE
 C
 C       THERE ARE A LIMITED NUMBER OF VALID COMMANDS WHICH MAY BE
@@ -4125,12 +4125,12 @@ C               DURING THIS MODE.
       SST1=SST
       CALL CONTF(WC1,WS1,SST1,IS)
                 IF(IS) THEN
-      OUTLYNE = "ABOUT TO CALL LENIN"
-      CALL SHOWIT(19)
+      !OUTLYNE = "ABOUT TO CALL LENIN"
+      !CALL SHOWIT(19)
                 CALL LENIN
                 call curr_lens_data%update()
-      OUTLYNE = "GOT BACK FROM LENIN "
-      CALL SHOWIT(19)
+      !OUTLYNE = "GOT BACK FROM LENIN "
+      !CALL SHOWIT(19)
       LASTCOMWRD=WC
       LASTWASFOB=.FALSE.
       IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
@@ -4237,7 +4237,7 @@ C     CALL RE_DISPLAY_LENS(YESEOS)
         call buildBasicTable(.FALSE.)
         call buildAsphereTable(.FALSE.)
       end if   
-      PRINT *, "IN EOS in CONTRO"
+      !PRINT *, "IN EOS in CONTRO"
       ! If I try to check this here, then when I have a VIE plot it will not update
       ! TODO:  Fixt this.  I believe it is related to the logic in executeGO.  Need
       ! to spend more time improving that sub to deal with traffic jams
@@ -4266,7 +4266,7 @@ C     CALL RE_DISPLAY_LENS(YESEOS)
         RETURN
         END IF
         END IF
-      call LogTermFOR("INPUT "//trim(INPUT)) 
+      !call LogTermFOR("INPUT "//trim(INPUT)) 
       !call sleep(5)  
       OUTLYNE='INVALID LENS UPDATE COMMAND'
       CALL SHOWIT(1)
@@ -5043,7 +5043,7 @@ C       ISSUED AT THE CMD LEVEL
                 RETURN
                 END IF
       IF(F1.EQ.1..AND.F17.EQ.0.AND.WC.EQ.'UPDATE') THEN
-        PRINT *, "UPDATE"
+        !PRINT *, "UPDATE"
       IF(WQ.NE.'LENS'.AND.WQ.NE.'SPSRF'.AND.
      1WQ.NE.'CONFIGS'.AND.WQ.NE.'CONFIG'.AND.WQ
      2.NE.'VARIABLE'.AND.WQ.NE.'MERIT'.AND.WQ.NE.
@@ -5206,7 +5206,7 @@ C               IF(WC.EQ.'LOADSCOT')            IS=.TRUE.
       INTEGER SST
       LOGICAL IS
                         IS=.FALSE.
-                PRINT *, "Checking ", WC
+                !PRINT *, "Checking ", WC
 C       THIS IS THE LIST OF VALID LENS INPUT COMMANDS
                 IF(gdb%isNameInCatalog(WC)) IS=.TRUE.
                 IF(WC.EQ.'GET     ') IS=.TRUE.

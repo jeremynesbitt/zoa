@@ -354,7 +354,7 @@ module codeV_commands
                     !    fields = str2int(tokens(i)(2:len(tokens)))
                     !end if
                 end if
-                call LogTermFOR("Tokens "// tokens(i))
+                !call LogTermFOR("Tokens "// tokens(i))
 
             end do
         end if
@@ -1672,7 +1672,7 @@ module codeV_commands
 
         if (cmd_loop == VIE_LOOP) then
                 ! Hide KDP Commands from user
-        !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+        
         ! Temp for testing
         ! Do nothing if in update loop
         if (inLensUpdateLevel()) then
@@ -1681,15 +1681,17 @@ module codeV_commands
         end if    
         cmd_loop = DRAW_LOOP
         active_plot = ID_NEWPLOT_LENSDRAW
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
         call VIE_NEW_NEW(ld_settings)
         CALL PROCESKDP('DRAW')
-        PRINT *, "After draw loop"
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+        !PRINT *, "After draw loop"
         !call VIE_NEW(1)
-        call LogTermFOR("Done with VIE NEW NEW")
+        !call LogTermFOR("Done with VIE NEW NEW")
         
         !call PROCESKDP('VIECO')
         ! CALL VIE_NEW(curr_lens_settings)
-        !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)      
+            
         cmd_loop = 0 ! Go back to base level
         end if
 
