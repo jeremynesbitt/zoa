@@ -99,7 +99,7 @@ C        STOP
 
         res = INT(SYSTEM(20))
 
-        PRINT *, "Last Surface index TSTKDP is ", res
+        !PRINT *, "Last Surface index TSTKDP is ", res
 
 
         END

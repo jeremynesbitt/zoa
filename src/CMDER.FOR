@@ -477,6 +477,8 @@ C       PART DRAWINGS
           RETURN
         END IF  
         ! Check if we have a CodeV command to execute
+        print *, "WC is ", WC
+        print *, "INPUT is ", INPUT
         If (startCodeVLensUpdateCmd(WC)) return
 
         IF(WC.EQ.'PLTOPD') THEN

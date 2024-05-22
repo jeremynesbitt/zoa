@@ -4458,6 +4458,10 @@ C
 C       PROCESS EACH INSTRC(I) INSTRUCTION NOW (MAIN LOOP)
 C
                         DO 1015 I=1,NSTRUC
+                rawCommands(I) = INSTRC(I)              
+
+                    
+
 C
 C               CHECK FOR AND REMOVE FROM EACH INSTRC(I) ANY
 C               AND ALL LEADING BLANKS. (ASCII CHARACTER 32)
@@ -5678,6 +5682,10 @@ C
  1015           CONTINUE
 C
                 DO 1999 I=1,NSTRUC
+      ! JN:  I need to know what the current command is 
+      ! when users input ; and I don't see a rcurrent 
+      ! variable for this.  So add one here
+                  currentCommand = ADJUSTL(rawCommands(I))                      
 C
 C       CALL THE CONTROL SUBROUTINE TO BRANCH OFF TO
 C       SPECIFIC PROGRAM CMDS.

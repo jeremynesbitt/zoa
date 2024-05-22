@@ -113,6 +113,7 @@ module codeV_commands
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
+        use GLOBALS, only:  currentCommand
 
         character(len=*) :: iptCmd
         integer :: ii
@@ -149,10 +150,12 @@ module codeV_commands
         ! select case (iptCmd)
         
         ! Temp code for interface check
+        print *, "iptCmd is ", iptCmd
+        print *, "CurrentCommand is ", currentCommand
         do ii=1,size(zoaCmds)
         if (iptCmd == zoaCmds(ii)%cmd) then
             !PRINT *, "About to crash with fcn pointer?"
-            call zoaCmds(ii)%execFunc(INPUT)
+            call zoaCmds(ii)%execFunc(currentCommand)
             boolResult = .TRUE.
             return
         end if
@@ -488,9 +491,11 @@ module codeV_commands
         case(VIE_LOOP)
             ! Blindly add.  will check it for goodness later
               goodCmd = .TRUE.
+              call LogTermFOR("Addint Custom Cmd "//iptStr)
               call ld_settings%addCustomRayCmd(iptStr)
    
         case(DRAW_LOOP)
+            call LogTermFOR("Executing Custom Cmd "//iptStr)
             ! Execute command.  Have to parse it to get options.
             call parse(trim(iptStr), ' ', tokens, numTokens) 
             ! TODO:  Is there a better way to parse this to reuse code?
@@ -527,7 +532,7 @@ module codeV_commands
                     call PROCESKDP("FOB "//real2str(sysConfig%relativeFields(2,fields(ii))) &
                     & //real2str(sysConfig%relativeFields(1,fields(ii))))    
                       do jj=1,numRays
-                        relAngle = -1.0d0 + jj*(2.0d0)/(numRays-1)
+                        relAngle = -1.0d0 + (jj-1)*(2.0d0)/(numRays-1)
                         if(yzFlag) then
                           call VIE_NEW_TRACERAY(0.0d0, relAngle, sysConfig%refWavelengthIndex, ld_settings)
                         else
@@ -561,7 +566,7 @@ module codeV_commands
         integer :: numTokens
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
-
+        PRINT *, "iptStr is ", iptStr
         if (numTokens  == 2) then
            if (tokens(2) == 'P1') then
             ! Do not update lens draw settings
@@ -1699,7 +1704,7 @@ module codeV_commands
 
         if (inLensUpdateLevel()) then 
             call PROCESKDP('EOS')
-            call zoatabMgr%replotifneeded()
+            !call zoatabMgr%replotifneeded()
         end if
 
       end subroutine
