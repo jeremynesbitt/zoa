@@ -420,6 +420,7 @@ C       ITYP NOT 2
                         END
 C SUB PRTRA.FOR
         SUBROUTINE PRTRA
+        use iso_fortran_env, only: real64
         use type_utils, only: real2str        
 C
         use global_widgets
@@ -444,6 +445,7 @@ C
         COMMON/CSLVRS/SLV1,SLV2
 
         REAL*8 RD, INDEX, VNUM
+        real(kind=real64) :: Lo, thetao, nao
 C
         REAL*8 SYS13,TMP15A,TMP15B,
      1  CON,CURV,TMP17A,TMP17B,WV
@@ -475,7 +477,24 @@ C
 C       Update Lens data class
 C     Dump data to interface modules
       call curr_lens_data%update()
-      
+
+      ! Calc Object NA
+        ! Marginal ray height on surface 1 
+        ! For finite conjugate object, should be object NA % thickness of surface 0
+        Lo = curr_lens_data%thicknesses(1)+ENPUZ
+        PRINT *, "thick1 is ", curr_lens_data%thicknesses(1)
+        PRINT *, "ENPUPOS is ", ENPUZ
+        PRINT *, "Lo is ", Lo
+        PRINT *, "SYSTEM(12) is ", SYSTEM(12)
+        print *, "2*Lo is ", (2*Lo)
+        thetao = ATAN(SYSTEM(12)/(Lo))
+
+        PRINT *, "theta0 is ", thetao
+        nao = sin(thetao)
+        print *, "nao is ", nao
+        print *, "new chief ray pos on surf 1 is ", 
+     1  tan(thetao)*curr_lens_data%thicknesses(1)
+
 
 
 ! C       PRINT THE PIKUP
@@ -568,7 +587,15 @@ C
                         CALL MACFAL
                         RETURN
                         END IF
+        ! Experimental code !  go back to original and fix it correctly!
+        if (ENPUZ == 0) then
                 PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+        else
+                PXTRAY(2,0)=nao
+        end if              
+         
+        ! Original Code!!
+        !        PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
 C
 C       PIY(0) =PUY(0)
                         PXTRAY(3,0)=PXTRAY(2,0)
@@ -621,8 +648,18 @@ C       CALL PIKRES FOR THE SURFACE 1
                COMI=1
         IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
 C
+
+
+        ! Experimental code !  go back to original and fix it correctly!
+        if (ENPUZ == 0) then
+                PXTRAY(1,1)=(SYSTEM(12))
+        else
+                PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
+        end if
+        PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
+        ! Original code
 C       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-                        PXTRAY(1,1)=(SYSTEM(12))
+                       ! PXTRAY(1,1)=(SYSTEM(12))
 C
 
 C       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
@@ -710,6 +747,8 @@ C       ELSE SET CURV=ALENS(1,-)
 C       PICY'(1)
                 PXTRAY(8,1)=((ALENS((WWVN),0))/
      1          (ALENS((WWVN),1)))*PXTRAY(7,1)
+
+        PRINT *, "PXTRAY(1:8,1) is ", PXTRAY(1:8,1)
 C
 C       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 C *****************************************************************************
@@ -845,9 +884,16 @@ C       CALL PIKRES FOR THE OBJECT SURFACE
 C
 C       PY(0)=0,  ALWAYS
                         PXTRAY(1,0)=0.0D0
+        ! Experimental code !  go back to original and fix it correctly!
+        if (ENPUZ == 0) then
+                PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+        else
+                PXTRAY(2,0)=nao
+        end if              
+                            
 C
 C       PUY(0)=SAY/TH(0)
-                PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+        !        PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
 C
 C       PIY(0) =PUY(0)
                         PXTRAY(3,0)=PXTRAY(2,0)
@@ -883,9 +929,18 @@ C               INITIAL VALUES AT SURFACE 1
 C       CALL PIKRES FOR THE SURFACE 1
                COMI=1
         IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
+
+        ! Experimental code !  go back to original and fix it correctly!
+        if (ENPUZ == 0) then
+                PXTRAY(1,1)=(SYSTEM(12))
+        else
+                PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
+        end if
+        PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)        
 C
+!       Original Code
 C       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-                        PXTRAY(1,1)=(SYSTEM(12))
+                        !PXTRAY(1,1)=(SYSTEM(12))
 C
 C       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 C       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
@@ -1231,8 +1286,15 @@ C
 C       PY(0)=0,  ALWAYS
                         PXTRAY(1,0)=0.0D0
 C
-C       PUY(0)=SAY/TH(0)
+        ! Experimental code !  go back to original and fix it correctly!
+        if (ENPUZ == 0) then
                 PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+        else
+                PXTRAY(2,0)=nao
+        end if              
+         
+C       PUY(0)=SAY/TH(0)
+                !PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
 C
 C       PIY(0) =PUY(0)
                         PXTRAY(3,0)=PXTRAY(2,0)
@@ -1266,9 +1328,17 @@ C               INITIAL VALUES AT SURFACE 1
 C       CALL PIKRES FOR THE SURFACE 1
                COMI=1
         IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
+
+        ! Experimental code !  go back to original and fix it correctly!
+        if (ENPUZ == 0) then
+                PXTRAY(1,1)=(SYSTEM(12))
+        else
+                PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
+        end if
+        PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)        
 C
 C       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-                        PXTRAY(1,1)=(SYSTEM(12))
+                        !PXTRAY(1,1)=(SYSTEM(12))
 C
 C       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 C       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)

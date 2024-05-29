@@ -346,6 +346,9 @@ subroutine FIR
   call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
 
   !print *, "Is Object at Infinity? ", sysConfig%isObjectAfInf()
+  call updateTerminalLog("ENTRANCE PUPIL", "blue")
+  call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
+  call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")
 
   call updateTerminalLog("INFINITE CONJUGATES", "blue")
   call updateTerminalLog("EFL       "//trim(real2str(curr_par_ray_trace%EFL,4)),"blue")

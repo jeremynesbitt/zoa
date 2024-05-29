@@ -76,12 +76,15 @@ C       WHERE I IS THE SURFACE NUMBER
 C
 C       CALCULATE THE OPTICAL INVARIANT
 C
+        PRINT *, "IN AB357"
                 SF=INT(SYSTEM(20))
         INV=-((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-
      1  (PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
-        IF(DABS(INV).LE.1.0D-10) THEN
-                        OUTLYNE = "CALLING MACFAL FROM AB357"
-                        CALL SHOWIT(19)
+        PRINT *, "INV is ", INV
+        IF(DABS(INV).LE.1.00E-15) THEN
+                        PRINT *, "INV is ", INV
+        OUTLYNE = "Invariant too small.  Calcs will fail"
+                        CALL SHOWIT(1)
                         CALL MACFAL
                         RETURN
                         END IF
@@ -151,10 +154,20 @@ C
 C       NOW: THIRD ORDER ABERRATIONS INCLUDING ASPHERIC TERM
 C       THIRD ORDER SPHERICAL (SA3) SURFACE
 C       CONTRIBUTION (SURFACE I)
+        !PRINT *, "I is ", I
+        !PRINT *, "SI is ", SI
+        !PRINT *, "PRXTRAY(3,I) is ", PXTRAY(3,I)
+        !PRINT *, "C1BAR IS ", C1BAR
+        !PRINT *, "PRXTRAY(1,i) is ", PXTRAY(1,I)
+        !PRINT *, "PRXTRAY(7,I) is ", PXTRAY(7,I)
 C
         B=(SI*(PXTRAY(3,I)**2))
         AB=(C1BAR*(PXTRAY(1,I)**4))
         MAB3(1,I)=B+AB
+
+        !PRINT *, "B is ", B
+        !PRINT *, "AB is ", AB
+        !PRINT *, "MAB3(1,I) is ", MAB3(1,I)
         IF(DABS(MAB3(1,I)).LT.1.0D-15) MAB3(1,I)=0.0D0
 C
 C       THIRD ORDER COMMA (CMA3) SURFACE
@@ -163,6 +176,7 @@ C
         F=(SI*PXTRAY(3,I)*PXTRAY(7,I))
         AF=(C1BAR*((PXTRAY(1,I)**3)*PXTRAY(5,I)))
         MAB3(2,I)=F+AF
+        !PRINT *, "MAB3(2,I) is ", MAB3(2,I)
         IF(DABS(MAB3(2,I)).LT.1.0D-15) MAB3(2,I)=0.0D0
 C
 C       THIRD ORDER ASTIGMATISM (AST3) SURFACE CONTRIBUTION
@@ -2900,6 +2914,7 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
+        PRINT *, "Calling PRTRC "
         CALL PRTRC
 C
 C       THE MAB3 AND XMAB3 COMMAND ACCEPTS QUALIFIER OR NUMERIC
@@ -3031,6 +3046,9 @@ C       MODE IS AFOCAL
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
+                PRINT *, "MAB3(1,I) is ", MAB3(1,I)
+                PRINT *, "INV is ", INV
+                PRINT *, "C1 is ", C1
                 !C2=(3.0D0*MAB3(2,I))/INV
                 !JN Remove factor of 3 for sagittal coma
                 C2=MAB3(2,I)/INV 

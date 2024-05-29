@@ -4021,6 +4021,8 @@ C
         integer :: TOTAL, fileID, rec11, rec15, tstUnit
         CHARACTER(len=13) :: NAME,NUMBER
         REAL*8 A0,A1,A2,A3,A4,A5
+        logical :: isFile
+        integer :: ierr
 
 
         fileID = 36
@@ -4028,16 +4030,21 @@ C
         inquire(iolength=rec15) NAME,NUMBER,A0,A1,
      1  A2,A3,A4,A5
 
-        inquire(FILE=filePath, number=tstUnit)
+        inquire(FILE=filePath, number=tstUnit, EXIST=isFile)
         if (tstUnit.EQ.fileID) close(fileID)    
 
+        if (isFile) then
+
         OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,
-     1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN')
+     1  FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN', iostat=ierr)
+        if(ierr == 0 ) then
         READ(UNIT=fileID,REC=1) TOTAL
         CLOSE(UNIT=fileID, STATUS='KEEP')
 
         OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,
      1  FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
+        end if
+        end if
 
 
       END SUBROUTINE

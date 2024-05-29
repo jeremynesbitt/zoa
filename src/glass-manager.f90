@@ -580,6 +580,7 @@ end function
       m = size(gdb%catalogs, DIM=1)
       PRINT *, "m is ", m
       do i=1,m
+        if (gdb%catalogFileNames(i) /= ' ' ) then
         EXIS36=.FALSE.
         INQUIRE(FILE=trim(LIBGLA)//gdb%catalogFileNames(i),EXIST=EXIS36)
         IF(EXIS36) THEN        
@@ -594,11 +595,11 @@ end function
           CLOSE(uG)
           return
         end if
-
       end DO
     ELSE 
       call LogTermFOR("Unable to open "//trim(LIBGLA)//gdb%catalogFileNames(i))
     END IF
+  end if ! Check if name is empty
     end do
 
  end subroutine

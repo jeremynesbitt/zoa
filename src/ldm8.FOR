@@ -3039,7 +3039,7 @@ C       REMOVE EXISTING COBS TILT
                         RETURN
                         END IF
                         END IF
-                        END IF
+                        END IF             
         OUTLYNE='1 OR GREATER AND LESS THAN OR EQUAL TO 10'
 C       DEFAULT ASSIGNMENT
         IF(WQ.EQ.'RECTE'.AND.DF2.EQ.1)

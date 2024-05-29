@@ -2611,6 +2611,11 @@ C     NOW THE ENTRANCE AND EXIT PUPIL DIAMETERS
      1    *PXTRAX(2,INT(SYSTEM(20)))))
           EXDIAY=2.0D0*DABS(PXTRAY(1,INT(SYSTEM(20)))+(EXPUZ
      1    *PXTRAY(2,INT(SYSTEM(20)))))
+
+       !JN:  Now that we have the entrance and exit pupils, call
+       ! RATRA one more time such that we can properly trace the marginal ray
+       ! for finite conjugate systems
+        CALL PRTRA
 C
 C     NOW SET THE INR FOR PHASE SURFACE RAY TRACES
 C     THE INR IS THE LARGER OF THE ABSOLUTE VALUE OF THE
@@ -2727,8 +2732,11 @@ C     DONE
                    F22=0
                    GO TO 999
                    END IF
+      ! Update the NEW data structures             
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
+      call curr_par_ray_trace%
+     1 calculateFirstOrderParameters(curr_lens_data)
 
 
                         RETURN

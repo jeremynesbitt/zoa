@@ -208,6 +208,8 @@ module seidel_calcs
             curr_par_ray_trace%CSeidel(1:5,0:curr_lens_data%num_surfaces-1)=MAB3(1:5,0:curr_lens_data%num_surfaces-1)
             curr_par_ray_trace%CXSeidel(1:5,0:curr_lens_data%num_surfaces-1)=XMAB3(1:5,0:curr_lens_data%num_surfaces-1)
 
+            PRINT *, "MAB3 is ", MAB3(6:10,0:curr_lens_data%num_surfaces-1)
+
             ! Chromatic Aberrations
 
             curr_par_ray_trace%CSeidel(6:7,0:curr_lens_data%num_surfaces-1)=COLORY(1:2,0:curr_lens_data%num_surfaces-1)

@@ -108,7 +108,9 @@ module codeV_commands
         zoaCmds(520)%cmd = 'RSI'
         zoaCmds(520)%execFunc => execRSI         
         zoaCmds(521)%cmd = 'NBR'
-        zoaCmds(521)%execFunc => execNBR                                            
+        zoaCmds(521)%execFunc => execNBR      
+        zoaCmds(522)%cmd = 'FIO'
+        zoaCmds(522)%execFunc => execFIO                                                    
 
     end subroutine
 
@@ -451,6 +453,39 @@ module codeV_commands
    end do  !  wavelengths        
 
         
+    end subroutine
+
+    subroutine execFIO(iptStr)
+        use strings
+        use global_widgets, only: curr_par_ray_trace
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: real2str, int2str, str2int, blankStr
+        use handlers, only: updateTerminalLog
+        use global_widgets, only:  sysConfig
+        use mod_plotopticalsystem
+        use DATLEN, only: COLRAY
+    
+        implicit none        
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        real(kind=real64) :: relAngle
+        integer :: numTokens, i, jj, numRays
+        integer, allocatable :: fields(:)
+        character(len=5) :: plotOrientation
+        logical :: goodCmd, yzFlag
+      
+        call updateTerminalLog("UMY"//blankStr(10)//"HMY"//blankStr(10)//"UCY"//blankStr(10)//"HCY", "black")
+        do i=1,curr_lens_data%num_surfaces
+            call updateTerminalLog(trim(real2str(curr_par_ray_trace%marginal_ray_height(i)))//blankStr(2)// &
+            &                      trim(real2str(curr_par_ray_trace%marginal_ray_angle(i)))//blankStr(2)// &
+            &                      trim(real2str(curr_par_ray_trace%chief_ray_height(i)))//blankStr(2)// &
+            &                      trim(real2str(curr_par_ray_trace%chief_ray_angle(i))), "black" )
+
+
+        end do
+
     end subroutine
 
     ! Options

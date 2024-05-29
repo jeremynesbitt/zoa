@@ -357,7 +357,7 @@ if (.not.allocated(self%radii)) THEN
  allocate(self%solves(9,self%num_surfaces))
  allocate(self%thickSolves(self%num_surfaces))
  allocate(self%clearAps(self%num_surfaces))
- call check_clear_apertures(self)
+ !call check_clear_apertures(self)
 
 
 END IF
@@ -1713,7 +1713,8 @@ subroutine updateLensData(self)
     self%solves(1:9,JJ+1) = SOLVE(1:9,JJ)
 
     self%thickSolves(JJ+1) = self%setSolveData(JJ+1,ID_PICKUP_THIC, thick_solves)
-    call check_clear_apertures(self)
+    
+   !call check_clear_apertures(self)
 
 
   END DO

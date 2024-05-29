@@ -581,11 +581,13 @@ end subroutine lens_editor_replot
         else
         call findCatalogNameFromGlassName(ftext, catalogName)
         PRINT *, "Glass entry request is ", ftext
+        if (ftext(1:1) /= ' ') then
         call PROCESKDP('U L')
         WRITE(kdptext, *) 'CHG ' ,irow
         call PROCESKDP(kdptext)
         call PROCESKDP(catalogName//' '//ftext)
         call PROCESKDP('EOS')
+        end if
         end if
 
 
