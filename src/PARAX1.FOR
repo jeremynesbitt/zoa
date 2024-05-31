@@ -421,7 +421,8 @@ C       ITYP NOT 2
 C SUB PRTRA.FOR
         SUBROUTINE PRTRA
         use iso_fortran_env, only: real64
-        use type_utils, only: real2str        
+        use type_utils, only: real2str, bool2str        
+        use parax_calcs
 C
         use global_widgets
 
@@ -446,6 +447,8 @@ C
 
         REAL*8 RD, INDEX, VNUM
         real(kind=real64) :: Lo, thetao, nao
+        real(kind=real64) :: marPos1, marAng0
+
 C
         REAL*8 SYS13,TMP15A,TMP15B,
      1  CON,CURV,TMP17A,TMP17B,WV
@@ -478,6 +481,10 @@ C       Update Lens data class
 C     Dump data to interface modules
       call curr_lens_data%update()
 
+      ! To deal with setting this properly with 
+      ! finite conjugate sytems and support the use case of this
+      ! sub to ray trace to compute first order parameters
+      call computeMarginalRayPosition(marPos1, marAng0)
       ! Calc Object NA
         ! Marginal ray height on surface 1 
         ! For finite conjugate object, should be object NA % thickness of surface 0
@@ -588,11 +595,22 @@ C
                         RETURN
                         END IF
         ! Experimental code !  go back to original and fix it correctly!
-        if (ENPUZ == 0) then
-                PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
-        else
-                PXTRAY(2,0)=nao
-        end if              
+                PXTRAY(2,0) = marAng0        
+!         if (ENPUZ == 0) then
+!                 PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+!                 call LogTermFOR("PRTRA LN 593 isDataValid " //
+!      1 bool2str(curr_par_ray_trace%isFirstOrderDataValid()))     
+                
+!                 call LogTermFOR("Pos should be "//
+!      1           real2str(marPos1))              
+!         else
+!                 call LogTermFOR("PRTRA LN 594 isDataValid " //
+!      1 bool2str(curr_par_ray_trace%isFirstOrderDataValid()))          
+!                 call computeMarginalRayPosition(marPos1, marAng0)
+!                 call LogTermFOR("Pos should be "//
+!      1           real2str(marPos1))   
+!                 PXTRAY(2,0)=nao
+!         end if              
          
         ! Original Code!!
         !        PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
@@ -651,12 +669,13 @@ C
 
 
         ! Experimental code !  go back to original and fix it correctly!
-        if (ENPUZ == 0) then
-                PXTRAY(1,1)=(SYSTEM(12))
-        else
-                PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
-        end if
-        PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
+        PXTRAY(1,1) = marPos1
+        ! if (ENPUZ == 0) then
+        !         PXTRAY(1,1)=(SYSTEM(12))
+        ! else
+        !         PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
+        ! end if
+        ! PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
         ! Original code
 C       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
                        ! PXTRAY(1,1)=(SYSTEM(12))
@@ -884,12 +903,13 @@ C       CALL PIKRES FOR THE OBJECT SURFACE
 C
 C       PY(0)=0,  ALWAYS
                         PXTRAY(1,0)=0.0D0
+        PXTRAY(2,0) = marAng0                
         ! Experimental code !  go back to original and fix it correctly!
-        if (ENPUZ == 0) then
-                PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
-        else
-                PXTRAY(2,0)=nao
-        end if              
+        ! if (ENPUZ == 0) then
+        !         PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+        ! else
+        !         PXTRAY(2,0)=nao
+        ! end if              
                             
 C
 C       PUY(0)=SAY/TH(0)
@@ -930,13 +950,15 @@ C       CALL PIKRES FOR THE SURFACE 1
                COMI=1
         IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
 
+        PXTRAY(1,1) = marPos1
         ! Experimental code !  go back to original and fix it correctly!
-        if (ENPUZ == 0) then
-                PXTRAY(1,1)=(SYSTEM(12))
-        else
-                PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
-        end if
-        PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)        
+
+        ! if (ENPUZ == 0) then
+        !         PXTRAY(1,1)=(SYSTEM(12))
+        ! else
+        !         PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
+        ! end if
+        ! PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)        
 C
 !       Original Code
 C       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
@@ -1287,11 +1309,12 @@ C       PY(0)=0,  ALWAYS
                         PXTRAY(1,0)=0.0D0
 C
         ! Experimental code !  go back to original and fix it correctly!
-        if (ENPUZ == 0) then
-                PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
-        else
-                PXTRAY(2,0)=nao
-        end if              
+        PXTRAY(2,0) = marAng0
+        ! if (ENPUZ == 0) then
+        !         PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
+        ! else
+        !         PXTRAY(2,0)=nao
+        ! end if              
          
 C       PUY(0)=SAY/TH(0)
                 !PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
@@ -1330,13 +1353,14 @@ C       CALL PIKRES FOR THE SURFACE 1
         IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
 
         ! Experimental code !  go back to original and fix it correctly!
-        if (ENPUZ == 0) then
-                PXTRAY(1,1)=(SYSTEM(12))
-        else
-                PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
-        end if
-        PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)        
-C
+        PXTRAY(1,1) = marPos1
+!         if (ENPUZ == 0) then
+!                 PXTRAY(1,1)=(SYSTEM(12))
+!         else
+!                 PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
+!         end if
+!         PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)        
+! C
 C       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
                         !PXTRAY(1,1)=(SYSTEM(12))
 C
@@ -2590,10 +2614,11 @@ C     Dump data to paraxial ray trace interface
 
       curr_par_ray_trace%marginal_ray_height = PXTRAY(1,0:SF)
       curr_par_ray_trace%marginal_ray_angle = PXTRAY(2,0:SF)
-      curr_par_ray_trace%chief_ray_height = PXTRAY(3,0:SF)
-      curr_par_ray_trace%chief_ray_angle = PXTRAY(4,0:SF)
+      curr_par_ray_trace%chief_ray_height = PXTRAY(5,0:SF)
+      curr_par_ray_trace%chief_ray_angle = PXTRAY(6,0:SF)
+      ! TODO: Not sure these are the right values - check this
       curr_par_ray_trace%chief_ray_aoi = PXTRAY(7,0:SF)
-      curr_par_ray_trace%marginal_ray_aoi = PXTRAY(5,0:SF)
+      curr_par_ray_trace%marginal_ray_aoi = PXTRAY(3,0:SF) 
 C       TMAG
                 IF(DABS(PXTRAY(5,0)).GE.1.0D-15) THEN
                 curr_par_ray_trace%t_mag=PXTRAY(5,SF)/PXTRAY(5,0)

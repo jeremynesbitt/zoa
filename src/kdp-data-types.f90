@@ -266,10 +266,12 @@ type, extends(lens_data) :: paraxial_ray_trace_data
         real(kind=real64) :: t_mag = 0
         real :: EPD = 0 ! EPD = entrance pupil diameter
         real(kind=real64) :: EFL, BFL, FFL, FNUM, imageDistance, OAL, ENPUPDIA, EXPUPDIA, ENPUPPOS, EXPUPPOS
+        real(kind=real64) :: nao, nai
         real(kind=real64) :: TT, objectDistance
 
         real(kind=real64), allocatable :: CSeidel(:,:), CXSeidel(:,:)
  contains
+        procedure, public, pass(self) :: isFirstOrderDataValid 
         procedure, public, pass(self) :: calculateFirstOrderParameters
         procedure, public, pass(self) :: getObjectThicknessToSetParaxialMag
 
@@ -1721,6 +1723,21 @@ subroutine updateLensData(self)
 
 
 end subroutine
+
+
+function isFirstOrderDataValid(self) result(boolResult)
+  class(paraxial_ray_trace_data) :: self
+  logical :: boolResult
+
+  boolResult = .TRUE.
+
+  if (self%EFL == 0 .AND. self%BFL == 0 .AND. self%FFL == 0 ) then
+    boolResult = .FALSE.
+  end if
+
+end function
+
+
 
 subroutine calculateFirstOrderParameters(self, lData)
   class(paraxial_ray_trace_data) :: self

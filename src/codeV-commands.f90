@@ -478,10 +478,10 @@ module codeV_commands
       
         call updateTerminalLog("UMY"//blankStr(10)//"HMY"//blankStr(10)//"UCY"//blankStr(10)//"HCY", "black")
         do i=1,curr_lens_data%num_surfaces
-            call updateTerminalLog(trim(real2str(curr_par_ray_trace%marginal_ray_height(i)))//blankStr(2)// &
-            &                      trim(real2str(curr_par_ray_trace%marginal_ray_angle(i)))//blankStr(2)// &
-            &                      trim(real2str(curr_par_ray_trace%chief_ray_height(i)))//blankStr(2)// &
-            &                      trim(real2str(curr_par_ray_trace%chief_ray_angle(i))), "black" )
+            call updateTerminalLog(trim(real2str(curr_par_ray_trace%marginal_ray_angle(i)))//blankStr(2)// &
+            &                      trim(real2str(curr_par_ray_trace%marginal_ray_height(i)))//blankStr(2)// &
+            &                      trim(real2str(curr_par_ray_trace%chief_ray_angle(i)))//blankStr(2)// &
+            &                      trim(real2str(curr_par_ray_trace%chief_ray_height(i))), "black" )
 
 
         end do

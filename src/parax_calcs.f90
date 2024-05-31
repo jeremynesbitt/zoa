@@ -169,6 +169,43 @@ contains
 
          end function  
 
+         ! The purpose of this fcn is to help paraxial ray tracing determine the
+         ! marginal ray position on surfacd 1
+         ! 
+         subroutine computeMarginalRayPosition(pos1, ang0) !result(pos1)
+                use ISO_FORTRAN_ENV, only: real64  
+                use kdp_data_types  
+                use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
+                use DATLEN, only: SYSTEM
+              
+                implicit none   
+                real(kind=real64) :: pos1, ang0
+                real(kind=real64) :: Lo, thetao, nao
+
+                !TODO:  Calc nao in different structure.  Obvious candidate is paraxial_Ray_Trace
+                ! But it needs to be seaprated from sysConfig in different modules to avoid circular
+                ! dependencies.
+
+                if(sysConfig%isFocalSystem()) THEN   
+                        ! Bacically NAO times the thickness of the object surface
+                        Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
+                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER) then
+                            thetao = ATAN(SYSTEM(12)/(Lo))
+                        else
+                            thetao = ATAN(curr_par_ray_trace%EPD/Lo)
+                        end if
+
+                        nao = sin(thetao)      
+                        pos1 = tan(thetao)*curr_lens_data%thicknesses(1)       
+                        ang0 = nao     
+                else
+                        pos1 =(SYSTEM(12))
+                        ang0 =(SYSTEM(12))/curr_lens_data%thicknesses(1)
+                end if
+        
+
+        end subroutine
+
 
 
 end module
@@ -238,5 +275,8 @@ module seidel_calcs
                 
 
          end subroutine
+
+
+
 
 end module

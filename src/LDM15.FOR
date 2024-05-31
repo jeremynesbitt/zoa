@@ -2615,6 +2615,8 @@ C     NOW THE ENTRANCE AND EXIT PUPIL DIAMETERS
        !JN:  Now that we have the entrance and exit pupils, call
        ! RATRA one more time such that we can properly trace the marginal ray
        ! for finite conjugate systems
+       call curr_par_ray_trace%
+     1 calculateFirstOrderParameters(curr_lens_data)     
         CALL PRTRA
 C
 C     NOW SET THE INR FOR PHASE SURFACE RAY TRACES
@@ -2735,8 +2737,7 @@ C     DONE
       ! Update the NEW data structures             
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
-      call curr_par_ray_trace%
-     1 calculateFirstOrderParameters(curr_lens_data)
+
 
 
                         RETURN
