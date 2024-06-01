@@ -24,7 +24,7 @@ C
         OUTLYNE = "LNSEOS ROUTINE STARTING! "
         CALL SHOWIT(19)
 
-        !call zoatabMgr%rePlotIfNeeded()
+        
 C
         IF(CFLDCNT.EQ.0) THEN
 C       SET UP THREE FIELD OF VIEW POSITIONS AT 0 .7 AND 1.0
@@ -97,6 +97,10 @@ C     SET PARAXIAL FLAGS TO FALSE
                         OUTLYNE = "DONE WITH PRTRD"
                         CALL SHOWIT(19)
                 END IF
+                ! JN:  Added this to force replot after lens update
+                ! TODO:  There are multiple returns in this sub
+                ! Not sure If I should dot his in all exits
+                       call zoatabMgr%rePlotIfNeeded()
                        RETURN
                        END IF
         IF(F57.EQ.1) THEN
@@ -530,6 +534,7 @@ C     SET PARAXIAL FLAGS TO FALSE
                        END IF
                        END IF
  5000                  CONTINUE
+       call LogTermFOR("After LNNSEOS1 I presume?")
                        RETURN
                        END
       SUBROUTINE TILT_RETURN(ERCODE,TRYES)
@@ -2702,12 +2707,13 @@ C
 C     FORCE IMAGE SURFACE TO HAVE ZERO THICKNESS
 C       CHECK FOR LAST SURFACE THICKNESS NOT ZERO
 C     THE FINAL SURFACE ALWAYS HAS ZERO THICKNESS
-      IF(ALENS(3,INT(SYSTEM(20))).NE.0.0D0) THEN
-      ALENS(3,INT(SYSTEM(20)))=0.0D0
-        OUTLYNE=
-     1  'WARNING: FINAL SURFACE THICKNESS WAS RESET TO ZERO'
-      CALL SHOWIT(1)
-                        END IF
+        ! JN:  test violating this
+!       IF(ALENS(3,INT(SYSTEM(20))).NE.0.0D0) THEN
+!       ALENS(3,INT(SYSTEM(20)))=0.0D0
+!         OUTLYNE=
+!      1  'WARNING: FINAL SURFACE THICKNESS WAS RESET TO ZERO'
+!       CALL SHOWIT(1)
+!                         END IF
                DO I=1,INT(SYSTEM(20))
                ALENS(29,I)=0.0D0
       IF(ALENS(30,I).NE.0.0D0.OR.ALENS(31,I).NE.0.0D0.OR.
