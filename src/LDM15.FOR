@@ -628,6 +628,7 @@ C     NO TILT RET
 C SUB LNSEOS1.FOR
         SUBROUTINE LNSEOS1
         use global_widgets
+        use kdp_data_types, only: check_clear_apertures
         USE GLOBALS
 
 C     NOTE ON 11/04/96 THIS ROUTINE ONLY HAS ONE SUCCESSFUL RETURN
@@ -2741,6 +2742,7 @@ C     DONE
                    GO TO 999
                    END IF
       ! Update the NEW data structures             
+      call check_clear_apertures(curr_lens_data)             
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
 

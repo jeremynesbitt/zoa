@@ -2091,7 +2091,7 @@ DEALLOCATE(VERARRAY,STAT=ALLOERR)
              WQ='REAL'
              END IF
 
-IF(WQ.EQ.'REAL'.OR.WQ.EQ.'VREAL') THEN
+!IF(WQ.EQ.'REAL'.OR.WQ.EQ.'VREAL') THEN
 
 RWARN=0
 FWARN=0      
@@ -2447,9 +2447,9 @@ IF(VERARRAY(J,I).GT.RMAX) RMAX=VERARRAY(J,I)
 END DO
 YRAD=DABS((HYMAX-HYMIN)/2.0D0)
 XRAD=DABS((HXMAX-HXMIN)/2.0D0)
-!call LogTermFOR("YRAD is "//trim(real2str(YRAD)))
-!call LogTermFOR("XRAD is "//trim(real2str(XRAD)))
-!call LogTermFOR("ALENS(10,I) is "//trim(real2str(ALENS(10,I))))
+call LogTermFOR("YRAD is "//trim(real2str(YRAD)))
+call LogTermFOR("XRAD is "//trim(real2str(XRAD)))
+call LogTermFOR("ALENS(10,I) is "//trim(real2str(ALENS(10,I))))
 
 IF(ALENS(10,I).EQ.0.0) THEN
   lData%clearAps(I+1)%userDefined = .FALSE.
@@ -2502,8 +2502,8 @@ CALL SHOWIT(0)
 2006 FORMAT('LIMIT RAY DATA MAY BE IN ERROR, CLAPS NOT ASSIGNED')
 2007 FORMAT('CHANGE OBJECT HT. OR REF. AP. HT. AND RE-RUN')
 DEALLOCATE(VERARRAY,STAT=ALLOERR)
-                  RETURN
-                  END IF
+                  !RETURN
+                  !END IF
 END !check_clear_apertures
 
 

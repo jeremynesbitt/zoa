@@ -1328,6 +1328,7 @@ module codeV_commands
         !include "DATLEN.INC"
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
+        call LogTermFOR("Calling check_clear_apetures")
         call check_clear_apertures(curr_lens_data)
         call updateTerminalLog(blankStr(7)//"Y-FAN"//blankStr(5)//"X-FAN", "black")
         do i=2,curr_lens_data%num_surfaces
