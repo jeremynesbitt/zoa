@@ -146,6 +146,7 @@ module paraxial_ray_trace_test
                             CALL MACFAL
                             RETURN
                             END IF
+           PXTRAY(1:8,0:1) = setInitialParaxialRays(CON)                  
 
            PXTRAY(2,0) = marAng0
 
@@ -300,7 +301,7 @@ module paraxial_ray_trace_test
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
     
-                    DO L=2,INT(SYSTEM(26))
+            DO L=2,INT(SYSTEM(26))
     !               VALUES AT SURFACE L
                            SLV1=L
                            SLV2=1 !TODO;  Move this to new SOLVRS routine as this is an input
@@ -311,68 +312,9 @@ module paraxial_ray_trace_test
                    COMI=L
             IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
 
-            !PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L)
-            !PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L)
-    !
-            ! PXTRAY(1,L) = nextSurfaceHeight
-    !       PY(L) = PY(L-1)+TH(L-1)*PUY(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAY(1,L)=PXTRAY(1,(L-1))+(ALENS(3,(L-1))*PXTRAY(2,(L-1)))
-    !
-    !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
-                    IF(ALENS(23,L).EQ.2.0D0) THEN
-                    CURV=ALENS(24,L)
-                    ELSE
-            IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                    CURV=ALENS(43,L)*2.0D0
-                    ELSE
-                    CURV=ALENS(1,L)
-                    END IF
-                    END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ') &
-          PXTRAY(2,L)=(-(1.0D0/ALENS(3,L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ') &
-          PXTRAY(2,L)=(-(1.0D0/ALENS(121,L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-    !       
-            !PIY are incident slope 
-    !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-            PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
-    !       
-            !PIY' - exit slope
-    !       PIY'(L)=(N/N')*PIY(L)
-                    PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(3,L)
-    !
-     ! This part can be looped (I think)
+            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(SYSTEM(11)))
+            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(SYSTEM(11)))
 
-    !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAY(5,L)=PXTRAY(5,(L-1))+(ALENS(3,(L-1))*PXTRAY(6,(L-1)))
-    !
-    !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-          IF(GLANAM(L,2).EQ.'PERFECT      ') &
-          PXTRAY(6,L)=(-(1.0D0/ALENS(3,L))*PXTRAY(5,L))+PXTRAY(6,L-1)
-          IF(GLANAM(L,2).EQ.'IDEAL        ') &
-          PXTRAY(6,L)=(-(1.0D0/ALENS(121,L))*PXTRAY(5,L))+PXTRAY(6,L-1)
-    !
-    !       PICY(L)
-                    PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
-    !       PICY'(L)
-                    PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(7,L)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
     !       WHEN ASTOP IS NOT ON SURFACE 1
@@ -382,16 +324,15 @@ module paraxial_ray_trace_test
                     IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
             END DO ! Trace at two slightly different stop positions
             IF(TMP15A.EQ.TMP15B) THEN
-            OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
-          CALL SHOWIT(1)
-            OUTLYNE='APERTURE STOP SURFACE.'
-          CALL SHOWIT(1)
-            OUTLYNE= &
-          'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
-          CALL SHOWIT(1)
-                            CALL MACFAL
-                            RETURN
-                            ELSE
+               OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
+               CALL SHOWIT(1)
+               OUTLYNE='APERTURE STOP SURFACE.'
+               CALL SHOWIT(1)
+               OUTLYNE= 'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
+               CALL SHOWIT(1)
+                CALL MACFAL
+                RETURN
+            ELSE
             SYSTEM(15)=((-.1D0*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
                             END IF
     !
@@ -406,7 +347,7 @@ module paraxial_ray_trace_test
             IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
     !
     !       PY(0)=0,  ALWAYS
-                            PXTRAY(1,0)=0.0D0
+            PXTRAY(1,0)=0.0D0
             PXTRAY(2,0) = marAng0
             ! Experimental code !  go back to original and fix it correctly!
             ! if (ENPUZ == 0) then
@@ -420,13 +361,13 @@ module paraxial_ray_trace_test
             !        PXTRAY(2,0)=(SYSTEM(12))/ALENS(3,0)
     !
     !       PIY(0) =PUY(0)
-                            PXTRAY(3,0)=PXTRAY(2,0)
+            PXTRAY(3,0)=PXTRAY(2,0)
     !
     !       PIY'(0)=PUY(0)
-                            PXTRAY(4,0)=PXTRAY(3,0)
+            PXTRAY(4,0)=PXTRAY(3,0)
     !
     !       PCY(0) =-SCY
-                            PXTRAY(5,0)=(SYSTEM(14))
+            PXTRAY(5,0)=(SYSTEM(14))
           IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
     !
     !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
@@ -2205,6 +2146,121 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane) result(nextSurf)
             !PIY' - exit slope
     !       PIY'(L)=(N/N')*PIY(L)
     nextSurf(4) = (n/np)*nextSurf(3)
+
+end function
+
+function setInitialParaxialRays(CON) result(initialRays)
+    use DATLEN, only: ALENS, SYSTEM
+    use DATMAI, only: OUTLYNE
+    use mod_lens_data_manager
+    use parax_calcs
+
+    real(kind=real64) :: CON ! Chief ray height at pos 1
+
+    real(kind=real64) :: initialRays(1:8,0:1)
+    real(kind=real64) :: marPos1, marAng0
+    integer :: COMI
+    COMMON/PIKCOM/COMI
+
+    call curr_lens_data%update()
+    
+    ! To deal with setting this properly with
+    ! finite conjugate sytems and support the use case of this
+    ! sub to ray trace to compute first order parameters
+    call computeMarginalRayPosition(marPos1, marAng0)
+
+    !*************************************************************************
+    !       INITIAL TARGET OF RAY TRACE
+    !               THE INITIAL PARAXIAL RAYTRACE TARGETING
+    !               DATA IS:
+    !                       AT SURFACE 0 (OBJ)
+    !
+    !       STARTING MARGINAL RAY HEIGHT = 0
+    !       STARTING CHIEF RAY HEIGHT    = SCY
+    !                       AT SURFACE 1 (INITIAL REF SURF)
+    !       STARTING MARGINAL RAY HEIGHT = SAY
+    !       STARTING CHIEF RAY HEIGHT = CON
+    !
+    !
+    !               INITIAL VALUES AT SURFACE 0
+    !***************************************************************
+    !       CALL PIKRES FOR THE OBJECT SURFACE
+
+    ! TODO:  Just send this to PIKRES!!!
+    COMI=0
+    IF(ALENS(32,0).NE.0.0D0) CALL PIKRES
+!
+!       PY(0)=0,  ALWAYS
+     initialRays(1,0)=0.0D0
+!
+!       PUY(0)=SAY/TH(0)
+!
+    IF(ldm%getSurfThi(0).EQ.0.0D0) THEN
+        OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
+        CALL SHOWIT(1)
+        CALL MACFAL
+        RETURN
+    END IF
+    initialRays(2,0) = marAng0
+
+!       PIY(0) =PUY(0)
+    initialRays(3,0)=initialRays(2,0)
+!
+!       PIY'(0)=PUY(0)
+    initialRays(4,0)=initialRays(3,0)
+!
+!       PCY(0) =-SCY
+    initialRays(5,0)=(SYSTEM(14))
+    IF(SYSTEM(14).EQ.0.0D0) initialRays(5,0)=1.0D0
+!
+!       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
+!       CON IS CHIEF RAY POSITION ON SURFACE 1
+!       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
+!
+  ! if (ldm%getSurfaceThickness(0))
+  IF(ldm%getSurfThi(0).EQ.0.0D0) THEN  
+  !IF(ALENS(3,0).EQ.0.0D0) THEN
+    OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
+    CALL SHOWIT(1)
+    CALL MACFAL
+    RETURN
+   END IF
+    initialRays(6,0)=-((SYSTEM(14))-CON)/ALENS(3,0)
+  IF(SYSTEM(14).EQ.0.0D0) initialRays(6,0)= &
+  -(1.0D0-CON)/ALENS(3,0)
+!
+!       PICY(0) AT OBJECT, PICY = PUCY
+  initialRays(7,0)=initialRays(6,0)
+!
+!       PICY'(0) AT OBJECT PICY'=PICY
+  initialRays(8,0)=initialRays(7,0)
+!
+!       THIS COMPLETES THE VALUES AT THE OBJECT SURFACE
+!
+    !JN:  If there is a mag solve set thickness here:
+    
+    IF(ldm%isThiSolveOnSurf(0)) THEN   
+        !IF(SOLVE(6,L).NE.0.0D0) THEN
+        SLV1 = 0
+        CALL SLVRS
+    END IF
+
+ 
+  SLV1=1
+  SLV2=1
+  IF(ldm%isThiSolveOnSurf(1).OR.ldm%isYZCurvSolveOnSurf(1)) THEN          
+    CALL SLVRS
+   END IF
+!       INITIAL VALUES AT SURFACE 1
+!       CALL PIKRES FOR THE SURFACE 1
+           COMI=1
+    IF(ALENS(32,COMI).NE.0.0D0) CALL PIKRES
+!
+
+    initialRays(1:4,1) = traNextSurf(initialRays(1:4,0),1,INT(SYSTEM(11)))
+    initialRays(5:8,1) = traNextSurf(initialRays(5:8,0),1,INT(SYSTEM(11)))
+ 
+
 
 end function
 
