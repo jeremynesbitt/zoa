@@ -38,6 +38,8 @@ srcs += files(
   'plotsettingtypes.f90',
   'mod_DATLEN.f90',
   'mod_DATMAC.f90',
+  'lens-data-manager.f90',
+  'paraxial-ray-trace.f90',
   'plot-setting-manager.f90',
   'kdp-data-types.f90',
   'global_widgets.f90',

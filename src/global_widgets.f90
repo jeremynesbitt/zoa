@@ -4,8 +4,6 @@ module global_widgets
   use zoa_ui
   use kdp_data_types
 
-
-
   type(c_ptr) :: my_pixbuf, my_drawing_area
   type(c_ptr) :: textView, buffer, statusBar
   type(c_ptr) :: drawing_area_plot, notebook
@@ -19,7 +17,6 @@ module global_widgets
   
 
   ! UI Parameters
-
   type(sys_config) :: sysConfig
   type(io_config)  :: ioConfig
   type(lens_data)  :: curr_lens_data
