@@ -198,6 +198,13 @@ C
 
         END
 
+        SUBROUTINE printMSG(msgText, code)
+            use DATMAI, only: OUTLYNE
+            character(len=*) :: msgText
+            integer :: code
+
+        END SUBROUTINE
+
         SUBROUTINE getVIECOScaleFactor(scaleFactor)
               IMPLICIT NONE
               INCLUDE 'DATLEN.INC'

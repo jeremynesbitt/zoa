@@ -1459,7 +1459,7 @@ C
      1INPUT(1:1).EQ.'0'
      1.OR.INPUT(1:8).EQ.'FLDSRAYS') THEN
                 ELSE
-                PRINT *, "ABOUT TO EXECUTE INPUT ", INPUT  
+                !PRINT *, "ABOUT TO EXECUTE INPUT ", INPUT  
                 IF(INDEX(INPUT,'EOS').GT.0) THEN
                         PRINT *, "EOS IN PROCES"
                     end if                      

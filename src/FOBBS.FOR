@@ -5397,7 +5397,7 @@ C       INITIALIZE RAYCOD
         END IF
 
             IF(ZEEERR) THEN
-               PRINT *, "ZEEERR Occured!"
+               PRINT *, "ZEEERR Occured! in FFOB FOBBS.FOR"
                XC=TRYX
                YC=TRYY
                ZC=TRYZ

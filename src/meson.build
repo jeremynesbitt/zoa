@@ -41,6 +41,7 @@ srcs += files(
   'mod_DATMAI.f90',
   'lens-data-manager.f90',
   'paraxial-ray-trace.f90',
+  'real-ray-trace.f90',
   'plot-setting-manager.f90',
   'kdp-data-types.f90',
   'global_widgets.f90',

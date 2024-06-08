@@ -829,6 +829,7 @@ C
                 L=R_L
                 M=R_M
                 N=R_N
+    
                 IF(STOPP.EQ.1) THEN
 C NEW STUFF 6/2/94
       IF(KKK.EQ.1.AND.RAYCOD(1).EQ.1) THEN
@@ -1714,10 +1715,19 @@ C
                         END IF
                         RETURN
                         END
+
+       SUBROUTINE RAYTRA 
+        use real_ray_trace
+        !CALL RAYTRA_NEW
+        CALL RAYTRA_OLD
+        
+       END SUBROUTINE
 C SUB RAYTRA.FOR
 
-        SUBROUTINE RAYTRA
+        SUBROUTINE RAYTRA_OLD
         USE GLOBALS
+        use mod_lens_data_manager, only: ldm
+        use real_ray_trace, only: adjustLastSurface
 C
         IMPLICIT NONE
 C
@@ -2592,6 +2602,10 @@ C
                         END IF
                         END IF
         RAYRAY(22,I)=RAYRAY(22,(I-1))+RAYRAY(7,I)
+        if(I == ISYS20 .AND. 
+     1   ldm%getSurfThi(I) .NE. 0) then
+            call adjustLastSurface(I)
+        end if                    
                 IF(STOPP.EQ.1) THEN
 C NEW STUFF 6/2/94
       IF(KKK.EQ.1.AND.RAYCOD(1).EQ.1.AND..NOT.ITRACE) THEN
@@ -3369,6 +3383,8 @@ C SUB RAYTRA2.FOR
 
         SUBROUTINE RAYTRA2
         USE GLOBALS
+        use mod_lens_data_manager
+        use real_ray_trace
 C
         IMPLICIT NONE
 C
@@ -4095,6 +4111,10 @@ C
                         END IF
                         END IF
         RAYRAY(22,I)=RAYRAY(22,(I-1))+RAYRAY(7,I)
+        if(I == ISYS20 .AND. 
+     1   ldm%getSurfThi(I) .NE. 0) then
+            call adjustLastSurface(I)
+        end if  
                 IF(STOPP.EQ.1) THEN
 C NEW STUFF 6/2/94
       IF(KKK.EQ.1.AND.RAYCOD(1).EQ.1.AND..NOT.ITRACE) THEN

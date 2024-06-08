@@ -24,7 +24,7 @@ module mod_lens_data_manager
         integer :: surfIdx
         real(kind=real64) :: thi
 
-        thi = curr_lens_data%thicknesses(surfIdx-1)
+        thi = curr_lens_data%thicknesses(surfIdx+1)
 
     end function
 
@@ -96,7 +96,6 @@ module mod_lens_data_manager
         end if
 
         index = ALENS(WWVN,surfIdx)
-
 
     end function
 

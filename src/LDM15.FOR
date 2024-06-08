@@ -629,6 +629,7 @@ C SUB LNSEOS1.FOR
         SUBROUTINE LNSEOS1
         use global_widgets
         use kdp_data_types, only: check_clear_apertures
+        use paraxial_ray_trace_test, only: PRTRA_NEW
         USE GLOBALS
 
 C     NOTE ON 11/04/96 THIS ROUTINE ONLY HAS ONE SUCCESSFUL RETURN
@@ -1721,7 +1722,7 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
-                OUTLYNE = "ABOUT TO CALL PRTRA "
+                OUTLYNE = "ABOUT TO CALL PRTRA 1724"
                 CALL SHOWIT(19)
                 CALL PRTRA
       ITYPEP=2
@@ -1961,9 +1962,10 @@ C       TELECENTRIC STUFF, 11/12/2000
                 END IF
                 END IF
 C
-              OUTLYNE = "ABOUT TO CALL PRTRA"
+              OUTLYNE = "ABOUT TO CALL PRTRA 1964"
               CALL SHOWIT(19)
                         CALL PRTRA
+                        
               OUTLYNE = "JUST CALLED PRTRA"
               CALL SHOWIT(19)
 C

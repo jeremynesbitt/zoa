@@ -418,8 +418,17 @@ C       PARAXIAL TRACE COMPLETED
 C       ITYP NOT 2
                         END IF
                         END
+
 C SUB PRTRA.FOR
         SUBROUTINE PRTRA
+                use paraxial_ray_trace_test
+                CALL PRTRA_NEW
+                !CALL PRTRA_OLD
+
+        END SUBROUTINE
+
+
+        SUBROUTINE PRTRA_OLD
         use iso_fortran_env, only: real64
         use type_utils, only: real2str, bool2str        
         use parax_calcs
@@ -767,7 +776,10 @@ C       PICY'(1)
                 PXTRAY(8,1)=((ALENS((WWVN),0))/
      1          (ALENS((WWVN),1)))*PXTRAY(7,1)
 
-        PRINT *, "PXTRAY(1:8,1) is ", PXTRAY(1:8,1)
+        if(DABS(marAng0).GT.001D0) then
+        PRINT *, "Finite mar0 PRTRA PXTRAY(1:8,0:1) is ", 
+     1 PXTRAY(1:8,0:1)
+        end if
 C
 C       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 C *****************************************************************************
