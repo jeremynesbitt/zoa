@@ -1718,6 +1718,7 @@ C
 
        SUBROUTINE RAYTRA 
         use real_ray_trace
+        
         !CALL RAYTRA_NEW
         CALL RAYTRA_OLD
         
@@ -1728,8 +1729,10 @@ C SUB RAYTRA.FOR
         USE GLOBALS
         use mod_lens_data_manager, only: ldm
         use real_ray_trace, only: adjustLastSurface
+        use type_utils, only: real2str, int2str
 C
         IMPLICIT NONE
+        integer :: jj
 C
 C       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
 C       THE TRACING OF A RAY. THIS IS INITIATED
@@ -2523,6 +2526,18 @@ C
         RAYRAY(8,I)=DSQRT(
      1  ((RAYRAY(3,I)-ZOLD)**2)+((RAYRAY(2,I)-YOLD)**2)
      2  +((RAYRAY(1,I)-XOLD)**2))
+        ! TODO:  This calc is > abs thickness
+        ! print out RAYRAY 1..3, I and X/Y/ZOLD 
+        ! and compare to cangle calcs in adjustlastsurface
+        do jj=1,3
+        call LogTermFOR("RAYRAY "//int2str(jj) //
+     1  " "//real2str(RAYRAY(jj,I)))
+        end do  
+        call LogTermFOR("XOLD is "//real2str(XOLD))
+        call LogTermFOR("YOLD is "//real2str(YOLD))
+        call LogTermFOR("ZOLD is "//real2str(ZOLD))
+
+        call LogTermFOR('RAYTRA2 dlen is '//real2str(RAYRAY(8,I)))   
                         ELSE
 C       NUMHITS STORED ON LAST SURFACE WAS GREATER THAN 1
         RAYRAY(8,I)=0.0D0
@@ -2602,9 +2617,16 @@ C
                         END IF
                         END IF
         RAYRAY(22,I)=RAYRAY(22,(I-1))+RAYRAY(7,I)
+!         if(I==ISYS20) THEN
+!         call LogTermFOR("RAYRAY(7,I) is "//real2str(RAYRAY(7,I)))
+!         call LogTermFOR("RAYRAY(8,I) is "//real2str(RAYRAY(8,I)))
+!         call LogTermFOR("DABS is "//
+!      1  real2str(DABS(ALENS(45+INT(WW3),(I-1))))) 
+!         END IF
         if(I == ISYS20 .AND. 
      1   ldm%getSurfThi(I) .NE. 0) then
-            call adjustLastSurface(I)
+        
+            call adjustLastSurface(I, RAYRAY)
         end if                    
                 IF(STOPP.EQ.1) THEN
 C NEW STUFF 6/2/94
@@ -4032,6 +4054,7 @@ C
         RAYRAY(8,I)=DSQRT(
      1  ((RAYRAY(3,I)-ZOLD)**2)+((RAYRAY(2,I)-YOLD)**2)
      2  +((RAYRAY(1,I)-XOLD)**2))
+
                         ELSE
 C       NUMHITS STORED ON LAST SURFACE WAS GREATER THAN 1
         RAYRAY(8,I)=0.0D0
@@ -4113,7 +4136,7 @@ C
         RAYRAY(22,I)=RAYRAY(22,(I-1))+RAYRAY(7,I)
         if(I == ISYS20 .AND. 
      1   ldm%getSurfThi(I) .NE. 0) then
-            call adjustLastSurface(I)
+            call adjustLastSurface(I,RAYRAY)
         end if  
                 IF(STOPP.EQ.1) THEN
 C NEW STUFF 6/2/94

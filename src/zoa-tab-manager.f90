@@ -419,12 +419,18 @@ end subroutine
  end subroutine
 
   subroutine rePlotIfNeeded(self)
+    implicit none
     !use codeV_commands, only: cmd_loop, DRAW_LOOP
 
      class(zoatabManager) :: self
      integer :: i
 
+     ! Do nothing if there are no tabs to cycle through
+  
      DO i = 1,self%tabNum
+           ! Not keeping track of tabs when it is closed, so as a 
+           ! hack add this.  TODO:  Fix this properly
+           if (allocated(self%tabInfo(i)%tabObj)) then
            if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
               !PRINT *, "CMD Based REPLOT REQUESTED for tab ", i
               !PRINT *, "CMD Stored is "
@@ -432,6 +438,7 @@ end subroutine
           else
             call self%tabInfo(i)%settings%replot()
           end if
+        end if
      END DO
 
 

@@ -1424,6 +1424,7 @@ C
                         END
 C SUB GETOPD.FOR
         SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
+         use type_utils, only: real2str 
 C
         IMPLICIT NONE
 C
@@ -1475,31 +1476,47 @@ C
                 DO J=JJ,NEWIMG
         LEN=LEN+RAYRAY(7,J)
      1-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+        call LogTermFOR("RAYRAY(7) "//real2str(RAYRAY(7,J)))
+        call LogTermFOR("REFRY(7) "//real2str(REFRY(7,J)))
+        call LogTermFOR("LEN "//real2str(LEN))
+
+        
                         END DO
         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
 C       MODE FOCAL
                 RCOR=0.0D0
                 OCOR=0.0D0
                 CALL FOPD
+        call LogTermFOR("RCOR="//real2str(RCOR))
+        call LogTermFOR("OCOR="//real2str(OCOR))  
+        call LogTermFOR("LEN="//real2str(LEN))  
+
         LEN=LEN-(OCOR*(ALENS(WWVN,NEWOBJ)))
      1  +(RCOR*(ALENS(WWVN,NEWOBJ)))
                 RCOR=0.0D0
                 OCOR=0.0D0
                 CENCEN=.FALSE.
                 CALL LOPD
+        call LogTermFOR("RCOR="//real2str(RCOR))
+        call LogTermFOR("OCOR="//real2str(OCOR))   
+        call LogTermFOR("LEN="//real2str(LEN))  
+
         LEN=LEN-(OCOR*(ALENS(WWVN,NEWIMG-1)))
      1  +(RCOR*(ALENS(WWVN,NEWIMG-1)))
+        call LogTermFOR("LENPC="//real2str(LEN))  
                         ELSE
 C       MODE AFOCAL
                 RCOR=0.0D0
                 OCOR=0.0D0
-                CALL FOPD
+                CALL FOPD      
         LEN=LEN-((OCOR*ALENS(WWVN,NEWOBJ)))
      1  +(RCOR*(ALENS(WWVN,NEWOBJ)))
                 RCOR=0.0D0
                 OCOR=0.0D0
                 CENCEN=.FALSE.
                 CALL LOPD
+        call LogTermFOR("RCOR="//real2str(RCOR))
+        call LogTermFOR("OCOR="//real2str(OCOR))                   
         LEN=LEN-(OCOR*(ALENS(WWVN,NEWIMG-1)))
      1  +(RCOR*(ALENS(WWVN,NEWIMG-1)))
                         END IF

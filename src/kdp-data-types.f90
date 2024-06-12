@@ -124,6 +124,7 @@ contains
  procedure, public, pass(self) :: genSaveOutputText
  procedure, public, pass(self) :: setFieldTypeFromString
  procedure, public, pass(self) :: setMaxField
+ procedure, public, pass(self) :: getWavelength
 
 
 
@@ -1105,6 +1106,15 @@ subroutine setRefWavelengthIndex(self, refWavelengthIdx)
   SYSTEM(11) = REAL(self%refWavelengthIndex)
 
 end subroutine
+
+function getWavelength(self, index)result (wavelength)
+  class(sys_config), intent(in) :: self
+  integer, intent(in) :: index
+  double precision :: wavelength
+  wavelength = self%wavelengths(index)
+
+
+end function
 
 subroutine setWavelengths(self, index, wavelength)
   class(sys_config), intent(inout) :: self
@@ -2447,9 +2457,9 @@ IF(VERARRAY(J,I).GT.RMAX) RMAX=VERARRAY(J,I)
 END DO
 YRAD=DABS((HYMAX-HYMIN)/2.0D0)
 XRAD=DABS((HXMAX-HXMIN)/2.0D0)
-call LogTermFOR("YRAD is "//trim(real2str(YRAD)))
-call LogTermFOR("XRAD is "//trim(real2str(XRAD)))
-call LogTermFOR("ALENS(10,I) is "//trim(real2str(ALENS(10,I))))
+!call LogTermFOR("YRAD is "//trim(real2str(YRAD)))
+!call LogTermFOR("XRAD is "//trim(real2str(XRAD)))
+!call LogTermFOR("ALENS(10,I) is "//trim(real2str(ALENS(10,I))))
 
 IF(ALENS(10,I).EQ.0.0) THEN
   lData%clearAps(I+1)%userDefined = .FALSE.

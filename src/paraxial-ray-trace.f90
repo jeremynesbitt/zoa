@@ -72,7 +72,6 @@ module paraxial_ray_trace_test
           call computeMarginalRayPosition(marPos1, marAng0)
 
 
-          call LogTermFOR("IN PRTRANEW For real?")
             CON=SYSTEM(15)
             IF(systemHasYZPlane()) THEN
             !IF(ITYPEP.EQ.1.OR.ITYPEP.EQ.3) THEN
@@ -138,8 +137,7 @@ module paraxial_ray_trace_test
 
 
             PXTRAY(1:8,0:1) = setInitialParaxialRays(CON) 
-            call LogTermFOR("New way implemented!")
-
+    
     
             DO L=2,INT(SYSTEM(26))
     !               VALUES AT SURFACE L
@@ -227,9 +225,9 @@ module paraxial_ray_trace_test
             call resolveSolve(L)
     !
     !               NOW ALL SOLVES ON SURFACE L HAVE BEEN HANDLED
-            call LogTermFOR("L is "//int2str(L))
+          
             if(L.EQ.INT(SYSTEM(20)).AND.ALENS(3,L).NE.0) then 
-                call LogTermFOR("Nonzero image surf thickness!")
+                
                 PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L),L+1, INT(SYSTEM(11)))
                 PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L),L+1, INT(SYSTEM(11)))                    
             end if
@@ -1488,7 +1486,6 @@ module paraxial_ray_trace_test
     !
             if (newWay) then
                 PXTRAY(1:8,0:1) = setInitialParaxialRays(CON) 
-                call LogTermFOR("New way implemented!")
             else
                 !PXTRAY(1:8,0:1) = setInitialParaxialRays(CON) 
                 !PRINT *, "New way PXTRAY(1:8,0:1) is ", PXTRAY(1:8,0:1)
