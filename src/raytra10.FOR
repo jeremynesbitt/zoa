@@ -1476,9 +1476,9 @@ C
                 DO J=JJ,NEWIMG
         LEN=LEN+RAYRAY(7,J)
      1-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
-        call LogTermFOR("RAYRAY(7) "//real2str(RAYRAY(7,J)))
-        call LogTermFOR("REFRY(7) "//real2str(REFRY(7,J)))
-        call LogTermFOR("LEN "//real2str(LEN))
+        ! call LogTermFOR("RAYRAY(7) "//real2str(RAYRAY(7,J)))
+        ! call LogTermFOR("REFRY(7) "//real2str(REFRY(7,J)))
+        ! call LogTermFOR("LEN "//real2str(LEN))
 
         
                         END DO
@@ -1487,9 +1487,9 @@ C       MODE FOCAL
                 RCOR=0.0D0
                 OCOR=0.0D0
                 CALL FOPD
-        call LogTermFOR("RCOR="//real2str(RCOR))
-        call LogTermFOR("OCOR="//real2str(OCOR))  
-        call LogTermFOR("LEN="//real2str(LEN))  
+        ! call LogTermFOR("RCOR="//real2str(RCOR))
+        ! call LogTermFOR("OCOR="//real2str(OCOR))  
+        ! call LogTermFOR("LEN="//real2str(LEN))  
 
         LEN=LEN-(OCOR*(ALENS(WWVN,NEWOBJ)))
      1  +(RCOR*(ALENS(WWVN,NEWOBJ)))
@@ -1497,13 +1497,13 @@ C       MODE FOCAL
                 OCOR=0.0D0
                 CENCEN=.FALSE.
                 CALL LOPD
-        call LogTermFOR("RCOR="//real2str(RCOR))
-        call LogTermFOR("OCOR="//real2str(OCOR))   
-        call LogTermFOR("LEN="//real2str(LEN))  
+        ! call LogTermFOR("RCOR="//real2str(RCOR))
+        ! call LogTermFOR("OCOR="//real2str(OCOR))   
+        ! call LogTermFOR("LEN="//real2str(LEN))  
 
         LEN=LEN-(OCOR*(ALENS(WWVN,NEWIMG-1)))
      1  +(RCOR*(ALENS(WWVN,NEWIMG-1)))
-        call LogTermFOR("LENPC="//real2str(LEN))  
+        ! call LogTermFOR("LENPC="//real2str(LEN))  
                         ELSE
 C       MODE AFOCAL
                 RCOR=0.0D0
@@ -1515,8 +1515,8 @@ C       MODE AFOCAL
                 OCOR=0.0D0
                 CENCEN=.FALSE.
                 CALL LOPD
-        call LogTermFOR("RCOR="//real2str(RCOR))
-        call LogTermFOR("OCOR="//real2str(OCOR))                   
+        ! call LogTermFOR("RCOR="//real2str(RCOR))
+        ! call LogTermFOR("OCOR="//real2str(OCOR))                   
         LEN=LEN-(OCOR*(ALENS(WWVN,NEWIMG-1)))
      1  +(RCOR*(ALENS(WWVN,NEWIMG-1)))
                         END IF

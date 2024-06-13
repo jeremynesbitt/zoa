@@ -731,21 +731,21 @@ C       REFRY(33,SURF) TO REFRY(35,SURF) RESERVED
                 REFRY(4,I)=L
                 REFRY(5,I)=M
                 REFRY(6,I)=N
-      if(Y.NE.0.0D0) then
-         call LogTermFOR("Y is "
-     1    //int2str(I)// "= "//real2str(REFRY(2,I)))
+!       if(Y.NE.0.0D0) then
+!          call LogTermFOR("Y is "
+!      1    //int2str(I)// "= "//real2str(REFRY(2,I)))
 
-      end if
-      if(Z.NE.0.0D0) then
-         call LogTermFOR("Z is "
-     1    //int2str(I)// "= "//real2str(REFRY(3,I)))
+!       end if
+!       if(Z.NE.0.0D0) then
+!          call LogTermFOR("Z is "
+!      1    //int2str(I)// "= "//real2str(REFRY(3,I)))
 
-      end if    
-      if(X.NE.0.0D0) then
-         call LogTermFOR("X is "
-     1    //int2str(I)// "= "//real2str(REFRY(1,I)))
+!       end if    
+!       if(X.NE.0.0D0) then
+!          call LogTermFOR("X is "
+!      1    //int2str(I)// "= "//real2str(REFRY(1,I)))
 
-      end if            
+!       end if            
 
 C
 C     WHAT IS THE SIGN OF THE INDEX IN THE I-1 SPACE
@@ -868,32 +868,32 @@ C
                    STOPP=0
                    REFEXT=.TRUE.
                         END IF
-        if(DABS(REFRY(7,I)) > .01 ) then
-        call LogTermFOR("XOLD "//real2str(XOLD))
-        call LogTermFOR("YOLD "//real2str(YOLD))
-        call LogTermFOR("ZOLD "//real2str(ZOLD))
-        call LogTermFOR("X "//real2str(REFRY(1,I)))
-        call LogTermFOR("Y "//real2str(REFRY(2,I)))
-        call LogTermFOR("Z "//real2str(REFRY(3,I)))
-        call LogTermFOR("OPL "//real2str(REFRY(7,I)))
-        call LogTermFOR("LEN "//real2str(REFRY(8,I)))        
-        end if
+        ! if(DABS(REFRY(7,I)) > .01 ) then
+        ! call LogTermFOR("XOLD "//real2str(XOLD))
+        ! call LogTermFOR("YOLD "//real2str(YOLD))
+        ! call LogTermFOR("ZOLD "//real2str(ZOLD))
+        ! call LogTermFOR("X "//real2str(REFRY(1,I)))
+        ! call LogTermFOR("Y "//real2str(REFRY(2,I)))
+        ! call LogTermFOR("Z "//real2str(REFRY(3,I)))
+        ! call LogTermFOR("OPL "//real2str(REFRY(7,I)))
+        ! call LogTermFOR("LEN "//real2str(REFRY(8,I)))        
+        ! end if
 
         if(I == ISYS20 .AND. ldm%getSurfThi(I) .NE. 0) then
-         do jj=1,I
-         call LogTermFOR("X "//int2str(jj)// 
-     1  "= "//real2str(REFRY(1,jj)))
-         call LogTermFOR("Y "//int2str(jj)// 
-     1  "= "//real2str(REFRY(2,jj)))
-         call LogTermFOR("Z "//int2str(jj)// 
-     1  "= "//real2str(REFRY(3,jj)))
-         call LogTermFOR("OPL "//int2str(jj)// 
-     1   "= "//real2str(REFRY(7,jj)))
-          end do 
+!          do jj=1,I
+!          call LogTermFOR("X "//int2str(jj)// 
+!      1  "= "//real2str(REFRY(1,jj)))
+!          call LogTermFOR("Y "//int2str(jj)// 
+!      1  "= "//real2str(REFRY(2,jj)))
+!          call LogTermFOR("Z "//int2str(jj)// 
+!      1  "= "//real2str(REFRY(3,jj)))
+!          call LogTermFOR("OPL "//int2str(jj)// 
+!      1   "= "//real2str(REFRY(7,jj)))
+!           end do 
 
-                call LogTermFOR("About to adjust REFRY")    
+!                 call LogTermFOR("About to adjust REFRY")    
             call adjustLastSurface_2(I, REFRY)
-            call LogTermFOR("Done with adjusting REFRY")
+           ! call LogTermFOR("Done with adjusting REFRY")
 
         end if                        
 C

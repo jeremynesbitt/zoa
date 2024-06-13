@@ -2529,15 +2529,15 @@ C
         ! TODO:  This calc is > abs thickness
         ! print out RAYRAY 1..3, I and X/Y/ZOLD 
         ! and compare to cangle calcs in adjustlastsurface
-        do jj=1,3
-        call LogTermFOR("RAYRAY "//int2str(jj) //
-     1  " "//real2str(RAYRAY(jj,I)))
-        end do  
-        call LogTermFOR("XOLD is "//real2str(XOLD))
-        call LogTermFOR("YOLD is "//real2str(YOLD))
-        call LogTermFOR("ZOLD is "//real2str(ZOLD))
+!         do jj=1,3
+!         call LogTermFOR("RAYRAY "//int2str(jj) //
+!      1  " "//real2str(RAYRAY(jj,I)))
+!         end do  
+        ! call LogTermFOR("XOLD is "//real2str(XOLD))
+        ! call LogTermFOR("YOLD is "//real2str(YOLD))
+        ! call LogTermFOR("ZOLD is "//real2str(ZOLD))
 
-        call LogTermFOR('RAYTRA2 dlen is '//real2str(RAYRAY(8,I)))   
+        ! call LogTermFOR('RAYTRA2 dlen is '//real2str(RAYRAY(8,I)))   
                         ELSE
 C       NUMHITS STORED ON LAST SURFACE WAS GREATER THAN 1
         RAYRAY(8,I)=0.0D0
