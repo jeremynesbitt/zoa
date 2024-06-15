@@ -110,7 +110,9 @@ module codeV_commands
         zoaCmds(521)%cmd = 'NBR'
         zoaCmds(521)%execFunc => execNBR      
         zoaCmds(522)%cmd = 'FIO'
-        zoaCmds(522)%execFunc => execFIO                                                    
+        zoaCmds(522)%execFunc => execFIO   
+        zoaCmds(523)%cmd = 'BES'
+        zoaCmds(523)%execFunc => findBestFocus                                                            
 
     end subroutine
 
@@ -486,6 +488,64 @@ module codeV_commands
 
         end do
 
+    end subroutine
+
+
+    ! Todo:  move this somewhere once it is properly written
+    function adjustImageFocus(x) result(f)
+
+       use type_utils, only: real2str
+       use DATMAI, only: REG
+       implicit none
+       double precision :: f
+       double precision, intent(in):: x
+
+
+       call PROCESKDP('THI SI '//real2str(x))
+       call PROCESKDP('FOB 0; CAPFN; SHO RMSOPD')
+       f = REG(9)
+
+
+    end function
+
+
+    subroutine findBestFocus(iptStr)
+        use strings
+        use global_widgets, only: curr_par_ray_trace
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: real2str, int2str, str2int, blankStr
+        use handlers, only: updateTerminalLog
+        use global_widgets, only:  sysConfig
+        use mod_plotopticalsystem
+        use DATLEN, only: COLRAY
+        use algos
+    
+        implicit none        
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        real(kind=real64) :: relAngle
+        double precision :: newThi, result
+        integer :: numTokens, i, jj, numRays
+        integer, allocatable :: fields(:)
+        character(len=5) :: plotOrientation
+        logical :: goodCmd, yzFlag
+
+        call LogTermFOR("FindBestFocus plumbing works!")
+        !call tstNewtonRaphson()
+        call tstBrent()
+
+        ! For now hard code image surface.  TODO:  Abstract this to other surfaces
+        result = brent(-50*1d0, 0*1d0, 50*1d0, adjustImageFocus, 1E-6*1d0, newThi)
+        call LogTermFOR("RMS at best image focus is "//real2str(result,3))
+        call PROCESKDP('THI SI '//real2str(newThi))
+
+        !do ii=1,sysConfig%numFields
+
+
+        !end do
+      
     end subroutine
 
     ! Options
