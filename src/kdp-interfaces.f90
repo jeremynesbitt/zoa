@@ -1680,6 +1680,24 @@ subroutine PLTZERN
     maxZ = str2int(zernTxt(locE+2:len(zernTxt)))
  
 
+    !PseudoCode for V3 after user enters PLTTZERN
+    !If(newWindw) call zoaTabMgr%addNewWindow
+    !pam%initialize
+    !psm%addWavelength
+    !psm%addZernike
+    !psm%addDensity
+    !zoaTabMgr%setpsm
+
+    !IF User enters WL 3 (for example)
+    !parse entry
+    !psm = zoaTabMgr%getCurrentPSM
+    !psm%updateWavelengthValue()
+
+    !When user presses go
+    ! call execZern(psm)
+    ! In execZern
+    ! gen x,y data
+    ! create plot
 
     
     ! Error checking
@@ -1801,7 +1819,9 @@ subroutine PLTZERN
       & "Zernike vs Field"//c_null_char, mplt)
 
       ! Add settings
-      call psm%finalize(objIdx, trim(inputCmd))
+      !call psm%finalize(objIdx, trim(inputCmd))
+
+      call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
 
     
     ! Create Plot + settings tab

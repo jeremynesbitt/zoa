@@ -24,7 +24,9 @@ integer, parameter :: ID_PLOTTYPE_OPD     = 1017
 integer, parameter :: ID_PLOTTYPE_FAN     = 1018
 
 
-
+! Plot Setting Types
+integer, parameter :: UITYPE_SPINBUTTON = 1
+integer, parameter :: UITYPE_ENTRY = 2
 
 
 

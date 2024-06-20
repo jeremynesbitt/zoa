@@ -82,10 +82,12 @@ module type_utils
         character(len=*) :: strIpt
         character(len=80) :: strB
     
-        write(strB, '(A3)') strIpt
+        write(strB, '(A4)') strIpt
+      
         ! Not sure if this is needed
         strB = adjustl(strB)
-        read(strB, '(I3)') val
+        !read(strB, '(I4)') val
+        read(strB, *) val
     
       end function
     

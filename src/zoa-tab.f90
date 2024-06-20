@@ -4,6 +4,7 @@ module settings_obj
   use gtk
   use collections
   use zoa_plot
+  use plot_setting_manager, only: zoaplot_setting_manager
 
   type zoa_settings_obj
 
@@ -496,6 +497,7 @@ type zoatab
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
      character(len=140) :: plotCommand
      logical :: cmdBasedPlot
+     type(zoaplot_setting_manager) :: psm
      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
 
 
@@ -507,6 +509,7 @@ type zoatab
    procedure, public, pass(self) :: finalizeWindow
    procedure, public, pass(self) :: addSpinBoxSetting
    procedure, public, pass(self) :: addSpinButton_runCommand
+   procedure, public, pass(self) :: addSpinButton_runCommand_new   
    procedure, public, pass(self) :: addEntry_runCommand
    procedure, public, pass(self) :: createGenericSinglePlot
    procedure, public, pass(self) :: updateGenericSinglePlot
@@ -530,6 +533,24 @@ end interface
 interface
   subroutine close_zoaTab
   end subroutine
+end interface
+
+
+interface
+  function getTabPlotCommand(objIdx)
+    character(len=1040) :: getTabPlotCommand
+    integer :: objIdx
+  end function
+end interface
+
+interface
+  function updateTabPlotCommand(tabIdx, setting_code, value)
+    logical :: updateTabPlotCommand
+    integer :: tabIdx
+    integer :: setting_code
+    double precision :: value
+  end function
+
 end interface
 
 contains ! for module
@@ -717,6 +738,36 @@ subroutine addEntry_runCommand(self, labelTxt, valueStr, command)
 
 end subroutine
 
+
+subroutine addSpinButton_runCommand_new(self, labelTxt, value, lower, upper, digits, command)
+  implicit none
+  class(zoatab) :: self
+  real, intent(in) :: value, lower, upper
+  integer(kind=c_int), intent(in) :: digits
+  character(len=*), intent(in) :: labelTxt
+  character(len=*), intent(in) :: command
+  type(c_ptr) :: spinBtn, spinLbl
+
+  spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
+                                                    & lower=lower*1d0, &
+                                                    & upper=upper*1d0, &
+                                                    & step_increment=1d0, &
+                                                    & page_increment=1d0, &
+                                                    & page_size=0d0), &
+                                                    & climb_rate=2d0, &
+                                                    & digits=digits)
+
+    ! Store the commands in the name field of the widget, as we will have access to it 
+    ! in the callback fcn                                                
+    call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
+    !call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
+
+    call self%addSpinBoxSetting(labelTxt, spinBtn, &
+    & c_funloc(callback_runCommandFromSpinBox_new), self%box1)
+
+
+end subroutine
+
 subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits, command)
   implicit none
   class(zoatab) :: self
@@ -745,6 +796,32 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
 
 end subroutine
 
+function findTabParent(widget) result(tabIdx)
+  use type_utils, only: str2int
+
+ implicit none
+ type(c_ptr) :: widget
+ type(c_ptr) :: cstr, p1, p2
+ character(len=140) :: winName
+ integer :: tabIdx
+
+! Tmp code
+  p1 = gtk_widget_get_parent(widget)
+  cstr= gtk_widget_get_name(p1) 
+  call convert_c_string(cstr, winName)
+ 
+  call LogTermFOR("Parent Windown name is "// trim(winName))
+
+  p2 = gtk_widget_get_parent(p1)
+  cstr= gtk_widget_get_name(p2) 
+  call convert_c_string(cstr, winName)
+ 
+  call LogTermFOR("Parent Windown name is "// trim(winName))
+  tabIdx = str2int(winName)
+
+
+end function
+
 subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
   use command_utils, only:  removeLeadingBlanks
   use type_utils, only: int2str
@@ -759,8 +836,9 @@ subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
  type(c_ptr) :: cstr, buff2
  character(len=50) :: choice
  integer :: locDelim
-
  character(len=150), pointer :: command_base
+
+
 
  call c_f_pointer(gdata, command_base)
 
@@ -814,6 +892,88 @@ end if
 
 end subroutine
 
+
+subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
+  use command_utils, only:  removeLeadingBlanks
+  use type_utils, only: int2str, str2int
+  implicit none
+  type(c_ptr), value, intent(in) :: widget, gdata
+  real(c_double) :: realData
+  integer :: intVal
+ character(len=23) :: ffieldstr
+ character(len=140) :: cmdOrig
+ character(len=20) :: strSettingCode
+ character(len=150) :: cmdNew
+ type(c_ptr) :: cstr, buff2
+ character(len=50) :: choice
+ integer :: locDelim
+ integer :: setting_code
+
+ character(len=150), pointer :: command_base
+
+ integer :: tabIdx
+ logical :: result
+
+
+
+ call c_f_pointer(gdata, command_base)
+
+ cstr = gtk_widget_get_name(widget)
+ call convert_c_string(cstr, strSettingCode)
+
+setting_code = str2int(trim(strSettingCode))
+call LogTermFOR("Cmd to Match is "//strSettingCode)
+tabIdx = findTabParent(gdata)
+call LogTermFOR("Plot Cmd is "//getTabPlotCommand(tabIdx))
+
+
+result = updateTabPlotCommand(tabIdx, setting_code, gtk_spin_button_get_value(widget))
+if (result) call PROCESKDP(getTabPlotCommand(tabIdx))
+
+ !locDelim = INDEX(command_base, "--")
+ !cmdToUpdate = command_base(1:locDelim-1)
+ !cmdOrig = command_base(locDelim+2:len(command_base))
+
+ !cstr = gtk_widget_get_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)))
+
+
+ !realData = gtk_spin_button_get_value(widget)
+ !TODO:  Find a better way to tell if the widget is spin button vs entry or separate out fcns
+
+! if (cmdToUpdate(1:1).NE.'c') then
+!    intVal = INT(gtk_spin_button_get_value(widget))
+!    ffieldstr = int2str(intVal)
+! else
+!   PRINT *, "entry box!"
+!   buff2 = gtk_entry_get_buffer(widget)
+!   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)
+! end if
+    
+
+
+
+
+  !write(ffieldstr, *) real(realData)
+
+   !ffieldstr = adjustl(ffieldstr)
+  !PRINT *, "command_base is ", command_base
+  !PRINT *, "locDelim is ", locDelim
+  !PRINT *, "cmdOrig is ", cmdOrig
+  !PRINT *, "cmdToupdate is ", cmdToUpdate
+  !PRINT *, "newVal is ", trim(ffieldstr)
+
+
+ !call updateCommand(cmdOrig, trim(cmdToUpdate), ffieldstr, cmdNew)
+
+ !PRINT *, "New Command 2 is ", cmdNew
+ !call gtk_Widget_set_name(gdata, trim(cmdNew)//c_null_char)
+ !call gtk_widget_set_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)), & 
+ !& cmdNew//c_null_char)
+ !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
+
+! CALL PROCESKDP(cmdNew)
+
+end subroutine
 
  subroutine updateCommand(cmdOrig, cmdToUpdate, newVal, cmdNew)
   use command_utils, only:  parseCommandIntoTokens

@@ -40,6 +40,8 @@ type  zoatabManager
    procedure :: updateInputCommand
    procedure :: findTabIndex
    procedure :: closeAllTabs
+   procedure :: finalize_with_psm
+   procedure :: finalize_with_psm_new
 
  end type
 
@@ -538,6 +540,98 @@ end subroutine
 
   end subroutine
 
+  subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
+    use iso_c_binding, only: c_null_char
+    use type_utils, only: int2str
+    use plot_setting_manager, only: zoaplot_setting_manager
+    implicit none
+
+    character(len=*) :: inputCmd
+    integer :: objIdx
+    integer :: i
+    class(zoatabManager) :: self
+    type(zoaplot_setting_manager) :: psm
+
+
+    self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+    do i=1,psm%numSettings
+
+    select case (psm%ps(i)%uitype)
+
+    case(UITYPE_SPINBUTTON)
+    ! call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
+    ! & trim(int2str(psm%ps(i)%ID)), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
+    ! & trim(psm%ps(i)%prefix))
+    call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
+    & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
+    & trim(psm%ps(i)%prefix))    
+    !"Number of Field Points", &
+    !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
+    !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+
+    case(UITYPE_ENTRY)
+    call self%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
+    & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(psm%ps(i)%prefix))   
+
+    end select 
+    end do
+
+    call registerPlotSettingManager(self, objIdx, psm)
+
+end subroutine
+
+
+subroutine finalize_with_psm_new(self, objIdx, psm, inputCmd)
+  use iso_c_binding, only: c_null_char
+  use type_utils, only: int2str
+  use plot_setting_manager, only: zoaplot_setting_manager
+  implicit none
+
+  character(len=*) :: inputCmd
+  integer :: objIdx
+  integer :: i
+  class(zoatabManager) :: self
+  type(zoaplot_setting_manager) :: psm
+
+
+  self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
+  do i=1,psm%numSettings
+
+  select case (psm%ps(i)%uitype)
+
+  case(UITYPE_SPINBUTTON)
+   call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
+   & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
+   & trim(int2str(psm%ps(i)%ID)))
+   call LogTermFOR("ID is "//trim(int2str(psm%ps(i)%ID)))
+  ! call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
+  ! & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
+  ! & trim(psm%ps(i)%prefix))    
+  !"Number of Field Points", &
+  !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
+  !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+
+  case(UITYPE_ENTRY)
+  call self%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
+  & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(psm%ps(i)%prefix))   
+
+  end select 
+  end do
+
+  call registerPlotSettingManager(self, objIdx, psm)
+
+end subroutine
+
+subroutine registerPlotSettingManager(tabMgr, objIdx, psm)
+  use plot_setting_manager, only: zoaplot_setting_manager
+  use plot_setting_manager, only: zoaplot_setting_manager
+  integer :: objIdx
+  type(zoatabManager) :: tabMgr
+  type(zoaplot_setting_manager) :: psm
+
+  tabMgr%tabInfo(objIdx)%tabObj%psm = psm
+  
+end subroutine
 
 
 end module

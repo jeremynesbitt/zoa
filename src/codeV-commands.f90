@@ -16,6 +16,7 @@
 
 module codeV_commands
     use iso_fortran_env, only: real64
+    use plot_setting_manager
 
 
 
@@ -37,9 +38,14 @@ module codeV_commands
     character(len=4), dimension(500) :: surfCmds
     type(zoa_cmd), dimension(531) :: zoaCmds
 
+    type(zoaplot_setting_manager)  :: curr_psm
+
     integer :: cmd_loop = 0
     integer, parameter :: VIE_LOOP = 1
     integer, parameter :: DRAW_LOOP = 2 ! While plot is being drawn
+    integer, parameter :: SPO_LOOP = 3
+    integer, parameter :: ZERN_LOOP = 4
+
 
     contains
 
@@ -112,7 +118,13 @@ module codeV_commands
         zoaCmds(522)%cmd = 'FIO'
         zoaCmds(522)%execFunc => execFIO   
         zoaCmds(523)%cmd = 'BES'
-        zoaCmds(523)%execFunc => findBestFocus                                                            
+        zoaCmds(523)%execFunc => findBestFocus     
+        zoaCmds(524)%cmd = 'SPO'
+        zoaCmds(524)%execFunc => execSPO   
+        zoaCmds(525)%cmd = 'ZERN_TST'
+        zoaCmds(525)%execFunc => ZERN_TST     
+        zoaCmds(526)%cmd = 'SETWV'
+        zoaCmds(526)%execFunc => setPlotWavelength                                                                                    
 
     end subroutine
 
@@ -644,6 +656,33 @@ module codeV_commands
 
     end subroutine
 
+    subroutine setPlotWavelength(iptStr)
+        
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2int
+        use strings
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+       
+        !TODO:  Add error checking (min and max wavelength within range)
+        if (numTokens  == 2) then
+            if (isInputNumber(tokens(2))) then
+                call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                !call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                call LogTermFOR("Finished Updating Wv")
+            end if
+        end if
+        
+    end subroutine
+
+
     ! Currently inputs are either 
     ! VIE (new plot)
     ! VIE P1 (update existing plot)
@@ -681,6 +720,70 @@ module codeV_commands
         ! Psuedocode
         ! curr_lens_settings = lens_settings_new
         
+    end subroutine
+
+    subroutine ZERN_TST(iptStr)
+        !use ui_spot, only: spot_struct_settings, spot_settings
+       ! use mod_plotopticalsystem
+        use strings
+        use plot_setting_manager
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        type(zoaplot_setting_manager) :: psm
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        if (numTokens  == 2) then
+           if (tokens(2) == 'P1') then
+            ! Do not update settings
+            cmd_loop = ZERN_LOOP
+            return
+           end if
+        end if
+        cmd_loop = ZERN_LOOP
+
+        ! Set up settings
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        !call psm%initialize(trim(INPUT))
+        call psm%addWavelengthSetting_new()
+        !zernTxt = psm%addZernikeSetting("5..9")
+        !numPoints = psm%addDensitySetting(10,8,21)
+        !PRINT *, "zernTxt is ", zernTxt
+        !inputCmd = trim(psm%sp%getCommand())     
+        
+        curr_psm = psm
+
+
+    end subroutine
+
+
+    subroutine execSPO(iptStr)
+        !use ui_spot, only: spot_struct_settings, spot_settings
+       ! use mod_plotopticalsystem
+        use strings
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        if (numTokens  == 2) then
+           if (tokens(2) == 'P1') then
+            ! Do not update settings
+            cmd_loop = SPO_LOOP
+            return
+           end if
+        end if
+        cmd_loop = SPO_LOOP
+        !spot_struct_settings = spot_settings()
+
     end subroutine
 
     subroutine execCIR(iptStr)
@@ -1768,6 +1871,7 @@ module codeV_commands
         use handlers, only: zoatabMgr
         use kdp_utils, only: inLensUpdateLevel
         use mod_plotopticalsystem, only: ld_settings
+        use plot_functions
 
 
 
@@ -1795,6 +1899,25 @@ module codeV_commands
             
         cmd_loop = 0 ! Go back to base level
         end if
+
+        if (cmd_loop == SPO_LOOP) then
+            active_plot = ID_PLOTTYPE_SPOT
+            call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+            call PROCESKDP("FOB 1; SPD; PLTSPD")
+            !call VIE_NEW_NEW(ld_settings)
+            !CALL PROCESKDP('DRAW')
+            call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+            cmd_loop = 0
+
+        end if
+
+
+        if (cmd_loop == ZERN_LOOP) then
+            call LogTermFOR("Existing Zern Loop")
+            call zern_go(curr_psm)
+            cmd_loop = 0
+
+        end if        
 
 
 

@@ -1347,10 +1347,13 @@ C       CHECK SYNTAX
                         RETURN
                         END
 C SUB PLTSPD.FOR
-        SUBROUTINE PLTSPD
+        SUBROUTINE PLTSPD(spo_settings)
         use zoa_file_handler, only: doesFileExist
+        use ui_spot
+
 C
         IMPLICIT NONE
+        type(spot_settings) :: spo_settings
 C
 C       THIS PROGRAM CONTROLS THE "PLTSPD" COMMAND
 C
@@ -1468,7 +1471,7 @@ C     DO A PLOT NEW
                         LOOKZ=0.0D0
                         CALL PLTDEV
                         GRASET=.TRUE.
-                        CALL PLOTSPD
+                        CALL PLOTSPD(spo_settings)
       IF(DFLAG.EQ.0) THEN
                         SAVE_KDP(1)=SAVEINPT(1)
                         INPUT='DRAW'
