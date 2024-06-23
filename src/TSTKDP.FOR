@@ -202,6 +202,9 @@ C
             use DATMAI, only: OUTLYNE
             character(len=*) :: msgText
             integer :: code
+            
+            OUTLYNE = msgText
+            call SHOWIT(code)
 
         END SUBROUTINE
 
@@ -218,6 +221,7 @@ C
 
         SUBROUTINE PROCESKDP(ftext)
           USE GLOBALS
+          use strings
           IMPLICIT NONE
 
         INCLUDE 'DATLEN.INC'
@@ -230,9 +234,25 @@ C
         INCLUDE 'DATHGR.INC'
 
         character(len=*), intent(in) :: ftext
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i
 
         !WRITE(OUTLYNE,*) "PROCESKDP START F5 = ", F5
         !CALL SHOWIT(19)
+
+        if(len(ftext) > len(INPUT)) then
+            ! Assume this is because of multiple commands.  So split it up
+            call parse(ftext, ';', tokens, numTokens) 
+            if (i > 0) then 
+                  do i = 1,numTokens
+                        INPUT = trim(tokens(i))
+                        CALL PROCES
+                  end do
+                  RETURN
+            else
+                  call LogTermFOR("Warning:  INput string too long!")
+            end if
+      end if
 
         INPUT = trim(ftext)
         CALL PROCES

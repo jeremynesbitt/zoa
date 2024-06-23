@@ -511,6 +511,7 @@ type zoatab
    procedure, public, pass(self) :: addSpinButton_runCommand
    procedure, public, pass(self) :: addSpinButton_runCommand_new   
    procedure, public, pass(self) :: addEntry_runCommand
+   procedure, public, pass(self) :: addEntry_runCommand_new   
    procedure, public, pass(self) :: createGenericSinglePlot
    procedure, public, pass(self) :: updateGenericSinglePlot
    procedure, public, pass(self) :: updateGenericMultiPlot
@@ -548,10 +549,18 @@ interface
     logical :: updateTabPlotCommand
     integer :: tabIdx
     integer :: setting_code
-    double precision :: value
+    class(*) :: value
+    !double precision :: value
   end function
+  end interface
 
-end interface
+  interface
+  function isSpinButtonInput(tabIdx, setting_code)
+    logical:: isSpinButtonInput
+    integer :: tabIdx
+    integer :: setting_code
+  end function
+  end interface
 
 contains ! for module
 
@@ -726,6 +735,33 @@ subroutine addEntry_runCommand(self, labelTxt, valueStr, command)
 
   entryBox = hl_gtk_entry_new(60_c_int, editable=TRUE, &
   & activate=c_funloc(callback_runCommandFromSpinBox), data=self%box1)  
+
+    ! Store the commands in the name field of the widget, as we will have access to it 
+    ! in the callback fcn                                                
+    call gtk_widget_set_name(entryBox, trim(command)//c_null_char)
+
+    newlabel = gtk_label_new(labelTxt//c_null_char)
+
+    call self%settings%addLabelandWidget(newLabel, entryBox)
+
+
+end subroutine
+
+subroutine addEntry_runCommand_new(self, labelTxt, valueStr, command)
+  use gtk_hl_entry
+  use gtk, only: gtk_entry_get_buffer, gtk_entry_buffer_set_text
+  implicit none
+  class(zoatab) :: self
+  character(len=*), intent(in) :: valueStr
+  character(len=*), intent(in) :: labelTxt
+  character(len=*), intent(in) :: command
+  type(c_ptr) :: entryBox, newLabel
+
+  entryBox = hl_gtk_entry_new(60_c_int, editable=TRUE, &
+  & activate=c_funloc(callback_runCommandFromSpinBox_new), data=self%box1)  
+
+  call gtk_entry_buffer_set_text(gtk_entry_get_buffer(entryBox), &
+  & valueStr//c_null_char, -1)
 
     ! Store the commands in the name field of the widget, as we will have access to it 
     ! in the callback fcn                                                
@@ -920,14 +956,23 @@ subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
 
  cstr = gtk_widget_get_name(widget)
  call convert_c_string(cstr, strSettingCode)
-
+print *, "about to crash here?"
 setting_code = str2int(trim(strSettingCode))
 call LogTermFOR("Cmd to Match is "//strSettingCode)
 tabIdx = findTabParent(gdata)
 call LogTermFOR("Plot Cmd is "//getTabPlotCommand(tabIdx))
 
+if (isSpinButtonInput(tabIdx, setting_code)) then
+  print *, "Spin Box Update"
 
-result = updateTabPlotCommand(tabIdx, setting_code, gtk_spin_button_get_value(widget))
+  result = updateTabPlotCommand(tabIdx, setting_code, gtk_spin_button_get_value(widget))
+else
+   buff2 = gtk_entry_get_buffer(widget)
+   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)  
+   print *, "About to update string of ", trim(ffieldstr)
+  result = updateTabPlotCommand(tabIdx, setting_code, trim(ffieldstr))
+end if
+    
 if (result) call PROCESKDP(getTabPlotCommand(tabIdx))
 
  !locDelim = INDEX(command_base, "--")

@@ -810,8 +810,8 @@ C
      1REFRY(7,I)=REFRY(8,I)*DABS(ALENS(65+INT(WW4),(I-1)))
       IF(.NOT.RV) REFRY(7,I)=REFRY(7,I)+PHASE
       IF(RV) REFRY(7,I)=REFRY(7,I)-PHASE
-      print *, "REFRY(8,I) is ", REFRY(8,I)
-      print *, "REFRY(7,I) is ", REFRY(7,I)
+      !print *, "REFRY(8,I) is ", REFRY(8,I)
+      !print *, "REFRY(7,I) is ", REFRY(7,I)
 
 C
                 REFRY(9,I)=COSI

@@ -81,6 +81,8 @@ module type_utils
         integer :: val
         character(len=*) :: strIpt
         character(len=80) :: strB
+
+        PRINT *, "Stript is ", strIpt
     
         write(strB, '(A4)') strIpt
       

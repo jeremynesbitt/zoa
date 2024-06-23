@@ -378,13 +378,15 @@ end subroutine
     !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.
     idxObj = -1
+    PRINT *, "PLOT_CODE is ", PLOT_CODE
+    PRINT *, "self%tabNum is ", self%tabNum
     DO i = 1,self%tabNum
-       !PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
+       PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
       if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
-          !PRINT *, "Found existing plot at tab ", i
+          PRINT *, "Found existing plot at tab ", i
           idxObj = i
-          !PRINT *, "Type code is ", self%tabInfo(i)%typeCode
-          !PRINT *, "PLOT_CODE is ", PLOT_CODE
+          PRINT *, "Type code is ", self%tabInfo(i)%typeCode
+          PRINT *, "PLOT_CODE is ", PLOT_CODE
          plotFound = .TRUE.
          tabPos = i
 
@@ -612,8 +614,8 @@ subroutine finalize_with_psm_new(self, objIdx, psm, inputCmd)
   !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
 
   case(UITYPE_ENTRY)
-  call self%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
-  & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(psm%ps(i)%prefix))   
+  call self%tabInfo(objIdx)%tabObj%addEntry_runCommand_new( &
+  & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(int2str(psm%ps(i)%ID)))   
 
   end select 
   end do

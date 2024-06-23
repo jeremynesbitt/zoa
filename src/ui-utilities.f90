@@ -52,6 +52,32 @@ function getTabPlotCommand(objIdx) result(outStr)
 
 end function
 
+function isSpinButtonInput(tabIdx, setting_code) result(boolResult)
+  use handlers, only: zoatabMgr
+  use plot_setting_manager, only: zoaplot_setting_manager, UITYPE_SPINBUTTON
+
+  implicit none
+  logical :: boolResult
+  integer :: tabIdx
+  integer :: setting_code
+  integer :: i
+  type(zoaplot_setting_manager) :: psm
+
+  boolResult = .FALSE.  
+  ! Just for readability
+  psm = zoatabMgr%tabInfo(tabIdx)%tabObj%psm  
+  do i=1,psm%numSettings
+    if (psm%ps(i)%ID == setting_code) then
+      if (psm%ps(i)%uitype == UITYPE_SPINBUTTON) then
+        call LogTermFOR("Found SpinButton Type")
+        boolResult = .TRUE.
+        return
+      end if
+    end if
+  end do
+
+end function
+
 function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
   use handlers, only: zoatabMgr
   use plot_setting_manager, only: zoaplot_setting_manager, updateWavelengthSetting_new
@@ -60,8 +86,10 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
   logical :: boolResult
   integer :: tabIdx
   integer :: setting_code
-  real :: value
+  class(*) :: value
+  !double precision :: value
   integer :: i
+
   type(zoaplot_setting_manager) :: psm
 
   boolResult = .FALSE.
@@ -77,8 +105,14 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
   call LogTermFOR("Code is "//int2str(setting_code))    
     if (psm%ps(i)%ID == setting_code) then
       call LogTermFOR("Found proper setting!")
-      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateWavelengthSetting_new(INT(value))
+      select type (value)
+    type is (double precision)
+      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,INT(value))
       boolResult = .TRUE.
+      type is (character(*))
+      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
+      boolResult = .TRUE.      
+    end select
     end if
 
   end do

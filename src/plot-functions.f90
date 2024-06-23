@@ -23,7 +23,7 @@ subroutine zern_go(psm)
     IMPLICIT NONE
 
     character(len=23) :: ffieldstr
-    character(len=40) :: inputCmd
+    character(len=1024) :: inputCmd
     integer :: ii, objIdx, minZ, maxZ, lambda
     integer :: maxPlotZ = 9, numTermsToPlot, locE
     integer :: numPoints = 10
@@ -47,14 +47,20 @@ subroutine zern_go(psm)
     ! Term 3 is the wavelength.  
 
     ! Hard code some things for now
-    numPoints = 10
-    minZ = 5
-    maxZ = 9
-    numTermsToPlot = 5
+    print *, "About to crash?"
+    numPoints = psm%getDensitySetting_new()
+    call psm%getZernikeSetting_min_and_max(minZ, maxZ)
+    call LogTermFOR("MinZ "//trim(int2str(minZ)))
+    call LogTermFOR("MaxZ "//trim(int2str(maxZ)))
 
-    inputCMD = "ZERN_TST; SETWV 1; GO"
+    !minZ = 5
+    !maxZ = 9
+    !numTermsToPlot = 5    
+    numTermsToPlot = maxZ-minZ+1
+
     lambda = psm%getWavelengthSetting_new()
     inputCmd = trim(psm%generatePlotCommand())
+    call LogTermFOR("inputCmd is "//inputCmd)
     !inputCmd = trim(psm%sp%getCommand())      
 
     allocate(xdat(numPoints))
@@ -107,12 +113,16 @@ subroutine zern_go(psm)
     
     call zernplot%addLegend(zLegend)
     
-    PRINT *, "zLegend is ", (zLegend)
+    !PRINT *, "zLegend is ", (zLegend)
     !PRINT *, "Final errors are ", ydat(10,:)
-
+    PRINT *, "Before mplot set"
     call mplt%set(1,1,zernplot)
+    PRINT *, "After mplot set"
 
     replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
+    PRINT *, "After replot check"
+    PRINT *, "objIdx is ", objIdx
+    PRINT *, "replot check is ", replot
 
     if (replot) then
       PRINT *, "Zernike REPLOT REQUESTED"
@@ -130,6 +140,8 @@ subroutine zern_go(psm)
      
       objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, &
       & "Zernike vs Field"//c_null_char, mplt)
+
+      call LogTermFOR("ObjIdx is "//int2str(objIdx))
 
       ! Add settings
      ! call psm%finalize(objIdx, trim(inputCmd))

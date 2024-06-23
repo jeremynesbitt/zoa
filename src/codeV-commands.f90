@@ -124,7 +124,12 @@ module codeV_commands
         zoaCmds(525)%cmd = 'ZERN_TST'
         zoaCmds(525)%execFunc => ZERN_TST     
         zoaCmds(526)%cmd = 'SETWV'
-        zoaCmds(526)%execFunc => setPlotWavelength                                                                                    
+        zoaCmds(526)%execFunc => setPlotWavelength 
+        zoaCmds(527)%cmd = 'SETDENS'
+        zoaCmds(527)%execFunc => setPlotDensity     
+        zoaCmds(528)%cmd = 'SETZERNC'
+        zoaCmds(528)%execFunc => setPlotZernikeCoefficients                 
+                                                                                          
 
     end subroutine
 
@@ -682,6 +687,62 @@ module codeV_commands
         
     end subroutine
 
+    subroutine setPlotDensity(iptStr)
+        
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2int
+     
+        use strings
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+       
+        !TODO:  Add error checking (min and max wavelength within range)
+        if (numTokens  == 2) then
+            if (isInputNumber(tokens(2))) then
+                call curr_psm%updateDensitySetting_new(str2int(tokens(2)))
+                !call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                call LogTermFOR("Finished Updating Density")
+            end if
+        end if
+        
+    end subroutine
+
+    subroutine setPlotZernikeCoefficients(iptStr)
+        
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2int
+     
+        use strings
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        print *, "numTokens is ", numTokens
+       
+        !TODO:  Add error checking (min and max wavelength within range)
+        if (numTokens  == 2) then
+            if (.NOT.isInputNumber(tokens(2))) then
+                call curr_psm%updateZernikeSetting_new(trim(tokens(2)))
+                !call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                call LogTermFOR("Finished Updating Zernike")
+            end if
+        end if
+        
+    end subroutine
+
 
     ! Currently inputs are either 
     ! VIE (new plot)
@@ -750,7 +811,8 @@ module codeV_commands
         call psm%init_plotSettingManager_new(trim(iptStr))
         !call psm%initialize(trim(INPUT))
         call psm%addWavelengthSetting_new()
-        !zernTxt = psm%addZernikeSetting("5..9")
+        call psm%addDensitySetting_new(10, 8, 21)
+        call psm%addZernikeSetting_new("5..9")
         !numPoints = psm%addDensitySetting(10,8,21)
         !PRINT *, "zernTxt is ", zernTxt
         !inputCmd = trim(psm%sp%getCommand())     
