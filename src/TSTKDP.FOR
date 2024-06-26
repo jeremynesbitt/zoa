@@ -218,20 +218,21 @@ C
 
         END
 
+        SUBROUTINE TSTREAL8()
+
+            use DATLEN
+
+            print *, "Precision is ", precision(PPY1)
+            print *, "Range is ", range(PPY1)
+
+
+        END SUBROUTINE
+
 
         SUBROUTINE PROCESKDP(ftext)
-          USE GLOBALS
+          use DATMAI, only: INPUT
           use strings
           IMPLICIT NONE
-
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATCFG.INC'
-        INCLUDE 'DATMAC.INC'
-        INCLUDE 'DATSUB.INC'
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATSP1.INC'
-        INCLUDE 'DATHGR.INC'
 
         character(len=*), intent(in) :: ftext
         character(len=80) :: tokens(40)

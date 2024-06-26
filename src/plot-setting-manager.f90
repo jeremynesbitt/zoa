@@ -43,6 +43,7 @@ module plot_setting_manager
     integer :: numSettings
     character(len=140) :: baseCmd
     type(setting_parser) :: sp
+    integer :: plotNum 
 
     contains
     procedure, public, pass(self) :: initialize => init_plotSettingManager
@@ -160,6 +161,7 @@ contains
         PRINT *, "INPUT is ", strCmd
 
         self%numSettings = 0
+        
 
        call parseCommandIntoTokens(trim(strCmd), tokens, numTokens, " ") 
        call self%sp%initialize(tokens(1:numTokens))
@@ -178,6 +180,8 @@ contains
 
       self%numSettings = 0
       self%baseCmd = strCmd
+      ! For now is always set outside of psm
+      self%plotNum = -1
       
   end subroutine
 

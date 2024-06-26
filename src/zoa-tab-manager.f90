@@ -6,6 +6,8 @@ module zoa_tab_manager
   use collections
 
 
+! Maybe this should go away and be replaced by just tabObj
+! should settings be a "child" of zoatab?    
 type zoatabData
   integer :: typeCode
   !class(*), pointer :: plotObj
@@ -15,6 +17,11 @@ type zoatabData
 
 end type
 
+
+!Purpose
+! Keep track of all tabs that are open. 
+! Tabs are any analysis that is done that is shown in a separate window
+! Handle any requests related to tabs (whether a plot exists, close a tab, etc)
 type  zoatabManager
 
   type(zoatabData), dimension(99) :: tabInfo
@@ -31,6 +38,9 @@ type  zoatabManager
    procedure :: rePlotIfNeeded
    procedure :: removePlotTab
    procedure :: doesPlotExist
+   procedure :: doesPlotExist_new
+   procedure :: getNumberOfPlotsByCode
+   ! TODO:  Should all these generic plot tabs exist here?
    procedure :: addPlotTabFromObj
    procedure :: addGenericPlotTab
    procedure :: addGenericMultiPlotTab
@@ -40,6 +50,7 @@ type  zoatabManager
    procedure :: updateInputCommand
    procedure :: findTabIndex
    procedure :: closeAllTabs
+   ! this one will go away and be replaced with the _new one eventuallyy
    procedure :: finalize_with_psm
    procedure :: finalize_with_psm_new
 
@@ -396,6 +407,58 @@ end subroutine
     !PRINT *, "After search, plotFound is ", plotFound
 
  end function
+
+ function doesPlotExist_new(self, PLOT_CODE, idxObj, plotNum) result(plotFound)
+  implicit none
+  class(zoatabManager) :: self
+  integer, intent(in) :: PLOT_CODE
+  logical :: plotFound
+  integer, intent(inout) :: idxObj
+  integer, intent(in) :: plotNum
+  integer :: i
+
+   !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
+   plotFound = .FALSE.
+   idxObj = -1
+   PRINT *, "PLOT_CODE is ", PLOT_CODE
+   PRINT *, "self%tabNum is ", self%tabNum
+   DO i = 1,self%tabNum
+      PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
+     if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
+         if (self%tabInfo(i)%tabObj%psm%plotNum ==plotNum) then
+        call LogTermFOR("Found matching plot type and number!")
+         idxObj = i
+        plotFound = .TRUE.
+      end if
+    end if
+
+   END DO
+
+end function
+
+function getNumberOfPlotsByCode(self, PLOT_CODE) result(numPlots)
+  implicit none
+  class(zoatabManager) :: self
+  integer, intent(in) :: PLOT_CODE
+  integer :: numPlots
+  integer :: i 
+
+  numPlots = 0
+  DO i = 1,self%tabNum
+   if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
+      numPlots = numPlots + 1
+    end if
+  END DO
+
+
+end function
+
+ ! To update this to allow multiple types
+ ! Count all plots of a type
+ ! when then new plot base cmd will be XXX PY, where
+ ! Y is the plot number
+ ! eg for SPO second plot, need to update 
+ ! psm bse cmd to SPO P2
 
  subroutine newPlotIfNeeded(self, PLOT_CODE)
 

@@ -1,4 +1,9 @@
 !Module for bar chart plotting
+
+! THis needs some cleanup but no major surgery?
+! Eg if there are types of zoatab that contain plots then I think this can be used as is
+
+
 module zoa_plot
     use collections
     use GLOBALS

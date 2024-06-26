@@ -1,5 +1,6 @@
 
 ! This is a common module for both plots and for system configuration settings
+!TODO:  Put in separate file
 module settings_obj
   use gtk
   use collections
@@ -486,6 +487,16 @@ module zoa_tab
 
 
 
+! June 2024 notes
+! if i want to abstract this such that a tab can be
+! a plot or a window with data do I want to hard code all this stuff?
+! Maybe some child types.
+! For example:
+! If user does lens draw ... call zoaTabMgr%newTab(ID_PLOT)
+! If user wants to see table output of ray trace .. call zoaTabMgr%newTab(ID_DATA)
+! then there are types of zoa tab that contain specific objects for those types
+! The commonality is that zoaTab must have a CLI command to reproduce it             
+! and that it must have some sort of ID to tell zoaTabMgr what type of plot it is
 
 type zoatab
      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
@@ -498,6 +509,7 @@ type zoatab
      character(len=140) :: plotCommand
      logical :: cmdBasedPlot
      type(zoaplot_setting_manager) :: psm
+     ! This is not being used, but was just added for testing
      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
 
 
@@ -530,7 +542,8 @@ abstract interface
 end interface
 
 
-
+! This is in ui-utilities
+! to close a tab using zoaTabMgr
 interface
   subroutine close_zoaTab
   end subroutine

@@ -740,6 +740,8 @@ module codeV_commands
                 call LogTermFOR("Finished Updating Zernike")
             end if
         end if
+
+        call TSTREAL8()
         
     end subroutine
 
@@ -788,6 +790,9 @@ module codeV_commands
        ! use mod_plotopticalsystem
         use strings
         use plot_setting_manager
+        use handlers, only: zoatabMgr
+        use zoa_ui
+        use type_utils, only: int2str
 
         implicit none
         !class(zoa_cmd) :: self
@@ -795,20 +800,34 @@ module codeV_commands
         type(zoaplot_setting_manager) :: psm
 
         character(len=80) :: tokens(40)
-        integer :: numTokens
+        integer :: numTokens, objIdx
+        logical :: plotExists
+        integer, allocatable :: plotNum(:)
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
+        print *, "IPTSTR is ", trim(iptStr)
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+
+
         if (numTokens  == 2) then
-           if (tokens(2) == 'P1') then
-            ! Do not update settings
-            cmd_loop = ZERN_LOOP
-            return
-           end if
+            plotNum = cmd_parser_get_int_input_for_prefix('P', tokens(1:numTokens))
+            print *, "plotNum is ", plotNum(1)
+            !call LogTermFOR("PlotNum is "//int2str(plotNum(1)))
+            plotExists = zoatabMgr%doesPlotExist_new(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx, plotNum(1))
+            if (plotExists) then
+                ! TODO:  Replace with abstract call
+                curr_psm  = zoaTabMgr%tabInfo(objIdx)%tabObj%psm
+                cmd_loop = ZERN_LOOP
+                return
+            else
+                psm%plotNum = plotNum(1)
+            end if
         end if
         cmd_loop = ZERN_LOOP
 
         ! Set up settings
-        call psm%init_plotSettingManager_new(trim(iptStr))
+       ! call psm%init_plotSettingManager_new(trim(iptStr))
         !call psm%initialize(trim(INPUT))
         call psm%addWavelengthSetting_new()
         call psm%addDensitySetting_new(10, 8, 21)

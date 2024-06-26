@@ -2,7 +2,7 @@
       use zoa_logger
 
       PUBLIC
-      
+      integer, parameter :: long = selected_real_kind(15, 307)
       character(len=10) :: zoaVersion
       character(len=256) :: basePath
       type(zoaLogger) :: logger

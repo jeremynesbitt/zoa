@@ -27,12 +27,15 @@ subroutine zern_go(psm)
     integer :: ii, objIdx, minZ, maxZ, lambda
     integer :: maxPlotZ = 9, numTermsToPlot, locE
     integer :: numPoints = 10
+    integer :: pIdx
     logical :: replot
     type(multiplot) :: mplt
     type(zoaplot) :: zernplot
     type(c_ptr) :: canvas
     type(zoaplot_setting_manager) :: psm
     character(len=10) :: zernTxt
+    character(len=80) :: tabName
+
 
     character(len=5), allocatable :: zLegend(:)
 
@@ -43,20 +46,23 @@ subroutine zern_go(psm)
     COMMON/SOLU/X
 
 
-    ! Max 3 terms.  Terms 1 and 2 are min and max zernikes
-    ! Term 3 is the wavelength.  
-
-    ! Hard code some things for now
-    print *, "About to crash?"
     numPoints = psm%getDensitySetting_new()
     call psm%getZernikeSetting_min_and_max(minZ, maxZ)
+    numTermsToPlot = maxZ-minZ+1
+    !TODO:  Should support a rank one array to set Zernikes
+    ! Like this for just minZ and MaxZ
+    ! do i = 1,numTermsToPlot
+    !     zlist(i) = minZ-1+i
+    ! end do
+    ! doing this would allow for mor complex entrys by user, such as 4,9,15,25 
+
     call LogTermFOR("MinZ "//trim(int2str(minZ)))
     call LogTermFOR("MaxZ "//trim(int2str(maxZ)))
 
     !minZ = 5
     !maxZ = 9
     !numTermsToPlot = 5    
-    numTermsToPlot = maxZ-minZ+1
+    
 
     lambda = psm%getWavelengthSetting_new()
     inputCmd = trim(psm%generatePlotCommand())
@@ -67,9 +73,7 @@ subroutine zern_go(psm)
     allocate(ydat(numPoints,maxZ-minZ+1))
     allocate(zLegend(size(ydat,2)))
 
-    PRINT *, "number of data columns is ", size(ydat,2)
 
- 
     do ii = 0, numPoints-1
       xdat(ii+1) = REAL(ii)/REAL(numPoints-1)
       write(ffieldstr, *) xdat(ii+1)
@@ -112,49 +116,58 @@ subroutine zern_go(psm)
     call logDataVsField(xdat, ydat, zLegend)
     
     call zernplot%addLegend(zLegend)
-    
-    !PRINT *, "zLegend is ", (zLegend)
-    !PRINT *, "Final errors are ", ydat(10,:)
-    PRINT *, "Before mplot set"
     call mplt%set(1,1,zernplot)
-    PRINT *, "After mplot set"
 
-    replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
-    PRINT *, "After replot check"
-    PRINT *, "objIdx is ", objIdx
-    PRINT *, "replot check is ", replot
+    !Update for multiple plots planning
+    ! change doesPlotExist to get plot number
+       ! logic
+       ! use PSM to get base CMD.  
+       ! if PX, then look for Xth plot of certain code
+       ! if it exists
+    ! Do I need replot?  
 
+    ! Try #2
+    ! If baseCMD is Xx P1, then look for nth plot
+    ! if no, then new plot needed
+    ! if yes, then replot
+
+    pIdx = psm%plotNum
+
+    replot = .FALSE.
+    if (pIdx /= -1 ) then
+       replot = zoatabMgr%doesPlotExist_new(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx, pIdx)
+    end if
+
+
+    !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
     if (replot) then
-      PRINT *, "Zernike REPLOT REQUESTED"
-      PRINT *, "Input Command was ", inputCmd
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-      !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-     
       call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
-     
      else
-     
-     
-       !call mplt%draw()
-     
-     
+      pIdx = zoatabMgr%getNumberOfPlotsByCode(ID_PLOTTYPE_ZERN_VS_FIELD)
+      print *, "pIdx is ", pIdx
+      psm%plotNum = pIdx+1
+      !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
+      psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
+      print *, "baseCmd is ", psm%baseCmd
+      tabName = "Zernike vs Field" 
+      if  (psm%plotNum > 1) then
+        tabName = trim(tabName)//" "//int2str(psm%plotNum)
+      end if  
       objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, &
-      & "Zernike vs Field"//c_null_char, mplt)
+      & trim(tabName)//c_null_char, mplt)
 
       call LogTermFOR("ObjIdx is "//int2str(objIdx))
 
-      ! Add settings
-     ! call psm%finalize(objIdx, trim(inputCmd))
-
-      !call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
+      ! Set plotNum if needed.  TODO:  Is this always true?
+    !   if (pIdx == -1) then 
+    !     psm%plotNum = 1
+    !     psm%baseCmd = trim(psm%baseCmd)//" P1"
+    !   end if
 
       call zoaTabMgr%finalize_with_psm_new(objIdx, psm, trim(inputCmd))
-
-    
-    
-    ! Create Plot + settings tab
-    call zoaTabMgr%finalizeNewPlotTab(objIdx)
-
+        ! Create Plot + settings tab
+      call zoaTabMgr%finalizeNewPlotTab(objIdx)
 
     end if
 
