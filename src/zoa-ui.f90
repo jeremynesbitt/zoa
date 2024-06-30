@@ -14,6 +14,7 @@ integer, parameter :: ID_NEWPLOT_LENSDRAW = 1001
 integer, parameter :: ID_NEWPLOT_RAYFAN   = 1002
 integer, parameter :: ID_PLOTTYPE_GENERIC = 1000
 integer, parameter :: ID_PLOTTYPE_SPOT     = 1003
+integer, parameter :: ID_PLOTTYPE_SPOT_NEW     = 2003
 integer, parameter :: ID_PLOTTYPE_RMSFIELD     = 1011
 integer, parameter :: ID_PLOTTYPE_SPOT_VS_FIELD     = 1012
 integer, parameter :: ID_PLOTTYPE_ZERN_VS_FIELD     = 1013
@@ -27,6 +28,7 @@ integer, parameter :: ID_PLOTTYPE_FAN     = 1018
 ! Plot Setting Types
 integer, parameter :: UITYPE_SPINBUTTON = 1
 integer, parameter :: UITYPE_ENTRY = 2
+integer, parameter :: UITYPE_COMBO = 3
 
 
 

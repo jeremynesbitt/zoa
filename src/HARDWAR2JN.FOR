@@ -729,24 +729,7 @@ C      CALL IGrHardCopy('S')
 
                END
 
-      SUBROUTINE MY_SYSTEM2(ABLE,N)
 
-      IMPLICIT NONE
-      INTEGER N
-      INCLUDE 'DATMAI.INC'
-      CHARACTER*(*) ABLE
-C       TEST SINCE ERROR ON TRIM AND LEN WITH IVF COMPILER, 1/4/07
-C       write(outlyne,*) able(1:70)
-C       CALL SHOWIT(1)
-C       CALL MACPAUSE
-C     ABLE=TRIM(ABLE)
-C     N=LEN(ABLE)
-C       write(outlyne,*) able(1:70),N
-C       CALL SHOWIT(1)
-C       CALL MACPAUSE
-C      CALL IOSCOMMAND(ABLE(1:N),2)
-      RETURN
-      END
 
 
       SUBROUTINE JK_MOVETO(MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE, animage,

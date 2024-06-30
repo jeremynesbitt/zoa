@@ -19,7 +19,7 @@ subroutine close_zoaTab()
   integer(kind=c_int) :: currPageIndex
   type(c_ptr) :: currPage
    character(len=50)  :: choice
- type(c_ptr)  :: val, cstr
+ type(c_ptr)  :: cstr
  integer :: tabInfoToDelete
 
   PRINT *, "Button clicked!"
@@ -49,6 +49,30 @@ function getTabPlotCommand(objIdx) result(outStr)
   
   outStr = zoatabMgr%tabInfo(objIdx)%tabObj%psm%generatePlotCommand()
   !outStr = zoatabMgr%tabInfo(objIdx)%tabObj%plotCommand
+
+end function
+
+function getSettingUIType(tabIdx, setting_code) result(uitype)
+  use handlers, only: zoatabMgr
+  use plot_setting_manager, only: zoaplot_setting_manager, UITYPE_SPINBUTTON
+
+  implicit none
+  integer :: uitype
+  integer :: tabIdx
+  integer :: setting_code
+  integer :: i
+  type(zoaplot_setting_manager) :: psm
+
+   
+  ! Just for readability
+  uitype = -1 ! Default
+  psm = zoatabMgr%tabInfo(tabIdx)%tabObj%psm  
+  do i=1,psm%numSettings
+    if (psm%ps(i)%ID == setting_code) then
+        uitype = psm%ps(i)%uitype
+        return
+      end if
+  end do
 
 end function
 
@@ -106,13 +130,19 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
     if (psm%ps(i)%ID == setting_code) then
       call LogTermFOR("Found proper setting!")
       select type (value)
+    type is (real)
+    call LogTermFOR("Calling update setting_new real")
+      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,INT(value))
+      boolResult = .TRUE.
     type is (double precision)
+    call LogTermFOR("Calling update setting_new dbl prec")
       call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,INT(value))
       boolResult = .TRUE.
       type is (character(*))
       call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
       boolResult = .TRUE.      
     end select
+    return
     end if
 
   end do

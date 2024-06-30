@@ -303,9 +303,11 @@ subroutine addListBox(self, labelText, refArray, valArray, &
 
     if (present(defaultSetting)) then
       call hl_zoa_combo_set_selected_by_list2_id(newwidget, defaultSetting)
+
     end if
 
-
+      ! DEBUG Only
+    call gtk_widget_set_name(newwidget, "12345"//c_null_char)
 
   ! Update settings lists
   call self%addLabelandWidget(newlabel, newwidget)
@@ -521,7 +523,8 @@ type zoatab
    procedure, public, pass(self) :: finalizeWindow
    procedure, public, pass(self) :: addSpinBoxSetting
    procedure, public, pass(self) :: addSpinButton_runCommand
-   procedure, public, pass(self) :: addSpinButton_runCommand_new   
+   procedure, public, pass(self) :: addSpinButton_runCommand_new 
+   procedure, public, pass(self) :: addListBox_new
    procedure, public, pass(self) :: addEntry_runCommand
    procedure, public, pass(self) :: addEntry_runCommand_new   
    procedure, public, pass(self) :: createGenericSinglePlot
@@ -574,6 +577,14 @@ interface
     integer :: setting_code
   end function
   end interface
+
+  interface
+  function getSettingUIType(tabIdx, setting_code)
+    integer :: getSettingUIType
+    integer :: tabIdx
+    integer :: setting_code
+  end function
+  end interface  
 
 contains ! for module
 
@@ -708,6 +719,7 @@ subroutine updateGenericMultiPlot(self, mplt)
       
       mplt%area = self%canvas
   else
+    call LogTermFOR( "Multiplot update canvas ptr is loose")
     PRINT *, "Multiplot update canvas ptr is loose"
     PRINT *, "mplt%area is ", LOC(mplt%area)
      self%canvas = mplt%area
@@ -945,6 +957,8 @@ end subroutine
 subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
   use command_utils, only:  removeLeadingBlanks
   use type_utils, only: int2str, str2int
+  use zoa_ui
+  use hl_gtk_zoa
   implicit none
   type(c_ptr), value, intent(in) :: widget, gdata
   real(c_double) :: realData
@@ -974,17 +988,29 @@ setting_code = str2int(trim(strSettingCode))
 call LogTermFOR("Cmd to Match is "//strSettingCode)
 tabIdx = findTabParent(gdata)
 call LogTermFOR("Plot Cmd is "//getTabPlotCommand(tabIdx))
+print *,"setting code is ", setting_code
 
-if (isSpinButtonInput(tabIdx, setting_code)) then
-  print *, "Spin Box Update"
 
+select case(getSettingUIType(tabIdx, setting_code))
+
+case (UITYPE_COMBO)
+  call LogTermFOR("Found Combo Box!")
+  call LogTermFOR("comboval is "//int2str(hl_zoa_combo_get_selected_list2_id(widget)))
+  call LogTermFOR("setting code is "//int2str(setting_code))
+
+  result = updateTabPlotCommand(tabIdx, setting_code, &
+  & real(hl_zoa_combo_get_selected_list2_id(widget)))
+
+case (UITYPE_SPINBUTTON)
   result = updateTabPlotCommand(tabIdx, setting_code, gtk_spin_button_get_value(widget))
-else
-   buff2 = gtk_entry_get_buffer(widget)
-   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)  
-   print *, "About to update string of ", trim(ffieldstr)
-  result = updateTabPlotCommand(tabIdx, setting_code, trim(ffieldstr))
-end if
+case (UITYPE_ENTRY)
+  buff2 = gtk_entry_get_buffer(widget)
+  call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)  
+  print *, "About to update string of ", trim(ffieldstr)
+ result = updateTabPlotCommand(tabIdx, setting_code, trim(ffieldstr))
+end select
+
+
     
 if (result) call PROCESKDP(getTabPlotCommand(tabIdx))
 
@@ -1099,6 +1125,37 @@ end subroutine
    call self%settings%addSpinBox(labelText, spinButton, callbackFunc, callbackData)
 
  end subroutine
+
+
+ subroutine addListBox_new(self, labelText, set, callbackFunc, callbackData, defaultSetting, winName)
+
+  use hl_gtk_zoa
+  use kdp_data_types
+   implicit none
+   class(zoatab) :: self
+   character(len=*), intent(in) :: labelText
+   character(len=*), intent(in) :: winName
+   type(c_funptr), intent(in)   :: callbackFunc
+   type(c_ptr), optional, intent(in)   :: callbackData
+   integer, intent(in) :: defaultSetting
+  type(idText) :: set(:)
+
+
+ ! Local only
+  type(c_ptr) :: newlabel, newwidget
+
+  ! Create Objects
+  newlabel = gtk_label_new(labelText//c_null_char)
+  call hl_gtk_combo_box_listid_new(newwidget, set)
+  call g_signal_connect (newwidget, "changed"//c_null_char, callbackFunc, callbackData)
+
+  call gtk_widget_set_name(newwidget, winName//c_null_char)
+
+  ! Update settings lists
+  call self%settings%addLabelandWidget(newlabel, newwidget)
+
+
+end subroutine
 
  subroutine addListBoxSettingTextID(self, labelText, set, callbackFunc, callbackData)
 

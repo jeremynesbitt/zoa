@@ -492,8 +492,9 @@ end function
      class(zoatabManager) :: self
      integer :: i
 
+     call LogTermFOR("About to check replot for each tab")
      ! Do nothing if there are no tabs to cycle through
-  
+      
      DO i = 1,self%tabNum
            ! Not keeping track of tabs when it is closed, so as a 
            ! hack add this.  TODO:  Fix this properly
@@ -501,6 +502,8 @@ end function
            if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
               !PRINT *, "CMD Based REPLOT REQUESTED for tab ", i
               !PRINT *, "CMD Stored is "
+              call LogTermFOR("About to call replot cmd " &
+              & //trim(self%tabInfo(i)%tabObj%plotCommand))
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           else
             call self%tabInfo(i)%settings%replot()
@@ -679,6 +682,15 @@ subroutine finalize_with_psm_new(self, objIdx, psm, inputCmd)
   case(UITYPE_ENTRY)
   call self%tabInfo(objIdx)%tabObj%addEntry_runCommand_new( &
   & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(int2str(psm%ps(i)%ID)))   
+
+  case(UITYPE_COMBO)
+    call self%tabInfo(objIdx)%tabObj%addListBox_new(trim(psm%ps(i)%label), &
+    & psm%ps(i)%set, c_funloc(callback_runCommandFromSpinBox_new), &
+    & self%tabInfo(objIdx)%tabObj%box1, &
+    & defaultSetting=INT(psm%ps(i)%default), winName=trim(int2str(psm%ps(i)%ID)))
+    ! call self%tabInfo(objIdx)%tabObj%addListBoxSettingTextID_new(psm%ps(i)%label, &
+    ! & psm%ps(i)%set, c_funloc(callback_combo_listID), self%tabInfo(objIdx)%tabObj%box1)
+    
 
   end select 
   end do

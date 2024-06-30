@@ -296,6 +296,7 @@ contains
 
 
         if (.not. c_associated(isurface)) then
+          call LogTermFOR("Loose pointer in mp_draw")
            PRINT *, "mp_draw :: Backing surface is NULL"
           isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
@@ -747,6 +748,7 @@ end subroutine
         PRINT *, "isurface in mp_draw is ", LOC(isurface)
         if (.not. c_associated(isurface)) then
            PRINT *, "mp_draw :: Backing surface is NULL"
+           call LogTermFOR("Loose pointer in drawPlot") 
           isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
@@ -1436,6 +1438,7 @@ end subroutine
     if (.not. c_associated(isurface)) then
        PRINT *, "Backing surface is NULL.  Create one"
        ! TODO:  Should not have hard coded size right here
+       call LogTermFOR("Loose pointer in check backing surface") 
       isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
       isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
       call g_object_set_data(self%area, "backing-surface", isurface)

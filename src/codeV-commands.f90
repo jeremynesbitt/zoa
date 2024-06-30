@@ -785,6 +785,41 @@ module codeV_commands
         
     end subroutine
 
+    ! Started to wrtie this but it doesn't seem to simpify things too much
+    function checkForExistingPlot(tokens, psm, plot_code) result (plotExists)
+        use handlers, only: zoatabMgr
+
+        implicit none
+
+        logical :: plotExists
+        character(len=*), dimension(:) :: tokens
+        type(zoaplot_setting_manager), intent(inout) :: psm
+        integer, intent(in) :: plot_code
+        integer, allocatable :: plotNum(:) 
+        integer :: objIdx
+
+        plotExists = .FALSE.
+        plotNum = cmd_parser_get_int_input_for_prefix('P', tokens)
+        plotExists = zoatabMgr%doesPlotExist_new(plot_code, objIdx, plotNum(1))
+        if (plotExists) then
+            ! TODO:  Replace with abstract call
+            curr_psm  = zoaTabMgr%tabInfo(objIdx)%tabObj%psm
+            !cmd_loop = ZERN_LOOP       
+            else
+                psm%plotNum = plotNum(1)
+        end if
+        
+
+    end function
+
+    ! psuedocode for checking plot input
+    ! if user entered PX
+    !    check if PX plot exists already
+    !    if no, create new psm
+    ! if user did not enter PX
+    !   create new default settings
+    ! in all cases update cmd_loop to plot loop
+
     subroutine ZERN_TST(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
@@ -795,47 +830,30 @@ module codeV_commands
         use type_utils, only: int2str
 
         implicit none
-        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         type(zoaplot_setting_manager) :: psm
 
         character(len=80) :: tokens(40)
-        integer :: numTokens, objIdx
+        integer :: numTokens
         logical :: plotExists
-        integer, allocatable :: plotNum(:)
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
-        print *, "IPTSTR is ", trim(iptStr)
 
         call psm%init_plotSettingManager_new(trim(iptStr))
-
-
-        if (numTokens  == 2) then
-            plotNum = cmd_parser_get_int_input_for_prefix('P', tokens(1:numTokens))
-            print *, "plotNum is ", plotNum(1)
-            !call LogTermFOR("PlotNum is "//int2str(plotNum(1)))
-            plotExists = zoatabMgr%doesPlotExist_new(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx, plotNum(1))
-            if (plotExists) then
-                ! TODO:  Replace with abstract call
-                curr_psm  = zoaTabMgr%tabInfo(objIdx)%tabObj%psm
-                cmd_loop = ZERN_LOOP
-                return
-            else
-                psm%plotNum = plotNum(1)
-            end if
-        end if
         cmd_loop = ZERN_LOOP
 
+        if (numTokens  == 2) then
+            plotExists = checkForExistingPlot(tokens(1:2), psm, ID_PLOTTYPE_ZERN_VS_FIELD)
+            ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
+            ! here but don't have a better soultion right now
+           if (plotExists) return
+        end if
+
         ! Set up settings
-       ! call psm%init_plotSettingManager_new(trim(iptStr))
-        !call psm%initialize(trim(INPUT))
         call psm%addWavelengthSetting_new()
         call psm%addDensitySetting_new(10, 8, 21)
         call psm%addZernikeSetting_new("5..9")
-        !numPoints = psm%addDensitySetting(10,8,21)
-        !PRINT *, "zernTxt is ", zernTxt
-        !inputCmd = trim(psm%sp%getCommand())     
-        
+
         curr_psm = psm
 
 
@@ -843,6 +861,44 @@ module codeV_commands
 
 
     subroutine execSPO(iptStr)
+        !use ui_spot, only: spot_struct_settings, spot_settings
+       ! use mod_plotopticalsystem
+        use strings
+        use plot_setting_manager
+        use handlers, only: zoatabMgr
+        use zoa_ui
+        use type_utils, only: int2str
+
+        implicit none
+        character(len=*) :: iptStr
+        type(zoaplot_setting_manager) :: psm
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: plotExists
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        cmd_loop = SPO_LOOP
+
+        if (numTokens  == 2) then
+            plotExists = checkForExistingPlot(tokens(1:2), psm, ID_PLOTTYPE_SPOT_NEW)
+            ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
+            ! here but don't have a better soultion right now
+           if (plotExists) return
+        end if
+        call psm%addSpotDiagramSettings()
+        ! Set up settings
+        !call psm%addWavelengthSetting_new()
+        !call psm%addDensitySetting_new(10, 8, 21)
+        curr_psm = psm
+    end subroutine
+
+
+
+
+    subroutine execSPO_old(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
         use strings
@@ -1982,12 +2038,12 @@ module codeV_commands
         end if
 
         if (cmd_loop == SPO_LOOP) then
-            active_plot = ID_PLOTTYPE_SPOT
-            call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
-            call PROCESKDP("FOB 1; SPD; PLTSPD")
-            !call VIE_NEW_NEW(ld_settings)
-            !CALL PROCESKDP('DRAW')
-            call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+            !active_plot = ID_PLOTTYPE_SPOT
+            !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+            !call PROCESKDP("FOB 1; SPD; PLTSPD")
+            !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+            call LogTermFOR("Existing SPO Loop")
+            call spo_go(curr_psm)            
             cmd_loop = 0
 
         end if

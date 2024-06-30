@@ -11,7 +11,9 @@
 module plot_setting_manager
     use plotSettingParser
     use zoa_ui
+    use kdp_data_types, only: idText
 
+    !TODO:  move all this to zoa_ui 
     integer, parameter :: SETTING_WAVELENGTH = 1750
     integer, parameter :: SETTING_FIELD = 2
     integer, parameter :: SETTING_DENSITY = 1751
@@ -22,6 +24,7 @@ module plot_setting_manager
       integer ::  ID, uitype
       real :: min, max, default
       character(len=3) :: prefix !For command parsing
+      type(idText), allocatable :: set(:) ! options for a combo box
       character(len=80) :: label
       character(len=10) :: defaultStr
       character(len=80) :: cmd ! The Command used to change the value.  Eg SETWV or SETDENS
@@ -45,6 +48,10 @@ module plot_setting_manager
     type(setting_parser) :: sp
     integer :: plotNum 
 
+    ! With current design, number of seetings here will be huges, as it has
+    ! to include all possible settings in every plot
+    ! maye be possible to use subtypes to make it more readable, but 
+    ! not sure it is worth the effort...
     contains
     procedure, public, pass(self) :: initialize => init_plotSettingManager
     procedure, public, pass(self) :: init_plotSettingManager_new
@@ -53,9 +60,10 @@ module plot_setting_manager
     procedure, public, pass(self) :: updateWavelengthSetting_new
     procedure, public, pass(self) :: getWavelengthSetting_new
     procedure, public, pass(self) :: generatePlotCommand
-
+    procedure, public, pass(self) :: getSettingValueByCode
 
     procedure, public, pass(self) :: addFieldSetting
+    procedure, public, pass(self) :: addFieldSetting_new
     procedure, public, pass(self) :: addDensitySetting
     procedure, public, pass(self) :: addDensitySetting_new   
     procedure, public, pass(self) :: getDensitySetting_new     
@@ -64,6 +72,14 @@ module plot_setting_manager
     procedure, public, pass(self) :: addZernikeSetting_new
     procedure, public, pass(self) :: updateZernikeSetting_new
     procedure, public, pass(self) :: getZernikeSetting_min_and_max
+
+    ! Spot Diagram Settings
+    procedure, public, pass(self) :: addSpotDiagramSettings
+    procedure, public, pass(self) :: addSpotCalculationSetting
+    procedure, public, pass(self) :: getSpotDiagramSettings
+
+
+
 
 
     procedure, public, pass(self) :: updateSetting_new
@@ -74,6 +90,7 @@ module plot_setting_manager
 
 
     end type
+
 
 
 contains
@@ -94,10 +111,11 @@ contains
 
     end subroutine
 
-    subroutine init_setting_new(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE)
+    subroutine init_setting_new(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
       character(len=*) :: label, cmd, fullCmd
+      type(idText), optional :: set(:)
       real :: default, min, max
 
       self%ID = ID_SETTING
@@ -108,8 +126,98 @@ contains
       self%max = max
       self%cmd= cmd
       self%fullCmd = fullCmd
+      if(present(set)) then
+        self%set = set
+      end if
 
   end subroutine
+
+    
+
+    subroutine addSpotDiagramSettings(self)
+      
+      use zoa_ui
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+
+     
+
+      call self%addFieldSetting_new()
+      call self%addWavelengthSetting_new()
+      call self%addSpotCalculationSetting()
+     
+
+      ! Add indvidual settings 
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_RECT_GRID, & 
+      & "Rectangular Grid (nxm)", real(20),1.0,real(300), &
+      & "RECTDENS", "RECTDENS "//trim(int2str(20)), UITYPE_SPINBUTTON)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_RAND_NUMRAYS, & 
+      & "Number of Rays (random only)", real(2000),1.0,real(100000000), &
+      & "NUMRAYS", "NUMRAYS "//trim(int2str(2000)), UITYPE_SPINBUTTON)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_RING_NUMRINGS, & 
+      & "Number of Rings (ring only)", real(20),1.0,real(50), &
+      & "NUMRAYS", "NUMRAYS "//trim(int2str(20)), UITYPE_SPINBUTTON)      
+      
+    end subroutine
+
+    ! Since there is a lot of custom settings, write a method to get all settings
+    subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing)
+      use zoa_ui
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      integer, intent(inout) :: idxField, idxLambda, idxSpotCalcMethod
+      integer, intent(inout) :: nRect, nRand, nRing
+
+      idxField = self%getSettingValueByCode(SETTING_FIELD)
+      idxLambda = self%getSettingValueByCode(SETTING_WAVELENGTH)
+      
+      idxSpotCalcMethod = self%getSettingValueByCode(ID_SPOT_TRACE_ALGO)
+      call LogTermFOR("In getSpotDiagramSettings idxSpotCalcMethod is "// &
+      &int2str(idxSpotCalcMethod))
+      nRect = self%getSettingValueByCode(ID_SPOT_RECT_GRID)
+      nRand = self%getSettingValueByCode(ID_SPOT_RAND_NUMRAYS)
+      nRing = self%getSettingValueByCode(ID_SPOT_RING_NUMRINGS)
+
+    end subroutine
+    
+    subroutine addSpotCalculationSetting(self)
+      use kdp_data_types, only: idText
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: spotTrace(3)
+
+      ! Move over stuff from ui-spot.  Perhaps this should be a subtype or submodule?
+      spotTrace(1)%text = "Rectangle"
+      spotTrace(1)%id = ID_SPOT_RECT
+    
+      spotTrace(2)%text = "Ring"
+      spotTrace(2)%id = ID_SPOT_RING
+    
+      spotTrace(3)%text = "Random"
+      spotTrace(3)%id = ID_SPOT_RAND      
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_TRACE_ALGO, & 
+      & "Spot Tracing Method", real(ID_SPOT_RECT),0.0,0.0, &
+      & "TRAC", "TRAC RECT", UITYPE_COMBO, set=spotTrace)
+
+      call LogTermFOR("Successfully Initialized Combo Box Settings")
+
+
+
+      ! call self%settings%addListBoxTextID("Spot Tracing Method", spotTrace, &
+      ! & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_TRACE_ALGO), &
+      ! & spot_struct_settings%currSpotRaySetting)      
+
+
+    end subroutine
 
 
     subroutine initializeStr(self, ID_SETTING, label, default, prefix, ID_UITYPE)
@@ -222,6 +330,8 @@ contains
 
       end subroutine 
 
+      
+
       subroutine updateWavelengthSetting_new(self, newIdx) 
         use global_widgets, only: sysConfig
         use type_utils, only: int2str
@@ -235,7 +345,7 @@ contains
         do i=1,self%numSettings
           if (self%ps(i)%ID == SETTING_WAVELENGTH) then
             call LogTermFOR("Found setting and changing to " //int2str(newIdx))
-
+            self%ps(i)%default = real(newIdx)
             self%ps(i)%fullCmd = trim("SETWV "//int2str(newIdx))
           end if
         end do
@@ -266,6 +376,24 @@ contains
 
 
 
+      subroutine addFieldSetting_new(self) 
+        use global_widgets, only: sysConfig
+        use type_utils, only: int2str
+        implicit none
+        class(zoaplot_setting_manager), intent(inout) :: self
+        integer:: val
+        integer :: fldPoint
+
+        fldPoint = 1 ! Default to first field
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%init_setting_new(SETTING_FIELD, & 
+        & "Field Point", real(fldPoint),1.0,real(sysConfig%numFields), &
+        & "SETFLD", "SETFLD "//trim(int2str(fldPoint)), UITYPE_SPINBUTTON)
+
+
+      
+      end subroutine
+
       function addFieldSetting(self) result(val)
         use global_widgets, only: sysConfig
         implicit none
@@ -278,7 +406,7 @@ contains
         & "Field", real(val),1.0,real(sysConfig%numFields), 'f', UITYPE_SPINBUTTON)
 
       
-      end function 
+      end function     
 
       function addZernikeSetting(self, defVal) result(val)
         use global_widgets, only: sysConfig
@@ -365,7 +493,26 @@ contains
       
       end subroutine  
 
-      
+      function getSettingValueByCode(self, setting_code) result(val)
+        use global_widgets, only: sysConfig
+        use type_utils, only: int2str
+        implicit none
+
+        class(zoaplot_setting_manager) :: self
+        integer :: setting_code
+        real :: val
+        integer :: i
+
+        do i=1,self%numSettings
+          if (self%ps(i)%ID == setting_code) then
+            val = self%ps(i)%default
+            return
+          end if
+        end do
+
+      end function
+
+
       subroutine updateSetting_new(self, setting_code, newVal)
         use global_widgets, only: sysConfig
         use type_utils, only: int2str
@@ -383,9 +530,13 @@ contains
 
             select type(newVal)
               type is (integer)
-
+                call LogTermFOR("Upating Setting int value")
+                call LogTermFOR("New value is "//int2str(newVal))
+                self%ps(i)%default = real(newVal)
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
                 & " "//trim(int2str(newVal))
+                call LogTermFOR("Setting Code is "//int2str(setting_code))
+                call LogTermFOR("Defauls is "//int2str(INT(self%ps(i)%default)))
               type is (character(*))
                 self%ps(i)%defaultStr = newVal
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &

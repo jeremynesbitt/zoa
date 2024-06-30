@@ -24,7 +24,6 @@ C
         OUTLYNE = "LNSEOS ROUTINE STARTING! "
         CALL SHOWIT(19)
 
-        
 C
         IF(CFLDCNT.EQ.0) THEN
 C       SET UP THREE FIELD OF VIEW POSITIONS AT 0 .7 AND 1.0
@@ -100,6 +99,7 @@ C     SET PARAXIAL FLAGS TO FALSE
                 ! JN:  Added this to force replot after lens update
                 ! TODO:  There are multiple returns in this sub
                 ! Not sure If I should dot his in all exits
+                       call LogTermFOR("Aboutreplot LNSEOS")
                        call zoatabMgr%rePlotIfNeeded()
                        RETURN
                        END IF
@@ -2747,8 +2747,6 @@ C     DONE
       call check_clear_apertures(curr_lens_data)             
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
-
-
 
                         RETURN
                         END

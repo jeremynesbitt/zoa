@@ -270,9 +270,9 @@ C       PLOT OBJECT
         L=L+1
                 END DO
                 END DO
-        CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
+        !CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
 C        CALL IGrSaveImageData(TRIM(BMPFILE),BMPDATA24,OBJNX,OBJNY)
-        CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
+        !CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
                         END IF
         IF(NUMCOLORS.EQ.3) THEN
         L=1
@@ -295,9 +295,9 @@ C        CALL IGrSaveImageData(TRIM(BMPFILE),BMPDATA24,OBJNX,OBJNY)
         L=L+1
                 END DO
                 END DO
-        CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
+        !CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
 C        CALL IGrSaveImageData(TRIM(BMPFILE),BMPDATA24,OBJNX,OBJNY)
-        CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
+        !CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
                         END IF
 
                         END IF
@@ -312,12 +312,12 @@ C       PLOT IMAGE
         L=L+1
                 END DO
                 END DO
-        CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
+        !CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
         PRINT *, "BMPDATA24 ", BMPDATA24
 c        CALL IGrSaveImageData(TRIM(BMPFILE),BMPDATA24,
 C     1  IMGNX-(2*INT(TRIMMER))
 C     1 ,IMGNY-(2*INT(TRIMMER)))
-        CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
+        !CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
                         END IF
         IF(NUMCOLORS.EQ.3) THEN
         L=1
@@ -347,7 +347,7 @@ C        write(1, '(1x, F, 3(",", F))') BMPDATA24
            WRITE(10, 101) IOBJECTV(J,:,1)
         END DO
         CLOSE(10)
-        CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
+        !CALL MY_SYSTEM2('DEL PLOTBMP.BMP',15)
         PRINT *, "TRIMMER ", TRIMMER
         PRINT *, " J, K", J, " ", K
         call pixout(rgb,3)
@@ -355,7 +355,7 @@ C        write(1, '(1x, F, 3(",", F))') BMPDATA24
 C        CALL IGrSaveImageData(TRIM(BMPFILE),BMPDATA24,
 C     1  IMGNX-(2*INT(TRIMMER))
 C     1 ,IMGNY-(2*INT(TRIMMER)))
-        CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
+        !CALL MY_SYSTEM2(TRIM(BMPREADR)//' PLOTBMP.BMP',80)
                         END IF
 
                         END IF
