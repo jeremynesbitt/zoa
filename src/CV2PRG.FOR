@@ -3,10 +3,13 @@ C SUB CV2PRG.FOR
         USE GLOBALS
         use zoa_file_handler
         use handlers, only: zoatabMgr
+        use strings
         !use kdp_interfaces, only: OUTKDP
 C
         IMPLICIT NONE
 C
+      character(len=80) :: tokens(40)
+      integer :: numTokens
       CHARACTER CVFILENAME*80,KDPFILENAME*80,CV_INPUT_STRING*1024
       character(len=6) :: readformat
       character(len=3) :: substr
@@ -798,27 +801,27 @@ C     XTO
                                 END IF
 C     DIM
       IF(TEMPC(I)(1:3).EQ.'DIM') THEN
-        PRINT *, "CV2PRG DIM " //TEMPC(I)
-        PRINT *, "Unit check is " //TEMPC(I)(7:7)
-      IF(TEMPC(I)(7:7).EQ.'M') THEN
-                        PRINT *, "Setting units to mm"
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS MM'
-                        IF(INPUT(1:20).NE.AA) CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
-      IF(TEMPC(I)(7:7).EQ.'C') THEN
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS CM'
-                        IF(INPUT(1:20).NE.AA) CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
-      IF(TEMPC(I)(7:7).EQ.'I') THEN
-                        SAVE_KDP(1)=SAVEINPT(1)
-                        INPUT='UNITS IN'
-                        IF(INPUT(1:20).NE.AA) CALL PROCES
-                        REST_KDP(1)=RESTINPT(1)
-                        END IF
+      call parse(trim(TEMPC(I)), ' ', tokens, numTokens)    
+
+        select case (trim(tokens(2)))
+
+        case ('M')
+          SAVE_KDP(1)=SAVEINPT(1)
+          INPUT='UNITS MM'
+          IF(INPUT(1:20).NE.AA) CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+        case('C')
+          SAVE_KDP(1)=SAVEINPT(1)
+          INPUT='UNITS CM'
+          IF(INPUT(1:20).NE.AA) CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+        case('I')
+          SAVE_KDP(1)=SAVEINPT(1)
+          INPUT='UNITS IN'
+          IF(INPUT(1:20).NE.AA) CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+        end select
+
       TEMPC(I)(1:1024)=BL1024(1:1024)
                                 GO TO 8888
                                 END IF

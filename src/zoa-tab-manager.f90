@@ -11,6 +11,8 @@ module zoa_tab_manager
 type zoatabData
   integer :: typeCode
   !class(*), pointer :: plotObj
+  ! Want to get rid of this canvas, but need to miggrate all
+  ! plots to new "GO" style first.  
   type(c_ptr) :: canvas
   class(ui_settings), allocatable :: settings
   class(zoatab), allocatable :: tabObj
@@ -267,6 +269,12 @@ subroutine finalizeNewPlotTab(self, idx)
 
 end subroutine
 
+
+! I think this is where I should separate out the different tab types
+! instead of allocating a zoatab, allocate a zoaplottab
+! everything else could stay the same
+! but then I can separate out the plot elements from zoatab type
+! so I can add other types (eg a window with just text output)
 function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   class(zoatabManager) :: self
   integer :: PLOT_CODE

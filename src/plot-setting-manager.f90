@@ -78,6 +78,11 @@ module plot_setting_manager
     procedure, public, pass(self) :: addSpotCalculationSetting
     procedure, public, pass(self) :: getSpotDiagramSettings
 
+    ! Lens Draw Settings
+    procedure, public, pass(self) :: addLensDrawSettings
+    procedure, public, pass(self) :: addLensDrawOrientationSettings    
+    procedure, public, pass(self) :: getLensDrawSettings
+
 
 
 
@@ -112,6 +117,7 @@ contains
     end subroutine
 
     subroutine init_setting_new(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
+      use mod_lens_data_manager, only: ldm
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
       character(len=*) :: label, cmd, fullCmd
@@ -132,7 +138,75 @@ contains
 
   end subroutine
 
+    subroutine addLensDrawSettings(self)
+      use zoa_ui
+      use type_utils, only: int2str, real2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+
+      call self%addLensDrawOrientationSettings()
+
+      ! Add indvidual settings 
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_NUM_FIELD_RAYS, & 
+      & "Num Rays Per Feild", real(7),1.0,real(19), &
+      & "NUMRAYS ", "NUMRAYS "//trim(int2str(7)), UITYPE_SPINBUTTON)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENS_FIRSTSURFACE, & 
+      & "First Surface", real(0),0.0,real(ldm%getLastSurface()), &
+      & "DRAWSI", "DRAWSI "//trim(int2str(20)), UITYPE_SPINBUTTON)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENS_LASTSURFACE, & 
+      & "Last Surface", real(ldm%getLastSurface()),real(1.0),real(ldm%getLastSurface()), &
+      & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurface())), UITYPE_SPINBUTTON)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_ELEVATION, & 
+      & "Elevation", real(26.2),real(0.0),real(360.0), &
+      & "ELEV", "ELEV "//trim(real2str(26.2)), UITYPE_SPINBUTTON)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AZIMUTH, & 
+      & "Aziumuth", real(232.2),real(0.0),real(360.0), &
+      & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON) 
+ 
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AZIMUTH, & 
+      & "Aziumuth", real(232.2),real(0.0),real(360.0), &
+      & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)       
+
+
+    end subroutine
+
+    subroutine addLensDrawOrientationSettings(self)
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: set(4)
+
+
+      ! Move over stuff from ui-spot.  Perhaps this should be a subtype or submodule?
+      set(1)%text = "YZ - Plane Layout"
+      set(1)%id = ID_LENSDRAW_YZ_PLOT_ORIENTATION
     
+      set(2)%text = "XZ - Plane Layout"
+      set(2)%id = ID_LENSDRAW_XZ_PLOT_ORIENTATION
+    
+      set(3)%text = "XY - Plane Layout"
+      set(3)%id = ID_LENSDRAW_XY_PLOT_ORIENTATION
+ 
+      set(4)%text = "Orthographic"
+      set(4)%id = ID_LENSDRAW_ORTHO_PLOT_ORIENTATION      
+
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_TRACE_ALGO, & 
+      & "Plot Orientation", real(ID_LENSDRAW_YZ_PLOT_ORIENTATION),0.0,0.0, &
+      & "ORIENT", "ORIENT YZ", UITYPE_COMBO, set=set)
+      
+
+    end subroutine
 
     subroutine addSpotDiagramSettings(self)
       

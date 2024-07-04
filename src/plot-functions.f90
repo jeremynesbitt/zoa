@@ -32,7 +32,7 @@ subroutine zern_go(psm)
     character(len=23) :: ffieldstr
     character(len=1024) :: inputCmd
     integer :: ii, objIdx, minZ, maxZ, lambda
-    integer :: maxPlotZ = 9, numTermsToPlot, locE
+    integer :: maxPlotZ = 9, numTermsToPlot
     integer :: numPoints = 10
     integer :: pIdx
     logical :: replot
@@ -40,7 +40,6 @@ subroutine zern_go(psm)
     type(zoaplot) :: zernplot
     type(c_ptr) :: canvas
     type(zoaplot_setting_manager) :: psm
-    character(len=10) :: zernTxt
     character(len=80) :: tabName
 
 
@@ -48,6 +47,7 @@ subroutine zern_go(psm)
 
     REAL, allocatable :: xdat(:), ydat(:,:)
     
+
 
     REAL*8 X(1:96)
     COMMON/SOLU/X
@@ -92,7 +92,7 @@ subroutine zern_go(psm)
 
       !CALL PROCESKDP("SHO RMSOPD")
       xdat(ii+1) = REAL(xdat(ii+1)*sysConfig%refFieldValue(2))
-      ydat(ii+1,1:numTermsToPlot) = X(minZ:maxZ)
+      ydat(ii+1,1:numTermsToPlot) = real(X(minZ:maxZ),4)
     end do
 
   
@@ -159,7 +159,7 @@ subroutine spo_go(psm)
 
     USE GLOBALS
     use command_utils
-    use handlers, only: zoatabMgr, updateTerminalLog
+    use handlers, only: updateTerminalLog
     use global_widgets, only:  sysConfig
     use zoa_ui
     use zoa_plot
@@ -173,48 +173,29 @@ subroutine spo_go(psm)
 
     IMPLICIT NONE
 
-    character(len=23) :: ffieldstr
-    character(len=1024) :: inputCmd
-    integer :: ii, objIdx, minZ, maxZ, lambda
-    integer :: maxPlotZ = 9, numTermsToPlot, locE
-    integer :: numPoints = 10
-    integer :: pIdx
-    logical :: replot
     type(multiplot) :: mplt
     type(zoaplot) :: xyscat1
     type(c_ptr) :: canvas
     type(c_ptr) ::  isurface
     type(zoaplot_setting_manager) :: psm
-    character(len=10) :: zernTxt
-    character(len=80) :: tabName
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
 
 
-    character(len=5), allocatable :: zLegend(:)
-
-    REAL, allocatable :: xdat(:), ydat(:,:)
-    
-
-
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing)
 
+    ! Hopefully temporary 
     call PROCESKDP(trim(getKDPSpotPlotCommand(iField, iLambda, iMethod, nRect, nRand, nRing)))
 
     ! Prep PLot
     canvas = hl_gtk_drawing_area_new(size=[700,500], &
     & has_alpha=FALSE)
-
-    isurface = g_object_get_data(canvas, "backing-surface")
-    if (.not. c_associated(isurface)) then
-       isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
-       isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-       call g_object_set_data(canvas, "backing-surface", isurface)
     
-    end if    
-
+    ! Todo:  change initialization to sepcify size, and then don't need to 
+    ! call gtk_drawing_area
     call mplt%initialize(canvas, 1,1)
 
+    ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
     call xyscat1%initialize(c_null_ptr, REAL(pack(DSPOTT(1,:), &
     &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
     &                                   REAL(pack(DSPOTT(2,:), &
@@ -232,38 +213,6 @@ subroutine spo_go(psm)
 
     call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SPOT_NEW, "Spot Diagram")
 
-    ! pIdx = psm%plotNum
-    ! inputCmd = trim(psm%generatePlotCommand())
-    ! replot = .FALSE.
-    ! if (pIdx /= -1 ) then
-    !    replot = zoatabMgr%doesPlotExist_new(ID_PLOTTYPE_SPOT_NEW, objIdx, pIdx)
-    ! end if
-
-
-    ! !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
-    ! if (replot) then
-    !   call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-    !   call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
-    !  else
-    !   pIdx = zoatabMgr%getNumberOfPlotsByCode(ID_PLOTTYPE_SPOT_NEW)
-     
-    !   psm%plotNum = pIdx+1 ! Noreplot so this is the next num
-
-    !   !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
-    !   psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
-    !   inputCmd = trim(psm%generatePlotCommand())
-    !   tabName = "Spot Diagram" 
-    !   if  (psm%plotNum > 1) then
-    !     tabName = trim(tabName)//" "//int2str(psm%plotNum)
-    !   end if  
-    !   objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_SPOT_NEW, &
-    !   & trim(tabName)//c_null_char, mplt)
-
-    !   call zoaTabMgr%finalize_with_psm_new(objIdx, psm, trim(inputCmd))
-    !   call zoaTabMgr%finalizeNewPlotTab(objIdx)
-    ! end if
-
-
 end subroutine
 
 
@@ -275,10 +224,6 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
     integer, intent(in) :: iField, iLambda, iSpotCalcMethod
     integer, intent(in) :: nGrid, nRand, nRing
 
-
-    
-    character(len=9) :: fieldstr
-    character(len=2) :: charWL
     character(len=80) :: charFLD
     character(len=80) :: charTrace
     character(len=1024) :: plotCmd
@@ -314,6 +259,10 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
   
 end function
 
+! This sub checks for whether a replot is needed or whether 
+! this is a new plot, 
+! If new plot, andcalls the finalize subs in 
+! Zoa tab manager
 subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
     use zoa_plot    
     use plot_setting_manager
