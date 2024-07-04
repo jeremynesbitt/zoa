@@ -11,6 +11,8 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
      procedure, public, pass(self) :: getSurfCurv
      procedure, public, pass(self) :: getSurfIndex
+     procedure, public, pass(self) :: getLastSurf
+
 
 
     end type
@@ -18,6 +20,14 @@ module mod_lens_data_manager
     type(lens_data_manager) :: ldm
 
     contains
+
+    function getLastSurf(self) result(Sf)
+        class(lens_data_manager) :: self
+        integer :: Sf
+
+        Sf = curr_lens_data%num_surfaces
+
+    end function
 
     function getSurfThi(self, surfIdx) result(thi)
         class(lens_data_manager) :: self

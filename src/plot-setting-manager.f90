@@ -80,7 +80,8 @@ module plot_setting_manager
 
     ! Lens Draw Settings
     procedure, public, pass(self) :: addLensDrawSettings
-    procedure, public, pass(self) :: addLensDrawOrientationSettings    
+    procedure, public, pass(self) :: addLensDrawOrientationSettings   
+    procedure, public, pass(self) :: addLensDrawScaleSettings    
     procedure, public, pass(self) :: getLensDrawSettings
 
 
@@ -117,7 +118,6 @@ contains
     end subroutine
 
     subroutine init_setting_new(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
-      use mod_lens_data_manager, only: ldm
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
       character(len=*) :: label, cmd, fullCmd
@@ -141,6 +141,7 @@ contains
     subroutine addLensDrawSettings(self)
       use zoa_ui
       use type_utils, only: int2str, real2str
+      use mod_lens_data_manager, only: ldm
       implicit none
       class (zoaplot_setting_manager) :: self
 
@@ -154,13 +155,13 @@ contains
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENS_FIRSTSURFACE, & 
-      & "First Surface", real(0),0.0,real(ldm%getLastSurface()), &
+      & "First Surface", real(0),0.0,real(ldm%getLastSurf()), &
       & "DRAWSI", "DRAWSI "//trim(int2str(20)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENS_LASTSURFACE, & 
-      & "Last Surface", real(ldm%getLastSurface()),real(1.0),real(ldm%getLastSurface()), &
-      & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurface())), UITYPE_SPINBUTTON)
+      & "Last Surface", real(ldm%getLastSurf()),real(1.0),real(ldm%getLastSurf()), &
+      & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurf())), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_ELEVATION, & 
@@ -178,7 +179,17 @@ contains
       & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)       
 
 
+      call self%addLensDrawScaleSettings()
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AUTOSCALE_VALUE, & 
+      & "Aziumuth", real(.045),real(0.0),real(10000.0), &
+      & "AZI", "AZI "//trim(real2str(.045)), UITYPE_SPINBUTTON)             
+
+
     end subroutine
+
+
 
     subroutine addLensDrawOrientationSettings(self)
       implicit none
@@ -201,11 +212,49 @@ contains
 
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_TRACE_ALGO, & 
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_PLOT_ORIENTATION, & 
       & "Plot Orientation", real(ID_LENSDRAW_YZ_PLOT_ORIENTATION),0.0,0.0, &
       & "ORIENT", "ORIENT YZ", UITYPE_COMBO, set=set)
       
 
+    end subroutine
+
+    subroutine addLensDrawScaleSettings(self)
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: set(2)
+
+
+      ! Move over stuff from ui-spot.  Perhaps this should be a subtype or submodule?
+      set(1)%text = "AutoScale"
+      set(1)%id = ID_LENSDRAW_AUTOSCALE
+    
+      set(2)%text = "Manual Scale"
+      set(2)%id = ID_LENSDRAW_MANUALSCALE
+    
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_SCALE, & 
+      & "Auto or Manual Scale", real(ID_LENSDRAW_AUTOSCALE),0.0,0.0, &
+      & "SSI", "SSI 1", UITYPE_COMBO, set=set)
+      
+
+    end subroutine    
+
+    subroutine getLensDrawSettings(self, plotOrient, numRays, Si, Sf, elev, azi, scaleChoice, scaleFactor)
+      implicit none
+      class(zoaplot_setting_manager) :: self 
+      integer, intent(inout) :: plotOrient, numRays, Si, Sf, scaleChoice
+      real, intent(inout) :: elev, azi, scaleFactor
+
+      plotOrient = self%getSettingValueByCode(ID_LENSDRAW_PLOT_ORIENTATION)
+      numRays = self%getSettingValueByCode(ID_LENSDRAW_NUM_FIELD_RAYS)
+      Si = self%getSettingValueByCode(ID_LENS_FIRSTSURFACE)
+      Sf = self%getSettingValueByCode(ID_LENS_LASTSURFACE)
+      elev = self%getSettingValueByCode(ID_LENSDRAW_ELEVATION)
+      azi = self%getSettingValueByCode(ID_LENSDRAW_AZIMUTH)
+      scaleChoice = self%getSettingValueByCode(ID_LENSDRAW_SCALE)
+      scaleFactor = self%getSettingValueByCode(ID_LENSDRAW_AUTOSCALE_VALUE)
+      
     end subroutine
 
     subroutine addSpotDiagramSettings(self)

@@ -13,6 +13,489 @@ module kdp_plot_gen
 
 end module
 
+! NEW NEW NEW version that uses plot setting manager that SHOULD work for every plot
+SUBROUTINE VIE_psm(psm)
+      use global_widgets
+      use handlers, only:  updateterminallog
+      use mod_plotopticalsystem
+      use ISO_FORTRAN_ENV, only: real64
+      use DATLEN
+      use DATMAC
+      use type_utils, only: real2str, int2str
+      use plot_setting_manager
+!
+
+    IMPLICIT NONE
+
+       type(zoaplot_setting_manager) :: psm
+
+!
+!       THIS PROGRAM CONTROLS THE "VIE" AND "VIECO" COMMANDS
+!
+  REAL(real64) :: VIEROT,XVHI,XVLO,YVHI,YVLO, relAngle
+
+  integer :: numRays, ii, jj, numFields
+
+  integer :: plotOrient, Si, Sf, scaleChoice
+  real :: elev, azi, scaleFactor
+
+  INTEGER DFLAG,VIEXOF,VIEYOF
+!
+    COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
+!
+  INTEGER COLPAS,VDF1,VDF2,VDF3,VS1,VS2 &
+  ,VS3,I,J,CACOCHVIE
+!
+  CHARACTER VIEWQ*8
+!
+  REAL(real64) ::  VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
+!
+    INCLUDE 'DATMAI.INC'
+    !INCLUDE 'DATLEN.INC'
+    !INCLUDE 'DATMAC.INC'
+
+!
+    call LogTermFOR("VIE NEW NEW ROUTINE STARTING..")
+    PRINT *, "VIE PSM ROUTINE STARTING..."
+    CACOCHVIE = 1
+
+
+    call psm%getLensDrawSettings(plotOrient, numRays, Si, Sf, elev, azi, scaleChoice, scaleFactor)
+
+
+    ! Kill VIE overlay for now..
+!
+!     W1 IS FOR SF
+!     W2 IS FOR I
+!     W3 IS FOR J
+!
+
+!
+!     QUALIFIER WORDS:
+!         XZ
+!         YZ
+!         XY
+!         ORTHO
+!
+  !PRINT *, "W1 is for SF ", W1
+  !PRINT *, "W2 is for i ", W2
+  !PRINT *, "W3 is for j ", W3
+
+
+     !PRINT *, "LINE 2147 W1 = ", W1
+    !VIEWQ = vie_settings%plot_orientation
+    VIEWQ=WQ
+    VIEW1=W1 !  Scale Factor
+    VIEW2=Si !  Start Surface
+    VIEW3=Sf !  End Surface          
+    !VIEW2=W2 !  Start Surface
+    !VIEW3=W3 !  End Surface 
+      VDF1=DF1 ! 1=AutoScale, 0=ManualScale
+      !VDF2=DF2 ! Always 0?
+      !VDF3=DF3 ! Always 0?
+      VDF2=0 ! Always 0?
+      VDF3=0 ! Always 0?      
+      VS1=S1
+      VS2=S2 ! Always 1?
+      VS3=S3 ! Always 1?
+
+ PRINT *, "VIEW2 is "//trim(real2str(VIEW2))
+ PRINT *, "VDF2 is "//trim(int2str(VDF2))
+
+ call LogTermFOR("VIEW2 is "//trim(real2str(VIEW2)))
+ call LogTermFOR("VIEW3 is "//trim(real2str(VIEW3)))
+
+ call LogTermFOR("VDF1 is "//trim(int2str(VDF1)))
+ call LogTermFOR("VDF2 is "//trim(int2str(VDF2)))
+ call LogTermFOR("VDF3 is "//trim(int2str(VDF3)))
+
+
+!
+!     DO A PLOT NEW
+!
+                    DEVTYP=1
+  IF(WC.EQ.'VIE') OUTLYNE='"VIE" IS PROCESSING LENS DATA'
+  IF(WC.EQ.'VIECO') OUTLYNE='"VIECO" IS PROCESSING LENS DATA'
+  CALL SHOWIT(1)
+  OUTLYNE='PLEASE WAIT...'
+  CALL SHOWIT(1)
+
+  !PRINT *, "SCALE FACTOR AT START OF VIE IS ", SCFAY
+!
+!******************************************
+!
+    IF(.NOT.VIEOVERLAY) THEN
+!       NOT A VIE OVERLAY
+                    !PRINT *, "VIEOVERLAY IS FALSE"
+                    CALL PLTDEV1
+                    GRASET=.TRUE.
+!     DO A FRAME
+                    CALL PLOTBOX
+      SAVE_KDP(1)=SAVEINPT(1)
+      INPUT='PLOT LI'
+      CALL PROCES
+      REST_KDP(1)=RESTINPT(1)
+            END IF
+!
+!******************************************
+!
+!     OFFSETS AND PLOT ROTATION
+  IF(VIEXOF.NE.0) THEN
+          SAVE_KDP(1)=SAVEINPT(1)
+!             XSHIFT
+          W1=DBLE(VIEXOF)
+          S1=1
+          S2=0
+          S3=0
+          S4=0
+          S5=0
+          SN=1
+          DF1=0
+          DF2=1
+          DF3=1
+          DF4=1
+          DF5=1
+          WQ='XSHIFT'
+          SQ=1
+          STI=0
+          SST=0
+          CALL XYGAMA
+          REST_KDP(1)=RESTINPT(1)
+          END IF
+  IF(VIEYOF.NE.0) THEN
+          SAVE_KDP(1)=SAVEINPT(1)
+!             XSHIFT
+          W1=DBLE(VIEYOF)
+          S1=1
+          S2=0
+          S3=0
+          S4=0
+          S5=0
+          SN=1
+          DF1=0
+          DF2=1
+          DF3=1
+          DF4=1
+          DF5=1
+          WQ='YSHIFT'
+          SQ=1
+          STI=0
+          SST=0
+          CALL XYGAMA
+          REST_KDP(1)=RESTINPT(1)
+          END IF
+  IF(VIEROT.NE.0.0D0) THEN
+          SAVE_KDP(1)=SAVEINPT(1)
+!             XSHIFT
+          W1=VIEROT
+          S1=1
+          S2=0
+          S3=0
+          S4=0
+          S5=0
+          SN=1
+          DF1=0
+          DF2=1
+          DF3=1
+          DF4=1
+          DF5=1
+          WQ='GAMMA'
+          SQ=1
+          STI=0
+          SST=0
+          CALL XYGAMA
+          REST_KDP(1)=RESTINPT(1)
+          END IF
+!
+!     SET UP THE SCALE FACTOR
+  !PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
+  !PRINT *, "VDF1 Equals ", VDF1
+  !PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
+          IF(scaleChoice== ID_LENSDRAW_MANUALSCALE) THEN
+                    AUTSL=.FALSE.
+                    SCFAYP=1.0D0/scaleFactor
+                    SCFAXP=1.0D0/scaleFactor
+                    PSIZYP=scaleFactor
+                    PSIZXP=scaleFactor
+  IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
+  IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
+  IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+  IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+  IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+  IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+  IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
+  IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+  PSIZY=1.0D0/SCFAY
+  PSIZX=1.0D0/SCFAX
+                    PLSZ=.TRUE.
+                    PLSC=.FALSE.
+                    ELSE
+                    END IF
+  !PRINT *, "AFTER SCALE FACTOR DONE, IT IS ", SCFAY
+!     SCALE FACTOR DONE
+!
+!     NOW SET LOOK VECTOR
+          SAVE_KDP(1)=SAVEINPT(1)
+
+          select case (plotOrient)
+
+          case(ID_LENSDRAW_YZ_PLOT_ORIENTATION)  
+          CALL PROCESKDP('PLOT LOOK -1 0 0')
+          case(ID_LENSDRAW_XZ_PLOT_ORIENTATION)
+          CALL PROCESKDP('PLOT LOOK 0 1 0')
+          case(ID_LENSDRAW_XY_PLOT_ORIENTATION)
+          CALL PROCESKDP('PLOT LOOK 0 0 -1')
+          case (ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)
+          CALL PROCESKDP('PLOT VIEW 26.2 232.2')
+          end select
+
+          REST_KDP(1)=RESTINPT(1)
+    IF(.NOT.VIEOVERLAY) THEN
+          SAVE_KDP(1)=SAVEINPT(1)
+          INPUT='PLOT AXIS'
+          CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+          SAVE_KDP(1)=SAVEINPT(1)
+          INPUT='PLOT YESLOOK'
+          CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+            END IF
+          !PRINT *, "LINE 2311, SCFAY IS ", SCFAY
+
+!
+!  GUT RAY
+          SAVE_KDP(1)=SAVEINPT(1)
+          INPUT='FOB'
+          CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+!
+          SAVE_KDP(1)=SAVEINPT(1)
+          WW1=0.0D0
+          WW2=0.0D0
+          WW3=SYSTEM(11)
+          WVN=WW3
+          MSG=.FALSE.
+  WW4=1.0D0
+  NOCOAT=.TRUE.
+          GRASET=.TRUE.
+    !PRINT *, "LINE 2329, SCFAY IS ", SCFAY
+    IF(CACOCHVIE.EQ.1) CACOCH=1
+          CALL RAYTRA
+          !PRINT *, "LINE 2332, SCFAY IS ", SCFAY
+          REST_KDP(1)=RESTINPT(1)
+!
+
+          SAVE_KDP(1)=SAVEINPT(1)
+          ! Test comment out- this ray should get plotted later
+          IF(RAYEXT) CALL VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
+          !PRINT *, "LINE 2338, SCFAY IS ", SCFAY
+          REST_KDP(1)=RESTINPT(1)
+!
+  
+  !IF(VIEWQ.EQ.'YZ'.OR.VIEWQ.EQ.'ORTHO'.OR.VIEWQ.EQ.'XY') THEN
+  select case (plotOrient)
+  case(ID_LENSDRAW_YZ_PLOT_ORIENTATION)
+  !IF(VIEWQ.EQ.'YZ') THEN
+!     PLOT PROFY
+          SAVE_KDP(1)=SAVEINPT(1)
+          CALL VIEPROF(90.0D0, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
+          CALL VIE_EDGE('Y', VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
+          REST_KDP(1)=RESTINPT(1)
+          
+!
+   case(ID_LENSDRAW_XZ_PLOT_ORIENTATION)
+!     PLOT PROFX
+          SAVE_KDP(1)=SAVEINPT(1)
+          CALL VIEPROF(0.0D0, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
+          CALL VIE_EDGE('X', VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
+          REST_KDP(1)=RESTINPT(1)
+   end select   
+   
+  IF (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION .OR. &
+  &   plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) THEN
+  ! TODO refactor
+
+
+!     PLOT CLAP
+          SAVE_KDP(1)=SAVEINPT(1)
+!             PLOT CLAP
+          W1=VIEW2
+          W2=VIEW3
+          S1=VS2
+          S2=VS3
+          S3=0
+          S4=0
+          S5=0
+          SN=1
+          DF1=VDF2
+          DF2=VDF3
+          DF3=1
+          DF4=1
+          DF5=1
+          WQ='CLAP'
+          SQ=1
+          STI=0
+          SST=0
+                    SFI=1.0D0
+                    DO I=Si-1, Sf-1
+                    !DO I=INT(W1),INT(W2)
+               IF(ALENS(127,I).NE.0.0D0) THEN
+                   DO J=1,INT(ALENS(127,I))
+               MDX=MULTCLAP(J,1,I)
+               MDY=MULTCLAP(J,2,I)
+               GAMGAM=MULTCLAP(J,2,I)
+               CALL PLTCLP(1,I,SFI,MDX,MDY,GAMGAM)
+                   END DO
+                   ELSE
+               CALL PLTCLP(1,I,SFI,0.0D0,0.0D0,0.0D0)
+                   END IF
+               IF(ALENS(127,I).NE.0.0D0) THEN
+                   DO J=1,INT(ALENS(127,I))
+               MDX=MULTCLAP(J,1,I)
+               MDY=MULTCLAP(J,2,I)
+               GAMGAM=MULTCLAP(J,3,I)
+               CALL PLTCLP(2,I,SFI,MDX,MDY,GAMGAM)
+                   END DO
+                   ELSE
+               CALL PLTCLP(2,I,SFI,0.0D0,0.0D0,0.0D0)
+                   END IF
+               IF(ALENS(128,I).NE.0.0D0) THEN
+                   DO J=1,INT(ALENS(128,I))
+               MDX=MULTCOBS(J,1,I)
+               MDY=MULTCOBS(J,2,I)
+               GAMGAM=MULTCOBS(J,3,I)
+               CALL PLTCOB(I,MDX,MDY,GAMGAM)
+                   END DO
+                   ELSE
+               CALL PLTCOB(I,0.0D0,0.0D0,0.0D0)
+                   END IF
+                    END DO
+          REST_KDP(1)=RESTINPT(1)
+          END IF
+
+! Compute relative angles
+
+  IF(.NOT.VIGOFF) THEN
+   ! For any YZ Calls
+   CALL VIGCAL(10,YVHI,YVLO,2)
+
+  ELSE
+    ! TODO:  Not sure this is the logic I want when VIGOFF
+    YVHI=1.0D0
+    YVLO=-1.0D0
+  END IF
+  ! For any XZ related calls
+  IF(.NOT.VIGOFF) THEN
+    CALL VIGCAL(10,XVHI,XVLO,1)
+  ELSE
+    XVHI=1.0D0
+    XVLO=-1.0D0
+  END IF
+
+
+  ! For now support two types of inputs
+  ! If the user just entered in VIE ; GO then plot the default: n rays for every field point
+  ! If the user entered in something custom, then rays have already been stored and we will skip
+  ! this step.
+  ! Eventually migrate this to a default command, but for now keep two behaviors
+
+  !if (vie_settings%standardPlot) then
+
+   !numRays = vie_settings%num_field_rays
+   numFields = sysConfig%numFields
+
+!
+!     OTHER RAYS
+!
+!     Y FIELDS OF VIEW ARE DONE WHEN VIEW IS YZ, XY OR ORTHO
+   call LogTermFOR("VIE plot orientation is "//int2str(plotOrient))
+  IF((plotOrient == ID_LENSDRAW_YZ_PLOT_ORIENTATION) .OR. & 
+    &  (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR. &
+    &  (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN 
+      call LogTermFOR("VIE_NEW_NEW PLOT LOOP")
+
+ !   CALL VIE_RSI(xF,yF,xA,yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE, RAYEXT)
+
+   do jj = 1, numFields
+
+      SAVE_KDP(1)=SAVEINPT(1)
+      COLRAY = sysConfig%fieldColorCodes(jj)
+      WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj)
+      CALL PROCES
+      REST_KDP(1)=RESTINPT(1)
+
+do ii = 0, numRays-1
+  relAngle = YVLO + ii*(YVHI-YVLO)/(numRays-1)
+  SAVE_KDP(1)=SAVEINPT(1)
+  call VIE_PSM_TRACERAY(0.0D0, relAngle, sysConfig%refWavelengthIndex, Si,Sf)
+  !call VIE_TRACERAY(0.0D0, relAngle, sysConfig%refWavelengthIndex, &
+  !& VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
+  REST_KDP(1)=RESTINPT(1)
+end do ! Angles
+end do  !  Fields
+
+   END IF ! YZ plotting
+
+
+
+! X Fields (if necessesary)
+   IF((plotOrient == ID_LENSDRAW_XZ_PLOT_ORIENTATION) .OR. & 
+   &  (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR. &
+   &  (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN    
+
+   PRINT *, "Plotting X for VIEW ", VIEWQ
+
+   do jj = 1, numFields
+
+          SAVE_KDP(1)=SAVEINPT(1)
+          COLRAY = sysConfig%fieldColorCodes(jj)
+          WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj) &
+          & , ' ' , sysConfig%relativeFields(1,jj)
+          CALL PROCES
+          REST_KDP(1)=RESTINPT(1)
+
+    do ii = 0, numRays-1
+      ! Note relAngle is X now not Y.
+      relAngle = XVLO + ii*(XVHI-XVLO)/(numRays-1)
+      SAVE_KDP(1)=SAVEINPT(1)
+      call VIE_PSM_TRACERAY(relAngle, 0.0D0, sysConfig%refWavelengthIndex, Si,Sf)
+
+  !call VIE_TRACERAY(relAngle, 0.0D0, sysConfig%refWavelengthIndex, &
+  !& VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
+  REST_KDP(1)=RESTINPT(1)
+     end do ! Angles
+    end do  !  Fields
+
+END IF ! X plotting
+
+! Custom mode
+!else
+!      do ii=1,vie_settings%nPC
+!            call PROCESKDP(vie_settings%customPlotCommands(ii))
+!      end do
+
+!end if
+
+
+!     PLOT SCALE FACTOR
+!     DO A FRAME
+  COLPAS=COLLBL
+  CALL MY_COLTYP(COLPAS)
+      CALL DOSZ
+
+
+  !IF(DFLAG.EQ.0) THEN
+          SAVE_KDP(1)=SAVEINPT(1)
+
+  !INPUT='DRAW'
+  !CALL PROCES
+  !        REST_KDP(1)=RESTINPT(1)
+  !         END IF
+                    RETURN
+                    END
+
+
+
 ! VIE_NEW_NEW thoughts
 ! every time user types VIE, generate a new? set of commands for plot window
 ! if a user doesn't enter anthing else, have defaults to populate
@@ -1128,6 +1611,36 @@ subroutine VIE_EDGE(xory, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
               STI=0
               SST=0
               CALL PLTEDG
+
+
+end subroutine
+
+
+! Convert the old settings to data stored in vie_settings
+subroutine VIE_PSM_TRACERAY(xA, yA, rW, Si,Sf)
+      use DATLEN
+      use mod_plotopticalsystem
+      implicit none
+      integer, intent(in) :: Si, Sf
+      REAL(real64) ::  xA, yA
+      integer :: rW
+      include "DATMAI.INC"
+
+      WW1 = yA
+      WW2=  xA
+      WW3=  rW
+      WVN=WW3
+      MSG=.FALSE.
+      WW4=1.0D0
+      NOCOAT=.TRUE.
+      GRASET=.TRUE.
+      CACOCH=1 ! Assume CACOCHVIE = 1 always.  If not then fold this into vie settings
+      CALL RAYTRA
+
+      ! I think the last four values here are fixed and never need to change.  Time will
+      ! tell if this is a miskae.  
+      IF(RAYEXT) CALL VIERAY(REAL(Si,8) &
+      & ,REAL(Sf,8),0,0,1,1)
 
 
 end subroutine
