@@ -231,13 +231,13 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
   !subroutine my_draw_function(widget, my_cairo_context, width, height, gdata) bind(c)
 
        USE GLOBALS
-       use type_utils, only: real2str
+       use type_utils, only: real2str, int2str
        !use handlers
 
        !USE WINTERACTER
     IMPLICIT NONE
 
-    type(c_ptr), value, intent(in)    :: cairo_drawing_area, my_cairo_context, gdata
+    type(c_ptr),  value, intent(in)    :: cairo_drawing_area, my_cairo_context, gdata
     integer(c_int), value, intent(in) :: win_width, win_height
     integer                           :: cstatus
     integer                           :: t, DEBUG
@@ -257,9 +257,6 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
     type(c_ptr) :: cairo_scaleFactor
 
     INTEGER  NEUTTOTAL
-    !PRINT *, "Trying to draw system!"
-
-
 
 
 
@@ -326,7 +323,15 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
     integer(kind=c_int), pointer :: ID_SETTING
 
+
+    PRINT *, "Trying to draw system!"
+    call LogTermFOR("DRAW ptr is "//int2str(INT(loc(cairo_drawing_area),4)))
+
+
+
     call c_f_pointer(gdata, ID_SETTING)
+    call LogTermFOR("ID_SETTING is "//int2str(ID_SETTING))
+    
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
 

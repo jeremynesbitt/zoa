@@ -55,12 +55,15 @@ SUBROUTINE VIE_psm(psm)
     !INCLUDE 'DATMAC.INC'
 
 !
-    call LogTermFOR("VIE NEW NEW ROUTINE STARTING..")
+    call LogTermFOR("VIE PSM ROUTINE STARTING..")
     PRINT *, "VIE PSM ROUTINE STARTING..."
     CACOCHVIE = 1
 
 
     call psm%getLensDrawSettings(plotOrient, numRays, Si, Sf, elev, azi, scaleChoice, scaleFactor)
+
+    call LogTermFOR("plotOrient is "//int2str(plotOrient))
+    call LogTermFOR("numRays is "//int2str(numRays))
 
 
     ! Kill VIE overlay for now..

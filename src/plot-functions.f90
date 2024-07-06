@@ -155,6 +155,75 @@ subroutine zern_go(psm)
 end subroutine
 
 
+subroutine vie_go(psm)
+    USE GLOBALS
+    use command_utils
+    use handlers, only: updateTerminalLog
+    use global_widgets, only:  sysConfig
+    use zoa_ui
+    use zoa_plot
+    use iso_c_binding, only:  c_ptr, c_null_char
+    use kdp_utils, only: OUTKDP, logDataVsField
+    use type_utils, only: int2str, str2int
+    use plot_setting_manager
+    use DATMAI
+    use g
+    use handlers, only: zoatabMgr
+
+    implicit none
+    type(zoaplot_setting_manager) :: psm
+    integer :: plot_code = ID_PLOTTYPE_LENSDRAW
+    character(len=20) :: plotName = 'Lens Drawing'
+
+    character(len=1024) :: inputCmd, tabName
+    integer :: objIdx, pIdx
+    logical :: replot
+
+
+    call vie_psm(psm)
+
+
+
+    pIdx = psm%plotNum
+    inputCmd = trim(psm%generatePlotCommand())
+    replot = .FALSE.
+    if (pIdx /= -1 ) then
+       replot = zoatabMgr%doesPlotExist_new(plot_code, objIdx, pIdx)
+    end if
+
+
+    !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
+    if (replot) then
+      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+      call zoatabMgr%updateKDPPlotTab(objIdx)
+     else
+      pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
+     
+      psm%plotNum = pIdx+1 ! Noreplot so this is the next num
+
+      !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
+      psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
+      inputCmd = trim(psm%generatePlotCommand())
+      tabName = plotName
+      if  (psm%plotNum > 1) then
+        tabName = trim(tabName)//" "//int2str(psm%plotNum)
+      end if  
+      objIdx = zoatabMgr%addKDPPlotTab(plot_code, &
+      & trim(tabName)//c_null_char)
+
+      !objIdx = zoatabMgr%addGenericMultiPlotTab(plot_code, &
+      !& trim(tabName)//c_null_char, mplt)
+
+      call zoaTabMgr%finalize_with_psm_new(objIdx, psm, trim(inputCmd))
+      call zoaTabMgr%finalizeNewPlotTab(objIdx)
+    end if
+
+    
+
+
+end subroutine
+
+
 subroutine spo_go(psm)
 
     USE GLOBALS

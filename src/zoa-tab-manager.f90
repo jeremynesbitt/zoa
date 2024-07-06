@@ -55,6 +55,9 @@ type  zoatabManager
    ! this one will go away and be replaced with the _new one eventuallyy
    procedure :: finalize_with_psm
    procedure :: finalize_with_psm_new
+   procedure :: addKDPPlotTab
+   procedure :: setKDPCallback
+   procedure :: updateKDPPlotTab
 
  end type
 
@@ -118,6 +121,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use ui_spot
   use ROUTEMOD
   use GLOBALS
+  use type_utils, only: int2str
   implicit none
 
     class(zoatabManager) :: self
@@ -157,6 +161,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
 
     select case (PLOT_CODE)
 
+
     case (ID_NEWPLOT_LENSDRAW)
         call logger%logText('Lens Draw New Plot Starting')
         if (.not.present(inputTitle)) THEN
@@ -175,6 +180,9 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         allocate(lens_draw_settings :: self%tabInfo(idx)%settings )
         ld_settings%useToolbar = .TRUE.
         self%tabInfo(idx)%settings = ld_settings
+        call LogTermFOR("Lens Draw ptr is "//int2str(INT(loc(self%tabInfo(idx)%tabObj%canvas),4)))
+
+
 
 
 
@@ -299,6 +307,87 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
 
 
 end function
+
+subroutine setKDPCallback(self, idx, tabIndex)
+  use ROUTEMOD
+  implicit none 
+
+  class(zoatabManager) :: self
+  integer, target, intent(in) :: tabIndex
+  integer :: idx
+
+  integer, pointer :: ptr
+
+   ptr =>tabIndex
+
+   call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
+   & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr) 
+
+end subroutine
+
+! Support the KDP way of plotting
+function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
+  use ROUTEMOD
+  use kdp_draw, only: DRAWOPTICALSYSTEM
+  use type_utils, only: int2str
+  
+  implicit none
+  class(zoatabManager) :: self
+  integer :: PLOT_CODE
+
+  character(len=*) :: tabTitle
+  integer :: idx  
+  integer, target :: TARGET_LENSDRAW   = ID_PLOTTYPE_LENSDRAW
+  integer, target :: TARGET_TST   = ID_PLOTTYPE_GENERIC
+  !integer, target :: tabIdx
+
+  integer, pointer :: ptr
+
+  
+
+
+  idx = self%findTabIndex()
+
+  !PRINT *, "idx is ", idx
+  call logger%logText('New Generic Tab Starting')
+
+  call LogTermFOR("Setting up new KDP tab for tab idx "//int2str(idx))
+  allocate(zoatab :: self%tabInfo(idx)%tabObj)
+  call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
+  self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
+  !call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
+  !& c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)  
+  !ptr =tabIndices(idx)
+
+   call self%setKDPCallback(idx, tabIndices(idx))
+  !  if(idx==1) then
+  ! call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
+  ! & c_funloc(ROUTEDRAWING), c_loc(TARGET_LENSDRAW), c_null_funptr) 
+  !  else
+  !   call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
+  !   & c_funloc(ROUTEDRAWING), c_loc(TARGET_TST), c_null_funptr) 
+  !  end if
+ 
+    
+  allocate(ui_settings :: self%tabInfo(idx)%settings )
+
+  self%tabInfo(idx)%typeCode = PLOT_CODE
+  self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
+
+  call LogTermFOR("Canvas ptr is "//int2str(INT(loc(self%tabInfo(idx)%tabObj%canvas),4)))
+
+  !call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
+  
+end function
+
+subroutine updateKDPPlotTab(self, idx)
+  implicit none
+  class(zoatabManager) :: self
+  integer :: idx
+
+  call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
+
+end subroutine
 
 function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, title, linetypecode) result(idx)
   class(zoatabManager) :: self
@@ -679,7 +768,6 @@ subroutine finalize_with_psm_new(self, objIdx, psm, inputCmd)
    call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
    & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
    & trim(int2str(psm%ps(i)%ID)))
-   call LogTermFOR("ID is "//trim(int2str(psm%ps(i)%ID)))
   ! call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
   ! & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
   ! & trim(psm%ps(i)%prefix))    

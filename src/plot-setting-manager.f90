@@ -171,20 +171,14 @@ contains
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AZIMUTH, & 
       & "Aziumuth", real(232.2),real(0.0),real(360.0), &
-      & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON) 
- 
-      self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AZIMUTH, & 
-      & "Aziumuth", real(232.2),real(0.0),real(360.0), &
       & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)       
-
 
       call self%addLensDrawScaleSettings()
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AUTOSCALE_VALUE, & 
-      & "Aziumuth", real(.045),real(0.0),real(10000.0), &
-      & "AZI", "AZI "//trim(real2str(.045)), UITYPE_SPINBUTTON)             
+      & "Manual Scale Factor", real(.045),real(0.0),real(10000.0), &
+      & "SSI", "SSI "//trim(real2str(.045)), UITYPE_SPINBUTTON)             
 
 
     end subroutine

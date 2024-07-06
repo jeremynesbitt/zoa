@@ -632,6 +632,7 @@ contains ! for module
 
     !call self%createCairoDrawingArea()
     if (present(canvas)) then
+      call LogTermFOR("In zoa_tab initialize already have canvas?")
       self%canvas = canvas
     else
      call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)

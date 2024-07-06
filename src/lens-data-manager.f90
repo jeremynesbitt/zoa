@@ -25,7 +25,7 @@ module mod_lens_data_manager
         class(lens_data_manager) :: self
         integer :: Sf
 
-        Sf = curr_lens_data%num_surfaces
+        Sf = curr_lens_data%num_surfaces-1
 
     end function
 

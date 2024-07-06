@@ -378,7 +378,7 @@ subroutine lens_draw_replot(self)
 
     
     !CALL PROCESKDP(ftext)
-    CALL PROCESKDP('VIE P1')
+    CALL PROCESKDP('VIE_OLD P1')
     CALL PROCESKDP('GO')
 
 

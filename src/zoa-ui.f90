@@ -23,6 +23,7 @@ integer, parameter :: ID_PLOTTYPE_SEIDEL     = 1015
 integer, parameter :: ID_PLOTTYPE_PLT3DTST     = 1016
 integer, parameter :: ID_PLOTTYPE_OPD     = 1017
 integer, parameter :: ID_PLOTTYPE_FAN     = 1018
+integer, parameter :: ID_PLOTTYPE_LENSDRAW     = 2001
 
 
 ! Plot Setting Types
@@ -135,6 +136,8 @@ integer, parameter :: ID_TERMINAL_GLASS = 2
 integer, parameter :: ID_TERMINAL_MACRO = 3
 integer, parameter :: ID_TERMINAL_LENSLIB  = 4
 integer, parameter :: ID_TERMINAL_KDPDUMP  = 5
+
+integer, parameter :: tabIndices(*) = [1,2,3,4,5,6,7,8,9,10]
 
 
 

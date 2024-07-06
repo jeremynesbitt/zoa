@@ -1,7 +1,17 @@
 
 module ROUTEMOD
   use iso_c_binding
+
+  interface
+  function getTabPlotCommand(objIdx)
+    character(len=1040) :: getTabPlotCommand
+    integer :: objIdx
+  end function
+end interface
+
+
 contains
+
 
 
 SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata) bind(c)
@@ -17,7 +27,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
     IMPLICIT NONE
 
-    type(c_ptr), value, intent(in)    :: cairo_drawing_area, my_cairo_context
+    type(c_ptr), value    :: cairo_drawing_area, my_cairo_context
     type(c_ptr), value :: gdata
     integer(c_int), value, intent(in) :: win_width, win_height
     integer(kind=c_int), pointer :: ID_SETTING
@@ -28,6 +38,16 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
     !PRINT *, "ID_SETTING IN ROUTEDRAWING IS ", ID_SETTING
     !PRINT *, "ID_NEWPLOT_LENSDRAW IS ", ID_NEWPLOT_LENSDRAW
+
+    ! I need to trigger replot for plotCmd plots if I want them to properly refrecsh
+    ! eg
+    ! get current tab
+    ! if cmdBased, then run plot command
+    ! may end up triggering it twice after a setting change, but at least I would solve the
+    ! problem of lens draw not properly updating
+
+
+    
 
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
@@ -47,6 +67,10 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
   case default
       PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
       PRINT *, "gdata is ", LOC(gdata)
+      !Non special calls
+      call LogTermFOR(getTabPlotCommand(ID_SETTING))
+      call PROCESKDP(getTabPlotCommand(ID_SETTING))
+  
   end select
       call LogTermFOR("About to call Draw Optical System from Route Drawing")
       call DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)

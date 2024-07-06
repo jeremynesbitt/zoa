@@ -42,6 +42,8 @@ module codeV_commands
 
     integer :: cmd_loop = 0
     integer, parameter :: VIE_LOOP = 1
+    integer, parameter :: VIE_OLD_LOOP = 10
+
     integer, parameter :: DRAW_LOOP = 2 ! While plot is being drawn
     integer, parameter :: SPO_LOOP = 3
     integer, parameter :: ZERN_LOOP = 4
@@ -128,7 +130,9 @@ module codeV_commands
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
-        zoaCmds(528)%execFunc => setPlotZernikeCoefficients                 
+        zoaCmds(528)%execFunc => setPlotZernikeCoefficients    
+        zoaCmds(529)%cmd = 'VIE_OLD'
+        zoaCmds(529)%execFunc => execVie_old                         
                                                                                           
 
     end subroutine
@@ -750,7 +754,7 @@ module codeV_commands
     ! VIE (new plot)
     ! VIE P1 (update existing plot)
     ! In the future when I support multiple plots then P1 will go to PX
-    subroutine execVie(iptStr)
+    subroutine execVie_old(iptStr)
         
         use mod_plotopticalsystem
         use strings
@@ -767,7 +771,7 @@ module codeV_commands
         if (numTokens  == 2) then
            if (tokens(2) == 'P1') then
             ! Do not update lens draw settings
-            cmd_loop = VIE_LOOP
+            cmd_loop = VIE_OLD_LOOP
             return
            end if
         end if
@@ -777,7 +781,7 @@ module codeV_commands
         !end if
 
         ! Enter into VIE loop.  Once GO is entered, execute plot
-        cmd_loop = VIE_LOOP
+        cmd_loop = VIE_OLD_LOOP
         ld_settings = lens_draw_settings()
 
         ! Psuedocode
@@ -858,6 +862,44 @@ module codeV_commands
 
 
     end subroutine
+
+    subroutine execVIE(iptStr)
+        !use ui_spot, only: spot_struct_settings, spot_settings
+       ! use mod_plotopticalsystem
+        use strings
+        use plot_setting_manager
+        use handlers, only: zoatabMgr
+        use zoa_ui
+        use type_utils, only: int2str, bool2str
+
+        implicit none
+        character(len=*) :: iptStr
+        type(zoaplot_setting_manager) :: psm
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: plotExists
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        cmd_loop = VIE_LOOP
+
+        call LogTermFOR("About ot check VIE for existing plot")
+        if (numTokens  == 2) then
+            plotExists = checkForExistingPlot(tokens(1:2), psm, ID_PLOTTYPE_LENSDRAW)
+            call LogTermFOR("VIE plot exists is "//bool2str(plotExists))
+            ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
+            ! here but don't have a better soultion right now
+           if (plotExists) return
+        end if
+        call psm%addLensDrawSettings()
+        ! Set up settings
+        !call psm%addWavelengthSetting_new()
+        !call psm%addDensitySetting_new(10, 8, 21)
+        curr_psm = psm
+    end subroutine
+
 
 
     subroutine execSPO(iptStr)
@@ -2010,6 +2052,20 @@ module codeV_commands
         use mod_plotopticalsystem, only: ld_settings
         use plot_functions
 
+        if(cmd_loop == VIE_OLD_LOOP) then
+            if (inLensUpdateLevel()) then
+                call LogTermFOR("Will not draw in lens update level")
+                return
+            end if    
+        cmd_loop = DRAW_LOOP
+        active_plot = ID_NEWPLOT_LENSDRAW
+        !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+        call VIE_NEW_NEW(ld_settings)
+        CALL PROCESKDP('DRAW')
+        !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+        cmd_loop = 0
+       
+        end if
 
 
         if (cmd_loop == VIE_LOOP) then
@@ -2021,18 +2077,27 @@ module codeV_commands
             call LogTermFOR("Will not draw in lens update level")
             return
         end if    
+
+        ! Test new way
+
+     
+
+        call LogTermFOR("IN VIE LOOP ")
+        active_plot = ID_PLOTTYPE_LENSDRAW
         cmd_loop = DRAW_LOOP
-        active_plot = ID_NEWPLOT_LENSDRAW
-        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
-        call VIE_NEW_NEW(ld_settings)
+        call vie_go(curr_psm)
         CALL PROCESKDP('DRAW')
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
-        !PRINT *, "After draw loop"
-        !call VIE_NEW(1)
-        !call LogTermFOR("Done with VIE NEW NEW")
-        
-        !call PROCESKDP('VIECO')
-        ! CALL VIE_NEW(curr_lens_settings)
+
+        !Working code for the OLD Wway
+
+        ! cmd_loop = DRAW_LOOP
+        ! active_plot = ID_NEWPLOT_LENSDRAW
+        ! call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+        ! call VIE_NEW_NEW(ld_settings)
+        ! CALL PROCESKDP('DRAW')
+        ! call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+
+
             
         cmd_loop = 0 ! Go back to base level
         end if

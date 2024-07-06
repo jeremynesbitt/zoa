@@ -132,6 +132,7 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
       select type (value)
     type is (real)
     call LogTermFOR("Calling update setting_new real")
+    
       call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,INT(value))
       boolResult = .TRUE.
     type is (double precision)
