@@ -371,6 +371,8 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
     
   allocate(ui_settings :: self%tabInfo(idx)%settings )
 
+  self%tabInfo(idx)%settings%useToolbar = .TRUE.
+
   self%tabInfo(idx)%typeCode = PLOT_CODE
   self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
 

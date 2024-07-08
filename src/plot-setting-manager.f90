@@ -72,6 +72,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addZernikeSetting_new
     procedure, public, pass(self) :: updateZernikeSetting_new
     procedure, public, pass(self) :: getZernikeSetting_min_and_max
+    procedure, public, pass(self) :: addGenericSetting
 
     ! Spot Diagram Settings
     procedure, public, pass(self) :: addSpotDiagramSettings
@@ -84,7 +85,8 @@ module plot_setting_manager
     procedure, public, pass(self) :: addLensDrawScaleSettings    
     procedure, public, pass(self) :: getLensDrawSettings
 
-
+    procedure, public, pass(self) :: addAstigSettings
+    procedure, public, pass(self) :: getAstigSettings
 
 
 
@@ -283,6 +285,24 @@ contains
       
     end subroutine
 
+    subroutine addGenericSetting(self, ID_CODE, label, default, min, max, baseCmd, fullCmd, UI_TYPE)
+      use zoa_ui
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      integer :: ID_CODE, UI_TYPE
+      character(len=*) :: label, baseCmd, fullCmd
+      real :: default, min, max
+
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_CODE, & 
+      & label, default,min,max, &
+      & baseCmd, fullCmd, UI_TYPE)     
+
+
+    end subroutine
+
     ! Since there is a lot of custom settings, write a method to get all settings
     subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing)
       use zoa_ui
@@ -333,6 +353,46 @@ contains
       ! & c_funloc(callback_spot_settings), c_loc(TARGET_SPOT_TRACE_ALGO), &
       ! & spot_struct_settings%currSpotRaySetting)      
 
+
+    end subroutine
+
+    subroutine addAstigSettings(self)
+      use kdp_data_types, only: idText
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: set(2)
+   
+      set(1)%text = "Y FIELD"
+      set(1)%id = ID_AST_FIELD_Y
+    
+      set(2)%text = "X FIELD"
+      set(2)%id = ID_AST_FIELD_X
+    
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_AST_FIELDXY, & 
+      & "Field Selection", real(ID_AST_FIELD_Y),0.0,0.0, &
+      & "ASTFLD ", "ASTFLD Y", UITYPE_COMBO, set=set)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_NUMPOINTS, & 
+      & "Number of Points", real(10.0),1.0,50.0, &
+      & "NUMPTS ", "NUMPTS "//int2str(10), UITYPE_SPINBUTTON)
+
+
+
+    end subroutine
+
+    subroutine getAstigSettings(self, idxFieldXY, numPts)
+      use zoa_ui
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      integer, intent(inout) :: idxFieldXY, numPts
+
+      idxFieldXY = INT(self%getSettingValueByCode(ID_AST_FIELDXY))
+      numPts = INT(self%getSettingValueByCode(ID_NUMPOINTS))
+      
 
     end subroutine
 

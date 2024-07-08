@@ -2,6 +2,9 @@
 module ROUTEMOD
   use iso_c_binding
 
+
+  ! Need to ask zoaTabMgr what the plot command is for the tab index but to 
+  ! avoid circular dependency need this interface
   interface
   function getTabPlotCommand(objIdx)
     character(len=1040) :: getTabPlotCommand
@@ -51,24 +54,24 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
 
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
-       call LogTermFOR("REROUTE TO LENS DRAW REPLOT ")           
+       !call LogTermFOR("REROUTE TO LENS DRAW REPLOT ")           
        call ld_settings%replot()
   case (ID_NEWPLOT_RAYFAN)
-      PRINT *, "REROUTE TO RAY FAN REPLOT!"
+      !PRINT *, "REROUTE TO RAY FAN REPLOT!"
       !call zoatabMgr%newPlotIfNeeded(ID_NEWPLOT_RAYFAN)
       call rf_settings%replot()
     case (ID_PLOTTYPE_AST)
-        PRINT *, "REROUTE TO Astig Replot!"
+        !PRINT *, "REROUTE TO Astig Replot!"
         call ast_settings%replot()
     case (ID_PLOTTYPE_SPOT)
         call spot_struct_settings%replot()
 
 
   case default
-      PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
-      PRINT *, "gdata is ", LOC(gdata)
+      !PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
+      !PRINT *, "gdata is ", LOC(gdata)
       !Non special calls
-      call LogTermFOR(getTabPlotCommand(ID_SETTING))
+      
       call PROCESKDP(getTabPlotCommand(ID_SETTING))
   
   end select

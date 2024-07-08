@@ -36,7 +36,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(531) :: zoaCmds
+    type(zoa_cmd), dimension(541) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
 
@@ -132,7 +132,9 @@ module codeV_commands
         zoaCmds(528)%cmd = 'SETZERNC'
         zoaCmds(528)%execFunc => setPlotZernikeCoefficients    
         zoaCmds(529)%cmd = 'VIE_OLD'
-        zoaCmds(529)%execFunc => execVie_old                         
+        zoaCmds(529)%execFunc => execVie_old   
+        zoaCmds(530)%cmd = 'ASTFCDIST'
+        zoaCmds(530)%execFunc => execAstigFieldCurvDistPlot                              
                                                                                           
 
     end subroutine
@@ -900,7 +902,67 @@ module codeV_commands
         curr_psm = psm
     end subroutine
 
+    function initiatePlotLoop(iptStr, PLOT_CODE, psm) result(boolResult)
+        use strings 
+        implicit none
 
+        logical :: boolResult
+        integer :: PLOT_CODE
+        character(len=*) :: iptStr
+        type(zoaplot_setting_manager) :: psm
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: plotExists
+
+        boolResult = .FALSE.
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        
+        
+
+        if (numTokens  == 2 .AND. tokens(2)(1:1)=='P' ) then
+            plotExists = checkForExistingPlot(tokens(1:2), psm, PLOT_CODE)
+            ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
+            ! here but don't have a better soultion right now
+           if (plotExists) then 
+            cmd_loop = PLOT_CODE
+            boolResult = .TRUE.
+            return
+           end if
+        end if
+        if (numTokens==1) then
+            cmd_loop = PLOT_CODE
+            boolResult = .TRUE.
+            curr_psm = psm
+            return
+        end if
+        ! If we got down here then something went wrong, and boolresult should stay falsse
+        
+
+    end function
+
+
+    subroutine execAstigFieldCurvDistPlot(iptStr)
+        use zoa_ui
+        use handlers, only: updateTerminalLog
+        use plot_setting_manager
+        implicit none
+        character(len=*) :: iptStr
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%addAstigSettings()
+
+
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_AST, psm)
+        if(boolResult .EQV. .FALSE.) then
+            call updateTerminalLog("Error in input. Should be either ASTFCDIST or ASTFCDIST PX, where X is plot num", "red")
+        end if
+
+
+    end subroutine
 
     subroutine execSPO(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
@@ -2111,6 +2173,11 @@ module codeV_commands
             call spo_go(curr_psm)            
             cmd_loop = 0
 
+        end if
+
+        if (cmd_loop == ID_PLOTTYPE_AST) then
+            call ast_go(curr_psm)
+            cmd_loop = 0
         end if
 
 

@@ -32,7 +32,7 @@ integer, parameter :: UITYPE_ENTRY = 2
 integer, parameter :: UITYPE_COMBO = 3
 
 
-
+integer, parameter :: ID_NUMPOINTS = 3001
 
 
 
@@ -137,7 +137,9 @@ integer, parameter :: ID_TERMINAL_MACRO = 3
 integer, parameter :: ID_TERMINAL_LENSLIB  = 4
 integer, parameter :: ID_TERMINAL_KDPDUMP  = 5
 
-integer, parameter :: tabIndices(*) = [1,2,3,4,5,6,7,8,9,10]
+!f This is so I can send tab indices to a c binding callback function. I assume there is a better way than this
+! brute force method, but since this works and isn't too painful I will use this.
+integer, parameter :: tabIndices(*) = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
 
 
 

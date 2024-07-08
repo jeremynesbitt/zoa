@@ -328,6 +328,127 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
   
 end function
 
+subroutine ast_go(psm)
+
+    USE GLOBALS
+    use command_utils
+    use handlers, only: zoatabMgr, updateTerminalLog
+    use global_widgets, only:  sysConfig
+    use zoa_ui
+    use zoa_plot
+    use iso_c_binding, only:  c_ptr, c_null_char
+    use kdp_utils, only: OUTKDP, logDataVsField
+    use type_utils, only: int2str, str2int
+    use plot_setting_manager
+    use DATMAI
+
+
+    IMPLICIT NONE
+
+    character(len=23) :: ffieldstr
+    character(len=1024) :: inputCmd
+    integer :: ii, objIdx, minZ, maxZ, lambda
+    integer :: maxPlotZ = 9, numTermsToPlot
+    integer :: numPoints = 10
+    integer :: pIdx
+    logical :: replot
+    type(multiplot) :: mplt
+    type(zoaplot) :: zernplot
+    type(c_ptr) :: canvas
+    type(zoaplot_setting_manager) :: psm
+    character(len=80) :: tabName
+    character(len=80) :: ftext
+
+
+    character(len=5), allocatable :: zLegend(:)
+
+    REAL, allocatable :: xdat(:), ydat(:,:)
+    type(c_ptr)   :: localcanvas, my_cairo_context
+    !type(c_ptr), value :: gdata
+    type(c_ptr) ::  isurface
+    !integer(c_int), value, intent(in) :: win_width, win_height
+    type(zoaplot) :: lin1, lin2, lin3
+
+    integer :: numPts, numPtsDist, numPtsFC, idxFieldXY
+
+     REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
+
+     REAL:: FLDAN(0:50)
+
+     !COMMON FLDAN, DDTA
+
+     call psm%getAstigSettings(idxFieldXY, numPts)
+
+     select case (idxFieldXY)
+     case (ID_AST_FIELD_Y)
+      ftext = ",0,,  "
+     case (ID_AST_FIELD_X)
+      ftext = ",90,, "
+     case default
+      ftext = ",0,,  "
+     end select
+     !CALL ITOAA(self%ast_numRays, A6)
+     !self%astcalccmd = 'AST'//trim(ftext)//A6
+     !PRINT *, "Num rays is ", self%ast_numRays
+     !PRINT *, "ftext ", trim(ftext), " A6 ", A6
+     !PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", 'AST'//trim(ftext)//A6
+
+     CALL PROCESKDP('AST'//trim(ftext)//int2str(numPts))
+
+     !self%distcalccmd = 'DIST'//trim(ftext)//A6
+     !self%fccalccmd   = 'FLDCV'//trim(ftext)//A6
+
+   
+
+ call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
+  !PRINT *, "DDTA is ", DDTA
+  !PRINT *, "FLDAN is ", FLDAN
+
+    canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+    & has_alpha=FALSE)
+  call mplt%initialize(canvas, 3,1)
+
+  call lin1%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
+  & xlabel='Astigmatism (in)'//c_null_char, &
+  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+  & title=''//c_null_char)
+
+
+
+CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
+
+ call getFieldCalcResult(xDist, x2FC, yDist, numPtsDist, 2)
+
+
+  call lin2%initialize(c_null_ptr, REAL(xDist(0:numPtsDist)),yDist(0:numPtsDist), &
+  & xlabel='Distortion (%)'//c_null_char, &
+  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+  & title=''//c_null_char)
+
+ CALL PROCESKDP('FLDCV'//trim(ftext)//int2str(numPts))
+ call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
+
+
+  call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
+  & xlabel='Field Curvature '//c_null_char, &
+  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+  & title=''//c_null_char)
+  call lin3%addXYPlot(X2FC(0:numPtsFC),FLDAN(0:numPtsFC))
+  call lin3%setDataColorCode(PL_PLOT_BLUE)
+  call lin3%setLineStyleCode(4)
+
+
+
+  call mplt%set(1,1,lin1)
+  call mplt%set(2,1,lin2)
+  call mplt%set(3,1,lin3)
+
+
+  call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_AST, "Astig, FC, and Distortion")
+  
+  
+end subroutine
+
 ! This sub checks for whether a replot is needed or whether 
 ! this is a new plot, 
 ! If new plot, andcalls the finalize subs in 
