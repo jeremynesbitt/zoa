@@ -449,6 +449,108 @@ CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
   
 end subroutine
 
+subroutine pma_go(psm)
+
+    USE GLOBALS
+    use command_utils
+    use handlers, only: zoatabMgr, updateTerminalLog
+    use global_widgets, only:  sysConfig, curr_opd
+    use type_utils, only: int2str
+    use zoa_ui
+    use zoa_plot
+    use iso_c_binding, only:  c_ptr, c_null_char
+    use plplot, PI => PL_PI
+    use plplot_extra
+    use plotSettingParser
+    use plot_setting_manager
+    use gtk, only: gtk_expander_set_expanded
+  
+  
+  IMPLICIT NONE
+  
+  character(len=1024) :: ffieldstr
+  character(len=40) :: inputCmd
+  integer :: ii, i, j, objIdx
+  logical :: replot
+  type(setting_parser) :: sp
+  type(zoaplot_setting_manager) :: psm
+  
+  ! desirable commands
+  ! n - density
+  ! w - wavelength
+  ! f - field
+  ! s - surface (i=image, o=object)
+  ! p - plot (future implementation eg image vs 3d Plot)
+  ! azi alt - azimuth and altitude for 3d plot
+  ! eg PLTOPD n64 w1 f3 si p0 azi30 alt60
+  
+  
+  !REAL, allocatable :: x(:), y(:)
+  
+  
+      !   xdim is the leading dimension of z, xpts <= xdim is the leading
+      !   dimension of z that is defined.
+  integer :: xpts, ypts
+  integer, parameter :: xdim=99, ydim=100 
+  integer :: index
+  character(len=80) :: tokens(40)
+  integer :: numTokens
+  integer :: lambda, fldIdx
+  
+  integer, parameter :: nlevel = 10
+  real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
+  
+  real(kind=pl_test_flt)   :: dx, dy
+  type(c_ptr) :: canvas
+  !type(zoaPlot3d) :: zp3d 
+  type(zoaPlotImg) :: zp3d 
+  type(multiplot) :: mplt
+  
+
+  lambda = psm%getWavelengthSetting_new()
+  fldIdx = psm%getFieldSetting_new()
+  xpts = psm%getDensitySetting_new()
+  ypts = xpts
+
+
+  PRINT *, "fldIdx is ", fldIdx
+  WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
+  & , ' ' , sysConfig%relativeFields(1, fldIdx)
+  CALL PROCESKDP(trim(ffieldstr))
+  
+  !CALL PROCESKDP('FOB 1')
+  PRINT *, "Calling CAPFN"
+  call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
+  !call getOPDData(lambda)
+  !PRINT *, "Calling OPDLOD"
+  call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
+  !call OPDLOD
+  
+  
+  
+   !call checkCommandInput(ID_CMD_ALPHA)
+  
+  canvas = hl_gtk_drawing_area_new(size=[600,600], &
+  & has_alpha=FALSE)
+  
+  call mplt%initialize(canvas, 1,1)
+  PRINT *, "size of X is ", size(curr_opd%X)
+  !PRINT *, "X is ", real(curr_opd%X)
+   call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), & 
+   & real(curr_opd%Z), xpts, ypts, & 
+   & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
+   & title='Optical Path Difference'//c_null_char)
+  
+   call mplt%set(1,1,zp3d)
+  
+  
+   call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_OPD, "Optical Path Difference")
+  
+  
+
+end subroutine
+
+
 ! This sub checks for whether a replot is needed or whether 
 ! this is a new plot, 
 ! If new plot, andcalls the finalize subs in 

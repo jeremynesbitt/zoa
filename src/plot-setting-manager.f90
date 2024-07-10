@@ -59,6 +59,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addWavelengthSetting_new
     procedure, public, pass(self) :: updateWavelengthSetting_new
     procedure, public, pass(self) :: getWavelengthSetting_new
+    procedure, public, pass(self) :: getFieldSetting_new
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: getSettingValueByCode
 
@@ -528,6 +529,24 @@ contains
         end do
 
       end subroutine 
+
+
+      function getFieldSetting_new(self) result(idxFld)
+        use global_widgets, only: sysConfig
+        use type_utils, only: str2int
+        use strings
+        implicit none
+
+        class(zoaplot_setting_manager) :: self
+        integer :: idxFld
+        integer :: i
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        
+        idxFld = INT(self%getSettingValueByCode(SETTING_FIELD))
+
+      end function
 
       function getWavelengthSetting_new(self) result(wvIdx)
         use global_widgets, only: sysConfig

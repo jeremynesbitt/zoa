@@ -135,7 +135,10 @@ module codeV_commands
         zoaCmds(529)%execFunc => execVie_old   
         zoaCmds(530)%cmd = 'ASTFCDIST'
         zoaCmds(530)%execFunc => execAstigFieldCurvDistPlot                              
-                                                                                          
+        zoaCmds(531)%cmd = 'PMA'
+        zoaCmds(531)%execFunc => execPMAPlot                              
+            
+        
 
     end subroutine
 
@@ -940,6 +943,29 @@ module codeV_commands
         
 
     end function
+
+    subroutine execPMAPlot(iptStr)
+        use zoa_ui
+        use handlers, only: updateTerminalLog
+        use plot_setting_manager
+        implicit none
+        character(len=*) :: iptStr
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%addDensitySetting_new(64,8,128)
+        call psm%addFieldSetting_new()
+        call psm%addWavelengthSetting_new()
+
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_OPD, psm)
+        if(boolResult .EQV. .FALSE.) then
+            call updateTerminalLog("Error in input. Should be either PMA or PMA PX, where X is plot num", "red")
+        end if
+
+
+    end subroutine
 
 
     subroutine execAstigFieldCurvDistPlot(iptStr)
@@ -2179,6 +2205,12 @@ module codeV_commands
             call ast_go(curr_psm)
             cmd_loop = 0
         end if
+
+        if (cmd_loop == ID_PLOTTYPE_OPD) then
+            call pma_go(curr_psm)
+            cmd_loop = 0
+        end if
+
 
 
         if (cmd_loop == ZERN_LOOP) then
