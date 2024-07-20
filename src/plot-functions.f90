@@ -277,6 +277,16 @@ subroutine spo_go(psm)
     & title='Spot Diagram'//c_null_char)
     call xyscat1%setLineStyleCode(-1)
 
+    !Pseudo
+    ! if (psm%autoScale == FALSE ) then
+    ! xyscat1%autoScale = .FALSE.
+    ! xyscat1%minY = 0
+    ! xyscat1%maxY = psm%getScaleFactorInLensUnits()
+    ! xyScat%minX = minY
+    ! xyScat1%maxX = maxY
+
+
+
 
     call mplt%set(1,1,xyscat1)
 
@@ -447,6 +457,104 @@ CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
   call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_AST, "Astig, FC, and Distortion")
   
   
+end subroutine
+
+subroutine rayaberration_go(psm)
+    USE GLOBALS
+    use command_utils
+    use handlers, only: zoatabMgr, updateTerminalLog
+    use global_widgets, only:  sysConfig, curr_ray_fan_data
+    use type_utils, only: int2str
+    use zoa_ui
+    use zoa_plot
+    use iso_c_binding, only:  c_ptr, c_null_char
+    use plplot, PI => PL_PI
+    use plplot_extra
+    use plotSettingParser
+    use plot_setting_manager
+    use gtk, only: gtk_expander_set_expanded
+
+    character(len=80) :: ffieldstr
+    CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
+    integer :: xpts, ypts
+    integer, parameter :: xdim=99, ydim=100 
+    integer :: index
+    character(len=80) :: tokens(40)
+    integer :: numTokens
+    integer :: lambda, fldIdx
+    
+    integer, parameter :: nlevel = 10
+    real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
+    
+    real(kind=pl_test_flt)   :: dx, dy
+    type(c_ptr) :: canvas
+    !type(zoaPlot3d) :: zp3d 
+    type(zoaplot) :: lineplot
+    type(multiplot) :: mplt
+    type(zoaplot_setting_manager) :: psm
+    REAL, allocatable :: x(:), y(:)
+
+    lambda = psm%getWavelengthSetting_new()
+    fldIdx = psm%getFieldSetting_new()
+    numPoints = psm%getDensitySetting_new()
+
+    print *, "fldIdx is ", fldIdx
+
+    
+    allocate(x(numPoints))
+    allocate(y(numPoints))
+    
+    ! Set Field
+    WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
+    & , ' ' , sysConfig%relativeFields(1, fldIdx)
+    CALL PROCESKDP(trim(ffieldstr))
+
+    ! Set Fan Input - TODO:  add setting to change fan type
+    write(ffieldstr, FMTFAN) lambda,',',numPoints
+    
+
+    !CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
+    !x = curr_ray_fan_data%relAper
+    !y(1:numPoints,1) = curr_ray_fan_data%xyfan(1:numPoints,1)
+    
+    CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+    x = curr_ray_fan_data%relAper
+    y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
+    
+    ! FOB 1
+    ! CALL PROCESKDP("FOB 1")
+    ! CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
+    ! y(1:numPoints,3) = curr_ray_fan_data%xyfan(1:numPoints,1)
+    ! CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+    ! y(1:numPoints,4) = curr_ray_fan_data%xyfan(1:numPoints,2)
+    
+    
+    
+    
+     canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+     & has_alpha=FALSE)
+    
+    
+     call mplt%initialize(canvas, 1,1)
+    
+
+     call lineplot%initialize(c_null_ptr, x,y, &
+     & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
+     & ylabel='Y'//' Error ['// &
+     & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
+     & title='Y '//c_null_char)
+     !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+     
+     
+     call mplt%set(1,1,lineplot)
+
+    
+     call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
+  
+     
+    
+
+
 end subroutine
 
 subroutine pma_go(psm)

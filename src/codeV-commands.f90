@@ -137,7 +137,12 @@ module codeV_commands
         zoaCmds(530)%execFunc => execAstigFieldCurvDistPlot                              
         zoaCmds(531)%cmd = 'PMA'
         zoaCmds(531)%execFunc => execPMAPlot                              
-            
+        zoaCmds(532)%cmd = 'SSI'
+        zoaCmds(532)%execFunc => setPlotScale     
+        zoaCmds(533)%cmd = 'RIM'
+        zoaCmds(533)%execFunc => execRayAberrationPlot                                    
+                
+        
         
 
     end subroutine
@@ -943,6 +948,40 @@ module codeV_commands
         
 
     end function
+
+    subroutine setPlotScale(iptStr)
+        character(len=*) :: iptStr
+
+        !Pseudocode
+        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
+        !  psm%setScaleInLensUnits(real(tokens(2)))
+
+        !   end if
+
+    end subroutine
+
+    subroutine execRayAberrationPlot(iptStr)
+        use zoa_ui
+        use handlers, only: updateTerminalLog
+        use plot_setting_manager
+        implicit none
+        character(len=*) :: iptStr
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%addDensitySetting_new(64,8,128)
+        call psm%addFieldSetting_new()
+        call psm%addWavelengthSetting_new()
+
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RIM, psm)
+        if(boolResult .EQV. .FALSE.) then
+            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+        end if
+
+
+    end subroutine
 
     subroutine execPMAPlot(iptStr)
         use zoa_ui
@@ -2131,6 +2170,7 @@ module codeV_commands
 
       end subroutine      
 
+      !Todo:  put this in a submodule, as this sub will get HUGE eventually
       subroutine executeGo()
         use global_widgets, only: ioConfig
         !use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
@@ -2139,6 +2179,8 @@ module codeV_commands
         use kdp_utils, only: inLensUpdateLevel
         use mod_plotopticalsystem, only: ld_settings
         use plot_functions
+
+        !TODO:  Switch to select case
 
         if(cmd_loop == VIE_OLD_LOOP) then
             if (inLensUpdateLevel()) then
@@ -2210,6 +2252,12 @@ module codeV_commands
             call pma_go(curr_psm)
             cmd_loop = 0
         end if
+
+        if (cmd_loop == ID_PLOTTYPE_RIM) then
+            call rayaberration_go(curr_psm)
+            cmd_loop = 0
+        end if
+
 
 
 

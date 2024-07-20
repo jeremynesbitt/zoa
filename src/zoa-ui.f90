@@ -24,6 +24,7 @@ integer, parameter :: ID_PLOTTYPE_PLT3DTST     = 1016
 integer, parameter :: ID_PLOTTYPE_OPD     = 1017
 integer, parameter :: ID_PLOTTYPE_FAN     = 1018
 integer, parameter :: ID_PLOTTYPE_LENSDRAW     = 2001
+integer, parameter :: ID_PLOTTYPE_RIM     = 1029
 
 
 ! Plot Setting Types
