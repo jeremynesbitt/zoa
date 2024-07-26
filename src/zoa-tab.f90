@@ -1148,6 +1148,7 @@ end subroutine
   ! Create Objects
   newlabel = gtk_label_new(labelText//c_null_char)
   call hl_gtk_combo_box_listid_new(newwidget, set)
+  call hl_zoa_combo_set_selected_by_list2_id(newwidget, defaultSetting)
   call g_signal_connect (newwidget, "changed"//c_null_char, callbackFunc, callbackData)
 
   call gtk_widget_set_name(newwidget, winName//c_null_char)
