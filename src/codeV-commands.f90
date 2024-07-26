@@ -141,7 +141,11 @@ module codeV_commands
         zoaCmds(532)%execFunc => setPlotScale     
         zoaCmds(533)%cmd = 'RIM'
         zoaCmds(533)%execFunc => execRayAberrationPlot                                    
-                
+        zoaCmds(534)%cmd = 'PLTTHO'
+        zoaCmds(534)%execFunc => execSeidelBarChart
+        zoaCmds(535)%cmd = 'PLORMSFLD'
+        zoaCmds(535)%execFunc => execRMSPlot
+                                 
         
         
 
@@ -957,6 +961,50 @@ module codeV_commands
         !  psm%setScaleInLensUnits(real(tokens(2)))
 
         !   end if
+
+    end subroutine
+
+    subroutine  execRMSPlot(iptStr)
+        use zoa_ui
+        use handlers, only: updateTerminalLog
+        use plot_setting_manager
+        implicit none
+        character(len=*) :: iptStr
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        !call psm%addDensitySetting_new(64,8,128)
+        !1call psm%addFieldSetting_new()
+        call psm%addRMSFieldSettings()
+
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RMSFIELD, psm)
+        if(boolResult .EQV. .FALSE.) then
+            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+        end if
+
+    end subroutine
+
+    subroutine  execSeidelBarChart(iptStr)
+        use zoa_ui
+        use handlers, only: updateTerminalLog
+        use plot_setting_manager
+        implicit none
+        character(len=*) :: iptStr
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+
+        call psm%init_plotSettingManager_new(trim(iptStr))
+        !call psm%addDensitySetting_new(64,8,128)
+        !1call psm%addFieldSetting_new()
+        call psm%addWavelengthSetting_new()
+
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_SEIDEL, psm)
+        if(boolResult .EQV. .FALSE.) then
+            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+        end if
 
     end subroutine
 
@@ -2243,6 +2291,11 @@ module codeV_commands
 
         end if
 
+        if (cmd_loop == ID_PLOTTYPE_SEIDEL) then
+            call seidel_go(curr_psm)
+            cmd_loop = 0
+        end if
+
         if (cmd_loop == ID_PLOTTYPE_AST) then
             call ast_go(curr_psm)
             cmd_loop = 0
@@ -2257,6 +2310,11 @@ module codeV_commands
             call rayaberration_go(curr_psm)
             cmd_loop = 0
         end if
+
+        if (cmd_loop == ID_PLOTTYPE_RMSFIELD) then
+            call rmsfield_go(curr_psm)
+            cmd_loop = 0
+        end if        
 
 
 

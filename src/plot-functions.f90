@@ -159,7 +159,6 @@ subroutine vie_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use global_widgets, only:  sysConfig
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
@@ -245,7 +244,7 @@ subroutine spo_go(psm)
     type(multiplot) :: mplt
     type(zoaplot) :: xyscat1
     type(c_ptr) :: canvas
-    type(c_ptr) ::  isurface
+
     type(zoaplot_setting_manager) :: psm
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
@@ -338,11 +337,97 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
   
 end function
 
+subroutine seidel_go(psm)
+    USE GLOBALS
+    use command_utils
+    use handlers, only: updateTerminalLog
+    use global_widgets, only:  sysConfig, curr_par_ray_trace, curr_lens_data
+    use zoa_ui
+    use zoa_plot
+    use iso_c_binding, only:  c_ptr, c_null_char
+    use kdp_utils, only: OUTKDP, logDataVsField
+    use type_utils, only: int2str, str2int
+    use plot_setting_manager
+    use DATMAI
+
+
+    IMPLICIT NONE
+
+    type(zoaplot_setting_manager) :: psm
+    integer, parameter :: nS = 7 ! number of seidel terms to plot
+    real, allocatable, dimension(:,:) :: seidel
+    real, allocatable, dimension(:) :: surfIdx
+    
+    character(len=23) :: ffieldstr
+    character(len=40) :: inputCmd
+    integer :: ii, objIdx, jj
+    logical :: replot
+    type(c_ptr) :: canvas
+    type(barchart), dimension(nS) :: barGraphs
+    integer, dimension(nS) :: graphColors
+    type(multiplot) :: mplt
+    character(len=100) :: strTitle
+    character(len=20), dimension(nS) :: yLabels
+    character(len=23) :: cmdTxt
+    
+    
+    CALL PROCESKDP('MAB3 ALL')
+    
+    allocate(seidel(nS,curr_lens_data%num_surfaces+1))
+    allocate(surfIdx(curr_lens_data%num_surfaces+1))
+    
+    
+    
+    yLabels(1) = "Spherical"
+    yLabels(2) = "Coma"
+    yLabels(3) = "Astigmatism"
+    yLabels(4) = "Distortion"
+    yLabels(5) = "Curvature"
+    yLabels(6) = "Axial Chromatic"
+    yLabels(7) = "Lateral Chromatic"
+    
+    
+    print *, "Num Surfaces is ", curr_lens_data%num_surfaces
+    
+    graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
+    & PL_PLOT_MAGENTA, PL_PLOT_CYAN, PL_PLOT_GREY, PL_PLOT_BROWN]
+    
+    
+    
+    surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
+    seidel(:,:) = curr_par_ray_trace%CSeidel(:,0:curr_lens_data%num_surfaces)
+    
+     canvas = hl_gtk_drawing_area_new(size=[1200,800], &
+     & has_alpha=FALSE)
+    
+    
+     call mplt%initialize(canvas, 1,nS)
+    
+     do jj=1,nS
+      call barGraphs(jj)%initialize(c_null_ptr, real(surfIdx),seidel(jj,:), &
+      & xlabel='Surface No (last item actually sum)'//c_null_char, & 
+      & ylabel=trim(yLabels(jj))//c_null_char, &
+      & title=' '//c_null_char)
+      call barGraphs(jj)%setDataColorCode(graphColors(jj))
+      barGraphs(jj)%useGridLines = .FALSE.
+     end do
+    
+     do ii=1,nS
+      call mplt%set(1,ii,barGraphs(ii))
+     end do
+    
+     call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SEIDEL, "Seidel Aberrations")
+  
+    
+
+
+end subroutine
+
 subroutine ast_go(psm)
 
     USE GLOBALS
     use command_utils
-    use handlers, only: zoatabMgr, updateTerminalLog
+    use handlers, only: updateTerminalLog
     use global_widgets, only:  sysConfig
     use zoa_ui
     use zoa_plot
@@ -355,27 +440,11 @@ subroutine ast_go(psm)
 
     IMPLICIT NONE
 
-    character(len=23) :: ffieldstr
-    character(len=1024) :: inputCmd
-    integer :: ii, objIdx, minZ, maxZ, lambda
-    integer :: maxPlotZ = 9, numTermsToPlot
-    integer :: numPoints = 10
-    integer :: pIdx
-    logical :: replot
     type(multiplot) :: mplt
-    type(zoaplot) :: zernplot
     type(c_ptr) :: canvas
     type(zoaplot_setting_manager) :: psm
-    character(len=80) :: tabName
     character(len=80) :: ftext
 
-
-    character(len=5), allocatable :: zLegend(:)
-
-    REAL, allocatable :: xdat(:), ydat(:,:)
-    type(c_ptr)   :: localcanvas, my_cairo_context
-    !type(c_ptr), value :: gdata
-    type(c_ptr) ::  isurface
     !integer(c_int), value, intent(in) :: win_width, win_height
     type(zoaplot) :: lin1, lin2, lin3
 
@@ -462,7 +531,7 @@ end subroutine
 subroutine rayaberration_go(psm)
     USE GLOBALS
     use command_utils
-    use handlers, only: zoatabMgr, updateTerminalLog
+    use handlers, only: updateTerminalLog
     use global_widgets, only:  sysConfig, curr_ray_fan_data
     use type_utils, only: int2str
     use zoa_ui
@@ -476,17 +545,10 @@ subroutine rayaberration_go(psm)
 
     character(len=80) :: ffieldstr
     CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
-    integer :: xpts, ypts
-    integer, parameter :: xdim=99, ydim=100 
-    integer :: index
-    character(len=80) :: tokens(40)
-    integer :: numTokens
     integer :: lambda, fldIdx
     
     integer, parameter :: nlevel = 10
-    real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
-    
-    real(kind=pl_test_flt)   :: dx, dy
+
     type(c_ptr) :: canvas
     !type(zoaPlot3d) :: zp3d 
     type(zoaplot) :: lineplot
@@ -497,8 +559,6 @@ subroutine rayaberration_go(psm)
     lambda = psm%getWavelengthSetting_new()
     fldIdx = psm%getFieldSetting_new()
     numPoints = psm%getDensitySetting_new()
-
-    print *, "fldIdx is ", fldIdx
 
     
     allocate(x(numPoints))
@@ -557,11 +617,98 @@ subroutine rayaberration_go(psm)
 
 end subroutine
 
+subroutine rmsfield_go(psm)
+  USE GLOBALS
+  use command_utils
+  use handlers, only: updateTerminalLog
+  use global_widgets, only:  sysConfig, curr_ray_fan_data
+  use type_utils, only: int2str
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use plotSettingParser
+  use plot_setting_manager
+
+IMPLICIT NONE
+
+character(len=23) :: ffieldstr
+integer :: ii, objIdx, iData, iLambda
+integer :: numPoints
+type(zoaplot) :: xyscat
+type(c_ptr) :: canvas
+
+REAL, allocatable :: x(:), y(:)
+type(zoaplot_setting_manager) :: psm
+type(multiplot) :: mplt
+
+INCLUDE 'DATMAI.INC'
+
+ !call checkCommandInput(ID_CMD_ALPHA)
+
+ call updateTerminalLog(INPUT, "blue")
+
+ call psm%getRMSFieldSettings(iData, iLambda, numPoints)
+     
+
+allocate(x(numPoints))
+allocate(y(numPoints))
+
+do ii = 0, numPoints-1
+ x(ii+1) = REAL(ii)/REAL(numPoints-1)
+ write(ffieldstr, *) x(ii+1)
+ CALL PROCESKDP("FOB "// ffieldstr)
+ select case(iData)
+
+ case(ID_RMS_DATA_WAVE)
+    CALL PROCESKDP("CAPFN")
+    CALL PROCESKDP("SHO RMSOPD")
+    y(ii+1) = 1000.0*REG(9)
+ case(ID_RMS_DATA_SPOT)
+  CALL PROCESKDP("SPD")
+  CALL PROCESKDP("SHO RMS")
+  y(ii+1) = REG(9)
+ end select
+
+
+ x(ii+1) = x(ii+1)*sysConfig%refFieldValue(2)
+
+end do
+
+
+canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+& has_alpha=FALSE)
+
+
+call mplt%initialize(canvas, 1,1)
+
+select case (iData)
+case(ID_RMS_DATA_WAVE)
+
+call xyscat%initialize(c_null_ptr, x,y, &
+& xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, & 
+& ylabel='RMS Error [mWaves]'//c_null_char, &
+& title='RMS Error vs Field '//c_null_char)
+case(ID_RMS_DATA_SPOT)
+  call xyscat%initialize(c_null_ptr, x,y, &
+  & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, & 
+  & ylabel="RMS ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
+  & title='Spot RMS Size vs Field'//c_null_char)
+end select  
+
+call mplt%set(1,1,xyscat)
+
+
+call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RMSFIELD, "RMS vs Field")
+
+end subroutine
+
 subroutine pma_go(psm)
 
     USE GLOBALS
     use command_utils
-    use handlers, only: zoatabMgr, updateTerminalLog
+    use handlers, only: updateTerminalLog
     use global_widgets, only:  sysConfig, curr_opd
     use type_utils, only: int2str
     use zoa_ui
@@ -577,10 +724,6 @@ subroutine pma_go(psm)
   IMPLICIT NONE
   
   character(len=1024) :: ffieldstr
-  character(len=40) :: inputCmd
-  integer :: ii, i, j, objIdx
-  logical :: replot
-  type(setting_parser) :: sp
   type(zoaplot_setting_manager) :: psm
   
   ! desirable commands
@@ -600,15 +743,10 @@ subroutine pma_go(psm)
       !   dimension of z that is defined.
   integer :: xpts, ypts
   integer, parameter :: xdim=99, ydim=100 
-  integer :: index
-  character(len=80) :: tokens(40)
-  integer :: numTokens
   integer :: lambda, fldIdx
   
   integer, parameter :: nlevel = 10
-  real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
-  
-  real(kind=pl_test_flt)   :: dx, dy
+
   type(c_ptr) :: canvas
   !type(zoaPlot3d) :: zp3d 
   type(zoaPlotImg) :: zp3d 

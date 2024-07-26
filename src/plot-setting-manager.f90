@@ -89,7 +89,9 @@ module plot_setting_manager
     procedure, public, pass(self) :: addAstigSettings
     procedure, public, pass(self) :: getAstigSettings
 
-
+    !RMS Settings
+    procedure, public, pass(self) :: addRMSFieldSettings
+    procedure, public, pass(self) :: getRMSFieldSettings
 
     procedure, public, pass(self) :: updateSetting_new
 
@@ -396,6 +398,48 @@ contains
       
 
     end subroutine
+
+    subroutine addRMSFieldSettings(self)
+      use kdp_data_types, only: idText
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: set(2)
+   
+      set(1)%text = "Spot Size"
+      set(1)%id = ID_RMS_DATA_SPOT
+    
+      set(2)%text = "Wavefront Error"
+      set(2)%id = ID_RMS_DATA_WAVE
+    
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_RMS_DATA_TYPE, & 
+      & "Data", real(ID_RMS_DATA_WAVE),0.0,0.0, &
+      & "RMSDATA ", "RMSDATA WAVE", UITYPE_COMBO, set=set)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_NUMPOINTS, & 
+      & "Number of Points", real(10.0),1.0,50.0, &
+      & "NUMPTS ", "NUMPTS "//int2str(10), UITYPE_SPINBUTTON)
+
+      call self%addWavelengthSetting_new()
+      !call self%addWavelengthSetting_new()
+
+
+    end subroutine
+
+    subroutine getRMSFieldSettings(self, iData, iLambda, numPoints)
+      use zoa_ui
+      use type_utils, only: int2str
+      implicit none
+      class (zoaplot_setting_manager) :: self
+      integer, intent(inout) :: iData, iLambda, numPoints
+   
+      iData = self%getSettingValueByCode(ID_RMS_DATA_TYPE)
+      iLambda = self%getSettingValueByCode(SETTING_WAVELENGTH)
+      numPoints = self%getSettingValueByCode(ID_NUMPOINTS)
+    
+    end subroutine    
 
 
     subroutine initializeStr(self, ID_SETTING, label, default, prefix, ID_UITYPE)
