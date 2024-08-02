@@ -156,7 +156,6 @@ C SUB CONTRO.FOR
         use global_widgets, only: lens_editor_window,
      1 curr_asph_data, sysConfig, curr_lens_data
         use lens_editor, only: buildBasicTable, buildAsphereTable
-        use handlers, only: zoatabMgr
         use codeV_commands, only: startCodeVLensUpdateCmd, 
      1   isCodeVCommand
         use iso_c_binding, only: c_associated  

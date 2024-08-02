@@ -145,6 +145,10 @@ module codeV_commands
         zoaCmds(534)%execFunc => execSeidelBarChart
         zoaCmds(535)%cmd = 'PLORMSFLD'
         zoaCmds(535)%execFunc => execRMSPlot
+        zoaCmds(536)%cmd = 'XOFF'
+        zoaCmds(536)%execFunc => execXOFF
+        zoaCmds(537)%cmd = 'YOFF'
+        zoaCmds(537)%execFunc => execYOFF                
                                  
         
         
@@ -421,6 +425,58 @@ module codeV_commands
 
 
     end function
+
+    subroutine execXOFF(iptStr)
+        use command_utils, only: isInputNumber
+        use type_utils, only: real2str, str2real8
+        use strings
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        INTEGER VIEXOF,VIEYOF, VIEROT
+  
+        COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
+
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens==2) then
+            if (isInputNumber(tokens(2))) then
+                VIEXOF = str2real8(tokens(2))
+            end if
+        end if
+
+    end subroutine
+
+    subroutine execYOFF(iptStr)
+        use command_utils, only: isInputNumber
+        use type_utils, only: real2str, str2real8
+        use strings
+
+        implicit none
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        INTEGER VIEXOF,VIEYOF, VIEROT
+  
+        COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
+
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens==2) then
+            if (isInputNumber(tokens(2))) then
+                VIEYOF =  str2real8(tokens(2))
+            end if
+        end if
+
+    end subroutine
 
     ! This is a very important command that performs ray traces for a user defined
     ! number of field points, wavelengths, and relative aperture locations

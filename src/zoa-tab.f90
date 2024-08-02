@@ -599,8 +599,7 @@ contains ! for module
     integer(kind=c_int) :: ID_PLOTTYPE
     type(c_ptr), optional :: canvas
     character(len=*) :: tabTitle
-    type(c_ptr) :: tab_label, scrolled_tab, head, btn
-    integer :: i
+    type(c_ptr) :: tab_label, btn
     integer, target :: ID_TARGET
 
     self%cmdBasedPlot = .FALSE. ! Default

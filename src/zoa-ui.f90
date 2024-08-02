@@ -31,6 +31,7 @@ integer, parameter :: ID_PLOTTYPE_RIM     = 1029
 integer, parameter :: UITYPE_SPINBUTTON = 1
 integer, parameter :: UITYPE_ENTRY = 2
 integer, parameter :: UITYPE_COMBO = 3
+integer, parameter :: UITYPE_TOOLBAR = 4
 
 
 integer, parameter :: ID_NUMPOINTS = 3001
@@ -54,6 +55,9 @@ integer, parameter :: ID_LENSDRAW_AZIMUTH         = 1413
 integer, parameter :: ID_LENSDRAW_ELEVATION         = 1414
 integer, parameter :: ID_LENSDRAW_AUTOSCALE_VALUE         = 1418
 integer, parameter :: ID_LENSDRAW_NUM_FIELD_RAYS    = 1419
+integer, parameter :: ID_LENSDRAW_OFFSET_X    = 1420
+integer, parameter :: ID_LENSDRAW_OFFSET_Y    = 1421
+
 
 integer, parameter :: ID_LENS_FIRSTSURFACE         = 1415
 integer, parameter :: ID_LENS_LASTSURFACE         = 1416

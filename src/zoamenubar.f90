@@ -95,44 +95,39 @@ contains
 
     type(c_ptr), intent(in) :: win
 
-    type(c_ptr) :: act_fullscreen, act_color, act_quit, display, provider
+    type(c_ptr) :: act_fullscreen, act_quit
     type(c_ptr) :: menubar, menu, section1, section2, section3, &
-      & menu_item_red, menu_item_green, &
-      & menu_item_blue, menu_item_quit, menu_item_fullscreen, lb
+      menu_item_quit, menu_item_fullscreen
 
-    type(c_ptr) :: menu_lens, menu_item_drawLens, section1_lens, act_drawLens
+    type(c_ptr) :: menu_lens, section1_lens
     type(c_ptr) :: menu_paraxial, act_firstorder, menu_item_firstorder
     type(c_ptr) :: menu_imagEval, menu_wavefront
 
-    type(c_ptr) :: menu_macro, menu_item_macrooperations, act_macrooperations
-    type(c_ptr) :: act_macrosave, menu_item_macrosave, menu_item_macrorestore, act_macrorestore
-    type(c_ptr) :: act_macromanual, menu_item_macromanual, menu_edit
+    type(c_ptr) :: menu_macro
+    type(c_ptr) :: act_macromanual, menu_edit
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
 
-    type(c_ptr) :: act_glassDisplay, menu_item_glass, menu_item_editsysconfig
-    type(c_ptr) :: act_sysconfig
+    type(c_ptr) :: act_glassDisplay, menu_item_glass
     type(c_ptr) :: act_lenslib, menu_item_lenslib
-    type(c_ptr) :: act_tmp
-    character(len=1000) :: tmpDump
-
+ 
 
     type(c_ptr) :: menu_import
 
 
-    character(len=100), target :: pltAst = "AST; PLTAST 1"
-    character(len=100), target :: pltSpd = "FOB 1; SPD; PLTSPD"
-    character(len=100), target :: pltRMS = "RMSFIELD"
+    character(len=100), target :: pltAst = "ASTFCDIST; GO"
+    character(len=100), target :: pltSpd = "SPO; GO"
+    character(len=100), target :: pltRMS = "PLORMSFLD; GO"
     character(len=100), target :: pltSPR = "SPR"
 
     character(len=100), target :: syscon = "SYSCON"
-    character(len=100), target :: drawCmd = "VIECO"
-    character(len=10), target :: seidelCmd = "PLTSEI"
-    character(len=10), target :: macroCmd = "MACROUI"
-    character(len=10), target :: zernFldCmd = "PLTZERN"
-    character(len=10), target :: opdPltCmd = "PLTOPD"    
-    character(len=10), target :: newLensCmd = "LEN NEW" 
-    character(len=10), target :: fanCmd = "FAN"    
+    character(len=100), target :: drawCmd = "VIE; GO"
+    character(len=100), target :: seidelCmd = "PLTTHO; GO"
+    character(len=100), target :: macroCmd = "MACROUI"
+    character(len=100), target :: zernFldCmd = "ZERN_TST; GO"
+    character(len=100), target :: opdPltCmd = "PMA; GO"    
+    character(len=100), target :: newLensCmd = "LEN NEW" 
+    character(len=100), target :: fanCmd = "RIM;GO"    
 
 
 

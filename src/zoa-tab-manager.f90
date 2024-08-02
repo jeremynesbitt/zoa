@@ -69,7 +69,7 @@ contains
 subroutine addMsgTab(self, notebook, winTitle)
 
     class(zoatabManager) :: self
-    type(c_ptr) :: notebook, buffer, scrollWin, label
+    type(c_ptr) :: notebook
     character(len=*) :: winTitle
     integer(c_int) :: tabPos
 
@@ -265,6 +265,7 @@ subroutine finalizeNewPlotTab(self, idx)
 
     ! TODO:  Revisit this design.  I think it is bad but couldn't come up with a better way 
     call LogTermFOR("Finalize New Plot Tab")
+    !TODO:  Fix this - don't like how this flat is set secretly for lens draw
     call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%settings%useToolbar)
 
 
@@ -340,10 +341,6 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   integer, target :: TARGET_LENSDRAW   = ID_PLOTTYPE_LENSDRAW
   integer, target :: TARGET_TST   = ID_PLOTTYPE_GENERIC
   !integer, target :: tabIdx
-
-  integer, pointer :: ptr
-
-  
 
 
   idx = self%findTabIndex()
@@ -740,6 +737,8 @@ end function
     call self%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
     & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(psm%ps(i)%prefix))   
 
+    case(UITYPE_TOOLBAR)
+      !Do nothing.  THis will be drawn separately
     end select 
     end do
 

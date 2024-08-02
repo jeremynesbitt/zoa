@@ -85,6 +85,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addLensDrawOrientationSettings   
     procedure, public, pass(self) :: addLensDrawScaleSettings    
     procedure, public, pass(self) :: getLensDrawSettings
+    procedure, public, pass(self) :: addPlotManipToolbarSettings
 
     procedure, public, pass(self) :: addAstigSettings
     procedure, public, pass(self) :: getAstigSettings
@@ -185,6 +186,26 @@ contains
       & "Manual Scale Factor", real(.045),real(0.0),real(10000.0), &
       & "SSI", "SSI "//trim(real2str(.045)), UITYPE_SPINBUTTON)             
 
+
+      ! Toolbar settings
+      call self%addPlotManipToolbarSettings()
+
+    end subroutine
+
+    subroutine addPlotManipToolbarSettings(self)
+      use type_utils, only: real2str
+      class(zoaplot_setting_manager) :: self
+
+      !For now just test x and y offset
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_OFFSET_X, & 
+      & "Manual Scale Factor", real(0.0),real(-10000.0),real(10000.0), &
+      & "XOFF", "XOFF "//trim(real2str(0.0)), UITYPE_TOOLBAR)    
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_OFFSET_Y, & 
+      & "Manual Scale Factor", real(0.0),real(-10000.0),real(10000.0), &
+      & "YOFF", "YOFF "//trim(real2str(0.0)), UITYPE_TOOLBAR)          
 
     end subroutine
 

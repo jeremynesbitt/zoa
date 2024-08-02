@@ -17,7 +17,59 @@ module zoa_plot_manip_toolbar
 
     integer, dimension(2) :: dragStartXY
     logical :: ctrl_pressed = .FALSE.
+
+    interface
+    function getTabPlotCommand(objIdx)
+      character(len=1040) :: getTabPlotCommand
+      integer :: objIdx
+    end function
+  end interface
+  
+  interface
+    function updateTabPlotCommand(tabIdx, setting_code, value)
+      logical :: updateTabPlotCommand
+      integer :: tabIdx
+      integer :: setting_code
+      class(*) :: value
+      !double precision :: value
+    end function
+    end interface
+  
+
     contains
+
+    !TODO:  This nearly the same code as findTabParent in Zoatab. Just one more iteration. Find a better home for this
+    ! fcn so both modules can access without dependency loop errors
+    function findToolbarTabParent(widget) result(tabIdx)
+      use type_utils, only: str2int
+    
+     implicit none
+     type(c_ptr) :: widget
+     type(c_ptr) :: cstr, p1, p2, p3
+     character(len=140) :: winName
+     integer :: tabIdx
+    
+! Tmp code
+     p1 = gtk_widget_get_parent(widget)
+     cstr= gtk_widget_get_name(p1) 
+     call convert_c_string(cstr, winName)
+    
+     call LogTermFOR("Parent Windown name is "// trim(winName))
+   
+     p2 = gtk_widget_get_parent(p1)
+     cstr= gtk_widget_get_name(p2) 
+     call convert_c_string(cstr, winName)
+    
+     p3 = gtk_widget_get_parent(p2)
+     cstr= gtk_widget_get_name(p3) 
+     call convert_c_string(cstr, winName)
+
+     call LogTermFOR("Parent Windown name is "// trim(winName))
+     print *, "Parent Windown name is ", trim(winName)
+     tabIdx = str2int(winName)
+   
+    
+    end function    
 
     subroutine createPlotManipulationToolbar(cairo_drawing_area,plotBox)
         
@@ -242,14 +294,20 @@ subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
   !use zoa_plot_manip_toolbar
   use mod_plotopticalsystem, only: ld_settings, ID_LENSDRAW_MANUALSCALE
   use type_utils, only: int2str
+  use zoa_ui
+
+  implicit none
+
   type(c_ptr), value, intent(in)    :: gesture, gdata
   integer(c_int), value, intent(in) :: n_press
   integer(c_int) :: height, width
+  integer :: tabIdx
   real(c_double), value, intent(in) :: x, y
   real :: zoomFactor
   type(c_ptr) :: device, dcname
   character(len=80) :: dname
   INTEGER VIEXOF,VIEYOF, VIEROT
+  logical :: boolResult
   
    COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
 
@@ -262,9 +320,21 @@ subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
   select case(toolbarState)
 
   case(ID_SHIFT)
+    print *, "ABout to find parent"
       ! Update offsets
-    VIEXOF = VIEXOF - 10*(INT(x)-dragStartXY(1))
-    VIEYOF = VIEYOF - 10*(INT(y)-dragStartXY(2))
+    tabIdx = findToolbarTabParent(plotArea)
+    print *, "Okay 313?"
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_X, real(VIEXOF - 10*(INT(x)-dragStartXY(1))))
+    print *, "Okay 315?"
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_Y, real(VIEYOF - 10*(INT(y)-dragStartXY(2))))
+    print *, "Okay 317?"
+    call PROCESKDP(getTabPlotCommand(tabIdx))
+    print *, "Okay 319?"
+    return ! temp.  to avoid the replot trap below
+
+    !VIEXOF = VIEXOF - 10*(INT(x)-dragStartXY(1))
+    !VIEYOF = VIEYOF - 10*(INT(y)-dragStartXY(2))
+
   case(ID_ZOOM_IN)
     call LogTermFOR("Zoom in even detected!")
     height = gtk_drawing_area_get_content_height(plotArea)
