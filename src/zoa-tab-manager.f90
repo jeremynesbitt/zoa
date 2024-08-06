@@ -182,7 +182,7 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
         allocate(lens_draw_settings :: self%tabInfo(idx)%settings )
         ld_settings%useToolbar = .TRUE.
         self%tabInfo(idx)%settings = ld_settings
-        call LogTermFOR("Lens Draw ptr is "//int2str(INT(loc(self%tabInfo(idx)%tabObj%canvas),4)))
+       ! call LogTermFOR("Lens Draw ptr is "//int2str(INT(loc(self%tabInfo(idx)%tabObj%canvas),4)))
 
 
 
@@ -452,8 +452,6 @@ function isUISettingDifferent(widget, ps) result(boolResult)
     end if
 
   case(UITYPE_COMBO)
-    call LogTermFOR("Checking Combo for ID "//int2str(hl_zoa_combo_get_selected_list2_id(widget)))
-    call LogTermFOR("Looking for current value of "//int2str(INT(ps%default)))
     if ((hl_zoa_combo_get_selected_list2_id(widget)) /= INT(ps%default)) then
       boolResult = .TRUE.
       call hl_zoa_combo_set_selected_by_list2_id(widget, INT(ps%default))
@@ -616,13 +614,9 @@ end subroutine
    !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
    plotFound = .FALSE.
    idxObj = -1
-   PRINT *, "PLOT_CODE is ", PLOT_CODE
-   PRINT *, "self%tabNum is ", self%tabNum
    DO i = 1,self%tabNum
-      PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
      if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
          if (self%tabInfo(i)%tabObj%psm%plotNum ==plotNum) then
-        call LogTermFOR("Found matching plot type and number!")
          idxObj = i
         plotFound = .TRUE.
       end if

@@ -325,12 +325,12 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
 
     PRINT *, "Trying to draw system!"
-    call LogTermFOR("DRAW ptr is "//int2str(INT(loc(cairo_drawing_area),4)))
+    !call LogTermFOR("DRAW ptr is "//int2str(INT(loc(cairo_drawing_area),4)))
 
 
 
     call c_f_pointer(gdata, ID_SETTING)
-    call LogTermFOR("ID_SETTING is "//int2str(ID_SETTING))
+    !call LogTermFOR("ID_SETTING is "//int2str(ID_SETTING))
     
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)

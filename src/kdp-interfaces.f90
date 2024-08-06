@@ -11,8 +11,7 @@ subroutine POWSYM
     !use mod_plotopticalsystem
 
 
-  integer(kind=c_int) :: ipick, i, endSurface, ii
- character(len=100) :: ftext, strTitle
+  integer(kind=c_int) :: ii
  CHARACTER(LEN=*), PARAMETER  :: FMT1 = "(I5, F10.3, F10.3)"
  CHARACTER(LEN=*), PARAMETER  :: FMTHDR = "(A12, A5, A5)"
  character(len=100) :: conLong
@@ -403,7 +402,6 @@ use GLOBALS
 use global_widgets
 use handlers, only : updateTerminalLog
  use zoa_plot
-   character(len=23) :: ffieldstr
    integer :: ii
    integer :: numPoints = 10
 

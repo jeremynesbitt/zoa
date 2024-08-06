@@ -444,7 +444,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 
@@ -543,9 +543,10 @@ end subroutine
  end subroutine
 
   subroutine detachTabTst(parent_notebook, widget) bind(c)
+        implicit none
         type(c_ptr), value :: widget, parent_notebook
-        type(c_ptr) :: newwin, newnotebook, newlabel, box2, scrolled_win
-        type(c_ptr) :: child
+        type(c_ptr) :: newwin, newnotebook, box2, scrolled_win
+        type(c_ptr) :: child, newlabel
         integer :: newtab
         !PRINT *, "Detach Event Called!"
 

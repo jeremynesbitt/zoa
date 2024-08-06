@@ -143,10 +143,6 @@ contains
         self%set = set
       end if
 
-      ! DEBUG
-      if (ID_SETTING == ID_LENSDRAW_AUTOSCALE_VALUE) then
-        call LogTermFOR("Default value is "//real2str(self%default))
-      end if
   end subroutine
 
     subroutine addLensDrawSettings(self)
@@ -345,8 +341,8 @@ contains
       idxLambda = self%getSettingValueByCode(SETTING_WAVELENGTH)
       
       idxSpotCalcMethod = self%getSettingValueByCode(ID_SPOT_TRACE_ALGO)
-      call LogTermFOR("In getSpotDiagramSettings idxSpotCalcMethod is "// &
-      &int2str(idxSpotCalcMethod))
+      !call LogTermFOR("In getSpotDiagramSettings idxSpotCalcMethod is "// &
+      !&int2str(idxSpotCalcMethod))
       nRect = self%getSettingValueByCode(ID_SPOT_RECT_GRID)
       nRand = self%getSettingValueByCode(ID_SPOT_RAND_NUMRAYS)
       nRing = self%getSettingValueByCode(ID_SPOT_RING_NUMRINGS)
@@ -374,7 +370,7 @@ contains
       & "Spot Tracing Method", real(ID_SPOT_RECT),0.0,0.0, &
       & "TRAC", "TRAC RECT", UITYPE_COMBO, set=spotTrace)
 
-      call LogTermFOR("Successfully Initialized Combo Box Settings")
+      !call LogTermFOR("Successfully Initialized Combo Box Settings")
 
 
 
@@ -591,7 +587,7 @@ contains
         !TODO:  Add error checking
         do i=1,self%numSettings
           if (self%ps(i)%ID == SETTING_WAVELENGTH) then
-            call LogTermFOR("Found setting and changing to " //int2str(newIdx))
+            !call LogTermFOR("Found setting and changing to " //int2str(newIdx))
             self%ps(i)%default = real(newIdx)
             self%ps(i)%fullCmd = trim("SETWV "//int2str(newIdx))
           end if
@@ -790,18 +786,18 @@ contains
 
             select type(newVal)
               type is (integer)
-                call LogTermFOR("Upating Setting int value")
-                call LogTermFOR("New value is "//int2str(newVal))
+                !call LogTermFOR("Upating Setting int value")
+                !call LogTermFOR("New value is "//int2str(newVal))
                 self%ps(i)%default = real(newVal)
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
                 & " "//trim(int2str(newVal))
-                call LogTermFOR("Setting Code is "//int2str(setting_code))
-                call LogTermFOR("Defauls is "//int2str(INT(self%ps(i)%default)))
+                !call LogTermFOR("Setting Code is "//int2str(setting_code))
+                !call LogTermFOR("Defauls is "//int2str(INT(self%ps(i)%default)))
               type is (character(*))
                 self%ps(i)%defaultStr = newVal
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
                 & " "//newVal       
-                call LogTermFOR("Updated Char val to "//self%ps(i)%defaultStr) 
+                !call LogTermFOR("Updated Char val to "//self%ps(i)%defaultStr) 
                 type is (double precision)
                 self%ps(i)%default = real(newVal)
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &

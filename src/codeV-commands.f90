@@ -955,10 +955,10 @@ module codeV_commands
         call psm%init_plotSettingManager_new(trim(iptStr))
         cmd_loop = VIE_LOOP
 
-        call LogTermFOR("About ot check VIE for existing plot")
+        !call LogTermFOR("About ot check VIE for existing plot")
         if (numTokens  == 2) then
             plotExists = checkForExistingPlot(tokens(1:2), psm, ID_PLOTTYPE_LENSDRAW)
-            call LogTermFOR("VIE plot exists is "//bool2str(plotExists))
+            !ßcall LogTermFOR("VIE plot exists is "//bool2str(plotExists))
             ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
             ! here but don't have a better soultion right now
            if (plotExists) return
@@ -2316,12 +2316,13 @@ module codeV_commands
 
      
 
-        call LogTermFOR("IN VIE LOOP ")
+        !call LogTermFOR("IN VIE LOOP ")
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
         active_plot = ID_PLOTTYPE_LENSDRAW
         cmd_loop = DRAW_LOOP
         call vie_go(curr_psm)
         CALL PROCESKDP('DRAW')
-
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
         !Working code for the OLD Wway
 
         ! cmd_loop = DRAW_LOOP

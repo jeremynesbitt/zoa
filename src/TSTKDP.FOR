@@ -251,7 +251,7 @@ C
                   end do
                   RETURN
             else
-                  call LogTermFOR("Warning:  INput string too long!")
+                !  call LogTermFOR("Warning:  INput string too long!")
             end if
       end if
 

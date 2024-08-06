@@ -55,17 +55,11 @@ SUBROUTINE VIE_psm(psm)
     !INCLUDE 'DATMAC.INC'
 
 !
-    call LogTermFOR("VIE PSM ROUTINE STARTING..")
-    PRINT *, "VIE PSM ROUTINE STARTING..."
+   ! call LogTermFOR("VIE PSM ROUTINE STARTING..")
     CACOCHVIE = 1
 
 
     call psm%getLensDrawSettings(plotOrient, numRays, Si, Sf, elev, azi, scaleChoice, scaleFactor)
-
-    call LogTermFOR("plotOrient is "//int2str(plotOrient))
-    call LogTermFOR("numRays is "//int2str(numRays))
-    call LogTermFOR("scalefactor is "//real2str(scaleFactor))
-
 
     ! Kill VIE overlay for now..
 !
@@ -102,16 +96,6 @@ SUBROUTINE VIE_psm(psm)
       VS1=S1
       VS2=S2 ! Always 1?
       VS3=S3 ! Always 1?
-
- PRINT *, "VIEW2 is "//trim(real2str(VIEW2))
- PRINT *, "VDF2 is "//trim(int2str(VDF2))
-
- call LogTermFOR("VIEW2 is "//trim(real2str(VIEW2)))
- call LogTermFOR("VIEW3 is "//trim(real2str(VIEW3)))
-
- call LogTermFOR("VDF1 is "//trim(int2str(VDF1)))
- call LogTermFOR("VDF2 is "//trim(int2str(VDF2)))
- call LogTermFOR("VDF3 is "//trim(int2str(VDF3)))
 
 
 !
@@ -414,11 +398,10 @@ SUBROUTINE VIE_psm(psm)
 !     OTHER RAYS
 !
 !     Y FIELDS OF VIEW ARE DONE WHEN VIEW IS YZ, XY OR ORTHO
-   call LogTermFOR("VIE plot orientation is "//int2str(plotOrient))
+
   IF((plotOrient == ID_LENSDRAW_YZ_PLOT_ORIENTATION) .OR. & 
     &  (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR. &
     &  (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN 
-      call LogTermFOR("VIE_NEW_NEW PLOT LOOP")
 
  !   CALL VIE_RSI(xF,yF,xA,yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE, RAYEXT)
 
@@ -3523,7 +3506,7 @@ NORAYPLOT=.FALSE.
 !     IF THERE ARE X-OFFSETS (JUSTIFICATION) TO APPLY, DO THEM HERE.
 !
 !     NOW
-      call LogTermFOR("RCL is "//int2str(RCL))
+
       IF(RCL.EQ.1.OR.RCL.EQ.-1) THEN
       JUSOFF=500.0D0-((XMINI/SCFAX)*1000.0D0)
                         RCL=-1

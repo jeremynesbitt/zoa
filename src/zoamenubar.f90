@@ -95,16 +95,16 @@ contains
 
     type(c_ptr), intent(in) :: win
 
-    type(c_ptr) :: act_fullscreen, act_quit
+    type(c_ptr) :: act_quit
     type(c_ptr) :: menubar, menu, section1, section2, section3, &
-      menu_item_quit, menu_item_fullscreen
+      & menu_item_quit
 
     type(c_ptr) :: menu_lens, section1_lens
     type(c_ptr) :: menu_paraxial, act_firstorder, menu_item_firstorder
     type(c_ptr) :: menu_imagEval, menu_wavefront
 
     type(c_ptr) :: menu_macro
-    type(c_ptr) :: act_macromanual, menu_edit
+    type(c_ptr) :: menu_edit
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
 
@@ -407,7 +407,6 @@ contains
     type(c_ptr), value, intent(in) :: act, avalue, win
     character(len=500) :: fileName
     character(len=500) :: cdir
-    character(len=500) :: existingCodeVDir
     logical :: fileSelected
 
     integer :: n, ios
