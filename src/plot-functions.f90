@@ -341,7 +341,7 @@ subroutine seidel_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use global_widgets, only:  sysConfig, curr_par_ray_trace, curr_lens_data
+    use global_widgets, only:  curr_par_ray_trace, curr_lens_data
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char

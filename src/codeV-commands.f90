@@ -446,7 +446,7 @@ module codeV_commands
 
         if (numTokens==2) then
             if (isInputNumber(tokens(2))) then
-                VIEXOF = str2real8(tokens(2))
+                VIEXOF = INT(str2real8(tokens(2)))
             end if
         end if
 
@@ -472,7 +472,7 @@ module codeV_commands
 
         if (numTokens==2) then
             if (isInputNumber(tokens(2))) then
-                VIEYOF =  str2real8(tokens(2))
+                VIEYOF =  INT(str2real8(tokens(2)))
             end if
         end if
 

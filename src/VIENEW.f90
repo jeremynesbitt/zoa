@@ -64,6 +64,7 @@ SUBROUTINE VIE_psm(psm)
 
     call LogTermFOR("plotOrient is "//int2str(plotOrient))
     call LogTermFOR("numRays is "//int2str(numRays))
+    call LogTermFOR("scalefactor is "//real2str(scaleFactor))
 
 
     ! Kill VIE overlay for now..
@@ -233,6 +234,8 @@ SUBROUTINE VIE_psm(psm)
                     PLSZ=.TRUE.
                     PLSC=.FALSE.
                     ELSE
+  ! Scale factor is already set so store it in psm in case user switches to manual
+      call psm%updateSetting_new(ID_LENSDRAW_AUTOSCALE_VALUE, SCFAYP)                                        
                     END IF
   !PRINT *, "AFTER SCALE FACTOR DONE, IT IS ", SCFAY
 !     SCALE FACTOR DONE
@@ -1184,18 +1187,6 @@ end if
           VS2=S2
           VS3=S3
 
-     PRINT *, "VIEW2 is "//trim(real2str(VIEW2))
-     PRINT *, "VDF2 is "//trim(int2str(VDF2))
-
-     call LogTermFOR("VIEW2 is "//trim(real2str(VIEW2)))
-     call LogTermFOR("VIEW3 is "//trim(real2str(VIEW3)))
-
-     call LogTermFOR("VDF1 is "//trim(int2str(VDF1)))
-     call LogTermFOR("VDF2 is "//trim(int2str(VDF2)))
-     call LogTermFOR("VDF3 is "//trim(int2str(VDF3)))
-
-
-!
 !     DO A PLOT NEW
 !
                         DEVTYP=1

@@ -124,6 +124,7 @@ contains
     end subroutine
 
     subroutine init_setting_new(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
+      use type_utils, only: real2str
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
       character(len=*) :: label, cmd, fullCmd
@@ -142,6 +143,10 @@ contains
         self%set = set
       end if
 
+      ! DEBUG
+      if (ID_SETTING == ID_LENSDRAW_AUTOSCALE_VALUE) then
+        call LogTermFOR("Default value is "//real2str(self%default))
+      end if
   end subroutine
 
     subroutine addLensDrawSettings(self)
@@ -183,8 +188,8 @@ contains
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AUTOSCALE_VALUE, & 
-      & "Manual Scale Factor", real(.045),real(0.0),real(10000.0), &
-      & "SSI", "SSI "//trim(real2str(.045)), UITYPE_SPINBUTTON)             
+      & "Manual Scale Factor", 0.045,real(0.0),real(10000.0), &
+      & "SSI", "SSI "//trim(real2str(0.045,5)), UITYPE_SPINBUTTON)             
 
 
       ! Toolbar settings
@@ -201,7 +206,7 @@ contains
       call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_OFFSET_X, & 
       & "Manual Scale Factor", real(0.0),real(-10000.0),real(10000.0), &
       & "XOFF", "XOFF "//trim(real2str(0.0)), UITYPE_TOOLBAR)    
-
+     
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_OFFSET_Y, & 
       & "Manual Scale Factor", real(0.0),real(-10000.0),real(10000.0), &
@@ -576,7 +581,6 @@ contains
       
 
       subroutine updateWavelengthSetting_new(self, newIdx) 
-        use global_widgets, only: sysConfig
         use type_utils, only: int2str
         implicit none
 
@@ -597,17 +601,12 @@ contains
 
 
       function getFieldSetting_new(self) result(idxFld)
-        use global_widgets, only: sysConfig
         use type_utils, only: str2int
         use strings
         implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: idxFld
-        integer :: i
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
         
         idxFld = INT(self%getSettingValueByCode(SETTING_FIELD))
 
@@ -776,7 +775,7 @@ contains
 
       subroutine updateSetting_new(self, setting_code, newVal)
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
+        use type_utils, only: int2str, real2str
         implicit none
 
         class(zoaplot_setting_manager) :: self
@@ -802,7 +801,15 @@ contains
                 self%ps(i)%defaultStr = newVal
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
                 & " "//newVal       
-                call LogTermFOR("Updated Char val to "//self%ps(i)%defaultStr)     
+                call LogTermFOR("Updated Char val to "//self%ps(i)%defaultStr) 
+                type is (double precision)
+                self%ps(i)%default = real(newVal)
+                self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
+                & " "//trim(real2str(newVal))                  
+                type is (real)
+                self%ps(i)%default = real(newVal)
+                self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
+                & " "//trim(real2str(newVal))                    
             end select
           end if
         

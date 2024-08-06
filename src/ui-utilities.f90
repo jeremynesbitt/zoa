@@ -52,6 +52,15 @@ function getTabPlotCommand(objIdx) result(outStr)
 
 end function
 
+function getTabPlotCommandValue(objIdx, SETTING_CODE) result(realVal)
+  use handlers, only: zoatabMgr
+  integer, intent(in) :: objIdx, SETTING_CODE
+  real :: realVal
+
+  realVal = zoatabMgr%tabInfo(objIdx)%tabObj%psm%getSettingValueByCode(SETTING_CODE)
+
+end function
+
 function getSettingUIType(tabIdx, setting_code) result(uitype)
   use handlers, only: zoatabMgr
   use plot_setting_manager, only: zoaplot_setting_manager, UITYPE_SPINBUTTON
@@ -118,33 +127,48 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
 
   boolResult = .FALSE.
 
-  call LogTermFOR("In UPdatePlotCommand")
+  !call LogTermFOR("In UPdatePlotCommand")
 
   ! Just for readability
   psm = zoatabMgr%tabInfo(tabIdx)%tabObj%psm
 
-  call LogTermFOR("NumZsetings is "//int2str(psm%numSettings))
+  !call LogTermFOR("NumZsetings is "//int2str(psm%numSettings))
   do i=1,psm%numSettings
-  call LogTermFOR("ID is "//int2str(psm%ps(i)%ID))
-  call LogTermFOR("Code is "//int2str(setting_code))    
+  !call LogTermFOR("ID is "//int2str(psm%ps(i)%ID))
+  !call LogTermFOR("Code is "//int2str(setting_code))    
     if (psm%ps(i)%ID == setting_code) then
-      call LogTermFOR("Found proper setting!")
-      select type (value)
-    type is (real)
-    call LogTermFOR("Calling update setting_new real")
-    
-      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,INT(value))
-      boolResult = .TRUE.
-    type is (double precision)
-    call LogTermFOR("Calling update setting_new dbl prec")
-      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,INT(value))
-      boolResult = .TRUE.
-      type is (character(*))
+      !TODO:  Add a way to send index to update setting since we are finding it twice
+      ! the way this is written
       call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
-      boolResult = .TRUE.      
-    end select
-    return
+      boolResult = .TRUE.
+      return 
     end if
+
+    ! All the types are resolved in the update_Setting code so it was a mistake to duplicate 
+    ! it here.  But in case some bug pops up leave it here for now.
+
+      !call LogTermFOR("Found proper setting!")
+    !   select type (value)
+    ! type is (real)
+    ! !call LogTermFOR("Calling update setting_new real")
+    
+    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
+    !   boolResult = .TRUE.
+    ! type is (double precision)
+    ! !call LogTermFOR("Calling update setting_new dbl prec")
+    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,real(value))
+    !   boolResult = .TRUE.
+    !   type is (character(*))
+    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
+    !   boolResult = .TRUE.      
+    !   type is (integer)
+    !   !call LogTermFOR("int value is "//int2str(value))
+    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
+    !   boolResult = .TRUE.      
+    ! end select
+
+    ! return
+    ! end if
 
   end do
 

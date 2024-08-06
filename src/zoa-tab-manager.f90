@@ -59,6 +59,10 @@ type  zoatabManager
    procedure :: setKDPCallback
    procedure :: updateKDPPlotTab
 
+   procedure :: updateUISettingsIfNeeded
+   procedure :: getWidgetBySettingCode
+   
+
  end type
 
 
@@ -71,7 +75,6 @@ subroutine addMsgTab(self, notebook, winTitle)
     class(zoatabManager) :: self
     type(c_ptr) :: notebook
     character(len=*) :: winTitle
-    integer(c_int) :: tabPos
 
     self%notebook = notebook
 
@@ -129,7 +132,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     character(len=80) :: winTitle
     character(len=3) :: outChar
     type(c_ptr), optional :: extcanvas
-    class(*), pointer :: tabObj
     integer, intent(in) :: PLOT_CODE
     type(c_ptr) :: currPage
     integer(kind=c_int) :: currPageIndex
@@ -384,9 +386,107 @@ subroutine updateKDPPlotTab(self, idx)
   class(zoatabManager) :: self
   integer :: idx
 
+  call self%updateUISettingsIfNeeded(idx)
   call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
 
+
 end subroutine
+
+! It's possible the user via CLA, or another process (eg toolbar), updated settings 
+! between the time the plot was created and it is redrawn.  
+! This sub is to check for any differences and resolve them if needed.
+  !Key assumption here is that the master settings are always stored in the psm
+subroutine updateUISettingsIfNeeded(self, tabIdx)
+  implicit none
+  class(zoatabManager) :: self
+  type(zoaplot_setting_manager) :: psm
+  integer :: tabIdx
+  logical :: boolResult
+  type(c_ptr) :: widget
+
+  integer :: i
+
+  psm = self%tabInfo(tabIdx)%tabObj%psm
+
+  do i=1,psm%numSettings
+    widget = self%getWidgetBySettingCode(tabIdx, psm%ps(i)%ID)
+    if(c_associated(widget)) then
+      boolResult = isUISettingDifferent(widget, psm%ps(i))
+    end if
+
+  end do
+  
+
+end subroutine
+
+function isUISettingDifferent(widget, ps) result(boolResult)
+  use hl_gtk_zoa
+  use type_utils, only: int2str
+  implicit none
+  type(c_ptr) :: widget
+  type(plot_setting) :: ps
+  logical :: boolResult
+  real :: uiValue
+  type(c_ptr) :: buff
+  character(len=1024) :: ffieldstr
+
+  boolResult = .FALSE.
+
+
+  select case (ps%uitype)
+
+  case(UITYPE_SPINBUTTON)
+    uiValue = gtk_spin_button_get_value (widget)
+    if (uiValue /= ps%default) then
+      boolResult = .TRUE.
+        call gtk_spin_button_set_value(widget, real(ps%default,8))
+    end if
+
+  case(UITYPE_ENTRY)
+    buff = gtk_entry_get_buffer(widget)
+    call c_f_string_copy(gtk_entry_buffer_get_text(buff), ffieldstr)     
+    if (trim(ffieldstr) /= ps%defaultStr) then 
+      boolResult = .TRUE.
+      call gtk_entry_buffer_set_text(buff, ps%defaultStr//c_null_char, -1)
+      call gtk_entry_set_buffer(widget, buff)
+    end if
+
+  case(UITYPE_COMBO)
+    call LogTermFOR("Checking Combo for ID "//int2str(hl_zoa_combo_get_selected_list2_id(widget)))
+    call LogTermFOR("Looking for current value of "//int2str(INT(ps%default)))
+    if ((hl_zoa_combo_get_selected_list2_id(widget)) /= INT(ps%default)) then
+      boolResult = .TRUE.
+      call hl_zoa_combo_set_selected_by_list2_id(widget, INT(ps%default))
+    end if
+
+  case(UITYPE_TOOLBAR)
+    !Do nothing.  THis will be drawn separately
+  end select 
+
+
+
+end function
+
+function getWidgetBySettingCode(self, tabIdx, SETTING_CODE) result(widget)
+  implicit none
+  class(zoatabManager) :: self
+  type(zoaplot_setting_manager) :: psm
+  integer :: tabIdx
+  type(c_ptr) :: widget
+  integer :: SETTING_CODE
+  integer :: i
+
+  widget = c_null_ptr
+  do i=1,self%tabInfo(tabIdx)%tabObj%settings%numSettings
+    if (SETTING_CODE == self%tabInfo(tabIdx)%tabObj%settings%settingCodes(i)) then
+        widget = self%tabInfo(tabIdx)%tabObj%settings%settingobj_get(i,1)
+        return
+     end if
+  end do
+
+end function
+
+
 
 function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, title, linetypecode) result(idx)
   class(zoatabManager) :: self
@@ -726,8 +826,9 @@ end function
     ! call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
     ! & trim(int2str(psm%ps(i)%ID)), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
     ! & trim(psm%ps(i)%prefix))
+ 
     call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
-    & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
+    & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 3_c_int, &
     & trim(psm%ps(i)%prefix))    
     !"Number of Field Points", &
     !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
@@ -766,25 +867,21 @@ subroutine finalize_with_psm_new(self, objIdx, psm, inputCmd)
   select case (psm%ps(i)%uitype)
 
   case(UITYPE_SPINBUTTON)
-   call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
-   & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
-   & trim(int2str(psm%ps(i)%ID)))
-  ! call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
-  ! & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
-  ! & trim(psm%ps(i)%prefix))    
-  !"Number of Field Points", &
-  !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
-  !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
+    call self%tabInfo(objIdx)%tabObj%addSpinButtonFromPS(psm%ps(i))
+      
+  !  call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
+  !  & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 3_c_int, &
+  !  & trim(int2str(psm%ps(i)%ID)))
 
   case(UITYPE_ENTRY)
   call self%tabInfo(objIdx)%tabObj%addEntry_runCommand_new( &
-  & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(int2str(psm%ps(i)%ID)))   
+  & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(int2str(psm%ps(i)%ID)), psm%ps(i)%ID)   
 
   case(UITYPE_COMBO)
     call self%tabInfo(objIdx)%tabObj%addListBox_new(trim(psm%ps(i)%label), &
     & psm%ps(i)%set, c_funloc(callback_runCommandFromSpinBox_new), &
     & self%tabInfo(objIdx)%tabObj%box1, &
-    & defaultSetting=INT(psm%ps(i)%default), winName=trim(int2str(psm%ps(i)%ID)))
+    & defaultSetting=INT(psm%ps(i)%default), winName=trim(int2str(psm%ps(i)%ID)), SETTING_CODE=psm%ps(i)%ID)
     ! call self%tabInfo(objIdx)%tabObj%addListBoxSettingTextID_new(psm%ps(i)%label, &
     ! & psm%ps(i)%set, c_funloc(callback_combo_listID), self%tabInfo(objIdx)%tabObj%box1)
     

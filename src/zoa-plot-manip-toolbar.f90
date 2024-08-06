@@ -24,6 +24,13 @@ module zoa_plot_manip_toolbar
       integer :: objIdx
     end function
   end interface
+
+  interface
+  function getTabPlotCommandValue(objIdx, SETTING_CODE)
+    real :: getTabPlotCommandValue
+    integer :: objIdx, SETTING_CODE
+  end function
+  end interface
   
   interface
     function updateTabPlotCommand(tabIdx, setting_code, value)
@@ -178,19 +185,23 @@ module zoa_plot_manip_toolbar
     end subroutine
 
   subroutine set_autoScale(widget, event, cairo_drawing_area) bind(c)
+    use zoa_ui
       use mod_plotopticalsystem, only: ld_settings, ID_LENSDRAW_AUTOSCALE
       implicit none
       type(c_ptr), value :: widget, event, cairo_drawing_area
-      INTEGER VIEXOF,VIEYOF, VIEROT
+      integer :: tabIdx
+      logical :: boolResult
   
-      COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
-     
+
       toolbarState = ID_NONE
-      ld_settings%autoScale = ID_LENSDRAW_AUTOSCALE
-      VIEXOF = 0
-      VIEYOF = 0
-      call ld_settings%replot()
-      
+
+      tabIdx = findToolbarTabParent(plotArea)
+      boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_X, 0)
+      boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_Y, 0)
+  
+      boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_SCALE, ID_LENSDRAW_AUTOSCALE)
+      call PROCESKDP(getTabPlotCommand(tabIdx))
+
   end subroutine
 
     subroutine refreshPlot(widget, event, cairo_drawing_area) bind(c)
@@ -227,7 +238,7 @@ module zoa_plot_manip_toolbar
     implicit none
     type(c_ptr), value :: widget, event, cairo_drawing_area
    
-    toolbarState = ID_ZOOM_IN
+    toolbarState = ID_ZOOM_OUT
     call gtk_widget_set_cursor_from_name(plotArea, "zoom-out"//c_null_char)
 end subroutine
 
@@ -311,25 +322,21 @@ subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
   
    COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
 
-  print *, "Button ", gtk_gesture_single_get_current_button(gesture)
-  print *, n_press, " click(s) at ", int(x), int(y)
-  call LogTermFOR("End Pos "//int2str(INT(x))//" "//int2str(INT(y)))
-  call LogTermFOR("Shift is "//int2str(INT(x)-dragStartXY(1))//" "// &
-  & int2str(INT(y)-dragStartXY(2)))
-
+  
+  call LogTermFOR("ABout to look at toolbarState "//int2str(toolbarState))
   select case(toolbarState)
 
   case(ID_SHIFT)
     print *, "ABout to find parent"
       ! Update offsets
     tabIdx = findToolbarTabParent(plotArea)
-    print *, "Okay 313?"
-    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_X, real(VIEXOF - 10*(INT(x)-dragStartXY(1))))
-    print *, "Okay 315?"
-    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_Y, real(VIEYOF - 10*(INT(y)-dragStartXY(2))))
-    print *, "Okay 317?"
+    !Something is broken here because the updateTabPlotCommand doesn't seem to recognize the INT Value here as an INT.  use lldb to find the problem
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_X, INT(VIEXOF - INT(10*(INT(x)-dragStartXY(1)))))
+    if (boolResult.EQV..FALSE.) then 
+      call LogTermFOR("Could not find comamnd to update "//int2str(ID_LENSDRAW_OFFSET_X))
+    end if
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_Y, VIEYOF - INT(10*(INT(y)-dragStartXY(2))))
     call PROCESKDP(getTabPlotCommand(tabIdx))
-    print *, "Okay 319?"
     return ! temp.  to avoid the replot trap below
 
     !VIEXOF = VIEXOF - 10*(INT(x)-dragStartXY(1))
@@ -339,51 +346,49 @@ subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
     call LogTermFOR("Zoom in even detected!")
     height = gtk_drawing_area_get_content_height(plotArea)
     width  = gtk_drawing_area_get_content_width(plotArea)
-    VIEXOF = VIEXOF - 1.5*(INT(x)-width/2.0)
-    VIEYOF = VIEYOF - 1.5*(INT(y)-height/2.0)
-    call LogTermFOR("X Offset is "//int2str(INT(VIEXOF)))
-    call LogTermFOR("Y Offset is "//int2str(INT(VIEYOF)))
+    !VIEXOF = VIEXOF - 1.5*(INT(x)-width/2.0)
+    !VIEYOF = VIEYOF - 1.5*(INT(y)-height/2.0)
+    !call LogTermFOR("X Offset is "//int2str(INT(VIEXOF)))
+    !call LogTermFOR("Y Offset is "//int2str(INT(VIEYOF)))
+    
+    tabIdx = findToolbarTabParent(plotArea)
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_X, INT(VIEXOF - 1.5*(x- width/2.0)))
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_Y, INT(VIEYOF - 1.5*(y-height/2.0)))
 
-    ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_SCALE, ID_LENSDRAW_MANUALSCALE)
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE, &
+    & 1.2*getTabPlotCommandValue(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE))
+    call PROCESKDP(getTabPlotCommand(tabIdx))
+    call LogTermFOR("New Plot Cmd is "//getTabPlotCommand(tabIdx))
+
+
+    !ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
     ! Hard code a 20% change
-    ld_settings%scaleFactor = 1.20*ld_settings%scaleFactor
+    !ld_settings%scaleFactor = 1.20*ld_settings%scaleFactor
   case(ID_ZOOM_OUT)
+    call LogTermFOR("Zoom Out Requested!")
     height = gtk_drawing_area_get_content_height(plotArea)
     width  = gtk_drawing_area_get_content_width(plotArea)
-    VIEXOF = VIEXOF - 1.5*(INT(x)-width/2.0)
-    VIEYOF = VIEYOF - 1.5*(INT(y)-height/2.0)
+    !VIEXOF = VIEXOF - 1.5*(INT(x)-width/2.0)
+    !VIEYOF = VIEYOF - 1.5*(INT(y)-height/2.0)
     call LogTermFOR("X Offset is "//int2str(INT(VIEXOF)))
     call LogTermFOR("Y Offset is "//int2str(INT(VIEYOF)))
 
-    ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
+    tabIdx = findToolbarTabParent(plotArea)
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_X, INT(VIEXOF - 1.5*(x- width/2.0)))
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_OFFSET_Y, INT(VIEYOF - 1.5*(y-height/2.0)))
+
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_SCALE, ID_LENSDRAW_MANUALSCALE)
+    boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE, &
+    & 0.8d0*getTabPlotCommandValue(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE))
+    call PROCESKDP(getTabPlotCommand(tabIdx))
+    call LogTermFOR("New Plot Cmd is "//getTabPlotCommand(tabIdx))
+
+    !ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
     ! Hard code a 20% change
-    ld_settings%scaleFactor = .8*ld_settings%scaleFactor
+    !ld_settings%scaleFactor = .8*ld_settings%scaleFactor
 
   end select
-
-
-  ! if (zoomFlag) then 
-  !   call logTermFOR("Zoom True!")
-  !   zoomFactor = 0.5*(( x-dragStartXY(1))+(y-dragStartXY(2)) )
-  !   zoomFactor = 700.0/zoomFactor
-  !   call LogTermFOR("ZoomFactor is "//int2str(INT(zoomFactor)))
-  !   call LogTermFOR("New ScaleFactor is "//int2str(INT(ld_settings%scaleFactor*zoomFactor)))
-  !   ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
-  !   ld_settings%scaleFactor = ld_settings%scaleFactor*zoomFactor
-
-
-  !   ! Compute new zoom.  try to get average of x and y in pixels compared to total window
-
-  ! else
-
-  ! end if
-
-
-  call ld_settings%replot()
-
-
-
-
 
 
 

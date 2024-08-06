@@ -5,7 +5,7 @@ module settings_obj
   use gtk
   use collections
   use zoa_plot
-  use plot_setting_manager, only: zoaplot_setting_manager
+  use plot_setting_manager, only: zoaplot_setting_manager, plot_setting
 
   type zoa_settings_obj
 
@@ -13,6 +13,7 @@ module settings_obj
      integer :: numSettings = 0
      type(list) :: labels
      type(list) :: widgets
+     integer, dimension(16) :: settingCodes
      integer(c_int)  :: width
      integer :: columnLayout = 2
      character(len=40) :: name
@@ -23,10 +24,14 @@ contains
    procedure, public, pass(self) :: addListBoxTextID
    procedure, public, pass(self) :: addCheckBox
    procedure, public, pass(self) :: build
-   procedure, private, pass(self) :: settingobj_get
+   procedure, public, pass(self) :: settingobj_get
    procedure, public, pass(self) :: getWidget
    procedure, public, pass(self) :: addLabelandWidget
+   procedure, public, pass(self) :: addLabelandWidget_new
+
    procedure, public, pass(self) :: addSpinBox
+   procedure, public, pass(self) :: addSpinBox_new
+   
    procedure, public, pass(self) :: addListTable
    procedure, public, pass(self) :: addFieldSelection
    procedure, public, pass(self) :: addWavelengthSelection
@@ -192,6 +197,30 @@ subroutine addListTable(self, inlist)
 
 end subroutine
 
+
+subroutine addSpinBox_new(self, labelText, spinButton, callbackFunc, callbackData, SETTING_CODE)
+  implicit none
+
+  class(zoa_settings_obj) :: self
+  character(len=*), intent(in) :: labelText
+  integer :: SETTING_CODE
+  type(c_funptr), intent(in)   :: callbackFunc
+  type(c_ptr), optional, intent(in)   :: callbackData
+  type(c_ptr), intent(in) :: spinButton
+
+ ! Local only
+  type(c_ptr) :: newlabel
+
+  ! Create Objects
+  newlabel = gtk_label_new(labelText//c_null_char)
+  call g_signal_connect (spinButton, "value-changed"//c_null_char, callbackFunc, callbackData)
+
+  ! Update settings lists
+  call self%addLabelandWidget_new(newlabel, spinButton, SETTING_CODE)
+
+end subroutine
+
+
 subroutine addSpinBox(self, labelText, spinButton, callbackFunc, callbackData)
   implicit none
 
@@ -213,6 +242,20 @@ subroutine addSpinBox(self, labelText, spinButton, callbackFunc, callbackData)
 
 end subroutine
 
+
+subroutine addLabelandWidget_new(self, newlabel, newwidget, SETTING_CODE)
+  implicit none
+  class(zoa_settings_obj) :: self
+  type(c_ptr) :: newlabel, newwidget
+  integer :: SETTING_CODE
+
+  ! Update settings
+  self%numSettings = self%numSettings + 1
+  call self%labels%set(self%numSettings, newlabel)
+  call self%widgets%set(self%numSettings, newwidget)
+  self%settingCodes(self%numSettings) = SETTING_CODE
+
+end subroutine
 
 subroutine addLabelandWidget(self, newlabel, newwidget)
   implicit none
@@ -522,8 +565,10 @@ type zoatab
    procedure, public, pass(self) :: addListBoxSettingTextID
    procedure, public, pass(self) :: finalizeWindow
    procedure, public, pass(self) :: addSpinBoxSetting
+   procedure, public, pass(self) :: addSpinBoxSetting_new
    procedure, public, pass(self) :: addSpinButton_runCommand
    procedure, public, pass(self) :: addSpinButton_runCommand_new 
+   procedure, public, pass(self) :: addSpinButtonFromPS
    procedure, public, pass(self) :: addListBox_new
    procedure, public, pass(self) :: addEntry_runCommand
    procedure, public, pass(self) :: addEntry_runCommand_new   
@@ -772,7 +817,7 @@ subroutine addEntry_runCommand(self, labelTxt, valueStr, command)
 
 end subroutine
 
-subroutine addEntry_runCommand_new(self, labelTxt, valueStr, command)
+subroutine addEntry_runCommand_new(self, labelTxt, valueStr, command, SETTING_CODE)
   use gtk_hl_entry
   use gtk, only: gtk_entry_get_buffer, gtk_entry_buffer_set_text
   implicit none
@@ -780,6 +825,7 @@ subroutine addEntry_runCommand_new(self, labelTxt, valueStr, command)
   character(len=*), intent(in) :: valueStr
   character(len=*), intent(in) :: labelTxt
   character(len=*), intent(in) :: command
+  integer, optional :: SETTING_CODE ! TODO:  Make this not optional once all plots are converted
   type(c_ptr) :: entryBox, newLabel
 
   entryBox = hl_gtk_entry_new(60_c_int, editable=TRUE, &
@@ -794,10 +840,42 @@ subroutine addEntry_runCommand_new(self, labelTxt, valueStr, command)
 
     newlabel = gtk_label_new(labelTxt//c_null_char)
 
-    call self%settings%addLabelandWidget(newLabel, entryBox)
+    if(present(SETTING_CODE)) then 
+      call self%settings%addLabelandWidget_new(newLabel, entryBox, SETTING_CODE)
+    else
+      call self%settings%addLabelandWidget(newLabel, entryBox)
+    end if
 
 
-end subroutine
+  end subroutine
+
+
+  subroutine addSpinButtonFromPS(self, ps)
+    use type_utils, only: int2str
+    implicit none
+    class(zoatab) :: self
+    type(plot_setting) :: ps
+    type(c_ptr) :: spinBtn
+  
+
+    spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=ps%default*1d0, &
+                                                      & lower=ps%min*1d0, &
+                                                      & upper=ps%max*1d0, &
+                                                      & step_increment=1d0, &
+                                                      & page_increment=1d0, &
+                                                      & page_size=0d0), &
+                                                      & climb_rate=2d0, &
+                                                      & digits=3_c_int)
+  
+      ! Store the commands in the name field of the widget, as we will have access to it 
+      ! in the callback fcn                                                
+      call gtk_widget_set_name(spinBtn, trim(int2str(ps%ID))//c_null_char)
+      !call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
+  
+      call self%settings%addSpinBox_new(ps%label, spinBtn, &
+      & c_funloc(callback_runCommandFromSpinBox_new), self%box1, ps%ID)
+  
+  end subroutine
 
 
 subroutine addSpinButton_runCommand_new(self, labelTxt, value, lower, upper, digits, command)
@@ -807,7 +885,7 @@ subroutine addSpinButton_runCommand_new(self, labelTxt, value, lower, upper, dig
   integer(kind=c_int), intent(in) :: digits
   character(len=*), intent(in) :: labelTxt
   character(len=*), intent(in) :: command
-  type(c_ptr) :: spinBtn, spinLbl
+  type(c_ptr) :: spinBtn
 
   spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
                                                     & lower=lower*1d0, &
@@ -836,7 +914,7 @@ subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits,
   integer(kind=c_int), intent(in) :: digits
   character(len=*), intent(in) :: labelTxt
   character(len=*), intent(in) :: command
-  type(c_ptr) :: spinBtn, spinLbl
+  type(c_ptr) :: spinBtn
 
   spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
                                                     & lower=lower*1d0, &
@@ -888,7 +966,6 @@ subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
   use type_utils, only: int2str
   implicit none
   type(c_ptr), value, intent(in) :: widget, gdata
-  real(c_double) :: realData
   integer :: intVal
  character(len=23) :: ffieldstr
  character(len=140) :: cmdOrig
@@ -969,7 +1046,6 @@ subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
  character(len=150) :: cmdNew
  type(c_ptr) :: cstr, buff2
  character(len=50) :: choice
- integer :: locDelim
  integer :: setting_code
 
  character(len=150), pointer :: command_base
@@ -983,21 +1059,13 @@ subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
 
  cstr = gtk_widget_get_name(widget)
  call convert_c_string(cstr, strSettingCode)
-print *, "about to crash here?"
 setting_code = str2int(trim(strSettingCode))
-call LogTermFOR("Cmd to Match is "//strSettingCode)
 tabIdx = findTabParent(gdata)
-call LogTermFOR("Plot Cmd is "//getTabPlotCommand(tabIdx))
-print *,"setting code is ", setting_code
 
 
 select case(getSettingUIType(tabIdx, setting_code))
 
 case (UITYPE_COMBO)
-  call LogTermFOR("Found Combo Box!")
-  call LogTermFOR("comboval is "//int2str(hl_zoa_combo_get_selected_list2_id(widget)))
-  call LogTermFOR("setting code is "//int2str(setting_code))
-
   result = updateTabPlotCommand(tabIdx, setting_code, &
   & real(hl_zoa_combo_get_selected_list2_id(widget)))
 
@@ -1006,7 +1074,6 @@ case (UITYPE_SPINBUTTON)
 case (UITYPE_ENTRY)
   buff2 = gtk_entry_get_buffer(widget)
   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)  
-  print *, "About to update string of ", trim(ffieldstr)
  result = updateTabPlotCommand(tabIdx, setting_code, trim(ffieldstr))
 end select
 
@@ -1113,6 +1180,19 @@ end subroutine
 
 end subroutine
 
+subroutine addSpinBoxSetting_new(self, labelText, spinButton, callbackFunc, callbackData)
+  implicit none
+
+  class(zoatab) :: self
+  character(len=*), intent(in) :: labelText
+  type(c_funptr), intent(in)   :: callbackFunc
+  type(c_ptr), optional, intent(in)   :: callbackData
+  type(c_ptr), intent(in) :: spinButton
+
+  call self%settings%addSpinBox(labelText, spinButton, callbackFunc, callbackData)
+
+end subroutine
+
  subroutine addSpinBoxSetting(self, labelText, spinButton, callbackFunc, callbackData)
    implicit none
 
@@ -1127,7 +1207,7 @@ end subroutine
  end subroutine
 
 
- subroutine addListBox_new(self, labelText, set, callbackFunc, callbackData, defaultSetting, winName)
+ subroutine addListBox_new(self, labelText, set, callbackFunc, callbackData, defaultSetting, winName, SETTING_CODE)
 
   use hl_gtk_zoa
   use kdp_data_types
@@ -1136,8 +1216,9 @@ end subroutine
    character(len=*), intent(in) :: labelText
    character(len=*), intent(in) :: winName
    type(c_funptr), intent(in)   :: callbackFunc
-   type(c_ptr), optional, intent(in)   :: callbackData
+   type(c_ptr), intent(in)   :: callbackData
    integer, intent(in) :: defaultSetting
+   integer, optional :: SETTING_CODE
   type(idText) :: set(:)
 
 
@@ -1153,7 +1234,13 @@ end subroutine
   call gtk_widget_set_name(newwidget, winName//c_null_char)
 
   ! Update settings lists
-  call self%settings%addLabelandWidget(newlabel, newwidget)
+  if(present(SETTING_CODE)) then
+    call self%settings%addLabelandWidget_new(newlabel, newwidget, SETTING_CODE)
+  else
+    call self%settings%addLabelandWidget(newlabel, newwidget)
+  end if
+
+
 
 
 end subroutine
