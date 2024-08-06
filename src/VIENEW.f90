@@ -39,7 +39,7 @@ SUBROUTINE VIE_psm(psm)
   integer :: plotOrient, Si, Sf, scaleChoice
   real :: elev, azi, scaleFactor
 
-  INTEGER DFLAG,VIEXOF,VIEYOF
+  INTEGER VIEXOF,VIEYOF
 !
     COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
 !
@@ -343,7 +343,7 @@ SUBROUTINE VIE_psm(psm)
           STI=0
           SST=0
                     SFI=1.0D0
-                    DO I=Si-1, Sf-1
+                    DO I=Si, Sf
                     !DO I=INT(W1),INT(W2)
                IF(ALENS(127,I).NE.0.0D0) THEN
                    DO J=1,INT(ALENS(127,I))
@@ -545,7 +545,7 @@ SUBROUTINE VIE_NEW_NEW(vie_settings)
 
   integer :: numRays, ii, jj, numFields
 
-  INTEGER DFLAG,VIEXOF,VIEYOF
+  INTEGER VIEXOF,VIEYOF
 !
     COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
 !
