@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Zoa"
-#define MyAppVersion "0.1.4"
+#define MyAppVersion "0.1.6"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppURL "https://www.example.com/"
 #define MyAppExeName "Zoa.exe"
@@ -68,14 +68,13 @@ Source: "C:\gtk-build\gtk\x64\release\bin\iconv.dll"; DestDir: "{app}"; Flags: i
 Source: "C:\gtk-build\gtk\x64\release\bin\libexpat.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\gtk-build\gtk\x64\release\bin\pangoft2-1.0-0.dll"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "C:\gtk-build/gtk/x64/release/lib/plplot5.15.0/drivers/cairo.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBIFCOREMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBMMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\SVML_DISPMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\1033\ifcore_msg.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\1033\irc_msg.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\1033\libmUI.DLL"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBIFCOREMDD.DLL"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\program files (x86)\intel\oneapi\compiler\latest\windows\redist\intel64_win\compiler\LIBMMDD.DLL"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\LIBIFCOREMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\LIBMMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\SVML_DISPMD.DLL"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\1033\ifcore_msg.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\1033\irc_msg.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\1033\libmUI.DLL"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\program files (x86)\intel\oneapi\compiler\latest\bin\LIBMMDD.DLL"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "C:\dev\zoa\Library\*"; DestDir: "{userappdata}\Zoa"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
