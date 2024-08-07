@@ -1371,16 +1371,16 @@ C     WCC(2003)=' '
       WCC(2055)='FIR'
       WCC(2066)='SYSCON'
       WCC(2067)='SPR'
-      WCC(2068)='PLTZERN'
+      !WCC(2068)='PLTZERN'
       WCC(2069)='PLTSEI'
       WCC(2070)='MACROUI'
       WCC(2071)='PLT3DTST'
-      WCC(2072)='PLTOPD'
+      !WCC(2072)='PLTOPD'
       WCC(2073)='PLTIMTST'
       ! This is to do LEN NEW CodeV command, but to adapt to KDP design
       ! Use this as cmd and check if WQ is NEW to call code
       WCC(2074)='LEN'
-      WCC(2075)='PLTFAN'
+      !WCC(2075)='PLTFAN'
       WCC(2076)='TIT' ! CodeV
       WCC(2077)='YAN' ! CodeV
       WCC(2078)='SANDBOX' ! Cmd to test stuff

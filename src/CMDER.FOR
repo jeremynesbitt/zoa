@@ -5,8 +5,8 @@ C SUB CMDER.FOR
         use handlers
         use glass_manager
         use kdp_interfaces , only: EDITOR, POWSYM, FIR,
-     1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
-     2 PLTOPD, PLTIMTST, PLTFAN, PTSTUFF, Sandbox
+     1 SYSCONFIGUI, SPR, plot_seidel, MACROUI, PLT3DTST, 
+     2 PLTIMTST, PTSTUFF, Sandbox
         use codeV_commands
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
      1 ID_TERMINAL_KDPDUMP   
@@ -452,10 +452,6 @@ C       PART DRAWINGS
           CALL SPR
           RETURN
         END IF
-        IF(WC.EQ.'PLTZERN') THEN
-          CALL PLTZERN
-          RETURN
-        END IF
         IF(WC.EQ.'PLT3DTST') THEN
           CALL PLT3DTST
           return
@@ -482,18 +478,6 @@ C       PART DRAWINGS
         print *, "INPUT is ", INPUT
         If (startCodeVLensUpdateCmd(WC)) return
 
-        IF(WC.EQ.'PLTOPD') THEN
-                CALL PLTOPD
-                return
-              END IF        
-        IF(WC.EQ.'PLTSEI') THEN
-          CALL plot_seidel
-          RETURN
-        END IF
-        IF(WC.EQ.'PLTFAN') THEN
-                CALL PLTFAN
-                RETURN
-        END IF
         IF(WC.EQ.'MACROUI') THEN
                 CALL MACROUI
                 RETURN

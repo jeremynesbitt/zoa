@@ -1,3 +1,5 @@
+! This module is reponsible for all of the analysis windows, whether plots or pure
+! text.  
 module zoa_tab_manager
   use zoa_ui
   use zoa_tab
@@ -10,10 +12,6 @@ module zoa_tab_manager
 ! should settings be a "child" of zoatab?    
 type zoatabData
   integer :: typeCode
-  !class(*), pointer :: plotObj
-  ! Want to get rid of this canvas, but need to miggrate all
-  ! plots to new "GO" style first.  
-  type(c_ptr) :: canvas
   class(ui_settings), allocatable :: settings
   class(zoatab), allocatable :: tabObj
 
@@ -163,7 +161,7 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   !self%tabInfo(idx)%settings = tabObj%settings
 
   self%tabInfo(idx)%typeCode = PLOT_CODE
-  self%tabInfo(idx)%canvas = mplt%area
+  self%tabInfo(idx)%tabObj%canvas = mplt%area
   !call self%tabInfo(idx)%tabObj%finalizeWindow()
 
 
@@ -230,9 +228,6 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   self%tabInfo(idx)%settings%useToolbar = .TRUE.
 
   self%tabInfo(idx)%typeCode = PLOT_CODE
-  self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
-
-  call LogTermFOR("Canvas ptr is "//int2str(INT(loc(self%tabInfo(idx)%tabObj%canvas),4)))
 
   !call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
   
@@ -244,7 +239,7 @@ subroutine updateKDPPlotTab(self, idx)
   integer :: idx
 
   call self%updateUISettingsIfNeeded(idx)
-  call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
+  call gtk_widget_queue_draw(self%tabInfo(idx)%tabObj%canvas)
 
 
 end subroutine
@@ -366,7 +361,6 @@ function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, titl
     !self%tabInfo(idx)%settings = tabObj%settings
 
     self%tabInfo(idx)%typeCode = PLOT_CODE
-    self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
     !call self%tabInfo(idx)%tabObj%finalizeWindow()
 
 
@@ -418,7 +412,6 @@ subroutine addPlotTabFromObj(self, tabObj)
     !self%tabInfo(idx)%settings = tabObj%settings
 
     self%tabInfo(idx)%typeCode = PLOT_CODE
-    self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
     ! Bad design IMO
     call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%settings%useToolbar)
 
@@ -549,9 +542,6 @@ end function
     if (allocated(self%tabInfo(tabInfoIndex)%settings)) then
        DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
     end if
-    !PRINT *, "Set canvas to NULL"
-    self%tabInfo(tabInfoIndex)%canvas = c_null_ptr
-
 
 
   end subroutine
