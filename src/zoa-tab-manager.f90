@@ -117,9 +117,6 @@ end function
 
 subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
-  use mod_plotrayfan
-  use ui_ast_fc_dist
-  use ui_spot
   use ROUTEMOD
   use GLOBALS
   use type_utils, only: int2str
@@ -162,24 +159,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     select case (PLOT_CODE)
 
 
-    case (ID_NEWPLOT_RAYFAN)
-      call logger%logText('Ray Fan New Plot Starting')
-        if (.not.present(inputTitle)) THEN
-          winTitle = "Ray Fan"
-        else
-          winTitle = inputTitle
-        end if
-
-        PRINT *, "winTitle is ", winTitle
-
-        allocate(rayfantab :: self%tabInfo(idx)%tabObj)
-        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_RAYFAN)
-        call self%tabInfo(idx)%tabObj%newPlot()
-
-        call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_RAYFAN), c_null_funptr)
-      allocate(ray_fan_settings :: self%tabInfo(idx)%settings )
-      self%tabInfo(idx)%settings = rf_settings
 
 
     case (-1) ! This means we just add to
@@ -189,27 +168,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
 
 
         if (present(extcanvas)) new_tab%canvas = extcanvas
-
-    case (ID_PLOTTYPE_AST)
-        call logger%logText('Astig FC Dist Tab being added')
-        winTitle = "Astig Field Curv Dist"
-        allocate(astfcdist_tab :: self%tabInfo(idx)%tabObj)
-        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_AST)
-        call self%tabInfo(idx)%tabObj%newPlot()
-        allocate(ast_fc_dist_settings :: self%tabInfo(idx)%settings )
-        self%tabInfo(idx)%settings = ast_settings
-        !self%tabInfo(idx)%settings%canvas = self%tabInfo(idx)%tabObj%canvas
-
-    case (ID_PLOTTYPE_SPOT)
-        call logger%logText('Spot Diagram Starting')
-        winTitle = "Spot Diagram"
-        allocate(spot_tab :: self%tabInfo(idx)%tabObj)
-        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_PLOTTYPE_SPOT)
-        call self%tabInfo(idx)%tabObj%newPlot()
-        allocate(spot_settings :: self%tabInfo(idx)%settings )
-        self%tabInfo(idx)%settings = spot_struct_settings
-        !self%tabInfo(idx)%settings%canvas = self%tabInfo(idx)%tabObj%canvas
-
 
     end select
 

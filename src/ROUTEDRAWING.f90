@@ -22,7 +22,6 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     use zoa_ui
     use global_widgets
     !use handlers
-    use mod_plotrayfan
     use kdp_draw, only: DRAWOPTICALSYSTEM
 
     IMPLICIT NONE

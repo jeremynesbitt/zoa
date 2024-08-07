@@ -796,7 +796,7 @@ C       973 TO 1472 NOT YET USED
       WCC(1481)='WTA'
       WCC(1482)='SPDSSI'
       WCC(1483)='DET'
-      WCC(1484)='PLTSPD'
+      !WCC(1484)='PLTSPD'
       WCC(1485)='DIST'
       WCC(1486)='FLDCV'
       WCC(1487)='AST'

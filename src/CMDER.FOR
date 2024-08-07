@@ -2924,11 +2924,6 @@ C
         CALL DETECTOR
         RETURN
         END IF
-        IF(WC.EQ.'PLTSPD') THEN
-        active_plot = ID_PLOTTYPE_SPOT
-        CALL PLTSPD
-        RETURN
-        END IF
         IF(WC.EQ.'FANFIELD') THEN
         CALL FANFOV
         RETURN
