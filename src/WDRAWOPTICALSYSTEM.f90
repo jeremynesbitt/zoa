@@ -45,9 +45,9 @@ SUBROUTINE WDRAWOPTICALSYSTEM
       !CALL IGrColourN(223)
     PRINT *, "Active Plot is ", active_plot
     ! TEMP if statement for debugging
-    if (active_plot.NE.ID_PLOTTYPE_LENSDRAW) then
-    call zoatabMgr%newPlotIfNeeded(active_plot)
-    end if
+!     if (active_plot.NE.ID_PLOTTYPE_LENSDRAW) then
+!     call zoatabMgr%newPlotIfNeeded(active_plot)
+!     end if
 
 10 CONTINUE
 

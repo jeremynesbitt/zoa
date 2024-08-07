@@ -521,27 +521,6 @@ subroutine populateSplashWindow(splashWin)
 
 end subroutine
 
- subroutine setActivePlot(parent_notebook, selected_page, page_index, gdata) bind(c)
-        type(c_ptr), value :: selected_page, parent_notebook, page_index, gdata
-        type(c_ptr) :: newwin, newnotebook, newlabel, box2, scrolled_win
-        type(c_ptr) :: stringPtr
-        integer :: newtab
-        character(len=20) :: winTitle
-
-        PRINT *, "TAB SWITCH EVENT DETECTED! "
-        PRINT *, "page_index is ", LOC(page_index)
-        stringPtr = gtk_notebook_get_tab_label_text(parent_notebook, selected_page)
-
-        PRINT *, "stringPtr is ", LOC(stringPtr)
-        call convert_c_string(stringPtr, winTitle)
-        PRINT *, "Window Title is ", trim(winTitle)
-
-        active_plot = ID_NEWPLOT_RAYFAN
-
-
-
- end subroutine
-
   subroutine detachTabTst(parent_notebook, widget) bind(c)
         implicit none
         type(c_ptr), value :: widget, parent_notebook

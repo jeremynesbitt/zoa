@@ -397,37 +397,6 @@ subroutine FIR
 
 end subroutine
 
-subroutine RMSFIELD
-use GLOBALS
-use global_widgets
-use handlers, only : updateTerminalLog
- use zoa_plot
-   integer :: ii
-   integer :: numPoints = 10
-
-   INCLUDE 'DATMAI.INC'
-
-   ! do ii = 0, numPoints
-   !   write(ffieldstr, *), REAL(ii)/REAL(numPoints)
-   !   CALL PROCESKDP("FOB "// ffieldstr)
-   !   CALL PROCESKDP("CAPFN")
-   !   CALL PROCESKDP("SHO RMSOPD")
-   !
-   !   PRINT *, "REG9 9 is ", REG(9)
-   !
-   !   !PRINT *, "FOB " // ffieldstr
-   !
-   ! end do
-
-
-   call logger%logText('RMSField Routine Starting')
-
-
-
-   !call RMSFIELD_PLOT
-   call rmsfield_plot
-
-end subroutine
 
 
 subroutine EDITOR
@@ -1375,97 +1344,6 @@ end if
 
 end subroutine
 
-!pseudocode for rms_field minimal effort
-! One method that processes inputs and provides x,y data (possible?)
-! RMSFIELD_XY
-! code to get x and y series from data
-! ask zoaTabMgr if plotCode exists
-! if yes, then this is a replot call.  Attach xy data to obj and call replot
-! if no, then this is a new plot call.  create object (include title, x/y label, etc) and
-! call addPlot in zoatabmgr
-! For this, should move all settings into settings object and replot into zoaTab obj?
-! this works if I only use commands for settings, then replot has an easier time.  Just
-! assume have new xy or label data for that matter and redo.
-! With this, just need to make methods and add new ID to zoa_ui.  Much cleaner.
-
-subroutine rmsfield_plot
-
-       USE GLOBALS
-       use command_utils
-       use handlers, only: zoatabMgr, updateTerminalLog
-       use global_widgets, only:  sysConfig
-       use zoa_ui
-       use iso_c_binding, only:  c_ptr, c_null_char
-       use plot_setting_manager
-
-
-  IMPLICIT NONE
-
-  character(len=23) :: ffieldstr
-  character(len=40) :: inputCmd
-  integer :: ii, objIdx
-  integer :: numPoints = 10
-  logical :: replot
-
-
-    REAL, allocatable :: x(:), y(:)
-    type(zoaplot_setting_manager) :: psm
-
-    INCLUDE 'DATMAI.INC'
-
-      !call checkCommandInput(ID_CMD_ALPHA)
-
-      call updateTerminalLog(INPUT, "blue")
-
-      call psm%initialize(trim(INPUT))
-      numPoints = psm%addDensitySetting(10, 5, 50)
-      inputCmd = trim(psm%sp%getCommand())      
-
-
-    PRINT *, "numPoints is ", numPoints
-    
-
-    allocate(x(numPoints))
-    allocate(y(numPoints))
-
-    do ii = 0, numPoints-1
-      x(ii+1) = REAL(ii)/REAL(numPoints-1)
-      write(ffieldstr, *) x(ii+1)
-      CALL PROCESKDP("FOB "// ffieldstr)
-      CALL PROCESKDP("CAPFN")
-      CALL PROCESKDP("SHO RMSOPD")
-      x(ii+1) = x(ii+1)*sysConfig%refFieldValue(2)
-      y(ii+1) = 1000.0*REG(9)
-    end do
-
-    replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_RMSFIELD, objIdx)
-
-    if (replot) then
-      PRINT *, "RMS FIELD REPLOT REQUESTED"
-      PRINT *, "Input Command was ", inputCmd
-      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-      !zoaTabMgr%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-
-      call zoatabMgr%updateGenericPlotTab(objIdx, x, y)
-
-    else
-      objIdx = zoatabMgr%addGenericPlotTab(ID_PLOTTYPE_RMSFIELD, "RMS vs Field"//c_null_char, x,y, &
-      & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-         & ylabel='RMS Error [mWaves]'//c_null_char, &
-         & title='Wavefront Error vs Field'//c_null_char, linetypecode=-1)
-
-
-
-      ! Add settings
-      call psm%finalize(objIdx, trim(inputCmd))
-
-      ! Create Plot + settings tab
-      call zoaTabMgr%finalizeNewPlotTab(objIdx)
-
-
-    end if
-
-end subroutine
 
 subroutine getOPDData(lambda)
   use iso_fortran_env, only: real64

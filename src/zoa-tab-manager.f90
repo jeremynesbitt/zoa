@@ -35,8 +35,8 @@ type  zoatabManager
  contains
 
    procedure :: addMsgTab
-   procedure :: addPlotTab
-   procedure :: newPlotIfNeeded
+   !procedure :: addPlotTab
+   !procedure :: newPlotIfNeeded
    procedure :: rePlotIfNeeded
    procedure :: removePlotTab
    procedure :: doesPlotExist
@@ -115,80 +115,6 @@ function  findTabIndex(self) result(newTabIndex)
 
 end function
 
-subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
-  use zoa_ui
-  use ROUTEMOD
-  use GLOBALS
-  use type_utils, only: int2str
-  implicit none
-
-    class(zoatabManager) :: self
-    character(len=80), optional :: inputTitle
-    character(len=80) :: winTitle
-    character(len=3) :: outChar
-    type(c_ptr), optional :: extcanvas
-    integer, intent(in) :: PLOT_CODE
-    type(c_ptr) :: currPage
-    integer(kind=c_int) :: currPageIndex
-    !type(zoatab) :: new_tab
-    class(zoatab), allocatable :: new_tab
-    integer, target :: TARGET_NEWPLOT_RAYFAN   = ID_NEWPLOT_RAYFAN
-    integer, target :: TARGET_NEWPLOT_LENSDRAW   = ID_NEWPLOT_LENSDRAW
-    integer :: idx
-    
-
-
-    call logger%logText('Adding Tab (addPlotTab Sub)')
-
-    idx = self%findTabIndex()
-
-
-    !self%tabNum = self%tabNum+1
-
-      if (.not.present(inputTitle)) THEN
-        winTitle = "Generic Plot"
-      else
-        winTitle = inputTitle
-      end if
-
-    if (allocated(self%tabInfo(idx)%tabObj)) THEN
-      call logger%logText("tabObj already allocated?" )
-
-    end if
-
-    select case (PLOT_CODE)
-
-
-
-
-    case (-1) ! This means we just add to
-        PRINT *, "Generic Plot being added"
-        !PRINT *, "Notebook ptr is ", self%notebook
-        call new_tab%initialize(self%notebook, winTitle, PLOT_CODE)
-
-
-        if (present(extcanvas)) new_tab%canvas = extcanvas
-
-    end select
-
-    !call plotObj%new_plot()
-    !call tabObj%initialize(self%notebook, winTitle, ID_NEWPLOT_RAYFAN)
-    !call newPlot()
-    !self%tabInfo(idx)%plotObj = plotObj
-    !PRINT *, "DEBUG:  PLOT_CODE is ", PLOT_CODE
-    self%tabInfo(idx)%typeCode = PLOT_CODE
-    !self%tabInfo(idx)%canvas = new_tab%canvas
-    self%tabInfo(idx)%canvas = self%tabInfo(idx)%tabObj%canvas
-    !PRINT *, "DEBUG:  typeCode stored is ", self%tabInfo(idx)%typeCode
-    call logger%logText('Tab Info finished populating in addPlotTab ')
-
-    currPageIndex = gtk_notebook_get_current_page(self%notebook)
-    currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
-    WRITE(outChar, '(I0.3)') idx
-    call gtk_widget_set_name(currPage, outChar)
-
-end subroutine
-
 subroutine finalizeNewPlotTab(self, idx)
     class(zoatabManager) :: self
     integer :: idx
@@ -244,7 +170,7 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
 end function
 
 subroutine setKDPCallback(self, idx, tabIndex)
-  use ROUTEMOD
+  use kdp_draw, only: DRAWOPTICALSYSTEM
   implicit none 
 
   class(zoatabManager) :: self
@@ -256,13 +182,12 @@ subroutine setKDPCallback(self, idx, tabIndex)
    ptr =>tabIndex
 
    call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-   & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr) 
+   & c_funloc(DRAWOPTICALSYSTEM), c_loc(ptr), c_null_funptr) 
 
 end subroutine
 
 ! Support the KDP way of plotting
 function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
-  use ROUTEMOD
   use kdp_draw, only: DRAWOPTICALSYSTEM
   use type_utils, only: int2str
   
@@ -574,38 +499,6 @@ function getNumberOfPlotsByCode(self, PLOT_CODE) result(numPlots)
 
 
 end function
-
- ! To update this to allow multiple types
- ! Count all plots of a type
- ! when then new plot base cmd will be XXX PY, where
- ! Y is the plot number
- ! eg for SPO second plot, need to update 
- ! psm bse cmd to SPO P2
-
- subroutine newPlotIfNeeded(self, PLOT_CODE)
-
-    class(zoatabManager) :: self
-    integer, intent(in) :: PLOT_CODE
-    logical :: plotFound
-    integer :: i, tabPos
-    type(zoatab) :: newtab
-
-    plotFound = self%doesPlotExist(PLOT_CODE, tabPos)
-    if (.not.plotFound) THEN
-      !PRINT *, "New plot needed! for PLOT_CODE ", PLOT_CODE
-      call self%addPlotTab(PLOT_CODE)
-    else
-      !if (PLOT_CODE.EQ.ID_PLOTTYPE_AST.OR.PLOT_CODE.EQ.ID_PLOTTYPE_SPOT ) then
-      if (PLOT_CODE.EQ.ID_PLOTTYPE_SPOT.OR.PLOT_CODE.EQ.ID_PLOTTYPE_RMSFIELD) then
-        call self%tabInfo(tabPos)%settings%replot()
-      else
-        call gtk_widget_queue_draw(self%tabInfo(tabPos)%canvas)
-      end if
-
-      !
-    end if
-
- end subroutine
 
   subroutine rePlotIfNeeded(self)
     implicit none

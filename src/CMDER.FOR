@@ -4,7 +4,7 @@ C SUB CMDER.FOR
         use zoa_ui
         use handlers
         use glass_manager
-        use kdp_interfaces , only: EDITOR, POWSYM, RMSFIELD, FIR,
+        use kdp_interfaces , only: EDITOR, POWSYM, FIR,
      1 SYSCONFIGUI, SPR, PLTZERN, plot_seidel, MACROUI, PLT3DTST, 
      2 PLTOPD, PLTIMTST, PLTFAN, PTSTUFF, Sandbox
         use codeV_commands
@@ -504,11 +504,6 @@ C       PART DRAWINGS
         END IF              
         IF(WC.EQ.'TSTCMDS') THEN
           CALL TestCommands
-        END IF
-        IF(WC.EQ.'RMSFIELD') THEN
-          active_plot = ID_PLOTTYPE_RMSFIELD
-          CALL RMSFIELD
-        RETURN
         END IF
         IF(WC.EQ.'FIR') THEN
           CALL FIR !; RETURN
@@ -2949,12 +2944,6 @@ C        END IF
         PLOTCAPCON=.FALSE.
         RETURN
         END IF
-        IF(WC.EQ.'PLT_FAN') THEN
-        active_plot = ID_NEWPLOT_RAYFAN
-        CALL PPLOTT
-        PLOTCAPCON=.FALSE.
-        RETURN
-        END IF
         IF(WC.EQ.'GRAOUT') THEN
         CALL PPLOTT
         RETURN
@@ -3985,17 +3974,6 @@ C
         IF(WC.EQ.'AST'.OR.WC.EQ.'DIST'.OR.WC.EQ.'FLDCV'
      1.OR.WC.EQ.'FISHDIST') THEN
         CALL FIELDABS
-        RETURN
-        END IF
-        IF(WC.EQ.'PLTAST') THEN
-        active_plot = ID_PLOTTYPE_AST
-        CALL PLTFIELD
-        RETURN
-        END IF
-        IF (WC.EQ.'PLTDIST'.OR.WC.EQ.'PLTFLDCV'
-     1      .OR.WC.EQ.'PLTFDIST') THEN
-        OUTLYNE = "TO PLOT PLEASE USE PLTAST.  THANKS!"
-        CALL SHOWIT(1)
         RETURN
         END IF
         IF(WC.EQ.'PLTGOTF')  THEN
