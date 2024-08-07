@@ -118,8 +118,6 @@ end function
 subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
   use zoa_ui
   use mod_plotrayfan
-  use mod_plotopticalsystem
-  use mod_lens_draw_tab
   use ui_ast_fc_dist
   use ui_spot
   use ROUTEMOD
@@ -162,30 +160,6 @@ subroutine addPlotTab(self, PLOT_CODE, inputTitle, extcanvas)
     end if
 
     select case (PLOT_CODE)
-
-
-    case (ID_NEWPLOT_LENSDRAW)
-        call logger%logText('Lens Draw New Plot Starting')
-        if (.not.present(inputTitle)) THEN
-          winTitle = "Lens Draw"
-        else
-          winTitle = inputTitle
-        end if
-
-        !PRINT *, "winTitle is ", winTitle
-
-        allocate(lensdrawtab :: self%tabInfo(idx)%tabObj)
-        call self%tabInfo(idx)%tabObj%initialize(self%notebook, trim(winTitle), ID_NEWPLOT_LENSDRAW)
-        call self%tabInfo(idx)%tabObj%newPlot()
-        call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-                    & c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)     
-        allocate(lens_draw_settings :: self%tabInfo(idx)%settings )
-        ld_settings%useToolbar = .TRUE.
-        self%tabInfo(idx)%settings = ld_settings
-       ! call LogTermFOR("Lens Draw ptr is "//int2str(INT(loc(self%tabInfo(idx)%tabObj%canvas),4)))
-
-
-
 
 
     case (ID_NEWPLOT_RAYFAN)

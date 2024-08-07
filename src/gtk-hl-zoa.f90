@@ -360,19 +360,6 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
   call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
 
-  PRINT *, "Integer Index is ", ivalue
-
-
-  PRINT *, "Callback works!"
-
-  !call update_zoa_ui_settings_and_replot(ivalue)
-  !call ld_settings % set_plot_orientation(ivalue)
-  !
-  ! if (ld_settings%changed.eq.1) THEN
-  !    ld_settings%changed = 0
-  !    call lens_draw_replot()
-  !
-  ! end if
 
 end subroutine combo_setting_callback
 

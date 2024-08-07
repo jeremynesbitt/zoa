@@ -186,7 +186,6 @@ module zoa_plot_manip_toolbar
 
   subroutine set_autoScale(widget, event, cairo_drawing_area) bind(c)
     use zoa_ui
-      use mod_plotopticalsystem, only: ld_settings, ID_LENSDRAW_AUTOSCALE
       implicit none
       type(c_ptr), value :: widget, event, cairo_drawing_area
       integer :: tabIdx
@@ -205,13 +204,12 @@ module zoa_plot_manip_toolbar
   end subroutine
 
     subroutine refreshPlot(widget, event, cairo_drawing_area) bind(c)
-      use mod_plotopticalsystem, only: ld_settings
       implicit none
       type(c_ptr), value :: widget, event, cairo_drawing_area
      
       toolbarState = ID_NONE
       !TODO:  Add a call to update lens data
-      call ld_settings%replot()
+      call PROCESKDP(getTabPlotCommand(findToolbarTabParent(plotArea)))
       
   end subroutine
 
@@ -303,7 +301,6 @@ end subroutine
   ! end subroutine  
 subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
   !use zoa_plot_manip_toolbar
-  use mod_plotopticalsystem, only: ld_settings, ID_LENSDRAW_MANUALSCALE
   use type_utils, only: int2str
   use zoa_ui
 

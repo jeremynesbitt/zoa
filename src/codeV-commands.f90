@@ -131,8 +131,8 @@ module codeV_commands
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
         zoaCmds(528)%execFunc => setPlotZernikeCoefficients    
-        zoaCmds(529)%cmd = 'VIE_OLD'
-        zoaCmds(529)%execFunc => execVie_old   
+        !zoaCmds(529)%cmd = 'VIE_OLD'
+        !zoaCmds(529)%execFunc => execVie_old   
         zoaCmds(530)%cmd = 'ASTFCDIST'
         zoaCmds(530)%execFunc => execAstigFieldCurvDistPlot                              
         zoaCmds(531)%cmd = 'PMA'
@@ -550,12 +550,11 @@ module codeV_commands
 
     subroutine execFIO(iptStr)
         use strings
-        use global_widgets, only: curr_par_ray_trace
+        use global_widgets, only: curr_par_ray_trace, curr_lens_data
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str, str2int, blankStr
         use handlers, only: updateTerminalLog
         use global_widgets, only:  sysConfig
-        use mod_plotopticalsystem
         use DATLEN, only: COLRAY
     
         implicit none        
@@ -607,7 +606,6 @@ module codeV_commands
         use type_utils, only: real2str, int2str, str2int, blankStr
         use handlers, only: updateTerminalLog
         use global_widgets, only:  sysConfig
-        use mod_plotopticalsystem
         use DATLEN, only: COLRAY
         use algos
     
@@ -643,13 +641,13 @@ module codeV_commands
     ! FAN AB N - N rays for all fields in AB Plane 
     ! FAN N  - N rays for all fields in YZ (default) plane 
     ! FAN AB N Fi - N Rayls for field i in AB plane
+    ! TODO:  Fix this iwth new plot infra
     subroutine execFAN(iptStr)
         use strings
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str, str2int
         use handlers, only: updateTerminalLog
         use global_widgets, only:  sysConfig
-        use mod_plotopticalsystem
         use DATLEN, only: COLRAY
     
         implicit none        
@@ -676,9 +674,9 @@ module codeV_commands
         select case(cmd_loop)
         case(VIE_LOOP)
             ! Blindly add.  will check it for goodness later
-              goodCmd = .TRUE.
-              call LogTermFOR("Addint Custom Cmd "//iptStr)
-              call ld_settings%addCustomRayCmd(iptStr)
+              !goodCmd = .TRUE.
+              !call LogTermFOR("Addint Custom Cmd "//iptStr)
+              !call ld_settings%addCustomRayCmd(iptStr)
    
         case(DRAW_LOOP)
             call LogTermFOR("Executing Custom Cmd "//iptStr)
@@ -720,9 +718,9 @@ module codeV_commands
                       do jj=1,numRays
                         relAngle = -1.0d0 + (jj-1)*(2.0d0)/(numRays-1)
                         if(yzFlag) then
-                          call VIE_NEW_TRACERAY(0.0d0, relAngle, sysConfig%refWavelengthIndex, ld_settings)
+                          !call VIE_NEW_TRACERAY(0.0d0, relAngle, sysConfig%refWavelengthIndex, ld_settings)
                         else
-                            call VIE_NEW_TRACERAY(relAngle, 0.0d0,sysConfig%refWavelengthIndex, ld_settings)
+                          !  call VIE_NEW_TRACERAY(relAngle, 0.0d0,sysConfig%refWavelengthIndex, ld_settings)
                         end if
 
                       end do
@@ -820,44 +818,6 @@ module codeV_commands
     end subroutine
 
 
-    ! Currently inputs are either 
-    ! VIE (new plot)
-    ! VIE P1 (update existing plot)
-    ! In the future when I support multiple plots then P1 will go to PX
-    subroutine execVie_old(iptStr)
-        
-        use mod_plotopticalsystem
-        use strings
-
-        implicit none
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-        PRINT *, "iptStr is ", iptStr
-        if (numTokens  == 2) then
-           if (tokens(2) == 'P1') then
-            ! Do not update lens draw settings
-            cmd_loop = VIE_OLD_LOOP
-            return
-           end if
-        end if
-
-        !if(len(trim(iptStr)) > 3 ) then
-        !    call LogTermFOR("Warning; VIE accepts no input.  This will be ignored: "//trim(iptStr(4:len(iptStr))))
-        !end if
-
-        ! Enter into VIE loop.  Once GO is entered, execute plot
-        cmd_loop = VIE_OLD_LOOP
-        ld_settings = lens_draw_settings()
-
-        ! Psuedocode
-        ! curr_lens_settings = lens_settings_new
-        
-    end subroutine
 
     ! Started to wrtie this but it doesn't seem to simpify things too much
     function checkForExistingPlot(tokens, psm, plot_code) result (plotExists)
@@ -1839,7 +1799,6 @@ module codeV_commands
     subroutine execNBR(iptStr)
         use strings
         use handlers, only: updateTerminalLog
-        use mod_plotopticalsystem, only: ld_settings
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1862,8 +1821,8 @@ module codeV_commands
                 if (boolResult) then
                     if(cmd_loop == VIE_LOOP) then
                         call LogTermFOR("Upating Surfaces in ld_settings")
-                        ld_settings%start_surface = surfaces(1)
-                        ld_settings%end_surface = surfaces(size(surfaces))
+                        call curr_psm%updateSetting_new(ID_LENS_FIRSTSURFACE, surfaces(1))
+                        call curr_psm%updateSetting_new(ID_LENS_LASTSURFACE, surfaces(size(surfaces)))
                     end if
                 end if
             end if
@@ -2281,26 +2240,9 @@ module codeV_commands
         use zoa_ui
         use handlers, only: zoatabMgr
         use kdp_utils, only: inLensUpdateLevel
-        use mod_plotopticalsystem, only: ld_settings
         use plot_functions
 
         !TODO:  Switch to select case
-
-        if(cmd_loop == VIE_OLD_LOOP) then
-            if (inLensUpdateLevel()) then
-                call LogTermFOR("Will not draw in lens update level")
-                return
-            end if    
-        cmd_loop = DRAW_LOOP
-        active_plot = ID_NEWPLOT_LENSDRAW
-        !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
-        call VIE_NEW_NEW(ld_settings)
-        CALL PROCESKDP('DRAW')
-        !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
-        cmd_loop = 0
-       
-        end if
-
 
         if (cmd_loop == VIE_LOOP) then
                 ! Hide KDP Commands from user
