@@ -42,9 +42,7 @@ type  zoatabManager
    procedure :: getNumberOfPlotsByCode
    ! TODO:  Should all these generic plot tabs exist here?
    procedure :: addPlotTabFromObj
-   procedure :: addGenericPlotTab
    procedure :: addGenericMultiPlotTab
-   procedure :: updateGenericPlotTab
    procedure :: updateGenericMultiPlotTab
    procedure :: finalizeNewPlotTab
    procedure :: updateInputCommand
@@ -336,37 +334,6 @@ function getWidgetBySettingCode(self, tabIdx, SETTING_CODE) result(widget)
 
 end function
 
-
-
-function addGenericPlotTab(self, PLOT_CODE, tabTitle, x, y, xlabel, ylabel, title, linetypecode) result(idx)
-  class(zoatabManager) :: self
-  integer :: PLOT_CODE
-  real :: x(:), y(:)
-  character(len=*) :: tabTitle, xlabel, ylabel, title
-  integer :: linetypecode
-  integer :: idx
-
-
-   idx = self%findTabIndex()
-    !PRINT *, "idx is ", idx
-    call logger%logText('New Generic Tab Starting')
-
-    allocate(zoatab :: self%tabInfo(idx)%tabObj)
-    call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
-    self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
-    call self%tabInfo(idx)%tabObj%createGenericSinglePlot(x,y,xlabel,ylabel,title, linetypecode)
-    allocate(ui_settings :: self%tabInfo(idx)%settings )
-    ! Right now there is no settings object.  This object is only
-    ! used for replot.  Need a better solution for this
-    !self%tabInfo(idx)%settings = tabObj%settings
-
-    self%tabInfo(idx)%typeCode = PLOT_CODE
-    !call self%tabInfo(idx)%tabObj%finalizeWindow()
-
-
-
-end function
-
 subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
   implicit none
   class(zoatabManager) :: self
@@ -376,14 +343,7 @@ subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
   call self%tabInfo(objIdx)%tabObj%updateGenericMultiPlot(mplt)
 end subroutine
 
-subroutine updateGenericPlotTab(self, objIdx, x, y)
-  class(zoatabManager) :: self
-  real :: x(:), y(:)
-  integer :: objIdx
 
-  call self%tabInfo(objIdx)%tabObj%updateGenericSinglePlot(x,y)
-
-end subroutine
 
 
 subroutine addPlotTabFromObj(self, tabObj)

@@ -572,8 +572,6 @@ type zoatab
    procedure, public, pass(self) :: addListBox_new
    procedure, public, pass(self) :: addEntry_runCommand
    procedure, public, pass(self) :: addEntry_runCommand_new   
-   procedure, public, pass(self) :: createGenericSinglePlot
-   procedure, public, pass(self) :: updateGenericSinglePlot
    procedure, public, pass(self) :: updateGenericMultiPlot
    procedure, public, pass(self) :: createGenericMultiPlot
    procedure, public, pass(self) :: newPlot => zoatab_newPlot
@@ -712,50 +710,6 @@ subroutine createGenericMultiPlot(self, mplt)
   
 end subroutine
 
-subroutine createGenericSinglePlot(self, x, y, xlabel, ylabel, title, lineTypeCode)
-  use zoa_plot
-  implicit none
-  class(zoatab) :: self
-  real, intent(in) :: x(:), y(:)
-  character(len=*), intent(in), optional :: xlabel, ylabel, title
-  integer, optional :: lineTypeCode
-
-  type(c_ptr) ::  isurface
-  type(multiplot) :: mplt
-
-  ! Need a backing surface for PLPLOT
-  self%canvas = hl_gtk_drawing_area_new(size=[700,500], &
-          & has_alpha=FALSE)
-
-          !rmsfield_struct_settings = rmsfield_settings(self%canvas)
-    PRINT *, "canvas in createNewPlot is", LOC(self%canvas)
-    isurface = g_object_get_data(self%canvas, "backing-surface")
-    PRINT *, "isurface is ", LOC(isurface)
-    if (.not. c_associated(isurface)) then
-       PRINT *, "error:  new plot :: Backing surface is NULL.  Adding one"
-       isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
-       isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-       call g_object_set_data(self%canvas, "backing-surface", isurface)
-
-    end if
-
-    call mplt%initialize(self%canvas, 1,1)
-
-    call self%zPlot%initialize(c_null_ptr, x, y, &
-    & xlabel=xlabel, &
-    & ylabel=ylabel, &
-    & title=title)
-    call self%zPlot%setLineStyleCode(lineTypeCode)
-
-    call mplt%set(1,1,self%zPlot)
-    call mplt%draw()
-
-
-
-  ! Need settings to be defined firsr
-  !call self%finalizeWindow()
-
-end subroutine
 
 subroutine updateGenericMultiPlot(self, mplt)
   class(zoatab) :: self
@@ -771,28 +725,6 @@ subroutine updateGenericMultiPlot(self, mplt)
   end if
   call mplt%draw()
 end subroutine
-
-subroutine updateGenericSinglePlot(self, x, y)
-  class(zoatab) :: self
-  real :: x(:), y(:)
-  type(multiplot) :: mplt
-
-  call self%zPlot%updatePlotData(x, y, 1)
-  !self%zPlot%x = x
-  !self%zPlot%y = y
-
-  !self%zPlot%plotdatalist(1)%x = x
-  !self%zPlot%plotdatalist(1)%y = y
-
-  call mplt%initialize(self%canvas, 1,1)
-
-  call mplt%set(1,1,self%zPlot)
-  call self%zPlot%setLineStyleCode(-1)
-  call mplt%draw()
-
-end subroutine
-
-
 
 subroutine addEntry_runCommand(self, labelTxt, valueStr, command)
   use gtk_hl_entry
