@@ -113,7 +113,7 @@ end function
 
 function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
   use handlers, only: zoatabMgr
-  use plot_setting_manager, only: zoaplot_setting_manager, updateWavelengthSetting_new
+  use plot_setting_manager, only: zoaplot_setting_manager, updateWavelengthSetting
   use type_utils, only: int2str
   
   logical :: boolResult
@@ -139,37 +139,10 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
     if (psm%ps(i)%ID == setting_code) then
       !TODO:  Add a way to send index to update setting since we are finding it twice
       ! the way this is written
-      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
+      call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting(setting_code,value)
       boolResult = .TRUE.
       return 
     end if
-
-    ! All the types are resolved in the update_Setting code so it was a mistake to duplicate 
-    ! it here.  But in case some bug pops up leave it here for now.
-
-      !call LogTermFOR("Found proper setting!")
-    !   select type (value)
-    ! type is (real)
-    ! !call LogTermFOR("Calling update setting_new real")
-    
-    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
-    !   boolResult = .TRUE.
-    ! type is (double precision)
-    ! !call LogTermFOR("Calling update setting_new dbl prec")
-    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,real(value))
-    !   boolResult = .TRUE.
-    !   type is (character(*))
-    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
-    !   boolResult = .TRUE.      
-    !   type is (integer)
-    !   !call LogTermFOR("int value is "//int2str(value))
-    !   call zoatabMgr%tabInfo(tabIdx)%tabObj%psm%updateSetting_new(setting_code,value)
-    !   boolResult = .TRUE.      
-    ! end select
-
-    ! return
-    ! end if
-
   end do
 
 

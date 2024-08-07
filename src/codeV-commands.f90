@@ -751,8 +751,9 @@ module codeV_commands
         !TODO:  Add error checking (min and max wavelength within range)
         if (numTokens  == 2) then
             if (isInputNumber(tokens(2))) then
-                call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
-                !call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                print *, "about to call psm update wv setting new ", trim(tokens(2))
+                call curr_psm%updateWavelengthSetting(str2int(trim(tokens(2))))
+                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
                 call LogTermFOR("Finished Updating Wv")
             end if
         end if
@@ -778,8 +779,8 @@ module codeV_commands
         !TODO:  Add error checking (min and max wavelength within range)
         if (numTokens  == 2) then
             if (isInputNumber(tokens(2))) then
-                call curr_psm%updateDensitySetting_new(str2int(tokens(2)))
-                !call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                call curr_psm%updateDensitySetting(str2int(tokens(2)))
+                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
                 call LogTermFOR("Finished Updating Density")
             end if
         end if
@@ -807,8 +808,8 @@ module codeV_commands
         !TODO:  Add error checking (min and max wavelength within range)
         if (numTokens  == 2) then
             if (.NOT.isInputNumber(tokens(2))) then
-                call curr_psm%updateZernikeSetting_new(trim(tokens(2)))
-                !call curr_psm%updateWavelengthSetting_new(str2int(tokens(2)))
+                call curr_psm%updateZernikeSetting(trim(tokens(2)))
+                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
                 call LogTermFOR("Finished Updating Zernike")
             end if
         end if
@@ -873,7 +874,7 @@ module codeV_commands
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%initialize(trim(iptStr))
         cmd_loop = ZERN_LOOP
 
         if (numTokens  == 2) then
@@ -884,9 +885,9 @@ module codeV_commands
         end if
 
         ! Set up settings
-        call psm%addWavelengthSetting_new()
-        call psm%addDensitySetting_new(10, 8, 21)
-        call psm%addZernikeSetting_new("5..9")
+        call psm%addWavelengthSetting()
+        call psm%addDensitySetting(10, 8, 21)
+        call psm%addZernikeSetting("5..9")
 
         curr_psm = psm
 
@@ -912,7 +913,7 @@ module codeV_commands
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%initialize(trim(iptStr))
         cmd_loop = VIE_LOOP
 
         !call LogTermFOR("About ot check VIE for existing plot")
@@ -925,8 +926,8 @@ module codeV_commands
         end if
         call psm%addLensDrawSettings()
         ! Set up settings
-        !call psm%addWavelengthSetting_new()
-        !call psm%addDensitySetting_new(10, 8, 21)
+        !call psm%addWavelengthSetting()
+        !call psm%addDensitySetting(10, 8, 21)
         curr_psm = psm
     end subroutine
 
@@ -990,9 +991,9 @@ module codeV_commands
         type(zoaplot_setting_manager) :: psm
 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
-        !call psm%addDensitySetting_new(64,8,128)
-        !1call psm%addFieldSetting_new()
+        call psm%initialize(trim(iptStr))
+        !call psm%addDensitySetting(64,8,128)
+        !1call psm%addFieldSetting()
         call psm%addRMSFieldSettings()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RMSFIELD, psm)
@@ -1012,10 +1013,10 @@ module codeV_commands
         type(zoaplot_setting_manager) :: psm
 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
-        !call psm%addDensitySetting_new(64,8,128)
-        !1call psm%addFieldSetting_new()
-        call psm%addWavelengthSetting_new()
+        call psm%initialize(trim(iptStr))
+        !call psm%addDensitySetting(64,8,128)
+        !1call psm%addFieldSetting()
+        call psm%addWavelengthSetting()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_SEIDEL, psm)
         if(boolResult .EQV. .FALSE.) then
@@ -1034,10 +1035,10 @@ module codeV_commands
         type(zoaplot_setting_manager) :: psm
 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
-        call psm%addDensitySetting_new(64,8,128)
-        call psm%addFieldSetting_new()
-        call psm%addWavelengthSetting_new()
+        call psm%initialize(trim(iptStr))
+        call psm%addDensitySetting(64,8,128)
+        call psm%addFieldSetting()
+        call psm%addWavelengthSetting()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RIM, psm)
         if(boolResult .EQV. .FALSE.) then
@@ -1057,10 +1058,10 @@ module codeV_commands
         type(zoaplot_setting_manager) :: psm
 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
-        call psm%addDensitySetting_new(64,8,128)
-        call psm%addFieldSetting_new()
-        call psm%addWavelengthSetting_new()
+        call psm%initialize(trim(iptStr))
+        call psm%addDensitySetting(64,8,128)
+        call psm%addFieldSetting()
+        call psm%addWavelengthSetting()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_OPD, psm)
         if(boolResult .EQV. .FALSE.) then
@@ -1081,7 +1082,7 @@ module codeV_commands
         type(zoaplot_setting_manager) :: psm
 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%initialize(trim(iptStr))
         call psm%addAstigSettings()
 
 
@@ -1112,7 +1113,7 @@ module codeV_commands
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
 
-        call psm%init_plotSettingManager_new(trim(iptStr))
+        call psm%initialize(trim(iptStr))
         cmd_loop = SPO_LOOP
 
         if (numTokens  == 2) then
@@ -1123,8 +1124,8 @@ module codeV_commands
         end if
         call psm%addSpotDiagramSettings()
         ! Set up settings
-        !call psm%addWavelengthSetting_new()
-        !call psm%addDensitySetting_new(10, 8, 21)
+        !call psm%addWavelengthSetting()
+        !call psm%addDensitySetting(10, 8, 21)
         curr_psm = psm
     end subroutine
 
@@ -1821,8 +1822,8 @@ module codeV_commands
                 if (boolResult) then
                     if(cmd_loop == VIE_LOOP) then
                         call LogTermFOR("Upating Surfaces in ld_settings")
-                        call curr_psm%updateSetting_new(ID_LENS_FIRSTSURFACE, surfaces(1))
-                        call curr_psm%updateSetting_new(ID_LENS_LASTSURFACE, surfaces(size(surfaces)))
+                        call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, surfaces(1))
+                        call curr_psm%updateSetting(ID_LENS_LASTSURFACE, surfaces(size(surfaces)))
                     end if
                 end if
             end if

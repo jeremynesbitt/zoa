@@ -33,11 +33,7 @@ module plot_setting_manager
 
       contains
        procedure, public, pass(self) :: initialize => init_setting
-       procedure, public, pass(self) :: init_setting_new
        procedure, public, pass(self) :: initializeStr
-       procedure, public, pass(self) :: initializeStr_new
-         
-
 
     end type
 
@@ -54,24 +50,19 @@ module plot_setting_manager
     ! not sure it is worth the effort...
     contains
     procedure, public, pass(self) :: initialize => init_plotSettingManager
-    procedure, public, pass(self) :: init_plotSettingManager_new
     procedure, public, pass(self) :: addWavelengthSetting
-    procedure, public, pass(self) :: addWavelengthSetting_new
-    procedure, public, pass(self) :: updateWavelengthSetting_new
-    procedure, public, pass(self) :: getWavelengthSetting_new
-    procedure, public, pass(self) :: getFieldSetting_new
+    procedure, public, pass(self) :: updateWavelengthSetting
+    procedure, public, pass(self) :: getWavelengthSetting
+    procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: getSettingValueByCode
 
     procedure, public, pass(self) :: addFieldSetting
-    procedure, public, pass(self) :: addFieldSetting_new
-    procedure, public, pass(self) :: addDensitySetting
-    procedure, public, pass(self) :: addDensitySetting_new   
-    procedure, public, pass(self) :: getDensitySetting_new     
-    procedure, public, pass(self) :: updateDensitySetting_new    
+    procedure, public, pass(self) :: addDensitySetting   
+    procedure, public, pass(self) :: getDensitySetting     
+    procedure, public, pass(self) :: updateDensitySetting    
     procedure, public, pass(self) :: addZernikeSetting
-    procedure, public, pass(self) :: addZernikeSetting_new
-    procedure, public, pass(self) :: updateZernikeSetting_new
+    procedure, public, pass(self) :: updateZernikeSetting
     procedure, public, pass(self) :: getZernikeSetting_min_and_max
     procedure, public, pass(self) :: addGenericSetting
 
@@ -94,7 +85,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addRMSFieldSettings
     procedure, public, pass(self) :: getRMSFieldSettings
 
-    procedure, public, pass(self) :: updateSetting_new
+    procedure, public, pass(self) :: updateSetting
 
     !procedure, public, pass(self) :: addZernikeSetting
 
@@ -107,23 +98,8 @@ module plot_setting_manager
 
 contains
 
-    subroutine init_setting(self, ID_SETTING, label, default, min, max, prefix, ID_UITYPE)
-        class (plot_setting) :: self
-        integer :: ID_SETTING, ID_UITYPE
-        character(len=*) :: label, prefix
-        real :: default, min, max
 
-        self%ID = ID_SETTING
-        self%uitype = ID_UITYPE
-        self%label = label
-        self%default = default
-        self%min = min
-        self%max = max
-        self%prefix = prefix
-
-    end subroutine
-
-    subroutine init_setting_new(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
+    subroutine init_setting(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
       use type_utils, only: real2str
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
@@ -156,34 +132,34 @@ contains
 
       ! Add indvidual settings 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_NUM_FIELD_RAYS, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_NUM_FIELD_RAYS, & 
       & "Num Rays Per Feild", real(7),1.0,real(19), &
       & "NUMRAYS ", "NUMRAYS "//trim(int2str(7)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENS_FIRSTSURFACE, & 
+      call self%ps(self%numSettings)%initialize(ID_LENS_FIRSTSURFACE, & 
       & "First Surface", real(0),0.0,real(ldm%getLastSurf()), &
       & "DRAWSI", "DRAWSI "//trim(int2str(20)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENS_LASTSURFACE, & 
+      call self%ps(self%numSettings)%initialize(ID_LENS_LASTSURFACE, & 
       & "Last Surface", real(ldm%getLastSurf()),real(1.0),real(ldm%getLastSurf()), &
       & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurf())), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_ELEVATION, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_ELEVATION, & 
       & "Elevation", real(26.2),real(0.0),real(360.0), &
       & "ELEV", "ELEV "//trim(real2str(26.2)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AZIMUTH, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AZIMUTH, & 
       & "Aziumuth", real(232.2),real(0.0),real(360.0), &
       & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)       
 
       call self%addLensDrawScaleSettings()
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_AUTOSCALE_VALUE, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AUTOSCALE_VALUE, & 
       & "Manual Scale Factor", 0.045,real(0.0),real(10000.0), &
       & "SSI", "SSI "//trim(real2str(0.045,5)), UITYPE_SPINBUTTON)             
 
@@ -199,12 +175,12 @@ contains
 
       !For now just test x and y offset
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_OFFSET_X, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_OFFSET_X, & 
       & "Manual Scale Factor", real(0.0),real(-10000.0),real(10000.0), &
       & "XOFF", "XOFF "//trim(real2str(0.0)), UITYPE_TOOLBAR)    
      
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_OFFSET_Y, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_OFFSET_Y, & 
       & "Manual Scale Factor", real(0.0),real(-10000.0),real(10000.0), &
       & "YOFF", "YOFF "//trim(real2str(0.0)), UITYPE_TOOLBAR)          
 
@@ -233,7 +209,7 @@ contains
 
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_PLOT_ORIENTATION, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_PLOT_ORIENTATION, & 
       & "Plot Orientation", real(ID_LENSDRAW_YZ_PLOT_ORIENTATION),0.0,0.0, &
       & "ORIENT", "ORIENT YZ", UITYPE_COMBO, set=set)
       
@@ -254,7 +230,7 @@ contains
       set(2)%id = ID_LENSDRAW_MANUALSCALE
     
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_LENSDRAW_SCALE, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_SCALE, & 
       & "Auto or Manual Scale", real(ID_LENSDRAW_AUTOSCALE),0.0,0.0, &
       & "SSI", "SSI 1", UITYPE_COMBO, set=set)
       
@@ -287,24 +263,24 @@ contains
 
      
 
-      call self%addFieldSetting_new()
-      call self%addWavelengthSetting_new()
+      call self%addFieldSetting()
+      call self%addWavelengthSetting()
       call self%addSpotCalculationSetting()
      
 
       ! Add indvidual settings 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_RECT_GRID, & 
+      call self%ps(self%numSettings)%initialize(ID_SPOT_RECT_GRID, & 
       & "Rectangular Grid (nxm)", real(20),1.0,real(300), &
       & "RECTDENS", "RECTDENS "//trim(int2str(20)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_RAND_NUMRAYS, & 
+      call self%ps(self%numSettings)%initialize(ID_SPOT_RAND_NUMRAYS, & 
       & "Number of Rays (random only)", real(2000),1.0,real(100000000), &
       & "NUMRAYS", "NUMRAYS "//trim(int2str(2000)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_RING_NUMRINGS, & 
+      call self%ps(self%numSettings)%initialize(ID_SPOT_RING_NUMRINGS, & 
       & "Number of Rings (ring only)", real(20),1.0,real(50), &
       & "NUMRAYS", "NUMRAYS "//trim(int2str(20)), UITYPE_SPINBUTTON)      
       
@@ -321,7 +297,7 @@ contains
 
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_CODE, & 
+      call self%ps(self%numSettings)%initialize(ID_CODE, & 
       & label, default,min,max, &
       & baseCmd, fullCmd, UI_TYPE)     
 
@@ -366,7 +342,7 @@ contains
       spotTrace(3)%id = ID_SPOT_RAND      
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_SPOT_TRACE_ALGO, & 
+      call self%ps(self%numSettings)%initialize(ID_SPOT_TRACE_ALGO, & 
       & "Spot Tracing Method", real(ID_SPOT_RECT),0.0,0.0, &
       & "TRAC", "TRAC RECT", UITYPE_COMBO, set=spotTrace)
 
@@ -395,12 +371,12 @@ contains
       set(2)%id = ID_AST_FIELD_X
     
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_AST_FIELDXY, & 
+      call self%ps(self%numSettings)%initialize(ID_AST_FIELDXY, & 
       & "Field Selection", real(ID_AST_FIELD_Y),0.0,0.0, &
       & "ASTFLD ", "ASTFLD Y", UITYPE_COMBO, set=set)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_NUMPOINTS, & 
+      call self%ps(self%numSettings)%initialize(ID_NUMPOINTS, & 
       & "Number of Points", real(10.0),1.0,50.0, &
       & "NUMPTS ", "NUMPTS "//int2str(10), UITYPE_SPINBUTTON)
 
@@ -435,17 +411,16 @@ contains
       set(2)%id = ID_RMS_DATA_WAVE
     
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_RMS_DATA_TYPE, & 
+      call self%ps(self%numSettings)%initialize(ID_RMS_DATA_TYPE, & 
       & "Data", real(ID_RMS_DATA_WAVE),0.0,0.0, &
       & "RMSDATA ", "RMSDATA WAVE", UITYPE_COMBO, set=set)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%init_setting_new(ID_NUMPOINTS, & 
+      call self%ps(self%numSettings)%initialize(ID_NUMPOINTS, & 
       & "Number of Points", real(10.0),1.0,50.0, &
       & "NUMPTS ", "NUMPTS "//int2str(10), UITYPE_SPINBUTTON)
 
-      call self%addWavelengthSetting_new()
-      !call self%addWavelengthSetting_new()
+      call self%addWavelengthSetting()
 
 
     end subroutine
@@ -463,24 +438,8 @@ contains
     
     end subroutine    
 
-
-    subroutine initializeStr(self, ID_SETTING, label, default, prefix, ID_UITYPE)
-        class (plot_setting) :: self
-        integer :: ID_SETTING, ID_UITYPE
-        character(len=*) :: label, default, prefix
-  
-        self%ID = ID_SETTING
-        self%uitype = ID_UITYPE
-        self%label = label
-        self%default = 0.0
-        self%defaultStr = default
-        self%min = -1
-        self%max = -1
-        self%prefix = prefix
-
-    end subroutine
     
-    subroutine initializeStr_new(self, ID_SETTING, label, default, cmd, ID_UITYPE)
+    subroutine initializeStr(self, ID_SETTING, label, default, cmd, ID_UITYPE)
       implicit none
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
@@ -501,29 +460,6 @@ contains
 
 
     subroutine init_plotSettingManager(self, strCmd)
-        use plotSettingParser
-        use command_utils, only:  parseCommandIntoTokens
-
-        class(zoaplot_setting_manager) :: self
-        character(len=*) :: strCmd
-        
-        character(len=80) :: tokens(40)
-        integer :: numTokens        
-
-        PRINT *, "INPUT is ", strCmd
-
-        self%numSettings = 0
-        
-
-       call parseCommandIntoTokens(trim(strCmd), tokens, numTokens, " ") 
-       call self%sp%initialize(tokens(1:numTokens))
-       PRINT *, "New CMD is ", self%sp%getCommand()
-
-
-    end subroutine
-
-
-    subroutine init_plotSettingManager_new(self, strCmd)
       !use plotSettingParser
       !use command_utils, only:  parseCommandIntoTokens
 
@@ -537,26 +473,7 @@ contains
       
   end subroutine
 
-
-
-    function addWavelengthSetting(self) result(lambda)
-        use global_widgets, only: sysConfig
-        implicit none
-
-        class(zoaplot_setting_manager) :: self
-        integer :: lambda
-
-        lambda = self%sp%checkForIntToken('w', sysConfig%refWavelengthIndex)
-
-        self%numSettings = self%numSettings + 1
-        PRINT *, "numWavelengths is ", real(sysConfig%numWavelengths)
-        call self%ps(self%numSettings)%initialize(SETTING_WAVELENGTH, & 
-        & "Wavelength", real(lambda),1.0,real(sysConfig%numWavelengths), 'w', UITYPE_SPINBUTTON)
-
-
-      end function   
-
-      subroutine addWavelengthSetting_new(self) 
+      subroutine addWavelengthSetting(self) 
         use global_widgets, only: sysConfig
         use type_utils, only: int2str
         implicit none
@@ -567,7 +484,7 @@ contains
         lambda = sysConfig%refWavelengthIndex
         self%numSettings = self%numSettings + 1
         PRINT *, "numWavelengths is ", real(sysConfig%numWavelengths)
-        call self%ps(self%numSettings)%init_setting_new(SETTING_WAVELENGTH, & 
+        call self%ps(self%numSettings)%initialize(SETTING_WAVELENGTH, & 
         & "Wavelength", real(lambda),1.0,real(sysConfig%numWavelengths), &
         & "SETWV", "SETWV "//trim(int2str(lambda)), UITYPE_SPINBUTTON)
 
@@ -576,7 +493,7 @@ contains
 
       
 
-      subroutine updateWavelengthSetting_new(self, newIdx) 
+      subroutine updateWavelengthSetting(self, newIdx) 
         use type_utils, only: int2str
         implicit none
 
@@ -589,6 +506,7 @@ contains
           if (self%ps(i)%ID == SETTING_WAVELENGTH) then
             !call LogTermFOR("Found setting and changing to " //int2str(newIdx))
             self%ps(i)%default = real(newIdx)
+            print *, "About to call int2str in update wv setting"
             self%ps(i)%fullCmd = trim("SETWV "//int2str(newIdx))
           end if
         end do
@@ -596,7 +514,7 @@ contains
       end subroutine 
 
 
-      function getFieldSetting_new(self) result(idxFld)
+      function getFieldSetting(self) result(idxFld)
         use type_utils, only: str2int
         use strings
         implicit none
@@ -608,7 +526,7 @@ contains
 
       end function
 
-      function getWavelengthSetting_new(self) result(wvIdx)
+      function getWavelengthSetting(self) result(wvIdx)
         use global_widgets, only: sysConfig
         use type_utils, only: str2int
         use strings
@@ -632,7 +550,7 @@ contains
 
 
 
-      subroutine addFieldSetting_new(self) 
+      subroutine addFieldSetting(self) 
         use global_widgets, only: sysConfig
         use type_utils, only: int2str
         implicit none
@@ -642,7 +560,7 @@ contains
 
         fldPoint = 1 ! Default to first field
         self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%init_setting_new(SETTING_FIELD, & 
+        call self%ps(self%numSettings)%initialize(SETTING_FIELD, & 
         & "Field Point", real(fldPoint),1.0,real(sysConfig%numFields), &
         & "SETFLD", "SETFLD "//trim(int2str(fldPoint)), UITYPE_SPINBUTTON)
 
@@ -650,37 +568,7 @@ contains
       
       end subroutine
 
-      function addFieldSetting(self) result(val)
-        use global_widgets, only: sysConfig
-        implicit none
-        class(zoaplot_setting_manager), intent(inout) :: self
-        integer:: val
-
-        val = self%sp%checkForIntToken('f', sysConfig%numFields)
-        self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initialize(SETTING_FIELD, & 
-        & "Field", real(val),1.0,real(sysConfig%numFields), 'f', UITYPE_SPINBUTTON)
-
-      
-      end function     
-
-      function addZernikeSetting(self, defVal) result(val)
-        use global_widgets, only: sysConfig
-        implicit none
-        class(zoaplot_setting_manager), intent(inout) :: self
-        character(len=*) :: defVal
-        character(len=10) :: val
-
-        val = self%sp%checkForStrToken('c', defVal)
-        self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initializeStr(SETTING_ZERNIKE, & 
-        & "Zernike Coefficients", val, 'c', UITYPE_ENTRY)
-
-      
-      end function       
-
-
-      subroutine addZernikeSetting_new(self, defVal) 
+      subroutine addZernikeSetting(self, defVal) 
         use global_widgets, only: sysConfig
         implicit none
         class(zoaplot_setting_manager), intent(inout) :: self
@@ -689,13 +577,13 @@ contains
 
         val = defVal
         self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initializeStr_new(SETTING_ZERNIKE, & 
+        call self%ps(self%numSettings)%initializeStr(SETTING_ZERNIKE, & 
         & "Zernike Coefficients", val, "SETZERNC", UITYPE_ENTRY)
 
       
       end subroutine             
      
-      subroutine updateZernikeSetting_new(self, newVal) 
+      subroutine updateZernikeSetting(self, newVal) 
         use global_widgets, only: sysConfig
         use type_utils, only: int2str
         implicit none
@@ -735,7 +623,7 @@ contains
       end subroutine
 
 
-      subroutine addDensitySetting_new(self, defaultVal, minVal, maxVal) 
+      subroutine addDensitySetting(self, defaultVal, minVal, maxVal) 
         use type_utils, only: int2str
         implicit none
         class(zoaplot_setting_manager), intent(inout) :: self
@@ -743,7 +631,7 @@ contains
 
         val = defaultVal
         self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%init_setting_new(SETTING_DENSITY, & 
+        call self%ps(self%numSettings)%initialize(SETTING_DENSITY, & 
         & "Density", real(val),real(minVal),real(maxVal), &
         & "SETDENS", "SETDENS "//trim(int2str(defaultVal)), UITYPE_SPINBUTTON)
       
@@ -769,7 +657,7 @@ contains
       end function
 
 
-      subroutine updateSetting_new(self, setting_code, newVal)
+      subroutine updateSetting(self, setting_code, newVal)
         use global_widgets, only: sysConfig
         use type_utils, only: int2str, real2str
         implicit none
@@ -813,7 +701,7 @@ contains
 
       end subroutine 
 
-      subroutine updateDensitySetting_new(self, newVal) 
+      subroutine updateDensitySetting(self, newVal) 
         use global_widgets, only: sysConfig
         use type_utils, only: int2str
         implicit none
@@ -831,20 +719,8 @@ contains
 
       end subroutine 
 
-      function addDensitySetting(self, defaultVal, minVal, maxVal) result(val)
-        implicit none
-        class(zoaplot_setting_manager), intent(inout) :: self
-        integer:: val, defaultVal, minVal, maxVal
-
-        val = self%sp%checkForIntToken('n', defaultVal)
-        self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initialize(SETTING_DENSITY, & 
-        & "Density", real(val),real(minVal),real(maxVal), 'n', UITYPE_SPINBUTTON)
-
       
-      end function  
-      
-      function getDensitySetting_new(self) result(denVal)
+      function getDensitySetting(self) result(denVal)
         use global_widgets, only: sysConfig
         use type_utils, only: str2int
         use strings

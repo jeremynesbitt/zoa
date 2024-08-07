@@ -218,7 +218,7 @@ SUBROUTINE VIE_psm(psm)
                     PLSC=.FALSE.
                     ELSE
   ! Scale factor is already set so store it in psm in case user switches to manual
-      call psm%updateSetting_new(ID_LENSDRAW_AUTOSCALE_VALUE, SCFAYP)                                        
+      call psm%updateSetting(ID_LENSDRAW_AUTOSCALE_VALUE, SCFAYP)                                        
                     END IF
   !PRINT *, "AFTER SCALE FACTOR DONE, IT IS ", SCFAY
 !     SCALE FACTOR DONE

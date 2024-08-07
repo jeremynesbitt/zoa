@@ -53,7 +53,7 @@ subroutine zern_go(psm)
     COMMON/SOLU/X
 
 
-    numPoints = psm%getDensitySetting_new()
+    numPoints = psm%getDensitySetting()
     call psm%getZernikeSetting_min_and_max(minZ, maxZ)
     numTermsToPlot = maxZ-minZ+1
     !TODO:  Should support a rank one array to set Zernikes
@@ -71,7 +71,7 @@ subroutine zern_go(psm)
     !numTermsToPlot = 5    
     
 
-    lambda = psm%getWavelengthSetting_new()
+    lambda = psm%getWavelengthSetting()
     inputCmd = trim(psm%generatePlotCommand())
     
     !inputCmd = trim(psm%sp%getCommand())      
@@ -556,9 +556,9 @@ subroutine rayaberration_go(psm)
     type(zoaplot_setting_manager) :: psm
     REAL, allocatable :: x(:), y(:)
 
-    lambda = psm%getWavelengthSetting_new()
-    fldIdx = psm%getFieldSetting_new()
-    numPoints = psm%getDensitySetting_new()
+    lambda = psm%getWavelengthSetting()
+    fldIdx = psm%getFieldSetting()
+    numPoints = psm%getDensitySetting()
 
     
     allocate(x(numPoints))
@@ -753,9 +753,9 @@ subroutine pma_go(psm)
   type(multiplot) :: mplt
   
 
-  lambda = psm%getWavelengthSetting_new()
-  fldIdx = psm%getFieldSetting_new()
-  xpts = psm%getDensitySetting_new()
+  lambda = psm%getWavelengthSetting()
+  fldIdx = psm%getFieldSetting()
+  xpts = psm%getDensitySetting()
   ypts = xpts
 
 
