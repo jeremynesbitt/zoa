@@ -10,6 +10,7 @@ C SUB CMDER.FOR
         use codeV_commands
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
      1 ID_TERMINAL_KDPDUMP   
+        use DATLEN
         
 C
         IMPLICIT NONE
@@ -76,7 +77,7 @@ C
        !EXTERNAL RESTINPT
        !EXTERNAL SAVEINPT
 
-        INCLUDE 'DATLEN.INC'
+        !INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATSP1.INC'
