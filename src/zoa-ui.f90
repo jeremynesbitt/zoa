@@ -109,7 +109,7 @@ integer, parameter :: ID_RMS_DATA_WAVE = 1622
 
 
 
-integer :: active_plot = -1
+!integer :: active_plot = -1
 
 ! C               0 = WHITE
 ! C               1 = LIGHT YELLOW

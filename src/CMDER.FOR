@@ -2827,34 +2827,6 @@ C
         CALL DDXFF
         RETURN
         END IF
-        IF(WC.EQ.'PLTXFAN'.AND.F17.EQ.0.OR.
-     1  WC.EQ.'PLTYFAN'.AND.F17.EQ.0.OR.
-     1  WC.EQ.'PLTPFAN'.AND.F17.EQ.0.OR.
-     1  WC.EQ.'PLTNFAN'.AND.F17.EQ.0.OR.
-     1  WC.EQ.'PLOTFANS'.AND.F17.EQ.0) THEN
-       PLOTCAPCON=.FALSE.
-       active_plot = ID_NEWPLOT_RAYFAN
-
-        CALL PPLOTT
-        RETURN
-        END IF
-        IF(WC.EQ.'PFANAXIS'.AND.F17.EQ.0.OR.
-     2  WC.EQ.'PFANLBL'.AND.F17.EQ.0.OR.
-     3  WC.EQ.'PFANCOMP'.AND.F17.EQ.0.OR.
-     4  WC.EQ.'PFANCAP'.AND.F17.EQ.0.OR.
-     5  WC.EQ.'PFANSSI'.AND.F17.EQ.0) THEN
-       PLOTCAPCON=.FALSE.
-       active_plot = ID_NEWPLOT_RAYFAN
-        CALL PPLOTT
-        RETURN
-        END IF
-        IF(WC.EQ.'PLTXYFAN'.AND.F17.EQ.0.OR.
-     1  WC.EQ.'PLTYXFAN'.AND.F17.EQ.0) THEN
-       PLOTCAPCON=.FALSE.
-       active_plot = ID_NEWPLOT_RAYFAN
-        CALL PPLOTT
-        RETURN
-        END IF
         IF(WC.EQ.'FANS') THEN
         CALL RIMS
         RETURN
@@ -2938,12 +2910,6 @@ C        IF(WC.EQ.'REPLAY') THEN
 C        CALL REPLAYFILE
 C        RETURN
 C        END IF
-        IF(WC.EQ.'DRAWFAN') THEN
-        active_plot = ID_NEWPLOT_RAYFAN
-        CALL PPLOTT
-        PLOTCAPCON=.FALSE.
-        RETURN
-        END IF
         IF(WC.EQ.'GRAOUT') THEN
         CALL PPLOTT
         RETURN

@@ -2260,7 +2260,7 @@ module codeV_commands
 
         !call LogTermFOR("IN VIE LOOP ")
         call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
-        active_plot = ID_PLOTTYPE_LENSDRAW
+        !active_plot = ID_PLOTTYPE_LENSDRAW
         cmd_loop = DRAW_LOOP
         call vie_go(curr_psm)
         CALL PROCESKDP('DRAW')
