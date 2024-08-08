@@ -543,6 +543,8 @@ module zoa_tab
 ! The commonality is that zoaTab must have a CLI command to reproduce it             
 ! and that it must have some sort of ID to tell zoaTabMgr what type of plot it is
 
+!zoatab keeps ID_PLOTTYPE (anme chance, plotCommand (needs to be > 140 chars) and psm)
+
 type zoatab
      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
      integer(c_int)  :: width = 1*1000 !1000

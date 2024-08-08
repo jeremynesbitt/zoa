@@ -1,4 +1,5 @@
 
+!TODO:  FInd a better home for this as it doesn't really deserive it's own file name.
 module ROUTEMOD
   use iso_c_binding
 
@@ -15,8 +16,6 @@ end interface
 
 contains
 
-
-
 SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata) bind(c)
 
     use zoa_ui
@@ -29,39 +28,13 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     type(c_ptr), value    :: cairo_drawing_area, my_cairo_context
     type(c_ptr), value :: gdata
     integer(c_int), value, intent(in) :: win_width, win_height
-    integer(kind=c_int), pointer :: ID_SETTING
+    integer(kind=c_int), pointer :: tabIdx
 
     !PRINT *, "gdata before c_f_pointer call in ROUTEDRAWING ", gdata
-    call c_f_pointer(gdata, ID_SETTING)
+    call c_f_pointer(gdata, tabIdx)
 
-
-    !PRINT *, "ID_SETTING IN ROUTEDRAWING IS ", ID_SETTING
-    !PRINT *, "ID_NEWPLOT_LENSDRAW IS ", ID_NEWPLOT_LENSDRAW
-
-    ! I need to trigger replot for plotCmd plots if I want them to properly refrecsh
-    ! eg
-    ! get current tab
-    ! if cmdBased, then run plot command
-    ! may end up triggering it twice after a setting change, but at least I would solve the
-    ! problem of lens draw not properly updating
-
-
-    
-
-    select case (ID_SETTING)
-
-
-  case default
-      !PRINT *, "NO ID SETTING MATCH FOUND! ID_SETTING PASSED IS ", ID_SETTING
-      !PRINT *, "gdata is ", LOC(gdata)
-      !Non special calls
-      
-      call PROCESKDP(getTabPlotCommand(ID_SETTING))
-  
-  end select
-      !call LogTermFOR("About to call Draw Optical System from Route Drawing")
-      call DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)
-
+    call PROCESKDP(getTabPlotCommand(tabIdx))
+    call DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)
 
 
 end SUBROUTINE

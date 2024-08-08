@@ -11,7 +11,7 @@ module zoa_tab_manager
 ! Maybe this should go away and be replaced by just tabObj
 ! should settings be a "child" of zoatab?    
 type zoatabData
-  integer :: typeCode
+  !integer :: typeCode
   class(zoatab), allocatable :: tabObj
 
 end type
@@ -32,15 +32,12 @@ type  zoatabManager
  contains
 
    procedure :: addMsgTab
-   !procedure :: addPlotTab
-   !procedure :: newPlotIfNeeded
    procedure :: rePlotIfNeeded
    procedure :: removePlotTab
    procedure :: doesPlotExist
    procedure :: doesPlotExist_new
    procedure :: getNumberOfPlotsByCode
    ! TODO:  Should all these generic plot tabs exist here?
-   procedure :: addPlotTabFromObj
    procedure :: addGenericMultiPlotTab
    procedure :: updateGenericMultiPlotTab
    procedure :: finalizeNewPlotTab
@@ -69,7 +66,8 @@ contains
 function getTypeCode(self, idx) result (TYPE_CODE)
   class(zoatabManager) :: self
   integer :: TYPE_CODE
-  TYPE_CODE = self%tabInfo(idx)%typeCode
+  !TYPE_CODE = self%tabInfo(idx)%typeCode
+  TYPE_CODE = self%tabInfo(idx)%tabObj%ID_PLOTTYPE
 end function
 
 ! This doubles as an init routine
@@ -164,7 +162,6 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   ! used for replot.  Need a better solution for this
   !self%tabInfo(idx)%settings = tabObj%settings
 
-  self%tabInfo(idx)%typeCode = PLOT_CODE
   self%tabInfo(idx)%tabObj%canvas = mplt%area
   !call self%tabInfo(idx)%tabObj%finalizeWindow()
 
@@ -228,7 +225,7 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   !  end if
  
   self%tabInfo(idx)%tabObj%useToolbar = .TRUE.
-  self%tabInfo(idx)%typeCode = PLOT_CODE
+
 
   !call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
   
@@ -347,40 +344,6 @@ subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
 end subroutine
 
 
-
-
-subroutine addPlotTabFromObj(self, tabObj)
-   implicit none
-   class(zoatabManager) :: self
-   class(zoatab) :: tabObj
-   integer :: PLOT_CODE
-   integer :: idx
-    type(c_ptr) :: currPage
-    integer(kind=c_int) :: currPageIndex
-    character(len=3) :: outChar
-
-   PLOT_CODE = tabObj%ID_PLOTTYPE
-   idx = self%findTabIndex()
-    !PRINT *, "idx is ", idx
-    call logger%logText('New RMS Field Diagram Starting')
-    !PRINT *, "Allocated tabObj before allocation ", allocated(self%tabInfo(idx)%tabObj)
-    !allocate(zoatab :: self%tabInfo(idx)%tabObj)
-
-    self%tabInfo(idx)%tabObj = tabObj
-    !PRINT *, "Allocated tabObj after allocation ", allocated(self%tabInfo(idx)%tabObj)
-
-    self%tabInfo(idx)%typeCode = PLOT_CODE
-    ! Bad design IMO
-    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%tabObj%useToolbar)
-
-    ! This part is to enable close tab functionality
-    currPageIndex = gtk_notebook_get_current_page(self%notebook)
-    currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
-    WRITE(outChar, '(I0.3)') idx
-    call gtk_widget_set_name(currPage, outChar//c_null_char)
-
-end subroutine
-
  function doesPlotExist(self, PLOT_CODE, idxObj) result(plotFound)
    class(zoatabManager) :: self
    integer, intent(in) :: PLOT_CODE
@@ -391,15 +354,10 @@ end subroutine
     !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.
     idxObj = -1
-    PRINT *, "PLOT_CODE is ", PLOT_CODE
-    PRINT *, "self%tabNum is ", self%tabNum
+
     DO i = 1,self%tabNum
-       PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
       if(self%getTypeCode(i) == PLOT_CODE) THEN
-          PRINT *, "Found existing plot at tab ", i
           idxObj = i
-          PRINT *, "Type code is ", self%tabInfo(i)%typeCode
-          PRINT *, "PLOT_CODE is ", PLOT_CODE
          plotFound = .TRUE.
          tabPos = i
 
@@ -423,7 +381,7 @@ end subroutine
    plotFound = .FALSE.
    idxObj = -1
    DO i = 1,self%tabNum
-     if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
+     if(self%getTypeCode(i) == PLOT_CODE) THEN
          if (self%tabInfo(i)%tabObj%psm%plotNum ==plotNum) then
          idxObj = i
         plotFound = .TRUE.
@@ -483,8 +441,6 @@ end function
     class(zoatabManager) :: self
     integer, intent(in) :: tabIndex, tabInfoIndex
 
-    PRINT *, "removePlotTab tabIndex is ", tabIndex
-    PRINT *, "removePlotTab tabInfoIndex is ", tabInfoIndex
 
     call gtk_notebook_remove_page(self%notebook, tabIndex)
     !PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
@@ -493,7 +449,7 @@ end function
     if (allocated(self%tabInfo(tabInfoIndex)%tabObj)) then
        DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
     end if
-    self%tabInfo(tabInfoIndex)%typeCode = -1
+  
 
   end subroutine
 
