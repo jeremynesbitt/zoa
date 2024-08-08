@@ -554,7 +554,6 @@ type zoatab
      integer(kind=c_int) :: ID_PLOTTYPE
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
      character(len=140) :: plotCommand
-     logical :: cmdBasedPlot
      logical :: useToolbar
      type(zoaplot_setting_manager) :: psm
      ! This is not being used, but was just added for testing
@@ -648,7 +647,6 @@ contains ! for module
     type(c_ptr) :: tab_label, btn
     integer, target :: ID_TARGET
 
-    self%cmdBasedPlot = .FALSE. ! Default
 
     ID_TARGET = ID_PLOTTYPE
     PRINT *, "tabTitle is ", tabTitle

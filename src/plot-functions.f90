@@ -147,7 +147,7 @@ subroutine zern_go(psm)
       objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, &
       & trim(tabName)//c_null_char, mplt)
 
-      call zoaTabMgr%finalize_with_psm_new(objIdx, psm, trim(inputCmd))
+      call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
 
     end if
@@ -213,7 +213,7 @@ subroutine vie_go(psm)
       !objIdx = zoatabMgr%addGenericMultiPlotTab(plot_code, &
       !& trim(tabName)//c_null_char, mplt)
 
-      call zoaTabMgr%finalize_with_psm_new(objIdx, psm, trim(inputCmd))
+      call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
     end if
 
@@ -844,7 +844,7 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
       objIdx = zoatabMgr%addGenericMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char, mplt)
 
-      call zoaTabMgr%finalize_with_psm_new(objIdx, psm, trim(inputCmd))
+      call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
     end if
 

@@ -44,9 +44,9 @@ type  zoatabManager
    procedure :: updateInputCommand
    procedure :: findTabIndex
    procedure :: closeAllTabs
-   ! this one will go away and be replaced with the _new one eventuallyy
    procedure :: finalize_with_psm
-   procedure :: finalize_with_psm_new
+
+   !Support for KDP (now only VIE) plot
    procedure :: addKDPPlotTab
    procedure :: setKDPCallback
    procedure :: updateKDPPlotTab
@@ -116,6 +116,7 @@ function  findTabIndex(self) result(newTabIndex)
 
 end function
 
+!TODO:  Combine this with finalizewithpsm at some point
 subroutine finalizeNewPlotTab(self, idx)
     class(zoatabManager) :: self
     integer :: idx
@@ -124,8 +125,6 @@ subroutine finalizeNewPlotTab(self, idx)
     integer(kind=c_int) :: currPageIndex
     character(len=3) :: outChar
 
-    ! TODO:  Revisit this design.  I think it is bad but couldn't come up with a better way 
-    call LogTermFOR("Finalize New Plot Tab")
     !TODO:  Fix this - don't like how this flat is set secretly for lens draw
     call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%tabObj%useToolbar)
 
@@ -156,7 +155,6 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
 
   allocate(zoatab :: self%tabInfo(idx)%tabObj)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, mplt%area)
-  self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
   call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
   ! Right now there is no settings object.  This object is only
   ! used for replot.  Need a better solution for this
@@ -197,8 +195,6 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
 
   character(len=*) :: tabTitle
   integer :: idx  
-  integer, target :: TARGET_LENSDRAW   = ID_PLOTTYPE_LENSDRAW
-  integer, target :: TARGET_TST   = ID_PLOTTYPE_GENERIC
   !integer, target :: tabIdx
 
 
@@ -210,7 +206,6 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   call LogTermFOR("Setting up new KDP tab for tab idx "//int2str(idx))
   allocate(zoatab :: self%tabInfo(idx)%tabObj)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
-  self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
   !call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
   !& c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)  
   !ptr =tabIndices(idx)
@@ -318,7 +313,6 @@ end function
 function getWidgetBySettingCode(self, tabIdx, SETTING_CODE) result(widget)
   implicit none
   class(zoatabManager) :: self
-  type(zoaplot_setting_manager) :: psm
   integer :: tabIdx
   type(c_ptr) :: widget
   integer :: SETTING_CODE
@@ -423,14 +417,10 @@ end function
            ! Not keeping track of tabs when it is closed, so as a 
            ! hack add this.  TODO:  Fix this properly
            if (allocated(self%tabInfo(i)%tabObj)) then
-           if (self%tabInfo(i)%tabObj%cmdBasedPlot) then
-              !PRINT *, "CMD Based REPLOT REQUESTED for tab ", i
-              !PRINT *, "CMD Stored is "
               call LogTermFOR("About to call replot cmd " &
               & //trim(self%tabInfo(i)%tabObj%plotCommand))
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           end if
-        end if
      END DO
 
 
@@ -520,51 +510,7 @@ end function
 
   end subroutine
 
-  subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
-    use iso_c_binding, only: c_null_char
-    use type_utils, only: int2str
-    use plot_setting_manager, only: zoaplot_setting_manager
-    implicit none
-
-    character(len=*) :: inputCmd
-    integer :: objIdx
-    integer :: i
-    class(zoatabManager) :: self
-    type(zoaplot_setting_manager) :: psm
-
-
-    self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
-    do i=1,psm%numSettings
-
-    select case (psm%ps(i)%uitype)
-
-    case(UITYPE_SPINBUTTON)
-    ! call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand_new( & 
-    ! & trim(int2str(psm%ps(i)%ID)), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 1, &
-    ! & trim(psm%ps(i)%prefix))
- 
-    call self%tabInfo(objIdx)%tabObj%addSpinButton_runCommand( & 
-    & trim(psm%ps(i)%label), psm%ps(i)%default, psm%ps(i)%min, psm%ps(i)%max, 3_c_int, &
-    & trim(psm%ps(i)%prefix))    
-    !"Number of Field Points", &
-    !& 10.0, 1.0, 20.0, 1, "NUMPTS"//c_null_char)
-    !call zoaTabMgr%tabInfo(objIdx)%tabObj%addSpinButton_runCommand("Test2", 1.0, 0.0, 10.0, 1, "")
-
-    case(UITYPE_ENTRY)
-    call self%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
-    & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(psm%ps(i)%prefix))   
-
-    case(UITYPE_TOOLBAR)
-      !Do nothing.  THis will be drawn separately
-    end select 
-    end do
-
-    call registerPlotSettingManager(self, objIdx, psm)
-
-end subroutine
-
-
-subroutine finalize_with_psm_new(self, objIdx, psm, inputCmd)
+subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   use iso_c_binding, only: c_null_char
   use type_utils, only: int2str
   use plot_setting_manager, only: zoaplot_setting_manager
