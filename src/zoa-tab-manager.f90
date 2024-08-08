@@ -172,7 +172,8 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
 end function
 
 subroutine setKDPCallback(self, idx, tabIndex)
-  use kdp_draw, only: DRAWOPTICALSYSTEM
+  use ROUTEMOD
+  !use kdp_draw, only: DRAWOPTICALSYSTEM
   implicit none 
 
   class(zoatabManager) :: self
@@ -184,7 +185,7 @@ subroutine setKDPCallback(self, idx, tabIndex)
    ptr =>tabIndex
 
    call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-   & c_funloc(DRAWOPTICALSYSTEM), c_loc(ptr), c_null_funptr) 
+   & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr) 
 
 end subroutine
 
