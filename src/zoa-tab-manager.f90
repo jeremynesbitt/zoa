@@ -56,6 +56,8 @@ type  zoatabManager
 
    procedure :: updateUISettingsIfNeeded
    procedure :: getWidgetBySettingCode
+
+   procedure :: getTypeCode
    
 
  end type
@@ -63,6 +65,12 @@ type  zoatabManager
 
 
 contains
+
+function getTypeCode(self, idx) result (TYPE_CODE)
+  class(zoatabManager) :: self
+  integer :: TYPE_CODE
+  TYPE_CODE = self%tabInfo(idx)%typeCode
+end function
 
 ! This doubles as an init routine
 subroutine addMsgTab(self, notebook, winTitle)
@@ -386,7 +394,7 @@ end subroutine
     PRINT *, "self%tabNum is ", self%tabNum
     DO i = 1,self%tabNum
        PRINT *, "i = ",i, " typeCODE = ", self%tabInfo(i)%typeCode
-      if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
+      if(self%getTypeCode(i) == PLOT_CODE) THEN
           PRINT *, "Found existing plot at tab ", i
           idxObj = i
           PRINT *, "Type code is ", self%tabInfo(i)%typeCode
@@ -434,7 +442,7 @@ function getNumberOfPlotsByCode(self, PLOT_CODE) result(numPlots)
 
   numPlots = 0
   DO i = 1,self%tabNum
-   if(self%tabInfo(i)%typeCode == PLOT_CODE) THEN
+   if(self%getTypeCode(i) == PLOT_CODE) THEN
       numPlots = numPlots + 1
     end if
   END DO
