@@ -1,13 +1,6 @@
 module zoa_ui
     implicit none
 
-! To extent this type to support easier plotting
-type ui_settings
- logical :: useToolbar = .FALSE.
-
-contains
-  procedure :: replot => ui_settings_replot
-end type
 
 ! DoNotDelete Unique Plot IDs
 integer, parameter :: ID_NEWPLOT_LENSDRAW = 1001
@@ -158,11 +151,6 @@ integer, parameter :: tabIndices(*) = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
 
 
 contains
-subroutine ui_settings_replot(self)
-  class(ui_settings) :: self
 
-  PRINT *, "This is a dummy proc which should not be called AFAIK"
-
-end subroutine
 
 end module zoa_ui

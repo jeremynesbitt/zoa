@@ -553,6 +553,7 @@ type zoatab
      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
      character(len=140) :: plotCommand
      logical :: cmdBasedPlot
+     logical :: useToolbar
      type(zoaplot_setting_manager) :: psm
      ! This is not being used, but was just added for testing
      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot

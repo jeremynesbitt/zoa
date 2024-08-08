@@ -12,7 +12,6 @@ module zoa_tab_manager
 ! should settings be a "child" of zoatab?    
 type zoatabData
   integer :: typeCode
-  class(ui_settings), allocatable :: settings
   class(zoatab), allocatable :: tabObj
 
 end type
@@ -122,7 +121,7 @@ subroutine finalizeNewPlotTab(self, idx)
     ! TODO:  Revisit this design.  I think it is bad but couldn't come up with a better way 
     call LogTermFOR("Finalize New Plot Tab")
     !TODO:  Fix this - don't like how this flat is set secretly for lens draw
-    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%settings%useToolbar)
+    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%tabObj%useToolbar)
 
 
     ! This part is to enable close tab functionality
@@ -153,7 +152,6 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, mplt%area)
   self%tabInfo(idx)%tabObj%cmdBasedPlot = .TRUE.
   call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
-  allocate(ui_settings :: self%tabInfo(idx)%settings )
   ! Right now there is no settings object.  This object is only
   ! used for replot.  Need a better solution for this
   !self%tabInfo(idx)%settings = tabObj%settings
@@ -220,11 +218,7 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   !   & c_funloc(ROUTEDRAWING), c_loc(TARGET_TST), c_null_funptr) 
   !  end if
  
-    
-  allocate(ui_settings :: self%tabInfo(idx)%settings )
-
-  self%tabInfo(idx)%settings%useToolbar = .TRUE.
-
+  self%tabInfo(idx)%tabObj%useToolbar = .TRUE.
   self%tabInfo(idx)%typeCode = PLOT_CODE
 
   !call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
@@ -366,14 +360,9 @@ subroutine addPlotTabFromObj(self, tabObj)
     self%tabInfo(idx)%tabObj = tabObj
     !PRINT *, "Allocated tabObj after allocation ", allocated(self%tabInfo(idx)%tabObj)
 
-    allocate(ui_settings :: self%tabInfo(idx)%settings )
-    ! Right now there is no settings object.  This object is only
-    ! used for replot.  Need a better solution for this
-    !self%tabInfo(idx)%settings = tabObj%settings
-
     self%tabInfo(idx)%typeCode = PLOT_CODE
     ! Bad design IMO
-    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%settings%useToolbar)
+    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%tabObj%useToolbar)
 
     ! This part is to enable close tab functionality
     currPageIndex = gtk_notebook_get_current_page(self%notebook)
@@ -473,8 +462,6 @@ end function
               call LogTermFOR("About to call replot cmd " &
               & //trim(self%tabInfo(i)%tabObj%plotCommand))
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
-          else
-            call self%tabInfo(i)%settings%replot()
           end if
         end if
      END DO
@@ -498,11 +485,6 @@ end function
        DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
     end if
     self%tabInfo(tabInfoIndex)%typeCode = -1
-    !PRINT *, "About to deallocate ui settings obj"
-    if (allocated(self%tabInfo(tabInfoIndex)%settings)) then
-       DEALLOCATE(self%tabInfo(tabInfoIndex)%settings)
-    end if
-
 
   end subroutine
 
