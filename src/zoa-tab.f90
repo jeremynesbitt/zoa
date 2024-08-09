@@ -33,8 +33,6 @@ contains
    procedure, public, pass(self) :: addSpinBox_new
    
    procedure, public, pass(self) :: addListTable
-   procedure, public, pass(self) :: addFieldSelection
-   procedure, public, pass(self) :: addWavelengthSelection
 
 
 
@@ -130,64 +128,6 @@ subroutine addCheckBox(self, labelText, callbackFunc, callbackData, initial_stat
 
 end subroutine
 
-subroutine addFieldSelection(self, callbackFunc, callbackData)
-
-  use global_widgets, only :  sysConfig
-  implicit none
-  class(zoa_settings_obj) :: self
-  type(c_ptr) :: fieldWidget
-  type(c_funptr), intent(in)   :: callbackFunc
-  type(c_ptr), intent(in)   :: callbackData
-
-  ! Currently stuck on how to deal with this.  No way of knowing how
-  ! user may have called last FOB command; wanted this to be in terms
-  ! of official field points but can't guarantee this.  Maybe
-  ! show it blank initially if possible?
-
-  !PRINT *, "Before fieldWidget, numfields is ", sysConfig%numFields
-  fieldWidget = gtk_spin_button_new (gtk_adjustment_new( &
-     & value=REAL(sysConfig%numFields+1)*1d0, &
-     & lower=1d0, &
-     & upper=REAL(sysConfig%numFields+1)*1d0, &
-     & step_increment=1d0, &
-     & page_increment=1d0, &
-     & page_size=1d0),climb_rate=1d0, &
-     & digits=0_c_int)
-
-   call self%addSpinBox("Field Point", fieldWidget, callbackFunc, callbackData)
-
-
-end subroutine
-
-subroutine addWavelengthSelection(self, callbackFunc, callbackData)
-
-  use global_widgets, only :  sysConfig
-  implicit none
-  class(zoa_settings_obj) :: self
-  type(c_ptr) :: wlWidget
-  type(c_funptr), intent(in)   :: callbackFunc
-  type(c_ptr), intent(in)   :: callbackData
-
-  ! Currently stuck on how to deal with this.  No way of knowing how
-  ! user may have called last FOB command; wanted this to be in terms
-  ! of official field points but can't guarantee this.  Maybe
-  ! show it blank initially if possible?
-
-
-  wlWidget = gtk_spin_button_new (gtk_adjustment_new( &
-                & value=REAL(sysConfig%refWavelengthIndex)*1d0, &
-                & lower=1d0, &
-                & upper=REAL(sysConfig%numWavelengths+1)*1d0, &
-                & step_increment=1d0, &
-                & page_increment=1d0, &
-                & page_size=1d0),climb_rate=1d0, &
-                & digits=0_c_int)
-
-   call self%addSpinBox("Wavelength", wlWidget, callbackFunc, callbackData)
-
-
-
-end subroutine
 
 subroutine addListTable(self, inlist)
   class(zoa_settings_obj) :: self
@@ -545,6 +485,23 @@ module zoa_tab
 
 !zoatab keeps ID_PLOTTYPE (anme chance, plotCommand (needs to be > 140 chars) and psm)
 
+! type zoatab 
+! type(zoa_settings_obj) :: settings
+!   integer(kind=c_int) :: ID_PLOTTYPE
+!   integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
+!   character(len=140) :: plotCommand
+!   type(zoaplot_setting_manager) :: psm
+ 
+!   end type
+
+! type, extends(zoatab) ::  zoaplottab
+!   type(c_ptr) :: canvas, box1, tab_label, notebook, expander
+!   integer(c_int)  :: width = 1*1000 !1000
+!   integer(c_int)  ::  height = 1*700 !700
+!   type(zoaplot) :: zPlot ! Should this be in a derived type instead?
+!   logical :: useToolbar
+! end type
+
 type zoatab
      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
      integer(c_int)  :: width = 1*1000 !1000
@@ -566,10 +523,6 @@ type zoatab
    procedure, public, pass(self) :: addListBoxSetting
    procedure, public, pass(self) :: addListBoxSettingTextID
    procedure, public, pass(self) :: finalizeWindow
-   procedure, public, pass(self) :: addSpinBoxSetting
-   procedure, public, pass(self) :: addSpinBoxSetting_new
-   procedure, public, pass(self) :: addSpinButton_runCommand
-   procedure, public, pass(self) :: addSpinButton_runCommand_new 
    procedure, public, pass(self) :: addSpinButtonFromPS
    procedure, public, pass(self) :: addListBox_new
    procedure, public, pass(self) :: addEntry_runCommand
@@ -810,90 +763,6 @@ subroutine addEntry_runCommand_new(self, labelTxt, valueStr, command, SETTING_CO
   
   end subroutine
 
-
-subroutine addSpinButton_runCommand_new(self, labelTxt, value, lower, upper, digits, command)
-  implicit none
-  class(zoatab) :: self
-  real, intent(in) :: value, lower, upper
-  integer(kind=c_int), intent(in) :: digits
-  character(len=*), intent(in) :: labelTxt
-  character(len=*), intent(in) :: command
-  type(c_ptr) :: spinBtn
-
-  spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
-                                                    & lower=lower*1d0, &
-                                                    & upper=upper*1d0, &
-                                                    & step_increment=1d0, &
-                                                    & page_increment=1d0, &
-                                                    & page_size=0d0), &
-                                                    & climb_rate=2d0, &
-                                                    & digits=digits)
-
-    ! Store the commands in the name field of the widget, as we will have access to it 
-    ! in the callback fcn                                                
-    call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
-    !call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
-
-    call self%addSpinBoxSetting(labelTxt, spinBtn, &
-    & c_funloc(callback_runCommandFromSpinBox_new), self%box1)
-
-
-end subroutine
-
-subroutine addSpinButton_runCommand(self, labelTxt, value, lower, upper, digits, command)
-  implicit none
-  class(zoatab) :: self
-  real, intent(in) :: value, lower, upper
-  integer(kind=c_int), intent(in) :: digits
-  character(len=*), intent(in) :: labelTxt
-  character(len=*), intent(in) :: command
-  type(c_ptr) :: spinBtn
-
-  spinBtn = gtk_spin_button_new (gtk_adjustment_new(value=value*1d0, &
-                                                    & lower=lower*1d0, &
-                                                    & upper=upper*1d0, &
-                                                    & step_increment=1d0, &
-                                                    & page_increment=1d0, &
-                                                    & page_size=0d0), &
-                                                    & climb_rate=2d0, &
-                                                    & digits=digits)
-
-    ! Store the commands in the name field of the widget, as we will have access to it 
-    ! in the callback fcn                                                
-    call gtk_widget_set_name(spinBtn, trim(command)//c_null_char)
-
-    call self%addSpinBoxSetting(labelTxt, spinBtn, &
-    & c_funloc(callback_runCommandFromSpinBox), self%box1)
-
-
-end subroutine
-
-function findTabParent(widget) result(tabIdx)
-  use type_utils, only: str2int
-
- implicit none
- type(c_ptr) :: widget
- type(c_ptr) :: cstr, p1, p2
- character(len=140) :: winName
- integer :: tabIdx
-
-! Tmp code
-  p1 = gtk_widget_get_parent(widget)
-  cstr= gtk_widget_get_name(p1) 
-  call convert_c_string(cstr, winName)
- 
-  call LogTermFOR("Parent Windown name is "// trim(winName))
-
-  p2 = gtk_widget_get_parent(p1)
-  cstr= gtk_widget_get_name(p2) 
-  call convert_c_string(cstr, winName)
- 
-  call LogTermFOR("Parent Windown name is "// trim(winName))
-  tabIdx = str2int(winName)
-
-
-end function
-
 subroutine callback_runCommandFromSpinBox(widget, gdata ) bind(c)
   use command_utils, only:  removeLeadingBlanks
   use type_utils, only: int2str
@@ -963,6 +832,31 @@ end if
 
 end subroutine
 
+function findTabParent(widget) result(tabIdx)
+  use type_utils, only: str2int
+
+ implicit none
+ type(c_ptr) :: widget
+ type(c_ptr) :: cstr, p1, p2
+ character(len=140) :: winName
+ integer :: tabIdx
+
+! Tmp code
+  p1 = gtk_widget_get_parent(widget)
+  cstr= gtk_widget_get_name(p1) 
+  call convert_c_string(cstr, winName)
+ 
+  call LogTermFOR("Parent Windown name is "// trim(winName))
+
+  p2 = gtk_widget_get_parent(p1)
+  cstr= gtk_widget_get_name(p2) 
+  call convert_c_string(cstr, winName)
+ 
+  call LogTermFOR("Parent Windown name is "// trim(winName))
+  tabIdx = str2int(winName)
+
+
+end function
 
 subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
   use command_utils, only:  removeLeadingBlanks
@@ -1112,33 +1006,6 @@ end subroutine
 
 
 end subroutine
-
-subroutine addSpinBoxSetting_new(self, labelText, spinButton, callbackFunc, callbackData)
-  implicit none
-
-  class(zoatab) :: self
-  character(len=*), intent(in) :: labelText
-  type(c_funptr), intent(in)   :: callbackFunc
-  type(c_ptr), optional, intent(in)   :: callbackData
-  type(c_ptr), intent(in) :: spinButton
-
-  call self%settings%addSpinBox(labelText, spinButton, callbackFunc, callbackData)
-
-end subroutine
-
- subroutine addSpinBoxSetting(self, labelText, spinButton, callbackFunc, callbackData)
-   implicit none
-
-   class(zoatab) :: self
-   character(len=*), intent(in) :: labelText
-   type(c_funptr), intent(in)   :: callbackFunc
-   type(c_ptr), optional, intent(in)   :: callbackData
-   type(c_ptr), intent(in) :: spinButton
-
-   call self%settings%addSpinBox(labelText, spinButton, callbackFunc, callbackData)
-
- end subroutine
-
 
  subroutine addListBox_new(self, labelText, set, callbackFunc, callbackData, defaultSetting, winName, SETTING_CODE)
 
