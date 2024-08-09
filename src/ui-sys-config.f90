@@ -139,7 +139,7 @@ contains
                                                                & page_size=0d0),climb_rate=2d0, &
                                                                & digits=3_c_int)
 
-    call self%addSpinBox_new("X Aperture Value", spinButton_xAperture, &
+    call self%addSpinBox("X Aperture Value", spinButton_xAperture, &
     & c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE), ID_SYSCON_X_APERTURE)
 
     !call sysconfigwindow%addSpinBoxSetting("X Aperture Value", spinButton_xAperture, &
@@ -156,7 +156,7 @@ contains
                                                                & page_size=0d0),climb_rate=2d0, &
                                                                & digits=3_c_int)
 
-    call self%addSpinBox_new("Y Aperture Value", spinButton_yAperture, &
+    call self%addSpinBox("Y Aperture Value", spinButton_yAperture, &
     & c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE), ID_SYSCON_Y_APERTURE)
 
     !call sysconfigwindow%addSpinBoxSetting("Y Aperture Value", spinButton_yAperture, &
@@ -167,7 +167,7 @@ contains
     ! & c_loc(TARGET_FIELD))
 
     call self%addCheckBox("XY Symmetric", c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_XYSAME))
+    & c_loc(TARGET_XYSAME), ID_SYSCON_APERTURE_XYSAME)
     self%idxBoolXYSame = self%numSettings
 
 
@@ -236,7 +236,7 @@ subroutine createFieldSettingsUI(self)
                                                                & page_size=0d0),climb_rate=2d0, &
                                                                & digits=0_c_int)
 
-  call self%addSpinBox_new("Number of Fields", spinButton_numFields, &
+  call self%addSpinBox("Number of Fields", spinButton_numFields, &
    & c_funloc(callback_sys_config_settings), c_loc(TARGET_FIELD_NUM), ID_SYSCON_FIELD_NUM)
 
   call self%addListTable(self%createFieldPointSelectionTable())
@@ -762,7 +762,7 @@ subroutine createWavelengthSettingsUI(self)
                                                                & page_size=0d0),climb_rate=2d0, &
                                                                & digits=0_c_int)
 
-  call self%addSpinBox_new("Reference Wavelength", spinButton_refWavelength, &
+  call self%addSpinBox("Reference Wavelength", spinButton_refWavelength, &
    & c_funloc(callback_sys_config_settings), c_loc(TARGET_WAVELENGTH_REF), ID_SYSCON_WAVELENGTH_REF)
 
 
@@ -776,7 +776,7 @@ subroutine createWavelengthSettingsUI(self)
                                                                & page_size=0d0),climb_rate=2d0, &
                                                                & digits=0_c_int)
 
-  call self%addSpinBox_new("Number of Wavelengths", spinButton_numWavelengths, &
+  call self%addSpinBox("Number of Wavelengths", spinButton_numWavelengths, &
    & c_funloc(callback_sys_config_settings), c_loc(TARGET_WAVELENGTH_NUM), ID_SYSCON_WAVELENGTH_NUM)
 
   call self%addListTable(self%createWavelengthSelectionTable())

@@ -536,7 +536,7 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   !  & trim(int2str(psm%ps(i)%ID)))
 
   case(UITYPE_ENTRY)
-  call self%tabInfo(objIdx)%tabObj%addEntry_runCommand_new( &
+  call self%tabInfo(objIdx)%tabObj%addEntry_runCommand( &
   & psm%ps(i)%label, psm%ps(i)%defaultStr, trim(int2str(psm%ps(i)%ID)), psm%ps(i)%ID)   
 
   case(UITYPE_COMBO)
