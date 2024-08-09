@@ -464,53 +464,74 @@ module zoa_tab
 
 !zoatab keeps ID_PLOTTYPE (anme chance, plotCommand (needs to be > 140 chars) and psm)
 
-! type zoatab 
-! type(zoa_settings_obj) :: settings
-!   integer(kind=c_int) :: ID_PLOTTYPE
-!   integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
-!   character(len=140) :: plotCommand
-!   type(zoaplot_setting_manager) :: psm
- 
-!   end type
+type zoatab 
+   type(zoa_settings_obj) :: settings
+  integer(kind=c_int) :: ID_PLOTTYPE
+  integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
+  character(len=140) :: plotCommand
+  type(zoaplot_setting_manager) :: psm
+  type(c_ptr) :: tab_label, notebook, expander, box1  
 
-! type, extends(zoatab) ::  zoaplottab
-!   type(c_ptr) :: canvas, box1, tab_label, notebook, expander
-!   integer(c_int)  :: width = 1*1000 !1000
-!   integer(c_int)  ::  height = 1*700 !700
-!   type(zoaplot) :: zPlot ! Should this be in a derived type instead?
-!   logical :: useToolbar
-! end type
-
-type zoatab
-     type(c_ptr) :: canvas, box1, tab_label, notebook, expander
-     integer(c_int)  :: width = 1*1000 !1000
-     integer(c_int)  ::  height = 1*700 !700
-     type(zoa_settings_obj) :: settings
-     type(zoaplot) :: zPlot ! Should this be in a derived type instead?
-     integer(kind=c_int) :: ID_PLOTTYPE
-     integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
-     character(len=140) :: plotCommand
-     logical :: useToolbar
-     type(zoaplot_setting_manager) :: psm
-     ! This is not being used, but was just added for testing
-     procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
+  contains
+  procedure, public, pass(self) :: initialize => init_zoatab
+  procedure, public, pass(self) :: addListBoxSetting
+  procedure, public, pass(self) :: addListBoxSettingTextID
+  procedure, public, pass(self) :: finalizeWindow => final_zoatab
+  procedure, public, pass(self) :: addSpinButtonFromPS
+  procedure, public, pass(self) :: addListBox_new
+  procedure, public, pass(self) :: addEntry_runCommand 
 
 
- contains
-   procedure, public, pass(self) :: initialize
-   procedure, public, pass(self) :: addListBoxSetting
-   procedure, public, pass(self) :: addListBoxSettingTextID
-   procedure, public, pass(self) :: finalizeWindow
-   procedure, public, pass(self) :: addSpinButtonFromPS
-   procedure, public, pass(self) :: addListBox_new
-   procedure, public, pass(self) :: addEntry_runCommand 
-   procedure, public, pass(self) :: updateGenericMultiPlot
-   procedure, public, pass(self) :: createGenericMultiPlot
-   procedure, public, pass(self) :: newPlot => zoatab_newPlot
 
+  end type
 
+type, extends(zoatab) ::  zoaplottab
+  type(c_ptr) :: canvas
+  integer(c_int)  :: width = 1*1000 !1000
+  integer(c_int)  ::  height = 1*700 !700
+  type(zoaplot) :: zPlot ! Should this be in a derived type instead?
+  logical :: useToolbar
+
+  contains
+  procedure, public, pass(self) :: initialize => init_zoaplottab
+  procedure, public, pass(self) :: finalizeWindow => final_zoaplottab
+  procedure, public, pass(self) :: updateGenericMultiPlot
+  procedure, public, pass(self) :: createGenericMultiPlot
+  procedure, public, pass(self) :: newPlot => zoatab_newPlot
 
 end type
+
+! type zoatab
+!      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
+!      integer(c_int)  :: width = 1*1000 !1000
+!      integer(c_int)  ::  height = 1*700 !700
+!      type(zoa_settings_obj) :: settings
+!      type(zoaplot) :: zPlot ! Should this be in a derived type instead?
+!      integer(kind=c_int) :: ID_PLOTTYPE
+!      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
+!      character(len=140) :: plotCommand
+!      logical :: useToolbar
+!      type(zoaplot_setting_manager) :: psm
+!      ! This is not being used, but was just added for testing
+!      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
+
+
+!      !Note:  I'm not super happy with having addSetting 
+!  contains
+!    procedure, public, pass(self) :: initialize
+!    procedure, public, pass(self) :: addListBoxSetting
+!    procedure, public, pass(self) :: addListBoxSettingTextID
+!    procedure, public, pass(self) :: finalizeWindow
+!    procedure, public, pass(self) :: addSpinButtonFromPS
+!    procedure, public, pass(self) :: addListBox_new
+!    procedure, public, pass(self) :: addEntry_runCommand 
+!    procedure, public, pass(self) :: updateGenericMultiPlot
+!    procedure, public, pass(self) :: createGenericMultiPlot
+!    procedure, public, pass(self) :: newPlot => zoatab_newPlot
+
+
+
+! end type
 
 abstract interface
   subroutine myinterface(self)
@@ -563,23 +584,76 @@ interface
 
 contains ! for module
 
- subroutine initialize(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
+
+subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
+
+  !use ROUTEMOD
+  implicit none
+
+  class(zoaplottab) :: self
+
+  type(c_ptr) :: parent_window
+  integer(kind=c_int) :: ID_PLOTTYPE
+  type(c_ptr), optional :: canvas
+  character(len=*) :: tabTitle
+  type(c_ptr) :: tab_label, btn
+  integer, target :: ID_TARGET
+
+
+  ID_TARGET = ID_PLOTTYPE
+  PRINT *, "tabTitle is ", tabTitle
+  ! Set up button for exiting
+  self%tab_label = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+  !self%tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
+  tab_label = gtk_label_new(tabTitle//c_null_char)
+  call hl_gtk_box_pack(self%tab_label, tab_label)
+  !call gtk_box_append(head, tab_label)
+  btn = gtk_button_new_from_icon_name ("window-close-symbolic")
+  call gtk_button_set_has_frame (btn, FALSE)
+  call gtk_widget_set_focus_on_click (btn, FALSE)
+  call hl_gtk_box_pack (self%tab_label, btn);
+  call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
+  !self%tab_label = head
+  !self%tab_label = tab_label
+
+  !PRINT *, "Created tab label ", self%tab_label
+  call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
+
+
+  self%ID_PLOTTYPE = ID_PLOTTYPE
+  self%notebook = parent_window
+
+  self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
+
+  !call self%createCairoDrawingArea()
+  if (present(canvas)) then
+    call LogTermFOR("In zoa_tab initialize already have canvas?")
+    self%canvas = canvas
+  else
+   call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
+   PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
+  end if
+
+  call self%settings%initialize()
+  PRINT *, "Done with zoatab type initialization"
+
+end subroutine
+
+ subroutine init_zoatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
 
     !use ROUTEMOD
     implicit none
 
     class(zoatab) :: self
-
+    type(c_ptr), optional :: canvas
     type(c_ptr) :: parent_window
     integer(kind=c_int) :: ID_PLOTTYPE
-    type(c_ptr), optional :: canvas
     character(len=*) :: tabTitle
     type(c_ptr) :: tab_label, btn
     integer, target :: ID_TARGET
 
-
+    ! TODO:  MOve this to separate method to support different derived types.  Unless I can call this from children? 
     ID_TARGET = ID_PLOTTYPE
-    PRINT *, "tabTitle is ", tabTitle
     ! Set up button for exiting
     self%tab_label = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     !self%tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
@@ -591,10 +665,7 @@ contains ! for module
     call gtk_widget_set_focus_on_click (btn, FALSE)
     call hl_gtk_box_pack (self%tab_label, btn);
     call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
-    !self%tab_label = head
-    !self%tab_label = tab_label
 
-    !PRINT *, "Created tab label ", self%tab_label
     call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
 
 
@@ -602,25 +673,15 @@ contains ! for module
     self%notebook = parent_window
 
     self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
+    call self%settings%initialize()    
 
-    !call self%createCairoDrawingArea()
-    if (present(canvas)) then
-      call LogTermFOR("In zoa_tab initialize already have canvas?")
-      self%canvas = canvas
-    else
-     call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
-     PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
-    end if
-
-    call self%settings%initialize()
-    PRINT *, "Done with zoatab type initialization"
 
  end subroutine
 
 subroutine createGenericMultiPlot(self, mplt)
   use zoa_plot
   implicit none
-  class(zoatab) :: self
+  class(zoaplottab) :: self
   type(multiplot) :: mplt
   type(c_ptr) ::  isurface
 
@@ -643,7 +704,7 @@ end subroutine
 
 
 subroutine updateGenericMultiPlot(self, mplt)
-  class(zoatab) :: self
+  class(zoaplottab) :: self
   type(multiplot) :: mplt
   if (c_associated(self%canvas)) then
       
@@ -1034,11 +1095,50 @@ end subroutine
  end subroutine
 
 
- subroutine finalizeWindow(self, useToolBar)
+ subroutine final_zoatab(self, useToolBar)
+  use g
+  implicit none
+  class(zoatab) :: self
+  logical, optional :: useToolBar
+
+  type(c_ptr) :: scrolled_tab, box_plotmanip, btn
+   type(c_ptr) :: dcname
+   character(len=80) :: dname
+
+  integer :: location
+   PRINT *, "FINALIZING WINDOW in ZOATAB"
+
+   !call self%buildSettings()
+   self%expander = self%settings%build()
+   !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
+   call gtk_widget_set_name(self%expander, self%plotCommand)
+
+
+   call gtk_box_append(self%box1, self%expander)
+   call gtk_widget_set_vexpand (self%box1, FALSE)
+
+
+
+   scrolled_tab = gtk_scrolled_window_new()
+   PRINT *, "SETTING CHILD FOR SCROLLED TAB"
+   call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
+   location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+   call gtk_notebook_set_current_page(self%notebook, location)
+
+
+   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+
+
+
+end subroutine
+
+
+
+ subroutine final_zoaplottab(self, useToolBar)
    use g
    use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
    implicit none
-   class(zoatab) :: self
+   class(zoaplottab) :: self
    logical, optional :: useToolBar
 
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
@@ -1117,7 +1217,7 @@ end subroutine
 
 subroutine zoatab_newPlot(self)
 
-  class(zoatab) :: self
+  class(zoaplottab) :: self
   !type(c_ptr) :: parent_window
   PRINT *, "Dummy Function never used, only by children"
 

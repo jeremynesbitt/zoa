@@ -124,9 +124,14 @@ subroutine finalizeNewPlotTab(self, idx)
     type(c_ptr) :: currPage
     integer(kind=c_int) :: currPageIndex
     character(len=3) :: outChar
+    type(zoaplottab) :: tmpTab
 
     !TODO:  Fix this - don't like how this flat is set secretly for lens draw
-    call self%tabInfo(idx)%tabObj%finalizeWindow(self%tabInfo(idx)%tabObj%useToolbar)
+    select type(tmpTab => self%tabInfo(idx)%tabObj)
+    type is (zoaplottab)
+    call tmpTab%finalizeWindow(tmpTab%useToolbar)
+  end select    
+    
 
 
     ! This part is to enable close tab functionality
@@ -150,19 +155,21 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   character(len=*) :: tabTitle
   type(multiplot) :: mplt
   integer :: idx
+  type(zoaplottab) :: tstTab
 
   idx = self%findTabIndex()
 
-  allocate(zoatab :: self%tabInfo(idx)%tabObj)
+  allocate(zoaplottab :: self%tabInfo(idx)%tabObj)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, mplt%area)
-  call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
-  ! Right now there is no settings object.  This object is only
-  ! used for replot.  Need a better solution for this
-  !self%tabInfo(idx)%settings = tabObj%settings
-
-  self%tabInfo(idx)%tabObj%canvas = mplt%area
-  !call self%tabInfo(idx)%tabObj%finalizeWindow()
-
+  ! As far as I can tell, this is required to access a sub that is not in the parent type.  
+  select type(tstTab => self%tabInfo(idx)%tabObj)
+  type is (zoaplottab)
+  !call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
+  call tstTab%createGenericMultiPlot(mplt)
+  ! I don't think this should be needed since it is assigned in intiialize, but maybe I added this
+  ! for a reason previously?
+  !tstTab%canvas = mplt%area
+end select
 
 end function
 
@@ -172,6 +179,7 @@ subroutine setKDPCallback(self, idx, tabIndex)
   implicit none 
 
   class(zoatabManager) :: self
+  type(zoaplottab) :: tmpTab
   integer, target, intent(in) :: tabIndex
   integer :: idx
 
@@ -179,8 +187,11 @@ subroutine setKDPCallback(self, idx, tabIndex)
 
    ptr =>tabIndex
 
-   call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
+   select type (tmpTab=>self%tabInfo(idx)%tabObj)
+   type is (zoaplottab)
+   call gtk_drawing_area_set_draw_func(tmpTab%canvas, &
    & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr) 
+end select
 
 end subroutine
 
@@ -191,6 +202,7 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   
   implicit none
   class(zoatabManager) :: self
+  type(zoaplottab) :: tmpTab
   integer :: PLOT_CODE
 
   character(len=*) :: tabTitle
@@ -204,7 +216,7 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   call logger%logText('New Generic Tab Starting')
 
   call LogTermFOR("Setting up new KDP tab for tab idx "//int2str(idx))
-  allocate(zoatab :: self%tabInfo(idx)%tabObj)
+  allocate(zoaplottab :: self%tabInfo(idx)%tabObj)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
   !call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
   !& c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)  
@@ -219,7 +231,10 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   !   & c_funloc(ROUTEDRAWING), c_loc(TARGET_TST), c_null_funptr) 
   !  end if
  
-  self%tabInfo(idx)%tabObj%useToolbar = .TRUE.
+  select type (tmpTab => self%tabInfo(idx)%tabObj)
+  type is (zoaplottab)
+    tmpTab%useToolbar = .TRUE.
+  end select
 
 
   !call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
@@ -230,9 +245,13 @@ subroutine updateKDPPlotTab(self, idx)
   implicit none
   class(zoatabManager) :: self
   integer :: idx
+  type(zoaplottab) :: tmpTab
 
   call self%updateUISettingsIfNeeded(idx)
-  call gtk_widget_queue_draw(self%tabInfo(idx)%tabObj%canvas)
+  select type (tmpTab=>self%tabInfo(idx)%tabObj)
+  type is (zoaplottab)
+  call gtk_widget_queue_draw(tmpTab%canvas)
+end select
 
 
 end subroutine
@@ -332,9 +351,13 @@ subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
   implicit none
   class(zoatabManager) :: self
   type(multiplot) :: mplt
+  type(zoaplottab) :: tmpTab
   integer :: objIdx
 
-  call self%tabInfo(objIdx)%tabObj%updateGenericMultiPlot(mplt)
+  select type (tmpTab =>self%tabInfo(objIdx)%tabObj )
+  type is (zoaplottab)
+  call tmpTab%updateGenericMultiPlot(mplt)
+  end select
 end subroutine
 
 

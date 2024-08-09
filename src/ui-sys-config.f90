@@ -457,7 +457,7 @@ end function
     sys_config_window = c_null_ptr
     !call sysconfigwindow%labels%clear
     !call sysconfigwindow%widgets%clear
-    sysconfigwindow%canvas = c_null_ptr
+    !sysconfigwindow%canvas = c_null_ptr
     sysconfigwindow%box1 = c_null_ptr
     sysconfigwindow%notebook = c_null_ptr
     sysconfigwindow%tab_label = c_null_ptr

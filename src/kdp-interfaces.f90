@@ -180,7 +180,7 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   type(barchart) :: bar1, bar2
   type(multiplot) :: mplt
   type(c_ptr) :: localcanvas
-  type(zoatab) :: powsym_tab
+  type(zoaplottab) :: powsym_tab
 
     type(c_ptr) :: currPage
     integer(kind=c_int) :: currPageIndex
