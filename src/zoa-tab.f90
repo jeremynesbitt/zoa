@@ -501,6 +501,13 @@ type, extends(zoatab) ::  zoaplottab
 
 end type
 
+type, extends(zoaplottab) :: zoaplotdatatab
+   type(c_ptr) :: textView, dataNotebook
+   contains
+   procedure :: initialize => init_zoaplotdatatab
+   procedure :: finalizeWindow => final_zoaplotdatatab
+end type
+
 ! type zoatab
 !      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
 !      integer(c_int)  :: width = 1*1000 !1000
@@ -584,6 +591,60 @@ interface
 
 contains ! for module
 
+subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
+  class(zoaplotdatatab) :: self
+  type(c_ptr) :: parent_window
+  integer(kind=c_int) :: ID_PLOTTYPE
+  type(c_ptr), optional :: canvas
+  character(len=*) :: tabTitle
+  type(c_ptr) :: tab_label, btn
+  integer, target :: ID_TARGET
+
+
+  ID_TARGET = ID_PLOTTYPE
+  PRINT *, "tabTitle is ", tabTitle
+  ! Set up button for exiting
+  self%tab_label = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+  !self%tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
+  tab_label = gtk_label_new(tabTitle//c_null_char)
+  call hl_gtk_box_pack(self%tab_label, tab_label)
+  !call gtk_box_append(head, tab_label)
+  btn = gtk_button_new_from_icon_name ("window-close-symbolic")
+  call gtk_button_set_has_frame (btn, FALSE)
+  call gtk_widget_set_focus_on_click (btn, FALSE)
+  call hl_gtk_box_pack (self%tab_label, btn);
+  call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
+  !self%tab_label = head
+  !self%tab_label = tab_label
+
+  !PRINT *, "Created tab label ", self%tab_label
+  call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
+
+
+  self%ID_PLOTTYPE = ID_PLOTTYPE
+  self%notebook = parent_window
+
+  self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
+
+  !call self%createCairoDrawingArea()
+  if (present(canvas)) then
+    call LogTermFOR("In zoa_tab initialize already have canvas?")
+    self%canvas = canvas
+  else
+   call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
+   PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
+  end if
+
+  call self%settings%initialize()
+
+
+  self%datanotebook = gtk_notebook_new()
+  call gtk_notebook_set_tab_pos(self%dataNotebook, GTK_POS_BOTTOM)
+
+
+
+
+end subroutine
 
 subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
 
@@ -1189,6 +1250,70 @@ end subroutine
 
 
  end subroutine
+
+
+ subroutine final_zoaplotdatatab(self, useToolBar)
+  use g
+  use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
+  implicit none
+  class(zoaplotdatatab) :: self
+  logical, optional :: useToolBar
+  integer :: dataLoc
+
+  type(c_ptr) :: scrolled_tab, box_plotmanip, btn
+   type(c_ptr) :: dcname
+   character(len=80) :: dname
+
+  integer :: location
+   PRINT *, "FINALIZING WINDOW in ZOATAB"
+
+   !call self%buildSettings()
+   self%expander = self%settings%build()
+   !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
+   call gtk_widget_set_name(self%expander, self%plotCommand)
+   PRINT *, "Expander is ", LOC(self%EXPANDER)
+   PRINT *, "Box ptr is ", LOC(self%box1)
+
+   if (present(useToolBar)) then
+     print *, "UseToolbar here, value ", useToolBar
+     if (useToolBar) then
+       call LogTermFOR("Here is where I would like to init toolbar!")
+      call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
+      call gtk_box_append(self%box1, box_plotmanip)
+   end if
+   end if
+   
+
+   ! We create a vertical box container:
+   call gtk_box_append(self%box1, self%expander)
+   call gtk_widget_set_vexpand (self%box1, FALSE)
+
+
+   call gtk_box_append(self%box1, self%canvas)
+
+
+   
+
+   scrolled_tab = gtk_scrolled_window_new()
+   PRINT *, "SETTING CHILD FOR SCROLLED TAB"
+   call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
+
+   dataloc  = gtk_notebook_append_page(self%dataNotebook, scrolled_tab, gtk_label_new("Plot"//c_null_char))
+
+
+   location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+   call gtk_notebook_set_current_page(self%notebook, location)
+
+
+   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+   !dcname = g_type_name(gtk_widget_get_type(self%zoatab_cda))
+   !dcname = g_type_name_from_instance(self%zoatab_cda)
+   !call c_f_string(dcname, dname)
+   !PRINT *, "WIDGET NAME IS ", dname
+
+
+end subroutine
+
 
  subroutine createCairoDrawingAreaForDraw(canvas, width, height, ID_PLOTTYPE)
      use gtk, only: gtk_drawing_area_new, gtk_drawing_area_set_content_width, &
