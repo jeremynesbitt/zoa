@@ -55,6 +55,7 @@ type  zoatabManager
    procedure :: getWidgetBySettingCode
 
    procedure :: getTypeCode
+   procedure :: clearDataTab
    
 
  end type
@@ -93,6 +94,22 @@ subroutine addMsgTab(self, notebook, winTitle)
     !tabPos = gtk_notebook_append_page (self%notebook, scrollWin, label)
     !PRINT *, "Notebook ptr is ", self%notebook
 
+
+end subroutine
+
+subroutine clearDataTab(self, objIdx)
+  use gtk_hl_entry, only: hl_gtk_text_view_delete
+  implicit none
+  class(zoatabManager) :: self
+  integer :: objIdx
+  type(zoaplotdatatab) :: tmpTab
+  type(c_ptr) :: buffer
+
+  select type (tmpTab => self%tabInfo(objIdx)%tabObj)
+  type is (zoaplotdatatab)
+     buffer = gtk_text_view_get_buffer(tmpTab%textView)
+     call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)     
+end select
 
 end subroutine
 
@@ -566,7 +583,7 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   class(zoatabManager) :: self
   type(zoaplot_setting_manager) :: psm
 
-  
+
   if(present(inputCmd)) self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
 
   do i=1,psm%numSettings

@@ -373,7 +373,7 @@ subroutine seidel_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use global_widgets, only:  curr_par_ray_trace, curr_lens_data
+    use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
@@ -402,8 +402,11 @@ subroutine seidel_go(psm)
     character(len=20), dimension(nS) :: yLabels
     character(len=23) :: cmdTxt
     
+    call initializeGoPlot(psm,ID_PLOTTYPE_SEIDEL, "Seidel Aberrations", replot, objIdx)
     
+    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     CALL PROCESKDP('MAB3 ALL')
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     
     allocate(seidel(nS,curr_lens_data%num_surfaces+1))
     allocate(surfIdx(curr_lens_data%num_surfaces+1))
@@ -448,7 +451,8 @@ subroutine seidel_go(psm)
       call mplt%set(1,ii,barGraphs(ii))
      end do
     
-     call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SEIDEL, "Seidel Aberrations")
+     call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+     !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SEIDEL, "Seidel Aberrations")
   
     
 
@@ -857,6 +861,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
     if (replot) then
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+      call zoatabMgr%clearDataTab(objIdx)
      else
       pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
      

@@ -621,9 +621,6 @@ subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canva
 
   ! Set a monospaced font so table output looks reasonable
   call gtk_text_view_set_monospace(self%textView, 1_c_int) 
-  call ioConfig%registerTextView(self%textView, ID_TERMINAL_ACTIVEPLOT)
-  PRINT *, "ACTIVE_PLOT textview is ", LOC(self%textView)
-
 
 end subroutine
 
@@ -748,13 +745,15 @@ end subroutine
 subroutine updateGenericMultiPlot(self, mplt)
   class(zoaplottab) :: self
   type(multiplot) :: mplt
+  ! I don't think this part is needed anymore - will delete after latest plot infra conversion
+  ! that uses this to add mplot for new and replot in the same way
   if (c_associated(self%canvas)) then
       
       mplt%area = self%canvas
   else
-    call LogTermFOR( "Multiplot update canvas ptr is loose")
-    PRINT *, "Multiplot update canvas ptr is loose"
-    PRINT *, "mplt%area is ", LOC(mplt%area)
+    !call LogTermFOR( "Multiplot update canvas ptr is loose")
+    !PRINT *, "Multiplot update canvas ptr is loose"
+    !PRINT *, "mplt%area is ", LOC(mplt%area)
      self%canvas = mplt%area
   end if
   call mplt%draw()
