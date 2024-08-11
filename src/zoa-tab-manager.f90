@@ -37,8 +37,8 @@ type  zoatabManager
    procedure :: doesPlotExist
    procedure :: doesPlotExist_new
    procedure :: getNumberOfPlotsByCode
-   ! TODO:  Should all these generic plot tabs exist here?
-   procedure :: addGenericMultiPlotTab
+   procedure :: addMultiPlotTab
+   procedure :: addGenericMultiPlotTab ! May be obsolete with tweak to init process
    procedure :: updateGenericMultiPlotTab
    procedure :: finalizeNewPlotTab
    procedure :: updateInputCommand
@@ -124,12 +124,14 @@ subroutine finalizeNewPlotTab(self, idx)
     type(c_ptr) :: currPage
     integer(kind=c_int) :: currPageIndex
     character(len=3) :: outChar
-    type(zoaplottab) :: tmpTab
+    type(zoatab) :: tmpTab
 
     !TODO:  Fix this - don't like how this flat is set secretly for lens draw
     select type(tmpTab => self%tabInfo(idx)%tabObj)
-    type is (zoaplottab)
+    type is (zoaplottab) 
     call tmpTab%finalizeWindow(tmpTab%useToolbar)
+    type is (zoaplotdatatab) 
+    call tmpTab%finalizeWindow(tmpTab%useToolbar)    
   end select    
     
 
@@ -143,6 +145,20 @@ subroutine finalizeNewPlotTab(self, idx)
 
 end subroutine
 
+! Added this so I could separate out initialization of the UI and creation of the multiplot object
+! So I can register textViews to print data.
+function addMultiPlotTab(self, PLOT_CODE, tabTitle) result(idx)
+  class(zoatabManager) :: self
+  integer, intent(in) :: PLOT_CODE
+  character(len=*), intent(in) :: tabTitle
+  integer :: idx
+
+  idx = self%findTabIndex()
+
+  allocate(zoaplotdatatab :: self%tabInfo(idx)%tabObj)
+  call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, c_null_ptr)
+
+end function
 
 ! I think this is where I should separate out the different tab types
 ! instead of allocating a zoatab, allocate a zoaplottab
@@ -155,17 +171,20 @@ function addGenericMultiPlotTab(self, PLOT_CODE, tabTitle, mplt) result(idx)
   character(len=*) :: tabTitle
   type(multiplot) :: mplt
   integer :: idx
-  type(zoaplottab) :: tstTab
+  type(zoatab) :: tstTab
 
   idx = self%findTabIndex()
 
-  allocate(zoaplottab :: self%tabInfo(idx)%tabObj)
+  allocate(zoaplotdatatab :: self%tabInfo(idx)%tabObj)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, mplt%area)
   ! As far as I can tell, this is required to access a sub that is not in the parent type.  
   select type(tstTab => self%tabInfo(idx)%tabObj)
   type is (zoaplottab)
   !call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
   call tstTab%createGenericMultiPlot(mplt)
+  type is (zoaplotdatatab)
+  !call self%tabInfo(idx)%tabObj%createGenericMultiPlot(mplt)
+  call tstTab%createGenericMultiPlot(mplt)  
   ! I don't think this should be needed since it is assigned in intiialize, but maybe I added this
   ! for a reason previously?
   !tstTab%canvas = mplt%area
@@ -179,7 +198,7 @@ subroutine setKDPCallback(self, idx, tabIndex)
   implicit none 
 
   class(zoatabManager) :: self
-  type(zoaplottab) :: tmpTab
+  type(zoatab) :: tmpTab
   integer, target, intent(in) :: tabIndex
   integer :: idx
 
@@ -202,7 +221,7 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   
   implicit none
   class(zoatabManager) :: self
-  type(zoaplottab) :: tmpTab
+  type(zoatab) :: tmpTab
   integer :: PLOT_CODE
 
   character(len=*) :: tabTitle
@@ -351,12 +370,14 @@ subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
   implicit none
   class(zoatabManager) :: self
   type(multiplot) :: mplt
-  type(zoaplottab) :: tmpTab
+  type(zoatab) :: tmpTab
   integer :: objIdx
 
   select type (tmpTab =>self%tabInfo(objIdx)%tabObj )
   type is (zoaplottab)
   call tmpTab%updateGenericMultiPlot(mplt)
+  type is (zoaplotdatatab)
+  call tmpTab%updateGenericMultiPlot(mplt)  
   end select
 end subroutine
 
@@ -539,14 +560,15 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   use plot_setting_manager, only: zoaplot_setting_manager
   implicit none
 
-  character(len=*) :: inputCmd
+  character(len=*), optional :: inputCmd
   integer :: objIdx
   integer :: i
   class(zoatabManager) :: self
   type(zoaplot_setting_manager) :: psm
 
+  
+  if(present(inputCmd)) self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
 
-  self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
   do i=1,psm%numSettings
 
   select case (psm%ps(i)%uitype)

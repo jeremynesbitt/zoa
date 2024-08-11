@@ -173,6 +173,17 @@ C
 
         end subroutine
 
+        !TODO:  Check for release flag and don't display if false
+        subroutine LogTermDebug(newTxt)
+
+            use handlers, only : updateTerminalLog
+            implicit none
+            character(len=*) :: newTxt
+            call updateTerminalLog(newTxt, "red")
+
+        end subroutine
+
+
         subroutine LogTermFOR(newTxt)
             use handlers, only : updateTerminalLog
             implicit none

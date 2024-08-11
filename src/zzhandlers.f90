@@ -166,7 +166,7 @@ contains
 
 
       txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
-      !PRINT *, "TEXTVIEW IS ", ioConfig%textView
+      PRINT *, "UPDATE TERMINAL LOG TEXTVIEW IS ", ioConfig%textView
       call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
 
     if (ftext.ne."  ") THEN
@@ -444,7 +444,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(FALSE)
+    call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 

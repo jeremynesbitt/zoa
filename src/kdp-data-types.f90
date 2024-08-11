@@ -143,6 +143,7 @@ type(c_ptr), allocatable :: allBuffers(:)
 
 contains
    procedure, public, pass(self) :: setTextView
+   procedure, public, pass(self) :: setTextViewFromPtr
    procedure, public, pass(self) :: registerTextView
 end type
 
@@ -592,7 +593,7 @@ use iso_c_binding, only: c_null_ptr
 
 
 ! Size of array needs to match max # of ID_TERMINAL parameter in zoa-ui
- allocate(c_ptr :: self%allBuffers(5))
+ allocate(c_ptr :: self%allBuffers(6))
 
 
  self%textView = c_null_ptr
@@ -608,11 +609,17 @@ subroutine registerTextView(self, textView, idTextView)
 
   ! TODO:  Add error checking here
   self%allBuffers(idTextView) = textView
-  PRINT *, "Set Text View Buffer to ", idTextView
 
   !select case (idBuffer)
   !case (ID_TERMINAL_DEFAULT)
 
+end subroutine
+
+subroutine setTextViewFromPtr(self, newtextview)
+  class(io_config) :: self
+  type(c_ptr) :: newtextview
+
+  self%textView = newtextview
 end subroutine
 
 subroutine setTextView(self, idTextView)

@@ -138,6 +138,8 @@ integer, parameter :: ID_TERMINAL_GLASS = 2
 integer, parameter :: ID_TERMINAL_MACRO = 3
 integer, parameter :: ID_TERMINAL_LENSLIB  = 4
 integer, parameter :: ID_TERMINAL_KDPDUMP  = 5
+integer, parameter :: ID_TERMINAL_ACTIVEPLOT  = 6
+
 
 !f This is so I can send tab indices to a c binding callback function. I assume there is a better way than this
 ! brute force method, but since this works and isn't too painful I will use this.

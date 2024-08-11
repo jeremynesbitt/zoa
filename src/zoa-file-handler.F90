@@ -53,7 +53,6 @@ module zoa_file_handler
 #endif
 
 #ifdef MACOS
-      call LogTermFOR("Testing123!")
       ptr_macbundledir = get_macos_bundle_dir()
       print *, "Ptr Loc is ", LOC(ptr_macbundledir)
       call convert_c_string(ptr_macbundledir, str_bundle_dir)
@@ -61,7 +60,6 @@ module zoa_file_handler
       & trim(str_bundle_dir)//getFileSep()//'Resources'//getFileSep()// &
       & 'help'//getFileSep()//'html'//getFileSep()//'index.html'
 
-      call LogTermFOR("Loc is "//trim(helpfilePath))   
       browserResult =  browser_open_url(trim(helpfilePath))
       !call LogTermFOR("Browser Result is "//int2str(browserResult))
 #endif      

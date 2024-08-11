@@ -222,13 +222,32 @@ subroutine vie_go(psm)
 
 end subroutine
 
+function getTabTextView(objIdx) result (dataTextView)
+  use iso_c_binding, only: c_ptr, c_null_ptr
+  use handlers, only: zoatabMgr
+  use zoa_tab
+  implicit none
+  integer :: objIdx
+  type (c_ptr) :: dataTextView
+
+  type (zoaplotdatatab) :: tabTmp
+
+  dataTextView = c_null_ptr
+
+  select type (tabTmp => zoatabMgr%tabInfo(objIdx)%tabObj)
+  type is (zoaplotdatatab)
+     dataTextView = tabTmp%textView
+
+end select
+
+end function
 
 subroutine spo_go(psm)
 
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use global_widgets, only:  sysConfig
+    use global_widgets, only:  sysConfig, ioConfig
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
@@ -248,12 +267,23 @@ subroutine spo_go(psm)
     type(zoaplot_setting_manager) :: psm
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
+    integer :: objIdx
+    logical :: replot
 
 
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing)
 
+    call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
+
     ! Hopefully temporary 
+    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    
+    call LogTermDebug("Confirm before spot data written")
+    print *, "Now look for active plot ptr"
+    
     call PROCESKDP(trim(getKDPSpotPlotCommand(iField, iLambda, iMethod, nRect, nRand, nRing)))
+    call LogTermDebug("Confirm after spot data written")
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
     ! Prep PLot
     canvas = hl_gtk_drawing_area_new(size=[700,500], &
@@ -288,8 +318,10 @@ subroutine spo_go(psm)
 
 
     call mplt%set(1,1,xyscat1)
+    call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
-    call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SPOT_NEW, "Spot Diagram")
+
+    !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SPOT_NEW, "Spot Diagram")
 
 end subroutine
 
@@ -795,6 +827,76 @@ subroutine pma_go(psm)
   
 
 end subroutine
+
+
+subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx) 
+
+    use zoa_plot    
+    use plot_setting_manager
+    use handlers, only: zoatabMgr
+    use type_utils, only: int2str
+
+    implicit none
+    type(zoaplot_setting_manager) :: psm
+    integer :: plot_code
+    character(len=*) :: plotName
+
+    character(len=1024) :: inputCmd, tabName
+    integer :: pIdx
+    integer, intent(out) :: objIdx
+    logical, intent(out) :: replot
+
+    pIdx = psm%plotNum
+    inputCmd = trim(psm%generatePlotCommand())
+    replot = .FALSE.
+    if (pIdx /= -1 ) then
+       replot = zoatabMgr%doesPlotExist_new(plot_code, objIdx, pIdx)
+    end if
+
+
+    !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
+    if (replot) then
+      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+     else
+      pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
+     
+      psm%plotNum = pIdx+1 ! Noreplot so this is the next num
+
+      !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
+      psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
+      inputCmd = trim(psm%generatePlotCommand())
+      tabName = plotName
+      if  (psm%plotNum > 1) then
+        tabName = trim(tabName)//" "//int2str(psm%plotNum)
+      end if  
+      
+      objIdx = zoatabMgr%addMultiPlotTab(plot_code, &
+      & trim(tabName)//c_null_char)
+      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+    end if
+
+
+  end subroutine
+
+  subroutine finalizeGoPlot_new(mplt,psm, replot, objIdx)
+    use zoa_plot    
+    use plot_setting_manager
+    use handlers, only: zoatabMgr
+
+    implicit none
+    type(multiplot) :: mplt
+    type(zoaplot_setting_manager) :: psm
+
+    integer :: objIdx
+    logical :: replot
+
+    call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt) 
+    if(replot .EQV. .FALSE. ) then 
+      call zoaTabMgr%finalize_with_psm(objIdx, psm)
+      call zoaTabMgr%finalizeNewPlotTab(objIdx)
+    end if
+
+  end subroutine
 
 
 ! This sub checks for whether a replot is needed or whether 

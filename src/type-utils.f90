@@ -87,6 +87,7 @@ module type_utils
   
           ! Converting directly to int crashes when there are a lot of significant digits,
           ! so convert to real64 and then use internal Fortran funtion to convert to INT
+          print *, "strIpt is ", strIpt
           read(strIpt, *) tstReal
           intVal = INT(tstReal)
 

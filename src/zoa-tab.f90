@@ -592,6 +592,8 @@ interface
 contains ! for module
 
 subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
+  use hl_gtk_zoa, only: hl_zoa_text_view_new
+  use global_widgets, only: ioConfig
   class(zoaplotdatatab) :: self
   type(c_ptr) :: parent_window
   integer(kind=c_int) :: ID_PLOTTYPE
@@ -600,48 +602,27 @@ subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canva
   type(c_ptr) :: tab_label, btn
   integer, target :: ID_TARGET
 
+  ! This feels dangerous as if the parent init procedure changes it could secretly break this.
+  ! Shoudl probably refactor zoaplotab init routine to avoid this
 
-  ID_TARGET = ID_PLOTTYPE
-  PRINT *, "tabTitle is ", tabTitle
-  ! Set up button for exiting
-  self%tab_label = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-  !self%tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
-  tab_label = gtk_label_new(tabTitle//c_null_char)
-  call hl_gtk_box_pack(self%tab_label, tab_label)
-  !call gtk_box_append(head, tab_label)
-  btn = gtk_button_new_from_icon_name ("window-close-symbolic")
-  call gtk_button_set_has_frame (btn, FALSE)
-  call gtk_widget_set_focus_on_click (btn, FALSE)
-  call hl_gtk_box_pack (self%tab_label, btn);
-  call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
-  !self%tab_label = head
-  !self%tab_label = tab_label
+  call self%zoaplottab%initialize(parent_window, tabTitle, ID_PLOTTYPE, canvas)
+  self%useToolbar = .FALSE.
 
-  !PRINT *, "Created tab label ", self%tab_label
-  call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
-
-
-  self%ID_PLOTTYPE = ID_PLOTTYPE
-  self%notebook = parent_window
-
-  self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
-
-  !call self%createCairoDrawingArea()
-  if (present(canvas)) then
-    call LogTermFOR("In zoa_tab initialize already have canvas?")
-    self%canvas = canvas
-  else
-   call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
-   PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
-  end if
-
-  call self%settings%initialize()
 
 
   self%datanotebook = gtk_notebook_new()
   call gtk_notebook_set_tab_pos(self%dataNotebook, GTK_POS_BOTTOM)
+  call LogTermDebug("DOne with Plot Data Tab Init!")
 
+  !Create objects for data tab
 
+  self%textView = hl_zoa_text_view_new()
+  call gtk_text_view_set_editable(self%textView, FALSE)
+
+  ! Set a monospaced font so table output looks reasonable
+  call gtk_text_view_set_monospace(self%textView, 1_c_int) 
+  call ioConfig%registerTextView(self%textView, ID_TERMINAL_ACTIVEPLOT)
+  PRINT *, "ACTIVE_PLOT textview is ", LOC(self%textView)
 
 
 end subroutine
@@ -909,6 +890,7 @@ end if
 end subroutine
 
 function findTabParent(widget) result(tabIdx)
+  use command_utils, only: isInputNumber
   use type_utils, only: str2int
 
  implicit none
@@ -916,20 +898,41 @@ function findTabParent(widget) result(tabIdx)
  type(c_ptr) :: cstr, p1, p2
  character(len=140) :: winName
  integer :: tabIdx
+ integer :: i
 
-! Tmp code
-  p1 = gtk_widget_get_parent(widget)
+ !Different tab types have the parent in different locations.  This is a bad design so should fixt this
+ ! at tome point
+ p1 = gtk_widget_get_parent(widget)
+ cstr= gtk_widget_get_name(p1) 
+ call convert_c_string(cstr, winName)
+ print *, "Parent Windown name is ", trim(winName)
+do i=1,5
+  p1 = gtk_widget_get_parent(p1)
   cstr= gtk_widget_get_name(p1) 
   call convert_c_string(cstr, winName)
- 
-  call LogTermFOR("Parent Windown name is "// trim(winName))
+  print *, "Parent Windown name is ", trim(winName)
+  if (isInputNumber(trim(winName)) .EQV. .TRUE.) then
+    print *, "Found Tabe Index with winName ", trim(winName)
+    tabIdx = str2int(trim(winName))
+    return
+  end if
 
-  p2 = gtk_widget_get_parent(p1)
-  cstr= gtk_widget_get_name(p2) 
-  call convert_c_string(cstr, winName)
+end do
+
+  ! p1 = gtk_widget_get_parent(widget)
+  ! cstr= gtk_widget_get_name(p1) 
+  ! call convert_c_string(cstr, winName)
  
-  call LogTermFOR("Parent Windown name is "// trim(winName))
-  tabIdx = str2int(winName)
+  ! call LogTermFOR("Parent Windown name is "// trim(winName))
+  ! print *, "Parent Windown name is ", trim(winName)
+
+  ! p2 = gtk_widget_get_parent(p1)
+  ! cstr= gtk_widget_get_name(p2) 
+  ! call convert_c_string(cstr, winName)
+ 
+  ! call LogTermFOR("Parent Windown name is "// trim(winName))
+  ! print *, "Parent Windown name is ", trim(winName)
+  ! tabIdx = str2int(winName)
 
 
 end function
@@ -1258,9 +1261,9 @@ end subroutine
   implicit none
   class(zoaplotdatatab) :: self
   logical, optional :: useToolBar
-  integer :: dataLoc
+  integer :: dataLoc, plotLoc
 
-  type(c_ptr) :: scrolled_tab, box_plotmanip, btn
+  type(c_ptr) :: scrolled_tab, box_plotmanip, btn, scroll_win_data, base
    type(c_ptr) :: dcname
    character(len=80) :: dname
 
@@ -1295,13 +1298,21 @@ end subroutine
    
 
    scrolled_tab = gtk_scrolled_window_new()
-   PRINT *, "SETTING CHILD FOR SCROLLED TAB"
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
-   dataloc  = gtk_notebook_append_page(self%dataNotebook, scrolled_tab, gtk_label_new("Plot"//c_null_char))
+   plotLoc  = gtk_notebook_append_page(self%dataNotebook, scrolled_tab, gtk_label_new("Plot"//c_null_char))
 
+   
+   scroll_win_data = gtk_scrolled_window_new()
+   base = hl_gtk_box_new()
+   call gtk_box_append(base, self%textView)
+   call gtk_scrolled_window_set_child(scroll_win_data, base)
+   call gtk_widget_set_vexpand (base, TRUE)
 
-   location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+   dataLoc = gtk_notebook_append_page(self%dataNotebook, scroll_win_data, gtk_label_new("Data"//c_null_char))
+   call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
+
+   location = gtk_notebook_append_page(self%notebook, self%dataNotebook, self%tab_label)
    call gtk_notebook_set_current_page(self%notebook, location)
 
 
@@ -1310,6 +1321,10 @@ end subroutine
    !dcname = g_type_name_from_instance(self%zoatab_cda)
    !call c_f_string(dcname, dname)
    !PRINT *, "WIDGET NAME IS ", dname
+
+
+
+
 
 
 end subroutine
