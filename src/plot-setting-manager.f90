@@ -295,11 +295,16 @@ contains
       character(len=*) :: label, baseCmd, fullCmd
       real :: default, min, max
 
-
+      if (UI_TYPE /= UITYPE_ENTRY) then
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_CODE, & 
       & label, default,min,max, &
-      & baseCmd, fullCmd, UI_TYPE)     
+      & baseCmd, fullCmd, UI_TYPE)
+      else 
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initializeStr(ID_CODE, & 
+        & label, fullCmd, baseCmd, UI_TYPE)             
+      end if
 
 
     end subroutine

@@ -1103,17 +1103,31 @@ module codeV_commands
     end subroutine
 
     subroutine execTOW(iptStr)
+        use strings
         implicit none
         character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: plotExists
+        type(zoaplot_setting_manager) :: psm
 
-        ! Ignore this command unless we are in the base loop
-        if (cmd_loop == 0) then 
+        if(cmd_loop == 0) then
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+            call psm%initialize(trim(iptStr))
             cmd_loop = TOW_LOOP
             cmdTOW = ''
+
+            if (numTokens  == 2) then
+                plotExists = checkForExistingPlot(tokens(1:2), psm, ID_TOW_TAB)
+                ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
+                ! here but don't have a better soultion right now
+            if (plotExists) return
+            end if
+            curr_psm = psm
         end if
-
     end subroutine
-
 
 
     subroutine execSPO(iptStr)
@@ -2271,7 +2285,8 @@ module codeV_commands
         if (cmd_loop == TOW_LOOP) then
             cmd_loop = 0 ! Need to put this first because when in TOW loop commands are intercepted before 
             ! executed.  
-            call tow_go(trim(cmdTOW))
+            call curr_psm%addGenericSetting(999, "Command", real(999), -1.0, -1.0, ' ', trim(cmdTOW), UITYPE_ENTRY)
+            call tow_go(curr_psm, trim(cmdTOW))
 
         end if
 

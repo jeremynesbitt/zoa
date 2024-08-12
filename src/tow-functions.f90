@@ -74,7 +74,7 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
 ! At present, this will generate a zoadatatab, execute all of the commands in cmdTOW, and then redirect
 ! output to standard dialog
 ! eventually will look for special commands and generate settings for them
-subroutine tow_go(cmdTOW)
+subroutine tow_go(psm, cmdTOW)
     use zoa_ui
     use type_utils, only: int2str, str2int
     use plot_functions, only: getTabTextView
@@ -86,10 +86,6 @@ subroutine tow_go(cmdTOW)
 
     integer :: objIdx
     logical :: replot
-
-    ! Move this to code-v-commands?
-    call psm%initialize('TOW')
-    call psm%addGenericSetting(999, "Command", real(999), -1.0, -1.0, ' ', cmdTOW, UITYPE_ENTRY)
 
 
     call initializeGoDataTab(psm,ID_TOW_TAB, "Output Data", replot, objIdx)
