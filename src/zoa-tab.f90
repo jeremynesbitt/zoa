@@ -501,6 +501,17 @@ type, extends(zoatab) ::  zoaplottab
 
 end type
 
+type, extends(zoatab) ::  zoadatatab
+  type(c_ptr) :: textView
+  logical :: useToolbar
+
+  contains
+  procedure, public, pass(self) :: initialize => init_zoadatatab
+  procedure, public, pass(self) :: finalizeWindow => final_zoadatatab
+
+end type
+
+
 type, extends(zoaplottab) :: zoaplotdatatab
    type(c_ptr) :: textView, dataNotebook
    contains
@@ -714,6 +725,28 @@ end subroutine
     self%box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10_c_int);
     call self%settings%initialize()    
 
+
+ end subroutine
+
+ subroutine init_zoadatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
+  use hl_gtk_zoa, only: hl_zoa_text_view_new
+  implicit none
+
+  class(zoadatatab) :: self
+  type(c_ptr), optional :: canvas
+  type(c_ptr) :: parent_window
+  integer(kind=c_int) :: ID_PLOTTYPE
+  character(len=*) :: tabTitle
+  type(c_ptr) :: tab_label, btn
+  integer, target :: ID_TARGET
+
+  call self%zoatab%initialize(parent_window, tabTitle, ID_PLOTTYPE, canvas)
+
+  self%textView = hl_zoa_text_view_new()
+  call gtk_text_view_set_editable(self%textView, FALSE)
+
+  ! Set a monospaced font so table output looks reasonable
+  call gtk_text_view_set_monospace(self%textView, 1_c_int) 
 
  end subroutine
 
@@ -1253,6 +1286,43 @@ end subroutine
 
  end subroutine
 
+ subroutine final_zoadatatab(self, useToolBar)
+  use g
+  use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
+  implicit none
+  class(zoadatatab) :: self
+  logical, optional :: useToolBar
+
+  type(c_ptr) :: scroll_win_data, box_plotmanip, btn
+   type(c_ptr) :: dcname
+   character(len=80) :: dname
+
+  integer :: location
+
+   !call self%buildSettings()
+   self%expander = self%settings%build()
+   !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
+   call gtk_widget_set_name(self%expander, self%plotCommand)
+
+
+   ! We create a vertical box container:
+   call gtk_box_append(self%box1, self%expander)
+   call gtk_widget_set_vexpand (self%box1, FALSE)
+
+
+   scroll_win_data = gtk_scrolled_window_new()
+   call gtk_box_append(self%box1, self%textView)
+   call gtk_scrolled_window_set_child(scroll_win_data, self%box1)
+   call gtk_widget_set_vexpand (self%box1, TRUE)
+
+   location = gtk_notebook_append_page(self%notebook, scroll_win_data, self%tab_label)
+   call gtk_notebook_set_current_page(self%notebook, location)
+
+
+   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+
+
+  end subroutine
 
  subroutine final_zoaplotdatatab(self, useToolBar)
   use g

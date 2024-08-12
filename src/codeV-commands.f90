@@ -39,14 +39,16 @@ module codeV_commands
     type(zoa_cmd), dimension(541) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
+    character(len=10024) :: cmdTOW
 
     integer :: cmd_loop = 0
     integer, parameter :: VIE_LOOP = 1
-    integer, parameter :: VIE_OLD_LOOP = 10
-
     integer, parameter :: DRAW_LOOP = 2 ! While plot is being drawn
     integer, parameter :: SPO_LOOP = 3
     integer, parameter :: ZERN_LOOP = 4
+    integer, parameter :: TOW_LOOP = 5
+
+
 
 
     contains
@@ -131,8 +133,8 @@ module codeV_commands
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
         zoaCmds(528)%execFunc => setPlotZernikeCoefficients    
-        !zoaCmds(529)%cmd = 'VIE_OLD'
-        !zoaCmds(529)%execFunc => execVie_old   
+        zoaCmds(529)%cmd = 'TOW'
+        zoaCmds(529)%execFunc => execTOW   
         zoaCmds(530)%cmd = 'ASTFCDIST'
         zoaCmds(530)%execFunc => execAstigFieldCurvDistPlot                              
         zoaCmds(531)%cmd = 'PMA'
@@ -192,11 +194,19 @@ module codeV_commands
         !       END IF  
         ! select case (iptCmd)
         
-        ! Temp code for interface check
-        print *, "iptCmd is ", iptCmd
-        print *, "CurrentCommand is ", currentCommand
+
         do ii=1,size(zoaCmds)
         if (iptCmd == zoaCmds(ii)%cmd) then
+            if (cmd_loop == TOW_LOOP .AND. iptCmd /= 'GO') then
+                if (len(trim(cmdTOW)) == 0) then
+                    cmdTOW = currentCommand
+                else
+                    cmdTOW = trim(cmdTOW)//'; '//currentCommand
+                end if
+                boolResult = .TRUE.
+                return
+            end if
+                
             !PRINT *, "About to crash with fcn pointer?"
             call zoaCmds(ii)%execFunc(currentCommand)
             boolResult = .TRUE.
@@ -813,8 +823,6 @@ module codeV_commands
                 call LogTermFOR("Finished Updating Zernike")
             end if
         end if
-
-        call TSTREAL8()
         
     end subroutine
 
@@ -1093,6 +1101,20 @@ module codeV_commands
 
 
     end subroutine
+
+    subroutine execTOW(iptStr)
+        implicit none
+        character(len=*) :: iptStr
+
+        ! Ignore this command unless we are in the base loop
+        if (cmd_loop == 0) then 
+            cmd_loop = TOW_LOOP
+            cmdTOW = ''
+        end if
+
+    end subroutine
+
+
 
     subroutine execSPO(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
@@ -2242,8 +2264,16 @@ module codeV_commands
         use handlers, only: zoatabMgr
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
+        use tow_functions
 
         !TODO:  Switch to select case
+
+        if (cmd_loop == TOW_LOOP) then
+            cmd_loop = 0 ! Need to put this first because when in TOW loop commands are intercepted before 
+            ! executed.  
+            call tow_go(trim(cmdTOW))
+
+        end if
 
         if (cmd_loop == VIE_LOOP) then
                 ! Hide KDP Commands from user

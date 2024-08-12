@@ -38,6 +38,7 @@ type  zoatabManager
    procedure :: doesPlotExist_new
    procedure :: getNumberOfPlotsByCode
    procedure :: addMultiPlotTab
+   procedure :: addDataTab
    procedure :: addGenericMultiPlotTab ! May be obsolete with tweak to init process
    procedure :: updateGenericMultiPlotTab
    procedure :: finalizeNewPlotTab
@@ -108,7 +109,10 @@ subroutine clearDataTab(self, objIdx)
   select type (tmpTab => self%tabInfo(objIdx)%tabObj)
   type is (zoaplotdatatab)
      buffer = gtk_text_view_get_buffer(tmpTab%textView)
-     call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)     
+     call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer) 
+     type is (zoadatatab)
+     buffer = gtk_text_view_get_buffer(tmpTab%textView)
+     call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)          
 end select
 
 end subroutine
@@ -149,6 +153,9 @@ subroutine finalizeNewPlotTab(self, idx)
     call tmpTab%finalizeWindow(tmpTab%useToolbar)
     type is (zoaplotdatatab) 
     call tmpTab%finalizeWindow(tmpTab%useToolbar)    
+    type is (zoadatatab) 
+    call tmpTab%finalizeWindow(tmpTab%useToolbar)    
+        
   end select    
     
 
@@ -161,6 +168,19 @@ subroutine finalizeNewPlotTab(self, idx)
 
 
 end subroutine
+
+function addDataTab(self, PLOT_CODE, tabTitle) result(idx)
+  class(zoatabManager) :: self
+  integer, intent(in) :: PLOT_CODE
+  character(len=*), intent(in) :: tabTitle
+  integer :: idx
+
+  idx = self%findTabIndex()
+
+  allocate(zoadatatab :: self%tabInfo(idx)%tabObj)
+  call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE, c_null_ptr)
+
+end function
 
 ! Added this so I could separate out initialization of the UI and creation of the multiplot object
 ! So I can register textViews to print data.

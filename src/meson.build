@@ -60,6 +60,7 @@ srcs += files(
   #'mod-lens-draw-tab.f90',
   #'ui-ast-fc-dist.f90',
   #'ui-spot.f90',
+  'tow-functions.f90',
   'ROUTEDRAWING.f90',
   'zoa-tab-manager.f90',
   'zoa-plot-manip-toolbar.f90',

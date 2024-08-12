@@ -237,6 +237,8 @@ function getTabTextView(objIdx) result (dataTextView)
   select type (tabTmp => zoatabMgr%tabInfo(objIdx)%tabObj)
   type is (zoaplotdatatab)
      dataTextView = tabTmp%textView
+     type is (zoadatatab)
+     dataTextView = tabTmp%textView     
 
 end select
 
@@ -401,7 +403,7 @@ subroutine seidel_go(psm)
     character(len=100) :: strTitle
     character(len=20), dimension(nS) :: yLabels
     character(len=23) :: cmdTxt
-    
+
     call initializeGoPlot(psm,ID_PLOTTYPE_SEIDEL, "Seidel Aberrations", replot, objIdx)
     
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))

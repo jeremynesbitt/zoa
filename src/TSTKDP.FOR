@@ -253,6 +253,7 @@ C
         !CALL SHOWIT(19)
 
         if(len(ftext) > len(INPUT)) then
+            PRINT *, "Ftext is ", ftext
             ! Assume this is because of multiple commands.  So split it up
             call parse(ftext, ';', tokens, numTokens) 
             if (i > 0) then 
