@@ -95,7 +95,7 @@ module zoa_plot_manip_toolbar
 
 
         theme = gtk_icon_theme_get_for_display(gdk_display_get_default())
-        call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysis/icons"//c_null_char)
+        call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysisicons"//c_null_char)
         
 
         ! Buttons
@@ -105,16 +105,21 @@ module zoa_plot_manip_toolbar
         ! Zoom Out
         ! Move
 
-        !btns(1) = gtk_button_new_from_icon_name ("cylinder"//c_null_char)
-        btns(1) = gtk_button_new_from_icon_name ("icons8-tst"//c_null_char)
+        ! btns(1) = gtk_button_new_from_icon_name ("cylinder"//c_null_char)
+        !btns(1) = gtk_button_new_from_icon_name ("icons8-tst"//c_null_char)
 
-        !btns(1) = gtk_button_new_from_icon_name ("window-restore-symbolic"//c_null_char)
+       ! btns(1) = gtk_button_new_from_icon_name ("window-restore-symbolic"//c_null_char)
+        btns(1) = gtk_button_new_from_icon_name ("xmark"//c_null_char)
 
         btns(2) = gtk_button_new_from_icon_name ("view-refresh-symbolic"//c_null_char)
         btns(3) = gtk_button_new_from_icon_name ("user-home-symbolic"//c_null_char)
-        btns(4) = gtk_button_new_from_icon_name ("list-add"//c_null_char)
-        btns(5) = gtk_button_new_from_icon_name ("list-remove"//c_null_char)
-        btns(6) = gtk_button_new_from_icon_name ("go-previous-symbolic"//c_null_char)
+        btns(4) = gtk_button_new_from_icon_name ("zoom-in"//c_null_char)
+        !btns(4) = gtk_button_new_from_icon_name ("list-add"//c_null_char)
+        btns(5) = gtk_button_new_from_icon_name ("zoom-out"//c_null_char)
+        !btns(5) = gtk_button_new_from_icon_name ("list-remove"//c_null_char)
+        btns(6) = gtk_button_new_from_icon_name ("ruler-arrows"//c_null_char)
+        
+        !btns(6) = gtk_button_new_from_icon_name ("go-previous-symbolic"//c_null_char)
         
         call gtk_widget_set_tooltip_text(btns(1), "Do Nothing"//c_null_char)
         call gtk_widget_set_tooltip_text(btns(2), "Refresh Plot"//c_null_char)
