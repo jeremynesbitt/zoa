@@ -44,6 +44,20 @@ globArg = [osArg, bldArg, versionArg]
 
 message('Global Arguments are ', globArg)
 
+
+# Include the GNOME module
+gnome = import('gnome')
+
+# Tell meson where to find our resources file and to compile it as a GResource
+gresource = gnome.compile_resources(
+    'gresource',
+    'data' / 'gresource.xml',
+    source_dir: 'data'
+)
+
+
+
+
 #For C code, could use this api vs global arguments
 #But global arguments are working so never fully fleshed this out
 #eg see gtksourceview4 for example
@@ -191,6 +205,22 @@ zoa_lib = static_library(
 )
 
 
+# Icons
+# Define PKG_DATADIR as a global symbol
+#pkg_datadir = get_option('prefix') / get_option('datadir') / meson.project_name()
+#add_project_arguments('-DPKG_DATADIR=@0@'.format(datadir), language: 'c')
+
+# List the icons to install
+#action_icons_dir = MacOS / 'icons/actions'
+#action_icons = [
+#  'icon8-tst.png'
+#]
+
+# Install the icons
+
+
+
+
 if system == 'windows'
   windows = import('windows')
   resources = ['Windows/icon.ico']
@@ -201,6 +231,7 @@ endif
 
 xtb_exe = executable(
   meson.project_name(),
+  gresource,
   sources: prog,
   link_with: zoa_lib,
   dependencies:  [zoa_deps, thread_dep],

@@ -1321,8 +1321,28 @@ end subroutine
 
    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
 
+   ! Code for context menu
+  !  controller_c = gtk_gesture_click_new()
+  !  ! 0 to listen to all buttons (button 1 by default):
+  !  call gtk_gesture_single_set_button (controller_c, 3_c_int)
+  !   call g_signal_connect(controller_c, "pressed"//c_null_char, &
+  !   & c_funloc(textView_context_menu), c_null_ptr)  
+     
+  !  call gtk_widget_add_controller(self%textView, controller_c)
 
   end subroutine
+
+function textView_context_menu(controller, keyval, keycode, state, gdata) result(ret) bind(c)
+    type(c_ptr), value, intent(in) :: controller, gdata
+    integer(c_int), value, intent(in) :: keyval, keycode, state
+    logical(c_bool) :: ret
+    character(len=20) :: keyname
+    integer(c_int) :: key_q
+
+    ret = .TRUE.
+    call LogTermDebug("Key Press Event Detected!")
+
+end function
 
  subroutine final_zoaplotdatatab(self, useToolBar)
   use g

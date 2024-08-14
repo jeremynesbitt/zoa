@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <!-- <gresource prefix="zoa/optical-analysis/icons"> -->
+  <gresource prefix="zoa/optical-analysis/icons/16x16/actions">
+    <file>icons8-tst.png</file>
+  <!--  <file compressed="true" preprocess="xml-stripblanks">cylinder.svg</file> -->
+  </gresource>
+</gresources>
+

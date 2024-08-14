@@ -79,18 +79,24 @@ module zoa_plot_manip_toolbar
     end function    
 
     subroutine createPlotManipulationToolbar(cairo_drawing_area,plotBox)
-        
+        use gdk
 
         implicit none
 
         type(c_ptr) :: cairo_drawing_area
         type(c_ptr) :: plotBox ! Output
         type(c_ptr), dimension(6) :: btns
+        type(c_ptr) :: theme
         integer :: i
 
 
   
         plotBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0_c_int);
+
+
+        theme = gtk_icon_theme_get_for_display(gdk_display_get_default())
+        call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysis/icons"//c_null_char)
+        
 
         ! Buttons
         ! Reset
@@ -99,7 +105,11 @@ module zoa_plot_manip_toolbar
         ! Zoom Out
         ! Move
 
-        btns(1) = gtk_button_new_from_icon_name ("window-restore-symbolic"//c_null_char)
+        !btns(1) = gtk_button_new_from_icon_name ("cylinder"//c_null_char)
+        btns(1) = gtk_button_new_from_icon_name ("icons8-tst"//c_null_char)
+
+        !btns(1) = gtk_button_new_from_icon_name ("window-restore-symbolic"//c_null_char)
+
         btns(2) = gtk_button_new_from_icon_name ("view-refresh-symbolic"//c_null_char)
         btns(3) = gtk_button_new_from_icon_name ("user-home-symbolic"//c_null_char)
         btns(4) = gtk_button_new_from_icon_name ("list-add"//c_null_char)

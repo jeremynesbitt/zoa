@@ -4,7 +4,9 @@
 
 program zoa_program
   use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char, c_null_ptr
-  use gtk, only: gtk_application_new, G_APPLICATION_FLAGS_NONE, gtk_application_set_accels_for_action
+  use gtk, only: gtk_application_new, G_APPLICATION_FLAGS_NONE, gtk_application_set_accels_for_action, &
+  & gtk_icon_theme_get_for_display
+  use gdk, only:  gdk_display_get_default
   use g, only: g_application_run, g_object_unref
   use zoa_file_handler, only: getZoaPath
   use handlers
@@ -38,6 +40,8 @@ program zoa_program
 PRINT *, "Version is ", __VERSION
 zoaVersion = __VERSION
 
+
+
   app = gtk_application_new("zoa.optical-analysis"//c_null_char, &
                             & G_APPLICATION_FLAGS_NONE)
 
@@ -54,8 +58,11 @@ zoaVersion = __VERSION
   allocate(uiSettingCommands(cmdHistorySize))
 
 
+
   call g_signal_connect(app, "activate"//c_null_char, c_funloc(activate), &
                       & c_null_ptr)
+
+                        ! Set up resources such as icons
 
 
   status = g_application_run(app, 0_c_int, c_null_ptr)

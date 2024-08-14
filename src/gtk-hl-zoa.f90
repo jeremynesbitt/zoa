@@ -611,6 +611,8 @@ subroutine set_listn_column_color(view, col, colorTxt)
     type(c_ptr) :: val_ptr
 
 
+    
+
 
     ! Find the renderer for the column
     colptr = gtk_tree_view_get_column(view, col)
@@ -636,8 +638,19 @@ subroutine set_listn_column_color(view, col, colorTxt)
 end subroutine
 
 subroutine addMacOSClipboardShortcuts(textView)
+  use gtk_sup
   type(c_ptr), intent(inout) :: textView
-  type(c_ptr) :: scCut, scCopy, scPaste, scControl
+  type(c_ptr) :: scCut, scCopy, scPaste, scControl, scSelectAll
+  !type(gvalue), target :: selectAll = 1_c_int
+  type(c_ptr) :: ptr_tst
+  type(c_ptr), dimension(2) :: ptr_selectAll
+  logical :: selectAll = .TRUE.
+  type(gvalue), target :: val_selectAll  
+  integer(kind=c_int64_t) :: nChild = 1
+  
+  !ptr_selectAll = c_loc(val_selectAll)
+  !ptr_selectAll= g_value_init(ptr_selectAll, G_TYPE_INT64)
+  !call g_value_set_int64(c_loc(val_selectAll), G_TYPE_BOOLEAN)
 
   scCopy = gtk_shortcut_new( &
   & gtk_shortcut_trigger_parse_string("<Meta>c"//c_null_char), &
@@ -651,10 +664,23 @@ subroutine addMacOSClipboardShortcuts(textView)
   & gtk_shortcut_trigger_parse_string("<Meta>v"//c_null_char), &
   & gtk_signal_action_new("paste-clipboard"//c_null_char))
 
+  scSelectAll = gtk_shortcut_new( &
+  & gtk_shortcut_trigger_parse_string("<Meta>a"//c_null_char), &
+  & gtk_signal_action_new("select-all"//c_null_char))
+
+  ptr_selectAll(1) = g_variant_new_boolean(1_c_int)
+  ptr_selectAll(2) = c_null_ptr
+  !ptr_tst = g_variant_new_array(ptr_selectAll, g_variant_new_boolean(1_c_int), INT(1,kind=selected_int_kind(15)))
+  !call gtk_shortcut_set_arguments(scSelectAll, g_variant_new_boolean(1_c_int))
+  call gtk_shortcut_set_arguments(scSelectAll, &
+  & g_variant_new_tuple(ptr_selectAll, nChild))
+
+
   scControl = gtk_shortcut_controller_new()
   call gtk_shortcut_controller_add_shortcut(scControl, scCut)
   call gtk_shortcut_controller_add_shortcut(scControl, scCopy)
   call gtk_shortcut_controller_add_shortcut(scControl, scPaste)
+  call gtk_shortcut_controller_add_shortcut(scControl, scSelectAll)
 
   call gtk_widget_add_controller(textView, scControl)
 
