@@ -98,15 +98,19 @@ module zoa_plot_manip_toolbar
         call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysisicons"//c_null_char)
         
 
+        ! Adding icons
+        ! I used iconoir.com to find icons and download svg files
+        ! converted them using magick from command line (eg magick zoom-out.svg zoom-out.png)
+        ! Copy to /data folder
+        ! add file to gresource.xml 
+
+
         ! Buttons
         ! Reset
         ! Refresh
         ! Zoom In
         ! Zoom Out
         ! Move
-
-        ! btns(1) = gtk_button_new_from_icon_name ("cylinder"//c_null_char)
-        !btns(1) = gtk_button_new_from_icon_name ("icons8-tst"//c_null_char)
 
        ! btns(1) = gtk_button_new_from_icon_name ("window-restore-symbolic"//c_null_char)
         btns(1) = gtk_button_new_from_icon_name ("xmark"//c_null_char)
@@ -117,7 +121,7 @@ module zoa_plot_manip_toolbar
         !btns(4) = gtk_button_new_from_icon_name ("list-add"//c_null_char)
         btns(5) = gtk_button_new_from_icon_name ("zoom-out"//c_null_char)
         !btns(5) = gtk_button_new_from_icon_name ("list-remove"//c_null_char)
-        btns(6) = gtk_button_new_from_icon_name ("ruler-arrows"//c_null_char)
+        btns(6) = gtk_button_new_from_icon_name ("axes"//c_null_char)
         
         !btns(6) = gtk_button_new_from_icon_name ("go-previous-symbolic"//c_null_char)
         

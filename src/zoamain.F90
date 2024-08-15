@@ -44,8 +44,10 @@ zoaVersion = __VERSION
 
   app = gtk_application_new("zoa.optical-analysis"//c_null_char, &
                             & G_APPLICATION_FLAGS_NONE)
-
+                            
+  
   ! UI Settings Initialization
+
 
   curr_lens_data = lens_data()
   sysConfig = sys_config()

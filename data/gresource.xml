@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <!-- <gresource prefix="zoa/optical-analysis/icons"> -->
   <gresource prefix="zoa/optical-analysis/icons/16x16/actions">
-  <!-- <gresource prefix="zoa/optical-analysis/icons">-->
     <file>zoom-in.png</file> 
     <file>zoom-out.png</file> 
     <file>ruler-arrows.png</file> 
     <file>xmark.png</file> 
-
-
+    <file>axes.png</file> 
     <file compressed="true" preprocess="xml-stripblanks">zoom-out.svg</file>
-
-    <!-- <file>icons8-tst.png</file> -->
-
-  <!--  <file compressed="true" preprocess="xml-stripblanks">cylinder.svg</file> -->
+  </gresource>
+  <gresource prefix="zoa/optical-analysis">
+    <file>zoa.css</file>  
   </gresource>
 </gresources>
 

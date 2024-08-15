@@ -259,6 +259,17 @@ contains
 
   end subroutine name_enter
 
+  subroutine load_css()
+    use gdk, only: gdk_display_get_default
+    type(c_ptr) :: provider
+
+    provider = gtk_css_provider_new()
+    call gtk_css_provider_load_from_resource(provider, "/zoa/optical-analysis/zoa.css"//c_null_char)
+
+    
+    call gtk_style_context_add_provider_for_display(gdk_display_get_default(), provider, 600_c_int)
+
+  end subroutine
 
   subroutine activate(app2, gdata) bind(c)
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_f_pointer, c_null_funptr
@@ -288,6 +299,8 @@ contains
 
     ! Create the window:
     my_window = gtk_application_window_new(app)
+
+    call load_css()
 
   !/* quit */
     quit_action = g_simple_action_new("quit"//c_null_char, c_null_ptr);
