@@ -36,7 +36,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(541) :: zoaCmds
+    type(zoa_cmd), dimension(551) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -151,7 +151,8 @@ module codeV_commands
         zoaCmds(536)%execFunc => execXOFF
         zoaCmds(537)%cmd = 'YOFF'
         zoaCmds(537)%execFunc => execYOFF                
-                                 
+        zoaCmds(538)%cmd = 'SAVESESS'
+        zoaCmds(538)%execFunc => execSaveSessionToFile                                       
         
         
 
@@ -965,6 +966,11 @@ module codeV_commands
             cmd_loop = PLOT_CODE
             boolResult = .TRUE.
             return
+           else ! User entered Px but it doesn't exist.  Ignore PX
+            cmd_loop = PLOT_CODE
+            boolResult = .TRUE.
+            curr_psm = psm
+            return
            end if
         end if
         if (numTokens==1) then
@@ -1465,6 +1471,56 @@ module codeV_commands
 
 
     end subroutine
+
+
+    subroutine execSaveSessionToFile(iptStr)
+        use global_widgets, only: sysConfig, curr_lens_data
+        use strings
+        use command_utils, only : parseCommandIntoTokens
+        use type_utils, only: int2str
+        use handlers, only: updateTerminalLog, zoatabMgr
+        use zoa_file_handler, only: open_file_to_sav_lens
+        implicit none
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        character(len=80) :: tokens(40)
+        integer :: numTokens, locDot, fID
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens > 1 ) then
+            fName = trim(tokens(2))
+            locDot = INDEX(fName, '.')
+            if (locDot == 0) then
+                fName = trim(fName)//'.zoaenv'
+            end if
+            call LogTermFOR("File name to save is "//trim(fName))
+        else
+            fName = 'default.zoaenv'
+
+        end if
+        fID = open_file_to_sav_lens(fName)
+        if (fID /= 0) then
+         
+           call sysConfig%genSaveOutputText(fID)
+           call curr_lens_data%genSaveOutputText(fID)
+           call zoaTabMgr%genSaveOutputText(fID)
+           close(fID)
+        else
+            call LogTermFOR("Error!  fiD is "//int2str(fID))
+        end if
+
+
+        ! Save Presciption
+        !writeToFile('LEN NEW')
+        !PRINT *, "Lens Title is ", trim(LI)
+
+
+
+
+    end subroutine
+
 
     subroutine execSetWavelengthIndex(iptStr)
 

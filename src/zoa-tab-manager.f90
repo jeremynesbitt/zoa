@@ -51,6 +51,7 @@ type  zoatabManager
    procedure :: addKDPPlotTab
    procedure :: setKDPCallback
    procedure :: updateKDPPlotTab
+   procedure :: genSaveOutputText
 
    procedure :: updateUISettingsIfNeeded
    procedure :: getWidgetBySettingCode
@@ -484,6 +485,8 @@ function getNumberOfPlotsByCode(self, PLOT_CODE) result(numPlots)
 
 end function
 
+
+
   subroutine rePlotIfNeeded(self)
     implicit none
     !use codeV_commands, only: cmd_loop, DRAW_LOOP
@@ -648,5 +651,28 @@ subroutine registerPlotSettingManager(tabMgr, objIdx, psm)
   
 end subroutine
 
+
+subroutine genSaveOutputText(self, fID)
+  use type_utils, only: real2str, blankStr, int2str
+  use strings
+  use GLOBALS, only: zoaVersion
+  class(zoatabManager) :: self
+  integer :: fID
+  integer :: ii, jj
+  character(len=256) :: strOutLine
+  character(len=1024) :: strFullCmd
+  character(len=80) :: tokens(40)
+  integer :: numTokens
+
+  print *, "tabNum is ", self%tabNum
+  do ii=1,self%tabNum
+    strFullCmd = self%tabInfo(ii)%tabObj%psm%generatePlotCommand()
+    call parse(strFullCmd, ';', tokens, numTokens)
+    do jj =1,numTokens
+      write(fiD, *) trim(tokens(jj))
+  end do 
+
+  end do
+end subroutine
 
 end module
