@@ -752,7 +752,6 @@ subroutine pma_go(psm)
     use iso_c_binding, only:  c_ptr, c_null_char
     use plplot, PI => PL_PI
     use plplot_extra
-    use plotSettingParser
     use plot_setting_manager
     use gtk, only: gtk_expander_set_expanded
   
