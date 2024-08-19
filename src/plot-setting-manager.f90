@@ -9,7 +9,6 @@
   ! setting_manager%addCommand(Wavelength)
   ! setting_manager%finalize(objIdx)
 module plot_setting_manager
-    use plotSettingParser
     use zoa_ui
     use kdp_data_types, only: idText
 
@@ -41,7 +40,6 @@ module plot_setting_manager
     type(plot_setting), dimension(16) :: ps
     integer :: numSettings
     character(len=140) :: baseCmd
-    type(setting_parser) :: sp
     integer :: plotNum 
 
     ! With current design, number of seetings here will be huges, as it has

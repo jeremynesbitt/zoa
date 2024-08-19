@@ -6,7 +6,6 @@
     <file>ruler-arrows.png</file> 
     <file>xmark.png</file> 
     <file>axes.png</file> 
-    <file compressed="true" preprocess="xml-stripblanks">zoom-out.svg</file>
   </gresource>
   <gresource prefix="zoa/optical-analysis">
     <file>zoa.css</file>  
