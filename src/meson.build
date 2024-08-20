@@ -53,6 +53,7 @@ srcs += files(
   'zoa-glass-ui.f90',
   'ui-lens-library.f90',
   'zoamenubar.f90',
+  'zoa-status-bar.f90',
   'zoa-tab.f90',
   'kdp-draw.f90',
   #'mod_plotrayfan.f90',

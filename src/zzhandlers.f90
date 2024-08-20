@@ -278,6 +278,7 @@ contains
     use GLOBALS
     use zoamenubar
     use hl_gtk_zoa
+    use zoa_status_bar
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -453,6 +454,7 @@ contains
     !call gtk_widget_grab_focus(entry2)
 
     call gtk_box_append(box1, entry)
+    call gtk_box_append(box1, createStatusBar())
     !all gtk_box_append(box1, entry2)
     call gtk_widget_set_vexpand (box1, TRUE)
 
