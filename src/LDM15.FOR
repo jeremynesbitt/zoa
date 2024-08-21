@@ -3,7 +3,7 @@ C       FIFTEENTH FILE FOR LENS DATABASE MANAGER FILES
 C SUB LNSEOS.FOR
         SUBROUTINE LNSEOS
         USE GLOBALS
-        use handlers, only: zoatabMgr
+        use handlers, only: zoatabMgr, refreshStatusBar
 C
 C     CALLS LNSEOS1. THIS IS HERE TO SUPPORT AUTOFUNC
 C
@@ -101,6 +101,7 @@ C     SET PARAXIAL FLAGS TO FALSE
                 ! Not sure If I should dot his in all exits
                        call LogTermFOR("Aboutreplot LNSEOS")
                        call zoatabMgr%rePlotIfNeeded()
+                       call refreshStatusBar()
                        RETURN
                        END IF
         IF(F57.EQ.1) THEN

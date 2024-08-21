@@ -1,6 +1,6 @@
 module mod_lens_data_manager
     use iso_fortran_env, only: real64
-    use global_widgets, only: curr_lens_data
+    use global_widgets, only: curr_lens_data, curr_par_ray_trace
     use global_widgets, only: sysConfig    
 
     type lens_data_manager
@@ -12,6 +12,9 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getSurfCurv
      procedure, public, pass(self) :: getSurfIndex
      procedure, public, pass(self) :: getLastSurf
+     procedure, public, pass(self) :: getEFL
+     procedure, public, pass(self) :: getTrackLength
+
 
 
 
@@ -82,6 +85,27 @@ module mod_lens_data_manager
         END IF
 
     end function 
+
+    function getEFL(self) result(EFL)
+        implicit none
+        class(lens_data_manager) :: self
+        real(kind=real64) :: EFL
+
+        EFL = curr_par_ray_trace%EFL
+
+    end function
+
+    function getTrackLength(self) result (OAL)
+        implicit none
+        class(lens_data_manager) :: self
+        real(kind=real64) :: OAL
+
+        OAL = curr_par_ray_trace%OAL
+
+
+    end function
+
+
     
     function getSurfIndex(self, surfIdx, lambdaIdx) result(index)        
         use DATLEN, only: ALENS

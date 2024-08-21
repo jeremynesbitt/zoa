@@ -125,6 +125,7 @@ contains
  procedure, public, pass(self) :: setFieldTypeFromString
  procedure, public, pass(self) :: setMaxField
  procedure, public, pass(self) :: getWavelength
+ procedure, public, pass(self) :: getDimensions
 
 
 
@@ -706,6 +707,23 @@ subroutine updateParameters(self)
   call self%setNumberofWavelengths()
 
 end subroutine
+
+function getDimensions(self) result(dimStr)
+  implicit none
+  class(sys_config) :: self
+  character(len=2) :: dimStr
+
+  dimStr = " "
+  select case(self%currLensUnitsID)
+  case(LENS_UNITS_MM)
+    dimStr = "mm" 
+  case(LENS_UNITS_CM)
+    dimStr = "cm"
+  case(LENS_UNITS_INCHES)
+    dimStr = "in"
+  end select
+  
+end function
 
 ! Was having some trouble with the setRefFieldKDP sub so wrote this one to figure out
 ! what is going on.  Only one should survive...

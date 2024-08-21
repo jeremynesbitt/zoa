@@ -27,7 +27,7 @@ module zoa_status_bar
         labels(1) = gtk_label_new("Test1"//c_null_char)
         labels(2) = gtk_label_new("Test2"//c_null_char)
         labels(3) = gtk_label_new("Test3"//c_null_char)
-        labels(4) = gtk_label_new("Test4"//c_null_char)
+        labels(4) = gtk_label_new(" "//c_null_char)
 
         call gtk_grid_attach(table, labels(1), 0_c_int, 0_c_int, 1_c_int, 1_c_int)
         call gtk_grid_attach(table, labels(2), 1_c_int, 0_c_int, 1_c_int, 1_c_int)

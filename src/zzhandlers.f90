@@ -772,5 +772,22 @@ end subroutine
 
   end subroutine
 
+  subroutine refreshStatusBar()
+    use mod_lens_data_manager
+    use zoa_status_bar
+    use type_utils, only: real2str
+
+    ! Box 1 - effective focal length
+    call updateStatusBar(1, "EFL = "//real2str(ldm%getEFL(),4))
+
+    ! Box 2 - dimensions
+    call updateStatusBar(2, "DIM = "//sysConfig%getDimensions())
+
+    ! Box 3 - Track Length
+    call updateStatusBar(3, "Total Track: "//trim(real2str(ldm%getTrackLength(),4)))
+
+
+  end subroutine
+
 
 end module handlers
