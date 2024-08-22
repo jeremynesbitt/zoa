@@ -72,6 +72,9 @@ get_macos_bundle_dir()
     gchar             *basename;
     gchar             *basepath;
     gchar             *dirname;
+    gchar           nullStr[] = "null";
+    gchar             *nullResult = nullStr ;
+            
 
     pool = [[NSAutoreleasePool alloc] init];
 
@@ -83,7 +86,6 @@ get_macos_bundle_dir()
 
     return basepath;
 #endif
+    return nullResult;
    
-   return 'null';
-
 }

@@ -94,8 +94,7 @@ module zoa_plot_manip_toolbar
         plotBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0_c_int);
 
 
-        theme = gtk_icon_theme_get_for_display(gdk_display_get_default())
-        call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysisicons"//c_null_char)
+
         
 
         ! Adding icons

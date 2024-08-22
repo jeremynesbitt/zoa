@@ -4,43 +4,7 @@ module zoamenubar
   use global_widgets
   use GLOBALS
 
-  use gtk, only: gtk_application_window_new, gtk_window_destroy, &
-  & g_signal_connect, g_signal_connect_swapped, &
-  & gtk_window_set_child, gtk_expander_set_child, gtk_box_append, &
-  & gtk_scrolled_window_set_child, gtk_drawing_area_new, &
-  & gtk_drawing_area_set_content_width, gtk_drawing_area_set_content_height, &
-  & gtk_drawing_area_set_draw_func, &
-  & gtk_widget_queue_draw, gtk_widget_show, &
-  & gtk_window_set_default_size, gtk_window_set_title, &
-  & TRUE, FALSE, GDK_COLORSPACE_RGB, &
-  & gtk_grid_new, gtk_grid_attach, gtk_button_new_with_label,&
-  & gtk_box_new, gtk_spin_button_new,&
-  & gtk_adjustment_new, gtk_spin_button_get_value, gtk_label_new, &
-  & gtk_expander_new_with_mnemonic, gtk_expander_set_expanded, &
-  & gtk_toggle_button_new_with_label, gtk_toggle_button_get_active, gtk_notebook_new,&
-  & gtk_notebook_append_page, gtk_text_view_new, gtk_text_view_get_buffer, &
-  & gtk_text_buffer_set_text, gtk_scrolled_window_new, &
-  & gtk_text_buffer_get_end_iter, &
-  & gtk_text_buffer_insert_at_cursor, gtk_statusbar_new, &
-  & gtk_statusbar_push, gtk_statusbar_pop, gtk_statusbar_get_context_id, &
-  & gtk_button_new_with_mnemonic, gtk_link_button_new_with_label, &
-  & gtk_toggle_button_new_with_mnemonic, gtk_label_new_with_mnemonic, &
-  & gtk_window_set_mnemonics_visible, gtk_combo_box_text_new, &
-  & gtk_combo_box_text_append_text, gtk_combo_box_text_get_active_text, &
-  & gtk_combo_box_text_insert_text, gtk_spin_button_set_value, gtk_spin_button_update,&
-  & GTK_ORIENTATION_VERTICAL, gtk_grid_set_column_homogeneous, &
-  & gtk_grid_set_row_homogeneous, gtk_statusbar_remove_all, &
-  & gtk_widget_set_vexpand, gtk_entry_get_text_length, &
-  & gtk_entry_get_buffer, gtk_entry_buffer_get_text, &
-  & gtk_text_tag_new, gtk_entry_buffer_set_text, &
-  & gtk_text_tag_table_new, gtk_text_buffer_insert_markup, &
-  & gtk_text_buffer_apply_tag, gtk_text_view_scroll_to_mark, &
-  & gtk_widget_get_display, gtk_css_provider_new, &
-  & gtk_toggle_button_get_active, gtk_statusbar_get_context_id, &
-  & gtk_style_context_add_provider_for_display, gtk_css_provider_load_from_data, &
-  & gtk_application_window_set_show_menubar, gtk_window_maximize, gtk_window_unmaximize, &
-  & gtk_application_set_menubar, gtk_widget_set_name, gtk_window_present
-
+  use gtk
 
   use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
   & g_object_set_property, g_value_set_interned_string, g_variant_new_boolean, &
@@ -82,7 +46,7 @@ module zoamenubar
 ! interface zoamenubar
 !     module procedure :: zoamenubar_constructor
 ! end interface zoamenubar
-
+    character(len=100), target :: newLensCmd = "LEN NEW" 
 
 contains
 
@@ -126,7 +90,7 @@ contains
     character(len=100), target :: macroCmd = "MACROUI"
     character(len=100), target :: zernFldCmd = "ZERN_TST; GO"
     character(len=100), target :: opdPltCmd = "PMA; GO"    
-    character(len=100), target :: newLensCmd = "LEN NEW" 
+    
     character(len=100), target :: fanCmd = "RIM;GO"    
 
 
@@ -456,11 +420,14 @@ contains
   !addNewMenuItemThatExecutesCommand(topLevelMenu, menuitemText, menuItemEvenName, arrayOfCommands)
   subroutine genericMenuCommandCallback(act, param, gdata) bind(c)
     use gtk_sup
-
+    implicit none
     type(c_ptr), value, intent(in) :: act, param, gdata
     character(len=80) :: fstring
 
     call C_F_string_ptr(gdata, fstring)
+
+    call LogTermDebug("CMD To process is "//trim(fstring))
+    print *, "CMD TO Process is "//trim(fstring)
 
     CALL PROCESKDP(fstring)
 
@@ -483,6 +450,22 @@ contains
     !PRINT *, "menuItemEventName is ", menuItemEventName
     menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
     call g_menu_append_item (topLevelMenu, menuItem)
+
+  end subroutine
+
+  subroutine addCommandIconMenuItem(widget, singleCommand)
+    implicit none
+    type(c_ptr) :: widget
+    character(len=*), target, intent(in) :: singleCommand
+    character(len=len(singleCommand)), pointer :: ptr
+
+    PRINT *, "Single Command is"//singleCommand
+    call LogTermDebug("Supposed to execute "//singleCommand)    
+    ptr =>singleCommand
+
+
+    call g_signal_connect(widget, 'clicked'//c_null_char, &
+    & c_funloc(genericMenuCommandCallback), c_loc(ptr))
 
   end subroutine
 
@@ -601,6 +584,98 @@ function ui_open_file(parent_window, filename, cdir, startFileDir, iptFilter, ip
   end if
 
 end function
+
+subroutine iconMenu_callback(widget, event, cairo_drawing_area) bind(c)
+  implicit none
+  type(c_ptr), value :: widget, event, cairo_drawing_area
+  type(c_ptr) :: cstr
+  character(len=1084) :: cmdToUpdate
+
+  call LogTermDebug("Testing Callback!")
+  cstr = gtk_widget_get_name(widget)
+  call convert_c_string(cstr, cmdToUpdate)
+  call LogTermDebug("should be processing "//trim(cmdToUpdate))
+  call PROCESKDP(trim(cmdToUpdate))
+ 
+
+end subroutine
+
+function createMenuIconBar() result(boxIcon)
+  use gdk
+
+  implicit none
+
+  type(c_ptr) :: controller_c
+  type(c_ptr) :: boxIcon ! Output
+  type(c_ptr), dimension(4) :: btns
+  integer :: i
+  character(len=100), target :: tstCmd = "LEN NEW" 
+  character(len=len(newLensCmd)), pointer :: ptr
+
+  ptr =>tstCmd
+
+
+  boxIcon = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0_c_int);
+ 
+
+
+  ! Adding icons
+  ! I used iconoir.com to find icons and download svg files
+  ! converted them using magick from command line (eg magick zoom-out.svg zoom-out.png)
+  ! Copy to /data folder
+  ! add file to gresource.xml 
+
+
+  ! Buttons
+  ! Reset
+  ! Refresh
+  ! Zoom In
+  ! Zoom Out
+  ! Move
+
+ ! btns(1) = gtk_button_new_from_icon_name ("window-restore-symbolic"//c_null_char)
+  btns(1) = gtk_button_new_from_icon_name ("new-document"//c_null_char)
+  btns(2) = gtk_button_new_from_icon_name ("open-document"//c_null_char)
+  btns(3) = gtk_button_new_from_icon_name ("file-save"//c_null_char)
+  btns(4) = gtk_button_new_from_icon_name ("open-ldm"//c_null_char)
+
+
+  call gtk_widget_set_tooltip_text(btns(1), "New Lens"//c_null_char)
+  call gtk_widget_set_tooltip_text(btns(2), "Open Zoa File"//c_null_char)
+  call gtk_widget_set_tooltip_text(btns(3), "Save"//c_null_char)
+  call gtk_widget_set_tooltip_text(btns(4), "Lens Editor"//c_null_char)
+
+  do i=1,size(btns)
+      call gtk_widget_set_valign(btns(i), GTK_ALIGN_START)
+      call gtk_button_set_has_frame (btns(i), FALSE)
+      call gtk_widget_set_focus_on_click (btns(i), FALSE)
+      call hl_gtk_box_pack (boxIcon, btns(i))
+      call gtk_widget_set_has_tooltip(btns(i), 1_c_int)
+
+  end do
+  call gtk_widget_set_vexpand(boxIcon, 0_c_int)
+  ! table = gtk_grid_new ()
+  ! call gtk_grid_set_column_homogeneous(table, TRUE)
+  ! call gtk_grid_set_row_homogeneous(table, TRUE)
+
+  ! do i=1,size(btns)
+  !   call gtk_grid_attach(table, btns(i), 0_c_int, (i-1)*1_c_int, 1_c_int, 1_c_int)
+  ! end do
+
+  ! call gtk_box_append(boxIcon, table)
+
+  !For reasons I don't understand, I could not pass a string to the callback for the clicked action
+  !I eventually gave up and decided to just use the widget name to pass the info.
+  call gtk_widget_set_name(btns(1), newLensCmd//c_null_char)
+  call gtk_widget_set_name(btns(4), "EDIT"//c_null_char)
+
+  call g_signal_connect(btns(1), 'clicked'//c_null_char,  &
+  & c_funloc(iconMenu_callback), c_null_ptr)
+  call g_signal_connect(btns(4), 'clicked'//c_null_char,  &
+  & c_funloc(iconMenu_callback), c_null_ptr)
+  
+end function
+
 
 
 end module zoamenubar

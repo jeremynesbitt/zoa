@@ -6,6 +6,11 @@
     <file>ruler-arrows.png</file> 
     <file>xmark.png</file> 
     <file>axes.png</file> 
+    <file>new-document.png</file> 
+    <file>open-document.png</file> 
+    <file>file-save.png</file> 
+    <file>open-ldm.png</file> 
+
   </gresource>
   <gresource prefix="zoa/optical-analysis">
     <file>zoa.css</file>  

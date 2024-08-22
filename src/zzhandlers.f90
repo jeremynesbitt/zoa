@@ -279,6 +279,7 @@ contains
     use zoamenubar
     use hl_gtk_zoa
     use zoa_status_bar
+    use gdk
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -294,7 +295,7 @@ contains
       & menu_item_red, menu_item_green, &
       & menu_item_blue, menu_item_quit, menu_item_fullscreen
     logical :: tstResult
-  type(c_ptr) :: quit_action
+  type(c_ptr) :: quit_action, theme
 
 
 
@@ -357,6 +358,7 @@ contains
     ! We create a vertical box container:
     box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int)
     call gtk_box_append(box1, table)
+    call gtk_box_append(box1, createMenuIconBar())
 
 
     PRINT *, "Create Notebook Object"
@@ -475,6 +477,9 @@ contains
     call refreshLensDataStruct()
 
     PRINT *, "DONE WITH INITKDP!"
+
+    theme = gtk_icon_theme_get_for_display(gdk_display_get_default())
+    call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysisicons"//c_null_char)
 
 
   end subroutine activate
