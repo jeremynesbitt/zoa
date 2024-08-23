@@ -64,7 +64,8 @@ browser_open_url (const char  *url)
 const gchar *
 get_macos_bundle_dir()
 {
-
+    gchar              nullStr[] = "null";
+    gchar             *nullResult = nullStr ;
     
 #ifdef MACOS    
     NSAutoreleasePool *pool;
@@ -72,8 +73,7 @@ get_macos_bundle_dir()
     gchar             *basename;
     gchar             *basepath;
     gchar             *dirname;
-    gchar           nullStr[] = "null";
-    gchar             *nullResult = nullStr ;
+
             
 
     pool = [[NSAutoreleasePool alloc] init];
