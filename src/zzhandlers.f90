@@ -166,7 +166,6 @@ contains
 
 
       txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
-      PRINT *, "UPDATE TERMINAL LOG TEXTVIEW IS ", ioConfig%textView
       call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
 
     if (ftext.ne."  ") THEN
