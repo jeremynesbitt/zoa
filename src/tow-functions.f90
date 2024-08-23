@@ -92,7 +92,6 @@ subroutine tow_go(psm, cmdTOW)
     
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     ! TODO:  This does not support mutiple windows.  Need to fix this after initial testing
-    call LogTermDebug("About to process"//cmdTOW)
     CALL PROCESKDP(cmdTOW)
     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 

@@ -112,6 +112,7 @@ contains
     call addCommandMenuItem(menu, "New Lens", &
     & "NewLens", newLensCmd, win)    
     call addFuncMenuItem(menu, "Open .zoa File", "OpenZoa", c_funloc(open_zoa), win)
+    call addFuncMenuItem(menu, "Save .zoa File", "SaveZoa", c_funloc(save_zoa), win)
 
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
     call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
@@ -377,7 +378,7 @@ contains
     character(len=256) :: line
 
 
-    fileSelected = ui_open_file(win, fileName, cdir, trim(getProjectDir()), "*.zoa", "Zoa FIle")
+    fileSelected = ui_open_file(win, fileName, cdir, trim(getProjectDir()), "*.zoa", "Zoa File")
 
     if (fileSelected) then
 
@@ -410,6 +411,35 @@ contains
   end subroutine  
 
 
+  subroutine save_zoa(act, avalue, win) bind(c)
+    use zoa_file_handler
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    character(len=1024) :: currDir
+    logical :: fileSelected
+
+    integer :: n, ios
+    character(len=256) :: line
+
+
+    fileSelected = ui_new_file(win, fileName, cdir, trim(getProjectDir()), "*.zoa", "Zoa File")
+
+    if (fileSelected) then
+
+     PRINT *, "fileName is ", trim(getFileNameFromPath(fileName))
+     PRINT *, "fileDirectory is is ", trim(cdir)
+
+     currDir = getSaveDirectory()
+     call setSaveDirectory(trim(cdir))
+
+     call PROCESKDP('SAV '//trim(getFileNameFromPath(fileName)))
+
+     call setSaveDirectory(trim(currDir))
+    end if
+
+  end subroutine 
+
   subroutine quit_activated (act, param, win) bind(c)
     type(c_ptr), value, intent(in) :: act, param, win
 
@@ -425,9 +455,6 @@ contains
     character(len=80) :: fstring
 
     call C_F_string_ptr(gdata, fstring)
-
-    call LogTermDebug("CMD To process is "//trim(fstring))
-    print *, "CMD TO Process is "//trim(fstring)
 
     CALL PROCESKDP(fstring)
 
@@ -459,8 +486,6 @@ contains
     character(len=*), target, intent(in) :: singleCommand
     character(len=len(singleCommand)), pointer :: ptr
 
-    PRINT *, "Single Command is"//singleCommand
-    call LogTermDebug("Supposed to execute "//singleCommand)    
     ptr =>singleCommand
 
 
@@ -536,6 +561,56 @@ contains
   end subroutine open_file
 
 
+  function ui_new_file(parent_window, filename, cdir, startFileDir, iptFilter, iptFilterName) result(fileSelected)
+    use iso_c_binding
+    use gtk_hl_chooser
+    use zoa_file_handler, only : getCodeVDir
+    implicit none
+    type(c_ptr), value, intent(in) :: parent_window
+    character(len=*), intent(inout) :: filename
+    character(len=*), intent(inout) :: cdir
+    character(len=*), intent(in) :: startFileDir
+    character(len=*), intent(in) :: iptFilter
+    character(len=*), intent(in) :: iptFilterName
+  
+    logical :: fileSelected
+  
+    integer(kind=c_int) :: isel
+    character(len=120), dimension(:), allocatable :: chfile
+    character(len=30), dimension(2) :: filters
+    character(len=30), dimension(2) :: filtnames
+    character(len=200) :: inln
+    integer :: ios
+    integer :: idxs
+  
+    filters(1) = iptFilter
+    filters(2) = "*.txt"
+    filtnames(1) = iptFilterName
+    filtnames(2) = ".txt File"
+    ! filters(1) = "*.seq"
+    ! filters(2) = "*.txt"
+    ! filtnames(1) = "CodeV .seq File"
+    ! filtnames(2) = ".txt File"  
+    fileSelected = .TRUE.
+  
+    isel = hl_gtk_file_chooser_show(chfile, cdir=cdir, create=TRUE,&
+         & title="Select input file"//c_null_char, filter=filters, &
+         & filter_name=filtnames, wsize=(/ 600_c_int, 400_c_int /), &
+         & edit_filters=TRUE, initial_dir=startFileDir, &
+         & parent=parent_window, all=TRUE)
+    print *, "isel = hl_gtk_file_chooser_show=", isel
+    if (isel == FALSE) then
+      fileSelected = .FALSE.
+      return
+    else   ! No selection made
+  
+      filename = chfile(1)
+      deallocate(chfile)
+    end if
+  
+  end function
+
+
 function ui_open_file(parent_window, filename, cdir, startFileDir, iptFilter, iptFilterName) result(fileSelected)
   use iso_c_binding
   use gtk_hl_chooser
@@ -591,20 +666,18 @@ subroutine iconMenu_callback(widget, event, cairo_drawing_area) bind(c)
   type(c_ptr) :: cstr
   character(len=1084) :: cmdToUpdate
 
-  call LogTermDebug("Testing Callback!")
   cstr = gtk_widget_get_name(widget)
   call convert_c_string(cstr, cmdToUpdate)
-  call LogTermDebug("should be processing "//trim(cmdToUpdate))
   call PROCESKDP(trim(cmdToUpdate))
  
 
 end subroutine
 
-function createMenuIconBar() result(boxIcon)
+function createMenuIconBar(parentWin) result(boxIcon)
   use gdk
 
   implicit none
-
+  type(c_ptr), intent(in) :: parentWin
   type(c_ptr) :: controller_c
   type(c_ptr) :: boxIcon ! Output
   type(c_ptr), dimension(4) :: btns
@@ -671,6 +744,10 @@ function createMenuIconBar() result(boxIcon)
 
   call g_signal_connect(btns(1), 'clicked'//c_null_char,  &
   & c_funloc(iconMenu_callback), c_null_ptr)
+  call g_signal_connect(btns(2), 'clicked'//c_null_char,  &
+  & c_funloc(open_zoa), parentWin)
+  call g_signal_connect(btns(3), 'clicked'//c_null_char,  &
+  & c_funloc(save_zoa), parentWin)  
   call g_signal_connect(btns(4), 'clicked'//c_null_char,  &
   & c_funloc(iconMenu_callback), c_null_ptr)
   

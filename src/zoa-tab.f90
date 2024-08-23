@@ -623,7 +623,7 @@ subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canva
 
   self%datanotebook = gtk_notebook_new()
   call gtk_notebook_set_tab_pos(self%dataNotebook, GTK_POS_BOTTOM)
-  call LogTermDebug("DOne with Plot Data Tab Init!")
+
 
   !Create objects for data tab
 
@@ -1340,7 +1340,7 @@ function textView_context_menu(controller, keyval, keycode, state, gdata) result
     integer(c_int) :: key_q
 
     ret = .TRUE.
-    call LogTermDebug("Key Press Event Detected!")
+
 
 end function
 

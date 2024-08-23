@@ -1426,7 +1426,7 @@ module codeV_commands
 
     subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
-
+        use strings
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
@@ -1436,22 +1436,27 @@ module codeV_commands
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=256) :: fName
+        character(len=1024) :: dirName
         character(len=80) :: tokens(40)
         integer :: numTokens, locDot, fID
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        dirName = ''
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
         call LogTermFOR("Number of tokens is "//int2str(numTokens))
-        if (numTokens > 1 ) then
+        select case(numTokens)
+        case (1) ! No file given save as default file name/dir
+           fName = 'default.zoa'
+        case (2) ! Check for extension and add if needed 
             fName = trim(tokens(2))
             locDot = INDEX(fName, '.')
             if (locDot == 0) then
                 fName = trim(fName)//'.zoa'
             end if
-            call LogTermFOR("File name to save is "//trim(fName))
-        else
-            fName = 'default.zoa'
-
-        end if
+            call updateTerminalLog("File name to save is "//trim(fName), "black")
+        end select
+        
         fID = open_file_to_sav_lens(fName)
         if (fID /= 0) then
          

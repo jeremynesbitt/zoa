@@ -358,7 +358,7 @@ contains
     ! We create a vertical box container:
     box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5_c_int)
     call gtk_box_append(box1, table)
-    call gtk_box_append(box1, createMenuIconBar())
+    call gtk_box_append(box1, createMenuIconBar(my_window))
 
 
     PRINT *, "Create Notebook Object"
@@ -461,7 +461,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    call gtk_window_set_interactive_debugging(FALSE)
     call populatezoamenubar(my_window)
 
 

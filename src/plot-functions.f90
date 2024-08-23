@@ -280,11 +280,8 @@ subroutine spo_go(psm)
     ! Hopefully temporary 
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     
-    call LogTermDebug("Confirm before spot data written")
-    print *, "Now look for active plot ptr"
-    
+
     call PROCESKDP(trim(getKDPSpotPlotCommand(iField, iLambda, iMethod, nRect, nRand, nRing)))
-    call LogTermDebug("Confirm after spot data written")
     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
     ! Prep PLot

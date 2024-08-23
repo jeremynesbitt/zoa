@@ -9,6 +9,8 @@ module zoa_file_handler
 
       character(len=1024) :: codevdir
       character(len=1024) :: savresDir
+      character(len=1024) :: currSaveDir
+
       integer :: ID_SYSTEM = -1000
       integer, parameter :: ID_OS_WINDOWS = 3
       integer, parameter :: ID_OS_MAC = 1
@@ -21,7 +23,7 @@ module zoa_file_handler
         type(c_ptr) :: get_macos_bundle_dir
         !character(kind=c_char), dimension(*) :: file_name
       end function
-    
+ 
       
       function browser_open_url (url) bind(c)
         import :: c_int, c_char
@@ -162,6 +164,8 @@ module zoa_file_handler
         codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
         savresDir = trim(path)//getFileSep()//'Projects'//getFileSep()
 
+        currSaveDir = savresDir
+
         !PRINT *, "Set ID_SYSTEM in getZoaPath to ", ID_SYSTEM
 
         end function
@@ -186,19 +190,28 @@ module zoa_file_handler
         end function
 
 
-        function open_file_to_sav_lens(fName) result(fID)
+        function open_file_to_sav_lens(fName, dirName) result(fID)
           use gtk_hl_dialog
           use iso_c_binding, only:  c_null_char
           implicit none
           character(len=*) :: fName
+          character(len=*), optional :: dirName
+
           integer :: fID, stat, resp
           character(len=80), dimension(2) :: msg
+          character(len=2048) :: fullPath
 
           fID = 1111
           ! This is to be stored in the savresDir
+          if (present(dirName)) then
+            fullPath = dirName//getFileSep()//fName
+          else
+            fullPath = trim(getSaveDirectory())//fName
+          end if
 
+          call LogTermFOR('FUll Path is '//trim(fullPath))
           ! First check if file exists
-          if (doesFileExist(trim(savResDir)//fName)) then
+          if (doesFileExist(trim(fullPath))) then
             ! Ask user if they want to overwrite
             msg(1) = "Do you want to overwrite" 
             msg(2) = fName//" ?" 
@@ -207,14 +220,14 @@ module zoa_file_handler
             & "Warning"//c_null_char)    
             if (resp == GTK_RESPONSE_YES) then  
               call LogTermFOR("Clearing file")  
-              call delete_file(trim(savResDir)//fName)
+              call delete_file(trim(fullPath))
             else
               call LogTermFOR("Save cancelled to avoid overwriting previous file.")
             end if            
           end if
           
           
-          open(unit=fID, iostat=stat, file=trim(savResDir)//fName, &
+          open(unit=fID, iostat=stat, file=trim(fullPath), &
           & status='new', action="write")
           if (stat /= 0) fID=0 ! Error
           
@@ -435,6 +448,35 @@ function getProjectDir() result(res)
 
 
 end function
+
+function addFileSepIfNeeded(filePath) result(adjFilePath)
+  character(len=*) :: filePath
+  character(len=len(filePath)+1) :: adjFilePath
+  integer :: k
+
+  adjFilePath = filePath
+  k = len(filePath)
+  if (filePath(k:k) /= getFileSep()) then
+     adjFilePath = filePath//getFileSep()
+  end if
+
+
+end function
+
+subroutine setSaveDirectory(saveDir) 
+  character(len=*) :: saveDir
+  
+  currSaveDir = trim(addFileSepIfNeeded(saveDir))
+  
+end subroutine
+
+function getSaveDirectory() result(saveDir)
+  character(len=1024) :: saveDir
+
+  saveDir = currSaveDir
+  
+end function
+
 
 function getFileNameFromPath(fileName) result(res)
   implicit none
