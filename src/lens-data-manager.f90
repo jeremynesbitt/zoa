@@ -14,6 +14,9 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getLastSurf
      procedure, public, pass(self) :: getEFL
      procedure, public, pass(self) :: getTrackLength
+     procedure :: getCurrentConfig
+     procedure :: getSurfName
+     procedure :: getStopSurf
 
 
 
@@ -23,6 +26,35 @@ module mod_lens_data_manager
     type(lens_data_manager) :: ldm
 
     contains
+
+    function getStopSurf(self) result(iStop)
+        class(lens_data_manager) :: self
+        integer :: iStop
+
+        iStop = curr_lens_data%ref_stop
+
+
+    end function
+
+    function getSurfName(self, idx) result(strName)
+        class(lens_data_manager) :: self
+        character(len=3) :: strName
+
+        write(strName, '(I0.3)')  idx
+        ! Handle Special surfaces
+        if (idx==0) strName = 'OBJ'
+        if (idx==self%getStopSurf()) strName = 'STO'
+        if (idx==self%getLastSurf()) strName = 'IMG'
+
+    end function
+
+    function getCurrentConfig(self) result(cfg)
+        class(lens_data_manager) :: self
+        integer :: cfg
+
+        cfg = 1 ! TODO:  Update when configs are fully supported
+
+    end function
 
     function getLastSurf(self) result(Sf)
         class(lens_data_manager) :: self

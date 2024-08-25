@@ -402,9 +402,13 @@ subroutine seidel_go(psm)
     character(len=23) :: cmdTxt
 
     call initializeGoPlot(psm,ID_PLOTTYPE_SEIDEL, "Seidel Aberrations", replot, objIdx)
-    
+
+
+
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-    CALL PROCESKDP('MAB3 ALL')
+    call PROCESKDP("MAB3 ALL")
+  
+    call MMAB3_NEW(TRUE, psm%getWavelengthSetting())
     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     
     allocate(seidel(nS,curr_lens_data%num_surfaces+1))

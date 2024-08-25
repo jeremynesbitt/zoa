@@ -202,6 +202,7 @@ module kdp_utils
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64
     use type_utils, only: blankStr
+    use mod_lens_data_manager
     
     implicit none
 
@@ -213,10 +214,16 @@ module kdp_utils
     character(len=1024) :: lineStr
     character(len=230) :: entryStr
 
+    integer :: numDataChars = 9 ! Linked to format which is hard coded below
+    integer :: dataSpacing = 1
+    integer :: headerSpacing 
+
+    headerSpacing =  numDataChars-2*len(trim(colHeaders(1)))+1
     ! Print header
-    lineStr = 'Surface'
-    do i=1,size(colHeaders)
-        lineStr = trim(lineStr)//'     '//colHeaders(i)
+    lineStr = 'SRF'//blankStr(dataSpacing)//blankStr(headerSpacing)//colHeaders(1)
+    do i=2,size(colHeaders)
+        lineStr = trim(lineStr)//blankStr(dataSpacing)//blankStr(2*headerSpacing-&
+        & len(trim(colHeaders(i-1)))+1)//colHeaders(i)
     end do
     call OUTKDP(trim(lineStr))
     
@@ -235,7 +242,8 @@ module kdp_utils
 
     do i=sStart,sEnd
     !do i=0,curr_lens_data%num_surfaces   
-        write(entryStr, '(I0.3)')  i
+        entryStr = ldm%getSurfName(i)
+        !write(entryStr, '(I0.3)')  i
         lineStr = trim(adjustl(entryStr))
         if (i == curr_lens_data%num_surfaces) then
             if (present(extraRowName)) then
@@ -246,13 +254,15 @@ module kdp_utils
         end if
             
         do j=1,size(colHeaders)
-            write(entryStr, '(F12.5)') dataArray(j,i+1) ! Surface starts at 0, passed array starts at 1?
+            write(entryStr, '(F9.5)') dataArray(j,i+1) ! Surface starts at 0, passed array starts at 1?
+            PRINT *, "length of entryStry is ", len(trim(entryStr))
             if (dataArray(j,i+1) > 0.0) then
               !lineStr = trim(lineStr)//'    '//trim(entryStr)
-              lineStr = trim(lineStr)//blankStr(6)//trim(entryStr)
+              lineStr = trim(lineStr)//blankStr(dataSpacing)//trim(entryStr)
             else
-              lineStr = trim(lineStr)//'    '//' '//trim(entryStr)
+              lineStr = trim(lineStr)//blankStr(dataSpacing)//trim(entryStr)
             end if
+            PRINT *, "lineStr is "//trim(lineStr)
         end do
         call OUTKDP(trim(lineStr))
     end do

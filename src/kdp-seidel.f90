@@ -1,11 +1,13 @@
 ! SUB MMAB3.FOR
-subroutine MMAB3_NEW(YFLAG)
+subroutine MMAB3_NEW(YFLAG, idxWV)
             use global_widgets, only:  curr_lens_data, curr_par_ray_trace
             use iso_fortran_env, only: real64
             use parax_calcs, only: calcInvariant
             use seidel_calcs, only: calcSeidelTerms
             use kdp_utils
             use command_utils
+            use type_utils
+            use mod_lens_data_manager
     
             IMPLICIT NONE
     
@@ -15,6 +17,7 @@ subroutine MMAB3_NEW(YFLAG)
     
             INTEGER I
             logical :: YFLAG
+            integer, intent(in) :: idxWV
 
             real(kind=real64), allocatable, dimension(:,:) :: CS, CXS
     
@@ -51,19 +54,19 @@ subroutine MMAB3_NEW(YFLAG)
               RETURN
             END IF
 
-            colHeaders(1) = "Spherical"
-            colHeaders(2) = "Coma"
-            colHeaders(3) = "Astigmatism"
-            colHeaders(4) = "Distortion"
-            colHeaders(5) = "Field Curvature"
-            colHeaders(6) = "Axial Chromatic"
-            colHeaders(7) = "Lateral Chromatic"
+            colHeaders(1) = "SA3"
+            colHeaders(2) = "CMA3"
+            colHeaders(3) = "AST3"
+            colHeaders(4) = "DIS3"
+            colHeaders(5) = "PTZ3"
+            colHeaders(6) = "AC3"
+            colHeaders(7) = "LC3"
 
 
 
             INV = calcInvariant()  
 
-            PRINT *, "Invariant is ", INV
+            !PRINT *, "Invariant is ", INV
 
             call calcSeidelTerms(INV)
             ! CS(:,:)
@@ -71,25 +74,23 @@ subroutine MMAB3_NEW(YFLAG)
             ! col 2 = Y-Z at each surface
             ! CXS is same as C but X-Z plane
 
+            call OUTKDP(trim(sysConfig%lensTitle))
+            call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "// &
+            & trim(real2str(1000.0*sysConfig%getWavelength(idxWV),1)) //" nm")
 
-            if(YFLAG) then
-                call OUTKDP("Y-Z Plane Seidel Aberrations")
-            else
-                call OUTKDP("X-Z Plane Seidel Aberrations")
-            end if   
-5002   FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')            
-5501   FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
-5502   FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
-5503   FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
-5504   FORMAT('ANGULAR - WITHOUT FINAL SURFACE CONVERSION')
+! 5002   FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')            
+! 5501   FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
+! 5502   FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
+! 5503   FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
+! 5504   FORMAT('ANGULAR - WITHOUT FINAL SURFACE CONVERSION')
                         
-            WRITE(OUTLYNE,5002) INT(F12)
-            CALL SHOWIT(0)
-            IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-            IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-            IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-            IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
-            CALL SHOWIT(0)
+!             WRITE(OUTLYNE,5002) INT(F12)
+!             CALL SHOWIT(0)
+!             IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
+!             IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
+!             IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
+!             IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+!             CALL SHOWIT(0)
             !WRITE(OUTLYNE,2501)
             !CALL SHOWIT(0)
             !WRITE(OUTLYNE,5000)
@@ -99,9 +100,9 @@ subroutine MMAB3_NEW(YFLAG)
 
 
             if(YFLAG) then
-              call logDataVsSurface(curr_par_ray_trace%CSeidel, colHeaders, 'Sum')
+              call logDataVsSurface(curr_par_ray_trace%CSeidel, colHeaders, 'SUM')
             else
-              call logDataVsSurface(curr_par_ray_trace%CXSeidel, colHeaders)
+              call logDataVsSurface(curr_par_ray_trace%CXSeidel, colHeaders, 'SUM')
             end if
              end if
             
@@ -118,13 +119,23 @@ subroutine MMAB3_NEW(YFLAG)
                  RETURN
                 END IF
 
-            if(YFLAG) then
-                call logDataVsSurface(curr_par_ray_trace%CSeidel, colHeaders, singleSurface=INT(W1))
+            !TODO:  CLean this up.  Perhaps make Seidel 3 dims to avoid this mess?    
+            if(sysConfig%numWavelengths == 1) then
+               if(YFLAG) then   
+                call logDataVsSurface(curr_par_ray_trace%CSeidel(1:5,:), colHeaders(1:5), singleSurface=INT(W1))
+               else
+                call logDataVsSurface(curr_par_ray_trace%CXSeidel(1:5,:), colHeaders(1:5), singleSurface=INT(W1))
+               end if
             else
-                call logDataVsSurface(curr_par_ray_trace%CXSeidel, colHeaders, singleSurface=INT(W1))
-            end if
+
+              if(YFLAG) then
+                  call logDataVsSurface(curr_par_ray_trace%CSeidel, colHeaders, singleSurface=INT(W1))
+              else
+                  call logDataVsSurface(curr_par_ray_trace%CXSeidel, colHeaders, singleSurface=INT(W1))
+              end if
             
-            END IF
+            end if
+          END IF
 
      
 

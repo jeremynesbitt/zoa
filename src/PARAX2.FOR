@@ -3026,32 +3026,31 @@ C       MODE IS AFOCAL
                         END IF
                 IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
                         SF=INT(SYSTEM(20))
-        IF(WC.EQ.'MAB3') WRITE(OUTLYNE,5001)
-        IF(WC.EQ.'XMAB3') WRITE(OUTLYNE,6001)
-        CALL SHOWIT(0)
-                        WRITE(OUTLYNE,5002) INT(F12)
-        CALL SHOWIT(0)
-        IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-        IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-        IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-        IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
-        CALL SHOWIT(0)
-                        WRITE(OUTLYNE,2501)
-        CALL SHOWIT(0)
-                        WRITE(OUTLYNE,5000)
-        CALL SHOWIT(0)
+        ! Comment out table output since it is repalced by THO
+
+        !IF(WC.EQ.'MAB3') WRITE(OUTLYNE,5001)
+        !IF(WC.EQ.'XMAB3') WRITE(OUTLYNE,6001)
+        !CALL SHOWIT(0)
+        !WRITE(OUTLYNE,5002) INT(F12)
+        !CALL SHOWIT(0)
+        !IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
+        !IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
+        !IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
+        !IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+        !CALL SHOWIT(0)
+        !                WRITE(OUTLYNE,2501)
+        !CALL SHOWIT(0)
+        !                WRITE(OUTLYNE,5000)
+        !CALL SHOWIT(0)
                         DO 10 I=0,SF
         IF(SYSTEM(30).EQ.1.0.OR.
      1          SYSTEM(30).EQ.3.0) THEN
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
-                PRINT *, "MAB3(1,I) is ", MAB3(1,I)
-                PRINT *, "INV is ", INV
-                PRINT *, "C1 is ", C1
-                !C2=(3.0D0*MAB3(2,I))/INV
+                C2=(3.0D0*MAB3(2,I))/INV
                 !JN Remove factor of 3 for sagittal coma
-                C2=MAB3(2,I)/INV 
+                !C2=MAB3(2,I)/INV 
                 C3=MAB3(3,I)/INV
                 C4=MAB3(4,I)/INV
                 C5=MAB3(5,I)/INV
@@ -3065,8 +3064,8 @@ C               FOCAL OR AFOCAL, CONVERT
                 C5=XMAB3(5,I)/INV
                         ELSE
                         END IF
-        WRITE(OUTLYNE,2000)I,C1,C2,C3,C4,C5
-        CALL SHOWIT(0)
+        !WRITE(OUTLYNE,2000)I,C1,C2,C3,C4,C5
+        !CALL SHOWIT(0)
                         GO TO 10
                         ELSE
                         END IF
@@ -3075,9 +3074,9 @@ C               FOCAL OR AFOCAL, CONVERT
 C               UFOCAL OR UAFOCAL, DON'T CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)
-                !C2=3.0D0*MAB3(2,I)
+                C2=3.0D0*MAB3(2,I)
                 !JN remove factor of 3
-                C2=MAB3(2,I)
+                !C2=MAB3(2,I)
                 C3=MAB3(3,I)
                 C4=MAB3(4,I)
                 C5=MAB3(5,I)
@@ -3091,8 +3090,8 @@ C               UFOCAL OR UAFOCAL, DON'T CONVERT
                 C5=XMAB3(5,I)
                         ELSE
                         END IF
-        WRITE(OUTLYNE,2000)I,C1,C2,C3,C4,C5
-        CALL SHOWIT(0)
+        !WRITE(OUTLYNE,2000)I,C1,C2,C3,C4,C5
+        !CALL SHOWIT(0)
                         ELSE
                         END IF
  10                     CONTINUE
@@ -3152,15 +3151,15 @@ C       NO CONVERSION REQUIRED
                         END IF
 C       PRINT TOTALS WITH LABELING
  25       CONTINUE
-        WRITE(OUTLYNE,998)
-        CALL SHOWIT(0)
+        !WRITE(OUTLYNE,998)
+        !CALL SHOWIT(0)
                 C1=C1T
                 C2=C2T
                 C3=C3T
                 C4=C4T
                 C5=C5T
-        WRITE(OUTLYNE,2001) C1,C2,C3,C4,C5
-        CALL SHOWIT(0)
+        !WRITE(OUTLYNE,2001) C1,C2,C3,C4,C5
+        !CALL SHOWIT(0)
                         RETURN
                         ELSE
 C       QUALIFIER NOT "ALL"
@@ -3176,9 +3175,9 @@ C       QUALIFIER NOT "ALL"
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,SF)/INV
-                !C2=(3.0D0*MAB3(2,SF))/INV
+                C2=(3.0D0*MAB3(2,SF))/INV
                 !JN remove factor of 3
-                C2=MAB3(2,SF)/INV
+                !C2=MAB3(2,SF)/INV
                 C3=MAB3(3,SF)/INV
                 C4=MAB3(4,SF)/INV
                 C5=MAB3(5,SF)/INV
@@ -3204,9 +3203,9 @@ C               FOCAL OR AFOCAL, CONVERT
 C               UFOCAL OR UAFOCAL, DON'T CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,SF)
-                !C2=3.0D0*MAB3(2,SF)  
+                C2=3.0D0*MAB3(2,SF)  
                 ! JN Remove factor of 3
-                C2=MAB3(2,SF)
+                !C2=MAB3(2,SF)
                 C3=MAB3(3,SF)
                 C4=MAB3(4,SF)
                 C5=MAB3(5,SF)
@@ -3326,9 +3325,9 @@ C
 C               FOCAL OR AFOCAL, CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
-                !C2=(3.0D0*MAB3(2,I))/INV
+                C2=(3.0D0*MAB3(2,I))/INV
                 !JN Remove factor of 3
-                C2=MAB3(2,I)/INV
+                !C2=MAB3(2,I)/INV
                 C3=MAB3(3,I)/INV
                 C4=MAB3(4,I)/INV
                 C5=MAB3(5,I)/INV
@@ -3354,10 +3353,10 @@ C               FOCAL OR AFOCAL, CONVERT
 C               UFOCAL OR UAFOCAL, DON'T CONVERT
         IF(WC.EQ.'MAB3') THEN
                 C1=MAB3(1,I)/INV
-                !C2=(3.0D0*MAB3(2,I))/INV
+                C2=(3.0D0*MAB3(2,I))/INV
                 !JN Remove factor of 3
 
-                C2=MAB3(2,I)/INV
+                !C2=MAB3(2,I)/INV
                 C3=MAB3(3,I)/INV
                 C4=MAB3(4,I)/INV
                 C5=MAB3(5,I)/INV

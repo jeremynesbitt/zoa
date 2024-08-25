@@ -180,6 +180,8 @@ C
             implicit none
             character(len=*) :: newTxt
             call updateTerminalLog(newTxt, "red")
+            ! Also PRint
+            PRINT *, newTxt
 
         end subroutine
 
