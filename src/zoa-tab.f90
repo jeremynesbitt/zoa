@@ -1221,8 +1221,9 @@ end subroutine
    location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
    call gtk_notebook_set_current_page(self%notebook, location)
 
+   ! THis is to fix the tab length to label + close button vs extending across the entire window
+   call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
 
-   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
 
 
 
@@ -1248,8 +1249,7 @@ end subroutine
     self%expander = self%settings%build()
     !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
     call gtk_widget_set_name(self%expander, self%plotCommand)
-    PRINT *, "Expander is ", LOC(self%EXPANDER)
-    PRINT *, "Box ptr is ", LOC(self%box1)
+
 
     if (present(useToolBar)) then
       print *, "UseToolbar here, value ", useToolBar
@@ -1283,6 +1283,9 @@ end subroutine
     !call c_f_string(dcname, dname)
     !PRINT *, "WIDGET NAME IS ", dname
 
+
+   ! THis is to fix the tab length to label + close button vs extending across the entire window
+    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
 
  end subroutine
 
@@ -1411,7 +1414,8 @@ end function
    !call c_f_string(dcname, dname)
    !PRINT *, "WIDGET NAME IS ", dname
 
-
+   ! THis is to fix the tab length to label + close button vs extending across the entire window
+   call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
 
 
 

@@ -571,7 +571,7 @@ subroutine rayaberration_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use global_widgets, only:  sysConfig, curr_ray_fan_data
+    use global_widgets
     use type_utils, only: int2str
     use zoa_ui
     use zoa_plot
@@ -581,11 +581,14 @@ subroutine rayaberration_go(psm)
     use plot_setting_manager
     use gtk, only: gtk_expander_set_expanded
 
+    implicit none
+
     character(len=80) :: ffieldstr
     CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
-    integer :: lambda, fldIdx
+    integer :: lambda, fldIdx, objIdx, numPoints
     
     integer, parameter :: nlevel = 10
+    logical :: replot
 
     type(c_ptr) :: canvas
     !type(zoaPlot3d) :: zp3d 
@@ -593,6 +596,10 @@ subroutine rayaberration_go(psm)
     type(multiplot) :: mplt
     type(zoaplot_setting_manager) :: psm
     REAL, allocatable :: x(:), y(:)
+
+    call initializeGoPlot(psm,ID_PLOTTYPE_RIM, "Ray Aberration Fan", replot, objIdx)
+
+
 
     lambda = psm%getWavelengthSetting()
     fldIdx = psm%getFieldSetting()
@@ -614,8 +621,9 @@ subroutine rayaberration_go(psm)
     !CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
     !x = curr_ray_fan_data%relAper
     !y(1:numPoints,1) = curr_ray_fan_data%xyfan(1:numPoints,1)
-    
+    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     x = curr_ray_fan_data%relAper
     y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
     
@@ -647,7 +655,8 @@ subroutine rayaberration_go(psm)
      call mplt%set(1,1,lineplot)
 
     
-     call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
+     !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
+     call finalizeGoPlot_new(mplt, psm, replot, objIdx)
   
      
     
