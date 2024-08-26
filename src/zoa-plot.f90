@@ -340,7 +340,8 @@ contains
 
         !call plinit()
         !  Divide page into 2x2 plots
-        call plstar(self%m_rows,self%m_cols)
+        !call plstar(self%m_rows,self%m_cols)
+        call plstar(self%m_cols,self%m_rows)
 
         call pl_cmd(PLESC_DEVINIT, cc)
 

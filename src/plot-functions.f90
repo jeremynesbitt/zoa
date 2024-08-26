@@ -439,7 +439,7 @@ subroutine seidel_go(psm)
      & has_alpha=FALSE)
     
     
-     call mplt%initialize(canvas, 1,nS)
+     call mplt%initialize(canvas, nS,1)
     
      do jj=1,nS
       call barGraphs(jj)%initialize(c_null_ptr, real(surfIdx),seidel(jj,:), &
@@ -451,7 +451,7 @@ subroutine seidel_go(psm)
      end do
     
      do ii=1,nS
-      call mplt%set(1,ii,barGraphs(ii))
+      call mplt%set(ii,1,barGraphs(ii))
      end do
     
      call finalizeGoPlot_new(mplt, psm, replot, objIdx)
@@ -524,7 +524,7 @@ subroutine ast_go(psm)
 
     canvas = hl_gtk_drawing_area_new(size=[1200,500], &
     & has_alpha=FALSE)
-  call mplt%initialize(canvas, 3,1)
+  call mplt%initialize(canvas, 1,3)
 
   call lin1%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
   & xlabel='Astigmatism (in)'//c_null_char, &
@@ -558,13 +558,111 @@ CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
 
 
   call mplt%set(1,1,lin1)
-  call mplt%set(2,1,lin2)
-  call mplt%set(3,1,lin3)
+  call mplt%set(1,2,lin2)
+  call mplt%set(1,3,lin3)
 
 
   call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_AST, "Astig, FC, and Distortion")
   
   
+end subroutine
+
+
+subroutine rayaberration_old_go(psm)
+  USE GLOBALS
+  use command_utils
+  use handlers, only: updateTerminalLog
+  use global_widgets
+  use type_utils, only: int2str
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use plot_setting_manager
+  use gtk, only: gtk_expander_set_expanded
+
+  implicit none
+
+  character(len=80) :: ffieldstr
+  CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
+  integer :: lambda, fldIdx, objIdx, numPoints
+  
+  integer, parameter :: nlevel = 10
+  logical :: replot
+
+  type(c_ptr) :: canvas
+  !type(zoaPlot3d) :: zp3d 
+  type(zoaplot) :: lineplot
+  type(multiplot) :: mplt
+  type(zoaplot_setting_manager) :: psm
+  REAL, allocatable :: x(:), y(:)
+
+  call initializeGoPlot(psm,ID_PLOTTYPE_RIM, "Ray Aberration Fan", replot, objIdx)
+
+
+
+  lambda = psm%getWavelengthSetting()
+  fldIdx = psm%getFieldSetting()
+  numPoints = psm%getDensitySetting()
+
+  
+  allocate(x(numPoints))
+  allocate(y(numPoints))
+  
+  ! Set Field
+  WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
+  & , ' ' , sysConfig%relativeFields(1, fldIdx)
+  CALL PROCESKDP(trim(ffieldstr))
+
+  ! Set Fan Input - TODO:  add setting to change fan type
+  write(ffieldstr, FMTFAN) lambda,',',numPoints
+  
+
+  !CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
+  !x = curr_ray_fan_data%relAper
+  !y(1:numPoints,1) = curr_ray_fan_data%xyfan(1:numPoints,1)
+  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+  x = curr_ray_fan_data%relAper
+  y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
+  
+  ! FOB 1
+  ! CALL PROCESKDP("FOB 1")
+  ! CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
+  ! y(1:numPoints,3) = curr_ray_fan_data%xyfan(1:numPoints,1)
+  ! CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+  ! y(1:numPoints,4) = curr_ray_fan_data%xyfan(1:numPoints,2)
+  
+  
+  
+  
+   canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+   & has_alpha=FALSE)
+  
+  
+   call mplt%initialize(canvas, 1,1)
+  
+
+   call lineplot%initialize(c_null_ptr, x,y, &
+   & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
+   & ylabel='Y'//' Error ['// &
+   & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
+   & title='Y '//c_null_char)
+   !PRINT *, "Bar chart color code is ", bar1%dataColorCode
+   
+   
+   call mplt%set(1,1,lineplot)
+
+  
+   !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
+   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+
+   
+  
+
+
 end subroutine
 
 subroutine rayaberration_go(psm)
@@ -589,10 +687,11 @@ subroutine rayaberration_go(psm)
     
     integer, parameter :: nlevel = 10
     logical :: replot
-
+    integer :: i
     type(c_ptr) :: canvas
     !type(zoaPlot3d) :: zp3d 
-    type(zoaplot) :: lineplot
+    type(zoaplot), dimension(sysConfig%numFields) :: lineplot
+    type(zoaplot), dimension(sysConfig%numFields) :: sagplots
     type(multiplot) :: mplt
     type(zoaplot_setting_manager) :: psm
     REAL, allocatable :: x(:), y(:)
@@ -602,6 +701,7 @@ subroutine rayaberration_go(psm)
 
 
     lambda = psm%getWavelengthSetting()
+    ! REMOVE AFTER TESTING!
     fldIdx = psm%getFieldSetting()
     numPoints = psm%getDensitySetting()
 
@@ -609,51 +709,56 @@ subroutine rayaberration_go(psm)
     allocate(x(numPoints))
     allocate(y(numPoints))
     
-    ! Set Field
-    WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
-    & , ' ' , sysConfig%relativeFields(1, fldIdx)
-    CALL PROCESKDP(trim(ffieldstr))
-
-    ! Set Fan Input - TODO:  add setting to change fan type
-    write(ffieldstr, FMTFAN) lambda,',',numPoints
-    
-
-    !CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
-    !x = curr_ray_fan_data%relAper
-    !y(1:numPoints,1) = curr_ray_fan_data%xyfan(1:numPoints,1)
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-    CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
-    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-    x = curr_ray_fan_data%relAper
-    y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
-    
-    ! FOB 1
-    ! CALL PROCESKDP("FOB 1")
-    ! CALL PROCESKDP("XFAN, -1, 1, "//ffieldstr)
-    ! y(1:numPoints,3) = curr_ray_fan_data%xyfan(1:numPoints,1)
-    ! CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
-    ! y(1:numPoints,4) = curr_ray_fan_data%xyfan(1:numPoints,2)
-    
-    
-    
-    
-     canvas = hl_gtk_drawing_area_new(size=[1200,500], &
-     & has_alpha=FALSE)
-    
-    
-     call mplt%initialize(canvas, 1,1)
-    
 
-     call lineplot%initialize(c_null_ptr, x,y, &
-     & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
-     & ylabel='Y'//' Error ['// &
-     & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
-     & title='Y '//c_null_char)
-     !PRINT *, "Bar chart color code is ", bar1%dataColorCode
-     
-     
-     call mplt%set(1,1,lineplot)
+    canvas = hl_gtk_drawing_area_new(size=[1200,1200], &
+    & has_alpha=FALSE)
+    !call mplt%initialize(canvas, 2, sysConfig%numFields)
+    call mplt%initialize(canvas, sysConfig%numFields,2)
+    !call mplt%initialize(canvas, sysConfig%numFields,2)
 
+    do i=1,sysConfig%numFields
+
+      ! Set Field
+      WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,i) &
+      & , ' ' , sysConfig%relativeFields(1, i)
+      CALL PROCESKDP(trim(ffieldstr))
+
+
+      ! Set Fan Input - TODO:  add setting to change fan type
+      write(ffieldstr, FMTFAN) lambda,',',numPoints
+      
+      CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+      x = curr_ray_fan_data%relAper
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
+            
+
+        call lineplot(i)%initialize(c_null_ptr, x,y, &
+        & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
+        & ylabel='Y'//' Error ['// &
+        & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
+        & title='Y '//c_null_char)     
+
+      !call mplt%set(1,i,lineplot(i))
+      call mplt%set(i,1,lineplot(i))
+
+      !Saggatial
+      CALL PROCESKDP("PFAN, 0, 1, "//ffieldstr) 
+      x = curr_ray_fan_data%relAper
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)       
+
+      call sagplots(i)%initialize(c_null_ptr, x,y, &
+      & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
+      & ylabel='Y'//' Error ['// &
+      & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
+      & title='R '//c_null_char)     
+      
+      call mplt%set(i,2,sagplots(i))
+      
+     !call mplt%set(2,i,sagplots(i))
+
+     end do
+     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     
      !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
      call finalizeGoPlot_new(mplt, psm, replot, objIdx)
