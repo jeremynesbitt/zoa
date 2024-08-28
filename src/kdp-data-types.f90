@@ -126,6 +126,7 @@ contains
  procedure, public, pass(self) :: setMaxField
  procedure, public, pass(self) :: getWavelength
  procedure, public, pass(self) :: getDimensions
+ procedure :: getAbsYFieldText
 
 
 
@@ -1110,6 +1111,26 @@ subroutine setSolveText(self, solveOptions)
 
 
 end subroutine
+
+function getAbsYFieldText(self, idxFld) result(strAbsFld)
+  use type_utils, only: real2str
+  class(sys_config), intent(in) :: self
+  character(len=80) :: strAbsFld
+  integer :: idxFld
+
+
+  strAbsFld = trim(real2str(self%refFieldValue(2)*self%relativeFields(2,idxFld),2))
+  select case(self%currFieldID)
+  case(FIELD_OBJECT_ANGLE_DEG)  
+       strAbsFld = trim(strAbsFld)//" deg"
+  case(FIELD_OBJECT_HEIGHT)
+    strAbsFld = trim(strAbsFld)//" "//self%getDimensions()
+  case(FIELD_REAL_IMAGE_HEIGHT)
+    strAbsFld = trim(strAbsFld)//" "//self%getDimensions()      
+  end select
+
+ 
+end function
 
 subroutine setNumFields(self, numFields)
   class(sys_config), intent(inout) :: self

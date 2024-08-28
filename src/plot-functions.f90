@@ -670,7 +670,7 @@ subroutine rayaberration_go(psm)
     use command_utils
     use handlers, only: updateTerminalLog
     use global_widgets
-    use type_utils, only: int2str
+    use type_utils, only: int2str, real2str
     use zoa_ui
     use zoa_plot
     use iso_c_binding, only:  c_ptr, c_null_char
@@ -695,6 +695,8 @@ subroutine rayaberration_go(psm)
     type(multiplot) :: mplt
     type(zoaplot_setting_manager) :: psm
     REAL, allocatable :: x(:), y(:)
+
+    character(len=100) :: xlabel, ylabel, title
 
     call initializeGoPlot(psm,ID_PLOTTYPE_RIM, "Ray Aberration Fan", replot, objIdx)
 
@@ -732,32 +734,57 @@ subroutine rayaberration_go(psm)
       x = curr_ray_fan_data%relAper
       y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
             
+      
+      ! Hide labels for off axis points
+      if (i /= 1) then 
+        xlabel = ''
+        ylabel = ''
+      else
+        xlabel = 'Rel. Pupil Position'
+        ylabel = 'Error '//trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)
+      end if
+
+      if (i==sysConfig%numFields) then
+        title = 'Tangential'
+      else
+        title = ''
+      end if
 
         call lineplot(i)%initialize(c_null_ptr, x,y, &
-        & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
-        & ylabel='Y'//' Error ['// &
-        & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
-        & title='Y '//c_null_char)     
+        & xlabel=trim(xlabel)//c_null_char, & 
+        & ylabel=trim(ylabel)//c_null_char, &
+        & title = trim(title)//c_null_char)     
+
+        call lineplot(i)%addText('Field '//sysConfig%getAbsYFieldText(i), POS_UPPER_RIGHT)
 
       !call mplt%set(1,i,lineplot(i))
-      call mplt%set(i,1,lineplot(i))
+      call mplt%set(sysConfig%numFields-i+1,1,lineplot(i))
 
       !Saggatial
       CALL PROCESKDP("XFAN, 0, 1, "//ffieldstr) 
       x = curr_ray_fan_data%relAper
       y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)       
 
+      if (i==sysConfig%numFields) then
+        title = 'Sagittal'
+      else
+        title = ''
+      end if
+
       call sagplots(i)%initialize(c_null_ptr, x,y, &
-      & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
-      & ylabel='Y'//' Error ['// &
-      & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']'//c_null_char, &
-      & title='R '//c_null_char)     
+      & xlabel=trim(xlabel)//c_null_char, & 
+      & ylabel=trim(ylabel)//c_null_char, &
+      & title = trim(title)//c_null_char)     
+
       
-      call mplt%set(i,2,sagplots(i))
+      call mplt%set(sysConfig%numFields-i+1,2,sagplots(i))
       
+
      !call mplt%set(2,i,sagplots(i))
 
      end do
+     call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
+     & "Ray Aberrations ("//sysConfig%getDimensions()//")",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
      call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     
      !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")

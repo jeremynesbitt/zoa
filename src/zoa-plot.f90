@@ -58,6 +58,8 @@ module zoa_plot
    integer, parameter :: PL_PLOT_SALMON = 14
    integer, parameter :: PL_PLOT_WHITE = 0
 
+   integer, parameter :: POS_UPPER_RIGHT = 1
+
 ! For each plot type:  eg barchart, linechart, 3d surface, shades
 ! Have a datatype that contains the data to plot and any unique settings
 ! drawplot would draw upon this resource
@@ -83,6 +85,12 @@ type :: zoaplot
     character(len=30)  :: legendNames(16)
     integer :: numLegendNames
 
+    ! In case user wants to add text to plot
+    logical :: addTextToPlot
+    integer :: numTextLabels
+    character(len=1024), dimension(16) :: textLabels
+    integer, dimension(16) :: textLabelPositions
+
 
 
 contains
@@ -101,6 +109,7 @@ contains
     procedure, public, pass(self) :: updatePlotData
     procedure, private, pass(self) :: buildPlotCode
     procedure, private, pass(self) :: checkBackingSurface
+    procedure :: addText
 
 
 end type
@@ -156,6 +165,13 @@ end type barchart
         logical :: m_hasTitle = .false.
         type(c_ptr) :: area = c_null_ptr
         type(c_ptr) :: cc = c_null_ptr
+
+
+        ! Bottom Panel Vars
+        logical :: hasBottomPanel
+        character(len=80) :: bottomPanelBigLabel
+        character(len=160) :: bottomPanelLittleLabel
+        character(len=80) :: bottomPanelLegend
         !> The BNUPLOT terminal object to target.
         !class(terminal), pointer :: m_terminal => null()
     contains
@@ -170,6 +186,8 @@ end type barchart
         procedure, public :: draw => mp_draw
         procedure, public :: get => mp_get
         procedure, public :: set => mp_set
+
+        procedure :: addBottomPanel
 
         !procedure, public :: is_title_defined => mp_has_title
         !procedure, public :: get_font_name => mp_get_font
@@ -210,6 +228,8 @@ contains
         do i = 1, m * n
             call self%m_plots%push(i)
         end do
+
+        self%hasBottomPanel = .FALSE.
 
     end subroutine
 
@@ -256,6 +276,19 @@ contains
 
     end function
 
+    subroutine addBottomPanel(self, strBig, strSmall, strLegend)
+      class(multiplot) :: self
+      character(len=*), intent(in) :: strBig, strSmall, strLegend
+
+      self%hasBottomPanel = .TRUE.
+      self%bottomPanelBigLabel = strBig
+      self%bottomPanelLittleLabel = strSmall
+      self%bottomPanelLegend = strLegend
+
+
+    end subroutine
+
+    ! THIS SUB NEEDS REFACTORING!!
     subroutine mp_draw(self)
 
 
@@ -268,7 +301,6 @@ contains
         integer :: plparseopts_rc
         integer :: plsetopt_rc
         class(zoaplot), pointer :: plotter
-        real :: p_xmin,p_xmax,p_ymin,p_ymax
         ! TEMP
         real(kind=pl_test_flt)  :: legend_width, legend_height
 
@@ -352,12 +384,15 @@ contains
         !call plstar(self%m_cols,self%m_rows)
         
         ! To get the title/legend I want, manually set up subpages
+
+        if (self%hasBottomPanel) then
+
+        
         call plstar(1_c_int,1_c_int)
  
         call pl_cmd(PLESC_DEVINIT, cc)
 
         call pladv(0) ! Comment this out when using the subpage way!
-        call plgvpw (	p_xmin,p_xmax,p_ymin,p_ymax)
         !
 
         !call plvsta
@@ -384,19 +419,7 @@ contains
                 if (n==1) call plvpor(.15, .45, 0.2, .4)
                 if (n==2) call plvpor(.6, .9, 0.2, .4)                                
               end select                
-
-              ! case (1)
-              !   if (n==1) call plvpor(0.05, .45, 0.27, .05)
-              !   if (n==2) call plvpor(.55, .95, .27, .05)
-              ! case (2)
-              !   if (n==1) call plvpor(0.05, .45, 0.61, .38)
-              !   if (n==2) call plvpor(.55, .95, 0.61, .38)         
-              ! case (3)
-              !   if (n==1) call plvpor(0.05, .45, 0.94, .72)
-              !   if (n==2) call plvpor(.55, .95, 0.94, .72)                                
-              ! end select
-
-                     
+          
             call logger%logText("Starting to Draw Plot from Plotter")
 
             
@@ -413,41 +436,43 @@ contains
         call pljoin(0.6, 0.1, .6, 0.00)
         call pljoin(0.0, .07, 0.6, 0.07)
         call plschr(0.0, 0.75)
-        call plptex(0.3, .09, 0.0, 0.0, 0.5, "OSDSinglet"//c_null_char)
+        call plptex(0.3, .09, 0.0, 0.0, 0.5, trim(self%bottomPanelBigLabel)//c_null_char)
         call plschr(0.0, 0.55)
-        call plptex(0.3, .074, 0.0, 0.0, 0.5, "Ray Aberrations (millimeters)"//c_null_char)
+        call plptex(0.3, .074, 0.0, 0.0, 0.5, trim(self%bottomPanelLittleLabel)//c_null_char)
 
         plotter%numLegendNames = 1
-        call plotter%drawBottomRightLegend()
-        
+        call plotter%drawBottomRightLegend(trim(self%bottomPanelLegend))
 
+      else
+        
+        call plstar(self%m_cols,self%m_rows)
+        
+          call pl_cmd(PLESC_DEVINIT, cc)
        
+        do m=1, self%m_rows
+          do n=1, self%m_cols
+            call pladv(0)
 
-        ! Original code using subpages
+            plotter => self%get(m,n)
 
-        ! do m=1, self%m_rows
-        !   do n=1, self%m_cols
-        !     call pladv(0)
-
-        !     plotter => self%get(m,n)
-
-        !      if (plotter%useLegend) then
-        !       !PRINT *, "setting smaller viewport"
-        !       call plvpor(.15, .85, .2, .8)
+             if (plotter%useLegend) then
+              !PRINT *, "setting smaller viewport"
+              call plvpor(.15, .85, .2, .8)
         
-        !     else
-        !     !Selects the largest viewport within the subpage that leaves a
-        !     !standard margin (left-hand margin of eight character heights,
-        !     !and a margin around the other three sides of five character heights).              
-        !       call plvsta
-        !     end if            
-        !     call logger%logText("Starting to Draw Plot from Plotter")
+            else
+            !Selects the largest viewport within the subpage that leaves a
+            !standard margin (left-hand margin of eight character heights,
+            !and a margin around the other three sides of five character heights).              
+              call plvsta
+            end if            
+            call logger%logText("Starting to Draw Plot from Plotter")
 
-        !     call plotter%drawPlot
+            call plotter%drawPlot
 
 
-        !   end do
-        ! end do
+          end do
+        end do
+      end if
 
 
 
@@ -679,6 +704,9 @@ end subroutine
 
     ! call self%plotdatalist%set(self%numSeries, zpinitdata)
 
+    self%addTextToPlot = .FALSE.
+    self%numTextLabels = 0
+
   end subroutine
 
 !! Canidate for dubmodule for zoaplot
@@ -801,6 +829,7 @@ end subroutine
     integer :: plsetopt_rc
 
     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax, zmin, zmax
+    real(kind=pl_test_flt) :: defCharHgt, currCharHgt, p_xmin, p_xmax, p_ymin, p_ymax
 
 
     ! Getter for dataSeries - separate routine?
@@ -846,6 +875,35 @@ end subroutine
 
     call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
+    if (self%addTextToPlot) then
+      call plgchr(defCharHgt, currCharHgt)
+      call plgvpw(p_xmin, p_xmax, p_ymin, p_ymax) ! World
+      !call plgspa(p_xmin, p_xmax, p_ymin, p_ymax) !mm
+      print *, 'defCharHgt is ', defCharHgt
+      print *, 'currCharHgt is ', currCharHgt
+
+      print *, 'p_xmin ', p_xmin
+      print *, 'p_xmax ', p_xmax
+      print *, 'p_ymin ', p_ymin
+      print *, 'p_ymax ', p_ymax
+
+
+      do i=1,self%numTextLabels
+
+        select case (self%textLabelPositions(i))
+
+        case (POS_UPPER_RIGHT)
+          ! THe offset here includes half the character height, but I don't know how to convert character height in mm to the height
+          ! in world coordinates?
+          call plptex(0.0,real(p_ymax-0.5), 0.0, 0.0, 0.0, trim(self%textLabels(i))//c_null_char)
+
+
+  
+        end select
+  
+
+      end do
+    end if
 
 
     !call plcol0(self%dataColorCode)
@@ -884,6 +942,18 @@ end subroutine
     !PRINT *, "ydata is ", self%plotdatalist(1)%y
 
     end subroutine drawPlot
+
+    subroutine addText(self, strText, ID_POS)
+      class(zoaplot) :: self
+      character(len=*) :: strText
+      integer, intent(in) :: ID_POS
+
+      self%addTextToPlot = .TRUE.
+      self%numTextLabels = self%numTextLabels + 1
+      self%textLabels(self%numTextLabels) = strText
+      self%textLabelPositions(self%numTextLabels) = ID_POS
+
+    end subroutine
 
     subroutine drawPlot_plotImg(self)
       
@@ -1383,9 +1453,10 @@ end subroutine
 
     end subroutine
 
-    subroutine drawBottomRightLegend(self)
+    subroutine drawBottomRightLegend(self, strLegend)
       implicit none
       class(zoaplot) :: self
+      character(len=*) :: strLegend
       
       integer           :: type, i
       integer           :: nlegend
@@ -1400,7 +1471,7 @@ end subroutine
       & box_scales(self%numLegendNames)
       integer           :: box_colors(self%numLegendNames), box_patterns(self%numLegendNames)
       real(kind=pl_test_flt)  :: box_line_widths(self%numLegendNames)
-      character(len=10) :: text(self%numLegendNames)
+      character(len=len(strLegend)) :: text(self%numLegendNames)
       character(len=20)  :: symbols(self%numLegendNames)      
       character(len=20) :: texttest(self%numLegendNames)
 
@@ -1418,7 +1489,7 @@ end subroutine
         line_styles(i) = 1
         line_widths(i) = 1 
         symbols(i) = '-'
-        text(i) = '587.1 nm'//c_null_char
+        text(i) = strLegend//c_null_char
         box_scales(i) = 0.1
         symbol_colors(i)  = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
         symbol_scales(i)  = 1.0
