@@ -90,7 +90,8 @@ contains
     procedure, public :: initialize => zp_init
     procedure, public, pass(self) :: drawPlot
     procedure, public, pass(self) :: addLegend
-    procedure, public, pass(self) :: drawLegend    
+    procedure, public, pass(self) :: drawLegend  
+    procedure, public, pass(self) :: drawBottomRightLegend  
     procedure, public, pass(self) :: setLabelFont
     procedure, private, pass(self) :: getAxesLimits
     procedure, private, pass(self) :: getLabelFontCode
@@ -267,6 +268,9 @@ contains
         integer :: plparseopts_rc
         integer :: plsetopt_rc
         class(zoaplot), pointer :: plotter
+        real :: p_xmin,p_xmax,p_ymin,p_ymax
+        ! TEMP
+        real(kind=pl_test_flt)  :: legend_width, legend_height
 
 
 
@@ -341,38 +345,109 @@ contains
         !call plinit()
         !  Divide page into 2x2 plots
         !call plstar(self%m_rows,self%m_cols)
-        call plstar(self%m_cols,self%m_rows)
+        ! this is plstar(x,y) which is why columns go first then rows
+        
+        
 
+        !call plstar(self%m_cols,self%m_rows)
+        
+        ! To get the title/legend I want, manually set up subpages
+        call plstar(1_c_int,1_c_int)
+ 
         call pl_cmd(PLESC_DEVINIT, cc)
 
-        !call pladv(0)
+        call pladv(0) ! Comment this out when using the subpage way!
+        call plgvpw (	p_xmin,p_xmax,p_ymin,p_ymax)
+        !
 
         !call plvsta
         !call plcol0(15)
 
+        call plschr(0.0, 0.75)
         do m=1, self%m_rows
           do n=1, self%m_cols
-            call pladv(0)
+            !call pladv(0)
 
             plotter => self%get(m,n)
-            PRINT *, "About to set viewport"
-            PRINT *, "Use Legend is ", plotter%useLegend
-            if (plotter%useLegend) then
-              PRINT *, "setting smaller viewport"
-              call plvpor(.15, .85, .2, .8)
-        
-            else
-            !Selects the largest viewport within the subpage that leaves a
-            !standard margin (left-hand margin of eight character heights,
-            !and a margin around the other three sides of five character heights).              
-              call plvsta
-            end if            
-            !call logger%logText("Starting to Draw Plot from Plotter")
+            ! FOr testing, brute force this
+  
+              select case (m)
+
+             
+              case (1)
+                if (n==1) call plvpor(0.15, .45, 0.75, .95)
+                if (n==2) call plvpor(.6, .9, 0.75, .95)
+              case (2)
+                if (n==1) call plvpor(.15, .45, 0.45, .65)
+                if (n==2) call plvpor(.6, .9, 0.45, .65)         
+              case (3)
+                if (n==1) call plvpor(.15, .45, 0.2, .4)
+                if (n==2) call plvpor(.6, .9, 0.2, .4)                                
+              end select                
+
+              ! case (1)
+              !   if (n==1) call plvpor(0.05, .45, 0.27, .05)
+              !   if (n==2) call plvpor(.55, .95, .27, .05)
+              ! case (2)
+              !   if (n==1) call plvpor(0.05, .45, 0.61, .38)
+              !   if (n==2) call plvpor(.55, .95, 0.61, .38)         
+              ! case (3)
+              !   if (n==1) call plvpor(0.05, .45, 0.94, .72)
+              !   if (n==2) call plvpor(.55, .95, 0.94, .72)                                
+              ! end select
+
+                     
+            call logger%logText("Starting to Draw Plot from Plotter")
+
+            
             call plotter%drawPlot
 
 
           end do
         end do
+
+        call plvpor(0.0, 1.0, 0.00, 0.2)  
+        !call plgvpw (	p_xmin,p_xmax,p_ymin,p_ymax)
+        call plwind(0.0, 1.0, 0.05, 0.2)
+        call pljoin(0.0, 0.1, 1.0, 0.1)
+        call pljoin(0.6, 0.1, .6, 0.00)
+        call pljoin(0.0, .07, 0.6, 0.07)
+        call plschr(0.0, 0.75)
+        call plptex(0.3, .09, 0.0, 0.0, 0.5, "OSDSinglet"//c_null_char)
+        call plschr(0.0, 0.55)
+        call plptex(0.3, .074, 0.0, 0.0, 0.5, "Ray Aberrations (millimeters)"//c_null_char)
+
+        plotter%numLegendNames = 1
+        call plotter%drawBottomRightLegend()
+        
+
+       
+
+        ! Original code using subpages
+
+        ! do m=1, self%m_rows
+        !   do n=1, self%m_cols
+        !     call pladv(0)
+
+        !     plotter => self%get(m,n)
+
+        !      if (plotter%useLegend) then
+        !       !PRINT *, "setting smaller viewport"
+        !       call plvpor(.15, .85, .2, .8)
+        
+        !     else
+        !     !Selects the largest viewport within the subpage that leaves a
+        !     !standard margin (left-hand margin of eight character heights,
+        !     !and a margin around the other three sides of five character heights).              
+        !       call plvsta
+        !     end if            
+        !     call logger%logText("Starting to Draw Plot from Plotter")
+
+        !     call plotter%drawPlot
+
+
+        !   end do
+        ! end do
 
 
 
@@ -1291,7 +1366,6 @@ end subroutine
 
     subroutine addLegend(self, legendNames)
 
-      ! This is from example 4 - use as template to get legend working
       class(zoaplot) :: self
       character(len=*) :: legendNames(:)
       integer :: i
@@ -1306,6 +1380,68 @@ end subroutine
 
       PRINT *, "LegendNames is ", self%legendNames
 
+
+    end subroutine
+
+    subroutine drawBottomRightLegend(self)
+      implicit none
+      class(zoaplot) :: self
+      
+      integer           :: type, i
+      integer           :: nlegend
+      !integer :: nlegend = self%numLegendNames
+
+
+      real(kind=pl_test_flt)  :: legend_width, legend_height
+      integer           :: opt_array(self%numLegendNames), text_colors(self%numLegendNames), & 
+             line_colors(self%numLegendNames), &
+             line_styles(self%numLegendNames), symbol_colors(self%numLegendNames), symbol_numbers(self%numLegendNames)
+      real(kind=pl_test_flt)  :: line_widths(self%numLegendNames), symbol_scales(self%numLegendNames), &
+      & box_scales(self%numLegendNames)
+      integer           :: box_colors(self%numLegendNames), box_patterns(self%numLegendNames)
+      real(kind=pl_test_flt)  :: box_line_widths(self%numLegendNames)
+      character(len=10) :: text(self%numLegendNames)
+      character(len=20)  :: symbols(self%numLegendNames)      
+      character(len=20) :: texttest(self%numLegendNames)
+
+      nlegend = self%numLegendNames
+
+        !   Draw a legend
+        !   First legend entry.
+      PRINT *, "before legend vars defined"
+      do i=1,nlegend
+
+        opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
+        ! Todo:  Tie this to what was actually set
+        text_colors(i) = PL_PLOT_RED !self%plotDataList(i)%dataColorCode 
+        line_colors(i) = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
+        line_styles(i) = 1
+        line_widths(i) = 1 
+        symbols(i) = '-'
+        text(i) = '587.1 nm'//c_null_char
+        box_scales(i) = 0.1
+        symbol_colors(i)  = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
+        symbol_scales(i)  = 1.0
+        symbol_numbers(i) = 2            
+      end do
+       
+
+     call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
+
+      PRINT *, "Before pllegend called"
+      ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
+      ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
+      call pllegend( legend_width, legend_height, &
+      PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
+             PL_POSITION_VIEWPORT, &
+             .15_pl_test_flt, 0.8_pl_test_flt, 0.05_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
+             0, 0, 1, nlegend, &
+             opt_array, &
+             1.0_pl_test_flt, .70_pl_test_flt, 2.0_pl_test_flt, &
+             1.0_pl_test_flt, text_colors, text, &
+             box_colors, box_patterns, box_scales, box_line_widths, &
+             line_colors, line_styles, line_widths, &
+             symbol_colors, symbol_scales, symbol_numbers, symbols )
 
     end subroutine
 
@@ -1409,8 +1545,17 @@ end subroutine
              symbol_colors(1:nlegend), symbol_scales(1:nlegend), symbol_numbers(1:nlegend), symbols(1:nlegend) )
 
 
-      PRINT *, "legend_width is ", legend_width
-      PRINT *, "legend_height is ", legend_height
+
+             PRINT *, "legend_width is ", legend_width
+             PRINT *, "legend_height is ", legend_height
+             PRINT *, "Legend Symbol is ", symbols(1:nlegend)
+             PRINT *, "OPT is ",  PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX
+             PRINT *, "POS is ", PL_POSITION_VIEWPORT
+             PRINT *, "nlegend is ", nlegend
+             PRINT *, "LIne Style is ", line_styles(1:nlegend)
+             PRINT *, "symbol_scales is ", symbol_scales(1:nlegend)
+             PRINT *, "symbol_numbers is ", symbol_numbers(1:nlegend)
+
 
     end subroutine
 

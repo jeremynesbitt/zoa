@@ -743,9 +743,9 @@ subroutine rayaberration_go(psm)
       call mplt%set(i,1,lineplot(i))
 
       !Saggatial
-      CALL PROCESKDP("PFAN, 0, 1, "//ffieldstr) 
+      CALL PROCESKDP("XFAN, 0, 1, "//ffieldstr) 
       x = curr_ray_fan_data%relAper
-      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)       
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)       
 
       call sagplots(i)%initialize(c_null_ptr, x,y, &
       & xlabel='Relative '//'Y'//' Pupil Position'//c_null_char, & 
