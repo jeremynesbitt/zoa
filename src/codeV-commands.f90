@@ -110,9 +110,7 @@ module codeV_commands
         zoaCmds(517)%cmd = 'XOB'
         zoaCmds(517)%execFunc => setField     
         zoaCmds(518)%cmd = 'INS'
-        zoaCmds(518)%execFunc => insertSurf   
-        zoaCmds(518)%cmd = 'CLI'
-        zoaCmds(518)%execFunc => execCLI                            
+        zoaCmds(518)%execFunc => insertSurf                         
         zoaCmds(519)%cmd = 'FAN'
         zoaCmds(519)%execFunc => execFAN        
         zoaCmds(520)%cmd = 'RSI'
@@ -153,7 +151,8 @@ module codeV_commands
         zoaCmds(537)%execFunc => execYOFF                
         zoaCmds(538)%cmd = 'SAVESESS'
         zoaCmds(538)%execFunc => execSaveSessionToFile                                       
-        
+        zoaCmds(539)%cmd = 'CLI'
+        zoaCmds(539)%execFunc => execCLI              
         
 
     end subroutine
@@ -985,7 +984,32 @@ module codeV_commands
     end function
 
     subroutine setPlotScale(iptStr)
+        use strings
+        use command_utils
+        use type_utils
+        use zoa_ui
+
+        implicit none
+
         character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: boolResult
+
+       
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if(numTokens ==2 ) then
+            if (isInputNumber(tokens(2))) then
+
+            select case(cmd_loop)
+            case (ID_PLOTTYPE_RIM)
+                call curr_psm%updateSetting(SETTING_SCALE, str2real8(tokens(2)))
+            end select
+        end if
+        end if
+
 
         !Pseudocode
         ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
@@ -1051,7 +1075,7 @@ module codeV_commands
 
         call psm%initialize(trim(iptStr))
         call psm%addDensitySetting(64,8,128)
-        call psm%addFieldSetting()
+        call psm%addGenericSetting(SETTING_SCALE, 'Scale', 0.0, 0.0, 1000.0, 'SSI', 'SSI 0', UITYPE_SPINBUTTON)      
         call psm%addWavelengthSetting()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RIM, psm)
@@ -1456,7 +1480,7 @@ module codeV_commands
             end if
             call updateTerminalLog("File name to save is "//trim(fName), "black")
         end select
-        
+
         fID = open_file_to_sav_lens(fName)
         if (fID /= 0) then
          
@@ -2515,7 +2539,7 @@ module codeV_commands
 
         ! This hard coding of cmds is temporary, until I migrate these to new format
 
-        tstCmds(1)%s = 'YAN'
+        !tstCmds(1)%s = 'YAN'
         tstCmds(2)%s = 'TIT'
         !tstCmds(3)%s = 'WL'
         tstCmds(6)%s = 'GO'

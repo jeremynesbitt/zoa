@@ -684,6 +684,8 @@ subroutine rayaberration_go(psm)
     character(len=80) :: ffieldstr
     CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
     integer :: lambda, fldIdx, objIdx, numPoints
+
+    real :: plotScale
     
     integer, parameter :: nlevel = 10
     logical :: replot
@@ -703,8 +705,7 @@ subroutine rayaberration_go(psm)
 
 
     lambda = psm%getWavelengthSetting()
-    ! REMOVE AFTER TESTING!
-    fldIdx = psm%getFieldSetting()
+    plotScale = psm%getSettingValueByCode(SETTING_SCALE)
     numPoints = psm%getDensitySetting()
 
     
@@ -756,6 +757,7 @@ subroutine rayaberration_go(psm)
         & title = trim(title)//c_null_char)     
 
         call lineplot(i)%addText('Field '//sysConfig%getAbsYFieldText(i), POS_UPPER_RIGHT)
+        if (plotScale /= 0) call lineplot(i)%setYScale(real(plotScale,8))
 
       !call mplt%set(1,i,lineplot(i))
       call mplt%set(sysConfig%numFields-i+1,1,lineplot(i))
@@ -776,6 +778,7 @@ subroutine rayaberration_go(psm)
       & ylabel=trim(ylabel)//c_null_char, &
       & title = trim(title)//c_null_char)     
 
+      if (plotScale /= 0) call sagplots(i)%setYScale(real(plotScale,8))
       
       call mplt%set(sysConfig%numFields-i+1,2,sagplots(i))
       

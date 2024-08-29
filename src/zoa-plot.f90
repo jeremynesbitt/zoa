@@ -91,6 +91,10 @@ type :: zoaplot
     character(len=1024), dimension(16) :: textLabels
     integer, dimension(16) :: textLabelPositions
 
+    ! Scale related
+    logical :: manualYScale
+    real(kind=pl_test_flt) ::  yScale 
+
 
 
 contains
@@ -110,6 +114,7 @@ contains
     procedure, private, pass(self) :: buildPlotCode
     procedure, private, pass(self) :: checkBackingSurface
     procedure :: addText
+    procedure :: setYScale
 
 
 end type
@@ -230,6 +235,8 @@ contains
         end do
 
         self%hasBottomPanel = .FALSE.
+
+
 
     end subroutine
 
@@ -707,6 +714,8 @@ end subroutine
     self%addTextToPlot = .FALSE.
     self%numTextLabels = 0
 
+    self%manualYScale = .FALSE.
+
   end subroutine
 
 !! Canidate for dubmodule for zoaplot
@@ -828,7 +837,7 @@ end subroutine
     integer :: plparseopts_rc
     integer :: plsetopt_rc
 
-    real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax, zmin, zmax
+    real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax, zmin, zmax, y_abs, y_norm
     real(kind=pl_test_flt) :: defCharHgt, currCharHgt, p_xmin, p_xmax, p_ymin, p_ymax
 
 
@@ -840,36 +849,33 @@ end subroutine
     !call plwind( 1980._pl_test_flt, 1990._pl_test_flt, -15._pl_test_flt, 40._pl_test_flt )
 
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
-    PRINT *, "Axes Limits ymin is ", ymin
-    PRINT *, "Axes Limits ymaxs is ", ymax
     !if (self%useLegend) call plvpor(.05, .95, 0.2, .8)
+    if (self%manualYScale) then 
+      call plwind(xmin, xmax, -1.0_pl_test_flt*self%yScale, self%yScale)
+      !call plwind(xmin, xmax, -3.5_pl_test_flt, 3.5_pl_test_flt)
+    else
     call plwind(xmin, xmax, ymin, ymax)
+    end if
 
         isurface = c_null_ptr
         if (c_associated(self%area)) then
           isurface = g_object_get_data(self%area, "backing-surface")
-          PRINT *, "self%area is ", LOC(self%area)
-
-        PRINT *, "isurface in mp_draw is ", LOC(isurface)
         if (.not. c_associated(isurface)) then
-           PRINT *, "mp_draw :: Backing surface is NULL"
-           call LogTermFOR("Loose pointer in drawPlot") 
+           call LogTermDebug("Loose pointer in drawPlot") 
           isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
           isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
           call g_object_set_data(self%area, "backing-surface", isurface)
         end if
 
         end if
-    ! Create the backing surface
 
-    !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
-    !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    !call g_object_set_data(self%area, "backing-surface", isurface)
-
-
-        !PRINT *, "self%area is now ", self%area
-
-    call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
+    ! Micromanage tick intervals if the user selected manual scale
+        if (self%manualYScale) then 
+          call plsyax(7, 0)
+          call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', self%yScale/5.0_pl_test_flt, 0)
+        else
+          call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
+        end if        
 
     call plcol0(getLabelFontCode(self))
 
@@ -877,6 +883,18 @@ end subroutine
 
     if (self%addTextToPlot) then
       call plgchr(defCharHgt, currCharHgt)
+      call plgvpd(p_xmin, p_xmax, p_ymin, p_ymax)
+      print *, 'vp p_xmin ', p_xmin
+      print *, 'vp p_xmax ', p_xmax
+      print *, 'vp p_ymin ', p_ymin
+      print *, 'vp p_ymax ', p_ymax   
+      y_norm = p_ymax-p_ymin   
+      call plgspa(p_xmin, p_xmax, p_ymin, p_ymax)
+      print *, 'mm p_xmin ', p_xmin
+      print *, 'mm p_xmax ', p_xmax
+      print *, 'mm p_ymin ', p_ymin
+      print *, 'mm p_ymax ', p_ymax
+      y_abs = p_ymax-p_ymin
       call plgvpw(p_xmin, p_xmax, p_ymin, p_ymax) ! World
       !call plgspa(p_xmin, p_xmax, p_ymin, p_ymax) !mm
       print *, 'defCharHgt is ', defCharHgt
@@ -893,9 +911,14 @@ end subroutine
         select case (self%textLabelPositions(i))
 
         case (POS_UPPER_RIGHT)
-          ! THe offset here includes half the character height, but I don't know how to convert character height in mm to the height
-          ! in world coordinates?
-          call plptex(0.0,real(p_ymax-0.5), 0.0, 0.0, 0.0, trim(self%textLabels(i))//c_null_char)
+          !Need to offset this by 1/2 the character height to avoid clipping.  
+          !Character height is in absolute coordinates, plptex wants world coordinates.
+          !To convert to world coordinates, first get the entire plot size in absolute coordinates (y_abs)
+          ! and then get the viewport size in normalized coordinates (y_norm)
+          ! This will tell me how big the character is relatie to the entire size of the viewport
+          ! Then I need to convert it to world coordniates (p_ymax).  This gets me what I want (ugh..)
+          
+          call plptex(0.0,real(p_ymax-currCharHgt/(y_norm*y_abs)*p_ymax), 0.0, 0.0, 0.0, trim(self%textLabels(i))//c_null_char)
 
 
   
@@ -954,6 +977,15 @@ end subroutine
       self%textLabelPositions(self%numTextLabels) = ID_POS
 
     end subroutine
+
+    subroutine setYScale(self, yScale)
+      class(zoaplot) :: self
+      real(kind=pl_test_flt) :: yScale
+
+      self%manualYScale = .TRUE.
+      self%yScale = abs(yScale)
+
+      end subroutine
 
     subroutine drawPlot_plotImg(self)
       

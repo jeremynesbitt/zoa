@@ -1233,7 +1233,7 @@ subroutine genSaveOutputText(self, fID)
 
   write(fID, *) "! Zoa "//zoaVersion
   write(fID, *) "LEN NEW"
-  write(fID, *) "TIT "//self%lensTitle
+  write(fID, *) "TIT "//"'"//trim(self%lensTitle)//"'"
         ! Store dimensions
   select case(self%currLensUnitsID)
   case(LENS_UNITS_MM)
@@ -1268,6 +1268,8 @@ subroutine genSaveOutputText(self, fID)
       strWLwgt = trim(strWLwgt)//blankStr(1)//real2str(100.0*self%spectralWeights(ii),4)
     end do
     write(fID, *) trim(strWLwgt)
+  end if
+
     ! Print Ref wavelength
     strOutLine = "REF "// int2str(self%refWavelengthIndex)
     write(fID, *) trim(strOutLine)
@@ -1299,7 +1301,6 @@ subroutine genSaveOutputText(self, fID)
     end do
     write(fID, *) trim(strFLDWGT)
 
-  end if
 
 
  

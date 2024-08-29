@@ -102,7 +102,7 @@ integer, parameter :: ID_RMS_DATA_SPOT = 1621
 integer, parameter :: ID_RMS_DATA_WAVE = 1622
 
 
-
+integer, parameter :: SETTING_SCALE = 1623
 
 
 !integer :: active_plot = -1
