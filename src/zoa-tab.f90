@@ -1223,7 +1223,7 @@ end subroutine
 
    ! THis is to fix the tab length to label + close button vs extending across the entire window
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
-
+   call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
 
 
 
@@ -1286,6 +1286,7 @@ end subroutine
 
    ! THis is to fix the tab length to label + close button vs extending across the entire window
     call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
+    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
 
  end subroutine
 
@@ -1416,7 +1417,7 @@ end function
 
    ! THis is to fix the tab length to label + close button vs extending across the entire window
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
-
+   call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
 
 
 

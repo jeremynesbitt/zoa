@@ -2715,14 +2715,14 @@ module codeV_commands
         case (3) ! Curvature and thickness
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
             ! KDP Does not allow setting image thickness.  So work around this for now
-            if (trim(tokens(1)).EQ.'SI') then
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; RD, ' // trim(tokens(2)), .TRUE.)   
-            else
+            ! if (trim(tokens(1)).EQ.'SI') then
+            !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            !     & '; RD, ' // trim(tokens(2)), .TRUE.)   
+            ! else
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
             & trim(tokens(3)), .TRUE.)        
-            end if    
+            ! end if    
         case (4) ! Curvature, thickness, and glass
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
             if(.not.isSpecialGlass(trim(tokens(4)))) then
