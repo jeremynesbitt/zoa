@@ -4,15 +4,17 @@ module handlers
   !use lens_analysis
   use gtk
 
-  use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
-  & g_object_set_property, g_value_set_interned_string, g_variant_new_boolean, &
-  & g_menu_new, g_menu_item_new, g_action_map_add_action, g_menu_append_item, &
-  & g_object_unref, g_menu_append_section, g_menu_append_submenu, &
-  & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
-  & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
-  & g_action_change_state, g_application_quit, g_simple_action_set_state, &
-  & g_signal_override_class_handler, g_app_info_launch_default_for_uri, &
-  & g_app_info_launch, g_app_info_get_default_for_type, g_file_new_for_uri
+  use g
+
+  ! use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
+  ! & g_object_set_property, g_value_set_interned_string, g_variant_new_boolean, &
+  ! & g_menu_new, g_menu_item_new, g_action_map_add_action, g_menu_append_item, &
+  ! & g_object_unref, g_menu_append_section, g_menu_append_submenu, &
+  ! & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
+  ! & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
+  ! & g_action_change_state, g_application_quit, g_simple_action_set_state, &
+  ! & g_signal_override_class_handler, g_app_info_launch_default_for_uri, &
+  ! & g_app_info_launch, g_app_info_get_default_for_type, g_file_new_for_uri
 
 
   use, intrinsic :: iso_c_binding
@@ -404,14 +406,16 @@ contains
 
     ! Having an issue where every time I try to detach a tab the main window
     ! freezes, so disabling this for now.  Believe it is related to this bug:
-    !call gtk_notebook_set_tab_detachable(notebook, scroll_ptr, TRUE)
+    call gtk_notebook_set_tab_detachable(notebook, scroll_ptr, TRUE)
 
-    !call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
+    call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
 
 
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, scroll_win_detach)
     call gtk_paned_set_end_child(pane, notebook)
+
+    call attachTabTst(notebook)
 
 
 
@@ -540,11 +544,86 @@ subroutine populateSplashWindow(splashWin)
 
 end subroutine
 
+  subroutine on_drop (widget, val, x, y, gdata)
+    type(c_ptr) :: widget, gdata
+    type(c_ptr), value :: val
+    real :: x, y
+
+    call LogTermDebug("drop signal activated!")
+
+  end subroutine
+
+  subroutine on_motion (widget, x, y, gdata)
+    type(c_ptr) :: widget, gdata
+    real :: x, y
+
+    call LogTermDebug("drop motion detected!")
+
+  end subroutine  
+
+  subroutine attachTabTst(notebook)
+    use gtk_sup
+    type(c_ptr) :: notebook
+    type(c_ptr) :: dropTarget
+
+    dropTarget = gtk_drop_target_new(gtk_widget_get_type(), GDK_ACTION_COPY)
+    call g_signal_connect(dropTarget, "drop", c_funloc(on_drop), dropTarget)
+    call g_signal_connect(dropTarget, "motion", c_funloc(on_motion), dropTarget)
+    call g_signal_connect(dropTarget, "enter", c_funloc(on_motion), dropTarget)    
+
+    call gtk_widget_add_controller(notebook, dropTarget)
+    call gtk_widget_add_controller(my_window, dropTarget)
+
+
+  end subroutine
+
+  subroutine click_done(widget, event, ntab) bind(c)
+    implicit none
+    type(c_ptr), value :: widget, event, ntab
+
+    call LogTermDebug("Click event detected!")
+   
+
+end subroutine
+
+function drag_prepare(source, x, y, gdata) result(widget) bind(c)
+  use gdk, only: gdk_content_provider_new_for_value
+  type(c_ptr), value :: source
+  type(c_ptr), value :: gdata
+  type(c_ptr) :: widget, canvas
+  real :: x, y
+
+  call LogTermDebug("Drag Prepare initiated!")
+
+  
+  !canvas = gtk_event_controller_get_widget(source)
+  !widget = gdata
+
+  !call g_object_set_data(canvas, 'dragged-item'//c_null_char, widget)
+
+  !widget = g_object_newv(gtk_widget_get_type(), 0, c_null_ptr)
+  canvas = c_null_ptr
+  !widget = gdk_content_provider_new_for_bytes("application/xml", g_bytes_new(canvas, INT(0,8)));
+  !widget = g_object_new (gtk_widget_get_type(), c_null_char);
+  !widget = g_object_new_valist(gtk_widget_get_type(), c_null_char, c_null_ptr)
+  widget = gdk_content_provider_new_for_value(gdata)
+
+end function
+
+subroutine drag_end(source, drag)
+  type(c_ptr) :: source, drag, canvast
+
+  call LogTermDebug("Drag end event detected! from drag_end")
+
+  !gtk_widget_pick  
+
+end subroutine
+
   subroutine detachTabTst(parent_notebook, widget) bind(c)
         implicit none
         type(c_ptr), value :: widget, parent_notebook
         type(c_ptr) :: newwin, newnotebook, box2, scrolled_win
-        type(c_ptr) :: child, newlabel
+        type(c_ptr) :: child, newlabel, gesture, source, dropTarget
         integer :: newtab
         !PRINT *, "Detach Event Called!"
 
@@ -563,7 +642,7 @@ end subroutine
         !# handler for dropping outside of current window
         !call hl_gtk_scrolled_window_add(newwin, newnotebook)
 
-        call gtk_notebook_set_group_name(newnotebook,"1"//c_null_char)
+        call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
         child = gtk_notebook_get_nth_page(parent_notebook, -1_c_int)
         !newlabel = gtk_notebook_get_tab_label(parent_notebook, widget)
         call gtk_notebook_detach_tab(parent_notebook, child)
@@ -589,6 +668,28 @@ end subroutine
         !call gtk_widget_show(parent_notebook)
         !call pending_events()
         call gtk_window_present(newwin)
+
+        source = gtk_drag_source_new ()
+        call gtk_drag_source_set_actions (source, GDK_ACTION_MOVE);
+        call g_signal_connect (source, "prepare"//c_null_char, c_funloc(drag_prepare), scrolled_win);
+        !call g_signal_connect (source, "drag-begin"//c_null_char, c_funloc(drag_end), child);        
+        call g_signal_connect (source, "drag-end"//c_null_char, c_funloc(drag_end), child)
+        call gtk_widget_add_controller (newnotebook, source);
+
+        dropTarget = gtk_drop_target_new(gtk_widget_get_type(), GDK_ACTION_MOVE)
+        call g_signal_connect(dropTarget, "drop", c_funloc(on_drop), c_null_ptr)
+        call g_signal_connect(dropTarget, "motion", c_funloc(on_motion), c_null_ptr)
+    
+        call gtk_widget_add_controller(newnotebook, dropTarget)
+        call gtk_widget_add_controller(gtk_widget_get_parent(newnotebook), dropTarget)
+
+
+
+
+        gesture = gtk_gesture_click_new ()
+        call g_signal_connect (gesture, "released", c_funloc(click_done), child);
+        
+        call gtk_widget_add_controller (child, gesture);       
 
         PRINT *, "Modal ? ", gtk_window_get_modal(newwin)
 
@@ -637,7 +738,7 @@ end subroutine
         !# handler for dropping outside of current window
         !call hl_gtk_scrolled_window_add(newwin, newnotebook)
 
-        call gtk_notebook_set_group_name(newnotebook,"1"//c_null_char)
+        call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
         newlabel = gtk_notebook_get_tab_label(parent_notebook, widget)
         call gtk_notebook_detach_tab(parent_notebook, widget)
         scrolled_win = gtk_scrolled_window_new()

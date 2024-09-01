@@ -239,6 +239,7 @@ xtb_exe = executable(
   install: true
 )
 
+ message('Got to line 242?')
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'
   install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
