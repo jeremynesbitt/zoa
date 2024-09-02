@@ -149,6 +149,47 @@ function updateTabPlotCommand(tabIdx, setting_code, value) result (boolResult)
 end function
 
 
+function getNumberOfTabs() result(numTabs)
+  use handlers, only: zoatabMgr
+  integer :: numTabs
+
+  numTabs = zoatabMgr%tabNum
+
+end function
+
+function getTabName(tabNum) result(strName)
+  use handlers, only: zoatabMgr
+  character(len=100) :: strName
+  integer :: tabNum
+
+  strName = zoatabMgr%getTabTitle(tabNum)
+end function
+
+function isDocked(tabNum) result(boolResult)
+  use handlers, only: zoatabMgr
+  logical :: boolResult
+  integer :: tabNum
+
+  boolResult = .TRUE.
+
+end function
+
+subroutine updateMenuBar()
+  use handlers, only: my_window
+  use zoamenubar
+  
+  call populatezoamenubar(my_window)
+  
+
+  !call populateWindowMenu(my_window)
+
+end subroutine
+
+
+
+! For docking/undocking
+
+
 ! subroutine registerPlotSettingManager(tabMgr, objIdx, psm)
 !   use zoa_tab_manager, only: zoatabManager
 !   use plot_setting_manager, only: zoaplot_setting_manager

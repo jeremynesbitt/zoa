@@ -468,6 +468,7 @@ type zoatab
    type(zoa_settings_obj) :: settings
   integer(kind=c_int) :: ID_PLOTTYPE
   integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
+  integer :: tabNum
   character(len=140) :: plotCommand
   type(zoaplot_setting_manager) :: psm
   type(c_ptr) :: tab_label, notebook, expander, box1  
@@ -563,6 +564,8 @@ end interface
 ! to close a tab using zoaTabMgr
 interface
   subroutine close_zoaTab
+  end subroutine
+  subroutine updateMenuBar
   end subroutine
 end interface
 
@@ -1218,12 +1221,14 @@ end subroutine
    scrolled_tab = gtk_scrolled_window_new()
    PRINT *, "SETTING CHILD FOR SCROLLED TAB"
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
-   location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
-   call gtk_notebook_set_current_page(self%notebook, location)
+   self%tabNum = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
    ! THis is to fix the tab length to label + close button vs extending across the entire window
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
+
+   call updateMenuBar()
 
 
 
@@ -1273,8 +1278,8 @@ end subroutine
     scrolled_tab = gtk_scrolled_window_new()
     PRINT *, "SETTING CHILD FOR SCROLLED TAB"
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
-    location = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
-    call gtk_notebook_set_current_page(self%notebook, location)
+    self%tabNum = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+    call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
 
     call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
@@ -1287,6 +1292,7 @@ end subroutine
    ! THis is to fix the tab length to label + close button vs extending across the entire window
     call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
     call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
+    call updateMenuBar()
 
  end subroutine
 
@@ -1319,11 +1325,12 @@ end subroutine
    call gtk_scrolled_window_set_child(scroll_win_data, self%box1)
    call gtk_widget_set_vexpand (self%box1, TRUE)
 
-   location = gtk_notebook_append_page(self%notebook, scroll_win_data, self%tab_label)
-   call gtk_notebook_set_current_page(self%notebook, location)
+   self%tabNum = gtk_notebook_append_page(self%notebook, scroll_win_data, self%tab_label)
+   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
 
    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+   call updateMenuBar()
 
    ! Code for context menu
   !  controller_c = gtk_gesture_click_new()
@@ -1405,8 +1412,8 @@ end function
    dataLoc = gtk_notebook_append_page(self%dataNotebook, scroll_win_data, gtk_label_new("Data"//c_null_char))
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
 
-   location = gtk_notebook_append_page(self%notebook, self%dataNotebook, self%tab_label)
-   call gtk_notebook_set_current_page(self%notebook, location)
+   self%tabNum = gtk_notebook_append_page(self%notebook, self%dataNotebook, self%tab_label)
+   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
 
    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)

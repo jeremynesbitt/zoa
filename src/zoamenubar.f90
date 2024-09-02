@@ -47,6 +47,26 @@ module zoamenubar
 !     module procedure :: zoamenubar_constructor
 ! end interface zoamenubar
     character(len=100), target :: newLensCmd = "LEN NEW" 
+    type(c_ptr) :: menu_Window
+
+
+
+    interface
+    function getNumberOfTabs()
+      integer :: getNumberOfTabs
+    end function
+    function getTabName(tabNum)
+      integer :: tabNum
+      character(len=100) :: getTabName
+    end function
+    function isDocked(tabNum)
+      integer :: tabNum
+      logical :: isDocked
+    end function
+    end interface
+
+
+
 
 contains
 
@@ -107,6 +127,7 @@ contains
     menu_macro = g_menu_new()
     menu_imagEval = g_menu_new()
     menu_wavefront = g_menu_new()
+    menu_Window = g_menu_new()
 
     call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
     call addCommandMenuItem(menu, "New Lens", &
@@ -239,6 +260,10 @@ contains
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 
+    call g_menu_append_submenu(menubar, "Window"//c_null_char, menu_Window)
+
+    call populateWindowMenu(win)
+
 
     section1 = g_menu_new ()
     section2 = g_menu_new ()
@@ -286,6 +311,49 @@ contains
     call gtk_application_window_set_show_menubar (win, TRUE)
 
     !g_listenv
+
+
+  end subroutine
+  subroutine undock_Window(act, param, gdata) bind(c)
+    implicit none
+    type(c_ptr), value, intent(in) :: act, param, gdata
+
+  end subroutine
+
+  subroutine dock_Window(act, param, gdata) bind(c)
+    implicit none
+    type(c_ptr), value, intent(in) :: act, param, gdata
+
+  end subroutine  
+
+  subroutine populateWindowMenu(win)
+    use strings
+    ! This menu will handle docking/undocking of windows and assoicated options
+    type(c_ptr) :: menu_dock, menu_undock, win
+    integer :: i
+    character(len=100) :: tabName
+
+
+    menu_dock   = g_menu_new()
+    menu_undock = g_menu_new()
+
+    i = 0
+    do i=1,getNumberOfTabs()
+      if (isDocked(i)) then
+        tabName = trim(getTabName(i))
+        call removesp(tabName)
+        call addWindowMenuItem(menu_undock, trim(getTabName(i)), "UnDock"//trim(tabName)//c_null_char, c_funloc(undock_Window), win,i)
+      else
+        call addWindowMenuItem(menu_dock, trim(getTabName(i)), "Dock"//trim(tabName)//c_null_char, c_funloc(dock_Window), win, i)
+      end if
+    end do
+
+    call g_menu_append_submenu (menu_Window, "UnDock"//c_null_char, menu_undock)
+    call g_menu_append_submenu (menu_Window, "Dock"//c_null_char, menu_dock)
+
+    
+    
+
 
 
   end subroutine
@@ -493,6 +561,29 @@ contains
     & c_funloc(genericMenuCommandCallback), c_loc(ptr))
 
   end subroutine
+
+  subroutine addWindowMenuItem(topLevelMenu, menuItemText, menuItemEventName, funcPointer, win, tabNum)
+    integer :: numCommands
+    type(c_ptr) :: topLevelMenu, win
+    character(len=*) :: menuItemText, menuItemEventName
+    type(c_funptr) :: funcPointer
+    integer :: tabNum
+
+    character(len=100), pointer :: ptr
+    type(c_ptr) ::menuAction, menuItem
+
+
+
+    menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
+    call g_action_map_add_action (win, menuAction)
+    call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_null_ptr)
+    !PRINT *, "menuItemEventName is ", menuItemEventName
+    menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
+    call g_menu_append_item (topLevelMenu, menuItem)
+
+  end subroutine
+
+
 
   subroutine addCommandMenuItem(topLevelMenu, menuItemText, menuItemEventName, singleCommand, win)
     use g

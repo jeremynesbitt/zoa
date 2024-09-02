@@ -145,6 +145,5 @@ module type_utils
           end do 
       
         end function
-  
-  
+
   end module

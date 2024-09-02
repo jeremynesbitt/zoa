@@ -22,7 +22,7 @@ end type
 ! Tabs are any analysis that is done that is shown in a separate window
 ! Handle any requests related to tabs (whether a plot exists, close a tab, etc)
 type  zoatabManager
-
+  type(list) :: tabData
   type(zoatabData), dimension(99) :: tabInfo
   type(c_ptr) :: buffer
   type(c_ptr) :: textView
@@ -37,6 +37,8 @@ type  zoatabManager
    procedure :: doesPlotExist
    procedure :: doesPlotExist_new
    procedure :: getNumberOfPlotsByCode
+   procedure :: getLowestAvailablePlotNum
+   procedure :: getTabTitle
    procedure :: addMultiPlotTab
    procedure :: addDataTab
    procedure :: addGenericMultiPlotTab ! May be obsolete with tweak to init process
@@ -70,7 +72,11 @@ function getTypeCode(self, idx) result (TYPE_CODE)
   class(zoatabManager) :: self
   integer :: TYPE_CODE
   !TYPE_CODE = self%tabInfo(idx)%typeCode
-  TYPE_CODE = self%tabInfo(idx)%tabObj%ID_PLOTTYPE
+  if(allocated(self%tabInfo(idx)%tabObj)) then    
+     TYPE_CODE = self%tabInfo(idx)%tabObj%ID_PLOTTYPE
+  else
+    TYPE_CODE = -1
+  end if
 end function
 
 ! This doubles as an init routine
@@ -117,6 +123,27 @@ subroutine clearDataTab(self, objIdx)
 end select
 
 end subroutine
+
+function  findTabIndex_new(self) result(newTabIndex)
+  class(zoatabManager) :: self
+  integer :: i
+  integer :: newTabIndex
+
+  do i=1,self%tabNum
+    if (.not.ALLOCATED(self%tabInfo(i)%tabObj)) then
+        !PRINT *, "Found empty slot at ", i
+        newTabIndex = i
+        return
+      end if
+  end do
+
+  ! If we get here then add at the end
+  !PRINT *, "Increment max number of tabs"
+  self%tabNum = self%tabNum + 1
+  newTabIndex = self%tabNum
+
+end function
+
 
 function  findTabIndex(self) result(newTabIndex)
   class(zoatabManager) :: self
@@ -454,6 +481,7 @@ end subroutine
   integer :: i
 
    !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
+   call LogTermDebug("In doesPlotExist_new")
    plotFound = .FALSE.
    idxObj = -1
    DO i = 1,self%tabNum
@@ -481,6 +509,66 @@ function getNumberOfPlotsByCode(self, PLOT_CODE) result(numPlots)
       numPlots = numPlots + 1
     end if
   END DO
+
+
+end function
+
+! This is painful.  I'm guessing there is a better way to do this (eg store plot num separately), but for now this is what I have
+function getLowestAvailablePlotNum(self, PLOT_CODE) result(plotNum)
+  use strings
+  use command_utils
+  use type_utils
+  implicit none
+  class(zoatabManager) :: self
+  integer, intent(in) :: PLOT_CODE
+  integer :: plotNum
+  integer :: i, lowFound, highFound , pLoc, pNum  
+  character(len=80) :: tokens(40), subString
+  integer :: numTokens
+
+  plotNum = 1 ! Lowest Possible Number
+  lowFound = 0
+  highFound = 0
+  do i = 1,self%tabNum
+    if(self%getTypeCode(i) == PLOT_CODE) THEN
+      call parse(self%tabInfo(i)%tabObj%psm%generatePlotCommand(), ';', tokens, numTokens)
+      pLoc = index(trim(tokens(1)),'P') 
+      if (pLoc > 0) then
+          subString = tokens(1)(pLoc+1:len(trim(tokens(1))))
+        if (isInputNumber(subString)) then
+            pNum = str2int(subString)
+            ! Finally see what numbers I have
+            if (lowFound == 0) then 
+              ! First number found
+              lowFound = pNum
+              highFound = pNum
+            else
+              if (pNum > lowFound .AND. pNum > highFound) highFound = pNum
+              if (pNum < lowFound) lowFound = pNum 
+            end if
+        end if
+      end if
+    end if
+  end do
+  if (plotNum >= lowFound ) plotNum = highFound + 1
+
+end function
+
+function getTabTitle(self, tabNum) result(strName)
+  class(zoatabManager) :: self
+  integer :: tabNum
+  character(len=100) :: strName
+  type(c_ptr) :: child, cstr, label
+
+  child = gtk_notebook_get_nth_page(self%notebook, self%tabInfo(tabNum)%tabObj%tabNum)
+  label = gtk_widget_get_first_child(self%tabInfo(tabNum)%tabObj%tab_label)
+  cstr = gtk_label_get_text(label)
+  print *, "cild ptr is ", LOC(child)
+  !cstr = gtk_notebook_get_tab_label(self%notebook, child)
+  print *, "cstr ptr is ", LOC(cstr)
+  !strName = "testTab"
+  call convert_c_string(cstr, strName)
+  call LogTermDebug("Tab Name is "//trim(strName))
 
 
 end function
@@ -515,6 +603,8 @@ end function
     class(zoatabManager) :: self
     integer, intent(in) :: tabIndex, tabInfoIndex
 
+    PRINT *, "tabIndex is ", tabIndex
+    PRINT *, "tabInfoIndex is ", tabInfoIndex
 
     call gtk_notebook_remove_page(self%notebook, tabIndex)
     !PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
@@ -522,7 +612,13 @@ end function
     !PRINT *, "allocated test ", allocated(self%tabInfo(tabInfoIndex)%tabObj)
     if (allocated(self%tabInfo(tabInfoIndex)%tabObj)) then
        DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
+       ! If this is the last tab then reduce counter.  
+       if (tabInfoIndex == self%tabNum) self%tabNum = self%tabNum - 1
     end if
+
+    call LogTermDebug("Done with remove Plot Tab" )
+
+    
   
 
   end subroutine

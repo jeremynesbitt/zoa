@@ -197,8 +197,8 @@ subroutine vie_go(psm)
       call zoatabMgr%updateKDPPlotTab(objIdx)
      else
       pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
-     
-      psm%plotNum = pIdx+1 ! Noreplot so this is the next num
+      psm%plotNum = zoatabMgr%getLowestAvailablePlotNum(plot_code)
+      !psm%plotNum = pIdx+1 ! Noreplot so this is the next num
 
       !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
       psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
