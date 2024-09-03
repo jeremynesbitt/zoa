@@ -186,6 +186,211 @@ subroutine updateMenuBar()
 end subroutine
 
 
+subroutine undock_Window(act, param, gdata) bind(c)
+  use iso_c_binding
+  use type_utils
+  use handlers, only: zoatabMgr
+  use gtk
+  use zoa_tab
+  implicit none
+  type(c_ptr), value, intent(in) :: act, param, gdata
+  !integer(kind=c_int), pointer :: tabNum
+  integer(kind=c_int) :: tabNum
+
+  type(c_ptr) :: pagetomove, childtomove
+
+  type(c_ptr) :: newwin, newnotebook, box2, newpage
+  type(c_ptr) :: newlabel, gesture, source, dropTarget
+  integer :: newtab
+  
+  type(zoatab) :: tstTab
+
+
+  tabNum = 0
+
+
+
+ ! call c_f_pointer(gdata, tabNum)
+
+
+
+  call LogTermDebug("TabNum is "//int2str(tabNum))
+
+  !child = gtk_notebook_get_nth_page(zoatabMgr%notebook, tabNum)
+  pagetomove = gtk_notebook_get_nth_page(zoatabMgr%notebook, tabNum)
+  childtomove = gtk_notebook_page_get_child(pagetomove)
+  newlabel = gtk_notebook_get_tab_label(zoatabMgr%notebook, pagetomove)
+  
+  call gtk_notebook_remove_page(zoatabMgr%notebook, tabNum)
+  !call gtk_notebook_detach_tab(zoatabMgr%notebook, pagetomove)
+  
+
+  !Rebuild page
+
+ ! call gtk_box_append(self%box1, self%canvas)
+
+
+  
+
+  newpage = gtk_scrolled_window_new()
+  !call gtk_scrolled_window_set_child(newpage, zoatabMgr%tabInfo(tabNum)%tabObj%box1)
+
+
+  !call gtk_notebook_detach_tab(zoatabMgr%notebook, child)
+  PRINT *, "Child is ", LOC(pagetomove)
+  PRINT *, "notebook is ", LOC(zoatabMgr%notebook)
+
+  newwin = gtk_window_new()
+
+  call gtk_window_set_default_size(newwin, 1300, 700)
+
+  call gtk_window_set_destroy_with_parent(newwin, TRUE)
+  box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
+  newnotebook = gtk_notebook_new()
+  call gtk_widget_set_vexpand (newnotebook, TRUE)
+ 
+
+  !call hl_gtk_scrolled_window_add(newwin, newnotebook)
+
+  call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
+
+ call gtk_scrolled_window_set_child(newpage, pagetomove)
+  newTab = gtk_notebook_append_page(newnotebook, pagetomove, gtk_label_new("Testing"//c_null_char))  
+  call gtk_notebook_set_current_page(newnotebook, newtab)
+  print *, "NEw tab is ", newtab
+
+
+!   select type(tstTab => zoatabMgr%tabInfo(tabNum)%tabObj)
+!   type is (zoaplottab)
+!   type is (zoaplotdatatab)
+!   call LogTermDebug("In zoaplotdatatab")
+!   !newtab = gtk_notebook_append_page(newnotebook, tstTab%dataNotebook, &
+!   !& tstTab%tab_label)
+!   !newTab = gtk_notebook_append_page(newnotebook,gtk_notebook_get_nth_page(zoatabMgr%notebook, tabNum), &
+!   !& newlabel)
+
+
+
+
+! end select
+
+  !newtab = gtk_notebook_append_page(newnotebook, zoatabMgr%tabInfo(tabNum)%tabObj%dataNotebook, &
+  !& zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
+
+  !newtab = gtk_notebook_append_page(newnotebook, newpage,  zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
+  
+
+  call gtk_box_append(box2, newnotebook)
+
+  
+
+  call gtk_window_set_child(newwin, box2)
+
+
+  call gtk_widget_queue_draw(newnotebook)
+
+  !call gtk_window_set_child(my_window, newwin)
+
+
+  !call gtk_window_set_child(newwin, widget)
+
+  call gtk_widget_set_vexpand (box2, TRUE)
+
+  print *, "AFter crash?"
+
+  !call gtk_widget_show(newwin)
+
+
+  call gtk_window_present(newwin)
+
+end subroutine
+
+!For docking/undocking
+
+
+
+
+subroutine dock_Window(act, param, gdata) bind(c)
+  use iso_c_binding
+  implicit none
+  type(c_ptr), value, intent(in) :: act, param, gdata
+
+end subroutine  
+
+! subroutine undock_Window
+!   implicit none
+!   type(c_ptr), value :: widget, parent_notebook
+!   type(c_ptr) :: newwin, newnotebook, box2, scrolled_win
+!   type(c_ptr) :: child, newlabel, gesture, source, dropTarget
+!   integer :: newtab
+!   !PRINT *, "Detach Event Called!"
+
+!   !PRINT *, "widget is ", widget
+!   !PRINT *, "Parent Window is ", parent_notebook
+
+!   newwin = gtk_window_new()
+
+!   call gtk_window_set_default_size(newwin, 1300, 700)
+
+!   !call gtk_window_set_transient_for(newwin, my_window)
+!   call gtk_window_set_destroy_with_parent(newwin, TRUE)
+!   box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
+!   newnotebook = gtk_notebook_new()
+!   call gtk_widget_set_vexpand (newnotebook, TRUE)
+!   !# handler for dropping outside of current window
+!   !call hl_gtk_scrolled_window_add(newwin, newnotebook)
+
+!   call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
+!   child = gtk_notebook_get_nth_page(parent_notebook, -1_c_int)
+!   !newlabel = gtk_notebook_get_tab_label(parent_notebook, widget)
+!   call gtk_notebook_detach_tab(parent_notebook, child)
+!   scrolled_win = gtk_scrolled_window_new()
+!   call gtk_scrolled_window_set_child(scrolled_win, child)
+
+!   !newtab = gtk_notebook_append_page(newnotebook, widget, newlabel)
+!   newtab = gtk_notebook_append_page(newnotebook, scrolled_win, newlabel)
+!   call gtk_notebook_set_tab_detachable(newnotebook, scrolled_win, TRUE)
+!   call gtk_box_append(box2, newnotebook)
+
+!   call gtk_window_set_child(newwin, box2)
+
+!   !call gtk_window_set_child(my_window, newwin)
+
+
+!   !call gtk_window_set_child(newwin, widget)
+
+!   call gtk_widget_set_vexpand (box2, TRUE)
+
+
+!   !call gtk_widget_show(newwin)
+!   !call gtk_widget_show(parent_notebook)
+!   !call pending_events()
+!   call gtk_window_present(newwin)
+
+!   source = gtk_drag_source_new ()
+!   call gtk_drag_source_set_actions (source, GDK_ACTION_MOVE);
+!   call g_signal_connect (source, "prepare"//c_null_char, c_funloc(drag_prepare), scrolled_win);
+!   !call g_signal_connect (source, "drag-begin"//c_null_char, c_funloc(drag_end), child);        
+!   call g_signal_connect (source, "drag-end"//c_null_char, c_funloc(drag_end), child)
+!   call gtk_widget_add_controller (newnotebook, source);
+
+!   dropTarget = gtk_drop_target_new(gtk_widget_get_type(), GDK_ACTION_MOVE)
+!   call g_signal_connect(dropTarget, "drop", c_funloc(on_drop), c_null_ptr)
+!   call g_signal_connect(dropTarget, "motion", c_funloc(on_motion), c_null_ptr)
+
+!   call gtk_widget_add_controller(newnotebook, dropTarget)
+!   call gtk_widget_add_controller(gtk_widget_get_parent(newnotebook), dropTarget)
+
+
+
+
+!   gesture = gtk_gesture_click_new ()
+!   call g_signal_connect (gesture, "released", c_funloc(click_done), child);
+  
+!   call gtk_widget_add_controller (child, gesture);       
+
+!   PRINT *, "Modal ? ", gtk_window_get_modal(newwin)
+! end subroutine
 
 ! For docking/undocking
 

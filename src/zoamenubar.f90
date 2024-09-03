@@ -63,6 +63,15 @@ module zoamenubar
       integer :: tabNum
       logical :: isDocked
     end function
+    subroutine undock_Window(act, param, gdata) bind(c)
+      import:: c_ptr
+       type(c_ptr), value, intent(in) :: act, param, gdata
+    end subroutine
+  subroutine dock_Window(act, param, gdata) bind(c)
+     import :: c_ptr
+    type(c_ptr), value, intent(in) :: act, param, gdata
+  end subroutine  
+
     end interface
 
 
@@ -314,17 +323,7 @@ contains
 
 
   end subroutine
-  subroutine undock_Window(act, param, gdata) bind(c)
-    implicit none
-    type(c_ptr), value, intent(in) :: act, param, gdata
 
-  end subroutine
-
-  subroutine dock_Window(act, param, gdata) bind(c)
-    implicit none
-    type(c_ptr), value, intent(in) :: act, param, gdata
-
-  end subroutine  
 
   subroutine populateWindowMenu(win)
     use strings
@@ -336,6 +335,8 @@ contains
 
     menu_dock   = g_menu_new()
     menu_undock = g_menu_new()
+
+    call LogTermDebug("In populateWindowMenu")
 
     i = 0
     do i=1,getNumberOfTabs()
@@ -563,20 +564,23 @@ contains
   end subroutine
 
   subroutine addWindowMenuItem(topLevelMenu, menuItemText, menuItemEventName, funcPointer, win, tabNum)
+    use type_utils
+    use zoa_ui
     integer :: numCommands
     type(c_ptr) :: topLevelMenu, win
     character(len=*) :: menuItemText, menuItemEventName
     type(c_funptr) :: funcPointer
-    integer :: tabNum
+    integer, target, intent(in) :: tabNum
 
-    character(len=100), pointer :: ptr
+    integer, pointer :: ptr
     type(c_ptr) ::menuAction, menuItem
 
+    ptr=>tabNum
 
-
+    call LogTermDebug("TabNum is "//int2str(tabNum))
     menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, menuAction)
-    call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_null_ptr)
+    call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_loc(ptr))
     !PRINT *, "menuItemEventName is ", menuItemEventName
     menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
     call g_menu_append_item (topLevelMenu, menuItem)

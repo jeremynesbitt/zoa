@@ -644,7 +644,8 @@ end subroutine
 
         call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
         child = gtk_notebook_get_nth_page(parent_notebook, -1_c_int)
-        !newlabel = gtk_notebook_get_tab_label(parent_notebook, widget)
+        
+        newlabel = gtk_notebook_get_tab_label(parent_notebook, child)
         call gtk_notebook_detach_tab(parent_notebook, child)
         scrolled_win = gtk_scrolled_window_new()
         call gtk_scrolled_window_set_child(scrolled_win, child)

@@ -1227,6 +1227,7 @@ end subroutine
    ! THis is to fix the tab length to label + close button vs extending across the entire window
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
+   call gtk_notebook_set_tab_detachable(self%notebook, scrolled_tab, TRUE)
 
    call updateMenuBar()
 
@@ -1292,6 +1293,7 @@ end subroutine
    ! THis is to fix the tab length to label + close button vs extending across the entire window
     call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
     call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
+    call gtk_notebook_set_tab_detachable(self%notebook, scrolled_tab, TRUE)
     call updateMenuBar()
 
  end subroutine
@@ -1330,6 +1332,7 @@ end subroutine
 
 
    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+   call gtk_notebook_set_tab_detachable(self%notebook, scroll_win_data, TRUE)
    call updateMenuBar()
 
    ! Code for context menu
@@ -1425,7 +1428,8 @@ end function
    ! THis is to fix the tab length to label + close button vs extending across the entire window
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
-
+   call gtk_notebook_set_tab_detachable(self%notebook, scroll_win_data, TRUE)
+   call updateMenuBar()
 
 
 end subroutine
