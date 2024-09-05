@@ -647,17 +647,15 @@ subroutine moveTabMain(parent_notebook, child, pageNum, gdata) bind(c)
   tabNum = zoatabMgr%getTabIdxByID(trim(fstring))
 
   newtab = gtk_notebook_append_page(zoatabMgr%notebook, child, zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
+  call gtk_notebook_set_current_page(zoatabMgr%notebook, newtab)
   zoatabMgr%tabInfo(tabNum)%tabObj%isDocked = .TRUE.
   zoatabMgr%tabInfo(tabNum)%tabObj%notebook = zoatabMgr%notebook
   
 
-  call g_signal_connect(newnotebook, 'page-removed'//c_null_char, c_funloc(moveTabMain), c_null_ptr)
-  call gtk_notebook_set_tab_detachable(newnotebook, scrolled_win, TRUE)
-  !newtab = gtk_notebook_append_page(newnotebook, widget, newlabel)
-
   call gtk_notebook_set_tab_detachable(newnotebook, child, TRUE)
 
   call gtk_window_close(gtk_widget_get_ancestor(parent_notebook, gtk_window_get_type()))  
+  call updateMenuBar()
 
 
 end subroutine
@@ -719,6 +717,7 @@ subroutine removeTabTst(parent_notebook, child, pageNum, gdata) bind(c)
 
   call gtk_window_set_child(newwin, box2)  
   call gtk_window_present(newwin)
+  call updateMenuBar()
 end subroutine
 
   subroutine detachTabTst(parent_notebook, widget) bind(c)

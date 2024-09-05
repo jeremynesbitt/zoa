@@ -483,6 +483,7 @@ type zoatab
   procedure, public, pass(self) :: addListBox_new
   procedure, public, pass(self) :: addEntry_runCommand 
   procedure, public, pass(self) :: getTitle
+  procedure :: finishTab
 
 
 
@@ -609,14 +610,11 @@ contains ! for module
 
 subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
   use hl_gtk_zoa, only: hl_zoa_text_view_new
-  use global_widgets, only: ioConfig
   class(zoaplotdatatab) :: self
   type(c_ptr) :: parent_window
   integer(kind=c_int) :: ID_PLOTTYPE
   type(c_ptr), optional :: canvas
   character(len=*) :: tabTitle
-  type(c_ptr) :: tab_label, btn
-  integer, target :: ID_TARGET
 
   ! This feels dangerous as if the parent init procedure changes it could secretly break this.
   ! Shoudl probably refactor zoaplotab init routine to avoid this
@@ -939,6 +937,7 @@ function findTabParent(widget) result(tabIdx)
 
  !Different tab types have the parent in different locations.  This is a bad design so should fixt this
  ! at tome point
+ tabIdx = -1
  p1 = gtk_widget_get_parent(widget)
  cstr= gtk_widget_get_name(p1) 
  call convert_c_string(cstr, winName)
@@ -1208,19 +1207,12 @@ end function
 
 
  subroutine final_zoatab(self, useToolBar)
-  use g
   implicit none
   class(zoatab) :: self
   logical, optional :: useToolBar
 
   type(c_ptr) :: scrolled_tab, box_plotmanip, btn
-   type(c_ptr) :: dcname
-   character(len=80) :: dname
-   type(c_ptr) :: cptr 
-   character(len=80) :: fstring
 
-  integer :: location
-   PRINT *, "FINALIZING WINDOW in ZOATAB"
 
    !call self%buildSettings()
    self%expander = self%settings%build()
@@ -1236,25 +1228,8 @@ end function
    scrolled_tab = gtk_scrolled_window_new()
    PRINT *, "SETTING CHILD FOR SCROLLED TAB"
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
-   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
-   call g_object_set_data(scrolled_tab, "tab-id"//c_null_char, g_strdup('Test'//c_null_char))   
-   cptr = g_object_get_data(scrolled_tab, 'tab-id'//c_null_char)
-   call C_F_string_ptr(cptr, fstring)
-   call LogTermDebug("Check that string is "//trim(fstring))
 
-
-   self%tabNum = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
-   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
-
-   ! THis is to fix the tab length to label + close button vs extending across the entire window
-   call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
-   call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
-   call gtk_notebook_set_tab_detachable(self%notebook, scrolled_tab, TRUE)
-   self%isDocked = .TRUE.
-
-
-   call updateMenuBar()
-
+   call self%finishTab(scrolled_tab)
 
 
 end subroutine
@@ -1262,19 +1237,13 @@ end subroutine
 
 
  subroutine final_zoaplottab(self, useToolBar)
-   use g
    use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
    implicit none
    class(zoaplottab) :: self
    logical, optional :: useToolBar
 
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
-    type(c_ptr) :: dcname
-    character(len=80) :: dname
-    type(c_ptr) :: cptr 
-    character(len=80) :: fstring
-   integer :: location
-    PRINT *, "FINALIZING WINDOW in ZOATAB"
+
 
     !call self%buildSettings()
     self%expander = self%settings%build()
@@ -1302,49 +1271,22 @@ end subroutine
 
 
     scrolled_tab = gtk_scrolled_window_new()
-    PRINT *, "SETTING CHILD FOR SCROLLED TAB"
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
-   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
-    call g_object_set_data(scrolled_tab, "tab-id"//c_null_char, g_strdup('Test'//c_null_char))      
-    cptr = g_object_get_data(scrolled_tab, 'tab-id'//c_null_char)
-    call C_F_string_ptr(cptr, fstring)
-    call LogTermDebug("Check that string is "//trim(fstring))     
-    self%tabNum = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
 
-    call gtk_notebook_set_current_page(self%notebook, self%tabNum)
+    call self%finishTab(scrolled_tab)
 
-
-    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
-    !dcname = g_type_name(gtk_widget_get_type(self%zoatab_cda))
-    !dcname = g_type_name_from_instance(self%zoatab_cda)
-    !call c_f_string(dcname, dname)
-    !PRINT *, "WIDGET NAME IS ", dname
-
-
-   ! THis is to fix the tab length to label + close button vs extending across the entire window
-    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
-    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
-    call gtk_notebook_set_tab_detachable(self%notebook, scrolled_tab, TRUE)
-    self%isDocked = .TRUE.
-    call updateMenuBar()
-    
 
  end subroutine
 
  subroutine final_zoadatatab(self, useToolBar)
-  use g
+
   use zoa_plot_manip_toolbar, only: createPlotManipulationToolbar
   implicit none
   class(zoadatatab) :: self
   logical, optional :: useToolBar
 
-  type(c_ptr) :: scroll_win_data, box_plotmanip, btn
-   type(c_ptr) :: dcname
-   character(len=80) :: dname
-   type(c_ptr) :: cptr 
-   character(len=80) :: fstring
+  type(c_ptr) :: scroll_win_data
 
-  integer :: location
 
    !call self%buildSettings()
    self%expander = self%settings%build()
@@ -1361,28 +1303,9 @@ end subroutine
    call gtk_box_append(self%box1, self%textView)
    call gtk_scrolled_window_set_child(scroll_win_data, self%box1)
    call gtk_widget_set_vexpand (self%box1, TRUE)
-   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
-   call g_object_set_data(scroll_win_data, "tab-id"//c_null_char, g_strdup('Test'//c_null_char))    
-   cptr = g_object_get_data(scroll_win_data, 'tab-id'//c_null_char)
-   call C_F_string_ptr(cptr, fstring)
-   call LogTermDebug("Check that string is "//trim(fstring))   
-   self%tabNum = gtk_notebook_append_page(self%notebook, scroll_win_data, self%tab_label)
-   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
+   call self%finishTab(scroll_win_data)
 
-   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
-   call gtk_notebook_set_tab_detachable(self%notebook, scroll_win_data, TRUE)
-   self%isDocked = .TRUE.
-   call updateMenuBar()
-
-   ! Code for context menu
-  !  controller_c = gtk_gesture_click_new()
-  !  ! 0 to listen to all buttons (button 1 by default):
-  !  call gtk_gesture_single_set_button (controller_c, 3_c_int)
-  !   call g_signal_connect(controller_c, "pressed"//c_null_char, &
-  !   & c_funloc(textView_context_menu), c_null_ptr)  
-     
-  !  call gtk_widget_add_controller(self%textView, controller_c)
 
   end subroutine
 
@@ -1425,7 +1348,6 @@ end function
    if (present(useToolBar)) then
      print *, "UseToolbar here, value ", useToolBar
      if (useToolBar) then
-       call LogTermFOR("Here is where I would like to init toolbar!")
       call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
       call gtk_box_append(self%box1, box_plotmanip)
    end if
@@ -1456,29 +1378,32 @@ end function
 
    dataLoc = gtk_notebook_append_page(self%dataNotebook, scroll_win_data, gtk_label_new("Data"//c_null_char))
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
-   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
-   call g_object_set_data(self%dataNotebook, "tab-id"//c_null_char, &
-   & g_strdup(trim(self%getTitle())//c_null_char))   
-   !call g_object_set_data(self%dataNotebook, "tab-id"//c_null_char, g_object_ref(self%tab_label))   
-   !cptr = g_object_get_data(self%dataNotebook, "tab-id"//c_null_char)
-   !call gtk_widget_set_name(scroll_win_data, "123"//c_null_char)
 
-   self%tabNum = gtk_notebook_append_page(self%notebook, self%dataNotebook, self%tab_label)
-   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
+   call self%finishTab(self%dataNotebook)
 
+end subroutine
 
-   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
-   !dcname = g_type_name(gtk_widget_get_type(self%zoatab_cda))
-   !dcname = g_type_name_from_instance(self%zoatab_cda)
-   !call c_f_string(dcname, dname)
-   !PRINT *, "WIDGET NAME IS ", dname
+! This should be common for all zoatab types to be compatible with other program features (eg dock/undock, eventually DND)
+subroutine finishTab(self, page)
+  use g, only : g_object_set_data, g_strdup
+  class(zoatab) :: self
+  type(c_ptr) :: page
 
-   ! THis is to fix the tab length to label + close button vs extending across the entire window
-   call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
-   call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
-   call gtk_notebook_set_tab_detachable(self%notebook, scroll_win_data, TRUE)
-   self%isDocked = .TRUE.
-   call updateMenuBar()
+   ! Set a key so I can keep track of tabs when docked/undocked.  Using the title of the plot, since that is what is shown on the menu and 
+   ! it is unique.
+
+  call g_object_set_data(page, "tab-id"//c_null_char, &
+  & g_strdup(trim(self%getTitle())//c_null_char))   
+  self%tabNum = gtk_notebook_append_page(self%notebook, page, self%tab_label)
+  call gtk_notebook_set_current_page(self%notebook, self%tabNum)
+  call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+
+  ! THis is to fix the tab length to label + close button vs extending across the entire window
+  call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
+  call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
+  call gtk_notebook_set_tab_detachable(self%notebook, page, TRUE)
+  self%isDocked = .TRUE. ! Should probably set this some
+  call updateMenuBar()  ! Need to rebuild menubar with every new plot to populate the docked/undocked window  
 
 
 end subroutine
