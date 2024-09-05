@@ -469,6 +469,7 @@ type zoatab
   integer(kind=c_int) :: ID_PLOTTYPE
   integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
   integer :: tabNum
+  logical :: isDocked
   character(len=140) :: plotCommand
   type(zoaplot_setting_manager) :: psm
   type(c_ptr) :: tab_label, notebook, expander, box1  
@@ -481,6 +482,7 @@ type zoatab
   procedure, public, pass(self) :: addSpinButtonFromPS
   procedure, public, pass(self) :: addListBox_new
   procedure, public, pass(self) :: addEntry_runCommand 
+  procedure, public, pass(self) :: getTitle
 
 
 
@@ -1193,6 +1195,17 @@ end subroutine
 
  end subroutine
 
+ function getTitle(self) result(strName)
+  class(zoatab) :: self
+  character(len=100) :: strName
+  type(c_ptr) :: cstr, label
+
+  label = gtk_widget_get_first_child(self%tab_label)
+  cstr = gtk_label_get_text(label)
+  call convert_c_string(cstr, strName)
+
+end function
+
 
  subroutine final_zoatab(self, useToolBar)
   use g
@@ -1203,6 +1216,8 @@ end subroutine
   type(c_ptr) :: scrolled_tab, box_plotmanip, btn
    type(c_ptr) :: dcname
    character(len=80) :: dname
+   type(c_ptr) :: cptr 
+   character(len=80) :: fstring
 
   integer :: location
    PRINT *, "FINALIZING WINDOW in ZOATAB"
@@ -1221,6 +1236,13 @@ end subroutine
    scrolled_tab = gtk_scrolled_window_new()
    PRINT *, "SETTING CHILD FOR SCROLLED TAB"
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
+   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
+   call g_object_set_data(scrolled_tab, "tab-id"//c_null_char, g_strdup('Test'//c_null_char))   
+   cptr = g_object_get_data(scrolled_tab, 'tab-id'//c_null_char)
+   call C_F_string_ptr(cptr, fstring)
+   call LogTermDebug("Check that string is "//trim(fstring))
+
+
    self%tabNum = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
    call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
@@ -1228,6 +1250,8 @@ end subroutine
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
    call gtk_notebook_set_tab_detachable(self%notebook, scrolled_tab, TRUE)
+   self%isDocked = .TRUE.
+
 
    call updateMenuBar()
 
@@ -1247,7 +1271,8 @@ end subroutine
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
     type(c_ptr) :: dcname
     character(len=80) :: dname
-
+    type(c_ptr) :: cptr 
+    character(len=80) :: fstring
    integer :: location
     PRINT *, "FINALIZING WINDOW in ZOATAB"
 
@@ -1279,7 +1304,13 @@ end subroutine
     scrolled_tab = gtk_scrolled_window_new()
     PRINT *, "SETTING CHILD FOR SCROLLED TAB"
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
+   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
+    call g_object_set_data(scrolled_tab, "tab-id"//c_null_char, g_strdup('Test'//c_null_char))      
+    cptr = g_object_get_data(scrolled_tab, 'tab-id'//c_null_char)
+    call C_F_string_ptr(cptr, fstring)
+    call LogTermDebug("Check that string is "//trim(fstring))     
     self%tabNum = gtk_notebook_append_page(self%notebook, scrolled_tab, self%tab_label)
+
     call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
 
@@ -1294,7 +1325,9 @@ end subroutine
     call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
     call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
     call gtk_notebook_set_tab_detachable(self%notebook, scrolled_tab, TRUE)
+    self%isDocked = .TRUE.
     call updateMenuBar()
+    
 
  end subroutine
 
@@ -1308,6 +1341,8 @@ end subroutine
   type(c_ptr) :: scroll_win_data, box_plotmanip, btn
    type(c_ptr) :: dcname
    character(len=80) :: dname
+   type(c_ptr) :: cptr 
+   character(len=80) :: fstring
 
   integer :: location
 
@@ -1326,13 +1361,18 @@ end subroutine
    call gtk_box_append(self%box1, self%textView)
    call gtk_scrolled_window_set_child(scroll_win_data, self%box1)
    call gtk_widget_set_vexpand (self%box1, TRUE)
-
+   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
+   call g_object_set_data(scroll_win_data, "tab-id"//c_null_char, g_strdup('Test'//c_null_char))    
+   cptr = g_object_get_data(scroll_win_data, 'tab-id'//c_null_char)
+   call C_F_string_ptr(cptr, fstring)
+   call LogTermDebug("Check that string is "//trim(fstring))   
    self%tabNum = gtk_notebook_append_page(self%notebook, scroll_win_data, self%tab_label)
    call gtk_notebook_set_current_page(self%notebook, self%tabNum)
 
 
    call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
    call gtk_notebook_set_tab_detachable(self%notebook, scroll_win_data, TRUE)
+   self%isDocked = .TRUE.
    call updateMenuBar()
 
    ! Code for context menu
@@ -1369,6 +1409,8 @@ end function
   type(c_ptr) :: scrolled_tab, box_plotmanip, btn, scroll_win_data, base
    type(c_ptr) :: dcname
    character(len=80) :: dname
+   type(c_ptr) :: cptr 
+   character(len=80) :: fstring
 
   integer :: location
    PRINT *, "FINALIZING WINDOW in ZOATAB"
@@ -1414,6 +1456,12 @@ end function
 
    dataLoc = gtk_notebook_append_page(self%dataNotebook, scroll_win_data, gtk_label_new("Data"//c_null_char))
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
+   ! Set a key so I can keep track of tabs when docked/undocked.  It's a bit hacky to use an existing object, but it makes it easy to check
+   call g_object_set_data(self%dataNotebook, "tab-id"//c_null_char, &
+   & g_strdup(trim(self%getTitle())//c_null_char))   
+   !call g_object_set_data(self%dataNotebook, "tab-id"//c_null_char, g_object_ref(self%tab_label))   
+   !cptr = g_object_get_data(self%dataNotebook, "tab-id"//c_null_char)
+   !call gtk_widget_set_name(scroll_win_data, "123"//c_null_char)
 
    self%tabNum = gtk_notebook_append_page(self%notebook, self%dataNotebook, self%tab_label)
    call gtk_notebook_set_current_page(self%notebook, self%tabNum)
@@ -1429,6 +1477,7 @@ end function
    call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
    call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(self%tab_label)),FALSE)
    call gtk_notebook_set_tab_detachable(self%notebook, scroll_win_data, TRUE)
+   self%isDocked = .TRUE.
    call updateMenuBar()
 
 

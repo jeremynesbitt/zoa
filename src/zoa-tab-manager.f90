@@ -39,6 +39,7 @@ type  zoatabManager
    procedure :: getNumberOfPlotsByCode
    procedure :: getLowestAvailablePlotNum
    procedure :: getTabTitle
+   procedure :: getTabIdxByID
    procedure :: addMultiPlotTab
    procedure :: addDataTab
    procedure :: addGenericMultiPlotTab ! May be obsolete with tweak to init process
@@ -278,6 +279,30 @@ subroutine setKDPCallback(self, idx, tabIndex)
 end select
 
 end subroutine
+
+function getTabIdxByID(self, key) result(tabIdx)
+  class(zoatabManager) :: self
+  character(len=*) :: key
+  integer :: tabIdx
+  integer :: i
+
+  ! The key is the tab_label object.
+
+  print *, "key is ", loc(key)
+  tabIdx = -1
+  do i=1,self%tabNum
+    if(allocated(self%tabInfo(i)%tabObj)) then 
+       if(self%getTabTitle(i) == key) then
+        call LogTermDebug("Found tab idx by key!")
+         tabIdx = i
+         return
+
+      end if
+    end if  
+  end do
+
+end function
+
 
 ! Support the KDP way of plotting
 function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)

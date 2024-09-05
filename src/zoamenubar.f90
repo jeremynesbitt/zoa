@@ -71,6 +71,11 @@ module zoamenubar
      import :: c_ptr
     type(c_ptr), value, intent(in) :: act, param, gdata
   end subroutine  
+  function getTabParentNotebook(tabIdx)
+    import :: c_ptr
+    integer :: tabIdx
+    type(c_ptr) :: getTabParentNotebook
+  end function
 
     end interface
 
@@ -327,6 +332,7 @@ contains
 
   subroutine populateWindowMenu(win)
     use strings
+    use zoa_ui
     ! This menu will handle docking/undocking of windows and assoicated options
     type(c_ptr) :: menu_dock, menu_undock, win
     integer :: i
@@ -343,9 +349,9 @@ contains
       if (isDocked(i)) then
         tabName = trim(getTabName(i))
         call removesp(tabName)
-        call addWindowMenuItem(menu_undock, trim(getTabName(i)), "UnDock"//trim(tabName)//c_null_char, c_funloc(undock_Window), win,i)
+        call addWindowMenuItem(menu_undock, trim(getTabName(i)), "UnDock"//trim(tabName)//c_null_char, c_funloc(undock_Window), win,tabIndices(i))
       else
-        call addWindowMenuItem(menu_dock, trim(getTabName(i)), "Dock"//trim(tabName)//c_null_char, c_funloc(dock_Window), win, i)
+        call addFuncMenuItem(menu_dock, trim(getTabName(i)), "Dock"//trim(tabName)//c_null_char, c_funloc(dock_Window), win, getTabParentNotebook(i))
       end if
     end do
 
@@ -529,11 +535,12 @@ contains
 
   end subroutine
 
-  subroutine addFuncMenuItem(topLevelMenu, menuItemText, menuItemEventName, funcPointer, win)
+  subroutine addFuncMenuItem(topLevelMenu, menuItemText, menuItemEventName, funcPointer, win, data)
     integer :: numCommands
     type(c_ptr) :: topLevelMenu, win
     character(len=*) :: menuItemText, menuItemEventName
     type(c_funptr) :: funcPointer
+    type(c_ptr), optional :: data
 
     character(len=100), pointer :: ptr
     type(c_ptr) ::menuAction, menuItem
@@ -542,7 +549,11 @@ contains
 
     menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, menuAction)
+    if (present(data)) then 
+      call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, data)
+    else
     call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_null_ptr)
+    end if
     !PRINT *, "menuItemEventName is ", menuItemEventName
     menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
     call g_menu_append_item (topLevelMenu, menuItem)
@@ -581,6 +592,8 @@ contains
     menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, menuAction)
     call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_loc(ptr))
+    
+    !call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_loc(ptr))
     !PRINT *, "menuItemEventName is ", menuItemEventName
     menuItem = g_menu_item_new (menuItemText//c_null_char, "win."//menuItemEventName//c_null_char)
     call g_menu_append_item (topLevelMenu, menuItem)

@@ -410,6 +410,8 @@ contains
 
     call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
 
+    call g_signal_connect(notebook, 'page-removed'//c_null_char, c_funloc(removeTabTst), c_null_ptr)
+
 
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, scroll_win_detach)
@@ -617,6 +619,106 @@ subroutine drag_end(source, drag)
 
   !gtk_widget_pick  
 
+end subroutine
+
+subroutine moveTabMain(parent_notebook, child, pageNum, gdata) bind(c)
+  use type_utils
+  implicit none
+  type(c_ptr), value :: child, parent_notebook, gdata
+  integer(kind=c_int), value :: pageNum
+
+  type(c_ptr) :: newwin, newnotebook, box2, scrolled_win
+  type(c_ptr) :: newlabel, gesture, source, dropTarget
+  integer :: newtab, i, tabNum
+  type(c_ptr) :: cptr
+  character(len=80) :: fstring
+
+  cptr = g_object_get_data(child, 'tab-id'//c_null_char)
+  if (c_associated(cptr)) then
+    call LogTermDebug("Pointer defind!")
+    call c_f_string(cptr, fstring)
+   !call c_f_pointer(cptr, fstring)
+   call LogTermDebug("Check that string is "//trim(fstring))   
+   else 
+    call LogTermDebug("Pointer not defind!")
+   end if
+  call LogTermDebug("Tab ID is "//trim(fstring))
+
+  tabNum = zoatabMgr%getTabIdxByID(trim(fstring))
+
+  newtab = gtk_notebook_append_page(zoatabMgr%notebook, child, zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
+  zoatabMgr%tabInfo(tabNum)%tabObj%isDocked = .TRUE.
+  zoatabMgr%tabInfo(tabNum)%tabObj%notebook = zoatabMgr%notebook
+  
+
+  call g_signal_connect(newnotebook, 'page-removed'//c_null_char, c_funloc(moveTabMain), c_null_ptr)
+  call gtk_notebook_set_tab_detachable(newnotebook, scrolled_win, TRUE)
+  !newtab = gtk_notebook_append_page(newnotebook, widget, newlabel)
+
+  call gtk_notebook_set_tab_detachable(newnotebook, child, TRUE)
+
+  call gtk_window_close(gtk_widget_get_ancestor(parent_notebook, gtk_window_get_type()))  
+
+
+end subroutine
+
+subroutine removeTabTst(parent_notebook, child, pageNum, gdata) bind(c)
+  use type_utils
+  implicit none
+  type(c_ptr), value :: child, parent_notebook, gdata
+  integer(kind=c_int), value :: pageNum
+
+  type(c_ptr) :: newwin, newnotebook, box2, scrolled_win
+  type(c_ptr) :: newlabel, gesture, source, dropTarget
+  integer :: newtab, i  
+
+
+  newwin = gtk_window_new()
+
+  call gtk_window_set_default_size(newwin, 1300, 700)
+
+  !call gtk_window_set_transient_for(newwin, my_window)
+  call gtk_window_set_destroy_with_parent(newwin, TRUE)
+  box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
+  newnotebook = gtk_notebook_new()
+  call gtk_widget_set_vexpand (newnotebook, TRUE)
+  !# handler for dropping outside of current window
+  !call hl_gtk_scrolled_window_add(newwin, newnotebook)
+
+  call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
+
+  !newlabel = gtk_notebook_get_tab_label(parent_notebook, child)
+
+  !scrolled_win = gtk_scrolled_window_new()
+  !call gtk_scrolled_window_set_child(scrolled_win, child)
+
+
+  print *, "pageNum is ", pageNum
+  do i=1,zoatabMgr%tabNum
+    call LogTermDebug("ABout to check "//int2str(i))
+ 
+    if(allocated(zoatabMgr%tabInfo(i)%tabObj)) then 
+      call LogTermDebug("Before checking tabNum")   
+      call LogTermDebug("Tab Num is "//int2str(zoatabMgr%tabInfo(i)%tabObj%tabNum))
+      if(zoatabMgr%tabInfo(i)%tabObj%tabNum == pageNum) then
+        newlabel = zoatabMgr%tabInfo(i)%tabObj%tab_label
+        zoatabMgr%tabInfo(i)%tabObj%isDocked = .FALSE.
+        ! Need this to send to the dock window callback so it knows to remove the page
+        zoatabMgr%tabInfo(i)%tabObj%notebook = newnotebook
+      end if
+    end if
+
+  end do
+
+
+  !newtab = gtk_notebook_append_page(newnotebook, widget, newlabel)
+  newtab = gtk_notebook_append_page(newnotebook, child, newlabel)
+  call g_signal_connect(newnotebook, 'page-removed'//c_null_char, c_funloc(moveTabMain), c_null_ptr)
+  call gtk_notebook_set_tab_detachable(newnotebook, scrolled_win, TRUE)
+  call gtk_box_append(box2, newnotebook)
+
+  call gtk_window_set_child(newwin, box2)  
+  call gtk_window_present(newwin)
 end subroutine
 
   subroutine detachTabTst(parent_notebook, widget) bind(c)

@@ -170,9 +170,21 @@ function isDocked(tabNum) result(boolResult)
   logical :: boolResult
   integer :: tabNum
 
-  boolResult = .TRUE.
+  boolResult = zoatabMgr%tabInfo(tabNum)%tabObj%isDocked
+  !boolResult = .TRUE.
 
 end function
+
+function getTabParentNotebook(tabIdx) result(parent_notebook)
+  use iso_c_binding
+  use handlers, only: zoatabMgr
+  integer, intent(in) :: tabIdx
+  type(c_ptr) :: parent_notebook
+
+  parent_notebook = zoatabMgr%tabInfo(tabIdx)%tabObj%notebook
+
+end function
+
 
 subroutine updateMenuBar()
   use handlers, only: my_window
@@ -202,106 +214,18 @@ subroutine undock_Window(act, param, gdata) bind(c)
   type(c_ptr) :: newwin, newnotebook, box2, newpage
   type(c_ptr) :: newlabel, gesture, source, dropTarget
   integer :: newtab
-  
+  integer(kind=c_int), pointer :: TAB_NUM
+
   type(zoatab) :: tstTab
 
-
-  tabNum = 0
-
+ call c_f_pointer(gdata, TAB_NUM)
 
 
- ! call c_f_pointer(gdata, tabNum)
+  call LogTermDebug("TabNum is "//int2str(TAB_NUM))
 
-
-
-  call LogTermDebug("TabNum is "//int2str(tabNum))
-
-  !child = gtk_notebook_get_nth_page(zoatabMgr%notebook, tabNum)
-  pagetomove = gtk_notebook_get_nth_page(zoatabMgr%notebook, tabNum)
-  childtomove = gtk_notebook_page_get_child(pagetomove)
-  newlabel = gtk_notebook_get_tab_label(zoatabMgr%notebook, pagetomove)
-  
-  call gtk_notebook_remove_page(zoatabMgr%notebook, tabNum)
+  call gtk_notebook_remove_page(zoatabMgr%notebook, TAB_NUM)
   !call gtk_notebook_detach_tab(zoatabMgr%notebook, pagetomove)
   
-
-  !Rebuild page
-
- ! call gtk_box_append(self%box1, self%canvas)
-
-
-  
-
-  newpage = gtk_scrolled_window_new()
-  !call gtk_scrolled_window_set_child(newpage, zoatabMgr%tabInfo(tabNum)%tabObj%box1)
-
-
-  !call gtk_notebook_detach_tab(zoatabMgr%notebook, child)
-  PRINT *, "Child is ", LOC(pagetomove)
-  PRINT *, "notebook is ", LOC(zoatabMgr%notebook)
-
-  newwin = gtk_window_new()
-
-  call gtk_window_set_default_size(newwin, 1300, 700)
-
-  call gtk_window_set_destroy_with_parent(newwin, TRUE)
-  box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
-  newnotebook = gtk_notebook_new()
-  call gtk_widget_set_vexpand (newnotebook, TRUE)
- 
-
-  !call hl_gtk_scrolled_window_add(newwin, newnotebook)
-
-  call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
-
- call gtk_scrolled_window_set_child(newpage, pagetomove)
-  newTab = gtk_notebook_append_page(newnotebook, pagetomove, gtk_label_new("Testing"//c_null_char))  
-  call gtk_notebook_set_current_page(newnotebook, newtab)
-  print *, "NEw tab is ", newtab
-
-
-!   select type(tstTab => zoatabMgr%tabInfo(tabNum)%tabObj)
-!   type is (zoaplottab)
-!   type is (zoaplotdatatab)
-!   call LogTermDebug("In zoaplotdatatab")
-!   !newtab = gtk_notebook_append_page(newnotebook, tstTab%dataNotebook, &
-!   !& tstTab%tab_label)
-!   !newTab = gtk_notebook_append_page(newnotebook,gtk_notebook_get_nth_page(zoatabMgr%notebook, tabNum), &
-!   !& newlabel)
-
-
-
-
-! end select
-
-  !newtab = gtk_notebook_append_page(newnotebook, zoatabMgr%tabInfo(tabNum)%tabObj%dataNotebook, &
-  !& zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
-
-  !newtab = gtk_notebook_append_page(newnotebook, newpage,  zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
-  
-
-  call gtk_box_append(box2, newnotebook)
-
-  
-
-  call gtk_window_set_child(newwin, box2)
-
-
-  call gtk_widget_queue_draw(newnotebook)
-
-  !call gtk_window_set_child(my_window, newwin)
-
-
-  !call gtk_window_set_child(newwin, widget)
-
-  call gtk_widget_set_vexpand (box2, TRUE)
-
-  print *, "AFter crash?"
-
-  !call gtk_widget_show(newwin)
-
-
-  call gtk_window_present(newwin)
 
 end subroutine
 
@@ -310,10 +234,14 @@ end subroutine
 
 
 
-subroutine dock_Window(act, param, gdata) bind(c)
+subroutine dock_Window(act, param, parent_notebook) bind(c)
+  use gtk
   use iso_c_binding
   implicit none
-  type(c_ptr), value, intent(in) :: act, param, gdata
+  type(c_ptr), value, intent(in) :: act, param, parent_notebook
+
+  ! For the detached tabs I only allow one, so the current page must be the page to remove
+  call gtk_notebook_remove_page(parent_notebook, gtk_notebook_get_current_page(parent_notebook))
 
 end subroutine  
 

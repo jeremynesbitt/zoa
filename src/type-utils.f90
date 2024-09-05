@@ -146,4 +146,13 @@ module type_utils
       
         end function
 
+        function int2ptr(ipt) result(ptr)
+          integer, target, intent(in) :: ipt
+          integer, pointer :: ptr
+  
+          ptr=>ipt
+          
+        end function
+
+
   end module
