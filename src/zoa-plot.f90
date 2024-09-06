@@ -94,6 +94,8 @@ type :: zoaplot
     ! Scale related
     logical :: manualYScale
     real(kind=pl_test_flt) ::  yScale 
+    logical :: manualXScale
+    real(kind=pl_test_flt) ::  xScale     
 
 
 
@@ -114,7 +116,7 @@ contains
     procedure, private, pass(self) :: buildPlotCode
     procedure, private, pass(self) :: checkBackingSurface
     procedure :: addText
-    procedure :: setYScale
+    procedure :: setYScale, setXScale
 
 
 end type
@@ -715,6 +717,7 @@ end subroutine
     self%numTextLabels = 0
 
     self%manualYScale = .FALSE.
+    self%manualXScale = .FALSE.
 
   end subroutine
 
@@ -850,12 +853,17 @@ end subroutine
 
     call getAxesLimits(self, xmin, xmax, ymin, ymax)
     !if (self%useLegend) call plvpor(.05, .95, 0.2, .8)
-    if (self%manualYScale) then 
-      call plwind(xmin, xmax, -1.0_pl_test_flt*self%yScale, self%yScale)
-      !call plwind(xmin, xmax, -3.5_pl_test_flt, 3.5_pl_test_flt)
-    else
-    call plwind(xmin, xmax, ymin, ymax)
+    if (self%manualYScale) then
+       ymin = -1.0_pl_test_flt*self%yScale
+       ymax = self%yScale
     end if
+    if (self%manualXScale) then
+      xmin = -1.0_pl_test_flt*self%xScale
+      xmax = self%xScale
+   end if    
+
+    call plwind(xmin, xmax, ymin, ymax)
+
 
         isurface = c_null_ptr
         if (c_associated(self%area)) then
@@ -917,7 +925,7 @@ end subroutine
           ! and then get the viewport size in normalized coordinates (y_norm)
           ! This will tell me how big the character is relatie to the entire size of the viewport
           ! Then I need to convert it to world coordniates (p_ymax).  This gets me what I want (ugh..)
-          
+
           call plptex(0.0,real(p_ymax-currCharHgt/(y_norm*y_abs)*p_ymax), 0.0, 0.0, 0.0, trim(self%textLabels(i))//c_null_char)
 
 
@@ -977,6 +985,16 @@ end subroutine
       self%textLabelPositions(self%numTextLabels) = ID_POS
 
     end subroutine
+
+    subroutine setXScale(self, xScale)
+      class(zoaplot) :: self
+      real(kind=pl_test_flt) :: xScale
+
+      self%manualXScale = .TRUE.
+      self%xScale = abs(xScale)
+
+      end subroutine
+    
 
     subroutine setYScale(self, yScale)
       class(zoaplot) :: self

@@ -191,13 +191,17 @@ contains
 
       if (TEST_MODE) call dumpToFile(trim(ftext))
 
-      ! Get scroll window and v adjustment
-      scroll_win = gtk_widget_get_parent(ioConfig%textView)
-      vAdj = gtk_scrolled_window_get_vadjustment(scroll_win)
+      ! Get scroll window and v adjustment.  Only for standard log 
 
-      ! Set value to be upper limit - page size
-      call gtk_adjustment_set_value(vAdj, gtk_adjustment_get_upper(vAdj) - &
-      & gtk_adjustment_get_page_size(vAdj))
+      scroll_win = gtk_widget_get_parent(ioConfig%textView)
+     
+        vAdj = gtk_scrolled_window_get_vadjustment(scroll_win)
+
+        ! Set value to be upper limit - page size
+        call gtk_adjustment_set_value(vAdj, gtk_adjustment_get_upper(vAdj) - &
+        & gtk_adjustment_get_page_size(vAdj))
+
+
       
       !call pending_events()
       !PRINT *, "End of updateterminallog"

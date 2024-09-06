@@ -523,37 +523,6 @@ type, extends(zoaplottab) :: zoaplotdatatab
    procedure :: finalizeWindow => final_zoaplotdatatab
 end type
 
-! type zoatab
-!      type(c_ptr) :: canvas, box1, tab_label, notebook, expander
-!      integer(c_int)  :: width = 1*1000 !1000
-!      integer(c_int)  ::  height = 1*700 !700
-!      type(zoa_settings_obj) :: settings
-!      type(zoaplot) :: zPlot ! Should this be in a derived type instead?
-!      integer(kind=c_int) :: ID_PLOTTYPE
-!      integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
-!      character(len=140) :: plotCommand
-!      logical :: useToolbar
-!      type(zoaplot_setting_manager) :: psm
-!      ! This is not being used, but was just added for testing
-!      procedure(myinterface), pointer, pass(self) :: newGenericSinglePlot
-
-
-!      !Note:  I'm not super happy with having addSetting 
-!  contains
-!    procedure, public, pass(self) :: initialize
-!    procedure, public, pass(self) :: addListBoxSetting
-!    procedure, public, pass(self) :: addListBoxSettingTextID
-!    procedure, public, pass(self) :: finalizeWindow
-!    procedure, public, pass(self) :: addSpinButtonFromPS
-!    procedure, public, pass(self) :: addListBox_new
-!    procedure, public, pass(self) :: addEntry_runCommand 
-!    procedure, public, pass(self) :: updateGenericMultiPlot
-!    procedure, public, pass(self) :: createGenericMultiPlot
-!    procedure, public, pass(self) :: newPlot => zoatab_newPlot
-
-
-
-! end type
 
 abstract interface
   subroutine myinterface(self)
@@ -611,7 +580,7 @@ contains ! for module
 subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
   use hl_gtk_zoa, only: hl_zoa_text_view_new
   class(zoaplotdatatab) :: self
-  type(c_ptr) :: parent_window
+  type(c_ptr) :: parent_window, scroll_win
   integer(kind=c_int) :: ID_PLOTTYPE
   type(c_ptr), optional :: canvas
   character(len=*) :: tabTitle
@@ -628,9 +597,12 @@ subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canva
   call gtk_notebook_set_tab_pos(self%dataNotebook, GTK_POS_BOTTOM)
 
 
-  !Create objects for data tab
-
+  !To be compatible with updateTerminal log, attach a scrolled window to the textview
+  scroll_win = gtk_scrolled_window_new()
   self%textView = hl_zoa_text_view_new()
+
+  call gtk_scrolled_window_set_child(scroll_win, self%textView)
+
   call gtk_text_view_set_editable(self%textView, FALSE)
 
   ! Set a monospaced font so table output looks reasonable
@@ -740,8 +712,8 @@ end subroutine
   type(c_ptr) :: parent_window
   integer(kind=c_int) :: ID_PLOTTYPE
   character(len=*) :: tabTitle
-  type(c_ptr) :: tab_label, btn
-  integer, target :: ID_TARGET
+  type(c_ptr) :: tab_label
+
 
   call self%zoatab%initialize(parent_window, tabTitle, ID_PLOTTYPE, canvas)
 
@@ -765,7 +737,7 @@ subroutine createGenericMultiPlot(self, mplt)
   isurface = g_object_get_data(mplt%area, "backing-surface")
   PRINT *, "multiplot isurface is ", LOC(isurface)
   if (.not. c_associated(isurface)) then
-     PRINT *, "error:  new plot :: Backing surface is NULL.  Adding one"
+    call LogTermDebug("error:  new plot :: Backing surface is NULL.  Adding one")
      isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
      isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
      call g_object_set_data(self%canvas, "backing-surface", isurface)
@@ -781,18 +753,14 @@ end subroutine
 subroutine updateGenericMultiPlot(self, mplt)
   class(zoaplottab) :: self
   type(multiplot) :: mplt
-  ! I don't think this part is needed anymore - will delete after latest plot infra conversion
-  ! that uses this to add mplot for new and replot in the same way
-  if (c_associated(self%canvas)) then
-      
-      mplt%area = self%canvas
-  else
-    !call LogTermFOR( "Multiplot update canvas ptr is loose")
-    !PRINT *, "Multiplot update canvas ptr is loose"
-    !PRINT *, "mplt%area is ", LOC(mplt%area)
-     self%canvas = mplt%area
-  end if
+
+  ! Currently zoatab does not save the mplt object (seems bad) so setting the canvas here as the object
+  ! needs to be added to the ui window
+  ! will need to keep mplt in zoatab to manipulate plot in the future?
+
+  self%canvas = mplt%area
   call mplt%draw()
+
 end subroutine
 
 subroutine addEntry_runCommand(self, labelTxt, valueStr, command, SETTING_CODE)
@@ -983,11 +951,9 @@ subroutine callback_runCommandFromSpinBox_new(widget, gdata ) bind(c)
   real(c_double) :: realData
   integer :: intVal
  character(len=23) :: ffieldstr
- character(len=140) :: cmdOrig
+
  character(len=20) :: strSettingCode
- character(len=150) :: cmdNew
  type(c_ptr) :: cstr, buff2
- character(len=50) :: choice
  integer :: setting_code
 
  character(len=150), pointer :: command_base
@@ -1244,7 +1210,7 @@ end subroutine
 
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
 
-
+    
     !call self%buildSettings()
     self%expander = self%settings%build()
     !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
@@ -1353,7 +1319,6 @@ end function
    end if
    end if
    
-
    ! We create a vertical box container:
    call gtk_box_append(self%box1, self%expander)
    call gtk_widget_set_vexpand (self%box1, FALSE)
@@ -1368,19 +1333,14 @@ end function
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
    plotLoc  = gtk_notebook_append_page(self%dataNotebook, scrolled_tab, gtk_label_new("Plot"//c_null_char))
-
    
-   scroll_win_data = gtk_scrolled_window_new()
-   base = hl_gtk_box_new()
-   call gtk_box_append(base, self%textView)
-   call gtk_scrolled_window_set_child(scroll_win_data, base)
-   call gtk_widget_set_vexpand (base, TRUE)
+   ! Textview was attached to a scrolled win during init to be compatible with updateTerminalLog (for better or worse) 
+   dataLoc = gtk_notebook_append_page(self%dataNotebook, gtk_widget_get_parent(self%textView), gtk_label_new("Data"//c_null_char))
+   
 
-   dataLoc = gtk_notebook_append_page(self%dataNotebook, scroll_win_data, gtk_label_new("Data"//c_null_char))
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
 
    call self%finishTab(self%dataNotebook)
-
 end subroutine
 
 ! This should be common for all zoatab types to be compatible with other program features (eg dock/undock, eventually DND)

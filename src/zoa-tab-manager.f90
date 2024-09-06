@@ -459,9 +459,8 @@ end function
 subroutine updateGenericMultiPlotTab(self, objIdx, mplt)
   implicit none
   class(zoatabManager) :: self
-  type(multiplot) :: mplt
-  type(zoatab) :: tmpTab
-  integer :: objIdx
+  type(multiplot), intent(in) :: mplt
+  integer, intent(in) :: objIdx
 
   select type (tmpTab =>self%tabInfo(objIdx)%tabObj )
   type is (zoaplottab)
@@ -728,6 +727,8 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   type(zoaplot_setting_manager) :: psm
 
 
+  PRINT *, "creating plot setting elements"
+
   if(present(inputCmd)) self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
 
   do i=1,psm%numSettings
@@ -756,6 +757,8 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
 
   end select 
   end do
+
+  PRINT *, "done setting up plot elements"
 
   call registerPlotSettingManager(self, objIdx, psm)
 

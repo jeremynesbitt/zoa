@@ -244,8 +244,100 @@ end select
 
 end function
 
+subroutine spo_fieldPoint_go(psm)
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: updateTerminalLog
+  use global_widgets, only:  sysConfig, ioConfig
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use kdp_utils, only: OUTKDP, logDataVsField
+  use type_utils, only: int2str, str2int
+  use plot_setting_manager
+  use DATMAI
+  use g
+
+
+  IMPLICIT NONE
+
+  type(multiplot) :: mplt
+  type(zoaplot) :: xyscat1
+  type(c_ptr) :: canvas
+
+  type(zoaplot_setting_manager) :: psm
+
+  integer :: iField, iLambda, iMethod, nRect, nRand, nRing
+  integer :: objIdx
+  logical :: replot
+
+
+  call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing)
+
+  call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
+
+  ! Hopefully temporary 
+  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  
+
+  call PROCESKDP(trim(getKDPSpotPlotCommand(iField, iLambda, iMethod, nRect, nRand, nRing)))
+  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+  ! Prep PLot
+  canvas = hl_gtk_drawing_area_new(size=[700,500], &
+  & has_alpha=FALSE)
+  
+  ! Todo:  change initialization to sepcify size, and then don't need to 
+  ! call gtk_drawing_area
+  call mplt%initialize(canvas, 1,1)
+
+  ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
+  call xyscat1%initialize(c_null_ptr, REAL(pack(DSPOTT(1,:), &
+  &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
+  &                                   REAL(pack(DSPOTT(2,:), &
+  &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
+  !call xyscat1%initialize(c_null_ptr, REAL(DSPOTT(1,:)), &
+  !&                                   REAL(DSPOTT(2,:)), &
+  & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+  !& xlabel=' (x)'//c_null_char, ylabel='(y)'//c_null_char, &
+  & title='Spot Diagram'//c_null_char)
+  call xyscat1%setLineStyleCode(-1)
+
+  !Pseudo
+  ! if (psm%autoScale == FALSE ) then
+  ! xyscat1%autoScale = .FALSE.
+  ! xyscat1%minY = 0
+  ! xyscat1%maxY = psm%getScaleFactorInLensUnits()
+  ! xyScat%minX = minY
+  ! xyScat1%maxX = maxY
+
+
+
+
+  call mplt%set(1,1,xyscat1)
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+
+
+  !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SPOT_NEW, "Spot Diagram")
+
+end subroutine
+
+subroutine getSpotData(xData,yData)
+  use GLOBALS
+  use iso_fortran_env
+  real(kind=real64), allocatable, intent(inout) :: xData(:), yData(:)
+
+  
+  allocate(xData, source=pack(DSPOTT(1,:),DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0))
+  allocate(yData, source=pack(DSPOTT(2,:), DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0))
+
+end subroutine
+
 subroutine spo_go(psm)
 
+    use iso_fortran_env
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
@@ -263,60 +355,63 @@ subroutine spo_go(psm)
     IMPLICIT NONE
 
     type(multiplot) :: mplt
-    type(zoaplot) :: xyscat1
+    type(zoaplot), dimension(sysConfig%numFields) :: xyscat
     type(c_ptr) :: canvas
 
     type(zoaplot_setting_manager) :: psm
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
-    integer :: objIdx
+    integer :: objIdx, i
     logical :: replot
 
+    real(kind=real64), allocatable :: xSpot(:), ySpot(:)
 
+    ! TODO:  Distable field here
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing)
 
     call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
 
-    ! Hopefully temporary 
+    print *, "before setTextViewFromPtr"
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     
-
-    call PROCESKDP(trim(getKDPSpotPlotCommand(iField, iLambda, iMethod, nRect, nRand, nRing)))
-    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-
     ! Prep PLot
-    canvas = hl_gtk_drawing_area_new(size=[700,500], &
+    canvas = hl_gtk_drawing_area_new(size=[400,1200], &
     & has_alpha=FALSE)
     
     ! Todo:  change initialization to sepcify size, and then don't need to 
     ! call gtk_drawing_area
-    call mplt%initialize(canvas, 1,1)
+    call mplt%initialize(canvas, sysConfig%numFields,1)
+
+    do i=1,sysConfig%numFields
+      call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
+      if(allocated(xSpot)) deallocate(xSpot)
+      if(allocated(ySpot)) deallocate(ySpot)
+
+      call getSpotData(xSpot, ySpot)  
+      
+
+      ySpot = ySpot - (sum(ySpot)/size(ySpot))
+                               
 
     ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
-    call xyscat1%initialize(c_null_ptr, REAL(pack(DSPOTT(1,:), &
-    &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
-    &                                   REAL(pack(DSPOTT(2,:), &
-    &                                   DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0)), &
-    !call xyscat1%initialize(c_null_ptr, REAL(DSPOTT(1,:)), &
-    !&                                   REAL(DSPOTT(2,:)), &
+    call xyscat(i)%initialize(c_null_ptr, REAL(xSpot), REAL(ySpot), &
     & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
     & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-    !& xlabel=' (x)'//c_null_char, ylabel='(y)'//c_null_char, &
     & title='Spot Diagram'//c_null_char)
-    call xyscat1%setLineStyleCode(-1)
-
-    !Pseudo
-    ! if (psm%autoScale == FALSE ) then
-    ! xyscat1%autoScale = .FALSE.
-    ! xyscat1%minY = 0
-    ! xyscat1%maxY = psm%getScaleFactorInLensUnits()
-    ! xyScat%minX = minY
-    ! xyScat1%maxX = maxY
 
 
+    call xyscat(i)%setLineStyleCode(-1)
+    
+    call xyscat(i)%setYScale(.3d0)
+    call xyscat(i)%setXScale(.3d0)
 
 
-    call mplt%set(1,1,xyscat1)
+    call mplt%set(sysConfig%numFields-i+1,1,xyscat(i))
+    end do
+
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+    print *, "After textView back to default"
+
     call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 
@@ -716,9 +811,8 @@ subroutine rayaberration_go(psm)
 
     canvas = hl_gtk_drawing_area_new(size=[1200,1200], &
     & has_alpha=FALSE)
-    !call mplt%initialize(canvas, 2, sysConfig%numFields)
+
     call mplt%initialize(canvas, sysConfig%numFields,2)
-    !call mplt%initialize(canvas, sysConfig%numFields,2)
 
     do i=1,sysConfig%numFields
 
@@ -1021,6 +1115,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       
       objIdx = zoatabMgr%addMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char)
+      call LogTermDebug("After addMultiPlotTab")
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
     end if
 

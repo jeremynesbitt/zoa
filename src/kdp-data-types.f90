@@ -624,6 +624,8 @@ subroutine setTextViewFromPtr(self, newtextview)
   self%textView = newtextview
 end subroutine
 
+
+
 subroutine setTextView(self, idTextView)
   use zoa_ui
   class(io_config) :: self
