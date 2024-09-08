@@ -58,7 +58,10 @@ module zoa_plot
    integer, parameter :: PL_PLOT_SALMON = 14
    integer, parameter :: PL_PLOT_WHITE = 0
 
+   
    integer, parameter :: POS_UPPER_RIGHT = 1
+   integer, parameter :: POS_LOWER_RIGHT = 9
+
 
 ! For each plot type:  eg barchart, linechart, 3d surface, shades
 ! Have a datatype that contains the data to plot and any unique settings
@@ -97,6 +100,13 @@ type :: zoaplot
     logical :: manualXScale
     real(kind=pl_test_flt) ::  xScale     
 
+    ! PLPLOT codes for plotting
+    character(len=15) :: xPlotCodes, yPlotcodes
+
+    logical :: drawScale
+    real :: scaleRatio
+    integer :: scalePos
+
 
 
 contains
@@ -117,7 +127,8 @@ contains
     procedure, private, pass(self) :: checkBackingSurface
     procedure :: addText
     procedure :: setYScale, setXScale
-
+    procedure :: removeGrids, removeLabels
+    procedure :: addScaleBar, drawScaleBar
 
 end type
 
@@ -719,6 +730,13 @@ end subroutine
     self%manualYScale = .FALSE.
     self%manualXScale = .FALSE.
 
+    self%xPlotCodes = 'bcgnt' 
+    self%yPlotcodes = 'bcgntv'
+
+    call LogTermDebug("In zp_init about to set drawScale to false")
+    self%drawScale = .FALSE.
+    self%scaleRatio = 0.45
+
   end subroutine
 
 !! Canidate for dubmodule for zoaplot
@@ -831,10 +849,10 @@ end subroutine
 
 
     subroutine drawPlot(self)
+      use type_utils
         class(zoaplot), intent(in) :: self
 
     type(c_ptr)  :: cc, cs, isurface
-    character(len=20) :: string
     character(len=25) :: geometry
     integer :: i
     integer :: plparseopts_rc
@@ -880,9 +898,9 @@ end subroutine
     ! Micromanage tick intervals if the user selected manual scale
         if (self%manualYScale) then 
           call plsyax(7, 0)
-          call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', self%yScale/5.0_pl_test_flt, 0)
+          call plbox(trim(self%xPlotCodes), 0.0_pl_test_flt, 0, trim(self%yPlotCodes), self%yScale/5.0_pl_test_flt, 0)
         else
-          call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
+          call plbox(trim(self%xPlotCodes), 0.0_pl_test_flt, 0, trim(self%yPlotCodes), 0.0_pl_test_flt, 0 )
         end if        
 
     call plcol0(getLabelFontCode(self))
@@ -937,6 +955,7 @@ end subroutine
     end if
 
 
+
     !call plcol0(self%dataColorCode)
     !call plpsty(0)
     !call plline(self%x,self%y)
@@ -970,6 +989,10 @@ end subroutine
 
     if (self%useLegend) call self%drawLegend()
 
+    call LogTermDebug("About to check drawScale with drawScale = "//bool2str(self%drawScale))
+
+    if (self%drawScale) call self%drawScaleBar()
+
     !PRINT *, "ydata is ", self%plotdatalist(1)%y
 
     end subroutine drawPlot
@@ -1002,6 +1025,92 @@ end subroutine
 
       self%manualYScale = .TRUE.
       self%yScale = abs(yScale)
+
+      end subroutine
+
+      subroutine removeGrids(self)
+        use strings
+        class(zoaplot) :: self
+
+        self%xPlotCodes = removechar(self%xPlotCodes, 'b')
+        self%xPlotCodes = removechar(self%xPlotCodes, 'c')
+        self%xPlotCodes = removechar(self%xPlotCodes, 'g')
+        self%xPlotCodes = removechar(self%xPlotCodes, 'h')
+
+        self%yPlotCodes = removechar(self%yPlotCodes, 'b')
+        self%yPlotCodes = removechar(self%yPlotCodes, 'c')
+        self%yPlotCodes = removechar(self%yPlotCodes, 'g')
+        self%yPlotCodes = removechar(self%yPlotCodes, 'h')        
+
+
+      end subroutine
+
+      subroutine removeLabels(self)
+        use strings
+        class(zoaplot) :: self
+
+        self%xPlotCodes = removechar(self%xPlotCodes, 'm')
+        self%xPlotCodes = removechar(self%xPlotCodes, 'n')
+
+        self%yPlotCodes = removechar(self%yPlotCodes, 'm')
+        self%yPlotCodes = removechar(self%yPlotCodes, 'n')  
+        self%yPlotCodes = removechar(self%yPlotCodes, 'v')                
+
+      end subroutine
+
+      subroutine addScaleBar(self, ID_POS)
+        use type_utils
+        class(zoaplot) :: self
+        integer :: ID_POS
+
+        call LogTermDebug("About to set drawScale to true")
+
+        self%drawScale = .TRUE.
+        self%scalePos = ID_POS
+
+        call LogTermDebug("drawScale = "//bool2str(self%drawScale))
+
+      end subroutine
+
+      subroutine drawScaleBar(self, newScale)
+        use type_utils
+        class(zoaplot) :: self
+        integer :: ID_POS
+        real, optional :: newScale
+        real(kind=pl_test_flt) :: p_xmin, p_xmax, p_ymin, p_ymax, margin, s_max, s_min, s_mid
+
+        call LogTermDebug("In DrawScaleBar!")
+
+        if(present(newScale)) self%scaleRatio = newScale
+
+        ! pljoin is used to draw the line, and it is in normalized device coords.  So need to convert to world coordinates
+        call plgvpw (	p_xmin,p_xmax,p_ymin,p_ymax)        
+        print *, 'p_xmin ', p_xmin
+        print *, 'p_xmax ', p_xmax
+        print *, 'p_ymin ', p_ymin
+        print *, 'p_ymax ', p_ymax
+        
+        !TODO:  Abstract this and support all corners at minimum
+        
+        margin = .03*(p_ymax-p_ymin)
+        select case (self%scalePos)
+        case (POS_LOWER_RIGHT)
+          !call pljoin(0.9-self%scaleRatio, 0.1, 0.9, 0.1)
+          s_max = p_xmax-margin
+          s_min = s_max-(p_xmax-p_xmin)*self%scaleRatio
+          s_mid = 0.5*(s_max+s_min)
+           
+          !call pljoin(s_min, p_ymin*margin, s_max, p_ymin*margin)
+          !call pljoin(0.28-REAL((p_ymax-p_ymin)*self%scaleRatio,4),-0.28,0.28,-0.28)
+          call pljoin(s_min, p_ymin+margin, s_max, p_ymin+margin)
+
+          call plptex(REAL(s_mid), REAL(p_ymin+margin+margin), 0.0, 0.0, 0.5, trim(real2str(s_max-s_min))//c_null_char)
+          !call plptex(0.5*(s_max+s_min), p_ymin+margin+margin,0.0,0.0,0.0, "txt"//c_null_char)
+
+          call LogTermDebug("Scale is "//real2str(s_max-s_min))
+
+        end select
+        
 
       end subroutine
 

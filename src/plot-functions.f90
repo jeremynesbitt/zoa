@@ -349,7 +349,9 @@ subroutine spo_go(psm)
     use type_utils, only: int2str, str2int
     use plot_setting_manager
     use DATMAI
+    use DATSPD
     use g
+    use type_utils
 
 
     IMPLICIT NONE
@@ -395,19 +397,28 @@ subroutine spo_go(psm)
 
     ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
     call xyscat(i)%initialize(c_null_ptr, REAL(xSpot), REAL(ySpot), &
-    & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-    & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-    & title='Spot Diagram'//c_null_char)
+    & xlabel='RMS = '//trim(real2str(RMS))//' '// &
+    & sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+    & ylabel=''//c_null_char, &
+    & title=''//c_null_char)
 
 
     call xyscat(i)%setLineStyleCode(-1)
     
     call xyscat(i)%setYScale(.3d0)
     call xyscat(i)%setXScale(.3d0)
+    call xyscat(i)%removeGrids()
+    call xyscat(i)%removeLabels()
 
-
+    if (i==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
+    
     call mplt%set(sysConfig%numFields-i+1,1,xyscat(i))
+
+    
+
     end do
+
+
 
     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     print *, "After textView back to default"

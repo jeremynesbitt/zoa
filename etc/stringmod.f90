@@ -780,6 +780,26 @@ end subroutine removebksl
 
 !**********************************************************************
 
+function removechar(str, c) result(outStr)
+  character(len=*) :: str
+  character(len=1) :: c
+  character(len=len(str)) :: outStr
+
+  integer :: i
+  logical :: char_matched
+
+  outStr = ''
+  do i=1,len(str)
+    char_matched = (str(i:i) == c)
+
+    if (.not.char_matched) then
+      outStr = outStr // str(i:i)
+    end if
+
+  end do
+
+end function
+
 end module strings  
 
 

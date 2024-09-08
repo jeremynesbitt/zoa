@@ -41,6 +41,7 @@ srcs += files(
   'mod_DATLEN.f90',
   'mod_DATMAC.f90',
   'mod_DATMAI.f90',
+  'mod_DATSPD.f90',
   'lens-data-manager.f90',
   'paraxial-ray-trace.f90',
   'real-ray-trace.f90',
