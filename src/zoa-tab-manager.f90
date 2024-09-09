@@ -623,17 +623,30 @@ end function
   end subroutine
 
   subroutine removePlotTab(self, tabIndex, tabInfoIndex)
-
+    use type_utils
     class(zoatabManager) :: self
     integer, intent(in) :: tabIndex, tabInfoIndex
+
 
     PRINT *, "tabIndex is ", tabIndex
     PRINT *, "tabInfoIndex is ", tabInfoIndex
 
-    call gtk_notebook_remove_page(self%notebook, tabIndex)
-    !PRINT *, "typeCode is ", self%tabInfo(tabInfoIndex)%typeCode
-    !PRINT *, "About to deallocate tabObj for index ", tabInfoIndex
-    !PRINT *, "allocated test ", allocated(self%tabInfo(tabInfoIndex)%tabObj)
+   
+
+    ! To account for tab being detached, use tabObj Notebook
+    call LogTermDebug("ABout to request removal of tab"//int2str(tabIndex))
+    call LogTermDebug("Removal nbook ptr is"//int2str(INT(LOC(self%tabInfo(tabInfoIndex)%tabObj%notebook))))
+
+      call gtk_notebook_remove_page(self%tabInfo(tabInfoIndex)%tabObj%notebook, tabIndex)
+   
+    if (tabIndex==0) then
+      call gtk_window_close(gtk_widget_get_ancestor(self%tabInfo(tabInfoIndex)%tabObj%notebook, gtk_window_get_type()))
+      
+      
+    end if
+    
+
+    !call gtk_notebook_remove_page(self%notebook, tabIndex)
     if (allocated(self%tabInfo(tabInfoIndex)%tabObj)) then
        DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
        ! If this is the last tab then reduce counter.  

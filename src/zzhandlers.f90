@@ -414,7 +414,7 @@ contains
 
     call g_signal_connect(notebook, 'create-window'//c_null_char, c_funloc(detachTabTst), c_null_ptr)
 
-    call g_signal_connect(notebook, 'page-removed'//c_null_char, c_funloc(removeTabTst), c_null_ptr)
+    !call g_signal_connect(notebook, 'page-removed'//c_null_char, c_funloc(removeTabTst), c_null_ptr)
 
 
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)

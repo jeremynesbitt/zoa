@@ -535,7 +535,9 @@ end interface
 ! This is in ui-utilities
 ! to close a tab using zoaTabMgr
 interface
-  subroutine close_zoaTab
+  subroutine close_zoaTab(widget, gdata) bind(c)
+    import :: c_ptr
+    type(c_ptr), value :: widget, gdata
   end subroutine
   subroutine updateMenuBar
   end subroutine
@@ -611,7 +613,7 @@ subroutine init_zoaplotdatatab(self, parent_window, tabTitle, ID_PLOTTYPE, canva
 end subroutine
 
 subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
-
+  use g, only: g_strdup
   !use ROUTEMOD
   implicit none
 
@@ -637,7 +639,7 @@ subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
   call gtk_button_set_has_frame (btn, FALSE)
   call gtk_widget_set_focus_on_click (btn, FALSE)
   call hl_gtk_box_pack (self%tab_label, btn);
-  call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
+  call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), g_strdup(tabTitle//c_null_char))
   !self%tab_label = head
   !self%tab_label = tab_label
 
@@ -667,6 +669,7 @@ end subroutine
  subroutine init_zoatab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
 
     !use ROUTEMOD
+    use g, only: g_strdup
     implicit none
 
     class(zoatab) :: self
@@ -689,7 +692,7 @@ end subroutine
     call gtk_button_set_has_frame (btn, FALSE)
     call gtk_widget_set_focus_on_click (btn, FALSE)
     call hl_gtk_box_pack (self%tab_label, btn);
-    call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), c_loc(ID_TARGET))
+    call g_signal_connect(btn, 'clicked'//c_null_char, c_funloc(close_zoaTab), g_strdup(tabTitle//c_null_char))
 
     call gtk_widget_set_halign(self%tab_label, GTK_ALIGN_START)
 

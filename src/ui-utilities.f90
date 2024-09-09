@@ -3,42 +3,60 @@
 ! or invested in yet.
 
 ! This method should eventually go somewhere else IMO, but for not have it here
-subroutine close_zoaTab()
+  subroutine close_zoaTab(widget, gdata) bind(c)
+    
+
   ! being specific in imports here because had some compiler errors during a clean
   ! build when I just used import handlers.  Never confirmed root cause, but suspect
   ! there was some isuse where I was importing handlers but it imported zoa_tab
   ! where the interface for this method was being defined
   use iso_c_binding
   use handlers, only: zoatabMgr
-  use gtk, only:  gtk_notebook_get_nth_page, gtk_notebook_get_current_page, gtk_widget_get_name
-  use gtk_sup, only: convert_c_string
+  !use gtk, only:  gtk_notebook_get_nth_page, gtk_notebook_get_current_page, gtk_widget_get_name, gtk_notebook_get_type
+  use gtk
+  use gtk_sup, only: convert_c_string, c_f_string
 
 
   implicit none
 
+  type(c_ptr), value :: widget, gdata
   integer(kind=c_int) :: currPageIndex
   type(c_ptr) :: currPage
    character(len=50)  :: choice
  type(c_ptr)  :: cstr
  integer :: tabInfoToDelete
+ character(len=80) :: fstring
+ integer :: objIdx
+ type(c_ptr) :: nbook
 
-  PRINT *, "Button clicked!"
-  !PRINT *, "Test of accessing zoa tab manager ", zoatabMgr%tabNum
-  currPageIndex = gtk_notebook_get_current_page(zoatabMgr%notebook)
-  currPage = gtk_notebook_get_nth_page(zoatabMgr%notebook, currPageIndex)
 
-  !val = c_loc(result)
-  cstr =  gtk_widget_get_name(currPage)
+ if (c_associated(gdata)) then
+   call LogTermDebug("Pointer defind!")
+   call c_f_string(gdata, fstring)
+  !call c_f_pointer(cptr, fstring)
+  call LogTermDebug("Check that string is "//trim(fstring))   
+  else 
+   call LogTermDebug("Pointer not defind!")
+  end if
+ call LogTermDebug("Tab key is "//trim(fstring))
 
-  !cstr = g_value_get_string(val)
-  call convert_c_string(cstr, choice)
+ objIdx = zoatabMgr%getTabIdxByID(trim(fstring))
+ call zoatabMgr%removePlotTab(zoatabMgr%tabInfo(objIdx)%tabObj%tabNum, objIdx)
 
- !PRINT *, "CHOICE is ", choice
- read(choice(1:3), '(I3)') tabInfoToDelete
- !PRINT *, "After int conversion, ", tabInfoToDelete
 
- ! Close Tab
- call zoatabMgr%removePlotTab(currPageIndex, tabInfoToDelete)
+
+
+! Old way - doeesn't work for detached tabs.
+!   currPageIndex = gtk_notebook_get_current_page(zoatabMgr%notebook)
+!   currPage = gtk_notebook_get_nth_page(zoatabMgr%notebook, currPageIndex)
+
+
+!   cstr =  gtk_widget_get_name(currPage)
+!   call convert_c_string(cstr, choice)
+
+
+!  read(choice(1:3), '(I3)') tabInfoToDelete
+!  call zoatabMgr%removePlotTab(currPageIndex, tabInfoToDelete)
 
 end subroutine
 
@@ -201,7 +219,7 @@ end subroutine
 subroutine undock_Window(act, param, gdata) bind(c)
   use iso_c_binding
   use type_utils
-  use handlers, only: zoatabMgr
+  use handlers
   use gtk
   use zoa_tab
   implicit none
@@ -213,19 +231,86 @@ subroutine undock_Window(act, param, gdata) bind(c)
 
   type(c_ptr) :: newwin, newnotebook, box2, newpage
   type(c_ptr) :: newlabel, gesture, source, dropTarget
-  integer :: newtab
+  integer :: newtab, i
   integer(kind=c_int), pointer :: TAB_NUM
 
   type(zoatab) :: tstTab
+
+  type(c_ptr) ::  scrolled_win, child
+
+
 
  call c_f_pointer(gdata, TAB_NUM)
 
 
   call LogTermDebug("TabNum is "//int2str(TAB_NUM))
 
+  child = gtk_notebook_get_nth_page(zoatabMgr%notebook, TAB_NUM)
+  child = g_object_ref(child)
   call gtk_notebook_remove_page(zoatabMgr%notebook, TAB_NUM)
-  !call gtk_notebook_detach_tab(zoatabMgr%notebook, pagetomove)
+  newwin = gtk_window_new()
+
+  call gtk_window_set_default_size(newwin, 1300, 700)
+  call gtk_window_set_destroy_with_parent(newwin, TRUE)
+  box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
+  newnotebook = gtk_notebook_new()
+  call gtk_widget_set_vexpand (newnotebook, TRUE)
+  call gtk_notebook_set_group_name(newnotebook,"0"//c_null_char)
+
+
+  do i=1,zoatabMgr%tabNum
+    call LogTermDebug("ABout to check "//int2str(i))
+ 
+    if(allocated(zoatabMgr%tabInfo(i)%tabObj)) then 
+      call LogTermDebug("Before checking tabNum")   
+      call LogTermDebug("Tab Num is "//int2str(zoatabMgr%tabInfo(i)%tabObj%tabNum))
+      if(zoatabMgr%tabInfo(i)%tabObj%tabNum == TAB_NUM) then
+        call LogTermDebug("Found object in zoaTabMgr")
+        newlabel = zoatabMgr%tabInfo(i)%tabObj%tab_label
+        zoatabMgr%tabInfo(i)%tabObj%tabNum = gtk_notebook_append_page(newnotebook, child, newlabel)
+        zoatabMgr%tabInfo(i)%tabObj%isDocked = .FALSE. 
+        ! Need this to send to the dock window callback so it knows to remove the page
+        zoatabMgr%tabInfo(i)%tabObj%notebook = newnotebook
+        call LogTermDebug("New nbook ptr is"//int2str(INT(LOC(newnotebook))))
+
+      end if
+    end if
+
+  end do
+
+
   
+  call gtk_notebook_set_tab_detachable(newnotebook, child, TRUE)
+  call gtk_box_append(box2, newnotebook)
+
+  call gtk_window_set_child(newwin, box2)  
+  call gtk_window_present(newwin)
+  call updateMenuBar()
+
+
+
+  source = gtk_drag_source_new ()
+  call gtk_drag_source_set_actions (source, GDK_ACTION_MOVE);
+  call g_signal_connect (source, "prepare"//c_null_char, c_funloc(drag_prepare), child);
+  !call g_signal_connect (source, "drag-begin"//c_null_char, c_funloc(drag_end), child);        
+  call g_signal_connect (source, "drag-end"//c_null_char, c_funloc(drag_end), child)
+  call gtk_widget_add_controller (newnotebook, source);
+
+  dropTarget = gtk_drop_target_new(gtk_widget_get_type(), GDK_ACTION_MOVE)
+  call g_signal_connect(dropTarget, "drop", c_funloc(on_drop), c_null_ptr)
+  call g_signal_connect(dropTarget, "motion", c_funloc(on_motion), c_null_ptr)
+
+  call gtk_widget_add_controller(newnotebook, dropTarget)
+  call gtk_widget_add_controller(gtk_widget_get_parent(newnotebook), dropTarget)
+
+
+
+
+  gesture = gtk_gesture_click_new ()
+  call g_signal_connect (gesture, "released", c_funloc(click_done), child);
+  
+  call gtk_widget_add_controller (child, gesture);       
+
 
 end subroutine
 
