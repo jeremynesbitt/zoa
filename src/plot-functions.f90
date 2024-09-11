@@ -383,6 +383,8 @@ subroutine spo_go(psm)
     ! Todo:  change initialization to sepcify size, and then don't need to 
     ! call gtk_drawing_area
     call mplt%initialize(canvas, sysConfig%numFields,1)
+    mplt%height = 1200
+    mplt%width = 400
 
     do i=1,sysConfig%numFields
       call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
@@ -411,7 +413,7 @@ subroutine spo_go(psm)
     call xyscat(i)%removeLabels()
 
     if (i==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
-    
+
     call mplt%set(sysConfig%numFields-i+1,1,xyscat(i))
 
     
@@ -1126,6 +1128,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       
       objIdx = zoatabMgr%addMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char)
+      call LogTermDebug("Obj Idx is "//int2str(objIdx))
       call LogTermDebug("After addMultiPlotTab")
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
     end if
@@ -1134,6 +1137,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
   end subroutine
 
   subroutine finalizeGoPlot_new(mplt,psm, replot, objIdx)
+    use type_utils
     use zoa_plot    
     use plot_setting_manager
     use handlers, only: zoatabMgr
@@ -1148,6 +1152,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt) 
     if(replot .EQV. .FALSE. ) then 
       call zoaTabMgr%finalize_with_psm(objIdx, psm)
+      call LogTermDebug("ObjIdx is "//int2str(objIdx))
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
     end if
 

@@ -183,6 +183,7 @@ end type barchart
         logical :: m_hasTitle = .false.
         type(c_ptr) :: area = c_null_ptr
         type(c_ptr) :: cc = c_null_ptr
+        integer :: width, height
 
 
         ! Bottom Panel Vars

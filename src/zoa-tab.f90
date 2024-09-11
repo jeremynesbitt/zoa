@@ -754,15 +754,35 @@ end subroutine
 
 
 subroutine updateGenericMultiPlot(self, mplt)
+  use g
   class(zoaplottab) :: self
   type(multiplot) :: mplt
 
-  ! Currently zoatab does not save the mplt object (seems bad) so setting the canvas here as the object
-  ! needs to be added to the ui window
-  ! will need to keep mplt in zoatab to manipulate plot in the future?
+  !Currently zoatab does not save the mplt object (seems bad) so setting the canvas here as the object
+  !needs to be added to the ui window
+  !will need to keep mplt in zoatab to manipulate plot in the future?
+  if (c_associated(self%canvas)) then
+     call LogTermDebug("Assign mpltArea from self%canvas" )
 
-  self%canvas = mplt%area
-  call mplt%draw()
+     !call gtk_box_remove(self%box1, self%canvas)
+     !self%canvas = mplt%area
+     !call gtk_box_append(self%box1, mplt%area)
+    mplt%area = self%canvas
+    
+    !call gtk_widget_set_halign(mplt%area, GTK_ALIGN_BASELINE)
+    !call gtk_widget_set_size_request(mplt%area, mplt%width, mplt%height)
+    !call gtk_window_set_default_size(mplt%area, mplt%width, mplt%height)
+    print *, "mplt%width is ", mplt%width
+    print *, "mplt%height is ", mplt%height
+else
+  call LogTermDebug( "Multiplot update canvas ptr is loose")
+   self%canvas = mplt%area
+   
+end if
+
+call mplt%draw()
+ !self%canvas = mplt%area
+ !call mplt%draw()
 
 end subroutine
 
@@ -1201,6 +1221,7 @@ end function
    call self%finishTab(scrolled_tab)
 
 
+
 end subroutine
 
 
@@ -1212,6 +1233,8 @@ end subroutine
    logical, optional :: useToolBar
 
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
+
+   if (c_associated(self%expander)) call gtk_box_remove(self%box1, self%expander)
 
     
     !call self%buildSettings()
@@ -1236,6 +1259,9 @@ end subroutine
 
 
     call gtk_box_append(self%box1, self%canvas)
+    print *, "Hori = ", gtk_widget_get_size(self%canvas, GTK_ORIENTATION_HORIZONTAL)
+    print *, "Vert = ", gtk_widget_get_size(self%canvas, GTK_ORIENTATION_VERTICAL)
+
 
 
 
@@ -1243,6 +1269,7 @@ end subroutine
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
     call self%finishTab(scrolled_tab)
+    call gtk_widget_set_halign(self%canvas, GTK_ALIGN_START)
 
 
  end subroutine
@@ -1303,6 +1330,8 @@ end function
    character(len=80) :: dname
    type(c_ptr) :: cptr 
    character(len=80) :: fstring
+   integer(c_int), pointer :: pWidth, pHeight
+   type(c_ptr) :: wPtr, hPtr
 
   integer :: location
    PRINT *, "FINALIZING WINDOW in ZOATAB"
@@ -1328,9 +1357,25 @@ end function
 
 
    call gtk_box_append(self%box1, self%canvas)
+  
+
+  ! call gtk_widget_get_size_request(self%canvas, wPtr, hPtr)
+
+  ! call c_f_pointer(wPtr, pWidth)
+  ! call c_f_pointer(hPtr, pHeight)
+
+  ! if (pWidth > 100) then
+  !   call LogTermDebug("Didn't crash!")
+  ! end if
+  ! !self%width = pWidth
+  ! !self%height = pHeight
+  !  ! print *, "Widgth = ", pWidth
+  ! !  print *, "Height = ", pHeight
 
 
-   
+
+
+
 
    scrolled_tab = gtk_scrolled_window_new()
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
@@ -1344,6 +1389,8 @@ end function
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
 
    call self%finishTab(self%dataNotebook)
+   call gtk_widget_set_halign(self%canvas, GTK_ALIGN_START)
+   
 end subroutine
 
 ! This should be common for all zoatab types to be compatible with other program features (eg dock/undock, eventually DND)
@@ -1368,6 +1415,7 @@ subroutine finishTab(self, page)
   self%isDocked = .TRUE. ! Should probably set this some
   call updateMenuBar()  ! Need to rebuild menubar with every new plot to populate the docked/undocked window  
 
+ 
 
 end subroutine
 

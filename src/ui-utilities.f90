@@ -321,12 +321,57 @@ end subroutine
 
 subroutine dock_Window(act, param, parent_notebook) bind(c)
   use gtk
+  use g
   use iso_c_binding
+  use gtk_sup
+  use handlers, only: zoatabMgr
+  use type_utils
   implicit none
   type(c_ptr), value, intent(in) :: act, param, parent_notebook
+  integer(kind=c_int) :: pageNum
+
+  type(c_ptr) :: newwin, box2, scrolled_win, child
+  type(c_ptr) :: newlabel, gesture, source, dropTarget
+  integer :: newtab, i, tabNum
+  type(c_ptr) :: cptr
+  character(len=80) :: fstring
+  ! For the detached tabs I only allow one, so the current page must be the page to remove
+  !call gtk_notebook_remove_page(parent_notebook, gtk_notebook_get_current_page(parent_notebook))
+
+
 
   ! For the detached tabs I only allow one, so the current page must be the page to remove
-  call gtk_notebook_remove_page(parent_notebook, gtk_notebook_get_current_page(parent_notebook))
+  pageNum = gtk_notebook_get_current_page(parent_notebook)
+  child = gtk_notebook_get_nth_page(parent_notebook, pageNum)
+  child = g_object_ref(child)
+  call gtk_notebook_remove_page(parent_notebook, pageNum)
+
+  cptr = g_object_get_data(child, 'tab-id'//c_null_char)
+  if (c_associated(cptr)) then
+    call LogTermDebug("Pointer defind!")
+    call c_f_string(cptr, fstring)
+   !call c_f_pointer(cptr, fstring)
+   call LogTermDebug("Check that string is "//trim(fstring))   
+   else 
+    call LogTermDebug("Pointer not defind!")
+   end if
+  call LogTermDebug("Tab ID is "//trim(fstring))
+
+  tabNum = zoatabMgr%getTabIdxByID(trim(fstring))
+
+  newtab = gtk_notebook_append_page(zoatabMgr%notebook, child, zoatabMgr%tabInfo(tabNum)%tabObj%tab_label)
+  call gtk_notebook_set_current_page(zoatabMgr%notebook, newtab)
+  zoatabMgr%tabInfo(tabNum)%tabObj%isDocked = .TRUE.
+  zoatabMgr%tabInfo(tabNum)%tabObj%notebook = zoatabMgr%notebook
+  zoatabMgr%tabInfo(tabNum)%tabObj%tabNum = newtab
+  
+
+  call gtk_notebook_set_tab_detachable(zoatabMgr%notebook, child, TRUE)
+
+  call gtk_window_close(gtk_widget_get_ancestor(parent_notebook, gtk_window_get_type()))  
+  call updateMenuBar()
+
+
 
 end subroutine  
 

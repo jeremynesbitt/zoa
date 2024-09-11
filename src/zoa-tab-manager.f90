@@ -192,6 +192,7 @@ subroutine finalizeNewPlotTab(self, idx)
     ! This part is to enable close tab functionality
     currPageIndex = gtk_notebook_get_current_page(self%notebook)
     currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
+    print *, "idx is ", idx
     WRITE(outChar, '(I0.3)') idx
     call gtk_widget_set_name(currPage, outChar//c_null_char)
 
@@ -606,7 +607,7 @@ end function
      class(zoatabManager) :: self
      integer :: i
 
-     call LogTermFOR("About to check replot for each tab")
+     call LogTermDebug("About to check replot for each tab")
      ! Do nothing if there are no tabs to cycle through
       
      DO i = 1,self%tabNum
@@ -639,10 +640,9 @@ end function
 
       call gtk_notebook_remove_page(self%tabInfo(tabInfoIndex)%tabObj%notebook, tabIndex)
    
+    !    
     if (tabIndex==0) then
       call gtk_window_close(gtk_widget_get_ancestor(self%tabInfo(tabInfoIndex)%tabObj%notebook, gtk_window_get_type()))
-      
-      
     end if
     
 
@@ -734,7 +734,7 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   implicit none
 
   character(len=*), optional :: inputCmd
-  integer :: objIdx
+  integer, intent(in) :: objIdx
   integer :: i
   class(zoatabManager) :: self
   type(zoaplot_setting_manager) :: psm
