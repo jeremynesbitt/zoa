@@ -446,9 +446,9 @@ contains
          
     call readCommandHistoryFromFile(command_history, command_index)
     command_search = command_index
-    PRINT *, "command_index is ", command_index
-    PRINT *, "command history at command index is ", command_history(command_index)
-    IF(command_index.GT.1) PRINT *, "prior command is ",command_history(command_index-1)
+    !PRINT *, "command_index is ", command_index
+    !PRINT *, "command history at command index is ", command_history(command_index)
+    !IF(command_index.GT.1) PRINT *, "prior command is ",command_history(command_index-1)
 
     !tmp code to test key pressed event
     controller_k = gtk_event_controller_key_new()

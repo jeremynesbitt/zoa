@@ -230,27 +230,34 @@ subroutine undock_Window(act, param, gdata) bind(c)
   type(c_ptr) :: pagetomove, childtomove
 
   type(c_ptr) :: newwin, newnotebook, box2, newpage
-  type(c_ptr) :: newlabel, gesture, source, dropTarget
+  type(c_ptr) :: newlabel, gesture, source, dropTarget, cptr
   integer :: newtab, i
-  integer(kind=c_int), pointer :: TAB_NUM
+  integer :: objIdx, TAB_NUM
 
   type(zoatab) :: tstTab
-
+  character(len=100), pointer :: tabName
   type(c_ptr) ::  scrolled_win, child
 
 
+  
 
- call c_f_pointer(gdata, TAB_NUM)
+  call c_f_pointer(gdata, tabName)
 
+  objIdx = zoatabMgr%getTabIdxByID(trim(tabName))
+  TAB_NUM = zoatabMgr%tabInfo(objIdx)%tabObj%tabNum
 
+  call LogTermDebug("In UnDock Window")
   call LogTermDebug("TabNum is "//int2str(TAB_NUM))
+  call LogTermDebug("Tab Title is "//trim(tabName))
+
+  
 
   child = gtk_notebook_get_nth_page(zoatabMgr%notebook, TAB_NUM)
   child = g_object_ref(child)
   call gtk_notebook_remove_page(zoatabMgr%notebook, TAB_NUM)
   newwin = gtk_window_new()
 
-  call gtk_window_set_default_size(newwin, 1300, 700)
+  call gtk_window_set_default_size(newwin, 1200, 700)
   call gtk_window_set_destroy_with_parent(newwin, TRUE)
   box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0_c_int);
   newnotebook = gtk_notebook_new()
@@ -264,8 +271,10 @@ subroutine undock_Window(act, param, gdata) bind(c)
     if(allocated(zoatabMgr%tabInfo(i)%tabObj)) then 
       call LogTermDebug("Before checking tabNum")   
       call LogTermDebug("Tab Num is "//int2str(zoatabMgr%tabInfo(i)%tabObj%tabNum))
-      if(zoatabMgr%tabInfo(i)%tabObj%tabNum == TAB_NUM) then
+      if(zoatabMgr%getTabTitle(i) == tabName) then
+      !if(zoatabMgr%tabInfo(i)%tabObj%tabNum == TAB_NUM) then
         call LogTermDebug("Found object in zoaTabMgr")
+        call LogTermDebug("i is "//int2str(i))
         newlabel = zoatabMgr%tabInfo(i)%tabObj%tab_label
         zoatabMgr%tabInfo(i)%tabObj%tabNum = gtk_notebook_append_page(newnotebook, child, newlabel)
         zoatabMgr%tabInfo(i)%tabObj%isDocked = .FALSE. 
@@ -278,8 +287,9 @@ subroutine undock_Window(act, param, gdata) bind(c)
 
   end do
 
+  call gtk_widget_set_halign(gtk_widget_get_parent(newlabel), GTK_ALIGN_START)
+  call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(newlabel)),FALSE)
 
-  
   call gtk_notebook_set_tab_detachable(newnotebook, child, TRUE)
   call gtk_box_append(box2, newnotebook)
 
@@ -310,6 +320,8 @@ subroutine undock_Window(act, param, gdata) bind(c)
   call g_signal_connect (gesture, "released", c_funloc(click_done), child);
   
   call gtk_widget_add_controller (child, gesture);       
+
+  call zoatabMgr%updateTabPositions()
 
 
 end subroutine

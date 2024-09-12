@@ -1328,10 +1328,9 @@ end function
   type(c_ptr) :: scrolled_tab, box_plotmanip, btn, scroll_win_data, base
    type(c_ptr) :: dcname
    character(len=80) :: dname
-   type(c_ptr) :: cptr 
+   type(c_ptr) :: cptr, dataLabel 
    character(len=80) :: fstring
-   integer(c_int), pointer :: pWidth, pHeight
-   type(c_ptr) :: wPtr, hPtr
+
 
   integer :: location
    PRINT *, "FINALIZING WINDOW in ZOATAB"
@@ -1382,9 +1381,17 @@ end function
 
    plotLoc  = gtk_notebook_append_page(self%dataNotebook, scrolled_tab, gtk_label_new("Plot"//c_null_char))
    
+
+   dataLabel = gtk_label_new("Data"//c_null_char)
+
    ! Textview was attached to a scrolled win during init to be compatible with updateTerminalLog (for better or worse) 
-   dataLoc = gtk_notebook_append_page(self%dataNotebook, gtk_widget_get_parent(self%textView), gtk_label_new("Data"//c_null_char))
+   dataLoc = gtk_notebook_append_page(self%dataNotebook, gtk_widget_get_parent(self%textView), dataLabel)
    
+
+  ! THis is to fix the tab length to label + close button vs extending across the entire window
+   call gtk_widget_set_halign(gtk_widget_get_parent(dataLabel), GTK_ALIGN_START)
+   call gtk_widget_set_hexpand(gtk_widget_get_parent(gtk_widget_get_parent(dataLabel)),FALSE)
+
 
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
 

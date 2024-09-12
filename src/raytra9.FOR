@@ -3433,6 +3433,7 @@ C
 C SUB FANS.FOR
         SUBROUTINE FANS
         use global_widgets, only: curr_ray_fan_data        
+        use GLOBALS, only: long
 C
         IMPLICIT NONE
 C
@@ -3441,6 +3442,7 @@ C       THE CMD LEVEL COMMANDS YFAN, XFAN, NFAN AND PFAN.
 C       IT IS CALLED BY CMDER.FOR.
 C
         CHARACTER UNI*11,FANNAM*8,FANQAL*8
+        real(kind=long) :: xOffset, yOffset, rOffset
 
         LOGICAL FANEXT,RIM
         COMMON/RIMSHT/RIM
@@ -4021,6 +4023,111 @@ C
         allocate(curr_ray_fan_data%relAper(INT(W4)))
         allocate(curr_ray_fan_data%xyfan(INT(W4),2))
 
+        ! Compute value at XI=0 and use this as an offset.
+        ! First test if this works before refactoring
+        XI = 0
+        IF(DABS(XI).LE.1D-15) XI=0.0D0
+C       FOR EACH XI COUNTED
+C       FOR YFANS
+        IF(WC.EQ.'YFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=OFFSET
+C       RELATIVE Y COORDINATE IS:
+                        YY=XI
+                        END IF
+C       FOR XFANS
+        IF(WC.EQ.'XFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=XI
+C       RELATIVE Y COORDINATE IS:
+                        YY=OFFSET
+                        END IF
+C       FOR NFANS
+        IF(WC.EQ.'NFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=(XI-OFFSET)/(DSQRT(2.0D0))
+C       RELATIVE Y COORDINATE IS:
+                        YY=(XI+OFFSET)/(DSQRT(2.0D0))
+                        END IF
+C       FOR PFANS
+        IF(WC.EQ.'PFAN') THEN
+C       RELATIVE X COORDINATE IS:
+                        XX=(XI+OFFSET)/(DSQRT(2.0D0))
+C       RELATIVE Y COORDINATE IS:
+                        YY=-(XI-OFFSET)/(DSQRT(2.0D0))
+                        END IF
+C
+C       NOW CALL RAYTRA TO TRACE THE SPECIFIC RAY
+                        WWQ='        '
+                        WW1=YY
+                        WW2=XX
+C
+        IF(SQ.EQ.0) THEN
+        RAYCOD(1)=0
+        RAYCOD(2)=-1
+                RV=.FALSE.
+      WW4=1.0D0
+      F58=1
+      NOCOAT=.TRUE.
+        !PRINT *, "YFAN bf raytrace XX = ", XX
+        !PRINT *, "YFAN bf raytrace YY = ", YY
+
+          SAVE_KDP(1)=SAVEINPT(1)
+
+        ! PRINT *, "RAYCOD b4 FOB call is", RAYCOD(1)
+        ! WRITE(INPUT, *), "FOB ", YY, XX
+        ! PRINT *, INPUT
+        ! CALL PROCES
+        !
+        ! REST_KDP(1)=RESTINPT(1)
+        ! PRINT *, "RAYCOD after FOB call is", RAYCOD(1)
+
+        !PRINT *, "REFRAY after FOB call is", REFRY
+
+        CALL RAYTRA
+        !PRINT *, "RAYCOD after RAYTRA call is", RAYCOD(1)
+      F58=0
+        IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+C       MODE FOCAL
+        XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
+        YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
+        RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
+                        ELSE
+C       MOD AFOCAL
+        XXDIF=RAYRAY(11,NEWIMG)
+     1  -REFRY(11,NEWIMG)
+      IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII)
+      IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII)
+      IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0
+      IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII)
+        YYDIF=RAYRAY(12,NEWIMG)
+     1  -REFRY(12,NEWIMG)
+      IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII)
+      IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII)
+      IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0
+      IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII)
+
+        COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+
+     1  (RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+
+     1  (RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
+        IF(COSARG.LT.0.0D0) COSARG=-COSARG
+        IF(COSARG.GT.1.0D0) COSARG=1.0D0
+        RRDIF=DACOS(COSARG)
+      IF((RRDIF).GT.(PII)) RRDIF=RRDIF-(TWOPII)
+      IF((RRDIF).LT.(-PII)) RRDIF=RRDIF+(TWOPII)
+      IF(ABS(RRDIF).EQ.ABS(TWOPII)) RRDIF=0.0D0
+      IF((RRDIF).LT.(-TWOPII)) RRDIF=RRDIF+(TWOPII)
+                        END IF
+                end if
+        ! End of dup section
+        xOffset = XXDIF
+        yOffset = YYDIF
+        rOffset = RRDIF                
+
+
+
+
+
 
 
                 XI=LOWERL
@@ -4069,8 +4176,8 @@ C
       WW4=1.0D0
       F58=1
       NOCOAT=.TRUE.
-        PRINT *, "YFAN bf raytrace XX = ", XX
-        PRINT *, "YFAN bf raytrace YY = ", YY
+        !PRINT *, "YFAN bf raytrace XX = ", XX
+        !PRINT *, "YFAN bf raytrace YY = ", YY
 
           SAVE_KDP(1)=SAVEINPT(1)
 
@@ -4085,27 +4192,27 @@ C
         !PRINT *, "REFRAY after FOB call is", REFRY
 
         CALL RAYTRA
-        PRINT *, "RAYCOD after RAYTRA call is", RAYCOD(1)
+        !PRINT *, "RAYCOD after RAYTRA call is", RAYCOD(1)
       F58=0
         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
 C       MODE FOCAL
-        XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
-        YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
+        XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB - xOffset
+        YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA - yOffset
         RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
                         ELSE
 C       MOD AFOCAL
         XXDIF=RAYRAY(11,NEWIMG)
      1  -REFRY(11,NEWIMG)
-      IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII)
-      IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII)
-      IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0
-      IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII)
+      IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII) - xOffset
+      IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII) - xOffset
+      IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0 - xOffset
+      IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII) - xOffset
         YYDIF=RAYRAY(12,NEWIMG)
-     1  -REFRY(12,NEWIMG)
-      IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII)
-      IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII)
-      IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0
-      IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII)
+     1  -REFRY(12,NEWIMG) - yOffset
+      IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII) - yOffset
+      IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII) -yOffset
+      IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0 - yOffset
+      IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII) - yOffset
 
         COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+
      1  (RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+
@@ -4124,7 +4231,7 @@ C
         IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
         IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
         WRITE(OUTLYNE,991)XI,XXDIF,YYDIF
-        PRINT *, "CONSOLE should say ", OUTLYNE
+        !PRINT *, "CONSOLE should say ", OUTLYNE
       CALL SHOWIT(0)
  991    FORMAT(F11.6,2X,G18.10,2X,G18.10)
                         ELSE

@@ -13,7 +13,7 @@ module zoamenubar
   & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
   & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
   & g_action_change_state, g_application_quit, g_simple_action_set_state, &
-  & g_menu_item_set_attribute_value, g_variant_new_string
+  & g_menu_item_set_attribute_value, g_variant_new_string, g_strdup
 
 
   !use, intrinsic :: iso_c_binding, only: c_int, c_ptr, c_null_ptr, c_null_char, C_NEW_LINE
@@ -349,7 +349,8 @@ contains
       if (isDocked(i)) then
         tabName = trim(getTabName(i))
         call removesp(tabName)
-        call addWindowMenuItem(menu_undock, trim(getTabName(i)), "UnDock"//trim(tabName)//c_null_char, c_funloc(undock_Window), win,tabIndices(i))
+        call addFuncMenuItem(menu_undock, trim(getTabName(i)), "UnDock"//trim(tabName)//c_null_char, c_funloc(undock_Window), win, &
+        & g_strdup(getTabName(i)))
       else
         call addFuncMenuItem(menu_dock, trim(getTabName(i)), "Dock"//trim(tabName)//c_null_char, c_funloc(dock_Window), win, getTabParentNotebook(i))
       end if

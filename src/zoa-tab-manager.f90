@@ -61,6 +61,7 @@ type  zoatabManager
 
    procedure :: getTypeCode
    procedure :: clearDataTab
+   procedure :: updateTabPositions
    
 
  end type
@@ -103,6 +104,46 @@ subroutine addMsgTab(self, notebook, winTitle)
     !tabPos = gtk_notebook_append_page (self%notebook, scrollWin, label)
     !PRINT *, "Notebook ptr is ", self%notebook
 
+
+end subroutine
+
+subroutine updateTabPositions(self)
+! Since tabs can be docked/docked, during those events need to update tab positions
+! Use tab title as key   
+  use g
+  implicit none
+  class(zoatabManager) :: self
+  type(c_ptr) :: child, cptr
+  character(len=100) :: tabTitle
+  integer :: i, objIdx
+
+  call LogTermDebug("Starting UpdateTabPositions ")
+  i = 0
+  child = gtk_notebook_get_nth_page(self%notebook, 0)
+  do while (c_associated(child))
+    child = c_null_ptr
+    i = i + 1
+    child = gtk_notebook_get_nth_page(self%notebook, i)
+
+    if (c_associated(child)) then
+
+    cptr = g_object_get_data(child, 'tab-id'//c_null_char)
+    if (c_associated(cptr)) then
+      call LogTermDebug("Pointer defind!")
+      call c_f_string(cptr, tabTitle) 
+      call LogTermDebug("TabTitle is "//tabTitle)
+     else 
+      call LogTermDebug("Pointer not defind!")
+     end if
+
+     objIdx = self%getTabIdxByID(tabTitle)
+     if (objIdx /= -1) then
+        self%tabInfo(objIdx)%tabObj%tabNum = i
+     end if
+    end if
+
+
+  end do
 
 end subroutine
 
@@ -289,7 +330,7 @@ function getTabIdxByID(self, key) result(tabIdx)
 
   ! The key is the tab_label object.
 
-  print *, "key is ", loc(key)
+  print *, "key is ", key
   tabIdx = -1
   do i=1,self%tabNum
     if(allocated(self%tabInfo(i)%tabObj)) then 
