@@ -342,9 +342,10 @@ C       NOT ANAMORPHIC ASPHERIC
                         END IF
                       SAG2=SAG
                         END IF
-      IF(ORIEN.EQ.0) VALUE=ZFC1-SAG1
-      IF(ORIEN.EQ.1) VALUE=ZFC2-SAG2
-      IF(ORIEN.EQ.2) VALUE=(ZFC1-SAG1)-(ZFC2-SAG2)
+      ! JN:  Change sign to be consistent with other apps (eg CodeV)     
+      IF(ORIEN.EQ.0) VALUE=SAG1-ZFC1
+      IF(ORIEN.EQ.1) VALUE=SAG2-ZFC2
+      IF(ORIEN.EQ.2) VALUE=(ZFC2-SAG2)-(ZFC1-SAG1)
                       RETURN
                       ELSE
 C     NOT FOCAL
@@ -376,9 +377,10 @@ C
       IF(VALUE1.EQ.0.0D0) VALUE1=0.0D0
       IF(VALUE2.NE.0.0D0) VALUE2=1.0D0/VALUE2
       IF(VALUE2.EQ.0.0D0) VALUE2=0.0D0
-      IF(ORIEN.EQ.0) VALUE=VALUE1
-      IF(ORIEN.EQ.1) VALUE=VALUE2
-      IF(ORIEN.EQ.2) VALUE=VALUE1-VALUE2
+      ! JN:  Change sign to be consistent with other apps (eg CodeV)
+      IF(ORIEN.EQ.0) VALUE=-VALUE1
+      IF(ORIEN.EQ.1) VALUE=-VALUE2
+      IF(ORIEN.EQ.2) VALUE=VALUE2-VALUE1
                       ELSE
 C     NOT AFOCAL
                       END IF

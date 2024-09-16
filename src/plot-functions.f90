@@ -7,7 +7,10 @@
 
 
 module plot_functions
-
+  use global_widgets, only: sysConfig, ioConfig
+  use zoa_ui
+  use plot_setting_manager
+  use iso_c_binding, only:  c_ptr, c_null_char
 
     contains
 
@@ -17,13 +20,10 @@ subroutine zern_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: zoatabMgr, updateTerminalLog
-    use global_widgets, only:  sysConfig
-    use zoa_ui
     use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
-    use plot_setting_manager
+    
     use DATMAI
 
 
@@ -575,13 +575,9 @@ subroutine ast_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use global_widgets, only:  sysConfig
-    use zoa_ui
     use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
-    use plot_setting_manager
     use DATMAI
 
 
@@ -596,6 +592,8 @@ subroutine ast_go(psm)
     type(zoaplot) :: lin1, lin2, lin3
 
     integer :: numPts, numPtsDist, numPtsFC, idxFieldXY
+    integer :: objIdx
+    logical :: replot
 
      REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
 
@@ -605,6 +603,10 @@ subroutine ast_go(psm)
 
      call psm%getAstigSettings(idxFieldXY, numPts)
 
+
+     call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
+
+
      select case (idxFieldXY)
      case (ID_AST_FIELD_Y)
       ftext = ",0,,  "
@@ -613,33 +615,33 @@ subroutine ast_go(psm)
      case default
       ftext = ",0,,  "
      end select
-     !CALL ITOAA(self%ast_numRays, A6)
-     !self%astcalccmd = 'AST'//trim(ftext)//A6
-     !PRINT *, "Num rays is ", self%ast_numRays
-     !PRINT *, "ftext ", trim(ftext), " A6 ", A6
-     !PRINT *, "COMMAND SENT TO KDP IN AST REPLOT IS ", 'AST'//trim(ftext)//A6
 
+     ! Need to compute this to get the FC plot I want
      CALL PROCESKDP('AST'//trim(ftext)//int2str(numPts))
+     call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
 
-     !self%distcalccmd = 'DIST'//trim(ftext)//A6
-     !self%fccalccmd   = 'FLDCV'//trim(ftext)//A6
+     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
 
-   
 
- call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
-  !PRINT *, "DDTA is ", DDTA
-  !PRINT *, "FLDAN is ", FLDAN
-
-    canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+    canvas = hl_gtk_drawing_area_new(size=[800,500], &
     & has_alpha=FALSE)
-  call mplt%initialize(canvas, 1,3)
-
-  call lin1%initialize(c_null_ptr, REAL(DDTA(0:numPts)),FLDAN(0:numPts), &
-  & xlabel='Astigmatism (in)'//c_null_char, &
-  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-  & title=''//c_null_char)
+  call mplt%initialize(canvas, 1,2)
 
 
+  ! TODO:  Copy or mod the base function to 
+  ! compute FLDCV and output the way I want it
+  !CALL FLDCRV(2,DWORD1,DWORD2,ERROR)
+  CALL PROCESKDP('FLDCV'//trim(ftext)//int2str(numPts))
+  call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
+ 
+ 
+   call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
+   & xlabel='Field Curvature '//c_null_char, &
+   & ylabel=sysConfig%getFieldText()//c_null_char, &
+   & title=''//c_null_char)
+   call lin3%addXYPlot(X2FC(0:numPtsFC),FLDAN(0:numPtsFC))
+   call lin3%setDataColorCode(PL_PLOT_BLUE)
+   call lin3%setLineStyleCode(4)
 
 CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
 
@@ -648,30 +650,22 @@ CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
 
   call lin2%initialize(c_null_ptr, REAL(xDist(0:numPtsDist)),yDist(0:numPtsDist), &
   & xlabel='Distortion (%)'//c_null_char, &
-  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
+  & ylabel=sysConfig%getFieldText()//c_null_char, &
   & title=''//c_null_char)
 
- CALL PROCESKDP('FLDCV'//trim(ftext)//int2str(numPts))
- call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
-
-
-  call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
-  & xlabel='Field Curvature '//c_null_char, &
-  & ylabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-  & title=''//c_null_char)
-  call lin3%addXYPlot(X2FC(0:numPtsFC),FLDAN(0:numPtsFC))
-  call lin3%setDataColorCode(PL_PLOT_BLUE)
-  call lin3%setLineStyleCode(4)
 
 
 
-  call mplt%set(1,1,lin1)
+
+  call mplt%set(1,1,lin3)
   call mplt%set(1,2,lin2)
-  call mplt%set(1,3,lin3)
+  !call mplt%set(1,3,lin3)
 
 
-  call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_AST, "Astig, FC, and Distortion")
+  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
   
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+
   
 end subroutine
 

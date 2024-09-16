@@ -882,6 +882,9 @@ end subroutine
    end if    
 
     call plwind(xmin, xmax, ymin, ymax)
+    ! Set high number of max digits to avoid plplot using scientific notation on tick labels
+    call plsyax(7, 0)
+    call plsxax(7, 0)
 
 
         isurface = c_null_ptr
@@ -898,10 +901,17 @@ end subroutine
 
     ! Micromanage tick intervals if the user selected manual scale
         if (self%manualYScale) then 
-          call plsyax(7, 0)
+          !call plsyax(7, 0)
           call plbox(trim(self%xPlotCodes), 0.0_pl_test_flt, 0, trim(self%yPlotCodes), self%yScale/5.0_pl_test_flt, 0)
         else
-          call plbox(trim(self%xPlotCodes), 0.0_pl_test_flt, 0, trim(self%yPlotCodes), 0.0_pl_test_flt, 0 )
+          print *, "xmax = ", xmax
+          print *, "xmin = ", xmin
+          if (abs(xmax) > abs(xmin)) then
+          call plbox(trim(self%xPlotCodes), xmax/3.0, 1, trim(self%yPlotCodes), 0.0_pl_test_flt, 1 )
+          else 
+            print *, "uxe xmin for tick spacing"
+            call plbox(trim(self%xPlotCodes), xmin/3.0, 1, trim(self%yPlotCodes), 0.0_pl_test_flt, 1 )
+          end if
         end if        
 
     call plcol0(getLabelFontCode(self))

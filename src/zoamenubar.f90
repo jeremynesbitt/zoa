@@ -113,7 +113,7 @@ contains
     type(c_ptr) :: menu_import
 
 
-    character(len=100), target :: pltAst = "ASTFCDIST; GO"
+    character(len=100), target :: pltAst = "FIE; GO"
     character(len=100), target :: pltSpd = "SPO; GO"
     character(len=100), target :: pltRMS = "PLORMSFLD; GO"
     character(len=100), target :: pltSPR = "SPR"

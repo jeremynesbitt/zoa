@@ -133,7 +133,7 @@ module codeV_commands
         zoaCmds(528)%execFunc => setPlotZernikeCoefficients    
         zoaCmds(529)%cmd = 'TOW'
         zoaCmds(529)%execFunc => execTOW   
-        zoaCmds(530)%cmd = 'ASTFCDIST'
+        zoaCmds(530)%cmd = 'FIE'
         zoaCmds(530)%execFunc => execAstigFieldCurvDistPlot                              
         zoaCmds(531)%cmd = 'PMA'
         zoaCmds(531)%execFunc => execPMAPlot                              

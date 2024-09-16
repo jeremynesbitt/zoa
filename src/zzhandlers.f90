@@ -151,7 +151,6 @@ contains
       character(len=*), intent(in)  :: txtColor
 
       type(gtktextiter), target :: endIter
-      logical :: scrollResult
       type(c_ptr) ::  scroll_win, vAdj
       type(c_ptr) ::  txtBuffer
       character(len=280) :: markup
@@ -217,7 +216,7 @@ contains
 
     type(c_ptr), value :: widget, data
     type(c_ptr) :: buff2, tag, tagTable, gBool
-    type(c_ptr) :: page, enter, iterPtr, gColor
+    type(c_ptr) :: page, enter
     type(gtktextiter), target :: iter, startIter, endIter
     character(len=100) :: ftext
     character(len=20)  :: txtColor
@@ -291,16 +290,13 @@ contains
     ! Pointers toward our GTK widgets:
     type(c_ptr)    :: scroll_win_detach, pane
     type(c_ptr)    :: table, button2, button3, box1, scroll_ptr
-    type(c_ptr)    :: entry2, keyevent, controller_k
-    type(c_ptr)    :: toggle1, expander, notebookLabel1, notebookLabel2
-    type(c_ptr)    :: linkButton, iterPtr, iterGUI, notebookLabel3
-    integer(c_int) :: message_id, firstTab, secondTab, thirdTab
+    type(c_ptr)    :: keyevent, controller_k
+    type(c_ptr)    :: toggle1, notebookLabel1, notebookLabel2
+    type(c_ptr)    :: linkButton, notebookLabel3
+    integer(c_int) :: message_id, thirdTab
     type(c_ptr) :: act_fullscreen, act_color, act_quit, display
-    type(c_ptr) :: menubar, menu, section1, section2, section3, &
-      & menu_item_red, menu_item_green, &
-      & menu_item_blue, menu_item_quit, menu_item_fullscreen
-    logical :: tstResult
-  type(c_ptr) :: quit_action, theme
+    type(c_ptr) :: menubar
+    type(c_ptr) :: quit_action, theme
 
 
 
@@ -631,9 +627,9 @@ subroutine moveTabMain(parent_notebook, child, pageNum, gdata) bind(c)
   type(c_ptr), value :: child, parent_notebook, gdata
   integer(kind=c_int), value :: pageNum
 
-  type(c_ptr) :: newwin, newnotebook, box2, scrolled_win
+  type(c_ptr) :: newwin, box2
   type(c_ptr) :: newlabel, gesture, source, dropTarget
-  integer :: newtab, i, tabNum
+  integer :: newtab, tabNum
   type(c_ptr) :: cptr
   character(len=80) :: fstring
 
@@ -656,7 +652,7 @@ subroutine moveTabMain(parent_notebook, child, pageNum, gdata) bind(c)
   zoatabMgr%tabInfo(tabNum)%tabObj%notebook = zoatabMgr%notebook
   
 
-  call gtk_notebook_set_tab_detachable(newnotebook, child, TRUE)
+  call gtk_notebook_set_tab_detachable(zoatabMgr%notebook, child, TRUE)
 
   call gtk_window_close(gtk_widget_get_ancestor(parent_notebook, gtk_window_get_type()))  
   call updateMenuBar()
@@ -691,7 +687,7 @@ subroutine removeTabTst(parent_notebook, child, pageNum, gdata) bind(c)
 
   !newlabel = gtk_notebook_get_tab_label(parent_notebook, child)
 
-  !scrolled_win = gtk_scrolled_window_new()
+  scrolled_win = gtk_scrolled_window_new()
   !call gtk_scrolled_window_set_child(scrolled_win, child)
 
 
@@ -932,13 +928,10 @@ end subroutine
        & gtk_event_controller_get_current_event_device, &
        & gtk_gesture_single_get_current_button
     type(c_ptr), value, intent(in) :: controller, gdata
-    type(c_ptr) :: buff
     integer(c_int), value, intent(in) :: keyval, keycode, state
     logical(c_bool) :: ret
     character(len=20) :: keyname
     integer(kind=c_int) :: key_up, key_down
-    type(gtktextiter), target :: iter
-    integer(kind=c_int) :: result
 
     call convert_c_string(gdk_keyval_name(keyval), keyname)
     !print *, "Keyval: ",keyval," Name: ", trim(keyname), "      Keycode: ", &
@@ -967,7 +960,7 @@ end subroutine
   end function key_event_h
 
   subroutine updateTerminalFromCommandHistory(entry, idx)
-
+    use type_utils, only: blankStr
     implicit none
     type(c_ptr) :: entry, buffer
     integer :: idx
@@ -976,8 +969,9 @@ end subroutine
         if(idx.GT.cmdHistorySize.OR.idx.LT.1) THEN
           call gtk_entry_buffer_set_text(buffer, ' '//c_null_char, -1)
         else
-          
-          call gtk_entry_buffer_set_text(buffer, command_history(idx)//c_null_char, -1)
+          call LogTermDebug("About to set buffer!")
+
+          call gtk_entry_buffer_set_text(buffer, command_history(idx)//c_null_char, len(command_history(idx))+30)
           call gtk_editable_set_position(entry, len(trim(command_history(idx))))
         end if
 

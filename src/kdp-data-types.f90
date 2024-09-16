@@ -705,7 +705,9 @@ subroutine updateParameters(self)
   self%spectralWeights(6:10) = SYSTEM(76:80)
   self%refWavelengthIndex = INT(SYSTEM(11))
 
+
   self%currLensUnitsID = SYSTEM(6)
+
 
   call self%setNumberofWavelengths()
 
@@ -714,7 +716,7 @@ end subroutine
 function getDimensions(self) result(dimStr)
   implicit none
   class(sys_config) :: self
-  character(len=2) :: dimStr
+  character(len=3) :: dimStr
 
   dimStr = " "
   select case(self%currLensUnitsID)
