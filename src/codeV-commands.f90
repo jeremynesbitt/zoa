@@ -141,7 +141,7 @@ module codeV_commands
         zoaCmds(532)%execFunc => setPlotScale     
         zoaCmds(533)%cmd = 'RIM'
         zoaCmds(533)%execFunc => execRayAberrationPlot                                    
-        zoaCmds(534)%cmd = 'PLTTHO'
+        zoaCmds(534)%cmd = 'THO'
         zoaCmds(534)%execFunc => execSeidelBarChart
         zoaCmds(535)%cmd = 'PLORMSFLD'
         zoaCmds(535)%execFunc => execRMSPlot
@@ -153,6 +153,8 @@ module codeV_commands
         zoaCmds(538)%execFunc => execSaveSessionToFile                                       
         zoaCmds(539)%cmd = 'CLI'
         zoaCmds(539)%execFunc => execCLI              
+        zoaCmds(540)%cmd = 'YIM'
+        zoaCmds(540)%execFunc => setField                      
         
 
     end subroutine
@@ -560,33 +562,42 @@ module codeV_commands
 
     subroutine execFIO(iptStr)
         use strings
-        use global_widgets, only: curr_par_ray_trace, curr_lens_data
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str, str2int, blankStr
+        use GLOBALS, only: long
+        use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use handlers, only: updateTerminalLog
-        use global_widgets, only:  sysConfig
-        use DATLEN, only: COLRAY
-    
+        use kdp_utils
+
         implicit none        
 
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=80) :: tokens(40)
-        real(kind=real64) :: relAngle
-        integer :: numTokens, i, jj, numRays
-        integer, allocatable :: fields(:)
-        character(len=5) :: plotOrientation
-        logical :: goodCmd, yzFlag
+        character(len=3), dimension(4) :: colHeaders
+        real(kind=long), dimension(4,curr_lens_data%num_surfaces):: dataArray
+
+        print *, "Size of dataArray is ", size(dataArray,1)
+        dataArray(1,:) = curr_par_ray_trace%marginal_ray_height
+        dataArray(2,:) = curr_par_ray_trace%marginal_ray_angle        
+        dataArray(3,:) = curr_par_ray_trace%chief_ray_height
+        dataArray(4,:) = curr_par_ray_trace%chief_ray_angle
+
+        colHeaders(1) = "HMY"
+        colHeaders(2) = "UMY"
+        colHeaders(3) = "HCY"
+        colHeaders(4) = "UCY"
+
+        call OUTKDP('   '//trim(sysConfig%lensTitle))
+        call logDataVsSurface(dataArray, colHeaders)
       
-        call updateTerminalLog("UMY"//blankStr(10)//"HMY"//blankStr(10)//"UCY"//blankStr(10)//"HCY", "black")
-        do i=1,curr_lens_data%num_surfaces
-            call updateTerminalLog(trim(real2str(curr_par_ray_trace%marginal_ray_angle(i)))//blankStr(2)// &
-            &                      trim(real2str(curr_par_ray_trace%marginal_ray_height(i)))//blankStr(2)// &
-            &                      trim(real2str(curr_par_ray_trace%chief_ray_angle(i)))//blankStr(2)// &
-            &                      trim(real2str(curr_par_ray_trace%chief_ray_height(i))), "black" )
+        ! call updateTerminalLog("UMY"//blankStr(5)//"HMY"//blankStr(5)//"UCY"//blankStr(5)//"HCY", "black")
+        ! do i=1,curr_lens_data%num_surfaces
+        !     call updateTerminalLog(trim(real2str(curr_par_ray_trace%marginal_ray_angle(i)))//blankStr(2)// &
+        !     &                      trim(real2str(curr_par_ray_trace%marginal_ray_height(i)))//blankStr(2)// &
+        !     &                      trim(real2str(curr_par_ray_trace%chief_ray_angle(i)))//blankStr(2)// &
+        !     &                      trim(real2str(curr_par_ray_trace%chief_ray_height(i))), "black" )
 
 
-        end do
+        ! end do
 
     end subroutine
 
@@ -2256,8 +2267,8 @@ module codeV_commands
          end do
 
          ! TODO:  Support more field types
-         if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB') FLD_COL = Y_COL
-         if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB') FLD_COL = X_COL
+         if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB'.OR.tokens(1).EQ.'YIM') FLD_COL = Y_COL
+         if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB'.OR.tokens(1).EQ.'XIM') FLD_COL = X_COL
 
          call sysConfig%setFieldTypeFromString(trim(tokens(1)))
 
@@ -2267,56 +2278,16 @@ module codeV_commands
           do i=1,numFields
             absFields(i) = str2real8(trim(tokens(i+1)))
           end do
+          call sysConfig%setNumFields(numFields)
           call sysConfig%setAbsoluteFields(absFields, FLD_COL)
 
+          ! Force update of lens system
+          CALL LNSEOS
 
-         
 
-         ! Exit lens update level if we are there, since KDP doesn't support field updating
-         ! at that level
-        !  if (inLensUpdateLevel()) call PROCESKDP('EOS')
-        !  numFields = numTokens-1
-        !  call PROCESKDP('FLDS MAX '//trim(int2str(numFields)))
-        !  call LogTermFOR("cmd "//'FLDS MAX '//int2str(numFields))
-        !  do i=1,numFields
-        !     call PROCESKDP('FLDS '//trim(int2str(i))//' 0 '//trim(tokens(i+1)))
-        !     call LogTermFOR("cmd "//'FLDS '//trim(int2str(i))//' 0 '//trim(tokens(i+1)))
-            
-        !  end do
 
        end subroutine   
        
-       ! Old set field
-    !     use command_utils
-    !     use type_utils, only: real2str
-    !     use kdp_utils, only: inLensUpdateLevel
-    !     implicit none
-
-    !     character(len=3) :: strCmd
-    !     logical :: inputCheck
-
-    !     PRINT *, "Setting Field"
-
-    !     inputCheck = checkCommandInput([ID_CMD_NUM])
-    !     if (inputCheck) then
-
-    
-    !     select case (strCmd)
-    !     case('YAN')
-    !         call executeCodeVLensUpdateCommand('SCY FANG,' // real2str(getInputNumber(1)))
-    
-    !         ! if (inLensUpdateLevel()) then
-    !         !     PRINT *, 'SCY FANG,' // real2str(getInputNumber(1))
-    !         !     call PROCESKDP('SCY FANG,' // real2str(getInputNumber(1)))
-    !         ! else
-    !         !     call PROCESKDP('U L;SCY FANG, '// real2str(getInputNumber(1))//';EOS')
-    !         ! end if
-
-    !     end select
-    ! end if
-
-    !   end subroutine
-
       subroutine setWavelength(iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
         use command_utils, only : parseCommandIntoTokens

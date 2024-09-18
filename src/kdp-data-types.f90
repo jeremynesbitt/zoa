@@ -843,6 +843,10 @@ select case(iptStr)
     self%currFieldID = FIELD_OBJECT_HEIGHT
   case('XOB')
     self%currFieldID = FIELD_OBJECT_HEIGHT
+  case('YIM')
+    self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT
+  case('XIM')
+    self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT    
 end select
 
 

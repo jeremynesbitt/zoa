@@ -120,7 +120,7 @@ contains
 
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: drawCmd = "VIE; GO"
-    character(len=100), target :: seidelCmd = "PLTTHO; GO"
+    character(len=100), target :: seidelCmd = "THO; GO"
     character(len=100), target :: macroCmd = "MACROUI"
     character(len=100), target :: zernFldCmd = "ZERN_TST; GO"
     character(len=100), target :: opdPltCmd = "PMA; GO"    

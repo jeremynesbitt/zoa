@@ -239,6 +239,7 @@ module kdp_utils
     PRINT *, "sStart is ", sStart
     PRINT *, "sEnd is ", sEnd
 
+    if(.not.present(extraRowName)) sEnd = sEnd -1 
 
     do i=sStart,sEnd
     !do i=0,curr_lens_data%num_surfaces   
@@ -254,6 +255,8 @@ module kdp_utils
         end if
             
         do j=1,size(colHeaders)
+            print *, "Processing Column Header ", colHeaders(j)
+            print *, "surf is ", i
             write(entryStr, '(F9.5)') dataArray(j,i+1) ! Surface starts at 0, passed array starts at 1?
             PRINT *, "length of entryStry is ", len(trim(entryStr))
             if (dataArray(j,i+1) > 0.0) then
