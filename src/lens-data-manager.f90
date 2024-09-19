@@ -17,6 +17,8 @@ module mod_lens_data_manager
      procedure :: getCurrentConfig
      procedure :: getSurfName
      procedure :: getStopSurf
+     procedure :: isGlassSurf
+     procedure :: getGlassName
 
 
 
@@ -26,6 +28,28 @@ module mod_lens_data_manager
     type(lens_data_manager) :: ldm
 
     contains
+
+    function getGlassName(self, idx) result(strGlassName)
+        use DATLEN, only: GLANAM
+        class(lens_data_manager) :: self
+        integer :: idx
+        character(len=30) :: strGlassName
+
+        strGlassName = trim(GLANAM(idx,2))//'_'//trim(GLANAM(idx,1))
+
+    end function
+
+    function isGlassSurf(self, idx) result(boolResult)
+        use DATLEN, only: GLANAM
+        class(lens_data_manager) :: self
+        integer :: idx
+        logical :: boolResult
+
+        boolResult = .TRUE.
+        if (GLANAM(idx,2) == 'AIR') boolResult = .FALSE.
+        if (GLANAM(idx,2).EQ.'LAST SURFACE') boolResult = .FALSE.
+
+    end function
 
     function getStopSurf(self) result(iStop)
         class(lens_data_manager) :: self

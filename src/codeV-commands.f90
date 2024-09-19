@@ -36,7 +36,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(551) :: zoaCmds
+    type(zoa_cmd), dimension(561) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -154,7 +154,9 @@ module codeV_commands
         zoaCmds(539)%cmd = 'CLI'
         zoaCmds(539)%execFunc => execCLI              
         zoaCmds(540)%cmd = 'YIM'
-        zoaCmds(540)%execFunc => setField                      
+        zoaCmds(540)%execFunc => setField        
+        zoaCmds(541)%cmd = 'IND'
+        zoaCmds(541)%execFunc => printRefractiveIndices                              
         
 
     end subroutine
@@ -600,6 +602,60 @@ module codeV_commands
         ! end do
 
     end subroutine
+
+    subroutine printRefractiveIndices(iptStr)
+        use strings
+        use GLOBALS, only: long
+        use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
+        use handlers, only: updateTerminalLog
+        use type_utils
+        use kdp_utils
+        use mod_lens_data_manager
+ 
+
+        implicit none        
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        character(len=3), dimension(4) :: colHeaders
+        real(kind=long), dimension(4,curr_lens_data%num_surfaces):: dataArray
+        integer :: i,j
+        character(len=1024) :: outStr
+
+        print *, "Size of dataArray is ", size(dataArray,1)
+        dataArray(1,:) = curr_par_ray_trace%marginal_ray_height
+        dataArray(2,:) = curr_par_ray_trace%marginal_ray_angle        
+        dataArray(3,:) = curr_par_ray_trace%chief_ray_height
+        dataArray(4,:) = curr_par_ray_trace%chief_ray_angle
+
+        colHeaders(1) = "HMY"
+        colHeaders(2) = "UMY"
+        colHeaders(3) = "HCY"
+        colHeaders(4) = "UCY"
+
+        call OUTKDP('   '//trim(sysConfig%lensTitle))
+        call OUTKDP('REFRACTIVE INDICES')
+        outStr = '   GLASS CODE'
+        do j=1,sysConfig%numWavelengths
+            outStr = trim(outStr)//blankStr(6)//real2str(1000.0*sysConfig%getWavelength(j),2)
+        end do
+        call OUTKDP(trim(outStr))
+        do i=0,ldm%getLastSurf()
+            if (ldm%isGlassSurf(i)) then
+                outStr = blankStr(3)//ldm%getGlassName(i)
+                do j=1,sysConfig%numWavelengths
+                    outStr=trim(outStr)//blankStr(5)//real2str(ldm%getSurfIndex(i,j))
+                end do
+                call outKDP(trim(outStr))
+            end if
+        end do
+
+
+
+
+    end subroutine
+
 
 
     ! Todo:  move this somewhere once it is properly written
