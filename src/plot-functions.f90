@@ -271,9 +271,10 @@ subroutine spo_fieldPoint_go(psm)
   integer :: iField, iLambda, iMethod, nRect, nRand, nRing
   integer :: objIdx
   logical :: replot
+  real :: plotScale
 
 
-  call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing)
+  call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
 
   call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
 
@@ -363,13 +364,20 @@ subroutine spo_go(psm)
     type(zoaplot_setting_manager) :: psm
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
-    integer :: objIdx, i
-    logical :: replot
+    integer :: objIdx, i, j
+    logical :: replot, allWL
 
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
+    real :: plotScale
 
     ! TODO:  Distable field here
-    call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing)
+    call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
+
+    allWL = .FALSE.
+    if (iLambda == ID_SETTING_WAVELENGTH_ALL) then
+      allWL = .TRUE.
+      iLambda = 1
+    end if
 
     call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
 
@@ -407,12 +415,27 @@ subroutine spo_go(psm)
 
     call xyscat(i)%setLineStyleCode(-1)
     
-    call xyscat(i)%setYScale(.3d0)
-    call xyscat(i)%setXScale(.3d0)
+    if (plotScale /= 0) then 
+      call xyscat(i)%setYScale(real(plotScale,8))
+      call xyscat(i)%setXScale(real(plotScale,8))
+    end if
     call xyscat(i)%removeGrids()
     call xyscat(i)%removeLabels()
 
     if (i==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
+
+    if (allWL) then
+      do j=2,sysConfig%numWavelengths
+        call PROCESKDP(trim(getKDPSpotPlotCommand(i, j, iMethod, nRect, nRand, nRing)))
+        if(allocated(xSpot)) deallocate(xSpot)
+        if(allocated(ySpot)) deallocate(ySpot)
+        call getSpotData(xSpot, ySpot)  
+        ySpot = ySpot - (sum(ySpot)/size(ySpot))
+        call xyscat(i)%addXYPlot(real(xSpot), real(ySpot))
+        call xyscat(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
+        call xyscat(i)%setLineStyleCode(-1)
+      end do
+    end if
 
     call mplt%set(sysConfig%numFields-i+1,1,xyscat(i))
 

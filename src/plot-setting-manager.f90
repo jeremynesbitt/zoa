@@ -53,7 +53,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: getWavelengthSetting
     
     procedure :: addWavelengthComboSetting, getWavelengthComboSetting
-
+    procedure :: addScaleSetting
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: getSettingValueByCode
@@ -255,6 +255,14 @@ contains
       
     end subroutine
 
+    subroutine addScaleSetting(self)
+      implicit none
+      class(zoaplot_setting_manager) :: self
+
+      call self%addGenericSetting(SETTING_SCALE, 'Scale', 0.0, 0.0, 1000.0, 'SSI', 'SSI 0', UITYPE_SPINBUTTON)       
+
+    end subroutine
+
     subroutine addSpotDiagramSettings(self)
       
       use zoa_ui
@@ -265,8 +273,9 @@ contains
      
 
       call self%addFieldSetting()
-      call self%addWavelengthSetting()
+      call self%addWavelengthComboSetting()
       call self%addSpotCalculationSetting()
+      call self%addScaleSetting()
      
 
       ! Add indvidual settings 
@@ -311,16 +320,17 @@ contains
     end subroutine
 
     ! Since there is a lot of custom settings, write a method to get all settings
-    subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing)
+    subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing, plotScale)
       use zoa_ui
       use type_utils, only: int2str
       implicit none
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: idxField, idxLambda, idxSpotCalcMethod
       integer, intent(inout) :: nRect, nRand, nRing
+      real, intent(inout) :: plotScale
 
       idxField = self%getSettingValueByCode(SETTING_FIELD)
-      idxLambda = self%getSettingValueByCode(SETTING_WAVELENGTH)
+      idxLambda = self%getSettingValueByCode(ID_SETTING_WAVELENGTH_COMBO)
       
       idxSpotCalcMethod = self%getSettingValueByCode(ID_SPOT_TRACE_ALGO)
       !call LogTermFOR("In getSpotDiagramSettings idxSpotCalcMethod is "// &
@@ -328,6 +338,7 @@ contains
       nRect = self%getSettingValueByCode(ID_SPOT_RECT_GRID)
       nRand = self%getSettingValueByCode(ID_SPOT_RAND_NUMRAYS)
       nRing = self%getSettingValueByCode(ID_SPOT_RING_NUMRINGS)
+      plotScale = self%getSettingValueByCode(SETTING_SCALE)
 
     end subroutine
     

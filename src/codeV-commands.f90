@@ -1073,6 +1073,8 @@ module codeV_commands
             select case(cmd_loop)
             case (ID_PLOTTYPE_RIM)
                 call curr_psm%updateSetting(SETTING_SCALE, str2real8(tokens(2)))
+            case (SPO_LOOP)
+                call curr_psm%updateSetting(SETTING_SCALE, str2real8(tokens(2)))
             end select
         end if
         end if
