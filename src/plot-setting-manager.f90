@@ -51,6 +51,9 @@ module plot_setting_manager
     procedure, public, pass(self) :: addWavelengthSetting
     procedure, public, pass(self) :: updateWavelengthSetting
     procedure, public, pass(self) :: getWavelengthSetting
+    
+    procedure :: addWavelengthComboSetting, getWavelengthComboSetting
+
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: getSettingValueByCode
@@ -516,6 +519,38 @@ contains
 
       end subroutine 
 
+
+      subroutine addWavelengthComboSetting(self)
+        use global_widgets, only: sysConfig
+        use type_utils, only: int2str
+        implicit none
+
+        class(zoaplot_setting_manager) :: self
+        type(idText), dimension(sysConfig%numWavelengths+1) :: set
+        integer :: lambda, i
+
+        do i=1,sysConfig%numWavelengths
+          set(i)%text = int2str(i)
+          set(i)%id = wlIndices(i)
+        end do         
+        set(i)%text = 'All'
+        set(i)%id = wlIndices(11)
+    
+          self%numSettings = self%numSettings + 1
+          call self%ps(self%numSettings)%initialize(ID_SETTING_WAVELENGTH_COMBO, & 
+          & "Wavelength", real(wlIndices(11)),0.0,0.0, &
+          & "SETWV ", "SETWV ALL", UITYPE_COMBO, set=set)
+
+
+      end subroutine
+
+      function getWavelengthComboSetting(self) result (idxWL)
+        class(zoaplot_setting_manager) :: self
+        integer :: idxWL
+
+        idxWL = INT(self%getSettingValueByCode(ID_SETTING_WAVELENGTH_COMBO))
+
+      end function
 
       function getFieldSetting(self) result(idxFld)
         use type_utils, only: str2int

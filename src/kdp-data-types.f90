@@ -95,6 +95,8 @@ character(len=40), dimension(3) :: possibleApertureNames ! = ["ObjectHeight",&
  real(kind=real64), dimension(2) :: refApertureValue
 !TODO:  Where to define max field points instead of hard coded?
 integer, dimension(10) :: fieldColorCodes
+integer, dimension(10) :: wavelengthColorCodes
+
 !  & "ObjectAngle", "ParaxialImageHeight"]
 contains
  procedure, public, pass(self) :: getImageSurface
@@ -577,6 +579,10 @@ type(sys_config) function sys_config_constructor() result(self)
   self%relativeFields = CFLDS
 
   self%fieldColorCodes = [ID_COLOR_RED, ID_COLOR_GREEN, ID_COLOR_BLUE, &
+  & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
+  & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
+
+  self%wavelengthColorCodes = [ID_COLOR_RED, ID_COLOR_GREEN, ID_COLOR_BLUE, &
   & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
   & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
 

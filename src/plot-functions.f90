@@ -790,8 +790,8 @@ subroutine rayaberration_go(psm)
     real :: plotScale
     
     integer, parameter :: nlevel = 10
-    logical :: replot
-    integer :: i
+    logical :: replot, allWL
+    integer :: i, j
     type(c_ptr) :: canvas
     !type(zoaPlot3d) :: zp3d 
     type(zoaplot), dimension(sysConfig%numFields) :: lineplot
@@ -805,8 +805,14 @@ subroutine rayaberration_go(psm)
     call initializeGoPlot(psm,ID_PLOTTYPE_RIM, "Ray Aberration Fan", replot, objIdx)
 
 
+    allWL = .FALSE.
+    lambda = psm%getWavelengthComboSetting()
+    if (lambda == ID_SETTING_WAVELENGTH_ALL) then
+        allWL = .TRUE.
+        lambda = 1
+    end if
 
-    lambda = psm%getWavelengthSetting()
+
     plotScale = psm%getSettingValueByCode(SETTING_SCALE)
     numPoints = psm%getDensitySetting()
 
@@ -859,6 +865,18 @@ subroutine rayaberration_go(psm)
 
         call lineplot(i)%addText('Field '//sysConfig%getAbsYFieldText(i), POS_UPPER_RIGHT)
         if (plotScale /= 0) call lineplot(i)%setYScale(real(plotScale,8))
+
+        if (allWL) then
+          do j=2,sysConfig%numWavelengths
+            write(ffieldstr, FMTFAN) j,',',numPoints
+            CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+            x = curr_ray_fan_data%relAper
+            y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
+            call lineplot(i)%addXYPlot(x,y)
+            call lineplot(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
+          end do
+        end if
+
 
       !call mplt%set(1,i,lineplot(i))
       call mplt%set(sysConfig%numFields-i+1,1,lineplot(i))

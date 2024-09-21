@@ -1143,7 +1143,7 @@ module codeV_commands
         call psm%initialize(trim(iptStr))
         call psm%addDensitySetting(64,8,128)
         call psm%addGenericSetting(SETTING_SCALE, 'Scale', 0.0, 0.0, 1000.0, 'SSI', 'SSI 0', UITYPE_SPINBUTTON)      
-        call psm%addWavelengthSetting()
+        call psm%addWavelengthComboSetting()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RIM, psm)
         if(boolResult .EQV. .FALSE.) then

@@ -41,6 +41,7 @@ end type
 type, extends(zoa_settings_obj) :: ui_field_settings
 
   type(c_ptr) :: fieldType
+  type(c_ptr) :: ihlist
 
 contains
   procedure, public, pass(self) :: createUI => createFieldSettingsUI
@@ -50,6 +51,8 @@ contains
 end type
 
 type, extends(zoa_settings_obj) :: ui_wavelength_settings
+
+ type(c_ptr) :: ihlist
 
 contains
   procedure, public, pass(self) :: createUI => createWavelengthSettingsUI
@@ -254,21 +257,152 @@ end subroutine
     type(c_ptr) :: locallist
 
     call getRowAndColFromCallback(renderer, path, row, col) 
-    call convertCellData(text, ftext, realData=cellData)
+ 
+     
     
-    ! TODO:  Make this into a sub?
+
+
+   ! Only want to update field points.  Ignore updates for other columns
+   ! This could be handled better than checking column number I'm sure.
+   if (col /= 3 ) THEN
+     ! TODO:  Make this into a sub?
     locallist = g_object_get_data(renderer, "view"//c_null_char)
     call hl_gtk_listn_set_cell(locallist, row, col, &
          & svalue=trim(ftext))
 
-   ! Only want to update field points.  Ignore updates for other columns
-   ! This could be handled better than checking column number I'm sure.
-   if (col < 3 ) THEN
-
+    call convertCellData(text, ftext, realData=cellData)
     absFields(col,row+1) = cellData
     call sysConfig%setAbsoluteFields(reshape(absFields(col,:), [10]), col)
-   end if
+   else
+    call hl_gtk_listn_combo_set_by_list_id(uiFieldSettings%ihlist, row, 3_c_int, &
+    & targetValue=sysConfig%fieldColorCodes(row+1))    
 
+  end if
+  
+
+  
+
+  end subroutine
+
+
+  function getComboBoxSelection(renderer, iter) result(ivalue)
+    type(c_ptr), value, intent(in) :: renderer
+    type(c_ptr), target :: iter
+    integer :: ivalue
+    type(gvalue), target :: modelv
+    type(c_ptr) :: pmodel, model    
+    type(c_ptr)  :: val, cstr, ival, view
+    type(gvalue), target :: result, iresult
+    character(len=50)  :: choice
+
+        ! Find the model for the combobox
+    pmodel = c_loc(modelv)
+    pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+    call g_object_get_property(renderer, "model"//c_null_char, pmodel)
+    model = g_value_get_object(pmodel)
+
+     !valid = gtk_tree_model_iter_nth_child(store, c_loc(iter), C_NULL_PTR, row)
+
+    val = c_loc(result)
+    call gtk_tree_model_get_value(model, c_loc(iter), 1_c_int, val)
+
+  
+  cstr = g_value_get_string(val)
+  call convert_c_string(cstr, choice)
+
+ 
+  ! Get ING
+  ival = c_loc(iresult)
+  call gtk_tree_model_get_value(model, c_loc(iter), 0_c_int, ival)
+  ivalue = g_value_get_int(ival)
+
+  end function
+
+  ! subroutine wavelengthColorCodes_changed(renderer, path, iter, gdata) bind(c)
+  !   type(c_ptr), value, intent(in) :: renderer, path, iter, gdata
+  !   integer :: iVal, rowSelection
+  !   character(len=200) :: fpath
+
+  !   iVal = getComboBoxSelection(renderer, iter)
+  !   call c_f_string(path, fpath)
+  !   read(fpath(1:2),'(i5)') rowSelection
+  !   print *, "Row selection is ", rowSelection    
+  !   sysConfig%wavelengthColorCodes(rowSelection+1) = iVal
+
+
+
+  ! end subroutine
+
+  subroutine wavelengthColorCodes_changed(renderer, path, iter, gdata) bind(c)
+    !use hl_gtk_zoa
+    type(c_ptr), value, intent(in) :: renderer, path, gdata
+    type(c_ptr), target :: iter
+    type(gvalue), target :: modelv
+    type(c_ptr) :: pmodel, model
+    integer :: ID_SETTING, ivalue
+    type(c_ptr)  :: val, cstr, ival, view
+     type(gvalue), target :: result, iresult
+     
+     type(gtktreeiter), target :: tree_iter
+    integer(c_int), dimension(:), allocatable :: selections
+    integer :: nsel
+    integer :: rowSelection
+    character(len=50)  :: choice
+
+    ! Basic callback to report what's called
+    character(len=200) :: fpath
+
+   view = g_object_get_data(renderer, "view"//c_null_char)
+
+    nsel = hl_gtk_listn_get_selections(C_NULL_PTR, selections, view)
+    if (nsel == 0) then
+       print *, "No selection"
+       !return
+    end if
+
+    if (nsel == 1) PRINT *, "Selection is ", selections(1)
+
+
+
+
+
+
+    ! Find the model for the combobox
+    pmodel = c_loc(modelv)
+    pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
+    call g_object_get_property(renderer, "model"//c_null_char, pmodel)
+    model = g_value_get_object(pmodel)
+
+     !valid = gtk_tree_model_iter_nth_child(store, c_loc(iter), C_NULL_PTR, row)
+
+    val = c_loc(result)
+    call gtk_tree_model_get_value(model, c_loc(iter), 1_c_int, val)
+
+
+  cstr = g_value_get_string(val)
+  call convert_c_string(cstr, choice)
+
+  PRINT *, "CHOICE is ", choice
+
+  ! Get ING
+  ival = c_loc(iresult)
+  call gtk_tree_model_get_value(model, c_loc(iter), 0_c_int, ival)
+  ivalue = g_value_get_int(ival)
+
+  PRINT *, "Integer Index is ", ivalue
+
+
+
+    !ID_SETTING = hl_zoa_combo_get_selected_list2_id(renderer)
+    !PRINT *, "ID_SETTING is ", ID_SETTING
+
+    call c_f_string(path, fpath)
+    print *, "Combo sent changed signal from ", trim(fpath)
+
+    read(fpath(1:2),'(i5)') rowSelection
+    print *, "Row selection is ", rowSelection
+
+    sysConfig%wavelengthColorCodes(rowSelection+1) = ivalue
 
   end subroutine
 
@@ -281,11 +415,12 @@ end subroutine
     integer :: ID_SETTING, ivalue
     type(c_ptr)  :: val, cstr, ival, view
      type(gvalue), target :: result, iresult
-     character(len=50)                        :: choice
+     
      type(gtktreeiter), target :: tree_iter
     integer(c_int), dimension(:), allocatable :: selections
     integer :: nsel
     integer :: rowSelection
+    character(len=50)  :: choice
 
     ! Basic callback to report what's called
     character(len=200) :: fpath
@@ -352,7 +487,7 @@ function createFieldPointSelectionTable(self) result(base)
   implicit none
   class(ui_field_settings) :: self
 
-  type(c_ptr) :: ihlist, base, ihscrollcontain
+  type(c_ptr) :: base, ihscrollcontain
   character(len=35) :: line
   integer(c_int) :: i, ltr
   integer(c_int), target :: fmt_col = 2
@@ -399,7 +534,7 @@ renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, &
      & hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
 
 
-ihlist = hl_gtk_listn_new(types=ctypes, &
+self%ihlist = hl_gtk_listn_new(types=ctypes, &
      !& changed=c_funloc(list_select),&
      & multiple=TRUE, titles=titles, width=widths, &
      & renderers=renderers, editable=editable, &
@@ -409,32 +544,32 @@ ihlist = hl_gtk_listn_new(types=ctypes, &
      & changed_combo=c_funloc(fieldColorCodes_changed)) !, &
      !& valsArray=valsArray, refsArray=refsArray)
 
-call hl_gtk_listn_attach_combo_box_model(ihlist, 3_c_int, valsArray, refsArray)
+call hl_gtk_listn_attach_combo_box_model(self%ihlist, 3_c_int, valsArray, refsArray)
 
 
-call hl_gtk_listn_ins(ihlist, count=nrows)
+call hl_gtk_listn_ins(self%ihlist, count=nrows)
 do i=1,nrows
    !write(line,"('List entry number ',I0)") i
 
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 0_c_int, ivalue=i)
 
    absFields(1,i) = sysConfig%refFieldValue(1)*sysConfig%relativeFields(1,i)
    absFields(2,i) = sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i)
 
 
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 1_c_int, &
         & fvalue=REAL(absFields(1,i),4))
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 2_c_int, &
         & fvalue=REAL(absFields(2,i),4))
 
-   call hl_gtk_listn_combo_set_by_list_id(ihlist, i-1_c_int, 3_c_int, &
+   call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int, &
         & targetValue=sysConfig%fieldColorCodes(i))
 
    !call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 10_c_int, logvalue= i==4)
 end do
 
 
-  call hl_gtk_box_pack(base, ihlist)
+  call hl_gtk_box_pack(base, self%ihlist)
 
 end function
 
@@ -793,75 +928,6 @@ end subroutine
 
   end subroutine
 
-! function createWavelengthSelectionTable(self) result(base)
-!   use hl_gtk_zoa
-!
-!   implicit none
-!   class(ui_wavelength_settings) :: self
-!
-!   type(c_ptr) :: ihlist, base, ihscrollcontain
-!   character(len=35) :: line
-!   integer(c_int) :: i, ltr
-!   integer(c_int), target :: fmt_col = 2
-!     integer, parameter :: ncols = 4, nrows=10
-!     integer(type_kind), dimension(ncols) :: ctypes
-!     character(len=20), dimension(ncols) :: titles, renderers
-!     integer(c_int), dimension(ncols) :: sortable, editable
-!     integer(c_int), dimension(ncols) :: widths
-!   character(kind=c_char), dimension(10) :: codes
-!
-!   ! Create the window:
-!
-!   ! Now make a column box & put it into the window
-!   base = hl_gtk_box_new()
-!   ! Now make a multi column list with multiple selections enabled
-!   ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING]
-!   sortable = [ FALSE, FALSE, FALSE, FALSE]
-!   editable = [ FALSE, TRUE, TRUE, FALSE ]
-!   widths = [-1,-1,-1, 0] !Fixed width needed when adding pixbuf
-!
-!   titles(1) = "No"
-!   titles(2) = "Lambda"
-!   titles(3) = "Weight"
-!   titles(4) = "BackClr"
-!
-! ! Now make a multi column list with multiple selections enabled
-!
-! renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text] !, hl_gtk_cell_pixbuf ]
-!
-!
-! ihlist = hl_gtk_listn_new(types=ctypes, &
-!      !& changed=c_funloc(list_select),&
-!      & multiple=TRUE, titles=titles, width=widths, &
-!      & renderers=renderers, editable=editable, &
-!      & edited=c_funloc(wavelength_edited))
-!
-!
-!
-! call hl_gtk_listn_ins(ihlist, count=nrows)
-! do i=1,nrows
-!    !write(line,"('List entry number ',I0)") i
-!
-!    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
-!    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
-!         & fvalue=sysConfig%wavelengths(i))
-!    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-!         & fvalue=sysConfig%spectralWeights(i))
-!   if (i<5) then
-!    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-!         & svalue="orange")
-!   else
-!    call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
-!         & svalue="blue")
-!   end if
-!   end do
-!
-!   colPtr = gtk_tree_view_get_column(view, 0_c_int)
-!   call gtk_tree_view_column_set_at
-!
-!   call hl_gtk_box_pack(base, ihlist)
-!
-! end function
 
 function createWavelengthSelectionTable(self) result(base)
   use hl_gtk_zoa
@@ -869,57 +935,76 @@ function createWavelengthSelectionTable(self) result(base)
   implicit none
   class(ui_wavelength_settings) :: self
 
-  type(c_ptr) :: ihlist, base, ihscrollcontain
+  type(c_ptr) :: base, ihscrollcontain
   character(len=35) :: line
   integer(c_int) :: i, ltr
   integer(c_int), target :: fmt_col = 2
-    integer, parameter :: ncols = 3, nrows=10
+    integer, parameter :: ncols = 4, nrows=10
     integer(type_kind), dimension(ncols) :: ctypes
     character(len=20), dimension(ncols) :: titles, renderers
     integer(c_int), dimension(ncols) :: sortable, editable
     integer(c_int), dimension(ncols) :: widths
   character(kind=c_char), dimension(10) :: codes
+  character(kind=c_char, len=8),dimension(9) :: valsArray
+  integer(c_int), dimension(9) :: refsArray
+
+
+
+  ! TODO:  Move this to it's own function since it is shared with field selection?
+  valsArray = [character(len=8) :: "White", "Yellow", "Magenta", "Red", "Cyan", &
+  & "Green", "Blue", "Grey", "Black"]
+  refsArray = [ID_COLOR_WHITE, ID_COLOR_YELLOW, &
+  & ID_COLOR_MAGENTA, ID_COLOR_RED, ID_COLOR_CYAN, &
+  & ID_COLOR_GREEN, ID_COLOR_BLUE, ID_COLOR_GREY, &
+  & ID_COLOR_BLACK ]
+
 
   ! Create the window:
 
   ! Now make a column box & put it into the window
   base = hl_gtk_box_new()
   ! Now make a multi column list with multiple selections enabled
-  ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT]
-  sortable = [ FALSE, FALSE, FALSE]
-  editable = [ FALSE, TRUE, TRUE ]
-  widths = [-1,-1,-1] !Fixed width needed when adding pixbuf
+  ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING]
+  sortable = [ FALSE, FALSE, FALSE, FALSE]
+  editable = [ FALSE, TRUE, TRUE, TRUE ]
+  widths = [-1,-1,-1, -1] !Fixed width needed when adding pixbuf
 
   titles(1) = "No"
   titles(2) = "Lambda"
   titles(3) = "Weight"
+  titles(4) = "Plot Colors"
 
 ! Now make a multi column list with multiple selections enabled
 
-renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text] !, hl_gtk_cell_pixbuf ]
+renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
 
 
-ihlist = hl_gtk_listn_new(types=ctypes, &
+self%ihlist = hl_gtk_listn_new(types=ctypes, &
      !& changed=c_funloc(list_select),&
      & multiple=TRUE, titles=titles, width=widths, &
      & renderers=renderers, editable=editable, &
-     & edited=c_funloc(wavelength_edited))
+     & edited=c_funloc(wavelength_edited), &
+     & changed_combo=c_funloc(wavelengthColorCodes_changed))
 
 
+     call hl_gtk_listn_attach_combo_box_model(self%ihlist, 3_c_int, valsArray, refsArray)
 
-call hl_gtk_listn_ins(ihlist, count=nrows)
+
+call hl_gtk_listn_ins(self%ihlist, count=nrows)
 do i=1,nrows
    !write(line,"('List entry number ',I0)") i
 
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 0_c_int, ivalue=i)
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 1_c_int, &
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 0_c_int, ivalue=i)
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 1_c_int, &
         & fvalue=REAL(sysConfig%wavelengths(i))) 
-   call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 2_c_int, &
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 2_c_int, &
         & fvalue=REAL(sysConfig%spectralWeights(i)))
+   call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int, &
+        & targetValue=sysConfig%wavelengthColorCodes(i))        
   end do
 
 
-  call hl_gtk_box_pack(base, ihlist)
+  call hl_gtk_box_pack(base, self%ihlist)
 
 end function
 
@@ -933,11 +1018,14 @@ end function
     type(c_ptr) :: locallist
 
     call getRowAndColFromCallback(renderer, path, row, col) 
+
+    if (col /= 3) then
     call convertCellData(text, ftext, realData=cellData)
 
     locallist = g_object_get_data(renderer, "view"//c_null_char)
     call hl_gtk_listn_set_cell(locallist, row, col, &
          & svalue=trim(ftext))
+    end if
 
 
    select case (col)
@@ -947,6 +1035,9 @@ end function
    case (2)
      call sysConfig%setSpectralWeights(row+1,real(cellData,4))
      !sysConfig%spectralWeights(irow+1) = cellData
+   case(3)
+    call hl_gtk_listn_combo_set_by_list_id(uiWavelengthSettings%ihlist, row, 3_c_int, &
+    & targetValue=sysConfig%wavelengthColorCodes(row+1)) 
 
    end select
 
