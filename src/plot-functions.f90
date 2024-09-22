@@ -401,7 +401,8 @@ subroutine spo_go(psm)
 
       call getSpotData(xSpot, ySpot)  
       
-
+      ! I am pretty sure this is wrong, and I should offset for one wavelength, not mutiple.  But 
+      ! will check Bentley first
       ySpot = ySpot - (sum(ySpot)/size(ySpot))
                                
 

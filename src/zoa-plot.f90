@@ -5,6 +5,7 @@
 
 
 module zoa_plot
+    use zoa_ui
     use collections
     use GLOBALS
     use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_null_char
@@ -40,23 +41,7 @@ module zoa_plot
     end type
 
 
-   ! Constants for plotting
-   integer, parameter :: PL_PLOT_BLACK = 15
-   integer, parameter :: PL_PLOT_RED = 2
-   integer, parameter :: PL_PLOT_YELLOW = 2
-   integer, parameter :: PL_PLOT_GREEN = 3
-   integer, parameter :: PL_PLOT_AQUAMARINE = 9
-   integer, parameter :: PL_PLOT_PINK = 5
-   integer, parameter :: PL_PLOT_WHEAT = 6
-   integer, parameter :: PL_PLOT_GREY = 7
-   integer, parameter :: PL_PLOT_BROWN = 8
-   integer, parameter :: PL_PLOT_BLUE = 4
-   integer, parameter :: PL_PLOT_BLUEVIOLET = 10
-   integer, parameter :: PL_PLOT_CYAN = 11
-   integer, parameter :: PL_PLOT_TURQUOISE = 12
-   integer, parameter :: PL_PLOT_MAGENTA = 13
-   integer, parameter :: PL_PLOT_SALMON = 14
-   integer, parameter :: PL_PLOT_WHITE = 0
+
 
    
    integer, parameter :: POS_UPPER_RIGHT = 1
@@ -983,7 +968,8 @@ end subroutine
         ! end select
 
     do i=1,self%numSeries
-      call plcol0(self%plotDataList(i)%dataColorCode)
+      call LogTermDebug("About to set color "//int2str(self%plotDataList(i)%dataColorCode))
+      call plcol0(self%plotDataList(i)%dataColorCode*1_c_int)
       ! PL PLOT Area fill
       call plpsty(0)
       ! PL PLOT Line Style

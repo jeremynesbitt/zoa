@@ -85,6 +85,9 @@ type sys_config
  integer :: numFields, numWavelengths
  integer, dimension(10) :: wavelengthIndices
  character(len=80) :: lensTitle
+ ! List of Colors to store for UI selection
+ character(len=8),dimension(9) :: colorNames
+ integer, dimension(9) :: colorIDs
 
  ! Wavelength Data
  real(kind=real64), dimension(10) :: wavelengths
@@ -578,13 +581,24 @@ type(sys_config) function sys_config_constructor() result(self)
   self%numFields = CFLDCNT
   self%relativeFields = CFLDS
 
+  ! self%colorNames = [character(len=8) :: "Red", "Green", "Magenta", "Red", "Cyan", &
+  ! & "Green", "Blue", "Grey", "Black"]
+  ! self%colorIDs = [ID_COLOR_WHITE, ID_COLOR_YELLOW, &
+  ! & ID_COLOR_MAGENTA, ID_COLOR_RED, ID_COLOR_CYAN, &
+  ! & ID_COLOR_GREEN, ID_COLOR_BLUE, ID_COLOR_GREY, &
+  ! & ID_COLOR_BLACK ]
+  ! Defaults
+  ! Field color codes here are really using the KDP colors cheme
   self%fieldColorCodes = [ID_COLOR_RED, ID_COLOR_GREEN, ID_COLOR_BLUE, &
   & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
   & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
 
-  self%wavelengthColorCodes = [ID_COLOR_RED, ID_COLOR_GREEN, ID_COLOR_BLUE, &
-  & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
+  ! WL plots using the PL plot scheme
+  self%wavelengthColorCodes = [PL_PLOT_RED, PL_PLOT_GREEN, PL_PLOT_BLUE, &
+  & PL_PLOT_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
   & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
+
+
 
  ! Initialize Solves
   call init_solves()

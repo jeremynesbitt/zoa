@@ -134,6 +134,24 @@ integer, parameter :: ID_COLOR_GREY = 7
 integer, parameter :: ID_COLOR_BLACK = 15
 
 
+   ! Constants for plotting
+integer, parameter :: PL_PLOT_BLACK = 15
+integer, parameter :: PL_PLOT_RED = 2
+integer, parameter :: PL_PLOT_YELLOW = 2
+integer, parameter :: PL_PLOT_GREEN = 3
+integer, parameter :: PL_PLOT_AQUAMARINE = 9
+integer, parameter :: PL_PLOT_PINK = 5
+integer, parameter :: PL_PLOT_WHEAT = 6
+integer, parameter :: PL_PLOT_GREY = 7
+integer, parameter :: PL_PLOT_BROWN = 8
+integer, parameter :: PL_PLOT_BLUE = 4
+integer, parameter :: PL_PLOT_BLUEVIOLET = 10
+integer, parameter :: PL_PLOT_CYAN = 11
+integer, parameter :: PL_PLOT_TURQUOISE = 12
+integer, parameter :: PL_PLOT_MAGENTA = 13
+integer, parameter :: PL_PLOT_SALMON = 14
+integer, parameter :: PL_PLOT_WHITE = 0
+
 
 ! To redirect output console for some uis
 integer, parameter :: ID_TERMINAL_DEFAULT = 1

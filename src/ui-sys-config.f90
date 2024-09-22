@@ -953,10 +953,10 @@ function createWavelengthSelectionTable(self) result(base)
   ! TODO:  Move this to it's own function since it is shared with field selection?
   valsArray = [character(len=8) :: "White", "Yellow", "Magenta", "Red", "Cyan", &
   & "Green", "Blue", "Grey", "Black"]
-  refsArray = [ID_COLOR_WHITE, ID_COLOR_YELLOW, &
-  & ID_COLOR_MAGENTA, ID_COLOR_RED, ID_COLOR_CYAN, &
-  & ID_COLOR_GREEN, ID_COLOR_BLUE, ID_COLOR_GREY, &
-  & ID_COLOR_BLACK ]
+  refsArray = [PL_PLOT_WHITE, PL_PLOT_YELLOW, &
+  & PL_PLOT_MAGENTA, PL_PLOT_RED, PL_PLOT_CYAN, &
+  & PL_PLOT_GREEN, PL_PLOT_BLUE, PL_PLOT_GREY, &
+  & PL_PLOT_BLACK ]
 
 
   ! Create the window:
