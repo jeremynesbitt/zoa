@@ -368,6 +368,7 @@ subroutine spo_go(psm)
     logical :: replot, allWL
 
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
+    real(kind=real64) :: yAvg
     real :: plotScale
 
     ! TODO:  Distable field here
@@ -401,10 +402,10 @@ subroutine spo_go(psm)
 
       call getSpotData(xSpot, ySpot)  
       
-      ! I am pretty sure this is wrong, and I should offset for one wavelength, not mutiple.  But 
-      ! will check Bentley first
-      ySpot = ySpot - (sum(ySpot)/size(ySpot))
-                               
+      !Subtract Avg
+      yAvg = (sum(ySpot)/size(ySpot))
+      ySpot = ySpot - yAvg
+                                  
 
     ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
     call xyscat(i)%initialize(c_null_ptr, REAL(xSpot), REAL(ySpot), &
@@ -431,7 +432,9 @@ subroutine spo_go(psm)
         if(allocated(xSpot)) deallocate(xSpot)
         if(allocated(ySpot)) deallocate(ySpot)
         call getSpotData(xSpot, ySpot)  
-        ySpot = ySpot - (sum(ySpot)/size(ySpot))
+        ! Subtract relative to first wavelength.  Should probably be relative to
+        ! ref wavelength; revisit this after testing
+        ySpot = ySpot - yAvg
         call xyscat(i)%addXYPlot(real(xSpot), real(ySpot))
         call xyscat(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
         call xyscat(i)%setLineStyleCode(-1)
@@ -824,6 +827,7 @@ subroutine rayaberration_go(psm)
     type(multiplot) :: mplt
     type(zoaplot_setting_manager) :: psm
     REAL, allocatable :: x(:), y(:)
+    real:: yOff(sysConfig%numFields)
 
     character(len=100) :: xlabel, ylabel, title
 
@@ -841,6 +845,22 @@ subroutine rayaberration_go(psm)
     end if
 
 
+    ! Probably better to do this in FANS, but compute offset at ref wavelength
+    ! for each field point 
+    do i=1,sysConfig%numFields
+
+      ! Set Field
+      WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,i) &
+      & , ' ' , sysConfig%relativeFields(1, i)
+      CALL PROCESKDP(trim(ffieldstr))
+      ! Set Fan Input - TODO:  add setting to change fan type
+      write(ffieldstr, FMTFAN) sysConfig%refWavelengthIndex ,',',3
+      
+      CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+      yOff(i) = curr_ray_fan_data%xyfan(2,2) ! only 3 points computed.  Min requireed to get ref value  
+    end do
+    print *, "yOff is ", yOff
+  
     plotScale = psm%getSettingValueByCode(SETTING_SCALE)
     numPoints = psm%getDensitySetting()
 
@@ -868,7 +888,7 @@ subroutine rayaberration_go(psm)
       
       CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
       x = curr_ray_fan_data%relAper
-      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)-yOff(i)
             
       
       ! Hide labels for off axis points
@@ -899,7 +919,7 @@ subroutine rayaberration_go(psm)
             write(ffieldstr, FMTFAN) j,',',numPoints
             CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
             x = curr_ray_fan_data%relAper
-            y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)
+            y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)-yOff(i)
             call lineplot(i)%addXYPlot(x,y)
             call lineplot(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
           end do
@@ -920,6 +940,7 @@ subroutine rayaberration_go(psm)
       call mplt%set(sysConfig%numFields-i+1,1,lineplot(i))
 
       !Saggatial
+      write(ffieldstr, FMTFAN) lambda,',',numPoints
       CALL PROCESKDP("XFAN, 0, 1, "//ffieldstr) 
       x = curr_ray_fan_data%relAper
       y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)       
@@ -937,6 +958,16 @@ subroutine rayaberration_go(psm)
 
       if (plotScale /= 0) call sagplots(i)%setYScale(real(plotScale,8))
       
+      if (allWL) then
+        do j=2,sysConfig%numWavelengths
+          write(ffieldstr, FMTFAN) j,',',numPoints
+          CALL PROCESKDP("XFAN, 0, 1, "//ffieldstr) 
+          y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)  
+          call sagplots(i)%addXYPlot(x,y)
+          call sagplots(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
+        end do
+      end if
+
       call mplt%set(sysConfig%numFields-i+1,2,sagplots(i))
       
 

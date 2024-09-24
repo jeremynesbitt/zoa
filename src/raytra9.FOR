@@ -4125,6 +4125,7 @@ C       MOD AFOCAL
         xOffset = XXDIF
         yOffset = YYDIF
         rOffset = RRDIF                
+        yOffset = 0 
 
 
 

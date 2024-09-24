@@ -135,9 +135,9 @@ integer, parameter :: ID_COLOR_BLACK = 15
 
 
    ! Constants for plotting
-integer, parameter :: PL_PLOT_BLACK = 15
+integer, parameter :: PL_PLOT_BLACK = 1
 integer, parameter :: PL_PLOT_RED = 2
-integer, parameter :: PL_PLOT_YELLOW = 2
+integer, parameter :: PL_PLOT_YELLOW = 15
 integer, parameter :: PL_PLOT_GREEN = 3
 integer, parameter :: PL_PLOT_AQUAMARINE = 9
 integer, parameter :: PL_PLOT_PINK = 5

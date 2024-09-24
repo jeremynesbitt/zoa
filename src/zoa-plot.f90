@@ -1730,6 +1730,7 @@ end subroutine
       PRINT *, "Before pllegend called"
       ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
       ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
+      ! TODO:  Need to scale text scale, text spacing and x/y offset based on # of legend entries.
       call pllegend( legend_width, legend_height, &
            PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
            PL_POSITION_VIEWPORT, &
