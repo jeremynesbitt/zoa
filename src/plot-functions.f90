@@ -808,6 +808,7 @@ subroutine rayaberration_go(psm)
     implicit none
 
     character(len=80) :: ffieldstr
+    character(len=10), allocatable :: wlLegend(:)
     CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
     integer :: lambda, fldIdx, objIdx, numPoints
 
@@ -834,6 +835,9 @@ subroutine rayaberration_go(psm)
     if (lambda == ID_SETTING_WAVELENGTH_ALL) then
         allWL = .TRUE.
         lambda = 1
+        allocate(character(len=10) :: wlLegend(sysConfig%numWavelengths))
+    else
+      allocate(character(len=10) :: wlLegend(1))
     end if
 
 
@@ -899,7 +903,17 @@ subroutine rayaberration_go(psm)
             call lineplot(i)%addXYPlot(x,y)
             call lineplot(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
           end do
+          ! Create legend
+          do j=1,sysConfig%numWavelengths
+            wlLegend(j) = trim(real2str(1000.0*sysConfig%getWavelength(j),2))// " nm"   
+          end do          
+        else
+           wlLegend(1) = trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm"
         end if
+        ! Add legend then set the flag to false for now
+        call lineplot(i)%addLegend(wlLegend)
+        lineplot(i)%useLegend = .FALSE.
+   
 
 
       !call mplt%set(1,i,lineplot(i))
@@ -929,6 +943,7 @@ subroutine rayaberration_go(psm)
      !call mplt%set(2,i,sagplots(i))
 
      end do
+
      call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
      & "Ray Aberrations ("//sysConfig%getDimensions()//")",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
      call ioConfig%setTextView(ID_TERMINAL_DEFAULT)

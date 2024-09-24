@@ -101,6 +101,7 @@ contains
     procedure, public, pass(self) :: addLegend
     procedure, public, pass(self) :: drawLegend  
     procedure, public, pass(self) :: drawBottomRightLegend  
+    procedure, public, pass(self) :: drawBottomRightLegend_new     
     procedure, public, pass(self) :: setLabelFont
     procedure, private, pass(self) :: getAxesLimits
     procedure, private, pass(self) :: getLabelFontCode
@@ -289,6 +290,10 @@ contains
       self%hasBottomPanel = .TRUE.
       self%bottomPanelBigLabel = strBig
       self%bottomPanelLittleLabel = strSmall
+      !TODO;  Update this to work wtih mutiple item legends (eg mutiple wavelengths)
+      !Make this a n dimensionaa value, to match data series
+      !use color/text codes from data series to print legend
+      !hard part would be to set font size/location
       self%bottomPanelLegend = strLegend
 
 
@@ -446,9 +451,11 @@ contains
         call plschr(0.0, 0.55)
         call plptex(0.3, .074, 0.0, 0.0, 0.5, trim(self%bottomPanelLittleLabel)//c_null_char)
 
-        plotter%numLegendNames = 1
-        call plotter%drawBottomRightLegend(trim(self%bottomPanelLegend))
-
+        !plotter%numLegendNames = 1
+        !call plotter%drawBottomRightLegend(trim(self%bottomPanelLegend))
+        plotter => self%get(1,1)
+        call plotter%drawBottomRightLegend_new()
+       
       else
         
         call plstar(self%m_cols,self%m_rows)
@@ -1605,6 +1612,7 @@ end subroutine
       self%numLegendNames = size(legendNames)
 
       PRINT *, "LegendNames is ", self%legendNames
+      PRINT *, "Size of Legend Names is ", size(legendNames)
 
 
     end subroutine
@@ -1633,7 +1641,7 @@ end subroutine
 
       nlegend = self%numLegendNames
 
-        !   Draw a legend
+             !   Draw a legend
         !   First legend entry.
       PRINT *, "before legend vars defined"
       do i=1,nlegend
@@ -1655,20 +1663,84 @@ end subroutine
 
      call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
 
+     PRINT *, "Before pllegend called"
+     ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
+     ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
+     call pllegend( legend_width, legend_height, &
+     PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
+            PL_POSITION_VIEWPORT, &
+            .15_pl_test_flt, 0.8_pl_test_flt, 0.05_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
+            0, 0, 1, nlegend, &
+            opt_array, &
+            1.0_pl_test_flt, .70_pl_test_flt, 2.0_pl_test_flt, &
+            1.0_pl_test_flt, text_colors, text, &
+            box_colors, box_patterns, box_scales, box_line_widths, &
+            line_colors, line_styles, line_widths, &
+            symbol_colors, symbol_scales, symbol_numbers, symbols )
+
+   end subroutine
+
+    subroutine drawBottomRightLegend_new(self)
+      implicit none
+      class(zoaplot) :: self
+  
+      integer           :: type, i
+      integer           :: nlegend
+      !integer :: nlegend = self%numLegendNames
+
+
+      real(kind=pl_test_flt)  :: legend_width, legend_height
+      integer           :: opt_array(self%numLegendNames), text_colors(self%numLegendNames), & 
+             line_colors(self%numLegendNames), &
+             line_styles(self%numLegendNames), symbol_colors(self%numLegendNames), symbol_numbers(self%numLegendNames)
+      real(kind=pl_test_flt)  :: line_widths(self%numLegendNames), symbol_scales(self%numLegendNames), &
+      & box_scales(self%numLegendNames)
+      integer           :: box_colors(self%numLegendNames), box_patterns(self%numLegendNames)
+      real(kind=pl_test_flt)  :: box_line_widths(self%numLegendNames)
+      character(len=20) :: text(self%numLegendNames)
+      character(len=20)  :: symbols(self%numLegendNames)      
+      character(len=20) :: texttest(self%numLegendNames)
+
+      nlegend = self%numLegendNames
+
+        !   Draw a legend
+        !   First legend entry.
+      PRINT *, "before legend vars defined"
+      PRINT *, "numLegendNames is ", self%numLegendNames
+      do i=1,nlegend
+
+        opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
+        ! Todo:  Tie this to what was actually set
+        text_colors(i) = self%plotDataList(i)%dataColorCode 
+        line_colors(i) = self%plotDataList(i)%dataColorCode
+        line_styles(i) = 1
+        line_widths(i) = 1 
+        symbols(i) = '-'
+        text(i) = trim(self%legendNames(i))//c_null_char
+        print *, "Text(i) is "//trim(text(i))
+        box_scales(i) = 0.1
+        symbol_colors(i)  = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
+        symbol_scales(i)  = 1.0
+        symbol_numbers(i) = 2            
+      end do
+       
+
+     call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
+
       PRINT *, "Before pllegend called"
       ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
       ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
       call pllegend( legend_width, legend_height, &
-      PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
-             PL_POSITION_VIEWPORT, &
-             .15_pl_test_flt, 0.8_pl_test_flt, 0.05_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
-             0, 0, 1, nlegend, &
-             opt_array, &
-             1.0_pl_test_flt, .70_pl_test_flt, 2.0_pl_test_flt, &
-             1.0_pl_test_flt, text_colors, text, &
-             box_colors, box_patterns, box_scales, box_line_widths, &
-             line_colors, line_styles, line_widths, &
-             symbol_colors, symbol_scales, symbol_numbers, symbols )
+           PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
+           PL_POSITION_VIEWPORT, &
+           -0.1_pl_test_flt, 0.7_pl_test_flt, 0.05_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
+           0, 1,nlegend, nlegend, & ! bb_style, nrow, ncol, number of legends
+           opt_array, &
+           1.0_pl_test_flt, .50_pl_test_flt, 1.3_pl_test_flt, & ! text offset, text scale,text spacing
+           1.0_pl_test_flt, text_colors, text, &
+           box_colors, box_patterns, box_scales, box_line_widths, &
+           line_colors, line_styles, line_widths, &
+           symbol_colors, symbol_scales, symbol_numbers, symbols )
 
     end subroutine
 
@@ -1783,6 +1855,68 @@ end subroutine
              PRINT *, "symbol_scales is ", symbol_scales(1:nlegend)
              PRINT *, "symbol_numbers is ", symbol_numbers(1:nlegend)
 
+
+    end subroutine
+
+    subroutine drawLegend_bottomPanel(self)
+
+      implicit none
+      
+      ! This is from example 4 - use as template to get legend working
+      class(zoaplot) :: self      
+       
+      integer           :: type, i
+      integer           :: nlegend
+      !integer :: nlegend = self%numLegendNames
+
+
+      real(kind=pl_test_flt)  :: legend_width, legend_height
+      integer           :: opt_array(self%numLegendNames), text_colors(self%numLegendNames), & 
+             line_colors(self%numLegendNames), &
+             line_styles(self%numLegendNames), symbol_colors(self%numLegendNames), symbol_numbers(self%numLegendNames)
+      real(kind=pl_test_flt)  :: line_widths(self%numLegendNames), symbol_scales(self%numLegendNames), &
+      & box_scales(self%numLegendNames)
+      integer           :: box_colors(self%numLegendNames), box_patterns(self%numLegendNames)
+      real(kind=pl_test_flt)  :: box_line_widths(self%numLegendNames)
+      character(len=5) :: text(self%numLegendNames)
+      character(len=20)  :: symbols(self%numLegendNames)      
+      character(len=20) :: texttest(self%numLegendNames)
+
+      nlegend = self%numLegendNames
+
+        !   Draw a legend
+        !   First legend entry.
+      do i=1,self%numLegendNames
+
+        opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
+        ! Todo:  Tie this to what was actually set
+        text_colors(i) = self%plotDataList(i)%dataColorCode 
+        line_colors(i) = self%plotDataList(i)%dataColorCode
+        line_styles(i) = 1
+        line_widths(i) = 1   
+        symbols(i) = '-'
+        text(i) = trim(self%legendNames(i))//c_null_char
+        box_scales(i) = 0.1
+        symbol_colors(i)  = self%plotDataList(i)%dataColorCode
+        symbol_scales(i)  = 1.0
+        symbol_numbers(i) = 2            
+      end do
+       
+      !   from the above opt_arrays we can completely ignore everything
+      !   to do with boxes. (Hence the size 0 for the associated arrays)
+
+      call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
+      call pllegend( legend_width, legend_height, &
+             PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
+             PL_POSITION_OUTSIDE + PL_POSITION_BOTTOM, &
+             0.0_pl_test_flt, +0.25_pl_test_flt, -0.05_pl_test_flt, 0, &
+             0, 0, 1, nlegend, &
+             opt_array, &
+             1.0_pl_test_flt, 1.0_pl_test_flt, 2.0_pl_test_flt, &
+             1.0_pl_test_flt, text_colors(1:nlegend), text(1:nlegend), &
+             box_colors(1:nlegend), box_patterns(1:nlegend), box_scales(1:nlegend), box_line_widths(1:nlegend), &
+             line_colors(1:nlegend), line_styles(1:nlegend), line_widths(1:nlegend), &
+             symbol_colors(1:nlegend), symbol_scales(1:nlegend), symbol_numbers(1:nlegend), symbols(1:nlegend) )
 
     end subroutine
 
