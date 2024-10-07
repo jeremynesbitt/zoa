@@ -19,7 +19,7 @@ module mod_lens_data_manager
      procedure :: getStopSurf
      procedure :: isGlassSurf
      procedure :: getGlassName
-
+     procedure :: updateThiOptimVars
 
 
 
@@ -188,6 +188,30 @@ module mod_lens_data_manager
         index = ALENS(WWVN,surfIdx)
 
     end function
+
+    subroutine updateThiOptimVars(self, s0, sf, intCode)
+        use type_utils
+        class(lens_data_manager) :: self
+        integer, intent(in) :: s0, sf, intCode
+        integer :: i
+
+        select case (intCode)
+
+        case(0) ! Make Variable
+            if (s0==sf) then
+                CALL PROCESKDP('VARIABLE ; TH, '//trim(int2str(s0))//'; EOS ')
+            else
+                call PROCESKDP('VARIABLE')
+                do i=s0,sf
+                    CALL PROCESKDP('TH, '//trim(int2str(i)))
+                end do
+                call PROCESKDP('EOS')
+            end if
+
+        end select
+
+
+    end subroutine
 
 
 end module

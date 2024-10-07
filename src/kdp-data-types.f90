@@ -589,7 +589,7 @@ type(sys_config) function sys_config_constructor() result(self)
   ! & ID_COLOR_BLACK ]
   ! Defaults
   ! Field color codes here are really using the KDP colors cheme
-  self%fieldColorCodes = [ID_COLOR_RED, ID_COLOR_GREEN, ID_COLOR_BLUE, &
+  self%fieldColorCodes = [ID_COLOR_BLUE, ID_COLOR_RED, ID_COLOR_GREEN, &
   & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
   & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
 

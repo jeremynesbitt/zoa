@@ -9,7 +9,7 @@ C SUB CMDER.FOR
      2 PLTIMTST, PTSTUFF, Sandbox
         use codeV_commands
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
-     1 ID_TERMINAL_KDPDUMP   
+     1 ID_TERMINAL_KDPDUMP, sysConfig
         use DATLEN
         
 C
@@ -2160,6 +2160,7 @@ C       DO A FORCED RETURN TO CFG1
         GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
         CALL FRCCF1(1)
         OPTMES=.FALSE.
+        WQ='CFG' ! Hack
         CALL MAROUT
         OPTMES=.TRUE.
         RETURN
@@ -3960,6 +3961,11 @@ C
         END IF
         IF(WC.EQ.'FLDS') THEN
         CALL FLDS
+        ! This is hopefully a band aid.  If I don't do this, during init the loaded lens
+        ! can get out of sync with sysConfig in some situations.
+        ! once I clean up the loading lens part to update sysConfig at the proper end
+        ! this will no longer be needed  
+        call sysConfig%setNumFields(CFLDCNT)
         RETURN
         END IF
         IF(WC.EQ.'VIEOVER') THEN

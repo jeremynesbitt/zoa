@@ -1617,6 +1617,7 @@ C       ALL DONE
                         END
 C SUB SOLVIT.FOR
         SUBROUTINE SOLVIT(IID,JJD,MDERIV,SILENT)
+         use type_utils   
 C
       IMPLICIT NONE
 C
@@ -1677,6 +1678,7 @@ C
                    BTB(1:VN,1:VN)=0.0D0
                    OOLDWQ='        '
                    ITDER=.FALSE.
+      call LogTermDebug("Starting SOLVIT")             
 C
       IF(WQ.NE.'D'.AND.WQ.NE.'DIR') THEN
 C
@@ -1769,6 +1771,11 @@ C
         CALL SVBKSBA(W,V,VN,VN1,BTB,BTG)
                 M=SM
                 N=SSN
+
+        call LogTermDebug("about tu update variables in SOLVIT!")
+        call LogTermDebug("VBCNT IS "//int2str(VBCNT))
+        call LogTermDebug("VAR 1 is "//real2str(VARABL(1,4)))          
+        call LogTermDebug("X(I) is "//real2str(X(1))) 
 C
 C
 C     NOW APPLY THE SOLUTION VECTOR X(I) TO THE VARABL ARRAY AND TO THE LENS

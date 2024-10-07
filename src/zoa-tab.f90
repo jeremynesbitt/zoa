@@ -1234,7 +1234,8 @@ end subroutine
 
    type(c_ptr) :: scrolled_tab, box_plotmanip, btn
 
-   if (c_associated(self%expander)) call gtk_box_remove(self%box1, self%expander)
+   ! I got crashes when trying to open up VIE plots for the first time 
+   !if (c_associated(self%expander)) call gtk_box_remove(self%box1, self%expander)
 
     
     !call self%buildSettings()
@@ -1438,6 +1439,8 @@ end subroutine
      integer(kind=c_int), intent(in)  :: width, height, ID_PLOTTYPE
 
      integer(kind=c_int), target :: TARGET_NEWPLOT
+
+     call LogTermDebug("Creating new canvas in Cairo Drawing Area")
      if (ID_PLOTTYPE > 0) THEN
         canvas = gtk_drawing_area_new()
         !  canvas = hl_gtk_drawing_area_new(size=[width, height])

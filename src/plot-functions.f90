@@ -214,7 +214,9 @@ subroutine vie_go(psm)
       !& trim(tabName)//c_null_char, mplt)
 
       call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
+      call LogTermDebug("VIE after finalize with psm")
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
+      call LogTermDebug("VIE after finalize new plot tab")
     end if
 
     
@@ -371,6 +373,8 @@ subroutine spo_go(psm)
     real(kind=real64) :: yAvg
     real :: plotScale
 
+    include "DATLEN.INC"
+
     ! TODO:  Distable field here
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
 
@@ -386,14 +390,18 @@ subroutine spo_go(psm)
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     
     ! Prep PLot
-    canvas = hl_gtk_drawing_area_new(size=[400,1200], &
+    canvas = hl_gtk_drawing_area_new(size=[400,400*sysConfig%numFields], &
     & has_alpha=FALSE)
     
     ! Todo:  change initialization to sepcify size, and then don't need to 
     ! call gtk_drawing_area
     call mplt%initialize(canvas, sysConfig%numFields,1)
-    mplt%height = 1200
+    mplt%height = 400*sysConfig%numFields
     mplt%width = 400
+
+    print *, "mplt%height is ", mplt%height
+    print *, "sysCon%numFields is ", sysConfig%numFields
+    print *, "CFLDCNT is ", CFLDCNT
 
     do i=1,sysConfig%numFields
       call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
@@ -614,19 +622,22 @@ subroutine ast_go(psm)
     type(c_ptr) :: canvas
     type(zoaplot_setting_manager) :: psm
     character(len=80) :: ftext
+    character(len=80) :: ffieldstr
 
     !integer(c_int), value, intent(in) :: win_width, win_height
     type(zoaplot) :: lin1, lin2, lin3
 
     integer :: numPts, numPtsDist, numPtsFC, idxFieldXY
-    integer :: objIdx
-    logical :: replot
+    integer :: objIdx, numPlots, j
+    logical :: replot, lsa
 
      REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
 
      REAL:: FLDAN(0:50)
 
      !COMMON FLDAN, DDTA
+
+     lsa = .FALSE.
 
      call psm%getAstigSettings(idxFieldXY, numPts)
 
@@ -652,7 +663,9 @@ subroutine ast_go(psm)
 
     canvas = hl_gtk_drawing_area_new(size=[800,500], &
     & has_alpha=FALSE)
-  call mplt%initialize(canvas, 1,2)
+    numPlots = 2
+    if (lsa) numPlots = 3
+  call mplt%initialize(canvas, 1,numPlots)
 
 
   ! TODO:  Copy or mod the base function to 
@@ -682,10 +695,15 @@ CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
 
 
 
+  ! Prep lsa plot
+  if (lsa) then
+  end if
 
 
-  call mplt%set(1,1,lin3)
-  call mplt%set(1,2,lin2)
+
+  if (lsa) call mplt%set(1,1,lin1)
+  call mplt%set(1,numPlots-1,lin3)
+  call mplt%set(1,numPlots,lin2)
   !call mplt%set(1,3,lin3)
 
 

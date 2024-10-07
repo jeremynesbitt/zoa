@@ -47,6 +47,7 @@ module codeV_commands
     integer, parameter :: SPO_LOOP = 3
     integer, parameter :: ZERN_LOOP = 4
     integer, parameter :: TOW_LOOP = 5
+    integer, parameter :: AUT_LOOP = 6
 
 
 
@@ -156,7 +157,15 @@ module codeV_commands
         zoaCmds(540)%cmd = 'YIM'
         zoaCmds(540)%execFunc => setField        
         zoaCmds(541)%cmd = 'IND'
-        zoaCmds(541)%execFunc => printRefractiveIndices                              
+        zoaCmds(541)%execFunc => printRefractiveIndices  
+        zoaCmds(542)%cmd = 'AUT'
+        zoaCmds(542)%execFunc => execAUT 
+        !zoaCmds(543)%cmd = 'FRZ'
+        !zoaCmds(543)%execFunc => freezeParams 
+        zoaCmds(544)%cmd = 'THC'
+        zoaCmds(544)%execFunc => updateThiCodes         
+              
+        
         
 
     end subroutine
@@ -1228,6 +1237,20 @@ module codeV_commands
         end if
     end subroutine
 
+    subroutine execAUT(iptStr)
+        use handlers, only: updateTerminalLog
+        implicit none
+        character(len=*) :: iptStr
+        
+        if (cmd_loop == 0) then
+
+            cmd_loop = AUT_LOOP
+        else
+            call updateTerminalLog("Cannot enter AUT loop as in another command loop", "red")
+        end if
+
+
+    end subroutine
 
     subroutine execSPO(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
@@ -1959,6 +1982,60 @@ module codeV_commands
         end if       
 
     end subroutine
+
+    subroutine updateThiCodes(iptStr)
+        use command_utils, only : isInputNumber
+        use type_utils, only: int2str, str2int
+        use handlers, only: updateTerminalLog
+        use strings
+        use mod_lens_data_manager
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3) then
+            dotLoc = index(tokens(2),'..') 
+            if(dotLoc > 0) then
+                ! Assume input is Si..k
+                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
+                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
+                   s0 = str2int(tokens(2)(2:dotLoc-1))
+                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
+                   processResult = .TRUE.
+                else
+                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                end if
+            else ! No dots found
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (surfNum.NE.-1) then
+                s0=surfNum
+                sf=surfNum
+                processResult = .TRUE.
+            else
+                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+            end if
+            end if
+        end if
+
+        if (processResult) then
+            if(isInputNumber(trim(tokens(3)))) then
+                call ldm%updateThiOptimVars(s0,sf,str2int(trim(tokens(3))))
+            end if
+        else
+            call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")
+        end if
+
+
+    end subroutine
     
     !Format RDY Sk Val
     subroutine setRadius()
@@ -2392,9 +2469,14 @@ module codeV_commands
         use handlers, only: zoatabMgr
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
+        use optim_functions
         use tow_functions
 
         !TODO:  Switch to select case
+        if (cmd_loop == AUT_LOOP) then
+            call aut_go()
+            cmd_loop = 0
+        end if
 
         if (cmd_loop == TOW_LOOP) then
             cmd_loop = 0 ! Need to put this first because when in TOW loop commands are intercepted before 

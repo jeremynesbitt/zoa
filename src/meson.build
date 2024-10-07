@@ -36,6 +36,7 @@ srcs += files(
   'zoa-ui.f90',
   'kdp-utils.f90',
   'plot-functions.f90',
+  'optim-functions.f90',
   'command-utils.f90',
   'plotsettingtypes.f90',
   'mod_DATLEN.f90',

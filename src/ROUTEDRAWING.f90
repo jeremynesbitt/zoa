@@ -19,8 +19,8 @@ contains
 SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata) bind(c)
 
     use zoa_ui
-    use global_widgets
     !use handlers
+    use type_utils
     use kdp_draw, only: DRAWOPTICALSYSTEM
 
     IMPLICIT NONE
@@ -34,6 +34,7 @@ SUBROUTINE ROUTEDRAWING(cairo_drawing_area, my_cairo_context, win_width, win_hei
     call c_f_pointer(gdata, tabIdx)
 
     call PROCESKDP(getTabPlotCommand(tabIdx))
+    call LogTermDebug("About to call DRAWOPTICALSYSTEM with cairo ptr "//int2str(INT(LOC(cairo_drawing_area),4)))
     call DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, win_height, gdata)
 
 

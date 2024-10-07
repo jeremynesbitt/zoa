@@ -222,6 +222,8 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATCFG.INC'
 C
+
+      call LogTermDebug("In loud version FMT2")
                    CFGER=.FALSE.
                    TAGER=0
                    ALLER=.TRUE.
@@ -3463,6 +3465,8 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATCFG.INC'
 C
+
+      call LogTermDebug("In Silent version FMT3")
                    CFGER=.FALSE.
                    TAGER=0
                    ALLER=.TRUE.
