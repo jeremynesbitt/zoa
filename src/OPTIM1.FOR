@@ -428,7 +428,7 @@ C     CFG NOT EXISTANT
                            END IF
 C     PROCEED
                        CFGCHK=0
-                       DO I=0,OPCNT
+                       DO I=1,OPCNT
                        IF(INT(OPERND(I,16)).EQ.TAGER) CFGCHK=1
                        END DO
 C     CHECK FOR OPERANDS ACTIVE IN CFG TAGER

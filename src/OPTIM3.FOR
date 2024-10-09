@@ -1678,7 +1678,9 @@ C
                    BTB(1:VN,1:VN)=0.0D0
                    OOLDWQ='        '
                    ITDER=.FALSE.
-      call LogTermDebug("Starting SOLVIT")             
+      call LogTermDebug("Starting SOLVIT")  
+      ! Hack because it seems damping is off.  
+      DMP = 6           
 C
       IF(WQ.NE.'D'.AND.WQ.NE.'DIR') THEN
 C
@@ -1731,9 +1733,20 @@ C     KC BECOMES KI, THE P FACTOR TIMES THE IDENTITY MATRIX.
                         END IF
                         END IF
 
+      call LogTermDebug("PFAC is "//real2str(PFAC))
                          DO I=1,MAXCNT
-      IF(DMP.EQ.6)
-     1BTB(I,I)=BTB(I,I)*(1.0D0+(1000.0D0*PFAC*WT(I)))
+      IF(DMP.EQ.6) then
+       call LogTermDebug("**************************")
+       !I believe there is a bug here in the use of the damping factor
+       !It should not be multiplied by the derivative transpose *
+       !derivative, it should be added to it
+       !Eg see Handbook of Optical Systems, VOl 3 Section 32.4.4
+       !While I am at it I got rid of the factor of 1000 to make things
+       !A bit cleaner (time will tell whether I regret it)
+       !BTB(I,I)=BTB(I,I)*(1.0D0+(1000.0D0*PFAC*WT(I)))
+       BTB(I,I)=BTB(I,I)+PFAC*WT(I)
+       call LogTermDebug("**************************")
+      end if
                         END DO
 C     NOW FORM BTG
                         DO L=1,VBCNT
@@ -1752,6 +1765,7 @@ C
 C       DO SINGULAR VALUE DECOMPOSITION
                 SM=M
                 SSN=N
+                
                 CALL SVDCMPA(W,V,VN,VN1,BTB,BTG)
                 M=SM
                 N=SSN
@@ -1768,6 +1782,12 @@ C       SOLVE LINEAR EQUATION
 C
                 SM=M
                 SSN=N
+        ! THis method is updating the solution vector
+        ! Original numerical recipes code has X as a return value
+        ! Not sure why that wasn't done here
+        ! THis is supposed to sove A x = B
+        ! A is solution of SVD (why W is used here)
+        ! BTG = B                                                
         CALL SVBKSBA(W,V,VN,VN1,BTB,BTG)
                 M=SM
                 N=SSN

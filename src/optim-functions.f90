@@ -4,11 +4,27 @@ module optim_functions
 contains
 
 subroutine aut_go()
+    use kdp_utils, only: OUTKDP
+
+
 
     ! Default merit function is spot diagram for now
     call PROCESKDP('MERIT; RMS,,,1;EOS')
+
+    ! Temp - print out statement
+    call outKDP("Iteration 0")
+    call PROCESKDP("FMT")    
+    call PROCESKDP("SUR SA")
+
+
+
     !call PROCESKDP('OPSPOT RECT; OPRECT, 20')
     call PROCESKDP('ITER; PFIND;ITER')
+
+    ! Temp - print out statement
+    call outKDP("Iteration 1")
+    call PROCESKDP("FMT")    
+    call PROCESKDP("SUR SA")
 
 end subroutine
 
@@ -30,6 +46,8 @@ end subroutine
 
 !DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
 !1(DINMUL*VARABL(I,8))
+
+! What is OPERND(1,14) ?  it is about 2 for my test case
 
 !Agree with calc - for RMS and thickness result is unstable unless I increase dT by 100 
 !Scratch that - repro default SPO settings and then it works

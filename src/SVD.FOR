@@ -654,7 +654,14 @@ C SUB SVDCMPA.FOR
 C
 C       SVD ROUTINE FROM NUMERICAL RECIPIES
 C
+! See CHp2 P 60 in original version
+! It has been modified by the original
       SUBROUTINE SVDCMPA(W,V,VN,VN1,BTB,BTG)
+        ! Some notes to try and work this out
+        ! Assume square matrix of (VN,VN) for W
+        ! VN1 not used
+        ! 
+
 C
         IMPLICIT NONE
 C
