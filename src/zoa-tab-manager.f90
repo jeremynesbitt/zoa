@@ -648,15 +648,15 @@ end function
      class(zoatabManager) :: self
      integer :: i
 
-     call LogTermDebug("About to check replot for each tab")
+     !call LogTermDebug("About to check replot for each tab")
      ! Do nothing if there are no tabs to cycle through
       
      DO i = 1,self%tabNum
            ! Not keeping track of tabs when it is closed, so as a 
            ! hack add this.  TODO:  Fix this properly
            if (allocated(self%tabInfo(i)%tabObj)) then
-              call LogTermFOR("About to call replot cmd " &
-              & //trim(self%tabInfo(i)%tabObj%plotCommand))
+              !call LogTermFOR("About to call replot cmd " &
+              !& //trim(self%tabInfo(i)%tabObj%plotCommand))
               call PROCESKDP(self%tabInfo(i)%tabObj%plotCommand)
           end if
      END DO

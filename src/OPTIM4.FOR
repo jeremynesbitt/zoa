@@ -2391,6 +2391,7 @@ C     HAS NO RESPONSE TO "?".
             print *, "for debug purposes only!"
       end if
 
+      call LogTermDebug("Getter is "//bool2str(GETTER))
       IF(GETTER) GO TO 9876
 C
         IF(ICHK.EQ.1) THEN

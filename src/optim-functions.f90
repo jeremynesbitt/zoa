@@ -1,32 +1,183 @@
 module optim_functions
-
+    use GLOBALS, only: long
+    use handlers, only: updateTerminalLog
+    use type_utils
 
 contains
 
 subroutine aut_go()
     use kdp_utils, only: OUTKDP
+    use DATLEN, only: PFAC
+    use DATSUB, only: DEREXT
+    use DATMAI
+    use type_utils
+    real(kind=long) :: fmtOld, fmtTst, fmtOrig, m
+    logical :: autConverge
+    integer :: maxIter, i, endCode
 
 
 
+    ! ********************
+    ! Old way
     ! Default merit function is spot diagram for now
     call PROCESKDP('MERIT; RMS,,,1;EOS')
 
-    ! Temp - print out statement
-    call outKDP("Iteration 0")
-    call PROCESKDP("FMT")    
+    ! ! Temp - print out statement
+    ! call outKDP("Iteration 0")
+    ! call PROCESKDP("FMT")    
+    ! call PROCESKDP("SUR SA")
+
+
+
+    ! !call PROCESKDP('OPSPOT RECT; OPRECT, 20')
+    ! call PROCESKDP('ITER; PFIND;ITER')
+
+    ! ! Temp - print out statement
+    ! call outKDP("Iteration 1")
+    ! call PROCESKDP("FMT")    
+    ! call PROCESKDP("SUR SA")
+    ! End Old way
+    ! *****************************
+
+
+    ! Brute force way.  Pseudocode.
+    ! Compute Merit function (Fold)
+    ! for each iteration
+    ! Compute new merit function (F) for current damping factor
+    ! Is F < Fold?
+    ! yes - decrease damping factor by m (m between 2..5)
+    ! compute F.  Pick damping factor that gives lowest F?
+    ! no - increase damping factor by m, compute F
+    ! test for convergence
+    ! if convergence test passes, exit loop
+    ! if it fails, then go to next iteration
+
+    ! Prepare for loop
+    autConverge = .FALSE.
+    maxIter = 10
+    PFAC = 1E-5 ! Damping factor
+    m = 2.5 ! Scaling factor for damping factor
+    fmtOrig = getMeritFunction()
+    fmtOld = fmtOrig
+    call updateTerminalLog("Cycle number 0", "black")
+    call updateTerminalLog("Error Function = "//real2str(fmtOrig), "black")
     call PROCESKDP("SUR SA")
+    call updateTerminalLog("Cycle number 0", "black")
+    call updateTerminalLog("Error Function = "//real2str(fmtOrig), "black")
 
+    
 
+    do i=1,maxIter    
+        call runIter(2,0,.FALSE.)
+        !DEREXT = .TRUE.
+        !(WC.EQ.'SV'.AND.DEREXT)
+        call runIter(2,0,.FALSE.)
+        fmtTst = getMeritFunction()
+        if (fmtTst < fmtOld) then
+            call LogTermDebug("F got better.  reduce damping factor")
+            PFAC = PFAC/m
+            call runIter(2,0,.FALSE.)
+        else
+            call LogTermDebug("F got worse.  increase damping factor")
+            PFAC = PFAC/m
+            call runIter(2,0,.FALSE.)
+        end if
+        fmtTst = getMeritFunction()
+        autConverge = testAutConvergence(fmtOld, fmtTst, i, endCode)
 
-    !call PROCESKDP('OPSPOT RECT; OPRECT, 20')
-    call PROCESKDP('ITER; PFIND;ITER')
+        fmtOld = fmtTst !update fmt for next iteration
+        ! Log stuff
+        call updateTerminalLog("Cycle number "//int2str(i), "black")
+        call updateTerminalLog("Error Function = "//real2str(fmtOld)// "(change = "// &
+        & real2str((fmtOld-fmtOrig)/fmtOrig)//")", "black")        
+        if (autConverge) then 
+            call LogTermDebug("Ending iteration.  TODO:  Add endCode support")
+            return
+        end if        
+    end do
 
-    ! Temp - print out statement
-    call outKDP("Iteration 1")
-    call PROCESKDP("FMT")    
-    call PROCESKDP("SUR SA")
 
 end subroutine
+
+subroutine runIter(IFUNCTION, ICHK, ITERROR)
+    use DATMAI
+
+    implicit none 
+    integer :: IFUNCTION, ICHK
+    logical :: ITERROR  
+
+    F28=1
+    WC='RSV'
+    WQ='        '
+    WS=' '
+    W1=0.0D0
+    W2=0.0D0
+    W3=0.0D0
+    W4=0.0D0
+    W5=0.0D0
+    DF1=1
+    DF2=1
+    DF3=1
+    DF4=1
+    DF5=1
+    S1=0
+    S2=0
+    S3=0
+    S4=0
+    S5=0
+    SN=0
+    STI=0
+    SQ=0
+    SST=0
+                      
+    CALL ITER(IFUNCTION,ICHK,ITERROR)
+end subroutine    
+
+
+function testAutConvergence(fmtOld, fmtTst, i, endCode) result(autConverge)
+    real(kind=long), intent(in) :: fmtOld, fmtTst
+    integer, intent(in) :: i
+    integer, intent(inout) :: endCode
+    logical :: autConverge
+    real(kind=long) :: tstVal, smallChange
+
+    autConverge = .FALSE.
+    smallChange = .05
+    tstVal = (fmtTst-fmtOld)/fmtOld
+
+    !For now only support it being not too different.  Eventually add more options
+    if (DABS(tstVal) < smallChange) then
+        autConverge = .TRUE.
+    end if
+
+end function
+
+function getMeritFunction() result(fmt)
+    use DATSUB
+    use DATMAI, only: F28, KILOPT
+    use kdp_utils, only: OUTKDP
+    real(kind=long) :: fmt
+    F28=1
+    OPCALC_TYPE=3
+       CALL OPCALC
+    IF(F28.EQ.0) RETURN
+       CALL OPLOAD
+    IF(F28.EQ.0) RETURN
+     IF(KILOPT) THEN
+        call OUTKDP('SOME OPERANDS ARE NOT CALCULABLE', 1)
+        call OUTKDP('THE CURRENT FIGURE OF MERIT IS MEANINGLESS.', 1)
+        RETURN
+      END IF
+    FMTFLG=.TRUE.
+    !     PROCEED WITH ACTION FOR COMMAND
+
+    fmt=0.0D0
+    DO I=1,OPCNT
+    fmt=fmt+(OPERND(I,14)**2)
+    END DO
+
+
+end function
 
 !Before I spend a bunch of time coding, I think I should just
 !Spreadsheet out what KDP is doing.  Information needed

@@ -1427,7 +1427,7 @@ module codeV_commands
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         if (numTokens == 2 ) then
             if (isSurfCommand(trim(tokens(2)))) then
-                call logTermFOR("SUR Cmd here!")
+                !call logTermFOR("SUR Cmd here!")
                 ! SA
                 fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(5)//"GLA"
                 call updateTerminalLog(trim(fullLine), "black")

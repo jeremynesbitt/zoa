@@ -1678,7 +1678,7 @@ C
                    BTB(1:VN,1:VN)=0.0D0
                    OOLDWQ='        '
                    ITDER=.FALSE.
-      call LogTermDebug("Starting SOLVIT")  
+      !call LogTermDebug("Starting SOLVIT")  
       ! Hack because it seems damping is off.  
       DMP = 6           
 C
@@ -1733,19 +1733,19 @@ C     KC BECOMES KI, THE P FACTOR TIMES THE IDENTITY MATRIX.
                         END IF
                         END IF
 
-      call LogTermDebug("PFAC is "//real2str(PFAC))
+      !call LogTermDebug("PFAC is "//real2str(PFAC))
                          DO I=1,MAXCNT
       IF(DMP.EQ.6) then
-       call LogTermDebug("**************************")
+       !call LogTermDebug("**************************")
        !I believe there is a bug here in the use of the damping factor
        !It should not be multiplied by the derivative transpose *
        !derivative, it should be added to it
        !Eg see Handbook of Optical Systems, VOl 3 Section 32.4.4
        !While I am at it I got rid of the factor of 1000 to make things
-       !A bit cleaner (time will tell whether I regret it)
+       !A bit cleßaner (time will tell whether I regret it)
        !BTB(I,I)=BTB(I,I)*(1.0D0+(1000.0D0*PFAC*WT(I)))
        BTB(I,I)=BTB(I,I)+PFAC*WT(I)
-       call LogTermDebug("**************************")
+       !call LogTermDebug("**************************")
       end if
                         END DO
 C     NOW FORM BTG
@@ -1792,10 +1792,10 @@ C
                 M=SM
                 N=SSN
 
-        call LogTermDebug("about tu update variables in SOLVIT!")
-        call LogTermDebug("VBCNT IS "//int2str(VBCNT))
-        call LogTermDebug("VAR 1 is "//real2str(VARABL(1,4)))          
-        call LogTermDebug("X(I) is "//real2str(X(1))) 
+        !call LogTermDebug("about tu update variables in SOLVIT!")
+        !call LogTermDebug("VBCNT IS "//int2str(VBCNT))
+        !call LogTermDebug("VAR 1 is "//real2str(VARABL(1,4)))          
+        !call LogTermDebug("X(I) is "//real2str(X(1))) 
 C
 C
 C     NOW APPLY THE SOLUTION VECTOR X(I) TO THE VARABL ARRAY AND TO THE LENS

@@ -57,10 +57,8 @@ module paraxial_ray_trace_test
           IF(INT(SYSTEM(11)).EQ.10) WWVN=75
     !
     
-          OUTLYNE = "NEW PRTRA ROUTINE STARTED! "
-          CALL SHOWIT(19)
-    
-    
+          !call LogTermDebug"NEW PRTRA ROUTINE STARTED! ")
+
     
     !       Update Lens data class
     !     Dump data to interface modules

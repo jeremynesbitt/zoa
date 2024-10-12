@@ -14,7 +14,6 @@ C
         INCLUDE 'DATLEN.INC'
 C
 C
-      call LogTermDebug("FLDS called")
         IF(STI.EQ.1.OR.SQ.EQ.0.AND.SN.EQ.0) THEN
       OUTLYNE=
      1'"FLDS" SETS AND QUERRIES THE STATUS OF MULTIPLE FIELDS OF VIEW'

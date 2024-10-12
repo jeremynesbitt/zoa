@@ -98,8 +98,7 @@ C     SET PARAXIAL FLAGS TO FALSE
                 END IF
                 ! JN:  Added this to force replot after lens update
                 ! TODO:  There are multiple returns in this sub
-                ! Not sure If I should dot his in all exits
-                       call LogTermFOR("Aboutreplot LNSEOS")
+                ! Not sure If I should do this in all exits                       
                        call zoatabMgr%rePlotIfNeeded()
                        call refreshStatusBar()
                        RETURN
@@ -740,8 +739,8 @@ C       THIS HELPS OVERFLOWING ON MACHINES.
                         END DO
 C       RESET NEWOBJ,NEWREF AND NEWIMG
                 CALL RESSUR
-                OUTLYNE = "JUST FINISHED RESSUR"
-                CALL SHOWIT(19)
+                !OUTLYNE = "JUST FINISHED RESSUR"
+                !CALL SHOWIT(19)
 C
        IF(SYSTEM(18).EQ.1.0D0) SYSTEM(19)=1.0D0
        IF(SYSTEM(18).EQ.0.0D0) SYSTEM(19)=0.0D0
@@ -2462,8 +2461,8 @@ C     SET UP THE FAST ACCESS CFG ARRAYS FOR OPTIMIZATION
 C     IF THERE ARE CONFIGS
 
       IF(INT(SYSTEM(56)).GT.1.AND.LNSTYP.NE.3) CALL AUXCFG
-      OUTLYNE = "JUST FINISHED AUXCFG CHECK"
-      CALL SHOWIT(19)
+      !OUTLYNE = "JUST FINISHED AUXCFG CHECK"
+      !CALL SHOWIT(19)
 C
 C     INITIALIZE THE FRONT FOCAL LENGTH, BACK FOCAL LENGTH
 C     AND ENTRANCE TO EXIT PUPIL MAG VARIABLES BASED ON
