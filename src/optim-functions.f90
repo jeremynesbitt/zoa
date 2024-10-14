@@ -5,15 +5,55 @@ module optim_functions
 
 contains
 
+subroutine aut_debug()
+    use kdp_utils, only: OUTKDP
+    use DATLEN, only: PFAC
+    
+    use DATMAI
+    use type_utils
+    real(kind=long) :: fmtOld, fmtTst, fmtLow, m, iDamp, fmtDamp
+    integer, parameter :: maxIter = 10
+    real(kind=long), dimension(maxIter) :: fmtArr
+    logical :: autConverge
+    integer :: i, endCode
+    real(kind=long), dimension(2001) :: tmpRMS, tmpTHI
+
+
+    ! ********************
+    ! Old way
+    ! Default merit function is spot diagram for now
+    call PROCESKDP('MERIT; RMS,,,1;EOS')
+
+    ! ! Temp - print out statement
+    ! call outKDP("Iteration 0")
+    ! call PROCESKDP("FMT")    
+    ! call PROCESKDP("SUR SA")
+
+
+    ! TEMP Code:  spit out data for offline debugging
+    tmpTHI = -100 + .1 * [(i, i=0,2001-1)]
+    print *, "tmpTHI is ", tmpTHI
+    do i=1,2001
+        call PROCESKDP('U L; CHG 3; TH '//real2str(tmpTHI(i),2)//';EOS')
+        tmpRMS(i) = SQRT(getMeritFunction())
+    end do
+    ! PRINT out for copying from terminal
+    do i=1,2001
+        print *, real2str(tmpTHI(i))//','//real2str(tmpRMS(i))
+    end do
+end subroutine
+
 subroutine aut_go()
     use kdp_utils, only: OUTKDP
     use DATLEN, only: PFAC
-    use DATSUB, only: DEREXT
+    
     use DATMAI
     use type_utils
-    real(kind=long) :: fmtOld, fmtTst, fmtOrig, m
+    real(kind=long) :: fmtOld, fmtTst, fmtLow, m, iDamp, fmtDamp
+    integer, parameter :: maxIter = 10
+    real(kind=long), dimension(maxIter) :: fmtArr
     logical :: autConverge
-    integer :: maxIter, i, endCode
+    integer :: i, endCode
 
 
 
@@ -54,44 +94,51 @@ subroutine aut_go()
 
     ! Prepare for loop
     autConverge = .FALSE.
-    maxIter = 10
-    PFAC = 1E-5 ! Damping factor
-    m = 2.5 ! Scaling factor for damping factor
-    fmtOrig = getMeritFunction()
-    fmtOld = fmtOrig
+    !PFAC = 1E-7 ! Damping factor
+    m = 2 ! Scaling factor for damping factor
+    fmtLow = getMeritFunction()
+    fmtOld = fmtLow
     call updateTerminalLog("Cycle number 0", "black")
-    call updateTerminalLog("Error Function = "//real2str(fmtOrig), "black")
+    call updateTerminalLog("Error Function = "//real2str(fmtLow), "black")
     call PROCESKDP("SUR SA")
     call updateTerminalLog("Cycle number 0", "black")
-    call updateTerminalLog("Error Function = "//real2str(fmtOrig), "black")
+    call updateTerminalLog("Error Function = "//real2str(fmtLow), "black")
 
-    
-
-    do i=1,maxIter    
-        call runIter(2,0,.FALSE.)
-        !DEREXT = .TRUE.
-        !(WC.EQ.'SV'.AND.DEREXT)
+    do i=1,maxIter  
+        fmtDamp = getMeritFunction()  
         call runIter(2,0,.FALSE.)
         fmtTst = getMeritFunction()
-        if (fmtTst < fmtOld) then
-            call LogTermDebug("F got better.  reduce damping factor")
+        call LogTermDebug("At start of iter i merit is "//real2str(fmtDamp))
+        call LogTermDebug("At start of iter i after solvit merit is "//real2str(fmtTst))
+        if (fmtTst < fmtLow) then
+            ! This is clearly a mess, but okay for testing
+            fmtOld = fmtLow
+            fmtLow = fmtTst
+            fmtTst = fmtOld
             PFAC = PFAC/m
-            call runIter(2,0,.FALSE.)
-        else
-            call LogTermDebug("F got worse.  increase damping factor")
-            PFAC = PFAC/m
-            call runIter(2,0,.FALSE.)
+        else ! went the wrong way
+            
+            PFAC = PFAC*m
+            call PROCESKDP("RESTORE")
+            fmtTst = getMeritFunction()
+            !call runIter(2,0,.FALSE.)
+            call LogTermDebug("Printing lens arter restore")
+            call PROCESKDP("SUR SA")
         end if
-        fmtTst = getMeritFunction()
-        autConverge = testAutConvergence(fmtOld, fmtTst, i, endCode)
 
-        fmtOld = fmtTst !update fmt for next iteration
+        call LogTermDebug("For Convergence Test, comparing "//real2str(fmtTst,4))
+        call LogTermDebug("To "//real2str(fmtLow,4))
+
+        autConverge = testAutConvergence(fmtLow, fmtTst, i, endCode)
+
         ! Log stuff
         call updateTerminalLog("Cycle number "//int2str(i), "black")
-        call updateTerminalLog("Error Function = "//real2str(fmtOld)// "(change = "// &
-        & real2str((fmtOld-fmtOrig)/fmtOrig)//")", "black")        
+        call updateTerminalLog("Error Function = "//real2str(fmtTst)// "(change = "// &
+        & real2str((fmtTst-fmtOld)/fmtOld)//")", "black")        
+        call PROCESKDP("SUR SA")
         if (autConverge) then 
-            call LogTermDebug("Ending iteration.  TODO:  Add endCode support")
+            !call LogTermDebug("Ending iteration.  TODO:  Add endCode support")
+            call updateTerminalLog("Ending Auto algorithm.  Reached acceptable stopping point", "black")
             return
         end if        
     end do
@@ -99,15 +146,18 @@ subroutine aut_go()
 
 end subroutine
 
+
+
 subroutine runIter(IFUNCTION, ICHK, ITERROR)
     use DATMAI
+    use DATSUB, only: DEREXT
 
     implicit none 
     integer :: IFUNCTION, ICHK
     logical :: ITERROR  
 
     F28=1
-    WC='RSV'
+    WC='SV'
     WQ='        '
     WS=' '
     W1=0.0D0
@@ -129,8 +179,11 @@ subroutine runIter(IFUNCTION, ICHK, ITERROR)
     STI=0
     SQ=0
     SST=0
+
+    DEREXT = .FALSE.
                       
     CALL ITER(IFUNCTION,ICHK,ITERROR)
+    F28=0
 end subroutine    
 
 
@@ -142,7 +195,7 @@ function testAutConvergence(fmtOld, fmtTst, i, endCode) result(autConverge)
     real(kind=long) :: tstVal, smallChange
 
     autConverge = .FALSE.
-    smallChange = .05
+    smallChange = .005
     tstVal = (fmtTst-fmtOld)/fmtOld
 
     !For now only support it being not too different.  Eventually add more options

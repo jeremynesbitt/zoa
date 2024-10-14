@@ -1829,11 +1829,13 @@ C       "MIN" AND "ORIG"
                         END IF
                         END IF
 C
+      !call LogTermDebug("RESTOR check?")
       IF(.NOT.SOLEXT) THEN
-        WRITE(OUTLYNE,*)'NO SOLUTION VECTOR EXISTS'
-      CALL SHOWIT(1)
-                WRITE(OUTLYNE,*)'NO ACTION TAKEN'
-      CALL SHOWIT(1)
+            ! Silently exit here
+      !  WRITE(OUTLYNE,*)'NO SOLUTION VECTOR EXISTS'
+      !CALL SHOWIT(1)
+      !          WRITE(OUTLYNE,*)'NO ACTION TAKEN'
+      !CALL SHOWIT(1)
                         CALL MACFAL
                         RETURN
                         END IF
@@ -2386,12 +2388,9 @@ C     ITER CAN TAKE QUALIFIER WORDS "DIRECT" OR "POWL OR "POWELL" OR "FULL"
 C     OR IT CAN TAKE NUMERIC WORD #1. IT TAKES NO STRING INPUT AND
 C     HAS NO RESPONSE TO "?".
 
-      call LogTermDebug("IFUNCTION is "//int2str(IFUNCTION))
-      IF (IFUNCTION.EQ.1) then
-            print *, "for debug purposes only!"
-      end if
+      !call LogTermDebug("IFUNCTION is "//int2str(IFUNCTION))
 
-      call LogTermDebug("Getter is "//bool2str(GETTER))
+
       IF(GETTER) GO TO 9876
 C
         IF(ICHK.EQ.1) THEN
@@ -2608,6 +2607,7 @@ C     RECOMPUTE DERIVATIVES USING NEW VARABL(J,8) VALUES
       ALLOCATE(DERIV(1:MAXCNT,1:MAXCNT),STAT=ALLOERR)
       DERIV(1:MAXCNT,1:MAXCNT)=0.0D0
       CALL DERIVATIVES(MAXCNT,DERIV)
+      call LogTermDebug("DERIV IS "//real2str(DERIV(1,1)))
                         ELSE
 C     USE EXISTING MATRIX
                         END IF
@@ -2642,6 +2642,7 @@ C
                DERIV(1:MAXCNT,1:MAXCNT)=0.0D0
 
       CALL DERIVATIVES(MAXCNT,DERIV)
+      call LogTermDebug("DERIV IS "//real2str(DERIV(1,1)))
       GO TO 666
 C
 C     IF OPCNT=0 OR VBCNT=0, THEN THERE CAN BE NO ITER. DO THIS FIRST.
@@ -2732,9 +2733,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))
+
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
                         END DO
@@ -2764,9 +2763,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))     
+    
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
                         END DO
@@ -2801,9 +2798,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))
+
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
                         END DO
@@ -3160,15 +3155,13 @@ C
                SOLEXT=.FALSE.
       IIID=OPCNT
       JJJD=VBCNT
-      call LogTermDebug("Deriv is "//real2str(DERIV(1,1)))
-      print *, "DERIV ", DERIV
+
       IF(IIID.GE.JJJD)MAXCNT=IIID+1
       IF(IIID.LT.JJJD)MAXCNT=JJJD+1
       SILENT=.FALSE.
       IF(IFUNCTION.EQ.2) SILENT=.TRUE.
       IF(WQ.NE.'P'.AND.WQ.NE.'POWELL') THEN
       CALL SOLVIT(MAXCNT,MAXCNT,DERIV,SILENT)
-      call LogTermDebug("Deriv is "//real2str(DERIV(1,1)))
                         ELSE
       CALL SOLVIT_POWELL(MAXCNT,MAXCNT,DERIV,SILENT)
 
@@ -3204,7 +3197,7 @@ C     TO THE CURRENT LENS AFTER DOING A RESTORE
         F28=1
         MSG=.FALSE.
         OPTMES=.FALSE.
-                      SAVE_KDP(9)=SAVEINPT(9)
+                      SAVE_KDP(9)=SAVEINPT(9)          
       WC='RESTORE'
       WQ='  '
       WS=' '
@@ -3249,10 +3242,8 @@ C     NO SOLUTION IS ATTEMPTED
       IF(IIID.LT.JJJD)MAXCNT=JJJD+1
         SILENT=.FALSE.
         IF(IFUNCTION.EQ.2) SILENT=.TRUE.
-                   !CALL SOLVIT(MAXCNT,MAXCNT,DERIV,SILENT)
-                   CALL SOLVIT(MAXCNT,MAXCNT,DERIV,.FALSE.)
+                   CALL SOLVIT(MAXCNT,MAXCNT,DERIV,SILENT)
 
-        call LogTermDebug("3237 Deriv is "//real2str(DERIV(1,1)))
                    SOLEXT=.TRUE.
                         RETURN
                         END IF
@@ -3289,7 +3280,6 @@ C     TO THE CURRENT LENS WITHOUT DOING RESTORE
         IF(IFUNCTION.EQ.2) SILENT=.TRUE.
                    
                    CALL SOLVIT(MAXCNT,MAXCNT,DERIV,SILENT)
-                   call LogTermDebug("Deriv is "//real2str(DERIV(1,1)))
                    SOLEXT=.TRUE.
                         RETURN
                         END IF
@@ -3448,10 +3438,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))   
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+ 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
                         END DO
@@ -3481,10 +3468,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3520,10 +3504,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3596,10 +3577,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))     
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+  
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3643,10 +3621,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3686,10 +3661,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+ 
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3721,10 +3693,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4))) 
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3755,10 +3724,7 @@ C     FOR EACH OPERAND, CALCULATE AND STORE THE DERIVATIVE
                         DO J=1,OPCNT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))  
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE
@@ -3836,10 +3802,7 @@ C     NOW EVALUATE THE OPERANDS
 C     CALC THE DERIVATIVE FOR OPERAND J AND STORE IT
       DERIV(J,I)=(OPERND(J,7))*(OPERND(J,4)-OLDOP(J,4))/
      1(DINMUL*VARABL(I,8))
-      call LogTermDebug("OPERND(J,7) is "//real2str(OPERND(J,7)))
-      call LogTermDebug("OPERND(J,4) is "//real2str(OPERND(J,4)))
-      call LogTermDebug("OLDOP(J,4) is "//real2str(OLDOP(J,4)))    
-      call LogTermDebug("Diff is "//real2str((OPERND(J,4)-OLDOP(J,4))))  
+
 
       DEREXT=.TRUE.
 C     LOOP TO NEXT DERIVATIVE

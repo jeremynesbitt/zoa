@@ -3102,6 +3102,11 @@ C     1 OUTLYNE//C_NEW_LINE//c_null_char, -1_c_int)
             txtColor = "red"
             !PRINT *, OUTLYNE
             call updateTerminalLog(OUTLYNE, txtColor)
+         else
+             ! Flush OUTLYNE b/c even with this check some debug messages were
+             ! getting through on some futue SHOWIT call.  It means there are bad
+             ! SHOWit calls in the code, but too hard to find so this is a band aid   
+             OUTLYNE = ""      
           end IF
 
 

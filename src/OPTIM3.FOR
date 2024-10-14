@@ -1626,7 +1626,7 @@ C
       LOGICAL ITDER,SILENT
 C
       INTEGER SSN,SM,NP2,MP,N,J,I,L,M,VTYPE,ALTYPE,VADD,VCFG
-     1,VN1,MAXCNT,IV1,VN,ALLOERR,IID,JJD
+     1,VN1,MAXCNT,IV1,VN,ALLOERR,IID,JJD, II
 C
       INTEGER ISURF
 C
@@ -1736,6 +1736,7 @@ C     KC BECOMES KI, THE P FACTOR TIMES THE IDENTITY MATRIX.
       !call LogTermDebug("PFAC is "//real2str(PFAC))
                          DO I=1,MAXCNT
       IF(DMP.EQ.6) then
+
        !call LogTermDebug("**************************")
        !I believe there is a bug here in the use of the damping factor
        !It should not be multiplied by the derivative transpose *
