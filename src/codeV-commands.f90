@@ -163,7 +163,9 @@ module codeV_commands
         !zoaCmds(543)%cmd = 'FRZ'
         !zoaCmds(543)%execFunc => freezeParams 
         zoaCmds(544)%cmd = 'THC'
-        zoaCmds(544)%execFunc => updateThiCodes         
+        zoaCmds(544)%execFunc => updateThiCodes    
+        zoaCmds(544)%cmd = 'CCY'
+        zoaCmds(544)%execFunc => updateCurvCodes                 
               
         
         
@@ -2036,6 +2038,61 @@ module codeV_commands
 
 
     end subroutine
+ 
+    !TODO:  Refactor with updateThiCodes
+    subroutine updateCurvCodes(iptStr)
+        use command_utils, only : isInputNumber
+        use type_utils, only: int2str, str2int
+        use handlers, only: updateTerminalLog
+        use strings
+        use mod_lens_data_manager
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3) then
+            dotLoc = index(tokens(2),'..') 
+            if(dotLoc > 0) then
+                ! Assume input is Si..k
+                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
+                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
+                   s0 = str2int(tokens(2)(2:dotLoc-1))
+                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
+                   processResult = .TRUE.
+                else
+                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                end if
+            else ! No dots found
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (surfNum.NE.-1) then
+                s0=surfNum
+                sf=surfNum
+                processResult = .TRUE.
+            else
+                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+            end if
+            end if
+        end if
+
+        if (processResult) then
+            if(isInputNumber(trim(tokens(3)))) then
+                call ldm%updateCurvOptimVars(s0,sf,str2int(trim(tokens(3))))
+            end if
+        else
+            call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")
+        end if
+
+
+    end subroutine    
     
     !Format RDY Sk Val
     subroutine setRadius()

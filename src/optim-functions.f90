@@ -60,7 +60,7 @@ subroutine aut_go()
     ! ********************
     ! Old way
     ! Default merit function is spot diagram for now
-    call PROCESKDP('MERIT; RMS,,,1;EOS')
+    !call PROCESKDP('MERIT; RMS,,,1;EOS')
 
     ! ! Temp - print out statement
     ! call outKDP("Iteration 0")
