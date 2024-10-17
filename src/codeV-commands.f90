@@ -164,8 +164,8 @@ module codeV_commands
         !zoaCmds(543)%execFunc => freezeParams 
         zoaCmds(544)%cmd = 'THC'
         zoaCmds(544)%execFunc => updateThiCodes    
-        zoaCmds(544)%cmd = 'CCY'
-        zoaCmds(544)%execFunc => updateCurvCodes                 
+        zoaCmds(545)%cmd = 'CCY'
+        zoaCmds(545)%execFunc => updateCurvCodes                 
               
         
         

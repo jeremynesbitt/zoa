@@ -149,10 +149,12 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 end subroutine POWSYM
 
 subroutine Sandbox()
-  use kdp_data_types, only: check_clear_apertures
-  use global_widgets
+  !use kdp_data_types, only: check_clear_apertures
+  !use global_widgets
+  use optim_debug
 
-  call check_clear_apertures(curr_lens_data)
+  !call check_clear_apertures(curr_lens_data)
+  call simple_matlab_link()
 
 end subroutine
 

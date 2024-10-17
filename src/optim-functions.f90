@@ -46,14 +46,16 @@ end subroutine
 subroutine aut_go()
     use kdp_utils, only: OUTKDP
     use DATLEN, only: PFAC
-    
+    use DATSUB, only: VARABL
     use DATMAI
     use type_utils
     real(kind=long) :: fmtOld, fmtTst, fmtLow, m, iDamp, fmtDamp
-    integer, parameter :: maxIter = 10
+    integer, parameter :: maxIter = 500
     real(kind=long), dimension(maxIter) :: fmtArr
     logical :: autConverge
     integer :: i, endCode
+    integer, parameter :: nV = 1000
+    real(kind=long), dimension(nV) :: oldVars
 
 
 
@@ -105,6 +107,7 @@ subroutine aut_go()
     call updateTerminalLog("Error Function = "//real2str(fmtLow), "black")
 
     do i=1,maxIter  
+        oldVars = VARABL(1:nV,4)
         fmtDamp = getMeritFunction()  
         call runIter(2,0,.FALSE.)
         fmtTst = getMeritFunction()
@@ -119,7 +122,8 @@ subroutine aut_go()
         else ! went the wrong way
             
             PFAC = PFAC*m
-            call PROCESKDP("RESTORE")
+            call restoreLensFromVars(oldVars)
+            !call PROCESKDP("RESTORE")
             fmtTst = getMeritFunction()
             !call runIter(2,0,.FALSE.)
             call LogTermDebug("Printing lens arter restore")
@@ -146,6 +150,225 @@ subroutine aut_go()
 
 end subroutine
 
+
+! This was extracted from SOLVIT and added because the KDP command RESTORE wasn't working as I think it should
+! when optimizing with multiple variables
+
+subroutine restoreLensFromVars(oldVars)
+         use type_utils
+         use DATSUB
+         use DATMAI
+         use DATLEN
+         use DATMAC
+         
+!
+      IMPLICIT NONE
+      real(kind=long), dimension(:) :: oldVars
+      CHARACTER OOLDWQ*8
+      LOGICAL ITDER,SILENT!
+      INTEGER SSN,SM,NP2,MP,N,J,I,L,M,VTYPE,ALTYPE,VADD,VCFG &
+      ,VN1,MAXCNT,IV1,VN,ALLOERR,IID,JJD, II!
+      INTEGER ISURF!
+      REAL*8 NEWDEFVAL,PFACSCL!
+      COMMON/DEFVALCOM/NEWDEFVAL!
+        REAL*8 &
+        X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
+      DIMENSION WT(:)
+      ALLOCATABLE :: WT
+      LOGICAL LVAL
+      CHARACTER AV1*23
+
+
+        LOGICAL ERR1,ERR2
+
+      REAL*8 W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
+      DIMENSION W(:),V(:,:),BTB(:,:),BTG(:)
+      ALLOCATABLE :: W,V,BTB,BTG
+
+      include "DATCFG.INC"
+
+      VARABL(1:size(oldVars),4) = oldVars
+
+
+!     NOW APPLY THE CHANGE VECTOR TO THE LENS
+!**********************************************************************
+                        DO I=1,VBCNT
+!     FIRST, IF THE VARIABLE IS A CONFIG 1 VARIABLE
+!     NEXT IF THE VARIABLE IS IN A CONFIG OTHER THAN 1
+      IF(VARABL(I,2).EQ.1.0D0) THEN
+!     NON-CONFIGS VARIABLE MEANING CONFIG 1
+!     THIS IS A LENS LEVEL VARIABLE CHANGE
+!     GET THE DATA TYPE NUMBER OF THE VARIABLE
+      VTYPE=INT(VARABL(I,1))
+!                          CURVATURE
+      IF(VTYPE.EQ.2.OR.VTYPE.EQ.1) THEN
+!     SURFACE CURVATURE
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+                      ALENS(1,INT(VARABL(I,3)))=V1
+!                       CURVATURE DONE
+                        END IF
+      IF(VTYPE.EQ.10.OR.VTYPE.EQ.9) THEN
+!     SURFACE TORIC CURVATURE
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+                      ALENS(24,INT(VARABL(I,3)))=V1
+!                       TORIC CURVATURE DONE
+                        END IF
+      IF(VTYPE.GE.3.AND.VTYPE.LE.8) THEN
+      IF(VTYPE.EQ.3) ALTYPE=3
+      IF(VTYPE.EQ.4) ALTYPE=2
+      IF(VTYPE.EQ.5) ALTYPE=4
+      IF(VTYPE.EQ.6) ALTYPE=5
+      IF(VTYPE.EQ.7) ALTYPE=6
+      IF(VTYPE.EQ.8) ALTYPE=7
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+      ALENS(ALTYPE,INT(VARABL(I,3)))=V1
+!                       THESE VARIABLES DONE
+                        END IF
+      IF(VTYPE.GE.11.AND.VTYPE.LE.25.OR.VTYPE.EQ.75.OR.VTYPE.GE. &
+      124.AND.VTYPE.LE.149) THEN
+      IF(VTYPE.EQ.11) ALTYPE=41
+      IF(VTYPE.EQ.12) ALTYPE=37
+      IF(VTYPE.EQ.13) ALTYPE=38
+      IF(VTYPE.EQ.14) ALTYPE=39
+      IF(VTYPE.EQ.15) ALTYPE=40
+      IF(VTYPE.EQ.16) ALTYPE=118
+      IF(VTYPE.EQ.17) ALTYPE=119
+      IF(VTYPE.EQ.18) ALTYPE=120
+      IF(VTYPE.EQ.19) ALTYPE=114
+      IF(VTYPE.EQ.20) ALTYPE=115
+      IF(VTYPE.EQ.21) ALTYPE=46
+      IF(VTYPE.EQ.22) ALTYPE=47
+      IF(VTYPE.EQ.23) ALTYPE=48
+      IF(VTYPE.EQ.24) ALTYPE=49
+      IF(VTYPE.EQ.25) ALTYPE=50
+      IF(VTYPE.EQ.75) ALTYPE=43
+      IF(VTYPE.EQ.124) ALTYPE=71
+      IF(VTYPE.EQ.125) ALTYPE=72
+      IF(VTYPE.EQ.126) ALTYPE=73
+      IF(VTYPE.EQ.127) ALTYPE=74
+      IF(VTYPE.EQ.128) ALTYPE=75
+      IF(VTYPE.EQ.129) ALTYPE=81
+      IF(VTYPE.EQ.130) ALTYPE=82
+      IF(VTYPE.EQ.131) ALTYPE=83
+      IF(VTYPE.EQ.132) ALTYPE=84
+      IF(VTYPE.EQ.133) ALTYPE=85
+      IF(VTYPE.EQ.134) ALTYPE=116
+      IF(VTYPE.EQ.135) ALTYPE=86
+      IF(VTYPE.EQ.136) ALTYPE=87
+      IF(VTYPE.EQ.137) ALTYPE=78
+      IF(VTYPE.EQ.138) ALTYPE=79
+      IF(VTYPE.EQ.139) ALTYPE=80
+      IF(VTYPE.EQ.140) ALTYPE=89
+      IF(VTYPE.EQ.141) ALTYPE=11
+      IF(VTYPE.EQ.142) ALTYPE=10
+      IF(VTYPE.EQ.143) ALTYPE=90
+      IF(VTYPE.EQ.144) ALTYPE=91
+      IF(VTYPE.EQ.145) ALTYPE=92
+      IF(VTYPE.EQ.146) ALTYPE=93
+      IF(VTYPE.EQ.147) ALTYPE=94
+      IF(VTYPE.EQ.148) ALTYPE=95
+      IF(VTYPE.EQ.149) ALTYPE=98
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+                      ALENS(ALTYPE,INT(VARABL(I,3)))=V1
+                        END IF
+      IF(VTYPE.EQ.150) THEN
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+      GPREG(INT(VARABL(I,3)))=V1
+                        END IF
+      IF(VTYPE.GE.250.AND.VTYPE.LE.4218) THEN
+      ALTYPE=VTYPE-249
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+!     RESET THE APPRORIATE ARRAY VALUE IN THE DEFORMABLE SURFACE
+      ISURF=INT(VARABL(I,3))
+      DEFGR1=ALENS(103,ISURF)
+      DEFGR2=ALENS(104,ISURF)
+      DEFGR3=ALENS(105,ISURF)
+      DEFGR4=ALENS(106,ISURF)
+      DEFGR5=ALENS(107,ISURF)
+      DEFGR6=0.0D0
+      DEFGR7=ALENS(109,ISURF)
+      DEFGR8=0.0D0
+      ACTNUM=ALTYPE
+      NEWDEFVAL=V1
+      ERR1=.FALSE.
+      ERR2=.FALSE.
+      CALL DEFGRIDS(6,ISURF,ERR1,ERR2)
+                        END IF
+      IF(VTYPE.GE.27.AND.VTYPE.LE.74) THEN
+!     SPECIAL SURFACE COEFFICIENTS
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+      FTFL01((VTYPE-26),INT(VARABL(I,3)))=V1
+!                       SPECIAL SURFACE COEFICIENTS DONE
+                        END IF
+      IF(VTYPE.GE.76.AND.VTYPE.LE.123) THEN
+!     SPECIAL SURFACE COEFFICIENTS
+!     NEW VALUE IS:
+      V1=VARABL(I,4)
+      FTFL01((VTYPE-27),INT(VARABL(I,3)))=V1
+!                       SPECIAL SURFACE COEFICIENTS DONE
+                        END IF
+!
+                                ELSE
+!     CONFIGS VARIABLE
+!     VCFG IS THE CONFIG NUMBER
+      VCFG=INT(VARABL(I,2))
+!     VTYPE IS THE VARIABLE TYPE NUMBER AS USED IN THE VARIABLES ARRAYS
+      VTYPE=INT(VARABL(I,1))
+!
+!     FOR VARIABLE I, APPLY THE SPECIFIED CHANGE TO THE SPECIFIED
+!     CONFIG
+!
+!     THE NEW VARAIBLE VALUE IS JUST
+      V1=VARABL(I,4)
+!     CONVERT THIS VALUE TO A CHARACTER*23 CHARACTER VARIABLE
+                VADD=INT(VARABL(I,14))
+      IF(CFADD(VADD,1).EQ.1.AND.V1.NE.0.0D0) V1=1.0D0/V1
+      IF(CFADD(VADD,1).EQ.9.AND.V1.NE.0.0D0) V1=1.0D0/V1
+                CALL AUXNTA
+!
+!     THE POSITION IN THE CFADD,CFVAL AND CFCHAR ARRAYS WHERE THIS
+!     VARIABLE IS FOUND IS:
+!
+      IF(CFADD(VADD,1).GE.27.AND.CFADD(VADD,1).LE.74.OR. &
+      CFADD(VADD,1).GE.76.AND.CFADD(VADD,1).LE.123 &
+      .OR.CFADD(VADD,1).EQ.141) THEN
+      CFVAL(VADD,2)=V1
+      CFCHAR(VADD,2)=AV1
+!     NOW UPDATE THE CONFIG ARRAY
+      CONFG(CFADD(VADD,3),CFADD(VADD,9))(CFADD(VADD,6):CFADD(VADD,7)) &
+      =AV1(1:23)
+                      ELSE
+      CFVAL(VADD,1)=V1
+      CFCHAR(VADD,1)=AV1
+!     NOW UPDATE THE CONFIG ARRAY
+      CONFG(CFADD(VADD,3),CFADD(VADD,9))(CFADD(VADD,4):CFADD(VADD,5)) &
+      =AV1(1:23)
+                      END IF
+!     NOW LOOK UP WHERE THIS CHARACTER REPRESENTATION OF THE NEW VALUE
+!     SHOULD BE STUFFED INTO THE CONFIG ARRAYS CONFG AND
+!     STUFF IT THERE.
+!
+!     NOW LOOP BACK AND REPEAT FOR THE NEXT VARIABLE.
+!     FINISHED WITH A CONFIG VARIABLE
+                        END IF
+!     LOOP TO NEXT VARIABL
+                        END DO
+!     UPDATE THE LENS OR THE PERMANENT LENS WILL BE ******!
+                        CALL FIXDEFORMFILE
+                        F6=1
+                        F1=0
+                        F22=0
+                       LNSTYP=2
+                       CALL LNSEOS
+
+end subroutine
 
 
 subroutine runIter(IFUNCTION, ICHK, ITERROR)
@@ -195,8 +418,12 @@ function testAutConvergence(fmtOld, fmtTst, i, endCode) result(autConverge)
     real(kind=long) :: tstVal, smallChange
 
     autConverge = .FALSE.
-    smallChange = .005
+    smallChange = .0000001
+    !tstVal = (fmtTst-fmtOld)/fmtOld
     tstVal = (fmtTst-fmtOld)/fmtOld
+
+    ! For now force min 5 iterations.  will fix this with an inner loop after multi-var testing
+    if (i <500) return
 
     !For now only support it being not too different.  Eventually add more options
     if (DABS(tstVal) < smallChange) then
