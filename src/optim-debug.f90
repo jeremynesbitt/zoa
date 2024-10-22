@@ -16,12 +16,9 @@ subroutine simple_matlab_link()
     call read_csv('optimInput.csv', inData, num_rows, num_cols)
     ! Hard coded data:  S3 Thickness, S1, S2 Curvature
     ! Print the read data
-    ! print *, 'Number of rows:', num_rows
-    ! print *, 'Number of columns:', num_cols
-    ! print *, 'Data:'
-    ! do i = 1, num_rows
-    !     print *, (data(i, j), j = 1, num_cols)
-    ! end do
+ 
+    print *, 'Data:', inData
+
 
     call PROCESKDP('U L')
     call PROCESKDP('CHG 3; TH '//real2str(inData(1,1)))
@@ -33,6 +30,7 @@ subroutine simple_matlab_link()
     ! Get updated merit data and write to output csv
     call PROCESKDP('OPRD CFG, 1') ! for operand calcs
     call write_csv('optimOutput.csv',OPERND(1:2,4), 1, 2)
+    print *, "OPERND(1:2,4) is ", OPERND(1:2,4)
 
 
 end subroutine
@@ -58,9 +56,12 @@ subroutine write_csv(filename, data, num_rows, num_cols)
     do i = 1, num_rows
         do j = 1, num_cols
             if (j == num_cols) then
-                write(unit, '(F8.2)') data(j)  ! No comma for last element
+                !write(unit, '(F8.5)') data(j)  ! No comma for last element
+                write(unit, *) data(j)  ! No comma for last element
             else
-                write(unit, '(F8.2,1X)', iostat=ios) data(j)  ! Comma and space
+                !write(unit, '(F8.5,1X)', iostat=ios) data(j)  ! Comma and space
+                write(unit, *, iostat=ios) data(j)  ! Comma and space
+                !write(unit, *) ','
             end if
         end do
         write(unit, *)  ! New line after each row
@@ -71,6 +72,7 @@ subroutine write_csv(filename, data, num_rows, num_cols)
 
 
 subroutine read_csv(filename, data, num_rows, num_cols)
+    use strings, only: parse
     implicit none
     character(len=*), intent(in) :: filename
     real(kind=long), intent(out) :: data(:,:)
@@ -80,6 +82,11 @@ subroutine read_csv(filename, data, num_rows, num_cols)
     character(len=100) :: line
     character(len=20) :: value
     integer :: unit, eof, max_cols
+    character(len=80) :: tokens(40)
+    integer :: numTokens
+
+
+            
 
     num_rows = 0
     num_cols = 0
@@ -95,17 +102,22 @@ subroutine read_csv(filename, data, num_rows, num_cols)
     read(unit, '(A)', iostat=ios) line
     if (ios == 0) then
         num_rows = num_rows + 1
-        num_cols = count_chars(line, ',') + 1
-        call parse_line(line, data(num_rows, :), num_cols)
+        !num_cols = count_chars(line, ',') + 1
+        call parse(trim(line), ',', tokens, numTokens) 
+        do i=1,numTokens
+            data(num_rows,i) = str2real8(tokens(i))
+            
+        end do
+       
     end if
 
     ! Read the rest of the file
-    do
-        read(unit, '(A)', iostat=ios) line
-        if (ios /= 0) exit
-        num_rows = num_rows + 1
-        call parse_line(line, data(num_rows, :), num_cols)
-    end do
+   ! do
+   !     read(unit, '(A)', iostat=ios) line
+   !     if (ios /= 0) exit
+   !     num_rows = num_rows + 1
+   !     call parse_line(line, data(num_rows, :), num_cols)
+   ! end do
 
     close(unit)
 
