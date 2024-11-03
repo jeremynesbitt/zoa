@@ -163,6 +163,7 @@ src_c = []
 
 # Each of these subdirectories contain a meson.build file:
 subdir('etc')
+subdir('slsqp')
 subdir('src')
 
 thread_dep = dependency('threads')

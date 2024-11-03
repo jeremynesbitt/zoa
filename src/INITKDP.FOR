@@ -1667,6 +1667,8 @@ C      GO TO 1
 C
       
       call logger%logText('End of INITKDP')
+      !call PROCESKDP('SANDBOX')
+      !call PROCESKDP('EXIT')
 
       RETURN
 

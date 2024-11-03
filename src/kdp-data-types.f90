@@ -145,12 +145,13 @@ module procedure :: sys_config_constructor
 end interface
 
 type io_config
-type(c_ptr) :: textView
+type(c_ptr) :: textView, prev_textView
 type(c_ptr), allocatable :: allBuffers(:)
 
 contains
    procedure, public, pass(self) :: setTextView
-   procedure, public, pass(self) :: setTextViewFromPtr
+   procedure, public, pass(self) :: setTextViewFromPtr 
+   procedure, public, pass(self) :: restoreTextView
    procedure, public, pass(self) :: registerTextView
 end type
 
@@ -619,6 +620,7 @@ use iso_c_binding, only: c_null_ptr
 
 
  self%textView = c_null_ptr
+ self%prev_textView = c_null_ptr
 
 
 end function
@@ -637,10 +639,16 @@ subroutine registerTextView(self, textView, idTextView)
 
 end subroutine
 
+subroutine restoreTextView(self)
+  class(io_config) :: self
+  self%textView = self%prev_textView
+
+end subroutine
+
 subroutine setTextViewFromPtr(self, newtextview)
   class(io_config) :: self
   type(c_ptr) :: newtextview
-
+  self%prev_textView = self%textView
   self%textView = newtextview
 end subroutine
 
@@ -653,6 +661,7 @@ subroutine setTextView(self, idTextView)
   integer :: idTextView
 
   ! TODO:  Add error checking here
+  self%prev_textView = self%textView
   self%textView = self%allBuffers(idTextView)
 
 end subroutine
