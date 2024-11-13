@@ -1994,6 +1994,7 @@ module codeV_commands
         use handlers, only: updateTerminalLog
         use strings
         use mod_lens_data_manager
+        use optim_types
         implicit none
 
         character(len=*) :: iptStr
@@ -2034,6 +2035,7 @@ module codeV_commands
         if (processResult) then
             if(isInputNumber(trim(tokens(3)))) then
                 call ldm%updateThiOptimVars(s0,sf,str2int(trim(tokens(3))))
+                call updateThiOptimVarsNew(s0,sf,str2int(trim(tokens(3))))
             end if
         else
             call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")
@@ -2049,6 +2051,7 @@ module codeV_commands
         use handlers, only: updateTerminalLog
         use strings
         use mod_lens_data_manager
+        use optim_types
         implicit none
 
         character(len=*) :: iptStr
@@ -2089,6 +2092,7 @@ module codeV_commands
         if (processResult) then
             if(isInputNumber(trim(tokens(3)))) then
                 call ldm%updateCurvOptimVars(s0,sf,str2int(trim(tokens(3))))
+                call updateCurvOptimVarsNew(s0,sf,str2int(trim(tokens(3))))
             end if
         else
             call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")

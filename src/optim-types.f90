@@ -268,4 +268,59 @@ module optim_types
 
     end function
 
+
+    subroutine updateThiOptimVarsNew(s0, sf, intCode)
+        use type_utils
+        integer, intent(in) :: s0, sf, intCode
+        integer :: i
+
+        ! New Code
+        select case (intCode)
+
+        case(0) ! Make Variable
+            if (s0==sf) then
+                call addOptimVariable(s0,VAR_THI)
+                !CALL PROCESKDP('UPDATE VARIABLE ; TH, '//trim(int2str(s0))//'; EOS ')
+            else
+                !call PROCESKDP('UPDATE VARIABLE')
+                do i=s0,sf
+                    call addOptimVariable(i,VAR_THI)
+                    !CALL PROCESKDP('TH, '//trim(int2str(i)))
+                end do
+                !call PROCESKDP('EOS')
+            end if
+
+        end select
+
+    end subroutine
+
+    !TODO:  Refactor with updateThiOptimVars
+    subroutine updateCurvOptimVarsNew(s0, sf, intCode)
+        use type_utils
+        integer, intent(in) :: s0, sf, intCode
+        integer :: i
+
+        ! New Code
+        select case (intCode)
+
+        case(0) ! Make Variable
+            if (s0==sf) then
+                call addOptimVariable(s0,VAR_CURV)
+                !CALL PROCESKDP('UPDATE VARIABLE ; TH, '//trim(int2str(s0))//'; EOS ')
+            else
+                !call PROCESKDP('UPDATE VARIABLE')
+                do i=s0,sf
+                    call addOptimVariable(i,VAR_CURV)
+                    !CALL PROCESKDP('TH, '//trim(int2str(i)))
+                end do
+                !call PROCESKDP('EOS')
+            end if
+
+        end select
+
+
+    end subroutine    
+
+
+
 end module
