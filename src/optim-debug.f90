@@ -5,6 +5,20 @@ module optim_debug
 
     contains
 
+! Notes for formal solution
+! Create some struct that holds type information for each variable
+! pass this to optimizer
+! in optimizer func parse struct to figure out how to update lens
+! for each var each iteration
+ 
+! also make a type for constraints, that gives info on bounds or 
+! target if exact
+    
+! Comptelely bypass existing optim struct?  Seems like I don't need it for variables
+! For merit function I don't need it either - can store each separately
+! Worry there are some locking or other benefits I will regret if I completely abandon
+! HOw to deal with merit function?  all cmds?                
+
 
 subroutine test_slsqp_new()
 
@@ -59,10 +73,10 @@ subroutine test_slsqp()
     integer,parameter               :: n = 3                    !! number of optimization variables
     integer,parameter               :: m = 1                    !! total number of constraints
     integer,parameter               :: meq = 1                  !! number of equality constraints
-    integer,parameter               :: max_iter = 100           !! maximum number of allowed iterations
+    integer,parameter               :: max_iter = 25          !! maximum number of allowed iterations
     real(long),dimension(n),parameter :: xl = [-100.0_long, -10.0_long, -10.0_long]  !! lower bounds
     real(long),dimension(n),parameter :: xu = [100.0_long,  10.0_long,  10.0_long]  !! upper bounds
-    real(long),parameter              :: acc = 1.0e-4_long          !! tolerance
+    real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
     real(long),parameter              :: gradient_delta = 1.0e-5_wp 
     integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
     integer, parameter :: gradient_mode = 1
@@ -182,6 +196,61 @@ subroutine test_slsqp_analytical_gradient()
     end if                            
 
 end subroutine
+
+
+! subroutine test_func_sandbox(me,x,f,c)
+!     use DATSUB, only: OPERND
+!     use slsqp_module
+!     use slsqp_kinds
+!     use zoa_ui
+!     use global_widgets, only: ioConfig
+
+!     implicit none
+
+!     class(slsqp_solver),intent(inout) :: me
+!     real(long),dimension(:),intent(in)  :: x   !! optimization variable vector
+!     real(long),intent(out)              :: f   !! value of the objective function
+!     real(long),dimension(:),intent(out) :: c   !! the constraint vector `dimension(m)`,
+!                                              !! equality constraints (if any) first.
+
+!     call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+!     call PROCESKDP('U L')
+!     do i=1,numVars
+!         select case (vars(i)%type)
+
+!         case(CURVATURE)
+!             call PROCESKDP('CHG 1; CV '//real2str(x(i))) 
+!             !Or directly update via ldm
+!         case(THICKNESS)
+!             call PROCESKDP('CHG 3; TH '//real2str(x(i)))
+!             ! Or update directly via ldm
+!         end select
+
+!     end do
+!     call PROCESKDP('CHG 3; TH '//real2str(x(1)))
+!     call PROCESKDP('CHG 1; CV '//real2str(x(2)))
+!     call PROCESKDP('CHG 2; CV '//real2str(x(3)))
+!     call PROCESKDP('EOS')
+!     call PROCESKDP('SUR SA')
+!  ! Get updated merit data and write to output csv
+!     call PROCESKDP('OPRD CFG, 1') ! for operand calcs
+!     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+
+   
+!     !call write_csv('/Users/jeremy/Fortran/zoa/build/optimOutput.csv',OPERND(1:2,4), 1, 2)
+!     f = OPERND(1,4)
+!     print *, "OPERND(1:2,4) is ", OPERND(1:2,4)
+
+!     c(1) = OPERND(2,4) - 50.0_long
+
+!     !f = x(1)**2 + x(2)**2 + x(3)  !objective function
+
+!     !c(1) = x(1)*x(2) - x(3)       !equality constraint (==0)
+    
+    
+!     !c(2) = x(3) - 1.0_long          !inequality constraint (>=0)
+
+! end subroutine test_func_sandbox
 
 
 subroutine test_func_spo_efl(me,x,f,c)

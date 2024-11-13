@@ -155,7 +155,7 @@ subroutine Sandbox()
 
   !call check_clear_apertures(curr_lens_data)
   !call simple_matlab_link()
-  call test_slsqp()
+  call test_slsqp
 end subroutine
 
 ! This routine needs to be rewritten to be similar to the

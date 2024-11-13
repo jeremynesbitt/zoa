@@ -10,7 +10,7 @@ module global_widgets
   character(kind=c_char), dimension(:), pointer :: pixel
   integer(kind=c_int) :: nch, rowstride, width, height, pixwidth, pixheight
   logical :: computing = .false.
-  character(LEN=80) :: string
+  !character(LEN=80) :: string
   type(c_ptr) :: app
   character(len=150), pointer :: uiSettingCommands(:)
   integer :: uiSetCmdsIdx = 1

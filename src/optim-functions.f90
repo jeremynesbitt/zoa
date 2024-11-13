@@ -5,6 +5,191 @@ module optim_functions
 
 contains
 
+subroutine aut_go()
+    use kdp_utils, only: OUTKDP
+    use DATLEN, only: PFAC
+    use DATSUB, only: VARABL
+    use DATMAI
+    use type_utils
+    use optim_types
+    use slsqp_module
+    use slsqp_kinds
+
+    real(kind=long) :: fmtOld, fmtTst, fmtLow, m, iDamp, fmtDamp
+    integer, parameter :: maxIter = 500
+    real(kind=long), dimension(maxIter) :: fmtArr
+    logical :: autConverge
+    integer :: i, endCode
+    integer :: meq               !! number of equality constraints
+
+    type(slsqp_solver)    :: solver      !! instantiate an slsqp solver
+    integer,parameter               :: max_iter = 25          !! maximum number of allowed iterations
+    real(long),dimension(nV) :: xl 
+    real(long),dimension(nV) :: xu 
+    real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
+    real(long),parameter              :: gradient_delta = 1.0e-5_wp 
+    integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
+    integer, parameter :: gradient_mode = 1
+    real(long),dimension(nV) :: x           !! optimization variable vector
+    integer               :: istat       !! for solver status check
+    logical               :: status_ok   !! for initialization status check
+    integer               :: iterations  !! number of iterations by the solver
+
+    !integer, parameter :: nV = 1000
+    !real(kind=long), dimension(nV) :: oldVars
+
+    call LogTermDebug("Num Vars is "//int2str(nV))
+    call LogTermDebug("Num Constraints is "//int2str(nC))
+    call LogTermDebug("Num Operands is "//int2str(nO))
+
+    if (n0 == 0) then 
+        ! Default is Spot Size
+        call addOperand('SPO', 0.0_long)
+    end if
+
+    call LogTermDebug("Num Operands is "//int2str(nO))
+
+    ! Eventually add more vars to this.  For now use this interface to evaluate
+
+
+
+    xl = getLowerBounds()  !! lower bounds
+    xu = getUpperBounds()  !! upper bounds
+    x = [0.0_long, 0.00833_long, -0.02899_long] ! initial guess    
+    
+    meq = getNumberofEqualityConstraints()
+
+    call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
+                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
+                            report=report_iteration,&
+                            alphamin=0.1_long, alphamax=0.5_long, &
+                            gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
+
+    if (status_ok) then
+        call solver%optimize(x,istat,iterations)
+        write(*,*) ''
+        write(*,*) 'solution   :', x
+        write(*,*) 'istat      :', istat
+        write(*,*) 'iterations :', iterations
+        write(*,*) ''
+    else
+        error stop 'error calling slsqp.'
+    end if              
+
+
+end subroutine
+
+! To not change solver interface, using info from optim_types directly
+! It makes this code harder to read, but for now seems better than alternative
+subroutine optimizerFunc(me, x,f,c)
+    use optim_types
+    use slsqp_module
+    implicit none
+
+    class(slsqp_solver),intent(inout) :: me
+    real(long),dimension(:),intent(in)  :: x   !! optimization variable vector
+    real(long),intent(out)              :: f   !! value of the objective function
+    real(long),dimension(:),intent(out) :: c   !! the constraint vector `dimension(m)`,
+    !type(operand), dimension(:) :: operandsInUse
+    !type(constant), dimension(:) :: constraintsInUse
+
+    integer :: i, ieq, ineq
+    real(long), dimension(nC) :: ceq, cneq
+
+    call updateLensDuringOptimization(x)
+    f = 0
+    do i=1,size(operandsInUse)
+        f = f + operandsInUse(i)%func()
+    end do
+
+
+    ! Optimzer requires sorting by equality constraints so set these firsrt
+    ieq  = 0
+    ineq = 0
+    do i=1,size(constraintsInUse)
+        if(constraintsInUse(i)%exact) then
+            ieq = ieq + 1
+            ceq(ieq) = constraintsInUse(i)%func()
+        else
+            ineq = ineq + 1
+            cneq(ineq) = constraintsInUse(i)%func()
+        end if  
+    end do
+
+    c(1:ieq) = ceq
+    c(ieq+1:ineq+ieq) = cneq
+
+
+end subroutine
+
+
+subroutine report_iteration(me,iter,x,f,c)
+    use slsqp_module
+    use slsqp_kinds
+    use kdp_utils, only: OUTKDP
+
+    !! report an iteration (print to the console).
+
+    use, intrinsic :: iso_fortran_env, only: output_unit
+
+    implicit none
+
+    class(slsqp_solver),intent(inout) :: me
+    integer,intent(in)                :: iter
+    real(long),dimension(:),intent(in)  :: x
+    real(long),intent(in)               :: f
+    real(long),dimension(:),intent(in)  :: c
+    character(len=1024) :: output_line
+
+    !write a header:
+    if (iter==0) then
+        ! write(output_unit,'(*(A20,1X))') 'iteration', &
+        !                                  'x(1)', 'x(2)', 'x(3)', &
+        !                                  'f(1)', 'c(1)', 'c(2)'
+        write(output_line,'(*(A20,1X))') 'iteration', &
+                                         'x(1)', 'x(2)', 'x(3)', &
+                                         'f(1)', 'c(1)', 'c(2)'                                         
+        call OUTKDP(output_line)
+    end if
+
+    
+    !write the iteration data:
+    write(output_line,'(I20,1X,(*(F20.16,1X)))') iter,x,f,c
+    call OUTKDP(output_line)
+
+
+    !write(output_unit,'(I20,1X,(*(F20.16,1X)))') iter,x,f,c
+
+
+end subroutine report_iteration
+
+subroutine dummy_grad(me,x,g,a)
+    use slsqp_module
+    use slsqp_kinds
+
+    !! compute the gradients.
+
+    implicit none
+
+    class(slsqp_solver),intent(inout)   :: me
+    real(long),dimension(:),intent(in)    :: x    !! optimization variable vector
+    real(long),dimension(:),intent(out)   :: g    !! objective function partials w.r.t x `dimension(n)`
+    real(long),dimension(:,:),intent(out) :: a    !! gradient matrix of constraints w.r.t. x `dimension(m,n)`
+
+    g(1) = 2.0_long*x(1)
+    g(2) = 2.0_long*x(2)
+    g(3) = 1.0_long
+
+    a(1,1) = x(2)
+    a(1,2) = x(1)
+    a(1,3) = -1.0_long
+
+    a(2,1) = 0.0_long
+    a(2,2) = 0.0_long
+    a(2,3) = 1.0_long
+
+end subroutine dummy_grad
+
 subroutine aut_debug()
     use kdp_utils, only: OUTKDP
     use DATLEN, only: PFAC
@@ -43,7 +228,7 @@ subroutine aut_debug()
     end do
 end subroutine
 
-subroutine aut_go()
+subroutine aut_go_old()
     use kdp_utils, only: OUTKDP
     use DATLEN, only: PFAC
     use DATSUB, only: VARABL

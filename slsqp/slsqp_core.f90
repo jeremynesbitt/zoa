@@ -652,6 +652,8 @@
 !>
 !  Check for convergence.
 
+!  Check for convergence.
+
     pure function check_convergence(n,f,f0,x,x0,s,h3,acc,tolf,toldf,toldx,&
                                     converged,not_converged,inconsistent_linearization) result(mode)
 
@@ -676,21 +678,30 @@
     logical :: ok ! temp variable
     real(wp),dimension(n) :: xmx0
 
-    if (h3>=acc .or. inconsistent_linearization .or. ieee_is_nan(f)) then
+
+    ! Change logic from original to prioritize stopping criteria to be 
+    ! when value does not change very much over subsequent iterations
+
+
+
+    if (inconsistent_linearization .or. ieee_is_nan(f)) then
         mode = not_converged
     else
 
-        ! if any are OK then it is converged
-        ok = .false.
-        if (.not. ok) ok = abs(f-f0)<acc
-        if (.not. ok) ok = dnrm2(n,s,1)<acc
-        ! note that these can be ignored if they are < 0:
-        if (.not. ok .and. tolf>=zero)  ok = abs(f)<tolf
-        if (.not. ok .and. toldf>=zero) ok = abs(f-f0)<toldf
-        if (.not. ok .and. toldx>=zero) then
-            xmx0 = x-x0 ! to avoid array temporary warning
-            ok = dnrm2(n,xmx0,1)<toldx
-        end if
+    ok = .false.
+    if (.not. ok .and. toldf>=zero) ok = abs((f-f0)/f0)<toldf ! Modify to percent change
+
+        ! ! if any are OK then it is converged
+        ! ok = .false.
+        ! if (.not. ok) ok = abs(f-f0)<acc
+        ! if (.not. ok) ok = dnrm2(n,s,1)<acc
+        ! ! note that these can be ignored if they are < 0:
+        ! if (.not. ok .and. tolf>=zero)  ok = abs(f)<tolf
+        
+        ! if (.not. ok .and. toldx>=zero) then
+        !     xmx0 = x-x0 ! to avoid array temporary warning
+        !     ok = dnrm2(n,xmx0,1)<toldx
+        ! end if
 
         if (ok) then
             mode = converged
@@ -701,6 +712,56 @@
     end if
 
     end function check_convergence
+
+    ! pure function check_convergence(n,f,f0,x,x0,s,h3,acc,tolf,toldf,toldx,&
+    !                                 converged,not_converged,inconsistent_linearization) result(mode)
+
+    ! implicit none
+
+    ! integer,intent(in) :: n
+    ! real(wp),intent(in) :: f
+    ! real(wp),intent(in) :: f0
+    ! real(wp),dimension(:),intent(in) :: x
+    ! real(wp),dimension(:),intent(in) :: x0
+    ! real(wp),dimension(:),intent(in) :: s
+    ! real(wp),intent(in) :: h3
+    ! real(wp),intent(in) :: acc
+    ! real(wp),intent(in) :: tolf
+    ! real(wp),intent(in) :: toldf
+    ! real(wp),intent(in) :: toldx
+    ! integer,intent(in) :: converged     !! mode value if converged
+    ! integer,intent(in) :: not_converged !! mode value if not converged
+    ! logical,intent(in) :: inconsistent_linearization !! if the SQP problem is inconsistent (will return `not_converged`)
+    ! integer :: mode
+
+    ! logical :: ok ! temp variable
+    ! real(wp),dimension(n) :: xmx0
+
+    ! if (h3>=acc .or. inconsistent_linearization .or. ieee_is_nan(f)) then
+    !     mode = not_converged
+    ! else
+
+    !     ! if any are OK then it is converged
+    !     ok = .false.
+    !     if (.not. ok) ok = abs(f-f0)<acc
+    !     if (.not. ok) ok = dnrm2(n,s,1)<acc
+    !     ! note that these can be ignored if they are < 0:
+    !     if (.not. ok .and. tolf>=zero)  ok = abs(f)<tolf
+    !     if (.not. ok .and. toldf>=zero) ok = abs((f-f0)/f0)<toldf ! Modify to percent change
+    !     if (.not. ok .and. toldx>=zero) then
+    !         xmx0 = x-x0 ! to avoid array temporary warning
+    !         ok = dnrm2(n,xmx0,1)<toldx
+    !     end if
+
+    !     if (ok) then
+    !         mode = converged
+    !     else
+    !         mode = not_converged
+    !     end if
+
+    ! end if
+
+    ! end function check_convergence
 !*******************************************************************************
 
 !*******************************************************************************

@@ -6,6 +6,7 @@
         use zoa_logger
         use codeV_commands, only: initializeCmds
         use glass_manager
+        use optim_types
 C
         IMPLICIT NONE
 C
@@ -134,6 +135,7 @@ C
 
         call initializeCmds()
         gdb = glassdb()
+        call initializeOptimizer()
 C
 C       MAX SAVE/REST = 36 8/24/2006
 C

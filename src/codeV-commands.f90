@@ -17,6 +17,7 @@
 module codeV_commands
     use iso_fortran_env, only: real64
     use plot_setting_manager
+    use type_utils
 
 
 
@@ -165,7 +166,9 @@ module codeV_commands
         zoaCmds(544)%cmd = 'THC'
         zoaCmds(544)%execFunc => updateThiCodes    
         zoaCmds(545)%cmd = 'CCY'
-        zoaCmds(545)%execFunc => updateCurvCodes                 
+        zoaCmds(545)%execFunc => updateCurvCodes           
+        zoaCmds(546)%cmd = 'EFL'
+        zoaCmds(546)%execFunc => updateEFLConstraint                         
               
         
         
@@ -2093,7 +2096,46 @@ module codeV_commands
 
 
     end subroutine    
-    
+
+    subroutine updateEFLConstraint(iptStr)
+        use command_utils, only : isInputNumber
+        use handlers, only: updateTerminalLog
+        use strings
+        use mod_lens_data_manager
+        use optim_types
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        if(cmd_loop == AUT_LOOP) then
+          call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
+ 
+            select case(trim(tokens(2)))
+            case('=')
+                call addConstraint('EFL', str2real8(tokens(3)), eq=.TRUE.)
+            case('>')
+            case('<')
+            case default
+                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
+            end select
+        else
+            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
+        end if
+        else
+            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
+
+        end if
+
+    end subroutine    
     !Format RDY Sk Val
     subroutine setRadius()
         use command_utils, only : parseCommandIntoTokens
