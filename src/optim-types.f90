@@ -123,7 +123,7 @@ module optim_types
         real(long), optional :: targ
         integer :: idx
         
-        idx = isNameInListNew(name, operands)
+        idx = isNameInOperandList(name)
         if (idx.ne.0) then
             nO = nO +1
             operandsInUse(nO) = operands(idx)
@@ -146,10 +146,14 @@ module optim_types
         character(len=*) :: name
         real(long) :: val
         logical, optional :: eq, lb, ub
+        integer :: idx
+        
+        idx = isNameInConstraintList(name)
 
-        if (isNameInList(name, constraints)) then
+        if (idx.ne.0) then
             nC = nC +1
-            constraintsInUse(nC)%name = name 
+            constraintsInUse(nC) = constraints(idx)
+            !constraintsInUse(nC)%name = name 
             if(present(eq)) then
                 constraintsInUse(nc)%exact = .TRUE.
                 constraintsInUse(nC)%targ = val
@@ -175,7 +179,7 @@ module optim_types
    
         type (constraint), dimension(:), pointer :: tmp
 
-        ok = 0
+        idx = 0
         select type (obj)
           type is (constraint)
           tmp => obj
@@ -189,6 +193,36 @@ module optim_types
         end select
     end function        
 
+    function isNameInOperandList(name) result(idx)
+        character(len=*) :: name
+        integer :: i
+        integer :: idx 
+
+        idx = 0
+        do i=1,size(operands)
+            if (name == operands(i)%name) then
+                ! Found value
+                idx = i
+                return
+            end if
+        end do
+    end function   
+    
+    function isNameInConstraintList(name) result(idx)
+        character(len=*) :: name
+        integer :: i
+        integer :: idx 
+
+        idx = 0
+        do i=1,size(constraints)
+            if (name == constraints(i)%name) then
+                ! Found value
+                idx = i
+                return
+            end if
+        end do
+    end function       
+    
     function isNameInList(name, obj) result(ok)
 
         character(len=*) :: name

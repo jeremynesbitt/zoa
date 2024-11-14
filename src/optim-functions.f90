@@ -42,7 +42,7 @@ subroutine aut_go()
     call LogTermDebug("Num Constraints is "//int2str(nC))
     call LogTermDebug("Num Operands is "//int2str(nO))
 
-    if (n0 == 0) then 
+    if (nO == 0) then 
         ! Default is Spot Size
         call addOperand('SPO', 0.0_long)
     end if
@@ -98,7 +98,7 @@ subroutine optimizerFunc(me, x,f,c)
 
     call updateLensDuringOptimization(x)
     f = 0
-    do i=1,size(operandsInUse)
+    do i=1,nO
         f = f + operandsInUse(i)%func()
     end do
 
@@ -106,7 +106,7 @@ subroutine optimizerFunc(me, x,f,c)
     ! Optimzer requires sorting by equality constraints so set these firsrt
     ieq  = 0
     ineq = 0
-    do i=1,size(constraintsInUse)
+    do i=1,nC
         if(constraintsInUse(i)%exact) then
             ieq = ieq + 1
             ceq(ieq) = constraintsInUse(i)%func()
