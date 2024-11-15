@@ -77,7 +77,7 @@ subroutine test_slsqp()
     real(long),dimension(n),parameter :: xl = [-100.0_long, -10.0_long, -10.0_long]  !! lower bounds
     real(long),dimension(n),parameter :: xu = [100.0_long,  10.0_long,  10.0_long]  !! upper bounds
     real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
-    real(long),parameter              :: gradient_delta = 1.0e-5_wp 
+    real(long),parameter              :: gradient_delta = 1.0e-4_wp 
     integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
     integer, parameter :: gradient_mode = 1
 

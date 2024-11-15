@@ -27,7 +27,7 @@ subroutine aut_go()
     real(long),dimension(nV) :: xl 
     real(long),dimension(nV) :: xu 
     real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
-    real(long),parameter              :: gradient_delta = 1.0e-5_wp 
+    real(long),parameter              :: gradient_delta = 1.0e-4_wp 
     integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
     integer, parameter :: gradient_mode = 1
     real(long),dimension(nV) :: x           !! optimization variable vector
@@ -59,12 +59,20 @@ subroutine aut_go()
     
     meq = getNumberofEqualityConstraints()
 
-    call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
+    !call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
+    !                        xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
+    !                        report=report_iteration,&
+    !                        alphamin=0.1_long, alphamax=0.5_long, &
+    !                        gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
+
+    call solver%initialize(nV,nC,meq,max_iter,acc,test_func_spo_efl,dummy_grad,&
                             xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                             report=report_iteration,&
                             alphamin=0.1_long, alphamax=0.5_long, &
-                            gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
-
+                            gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps    
+    
+    
+    
     if (status_ok) then
         call solver%optimize(x,istat,iterations)
         write(*,*) ''
@@ -227,6 +235,49 @@ subroutine aut_debug()
         print *, real2str(tmpTHI(i))//','//real2str(tmpRMS(i))
     end do
 end subroutine
+
+subroutine test_func_spo_efl(me,x,f,c)
+    use DATSUB, only: OPERND
+    use slsqp_module
+    use slsqp_kinds
+    use zoa_ui
+    use global_widgets, only: ioConfig
+
+    implicit none
+
+    class(slsqp_solver),intent(inout) :: me
+    real(long),dimension(:),intent(in)  :: x   !! optimization variable vector
+    real(long),intent(out)              :: f   !! value of the objective function
+    real(long),dimension(:),intent(out) :: c   !! the constraint vector `dimension(m)`,
+                                             !! equality constraints (if any) first.
+
+    call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+    call PROCESKDP('U L')
+    call PROCESKDP('CHG 3; TH '//real2str(x(1)))
+    call PROCESKDP('CHG 1; CV '//real2str(x(2)))
+    call PROCESKDP('CHG 2; CV '//real2str(x(3)))
+    call PROCESKDP('EOS')
+    call PROCESKDP('SUR SA')
+ ! Get updated merit data and write to output csv
+    call PROCESKDP('OPRD CFG, 1') ! for operand calcs
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+
+   
+    !call write_csv('/Users/jeremy/Fortran/zoa/build/optimOutput.csv',OPERND(1:2,4), 1, 2)
+    f = OPERND(1,4)
+    print *, "OPERND(1:2,4) is ", OPERND(1:2,4)
+
+    c(1) = OPERND(2,4) - 50.0_long
+
+    !f = x(1)**2 + x(2)**2 + x(3)  !objective function
+
+    !c(1) = x(1)*x(2) - x(3)       !equality constraint (==0)
+    
+    
+    !c(2) = x(3) - 1.0_long          !inequality constraint (>=0)
+
+end subroutine test_func_spo_efl
+
 
 subroutine aut_go_old()
     use kdp_utils, only: OUTKDP

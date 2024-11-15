@@ -128,9 +128,9 @@ module optim_types
             nO = nO +1
             operandsInUse(nO) = operands(idx)
             if(present(targ)) then
-                operandsInUse(n0)%targ = targ
+                operandsInUse(nO)%targ = targ
             else
-                operandsInUse(n0)%targ = 0.0_long
+                operandsInUse(nO)%targ = 0.0_long
             end if
             ! Continue for all other constraints
         end if
@@ -258,9 +258,9 @@ module optim_types
         do i=1,nV
             select case(VARS(i,2))
             case(VAR_CURV)
-                call PROCESKDP('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
-            case(VAR_THI)
                 call PROCESKDP('CHG '//int2str(VARS(i,1))//' ; CV '//real2str(x(i)))
+            case(VAR_THI)
+                call PROCESKDP('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
             end select
 
         end do
