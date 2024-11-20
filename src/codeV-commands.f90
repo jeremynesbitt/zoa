@@ -1583,6 +1583,7 @@ module codeV_commands
          
            call sysConfig%genSaveOutputText(fID)
            call curr_lens_data%genSaveOutputText(fID)
+           !call optim%genSaveOutputText(fID)
            close(fID)
         else
             call LogTermFOR("Error!  fiD is "//int2str(fID))

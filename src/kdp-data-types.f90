@@ -147,6 +147,7 @@ end interface
 type io_config
 type(c_ptr) :: textView, prev_textView
 type(c_ptr), allocatable :: allBuffers(:)
+logical :: dumpText
 
 contains
    procedure, public, pass(self) :: setTextView
@@ -643,6 +644,9 @@ subroutine restoreTextView(self)
   class(io_config) :: self
   self%textView = self%prev_textView
 
+  ! This is indeterminate but keep as a band aid for now.
+  if (self%dumpText) self%dumpText = .FALSE.
+
 end subroutine
 
 subroutine setTextViewFromPtr(self, newtextview)
@@ -663,6 +667,14 @@ subroutine setTextView(self, idTextView)
   ! TODO:  Add error checking here
   self%prev_textView = self%textView
   self%textView = self%allBuffers(idTextView)
+
+  ! This is used as a flag for updateTerminalLog to stop trying to format text to
+  ! prevent annoything gtk critical logs when writing to the dump text view
+  if(idTextView == ID_TERMINAL_KDPDUMP) then
+    self%dumpText = .TRUE.
+  else
+    self%dumpText = .FALSE.
+  end if
 
 end subroutine
 

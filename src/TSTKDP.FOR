@@ -241,6 +241,24 @@ C
 
         END SUBROUTINE
 
+        SUBROUTINE PROCESSILENT(ftext)
+            use global_widgets, only: ioConfig
+            use zoa_ui
+
+            implicit none
+
+            character(len=*) :: ftext
+
+            call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
+            call PROCESKDP(ftext)
+            call ioConfig%restoreTextView()
+
+        END SUBROUTINE
+
+
+            
+
+
 
         SUBROUTINE PROCESKDP(ftext)
           use DATMAI, only: INPUT

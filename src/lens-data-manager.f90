@@ -6,7 +6,7 @@ module mod_lens_data_manager
     type lens_data_manager
    
     contains
-     procedure, public, pass(self) :: getSurfThi
+     procedure, public, pass(self) :: getSurfThi, setSurfThi
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
      procedure, public, pass(self) :: getSurfCurv
@@ -97,6 +97,19 @@ module mod_lens_data_manager
         thi = curr_lens_data%thicknesses(surfIdx+1)
 
     end function
+
+
+    subroutine setSurfThi(self, surfIdx, thi) 
+        use DATLEN, only: ALENS
+        implicit none
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        real(kind=real64) :: thi
+
+
+        ALENS(3,surfIdx) = thi
+   
+    end subroutine    
 
     function isThiSolveOnSurf(self, surfIdx) result(boolResult)
         use DATLEN, only: SOLVE

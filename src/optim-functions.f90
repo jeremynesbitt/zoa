@@ -26,6 +26,7 @@ subroutine aut_go()
     integer,parameter               :: max_iter = 25          !! maximum number of allowed iterations
     real(long),dimension(nV) :: xl 
     real(long),dimension(nV) :: xu 
+ 
     real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
     real(long),parameter              :: gradient_delta = 1.0e-4_wp 
     integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
@@ -38,38 +39,36 @@ subroutine aut_go()
     !integer, parameter :: nV = 1000
     !real(kind=long), dimension(nV) :: oldVars
 
-    call LogTermDebug("Num Vars is "//int2str(nV))
-    call LogTermDebug("Num Constraints is "//int2str(nC))
-    call LogTermDebug("Num Operands is "//int2str(nO))
 
     if (nO == 0) then 
         ! Default is Spot Size
         call addOperand('SPO', 0.0_long)
     end if
 
-    call LogTermDebug("Num Operands is "//int2str(nO))
 
     ! Eventually add more vars to this.  For now use this interface to evaluate
 
-
-
-    xl = getLowerBounds()  !! lower bounds
-    xu = getUpperBounds()  !! upper bounds
-    x = [0.0_long, 0.00833_long, -0.02899_long] ! initial guess    
+    ! Move these to a type?  eg optimizer%getLowerBounds  Some type that does gathering.
+    !xl = getLowerBounds()  !! lower bounds
+    !x =  VARDATA(1:nV,1)
+    xl = VARDATA(1:nV,2)  !! lower bounds
+    xu = VARDATA(1:nV,3)  !! upper bounds
+    x = gatherInitialValues()
+    !x = [0.0_long, 0.00833_long, -0.02899_long] ! initial guess    
     
     meq = getNumberofEqualityConstraints()
 
-    !call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
-    !                        xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
-    !                        report=report_iteration,&
-    !                        alphamin=0.1_long, alphamax=0.5_long, &
-    !                        gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
+    call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
+                           xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
+                           report=report_iteration,&
+                           alphamin=0.1_long, alphamax=0.5_long, &
+                           gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
 
-    call solver%initialize(nV,nC,meq,max_iter,acc,test_func_spo_efl,dummy_grad,&
-                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
-                            report=report_iteration,&
-                            alphamin=0.1_long, alphamax=0.5_long, &
-                            gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps    
+    ! call solver%initialize(nV,nC,meq,max_iter,acc,test_func_spo_efl,dummy_grad,&
+    !                         xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
+    !                         report=report_iteration,&
+    !                         alphamin=0.1_long, alphamax=0.5_long, &
+    !                         gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps    
     
     
     
@@ -125,13 +124,59 @@ subroutine optimizerFunc(me, x,f,c)
     end do
 
     c(1:ieq) = ceq
-    c(ieq+1:ineq+ieq) = cneq
+    if (ineq.ne.0) c(ieq+1:ineq+ieq) = cneq
 
 
 end subroutine
 
-
 subroutine report_iteration(me,iter,x,f,c)
+    use slsqp_module
+    use slsqp_kinds
+    use kdp_utils, only: OUTKDP
+    use optim_types
+
+    !! report an iteration (print to the console).
+
+    use, intrinsic :: iso_fortran_env, only: output_unit
+
+    implicit none
+
+    class(slsqp_solver),intent(inout) :: me
+    integer,intent(in)                :: iter
+    real(long),dimension(:),intent(in)  :: x
+    real(long),intent(in)               :: f
+    real(long),dimension(:),intent(in)  :: c
+    character(len=1024) :: output_line
+    integer :: i
+
+    !write a header:
+    call OUTKDP("                                                          l")! Blank line 
+    call OUTKDP("CYCLE NUMBER "//int2str(iter))
+    call OUTKDP("   ERROR FUNCTION = "//real2str(f))
+    call PROCESKDP("SUR SA")
+    call OUTKDP("                                                          l")! Blank line 
+     
+    ! Print out constraint info if it exists
+    if (nC > 0) then
+        call OUTKDP("Const.   Target              Value              diff")
+        do i=1,nC
+            
+            write(output_line,'(*(F20.16,1X)))') constraintsInUse(i)%targ, &
+            c(i)+constraintsInUse(i)%targ, c(i)
+            call OUTKDP(trim(constraintsInUse(i)%name//' '//trim(output_line)))
+        end do
+
+    end if
+    ! CALL OUTKDP("Constraint   target    value     diff ")
+    ! write(output_line,'(*(A20,1X))') 'EFL', &
+    ! 'x(1)', 'x(2)', 'x(3)', &
+    ! 'f(1)', 'c(1)', 'c(2)'   
+
+
+end subroutine report_iteration
+
+
+subroutine report_iteration_old(me,iter,x,f,c)
     use slsqp_module
     use slsqp_kinds
     use kdp_utils, only: OUTKDP
@@ -150,13 +195,14 @@ subroutine report_iteration(me,iter,x,f,c)
     character(len=1024) :: output_line
 
     !write a header:
+                                                                            
     if (iter==0) then
         ! write(output_unit,'(*(A20,1X))') 'iteration', &
         !                                  'x(1)', 'x(2)', 'x(3)', &
         !                                  'f(1)', 'c(1)', 'c(2)'
         write(output_line,'(*(A20,1X))') 'iteration', &
                                          'x(1)', 'x(2)', 'x(3)', &
-                                         'f(1)', 'c(1)', 'c(2)'                                         
+                                         'f(1)', 'c(1)', 'c(2)'   
         call OUTKDP(output_line)
     end if
 
@@ -169,7 +215,7 @@ subroutine report_iteration(me,iter,x,f,c)
     !write(output_unit,'(I20,1X,(*(F20.16,1X)))') iter,x,f,c
 
 
-end subroutine report_iteration
+end subroutine report_iteration_old
 
 subroutine dummy_grad(me,x,g,a)
     use slsqp_module

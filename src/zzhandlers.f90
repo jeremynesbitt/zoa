@@ -156,7 +156,8 @@ contains
       character(len=280) :: markup
       integer(kind=c_int) :: iotst
 
-
+      ! If we are supposed to be dumping text, exit this routine immediately
+      if (ioConfig%dumpText) return
 
       ! This routine is to update the terminal log, and is
       ! abstracted in case the method (font color, bold) needs to be changed
@@ -165,6 +166,7 @@ contains
       ! See for some examples
       ! https://basic-converter.proboards.com/thread/314/pango-markup-text-examples
 
+     
 
       txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
       call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))

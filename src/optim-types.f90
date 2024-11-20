@@ -20,6 +20,13 @@ module optim_types
        procedure (constraintFunc), pointer :: func ! share same interface for func
     end type
 
+    type optimizer
+
+    contains
+        procedure ::  genSaveOutputText
+
+    end type
+
     ! The interface will include all possible inputs as optional args.  This will limit number of possible inputs for better or worse.
     ! I may end up regretting this..
     abstract interface
@@ -50,11 +57,13 @@ module optim_types
     type(operand), dimension(100) :: operandsInUse
     type(constraint), dimension(100) :: constraints
     type(constraint), dimension(100) :: constraintsInUse
+    
+    type(optimizer) :: optim
 
 
     integer :: nV !Number of variables
     integer :: VARS(1000,2) ! Hard code number of vars for now!  index 1 is surface, index 2 is var type
-
+    real(long) :: VARDATA(1000,3) ! Values of variables.  initial val, lb ub
 
     integer :: nO, nC ! number of operands and constraints in use
 
@@ -84,7 +93,8 @@ module optim_types
         real(long) :: res
 
 
-        CALL PROCESKDP("SPD")
+        !CALL PROCESSILENT("SPD")
+        CALL PROCESSILENT("OPRD CFG, 1")
         res = RMS
 
     end function
@@ -105,17 +115,34 @@ module optim_types
         ! integer, optional :: iW, iF, density
         ! real(long), optional :: px, py, hx, hy        
         ! real(long) :: res
-
+        CALL PROCESSILENT("OPRD CFG, 1")
         res = ldm%getEFL() - self%targ
 
     end function
 
     subroutine addOptimVariable(surf, int_code)
+        use mod_lens_data_manager
+
+        implicit none
         integer :: surf, int_code
 
         nV = nV + 1
         VARS(nV,1) = surf
         VARS(nV,2) = int_code
+
+        ! Store initial value and bounds
+        select case(int_code)
+        case(VAR_CURV)
+            VARDATA(nV,1) = ldm%getSurfCurv(surf)
+            VARDATA(nV,2) = -0.1*huge(0.0_long)
+            VARDATA(nV,3) = 0.1*huge(0.0_long)
+        case(VAR_THI)
+            VARDATA(nV,1) = ldm%getSurfThi(surf)
+            VARDATA(nV,2) = -0.1*huge(0.0_long)
+            VARDATA(nV,3) = 0.1*huge(0.0_long)           
+        end select
+
+
     end subroutine
 
     subroutine addOperand(name, targ)
@@ -249,23 +276,24 @@ module optim_types
 
     subroutine updateLensDuringOptimization(x)
         use type_utils
+        use mod_lens_data_manager
         real(long), dimension(:) :: x
 
         integer :: i
 
-        call PROCESKDP('U L')
+        call PROCESSILENT('U L')
 
         do i=1,nV
             select case(VARS(i,2))
             case(VAR_CURV)
-                call PROCESKDP('CHG '//int2str(VARS(i,1))//' ; CV '//real2str(x(i)))
+                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CV '//real2str(x(i)))
             case(VAR_THI)
-                call PROCESKDP('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
+                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
             end select
 
         end do
 
-        call PROCESKDP('EOS')
+        call PROCESSILENT('EOS')
 
     end subroutine
 
@@ -274,7 +302,7 @@ module optim_types
         integer :: i
 
         do i=1,nV
-            lbArr(i) = -1*huge(0.0_long)
+            lbArr(i) = -.1*huge(0.0_long)
         end do
         
     end function
@@ -285,7 +313,7 @@ module optim_types
         integer :: i
 
         do i=1,nV
-            ubArr(i) = huge(0.0_long)
+            ubArr(i) = 0.1*huge(0.0_long)
         end do
         
     end function  
@@ -355,6 +383,41 @@ module optim_types
 
     end subroutine    
 
+    function gatherInitialValues() result(x)
+        use mod_lens_data_manager
 
+        implicit none
+        real(long), dimension(nV) :: x
+        integer :: i
+
+        do i=1,nV
+
+            ! Store current values
+            select case(VARS(i,2))
+            case(VAR_CURV)
+                VARDATA(i,1) = ldm%getSurfCurv(VARS(i,1))
+
+            case(VAR_THI)
+                VARDATA(i,1) = ldm%getSurfThi(VARS(i,1))
+            
+            end select
+        end do
+
+        x = VARDATA(1:nV,1)
+
+        
+
+    end function
+
+
+    subroutine genSaveOutputText(self, fID)
+        
+        implicit none
+        class(optimizer) :: self
+        integer :: fID
+
+
+
+    end subroutine
 
 end module
