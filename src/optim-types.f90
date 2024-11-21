@@ -409,13 +409,55 @@ module optim_types
 
     end function
 
+    function getVarCmd(int_code) result(outCmd)
+        integer :: int_code
+        character(len=4) :: outCmd
 
+        outCmd = ''
+        select case (int_code)
+        case(VAR_CURV)
+            outCmd = 'CCV'
+        case(VAR_THI)
+            outCmd = 'THC'
+        end select
+
+    end function
+
+    ! TODO:  Constraints do not properly support > < 
     subroutine genSaveOutputText(self, fID)
+        use type_utils
         
         implicit none
         class(optimizer) :: self
         integer :: fID
+        integer :: i
+        character(len=1) :: q
 
+        if (nV > 0 .OR. nC > 0 .OR. nO > 0) then
+            write(fID, *) "! Merit"
+        if (nV > 0) then
+                do i=1,nV
+                    write(fID,*) trim(getVarCmd(VARS(i,2)))//" "//int2str(VARS(i,1))//" "
+                end do
+            end if
+            if (nO > 0 .OR. nC > 0) then
+                write(fID, *) "TAR"
+            if (nO > 0) then
+                do i=1,nO 
+                  write(fID, *) operandsInUse(i)%name//" "//real2str(operandsInUse(i)%targ)
+                end do
+
+            end if
+            if (nC > 0 ) then
+                do i=i,nC
+                    q = ' '
+                    if (constraintsInUse(i)%exact) q = '='
+                    write(fID,*) trim(constraintsInUse(i)%name)//" "//q//" "//real2str(constraintsInUse(i)%targ)
+                end do
+            end if
+            write(fID, *) "GO"
+        end if
+        end if
 
 
     end subroutine

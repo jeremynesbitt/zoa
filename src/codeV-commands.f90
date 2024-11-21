@@ -49,6 +49,8 @@ module codeV_commands
     integer, parameter :: ZERN_LOOP = 4
     integer, parameter :: TOW_LOOP = 5
     integer, parameter :: AUT_LOOP = 6
+    integer, parameter :: TAR_LOOP = 7
+
 
 
 
@@ -169,7 +171,8 @@ module codeV_commands
         zoaCmds(545)%execFunc => updateCurvCodes           
         zoaCmds(546)%cmd = 'EFL'
         zoaCmds(546)%execFunc => updateEFLConstraint                         
-              
+        zoaCmds(547)%cmd = 'TAR'
+        zoaCmds(547)%execFunc => execTAR     
         
         
 
@@ -1257,6 +1260,21 @@ module codeV_commands
 
     end subroutine
 
+    subroutine execTAR(iptStr)
+        use handlers, only: updateTerminalLog
+        implicit none
+        character(len=*) :: iptStr
+        
+        if (cmd_loop == 0) then
+
+            cmd_loop = TAR_LOOP
+        else
+            call updateTerminalLog("Cannot enter TAR loop as in another command loop", "red")
+        end if
+
+
+    end subroutine    
+
     subroutine execSPO(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
@@ -1552,6 +1570,7 @@ module codeV_commands
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
         use zoa_file_handler, only: open_file_to_sav_lens
+        use optim_types, only: optim
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1583,7 +1602,7 @@ module codeV_commands
          
            call sysConfig%genSaveOutputText(fID)
            call curr_lens_data%genSaveOutputText(fID)
-           !call optim%genSaveOutputText(fID)
+           call optim%genSaveOutputText(fID)
            close(fID)
         else
             call LogTermFOR("Error!  fiD is "//int2str(fID))
@@ -2119,7 +2138,7 @@ module codeV_commands
 
         processResult = .FALSE.
 
-        if(cmd_loop == AUT_LOOP) then
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
           call parse(iptStr, ' ', tokens, numTokens)
 
         if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
@@ -2581,6 +2600,12 @@ module codeV_commands
             call aut_go()
             cmd_loop = 0
         end if
+
+        if (cmd_loop == TAR_LOOP) then
+            !call aut_go()
+            cmd_loop = 0
+            return
+        end if        
 
         if (cmd_loop == TOW_LOOP) then
             cmd_loop = 0 ! Need to put this first because when in TOW loop commands are intercepted before 
