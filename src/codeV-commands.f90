@@ -1283,6 +1283,9 @@ module codeV_commands
         use handlers, only: zoatabMgr
         use zoa_ui
         use type_utils, only: int2str
+        use command_utils, only : isInputNumber
+        use optim_types
+        use GLOBALS, only: long
 
         implicit none
         character(len=*) :: iptStr
@@ -1293,6 +1296,17 @@ module codeV_commands
         logical :: plotExists
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        ! If we are in a merit update loop add operand and exit
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+            if (isInputNumber(trim(tokens(2)))) then 
+                call LogTermDebug("About to add operand SPO")
+                call addOperand('SPO', str2real8(trim(tokens(2))))
+            else
+                call addOperand('SPO', 0.0_long)
+            end if
+            return
+        end if
 
         call psm%initialize(trim(iptStr))
         cmd_loop = SPO_LOOP

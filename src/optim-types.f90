@@ -416,7 +416,7 @@ module optim_types
         outCmd = ''
         select case (int_code)
         case(VAR_CURV)
-            outCmd = 'CCV'
+            outCmd = 'CCY'
         case(VAR_THI)
             outCmd = 'THC'
         end select
@@ -437,7 +437,7 @@ module optim_types
             write(fID, *) "! Merit"
         if (nV > 0) then
                 do i=1,nV
-                    write(fID,*) trim(getVarCmd(VARS(i,2)))//" "//int2str(VARS(i,1))//" "
+                    write(fID,*) trim(getVarCmd(VARS(i,2)))//" S"//trim(int2str(VARS(i,1)))//" 0"
                 end do
             end if
             if (nO > 0 .OR. nC > 0) then
@@ -449,7 +449,7 @@ module optim_types
 
             end if
             if (nC > 0 ) then
-                do i=i,nC
+                do i=1,nC
                     q = ' '
                     if (constraintsInUse(i)%exact) q = '='
                     write(fID,*) trim(constraintsInUse(i)%name)//" "//q//" "//real2str(constraintsInUse(i)%targ)
