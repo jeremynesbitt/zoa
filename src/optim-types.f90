@@ -93,8 +93,8 @@ module optim_types
         real(long) :: res
 
 
-        !CALL PROCESSILENT("SPD")
-        CALL PROCESSILENT("OPRD CFG, 1")
+        CALL PROCESSILENT("SPD")
+        !CALL PROCESSILENT("OPRD CFG, 1")
         res = RMS
 
     end function

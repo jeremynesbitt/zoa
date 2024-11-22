@@ -90,11 +90,13 @@ module mod_lens_data_manager
     end function
 
     function getSurfThi(self, surfIdx) result(thi)
+        use DATLEN, only: ALENS
         class(lens_data_manager) :: self
         integer :: surfIdx
         real(kind=real64) :: thi
 
-        thi = curr_lens_data%thicknesses(surfIdx+1)
+        thi = ALENS(3,surfIdx)
+        !thi = curr_lens_data%thicknesses(surfIdx+1)
 
     end function
 
