@@ -37,7 +37,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(561) :: zoaCmds
+    type(zoa_cmd), dimension(571) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -173,8 +173,7 @@ module codeV_commands
         zoaCmds(546)%execFunc => updateEFLConstraint                         
         zoaCmds(547)%cmd = 'TAR'
         zoaCmds(547)%execFunc => execTAR     
-        
-        
+
 
     end subroutine
 
@@ -1826,7 +1825,7 @@ module codeV_commands
                 call updateTerminalLog("Deleting PIM", "blue")
                 surfNum = curr_lens_data%num_surfaces - 2
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; TSD ')          
+                & '; TSD '//';GO')          
 
             case('SOL') ! Delete Solves
                 if(numTokens > 2) then
@@ -1836,7 +1835,7 @@ module codeV_commands
                         if (isSurfCommand(trim(tokens(4)))) then
                             surfNum = getSurfNumFromSurfCommand(trim(tokens(4)))
                             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                            & '; CSDY ')                            
+                            & '; CSDY '//';GO')                            
                         end if
                     end select
                 else
@@ -1869,7 +1868,7 @@ module codeV_commands
             if (numTokens > 2) then
                if (isInputNumber(trim(tokens(3)))) then ! FORMAT: CUY Sk VAL
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; CV, ' // trim(tokens(3)))
+                & '; CV, ' // trim(tokens(3))//";GO")
                else                 
                 
 
@@ -1880,7 +1879,7 @@ module codeV_commands
                 if (numTokens > 3 ) then
                     call updateTerminalLog("Give it a try!", "blue")
                     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; PUY, ' // trim(tokens(4))) 
+                    & '; PUY, ' // trim(tokens(4))//";GO") 
                 end if
 
                end select 

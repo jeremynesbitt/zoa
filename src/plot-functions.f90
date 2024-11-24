@@ -996,7 +996,8 @@ subroutine rayaberration_go(psm)
 
      call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
      & "Ray Aberrations ("//sysConfig%getDimensions()//")",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
-     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+     !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+     call ioConfig%restoreTextView()
     
      !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
      call finalizeGoPlot_new(mplt, psm, replot, objIdx)
