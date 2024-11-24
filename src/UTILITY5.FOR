@@ -152,6 +152,7 @@ C
                          END
 C SUB CONTRO.FOR
         SUBROUTINE CONTRO
+        !use handlers, only: zoatabMgr
         use zoa_file_handler, only: getPermMacroDir
         use global_widgets, only: lens_editor_window,
      1 curr_asph_data, sysConfig, curr_lens_data

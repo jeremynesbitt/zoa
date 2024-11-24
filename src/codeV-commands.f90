@@ -59,15 +59,18 @@ module codeV_commands
 
     subroutine initializeCmds()
         ! This is called when the program is initialized (currently INITKDP.FOR)
+        use iso_c_binding, only: c_null_ptr
         use global_widgets, only: ioConfig
         use hl_gtk_zoa, only : hl_zoa_text_view_new
         use zoa_ui, only: ID_TERMINAL_KDPDUMP
         use type_utils, only: int2str
 
+        implicit none
+
         integer :: i
 
-        ! Initialize textView to dump KDP print statements when needed
-        call ioConfig%registerTextView(hl_zoa_text_view_new(), ID_TERMINAL_KDPDUMP)
+        ! Initialize null ptr textView to dump KDP print statements when needed
+        call ioConfig%registerTextView(c_null_ptr, ID_TERMINAL_KDPDUMP)
 
         zoaCmds(1)%cmd = "RMD"
         zoaCmds(1)%execFunc => execRMD
