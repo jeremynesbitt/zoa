@@ -35,4 +35,6 @@ module global_widgets
 
   logical :: debug_messages = .FALSE.
 
+  character(len=42), allocatable :: currVieData(:)
+
 end module global_widgets

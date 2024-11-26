@@ -232,6 +232,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
        USE GLOBALS
        use type_utils, only: real2str, int2str
+       use global_widgets, only: currVieData
        !use handlers
 
        !USE WINTERACTER
@@ -354,6 +355,15 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
      DEBUG = 0
      !IF (DEBUG.EQ.1) CALL PRINTNEUTARRAY
+       ! Other side of the band aid implemented in vie_go. Regardless of what the status is of
+       ! NEUTARRAY, fill it with currVieData before continuing.
+
+       if (allocated(currVieData)) then
+
+       if (allocated(NEUTARRAY)) deallocate(NEUTARRAY)
+       allocate(NEUTARRAY(size(currVieData)))
+       NEUTARRAY(1:size(currVieData)) = currVieData(1:size(currVieData))
+       end if
 
       PRINT *, "STARTING TO DRAW LENS"
                        J=1

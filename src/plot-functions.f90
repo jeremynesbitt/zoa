@@ -168,6 +168,7 @@ subroutine vie_go(psm)
     use DATMAI
     use g
     use handlers, only: zoatabMgr
+    use global_widgets, only: currVieData
 
     implicit none
     type(zoaplot_setting_manager) :: psm
@@ -178,9 +179,22 @@ subroutine vie_go(psm)
     integer :: objIdx, pIdx
     logical :: replot
 
+    if (allocated(NEUTARRAY)) then
+      call LogTermDebug("NEUTARRAYSize before vie_psm is "//int2str(size(NEUTARRAY)))
 
+    end if
     call vie_psm(psm)
+    ! This is a temporary fix.  In my attempts to leave the legacy code intact, I cannot
+    ! seem to figure out all the conditions where it wipes NEUTARRAY clean which is causing
+    ! numerous plotting problems.  So for now will manage this by storing the data in NEUTARRAY
+    ! separately only after this call is completed and access it in DRAWOPTICALSYSTEM
+    if (allocated(NEUTARRAY)) then
+      call LogTermDebug("NEUTARRAYSize after vie_psm is "//int2str(size(NEUTARRAY)))
+      if (allocated(currVieData)) deallocate(currVieData)
+      allocate(currVieData(size(NEUTARRAY)))
+      currVieData(1:size(NEUTARRAY)) = NEUTARRAY(1:size(NEUTARRAY))
 
+    end if
 
 
     pIdx = psm%plotNum
