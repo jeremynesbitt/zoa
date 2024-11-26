@@ -401,7 +401,6 @@ subroutine updateKDPPlotTab(self, idx)
   call self%updateUISettingsIfNeeded(idx)
   select type (tmpTab=>self%tabInfo(idx)%tabObj)
   type is (zoaplottab)
-  call PROCESKDP(tmpTab%plotCommand)
   call gtk_widget_queue_draw(tmpTab%canvas)
 end select
 

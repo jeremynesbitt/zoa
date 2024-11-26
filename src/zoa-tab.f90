@@ -470,7 +470,7 @@ type zoatab
   integer(kind=c_int), pointer :: DEBUG_PLOTTYPE
   integer :: tabNum
   logical :: isDocked
-  character(len=140) :: plotCommand
+  character(len=1040) :: plotCommand
   type(zoaplot_setting_manager) :: psm
   type(c_ptr) :: tab_label, notebook, expander, box1  
 

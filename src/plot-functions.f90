@@ -204,7 +204,6 @@ subroutine vie_go(psm)
        replot = zoatabMgr%doesPlotExist_new(plot_code, objIdx, pIdx)
     end if
 
-
     !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
     if (replot) then
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
@@ -223,7 +222,7 @@ subroutine vie_go(psm)
       end if  
       objIdx = zoatabMgr%addKDPPlotTab(plot_code, &
       & trim(tabName)//c_null_char)
-
+      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
       !objIdx = zoatabMgr%addGenericMultiPlotTab(plot_code, &
       !& trim(tabName)//c_null_char, mplt)
 
