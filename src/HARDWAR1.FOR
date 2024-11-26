@@ -294,21 +294,7 @@ C
       MY_LEN=LEN_TRIM(STRING)
       RETURN
       END
-      SUBROUTINE DRAWIT
-      USE GLOBALS
-      IMPLICIT NONE
-      CALL GRADRAW
-      RETURN
-      END
-      SUBROUTINE GRADRAW
-      IMPLICIT NONE
-      INCLUDE 'DATMAI.INC'
-      integer :: fNeut
-C WINTER
-      CALL RUN_WDRAW
-      CALL OPEN_NEUTRAL_DAT(fNeut)
-                       RETURN
-                       END
+
       SUBROUTINE MY_SETCHARASPECT(J_X,J_Y)
       USE GLOBALS
       IMPLICIT NONE
@@ -358,55 +344,7 @@ C WINTER
  1500 FORMAT(E15.7,E15.7,11X)
                         RETURN
                         END
-        SUBROUTINE PDRAW
-C
-        IMPLICIT NONE
-C
-C       THIS SUB DOES THE DRAW COMMAND
-C
-        CHARACTER C*1,WS11*80
-     3  ,DRWNAM*11,BL140*140
-C
-      COMMON/DRWTAG/DRWNAM
-C
-        LOGICAL OPPLT
-        integer :: fNeut
-C
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATHGR.INC'
 
-        !OUTLYNE = "PDRAW SUBROUTINE"
-        !CALL SHOWIT(19)
-C       CHECK SYNTAX
-        IF(SST.EQ.1.OR.SN.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"DRAW" TAKES NO ADDITIONAL INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        ELSE
-                        END IF
-      OPEN28=.FALSE.
-      INQUIRE(UNIT=28,OPENED=OPEN28)
-      IF(OPEN28) CALL MY_ENDPLT
-      CALL CLOSE_FILE(28,1)
-      CALL OPEN_NEUTRAL_DAT(fNeut)
-      IF(.NOT.NODRAW) CALL DRAWIT
-        IF(.NOT.NOWMF) THEN
-      SAVE_KDP(22)=SAVEINPT(22)
-                INPUT='GRAOUT COLWMF PRG'
-                CALL PROCES
-      REST_KDP(22)=RESTINPT(22)
-                        END IF
-        IF(NODRAW) THEN
-      SAVE_KDP(22)=SAVEINPT(22)
-                 INPUT='GRAOUT REPLAY'
-                 CALL PROCES
-       REST_KDP(22)=RESTINPT(22)
-                END IF
-                        RETURN
-                        END
         SUBROUTINE LDRAW
         USE GLOBALS
 C

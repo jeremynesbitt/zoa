@@ -2315,11 +2315,6 @@ C       DO A FORCED RETURN TO CFG1
         COLDEF=14
         IU=0
         CALL PLTCAPCO(IU)
-        IF(IU.EQ.0) THEN
-        SAVE_KDP(1)=SAVEINPT(1)
-        INPUT='DRAW'
-        CALL PROCES
-        END IF
         REST_KDP(1)=RESTINPT(1)
         COLBAC=OCOLBAC
         COLDEF=OCOLDEF
@@ -2333,11 +2328,6 @@ C       DO A FORCED RETURN TO CFG1
         COLDEF=14
         IU=0
         CALL USER_CONTOUR(IU)
-        IF(IU.EQ.0) THEN
-        SAVE_KDP(1)=SAVEINPT(1)
-        INPUT='DRAW'
-        CALL PROCES
-        END IF
         REST_KDP(1)=RESTINPT(1)
         COLBAC=OCOLBAC
         COLDEF=OCOLDEF
@@ -2885,7 +2875,7 @@ C
         CALL PPLOTT
         RETURN
         END IF
-        IF(WC.EQ.'DRAW'.OR.WC.EQ.'LISTDRAW') THEN
+        IF(WC.EQ.'LISTDRAW') THEN
         !active_plot = ID_NEWPLOT_LENSDRAW
         CALL PPLOTT
         RETURN

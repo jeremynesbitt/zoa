@@ -60,7 +60,6 @@ C
         IF(WQ.EQ.'NEW')         PLQ=.TRUE.
         IF(WQ.EQ.'NAME')        PLQ=.TRUE.
         IF(WQ.EQ.'PEN')         PLQ=.TRUE.
-        IF(WC.EQ.'DRAW')        PLQ=.TRUE.
         IF(WC.EQ.'LISTDRAW')    PLQ=.TRUE.
         IF(WC.EQ.'DRAWFAN')     PLQ=.TRUE.
         IF(WC.EQ.'PLT_FAN')     PLQ=.TRUE.
@@ -250,9 +249,7 @@ C       PLOT END
 C
 C       LISTDRAW
         IF(WC.EQ.'LISTDRAW') CALL LDRAW
-C
-C       DRAW
-        IF(WC.EQ.'DRAW') CALL PDRAW
+
 
 C       DRAWFAN
         IF(WC.EQ.'DRAWFAN') CALL DRAWFAN

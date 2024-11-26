@@ -23,7 +23,6 @@
 # src/ui-rmsfield.f90 src/ROUTEDRAWING.f90 src/zoa-tab-manager.f90
 # src/zzhandlers.f90 src/ui-sys-config.f90 src/glass-manager.f90
 # src/lens-editor.f90 src/parax_calcs.f90 src/kdp-interfaces.f90
-# src/WDRAWOPTICALSYSTEM.f90
 
 src_c += files('zoa_utils.c')
 
@@ -77,7 +76,6 @@ srcs += files(
   'parax_calcs.f90',
   'kdp-interfaces.f90',
   'codeV-commands.f90',
-  'WDRAWOPTICALSYSTEM.f90',
   'zoa-file-handler.f90',
   'kdp-interfaces.f90',
   'kdp-seidel.f90',
