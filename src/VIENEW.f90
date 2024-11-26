@@ -48,6 +48,8 @@ SUBROUTINE VIE_psm(psm)
   CHARACTER VIEWQ*8
 !
   REAL(real64) ::  VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
+
+  logical :: OPEN28
 !
     INCLUDE 'DATMAI.INC'
     !INCLUDE 'DATLEN.INC'
@@ -474,6 +476,15 @@ END IF ! X plotting
 
   !IF(DFLAG.EQ.0) THEN
           SAVE_KDP(1)=SAVEINPT(1)
+
+
+  ! Run the end plot routine which adds the number of entries to NEUTARRAY.
+  ! TODO refactor this but for now just mimic what is in the DRAW command
+  ! Should no longer need the draw command after this.
+  OPEN28=.FALSE.
+  INQUIRE(UNIT=28,OPENED=OPEN28)
+  IF(OPEN28) CALL MY_ENDPLT
+  CALL CLOSE_FILE(28,1)          
 
   !INPUT='DRAW'
   !CALL PROCES

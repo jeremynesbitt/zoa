@@ -2650,7 +2650,7 @@ module codeV_commands
         !call ioConfig%setTextView(ID_TERMINAL_KDPDUMP) 
         cmd_loop = DRAW_LOOP
         call vie_go(curr_psm)
-        CALL PROCESKDP('DRAW')
+        !CALL PROCESKDP('DRAW')
         !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
         
         
