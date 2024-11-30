@@ -598,7 +598,7 @@ C
                 WCC(592)='ESEDY'
                 WCC(593)='PLOTR'
                 WCC(594)='PLOTT'
-                WCC(595)='DRAW'
+                !WCC(595)='DRAW'
                 WCC(596)='AC'
                 WCC(597)='PLIB'
                 WCC(598)='PSTAT'

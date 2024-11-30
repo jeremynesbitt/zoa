@@ -24,6 +24,8 @@ module optim_types
 
     contains
         procedure ::  genSaveOutputText
+        procedure ::  freezeAllSurfaces
+        procedure ::  removeAllConstraints
 
     end type
 
@@ -79,23 +81,40 @@ module optim_types
         operands(1)%name = 'SPO'
         operands(1)%func => getSPO
         constraints(1)%name = 'EFL'
-        constraints(1)%func => getEFLConstraint     
+        constraints(1)%func => getEFLConstraint    
+        constraints(2)%name = 'TCO'
+        constraints(2)%func => getTransverseComaConstraint             
 
     end subroutine
 
 
     function getSPO(self) result(res)
-        use DATSPD, only: RMS
+        use DATSPD, only: RMSX, RMSY, RMS
+        use plot_functions,only: getKDPSpotPlotCommand
+        use global_widgets, only: sysConfig
+        use zoa_ui
         implicit none
         class(operand) :: self
         !integer, optional :: iW, iF, density
         !real(long), optional :: px, py, hx, hy        
+        real(long), dimension(2,sysConfig%numFields) :: rmsxyData
         real(long) :: res
+        integer :: i
+        integer :: nRect , iLambda
 
+        iLambda = sysConfig%refWavelengthIndex
+        nRect = 20
 
-        CALL PROCESSILENT("SPD")
+        do i=1,sysConfig%numFields
+           call PROCESSILENT(trim(getKDPSpotPlotCommand(i, iLambda, ID_SPOT_RECT, nRect, -1, -1)))
+           rmsxyData(1,i) = RMSX
+           rmsxyData(2,i) = RMSY
+        end do
+        !CALL PROCESSILENT("SPD")
         !CALL PROCESSILENT("OPRD CFG, 1")
-        res = RMS
+        ! Error function is the average of the x and y value for each field point.
+
+        res = sum(rmsxyData)/size(rmsxyData)
 
     end function
 
@@ -115,10 +134,22 @@ module optim_types
         ! integer, optional :: iW, iF, density
         ! real(long), optional :: px, py, hx, hy        
         ! real(long) :: res
-        CALL PROCESSILENT("OPRD CFG, 1")
+        
         res = ldm%getEFL() - self%targ
 
     end function
+
+    function getTransverseComaConstraint(self) result(res)
+        use mod_analysis_manager
+        class(constraint) :: self
+        real(long) :: res
+        ! integer, optional :: iW, iF, density
+        ! real(long), optional :: px, py, hx, hy        
+        ! real(long) :: res
+        
+        res = am%getTransverseComa() - self%targ
+
+    end function    
 
     subroutine addOptimVariable(surf, int_code)
         use mod_lens_data_manager
@@ -461,5 +492,29 @@ module optim_types
 
 
     end subroutine
+
+    subroutine freezeAllSurfaces(self)
+        implicit none
+        class(optimizer) :: self
+        integer :: i
+
+        ! For now assume all variables are tied to surfaces.  Will need to revisit as more variables are supported
+
+        nV = 0
+        VARS(:,:) = 0
+        VARDATA(:,:) = 0.0_long
+
+        ! do i = nV,1,-1
+        ! end do
+
+    end subroutine freezeAllSurfaces
+
+    subroutine removeAllConstraints(self)
+        implicit none
+        class(optimizer) :: self
+
+        nC = 0 
+
+    end subroutine removeAllConstraints
 
 end module

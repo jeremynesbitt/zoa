@@ -18,6 +18,7 @@ module codeV_commands
     use iso_fortran_env, only: real64
     use plot_setting_manager
     use type_utils
+    use handlers, only: updateTerminalLog
 
 
 
@@ -176,7 +177,10 @@ module codeV_commands
         zoaCmds(546)%execFunc => updateEFLConstraint                         
         zoaCmds(547)%cmd = 'TAR'
         zoaCmds(547)%execFunc => execTAR     
-
+        zoaCmds(548)%cmd = 'FRZ'
+        zoaCmds(548)%execFunc => execFreeze    
+        zoaCmds(549)%cmd = 'TCO'
+        zoaCmds(549)%execFunc => updateTCOConstraint             
 
     end subroutine
 
@@ -508,6 +512,36 @@ module codeV_commands
                 VIEYOF =  INT(str2real8(tokens(2)))
             end if
         end if
+
+    end subroutine
+
+    subroutine execFreeze(iptStr)
+        
+        use type_utils, only: real2str, str2real8
+        use strings
+        use optim_types, only: optim
+        
+
+        implicit none
+
+        character(len=*) :: iptStr     
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if(numTokens == 2) then
+            if (tokens(2) == 'SA') then
+                call optim%freezeAllSurfaces()
+            end if
+            if (tokens(2) == 'CON') then
+                call optim%removeAllConstraints()
+            end if
+
+        else
+            call updateTerminalLog("Error!  FRZ must include a qualifier, such as SA to freeze control variables", "red")
+        end if
+        
 
     end subroutine
 
@@ -2176,6 +2210,48 @@ module codeV_commands
         end if
 
     end subroutine    
+
+    ! TODO:  Refactor with EFL constraint.  Just use tokens(1) ant that's it?
+    subroutine updateTCOConstraint(iptStr)
+        use command_utils, only : isInputNumber
+        use handlers, only: updateTerminalLog
+        use strings
+        use mod_lens_data_manager
+        use optim_types
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+          call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
+ 
+            select case(trim(tokens(2)))
+            case('=')
+                call addConstraint('TCO', str2real8(tokens(3)), eq=.TRUE.)
+            case('>')
+            case('<')
+            case default
+                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
+            end select
+        else
+            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
+        end if
+        else
+            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
+
+        end if
+
+    end subroutine        
+
     !Format RDY Sk Val
     subroutine setRadius()
         use command_utils, only : parseCommandIntoTokens
