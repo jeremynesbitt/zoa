@@ -1008,7 +1008,7 @@ C        CALL SPIDER
         CALL PRSLV
         RETURN
         END IF
-        IF(WC.EQ.'PIK') THEN
+        IF(WC.EQ.'PIKK') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL PRPIK
         RETURN

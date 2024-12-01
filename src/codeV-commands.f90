@@ -38,7 +38,7 @@ module codeV_commands
  end interface    
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(571) :: zoaCmds
+    type(zoa_cmd), dimension(581) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -151,7 +151,7 @@ module codeV_commands
         zoaCmds(533)%execFunc => execRayAberrationPlot                                    
         zoaCmds(534)%cmd = 'THO'
         zoaCmds(534)%execFunc => execSeidelBarChart
-        zoaCmds(535)%cmd = 'PLORMSFLD'
+        zoaCmds(535)%cmd = 'PLTRMS'
         zoaCmds(535)%execFunc => execRMSPlot
         zoaCmds(536)%cmd = 'XOFF'
         zoaCmds(536)%execFunc => execXOFF
@@ -180,7 +180,13 @@ module codeV_commands
         zoaCmds(548)%cmd = 'FRZ'
         zoaCmds(548)%execFunc => execFreeze    
         zoaCmds(549)%cmd = 'TCO'
-        zoaCmds(549)%execFunc => updateTCOConstraint             
+        zoaCmds(549)%execFunc => updateTCOConstraint   
+        zoaCmds(550)%cmd = 'FLP'
+        zoaCmds(550)%execFunc => flipSurfaces    
+        zoaCmds(551)%cmd = 'SCA'
+        zoaCmds(551)%execFunc => scaleSystem    
+        zoaCmds(552)%cmd = 'PIK'
+        zoaCmds(552)%execFunc => parsePickupInput                                   
 
     end subroutine
 
@@ -3074,6 +3080,217 @@ module codeV_commands
                 & trim(tokens(3))//';' // trim(tokens(4)),.TRUE.)                
             end if
         end select
+    end subroutine
+
+    subroutine flipSurfaces(iptStr)
+    
+        use global_widgets, only: sysConfig
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: real2str, int2str
+        use handlers, only: updateTerminalLog
+        use type_utils, only: int2str
+        use strings
+    
+        implicit none        
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        integer, allocatable :: surfs(:)
+
+        integer :: i, j
+        
+     
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        
+        surfs = cmd_parser_get_int_input_for_prefix('s', tokens(1:numTokens))
+
+        if (size(surfs) > 1) then
+            call PROCESSILENT('FLIP '// int2str(surfs(1))//","//int2str(surfs(size(surfs))))
+        else
+            call updateTerminalLog("Error!  Must have at least two surfaces to flip", "red")
+        end if
+
+
+    
+    end subroutine
+
+    subroutine scaleSystem(iptStr)
+        use strings
+        use handlers, only: updateTerminalLog
+        use command_utils, only : isInputNumber
+
+        implicit none        
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens == 3) then
+            select case(tokens(2))
+            case('EFL')
+                if (isInputNumber(tokens(3))) then
+                    call PROCESSILENT('SC FY, '//trim(tokens(3))// ", 0")
+
+                else
+                    call updateTerminalLog("Error!  Could not convert 3rd token to numeric value", "red")
+                end if
+            end select
+
+        else
+            call updateTerminalLog("Error!  SCA format is SCA VAR VAL.  Eg SCA EFL 50", "red")
+        end if
+        
+    end subroutine
+
+
+    function isInputSurfaceParameter(iptStr) result(boolResult)
+
+        implicit none
+
+        character(len=*) :: iptStr
+        logical :: boolResult
+
+        boolResult = .FALSE.
+
+        ! For now hard code this
+        if (iptStr == 'RDY' .or. iptStr == 'THI' .or. iptStr == 'GLA') then
+            boolResult = .TRUE.
+
+        end if
+
+    end function
+
+    subroutine setPickup(param1, si, sj, scale, offset, param2)
+        use GLOBALS, only: long
+        use type_utils
+
+        implicit none
+        character(len=*) :: param1
+        integer :: si, sj
+        real(long) :: scale, offset
+        character(len=*), optional :: param2 ! Not currently supported
+
+        character(len=6) :: kParam
+        logical :: scaleOffset
+
+        scaleOffset = .TRUE.
+
+        ! Translate 
+        select case (param1)
+        case('RDY')
+            kParam = 'RD'
+        case('THI')
+            kParam = 'TH'
+        case('GLA')
+            kParam = 'GLASS'
+            scaleOffset = .FALSE.
+        end select
+
+        if(scaleOffset) then
+            call PROCESSILENT("PIKUP "//trim(kParam)//","//int2str(si)//","//int2str(sj)//","//real2str(scale)//","//real2str(offset))
+        else
+            call PROCESSILENT("PIKUP "//trim(kParam)//","//int2str(si)//","//int2str(sj))
+        end if
+
+    end subroutine
+
+    !Format PIK PARAM Si [PARAM] Sj [sf off]
+    !Set value of Si based on Sj*sf + off and param2 if it exists
+
+    ! The error checking/parsing here is a mess.  There must be a better way but not confident enough of a design to 
+    ! eval this at present
+
+    subroutine parsePickupInput(iptStr)
+        use globals, only: long
+        use strings
+        use handlers, only: updateTerminalLog
+        use command_utils, only : isInputNumber
+
+        implicit none        
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens, si, sj
+        
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        select case(numTokens)
+        case (:3) ! < 4
+            call updateTerminalLog("Error!  Not enough arguments!  Format is PIK PARAM Si [PARAM] Sj [sf off]", "red")
+        case (4) ! Must be PIK PARAM Si Sj.  Scale/offset default (1 0)
+            si = getSurfNumFromSurfCommand(trim(tokens(3)))
+            sj = getSurfNumFromSurfCommand(trim(tokens(4)))
+            if (si == -1 .or. sj == -1) then
+                call updateTerminalLog("Error!  can't parse surfaces from arguments 3 and 4", "red")
+                return
+            end if
+            if (isInputSurfaceParameter(trim(tokens(2)))) then
+                call setPickup(trim(tokens(2)), si,sj, 1.0_long, 0.0_long)
+            else
+                call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" to known surface parameter", "red")
+            end if
+        case(5, 6) ! Can be either PIK PARAM Si PARAM Sj or PIK PARAM Si Sj sf          
+            ! The key to figuring out which is token 4
+            sj = getSurfNumFromSurfCommand(trim(tokens(4)))
+            if (sj == -1) then ! Either err or PIK PARAM Si PARAM Sj
+                si = getSurfNumFromSurfCommand(trim(tokens(3)))
+                sj = getSurfNumFromSurfCommand(trim(tokens(5)))
+                if (si == -1 .or. sj == -1) then
+                    call updateTerminalLog("Error!  can't parse surfaces from arguments 3 and 5", "red")
+                    return
+                else 
+                    if (isInputSurfaceParameter(trim(tokens(2))) .AND. isInputSurfaceParameter(trim(tokens(4)))) then
+                        if (numTokens == 6 .and. isInputNumber(trim(tokens(6)))) then
+                            call setPickup(trim(tokens(2)), si,sj, str2real8(trim(tokens(6))), 0.0_long, trim(tokens(5)))
+                        else
+                            call setPickup(trim(tokens(2)), si,sj, 1.0_long, 0.0_long, trim(tokens(5)))                            
+                        end if
+                    else
+                        call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
+                        & " to known surface parameter", "red")
+                    end if                      
+                end if
+            else ! Either Err or PIK PARAM Si Sj sf
+                si = getSurfNumFromSurfCommand(trim(tokens(3)))
+                if (si == -1) then
+                    call updateTerminalLog("Error!  can't parse surface from arguments 3 ", "red")
+                    return
+                else ! Still hope it's a proper command
+                    if (isInputSurfaceParameter(trim(tokens(2))) .AND. isInputNumber(trim(tokens(5)))) then
+                        call setPickup(trim(tokens(2)), si,sj, str2real8(trim(tokens(5))), 0.0_long)
+                    else
+                        call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
+                        & " to known surface parameter", "red")
+                    end if     
+                end if             
+
+            end if           
+        case(7) ! Finally only one option:  PIK PARAM Si PARAM Sj Sf off
+            si = getSurfNumFromSurfCommand(trim(tokens(3)))
+            sj = getSurfNumFromSurfCommand(trim(tokens(5)))
+            if (si == -1 .or. sj == -1) then
+                call updateTerminalLog("Error!  can't parse surfaces from arguments 3 and 5", "red")
+                return
+            else ! Continue with error checking
+            if (isInputSurfaceParameter(trim(tokens(2))) .AND. isInputSurfaceParameter(trim(tokens(4)))) then 
+                if (isInputNumber(trim(tokens(6))) .AND. isInputNumber(trim(tokens(7)))) then
+                    ! Finally got what we wanted!
+                    call setPickup(trim(tokens(2)), si,sj, str2real8(trim(tokens(6))), str2real8(trim(tokens(7))), trim(tokens(5)))
+                else
+                    call updateTerminalLog("Error!  Cannot parse scale or offset parameter", "red")
+                end if    
+            else
+                call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
+                & " to known surface parameter", "red")
+            end if
+                
+            end if
+
+        end select
+
     end subroutine
 
 

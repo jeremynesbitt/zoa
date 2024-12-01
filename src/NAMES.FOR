@@ -318,7 +318,7 @@ C
                 WCC(292)='FNBX'
                 WCC(293)='ERX'
                 WCC(294)='SPC'
-                WCC(295)='PIK'
+                WCC(295)='PIKK' ! Was PIK but changed to PIKK due to conflict with new PIK command
                 WCC(296)='SPSRF'
                 WCC(297)='PRSPR'
                 WCC(298)='COEF'

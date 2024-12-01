@@ -524,8 +524,8 @@ C
       IF(DF1.EQ.1) INPUT='SLV ALL'
       IF(DF1.EQ.0) INPUT='SLV '//IAW3
                 CALL PROCES
-      IF(DF1.EQ.1) INPUT='PIK ALL'
-      IF(DF1.EQ.0) INPUT='PIK '//IAW3
+      IF(DF1.EQ.1) INPUT='PIKK ALL'
+      IF(DF1.EQ.0) INPUT='PIKK '//IAW3
                 CALL PROCES
       IF(DF1.EQ.1) INPUT='SURTYPE ALL'
       IF(DF1.EQ.0) INPUT='SURTYPE '//IAW3

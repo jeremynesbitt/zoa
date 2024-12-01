@@ -115,7 +115,7 @@ contains
 
     character(len=100), target :: pltAst = "FIE; GO"
     character(len=100), target :: pltSpd = "SPO; GO"
-    character(len=100), target :: pltRMS = "PLORMSFLD; GO"
+    character(len=100), target :: pltRMS = "PLTRMS; GO"
     character(len=100), target :: pltSPR = "SPR"
 
     character(len=100), target :: syscon = "SYSCON"
