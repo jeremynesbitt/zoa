@@ -1467,7 +1467,7 @@ module codeV_commands
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; ASTOP; REFS';'EOS')
+                & '; ASTOP; REFS; EOS')
             else
 
             call updateTerminalLog("STO Should have a surface identifier (S0, Sk, Si, SA)", "red")
@@ -3100,7 +3100,7 @@ module codeV_commands
         integer :: numTokens
         integer, allocatable :: surfs(:)
 
-        integer :: i, j, iSto
+        integer :: i, j, iSto, iStoNew
         real :: symPlane
         
      
@@ -3118,11 +3118,11 @@ module codeV_commands
 
         !If stop surface is in list flip does not handle it.  So work it out here
         iSto = ldm%getStopSurf()
-        if (iSto >= surfs(1) .AND. iSto <= surfs(size(surfs)) then
+        if (iSto >= surfs(1) .AND. iSto <= surfs(size(surfs))) then
         ! Have to flip stop
           symPlane = getSymmetryPlane(surfs)
           iStoNew = INT(symPlane-iSto+symPlane)
-          call execSTO('STO '//trim(int2str(iStoNew))
+          call execSTO('STO '//trim(int2str(iStoNew)))
         end if
 
     
