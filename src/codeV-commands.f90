@@ -181,7 +181,7 @@ module codeV_commands
         zoaCmds(548)%execFunc => execFreeze    
         zoaCmds(549)%cmd = 'TCO'
         zoaCmds(549)%execFunc => updateTCOConstraint   
-        zoaCmds(550)%cmd = 'FLP'
+        zoaCmds(550)%cmd = 'FLY'
         zoaCmds(550)%execFunc => flipSurfaces    
         zoaCmds(551)%cmd = 'SCA'
         zoaCmds(551)%execFunc => scaleSystem    
@@ -423,6 +423,7 @@ module codeV_commands
         use global_widgets, only: sysConfig
         use command_utils, only: isInputNumber
         use type_utils, only: str2int
+        use strings
         implicit none
         character(len=*) :: prefix
         character(len=*), dimension(:) :: tokens
@@ -434,7 +435,7 @@ module codeV_commands
         
         if(size(tokens) > 1) then
             do i=2,size(tokens)
-                if (tokens(i)(1:len(prefix)) == prefix ) then
+                if (uppercase(tokens(i)(1:len(prefix))) == uppercase(prefix) ) then
                     userDefined = cmd_parser_get_integer_range(tokens(i)(2:len(tokens(i))), intArr)
 
                     !if (isInputNumber(tokens(i)(2:len(tokens)))) then
@@ -1466,7 +1467,7 @@ module codeV_commands
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; ASTOP; REFS')
+                & '; ASTOP; REFS';'EOS')
             else
 
             call updateTerminalLog("STO Should have a surface identifier (S0, Sk, Si, SA)", "red")
@@ -3090,6 +3091,7 @@ module codeV_commands
         use handlers, only: updateTerminalLog
         use type_utils, only: int2str
         use strings
+        use mod_lens_data_manager
     
         implicit none        
 
@@ -3098,22 +3100,49 @@ module codeV_commands
         integer :: numTokens
         integer, allocatable :: surfs(:)
 
-        integer :: i, j
+        integer :: i, j, iSto
+        real :: symPlane
         
      
         call parse(trim(iptStr), ' ', tokens, numTokens) 
         
         surfs = cmd_parser_get_int_input_for_prefix('s', tokens(1:numTokens))
+        
+
 
         if (size(surfs) > 1) then
-            call PROCESSILENT('FLIP '// int2str(surfs(1))//","//int2str(surfs(size(surfs))))
+            call PROCESSILENT('FLIP '//trim(int2str(surfs(1)))//","//trim(int2str(surfs(size(surfs)))))
         else
             call updateTerminalLog("Error!  Must have at least two surfaces to flip", "red")
         end if
 
+        !If stop surface is in list flip does not handle it.  So work it out here
+        iSto = ldm%getStopSurf()
+        if (iSto >= surfs(1) .AND. iSto <= surfs(size(surfs)) then
+        ! Have to flip stop
+          symPlane = getSymmetryPlane(surfs)
+          iStoNew = INT(symPlane-iSto+symPlane)
+          call execSTO('STO '//trim(int2str(iStoNew))
+        end if
 
     
     end subroutine
+    
+    ! THis should go somewhere else, but not sure where so keep it here for now
+    function getSymmetryPlane(surfs) result (midPoint)
+        implicit none
+        integer, dimension(:) :: surfs
+        real :: midPoint
+        
+        !if MOD(size(surfs(2)),2) then 
+        ! Odd
+           midPoint = size(surfs)/2.0 +0.5
+        !else
+        ! Even
+        !    midPoint = 
+        !end if
+
+    end function
 
     subroutine scaleSystem(iptStr)
         use strings
