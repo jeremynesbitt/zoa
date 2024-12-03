@@ -3117,12 +3117,12 @@ module codeV_commands
         end if
 
         !If stop surface is in list flip does not handle it.  So work it out here
-        iSto = ldm%getStopSurf()
+        iSto = ldm%getStopSurf()-1
         if (iSto >= surfs(1) .AND. iSto <= surfs(size(surfs))) then
         ! Have to flip stop
           symPlane = getSymmetryPlane(surfs)
           iStoNew = INT(symPlane-iSto+symPlane)
-          call execSTO('STO '//trim(int2str(iStoNew)))
+          call execSTO('STO S'//trim(int2str(iStoNew)))
         end if
 
     
@@ -3219,9 +3219,11 @@ module codeV_commands
         end select
 
         if(scaleOffset) then
-            call PROCESSILENT("PIKUP "//trim(kParam)//","//int2str(si)//","//int2str(sj)//","//real2str(scale)//","//real2str(offset))
+            call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
+                & trim(int2str(sj))//","//trim(real2str(scale))//","//trim(real2str(offset)), exitLensUpdate=.TRUE.)
         else
-            call PROCESSILENT("PIKUP "//trim(kParam)//","//int2str(si)//","//int2str(sj))
+            call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
+                & trim(int2str(sj)), exitLensUpdate=.TRUE.)
         end if
 
     end subroutine
