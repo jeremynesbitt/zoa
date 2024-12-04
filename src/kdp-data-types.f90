@@ -920,11 +920,11 @@ subroutine getFieldRefFromSystemArr(self)
   include "DATLEN.INC"
 
      PRINT *, "Getting Field Reference From System Array"
-     if (SYSTEM(18).EQ.0) THEN
+     if (SYSTEM(18).EQ.0.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
        PRINT *, "FIELD OBJECT HEIGHT SETTING FOUND"
        self%currFieldID = FIELD_OBJECT_HEIGHT
        !self%currApertureName = "Object Height"
-     else if (SYSTEM(18).EQ.1) THEN
+     else if (SYSTEM(18).EQ.1.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
        PRINT *, "FIELD OBJECT ANGLE DEGREE SETTING FOUND"
          self%currFieldID = FIELD_OBJECT_ANGLE_DEG
         !self%currApertureName = "Object Angle"
