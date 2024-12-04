@@ -1532,12 +1532,11 @@ subroutine updateFieldSelectionByCode(self, ID_SELECTION)
  case (FIELD_PARAX_IMAGE_HEIGHT)
    SYSTEM(92) = self%refFieldValue(1)  
    SYSTEM(93) = self%refFieldValue(2)      
-   SYSTEM(60)=0.0D0
-   SYSTEM(61)=0.0D0
+   SYSTEM(60)=1.0D0
+   SYSTEM(61)=1.0D0
    SYSTEM(94)=-1.0D0
    SYSTEM(95)=-1.0D0
-   SYSTEM(98)=0.0D0
-   SYSTEM(99)=0.0D0
+   SYSTEM(96:99)=0.0D0
 
  case (FIELD_PARAX_IMAGE_SLOPE_TAN)
    SYSTEM(92) = self%refFieldValue(1) 
