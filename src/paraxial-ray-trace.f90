@@ -427,6 +427,13 @@ module paraxial_ray_trace_test
     !       PICX'(0) AT OBJECT PICX'=PICX
                             PXTRAX(8,0)=PXTRAX(7,0)
     !
+            !JN:  If there is a mag solve set thickness here:
+             !L = 0
+          IF(ldm%isThiSolveOnSurf(0)) THEN   
+          !IF(SOLVE(6,L).NE.0.0D0) THEN
+            SLV1 = 0
+            CALL SLVRS
+          END IF                            
     !       THIS COMPLETES THE VALUES AT THE OBJECT SURFACE
                             L=1
                            SLV1=L

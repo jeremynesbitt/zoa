@@ -1841,7 +1841,7 @@ module codeV_commands
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
 
-        call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)))          
+        call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)), debugFlag=.TRUE.,exitLensUpdate=.TRUE.)          
 
     end subroutine
 
