@@ -186,8 +186,10 @@ module codeV_commands
         zoaCmds(551)%cmd = 'SCA'
         zoaCmds(551)%execFunc => scaleSystem    
         zoaCmds(552)%cmd = 'PIK'
-        zoaCmds(552)%execFunc => parsePickupInput                                   
-
+        zoaCmds(552)%execFunc => parsePickupInput 
+        zoaCmds(553)%cmd = 'RED'
+        zoaCmds(553)%execFunc => setMagSolve            
+        
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
@@ -303,10 +305,10 @@ module codeV_commands
             boolResult = .TRUE.
             return                 
 
-        case ('RED')
-            call setMagSolve()
-            boolResult = .TRUE.
-            return  
+        ! case ('RED')
+        !     call setMagSolve()
+        !     boolResult = .TRUE.
+        !     return  
 
         case ('SETC')
             call execSetCodeVCmd()
@@ -1828,20 +1830,32 @@ module codeV_commands
         end if
     end subroutine
 
-    subroutine setMagSolve()
-        use command_utils, only : parseCommandIntoTokens
+    subroutine setMagSolve(iptStr)
+        use strings
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
+        use command_utils, only: isInputNumber
         implicit none
 
+        character(len=*) :: iptStr
         character(len=80) :: tokens(40)
         integer :: numTokens
 
         include "DATMAI.INC"
 
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
 
-        call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)), debugFlag=.TRUE.,exitLensUpdate=.TRUE.)          
+        if (numTokens == 2) then
+            if (isInputNumber(tokens(2))) then
+                call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)), exitLensUpdate=.TRUE.) 
+            else
+                call updateTerminalLog("Error!  Unable to parse value "//trim(tokens(2))//" into number", "red")
+            end if   
+        else
+            call updateTerminalLog("Error!  Expecting RED X where X is the desired reduction factor", "red")
+        end if            
+
+        
 
     end subroutine
 
@@ -2894,7 +2908,7 @@ module codeV_commands
         tstCmds(13)%s = 'EPD'
         tstCmds(14)%s = 'CUY'
         tstCmds(15)%s = 'DEL'
-        tstCmds(16)%s = 'RED'
+        !tstCmds(16)%s = 'RED'
         tstCmds(17)%s = 'SETC'
         do i=1,size(zoaCmds)
             tstCmds(17+i)%s = zoaCmds(i)%cmd

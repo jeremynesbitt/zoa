@@ -1989,14 +1989,14 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   implicit none
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
-  real(kind=real64) :: magTgt, t0, thick0, uk1, u01, uk2, u02
-  real(kind=real64) :: mag, y, uTgt, uSlope, uOffset
+  real(kind=real64) :: magTgt, t0, thick0, uk1, u01, uk2, u02, dt
+  real(kind=real64) :: mag, y, uTgt, uSlope, uOffset, errAllowed
   real(kind=real64), dimension(5) :: tempSolveData
-  integer :: s1, s2
+  integer :: s1, s2, maxTries, i
 
   include "DATLEN.INC"
 
-  t0 = 10.0
+  t0 = 10.0 ! Arbitrary initialization
 
   ! Here is a brief description of the logic here
   ! paraxial lateral magnification can be calculated as (nu)_k-1/(n0uo)
@@ -2014,39 +2014,71 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   ! JN 2/20/24
 
 
+  ! JN 12/5/24
+  ! Add some logic here to deal with a larger range of initial thicknesses and improve convergence
+  maxTries = 10
+  errAllowed = .01
+
+
   s2 = lData%num_surfaces
   s1 = 1
   uk1 = self%marginal_ray_angle(s2)
   u01 = self%marginal_ray_angle(s1)
 
-  ! I don't actually use this here 
+  
   mag = lData%surf_index(s2)*self%marginal_ray_angle(s2) / &
   & (lData%surf_index(s1)*self%marginal_ray_angle(s1))
 
-  ! Need to turn off the solve if it is on.
-  ! TODO:  have a getter/setter fcn vs just having this global
-  tempSolveData(1:5) = SOLVE(3:7,0)
-  SOLVE(3:7,0) = 0.0D0
 
 
-  ! Adjust object thickness by a bit and recalculate
-  thick0 = lData%thicknesses(1)
-  CALL PROCESKDP("THI SO "//real2str(thick0+1)) ! arbitrary to choose +1mm
-
-  uk2 = self%marginal_ray_angle(s2)
-  u02 = self%marginal_ray_angle(s1)
-
-  ! Compute Slope and Offset
-  uSlope = (uk2-uk1)/(u02-u01)
-  uOffset = uk1-u01*uSlope
 
 
-  CALL PROCESKDP("THI SO "//real2str(thick0))
+    ! Need to turn off the solve if it is on.
+    ! TODO:  have a getter/setter fcn vs just having this global
+    tempSolveData(1:5) = SOLVE(3:7,0)
+    SOLVE(3:7,0) = 0.0D0
 
-  ! Finally ready to calculate new thickness
-  t0 = -1*self%marginal_ray_height(s1+1)*(magTgt*uSlope-1)/(magTgt*uOffset)
-  !call LogTermFOR("New Thickness is "//real2str(t0))
+    ! Adjust object thickness by a bit and recalculate
+    thick0 = lData%thicknesses(1)
+    ! Need to deal with the case that the thickness is at infinity.  Not sure this is the
+    ! best way but this is what I will try for now
+    if (thick0 > 1E11) then
+      thick0 = 200.0
 
+    end if
+
+    do i=1,maxTries
+      if (abs((mag-magTgt)/magTgt) < errAllowed) then 
+        ! We are done here
+        exit
+      end if
+
+
+
+    ! THis is also a bit of an arbitrary decision
+    dt = max(.01*thick0,1.0) 
+
+
+    CALL PROCESSILENT("THI SO "//real2str(thick0+dt)) 
+
+    uk2 = self%marginal_ray_angle(s2)
+    u02 = self%marginal_ray_angle(s1)
+
+    ! Compute Slope and Offset
+    uSlope = (uk2-uk1)/(u02-u01)
+    uOffset = uk1-u01*uSlope
+
+
+    CALL PROCESSILENT("THI SO "//real2str(thick0))
+
+    ! Finally ready to calculate new thickness
+    thick0 = -1*self%marginal_ray_height(s1+1)*(magTgt*uSlope-1)/(magTgt*uOffset)
+    !call LogTermFOR("New Thickness is "//real2str(t0))
+  end do
+
+  ! Finally, send the best guess at the thickness to the caller and restore the solve data
+
+  t0 = thick0
   !Restore Solve Data
   SOLVE(3:7,0) = tempSolveData(1:5)
 
