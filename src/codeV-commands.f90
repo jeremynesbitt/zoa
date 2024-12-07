@@ -188,7 +188,11 @@ module codeV_commands
         zoaCmds(552)%cmd = 'PIK'
         zoaCmds(552)%execFunc => parsePickupInput 
         zoaCmds(553)%cmd = 'RED'
-        zoaCmds(553)%execFunc => setMagSolve            
+        zoaCmds(553)%execFunc => setMagSolve           
+        zoaCmds(554)%cmd = 'TAS'
+        zoaCmds(554)%execFunc => updateTCOConstraint     
+        zoaCmds(555)%cmd = 'IMC'
+        zoaCmds(555)%execFunc => updateConstraint                    
         
     end subroutine
 
@@ -2192,6 +2196,49 @@ module codeV_commands
 
     end subroutine    
 
+
+    subroutine updateConstraint(iptStr)
+        use command_utils, only : isInputNumber
+        use handlers, only: updateTerminalLog
+        use strings
+        use mod_lens_data_manager
+        use optim_types
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+          call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
+ 
+            select case(trim(tokens(2)))
+            case('=')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.TRUE.)
+            case('>')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.FALSE., lb=.FALSE.,ub=.TRUE.)
+            case('<')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.FALSE., lb=.TRUE.,ub=.FALSE.)
+            case default
+                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
+            end select
+        else
+            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
+        end if
+        else
+            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
+
+        end if
+
+    end subroutine    
+
     subroutine updateEFLConstraint(iptStr)
         use command_utils, only : isInputNumber
         use handlers, only: updateTerminalLog
@@ -2218,7 +2265,9 @@ module codeV_commands
             case('=')
                 call addConstraint('EFL', str2real8(tokens(3)), eq=.TRUE.)
             case('>')
+                call addConstraint('EFL', str2real8(tokens(3)), eq=.FALSE., lb=.FALSE.,ub=.TRUE.)
             case('<')
+                call addConstraint('EFL', str2real8(tokens(3)), eq=.FALSE., lb=.TRUE.,ub=.FALSE.)
             case default
                 call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
             end select
@@ -2257,7 +2306,7 @@ module codeV_commands
  
             select case(trim(tokens(2)))
             case('=')
-                call addConstraint('TCO', str2real8(tokens(3)), eq=.TRUE.)
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.TRUE.)
             case('>')
             case('<')
             case default

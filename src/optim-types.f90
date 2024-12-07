@@ -15,8 +15,8 @@ module optim_types
     type :: constraint
        character(len=4) :: name
        real(long) :: con
-       logical :: exact ! bound if false
-       real(long) :: targ, ub, lb ! not all 3 are used
+       logical :: exact, lb, ub ! bound if false
+       real(long) :: targ 
        procedure (constraintFunc), pointer :: func ! share same interface for func
     end type
 
@@ -83,7 +83,13 @@ module optim_types
         constraints(1)%name = 'EFL'
         constraints(1)%func => getEFLConstraint    
         constraints(2)%name = 'TCO'
-        constraints(2)%func => getTransverseComaConstraint             
+        constraints(2)%func => getTransverseComaConstraint  
+        constraints(3)%name = 'TAS'
+        constraints(3)%func => getTransverseAstigmatismConstraint   
+        constraints(4)%name = 'PTB'
+        constraints(4)%func => getPetzvalBlurConstraint    
+        constraints(5)%name = 'IMC'
+        constraints(5)%func => setDistanceToImagePlaneConstraint                                     
 
     end subroutine
 
@@ -151,6 +157,48 @@ module optim_types
 
     end function    
 
+    function getTransverseAstigmatismConstraint(self) result(res)
+        use mod_analysis_manager
+        class(constraint) :: self
+        real(long) :: res
+        ! integer, optional :: iW, iF, density
+        ! real(long), optional :: px, py, hx, hy        
+        ! real(long) :: res
+        
+        res = am%getTransverseAstigmatism() - self%targ
+
+    end function        
+
+    function getPetzvalBlurConstraint(self) result(res)
+        use mod_analysis_manager
+        class(constraint) :: self
+        real(long) :: res
+        ! integer, optional :: iW, iF, density
+        ! real(long), optional :: px, py, hx, hy        
+        ! real(long) :: res
+        
+        res = am%getPetzvalBlur() - self%targ
+
+    end function      
+
+    function setDistanceToImagePlaneConstraint(self) result(res)
+        use mod_lens_data_manager
+        class(constraint) :: self
+        real(long) :: res
+        ! integer, optional :: iW, iF, density
+        ! real(long), optional :: px, py, hx, hy        
+        ! real(long) :: res
+        
+        res = ldm%getSurfThi(ldm%getLastSurf()-1)
+
+        if (self%exact .or. self%ub) then
+           res = res - self%targ
+        else ! lower bound
+            res = res - self%targ
+        end if
+
+    end function      
+
     subroutine addOptimVariable(surf, int_code)
         use mod_lens_data_manager
 
@@ -211,18 +259,20 @@ module optim_types
         if (idx.ne.0) then
             nC = nC +1
             constraintsInUse(nC) = constraints(idx)
+            constraintsInUse(nC)%targ = val
             !constraintsInUse(nC)%name = name 
             if(present(eq)) then
                 constraintsInUse(nc)%exact = .TRUE.
-                constraintsInUse(nC)%targ = val
             end if
             if(present(lb)) then
                 constraintsInUse(nc)%exact = .FALSE.
-                constraintsInUse(nC)%lb = val
+                constraintsInUse(nC)%ub = .FALSE.
+                constraintsInUse(nC)%lb = .TRUE.
             end if
             if(present(ub)) then
                 constraintsInUse(nc)%exact = .FALSE.
-                constraintsInUse(nC)%ub = val
+                constraintsInUse(nC)%ub = .TRUE.
+                constraintsInUse(nC)%lb = .FALSE.
             end if
         end if
                         
