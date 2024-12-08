@@ -192,7 +192,9 @@ module codeV_commands
         zoaCmds(554)%cmd = 'TAS'
         zoaCmds(554)%execFunc => updateTCOConstraint     
         zoaCmds(555)%cmd = 'IMC'
-        zoaCmds(555)%execFunc => updateConstraint                    
+        zoaCmds(555)%execFunc => updateConstraint    
+        zoaCmds(556)%cmd = 'PTB'
+        zoaCmds(556)%execFunc => updateConstraint            
         
     end subroutine
 

@@ -262,7 +262,7 @@ module optim_types
             constraintsInUse(nC)%targ = val
             !constraintsInUse(nC)%name = name 
             if(present(eq)) then
-                constraintsInUse(nc)%exact = .TRUE.
+                constraintsInUse(nc)%exact = eq
             end if
             if(present(lb)) then
                 constraintsInUse(nc)%exact = .FALSE.
