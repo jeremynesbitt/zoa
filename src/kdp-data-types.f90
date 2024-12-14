@@ -2,6 +2,7 @@
 module kdp_data_types
   use iso_c_binding, only:  c_ptr
   use iso_fortran_env, only: real64
+  use zoa_ui
   integer, parameter :: ASPH_NON_TORIC    = 1
   integer, parameter :: ASPH_TORIC_AXIS_Y = 2
   integer, parameter :: ASPH_TORIC_AXIS_X = 3
@@ -28,8 +29,6 @@ module kdp_data_types
   integer, parameter :: LENS_UNITS_MM = 3
   integer, parameter :: LENS_UNITS_M = 4
 
-  integer, parameter :: ID_PICKUP_RAD = 1
-  integer, parameter :: ID_PICKUP_THIC = 3  
   
   ! These are options for the solve adjustment drop down lists.  
   integer, parameter :: ID_SOLVE_NONE = 0
@@ -526,7 +525,6 @@ do I = 0,maxSurf-1
 end subroutine
 
 type(sys_config) function sys_config_constructor() result(self)
-  use zoa_ui
 
   include "DATLEN.INC"
 
@@ -611,7 +609,6 @@ type(sys_config) function sys_config_constructor() result(self)
 end function
 
 type(io_config) function io_config_constructor() result(self)
-use zoa_ui
 use iso_c_binding, only: c_null_ptr
 !implicit none
 
@@ -627,7 +624,6 @@ use iso_c_binding, only: c_null_ptr
 end function
 
 subroutine registerTextView(self, textView, idTextView)
-  use zoa_ui
   class(io_config) :: self
   type(c_ptr) :: textView
   integer :: idTextView
@@ -659,7 +655,7 @@ end subroutine
 
 
 subroutine setTextView(self, idTextView)
-  use zoa_ui
+
   class(io_config) :: self
 
   integer :: idTextView

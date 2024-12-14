@@ -174,8 +174,87 @@ integer, parameter :: ID_SETTING_WAVELENGTH_ALL = 101
 
 integer, parameter :: wlIndices(*) = [1,2,3,4,5,6,7,8,9,10,ID_SETTING_WAVELENGTH_ALL]
 
+! Variable Type codes
+integer, parameter :: VAR_CURV = 1
+integer, parameter :: VAR_THI = 2
 
 
+! Pikups (aka Pickups)
+! From original code:
+! C       PIKUPS ARE TRACKED IN ALENS(32,SURF). THE INTEGER VALUE
+! C       OF THE NUMBER STORED THERE IS THE NUMBER OF PIKUPS STORED
+! C       ON THAT PARTICULAR SURFACE. THE ACTUAL PIKUP DATA IS
+! C       STORED IN THE PIKUP ARRAY DIMMENSIONED
+! C
+! C               PIKUP(1:6,0:199,1:SPIK) WHERE THE FIRST DIMENSION
+! C                       STORES
+! C                       1=PIKUP EXISTENCE FLAG, WHICH IS
+! C                       1.0 IF THE PIKUP IS PRESENT AND 0.0
+! C                       IF THE PIKUP IS NOT PRESENT
+! C                       2 TO 6 STORE THE 5 NUMERIC WORDS
+! C                       6 STORES THE SOURCE CONFIGURATION FLAG
+! C                               THE SECOND DIMENSION
+! C                       STORES DATA FOR EACH OF THE MAXSUR SURFACES
+! C                               THE THIRD DIMMENSION ALLOWS
+! C                       FOR UP TO 45 DIFFERENT PIKUPS TO BE
+! C                       ASSIGNED TO A SURFACE AT ONE TIME
+! C
+! C
+! C       THE THIRD DIMENSION DESIGNATES THE TYPE OF PIKUP
+! C                       ENCODED AS:
+! C                       1=RD
+! C                       2=CV
+! C                       3=TH
+! C                       4=CC
+! C                       5=AD
+! C                       6=AE
+! C                       7=AF
+! C                       8=AG
+! C                       9=CVTOR
+! C                       10=RDTOR
+! C                       11=PRO
+! C                       12=NPRO
+! C                       13=YD
+! C                       14=XD
+! C                       15=ALPHA
+! C                       16=BETA
+
+! C                       17=GAMMA
+! C                       18=CLAP
+! C                       19=COBS
+! C                       20=GLASS
+! C                       21=CCTOR
+! C                       22=ADTOR
+! C                       23=AETOR
+! C                       24=AFTOR
+! C                       25=AGTOR
+! C                       26=AC
+! C                       27=AH
+! C                       28=AI
+! C                       29=AJ
+! C                       30=AK
+! C                       31=AL
+! C                       32=THOAL
+! C                       33=ZD
+! C                       34=PIVX
+! C                       35=PIVY
+! C                       36=PIVZ
+! C                       37=GDX
+! C                       38=GDX
+! C                       39=GDX
+! C                       40=GALPHA
+! C                       41=GBETA
+! C                       42=GGAMMA
+! C                       43=GRT
+! C                       44=COATING
+! C     FOR THOAL NW1 IS STARTING SURFACE NUMBER
+! C     FOR THOAL NW2 IS STOPPING SURFACE NUMBER
+! C     FOR THOAL NW3 IS MULTIPLICATIVE TERM
+! C     FOR THOAL NW4 IS ADDITIVE TERM
+! C     FOR THOAL NW5 IS SOURCE CONFIGURATION FLAG
+integer, parameter :: ID_PICKUP_RAD  = 1
+integer, parameter :: ID_PICKUP_CURV = 2
+integer, parameter :: ID_PICKUP_THIC = 3  
 contains
 
 

@@ -26,6 +26,7 @@ subroutine aut_go()
     integer,parameter               :: max_iter = 25          !! maximum number of allowed iterations
     real(long),dimension(nV) :: xl 
     real(long),dimension(nV) :: xu 
+    real(long),dimension(nV,3) :: VARDATA
  
     real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
     real(long),parameter              :: gradient_delta = 1.0e-4_wp 
@@ -51,9 +52,10 @@ subroutine aut_go()
     ! Move these to a type?  eg optimizer%getLowerBounds  Some type that does gathering.
     !xl = getLowerBounds()  !! lower bounds
     !x =  VARDATA(1:nV,1)
+    VARDATA = optim%gatherVariableData()
     xl = VARDATA(1:nV,2)  !! lower bounds
     xu = VARDATA(1:nV,3)  !! upper bounds
-    x = gatherInitialValues()
+    x =  VARDATA(1:nV,1)
     !x = [0.0_long, 0.00833_long, -0.02899_long] ! initial guess    
     
     meq = getNumberofEqualityConstraints()
@@ -324,113 +326,6 @@ subroutine test_func_spo_efl(me,x,f,c)
 
 end subroutine test_func_spo_efl
 
-
-subroutine aut_go_old()
-    use kdp_utils, only: OUTKDP
-    use DATLEN, only: PFAC
-    use DATSUB, only: VARABL
-    use DATMAI
-    use type_utils
-    real(kind=long) :: fmtOld, fmtTst, fmtLow, m, iDamp, fmtDamp
-    integer, parameter :: maxIter = 500
-    real(kind=long), dimension(maxIter) :: fmtArr
-    logical :: autConverge
-    integer :: i, endCode
-    integer, parameter :: nV = 1000
-    real(kind=long), dimension(nV) :: oldVars
-
-
-
-    ! ********************
-    ! Old way
-    ! Default merit function is spot diagram for now
-    !call PROCESKDP('MERIT; RMS,,,1;EOS')
-
-    ! ! Temp - print out statement
-    ! call outKDP("Iteration 0")
-    ! call PROCESKDP("FMT")    
-    ! call PROCESKDP("SUR SA")
-
-
-
-    ! !call PROCESKDP('OPSPOT RECT; OPRECT, 20')
-    ! call PROCESKDP('ITER; PFIND;ITER')
-
-    ! ! Temp - print out statement
-    ! call outKDP("Iteration 1")
-    ! call PROCESKDP("FMT")    
-    ! call PROCESKDP("SUR SA")
-    ! End Old way
-    ! *****************************
-
-
-    ! Brute force way.  Pseudocode.
-    ! Compute Merit function (Fold)
-    ! for each iteration
-    ! Compute new merit function (F) for current damping factor
-    ! Is F < Fold?
-    ! yes - decrease damping factor by m (m between 2..5)
-    ! compute F.  Pick damping factor that gives lowest F?
-    ! no - increase damping factor by m, compute F
-    ! test for convergence
-    ! if convergence test passes, exit loop
-    ! if it fails, then go to next iteration
-
-    ! Prepare for loop
-    autConverge = .FALSE.
-    !PFAC = 1E-7 ! Damping factor
-    m = 2 ! Scaling factor for damping factor
-    fmtLow = getMeritFunction()
-    fmtOld = fmtLow
-    call updateTerminalLog("Cycle number 0", "black")
-    call updateTerminalLog("Error Function = "//real2str(fmtLow), "black")
-    call PROCESKDP("SUR SA")
-    call updateTerminalLog("Cycle number 0", "black")
-    call updateTerminalLog("Error Function = "//real2str(fmtLow), "black")
-
-    do i=1,maxIter  
-        oldVars = VARABL(1:nV,4)
-        fmtDamp = getMeritFunction()  
-        call runIter(2,0,.FALSE.)
-        fmtTst = getMeritFunction()
-        call LogTermDebug("At start of iter i merit is "//real2str(fmtDamp))
-        call LogTermDebug("At start of iter i after solvit merit is "//real2str(fmtTst))
-        if (fmtTst < fmtLow) then
-            ! This is clearly a mess, but okay for testing
-            fmtOld = fmtLow
-            fmtLow = fmtTst
-            fmtTst = fmtOld
-            PFAC = PFAC/m
-        else ! went the wrong way
-            
-            PFAC = PFAC*m
-            call restoreLensFromVars(oldVars)
-            !call PROCESKDP("RESTORE")
-            fmtTst = getMeritFunction()
-            !call runIter(2,0,.FALSE.)
-            call LogTermDebug("Printing lens arter restore")
-            call PROCESKDP("SUR SA")
-        end if
-
-        call LogTermDebug("For Convergence Test, comparing "//real2str(fmtTst,4))
-        call LogTermDebug("To "//real2str(fmtLow,4))
-
-        autConverge = testAutConvergence(fmtLow, fmtTst, i, endCode)
-
-        ! Log stuff
-        call updateTerminalLog("Cycle number "//int2str(i), "black")
-        call updateTerminalLog("Error Function = "//real2str(fmtTst)// "(change = "// &
-        & real2str((fmtTst-fmtOld)/fmtOld)//")", "black")        
-        call PROCESKDP("SUR SA")
-        if (autConverge) then 
-            !call LogTermDebug("Ending iteration.  TODO:  Add endCode support")
-            call updateTerminalLog("Ending Auto algorithm.  Reached acceptable stopping point", "black")
-            return
-        end if        
-    end do
-
-
-end subroutine
 
 
 ! This was extracted from SOLVIT and added because the KDP command RESTORE wasn't working as I think it should

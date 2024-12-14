@@ -1,9 +1,12 @@
 module mod_lens_data_manager
     use iso_fortran_env, only: real64
-    use global_widgets, only: curr_lens_data, curr_par_ray_trace
-    use global_widgets, only: sysConfig    
+    use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
+    use globals, only: long
+    use zoa_ui
 
     type lens_data_manager
+
+    real(long), dimension(0:499,3) :: vars ! CCY THC GLC for now.  Hard code max of 500 surfaces.  Default is 100
    
     contains
      procedure, public, pass(self) :: getSurfThi, setSurfThi
@@ -21,12 +24,17 @@ module mod_lens_data_manager
      procedure :: getGlassName
      procedure :: updateThiOptimVars
      procedure :: updateCurvOptimVars
+     procedure :: setVarOnSurf
+     procedure :: isSolveOnSurf, isPikupOnSurf
+     procedure :: getCCYCodeAsStr, getTHCCodeAsStr
 
 
 
     end type
 
     type(lens_data_manager) :: ldm
+
+    
 
     contains
 
@@ -134,6 +142,7 @@ module mod_lens_data_manager
         IF(SOLVE(8,surfIdx).NE.0.0D0) boolResult = .TRUE.
 
     end function
+
 
     function getSurfCurv(self, surfIdx, useXZPlane) result(curv)
         use DATLEN, only: ALENS
@@ -248,6 +257,72 @@ module mod_lens_data_manager
 
     end subroutine
 
+    function isSolveOnSurf(self, surf, var_code) result(boolResult)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surf, var_code
+        logical :: boolResult
+
+        ! Default is false
+        boolResult = .FALSE.
+
+        select case (var_code)
+        case (VAR_CURV)
+            boolResult = self%isYZCurvSolveOnSurf(surf)
+        case (VAR_THI)
+            boolResult = self%isThiSolveOnSurf(surf)
+        end select
+
+    end function
+
+    ! TODO:  Refactor with solve?
+    function isPikupOnSurf(self, sur, var_code) result(boolResult)
+        use DATLEN
+        implicit none
+        class(lens_data_manager) :: self
+        integer, intent(in) :: sur, var_code
+        logical :: boolResult
+
+        ! Default is false
+        boolResult = .FALSE.
+
+        select case (var_code)
+        case (VAR_CURV)
+            if(PIKUP(1,sur, ID_PICKUP_RAD) == 1.0) boolResult = .TRUE.
+        case (VAR_THI)
+            if(PIKUP(1,sur,ID_PICKUP_THIC) == 1.0) boolResult = .TRUE.
+        end select
+
+    end function
+
+
+    subroutine setVarOnSurf(self, surf, var_code)
+        use kdp_utils
+        use type_utils, only: int2str
+        implicit none
+
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surf, var_code
+
+        ! Make sure there are no solves or pickups on the surface.  
+
+        if (self%isSolveOnSurf(surf, var_code)) then
+            call OUTKDP("Error!  Cannot add variable to surface "//int2str(surf)//" due to presence of solve.  Please remove it first")
+            return
+        end if
+        if (self%isPikupOnSurf(surf, var_code)) then
+            call OUTKDP("Error!  Cannot add variable to surface "//int2str(surf)//" due to presence of solve.  Please remove it first")
+            return
+        end if
+
+
+        ! Code is 0.  Place it in if var_code is within range
+        if (var_code > 0 .and. var_code <= ubound(self%vars,dim=2)) then 
+        self%vars(surf,var_code) = 0
+        end if
+                     
+
+    end subroutine
+
     !TODO:  Refactor with updateThiOptimVars
     subroutine updateCurvOptimVars(self, s0, sf, intCode)
         use type_utils
@@ -256,20 +331,40 @@ module mod_lens_data_manager
         integer, intent(in) :: s0, sf, intCode
         integer :: i
 
-        select case (intCode)
+        ! KDP code.  Had some problems with setting vars and reading old code so abandoned this for now (may regret this later)
+        ! select case (intCode)
 
-        case(0) ! Make Variable
+        ! case(0) ! Make Variable
+        !     if (s0==sf) then
+        !         CALL PROCESKDP('UPDATE VARIABLE ; CV, '//trim(int2str(s0))//'; EOS ')
+        !     else
+        !         call PROCESKDP('UPDATE VARIABLE')
+        !         do i=s0,sf
+        !             CALL PROCESKDP('CV, '//trim(int2str(i)))
+        !         end do
+        !         call PROCESKDP('EOS')
+        !     end if
+
+            
+
+        ! end select
+
+
+        select case (intCode)        
+        case(0) ! Make Variable if no pickups or solves on surface
             if (s0==sf) then
-                CALL PROCESKDP('UPDATE VARIABLE ; CV, '//trim(int2str(s0))//'; EOS ')
+                call self%setVarOnSurf(s0, VAR_CURV)
+               
+                                
             else
-                call PROCESKDP('UPDATE VARIABLE')
                 do i=s0,sf
-                    CALL PROCESKDP('CV, '//trim(int2str(i)))
+                    call self%setVarOnSurf(i, VAR_CURV)    
                 end do
-                call PROCESKDP('EOS')
             end if
 
-        end select
+            
+
+    end select        
 
         ! New Code
         !select case (intCode)
@@ -291,6 +386,42 @@ module mod_lens_data_manager
 
 
     end subroutine    
+
+    function getCCYCodeAsStr(self, si) result(outStr)
+        use type_utils
+
+        implicit none
+        
+        class(lens_data_manager) :: self
+        character(len=3) :: outStr
+        integer :: si
+
+        integer :: optimCode
+
+        outStr = '100'
+
+        outStr = int2str(INT(self%vars(si,1)))
+
+
+    end function
+
+    function getTHCCodeAsStr(self, si) result(outStr)
+        use type_utils
+
+        implicit none
+        
+        class(lens_data_manager) :: self
+        character(len=3) :: outStr
+        integer :: si
+
+        integer :: optimCode
+
+        outStr = '100'
+
+        outStr = int2str(INT(self%vars(si,2)))
+
+
+    end function    
 
 
 end module

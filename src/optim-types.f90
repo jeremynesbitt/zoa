@@ -1,5 +1,6 @@
 module optim_types
     use GLOBALS,only: long
+    use zoa_ui
 
     
     ! Try a similar design as the command parser - for each operand a function is supplied which will get the value.
@@ -26,6 +27,7 @@ module optim_types
         procedure ::  genSaveOutputText
         procedure ::  freezeAllSurfaces
         procedure ::  removeAllConstraints
+        procedure ::  gatherVariableData
 
     end type
 
@@ -50,9 +52,7 @@ module optim_types
 
  end interface        
 
-    ! Type codes
-    integer, parameter :: VAR_CURV = 1
-    integer, parameter :: VAR_THI = 2
+
 
 
     type(operand), dimension(100) :: operands
@@ -65,7 +65,7 @@ module optim_types
 
     integer :: nV !Number of variables
     integer :: VARS(1000,2) ! Hard code number of vars for now!  index 1 is surface, index 2 is var type
-    real(long) :: VARDATA(1000,3) ! Values of variables.  initial val, lb ub
+    !real(long) :: VARDATA(1000,3) ! Values of variables.  initial val, lb ub
 
     integer :: nO, nC ! number of operands and constraints in use
 
@@ -206,20 +206,20 @@ module optim_types
         integer :: surf, int_code
 
         nV = nV + 1
-        VARS(nV,1) = surf
-        VARS(nV,2) = int_code
+        ! VARS(nV,1) = surf
+        ! VARS(nV,2) = int_code
 
-        ! Store initial value and bounds
-        select case(int_code)
-        case(VAR_CURV)
-            VARDATA(nV,1) = ldm%getSurfCurv(surf)
-            VARDATA(nV,2) = -0.1*huge(0.0_long)
-            VARDATA(nV,3) = 0.1*huge(0.0_long)
-        case(VAR_THI)
-            VARDATA(nV,1) = ldm%getSurfThi(surf)
-            VARDATA(nV,2) = -0.1*huge(0.0_long)
-            VARDATA(nV,3) = 0.1*huge(0.0_long)           
-        end select
+        ! ! Store initial value and bounds
+        ! select case(int_code)
+        ! case(VAR_CURV)
+        !     VARDATA(nV,1) = ldm%getSurfCurv(surf)
+        !     VARDATA(nV,2) = -0.1*huge(0.0_long)
+        !     VARDATA(nV,3) = 0.1*huge(0.0_long)
+        ! case(VAR_THI)
+        !     VARDATA(nV,1) = ldm%getSurfThi(surf)
+        !     VARDATA(nV,2) = -0.1*huge(0.0_long)
+        !     VARDATA(nV,3) = 0.1*huge(0.0_long)           
+        ! end select
 
 
     end subroutine
@@ -464,31 +464,31 @@ module optim_types
 
     end subroutine    
 
-    function gatherInitialValues() result(x)
-        use mod_lens_data_manager
+    ! function gatherInitialValues() result(x)
+    !     use mod_lens_data_manager
 
-        implicit none
-        real(long), dimension(nV) :: x
-        integer :: i
+    !     implicit none
+    !     real(long), dimension(nV) :: x
+    !     integer :: i
 
-        do i=1,nV
+    !     do i=1,nV
 
-            ! Store current values
-            select case(VARS(i,2))
-            case(VAR_CURV)
-                VARDATA(i,1) = ldm%getSurfCurv(VARS(i,1))
+    !         ! Store current values
+    !         select case(VARS(i,2))
+    !         case(VAR_CURV)
+    !             VARDATA(i,1) = ldm%getSurfCurv(VARS(i,1))
 
-            case(VAR_THI)
-                VARDATA(i,1) = ldm%getSurfThi(VARS(i,1))
+    !         case(VAR_THI)
+    !             VARDATA(i,1) = ldm%getSurfThi(VARS(i,1))
             
-            end select
-        end do
+    !         end select
+    !     end do
 
-        x = VARDATA(1:nV,1)
+    !     x = VARDATA(1:nV,1)
 
         
 
-    end function
+    ! end function
 
     function getVarCmd(int_code) result(outCmd)
         integer :: int_code
@@ -544,15 +544,21 @@ module optim_types
     end subroutine
 
     subroutine freezeAllSurfaces(self)
+        use mod_lens_data_manager
         implicit none
         class(optimizer) :: self
-        integer :: i
+        integer :: i, j
 
         ! For now assume all variables are tied to surfaces.  Will need to revisit as more variables are supported
 
         nV = 0
-        VARS(:,:) = 0
-        VARDATA(:,:) = 0.0_long
+
+        do i=0,ldm%getLastSurf()
+            do j=1,ubound(ldm%vars, dim=2)
+                if (ldm%vars(i,j) == 0 ) ldm%vars(i,j) = 100
+            end do
+
+        end do
 
         ! do i = nV,1,-1
         ! end do
@@ -566,5 +572,43 @@ module optim_types
         nC = 0 
 
     end subroutine removeAllConstraints
+
+    function gatherVariableData(self) result(VARDATA)
+        use mod_lens_data_manager
+        implicit none
+        class(optimizer) :: self
+        real(long), dimension(nV,3) :: VARDATA
+        integer :: i, j, ctr
+
+        nV = nV + 1
+        !VARS(nV,1) = surf
+        !VARS(nV,2) = int_code
+
+        ! I don't like this but for live with it for now
+        ctr = 0
+
+        do i=0,ldm%getLastSurf()
+            do j=1,ubound(ldm%vars,dim=2)
+                if (ldm%vars(i,j) == 0) then
+                    ctr = ctr + 1
+                    VARDATA(ctr,1) = i
+                    VARDATA(ctr,2) = j
+        ! Store initial value and bounds
+                    select case(j)
+                    case(VAR_CURV)
+                        VARDATA(ctr,1) = ldm%getSurfCurv(i)
+                        VARDATA(ctr,2) = -0.1*huge(0.0_long)
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)
+                    case(VAR_THI)
+                        VARDATA(ctr,1) = ldm%getSurfThi(i)
+                        VARDATA(ctr,2) = -0.1*huge(0.0_long)
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)           
+                    end select
+                    
+                end if
+            end do
+        end do
+
+    end function
 
 end module
