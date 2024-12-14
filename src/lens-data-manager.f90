@@ -1,3 +1,6 @@
+!Notes:
+!It should be true that surfaces start from 0.  curr_lens_data is not stored this way
+!so this can lead to confusion
 module mod_lens_data_manager
     use iso_fortran_env, only: real64
     use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
@@ -13,7 +16,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getSurfThi, setSurfThi
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
-     procedure, public, pass(self) :: getSurfCurv
+     procedure, public, pass(self) :: getSurfCurv, getSurfRad
      procedure, public, pass(self) :: getSurfIndex
      procedure, public, pass(self) :: getLastSurf
      procedure, public, pass(self) :: getEFL
@@ -47,11 +50,19 @@ module mod_lens_data_manager
 
     function getGlassName(self, idx) result(strGlassName)
         use DATLEN, only: GLANAM
+        use type_utils, only: blankStr
+        implicit none
         class(lens_data_manager) :: self
         integer :: idx
-        character(len=30) :: strGlassName
+        character(len=15) :: strGlassName
 
         strGlassName = trim(GLANAM(idx,2))//'_'//trim(GLANAM(idx,1))
+
+        ! Zero out if we get AIR or LAST SURFACE
+        if (GLANAM(idx,2).EQ.'AIR') strGlassName = blankStr(len(strGlassName))
+        if (GLANAM(idx,2).EQ.'LAST SURFACE') strGlassName = blankStr(len(strGlassName))        
+
+
 
     end function
 
@@ -71,7 +82,8 @@ module mod_lens_data_manager
         class(lens_data_manager) :: self
         integer :: iStop
 
-        iStop = curr_lens_data%ref_stop
+        ! Since curr lens data is not a 0 indexed array, subtract 1
+        iStop = curr_lens_data%ref_stop-1
 
 
     end function
@@ -150,6 +162,16 @@ module mod_lens_data_manager
 
     end function
 
+    function getSurfRad(self, surfIdx) result (rad)
+        use DATLEN, only: ALENS
+        implicit none
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        real(kind=real64) :: rad
+
+        rad = curr_lens_data%radii(surfIdx+1)
+
+    end function
 
     function getSurfCurv(self, surfIdx, useXZPlane) result(curv)
         use DATLEN, only: ALENS

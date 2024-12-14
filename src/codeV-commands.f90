@@ -3102,7 +3102,7 @@ module codeV_commands
         end if
 
         !If stop surface is in list flip does not handle it.  So work it out here
-        iSto = ldm%getStopSurf()-1
+        iSto = ldm%getStopSurf()
         if (iSto >= surfs(1) .AND. iSto <= surfs(size(surfs))) then
         ! Have to flip stop
           symPlane = getSymmetryPlane(surfs)

@@ -8,7 +8,6 @@ module procedure execSUR
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str, blankStr, real2str
         use handlers, only: updateTerminalLog
-        use global_widgets, only: curr_lens_data
         use mod_lens_data_manager
     
         implicit none
@@ -35,30 +34,31 @@ module procedure execSUR
                 fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(10)//"GLA" &
                 & //blankStr(10)//"CCY"//blankStr(5)//"THC"//blankStr(5)//"GLC"
                 call updateTerminalLog(trim(fullLine), "black")
-                do ii=1,curr_lens_data%num_surfaces
-                    surfTxt = blankStr(2)//trim(int2str(ii-1))//":"
-                    ! Special Cases
-                    if(ii==1)                           surfTxt = "OBJ:"
-                    if(ii==curr_lens_data%ref_stop)     surfTxt = "STO:"
-                    if(ii==curr_lens_data%num_surfaces) surfTxt = "IMG:"
-                    if (curr_lens_data%radii(ii) == 0) then
+                ! 12/12/24:  Change this to 0 indexed surfaees
+                do ii=0,ldm%getLastSurf()
+                    surfTxt = ldm%getSurfName(ii)//':'
+                    if (ldm%getSurfRad(ii) == 0) then
                         radTxt = 'INFINITY'
-                    else
-                        radTxt = real2str(curr_lens_data%radii(ii),5)
+                    else ! Should abstract this with THI
+                        if(ldm%getSurfRad(ii) < 0) then
+                           radTxt = real2str(ldm%getSurfRad(ii),3)
+                        else
+                           radTxt = real2str(ldm%getSurfRad(ii),5)
+                        end if
                     end if
-                    if (curr_lens_data%thicknesses(ii) > 1e10) then
+                    if (ldm%getSurfThi(ii) > 1e10) then
                         thiTxt = 'INFINITY'
                     else
                         
-                        if (curr_lens_data%thicknesses(ii) < 0) then
-                            thiTxt = real2str(curr_lens_data%thicknesses(ii),3)
+                        if (ldm%getSurfThi(ii) < 0) then
+                            thiTxt = real2str(ldm%getSurfThi(ii),3)
                         else
-                            thiTxt = real2str(curr_lens_data%thicknesses(ii),5)
+                            thiTxt = real2str(ldm%getSurfThi(ii),5)
                         end if
 
                     end if
-                    glaTxt = curr_lens_data%glassnames(ii)
-
+                    glaTxt = ldm%getGlassName(ii)
+  
 
                     if (glaTxt(1:4).EQ.'REFL') then
                         rmdTxt = 'REFL'//blankStr(6)
@@ -71,7 +71,7 @@ module procedure execSUR
 
                     fullLine = surfTxt//blankStr(4)//trim(radTxt)// &
                     & blankStr(4)//trim(thiTxt)//blankStr(5)//rmdTxt &
-                    & //glaTxt//ldm%getCCYCodeAsStr(ii-1)//blankStr(5)//ldm%getTHCCodeAsStr(ii-1)//blankStr(5)         
+                    & //glaTxt//ldm%getCCYCodeAsStr(ii)//blankStr(5)//ldm%getTHCCodeAsStr(ii)//blankStr(5)         
 
 
                     call updateTerminalLog(trim(fullLine), "black")
@@ -96,22 +96,22 @@ module procedure execSUR
     end procedure
 
     function getGlassText(surf) result(glaTxt)
-        use global_widgets, only: curr_lens_data
         use type_utils, only: blankStr
+        use mod_lens_data_manager
         implicit none
         character(len=15) :: glaTxt
         integer, intent(in) :: surf
 
         glaTxt = blankStr(len(glaTxt))! Initialize
 
+        glaTxt = ldm%getGlassName(surf)
+        !glaTxt = curr_lens_data%glassnames(surf)
 
-        glaTxt = curr_lens_data%glassnames(surf)
 
-
-        if (glaTxt(1:1).NE.' ') then
-        !else
-            glaTxt = trim(curr_lens_data%glassnames(surf))//'_'//trim(curr_lens_data%catalognames(surf))
-        end if 
+        ! if (glaTxt(1:1).NE.' ') then
+        ! !else
+        !     glaTxt = trim(curr_lens_data%glassnames(surf))//'_'//trim(curr_lens_data%catalognames(surf))
+        ! end if 
 
         if (glaTxt(1:4).EQ.'REFL') then
             glaTxt = blankStr(len(glaTxt))         
