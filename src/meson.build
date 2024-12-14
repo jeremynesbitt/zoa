@@ -77,6 +77,7 @@ srcs += files(
   'parax_calcs.f90',
   'kdp-interfaces.f90',
   'codeV-commands.f90',
+  'codeV-sur.f90',
   'zoa-file-handler.f90',
   'kdp-interfaces.f90',
   'kdp-seidel.f90',
