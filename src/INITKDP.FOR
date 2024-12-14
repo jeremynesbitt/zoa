@@ -7,6 +7,7 @@
         use codeV_commands, only: initializeCmds
         use glass_manager
         use optim_types
+        use mod_lens_data_manager
 C
         IMPLICIT NONE
 C
@@ -136,6 +137,7 @@ C
         call initializeCmds()
         gdb = glassdb()
         call initializeOptimizer()
+        call ldm%initialize()
 C
 C       MAX SAVE/REST = 36 8/24/2006
 C

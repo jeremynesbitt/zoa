@@ -9,6 +9,7 @@ module mod_lens_data_manager
     real(long), dimension(0:499,3) :: vars ! CCY THC GLC for now.  Hard code max of 500 surfaces.  Default is 100
    
     contains
+     procedure :: initialize => init_ldm
      procedure, public, pass(self) :: getSurfThi, setSurfThi
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
@@ -37,6 +38,12 @@ module mod_lens_data_manager
     
 
     contains
+    subroutine init_ldm(self)
+        class (lens_data_manager) :: self
+        ! Set all vars to default
+        ldm%vars(:,:) = 100
+    
+    end subroutine
 
     function getGlassName(self, idx) result(strGlassName)
         use DATLEN, only: GLANAM
@@ -296,7 +303,6 @@ module mod_lens_data_manager
 
 
     subroutine setVarOnSurf(self, surf, var_code)
-        use kdp_utils
         use type_utils, only: int2str
         implicit none
 
@@ -306,11 +312,11 @@ module mod_lens_data_manager
         ! Make sure there are no solves or pickups on the surface.  
 
         if (self%isSolveOnSurf(surf, var_code)) then
-            call OUTKDP("Error!  Cannot add variable to surface "//int2str(surf)//" due to presence of solve.  Please remove it first")
+            call logtermFOR("Error!  Cannot add variable to surface "//int2str(surf)//" due to presence of solve.  Please remove it first")
             return
         end if
         if (self%isPikupOnSurf(surf, var_code)) then
-            call OUTKDP("Error!  Cannot add variable to surface "//int2str(surf)//" due to presence of solve.  Please remove it first")
+            call logtermFOR("Error!  Cannot add variable to surface "//int2str(surf)//" due to presence of solve.  Please remove it first")
             return
         end if
 

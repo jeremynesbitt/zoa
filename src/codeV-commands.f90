@@ -90,7 +90,7 @@ module codeV_commands
         zoaCmds(503)%cmd = "VIE"
         zoaCmds(503)%execFunc => execVie    
         zoaCmds(504)%cmd = "SUR"
-        zoaCmds(504)%execFunc => execSUR                                
+        zoaCmds(504)%execFunc => execSUR_new                                
         zoaCmds(505)%cmd = "STO"
         zoaCmds(505)%execFunc => execSTO    
         zoaCmds(506)%cmd = "S"
