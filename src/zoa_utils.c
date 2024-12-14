@@ -6,9 +6,13 @@
 
 
 #include <string.h> /* strlen, strstr */
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef MACOS
 #include <Cocoa/Cocoa.h>
+#include <dirent.h>
+#include <sys/types.h>
 #endif
 
 #ifdef WINDOWS
@@ -25,6 +29,50 @@
 //#include <sys/types.h>
 
  /* #include <gtk/gtk.h> */
+
+
+void list_files(const char *directory) {
+#ifdef WINDOWS
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+
+    char path[MAX_PATH];
+    snprintf(path, sizeof(path), "%s\\*", directory);
+
+    hFind = FindFirstFile(path, &findFileData);
+    if (hFind == INVALID_HANDLE_VALUE) {
+        printf("Error opening directory: %s\n", directory);
+        return;
+    }
+
+    do {
+        if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+            printf("%s\n", findFileData.cFileName);
+        }
+    } while (FindNextFile(hFind, &findFileData) != 0);
+
+    FindClose(hFind);
+
+#endif
+
+#ifdef MACOS
+    DIR *dir = opendir(directory);
+    struct dirent *entry;
+
+    if (dir == NULL) {
+        perror("Error opening directory");
+        return;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type != DT_DIR) {  // Ignore directories
+            printf("%s\n", entry->d_name);
+        }
+    }
+
+    closedir(dir);
+#endif
+}
 
 
 gboolean
