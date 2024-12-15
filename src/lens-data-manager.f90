@@ -250,21 +250,34 @@ module mod_lens_data_manager
         integer, intent(in) :: s0, sf, intCode
         integer :: i
 
-        select case (intCode)
+        !select case (intCode)
 
-        case(0) ! Make Variable
+        !case(0) ! Make Variable
+        !    if (s0==sf) then
+        !        CALL PROCESKDP('UPDATE VARIABLE ; TH, '//trim(int2str(s0))//'; EOS ')
+        !    else
+        !        call PROCESKDP('UPDATE VARIABLE')
+        !        do i=s0,sf
+        !            CALL PROCESKDP('TH, '//trim(int2str(i)))
+        !        end do
+        !        call PROCESKDP('EOS')
+        !    end if
+
+        !end select
+
+        select case (intCode)        
+        case(0) ! Make Variable if no pickups or solves on surface
             if (s0==sf) then
-                CALL PROCESKDP('UPDATE VARIABLE ; TH, '//trim(int2str(s0))//'; EOS ')
+                call self%setVarOnSurf(s0, VAR_THI)
+               
+                                
             else
-                call PROCESKDP('UPDATE VARIABLE')
                 do i=s0,sf
-                    CALL PROCESKDP('TH, '//trim(int2str(i)))
+                    call self%setVarOnSurf(i, VAR_THI)    
                 end do
-                call PROCESKDP('EOS')
             end if
 
-        end select
-
+    end select                
 
         ! New Code
         ! select case (intCode)
@@ -389,8 +402,6 @@ module mod_lens_data_manager
                     call self%setVarOnSurf(i, VAR_CURV)    
                 end do
             end if
-
-            
 
     end select        
 

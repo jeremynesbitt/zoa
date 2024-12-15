@@ -580,7 +580,7 @@ module optim_types
         real(long), dimension(nV,3) :: VARDATA
         integer :: i, j, ctr
 
-        nV = nV + 1
+        !nV = nV + 
         !VARS(nV,1) = surf
         !VARS(nV,2) = int_code
 
@@ -591,8 +591,8 @@ module optim_types
             do j=1,ubound(ldm%vars,dim=2)
                 if (ldm%vars(i,j) == 0) then
                     ctr = ctr + 1
-                    VARDATA(ctr,1) = i
-                    VARDATA(ctr,2) = j
+                    VARS(ctr,1) = i
+                    VARS(ctr,2) = j
         ! Store initial value and bounds
                     select case(j)
                     case(VAR_CURV)
