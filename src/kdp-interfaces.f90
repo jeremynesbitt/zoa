@@ -151,11 +151,28 @@ end subroutine POWSYM
 subroutine Sandbox()
   !use kdp_data_types, only: check_clear_apertures
   !use global_widgets
-  use optim_debug
+  use zoa_file_handler
+
+
+  implicit none
+
+  call printFilesInCurrentDirectory()
+
+  !use optim_debug
 
   !call check_clear_apertures(curr_lens_data)
   !call simple_matlab_link()
-  call test_slsqp
+  !call test_slsqp
+
+  ! C code
+  ! GDir *dir;
+  ! GError *error;
+  ! const gchar *filename;
+  
+  ! dir = g_dir_open(".", 0, &error);
+  ! while ((filename = g_dir_read_name(dir)))
+  !     printf("%s\n", filename);
+
 end subroutine
 
 ! This routine needs to be rewritten to be similar to the

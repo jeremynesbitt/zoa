@@ -30,6 +30,7 @@ module zoa_file_handler
         character(kind=c_char), dimension(*) :: url
         integer(c_int) :: browser_open_url
       end function
+
       end interface  
 
     contains
@@ -513,6 +514,45 @@ function genOutputLineWithSpacing(blnk, p1, p2, p3, p4) result(outStr)
   if(present(p4)) outStr = trim(outStr)//blnk//p4
 
 end function
+
+!Prototype func to eventually translate to list all files 
+!in a dir with a specific extension
+subroutine printFilesInCurrentDirectory()
+
+  use g
+  use gtk
+  use iso_c_binding
+  use gtk_sup
+
+  implicit none
+
+  type(c_ptr) :: dir, fptr
+  integer(c_int) :: dirTest
+  character(len=200) :: fpath
+  character(len=1024) :: pwd
+  logical :: boolLoop
+
+  dir = g_dir_open(".", 0_c_int, c_null_ptr)
+  boolLoop = .TRUE.
+  call get_environment_variable("PWD", pwd)
+  print *, "PWD is", pwd
+  do while (boolLoop)
+    fptr = g_dir_read_name(dir)
+    if (.not.c_associated(fptr)) then 
+      boolLoop = .FALSE.
+    else
+      call convert_c_string(fptr, fpath)
+      !print *, "fullpath is ", trim(pwd)//'/'//fpath
+      dirTest = g_file_test(trim(pwd)//getFileSep()//trim(fpath)//getFileSep(), G_FILE_TEST_IS_DIR)
+      !print *, "dirTest is ", dirTest
+      if (dirTest == 0) then
+        print *, "File is ", trim(fpath) 
+      end if
+    end if   
+    
+  end do
+  
+end subroutine
 
 !subroutine exportCurrentSessionToFile(fName)
 !  character(len=*) :: fName
