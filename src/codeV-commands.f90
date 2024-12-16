@@ -1518,7 +1518,8 @@ module codeV_commands
         character(len=1024) :: fullPath
         integer :: numTokens, locDot
 
-        call parse(trim(iptStr), ' ', tokens, numTokens)
+        !call parse(trim(iptStr), ' ', tokens, numTokens)
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
         if (numTokens == 2 ) then
             fName = trim(tokens(2))

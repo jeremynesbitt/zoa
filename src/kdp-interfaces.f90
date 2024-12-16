@@ -151,12 +151,17 @@ end subroutine POWSYM
 subroutine Sandbox()
   !use kdp_data_types, only: check_clear_apertures
   !use global_widgets
+  use codeV_commands, only: execRestore
   use zoa_file_handler
 
 
   implicit none
 
-  call printFilesInCurrentDirectory()
+        ! Restore lens from new save file system
+        !call execRestore('RES '//trim(getTempDirectory())//'currlens.zoa')  
+        call process_zoa_file(trim(getTempDirectory())//'currlens.zoa')
+  
+  !call printFilesInCurrentDirectory()
 
   !use optim_debug
 
