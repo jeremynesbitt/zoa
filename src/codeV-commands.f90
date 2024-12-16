@@ -1551,7 +1551,7 @@ module codeV_commands
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
-        use zoa_file_handler, only: open_file_to_sav_lens
+        use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory
         use optim_types, only: optim
         implicit none
 
@@ -1568,8 +1568,10 @@ module codeV_commands
 
         call LogTermFOR("Number of tokens is "//int2str(numTokens))
         select case(numTokens)
-        case (1) ! No file given save as default file name/dir
-           fName = 'default.zoa'
+        case (1) ! No file given save as current lens in temp folder
+           fName = 'currlens.zoa'
+           call updateTerminalLog("File name to save is "//trim(getTempDirectory())//trim(fName), "black")
+           fID = open_file_to_sav_lens(fName, getTempDirectory())
         case (2) ! Check for extension and add if needed 
             fName = trim(tokens(2))
             locDot = INDEX(fName, '.')
@@ -1577,9 +1579,10 @@ module codeV_commands
                 fName = trim(fName)//'.zoa'
             end if
             call updateTerminalLog("File name to save is "//trim(fName), "black")
+            fID = open_file_to_sav_lens(fName)
         end select
 
-        fID = open_file_to_sav_lens(fName)
+        
         if (fID /= 0) then
          
            call sysConfig%genSaveOutputText(fID)

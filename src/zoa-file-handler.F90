@@ -9,7 +9,7 @@ module zoa_file_handler
 
       character(len=1024) :: codevdir
       character(len=1024) :: savresDir
-      character(len=1024) :: currSaveDir
+      character(len=1024) :: currSaveDir, tempDir
 
       integer :: ID_SYSTEM = -1000
       integer, parameter :: ID_OS_WINDOWS = 3
@@ -164,6 +164,7 @@ module zoa_file_handler
         ! add this here.  Should probably go somewhere else.
         codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
         savresDir = trim(path)//getFileSep()//'Projects'//getFileSep()
+        tempDir   = trim(path)//getFileSep()//'Temp'//getFileSep()
 
         currSaveDir = savresDir
 
@@ -205,7 +206,11 @@ module zoa_file_handler
           fID = 1111
           ! This is to be stored in the savresDir
           if (present(dirName)) then
-            fullPath = dirName//getFileSep()//fName
+            if (dirName(len_trim(dirName):len_trim(dirName)) == getFileSep()) then
+              fullPath = dirName//fName
+            else
+              fullPath = dirName//getFileSep()//fName
+            end if
           else
             fullPath = trim(getSaveDirectory())//fName
           end if
@@ -475,6 +480,14 @@ function getSaveDirectory() result(saveDir)
   character(len=1024) :: saveDir
 
   saveDir = currSaveDir
+  
+end function
+
+
+function getTempDirectory() result(outDir)
+  character(len=1024) :: outDir
+
+  outDir = tempDir
   
 end function
 
