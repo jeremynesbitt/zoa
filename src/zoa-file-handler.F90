@@ -164,7 +164,7 @@ module zoa_file_handler
         ! add this here.  Should probably go somewhere else.
         codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
         savresDir = trim(path)//getFileSep()//'Projects'//getFileSep()
-        tempDir   = trim(path)//getFileSep()//'Temp'//getFileSep()
+        tempDir   = trim(path)//'Temp'//getFileSep()
 
         currSaveDir = savresDir
 
@@ -207,9 +207,9 @@ module zoa_file_handler
           ! This is to be stored in the savresDir
           if (present(dirName)) then
             if (dirName(len_trim(dirName):len_trim(dirName)) == getFileSep()) then
-              fullPath = dirName//fName
+              fullPath = trim(dirName)//trim(fName)
             else
-              fullPath = dirName//getFileSep()//fName
+              fullPath = trim(dirName)//getFileSep()//trim(fName)
             end if
           else
             fullPath = trim(getSaveDirectory())//fName
