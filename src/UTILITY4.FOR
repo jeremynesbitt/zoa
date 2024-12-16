@@ -756,6 +756,10 @@ C     CALL LENOUT
 C
         REWIND(UNIT=89)
       CALL CLOSE_FILE(89,1)
+
+      ! Save file in new format
+      call PROCESSILENT('SAV')
+
                         ELSE
 C       NO LENS DATA WAS AVAILABLE TO OUTPUT
                         END IF

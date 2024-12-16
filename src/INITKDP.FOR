@@ -8,6 +8,7 @@
         use glass_manager
         use optim_types
         use mod_lens_data_manager
+        use codeV_commands, only: execRestore
 C
         IMPLICIT NONE
 C
@@ -1475,6 +1476,9 @@ C     LENSTEXT.DAT HAS BEEN LOADED
  8888   BACKSPACE(UNIT=89)
         REWIND (UNIT=89)
         CALL CLOSE_FILE(89,1)
+        ! Restore lens from new save file system
+        call execRestore('RES '//getTempDirectory()//'currlens.zoa')
+
                        GO TO 8889
  8887   BACKSPACE(UNIT=89)
         BACKSPACE(UNIT=89)

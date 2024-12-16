@@ -1508,6 +1508,7 @@ module codeV_commands
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
         use zoa_file_handler, only: open_file_to_sav_lens
+        use strings
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1517,7 +1518,8 @@ module codeV_commands
         character(len=1024) :: fullPath
         integer :: numTokens, locDot
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
         if (numTokens == 2 ) then
             fName = trim(tokens(2))
             locDot = INDEX(fName, '.')
@@ -1571,7 +1573,7 @@ module codeV_commands
         case (1) ! No file given save as current lens in temp folder
            fName = 'currlens.zoa'
            call updateTerminalLog("File name to save is "//trim(getTempDirectory())//trim(fName), "black")
-           fID = open_file_to_sav_lens(fName, getTempDirectory())
+           fID = open_file_to_sav_lens(fName, dirName=getTempDirectory(), overwriteFlag=.TRUE.)
         case (2) ! Check for extension and add if needed 
             fName = trim(tokens(2))
             locDot = INDEX(fName, '.')

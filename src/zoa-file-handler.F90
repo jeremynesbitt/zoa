@@ -192,12 +192,13 @@ module zoa_file_handler
         end function
 
 
-        function open_file_to_sav_lens(fName, dirName) result(fID)
+        function open_file_to_sav_lens(fName, dirName, overwriteFlag) result(fID)
           use gtk_hl_dialog
           use iso_c_binding, only:  c_null_char
           implicit none
           character(len=*) :: fName
           character(len=*), optional :: dirName
+          logical, optional :: overwriteFlag
 
           integer :: fID, stat, resp
           character(len=80), dimension(2) :: msg
@@ -218,6 +219,14 @@ module zoa_file_handler
           call LogTermFOR('FUll Path is '//trim(fullPath))
           ! First check if file exists
           if (doesFileExist(trim(fullPath))) then
+            if(present(overwriteFlag)) then
+              ! write file and return
+              open(unit=fID, iostat=stat, file=trim(fullPath), &
+              & status='new', action="write")
+              if (stat /= 0) fID=0 ! Error
+              return 
+            end if
+              
             ! Ask user if they want to overwrite
             msg(1) = "Do you want to overwrite" 
             msg(2) = fName//" ?" 
