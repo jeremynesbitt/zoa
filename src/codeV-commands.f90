@@ -1502,12 +1502,13 @@ module codeV_commands
 
     subroutine execRestore(iptStr)
         !use global_widgets, only: curr_lens_data
-
+        use globals, only: TEST_MODE
+        use gtk_hl_dialog
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
-        use handlers, only: updateTerminalLog
-        use zoa_file_handler, only: open_file_to_sav_lens
+        use handlers, only: updateTerminalLog, zoatabMgr
+        use zoa_file_handler, only: open_file_to_sav_lens, doesFileExist
         use strings
         implicit none
 
@@ -1517,6 +1518,12 @@ module codeV_commands
         character(len=80) :: tokens(40)
         character(len=1024) :: fullPath
         integer :: numTokens, locDot
+        integer :: resp
+        character(len=80), dimension(3) :: msg
+
+        ! Temp vars
+        integer :: ios, n
+        character(len=200) :: line        
 
         !call parse(trim(iptStr), ' ', tokens, numTokens)
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
@@ -1530,6 +1537,40 @@ module codeV_commands
             call LogTermFOR("File name to restore is "//trim(fName))
             ! See if the file is in a known directory
             fullPath = getRestoreFilePath(trim(fName))
+
+        ! Only ask user for input if not in test mode
+            if (TEST_MODE.eqv..FALSE. .and. doesFileExist(trim(fullPath))) then
+                ! Step 1:  Ask user if they are sure
+                
+                msg(1) ="You are about to start a new lens system"
+                msg(2) = "Are you sure?"
+                msg(3) = "Press Cancel to abort."   
+              
+                resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK_CANCEL, &
+                     & "Warning"//c_null_char)
+                if (resp == GTK_RESPONSE_OK) then
+                  ! Ask user if they want to save current lens
+                  msg(1) = "Do you want to save current lens?"
+                  msg(2) = "Yes to add to lens database"
+                  msg(3) = "No to throw away"
+                  resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+                  & "Warning"//c_null_char)    
+                  if (resp == GTK_RESPONSE_YES) then    
+                    ! Add to database
+                    call PROCESKDP('LIB PUT')
+                  end if ! Yes to save current lens
+              
+                    ! Final question!  Ask the user if they want to close current tabs
+                    call zoatabMgr%closeAllTabs("dummy text at present")
+              
+                    ! Finally at the new lens process.  
+                else 
+                    ! If user aborted, log it
+                    call updateTerminalLog("New Lens Process Cancelled", "black")
+                end if ! add to lens database 
+                end if ! Test Mode
+                                  
+
             if (len(trim(fullPath)) > 1) then
                 call process_zoa_file(fullPath)
             else
@@ -2457,56 +2498,7 @@ module codeV_commands
         integer :: ios, n
         character(len=200) :: line
         
-        ! Only ask user for input if not in test mode
-        if (TEST_MODE.eqv..FALSE.) then
-        ! Step 1:  Ask user if they are sure
-        
-        msg(1) ="You are about to start a new lens system"
-        msg(2) = "Are you sure?"
-        msg(3) = "Press Cancel to abort."   
-      
-        resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK_CANCEL, &
-             & "Warning"//c_null_char)
-        if (resp == GTK_RESPONSE_OK) then
-          ! Ask user if they want to save current lens
-          msg(1) = "Do you want to save current lens?"
-          msg(2) = "Yes to add to lens database"
-          msg(3) = "No to throw away"
-          resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
-          & "Warning"//c_null_char)    
-          if (resp == GTK_RESPONSE_YES) then    
-            ! Add to database
-            call PROCESKDP('LIB PUT')
-          end if
-      
-            ! Final question!  Ask the user if they want to close current tabs
-            call zoatabMgr%closeAllTabs("dummy text at present")
-      
-            ! Finally at the new lens process.  
-      
-      
-            ! call PROCESKDP('LENS')
-            ! call PROCESKDP('WV, 0.635, 0.0, 0.0, 0.0, 0.0')
-            ! call PROCESKDP('UNITS MM')
-            ! call PROCESKDP('SAY, 10.0')
-            ! call PROCESKDP('CV, 0.0')
-            ! call PROCESKDP('TH, 0.10E+21')
-            ! call PROCESKDP('AIR')
-            ! call PROCESKDP('CV, 0.0')
-            ! call PROCESKDP('TH, 10.0')
-            ! call PROCESKDP('REFS')
-            ! call PROCESKDP('ASTOP')
-            ! call PROCESKDP('AIR')
-            ! call PROCESKDP('CV, 0.0')
-            ! call PROCESKDP('TH, 1.0')
-            ! call PROCESKDP('EOS')    
-      
-      else 
-        ! If user aborted, log it
-        call updateTerminalLog("New Lens Process Cancelled", "black")
-      end if
-      end if
-      
+
 
       ! Prototype for getting this from file
       !PRINT *, "attempting to open ",trim(basePath)//'Macros/newlens.zoa'

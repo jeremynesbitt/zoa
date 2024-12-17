@@ -8,7 +8,6 @@
         use glass_manager
         use optim_types
         use mod_lens_data_manager
-        use codeV_commands, only: execRestore
 C
         IMPLICIT NONE
 C
@@ -1476,8 +1475,8 @@ C     LENSTEXT.DAT HAS BEEN LOADED
  8888   BACKSPACE(UNIT=89)
         REWIND (UNIT=89)
         CALL CLOSE_FILE(89,1)
-        ! Restore lens from new save file system
-        call execRestore('RES '//getTempDirectory()//'currlens.zoa')
+        ! Restore lens from new save file system    
+        call process_zoa_file(trim(getTempDirectory())//'currlens.zoa')   
 
                        GO TO 8889
  8887   BACKSPACE(UNIT=89)
@@ -1490,6 +1489,7 @@ C     NO LENSTEXT EXISTS,OR AN ERROR EXITSED
           IN=OLDIN
         OPTMES=.TRUE.
         !PRINT *, "Got to line 1470"
+
 C
 C       SET UP DEFAULT MERIT FUNCTION CONDITIONS
 C       DFGRID=1 (HEX) OR =2 FOR (RECT-THE DEFAULT)
@@ -1675,6 +1675,8 @@ C      GO TO 1
 C
       
       call logger%logText('End of INITKDP')
+
+
       !call PROCESKDP('SANDBOX')
       !call PROCESKDP('EXIT')
 
