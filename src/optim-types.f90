@@ -513,10 +513,16 @@ module optim_types
         integer :: fID
         integer :: i
         character(len=1) :: q
+        real(long),dimension(nV,3) :: VARDATA
 
         if (nV > 0 .OR. nC > 0 .OR. nO > 0) then
             write(fID, *) "! Merit"
         if (nV > 0) then
+                ! No guarantee that var data has been gathered so do this first.  Don't need
+                ! VARDATA but I am kinda stuck with it so receive it here
+
+                VARDATA = optim%gatherVariableData()
+                ! Once VARS is properly populated, spit it out
                 do i=1,nV
                     write(fID,*) trim(getVarCmd(VARS(i,2)))//" S"//trim(int2str(VARS(i,1)))//" 0"
                 end do
@@ -580,7 +586,7 @@ module optim_types
         real(long), dimension(nV,3) :: VARDATA
         integer :: i, j, ctr
 
-        !nV = nV + 
+        nV = nV + 1
         !VARS(nV,1) = surf
         !VARS(nV,2) = int_code
 

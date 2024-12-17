@@ -33,7 +33,6 @@ module mod_lens_data_manager
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
 
 
-
     end type
 
     type(lens_data_manager) :: ldm

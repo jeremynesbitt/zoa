@@ -1597,6 +1597,7 @@ module codeV_commands
         use handlers, only: updateTerminalLog
         use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory
         use optim_types, only: optim
+        use mod_lens_data_manager
         implicit none
 
         !class(zoa_cmd) :: self
