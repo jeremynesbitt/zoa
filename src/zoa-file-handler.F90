@@ -513,6 +513,14 @@ function getFileNameFromPath(fileName) result(res)
 
 end function
 
+function getMacroDir() result (outDir)
+
+  character(len=1024) :: outDir
+
+  outDir = trim(getZoaPath())//'MACROS'//getFileSep()
+
+end function
+
 function getPermMacroDir() result(permDir)
   ! Eventually want to support user changing directories
   ! For now use this fcn to put all directory changes in
@@ -536,6 +544,54 @@ function genOutputLineWithSpacing(blnk, p1, p2, p3, p4) result(outStr)
   if(present(p4)) outStr = trim(outStr)//blnk//p4
 
 end function
+
+subroutine getListofFilesInDirectory(dirName, extension, outList, iL)
+
+  use g
+  use gtk
+  use iso_c_binding
+  use gtk_sup
+  use strings
+
+  implicit none
+
+  character(len=*), intent(in) :: dirName, extension
+  character(len=*), dimension(:), intent(inout) :: outList
+  integer :: iL ! Number of items in array
+
+  type(c_ptr) :: dir, fptr
+  integer(c_int) :: dirTest
+  character(len=200) :: fpath
+  logical :: boolLoop
+  integer :: extLoc
+
+
+  dir = g_dir_open(dirName, 0_c_int, c_null_ptr)
+  iL = 0
+  boolLoop = .TRUE.
+  do while (boolLoop)
+    fptr = g_dir_read_name(dir)
+    if (.not.c_associated(fptr)) then 
+      boolLoop = .FALSE.
+    else
+      call convert_c_string(fptr, fpath)
+      !print *, "fullpath is ", trim(pwd)//'/'//fpath
+      dirTest = g_file_test(dirName//getFileSep()//trim(fpath)//getFileSep(), G_FILE_TEST_IS_DIR)
+      !print *, "dirTest is ", dirTest
+      if (dirTest == 0) then
+        extLoc = index(trim(fpath), extension, .TRUE.)
+        if (len_trim(fpath)-extLoc == len(extension)) then ! Finally found what we are looking for!
+          iL = iL+1
+          outList(iL:iL) = trim(fpath)
+        print *, "File is ", trim(fpath)
+        end if 
+      end if
+    end if   
+    
+  end do  
+
+
+end subroutine
 
 !Prototype func to eventually translate to list all files 
 !in a dir with a specific extension

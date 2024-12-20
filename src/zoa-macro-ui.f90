@@ -184,15 +184,18 @@ module zoa_macro_ui
   end subroutine
 
   subroutine populatemacrolist()
-
+    use zoa_file_handler
+     
     character(len=8) :: line
     integer :: i, ltr, NUMINLIST
-    CHARACTER(len=8), dimension(1024) :: MACARRAY
+    CHARACTER(len=1024), dimension(1024) :: MACARRAY
+    !! This is a FORD test!
 
     call hl_gtk_list1_rem(ihlist)
     call logger%logText("About to call MACARRAY_LOAD")
     ! Now put 10 rows into it
-    CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
+    call getListofFilesInDirectory(getMacroDir(), '.zoa', MACARRAY, NUMINLIST)
+    !CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
     PRINT *, "NUMINLIST IS ", NUMINLIST
     do i=1,NUMINLIST-1
        !write(line,"('List entry number ',I0)") i
@@ -200,7 +203,7 @@ module zoa_macro_ui
        line = MACARRAY(i)
        !line(ltr:ltr)=c_null_char
        print *, line
-       call hl_gtk_list1_ins(ihlist, line//c_null_char)
+       call hl_gtk_list1_ins(ihlist, trim(line)//c_null_char)
 
     end do
 
