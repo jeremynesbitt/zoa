@@ -194,10 +194,10 @@ module zoa_macro_ui
     call hl_gtk_list1_rem(ihlist)
     call logger%logText("About to call MACARRAY_LOAD")
     ! Now put 10 rows into it
-    call getListofFilesInDirectory(getMacroDir(), '.zoa', MACARRAY, NUMINLIST)
+    call getListofFilesInDirectory(trim(getMacroDir()), '.zoa', MACARRAY, NUMINLIST)
     !CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
     PRINT *, "NUMINLIST IS ", NUMINLIST
-    do i=1,NUMINLIST-1
+    do i=1,NUMINLIST
        !write(line,"('List entry number ',I0)") i
        !ltr=len_trim(line)+1
        line = MACARRAY(i)

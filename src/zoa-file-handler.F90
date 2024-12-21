@@ -566,7 +566,7 @@ subroutine getListofFilesInDirectory(dirName, extension, outList, iL)
   integer :: extLoc
 
 
-  dir = g_dir_open(dirName, 0_c_int, c_null_ptr)
+  dir = g_dir_open(dirName//c_null_char, 0_c_int, c_null_ptr)
   iL = 0
   boolLoop = .TRUE.
   do while (boolLoop)
@@ -580,7 +580,9 @@ subroutine getListofFilesInDirectory(dirName, extension, outList, iL)
       !print *, "dirTest is ", dirTest
       if (dirTest == 0) then
         extLoc = index(trim(fpath), extension, .TRUE.)
-        if (len_trim(fpath)-extLoc == len(extension)) then ! Finally found what we are looking for!
+        print *, "Len of trim(fpath) is ", len_trim(fpath)
+        print *, "Len of extension is ", len(extension)
+        if (len_trim(fpath)-extLoc + 1 == len(extension)) then ! Finally found what we are looking for!
           iL = iL+1
           outList(iL:iL) = trim(fpath)
         print *, "File is ", trim(fpath)
