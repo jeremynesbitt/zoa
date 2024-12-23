@@ -3333,10 +3333,10 @@ module codeV_commands
         if (numTokens==2) then
 
             ! Look for special code
-            locStr = index(trim(tokens(2)), 'zoa_macro:')
+            locStr = index(trim(tokens(2)), uppercase('zoa_macro:'))
 
             if (locStr .ne. 0) then 
-                fileName = tokens(2)(len('zoa_macro:'):len_trim(tokens(2)))
+                fileName = tokens(2)(len('zoa_macro:')+1:len_trim(tokens(2)))
                 locDot = INDEX(fileName, '.')
                 if (locDot == 0) then
                     fileName = trim(fileName)//'.zoa'

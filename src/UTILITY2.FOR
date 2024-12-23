@@ -3924,8 +3924,10 @@ C     THIS ALLOWS RTG? TO BE READ AS RTG ?
                        END IF
                        END DO
 C       PRO0 ADDS A COMMA BETWEEN ANY CHARACTER AND A COLON
-C       IF THE CHARACTER IS NOT A BLANK OR A COMMA  2/14/94
-                CALL PRO0
+C       IF THE CHARACTER IS NOT A BLANK OR A COMMA  2/14/
+        !JN - don't want this behaviour so commenting it out and
+        ! crossing my fingers it doesn't break anything
+        !        CALL PRO0
 C
 C     TAKE OUT SPACES INFRONT OF A COMMA
       OLYNE(1:140)=INPUT(1:140)
