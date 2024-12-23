@@ -271,9 +271,10 @@ module zoa_file_handler
 
       end subroutine
 
-      subroutine process_zoa_file(fileName)
+      subroutine process_zoa_file(fileName, printOnly)
         implicit none
         character(len=*) :: fileName
+        logical, optional :: printOnly
         integer :: n, ios
         character(len=256) :: line
 
@@ -290,8 +291,12 @@ module zoa_file_handler
               close(99)
               return
             else
-              call LogTermFOR("Processing "//trim(line))
-              call PROCESKDP(trim(line))
+              !call LogTermFOR("Processing "//trim(line))
+              if (present(printOnly)) then 
+                call LogTermFOR(trim(line))
+              else
+                call PROCESKDP(trim(line))
+              end if                
             end if
             n = n + 1
         end do      

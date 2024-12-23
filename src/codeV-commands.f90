@@ -201,7 +201,9 @@ module codeV_commands
         zoaCmds(555)%cmd = 'IMC'
         zoaCmds(555)%execFunc => updateConstraint    
         zoaCmds(556)%cmd = 'PTB'
-        zoaCmds(556)%execFunc => updateConstraint            
+        zoaCmds(556)%execFunc => updateConstraint   
+        zoaCmds(557)%cmd = 'PRT'
+        zoaCmds(557)%execFunc => printFile                    
         
     end subroutine
 
@@ -3307,6 +3309,52 @@ module codeV_commands
         end select
 
     end subroutine
+
+    subroutine printFile(iptStr)
+        !! Format:  PRT file.  Will output a file (if it exists) to the console
+        !  file is either just a file name or with a special prefix to look in a specific folder.
+        ! At present, two options are supported.  
+        ! PRT file - looks for a file in the project folder
+        ! PRT zoa_macro:file.  Looks for file in the macros directory
+        use zoa_file_handler
+        use command_utils, only: isInputNumber
+        use type_utils, only: real2str, str2real8
+        use strings
+
+        implicit none
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, locStr, locDot
+        character(len=256) :: fileName
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens==2) then
+
+            ! Look for special code
+            locStr = index(trim(tokens(2)), 'zoa_macro:')
+
+            if (locStr .ne. 0) then 
+                fileName = tokens(2)(len('zoa_macro:'):len_trim(tokens(2)))
+                locDot = INDEX(fileName, '.')
+                if (locDot == 0) then
+                    fileName = trim(fileName)//'.zoa'
+                end if
+                call process_zoa_file(trim(getMacroDir())//trim(fileName), printOnly=.TRUE.)
+            else
+                fileName = trim(tokens(2))
+                locDot = INDEX(fileName, '.')
+                if (locDot == 0) then
+                    fileName = trim(fileName)//'.zoa'
+                end if                
+                call process_zoa_file(trim(getRestoreFilePath(trim(fileName))), printOnly=.TRUE.)
+
+            end if
+
+        end if
+
+    end subroutine    
 
 
         !        

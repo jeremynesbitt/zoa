@@ -186,7 +186,7 @@ module zoa_macro_ui
   subroutine populatemacrolist()
     use zoa_file_handler
      
-    character(len=8) :: line
+    character(len=24) :: line
     integer :: i, ltr, NUMINLIST
     CHARACTER(len=1024), dimension(1024) :: MACARRAY
     !! This is a FORD test!
