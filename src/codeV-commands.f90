@@ -1501,8 +1501,31 @@ module codeV_commands
 
 
 
-
     subroutine execRestore(iptStr)
+        use handlers, only: updateTerminalLog
+        use strings
+
+        implicit none
+        character(len=*) :: iptStr
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, locStr, locDot
+        character(len=256) :: fileName
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens==2) then
+            call processZoaFileInput(trim(tokens(2)))
+
+        else
+            call updateTerminalLog("Error!  Expect two inputs, eg RES file or RES zoa_macro:file", "red")
+
+
+        end if
+
+    end subroutine
+
+    subroutine execRestore_old(iptStr)
         !use global_widgets, only: curr_lens_data
         use globals, only: TEST_MODE
         use gtk_hl_dialog
@@ -3310,6 +3333,57 @@ module codeV_commands
 
     end subroutine
 
+
+    subroutine processZoaFileInput(iptStr, printOnly)
+        use globals, only: TEST_MODE
+        use strings
+        use zoa_file_handler
+        implicit none
+        character(len=*) :: iptStr
+        logical, optional :: printOnly
+        integer :: locStr, locDot
+        character(len=1024) :: fileName
+
+            ! Look for special code
+        locStr = index(iptStr, uppercase('zoa_macro:'))
+
+        if (locStr .ne. 0) then 
+            fileName = iptStr(len('zoa_macro:')+1:len_trim(iptStr))
+            locDot = INDEX(fileName, '.')
+            if (locDot == 0) then
+                fileName = trim(fileName)//'.zoa'
+            end if
+            fileName = trim(getMacroDir())//trim(fileName)
+            if (doesFileExist(trim(fileName))) then
+            if (present(printOnly)) then
+                call process_zoa_file(trim(fileName), printOnly=.TRUE.)
+            else 
+                call process_zoa_file(trim(fileName))
+            end if
+            end if ! Does file exist
+
+        else ! Look in main directory
+            fileName = trim(iptStr)
+            locDot = INDEX(fileName, '.')
+            if (locDot == 0) then
+                fileName = trim(fileName)//'.zoa'
+            end if    
+
+            fileName = getRestoreFilePath(trim(fileName))
+
+            if (doesFileExist(trim(fileName))) then
+                if (present(printOnly)) then
+                    call process_zoa_file(trim(fileName), printOnly=.TRUE.)
+                else
+                    call process_zoa_file(trim(trim(fileName)))
+                end if   
+            end if
+                    
+        end if        
+
+
+    end subroutine
+
     subroutine printFile(iptStr)
         !! Format:  PRT file.  Will output a file (if it exists) to the console
         !  file is either just a file name or with a special prefix to look in a specific folder.
@@ -3317,6 +3391,7 @@ module codeV_commands
         ! PRT file - looks for a file in the project folder
         ! PRT zoa_macro:file.  Looks for file in the macros directory
         use zoa_file_handler
+        use handlers, only: updateTerminalLog
         use command_utils, only: isInputNumber
         use type_utils, only: real2str, str2real8
         use strings
@@ -3331,26 +3406,11 @@ module codeV_commands
         call parse(trim(iptStr), ' ', tokens, numTokens) 
 
         if (numTokens==2) then
+            call processZoaFileInput(trim(tokens(2)), printOnly=.TRUE.)
 
-            ! Look for special code
-            locStr = index(trim(tokens(2)), uppercase('zoa_macro:'))
+        else
+            call updateTerminalLog("Error!  Expect two inputs, eg PRT file or PRT zoa_macro:file", "red")
 
-            if (locStr .ne. 0) then 
-                fileName = tokens(2)(len('zoa_macro:')+1:len_trim(tokens(2)))
-                locDot = INDEX(fileName, '.')
-                if (locDot == 0) then
-                    fileName = trim(fileName)//'.zoa'
-                end if
-                call process_zoa_file(trim(getMacroDir())//trim(fileName), printOnly=.TRUE.)
-            else
-                fileName = trim(tokens(2))
-                locDot = INDEX(fileName, '.')
-                if (locDot == 0) then
-                    fileName = trim(fileName)//'.zoa'
-                end if                
-                call process_zoa_file(trim(getRestoreFilePath(trim(fileName))), printOnly=.TRUE.)
-
-            end if
 
         end if
 

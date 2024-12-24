@@ -21,7 +21,7 @@ module zoa_macro_ui
     integer(kind=c_int) :: nsel
     integer(kind=c_int), dimension(:), allocatable :: selections
     type(c_ptr) :: buffer
-    character(len=8) :: svalue
+    character(len=256) :: svalue
 
     if (c_associated(gdata)) then
        call c_f_pointer(gdata, fdata)
@@ -37,7 +37,8 @@ module zoa_macro_ui
           call ioConfig%setTextView(ID_TERMINAL_MACRO)
           buffer = gtk_text_view_get_buffer(ioConfig%textView)
           call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)
-          CALL PROCESKDP('MFL '//svalue)
+          call PROCESKDP('PRT zoa_macro:'//trim(svalue))
+          !CALL PROCESKDP('MFL '//svalue)
           call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
           deallocate(selections)
 
@@ -79,7 +80,8 @@ module zoa_macro_ui
               deallocate(selections)
 
           if (gtk_check_button_get_active(macrorun).EQ.TRUE) THEN
-              CALL PROCESKDP(svalue)
+              !CALL PROCESKDP(svalue)
+              call PROCESKDP('RES zoa_macro:'//trim(svalue))
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrolist).EQ.TRUE) THEN
                CALL PROCESKDP('MFL '//svalue)
