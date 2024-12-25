@@ -12,7 +12,9 @@ module zoa_macro_ui
       type(c_ptr) :: macrorun, macroedit, macrogroup, macrolist
       type(c_ptr) :: macrorename, macrocopy, macrodelete
       type(c_ptr) :: macroentry, macroTextView
+      character(len=256) :: currSelection
   contains
+
 
  recursive subroutine macrolist_select(list, gdata) bind(c)
     type(c_ptr), value, intent(in) :: list, gdata
@@ -34,6 +36,7 @@ module zoa_macro_ui
           print *, selections
           call hl_gtk_list1_get_cell(ihlist, selections(1), svalue)
           print *, "TXT IS ", svalue
+          currSelection = svalue
           call ioConfig%setTextView(ID_TERMINAL_MACRO)
           buffer = gtk_text_view_get_buffer(ioConfig%textView)
           call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)
@@ -97,15 +100,7 @@ module zoa_macro_ui
                 call populatemacrolist()
                 !CALL MACARRAY_LOAD(NUMINLIST)
           else if (gtk_check_button_get_active(macroedit).EQ.TRUE) THEN
-                !call getmacroeditboxText(entryText)
-                CALL PROCESKDP('MEDIT '//svalue)
                 call macroedit_savetofile(gtk_text_view_get_buffer(macroTextView))
-                !print *, "About to call alert dialog"
-                !call macroedit_alert()
-                !print *, "Dialog Closed!"  
-                !CALL MREFRESH 
-                call PROCESKDP('IN FILE MAC_EDIT.DAT')
-                !call PROCESKDP('MREFRESH')
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrocopy).EQ.TRUE) THEN
@@ -135,7 +130,7 @@ module zoa_macro_ui
   end subroutine
 
   subroutine macroedit_savetofile(buffer)
-    use zoa_file_handler, only: delete_file
+    use zoa_file_handler, only: delete_file, getMacroDir
     use kdp_utils, only: OUTKDP
 
     implicit none
@@ -146,24 +141,28 @@ module zoa_macro_ui
     character(len=1024) :: lineTxt
 
     numLines = gtk_text_buffer_get_line_count(buffer)
-    ! Use existing KDP code to edit.  Dump the contents of the
-    ! buffer into MAC_EDIT.DAT.  Then when MREFRESH is called
-    ! it will read this file and update the appropriate macro
+    ! If the editor is not empty, delete the old file and replace it with the text
+    ! from the buffer
     if (numLines > 1) then
       !call clear_file(trim(basePath)//'MAC_EDIT.DAT')
-      call delete_file(trim(basePath)//'MAC_EDIT.DAT')
-      call PROCESKDP('OUTPUT FILE MAC_EDIT.DAT')
+      call delete_file(getMacroDir()//trim(currSelection))
+      open(unit=31, iostat=stat, file=getMacroDir()//trim(currSelection), &
+      & status='new', action="write")
+      if (stat /= 0) then 
+        ! Error
+        return
+      end if
+    ! Everything okay, write file   
     call gtk_text_buffer_get_start_iter(buffer, c_loc(iterStart))
     do i=1,numLines
       boolRet = gtk_text_buffer_get_iter_at_line(buffer, c_loc(iterEnd), i)
       call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
       & c_loc(iterStart),c_loc(iterEnd), FALSE), lineTxt)
-      if (i>1) call OUTKDP(trim(lineTxt),0)
+      if (i>1) write(31, *) trim(lineTxt)
       !PRINT *, "lineTxt is ", trim(lineTxt)
       iterStart = iterEnd
     end do
       CALL CLOSE_FILE(31,1)
-      call PROCESKDP('OUTPUT TP')
     end if
 
   end subroutine
@@ -361,6 +360,8 @@ module zoa_macro_ui
 
 
     call gtk_widget_show(macro_ui_window)
+
+    print *, "Test selection is ", trim(currSelection)
 
     end subroutine
 

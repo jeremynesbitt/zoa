@@ -37,4 +37,6 @@ module global_widgets
 
   character(len=42), allocatable :: currVieData(:)
 
+  contains
+
 end module global_widgets

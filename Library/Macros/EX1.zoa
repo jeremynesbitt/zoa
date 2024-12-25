@@ -1,0 +1,37 @@
+LENS                                                                                                                                
+WV,0.6350,0.4861,0.6563                                                                                                                 
+WV2,0.0,0.0,0.0,0.0,0.0
+SPTWT,1.0,0.0,0.0,0.0,0.0                                                                                                                 
+SPTWT2,0.0,0.0,0.0,0.0,0.0                                                                                                                   
+UNITS MM                                                                                                                             
+SAY,10.0                                                                                                                              
+CV,0.0                                                                                                                                
+TH,0.10E+21                                                                                                                           
+AIR                                                                                                                                 
+CV,0.0                                                                                                                                
+TH,6.0                                                                                                                                
+REFS                                                                                                                                 
+ASTOP                                                                                                                                
+SCHOTT,BK7                                                                                                                            
+CV,-0.10                                                                                                                              
+CC,-2.295                                                                                                                             
+TH,19.42                                                                                                                              
+AIR                                                                                                                                  
+CV,0.0                                                                                                                                
+TH,0.0                                                                                                                                
+AIR                                                                                                                                  
+EOS
+U L
+CHG,2.0                                                                                                                                                                                                       
+PY,0.0                                                                                                                               
+EOS
+MERIT
+SA3 0 1
+EOS
+VARIABLES
+CC 8
+EOS
+AUT
+GO
+VIE
+           
