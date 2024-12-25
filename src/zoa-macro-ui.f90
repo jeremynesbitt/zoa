@@ -145,8 +145,8 @@ module zoa_macro_ui
     ! from the buffer
     if (numLines > 1) then
       !call clear_file(trim(basePath)//'MAC_EDIT.DAT')
-      call delete_file(getMacroDir()//trim(currSelection))
-      open(unit=31, iostat=stat, file=getMacroDir()//trim(currSelection), &
+      call delete_file(trim(getMacroDir())//trim(currSelection))
+      open(unit=31, iostat=stat, file=trim(getMacroDir())//trim(currSelection), &
       & status='new', action="write")
       if (stat /= 0) then 
         ! Error
