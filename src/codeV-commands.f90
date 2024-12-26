@@ -72,7 +72,6 @@ module codeV_commands
         use iso_c_binding, only: c_null_ptr
         use global_widgets, only: ioConfig
         use hl_gtk_zoa, only : hl_zoa_text_view_new
-        use type_utils, only: int2str
 
         implicit none
 
@@ -346,7 +345,6 @@ module codeV_commands
     subroutine cmd_parser_get_real_pair(tokens, real1, real2, real1Bounds, real2Bounds) 
     ! Look for 2 and only 2 inputs that don't have a string character in them    
         use command_utils, only: isInputNumber
-        use type_utils, only: str2real8
         implicit none
         character(len=*), dimension(:) :: tokens
         real(kind=real64) :: real1, real2
@@ -401,7 +399,6 @@ module codeV_commands
 
     function cmd_parser_get_integer_range(iptStr, intArr) result(goodResult)
         use command_utils, only: isInputNumber
-        use type_utils, only: str2int
         implicit none
         logical :: goodResult
         character(len=*) :: iptStr
@@ -438,7 +435,6 @@ module codeV_commands
     function cmd_parser_get_int_input_for_prefix(prefix, tokens) result(intArr)
         use global_widgets, only: sysConfig
         use command_utils, only: isInputNumber
-        use type_utils, only: str2int
 
         implicit none
         character(len=*) :: prefix
@@ -488,7 +484,6 @@ module codeV_commands
 
     subroutine execXOFF(iptStr)
         use command_utils, only: isInputNumber
-        use type_utils, only: real2str, str2real8
 
         implicit none
         !class(zoa_cmd) :: self
@@ -513,7 +508,6 @@ module codeV_commands
 
     subroutine execYOFF(iptStr)
         use command_utils, only: isInputNumber
-        use type_utils, only: real2str, str2real8
 
         implicit none
         !class(zoa_cmd) :: self
@@ -538,7 +532,6 @@ module codeV_commands
 
     subroutine execFreeze(iptStr)
         
-        use type_utils, only: real2str, str2real8
         use optim_types, only: optim
         
 
@@ -574,9 +567,7 @@ module codeV_commands
     subroutine execRSI(iptStr)
         use global_widgets, only: sysConfig
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str
-        use type_utils, only: int2str
-    
+
         implicit none        
 
         character(len=*) :: iptStr
@@ -676,7 +667,6 @@ module codeV_commands
     subroutine printRefractiveIndices(iptStr)
         use GLOBALS, only: long
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
-        use type_utils
         use kdp_utils
         use mod_lens_data_manager
  
@@ -729,7 +719,6 @@ module codeV_commands
     ! Todo:  move this somewhere once it is properly written
     function adjustImageFocus(x) result(f)
 
-       use type_utils, only: real2str
        use DATMAI, only: REG
        implicit none
        double precision :: f
@@ -747,7 +736,6 @@ module codeV_commands
     subroutine findBestFocus(iptStr)
         use global_widgets, only: curr_par_ray_trace
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str, str2int, blankStr
         use global_widgets, only:  sysConfig
         use DATLEN, only: COLRAY
         use algos
@@ -787,7 +775,6 @@ module codeV_commands
     ! TODO:  Fix this iwth new plot infra
     subroutine execFAN(iptStr)
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str, str2int
         use global_widgets, only:  sysConfig
         use DATLEN, only: COLRAY
     
@@ -877,7 +864,6 @@ module codeV_commands
     subroutine setPlotWavelength(iptStr)
         
         use command_utils, only: isInputNumber
-        use type_utils, only: str2int
 
         implicit none
         !class(zoa_cmd) :: self
@@ -903,7 +889,6 @@ module codeV_commands
     subroutine setPlotDensity(iptStr)
         
         use command_utils, only: isInputNumber
-        use type_utils, only: str2int
      
         implicit none
         !class(zoa_cmd) :: self
@@ -928,7 +913,6 @@ module codeV_commands
     subroutine setPlotZernikeCoefficients(iptStr)
         
         use command_utils, only: isInputNumber
-        use type_utils, only: str2int
 
         implicit none
         !class(zoa_cmd) :: self
@@ -991,7 +975,6 @@ module codeV_commands
     subroutine ZERN_TST(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
-        use type_utils, only: int2str
 
         implicit none
         character(len=*) :: iptStr
@@ -1026,7 +1009,6 @@ module codeV_commands
     subroutine execVIE(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
-        use type_utils, only: int2str, bool2str
 
         implicit none
         character(len=*) :: iptStr
@@ -1103,7 +1085,6 @@ module codeV_commands
     subroutine setPlotScale(iptStr)
 
         use command_utils
-        use type_utils
 
         implicit none
 
@@ -1295,7 +1276,6 @@ module codeV_commands
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
 
-        use type_utils, only: int2str
         use command_utils, only : isInputNumber
         use optim_types
         use GLOBALS, only: long
@@ -1367,7 +1347,6 @@ module codeV_commands
     subroutine execCIR(iptStr)
 
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str
     
         implicit none        
 
@@ -1419,7 +1398,6 @@ module codeV_commands
 
     subroutine execSTO(iptStr)
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
     
         implicit none
 
@@ -1478,7 +1456,6 @@ module codeV_commands
         use gtk_hl_dialog
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         use zoa_file_handler, only: open_file_to_sav_lens, doesFileExist
         implicit none
 
@@ -1562,7 +1539,6 @@ module codeV_commands
     subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory
         use optim_types, only: optim
         use mod_lens_data_manager
@@ -1620,7 +1596,6 @@ module codeV_commands
     subroutine execSaveSessionToFile(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         use zoa_file_handler, only: open_file_to_sav_lens
         implicit none
 
@@ -1667,7 +1642,6 @@ module codeV_commands
     subroutine execSetWavelengthIndex(iptStr)
 
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1694,7 +1668,6 @@ module codeV_commands
     subroutine execRMD(iptStr)
 
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1735,7 +1708,6 @@ module codeV_commands
 
     subroutine execSetCodeVCmd()
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str, str2real8, real2str
         use global_widgets, only: curr_lens_data, curr_par_ray_trace     
         implicit none
 
@@ -1765,7 +1737,6 @@ module codeV_commands
     end subroutine
 
     subroutine setMagSolve(iptStr)
-        use type_utils, only: int2str
         use command_utils, only: isInputNumber
         implicit none
 
@@ -1795,7 +1766,6 @@ module codeV_commands
     !          DEL PIM
     subroutine deleteStuff()
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         use global_widgets, only: curr_lens_data
         implicit none
 
@@ -1841,7 +1811,6 @@ module codeV_commands
     ! Format:  CUY Sk SOLVETYPE VAL
     subroutine setCurvature()
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: int2str
         implicit none
 
         integer :: surfNum
@@ -1885,7 +1854,6 @@ module codeV_commands
 
     subroutine setEPD()
         use command_utils
-        use type_utils, only: real2str
         implicit none
 
          if(checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
@@ -1903,7 +1871,6 @@ module codeV_commands
 
     subroutine setParaxialImageSolve()
         use global_widgets, only: curr_lens_data
-        use type_utils, only: int2str
         integer :: surfNum
 
         ! Get surface before last surface and add solve
@@ -1920,8 +1887,6 @@ module codeV_commands
     function getSetGlassText(strInput) result(strOut)
         use command_utils, only : isInputNumber
         use glass_manager, only: parseModelGlassEntry
-        use type_utils, only: real2str
-        use iso_fortran_env, only: real64       
         character(len=*) :: strInput
         character(len=1024) :: strOut
         real(kind=real64) :: nd, vd
@@ -1944,9 +1909,6 @@ module codeV_commands
     subroutine setGlass()
         use command_utils, only : checkCommandInput, getInputNumber, parseCommandIntoTokens, isInputNumber
         use glass_manager, only: parseModelGlassEntry
-        use type_utils, only: real2str, int2str
-        use iso_fortran_env, only: real64
-
         !character(len=*) :: iptCmd
         integer :: surfNum
         character(len=80) :: tokens(40)
@@ -1984,7 +1946,6 @@ module codeV_commands
 
     subroutine setThickness()
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         implicit none
 
         integer :: surfNum
@@ -2009,7 +1970,6 @@ module codeV_commands
 
     subroutine updateThiCodes(iptStr)
         use command_utils, only : isInputNumber
-        use type_utils, only: int2str, str2int
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2064,7 +2024,6 @@ module codeV_commands
     !TODO:  Refactor with updateThiCodes
     subroutine updateCurvCodes(iptStr)
         use command_utils, only : isInputNumber
-        use type_utils, only: int2str, str2int
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2239,7 +2198,6 @@ module codeV_commands
     !Format RDY Sk Val
     subroutine setRadius()
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
         implicit none
 
         integer :: surfNum
@@ -2305,9 +2263,7 @@ module codeV_commands
 
     ! CLI SA supported only at this time
     subroutine execCLI(iptStr)
-        use type_utils, only: int2str, real2str, blankStr
         use global_widgets, only: curr_lens_data
-        use iso_fortran_env, only: real64
         use command_utils, only: isInputNumber
         use kdp_data_types, only: check_clear_apertures
         use DATLEN
@@ -2339,8 +2295,6 @@ module codeV_commands
     end subroutine
 
     subroutine insertSurf(iptStr)
-        use type_utils, only: int2str, str2real8, str2int
-        use iso_fortran_env, only: real64
         use command_utils, only: isInputNumber
         implicit none
 
@@ -2492,9 +2446,7 @@ module codeV_commands
       end subroutine
 
       subroutine setWavelengthWeights(iptStr)
-        use type_utils, only: int2str, str2real8
         use global_widgets, only: sysConfig
-        use iso_fortran_env, only: real64
         implicit none
 
         !class(zoa_cmd) :: self
@@ -2516,10 +2468,8 @@ module codeV_commands
       subroutine setField(iptStr)
         ! TODO:  Support things other than YAN
          use command_utils, only : parseCommandIntoTokens
-         use type_utils, only: int2str, str2real8
          use kdp_utils, only: inLensUpdateLevel
          use global_widgets, only: sysConfig
-         use iso_fortran_env, only: real64
          implicit none
  
          !class(zoa_cmd) :: self
@@ -2566,7 +2516,6 @@ module codeV_commands
       subroutine setWavelength(iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: real2str, str2real8, int2str
         use global_widgets, only: sysConfig
         implicit none
 
@@ -2721,7 +2670,6 @@ module codeV_commands
       end subroutine
 
       function isSurfCommand(tstCmd) result(boolResult)
-        use type_utils, only: int2str
         implicit none
         character(len=*) :: tstCmd
         logical :: boolResult
@@ -2775,7 +2723,6 @@ module codeV_commands
 !    print *, (len(month(j)%s), j=1, size(month))
 
       function isCodeVCommand(tstCmd) result(boolResult)
-        use type_utils, only: string
         implicit none 
 
         logical :: boolResult
@@ -2863,7 +2810,6 @@ module codeV_commands
       end subroutine
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)
-        use type_utils, only: str2int, int2str
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
         character(len=*) :: iptCmd
@@ -2942,7 +2888,6 @@ module codeV_commands
 
       subroutine setSurfaceCodeVStyle(iptStr)
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str
 
         implicit none
 
@@ -2996,9 +2941,7 @@ module codeV_commands
     
         use global_widgets, only: sysConfig
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use type_utils, only: real2str, int2str
-        use type_utils, only: int2str
-        
+
         use mod_lens_data_manager
     
         implicit none        
@@ -3100,7 +3043,6 @@ module codeV_commands
 
     subroutine setPickup(param1, si, sj, scale, offset, param2)
         use GLOBALS, only: long
-        use type_utils
 
         implicit none
         character(len=*) :: param1
@@ -3286,7 +3228,6 @@ module codeV_commands
         ! PRT zoa_macro:file.  Looks for file in the macros directory
         use zoa_file_handler
         use command_utils, only: isInputNumber
-        use type_utils, only: real2str, str2real8
 
         implicit none
         character(len=*) :: iptStr
@@ -3312,7 +3253,6 @@ module codeV_commands
         !        
     !     (iptCmd)
     !     use command_utils, only : checkCommandInput, getInputNumber
-    !     use type_utils, only: real2str, int2str
     !     character(len=*) :: iptCmd
     !     integer :: surfNum
 
