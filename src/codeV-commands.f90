@@ -15,8 +15,9 @@
 ! fake textView, print code v cmd, then when done redirect output to window
 
 module codeV_commands
+    use zoa_ui
     use iso_fortran_env, only: real64
-    use plot_setting_manager
+    use plot_setting_manager, only: zoaplot_setting_manager
     use type_utils
     use handlers, only: updateTerminalLog
     use strings
@@ -71,7 +72,6 @@ module codeV_commands
         use iso_c_binding, only: c_null_ptr
         use global_widgets, only: ioConfig
         use hl_gtk_zoa, only : hl_zoa_text_view_new
-        use zoa_ui, only: ID_TERMINAL_KDPDUMP
         use type_utils, only: int2str
 
         implicit none
@@ -1000,7 +1000,6 @@ module codeV_commands
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
         use handlers, only: zoatabMgr
-        use zoa_ui
         use type_utils, only: int2str
 
         implicit none
@@ -1037,7 +1036,6 @@ module codeV_commands
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
         use handlers, only: zoatabMgr
-        use zoa_ui
         use type_utils, only: int2str, bool2str
 
         implicit none
@@ -1116,7 +1114,6 @@ module codeV_commands
 
         use command_utils
         use type_utils
-        use zoa_ui
 
         implicit none
 
@@ -1151,7 +1148,6 @@ module codeV_commands
     end subroutine
 
     subroutine  execRMSPlot(iptStr)
-        use zoa_ui
         use handlers, only: updateTerminalLog
         implicit none
         character(len=*) :: iptStr
@@ -1172,7 +1168,6 @@ module codeV_commands
     end subroutine
 
     subroutine  execSeidelBarChart(iptStr)
-        use zoa_ui
         use handlers, only: updateTerminalLog
         implicit none
         character(len=*) :: iptStr
@@ -1193,7 +1188,6 @@ module codeV_commands
     end subroutine
 
     subroutine execRayAberrationPlot(iptStr)
-        use zoa_ui
         use handlers, only: updateTerminalLog
         implicit none
         character(len=*) :: iptStr
@@ -1215,7 +1209,6 @@ module codeV_commands
     end subroutine
 
     subroutine execPMAPlot(iptStr)
-        use zoa_ui
         use handlers, only: updateTerminalLog
         implicit none
         character(len=*) :: iptStr
@@ -1238,7 +1231,6 @@ module codeV_commands
 
 
     subroutine execAstigFieldCurvDistPlot(iptStr)
-        use zoa_ui
         use handlers, only: updateTerminalLog
         implicit none
         character(len=*) :: iptStr
@@ -1320,7 +1312,6 @@ module codeV_commands
        ! use mod_plotopticalsystem
 
         use handlers, only: zoatabMgr
-        use zoa_ui
         use type_utils, only: int2str
         use command_utils, only : isInputNumber
         use optim_types
@@ -2657,8 +2648,6 @@ module codeV_commands
       !Todo:  put this in a submodule, as this sub will get HUGE eventually
       subroutine executeGo()
         use global_widgets, only: ioConfig
-        !use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
-        use zoa_ui
         use handlers, only: zoatabMgr
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
@@ -2888,7 +2877,6 @@ module codeV_commands
       subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate)
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: ioConfig
-        use zoa_ui, only: ID_TERMINAL_DEFAULT, ID_TERMINAL_KDPDUMP
 
         implicit none
         character(len=*) :: iptCmd
