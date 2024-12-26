@@ -2,15 +2,14 @@ module tow_functions
     use iso_c_binding, only:  c_ptr, c_null_char
     use global_widgets, only: ioConfig
     use handlers, only: zoatabMgr
-    use plot_setting_manager
-
+    use plot_setting_manager, only : zoaplot_setting_manager
+    use type_utils, only: int2str, str2int
+    use zoa_ui
     
 contains
 
 
 subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx) 
-
-    use type_utils, only: int2str
 
     implicit none
     type(zoaplot_setting_manager) :: psm
@@ -75,8 +74,6 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
 ! output to standard dialog
 ! eventually will look for special commands and generate settings for them
 subroutine tow_go(psm, cmdTOW)
-    use zoa_ui
-    use type_utils, only: int2str, str2int
     use plot_functions, only: getTabTextView
 
     IMPLICIT NONE

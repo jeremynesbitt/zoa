@@ -2701,7 +2701,7 @@ module codeV_commands
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
         use optim_functions
-        use tow_functions
+        use tow_functions, only: tow_go
 
         !TODO:  Switch to select case
         if (cmd_loop == AUT_LOOP) then
