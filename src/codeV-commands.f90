@@ -19,6 +19,7 @@ module codeV_commands
     use plot_setting_manager
     use type_utils
     use handlers, only: updateTerminalLog
+    use strings
 
 
 
@@ -440,7 +441,7 @@ module codeV_commands
         use global_widgets, only: sysConfig
         use command_utils, only: isInputNumber
         use type_utils, only: str2int
-        use strings
+
         implicit none
         character(len=*) :: prefix
         character(len=*), dimension(:) :: tokens
@@ -490,7 +491,6 @@ module codeV_commands
     subroutine execXOFF(iptStr)
         use command_utils, only: isInputNumber
         use type_utils, only: real2str, str2real8
-        use strings
 
         implicit none
         !class(zoa_cmd) :: self
@@ -516,7 +516,6 @@ module codeV_commands
     subroutine execYOFF(iptStr)
         use command_utils, only: isInputNumber
         use type_utils, only: real2str, str2real8
-        use strings
 
         implicit none
         !class(zoa_cmd) :: self
@@ -542,7 +541,6 @@ module codeV_commands
     subroutine execFreeze(iptStr)
         
         use type_utils, only: real2str, str2real8
-        use strings
         use optim_types, only: optim
         
 
@@ -640,7 +638,6 @@ module codeV_commands
     end subroutine
 
     subroutine execFIO(iptStr)
-        use strings
         use GLOBALS, only: long
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use handlers, only: updateTerminalLog
@@ -681,7 +678,6 @@ module codeV_commands
     end subroutine
 
     subroutine printRefractiveIndices(iptStr)
-        use strings
         use GLOBALS, only: long
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use handlers, only: updateTerminalLog
@@ -754,7 +750,6 @@ module codeV_commands
 
 
     subroutine findBestFocus(iptStr)
-        use strings
         use global_widgets, only: curr_par_ray_trace
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str, str2int, blankStr
@@ -797,7 +792,6 @@ module codeV_commands
     ! FAN AB N Fi - N Rayls for field i in AB plane
     ! TODO:  Fix this iwth new plot infra
     subroutine execFAN(iptStr)
-        use strings
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str, str2int
         use handlers, only: updateTerminalLog
@@ -891,7 +885,6 @@ module codeV_commands
         
         use command_utils, only: isInputNumber
         use type_utils, only: str2int
-        use strings
 
         implicit none
         !class(zoa_cmd) :: self
@@ -919,8 +912,6 @@ module codeV_commands
         use command_utils, only: isInputNumber
         use type_utils, only: str2int
      
-        use strings
-
         implicit none
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
@@ -945,8 +936,6 @@ module codeV_commands
         
         use command_utils, only: isInputNumber
         use type_utils, only: str2int
-     
-        use strings
 
         implicit none
         !class(zoa_cmd) :: self
@@ -1010,8 +999,6 @@ module codeV_commands
     subroutine ZERN_TST(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
-        use strings
-        use plot_setting_manager
         use handlers, only: zoatabMgr
         use zoa_ui
         use type_utils, only: int2str
@@ -1049,8 +1036,6 @@ module codeV_commands
     subroutine execVIE(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
-        use strings
-        use plot_setting_manager
         use handlers, only: zoatabMgr
         use zoa_ui
         use type_utils, only: int2str, bool2str
@@ -1084,7 +1069,7 @@ module codeV_commands
     end subroutine
 
     function initiatePlotLoop(iptStr, PLOT_CODE, psm) result(boolResult)
-        use strings 
+
         implicit none
 
         logical :: boolResult
@@ -1128,7 +1113,7 @@ module codeV_commands
     end function
 
     subroutine setPlotScale(iptStr)
-        use strings
+
         use command_utils
         use type_utils
         use zoa_ui
@@ -1168,7 +1153,6 @@ module codeV_commands
     subroutine  execRMSPlot(iptStr)
         use zoa_ui
         use handlers, only: updateTerminalLog
-        use plot_setting_manager
         implicit none
         character(len=*) :: iptStr
         logical :: boolResult
@@ -1190,7 +1174,6 @@ module codeV_commands
     subroutine  execSeidelBarChart(iptStr)
         use zoa_ui
         use handlers, only: updateTerminalLog
-        use plot_setting_manager
         implicit none
         character(len=*) :: iptStr
         logical :: boolResult
@@ -1212,7 +1195,6 @@ module codeV_commands
     subroutine execRayAberrationPlot(iptStr)
         use zoa_ui
         use handlers, only: updateTerminalLog
-        use plot_setting_manager
         implicit none
         character(len=*) :: iptStr
         logical :: boolResult
@@ -1235,7 +1217,6 @@ module codeV_commands
     subroutine execPMAPlot(iptStr)
         use zoa_ui
         use handlers, only: updateTerminalLog
-        use plot_setting_manager
         implicit none
         character(len=*) :: iptStr
         logical :: boolResult
@@ -1259,7 +1240,6 @@ module codeV_commands
     subroutine execAstigFieldCurvDistPlot(iptStr)
         use zoa_ui
         use handlers, only: updateTerminalLog
-        use plot_setting_manager
         implicit none
         character(len=*) :: iptStr
         logical :: boolResult
@@ -1279,7 +1259,7 @@ module codeV_commands
     end subroutine
 
     subroutine execTOW(iptStr)
-        use strings
+
         implicit none
         character(len=*) :: iptStr
         character(len=80) :: tokens(40)
@@ -1338,8 +1318,7 @@ module codeV_commands
     subroutine execSPO(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
-        use strings
-        use plot_setting_manager
+
         use handlers, only: zoatabMgr
         use zoa_ui
         use type_utils, only: int2str
@@ -1390,7 +1369,6 @@ module codeV_commands
     subroutine execSPO_old(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
-        use strings
 
         implicit none
         !class(zoa_cmd) :: self
@@ -1413,7 +1391,7 @@ module codeV_commands
     end subroutine
 
     subroutine execCIR(iptStr)
-        use strings
+
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
@@ -1503,7 +1481,6 @@ module codeV_commands
 
     subroutine execRestore(iptStr)
         use handlers, only: updateTerminalLog
-        use strings
 
         implicit none
         character(len=*) :: iptStr
@@ -1534,7 +1511,6 @@ module codeV_commands
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog, zoatabMgr
         use zoa_file_handler, only: open_file_to_sav_lens, doesFileExist
-        use strings
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1616,7 +1592,6 @@ module codeV_commands
 
     subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
-        use strings
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
@@ -1676,7 +1651,6 @@ module codeV_commands
 
     subroutine execSaveSessionToFile(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
-        use strings
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog, zoatabMgr
@@ -1827,7 +1801,6 @@ module codeV_commands
     end subroutine
 
     subroutine setMagSolve(iptStr)
-        use strings
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
         use command_utils, only: isInputNumber
@@ -2079,7 +2052,6 @@ module codeV_commands
         use command_utils, only : isInputNumber
         use type_utils, only: int2str, str2int
         use handlers, only: updateTerminalLog
-        use strings
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2136,7 +2108,6 @@ module codeV_commands
         use command_utils, only : isInputNumber
         use type_utils, only: int2str, str2int
         use handlers, only: updateTerminalLog
-        use strings
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2192,7 +2163,6 @@ module codeV_commands
     subroutine updateConstraint(iptStr)
         use command_utils, only : isInputNumber
         use handlers, only: updateTerminalLog
-        use strings
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2234,7 +2204,6 @@ module codeV_commands
     subroutine updateEFLConstraint(iptStr)
         use command_utils, only : isInputNumber
         use handlers, only: updateTerminalLog
-        use strings
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2277,7 +2246,6 @@ module codeV_commands
     subroutine updateTCOConstraint(iptStr)
         use command_utils, only : isInputNumber
         use handlers, only: updateTerminalLog
-        use strings
         use mod_lens_data_manager
         use optim_types
         implicit none
@@ -2342,7 +2310,6 @@ module codeV_commands
 
     ! NBR ELE Si..j only supported
     subroutine execNBR(iptStr)
-        use strings
         use handlers, only: updateTerminalLog
         implicit none
 
@@ -2386,7 +2353,6 @@ module codeV_commands
 
     ! CLI SA supported only at this time
     subroutine execCLI(iptStr)
-        use strings
         use type_utils, only: int2str, real2str, blankStr
         use handlers, only: updateTerminalLog
         use global_widgets, only: curr_lens_data
@@ -2422,7 +2388,6 @@ module codeV_commands
     end subroutine
 
     subroutine insertSurf(iptStr)
-        use strings
         use type_utils, only: int2str, str2real8, str2int
         use handlers, only: updateTerminalLog
         use iso_fortran_env, only: real64
@@ -2579,7 +2544,6 @@ module codeV_commands
       end subroutine
 
       subroutine setWavelengthWeights(iptStr)
-        use strings
         use type_utils, only: int2str, str2real8
         use handlers, only: updateTerminalLog
         use global_widgets, only: sysConfig
@@ -2610,7 +2574,6 @@ module codeV_commands
          use kdp_utils, only: inLensUpdateLevel
          use global_widgets, only: sysConfig
          use iso_fortran_env, only: real64
-         use strings
          implicit none
  
          !class(zoa_cmd) :: self
@@ -2660,7 +2623,6 @@ module codeV_commands
         use type_utils, only: real2str, str2real8, int2str
         use handlers, only: updateTerminalLog
         use global_widgets, only: sysConfig
-        use strings
         implicit none
 
         !class(zoa_cmd) :: self
@@ -3041,9 +3003,7 @@ module codeV_commands
         use command_utils, only : parseCommandIntoTokens
         use type_utils, only: int2str
         use handlers, only: updateTerminalLog
-        use strings
-        
-    
+
         implicit none
 
         !class(zoa_cmd) :: self
@@ -3099,7 +3059,7 @@ module codeV_commands
         use type_utils, only: real2str, int2str
         use handlers, only: updateTerminalLog
         use type_utils, only: int2str
-        use strings
+        
         use mod_lens_data_manager
     
         implicit none        
@@ -3154,7 +3114,6 @@ module codeV_commands
     end function
 
     subroutine scaleSystem(iptStr)
-        use strings
         use handlers, only: updateTerminalLog
         use command_utils, only : isInputNumber
 
@@ -3245,7 +3204,6 @@ module codeV_commands
 
     subroutine parsePickupInput(iptStr)
         use globals, only: long
-        use strings
         use handlers, only: updateTerminalLog
         use command_utils, only : isInputNumber
 
@@ -3336,7 +3294,6 @@ module codeV_commands
 
     subroutine processZoaFileInput(iptStr, printOnly)
         use globals, only: TEST_MODE
-        use strings
         use zoa_file_handler
         implicit none
         character(len=*) :: iptStr
@@ -3394,7 +3351,6 @@ module codeV_commands
         use handlers, only: updateTerminalLog
         use command_utils, only: isInputNumber
         use type_utils, only: real2str, str2real8
-        use strings
 
         implicit none
         character(len=*) :: iptStr
