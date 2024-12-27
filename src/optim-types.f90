@@ -89,7 +89,9 @@ module optim_types
         constraints(4)%name = 'PTB'
         constraints(4)%func => getPetzvalBlurConstraint    
         constraints(5)%name = 'IMC'
-        constraints(5)%func => setDistanceToImagePlaneConstraint                                     
+        constraints(5)%func => setDistanceToImagePlaneConstraint          
+        constraints(6)%name = 'SAS'
+        constraints(6)%func => getSphericalConstraint                                             
 
     end subroutine
 
@@ -156,6 +158,14 @@ module optim_types
         res = am%getTransverseComa() - self%targ
 
     end function    
+
+    function getSphericalConstraint(self) result(res)
+        use mod_analysis_manager
+        class(constraint) :: self
+        real(long) :: res
+
+        res = am%getTransverseSpherical() - self%targ
+    end function
 
     function getTransverseAstigmatismConstraint(self) result(res)
         use mod_analysis_manager

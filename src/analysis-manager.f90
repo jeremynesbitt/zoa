@@ -10,7 +10,7 @@ module mod_analysis_manager
     type analysis_manager
    
     contains
-     procedure :: getTransverseComa, getTransverseAstigmatism, getPetzvalBlur
+     procedure :: getTransverseComa, getTransverseAstigmatism, getPetzvalBlur, getTransverseSpherical
 
     end type
 
@@ -33,6 +33,22 @@ module mod_analysis_manager
         res = curr_par_ray_trace%CSeidel(2,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
     end function
+
+    function getTransverseSpherical(self) result (res)
+        implicit none
+        class(analysis_manager) :: self
+        real(long) :: res
+
+        res = 0.0_long
+
+        CALL PROCESSILENT('MAB3 ALL')
+        call PROCESKDP("MAB3 ALL")
+  
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex)
+        ! This essentially serves as documentation for which index is which term
+        res = curr_par_ray_trace%CSeidel(2,ubound(curr_par_ray_trace%CSeidel, dim=2))
+
+    end function    
 
     ! TODO - refactor with Coma (pass first index to single func)
     function getTransverseAstigmatism(self) result (res)

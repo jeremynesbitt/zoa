@@ -46,6 +46,15 @@ module codeV_commands
  module subroutine setPlotWavelength(iptStr)
 character(len=*) :: iptStr
 end subroutine setPlotWavelength
+module subroutine setPlotDensity(iptStr)
+character(len=*) :: iptStr
+end subroutine setPlotDensity  
+module subroutine setPlotZernikeCoefficients(iptStr)
+character(len=*) :: iptStr
+end subroutine setPlotZernikeCoefficients 
+module subroutine ZERN_TST(iptStr)
+character(len=*) :: iptStr
+end subroutine ZERN_TST
  end interface
 
 
@@ -862,58 +871,6 @@ end subroutine setPlotWavelength
     end subroutine
 
 
-    subroutine setPlotDensity(iptStr)
-        
-        use command_utils, only: isInputNumber
-     
-        implicit none
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-       
-        !TODO:  Add error checking (min and max wavelength within range)
-        if (numTokens  == 2) then
-            if (isInputNumber(tokens(2))) then
-                call curr_psm%updateDensitySetting(str2int(tokens(2)))
-                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
-                call LogTermFOR("Finished Updating Density")
-            end if
-        end if
-        
-    end subroutine
-
-    subroutine setPlotZernikeCoefficients(iptStr)
-        
-        use command_utils, only: isInputNumber
-
-        implicit none
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        print *, "numTokens is ", numTokens
-       
-        !TODO:  Add error checking (min and max wavelength within range)
-        if (numTokens  == 2) then
-            if (.NOT.isInputNumber(tokens(2))) then
-                call curr_psm%updateZernikeSetting(trim(tokens(2)))
-                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
-                call LogTermFOR("Finished Updating Zernike")
-            end if
-        end if
-        
-    end subroutine
-
-
-
     ! Started to wrtie this but it doesn't seem to simpify things too much
     function checkForExistingPlot(tokens, psm, plot_code) result (plotExists)
 
@@ -947,40 +904,6 @@ end subroutine setPlotWavelength
     ! if user did not enter PX
     !   create new default settings
     ! in all cases update cmd_loop to plot loop
-
-    subroutine ZERN_TST(iptStr)
-        !use ui_spot, only: spot_struct_settings, spot_settings
-       ! use mod_plotopticalsystem
-
-        implicit none
-        character(len=*) :: iptStr
-        type(zoaplot_setting_manager) :: psm
-
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: plotExists
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        call psm%initialize(trim(iptStr))
-        cmd_loop = ZERN_LOOP
-
-        if (numTokens  == 2) then
-            plotExists = checkForExistingPlot(tokens(1:2), psm, ID_PLOTTYPE_ZERN_VS_FIELD)
-            ! If plotExiss then curr_psm is sst so we are good.  Seems like a bad design
-            ! here but don't have a better soultion right now
-           if (plotExists) return
-        end if
-
-        ! Set up settings
-        call psm%addWavelengthSetting()
-        call psm%addDensitySetting(10, 8, 21)
-        call psm%addZernikeSetting("5..9")
-
-        curr_psm = psm
-
-
-    end subroutine
 
     subroutine execVIE(iptStr)
         !use ui_spot, only: spot_struct_settings, spot_settings
