@@ -203,18 +203,19 @@ module codeV_commands
         zoaCmds(556)%cmd = 'PTB'
         zoaCmds(556)%execFunc => updateConstraint   
         zoaCmds(557)%cmd = 'PRT'
-        zoaCmds(557)%execFunc => printFile                    
+        zoaCmds(557)%execFunc => printFile    
+        zoaCmds(558)%cmd = 'THI'
+        zoaCmds(558)%execFunc => setThickness                            
         
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
         use GLOBALS, only:  currentCommand
+        use DATMAI
 
         character(len=*) :: iptCmd
         integer :: ii
         logical :: boolResult
-
-        include "DATMAI.INC"
 
         boolResult = .FALSE.
 
@@ -285,10 +286,6 @@ module codeV_commands
             return            
         case ('DIM')
             call setDim()
-            boolResult = .TRUE.
-            return 
-        case ('THI')
-            call setThickness()
             boolResult = .TRUE.
             return 
         case ('RDY')
@@ -1666,7 +1663,7 @@ module codeV_commands
     ! Change surface to refraction, reflection tir
 
     subroutine execRMD(iptStr)
-
+        use DATMAI
         use command_utils, only : parseCommandIntoTokens
         implicit none
 
@@ -1675,8 +1672,6 @@ module codeV_commands
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-
-        include "DATMAI.INC"
 
         call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
 
@@ -1709,12 +1704,11 @@ module codeV_commands
     subroutine execSetCodeVCmd()
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data, curr_par_ray_trace     
+        use DATMAI
         implicit none
 
         character(len=80) :: tokens(40)
         integer :: numTokens
-
-        include "DATMAI.INC"
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
@@ -1744,8 +1738,6 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        include "DATMAI.INC"
-
         call parse(iptStr, ' ', tokens, numTokens)
 
         if (numTokens == 2) then
@@ -1767,13 +1759,12 @@ module codeV_commands
     subroutine deleteStuff()
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data
+        use DATMAI
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-
-        include "DATMAI.INC"
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
@@ -1811,13 +1802,12 @@ module codeV_commands
     ! Format:  CUY Sk SOLVETYPE VAL
     subroutine setCurvature()
         use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use DATMAI
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-
-        include "DATMAI.INC"
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
         if(isSurfCommand(trim(tokens(2)))) then
@@ -1909,12 +1899,12 @@ module codeV_commands
     subroutine setGlass()
         use command_utils, only : checkCommandInput, getInputNumber, parseCommandIntoTokens, isInputNumber
         use glass_manager, only: parseModelGlassEntry
+        use DATMAI
         !character(len=*) :: iptCmd
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        include "DATMAI.INC"
 
         !call updateTerminalLog("Starting to update GLA ", "blue" )
 
@@ -1944,17 +1934,17 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setThickness()
+    subroutine setThickness(iptStr)
         use command_utils, only : parseCommandIntoTokens
+        use DATMAI
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
+        character(len=*) :: iptStr
 
-        include "DATMAI.INC"
-
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         PRINT *, "Token is ", trim(tokens(2))
         if(isSurfCommand(trim(tokens(2)))) then
             PRINT *, "Token is ", trim(tokens(2))
@@ -2198,13 +2188,12 @@ module codeV_commands
     !Format RDY Sk Val
     subroutine setRadius()
         use command_utils, only : parseCommandIntoTokens
+        use DATMAI
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-
-        include "DATMAI.INC"
 
         call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
 
@@ -2229,7 +2218,7 @@ module codeV_commands
         integer :: numTokens
         logical :: boolResult
         integer, allocatable :: surfaces(:)
-        !include "DATLEN.INC"
+   
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
  
@@ -2423,7 +2412,7 @@ module codeV_commands
       subroutine setLensTitle()
         use command_utils
         use kdp_utils, only: inLensUpdateLevel
-        include "DATMAI.INC"
+        use DATMAI
 
         call executeCodeVLensUpdateCommand('LI '// parseTitleCommand())
 
