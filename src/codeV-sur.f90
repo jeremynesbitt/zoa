@@ -6,8 +6,6 @@ module procedure execSUR
     ! New code - add abstraction of row titles and new columns of RMD GLA CCY THC GLC
                 
         use command_utils, only : parseCommandIntoTokens
-        use type_utils, only: int2str, blankStr, real2str
-        use handlers, only: updateTerminalLog
         use mod_lens_data_manager
     
         implicit none

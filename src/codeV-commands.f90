@@ -43,6 +43,9 @@ module codeV_commands
  module subroutine execSUR(iptStr)
  character(len=*) :: iptStr
  end subroutine execSUR
+ module subroutine setPlotWavelength(iptStr)
+character(len=*) :: iptStr
+end subroutine setPlotWavelength
  end interface
 
 
@@ -858,30 +861,6 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setPlotWavelength(iptStr)
-        
-        use command_utils, only: isInputNumber
-
-        implicit none
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-       
-        !TODO:  Add error checking (min and max wavelength within range)
-        if (numTokens  == 2) then
-            if (isInputNumber(tokens(2))) then
-                print *, "about to call psm update wv setting new ", trim(tokens(2))
-                call curr_psm%updateWavelengthSetting(str2int(trim(tokens(2))))
-                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
-                call LogTermFOR("Finished Updating Wv")
-            end if
-        end if
-        
-    end subroutine
 
     subroutine setPlotDensity(iptStr)
         
