@@ -7,7 +7,8 @@ C SUB CMDER.FOR
         use kdp_interfaces , only: EDITOR, POWSYM, FIR,
      1 SYSCONFIGUI, SPR, plot_seidel, MACROUI, PLT3DTST, 
      2 PLTIMTST, PTSTUFF, Sandbox
-        use codeV_commands
+        use codeV_commands, only: startCodeVLensUpdateCmd, 
+     1   newLens, setLens
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
      1 ID_TERMINAL_KDPDUMP, sysConfig
         use DATLEN
