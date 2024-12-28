@@ -436,7 +436,7 @@ module optim_types
             VAR_CODE = VAR_THI
         case('CCY')
             VAR_CODE = VAR_CURV
-        case('KY')
+        case('KC')
             VAR_CODE = VAR_K
         end select
 

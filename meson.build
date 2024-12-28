@@ -73,13 +73,17 @@ if fortran.get_id().contains('intel-cl')
     supported_arguments = fortran.get_supported_arguments([
     '-w',
     '/Qdiag-disable:remark',
+    '/Qm64',
+    '/threads',
     '/traceback',
-    '/Od',
+    #'/Od',
     '/debug:full',
     '/dbglibs',
     '/winapp',
     '/assume:byterecl',
     '/fpp'])
+    add_project_link_arguments(['/INCREMENTAL:NO','/NODEFAULTLIB:MSVCRT'], language: 'fortran')
+
 
   elif build_type == 'release'
     # -w inhibit all warning messages
