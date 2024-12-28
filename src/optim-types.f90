@@ -373,13 +373,17 @@ module optim_types
         integer :: i
 
         call PROCESSILENT('U L')
-
+        
+        ! Using KDP commands because the new commands get into bad loops during optimization.
+        ! obviously should fix this to directly update lens data but a project for another day..
         do i=1,nV
             select case(VARS(i,2))
             case(VAR_CURV)
                 call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CV '//real2str(x(i)))
             case(VAR_THI)
                 call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
+            case(VAR_K)
+                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CC '//real2str(x(i)))
             end select
 
         end do
@@ -420,6 +424,36 @@ module optim_types
         end do
 
     end function
+
+    subroutine updateOptimVarsNew(varName, s0, sf, intCode)
+        use type_utils
+        character(len=*) :: varName
+        integer, intent(in) :: s0, sf, intCode
+        integer :: i, VAR_CODE
+
+        select case (varName)
+        case('THC')
+            VAR_CODE = VAR_THI
+        case('CCY')
+            VAR_CODE = VAR_CURV
+        case('KY')
+            VAR_CODE = VAR_K
+        end select
+
+        ! New Code
+        select case (intCode)
+
+        case(0) ! Make Variable
+            if (s0==sf) then
+                call addOptimVariable(s0,VAR_CODE)
+            else
+                do i=s0,sf
+                    call addOptimVariable(i,VAR_CODE)
+                end do
+            end if
+
+        end select
+    end subroutine
 
 
     subroutine updateThiOptimVarsNew(s0, sf, intCode)
@@ -510,6 +544,8 @@ module optim_types
             outCmd = 'CCY'
         case(VAR_THI)
             outCmd = 'THC'
+        case(VAR_K)
+            outCmd = 'KC'            
         end select
 
     end function
@@ -596,7 +632,7 @@ module optim_types
         real(long), dimension(nV,3) :: VARDATA
         integer :: i, j, ctr
 
-        nV = nV + 1
+        !nV = nV + 1
         !VARS(nV,1) = surf
         !VARS(nV,2) = int_code
 
@@ -619,7 +655,11 @@ module optim_types
                         VARDATA(ctr,1) = ldm%getSurfThi(i)
                         VARDATA(ctr,2) = -0.1*huge(0.0_long)
                         VARDATA(ctr,3) = 0.1*huge(0.0_long)           
-                    end select
+                    case(VAR_K)
+                        VARDATA(ctr,1) = ldm%getConicConstant(i)
+                        VARDATA(ctr,2) = -0.1*huge(0.0_long)
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)           
+                end select                    
                     
                 end if
             end do

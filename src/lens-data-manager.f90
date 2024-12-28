@@ -17,6 +17,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
      procedure, public, pass(self) :: getSurfCurv, getSurfRad
+     procedure, public, pass(self) :: getConicConstant
      procedure, public, pass(self) :: getSurfIndex
      procedure, public, pass(self) :: getLastSurf
      procedure, public, pass(self) :: getEFL
@@ -26,6 +27,7 @@ module mod_lens_data_manager
      procedure :: getStopSurf
      procedure :: isGlassSurf
      procedure :: getGlassName
+     procedure :: updateOptimVars
      procedure :: updateThiOptimVars
      procedure :: updateCurvOptimVars
      procedure :: setVarOnSurf
@@ -123,6 +125,16 @@ module mod_lens_data_manager
 
         thi = ALENS(3,surfIdx)
         !thi = curr_lens_data%thicknesses(surfIdx+1)
+
+    end function
+
+    function getConicConstant(self, surfIdx) result(k)
+        use DATLEN, only: ALENS
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        real(kind=real64) :: k 
+        
+        k = ALENS(2,surfIdx)
 
     end function
 
@@ -241,6 +253,36 @@ module mod_lens_data_manager
         index = ALENS(WWVN,surfIdx)
 
     end function
+
+    subroutine updateOptimVars(self, varName, s0,sf,intCode)
+        use type_utils
+        !use optim_types
+        class(lens_data_manager) :: self
+        character(len=*) :: varName
+        integer, intent(in) :: s0, sf, intCode
+        integer :: i, VAR_CODE
+
+        select case (varName)
+        case('THC')
+            VAR_CODE = VAR_THI
+        case('CCY')
+            VAR_CODE = VAR_CURV
+        case('KY')
+            VAR_CODE = VAR_K
+        end select
+
+        select case (intCode)        
+        case(0) ! Make Variable if no pickups or solves on surface
+            if (s0==sf) then
+                call self%setVarOnSurf(s0, VAR_CODE)                                
+            else
+                do i=s0,sf
+                    call self%setVarOnSurf(i, VAR_CODE)    
+                end do
+            end if
+        end select              
+
+    end subroutine
 
     subroutine updateThiOptimVars(self, s0, sf, intCode)
         use type_utils
@@ -425,6 +467,7 @@ module mod_lens_data_manager
 
     end subroutine    
 
+    ! These funcs are interfaces for printing info in SUR 
     function getCCYCodeAsStr(self, si) result(outStr)
         use type_utils
 

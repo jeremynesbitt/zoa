@@ -177,6 +177,8 @@ integer, parameter :: wlIndices(*) = [1,2,3,4,5,6,7,8,9,10,ID_SETTING_WAVELENGTH
 ! Variable Type codes
 integer, parameter :: VAR_CURV = 1
 integer, parameter :: VAR_THI = 2
+integer, parameter :: VAR_K = 3 ! Conic constant
+
 
 
 ! Pikups (aka Pickups)

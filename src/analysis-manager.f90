@@ -46,7 +46,7 @@ module mod_analysis_manager
   
         call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex)
         ! This essentially serves as documentation for which index is which term
-        res = curr_par_ray_trace%CSeidel(2,ubound(curr_par_ray_trace%CSeidel, dim=2))
+        res = curr_par_ray_trace%CSeidel(1,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
     end function    
 

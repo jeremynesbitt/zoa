@@ -68,7 +68,7 @@ end subroutine execSeidelBarChart
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(581) :: zoaCmds
+    type(zoa_cmd), dimension(591) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -226,7 +226,9 @@ end subroutine execSeidelBarChart
         zoaCmds(557)%cmd = 'PRT'
         zoaCmds(557)%execFunc => printFile    
         zoaCmds(558)%cmd = 'THI'
-        zoaCmds(558)%execFunc => setThickness                            
+        zoaCmds(558)%execFunc => setThickness
+        zoaCmds(559)%cmd = 'KC' ! TODO:  Verify this is the correct value
+        zoaCmds(559)%execFunc => updateVarCodes                            
         
     end subroutine
 
@@ -1898,6 +1900,62 @@ end subroutine execSeidelBarChart
 
 
     end subroutine    
+
+    subroutine updateVarCodes(iptStr)
+        use command_utils, only : isInputNumber
+        use mod_lens_data_manager
+        use optim_types
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3) then
+            dotLoc = index(tokens(2),'..') 
+            if(dotLoc > 0) then
+                ! Assume input is Si..k
+                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
+                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
+                   s0 = str2int(tokens(2)(2:dotLoc-1))
+                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
+                   processResult = .TRUE.
+                else
+                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                end if
+            else ! No dots found
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (surfNum.NE.-1) then
+                s0=surfNum
+                sf=surfNum
+                processResult = .TRUE.
+            else
+                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+            end if
+            end if
+        end if
+
+        if (processResult) then
+            if(isInputNumber(trim(tokens(3)))) then
+                call ldm%updateOptimVars(trim(tokens(1)), s0,sf,str2int(trim(tokens(3))))
+                call updateOptimVarsNew(trim(tokens(1)),s0,sf,str2int(trim(tokens(3))))
+
+                !call ldm%updateCurvOptimVars(s0,sf,str2int(trim(tokens(3))))
+                !call updateCurvOptimVarsNew(s0,sf,str2int(trim(tokens(3))))
+            end if
+        else
+            call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")
+        end if
+
+
+    end subroutine        
 
 
     subroutine updateConstraint(iptStr)
