@@ -1,0 +1,8 @@
+RES OSDSinglet
+CCY S1 0
+CCY S2 0
+THC S3 0
+AUT
+EFL = 50
+GO
+
