@@ -280,8 +280,8 @@ module mod_lens_data_manager
                     call self%setVarOnSurf(i, VAR_CODE)    
                 end do
             end if
-        end select              
-
+        end select
+        
     end subroutine
 
     subroutine updateThiOptimVars(self, s0, sf, intCode)
@@ -400,6 +400,10 @@ module mod_lens_data_manager
         ! Code is 0.  Place it in if var_code is within range
         if (var_code > 0 .and. var_code <= ubound(self%vars,dim=2)) then 
         self%vars(surf,var_code) = 0
+        ! Add variable count so optmizer knows
+        ! Want to do it here but need to resolve circular dependency
+        !call addOptimVariable(surf, var_code)
+
         end if
                      
 

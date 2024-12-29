@@ -1840,10 +1840,8 @@ end subroutine execSeidelBarChart
         if (processResult) then
             if(isInputNumber(trim(tokens(3)))) then
                 call ldm%updateOptimVars(trim(tokens(1)), s0,sf,str2int(trim(tokens(3))))
+                ! THis is to revolve a circular dependency - not sure how to resolve this in a good way.             
                 call updateOptimVarsNew(trim(tokens(1)),s0,sf,str2int(trim(tokens(3))))
-
-                !call ldm%updateCurvOptimVars(s0,sf,str2int(trim(tokens(3))))
-                !call updateCurvOptimVarsNew(s0,sf,str2int(trim(tokens(3))))
             end if
         else
             call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")

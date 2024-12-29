@@ -64,7 +64,7 @@ module zoa_macro_ui
     character(kind=c_char, len=100) :: ftext
     integer(kind=c_int) :: nsel
     integer(kind=c_int), dimension(:), allocatable :: selections
-    character(len=8) :: svalue
+    character(len=256) :: svalue
     character(len=100) :: entryText
 
     if (c_associated(gdata)) then

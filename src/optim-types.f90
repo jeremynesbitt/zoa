@@ -210,27 +210,13 @@ module optim_types
     end function      
 
     subroutine addOptimVariable(surf, int_code)
-        use mod_lens_data_manager
 
         implicit none
         integer :: surf, int_code
 
+        ! For better or worse, I changed this to increment the variable counter.
+        ! If / when the variables are actually used, they are refound from where
         nV = nV + 1
-        ! VARS(nV,1) = surf
-        ! VARS(nV,2) = int_code
-
-        ! ! Store initial value and bounds
-        ! select case(int_code)
-        ! case(VAR_CURV)
-        !     VARDATA(nV,1) = ldm%getSurfCurv(surf)
-        !     VARDATA(nV,2) = -0.1*huge(0.0_long)
-        !     VARDATA(nV,3) = 0.1*huge(0.0_long)
-        ! case(VAR_THI)
-        !     VARDATA(nV,1) = ldm%getSurfThi(surf)
-        !     VARDATA(nV,2) = -0.1*huge(0.0_long)
-        !     VARDATA(nV,3) = 0.1*huge(0.0_long)           
-        ! end select
-
 
     end subroutine
 
