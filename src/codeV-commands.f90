@@ -21,8 +21,9 @@ module codeV_commands
     use type_utils
     use handlers, only: updateTerminalLog, zoatabMgr
     use strings
-    use cmd_interfaces
-
+    
+   !ifort will not compile the common interfaces unless I do it this way
+    include "codeV-interfaces.INC"
 
 
     type zoa_cmd

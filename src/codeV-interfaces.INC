@@ -1,4 +1,3 @@
-module cmd_interfaces
 
     interface
     module subroutine execSUR(iptStr)
@@ -32,5 +31,3 @@ module cmd_interfaces
     character(len=*) :: iptStr
    end subroutine setGlass    
     end interface
-
-end module
