@@ -21,6 +21,7 @@ module codeV_commands
     use type_utils
     use handlers, only: updateTerminalLog, zoatabMgr
     use strings
+    use cmd_interfaces
 
 
 
@@ -38,33 +39,6 @@ module codeV_commands
        !real, intent (in) :: z
     end subroutine cmdImplementation 
  end interface    
-
- interface
- module subroutine execSUR(iptStr)
- character(len=*) :: iptStr
- end subroutine execSUR
- module subroutine setPlotWavelength(iptStr)
-character(len=*) :: iptStr
-end subroutine setPlotWavelength
-module subroutine setPlotDensity(iptStr)
-character(len=*) :: iptStr
-end subroutine setPlotDensity  
-module subroutine setPlotZernikeCoefficients(iptStr)
-character(len=*) :: iptStr
-end subroutine setPlotZernikeCoefficients 
-module subroutine ZERN_TST(iptStr)
-character(len=*) :: iptStr
-end subroutine ZERN_TST
-module subroutine execVie(iptStr)
-character(len=*) :: iptStr
-end subroutine execVie
-module subroutine execRMSPlot(iptStr)
-character(len=*) :: iptStr
-end subroutine execRMSPlot 
-module subroutine execSeidelBarChart(iptStr)
-character(len=*) :: iptStr
-end subroutine execSeidelBarChart    
- end interface
 
 
     character(len=4), dimension(500) :: surfCmds
@@ -1770,31 +1744,6 @@ end subroutine execSeidelBarChart
         ! end if                    
 
     end subroutine
-
-    subroutine setThickness(iptStr)
-        use command_utils, only : parseCommandIntoTokens
-        use DATMAI
-        implicit none
-
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        character(len=*) :: iptStr
-
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
-        PRINT *, "Token is ", trim(tokens(2))
-        if(isSurfCommand(trim(tokens(2)))) then
-            PRINT *, "Token is ", trim(tokens(2))
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; TH, ' // trim(tokens(3))//';GO')          
-        else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
-            return
-        end if       
-
-    end subroutine
-
 
     subroutine updateVarCodes(iptStr)
         use command_utils, only : isInputNumber

@@ -2125,7 +2125,7 @@ subroutine genLensDataSaveOutputText(self, fID)
 
   do ii=2,self%num_surfaces-1
     surfStr = 'S' !//trim(int2str(ii-1))
-    if (ii==2) surfStr = 'S1'
+    !if (ii==2) surfStr = 'S1'
 
     !glassStr = self%glassnames(ii)
     !if (isModelGlass(glassStr)) glassStr = set 
@@ -2146,7 +2146,7 @@ subroutine genLensDataSaveOutputText(self, fID)
     PRINT *, trim(strSurfLine)
     ! Check for ref stop
     if (self%ref_stop == ii) then
-      strSurfLine = blankStr(2)//'STO S'//trim(int2str(ii-1))
+      strSurfLine = blankStr(2)//'STO'
       write(fID, *) trim(strSurfLine)
     end if
     ! Check for user specified clear aperture.  TODO:  Need to implement a more sophisticated

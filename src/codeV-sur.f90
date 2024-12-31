@@ -93,6 +93,29 @@ module procedure execSUR
 
     end procedure
 
+    module procedure setThickness
+        use command_utils, only : parseCommandIntoTokens
+        use DATMAI
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        PRINT *, "Token is ", trim(tokens(2))
+        if(isSurfCommand(trim(tokens(2)))) then
+            PRINT *, "Token is ", trim(tokens(2))
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; TH, ' // trim(tokens(3))//';GO')          
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if       
+
+    end procedure
+
     function getGlassText(surf) result(glaTxt)
         use type_utils, only: blankStr
         use mod_lens_data_manager
