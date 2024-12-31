@@ -2587,8 +2587,9 @@ end subroutine execSeidelBarChart
         use mod_lens_data_manager
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
+        implicit none
         character(len=*) :: iptCmd
-        integer :: surfNum
+        integer :: surfNum, ptrIdx
 
         !print *, "IPTCMD is ", iptCmd
         !print *, "len of iptCmd is ", len(iptCmd)
@@ -2598,7 +2599,7 @@ end subroutine execSeidelBarChart
         if(len(iptCmd).EQ.1) then ! It is S, which means we either move to the next surface or add a surface before
                                   ! the last surface.  
             ptrIdx = ldm%getSurfacePointer()
-            if (ptrIdx >= ldm%getLastSurf()) then
+            if (ptrIdx >= ldm%getLastSurf()-1) then
                 ! increment surface
                 surfNum = curr_lens_data%num_surfaces-1
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
