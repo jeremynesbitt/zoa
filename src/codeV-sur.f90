@@ -116,6 +116,33 @@ module procedure execSUR
 
     end procedure
 
+    ! format:  GLA Sk GLASSNAME
+    module procedure setGlass
+        use command_utils, only : checkCommandInput, getInputNumber, isInputNumber
+        use glass_manager, only: parseModelGlassEntry
+        use DATMAI
+        use strings
+
+        implicit none
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+
+        !call updateTerminalLog("Starting to update GLA ", "blue" )
+        call parse(iptStr, ' ', tokens, numTokens)
+
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; '//trim(getSetGlassText(trim(tokens(3))))//';GO')        
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if                
+               
+    end procedure
+
     function getGlassText(surf) result(glaTxt)
         use type_utils, only: blankStr
         use mod_lens_data_manager

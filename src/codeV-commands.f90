@@ -203,6 +203,8 @@ module codeV_commands
         zoaCmds(558)%execFunc => setThickness
         zoaCmds(559)%cmd = 'KC' ! TODO:  Verify this is the correct value
         zoaCmds(559)%execFunc => updateVarCodes                            
+        zoaCmds(560)%cmd = 'GLA'
+        zoaCmds(560)%execFunc => setGlass
         
     end subroutine
 
@@ -293,10 +295,10 @@ module codeV_commands
         !     call insertSurf()
         !     boolResult = .TRUE.
         !     return      
-        case ('GLA')
-            call setGlass()
-            boolResult = .TRUE.
-            return           
+        ! case ('GLA')
+        !     call setGlass()
+        !     boolResult = .TRUE.
+        !     return           
         case ('PIM')
             call setParaxialImageSolve()
             boolResult = .TRUE.
@@ -1706,44 +1708,7 @@ module codeV_commands
     end function
 
 
-    ! format:  GLA Sk GLASSNAME
-    subroutine setGlass()
-        use command_utils, only : checkCommandInput, getInputNumber, parseCommandIntoTokens, isInputNumber
-        use glass_manager, only: parseModelGlassEntry
-        use DATMAI
-        !character(len=*) :: iptCmd
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
 
-
-        !call updateTerminalLog("Starting to update GLA ", "blue" )
-
-        call parseCommandIntoTokens(trim(INPUT), tokens, numTokens, ' ')
-
-        if(isSurfCommand(trim(tokens(2)))) then
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; '//trim(getSetGlassText(trim(tokens(3))))//';GO')        
-        else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
-            return
-        end if                
-
-        
-
-        PRINT *, "tokens(1) is ", trim(tokens(2))
-        PRINT *, "tokens(2) is ", trim(tokens(3))
-        
-
-       
-        ! if (checkCommandInput([ID_CMD_NUM], max_num_terms=2)) then
-        !     surfNum = INT(getInputNumber(1))
-        !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-        !     & '; RD, ' // real2str(getInputNumber(2)))
-        ! end if                    
-
-    end subroutine
 
     subroutine updateVarCodes(iptStr)
         use command_utils, only : isInputNumber

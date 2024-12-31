@@ -28,6 +28,9 @@ module cmd_interfaces
    module subroutine setThickness(iptStr)
     character(len=*) :: iptStr
    end subroutine setThickness 
+   module subroutine setGlass(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setGlass    
     end interface
 
 end module
