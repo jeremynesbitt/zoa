@@ -2584,6 +2584,7 @@ end subroutine execSeidelBarChart
       end subroutine
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)
+        use mod_lens_data_manager
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
         character(len=*) :: iptCmd
@@ -2594,11 +2595,17 @@ end subroutine execSeidelBarChart
 
         surfnum = -1 ! For error checking
 
-        if(len(iptCmd).EQ.1) then ! It is S, which means we have to add a surface before
+        if(len(iptCmd).EQ.1) then ! It is S, which means we either move to the next surface or add a surface before
                                   ! the last surface.  
-            surfNum = curr_lens_data%num_surfaces-1
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            &  "; INSK "//trim(int2str(surfNum)))
+            ptrIdx = ldm%getSurfacePointer()
+            if (ptrIdx >= ldm%getLastSurf()) then
+                ! increment surface
+                surfNum = curr_lens_data%num_surfaces-1
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                &  "; INSK "//trim(int2str(surfNum)))
+            else ! Move pointer to next surface
+                call ldm%incrementSurfacePointer()
+            end if
             !surfNum = 1
             return
         end if

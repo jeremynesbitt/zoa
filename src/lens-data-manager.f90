@@ -33,6 +33,7 @@ module mod_lens_data_manager
      procedure :: setVarOnSurf
      procedure :: isSolveOnSurf, isPikupOnSurf
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
+     procedure :: getSurfacePointer, incrementSurfacePointer
 
 
     end type
@@ -116,6 +117,25 @@ module mod_lens_data_manager
         Sf = curr_lens_data%num_surfaces-1
 
     end function
+
+    function getSurfacePointer(self) result(idx)
+        use DATLEN, only: SURF
+        implicit none
+        class(lens_data_manager) :: self 
+        integer :: idx
+
+        idx = SURF
+
+    end function
+
+    subroutine incrementSurfacePointer(self) 
+        use DATLEN, only: SURF
+        implicit none
+        class(lens_data_manager) :: self 
+
+        SURF = SURF + 1
+
+    end subroutine 
 
     function getSurfThi(self, surfIdx) result(thi)
         use DATLEN, only: ALENS
