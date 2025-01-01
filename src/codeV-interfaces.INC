@@ -35,6 +35,7 @@
    end subroutine setCurvature  
    module subroutine setRadius(iptStr)
     character(len=*) :: iptStr
+<<<<<<< HEAD
    end subroutine setRadius     
    module subroutine setSurfaceCodeVStyle(iptStr)
     character(len=*) :: iptStr
@@ -42,4 +43,10 @@
    module subroutine insertSurf(iptStr)
     character(len=*) :: iptStr
    end subroutine insertSurf             
+=======
+   end subroutine setRadius    
+   module subroutine execPSF(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execPSF            
+>>>>>>> 87f8dfe (PSF plot framework added)
     end interface

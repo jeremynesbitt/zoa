@@ -58,6 +58,9 @@ module codeV_commands
     integer, parameter :: TOW_LOOP = 5
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
+    integer, parameter :: PSF_LOOP = 8
+
+
 
 
 
@@ -217,6 +220,7 @@ module codeV_commands
         zoaCmds(564)%cmd = 'TIT'
         zoaCmds(564)%execFunc => setLensTitle
         zoaCmds(565)%cmd = 'DIM'
+<<<<<<< HEAD
         zoaCmds(565)%execFunc => setDim 
         zoaCmds(566)%cmd = 'GO'
         zoaCmds(566)%execFunc => executeGO 
@@ -228,6 +232,11 @@ module codeV_commands
         zoaCmds(569)%execFunc => execSetCodeVCmd                                
 
         
+=======
+        zoaCmds(565)%execFunc => setDim    
+        zoaCmds(566)%cmd = 'PSFC'
+        zoaCmds(566)%execFunc => execPSF                                
+>>>>>>> 87f8dfe (PSF plot framework added)
 
 
         
@@ -2056,6 +2065,11 @@ module codeV_commands
         character(len=*) :: iptStr
 
         !TODO:  Switch to select case
+        if (cmd_loop == PSF_LOOP) then
+            call psf_go(curr_psm)
+            cmd_loop = 0
+        end if        
+
         if (cmd_loop == AUT_LOOP) then
             call aut_go()
             cmd_loop = 0

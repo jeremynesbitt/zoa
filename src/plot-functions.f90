@@ -3,7 +3,10 @@
 ! It is a lock and key design.  
 ! To create a new plot:
 ! Add a key in zoa-ui as an integer constant parameter.  Needs to be unique compared to other plots
-!
+! Add a new cmd with an exec function in cmd-plot
+! add a cmd to switch to plot in executeGo
+! add a _LOOP ID in codeV-commands (todo:  Merge this with PLOTTYPe?)
+! add a function here to actually do the plot work
 
 
 module plot_functions
@@ -1021,6 +1024,7 @@ subroutine rayaberration_go(psm)
 
 end subroutine
 
+
 subroutine rmsfield_go(psm)
   USE GLOBALS
   use command_utils
@@ -1104,6 +1108,97 @@ call mplt%set(1,1,xyscat)
 
 
 call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RMSFIELD, "RMS vs Field")
+
+end subroutine
+
+subroutine psf_go(psm)
+
+  USE GLOBALS
+  use command_utils
+  use handlers, only: updateTerminalLog
+  use global_widgets, only:  sysConfig, curr_opd
+  use type_utils, only: int2str
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use plot_setting_manager
+  use gtk, only: gtk_expander_set_expanded
+
+
+IMPLICIT NONE
+
+character(len=1024) :: ffieldstr
+type(zoaplot_setting_manager) :: psm
+
+! desirable commands
+! n - density
+! w - wavelength
+! f - field
+! s - surface (i=image, o=object)
+! p - plot (future implementation eg image vs 3d Plot)
+! azi alt - azimuth and altitude for 3d plot
+! eg PLTOPD n64 w1 f3 si p0 azi30 alt60
+
+
+!REAL, allocatable :: x(:), y(:)
+
+
+    !   xdim is the leading dimension of z, xpts <= xdim is the leading
+    !   dimension of z that is defined.
+integer :: xpts, ypts
+integer, parameter :: xdim=99, ydim=100 
+integer :: lambda, fldIdx
+
+integer, parameter :: nlevel = 10
+
+type(c_ptr) :: canvas
+!type(zoaPlot3d) :: zp3d 
+type(zoaPlotImg) :: zp3d 
+type(multiplot) :: mplt
+
+
+lambda = psm%getWavelengthSetting()
+fldIdx = psm%getFieldSetting()
+xpts = psm%getDensitySetting()
+ypts = xpts
+
+
+PRINT *, "fldIdx is ", fldIdx
+WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
+& , ' ' , sysConfig%relativeFields(1, fldIdx)
+CALL PROCESKDP(trim(ffieldstr))
+
+!CALL PROCESKDP('FOB 1')
+PRINT *, "Calling CAPFN"
+call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
+!call getOPDData(lambda)
+!PRINT *, "Calling OPDLOD"
+call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
+!call OPDLOD
+
+
+
+ !call checkCommandInput(ID_CMD_ALPHA)
+
+canvas = hl_gtk_drawing_area_new(size=[600,600], &
+& has_alpha=FALSE)
+
+call mplt%initialize(canvas, 1,1)
+PRINT *, "size of X is ", size(curr_opd%X)
+!PRINT *, "X is ", real(curr_opd%X)
+ call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), & 
+ & real(curr_opd%Z), xpts, ypts, & 
+ & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
+ & title='Optical Path Difference'//c_null_char)
+
+ call mplt%set(1,1,zp3d)
+
+
+ call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_PSF, "Optical Path Difference")
+
+
 
 end subroutine
 

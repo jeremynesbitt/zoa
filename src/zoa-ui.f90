@@ -18,6 +18,7 @@ integer, parameter :: ID_PLOTTYPE_OPD     = 1017
 integer, parameter :: ID_PLOTTYPE_FAN     = 1018
 integer, parameter :: ID_PLOTTYPE_LENSDRAW     = 2001
 integer, parameter :: ID_PLOTTYPE_RIM     = 1029
+integer, parameter :: ID_PLOTTYPE_PSF     = 1030
 
 integer, parameter :: ID_TOW_TAB  = 4001
 
