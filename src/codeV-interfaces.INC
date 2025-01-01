@@ -29,5 +29,11 @@
    end subroutine setThickness 
    module subroutine setGlass(iptStr)
     character(len=*) :: iptStr
-   end subroutine setGlass    
+   end subroutine setGlass   
+   module subroutine setCurvature(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setCurvature  
+   module subroutine setRadius(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setRadius         
     end interface

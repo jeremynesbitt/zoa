@@ -23,6 +23,8 @@ module codeV_commands
     use strings
     
    !ifort will not compile the common interfaces unless I do it this way
+    ! I had wanted to do a module with interfaces only.  gfortran was okay with it
+    ! but not ifort.  
     include "codeV-interfaces.INC"
 
 
@@ -206,12 +208,23 @@ module codeV_commands
         zoaCmds(559)%execFunc => updateVarCodes                            
         zoaCmds(560)%cmd = 'GLA'
         zoaCmds(560)%execFunc => setGlass
+        zoaCmds(561)%cmd = 'CUY'
+        zoaCmds(561)%execFunc => setCurvature  
+        zoaCmds(562)%cmd = 'DEL'
+        zoaCmds(562)%execFunc => deleteStuff   
+        zoaCmds(563)%cmd = 'RDY'
+        zoaCmds(563)%execFunc => setRadius    
+        zoaCmds(564)%cmd = 'TIT'
+        zoaCmds(564)%execFunc => setLensTitle
+        zoaCmds(565)%cmd = 'DIM'
+        zoaCmds(565)%execFunc => setDim                        
+
+
         
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
         use GLOBALS, only:  currentCommand
-        use DATMAI
 
         character(len=*) :: iptCmd
         integer :: ii
@@ -219,33 +232,7 @@ module codeV_commands
 
         boolResult = .FALSE.
 
-        ! IF(iptCmd.EQ.'TIT') THEN
-        !         CALL setLensTitle()
-        !         return
-        !       END IF   
-        ! IF(iptCmd.EQ.'YAN') THEN
-        !         CALL setField('YAN')
-        !         return
-        !       END IF   
-        ! IF(iptCmd.EQ.'WL') THEN
-        !         CALL setWavelength()
-        !         return
-        !       END IF    
-        ! IF(iptCmd.EQ.'SO'.OR.iptCmd.EQ.'S') then
-        !         CALL setSurfaceCodeVStyle(iptCmd)
-        !         return
-        !       END IF          
-        ! IF(isSurfCommand(iptCmd)) then
-        !         CALL setSurfaceCodeVStyle(iptCmd)
-        !         return
-        !       END IF                         
-        ! IF(iptCmd.EQ.'GO') then
-        !         CALL executeGo()
-        !         return
-        !       END IF  
-        ! select case (iptCmd)
-        
-
+    
         do ii=1,size(zoaCmds)
         if (iptCmd == zoaCmds(ii)%cmd) then
             if (cmd_loop == TOW_LOOP .AND. iptCmd /= 'GO') then
@@ -266,40 +253,12 @@ module codeV_commands
         end do
 
         select case (iptCmd)
-
-        ! case('WL')
-        !     CALL setWavelength()
-        !     boolResult = .TRUE.
-        !     return            
-        ! case('SO','S')
-        !     CALL setSurfaceCodeVStyle(iptCmd)
-        !     boolResult = .TRUE.
-        !     return            
+           
         case('GO')
             CALL executeGo()
             boolResult = .TRUE.
             return
-
-        case('TIT') 
-            CALL setLensTitle()
-            boolResult = .TRUE.
-            return            
-        case ('DIM')
-            call setDim()
-            boolResult = .TRUE.
-            return 
-        case ('RDY')
-            call setRadius()
-            boolResult = .TRUE.
-            return  
-        ! case ('INS')
-        !     call insertSurf()
-        !     boolResult = .TRUE.
-        !     return      
-        ! case ('GLA')
-        !     call setGlass()
-        !     boolResult = .TRUE.
-        !     return           
+         
         case ('PIM')
             call setParaxialImageSolve()
             boolResult = .TRUE.
@@ -308,20 +267,11 @@ module codeV_commands
             call setEPD()
             boolResult = .TRUE.
             return   
-        case ('CUY')
-            call setCurvature()
-            boolResult = .TRUE.
-            return             
-        case ('DEL')
-            call deleteStuff()
-            boolResult = .TRUE.
-            return                 
-
-        ! case ('RED')
-        !     call setMagSolve()
+        ! case ('CUY')
+        !     call setCurvature()
         !     boolResult = .TRUE.
-        !     return  
-
+        !     return             
+            
         case ('SETC')
             call execSetCodeVCmd()
             boolResult = .TRUE.
@@ -1208,6 +1158,7 @@ module codeV_commands
 
     subroutine execSTO(iptStr)
         use command_utils, only : parseCommandIntoTokens
+        use mod_lens_data_manager, only: ldm
     
         implicit none
 
@@ -1217,27 +1168,27 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens
 
+        surfNum = -1 ! Error checking
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         if (numTokens == 2 ) then
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; ASTOP; REFS; EOS')
             else
 
             call updateTerminalLog("STO Should have a surface identifier (S0, Sk, Si, SA)", "red")
+            return
             end if
 
         else
-            call updateTerminalLog("No Surface identifier given!  Please try again", "red")
+            ! Use current surface
+            surfNum = ldm%getSurfacePointer()
 
         end if
 
-
-
+        ! If we got here, update
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+        & '; ASTOP; REFS; EOS')
     end subroutine
-
-
 
     subroutine execRestore(iptStr)
         implicit none
@@ -1477,7 +1428,6 @@ module codeV_commands
     ! Change surface to refraction, reflection tir
 
     subroutine execRMD(iptStr)
-        use DATMAI
         use command_utils, only : parseCommandIntoTokens
         implicit none
 
@@ -1570,17 +1520,17 @@ module codeV_commands
 
     ! Format:  DEL SOL CUY S2
     !          DEL PIM
-    subroutine deleteStuff()
+    subroutine deleteStuff(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data
-        use DATMAI
         implicit none
 
+        character(len=*) :: iptStr
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
         ! command and figuring out what commands to translate it to
         if(numTokens > 1 ) then
@@ -1610,49 +1560,6 @@ module codeV_commands
             end select
 
         end if
-
-    end subroutine
-
-    ! Format:  CUY Sk SOLVETYPE VAL
-    subroutine setCurvature()
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use DATMAI
-        implicit none
-
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
-        if(isSurfCommand(trim(tokens(2)))) then
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            if (numTokens > 2) then
-               if (isInputNumber(trim(tokens(3)))) then ! FORMAT: CUY Sk VAL
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; CV, ' // trim(tokens(3))//";GO")
-               else                 
-                
-
-               select case (trim(tokens(3)))
-               case('UMY')
-                PRINT *, "In the right place!  How exciting!!"
-                PRINT *, "numTokens is ", numTokens
-                if (numTokens > 3 ) then
-                    call updateTerminalLog("Give it a try!", "blue")
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; PUY, ' // trim(tokens(4))//";GO") 
-                end if
-
-               end select 
-            end if ! Tokens > 2 loop
-            else
-                call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
-            end if
-         
-        else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
-            return
-        end if          
 
     end subroutine
 
@@ -1885,28 +1792,6 @@ module codeV_commands
 
     end subroutine        
 
-    !Format RDY Sk Val
-    subroutine setRadius()
-        use command_utils, only : parseCommandIntoTokens
-        use DATMAI
-        implicit none
-
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
-
-        if(isSurfCommand(trim(tokens(2)))) then
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(3))//';GO')          
-        else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
-            return
-        end if             
-       
-    end subroutine
 
     ! NBR ELE Si..j only supported
     subroutine execNBR(iptStr)
@@ -2043,8 +1928,9 @@ module codeV_commands
 
 
 
-    subroutine setDim()
+    subroutine setDim(iptStr)
         use command_utils
+        character(len=*) :: iptStr
         logical :: inputCheck
 
          inputCheck = checkCommandInput([ID_CMD_QUAL], qual_words=['M', 'C', 'I'], &
@@ -2055,11 +1941,11 @@ module codeV_commands
             select case (getQualWord())
 
             case ('M')
-                call executeCodeVLensUpdateCommand("UNITS MM")
+                call executeCodeVLensUpdateCommand("UNITS MM", exitLensUpdate=.TRUE.)
             case ('C')
-                call executeCodeVLensUpdateCommand("UNITS CM")
+                call executeCodeVLensUpdateCommand("UNITS CM", exitLensUpdate=.TRUE.)
             case ('I')
-                call executeCodeVLensUpdateCommand("UNITS IN")
+                call executeCodeVLensUpdateCommand("UNITS IN", exitLensUpdate=.TRUE.)
 
             end select
 
@@ -2109,18 +1995,15 @@ module codeV_commands
       end subroutine    
 
       !TIT
-      subroutine setLensTitle()
+      ! todo:  Send title to parseTitleCommand to clean this up a bit
+      subroutine setLensTitle(iptStr)
         use command_utils
-        use kdp_utils, only: inLensUpdateLevel
-        use DATMAI
+
+        character(len=*) :: iptStr
 
         call executeCodeVLensUpdateCommand('LI '// parseTitleCommand())
 
-        ! if (inLensUpdateLevel()) then
-        !     call PROCESKDP('LI '// parseTitleCommand())
-        ! else
-        !    call PROCESKDP('U L;LI '// parseTitleCommand()//';EOS')
-        ! end if
+
 
       end subroutine
 
@@ -2431,17 +2314,17 @@ module codeV_commands
         ! This hard coding of cmds is temporary, until I migrate these to new format
 
         !tstCmds(1)%s = 'YAN'
-        tstCmds(2)%s = 'TIT'
+        !tstCmds(2)%s = 'TIT'
         !tstCmds(3)%s = 'WL'
         tstCmds(6)%s = 'GO'
         tstCmds(7)%s = 'DIM'
-        tstCmds(8)%s = 'RDY'
-        tstCmds(9)%s = 'THI'
+        !tstCmds(8)%s = 'RDY'
+        !tstCmds(9)%s = 'THI'
         !tstCmds(10)%s = 'INS'
-        tstCmds(11)%s = 'GLA'
+        !tstCmds(11)%s = 'GLA'
         tstCmds(12)%s = 'PIM'
         tstCmds(13)%s = 'EPD'
-        tstCmds(14)%s = 'CUY'
+        !tstCmds(14)%s = 'CUY'
         tstCmds(15)%s = 'DEL'
         !tstCmds(16)%s = 'RED'
         tstCmds(17)%s = 'SETC'

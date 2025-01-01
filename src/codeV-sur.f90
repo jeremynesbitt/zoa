@@ -167,4 +167,67 @@ module procedure execSUR
 
     end function
 
+    ! Format:  CUY Sk SOLVETYPE VAL
+    module procedure setCurvature
+        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (numTokens > 2) then
+               if (isInputNumber(trim(tokens(3)))) then ! FORMAT: CUY Sk VAL
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; CV, ' // trim(tokens(3))//";GO")
+               else                 
+                
+
+               select case (trim(tokens(3)))
+               case('UMY')
+                PRINT *, "In the right place!  How exciting!!"
+                PRINT *, "numTokens is ", numTokens
+                if (numTokens > 3 ) then
+                    call updateTerminalLog("Give it a try!", "blue")
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                    & '; PUY, ' // trim(tokens(4))//";GO") 
+                end if
+
+               end select 
+            end if ! Tokens > 2 loop
+            else
+                call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
+            end if
+         
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if          
+
+    end procedure
+
+    !Format RDY Sk Val
+    module procedure setRadius
+        use strings
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(iptStr, ' ', tokens, numTokens)
+        if(isSurfCommand(trim(tokens(2)))) then
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(3))//';GO')          
+        else
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            return
+        end if             
+       
+    end procedure
+
 end submodule
