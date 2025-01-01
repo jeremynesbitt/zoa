@@ -45,7 +45,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(611) :: zoaCmds
+    type(zoa_cmd), dimension(591) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -59,9 +59,6 @@ module codeV_commands
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
     integer, parameter :: PSF_LOOP = 8
-
-
-
 
 
 
@@ -220,32 +217,15 @@ module codeV_commands
         zoaCmds(564)%cmd = 'TIT'
         zoaCmds(564)%execFunc => setLensTitle
         zoaCmds(565)%cmd = 'DIM'
-<<<<<<< HEAD
-        zoaCmds(565)%execFunc => setDim 
-        zoaCmds(566)%cmd = 'GO'
-        zoaCmds(566)%execFunc => executeGO 
-        zoaCmds(567)%cmd = 'PIM'
-        zoaCmds(567)%execFunc => setParaxialImageSolve    
-        zoaCmds(568)%cmd = 'EPD'
-        zoaCmds(568)%execFunc => setEPD 
-        zoaCmds(569)%cmd = 'SETC'
-        zoaCmds(569)%execFunc => execSetCodeVCmd                                
-
-        
-=======
-        zoaCmds(565)%execFunc => setDim    
+        zoaCmds(565)%execFunc => setDim                        
         zoaCmds(566)%cmd = 'PSFC'
-        zoaCmds(566)%execFunc => execPSF                                
->>>>>>> 87f8dfe (PSF plot framework added)
-
+        zoaCmds(566)%execFunc => execPSF     
 
         
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
         use GLOBALS, only:  currentCommand
-
-        implicit none
 
         character(len=*) :: iptCmd
         integer :: ii
@@ -272,7 +252,39 @@ module codeV_commands
             return
         end if
         end do
+
+        select case (iptCmd)
            
+        case('GO')
+            CALL executeGo()
+            boolResult = .TRUE.
+            return
+         
+        case ('PIM')
+            call setParaxialImageSolve()
+            boolResult = .TRUE.
+            return     
+        case ('EPD')
+            call setEPD()
+            boolResult = .TRUE.
+            return   
+        ! case ('CUY')
+        !     call setCurvature()
+        !     boolResult = .TRUE.
+        !     return             
+            
+        case ('SETC')
+            call execSetCodeVCmd()
+            boolResult = .TRUE.
+            return              
+
+        end select
+
+        ! Handle Sk separately
+        ! IF(isSurfCommand(iptCmd)) then
+        !     CALL setSurfaceCodeVStyle(iptCmd)
+        !     return
+        !   END IF            
               
     end function
      
@@ -1454,17 +1466,16 @@ module codeV_commands
         end if  
     end subroutine
 
-    subroutine execSetCodeVCmd(iptStr)
+    subroutine execSetCodeVCmd()
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data, curr_par_ray_trace     
-
+        use DATMAI
         implicit none
-        character(len=*) :: iptStr
 
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
         ! command and figuring out what commands to translate it to
         if(numTokens > 1 ) then
@@ -1553,10 +1564,9 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setEPD(iptStr)
+    subroutine setEPD()
         use command_utils
         implicit none
-        character(len=*) :: iptStr
 
          if(checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
             call executeCodeVLensUpdateCommand('SAY '//real2str(getInputNumber(1)/2.0))
@@ -1571,10 +1581,8 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setParaxialImageSolve(iptStr)
+    subroutine setParaxialImageSolve()
         use global_widgets, only: curr_lens_data
-        implicit none
-        character(len=*) :: iptStr
         integer :: surfNum
 
         ! Get surface before last surface and add solve
@@ -1861,6 +1869,66 @@ module codeV_commands
 
     end subroutine
 
+    subroutine insertSurf(iptStr)
+        use command_utils, only: isInputNumber
+        implicit none
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: surfNum, i, s0, sf, dotLoc
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numTokens == 2) then
+            ! Treat special case of ..  TODO:  Should this be in getSurfNum(eg return array output?).  Seems messy
+            dotLoc = index(tokens(2),'..') 
+            if(dotLoc > 0) then
+                ! Assume input is Si..k
+                PRINT *, "dotLoc-1 is ", dotLoc-1
+                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
+                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
+                   s0 = str2int(tokens(2)(2:dotLoc-1))
+                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
+                   PRINT *, "s0 is ", s0
+                   PRINT *, "sf is ", sf
+                   do i=s0,sf
+                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)                           
+                   end do
+                else
+                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                end if
+            else ! No dots found
+    
+
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            if (surfNum.NE.-1) then
+               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+            else
+                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+            end if
+            end if
+        end if
+
+
+    
+
+        !PRINT *, "Inside insertSurf"
+        ! TODO:  Add an error check for Sk in checkCommandInput
+
+        ! if (checkCommandInput([ID_CMD_QUAL])) then
+        !     surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
+        !     call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
+        ! end if            
+
+
+
+
+    end subroutine
+
+
+
     subroutine setDim(iptStr)
         use command_utils
         character(len=*) :: iptStr
@@ -2054,22 +2122,19 @@ module codeV_commands
       end subroutine      
 
       !Todo:  put this in a submodule, as this sub will get HUGE eventually
-      subroutine executeGo(iptStr)
+      subroutine executeGo()
         use global_widgets, only: ioConfig
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
         use optim_functions
         use tow_functions, only: tow_go
 
-        implicit none
-        character(len=*) :: iptStr
-
         !TODO:  Switch to select case
         if (cmd_loop == PSF_LOOP) then
             call psf_go(curr_psm)
             cmd_loop = 0
         end if        
-
+        
         if (cmd_loop == AUT_LOOP) then
             call aut_go()
             cmd_loop = 0
@@ -2240,8 +2305,40 @@ module codeV_commands
 
         logical :: boolResult
         character(len=*) :: tstCmd
-        type(string) :: tstCmds(size(zoaCmds))
+        type(string) :: tstCmds(17+size(zoaCmds))
         integer :: i
+
+
+        ! TODO:  Find some better way to do this.  For now, brute force it
+        ! codeVCmds = [character(len=4) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
+        ! &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
+        ! & 'DEL', 'RED', 'SETC', 'AAA', 'AAA']
+        ! do i=1,size(zoaCmds)
+        !    codeVCmds(i+17) = zoaCmds(i)%cmd
+        ! end do
+
+        ! This hard coding of cmds is temporary, until I migrate these to new format
+
+        !tstCmds(1)%s = 'YAN'
+        !tstCmds(2)%s = 'TIT'
+        !tstCmds(3)%s = 'WL'
+        tstCmds(6)%s = 'GO'
+        tstCmds(7)%s = 'DIM'
+        !tstCmds(8)%s = 'RDY'
+        !tstCmds(9)%s = 'THI'
+        !tstCmds(10)%s = 'INS'
+        !tstCmds(11)%s = 'GLA'
+        tstCmds(12)%s = 'PIM'
+        tstCmds(13)%s = 'EPD'
+        !tstCmds(14)%s = 'CUY'
+        tstCmds(15)%s = 'DEL'
+        !tstCmds(16)%s = 'RED'
+        tstCmds(17)%s = 'SETC'
+        do i=1,size(zoaCmds)
+            tstCmds(17+i)%s = zoaCmds(i)%cmd
+        end do
+
+
 
         boolResult = .FALSE.
         do i=1,size(tstCmds)
@@ -2374,6 +2471,57 @@ module codeV_commands
 
     end function
 
+
+      subroutine setSurfaceCodeVStyle(iptStr)
+        use command_utils, only : parseCommandIntoTokens
+
+        implicit none
+
+        !class(zoa_cmd) :: self
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+
+        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        select case(numTokens)
+        case (1)
+            call updateTerminalLog("No info given besides surface identifier!  Please try again", "red")
+        case (2) ! Curvature only
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(2)), .TRUE.)              
+        case (3) ! Curvature and thickness
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            ! KDP Does not allow setting image thickness.  So work around this for now
+            ! if (trim(tokens(1)).EQ.'SI') then
+            !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            !     & '; RD, ' // trim(tokens(2)), .TRUE.)   
+            ! else
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(2))//";TH, "// &
+            & trim(tokens(3)), .TRUE.)        
+            ! end if    
+        case (4) ! Curvature, thickness, and glass
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            if(.not.isSpecialGlass(trim(tokens(4)))) then
+
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+            & '; RD, ' // trim(tokens(2))//";TH, "// &
+            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4)))), .TRUE.) 
+            else
+                ! TODO:  This and the isSpecialGlass function should go somewhere else.
+                ! but first need to figure out if I really want to store this info in 
+                ! glassnames or create a new array for this info.
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; RD, ' // trim(tokens(2))//";TH, "// &
+                & trim(tokens(3))//';' // trim(tokens(4)),.TRUE.)                
+            end if
+        end select
+    end subroutine
 
     subroutine flipSurfaces(iptStr)
     
