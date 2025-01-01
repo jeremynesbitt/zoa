@@ -217,7 +217,17 @@ module codeV_commands
         zoaCmds(564)%cmd = 'TIT'
         zoaCmds(564)%execFunc => setLensTitle
         zoaCmds(565)%cmd = 'DIM'
-        zoaCmds(565)%execFunc => setDim                        
+        zoaCmds(565)%execFunc => setDim 
+        zoaCmds(566)%cmd = 'GO'
+        zoaCmds(566)%execFunc => executeGO 
+        zoaCmds(567)%cmd = 'PIM'
+        zoaCmds(567)%execFunc => setParaxialImageSolve    
+        zoaCmds(568)%cmd = 'EPD'
+        zoaCmds(568)%execFunc => setEPD 
+        zoaCmds(569)%cmd = 'SETC'
+        zoaCmds(569)%execFunc => execSetCodeVCmd                                
+
+        
 
 
         
@@ -225,6 +235,8 @@ module codeV_commands
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
         use GLOBALS, only:  currentCommand
+
+        implicit none
 
         character(len=*) :: iptCmd
         integer :: ii
@@ -251,39 +263,7 @@ module codeV_commands
             return
         end if
         end do
-
-        select case (iptCmd)
            
-        case('GO')
-            CALL executeGo()
-            boolResult = .TRUE.
-            return
-         
-        case ('PIM')
-            call setParaxialImageSolve()
-            boolResult = .TRUE.
-            return     
-        case ('EPD')
-            call setEPD()
-            boolResult = .TRUE.
-            return   
-        ! case ('CUY')
-        !     call setCurvature()
-        !     boolResult = .TRUE.
-        !     return             
-            
-        case ('SETC')
-            call execSetCodeVCmd()
-            boolResult = .TRUE.
-            return              
-
-        end select
-
-        ! Handle Sk separately
-        ! IF(isSurfCommand(iptCmd)) then
-        !     CALL setSurfaceCodeVStyle(iptCmd)
-        !     return
-        !   END IF            
               
     end function
      
@@ -1465,16 +1445,17 @@ module codeV_commands
         end if  
     end subroutine
 
-    subroutine execSetCodeVCmd()
+    subroutine execSetCodeVCmd(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data, curr_par_ray_trace     
-        use DATMAI
+
         implicit none
+        character(len=*) :: iptStr
 
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
         ! command and figuring out what commands to translate it to
         if(numTokens > 1 ) then
@@ -1563,9 +1544,10 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setEPD()
+    subroutine setEPD(iptStr)
         use command_utils
         implicit none
+        character(len=*) :: iptStr
 
          if(checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
             call executeCodeVLensUpdateCommand('SAY '//real2str(getInputNumber(1)/2.0))
@@ -1580,8 +1562,10 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setParaxialImageSolve()
+    subroutine setParaxialImageSolve(iptStr)
         use global_widgets, only: curr_lens_data
+        implicit none
+        character(len=*) :: iptStr
         integer :: surfNum
 
         ! Get surface before last surface and add solve
@@ -2121,12 +2105,15 @@ module codeV_commands
       end subroutine      
 
       !Todo:  put this in a submodule, as this sub will get HUGE eventually
-      subroutine executeGo()
+      subroutine executeGo(iptStr)
         use global_widgets, only: ioConfig
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
         use optim_functions
         use tow_functions, only: tow_go
+
+        implicit none
+        character(len=*) :: iptStr
 
         !TODO:  Switch to select case
         if (cmd_loop == AUT_LOOP) then
@@ -2299,40 +2286,8 @@ module codeV_commands
 
         logical :: boolResult
         character(len=*) :: tstCmd
-        type(string) :: tstCmds(17+size(zoaCmds))
+        type(string) :: tstCmds(size(zoaCmds))
         integer :: i
-
-
-        ! TODO:  Find some better way to do this.  For now, brute force it
-        ! codeVCmds = [character(len=4) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
-        ! &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
-        ! & 'DEL', 'RED', 'SETC', 'AAA', 'AAA']
-        ! do i=1,size(zoaCmds)
-        !    codeVCmds(i+17) = zoaCmds(i)%cmd
-        ! end do
-
-        ! This hard coding of cmds is temporary, until I migrate these to new format
-
-        !tstCmds(1)%s = 'YAN'
-        !tstCmds(2)%s = 'TIT'
-        !tstCmds(3)%s = 'WL'
-        tstCmds(6)%s = 'GO'
-        tstCmds(7)%s = 'DIM'
-        !tstCmds(8)%s = 'RDY'
-        !tstCmds(9)%s = 'THI'
-        !tstCmds(10)%s = 'INS'
-        !tstCmds(11)%s = 'GLA'
-        tstCmds(12)%s = 'PIM'
-        tstCmds(13)%s = 'EPD'
-        !tstCmds(14)%s = 'CUY'
-        tstCmds(15)%s = 'DEL'
-        !tstCmds(16)%s = 'RED'
-        tstCmds(17)%s = 'SETC'
-        do i=1,size(zoaCmds)
-            tstCmds(17+i)%s = zoaCmds(i)%cmd
-        end do
-
-
 
         boolResult = .FALSE.
         do i=1,size(tstCmds)
