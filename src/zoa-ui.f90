@@ -257,7 +257,5 @@ integer, parameter :: VAR_K = 3 ! Conic constant
 integer, parameter :: ID_PICKUP_RAD  = 1
 integer, parameter :: ID_PICKUP_CURV = 2
 integer, parameter :: ID_PICKUP_THIC = 3  
-contains
-
 
 end module zoa_ui

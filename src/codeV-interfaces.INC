@@ -35,5 +35,11 @@
    end subroutine setCurvature  
    module subroutine setRadius(iptStr)
     character(len=*) :: iptStr
-   end subroutine setRadius         
+   end subroutine setRadius     
+   module subroutine setSurfaceCodeVStyle(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setSurfaceCodeVStyle 
+   module subroutine insertSurf(iptStr)
+    character(len=*) :: iptStr
+   end subroutine insertSurf             
     end interface

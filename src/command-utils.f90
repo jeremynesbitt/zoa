@@ -476,19 +476,6 @@ contains
 
     if (ierror == 0 .OR. rerror == 0) boolResult = .TRUE.
 
-    PRINT *, "DEBUG "
-    PRINT * , "Input String is ", tstStr
-    PRINT *, "ierror is ", ierror
-    PRINT *, "rerror is ", rerror
-    PRINT *, "boolResult is ", boolResult
-
-
-
   end function
-
-
-
-  
-
 
 end module

@@ -45,7 +45,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(591) :: zoaCmds
+    type(zoa_cmd), dimension(611) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -1852,66 +1852,6 @@ module codeV_commands
 
     end subroutine
 
-    subroutine insertSurf(iptStr)
-        use command_utils, only: isInputNumber
-        implicit none
-
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-        integer :: surfNum, i, s0, sf, dotLoc
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        if (numTokens == 2) then
-            ! Treat special case of ..  TODO:  Should this be in getSurfNum(eg return array output?).  Seems messy
-            dotLoc = index(tokens(2),'..') 
-            if(dotLoc > 0) then
-                ! Assume input is Si..k
-                PRINT *, "dotLoc-1 is ", dotLoc-1
-                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
-                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
-                   s0 = str2int(tokens(2)(2:dotLoc-1))
-                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
-                   PRINT *, "s0 is ", s0
-                   PRINT *, "sf is ", sf
-                   do i=s0,sf
-                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)                           
-                   end do
-                else
-                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
-                end if
-            else ! No dots found
-    
-
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            if (surfNum.NE.-1) then
-               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
-            else
-                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
-            end if
-            end if
-        end if
-
-
-    
-
-        !PRINT *, "Inside insertSurf"
-        ! TODO:  Add an error check for Sk in checkCommandInput
-
-        ! if (checkCommandInput([ID_CMD_QUAL])) then
-        !     surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
-        !     call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
-        ! end if            
-
-
-
-
-    end subroutine
-
-
-
     subroutine setDim(iptStr)
         use command_utils
         character(len=*) :: iptStr
@@ -2420,57 +2360,6 @@ module codeV_commands
 
     end function
 
-
-      subroutine setSurfaceCodeVStyle(iptStr)
-        use command_utils, only : parseCommandIntoTokens
-
-        implicit none
-
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-
-        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
-        call parse(trim(iptStr), ' ', tokens, numTokens)
-
-        select case(numTokens)
-        case (1)
-            call updateTerminalLog("No info given besides surface identifier!  Please try again", "red")
-        case (2) ! Curvature only
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2)), .TRUE.)              
-        case (3) ! Curvature and thickness
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            ! KDP Does not allow setting image thickness.  So work around this for now
-            ! if (trim(tokens(1)).EQ.'SI') then
-            !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            !     & '; RD, ' // trim(tokens(2)), .TRUE.)   
-            ! else
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3)), .TRUE.)        
-            ! end if    
-        case (4) ! Curvature, thickness, and glass
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            if(.not.isSpecialGlass(trim(tokens(4)))) then
-
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4)))), .TRUE.) 
-            else
-                ! TODO:  This and the isSpecialGlass function should go somewhere else.
-                ! but first need to figure out if I really want to store this info in 
-                ! glassnames or create a new array for this info.
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; RD, ' // trim(tokens(2))//";TH, "// &
-                & trim(tokens(3))//';' // trim(tokens(4)),.TRUE.)                
-            end if
-        end select
-    end subroutine
 
     subroutine flipSurfaces(iptStr)
     
