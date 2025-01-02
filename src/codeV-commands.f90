@@ -2109,7 +2109,7 @@ module codeV_commands
                 call sysConfig%setSpectralWeights(i-1, 1.0)               
             end do
             call LogTermFOR("Outstr is "//trim(outStr))
-            call executeCodeVLensUpdateCommand(trim(outStr))
+            call executeCodeVLensUpdateCommand(trim(outStr), exitLensUpdate=.TRUE.)
 
 
 

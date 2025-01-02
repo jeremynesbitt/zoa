@@ -94,7 +94,7 @@ module mod_analysis_manager
 
         allocate(psfData(TGR,TGR))
 
-        call PROCESSILENT('PLOTPSF OFF')
+        call PROCESSILENT('PSFPLOT OFF')
         call PROCESSILENT('PSF')
 
         psfData = curr_psf

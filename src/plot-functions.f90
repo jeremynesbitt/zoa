@@ -1190,11 +1190,14 @@ allocate(psfZ(xpts*ypts))
 
 call mplt%initialize(canvas, 1,1)
 zz=1
-do ii=1,xpts
+do ii=xpts,1,-1
+!do ii=1,xpts
+
+  !do jj=ypts,1,-1 ! Match CodeV
 do jj=1,ypts
 psfX(zz)=ii
 psfY(zz)=jj
-psfZ(zz)=psfData(ii,jj)
+psfZ(zz)=psfData(jj,ii)
 zz=zz+1
 end do 
 end do
@@ -1202,12 +1205,12 @@ end do
  call zp3d%init3d(c_null_ptr, real(psfX),real(psfY), & 
  & real(psfZ), xpts, ypts, & 
  & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
- & title='Optical Path Difference'//c_null_char)
+ & title='Point Spread Function'//c_null_char)
 
  call mplt%set(1,1,zp3d)
 
 
- call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_PSF, "Optical Path Difference")
+ call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_PSF, "Point Spread Function")
 
 
 
