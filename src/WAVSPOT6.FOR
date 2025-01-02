@@ -599,6 +599,7 @@ C SUB DOPSF.FOR
 
         SUBROUTINE DOPSF
         USE GLOBALS
+        use global_widgets, only: curr_psf
 C
         IMPLICIT NONE
 C
@@ -1114,6 +1115,11 @@ C     NOW COPY BACK TO F
         FIMG(1:MMM,1:MMM)=F(1:MMM,1:MMM)/PEAKER
         WRITE(OUTLYNE,*) 'PSF PEAK VALUE = ',PEAKER
         CALL SHOWIT(0)
+        ! Store PSF data 
+        if (allocated(curr_psf)) deallocate(curr_psf)
+        allocate(curr_psf(MMM,MMM))
+        curr_psf = FIMG
+
         APEAK=PEAKER
         IF(SYSTEM(30).LE.2.0D0) THEN
       XCENTOFF=NINT(REFRY(1,INT(SYSTEM(20)))/GRI)

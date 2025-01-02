@@ -58,9 +58,6 @@ module codeV_commands
     integer, parameter :: TOW_LOOP = 5
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
-    integer, parameter :: PSF_LOOP = 8
-
-
 
 
     contains
@@ -2130,11 +2127,11 @@ module codeV_commands
         use tow_functions, only: tow_go
 
         !TODO:  Switch to select case
-        if (cmd_loop == PSF_LOOP) then
+        if (cmd_loop == ID_PLOTTYPE_PSF) then
             call psf_go(curr_psm)
             cmd_loop = 0
         end if        
-        
+
         if (cmd_loop == AUT_LOOP) then
             call aut_go()
             cmd_loop = 0

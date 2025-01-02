@@ -5,7 +5,6 @@
 ! Add a key in zoa-ui as an integer constant parameter.  Needs to be unique compared to other plots
 ! Add a new cmd with an exec function in cmd-plot
 ! add a cmd to switch to plot in executeGo
-! add a _LOOP ID in codeV-commands (todo:  Merge this with PLOTTYPe?)
 ! add a function here to actually do the plot work
 
 
@@ -1124,7 +1123,7 @@ subroutine psf_go(psm)
   use plplot, PI => PL_PI
   use plplot_extra
   use plot_setting_manager
-  use gtk, only: gtk_expander_set_expanded
+  use mod_analysis_manager
 
 
 IMPLICIT NONE
@@ -1150,6 +1149,7 @@ type(zoaplot_setting_manager) :: psm
 integer :: xpts, ypts
 integer, parameter :: xdim=99, ydim=100 
 integer :: lambda, fldIdx
+integer :: ii,jj,zz
 
 integer, parameter :: nlevel = 10
 
@@ -1157,12 +1157,14 @@ type(c_ptr) :: canvas
 !type(zoaPlot3d) :: zp3d 
 type(zoaPlotImg) :: zp3d 
 type(multiplot) :: mplt
+real(long), allocatable :: psfData(:,:), psfX(:), psfY(:), psfZ(:)
 
 
 lambda = psm%getWavelengthSetting()
 fldIdx = psm%getFieldSetting()
-xpts = psm%getDensitySetting()
-ypts = xpts
+
+!xpts = psm%getDensitySetting()
+!ypts = xpts
 
 
 PRINT *, "fldIdx is ", fldIdx
@@ -1171,13 +1173,6 @@ WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
 CALL PROCESKDP(trim(ffieldstr))
 
 !CALL PROCESKDP('FOB 1')
-PRINT *, "Calling CAPFN"
-call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
-!call getOPDData(lambda)
-!PRINT *, "Calling OPDLOD"
-call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
-!call OPDLOD
-
 
 
  !call checkCommandInput(ID_CMD_ALPHA)
@@ -1185,11 +1180,27 @@ call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
 canvas = hl_gtk_drawing_area_new(size=[600,600], &
 & has_alpha=FALSE)
 
+psfData = am%getPSF()
+xpts = size(psfData,1)
+ypts = size(psfData,2)
+allocate(psfX(xpts*ypts))
+allocate(psfY(xpts*ypts))
+allocate(psfZ(xpts*ypts))
+
+
 call mplt%initialize(canvas, 1,1)
-PRINT *, "size of X is ", size(curr_opd%X)
+zz=1
+do ii=1,xpts
+do jj=1,ypts
+psfX(zz)=ii
+psfY(zz)=jj
+psfZ(zz)=psfData(ii,jj)
+zz=zz+1
+end do 
+end do
 !PRINT *, "X is ", real(curr_opd%X)
- call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), & 
- & real(curr_opd%Z), xpts, ypts, & 
+ call zp3d%init3d(c_null_ptr, real(psfX),real(psfY), & 
+ & real(psfZ), xpts, ypts, & 
  & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
  & title='Optical Path Difference'//c_null_char)
 

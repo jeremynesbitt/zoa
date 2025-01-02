@@ -24,6 +24,9 @@ module global_widgets
   type(aspheric_surf_data) :: curr_asph_data
   type(ray_fan_data) :: curr_ray_fan_data
   type(opd_data) :: curr_opd
+  ! Band aid until I figure out how to properly handle this (refactoring KDP code)
+  real(real64), allocatable :: curr_psf(:,:)
+
 
   type(c_ptr) :: lens_editor_window = c_null_ptr
   type(c_ptr) :: sys_config_window = c_null_ptr
@@ -36,7 +39,5 @@ module global_widgets
   logical :: debug_messages = .FALSE.
 
   character(len=42), allocatable :: currVieData(:)
-
-  contains
 
 end module global_widgets

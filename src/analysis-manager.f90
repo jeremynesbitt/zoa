@@ -11,6 +11,7 @@ module mod_analysis_manager
    
     contains
      procedure :: getTransverseComa, getTransverseAstigmatism, getPetzvalBlur, getTransverseSpherical
+     procedure :: getPSF
 
     end type
 
@@ -83,6 +84,23 @@ module mod_analysis_manager
         res = curr_par_ray_trace%CSeidel(5,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
     end function        
+
+    function getPSF(self) result(psfData)
+        use global_widgets, only: curr_psf
+        use DATSPD
+        implicit none
+        class(analysis_manager) :: self
+        real(long), allocatable  :: psfData(:,:)
+
+        allocate(psfData(TGR,TGR))
+
+        call PROCESSILENT('PLOTPSF OFF')
+        call PROCESSILENT('PSF')
+
+        psfData = curr_psf
+
+
+    end function
 
 
 end module
