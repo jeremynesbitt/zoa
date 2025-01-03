@@ -114,6 +114,8 @@ if fortran.get_id().contains('gcc')
     #'-fsanitize=address,undefined',
     #'-pedantic',
     #'-Wtabs',
+    '-Wno-unused-variable',
+    '-Wno-unused-dummy-argument',
     '-frecursive',
     '-fcheck=bounds',
     '-fcheck=mem',

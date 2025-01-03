@@ -163,7 +163,7 @@ subroutine report_iteration(me,iter,x,f,c)
         call OUTKDP("Const.   Target              Value              diff")
         do i=1,nC
             
-            write(output_line,'(*(F20.16,1X)))') constraintsInUse(i)%targ, &
+            write(output_line,'(*(F20.16,1X))') constraintsInUse(i)%targ, &
             c(i)+constraintsInUse(i)%targ, c(i)
             call OUTKDP(trim(constraintsInUse(i)%name//' '//trim(output_line)))
         end do

@@ -503,235 +503,7 @@ C
                 RETURN
 C
       END
-C SUB PSFWRTE.FOR
-        SUBROUTINE PSFWRTE
-C
-        IMPLICIT NONE
-C
-C       THIS IS SUBROUTINE PSFWRT.FOR. THIS SUBROUTINE CONTROLS
-C     PSF FILE OUTPUT
-C
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
-C
-C       CHECK FOR STRING INPUT
-        IF(SST.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE='"PSFWRITE" TAKES NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(STI.EQ.0) THEN
-        IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
-        OUTLYNE='"ON", "YES","OFF" AND "NO"'
-      CALL SHOWIT(1)
-        OUTLYNE=' ARE THE ONLY VALID QUALIFIERS'
-      CALL SHOWIT(1)
-        OUTLYNE='USED WITH "PSFWRITE"'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C     STI=1
-                        END IF
-      IF(STI.EQ.1) THEN
-        IF(.NOT.PSFWRITE) WRITE(OUTLYNE,10)
-        IF(PSFWRITE) WRITE(OUTLYNE,11)
-      CALL SHOWIT(0)
- 10   FORMAT('PSF FILE OUTPUT IS CURRENTLY TURNED "OFF"')
- 11   FORMAT('PSF FILE OUTPUT IS CURRENTLY TURNED "ON"')
-      CALL SHOWIT(0)
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'ON') THEN
-                        PSFWRITE=.TRUE.
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'OFF') THEN
-                        PSFWRITE=.FALSE.
-                        RETURN
-                        END IF
-                        RETURN
-                        END
-C SUB PSFBN.FOR
-        SUBROUTINE PSFBN
-C
-        IMPLICIT NONE
-C
-C       THIS IS SUBROUTINE PSFBN.FOR. THIS SUBROUTINE CONTROLS
-C     PSF BINARY FILE OUTPUT
-C
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
-C
-C       CHECK FOR STRING INPUT
-        IF(SST.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE='"PSFBIN" TAKES NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(STI.EQ.0) THEN
-        IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
-        OUTLYNE='"ON", "YES","OFF" AND "NO"'
-      CALL SHOWIT(1)
-        OUTLYNE=' ARE THE ONLY VALID QUALIFIERS'
-      CALL SHOWIT(1)
-        OUTLYNE='USED WITH "PSFBIN"'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C     STI=1
-                        END IF
-      IF(STI.EQ.1) THEN
-        IF(.NOT.PSFBIN) WRITE(OUTLYNE,10)
-        IF(PSFBIN) WRITE(OUTLYNE,11)
-      CALL SHOWIT(0)
- 10   FORMAT('PSF BINARY FILE OUTPUT IS CURRENTLY TURNED "OFF"')
- 11   FORMAT('PSF BINARY FILE OUTPUT IS CURRENTLY TURNED "ON"')
-      CALL SHOWIT(0)
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'ON') THEN
-                        PSFBIN=.TRUE.
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'OFF') THEN
-                        PSFBIN=.FALSE.
-                        RETURN
-                        END IF
-                        RETURN
-                        END
-C SUB PSFPLT.FOR
-        SUBROUTINE PSFPLT
-C
-        IMPLICIT NONE
-C
-C       THIS IS SUBROUTINE PSFPLT.FOR. THIS SUBROUTINE CONTROLS
-C     PSF PLOT OUTPUT
-C
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
-C
-C       CHECK FOR STRING INPUT
-        IF(SST.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE='"PSFPLOT" TAKES NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(STI.EQ.0) THEN
-        IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.WQ.NE.'HCONLY') THEN
-        OUTLYNE='"ON", "YES","OFF", "NO" AND "HCONLY"'
-      CALL SHOWIT(1)
-        OUTLYNE=' ARE THE ONLY VALID QUALIFIERS'
-      CALL SHOWIT(1)
-        OUTLYNE='USED WITH "PSFPLOT"'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C     STI=1
-                        END IF
-      IF(STI.EQ.1) THEN
-        IF(.NOT.PSFPLOT) WRITE(OUTLYNE,10)
-        IF(PSFPLOT) WRITE(OUTLYNE,11)
-        IF(PSFHC) WRITE(OUTLYNE,12)
-      CALL SHOWIT(0)
- 10   FORMAT('PSF PLOT OUTPUT IS CURRENTLY TURNED "OFF"')
- 11   FORMAT('PSF PLOT OUTPUT IS CURRENTLY TURNED "ON"')
- 12   FORMAT('PSF PLOT OUTPUT IS "HARD COPY ONLY"')
-      CALL SHOWIT(0)
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'ON') THEN
-                        PSFPLOT=.TRUE.
-                        PSFHC=.FALSE.
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'OFF') THEN
-                        PSFPLOT=.FALSE.
-                        PSFHC=.FALSE.
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'HCONLY') THEN
-                        PSFPLOT=.TRUE.
-                        PSFHC=.TRUE.
-                        RETURN
-                        END IF
-                        RETURN
-                        END
-C SUB PSFROT.FOR
-        SUBROUTINE PSFROT
-C
-        IMPLICIT NONE
-C
-C       THIS IS SUBROUTINE PSFROT.FOR. THIS SUBROUTINE CONTROLS
-C     PSF PLOT ROTATION OUTPUT
-C
-        INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
-C
-C       CHECK FOR STRING INPUT
-        IF(SST.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE='"PSFROT" TAKES NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        IF(STI.EQ.0) THEN
-        IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
-        OUTLYNE='"ON", "YES","OFF" AND "NO"'
-      CALL SHOWIT(1)
-        OUTLYNE=' ARE THE ONLY VALID QUALIFIERS'
-      CALL SHOWIT(1)
-        OUTLYNE='USED WITH "PSFROT"'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-C     STI=1
-                        END IF
-      IF(STI.EQ.1) THEN
-        IF(.NOT.ROTPSF) WRITE(OUTLYNE,10)
-        IF(ROTPSF) WRITE(OUTLYNE,11)
-      CALL SHOWIT(0)
- 10   FORMAT('PSF PLOT ROTATION IS CURRENTLY TURNED "OFF"')
- 11   FORMAT('PSF PLOT ROTATION IS CURRENTLY TURNED "ON"')
-      CALL SHOWIT(0)
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'ON') THEN
-                        ROTPSF=.TRUE.
-                        RETURN
-                        END IF
-      IF(WQ.EQ.'OFF') THEN
-                        ROTPSF=.FALSE.
-                        RETURN
-                        END IF
-                        RETURN
-                        END
+
 C SUB CAPFROT.FOR
         SUBROUTINE CAPFNROT
 C
@@ -1315,7 +1087,7 @@ C     WC='CENTROID'
       CALL SHOWIT(1)
                    CALL MACFAL
                        END IF
-      IF(SQ.EQ.1.AND.WQ.NE.'LSF'.AND.WQ.NE.'SLSF'.AND.WQ.NE.'PSF'
+      IF(SQ.EQ.1.AND.WQ.NE.'LSF'.AND.WQ.NE.'SLSF'.AND.WQ.NE.'PSFK'
      1.AND.WQ.NE.'SPSF') THEN
       OUTLYNE=
      1'"CENTROID" ONLY TAKES "LSF", "PSF", "SLSF" AND "SPSF"'
@@ -1337,12 +1109,12 @@ C     DOES THE PSF FILE EXIST WITH AN EXISTING PSF
       IF(EXIS51) THEN
 C     DO ANALYSIS
       OPEN51=.FALSE.
-      IF(SQ.EQ.0.OR.WQ.EQ.'PSF'.OR.WQ.EQ.'LSF')
+      IF(SQ.EQ.0.OR.WQ.EQ.'PSFK'.OR.WQ.EQ.'LSF')
      1INQUIRE(FILE='PSF.DAT',OPENED=OPEN51)
       IF(WQ(1:1).EQ.'S')INQUIRE(FILE='SPSF.DAT',OPENED=OPEN51)
       IF(.NOT.OPEN51) THEN
 C     OPEN FILE
-      IF(SQ.EQ.0.OR.WQ.EQ.'PSF'.OR.WQ.EQ.'LSF')
+      IF(SQ.EQ.0.OR.WQ.EQ.'PSFK'.OR.WQ.EQ.'LSF')
      1OPEN(UNIT=51,ACCESS='SEQUENTIAL',BLANK='NULL'
      1  ,FORM='FORMATTED',FILE='PSF.DAT'
      2  ,STATUS='UNKNOWN')
@@ -1376,7 +1148,7 @@ C     READ SOME STUFF
       ALLOCATE(XLSF(-PPGR:PPGR),
      1YLSF(-PPGR:PPGR),STAT=ALLOERR)
                        END IF
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'SPSF') THEN
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'SPSF') THEN
       DEALLOCATE(PSF,IPSF,STAT=ALLOERR)
       ALLOCATE(IPSF(-PMMM:PMMM,-PMMM:PMMM),
      1PSF(-PMMM:PMMM,-PMMM:PMMM),STAT=ALLOERR)
@@ -1389,7 +1161,7 @@ C     LOAD PSF/LSF ARRAYS
       DO J=-PMMM,PMMM
       DO I=-PMMM,PMMM
       READ(51,1005) IDUM,JDUM,IPSF3(II)
-      IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'PSF') THEN
+      IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'PSFK') THEN
 
       PSF(I,J)=DBLE(IPSF3(II))
       II=II+1
@@ -1398,7 +1170,7 @@ C     LOAD PSF/LSF ARRAYS
       END DO
 C     READ IN THE XLSF
       DO I=-PPGR,PPGR
-      IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'PSF') THEN
+      IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'PSFK') THEN
       READ(51,1006) DUMMY,DDUMMY
                ELSE
       READ(51,1006) DUMMY,XLSF(I)
@@ -1406,7 +1178,7 @@ C     READ IN THE XLSF
       END DO
 C     READ IN THE YLSF
       DO I=-PPGR,PPGR
-      IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'PSF') THEN
+      IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'PSFK') THEN
       READ(51,1006) DUMMY,DDUMMY
                ELSE
       READ(51,1006) DUMMY,YLSF(I)
@@ -1418,7 +1190,7 @@ C     LSF ARRAYS LOADED
       REWIND(UNIT=51)
       CALL CLOSE_FILE(51,1)
 C     FINISHED CENTROID ANALYSIS
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'SPSF') THEN
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'SPSF') THEN
 C******************************************************************************
 C     PSF CENTROIDING
       IF(PGR.LT.((PIXAR1*PIXAR2)+PIXAR1)) THEN
@@ -1700,10 +1472,10 @@ C     IN X AND Y
  20   FORMAT('CENTROID      MEAN Y-POSITION (IN PIXELS) = ',G13.6)
  30   FORMAT('CENTROID RMS X-CENTROID ERROR (IN PIXELS) = ',G13.6)
  40   FORMAT('CENTROID RMS Y-CENTROID ERROR (IN PIXELS) = ',G13.6)
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'SPSF') WRITE(OUTLYNE,3)
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'SPSF') WRITE(OUTLYNE,3)
       IF(WQ.EQ.'LSF'.OR.WQ.EQ.'SLSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,6)
       CALL SHOWIT(0)
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'LSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,4)
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'LSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,4)
       IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'SLSF') WRITE(OUTLYNE,5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1) PIXAR2
@@ -1830,10 +1602,10 @@ C
      1(JKSUMY2-((JKSUMY1**2)/DBLE(PIXAR1)))
      2/(DBLE(PIXAR1)-1.0D0)
      3)
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'SPSF') WRITE(OUTLYNE,3)
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'SPSF') WRITE(OUTLYNE,3)
       IF(WQ.EQ.'LSF'.OR.WQ.EQ.'SLSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,6)
       CALL SHOWIT(0)
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'LSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,4)
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'LSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,4)
       IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'SLSF') WRITE(OUTLYNE,5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1) PIXAR2
@@ -1924,10 +1696,10 @@ C
      1(JKSUMY2-((JKSUMY1**2)/DBLE(PIXAR1)))
      2/(DBLE(PIXAR1)-1.0D0)
      3)
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'SPSF') WRITE(OUTLYNE,3)
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'SPSF') WRITE(OUTLYNE,3)
       IF(WQ.EQ.'LSF'.OR.WQ.EQ.'SLSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,6)
       CALL SHOWIT(0)
-      IF(WQ.EQ.'PSF'.OR.WQ.EQ.'LSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,4)
+      IF(WQ.EQ.'PSFK'.OR.WQ.EQ.'LSF'.OR.SQ.EQ.0) WRITE(OUTLYNE,4)
       IF(WQ.EQ.'SPSF'.OR.WQ.EQ.'SLSF') WRITE(OUTLYNE,5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1) PIXAR2

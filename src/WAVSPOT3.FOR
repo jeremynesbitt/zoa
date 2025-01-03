@@ -3,6 +3,7 @@ C       THIRD FILE OF CAPFN/SPOT ROUTINES
 C SUB SPOT.FOR
 
         SUBROUTINE SPOT
+        use mod_psf
 
 C
         IMPLICIT NONE
@@ -274,7 +275,7 @@ C
                         RETURN
                         END IF
                         END IF
-      IF(WC.EQ.'PSF') THEN
+      IF(WC.EQ.'PSFK') THEN
         IF(.NOT.FOBYES.AND.SQ.EQ.0
      1  .OR..NOT.FOBYES.AND.WQ.EQ.'PERFECT'
      1  .OR..NOT.FOBYES.AND.WQ.EQ.'PERFNOOB') THEN
@@ -344,7 +345,7 @@ C       CHECK FOR CORRECT QUALIFIER WORDS
                 IF(WQ.EQ.'NOSCALE') SYES=.TRUE.
                 IF(WQ.EQ.'SILENT') SYES=.TRUE.
                         END IF
-      IF(WC.EQ.'PSF'.OR.WC.EQ.'PUPIL') THEN
+      IF(WC.EQ.'PSFK'.OR.WC.EQ.'PUPIL') THEN
                         SYES=.FALSE.
                 IF(WQ.EQ.' ') SYES=.TRUE.
                 IF(WQ.EQ.'PERFECT') SYES=.TRUE.
@@ -378,7 +379,7 @@ C       CHECK FOR CORRECT QUALIFIER WORDS
       CALL SHOWIT(1)
                         RETURN
                         END IF
-        IF(WC.EQ.'PSF'.AND..NOT.SYES) THEN
+        IF(WC.EQ.'PSFK'.AND..NOT.SYES) THEN
         OUTLYNE=
      1  'INVALID QUALIFIER WORD USED WITH "PSF" COMMAND'
       CALL SHOWIT(1)
@@ -398,13 +399,13 @@ C       CHECK FOR CORRECT QUALIFIER WORDS
                         CALL MACFAL
                         RETURN
                         END IF
-        IF(WC.EQ.'PSF'.AND.STI.EQ.1) THEN
+        IF(WC.EQ.'PSFK'.AND.STI.EQ.1) THEN
         OUTLYNE=
      1'"PSF" CREATES A DIFFRACTION POINT SPREAD FUNCTION'
       CALL SHOWIT(1)
                         RETURN
                         END IF
-        IF(WC.EQ.'PSF'.AND.STI.EQ.1) THEN
+        IF(WC.EQ.'PSFK'.AND.STI.EQ.1) THEN
         OUTLYNE=
      1'"PSF" CREATES A PUPIL FUNCTION IN FOE MEMORY'
       CALL SHOWIT(1)
@@ -426,7 +427,7 @@ C       CHECK FOR CORRECT QUALIFIER WORDS
                         CALL MACFAL
                         RETURN
                         END IF
-        IF(WC.EQ.'PSF'.AND.SST.EQ.1) THEN
+        IF(WC.EQ.'PSFK'.AND.SST.EQ.1) THEN
         OUTLYNE=
      1  '"PSF" TAKES NO STRING INPUT'
       CALL SHOWIT(1)
@@ -446,7 +447,7 @@ C       CHECK FOR CORRECT QUALIFIER WORDS
                         CALL MACFAL
                         RETURN
                         END IF
-        IF(WC.EQ.'PSF') THEN
+        IF(WC.EQ.'PSFK') THEN
         IF(S4.EQ.1.OR.S5.EQ.1) THEN
         OUTLYNE=
      1  '"PSF" TAKES NO NUMERIC WORD #4 TO #5 INPUT'
@@ -505,8 +506,8 @@ C                      OPMAP=.FALSE.
                        ELSE
 C                       NOT CAPFN PERFECT
                        END IF
-       IF(WC.EQ.'PSF'.AND.WQ.NE.'PERFECT'.AND.
-     1WC.EQ.'PSF'.AND.WQ.NE.'PERFNOOB') THEN
+       IF(WC.EQ.'PSFK'.AND.WQ.NE.'PERFECT'.AND.
+     1WC.EQ.'PSFK'.AND.WQ.NE.'PERFNOOB') THEN
 C     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
       NOOB=.FALSE.
         FIXWL=.FALSE.
@@ -552,8 +553,8 @@ C     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
                        ELSE
 C                       NOT PSF
                        END IF
-       IF(WC.EQ.'PSF'.AND.WQ.EQ.'PERFECT'.OR.
-     1WC.EQ.'PSF'.AND.WQ.EQ.'PERFNOOB') THEN
+       IF(WC.EQ.'PSFK'.AND.WQ.EQ.'PERFECT'.OR.
+     1WC.EQ.'PSFK'.AND.WQ.EQ.'PERFNOOB') THEN
 C     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
 C                      OPMAP=.FALSE.
         FIXWL=.FALSE.

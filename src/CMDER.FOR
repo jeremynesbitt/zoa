@@ -2279,12 +2279,6 @@ C       DO A FORCED RETURN TO CFG1
         CALL NOWMFF
         RETURN
         END IF
-        IF(WC.EQ.'PSFROT')  THEN
-        IF(WQ.EQ.'YES') WQ='ON'
-        IF(WQ.EQ.'NO') WQ='OFF'
-        CALL PSFROT
-        RETURN
-        END IF
         IF(WC.EQ.'PSFLIN'.OR.WC.EQ.'PSFLOG')  THEN
         CALL PSFLINLOG
         RETURN
@@ -2342,7 +2336,7 @@ C       DO A FORCED RETURN TO CFG1
      7.OR.WC.EQ.'LMINUSR'.OR.WC.EQ.'IOBJECTD'.OR.WC.EQ.'IMTRACE4'
      8.OR.WC.EQ.'IMTRACE5'.OR.WC.EQ.'INTTOPSF') THEN
 C JRN comment out since FULLIMAGING needs WINTERACTER
-                CALL FULLIMAGING
+                !CALL FULLIMAGING
                 RETURN
                 END IF
         IF(WC.EQ.'PLOT'.AND.WQ.EQ.'SAGFILE') THEN
@@ -2368,24 +2362,6 @@ C JRN comment out since FULLIMAGING needs WINTERACTER
         END IF
         IF(WC.EQ.'CAPFNTAG'.OR.WC.EQ.'CAPFNLI')  THEN
         CALL CAPFNTAGG
-        RETURN
-        END IF
-        IF(WC.EQ.'PSFWRITE')  THEN
-        IF(WQ.EQ.'YES') WQ='ON'
-        IF(WQ.EQ.'NO') WQ='OFF'
-        CALL PSFWRTE
-        RETURN
-        END IF
-        IF(WC.EQ.'PSFBIN')  THEN
-        IF(WQ.EQ.'YES') WQ='ON'
-        IF(WQ.EQ.'NO') WQ='OFF'
-        CALL PSFBN
-        RETURN
-        END IF
-        IF(WC.EQ.'PSFPLOT')  THEN
-        IF(WQ.EQ.'YES') WQ='ON'
-        IF(WQ.EQ.'NO') WQ='OFF'
-        CALL PSFPLT
         RETURN
         END IF
         IF(WC.EQ.'TEL')  THEN
@@ -4087,7 +4063,7 @@ C       CALCULATES YZ AND XZ PLANE RAY BLOCKAGES
         REFEXT=.FALSE.
         RETURN
         END IF
-        IF(WC.EQ.'PSF') THEN
+        IF(WC.EQ.'PSFK') THEN
         GRASET=.FALSE.
           MSGSPD=.TRUE.
       IF(DOSTREHL) MSGSPD=.FALSE.

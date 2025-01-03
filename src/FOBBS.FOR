@@ -5376,7 +5376,6 @@ C       INITIALIZE RAYCOD
           YC=TRYY
           ZC=TRYZ
           !PRINT *, "TRYY 5661 IS ", TRYY
-1234      FORMAT(I4,G15.7,G15.7,G15.7)
           !PRINT 1234, ICNT, XC,YC,ZC
 
 

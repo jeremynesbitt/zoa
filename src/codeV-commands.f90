@@ -215,7 +215,7 @@ module codeV_commands
         zoaCmds(564)%execFunc => setLensTitle
         zoaCmds(565)%cmd = 'DIM'
         zoaCmds(565)%execFunc => setDim                        
-        zoaCmds(566)%cmd = 'PSFC'
+        zoaCmds(566)%cmd = 'PSF'
         zoaCmds(566)%execFunc => execPSF     
 
         
