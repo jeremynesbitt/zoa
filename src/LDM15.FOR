@@ -2582,11 +2582,12 @@ C     NOW THE ENTRANCE AND EXIT PUPIL POSITIONS
           ENPOSY=-(ALENS(3,0))
                       ELSE
           !ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,1))
-          ! JN:  The entrance pupil position was not being calculated per 
-          ! standard convention for infinite object distance.  The
-          ! chief ray angle that was being used was the angle 
-          ! after surface 1, not the angle at the object plane.  
-          ! Updated this to use the angle at the object plane (0 index)                                                       
+          ! JN:  The entrance pupil position was not being 
+          ! calculated per standard convention for infinite 
+          ! object distance.  The chief ray angle that was 
+          ! being used was the angle after surface 1, not 
+          ! the angle at the object plane. Updated this to 
+          ! use the angle at the object plane (0 index)                                                       
           ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,0))
                       END IF
           IF(DABS(PXTRAX(6,1)).EQ.0.0D0) THEN
@@ -2621,8 +2622,8 @@ C     NOW THE ENTRANCE AND EXIT PUPIL DIAMETERS
      1    *PXTRAY(2,INT(SYSTEM(20)))))
 
        !JN:  Now that we have the entrance and exit pupils, call
-       ! RATRA one more time such that we can properly trace the marginal ray
-       ! for finite conjugate systems
+       ! RATRA one more time such that we can properly trace 
+       ! the marginal ray for finite conjugate systems
        call curr_par_ray_trace%
      1 calculateFirstOrderParameters(curr_lens_data)     
         CALL PRTRA

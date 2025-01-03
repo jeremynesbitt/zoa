@@ -2,6 +2,7 @@ module optim_functions
     use GLOBALS, only: long
     use handlers, only: updateTerminalLog
     use type_utils
+    implicit none
 
 contains
 
@@ -10,7 +11,6 @@ subroutine aut_go()
     use DATLEN, only: PFAC
     use DATSUB, only: VARABL
     use DATMAI
-    use type_utils
     use optim_types
     use slsqp_module
     use slsqp_kinds
@@ -246,44 +246,6 @@ subroutine dummy_grad(me,x,g,a)
 
 end subroutine dummy_grad
 
-subroutine aut_debug()
-    use kdp_utils, only: OUTKDP
-    use DATLEN, only: PFAC
-    
-    use DATMAI
-    use type_utils
-    real(kind=long) :: fmtOld, fmtTst, fmtLow, m, iDamp, fmtDamp
-    integer, parameter :: maxIter = 10
-    real(kind=long), dimension(maxIter) :: fmtArr
-    logical :: autConverge
-    integer :: i, endCode
-    real(kind=long), dimension(2001) :: tmpRMS, tmpTHI
-
-
-    ! ********************
-    ! Old way
-    ! Default merit function is spot diagram for now
-    call PROCESKDP('MERIT; RMS,,,1;EOS')
-
-    ! ! Temp - print out statement
-    ! call outKDP("Iteration 0")
-    ! call PROCESKDP("FMT")    
-    ! call PROCESKDP("SUR SA")
-
-
-    ! TEMP Code:  spit out data for offline debugging
-    tmpTHI = -100 + .1 * [(i, i=0,2001-1)]
-    print *, "tmpTHI is ", tmpTHI
-    do i=1,2001
-        call PROCESKDP('U L; CHG 3; TH '//real2str(tmpTHI(i),2)//';EOS')
-        tmpRMS(i) = SQRT(getMeritFunction())
-    end do
-    ! PRINT out for copying from terminal
-    do i=1,2001
-        print *, real2str(tmpTHI(i))//','//real2str(tmpRMS(i))
-    end do
-end subroutine
-
 subroutine test_func_spo_efl(me,x,f,c)
     use DATSUB, only: OPERND
     use slsqp_module
@@ -332,7 +294,6 @@ end subroutine test_func_spo_efl
 ! when optimizing with multiple variables
 
 subroutine restoreLensFromVars(oldVars)
-         use type_utils
          use DATSUB
          use DATMAI
          use DATLEN
@@ -606,33 +567,6 @@ function testAutConvergence(fmtOld, fmtTst, i, endCode) result(autConverge)
     if (DABS(tstVal) < smallChange) then
         autConverge = .TRUE.
     end if
-
-end function
-
-function getMeritFunction() result(fmt)
-    use DATSUB
-    use DATMAI, only: F28, KILOPT
-    use kdp_utils, only: OUTKDP
-    real(kind=long) :: fmt
-    F28=1
-    OPCALC_TYPE=3
-       CALL OPCALC
-    IF(F28.EQ.0) RETURN
-       CALL OPLOAD
-    IF(F28.EQ.0) RETURN
-     IF(KILOPT) THEN
-        call OUTKDP('SOME OPERANDS ARE NOT CALCULABLE', 1)
-        call OUTKDP('THE CURRENT FIGURE OF MERIT IS MEANINGLESS.', 1)
-        RETURN
-      END IF
-    FMTFLG=.TRUE.
-    !     PROCEED WITH ACTION FOR COMMAND
-
-    fmt=0.0D0
-    DO I=1,OPCNT
-    fmt=fmt+(OPERND(I,14)**2)
-    END DO
-
 
 end function
 

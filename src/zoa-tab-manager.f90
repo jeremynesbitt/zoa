@@ -6,6 +6,7 @@ module zoa_tab_manager
   use gtk
   use gtk_hl_container
   use collections
+  implicit none
 
 
 ! Maybe this should go away and be replaced by just tabObj
@@ -72,6 +73,7 @@ contains
 
 function getTypeCode(self, idx) result (TYPE_CODE)
   class(zoatabManager) :: self
+  integer, intent(in) :: idx
   integer :: TYPE_CODE
   !TYPE_CODE = self%tabInfo(idx)%typeCode
   if(allocated(self%tabInfo(idx)%tabObj)) then    
@@ -518,7 +520,7 @@ end subroutine
    integer, intent(in) :: PLOT_CODE
    logical :: plotFound
    integer, intent(inout) :: idxObj
-   integer :: i
+   integer :: i, tabPos
 
     !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
     plotFound = .FALSE.

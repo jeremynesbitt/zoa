@@ -1,8 +1,9 @@
 module global_widgets
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float
-  use gtk_hl_entry
   use zoa_ui
-  use kdp_data_types
+  use iso_c_binding, only: c_ptr, c_char, c_int, c_null_ptr
+  use iso_fortran_env, only: real64
+  use kdp_data_types, only: sys_config, io_config, lens_data, paraxial_ray_trace_data, &
+  & ray_fan_data, opd_data, aspheric_surf_data
 
   type(c_ptr) :: my_pixbuf, my_drawing_area
   type(c_ptr) :: textView, buffer, statusBar

@@ -2,6 +2,7 @@ module kdp_draw
    use cairo
    use gtk
    use global_widgets
+   implicit none
 contains
 
 

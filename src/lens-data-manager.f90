@@ -91,7 +91,9 @@ module mod_lens_data_manager
     end function
 
     function getSurfName(self, idx) result(strName)
+        implicit none
         class(lens_data_manager) :: self
+        integer, intent(in) :: idx
         character(len=3) :: strName
 
         write(strName, '(I0.3)')  idx

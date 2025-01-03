@@ -322,9 +322,10 @@ type(lens_data) function lens_data_constructor() result(self)
 end function lens_data_constructor
 
 subroutine getImageSurface(self, intSurf)
- class(sys_config), intent(inout) :: self
+ use DATLEN, only: NEWIMG
+  class(sys_config), intent(inout) :: self
  integer, intent(inout) :: intSurf
- include "DATMAI.INC"
+
  intSurf = NEWIMG
 
 end subroutine
@@ -1486,9 +1487,10 @@ end subroutine
 
 
 subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
+  implicit none
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: ID_SELECTION
-  real :: xAp, yAp
+  real :: xAp, yAp, xApertureRadius, yApertureRadius
   integer :: xySame
   character(len=23) :: strXAp, strYAp
 

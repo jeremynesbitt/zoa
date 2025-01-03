@@ -12,25 +12,10 @@
 
 module lens_editor
 
-
-  use GLOBALS
-  use global_widgets
-  use handlers
-  use cairo
+  use handlers ! includes gtk and g
 !  use gth_hl
-  use gtk_hl_container
-  use gtk_hl_progress
-  use gtk_hl_button
-  use gtk_hl_tree
-  !use hl_zoa_tree_tmp, only: hl_gtk_listn_new, hl_gtk_listn_get_selections, hl_gtk_listn_ins, &
-  !& hl_gtk_listn_set_cell, hl_gtk_listn_rem
   use hl_gtk_zoa
-
-  use gtk
-  use gtk_hl_chooser
-
-  use g
-  use zoa_ui
+  use gtk_hl_tree
 
   !use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC, ID_SOLVE_NONE, ID_SOLVE_PY
   use kdp_data_types

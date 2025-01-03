@@ -1360,7 +1360,7 @@ C        CALL MY_CLS
         SUBROUTINE WRITELENSLIBLINEANDTAG(ioLIB, ioTAG, recNum, idx,
      1DATA, IDTAG, boolCallDogTag)
           implicit none
-          integer, intent(inout) :: ioLIB, ioTag, recNum
+          integer, intent(in) :: ioLIB, ioTag, recNum
           integer, intent(in) :: idx
           CHARACTER(len=80), intent(in) :: DATA
           character(len=75), dimension(10), intent(in) :: IDTAG

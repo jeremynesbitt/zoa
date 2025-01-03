@@ -150,7 +150,7 @@ C
 C
       LOGICAL FEXIST
 C
-      CHARACTER*80 FILE_NAME
+      CHARACTER(*) :: FILE_NAME
 C
       INCLUDE 'DATMAI.INC'
 C
@@ -799,6 +799,7 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATHGR.INC'
 C
+        WVWT = 0
                        ERROR=.FALSE.
       IF(DEVTYP.NE.1.OR..NOT.PLEXIS.OR..NOT.GRASET) THEN
                        ERROR=.TRUE.

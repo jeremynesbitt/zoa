@@ -73,7 +73,7 @@ module zoamenubar
   end subroutine  
   function getTabParentNotebook(tabIdx)
     import :: c_ptr
-    integer :: tabIdx
+    integer, intent(in) :: tabIdx
     type(c_ptr) :: getTabParentNotebook
   end function
 

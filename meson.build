@@ -28,7 +28,7 @@ endif
 if system == 'windows'
   osArg = '-DWINDOWS'
   message('System is Windows')
-  fc_ld='link'
+  #fc_ld='link'
 endif
 
 bldArg = '' 
@@ -71,8 +71,9 @@ if fortran.get_id().contains('intel-cl')
   if build_type == 'debug'
     #warning_level = 2
     supported_arguments = fortran.get_supported_arguments([
-    '-w',
+    '-warn:all',
     '/Qdiag-disable:remark',
+    '/Qdiag-disable:8889',
     '/Qm64',
     '/threads',
     '/traceback',

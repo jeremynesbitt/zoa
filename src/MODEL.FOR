@@ -78,9 +78,9 @@ C
         CALL PROCES
         REST_KDP(29)=RESTINPT(29)
         SAVE_KDP(29)=SAVEINPT(29)
-        CALL DTOA23(ND,AW1)
-        CALL DTOA23(ABBE,AW2)
-        CALL DTOA23(DPART,AW3)
+        CALL DTOA23(REAL(ND)   ,AW1)
+        CALL DTOA23(REAL(ABBE) ,AW2)
+        CALL DTOA23(REAL(DPART),AW3)
         INPUT='MODEL '//GLANAM(I,2)(1:8)
      1  //','//AW1//','//AW2//','//AW3
         SST=0

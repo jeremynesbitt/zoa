@@ -28,7 +28,7 @@ module zoa_plot_manip_toolbar
   interface
   function getTabPlotCommandValue(objIdx, SETTING_CODE)
     real :: getTabPlotCommandValue
-    integer :: objIdx, SETTING_CODE
+    integer, intent(in) :: objIdx, SETTING_CODE
   end function
   end interface
   

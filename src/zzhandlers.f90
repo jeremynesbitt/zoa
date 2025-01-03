@@ -6,17 +6,6 @@ module handlers
 
   use g
 
-  ! use g, only: g_usleep, g_main_context_iteration, g_main_context_pending, &
-  ! & g_object_set_property, g_value_set_interned_string, g_variant_new_boolean, &
-  ! & g_menu_new, g_menu_item_new, g_action_map_add_action, g_menu_append_item, &
-  ! & g_object_unref, g_menu_append_section, g_menu_append_submenu, &
-  ! & g_simple_action_new_stateful, g_variant_type_new, g_simple_action_new, &
-  ! & g_variant_get_boolean, g_variant_get_string, g_variant_new_string, &
-  ! & g_action_change_state, g_application_quit, g_simple_action_set_state, &
-  ! & g_signal_override_class_handler, g_app_info_launch_default_for_uri, &
-  ! & g_app_info_launch, g_app_info_get_default_for_type, g_file_new_for_uri
-
-
   use, intrinsic :: iso_c_binding
   use cairo, only: cairo_get_target, cairo_image_surface_get_height, &
        & cairo_image_surface_get_width

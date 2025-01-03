@@ -5,14 +5,14 @@ module tow_functions
     use handlers, only: zoatabMgr, ioConfig, c_null_char, ID_TOW_TAB, ID_TERMINAL_DEFAULT
     use plot_functions, only: zoaplot_setting_manager, getTabTextView
     use type_utils, only: int2str, str2int
+    implicit none
     
 contains
 
 
 subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx) 
 
-    implicit none
-    type(zoaplot_setting_manager) :: psm
+    class(zoaplot_setting_manager) :: psm
     integer :: plot_code
     character(len=*) :: plotName
 
@@ -57,8 +57,7 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
 
   subroutine finalizeGoDataTab(psm, replot, objIdx)
 
-    implicit none
-    type(zoaplot_setting_manager) :: psm
+    class(zoaplot_setting_manager) :: psm
 
     integer :: objIdx
     logical :: replot
@@ -74,11 +73,8 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
 ! output to standard dialog
 ! eventually will look for special commands and generate settings for them
 subroutine tow_go(psm, cmdTOW)
-    
 
-    IMPLICIT NONE
-
-    type(zoaplot_setting_manager) :: psm
+    class(zoaplot_setting_manager) :: psm
     character(len=*) :: cmdTOW
 
     integer :: objIdx
