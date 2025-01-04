@@ -1,14 +1,14 @@
-!PSFPLOT
-!PSFWRITE
-!PSFBIN
-!PSFHC
-!PSFPLOTER
 module mod_psf
     implicit none
 
     contains
 
+
+
 ! SUB DOPSF.FOR
+    ! See VIE_new, where it takes plot setting manager (psm) as input
+    ! and takes the settings as needed
+    ! put output in curr_psf for retrieval?
 
     SUBROUTINE DOPSF()
         USE GLOBALS

@@ -1439,4 +1439,99 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
 end subroutine
   
 
+subroutine mtf_go(psm)
+  USE GLOBALS
+  use command_utils
+  use handlers, only: updateTerminalLog
+  use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig
+  use zoa_ui
+  use zoa_plot
+  use iso_c_binding, only:  c_ptr, c_null_char
+  use kdp_utils, only: OUTKDP, logDataVsField
+  use type_utils, only: int2str, str2int
+  use plot_setting_manager
+  use DATMAI
+
+
+  IMPLICIT NONE
+
+  type(zoaplot_setting_manager) :: psm
+  integer, parameter :: nS = 7 ! number of seidel terms to plot
+  real, allocatable, dimension(:,:) :: seidel
+  real, allocatable, dimension(:) :: surfIdx
+  
+  character(len=23) :: ffieldstr
+  character(len=40) :: inputCmd
+  integer :: ii, objIdx, jj
+  logical :: replot
+  type(c_ptr) :: canvas
+  type(barchart), dimension(nS) :: barGraphs
+  integer, dimension(nS) :: graphColors
+  type(multiplot) :: mplt
+  character(len=100) :: strTitle
+  character(len=20), dimension(nS) :: yLabels
+  character(len=23) :: cmdTxt
+
+  call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
+
+
+
+  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  call PROCESKDP("MAB3 ALL")
+
+  call MMAB3_NEW(.TRUE., psm%getWavelengthSetting())
+  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+  
+  allocate(seidel(nS,curr_lens_data%num_surfaces+1))
+  allocate(surfIdx(curr_lens_data%num_surfaces+1))
+  
+  
+  
+  yLabels(1) = "Spherical"
+  yLabels(2) = "Coma"
+  yLabels(3) = "Astigmatism"
+  yLabels(4) = "Distortion"
+  yLabels(5) = "Curvature"
+  yLabels(6) = "Axial Chromatic"
+  yLabels(7) = "Lateral Chromatic"
+  
+  
+  print *, "Num Surfaces is ", curr_lens_data%num_surfaces
+  
+  graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
+  & PL_PLOT_MAGENTA, PL_PLOT_CYAN, PL_PLOT_GREY, PL_PLOT_BROWN]
+  
+  
+  
+  surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
+  seidel(:,:) = curr_par_ray_trace%CSeidel(:,0:curr_lens_data%num_surfaces)
+  
+   canvas = hl_gtk_drawing_area_new(size=[1200,800], &
+   & has_alpha=FALSE)
+  
+  
+   call mplt%initialize(canvas, nS,1)
+  
+   do jj=1,nS
+    call barGraphs(jj)%initialize(c_null_ptr, real(surfIdx),seidel(jj,:), &
+    & xlabel='Surface No (last item actually sum)'//c_null_char, & 
+    & ylabel=trim(yLabels(jj))//c_null_char, &
+    & title=' '//c_null_char)
+    call barGraphs(jj)%setDataColorCode(graphColors(jj))
+    barGraphs(jj)%useGridLines = .FALSE.
+   end do
+  
+   do ii=1,nS
+    call mplt%set(ii,1,barGraphs(ii))
+   end do
+  
+   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+   !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SEIDEL, "Seidel Aberrations")
+
+  
+
+
+end subroutine
+
+
 end module

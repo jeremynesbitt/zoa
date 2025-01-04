@@ -196,5 +196,24 @@ contains
             call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
         end if
 
-    end procedure        
+    end procedure       
+    
+    module procedure execMTF
+        implicit none
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+
+        call psm%initialize(trim(iptStr))
+        call psm%addDensitySetting(64,8,128)
+        call psm%addFieldSetting()
+        call psm%addWavelengthSetting()
+
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_MTF, psm)
+        if(boolResult .EQV. .FALSE.) then
+            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+        end if
+
+    end procedure       
+
 end submodule

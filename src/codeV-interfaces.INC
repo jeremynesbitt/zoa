@@ -38,5 +38,8 @@
    end subroutine setRadius    
    module subroutine execPSF(iptStr)
     character(len=*) :: iptStr
-   end subroutine execPSF            
+   end subroutine execPSF     
+   module subroutine execMTF(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execMTF               
     end interface

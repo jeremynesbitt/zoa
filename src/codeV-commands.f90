@@ -216,7 +216,9 @@ module codeV_commands
         zoaCmds(565)%cmd = 'DIM'
         zoaCmds(565)%execFunc => setDim                        
         zoaCmds(566)%cmd = 'PSF'
-        zoaCmds(566)%execFunc => execPSF     
+        zoaCmds(566)%execFunc => execPSF    
+        zoaCmds(567)%cmd = 'MTF'
+        zoaCmds(567)%execFunc => execMTF             
 
         
     end subroutine
@@ -2127,6 +2129,11 @@ module codeV_commands
         use tow_functions, only: tow_go
 
         !TODO:  Switch to select case
+        if (cmd_loop == ID_PLOTTYPE_MTF) then
+            call mtf_go(curr_psm)
+            cmd_loop = 0
+        end if    
+        
         if (cmd_loop == ID_PLOTTYPE_PSF) then
             call psf_go(curr_psm)
             cmd_loop = 0
