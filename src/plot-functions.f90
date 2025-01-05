@@ -1443,7 +1443,7 @@ subroutine mtf_go(psm)
   USE GLOBALS
   use command_utils
   use handlers, only: updateTerminalLog
-  use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig
+  use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig, sysConfig, curr_mtf
   use zoa_ui
   use zoa_plot
   use iso_c_binding, only:  c_ptr, c_null_char
@@ -1465,70 +1465,48 @@ subroutine mtf_go(psm)
   integer :: ii, objIdx, jj
   logical :: replot
   type(c_ptr) :: canvas
-  type(barchart), dimension(nS) :: barGraphs
   integer, dimension(nS) :: graphColors
+  type(zoaplot) :: xyscat
   type(multiplot) :: mplt
   character(len=100) :: strTitle
   character(len=20), dimension(nS) :: yLabels
   character(len=23) :: cmdTxt
+  integer :: iField
+  character(len=80) :: charFLD
 
   call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
 
-
+  iField = psm%getFieldSetting()
 
   call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-  call PROCESKDP("MAB3 ALL")
-
-  call MMAB3_NEW(.TRUE., psm%getWavelengthSetting())
+  ! Set field, call spd, call GOTF to populate curr_mtf
+  ! TODO:  Migrate this to a more elegant structure
+  WRITE(charFLD, *) "FOB ", &
+  & sysConfig%relativeFields(2,iField) &
+  & , ' ' , sysConfig%relativeFields(1,iField)
+  call PROCESKDP(trim(charFLD))
+  call PROCESKDP('SPD')
+  call PROCESKDP('GOTF')
   call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
   
-  allocate(seidel(nS,curr_lens_data%num_surfaces+1))
-  allocate(surfIdx(curr_lens_data%num_surfaces+1))
-  
-  
-  
-  yLabels(1) = "Spherical"
-  yLabels(2) = "Coma"
-  yLabels(3) = "Astigmatism"
-  yLabels(4) = "Distortion"
-  yLabels(5) = "Curvature"
-  yLabels(6) = "Axial Chromatic"
-  yLabels(7) = "Lateral Chromatic"
-  
-  
-  print *, "Num Surfaces is ", curr_lens_data%num_surfaces
-  
-  graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
-  & PL_PLOT_MAGENTA, PL_PLOT_CYAN, PL_PLOT_GREY, PL_PLOT_BROWN]
-  
-  
-  
-  surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
-  seidel(:,:) = curr_par_ray_trace%CSeidel(:,0:curr_lens_data%num_surfaces)
+
   
    canvas = hl_gtk_drawing_area_new(size=[1200,800], &
    & has_alpha=FALSE)
   
   
-   call mplt%initialize(canvas, nS,1)
+   call mplt%initialize(canvas, 1,1)
   
-   do jj=1,nS
-    call barGraphs(jj)%initialize(c_null_ptr, real(surfIdx),seidel(jj,:), &
-    & xlabel='Surface No (last item actually sum)'//c_null_char, & 
-    & ylabel=trim(yLabels(jj))//c_null_char, &
-    & title=' '//c_null_char)
-    call barGraphs(jj)%setDataColorCode(graphColors(jj))
-    barGraphs(jj)%useGridLines = .FALSE.
-   end do
-  
-   do ii=1,nS
-    call mplt%set(ii,1,barGraphs(ii))
-   end do
-  
-   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
-   !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SEIDEL, "Seidel Aberrations")
+   call xyscat%initialize(c_null_ptr, REAL(curr_mtf(:,1)),REAL(curr_mtf(:,2)), &
+   & xlabel='Spatial Frequency [cycles/mm]'//c_null_char, & 
+   & ylabel='Modulation'//c_null_char, &
+   & title='Diffraction MTF'//c_null_char)
 
-  
+   
+   call mplt%set(1,1,xyscat)
+
+   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+
 
 
 end subroutine

@@ -102,7 +102,7 @@ contains
     type(c_ptr) :: menu_imagEval, menu_wavefront
 
     type(c_ptr) :: menu_macro
-    type(c_ptr) :: menu_edit
+    type(c_ptr) :: menu_edit, menu_diff
 
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
 
@@ -126,6 +126,8 @@ contains
     character(len=100), target :: opdPltCmd = "PMA; GO"    
     
     character(len=100), target :: fanCmd = "RIM;GO"    
+    character(len=100), target :: psfCmd = "PSF;GO"    
+    character(len=100), target :: mtfCmd = "MTF;GO"        
 
 
 
@@ -140,6 +142,7 @@ contains
     menu_lens = g_menu_new()
     menu_macro = g_menu_new()
     menu_imagEval = g_menu_new()
+    menu_diff = g_menu_new()
     menu_wavefront = g_menu_new()
     menu_Window = g_menu_new()
 
@@ -271,6 +274,13 @@ contains
 
     call addCommandMenuItem(menu_wavefront, "Transverse Aberration Ray Fans", &
     & "FANPlot", fanCmd, win)    
+
+    ! Diffraction Plots
+    call g_menu_append_submenu (menubar, "Diffraction Analysis"//c_null_char, menu_diff)    
+    call addCommandMenuItem(menu_diff, "Point Spread Function", &
+    & "PSFPlot", psfCmd, win)    
+    call addCommandMenuItem(menu_diff, "Modulation Transfer Function", &
+    & "MTFPlot", mtfCmd, win)            
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 

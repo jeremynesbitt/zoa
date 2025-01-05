@@ -27,6 +27,7 @@ module global_widgets
   type(opd_data) :: curr_opd
   ! Band aid until I figure out how to properly handle this (refactoring KDP code)
   real(real64), allocatable :: curr_psf(:,:)
+  real(real64), allocatable :: curr_mtf(:,:)
 
 
   type(c_ptr) :: lens_editor_window = c_null_ptr

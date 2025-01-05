@@ -434,6 +434,7 @@ C
                       END
 C SUB GOTF.FOR
         SUBROUTINE GOTF
+        use global_widgets, only: curr_mtf    
 C
         IMPLICIT NONE
 C
@@ -1237,6 +1238,9 @@ C
       IF(IIG.EQ.1) EXTGMTF1=.TRUE.
       IF(IIG.EQ.2.AND.IG.EQ.1) EXTGMTF1=.TRUE.
       IF(IIG.EQ.2.AND.IG.EQ.2) EXTGMTF2=.TRUE.
+      ! Store data in mtf
+      if(allocated(curr_mtf)) deallocate(curr_mtf)
+      allocate(curr_mtf(ENN+1,3)) 
               DO I=0,ENN
 C
       IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ*1000.0D0
@@ -1261,6 +1265,10 @@ C
                       END IF
 C
 C
+      ! Where to store data for new plot
+      curr_mtf(I+1,1) = FREQ/INCORFACT
+      curr_mtf(I+1,2) = MTF
+      curr_mtf(I+1,3) = PPHAS
       WRITE(OUTLYNE,104)FREQ/INCORFACT,MTF,PPHAS
       CALL SHOWIT(0)
 C
