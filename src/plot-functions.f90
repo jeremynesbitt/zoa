@@ -1448,7 +1448,7 @@ subroutine mtf_go(psm)
   use zoa_plot
   use iso_c_binding, only:  c_ptr, c_null_char
   use kdp_utils, only: OUTKDP, logDataVsField
-  use type_utils, only: int2str, str2int
+  use type_utils, only: int2str, str2int, real2str
   use plot_setting_manager
   use DATMAI
 
@@ -1486,7 +1486,9 @@ subroutine mtf_go(psm)
   & , ' ' , sysConfig%relativeFields(1,iField)
   call PROCESKDP(trim(charFLD))
   call PROCESKDP('SPD')
-  call PROCESKDP('GOTF')
+  call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)))//' '// &
+  & trim(real2str(psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL))))
+  !call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY))))
   call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
   
 

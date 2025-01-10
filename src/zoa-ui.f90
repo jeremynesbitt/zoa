@@ -106,6 +106,8 @@ integer, parameter :: ID_RMS_DATA_WAVE = 1622
 
 
 integer, parameter :: SETTING_SCALE = 1623
+integer, parameter :: SETTING_MAX_FREQUENCY = 1624
+integer, parameter :: SETTING_FREQUENCY_INTERVAL = 1625
 
 
 !integer :: active_plot = -1

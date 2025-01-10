@@ -202,13 +202,18 @@ contains
         implicit none
         logical :: boolResult
         type(zoaplot_setting_manager) :: psm
+        real :: maxFreq
 
 
         call psm%initialize(trim(iptStr))
         call psm%addDensitySetting(64,8,128)
         call psm%addFieldSetting()
         call psm%addWavelengthSetting()
-
+        maxFreq = getDefaultMaxFrequency()
+        call psm%addGenericSetting(SETTING_MAX_FREQUENCY, 'Maximum Frequency [lp]', maxFreq, &
+        & 0.0, 100000.0, 'MFR', 'MFR '//trim(real2str(maxFreq)), UITYPE_SPINBUTTON) 
+        call psm%addGenericSetting(SETTING_FREQUENCY_INTERVAL, 'Frequency Interval [lp]', maxFreq/100.0, &
+        & 0.0, 100000.0, 'IFR', 'IFR '//trim(real2str(maxFreq/100.0)), UITYPE_SPINBUTTON)          
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_MTF, psm)
         if(boolResult .EQV. .FALSE.) then
             call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")

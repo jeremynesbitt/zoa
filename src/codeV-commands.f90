@@ -22,6 +22,7 @@ module codeV_commands
     use handlers, only: updateTerminalLog, zoatabMgr
     use strings
     
+    implicit none
    !ifort will not compile the common interfaces unless I do it this way
     ! I had wanted to do a module with interfaces only.  gfortran was okay with it
     ! but not ifort.  
@@ -218,7 +219,11 @@ module codeV_commands
         zoaCmds(566)%cmd = 'PSF'
         zoaCmds(566)%execFunc => execPSF    
         zoaCmds(567)%cmd = 'MTF'
-        zoaCmds(567)%execFunc => execMTF             
+        zoaCmds(567)%execFunc => execMTF       
+        zoaCmds(568)%cmd = 'MFR'
+        zoaCmds(568)%execFunc => updateMaxFrequency         
+        zoaCmds(569)%cmd = 'IFR'
+        zoaCmds(569)%execFunc => updateFrequencyInterval                             
 
         
     end subroutine
@@ -915,6 +920,74 @@ module codeV_commands
 
     end subroutine
 
+
+    subroutine updateMaxFrequency(iptStr)
+
+        use command_utils
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: boolResult
+  
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if(numTokens ==2 ) then
+            if (isInputNumber(tokens(2))) then
+
+            select case(cmd_loop)
+            case (ID_PLOTTYPE_MTF)
+                call curr_psm%updateSetting(SETTING_MAX_FREQUENCY, str2real8(tokens(2)))
+            case default
+                call updateTerminalLog("Error:  &
+                & This cmd must be entered after MTF and before GO to update value", "red")
+            end select
+        end if
+        end if
+
+
+        !Pseudocode
+        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
+        !  psm%setScaleInLensUnits(real(tokens(2)))
+
+        !   end if
+
+    end subroutine
+
+    subroutine updateFrequencyInterval(iptStr)
+
+        use command_utils
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: boolResult
+  
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if(numTokens ==2 ) then
+            if (isInputNumber(tokens(2))) then
+
+            select case(cmd_loop)
+            case (ID_PLOTTYPE_MTF)
+                call curr_psm%updateSetting(SETTING_FREQUENCY_INTERVAL, str2real8(tokens(2)))
+            case default
+                call updateTerminalLog("Error:  &
+                & This cmd must be entered after MTF and before GO to update value", "red")
+            end select
+        end if
+        end if
+
+
+        !Pseudocode
+        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
+        !  psm%setScaleInLensUnits(real(tokens(2)))
+
+        !   end if
+
+    end subroutine    
 
     subroutine execRayAberrationPlot(iptStr)
         implicit none
@@ -2857,5 +2930,27 @@ module codeV_commands
     !     end if            
 
     !   end subroutine
+
+    function getDefaultMaxFrequency() result(maxFreq)
+        use DATSPD
+        real :: FREQ1, FREQ2, maxFreq
+        logical :: ERROR
+        ERROR=.FALSE.
+        CALL CUTTOFF(FREQ1,FREQ2,ERROR)
+      IF(ERROR) THEN 
+         call updateTerminalLog('ERROR IN OBJECT/IMAGE SPACE FREQUENCY RELATIONSHIP', "red")
+         return
+      END IF        
+!     FREQ1 IS THE IMAGE  SPACE CUTOFF FREQ
+!     FREQ2 IS THE OBJECT SPACE CUTOFF FREQ
+      IF(SPACEBALL.EQ.1) THEN
+         maxFreq=FREQ2
+      ELSE
+         maxFreq=FREQ1
+      END IF
+
+      print *, "Max Frequency is ", maxFreq
+
+    end function
 
 end module
