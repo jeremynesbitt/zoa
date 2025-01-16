@@ -25,7 +25,7 @@ module data_registers
     real(long) :: regData1d
     real(long), allocatable :: regData2d(:,:), regData3d(:,:,:)
     integer :: id_1d, id_2d, id_3d ! Codes associated with register data
-    type(image_data), allocatable :: currImg
+    type(image_data) :: currImg
 
     contains
 
@@ -59,20 +59,20 @@ module data_registers
 
     subroutine getData_img(strCmd, dataImg)
         character(len=*), intent(in) :: strCmd
-        type(image_data), allocatable, intent(out) :: dataImg
+        type(image_data), intent(out) :: dataImg
         integer :: cmdID
 
         ! Would like to implement this but this would require some 
         ! infra changes
         !cmdID = getCodeFromCmd(strCmd)
 
-        if (allocated(currImg)) deallocate(currImg)
+        !if (allocated(currImg)) deallocate(currImg)
         call PROCESSILENT(strCmd)
-        if(allocated(currImg)) then
+        !if(allocated(currImg)) then
             currImg%cmd = strCmd 
-            allocate(dataImg)
+            !allocate(dataImg)
             dataImg = currImg
-        end if
+        !end if
 
     end subroutine
 

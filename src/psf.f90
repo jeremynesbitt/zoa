@@ -13,6 +13,7 @@ module mod_psf
     SUBROUTINE DOPSF()
         USE GLOBALS
         use global_widgets, only: curr_psf
+        use data_registers
 !
 !
 !     THIS IS SUBROUTINE DOPSF.FOR.
@@ -531,6 +532,12 @@ module mod_psf
         if (allocated(curr_psf)) deallocate(curr_psf)
         allocate(curr_psf(MMM,MMM))
         curr_psf = FIMG
+
+        ! New way
+        if(ALLOCATED(currImg%img)) deallocate(currImg%img)
+        allocate(currImg%img, mold=FIMG)
+        currImg%img = FIMG
+        currImg%N = MMM        
 
         APEAK=PEAKER
         IF(SYSTEM(30).LE.2.0D0) THEN

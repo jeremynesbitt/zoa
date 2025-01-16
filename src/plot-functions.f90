@@ -1125,7 +1125,7 @@ type(c_ptr) :: canvas
 type(zoaPlotImg) :: zp3d 
 type(multiplot) :: mplt
 real(long), allocatable :: psfData(:,:), psfX(:), psfY(:), psfZ(:)
-type(image_data), allocatable :: imgPSF
+type(image_data) :: imgPSF
 
 
 lambda = psm%getWavelengthSetting()

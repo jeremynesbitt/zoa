@@ -712,7 +712,7 @@ C     NOW COPY BACK TO F
         curr_psf = FIMG
 
         ! New way
-        if (allocated(currImg)) deallocate(currImg)
+        allocate(currImg%img, mold=FIMG)
         currImg%img = FIMG
         currImg%N = MMM
 

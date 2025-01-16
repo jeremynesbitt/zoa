@@ -71,7 +71,7 @@ if fortran.get_id().contains('intel-cl')
   if build_type == 'debug'
     #warning_level = 2
     supported_arguments = fortran.get_supported_arguments([
-    '-warn:all',
+    #'-warn:all',
     '/Qdiag-disable:remark',
     '/Qdiag-disable:8889',
     '/Qm64',
