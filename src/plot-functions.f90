@@ -13,6 +13,10 @@ module plot_functions
   use zoa_ui
   use plot_setting_manager
   use iso_c_binding, only:  c_ptr, c_null_char
+  use zoa_plot
+  use data_registers
+
+  implicit none
 
     contains
 
@@ -28,8 +32,6 @@ subroutine zern_go(psm)
     
     use DATMAI
 
-
-    IMPLICIT NONE
 
     character(len=23) :: ffieldstr
     character(len=1024) :: inputCmd
@@ -161,9 +163,6 @@ subroutine vie_go(psm)
     USE GLOBALS
     use command_utils
     use handlers, only: updateTerminalLog
-    use zoa_ui
-    use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
     use plot_setting_manager
@@ -240,7 +239,6 @@ subroutine vie_go(psm)
 end subroutine
 
 function getTabTextView(objIdx) result (dataTextView)
-  use iso_c_binding, only: c_ptr, c_null_ptr
   use handlers, only: zoatabMgr
   use zoa_tab
   implicit none
@@ -268,8 +266,6 @@ subroutine spo_fieldPoint_go(psm)
   use handlers, only: updateTerminalLog
   use global_widgets, only:  sysConfig, ioConfig
   use zoa_ui
-  use zoa_plot
-  use iso_c_binding, only:  c_ptr, c_null_char
   use kdp_utils, only: OUTKDP, logDataVsField
   use type_utils, only: int2str, str2int
   use plot_setting_manager
@@ -361,8 +357,6 @@ subroutine spo_go(psm)
     use handlers, only: updateTerminalLog
     use global_widgets, only:  sysConfig, ioConfig
     use zoa_ui
-    use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
     use plot_setting_manager
@@ -532,16 +526,10 @@ subroutine seidel_go(psm)
     use command_utils
     use handlers, only: updateTerminalLog
     use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig
-    use zoa_ui
-    use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
-    use plot_setting_manager
     use DATMAI
-
-
-    IMPLICIT NONE
+    use iso_c_binding, only: c_ptr, c_null_ptr
 
     type(zoaplot_setting_manager) :: psm
     integer, parameter :: nS = 7 ! number of seidel terms to plot
@@ -737,15 +725,8 @@ subroutine rayaberration_old_go(psm)
   use handlers, only: updateTerminalLog
   use global_widgets
   use type_utils, only: int2str
-  use zoa_ui
-  use zoa_plot
-  use iso_c_binding, only:  c_ptr, c_null_char
   use plplot, PI => PL_PI
   use plplot_extra
-  use plot_setting_manager
-  use gtk, only: gtk_expander_set_expanded
-
-  implicit none
 
   character(len=80) :: ffieldstr
   CHARACTER(LEN=*), PARAMETER  :: FMTFAN = "(I1, A1, I3)"
@@ -834,13 +815,8 @@ subroutine rayaberration_go(psm)
     use handlers, only: updateTerminalLog
     use global_widgets
     use type_utils, only: int2str, real2str
-    use zoa_ui
-    use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use plplot, PI => PL_PI
     use plplot_extra
-    use plot_setting_manager
-    use gtk, only: gtk_expander_set_expanded
 
     implicit none
 
@@ -1030,12 +1006,9 @@ subroutine rmsfield_go(psm)
   use handlers, only: updateTerminalLog
   use global_widgets, only:  sysConfig, curr_ray_fan_data
   use type_utils, only: int2str
-  use zoa_ui
-  use zoa_plot
-  use iso_c_binding, only:  c_ptr, c_null_char
   use plplot, PI => PL_PI
   use plplot_extra
-  use plot_setting_manager
+  use iso_c_binding, only: c_ptr, c_null_ptr
 
 IMPLICIT NONE
 
@@ -1117,16 +1090,10 @@ subroutine psf_go(psm)
   use handlers, only: updateTerminalLog
   use global_widgets, only:  sysConfig, curr_opd
   use type_utils, only: int2str
-  use zoa_ui
-  use zoa_plot
-  use iso_c_binding, only:  c_ptr, c_null_char
   use plplot, PI => PL_PI
   use plplot_extra
-  use plot_setting_manager
   use mod_analysis_manager
-
-
-IMPLICIT NONE
+  use iso_c_binding, only: c_ptr, c_null_ptr
 
 character(len=1024) :: ffieldstr
 type(zoaplot_setting_manager) :: psm
@@ -1158,6 +1125,7 @@ type(c_ptr) :: canvas
 type(zoaPlotImg) :: zp3d 
 type(multiplot) :: mplt
 real(long), allocatable :: psfData(:,:), psfX(:), psfY(:), psfZ(:)
+type(image_data), allocatable :: imgPSF
 
 
 lambda = psm%getWavelengthSetting()
@@ -1180,9 +1148,15 @@ CALL PROCESKDP(trim(ffieldstr))
 canvas = hl_gtk_drawing_area_new(size=[600,600], &
 & has_alpha=FALSE)
 
-psfData = am%getPSF()
+call getData("PSFK", imgPSF)
+
+! OLD WAY
+! psfData = am%getPSF()
+allocate(psfData, mold=imgPSF%img)
+psfData = imgPSF%img
 xpts = size(psfData,1)
 ypts = size(psfData,2)
+
 allocate(psfX(xpts*ypts))
 allocate(psfY(xpts*ypts))
 allocate(psfZ(xpts*ypts))
@@ -1223,17 +1197,10 @@ subroutine pma_go(psm)
     use handlers, only: updateTerminalLog
     use global_widgets, only:  sysConfig, curr_opd
     use type_utils, only: int2str
-    use zoa_ui
-    use zoa_plot
-    use iso_c_binding, only:  c_ptr, c_null_char
     use plplot, PI => PL_PI
     use plplot_extra
-    use plot_setting_manager
-    use gtk, only: gtk_expander_set_expanded
-  
-  
-  IMPLICIT NONE
-  
+    use iso_c_binding, only: c_ptr, c_null_ptr    
+
   character(len=1024) :: ffieldstr
   type(zoaplot_setting_manager) :: psm
   
@@ -1444,13 +1411,10 @@ subroutine mtf_go(psm)
   use command_utils
   use handlers, only: updateTerminalLog
   use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig, sysConfig, curr_mtf
-  use zoa_ui
-  use zoa_plot
-  use iso_c_binding, only:  c_ptr, c_null_char
   use kdp_utils, only: OUTKDP, logDataVsField
   use type_utils, only: int2str, str2int, real2str
-  use plot_setting_manager
   use DATMAI
+  use iso_c_binding, only: c_ptr, c_null_ptr
 
 
   IMPLICIT NONE

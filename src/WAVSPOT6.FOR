@@ -190,6 +190,7 @@ C SUB DOPSF.FOR
         SUBROUTINE DOPSFOLD
         USE GLOBALS
         use global_widgets, only: curr_psf
+        use data_registers
 C
         IMPLICIT NONE
 C
@@ -709,6 +710,11 @@ C     NOW COPY BACK TO F
         if (allocated(curr_psf)) deallocate(curr_psf)
         allocate(curr_psf(MMM,MMM))
         curr_psf = FIMG
+
+        ! New way
+        if (allocated(currImg)) deallocate(currImg)
+        currImg%img = FIMG
+        currImg%N = MMM
 
         APEAK=PEAKER
         IF(SYSTEM(30).LE.2.0D0) THEN

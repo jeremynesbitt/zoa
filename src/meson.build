@@ -29,6 +29,7 @@ src_c += files('zoa_utils.c')
 
 srcs += files(
   'globals.FOR',
+  'data-registers.f90',
   'nssmod.FOR',
   'type-utils.f90',
   'algos.f90',
