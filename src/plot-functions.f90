@@ -1094,6 +1094,7 @@ subroutine psf_go(psm)
   use plplot_extra
   use mod_analysis_manager
   use iso_c_binding, only: c_ptr, c_null_ptr
+  use kdp_utils
 
 character(len=1024) :: ffieldstr
 type(zoaplot_setting_manager) :: psm
@@ -1126,7 +1127,10 @@ type(zoaPlotImg) :: zp3d
 type(multiplot) :: mplt
 real(long), allocatable :: psfData(:,:), psfX(:), psfY(:), psfZ(:)
 type(image_data) :: imgPSF
+integer :: objIdx
+logical :: replot
 
+call initializeGoPlot(psm,ID_PLOTTYPE_PSF, "Point Spread Function", replot, objIdx)
 
 lambda = psm%getWavelengthSetting()
 fldIdx = psm%getFieldSetting()
@@ -1161,6 +1165,11 @@ allocate(psfX(xpts*ypts))
 allocate(psfY(xpts*ypts))
 allocate(psfZ(xpts*ypts))
 
+call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+call LogTermFOR("TESTING 1 2 3")
+call logImageData(psfData)
+call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
 
 call mplt%initialize(canvas, 1,1)
 zz=1
@@ -1184,8 +1193,8 @@ end do
  call mplt%set(1,1,zp3d)
 
 
- call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_PSF, "Point Spread Function")
-
+ !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_PSF, "Point Spread Function")
+ call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 
 end subroutine

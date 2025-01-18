@@ -108,7 +108,19 @@ module kdp_utils
 
   end subroutine
 
+  subroutine logImageData(img)
+    use globals, only: long
+    real(long), intent(in) :: img(:,:)
+    integer :: ii, jj
+    character(len=2048) :: strData
 
+    do ii=1,size(img,1)
+        write(strData, *) (img(ii,jj), jj=1,size(img,2))
+        call OUTKDP(trim(strData))
+    end do
+
+
+  end subroutine
 
   subroutine logDataVsField(fldPoints, dataArray, colHeaders, extraRowName, singleSurface)
     use global_widgets, only: curr_lens_data
