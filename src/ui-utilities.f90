@@ -2,6 +2,15 @@
 ! This means the design is bad, but a more elegant solution has not been found
 ! or invested in yet.
 
+  subroutine updateTerminal(ftext, txtColor)
+    use handlers, only: updateTerminalLog
+    IMPLICIT NONE
+
+    character(len=*), intent(in) :: ftext
+    character(len=*), intent(in)  :: txtColor
+    call updateTerminalLog(ftext, txtColor)
+    end subroutine
+
 ! This method should eventually go somewhere else IMO, but for not have it here
   subroutine close_zoaTab(widget, gdata) bind(c)
     

@@ -142,7 +142,7 @@ contains
       type(gtktextiter), target :: endIter
       type(c_ptr) ::  scroll_win, vAdj
       type(c_ptr) ::  txtBuffer
-      character(len=280) :: markup
+      character(len=28000) :: markup
       integer(kind=c_int) :: iotst
 
       ! If we are supposed to be dumping text, exit this routine immediately

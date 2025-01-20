@@ -1,5 +1,13 @@
 module kdp_utils
 
+  interface
+  subroutine updateTerminal(ftext, txtColor)
+
+    character(len=*), intent(in) :: ftext
+    character(len=*), intent(in)  :: txtColor
+  end subroutine
+  end interface
+
     contains
   
   subroutine OUTKDP(txt, code)
@@ -110,15 +118,18 @@ module kdp_utils
 
   subroutine logImageData(img)
     use globals, only: long
+    implicit none
+
     real(long), intent(in) :: img(:,:)
     integer :: ii, jj
-    character(len=2048) :: strData
+    character(len=20480) :: strData
 
+    print *, "Size of img,2 is ", size(img,2)
     do ii=1,size(img,1)
-        write(strData, *) (img(ii,jj), jj=1,size(img,2))
-        call OUTKDP(trim(strData))
+        write(strData, *) (img(ii,jj), jj=1,256)!size(img,2))
+        call updateTerminal(trim(adjustl(strData)), "black")
+        !call OUTKDP(trim(strData))
     end do
-
 
   end subroutine
 

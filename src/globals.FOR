@@ -1,4 +1,4 @@
-      MODULE GLOBALS
+      MODULE globals
       use zoa_logger
 
       PUBLIC
@@ -275,4 +275,4 @@ C
 C     DIFFERENTIAL RAY TRACE TRACKER FOR RAYERROR
       LOGICAL DIFRAYTRACE
 C
-      END MODULE GLOBALS
+      END MODULE globals

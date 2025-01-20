@@ -1084,7 +1084,7 @@ call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RMSFIELD, "RMS vs Field")
 end subroutine
 
 subroutine psf_go(psm)
-
+  use mod_fft, only: four2, fftshift, fft2
   USE GLOBALS
   use command_utils
   use handlers, only: updateTerminalLog
@@ -1129,6 +1129,8 @@ real(long), allocatable :: psfData(:,:), psfX(:), psfY(:), psfZ(:)
 type(image_data) :: imgPSF
 integer :: objIdx
 logical :: replot
+complex(long), allocatable :: fftData(:,:)
+
 
 call initializeGoPlot(psm,ID_PLOTTYPE_PSF, "Point Spread Function", replot, objIdx)
 
@@ -1165,11 +1167,22 @@ allocate(psfX(xpts*ypts))
 allocate(psfY(xpts*ypts))
 allocate(psfZ(xpts*ypts))
 
-call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-call LogTermFOR("TESTING 1 2 3")
-call logImageData(psfData)
-call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
+!fftData = fft(psfComplex)
+allocate(fftData(size(psfData,1),size(psfData,2)))
+fftData = fft2(cmplx(psfData,kind=long),1)
+!fftData = cmplx(real(psfData,4))
+!call four2(fftData, 1)
+call fftshift(fftData)
+!fftData = fft2(cmplx(psfData))
+call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+call logImageData(psfData)
+call LogTermFOR("Real")
+call logImageData(real(real(fftData),kind=long))
+call LogTermFOR("Imag")
+call logImageData(real(aimag(fftData),kind=long))
+
+call ioConfig%restoreTextView()
 
 call mplt%initialize(canvas, 1,1)
 zz=1
@@ -1416,6 +1429,7 @@ end subroutine
   
 
 subroutine mtf_go(psm)
+  use mod_fft, only: fft2
   USE GLOBALS
   use command_utils
   use handlers, only: updateTerminalLog
@@ -1433,7 +1447,7 @@ subroutine mtf_go(psm)
   real, allocatable, dimension(:,:) :: seidel
   real, allocatable, dimension(:) :: surfIdx
   
-  character(len=23) :: ffieldstr
+  character(len=230) :: ffieldstr
   character(len=40) :: inputCmd
   integer :: ii, objIdx, jj
   logical :: replot
@@ -1446,6 +1460,10 @@ subroutine mtf_go(psm)
   character(len=23) :: cmdTxt
   integer :: iField
   character(len=80) :: charFLD
+  type(image_data) :: imgPSF
+  complex(long), allocatable :: fftData(:,:)
+  integer :: lambda, fldIdx
+
 
   call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
 
@@ -1458,9 +1476,29 @@ subroutine mtf_go(psm)
   & sysConfig%relativeFields(2,iField) &
   & , ' ' , sysConfig%relativeFields(1,iField)
   call PROCESKDP(trim(charFLD))
-  call PROCESKDP('SPD')
-  call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)))//' '// &
-  & trim(real2str(psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL))))
+
+  lambda = psm%getWavelengthSetting()
+  fldIdx = psm%getFieldSetting()
+  
+  !xpts = psm%getDensitySetting()
+  !ypts = xpts
+  
+  
+  PRINT *, "fldIdx is ", fldIdx
+  WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
+  & , ' ' , sysConfig%relativeFields(1, fldIdx)
+  CALL PROCESKDP(trim(ffieldstr))
+
+  ! MTF here is fft of psf.  So calc psf
+  call getData("PSFK", imgPSF)
+  allocate(fftData(size(imgPsf%img,1),size(imgPsf%img,2)))
+  fftData = fft2(cmplx(imgPsf%img,kind=long),1)
+  !call fftshift(fftData)
+  ! Try
+
+  !call PROCESKDP('SPD')
+  !call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)))//' '// &
+  !& trim(real2str(psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL))))
   !call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY))))
   call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
   
@@ -1472,7 +1510,8 @@ subroutine mtf_go(psm)
   
    call mplt%initialize(canvas, 1,1)
   
-   call xyscat%initialize(c_null_ptr, REAL(curr_mtf(:,1)),REAL(curr_mtf(:,2)), &
+   call xyscat%initialize(c_null_ptr, REAL( (/(ii,ii=1,size(fftData,1)/2)/) ), &
+   & REAL(DABS(REAL(fftData(1,1:size(fftData,1)/2))),4), &
    & xlabel='Spatial Frequency [cycles/mm]'//c_null_char, & 
    & ylabel='Modulation'//c_null_char, &
    & title='Diffraction MTF'//c_null_char)
