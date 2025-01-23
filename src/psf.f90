@@ -68,6 +68,8 @@ module mod_psf
       MM,III,JJJ,IIX,IIY,ALLOERR,HI,MMM,IIIX,IIIY,DFLAG
 !
       LOGICAL ERRR,ERRFOB
+
+      real(long) :: fNum, maxNA
 !
       COMMON/PSFPLOTER/PEXTENT,PSPACING,CNTX,CNTY
 !
@@ -537,7 +539,12 @@ module mod_psf
         if(ALLOCATED(currImg%img)) deallocate(currImg%img)
         allocate(currImg%img, mold=FIMG)
         currImg%img = FIMG
-        currImg%N = MMM        
+        currImg%N   = MMM+1     
+        ! Temp data
+        fnum = 0.7029729
+        maxNA = 1/(2*fnum)
+        currImg%pS = 2*.248/(maxNA*REAL(TGR)/REAL(NRD)) ! REAL(NRD/TGR)
+  
 
         APEAK=PEAKER
         IF(SYSTEM(30).LE.2.0D0) THEN

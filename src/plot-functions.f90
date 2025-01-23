@@ -1462,7 +1462,11 @@ subroutine mtf_go(psm)
   character(len=80) :: charFLD
   type(image_data) :: imgPSF
   complex(long), allocatable :: fftData(:,:)
+  real, allocatable :: xAxis(:)
   integer :: lambda, fldIdx
+
+  ! Temp data
+  real(long) :: fnum, maxNA
 
 
   call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
@@ -1493,6 +1497,22 @@ subroutine mtf_go(psm)
   call getData("PSFK", imgPSF)
   allocate(fftData(size(imgPsf%img,1),size(imgPsf%img,2)))
   fftData = fft2(cmplx(imgPsf%img,kind=long),1)
+  print *, "pixel size is ", imgPsf%pS
+  print *, "Num of points is ", imgPsf%N
+
+  maxNA =  0.248/(2*imgPsf%pS)
+  imgPsf%pS = 0.043
+  ! Old Way
+  !xAxis = REAL( (/(ii,ii=1,size(fftData,1)/2)/) )
+  allocate(xAxis(imgPsf%N/2))
+  do ii=1,imgPsf%N/2
+    xAxis(ii) = 1000*(ii-1)/(imgPsf%N/2-1)/(2*imgPsf%pS)
+  end do
+    
+
+  !end do
+  !xAxis = (/(ii,ii=0,(imgPsf%N-1)/(2*imgPsf%pS))/)
+ 
   !call fftshift(fftData)
   ! Try
 
@@ -1510,8 +1530,8 @@ subroutine mtf_go(psm)
   
    call mplt%initialize(canvas, 1,1)
   
-   call xyscat%initialize(c_null_ptr, REAL( (/(ii,ii=1,size(fftData,1)/2)/) ), &
-   & REAL(DABS(REAL(fftData(1,1:size(fftData,1)/2))),4), &
+   call xyscat%initialize(c_null_ptr, xAxis, &
+   & REAL(DABS(REAL(fftData(1,1:size(fftData,1)/2)))/DABS(REAL(fftData(1,1))),4), &
    & xlabel='Spatial Frequency [cycles/mm]'//c_null_char, & 
    & ylabel='Modulation'//c_null_char, &
    & title='Diffraction MTF'//c_null_char)
