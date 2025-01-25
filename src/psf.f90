@@ -14,6 +14,7 @@ module mod_psf
         USE GLOBALS
         use global_widgets, only: curr_psf
         use data_registers
+        use type_utils
 !
 !
 !     THIS IS SUBROUTINE DOPSF.FOR.
@@ -63,6 +64,7 @@ module mod_psf
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
         INCLUDE 'DATSP1.INC'
+
 !
       INTEGER IREAL,IIMAG,INDEX,SHTNM,IX,IY,II,I,J,NDAT,NDIM, &
       MM,III,JJJ,IIX,IIY,ALLOERR,HI,MMM,IIIX,IIIY,DFLAG
@@ -73,6 +75,9 @@ module mod_psf
 !
       COMMON/PSFPLOTER/PEXTENT,PSPACING,CNTX,CNTY
 !
+      call LogTermDebug("doPSF beginning NRD is "//int2str(NRD))
+      print *, "NRD at beginning of DOPSF is ", INT(NRD)
+
       DEALLOCATE(F,PUP,FHOLDF,FHOLDF1,FIMG,STAT=ALLOERR)
       GPREG(101:110)=0.0D0
 !
@@ -543,7 +548,12 @@ module mod_psf
         ! Temp data
         fnum = 0.7029729
         maxNA = 1/(2*fnum)
-        currImg%pS = 2*.248/(maxNA*REAL(TGR)/REAL(NRD)) ! REAL(NRD/TGR)
+        currImg%pS = 2.0*0.248/(maxNA*REAL(TGR)/REAL(16)) 
+        print *, "********************************!!!!!!!!!!*************************************"
+        print *, "TGR IS ", TGR
+        print *, "NRD IS ", INT(NRD)
+        print *, "pixel size psf90 is ", currImg%pS
+        print *, "TRG/NRD IS ", REAL(TGR)/REAL(NRD)
   
 
         APEAK=PEAKER

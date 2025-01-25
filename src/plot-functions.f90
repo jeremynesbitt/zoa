@@ -1437,6 +1437,7 @@ subroutine mtf_go(psm)
   use kdp_utils, only: OUTKDP, logDataVsField
   use type_utils, only: int2str, str2int, real2str
   use DATMAI
+  use DATSPD, only: NRD
   use iso_c_binding, only: c_ptr, c_null_ptr
 
 
@@ -1487,21 +1488,15 @@ subroutine mtf_go(psm)
   !xpts = psm%getDensitySetting()
   !ypts = xpts
   
-  
-  PRINT *, "fldIdx is ", fldIdx
-  WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
-  & , ' ' , sysConfig%relativeFields(1, fldIdx)
-  CALL PROCESKDP(trim(ffieldstr))
-
   ! MTF here is fft of psf.  So calc psf
+  call LogTermDebug("Before PSFK NRD is "//int2str(NRD))
   call getData("PSFK", imgPSF)
+  call LogTermDebug("After PSFK NRD is "//int2str(NRD))
   allocate(fftData(size(imgPsf%img,1),size(imgPsf%img,2)))
   fftData = fft2(cmplx(imgPsf%img,kind=long),1)
   print *, "pixel size is ", imgPsf%pS
   print *, "Num of points is ", imgPsf%N
 
-  maxNA =  0.248/(2*imgPsf%pS)
-  imgPsf%pS = 0.043
   ! Old Way
   !xAxis = REAL( (/(ii,ii=1,size(fftData,1)/2)/) )
   allocate(xAxis(imgPsf%N/2))
