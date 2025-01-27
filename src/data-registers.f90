@@ -37,6 +37,12 @@ module data_registers
     subroutine getData_scalar(strCmd, data1d)
         character(len=*), intent(in) :: strCmd
         real(long), intent(out) :: data1d
+        call PROCESSILENT(strCmd)
+        if(regCmd1d == strCmd) then
+        data1d = regData1d   
+        else 
+            call LogTermFOR("Error! cmd did not update register "//strCmd)  
+        end if
     end subroutine
 
     subroutine getData_2d(strCmd, data2d)
