@@ -6,12 +6,14 @@
 module mod_analysis_manager
     use globals, only: long
     use global_widgets, only: curr_par_ray_trace, sysConfig
+    use mod_lens_data_manager
+    use type_utils
 
     type analysis_manager
    
     contains
      procedure :: getTransverseComa, getTransverseAstigmatism, getPetzvalBlur, getTransverseSpherical
-     procedure :: getPSF
+     procedure :: getPSF, getImgNA
 
     end type
 
@@ -101,6 +103,26 @@ module mod_analysis_manager
 
 
     end function
+
+    function getImgNA(self) result(imgNA)
+        use data_registers
+
+        implicit none
+        class(analysis_manager) :: self
+        real(long)  :: imgNA, cosX, cosY, cosR
+
+        ! THis is dumb.  Should move this calc to somewhere else and store it.  for now though...
+        call getData('CY f1 w1 s'//trim(int2str(ldm%getLastSurf()))//' 0.0 1.0', cosY)
+        call getData('CX f1 w1 s'//trim(int2str(ldm%getLastSurf()))//' 0.0 1.0', cosX)
+
+        cosR = sqrt(cosX**2 + cosY**2)
+        imgNA = sin(acos(cosR))
+
+
+
+
+
+    end function    
 
 
 end module

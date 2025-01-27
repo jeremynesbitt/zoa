@@ -19,6 +19,10 @@ module data_registers
 
         !module procedure convert_c_string_array_cptr
     end interface getData
+
+    interface setData
+        module procedure setData_scalar
+    end interface setData    
     
     ! Register Data
     
@@ -26,6 +30,7 @@ module data_registers
     real(long), allocatable :: regData2d(:,:), regData3d(:,:,:)
     integer :: id_1d, id_2d, id_3d ! Codes associated with register data
     type(image_data) :: currImg
+    character(len=1024) :: regCmd1d, regCmd2d, regCmd3d, regCmdImg
 
     contains
 
@@ -74,6 +79,13 @@ module data_registers
             dataImg = currImg
         !end if
 
+    end subroutine
+
+    subroutine setData_scalar(strCmd, data1d)
+        character(len=*), intent(in) :: strCmd
+        real(long), intent(in) :: data1d
+        regCmd1d = strCmd
+        regData1d = data1d
     end subroutine
 
 

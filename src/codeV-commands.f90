@@ -224,6 +224,12 @@ module codeV_commands
         zoaCmds(568)%execFunc => updateMaxFrequency         
         zoaCmds(569)%cmd = 'IFR'
         zoaCmds(569)%execFunc => updateFrequencyInterval                             
+        zoaCmds(570)%cmd = 'CY'
+        zoaCmds(570)%execFunc => getRayData    
+        zoaCmds(571)%cmd = 'CX'
+        zoaCmds(571)%execFunc => getRayData                                     
+
+                
 
         
     end subroutine
@@ -383,6 +389,7 @@ module codeV_commands
 
 
     end function
+    
 
     function cmd_parser_get_int_input_for_prefix(prefix, tokens) result(intArr)
         use global_widgets, only: sysConfig
@@ -2911,6 +2918,56 @@ module codeV_commands
         end if
 
     end subroutine    
+
+    !Format:  CMD sk wk fk rx ry 
+    subroutine getRayData(iptStr)
+        use DATLEN, only: RAYRAY
+        use data_registers, only: setData
+        
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens       
+        integer, allocatable :: fields(:), wavelengths(:), surfaces(:)
+        real(kind=real64) :: relApeX, relApeY
+        
+        ! Defaults
+        relApeX = 0.0
+        relApeY = 0.0
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        
+        fields      = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
+        wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
+        surfaces    = cmd_parser_get_int_input_for_prefix('s', tokens(1:numTokens))
+        call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
+        & real1Bounds=[-1.0,1.0], real2Bounds=[-1.0,1.0])
+
+        if (size(fields) ==1 .and. size(wavelengths) == 1 .and. size(surfaces) == 1) then
+            ! Call RSI with the same info given.  This is a bit clunky to reconvernt back to str
+            ! but for now let's see how it works
+            call PROCESSILENT("RSI f"//trim(int2str(fields(1)))// &
+            &                    " w"//trim(int2str(wavelengths(1)))// &
+            & " "//trim(real2str(relApeX))//" "//trim(real2str(relApeY)))
+
+            select case(trim(tokens(1)))
+
+            case('CY') ! Cosine Y angle
+                call setData(iptStr, RAYRAY(14,surfaces(1)))
+                print *, "Data stored is ", RAYRAY(5,surfaces(1))
+            case('CX') ! Cosine Y angle
+                call setData(iptStr, RAYRAY(14,surfaces(1)))
+                print *, "Data stored is ", RAYRAY(4,surfaces(1))                
+
+            end select
+
+
+        else
+            call updateTerminalLog( &
+            & "Error:  Was unable to parse intput to get only one surface, field point and wavelength","red")
+
+        end if
+
+    end subroutine
 
 
         !        

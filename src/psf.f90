@@ -15,6 +15,7 @@ module mod_psf
         use global_widgets, only: curr_psf
         use data_registers
         use type_utils
+        use mod_analysis_manager
 !
 !
 !     THIS IS SUBROUTINE DOPSF.FOR.
@@ -547,9 +548,10 @@ module mod_psf
         currImg%N   = MMM+1     
         ! Temp data
         fnum = 0.7029729
-        maxNA = 1/(2*fnum)
-        currImg%pS = 2.0*0.248/(maxNA*REAL(TGR)/REAL(16)) 
+        maxNA = am%getImgNA()
+        currImg%pS = 2.0*0.248/(maxNA*REAL(TGR)/REAL(NRD)) 
         print *, "********************************!!!!!!!!!!*************************************"
+        print *, "MaxNA IS ", maxNA
         print *, "TGR IS ", TGR
         print *, "NRD IS ", INT(NRD)
         print *, "pixel size psf90 is ", currImg%pS

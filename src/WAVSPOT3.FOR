@@ -96,6 +96,7 @@ C               J=49 M AT SPDSURF
 C               J=50 N AT SPDSURF
 C               J=51 COSI AT SPDSURF
 C
+      print *, "Beginning of SPOT NRD is ", NRD
       REFERR=.FALSE.
 C       WAS A FOB ISSUED
       IF(WC.EQ.'ISPD'.OR.WC.EQ.'ISPDA') THEN

@@ -21,6 +21,7 @@ C
 C       THIS IS SUBROUTINE MERIT2. THIS IS THE SUBROUTINE WHICH
 C       HANDLES OPNRD
 C       AT THE CMD LEVEL
+       print *, "NRD at beginning of MERTI2 is ", INT(NRD)
       PSFEXT2=PSFEXT
 C
 C             NRD
@@ -32,6 +33,7 @@ C     SYNTAX CHECK
      1'"NRD" SETS PUPIL RAY GRID FOR CAPFN CALCULATIONS IN PSF'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NRD CURRENTLY SET TO ',INT(NRD)
+      print *, "OUTLYNE IS ", OUTLYNE
       CALL SHOWIT(1)
                         RETURN
                         END IF
