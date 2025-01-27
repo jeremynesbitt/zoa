@@ -2925,6 +2925,7 @@ module codeV_commands
         use data_registers, only: setData
         
         character(len=*) :: iptStr
+        character(len=LEN(iptStr)) :: savStr
         character(len=80) :: tokens(40)
         integer :: numTokens       
         integer, allocatable :: fields(:), wavelengths(:), surfaces(:)
@@ -2935,6 +2936,7 @@ module codeV_commands
         relApeY = 0.0
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
+        savStr = iptStr
         
         fields      = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
         wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
@@ -2952,10 +2954,10 @@ module codeV_commands
             select case(trim(tokens(1)))
 
             case('CY') ! Cosine Y angle
-                call setData(iptStr, RAYRAY(14,surfaces(1)))
+                call setData(savStr, RAYRAY(5,surfaces(1)))
                 print *, "Data stored is ", RAYRAY(5,surfaces(1))
             case('CX') ! Cosine Y angle
-                call setData(iptStr, RAYRAY(14,surfaces(1)))
+                call setData(savStr, RAYRAY(4,surfaces(1)))
                 print *, "Data stored is ", RAYRAY(4,surfaces(1))                
 
             end select

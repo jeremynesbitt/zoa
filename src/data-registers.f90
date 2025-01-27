@@ -38,6 +38,7 @@ module data_registers
         character(len=*), intent(in) :: strCmd
         real(long), intent(out) :: data1d
         call PROCESSILENT(strCmd)
+        print *, "regCmd1d is ", regCmd1d
         if(regCmd1d == strCmd) then
         data1d = regData1d   
         else 
@@ -90,7 +91,7 @@ module data_registers
     subroutine setData_scalar(strCmd, data1d)
         character(len=*), intent(in) :: strCmd
         real(long), intent(in) :: data1d
-        regCmd1d = strCmd
+        regCmd1d = trim(strCmd)
         regData1d = data1d
     end subroutine
 
