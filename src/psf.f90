@@ -548,8 +548,10 @@ module mod_psf
         currImg%N   = MMM+1     
         ! Temp data
         fnum = 0.7029729
+        !maxNA = 1/(2*fnum)
         maxNA = am%getImgNA()
-        currImg%pS = 2.0*0.248/(maxNA*REAL(TGR)/REAL(NRD)) 
+
+        currImg%pS = 0.248/(2*maxNA*REAL(TGR)/REAL(NRD)) 
         print *, "********************************!!!!!!!!!!*************************************"
         print *, "MaxNA IS ", maxNA
         print *, "TGR IS ", TGR

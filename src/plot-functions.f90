@@ -1434,11 +1434,12 @@ subroutine mtf_go(psm)
   use command_utils
   use handlers, only: updateTerminalLog
   use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig, sysConfig, curr_mtf
-  use kdp_utils, only: OUTKDP, logDataVsField
+  use kdp_utils, only: OUTKDP, logDataVsField, log2DData
   use type_utils, only: int2str, str2int, real2str
   use DATMAI
   use DATSPD, only: NRD
   use iso_c_binding, only: c_ptr, c_null_ptr
+  use mod_analysis_manager
 
 
   IMPLICIT NONE
@@ -1463,27 +1464,28 @@ subroutine mtf_go(psm)
   character(len=80) :: charFLD
   type(image_data) :: imgPSF
   complex(long), allocatable :: fftData(:,:)
-  real, allocatable :: xAxis(:)
-  integer :: lambda, fldIdx
+  real, allocatable :: xAxis(:), xPlt(:) 
+  real(long), allocatable :: yAxis(:), yPlt(:)
+
+  integer :: lambda, fldIdx, xpts, iDiff
 
   ! Temp data
-  real(long) :: fnum, maxNA
+  real(long) :: fnum, imgNA, lambdaInUm, diffLimit
 
 
   call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
 
   iField = psm%getFieldSetting()
-
-  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  xpts = psm%getDensitySetting()
+  lambda = psm%getWavelengthSetting()
   ! Set field, call spd, call GOTF to populate curr_mtf
   ! TODO:  Migrate this to a more elegant structure
   WRITE(charFLD, *) "FOB ", &
   & sysConfig%relativeFields(2,iField) &
   & , ' ' , sysConfig%relativeFields(1,iField)
   call PROCESKDP(trim(charFLD))
-
-  lambda = psm%getWavelengthSetting()
-  fldIdx = psm%getFieldSetting()
+  call PROCESKDP('NRD, '//trim(int2str(xpts)))
+  call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
   
   !xpts = psm%getDensitySetting()
   !ypts = xpts
@@ -1494,15 +1496,35 @@ subroutine mtf_go(psm)
   call LogTermDebug("After PSFK NRD is "//int2str(NRD))
   allocate(fftData(size(imgPsf%img,1),size(imgPsf%img,2)))
   fftData = fft2(cmplx(imgPsf%img,kind=long),1)
-  print *, "pixel size is ", imgPsf%pS
-  print *, "Num of points is ", imgPsf%N
 
   ! Old Way
   !xAxis = REAL( (/(ii,ii=1,size(fftData,1)/2)/) )
   allocate(xAxis(imgPsf%N/2))
+  allocate(yAxis(imgPsf%N/2))
+
+  ! Compute Diffraction Limit in linepairs/mm
+  imgNA = am%getImgNA()
+  lambdaInUm = sysConfig%getWavelength(lambda)
+  diffLimit = 2.0_long*1000.0_long*imgNA/lambdaInUm
+  iDiff = 0
   do ii=1,imgPsf%N/2
-    xAxis(ii) = 1000*(ii-1)/(imgPsf%N/2-1)/(2*imgPsf%pS)
+    !xAxis(ii) = 1000*(ii-1)/(imgPsf%N/2-1)/(2*imgPsf%pS)
+    xAxis(ii) = 1000*(ii-1)/(imgPsf%N/2-1)/(imgPsf%pS)
+    if (iDiff == 0 .and. xAxis(ii) > diffLimit) iDiff = ii+1
   end do
+  yAxis = REAL(DABS(REAL(fftData(1,1:size(fftData,1)/2)))/DABS(REAL(fftData(1,1))),8)
+  yAxis = yAxis**2
+
+  print *, "Diff Limit is ", diffLimit
+  print *, "Plot max index is ", iDiff
+
+  ! Only plot data ~ within diffraction limit
+  allocate(xPlt(iDiff))
+  allocate(yPlt(iDiff))
+  xPlt(1:iDiff) = xAxis(1:iDiff)
+  yPlt(1:iDiff) = yAxis(1:iDiff)
+  
+
     
 
   !end do
@@ -1515,8 +1537,9 @@ subroutine mtf_go(psm)
   !call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)))//' '// &
   !& trim(real2str(psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL))))
   !call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY))))
-  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-  
+  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  call log2DData(real(xAxis,8),yAxis)
+ call ioConfig%restoreTextView()
 
   
    canvas = hl_gtk_drawing_area_new(size=[1200,800], &
@@ -1525,8 +1548,7 @@ subroutine mtf_go(psm)
   
    call mplt%initialize(canvas, 1,1)
   
-   call xyscat%initialize(c_null_ptr, xAxis, &
-   & REAL(DABS(REAL(fftData(1,1:size(fftData,1)/2)))/DABS(REAL(fftData(1,1))),4), &
+   call xyscat%initialize(c_null_ptr, xPlt, REAL(yPlt,4), &
    & xlabel='Spatial Frequency [cycles/mm]'//c_null_char, & 
    & ylabel='Modulation'//c_null_char, &
    & title='Diffraction MTF'//c_null_char)

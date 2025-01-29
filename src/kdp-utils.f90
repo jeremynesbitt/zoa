@@ -133,6 +133,23 @@ module kdp_utils
 
   end subroutine
 
+  subroutine log2DData(xData,yData, xHeader, yHeader)
+    use globals, only: long
+    use type_utils
+    real(long), dimension(:) :: xData, yData
+    character(len=*), optional :: xHeader, yHeader
+    integer :: i
+    character(len=1024) :: outStr
+
+    do i=1,size(xData)
+      write(outStr, '(F12.5,A5,F12.5)') xData(i),blankStr(5), yData(i)
+       !call OUTKDP(trim(real2str(xData(i)))//blankStr(5)//trim(real2str(yData(i))))
+       call OUTKDP(trim(outStr))
+    end do
+
+
+  end subroutine
+
   subroutine logDataVsField(fldPoints, dataArray, colHeaders, extraRowName, singleSurface)
     use global_widgets, only: curr_lens_data
     use iso_fortran_env, only: real64

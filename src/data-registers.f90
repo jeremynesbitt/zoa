@@ -35,11 +35,12 @@ module data_registers
     contains
 
     subroutine getData_scalar(strCmd, data1d)
+        use strings
         character(len=*), intent(in) :: strCmd
         real(long), intent(out) :: data1d
         call PROCESSILENT(strCmd)
         print *, "regCmd1d is ", regCmd1d
-        if(regCmd1d == strCmd) then
+        if(lowercase(trim(regCmd1d)) == lowercase(trim(strCmd))) then
         data1d = regData1d   
         else 
             call LogTermFOR("Error! cmd did not update register "//strCmd)  
