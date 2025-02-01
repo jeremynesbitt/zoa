@@ -245,9 +245,9 @@ procedure, public, pass(self)  :: add_lens_data
 procedure, public, pass(self) :: imageSurfaceIsIdeal
 procedure, public, pass(self) :: update => updateLensData
 procedure, public, pass(self) :: genSaveOutputText => genLensDataSaveOutputText
-procedure, public, pass(self) :: isSolveOnSurface
+procedure, public, pass(self) :: genAsphereSavOutputText
+procedure, public, pass(self) :: isSolveOnSurface, isAsphereOnSurface
 procedure, public, pass(self) :: setSolveData
-
 
 !procedure, private, pass(self) ::
 
@@ -2096,6 +2096,59 @@ function isSolveOnSurface(self, surf) result(boolResult)
 
 end function
 
+function isAsphereOnSurface(self, surf) result(boolResult)
+  use DATLEN, only: ALENS
+  class(lens_data) :: self
+  integer :: surf
+  logical :: boolResult
+
+  boolResult = .FALSE.
+
+  if (ALENS(8,surf) == 1.0d0) then
+    boolResult = .TRUE.
+  end if
+
+end function
+
+function genAsphereSavOutputText(self, surf) result(strSurfLine)
+  use type_utils, only: real2str, blankStr
+  use DATLEN, only: ALENS
+  class(lens_data) :: self
+  integer :: surf, ii
+  character(len=1024) :: strSurfLine
+  character(len=1), dimension(4) :: lblsPart1, lblsPart2
+
+  lblsPart1 = [character(len=1) :: 'A', 'B', 'C', 'D']
+  lblsPart2 = [character(len=1) :: 'E', 'F', 'G', 'H']
+
+
+
+      ! Gather terms and add to line
+  strSurfLine = blankStr(2)//'ASP ;'
+  ! due to how this is stored in ALENS, use two separate loops
+  !ALENS(4,surf#) -- 4th order aspheric coefficient
+  !ALENS(5,surf#) -- 6th order aspheric coefficient
+  !ALENS(6,surf#) -- 8th order aspheric coefficient
+  !ALENS(7,surf#) -- 10th order aspheric coefficient      
+  do ii = 1,4
+      strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart1(ii)//blankStr(1)// &
+      & trim(real2str(ALENS(ii+3,surf),sci=.TRUE.))//' ;'
+  end do
+
+  !     ALENS(81,surf#) -- 12th order aspheric coefficient
+  !     ALENS(82,surf#) -- 14th order aspheric coefficient
+  !     ALENS(83,surf#) -- 16th order aspheric coefficient
+  !     ALENS(84,surf#) -- 18th order aspheric coefficient  
+  do ii = 1,4
+      strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart2(ii)//blankStr(1)// &
+      & trim(real2str(ALENS(ii+80,surf),sci=.TRUE.))//' ;'
+  end do  
+  ! Remove last semicolon
+  strSurfLine(len_trim(strSurfLine):len_trim(strSurfLine)) = ' '
+    
+
+end function
+
 
 
 subroutine genLensDataSaveOutputText(self, fID)
@@ -2103,7 +2156,7 @@ subroutine genLensDataSaveOutputText(self, fID)
   use zoa_file_handler, only: genOutputLineWithSpacing
   class(lens_data) :: self
   integer :: fID
-  integer :: ii
+  integer :: ii, jj
   character(len=1024) :: strSurfLine
   character(len=4) :: surfStr
   !character(len=80) :: glassStr
@@ -2158,6 +2211,12 @@ subroutine genLensDataSaveOutputText(self, fID)
       strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%clearAps(ii)%yRad))
       write(fID, *) trim(strSurfLine)
     end if
+
+    if (self%isAsphereOnSurface(ii-1)) then
+      strSurfLine = self%genAsphereSavOutputText(ii)
+      write(fID, *) trim(strSurfLine)
+    end if
+
 
     ! pseudocode for now
     !if (self%hasPickup(ii)) then

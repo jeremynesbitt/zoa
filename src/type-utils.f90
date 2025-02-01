@@ -38,6 +38,12 @@ module type_utils
                !
                write(strOut, '(F9.5)') valDP
            end if          
+
+           ! Sometimes will get **** if the precision is wrong.  
+           if (strOut(1:3) == '***') then 
+            write(strOut, '(F10.5)') valDP
+           end if
+
             type is (real(real32))
             valSP = val
   
@@ -52,6 +58,11 @@ module type_utils
                !write(strOut, '(D23.15)') val
                write(strOut, '(F9.5)') valSP
            end if    
+
+           ! Sometimes will get **** if the precision is wrong.  
+           if (strOut(1:3) == '***') then 
+            write(strOut, '(F10.5)') valSP
+           end if
   
       end select
           

@@ -206,7 +206,9 @@ contains
 
 
         call psm%initialize(trim(iptStr))
-        call psm%addDensitySetting(16,8,128)
+        !call psm%addDensitySetting(16,8,128)
+        call psm%addPowerOfTwoImageSetting(16,16,128)
+
         call psm%addFieldSetting()
         call psm%addWavelengthSetting()
         maxFreq = getDefaultMaxFrequency()

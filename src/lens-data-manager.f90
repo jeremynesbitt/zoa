@@ -1,6 +1,14 @@
 !Notes:
 !It should be true that surfaces start from 0.  curr_lens_data is not stored this way
 !so this can lead to confusion
+
+! Notes on longer term implementation.
+! this holds a series of objects (surfaces)
+! for zooms, then need and array of systems
+! for saving, each object will have a genSavOutputText
+! for ui, each object will have a get / set cmd stored for reading / writing
+! things like solves, pickups, and apertures are separate objects?
+
 module mod_lens_data_manager
     use iso_fortran_env, only: real64
     use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig

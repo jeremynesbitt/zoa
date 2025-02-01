@@ -352,10 +352,36 @@ contains
 
     end subroutine
 
+    function convertPowerOfTwoIndex(inVal, defVal) result(outVal)
+      ! A more elegant way could be done (eg by dividing N times until 
+      ! we get 2 and outVal should be N - 3), but this shoudl work...
+      integer :: inVal, outVal
+      integer, optional :: defVal
+
+      select case (inVal)
+      case (16)
+        outVal = 1
+      case (32)
+        outVal = 2
+      case (64)
+        outVal = 3
+      case(128)
+        outVal = 4
+      case (256)
+        outVal = 5
+      case (512)
+        outVal = 6
+      case default
+        if(present(defVal)) outVal = defVal
+      end select 
+
+
+    end function
+
     subroutine addPowerOfTwoImageSetting(self, tgtVal, minVal, maxVal)
       use kdp_data_types, only: idText
       class (zoaplot_setting_manager) :: self
-      integer :: minVal, maxVal, minSet, maxSet
+      integer :: minVal, maxVal, minSet, maxSet, tgtVal, tgtSet
       type(idText) :: spotTrace(6)
 
       spotTrace(1)%text = "16x16"
@@ -371,44 +397,15 @@ contains
       spotTrace(6)%text = "512x512"
       spotTrace(6)%id   = ID_512x512   
       
-      ! A more elegant way could be done, but this shoudl work...
-      select case (minVal)
-      case (16)
-        minSet = 1
-      case (32)
-        minSet = 2
-      case (64)
-        minSet = 3
-      case(128)
-        minSet = 4
-      case (256)
-        minSet = 5
-      case (512)
-        minSet = 6
-      case default
-        minSet = 1
-      end select 
-
-      select case (maxVal)
-      case (16)
-        maxSet = 1
-      case (32)
-        maxSet = 2
-      case (64)
-        maxSet = 3
-      case(128)
-        maxSet = 4
-      case (256)
-        maxSet = 5
-      case (512)
-        maxSet = 6
-      case default
-        maxSet = 6
-      end select       
+      ! Need to go from N (eg 32) to the index in the set.  
+      minSet = convertPowerOfTwoIndex(minVal, defval=1)
+      maxSet = convertPowerOfTwoIndex(maxVal, defval=6)
+      tgtSet = convertPowerOfTwoIndex(tgtVal, defval=1)
+ 
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_DENSITY_POWER_OF_TWO, & 
-      & "Image Size (NxN)", real(spotTrace(minVal)%id),0.0,0.0, &
+      & "Image Size (NxN)", real(tgtSet),0.0,0.0, &
       & "TGR", "TGR ", UITYPE_COMBO, set=spotTrace(minSet:maxSet))      
 
 

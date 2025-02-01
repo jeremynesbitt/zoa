@@ -1476,7 +1476,8 @@ subroutine mtf_go(psm)
   call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
 
   iField = psm%getFieldSetting()
-  xpts = psm%getDensitySetting()
+  xpts = psm%getPowerOfTwoImageSetting()
+  !xpts = psm%getDensitySetting()
   lambda = psm%getWavelengthSetting()
   ! Set field, call spd, call GOTF to populate curr_mtf
   ! TODO:  Migrate this to a more elegant structure
