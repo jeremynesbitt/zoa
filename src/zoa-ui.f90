@@ -100,6 +100,9 @@ integer, parameter :: ID_SPOT_RING_NUMRINGS = 1613
 integer, parameter :: ID_SPOT_FIELD = 1614
 integer, parameter :: ID_SPOT_WAVELENGTH = 1615
 
+
+
+
 integer, parameter :: ID_RMS_DATA_TYPE = 1620
 integer, parameter :: ID_RMS_DATA_SPOT = 1621
 integer, parameter :: ID_RMS_DATA_WAVE = 1622
@@ -109,6 +112,15 @@ integer, parameter :: SETTING_SCALE = 1623
 integer, parameter :: SETTING_MAX_FREQUENCY = 1624
 integer, parameter :: SETTING_FREQUENCY_INTERVAL = 1625
 
+
+! Power of two
+integer, parameter ::  ID_DENSITY_POWER_OF_TWO = 1626
+integer, parameter ::   ID_16x16 = 1627
+integer, parameter ::   ID_32x32 = 1628
+integer, parameter ::   ID_64x64 = 1629
+integer, parameter :: ID_128x128 = 1630
+integer, parameter :: ID_256x256 = 1631
+integer, parameter :: ID_512x512 = 1632
 
 !integer :: active_plot = -1
 

@@ -8,7 +8,7 @@ C SUB CMDER.FOR
      1 SYSCONFIGUI, SPR, plot_seidel, MACROUI, PLT3DTST, 
      2 PLTIMTST, PTSTUFF, Sandbox
         use codeV_commands, only: startCodeVLensUpdateCmd, 
-     1   newLens, setLens
+     1   newLens, setLens, execSav
         use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT, 
      1 ID_TERMINAL_KDPDUMP, sysConfig
         use DATLEN
@@ -431,6 +431,8 @@ C       PART DRAWINGS
         END IF
         IF(WC.EQ.'CV2PRG')THEN
         CALL CV2PRG
+        ! Save lens in temp folder
+        CALL execSav('SAV')
         RETURN
         END IF
         IF(WC.EQ.'ZMX2PRG')THEN

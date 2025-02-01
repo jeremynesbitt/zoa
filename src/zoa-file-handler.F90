@@ -222,7 +222,7 @@ module zoa_file_handler
             if(present(overwriteFlag)) then
               ! write file and return
               open(unit=fID, iostat=stat, file=trim(fullPath), &
-              & status='new', action="write")
+              & status='old', action="write")
               if (stat /= 0) fID=0 ! Error
               return 
             end if

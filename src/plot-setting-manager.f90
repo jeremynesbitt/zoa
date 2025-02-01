@@ -11,6 +11,7 @@
 module plot_setting_manager
     use zoa_ui
     use kdp_data_types, only: idText
+    implicit none
 
     !TODO:  move all this to zoa_ui 
     integer, parameter :: SETTING_WAVELENGTH = 1750
@@ -86,7 +87,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addRMSFieldSettings
     procedure, public, pass(self) :: getRMSFieldSettings
 
-    procedure, public, pass(self) :: updateSetting
+    procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
 
     !procedure, public, pass(self) :: addZernikeSetting
 
@@ -134,7 +135,7 @@ contains
       ! Add indvidual settings 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_LENSDRAW_NUM_FIELD_RAYS, & 
-      & "Num Rays Per Feild", real(7),1.0,real(19), &
+      & "Num Rays Per Field", real(7),1.0,real(19), &
       & "NUMRAYS ", "NUMRAYS "//trim(int2str(7)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
@@ -319,11 +320,20 @@ contains
 
     end subroutine
 
+    function getPowerOfTwoImageSetting(self) result(N)
+      class (zoaplot_setting_manager) :: self
+      integer :: N, idx
+
+      ! 1 = 8, 2= 16, etc
+      idx = self%getSettingValueByCode(ID_DENSITY_POWER_OF_TWO)
+      N = 2**(idx+3)
+
+    end function
+
     ! Since there is a lot of custom settings, write a method to get all settings
     subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing, plotScale)
       use zoa_ui
       use type_utils, only: int2str
-      implicit none
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: idxField, idxLambda, idxSpotCalcMethod
       integer, intent(inout) :: nRect, nRand, nRing
@@ -339,6 +349,68 @@ contains
       nRand = self%getSettingValueByCode(ID_SPOT_RAND_NUMRAYS)
       nRing = self%getSettingValueByCode(ID_SPOT_RING_NUMRINGS)
       plotScale = self%getSettingValueByCode(SETTING_SCALE)
+
+    end subroutine
+
+    subroutine addPowerOfTwoImageSetting(self, tgtVal, minVal, maxVal)
+      use kdp_data_types, only: idText
+      class (zoaplot_setting_manager) :: self
+      integer :: minVal, maxVal, minSet, maxSet
+      type(idText) :: spotTrace(6)
+
+      spotTrace(1)%text = "16x16"
+      spotTrace(1)%id   = ID_16x16
+      spotTrace(2)%text = "32x32"
+      spotTrace(2)%id   = ID_32x32  
+      spotTrace(3)%text = "64x64"
+      spotTrace(3)%id   = ID_64x64
+      spotTrace(4)%text = "128x128"
+      spotTrace(4)%id   = ID_128x128 
+      spotTrace(5)%text = "256x256"
+      spotTrace(5)%id   = ID_256x256 
+      spotTrace(6)%text = "512x512"
+      spotTrace(6)%id   = ID_512x512   
+      
+      ! A more elegant way could be done, but this shoudl work...
+      select case (minVal)
+      case (16)
+        minSet = 1
+      case (32)
+        minSet = 2
+      case (64)
+        minSet = 3
+      case(128)
+        minSet = 4
+      case (256)
+        minSet = 5
+      case (512)
+        minSet = 6
+      case default
+        minSet = 1
+      end select 
+
+      select case (maxVal)
+      case (16)
+        maxSet = 1
+      case (32)
+        maxSet = 2
+      case (64)
+        maxSet = 3
+      case(128)
+        maxSet = 4
+      case (256)
+        maxSet = 5
+      case (512)
+        maxSet = 6
+      case default
+        maxSet = 6
+      end select       
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(ID_DENSITY_POWER_OF_TWO, & 
+      & "Image Size (NxN)", real(spotTrace(minVal)%id),0.0,0.0, &
+      & "TGR", "TGR ", UITYPE_COMBO, set=spotTrace(minSet:maxSet))      
+
 
     end subroutine
     

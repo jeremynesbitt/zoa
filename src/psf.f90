@@ -12,7 +12,7 @@ module mod_psf
 
     SUBROUTINE DOPSF()
         USE GLOBALS
-        use global_widgets, only: curr_psf
+        use global_widgets, only: curr_psf, sysConfig
         use data_registers
         use type_utils
         use mod_analysis_manager
@@ -551,7 +551,9 @@ module mod_psf
         !maxNA = 1/(2*fnum)
         maxNA = am%getImgNA()
 
-        currImg%pS = 0.248/(2*maxNA*REAL(TGR)/REAL(NRD)) 
+        currImg%pS = sysConfig%getWavelength(1)/(2*maxNA*REAL(TGR)/REAL(NRD)) 
+        !TODO:  check SHTVALUE vs wavelength in um
+        !currImg%pS = SHTVALUE/1000.0/(2*maxNA*REAL(TGR)/REAL(NRD)) 
         print *, "********************************!!!!!!!!!!*************************************"
         print *, "MaxNA IS ", maxNA
         print *, "TGR IS ", TGR
