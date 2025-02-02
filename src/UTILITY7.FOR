@@ -1259,7 +1259,7 @@ C               THE NEXT INSTRUCTION CALCULATES POINT SPREAD FUNCTION.
 C       NOT MESAGE
                         END IF
 
-        IF(WC.EQ.'C') THEN
+        IF(WC.EQ.'CK') THEN
         IF(SQ.EQ.1.OR.SN.EQ.1) THEN
       OUTLYNE='"C" TAKES ONLY STRING INPUT'
       CALL SHOWIT(1)

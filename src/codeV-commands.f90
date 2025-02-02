@@ -46,7 +46,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(591) :: zoaCmds
+    type(zoa_cmd), dimension(601) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -69,9 +69,8 @@ module codeV_commands
         use global_widgets, only: ioConfig
         use hl_gtk_zoa, only : hl_zoa_text_view_new
 
-        implicit none
-
         integer :: i
+        character(len=1), dimension(8) :: evenAsphereTerms = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
         ! Initialize null ptr textView to dump KDP print statements when needed
         call ioConfig%registerTextView(c_null_ptr, ID_TERMINAL_KDPDUMP)
@@ -227,7 +226,13 @@ module codeV_commands
         zoaCmds(570)%cmd = 'CY'
         zoaCmds(570)%execFunc => getRayData    
         zoaCmds(571)%cmd = 'CX'
-        zoaCmds(571)%execFunc => getRayData                                     
+        zoaCmds(571)%execFunc => getRayData    
+        zoaCmds(572)%cmd = 'ASP'
+        zoaCmds(572)%execFunc => execAsphere                          
+        do i=1,8
+            zoaCmds(572+i)%cmd      = evenAsphereTerms(i)
+            zoaCmds(572+i)%execFunc => updateAsphereTerms
+        end do                  
 
                 
 

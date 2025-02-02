@@ -3088,7 +3088,7 @@ C       J=15 > DF2
 C       J=16 > DF4
 C       J=17 > DF5
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF

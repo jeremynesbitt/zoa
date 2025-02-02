@@ -47,7 +47,7 @@ C
                 WCC(22)='STORE'
                 WCC(23)='MACRO'
                 WCC(24)='EOM'
-                WCC(25)='C'
+                WCC(25)='CK' ! Was C but this comflicted with asphere coefficients.  So now it is CK
                 WCC(26)='M'
                 WCC(27)='PRIREG'
                 WCC(28)='PI'

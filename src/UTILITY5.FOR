@@ -5487,7 +5487,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'IDEAL')       IS=.TRUE.
                 IF(WC.EQ.'EOS')         IS=.TRUE.
                 IF(WC.EQ.'TASPH')       IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')           IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'INR')         IS=.TRUE.
                         RETURN
@@ -5723,7 +5723,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'IDEAL')       IS=.TRUE.
                 IF(WC.EQ.'EOS')         IS=.TRUE.
                 IF(WC.EQ.'TASPH')       IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')           IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'CHG')         IS=.TRUE.
                 IF(WC.EQ.'CVTOR')       IS=.TRUE.
@@ -5929,7 +5929,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'EOS')                         IS=.TRUE.
                 IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'ON')        IS=.TRUE.
                 IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'OFF')       IS=.TRUE.
-                IF(WC.EQ.'C')                           IS=.TRUE.
+                IF(WC.EQ.'CK')                          IS=.TRUE.
                 IF(WC.EQ.'M')                           IS=.TRUE.
                 IF(WC.EQ.'SPDEL')                       IS=.TRUE.
                 !IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
@@ -6157,7 +6157,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'EOS')                         IS=.TRUE.
                 IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'ON')        IS=.TRUE.
                 IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'OFF')       IS=.TRUE.
-                IF(WC.EQ.'C')                           IS=.TRUE.
+                IF(WC.EQ.'CK')                          IS=.TRUE.
                 IF(WC.EQ.'M')                           IS=.TRUE.
                 IF(WC.EQ.'SPDEL')                       IS=.TRUE.
                 !IF(WC.EQ.'SPECIAL')                     IS=.TRUE.
@@ -6383,7 +6383,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'W4')          IS=.TRUE.
                 IF(WC.EQ.'W5')          IS=.TRUE.
                 IF(WC.EQ.'EOS')         IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')          IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'SURF')        IS=.TRUE.
                 IF(WC.EQ.'COEF')        IS=.TRUE.
@@ -6955,7 +6955,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'EOS')         IS=.TRUE.
                 IF(WC.EQ.'VB')          IS=.TRUE.
                 IF(WC.EQ.'VBA')         IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')          IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'CFG')         IS=.TRUE.
                 IF(WC.EQ.'DELK'.AND.F29.EQ.2)            IS=.TRUE.
@@ -7259,7 +7259,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'W5')          IS=.TRUE.
                 IF(WC.EQ.'EOS')         IS=.TRUE.
                 IF(WC.EQ.'TVB')          IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')          IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'RD')          IS=.TRUE.
                 IF(WC.EQ.'CV')          IS=.TRUE.
@@ -7552,7 +7552,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'W5')          IS=.TRUE.
                 IF(WC.EQ.'EOS')         IS=.TRUE.
                 IF(WC.EQ.'COMPS')       IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')          IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'RD')          IS=.TRUE.
                 IF(WC.EQ.'CV')          IS=.TRUE.
@@ -7930,7 +7930,7 @@ C     END OF NON-SEQUENTIAL COMMANDS
                 IF(WC.EQ.'IDEAL')       IS=.TRUE.
                 IF(WC.EQ.'EOS')         IS=.TRUE.
                 IF(WC.EQ.'TASPH')       IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')          IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'CHG')         IS=.TRUE.
                 IF(WC.EQ.'CVTOR')       IS=.TRUE.

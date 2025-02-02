@@ -952,7 +952,7 @@ C           513='RMSYX'
 C
 C       OPNM=(8 CHARACTER USER DEFINED, NON-DUPLICATED OPERAND NAME)
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF
@@ -3680,7 +3680,7 @@ C           513='RMSYX'
 C
 C       OPNM=(8 CHARACTER USER DEFINED, NON-DUPLICATED OPERAND NAME)
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF
@@ -6399,7 +6399,7 @@ C           801='ACT'
 C
 C       OPNM=(8 CHARACTER USER DEFINED, NON-DUPLICATED OPERAND NAME)
 C
-               IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+               IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                CALL MESCOM
                        RETURN
                        END IF

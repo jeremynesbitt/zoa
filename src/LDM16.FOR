@@ -580,7 +580,7 @@ C
         !PRINT *, "IN LENUP ROUTINE"
         !call updateTerminalLog(INPUT, "red")
 
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF

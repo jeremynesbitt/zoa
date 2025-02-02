@@ -230,5 +230,45 @@ module procedure execSUR
        
     end procedure
 
+    module procedure execAsphere
+        ! This does nothing for now
+
+    end procedure
+
+    module procedure updateAsphereTerms
+        use strings
+        use DATLEN, only: ALENS
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        character(len=2) :: aspKDP
+        integer :: numTokens
+
+        call parse(iptStr, ' ', tokens, numTokens)
+
+        ! Copied from CV2PRG (essentially)
+        select case(trim(tokens(1)))
+        case('A')
+           aspKDP =  'AD'
+        case('B')
+            aspKDP = 'AE'
+        case('C')
+            aspKDP = 'AF'
+        case('D')
+            aspKDP = 'AG'
+        case('E')
+            aspKDP = 'AH'
+        case('F')
+            aspKDP = 'AI'
+        case('G')
+            aspKDP = 'AK'
+        case('H')
+            aspKDP = 'AL'                       
+
+        end select
+        call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)))
+    end procedure    
+
 
 end submodule

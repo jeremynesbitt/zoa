@@ -818,7 +818,7 @@ C       J=15 > IS NOT USED
 C       J=16 > IS NOT USED
 C       J=17 > IS NOT USED
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF

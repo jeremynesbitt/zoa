@@ -74,7 +74,7 @@ C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                 RETURN
                 ELSE
@@ -1122,7 +1122,7 @@ C
         IF(WC.NE.'EOS'.AND.WC.NE.'EVAL'.AND.WC.NE.'COEFS'
      1  .AND.WC.NE.'FIT'.AND.WC.NE.'READ'.AND.WC.NE.'COEF'
      2  .AND.WC.NE.'TYPE'.AND.WC.NE.'SURF'.AND.WC.NE.'FITGLASS'
-     3  .AND.WC.NE.'C'.AND.WC.NE.'LISTCOEF'.AND.WC.NE.'GDATA'.AND.
+     3  .AND.WC.NE.'CK'.AND.WC.NE.'LISTCOEF'.AND.WC.NE.'GDATA'.AND.
      4  WC.NE.'M'.AND.WC.NE.'DATA'.AND.WC.NE.'LIST') THEN
         OUTLYNE='INVALID SPFIT COMMAND'
       CALL SHOWIT(1)
@@ -1131,7 +1131,7 @@ C
                         CALL MACFAL
                         RETURN
                         END IF
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF

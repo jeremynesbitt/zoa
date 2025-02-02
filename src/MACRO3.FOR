@@ -666,7 +666,7 @@ C       NOT BREER
                         RETURN
                         END IF
                         END IF
-        IF(WC.EQ.'C') THEN
+        IF(WC.EQ.'CK') THEN
         IF(SQ.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE='"'//WC(1:1)//'" ONLY TAKES STRING INPUT'
       CALL SHOWIT(1)
@@ -1379,7 +1379,7 @@ C       IF WE DON'T HANDLE THE COMMENT HERE WE RISK THE POSSIBILITY
 C       OF CSUB,QSUB,SSUB OR NSUB SUBING INTO A COMMENT. THIS NEVER NEEDS
 C       TO OCCUR.
 C
-        IF(MACCW(I).EQ.'C') THEN
+        IF(MACCW(I).EQ.'CK') THEN
 C       SKIP TO THE NEXT MACRO LINE BY A GO TO 50
                 GO TO 50
 C       JUST PROCEED

@@ -359,8 +359,7 @@ C               IF(WC.EQ.'LOADSCOT')    IS=.TRUE.
                 IF(WC.EQ.'WORK')        IS=.TRUE.
                 IF(WC.EQ.'PTABLE')      IS=.TRUE.
                 IF(WC.EQ.'DIR')         IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
-                IF(WC.EQ.'C')           IS=.TRUE.
+                IF(WC.EQ.'CK')           IS=.TRUE.
                 IF(WC.EQ.'M')           IS=.TRUE.
                 IF(WC.EQ.'NAME')        IS=.TRUE.
                 IF(WC.EQ.'PLOTR')       IS=.TRUE.
@@ -1152,7 +1151,7 @@ C        CALL SPIDER
         CALL SCALLE
         RETURN
         END IF
-        IF(WC.EQ.'C'.OR.WC.EQ.'M') THEN
+        IF(WC.EQ.'CK'.OR.WC.EQ.'M') THEN
         CALL MESCOM
         RETURN
         END IF

@@ -777,7 +777,7 @@ C
         INCLUDE 'DATCFG.INC'
         INCLUDE 'DATLEN.INC'
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                         CALL MESCOM
                         RETURN
                         END IF
@@ -1219,7 +1219,7 @@ C
                         IF(WC.EQ.'C96') CEE=.TRUE.
         IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'ON')  CEE=.TRUE.
         IF(WC.EQ.'SPSRF'.AND.WQ.EQ.'OFF') CEE=.TRUE.
-        IF(WC.EQ.'SPDEL'.OR.WC.EQ.'SPECIAL'.OR.CEE.OR.WC.EQ.'C'
+        IF(WC.EQ.'SPDEL'.OR.WC.EQ.'SPECIAL'.OR.CEE.OR.WC.EQ.'CK'
      1.OR.WC.EQ.'M'.OR.WC.EQ.'EOS'.OR.WC.EQ.'GENL') THEN
                 GO TO 55
 C       ALL IS WELL,PROCEED

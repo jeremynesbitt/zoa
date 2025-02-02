@@ -43,7 +43,7 @@ C
         INCLUDE 'DATMAI.INC'
         REAL*8 RAL,RBE,CGAM,SGAM,RGAM
 C
-        IF(WC.EQ.'M'.OR.WC.EQ.'C') THEN
+        IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
                 CALL MESCOM
                         RETURN
                         END IF

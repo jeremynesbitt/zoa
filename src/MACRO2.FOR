@@ -1284,7 +1284,7 @@ C       SET OCCUPANCY TO 1
                 MCDIR2(3,(MMIJ))=1
         IF(MCDIR2(2,MMIJ).LE.3) THEN
                 MCDIR2(2,MMIJ)=3
-                MACCW(1)='C'
+                MACCW(1)='CK'
                 MACQW(1)=' '
                 MACSTR(1)='(COMMENT PLACE HOLDER)'
                 MACNW(1,1)=0.0D0
@@ -3167,7 +3167,7 @@ C               NOW SEARCH FO APPROPRIATE TARGETS THROUGH THE MACRO
 C
  100            J=CURLIN+1
                 DO 5000 I=J,(MCDIR2(2,(MMIJ))-2)
-                IF(WQ.EQ.'C') GO TO 1000
+                IF(WQ.EQ.'CK') GO TO 1000
                 IF(WQ.EQ.'Q') GO TO 2000
                 IF(WQ.EQ.'CQ') GO TO 3000
                 IF(WQ.EQ.'COQ') GO TO 4000
@@ -4024,7 +4024,7 @@ C       NOT ACCSUB
                         RETURN
                         END IF
                         END IF
-        IF(WC.EQ.'C') THEN
+        IF(WC.EQ.'CK') THEN
         IF(SQ.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE='"'//WC(1:1)//'" ONLY TAKES STRING INPUT'
       CALL SHOWIT(1)

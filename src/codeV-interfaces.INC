@@ -41,5 +41,11 @@
    end subroutine execPSF     
    module subroutine execMTF(iptStr)
     character(len=*) :: iptStr
-   end subroutine execMTF               
+   end subroutine execMTF     
+   module subroutine execAsphere(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execAsphere    
+   module subroutine updateAsphereTerms(iptStr)
+    character(len=*) :: iptStr
+   end subroutine updateAsphereTerms                     
     end interface
