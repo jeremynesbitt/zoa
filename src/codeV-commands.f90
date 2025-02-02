@@ -232,8 +232,9 @@ module codeV_commands
         do i=1,8
             zoaCmds(572+i)%cmd      = evenAsphereTerms(i)
             zoaCmds(572+i)%execFunc => updateAsphereTerms
-        end do                  
-
+        end do        
+        zoaCmds(581)%cmd = 'K'          
+        zoaCmds(581)%execFunc => updateConicConstant  
                 
 
         

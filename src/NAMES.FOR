@@ -559,7 +559,9 @@ C
                 WCC(533)='C47'
                 WCC(534)='C48'
                 WCC(535)='FOE'
-                WCC(536)='K'
+                WCC(536)='KK' ! Was K but changed to KK to support 
+                              ! conic constant.  Did not find any evidence
+                              ! this was ever used (no WC.EQ.'K')
                 WCC(537)='VARIABLE'
                 WCC(538)='FISHDIST'
                 WCC(539)='L'

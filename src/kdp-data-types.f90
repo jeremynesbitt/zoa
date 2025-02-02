@@ -247,7 +247,7 @@ procedure, public, pass(self) :: update => updateLensData
 procedure, public, pass(self) :: genSaveOutputText => genLensDataSaveOutputText
 procedure, public, pass(self) :: genAsphereSavOutputText
 procedure, public, pass(self) :: isSolveOnSurface, isAsphereOnSurface
-procedure, public, pass(self) :: setSolveData
+procedure, public, pass(self) :: isConicConstantOnSurface, setSolveData
 
 !procedure, private, pass(self) ::
 
@@ -2110,6 +2110,19 @@ function isAsphereOnSurface(self, surf) result(boolResult)
 
 end function
 
+function isConicConstantOnSurface(self, surf) result(boolResult)
+  use DATLEN, only: ALENS
+  class(lens_data) :: self
+  integer :: surf
+  logical :: boolResult
+
+  boolResult = .FALSE.
+  if (ALENS(2,surf) .ne. 0.0d0) then
+    boolResult = .TRUE.
+  end if
+
+end function
+
 function genAsphereSavOutputText(self, surf) result(strSurfLine)
   use type_utils, only: real2str, blankStr
   use DATLEN, only: ALENS
@@ -2154,6 +2167,7 @@ end function
 subroutine genLensDataSaveOutputText(self, fID)
   use type_utils, only: real2str, blankStr, int2str
   use zoa_file_handler, only: genOutputLineWithSpacing
+  use DATLEN, only: ALENS
   class(lens_data) :: self
   integer :: fID
   integer :: ii, jj
@@ -2214,6 +2228,12 @@ subroutine genLensDataSaveOutputText(self, fID)
 
     if (self%isAsphereOnSurface(ii-1)) then
       strSurfLine = self%genAsphereSavOutputText(ii-1)
+      write(fID, *) trim(strSurfLine)
+    end if
+
+    ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager
+    if (self%isConicConstantOnSurface(ii-1)) then 
+      strSurfLine = blankStr(2)//'K '//trim(real2str(ALENS(2,ii-1)))
       write(fID, *) trim(strSurfLine)
     end if
 

@@ -245,7 +245,7 @@ module procedure execSUR
         character(len=2) :: aspKDP
         integer :: numTokens
 
-        ! call parse(iptStr, ' ', tokens, numTokens)
+        call parse(iptStr, ' ', tokens, numTokens)
 
         ! Copied from CV2PRG (essentially)
         select case(trim(tokens(1)))
@@ -262,14 +262,29 @@ module procedure execSUR
         case('F')
             aspKDP = 'AI'
         case('G')
-            aspKDP = 'AK'
+            aspKDP = 'AJ'
         case('H')
-            aspKDP = 'AL'                       
+            aspKDP = 'AK'                       
 
         end select
         call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)), debugFlag=.TRUE.)
         print *, "tried to execute ", aspKDP//' '//trim(tokens(2))
-    end procedure    
+    end procedure   
+    
+    module procedure updateConicConstant
+        use strings
+        use DATLEN, only: ALENS
+        implicit none
+
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        character(len=2) :: aspKDP
+        integer :: numTokens
+
+        call parse(iptStr, ' ', tokens, numTokens)
+        call executeCodeVLensUpdateCommand('CC '//trim(tokens(2)))
+        
+    end procedure
 
 
 end submodule

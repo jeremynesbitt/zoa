@@ -47,5 +47,8 @@
    end subroutine execAsphere    
    module subroutine updateAsphereTerms(iptStr)
     character(len=*) :: iptStr
-   end subroutine updateAsphereTerms                     
+   end subroutine updateAsphereTerms   
+   module subroutine updateConicConstant(iptStr)
+    character(len=*) :: iptStr
+   end subroutine updateConicConstant                    
     end interface
