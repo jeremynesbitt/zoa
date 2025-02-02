@@ -245,7 +245,7 @@ module procedure execSUR
         character(len=2) :: aspKDP
         integer :: numTokens
 
-        call parse(iptStr, ' ', tokens, numTokens)
+        ! call parse(iptStr, ' ', tokens, numTokens)
 
         ! Copied from CV2PRG (essentially)
         select case(trim(tokens(1)))
@@ -267,7 +267,8 @@ module procedure execSUR
             aspKDP = 'AL'                       
 
         end select
-        call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)))
+        call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)), debugFlag=.TRUE.)
+        print *, "tried to execute ", aspKDP//' '//trim(tokens(2))
     end procedure    
 
 

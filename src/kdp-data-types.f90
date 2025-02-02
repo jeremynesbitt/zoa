@@ -2213,7 +2213,7 @@ subroutine genLensDataSaveOutputText(self, fID)
     end if
 
     if (self%isAsphereOnSurface(ii-1)) then
-      strSurfLine = self%genAsphereSavOutputText(ii)
+      strSurfLine = self%genAsphereSavOutputText(ii-1)
       write(fID, *) trim(strSurfLine)
     end if
 

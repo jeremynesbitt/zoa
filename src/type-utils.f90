@@ -18,6 +18,7 @@ module type_utils
           real(kind=real64) :: valDP
           real(kind=real32) :: valSP
           character(len=23) :: strOut
+          character(len=80) :: strOutDP
           integer, optional :: precision
           logical, optional :: sci
   
@@ -41,7 +42,11 @@ module type_utils
 
            ! Sometimes will get **** if the precision is wrong.  
            if (strOut(1:3) == '***') then 
-            write(strOut, '(F10.5)') valDP
+            write(strOutDP, *) valDP
+            strOutDP = adjustl(strOutDP)
+            strOut = strOutDP(1:len(strOut))
+            print *, "DEBUG-----------------"
+            print *, "strOut is ", strOut
            end if
 
             type is (real(real32))
@@ -61,7 +66,9 @@ module type_utils
 
            ! Sometimes will get **** if the precision is wrong.  
            if (strOut(1:3) == '***') then 
-            write(strOut, '(F10.5)') valSP
+            write(strOut, *) valSP
+            print *, "strOut is ", strOut
+            !write(strOut, '(F10.5)') valSP
            end if
   
       end select
