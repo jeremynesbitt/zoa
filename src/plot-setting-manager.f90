@@ -420,7 +420,7 @@ contains
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_DENSITY_POWER_OF_TWO, & 
-      & "Image Size (NxN)", real(tgtSet),0.0,0.0, &
+      & "Image Size (NxN)", real(spotTrace(tgtSet)%id),0.0,0.0, &
       & "NRD", "NRD "//trim(int2str(tgtVal)), UITYPE_COMBO, set=spotTrace(minSet:maxSet))      
 
 
