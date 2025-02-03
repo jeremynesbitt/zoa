@@ -326,7 +326,21 @@ contains
 
       ! 1 = 8, 2= 16, etc
       idx = self%getSettingValueByCode(ID_DENSITY_POWER_OF_TWO)
-      N = 2**(idx+3)
+      ! TODO:  Integrate this with the set in a better way
+      select case (idx)
+      case (ID_16x16)
+        N = 16
+      case(ID_32x32)
+        N = 32
+      case(ID_64x64)
+        N = 64
+      case(ID_128x128)
+        N = 128
+      case(ID_256x256)
+        N = 256
+      case(ID_512x512)
+        N = 512
+      end select
 
     end function
 
@@ -380,6 +394,7 @@ contains
 
     subroutine addPowerOfTwoImageSetting(self, tgtVal, minVal, maxVal)
       use kdp_data_types, only: idText
+      use type_utils, only: int2str
       class (zoaplot_setting_manager) :: self
       integer :: minVal, maxVal, minSet, maxSet, tgtVal, tgtSet
       type(idText) :: spotTrace(6)
@@ -406,7 +421,7 @@ contains
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_DENSITY_POWER_OF_TWO, & 
       & "Image Size (NxN)", real(tgtSet),0.0,0.0, &
-      & "TGR", "TGR ", UITYPE_COMBO, set=spotTrace(minSet:maxSet))      
+      & "NRD", "NRD "//trim(int2str(tgtVal)), UITYPE_COMBO, set=spotTrace(minSet:maxSet))      
 
 
     end subroutine

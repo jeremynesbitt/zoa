@@ -1540,7 +1540,8 @@ subroutine mtf_go(psm)
   !call PROCESKDP('GOTF '//trim(real2str(psm%getSettingValueByCode(SETTING_MAX_FREQUENCY))))
   call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
   call log2DData(real(xAxis,8),yAxis)
- call ioConfig%restoreTextView()
+  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+  !call ioConfig%restoreTextView()
 
   
    canvas = hl_gtk_drawing_area_new(size=[1200,800], &
