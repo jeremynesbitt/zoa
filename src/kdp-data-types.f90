@@ -2221,8 +2221,8 @@ subroutine genLensDataSaveOutputText(self, fID)
     ! Check for user specified clear aperture.  TODO:  Need to implement a more sophisticated
     ! way to store CA info, as the geometry is not always circular.  But for now
     ! just support circular until I get some to mkae it more abstract
-    if (self%clearAps(ii)%userDefined) then
-      strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%clearAps(ii)%yRad))
+    if (self%clearAps(ii)%userDefined .OR. self%ref_stop == ii) then
+      strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%clearAps(ii)%yRad, 10))
       write(fID, *) trim(strSurfLine)
     end if
 
@@ -2233,14 +2233,10 @@ subroutine genLensDataSaveOutputText(self, fID)
 
     ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager
     if (self%isConicConstantOnSurface(ii-1)) then 
-      strSurfLine = blankStr(2)//'K '//trim(real2str(ALENS(2,ii-1)))
+      strSurfLine = blankStr(2)//'K '//trim(real2str(ALENS(2,ii-1), sci=.TRUE.))
       write(fID, *) trim(strSurfLine)
     end if
 
-
-    ! pseudocode for now
-    !if (self%hasPickup(ii)) then
-    !  print *, self%getPickupTxt(ii)
       if (self%isSolveOnSurface(ii)) then
         print *, "Solve in surf ",ii
         strSurfLine = self%thickSolves(ii)%genCodeVCMDToSetSolve()
@@ -2755,7 +2751,11 @@ RRAD=YRAD
 
 
  ELSE
-  lData%clearAps(I+1)%userDefined = .FALSE.               
+  !if (lData%ref_stop == (I+1)) then
+  !  lData%clearAps(I+1)%userDefined = .TRUE.
+  !else    
+  lData%clearAps(I+1)%userDefined = .FALSE. 
+  !end if              
   lData%clearAps(I+1)%yRad = ALENS(10,I)
   lData%clearAps(I+1)%xRad = ALENS(11,I)              
   !call LogTermFOR("YRAD is "//trim(real2str(ALENS(10,I))))

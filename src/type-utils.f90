@@ -27,7 +27,8 @@ module type_utils
             valDP = val
   
             if(present(sci)) then
-              write(strOut, '(D23.15)') valDP
+              write(strOut, '(D23.10)') valDP
+              strOut = adjustl(strOut)
               return
             end if
   
@@ -53,7 +54,8 @@ module type_utils
             valSP = val
   
             if(present(sci)) then
-              write(strOut, '(D23.15)') valSP
+              write(strOut, '(D23.10)') valSP
+              strOut = adjustl(strOut)
               return
             end if          
             if(present(precision)) then
