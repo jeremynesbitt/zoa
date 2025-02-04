@@ -149,6 +149,30 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 end subroutine POWSYM
 
 subroutine Sandbox()
+  use DATLEN, only: ALENS
+  use codeV_commands, only: execRestore
+  use zoa_file_handler
+
+  implicit none
+
+  real*8 ALENSCV(1:160,0:499), ALENSZOA(1:160,0:499)
+  real*8 ALENSDIFF(1:160,0:499)
+
+
+  call PROCESKDP("CV2PRG LithoKotaro.seq")
+  ALENSCV = ALENS
+  call PROCESKDP('res kdebug')
+  ALENSZOA = ALENS
+
+  ALENSDIFF = ALENSCV-ALENSZOA
+  print *, "ALENSDIFF ", ALENSDIFF(1,1:150)
+  print *, "ALENSDIFF ", ALENSDIFF(3,1:150)
+
+
+end subroutine
+
+
+subroutine Sandbox_old()
   !use kdp_data_types, only: check_clear_apertures
   !use global_widgets
   use codeV_commands, only: execRestore

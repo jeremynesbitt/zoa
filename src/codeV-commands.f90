@@ -1208,7 +1208,7 @@ module codeV_commands
         
             ! Error Checking
             if (isInputNumber(trim(tokens(2)))) then    
-                call executeCodeVLensUpdateCommand('CLAP '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)),.TRUE.)
+                call executeCodeVLensUpdateCommand('CLAP, '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)),.TRUE.)
            else
              call updateTerminalLog( &
              & "Error: unable to intepret number for input argument "//trim(tokens(2)), "red")
@@ -1979,7 +1979,8 @@ module codeV_commands
                    PRINT *, "s0 is ", s0
                    PRINT *, "sf is ", sf
                    do i=s0,sf
-                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)                           
+                    !call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)
+                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)))                           
                    end do
                 else
                     call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
@@ -1989,7 +1990,8 @@ module codeV_commands
 
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (surfNum.NE.-1) then
-               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+               !call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
             else
                 call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
             end if
@@ -2027,11 +2029,11 @@ module codeV_commands
             select case (getQualWord())
 
             case ('M')
-                call executeCodeVLensUpdateCommand("UNITS MM", exitLensUpdate=.TRUE.)
+                call executeCodeVLensUpdateCommand("UNITS MM")
             case ('C')
-                call executeCodeVLensUpdateCommand("UNITS CM", exitLensUpdate=.TRUE.)
+                call executeCodeVLensUpdateCommand("UNITS CM")
             case ('I')
-                call executeCodeVLensUpdateCommand("UNITS IN", exitLensUpdate=.TRUE.)
+                call executeCodeVLensUpdateCommand("UNITS IN")
 
             end select
 
@@ -2450,7 +2452,7 @@ module codeV_commands
         implicit none
         character(len=*) :: iptCmd
         logical, optional :: debugFlag, exitLensUpdate
-        logical :: redirectFlag, inUpdate
+        logical :: redirectFlag, inUpdate, eosCalled
 
         if(present(debugFlag)) then 
             redirectFlag = .NOT.debugFlag
@@ -2473,11 +2475,15 @@ module codeV_commands
         
         ! If the called asked to exit update, then exit.
         ! If we were not in lens update level, then exit (return to prior state)
+        eosCalled = .FALSE.
         if(present(exitLensUpdate)) then
-            if(exitLensUpdate) CALL PROCESKDP('EOS')
+            if(exitLensUpdate) then 
+                CALL PROCESKDP('EOS')
+                eosCalled = .TRUE.
+        end if
         !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         !else 
-         if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
+         if(inUpdate.eqv..FALSE..and.eosCalled.eqv..FALSE.) CALL PROCESKDP('EOS')
         
         end if
 
