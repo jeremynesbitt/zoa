@@ -3905,6 +3905,7 @@ C
         !PRINT *, "PROCES SUBROUTINE STARTED, INPUT IS " // INPUT 
         !call LogTermFOR("PROCES IPT "//trim(INPUT))
         !PRINT *, "INPUT is ", INPUT
+         call logger%logText(INPUT)
 
 
 

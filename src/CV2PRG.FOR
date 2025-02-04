@@ -171,7 +171,7 @@ C
      2 Press yes to close them.")
 
 C     FILES EXISTS, CREATE PROGRAM FILE NAME
-      call logger%logText("CV2PRG Find Extension in File Name")
+      !call logger%logText("CV2PRG Find Extension in File Name")
 
       NPERIOD=9
       DO I=1,80
@@ -472,7 +472,7 @@ C     INI
                         END DO
  121                   CONTINUE
                         SAVE_KDP(1)=SAVEINPT(1)
-      call logger%logText('About to set INI '//TEMPC(I))
+      !call logger%logText('About to set INI '//TEMPC(I))
       PRINT *, "J1 = ", J1
       IF (J2.GT.1024) J2 = 1024
       PRINT *, "J2 = ", J2
@@ -1016,7 +1016,7 @@ C     REMOVE BLANKS
                         END DO
 C     DETERMINE GLASS NAME
       WRITE(OUTLYNE, *) 'TEMPC is ', TEMPC(I)(1:20)
-      call logger%logText(OUTLYNE)
+      !call logger%logText(OUTLYNE)
                         DO J=1,1024
       IF(TEMPC(I)(J:J).EQ.'_') THEN
       IF(TEMPC(I)(J+1:J+1).EQ.'S'.AND.TEMPC(I)(1:4).EQ.'BAF2') THEN

@@ -778,14 +778,33 @@ subroutine setMaxField(self)
   select case (self%currFieldID)
 
   case (FIELD_OBJECT_HEIGHT)
-
-    call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
+      call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
 
   case (FIELD_OBJECT_ANGLE_DEG)
-    call PROCESKDP("U L; SCY FANG"//trim(real2str(self%refFieldValue(2)))//';EOS')
-
+    call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
   end select ! Reference Field  
   
+
+end subroutine
+
+! THis is a minicopy of updateSurfCommand in codeV-commands.  But to avoid circular 
+! dependency I put it here for now
+subroutine processLensUpdateCommand(strCMD)
+  use DATMAI
+  
+  character(len=*) :: strCMD
+
+  logical :: boolResult
+ 
+  boolResult = .FALSE.
+  !IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.
+  IF(F6.EQ.1.AND.F10.EQ.0.OR.F6.EQ.1.AND.F11.EQ.0) boolResult = .TRUE.
+
+  if (boolResult) then 
+    call PROCESKDP(strCMD)
+  else
+    call PROCESKDP("U L; "//strCMD//"; EOS")
+  end if
 
 end subroutine
 
@@ -807,16 +826,22 @@ subroutine setRefFieldKDP(self)
     
     ! TODO:  For symmetric fields the value is the same.  If I want to support
     ! asymmetric field settings need to change this
-    call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
-    call PROCESKDP("U L; SCX "//trim(real2str(self%refFieldValue(2)))//';EOS')
+    call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
+    call processLensUpdateCommand("SCX "//trim(real2str(self%refFieldValue(2))))
+
+    !call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
+    !call PROCESKDP("U L; SCX "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
     SYSTEM(23) = self%refFieldValue(1)
     SYSTEM(21) = self%refFieldValue(2)
 
-    call PROCESKDP("U L; SCY FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
-    call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
+
+    call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
+    call processLensUpdateCommand("SCX FANG "//trim(real2str(self%refFieldValue(2))))
+    !call PROCESKDP("U L; SCY FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
+    !call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
         SYSTEM(92) = self%refFieldValue(1)
