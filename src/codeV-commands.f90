@@ -1208,7 +1208,7 @@ module codeV_commands
         
             ! Error Checking
             if (isInputNumber(trim(tokens(2)))) then    
-                call executeCodeVLensUpdateCommand('CLAP '//trim(tokens(2)),.TRUE.)
+                call executeCodeVLensUpdateCommand('CLAP '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)),.TRUE.)
            else
              call updateTerminalLog( &
              & "Error: unable to intepret number for input argument "//trim(tokens(2)), "red")
@@ -1273,7 +1273,7 @@ module codeV_commands
 
         ! If we got here, update
         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-        & '; ASTOP; REFS; EOS')
+        & '; ASTOP; REFS')
     end subroutine
 
     subroutine execRestore(iptStr)
@@ -2067,7 +2067,7 @@ module codeV_commands
           if (ios /= 0) then 
             exit
           else
-            call LogTermFOR("About to exec "//trim(line))
+            !call LogTermFOR("About to exec "//trim(line))
             call PROCESKDP(trim(line))
           end if
           n = n + 1
@@ -2076,6 +2076,9 @@ module codeV_commands
 
       ! Initialize the vars array to be default (100)
       ldm%vars(:,:) = 100
+
+      ! Since this is called by .zoa files, want to go into lens update mode
+      !CALL PROCESSILENT('U L')
       
       
       end subroutine    
@@ -2197,6 +2200,7 @@ module codeV_commands
                 call sysConfig%setSpectralWeights(i-1, 1.0)               
             end do
             call LogTermFOR("Outstr is "//trim(outStr))
+            !call executeCodeVLensUpdateCommand(trim(outStr), exitLensUpdate=.TRUE.)
             call executeCodeVLensUpdateCommand(trim(outStr), exitLensUpdate=.TRUE.)
 
 
@@ -2449,7 +2453,7 @@ module codeV_commands
         implicit none
         character(len=*) :: iptCmd
         logical, optional :: debugFlag, exitLensUpdate
-        logical :: redirectFlag
+        logical :: redirectFlag, inUpdate
 
         if(present(debugFlag)) then 
             redirectFlag = .NOT.debugFlag
@@ -2460,8 +2464,8 @@ module codeV_commands
         ! Hide KDP Commands from user
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
           
-
-        if (inLensUpdateLevel()) then              
+        inUpdate = inLensUpdateLevel()
+        if (inUpdate) then              
             call PROCESKDP(iptCmd)
         else
             !call PROCESKDP('U L;'// iptCmd //';EOS')
@@ -2469,10 +2473,19 @@ module codeV_commands
             ! clear apertures, etc 
             call PROCESKDP('U L;'// iptCmd )
         end if
-
+        
+        ! If the called asked to exit update, then exit.
+        ! If we were not in lens update level, then exit (return to prior state)
         if(present(exitLensUpdate)) then
             if(exitLensUpdate) CALL PROCESKDP('EOS')
+        !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
+        !else 
+         if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
+        
         end if
+
+    
+
 
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
       end subroutine
