@@ -2148,11 +2148,12 @@ function isConicConstantOnSurface(self, surf) result(boolResult)
 
 end function
 
-function genAsphereSavOutputText(self, surf) result(strSurfLine)
+function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   use type_utils, only: real2str, blankStr
   use DATLEN, only: ALENS
   class(lens_data) :: self
   integer :: surf, ii
+  integer :: fID
   character(len=1024) :: strSurfLine
   character(len=1), dimension(4) :: lblsPart1, lblsPart2
 
@@ -2172,7 +2173,8 @@ function genAsphereSavOutputText(self, surf) result(strSurfLine)
       strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart1(ii)//blankStr(1)// &
       & trim(real2str(ALENS(ii+3,surf),sci=.TRUE.))//' ;'
   end do
-
+  write(fID, *) trim(strSurfLine)
+  strSurfLine = ' '
   !     ALENS(81,surf#) -- 12th order aspheric coefficient
   !     ALENS(82,surf#) -- 14th order aspheric coefficient
   !     ALENS(83,surf#) -- 16th order aspheric coefficient
@@ -2183,6 +2185,7 @@ function genAsphereSavOutputText(self, surf) result(strSurfLine)
   end do  
   ! Remove last semicolon
   strSurfLine(len_trim(strSurfLine):len_trim(strSurfLine)) = ' '
+  write(fID, *) trim(strSurfLine)
     
 
 end function
@@ -2261,8 +2264,8 @@ subroutine genLensDataSaveOutputText(self, fID)
     end if
 
     if (self%isAsphereOnSurface(ii-1)) then
-      strSurfLine = self%genAsphereSavOutputText(ii-1)
-      write(fID, *) trim(strSurfLine)
+      strSurfLine = self%genAsphereSavOutputText(ii-1, fID)
+      !write(fID, *) trim(strSurfLine)
     end if
 
     ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager

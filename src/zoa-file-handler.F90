@@ -285,6 +285,7 @@ module zoa_file_handler
         n = 0
     
         do
+            !read(99, '(A)', iostat=ios) line
             read(99, '(A)', iostat=ios) line
             if (ios /= 0) then 
               !call LogtermFOR("End of file")
