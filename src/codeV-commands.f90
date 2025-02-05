@@ -2178,6 +2178,7 @@ module codeV_commands
        
       subroutine setWavelength(iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
+        use globals,only: long
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: sysConfig
         implicit none
@@ -2187,7 +2188,10 @@ module codeV_commands
         character(len=1024) :: outStr
         integer :: i
         character(len=80) :: tokens(40)
+        character(len=1024) :: strWL
         integer :: numTokens
+        real(long) :: wlReal
+        logical :: CVERROR
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
@@ -2197,7 +2201,9 @@ module codeV_commands
         if (numTokens <= 6) then
             outStr = 'WV, '
             do i=2,numTokens
-                outStr = trim(outStr)//' '//trim(real2str(str2real8(trim(tokens(i)))/1000.0))
+                call ATODCODEV(tokens(i)(1:23), wlReal, CVERROR)
+                write(strWL, '(D23.15)') wlReal/1000.0_long
+                outStr = trim(outStr)//' '//trim(strWL)
                 ! Set spectral weights; assume all equal to 1.0 here
                 call sysConfig%setSpectralWeights(i-1, 1.0)               
             end do
@@ -2516,6 +2522,7 @@ module codeV_commands
                 &  "; INSK "//trim(int2str(surfNum)))
             else ! Move pointer to next surface
                 call ldm%incrementSurfacePointer()
+                surfNum = ptrIdx+1
             end if
             !surfNum = 1
             return
@@ -2579,6 +2586,7 @@ module codeV_commands
 
 
       subroutine setSurfaceCodeVStyle(iptStr)
+        use mod_lens_data_manager
         use command_utils, only : parseCommandIntoTokens
 
         implicit none
@@ -2587,9 +2595,10 @@ module codeV_commands
         character(len=*) :: iptStr
         integer :: surfNum
         character(len=80) :: tokens(40)
-        integer :: numTokens
+        integer :: numTokens, ptrIdx
+        character(len=1024) :: strLine
 
-
+        ptrIdx = ldm%getSurfacePointer()
         !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
@@ -2602,6 +2611,7 @@ module codeV_commands
             & '; RD, ' // trim(tokens(2)), .TRUE.)              
         case (3) ! Curvature and thickness
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            !if()
             ! KDP Does not allow setting image thickness.  So work around this for now
             ! if (trim(tokens(1)).EQ.'SI') then
             !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &

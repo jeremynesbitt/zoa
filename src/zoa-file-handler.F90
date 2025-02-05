@@ -276,7 +276,7 @@ module zoa_file_handler
         character(len=*) :: fileName
         logical, optional :: printOnly
         integer :: n, ios
-        character(len=256) :: line
+        character(len=1024) :: line
 
              
         open(unit=99, file=trim(fileName), iostat=ios)
@@ -438,7 +438,7 @@ end subroutine
 function getCodeVDir() result(res)
   use GLOBALS, only : basePath
   implicit none
-  character(len=250) :: res
+  character(len=1024) :: res
 
   !codevdir = trim(basePath)//'CodeV'//getFileSep()
   res = codevdir

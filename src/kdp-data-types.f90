@@ -827,7 +827,7 @@ subroutine setRefFieldKDP(self)
     ! TODO:  For symmetric fields the value is the same.  If I want to support
     ! asymmetric field settings need to change this
     call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
-    call processLensUpdateCommand("SCX "//trim(real2str(self%refFieldValue(2))))
+    call processLensUpdateCommand("SCX "//trim(real2str(self%refFieldValue(1))))
 
     !call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
     !call PROCESKDP("U L; SCX "//trim(real2str(self%refFieldValue(2)))//';EOS')
@@ -839,7 +839,7 @@ subroutine setRefFieldKDP(self)
 
 
     call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
-    call processLensUpdateCommand("SCX FANG "//trim(real2str(self%refFieldValue(2))))
+    call processLensUpdateCommand("SCX FANG "//trim(real2str(self%refFieldValue(1))))
     !call PROCESKDP("U L; SCY FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
     !call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
 

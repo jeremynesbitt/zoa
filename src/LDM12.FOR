@@ -3297,8 +3297,8 @@ C
 C       SET BADGLS
                         BADGLS=.FALSE.
         GOGO=.TRUE.
-        WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(0,1)
-        call logger%logText(OUTLYNE)
+        !WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(0,1)
+        !call logger%logText(OUTLYNE)
         !call LogTermFOR("In GLSRES")
 
         call sysConfig%updateParameters()
