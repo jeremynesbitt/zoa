@@ -803,7 +803,9 @@ subroutine processLensUpdateCommand(strCMD)
   if (boolResult) then 
     call PROCESKDP(strCMD)
   else
-    call PROCESKDP("U L; "//strCMD//"; EOS")
+    ! Temp debug
+    call PROCESKDP(strCMD)
+    !call PROCESKDP("U L; "//strCMD//"; EOS")
   end if
 
 end subroutine

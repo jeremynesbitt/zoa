@@ -2491,8 +2491,14 @@ module codeV_commands
         !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         !else 
         print *, "ABout to check if EOS needs to be called"
-         if(inUpdate.eqv..FALSE..and.eosCalled.eqv..FALSE.) CALL PROCESKDP('EOS')
+         if(inUpdate.eqv..FALSE.) then
+            if (eosCalled.eqv..FALSE.) then 
+                CALL PROCESKDP('EOS')
+                eosCalled = .TRUE.
+            end if
+         end if
         
+         print *, "EOS Calles is ", eosCalled
         
 
     
@@ -2569,7 +2575,7 @@ module codeV_commands
             call PROCESKDP('CV, 0.0')
             call PROCESKDP('TH, 1.0')
             call PROCESKDP('EOS')    
-            !call sleep(1)
+            call sleep(1)
             call PROCESKDP('U L')
       
 
