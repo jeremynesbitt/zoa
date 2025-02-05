@@ -2196,7 +2196,7 @@ subroutine genLensDataSaveOutputText(self, fID)
   class(lens_data) :: self
   integer :: fID
   integer :: ii, jj
-  character(len=1024) :: strSurfLine
+  character(len=1024) :: strSurfLine, strTHI, strRdy
   character(len=4) :: surfStr
   !character(len=80) :: glassStr
   logical :: rdmFlag
@@ -2205,13 +2205,16 @@ subroutine genLensDataSaveOutputText(self, fID)
 
   ! Do Object SUrface
   strSurfLine = 'SO'
+  write(strTHI, '(D23.15)') ALENS(3,0)
+  write(strRdy, '(D23.15)') 1.0d0/ALENS(1,0)
+
   if (rdmFlag) then
     if (self%thicknesses(1) > 1e11) then
-    strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(real2str(self%radii(1),9)), &
-    & trim(real2str(self%thicknesses(1),sci=.TRUE.)), trim(self%glassnames(1)))
+    strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
+    & trim(strTHI), trim(self%glassnames(1)))
     else 
       strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(real2str(self%radii(1),9)), &
-      & trim(real2str(self%thicknesses(1),precision=8)), trim(self%glassnames(1)))  
+      & trim(strTHI), trim(self%glassnames(1)))  
     end if
     !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
     !& trim(real2str(self%thicknesses(1),sci=.TRUE.))//blankStr(1)//trim(self%glassnames(1))
@@ -2228,17 +2231,18 @@ subroutine genLensDataSaveOutputText(self, fID)
 
     !glassStr = self%glassnames(ii)
     !if (isModelGlass(glassStr)) glassStr = set 
-    
+    write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
+    write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
     if(rdmFlag) then
       strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
-      & trim(real2str(self%radii(ii),9)), trim(real2str(self%thicknesses(ii),8)), & 
+      & trim(strRdy), trim(strTHI), & 
       & trim(self%glassnames(ii)))      
       !strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
       !& blankStr(5)//real2str(self%thicknesses(ii),4)// &
       !& blankStr(5)//self%glassnames(ii)
     else
       strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%curvatures(ii),9)// &
-      & blankStr(5)//real2str(self%thicknesses(ii),precision=8)// &
+      & blankStr(5)//trim(strTHI)// &
       & blankStr(5)//self%glassnames(ii)    
     end if      
     write(fID, *) trim(strSurfLine)
@@ -2278,13 +2282,13 @@ subroutine genLensDataSaveOutputText(self, fID)
   end do
 
   ! Do Image SUrface.  
-
+  write(strTHI, '(D23.15)') self%thicknesses(self%num_surfaces)
   if (rdmFlag) then
     strSurfLine = 'SI'//blankStr(2)//trim(real2str(self%radii(self%num_surfaces),4))//blankStr(3)// &
-    & trim(real2str(self%thicknesses(self%num_surfaces)))//blankStr(3)//self%glassnames(self%num_surfaces)
+    & trim(strTHI)//blankStr(3)//self%glassnames(self%num_surfaces)
   else
     strSurfLine = 'SI'//blankStr(2)//trim(real2str(self%curvatures(self%num_surfaces),4))//blankStr(3)// &
-    & trim(real2str(self%thicknesses(self%num_surfaces)))//blankStr(3)//self%glassnames(self%num_surfaces)  
+    & trim(strTHI)//blankStr(3)//self%glassnames(self%num_surfaces)  
   end if
   write(fID, *) trim(strSurfLine)
   PRINT *, trim(strSurfLine)  

@@ -161,12 +161,15 @@ subroutine Sandbox()
 
   call PROCESKDP("CV2PRG LithoKotaro.seq")
   ALENSCV = ALENS
-  call PROCESKDP('res kdebug')
+  call PROCESKDP('res kdebug2')
   ALENSZOA = ALENS
 
   ALENSDIFF = ALENSCV-ALENSZOA
   print *, "ALENSDIFF ", ALENSDIFF(1,1:150)
   print *, "ALENSDIFF ", ALENSDIFF(3,1:150)
+  print *, "CONICDIFF ", ALENSDIFF(2,1:150)
+
+
 
 
 end subroutine
