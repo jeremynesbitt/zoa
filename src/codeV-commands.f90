@@ -2026,11 +2026,11 @@ module codeV_commands
             select case (getQualWord())
 
             case ('M')
-                call executeCodeVLensUpdateCommand("UNITS MM", exitLensUpdate=.TRUE.)
+                call executeCodeVLensUpdateCommand("UNITS MM")
             case ('C')
-                call executeCodeVLensUpdateCommand("UNITS CM", exitLensUpdate=.TRUE.)
+                call executeCodeVLensUpdateCommand("UNITS CM")
             case ('I')
-                call executeCodeVLensUpdateCommand("UNITS IN", exitLensUpdate=.TRUE.)
+                call executeCodeVLensUpdateCommand("UNITS IN")
 
             end select
 
@@ -2478,7 +2478,7 @@ module codeV_commands
         
         ! If the called asked to exit update, then exit.
         ! If we were not in lens update level, then exit (return to prior state)
-        eosCalled = .FALSE.
+        !eosCalled = .FALSE.
         if(present(exitLensUpdate)) then
             if(exitLensUpdate) CALL PROCESKDP('EOS')
         !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
