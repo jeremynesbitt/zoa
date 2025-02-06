@@ -778,7 +778,9 @@ subroutine setMaxField(self)
   select case (self%currFieldID)
 
   case (FIELD_OBJECT_HEIGHT)
+    if (self%refFieldValue(2) /= 0) then
       call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
+    end if
 
   case (FIELD_OBJECT_ANGLE_DEG)
     call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
@@ -826,8 +828,12 @@ subroutine setRefFieldKDP(self)
     
     ! TODO:  For symmetric fields the value is the same.  If I want to support
     ! asymmetric field settings need to change this
+    if (self%refFieldValue(2) /= 0.0) then
     call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
+    end if
+    if (self%refFieldValue(1) /= 0.0) then
     call processLensUpdateCommand("SCX "//trim(real2str(self%refFieldValue(1))))
+    end if
 
     !call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
     !call PROCESKDP("U L; SCX "//trim(real2str(self%refFieldValue(2)))//';EOS')
