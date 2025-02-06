@@ -699,9 +699,8 @@ module codeV_commands
 
 
     subroutine findBestFocus(iptStr)
-        use global_widgets, only: curr_par_ray_trace
+        use global_widgets, only: curr_par_ray_trace, sysConfig
         use command_utils, only : parseCommandIntoTokens, isInputNumber
-        use global_widgets, only:  sysConfig
         use DATLEN, only: COLRAY
         use algos
     

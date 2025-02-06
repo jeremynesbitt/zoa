@@ -2964,6 +2964,9 @@ C               F1 IS NOT 1, NO NEED TO CHECK FOR RUNNING A
 C               MACRO
                 END IF
       ! New Commands take priority over older commands  
+        if(isCodeVCommand(trim(WC))) then 
+          call LogTermDebug("SHould execute here")
+        end if
         IF(F1.EQ.1.AND.F4.EQ.0.AND.F17.EQ.0) THEN
       OUTLYNE='INVALID CMD LEVEL COMMAND'
       CALL SHOWIT(1)
