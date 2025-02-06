@@ -2574,9 +2574,10 @@ module codeV_commands
             call PROCESKDP('AIR')
             call PROCESKDP('CV, 0.0')
             call PROCESKDP('TH, 1.0')
-            call PROCESKDP('EOS')    
-            call sleep(1)
-            call PROCESKDP('U L')
+            !call PROCESKDP('EOS')
+            call PROCESKDP('CHG 0')    
+            !call sleep(1)
+            !call PROCESKDP('U L')
       
 
       end subroutine

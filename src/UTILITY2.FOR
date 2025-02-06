@@ -3895,6 +3895,7 @@ C
 
 C
       CHARACTER RA(0:6)*140
+      character(len=1024) :: debugTxt
 C
       COMMON/FAST7/RA
       INCLUDE 'DATMAI.INC'
@@ -3906,6 +3907,8 @@ C
         !call LogTermFOR("PROCES IPT "//trim(INPUT))
         !PRINT *, "INPUT is ", INPUT
          call logger%logText(INPUT)
+         write(debugTxt, *) F1,F5
+         call logger%logText(trim(debugTxt))
 
 
 
