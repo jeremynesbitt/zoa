@@ -1978,8 +1978,7 @@ module codeV_commands
                    PRINT *, "s0 is ", s0
                    PRINT *, "sf is ", sf
                    do i=s0,sf
-                    !call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)
-                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)))                           
+                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)                           
                    end do
                 else
                     call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
@@ -1989,8 +1988,7 @@ module codeV_commands
 
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (surfNum.NE.-1) then
-               !call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
-               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
+               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
             else
                 call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
             end if
@@ -2028,11 +2026,11 @@ module codeV_commands
             select case (getQualWord())
 
             case ('M')
-                call executeCodeVLensUpdateCommand("UNITS MM")
+                call executeCodeVLensUpdateCommand("UNITS MM", exitLensUpdate=.TRUE.)
             case ('C')
-                call executeCodeVLensUpdateCommand("UNITS CM")
+                call executeCodeVLensUpdateCommand("UNITS CM", exitLensUpdate=.TRUE.)
             case ('I')
-                call executeCodeVLensUpdateCommand("UNITS IN")
+                call executeCodeVLensUpdateCommand("UNITS IN", exitLensUpdate=.TRUE.)
 
             end select
 
@@ -2457,7 +2455,7 @@ module codeV_commands
         implicit none
         character(len=*) :: iptCmd
         logical, optional :: debugFlag, exitLensUpdate
-        logical :: redirectFlag, inUpdate, eosCalled
+        logical :: redirectFlag, inUpdate
 
         if(present(debugFlag)) then 
             redirectFlag = .NOT.debugFlag
@@ -2482,23 +2480,12 @@ module codeV_commands
         ! If we were not in lens update level, then exit (return to prior state)
         eosCalled = .FALSE.
         if(present(exitLensUpdate)) then
-            if(exitLensUpdate) then 
-                CALL PROCESKDP('EOS')
-                eosCalled = .TRUE.
-            end if
-        end if
+            if(exitLensUpdate) CALL PROCESKDP('EOS')
         !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         !else 
-        print *, "ABout to check if EOS needs to be called"
-         if(inUpdate.eqv..FALSE.) then
-            if (eosCalled.eqv..FALSE.) then 
-                CALL PROCESKDP('EOS')
-                eosCalled = .TRUE.
-            end if
-         end if
+         if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         
-         print *, "EOS Calles is ", eosCalled
-        
+        end if
 
     
 
@@ -2573,10 +2560,8 @@ module codeV_commands
             call PROCESKDP('AIR')
             call PROCESKDP('CV, 0.0')
             call PROCESKDP('TH, 1.0')
-            !call PROCESKDP('EOS')
-            call PROCESKDP('CHG 0')    
-            !call sleep(1)
-            !call PROCESKDP('U L')
+            call PROCESKDP('EOS')    
+            call PROCESKDP('U L')
       
 
       end subroutine
@@ -2604,10 +2589,9 @@ module codeV_commands
         character(len=*) :: iptStr
         integer :: surfNum
         character(len=80) :: tokens(40)
-        integer :: numTokens, ptrIdx
-        character(len=1024) :: strLine
+        integer :: numTokens
 
-        ptrIdx = ldm%getSurfacePointer()
+
         !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
