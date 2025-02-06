@@ -1374,7 +1374,7 @@ subroutine genSaveOutputText(self, fID)
   character(len=256) :: strWL, strWLwgt, strXFLD, strYFLD, strFLDWGT
 
   write(fID, *) "! Zoa "//zoaVersion
-  write(fID, *) "LEN NEW"
+  write(fID, *) "LEN"
   write(fID, *) "TIT "//"'"//trim(self%lensTitle)//"'"
         ! Store dimensions
   select case(self%currLensUnitsID)
@@ -2215,7 +2215,11 @@ subroutine genLensDataSaveOutputText(self, fID)
   ! Do Object SUrface
   strSurfLine = 'SO'
   write(strTHI, '(D23.15)') ALENS(3,0)
-  write(strRdy, '(D23.15)') 1.0d0/ALENS(1,0)
+  if (ALENS(1,0) == 0.0 ) then
+    write(strRdy, '(D23.15)') 0.0d0
+  else
+     write(strRdy, '(D23.15)') 1.0d0/ALENS(1,0)
+  end if
 
   if (rdmFlag) then
     if (self%thicknesses(1) > 1e11) then
@@ -2241,7 +2245,12 @@ subroutine genLensDataSaveOutputText(self, fID)
     !glassStr = self%glassnames(ii)
     !if (isModelGlass(glassStr)) glassStr = set 
     write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
-    write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
+    if (ALENS(1,ii-1) == 0.0 ) then
+      write(strRdy, '(D23.15)') 0.0d0
+    else
+       write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
+    end if    
+    !write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
     if(rdmFlag) then
       strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
       & trim(strRdy), trim(strTHI), & 

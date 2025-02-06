@@ -2167,7 +2167,9 @@ module codeV_commands
           call sysConfig%setAbsoluteFields(absFields, FLD_COL)
 
           ! Force update of lens system
-          CALL LNSEOS
+          ! JN 2/6/25.  This called me a lot of pain.  I added this to force update in UI,
+          ! but it wreaked havoc when I was trying to clean up lens input
+          !CALL LNSEOS
 
 
 
@@ -2204,6 +2206,12 @@ module codeV_commands
                 ! Set spectral weights; assume all equal to 1.0 here
                 call sysConfig%setSpectralWeights(i-1, 1.0)               
             end do
+        if (numTokens < 6) then
+            do i=numTokens+1,6
+                outStr = trim(outStr)//' 0.0'
+            end do
+        end if
+        
             call LogTermFOR("Outstr is "//trim(outStr))
             !call executeCodeVLensUpdateCommand(trim(outStr), exitLensUpdate=.TRUE.)
             call executeCodeVLensUpdateCommand(trim(outStr))
@@ -2482,10 +2490,9 @@ module codeV_commands
         if(present(exitLensUpdate)) then
             if(exitLensUpdate) CALL PROCESKDP('EOS')
         !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
-        !else 
+        end if
          if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         
-        end if
 
     
 
