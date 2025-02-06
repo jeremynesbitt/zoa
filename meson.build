@@ -19,7 +19,7 @@ message('Host machine system = '+system)
 build_type = get_option('buildtype')
 message('Build type: '+build_type)
 versionArg = '-D__VERSION=' + '"' + meson.project_version() + '"' 
-osArg = ' '
+osArg = '-DLINUX'
 if system == 'darwin'
    osArg = '-DMACOS'
    message('System is Darwin')

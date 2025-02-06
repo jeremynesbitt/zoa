@@ -1125,7 +1125,7 @@ C
      1  ,C*140,BN*11,BN1*11,BN2*11,BN3*11,BN4*11,BN5*11
 C
         INTEGER I
-        include 'datmai.inc'
+        include 'DATMAI.INC'
 C
                 DO 10 I=1,5
                 IF(I.EQ.1) N=N1
