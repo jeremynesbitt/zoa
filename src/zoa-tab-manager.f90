@@ -119,7 +119,6 @@ subroutine updateTabPositions(self)
   character(len=100) :: tabTitle
   integer :: i, objIdx
 
-  call LogTermDebug("Starting UpdateTabPositions ")
   i = 0
   child = gtk_notebook_get_nth_page(self%notebook, 0)
   do while (c_associated(child))
@@ -131,11 +130,8 @@ subroutine updateTabPositions(self)
 
     cptr = g_object_get_data(child, 'tab-id'//c_null_char)
     if (c_associated(cptr)) then
-      call LogTermDebug("Pointer defind!")
       call c_f_string(cptr, tabTitle) 
-      call LogTermDebug("TabTitle is "//tabTitle)
      else 
-      call LogTermDebug("Pointer not defind!")
      end if
 
      objIdx = self%getTabIdxByID(tabTitle)
@@ -337,7 +333,6 @@ function getTabIdxByID(self, key) result(tabIdx)
   do i=1,self%tabNum
     if(allocated(self%tabInfo(i)%tabObj)) then 
        if(self%getTabTitle(i) == key) then
-        call LogTermDebug("Found tab idx by key!")
          tabIdx = i
          return
 
@@ -549,7 +544,6 @@ end subroutine
   integer :: i
 
    !PRINT *, "Searching for existing plot... with plot code ", PLOT_CODE
-   call LogTermDebug("In doesPlotExist_new")
    plotFound = .FALSE.
    idxObj = -1
    DO i = 1,self%tabNum
@@ -636,7 +630,6 @@ function getTabTitle(self, tabNum) result(strName)
   print *, "cstr ptr is ", LOC(cstr)
   !strName = "testTab"
   call convert_c_string(cstr, strName)
-  call LogTermDebug("Tab Name is "//trim(strName))
 
 
 end function
@@ -678,9 +671,6 @@ end function
    
 
     ! To account for tab being detached, use tabObj Notebook
-    call LogTermDebug("ABout to request removal of tab"//int2str(tabIndex))
-    call LogTermDebug("Removal nbook ptr is"//int2str(INT(LOC(self%tabInfo(tabInfoIndex)%tabObj%notebook))))
-
       call gtk_notebook_remove_page(self%tabInfo(tabInfoIndex)%tabObj%notebook, tabIndex)
    
     !    
@@ -696,9 +686,6 @@ end function
        if (tabInfoIndex == self%tabNum) self%tabNum = self%tabNum - 1
     end if
 
-    call LogTermDebug("Done with remove Plot Tab" )
-
-    
   
 
   end subroutine

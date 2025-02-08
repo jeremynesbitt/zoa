@@ -142,10 +142,12 @@ module kdp_utils
     integer :: i
     character(len=1024) :: outStr
 
+    
     ! Only output if both xHeader and yHeader are there
     if(present(xHeader)) then 
       if(present(yHeader)) then 
-        call OUTKDP(xHeader//blankStr(2)//yHeader)
+        ! TODO:  adjust blanks for xHeader and yHeader to align with data
+        call OUTKDP(blankStr(5)//xHeader//blankStr(7)//yHeader)
       end if 
     end if
     do i=1,size(xData)
