@@ -3907,8 +3907,8 @@ C
         !call LogTermFOR("PROCES IPT "//trim(INPUT))
         !PRINT *, "INPUT is ", INPUT
          call logger%logText(INPUT)
-         write(debugTxt, *) F1,F5,F6
-         call logger%logText(trim(debugTxt))
+         !write(debugTxt, *) F1,F5,F6
+         !call logger%logText(trim(debugTxt))
 
 
 

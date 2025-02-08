@@ -2226,7 +2226,7 @@ subroutine genLensDataSaveOutputText(self, fID)
     strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
     & trim(strTHI), trim(self%glassnames(1)))
     else 
-      strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(real2str(self%radii(1),9)), &
+      strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
       & trim(strTHI), trim(self%glassnames(1)))  
     end if
     !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
@@ -2245,6 +2245,8 @@ subroutine genLensDataSaveOutputText(self, fID)
     !glassStr = self%glassnames(ii)
     !if (isModelGlass(glassStr)) glassStr = set 
     write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
+    print *, "ALENS(3,surf) is ", ALENS(3,ii-1)
+    print *, "strTHI is ", trim(strTHI)
     if (ALENS(1,ii-1) == 0.0 ) then
       write(strRdy, '(D23.15)') 0.0d0
     else

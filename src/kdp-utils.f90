@@ -142,6 +142,12 @@ module kdp_utils
     integer :: i
     character(len=1024) :: outStr
 
+    ! Only output if both xHeader and yHeader are there
+    if(present(xHeader)) then 
+      if(present(yHeader)) then 
+        call OUTKDP(xHeader//blankStr(2)//yHeader)
+      end if 
+    end if
     do i=1,size(xData)
       write(outStr, '(F12.5,A5,F12.5)') xData(i),blankStr(5), yData(i)
        !call OUTKDP(trim(real2str(xData(i)))//blankStr(5)//trim(real2str(yData(i))))

@@ -1005,6 +1005,7 @@ subroutine rmsfield_go(psm)
   use command_utils
   use handlers, only: updateTerminalLog
   use global_widgets, only:  sysConfig, curr_ray_fan_data
+  use kdp_utils, only: log2DData
   use type_utils, only: int2str
   use plplot, PI => PL_PI
   use plplot_extra
@@ -1014,6 +1015,7 @@ IMPLICIT NONE
 
 character(len=23) :: ffieldstr
 integer :: ii, objIdx, iData, iLambda
+logical :: replot
 integer :: numPoints
 type(zoaplot) :: xyscat
 type(c_ptr) :: canvas
@@ -1026,7 +1028,10 @@ INCLUDE 'DATMAI.INC'
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
- call updateTerminalLog(INPUT, "blue")
+call initializeGoPlot(psm,ID_PLOTTYPE_RMSFIELD, "RMS vs Field", replot, objIdx)
+
+
+ !call updateTerminalLog(INPUT, "blue")
 
  call psm%getRMSFieldSettings(iData, iLambda, numPoints)
      
@@ -1037,12 +1042,12 @@ allocate(y(numPoints))
 do ii = 0, numPoints-1
  x(ii+1) = REAL(ii)/REAL(numPoints-1)
  write(ffieldstr, *) x(ii+1)
- CALL PROCESKDP("FOB "// ffieldstr)
+ CALL PROCESSILENT("FOB "// ffieldstr)
  select case(iData)
 
  case(ID_RMS_DATA_WAVE)
-    CALL PROCESKDP("CAPFN")
-    CALL PROCESKDP("SHO RMSOPD")
+    CALL PROCESSILENT("CAPFN SILENT")
+    CALL PROCESSILENT("SHO RMSOPD")
     y(ii+1) = 1000.0*REG(9)
  case(ID_RMS_DATA_SPOT)
   CALL PROCESKDP("SPD")
@@ -1056,9 +1061,14 @@ do ii = 0, numPoints-1
 end do
 
 
+
 canvas = hl_gtk_drawing_area_new(size=[1200,500], &
 & has_alpha=FALSE)
 
+
+call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+call log2DData(real(x,8),real(y,8), xHeader='Field', yHeader='RMS[mWaves]')
+call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
 call mplt%initialize(canvas, 1,1)
 
@@ -1078,9 +1088,7 @@ end select
 
 call mplt%set(1,1,xyscat)
 
-
-call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RMSFIELD, "RMS vs Field")
-
+call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 end subroutine
 
 subroutine psf_go(psm)
