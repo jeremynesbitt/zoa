@@ -180,17 +180,15 @@ subroutine vie_go(psm)
     integer :: objIdx, pIdx
     logical :: replot
 
-    if (allocated(NEUTARRAY)) then
-      call LogTermDebug("NEUTARRAYSize before vie_psm is "//int2str(size(NEUTARRAY)))
-
-    end if
+    !if (allocated(NEUTARRAY)) then
+    !  call LogTermDebug("NEUTARRAYSize before vie_psm is "//int2str(size(NEUTARRAY)))
+    !end if
     call vie_psm(psm)
     ! This is a temporary fix.  In my attempts to leave the legacy code intact, I cannot
     ! seem to figure out all the conditions where it wipes NEUTARRAY clean which is causing
     ! numerous plotting problems.  So for now will manage this by storing the data in NEUTARRAY
     ! separately only after this call is completed and access it in DRAWOPTICALSYSTEM
     if (allocated(NEUTARRAY)) then
-      call LogTermDebug("NEUTARRAYSize after vie_psm is "//int2str(size(NEUTARRAY)))
       if (allocated(currVieData)) deallocate(currVieData)
       allocate(currVieData(size(NEUTARRAY)))
       currVieData(1:size(NEUTARRAY)) = NEUTARRAY(1:size(NEUTARRAY))
@@ -228,9 +226,7 @@ subroutine vie_go(psm)
       !& trim(tabName)//c_null_char, mplt)
 
       call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
-      call LogTermDebug("VIE after finalize with psm")
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
-      call LogTermDebug("VIE after finalize new plot tab")
     end if
 
     
@@ -1349,8 +1345,6 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       
       objIdx = zoatabMgr%addMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char)
-      call LogTermDebug("Obj Idx is "//int2str(objIdx))
-      call LogTermDebug("After addMultiPlotTab")
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
     end if
 
@@ -1373,7 +1367,6 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt) 
     if(replot .EQV. .FALSE. ) then 
       call zoaTabMgr%finalize_with_psm(objIdx, psm)
-      call LogTermDebug("ObjIdx is "//int2str(objIdx))
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
     end if
 
@@ -1500,9 +1493,7 @@ subroutine mtf_go(psm)
   !ypts = xpts
   
   ! MTF here is fft of psf.  So calc psf
-  call LogTermDebug("Before PSFK NRD is "//int2str(NRD))
   call getData("PSFK", imgPSF)
-  call LogTermDebug("After PSFK NRD is "//int2str(NRD))
   allocate(fftData(size(imgPsf%img,1),size(imgPsf%img,2)))
   fftData = fft2(cmplx(imgPsf%img,kind=long),1)
 

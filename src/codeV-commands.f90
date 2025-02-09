@@ -1207,7 +1207,7 @@ module codeV_commands
         
             ! Error Checking
             if (isInputNumber(trim(tokens(2)))) then    
-                call executeCodeVLensUpdateCommand('CLAP, '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)),.TRUE.)
+                call executeCodeVLensUpdateCommand('CLAP, '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)))
            else
              call updateTerminalLog( &
              & "Error: unable to intepret number for input argument "//trim(tokens(2)), "red")
@@ -2147,10 +2147,6 @@ module codeV_commands
          !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
          call parse(trim(iptStr), ' ', tokens, numTokens)
 
-         do i=1,numTokens
-            call LogTermFOR("Token "//trim(tokens(i)))
-         end do
-
          ! TODO:  Support more field types
          if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB'.OR.tokens(1).EQ.'YIM') FLD_COL = Y_COL
          if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB'.OR.tokens(1).EQ.'XIM') FLD_COL = X_COL
@@ -2158,7 +2154,6 @@ module codeV_commands
          call sysConfig%setFieldTypeFromString(trim(tokens(1)))
 
           numFields = numTokens-1
-          call LogTermFOR("Numfields is "//int2str(numFields))
           allocate(absFields(numFields))
           do i=1,numFields
             absFields(i) = str2real8(trim(tokens(i+1)))
@@ -2193,9 +2188,6 @@ module codeV_commands
         logical :: CVERROR
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
-
-        call LogTermFOR("setWL numTokens is "//int2str(numTokens))
 
         if (numTokens <= 6) then
             outStr = 'WV, '
@@ -2211,11 +2203,7 @@ module codeV_commands
                 outStr = trim(outStr)//' 0.0'
             end do
         end if
-        
-            call LogTermFOR("Outstr is "//trim(outStr))
-            !call executeCodeVLensUpdateCommand(trim(outStr), exitLensUpdate=.TRUE.)
             call executeCodeVLensUpdateCommand(trim(outStr))
-
         end if
 
       end subroutine      
@@ -2608,7 +2596,7 @@ module codeV_commands
         case (2) ! Curvature only
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2)), .TRUE.)              
+            & '; RD, ' // trim(tokens(2)))              
         case (3) ! Curvature and thickness
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
             !if()
@@ -2619,7 +2607,7 @@ module codeV_commands
             ! else
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3)), .TRUE.)        
+            & trim(tokens(3)))        
             ! end if    
         case (4) ! Curvature, thickness, and glass
             surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
@@ -2627,14 +2615,14 @@ module codeV_commands
 
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4)))), .TRUE.) 
+            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4))))) 
             else
                 ! TODO:  This and the isSpecialGlass function should go somewhere else.
                 ! but first need to figure out if I really want to store this info in 
                 ! glassnames or create a new array for this info.
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; RD, ' // trim(tokens(2))//";TH, "// &
-                & trim(tokens(3))//';' // trim(tokens(4)),.TRUE.)                
+                & trim(tokens(3))//';' // trim(tokens(4)))                
             end if
         end select
     end subroutine
@@ -2770,10 +2758,10 @@ module codeV_commands
 
         if(scaleOffset) then
             call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
-                & trim(int2str(sj))//","//trim(real2str(scale))//","//trim(real2str(offset)), exitLensUpdate=.TRUE.)
+                & trim(int2str(sj))//","//trim(real2str(scale))//","//trim(real2str(offset)))
         else
             call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
-                & trim(int2str(sj)), exitLensUpdate=.TRUE.)
+                & trim(int2str(sj)))
         end if
 
     end subroutine

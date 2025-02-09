@@ -731,7 +731,6 @@ end subroutine
   self%xPlotCodes = 'bcgnt' 
   self%yPlotcodes = 'bcgntv'
 
-  call LogTermDebug("In zp_init about to set drawScale to false")
   self%drawScale = .FALSE.
   self%scaleRatio = 0.45
 
@@ -980,7 +979,6 @@ end subroutine
       ! end select
 
   do i=1,self%numSeries
-    call LogTermDebug("About to set color "//int2str(self%plotDataList(i)%dataColorCode))
     call plcol0(self%plotDataList(i)%dataColorCode*1_c_int)
     ! PL PLOT Area fill
     call plpsty(0)
@@ -997,8 +995,6 @@ end subroutine
   end do
 
   if (self%useLegend) call self%drawLegend()
-
-  call LogTermDebug("About to check drawScale with drawScale = "//bool2str(self%drawScale))
 
   if (self%drawScale) call self%drawScaleBar()
 
@@ -1072,12 +1068,10 @@ end subroutine
       class(zoaplot) :: self
       integer :: ID_POS
 
-      call LogTermDebug("About to set drawScale to true")
 
       self%drawScale = .TRUE.
       self%scalePos = ID_POS
 
-      call LogTermDebug("drawScale = "//bool2str(self%drawScale))
 
     end subroutine
 
@@ -1088,7 +1082,6 @@ end subroutine
       real, optional :: newScale
       real(kind=pl_test_flt) :: p_xmin, p_xmax, p_ymin, p_ymax, margin, s_max, s_min, s_mid
 
-      call LogTermDebug("In DrawScaleBar!")
 
       if(present(newScale)) self%scaleRatio = newScale
 
@@ -1115,8 +1108,6 @@ end subroutine
 
         call plptex(REAL(s_mid), REAL(p_ymin+margin+margin), 0.0, 0.0, 0.5, trim(real2str(s_max-s_min))//c_null_char)
         !call plptex(0.5*(s_max+s_min), p_ymin+margin+margin,0.0,0.0,0.0, "txt"//c_null_char)
-
-        call LogTermDebug("Scale is "//real2str(s_max-s_min))
 
       end select
       

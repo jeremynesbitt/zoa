@@ -352,8 +352,6 @@ contains
     menu_dock   = g_menu_new()
     menu_undock = g_menu_new()
 
-    call LogTermDebug("In populateWindowMenu")
-
     i = 0
     do i=1,getNumberOfTabs()
       if (isDocked(i)) then
@@ -599,7 +597,6 @@ contains
 
     ptr=>tabNum
 
-    call LogTermDebug("TabNum is "//int2str(tabNum))
     menuAction = g_simple_action_new(menuItemEventName//c_null_char, c_null_ptr)
     call g_action_map_add_action (win, menuAction)
     call g_signal_connect (menuAction, "activate"//c_null_char, funcPointer, c_loc(ptr))

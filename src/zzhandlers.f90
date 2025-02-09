@@ -157,6 +157,10 @@ contains
 
      
 
+      ! If we are dumping text then just end
+      if (.not.c_associated(ioConfig%textView)) then 
+        return
+      end if
       txtBuffer = gtk_text_view_get_buffer(ioConfig%textView)
       if (c_associated(txtBuffer)) then
       call gtk_text_buffer_get_end_iter(txtBuffer, c_loc(endIter))
