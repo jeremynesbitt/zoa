@@ -76,15 +76,17 @@ C       WHERE I IS THE SURFACE NUMBER
 C
 C       CALCULATE THE OPTICAL INVARIANT
 C
-        PRINT *, "IN AB357"
+        !PRINT *, "IN AB357"
                 SF=INT(SYSTEM(20))
         INV=-((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-
      1  (PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
-        PRINT *, "INV is ", INV
+        !PRINT *, "INV is ", INV
         IF(DABS(INV).LE.1.00E-15) THEN
-                        PRINT *, "INV is ", INV
-        OUTLYNE = "Invariant too small.  Calcs will fail"
-                        CALL SHOWIT(1)
+         ! Exit here.  Typically this is an intermediate failure.
+         ! But don't really like how this is designed.
+        !                PRINT *, "INV is ", INV
+        !OUTLYNE = "Invariant too small.  Calcs will fail"
+        !                CALL SHOWIT(1)
                         CALL MACFAL
                         RETURN
                         END IF

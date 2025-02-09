@@ -303,17 +303,13 @@ module kdp_utils
         end if
             
         do j=1,size(colHeaders)
-            print *, "Processing Column Header ", colHeaders(j)
-            print *, "surf is ", i
             write(entryStr, '(F9.5)') dataArray(j,i+1) ! Surface starts at 0, passed array starts at 1?
-            PRINT *, "length of entryStry is ", len(trim(entryStr))
             if (dataArray(j,i+1) > 0.0) then
               !lineStr = trim(lineStr)//'    '//trim(entryStr)
               lineStr = trim(lineStr)//blankStr(dataSpacing)//trim(entryStr)
             else
               lineStr = trim(lineStr)//blankStr(dataSpacing)//trim(entryStr)
             end if
-            PRINT *, "lineStr is "//trim(lineStr)
         end do
         call OUTKDP(trim(lineStr))
     end do

@@ -129,6 +129,8 @@ contains
     character(len=100), target :: psfCmd = "PSF;GO"    
     character(len=100), target :: mtfCmd = "MTF;GO"        
 
+    character(len=100), target :: fioCmd = "FIO"        
+
 
 
     act_quit = g_simple_action_new ("quit"//c_null_char, c_null_ptr)
@@ -260,6 +262,9 @@ contains
 
     menu_item_firstorder = g_menu_item_new ("First Order Parameters"//c_null_char, "win.ParaFirstOrder"//c_null_char)
     call g_menu_append_item (menu_paraxial, menu_item_firstorder)
+
+    call addCommandMenuItem(menu_paraxial, "Paraxial Ray Trace", &
+    & "FIO", fioCmd, win)    
 
     call addCommandMenuItem(menu_paraxial, "Seidel Aberrations", &
     & "Seidel", seidelCmd, win)
@@ -404,7 +409,7 @@ contains
     type(c_ptr), value, intent(in) :: act, avalue, win
     character(len=500) :: fileName
     character(len=500) :: cdir
-    character(len=500) :: existingCodeVDir
+    character(len=1024) :: existingCodeVDir
     logical :: fileSelected
 
 
@@ -430,7 +435,7 @@ contains
     type(c_ptr), value, intent(in) :: act, avalue, win
     character(len=500) :: fileName
     character(len=500) :: cdir
-    character(len=500) :: existingCodeVDir
+    character(len=1024) :: existingCodeVDir
     logical :: fileSelected
 
 
