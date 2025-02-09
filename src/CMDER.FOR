@@ -95,7 +95,9 @@ C     CALCULATIONS
 
       !if(INPUT.EQ.'MREFRESH') call updateTerminalLog(INPUT, "blue")
       !if (.NOT.isCodeVCommand(WC)) then
-      call updateTerminalLog(INPUT, "black")
+      
+      !call updateTerminalLog(INPUT, "black")
+      
       !end if
       !call sleep(1)
       !call pending_events()

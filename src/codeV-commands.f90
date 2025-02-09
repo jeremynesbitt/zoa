@@ -235,6 +235,8 @@ module codeV_commands
         end do        
         zoaCmds(581)%cmd = 'K'          
         zoaCmds(581)%execFunc => updateConicConstant  
+        zoaCmds(582)%cmd = '!'          
+        zoaCmds(582)%execFunc => processFileComment          
                 
 
         
@@ -2094,6 +2096,13 @@ module codeV_commands
 
 
       end subroutine
+
+      subroutine processFileComment(iptStr)
+        character(len=*) :: iptStr
+
+        ! Do nothing
+
+      end subroutine      
 
       subroutine setFieldWeights(iptStr)
         !class(zoa_cmd) :: self
