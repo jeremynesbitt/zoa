@@ -356,13 +356,9 @@ end if
 
 self%num_surfaces = input
 if (.not.allocated(self%radii)) THEN
- PRINT *, "Allocating values in lens data to repopulate"
  allocate(self%radii(self%num_surfaces), self%thicknesses(self%num_surfaces))
- !PRINT *, "About to allocate curvatures"
  allocate(self%curvatures(self%num_surfaces))
- !PRINT *, "About to allocate indices"
  allocate(self%surf_index(self%num_surfaces), self%surf_vnum(self%num_surfaces))
- !PRINT *, "About to allocate glass names"
  allocate(character(40) :: self%glassnames(self%num_surfaces), self%catalognames(self%num_surfaces))
  
  ! For now just copy what is in DATLEN.INC
@@ -507,21 +503,14 @@ do I = 0,maxSurf-1
   &  ALENS(81,I).NE.0.0D0.OR.ALENS(82,I).NE.0.0D0.OR.        &
   &  ALENS(83,I).NE.0.0D0.OR.ALENS(85,I).NE.0.0D0.OR.        &
   &  ALENS(85,I).NE.0.0D0) THEN
-     PRINT *, "FOUND ASPHERE AT index ", I
      self%conic_constant(I+1) = ALENS(2,I)
-     !PRINT *, ALENS(1:85,I)
      self%asphereTerms(I+1,1:4) = ALENS(4:7,I)
      self%asphereTerms(I+1,5:8) = ALENS(81:84,I)
-     !PRINT *, "ASPHRE TErms ", self%asphereTerms(I+1,:)
-     PRINT "(E10.4)", self%asphereTerms(I+1,1)
    else
      self%conic_constant(I+1) = 0.0
      self%asphereTerms(I+1,:) = 0.0
     END IF
   end do
-
-
-  !PRINT *, "Conic Constant Array is ", self%conic_constant
 
 end subroutine
 
@@ -730,8 +719,6 @@ subroutine updateParameters(self)
         self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
 
   end select ! Reference Field
-
-  PRINT *, "Ref Fields XY are ", self%refFieldValue
 
   self%numFields = CFLDCNT
   self%relativeFields = CFLDS
@@ -947,13 +934,10 @@ subroutine getFieldRefFromSystemArr(self)
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
 
-     PRINT *, "Getting Field Reference From System Array"
      if (SYSTEM(18).EQ.0.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
-       PRINT *, "FIELD OBJECT HEIGHT SETTING FOUND"
        self%currFieldID = FIELD_OBJECT_HEIGHT
        !self%currApertureName = "Object Height"
      else if (SYSTEM(18).EQ.1.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
-       PRINT *, "FIELD OBJECT ANGLE DEGREE SETTING FOUND"
          self%currFieldID = FIELD_OBJECT_ANGLE_DEG
         !self%currApertureName = "Object Angle"
      else if (SYSTEM(94).EQ.-1.AND.SYSTEM(95).EQ.-1) THEN
@@ -1233,11 +1217,8 @@ subroutine setSolveText(self, solveOptions)
   integer :: i
   
   
-  PRINT *, "ID is ", id
   do i=1,size(solveOptions)
-    PRINT *, "solveOpptions id_solve is ", solveOptions(i)%id_solve
     if (solveOptions(i)%id_solve.EQ.self%id_solve) then
-      PRINT *, "In correct Loop"
       ! Brute force it for now
       self%solve_type = solveOptions(i)%solve_type 
       self%uiText = solveOptions(i)%uiText
@@ -1281,7 +1262,6 @@ subroutine setNumFields(self, numFields)
 
   CFLDCNT = numFields
   self%numFields = numFields
-  PRINT *, "Updating Number of Fields to ", self%numFields
 
 end subroutine
 
@@ -1327,25 +1307,10 @@ subroutine setNumberofWavelengths(self)
   integer :: i
   integer, dimension(10) :: nonzerowavelengths
   !self%numWavelengths = 0
-  PRINT *, "Pack operation"
   self%numWavelengths = size(pack(self%spectralWeights, self%spectralWeights /= 0))
   self%wavelengthIndices(1:self%numWavelengths) =  &
   & pack([(i,i=1,size(self%spectralWeights))],self%spectralWeights /= 0)
-
-  PRINT *, "numWavelengths is ", self%numWavelengths
-  PRINT *, "Wavelength indices is ", self%wavelengthIndices
-
-
-
-  !PRINT *, findloc(self%spectralWeights, self%spectralWeights /= 0)
-
-  ! do i=1,len(self%spectralWeights)
-  !   if (self%spectralWeights(i) > 0) then
-  !       self%numWavelengths = self%numWavelengths+1
-  !
-  !    end if
-  !
-  ! end do
+  self%wavelengthIndices(self%numWavelengths+1:size(self%wavelengthIndices)) = 0
 
 end subroutine
 
@@ -1532,9 +1497,6 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
   select case (ID_SELECTION)
 
   case (APER_OBJECT_NA)
-    PRINT *, "Define Aperture by Object NA"
-    PRINT *, "xAp = ", xAp
-    PRINT *, "yAp =  ", yAp
 
      CALL DTOA23(xAp,strXAp)
      CALL DTOA23(yAp,strYAp)
@@ -1548,15 +1510,12 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
     call PROCESKDP('EOS')
 
   case (APER_ENTR_PUPIL_DIAMETER)
-    PRINT *, "Define Aperture by Entrance Pupil Diameter"
 
 !       SAY/SAX
 !        CALL WDIALOGGETDOUBLE(IDF_X,DW1)
 !        CALL WDIALOGGETDOUBLE(IDF_Y,DW2)
      xApertureRadius = xAp/2.0
      yApertureRadius = yAp/2.0
-
-     PRINT *, "xApertureRadius is ", xApertureRadius
 
      CALL DTOA23(xApertureRadius,strXAp)
      CALL DTOA23(yApertureRadius,strYAp)
@@ -1571,7 +1530,6 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
     call PROCESKDP('EOS')
 
   case (APER_STOP_SURFACE)
-    PRINT *, "Define Aperture by Stop Surface"
     call PROCESKDP('U L')
      IF(xySame.EQ.1) THEN
        CALL PROCESKDP('SAY FLOAT')
@@ -1583,10 +1541,6 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
 
 
   end select
-
-  PRINT *, "SYSTEM(64) is ", SYSTEM(64) ! NAOY
-  PRINT *, "SYSTEM(67) is ", SYSTEM(67) ! F-number
-  PRINT *, "SYSTEM(83) is ", SYSTEM(83) ! FLOAT
 
   ! Make sure we have the up to date values
   call self%updateParameters()
@@ -1706,7 +1660,6 @@ function getFieldText(self) result(fldText)
   character(len=150) :: fldText
 
   fldText = self%lensUnits(self%currLensUnitsID)%text
-  PRINT *, "currFieldID is ", self%currFieldID
   if (self%currFieldID.EQ.FIELD_OBJECT_ANGLE_DEG) then
     fldText = "Object Angle [deg]"
   end if
@@ -1794,7 +1747,6 @@ subroutine updateSolveData(self, lData, row, solve_type)
   self%id_solve = INT(lData%solves(6,row))
   self%param1 =  lData%solves(7,row)
  case(ID_PICKUP_RAD)
-  PRINT *, "lData solves(8,row) is ", lData%solves(8,row)
   self%id_solve = INT(lData%solves(8,row))
   self%param1 =  lData%solves(9,row)
  end select 
@@ -1829,7 +1781,6 @@ function genKDPCMDToSetSolve(self) result(outTxt)
  class(ksolve) :: self
  character(len=280) :: outTxt
 
- !PRINT *, "About to set ",trim(self%cmd_kdp)//", "//trim(real2str(self%param1,4))
  outTxt = trim(self%cmd_kdp)//" "//trim(real2str(self%param1,4))
 
 end function
@@ -1855,7 +1806,6 @@ function genKDPCMDToRemoveSolve(self, surf) result(outTxt)
  integer :: surf
  character(len=280) :: outTxt
 
- PRINT *, "Removing solve from surface!"
  select case (self%solve_type)
  case (ID_PICKUP_THIC) 
      outTxt = "TSD, "//trim(int2str(surf)//","//trim(int2str(surf)))
@@ -1977,10 +1927,8 @@ subroutine calculateFirstOrderParameters(self, lData)
 
   I = 0
   J = lData%num_surfaces-1
-  PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
   IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
     self%FNUM=-1.0D0/(2.0D0*PXTRAY(2,J))/lData%surf_index(J)
-    PRINT *, "Object fnum ", -1.0D0/(2.0D0*PXTRAY(2,0))
                     ELSE
                     self%FNUM=0.0D0
                     END IF  
@@ -2007,9 +1955,6 @@ self%EXPUPDIA = EXDIAY
 self%ENPUPPOS = ENPUZ
 self%EXPUPPOS = EXPUZ+self%imageDistance
 
-! Paraxial Image Calcs
-PRINT *, "PARAX IMAGE HT IS ", self%chief_ray_height(lData%num_surfaces)
-PRINT *, "PARAX IMAGE ANGLE IS ", self%chief_ray_angle(lData%num_surfaces)
 
 end subroutine
 
@@ -2236,7 +2181,6 @@ subroutine genLensDataSaveOutputText(self, fID)
     & blankStr(5)//self%glassnames(1)    
   end if
   write(fID, *) trim(strSurfLine)
-  PRINT *, trim(strSurfLine)
 
   do ii=2,self%num_surfaces-1
     surfStr = 'S' !//trim(int2str(ii-1))
@@ -2245,8 +2189,6 @@ subroutine genLensDataSaveOutputText(self, fID)
     !glassStr = self%glassnames(ii)
     !if (isModelGlass(glassStr)) glassStr = set 
     write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
-    print *, "ALENS(3,surf) is ", ALENS(3,ii-1)
-    print *, "strTHI is ", trim(strTHI)
     if (ALENS(1,ii-1) == 0.0 ) then
       write(strRdy, '(D23.15)') 0.0d0
     else
@@ -2266,7 +2208,6 @@ subroutine genLensDataSaveOutputText(self, fID)
       & blankStr(5)//self%glassnames(ii)    
     end if      
     write(fID, *) trim(strSurfLine)
-    PRINT *, trim(strSurfLine)
     ! Check for ref stop
     if (self%ref_stop == ii) then
       strSurfLine = blankStr(2)//'STO'
@@ -2292,10 +2233,8 @@ subroutine genLensDataSaveOutputText(self, fID)
     end if
 
       if (self%isSolveOnSurface(ii)) then
-        print *, "Solve in surf ",ii
         strSurfLine = self%thickSolves(ii)%genCodeVCMDToSetSolve()
         write(fID, *) trim(strSurfLine)
-        print *, "Thic Solve code is ",strSurfLine
       end if
              
     
@@ -2311,7 +2250,6 @@ subroutine genLensDataSaveOutputText(self, fID)
     & trim(strTHI)//blankStr(3)//self%glassnames(self%num_surfaces)  
   end if
   write(fID, *) trim(strSurfLine)
-  PRINT *, trim(strSurfLine)  
   if (self%clearAps(self%num_surfaces)%userDefined) then
     strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%num_surfaces))
     write(fID, *) trim(strSurfLine)

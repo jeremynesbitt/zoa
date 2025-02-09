@@ -314,7 +314,7 @@ function getWidget(self, ind) result(widget)
         ! Local Variables
         class(*), pointer :: item
 
-        PRINT *, "Index to get widget is ", ind
+        !PRINT *, "Index to get widget is ", ind
         item => self%widgets%get(ind)
         select type (item)
         !class is (c_ptr)
@@ -628,7 +628,6 @@ subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
 
 
   ID_TARGET = ID_PLOTTYPE
-  PRINT *, "tabTitle is ", tabTitle
   ! Set up button for exiting
   self%tab_label = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
   !self%tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0_c_int)
@@ -657,7 +656,7 @@ subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
     self%canvas = canvas
   else
    call createCairoDrawingAreaForDraw(self%canvas, self%width, self%height, ID_PLOTTYPE)
-   PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
+   !PRINT *, "Cairo Drawing Area is ", LOC(self%canvas)
   end if
 
   call self%settings%initialize()
@@ -734,12 +733,9 @@ subroutine createGenericMultiPlot(self, mplt)
   type(multiplot) :: mplt
   type(c_ptr) ::  isurface
 
-
-  PRINT *, "canvas in createGenericMultiPlot is", LOC(self%canvas)
   isurface = g_object_get_data(mplt%area, "backing-surface")
-  PRINT *, "multiplot isurface is ", LOC(isurface)
   if (.not. c_associated(isurface)) then
-    call LogTermDebug("error:  new plot :: Backing surface is NULL.  Adding one")
+    print*, "error:  new plot :: Backing surface is NULL.  Adding one"
      isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
      isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
      call g_object_set_data(self%canvas, "backing-surface", isurface)
@@ -761,20 +757,11 @@ subroutine updateGenericMultiPlot(self, mplt)
   !needs to be added to the ui window
   !will need to keep mplt in zoatab to manipulate plot in the future?
   if (c_associated(self%canvas)) then
-     call LogTermDebug("Assign mpltArea from self%canvas" )
 
-     !call gtk_box_remove(self%box1, self%canvas)
-     !self%canvas = mplt%area
-     !call gtk_box_append(self%box1, mplt%area)
     mplt%area = self%canvas
     
-    !call gtk_widget_set_halign(mplt%area, GTK_ALIGN_BASELINE)
-    !call gtk_widget_set_size_request(mplt%area, mplt%width, mplt%height)
-    !call gtk_window_set_default_size(mplt%area, mplt%width, mplt%height)
-    print *, "mplt%width is ", mplt%width
-    print *, "mplt%height is ", mplt%height
 else
-  call LogTermDebug( "Multiplot update canvas ptr is loose")
+  print *, "Multiplot update canvas ptr is loose"
    self%canvas = mplt%area
    
 end if
@@ -883,32 +870,13 @@ if (cmdToUpdate(1:1).NE.'c') then
    intVal = INT(gtk_spin_button_get_value(widget))
    ffieldstr = int2str(intVal)
 else
-  PRINT *, "entry box!"
   buff2 = gtk_entry_get_buffer(widget)
   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)
 end if
     
-
-
-
-
-  !write(ffieldstr, *) real(realData)
-
-   !ffieldstr = adjustl(ffieldstr)
-  !PRINT *, "command_base is ", command_base
-  PRINT *, "locDelim is ", locDelim
-  PRINT *, "cmdOrig is ", cmdOrig
-  PRINT *, "cmdToupdate is ", cmdToUpdate
-  PRINT *, "newVal is ", trim(ffieldstr)
-
-
  call updateCommand(cmdOrig, trim(cmdToUpdate), ffieldstr, cmdNew)
 
- PRINT *, "New Command 2 is ", cmdNew
  call gtk_Widget_set_name(gdata, trim(cmdNew)//c_null_char)
- !call gtk_widget_set_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)), & 
- !& cmdNew//c_null_char)
- !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
 
  CALL PROCESKDP(cmdNew)
 
@@ -931,35 +899,16 @@ function findTabParent(widget) result(tabIdx)
  p1 = gtk_widget_get_parent(widget)
  cstr= gtk_widget_get_name(p1) 
  call convert_c_string(cstr, winName)
- print *, "Parent Windown name is ", trim(winName)
 do i=1,5
   p1 = gtk_widget_get_parent(p1)
   cstr= gtk_widget_get_name(p1) 
   call convert_c_string(cstr, winName)
-  print *, "Parent Windown name is ", trim(winName)
   if (isInputNumber(trim(winName)) .EQV. .TRUE.) then
-    print *, "Found Tabe Index with winName ", trim(winName)
     tabIdx = str2int(trim(winName))
     return
   end if
 
 end do
-
-  ! p1 = gtk_widget_get_parent(widget)
-  ! cstr= gtk_widget_get_name(p1) 
-  ! call convert_c_string(cstr, winName)
- 
-  ! call LogTermFOR("Parent Windown name is "// trim(winName))
-  ! print *, "Parent Windown name is ", trim(winName)
-
-  ! p2 = gtk_widget_get_parent(p1)
-  ! cstr= gtk_widget_get_name(p2) 
-  ! call convert_c_string(cstr, winName)
- 
-  ! call LogTermFOR("Parent Windown name is "// trim(winName))
-  ! print *, "Parent Windown name is ", trim(winName)
-  ! tabIdx = str2int(winName)
-
 
 end function
 
@@ -1007,52 +956,8 @@ case (UITYPE_ENTRY)
  result = updateTabPlotCommand(tabIdx, setting_code, trim(ffieldstr))
 end select
 
-
     
 if (result) call PROCESKDP(getTabPlotCommand(tabIdx))
-
- !locDelim = INDEX(command_base, "--")
- !cmdToUpdate = command_base(1:locDelim-1)
- !cmdOrig = command_base(locDelim+2:len(command_base))
-
- !cstr = gtk_widget_get_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)))
-
-
- !realData = gtk_spin_button_get_value(widget)
- !TODO:  Find a better way to tell if the widget is spin button vs entry or separate out fcns
-
-! if (cmdToUpdate(1:1).NE.'c') then
-!    intVal = INT(gtk_spin_button_get_value(widget))
-!    ffieldstr = int2str(intVal)
-! else
-!   PRINT *, "entry box!"
-!   buff2 = gtk_entry_get_buffer(widget)
-!   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ffieldstr)
-! end if
-    
-
-
-
-
-  !write(ffieldstr, *) real(realData)
-
-   !ffieldstr = adjustl(ffieldstr)
-  !PRINT *, "command_base is ", command_base
-  !PRINT *, "locDelim is ", locDelim
-  !PRINT *, "cmdOrig is ", cmdOrig
-  !PRINT *, "cmdToupdate is ", cmdToUpdate
-  !PRINT *, "newVal is ", trim(ffieldstr)
-
-
- !call updateCommand(cmdOrig, trim(cmdToUpdate), ffieldstr, cmdNew)
-
- !PRINT *, "New Command 2 is ", cmdNew
- !call gtk_Widget_set_name(gdata, trim(cmdNew)//c_null_char)
- !call gtk_widget_set_name(gtk_widget_get_parent(gtk_widget_get_parent(widget)), & 
- !& cmdNew//c_null_char)
- !PRINT *, "command_base is ", trim(command_base) //' '//trim(ffieldstr)
-
-! CALL PROCESKDP(cmdNew)
 
 end subroutine
 
@@ -1069,18 +974,11 @@ end subroutine
   character(len=10), dimension(5) :: specialCmds
   logical :: boolSpecialCmd
 
-
-  PRINT *, "LEN of cmdToUpdate is ", LEN(cmdToUpdate)
-  PRINT *, "cmdUpdate is ", cmdToUpdate
-
-
   
   locBlank= 0
   locBlank = index(cmdOrig, blank)
-  PRINT *, "locBlank is ", locBlank
   if (locBlank.LT.1) then
      cmdNew = trim(cmdOrig)//blank//cmdToUpdate//trim(newVal)
-
 
      !PRINT *, "New command is supposed to be ", cmdOrig//", "//cmdToUpdate//" "//newVal
   else
@@ -1089,16 +987,12 @@ end subroutine
      do i=1,numTokens
        locCmd = index(tokens(i), cmdToUpdate)
        if (locCmd.GT.0) then
-         PRINT *, "Found command to update!"
-         PRINT *, "tokens(i) is ", tokens(i)
-         PRINT *, "cmdToUpdate is ", cmdToUpdate(1:len(cmdToUpdate)-1)
          tokens(i) = cmdToUpdate//trim(newVal)
          ! Build New Command, should be separate method
          cmdNew = cmdOrig(1:locBlank)
          do j=1,numTokens
            cmdNew = trim(cmdNew)//" "//trim(tokens(j))
          end do
-         PRINT *, "new command from token found loop is ", cmdNew
          return
        end if
        end do
@@ -1214,7 +1108,6 @@ end function
 
 
    scrolled_tab = gtk_scrolled_window_new()
-   PRINT *, "SETTING CHILD FOR SCROLLED TAB"
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
    call self%finishTab(scrolled_tab)
@@ -1244,9 +1137,8 @@ end subroutine
 
 
     if (present(useToolBar)) then
-      print *, "UseToolbar here, value ", useToolBar
       if (useToolBar) then
-        call LogTermFOR("Here is where I would like to init toolbar!")
+       ! call LogTermFOR("Here is where I would like to init toolbar!")
        call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
        call gtk_box_append(self%box1, box_plotmanip)
     end if
@@ -1259,11 +1151,6 @@ end subroutine
 
 
     call gtk_box_append(self%box1, self%canvas)
-    print *, "Hori = ", gtk_widget_get_size(self%canvas, GTK_ORIENTATION_HORIZONTAL)
-    print *, "Vert = ", gtk_widget_get_size(self%canvas, GTK_ORIENTATION_VERTICAL)
-
-
-
 
     scrolled_tab = gtk_scrolled_window_new()
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
@@ -1339,11 +1226,8 @@ end function
    self%expander = self%settings%build()
    !if (self%settings%useToolbar) call self%settings%init_toolbar(self%canvas, box_plotmanip)
    call gtk_widget_set_name(self%expander, self%plotCommand)
-   PRINT *, "Expander is ", LOC(self%EXPANDER)
-   PRINT *, "Box ptr is ", LOC(self%box1)
 
    if (present(useToolBar)) then
-     print *, "UseToolbar here, value ", useToolBar
      if (useToolBar) then
       call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
       call gtk_box_append(self%box1, box_plotmanip)
@@ -1357,31 +1241,11 @@ end function
 
    call gtk_box_append(self%box1, self%canvas)
   
-
-  ! call gtk_widget_get_size_request(self%canvas, wPtr, hPtr)
-
-  ! call c_f_pointer(wPtr, pWidth)
-  ! call c_f_pointer(hPtr, pHeight)
-
-  ! if (pWidth > 100) then
-  !   call LogTermDebug("Didn't crash!")
-  ! end if
-  ! !self%width = pWidth
-  ! !self%height = pHeight
-  !  ! print *, "Widgth = ", pWidth
-  ! !  print *, "Height = ", pHeight
-
-
-
-
-
-
    scrolled_tab = gtk_scrolled_window_new()
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
    plotLoc  = gtk_notebook_append_page(self%dataNotebook, scrolled_tab, gtk_label_new("Plot"//c_null_char))
    
-
    dataLabel = gtk_label_new("Data"//c_null_char)
 
    ! Textview was attached to a scrolled win during init to be compatible with updateTerminalLog (for better or worse) 
@@ -1439,7 +1303,6 @@ end subroutine
 
      integer(kind=c_int), target :: TARGET_NEWPLOT
 
-     call LogTermDebug("Creating new canvas in Cairo Drawing Area")
      if (ID_PLOTTYPE > 0) THEN
         canvas = gtk_drawing_area_new()
         !  canvas = hl_gtk_drawing_area_new(size=[width, height])

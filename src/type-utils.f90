@@ -46,8 +46,6 @@ module type_utils
             write(strOutDP, *) valDP
             strOutDP = adjustl(strOutDP)
             strOut = strOutDP(1:len(strOut))
-            print *, "DEBUG-----------------"
-            print *, "strOut is ", strOut
            end if
 
             type is (real(real32))
@@ -69,8 +67,6 @@ module type_utils
            ! Sometimes will get **** if the precision is wrong.  
            if (strOut(1:3) == '***') then 
             write(strOut, *) valSP
-            print *, "strOut is ", strOut
-            !write(strOut, '(F10.5)') valSP
            end if
   
       end select
@@ -88,12 +84,7 @@ module type_utils
       
   
           read(strIpt,*) val
-          ! write(strR, *) strIpt
-          ! strR = adjustl(strR)
-          ! PRINT *, "strR is ", strR
-          ! read(strR, '(D23.15)') val
-          ! read(strR, '(F9.5)') val
-          ! PRINT *, "Output val is ", val
+
       
         end function
       
@@ -107,7 +98,6 @@ module type_utils
   
           ! Converting directly to int crashes when there are a lot of significant digits,
           ! so convert to real64 and then use internal Fortran funtion to convert to INT
-          print *, "strIpt is ", strIpt
           read(strIpt, *) tstReal
           intVal = INT(tstReal)
 

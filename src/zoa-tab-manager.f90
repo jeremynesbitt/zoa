@@ -231,7 +231,6 @@ subroutine finalizeNewPlotTab(self, idx)
     ! This part is to enable close tab functionality
     currPageIndex = gtk_notebook_get_current_page(self%notebook)
     currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
-    print *, "idx is ", idx
     WRITE(outChar, '(I0.3)') idx
     call gtk_widget_set_name(currPage, outChar//c_null_char)
 
@@ -327,8 +326,6 @@ function getTabIdxByID(self, key) result(tabIdx)
   integer :: i
 
   ! The key is the tab_label object.
-
-  print *, "key is ", key
   tabIdx = -1
   do i=1,self%tabNum
     if(allocated(self%tabInfo(i)%tabObj)) then 
@@ -363,7 +360,7 @@ function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
   !PRINT *, "idx is ", idx
   call logger%logText('New Generic Tab Starting')
 
-  call LogTermFOR("Setting up new KDP tab for tab idx "//int2str(idx))
+  !call LogTermFOR("Setting up new KDP tab for tab idx "//int2str(idx))
   allocate(zoaplottab :: self%tabInfo(idx)%tabObj)
   call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
   !call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
@@ -625,12 +622,7 @@ function getTabTitle(self, tabNum) result(strName)
   child = gtk_notebook_get_nth_page(self%notebook, self%tabInfo(tabNum)%tabObj%tabNum)
   label = gtk_widget_get_first_child(self%tabInfo(tabNum)%tabObj%tab_label)
   cstr = gtk_label_get_text(label)
-  print *, "cild ptr is ", LOC(child)
-  !cstr = gtk_notebook_get_tab_label(self%notebook, child)
-  print *, "cstr ptr is ", LOC(cstr)
-  !strName = "testTab"
   call convert_c_string(cstr, strName)
-
 
 end function
 
@@ -663,12 +655,6 @@ end function
     use type_utils
     class(zoatabManager) :: self
     integer, intent(in) :: tabIndex, tabInfoIndex
-
-
-    PRINT *, "tabIndex is ", tabIndex
-    PRINT *, "tabInfoIndex is ", tabInfoIndex
-
-   
 
     ! To account for tab being detached, use tabObj Notebook
       call gtk_notebook_remove_page(self%tabInfo(tabInfoIndex)%tabObj%notebook, tabIndex)
@@ -801,8 +787,6 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   end select 
   end do
 
-  PRINT *, "done setting up plot elements"
-
   call registerPlotSettingManager(self, objIdx, psm)
 
 end subroutine
@@ -831,7 +815,6 @@ subroutine genSaveOutputText(self, fID)
   character(len=80) :: tokens(40)
   integer :: numTokens
 
-  print *, "tabNum is ", self%tabNum
   do ii=1,self%tabNum
     strFullCmd = self%tabInfo(ii)%tabObj%psm%generatePlotCommand()
     call parse(strFullCmd, ';', tokens, numTokens)

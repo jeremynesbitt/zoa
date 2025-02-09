@@ -1607,8 +1607,8 @@ C
                         ELSE
                         YMAXI=YMAXI2
                         END IF
-      PRINT *, "For Auto Scale, XMINI, XMAXI, = ", XMINI, ",", XMAXI
-      PRINT *, "For Auto Scale, YMINI, YMAXI, = ", YMINI, ",", YMAXI
+      !PRINT *, "For Auto Scale, XMINI, XMAXI, = ", XMINI, ",", XMAXI
+      !PRINT *, "For Auto Scale, YMINI, YMAXI, = ", YMINI, ",", YMAXI
 
 C     THE XMAXI AND XMINI AND YMAXI AND YMINI VALUES HAVE BEEN CALCULATED
 C     CALCULATE THE AUTOMATIC SCALE FACTOR AND REMEMBER IT.
@@ -2935,7 +2935,7 @@ C
 
                         SCFAY=DABS(MAXI-MINI)/6.0D0
                         SCFAX=SCFAY
-                        PRINT *, "SCFAY = ", SCFAY
+                        !, "SCFAY = ", SCFAY
                         PSIZY=1.0D0/SCFAY
                         PSIZX=1.0D0/SCFAX
       IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
@@ -3024,7 +3024,7 @@ C
                 VIEPH=(PII/180.0D0)*VIEPHI
                 VIEAL=(PII/180.0D0)*VIEALF
 C
-      PRINT *, "IN PLTSC1, AUTOSCALE IS ", AUTSL
+      !PRINT *, "IN PLTSC1, AUTOSCALE IS ", AUTSL
 C     FIRST CHECK THE SCALING
       IF(AUTSL) THEN
 
@@ -3129,9 +3129,9 @@ C     CALCULATE THE AUTOMATIC SCALE FACTOR AND REMEMBER IT.
 C     WE NOW HAVE THE MAXI AND MINI FOR THE SCALE FACTOR CALCULATION
 C     NOW CALCULATE THE AUTO SCALE FACTOR AND SET APPROPRIATE FLAGS
 C
-      PRINT *, "PLTSC1 ROUTINE"
-      PRINT *, "For Auto Scale, XMINI, XMAXI, = ", XMINI, ",", XMAXI
-      PRINT *, "For Auto Scale, YMINI, YMAXI, = ", YMINI, ",", YMAXI
+      !PRINT *, "PLTSC1 ROUTINE"
+      !PRINT *, "For Auto Scale, XMINI, XMAXI, = ", XMINI, ",", XMAXI
+      !PRINT *, "For Auto Scale, YMINI, YMAXI, = ", YMINI, ",", YMAXI
 
                         SCFAY=DABS(MAXI-MINI)/6.0D0
                         SCFAX=DABS(MAXI-MINI)/6.0D0
