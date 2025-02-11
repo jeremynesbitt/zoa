@@ -430,6 +430,7 @@ contains
   ! This is a special parsing as the title is enlcosed in single quotes
   ! If this is in more commands abstract this
   function parseTitleCommand() result(title)
+    use strings
     implicit none
     character(len=80) :: title
     character(len=80) :: restOfString
@@ -446,7 +447,7 @@ contains
     cmdStr = INPUT(1:blankLoc)
     restOfString = INPUT(blankLoc+1:lenInput)
 
-    if(cmdStr.EQ.'TIT'.OR.cmdStr.EQ.'TITLE') then 
+    if(uppercase(cmdStr).EQ.'TIT'.OR.uppercase(cmdStr).EQ.'TITLE') then 
       ! We have the right command to parse
       lQ = INDEX(restOfString, '''', BACK=.FALSE.)
       rQ = INDEX(restOfString, '''', BACK=.TRUE.)
