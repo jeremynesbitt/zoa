@@ -100,7 +100,6 @@ module optim_types
         use DATSPD, only: RMSX, RMSY, RMS
         use plot_functions,only: getKDPSpotPlotCommand
         use global_widgets, only: sysConfig
-        use zoa_ui
         implicit none
         class(operand) :: self
         !integer, optional :: iW, iF, density

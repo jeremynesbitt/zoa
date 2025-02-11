@@ -17,12 +17,9 @@ module lens_editor
   use hl_gtk_zoa
   use gtk_hl_tree
 
-  !use kdp_data_types, only: pickup, ID_PICKUP_RAD, ID_PICKUP_THIC, ID_SOLVE_NONE, ID_SOLVE_PY
   use kdp_data_types
-  !use mod_lens_editor_settings
 
   implicit none
-
 
   ! TODO:  Modifiy this so we can store values for combo entries
   type lens_edit_col
@@ -139,7 +136,6 @@ contains
 
   subroutine lens_editor_basic_dialog(box1)
 
-    use hl_gtk_zoa
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
     implicit none
 
@@ -608,10 +604,7 @@ end subroutine lens_editor_replot
   end subroutine
 
   subroutine solv_edited(renderer, path, text, gdata) bind(c)
-    use hl_gtk_zoa
-    implicit none
-    !type(c_ptr), value, intent(in) :: list, gdata
-  
+
     type(c_ptr), value :: renderer, path, text, gdata
       character(len=200) :: ftext
       integer :: row, col
@@ -656,8 +649,6 @@ end subroutine lens_editor_replot
  ! sure it helps me.       
  ! 
 subroutine asph_edited(renderer, path, text, gdata) bind(c)
-  use hl_gtk_zoa
-  !type(c_ptr), value, intent(in) :: list, gdata
 
   type(c_ptr), value :: renderer, path, text, gdata
     character(len=200) :: fpath, ftext
@@ -1501,9 +1492,7 @@ end subroutine
 
   subroutine lens_editor_asphere_dialog(boxAsph)
 
-    use hl_gtk_zoa
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
-    implicit none
 
     type(c_ptr), intent(inout) :: boxAsph
 
@@ -1648,9 +1637,7 @@ end subroutine
   ! when closed, update kdp
   subroutine ui_pickup(row, pickup_type)
 
-      use hl_gtk_zoa, only: hl_zoa_text_view_new
       use type_utils, only:  int2str
-      implicit none
 
       integer :: row, pickup_type
 
@@ -1806,9 +1793,7 @@ end subroutine
 
   subroutine ui_solve(row, solve_type)
 
-    use hl_gtk_zoa, only: hl_zoa_text_view_new
     use type_utils, only:  int2str
-    implicit none
 
     integer :: row, solve_type, ii
     ! This seems like an insane way of passing an integer but it works
@@ -2019,9 +2004,7 @@ end subroutine
 
   function lens_editor_add_dialog(ID_TAB) result(boxNew)
 
-    use hl_gtk_zoa
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
-    implicit none
 
     type(integer) :: ID_TAB
 

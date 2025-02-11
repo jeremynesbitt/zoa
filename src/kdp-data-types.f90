@@ -2124,7 +2124,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
       strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart1(ii)//blankStr(1)// &
       & trim(real2str(ALENS(ii+3,surf),sci=.TRUE.))//' ;'
   end do
-  write(fID, *) trim(strSurfLine)
+  write(fID, *) strSurfLine(1:len_trim(strSurfLine)-1)
   strSurfLine = ' '
   !     ALENS(81,surf#) -- 12th order aspheric coefficient
   !     ALENS(82,surf#) -- 14th order aspheric coefficient
@@ -2136,7 +2136,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   end do  
   ! Remove last semicolon
   strSurfLine(len_trim(strSurfLine):len_trim(strSurfLine)) = ' '
-  write(fID, *) trim(strSurfLine)
+  write(fID, *) strSurfLine(1:len_trim(strSurfLine)-1)
     
 
 end function

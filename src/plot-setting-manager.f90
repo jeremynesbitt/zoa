@@ -11,6 +11,7 @@
 module plot_setting_manager
     use zoa_ui
     use kdp_data_types, only: idText
+    use type_utils
     implicit none
 
     !TODO:  move all this to zoa_ui 
@@ -89,11 +90,6 @@ module plot_setting_manager
 
     procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
 
-    !procedure, public, pass(self) :: addZernikeSetting
-
-    procedure, public, pass(self) :: finalize
-
-
     end type
 
 
@@ -102,7 +98,7 @@ contains
 
 
     subroutine init_setting(self, ID_SETTING, label, default, min, max, cmd, fullCmd, ID_UITYPE, set)
-      use type_utils, only: real2str
+
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
       character(len=*) :: label, cmd, fullCmd
@@ -124,10 +120,9 @@ contains
   end subroutine
 
     subroutine addLensDrawSettings(self)
-      use zoa_ui
-      use type_utils, only: int2str, real2str
+
       use mod_lens_data_manager, only: ldm
-      implicit none
+
       class (zoaplot_setting_manager) :: self
 
       call self%addLensDrawOrientationSettings()
@@ -172,7 +167,7 @@ contains
     end subroutine
 
     subroutine addPlotManipToolbarSettings(self)
-      use type_utils, only: real2str
+  
       class(zoaplot_setting_manager) :: self
 
       !For now just test x and y offset
@@ -191,7 +186,6 @@ contains
 
 
     subroutine addLensDrawOrientationSettings(self)
-      implicit none
       class (zoaplot_setting_manager) :: self
       type(idText) :: set(4)
 
@@ -219,7 +213,7 @@ contains
     end subroutine
 
     subroutine addLensDrawScaleSettings(self)
-      implicit none
+
       class (zoaplot_setting_manager) :: self
       type(idText) :: set(2)
 
@@ -240,7 +234,7 @@ contains
     end subroutine    
 
     subroutine getLensDrawSettings(self, plotOrient, numRays, Si, Sf, elev, azi, scaleChoice, scaleFactor)
-      implicit none
+
       class(zoaplot_setting_manager) :: self 
       integer, intent(inout) :: plotOrient, numRays, Si, Sf, scaleChoice
       real, intent(inout) :: elev, azi, scaleFactor
@@ -257,7 +251,7 @@ contains
     end subroutine
 
     subroutine addScaleSetting(self)
-      implicit none
+
       class(zoaplot_setting_manager) :: self
 
       call self%addGenericSetting(SETTING_SCALE, 'Scale', 0.0, 0.0, 1000.0, 'SSI', 'SSI 0', UITYPE_SPINBUTTON)       
@@ -266,9 +260,6 @@ contains
 
     subroutine addSpotDiagramSettings(self)
       
-      use zoa_ui
-      use type_utils, only: int2str
-      implicit none
       class (zoaplot_setting_manager) :: self
 
      
@@ -298,9 +289,7 @@ contains
     end subroutine
 
     subroutine addGenericSetting(self, ID_CODE, label, default, min, max, baseCmd, fullCmd, UI_TYPE)
-      use zoa_ui
-      use type_utils, only: int2str
-      implicit none
+
       class (zoaplot_setting_manager) :: self
       integer :: ID_CODE, UI_TYPE
       character(len=*) :: label, baseCmd, fullCmd
@@ -346,8 +335,6 @@ contains
 
     ! Since there is a lot of custom settings, write a method to get all settings
     subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing, plotScale)
-      use zoa_ui
-      use type_utils, only: int2str
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: idxField, idxLambda, idxSpotCalcMethod
       integer, intent(inout) :: nRect, nRand, nRing
@@ -393,8 +380,7 @@ contains
     end function
 
     subroutine addPowerOfTwoImageSetting(self, tgtVal, minVal, maxVal)
-      use kdp_data_types, only: idText
-      use type_utils, only: int2str
+
       class (zoaplot_setting_manager) :: self
       integer :: minVal, maxVal, minSet, maxSet, tgtVal, tgtSet
       type(idText) :: spotTrace(6)
@@ -427,8 +413,6 @@ contains
     end subroutine
     
     subroutine addSpotCalculationSetting(self)
-      use kdp_data_types, only: idText
-      implicit none
       class (zoaplot_setting_manager) :: self
       type(idText) :: spotTrace(3)
 
@@ -459,9 +443,7 @@ contains
     end subroutine
 
     subroutine addAstigSettings(self)
-      use kdp_data_types, only: idText
-      use type_utils, only: int2str
-      implicit none
+
       class (zoaplot_setting_manager) :: self
       type(idText) :: set(2)
    
@@ -486,9 +468,7 @@ contains
     end subroutine
 
     subroutine getAstigSettings(self, idxFieldXY, numPts)
-      use zoa_ui
-      use type_utils, only: int2str
-      implicit none
+
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: idxFieldXY, numPts
 
@@ -499,9 +479,7 @@ contains
     end subroutine
 
     subroutine addRMSFieldSettings(self)
-      use kdp_data_types, only: idText
-      use type_utils, only: int2str
-      implicit none
+
       class (zoaplot_setting_manager) :: self
       type(idText) :: set(2)
    
@@ -527,9 +505,7 @@ contains
     end subroutine
 
     subroutine getRMSFieldSettings(self, iData, iLambda, numPoints)
-      use zoa_ui
-      use type_utils, only: int2str
-      implicit none
+
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: iData, iLambda, numPoints
    
@@ -541,7 +517,7 @@ contains
 
     
     subroutine initializeStr(self, ID_SETTING, label, default, cmd, ID_UITYPE)
-      implicit none
+
       class (plot_setting) :: self
       integer :: ID_SETTING, ID_UITYPE
       character(len=*) :: label, default, cmd
@@ -576,8 +552,6 @@ contains
 
       subroutine addWavelengthSetting(self) 
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: lambda
@@ -595,8 +569,6 @@ contains
       
 
       subroutine updateWavelengthSetting(self, newIdx) 
-        use type_utils, only: int2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: newIdx
@@ -617,8 +589,6 @@ contains
 
       subroutine addWavelengthComboSetting(self)
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         type(idText), dimension(sysConfig%numWavelengths+1) :: set
@@ -648,9 +618,7 @@ contains
       end function
 
       function getFieldSetting(self) result(idxFld)
-        use type_utils, only: str2int
         use strings
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: idxFld
@@ -661,9 +629,7 @@ contains
 
       function getWavelengthSetting(self) result(wvIdx)
         use global_widgets, only: sysConfig
-        use type_utils, only: str2int
         use strings
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: wvIdx
@@ -685,8 +651,7 @@ contains
 
       subroutine addFieldSetting(self) 
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
-        implicit none
+
         class(zoaplot_setting_manager), intent(inout) :: self
         integer:: val
         integer :: fldPoint
@@ -703,7 +668,6 @@ contains
 
       subroutine addZernikeSetting(self, defVal) 
         use global_widgets, only: sysConfig
-        implicit none
         class(zoaplot_setting_manager), intent(inout) :: self
         character(len=*) :: defVal
         character(len=10) :: val
@@ -718,8 +682,6 @@ contains
      
       subroutine updateZernikeSetting(self, newVal) 
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         character(len=*) :: newVal
@@ -736,8 +698,7 @@ contains
       end subroutine 
 
       subroutine getZernikeSetting_min_and_max(self, minZ, maxZ)
-        use type_utils, only: str2int, int2str
-        implicit none
+
         class(zoaplot_setting_manager) :: self
         integer, intent(inout) ::minZ, maxZ
         integer :: locE, i
@@ -757,8 +718,7 @@ contains
 
 
       subroutine addDensitySetting(self, defaultVal, minVal, maxVal) 
-        use type_utils, only: int2str
-        implicit none
+
         class(zoaplot_setting_manager), intent(inout) :: self
         integer:: val, defaultVal, minVal, maxVal
 
@@ -772,8 +732,6 @@ contains
 
       function getSettingValueByCode(self, setting_code) result(val)
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: setting_code
@@ -792,8 +750,6 @@ contains
 
       subroutine updateSetting(self, setting_code, newVal)
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str, real2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         class(*), intent(in) :: newVal
@@ -836,8 +792,6 @@ contains
 
       subroutine updateDensitySetting(self, newVal) 
         use global_widgets, only: sysConfig
-        use type_utils, only: int2str
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: newVal
@@ -855,9 +809,7 @@ contains
       
       function getDensitySetting(self) result(denVal)
         use global_widgets, only: sysConfig
-        use type_utils, only: str2int
         use strings
-        implicit none
 
         class(zoaplot_setting_manager) :: self
         integer :: denVal
@@ -875,20 +827,6 @@ contains
         end do
 
       end function      
-
-    ! Tmp to allow for compile w/o circular deps  
-    subroutine finalize(self, objIdx, inputCmd)
-      use iso_c_binding, only: c_null_char
-      use type_utils, only: int2str
-      implicit none
-        character(len=*) :: inputCmd
-        integer :: objIdx
-        integer :: i
-        class(zoaplot_setting_manager) :: self      
-
-      end subroutine
-      
-
 
     function generatePlotCommand(self) result(strOut)
       class(zoaplot_setting_manager):: self
