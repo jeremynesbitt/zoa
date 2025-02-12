@@ -832,6 +832,7 @@ function createMenuIconBar(parentWin) result(boxIcon)
   btns(2) = gtk_button_new_from_icon_name ("open-document"//c_null_char)
   btns(3) = gtk_button_new_from_icon_name ("file-save"//c_null_char)
   btns(4) = gtk_button_new_from_icon_name ("open-ldm"//c_null_char)
+  !btns(4) = gtk_button_new_from_icon_name ("letter-p"//c_null_char)
 
 
   call gtk_widget_set_tooltip_text(btns(1), "New Lens"//c_null_char)

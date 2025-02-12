@@ -10,6 +10,7 @@
     <file>open-document.png</file> 
     <file>file-save.png</file> 
     <file>open-ldm.png</file> 
+    <file>letter-p.png</file>
 
   </gresource>
   <gresource prefix="zoa/optical-analysis">
