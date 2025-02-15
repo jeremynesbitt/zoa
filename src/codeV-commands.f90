@@ -19,7 +19,7 @@ module codeV_commands
     use iso_fortran_env, only: real64
     use plot_setting_manager, only: zoaplot_setting_manager
     use type_utils
-    use handlers, only: updateTerminalLog, zoatabMgr
+    use handlers, only: updateTerminalLog, zoatabMgr, my_window
     use strings
     
     implicit none
@@ -228,7 +228,7 @@ module codeV_commands
         zoaCmds(571)%cmd = 'CX'
         zoaCmds(571)%execFunc => getRayData    
         zoaCmds(572)%cmd = 'ASP'
-        zoaCmds(572)%execFunc => execAsphere                          
+        zoaCmds(572)%execFunc => execAsphere                                            
         do i=1,8
             zoaCmds(572+i)%cmd      = evenAsphereTerms(i)
             zoaCmds(572+i)%execFunc => updateAsphereTerms
@@ -237,7 +237,10 @@ module codeV_commands
         zoaCmds(581)%execFunc => updateConicConstant  
         zoaCmds(582)%cmd = '!'          
         zoaCmds(582)%execFunc => processFileComment          
-                
+        zoaCmds(583)%cmd = 'ZOA2CV'
+        zoaCmds(583)%execFunc => exportLensToCodeV  
+        zoaCmds(584)%cmd = 'ZOA2ZMX'
+        zoaCmds(584)%execFunc => exportLensToZemax           
 
         
     end subroutine
@@ -1384,6 +1387,72 @@ module codeV_commands
 
     end subroutine
       
+    subroutine exportLensToCodeV(iptStr)
+        use zoa_file_handler
+        use ui_dialogs
+        use zoa_file_handler
+        use global_widgets, only: sysConfig, curr_lens_data
+        use optim_types, only: optim
+        use mod_lens_data_manager
+
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        character(len=1024) :: dirName
+        character(len=80) :: tokens(40)
+        integer :: numTokens, locDot, fID
+        character(len=500) :: fileName
+        character(len=500) :: cdir
+        character(len=1024) :: currDir
+        logical :: fileSelected
+    
+        integer :: n, ios
+        character(len=256) :: line
+    
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if(numTokens == 2) then
+            fileName = trim(tokens(2))
+        else
+            fileName = ''
+        end if
+
+        fileSelected = ui_new_file(my_window, fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV File")
+
+        if (fileSelected) then
+    
+         PRINT *, "fileName is ", trim(getFileNameFromPath(fileName))
+         PRINT *, "fileDirectory is is ", trim(cdir)
+    
+         fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
+        
+        if (fID /= 0) then
+         
+           call sysConfig%genSaveOutputText(fID)
+           call curr_lens_data%genSaveOutputText(fID)
+           call optim%genSaveOutputText(fID)
+           close(fID)
+        else
+            call LogTermFOR("Error!  fiD is "//int2str(fID))
+        end if
+
+         !currDir = getSaveDirectory()
+         !call setSaveDirectory(trim(cdir))
+         ! Here is where I should insert code to save file
+    
+         !call setSaveDirectory(trim(currDir))
+        end if
+    
+
+
+    end subroutine
+
+    subroutine exportLensToZemax(iptStr)
+        character(len=*) :: iptStr
+        character(len=256) :: fName
+        character(len=1024) :: dirName
+        character(len=80) :: tokens(40)
+        integer :: numTokens, locDot, fID
+    end subroutine
 
     subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data

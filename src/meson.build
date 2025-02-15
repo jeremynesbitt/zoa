@@ -93,6 +93,7 @@ srcs += files(
   'RCImageIO.f90',
   'referencespherecalcs.f90',
   'ui-utilities.f90',
+  'ui-dialogs.f90',
   'AIMDIFRYS.FOR',
   'ASTRO1.FOR',
   'BICUBIC.FOR',

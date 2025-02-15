@@ -191,7 +191,6 @@ module zoa_file_handler
 
         end function
 
-
         function open_file_to_sav_lens(fName, dirName, overwriteFlag) result(fID)
           use gtk_hl_dialog
           use iso_c_binding, only:  c_null_char
