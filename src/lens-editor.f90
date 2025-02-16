@@ -21,6 +21,31 @@ module lens_editor
 
   implicit none
 
+  interface
+  ! append_lens_model(GListStore *store, int surfaceNo, 
+  ! bool refSurf,
+  ! const char *surfaceName,
+  ! const char *surfaceType,
+  ! double radius,
+  ! int radiusMod,
+  ! double thickness,
+  ! int thickMod,
+  ! const char *glass,
+  ! double aperture,
+  ! double index)
+  function append_lens_model(store, surfaceNo, refSurf, surfaceName, surfaceType, &
+    & radius, radiusMod, thickness, thickMod, glass, aperture, index) bind(c)
+    import c_ptr, c_char, c_int, c_double
+    implicit none
+    type(c_ptr)    :: store
+    integer(c_int) :: surfaceNo, refSurf, radiusMod, thickMod
+    character(kind=c_char), dimension(*) :: surfaceName, surfaceType, glass
+    type(c_ptr)    :: append_lens_model
+    real(c_double) :: radius, thickness, aperture, index
+  end function
+
+  end interface
+
   ! TODO:  Modifiy this so we can store values for combo entries
   type lens_edit_col
     integer(kind=type_kind) :: coltype
@@ -893,6 +918,14 @@ subroutine buildBasicTable(firstTime)
     integer, parameter :: numSurfTypes = 1
     character(kind=c_char, len=20),dimension(numSurfTypes) :: surfTypeNames
     integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
+
+    !Debug
+    type(c_ptr) :: store
+
+
+    store = g_list_store_new(G_TYPE_OBJECT)
+    store = append_lens_model(store, 1_c_int, 0_c_int, "Name"//c_null_char, "Sphere"//c_null_char, &
+    &100.0d0, 1_c_int, 2.0d0, 1_c_int, "N-BK7"//c_null_char, 7.8d0, 1.51d0)
     
 
   
