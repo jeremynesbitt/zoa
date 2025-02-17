@@ -43,6 +43,11 @@ module lens_editor
     type(c_ptr)    :: append_lens_model
     real(c_double) :: radius, thickness, aperture, index
   end function
+  function lens_item_get_glass(item) bind(c)
+    import :: c_ptr
+    type(c_ptr), value :: item
+    type(c_ptr) :: lens_item_get_glass
+ end function  
 
   end interface
 
@@ -919,14 +924,6 @@ subroutine buildBasicTable(firstTime)
     character(kind=c_char, len=20),dimension(numSurfTypes) :: surfTypeNames
     integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
 
-    !Debug
-    type(c_ptr) :: store
-
-
-    store = g_list_store_new(G_TYPE_OBJECT)
-    store = append_lens_model(store, 1_c_int, 0_c_int, "Name"//c_null_char, "Sphere"//c_null_char, &
-    &100.0d0, 1_c_int, 2.0d0, 1_c_int, "N-BK7"//c_null_char, 7.8d0, 1.51d0)
-    
 
   
     ! Notes:
@@ -2035,13 +2032,68 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
 
 end subroutine
 
+subroutine setup_cb(factory,listitem) bind(c)
+  type(c_ptr), value :: factory
+  type(c_ptr), value :: listitem
+  type(c_ptr) :: label
+
+  print *, "**********************Setup being called**********************************"
+  label =gtk_label_new(c_null_char)
+  call gtk_list_item_set_child(listitem,label)
+end subroutine
+
+subroutine bind_cb(factory,listitem, gdata) bind(c)
+  type(c_ptr), value :: factory
+  type(c_ptr), value :: listitem, gdata
+  type(c_ptr) :: widget, item, label
+  type(c_ptr) :: cStr
+  integer(kind=c_int), pointer :: ID_COL
+  character(len=140) :: colName
+
+  call c_f_pointer(gdata, ID_COL)
+  label = gtk_list_item_get_child(listitem)
+  item = gtk_list_item_get_item(listitem);
+
+  ! select case (ID_COL)
+
+  ! case(1)
+  !   cStr = capital_item_get_name(item)
+  ! case(2)
+  !   cStr = capital_item_get_country(item)
+  ! case(3)
+  !   cStr = capital_item_get_founded(item)  
+  ! case(4)
+  !   cStr = capital_item_get_population(item)          
+  ! case(5)
+  !   cStr = capital_item_get_area(item)                  
+
+  ! end select
+
+  !   call convert_c_string(cStr, colName)
+    
+  !   !call gtk_menu_button_set_label(label, trim(colName)//c_null_char)
+  !   call gtk_label_set_text(label, trim(colName)//c_null_char)
+    !call gtk_label_set_text(label, "Test123"//c_null_char)
+end subroutine
+
+
   function lens_editor_add_dialog(ID_TAB) result(boxNew)
 
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
 
     type(integer) :: ID_TAB
-
     type(c_ptr) :: boxNew
+
+    !Debug
+    integer, parameter :: colIDs(*) = [1,2]
+    type(c_ptr) :: store, cStrB, listitem, selection, factory, column, cv
+    character(len=1024) :: debugName
+    integer, target :: COL_ONE = 1
+
+    !listitem = g_list_model_get_object(store, 0_c_int)
+    !cStrB = lens_item_get_glass(listitem)
+    !call convert_c_string(cStrB, debugName)
+    !print *, "debugName is ", debugName    
 
     boxNew = c_null_ptr
 
@@ -2050,9 +2102,26 @@ end subroutine
     case (ID_EDIT_SOLVE)
       call buildSolveTable(.TRUE.)
       boxNew = hl_gtk_box_new()
-      call gtk_widget_set_vexpand (ihScrollSolv, FALSE)
-      call gtk_widget_set_hexpand (ihScrollSolv, FALSE)      
-      call hl_gtk_box_pack(boxNew, ihScrollSolv)
+      store = g_list_store_new(G_TYPE_OBJECT)
+      store = append_lens_model(store, 1_c_int, 0_c_int, "Name"//c_null_char, "Sphere"//c_null_char, &
+      &100.0d0, 1_c_int, 2.0d0, 1_c_int, "N-BK7"//c_null_char, 7.8d0, 1.51d0)
+    
+  
+      selection = gtk_single_selection_new(store)
+      call gtk_single_selection_set_autoselect(selection,TRUE)    
+      cv = gtk_column_view_new(selection)
+      !call gtk_box_append(box, cv)                            
+  
+      factory = gtk_signal_list_item_factory_new()
+      call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(COL_ONE))
+      call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(COL_ONE))
+      column = gtk_column_view_column_new("Testing"//c_null_char, factory)
+      call gtk_column_view_append_column (cv, column)
+      call g_object_unref (column)      
+
+      !call gtk_widget_set_vexpand (ihScrollSolv, FALSE)
+      !call gtk_widget_set_hexpand (ihScrollSolv, FALSE)      
+      call hl_gtk_box_pack(boxNew, cv)
     end select
    
     PRINT *, "PACKING FIRST CONTAINER!"
