@@ -96,14 +96,30 @@
      return G_LIST_MODEL(store);
  }
 
- const char* lens_item_get_surfaceName(LensItem *item)
+ int lens_item_get_surface_number(LensItem *item)
+ {
+    return item->surfaceNo;
+ }
+
+ bool lens_item_get_ref_surf(LensItem *item)
+ {
+    return item->refSurf;
+ }
+
+
+ const char* lens_item_get_surface_name(LensItem *item)
  {
      return item->surfaceName;
  }
 
- const char* lens_item_get_surfaceType(LensItem *item)
+ const char* lens_item_get_surface_type(LensItem *item)
  {
      return item->surfaceType;
+ }
+
+ double lens_item_get_surface_radius(LensItem *item)
+ {
+    return item->radius;
  }
 
  const char* lens_item_get_glass(LensItem *item)
