@@ -127,3 +127,7 @@
      return item->glass;
  }
 
+ int lens_item_get_radius_mod(LensItem *item)
+ {
+    return item->radiusMod;
+ }

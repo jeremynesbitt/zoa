@@ -68,6 +68,12 @@ function lens_item_get_surface_radius(item) bind(c)
   type(c_ptr), value :: item
   real(c_double) :: lens_item_get_surface_radius
 end function  
+
+function lens_item_get_radius_mod(item) bind(c)
+  import :: c_ptr, c_int
+  type(c_ptr), value :: item
+  integer(c_int) :: lens_item_get_radius_mod
+end function  
   end interface
 
   ! TODO:  Modifiy this so we can store values for combo entries
@@ -107,6 +113,7 @@ end function
   type(ksolve)  :: sData
 
   type(c_ptr) :: win_modal_solve
+  type(c_ptr) :: refRadio
   
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
@@ -2101,11 +2108,78 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
 
 end subroutine
 
+function getSurfaceIndexFromRowColumnCode(rcCode) result(surfIdx)
+  use type_utils
+  character(len=*) :: rcCode
+  integer :: surfIdx
+  integer :: rL, cL
+
+  rL = index(rcCode, 'R')
+  cL = index(rcCode, 'C')
+  print *, "rL is ", rL
+  print *, "cL is ", cL
+  print *, "row is ", rcCode(rL+1:cL)
+  surfIdx = str2int(rcCode(rL+1:cL-1))
+  print *, "surfIdx is ", surfIdx
+
+
+
+
+
+end function
+
+subroutine cell_changed(widget, data) bind(c)
+  use type_utils
+
+type(c_ptr), value :: widget, data
+type(c_ptr) :: buff2, cStr
+character(len=100) :: ftext, rcCode
+integer :: surfIdx
+
+buff2 = gtk_entry_get_buffer(widget)
+call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
+
+print *, "Val is ", trim(ftext)
+cStr = gtk_widget_get_name(widget)
+call convert_c_string(cStr, rcCode)  
+print *, "Val is ", trim(rcCode)
+
+surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+
+call PROCESSILENT("RDY S"//trim(int2str(surfIdx))//" "//trim(ftext))
+
+end subroutine
+
+subroutine enablePickup(act, avalue, win) bind(c)
+  type(c_ptr), value, intent(in) :: act, avalue, win
+  call gtk_menu_button_set_icon_name(win, 'audio-card-symbolic'//c_null_char)
+
+end subroutine
+
+function createModMenu(btn, surf) result(menuOptions)
+  use type_utils
+  type(c_ptr), value :: btn
+  type(c_ptr) :: menuOptions
+  type(c_ptr) :: actGroup, actP, mPickup
+  integer :: surf
+
+  actGroup = g_simple_action_group_new()
+  actP = g_simple_action_new("setPickup"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  call g_action_map_add_action(my_window, actP)
+  call g_signal_connect(actP, "activate"//c_null_char, c_funloc(enablePickup), btn)
+  mPickup = g_menu_item_new("Set Pickup"//c_null_char, "win.setPickup"//trim(int2str(surf))//c_null_char)
+  menuOptions = g_menu_new()
+  call g_menu_append_item(menuOptions, mPickup)
+
+end function
+
+
 subroutine setup_cb(factory,listitem, gdata) bind(c)
+  use gtk_hl_entry
   
   type(c_ptr), value :: factory
   type(c_ptr), value :: listitem, gdata
-  type(c_ptr) :: label, entryCB
+  type(c_ptr) :: label, entryCB, menuB
   integer(kind=c_int), pointer :: ID_COL
 
   label =gtk_label_new(c_null_char)
@@ -2115,9 +2189,19 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
 
   select case (ID_COL)
 
+  case(2)
+     label = gtk_check_button_new()
+     if (.not.c_associated(refRadio)) refRadio = label
+     call gtk_check_button_set_group(label, refRadio)
+     call gtk_list_item_set_child(listitem,label)
    case(5)
-    entryCB = gtk_entry_new()
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed))
+    !entryCB = gtk_entry_new()
     call gtk_list_item_set_child(listitem,entryCB)
+   case(6)
+    menuB = gtk_menu_button_new()
+    call gtk_list_item_set_child(listitem, menuB)
+
    case default 
     label =gtk_label_new(c_null_char)
     call gtk_list_item_set_child(listitem,label)
@@ -2141,11 +2225,13 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
 
   case(1)
     colName = trim(int2str(lens_item_get_surface_number(item)))//c_null_char
-    cStr = lens_item_get_surface_name(item)
     call gtk_label_set_text(label, trim(colName)//c_null_char)
    case(2)
-    colName = trim(int2str(lens_item_get_ref_surf(item)))//c_null_char
-    call gtk_label_set_text(label, trim(colName)//c_null_char)
+    if (lens_item_get_ref_surf(item) == 1_c_int) then
+      call gtk_check_button_set_active(label, 1_c_int)
+    end if
+    !colName = trim(int2str(lens_item_get_ref_surf(item)))//c_null_char
+    !call gtk_label_set_text(label, trim(colName)//c_null_char)
    case(3)
     cStr = lens_item_get_surface_name(item)
     call convert_c_string(cStr, colName)
@@ -2158,12 +2244,18 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     colName = trim(real2str(lens_item_get_surface_radius(item)))//c_null_char    
     buffer = gtk_entry_get_buffer(label)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+  case(6)
+    colName = trim(int2str(lens_item_get_radius_mod(item)))//c_null_char   
+    call gtk_menu_button_set_menu_model(label, createModMenu(label, lens_item_get_surface_number(item))) 
+    !call gtk_label_set_text(label, trim(colName)//c_null_char)  
 
    end select
 
      !call convert_c_string(cStr, colName)
      print *, "ID_COL is ", ID_COL
      print *, "colName is ", trim(colName)
+
+     call gtk_widget_set_name(label,"R"//trim(int2str(lens_item_get_surface_number(item)))//"C"//trim(int2str(ID_COL))//c_null_char)
     
     !call gtk_menu_button_set_label(label, trim(colName)//c_null_char)
      !call gtk_label_set_text(label, trim(int2str(lens_item_get_surface_number(item)))//c_null_char)
@@ -2183,7 +2275,7 @@ end subroutine
     integer :: ii
     integer, target :: colIDs(10) = [(ii,ii=1,10)]
 
-    type(c_ptr) :: store, cStrB, listitem, selection, factory, column, cv
+    type(c_ptr) :: store, cStrB, listitem, selection, factory, column, cv, swin
     character(len=1024) :: debugName
     integer, target :: COL_ONE = 1
 
@@ -2196,6 +2288,8 @@ end subroutine
     colNames(3) = "Surface Name"
     colNames(4) = "Surface Type"
     colNames(5) = "Radius"
+    colNames(6) = " " ! For pickup/variable/solve
+
 
     do ii=1,10
       print *, "ColIDs(ii) ",colIDs(ii)
@@ -2218,6 +2312,7 @@ end subroutine
       !store = append_lens_model(store, 1_c_int, 0_c_int, "Name"//c_null_char, "Sphere"//c_null_char, &
       !& 100.0d0, 1_c_int, 2.0d0, 1_c_int, "N-BK7"//c_null_char, 7.8d0, 1.51d0)
 
+      refRadio = c_null_ptr
       store = buildLensEditTable()
     
   
@@ -2231,7 +2326,7 @@ end subroutine
       !call gtk_box_append(box, cv)                            
   
       
-      do ii=1,5
+      do ii=1,6
         factory = gtk_signal_list_item_factory_new()
         call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
         call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
@@ -2242,7 +2337,11 @@ end subroutine
 
       !call gtk_widget_set_vexpand (ihScrollSolv, FALSE)
       !call gtk_widget_set_hexpand (ihScrollSolv, FALSE)      
-      call hl_gtk_box_pack(boxNew, cv)
+      swin = gtk_scrolled_window_new()
+      call gtk_scrolled_window_set_child(swin, cv)
+      call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
+      call gtk_box_append(boxNew, swin)
+!      call hl_gtk_box_pack(boxNew, swin)
     end select
    
     PRINT *, "PACKING FIRST CONTAINER!"
