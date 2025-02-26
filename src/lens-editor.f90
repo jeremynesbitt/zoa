@@ -114,6 +114,9 @@ end function
 
   type(c_ptr) :: win_modal_solve
   type(c_ptr) :: refRadio
+
+  logical :: mod_update
+  type(c_ptr) :: cv
   
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
@@ -938,7 +941,7 @@ function buildLensEditTable() result(store)
   character(len=20), dimension(ncols) :: titles
   integer(kind=c_int), dimension(ncols) :: sortable, editable
   integer, allocatable, dimension(:) :: surfIdx
-  integer, allocatable, dimension(:) :: isRefSurface
+  integer, allocatable, dimension(:) :: isRefSurface, radPickups
   real(kind=real64), dimension(curr_lens_data%num_surfaces) :: clearApertures
 
   integer, parameter :: numModTypes = 3
@@ -965,12 +968,13 @@ function buildLensEditTable() result(store)
     isRefSurface(curr_lens_data%ref_stop) = 1
 
     clearApertures = curr_lens_data%clearAps(1:curr_lens_data%num_surfaces)%yRad   
+    radPickups = genPickupArr(ID_PICKUP_RAD)
 
     boxNew = hl_gtk_box_new()
     store = g_list_store_new(G_TYPE_OBJECT)
     do i=1,curr_lens_data%num_surfaces
     store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, "Sphere"//c_null_char, &
-    & real(curr_lens_data%radii(i),8), ID_MOD_NONE, real(curr_lens_data%thicknesses(i),8), ID_MOD_NONE, &
+    & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), ID_MOD_NONE, &
     & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8))
     end do
 
@@ -1737,18 +1741,34 @@ end subroutine
 
   end function
 
+
+  subroutine destroy_pickup(widget, btn) bind(c)
+    type(c_ptr), value :: widget, btn
+    integer(c_int) :: pageNum
+
+    if (mod_update) then
+      call gtk_menu_button_set_icon_name(btn, 'zoom-in'//c_null_char)
+      ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
+      ! I don't like what I am about to do here, but I don't really see a better way
+      call rebuildLensEditorTable()
+       
+    else
+      print *, "Do nothing"
+    end if
+
+    end subroutine
   ! Goals
   ! Allow user to set pickup vals
   ! Check integrity of entry
   ! when closed, update kdp
-  subroutine ui_pickup(row, pickup_type)
+  subroutine ui_pickup(row, pickup_type, btn)
 
       use type_utils, only:  int2str
 
       integer :: row, pickup_type
 
      
-
+      type(c_ptr), value, optional :: btn
       type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
       type(c_ptr) :: table, lblSurf
 
@@ -1832,6 +1852,11 @@ end subroutine
          & clicked=c_funloc(pickupCancel_click), &
          & data=win)         
 
+    if(present(btn)) then 
+      call g_signal_connect(win, "destroy"//c_null_char, c_funloc(destroy_pickup), btn)
+      
+    end if
+
     call hl_gtk_box_pack(boxWin, uBut)
     call hl_gtk_box_pack(boxWin, cBut)
 
@@ -1865,7 +1890,7 @@ end subroutine
     PRINT *, "Update cmd tst is ", trim(pData%genKDPCMD())
 
     CALL PROCESKDP('EOS')
-
+    mod_update = .TRUE.
     call refreshLensDataStruct()
     call buildBasicTable(.FALSE.)
     call zoatabMgr%rePlotIfNeeded()
@@ -2150,9 +2175,20 @@ call PROCESSILENT("RDY S"//trim(int2str(surfIdx))//" "//trim(ftext))
 
 end subroutine
 
-subroutine enablePickup(act, avalue, win) bind(c)
-  type(c_ptr), value, intent(in) :: act, avalue, win
-  call gtk_menu_button_set_icon_name(win, 'audio-card-symbolic'//c_null_char)
+subroutine enablePickup(act, avalue, btn) bind(c)
+  type(c_ptr), value, intent(in) :: act, avalue, btn
+  type(c_ptr) :: cStr
+  integer :: surfIdx
+  character(len=100) :: rcCode
+
+  cStr = gtk_widget_get_name(btn)
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+  print *, "surfIdx is ", surfIdx  
+  mod_update = .FALSE.  
+  call ui_pickup(surfIdx, ID_PICKUP_RAD, btn)
 
 end subroutine
 
@@ -2165,9 +2201,11 @@ function createModMenu(btn, surf) result(menuOptions)
 
   actGroup = g_simple_action_group_new()
   actP = g_simple_action_new("setPickup"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  call g_action_map_add_action(my_window, actP)
+  !call g_action_map_add_action(my_window, actP)
+  call g_action_map_add_action(actGroup, actP)
+  call gtk_widget_insert_action_group(btn, "mod"//c_null_char,actGroup)
   call g_signal_connect(actP, "activate"//c_null_char, c_funloc(enablePickup), btn)
-  mPickup = g_menu_item_new("Set Pickup"//c_null_char, "win.setPickup"//trim(int2str(surf))//c_null_char)
+  mPickup = g_menu_item_new("Set Pickup"//c_null_char, "mod.setPickup"//trim(int2str(surf))//c_null_char)
   menuOptions = g_menu_new()
   call g_menu_append_item(menuOptions, mPickup)
 
@@ -2263,6 +2301,76 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     !call gtk_label_set_text(label, "Test123"//c_null_char)
 end subroutine
 
+subroutine clearColumnView()
+  type(c_ptr) :: listModel, currCol
+  integer(c_int) :: ii, numItems
+
+  listmodel = gtk_column_view_get_columns(cv)
+  numItems = g_list_model_get_n_items(listmodel) -1
+  do ii=numItems,0,-1
+    currCol = g_list_model_get_object(listmodel,ii)
+    call gtk_column_view_remove_column(cv,currCol)
+    call g_object_unref(currCol)
+
+  end do
+
+end subroutine
+
+subroutine rebuildLensEditorTable()
+
+  type(c_ptr) :: store, selection, model, factory, column
+  integer(c_int) :: oldPos, numRows,ii, isSelected
+  integer, target :: colIDs(10) = [(ii,ii=1,10)]
+  character(kind=c_char, len=20),dimension(10) :: colNames
+  logical :: boolResult
+
+
+  colNames(1) = "Surface"
+  colNames(2) = "Ref"
+  colNames(3) = "Surface Name"
+  colNames(4) = "Surface Type"
+  colNames(5) = "Radius"
+  colNames(6) = " " ! For pickup/variable/solve
+
+  selection = gtk_column_view_get_model(cv)
+  ! Seems there is no simple way to get selected row so brute force it
+  numRows = g_list_model_get_n_items(selection)
+  do ii=0,numRows-1
+    isSelected = gtk_selection_model_is_selected(selection, ii)
+    if (isSelected==1) then
+         oldPos = ii
+    end if
+  end do
+  call clearColumnView()
+
+  ! Remake
+  store = buildLensEditTable()
+  selection = gtk_multi_selection_new(store)
+  call gtk_single_selection_set_autoselect(selection,TRUE)    
+  call gtk_column_view_set_model(cv, selection)
+  call gtk_column_view_set_show_column_separators(cv, 1_c_int)
+  call gtk_column_view_set_show_row_separators(cv, 1_c_int)
+
+  !call gtk_box_append(box, cv)                            
+
+
+  
+  do ii=1,6
+    factory = gtk_signal_list_item_factory_new()
+    call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
+    call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
+    column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
+    call gtk_column_view_append_column (cv, column)
+    call g_object_unref (column)      
+  end do
+
+  ! Set selection to previous
+!  model = gtk_column_view_get_model(cv)
+!  boolResult = gtk_selection_model_select_item(model, oldPos, 1_c_int)
+
+
+
+end subroutine
 
   function lens_editor_add_dialog(ID_TAB) result(boxNew)
 
@@ -2275,7 +2383,7 @@ end subroutine
     integer :: ii
     integer, target :: colIDs(10) = [(ii,ii=1,10)]
 
-    type(c_ptr) :: store, cStrB, listitem, selection, factory, column, cv, swin
+    type(c_ptr) :: store, cStrB, listitem, selection, factory, column, swin
     character(len=1024) :: debugName
     integer, target :: COL_ONE = 1
 
