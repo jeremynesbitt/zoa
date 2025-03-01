@@ -1751,6 +1751,7 @@ end subroutine
       ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
       ! I don't like what I am about to do here, but I don't really see a better way
       call rebuildLensEditorTable()
+      print *, "Done rebuilding!"
        
     else
       print *, "Do nothing"
@@ -2294,7 +2295,7 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
      print *, "colName is ", trim(colName)
 
      call gtk_widget_set_name(label,"R"//trim(int2str(lens_item_get_surface_number(item)))//"C"//trim(int2str(ID_COL))//c_null_char)
-    
+     print *, "after set name"
     !call gtk_menu_button_set_label(label, trim(colName)//c_null_char)
      !call gtk_label_set_text(label, trim(int2str(lens_item_get_surface_number(item)))//c_null_char)
     
