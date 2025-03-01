@@ -244,7 +244,6 @@ procedure, public, pass(self) :: set_num_surfaces
 procedure, public, pass(self)  :: add_lens_data
 procedure, public, pass(self) :: imageSurfaceIsIdeal
 procedure, public, pass(self) :: update => updateLensData
-procedure, public, pass(self) :: genSaveOutputText => genLensDataSaveOutputText
 procedure, public, pass(self) :: genAsphereSavOutputText
 procedure, public, pass(self) :: isSolveOnSurface, isAsphereOnSurface
 procedure, public, pass(self) :: isConicConstantOnSurface, setSolveData
@@ -2140,126 +2139,6 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
     
 
 end function
-
-
-
-subroutine genLensDataSaveOutputText(self, fID)
-  use type_utils, only: real2str, blankStr, int2str
-  use zoa_file_handler, only: genOutputLineWithSpacing
-  use DATLEN, only: ALENS
-  class(lens_data) :: self
-  integer :: fID
-  integer :: ii, jj
-  character(len=1024) :: strSurfLine, strTHI, strRdy
-  character(len=4) :: surfStr
-  !character(len=80) :: glassStr
-  logical :: rdmFlag
-
-  rdmFlag = .TRUE.
-
-  ! Do Object SUrface
-  strSurfLine = 'SO'
-  write(strTHI, '(D23.15)') ALENS(3,0)
-  if (ALENS(1,0) == 0.0 ) then
-    write(strRdy, '(D23.15)') 0.0d0
-  else
-     write(strRdy, '(D23.15)') 1.0d0/ALENS(1,0)
-  end if
-
-  if (rdmFlag) then
-    if (self%thicknesses(1) > 1e11) then
-    strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
-    & trim(strTHI), trim(self%glassnames(1)))
-    else 
-      strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
-      & trim(strTHI), trim(self%glassnames(1)))  
-    end if
-    !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
-    !& trim(real2str(self%thicknesses(1),sci=.TRUE.))//blankStr(1)//trim(self%glassnames(1))
-  else
-    strSurfLine = 'SO'//blankStr(3)//real2str(self%curvatures(1),4)//blankStr(5)//real2str(self%thicknesses(1))// &
-    & blankStr(5)//self%glassnames(1)    
-  end if
-  write(fID, *) trim(strSurfLine)
-
-  do ii=2,self%num_surfaces-1
-    surfStr = 'S' !//trim(int2str(ii-1))
-    !if (ii==2) surfStr = 'S1'
-
-    !glassStr = self%glassnames(ii)
-    !if (isModelGlass(glassStr)) glassStr = set 
-    write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
-    if (ALENS(1,ii-1) == 0.0 ) then
-      write(strRdy, '(D23.15)') 0.0d0
-    else
-       write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
-    end if    
-    !write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
-    if(rdmFlag) then
-      strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
-      & trim(strRdy), trim(strTHI), & 
-      & trim(self%glassnames(ii)))      
-      !strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
-      !& blankStr(5)//real2str(self%thicknesses(ii),4)// &
-      !& blankStr(5)//self%glassnames(ii)
-    else
-      strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%curvatures(ii),9)// &
-      & blankStr(5)//trim(strTHI)// &
-      & blankStr(5)//self%glassnames(ii)    
-    end if      
-    write(fID, *) trim(strSurfLine)
-    ! Check for ref stop
-    if (self%ref_stop == ii) then
-      strSurfLine = blankStr(2)//'STO'
-      write(fID, *) trim(strSurfLine)
-    end if
-    ! Check for user specified clear aperture.  TODO:  Need to implement a more sophisticated
-    ! way to store CA info, as the geometry is not always circular.  But for now
-    ! just support circular until I get some to mkae it more abstract
-    if (self%clearAps(ii)%userDefined .OR. self%ref_stop == ii) then
-      strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%clearAps(ii)%yRad, 10))
-      write(fID, *) trim(strSurfLine)
-    end if
-
-    if (self%isAsphereOnSurface(ii-1)) then
-      strSurfLine = self%genAsphereSavOutputText(ii-1, fID)
-      !write(fID, *) trim(strSurfLine)
-    end if
-
-    ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager
-    if (self%isConicConstantOnSurface(ii-1)) then 
-      strSurfLine = blankStr(2)//'K '//trim(real2str(ALENS(2,ii-1), sci=.TRUE.))
-      write(fID, *) trim(strSurfLine)
-    end if
-
-      if (self%isSolveOnSurface(ii)) then
-        strSurfLine = self%thickSolves(ii)%genCodeVCMDToSetSolve()
-        write(fID, *) trim(strSurfLine)
-      end if
-             
-    
-  end do
-
-  ! Do Image SUrface.  
-  write(strTHI, '(D23.15)') self%thicknesses(self%num_surfaces)
-  if (rdmFlag) then
-    strSurfLine = 'SI'//blankStr(2)//trim(real2str(self%radii(self%num_surfaces),4))//blankStr(3)// &
-    & trim(strTHI)//blankStr(3)//self%glassnames(self%num_surfaces)
-  else
-    strSurfLine = 'SI'//blankStr(2)//trim(real2str(self%curvatures(self%num_surfaces),4))//blankStr(3)// &
-    & trim(strTHI)//blankStr(3)//self%glassnames(self%num_surfaces)  
-  end if
-  write(fID, *) trim(strSurfLine)
-  if (self%clearAps(self%num_surfaces)%userDefined) then
-    strSurfLine = blankStr(2)//'CIR '//trim(real2str(self%num_surfaces))
-    write(fID, *) trim(strSurfLine)
-  end if  
-
-
-  ! Now that we are done send GO cmd to leave lens update level
-  write(fID, *) "GO"
-
-end subroutine
 
 function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
   implicit none

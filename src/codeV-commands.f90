@@ -1428,7 +1428,8 @@ module codeV_commands
         if (fID /= 0) then
          
            call sysConfig%genSaveOutputText(fID)
-           call curr_lens_data%genSaveOutputText(fID)
+           call ldm%genSaveOutputText(fID)
+           !call curr_lens_data%genSaveOutputText(fID)
            call optim%genSaveOutputText(fID)
            close(fID)
         else
@@ -1493,7 +1494,8 @@ module codeV_commands
         if (fID /= 0) then
          
            call sysConfig%genSaveOutputText(fID)
-           call curr_lens_data%genSaveOutputText(fID)
+           call ldm%genSaveOutputText(fID)
+           !call curr_lens_data%genSaveOutputText(fID)
            call optim%genSaveOutputText(fID)
            close(fID)
         else
@@ -1515,6 +1517,7 @@ module codeV_commands
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens
+        use mod_lens_data_manager, only: ldm
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1539,7 +1542,8 @@ module codeV_commands
         if (fID /= 0) then
          
            call sysConfig%genSaveOutputText(fID)
-           call curr_lens_data%genSaveOutputText(fID)
+           call ldm%genSaveOutputText(fID)
+           !call curr_lens_data%genSaveOutputText(fID)
            call zoaTabMgr%genSaveOutputText(fID)
            close(fID)
         else

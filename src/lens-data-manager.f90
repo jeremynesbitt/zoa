@@ -42,6 +42,7 @@ module mod_lens_data_manager
      procedure :: isSolveOnSurf, isPikupOnSurf
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer
+     procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
 
 
     end type
@@ -538,5 +539,125 @@ module mod_lens_data_manager
 
     end function    
 
+
+    subroutine genLDMSaveOutputText(self, fID)
+        use type_utils, only: real2str, blankStr, int2str
+        use zoa_file_handler, only: genOutputLineWithSpacing
+        use DATLEN, only: ALENS
+        class(lens_data_manager) :: self
+        integer :: fID
+        integer :: ii, jj
+        character(len=1024) :: strSurfLine, strTHI, strRdy
+        character(len=4) :: surfStr
+        !character(len=80) :: glassStr
+        logical :: rdmFlag
+      
+        rdmFlag = .TRUE.
+      
+        ! Do Object SUrface
+        strSurfLine = 'SO'
+        write(strTHI, '(D23.15)') ALENS(3,0)
+        if (ALENS(1,0) == 0.0 ) then
+          write(strRdy, '(D23.15)') 0.0d0
+        else
+           write(strRdy, '(D23.15)') 1.0d0/ALENS(1,0)
+        end if
+      
+        if (rdmFlag) then
+          if (curr_lens_data%thicknesses(1) > 1e11) then
+          strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
+          & trim(strTHI), trim(curr_lens_data%glassnames(1)))
+          else 
+            strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
+            & trim(strTHI), trim(curr_lens_data%glassnames(1)))  
+          end if
+          !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
+          !& trim(real2str(self%thicknesses(1),sci=.TRUE.))//blankStr(1)//trim(self%glassnames(1))
+        else
+          strSurfLine = 'SO'//blankStr(3)//real2str(curr_lens_data%curvatures(1),4)//blankStr(5)//real2str(curr_lens_data%thicknesses(1))// &
+          & blankStr(5)//curr_lens_data%glassnames(1)    
+        end if
+        write(fID, *) trim(strSurfLine)
+      
+        do ii=2,curr_lens_data%num_surfaces-1
+          surfStr = 'S' !//trim(int2str(ii-1))
+          !if (ii==2) surfStr = 'S1'
+      
+          !glassStr = self%glassnames(ii)
+          !if (isModelGlass(glassStr)) glassStr = set 
+          write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
+          if (ALENS(1,ii-1) == 0.0 ) then
+            write(strRdy, '(D23.15)') 0.0d0
+          else
+             write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
+          end if    
+          !write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
+          if(rdmFlag) then
+            strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
+            & trim(strRdy), trim(strTHI), & 
+            & trim(curr_lens_data%glassnames(ii)))      
+            !strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
+            !& blankStr(5)//real2str(self%thicknesses(ii),4)// &
+            !& blankStr(5)//self%glassnames(ii)
+          else
+            strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(curr_lens_data%curvatures(ii),9)// &
+            & blankStr(5)//trim(strTHI)// &
+            & blankStr(5)//curr_lens_data%glassnames(ii)    
+          end if      
+          write(fID, *) trim(strSurfLine)
+          ! Check for ref stop
+          if (curr_lens_data%ref_stop == ii) then
+            strSurfLine = blankStr(2)//'STO'
+            write(fID, *) trim(strSurfLine)
+          end if
+          
+          ! Check for user specified clear aperture.  TODO:  Need to implement a more sophisticated
+          ! way to store CA info, as the geometry is not always circular.  But for now
+          ! just support circular until I get some to mkae it more abstract
+          if (curr_lens_data%clearAps(ii)%userDefined .OR. curr_lens_data%ref_stop == ii) then
+            strSurfLine = blankStr(2)//'CIR '//trim(real2str(curr_lens_data%clearAps(ii)%yRad, 10))
+            write(fID, *) trim(strSurfLine)
+          end if
+      
+          if (curr_lens_data%isAsphereOnSurface(ii-1)) then
+            strSurfLine = curr_lens_data%genAsphereSavOutputText(ii-1, fID)
+            !write(fID, *) trim(strSurfLine)
+          end if
+      
+          ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager
+          if (curr_lens_data%isConicConstantOnSurface(ii-1)) then 
+            strSurfLine = blankStr(2)//'K '//trim(real2str(ALENS(2,ii-1), sci=.TRUE.))
+            write(fID, *) trim(strSurfLine)
+          end if
+      
+            if (curr_lens_data%isSolveOnSurface(ii)) then
+              strSurfLine = curr_lens_data%thickSolves(ii)%genCodeVCMDToSetSolve()
+              write(fID, *) trim(strSurfLine)
+            end if
+                   
+          
+        end do
+      
+        ! Do Image SUrface.  
+        write(strTHI, '(D23.15)') curr_lens_data%thicknesses(curr_lens_data%num_surfaces)
+        if (rdmFlag) then
+          strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%radii(curr_lens_data%num_surfaces),4))//blankStr(3)// &
+          & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)
+        else
+          strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%curvatures(curr_lens_data%num_surfaces),4))//blankStr(3)// &
+          & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
+        end if
+        write(fID, *) trim(strSurfLine)
+        if (curr_lens_data%clearAps(curr_lens_data%num_surfaces)%userDefined) then
+          strSurfLine = blankStr(2)//'CIR '//trim(real2str(curr_lens_data%num_surfaces))
+          write(fID, *) trim(strSurfLine)
+        end if  
+      
+      
+        ! Now that we are done send GO cmd to leave lens update level
+        write(fID, *) "GO"
+      
+      end subroutine
+      
 
 end module
