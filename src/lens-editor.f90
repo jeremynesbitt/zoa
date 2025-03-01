@@ -1747,7 +1747,7 @@ end subroutine
     integer(c_int) :: pageNum
 
     if (mod_update) then
-      call gtk_menu_button_set_icon_name(btn, 'zoom-in'//c_null_char)
+      call gtk_menu_button_set_icon_name(btn, 'letter-p'//c_null_char)
       ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
       ! I don't like what I am about to do here, but I don't really see a better way
       call rebuildLensEditorTable()
@@ -2286,6 +2286,12 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
   case(6)
     colName = trim(int2str(lens_item_get_radius_mod(item)))//c_null_char   
     call gtk_menu_button_set_menu_model(label, createModMenu(label, lens_item_get_surface_number(item))) 
+    select case (lens_item_get_radius_mod(item))
+    case (ID_MOD_NONE)
+      call gtk_menu_button_set_icon_name(label, 'letter-blank'//c_null_char)      
+    case (ID_MOD_PICKUP)
+      call gtk_menu_button_set_icon_name(label, 'letter-p'//c_null_char)
+    end select
     !call gtk_label_set_text(label, trim(colName)//c_null_char)  
 
    end select
@@ -2343,6 +2349,7 @@ subroutine rebuildLensEditorTable()
     end if
   end do
   call clearColumnView()
+  refRadio = c_null_ptr ! Null this out for the rebuild
 
   ! Remake
   store = buildLensEditTable()

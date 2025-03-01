@@ -16,7 +16,8 @@ except IOError:
     font = ImageFont.load_default()
 
 fontsize = 1
-text = "P"
+#text = "P"
+text = "S"
 font = ImageFont.truetype("Keyboard.ttf", fontsize)
 while font.font.getsize(text)[0][1] < 50.0:
     # iterate until the text size is just larger than the criteria
@@ -41,7 +42,7 @@ y = (text_height - height) / 2
 draw.text((x, y), text, font=font, fill=text_color)
 
 # Save the image to a file
-img.save("letter_p.png")
+img.save("letter-s.png")
 
-print("Image saved as 'letter_p.png'")
+print("Image saved ")
 

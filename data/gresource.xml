@@ -11,7 +11,9 @@
     <file>file-save.png</file> 
     <file>open-ldm.png</file> 
     <file>letter-p.png</file>
-
+    <file>letter-blank.png</file>
+    <file>letter-v.png</file>
+    <file>letter-s.png</file>
   </gresource>
   <gresource prefix="zoa/optical-analysis">
     <file>zoa.css</file>  
