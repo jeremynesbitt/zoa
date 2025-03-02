@@ -570,9 +570,10 @@ module mod_lens_data_manager
         outTxt = ' '
         if (self%isPikupOnSurf(surf, var_code)) then 
             si = INT(PIKUP(2,surf,var_code)) ! Start Surface
-            sf = INT(PIKUP(3,surf,var_code)) ! End Surface
-            scale = PIKUP(4,surf, var_code) ! Default 1
-            offset = PIKUP(5,surf,var_code) ! Default 0
+            sf = si ! Temp
+            !sf = INT(PIKUP(3,surf,var_code)) ! End Surface
+            scale = PIKUP(3,surf, var_code) ! Default 1
+            offset = PIKUP(4,surf,var_code) ! Default 0
 
             select case (var_code)
             case (ID_PICKUP_RAD)
@@ -587,8 +588,8 @@ module mod_lens_data_manager
                 surfTxt = 'S'//trim(int2str(si))//'..'//trim(int2str(sf))
             end if
 
-            outTxt = 'PIK '//trim(pType)//' S'//trim(int2str(surf))//' '//trim(pType)//trim(surfTxt)//' '// &
-            & trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+            outTxt = 'PIK '//trim(pType)//' S'//trim(int2str(surf))//' '//trim(pType)//' '// &
+            & trim(surfTxt)//' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
            
         end if
 
