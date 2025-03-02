@@ -43,7 +43,7 @@ module mod_lens_data_manager
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
-
+     procedure :: outputPikupText, genSurfPikupSavText
 
     end type
 
@@ -539,6 +539,61 @@ module mod_lens_data_manager
 
     end function    
 
+    subroutine outputPikupText(self, fID)
+        class(lens_data_manager) :: self
+        integer :: fID
+        integer :: ii, jj
+        character(len=512) :: outTxt
+        integer, dimension(2) :: pickupTypes = [ID_PICKUP_RAD, ID_PICKUP_THIC]
+
+        do ii=0,self%getLastSurf()
+            do jj=1,size(pickupTypes)
+                outTxt = self%genSurfPikupSavText(ii, pickupTypes(jj))
+                if (len(trim(outTxt)) > 0) then 
+                    write(fID, *) trim(outTxt)
+                end if
+            end do
+        end do
+
+
+    end subroutine
+
+    function genSurfPikupSavText(self, surf, var_code) result(outTxt)
+        use DATLEN, only: PIKUP
+        use type_utils
+        class(lens_data_manager) :: self
+        integer :: surf, var_code, si, sf
+        character(len=512) :: outTxt, surfTxt 
+        character(len=3) :: pType
+        real(kind=long) :: scale, offset
+
+        outTxt = ' '
+        if (self%isPikupOnSurf(surf, var_code)) then 
+            si = INT(PIKUP(2,surf,var_code)) ! Start Surface
+            sf = INT(PIKUP(3,surf,var_code)) ! End Surface
+            scale = PIKUP(4,surf, var_code) ! Default 1
+            offset = PIKUP(5,surf,var_code) ! Default 0
+
+            select case (var_code)
+            case (ID_PICKUP_RAD)
+                pType = 'RDY'
+            case (ID_PICKUP_THIC)
+                pType = 'THI'
+            end select
+
+            if (si==sf) then
+                surfTxt = 'S'//trim(int2str(si))
+            else
+                surfTxt = 'S'//trim(int2str(si))//'..'//trim(int2str(sf))
+            end if
+
+            outTxt = 'PIK '//trim(pType)//' S'//trim(int2str(surf))//' '//trim(pType)//trim(surfTxt)//' '// &
+            & trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+           
+        end if
+
+    end function
+
 
     subroutine genLDMSaveOutputText(self, fID)
         use type_utils, only: real2str, blankStr, int2str
@@ -634,7 +689,6 @@ module mod_lens_data_manager
               strSurfLine = curr_lens_data%thickSolves(ii)%genCodeVCMDToSetSolve()
               write(fID, *) trim(strSurfLine)
             end if
-                   
           
         end do
       
@@ -654,7 +708,13 @@ module mod_lens_data_manager
         end if  
       
       
+        ! Gen pickup data
+        ! iterate surfaces
+        ! for each surface
+        ! if any pickup type (list of pickups)
+        ! gen pickup text
         ! Now that we are done send GO cmd to leave lens update level
+        call self%outputPikupText(fID)
         write(fID, *) "GO"
       
       end subroutine
