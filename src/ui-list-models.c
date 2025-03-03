@@ -131,3 +131,18 @@
  {
     return item->radiusMod;
  }
+
+ double lens_item_get_surface_thickness(LensItem *item)
+ {
+    return item->thickness;
+ }
+
+  int lens_item_get_thickness_mod(LensItem *item)
+ {
+    return item->thickMod;
+ }
+
+  double lens_item_get_aperture(LensItem *item)
+ {
+    return item->aperture;
+ }

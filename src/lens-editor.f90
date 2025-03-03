@@ -68,11 +68,30 @@ function lens_item_get_surface_radius(item) bind(c)
   type(c_ptr), value :: item
   real(c_double) :: lens_item_get_surface_radius
 end function  
-
 function lens_item_get_radius_mod(item) bind(c)
   import :: c_ptr, c_int
   type(c_ptr), value :: item
   integer(c_int) :: lens_item_get_radius_mod
+end function  
+function lens_item_get_surface_thickness(item) bind(c)
+  import :: c_ptr, c_double
+  type(c_ptr), value :: item
+  real(c_double) :: lens_item_get_surface_thickness
+end function  
+function lens_item_get_thickness_mod(item) bind(c)
+  import :: c_ptr, c_int
+  type(c_ptr), value :: item
+  integer(c_int) :: lens_item_get_thickness_mod
+end function  
+function lens_item_get_glass(item) bind(c)
+  import :: c_ptr
+  type(c_ptr), value :: item
+  type(c_ptr) :: lens_item_get_glass 
+end function
+function lens_item_get_aperture(item) bind(c)
+  import :: c_ptr, c_double
+  type(c_ptr), value :: item
+  real(c_double) :: lens_item_get_aperture
 end function  
   end interface
 
@@ -941,7 +960,7 @@ function buildLensEditTable() result(store)
   character(len=20), dimension(ncols) :: titles
   integer(kind=c_int), dimension(ncols) :: sortable, editable
   integer, allocatable, dimension(:) :: surfIdx
-  integer, allocatable, dimension(:) :: isRefSurface, radPickups
+  integer, allocatable, dimension(:) :: isRefSurface, radPickups, thiPickups
   real(kind=real64), dimension(curr_lens_data%num_surfaces) :: clearApertures
 
   integer, parameter :: numModTypes = 3
@@ -969,12 +988,13 @@ function buildLensEditTable() result(store)
 
     clearApertures = curr_lens_data%clearAps(1:curr_lens_data%num_surfaces)%yRad   
     radPickups = genPickupArr(ID_PICKUP_RAD)
+    thiPickups = genPickupArr(ID_PICKUP_THIC)
 
     boxNew = hl_gtk_box_new()
     store = g_list_store_new(G_TYPE_OBJECT)
     do i=1,curr_lens_data%num_surfaces
     store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, "Sphere"//c_null_char, &
-    & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), ID_MOD_NONE, &
+    & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i), &
     & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8))
     end do
 
@@ -2159,20 +2179,22 @@ subroutine cell_changed(widget, data) bind(c)
 
 type(c_ptr), value :: widget, data
 type(c_ptr) :: buff2, cStr
-character(len=100) :: ftext, rcCode
+character(len=100) :: ftext, rcCode, cmd
 integer :: surfIdx
 
 buff2 = gtk_entry_get_buffer(widget)
 call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
 
 print *, "Val is ", trim(ftext)
-cStr = gtk_widget_get_name(widget)
+cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
 call convert_c_string(cStr, rcCode)  
 print *, "Val is ", trim(rcCode)
 
 surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 
-call PROCESSILENT("RDY S"//trim(int2str(surfIdx))//" "//trim(ftext))
+call convert_c_string(data, cmd)  
+print *, "cmd is ", trim(cmd)
+call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
 
 end subroutine
 
@@ -2215,11 +2237,13 @@ end function
 
 subroutine setup_cb(factory,listitem, gdata) bind(c)
   use gtk_hl_entry
+  use gtk_hl_container
   
   type(c_ptr), value :: factory
   type(c_ptr), value :: listitem, gdata
-  type(c_ptr) :: label, entryCB, menuB
+  type(c_ptr) :: label, entryCB, menuB, boxS
   integer(kind=c_int), pointer :: ID_COL
+  character(len=3) :: cmd
 
   label =gtk_label_new(c_null_char)
   call gtk_list_item_set_child(listitem,label)
@@ -2233,13 +2257,28 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
      if (.not.c_associated(refRadio)) refRadio = label
      call gtk_check_button_set_group(label, refRadio)
      call gtk_list_item_set_child(listitem,label)
-   case(5)
-    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed))
-    !entryCB = gtk_entry_new()
-    call gtk_list_item_set_child(listitem,entryCB)
-   case(6)
+   case(5:6) ! Radius or Thickness + modifier
+    boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     menuB = gtk_menu_button_new()
-    call gtk_list_item_set_child(listitem, menuB)
+    cmd = 'RDY'
+    if(ID_COL==6) cmd = 'THI'
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup(cmd))
+    !call gtk_widget_set_name(entryCB, cmd) 
+    call gtk_box_append(boxS, entryCB)
+    call gtk_box_append(boxS, menuB)
+    call gtk_list_item_set_child(listitem,boxS)
+   case(7) ! Glass
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('GLA'))
+    call gtk_list_item_set_child(listitem, label)
+  case(8) ! Aperture
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))
+    call gtk_list_item_set_child(listitem, entryCB)    
+
+    !entryCB = gtk_entry_new()
+    !call gtk_list_item_set_child(listitem,entryCB)
+   !case(6)
+   ! menuB = gtk_menu_button_new()
+   ! call gtk_list_item_set_child(listitem, menuB)
 
    case default 
     label =gtk_label_new(c_null_char)
@@ -2251,7 +2290,7 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
   use type_utils
   type(c_ptr), value :: factory
   type(c_ptr), value :: listitem, gdata
-  type(c_ptr) :: widget, item, label, buffer
+  type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
   type(c_ptr) :: cStr
   integer(kind=c_int), pointer :: ID_COL
   character(len=140) :: colName
@@ -2280,32 +2319,49 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call convert_c_string(cStr, colName)   
     call gtk_label_set_text(label, trim(colName)//c_null_char)    
    case(5)
-    colName = trim(real2str(lens_item_get_surface_radius(item)))//c_null_char    
-    buffer = gtk_entry_get_buffer(label)
+    colName = trim(real2str(lens_item_get_surface_radius(item)))//c_null_char  
+    entryCB = gtk_widget_get_first_child(label)  
+    buffer = gtk_entry_get_buffer(entryCB)
+    !buffer = gtk_entry_get_buffer(label)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
-  case(6)
+    menuCB = gtk_widget_get_next_sibling(entryCB)
     colName = trim(int2str(lens_item_get_radius_mod(item)))//c_null_char   
-    call gtk_menu_button_set_menu_model(label, createModMenu(label, lens_item_get_surface_number(item))) 
+    call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item))) 
     select case (lens_item_get_radius_mod(item))
     case (ID_MOD_NONE)
-      call gtk_menu_button_set_icon_name(label, 'letter-blank'//c_null_char)      
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
     case (ID_MOD_PICKUP)
-      call gtk_menu_button_set_icon_name(label, 'letter-p'//c_null_char)
-    end select
-    !call gtk_label_set_text(label, trim(colName)//c_null_char)  
-
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
+    end select   
+  case(6)
+    colName = trim(real2str(lens_item_get_surface_thickness(item)))//c_null_char  
+    entryCB = gtk_widget_get_first_child(label)  
+    buffer = gtk_entry_get_buffer(entryCB)
+    !buffer = gtk_entry_get_buffer(label)
+    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+    menuCB = gtk_widget_get_next_sibling(entryCB)
+    colName = trim(int2str(lens_item_get_thickness_mod(item)))//c_null_char   
+    call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item))) 
+    select case (lens_item_get_thickness_mod(item))
+    case (ID_MOD_NONE)
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
+    case (ID_MOD_PICKUP)
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
+    end select   
+  case(7) ! Glass
+    cStr = lens_item_get_glass(item)
+    call convert_c_string(cStr, colName)
+    call gtk_label_set_text(label, trim(colName)//c_null_char)
+  case(8) ! Clear Aperture
+    colName = trim(real2str(lens_item_get_aperture(item)))//c_null_char  
+    buffer = gtk_entry_get_buffer(label)
+    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int) 
    end select
 
-     !call convert_c_string(cStr, colName)
-     print *, "ID_COL is ", ID_COL
-     print *, "colName is ", trim(colName)
-
+    ! Encode row and column for later use  
      call gtk_widget_set_name(label,"R"//trim(int2str(lens_item_get_surface_number(item)))//"C"//trim(int2str(ID_COL))//c_null_char)
-     print *, "after set name"
-    !call gtk_menu_button_set_label(label, trim(colName)//c_null_char)
-     !call gtk_label_set_text(label, trim(int2str(lens_item_get_surface_number(item)))//c_null_char)
-    
-    !call gtk_label_set_text(label, "Test123"//c_null_char)
+
+
 end subroutine
 
 subroutine clearColumnView()
@@ -2327,17 +2383,8 @@ subroutine rebuildLensEditorTable()
 
   type(c_ptr) :: store, selection, model, factory, column
   integer(c_int) :: oldPos, numRows,ii, isSelected
-  integer, target :: colIDs(10) = [(ii,ii=1,10)]
-  character(kind=c_char, len=20),dimension(10) :: colNames
   logical :: boolResult
 
-
-  colNames(1) = "Surface"
-  colNames(2) = "Ref"
-  colNames(3) = "Surface Name"
-  colNames(4) = "Surface Type"
-  colNames(5) = "Radius"
-  colNames(6) = " " ! For pickup/variable/solve
 
   selection = gtk_column_view_get_model(cv)
   ! Seems there is no simple way to get selected row so brute force it
@@ -2361,21 +2408,39 @@ subroutine rebuildLensEditorTable()
 
   !call gtk_box_append(box, cv)                            
 
-
-  
-  do ii=1,6
-    factory = gtk_signal_list_item_factory_new()
-    call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
-    call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
-    column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
-    call gtk_column_view_append_column (cv, column)
-    call g_object_unref (column)      
-  end do
+  call setLensEditColumns(cv)
 
   ! Set selection to previous
 !  model = gtk_column_view_get_model(cv)
 !  boolResult = gtk_selection_model_select_item(model, oldPos, 1_c_int)
 
+end subroutine
+
+subroutine setLensEditColumns(colView)
+  type(c_ptr), value :: colView
+
+  integer :: ii
+  integer, target :: colIDs(10) = [(ii,ii=1,10)]
+  type(c_ptr) :: factory, column
+  character(kind=c_char, len=20),dimension(10) :: colNames  
+
+  colNames(1) = "Surface"
+  colNames(2) = "Ref"
+  colNames(3) = "Surface Name"
+  colNames(4) = "Surface Type"
+  colNames(5) = "Radius"
+  colNames(6) = "Thickness"  
+  colNames(7) = "Glass"  
+  colNames(8) = "Aperture"  
+
+  do ii=1,8
+    factory = gtk_signal_list_item_factory_new()
+    call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
+    call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
+    column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
+    call gtk_column_view_append_column (colView, column)
+    call g_object_unref (column)      
+  end do
 
 
 end subroutine
@@ -2395,27 +2460,6 @@ end subroutine
     character(len=1024) :: debugName
     integer, target :: COL_ONE = 1
 
- 
-    character(kind=c_char, len=20),dimension(10) :: colNames
-
-
-    colNames(1) = "Surface"
-    colNames(2) = "Ref"
-    colNames(3) = "Surface Name"
-    colNames(4) = "Surface Type"
-    colNames(5) = "Radius"
-    colNames(6) = " " ! For pickup/variable/solve
-
-
-    do ii=1,10
-      print *, "ColIDs(ii) ",colIDs(ii)
-
-    end do
- 
-    !listitem = g_list_model_get_object(store, 0_c_int)
-    !cStrB = lens_item_get_glass(listitem)
-    !call convert_c_string(cStrB, debugName)
-    !print *, "debugName is ", debugName    
 
     boxNew = c_null_ptr
 
@@ -2442,14 +2486,7 @@ end subroutine
       !call gtk_box_append(box, cv)                            
   
       
-      do ii=1,6
-        factory = gtk_signal_list_item_factory_new()
-        call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
-        call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
-        column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
-        call gtk_column_view_append_column (cv, column)
-        call g_object_unref (column)      
-      end do
+      call setLensEditColumns(cv)
 
       !call gtk_widget_set_vexpand (ihScrollSolv, FALSE)
       !call gtk_widget_set_hexpand (ihScrollSolv, FALSE)      
