@@ -23,6 +23,7 @@
      const char *glass;
      double aperture;
      double index;
+     double extraParams[16]; // Array of 16 elements
 
  };
 
@@ -51,7 +52,8 @@
                                        int thickMod,
                                        const char *glass,
                                        double aperture,
-                                       double index)
+                                       double index, 
+                                       double extraParams[16])
  {
     LensItem  *item = g_object_new(LENS_TYPE_ITEM, NULL);
      item->surfaceNo = surfaceNo;
@@ -65,10 +67,19 @@
      item->glass = g_strdup(glass);
      item->aperture = aperture;
      item->index = index;
+     printf("Testing access %lf\n", item->radius);
+     for(int i = 0; i < 15; i++){
+      item->extraParams[i] = extraParams[i];
+     }    
+     //item->extraParams = extraParams;
+     
+     for(int i = 0; i < 1; i++){
+        printf("Extra Param value is %lf\n", item->extraParams[i]);
+     }
      return item;
  }
 
- // a funktion that creates a GListModel with capital_item  objects
+ // a funcion that creates a GListModel with capital_item  objects
  GListModel * append_lens_model(GListStore *store, int surfaceNo, 
                                        bool refSurf,
                                        const char *surfaceName,
@@ -79,7 +90,8 @@
                                        int thickMod,
                                        const char *glass,
                                        double aperture,
-                                       double index)
+                                       double index, 
+                                       double extraParams[16])
  {
      //GListStore *store = g_list_store_new(G_TYPE_OBJECT);
      g_list_store_append(store, lens_item_new(surfaceNo, 
@@ -92,7 +104,8 @@
                                               thickMod,
                                               glass,
                                               aperture,
-                                              index));
+                                              index, 
+                                              extraParams));
      return G_LIST_MODEL(store);
  }
 
@@ -145,4 +158,9 @@
   double lens_item_get_aperture(LensItem *item)
  {
     return item->aperture;
+ }
+
+  double lens_item_get_extra_param(LensItem *item, int index)
+ {
+    return item->extraParams[index];
  }

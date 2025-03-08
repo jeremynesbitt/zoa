@@ -15,6 +15,8 @@ module mod_lens_data_manager
     use globals, only: long
     use zoa_ui
 
+    implicit none
+
     type lens_data_manager
 
     real(long), dimension(0:499,3) :: vars ! CCY THC GLC for now.  Hard code max of 500 surfaces.  Default is 100
@@ -43,7 +45,7 @@ module mod_lens_data_manager
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
-     procedure :: outputPikupText, genSurfPikupSavText
+     procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName
 
     end type
 
@@ -100,7 +102,6 @@ module mod_lens_data_manager
     end function
 
     function getSurfName(self, idx) result(strName)
-        implicit none
         class(lens_data_manager) :: self
         integer, intent(in) :: idx
         character(len=3) :: strName
@@ -110,6 +111,19 @@ module mod_lens_data_manager
         if (idx==0) strName = 'OBJ'
         if (idx==self%getStopSurf()) strName = 'STO'
         if (idx==self%getLastSurf()) strName = 'IMG'
+
+    end function
+
+    !Sphere, Asphere, etc.  eventually need to compile a list of these
+    !For UI selection
+    function getSurfTypeName(self, idx) result(strName)
+        use DATLEN, only: ALENS
+        class(lens_data_manager) :: self
+        integer, intent(in) :: idx
+        character(len=20) :: strName
+
+        strName='Sphere'
+        if(ALENS(8,idx) == 1 ) strName='Asphere'
 
     end function
 

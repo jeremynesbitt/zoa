@@ -34,7 +34,7 @@ module lens_editor
   ! double aperture,
   ! double index)
   function append_lens_model(store, surfaceNo, refSurf, surfaceName, surfaceType, &
-    & radius, radiusMod, thickness, thickMod, glass, aperture, index) bind(c)
+    & radius, radiusMod, thickness, thickMod, glass, aperture, index, extraParams) bind(c)
     import c_ptr, c_char, c_int, c_double
     implicit none
     type(c_ptr), value    :: store
@@ -42,6 +42,7 @@ module lens_editor
     character(kind=c_char), dimension(*) :: surfaceName, surfaceType, glass
     type(c_ptr)    :: append_lens_model
     real(c_double), value :: radius, thickness, aperture, index
+    real(c_double), dimension(16) :: extraParams
   end function
   function lens_item_get_surface_name(item) bind(c)
     import :: c_ptr
@@ -93,6 +94,13 @@ function lens_item_get_aperture(item) bind(c)
   type(c_ptr), value :: item
   real(c_double) :: lens_item_get_aperture
 end function  
+function lens_item_get_extra_param(item, index) bind(c)
+  import :: c_ptr, c_int, c_double
+  type(c_ptr), value :: item
+  integer(c_int), value :: index
+  real(c_double) :: lens_item_get_extra_param
+
+end function
   end interface
 
   ! TODO:  Modifiy this so we can store values for combo entries
@@ -950,35 +958,27 @@ function genSurfaceTypes() result(typeStr)
 
 end function
 
+! This func interfaces with the c struct that stores the data
+! At some point I may migrate this to python but for now the
+! main cost of this is a bunch of interfaces for each get which
+! I can live with
 function buildLensEditTable() result(store)
+  use mod_lens_data_manager
 
-  logical :: firstTime
-  integer(kind=c_int), PARAMETER :: ncols = 11
-  character(len=10), dimension(ncols) :: colModel
-  type(lens_edit_col), dimension(ncols) :: basicTypes
-  integer(kind=type_kind), dimension(ncols) :: ctypes
-  character(len=20), dimension(ncols) :: titles
-  integer(kind=c_int), dimension(ncols) :: sortable, editable
+
   integer, allocatable, dimension(:) :: surfIdx
   integer, allocatable, dimension(:) :: isRefSurface, radPickups, thiPickups
   real(kind=real64), dimension(curr_lens_data%num_surfaces) :: clearApertures
-
-  integer, parameter :: numModTypes = 3
-  character(kind=c_char, len=20),dimension(numModTypes) :: valsArray
-  integer(c_int), dimension(numModTypes) :: refsArray
   integer :: i
-
-
 
   integer, parameter :: numSurfTypes = 1
   character(kind=c_char, len=20),dimension(numSurfTypes) :: surfTypeNames
   integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
+  real(kind=real64), dimension(16) :: extraParams
+  type(c_ptr) :: store
 
-  type(c_ptr) :: boxNew, store
-
-
-  
-
+    extraParams(1) = 5.5d0
+ 
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
 
@@ -990,14 +990,12 @@ function buildLensEditTable() result(store)
     radPickups = genPickupArr(ID_PICKUP_RAD)
     thiPickups = genPickupArr(ID_PICKUP_THIC)
 
-    boxNew = hl_gtk_box_new()
     store = g_list_store_new(G_TYPE_OBJECT)
     do i=1,curr_lens_data%num_surfaces
-    store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, "Sphere"//c_null_char, &
+    store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, trim(ldm%getSurfTypeName(i))//c_null_char, &
     & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i), &
-    & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8))
+    & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8), extraParams)
     end do
-
 
 
   end function
@@ -2361,6 +2359,9 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     ! Encode row and column for later use  
      call gtk_widget_set_name(label,"R"//trim(int2str(lens_item_get_surface_number(item)))//"C"//trim(int2str(ID_COL))//c_null_char)
 
+     !print *, "Testing... ", lens_item_get_extra_param(item, 0_c_int)
+     !print *, "Testing... ", lens_item_get_aperture(item)
+
 
 end subroutine
 
@@ -2417,12 +2418,15 @@ subroutine rebuildLensEditorTable()
 end subroutine
 
 subroutine setLensEditColumns(colView)
+  use type_utils, only: int2str
   type(c_ptr), value :: colView
 
   integer :: ii
-  integer, target :: colIDs(10) = [(ii,ii=1,10)]
+  integer, target :: colIDs(25) = [(ii,ii=1,25)]
   type(c_ptr) :: factory, column
-  character(kind=c_char, len=20),dimension(10) :: colNames  
+  character(kind=c_char, len=20),dimension(10) :: colNames
+  character(kind=c_char, len=20),dimension(16) :: extraParamColNames  
+  integer :: extra_param_start = 9
 
   colNames(1) = "Surface"
   colNames(2) = "Ref"
@@ -2433,15 +2437,87 @@ subroutine setLensEditColumns(colView)
   colNames(7) = "Glass"  
   colNames(8) = "Aperture"  
 
+  do ii=1,size(extraParamColNames)
+    extraParamColNames(ii) = "Par "//trim(int2str(ii))
+  end do
+
+
+
   do ii=1,8
     factory = gtk_signal_list_item_factory_new()
     call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
     call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
     column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
     call gtk_column_view_append_column (colView, column)
+    call gtk_column_view_append_column (colView, column)
     call g_object_unref (column)      
   end do
 
+  ! Do extra params separately for now
+  do ii=1,size(extraParamColNames)
+    factory = gtk_signal_list_item_factory_new()
+    call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii+extra_param_start-1)))
+    call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii+extra_param_start-1)))
+    column = gtk_column_view_column_new(trim(extraParamColNames(ii))//c_null_char, factory)
+    call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii+extra_param_start-1))))
+    call gtk_column_view_column_set_resizable(column, 1_c_int)
+    call gtk_column_view_append_column (colView, column)
+    call g_object_unref (column)    
+  end do
+
+
+end subroutine
+
+subroutine updateColumnHeadersIfNeeded(surfType)
+
+  character(len=*) :: surfType
+  integer :: ii, numItems
+  type(c_ptr) :: listmodel, cStr, currCol
+  character(len=100) :: ftext
+  logical :: foundCol
+
+
+  !Find First Extra column
+  foundCol = .FALSE.
+  listmodel = gtk_column_view_get_columns(cv)
+  numItems = g_list_model_get_n_items(listmodel) -1
+  do ii=0,numItems
+    currCol = g_list_model_get_object(listmodel,ii)
+    cStr = gtk_column_view_column_get_id(currCol)
+    call convert_c_string(cStr, ftext) 
+    print *, "ftext is ", trim(ftext)  
+    if (trim(ftext) == '9') then 
+         foundCol = .TRUE.
+         exit
+    end if
+  end do
+
+  if(foundCol) then
+    cStr = gtk_column_view_column_get_title(currCol)
+    call convert_c_string(cStr, ftext)   
+    print *, "ColName is ", trim(ftext)
+    if (surfType == 'Asphere') then 
+      call gtk_column_view_column_set_title(currCol, "IDIDIT"//c_null_char)
+
+    end if
+
+  end if
+
+
+
+end subroutine
+
+subroutine lens_edit_row_selected(widget, position, n_items, userdata) bind(c)
+  type(c_ptr), value ::  widget, userdata
+  integer(c_int) :: position, n_items
+  type(c_ptr) :: listitem, cStr
+  character(len=100) :: ftext
+  print *, "Row selected! "
+  listitem = gtk_single_selection_get_selected_item(widget)
+  cStr = lens_item_get_surface_type(listitem)
+  call convert_c_string(cStr, ftext)   
+  print *, "Surf type is ", trim(ftext)
+  call updateColumnHeadersIfNeeded(trim(ftext))
 
 end subroutine
 
@@ -2476,8 +2552,9 @@ end subroutine
       store = buildLensEditTable()
     
   
-      !selection = gtk_single_selection_new(store)
-      selection = gtk_multi_selection_new(store)
+      selection = gtk_single_selection_new(store)
+      call gtk_widget_set_name(selection, 'THISONE'//c_null_char)
+      call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr)      !selection = gtk_multi_selection_new(store)
       call gtk_single_selection_set_autoselect(selection,TRUE)    
       cv = gtk_column_view_new(selection)
       call gtk_column_view_set_show_column_separators(cv, 1_c_int)
