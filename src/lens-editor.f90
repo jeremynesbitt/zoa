@@ -2448,6 +2448,7 @@ subroutine setLensEditColumns(colView)
     call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_cb),c_loc(colIDs(ii)))
     call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
     column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
+    call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii))))
     call gtk_column_view_append_column (colView, column)
     call gtk_column_view_append_column (colView, column)
     call g_object_unref (column)      
@@ -2469,13 +2470,33 @@ subroutine setLensEditColumns(colView)
 end subroutine
 
 subroutine updateColumnHeadersIfNeeded(surfType)
+  use type_utils, only: int2str
 
   character(len=*) :: surfType
-  integer :: ii, numItems
+  integer :: ii, numItems, refCol
   type(c_ptr) :: listmodel, cStr, currCol
   character(len=100) :: ftext
   logical :: foundCol
+  character(kind=c_char, len=20),dimension(16) :: extraParamColNames  
+  character(kind=c_char, len=20),dimension(16) :: extraParamAsphereColNames  
+  integer :: extra_param_start = 9
 
+  ! Hard code for the two types for now. Need to abstract this into types
+
+  do ii=1,size(extraParamColNames)
+    extraParamColNames(ii) = "Par "//trim(int2str(ii))
+  end do
+
+  extraParamAsphereColNames(1) = "4th order"
+  extraParamAsphereColNames(2) = "6th order"
+  extraParamAsphereColNames(3) = "8th order"
+  extraParamAsphereColNames(4) = "10th order"
+  extraParamAsphereColNames(5) = "12th order"
+  extraParamAsphereColNames(6) = "14th order"
+  extraParamAsphereColNames(7) = "16th order"
+  extraParamAsphereColNames(8) = "18th order"
+  extraParamAsphereColNames(9) = "20th order"
+  extraParamAsphereColNames(10:16) = extraParamColNames(10:16)
 
   !Find First Extra column
   foundCol = .FALSE.
@@ -2487,6 +2508,7 @@ subroutine updateColumnHeadersIfNeeded(surfType)
     call convert_c_string(cStr, ftext) 
     print *, "ftext is ", trim(ftext)  
     if (trim(ftext) == '9') then 
+         refCol = ii
          foundCol = .TRUE.
          exit
     end if
@@ -2496,9 +2518,17 @@ subroutine updateColumnHeadersIfNeeded(surfType)
     cStr = gtk_column_view_column_get_title(currCol)
     call convert_c_string(cStr, ftext)   
     print *, "ColName is ", trim(ftext)
+    if (surfType == 'Sphere') then 
+      do ii=1,16
+          call gtk_column_view_column_set_title(currCol, trim(extraParamColNames(ii))//c_null_char)
+          currCol = g_list_model_get_object(listmodel,refCol+ii)
+      end do
+    end if
     if (surfType == 'Asphere') then 
-      call gtk_column_view_column_set_title(currCol, "IDIDIT"//c_null_char)
-
+      do ii=1,16
+        call gtk_column_view_column_set_title(currCol, trim(extraParamAsphereColNames(ii))//c_null_char)
+        currCol = g_list_model_get_object(listmodel,refCol+ii)
+    end do
     end if
 
   end if
