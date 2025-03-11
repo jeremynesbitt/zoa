@@ -282,7 +282,7 @@ module procedure execSUR
         integer :: numTokens
 
         call parse(iptStr, ' ', tokens, numTokens)
-        call executeCodeVLensUpdateCommand('CC '//trim(tokens(2)))
+        call executeCodeVLensUpdateCommand('CC '//trim(tokens(2)(2:len(tokens(2)))))
         
     end procedure
 

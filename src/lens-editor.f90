@@ -958,6 +958,27 @@ function genSurfaceTypes() result(typeStr)
 
 end function
 
+! Eventually this will move to surf types once implemented, but for now put it here while building out new UI
+function getExtraParams(surf, surfType) result(extraParams)
+  use mod_lens_data_manager
+  use DATLEN, only: ALENS
+  integer, intent(in) :: surf
+  character(len=*), intent(in) :: surfType
+  real(kind=real64), dimension(16) :: extraParams
+
+  select case(surfType)
+  case('Sphere')
+    extraParams = 0.0d0
+  case('Asphere')
+    extraParams(1) = ALENS(2,surf)
+    extraParams(2:5) = ALENS(4:7,surf)
+    extraParams(6:10) = ALENS(81:85,surf)
+    extraParams(11:16) = 0.0d0
+
+  end select
+
+end function
+
 ! This func interfaces with the c struct that stores the data
 ! At some point I may migrate this to python but for now the
 ! main cost of this is a bunch of interfaces for each get which
@@ -977,7 +998,6 @@ function buildLensEditTable() result(store)
   real(kind=real64), dimension(16) :: extraParams
   type(c_ptr) :: store
 
-    extraParams(1) = 5.5d0
  
     allocate(surfIdx(curr_lens_data%num_surfaces))
     surfIdx =  (/ (i,i=0,curr_lens_data%num_surfaces-1)/)
@@ -992,7 +1012,8 @@ function buildLensEditTable() result(store)
 
     store = g_list_store_new(G_TYPE_OBJECT)
     do i=1,curr_lens_data%num_surfaces
-    store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, trim(ldm%getSurfTypeName(i))//c_null_char, &
+      extraParams = getExtraParams(i-1,ldm%getSurfTypeName(i-1))
+    store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, trim(ldm%getSurfTypeName(i-1))//c_null_char, &
     & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i), &
     & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8), extraParams)
     end do
@@ -2172,6 +2193,8 @@ function getSurfaceIndexFromRowColumnCode(rcCode) result(surfIdx)
 
 end function
 
+! Assumption here is that data contains the cmd to change the value
+! and the structure is CMD Sk Val will update the surface value
 subroutine cell_changed(widget, data) bind(c)
   use type_utils
 
@@ -2242,6 +2265,7 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
   type(c_ptr) :: label, entryCB, menuB, boxS
   integer(kind=c_int), pointer :: ID_COL
   character(len=3) :: cmd
+  character(len=3), dimension(10) :: extraParamCmds = ['K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 
   label =gtk_label_new(c_null_char)
   call gtk_list_item_set_child(listitem,label)
@@ -2267,7 +2291,7 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
     call gtk_list_item_set_child(listitem,boxS)
    case(7) ! Glass
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('GLA'))
-    call gtk_list_item_set_child(listitem, label)
+    call gtk_list_item_set_child(listitem, entryCB)   
   case(8) ! Aperture
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))
     call gtk_list_item_set_child(listitem, entryCB)    
@@ -2278,6 +2302,13 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
    ! menuB = gtk_menu_button_new()
    ! call gtk_list_item_set_child(listitem, menuB)
 
+  ! Extra params  
+  case(9:18)
+    ! Put it in a box to use the same callback for this entry and entries with menu buttons
+    boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup(trim(extraParamCmds(ID_COL-8))))
+    call gtk_box_append(boxS, entryCB)
+    call gtk_list_item_set_child(listitem, boxS)   
    case default 
     label =gtk_label_new(c_null_char)
     call gtk_list_item_set_child(listitem,label)
@@ -2354,6 +2385,11 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     colName = trim(real2str(lens_item_get_aperture(item)))//c_null_char  
     buffer = gtk_entry_get_buffer(label)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int) 
+  case(9:25)
+    entryCB = gtk_widget_get_first_child(label)  
+    buffer = gtk_entry_get_buffer(entryCB)
+    colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9),sci=.TRUE.))//c_null_char
+    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)     
    end select
 
     ! Encode row and column for later use  
@@ -2487,16 +2523,17 @@ subroutine updateColumnHeadersIfNeeded(surfType)
     extraParamColNames(ii) = "Par "//trim(int2str(ii))
   end do
 
-  extraParamAsphereColNames(1) = "4th order"
-  extraParamAsphereColNames(2) = "6th order"
-  extraParamAsphereColNames(3) = "8th order"
-  extraParamAsphereColNames(4) = "10th order"
-  extraParamAsphereColNames(5) = "12th order"
-  extraParamAsphereColNames(6) = "14th order"
-  extraParamAsphereColNames(7) = "16th order"
-  extraParamAsphereColNames(8) = "18th order"
-  extraParamAsphereColNames(9) = "20th order"
-  extraParamAsphereColNames(10:16) = extraParamColNames(10:16)
+  extraParamAsphereColNames(1) = "Conic (K)"
+  extraParamAsphereColNames(2) = "4th order (A)"
+  extraParamAsphereColNames(3) = "6th order (B)"
+  extraParamAsphereColNames(4) = "8th order (C)"
+  extraParamAsphereColNames(5) = "10th order (D)"
+  extraParamAsphereColNames(6) = "12th order (E)"
+  extraParamAsphereColNames(7) = "14th order (F)"
+  extraParamAsphereColNames(8) = "16th order (G)"
+  extraParamAsphereColNames(9) = "18th order (H)"
+  extraParamAsphereColNames(10) = "20th order (I)"
+  extraParamAsphereColNames(11:16) = extraParamColNames(11:16)
 
   !Find First Extra column
   foundCol = .FALSE.
