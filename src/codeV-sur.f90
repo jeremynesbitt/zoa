@@ -271,19 +271,54 @@ module procedure execSUR
         print *, "tried to execute ", aspKDP//' '//trim(tokens(2))
     end procedure   
     
+    ! Format
+    ! K Sk Val - update on lens Sk
+    ! K Val - update current lens (eg when loading from file)
+    ! K Sk - return val on current lens (not currently implemented) 
     module procedure updateConicConstant
-        use strings
-        use DATLEN, only: ALENS
+        !use DATLEN, only: ALENS
+        use command_utils, only: isInputNumber
+        use mod_lens_data_manager
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
-        character(len=2) :: aspKDP
+        character(len=3) ::  kdpCmd = 'CC ' ! For future abstraction
         integer :: numTokens
 
         call parse(iptStr, ' ', tokens, numTokens)
-        call executeCodeVLensUpdateCommand('CC '//trim(tokens(2)(2:len(tokens(2)))))
         
+        select case (numTokens)
+
+        case(2) 
+            if (isSurfCommand(trim(tokens(2)))) then
+                    surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            else
+                if (isInputNumber(trim(tokens(2)))) then 
+                    ! Use current surface
+                    surfNum = ldm%getSurfacePointer()                
+                    call executeCodeVLensUpdateCommand(kdpCmd//trim(tokens(2)))
+                    return 
+                else
+                call updateTerminalLog("Error! For "//kdpCmd//"expect second argument to be Sk &
+                & or value to update for current lens pointer surface ", "red")
+                return
+                end if
+            end if
+
+        case(3) ! K Sk Val
+            if (isSurfCommand(trim(tokens(2)))) then
+                surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))  
+            end if          
+            if (isInputNumber(trim(tokens(3)))) then 
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                & '; '//kdpCmd//trim(tokens(3)))   
+                return 
+            end if           
+        end select
+
+
+
     end procedure
 
 
