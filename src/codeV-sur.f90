@@ -267,7 +267,8 @@ module procedure execSUR
             aspKDP = 'AK'                       
 
         end select
-        call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)), debugFlag=.TRUE.)
+        call execTranslatedSurfCmd(iptStr, aspKDP)
+        !call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)), debugFlag=.TRUE.)
         print *, "tried to execute ", aspKDP//' '//trim(tokens(2))
     end procedure   
     
@@ -286,6 +287,58 @@ module procedure execSUR
         character(len=3) ::  kdpCmd = 'CC ' ! For future abstraction
         integer :: numTokens
 
+        call execTranslatedSurfCmd(iptStr, 'CC')
+
+        ! call parse(iptStr, ' ', tokens, numTokens)
+        
+        ! select case (numTokens)
+
+        ! case(2) 
+        !     if (isSurfCommand(trim(tokens(2)))) then
+        !             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        !     else
+        !         if (isInputNumber(trim(tokens(2)))) then 
+        !             ! Use current surface
+        !             surfNum = ldm%getSurfacePointer()                
+        !             call executeCodeVLensUpdateCommand(kdpCmd//trim(tokens(2)))
+        !             return 
+        !         else
+        !         call updateTerminalLog("Error! For "//kdpCmd//"expect second argument to be Sk &
+        !         & or value to update for current lens pointer surface ", "red")
+        !         return
+        !         end if
+        !     end if
+
+        ! case(3) ! K Sk Val
+        !     if (isSurfCommand(trim(tokens(2)))) then
+        !         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))  
+        !     end if          
+        !     if (isInputNumber(trim(tokens(3)))) then 
+        !         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+        !         & '; '//kdpCmd//trim(tokens(3)))   
+        !         return 
+        !     end if           
+        ! end select
+
+
+
+    end procedure
+
+    ! Expected Format for iptStr:
+    ! cmd Sk Val - update on lens Sk
+    ! cmd Val - update current lens (eg when loading from file)
+    ! cmd Sk - return val on current lens (not currently implemented) 
+    ! kdpCmd - the translated command for cmd
+    subroutine execTranslatedSurfCmd(iptStr, kdpCmd)
+        use command_utils, only: isInputNumber
+        use mod_lens_data_manager
+        
+        character(len=*) :: iptStr
+        character(len=*) :: kdpCmd
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
         call parse(iptStr, ' ', tokens, numTokens)
         
         select case (numTokens)
@@ -297,10 +350,10 @@ module procedure execSUR
                 if (isInputNumber(trim(tokens(2)))) then 
                     ! Use current surface
                     surfNum = ldm%getSurfacePointer()                
-                    call executeCodeVLensUpdateCommand(kdpCmd//trim(tokens(2)))
+                    call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
                     return 
                 else
-                call updateTerminalLog("Error! For "//kdpCmd//"expect second argument to be Sk &
+                call updateTerminalLog("Error! For "//trim(tokens(1))//"expect second argument to be Sk &
                 & or value to update for current lens pointer surface ", "red")
                 return
                 end if
@@ -312,14 +365,13 @@ module procedure execSUR
             end if          
             if (isInputNumber(trim(tokens(3)))) then 
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; '//kdpCmd//trim(tokens(3)))   
+                & '; '//kdpCmd//' '//trim(tokens(3)))   
                 return 
             end if           
         end select
 
 
-
-    end procedure
+    end subroutine
 
 
 end submodule
