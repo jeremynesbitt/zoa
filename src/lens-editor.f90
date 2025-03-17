@@ -358,141 +358,50 @@ subroutine lens_editor_replot
 end subroutine lens_editor_replot
 
  subroutine ins_row(but, gdata) bind(c)
+  use type_utils, only: int2str
     type(c_ptr), value, intent(in) :: but, gdata
-    integer(kind=c_int), dimension(:), allocatable :: iset
-    integer(kind=c_int), dimension(:), allocatable :: dep
-    integer(kind=c_int) :: nsel
-    character(len=40) :: kdptext
+    integer(kind=c_int) :: currRow
 
-    nsel = hl_gtk_listn_get_selections(ihlist, iset)
-
-    if (nsel /= 1) then
-       print *, "Not a single selection"
-       return
-    end if
-
-    PRINT *, "Insert Method!"
-
-    !call hl_gtk_tree_rem(ihlist, selections(:dep(1),1))
-
-    call PROCESKDP('U L')
-    WRITE(kdptext,*) 'CHG,', iset(1)
-        call PROCESKDP(kdptext)
-        call PROCESKDP('INSK')
-        call PROCESKDP('EOS')
-        call PROCESKDP('OUT TP')
-
-! C               CALL PROCES
-!                 INPUT='U L'
-!                 CALL PROCES
-!                 WRITE(INPUT,*) 'CHG,',ISET
-!                 CALL PROCES
-!                 INPUT='INS'
-!                 CALL PROCES
-!                 INPUT='EOS'
-!                 CALL PROCES
-!                 INPUT='OUT TP'
-!                 CALL PROCES
-
-
-    !call hl_gtk_tree_ins(ihlist, absrow=iset(1,1))
-
-    call gtk_widget_set_sensitive(but, FALSE)
-
-    call refreshLensDataStruct() ! Is this really needed?  Does 'EOS' do this for free?
-    call buildBasicTable(.FALSE.)
-    !call loadLensData()
+    ! new code
+    currRow = getCurrentLensEditorRow()
+    call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; INSK ; EOS')
+    call rebuildLensEditorTable()
     call zoatabMgr%rePlotIfNeeded()
-
-
+    return
+    
   end subroutine
 
- function ITOC(intVal) result(output)
-   integer :: intVal
-   character(len=100) :: output
-   character(len=80) :: B
-   !PRINT *, "val is ", intVal
-   write(output, *) intVal
-
-   !output = 'C'
-   !PRINT *, "intVal is", intVal
-   !WRITE(B,'(I2)') intVal
-   !READ(B,'(A2)') output
-   !write(output, '(I2)') intVal
-   !PRINT *, "output is ", output
-
- end function
-
-
  subroutine del_row(but, gdata) bind(c)
-    type(c_ptr), value, intent(in) :: but, gdata
-    integer(kind=c_int), dimension(:), allocatable :: iset
-    integer(kind=c_int), dimension(:), allocatable :: dep
-    integer(kind=c_int) :: nsel
-    integer(kind=c_int) :: lastSurface
-    character(len=40) :: kdptext
+  use type_utils, only: int2str
+  use mod_lens_data_manager
+  type(c_ptr), value, intent(in) :: but, gdata
+  integer(kind=c_int) :: currRow
 
-    nsel = hl_gtk_listn_get_selections(ihlist, iset)
-
-    if (nsel /= 1) then
-       print *, "Not a single selection"
-       print *, "end selection is ", iset(nsel)
-       !return
-    end if
-
-    PRINT *, "iset = ", iset(1)
-    call getOpticalSystemLastSurface(lastSurface)
-
-
-        IF(iset(1) == 0) THEN
-            call updateTerminalLog('OBJECT SURFACE MAY NOT BE DELETED', "black")
-            return
-        END IF
-        IF(iset(1) == lastSurface) THEN
-          call updateTerminalLog('IMAGE SURFACE MAY NOT BE DELETED', "black")
-           return
-        END IF
-        ! IF(INT(SYSTEM(20)).LE.3) THEN
-        !    WRITE(OUTLYNE,*) 'LENS IS OF MINIMUM SIZE, NO MORE SURFACES MAY BE DELETED'
-        !    CALL SHOWIT(1)
-        !    return
-        ! END IF
-
-        call PROCESKDP('OUT NULL')
-        call PROCESKDP('U L')
-        !WRITE(kdptext,*) 'CHG,', iset(1,1)
-
-        !call PROCESKDP(kdptext)
-        !PRINT *, "ITOC TEST "
-        !PRINT *, "ITOC TEST ", ITOC(INT(1))
-        !PRINT *, 'DEL, '//ITOC(iset(1,1))
-        if (nsel.EQ.1) then
-           PRINT *, 'DELK, '//ITOC(iset(1))
-           call PROCESKDP('DELK, '//ITOC(iset(1)))
-        else
-          call PROCESKDP('DELK, '//ITOC(iset(1))//','//ITOC(iset(nsel)))
-        end if
-        !call PROCESKDP('DELK')
-        call PROCESKDP('EOS')
-        !call PROCESKDP('OUT TP')
-
-
-    call hl_gtk_listn_rem(ihlist, iset(1))
-
-    call gtk_widget_set_sensitive(but, FALSE)
-
-    call refreshLensDataStruct()
-    call buildBasicTable(.FALSE.)
-    call buildAsphereTable(.FALSE.)
-    call buildSolveTable(.FALSE.)
-
-    !call loadLensData()
-    PRINT *, "About to try replot"
-    call zoatabMgr%rePlotIfNeeded()
-    PRINT *, "Done with replot"
+  ! new code
+  currRow = getCurrentLensEditorRow()
+  IF(currRow == 0) THEN
+    call updateTerminalLog('OBJECT SURFACE MAY NOT BE DELETED', "black")
+    return
+  END IF
+  IF(currRow == ldm%getLastSurf()) THEN
+    call updateTerminalLog('IMAGE SURFACE MAY NOT BE DELETED', "black")
+    return
+  END IF
+  
+  call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; DELK ; EOS')
+  call rebuildLensEditorTable()
+  call zoatabMgr%rePlotIfNeeded()
 
   end subroutine del_row
 
+  function ITOC(intVal) result(output)
+    integer :: intVal
+    character(len=100) :: output
+    character(len=80) :: B
+    !PRINT *, "val is ", intVal
+    write(output, *) intVal
+ 
+  end function
 
   subroutine lens_edited(renderer, path, text, gdata) bind(c)
 
@@ -2416,6 +2325,26 @@ subroutine clearColumnView()
 
 end subroutine
 
+
+function getCurrentLensEditorRow() result(currPos)
+  integer(c_int) :: currPos, numRows, isSelected, ii
+  type(c_ptr) :: selection
+
+
+  selection = gtk_column_view_get_model(cv)
+  ! Seems there is no simple way to get selected row so brute force it
+  numRows = g_list_model_get_n_items(selection)
+  currPos=-1
+  do ii=0,numRows-1
+    isSelected = gtk_selection_model_is_selected(selection, ii)
+    if (isSelected==1) then
+         currPos = ii
+         exit
+    end if
+  end do
+
+end function
+
 subroutine rebuildLensEditorTable()
 
   type(c_ptr) :: store, selection, model, factory, column
@@ -2485,6 +2414,10 @@ subroutine setLensEditColumns(colView)
     call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_cb),c_loc(colIDs(ii)))
     column = gtk_column_view_column_new(trim(colNames(ii))//c_null_char, factory)
     call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii))))
+    call gtk_column_view_column_set_resizable(column, 1_c_int)
+    if (ii > 4) then
+    call gtk_column_view_column_set_fixed_width(column, 135_c_int) ! THis shouldn't be hard coded but until I figure out a better way
+    end if
     call gtk_column_view_append_column (colView, column)
     call gtk_column_view_append_column (colView, column)
     call g_object_unref (column)      
@@ -2498,6 +2431,7 @@ subroutine setLensEditColumns(colView)
     column = gtk_column_view_column_new(trim(extraParamColNames(ii))//c_null_char, factory)
     call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii+extra_param_start-1))))
     call gtk_column_view_column_set_resizable(column, 1_c_int)
+    call gtk_column_view_column_set_fixed_width(column, 80_c_int) ! THis shouldn't be hard coded but until I figure out a better way
     call gtk_column_view_append_column (colView, column)
     call g_object_unref (column)    
   end do
@@ -2585,7 +2519,8 @@ subroutine lens_edit_row_selected(widget, position, n_items, userdata) bind(c)
   call convert_c_string(cStr, ftext)   
   print *, "Surf type is ", trim(ftext)
   call updateColumnHeadersIfNeeded(trim(ftext))
-
+  call gtk_widget_set_sensitive(dbut, TRUE)
+  call gtk_widget_set_sensitive(ibut, TRUE)
 end subroutine
 
   function lens_editor_add_dialog(ID_TAB) result(boxNew)
@@ -2626,11 +2561,14 @@ end subroutine
       cv = gtk_column_view_new(selection)
       call gtk_column_view_set_show_column_separators(cv, 1_c_int)
       call gtk_column_view_set_show_row_separators(cv, 1_c_int)
+      call gtk_column_view_set_reorderable(cv, 0_c_int)
 
       !call gtk_box_append(box, cv)                            
   
       
       call setLensEditColumns(cv)
+
+ PRINT *, "END OF LENS EDITOR DIALOG SUB"
 
       !call gtk_widget_set_vexpand (ihScrollSolv, FALSE)
       !call gtk_widget_set_hexpand (ihScrollSolv, FALSE)      
@@ -2638,6 +2576,26 @@ end subroutine
       call gtk_scrolled_window_set_child(swin, cv)
       call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
       call gtk_box_append(boxNew, swin)
+
+    ! Delete selected row
+      ibut = hl_gtk_button_new("Insert row"//c_null_char, &
+      & clicked=c_funloc(ins_row), &
+      & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+
+      call hl_gtk_box_pack(boxNew, ibut)
+
+      ! Delete selected row
+      dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
+            & clicked=c_funloc(del_row), &
+            & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+
+      call hl_gtk_box_pack(boxNew, dbut)
+
+      ! Also a quit button
+      qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(lens_editor_destroy), data=lens_editor_window)
+      call hl_gtk_box_pack(boxNew,qbut)
+
+
 !      call hl_gtk_box_pack(boxNew, swin)
     end select
    
