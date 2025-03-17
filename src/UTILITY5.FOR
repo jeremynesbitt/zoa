@@ -156,7 +156,7 @@ C SUB CONTRO.FOR
         use zoa_file_handler, only: getPermMacroDir
         use global_widgets, only: lens_editor_window,
      1 curr_asph_data, sysConfig, curr_lens_data
-        use lens_editor, only: buildBasicTable, buildAsphereTable
+        use lens_editor
         use codeV_commands, only: startCodeVLensUpdateCmd, 
      1   isCodeVCommand
         use iso_c_binding, only: c_associated  
@@ -4234,8 +4234,8 @@ C     CALL RE_DISPLAY_LENS(YESEOS)
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
       if (c_associated(lens_editor_window)) then
-        call buildBasicTable(.FALSE.)
-        call buildAsphereTable(.FALSE.)
+        call rebuildLensEditorTable()
+
       end if   
       !PRINT *, "IN EOS in CONTRO"
       ! If I try to check this here, then when I have a VIE plot it will not update
