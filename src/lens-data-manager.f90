@@ -45,7 +45,7 @@ module mod_lens_data_manager
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
-     procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName
+     procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName, getExtraParamCmd
 
     end type
 
@@ -126,6 +126,28 @@ module mod_lens_data_manager
         if(ALENS(8,idx) == 1 ) strName='Asphere'
 
     end function
+
+    !TODO:  update this when surf type abstraction is ready
+    function getExtraParamCmd(self, surfIdx, colIdx) result (cmd)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx, colIdx
+        character(len=20) :: strName
+        character(len=3)  :: cmd
+        character(len=3), dimension(10) :: extraParamCmds = ['K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+
+        strName = self%getSurfTypeName(surfIdx)
+
+        cmd = '  '
+        select case (trim(strName))
+        case('Sphere') ! No extra params
+            cmd = ' '
+        case('Asphere')
+            if(colIdx < size(extraParamCmds)) then 
+                cmd = extraParamCmds(colIdx)
+            end if
+        end select
+
+    end function       
 
     function getCurrentConfig(self) result(cfg)
         class(lens_data_manager) :: self

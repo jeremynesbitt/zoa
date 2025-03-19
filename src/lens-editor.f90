@@ -110,6 +110,7 @@ end function
   logical :: mod_update
   type(c_ptr) :: cv
   
+  integer, parameter :: extra_param_start = 9 
 
   integer, parameter :: ID_EDIT_ASPH_NONTORIC = 1001
   integer, parameter :: ID_EDIT_ASPH_TORIC_Y = 1002
@@ -1118,16 +1119,20 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
 
 end subroutine
 
-function getSurfaceIndexFromRowColumnCode(rcCode) result(surfIdx)
+function getSurfaceIndexFromRowColumnCode(rcCode, colIdx) result(surfIdx)
   use type_utils
   character(len=*) :: rcCode
   integer :: surfIdx
+  integer, optional, intent(inout) :: colIdx
   integer :: rL, cL
 
   rL = index(rcCode, 'R')
   cL = index(rcCode, 'C')
   !print *, "row is ", rcCode(rL+1:cL)
   surfIdx = str2int(rcCode(rL+1:cL-1))
+  if (present(colIdx)) then 
+    colIdx = str2int(rcCode(cL+1:len(rcCode)))
+  end if
   !print *, "surfIdx is ", surfIdx
 
 end function
@@ -1157,6 +1162,36 @@ print *, "cmd is ", trim(cmd)
 call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
 
 end subroutine
+
+! For extra param I can't store the command in the widget, so 
+! look it up from row column index
+subroutine extraParam_changed(widget, data) bind(c)
+  use type_utils
+  use mod_lens_data_manager
+
+type(c_ptr), value :: widget, data
+type(c_ptr) :: buff2, cStr
+character(len=100) :: ftext, rcCode, cmd
+integer :: surfIdx, colIdx
+
+buff2 = gtk_entry_get_buffer(widget)
+call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
+
+print *, "Val is ", trim(ftext)
+cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
+call convert_c_string(cStr, rcCode)  
+print *, "Val is ", trim(rcCode)
+
+surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
+cmd = ldm%getExtraParamCmd(surfIdx, colIdx-extra_param_start+1)
+
+print *, "cmd is ", cmd
+if (len(trim(cmd)) > 0) then 
+  call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
+end if
+
+end subroutine
+
 
 subroutine enablePickup(act, avalue, btn) bind(c)
   type(c_ptr), value, intent(in) :: act, avalue, btn
@@ -1204,7 +1239,7 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
   type(c_ptr) :: label, entryCB, menuB, boxS
   integer(kind=c_int), pointer :: ID_COL
   character(len=3) :: cmd
-  character(len=3), dimension(10) :: extraParamCmds = ['K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+  
 
   label =gtk_label_new(c_null_char)
   call gtk_list_item_set_child(listitem,label)
@@ -1234,20 +1269,16 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
     call gtk_box_append(boxS, entryCB)
     call gtk_list_item_set_child(listitem, boxS)       
   case(8) ! Aperture
+    boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))
-    call gtk_list_item_set_child(listitem, entryCB)    
-
-    !entryCB = gtk_entry_new()
-    !call gtk_list_item_set_child(listitem,entryCB)
-   !case(6)
-   ! menuB = gtk_menu_button_new()
-   ! call gtk_list_item_set_child(listitem, menuB)
-
+    call gtk_box_append(boxS, entryCB)
+    call gtk_list_item_set_child(listitem, boxS)      
+    
   ! Extra params  
   case(9:18)
     ! Put it in a box to use the same callback for this entry and entries with menu buttons
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup(trim(extraParamCmds(ID_COL-8))))
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(extraParam_changed), data=c_null_ptr)
     call gtk_box_append(boxS, entryCB)
     call gtk_list_item_set_child(listitem, boxS)   
    case default 
@@ -1326,9 +1357,10 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
   case(8) ! Clear Aperture
     colName = trim(real2str(lens_item_get_aperture(item)))//c_null_char  
-    buffer = gtk_entry_get_buffer(label)
-    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int) 
-  case(9:25)
+    entryCB = gtk_widget_get_first_child(label)  
+    buffer = gtk_entry_get_buffer(entryCB)    
+    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+  case(9:18)
     entryCB = gtk_widget_get_first_child(label)  
     buffer = gtk_entry_get_buffer(entryCB)
     colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9),sci=.TRUE.))//c_null_char
@@ -1426,7 +1458,6 @@ subroutine setLensEditColumns(colView)
   type(c_ptr) :: factory, column
   character(kind=c_char, len=20),dimension(10) :: colNames
   character(kind=c_char, len=20),dimension(16) :: extraParamColNames  
-  integer :: extra_param_start = 9
 
   colNames(1) = "Surface"
   colNames(2) = "Ref"
@@ -1453,7 +1484,6 @@ subroutine setLensEditColumns(colView)
     if (ii > 4) then
     call gtk_column_view_column_set_fixed_width(column, 135_c_int) ! THis shouldn't be hard coded but until I figure out a better way
     end if
-    call gtk_column_view_append_column (colView, column)
     call gtk_column_view_append_column (colView, column)
     call g_object_unref (column)      
   end do
@@ -1580,7 +1610,6 @@ end subroutine
     
   
       selection = gtk_single_selection_new(store)
-      call gtk_widget_set_name(selection, 'THISONE'//c_null_char)
       call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr)      !selection = gtk_multi_selection_new(store)
       call gtk_single_selection_set_autoselect(selection,TRUE)    
       cv = gtk_column_view_new(selection)
