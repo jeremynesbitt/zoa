@@ -33,7 +33,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getEFL
      procedure, public, pass(self) :: getTrackLength
      procedure :: getCurrentConfig
-     procedure :: getSurfName
+     procedure :: getSurfName, getSurfLabel
      procedure :: getStopSurf
      procedure :: isGlassSurf
      procedure :: getGlassName
@@ -113,6 +113,16 @@ module mod_lens_data_manager
         if (idx==self%getLastSurf()) strName = 'IMG'
 
     end function
+ 
+    function getSurfLabel(self, idx) result(strLabel)
+        use DATLEN, only : LBL
+        class(lens_data_manager) :: self
+        integer, intent(in) :: idx
+        character(len=80) :: strLabel
+
+        strLabel = LBL(idx)(1:80)
+
+    end function    
 
     !Sphere, Asphere, etc.  eventually need to compile a list of these
     !For UI selection
@@ -700,6 +710,11 @@ module mod_lens_data_manager
           ! Check for ref stop
           if (curr_lens_data%ref_stop == ii) then
             strSurfLine = blankStr(2)//'STO'
+            write(fID, *) trim(strSurfLine)
+          end if
+          if (trim(ldm%getSurfLabel(ii-1)) .NE. ' ') then
+            print *, "about to write surface label"
+            strSurfLine = blankStr(2)//'SLB "'//trim(ldm%getSurfLabel(ii-1))//""""
             write(fID, *) trim(strSurfLine)
           end if
           

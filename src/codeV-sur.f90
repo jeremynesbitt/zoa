@@ -324,13 +324,17 @@ module procedure execSUR
 
     end procedure
 
+    module procedure updateSurfaceLabel
+        call execTranslatedSurfCmd(iptStr, 'LBL')    
+    end procedure
+
     ! Expected Format for iptStr:
     ! cmd Sk Val - update on lens Sk
     ! cmd Val - update current lens (eg when loading from file)
     ! cmd Sk - return val on current lens (not currently implemented) 
     ! kdpCmd - the translated command for cmd
     subroutine execTranslatedSurfCmd(iptStr, kdpCmd)
-        use command_utils, only: isInputNumber
+        use command_utils, only: isInputNumber, removeQuotes
         use mod_lens_data_manager
         
         character(len=*) :: iptStr
@@ -353,6 +357,15 @@ module procedure execSUR
                     call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
                     return 
                 else
+                    ! Some commands are not numbers
+                    if (trim(kdpCmd) == 'LBL') then 
+                        surfNum = ldm%getSurfacePointer()    
+                        tokens(2) = removeQuotes(trim(tokens(2)))
+                        call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))   
+                        return 
+                    end if                       
+
+                ! If not number and no special case then complain    
                 call updateTerminalLog("Error! For "//trim(tokens(1))//"expect second argument to be Sk &
                 & or value to update for current lens pointer surface ", "red")
                 return
@@ -364,9 +377,17 @@ module procedure execSUR
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))  
             end if          
             if (isInputNumber(trim(tokens(3)))) then 
+                PRINT *, "ABout to execitue change for "//kdpCmd
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; '//kdpCmd//' '//trim(tokens(3)))   
                 return 
+            else
+                ! Special case
+                if (trim(kdpCmd) == 'LBL') then 
+                    tokens(3) = removeQuotes(trim(tokens(3)))
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                    & '; '//kdpCmd//' '//trim(tokens(3)))                       
+                end if                
             end if           
         end select
 

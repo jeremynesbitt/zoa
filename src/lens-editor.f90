@@ -581,6 +581,7 @@ function buildLensEditTable() result(store)
 
   integer, parameter :: numSurfTypes = 1
   character(kind=c_char, len=20),dimension(numSurfTypes) :: surfTypeNames
+  character(kind=c_char, len=20), dimension(curr_lens_data%num_surfaces) :: surfaceLabels
   integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
   real(kind=real64), dimension(16) :: extraParams
   type(c_ptr) :: store
@@ -597,10 +598,12 @@ function buildLensEditTable() result(store)
     radPickups = genPickupArr(ID_PICKUP_RAD)
     thiPickups = genPickupArr(ID_PICKUP_THIC)
 
+    surfaceLabels = getSurfaceNames()
+
     store = g_list_store_new(G_TYPE_OBJECT)
     do i=1,curr_lens_data%num_surfaces
       extraParams = getExtraParams(i-1,ldm%getSurfTypeName(i-1))
-    store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, trim(ldm%getSurfTypeName(i-1))//c_null_char, &
+    store = append_lens_model(store, surfIdx(i), isRefSurface(i), trim(surfaceLabels(i))//c_null_char, trim(ldm%getSurfTypeName(i-1))//c_null_char, &
     & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i), &
     & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8), extraParams)
     end do
@@ -1251,6 +1254,11 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
      if (.not.c_associated(refRadio)) refRadio = label
      call gtk_check_button_set_group(label, refRadio)
      call gtk_list_item_set_child(listitem,label)
+  case(3) ! Surface Label   
+    boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('SLB'))
+    call gtk_box_append(boxS, entryCB)
+    call gtk_list_item_set_child(listitem, boxS)         
    case(5:6) ! Radius or Thickness + modifier
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     menuB = gtk_menu_button_new()
@@ -1312,7 +1320,9 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
    case(3)
     cStr = lens_item_get_surface_name(item)
     call convert_c_string(cStr, colName)
-    call gtk_label_set_text(label, trim(colName)//c_null_char)
+    entryCB = gtk_widget_get_first_child(label)  
+    buffer = gtk_entry_get_buffer(entryCB)    
+    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
    case(4)
     cStr = lens_item_get_surface_type(item)
     call convert_c_string(cStr, colName)   

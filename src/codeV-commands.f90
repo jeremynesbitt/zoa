@@ -240,7 +240,9 @@ module codeV_commands
         zoaCmds(583)%cmd = 'ZOA2CV'
         zoaCmds(583)%execFunc => exportLensToCodeV  
         zoaCmds(584)%cmd = 'ZOA2ZMX'
-        zoaCmds(584)%execFunc => exportLensToZemax           
+        zoaCmds(584)%execFunc => exportLensToZemax  
+        zoaCmds(585)%cmd = 'SLB'
+        zoaCmds(585)%execFunc => updateSurfaceLabel                  
 
         
     end subroutine

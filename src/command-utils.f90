@@ -427,6 +427,19 @@ contains
 
   end function
 
+  function removeQuotes(iptStr) result(outStr)
+    character(len=*) :: iptStr
+    character(len=80) :: outStr
+    integer :: lQ, rQ
+    lQ = INDEX(iptStr, '"', BACK=.FALSE.)
+    rQ = INDEX(iptStr, '"', BACK=.TRUE.)
+    if(lQ.NE.rQ.AND.rQ.GT.lQ) then
+      outStr = iptStr(lQ+1:rQ-1)
+    else
+      outStr = iptStr ! No quotes found
+    end if
+
+  end function
   ! This is a special parsing as the title is enlcosed in single quotes
   ! If this is in more commands abstract this
   function parseTitleCommand() result(title)

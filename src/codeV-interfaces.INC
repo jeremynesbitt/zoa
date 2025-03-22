@@ -50,5 +50,8 @@
    end subroutine updateAsphereTerms   
    module subroutine updateConicConstant(iptStr)
     character(len=*) :: iptStr
-   end subroutine updateConicConstant                    
+   end subroutine updateConicConstant      
+   module subroutine updateSurfaceLabel(iptStr)
+    character(len=*) :: iptStr
+   end subroutine updateSurfaceLabel                       
     end interface
