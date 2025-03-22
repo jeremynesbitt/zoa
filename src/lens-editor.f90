@@ -704,6 +704,31 @@ function buildLensEditTable() result(store)
 
   end function
 
+  function getSurfaceTypesAsCStringArray() result(c_ptr_array)
+    integer :: i
+    type(c_ptr), dimension(3) :: c_ptr_array
+    character(kind=c_char), dimension(:), allocatable :: strTmp
+    character(kind=c_char), pointer, dimension(:) :: ptrTmp
+    character(len=80), dimension(2) :: surfList 
+
+    surfList(1) = "Sphere"
+    surfList(2) = "Asphere"
+
+    
+    do i = 1, size(surfList)
+      call f_c_string(surfList(i), strTmp)
+      allocate(ptrTmp(size(strTmp)))
+      ! A Fortran pointer toward the Fortran string:
+      ptrTmp(:) = strTmp(:)
+      ! Store the C address in the array:
+      c_ptr_array(i) = c_loc(ptrTmp(1))
+      nullify(ptrTmp)
+    end do
+    ! The array must be null terminated:
+    c_ptr_array(size(surfList)+1) = c_null_ptr
+
+  end function
+
 
   function getSurfacesAsCStringArray() result (c_ptr_array)
     use type_utils, only : int2str
@@ -1230,6 +1255,36 @@ function createModMenu(btn, surf) result(menuOptions)
 
 end function
 
+! TODO:  Needs updating when more surfaces are added
+subroutine updateSurfaceType(widget, gdata) bind(c)
+  use DATLEN, only: ALENS
+  type(c_ptr), value, intent(in) :: widget, gdata
+  integer :: selection, surfIdx, oldVal
+  character(len=100) :: rcCode
+  type(c_ptr) :: cStr 
+
+  cStr = gtk_widget_get_name(widget)
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+
+  selection = gtk_drop_down_get_selected(widget)
+  oldVal = ALENS(8,surfIdx)
+  select case (selection)
+  case(0) ! Sphere
+    ALENS(8,surfIdx) = 0 
+  case(1) ! Asphere
+    ALENS(8,surfIdx) = 1 
+  end select    
+  
+  if (oldVal - ALENS(8,surfIdx) .NE. 0) then 
+    call rebuildLensEditorTable()
+  end if
+
+
+end subroutine
+
 
 subroutine setup_cb(factory,listitem, gdata) bind(c)
   use gtk_hl_entry
@@ -1237,7 +1292,7 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
   
   type(c_ptr), value :: factory
   type(c_ptr), value :: listitem, gdata
-  type(c_ptr) :: label, entryCB, menuB, boxS
+  type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
   integer(kind=c_int), pointer :: ID_COL
   character(len=3) :: cmd
   
@@ -1259,6 +1314,10 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('SLB'))
     call gtk_box_append(boxS, entryCB)
     call gtk_list_item_set_child(listitem, boxS)         
+  case(4)
+    dropDown = gtk_drop_down_new_from_strings(getSurfaceTypesAsCStringArray())
+    call gtk_list_item_set_child(listitem, dropDown)   
+
    case(5:6) ! Radius or Thickness + modifier
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     menuB = gtk_menu_button_new()
@@ -1325,8 +1384,15 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
    case(4)
     cStr = lens_item_get_surface_type(item)
-    call convert_c_string(cStr, colName)   
-    call gtk_label_set_text(label, trim(colName)//c_null_char)    
+    call convert_c_string(cStr, colName)  
+    ! Will need to abstract this when more types are added
+    if(colName=='Sphere') then
+      call gtk_drop_down_set_selected(label, 0_c_int)
+    end if
+    if(colName=='Asphere') then 
+      call gtk_drop_down_set_selected(label, 1_c_int)
+    end if
+    !call gtk_label_set_text(label, trim(colName)//c_null_char)    
    case(5)
     colName = trim(real2str(lens_item_get_surface_radius(item)))//c_null_char  
     entryCB = gtk_widget_get_first_child(label)  
@@ -1377,6 +1443,10 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
 
     ! Encode row and column for later use  
      call gtk_widget_set_name(label,"R"//trim(int2str(lens_item_get_surface_number(item)))//"C"//trim(int2str(ID_COL))//c_null_char)
+
+     if (ID_COL == 4) then 
+     call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(updateSurfaceType), c_null_ptr)
+     end if
 
      !print *, "Testing... ", lens_item_get_extra_param(item, 0_c_int)
      !print *, "Testing... ", lens_item_get_aperture(item)

@@ -713,7 +713,6 @@ module mod_lens_data_manager
             write(fID, *) trim(strSurfLine)
           end if
           if (trim(ldm%getSurfLabel(ii-1)) .NE. ' ') then
-            print *, "about to write surface label"
             strSurfLine = blankStr(2)//'SLB "'//trim(ldm%getSurfLabel(ii-1))//""""
             write(fID, *) trim(strSurfLine)
           end if
