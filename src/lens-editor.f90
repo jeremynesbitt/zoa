@@ -603,7 +603,6 @@ function buildLensEditTable() result(store)
     store = append_lens_model(store, surfIdx(i), isRefSurface(i), ""//c_null_char, trim(ldm%getSurfTypeName(i-1))//c_null_char, &
     & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i), &
     & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8), extraParams)
-    print *, "Glass Name is ", trim(curr_lens_data%glassnames(i))
     end do
 
 
@@ -1160,7 +1159,6 @@ surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 call convert_c_string(data, cmd)  
 print *, "cmd is ", trim(cmd)
 call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
-
 end subroutine
 
 ! For extra param I can't store the command in the widget, so 
@@ -1413,27 +1411,36 @@ end function
 
 subroutine rebuildLensEditorTable()
 
-  type(c_ptr) :: store, selection, model, factory, column
-  integer(c_int) :: oldPos, numRows,ii, isSelected
+  type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
+  integer(c_int) :: oldPos 
+  real(c_double) :: vPos, hPos
   logical :: boolResult
 
 
-  selection = gtk_column_view_get_model(cv)
-  ! Seems there is no simple way to get selected row so brute force it
-  numRows = g_list_model_get_n_items(selection)
-  do ii=0,numRows-1
-    isSelected = gtk_selection_model_is_selected(selection, ii)
-    if (isSelected==1) then
-         oldPos = ii
-    end if
-  end do
-  print *, "oldPos is ", oldPos
+  print *, "Rebuild lens table starting" 
+ 
+  ! Get current position
+  oldPos = getCurrentLensEditorRow()
+  print *, "Old Position is ", oldPos
+
+  ! Get location of horizontal and vertical scrollbars so we can recreate.  This seems crazy
+  ! but I am not sure how else to make sure the lens editor data matches the lens "Database" 
+  swin = gtk_widget_get_parent(cv) 
+  vadj = gtk_scrolled_window_get_vadjustment(swin)
+  vPos = gtk_adjustment_get_value(vadj)
+  hadj = gtk_scrolled_window_get_hadjustment(swin)
+  hPos = gtk_adjustment_get_value(hadj)
+
+  print *, "Value is ", gtk_adjustment_get_value(vadj)
+
+
   call clearColumnView()
   refRadio = c_null_ptr ! Null this out for the rebuild
 
   ! Remake
   store = buildLensEditTable()
-  selection = gtk_multi_selection_new(store)
+  !selection = gtk_multi_selection_new(store)
+  selection = gtk_single_selection_new(store)
   call gtk_single_selection_set_autoselect(selection,TRUE)    
   call gtk_column_view_set_model(cv, selection)
   call gtk_column_view_set_show_column_separators(cv, 1_c_int)
@@ -1444,8 +1451,15 @@ subroutine rebuildLensEditorTable()
   call setLensEditColumns(cv)
 
   ! Set selection to previous
-!  model = gtk_column_view_get_model(cv)
-!  boolResult = gtk_selection_model_select_item(model, oldPos, 1_c_int)
+  !model = gtk_column_view_get_model(cv)
+  boolResult = gtk_selection_model_select_item(selection, oldPos, 1_c_int)
+  print *, "boolResult is ", boolResult
+
+  call pending_events() ! Critical for following to work!
+  vadj = gtk_scrolled_window_get_vadjustment(swin)
+  hadj = gtk_scrolled_window_get_hadjustment(swin)
+  call gtk_adjustment_set_value(vadj, vPos)
+  call gtk_adjustment_set_value(hadj, hPos)
 
 end subroutine
 

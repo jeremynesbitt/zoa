@@ -4229,14 +4229,29 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
       IF(WC.EQ.'EOS') YESEOS=.TRUE.
       IF(WC.NE.'EOS') YESEOS=.FALSE.
-C     CALL RE_DISPLAY_LENS(YESEOS)
       call curr_lens_data%update()
       call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
       call sysConfig%updateParameters()
-      if (c_associated(lens_editor_window)) then
-        call rebuildLensEditorTable()
+      ! CALL RE_DISPLAY_LENS(YESEOS
 
-      end if   
+      ! IF EOS was called then update UIs
+      ! Note:  could also do this in LENUP at the time a value is updated
+      ! I think it is better to do it here for loading data from files etc
+      ! but it does require some discipline for UI elements to immediately
+      ! call EOS to force update
+
+       IF (YESEOS) THEN
+
+       if (c_associated(lens_editor_window)) then
+         print *, "Calling Lens Editor Update from CONTRO in UTILITTY5"
+         call rebuildLensEditorTable()       
+       end if
+      END IF
+  
+
+      ! end if   
+
+      ! keep commented out for now - 03/20/25
       !PRINT *, "IN EOS in CONTRO"
       ! If I try to check this here, then when I have a VIE plot it will not update
       ! TODO:  Fixt this.  I believe it is related to the logic in executeGO.  Need

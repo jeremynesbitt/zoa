@@ -67,15 +67,11 @@
      item->glass = g_strdup(glass);
      item->aperture = aperture;
      item->index = index;
-     printf("Testing access %lf\n", item->radius);
      for(int i = 0; i < 15; i++){
       item->extraParams[i] = extraParams[i];
      }    
      //item->extraParams = extraParams;
      
-     for(int i = 0; i < 1; i++){
-        printf("Extra Param value is %lf\n", item->extraParams[i]);
-     }
      return item;
  }
 
