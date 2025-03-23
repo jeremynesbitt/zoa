@@ -258,191 +258,6 @@ end subroutine lens_editor_replot
  
   end function
 
-  subroutine lens_edited(renderer, path, text, gdata) bind(c)
-
-    use glass_manager, only: parseModelGlassEntry, findCatalogNameFromGlassName
-    use type_utils, only: real2str, int2str
-    !type(c_ptr), value, intent(in) :: list, gdata
-
-    type(c_ptr), value :: renderer, path, text, gdata
-    character(len=40) :: kdptext
-    character(len=13) :: catalogName
-    integer(kind=c_int) :: ID_SETTING
-
-    character(len=200) :: fpath, ftext
-    integer(kind=c_int) :: irow
-    integer(kind=c_int), pointer :: icol
-    integer :: i, n
-    type(c_ptr) :: tree, pcol
-
-!! Temp
-    character(len=7) :: rstring
-    real(kind=c_double) :: dval
-    type(gvalue), target :: svalue
-    type(c_ptr) :: val_ptr
-    real*8 :: nd, vd
-    
-
-
-
-
-    PRINT *, "CALLING LENS EDITED PROC!"
-
-    call convert_c_string(path, fpath)
-    pcol = g_object_get_data(renderer, "column-number"//c_null_char)
-    call c_f_pointer(pcol, icol)
-    call convert_c_string(text, ftext)
-
-    !call getRowAndColFromCallback(renderer, path, row, col)
-
-
-    n = 0
-    do i = 1, len_trim(fpath)
-       if (fpath(i:i) == ":") then
-          n = n+1
-          fpath(i:i) = ' '   ! : is not a separator for a Fortran read
-       end if
-    end do
-    !allocate(irow(n+1))
-    read(fpath, *) irow
-    tree = g_object_get_data(renderer, "view"//c_null_char)
-
-    call hl_gtk_listn_set_cell(tree, irow, icol, &
-         & svalue=trim(ftext))
-
-    PRINT *, "New value is ", trim(ftext)
-    PRINT *, "Selected Row is ", irow
-
-    ! Try to update lens system
-    !select case (irow(1))
-    select case (icol+1) ! start with index 1 to align with lens_edit_col arrays
-  case (ID_COL_RADIUS)
-        !call PROCESKDP('RDY S'//trim(int2str(irow))//' '//trim(real2str(trim(ftext))))
-        call PROCESKDP('U L')
-        WRITE(kdptext, *) 'CHG ' ,irow
-        call PROCESKDP(kdptext)
-        call PROCESKDP("RD "//trim(ftext)//"; EOS")
-        !call PROCESKDP('EOS')
-  case (ID_COL_RADIUS_PICKUP)
-       call hl_gtk_combo_set_by_text(ihlist, irow, icol, trim(ftext), ID_SETTING)
-      
-      select case (ID_SETTING)
-
-        case (ID_MOD_PICKUP)
-           call ui_pickup(irow, ID_PICKUP_RAD)
-        case (ID_MOD_NONE)
-          pData%ID_type = ID_PICKUP_RAD
-          pData%surf = irow
-          call pData%setPickupText()
-          CALL PROCESKDP('U L')
-          CALL PROCESKDP('CHG, '//int2str(irow))
-          call PROCESKDP(pData%genKDPCMDToRemovePickup())
-          CALL PROCESKDP('EOS')
-
-          call refreshLensEditorUI()
-        case (ID_MOD_SOLVE)
-          call ui_solve(irow, ID_PICKUP_RAD) 
-        end select 
-
-      case (ID_COL_CLAP)
-        CALL PROCESKDP('CIR S'//trim(int2str(irow))//' '//trim(ftext))
-        call refreshLensEditorUI()
-        !call PROCESKDP('U L')
-        !WRITE(kdptext, *) 'CHG ' ,irow
-        !call PROCESKDP(kdptext)
-        !call PROCESKDP("CLAP "//trim(ftext))
-        !call PROCESKDP('EOS')        
-
-    case (ID_COL_THICKNESS)
-        PRINT *, "Thickness changed!"
-        call PROCESKDP('U L')
-        WRITE(kdptext, *) 'CHG ' ,irow
-        call PROCESKDP(kdptext)
-        call PROCESKDP("TH "//trim(ftext))
-        call PROCESKDP('EOS')
-
-    case (ID_COL_THIC_PICKUP)
-          ! TODO:  Abstract this into a sub since it is essentially identical to _RAD
-          call hl_gtk_combo_set_by_text(ihlist, irow, icol, trim(ftext), ID_SETTING)
-         PRINT *, "ftext is ", trim(ftext)
-         select case (ID_SETTING)
-   
-           case (ID_MOD_PICKUP)
-              call ui_pickup(irow, ID_PICKUP_THIC)
-           case (ID_MOD_NONE)
-             pData%ID_type = ID_PICKUP_THIC
-             pData%surf = irow
-             call pData%setPickupText()
-             CALL PROCESKDP('U L')
-             CALL PROCESKDP('CHG, '//int2str(irow))
-             call PROCESKDP(pData%genKDPCMDToRemovePickup())
-             call PROCESKDP(sData%genKDPCMDToRemoveSolve(irow))
-             CALL PROCESKDP('EOS')
-   
-             call refreshLensEditorUI()
-           case (ID_MOD_SOLVE)
-            PRINT *, "irow is", irow
-             call ui_solve(irow, ID_PICKUP_THIC)   
-           end select       
-
-           ! Remove pickup
-      
-
-      ! if (ftext(1:1).NE."P".AND.ftext(1:1).NE." ") then
-      !   ! Set it to blank
-      !   call hl_gtk_listn_set_cell(tree, irow, icol, &
-      !   & svalue=" ")       
-      ! else
-      !    call ui_pickup(irow, ID_PICKUP_RAD)
-      ! end if 
-
-
-
-      case (ID_COL_GLASS)
-        if (len(trim(ftext)).EQ.8.AND.ftext(5:5).EQ.'.') then
-          PRINT *, "Model Glass Entered!"
-          call parseModelGlassEntry(trim(ftext), nd, vd)
-          print *, "nd is ", real2str(nd)
-          print *, "vd is ", vd
-          call PROCESKDP('U L')
-          WRITE(kdptext, *) 'CHG ' ,irow
-          call PROCESKDP(kdptext)
-          call PROCESKDP('MODEL D'//trim(ftext)//','//real2str(nd)//','//real2str(vd))
-          call PROCESKDP('EOS')
-        else
-        call findCatalogNameFromGlassName(ftext, catalogName)
-        PRINT *, "Glass entry request is ", ftext
-        if (ftext(1:1) /= ' ') then
-        call PROCESKDP('U L')
-        WRITE(kdptext, *) 'CHG ' ,irow
-        call PROCESKDP(kdptext)
-        call PROCESKDP(catalogName//' '//ftext)
-        call PROCESKDP('EOS')
-        end if
-        end if
-
-
-
-  end select
-
-
-    call zoatabMgr%rePlotIfNeeded()
-        ! INPUT='U L'
-        ! CALL PROCES
-        ! WRITE(INPUT,*) 'CHG ',J
-        ! CALL PROCES
-        ! WRITE(INPUT,*) 'RD ',TEMPCV
-        ! CALL PROCES
-        ! INPUT='EOS'
-        ! CALL PROCES
-
-    !deallocate(irow)
-
-
-
-
-  end subroutine
-
   subroutine refreshLensEditorUI()
 
     implicit none
@@ -760,6 +575,21 @@ function buildLensEditTable() result(store)
   end function
 
 
+  subroutine destroy_solve(widget, btn) bind(c)
+    type(c_ptr), value :: widget, btn
+    integer(c_int) :: pageNum
+
+    if (mod_update) then
+      call gtk_menu_button_set_icon_name(btn, 'letter-s'//c_null_char)
+      ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
+      ! I don't like what I am about to do here, but I don't really see a better way
+      call rebuildLensEditorTable()
+    end if
+
+
+    end subroutine
+
+
   subroutine destroy_pickup(widget, btn) bind(c)
     type(c_ptr), value :: widget, btn
     integer(c_int) :: pageNum
@@ -936,19 +766,16 @@ function buildLensEditTable() result(store)
   !value found in the curr_lens_data and sets param names
   !etc accordingly
 
-  subroutine ui_solve(row, solve_type)
+  subroutine ui_solve(row, solve_type, btn)
 
     use type_utils, only:  int2str
-
+    
     integer :: row, solve_type, ii
     ! This seems like an insane way of passing an integer but it works
     integer, target :: ID_TGT_THIC = ID_PICKUP_THIC
     integer, target :: ID_TGT_RAD = ID_PICKUP_RAD
 
-
-   
-
-    type(c_ptr) :: boxWin, cBut, uBut
+    type(c_ptr) :: boxWin, cBut, uBut, btn
     type(c_ptr) :: table, lblSurf
 
 
@@ -1073,6 +900,9 @@ function buildLensEditTable() result(store)
   call gtk_window_set_transient_for(win_modal_solve, lens_editor_window)
   
 
+  call g_signal_connect(win_modal_solve, "destroy"//c_null_char, c_funloc(destroy_solve), btn)
+
+
 end subroutine
 
 subroutine solveTypeChanged(widget, gdata) bind(c)
@@ -1136,7 +966,7 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
 
 
 
-
+  mod_update = .TRUE.
   call refreshLensDataStruct()
   call zoatabMgr%rePlotIfNeeded()
 
@@ -1219,6 +1049,25 @@ end if
 end subroutine
 
 
+subroutine enableSolve(act, avalue, btn) bind(c)
+  type(c_ptr), value, intent(in) :: act, avalue, btn
+  type(c_ptr) :: cStr
+  integer :: surfIdx
+  character(len=100) :: rcCode
+
+  !cStr = gtk_widget_get_name(btn)
+  cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+  print *, "surfIdx is ", surfIdx  
+  mod_update = .FALSE.  
+  call ui_solve(surfIdx, ID_PICKUP_RAD, btn)
+
+end subroutine
+
+
 subroutine enablePickup(act, avalue, btn) bind(c)
   type(c_ptr), value, intent(in) :: act, avalue, btn
   type(c_ptr) :: cStr
@@ -1241,18 +1090,24 @@ function createModMenu(btn, surf) result(menuOptions)
   use type_utils
   type(c_ptr), value :: btn
   type(c_ptr) :: menuOptions
-  type(c_ptr) :: actGroup, actP, mPickup
+  type(c_ptr) :: actGroup, actP, mPickup, mSolve, actS
   integer :: surf
 
   actGroup = g_simple_action_group_new()
   actP = g_simple_action_new("setPickup"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  !call g_action_map_add_action(my_window, actP)
   call g_action_map_add_action(actGroup, actP)
+  actS = g_simple_action_new("setSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  call g_action_map_add_action(actGroup, actP)  
+  call g_action_map_add_action(actGroup, actS)  
   call gtk_widget_insert_action_group(btn, "mod"//c_null_char,actGroup)
   call g_signal_connect(actP, "activate"//c_null_char, c_funloc(enablePickup), btn)
   mPickup = g_menu_item_new("Set Pickup"//c_null_char, "mod.setPickup"//trim(int2str(surf))//c_null_char)
+  call g_signal_connect(actS, "activate"//c_null_char, c_funloc(enableSolve), btn)
+  mSolve = g_menu_item_new("Set Solve"//c_null_char, "mod.setSolve"//trim(int2str(surf))//c_null_char)  
   menuOptions = g_menu_new()
   call g_menu_append_item(menuOptions, mPickup)
+  call g_menu_append_item(menuOptions, mSolve)
+
 
 end function
 
@@ -1408,7 +1263,11 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
     case (ID_MOD_PICKUP)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
+    case (ID_MOD_SOLVE)
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)
     end select   
+
+
   case(6)
     colName = trim(real2str(lens_item_get_surface_thickness(item)))//c_null_char  
     entryCB = gtk_widget_get_first_child(label)  
@@ -1423,6 +1282,8 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
     case (ID_MOD_PICKUP)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
+    case (ID_MOD_SOLVE)
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)      
     end select   
   case(7) ! Glass
     cStr = lens_item_get_glass(item)
