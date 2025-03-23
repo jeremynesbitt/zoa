@@ -1225,7 +1225,8 @@ subroutine enablePickup(act, avalue, btn) bind(c)
   integer :: surfIdx
   character(len=100) :: rcCode
 
-  cStr = gtk_widget_get_name(btn)
+  !cStr = gtk_widget_get_name(btn)
+  cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)  
   print *, "Val is ", trim(rcCode)
   
@@ -1521,6 +1522,7 @@ subroutine rebuildLensEditorTable()
   store = buildLensEditTable()
   !selection = gtk_multi_selection_new(store)
   selection = gtk_single_selection_new(store)
+  call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr) 
   call gtk_single_selection_set_autoselect(selection,TRUE)    
   call gtk_column_view_set_model(cv, selection)
   call gtk_column_view_set_show_column_separators(cv, 1_c_int)
