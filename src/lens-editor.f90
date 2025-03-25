@@ -133,10 +133,8 @@ end function
 
   integer(kind=c_int), parameter :: ID_COL_SURFTYPE = 4
   integer(kind=c_int), parameter :: ID_COL_RADIUS = 5
-  integer(kind=c_int), parameter :: ID_COL_RADIUS_PICKUP = 6
-  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 7
-  integer(kind=c_int), parameter :: ID_COL_THIC_PICKUP = 8
-  integer(kind=c_int), parameter :: ID_COL_GLASS = 9
+  integer(kind=c_int), parameter :: ID_COL_THICKNESS = 6
+  integer(kind=c_int), parameter :: ID_COL_GLASS = 7
   integer(kind=c_int), parameter :: ID_COL_CLAP = 10
   integer(kind=c_int), parameter :: ID_COL_INDEX = 11
 
@@ -580,6 +578,7 @@ function buildLensEditTable() result(store)
     integer(c_int) :: pageNum
 
     if (mod_update) then
+      print *, "btn is ", LOC(btn)
       call gtk_menu_button_set_icon_name(btn, 'letter-s'//c_null_char)
       ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
       ! I don't like what I am about to do here, but I don't really see a better way
@@ -769,13 +768,14 @@ function buildLensEditTable() result(store)
   subroutine ui_solve(row, solve_type, btn)
 
     use type_utils, only:  int2str
-    
+    type(c_ptr), value, optional :: btn
     integer :: row, solve_type, ii
     ! This seems like an insane way of passing an integer but it works
     integer, target :: ID_TGT_THIC = ID_PICKUP_THIC
     integer, target :: ID_TGT_RAD = ID_PICKUP_RAD
 
-    type(c_ptr) :: boxWin, cBut, uBut, btn
+
+    type(c_ptr) :: boxWin, cBut, uBut
     type(c_ptr) :: table, lblSurf
 
 
@@ -899,8 +899,9 @@ function buildLensEditTable() result(store)
   call gtk_window_set_modal(win_modal_solve, 1_c_int)
   call gtk_window_set_transient_for(win_modal_solve, lens_editor_window)
   
-
-  call g_signal_connect(win_modal_solve, "destroy"//c_null_char, c_funloc(destroy_solve), btn)
+  if(present(btn)) then 
+     call g_signal_connect(win_modal_solve, "destroy"//c_null_char, c_funloc(destroy_solve), btn)
+  end if
 
 
 end subroutine
@@ -1050,9 +1051,9 @@ end subroutine
 
 
 subroutine enableSolve(act, avalue, btn) bind(c)
-  type(c_ptr), value, intent(in) :: act, avalue, btn
+  type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
-  integer :: surfIdx
+  integer :: surfIdx, colIdx, colCode
   character(len=100) :: rcCode
 
   !cStr = gtk_widget_get_name(btn)
@@ -1060,10 +1061,19 @@ subroutine enableSolve(act, avalue, btn) bind(c)
   call convert_c_string(cStr, rcCode)  
   print *, "Val is ", trim(rcCode)
   
-  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
   print *, "surfIdx is ", surfIdx  
   mod_update = .FALSE.  
-  call ui_solve(surfIdx, ID_PICKUP_RAD, btn)
+
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    colCode = ID_PICKUP_RAD
+  case(ID_COL_THICKNESS)
+    colCode = ID_PICKUP_THIC
+  end select
+
+
+  call ui_solve(surfIdx, colCode, btn)
 
 end subroutine
 
@@ -1071,7 +1081,7 @@ end subroutine
 subroutine enablePickup(act, avalue, btn) bind(c)
   type(c_ptr), value, intent(in) :: act, avalue, btn
   type(c_ptr) :: cStr
-  integer :: surfIdx
+  integer :: surfIdx, colIdx, colCode
   character(len=100) :: rcCode
 
   !cStr = gtk_widget_get_name(btn)
@@ -1079,10 +1089,18 @@ subroutine enablePickup(act, avalue, btn) bind(c)
   call convert_c_string(cStr, rcCode)  
   print *, "Val is ", trim(rcCode)
   
-  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
   print *, "surfIdx is ", surfIdx  
   mod_update = .FALSE.  
-  call ui_pickup(surfIdx, ID_PICKUP_RAD, btn)
+
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    colCode = ID_PICKUP_RAD
+  case(ID_COL_THICKNESS)
+    colCode = ID_PICKUP_THIC
+  end select
+
+  call ui_pickup(surfIdx, colCode, btn)
 
 end subroutine
 
