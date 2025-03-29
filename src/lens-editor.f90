@@ -108,7 +108,7 @@ end function
   type(c_ptr) :: refRadio
 
   logical :: mod_update
-  type(c_ptr) :: cv
+  type(c_ptr) :: cv, curr_btn
   
   integer, parameter :: extra_param_start = 9 
 
@@ -573,35 +573,31 @@ function buildLensEditTable() result(store)
   end function
 
 
-  subroutine destroy_solve(widget, btn) bind(c)
+  subroutine destroy_solve(widget, btn)
     type(c_ptr), value :: widget, btn
+    type(c_ptr) :: cStr
+    character(len=20) ::  currIconName 
     integer(c_int) :: pageNum
 
+    ! I had wanted to update the button icon  name here, but nothing I tried would work.
+    ! If I passed btn as an object, it would crash
+    ! If I added btn as an object to the widget, it would crash
+    ! If I set a global variable curr_btn to this button, it would crash
+    ! So I gave up and will rely on refreshing lens structure to 
     if (mod_update) then
-      print *, "btn is ", LOC(btn)
-      call gtk_menu_button_set_icon_name(btn, 'letter-s'//c_null_char)
-      ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
-      ! I don't like what I am about to do here, but I don't really see a better way
+      !call gtk_menu_button_set_icon_name(btn, 'letter-s'//c_null_char)
       call rebuildLensEditorTable()
     end if
 
-
     end subroutine
 
-
+ 
+  ! I really don't need this if I can't get it to work I want.  See note in destroy_solve
   subroutine destroy_pickup(widget, btn) bind(c)
     type(c_ptr), value :: widget, btn
     integer(c_int) :: pageNum
-
     if (mod_update) then
-      call gtk_menu_button_set_icon_name(btn, 'letter-p'//c_null_char)
-      ! Here I want to update the table, which as far as I can tell means I have to rebuild the table
-      ! I don't like what I am about to do here, but I don't really see a better way
       call rebuildLensEditorTable()
-      print *, "Done rebuilding!"
-       
-    else
-      print *, "Do nothing"
     end if
 
     end subroutine
@@ -610,7 +606,7 @@ function buildLensEditTable() result(store)
   ! Check integrity of entry
   ! when closed, update kdp
   subroutine ui_pickup(row, pickup_type, btn)
-
+      use mod_lens_data_manager
       use type_utils, only:  int2str
 
       integer :: row, pickup_type
@@ -619,7 +615,16 @@ function buildLensEditTable() result(store)
       type(c_ptr), value, optional :: btn
       type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
       type(c_ptr) :: table, lblSurf
+      real(kind=c_double) :: pickupScale
+      integer :: surfType
 
+      ! Translation from UI to ldm.  Should merge these
+      select case (surfType)
+      case(ID_PICKUP_RAD)
+        surfType = VAR_CURV
+      case(ID_PICKUP_THIC)
+        surfType = VAR_THI
+      end select
 
       pData%ID_type = pickup_type
       call pData%setPickupText()
@@ -662,8 +667,13 @@ function buildLensEditTable() result(store)
       call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
       call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
 
+      if (ldm%isPikupOnSurf(row, surfType)) then
+        pickupScale = curr_lens_data%pickups(3,row+1,pickup_type)*1d0
+      else
+        pickupScale = 1.0d0 
+      end if
       sbScale = gtk_spin_button_new (gtk_adjustment_new( &
-      & value=curr_lens_data%pickups(3,row+1,pickup_type)*1d0, &
+      & value=pickupScale, &
       & lower=-1000*1d0, &
       & upper=1000*1d0, &
       & step_increment=1d0, &
@@ -768,16 +778,14 @@ function buildLensEditTable() result(store)
   subroutine ui_solve(row, solve_type, btn)
 
     use type_utils, only:  int2str
-    type(c_ptr), value, optional :: btn
+    type(c_ptr), value :: btn
     integer :: row, solve_type, ii
     ! This seems like an insane way of passing an integer but it works
     integer, target :: ID_TGT_THIC = ID_PICKUP_THIC
     integer, target :: ID_TGT_RAD = ID_PICKUP_RAD
 
-
     type(c_ptr) :: boxWin, cBut, uBut
     type(c_ptr) :: table, lblSurf
-
 
     !pData%ID_type = pickup_type
     !call pData%setPickupText()
@@ -794,6 +802,7 @@ function buildLensEditTable() result(store)
 
     ! Create the window:
     win_modal_solve= gtk_window_new()
+    mod_update = .fALSE.
 
     call gtk_window_set_title(win_modal_solve, "Set Solve"//c_null_char)
 
@@ -899,12 +908,17 @@ function buildLensEditTable() result(store)
   call gtk_window_set_modal(win_modal_solve, 1_c_int)
   call gtk_window_set_transient_for(win_modal_solve, lens_editor_window)
   
-  if(present(btn)) then 
-     call g_signal_connect(win_modal_solve, "destroy"//c_null_char, c_funloc(destroy_solve), btn)
-  end if
-
+  call g_signal_connect(win_modal_solve, "destroy"//c_null_char, c_funloc(destroy_solve), btn)
 
 end subroutine
+
+! Prototype
+function cStrToStr(cStr) result(fStr)
+  type(c_ptr), value :: cStr 
+  character(len=100) :: fStr
+  call convert_c_string((cStr), fStr)
+
+end function
 
 subroutine solveTypeChanged(widget, gdata) bind(c)
   type(c_ptr), value, intent(in) :: widget, gdata
@@ -968,10 +982,13 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
 
 
   mod_update = .TRUE.
-  call refreshLensDataStruct()
-  call zoatabMgr%rePlotIfNeeded()
+  call gtk_menu_button_set_icon_name(curr_btn, 'letter-s'//c_null_char)
+  !call refreshLensDataStruct()
+  !call zoatabMgr%rePlotIfNeeded()
 
-  call gtk_window_destroy(win_modal_solve)
+
+  call gtk_window_close(win_modal_solve)
+  !call gtk_window_destroy(win_modal_solve)
 
 
 
@@ -1049,6 +1066,58 @@ end if
 
 end subroutine
 
+subroutine removeSolve(act, avalue, btn) bind(c)
+  type(c_ptr), value :: act, avalue, btn
+  type(c_ptr) :: cStr
+  character(len=100) :: rcCode
+  type(ksolve)  :: sData
+  integer :: surfIdx, colIdx
+
+  cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
+
+  sData%surf = surfIdx
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    sData%solve_type = ID_PICKUP_RAD
+  case(ID_COL_THICKNESS)
+    sData%solve_type = ID_PICKUP_THIC
+  end select
+  print *, "Hook working!"
+  CALL PROCESKDP('U L ; '// &
+  & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
+  call rebuildLensEditorTable()
+
+end subroutine
+
+subroutine removePickup(act, avalue, btn) bind(c)
+  type(c_ptr), value :: act, avalue, btn
+  type(c_ptr) :: cStr
+  character(len=100) :: rcCode
+  type(pickup)  :: pData
+  integer :: surfIdx, colIdx
+
+  cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
+
+  pData%surf = surfIdx
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    pData%pickupTxt = "RD"
+  case(ID_COL_THICKNESS)
+    pData%pickupTxt = "TH"
+  end select
+  print *, "Hook working!"
+  CALL PROCESKDP('U L ; '// &
+  & trim(pData%genKDPCMDToRemovePickup())//';EOS')
+  call rebuildLensEditorTable()
+
+end subroutine
+
 
 subroutine enableSolve(act, avalue, btn) bind(c)
   type(c_ptr), value :: act, avalue, btn
@@ -1104,27 +1173,50 @@ subroutine enablePickup(act, avalue, btn) bind(c)
 
 end subroutine
 
-function createModMenu(btn, surf) result(menuOptions)
+function createModMenu(btn, surf, colIdx) result(menuOptions)
+  use mod_lens_data_manager
   use type_utils
   type(c_ptr), value :: btn
   type(c_ptr) :: menuOptions
   type(c_ptr) :: actGroup, actP, mPickup, mSolve, actS
-  integer :: surf
+  type(c_ptr) :: actRemoveSolve, mRemoveSolve, actRemovePickup, mRemovePickup
+  integer :: surf, colIdx, colType
+
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    colType = VAR_CURV
+  case(ID_COL_THICKNESS)
+    colType = VAR_THI
+  end select
 
   actGroup = g_simple_action_group_new()
+  call gtk_widget_insert_action_group(btn, "mod"//c_null_char,actGroup)
+
   actP = g_simple_action_new("setPickup"//trim(int2str(surf))//c_null_char, c_null_ptr)
   call g_action_map_add_action(actGroup, actP)
-  actS = g_simple_action_new("setSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  call g_action_map_add_action(actGroup, actP)  
-  call g_action_map_add_action(actGroup, actS)  
-  call gtk_widget_insert_action_group(btn, "mod"//c_null_char,actGroup)
   call g_signal_connect(actP, "activate"//c_null_char, c_funloc(enablePickup), btn)
   mPickup = g_menu_item_new("Set Pickup"//c_null_char, "mod.setPickup"//trim(int2str(surf))//c_null_char)
+
+  actRemovePickup = g_simple_action_new("removePickup"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  if (ldm%isPikupOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemovePickup)  
+  call g_signal_connect(actRemovePickup, "activate"//c_null_char, c_funloc(removePickup), btn)
+  mRemovePickup = g_menu_item_new("Remove Pickup"//c_null_char, "mod.removePickup"//trim(int2str(surf))//c_null_char)   
+
+  actS = g_simple_action_new("setSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  call g_action_map_add_action(actGroup, actS)  
   call g_signal_connect(actS, "activate"//c_null_char, c_funloc(enableSolve), btn)
   mSolve = g_menu_item_new("Set Solve"//c_null_char, "mod.setSolve"//trim(int2str(surf))//c_null_char)  
+
+  actRemoveSolve = g_simple_action_new("removeSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  if (ldm%isSolveOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveSolve)  
+  call g_signal_connect(actRemoveSolve, "activate"//c_null_char, c_funloc(removeSolve), btn)
+  mRemoveSolve = g_menu_item_new("Remove Solve"//c_null_char, "mod.removeSolve"//trim(int2str(surf))//c_null_char)  
+
   menuOptions = g_menu_new()
   call g_menu_append_item(menuOptions, mPickup)
+  call g_menu_append_item(menuOptions, mRemovePickup)
   call g_menu_append_item(menuOptions, mSolve)
+  call g_menu_append_item(menuOptions, mRemoveSolve)
 
 
 end function
@@ -1275,7 +1367,7 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
     menuCB = gtk_widget_get_next_sibling(entryCB)
     colName = trim(int2str(lens_item_get_radius_mod(item)))//c_null_char   
-    call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item))) 
+    call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 
     select case (lens_item_get_radius_mod(item))
     case (ID_MOD_NONE)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
@@ -1294,7 +1386,7 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
     menuCB = gtk_widget_get_next_sibling(entryCB)
     colName = trim(int2str(lens_item_get_thickness_mod(item)))//c_null_char   
-    call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item))) 
+    call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 
     select case (lens_item_get_thickness_mod(item))
     case (ID_MOD_NONE)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
