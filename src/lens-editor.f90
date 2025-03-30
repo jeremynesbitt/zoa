@@ -127,6 +127,7 @@ end function
   integer, parameter :: ID_MOD_NONE   = 3003
   integer, parameter :: ID_MOD_PICKUP = 3004
   integer, parameter :: ID_MOD_SOLVE  = 3005
+  integer, parameter :: ID_MOD_VAR    = 3006
 
   integer, parameter :: ID_SURF_SPHERE = 1
 
@@ -298,13 +299,19 @@ end subroutine lens_editor_replot
 
 
 function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
-
+  use mod_lens_data_manager
   integer, dimension(curr_lens_data%num_surfaces) :: pickupArr
-  integer :: ID_PICKUP_TYPE
+  integer :: ID_PICKUP_TYPE, surfType
   integer :: i
   !PRINT *, "About to set pickupArr"
   !if (ID_PICKUP_TYPE == ID_PICKUP_RAD) PRINT *, "Size of array is ", size(pickupArr)
 
+  select case (ID_PICKUP_TYPE)
+  case(ID_PICKUP_RAD)
+    surfType = VAR_CURV
+  case(ID_PICKUP_THIC)
+    surfType = VAR_THI
+  end select
 
   do i=1,size(pickupArr)
     !PRINT *, "i is ", i
@@ -339,6 +346,13 @@ function genPickupArr(ID_PICKUP_TYPE) result(pickupArr)
         
       end if
     end select
+
+
+    ! If no pickup or solve, look for a var
+
+    if (ldm%isVarOnSurf(i-1,surfType)) then
+      pickupArr(i) = ID_MOD_VAR 
+    end if
 
 
   end do
@@ -619,7 +633,7 @@ function buildLensEditTable() result(store)
       integer :: surfType
 
       ! Translation from UI to ldm.  Should merge these
-      select case (surfType)
+      select case (pickup_type)
       case(ID_PICKUP_RAD)
         surfType = VAR_CURV
       case(ID_PICKUP_THIC)
@@ -1173,6 +1187,35 @@ subroutine enablePickup(act, avalue, btn) bind(c)
 
 end subroutine
 
+subroutine enableVar(act, avalue, btn) bind(c)
+  use type_utils
+  type(c_ptr), value :: act, avalue, btn
+  type(c_ptr) :: cStr
+  integer :: surfIdx, colIdx, colCode
+  character(len=100) :: rcCode
+  character(len=4) :: cmd
+
+  !cStr = gtk_widget_get_name(btn)
+  cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
+  print *, "surfIdx is ", surfIdx  
+  mod_update = .FALSE.  
+
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    cmd = "CCY "
+  case(ID_COL_THICKNESS)
+    cmd = "THC "
+  end select
+
+  call PROCESSILENT(cmd//"S"//trim(int2str(surfIdx))//" 0")
+  call rebuildLensEditorTable()
+
+end subroutine
+
 function createModMenu(btn, surf, colIdx) result(menuOptions)
   use mod_lens_data_manager
   use type_utils
@@ -1180,6 +1223,7 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
   type(c_ptr) :: menuOptions
   type(c_ptr) :: actGroup, actP, mPickup, mSolve, actS
   type(c_ptr) :: actRemoveSolve, mRemoveSolve, actRemovePickup, mRemovePickup
+  type(c_ptr) :: actVar, mVar, actRemoveVar, mRemoveVar
   integer :: surf, colIdx, colType
 
   select case (colIdx)
@@ -1210,13 +1254,25 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
   actRemoveSolve = g_simple_action_new("removeSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
   if (ldm%isSolveOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveSolve)  
   call g_signal_connect(actRemoveSolve, "activate"//c_null_char, c_funloc(removeSolve), btn)
-  mRemoveSolve = g_menu_item_new("Remove Solve"//c_null_char, "mod.removeSolve"//trim(int2str(surf))//c_null_char)  
+  mRemoveSolve = g_menu_item_new("Remove Solve"//c_null_char, "mod.removeSolve"//trim(int2str(surf))//c_null_char) 
+  
+  actVar = g_simple_action_new("setVar"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  if (ldm%isVarOnSurf(surf, colType) .eqv. .FALSE.) call g_action_map_add_action(actGroup, actVar)  
+  call g_signal_connect(actVar, "activate"//c_null_char, c_funloc(enableVar), btn)
+  mVar = g_menu_item_new("Set Variable"//c_null_char, "mod.setVar"//trim(int2str(surf))//c_null_char)  
+
+  actRemoveVar = g_simple_action_new("removeVar"//trim(int2str(surf))//c_null_char, c_null_ptr)
+  if (ldm%isVarOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveVar)  
+  call g_signal_connect(actRemoveSolve, "activate"//c_null_char, c_funloc(removeSolve), btn)
+  mRemoveVar = g_menu_item_new("Remove Variable"//c_null_char, "mod.removeVar"//trim(int2str(surf))//c_null_char)   
 
   menuOptions = g_menu_new()
   call g_menu_append_item(menuOptions, mPickup)
   call g_menu_append_item(menuOptions, mRemovePickup)
   call g_menu_append_item(menuOptions, mSolve)
   call g_menu_append_item(menuOptions, mRemoveSolve)
+  call g_menu_append_item(menuOptions, mVar)
+  call g_menu_append_item(menuOptions, mRemoveVar)  
 
 
 end function
@@ -1375,6 +1431,8 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
     case (ID_MOD_SOLVE)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)
+    case (ID_MOD_VAR)
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-v'//c_null_char)      
     end select   
 
 
@@ -1393,7 +1451,9 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     case (ID_MOD_PICKUP)
       call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
     case (ID_MOD_SOLVE)
-      call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)      
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)  
+    case (ID_MOD_VAR)
+      call gtk_menu_button_set_icon_name(menuCB, 'letter-v'//c_null_char)            
     end select   
   case(7) ! Glass
     cStr = lens_item_get_glass(item)

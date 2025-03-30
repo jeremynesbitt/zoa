@@ -41,7 +41,7 @@ module mod_lens_data_manager
      procedure :: updateThiOptimVars
      procedure :: updateCurvOptimVars
      procedure :: setVarOnSurf
-     procedure :: isSolveOnSurf, isPikupOnSurf
+     procedure :: isSolveOnSurf, isPikupOnSurf, isVarOnSurf
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
@@ -416,6 +416,23 @@ module mod_lens_data_manager
         ! end select
 
     end subroutine
+
+    function isVarOnSurf(self, surf, var_code) result(boolResult)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surf, var_code
+        logical :: boolResult
+
+
+        ! Default is false
+        boolResult = .FALSE.
+
+        if (self%vars(surf,var_code) /= 100) then
+            boolResult = .TRUE.
+        end if
+
+
+    end function
+
 
     function isSolveOnSurf(self, surf, var_code) result(boolResult)
         class(lens_data_manager) :: self
