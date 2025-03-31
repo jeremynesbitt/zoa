@@ -1216,6 +1216,37 @@ subroutine enableVar(act, avalue, btn) bind(c)
 
 end subroutine
 
+subroutine removeVar(act, avalue, btn) bind(c)
+  use type_utils
+  type(c_ptr), value :: act, avalue, btn
+  type(c_ptr) :: cStr
+  integer :: surfIdx, colIdx, colCode
+  character(len=100) :: rcCode
+  character(len=4) :: cmd
+
+  !cStr = gtk_widget_get_name(btn)
+  cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
+  call convert_c_string(cStr, rcCode)  
+  print *, "Val is ", trim(rcCode)
+  
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
+  print *, "surfIdx is ", surfIdx  
+  mod_update = .FALSE.  
+
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    cmd = "CCY "
+  case(ID_COL_THICKNESS)
+    cmd = "THC "
+  end select
+
+  print *, "about to run cmd ", cmd//"S"//trim(int2str(surfIdx))//" 100"
+
+  call PROCESSILENT(cmd//"S"//trim(int2str(surfIdx))//" 100")
+  call rebuildLensEditorTable()
+
+end subroutine
+
 function createModMenu(btn, surf, colIdx) result(menuOptions)
   use mod_lens_data_manager
   use type_utils
@@ -1263,7 +1294,7 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
 
   actRemoveVar = g_simple_action_new("removeVar"//trim(int2str(surf))//c_null_char, c_null_ptr)
   if (ldm%isVarOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveVar)  
-  call g_signal_connect(actRemoveSolve, "activate"//c_null_char, c_funloc(removeSolve), btn)
+  call g_signal_connect(actRemoveVar, "activate"//c_null_char, c_funloc(removeVar), btn)
   mRemoveVar = g_menu_item_new("Remove Variable"//c_null_char, "mod.removeVar"//trim(int2str(surf))//c_null_char)   
 
   menuOptions = g_menu_new()
