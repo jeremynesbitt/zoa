@@ -346,18 +346,15 @@ module mod_lens_data_manager
             VAR_CODE = VAR_K
         end select
 
-        select case (intCode)        
-        case(0) ! Make Variable if no pickups or solves on surface
-            if (s0==sf) then
-                call self%setVarOnSurf(s0, VAR_CODE, intCode)                                
-            else
-                do i=s0,sf
-                    call self%setVarOnSurf(i, VAR_CODE, intCode)    
-                end do
-            end if
-        end select
-        
-    end subroutine
+        if (s0==sf) then
+            call self%setVarOnSurf(s0, VAR_CODE, intCode)                                
+        else
+            do i=s0,sf
+                call self%setVarOnSurf(i, VAR_CODE, intCode)    
+            end do
+        end if
+
+     end subroutine
 
     function isVarOnSurf(self, surf, var_code) result(boolResult)
         class(lens_data_manager) :: self
@@ -435,6 +432,7 @@ module mod_lens_data_manager
 
         ! Code is 0.  Place it in if var_code is within range
         if (var_code > 0 .and. var_code <= ubound(self%vars,dim=2)) then 
+            print *, "UPdating value ", val
         self%vars(surf,var_code) = val
         ! Add variable count so optmizer knows
         ! Want to do it here but need to resolve circular dependency

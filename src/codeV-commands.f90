@@ -1823,6 +1823,7 @@ module codeV_commands
 
         if (processResult) then
             if(isInputNumber(trim(tokens(3)))) then
+                print *, "ABout to update Var with ", str2int(trim(tokens(3)))
                 call ldm%updateOptimVars(trim(tokens(1)), s0,sf,str2int(trim(tokens(3))))
                 ! THis is to revolve a circular dependency - not sure how to resolve this in a good way.             
                 call updateOptimVarsNew(trim(tokens(1)),s0,sf,str2int(trim(tokens(3))))
