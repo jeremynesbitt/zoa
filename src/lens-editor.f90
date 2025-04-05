@@ -1030,6 +1030,7 @@ end function
 ! and the structure is CMD Sk Val will update the surface value
 subroutine cell_changed(widget, data) bind(c)
   use type_utils
+  use strings
 
 type(c_ptr), value :: widget, data
 type(c_ptr) :: buff2, cStr
@@ -1040,6 +1041,7 @@ buff2 = gtk_entry_get_buffer(widget)
 call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
 
 print *, "Val is ", trim(ftext)
+if (lowercase(ftext) == 'infinity') ftext='1e14'
 cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
 call convert_c_string(cStr, rcCode)  
 print *, "Val is ", trim(rcCode)
