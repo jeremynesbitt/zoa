@@ -93,28 +93,33 @@ module procedure execSUR
 
     end procedure
 
+    ! module procedure setThickness
+    !     use command_utils, only : parseCommandIntoTokens
+    !     use DATMAI
+    !     implicit none
+
+    !     integer :: surfNum
+    !     character(len=80) :: tokens(40)
+    !     integer :: numTokens
+
+    !     call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+    !     PRINT *, "Token is ", trim(tokens(2))
+    !     if(isSurfCommand(trim(tokens(2)))) then
+    !         PRINT *, "Token is ", trim(tokens(2))
+    !         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+    !         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+    !         & '; TH, ' // trim(tokens(3))//';GO')          
+    !     else
+    !         call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+    !         return
+    !     end if       
+
+    ! end procedure
     module procedure setThickness
-        use command_utils, only : parseCommandIntoTokens
-        use DATMAI
-        implicit none
+        call execTranslatedSurfCmd(iptStr, 'TH')
+    
 
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
-        PRINT *, "Token is ", trim(tokens(2))
-        if(isSurfCommand(trim(tokens(2)))) then
-            PRINT *, "Token is ", trim(tokens(2))
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; TH, ' // trim(tokens(3))//';GO')          
-        else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
-            return
-        end if       
-
-    end procedure
+    end procedure    
 
     ! format:  GLA Sk GLASSNAME
     module procedure setGlass
@@ -354,14 +359,14 @@ module procedure execSUR
                 if (isInputNumber(trim(tokens(2)))) then 
                     ! Use current surface
                     surfNum = ldm%getSurfacePointer()                
-                    call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
+                    call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)), debugFlag=.TRUE.)
                     return 
                 else
                     ! Some commands are not numbers
                     if (trim(kdpCmd) == 'LBL') then 
                         surfNum = ldm%getSurfacePointer()    
                         tokens(2) = removeQuotes(trim(tokens(2)))
-                        call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))   
+                        call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)), debugFlag=.TRUE.)   
                         return 
                     end if                       
 
@@ -379,7 +384,7 @@ module procedure execSUR
             if (isInputNumber(trim(tokens(3)))) then 
                 PRINT *, "ABout to execitue change for "//kdpCmd
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; '//kdpCmd//' '//trim(tokens(3)))   
+                & '; '//kdpCmd//' '//trim(tokens(3)), debugFlag=.TRUE.)   
                 return 
             else
                 ! Special case

@@ -1379,7 +1379,7 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
     menuB = gtk_menu_button_new()
     cmd = 'RDY'
     if(ID_COL==6) cmd = 'THI'
-    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup(cmd))
+    entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup(cmd//c_null_char))
     !call gtk_widget_set_name(entryCB, cmd) 
     call gtk_box_append(boxS, entryCB)
     call gtk_box_append(boxS, menuB)
@@ -1437,7 +1437,7 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call convert_c_string(cStr, colName)
     entryCB = gtk_widget_get_first_child(label)  
     buffer = gtk_entry_get_buffer(entryCB)    
-    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+    call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
    case(4)
     cStr = lens_item_get_surface_type(item)
     call convert_c_string(cStr, colName)  
@@ -1454,8 +1454,10 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     entryCB = gtk_widget_get_first_child(label)  
     buffer = gtk_entry_get_buffer(entryCB)
     !buffer = gtk_entry_get_buffer(label)
-    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+    call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
+
     menuCB = gtk_widget_get_next_sibling(entryCB)
+ 
     colName = trim(int2str(lens_item_get_radius_mod(item)))//c_null_char   
     call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 
     select case (lens_item_get_radius_mod(item))
@@ -1470,12 +1472,16 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     end select   
 
 
-  case(6)
+  case(6) ! Thickness
     colName = trim(real2str(lens_item_get_surface_thickness(item)))//c_null_char  
     entryCB = gtk_widget_get_first_child(label)  
     buffer = gtk_entry_get_buffer(entryCB)
     !buffer = gtk_entry_get_buffer(label)
-    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+    if (lens_item_get_surface_thickness(item) > 1e13) then 
+      call gtk_entry_buffer_set_text(buffer, "Infinity"//c_null_char,-1_c_int)
+    else
+      call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
+    end if    
     menuCB = gtk_widget_get_next_sibling(entryCB)
     colName = trim(int2str(lens_item_get_thickness_mod(item)))//c_null_char   
     call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 
