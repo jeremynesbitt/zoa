@@ -242,7 +242,9 @@ module codeV_commands
         zoaCmds(584)%cmd = 'ZOA2ZMX'
         zoaCmds(584)%execFunc => exportLensToZemax  
         zoaCmds(585)%cmd = 'SLB'
-        zoaCmds(585)%execFunc => updateSurfaceLabel                  
+        zoaCmds(585)%execFunc => updateSurfaceLabel    
+        zoaCmds(586)%cmd = 'SAS'
+        zoaCmds(586)%execFunc => updateTCOConstraint                            
 
         
     end subroutine

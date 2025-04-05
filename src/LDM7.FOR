@@ -138,10 +138,15 @@ C
 C               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 C
         IF(WC.EQ.'CC') THEN
-        IF(SQ.EQ.0) ALENS(2,SURF)=W1
+        IF(SQ.EQ.0) ALENS(2,SURF)=W1 
         IF(WQ.EQ.'DELT') ALENS(2,SURF)=ALENS(2,SURF)+W1
         IF(WQ.EQ.'CENT')
      1ALENS(2,SURF)=ALENS(2,SURF)+(W1*0.0D0*ALENS(2,SURF))
+
+        ! For now, if K is set then make surr asphere        
+        if (ALENS(2,SURF) .NE. 0) then 
+                ALENS(8,SURF) = 1
+        end if
 C
 C       CHECK FOR CC PIKUPS AND DELETE IF FOUND
 C

@@ -4241,7 +4241,7 @@ C       THIS IS THE LIST OF VALID LENS UPDATE COMMANDS
       ! call EOS to force update
 
        IF (YESEOS) THEN
-
+        print *, "about to check if rebuildLensEditor needed"
        if (c_associated(lens_editor_window)) then
          print *, "Calling Lens Editor Update from CONTRO in UTILITTY5"
          call rebuildLensEditorTable()       

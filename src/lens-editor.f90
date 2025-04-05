@@ -1048,6 +1048,7 @@ surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 
 call convert_c_string(data, cmd)  
 print *, "cmd is ", trim(cmd)
+print *, "cmd to process is ", trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext)
 call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
 end subroutine
 
@@ -1328,10 +1329,12 @@ subroutine updateSurfaceType(widget, gdata) bind(c)
   case(0) ! Sphere
     ALENS(8,surfIdx) = 0 
   case(1) ! Asphere
+    print *, "About to set asphere"
     ALENS(8,surfIdx) = 1 
   end select    
   
   if (oldVal - ALENS(8,surfIdx) .NE. 0) then 
+    print *, "About to rebuild lens editor table"
     call rebuildLensEditorTable()
   end if
 
@@ -1500,7 +1503,11 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
   case(9:18)
     entryCB = gtk_widget_get_first_child(label)  
     buffer = gtk_entry_get_buffer(entryCB)
-    colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9),sci=.TRUE.))//c_null_char
+    if (abs(lens_item_get_extra_param(item, ID_COL-9)) < .01) then 
+        colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9),sci=.TRUE.))//c_null_char
+    else
+        colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9)))//c_null_char
+    end if
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)     
    end select
 
