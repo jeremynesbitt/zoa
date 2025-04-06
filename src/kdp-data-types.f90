@@ -1662,6 +1662,15 @@ function getFieldText(self) result(fldText)
   if (self%currFieldID.EQ.FIELD_OBJECT_ANGLE_DEG) then
     fldText = "Object Angle [deg]"
   end if
+  if (self%currFieldID.EQ.FIELD_OBJECT_HEIGHT) then 
+    fldText = "Object Height ["//trim(self%getLensUnitsText())//"]"
+  end if
+  if (self%currFieldID.EQ.FIELD_REAL_IMAGE_HEIGHT) then 
+    fldText = "Image Height ["//trim(self%getLensUnitsText())//"]"
+  end if 
+  if (self%currFieldID.EQ.FIELD_PARAX_IMAGE_HEIGHT) then 
+    fldText = "Paraxial Image Height ["//trim(self%getLensUnitsText())//"]"
+  end if    
 
 end function
 

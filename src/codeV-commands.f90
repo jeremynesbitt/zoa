@@ -3138,7 +3138,6 @@ module codeV_commands
         call parse(trim(iptStr), ' ', tokens, numTokens) 
 
         if(numTokens ==2 ) then
-            if (isInputNumber(tokens(2))) then
 
             select case(cmd_loop)
             case (ID_PLOTTYPE_RMSFIELD)
@@ -3151,8 +3150,6 @@ module codeV_commands
 
             end select
         end if
-        end if
-
 
         !Pseudocode
         ! if (cmd_loop == ID_PLOTTYPE_SPOT) then

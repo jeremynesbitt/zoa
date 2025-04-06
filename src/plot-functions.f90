@@ -1072,12 +1072,14 @@ select case (iData)
 case(ID_RMS_DATA_WAVE)
 
 call xyscat%initialize(c_null_ptr, x,y, &
-& xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, & 
+& xlabel=sysConfig%getFieldText()//c_null_char, &
+!sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, & 
 & ylabel='RMS Error [mWaves]'//c_null_char, &
 & title='RMS Error vs Field '//c_null_char)
 case(ID_RMS_DATA_SPOT)
   call xyscat%initialize(c_null_ptr, x,y, &
-  & xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, & 
+  & xlabel=sysConfig%getFieldText()//c_null_char, &
+  !& xlabel=sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, & 
   & ylabel="RMS ["//trim(sysConfig%getLensUnitsText())//"]"//c_null_char, &
   & title='Spot RMS Size vs Field'//c_null_char)
 end select  

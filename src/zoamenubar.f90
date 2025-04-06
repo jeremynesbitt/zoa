@@ -116,7 +116,8 @@ contains
     character(len=100), target :: pltAst = "FIE; GO"
     character(len=100), target :: pltSpd = "SPO; GO"
     character(len=100), target :: pltRMS = "PLTRMS; GO"
-    character(len=100), target :: pltSPR = "SPR"
+    !character(len=100), target :: pltSPR = "SPR"
+    character(len=100), target :: pltSPR = "PLTRMS; RMSDATA SPOT; GO"
 
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: drawCmd = "VIE; GO"
