@@ -244,7 +244,9 @@ module codeV_commands
         zoaCmds(585)%cmd = 'SLB'
         zoaCmds(585)%execFunc => updateSurfaceLabel    
         zoaCmds(586)%cmd = 'SAS'
-        zoaCmds(586)%execFunc => updateTCOConstraint                            
+        zoaCmds(586)%execFunc => updateTCOConstraint   
+        zoaCmds(587)%cmd = 'RMSDATA'
+        zoaCmds(587)%execFunc => updateRMSPlotType                                    
 
         
     end subroutine
@@ -3118,5 +3120,46 @@ module codeV_commands
       print *, "Max Frequency is ", maxFreq
 
     end function
+
+    subroutine updateRMSPlotType(iptStr)
+
+        use command_utils
+        use strings
+
+        implicit none
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: boolResult
+
+       
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if(numTokens ==2 ) then
+            if (isInputNumber(tokens(2))) then
+
+            select case(cmd_loop)
+            case (ID_PLOTTYPE_RMSFIELD)
+                if (lowercase(tokens(2)) == 'spot') then 
+                    call curr_psm%updateSetting(ID_RMS_DATA_TYPE, ID_RMS_DATA_SPOT)
+                end if
+                if (lowercase(tokens(2)) == 'wave') then
+                    call curr_psm%updateSetting(ID_RMS_DATA_TYPE, ID_RMS_DATA_WAVE)
+                end if
+
+            end select
+        end if
+        end if
+
+
+        !Pseudocode
+        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
+        !  psm%setScaleInLensUnits(real(tokens(2)))
+
+        !   end if
+
+    end subroutine    
 
 end module
