@@ -246,7 +246,9 @@ module codeV_commands
         zoaCmds(586)%cmd = 'SAS'
         zoaCmds(586)%execFunc => updateTCOConstraint   
         zoaCmds(587)%cmd = 'RMSDATA'
-        zoaCmds(587)%execFunc => updateRMSPlotType                                    
+        zoaCmds(587)%execFunc => updateRMSPlotType         
+        zoaCmds(588)%cmd = 'IMP'
+        zoaCmds(588)%execFunc => updateOptimImprovementGoal                                            
 
         
     end subroutine
@@ -1101,12 +1103,14 @@ module codeV_commands
     end subroutine
 
     subroutine execAUT(iptStr)
-        implicit none
+        use optim_types, only: optim
+        use GLOBALS, only: long
         character(len=*) :: iptStr
         
         if (cmd_loop == 0) then
 
             cmd_loop = AUT_LOOP
+            optim%imp = .01_long ! default value
         else
             call updateTerminalLog("Cannot enter AUT loop as in another command loop", "red")
         end if
@@ -3120,6 +3124,29 @@ module codeV_commands
       print *, "Max Frequency is ", maxFreq
 
     end function
+
+    subroutine updateOptimImprovementGoal(iptStr)
+        use command_utils
+        use strings
+        use optim_types, only: optim
+
+        implicit none
+
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: boolResult
+
+       
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        if(numTokens==2 .AND. isInputNumber(trim(tokens(2)))) then 
+            optim%imp = str2real8(trim(tokens(2)))
+        else
+            call updateTerminalLog('Error:  Expect PIM r, where r is a number', "red")
+        end if
+
+    end subroutine
 
     subroutine updateRMSPlotType(iptStr)
 

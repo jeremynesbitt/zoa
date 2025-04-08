@@ -22,6 +22,7 @@ module optim_types
     end type
 
     type optimizer
+        real(kind=long) :: imp
 
     contains
         procedure ::  genSaveOutputText

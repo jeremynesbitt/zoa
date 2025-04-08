@@ -28,7 +28,8 @@ subroutine aut_go()
     real(long),dimension(nV) :: xu 
     real(long),dimension(nV,3) :: VARDATA
  
-    real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
+    !real(long),parameter              :: acc = 1.0e-2_long          !! tolerance
+    real(long)              :: acc           !! tolerance
     real(long),parameter              :: gradient_delta = 1.0e-4_wp 
     integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
     integer, parameter :: gradient_mode = 1
@@ -41,12 +42,16 @@ subroutine aut_go()
     !real(kind=long), dimension(nV) :: oldVars
 
 
-    if (nO == 0) then 
+    ! nO is defined in optimTypes.  
+    print *, "nO is ", nO
+    if (nO == 0 .AND. nC == 0) then 
         ! Default is Spot Size
         call addOperand('SPO', 0.0_long)
     end if
 
 
+    ! This is the improvement factor during optimization
+    acc = optim%imp
     ! Eventually add more vars to this.  For now use this interface to evaluate
 
     ! Move these to a type?  eg optimizer%getLowerBounds  Some type that does gathering.
