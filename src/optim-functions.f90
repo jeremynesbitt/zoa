@@ -2,6 +2,8 @@ module optim_functions
     use GLOBALS, only: long
     use handlers, only: updateTerminalLog
     use type_utils
+    use zoa_ui
+    use global_widgets, only: ioConfig    
     implicit none
 
 contains
@@ -80,7 +82,10 @@ subroutine aut_go()
     
     
     if (status_ok) then
+        ! Don't allow commands called during optimization to pollute output log
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
         call solver%optimize(x,istat,iterations)
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
         write(*,*) ''
         write(*,*) 'solution   :', x
         write(*,*) 'istat      :', istat
@@ -157,6 +162,7 @@ subroutine report_iteration(me,iter,x,f,c)
     integer :: i
 
     !write a header:
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     call OUTKDP("                                                          l")! Blank line 
     call OUTKDP("CYCLE NUMBER "//int2str(iter))
     call OUTKDP("   ERROR FUNCTION = "//real2str(f))
@@ -174,6 +180,7 @@ subroutine report_iteration(me,iter,x,f,c)
         end do
 
     end if
+    call ioConfig%restoreTextView()
     ! CALL OUTKDP("Constraint   target    value     diff ")
     ! write(output_line,'(*(A20,1X))') 'EFL', &
     ! 'x(1)', 'x(2)', 'x(3)', &
