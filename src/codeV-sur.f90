@@ -76,6 +76,27 @@ module procedure execSUR
 
 
                 end do
+                ! Pseudocode for a better solution
+                ! call ldm%gatherSpecialSurfaces(nSpecial, specTypes)
+                ! if (nSpecial > 0) then 
+                ! do ii=1,nSpecial
+                ! surfs = ldm%getAllSurfacesOfType(specTypes(ii))
+                ! print ldm%getSurfaceTypeName(specTypes(ii)) 
+                ! print ldm%getSurfaceTypeExtraParamNames(specTypes(ii))
+                ! print ldm%getSurfaceTypeExtraParamValues(specTypes(ii))
+                ! end 
+                !
+                ! If there are special surfaces, print extra parameters.  For now only look for aspheres
+                do ii=0,ldm%getLastSurf()
+                    if (ldm%getSurfTypeName(ii) == 'Asphere') then 
+                        call updateTerminalLog('___', "black")
+                        call updateTerminalLog('ASPHERES', "black")
+
+                        fullLine = '# '//trim(int2str(ii))//' K '//trim(real2str(ldm%getConicConstant(ii)))
+                        call updateTerminalLog(trim(fullLine), "black")
+                    end if
+                end do
+                
 
 
 

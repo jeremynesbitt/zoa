@@ -394,7 +394,7 @@ function getExtraParams(surf, surfType) result(extraParams)
 end function
 
 ! This func interfaces with the c struct that stores the data
-! At some point I may migrate this to python but for now the
+! At some point I may migrate this to fortran but for now the
 ! main cost of this is a bunch of interfaces for each get which
 ! I can live with
 function buildLensEditTable() result(store)

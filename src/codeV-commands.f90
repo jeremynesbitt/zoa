@@ -248,7 +248,9 @@ module codeV_commands
         zoaCmds(587)%cmd = 'RMSDATA'
         zoaCmds(587)%execFunc => updateRMSPlotType         
         zoaCmds(588)%cmd = 'IMP'
-        zoaCmds(588)%execFunc => updateOptimImprovementGoal                                            
+        zoaCmds(588)%execFunc => updateOptimImprovementGoal   
+        zoaCmds(589)%cmd = 'AUTUI'
+        zoaCmds(589)%execFunc => aut_ui                                                  
 
         
     end subroutine
@@ -3185,5 +3187,24 @@ module codeV_commands
         !   end if
 
     end subroutine    
+
+
+    subroutine aut_ui(iptStr)
+        use optimizer_ui
+        use global_widgets
+        use handlers, only: my_window
+
+        character(len=*) :: iptStr
+      
+          if (.not. c_associated(optimizer_window))  THEN
+             call optimizer_ui_new(my_window)
+          else
+            PRINT *, "Do nothing.."
+      
+          end if
+      
+      
+      
+      end subroutine aut_ui  
 
 end module

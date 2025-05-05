@@ -96,6 +96,12 @@ module optim_types
 
     end subroutine
 
+    function getTotalNumberOfOperands() result(nT)
+        integer :: nT
+
+        nT = nO + nC
+
+    end function
 
     function getSPO(self) result(res)
         use DATSPD, only: RMSX, RMSY, RMS
