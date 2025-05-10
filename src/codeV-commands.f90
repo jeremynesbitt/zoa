@@ -3190,6 +3190,7 @@ module codeV_commands
 
 
     subroutine aut_ui(iptStr)
+        use iso_c_binding, only: c_associated
         use optimizer_ui
         use global_widgets
         use handlers, only: my_window
