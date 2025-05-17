@@ -43,6 +43,42 @@ module optimizer_ui
         type(c_ptr), value :: item
         integer(c_int) :: operand_item_get_fieldPos
       end function        
+
+
+! Constraints
+      function append_constraint_model(store, constraintName, convalue, conType,  &
+        & targ) bind(c)
+        import c_ptr, c_char, c_int, c_double
+        implicit none
+        type(c_ptr), value    :: store
+        character(kind=c_char), dimension(*) :: constraintName
+        type(c_ptr)    :: append_constraint_model
+        integer(c_int) :: conType
+        real(c_double), value :: conValue, targ
+      end function    
+  
+      function append_blank_constraint(store) bind(c)
+          import c_ptr 
+          implicit none
+          type(c_ptr), value :: store 
+          type(c_ptr)    :: append_blank_constraint
+      end function
+      function constraint_item_get_name(item) bind(c)
+        import :: c_ptr
+        type(c_ptr), value :: item
+        type(c_ptr) :: constraint_item_get_name
+      end function   
+       function constraint_item_get_value(item) bind(c)
+        import :: c_ptr, c_double
+        type(c_ptr), value :: item
+        real(c_double) :: constraint_item_get_value
+      end function  
+      function constraint_item_get_target(item) bind(c)
+        import :: c_ptr, c_double
+        type(c_ptr), value :: item
+        real(c_double) :: constraint_item_get_target
+      end function        
+
     end interface
 
     
@@ -91,7 +127,13 @@ module optimizer_ui
 
     integer, parameter :: ID_WIDGET_TYPE_LABEL = 4001
 
+
+    integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
+    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 2
+    integer, parameter :: ID_CONSTRAINT_TYPE_COL = 3
+
     type(uiTableColumnInfo) :: operandColInfo(3)
+    type(uiTableColumnInfo) :: constraintColInfo(2)    
 
     contains
 
@@ -116,7 +158,7 @@ module optimizer_ui
     
         type(c_ptr)  :: table, expander, nbk, basicLabel, boxAperture, boxAsphere
         type(c_ptr)  :: box1, box2, box3
-        type(c_ptr)  :: boxSolve, SolveLabel
+        type(c_ptr)  :: boxSolve, SolveLabel, conLabel
         type(c_ptr)  :: lblAperture, AsphLabel
     
         PRINT *, "ABOUT TO FIRE UP OPTIMIZIER WINDOW!"
@@ -139,6 +181,7 @@ module optimizer_ui
         operandColInfo(ID_OPERAND_FIELD_COL)%dataType = ID_DATATYPE_INT    
         operandColInfo(ID_OPERAND_FIELD_COL)%getFunc_int => operand_item_get_fieldpos
 
+        call initConstraintColInfo()
         ! Create a modal dialogue
         optimizer_window = gtk_window_new()
     
@@ -179,6 +222,9 @@ module optimizer_ui
     
         AsphLabel = gtk_label_new_with_mnemonic("_Operands"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, operands_create_table(), AsphLabel)
+
+        conLabel = gtk_label_new_with_mnemonic("_Constraints"//c_null_char)
+        pageIdx = gtk_notebook_append_page(nbk, constraints_create_table(), conLabel)        
     
         SolveLabel = gtk_label_new_with_mnemonic("_Merit Function"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, box3, SolveLabel)
@@ -327,7 +373,6 @@ module optimizer_ui
 
           print *, "number of Operands is ", getTotalNumberOfOperands()
           store = g_list_store_new(G_TYPE_OBJECT)
-          print *, "store is ", store
           do i=1,numRows
             if (i <= numOperands ) then
           store = append_operand_model(store, operandsInUse(i)%name, operandsInUse(i)%iW, operandsInUse(i)%iF, &
@@ -579,5 +624,222 @@ module optimizer_ui
           
           end subroutine          
       
+
+    subroutine initConstraintColInfo()
+
+        ! Build constraint info
+        constraintColInfo(ID_CONSTRAINT_NAME_COL)%colName = "Name"
+        constraintColInfo(ID_CONSTRAINT_NAME_COL)%colType = ID_WIDGET_TYPE_LABEL
+        constraintColInfo(ID_CONSTRAINT_NAME_COL)%dataType = ID_DATATYPE_STR
+        constraintColInfo(ID_CONSTRAINT_NAME_COL)%getFunc_str => constraint_item_get_name
+    
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colName = "Target"
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_LABEL
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%dataType = ID_DATATYPE_DBL
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_target
+
+    end subroutine
+
+
+    function constraints_create_table() result(boxNew)
+        ! Columns:
+        ! Constraint Name [dropdown]
+        ! Constraint -dropdown for > < = 
+        ! Constraint target 
+
+
+        use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
+    
+        type(integer) :: ID_TAB
+        type(c_ptr) :: boxNew
+    
+        !Debug
+        integer :: ii
+        integer, target :: colIDs(10) = [(ii,ii=1,10)]
+    
+        type(c_ptr) :: store, cStrB, listitem, selection, factory, column, swin
+        character(len=1024) :: debugName
+    
+        type(c_ptr) :: cv, dbut, ibut, qbut
+    
+    
+        boxNew = hl_gtk_box_new()
+    
+    
+          store = buildConstraintTable()
+        
+      
+          selection = gtk_multi_selection_new(store)
+          !call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr)      !selection = gtk_multi_selection_new(store)
+          call gtk_single_selection_set_autoselect(selection,TRUE)    
+          cv = gtk_column_view_new(selection)
+          call gtk_column_view_set_show_column_separators(cv, 1_c_int)
+          call gtk_column_view_set_show_row_separators(cv, 1_c_int)
+          call gtk_column_view_set_reorderable(cv, 0_c_int)
+    
+    
+          call setConstraintColumns(cv)
+    
+          swin = gtk_scrolled_window_new()
+          call gtk_scrolled_window_set_child(swin, cv)
+          call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
+          call gtk_box_append(boxNew, swin)
+    
+        ! Delete selected row
+          ibut = hl_gtk_button_new("Insert row"//c_null_char, &
+          & clicked=c_funloc(ins_constraint_row), &
+          & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+    
+          call hl_gtk_box_pack(boxNew, ibut)
+    
+          ! Delete selected row
+          dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
+                & clicked=c_funloc(del_constraint_row), &
+                & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+    
+          call hl_gtk_box_pack(boxNew, dbut)
+    
+    
+    
+      end function   
+
+
+! This func interfaces with the c struct that stores the data
+! At some point I may migrate this to fortran but for now the
+! main cost of this is a bunch of interfaces for each get which
+! I can live with
+      function buildConstraintTable() result(store)
+        use mod_lens_data_manager
+      
+        integer :: i
+      
+        type(c_ptr) :: store
+        integer :: numConstraints, numRows
+      
+       
+        numConstraints = nC
+
+        ! Set some minimum amount 
+        if (numConstraints < 20) then 
+            numRows = 20
+        else
+            numRows = numConstraints
+        end if
+      
+          store = g_list_store_new(G_TYPE_OBJECT)
+          do i=1,numRows
+            if (i <= numConstraints ) then
+          store = append_constraint_model(store, constraintsInUse(i)%name, constraintsInUse(i)%con,  &
+          & constraintsInUse(i)%conType, constraintsInUse(i)%targ)
+          print *, "Targ is ", constraintsInUse(i)%targ
+            else 
+                store = append_blank_constraint(store)
+            end if
+          end do
+      
+      
+        end function      
+
+
+        subroutine setConstraintColumns(colView)
+            use type_utils, only: int2str
+            type(c_ptr), value :: colView
+          
+            integer :: ii
+            integer, target :: colIDs(25) = [(ii,ii=1,25)]
+            type(c_ptr) :: factory, column
+
+
+            do ii=1,size(constraintColInfo)
+              factory = gtk_signal_list_item_factory_new()
+              print *, "Before setup"
+              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
+              print *, "Before bind"
+              call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
+              column = gtk_column_view_column_new(trim(constraintColInfo(ii)%colName)//c_null_char, factory)
+              call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii))))
+              call gtk_column_view_column_set_resizable(column, 1_c_int)
+              call gtk_column_view_append_column (colView, column)
+              call g_object_unref (column)      
+            end do
+          
+          end subroutine
+
+          subroutine setup_constraint_cb(factory,listitem, gdata) bind(c)
+            use gtk_hl_entry
+            use gtk_hl_container
+            
+            type(c_ptr), value :: factory
+            type(c_ptr), value :: listitem, gdata
+            type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
+            integer(kind=c_int), pointer :: ID_COL
+            character(len=3) :: cmd
+            
+          
+            label =gtk_label_new(c_null_char)
+            call gtk_list_item_set_child(listitem,label)
+          
+            call c_f_pointer(gdata, ID_COL)
+
+            select case (constraintColInfo(ID_COL)%colType)
+            case (ID_WIDGET_TYPE_LABEL)
+                label =gtk_label_new(c_null_char)
+                call gtk_list_item_set_child(listitem,label)                
+
+            end select       
+        end subroutine   
+
+
+        subroutine bind_constraint_cb(factory,listitem, gdata) bind(c)
+            use type_utils
+            type(c_ptr), value :: factory
+            type(c_ptr), value :: listitem, gdata
+            type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
+            type(c_ptr) :: cStr
+            integer(kind=c_int), pointer :: ID_COL
+            integer(kind=c_double) :: tmpDbl
+            character(len=140) :: colName
+            class(*), pointer :: tmpPtr
+          
+            call c_f_pointer(gdata, ID_COL)
+            label = gtk_list_item_get_child(listitem)
+            item = gtk_list_item_get_item(listitem);
+          
+            select case (constraintColInfo(ID_COL)%colType)
+            case (ID_WIDGET_TYPE_LABEL)
+
+                select case (constraintColInfo(ID_COL)%dataType)
+                    case (ID_DATATYPE_INT)
+                    colName = trim(int2str(constraintColInfo(ID_COL)%getFunc_int(item)))
+                       
+                    case (ID_DATATYPE_STR)
+                        cStr = constraintColInfo(ID_COL)%getFunc_str(item)
+                        call convert_c_string(cStr, colName)      
+
+                    case (ID_DATATYPE_DBL)
+                        tmpDbl = constraintColInfo(ID_COL)%getFunc_dbl(item)
+                        write(colName, *) tmpDbl
+                        !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
+                end select
+
+                call gtk_label_set_text(label, trim(colName)//c_null_char)   
+                ! colName = trim(int2str(operandColInfo(ID_COL)%getFunc(item)))//c_null_char
+                ! print *, "colName is ", trim(colName)
+                ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
+
+            end select        
+        end subroutine
+
+        subroutine del_constraint_row(but, gdata) bind(c)
+            use type_utils, only: int2str
+            type(c_ptr), value, intent(in) :: but, gdata
+            integer(kind=c_int) :: currRow
+        end subroutine
+     
+        subroutine ins_constraint_row(but, gdata) bind(c)
+            use type_utils, only: int2str
+              type(c_ptr), value, intent(in) :: but, gdata
+              integer(kind=c_int) :: currRow
+        end subroutine
 
 end module

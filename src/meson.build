@@ -24,7 +24,7 @@
 # src/zzhandlers.f90 src/ui-sys-config.f90 src/glass-manager.f90
 # src/lens-editor.f90 src/parax_calcs.f90 src/kdp-interfaces.f90
 
-src_c += files('zoa_utils.c', 'ui-list-models.c', 'ui-operand-models.c')
+src_c += files('zoa_utils.c', 'ui-list-models.c', 'ui-operand-models.c', 'ui-constraint-models.c')
 
 
 srcs += files(

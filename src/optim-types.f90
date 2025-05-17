@@ -17,6 +17,7 @@ module optim_types
        character(len=4) :: name
        real(long) :: con
        logical :: exact, lb, ub ! bound if false
+       integer :: conType ! Either exact, lb, or ub
        real(long) :: targ 
        procedure (constraintFunc), pointer :: func ! share same interface for func
     end type
