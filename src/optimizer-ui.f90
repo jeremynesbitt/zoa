@@ -126,6 +126,7 @@ module optimizer_ui
     integer, parameter :: ID_DATATYPE_DBL = 3
 
     integer, parameter :: ID_WIDGET_TYPE_LABEL = 4001
+    integer, parameter :: ID_WIDGET_TYPE_DROPDOWN = 4002
 
 
     integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
@@ -629,7 +630,7 @@ module optimizer_ui
 
         ! Build constraint info
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%colName = "Name"
-        constraintColInfo(ID_CONSTRAINT_NAME_COL)%colType = ID_WIDGET_TYPE_LABEL
+        constraintColInfo(ID_CONSTRAINT_NAME_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%dataType = ID_DATATYPE_STR
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%getFunc_str => constraint_item_get_name
     
@@ -765,6 +766,29 @@ module optimizer_ui
           
           end subroutine
 
+          function convertListtoCStringArray(iptStrList) result(c_ptr_array)
+            integer :: ii
+            character(len=*), dimension(:) :: iptStrList 
+            type(c_ptr), dimension(size(iptStrList)+1) :: c_ptr_array
+            character(kind=c_char), dimension(:), allocatable :: strTmp
+            character(kind=c_char), pointer, dimension(:) :: ptrTmp
+
+            
+            do ii = 1, size(iptStrList)
+              call f_c_string(iptStrList(ii), strTmp)
+              allocate(ptrTmp(size(strTmp)))
+              ! A Fortran pointer toward the Fortran string:
+              ptrTmp(:) = strTmp(:)
+              ! Store the C address in the array:
+              c_ptr_array(ii) = c_loc(ptrTmp(1))
+              nullify(ptrTmp)
+            end do
+            ! The array must be null terminated:
+            c_ptr_array(size(iptStrList)+1) = c_null_ptr
+        
+          end function
+        
+
           subroutine setup_constraint_cb(factory,listitem, gdata) bind(c)
             use gtk_hl_entry
             use gtk_hl_container
@@ -784,11 +808,38 @@ module optimizer_ui
             select case (constraintColInfo(ID_COL)%colType)
             case (ID_WIDGET_TYPE_LABEL)
                 label =gtk_label_new(c_null_char)
-                call gtk_list_item_set_child(listitem,label)                
+                call gtk_list_item_set_child(listitem,label)    
+            case (ID_WIDGET_TYPE_DROPDOWN)
+                dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintNames()))
+                
+                call gtk_list_item_set_child(listitem,dropDown)                                
 
             end select       
         end subroutine   
 
+
+        subroutine setDropDownByString(dropDown, strCand)
+            type(c_ptr) :: dropDown
+            character(len=*) :: strCand
+
+            type(c_ptr) :: model, cstr 
+            character(len=140) :: strDD
+            integer :: n_items, ii
+
+            model = gtk_drop_down_get_model(dropDown)
+            n_items = g_list_model_get_n_items(model)
+
+            do ii=0,n_items
+                cstr = gtk_string_list_get_string(model, ii)
+                call convert_c_string(cStr, strDD)
+                if (strDD == strCand) then 
+                    call gtk_drop_down_set_selected(dropDown, ii)
+                    exit
+                end if
+            end do
+
+
+        end subroutine
 
         subroutine bind_constraint_cb(factory,listitem, gdata) bind(c)
             use type_utils
@@ -826,6 +877,13 @@ module optimizer_ui
                 ! colName = trim(int2str(operandColInfo(ID_COL)%getFunc(item)))//c_null_char
                 ! print *, "colName is ", trim(colName)
                 ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
+
+            case (ID_WIDGET_TYPE_DROPDOWN)    
+                ! Assume string
+                cStr = constraintColInfo(ID_COL)%getFunc_str(item)
+                call convert_c_string(cStr, colName)   
+                call setDropDownByString(label, colName)                
+                !call gtk_drop_down_set_selected(label, 0_c_int)
 
             end select        
         end subroutine

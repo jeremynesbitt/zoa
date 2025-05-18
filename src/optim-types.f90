@@ -2,7 +2,7 @@ module optim_types
     use GLOBALS,only: long
     use zoa_ui
 
-    
+    implicit none
     ! Try a similar design as the command parser - for each operand a function is supplied which will get the value.
     ! Some operands will have multiple inputs and this should handle it.   
     type :: operand
@@ -80,6 +80,11 @@ module optim_types
         nO = 0 ! Initialize means 0 operands in use
         nC = 0 ! num constraints is 0
 
+        !Initialize for checking later
+        constraints(1:size(constraints))%name = ''
+        operands(1:size(operands))%name = ''
+
+
         operands(1)%name = 'SPO'
         operands(1)%func => getSPO
         constraints(1)%name = 'EFL'
@@ -94,6 +99,7 @@ module optim_types
         constraints(5)%func => setDistanceToImagePlaneConstraint          
         constraints(6)%name = 'SAS'
         constraints(6)%func => getSphericalConstraint                                             
+        
 
     end subroutine
 
@@ -656,6 +662,30 @@ module optim_types
                     
                 end if
             end do
+        end do
+
+    end function
+
+    function gatherConstraintNames() result(strNameList)
+        character(len=4), dimension(:), allocatable :: strNameList
+        integer :: ii, n_c 
+
+
+        do ii=1,size(constraints)
+            print *, "constraings is ", constraints(ii)%name(1:2)
+           if (constraints(ii)%name(1:2) == "") then
+            n_c = ii
+            print *, "n_c is ", n_c
+            exit 
+           end if
+        end do
+
+        allocate(character(len=4) :: strNameList(n_c))
+
+        !allocate(character(len=4), dimension(nC) :: strNameList)
+        do ii=1,n_c
+           strNameList(ii) = constraints(ii)%name
+           !strNameList(ii) = "ABC"
         end do
 
     end function
