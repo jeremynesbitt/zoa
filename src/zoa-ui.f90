@@ -1,3 +1,5 @@
+! THis file is perhaps misnamed, but all (well most) constants that are shared 
+! between modules used in UIs are storted here
 module zoa_ui
     implicit none
 
@@ -195,6 +197,12 @@ integer, parameter :: wlIndices(*) = [1,2,3,4,5,6,7,8,9,10,ID_SETTING_WAVELENGTH
 integer, parameter :: VAR_CURV = 1
 integer, parameter :: VAR_THI = 2
 integer, parameter :: VAR_K = 3 ! Conic constant
+
+
+! Constraints
+integer, parameter :: ID_CON_EXACT       = 1
+integer, parameter :: ID_CON_LESS_THAN    = 2
+integer, parameter :: ID_CON_GREATER_THAN = 3
 
 
 

@@ -1,3 +1,5 @@
+!TODO:  Get rid of exact/ub/lb for constraints and replace it with conType
+
 module optim_types
     use GLOBALS,only: long
     use zoa_ui
@@ -272,16 +274,19 @@ module optim_types
             !constraintsInUse(nC)%name = name 
             if(present(eq)) then
                 constraintsInUse(nc)%exact = eq
+                constraintsInUse(nc)%conType = ID_CON_EXACT
             end if
             if(present(lb)) then
                 constraintsInUse(nc)%exact = .FALSE.
                 constraintsInUse(nC)%ub = .FALSE.
                 constraintsInUse(nC)%lb = .TRUE.
+                constraintsInUse(nc)%conType = ID_CON_GREATER_THAN
             end if
             if(present(ub)) then
                 constraintsInUse(nc)%exact = .FALSE.
                 constraintsInUse(nC)%ub = .TRUE.
                 constraintsInUse(nC)%lb = .FALSE.
+                constraintsInUse(nc)%conType = ID_CON_LESS_THAN
             end if
         end if
                         
@@ -672,10 +677,8 @@ module optim_types
 
 
         do ii=1,size(constraints)
-            print *, "constraings is ", constraints(ii)%name(1:2)
            if (constraints(ii)%name(1:2) == "") then
             n_c = ii
-            print *, "n_c is ", n_c
             exit 
            end if
         end do
@@ -689,5 +692,14 @@ module optim_types
         end do
 
     end function
+
+    function gatherConstraintTypeNames() result(strNameList)
+        character(len=1), dimension(3) :: strNameList
+
+        strNameList(ID_CON_EXACT) = '='
+        strNameList(ID_CON_GREATER_THAN) = '>'
+        strNameList(ID_CON_LESS_THAN) = '<'
+
+    end function    
 
 end module

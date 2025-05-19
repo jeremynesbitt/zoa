@@ -77,7 +77,12 @@ module optimizer_ui
         import :: c_ptr, c_double
         type(c_ptr), value :: item
         real(c_double) :: constraint_item_get_target
-      end function        
+      end function   
+      function constraint_item_get_contype(item) bind(c)
+        import :: c_ptr, c_int
+        type(c_ptr), value :: item
+        integer(c_int) :: constraint_item_get_conType
+      end function              
 
     end interface
 
@@ -130,11 +135,11 @@ module optimizer_ui
 
 
     integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
-    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 2
-    integer, parameter :: ID_CONSTRAINT_TYPE_COL = 3
+    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 3
+    integer, parameter :: ID_CONSTRAINT_TYPE_COL = 2
 
     type(uiTableColumnInfo) :: operandColInfo(3)
-    type(uiTableColumnInfo) :: constraintColInfo(2)    
+    type(uiTableColumnInfo) :: constraintColInfo(3)    
 
     contains
 
@@ -633,7 +638,12 @@ module optimizer_ui
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%dataType = ID_DATATYPE_STR
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%getFunc_str => constraint_item_get_name
-    
+
+        constraintColInfo(ID_CONSTRAINT_TYPE_COL)%colName = "Type"
+        constraintColInfo(ID_CONSTRAINT_TYPE_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
+        constraintColInfo(ID_CONSTRAINT_TYPE_COL)%dataType = ID_DATATYPE_INT
+        constraintColInfo(ID_CONSTRAINT_TYPE_COL)%getFunc_int => constraint_item_get_contype        
+
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colName = "Target"
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_LABEL
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%dataType = ID_DATATYPE_DBL
@@ -810,7 +820,14 @@ module optimizer_ui
                 label =gtk_label_new(c_null_char)
                 call gtk_list_item_set_child(listitem,label)    
             case (ID_WIDGET_TYPE_DROPDOWN)
-                dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintNames()))
+                ! Data is column dependent
+                select case (ID_COL)
+                case(ID_CONSTRAINT_NAME_COL)
+                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintNames()))
+                case(ID_CONSTRAINT_TYPE_COL)
+                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintTypeNames()))
+                end select
+
                 
                 call gtk_list_item_set_child(listitem,dropDown)                                
 
@@ -849,7 +866,9 @@ module optimizer_ui
             type(c_ptr) :: cStr
             integer(kind=c_int), pointer :: ID_COL
             integer(kind=c_double) :: tmpDbl
+            integer(kind=c_int) :: tmpInt
             character(len=140) :: colName
+            character(len=1), dimension(:), allocatable :: conTypeNames
             class(*), pointer :: tmpPtr
           
             call c_f_pointer(gdata, ID_COL)
@@ -879,10 +898,17 @@ module optimizer_ui
                 ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
 
             case (ID_WIDGET_TYPE_DROPDOWN)    
-                ! Assume string
-                cStr = constraintColInfo(ID_COL)%getFunc_str(item)
-                call convert_c_string(cStr, colName)   
-                call setDropDownByString(label, colName)                
+                select case (ID_COL)
+                    case(ID_CONSTRAINT_NAME_COL)
+                        cStr = constraintColInfo(ID_COL)%getFunc_str(item)
+                        call convert_c_string(cStr, colName)   
+                        call setDropDownByString(label, colName)                
+                    case (ID_CONSTRAINT_TYPE_COL)
+                        tmpInt = constraintColInfo(ID_COL)%getFunc_int(item)
+                        conTypeNames = gatherConstraintTypeNames()
+                    call setDropDownByString(label, conTypeNames(tmpInt))
+                end select
+                
                 !call gtk_drop_down_set_selected(label, 0_c_int)
 
             end select        
