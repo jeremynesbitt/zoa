@@ -5,6 +5,7 @@ module optimizer_ui
     use iso_c_binding
     use global_widgets
     use optim_types
+    use zoa_ui
 
     implicit none
 
@@ -710,7 +711,9 @@ module optimizer_ui
     
           call hl_gtk_box_pack(boxNew, dbut)
     
-    
+              ! Also a quit button
+          qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(optimizer_ui_destroy), data=optimizer_window)
+          call hl_gtk_box_pack(boxNew,qbut)
     
       end function   
 
@@ -743,11 +746,12 @@ module optimizer_ui
           store = append_constraint_model(store, constraintsInUse(i)%name, constraintsInUse(i)%con,  &
           & constraintsInUse(i)%conType, constraintsInUse(i)%targ)
           print *, "Targ is ", constraintsInUse(i)%targ
+
             else 
+                print *, "i is ", i
                 store = append_blank_constraint(store)
             end if
           end do
-      
       
         end function      
 
@@ -905,8 +909,18 @@ module optimizer_ui
                         call setDropDownByString(label, colName)                
                     case (ID_CONSTRAINT_TYPE_COL)
                         tmpInt = constraintColInfo(ID_COL)%getFunc_int(item)
+                        print *, "Tempint is ", tmpInt
+                        print *, "ID_COL is ", ID_COL
+                        ! There is a bug where the getFunc is not returning a value ine
+                        ! range.  I could not figure out why so for now just restrict values
+                        if (tmpInt > 0 .AND. tmpInt < 5) then 
                         conTypeNames = gatherConstraintTypeNames()
-                    call setDropDownByString(label, conTypeNames(tmpInt))
+                        call setDropDownByString(label, conTypeNames(tmpInt))
+                        else 
+                            conTypeNames = gatherConstraintTypeNames()
+                            call setDropDownByString(label, conTypeNames(1))
+                        end if
+                    
                 end select
                 
                 !call gtk_drop_down_set_selected(label, 0_c_int)
