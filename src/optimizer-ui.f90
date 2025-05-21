@@ -682,7 +682,7 @@ module optimizer_ui
         
       
           selection = gtk_multi_selection_new(store)
-          !call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr)      !selection = gtk_multi_selection_new(store)
+                !selection = gtk_multi_selection_new(store)
           call gtk_single_selection_set_autoselect(selection,TRUE)    
           cv = gtk_column_view_new(selection)
           call gtk_column_view_set_show_column_separators(cv, 1_c_int)
@@ -697,17 +697,20 @@ module optimizer_ui
           call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
           call gtk_box_append(boxNew, swin)
     
-        ! Delete selected row
-          ibut = hl_gtk_button_new("Insert row"//c_null_char, &
-          & clicked=c_funloc(ins_constraint_row), &
-          & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+        ! Insert row a possible future feature
+        !   ibut = hl_gtk_button_new("Insert row"//c_null_char, &
+        !   & clicked=c_funloc(ins_constraint_row), &
+        !   & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
     
-          call hl_gtk_box_pack(boxNew, ibut)
+        !   call hl_gtk_box_pack(boxNew, ibut)
     
           ! Delete selected row
           dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
                 & clicked=c_funloc(del_constraint_row), &
+                & data=cv, &
                 & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+
+          call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(constraint_row_selected), dbut)                
     
           call hl_gtk_box_pack(boxNew, dbut)
     
@@ -928,10 +931,36 @@ module optimizer_ui
             end select        
         end subroutine
 
+        function getRowFromColumnView(cv) result(currPos)
+            type(c_ptr) :: cv
+            integer(c_int) :: currPos, numRows, isSelected, ii
+            type(c_ptr) :: selection
+          
+          
+            selection = gtk_column_view_get_model(cv)
+            ! Seems there is no simple way to get selected row so brute force it
+            numRows = g_list_model_get_n_items(selection)
+            currPos=-1
+            do ii=0,numRows-1
+              isSelected = gtk_selection_model_is_selected(selection, ii)
+              if (isSelected==1) then
+                   currPos = ii
+                   exit
+              end if
+            end do
+          
+          end function
+
         subroutine del_constraint_row(but, gdata) bind(c)
             use type_utils, only: int2str
             type(c_ptr), value, intent(in) :: but, gdata
             integer(kind=c_int) :: currRow
+
+            currRow = getRowFromColumnView(gdata)
+
+            print *, "currRow is ", currRow
+            call PROCESKDP('DEL CON '//trim(int2str(currRow+1)))
+
         end subroutine
      
         subroutine ins_constraint_row(but, gdata) bind(c)
@@ -939,5 +968,20 @@ module optimizer_ui
               type(c_ptr), value, intent(in) :: but, gdata
               integer(kind=c_int) :: currRow
         end subroutine
+
+        subroutine constraint_row_selected(widget, position, n_items, userdata) bind(c)
+            type(c_ptr), value ::  widget, userdata
+            integer(c_int) :: position, n_items
+            type(c_ptr) :: listitem, cStr
+            character(len=100) :: ftext
+            print *, "Row selected! "
+            !listitem = gtk_single_selection_get_selected_item(widget)
+            ! cStr = lens_item_get_surface_type(listitem)
+            ! call convert_c_string(cStr, ftext)   
+            ! print *, "Surf type is ", trim(ftext)
+            !call updateColumnHeadersIfNeeded(trim(ftext))
+            call gtk_widget_set_sensitive(userdata, TRUE)
+            !call gtk_widget_set_sensitive(ibut, TRUE)
+          end subroutine        
 
 end module

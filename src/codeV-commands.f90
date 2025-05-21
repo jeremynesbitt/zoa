@@ -1693,8 +1693,9 @@ module codeV_commands
     ! Format:  DEL SOL CUY S2
     !          DEL PIM
     subroutine deleteStuff(iptStr)
-        use command_utils, only : parseCommandIntoTokens
+        use command_utils, only: isInputNumber
         use global_widgets, only: curr_lens_data
+        use optim_types
         implicit none
 
         character(len=*) :: iptStr
@@ -1702,7 +1703,8 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
+        !call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
         ! command and figuring out what commands to translate it to
         if(numTokens > 1 ) then
@@ -1727,7 +1729,12 @@ module codeV_commands
                 else
                     call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
                     end if 
-                
+            case('CON') ! Expect DEL CON ID.  Delete constraint
+                if (numTokens == 3 .AND. isInputNumber(tokens(3))) then 
+
+                else
+                    call updateTerminalLog("Improper format detected.  Expect DEL CON ID", "red")
+                end if
 
             end select
 

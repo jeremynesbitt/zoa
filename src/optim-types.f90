@@ -18,7 +18,7 @@ module optim_types
     type :: constraint
        character(len=4) :: name
        real(long) :: con
-       logical :: exact, lb, ub ! bound if false
+       logical :: exact, lb, ub ! bound if false.  To be depreciated
        integer :: conType ! Either exact, lb, or ub
        real(long) :: targ 
        procedure (constraintFunc), pointer :: func ! share same interface for func
@@ -701,5 +701,26 @@ module optim_types
         strNameList(ID_CON_LESS_THAN) = '<'
 
     end function    
+
+    subroutine deleteConstraint(idx)
+        integer :: idx
+        type(constraint), dimension(size(constraintsInUse)) :: tmpConstraints
+        integer :: ii, jj
+
+        if(idx>0 .AND. idx<nC) then
+
+
+        do ii=1,idx
+           tmpConstraints(ii) = constraintsInUse(ii)
+        end do
+        do jj=idx+1,nC
+           tmpConstraints(ii+jj) = constraintsInUse(ii+1+jj)
+        end do
+        constraintsInUse = tmpConstraints
+        nC = nC -1
+
+        end if
+
+    end subroutine
 
 end module
