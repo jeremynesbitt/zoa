@@ -707,10 +707,13 @@ module optim_types
         type(constraint), dimension(size(constraintsInUse)) :: tmpConstraints
         integer :: ii, jj
 
-        if(idx>0 .AND. idx<nC) then
+        print *, "Delete Constraint called!"
+        print *, "idx is ", idx
+        if(idx>0 .AND. idx<=nC) then
 
 
         do ii=1,idx
+            print *, "ii is ", ii
            tmpConstraints(ii) = constraintsInUse(ii)
         end do
         do jj=idx+1,nC

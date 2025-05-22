@@ -1731,6 +1731,7 @@ module codeV_commands
                     end if 
             case('CON') ! Expect DEL CON ID.  Delete constraint
                 if (numTokens == 3 .AND. isInputNumber(tokens(3))) then 
+                    call deleteConstraint(str2int(tokens(3)))
 
                 else
                     call updateTerminalLog("Improper format detected.  Expect DEL CON ID", "red")
