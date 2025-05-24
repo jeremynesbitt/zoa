@@ -102,17 +102,17 @@ module optimizer_ui
     end type
 
     abstract interface
-    function getItemValue_int(item)
+    function getItemValue_int(item) bind(c)
       import :: uiTableColumnInfo, c_ptr, c_int
      type(c_ptr), value :: item
      integer(c_int) :: getItemValue_int
     end function 
-    function getItemValue_str(item)
+    function getItemValue_str(item) bind(c)
       import :: uiTableColumnInfo, c_ptr
      type(c_ptr), value :: item
      type(c_ptr) :: getItemValue_str
     end function    
-    function getItemValue_dbl(item)
+    function getItemValue_dbl(item) bind(c)
       import :: uiTableColumnInfo, c_ptr, c_double
      type(c_ptr), value :: item
      real(c_double) :: getItemValue_dbl
