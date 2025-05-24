@@ -652,6 +652,17 @@ module optimizer_ui
 
     end subroutine
 
+    subroutine setColumnViewDefault(cv) 
+        type(c_ptr), value :: cv
+        type(c_ptr) :: store, selection
+
+        call gtk_column_view_set_show_column_separators(cv, 1_c_int)
+        call gtk_column_view_set_show_row_separators(cv, 1_c_int)
+        call gtk_column_view_set_reorderable(cv, 0_c_int)
+    
+        call setConstraintColumns(cv)
+
+    end subroutine
 
     function constraints_create_table() result(boxNew)
         ! Columns:
@@ -676,21 +687,14 @@ module optimizer_ui
     
     
         boxNew = hl_gtk_box_new()
-    
-    
-          store = buildConstraintTable()
-        
-      
-          selection = gtk_multi_selection_new(store)
-                !selection = gtk_multi_selection_new(store)
-          call gtk_single_selection_set_autoselect(selection,TRUE)    
-          cv = gtk_column_view_new(selection)
-          call gtk_column_view_set_show_column_separators(cv, 1_c_int)
-          call gtk_column_view_set_show_row_separators(cv, 1_c_int)
-          call gtk_column_view_set_reorderable(cv, 0_c_int)
-    
-    
-          call setConstraintColumns(cv)
+
+        store = buildConstraintTable()
+        selection = gtk_multi_selection_new(store)
+              !selection = gtk_multi_selection_new(store)
+        call gtk_single_selection_set_autoselect(selection,TRUE)    
+        cv = gtk_column_view_new(selection)
+
+        call setColumnViewDefault(cv)
     
           swin = gtk_scrolled_window_new()
           call gtk_scrolled_window_set_child(swin, cv)
@@ -735,6 +739,8 @@ module optimizer_ui
       
        
         numConstraints = nC
+
+        print *, "Num Constraints is ", numConstraints
 
         ! Set some minimum amount 
         if (numConstraints < 20) then 
@@ -932,7 +938,7 @@ module optimizer_ui
         end subroutine
 
         function getRowFromColumnView(cv) result(currPos)
-            type(c_ptr) :: cv
+            type(c_ptr), value :: cv
             integer(c_int) :: currPos, numRows, isSelected, ii
             type(c_ptr) :: selection
           
@@ -960,6 +966,7 @@ module optimizer_ui
 
             print *, "currRow is ", currRow
             call PROCESKDP('DEL CON '//trim(int2str(currRow+1)))
+            call rebuildConstraintTable(gdata)
 
         end subroutine
      
@@ -984,8 +991,8 @@ module optimizer_ui
             !call gtk_widget_set_sensitive(ibut, TRUE)
           end subroutine      
           
-          subroutine rebuildTable(cv)
-            type(c_ptr) :: cv ! column view
+          subroutine rebuildConstraintTable(cv)
+            type(c_ptr), value :: cv ! column view
             type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
             integer(c_int) :: oldPos 
             real(c_double) :: vPos, hPos
@@ -1005,23 +1012,13 @@ module optimizer_ui
           
             print *, "Value is ", gtk_adjustment_get_value(vadj)
           
-          
-            call clearColumnView_opt()
-            refRadio = c_null_ptr ! Null this out for the rebuild
-          
-            ! Remake
+            call clearColumnView_opt(cv)
+
             store = buildConstraintTable()
             !selection = gtk_multi_selection_new(store)
             selection = gtk_single_selection_new(store)
-            call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr) 
-            call gtk_single_selection_set_autoselect(selection,TRUE)    
-            call gtk_column_view_set_model(cv, selection)
-            call gtk_column_view_set_show_column_separators(cv, 1_c_int)
-            call gtk_column_view_set_show_row_separators(cv, 1_c_int)
-          
-            !call gtk_box_append(box, cv)                            
-          
-            call setLensEditColumns(cv)
+   
+            call setColumnViewDefault(cv)
           
             ! Set selection to previous
             !model = gtk_column_view_get_model(cv)
@@ -1057,8 +1054,9 @@ module optimizer_ui
           
           end function          
 
-          subroutine clearColumnView_opt()
+          subroutine clearColumnView_opt(cv)
             type(c_ptr) :: listModel, currCol
+            type(c_ptr), intent(inout) :: cv
             integer(c_int) :: ii, numItems
           
             listmodel = gtk_column_view_get_columns(cv)
