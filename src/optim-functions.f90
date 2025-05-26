@@ -67,6 +67,7 @@ subroutine aut_go()
     
     meq = getNumberofEqualityConstraints()
 
+    print *, "nV is ", nV
     call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                            report=report_iteration,&

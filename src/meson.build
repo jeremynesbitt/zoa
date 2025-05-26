@@ -69,6 +69,7 @@ srcs += files(
   #'ui-spot.f90',
   'optim-types.f90',
   'optim-debug.f90',
+  'ui-table-funcs.f90',  
   'optimizer-ui.f90',
   'tow-functions.f90',
   'ROUTEDRAWING.f90',

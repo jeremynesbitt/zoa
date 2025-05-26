@@ -6,6 +6,7 @@ module optimizer_ui
     use global_widgets
     use optim_types
     use zoa_ui
+    use ui_table_funcs
 
     implicit none
 
@@ -652,17 +653,7 @@ module optimizer_ui
 
     end subroutine
 
-    subroutine setColumnViewDefault(cv) 
-        type(c_ptr), value :: cv
-        type(c_ptr) :: store, selection
 
-        call gtk_column_view_set_show_column_separators(cv, 1_c_int)
-        call gtk_column_view_set_show_row_separators(cv, 1_c_int)
-        call gtk_column_view_set_reorderable(cv, 0_c_int)
-    
-        call setConstraintColumns(cv)
-
-    end subroutine
 
     function constraints_create_table() result(boxNew)
         ! Columns:
@@ -694,7 +685,7 @@ module optimizer_ui
         call gtk_single_selection_set_autoselect(selection,TRUE)    
         cv = gtk_column_view_new(selection)
 
-        call setColumnViewDefault(cv)
+        call setColumnViewDefault(cv, setConstraintColumns)
     
           swin = gtk_scrolled_window_new()
           call gtk_scrolled_window_set_child(swin, cv)
@@ -966,7 +957,8 @@ module optimizer_ui
 
             print *, "currRow is ", currRow
             call PROCESKDP('DEL CON '//trim(int2str(currRow+1)))
-            call rebuildConstraintTable(gdata)
+            !call rebuildConstraintTable(gdata)
+            call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
 
         end subroutine
      
@@ -991,83 +983,85 @@ module optimizer_ui
             !call gtk_widget_set_sensitive(ibut, TRUE)
           end subroutine      
           
-          subroutine rebuildConstraintTable(cv)
-            type(c_ptr), value :: cv ! column view
-            type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
-            integer(c_int) :: oldPos 
-            real(c_double) :: vPos, hPos
-            logical :: boolResult
+        !   subroutine rebuildConstraintTable(cv)
+        !     type(c_ptr), value :: cv ! column view
+        !     type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
+        !     integer(c_int) :: oldPos 
+        !     real(c_double) :: vPos, hPos
+        !     logical :: boolResult
          
                    
-            ! Get current position
-            oldPos = getCurrentTableRow(cv)
-            print *, "Old Position is ", oldPos
+        !     ! Get current position
+        !     oldPos = getCurrentTableRow(cv)
+        !     print *, "Old Position is ", oldPos
           
-            ! Get location of horizontal and vertical scrollbars so we can recreate.  This seems crazy
-            swin = gtk_widget_get_parent(cv) 
-            vadj = gtk_scrolled_window_get_vadjustment(swin)
-            vPos = gtk_adjustment_get_value(vadj)
-            hadj = gtk_scrolled_window_get_hadjustment(swin)
-            hPos = gtk_adjustment_get_value(hadj)
+        !     ! Get location of horizontal and vertical scrollbars so we can recreate.  This seems crazy
+        !     swin = gtk_widget_get_parent(cv) 
+        !     vadj = gtk_scrolled_window_get_vadjustment(swin)
+        !     vPos = gtk_adjustment_get_value(vadj)
+        !     hadj = gtk_scrolled_window_get_hadjustment(swin)
+        !     hPos = gtk_adjustment_get_value(hadj)
           
-            print *, "Value is ", gtk_adjustment_get_value(vadj)
+        !     print *, "Value is ", gtk_adjustment_get_value(vadj)
           
-            call clearColumnView_opt(cv)
+        !     call clearColumnView_opt(cv)
 
-            store = buildConstraintTable()
-            !selection = gtk_multi_selection_new(store)
-            selection = gtk_single_selection_new(store)
+        !     store = buildConstraintTable()
+        !     !selection = gtk_multi_selection_new(store)
+        !     selection = gtk_single_selection_new(store)
+
+        !     call gtk_column_view_set_model(cv, selection)
    
-            call setColumnViewDefault(cv)
+        !     call setColumnViewDefault(cv, setConstraintColumns)
           
-            ! Set selection to previous
-            !model = gtk_column_view_get_model(cv)
-            boolResult = gtk_selection_model_select_item(selection, oldPos, 1_c_int)
-            print *, "boolResult is ", boolResult
+        !     ! Set selection to previous
+        !     !model = gtk_column_view_get_model(cv)
+        !     boolResult = gtk_selection_model_select_item(selection, oldPos, 1_c_int)
+        !     print *, "boolResult is ", boolResult
           
-            call pending_events() ! Critical for following to work!
-            vadj = gtk_scrolled_window_get_vadjustment(swin)
-            hadj = gtk_scrolled_window_get_hadjustment(swin)
-            call gtk_adjustment_set_value(vadj, vPos)
-            call gtk_adjustment_set_value(hadj, hPos)
+        !     call pending_events() ! Critical for following to work!
+        !     vadj = gtk_scrolled_window_get_vadjustment(swin)
+        !     hadj = gtk_scrolled_window_get_hadjustment(swin)
+        !     call gtk_adjustment_set_value(vadj, vPos)
+        !     call gtk_adjustment_set_value(hadj, hPos)
           
-          end subroutine          
+        !   end subroutine          
 
-          function getCurrentTableRow(cv) result(currPos)
-            integer(c_int) :: currPos, numRows, isSelected, ii
-            type(c_ptr) :: cv
-            type(c_ptr) :: selection
+        !   function getCurrentTableRow(cv) result(currPos)
+        !     integer(c_int) :: currPos, numRows, isSelected, ii
+        !     type(c_ptr) :: cv
+        !     type(c_ptr) :: selection
         
           
           
-            selection = gtk_column_view_get_model(cv)
-            ! Seems there is no simple way to get selected row so brute force it
-            numRows = g_list_model_get_n_items(selection)
-            currPos=-1
-            do ii=0,numRows-1
-              isSelected = gtk_selection_model_is_selected(selection, ii)
-              if (isSelected==1) then
-                   currPos = ii
-                   exit
-              end if
-            end do
+        !     selection = gtk_column_view_get_model(cv)
+        !     ! Seems there is no simple way to get selected row so brute force it
+        !     numRows = g_list_model_get_n_items(selection)
+        !     currPos=-1
+        !     do ii=0,numRows-1
+        !       isSelected = gtk_selection_model_is_selected(selection, ii)
+        !       if (isSelected==1) then
+        !            currPos = ii
+        !            exit
+        !       end if
+        !     end do
           
-          end function          
+        !   end function          
 
-          subroutine clearColumnView_opt(cv)
-            type(c_ptr) :: listModel, currCol
-            type(c_ptr), intent(inout) :: cv
-            integer(c_int) :: ii, numItems
+        !   subroutine clearColumnView_opt(cv)
+        !     type(c_ptr) :: listModel, currCol
+        !     type(c_ptr), intent(inout) :: cv
+        !     integer(c_int) :: ii, numItems
           
-            listmodel = gtk_column_view_get_columns(cv)
-            numItems = g_list_model_get_n_items(listmodel) -1
-            do ii=numItems,0,-1
-              currCol = g_list_model_get_object(listmodel,ii)
-              call gtk_column_view_remove_column(cv,currCol)
-              call g_object_unref(currCol)
+        !     listmodel = gtk_column_view_get_columns(cv)
+        !     numItems = g_list_model_get_n_items(listmodel) -1
+        !     do ii=numItems,0,-1
+        !       currCol = g_list_model_get_object(listmodel,ii)
+        !       call gtk_column_view_remove_column(cv,currCol)
+        !       call g_object_unref(currCol)
           
-            end do
+        !     end do
           
-          end subroutine          
+        !   end subroutine          
 
 end module
