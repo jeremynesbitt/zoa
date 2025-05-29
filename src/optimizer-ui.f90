@@ -665,7 +665,7 @@ module optimizer_ui
         use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
     
         type(integer) :: ID_TAB
-        type(c_ptr) :: boxNew
+        type(c_ptr) :: boxNew, toolBox
     
         !Debug
         integer :: ii
@@ -678,6 +678,10 @@ module optimizer_ui
     
     
         boxNew = hl_gtk_box_new()
+
+        !Create toolbar
+        call createConstraintToolbar(toolBox)
+        call gtk_box_append(boxNew, toolBox)        
 
         store = buildConstraintTable()
         selection = gtk_multi_selection_new(store)
@@ -1063,5 +1067,60 @@ module optimizer_ui
         !     end do
           
         !   end subroutine          
+
+
+          subroutine createConstraintToolbar(toolBox)
+            use gdk
+
+            type(c_ptr) :: toolBox ! Output
+            type(c_ptr), dimension(2) :: btns
+            type(c_ptr) :: theme
+            integer :: i
+    
+
+      
+            toolBox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0_c_int);
+    
+            ! Adding icons
+            ! I used iconoir.com to find icons and download svg files
+            ! converted them using magick from command line (eg magick zoom-out.svg zoom-out.png)
+            ! Copy to /data folder
+            ! add file to gresource.xml 
+    
+            btns(1) = gtk_button_new_from_icon_name ("view-refresh-symbolic"//c_null_char)
+            btns(2) = gtk_button_new_from_icon_name ("view-help-symbolic"//c_null_char)
+            
+            call gtk_widget_set_tooltip_text(btns(1), "Update Database"//c_null_char)
+            call gtk_widget_set_tooltip_text(btns(2), "Help on this Window"//c_null_char)
+ 
+            do i=1,size(btns)
+                call gtk_widget_set_valign(btns(i), GTK_ALIGN_START)
+                call gtk_button_set_has_frame (btns(i), FALSE)
+                call gtk_widget_set_focus_on_click (btns(i), FALSE)
+                call hl_gtk_box_pack (toolBox, btns(i))
+                call gtk_widget_set_has_tooltip(btns(i), 1_c_int)
+            end do          
+            call g_signal_connect(btns(1), 'clicked'//c_null_char, c_funloc(updateConstraints), c_null_ptr)
+            call g_signal_connect(btns(2), 'clicked'//c_null_char, c_funloc(helpWindow), c_null_ptr)
+
+        end subroutine
+
+        subroutine updateConstraints(widget, event, gdata) bind(c)
+            use gdk, only: gdk_cursor_new_from_name
+            implicit none
+            type(c_ptr), value :: widget, event, gdata
+           
+            !toolbarState = ID_NONE
+            !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)
+        end subroutine      
+        
+        subroutine helpWindow(widget, event, gdata) bind(c)
+            use gdk, only: gdk_cursor_new_from_name
+            implicit none
+            type(c_ptr), value :: widget, event, gdata
+           
+            !toolbarState = ID_NONE
+            !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)
+        end subroutine              
 
 end module
