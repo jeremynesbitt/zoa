@@ -46,7 +46,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(601) :: zoaCmds
+    type(zoa_cmd), dimension(611) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -59,6 +59,7 @@ module codeV_commands
     integer, parameter :: TOW_LOOP = 5
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
+    integer, parameter :: CON_UPDATE_LOOP = 7
 
 
     contains
@@ -176,13 +177,13 @@ module codeV_commands
         zoaCmds(545)%cmd = 'CCY'
         zoaCmds(545)%execFunc => updateVarCodes           
         zoaCmds(546)%cmd = 'EFL'
-        zoaCmds(546)%execFunc => updateEFLConstraint                         
+        zoaCmds(546)%execFunc => updateConstraint                         
         zoaCmds(547)%cmd = 'TAR'
         zoaCmds(547)%execFunc => execTAR     
         zoaCmds(548)%cmd = 'FRZ'
         zoaCmds(548)%execFunc => execFreeze    
         zoaCmds(549)%cmd = 'TCO'
-        zoaCmds(549)%execFunc => updateTCOConstraint   
+        zoaCmds(549)%execFunc => updateConstraint   
         zoaCmds(550)%cmd = 'FLY'
         zoaCmds(550)%execFunc => flipSurfaces    
         zoaCmds(551)%cmd = 'SCA'
@@ -192,7 +193,7 @@ module codeV_commands
         zoaCmds(553)%cmd = 'RED'
         zoaCmds(553)%execFunc => setMagSolve           
         zoaCmds(554)%cmd = 'TAS'
-        zoaCmds(554)%execFunc => updateTCOConstraint     
+        zoaCmds(554)%execFunc => updateConstraint     
         zoaCmds(555)%cmd = 'IMC'
         zoaCmds(555)%execFunc => updateConstraint    
         zoaCmds(556)%cmd = 'PTB'
@@ -244,13 +245,17 @@ module codeV_commands
         zoaCmds(585)%cmd = 'SLB'
         zoaCmds(585)%execFunc => updateSurfaceLabel    
         zoaCmds(586)%cmd = 'SAS'
-        zoaCmds(586)%execFunc => updateTCOConstraint   
+        zoaCmds(586)%execFunc => updateConstraint   
         zoaCmds(587)%cmd = 'RMSDATA'
         zoaCmds(587)%execFunc => updateRMSPlotType         
         zoaCmds(588)%cmd = 'IMP'
         zoaCmds(588)%execFunc => updateOptimImprovementGoal   
         zoaCmds(589)%cmd = 'AUTUI'
-        zoaCmds(589)%execFunc => aut_ui                                                  
+        zoaCmds(589)%execFunc => aut_ui      
+        zoaCmds(590)%cmd = 'UPD'
+        zoaCmds(590)%execFunc => updateDatabase    
+        zoaCmds(591)%cmd = 'CHA'
+        zoaCmds(591)%execFunc => changeDatabase                                                                  
 
         
     end subroutine
@@ -1869,21 +1874,20 @@ module codeV_commands
 
         processResult = .FALSE.
 
-        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+        ! TODO add some sort of isValidConstraintUpdate() func to avoid this mess and allow for future expansion
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
           call parse(iptStr, ' ', tokens, numTokens)
 
         if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
- 
-            select case(trim(tokens(2)))
-            case('=')
-                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.TRUE.)
-            case('>')
-                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.FALSE., lb=.FALSE.,ub=.TRUE.)
-            case('<')
-                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.FALSE., lb=.TRUE.,ub=.FALSE.)
-            case default
-                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
-            end select
+            if (trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') then 
+                if (cmd_loop == CON_UPDATE_LOOP) then 
+                    call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), idxConUpdate)
+                else
+                    call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)))
+                end if
+            else
+                call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
+            end if
         else
             call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
         end if
@@ -1893,85 +1897,6 @@ module codeV_commands
         end if
 
     end subroutine    
-
-    subroutine updateEFLConstraint(iptStr)
-        use command_utils, only : isInputNumber
-        use mod_lens_data_manager
-        use optim_types
-        implicit none
-
-        character(len=*) :: iptStr
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: processResult 
-        integer :: s0, sf, dotLoc
-
-        processResult = .FALSE.
-
-        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
-          call parse(iptStr, ' ', tokens, numTokens)
-
-        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
- 
-            select case(trim(tokens(2)))
-            case('=')
-                call addConstraint('EFL', str2real8(tokens(3)), eq=.TRUE.)
-            case('>')
-                call addConstraint('EFL', str2real8(tokens(3)), eq=.FALSE., lb=.FALSE.,ub=.TRUE.)
-            case('<')
-                call addConstraint('EFL', str2real8(tokens(3)), eq=.FALSE., lb=.TRUE.,ub=.FALSE.)
-            case default
-                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
-            end select
-        else
-            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
-        end if
-        else
-            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
-
-        end if
-
-    end subroutine    
-
-    ! TODO:  Refactor with EFL constraint.  Just use tokens(1) ant that's it?
-    subroutine updateTCOConstraint(iptStr)
-        use command_utils, only : isInputNumber
-        use mod_lens_data_manager
-        use optim_types
-        implicit none
-
-        character(len=*) :: iptStr
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: processResult 
-        integer :: s0, sf, dotLoc
-
-        processResult = .FALSE.
-
-        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
-          call parse(iptStr, ' ', tokens, numTokens)
-
-        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
- 
-            select case(trim(tokens(2)))
-            case('=')
-                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.TRUE.)
-            case('>')
-            case('<')
-            case default
-                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
-            end select
-        else
-            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
-        end if
-        else
-            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
-
-        end if
-
-    end subroutine        
 
 
     ! NBR ELE Si..j only supported
@@ -3137,17 +3062,12 @@ module codeV_commands
 
     subroutine updateOptimImprovementGoal(iptStr)
         use command_utils
-        use strings
         use optim_types, only: optim
-
-        implicit none
 
         character(len=*) :: iptStr
         character(len=80) :: tokens(40)
         integer :: numTokens
         logical :: boolResult
-
-       
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
         if(numTokens==2 .AND. isInputNumber(trim(tokens(2)))) then 
@@ -3161,7 +3081,6 @@ module codeV_commands
     subroutine updateRMSPlotType(iptStr)
 
         use command_utils
-        use strings
 
         implicit none
 
@@ -3215,5 +3134,56 @@ module codeV_commands
       
       
       end subroutine aut_ui  
+
+      subroutine updateDatabase(iptStr)
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        character(len=*) :: iptStr
+
+        call parse(trim(iptStr), ' ', tokens, numTokens) 
+
+        if (numtokens < 2) then 
+            call updateTerminalLog('Error:  Expect UPD X, where X is the type of data to update', "red")
+        else
+
+
+        select case(trim(tokens(2)))
+        
+            case('CON') ! Cosine Y angle
+                cmd_loop = CON_UPDATE_LOOP
+
+            end select
+        end if
+      
+      
+      end subroutine updateDatabase     
+      
+      
+      subroutine changeDatabase(iptStr)
+        use optim_types
+        use command_utils, only: isInputNumber
+      character(len=*) :: iptStr
+      character(len=80) :: tokens(40)
+      integer :: numTokens
+      logical :: boolResult
+
+    
+      call parse(trim(iptStr), ' ', tokens, numTokens) 
+      if(numTokens==2 .AND. isInputNumber(trim(tokens(2)))) then 
+         
+        select case(cmd_loop)
+        case(CON_UPDATE_LOOP)
+            idxConUpdate = str2int(trim(tokens(2)))
+
+        case default
+            call updateTerminalLog('CHA Error: Not in update loop', "red")  
+            
+        end select
+      
+
+      else
+          call updateTerminalLog('Error:  Expect CHA r, where r is a number', "red")
+      end if      
+    end subroutine changeDatabase
 
 end module

@@ -18,7 +18,7 @@ module optim_types
     type :: constraint
        character(len=4) :: name
        real(long) :: con
-       logical :: exact, lb, ub ! bound if false.  To be depreciated
+       !logical :: exact, lb, ub ! bound if false.  To be depreciated
        integer :: conType ! Either exact, lb, or ub
        real(long) :: targ 
        procedure (constraintFunc), pointer :: func ! share same interface for func
@@ -72,6 +72,8 @@ module optim_types
     !real(long) :: VARDATA(1000,3) ! Values of variables.  initial val, lb ub
 
     integer :: nO, nC ! number of operands and constraints in use
+
+    integer :: idxConUpdate ! interface with CLI for updating constraintsInUse
 
 
     contains
@@ -216,7 +218,7 @@ module optim_types
         
         res = ldm%getSurfThi(ldm%getLastSurf()-1)
 
-        if (self%exact .or. self%ub) then
+        if (self%conType == ID_CON_EXACT .or. self%conType == ID_CON_GREATER_THAN) then
            res = res - self%targ
         else ! lower bound
             res = res - self%targ
@@ -259,35 +261,51 @@ module optim_types
 
     end subroutine
 
-    subroutine addConstraint(name, val, eq, lb, ub)
+    !TODO:  change the input to a string (=, >, or <) and do the parsing here
+    !subroutine addConstraint(name, val, eq, lb, ub) ! Old interface
+    subroutine addConstraint(name, val, strType, idxToUpdate)
         character(len=*) :: name
         real(long) :: val
-        logical, optional :: eq, lb, ub
-        integer :: idx
+        character(len=1) :: strType ! Either >, < =
+        integer, optional :: idxToUpdate ! This is an interface if the user wants to update an existing constraint (or from ui)
+        integer :: idx, conType, ii
         
         idx = isNameInConstraintList(name)
 
+        select case (strType)
+
+        case('=')
+            conType = ID_CON_EXACT
+        case('>')
+            conType = ID_CON_GREATER_THAN
+        case('<') 
+            conType = ID_CON_LESS_THAN
+        case default
+            call LogTermFOR("Error in addConstraint type!  Only support =, >, < at this type")
+            return 
+        end select
+
+
+
         if (idx.ne.0) then
-            nC = nC +1
-            constraintsInUse(nC) = constraints(idx)
-            constraintsInUse(nC)%targ = val
+            if(present(idxToUpdate)) then 
+                if (idxToUpdate > 0 .AND. idxToUpdate <= nC) then
+                    ii = idxToUpdate
+                else ! Add to end if the update index is not within current constraint list - whether this is a good decision is TBD
+                    nC = nC +1
+                    ii=nC 
+                end if
+            else
+                nC = nC +1
+                ii = nC
+            end if
+            constraintsInUse(ii) = constraints(idx)
+            constraintsInUse(ii)%targ = val
+            constraintsInUse(ii)%conType = conType
             !constraintsInUse(nC)%name = name 
-            if(present(eq)) then
-                constraintsInUse(nc)%exact = eq
-                constraintsInUse(nc)%conType = ID_CON_EXACT
-            end if
-            if(present(lb)) then
-                constraintsInUse(nc)%exact = .FALSE.
-                constraintsInUse(nC)%ub = .FALSE.
-                constraintsInUse(nC)%lb = .TRUE.
-                constraintsInUse(nc)%conType = ID_CON_GREATER_THAN
-            end if
-            if(present(ub)) then
-                constraintsInUse(nc)%exact = .FALSE.
-                constraintsInUse(nC)%ub = .TRUE.
-                constraintsInUse(nC)%lb = .FALSE.
-                constraintsInUse(nc)%conType = ID_CON_LESS_THAN
-            end if
+        else
+            call LogTermFOR("Error in addConstraint name!  Could not find "//name// " as a valid option")
+            return             
         end if
                         
 
@@ -424,7 +442,7 @@ module optim_types
         
         neq = 0
         do i=1,nC
-            if (constraintsInUse(i)%exact) neq = neq+1
+            if (constraintsInUse(i)%conType == ID_CON_EXACT) neq = neq+1
         end do
 
     end function
@@ -588,7 +606,7 @@ module optim_types
             if (nC > 0 ) then
                 do i=1,nC
                     q = ' '
-                    if (constraintsInUse(i)%exact) q = '='
+                    if (constraintsInUse(i)%conType == ID_CON_EXACT) q = '='
                     write(fID,*) trim(constraintsInUse(i)%name)//" "//q//" "//real2str(constraintsInUse(i)%targ)
                 end do
             end if

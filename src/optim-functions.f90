@@ -127,7 +127,7 @@ subroutine optimizerFunc(me, x,f,c)
     ieq  = 0
     ineq = 0
     do i=1,nC
-        if(constraintsInUse(i)%exact) then
+        if(constraintsInUse(i)%conType == ID_CON_EXACT) then
             ieq = ieq + 1
             ceq(ieq) = constraintsInUse(i)%func()
         else
