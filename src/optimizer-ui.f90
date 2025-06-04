@@ -134,6 +134,7 @@ module optimizer_ui
 
     integer, parameter :: ID_WIDGET_TYPE_LABEL = 4001
     integer, parameter :: ID_WIDGET_TYPE_DROPDOWN = 4002
+    integer, parameter :: ID_WIDGET_TYPE_ENTRY = 4003
 
 
     integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
@@ -647,7 +648,7 @@ module optimizer_ui
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%getFunc_int => constraint_item_get_contype        
 
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colName = "Target"
-        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_LABEL
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_ENTRY
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%dataType = ID_DATATYPE_DBL
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_target
 
@@ -688,6 +689,8 @@ module optimizer_ui
               !selection = gtk_multi_selection_new(store)
         call gtk_single_selection_set_autoselect(selection,TRUE)    
         cv = gtk_column_view_new(selection)
+
+        call gtk_widget_set_name(cv, "Constraint"//c_null_char)
 
         call setColumnViewDefault(cv, setConstraintColumns)
     
@@ -771,10 +774,10 @@ module optimizer_ui
 
             do ii=1,size(constraintColInfo)
               factory = gtk_signal_list_item_factory_new()
-              print *, "Before setup"
-              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
-              print *, "Before bind"
-              call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
+              !call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
+              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii)//"C"//trim(int2str(colIDs(ii))))))
+              !call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
+              call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),g_strdup("R"//trim(int2str(ii)//"C"//trim(int2str(colIDs(ii))))))
               column = gtk_column_view_column_new(trim(constraintColInfo(ii)%colName)//c_null_char, factory)
               call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii))))
               call gtk_column_view_column_set_resizable(column, 1_c_int)
@@ -810,18 +813,21 @@ module optimizer_ui
           subroutine setup_constraint_cb(factory,listitem, gdata) bind(c)
             use gtk_hl_entry
             use gtk_hl_container
+            use ui_table_funcs
             
             type(c_ptr), value :: factory
             type(c_ptr), value :: listitem, gdata
             type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
-            integer(kind=c_int), pointer :: ID_COL
+            !integer(kind=c_int), pointer :: ID_COL
             character(len=3) :: cmd
+            integer :: row, ID_COL
             
           
             label =gtk_label_new(c_null_char)
             call gtk_list_item_set_child(listitem,label)
           
-            call c_f_pointer(gdata, ID_COL)
+            call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
+            !call c_f_pointer(gdata, ID_COL)
 
             select case (constraintColInfo(ID_COL)%colType)
             case (ID_WIDGET_TYPE_LABEL)
@@ -836,9 +842,14 @@ module optimizer_ui
                  dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintTypeNames()))
                 end select
 
+                call gtk_list_item_set_child(listitem,dropDown)     
+            case (ID_WIDGET_TYPE_ENTRY)
+                boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+                entryCB = hl_gtk_entry_new(4_c_int, editable=TRUE, activate=c_funloc(constraint_cell_changed), data=c_null_ptr)                                           
+                !entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))                                           
+                call gtk_box_append(boxS, entryCB)
+                call gtk_list_item_set_child(listitem, boxS)  
                 
-                call gtk_list_item_set_child(listitem,dropDown)                                
-
             end select       
         end subroutine   
 
@@ -872,14 +883,16 @@ module optimizer_ui
             type(c_ptr), value :: listitem, gdata
             type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
             type(c_ptr) :: cStr
-            integer(kind=c_int), pointer :: ID_COL
-            integer(kind=c_double) :: tmpDbl
+              integer(kind=c_double) :: tmpDbl
             integer(kind=c_int) :: tmpInt
             character(len=140) :: colName
             character(len=1), dimension(:), allocatable :: conTypeNames
             class(*), pointer :: tmpPtr
-          
-            call c_f_pointer(gdata, ID_COL)
+            character(len=100) :: rcCode
+            integer :: row, ID_COL
+
+            !call c_f_pointer(gdata, ID_COL)
+            call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
             label = gtk_list_item_get_child(listitem)
             item = gtk_list_item_get_item(listitem);
           
@@ -897,6 +910,7 @@ module optimizer_ui
                     case (ID_DATATYPE_DBL)
                         tmpDbl = constraintColInfo(ID_COL)%getFunc_dbl(item)
                         write(colName, *) tmpDbl
+                        
                         !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
                 end select
 
@@ -913,8 +927,6 @@ module optimizer_ui
                         call setDropDownByString(label, colName)                
                     case (ID_CONSTRAINT_TYPE_COL)
                         tmpInt = constraintColInfo(ID_COL)%getFunc_int(item)
-                        print *, "Tempint is ", tmpInt
-                        print *, "ID_COL is ", ID_COL
                         ! There is a bug where the getFunc is not returning a value ine
                         ! range.  I could not figure out why so for now just restrict values
                         if (tmpInt > 0 .AND. tmpInt < 5) then 
@@ -924,10 +936,35 @@ module optimizer_ui
                             conTypeNames = gatherConstraintTypeNames()
                             call setDropDownByString(label, conTypeNames(1))
                         end if
+                    end select
+
+                case (ID_WIDGET_TYPE_ENTRY)
+                    print *, "bind entry type"
+                    select case (constraintColInfo(ID_COL)%dataType)
+                    case (ID_DATATYPE_INT)
+                    colName = trim(int2str(constraintColInfo(ID_COL)%getFunc_int(item)))
+                       
+                    case (ID_DATATYPE_STR)
+                        cStr = constraintColInfo(ID_COL)%getFunc_str(item)
+                        call convert_c_string(cStr, colName)      
+
+                    case (ID_DATATYPE_DBL)
+                        tmpDbl = constraintColInfo(ID_COL)%getFunc_dbl(item)
+                        write(colName, *) tmpDbl
+                        print *, "tmpDbl is ", tmpDbl
+                        if (tmpDbl == 0) colName = "0"
+                        !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
+                    end select
+                    entryCB = gtk_widget_get_first_child(label)  
+                    buffer = gtk_entry_get_buffer(entryCB)    
+                    call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)                    
                     
-                end select
+                
                 
                 !call gtk_drop_down_set_selected(label, 0_c_int)
+                ! Encode row and column for later use  
+                call convert_c_string(gdata, rcCode)
+                call gtk_widget_set_name(label,trim(rcCode)//c_null_char)
 
             end select        
         end subroutine
@@ -1122,5 +1159,29 @@ module optimizer_ui
             !toolbarState = ID_NONE
             !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)
         end subroutine              
+
+
+        subroutine constraint_cell_changed(widget, data) bind(c)
+            use type_utils
+            use strings
+          
+          type(c_ptr), value :: widget, data
+          type(c_ptr) :: buff2, cStr
+          character(len=100) :: ftext, rcCode, cmd
+          integer :: surfIdx
+          
+        !   buff2 = gtk_entry_get_buffer(widget)
+        !   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
+          
+        !   print *, "Val is ", trim(ftext)
+        !   cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
+          
+        !   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+          
+        !   call convert_c_string(data, cmd)  
+        !   print *, "cmd is ", trim(cmd)
+        !   print *, "cmd to process is ", trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext)
+        !   call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
+          end subroutine        
 
 end module

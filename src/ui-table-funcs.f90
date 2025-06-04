@@ -125,4 +125,27 @@ module ui_table_funcs
       end subroutine          
 
 
+      subroutine getRowAndColumnFromStrPtr(cStr, rowIdx, colIdx) 
+        use type_utils
+        use gtk_sup, only: convert_c_string
+        type(c_ptr), value :: cStr
+        character(len=100) :: rcCode
+        integer :: rowIdx
+        integer, optional, intent(inout) :: colIdx
+        integer :: rL, cL
+
+        call convert_c_string(cStr, rcCode)  
+      
+        rL = index(rcCode, 'R')
+        cL = index(rcCode, 'C')
+        !print *, "row is ", rcCode(rL+1:cL)
+        rowIdx = str2int(rcCode(rL+1:cL-1))
+        if (present(colIdx)) then 
+          colIdx = str2int(rcCode(cL+1:len(rcCode)))
+        end if
+        !print *, "surfIdx is ", surfIdx
+      
+    end subroutine      
+
+
 end module
