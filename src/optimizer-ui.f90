@@ -1160,16 +1160,55 @@ module optimizer_ui
             !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)
         end subroutine              
 
+        function getModelFromWidget(widget, strName) result(model)
+            type(c_ptr), value :: widget 
+            type(c_ptr) :: model
+            character(len=*) :: strName 
+            character(len=100) :: ftext
+            type(c_ptr) :: tmpPtr, cStr
+            integer :: ii 
+
+            model = c_null_ptr
+            print *, "Trying to get model from widget"
+            do ii=1,10
+                tmpPtr = gtk_widget_get_parent(widget)
+                if (c_associated(tmpPtr)) then 
+                    cStr = gtk_widget_get_name(tmpPtr)
+                    if (c_associated(cStr)) then 
+                        call convert_c_string(cStr, ftext)
+                        if (ftext == strName) then 
+                            print *, "Found right widget!  It's a miracle"
+                            model = gtk_column_view_get_model(tmpPtr)
+                            return 
+                        end if
+                    end if
+                end if
+            end do
+
+        end function
 
         subroutine constraint_cell_changed(widget, data) bind(c)
             use type_utils
             use strings
+            use ui_table_funcs
           
           type(c_ptr), value :: widget, data
-          type(c_ptr) :: buff2, cStr
+          type(c_ptr) :: buff2, cStr, item, model
           character(len=100) :: ftext, rcCode, cmd
-          integer :: surfIdx
+          integer :: row,col
           
+          model = getModelFromWidget(widget, "Constraint")
+
+
+          call getRowAndColumnFromStrPtr(gtk_widget_get_name(gtk_widget_get_parent(widget)),row,col)
+
+
+          if(c_associated(model)) then 
+            print *, "actually iun the right place?"
+            item = g_list_model_get_object(model, row-1) ! row 0 indexed
+          end if
+
+
         !   buff2 = gtk_entry_get_buffer(widget)
         !   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
           
