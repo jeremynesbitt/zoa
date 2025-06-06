@@ -1170,8 +1170,9 @@ module optimizer_ui
 
             model = c_null_ptr
             print *, "Trying to get model from widget"
+            tmpPtr = widget
             do ii=1,10
-                tmpPtr = gtk_widget_get_parent(widget)
+                tmpPtr = gtk_widget_get_parent(tmpPtr)
                 if (c_associated(tmpPtr)) then 
                     cStr = gtk_widget_get_name(tmpPtr)
                     if (c_associated(cStr)) then 
@@ -1195,7 +1196,7 @@ module optimizer_ui
           type(c_ptr), value :: widget, data
           type(c_ptr) :: buff2, cStr, item, model
           character(len=100) :: ftext, rcCode, cmd
-          integer :: row,col
+          integer :: row,col, conType
           
           model = getModelFromWidget(widget, "Constraint")
 
@@ -1206,6 +1207,8 @@ module optimizer_ui
           if(c_associated(model)) then 
             print *, "actually iun the right place?"
             item = g_list_model_get_object(model, row-1) ! row 0 indexed
+            conType = constraint_item_get_contype(item)
+            print *, "conType is ", conType
           end if
 
 
