@@ -48,14 +48,14 @@ module optimizer_ui
 
 
 ! Constraints
-      function append_constraint_model(store, constraintName, convalue, conType,  &
+      function append_constraint_model(store, constraintName, convalue, contype,  &
         & targ) bind(c)
         import c_ptr, c_char, c_int, c_double
         implicit none
         type(c_ptr), value    :: store
         character(kind=c_char), dimension(*) :: constraintName
         type(c_ptr)    :: append_constraint_model
-        integer(c_int) :: conType
+        integer(c_int), value :: contype
         real(c_double), value :: conValue, targ
       end function    
   
@@ -753,6 +753,7 @@ module optimizer_ui
           store = append_constraint_model(store, constraintsInUse(i)%name, constraintsInUse(i)%con,  &
           & constraintsInUse(i)%conType, constraintsInUse(i)%targ)
           print *, "Targ is ", constraintsInUse(i)%targ
+          print *, "conType is ", constraintsInUse(i)%conType
 
             else 
                 print *, "i is ", i
@@ -775,9 +776,9 @@ module optimizer_ui
             do ii=1,size(constraintColInfo)
               factory = gtk_signal_list_item_factory_new()
               !call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
-              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii)//"C"//trim(int2str(colIDs(ii))))))
-              !call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
-              call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),g_strdup("R"//trim(int2str(ii)//"C"//trim(int2str(colIDs(ii))))))
+              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
+              call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
+              !call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
               column = gtk_column_view_column_new(trim(constraintColInfo(ii)%colName)//c_null_char, factory)
               call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii))))
               call gtk_column_view_column_set_resizable(column, 1_c_int)
@@ -889,10 +890,11 @@ module optimizer_ui
             character(len=1), dimension(:), allocatable :: conTypeNames
             class(*), pointer :: tmpPtr
             character(len=100) :: rcCode
-            integer :: row, ID_COL
+            integer(kind=c_int), pointer :: ID_COL
+            integer :: row
 
-            !call c_f_pointer(gdata, ID_COL)
-            call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
+            call c_f_pointer(gdata, ID_COL)
+            !call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
             label = gtk_list_item_get_child(listitem)
             item = gtk_list_item_get_item(listitem);
           
@@ -939,7 +941,6 @@ module optimizer_ui
                     end select
 
                 case (ID_WIDGET_TYPE_ENTRY)
-                    print *, "bind entry type"
                     select case (constraintColInfo(ID_COL)%dataType)
                     case (ID_DATATYPE_INT)
                     colName = trim(int2str(constraintColInfo(ID_COL)%getFunc_int(item)))
@@ -951,7 +952,6 @@ module optimizer_ui
                     case (ID_DATATYPE_DBL)
                         tmpDbl = constraintColInfo(ID_COL)%getFunc_dbl(item)
                         write(colName, *) tmpDbl
-                        print *, "tmpDbl is ", tmpDbl
                         if (tmpDbl == 0) colName = "0"
                         !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
                     end select
@@ -962,9 +962,11 @@ module optimizer_ui
                 
                 
                 !call gtk_drop_down_set_selected(label, 0_c_int)
-                ! Encode row and column for later use  
-                call convert_c_string(gdata, rcCode)
-                call gtk_widget_set_name(label,trim(rcCode)//c_null_char)
+                ! Encode row and column for later use    
+                row = gtk_list_item_get_position(listitem)   
+                call gtk_widget_set_name(label,"R"//trim(int2str(row))//"C"//trim(int2str(ID_COL))//c_null_char)
+
+                !call gtk_widget_set_name(label,trim(rcCode)//c_null_char)
 
             end select        
         end subroutine
@@ -1195,20 +1197,40 @@ module optimizer_ui
           
           type(c_ptr), value :: widget, data
           type(c_ptr) :: buff2, cStr, item, model
-          character(len=100) :: ftext, rcCode, cmd
-          integer :: row,col, conType
+          character(len=100) :: rcCode, cmd, valTxt
+          character(len=140) :: ftext
+          character(len=1) :: conStr
+          integer :: row,col
+          integer(kind=c_int) :: conType
           
           model = getModelFromWidget(widget, "Constraint")
 
+          buff2 = gtk_entry_get_buffer(widget)
+          call c_f_string_copy(gtk_entry_buffer_get_text(buff2), valTxt)
 
           call getRowAndColumnFromStrPtr(gtk_widget_get_name(gtk_widget_get_parent(widget)),row,col)
 
 
           if(c_associated(model)) then 
             print *, "actually iun the right place?"
-            item = g_list_model_get_object(model, row-1) ! row 0 indexed
+            print *, "row is ", row
+            item = g_list_model_get_item(model, row) ! row 0 indexed
+            print *, "item is ", loc(item)
             conType = constraint_item_get_contype(item)
-            print *, "conType is ", conType
+            print *, "Contype is ", conType
+            cStr = constraint_item_get_name(item)
+            print *, "cStr is ", cStr
+            call convert_c_string(cStr, ftext)
+            select case (conType)
+            case(ID_CON_EXACT)
+                conStr = '='
+            case(ID_CON_GREATER_THAN)
+                conStr = '>'
+            case(ID_CON_LESS_THAN)
+                conStr = '<'
+            end select
+            print *, "Cmd is "//"UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt)
+            call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt))
           end if
 
 

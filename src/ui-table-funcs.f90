@@ -135,7 +135,7 @@ module ui_table_funcs
         integer :: rL, cL
 
         call convert_c_string(cStr, rcCode)  
-      
+        !print *, "DEBUG:  rcCode is ", trim(rcCode)
         rL = index(rcCode, 'R')
         cL = index(rcCode, 'C')
         !print *, "row is ", rcCode(rL+1:cL)
