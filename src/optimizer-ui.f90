@@ -48,7 +48,7 @@ module optimizer_ui
 
 
 ! Constraints
-      function append_constraint_model(store, constraintName, convalue, contype,  &
+      function append_constraint_model(store, constraintName, conValue, contype,  &
         & targ) bind(c)
         import c_ptr, c_char, c_int, c_double
         implicit none
@@ -820,6 +820,8 @@ module optimizer_ui
             type(c_ptr), value :: listitem, gdata
             type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
             !integer(kind=c_int), pointer :: ID_COL
+            integer :: ii
+            integer, target :: colIDs(25) = [(ii,ii=1,25)]
             character(len=3) :: cmd
             integer :: row, ID_COL
             
@@ -884,7 +886,7 @@ module optimizer_ui
             type(c_ptr), value :: listitem, gdata
             type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
             type(c_ptr) :: cStr
-              integer(kind=c_double) :: tmpDbl
+            real(kind=c_double) :: tmpDbl
             integer(kind=c_int) :: tmpInt
             character(len=140) :: colName
             character(len=1), dimension(:), allocatable :: conTypeNames
@@ -951,24 +953,31 @@ module optimizer_ui
 
                     case (ID_DATATYPE_DBL)
                         tmpDbl = constraintColInfo(ID_COL)%getFunc_dbl(item)
-                        write(colName, *) tmpDbl
-                        if (tmpDbl == 0) colName = "0"
+                        !write(colName, *) tmpDbl
+                        colName = real2str(tmpDbl)
+                        !if (tmpDbl == 0) colName = "0"
                         !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
                     end select
                     entryCB = gtk_widget_get_first_child(label)  
                     buffer = gtk_entry_get_buffer(entryCB)    
                     call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)                    
                     
+
                 
                 
                 !call gtk_drop_down_set_selected(label, 0_c_int)
                 ! Encode row and column for later use    
-                row = gtk_list_item_get_position(listitem)   
-                call gtk_widget_set_name(label,"R"//trim(int2str(row))//"C"//trim(int2str(ID_COL))//c_null_char)
 
                 !call gtk_widget_set_name(label,trim(rcCode)//c_null_char)
 
-            end select        
+            end select   
+            row = gtk_list_item_get_position(listitem)   
+            call gtk_widget_set_name(label,"R"//trim(int2str(row))//"C"//trim(int2str(ID_COL))//c_null_char)
+
+            if (constraintColInfo(ID_COL)%colType == ID_WIDGET_TYPE_DROPDOWN) then
+                call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(constraintDropDownChanged), c_null_ptr)
+            end if            
+ 
         end subroutine
 
         function getRowFromColumnView(cv) result(currPos)
@@ -1246,6 +1255,80 @@ module optimizer_ui
         !   print *, "cmd is ", trim(cmd)
         !   print *, "cmd to process is ", trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext)
         !   call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
-          end subroutine        
+          end subroutine       
+          
+          subroutine constraintDropDownChanged(widget, gdata) bind(c)
+            type(c_ptr), value :: widget, gdata
+            type(c_ptr) :: buff2, cStr, item, model
+            character(len=100) :: rcCode, cmd, valTxt
+            character(len=140) :: ftext
+            character(len=1) :: conStr
+            integer :: row,col
+            integer(kind=c_int) :: conType
+            
+            model = getModelFromWidget(widget, "Constraint")
+
+            ! cStr = gtk_widget_get_name(widget)
+            ! call convert_c_string(cStr, ftext)
+            ! print *, "Dropdown widget name is ", trim(ftext)
+  
+            !call getRowAndColumnFromStrPtr(gtk_widget_get_name(gtk_widget_get_parent(widget)),row,col)
+
+
+            call getRowAndColumnFromStrPtr(gtk_widget_get_name(widget),row,col)
+            print *, "row is ", row 
+            print *, "col is ", col
+            cStr = gtk_drop_down_get_selected_item(widget)
+            call convert_c_string(cStr, ftext)
+            print *, "text is ", trim(ftext)
+
+            cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
+            print *, "cmd is ", cmd
+
+    
+        end subroutine
+
+        function getColValueAsStr(item, uiColInfo) result (outStr)
+            use type_utils
+            type(uiTableColumnInfo) :: uiColInfo 
+            type(c_ptr), value :: item
+            character(len=240) :: outStr 
+            type(c_ptr) :: cStr
+
+
+            select case (uiColInfo%dataType)
+                case (ID_DATATYPE_INT)
+                    outStr= trim(int2str(uiColInfo%getFunc_int(item)))
+                   
+                case (ID_DATATYPE_STR)
+                    cStr = uiColInfo%getFunc_str(item)
+                    call convert_c_string(cStr, outStr)      
+
+                case (ID_DATATYPE_DBL)
+                    outStr = real2str(uiColInfo%getFunc_dbl(item))
+            end select
+
+        end function
+
+        function getConstraintChangeCommand(model, row, col, colText) result(outStr)
+            type(c_ptr), value :: model
+            integer :: row, col 
+            character(len=*) :: colText
+            character(len=200) :: outStr
+            type(c_ptr) :: item 
+            integer :: ii
+
+            item = g_list_model_get_item(model, row) ! row 0 indexed
+
+            outStr = ''
+            do ii=1,size(constraintColInfo)
+                if (ii .ne. row) then 
+                    outStr = trim(outStr)//' '//trim(getColValueAsStr(item, constraintColInfo(ii)))
+                else
+                    outStr = trim(outStr)//' '//colText
+                end if
+            end do
+
+        end function
 
 end module
