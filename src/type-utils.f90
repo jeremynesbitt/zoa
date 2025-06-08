@@ -11,6 +11,7 @@ module type_utils
    
       function real2str(val, precision, sci) result(strOut)
           use iso_fortran_env, only: real64, real32
+          use iso_c_binding, only: c_double
   
           implicit none
   

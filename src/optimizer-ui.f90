@@ -776,7 +776,7 @@ module optimizer_ui
             do ii=1,size(constraintColInfo)
               factory = gtk_signal_list_item_factory_new()
               !call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
-              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
+              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))//c_null_char))
               call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
               !call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
               column = gtk_column_view_column_new(trim(constraintColInfo(ii)%colName)//c_null_char, factory)
@@ -1259,7 +1259,7 @@ module optimizer_ui
           
           subroutine constraintDropDownChanged(widget, gdata) bind(c)
             type(c_ptr), value :: widget, gdata
-            type(c_ptr) :: buff2, cStr, item, model
+            type(c_ptr) :: buff2, cStr, item, model, currItem
             character(len=100) :: rcCode, cmd, valTxt
             character(len=140) :: ftext
             character(len=1) :: conStr
@@ -1278,7 +1278,9 @@ module optimizer_ui
             call getRowAndColumnFromStrPtr(gtk_widget_get_name(widget),row,col)
             print *, "row is ", row 
             print *, "col is ", col
-            cStr = gtk_drop_down_get_selected_item(widget)
+            currItem = gtk_drop_down_get_selected_item(widget)
+            cStr = gtk_string_object_get_string(currItem)
+            !cStr = g_value_get_string(cStr)
             call convert_c_string(cStr, ftext)
             print *, "text is ", trim(ftext)
 
@@ -1294,6 +1296,7 @@ module optimizer_ui
             type(c_ptr), value :: item
             character(len=240) :: outStr 
             type(c_ptr) :: cStr
+            real(c_double) :: tmpDbl
 
 
             select case (uiColInfo%dataType)
@@ -1305,7 +1308,11 @@ module optimizer_ui
                     call convert_c_string(cStr, outStr)      
 
                 case (ID_DATATYPE_DBL)
-                    outStr = real2str(uiColInfo%getFunc_dbl(item))
+                    tmpDbl = uiColInfo%getFunc_dbl(item)
+                    outStr = real2str(tmpDbl)
+                    !print *, "outStr is ", outStr
+                    !write(outStr, *) tmpDbl
+                    !outStr = adjustl(outStr)
             end select
 
         end function
@@ -1321,8 +1328,8 @@ module optimizer_ui
             item = g_list_model_get_item(model, row) ! row 0 indexed
 
             outStr = ''
-            do ii=1,size(constraintColInfo)
-                if (ii .ne. row) then 
+            do ii=1,size(constraintColInfo) 
+                if (ii .ne. col) then  
                     outStr = trim(outStr)//' '//trim(getColValueAsStr(item, constraintColInfo(ii)))
                 else
                     outStr = trim(outStr)//' '//colText
