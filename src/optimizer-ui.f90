@@ -776,7 +776,7 @@ module optimizer_ui
             do ii=1,size(constraintColInfo)
               factory = gtk_signal_list_item_factory_new()
               !call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
-              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
+              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))//c_null_char))
               call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
               !call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
               column = gtk_column_view_column_new(trim(constraintColInfo(ii)%colName)//c_null_char, factory)
@@ -1223,6 +1223,8 @@ module optimizer_ui
 
           print *, "update cmd is ", trim(cmd)
           call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
+          !call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
+
 
 
 
@@ -1292,6 +1294,7 @@ module optimizer_ui
             type(c_ptr), value :: item
             character(len=240) :: outStr 
             type(c_ptr) :: cStr
+            real(kind=c_double) :: tmpDbl
 
 
             select case (uiColInfo%dataType)
@@ -1303,7 +1306,10 @@ module optimizer_ui
                     call convert_c_string(cStr, outStr)      
 
                 case (ID_DATATYPE_DBL)
-                    outStr = real2str(uiColInfo%getFunc_dbl(item))
+                    tmpDbl = uiColInfo%getFunc_dbl(item)
+                    
+                    outStr = real2str(tmpDbl)
+                  !outStr = real2str(uiColInfo%getFunc_dbl(item))
             end select
 
         end function
