@@ -776,7 +776,7 @@ module optimizer_ui
             do ii=1,size(constraintColInfo)
               factory = gtk_signal_list_item_factory_new()
               !call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),c_loc(colIDs(ii)))
-              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))//c_null_char))
+              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
               call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),c_loc(colIDs(ii)))
               !call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_constraint_cb),g_strdup("R"//trim(int2str(ii))//"C"//trim(int2str(colIDs(ii)))))
               column = gtk_column_view_column_new(trim(constraintColInfo(ii)%colName)//c_null_char, factory)
@@ -1219,45 +1219,40 @@ module optimizer_ui
 
           call getRowAndColumnFromStrPtr(gtk_widget_get_name(gtk_widget_get_parent(widget)),row,col)
 
+          cmd = getConstraintChangeCommand(model, row, col, trim(valTxt))
 
-          if(c_associated(model)) then 
-            print *, "actually iun the right place?"
-            print *, "row is ", row
-            item = g_list_model_get_item(model, row) ! row 0 indexed
-            print *, "item is ", loc(item)
-            conType = constraint_item_get_contype(item)
-            print *, "Contype is ", conType
-            cStr = constraint_item_get_name(item)
-            print *, "cStr is ", cStr
-            call convert_c_string(cStr, ftext)
-            select case (conType)
-            case(ID_CON_EXACT)
-                conStr = '='
-            case(ID_CON_GREATER_THAN)
-                conStr = '>'
-            case(ID_CON_LESS_THAN)
-                conStr = '<'
-            end select
-            print *, "Cmd is "//"UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt)
-            call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt))
-          end if
+          print *, "update cmd is ", trim(cmd)
+          call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
 
 
-        !   buff2 = gtk_entry_get_buffer(widget)
-        !   call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
-          
-        !   print *, "Val is ", trim(ftext)
-        !   cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
-          
-        !   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
-          
-        !   call convert_c_string(data, cmd)  
-        !   print *, "cmd is ", trim(cmd)
-        !   print *, "cmd to process is ", trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext)
-        !   call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
+
+        !   if(c_associated(model)) then 
+        !     print *, "actually iun the right place?"
+        !     print *, "row is ", row
+        !     item = g_list_model_get_item(model, row) ! row 0 indexed
+        !     print *, "item is ", loc(item)
+        !     conType = constraint_item_get_contype(item)
+        !     print *, "Contype is ", conType
+        !     cStr = constraint_item_get_name(item)
+        !     print *, "cStr is ", cStr
+        !     call convert_c_string(cStr, ftext)
+        !     select case (conType)
+        !     case(ID_CON_EXACT)
+        !         conStr = '='
+        !     case(ID_CON_GREATER_THAN)
+        !         conStr = '>'
+        !     case(ID_CON_LESS_THAN)
+        !         conStr = '<'
+        !     end select
+        !     print *, "Cmd is "//"UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt)
+        !     call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt))
+        !   end if
+
+
           end subroutine       
           
           subroutine constraintDropDownChanged(widget, gdata) bind(c)
+            use type_utils
             type(c_ptr), value :: widget, gdata
             type(c_ptr) :: buff2, cStr, item, model, currItem
             character(len=100) :: rcCode, cmd, valTxt
@@ -1281,11 +1276,12 @@ module optimizer_ui
             currItem = gtk_drop_down_get_selected_item(widget)
             cStr = gtk_string_object_get_string(currItem)
             !cStr = g_value_get_string(cStr)
-            call convert_c_string(cStr, ftext)
+            call convert_c_string(cStr, ftext)            
             print *, "text is ", trim(ftext)
 
             cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
             print *, "cmd is ", cmd
+            call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
 
     
         end subroutine
@@ -1296,7 +1292,6 @@ module optimizer_ui
             type(c_ptr), value :: item
             character(len=240) :: outStr 
             type(c_ptr) :: cStr
-            real(c_double) :: tmpDbl
 
 
             select case (uiColInfo%dataType)
@@ -1308,29 +1303,40 @@ module optimizer_ui
                     call convert_c_string(cStr, outStr)      
 
                 case (ID_DATATYPE_DBL)
-                    tmpDbl = uiColInfo%getFunc_dbl(item)
-                    outStr = real2str(tmpDbl)
-                    !print *, "outStr is ", outStr
-                    !write(outStr, *) tmpDbl
-                    !outStr = adjustl(outStr)
+                    outStr = real2str(uiColInfo%getFunc_dbl(item))
             end select
 
         end function
 
         function getConstraintChangeCommand(model, row, col, colText) result(outStr)
+            use type_utils, only: str2int
             type(c_ptr), value :: model
             integer :: row, col 
             character(len=*) :: colText
-            character(len=200) :: outStr
+            character(len=200) :: outStr, tmpStr
+            character(len=1) :: conStr
             type(c_ptr) :: item 
-            integer :: ii
+            integer :: ii, conType
 
             item = g_list_model_get_item(model, row) ! row 0 indexed
 
             outStr = ''
-            do ii=1,size(constraintColInfo) 
-                if (ii .ne. col) then  
+            do ii=1,size(constraintColInfo)
+                if (ii .ne. col) then 
+                    if (ii == ID_CONSTRAINT_TYPE_COL) then 
+                        conType = str2int(trim(getColValueAsStr(item, constraintColInfo(ii))))
+                        select case (conType)
+                        case(ID_CON_EXACT)
+                            conStr = '='
+                        case(ID_CON_GREATER_THAN)
+                            conStr = '>'
+                        case(ID_CON_LESS_THAN)
+                            conStr = '<'
+                        end select   
+                    outStr = trim(outStr)//' '//conStr
+                    else
                     outStr = trim(outStr)//' '//trim(getColValueAsStr(item, constraintColInfo(ii)))
+                    end if ! ID_CONSTRAINT_TYPE_COL check
                 else
                     outStr = trim(outStr)//' '//colText
                 end if
