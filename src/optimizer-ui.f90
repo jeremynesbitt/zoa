@@ -1171,6 +1171,33 @@ module optimizer_ui
             !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)
         end subroutine              
 
+        function getColumnViewFromWidget(widget, strName) result(cv)
+            type(c_ptr), value :: widget 
+            type(c_ptr) :: cv
+            character(len=*) :: strName 
+            character(len=100) :: ftext
+            type(c_ptr) :: tmpPtr, cStr
+            integer :: ii 
+
+            cv = c_null_ptr
+            tmpPtr = widget
+            do ii=1,10
+                tmpPtr = gtk_widget_get_parent(tmpPtr)
+                if (c_associated(tmpPtr)) then 
+                    cStr = gtk_widget_get_name(tmpPtr)
+                    if (c_associated(cStr)) then 
+                        call convert_c_string(cStr, ftext)
+                        if (ftext == strName) then 
+                            print *, "Found right widget!  It's a miracle"
+                            cv= tmpPtr
+                            return 
+                        end if
+                    end if
+                end if
+            end do
+
+        end function
+
         function getModelFromWidget(widget, strName) result(model)
             type(c_ptr), value :: widget 
             type(c_ptr) :: model
@@ -1223,7 +1250,7 @@ module optimizer_ui
 
           print *, "update cmd is ", trim(cmd)
           call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
-          !call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
+          call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
 
 
 
@@ -1284,7 +1311,7 @@ module optimizer_ui
             cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
             print *, "cmd is ", cmd
             call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
-
+            call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
     
         end subroutine
 
