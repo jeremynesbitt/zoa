@@ -1249,7 +1249,7 @@ module optimizer_ui
           cmd = getConstraintChangeCommand(model, row, col, trim(valTxt))
 
           print *, "update cmd is ", trim(cmd)
-          call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
+          call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
           call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
 
 
@@ -1310,7 +1310,7 @@ module optimizer_ui
 
             cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
             print *, "cmd is ", cmd
-            call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd))
+            call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
             call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
     
         end subroutine

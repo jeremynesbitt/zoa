@@ -22,6 +22,8 @@ module optim_types
        integer :: conType ! Either exact, lb, or ub
        real(long) :: targ 
        procedure (constraintFunc), pointer :: func ! share same interface for func
+       contains
+           procedure :: getConstraintTypeAsText
     end type
 
     type optimizer
@@ -225,6 +227,21 @@ module optim_types
         end if
 
     end function      
+
+    function getConstraintTypeAsText(self) result (strType)
+        class(constraint) :: self
+        character(len=1) :: strType
+
+        select case (self%conType)
+            case(ID_CON_EXACT)
+                strType = '='
+            case(ID_CON_GREATER_THAN)
+                strType = '>'
+            case(ID_CON_LESS_THAN)
+                strType = '<'
+        end select   
+
+    end function
 
     subroutine addOptimVariable(surf, int_code)
 
@@ -605,8 +622,7 @@ module optim_types
             end if
             if (nC > 0 ) then
                 do i=1,nC
-                    q = ' '
-                    if (constraintsInUse(i)%conType == ID_CON_EXACT) q = '='
+                    q = constraintsInUse(i)%getConstraintTypeAsText()
                     write(fID,*) trim(constraintsInUse(i)%name)//" "//q//" "//real2str(constraintsInUse(i)%targ)
                 end do
             end if

@@ -127,17 +127,37 @@ subroutine optimizerFunc(me, x,f,c)
     ieq  = 0
     ineq = 0
     do i=1,nC
-        if(constraintsInUse(i)%conType == ID_CON_EXACT) then
+        select case (constraintsInUse(i)%conType)
+        case (ID_CON_EXACT)
             ieq = ieq + 1
             ceq(ieq) = constraintsInUse(i)%func()
-        else
+        case(ID_CON_GREATER_THAN)     
             ineq = ineq + 1
             cneq(ineq) = constraintsInUse(i)%func()
-        end if  
+        case(ID_CON_LESS_THAN)
+            ineq = ineq + 1
+            cneq(ineq) = -1*constraintsInUse(i)%func()
+        end select
     end do
 
-    c(1:ieq) = ceq
-    if (ineq.ne.0) c(ieq+1:ineq+ieq) = cneq
+
+    !     if(constraintsInUse(i)%conType == ID_CON_EXACT) then
+    !         ieq = ieq + 1
+    !         ceq(ieq) = constraintsInUse(i)%func()
+    !     else ! For inequality the requirement is that val > 0
+    !         ineq = ineq + 1
+
+    !         if(constraintsInUse(i)%conType == ID_CON_GREATER_THAN) then
+    !             cneq(ineq) = constraintsInUse(i)%func() - constraintsInUse(i)%targ
+    !         else ! must be <
+    !             cneq(ineq) = constraintsInUse(i)%targ - constraintsInUse(i)%func()
+    !         end if
+
+    !     end if  
+    ! end do
+
+    c(1:ieq) = ceq(1:ieq)
+    if (ineq.ne.0) c(ieq+1:ineq+ieq) = cneq(1:ineq)
 
 
 end subroutine
