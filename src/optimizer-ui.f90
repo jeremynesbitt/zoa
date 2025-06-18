@@ -138,11 +138,12 @@ module optimizer_ui
 
 
     integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
-    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 3
+    integer, parameter :: ID_CONSTRAINT_TARGET_COL = 3
     integer, parameter :: ID_CONSTRAINT_TYPE_COL = 2
+    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 4
 
     type(uiTableColumnInfo) :: operandColInfo(3)
-    type(uiTableColumnInfo) :: constraintColInfo(3)    
+    type(uiTableColumnInfo) :: constraintColInfo(4)    
 
     contains
 
@@ -647,10 +648,15 @@ module optimizer_ui
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%dataType = ID_DATATYPE_INT
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%getFunc_int => constraint_item_get_contype        
 
-        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colName = "Target"
-        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_ENTRY
+        constraintColInfo(ID_CONSTRAINT_TARGET_COL)%colName = "Target"
+        constraintColInfo(ID_CONSTRAINT_TARGET_COL)%colType = ID_WIDGET_TYPE_ENTRY
+        constraintColInfo(ID_CONSTRAINT_TARGET_COL)%dataType = ID_DATATYPE_DBL
+        constraintColInfo(ID_CONSTRAINT_TARGET_COL)%getFunc_dbl => constraint_item_get_target
+
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colName = "Value"
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_LABEL
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%dataType = ID_DATATYPE_DBL
-        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_target
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_value        
 
     end subroutine
 
@@ -734,6 +740,7 @@ module optimizer_ui
       
         type(c_ptr) :: store
         integer :: numConstraints, numRows
+        real(long) :: tmpVal
       
        
         numConstraints = nC
@@ -750,13 +757,10 @@ module optimizer_ui
           store = g_list_store_new(G_TYPE_OBJECT)
           do i=1,numRows
             if (i <= numConstraints ) then
-          store = append_constraint_model(store, constraintsInUse(i)%name, constraintsInUse(i)%con,  &
-          & constraintsInUse(i)%conType, constraintsInUse(i)%targ)
-          print *, "Targ is ", constraintsInUse(i)%targ
-          print *, "conType is ", constraintsInUse(i)%conType
-
+          ! This did not work without () on the %func but did not throw and error.  Annoying
+          store = append_constraint_model(store, constraintsInUse(i)%name, constraintsInUse(i)%func(),  &
+          & constraintsInUse(i)%conType, constraintsInUse(i)%targ)          
             else 
-                print *, "i is ", i
                 store = append_blank_constraint(store)
             end if
           end do

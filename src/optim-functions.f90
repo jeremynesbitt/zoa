@@ -130,13 +130,13 @@ subroutine optimizerFunc(me, x,f,c)
         select case (constraintsInUse(i)%conType)
         case (ID_CON_EXACT)
             ieq = ieq + 1
-            ceq(ieq) = constraintsInUse(i)%func()
+            ceq(ieq) = constraintsInUse(i)%func() - constraintsInUse(i)%targ
         case(ID_CON_GREATER_THAN)     
             ineq = ineq + 1
-            cneq(ineq) = constraintsInUse(i)%func()
+            cneq(ineq) = constraintsInUse(i)%func() - constraintsInUse(i)%targ
         case(ID_CON_LESS_THAN)
             ineq = ineq + 1
-            cneq(ineq) = -1*constraintsInUse(i)%func()
+            cneq(ineq) = -1*(constraintsInUse(i)%func() -- constraintsInUse(i)%targ)
         end select
     end do
 

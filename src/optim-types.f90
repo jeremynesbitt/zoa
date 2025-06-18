@@ -162,7 +162,7 @@ module optim_types
         ! real(long), optional :: px, py, hx, hy        
         ! real(long) :: res
         
-        res = ldm%getEFL() - self%targ
+        res = ldm%getEFL() 
 
     end function
 
@@ -174,7 +174,7 @@ module optim_types
         ! real(long), optional :: px, py, hx, hy        
         ! real(long) :: res
         
-        res = am%getTransverseComa() - self%targ
+        res = am%getTransverseComa() 
 
     end function    
 
@@ -183,7 +183,7 @@ module optim_types
         class(constraint) :: self
         real(long) :: res
 
-        res = am%getTransverseSpherical() - self%targ
+        res = am%getTransverseSpherical() 
     end function
 
     function getTransverseAstigmatismConstraint(self) result(res)
@@ -194,7 +194,7 @@ module optim_types
         ! real(long), optional :: px, py, hx, hy        
         ! real(long) :: res
         
-        res = am%getTransverseAstigmatism() - self%targ
+        res = am%getTransverseAstigmatism() 
 
     end function        
 
@@ -206,7 +206,7 @@ module optim_types
         ! real(long), optional :: px, py, hx, hy        
         ! real(long) :: res
         
-        res = am%getPetzvalBlur() - self%targ
+        res = am%getPetzvalBlur() 
 
     end function      
 
@@ -278,8 +278,7 @@ module optim_types
 
     end subroutine
 
-    !TODO:  change the input to a string (=, >, or <) and do the parsing here
-    !subroutine addConstraint(name, val, eq, lb, ub) ! Old interface
+
     subroutine addConstraint(name, val, strType, idxToUpdate)
         character(len=*) :: name
         real(long) :: val
