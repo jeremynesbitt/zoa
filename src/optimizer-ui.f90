@@ -687,8 +687,8 @@ module optimizer_ui
         boxNew = hl_gtk_box_new()
 
         !Create toolbar
-        call createConstraintToolbar(toolBox)
-        call gtk_box_append(boxNew, toolBox)        
+
+  
 
         store = buildConstraintTable()
         selection = gtk_multi_selection_new(store)
@@ -697,6 +697,8 @@ module optimizer_ui
         cv = gtk_column_view_new(selection)
 
         call gtk_widget_set_name(cv, "Constraint"//c_null_char)
+        call createConstraintToolbar(toolBox, cv)
+        call gtk_box_append(boxNew, toolBox)      
 
         call setColumnViewDefault(cv, setConstraintColumns)
     
@@ -1121,8 +1123,9 @@ module optimizer_ui
         !   end subroutine          
 
 
-          subroutine createConstraintToolbar(toolBox)
+          subroutine createConstraintToolbar(toolBox, cv)
             use gdk
+            type(c_ptr), value :: cv
 
             type(c_ptr) :: toolBox ! Output
             type(c_ptr), dimension(2) :: btns
@@ -1140,7 +1143,7 @@ module optimizer_ui
             ! add file to gresource.xml 
     
             btns(1) = gtk_button_new_from_icon_name ("view-refresh-symbolic"//c_null_char)
-            btns(2) = gtk_button_new_from_icon_name ("view-help-symbolic"//c_null_char)
+            btns(2) = gtk_button_new_from_icon_name ("dialog-question-symbolic"//c_null_char)
             
             call gtk_widget_set_tooltip_text(btns(1), "Update Database"//c_null_char)
             call gtk_widget_set_tooltip_text(btns(2), "Help on this Window"//c_null_char)
@@ -1152,7 +1155,7 @@ module optimizer_ui
                 call hl_gtk_box_pack (toolBox, btns(i))
                 call gtk_widget_set_has_tooltip(btns(i), 1_c_int)
             end do          
-            call g_signal_connect(btns(1), 'clicked'//c_null_char, c_funloc(updateConstraints), c_null_ptr)
+            call g_signal_connect(btns(1), 'clicked'//c_null_char, c_funloc(updateConstraints), cv)
             call g_signal_connect(btns(2), 'clicked'//c_null_char, c_funloc(helpWindow), c_null_ptr)
 
         end subroutine
@@ -1162,14 +1165,16 @@ module optimizer_ui
             implicit none
             type(c_ptr), value :: widget, event, gdata
            
-            !toolbarState = ID_NONE
-            !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)
+            call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
         end subroutine      
         
         subroutine helpWindow(widget, event, gdata) bind(c)
+            use zoa_file_handler, only: openHelpFile
             use gdk, only: gdk_cursor_new_from_name
             implicit none
             type(c_ptr), value :: widget, event, gdata
+
+            call openHelpFile('constraints_table.html')
            
             !toolbarState = ID_NONE
             !call gtk_widget_set_cursor_from_name(plotArea, "default"//c_null_char)

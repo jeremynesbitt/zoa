@@ -59,7 +59,7 @@ contains
     ! integer(kind=c_int) :: browserResult
 
     
-    call openHelpFile()
+    call openHelpFile('index.html')
 
 
 
