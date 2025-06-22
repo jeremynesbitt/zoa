@@ -726,6 +726,28 @@ module optim_types
 
     end function
 
+    function gatherOperandNames() result(strNameList)
+        character(len=4), dimension(:), allocatable :: strNameList
+        integer :: ii, n_c 
+
+
+        do ii=1,size(operands)
+           if (operands(ii)%name(1:2) == "") then
+            n_c = ii
+            exit 
+           end if
+        end do
+
+        allocate(character(len=4) :: strNameList(n_c))
+
+        !allocate(character(len=4), dimension(nC) :: strNameList)
+        do ii=1,n_c
+           strNameList(ii) = operands(ii)%name
+           !strNameList(ii) = "ABC"
+        end do
+
+    end function    
+
     function gatherConstraintTypeNames() result(strNameList)
         character(len=1), dimension(3) :: strNameList
 

@@ -183,7 +183,6 @@ module optimizer_ui
         operandColInfo(ID_OPERAND_WL_COL)%colName = "Wavelength"
         operandColInfo(ID_OPERAND_WL_COL)%colType = ID_WIDGET_TYPE_LABEL
         operandColInfo(ID_OPERAND_WL_COL)%dataType = ID_DATATYPE_INT
-        !operandColInfo(ID_OPERAND_WL_COL)%getFunc => tstWLInterface
         operandColInfo(ID_OPERAND_WL_COL)%getFunc_int => operand_item_get_wavelength
     
         operandColInfo(ID_OPERAND_FIELD_COL)%colName = "Field"
@@ -236,7 +235,7 @@ module optimizer_ui
         conLabel = gtk_label_new_with_mnemonic("_Constraints"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, constraints_create_table(), conLabel)        
     
-        SolveLabel = gtk_label_new_with_mnemonic("_Merit Function"//c_null_char)
+        SolveLabel = gtk_label_new_with_mnemonic("_Optimize"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, box3, SolveLabel)
     
         PRINT *, "FINISHED WITH OPTIMIZER WINDOW"
@@ -316,6 +315,7 @@ module optimizer_ui
           !call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr)      !selection = gtk_multi_selection_new(store)
           call gtk_single_selection_set_autoselect(selection,TRUE)    
           cv = gtk_column_view_new(selection)
+          call gtk_widget_set_name(cv, "Operand"//c_null_char)
           call gtk_column_view_set_show_column_separators(cv, 1_c_int)
           call gtk_column_view_set_show_row_separators(cv, 1_c_int)
           call gtk_column_view_set_reorderable(cv, 0_c_int)
@@ -420,87 +420,102 @@ module optimizer_ui
             end do
           
           end subroutine
+
           
-
-
-        subroutine setup_operand_cb(factory,listitem, gdata) bind(c)
+          ! This is nearly identical to the constraint cb and screams for abstraction
+          ! but I cannot figure out how to do this without coverting my gobjects all to fortran
+          ! even then I am not sure it will work as I think the best way to do this is to attach
+          ! a pointer to a fortran object to one of these and I haven't tested this will work with
+          ! function pointers.  So for now do a copy/paste.
+          subroutine setup_operand_cb(factory,listitem, gdata) bind(c)
+            use hl_gtk_zoa, only: get_widget_name_f
             use gtk_hl_entry
             use gtk_hl_container
+            use ui_table_funcs
             
             type(c_ptr), value :: factory
             type(c_ptr), value :: listitem, gdata
             type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
-            integer(kind=c_int), pointer :: ID_COL
+            !integer(kind=c_int), pointer :: ID_COL
+            integer :: ii
+            integer, target :: colIDs(25) = [(ii,ii=1,25)]
             character(len=3) :: cmd
-            
+            character(len=200) :: widgetName
+            integer :: row, ID_COL
+ 
           
             label =gtk_label_new(c_null_char)
             call gtk_list_item_set_child(listitem,label)
           
-            call c_f_pointer(gdata, ID_COL)
+            call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
+            !call c_f_pointer(gdata, ID_COL)
 
             select case (operandColInfo(ID_COL)%colType)
             case (ID_WIDGET_TYPE_LABEL)
                 label =gtk_label_new(c_null_char)
-                call gtk_list_item_set_child(listitem,label)                
+                call gtk_list_item_set_child(listitem,label)    
+            case (ID_WIDGET_TYPE_DROPDOWN)
+                ! Data is column dependent
+                select case (ID_COL)
+                case(ID_CONSTRAINT_NAME_COL)
+                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherOperandNames()))
 
-            end select
+                end select
+
+                call gtk_list_item_set_child(listitem,dropDown)     
+            case (ID_WIDGET_TYPE_ENTRY)
+                boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
+                entryCB = hl_gtk_entry_new(4_c_int, editable=TRUE, activate=c_funloc(operand_cell_changed), data=c_null_ptr)                                           
+                !entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))                                           
+                call gtk_box_append(boxS, entryCB)
+                call gtk_list_item_set_child(listitem, boxS)  
+                
+            end select       
+        end subroutine   
+
+        ! subroutine setup_operand_cb(factory,listitem, gdata) bind(c)
+        !     use gtk_hl_entry
+        !     use gtk_hl_container
+            
+        !     type(c_ptr), value :: factory
+        !     type(c_ptr), value :: listitem, gdata
+        !     type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
+        !     integer(kind=c_int), pointer :: ID_COL
+        !     character(len=3) :: cmd
+            
           
-            !select case (ID_COL)
+        !     label =gtk_label_new(c_null_char)
+        !     call gtk_list_item_set_child(listitem,label)
           
-            ! case(2)
-            !    label = gtk_check_button_new()
-            !    if (.not.c_associated(refRadio)) refRadio = label
-            !    call gtk_check_button_set_group(label, refRadio)
-            !    call gtk_list_item_set_child(listitem,label)
-            ! case(3) ! Surface Label   
-            !   boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-            !   entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('SLB'))
-            !   call gtk_box_append(boxS, entryCB)
-            !   call gtk_list_item_set_child(listitem, boxS)         
-            ! case(4)
-            !   dropDown = gtk_drop_down_new_from_strings(getSurfaceTypesAsCStringArray())
-            !   call gtk_list_item_set_child(listitem, dropDown)   
+        !     call c_f_pointer(gdata, ID_COL)
+
+        !     select case (operandColInfo(ID_COL)%colType)
+        !     case (ID_WIDGET_TYPE_LABEL)
+        !         label =gtk_label_new(c_null_char)
+        !         call gtk_list_item_set_child(listitem,label)                
+
+        !     end select
+        
+        !   end subroutine  
           
-            !  case(5:6) ! Radius or Thickness + modifier
-            !   boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-            !   menuB = gtk_menu_button_new()
-            !   cmd = 'RDY'
-            !   if(ID_COL==6) cmd = 'THI'
-            !   entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup(cmd//c_null_char))
-            !   !call gtk_widget_set_name(entryCB, cmd) 
-            !   call gtk_box_append(boxS, entryCB)
-            !   call gtk_box_append(boxS, menuB)
-            !   call gtk_list_item_set_child(listitem,boxS)
-            !  case(7) ! Glass
-            !   boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-            !   entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('GLA'))
-            !   call gtk_box_append(boxS, entryCB)
-            !   call gtk_list_item_set_child(listitem, boxS)       
-            ! case(8) ! Aperture
-            !   boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-            !   entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))
-            !   call gtk_box_append(boxS, entryCB)
-            !   call gtk_list_item_set_child(listitem, boxS)      
-              
-            !  case default 
-            !   label =gtk_label_new(c_null_char)
-            !   call gtk_list_item_set_child(listitem,label)
-            !  end select 
-          end subroutine  
-          
-          
-          subroutine bind_operand_cb(factory,listitem, gdata) bind(c)
+
+        subroutine bind_operand_cb(factory,listitem, gdata) bind(c)
             use type_utils
             type(c_ptr), value :: factory
             type(c_ptr), value :: listitem, gdata
             type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
             type(c_ptr) :: cStr
-            integer(kind=c_int), pointer :: ID_COL
+            real(kind=c_double) :: tmpDbl
+            integer(kind=c_int) :: tmpInt
             character(len=140) :: colName
+            character(len=1), dimension(:), allocatable :: conTypeNames
             class(*), pointer :: tmpPtr
-          
+            character(len=100) :: rcCode
+            integer(kind=c_int), pointer :: ID_COL
+            integer :: row
+
             call c_f_pointer(gdata, ID_COL)
+            !call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
             label = gtk_list_item_get_child(listitem)
             item = gtk_list_item_get_item(listitem);
           
@@ -513,8 +528,13 @@ module optimizer_ui
                        
                     case (ID_DATATYPE_STR)
                         cStr = operandColInfo(ID_COL)%getFunc_str(item)
-                        call convert_c_string(cStr, colName)                        
+                        call convert_c_string(cStr, colName)      
 
+                    case (ID_DATATYPE_DBL)
+                        tmpDbl = operandColInfo(ID_COL)%getFunc_dbl(item)
+                        write(colName, *) tmpDbl
+                        
+                        !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
                 end select
 
                 call gtk_label_set_text(label, trim(colName)//c_null_char)   
@@ -522,117 +542,80 @@ module optimizer_ui
                 ! print *, "colName is ", trim(colName)
                 ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
 
-            end select
+            case (ID_WIDGET_TYPE_DROPDOWN)    
+                select case (ID_COL)
+                    case(ID_OPERAND_NAME_COL)
+                        cStr = operandColInfo(ID_COL)%getFunc_str(item)
+                        call convert_c_string(cStr, colName)   
+                        call setDropDownByString(label, colName)                
+                    end select
+
+                case (ID_WIDGET_TYPE_ENTRY)
+                    select case (operandColInfo(ID_COL)%dataType)
+                    case (ID_DATATYPE_INT)
+                    colName = trim(int2str(operandColInfo(ID_COL)%getFunc_int(item)))
+                       
+                    case (ID_DATATYPE_STR)
+                        cStr = operandColInfo(ID_COL)%getFunc_str(item)
+                        call convert_c_string(cStr, colName)      
+
+                    case (ID_DATATYPE_DBL)
+                        tmpDbl = operandColInfo(ID_COL)%getFunc_dbl(item)
+                        !write(colName, *) tmpDbl
+                        colName = real2str(tmpDbl)
+                        !if (tmpDbl == 0) colName = "0"
+                        !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
+                    end select
+                    entryCB = gtk_widget_get_first_child(label)  
+                    buffer = gtk_entry_get_buffer(entryCB)    
+                    call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)                    
 
 
-            ! select case (ID_COL)
+            end select   
+            row = gtk_list_item_get_position(listitem)   
+            call gtk_widget_set_name(label,"R"//trim(int2str(row))//"C"//trim(int2str(ID_COL))//c_null_char)
+
+            if (operandColInfo(ID_COL)%colType == ID_WIDGET_TYPE_DROPDOWN) then
+                call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(operandDropDownChanged), c_null_ptr)
+            end if            
+ 
+        end subroutine
+
+        !   subroutine bind_operand_cb(factory,listitem, gdata) bind(c)
+        !     use type_utils
+        !     type(c_ptr), value :: factory
+        !     type(c_ptr), value :: listitem, gdata
+        !     type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
+        !     type(c_ptr) :: cStr
+        !     integer(kind=c_int), pointer :: ID_COL
+        !     character(len=140) :: colName
+        !     class(*), pointer :: tmpPtr
           
-            ! case(1)
-            !   colName = trim(int2str(lens_item_get_surface_number(item)))//c_null_char
-            !   call gtk_label_set_text(label, trim(colName)//c_null_char)
-            !  case(2)
-            !   if (lens_item_get_ref_surf(item) == 1_c_int) then
-            !     call gtk_check_button_set_active(label, 1_c_int)
-            !   end if
-            !   !colName = trim(int2str(lens_item_get_ref_surf(item)))//c_null_char
-            !   !call gtk_label_set_text(label, trim(colName)//c_null_char)
-            !  case(3)
-            !   cStr = lens_item_get_surface_name(item)
-            !   call convert_c_string(cStr, colName)
-            !   entryCB = gtk_widget_get_first_child(label)  
-            !   buffer = gtk_entry_get_buffer(entryCB)    
-            !   call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
-            !  case(4)
-            !   cStr = lens_item_get_surface_type(item)
-            !   call convert_c_string(cStr, colName)  
-            !   ! Will need to abstract this when more types are added
-            !   if(colName=='Sphere') then
-            !     call gtk_drop_down_set_selected(label, 0_c_int)
-            !   end if
-            !   if(colName=='Asphere') then 
-            !     call gtk_drop_down_set_selected(label, 1_c_int)
-            !   end if
-            !   !call gtk_label_set_text(label, trim(colName)//c_null_char)    
-            !  case(5)
-            !   colName = trim(real2str(lens_item_get_surface_radius(item)))//c_null_char  
-            !   entryCB = gtk_widget_get_first_child(label)  
-            !   buffer = gtk_entry_get_buffer(entryCB)
-            !   !buffer = gtk_entry_get_buffer(label)
-            !   call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
+        !     call c_f_pointer(gdata, ID_COL)
+        !     label = gtk_list_item_get_child(listitem)
+        !     item = gtk_list_item_get_item(listitem);
           
-            !   menuCB = gtk_widget_get_next_sibling(entryCB)
-           
-            !   colName = trim(int2str(lens_item_get_radius_mod(item)))//c_null_char   
-            !   call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 
-            !   select case (lens_item_get_radius_mod(item))
-            !   case (ID_MOD_NONE)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
-            !   case (ID_MOD_PICKUP)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
-            !   case (ID_MOD_SOLVE)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)
-            !   case (ID_MOD_VAR)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-v'//c_null_char)      
-            !   end select   
-          
-          
-            ! case(6) ! Thickness
-            !   colName = trim(real2str(lens_item_get_surface_thickness(item)))//c_null_char  
-            !   entryCB = gtk_widget_get_first_child(label)  
-            !   buffer = gtk_entry_get_buffer(entryCB)
-            !   !buffer = gtk_entry_get_buffer(label)
-            !   if (lens_item_get_surface_thickness(item) > 1e13) then 
-            !     call gtk_entry_buffer_set_text(buffer, "Infinity"//c_null_char,-1_c_int)
-            !   else
-            !     call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
-            !   end if    
-            !   menuCB = gtk_widget_get_next_sibling(entryCB)
-            !   colName = trim(int2str(lens_item_get_thickness_mod(item)))//c_null_char   
-            !   call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 
-            !   select case (lens_item_get_thickness_mod(item))
-            !   case (ID_MOD_NONE)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)      
-            !   case (ID_MOD_PICKUP)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
-            !   case (ID_MOD_SOLVE)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-s'//c_null_char)  
-            !   case (ID_MOD_VAR)
-            !     call gtk_menu_button_set_icon_name(menuCB, 'letter-v'//c_null_char)            
-            !   end select   
-            ! case(7) ! Glass
-            !   cStr = lens_item_get_glass(item)
-            !   call convert_c_string(cStr, colName)
-            !   entryCB = gtk_widget_get_first_child(label)  
-            !   buffer = gtk_entry_get_buffer(entryCB)    
-            !   call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
-            ! case(8) ! Clear Aperture
-            !   colName = trim(real2str(lens_item_get_aperture(item)))//c_null_char  
-            !   entryCB = gtk_widget_get_first_child(label)  
-            !   buffer = gtk_entry_get_buffer(entryCB)    
-            !   call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
-            ! case(9:18)
-            !   entryCB = gtk_widget_get_first_child(label)  
-            !   buffer = gtk_entry_get_buffer(entryCB)
-            !   if (abs(lens_item_get_extra_param(item, ID_COL-9)) < .01) then 
-            !       colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9),sci=.TRUE.))//c_null_char
-            !   else
-            !       colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9)))//c_null_char
-            !   end if
-            !   call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)     
-            !  end select
-          
-            !   ! Encode row and column for later use  
-            !    call gtk_widget_set_name(label,"R"//trim(int2str(lens_item_get_surface_number(item)))//"C"//trim(int2str(ID_COL))//c_null_char)
-          
-            !    if (ID_COL == 4) then 
-            !    call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(updateSurfaceType), c_null_ptr)
-            !    end if
-          
-               !print *, "Testing... ", lens_item_get_extra_param(item, 0_c_int)
-               !print *, "Testing... ", lens_item_get_aperture(item)
-          
-          
-          end subroutine          
+        !     select case (operandColInfo(ID_COL)%colType)
+        !     case (ID_WIDGET_TYPE_LABEL)
+
+        !         select case (operandColInfo(ID_COL)%dataType)
+        !             case (ID_DATATYPE_INT)
+        !             colName = trim(int2str(operandColInfo(ID_COL)%getFunc_int(item)))
+                       
+        !             case (ID_DATATYPE_STR)
+        !                 cStr = operandColInfo(ID_COL)%getFunc_str(item)
+        !                 call convert_c_string(cStr, colName)                        
+
+        !         end select
+
+        !         call gtk_label_set_text(label, trim(colName)//c_null_char)   
+        !         ! colName = trim(int2str(operandColInfo(ID_COL)%getFunc(item)))//c_null_char
+        !         ! print *, "colName is ", trim(colName)
+        !         ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
+
+        !     end select
+
+        !   end subroutine          
       
 
     subroutine initConstraintColInfo()
@@ -818,6 +801,7 @@ module optimizer_ui
         
 
           subroutine setup_constraint_cb(factory,listitem, gdata) bind(c)
+            use hl_gtk_zoa, only: get_widget_name_f
             use gtk_hl_entry
             use gtk_hl_container
             use ui_table_funcs
@@ -829,7 +813,10 @@ module optimizer_ui
             integer :: ii
             integer, target :: colIDs(25) = [(ii,ii=1,25)]
             character(len=3) :: cmd
+            character(len=200) :: widgetName
             integer :: row, ID_COL
+            type(c_ptr) :: cStr 
+            character(len=200) :: fStr
             
           
             label =gtk_label_new(c_null_char)
@@ -1216,7 +1203,6 @@ module optimizer_ui
             integer :: ii 
 
             model = c_null_ptr
-            print *, "Trying to get model from widget"
             tmpPtr = widget
             do ii=1,10
                 tmpPtr = gtk_widget_get_parent(tmpPtr)
@@ -1234,6 +1220,34 @@ module optimizer_ui
             end do
 
         end function
+
+        subroutine operand_cell_changed(widget, data) bind(c)
+            use type_utils
+            use strings
+            use ui_table_funcs
+          
+          type(c_ptr), value :: widget, data
+          type(c_ptr) :: buff2, cStr, item, model
+          character(len=100) :: rcCode, cmd, valTxt
+          character(len=140) :: ftext
+          character(len=1) :: conStr
+          integer :: row,col
+          integer(kind=c_int) :: conType
+          
+          model = getModelFromWidget(widget, "Operand")
+
+          buff2 = gtk_entry_get_buffer(widget)
+          call c_f_string_copy(gtk_entry_buffer_get_text(buff2), valTxt)
+
+          call getRowAndColumnFromStrPtr(gtk_widget_get_name(gtk_widget_get_parent(widget)),row,col)
+
+          cmd = getConstraintChangeCommand(model, row, col, trim(valTxt))
+
+          print *, "update cmd is ", trim(cmd)
+          !call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
+          call rebuildTable(getColumnViewFromWidget(widget, "Operand"), buildOperandTable(), setOperandColumns)
+          end subroutine       
+          
 
         subroutine constraint_cell_changed(widget, data) bind(c)
             use type_utils
@@ -1260,34 +1274,7 @@ module optimizer_ui
           print *, "update cmd is ", trim(cmd)
           call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
           call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
-
-
-
-
-        !   if(c_associated(model)) then 
-        !     print *, "actually iun the right place?"
-        !     print *, "row is ", row
-        !     item = g_list_model_get_item(model, row) ! row 0 indexed
-        !     print *, "item is ", loc(item)
-        !     conType = constraint_item_get_contype(item)
-        !     print *, "Contype is ", conType
-        !     cStr = constraint_item_get_name(item)
-        !     print *, "cStr is ", cStr
-        !     call convert_c_string(cStr, ftext)
-        !     select case (conType)
-        !     case(ID_CON_EXACT)
-        !         conStr = '='
-        !     case(ID_CON_GREATER_THAN)
-        !         conStr = '>'
-        !     case(ID_CON_LESS_THAN)
-        !         conStr = '<'
-        !     end select
-        !     print *, "Cmd is "//"UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt)
-        !     call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(ftext)//' '//conStr//' '//trim(valTxt))
-        !   end if
-
-
-          end subroutine       
+        end subroutine       
           
           subroutine constraintDropDownChanged(widget, gdata) bind(c)
             use type_utils
@@ -1321,6 +1308,32 @@ module optimizer_ui
             print *, "cmd is ", cmd
             call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
             call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
+    
+        end subroutine
+
+
+        subroutine operandDropDownChanged(widget, gdata) bind(c)
+            use type_utils
+            type(c_ptr), value :: widget, gdata
+            type(c_ptr) :: buff2, cStr, item, model, currItem
+            character(len=100) :: rcCode, cmd, valTxt
+            character(len=140) :: ftext
+            character(len=1) :: conStr
+            integer :: row,col
+            integer(kind=c_int) :: conType
+            
+            model = getModelFromWidget(widget, "Operand")
+
+            call getRowAndColumnFromStrPtr(gtk_widget_get_name(widget),row,col)
+            currItem = gtk_drop_down_get_selected_item(widget)
+            cStr = gtk_string_object_get_string(currItem)
+            !cStr = g_value_get_string(cStr)
+            call convert_c_string(cStr, ftext)           
+
+            !cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
+            !print *, "cmd is ", cmd
+            !call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
+            !call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
     
         end subroutine
 

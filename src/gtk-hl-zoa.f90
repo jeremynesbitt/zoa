@@ -15,6 +15,20 @@ module hl_gtk_zoa
 
 contains
 
+function get_widget_name_f(widget) result(fStr)
+  type(c_ptr), value :: widget
+  type(c_ptr) :: cStr
+  character(len=200) :: fStr
+
+  cStr = gtk_widget_get_name(widget)
+  if (c_associated(cStr)) then 
+      call convert_c_string(cStr, fStr)
+  else
+    fStr = ' '
+  end if
+
+end function
+
 ! Support listID input.  
 subroutine hl_gtk_combo_box_listid_new(cbox, set, ID_SETTING)
   use kdp_data_types, only: idText
