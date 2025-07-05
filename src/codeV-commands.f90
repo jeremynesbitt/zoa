@@ -21,6 +21,7 @@ module codeV_commands
     use type_utils
     use handlers, only: updateTerminalLog, zoatabMgr, my_window
     use strings
+    use globals
     
     implicit none
    !ifort will not compile the common interfaces unless I do it this way
@@ -255,13 +256,14 @@ module codeV_commands
         zoaCmds(590)%cmd = 'UPD'
         zoaCmds(590)%execFunc => updateDatabase    
         zoaCmds(591)%cmd = 'CHA'
-        zoaCmds(591)%execFunc => changeDatabase                                                                  
+        zoaCmds(591)%execFunc => changeDatabase  
+        zoaCmds(592)%cmd = 'EVA'
+        zoaCmds(592)%execFunc => evaluateCmd                                                                          
 
         
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
-        use GLOBALS, only:  currentCommand
 
         character(len=*) :: iptCmd
         integer :: ii
@@ -611,7 +613,7 @@ module codeV_commands
     end subroutine
 
     subroutine execFIO(iptStr)
-        use GLOBALS, only: long
+
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use kdp_utils
 
@@ -650,7 +652,7 @@ module codeV_commands
     end subroutine
 
     subroutine printRefractiveIndices(iptStr)
-        use GLOBALS, only: long
+
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use kdp_utils
         use mod_lens_data_manager
@@ -1111,7 +1113,7 @@ module codeV_commands
 
     subroutine execAUT(iptStr)
         use optim_types, only: optim
-        use GLOBALS, only: long
+
         character(len=*) :: iptStr
         
         if (cmd_loop == 0) then
@@ -1145,7 +1147,7 @@ module codeV_commands
 
         use command_utils, only : isInputNumber
         use optim_types
-        use GLOBALS, only: long
+
 
         implicit none
         character(len=*) :: iptStr
@@ -1321,7 +1323,7 @@ module codeV_commands
 
     subroutine execRestore_old(iptStr)
         !use global_widgets, only: curr_lens_data
-        use globals, only: TEST_MODE
+
         use gtk_hl_dialog
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
@@ -2060,7 +2062,7 @@ module codeV_commands
 
     subroutine newLens 
         use gtk_hl_dialog
-        use globals, only: basePath, TEST_MODE
+
         use mod_lens_data_manager
       
         implicit none  
@@ -2200,7 +2202,7 @@ module codeV_commands
        
       subroutine setWavelength(iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
-        use globals,only: long
+
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: sysConfig
         implicit none
@@ -2760,7 +2762,7 @@ module codeV_commands
     end function
 
     subroutine setPickup(param1, si, sj, scale, offset, param2)
-        use GLOBALS, only: long
+
 
         implicit none
         character(len=*) :: param1
@@ -2801,7 +2803,7 @@ module codeV_commands
     ! eval this at present
 
     subroutine parsePickupInput(iptStr)
-        use globals, only: long
+
         use command_utils, only : isInputNumber
 
         implicit none        
@@ -2890,7 +2892,7 @@ module codeV_commands
 
 
     subroutine processZoaFileInput(iptStr, printOnly)
-        use globals, only: TEST_MODE
+
         use zoa_file_handler
         implicit none
         character(len=*) :: iptStr
@@ -2966,6 +2968,8 @@ module codeV_commands
         end if
 
     end subroutine    
+
+
 
     !Format:  CMD sk wk fk rx ry 
     subroutine getRayData(iptStr)
@@ -3185,5 +3189,33 @@ module codeV_commands
           call updateTerminalLog('Error:  Expect CHA r, where r is a number', "red")
       end if      
     end subroutine changeDatabase
+
+
+    subroutine evaluateCmd(iptStr)
+        character(len=*) :: iptStr
+        real(kind=long) :: result
+
+        result = evalfunc(iptStr(4:len_trim(iptStr)), .TRUE.)
+
+    end subroutine
+
+    function evalFunc(iptStr, logResult) result(res)
+        use data_registers, only: getData
+        character(len=*) :: iptStr 
+        real(kind=long) :: res 
+        logical, optional :: logResult
+
+        call getData(iptStr, res)
+
+
+        if (present(logResult)) then 
+            if(logResult) then
+                call LogTermFOR(real2str(res)) 
+            end if         
+        end if
+  
+
+
+    end function evalFunc
 
 end module

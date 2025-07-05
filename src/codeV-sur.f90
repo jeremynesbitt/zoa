@@ -139,7 +139,6 @@ module procedure execSUR
     module procedure setThickness
         call execTranslatedSurfCmd(iptStr, 'TH')
     
-
     end procedure    
 
     ! format:  GLA Sk GLASSNAME

@@ -320,7 +320,6 @@ module optimizer_ui
           call gtk_column_view_set_show_row_separators(cv, 1_c_int)
           call gtk_column_view_set_reorderable(cv, 0_c_int)
     
-    
           call setOperandColumns(cv)
     
           swin = gtk_scrolled_window_new()
@@ -328,6 +327,7 @@ module optimizer_ui
           call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
           call gtk_box_append(boxNew, swin)
     
+          print *, "creating buttons"
         ! Delete selected row
           ibut = hl_gtk_button_new("Insert row"//c_null_char, &
           & clicked=c_funloc(ins_optimizer_row), &
@@ -345,7 +345,7 @@ module optimizer_ui
           ! Also a quit button
           qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(optimizer_ui_destroy), data=optimizer_window)
           call hl_gtk_box_pack(boxNew,qbut)
-    
+
     
       end function   
 
@@ -418,7 +418,6 @@ module optimizer_ui
               call gtk_column_view_append_column (colView, column)
               call g_object_unref (column)      
             end do
-          
           end subroutine
 
           
@@ -441,13 +440,15 @@ module optimizer_ui
             integer, target :: colIDs(25) = [(ii,ii=1,25)]
             character(len=3) :: cmd
             character(len=200) :: widgetName
-            integer :: row, ID_COL
+            integer(kind=c_int), pointer :: ID_COL
  
+            print *, "DEBUG: beginning of setup_operand_cb"
           
             label =gtk_label_new(c_null_char)
             call gtk_list_item_set_child(listitem,label)
           
-            call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
+            call c_f_pointer(gdata, ID_COL)
+            !call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
             !call c_f_pointer(gdata, ID_COL)
 
             select case (operandColInfo(ID_COL)%colType)
@@ -471,6 +472,7 @@ module optimizer_ui
                 call gtk_list_item_set_child(listitem, boxS)  
                 
             end select       
+            print *, "DEBUG:  End of setup_operand_cb"
         end subroutine   
 
         ! subroutine setup_operand_cb(factory,listitem, gdata) bind(c)
@@ -578,7 +580,8 @@ module optimizer_ui
             if (operandColInfo(ID_COL)%colType == ID_WIDGET_TYPE_DROPDOWN) then
                 call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(operandDropDownChanged), c_null_ptr)
             end if            
- 
+
+            print *, "DEBUG:  End of bind operand cb"
         end subroutine
 
         !   subroutine bind_operand_cb(factory,listitem, gdata) bind(c)
