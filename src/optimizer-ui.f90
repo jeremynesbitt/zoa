@@ -1,3 +1,6 @@
+! This module is a bit of a mess.  I had greater ambitions for this when I first made it.
+! For now it just includes a table of operands and a button to run.  All of this can be done via 
+! the CLI but this UI is nice to see operands and delete them if needed 
 module optimizer_ui
     use handlers
     !use hl_gtk_zoa
@@ -28,7 +31,6 @@ module optimizer_ui
         implicit none
         type(c_ptr), value :: store 
         type(c_ptr)    :: append_blank_operand
-
     end function
     function operand_item_get_name(item) bind(c)
         import :: c_ptr
@@ -217,26 +219,22 @@ module optimizer_ui
         box2 = hl_gtk_box_new()
         box3 = hl_gtk_box_new()
 
-
-        !call lens_editor_basic_dialog(box1)
-    
-    
-        !call lens_editor_asphere_dialog(boxAsphere)
-    
-        !boxSolve = lens_editor_add_dialog(ID_EDIT_SOLVE)
     
         nbk = gtk_notebook_new()
-        basicLabel = gtk_label_new_with_mnemonic("_General"//c_null_char)
-        pageIdx = gtk_notebook_append_page(nbk, box1, basicLabel)
+
+        ! I had ambitions to make this more comprehensive but I give up on this for now
+
+        !basicLabel = gtk_label_new_with_mnemonic("_General"//c_null_char)
+        !pageIdx = gtk_notebook_append_page(nbk, box1, basicLabel)
     
-        AsphLabel = gtk_label_new_with_mnemonic("_Operands"//c_null_char)
-        pageIdx = gtk_notebook_append_page(nbk, operands_create_table(), AsphLabel)
+        !AsphLabel = gtk_label_new_with_mnemonic("_Operands"//c_null_char)
+        !pageIdx = gtk_notebook_append_page(nbk, operands_create_table(), AsphLabel)
 
         conLabel = gtk_label_new_with_mnemonic("_Constraints"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, constraints_create_table(), conLabel)        
     
         SolveLabel = gtk_label_new_with_mnemonic("_Optimize"//c_null_char)
-        pageIdx = gtk_notebook_append_page(nbk, box3, SolveLabel)
+        pageIdx = gtk_notebook_append_page(nbk, optimize_create_objects(), SolveLabel)
     
         PRINT *, "FINISHED WITH OPTIMIZER WINDOW"
         !call gtk_box_append(box1, rf_cairo_drawing_area)
@@ -244,14 +242,40 @@ module optimizer_ui
         call gtk_window_set_child(optimizer_window, nbk)
     
     
-        !call g_signal_connect(lens_editor_window, "destroy"//c_null_char, c_funloc(lens_editor_destroy), lens_editor_window)
-    
-    
         call gtk_window_set_mnemonics_visible (optimizer_window, TRUE)
-        !call gtk_widget_queue_draw(my_drawing_area)
         call gtk_widget_show(optimizer_window)
 
     end subroutine optimizer_ui_new
+
+    function optimize_create_objects() result(boxOptimize)
+    ! For now have this contain a run button and an info table.
+    ! Eventually some settings would be nice (eg optimization goal)
+        type(c_ptr) :: boxOptimize,entry_widget, rbut
+        character(len=1024) :: boxText
+
+
+        boxOptimize = hl_gtk_box_new()
+
+        boxText = "Use this button to run optimizer.  Results will show up in command window"
+      
+        ! Create an entry widget (text box)
+        entry_widget =  hl_gtk_entry_new(editable=FALSE, value=trim(boxText))
+
+        call gtk_box_append(boxOptimize, entry_widget)
+      
+
+          rbut = hl_gtk_button_new("Run Optimizer"//c_null_char, &
+          & clicked=c_funloc(run_optimizer_cmd))
+
+          call gtk_box_append(boxOptimize, rbut)
+
+
+    end function
+
+    subroutine run_optimizer_cmd(but, gdata) bind(c)
+        type(c_ptr), value, intent(in) :: but, gdata
+        call PROCESKDP('AUT;GO')
+    end subroutine
 
     subroutine del_optimizer_row(but, gdata) bind(c)
         use type_utils, only: int2str
