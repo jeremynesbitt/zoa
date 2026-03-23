@@ -31,7 +31,7 @@ module procedure execSUR
                 ! SA
                 fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(10)//"GLA" &
                 & //blankStr(10)//"CCY"//blankStr(5)//"THC"//blankStr(5)//"GLC"
-                call updateTerminalLog(trim(fullLine), "black")
+                call zoa_emit(trim(fullLine), "black")
                 ! 12/12/24:  Change this to 0 indexed surfaees
                 do ii=0,ldm%getLastSurf()
                     surfTxt = ldm%getSurfName(ii)//':'
@@ -72,7 +72,7 @@ module procedure execSUR
                     & //glaTxt//ldm%getCCYCodeAsStr(ii)//blankStr(5)//ldm%getTHCCodeAsStr(ii)//blankStr(5)         
 
 
-                    call updateTerminalLog(trim(fullLine), "black")
+                    call zoa_emit(trim(fullLine), "black")
 
 
                 end do
@@ -89,11 +89,11 @@ module procedure execSUR
                 ! If there are special surfaces, print extra parameters.  For now only look for aspheres
                 do ii=0,ldm%getLastSurf()
                     if (ldm%getSurfTypeName(ii) == 'Asphere') then 
-                        call updateTerminalLog('___', "black")
-                        call updateTerminalLog('ASPHERES', "black")
+                        call zoa_emit('___', "black")
+                        call zoa_emit('ASPHERES', "black")
 
                         fullLine = '# '//trim(int2str(ii))//' K '//trim(real2str(ldm%getConicConstant(ii)))
-                        call updateTerminalLog(trim(fullLine), "black")
+                        call zoa_emit(trim(fullLine), "black")
                     end if
                 end do
                 
@@ -102,11 +102,11 @@ module procedure execSUR
 
             else
 
-            call updateTerminalLog("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
+            call zoa_emit("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
             end if
 
         else
-            call updateTerminalLog("No Surface identifier given!  Please try again", "red")
+            call zoa_emit("No Surface identifier given!  Please try again", "red")
 
         end if
 
@@ -162,7 +162,7 @@ module procedure execSUR
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; '//trim(getSetGlassText(trim(tokens(3))))//';GO')        
         else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
         end if                
                
@@ -216,7 +216,7 @@ module procedure execSUR
                 PRINT *, "In the right place!  How exciting!!"
                 PRINT *, "numTokens is ", numTokens
                 if (numTokens > 3 ) then
-                    call updateTerminalLog("Give it a try!", "blue")
+                    call zoa_emit("Give it a try!", "blue")
                     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                     & '; PUY, ' // trim(tokens(4))//";GO") 
                 end if
@@ -224,11 +224,11 @@ module procedure execSUR
                end select 
             end if ! Tokens > 2 loop
             else
-                call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
+                call zoa_emit("No Angle Solve Specified.  Please try again", "red")
             end if
          
         else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
         end if          
 
@@ -249,7 +249,7 @@ module procedure execSUR
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
             & '; RD, ' // trim(tokens(3))//';GO')          
         else
-            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
         end if             
        
@@ -391,7 +391,7 @@ module procedure execSUR
                     end if                       
 
                 ! If not number and no special case then complain    
-                call updateTerminalLog("Error! For "//trim(tokens(1))//"expect second argument to be Sk &
+                call zoa_emit("Error! For "//trim(tokens(1))//"expect second argument to be Sk &
                 & or value to update for current lens pointer surface ", "red")
                 return
                 end if

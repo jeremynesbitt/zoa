@@ -3,6 +3,7 @@ C SUB CMDER.FOR
         USE GLOBALS
         use zoa_ui
         use handlers
+        use zoa_output, only: zoa_emit
         use glass_manager
         use kdp_interfaces , only: EDITOR, POWSYM, FIR,
      1 SYSCONFIGUI, SPR, plot_seidel, MACROUI, PLT3DTST, 
@@ -449,7 +450,12 @@ C       PART DRAWINGS
         RETURN
         END IF
         IF(WC.EQ.'SYSCON') THEN
+          IF(HEADLESS_MODE) THEN
+            OUTLYNE='Command requires GUI'
+            CALL SHOWIT(1)
+          ELSE
             CALL SYSCONFIGUI
+          END IF
           RETURN
         END IF
         IF(WC.EQ.'SPR') THEN
@@ -481,9 +487,14 @@ C       PART DRAWINGS
         If (startCodeVLensUpdateCmd(WC)) return
 
         IF(WC.EQ.'MACROUI') THEN
-                CALL MACROUI
-                RETURN
-              END IF        
+          IF(HEADLESS_MODE) THEN
+            OUTLYNE='Command requires GUI'
+            CALL SHOWIT(1)
+          ELSE
+            CALL MACROUI
+          END IF
+          RETURN
+        END IF        
 
         IF(WC.EQ.'SANDBOX') THEN
           CALL Sandbox
@@ -3051,7 +3062,12 @@ C     DONE, MSG BACK ON
         INPUT='REPLACE'
         CALL PROCES
         REST_KDP(1)=RESTINPT(1)
-        CALL EDITOR
+        IF(HEADLESS_MODE) THEN
+          OUTLYNE='Command requires GUI'
+          CALL SHOWIT(1)
+        ELSE
+          CALL EDITOR
+        END IF
         RETURN
         END IF
         IF(WC.EQ.'RESTORE') THEN

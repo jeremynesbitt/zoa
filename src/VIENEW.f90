@@ -16,7 +16,7 @@ end module
 ! NEW NEW NEW version that uses plot setting manager that SHOULD work for every plot
 SUBROUTINE VIE_psm(psm)
       use global_widgets
-      use handlers, only:  updateterminallog
+      use zoa_output, only:  zoa_emit
       use ISO_FORTRAN_ENV, only: real64
       use DATLEN
       use DATMAC

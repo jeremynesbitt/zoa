@@ -1,0 +1,52 @@
+
+
+
+
+
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100  Not supported
+
+
+ SURFACE           2  :SURFACE INSERTED
+
+
+ SURFACE           3  :SURFACE INSERTED
+
+
+
+ SURFACE           4  :SURFACE INSERTED
+
+
+ SURFACE           5  :SURFACE INSERTED
+
+
+ SURFACE           6  :SURFACE INSERTED
+
+
+
+INVALID CMD LEVEL COMMAND
+
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       0.1809
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.4377
+THI       -11.7834

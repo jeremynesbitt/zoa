@@ -3,6 +3,7 @@
 module lens_editor
 
   use handlers ! includes gtk and g
+  use zoa_output, only: zoa_emit
 !  use gth_hl
   use hl_gtk_zoa
   use gtk_hl_tree
@@ -234,11 +235,11 @@ end subroutine lens_editor_replot
   ! new code
   currRow = getCurrentLensEditorRow()
   IF(currRow == 0) THEN
-    call updateTerminalLog('OBJECT SURFACE MAY NOT BE DELETED', "black")
+    call zoa_emit('OBJECT SURFACE MAY NOT BE DELETED', "black")
     return
   END IF
   IF(currRow == ldm%getLastSurf()) THEN
-    call updateTerminalLog('IMAGE SURFACE MAY NOT BE DELETED', "black")
+    call zoa_emit('IMAGE SURFACE MAY NOT BE DELETED', "black")
     return
   END IF
   

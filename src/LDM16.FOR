@@ -566,6 +566,7 @@ C
 C SUB LENUP.FOR
         SUBROUTINE LENUP
         use handlers
+        use zoa_output, only: zoa_emit
         use type_utils, only: real2str
 C
         IMPLICIT NONE

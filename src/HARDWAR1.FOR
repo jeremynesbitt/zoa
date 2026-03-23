@@ -2992,8 +2992,8 @@ C     OPERATIONS, USED ONLY IN LENO
 C     II=11 MEANS II=10 BUT NO STRIP OPERATIONS, USED ONLY IN LENO
 C     II = 19 DEBUG
 C
-      use global_widgets
-      use handlers
+      use global_widgets, only: debug_messages
+      use zoa_output
 
 
       IMPLICIT NONE
@@ -3006,8 +3006,6 @@ C
       CHARACTER*20 txtColor
 C
       INTEGER OI,II,I,OUTY,FLEN,LL,MY_LEN,IPASS1
-      type(c_ptr) iterPtr
-      INTEGER(kind=c_int) iterGUI
 C
       LOGICAL OPENOUT
 C
@@ -3027,7 +3025,7 @@ C           for now hack to print to terminal
 C      WRITE (*, '(a)') 'Call to SHOWIT'
        IF (II.LT.2) THEN
        !PRINT *, OUTLYNE
-       call updateTerminalLog(trim(OUTLYNE),
+       call zoa_emit(trim(OUTLYNE),
      1 "black")
 C       call gtk_text_buffer_insert_at_cursor(buffer,
 C     1 OUTLYNE//C_NEW_LINE//c_null_char, -1_c_int)
@@ -3040,7 +3038,7 @@ C     1 OUTLYNE//C_NEW_LINE//c_null_char, -1_c_int)
 
             txtColor = "red"
             !PRINT *, OUTLYNE
-            call updateTerminalLog(OUTLYNE, txtColor)
+            call zoa_emit(OUTLYNE, txtColor)
          else
              ! Flush OUTLYNE b/c even with this check some debug messages were
              ! getting through on some futue SHOWIT call.  It means there are bad
@@ -3096,7 +3094,7 @@ C       OUTPUT INTENDED FOR UNIT=OUT (256 COL), UNIT 97
 C       USED ONLY IN COMMA DELIMITED TABLE OUTPUT
         PRINT *, "IN RIGHT Block of SHOWIT"
         PRINT *, "OUTLYNE_LONG IS ", OUTLYNE_LONG
-        call updateTerminalLog(trim(OUTLYNE_LONG), "black")
+        call zoa_emit(trim(OUTLYNE_LONG), "black")
 
         WRITE(97,2000) OUTLYNE_LONG(1:256)
  2000   FORMAT(A256)

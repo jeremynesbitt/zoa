@@ -25,7 +25,8 @@ subroutine zern_go(psm)
 
     USE GLOBALS
     use command_utils
-    use handlers, only: zoatabMgr, updateTerminalLog
+    use handlers, only: zoatabMgr
+    use zoa_output, only: zoa_emit
     use zoa_plot
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
@@ -162,7 +163,7 @@ end subroutine
 subroutine vie_go(psm)
     USE GLOBALS
     use command_utils
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
     use plot_setting_manager
@@ -259,7 +260,7 @@ subroutine spo_fieldPoint_go(psm)
 
   USE GLOBALS
   use command_utils
-  use handlers, only: updateTerminalLog
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig, ioConfig
   use zoa_ui
   use kdp_utils, only: OUTKDP, logDataVsField
@@ -350,7 +351,7 @@ subroutine spo_go(psm)
     use iso_fortran_env
     USE GLOBALS
     use command_utils
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use global_widgets, only:  sysConfig, ioConfig
     use zoa_ui
     use kdp_utils, only: OUTKDP, logDataVsField
@@ -520,7 +521,7 @@ end function
 subroutine seidel_go(psm)
     USE GLOBALS
     use command_utils
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
@@ -609,7 +610,7 @@ subroutine ast_go(psm)
 
     USE GLOBALS
     use command_utils
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use zoa_plot
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
@@ -718,7 +719,7 @@ end subroutine
 subroutine rayaberration_old_go(psm)
   USE GLOBALS
   use command_utils
-  use handlers, only: updateTerminalLog
+  use zoa_output, only: zoa_emit
   use global_widgets
   use type_utils, only: int2str
   use plplot, PI => PL_PI
@@ -808,7 +809,7 @@ end subroutine
 subroutine rayaberration_go(psm)
     USE GLOBALS
     use command_utils
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use global_widgets
     use type_utils, only: int2str, real2str
     use plplot, PI => PL_PI
@@ -999,7 +1000,7 @@ end subroutine
 subroutine rmsfield_go(psm)
   USE GLOBALS
   use command_utils
-  use handlers, only: updateTerminalLog
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig, curr_ray_fan_data
   use kdp_utils, only: log2DData
   use type_utils, only: int2str
@@ -1093,7 +1094,7 @@ subroutine psf_go(psm)
   use mod_fft, only: four2, fftshift, fft2
   USE GLOBALS
   use command_utils
-  use handlers, only: updateTerminalLog
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig, curr_opd
   use type_utils, only: int2str
   use plplot, PI => PL_PI
@@ -1222,7 +1223,7 @@ subroutine pma_go(psm)
 
     USE GLOBALS
     use command_utils
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use global_widgets, only:  sysConfig, curr_opd
     use type_utils, only: int2str
     use plplot, PI => PL_PI
@@ -1435,7 +1436,7 @@ subroutine mtf_go(psm)
   use mod_fft, only: fft2
   USE GLOBALS
   use command_utils
-  use handlers, only: updateTerminalLog
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig, sysConfig, curr_mtf
   use kdp_utils, only: OUTKDP, logDataVsField, log2DData
   use type_utils, only: int2str, str2int, real2str

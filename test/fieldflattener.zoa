@@ -1,0 +1,12 @@
+CV2PRG LithoKotaro.seq
+FRZ SA
+FRZ CON
+CCY S1 0
+CCY S6 0
+THC S5 0
+AUT
+EFL = 50
+PTB = 0
+IMC > 2
+GO
+

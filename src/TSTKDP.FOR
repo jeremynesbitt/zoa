@@ -176,10 +176,10 @@ C
         !TODO:  Check for release flag and don't display if false
         subroutine LogTermDebug(newTxt)
 
-            use handlers, only : updateTerminalLog
+            use zoa_output, only : zoa_emit
             implicit none
             character(len=*) :: newTxt
-            call updateTerminalLog(newTxt, "red")
+            call zoa_emit(newTxt, "red")
             ! Also PRint
             PRINT *, newTxt
 
@@ -187,10 +187,10 @@ C
 
 
         subroutine LogTermFOR(newTxt)
-            use handlers, only : updateTerminalLog
+            use zoa_output, only : zoa_emit
             implicit none
             character(len=*) :: newTxt
-            call updateTerminalLog(newTxt, "blue")
+            call zoa_emit(newTxt, "blue")
 
         end subroutine
 

@@ -157,7 +157,7 @@ contains
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RMSFIELD, psm)
         if(boolResult .EQV. .FALSE.) then
-            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+            call zoa_emit("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
         end if
 
     end procedure    
@@ -175,7 +175,7 @@ contains
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_SEIDEL, psm)
         if(boolResult .EQV. .FALSE.) then
-            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+            call zoa_emit("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
         end if
 
     end procedure    
@@ -193,7 +193,7 @@ contains
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_PSF, psm)
         if(boolResult .EQV. .FALSE.) then
-            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+            call zoa_emit("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
         end if
 
     end procedure       
@@ -218,7 +218,7 @@ contains
         & 0.0, 100000.0, 'IFR', 'IFR '//trim(real2str(maxFreq/100.0)), UITYPE_SPINBUTTON)          
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_MTF, psm)
         if(boolResult .EQV. .FALSE.) then
-            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+            call zoa_emit("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
         end if
 
     end procedure       

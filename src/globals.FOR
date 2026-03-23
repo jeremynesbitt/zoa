@@ -10,6 +10,7 @@
       character(len=140)  :: currentCommand
 
       logical :: TEST_MODE = .FALSE.
+      logical :: HEADLESS_MODE = .FALSE.
 C
 C     PROCESS ONE OR 20 COMMANDS
 C

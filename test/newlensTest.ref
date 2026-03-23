@@ -1,0 +1,38 @@
+
+
+ENTRANCE PUPIL
+DIA       2.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       1.0000000000000000E+020
+BFL       1.0000000000000000E+020
+FFL       1.0000000000000000E+020
+FNO       303.4211
+IMG DIS   0.0000
+OAL       0.0000
+PARAXIAL IMAGE
+ HT      0.0000
+ANG       -0.0000
+ENTRANCE PUPIL
+DIA       2.0000
+THI       0.0000
+EXIT PUPIL
+DIA       2.0025
+THI       -0.7561
+   New Lens From Template
+SRF     HMY       UMY       HCY       UCY
+OBJ   0.00000   0.00000   1.00000  -0.00000
+STO   1.00000   0.00000   0.00000  -0.00000
+IMG   1.00000  -0.00165  -0.00000  -0.00000
+RSI fields are 1
+RSI wavelengths are 1
+Relative X Aperture is 0.00000
+Relative Y Aperture is 1.00000
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0   -0.00000        0.00000        0.00000        0.00000       0.572958E-11
+  1    0.00000        1.00000        0.00000        0.00000       0.572958E-11
+  2  -0.126759E-05   0.999999        0.00000        0.00000       0.572958E-11

@@ -3,12 +3,12 @@
 ! or invested in yet.
 
   subroutine updateTerminal(ftext, txtColor)
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     IMPLICIT NONE
 
     character(len=*), intent(in) :: ftext
     character(len=*), intent(in)  :: txtColor
-    call updateTerminalLog(ftext, txtColor)
+    call zoa_emit(ftext, txtColor)
     end subroutine
 
 ! This method should eventually go somewhere else IMO, but for not have it here

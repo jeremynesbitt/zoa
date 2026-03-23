@@ -209,6 +209,7 @@ contains
 
          USE GLOBALS
          use global_widgets
+         use zoa_output, only: zoa_emit
         IMPLICIT NONE
 
     type(c_ptr), value :: widget, data
@@ -232,7 +233,7 @@ contains
     
     ! Log results
     txtColor = "blue"
-    call updateTerminalLog(ftext, txtColor)
+    call zoa_emit(ftext, txtColor)
 
     ! Update command history for a simple way for the user to get previous commands
     if (txtColor.eq."blue") then
@@ -281,6 +282,7 @@ contains
     use hl_gtk_zoa
     use zoa_status_bar
     use gdk
+    use zoa_output, only: zoa_set_output_handler
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -473,6 +475,9 @@ contains
     call gtk_widget_show(my_window)
 
     call gtk_window_present (my_window)
+
+    ! Register GTK output handler so zoa_emit routes to the GUI text view
+    call zoa_set_output_handler(updateTerminalLog)
 
     ! INIT KDP
     CALL INITKDP

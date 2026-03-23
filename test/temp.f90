@@ -19,12 +19,9 @@ module codeV_commands
     use iso_fortran_env, only: real64
     use plot_setting_manager, only: zoaplot_setting_manager
     use type_utils
-    use handlers, only: zoatabMgr, my_window
-    use zoa_output, only: zoa_emit
+    use handlers, only: updateTerminalLog, zoatabMgr
     use strings
-    use globals
     
-    implicit none
    !ifort will not compile the common interfaces unless I do it this way
     ! I had wanted to do a module with interfaces only.  gfortran was okay with it
     ! but not ifort.  
@@ -61,7 +58,12 @@ module codeV_commands
     integer, parameter :: TOW_LOOP = 5
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
-    integer, parameter :: CON_UPDATE_LOOP = 7
+    integer, parameter :: PSF_LOOP = 8
+
+
+
+
+
 
 
     contains
@@ -72,8 +74,9 @@ module codeV_commands
         use global_widgets, only: ioConfig
         use hl_gtk_zoa, only : hl_zoa_text_view_new
 
+        implicit none
+
         integer :: i
-        character(len=1), dimension(8) :: evenAsphereTerms = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
         ! Initialize null ptr textView to dump KDP print statements when needed
         call ioConfig%registerTextView(c_null_ptr, ID_TERMINAL_KDPDUMP)
@@ -179,13 +182,13 @@ module codeV_commands
         zoaCmds(545)%cmd = 'CCY'
         zoaCmds(545)%execFunc => updateVarCodes           
         zoaCmds(546)%cmd = 'EFL'
-        zoaCmds(546)%execFunc => updateConstraint                         
+        zoaCmds(546)%execFunc => updateEFLConstraint                         
         zoaCmds(547)%cmd = 'TAR'
         zoaCmds(547)%execFunc => execTAR     
         zoaCmds(548)%cmd = 'FRZ'
         zoaCmds(548)%execFunc => execFreeze    
         zoaCmds(549)%cmd = 'TCO'
-        zoaCmds(549)%execFunc => updateConstraint   
+        zoaCmds(549)%execFunc => updateTCOConstraint   
         zoaCmds(550)%cmd = 'FLY'
         zoaCmds(550)%execFunc => flipSurfaces    
         zoaCmds(551)%cmd = 'SCA'
@@ -195,7 +198,7 @@ module codeV_commands
         zoaCmds(553)%cmd = 'RED'
         zoaCmds(553)%execFunc => setMagSolve           
         zoaCmds(554)%cmd = 'TAS'
-        zoaCmds(554)%execFunc => updateConstraint     
+        zoaCmds(554)%execFunc => updateTCOConstraint     
         zoaCmds(555)%cmd = 'IMC'
         zoaCmds(555)%execFunc => updateConstraint    
         zoaCmds(556)%cmd = 'PTB'
@@ -217,54 +220,32 @@ module codeV_commands
         zoaCmds(564)%cmd = 'TIT'
         zoaCmds(564)%execFunc => setLensTitle
         zoaCmds(565)%cmd = 'DIM'
-        zoaCmds(565)%execFunc => setDim                        
-        zoaCmds(566)%cmd = 'PSF'
-        zoaCmds(566)%execFunc => execPSF    
-        zoaCmds(567)%cmd = 'MTF'
-        zoaCmds(567)%execFunc => execMTF       
-        zoaCmds(568)%cmd = 'MFR'
-        zoaCmds(568)%execFunc => updateMaxFrequency         
-        zoaCmds(569)%cmd = 'IFR'
-        zoaCmds(569)%execFunc => updateFrequencyInterval                             
-        zoaCmds(570)%cmd = 'CY'
-        zoaCmds(570)%execFunc => getRayData    
-        zoaCmds(571)%cmd = 'CX'
-        zoaCmds(571)%execFunc => getRayData    
-        zoaCmds(572)%cmd = 'ASP'
-        zoaCmds(572)%execFunc => execAsphere                                            
-        do i=1,8
-            zoaCmds(572+i)%cmd      = evenAsphereTerms(i)
-            zoaCmds(572+i)%execFunc => updateAsphereTerms
-        end do        
-        zoaCmds(581)%cmd = 'K'          
-        zoaCmds(581)%execFunc => updateConicConstant  
-        zoaCmds(582)%cmd = '!'          
-        zoaCmds(582)%execFunc => processFileComment          
-        zoaCmds(583)%cmd = 'ZOA2CV'
-        zoaCmds(583)%execFunc => exportLensToCodeV  
-        zoaCmds(584)%cmd = 'ZOA2ZMX'
-        zoaCmds(584)%execFunc => exportLensToZemax  
-        zoaCmds(585)%cmd = 'SLB'
-        zoaCmds(585)%execFunc => updateSurfaceLabel    
-        zoaCmds(586)%cmd = 'SAS'
-        zoaCmds(586)%execFunc => updateConstraint   
-        zoaCmds(587)%cmd = 'RMSDATA'
-        zoaCmds(587)%execFunc => updateRMSPlotType         
-        zoaCmds(588)%cmd = 'IMP'
-        zoaCmds(588)%execFunc => updateOptimImprovementGoal   
-        zoaCmds(589)%cmd = 'AUTUI'
-        zoaCmds(589)%execFunc => aut_ui      
-        zoaCmds(590)%cmd = 'UPD'
-        zoaCmds(590)%execFunc => updateDatabase    
-        zoaCmds(591)%cmd = 'CHA'
-        zoaCmds(591)%execFunc => changeDatabase  
-        zoaCmds(592)%cmd = 'EVA'
-        zoaCmds(592)%execFunc => evaluateCmd                                                                          
+<<<<<<< HEAD
+        zoaCmds(565)%execFunc => setDim 
+        zoaCmds(566)%cmd = 'GO'
+        zoaCmds(566)%execFunc => executeGO 
+        zoaCmds(567)%cmd = 'PIM'
+        zoaCmds(567)%execFunc => setParaxialImageSolve    
+        zoaCmds(568)%cmd = 'EPD'
+        zoaCmds(568)%execFunc => setEPD 
+        zoaCmds(569)%cmd = 'SETC'
+        zoaCmds(569)%execFunc => execSetCodeVCmd                                
+
+        
+=======
+        zoaCmds(565)%execFunc => setDim    
+        zoaCmds(566)%cmd = 'PSFC'
+        zoaCmds(566)%execFunc => execPSF                                
+>>>>>>> 87f8dfe (PSF plot framework added)
+
 
         
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
+        use GLOBALS, only:  currentCommand
+
+        implicit none
 
         character(len=*) :: iptCmd
         integer :: ii
@@ -291,39 +272,7 @@ module codeV_commands
             return
         end if
         end do
-
-        select case (iptCmd)
            
-        case('GO')
-            CALL executeGo()
-            boolResult = .TRUE.
-            return
-         
-        case ('PIM')
-            call setParaxialImageSolve()
-            boolResult = .TRUE.
-            return     
-        case ('EPD')
-            call setEPD()
-            boolResult = .TRUE.
-            return   
-        ! case ('CUY')
-        !     call setCurvature()
-        !     boolResult = .TRUE.
-        !     return             
-            
-        case ('SETC')
-            call execSetCodeVCmd()
-            boolResult = .TRUE.
-            return              
-
-        end select
-
-        ! Handle Sk separately
-        ! IF(isSurfCommand(iptCmd)) then
-        !     CALL setSurfaceCodeVStyle(iptCmd)
-        !     return
-        !   END IF            
               
     end function
      
@@ -353,7 +302,7 @@ module codeV_commands
                             if (tmpVal >= real1Bounds(1) .AND. tmpVal <= real1Bounds(2)) then
                                 real1 = tmpVal
                             else
-                                call zoa_emit("Error:  Real 1 Input Outside Bounds "//trim(tokens(i)), "red")
+                                call updateTerminalLog("Error:  Real 1 Input Outside Bounds "//trim(tokens(i)), "red")
                                 return
                             end if
                         else
@@ -366,7 +315,7 @@ module codeV_commands
                             if (tmpVal >= real1Bounds(1) .AND. tmpVal <= real1Bounds(2)) then
                                 real2 = tmpVal
                             else
-                                call zoa_emit("Error:  Real 2 Input Outside Bounds "//trim(tokens(i)), "red")
+                                call updateTerminalLog("Error:  Real 2 Input Outside Bounds "//trim(tokens(i)), "red")
                                 return
                             end if
                         else
@@ -374,7 +323,7 @@ module codeV_commands
                         end if                        
                       
                     case default
-                        call zoa_emit("Warning:  Detected more than two valid inputs.  Ignoring "//trim(tokens(i)), "red")
+                        call updateTerminalLog("Warning:  Detected more than two valid inputs.  Ignoring "//trim(tokens(i)), "red")
 
                     end select
                 end if
@@ -406,7 +355,7 @@ module codeV_commands
                sf = str2int(iptStr(dotLoc+2:len(iptStr)))
                intArr = (/ (i,i=s0,sf)/)
             else
-                call zoa_emit("Error:  Could not convert input to X..Y "//iptStr, "red")
+                call updateTerminalLog("Error:  Could not convert input to X..Y "//iptStr, "red")
             end if
         else ! No dots found
             if(isInputNumber(iptStr)) then
@@ -418,7 +367,6 @@ module codeV_commands
 
 
     end function
-    
 
     function cmd_parser_get_int_input_for_prefix(prefix, tokens) result(intArr)
         use global_widgets, only: sysConfig
@@ -540,7 +488,7 @@ module codeV_commands
             end if
 
         else
-            call zoa_emit("Error!  FRZ must include a qualifier, such as SA to freeze control variables", "red")
+            call updateTerminalLog("Error!  FRZ must include a qualifier, such as SA to freeze control variables", "red")
         end if
         
 
@@ -614,7 +562,7 @@ module codeV_commands
     end subroutine
 
     subroutine execFIO(iptStr)
-
+        use GLOBALS, only: long
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use kdp_utils
 
@@ -653,7 +601,7 @@ module codeV_commands
     end subroutine
 
     subroutine printRefractiveIndices(iptStr)
-
+        use GLOBALS, only: long
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
         use kdp_utils
         use mod_lens_data_manager
@@ -722,8 +670,9 @@ module codeV_commands
 
 
     subroutine findBestFocus(iptStr)
-        use global_widgets, only: curr_par_ray_trace, sysConfig
+        use global_widgets, only: curr_par_ray_trace
         use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use global_widgets, only:  sysConfig
         use DATLEN, only: COLRAY
         use algos
     
@@ -842,7 +791,7 @@ module codeV_commands
                     end do
                 case default
                     ! Do nothing
-                call zoa_emit("FAN not used at base level", "black")
+                call updateTerminalLog("FAN not used at base level", "black")
                 end select
 
 
@@ -956,74 +905,6 @@ module codeV_commands
     end subroutine
 
 
-    subroutine updateMaxFrequency(iptStr)
-
-        use command_utils
-
-        character(len=*) :: iptStr
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: boolResult
-  
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        if(numTokens ==2 ) then
-            if (isInputNumber(tokens(2))) then
-
-            select case(cmd_loop)
-            case (ID_PLOTTYPE_MTF)
-                call curr_psm%updateSetting(SETTING_MAX_FREQUENCY, str2real8(tokens(2)))
-            case default
-                call zoa_emit("Error:  &
-                & This cmd must be entered after MTF and before GO to update value", "red")
-            end select
-        end if
-        end if
-
-
-        !Pseudocode
-        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
-        !  psm%setScaleInLensUnits(real(tokens(2)))
-
-        !   end if
-
-    end subroutine
-
-    subroutine updateFrequencyInterval(iptStr)
-
-        use command_utils
-
-        character(len=*) :: iptStr
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: boolResult
-  
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        if(numTokens ==2 ) then
-            if (isInputNumber(tokens(2))) then
-
-            select case(cmd_loop)
-            case (ID_PLOTTYPE_MTF)
-                call curr_psm%updateSetting(SETTING_FREQUENCY_INTERVAL, str2real8(tokens(2)))
-            case default
-                call zoa_emit("Error:  &
-                & This cmd must be entered after MTF and before GO to update value", "red")
-            end select
-        end if
-        end if
-
-
-        !Pseudocode
-        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
-        !  psm%setScaleInLensUnits(real(tokens(2)))
-
-        !   end if
-
-    end subroutine    
-
     subroutine execRayAberrationPlot(iptStr)
         implicit none
         character(len=*) :: iptStr
@@ -1038,7 +919,7 @@ module codeV_commands
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RIM, psm)
         if(boolResult .EQV. .FALSE.) then
-            call zoa_emit("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+            call updateTerminalLog("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
         end if
 
 
@@ -1059,7 +940,7 @@ module codeV_commands
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_OPD, psm)
         if(boolResult .EQV. .FALSE.) then
-            call zoa_emit("Error in input. Should be either PMA or PMA PX, where X is plot num", "red")
+            call updateTerminalLog("Error in input. Should be either PMA or PMA PX, where X is plot num", "red")
         end if
 
 
@@ -1079,7 +960,7 @@ module codeV_commands
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_AST, psm)
         if(boolResult .EQV. .FALSE.) then
-            call zoa_emit("Error in input. Should be either ASTFCDIST or ASTFCDIST PX, where X is plot num", "red")
+            call updateTerminalLog("Error in input. Should be either ASTFCDIST or ASTFCDIST PX, where X is plot num", "red")
         end if
 
 
@@ -1113,16 +994,14 @@ module codeV_commands
     end subroutine
 
     subroutine execAUT(iptStr)
-        use optim_types, only: optim
-
+        implicit none
         character(len=*) :: iptStr
         
         if (cmd_loop == 0) then
 
             cmd_loop = AUT_LOOP
-            optim%imp = .01_long ! default value
         else
-            call zoa_emit("Cannot enter AUT loop as in another command loop", "red")
+            call updateTerminalLog("Cannot enter AUT loop as in another command loop", "red")
         end if
 
 
@@ -1136,7 +1015,7 @@ module codeV_commands
 
             cmd_loop = TAR_LOOP
         else
-            call zoa_emit("Cannot enter TAR loop as in another command loop", "red")
+            call updateTerminalLog("Cannot enter TAR loop as in another command loop", "red")
         end if
 
 
@@ -1148,7 +1027,7 @@ module codeV_commands
 
         use command_utils, only : isInputNumber
         use optim_types
-
+        use GLOBALS, only: long
 
         implicit none
         character(len=*) :: iptStr
@@ -1232,9 +1111,9 @@ module codeV_commands
         
             ! Error Checking
             if (isInputNumber(trim(tokens(2)))) then    
-                call executeCodeVLensUpdateCommand('CLAP, '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)))
+                call executeCodeVLensUpdateCommand('CLAP '//trim(tokens(2)),.TRUE.)
            else
-             call zoa_emit( &
+             call updateTerminalLog( &
              & "Error: unable to intepret number for input argument "//trim(tokens(2)), "red")
              return
            end if
@@ -1248,12 +1127,12 @@ module codeV_commands
                   call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; CLAP '//trim(tokens(3))//';GO')
                 else 
-                    call zoa_emit( &
+                    call updateTerminalLog( &
                     & "Error: unable to intepret number for input argument "//trim(tokens(3)), "red")
                     return
                 end if
             else 
-                call zoa_emit( &
+                call updateTerminalLog( &
                 & "Error: unable to intepret surface number for input argument "//trim(tokens(2)), "red")
                 return 
             end if                         
@@ -1285,7 +1164,7 @@ module codeV_commands
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             else
 
-            call zoa_emit("STO Should have a surface identifier (S0, Sk, Si, SA)", "red")
+            call updateTerminalLog("STO Should have a surface identifier (S0, Sk, Si, SA)", "red")
             return
             end if
 
@@ -1297,7 +1176,7 @@ module codeV_commands
 
         ! If we got here, update
         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-        & '; ASTOP; REFS')
+        & '; ASTOP; REFS; EOS')
     end subroutine
 
     subroutine execRestore(iptStr)
@@ -1315,7 +1194,7 @@ module codeV_commands
             call processZoaFileInput(trim(tokens(2)))
 
         else
-            call zoa_emit("Error!  Expect two inputs, eg RES file or RES zoa_macro:file", "red")
+            call updateTerminalLog("Error!  Expect two inputs, eg RES file or RES zoa_macro:file", "red")
 
 
         end if
@@ -1324,7 +1203,7 @@ module codeV_commands
 
     subroutine execRestore_old(iptStr)
         !use global_widgets, only: curr_lens_data
-
+        use globals, only: TEST_MODE
         use gtk_hl_dialog
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
@@ -1385,7 +1264,7 @@ module codeV_commands
                     ! Finally at the new lens process.  
                 else 
                     ! If user aborted, log it
-                    call zoa_emit("New Lens Process Cancelled", "black")
+                    call updateTerminalLog("New Lens Process Cancelled", "black")
                 end if ! add to lens database 
                 end if ! Test Mode
                                   
@@ -1393,13 +1272,13 @@ module codeV_commands
             if (len(trim(fullPath)) > 1) then
                 call process_zoa_file(fullPath)
             else
-            call zoa_emit("File Not found in known directory!  Please try again or use UI", "red")
+            call updateTerminalLog("File Not found in known directory!  Please try again or use UI", "red")
             end if
                    
 
 
         else
-            call zoa_emit("No file given to restore!  Please try again", "red")
+            call updateTerminalLog("No file given to restore!  Please try again", "red")
 
         end if
 
@@ -1407,73 +1286,6 @@ module codeV_commands
 
     end subroutine
       
-    subroutine exportLensToCodeV(iptStr)
-        use zoa_file_handler
-        use ui_dialogs
-        use zoa_file_handler
-        use global_widgets, only: sysConfig, curr_lens_data
-        use optim_types, only: optim
-        use mod_lens_data_manager
-
-        character(len=*) :: iptStr
-        character(len=256) :: fName
-        character(len=1024) :: dirName
-        character(len=80) :: tokens(40)
-        integer :: numTokens, locDot, fID
-        character(len=500) :: fileName
-        character(len=500) :: cdir
-        character(len=1024) :: currDir
-        logical :: fileSelected
-    
-        integer :: n, ios
-        character(len=256) :: line
-    
-        call parse(trim(iptStr), ' ', tokens, numTokens)
-
-        if(numTokens == 2) then
-            fileName = trim(tokens(2))
-        else
-            fileName = ''
-        end if
-
-        fileSelected = ui_new_file(my_window, fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV File")
-
-        if (fileSelected) then
-    
-         PRINT *, "fileName is ", trim(getFileNameFromPath(fileName))
-         PRINT *, "fileDirectory is is ", trim(cdir)
-    
-         fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
-        
-        if (fID /= 0) then
-         
-           call sysConfig%genSaveOutputText(fID)
-           call ldm%genSaveOutputText(fID)
-           !call curr_lens_data%genSaveOutputText(fID)
-           call optim%genSaveOutputText(fID)
-           close(fID)
-        else
-            call LogTermFOR("Error!  fiD is "//int2str(fID))
-        end if
-
-         !currDir = getSaveDirectory()
-         !call setSaveDirectory(trim(cdir))
-         ! Here is where I should insert code to save file
-    
-         !call setSaveDirectory(trim(currDir))
-        end if
-    
-
-
-    end subroutine
-
-    subroutine exportLensToZemax(iptStr)
-        character(len=*) :: iptStr
-        character(len=256) :: fName
-        character(len=1024) :: dirName
-        character(len=80) :: tokens(40)
-        integer :: numTokens, locDot, fID
-    end subroutine
 
     subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
@@ -1498,7 +1310,7 @@ module codeV_commands
         select case(numTokens)
         case (1) ! No file given save as current lens in temp folder
            fName = 'currlens.zoa'
-           call zoa_emit("File name to save is "//trim(getTempDirectory())//trim(fName), "black")
+           call updateTerminalLog("File name to save is "//trim(getTempDirectory())//trim(fName), "black")
            fID = open_file_to_sav_lens(fName, dirName=getTempDirectory(), overwriteFlag=.TRUE.)
         case (2) ! Check for extension and add if needed 
             fName = trim(tokens(2))
@@ -1506,7 +1318,7 @@ module codeV_commands
             if (locDot == 0) then
                 fName = trim(fName)//'.zoa'
             end if
-            call zoa_emit("File name to save is "//trim(fName), "black")
+            call updateTerminalLog("File name to save is "//trim(fName), "black")
             fID = open_file_to_sav_lens(fName)
         end select
 
@@ -1514,8 +1326,7 @@ module codeV_commands
         if (fID /= 0) then
          
            call sysConfig%genSaveOutputText(fID)
-           call ldm%genSaveOutputText(fID)
-           !call curr_lens_data%genSaveOutputText(fID)
+           call curr_lens_data%genSaveOutputText(fID)
            call optim%genSaveOutputText(fID)
            close(fID)
         else
@@ -1537,7 +1348,6 @@ module codeV_commands
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens
-        use mod_lens_data_manager, only: ldm
         implicit none
 
         !class(zoa_cmd) :: self
@@ -1562,8 +1372,7 @@ module codeV_commands
         if (fID /= 0) then
          
            call sysConfig%genSaveOutputText(fID)
-           call ldm%genSaveOutputText(fID)
-           !call curr_lens_data%genSaveOutputText(fID)
+           call curr_lens_data%genSaveOutputText(fID)
            call zoaTabMgr%genSaveOutputText(fID)
            close(fID)
         else
@@ -1598,7 +1407,7 @@ module codeV_commands
         if(numTokens == 2) then
             call executeCodeVLensUpdateCommand('CW '//trim(tokens(2)))
         else
-            call zoa_emit("No Wavelength Index Input.  Please try again", "red")
+            call updateTerminalLog("No Wavelength Index Input.  Please try again", "red")
             return            
         end if
 
@@ -1637,24 +1446,25 @@ module codeV_commands
 
                 end select                          
             else
-                call zoa_emit("No Surface Modifier Selected.  Please try again", "red")
+                call updateTerminalLog("No Surface Modifier Selected.  Please try again", "red")
             end if         
         else
-            call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
+            call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
         end if  
     end subroutine
 
-    subroutine execSetCodeVCmd()
+    subroutine execSetCodeVCmd(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data, curr_par_ray_trace     
-        use DATMAI
+
         implicit none
+        character(len=*) :: iptStr
 
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
         ! command and figuring out what commands to translate it to
         if(numTokens > 1 ) then
@@ -1665,7 +1475,7 @@ module codeV_commands
                     real2str(curr_par_ray_trace%getObjectThicknessToSetParaxialMag( &
                     & str2real8(trim(tokens(3))),curr_lens_data)))                            
                 else
-                    call zoa_emit("No Mag Value specified.  Please try again", "red")
+                    call updateTerminalLog("No Mag Value specified.  Please try again", "red")
                 end if 
                 
 
@@ -1688,10 +1498,10 @@ module codeV_commands
             if (isInputNumber(tokens(2))) then
                 call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)), exitLensUpdate=.TRUE.) 
             else
-                call zoa_emit("Error!  Unable to parse value "//trim(tokens(2))//" into number", "red")
+                call updateTerminalLog("Error!  Unable to parse value "//trim(tokens(2))//" into number", "red")
             end if   
         else
-            call zoa_emit("Error!  Expecting RED X where X is the desired reduction factor", "red")
+            call updateTerminalLog("Error!  Expecting RED X where X is the desired reduction factor", "red")
         end if            
 
         
@@ -1701,9 +1511,8 @@ module codeV_commands
     ! Format:  DEL SOL CUY S2
     !          DEL PIM
     subroutine deleteStuff(iptStr)
-        use command_utils, only: isInputNumber
+        use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: curr_lens_data
-        use optim_types
         implicit none
 
         character(len=*) :: iptStr
@@ -1711,21 +1520,20 @@ module codeV_commands
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parse(iptStr, ' ', tokens, numTokens)
-        !call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         ! This nested select statements is not sustainable.  Need a more elegant way of parsing this
         ! command and figuring out what commands to translate it to
         if(numTokens > 1 ) then
         select case(trim(tokens(2))) 
             case('PIM')
-                call zoa_emit("Deleting PIM", "blue")
+                call updateTerminalLog("Deleting PIM", "blue")
                 surfNum = curr_lens_data%num_surfaces - 2
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; TSD '//';GO')          
 
             case('SOL') ! Delete Solves
                 if(numTokens > 2) then
-                    call zoa_emit("Deleting Solve", "blue")
+                    call updateTerminalLog("Deleting Solve", "blue")
                     select case(trim(tokens(3)))
                     case('CUY')
                         if (isSurfCommand(trim(tokens(4)))) then
@@ -1735,15 +1543,9 @@ module codeV_commands
                         end if
                     end select
                 else
-                    call zoa_emit("No Angle Solve Specified.  Please try again", "red")
+                    call updateTerminalLog("No Angle Solve Specified.  Please try again", "red")
                     end if 
-            case('CON') ! Expect DEL CON ID.  Delete constraint
-                if (numTokens == 3 .AND. isInputNumber(tokens(3))) then 
-                    call deleteConstraint(str2int(tokens(3)))
-
-                else
-                    call zoa_emit("Improper format detected.  Expect DEL CON ID", "red")
-                end if
+                
 
             end select
 
@@ -1751,9 +1553,10 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setEPD()
+    subroutine setEPD(iptStr)
         use command_utils
         implicit none
+        character(len=*) :: iptStr
 
          if(checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
             call executeCodeVLensUpdateCommand('SAY '//real2str(getInputNumber(1)/2.0))
@@ -1768,8 +1571,10 @@ module codeV_commands
 
     end subroutine
 
-    subroutine setParaxialImageSolve()
+    subroutine setParaxialImageSolve(iptStr)
         use global_widgets, only: curr_lens_data
+        implicit none
+        character(len=*) :: iptStr
         integer :: surfNum
 
         ! Get surface before last surface and add solve
@@ -1833,7 +1638,7 @@ module codeV_commands
                    sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
                    processResult = .TRUE.
                 else
-                    call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                    call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
                 end if
             else ! No dots found
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
@@ -1842,20 +1647,19 @@ module codeV_commands
                 sf=surfNum
                 processResult = .TRUE.
             else
-                call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
+                call updateTerminalLog("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
             end if
             end if
         end if
 
         if (processResult) then
             if(isInputNumber(trim(tokens(3)))) then
-                print *, "ABout to update Var with ", str2int(trim(tokens(3)))
                 call ldm%updateOptimVars(trim(tokens(1)), s0,sf,str2int(trim(tokens(3))))
                 ! THis is to revolve a circular dependency - not sure how to resolve this in a good way.             
                 call updateOptimVarsNew(trim(tokens(1)),s0,sf,str2int(trim(tokens(3))))
             end if
         else
-            call zoa_emit("Error:  Variable code must be number "//trim(tokens(3)), "red")
+            call updateTerminalLog("Error:  Variable code must be number "//trim(tokens(3)), "red")
         end if
 
 
@@ -1877,29 +1681,109 @@ module codeV_commands
 
         processResult = .FALSE.
 
-        ! TODO add some sort of isValidConstraintUpdate() func to avoid this mess and allow for future expansion
-        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
           call parse(iptStr, ' ', tokens, numTokens)
 
         if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
-            if (trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') then 
-                if (cmd_loop == CON_UPDATE_LOOP) then 
-                    call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), idxConUpdate)
-                else
-                    call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)))
-                end if
-            else
-                call zoa_emit("Error:  Unable to parse number for third token ", "red")
-            end if
+ 
+            select case(trim(tokens(2)))
+            case('=')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.TRUE.)
+            case('>')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.FALSE., lb=.FALSE.,ub=.TRUE.)
+            case('<')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.FALSE., lb=.TRUE.,ub=.FALSE.)
+            case default
+                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
+            end select
         else
-            call zoa_emit("Error:  Unable to parse number for third token ", "red")
+            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
         end if
         else
-            call zoa_emit("Error:  Can only set constraint in AUT loop! ", "red")
+            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
 
         end if
 
     end subroutine    
+
+    subroutine updateEFLConstraint(iptStr)
+        use command_utils, only : isInputNumber
+        use mod_lens_data_manager
+        use optim_types
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+          call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
+ 
+            select case(trim(tokens(2)))
+            case('=')
+                call addConstraint('EFL', str2real8(tokens(3)), eq=.TRUE.)
+            case('>')
+                call addConstraint('EFL', str2real8(tokens(3)), eq=.FALSE., lb=.FALSE.,ub=.TRUE.)
+            case('<')
+                call addConstraint('EFL', str2real8(tokens(3)), eq=.FALSE., lb=.TRUE.,ub=.FALSE.)
+            case default
+                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
+            end select
+        else
+            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
+        end if
+        else
+            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
+
+        end if
+
+    end subroutine    
+
+    ! TODO:  Refactor with EFL constraint.  Just use tokens(1) ant that's it?
+    subroutine updateTCOConstraint(iptStr)
+        use command_utils, only : isInputNumber
+        use mod_lens_data_manager
+        use optim_types
+        implicit none
+
+        character(len=*) :: iptStr
+        integer :: surfNum
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: processResult 
+        integer :: s0, sf, dotLoc
+
+        processResult = .FALSE.
+
+        if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+          call parse(iptStr, ' ', tokens, numTokens)
+
+        if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
+ 
+            select case(trim(tokens(2)))
+            case('=')
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), eq=.TRUE.)
+            case('>')
+            case('<')
+            case default
+                call updateTerminalLog("Error:  Format should be EFL >,=,< value ", "red")
+            end select
+        else
+            call updateTerminalLog("Error:  Unable to parse number for third token ", "red")
+        end if
+        else
+            call updateTerminalLog("Error:  Can only set constraint in AUT loop! ", "red")
+
+        end if
+
+    end subroutine        
 
 
     ! NBR ELE Si..j only supported
@@ -1936,7 +1820,7 @@ module codeV_commands
         end select
         end if
         if (boolResult .EQV. .FALSE. ) then
-            call zoa_emit( &
+            call updateTerminalLog( &
             & "Unable to parse command.  Expect NBR ELE Si..j Got " //trim(iptStr), "black")
         end if
 
@@ -1963,79 +1847,19 @@ module codeV_commands
         call parse(trim(iptStr), ' ', tokens, numTokens) 
         call LogTermFOR("Calling check_clear_apetures")
         call check_clear_apertures(curr_lens_data)
-        call zoa_emit(blankStr(7)//"Y-FAN"//blankStr(5)//"X-FAN", "black")
+        call updateTerminalLog(blankStr(7)//"Y-FAN"//blankStr(5)//"X-FAN", "black")
         do i=2,curr_lens_data%num_surfaces
             surfTxt = blankStr(2)//trim(int2str(i-1))
             ! Special Cases
             if(i==1)                           surfTxt = "OBJ"
             if(i==curr_lens_data%ref_stop)     surfTxt = "STO"
             if(i==curr_lens_data%num_surfaces) surfTxt = "IMG"
-            call zoa_emit(trim(surfTxt)//blankStr(2)// &
+            call updateTerminalLog(trim(surfTxt)//blankStr(2)// &
             & trim(real2str(curr_lens_data%clearAps(i)%yRad))//blankStr(5)// &
             & trim(real2str(curr_lens_data%clearAps(i)%xRad)), "black")
         end do
 
     end subroutine
-
-    subroutine insertSurf(iptStr)
-        use command_utils, only: isInputNumber
-        implicit none
-
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-        integer :: surfNum, i, s0, sf, dotLoc
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        if (numTokens == 2) then
-            ! Treat special case of ..  TODO:  Should this be in getSurfNum(eg return array output?).  Seems messy
-            dotLoc = index(tokens(2),'..') 
-            if(dotLoc > 0) then
-                ! Assume input is Si..k
-                PRINT *, "dotLoc-1 is ", dotLoc-1
-                if(isInputNumber(tokens(2)(2:dotLoc-1)).AND. &
-                &  isInputNumber(tokens(2)(dotLoc+2:len(tokens(2))))) then
-                   s0 = str2int(tokens(2)(2:dotLoc-1))
-                   sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
-                   PRINT *, "s0 is ", s0
-                   PRINT *, "sf is ", sf
-                   do i=s0,sf
-                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)                           
-                   end do
-                else
-                    call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
-                end if
-            else ! No dots found
-    
-
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            if (surfNum.NE.-1) then
-               call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
-            else
-                call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
-            end if
-            end if
-        end if
-
-
-    
-
-        !PRINT *, "Inside insertSurf"
-        ! TODO:  Add an error check for Sk in checkCommandInput
-
-        ! if (checkCommandInput([ID_CMD_QUAL])) then
-        !     surfNum = getSurfNumFromSurfCommand(trim(getQualWord()))
-        !     call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)))
-        ! end if            
-
-
-
-
-    end subroutine
-
-
 
     subroutine setDim(iptStr)
         use command_utils
@@ -2050,11 +1874,11 @@ module codeV_commands
             select case (getQualWord())
 
             case ('M')
-                call executeCodeVLensUpdateCommand("UNITS MM")
+                call executeCodeVLensUpdateCommand("UNITS MM", exitLensUpdate=.TRUE.)
             case ('C')
-                call executeCodeVLensUpdateCommand("UNITS CM")
+                call executeCodeVLensUpdateCommand("UNITS CM", exitLensUpdate=.TRUE.)
             case ('I')
-                call executeCodeVLensUpdateCommand("UNITS IN")
+                call executeCodeVLensUpdateCommand("UNITS IN", exitLensUpdate=.TRUE.)
 
             end select
 
@@ -2063,7 +1887,7 @@ module codeV_commands
 
     subroutine newLens 
         use gtk_hl_dialog
-
+        use globals, only: basePath, TEST_MODE
         use mod_lens_data_manager
       
         implicit none  
@@ -2090,7 +1914,7 @@ module codeV_commands
           if (ios /= 0) then 
             exit
           else
-            !call LogTermFOR("About to exec "//trim(line))
+            call LogTermFOR("About to exec "//trim(line))
             call PROCESKDP(trim(line))
           end if
           n = n + 1
@@ -2099,9 +1923,6 @@ module codeV_commands
 
       ! Initialize the vars array to be default (100)
       ldm%vars(:,:) = 100
-
-      ! Since this is called by .zoa files, want to go into lens update mode
-      !CALL PROCESSILENT('U L')
       
       
       end subroutine    
@@ -2119,19 +1940,12 @@ module codeV_commands
 
       end subroutine
 
-      subroutine processFileComment(iptStr)
-        character(len=*) :: iptStr
-
-        ! Do nothing
-
-      end subroutine      
-
       subroutine setFieldWeights(iptStr)
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
 
         ! This is not implemented. 
-        call zoa_emit("Field Weights Command "//trim(iptStr)//" &
+        call updateTerminalLog("Field Weights Command "//trim(iptStr)//" &
         & Not supported", "black")
 
       end subroutine
@@ -2178,6 +1992,10 @@ module codeV_commands
          !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
          call parse(trim(iptStr), ' ', tokens, numTokens)
 
+         do i=1,numTokens
+            call LogTermFOR("Token "//trim(tokens(i)))
+         end do
+
          ! TODO:  Support more field types
          if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB'.OR.tokens(1).EQ.'YIM') FLD_COL = Y_COL
          if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB'.OR.tokens(1).EQ.'XIM') FLD_COL = X_COL
@@ -2185,6 +2003,7 @@ module codeV_commands
          call sysConfig%setFieldTypeFromString(trim(tokens(1)))
 
           numFields = numTokens-1
+          call LogTermFOR("Numfields is "//int2str(numFields))
           allocate(absFields(numFields))
           do i=1,numFields
             absFields(i) = str2real8(trim(tokens(i+1)))
@@ -2193,9 +2012,7 @@ module codeV_commands
           call sysConfig%setAbsoluteFields(absFields, FLD_COL)
 
           ! Force update of lens system
-          ! JN 2/6/25.  This called me a lot of pain.  I added this to force update in UI,
-          ! but it wreaked havoc when I was trying to clean up lens input
-          !CALL LNSEOS
+          CALL LNSEOS
 
 
 
@@ -2203,7 +2020,6 @@ module codeV_commands
        
       subroutine setWavelength(iptStr)
        !TODO Support inputting up to 10 WL  See CV2PRG.FOR
-
         use command_utils, only : parseCommandIntoTokens
         use global_widgets, only: sysConfig
         implicit none
@@ -2213,47 +2029,43 @@ module codeV_commands
         character(len=1024) :: outStr
         integer :: i
         character(len=80) :: tokens(40)
-        character(len=1024) :: strWL
         integer :: numTokens
-        real(long) :: wlReal
-        logical :: CVERROR
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+
+        call LogTermFOR("setWL numTokens is "//int2str(numTokens))
 
         if (numTokens <= 6) then
             outStr = 'WV, '
             do i=2,numTokens
-                call ATODCODEV(tokens(i)(1:23), wlReal, CVERROR)
-                write(strWL, '(D23.15)') wlReal/1000.0_long
-                outStr = trim(outStr)//' '//trim(strWL)
+                outStr = trim(outStr)//' '//trim(real2str(str2real8(trim(tokens(i)))/1000.0))
                 ! Set spectral weights; assume all equal to 1.0 here
                 call sysConfig%setSpectralWeights(i-1, 1.0)               
             end do
-        if (numTokens < 6) then
-            do i=numTokens+1,6
-                outStr = trim(outStr)//' 0.0'
-            end do
-        end if
+            call LogTermFOR("Outstr is "//trim(outStr))
             call executeCodeVLensUpdateCommand(trim(outStr))
+
+
+
+
         end if
 
       end subroutine      
 
       !Todo:  put this in a submodule, as this sub will get HUGE eventually
-      subroutine executeGo()
+      subroutine executeGo(iptStr)
         use global_widgets, only: ioConfig
         use kdp_utils, only: inLensUpdateLevel
         use plot_functions
         use optim_functions
         use tow_functions, only: tow_go
 
+        implicit none
+        character(len=*) :: iptStr
+
         !TODO:  Switch to select case
-        if (cmd_loop == ID_PLOTTYPE_MTF) then
-            call mtf_go(curr_psm)
-            cmd_loop = 0
-        end if    
-        
-        if (cmd_loop == ID_PLOTTYPE_PSF) then
+        if (cmd_loop == PSF_LOOP) then
             call psf_go(curr_psm)
             cmd_loop = 0
         end if        
@@ -2428,40 +2240,8 @@ module codeV_commands
 
         logical :: boolResult
         character(len=*) :: tstCmd
-        type(string) :: tstCmds(17+size(zoaCmds))
+        type(string) :: tstCmds(size(zoaCmds))
         integer :: i
-
-
-        ! TODO:  Find some better way to do this.  For now, brute force it
-        ! codeVCmds = [character(len=4) :: 'YAN', 'TIT', 'WL', 'SO','S','GO', &
-        ! &'DIM', 'RDY', 'THI', 'INS', 'GLA', 'PIM', 'EPD', 'CUY', &
-        ! & 'DEL', 'RED', 'SETC', 'AAA', 'AAA']
-        ! do i=1,size(zoaCmds)
-        !    codeVCmds(i+17) = zoaCmds(i)%cmd
-        ! end do
-
-        ! This hard coding of cmds is temporary, until I migrate these to new format
-
-        !tstCmds(1)%s = 'YAN'
-        !tstCmds(2)%s = 'TIT'
-        !tstCmds(3)%s = 'WL'
-        tstCmds(6)%s = 'GO'
-        tstCmds(7)%s = 'DIM'
-        !tstCmds(8)%s = 'RDY'
-        !tstCmds(9)%s = 'THI'
-        !tstCmds(10)%s = 'INS'
-        !tstCmds(11)%s = 'GLA'
-        tstCmds(12)%s = 'PIM'
-        tstCmds(13)%s = 'EPD'
-        !tstCmds(14)%s = 'CUY'
-        tstCmds(15)%s = 'DEL'
-        !tstCmds(16)%s = 'RED'
-        tstCmds(17)%s = 'SETC'
-        do i=1,size(zoaCmds)
-            tstCmds(17+i)%s = zoaCmds(i)%cmd
-        end do
-
-
 
         boolResult = .FALSE.
         do i=1,size(tstCmds)
@@ -2482,7 +2262,7 @@ module codeV_commands
         implicit none
         character(len=*) :: iptCmd
         logical, optional :: debugFlag, exitLensUpdate
-        logical :: redirectFlag, inUpdate
+        logical :: redirectFlag
 
         if(present(debugFlag)) then 
             redirectFlag = .NOT.debugFlag
@@ -2493,8 +2273,8 @@ module codeV_commands
         ! Hide KDP Commands from user
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
           
-        inUpdate = inLensUpdateLevel()
-        if (inUpdate) then              
+
+        if (inLensUpdateLevel()) then              
             call PROCESKDP(iptCmd)
         else
             !call PROCESKDP('U L;'// iptCmd //';EOS')
@@ -2502,19 +2282,10 @@ module codeV_commands
             ! clear apertures, etc 
             call PROCESKDP('U L;'// iptCmd )
         end if
-        
-        ! If the called asked to exit update, then exit.
-        ! If we were not in lens update level, then exit (return to prior state)
-        !eosCalled = .FALSE.
+
         if(present(exitLensUpdate)) then
             if(exitLensUpdate) CALL PROCESKDP('EOS')
-        !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         end if
-         if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
-        
-
-    
-
 
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
       end subroutine
@@ -2542,7 +2313,6 @@ module codeV_commands
                 &  "; INSK "//trim(int2str(surfNum)))
             else ! Move pointer to next surface
                 call ldm%incrementSurfacePointer()
-                surfNum = ptrIdx+1
             end if
             !surfNum = 1
             return
@@ -2605,59 +2375,6 @@ module codeV_commands
     end function
 
 
-      subroutine setSurfaceCodeVStyle(iptStr)
-        use mod_lens_data_manager
-        use command_utils, only : parseCommandIntoTokens
-
-        implicit none
-
-        !class(zoa_cmd) :: self
-        character(len=*) :: iptStr
-        integer :: surfNum
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-
-
-        !call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
-        call parse(trim(iptStr), ' ', tokens, numTokens)
-
-        select case(numTokens)
-        case (1)
-            call zoa_emit("No info given besides surface identifier!  Please try again", "red")
-        case (2) ! Curvature only
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2)))              
-        case (3) ! Curvature and thickness
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            !if()
-            ! KDP Does not allow setting image thickness.  So work around this for now
-            ! if (trim(tokens(1)).EQ.'SI') then
-            !     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            !     & '; RD, ' // trim(tokens(2)), .TRUE.)   
-            ! else
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3)))        
-            ! end if    
-        case (4) ! Curvature, thickness, and glass
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            if(.not.isSpecialGlass(trim(tokens(4)))) then
-
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(2))//";TH, "// &
-            & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4))))) 
-            else
-                ! TODO:  This and the isSpecialGlass function should go somewhere else.
-                ! but first need to figure out if I really want to store this info in 
-                ! glassnames or create a new array for this info.
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; RD, ' // trim(tokens(2))//";TH, "// &
-                & trim(tokens(3))//';' // trim(tokens(4)))                
-            end if
-        end select
-    end subroutine
-
     subroutine flipSurfaces(iptStr)
     
         use global_widgets, only: sysConfig
@@ -2685,7 +2402,7 @@ module codeV_commands
         if (size(surfs) > 1) then
             call PROCESSILENT('FLIP '//trim(int2str(surfs(1)))//","//trim(int2str(surfs(size(surfs)))))
         else
-            call zoa_emit("Error!  Must have at least two surfaces to flip", "red")
+            call updateTerminalLog("Error!  Must have at least two surfaces to flip", "red")
         end if
 
         !If stop surface is in list flip does not handle it.  So work it out here
@@ -2734,12 +2451,12 @@ module codeV_commands
                     call PROCESSILENT('SC FY, '//trim(tokens(3))// ", 0")
 
                 else
-                    call zoa_emit("Error!  Could not convert 3rd token to numeric value", "red")
+                    call updateTerminalLog("Error!  Could not convert 3rd token to numeric value", "red")
                 end if
             end select
 
         else
-            call zoa_emit("Error!  SCA format is SCA VAR VAL.  Eg SCA EFL 50", "red")
+            call updateTerminalLog("Error!  SCA format is SCA VAR VAL.  Eg SCA EFL 50", "red")
         end if
         
     end subroutine
@@ -2763,7 +2480,7 @@ module codeV_commands
     end function
 
     subroutine setPickup(param1, si, sj, scale, offset, param2)
-
+        use GLOBALS, only: long
 
         implicit none
         character(len=*) :: param1
@@ -2789,10 +2506,10 @@ module codeV_commands
 
         if(scaleOffset) then
             call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
-                & trim(int2str(sj))//","//trim(real2str(scale))//","//trim(real2str(offset)))
+                & trim(int2str(sj))//","//trim(real2str(scale))//","//trim(real2str(offset)), exitLensUpdate=.TRUE.)
         else
             call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
-                & trim(int2str(sj)))
+                & trim(int2str(sj)), exitLensUpdate=.TRUE.)
         end if
 
     end subroutine
@@ -2804,7 +2521,7 @@ module codeV_commands
     ! eval this at present
 
     subroutine parsePickupInput(iptStr)
-
+        use globals, only: long
         use command_utils, only : isInputNumber
 
         implicit none        
@@ -2817,18 +2534,18 @@ module codeV_commands
 
         select case(numTokens)
         case (:3) ! < 4
-            call zoa_emit("Error!  Not enough arguments!  Format is PIK PARAM Si [PARAM] Sj [sf off]", "red")
+            call updateTerminalLog("Error!  Not enough arguments!  Format is PIK PARAM Si [PARAM] Sj [sf off]", "red")
         case (4) ! Must be PIK PARAM Si Sj.  Scale/offset default (1 0)
             si = getSurfNumFromSurfCommand(trim(tokens(3)))
             sj = getSurfNumFromSurfCommand(trim(tokens(4)))
             if (si == -1 .or. sj == -1) then
-                call zoa_emit("Error!  can't parse surfaces from arguments 3 and 4", "red")
+                call updateTerminalLog("Error!  can't parse surfaces from arguments 3 and 4", "red")
                 return
             end if
             if (isInputSurfaceParameter(trim(tokens(2)))) then
                 call setPickup(trim(tokens(2)), si,sj, 1.0_long, 0.0_long)
             else
-                call zoa_emit("Error!  Cannot parse parameter "//trim(tokens(2))//" to known surface parameter", "red")
+                call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" to known surface parameter", "red")
             end if
         case(5, 6) ! Can be either PIK PARAM Si PARAM Sj or PIK PARAM Si Sj sf          
             ! The key to figuring out which is token 4
@@ -2837,7 +2554,7 @@ module codeV_commands
                 si = getSurfNumFromSurfCommand(trim(tokens(3)))
                 sj = getSurfNumFromSurfCommand(trim(tokens(5)))
                 if (si == -1 .or. sj == -1) then
-                    call zoa_emit("Error!  can't parse surfaces from arguments 3 and 5", "red")
+                    call updateTerminalLog("Error!  can't parse surfaces from arguments 3 and 5", "red")
                     return
                 else 
                     if (isInputSurfaceParameter(trim(tokens(2))) .AND. isInputSurfaceParameter(trim(tokens(4)))) then
@@ -2847,20 +2564,20 @@ module codeV_commands
                             call setPickup(trim(tokens(2)), si,sj, 1.0_long, 0.0_long, trim(tokens(5)))                            
                         end if
                     else
-                        call zoa_emit("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
+                        call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
                         & " to known surface parameter", "red")
                     end if                      
                 end if
             else ! Either Err or PIK PARAM Si Sj sf
                 si = getSurfNumFromSurfCommand(trim(tokens(3)))
                 if (si == -1) then
-                    call zoa_emit("Error!  can't parse surface from arguments 3 ", "red")
+                    call updateTerminalLog("Error!  can't parse surface from arguments 3 ", "red")
                     return
                 else ! Still hope it's a proper command
                     if (isInputSurfaceParameter(trim(tokens(2))) .AND. isInputNumber(trim(tokens(5)))) then
                         call setPickup(trim(tokens(2)), si,sj, str2real8(trim(tokens(5))), 0.0_long)
                     else
-                        call zoa_emit("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
+                        call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
                         & " to known surface parameter", "red")
                     end if     
                 end if             
@@ -2870,7 +2587,7 @@ module codeV_commands
             si = getSurfNumFromSurfCommand(trim(tokens(3)))
             sj = getSurfNumFromSurfCommand(trim(tokens(5)))
             if (si == -1 .or. sj == -1) then
-                call zoa_emit("Error!  can't parse surfaces from arguments 3 and 5", "red")
+                call updateTerminalLog("Error!  can't parse surfaces from arguments 3 and 5", "red")
                 return
             else ! Continue with error checking
             if (isInputSurfaceParameter(trim(tokens(2))) .AND. isInputSurfaceParameter(trim(tokens(4)))) then 
@@ -2878,10 +2595,10 @@ module codeV_commands
                     ! Finally got what we wanted!
                     call setPickup(trim(tokens(2)), si,sj, str2real8(trim(tokens(6))), str2real8(trim(tokens(7))), trim(tokens(5)))
                 else
-                    call zoa_emit("Error!  Cannot parse scale or offset parameter", "red")
+                    call updateTerminalLog("Error!  Cannot parse scale or offset parameter", "red")
                 end if    
             else
-                call zoa_emit("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
+                call updateTerminalLog("Error!  Cannot parse parameter "//trim(tokens(2))//" or "//trim(tokens(5))// &
                 & " to known surface parameter", "red")
             end if
                 
@@ -2893,7 +2610,7 @@ module codeV_commands
 
 
     subroutine processZoaFileInput(iptStr, printOnly)
-
+        use globals, only: TEST_MODE
         use zoa_file_handler
         implicit none
         character(len=*) :: iptStr
@@ -2963,66 +2680,12 @@ module codeV_commands
             call processZoaFileInput(trim(tokens(2)), printOnly=.TRUE.)
 
         else
-            call zoa_emit("Error!  Expect two inputs, eg PRT file or PRT zoa_macro:file", "red")
+            call updateTerminalLog("Error!  Expect two inputs, eg PRT file or PRT zoa_macro:file", "red")
 
 
         end if
 
     end subroutine    
-
-
-
-    !Format:  CMD sk wk fk rx ry 
-    subroutine getRayData(iptStr)
-        use DATLEN, only: RAYRAY
-        use data_registers, only: setData
-        
-        character(len=*) :: iptStr
-        character(len=LEN(iptStr)) :: savStr
-        character(len=80) :: tokens(40)
-        integer :: numTokens       
-        integer, allocatable :: fields(:), wavelengths(:), surfaces(:)
-        real(kind=real64) :: relApeX, relApeY
-        
-        ! Defaults
-        relApeX = 0.0
-        relApeY = 0.0
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-        savStr = iptStr
-        
-        fields      = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
-        wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
-        surfaces    = cmd_parser_get_int_input_for_prefix('s', tokens(1:numTokens))
-        call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
-        & real1Bounds=[-1.0,1.0], real2Bounds=[-1.0,1.0])
-
-        if (size(fields) ==1 .and. size(wavelengths) == 1 .and. size(surfaces) == 1) then
-            ! Call RSI with the same info given.  This is a bit clunky to reconvernt back to str
-            ! but for now let's see how it works
-            call PROCESSILENT("RSI f"//trim(int2str(fields(1)))// &
-            &                    " w"//trim(int2str(wavelengths(1)))// &
-            & " "//trim(real2str(relApeX))//" "//trim(real2str(relApeY)))
-
-            select case(trim(tokens(1)))
-
-            case('CY') ! Cosine Y angle
-                call setData(savStr, RAYRAY(5,surfaces(1)))
-                print *, "Data stored is ", RAYRAY(5,surfaces(1))
-            case('CX') ! Cosine Y angle
-                call setData(savStr, RAYRAY(4,surfaces(1)))
-                print *, "Data stored is ", RAYRAY(4,surfaces(1))                
-
-            end select
-
-
-        else
-            call zoa_emit( &
-            & "Error:  Was unable to parse intput to get only one surface, field point and wavelength","red")
-
-        end if
-
-    end subroutine
 
 
         !        
@@ -3042,181 +2705,5 @@ module codeV_commands
     !     end if            
 
     !   end subroutine
-
-    function getDefaultMaxFrequency() result(maxFreq)
-        use DATSPD
-        real :: FREQ1, FREQ2, maxFreq
-        logical :: ERROR
-        ERROR=.FALSE.
-        CALL CUTTOFF(FREQ1,FREQ2,ERROR)
-      IF(ERROR) THEN 
-         call zoa_emit('ERROR IN OBJECT/IMAGE SPACE FREQUENCY RELATIONSHIP', "red")
-         return
-      END IF        
-!     FREQ1 IS THE IMAGE  SPACE CUTOFF FREQ
-!     FREQ2 IS THE OBJECT SPACE CUTOFF FREQ
-      IF(SPACEBALL.EQ.1) THEN
-         maxFreq=FREQ2
-      ELSE
-         maxFreq=FREQ1
-      END IF
-
-      print *, "Max Frequency is ", maxFreq
-
-    end function
-
-    subroutine updateOptimImprovementGoal(iptStr)
-        use command_utils
-        use optim_types, only: optim
-
-        character(len=*) :: iptStr
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: boolResult
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-        if(numTokens==2 .AND. isInputNumber(trim(tokens(2)))) then 
-            optim%imp = str2real8(trim(tokens(2)))
-        else
-            call zoa_emit('Error:  Expect PIM r, where r is a number', "red")
-        end if
-
-    end subroutine
-
-    subroutine updateRMSPlotType(iptStr)
-
-        use command_utils
-
-        implicit none
-
-        character(len=*) :: iptStr
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        logical :: boolResult
-
-       
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        if(numTokens ==2 ) then
-
-            select case(cmd_loop)
-            case (ID_PLOTTYPE_RMSFIELD)
-                if (lowercase(tokens(2)) == 'spot') then 
-                    call curr_psm%updateSetting(ID_RMS_DATA_TYPE, ID_RMS_DATA_SPOT)
-                end if
-                if (lowercase(tokens(2)) == 'wave') then
-                    call curr_psm%updateSetting(ID_RMS_DATA_TYPE, ID_RMS_DATA_WAVE)
-                end if
-
-            end select
-        end if
-
-        !Pseudocode
-        ! if (cmd_loop == ID_PLOTTYPE_SPOT) then
-        !  psm%setScaleInLensUnits(real(tokens(2)))
-
-        !   end if
-
-    end subroutine    
-
-
-    subroutine aut_ui(iptStr)
-        use iso_c_binding, only: c_associated
-        use optimizer_ui
-        use global_widgets
-        use handlers, only: my_window
-
-        character(len=*) :: iptStr
-      
-          if (.not. c_associated(optimizer_window))  THEN
-             call optimizer_ui_new(my_window)
-          else
-            PRINT *, "Do nothing.."
-      
-          end if
-      
-      
-      
-      end subroutine aut_ui  
-
-      subroutine updateDatabase(iptStr)
-        character(len=80) :: tokens(40)
-        integer :: numTokens
-        character(len=*) :: iptStr
-
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
-
-        if (numtokens < 2) then 
-            call zoa_emit('Error:  Expect UPD X, where X is the type of data to update', "red")
-        else
-
-
-        select case(trim(tokens(2)))
-        
-            case('CON') ! Cosine Y angle
-                cmd_loop = CON_UPDATE_LOOP
-
-            end select
-        end if
-      
-      
-      end subroutine updateDatabase     
-      
-      
-      subroutine changeDatabase(iptStr)
-        use optim_types
-        use command_utils, only: isInputNumber
-      character(len=*) :: iptStr
-      character(len=80) :: tokens(40)
-      integer :: numTokens
-      logical :: boolResult
-
-    
-      call parse(trim(iptStr), ' ', tokens, numTokens) 
-      if(numTokens==2 .AND. isInputNumber(trim(tokens(2)))) then 
-         
-        select case(cmd_loop)
-        case(CON_UPDATE_LOOP)
-            idxConUpdate = str2int(trim(tokens(2)))
-
-        case default
-            call zoa_emit('CHA Error: Not in update loop', "red")  
-            
-        end select
-      
-
-      else
-          call zoa_emit('Error:  Expect CHA r, where r is a number', "red")
-      end if      
-    end subroutine changeDatabase
-
-
-    subroutine evaluateCmd(iptStr)
-        character(len=*) :: iptStr
-        real(kind=long) :: result
-
-        result = evalfunc(iptStr(4:len_trim(iptStr)), .TRUE.)
-
-    end subroutine
-
-    function evalFunc(iptStr, logResult) result(res)
-        use data_registers, only: getData
-        character(len=*) :: iptStr 
-        real(kind=long) :: res 
-        logical, optional :: logResult
-
-        call getData(iptStr, res)
-
-
-        if (present(logResult)) then 
-            if(logResult) then
-                call LogTermFOR(real2str(res)) 
-            end if         
-        end if
-  
-
-
-    end function evalFunc
 
 end module

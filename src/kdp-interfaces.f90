@@ -6,7 +6,7 @@ subroutine POWSYM
 
 
    use global_widgets
-   use handlers, only : updateTerminalLog
+   use zoa_output, only : zoa_emit
     use zoa_plot
     !use mod_plotopticalsystem
 
@@ -68,7 +68,7 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
   PRINT *, "SIZE of no_surfaces is ", size(surfaceno)
 
   WRITE(conLong, FMTHDR) "Surface", "w_j", "s_j"
-  call updateTerminalLog(conLong, "black")
+  call zoa_emit(conLong, "black")
 
 
   do ii = 2, curr_lens_data % num_surfaces - 1
@@ -112,7 +112,7 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
       surfaceno(ii-1) = ii-1
 
       WRITE(conLong, FMT1) surfaceno(ii-1), w(ii-1), symcalc(ii-1)
-      call updateTerminalLog(conLong, "black")
+      call zoa_emit(conLong, "black")
 
 
   end do
@@ -122,11 +122,11 @@ PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
   !PRINT *, " w is ", w
   WRITE(conLong, *) " w_sum is ", w_sum
-  call updateTerminalLog(conLong, "black")
+  call zoa_emit(conLong, "black")
 
   !PRINT *, " s is ", symcalc
   WRITE(conLong, *) " s_sum is ", s_sum
-  call updateTerminalLog(conLong, "black")
+  call zoa_emit(conLong, "black")
 
     !call barchart2(x,y)
     ! print *, "Calling Plotter"
@@ -232,7 +232,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   use zoa_tab
   use gtk_draw_hl
   !use zoa_tab_manager
-  use handlers, only: zoatabMgr, updateTerminalLog
+  use handlers, only: zoatabMgr
+  use zoa_output, only: zoa_emit
 
   implicit none
 
@@ -313,7 +314,7 @@ subroutine FIR
   use global_widgets
   use iso_fortran_env, only: real64
   use type_utils, only: real2str
-  use handlers, only: updateTerminalLog
+  use zoa_output, only: zoa_emit
 
   implicit none
   !real(kind=real64) :: epRad, epPos
@@ -337,44 +338,44 @@ subroutine FIR
   call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
 
   !print *, "Is Object at Infinity? ", sysConfig%isObjectAfInf()
-  call updateTerminalLog("ENTRANCE PUPIL", "blue")
-  call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
-  call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")
+  call zoa_emit("ENTRANCE PUPIL", "blue")
+  call zoa_emit("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
+  call zoa_emit("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")
 
-  call updateTerminalLog("INFINITE CONJUGATES", "blue")
-  call updateTerminalLog("EFL       "//trim(real2str(curr_par_ray_trace%EFL,4)),"blue")
-  call updateTerminalLog("BFL       "//trim(real2str(curr_par_ray_trace%BFL,4)),"blue")
-  call updateTerminalLog("FFL       "//trim(real2str(curr_par_ray_trace%FFL,4)),"blue")
+  call zoa_emit("INFINITE CONJUGATES", "blue")
+  call zoa_emit("EFL       "//trim(real2str(curr_par_ray_trace%EFL,4)),"blue")
+  call zoa_emit("BFL       "//trim(real2str(curr_par_ray_trace%BFL,4)),"blue")
+  call zoa_emit("FFL       "//trim(real2str(curr_par_ray_trace%FFL,4)),"blue")
   
   if (sysConfig%isObjectAfInf()) then
-    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
-  call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
-  call updateTerminalLog("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
-  call updateTerminalLog("PARAXIAL IMAGE", "blue")
+    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+  call zoa_emit("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
+  call zoa_emit("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
+  call zoa_emit("PARAXIAL IMAGE", "blue")
   ! TODO:  Move this calc somewhere else
   call PROCESKDP("GET GPCY")
-  call updateTerminalLog(" HT      "//trim(real2str(reg(9),4)),"blue")
+  call zoa_emit(" HT      "//trim(real2str(reg(9),4)),"blue")
   call PROCESKDP("GET GPUCY")
-  call updateTerminalLog("ANG       "//trim(real2str(reg(9),4)),"blue")
-  call updateTerminalLog("ENTRANCE PUPIL", "blue")
-  call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
-  call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")
-  call updateTerminalLog("EXIT PUPIL", "blue")
-  call updateTerminalLog("DIA       "//trim(real2str(curr_par_ray_trace%EXPUPDIA,4)),"blue")
-  call updateTerminalLog("THI       "//trim(real2str(curr_par_ray_trace%EXPUPPOS,4)),"blue")
+  call zoa_emit("ANG       "//trim(real2str(reg(9),4)),"blue")
+  call zoa_emit("ENTRANCE PUPIL", "blue")
+  call zoa_emit("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
+  call zoa_emit("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")
+  call zoa_emit("EXIT PUPIL", "blue")
+  call zoa_emit("DIA       "//trim(real2str(curr_par_ray_trace%EXPUPDIA,4)),"blue")
+  call zoa_emit("THI       "//trim(real2str(curr_par_ray_trace%EXPUPPOS,4)),"blue")
   else
-    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%EFL / &
+    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%EFL / &
     & curr_par_ray_trace%ENPUPDIA,4)),"blue")      
     
-    call updateTerminalLog("AT USED CONJUGATES", "blue")
+    call zoa_emit("AT USED CONJUGATES", "blue")
 
-    call updateTerminalLog("RED       "//trim(real2str(-1*curr_par_ray_trace%t_mag,4)),"blue")
-    call updateTerminalLog("FNO       "//trim(real2str(curr_par_ray_trace%imageDistance/ &
+    call zoa_emit("RED       "//trim(real2str(-1*curr_par_ray_trace%t_mag,4)),"blue")
+    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%imageDistance/ &
     & curr_par_ray_trace%EXPUPDIA,4)),"blue")
-    call updateTerminalLog("OBJ DIS   "//trim(real2str(curr_par_ray_trace%objectDistance,4)),"blue")
-    call updateTerminalLog("TT        "//trim(real2str(curr_par_ray_trace%TT,4)),"blue")
-    call updateTerminalLog("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
-    call updateTerminalLog("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
+    call zoa_emit("OBJ DIS   "//trim(real2str(curr_par_ray_trace%objectDistance,4)),"blue")
+    call zoa_emit("TT        "//trim(real2str(curr_par_ray_trace%TT,4)),"blue")
+    call zoa_emit("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
+    call zoa_emit("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
   end if
 
 
@@ -427,7 +428,8 @@ subroutine PLTIMTST
 
   USE GLOBALS
   use command_utils
-  use handlers, only: zoatabMgr, updateTerminalLog
+  use handlers, only: zoatabMgr
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig
   use zoa_ui
   use zoa_plot
@@ -480,7 +482,7 @@ real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
 
 real(kind=pl_test_flt)   :: dx, dy
 type(c_ptr) :: canvas
-type(zoaPlotImg) :: zpImg 
+type(zoaPlotImg) :: zpImg
 type(multiplot) :: mplt
 
 INCLUDE 'DATMAI.INC'
@@ -519,7 +521,7 @@ print *, "index is ", index
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
- call updateTerminalLog(INPUT, "blue")
+ call zoa_emit(INPUT, "blue")
  inputCmd = INPUT
 
 if(cmdOptionExists('NUMPTS')) then
@@ -578,7 +580,8 @@ subroutine PLT3DTST
 
   USE GLOBALS
   use command_utils
-  use handlers, only: zoatabMgr, updateTerminalLog
+  use handlers, only: zoatabMgr
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig
   use zoa_ui
   use zoa_plot
@@ -632,7 +635,7 @@ real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
 
 real(kind=pl_test_flt)   :: dx, dy
 type(c_ptr) :: canvas
-type(zoaPlot3d) :: zp3d 
+type(zoaPlot3d) :: zp3d
 type(multiplot) :: mplt
 
 INCLUDE 'DATMAI.INC'
@@ -674,7 +677,7 @@ print *, "index is ", index
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
- call updateTerminalLog(INPUT, "blue")
+ call zoa_emit(INPUT, "blue")
  inputCmd = INPUT
 
 if(cmdOptionExists('NUMPTS')) then
@@ -938,11 +941,12 @@ subroutine powsym_ideal(surfaceno, w, w_sum, symcalc, s_sum)
 
   USE GLOBALS
   use command_utils
-  use handlers, only: zoatabMgr, updateTerminalLog
+  use handlers, only: zoatabMgr
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig
   use zoa_ui
   use zoa_plot
-  use gtk_draw_hl 
+  use gtk_draw_hl
   use iso_c_binding, only:  c_ptr, c_null_char
 
 
@@ -967,7 +971,7 @@ INCLUDE 'DATMAI.INC'
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
- call updateTerminalLog(INPUT, "blue")
+ call zoa_emit(INPUT, "blue")
  inputCmd = INPUT
 
  canvas = hl_gtk_drawing_area_new(size=[1200,500], &
@@ -1062,11 +1066,12 @@ subroutine plot_seidel()
 
   USE GLOBALS
   use command_utils
-  use handlers, only: zoatabMgr, updateTerminalLog
+  use handlers, only: zoatabMgr
+  use zoa_output, only: zoa_emit
   use global_widgets, only:  sysConfig, curr_lens_data,curr_par_ray_trace
   use zoa_ui
   use zoa_plot
-  use gtk_draw_hl 
+  use gtk_draw_hl
   use iso_c_binding, only:  c_ptr, c_null_char
 
 
@@ -1091,7 +1096,7 @@ character(len=23) :: cmdTxt
 
 INCLUDE 'DATMAI.INC'
 
-call updateTerminalLog(INPUT, "blue")
+call zoa_emit(INPUT, "blue")
 inputCmd = INPUT
 
 CALL PROCESKDP('MAB3 ALL')

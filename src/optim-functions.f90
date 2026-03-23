@@ -1,6 +1,6 @@
 module optim_functions
     use GLOBALS, only: long
-    use handlers, only: updateTerminalLog
+    use zoa_output, only: zoa_emit
     use type_utils
     use zoa_ui
     use global_widgets, only: ioConfig    

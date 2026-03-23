@@ -248,6 +248,39 @@ xtb_exe = executable(
   install: true
 )
 
+# Test runner executable (headless, no GResource needed)
+test_runner = executable(
+  'zoa_test',
+  sources: test_prog,
+  link_with: zoa_lib,
+  dependencies: [zoa_deps, thread_dep],
+  link_language: 'fortran',
+  install: false
+)
+
+# Test cases
+# is_parallel: false because tests share disk state (currlens.zoa temp file)
+test('basic_paraxial', test_runner,
+     args: [meson.project_source_root() / 'test/basic_paraxial.zoa',
+            meson.project_source_root() / 'test/basic_paraxial.ref'],
+     timeout: 60, is_parallel: false)
+
+test('fieldflattener', test_runner,
+     args: [meson.project_source_root() / 'test/fieldflattener.zoa',
+            meson.project_source_root() / 'test/fieldflattener.ref'],
+     timeout: 120, is_parallel: false)
+
+test('newlenstest', test_runner,
+     args: [meson.project_source_root() / 'test/newlensTest.zoa',
+            meson.project_source_root() / 'test/newlensTest.ref'],
+     timeout: 120, is_parallel: false)
+
+test('DoubleGaussTest', test_runner,
+     args: [meson.project_source_root() / 'test/DoubleGaussTest.zoa',
+            meson.project_source_root() / 'test/DoubleGaussTest.ref'],
+     timeout: 120, is_parallel: false)     
+
+
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'
   install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')

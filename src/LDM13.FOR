@@ -1856,7 +1856,7 @@ C
 
 
       SUBROUTINE PRINTSPECIALCATALOGMATERIALS
-            use handlers, only:  updateTerminalLog
+            use zoa_output, only:  zoa_emit
             use glass_manager
 
             integer :: i
@@ -1864,7 +1864,7 @@ C
             INCLUDE 'DATMAI.INC'  
 
             do i=1,size(specCat%names)
-                call updateTerminalLog('SPECIAL  '
+                call zoa_emit('SPECIAL  '
      1     //specCat%names(i), "black")
 
             end do

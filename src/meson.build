@@ -28,6 +28,7 @@ src_c += files('zoa_utils.c', 'ui-list-models.c', 'ui-operand-models.c', 'ui-con
 
 
 srcs += files(
+  'zoa-output.f90',
   'globals.FOR',
   'data-registers.f90',
   'mod-fft.f90',
@@ -223,7 +224,11 @@ srcs += files(
   'WAVSPOT6.FOR',
   'WAVSPOT7.FOR',
   'WAVSPOT8.FOR',
-  'ZMX2PRG.FOR'
+  'ZMX2PRG.FOR',
+  'zoa-headless-init.f90',
+  'zoa-test-capture.f90'
   )
+
+test_prog = files('zoa-test-runner.f90')
 
 prog += files('zoamain.F90')
