@@ -48,7 +48,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(611) :: zoaCmds
+    type(zoa_cmd), dimension(700) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -74,6 +74,12 @@ module codeV_commands
 
         integer :: i
         character(len=1), dimension(8) :: evenAsphereTerms = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
+        ! Initialize all command slots to empty (prevents garbage matches)
+        do i = 1, size(zoaCmds)
+            zoaCmds(i)%cmd = ''
+            zoaCmds(i)%execFunc => null()
+        end do
 
         ! Initialize null ptr textView to dump KDP print statements when needed
         call ioConfig%registerTextView(c_null_ptr, ID_TERMINAL_KDPDUMP)
@@ -259,9 +265,182 @@ module codeV_commands
         zoaCmds(591)%cmd = 'CHA'
         zoaCmds(591)%execFunc => changeDatabase  
         zoaCmds(592)%cmd = 'EVA'
-        zoaCmds(592)%execFunc => evaluateCmd                                                                          
+        zoaCmds(592)%execFunc => evaluateCmd
 
-        
+        ! ---- Batch migration from CMDER.FOR (simple commands) ----
+        zoaCmds(593)%cmd = 'ABSORB'
+        zoaCmds(593)%execFunc => wrap_ABSORB
+        zoaCmds(594)%cmd = 'ECHO'
+        zoaCmds(594)%execFunc => wrap_ECHO
+        ! CV2PRG kept in CMDER.FOR (calls PROCESKDP internally, needs CMDER context)
+        zoaCmds(595)%cmd = 'ZMX2PRG'
+        zoaCmds(595)%execFunc => wrap_ZMX2PRG
+        zoaCmds(597)%cmd = 'CF'
+        zoaCmds(597)%execFunc => wrap_CF
+        zoaCmds(598)%cmd = 'GCONVERT'
+        zoaCmds(598)%execFunc => wrap_GCONVERT
+        zoaCmds(599)%cmd = 'INI'
+        zoaCmds(599)%execFunc => wrap_INI
+        zoaCmds(600)%cmd = 'LTYPE'
+        zoaCmds(600)%execFunc => wrap_LTYPE
+        zoaCmds(601)%cmd = 'WV'
+        zoaCmds(601)%execFunc => wrap_WV
+        zoaCmds(602)%cmd = 'UNITS'
+        zoaCmds(602)%execFunc => wrap_UNITS
+        zoaCmds(603)%cmd = 'TPLATE'
+        zoaCmds(603)%execFunc => wrap_TPLATE
+        zoaCmds(604)%cmd = 'ASTOP'
+        zoaCmds(604)%execFunc => wrap_ASTOP
+        zoaCmds(605)%cmd = 'ZERNREPT'
+        zoaCmds(605)%execFunc => wrap_ZERNREPT
+        zoaCmds(606)%cmd = 'MODE'
+        zoaCmds(606)%execFunc => wrap_MODE
+        zoaCmds(607)%cmd = 'FINDGLAS'
+        zoaCmds(607)%execFunc => wrap_FINDGLAS
+        zoaCmds(608)%cmd = 'COLORSET'
+        zoaCmds(608)%execFunc => wrap_COLORSET
+        zoaCmds(609)%cmd = 'GREYSPOT'
+        zoaCmds(609)%execFunc => wrap_GREYSPOT
+        zoaCmds(610)%cmd = 'REFK'
+        zoaCmds(610)%execFunc => wrap_REFK
+        zoaCmds(611)%cmd = 'PIVAXIS'
+        zoaCmds(611)%execFunc => wrap_PIVAXIS
+        zoaCmds(612)%cmd = 'DISP'
+        zoaCmds(612)%execFunc => wrap_DISP
+        zoaCmds(613)%cmd = 'STILT'
+        zoaCmds(613)%execFunc => wrap_STILT
+        zoaCmds(614)%cmd = 'BTILT'
+        zoaCmds(614)%execFunc => wrap_BTILT
+        zoaCmds(615)%cmd = 'ROLL'
+        zoaCmds(615)%execFunc => wrap_ROLL
+        zoaCmds(616)%cmd = 'FLIP'
+        zoaCmds(616)%execFunc => wrap_FLIP
+        zoaCmds(617)%cmd = 'SPC'
+        zoaCmds(617)%execFunc => wrap_SPC
+        zoaCmds(618)%cmd = 'INVAR'
+        zoaCmds(618)%execFunc => wrap_INVAR
+        zoaCmds(619)%cmd = 'CHRSHIFT'
+        zoaCmds(619)%execFunc => wrap_CHRSHIFT
+        zoaCmds(620)%cmd = 'FIRD'
+        zoaCmds(620)%execFunc => wrap_FIRD
+        zoaCmds(621)%cmd = 'OBJLEV'
+        zoaCmds(621)%execFunc => wrap_OBJLEV
+        zoaCmds(622)%cmd = 'FIGURE'
+        zoaCmds(622)%execFunc => wrap_FIGURE
+        zoaCmds(623)%cmd = 'INCR'
+        zoaCmds(623)%execFunc => wrap_INCR
+        zoaCmds(624)%cmd = 'FOBDUMP'
+        zoaCmds(624)%execFunc => wrap_FOBDUMP
+        zoaCmds(625)%cmd = 'RAYDUMP'
+        zoaCmds(625)%execFunc => wrap_RAYDUMP
+        zoaCmds(626)%cmd = 'OPD'
+        zoaCmds(626)%execFunc => wrap_OPD
+        zoaCmds(627)%cmd = 'AUTO'
+        zoaCmds(627)%execFunc => wrap_AUTO
+        zoaCmds(628)%cmd = 'HEADINGS'
+        zoaCmds(628)%execFunc => wrap_HEADINGS
+        zoaCmds(629)%cmd = 'DXF'
+        zoaCmds(629)%execFunc => wrap_DXF
+        zoaCmds(630)%cmd = 'FANS'
+        zoaCmds(630)%execFunc => wrap_FANS
+        zoaCmds(631)%cmd = 'VIEOFF'
+        zoaCmds(631)%execFunc => wrap_VIEOFF
+        zoaCmds(632)%cmd = 'SHOWNSS'
+        zoaCmds(632)%execFunc => wrap_SHOWNSS
+        zoaCmds(633)%cmd = 'SPDSSI'
+        zoaCmds(633)%execFunc => wrap_SPDSSI
+        zoaCmds(634)%cmd = 'DET'
+        zoaCmds(634)%execFunc => wrap_DET
+        zoaCmds(635)%cmd = 'FANFIELD'
+        zoaCmds(635)%execFunc => wrap_FANFIELD
+        zoaCmds(636)%cmd = 'GRAOUT'
+        zoaCmds(636)%execFunc => wrap_GRAOUT
+        zoaCmds(637)%cmd = 'GRID'
+        zoaCmds(637)%execFunc => wrap_GRID
+        zoaCmds(638)%cmd = 'SPACE'
+        zoaCmds(638)%execFunc => wrap_SPACE
+        zoaCmds(639)%cmd = 'CUTOFF'
+        zoaCmds(639)%execFunc => wrap_CUTOFF
+        zoaCmds(640)%cmd = 'WAMAP'
+        zoaCmds(640)%execFunc => wrap_WAMAP
+        zoaCmds(641)%cmd = 'AMAP'
+        zoaCmds(641)%execFunc => wrap_AMAP
+        zoaCmds(642)%cmd = 'RAYLEIGH'
+        zoaCmds(642)%execFunc => wrap_RAYLEIGH
+        zoaCmds(643)%cmd = 'WEIGHT'
+        zoaCmds(643)%execFunc => wrap_WEIGHT
+        zoaCmds(644)%cmd = 'COST'
+        zoaCmds(644)%execFunc => wrap_COST
+        zoaCmds(645)%cmd = 'DEFORM'
+        zoaCmds(645)%execFunc => wrap_DEFORM
+        zoaCmds(646)%cmd = 'OUTFLAT'
+        zoaCmds(646)%execFunc => wrap_OUTFLAT
+        zoaCmds(647)%cmd = 'EXPUP'
+        zoaCmds(647)%execFunc => wrap_EXPUP
+        zoaCmds(648)%cmd = 'RSPH'
+        zoaCmds(648)%execFunc => wrap_RSPH
+        zoaCmds(649)%cmd = 'PRINT'
+        zoaCmds(649)%execFunc => wrap_PRINT
+        zoaCmds(650)%cmd = 'FITZERN'
+        zoaCmds(650)%execFunc => wrap_FITZERN
+        zoaCmds(651)%cmd = 'LISTOPD'
+        zoaCmds(651)%execFunc => wrap_LISTOPD
+        zoaCmds(652)%cmd = 'LISTZERN'
+        zoaCmds(652)%execFunc => wrap_LISTZERN
+        zoaCmds(653)%cmd = 'LISTREPT'
+        zoaCmds(653)%execFunc => wrap_LISTREPT
+        zoaCmds(654)%cmd = 'OIF'
+        zoaCmds(654)%execFunc => wrap_OIF
+        zoaCmds(655)%cmd = 'XXF'
+        zoaCmds(655)%execFunc => wrap_XXF
+        zoaCmds(656)%cmd = 'XXFF'
+        zoaCmds(656)%execFunc => wrap_XXFF
+        zoaCmds(657)%cmd = 'IMAGEDIR'
+        zoaCmds(657)%execFunc => wrap_IMAGEDIR
+        zoaCmds(658)%cmd = 'CAPFNOUT'
+        zoaCmds(658)%execFunc => wrap_CAPFNOUT
+        zoaCmds(659)%cmd = 'CAPGRID'
+        zoaCmds(659)%execFunc => wrap_CAPGRID
+        zoaCmds(660)%cmd = 'FUNNAME'
+        zoaCmds(660)%execFunc => wrap_FUNNAME
+        zoaCmds(661)%cmd = 'GLASSWV'
+        zoaCmds(661)%execFunc => wrap_GLASSWV
+        zoaCmds(662)%cmd = 'DO'
+        zoaCmds(662)%execFunc => wrap_DO
+        zoaCmds(663)%cmd = 'PRES'
+        zoaCmds(663)%execFunc => wrap_PRES
+        zoaCmds(664)%cmd = 'STATS'
+        zoaCmds(664)%execFunc => wrap_STATS
+        zoaCmds(665)%cmd = 'SPGR'
+        zoaCmds(665)%execFunc => wrap_SPGR
+        zoaCmds(666)%cmd = 'PRICE'
+        zoaCmds(666)%execFunc => wrap_PRICE
+        zoaCmds(667)%cmd = 'AUTOFUNC'
+        zoaCmds(667)%execFunc => wrap_AUTOFUNC
+        zoaCmds(668)%cmd = 'THM'
+        zoaCmds(668)%execFunc => wrap_THM
+        zoaCmds(669)%cmd = 'INR'
+        zoaCmds(669)%execFunc => wrap_INR
+        zoaCmds(670)%cmd = 'INRD'
+        zoaCmds(670)%execFunc => wrap_INRD
+        zoaCmds(671)%cmd = 'VIEOVER'
+        zoaCmds(671)%execFunc => wrap_VIEOVER
+        zoaCmds(672)%cmd = 'TFMOTION'
+        zoaCmds(672)%execFunc => wrap_TFMOTION
+        zoaCmds(673)%cmd = 'FLDSARE'
+        zoaCmds(673)%execFunc => wrap_FLDSARE
+        zoaCmds(674)%cmd = 'SEED'
+        zoaCmds(674)%execFunc => wrap_SEED
+        zoaCmds(675)%cmd = 'PROGSIZE'
+        zoaCmds(675)%execFunc => wrap_PROGSIZE
+        zoaCmds(676)%cmd = 'RAYERROR'
+        zoaCmds(676)%execFunc => wrap_RAYERROR
+        zoaCmds(677)%cmd = 'READIRAD'
+        zoaCmds(677)%execFunc => wrap_READIRAD
+        zoaCmds(678)%cmd = 'TSTCMDS'
+        zoaCmds(678)%execFunc => wrap_TSTCMDS
+
+
     end subroutine
 
     function startCodeVLensUpdateCmd(iptCmd) result(boolResult)
@@ -3202,21 +3381,458 @@ module codeV_commands
 
     function evalFunc(iptStr, logResult) result(res)
         use data_registers, only: getData
-        character(len=*) :: iptStr 
-        real(kind=long) :: res 
+        character(len=*) :: iptStr
+        real(kind=long) :: res
         logical, optional :: logResult
 
         call getData(iptStr, res)
 
 
-        if (present(logResult)) then 
+        if (present(logResult)) then
             if(logResult) then
-                call LogTermFOR(real2str(res)) 
-            end if         
+                call LogTermFOR(real2str(res))
+            end if
         end if
-  
+
 
 
     end function evalFunc
+
+    ! =========================================================================
+    ! Wrapper subroutines for simple CMDER.FOR commands
+    ! Each wraps a legacy subroutine to match the cmdImplementation interface
+    ! =========================================================================
+
+    subroutine wrap_ABSORB(iptStr)
+        character(len=*) :: iptStr
+        call ABSORB
+    end subroutine
+
+    subroutine wrap_ECHO(iptStr)
+        character(len=*) :: iptStr
+        call ECHO
+    end subroutine
+
+    subroutine wrap_CV2PRG(iptStr)
+        character(len=*) :: iptStr
+        call CV2PRG
+        ! execSAV call temporarily removed for debugging
+        !call execSAV('SAV')
+    end subroutine
+
+    subroutine wrap_ZMX2PRG(iptStr)
+        character(len=*) :: iptStr
+        call ZMX2PRG
+    end subroutine
+
+    subroutine wrap_CF(iptStr)
+        character(len=*) :: iptStr
+        call CFGPRT
+    end subroutine
+
+    subroutine wrap_GCONVERT(iptStr)
+        character(len=*) :: iptStr
+        call GCONVERT
+    end subroutine
+
+    subroutine wrap_INI(iptStr)
+        character(len=*) :: iptStr
+        call SINI
+    end subroutine
+
+    subroutine wrap_LTYPE(iptStr)
+        character(len=*) :: iptStr
+        call SLTYPE
+    end subroutine
+
+    subroutine wrap_WV(iptStr)
+        character(len=*) :: iptStr
+        call SWV
+    end subroutine
+
+    subroutine wrap_UNITS(iptStr)
+        character(len=*) :: iptStr
+        call SUNITS
+    end subroutine
+
+    subroutine wrap_TPLATE(iptStr)
+        character(len=*) :: iptStr
+        call TSTPLATE
+    end subroutine
+
+    subroutine wrap_ASTOP(iptStr)
+        character(len=*) :: iptStr
+        call SASTOP
+    end subroutine
+
+    subroutine wrap_ZERNREPT(iptStr)
+        character(len=*) :: iptStr
+        call ZERNREPT
+    end subroutine
+
+    subroutine wrap_MODE(iptStr)
+        character(len=*) :: iptStr
+        call SMODE
+    end subroutine
+
+    subroutine wrap_FINDGLAS(iptStr)
+        character(len=*) :: iptStr
+        call FNDGLS
+    end subroutine
+
+    subroutine wrap_COLORSET(iptStr)
+        character(len=*) :: iptStr
+        call COLORS
+    end subroutine
+
+    subroutine wrap_GREYSPOT(iptStr)
+        character(len=*) :: iptStr
+        call GREYSPOT
+    end subroutine
+
+    subroutine wrap_REFK(iptStr)
+        character(len=*) :: iptStr
+        call SREF
+    end subroutine
+
+    subroutine wrap_PIVAXIS(iptStr)
+        character(len=*) :: iptStr
+        call PIVAXOUT
+    end subroutine
+
+    subroutine wrap_DISP(iptStr)
+        character(len=*) :: iptStr
+        call HEXDISP
+    end subroutine
+
+    subroutine wrap_STILT(iptStr)
+        character(len=*) :: iptStr
+        call HEXSTILT
+    end subroutine
+
+    subroutine wrap_BTILT(iptStr)
+        character(len=*) :: iptStr
+        call HEXBTILT
+    end subroutine
+
+    subroutine wrap_ROLL(iptStr)
+        character(len=*) :: iptStr
+        call HEXROLL
+    end subroutine
+
+    subroutine wrap_FLIP(iptStr)
+        character(len=*) :: iptStr
+        call CVFLIP
+    end subroutine
+
+    subroutine wrap_SPC(iptStr)
+        character(len=*) :: iptStr
+        call SSPC
+    end subroutine
+
+    subroutine wrap_INVAR(iptStr)
+        character(len=*) :: iptStr
+        call INVAR
+    end subroutine
+
+    subroutine wrap_CHRSHIFT(iptStr)
+        character(len=*) :: iptStr
+        call CHRSHIFT
+    end subroutine
+
+    subroutine wrap_FIRD(iptStr)
+        character(len=*) :: iptStr
+        call FIRD
+    end subroutine
+
+    subroutine wrap_OBJLEV(iptStr)
+        character(len=*) :: iptStr
+        call OBJLEV
+    end subroutine
+
+    subroutine wrap_FIGURE(iptStr)
+        character(len=*) :: iptStr
+        call FIGURE
+    end subroutine
+
+    subroutine wrap_INCR(iptStr)
+        character(len=*) :: iptStr
+        call INCR
+    end subroutine
+
+    subroutine wrap_FOBDUMP(iptStr)
+        character(len=*) :: iptStr
+        call FOBDMP
+    end subroutine
+
+    subroutine wrap_RAYDUMP(iptStr)
+        character(len=*) :: iptStr
+        call RAYDMP
+    end subroutine
+
+    subroutine wrap_OPD(iptStr)
+        character(len=*) :: iptStr
+        call PROPD
+    end subroutine
+
+    subroutine wrap_AUTO(iptStr)
+        character(len=*) :: iptStr
+        call AUTO
+    end subroutine
+
+    subroutine wrap_HEADINGS(iptStr)
+        character(len=*) :: iptStr
+        call SETHED
+    end subroutine
+
+    subroutine wrap_DXF(iptStr)
+        character(len=*) :: iptStr
+        call DDXFF
+    end subroutine
+
+    subroutine wrap_FANS(iptStr)
+        character(len=*) :: iptStr
+        call RIMS
+    end subroutine
+
+    subroutine wrap_VIEOFF(iptStr)
+        character(len=*) :: iptStr
+        call VIEOFF
+    end subroutine
+
+    subroutine wrap_SHOWNSS(iptStr)
+        character(len=*) :: iptStr
+        call SHOWNSS
+    end subroutine
+
+    subroutine wrap_SPDSSI(iptStr)
+        character(len=*) :: iptStr
+        call SPDSSI
+    end subroutine
+
+    subroutine wrap_DET(iptStr)
+        character(len=*) :: iptStr
+        call DETECTOR
+    end subroutine
+
+    subroutine wrap_FANFIELD(iptStr)
+        character(len=*) :: iptStr
+        call FANFOV
+    end subroutine
+
+    subroutine wrap_GRAOUT(iptStr)
+        character(len=*) :: iptStr
+        call PPLOTT
+    end subroutine
+
+    subroutine wrap_GRID(iptStr)
+        character(len=*) :: iptStr
+        call MTFGRID
+    end subroutine
+
+    subroutine wrap_SPACE(iptStr)
+        character(len=*) :: iptStr
+        call SPACER
+    end subroutine
+
+    subroutine wrap_CUTOFF(iptStr)
+        character(len=*) :: iptStr
+        call CUTOFF
+    end subroutine
+
+    subroutine wrap_WAMAP(iptStr)
+        character(len=*) :: iptStr
+        call WAMAP
+    end subroutine
+
+    subroutine wrap_AMAP(iptStr)
+        character(len=*) :: iptStr
+        call AMAP
+    end subroutine
+
+    subroutine wrap_RAYLEIGH(iptStr)
+        character(len=*) :: iptStr
+        call RAYLEIGH
+    end subroutine
+
+    subroutine wrap_WEIGHT(iptStr)
+        character(len=*) :: iptStr
+        call WEIGHT
+    end subroutine
+
+    subroutine wrap_COST(iptStr)
+        character(len=*) :: iptStr
+        call COST
+    end subroutine
+
+    subroutine wrap_DEFORM(iptStr)
+        character(len=*) :: iptStr
+        call DEFIT
+    end subroutine
+
+    subroutine wrap_OUTFLAT(iptStr)
+        character(len=*) :: iptStr
+        call OUTFLT
+    end subroutine
+
+    subroutine wrap_EXPUP(iptStr)
+        character(len=*) :: iptStr
+        call EXPUP
+    end subroutine
+
+    subroutine wrap_RSPH(iptStr)
+        character(len=*) :: iptStr
+        call RSPH
+    end subroutine
+
+    subroutine wrap_PRINT(iptStr)
+        character(len=*) :: iptStr
+        call PRNLP
+    end subroutine
+
+    subroutine wrap_FITZERN(iptStr)
+        character(len=*) :: iptStr
+        call OPDLOD
+    end subroutine
+
+    subroutine wrap_LISTOPD(iptStr)
+        character(len=*) :: iptStr
+        call OPDLIS
+    end subroutine
+
+    subroutine wrap_LISTZERN(iptStr)
+        character(len=*) :: iptStr
+        call WRTCOEFS
+    end subroutine
+
+    subroutine wrap_LISTREPT(iptStr)
+        character(len=*) :: iptStr
+        call WRTREPORT
+    end subroutine
+
+    subroutine wrap_OIF(iptStr)
+        character(len=*) :: iptStr
+        call OIF
+    end subroutine
+
+    subroutine wrap_XXF(iptStr)
+        character(len=*) :: iptStr
+        call XXF
+    end subroutine
+
+    subroutine wrap_XXFF(iptStr)
+        character(len=*) :: iptStr
+        call XXFF
+    end subroutine
+
+    subroutine wrap_IMAGEDIR(iptStr)
+        character(len=*) :: iptStr
+        call IMAGEDIR
+    end subroutine
+
+    subroutine wrap_CAPFNOUT(iptStr)
+        character(len=*) :: iptStr
+        call OPDOUT
+    end subroutine
+
+    subroutine wrap_CAPGRID(iptStr)
+        character(len=*) :: iptStr
+        call CAPGRID
+    end subroutine
+
+    subroutine wrap_FUNNAME(iptStr)
+        character(len=*) :: iptStr
+        call FUNNAME
+    end subroutine
+
+    subroutine wrap_GLASSWV(iptStr)
+        character(len=*) :: iptStr
+        call GLSWVL
+    end subroutine
+
+    subroutine wrap_DO(iptStr)
+        character(len=*) :: iptStr
+        call DODODO
+    end subroutine
+
+    subroutine wrap_PRES(iptStr)
+        character(len=*) :: iptStr
+        call PRES
+    end subroutine
+
+    subroutine wrap_STATS(iptStr)
+        character(len=*) :: iptStr
+        call STATT
+    end subroutine
+
+    subroutine wrap_SPGR(iptStr)
+        character(len=*) :: iptStr
+        call SPGR
+    end subroutine
+
+    subroutine wrap_PRICE(iptStr)
+        character(len=*) :: iptStr
+        call PPRICE
+    end subroutine
+
+    subroutine wrap_AUTOFUNC(iptStr)
+        character(len=*) :: iptStr
+        call AUTOFUNC
+    end subroutine
+
+    subroutine wrap_THM(iptStr)
+        character(len=*) :: iptStr
+        call TTHM
+    end subroutine
+
+    subroutine wrap_INR(iptStr)
+        character(len=*) :: iptStr
+        call INRINR
+    end subroutine
+
+    subroutine wrap_INRD(iptStr)
+        character(len=*) :: iptStr
+        call INRINRD
+    end subroutine
+
+    subroutine wrap_VIEOVER(iptStr)
+        character(len=*) :: iptStr
+        call VIEOVER
+    end subroutine
+
+    subroutine wrap_TFMOTION(iptStr)
+        character(len=*) :: iptStr
+        call TFMOTION
+    end subroutine
+
+    subroutine wrap_FLDSARE(iptStr)
+        character(len=*) :: iptStr
+        call FLDSARE
+    end subroutine
+
+    subroutine wrap_SEED(iptStr)
+        character(len=*) :: iptStr
+        call MYNEWSEED
+    end subroutine
+
+    subroutine wrap_PROGSIZE(iptStr)
+        character(len=*) :: iptStr
+        call PROGSIZE
+    end subroutine
+
+    subroutine wrap_RAYERROR(iptStr)
+        character(len=*) :: iptStr
+        call RERROR
+    end subroutine
+
+    subroutine wrap_READIRAD(iptStr)
+        character(len=*) :: iptStr
+        call READIRAD
+    end subroutine
+
+    subroutine wrap_TSTCMDS(iptStr)
+        character(len=*) :: iptStr
+        call TestCommands
+    end subroutine
 
 end module

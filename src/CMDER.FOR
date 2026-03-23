@@ -405,10 +405,6 @@ C       PART DRAWINGS
         PDOK=.FALSE.
         RETURN
         END IF
-        IF(WC.EQ.'ABSORB') THEN
-        CALL ABSORB
-                RETURN
-                END IF
         IF(WC.EQ.'LENO')THEN
         GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
         GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
@@ -437,14 +433,7 @@ C       PART DRAWINGS
         CALL execSav('SAV')
         RETURN
         END IF
-        IF(WC.EQ.'ZMX2PRG')THEN
-        CALL ZMX2PRG
-        RETURN
-        END IF
-        IF(WC.EQ.'ECHO')THEN
-        CALL ECHO
-        RETURN
-        END IF
+        ! ZMX2PRG, ECHO migrated to codeV-commands.f90
         IF(WC.EQ.'POWSYM') THEN
           CALL POWSYM
         RETURN
@@ -496,14 +485,12 @@ C       PART DRAWINGS
           RETURN
         END IF        
 
+        ! TSTCMDS migrated to codeV-commands.f90
         IF(WC.EQ.'SANDBOX') THEN
           CALL Sandbox
-        END IF              
-        IF(WC.EQ.'TSTCMDS') THEN
-          CALL TestCommands
         END IF
         IF(WC.EQ.'FIR') THEN
-          CALL FIR !; RETURN
+          CALL FIR
         RETURN
         END IF
         IF(WC.EQ.'SPSRF'.AND.WQ.NE.'ON'.AND.
@@ -620,10 +607,6 @@ C       DO A FORCED RETURN TO CFG1
         CALL CFGCHG
         RETURN
         END IF
-        IF(WC.EQ.'CF') THEN
-        CALL CFGPRT
-        RETURN
-        END IF
         IF(WC.EQ.'DELCFG') THEN
         GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
         GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
@@ -706,32 +689,12 @@ C
         CALL PPRSPR
         RETURN
         END IF
-        IF(WC.EQ.'GCONVERT') THEN
-        CALL GCONVERT
-        RETURN
-        END IF
         IF(WC.EQ.'LI'.OR.WC.EQ.'LIC') THEN
         CALL SLI
         RETURN
         END IF
-        IF(WC.EQ.'INI') THEN
-        CALL SINI
-        RETURN
-        END IF
-        IF(WC.EQ.'LTYPE') THEN
-        CALL SLTYPE
-        RETURN
-        END IF
-        IF(WC.EQ.'WV') THEN
-        CALL SWV
-        RETURN
-        END IF
         IF(WC.EQ.'WV2') THEN
         CALL SWV2
-        RETURN
-        END IF
-        IF(WC.EQ.'UNITS') THEN
-        CALL SUNITS
         RETURN
         END IF
         IF(WC.EQ.'CW'.OR.WC.EQ.'PCW'.OR.
@@ -775,10 +738,6 @@ C
         CALL TEST_PLATE_IT
         RETURN
         END IF
-        IF(WC.EQ.'TPLATE') THEN
-        CALL TSTPLATE
-        RETURN
-                   END IF
         IF(WC.EQ.'CTG'.OR.WC.EQ.'RTG') THEN
       testa=3.0d0
       testb=0.0d0
@@ -829,18 +788,6 @@ C
         !CALL PLOTISSU
         !RETURN
         !END IF
-        IF(WC.EQ.'ASTOP') THEN
-        CALL SASTOP
-        RETURN
-        END IF
-        IF(WC.EQ.'ZERNREPT') THEN
-        CALL ZERNREPT
-        RETURN
-        END IF
-        IF(WC.EQ.'MODE') THEN
-        CALL SMODE
-        RETURN
-        END IF
         IF(WC.EQ.'GLASSP') THEN
         IF(WQ.EQ.'GLAK'.AND.SST.EQ.0.OR.
      1WQ.EQ.'GLCAT'.AND.SST.EQ.0) THEN
@@ -855,14 +802,6 @@ C
         IF(WS(1:1).EQ.':') WS(1:80)=WS(2:80)
         CALL GLASSP
                    END IF
-        RETURN
-        END IF
-        IF(WC.EQ.'FINDGLAS') THEN
-        CALL FNDGLS
-        RETURN
-        END IF
-        IF(WC.EQ.'COLORSET') THEN
-        CALL COLORS
         RETURN
         END IF
         IF(WC.EQ.'DEG'.OR.WC.EQ.'RAD'.OR.WC.EQ.'TANGENT'
@@ -898,17 +837,9 @@ C
         CALL DUMOUT
         RETURN
         END IF
-        IF(WC.EQ.'GREYSPOT') THEN
-        CALL GREYSPOT
-        RETURN
-        END IF
         IF(WC.EQ.'TASPH') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL STASPH
-        RETURN
-        END IF
-        IF(WC.EQ.'REFK') THEN
-        CALL SREF
         RETURN
         END IF
         IF(WC.EQ.'REFS') THEN
@@ -951,30 +882,6 @@ C        CALL SPIDER
         CALL SPIV
         RETURN
         END IF
-        IF(WC.EQ.'PIVAXIS') THEN
-        CALL PIVAXOUT
-        RETURN
-        END IF
-        IF(WC.EQ.'DISP') THEN
-        CALL HEXDISP
-        RETURN
-        END IF
-        IF(WC.EQ.'STILT') THEN
-        CALL HEXSTILT
-        RETURN
-        END IF
-        IF(WC.EQ.'BTILT') THEN
-        CALL HEXBTILT
-        RETURN
-        END IF
-        IF(WC.EQ.'ROLL') THEN
-        CALL HEXROLL
-        RETURN
-        END IF
-        IF(WC.EQ.'FLIP') THEN
-        CALL CVFLIP
-        RETURN
-        END IF
         IF(WC.EQ.'RIN'.OR.WC.EQ.'RIN2') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL SRIN
@@ -1012,10 +919,6 @@ C        CALL SPIDER
         CALL SER
         RETURN
         END IF
-        IF(WC.EQ.'SPC') THEN
-        CALL SSPC
-        RETURN
-        END IF
         IF(WC.EQ.'SLV') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL PRSLV
@@ -1041,10 +944,6 @@ C        CALL SPIDER
      1  .OR.WC.EQ.'PRDIFFYR') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
         CALL PRDIFF
-        RETURN
-        END IF
-        IF(WC.EQ.'INVAR') THEN
-        CALL INVAR
         RETURN
         END IF
         IF(WC.EQ.'MAB3'.OR.WC.EQ.'XMAB3') THEN
@@ -1138,18 +1037,6 @@ C        CALL SPIDER
         CALL FCH
         RETURN
         END IF
-        IF(WC.EQ.'CHRSHIFT') THEN
-        CALL CHRSHIFT
-        RETURN
-        END IF
-        IF(WC.EQ.'FIRD') THEN
-        CALL FIRD
-        RETURN
-        END IF
-        IF(WC.EQ.'OBJLEV') THEN
-        CALL OBJLEV
-        RETURN
-        END IF
         IF(WC.EQ.'LOADMAC') THEN
           OUTLYNE = "LOADMAC COMMAND DISABLED"
           CALL SHOWIT(1)
@@ -1166,10 +1053,6 @@ C        CALL SPIDER
         END IF
         IF(WC.EQ.'CK'.OR.WC.EQ.'M') THEN
         CALL MESCOM
-        RETURN
-        END IF
-        IF(WC.EQ.'FIGURE') THEN
-        CALL FIGURE
         RETURN
         END IF
         IF(WC.EQ.'EXI'.OR.WC.EQ.'EXIT') THEN
@@ -1198,10 +1081,6 @@ C        CALL SPIDER
      2  'N2WORD'.OR.WC.EQ.'N3WORD'.OR.WC.EQ.'N4WORD'.OR.WC
      3  .EQ.'N5WORD') THEN
         CALL CWRITE
-        RETURN
-        END IF
-        IF(WC.EQ.'INCR') THEN
-        CALL INCR
         RETURN
         END IF
         IF(WC.EQ.'ATAN2') THEN
@@ -1856,10 +1735,6 @@ C     DONE, MSG BACK ON
         IF(F34.EQ.0) MSG=.TRUE.
         RETURN
         END IF
-        IF(WC.EQ.'READIRAD') THEN
-                CALL READIRAD
-                RETURN
-                END IF
         IF(WC.EQ.'MTRACEI1') THEN
         MSG=.FALSE.
 C       SHUT OFF DIFFERENTIAL TRACING
@@ -2596,14 +2471,6 @@ C       AND NO INDEPENDENT ERROR MESSAAGES ARE PRINTED
         CALL PRXYD
         RETURN
         END IF
-        IF(WC.EQ.'FOBDUMP') THEN
-        CALL FOBDMP
-        RETURN
-        END IF
-        IF(WC.EQ.'RAYDUMP') THEN
-        CALL RAYDMP
-        RETURN
-        END IF
         IF(WC.EQ.'VARIABLE'.OR.WC.EQ.'VARI') THEN
         TVBCNT=0
         PFAC=1.0D0
@@ -2769,38 +2636,10 @@ C
         CALL UFOCRIT
         RETURN
         END IF
-        IF(WC.EQ.'OPD') THEN
-        CALL PROPD
-        RETURN
-        END IF
-        IF(WC.EQ.'AUTO') THEN
-        CALL AUTO
-        RETURN
-        END IF
-        IF(WC.EQ.'HEADINGS') THEN
-        CALL SETHED
-        RETURN
-        END IF
         IF(WC.EQ.'PLOT'.OR.WC.EQ.'PNOTE') THEN
         IF(DEVTYP.NE.1) CALL PLTDEV
         PLOTCAPCON=.FALSE.
         CALL PPLOTT
-        RETURN
-        END IF
-        IF(WC.EQ.'DXF') THEN
-        CALL DDXFF
-        RETURN
-        END IF
-        IF(WC.EQ.'FANS') THEN
-        CALL RIMS
-        RETURN
-        END IF
-        IF(WC.EQ.'VIEOFF') THEN
-        CALL VIEOFF
-        RETURN
-        END IF
-        IF(WC.EQ.'SHOWNSS') THEN
-        CALL SHOWNSS
         RETURN
         END IF
         IF(WC.EQ.'VIEVIG') THEN
@@ -2847,18 +2686,6 @@ C
         !CACOCHVIE=0
         RETURN
         END IF
-        IF(WC.EQ.'SPDSSI') THEN
-        CALL SPDSSI
-        RETURN
-        END IF
-        IF(WC.EQ.'DET') THEN
-        CALL DETECTOR
-        RETURN
-        END IF
-        IF(WC.EQ.'FANFIELD') THEN
-        CALL FANFOV
-        RETURN
-        END IF
         IF(WC.EQ.'ORIENT'.OR.WC.EQ.'NORIENT') THEN
        PLOTCAPCON=.FALSE.
         CALL PPLOTT
@@ -2874,10 +2701,6 @@ C        IF(WC.EQ.'REPLAY') THEN
 C        CALL REPLAYFILE
 C        RETURN
 C        END IF
-        IF(WC.EQ.'GRAOUT') THEN
-        CALL PPLOTT
-        RETURN
-        END IF
         IF(WC.EQ.'PLOT'.AND.WQ.NE.'DEV'.AND.F17.EQ.1) THEN
         OUTLYNE=
      1  'THIS PLOT COMMAND NOT OPERATIONAL AT THE "SPECT" LEVEL'
@@ -3637,10 +3460,6 @@ C
         CALL CAPFIX
         RETURN
         END IF
-        IF(WC.EQ.'GRID') THEN
-        CALL MTFGRID
-        RETURN
-        END IF
         IF(WC.EQ.'VAR'.OR.WC.EQ.'APSTREHL'.OR.WC.EQ.'STREHL') THEN
         CALL APSTREHL
         LSF=.FALSE.
@@ -3649,22 +3468,6 @@ C
         CPFNEXT=.FALSE.
         LDIF=.TRUE.
         LDIF2=.TRUE.
-        RETURN
-        END IF
-        IF(WC.EQ.'SPACE') THEN
-        CALL SPACER
-        RETURN
-        END IF
-        IF(WC.EQ.'CUTOFF') THEN
-        CALL CUTOFF
-        RETURN
-        END IF
-        IF(WC.EQ.'WAMAP') THEN
-        CALL WAMAP
-        RETURN
-        END IF
-        IF(WC.EQ.'AMAP') THEN
-        CALL AMAP
         RETURN
         END IF
         IF(WC.EQ.'DR/FR') THEN
@@ -3679,70 +3482,6 @@ C
         CALL CALL_USERSUBR
         RETURN
         END IF
-        IF(WC.EQ.'RAYLEIGH') THEN
-        CALL RAYLEIGH
-        RETURN
-        END IF
-        IF(WC.EQ.'WEIGHT') THEN
-        CALL WEIGHT
-        RETURN
-        END IF
-        IF(WC.EQ.'COST') THEN
-        CALL COST
-        RETURN
-        END IF
-        IF(WC.EQ.'DEFORM') THEN
-        CALL DEFIT
-        RETURN
-                   END IF
-        IF(WC.EQ.'OUTFLAT') THEN
-        CALL OUTFLT
-        RETURN
-        END IF
-        IF(WC.EQ.'EXPUP') THEN
-        CALL EXPUP
-        RETURN
-        END IF
-        IF(WC.EQ.'RSPH') THEN
-        CALL RSPH
-        RETURN
-        END IF
-        IF(WC.EQ.'PRINT') THEN
-        CALL PRNLP
-        RETURN
-        END IF
-        IF(WC.EQ.'FITZERN') THEN
-        CALL OPDLOD
-        RETURN
-        END IF
-        IF(WC.EQ.'LISTOPD') THEN
-        CALL OPDLIS
-        RETURN
-        END IF
-        IF(WC.EQ.'LISTZERN') THEN
-        CALL WRTCOEFS
-        RETURN
-        END IF
-        IF(WC.EQ.'LISTREPT') THEN
-        CALL WRTREPORT
-        RETURN
-        END IF
-        IF(WC.EQ.'OIF') THEN
-        CALL OIF
-        RETURN
-        END IF
-        IF(WC.EQ.'XXF') THEN
-        CALL XXF
-        RETURN
-        END IF
-        IF(WC.EQ.'XXFF') THEN
-        CALL XXFF
-        RETURN
-        END IF
-        IF(WC.EQ.'IMAGEDIR') THEN
-        CALL IMAGEDIR
-        RETURN
-        END IF
         IF(WC.EQ.'CAPFN') THEN
         GRASET=.FALSE.
         MSGSPD=.TRUE.
@@ -3750,33 +3489,13 @@ C
         CALL SPOT
         RETURN
         END IF
-        IF(WC.EQ.'CAPFNOUT') THEN
-        CALL OPDOUT
-        RETURN
-        END IF
-        IF(WC.EQ.'CAPGRID') THEN
-        CALL CAPGRID
-        RETURN
-        END IF
         IF(WC.EQ.'CAPFNIN'.OR.WC.EQ.'CAPFNADD'.OR.WC.EQ.
      1'CAPFNCLR') THEN
         CALL OPDIN
         RETURN
         END IF
-        IF(WC.EQ.'FUNNAME') THEN
-        CALL FUNNAME
-        RETURN
-        END IF
-        IF(WC.EQ.'GLASSWV') THEN
-        CALL GLSWVL
-        RETURN
-        END IF
         IF(WC.EQ.'LEPRT'.OR.WC.EQ.'LIS') THEN
         CALL LEPRT
-        RETURN
-        END IF
-        IF(WC.EQ.'DO') THEN
-        CALL DODODO
         RETURN
         END IF
         IF(WC.EQ.'THERM') THEN
@@ -3787,14 +3506,6 @@ C
                 ELSE
         CALL THERMGAS
                 END IF
-        RETURN
-        END IF
-        IF(WC.EQ.'PRES') THEN
-        CALL PRES
-        RETURN
-        END IF
-        IF(WC.EQ.'STATS') THEN
-        CALL STATT
         RETURN
         END IF
         IF(WC.EQ.'FOOT'.AND.WQ.NE.'GRID') THEN
@@ -3847,22 +3558,6 @@ C
         CALL GLSRIN
         RETURN
         END IF
-        IF(WC.EQ.'SPGR') THEN
-        CALL SPGR
-        RETURN
-        END IF
-        IF(WC.EQ.'PRICE') THEN
-        CALL PPRICE
-        RETURN
-        END IF
-        IF(WC.EQ.'AUTOFUNC') THEN
-        CALL AUTOFUNC
-        RETURN
-        END IF
-        IF(WC.EQ.'THM') THEN
-        CALL TTHM
-        RETURN
-        END IF
         IF(WC.EQ.'MAKEAUTO'.OR.WC.EQ.'DFTYPE'.OR.WC.EQ.'DFDEL'
      1.OR.WC.EQ.'FP'.OR.WC.EQ.'DFP'.OR.WC.EQ.'MONO'.OR.
      2WC.EQ.'POLY'.OR.WC.EQ.'DFGRID'.OR.WC.EQ.'DFHEX') THEN
@@ -3898,14 +3593,6 @@ C
         END IF
  6661   FORMAT('THE CURRENT MFG IS: ',A20)
  6662   FORMAT('THE CURRENT CATNUM IS: ',A20)
-        IF(WC.EQ.'INR') THEN
-        CALL INRINR
-        RETURN
-        END IF
-        IF(WC.EQ.'INRD') THEN
-        CALL INRINRD
-        RETURN
-        END IF
         IF(WC.EQ.'AST'.OR.WC.EQ.'DIST'.OR.WC.EQ.'FLDCV'
      1.OR.WC.EQ.'FISHDIST') THEN
         CALL FIELDABS
@@ -3950,18 +3637,6 @@ C
         ! once I clean up the loading lens part to update sysConfig at the proper end
         ! this will no longer be needed  
         call sysConfig%setNumFields(CFLDCNT)
-        RETURN
-        END IF
-        IF(WC.EQ.'VIEOVER') THEN
-        CALL VIEOVER
-        RETURN
-        END IF
-        IF(WC.EQ.'TFMOTION') THEN
-        CALL TFMOTION
-        RETURN
-        END IF
-        IF(WC.EQ.'FLDSARE') THEN
-        CALL FLDSARE
         RETURN
         END IF
         IF(WC.EQ.'MACDMP') THEN
@@ -4176,10 +3851,6 @@ C       SET MIN AND MAX THICKNESS/RADIUS LIMITS FOR VARIABLES
         CALL THRDLIM
         RETURN
         END IF
-        IF(WC.EQ.'SEED') THEN
-        CALL MYNEWSEED
-        RETURN
-        END IF
         IF(WC.EQ.'INVSENSI') THEN
 C       INITIATE INVERSE SENSITIVITY ANALYSIS
         F31=1
@@ -4197,14 +3868,6 @@ C       INITIATE MONTE-CARLO ANALYSIS
         IF(WC.EQ.'AVEC'.OR.WC.EQ.'BVEC'.OR.WC.EQ.'DOT'
      1  .OR.WC.EQ.'CROSS') THEN
        CALL VECTOROP
-        RETURN
-        END IF
-        IF(WC.EQ.'PROGSIZE') THEN
-       CALL PROGSIZE
-        RETURN
-        END IF
-        IF(WC.EQ.'RAYERROR') THEN
-       CALL RERROR
         RETURN
         END IF
         IF(WC.EQ.'SHUFFLE') THEN
