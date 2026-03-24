@@ -233,5 +233,7 @@ srcs += files(
   )
 
 test_prog = files('zoa-test-runner.f90')
+server_prog = files('zoa-server.f90')
+server_srcs = files('zmq-binding.f90')
 
 prog += files('zoamain.F90')

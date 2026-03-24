@@ -248,6 +248,19 @@ xtb_exe = executable(
   install: true
 )
 
+# ZeroMQ server executable (headless, for Jupyter integration)
+zmq_dep = dependency('libzmq', required: false)
+if zmq_dep.found()
+  zoa_server_exe = executable(
+    'zoa_server',
+    sources: [server_prog, server_srcs],
+    link_with: zoa_lib,
+    dependencies: [zoa_deps, thread_dep, zmq_dep],
+    link_language: 'fortran',
+    install: false
+  )
+endif
+
 # Test runner executable (headless, no GResource needed)
 test_runner = executable(
   'zoa_test',

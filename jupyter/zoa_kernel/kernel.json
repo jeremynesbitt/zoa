@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "zoa_kernel",
+    "-f",
+    "{connection_file}"
+  ],
+  "display_name": "Zoa",
+  "language": "zoa"
+}

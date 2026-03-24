@@ -10,6 +10,7 @@ module zoa_test_capture
   private
   public :: capture_handler, clear_capture, get_num_captured
   public :: write_captured_to_file, compare_with_reference
+  public :: get_captured_line_from_buffer
 
   integer, parameter :: MAX_LINES = 100000
   integer, parameter :: MAX_LINE_LEN = 512
@@ -190,6 +191,16 @@ contains
       pos = pos + 1
     end do
     token = line(start:pos-1)
+  end subroutine
+
+  subroutine get_captured_line_from_buffer(idx, line)
+    integer, intent(in) :: idx
+    character(len=*), intent(out) :: line
+    if (idx >= 1 .and. idx <= num_captured) then
+      line = captured(idx)
+    else
+      line = ''
+    end if
   end subroutine
 
 end module zoa_test_capture
