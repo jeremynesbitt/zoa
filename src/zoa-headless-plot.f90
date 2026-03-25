@@ -42,6 +42,18 @@ module zoa_headless_plot
       character(kind=c_char), intent(in) :: filename(*)
       integer(c_int) :: c_cairo_surface_write_to_png
     end function
+
+    subroutine c_cairo_set_source_rgb(cr, r, g, b) &
+        bind(c, name='cairo_set_source_rgb')
+      import :: c_ptr, c_double
+      type(c_ptr), value :: cr
+      real(c_double), value :: r, g, b
+    end subroutine
+
+    subroutine c_cairo_paint(cr) bind(c, name='cairo_paint')
+      import :: c_ptr
+      type(c_ptr), value :: cr
+    end subroutine
   end interface
 
 contains
@@ -58,6 +70,10 @@ contains
     height = 800
     surface = c_cairo_image_surface_create(CAIRO_FMT_RGB24, width, height)
     cr = c_cairo_create(surface)
+
+    ! Paint white background (RGB24 surface defaults to black)
+    call c_cairo_set_source_rgb(cr, 1.0d0, 1.0d0, 1.0d0)
+    call c_cairo_paint(cr)
 
     ! Render using existing DRAWOPTICALSYSTEM
     ! Pass c_null_ptr for widget and gdata (headless guards in kdp-draw.f90)
