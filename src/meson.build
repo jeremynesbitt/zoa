@@ -229,7 +229,9 @@ srcs += files(
   'WAVSPOT8.FOR',
   'ZMX2PRG.FOR',
   'zoa-headless-init.f90',
-  'zoa-test-capture.f90'
+  'zoa-test-capture.f90',
+  'zoa-plot-output.f90',
+  'zoa-headless-plot.f90'
   )
 
 test_prog = files('zoa-test-runner.f90')

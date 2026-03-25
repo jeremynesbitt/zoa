@@ -329,11 +329,15 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
     PRINT *, "Trying to draw system!"
     !call LogTermFOR("DRAW ptr is "//int2str(INT(loc(cairo_drawing_area),4)))
 
-
-
-    call c_f_pointer(gdata, ID_SETTING)
+    if (c_associated(gdata)) then
+      call c_f_pointer(gdata, ID_SETTING)
+    else
+      ! Headless mode — default to lens drawing
+      allocate(ID_SETTING)
+      ID_SETTING = ID_NEWPLOT_LENSDRAW
+    end if
     !call LogTermFOR("ID_SETTING is "//int2str(ID_SETTING))
-    
+
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
 
@@ -912,7 +916,9 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
           !call cairo_line_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
           call cairo_stroke(my_cairo_context)
           call cairo_move_to(my_cairo_context, X*1d0, (kdp_height-Y)*1d0)
-          call gtk_widget_queue_draw(cairo_drawing_area)
+          if (c_associated(cairo_drawing_area)) then
+            call gtk_widget_queue_draw(cairo_drawing_area)
+          end if
     !      CALL IGRLINETO(X,Y)
 
                        ELSE

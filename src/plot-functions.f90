@@ -193,10 +193,21 @@ subroutine vie_go(psm)
       if (allocated(currVieData)) deallocate(currVieData)
       allocate(currVieData(size(NEUTARRAY)))
       currVieData(1:size(NEUTARRAY)) = NEUTARRAY(1:size(NEUTARRAY))
-
     end if
 
+    if (HEADLESS_MODE) then
+      ! Headless: render directly to PNG
+      block
+        use zoa_headless_plot, only: render_vie_to_png
+        use zoa_plot_output, only: next_plot_path
+        character(len=512) :: png_path
+        png_path = next_plot_path()
+        call render_vie_to_png(trim(png_path))
+      end block
+      return
+    end if
 
+    ! GUI path: create/update plot tab
     pIdx = psm%plotNum
     inputCmd = trim(psm%generatePlotCommand())
     replot = .FALSE.
@@ -642,9 +653,9 @@ subroutine ast_go(psm)
 
      call psm%getAstigSettings(idxFieldXY, numPts)
 
-
-     call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
-
+     if (.not. HEADLESS_MODE) then
+       call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
+     end if
 
      select case (idxFieldXY)
      case (ID_AST_FIELD_Y)
@@ -659,23 +670,28 @@ subroutine ast_go(psm)
      CALL PROCESKDP('AST'//trim(ftext)//int2str(numPts))
      call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
 
-     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+     if (.not. HEADLESS_MODE) then
+       call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+     end if
 
-
-    canvas = hl_gtk_drawing_area_new(size=[800,500], &
-    & has_alpha=FALSE)
+    if (HEADLESS_MODE) then
+      canvas = c_null_ptr
+    else
+      canvas = hl_gtk_drawing_area_new(size=[800,500], &
+      & has_alpha=FALSE)
+    end if
     numPlots = 2
     if (lsa) numPlots = 3
   call mplt%initialize(canvas, 1,numPlots)
 
 
-  ! TODO:  Copy or mod the base function to 
+  ! TODO:  Copy or mod the base function to
   ! compute FLDCV and output the way I want it
   !CALL FLDCRV(2,DWORD1,DWORD2,ERROR)
   CALL PROCESKDP('FLDCV'//trim(ftext)//int2str(numPts))
   call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
- 
- 
+
+
    call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
    & xlabel='Field Curvature '//c_null_char, &
    & ylabel=sysConfig%getFieldText()//c_null_char, &
@@ -707,12 +723,14 @@ CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
   call mplt%set(1,numPlots,lin2)
   !call mplt%set(1,3,lin3)
 
+  if (HEADLESS_MODE) then
+    call mplt%draw()
+  else
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+    call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+  end if
 
-  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-  
-  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
-  
 end subroutine
 
 

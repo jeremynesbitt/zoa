@@ -17,6 +17,8 @@ program zoa_server
   use zoa_output, only: zoa_set_output_handler
   use zoa_test_capture, only: capture_handler, clear_capture, &
                                get_num_captured
+  use zoa_plot_output, only: plot_was_generated, last_plot_file, &
+                              clear_plot_output
   use iso_c_binding
   implicit none
 
@@ -96,6 +98,7 @@ program zoa_server
 
     ! Execute the command(s) and capture output
     call clear_capture()
+    call clear_plot_output()
 
     ! Redirect stdout during command execution to suppress PRINT * noise
     open(unit=6, file='/dev/null', status='old')
@@ -103,7 +106,15 @@ program zoa_server
     open(unit=6, file='/dev/stdout', status='old')
 
     ! Build reply from captured output
+    ! If a plot was generated, append __IMAGE__ marker
     reply = build_reply()
+    if (plot_was_generated) then
+      if (len_trim(reply) > 0) then
+        reply = trim(reply) // char(10) // '__IMAGE__' // trim(last_plot_file)
+      else
+        reply = '__IMAGE__' // trim(last_plot_file)
+      end if
+    end if
     rc = zmq_send_string(sock, reply, 0_c_int)
     deallocate(reply)
   end do

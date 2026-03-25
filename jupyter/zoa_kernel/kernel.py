@@ -3,11 +3,13 @@ Zoa Jupyter Kernel
 
 A Jupyter kernel that connects to the Zoa optical design engine
 via ZeroMQ. Each cell is sent as a command string; the engine's
-text output is returned and displayed.
+text output is returned and displayed. Plot commands (e.g. FIE; GO)
+produce inline PNG images.
 
 The kernel manages a zoa_server subprocess automatically.
 """
 
+import base64
 import os
 import signal
 import subprocess
@@ -125,11 +127,36 @@ class ZoaKernel(Kernel):
             reply = f'ERROR: {e}'
 
         if not silent and reply:
-            self.send_response(
-                self.iopub_socket,
-                'stream',
-                {'name': 'stdout', 'text': reply + '\n'},
-            )
+            lines = reply.split('\n')
+            text_lines = []
+            for line in lines:
+                if line.startswith('__IMAGE__'):
+                    png_path = line[len('__IMAGE__'):]
+                    try:
+                        with open(png_path, 'rb') as f:
+                            png_data = f.read()
+                        self.send_response(
+                            self.iopub_socket,
+                            'display_data',
+                            {
+                                'data': {
+                                    'image/png': base64.b64encode(png_data).decode(),
+                                },
+                                'metadata': {},
+                            },
+                        )
+                    except FileNotFoundError:
+                        text_lines.append(f'[Plot file not found: {png_path}]')
+                else:
+                    text_lines.append(line)
+            if text_lines:
+                text = '\n'.join(text_lines)
+                if text.strip():
+                    self.send_response(
+                        self.iopub_socket,
+                        'stream',
+                        {'name': 'stdout', 'text': text + '\n'},
+                    )
 
         return {
             'status': 'ok',

@@ -169,7 +169,7 @@ type :: multiplot
       logical :: m_hasTitle = .false.
       type(c_ptr) :: area = c_null_ptr
       type(c_ptr) :: cc = c_null_ptr
-      integer :: width, height
+      integer :: width = 1200, height = 500
 
 
       ! Bottom Panel Vars
@@ -302,12 +302,14 @@ contains
   ! THIS SUB NEEDS REFACTORING!!
   subroutine mp_draw(self)
 
+      use zoa_plot_output, only: set_plot_output, next_plot_path
 
       class(multiplot):: self
 
       type(c_ptr)  :: cc, cs, isurface
       character(len=20) :: string
       character(len=25) :: geometry
+      character(len=512) :: plot_png_path
       integer :: m, n
       integer :: plparseopts_rc
       integer :: plsetopt_rc
@@ -330,65 +332,61 @@ contains
       !      & 127, 85, 170/)
    
       PRINT *, "Starting mp_plot routine"
-      PRINT *, "DRAWING AREA PTR IS ", LOC(self%area)
 
-
-
-      ! Added if statement 6/5 b/c I don't think this is adding any value when area is undefined
-      isurface = c_null_ptr
-      if (c_associated(self%area)) then
-
-        isurface = g_object_get_data(self%area, "backing-surface")
-        PRINT *, "isurface in mp_draw is ", LOC(isurface)
-
-
-      if (.not. c_associated(isurface)) then
-        call LogTermFOR("Loose pointer in mp_draw")
-         PRINT *, "mp_draw :: Backing surface is NULL"
-        isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
-        isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-        call g_object_set_data(self%area, "backing-surface", isurface)
-      end if
-      end if
-
-      PRINT *, "self%area is now", LOC(self%area)
-
-      cc = hl_gtk_drawing_area_cairo_new(self%area)
-      cs = cairo_get_target(cc)
-
-      call logger%logText("AFTER CS DEFINED")
-      !  Initialize plplot
-     ! call plscmap0(rrval, ggval, bbval)
+      ! Initialize plplot color map (shared by both modes)
       call plscmap0((/255, 0, 255, &
       & 0, 0, 0, 255, 255, 255, 127, 0, 0, 127, 255, 85, 170/),&
       & (/ 255, 0, 0, 255, 0, 255, 0, 255, 127, 255, 255, 127,&
       & 0, 0, 85, 170/),(/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
       & 127, 85, 170/))
-      call logger%logText("AFTER PLPLOT MAP CALLED")
 
-      !call plscolbg(1,1,1)
-      call plsdev("extcairo")
+      if (HEADLESS_MODE) then
+        ! Headless: render to PNG file via pngcairo driver
+        plot_png_path = next_plot_path()
+        call plsdev("pngcairo")
+        call plsfnam(trim(plot_png_path))
+        plsetopt_rc = plsetopt("drvopt", "set_background=1")
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+        write(geometry, "(I0,'x',I0)") self%width, self%height
+        plsetopt_rc = plsetopt('geometry', geometry)
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+      else
+        ! GUI: render to extcairo on GTK backing surface
+        PRINT *, "DRAWING AREA PTR IS ", LOC(self%area)
 
-      ! By default the "extcairo" driver does not reset the background
-      ! This is equivalent to the command line option "-drvopt set_background=1"
-      plsetopt_rc = plsetopt("drvopt", "set_background=1")
-      call logger%logText("AFTER PLPLOT Background set")
-      if (plsetopt_rc .ne. 0) stop "plsetopt error"
+        isurface = c_null_ptr
+        if (c_associated(self%area)) then
+          isurface = g_object_get_data(self%area, "backing-surface")
+          PRINT *, "isurface in mp_draw is ", LOC(isurface)
 
-  !      Process command-line arguments
-  !plparseopts(PL_PARSE_FULL)
-  !if(plparseopts_rc .ne. 0) stop "plparseopts error"
+          if (.not. c_associated(isurface)) then
+            call LogTermFOR("Loose pointer in mp_draw")
+            PRINT *, "mp_draw :: Backing surface is NULL"
+            isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+            isurface = cairo_surface_reference(isurface)
+            call g_object_set_data(self%area, "backing-surface", isurface)
+          end if
+        end if
 
-      !      Load color palettes
-      !call plspal0('cmap0_white_bg.pal')
+        PRINT *, "self%area is now", LOC(self%area)
 
-      ! The "extcairo" device doesn't read the size from the context.
-      write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
-           & cairo_image_surface_get_height(cs)
-      call logger%logText('GEOMETRY IS '//geometry)
-      plsetopt_rc = plsetopt( 'geometry', geometry)
-      call logger%logText("AFTER plsetopt")
-      if (plsetopt_rc .ne. 0) stop "plsetopt error"
+        cc = hl_gtk_drawing_area_cairo_new(self%area)
+        cs = cairo_get_target(cc)
+
+        call logger%logText("AFTER CS DEFINED")
+
+        call plsdev("extcairo")
+        plsetopt_rc = plsetopt("drvopt", "set_background=1")
+        call logger%logText("AFTER PLPLOT Background set")
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+
+        write(geometry, "(I0,'x',I0)") cairo_image_surface_get_width(cs), &
+             & cairo_image_surface_get_height(cs)
+        call logger%logText('GEOMETRY IS '//geometry)
+        plsetopt_rc = plsetopt( 'geometry', geometry)
+        call logger%logText("AFTER plsetopt")
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+      end if
 
       !call plinit()
       !  Divide page into 2x2 plots
@@ -406,7 +404,7 @@ contains
       
       call plstar(1_c_int,1_c_int)
 
-      call pl_cmd(PLESC_DEVINIT, cc)
+      if (.not. HEADLESS_MODE) call pl_cmd(PLESC_DEVINIT, cc)
 
       call pladv(0) ! Comment this out when using the subpage way!
       !
@@ -464,8 +462,8 @@ contains
     else
       
       call plstar(self%m_cols,self%m_rows)
-      
-        call pl_cmd(PLESC_DEVINIT, cc)
+
+        if (.not. HEADLESS_MODE) call pl_cmd(PLESC_DEVINIT, cc)
      
       do m=1, self%m_rows
         do n=1, self%m_cols
@@ -498,8 +496,13 @@ contains
 
       !    Don't forget to call PLEND to finish off!
       call plend
-      call gtk_widget_queue_draw(self%area)
-      call hl_gtk_drawing_area_cairo_destroy(self%cc)
+
+      if (HEADLESS_MODE) then
+        call set_plot_output(trim(plot_png_path))
+      else
+        call gtk_widget_queue_draw(self%area)
+        call hl_gtk_drawing_area_cairo_destroy(self%cc)
+      end if
 
       end subroutine
 
