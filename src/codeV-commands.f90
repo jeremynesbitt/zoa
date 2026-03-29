@@ -2051,14 +2051,29 @@ module codeV_commands
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-        logical :: processResult 
+        logical :: processResult
         integer :: s0, sf, dotLoc
+        character(len=256) :: normalStr
+        integer :: ci, ni
 
         processResult = .FALSE.
 
         ! TODO add some sort of isValidConstraintUpdate() func to avoid this mess and allow for future expansion
         if(cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
-          call parse(iptStr, ' ', tokens, numTokens)
+          ! Normalize compact forms like "SAS=0" or "EFL>50" to "SAS = 0" before space-splitting
+          normalStr = ''
+          ni = 1
+          do ci = 1, len_trim(iptStr)
+            select case (iptStr(ci:ci))
+            case ('=', '<', '>')
+              normalStr(ni:ni) = ' '; ni = ni + 1
+              normalStr(ni:ni) = iptStr(ci:ci); ni = ni + 1
+              normalStr(ni:ni) = ' '; ni = ni + 1
+            case default
+              normalStr(ni:ni) = iptStr(ci:ci); ni = ni + 1
+            end select
+          end do
+          call parse(trim(normalStr), ' ', tokens, numTokens)
 
         if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then ! The only correct answer here
             if (trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') then 

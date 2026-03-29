@@ -42,7 +42,6 @@ module kdp_utils
     boolResult = .FALSE.
     IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.
     IF(F1.EQ.0.AND.F6.EQ.1) boolResult = .TRUE.
-    IF(F6.EQ.1.AND.F10.EQ.0.OR.F6.EQ.1.AND.F11.EQ.0) boolResult = .TRUE.
  
   end function
 
