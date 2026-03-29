@@ -291,7 +291,12 @@ test('newlenstest', test_runner,
 test('DoubleGaussTest', test_runner,
      args: [meson.project_source_root() / 'test/DoubleGaussTest.zoa',
             meson.project_source_root() / 'test/DoubleGaussTest.ref'],
-     timeout: 120, is_parallel: false)     
+     timeout: 120, is_parallel: false)
+
+test('macro_ex1', test_runner,
+     args: [meson.project_source_root() / 'test/macro_ex1.zoa',
+            meson.project_source_root() / 'test/macro_ex1.ref'],
+     timeout: 120, is_parallel: false)
 
 
 if system == 'darwin'

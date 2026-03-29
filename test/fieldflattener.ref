@@ -2,7 +2,6 @@
 Number of tokens is 1
 File name to save is /Users/jeremy/Library/Application Support/Zoa/Temp/currlens.zoa
 FUll Path is /Users/jeremy/Library/Application Support/Zoa/Temp/currlens.zoa
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
@@ -69,7 +68,6 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00148   0.00013  -0.00019   0.00017   0.00006   0.00000   0.00000
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
@@ -136,7 +134,6 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00148   0.00013  -0.00019   0.00017   0.00006   0.00000   0.00000
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
@@ -203,7 +200,6 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00098   0.00065  -0.00099  -0.00091   0.00143   0.00000   0.00000
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
@@ -270,7 +266,6 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00148   0.00013  -0.00019   0.00017   0.00006   0.00000   0.00000
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
@@ -337,7 +332,6 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00148   0.00013  -0.00019   0.00017   0.00006   0.00000   0.00000
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
@@ -404,7 +398,6 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00148   0.00013  -0.00019   0.00017   0.00006   0.00000   0.00000
-
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
 SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3

@@ -2992,7 +2992,7 @@ C     OPERATIONS, USED ONLY IN LENO
 C     II=11 MEANS II=10 BUT NO STRIP OPERATIONS, USED ONLY IN LENO
 C     II = 19 DEBUG
 C
-      use global_widgets, only: debug_messages
+      use global_widgets, only: debug_messages, ioConfig
       use zoa_output
 
 
@@ -3025,10 +3025,14 @@ C           for now hack to print to terminal
 C      WRITE (*, '(a)') 'Call to SHOWIT'
        IF (II.LT.2) THEN
        !PRINT *, OUTLYNE
-       call zoa_emit(trim(OUTLYNE),
-     1 "black")
-C       call gtk_text_buffer_insert_at_cursor(buffer,
-C     1 OUTLYNE//C_NEW_LINE//c_null_char, -1_c_int)
+C      Respect PROCESSILENT suppression: when dumpText is TRUE, ioConfig has
+C      redirected output to the KDPDUMP sink (suppress mode). Skip zoa_emit so
+C      that headless mode matches GUI behaviour (updateTerminalLog also skips
+C      when textView is c_null_ptr, i.e. the KDPDUMP sink).
+       if (.not. ioConfig%dumpText) then
+         call zoa_emit(trim(OUTLYNE),
+     1   "black")
+       end if
        !call pending_events()
        END IF
 

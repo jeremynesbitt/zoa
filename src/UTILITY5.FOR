@@ -2980,8 +2980,6 @@ C               MACRO
       CALL SHOWIT(1)
       OUTLYNE=INPUT
       CALL SHOWIT(1)
-      OUTLYNE = "LINE 2962"
-      CALL SHOWIT(19)
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F6.EQ.1) THEN
