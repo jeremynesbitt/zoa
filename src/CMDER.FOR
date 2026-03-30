@@ -84,7 +84,7 @@ C
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATSP1.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATMAC.INC'
+C        INCLUDE 'DATMAC.INC' - binary macro system removed
         INCLUDE 'DATHGR.INC'
         REAL*8 TESTA,TESTB,TESTC,TESTD,TESTE
 C
@@ -127,7 +127,7 @@ C
 C       CHECK FOR SPECT SUB-LEVEL
 C
         IF(F17.EQ.0.AND.WC.EQ.'ITF'.OR.F17.EQ.0.AND.WC.EQ.'ILF'
-     1  .OR.F17.EQ.0.AND.WC.EQ.'IMF'.OR.F17.EQ.0.AND.WC.EQ.'PROCEED'
+     1  .OR.F17.EQ.0.AND.WC.EQ.'PROCEED'
      2  .OR.F17.EQ.0.AND.WC.EQ.'IPF') THEN
 C       ILF
         IF(WC.EQ.'ILF') THEN
@@ -247,45 +247,6 @@ C       IPF
                 F33=0
                 RETURN
                 END IF
-C       IMF
-        IF(WC.EQ.'IMF') THEN
-        IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE='"IMF" TAKES NO EXPLICIT INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        OUTLYNE='WARNING:'
-        CALL SHOWIT(1)
-        OUTLYNE='IF THE NEXT COMMAND IS "PROCEED" YOUR MACRO LIBRARY'
-        CALL SHOWIT(1)
-        OUTLYNE='WILL BE ERASED'
-        CALL SHOWIT(1)
-                F49=1
-                RETURN
-                END IF
-        IF(WC.EQ.'PROCEED'.AND.F49.EQ.1) THEN
-        IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE='"PROCEED" TAKES NO EXPLICIT INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        F49=0
-                        CALL MACFAL
-                        RETURN
-                        END IF
-                CALL IMF
-                F49=0
-                RETURN
-                END IF
-        IF(WC.NE.'PROCEED'.AND.F49.EQ.1) THEN
-      OUTLYNE='IMF CANCELLED'
-      CALL SHOWIT(1)
-                F49=0
-                RETURN
-                END IF
         IF(WC.EQ.'PROCEED'.AND.F45.EQ.0) THEN
       OUTLYNE='NO ITF ACTION TAKEN'
       CALL SHOWIT(1)
@@ -301,18 +262,13 @@ C       IMF
       CALL SHOWIT(1)
                 RETURN
                 END IF
-        IF(WC.EQ.'PROCEED'.AND.F49.EQ.0) THEN
-      OUTLYNE='NO IMF ACTION TAKEN'
-      CALL SHOWIT(1)
-                RETURN
-                END IF
                 END IF
         IF(F17.EQ.1.AND.WC.EQ.'ITF'.OR.F17.EQ.1.AND.WC.EQ.'ILF'
-     1  .OR.F17.EQ.1.AND.WC.EQ.'IMF'.OR.F17.EQ.1.AND.WC.EQ.
-     2  'PROCEED'.OR.F17.EQ.1.AND.WC.EQ.'IPF') THEN
+     1  .OR.F17.EQ.1.AND.WC.EQ.'PROCEED'
+     2  .OR.F17.EQ.1.AND.WC.EQ.'IPF') THEN
 C       WE ARE AT SPECT
         OUTLYNE=
-     1  '"ILF", "IMF", "ITF" AND "IPF" NOT VALID AT "SPECT" LEVEL'
+     1  '"ILF", "ITF" AND "IPF" NOT VALID AT "SPECT" LEVEL'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1087,29 +1043,6 @@ C        CALL SPIDER
         CALL ATANN2
         RETURN
         END IF
-        IF(WC.EQ.'MACRO') THEN
-        HNAM=WQ
-        SAVE_KDP(1)=SAVEINPT(1)
-        INPUT='MDEL '//TRIM(WQ)
-        CALL PROCES
-        REST_KDP(1)=RESTINPT(1)
-        IF(SST.EQ.1.OR.SN.EQ.1) THEN
-        OUTLYNE=
-     1  '"MACRO" ONLY TAKES QUALIFIER INPUT'
-      CALL SHOWIT(1)
-        OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-                        CALL MACFAL
-                        RETURN
-                        END IF
-        F1=0
-        F2=1
-        F16=0
-C               F1 SET BACK TO 1 AND F2 SET BACK TO 0 AT THE
-C               END OF SUBROUTINE EEOM
-        CALL NEWMAC
-        RETURN
-        END IF
         IF(WC.EQ.'LENS') THEN
                 PFAC=1.0D0
       IF(RAYCLEAR) THEN
@@ -1153,83 +1086,6 @@ C        IF(WC.EQ.'CLS') THEN
 C        CALL MY_CLS
 C        RETURN
 C        END IF
-        IF(WC.EQ.'MRENAME') THEN
-        CALL MRENAME
-        RETURN
-        END IF
-        IF(WC.EQ.'MCOPY') THEN
-        CALL MCOPY
-        RETURN
-        END IF
-        IF(WC.EQ.'MREFRESH') THEN
-        CALL MREFRESH
-        RETURN
-        END IF
-        IF(WC.EQ.'LMEDIT') THEN
-        SAVE_KDP(1)=SAVEINPT(1)
-        INPUT='REPLACE'
-        CALL PROCES
-        REST_KDP(1)=RESTINPT(1)
-        CALL MMEDIT
-        RETURN
-        END IF
-        IF(WC.EQ.'MEDIT') THEN
-        SAVE_KDP(1)=SAVEINPT(1)
-        INPUT='REPLACE'
-        CALL PROCES
-        REST_KDP(1)=RESTINPT(1)
-        CALL FSMEDIT
-        RETURN
-        END IF
-        IF(WC.EQ.'MAC_EDIT') THEN
-        SAVE_KDP(1)=SAVEINPT(1)
-        INPUT='REPLACE'
-        CALL PROCES
-        REST_KDP(1)=RESTINPT(1)
-C WINTER
-C        CALL MAC_EDITOR
-        RETURN
-        END IF
-        IF(WC.EQ.'REWIND') THEN
-        CALL REWIND
-        RETURN
-        END IF
-        IF(WC.EQ.'MFLN') THEN
-        CALL MMFLN
-        RETURN
-        END IF
-        IF(WC.EQ.'MACSAVE') THEN
-        CALL MACSAV
-        RETURN
-        END IF
-        IF(WC.EQ.'MACREST') THEN
-        CALL MACRES
-        RETURN
-        END IF
-        IF(WC.EQ.'LIBSAVE') THEN
-        CALL LIBSAV
-        RETURN
-        END IF
-        IF(WC.EQ.'LIBREST') THEN
-        CALL LIBRES
-        RETURN
-        END IF
-        IF(WC.EQ.'MDEL') THEN
-        CALL MMDEL
-        RETURN
-        END IF
-        IF(WC.EQ.'MFL') THEN
-        CALL MMFL
-        RETURN
-        END IF
-        IF(WC.EQ.'MFLC') THEN
-        CALL MMFLC
-        RETURN
-        END IF
-        IF(WC.EQ.'MFLC1') THEN
-        CALL MMFLC1
-        RETURN
-        END IF
         IF(WC.EQ.'EJECT') THEN
         CALL EJECT
         RETURN
@@ -1254,18 +1110,6 @@ C
         END IF
         IF(WC.EQ.'INPUT'.OR.WC.EQ.'IN') THEN
         CALL INPUTT
-        RETURN
-        END IF
-        IF(WC.EQ.'MSTAT') THEN
-        CALL MSTAT
-        RETURN
-        END IF
-        IF(WC.EQ.'SAVE') THEN
-        CALL MSAVE
-        RETURN
-        END IF
-        IF(WC.EQ.'RELOAD') THEN
-        CALL RELOAD
         RETURN
         END IF
         IF(WC.EQ.'ENT'.OR.
