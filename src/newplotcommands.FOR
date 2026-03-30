@@ -22,7 +22,6 @@
 
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 
 
         PRINT *, "WAS ABLE TO ADD COMMAND!"

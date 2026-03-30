@@ -766,7 +766,6 @@ C
      1  ,VALWS4*80
 C
         INCLUDE 'DATCFG.INC'
-        INCLUDE 'DATMAC.INC'
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C

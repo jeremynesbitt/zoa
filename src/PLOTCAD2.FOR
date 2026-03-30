@@ -1556,7 +1556,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C       JN ADD HACK to figure out plotting
 !        INCLUDE 'DATHGR.INC'
 C
@@ -3735,7 +3734,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C
 C
         IF(DEVTYP.EQ.0) THEN

@@ -1617,7 +1617,6 @@ C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATCFG.INC'
-        INCLUDE 'DATMAC.INC'
 C
         IF(F12.EQ.1) THEN
                 CALL PTOC
