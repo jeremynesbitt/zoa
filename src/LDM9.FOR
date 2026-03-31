@@ -3107,7 +3107,6 @@ C
 C
         COMMON/MIJ/MMIJ
 C
-        INCLUDE 'DATMAC.INC'
         INCLUDE 'DATCFG.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
@@ -3146,16 +3145,7 @@ C*******************************************************************
  131  FORMAT('READY FOR MACRO ',A8,' INPUT AT LINE ',I3)
       CALL SHOWIT(1)
                 END IF
-                IF(F3.EQ.1) THEN
-        IF(CURLIN.EQ.0) THEN
-      OUTLYNE= 'LINE POINTER AT MACRO TOP'
-      CALL SHOWIT(1)
-                ELSE
-      WRITE(OUTLYNE,132) MCDIR1(MMIJ),CURLIN
- 132  FORMAT('MACRO ',A8,', EDITING AT LINE= ',I3)
-      CALL SHOWIT(1)
-                END IF
-                END IF
+C     F3=1 (macro editing mode) removed with binary macro system
                 IF(F5.EQ.1) THEN
       WRITE(OUTLYNE,133) SURF
  133  FORMAT('READY FOR LENS INPUT AT SURFACE NUMBER ',I3)

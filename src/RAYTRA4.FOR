@@ -17,7 +17,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
 C
@@ -163,46 +162,10 @@ C     NUMBERS 201 TO 248 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(294)=FTFL01(94,IR)
                         GPREG(295)=FTFL01(95,IR)
                         GPREG(296)=FTFL01(96,IR)
-                IF(.NOT.FUNEXT(9)) THEN
 C     NO FUN09 EXISTS, RETURN 0.0D0 AS THE Z CONTRIBUTION
                 PHASE=0.0D0
                 L1=0.0D0
                 M1=0.0D0
-                        ELSE
-C     FUN9 EXISTS, RUN FUN9
-                SAVE_KDP(12)=SAVEINPT(12)
-
-                WC='FUN09'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1:5)=0.0D0
-                FMDF(1:5)=1
-        NESFUN(0:10)=.FALSE.
-                KLI=9
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                F26=0
-                REST_KDP(12)=RESTINPT(12)
-C     PHASE IN RADIAN MEASURE IN THE IZ-REGISTER
-                PHASE=REG(15)
-C     CHANGE IN THE L-DIR COS IN THE IX-REGISTER
-                L1=REG(13)
-C     CHANGE IN THE M-DIR COS IN THE IY-REGISTER
-                M1=REG(14)
-                END IF
 C     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
       IF(SYSTEM(6).EQ.4.0D0)
      1PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
@@ -237,7 +200,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
 C
@@ -287,7 +249,6 @@ C     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
                 FAZE6=0.0D0
       ARG=DSQRT(DBLE(ARG1**2)+DBLE(ARG2**2))
                 DO I=9,48
@@ -407,7 +368,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
 C
@@ -457,7 +417,6 @@ C     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
         ARGA=DSQRT(DBLE(ARG1**2)+DBLE(ARG2**2))
       IF(ARG1.EQ.0.0D0.AND.ARG2.EQ.0.0D0) THEN
                         ARGB=0.0D0
@@ -592,7 +551,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
 C
@@ -643,7 +601,6 @@ C     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
                 FAZE10=0.0D0
         ARGA=DSQRT(DBLE(ARG1**2)+DBLE(ARG2**2))
       IF(ARG1.EQ.0.0D0.AND.ARG2.EQ.0.0D0) THEN
@@ -778,7 +735,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
 C
@@ -829,7 +785,6 @@ C     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
                 FAZE7=0.0D0
                 DO I=1,91
         IF(FTFL01(I,MYI).NE.0.0D0) THEN
@@ -944,7 +899,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
 C
@@ -995,7 +949,6 @@ C     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
                 FAZE15=0.0D0
         ARGA=DSQRT(DBLE(ARG1**2)+DBLE(ARG2**2))
       IF(ARG1.EQ.0.0D0.AND.ARG2.EQ.0.0D0) THEN
@@ -1202,7 +1155,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
 C
       INTEGER WWVN
       COMMON/WVPASS/WWVN
@@ -1327,42 +1279,10 @@ C     NUMBERS 201 TO 248 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(294)=FTFL01(94,IR)
                         GPREG(295)=FTFL01(95,IR)
                         GPREG(296)=FTFL01(96,IR)
-                IF(.NOT.FUNEXT(9)) THEN
 C     NO FUN09 EXISTS, RETURN 0.0D0 AS THE Z CONTRIBUTION
                 PHA=0.0D0
                 L1=0.0D0
                 M1=0.0D0
-                        ELSE
-C     FUN9 EXISTS, RUN FUN9
-                SAVE_KDP(12)=SAVEINPT(12)
-                WC='FUN09'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1:5)=0.0D0
-                FMDF(1:5)=1
-        NESFUN(0:10)=.FALSE.
-                KLI=9
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                F26=0
-                REST_KDP(12)=RESTINPT(12)
-                PHA=REG(15)*FTFL01(2,MYI)/WAVEY
-                L1=REG(13)*FTFL01(2,MYI)/WAVEY
-                M1=REG(14)*FTFL01(2,MYI)/WAVEY
-                END IF
                         RETURN
                         END
 C SUB PHAS13.FOR
@@ -1381,7 +1301,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
       IF(WVN.EQ.1) WAVEY=SYSTEM(1)
@@ -1412,7 +1331,6 @@ C
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       IF(FTFL01(11,MYI).EQ.2.0D0) THEN
                 FAZE13=0.0D0
                 DO I=1,78
@@ -1542,7 +1460,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
       IF(WVN.EQ.1) WAVEY=SYSTEM(1)
@@ -1577,7 +1494,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
       IF(WVN.EQ.1) WAVEY=SYSTEM(1)
@@ -1616,7 +1532,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       INTEGER WWVN
       COMMON/WVPASS/WWVN
       IF(WVN.EQ.1) WAVEY=SYSTEM(1)
@@ -1646,7 +1561,6 @@ C
       INTEGER I
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
       IF(FTFL01(11,MYI).EQ.1.0D0) THEN
               ARG=(ARG1**2)+(ARG2**2)
                 FAZE12=0.0D0

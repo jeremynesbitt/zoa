@@ -330,7 +330,6 @@ subroutine restoreLensFromVars(oldVars)
          use DATSUB
          use DATMAI
          use DATLEN
-         use DATMAC
          
 !
       IMPLICIT NONE

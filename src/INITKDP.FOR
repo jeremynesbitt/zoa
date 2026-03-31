@@ -127,7 +127,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATCFG.INC'
-        INCLUDE 'DATMAC.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
@@ -384,8 +383,6 @@ C     THIS IS USED WHEN GETTING A DERIVATIVE VALUE
 C
 
 
-C     SET MACRO OVERWRITEING NOW ALWAYS ON
-               ORITEM=.TRUE.
 C
 C     SET VIGOFF TO .FALSE.
                VIGOFF=.FALSE.
@@ -687,17 +684,7 @@ C
 C     SET DEFAULT RSPH TO CHIEF
       REFLOC=1
 C
-C     INITIALIZE ALTERNAMTE MACRO FUNCTION NAMES
-              FNAMED(1)='FUN01'
-              FNAMED(2)='FUN02'
-              FNAMED(3)='FUN03'
-              FNAMED(4)='FUN04'
-              FNAMED(5)='FUN05'
-              FNAMED(6)='FUN06'
-              FNAMED(7)='FUN07'
-              FNAMED(8)='FUN08'
-              FNAMED(9)='FUN09'
-              FNAMED(10)='FUN10'
+C     (FNAMED initialization removed - binary macro system removed)
                   DRWNAM='NEUTRAL.DAT'
  ! Set directories.  Base path and File separator should have been
  ! set based on os
@@ -728,8 +715,6 @@ C
 C       CALCULATION OF GLOBAL RAY PLOTTING DATA IS "OFF"
         PLTRAY=.FALSE.
 C
-C       SET FLAG FOR FUNCTIONS TO FALSE
-        FUNEXT(1:10)=.FALSE.
 C
 C       THE UNIT NUMBERS USED FOR FILE ACCESS ARE:
 C       5,6,7,8,9,10,11,12,13,16,17,18,19
@@ -793,12 +778,8 @@ C       IN THE DAT***.FOR ROUTINES IN INCLUDES
                         RHALFPII=SNGL(HALFPII)
 C       MAX NUMBER OF CONFIGS
 C       MAXIMUM NUMBER OF SURFACES = MAXSUR
-C       MAXIMUM NUMBER OF MACRO LINES
-C       MAXIMUM NUMBER OF MACROS
 C
-      MAXLIN=1024
       MAXSUR=499
-      MAXMAC=999
       MAXCFG=75
 
       !  write(1,*) 'Got to line 800'
@@ -921,12 +902,7 @@ C       THE INITIAL DEFAULT SETTING FOR F4 IS F4 = 0
                         F4=0
 C
 C       THE SPECIAL TRACE FLAG TF(NEST) TRACKS STATUS
-C       OF TRACE ON OR OFF IN MACRO EXECUTION AT VARIOUS
-C       NESTING LEVELS.
-C       TF(NEST)=1 IS TRACE ON, TF(NEST)=0 IS TRACE OFF
-C       DEFAULT IS TF(NEST)=0
-C
-                TF(0:20)=0
+C       (TF macro trace flags removed with binary macro system)
 C
 C       FLAG F5 TRACKS LENS INPUT MODE WHICH IS INITIALIZED
 C       BY THE 'LENS' COMMAND AND TERMINATED WITH EOS (END OF SUBFILE).
@@ -1237,68 +1213,7 @@ C       INITIALIZE TIMER
                 CALL SETTIM
 C
 C***********************************************************************
-C       INITIALIZE MACRO FUNCTIONS
-        call does_mac_dat_exist(EXISMC)
-        IF(EXISMC) THEN
-C       LOAD FUNCTIONS
-        macID = open_mac_dat()
-
-C
-        DO I=1,MAXMAC
-        READ(macID,REC=I,ERR=1012) MCDIR1(I),MCDIR2(1,I),MCDIR2(2,I),
-     1  MCDIR2(3,I),MCDIR3(I)
-C
-        KLI=0
-        IF(MCDIR1(I).EQ.'FUN01   ') KLI=1
-        IF(MCDIR1(I).EQ.'FUN02   ') KLI=2
-        IF(MCDIR1(I).EQ.'FUN03   ') KLI=3
-        IF(MCDIR1(I).EQ.'FUN04   ') KLI=4
-        IF(MCDIR1(I).EQ.'FUN05   ') KLI=5
-        IF(MCDIR1(I).EQ.'FUN06   ') KLI=6
-        IF(MCDIR1(I).EQ.'FUN07   ') KLI=7
-        IF(MCDIR1(I).EQ.'FUN08   ') KLI=8
-        IF(MCDIR1(I).EQ.'FUN09   ') KLI=9
-        IF(MCDIR1(I).EQ.'FUN10   ') KLI=10
-C
-        IF(KLI.NE.0) THEN
-        FUNEXT(KLI)=.TRUE.
-        FCDIR1(KLI)=MCDIR1(I)
-        FCDIR2(1,KLI)=MCDIR2(1,I)
-        FCDIR2(2,KLI)=MCDIR2(2,I)
-        FCDIR2(3,KLI)=MCDIR2(3,I)
-C       LOAD MACRO FUNCTIONS INTO THE FUNCTION STORAGE
-C
-C       NOW READ THE BODY OF THE MACRO STARTING AT RECORD 1 FROM FILE
-C       FILNAM AFTER DETERMINING FILNAM
-                        NF=I
-C
-                CALL MACFIL
-        CALL READMACROFILE(trim(LIBMAC)//FILNAM)
-
-        DO K=1,(FCDIR2(2,KLI))
-                L=K-1
-        FUNCW(KLI,L)=MACCW(L)
-        FUNQW(KLI,L)=MACQW(L)
-        FUNSTR(KLI,L)=MACSTR(L)
-           DO M = 1, 5
-               FUNNW(KLI,M,L)=MACNW(M,L)
-           END DO
-           DO M = 1, 20
-              FUNSTA(KLI,M,L)=MACSTA(M,L)
-          END DO
-
-        END DO
-C       FUNCTION LOADED
-C       CHECK FOR NEXT MACRO NAME
-                        END IF
- 1012   CONTINUE
-        END DO
-C
-C       CLOSE UNIT 20 TO I/O
-C
-        CALL CLOSE_FILE(macID,1)
-C       PROCEDD WITHOUT ATTEMPED FUNCTION LOADING
-                        END IF
+C       (Binary macro function loading removed - binary macro system removed)
 
 C                        PRINT *, "Got to line 1301"
 C

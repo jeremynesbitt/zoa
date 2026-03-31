@@ -180,7 +180,6 @@ C
         CHARACTER REMWQ*8
         COMMON/WQREM/REMWQ
 C
-        INCLUDE 'DATMAC.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
         !INCLUDE 'DATLEN.INC'
@@ -769,18 +768,7 @@ C
                 IF(WC.EQ.'FUN09') FNYES=.TRUE.
                 IF(WC.EQ.'FUN10') FNYES=.TRUE.
                 END IF
-C
-C     LOOK FOR RENAMED FUNCTIONS
-              IF(WC.EQ.FNAMED(1))  WC='FUN01'
-              IF(WC.EQ.FNAMED(2))  WC='FUN02'
-              IF(WC.EQ.FNAMED(3))  WC='FUN03'
-              IF(WC.EQ.FNAMED(4))  WC='FUN04'
-              IF(WC.EQ.FNAMED(5))  WC='FUN05'
-              IF(WC.EQ.FNAMED(6))  WC='FUN06'
-              IF(WC.EQ.FNAMED(7))  WC='FUN07'
-              IF(WC.EQ.FNAMED(8))  WC='FUN08'
-              IF(WC.EQ.FNAMED(9))  WC='FUN09'
-              IF(WC.EQ.FNAMED(10)) WC='FUN10'
+C     (FNAMED function renaming removed - binary macro system removed)
 C
 C     IF F27 IS 1 OR 2 WE ARE WORKING THE MERIT FUNCTION
 C     IF NOT A SPECIFIC ALLOWED COMMAND, INSERT FUNC01 FOR
@@ -4016,19 +4004,7 @@ C       OTHER PROGRAM LEVELS MAY ONLY ALLOW A SMALL
 C       NUMBER OF COMMANDS. TESTS AT THESE LEVELS WILL
 C       TEST FOR ALLOWED VICE DISALLOWED COMMANDS.
 C
-        IF(F3.EQ.1) THEN
-C               WE ARE IN MACRO EDITING (LMEDIT). THE SUBROUTINE
-C               MMEDIT AND MACEDT AND MACMOD CONTAIN THE RULES FOR
-C               RESPONDING TO INPUT DURING THIS MODE.SUBROUTINE
-C               MMEDIT WAS CALLED WHEN F1=1. IT CALLED SUBROUTINE
-C               MACEDT.
-C       HERE WE CALL SUBROUTINE MACMOD
-        CALL MACMOD
-      LASTCOMWRD=WC
-      LASTWASFOB=.FALSE.
-      IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
-                        RETURN
-        END IF
+C     (F3/MACMOD macro editing mode removed with binary macro system)
         !WRITE(OUTLYNE, *), "F5 = ", F5, " F10 = ", F10, " F11 = ", F11
         !CALL SHOWIT(19)
 C
@@ -5003,18 +4979,7 @@ C       ISSUED AT THE CMD LEVEL
                 RETURN
                 END IF
 C
-        IF(F2.EQ.1) THEN
-C               WE ARE IN MACRO CREATION MODE. THE SUBROUTINE
-C               MACIN CONTAINS RULES FOR RESPONDING TO INPUT
-C               DURING THIS MODE.
-        WWW1=0.0D0
-        CALL MACIN(WWW1)
-      LASTCOMWRD=WC
-      LASTWASFOB=.FALSE.
-      IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
-        RETURN
-C       F2 NOT 1,PROCEED
-        END IF
+C     (F2/MACIN macro creation mode removed with binary macro system)
 C
 C       FOR THE CMD LEVEL COMMANDS F1=1, SO NOW CALL CMDER
         CALL CMDER

@@ -22,7 +22,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
 C
 C     THIS SURFACE AUTOMATICALLY USES MACRO FUNCTION FUN10
 C     FOR THE INITIAL USER FUCTION TO BE CALLED TO EVALUATE
@@ -127,37 +126,7 @@ C     NUMBERS 301 TO 348 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(394)=FTFL01(94,R_I)
                         GPREG(395)=FTFL01(95,R_I)
                         GPREG(396)=FTFL01(96,R_I)
-                IF(.NOT.FUNEXT(10)) THEN
-C     NO FUN10 EXISTS, LEAVE REGISTERS ALONE
-                        ELSE
-C     FUN10 EXISTS, RUN FUN10
-                SAVE_KDP(1)=SAVEINPT(1)
-                WC='FUN10'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1:5)=0.0D0
-                FMDF(1:5)=1
-        NESFUN(0:10)=.FALSE.
-                KLI=10
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                F26=0
-                REST_KDP(1)=RESTINPT(1)
-C     USE WHAT REMAINS IN THE REGISTERS (DONE IN HIT17.FOR)
-                END IF
+C     (FUN10 call removed - binary macro system removed)
                         RETURN
                         END
 C SUB NR1.FOR
@@ -193,7 +162,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
 
 
       PRINT *, "NR1 being called"
@@ -480,7 +448,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
 C     AR IS THE SURFACE NUMBER
 C
@@ -841,39 +808,7 @@ C     NUMBERS 301 TO 348 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(394)=FTFL01(94,AR)
                         GPREG(395)=FTFL01(95,AR)
                         GPREG(396)=FTFL01(96,AR)
-                IF(.NOT.FUNEXT(10)) THEN
-C     NO FUN10 EXISTS, RETURN 0.0D0 AS THE Z CONTRIBUTION
-                FNZ1=0.0D0
-                        ELSE
-C     FUN10 EXISTS, RUN FUN10
-                SAVE_KDP(1)=SAVEINPT(1)
-                WC='FUN10'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1:5)=0.0D0
-                FMDF(1:5)=1
-        NESFUN(0:10)=.FALSE.
-                KLI=10
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                F26=0
-                REST_KDP(1)=RESTINPT(1)
-C     USE WHAT REMAINS IN THE Z-REGISTER
-                FNZ1=REG(11)
-                END IF
+C     (FUN10 call removed - binary macro system removed)
 C     NOW ADD THE REGULAR TERM
         FNZ1=FNZ1+FNZZ1(AX,AY,AC1,AC2,AC3,AC4,AC5
      1,AC41,AC42,AC43,AC44,AC45)
@@ -1021,7 +956,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C
       !PRINT *, "NR2 Being called"
       !call logger%logTextWithNum("ALENS(8,R_I) = ", ALENS(8,R_I))
@@ -1400,7 +1334,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
       INTEGER I
 C
@@ -1819,39 +1752,7 @@ C     NUMBERS 301 TO 396 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(394)=FTFL01(94,AR)
                         GPREG(395)=FTFL01(95,AR)
                         GPREG(396)=FTFL01(96,AR)
-                IF(.NOT.FUNEXT(10)) THEN
-C     NO FUN10 EXISTS, RETURN 0.0D0 AS THE Z CONTRIBUTION
-                FNZ2=0.0D0
-                        ELSE
-C     FUN10 EXISTS, RUN FUN10
-                SAVE_KDP(1)=SAVEINPT(1)
-                WC='FUN10'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1:5)=0.0D0
-                FMDF(1:5)=1
-        NESFUN(0:10)=.FALSE.
-                KLI=10
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                REST_KDP(1)=RESTINPT(1)
-                F26=0
-C     USE WHAT REMAINS IN THE Z-REGISTER
-                FNZ2=REG(11)
-                END IF
+C     (FUN10 call removed - binary macro system removed)
 C     NOW ADD THE REGULAR TERM
       FNZ2=FNZ2+FNZZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,Q
      1,AC41,AC42,AC43,AC44,AC45)
@@ -2007,7 +1908,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C
       IF(LN.NE.0.0D0) SNGX=LN/DABS(LN)
       IF(MN.NE.0.0D0) SNGY=MN/DABS(MN)
@@ -2089,7 +1989,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C
       IF(LN.NE.0.0D0) SNGX=LN/DABS(LN)
       IF(MN.NE.0.0D0) SNGY=MN/DABS(MN)
@@ -2354,7 +2253,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
       INTEGER I
 C
@@ -2697,39 +2595,7 @@ C     NUMBERS 301 TO 396 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(394)=FTFL01(94,AR)
                         GPREG(395)=FTFL01(95,AR)
                         GPREG(396)=FTFL01(96,AR)
-                IF(.NOT.FUNEXT(10)) THEN
-C     NO FUN10 EXISTS, RETURN 0.0D0 AS THE Z CONTRIBUTION
-                FNZ3=0.0D0
-                        ELSE
-C     FUN10 EXISTS, RUN FUN10
-                SAVE_KDP(1)=SAVEINPT(1)
-                WC='FUN10'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1:5)=0.0D0
-                FMDF(1:5)=1
-        NESFUN(0:10)=.FALSE.
-                KLI=10
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                REST_KDP(1)=RESTINPT(1)
-                F26=0
-C     USE WHAT REMAINS IN THE Z-REGISTER
-                FNZ3=REG(11)
-                END IF
+C     (FUN10 call removed - binary macro system removed)
 C     NOW ADD THE REGULAR TERM
         FNZ3=FNZ3+
      1  FNZZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,Q)
@@ -2883,7 +2749,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
         C1=ALENS(4,R_I)
         C2=ALENS(5,R_I)
@@ -2913,7 +2778,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
         C1=ALENS(4,R_I)
         C2=ALENS(5,R_I)
@@ -2971,7 +2835,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
         C1=ALENS(4,R_I)
         C2=ALENS(5,R_I)
@@ -3006,7 +2869,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
 C
         C1=ALENS(4,R_I)
         C2=ALENS(5,R_I)
@@ -3071,7 +2933,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
         C1=ALENS(4,R_I)
         C2=ALENS(5,R_I)
         C3=ALENS(6,R_I)
@@ -3138,7 +2999,6 @@ C
 C
       INCLUDE 'DATLEN.INC'
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATMAC.INC'
         C1=ALENS(4,R_I)
         C2=ALENS(5,R_I)
         C3=ALENS(6,R_I)
@@ -3213,7 +3073,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C
       CEE=ALENS(1,R_I)
       IF(R_Z.LT.0.0D0.AND.CEE.GT.0.0D0.OR.

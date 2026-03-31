@@ -19,7 +19,6 @@ SUBROUTINE VIE_psm(psm)
       use zoa_output, only:  zoa_emit
       use ISO_FORTRAN_ENV, only: real64
       use DATLEN
-      use DATMAC
       use type_utils, only: real2str, int2str
       use plot_setting_manager
 !

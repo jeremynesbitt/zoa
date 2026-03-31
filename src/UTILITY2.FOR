@@ -844,7 +844,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATMAC.INC'
 C
       INR=ALENS(76,I)
 C
@@ -1263,48 +1262,8 @@ C     NUMBERS 301 TO 396 AND ACCESSED BY THE USER VIA RCL COMMANDS
                         GPREG(394)=FTFL01(94,I)
                         GPREG(395)=FTFL01(95,I)
                         GPREG(396)=FTFL01(96,I)
-                IF(.NOT.FUNEXT(10)) THEN
 C     NO FUN10 EXISTS, RETURN 0.0D0 AS THE Z CONTRIBUTION
                 Z=0.0D0
-                        ELSE
-C     FUN10 EXISTS, RUN FUN10
-                SAVE_KDP(1)=SAVEINPT(1)
-                WC='FUN10'
-                WQ='        '
-                SQ=0
-                W1=0.0D0
-                W2=0.0D0
-                W3=0.0D0
-                W4=0.0D0
-                W5=0.0D0
-                DF1=1
-                DF2=1
-                DF3=1
-                DF4=1
-                DF5=1
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=0.0D0
-                FMNW(2)=0.0D0
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=1
-                FMDF(2)=1
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN(1:10)=.FALSE.
-                KLI=10
-                FUN=.TRUE.
-                F26=1
-                CALL FUNEXC
-                F26=0
-                REST_KDP(1)=RESTINPT(1)
-C     USE WHAT REMAINS IN THE Z-REGISTER
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
-                Z=REG(11)
-                END IF
                         RETURN
                         END IF
 C
@@ -5763,8 +5722,8 @@ C
 C       THIS ERROR WAS FOUND ON 2/10/88 WHEN INSTALLING THE
 C       CFGCHG.FOR SUBROUTINE
 C
-                IF(F47.NE.0) THEN
-                CALL MREA
+C     (F47/MREA macro execution path removed with binary macro system)
+                IF(.FALSE.) THEN
                 ELSE
 C     REMOVES , INFRONT OF A : USED IN A STRING 2/14/94
                 CALL PRO4

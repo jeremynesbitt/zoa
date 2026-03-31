@@ -117,7 +117,6 @@ C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATCFG.INC'
-        INCLUDE 'DATMAC.INC'
 C
 C       THIS IS SUBROUTINE PFIND. THIS IS THE SUBROUTINE WHICH
 C       HANDLES THE "PFIND" COMMAND.
@@ -637,7 +636,6 @@ C
       COMMON/COMFUN/FUN
 C
         INCLUDE 'DATCFG.INC'
-        INCLUDE 'DATMAC.INC'
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
@@ -727,7 +725,6 @@ C               FORCE TO CFG 1
                 END IF
 C
       IF(INT(OPERND(I,1)).EQ.1.AND..NOT.FUNCL1) THEN
-                IF(.NOT.FUNEXT(1)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN01 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -736,51 +733,12 @@ C
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN01
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN01'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-C
-        NESFUN=.FALSE.
-                KLI=1
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-                END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL1=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.2.AND..NOT.FUNCL2) THEN
-                IF(.NOT.FUNEXT(2)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN02 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -789,50 +747,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN02
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN02'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=2
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL2=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.3.AND..NOT.FUNCL3) THEN
-                IF(.NOT.FUNEXT(3)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN03 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -841,50 +761,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN03
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN03'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=3
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL3=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.4.AND..NOT.FUNCL4) THEN
-                IF(.NOT.FUNEXT(4)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN04 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -893,50 +775,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN04
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN04'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=4
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL4=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.5.AND..NOT.FUNCL5) THEN
-                IF(.NOT.FUNEXT(5)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN05 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -945,50 +789,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN05
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN05'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=5
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL5=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.6.AND..NOT.FUNCL6) THEN
-                IF(.NOT.FUNEXT(6)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN06 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -997,50 +803,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN06
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN06'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=6
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL6=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.7.AND..NOT.FUNCL7) THEN
-                IF(.NOT.FUNEXT(7)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN07 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -1049,50 +817,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN07
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN07'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=7
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL7=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.8.AND..NOT.FUNCL8) THEN
-                IF(.NOT.FUNEXT(8)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN08 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -1101,50 +831,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN08
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN08'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=8
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL8=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.9.AND..NOT.FUNCL9) THEN
-                IF(.NOT.FUNEXT(9)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN09 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -1153,50 +845,12 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN09
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN09'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=9
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL9=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)
                 END IF
       IF(INT(OPERND(I,1)).EQ.10.AND..NOT.FUNCL10) THEN
-                IF(.NOT.FUNEXT(10)) THEN
       WRITE(OUTLYNE,*) 'MACRO FUNCTION FUN10 DOES NOT EXIST'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*) 'OPERANDS COULD NOT BE CALCULATED'
@@ -1205,44 +859,7 @@ C     SET ALL REGISTERS TO 0.0
                 OPCNT=0
                FMTEXT=.FALSE.
                 RETURN
-                END IF
-C     RUN FUN10
-                SAVE_KDP(2)=SAVEINPT(2)
-                WC='FUN10'
-                WQ='        '
-                SQ=0
-                SN=1
-                SST=0
-                W1=OPERND(I,9)
-                W2=OPERND(I,10)
-                DF1=OPERND(I,11)
-                DF2=OPERND(I,12)
-                FMWQ='        '
-                FMSQ=0
-                FMNW(1)=W1
-                FMNW(2)=W2
-                FMNW(3)=0.0D0
-                FMNW(4)=0.0D0
-                FMNW(5)=0.0D0
-                FMDF(1)=DF1
-                FMDF(2)=DF2
-                FMDF(3)=1
-                FMDF(4)=1
-                FMDF(5)=1
-        NESFUN=.FALSE.
-                KLI=10
-                FUN=.TRUE.
-                F26=1
-                IF(F28.EQ.1.OR.F31.EQ.1) CALL FUNEXC
-                IF(F28.EQ.0.AND.OF28.EQ.1) CALL HALTER
-                IF(F28.EQ.0.AND.OF28.EQ.1) RETURN
-      IF(F31.EQ.0.AND.OF31.EQ.1) THEN
-      F31=1
-      OF31=1
-C     SET ALL REGISTERS TO 0.0
-               SENSERR=.TRUE.
-               GPREG=0.0D0
-               END IF
+C     (FUN execution removed - binary macro system removed)
                 FUNCL10=.TRUE.
                 F26=0
                 REST_KDP(2)=RESTINPT(2)

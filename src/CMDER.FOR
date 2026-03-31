@@ -3483,16 +3483,7 @@ C
         call sysConfig%setNumFields(CFLDCNT)
         RETURN
         END IF
-        IF(WC.EQ.'MACDMP') THEN
-C       MACDMP LIVES IN AUTO.FOR
-        CALL MACDMP
-        RETURN
-        END IF
-        IF(WC.EQ.'TOLDMP') THEN
-C       TOLDMP LIVES IN AUTO.FOR
-        CALL TOLDMP
-        RETURN
-        END IF
+C     MACDMP/TOLDMP removed with binary macro system
         IF(WC.EQ.'FOCI') THEN
 C       CALCULATES FOCI POSITIONS FOR CONICS
         CALL FOCII

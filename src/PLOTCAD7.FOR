@@ -203,7 +203,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAC.INC'
 C
                       FANEXT=.FALSE.
                       RIM=.TRUE.
