@@ -375,71 +375,12 @@ C     RESTORE I/O
         END SUBROUTINE LENSREST
 C
 C ---------------------------------------------------------------------------
-C MACRUN - binary macro executor stub: binary macros removed, always fails.
-C ---------------------------------------------------------------------------
-        SUBROUTINE MACRUN(MACYES)
-        IMPLICIT NONE
-        INTEGER MACYES
-        MACYES=0
-        END SUBROUTINE MACRUN
-C
-C ---------------------------------------------------------------------------
-C FUNEXC - execute macro merit function; no-op (F28/F31 are always 0 now).
-C ---------------------------------------------------------------------------
-        SUBROUTINE FUNEXC
-        IMPLICIT NONE
-        RETURN
-        END SUBROUTINE FUNEXC
-C
-C ---------------------------------------------------------------------------
-C FUNNAME - define alternate macro function names; no-op.
+C FUNNAME - define alternate macro function names; no-op (binary macros removed).
 C ---------------------------------------------------------------------------
         SUBROUTINE FUNNAME
         IMPLICIT NONE
         RETURN
         END SUBROUTINE FUNNAME
-C
-C ---------------------------------------------------------------------------
-C MACFIL - load binary MAC.DAT file; no-op (binary macros removed).
-C ---------------------------------------------------------------------------
-        SUBROUTINE MACFIL
-        IMPLICIT NONE
-        RETURN
-        END SUBROUTINE MACFIL
-C
-C ---------------------------------------------------------------------------
-C READMACROFILE - read a binary macro file; no-op.
-C ---------------------------------------------------------------------------
-        SUBROUTINE READMACROFILE(MACROFILEPATH)
-        IMPLICIT NONE
-        CHARACTER*(*) MACROFILEPATH
-        RETURN
-        END SUBROUTINE READMACROFILE
-C
-C ---------------------------------------------------------------------------
-C MACIN - parse input into macro buffer; no-op (binary macros removed).
-C ---------------------------------------------------------------------------
-        SUBROUTINE MACIN(WWW1)
-        IMPLICIT NONE
-        REAL*8 WWW1
-        RETURN
-        END SUBROUTINE MACIN
-C
-C ---------------------------------------------------------------------------
-C MACMOD - binary macro record mode; no-op.
-C ---------------------------------------------------------------------------
-        SUBROUTINE MACMOD
-        IMPLICIT NONE
-        RETURN
-        END SUBROUTINE MACMOD
-C
-C ---------------------------------------------------------------------------
-C MREA - macro line replacement; no-op (binary macros removed).
-C ---------------------------------------------------------------------------
-        SUBROUTINE MREA
-        IMPLICIT NONE
-        RETURN
-        END SUBROUTINE MREA
 C
 C ---------------------------------------------------------------------------
 C MMOD - MOD command: compute W1 modulo W2, result in accumulator REG(9).
@@ -525,11 +466,3 @@ C ---------------------------------------------------------------------------
                        RETURN
         END SUBROUTINE ONE_BLANK
 C
-C ---------------------------------------------------------------------------
-C DOES_MAC_DAT_EXIST - check for binary MAC.DAT file; always returns .FALSE.
-C ---------------------------------------------------------------------------
-        SUBROUTINE DOES_MAC_DAT_EXIST(BOOLRESULT)
-        IMPLICIT NONE
-        LOGICAL BOOLRESULT
-        BOOLRESULT=.FALSE.
-        END SUBROUTINE DOES_MAC_DAT_EXIST
