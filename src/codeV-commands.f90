@@ -19,7 +19,6 @@ module codeV_commands
     use iso_fortran_env, only: real64
     use plot_setting_manager, only: zoaplot_setting_manager
     use type_utils
-    use handlers, only: zoatabMgr, my_window
     use zoa_output, only: zoa_emit
     use strings
     use globals
@@ -1030,6 +1029,7 @@ module codeV_commands
 
     ! Started to wrtie this but it doesn't seem to simpify things too much
     function checkForExistingPlot(tokens, psm, plot_code) result (plotExists)
+        use handlers, only: zoatabMgr
 
         implicit none
 
@@ -1503,7 +1503,7 @@ module codeV_commands
 
     subroutine execRestore_old(iptStr)
         !use global_widgets, only: curr_lens_data
-
+        use handlers, only: zoatabMgr, my_window
         use gtk_hl_dialog
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
@@ -1587,6 +1587,7 @@ module codeV_commands
     end subroutine
       
     subroutine exportLensToCodeV(iptStr)
+        use handlers, only: my_window
         use zoa_file_handler
         use ui_dialogs
         use zoa_file_handler
@@ -1713,6 +1714,7 @@ module codeV_commands
 
 
     subroutine execSaveSessionToFile(iptStr)
+        use handlers, only: zoatabMgr
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens
