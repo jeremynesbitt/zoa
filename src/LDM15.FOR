@@ -3,7 +3,7 @@ C       FIFTEENTH FILE FOR LENS DATABASE MANAGER FILES
 C SUB LNSEOS.FOR
         SUBROUTINE LNSEOS
         USE GLOBALS
-        use handlers, only: zoatabMgr, refreshStatusBar
+        use zoa_ui_callbacks, only: notify_replot, notify_refresh_status
 C
 C     CALLS LNSEOS1. THIS IS HERE TO SUPPORT AUTOFUNC
 C
@@ -98,8 +98,8 @@ C     SET PARAXIAL FLAGS TO FALSE
                 ! JN:  Added this to force replot after lens update
                 ! TODO:  There are multiple returns in this sub
                 ! Not sure If I should do this in all exits                       
-                       call zoatabMgr%rePlotIfNeeded()
-                       call refreshStatusBar()
+                       call notify_replot()
+                       call notify_refresh_status()
                        RETURN
                        END IF
         IF(F57.EQ.1) THEN

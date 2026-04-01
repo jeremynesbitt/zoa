@@ -2,7 +2,7 @@ C SUB CV2PRG.FOR
         SUBROUTINE CV2PRG
         USE GLOBALS
         use zoa_file_handler
-        use handlers, only: zoatabMgr
+        use zoa_ui_callbacks, only: notify_close_all_tabs
         use strings
         !use kdp_interfaces, only: OUTKDP
 C
@@ -166,9 +166,9 @@ C
       END IF
 
       
-      call zoatabMgr%closeAllTabs("You are about to open a new 
-     1 lens system.  This will invalidate all plots.   
-     2 Press yes to close them.")
+      call notify_close_all_tabs("You are about to open a new " //
+     1 "lens system.  This will invalidate all plots.   " //
+     2 "Press yes to close them.")
 
 C     FILES EXISTS, CREATE PROGRAM FILE NAME
       !call logger%logText("CV2PRG Find Extension in File Name")

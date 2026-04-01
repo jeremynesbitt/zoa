@@ -23,7 +23,6 @@ C SUB ZMX2PRG.FOR
         use zoa_file_handler
         use kdp_data_types, only: RAYAIM_PARAX, RAYAIM_REAL
         use global_widgets, only : sysConfig
-        use handlers, only: zoatabMgr        
 C
         IMPLICIT NONE
 C

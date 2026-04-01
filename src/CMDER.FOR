@@ -2,7 +2,6 @@ C SUB CMDER.FOR
         SUBROUTINE CMDER
         USE GLOBALS
         use zoa_ui
-        use handlers
         use zoa_output, only: zoa_emit
         use glass_manager
         use kdp_interfaces , only: EDITOR, POWSYM, FIR,

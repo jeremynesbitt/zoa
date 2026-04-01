@@ -112,6 +112,25 @@ Each `.zoa` file gets a corresponding `.ref` file with expected output.
 - Extend to remaining `.INC` files one at a time
 - Each migration: convert, run tests, commit
 
+**Current state (as of 2026-04-01):**
+
+Modules already created: `mod_DATLEN`, `mod_DATMAI`, `mod_DATSUB`, `mod_DATCFG`, `mod_DATSPD`, `mod_DATSP1`, `mod_DATHGR`
+
+Remaining `.INC` files fall into three categories:
+
+*Actual COMMON block files — still need modules:*
+- `DATPTS.INC` — part drawing tolerances; 3 `.FOR` users (`PLOTCAD6`, `PLOTCAD8`, `USER1`), no `.f90` users yet
+- `DATNSS.INC` — **dead file**: defines `NSSCOMMON1` block but is never `INCLUDE`d anywhere; NSS files declare variables locally. Safe to delete.
+
+*Inline code fragments (not COMMON blocks — not candidates for module wrapping):*
+- `LENO.INC`, `GLASSP.INC`, `SPSRF.INC` — GUI dialog handling code included inline inside subroutines
+- `FRESHCLAP.INC`, `GLASSPFRESH.INC` — aperture/glass dialog widget-setting code
+- `NOTCAT.INC`, `NOTMODEL.INC`, `NOTMYGLASS.INC` — WDialog field-state snippets
+- `CATNAMER.INC` — inline IF chain mapping filenames to catalog names
+- `codeV-interfaces.INC` — interface block declarations (not COMMON blocks)
+
+*The bigger work:* All existing modules are used only by `.f90` files. The `.FOR` files (137 for DATMAI, 121 for DATLEN, etc.) still `INCLUDE` the `.INC` directly. The real Phase 2.2 payoff is migrating `.FOR` subroutines to `USE modname` instead of `INCLUDE '*.INC'` — enabling eventual deletion of the `.INC` files. Suggested starting point: `DATSUB` (38 users) or `DATCFG` (33 users) as they're smaller scope than DATMAI/DATLEN.
+
 ### 2.3 — Reduce global mutable state
 - Start with `OUTLYNE` (output string) — pass as argument instead of COMMON
 - Then `INPUT` (command string) — already partially passed in PROCESKDP

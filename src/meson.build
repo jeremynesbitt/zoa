@@ -29,6 +29,7 @@ src_c += files('zoa_utils.c', 'ui-list-models.c', 'ui-operand-models.c', 'ui-con
 
 srcs += files(
   'zoa-output.f90',
+  'zoa-ui-callbacks.f90',
   'globals.FOR',
   'data-registers.f90',
   'mod-fft.f90',

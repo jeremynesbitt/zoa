@@ -283,6 +283,8 @@ contains
     use zoa_status_bar
     use gdk
     use zoa_output, only: zoa_set_output_handler
+    use zoa_ui_callbacks, only: zoa_set_replot_callback, &
+        zoa_set_refresh_status_callback, zoa_set_close_all_tabs_callback
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -478,6 +480,11 @@ contains
 
     ! Register GTK output handler so zoa_emit routes to the GUI text view
     call zoa_set_output_handler(updateTerminalLog)
+
+    ! Register GUI callbacks so core code can trigger replot/refresh/close-tabs
+    call zoa_set_replot_callback(gui_notify_replot)
+    call zoa_set_refresh_status_callback(gui_notify_refresh_status)
+    call zoa_set_close_all_tabs_callback(gui_notify_close_all_tabs)
 
     ! INIT KDP
     CALL INITKDP
@@ -994,6 +1001,20 @@ end subroutine
     call updateStatusBar(3, "Total Track: "//trim(real2str(ldm%getTrackLength(),4)))
 
 
+  end subroutine
+
+  ! Thin wrappers registered as zoa_ui_callbacks at GUI startup
+  subroutine gui_notify_replot()
+    call zoatabMgr%rePlotIfNeeded()
+  end subroutine
+
+  subroutine gui_notify_refresh_status()
+    call refreshStatusBar()
+  end subroutine
+
+  subroutine gui_notify_close_all_tabs(msg)
+    character(len=*), intent(in) :: msg
+    call zoatabMgr%closeAllTabs(msg)
   end subroutine
 
 
