@@ -30,7 +30,7 @@ subroutine zern_go(psm)
     use zoa_plot
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
-    
+
     use DATMAI
 
 
@@ -101,10 +101,12 @@ subroutine zern_go(psm)
     end do
 
   
+    if (HEADLESS_MODE) return
+
     ! Prep PLot
     canvas = hl_gtk_drawing_area_new(size=[1200,500], &
     & has_alpha=FALSE)
-   
+
     call mplt%initialize(canvas, 1,1)
    
     call zernplot%initialize(c_null_ptr, xdat,ydat(:,1), &

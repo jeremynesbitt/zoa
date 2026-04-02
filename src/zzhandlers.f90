@@ -285,6 +285,7 @@ contains
     use zoa_output, only: zoa_set_output_handler
     use zoa_ui_callbacks, only: zoa_set_replot_callback, &
         zoa_set_refresh_status_callback, zoa_set_close_all_tabs_callback, &
+        zoa_set_show_macro_ui_callback, &
         zoa_set_query_confirm_callback, zoa_set_query_yes_no_callback, &
         zoa_set_write_tab_state_callback, &
         zoa_set_query_existing_plot_callback, &
@@ -489,6 +490,7 @@ contains
     call zoa_set_replot_callback(gui_notify_replot)
     call zoa_set_refresh_status_callback(gui_notify_refresh_status)
     call zoa_set_close_all_tabs_callback(gui_notify_close_all_tabs)
+    call zoa_set_show_macro_ui_callback(gui_show_macro_ui)
     call zoa_set_query_confirm_callback(gui_query_confirm)
     call zoa_set_query_yes_no_callback(gui_query_yes_no)
     call zoa_set_write_tab_state_callback(gui_write_tab_state)
@@ -1074,6 +1076,17 @@ end subroutine
     character(len=*), intent(in)    :: default_dir, filter, title
     logical, intent(out) :: selected
     selected = ui_new_file(my_window, filename, dir, default_dir, filter, title)
+  end subroutine
+
+  subroutine gui_show_macro_ui()
+    use zoa_macro_ui, only: zoa_macrooperationsUI
+    use global_widgets, only: macro_ui_window
+    use gtk, only: gtk_window_present
+    if (.not. c_associated(macro_ui_window)) then
+      call zoa_macrooperationsUI(my_window)
+    else
+      call gtk_window_present(macro_ui_window)
+    end if
   end subroutine
 
 

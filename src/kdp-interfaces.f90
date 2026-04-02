@@ -252,6 +252,8 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
     integer :: idx
     character(len=3) :: outChar
 
+  if (HEADLESS_MODE) return
+
   !PRINT *, "About to init POWSYM Tab"
   !PRINT *, "NOTEBOOK PTR IS ", LOC(notebook)
   call powsym_tab%initialize(notebook, "Power and Symmetry", -1)
@@ -393,6 +395,8 @@ end subroutine
 
 
 subroutine EDITOR
+  ! TODO 2.1c: retains handlers dep — lens_editor uses handlers, creating a cycle.
+  ! Resolution: move my_window to global_widgets, or two-stage initializeCmds.
   use lens_editor
   use global_widgets
   use handlers, only: my_window
@@ -405,8 +409,6 @@ subroutine EDITOR
       PRINT *, "Do nothing..lens editor exists. "
 
     end if
-
-
 
 end subroutine EDITOR
 
@@ -892,23 +894,14 @@ end subroutine
 
 
 subroutine MACROUI
-  use zoa_macro_ui
-  use global_widgets, only: macro_ui_window
-  use handlers, only: my_window
-
-  if (.not. c_associated(macro_ui_window))  THEN
-    call zoa_macrooperationsUI(my_window)
- else
-    call gtk_window_present(macro_ui_window)
-
- end if 
-
-
-
+  use zoa_ui_callbacks, only: notify_show_macro_ui
+  call notify_show_macro_ui()
 end subroutine MACROUI
 
 
 subroutine SYSCONFIGUI
+  ! TODO 2.1c: retains handlers dep — ui_sys_config uses handlers, creating a cycle.
+  ! Resolution: move my_window to global_widgets, or two-stage initializeCmds.
   use ui_sys_config
   use global_widgets
   use handlers, only: my_window
@@ -916,10 +909,8 @@ subroutine SYSCONFIGUI
     if (.not. c_associated(sys_config_window))  THEN
        PRINT *, "Call New Sys Config Window"
        call sys_config_new(my_window)
-
     else
       PRINT *, "Do nothing..sys config window exists. "
-
     end if
 
 end subroutine
@@ -973,6 +964,8 @@ INCLUDE 'DATMAI.INC'
 
  call zoa_emit(INPUT, "blue")
  inputCmd = INPUT
+
+ if (HEADLESS_MODE) return
 
  canvas = hl_gtk_drawing_area_new(size=[1200,500], &
  & has_alpha=FALSE)
@@ -1130,6 +1123,8 @@ PRINT *, "lbound of CSeidel is ", lbound(curr_par_ray_trace%CSeidel,1)
 PRINT *, "lbound of CSeidel is ", lbound(curr_par_ray_trace%CSeidel,2)
 
 
+
+ if (HEADLESS_MODE) return
 
  canvas = hl_gtk_drawing_area_new(size=[1200,800], &
  & has_alpha=FALSE)

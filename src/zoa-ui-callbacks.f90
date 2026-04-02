@@ -21,6 +21,9 @@ module zoa_ui_callbacks
   public :: zoa_set_replot_callback, zoa_set_refresh_status_callback, &
             zoa_set_close_all_tabs_callback
   ! notify_show_optimizer_ui omitted: optimizer_ui uses handlers, creating a cycle
+  ! notify_show_editor_ui omitted: lens_editor uses handlers, creating a cycle
+  ! notify_show_sysconfig_ui omitted: ui_sys_config uses handlers, creating a cycle
+  public :: notify_show_macro_ui, zoa_set_show_macro_ui_callback
   public :: query_confirm, zoa_set_query_confirm_callback
   public :: query_yes_no, zoa_set_query_yes_no_callback
   public :: notify_write_tab_state, zoa_set_write_tab_state_callback
@@ -40,6 +43,9 @@ module zoa_ui_callbacks
     end subroutine
 
     subroutine show_optimizer_ui_iface()
+    end subroutine
+
+    subroutine show_macro_ui_iface()
     end subroutine
 
     subroutine query_confirm_iface(message, title, confirmed)
@@ -75,6 +81,7 @@ module zoa_ui_callbacks
   procedure(refresh_status_iface),      pointer :: refresh_status_cb     => null()
   procedure(close_tabs_iface),          pointer :: close_tabs_cb         => null()
   procedure(show_optimizer_ui_iface),   pointer :: show_optimizer_ui_cb  => null()
+  procedure(show_macro_ui_iface),       pointer :: show_macro_ui_cb      => null()
   procedure(query_confirm_iface),       pointer :: query_confirm_cb      => null()
   procedure(query_yes_no_iface),        pointer :: query_yes_no_cb       => null()
   procedure(write_tab_state_iface),     pointer :: write_tab_state_cb    => null()
@@ -101,6 +108,11 @@ contains
   subroutine zoa_set_show_optimizer_ui_callback(cb)
     procedure(show_optimizer_ui_iface) :: cb
     show_optimizer_ui_cb => cb
+  end subroutine
+
+  subroutine zoa_set_show_macro_ui_callback(cb)
+    procedure(show_macro_ui_iface) :: cb
+    show_macro_ui_cb => cb
   end subroutine
 
   subroutine zoa_set_query_confirm_callback(cb)
@@ -145,6 +157,10 @@ contains
 
   subroutine notify_show_optimizer_ui()
     if (associated(show_optimizer_ui_cb)) call show_optimizer_ui_cb()
+  end subroutine
+
+  subroutine notify_show_macro_ui()
+    if (associated(show_macro_ui_cb)) call show_macro_ui_cb()
   end subroutine
 
   ! query_confirm: default headless behaviour is confirmed=.TRUE. (proceed without prompting)
