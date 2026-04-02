@@ -130,22 +130,32 @@ program zoa_server
 
 contains
 
-  ! Execute one or more semicolon-separated commands
+  ! Execute one or more semicolon- or newline-separated commands
   subroutine execute_commands(cmd_string)
     character(len=*), intent(in) :: cmd_string
     character(len=256) :: single_cmd
-    integer :: pos, start, slen
+    integer :: pos, pos_semi, pos_nl, start, slen
 
     slen = len_trim(cmd_string)
     start = 1
 
     do while (start <= slen)
-      ! Find next semicolon
-      pos = index(cmd_string(start:slen), ';')
-      if (pos == 0) then
+      ! Find next semicolon or newline — whichever comes first
+      pos_semi = index(cmd_string(start:slen), ';')
+      pos_nl   = index(cmd_string(start:slen), char(10))
+
+      if (pos_semi == 0 .and. pos_nl == 0) then
         single_cmd = adjustl(cmd_string(start:slen))
         start = slen + 1
+      else if (pos_semi == 0) then
+        single_cmd = adjustl(cmd_string(start:start+pos_nl-2))
+        start = start + pos_nl
+      else if (pos_nl == 0) then
+        single_cmd = adjustl(cmd_string(start:start+pos_semi-2))
+        start = start + pos_semi
       else
+        ! Both found — use whichever is earlier
+        pos = min(pos_semi, pos_nl)
         single_cmd = adjustl(cmd_string(start:start+pos-2))
         start = start + pos
       end if

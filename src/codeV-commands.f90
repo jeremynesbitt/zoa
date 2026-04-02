@@ -69,7 +69,6 @@ module codeV_commands
         ! This is called when the program is initialized (currently INITKDP.FOR)
         use iso_c_binding, only: c_null_ptr
         use global_widgets, only: ioConfig
-        use hl_gtk_zoa, only : hl_zoa_text_view_new
 
         integer :: i
         character(len=1), dimension(8) :: evenAsphereTerms = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
@@ -438,6 +437,10 @@ module codeV_commands
         zoaCmds(677)%execFunc => wrap_READIRAD
         zoaCmds(678)%cmd = 'TSTCMDS'
         zoaCmds(678)%execFunc => wrap_TSTCMDS
+        zoaCmds(679)%cmd = 'LCON'
+        zoaCmds(679)%execFunc => listConstraints
+        zoaCmds(680)%cmd = 'DCON'
+        zoaCmds(680)%execFunc => deleteConstraints
 
 
     end subroutine
@@ -1029,7 +1032,7 @@ module codeV_commands
 
     ! Started to wrtie this but it doesn't seem to simpify things too much
     function checkForExistingPlot(tokens, psm, plot_code) result (plotExists)
-        use handlers, only: zoatabMgr
+        use zoa_ui_callbacks, only: query_existing_plot
 
         implicit none
 
@@ -1037,20 +1040,14 @@ module codeV_commands
         character(len=*), dimension(:) :: tokens
         type(zoaplot_setting_manager), intent(inout) :: psm
         integer, intent(in) :: plot_code
-        integer, allocatable :: plotNum(:) 
-        integer :: objIdx
+        integer, allocatable :: plotNum(:)
 
         plotExists = .FALSE.
         plotNum = cmd_parser_get_int_input_for_prefix('P', tokens)
-        plotExists = zoatabMgr%doesPlotExist_new(plot_code, objIdx, plotNum(1))
-        if (plotExists) then
-            ! TODO:  Replace with abstract call
-            curr_psm  = zoaTabMgr%tabInfo(objIdx)%tabObj%psm
-            !cmd_loop = ZERN_LOOP       
-            else
-                psm%plotNum = plotNum(1)
+        call query_existing_plot(plot_code, plotNum(1), curr_psm, plotExists)
+        if (.not. plotExists) then
+            psm%plotNum = plotNum(1)
         end if
-        
 
     end function
 
@@ -1502,148 +1499,99 @@ module codeV_commands
     end subroutine
 
     subroutine execRestore_old(iptStr)
-        !use global_widgets, only: curr_lens_data
-        use handlers, only: zoatabMgr, my_window
-        use gtk_hl_dialog
         use zoa_file_handler
         use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens, doesFileExist
+        use zoa_ui_callbacks, only: query_confirm, query_yes_no, notify_close_all_tabs
         implicit none
 
-        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=256) :: fName
         character(len=80) :: tokens(40)
         character(len=1024) :: fullPath
         integer :: numTokens, locDot
-        integer :: resp
-        character(len=80), dimension(3) :: msg
+        logical :: confirmed, save_lens
 
-        ! Temp vars
-        integer :: ios, n
-        character(len=200) :: line        
-
-        !call parse(trim(iptStr), ' ', tokens, numTokens)
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
 
-        if (numTokens == 2 ) then
+        if (numTokens == 2) then
             fName = trim(tokens(2))
             locDot = INDEX(fName, '.')
             if (locDot == 0) then
                 fName = trim(fName)//'.zoa'
             end if
             call LogTermFOR("File name to restore is "//trim(fName))
-            ! See if the file is in a known directory
             fullPath = getRestoreFilePath(trim(fName))
 
-        ! Only ask user for input if not in test mode
+            ! Only ask user for input if not in test mode
             if (TEST_MODE.eqv..FALSE. .and. doesFileExist(trim(fullPath))) then
-                ! Step 1:  Ask user if they are sure
-                
-                msg(1) ="You are about to start a new lens system"
-                msg(2) = "Are you sure?"
-                msg(3) = "Press Cancel to abort."   
-              
-                resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK_CANCEL, &
-                     & "Warning"//c_null_char)
-                if (resp == GTK_RESPONSE_OK) then
-                  ! Ask user if they want to save current lens
-                  msg(1) = "Do you want to save current lens?"
-                  msg(2) = "Yes to add to lens database"
-                  msg(3) = "No to throw away"
-                  resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
-                  & "Warning"//c_null_char)    
-                  if (resp == GTK_RESPONSE_YES) then    
-                    ! Add to database
-                    call PROCESKDP('LIB PUT')
-                  end if ! Yes to save current lens
-              
-                    ! Final question!  Ask the user if they want to close current tabs
-                    call zoatabMgr%closeAllTabs("dummy text at present")
-              
-                    ! Finally at the new lens process.  
-                else 
-                    ! If user aborted, log it
+                call query_confirm( &
+                    "You are about to start a new lens system. Are you sure?", &
+                    "Warning", confirmed)
+                if (confirmed) then
+                    call query_yes_no( &
+                        "Do you want to save current lens before loading?", &
+                        "Warning", save_lens)
+                    if (save_lens) then
+                        call PROCESKDP('LIB PUT')
+                    end if
+                    call notify_close_all_tabs("Loading new lens")
+                else
                     call zoa_emit("New Lens Process Cancelled", "black")
-                end if ! add to lens database 
-                end if ! Test Mode
-                                  
+                end if
+            end if
 
             if (len(trim(fullPath)) > 1) then
                 call process_zoa_file(fullPath)
             else
-            call zoa_emit("File Not found in known directory!  Please try again or use UI", "red")
+                call zoa_emit("File Not found in known directory!  Please try again or use UI", "red")
             end if
-                   
-
 
         else
             call zoa_emit("No file given to restore!  Please try again", "red")
-
         end if
-
-
 
     end subroutine
       
     subroutine exportLensToCodeV(iptStr)
-        use handlers, only: my_window
         use zoa_file_handler
-        use ui_dialogs
-        use zoa_file_handler
+        use zoa_ui_callbacks, only: query_save_file
         use global_widgets, only: sysConfig, curr_lens_data
         use optim_types, only: optim
         use mod_lens_data_manager
 
         character(len=*) :: iptStr
-        character(len=256) :: fName
         character(len=1024) :: dirName
         character(len=80) :: tokens(40)
-        integer :: numTokens, locDot, fID
+        integer :: numTokens, fID
         character(len=500) :: fileName
         character(len=500) :: cdir
-        character(len=1024) :: currDir
         logical :: fileSelected
-    
-        integer :: n, ios
-        character(len=256) :: line
-    
+
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        if(numTokens == 2) then
+        if (numTokens == 2) then
             fileName = trim(tokens(2))
         else
             fileName = ''
         end if
 
-        fileSelected = ui_new_file(my_window, fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV File")
+        call query_save_file(fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV File", fileSelected)
 
         if (fileSelected) then
-    
-         PRINT *, "fileName is ", trim(getFileNameFromPath(fileName))
-         PRINT *, "fileDirectory is is ", trim(cdir)
-    
-         fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
-        
-        if (fID /= 0) then
-         
-           call sysConfig%genSaveOutputText(fID)
-           call ldm%genSaveOutputText(fID)
-           !call curr_lens_data%genSaveOutputText(fID)
-           call optim%genSaveOutputText(fID)
-           close(fID)
-        else
-            call LogTermFOR("Error!  fiD is "//int2str(fID))
-        end if
+            PRINT *, "fileName is ", trim(getFileNameFromPath(fileName))
+            PRINT *, "fileDirectory is ", trim(cdir)
 
-         !currDir = getSaveDirectory()
-         !call setSaveDirectory(trim(cdir))
-         ! Here is where I should insert code to save file
-    
-         !call setSaveDirectory(trim(currDir))
+            fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
+            if (fID /= 0) then
+                call sysConfig%genSaveOutputText(fID)
+                call ldm%genSaveOutputText(fID)
+                call optim%genSaveOutputText(fID)
+                close(fID)
+            else
+                call LogTermFOR("Error!  fID is "//int2str(fID))
+            end if
         end if
-    
-
 
     end subroutine
 
@@ -1714,21 +1662,20 @@ module codeV_commands
 
 
     subroutine execSaveSessionToFile(iptStr)
-        use handlers, only: zoatabMgr
+        use zoa_ui_callbacks, only: notify_write_tab_state
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens
         use mod_lens_data_manager, only: ldm
         implicit none
 
-        !class(zoa_cmd) :: self
         character(len=*) :: iptStr
         character(len=256) :: fName
         character(len=80) :: tokens(40)
         integer :: numTokens, locDot, fID
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        if (numTokens > 1 ) then
+        if (numTokens > 1) then
             fName = trim(tokens(2))
             locDot = INDEX(fName, '.')
             if (locDot == 0) then
@@ -1737,18 +1684,15 @@ module codeV_commands
             call LogTermFOR("File name to save is "//trim(fName))
         else
             fName = 'default.zoaenv'
-
         end if
         fID = open_file_to_sav_lens(fName)
         if (fID /= 0) then
-         
-           call sysConfig%genSaveOutputText(fID)
-           call ldm%genSaveOutputText(fID)
-           !call curr_lens_data%genSaveOutputText(fID)
-           call zoaTabMgr%genSaveOutputText(fID)
-           close(fID)
+            call sysConfig%genSaveOutputText(fID)
+            call ldm%genSaveOutputText(fID)
+            call notify_write_tab_state(fID)
+            close(fID)
         else
-            call LogTermFOR("Error!  fiD is "//int2str(fID))
+            call LogTermFOR("Error!  fID is "//int2str(fID))
         end if
 
 
@@ -2257,9 +2201,7 @@ module codeV_commands
 
     end subroutine
 
-    subroutine newLens 
-        use gtk_hl_dialog
-
+    subroutine newLens
         use mod_lens_data_manager
       
         implicit none  
@@ -3318,23 +3260,19 @@ module codeV_commands
 
 
     subroutine aut_ui(iptStr)
+        ! TODO 2.1c: aut_ui retains local GTK deps because optimizer_ui uses handlers,
+        ! creating a cycle if we try to register via zoa_ui_callbacks from zzhandlers.f90.
+        ! Resolution requires either moving my_window to global_widgets or a two-stage
+        ! command init (initializeCmds + initializeGuiCmds).
         use iso_c_binding, only: c_associated
         use optimizer_ui
         use global_widgets
         use handlers, only: my_window
-
         character(len=*) :: iptStr
-      
-          if (.not. c_associated(optimizer_window))  THEN
-             call optimizer_ui_new(my_window)
-          else
-            PRINT *, "Do nothing.."
-      
-          end if
-      
-      
-      
-      end subroutine aut_ui  
+        if (.not. c_associated(optimizer_window)) then
+            call optimizer_ui_new(my_window)
+        end if
+    end subroutine aut_ui
 
       subroutine updateDatabase(iptStr)
         character(len=80) :: tokens(40)
@@ -3850,6 +3788,49 @@ module codeV_commands
     subroutine wrap_TSTCMDS(iptStr)
         character(len=*) :: iptStr
         call TestCommands
+    end subroutine
+
+    subroutine listConstraints(iptStr)
+        use optim_types, only: nC, constraintsInUse
+        use type_utils, only: real2str
+        use kdp_utils, only: OUTKDP
+        implicit none
+        character(len=*) :: iptStr
+        integer :: i
+        character(len=1) :: conTypeStr
+        character(len=80) :: outStr
+
+        if (nC == 0) then
+            call OUTKDP('No constraints defined')
+            return
+        end if
+
+        call OUTKDP('  #   NAME   TYPE        TARGET')
+        call OUTKDP('  -   ----   ----   -----------')
+        do i = 1, nC
+            conTypeStr = constraintsInUse(i)%getConstraintTypeAsText()
+            write(outStr, '(I3, 3X, A4, 3X, A1, 3X, A)') &
+                i, constraintsInUse(i)%name, conTypeStr, &
+                trim(real2str(constraintsInUse(i)%targ))
+            call OUTKDP(trim(outStr))
+        end do
+    end subroutine
+
+    subroutine deleteConstraints(iptStr)
+        use optim_types, only: optim
+        use kdp_utils, only: OUTKDP
+        implicit none
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 2 .and. trim(tokens(2)) == 'ALL') then
+            call optim%removeAllConstraints()
+            call OUTKDP('All constraints removed')
+        else
+            call OUTKDP('Usage: DCON ALL')
+        end if
     end subroutine
 
 end module

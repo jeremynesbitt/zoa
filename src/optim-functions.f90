@@ -84,9 +84,10 @@ subroutine aut_go()
     
     if (status_ok) then
         ! Don't allow commands called during optimization to pollute output log
+
         call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
         call solver%optimize(x,istat,iterations)
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+        call ioConfig%restoreTextView()
         write(*,*) ''
         write(*,*) 'solution   :', x
         write(*,*) 'istat      :', istat
@@ -303,7 +304,7 @@ subroutine test_func_spo_efl(me,x,f,c)
     call PROCESKDP('SUR SA')
  ! Get updated merit data and write to output csv
     call PROCESKDP('OPRD CFG, 1') ! for operand calcs
-    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)  
+    call ioConfig%restoreTextView() 
 
    
     !call write_csv('/Users/jeremy/Fortran/zoa/build/optimOutput.csv',OPERND(1:2,4), 1, 2)

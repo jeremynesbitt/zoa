@@ -284,7 +284,11 @@ contains
     use gdk
     use zoa_output, only: zoa_set_output_handler
     use zoa_ui_callbacks, only: zoa_set_replot_callback, &
-        zoa_set_refresh_status_callback, zoa_set_close_all_tabs_callback
+        zoa_set_refresh_status_callback, zoa_set_close_all_tabs_callback, &
+        zoa_set_query_confirm_callback, zoa_set_query_yes_no_callback, &
+        zoa_set_write_tab_state_callback, &
+        zoa_set_query_existing_plot_callback, &
+        zoa_set_query_save_file_callback
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -481,10 +485,15 @@ contains
     ! Register GTK output handler so zoa_emit routes to the GUI text view
     call zoa_set_output_handler(updateTerminalLog)
 
-    ! Register GUI callbacks so core code can trigger replot/refresh/close-tabs
+    ! Register GUI callbacks so core code can trigger GUI actions without GTK deps
     call zoa_set_replot_callback(gui_notify_replot)
     call zoa_set_refresh_status_callback(gui_notify_refresh_status)
     call zoa_set_close_all_tabs_callback(gui_notify_close_all_tabs)
+    call zoa_set_query_confirm_callback(gui_query_confirm)
+    call zoa_set_query_yes_no_callback(gui_query_yes_no)
+    call zoa_set_write_tab_state_callback(gui_write_tab_state)
+    call zoa_set_query_existing_plot_callback(gui_query_existing_plot)
+    call zoa_set_query_save_file_callback(gui_query_save_file)
 
     ! INIT KDP
     CALL INITKDP
@@ -1015,6 +1024,56 @@ end subroutine
   subroutine gui_notify_close_all_tabs(msg)
     character(len=*), intent(in) :: msg
     call zoatabMgr%closeAllTabs(msg)
+  end subroutine
+
+  subroutine gui_query_confirm(message, title, confirmed)
+    use gtk_hl_dialog
+    use iso_c_binding, only: c_null_char
+    character(len=*), intent(in) :: message, title
+    logical, intent(out) :: confirmed
+    character(len=80), dimension(1) :: msg
+    integer :: resp
+    msg(1) = message
+    resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK_CANCEL, &
+           trim(title)//c_null_char)
+    confirmed = (resp == GTK_RESPONSE_OK)
+  end subroutine
+
+  subroutine gui_query_yes_no(message, title, yes)
+    use gtk_hl_dialog
+    use iso_c_binding, only: c_null_char
+    character(len=*), intent(in) :: message, title
+    logical, intent(out) :: yes
+    character(len=80), dimension(1) :: msg
+    integer :: resp
+    msg(1) = message
+    resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+           trim(title)//c_null_char)
+    yes = (resp == GTK_RESPONSE_YES)
+  end subroutine
+
+  subroutine gui_write_tab_state(fID)
+    integer, intent(in) :: fID
+    call zoatabMgr%genSaveOutputText(fID)
+  end subroutine
+
+  subroutine gui_query_existing_plot(plot_code, plot_num, psm, found)
+    use plot_setting_manager, only: zoaplot_setting_manager
+    integer, intent(in) :: plot_code, plot_num
+    type(zoaplot_setting_manager), intent(out) :: psm
+    logical, intent(out) :: found
+    integer :: objIdx
+    found = zoatabMgr%doesPlotExist_new(plot_code, objIdx, plot_num)
+    if (found) psm = zoatabMgr%tabInfo(objIdx)%tabObj%psm
+  end subroutine
+
+  subroutine gui_query_save_file(filename, dir, default_dir, filter, title, selected)
+    use ui_dialogs, only: ui_new_file
+    character(len=*), intent(inout) :: filename
+    character(len=*), intent(out)   :: dir
+    character(len=*), intent(in)    :: default_dir, filter, title
+    logical, intent(out) :: selected
+    selected = ui_new_file(my_window, filename, dir, default_dir, filter, title)
   end subroutine
 
 
