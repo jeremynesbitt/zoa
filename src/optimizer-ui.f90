@@ -2,8 +2,11 @@
 ! For now it just includes a table of operands and a button to run.  All of this can be done via 
 ! the CLI but this UI is nice to see operands and delete them if needed 
 module optimizer_ui
-    use handlers
+    use gtk
+    use g
     !use hl_gtk_zoa
+    use gtk_hl_button
+    use gtk_hl_entry
     use gtk_hl_container
     use iso_c_binding
     use global_widgets

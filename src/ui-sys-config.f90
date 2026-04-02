@@ -8,7 +8,8 @@
 module ui_sys_config
   use GLOBALS
   use global_widgets
-  use handlers
+  use iso_c_binding, only: c_ptr
+  use zoa_tab
   use cairo
   use iso_fortran_env, only: real64
 !  use gth_hl

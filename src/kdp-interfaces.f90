@@ -395,21 +395,12 @@ end subroutine
 
 
 subroutine EDITOR
-  ! TODO 2.1c: retains handlers dep — lens_editor uses handlers, creating a cycle.
-  ! Resolution: move my_window to global_widgets, or two-stage initializeCmds.
+  use iso_c_binding, only: c_associated
   use lens_editor
-  use global_widgets
-  use handlers, only: my_window
-
-    if (.not. c_associated(lens_editor_window))  THEN
-       PRINT *, "Call New Lens Editor Window"
-       call lens_editor_new(my_window)
-       PRINT *, "Lens editor call finished!"
-    else
-      PRINT *, "Do nothing..lens editor exists. "
-
-    end if
-
+  use global_widgets, only: lens_editor_window, my_window
+  if (.not. c_associated(lens_editor_window)) then
+    call lens_editor_new(my_window)
+  end if
 end subroutine EDITOR
 
 subroutine PTSTUFF
@@ -900,20 +891,13 @@ end subroutine MACROUI
 
 
 subroutine SYSCONFIGUI
-  ! TODO 2.1c: retains handlers dep — ui_sys_config uses handlers, creating a cycle.
-  ! Resolution: move my_window to global_widgets, or two-stage initializeCmds.
+  use iso_c_binding, only: c_associated
   use ui_sys_config
-  use global_widgets
-  use handlers, only: my_window
-
-    if (.not. c_associated(sys_config_window))  THEN
-       PRINT *, "Call New Sys Config Window"
-       call sys_config_new(my_window)
-    else
-      PRINT *, "Do nothing..sys config window exists. "
-    end if
-
-end subroutine
+  use global_widgets, only: sys_config_window, my_window
+  if (.not. c_associated(sys_config_window)) then
+    call sys_config_new(my_window)
+  end if
+end subroutine SYSCONFIGUI
 
 
 SUBROUTINE RUN_WDRAWOPTICALSYSTEM

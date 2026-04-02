@@ -22,7 +22,7 @@ module handlers
   use zoa_tab_manager
 
   implicit none
-  type(c_ptr)    :: my_window, entry,  provider
+  type(c_ptr)    :: entry, provider
   ! For updating UI during long computations
   integer(c_int) :: run_status = TRUE
   integer(c_int) :: boolresult

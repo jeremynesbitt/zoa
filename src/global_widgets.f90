@@ -5,6 +5,7 @@ module global_widgets
   use kdp_data_types, only: sys_config, io_config, lens_data, paraxial_ray_trace_data, &
   & ray_fan_data, opd_data, aspheric_surf_data
 
+  type(c_ptr) :: my_window
   type(c_ptr) :: my_pixbuf, my_drawing_area
   type(c_ptr) :: textView, buffer, statusBar
   type(c_ptr) :: drawing_area_plot, notebook

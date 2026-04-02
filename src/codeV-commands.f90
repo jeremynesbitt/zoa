@@ -3260,14 +3260,9 @@ module codeV_commands
 
 
     subroutine aut_ui(iptStr)
-        ! TODO 2.1c: aut_ui retains local GTK deps because optimizer_ui uses handlers,
-        ! creating a cycle if we try to register via zoa_ui_callbacks from zzhandlers.f90.
-        ! Resolution requires either moving my_window to global_widgets or a two-stage
-        ! command init (initializeCmds + initializeGuiCmds).
         use iso_c_binding, only: c_associated
         use optimizer_ui
-        use global_widgets
-        use handlers, only: my_window
+        use global_widgets, only: optimizer_window, my_window
         character(len=*) :: iptStr
         if (.not. c_associated(optimizer_window)) then
             call optimizer_ui_new(my_window)

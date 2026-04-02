@@ -2,10 +2,15 @@
 ! Rev 2
 module lens_editor
 
-  use handlers ! includes gtk and g
+  use gtk
+  use g
+  use iso_c_binding
+  use global_widgets
+  use zoa_ui_callbacks, only: notify_replot
   use zoa_output, only: zoa_emit
 !  use gth_hl
   use hl_gtk_zoa
+  use gtk_hl_button
   use gtk_hl_tree
 
   use kdp_data_types
@@ -221,7 +226,7 @@ end subroutine lens_editor_replot
     currRow = getCurrentLensEditorRow()
     call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; INSK ; EOS')
     call rebuildLensEditorTable()
-    call zoatabMgr%rePlotIfNeeded()
+    call notify_replot()
     return
     
   end subroutine
@@ -245,7 +250,7 @@ end subroutine lens_editor_replot
   
   call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; DELK ; EOS')
   call rebuildLensEditorTable()
-  call zoatabMgr%rePlotIfNeeded()
+  call notify_replot()
 
   end subroutine del_row
 
@@ -263,7 +268,7 @@ end subroutine lens_editor_replot
     implicit none
 
     call refreshLensDataStruct()
-    call zoatabMgr%rePlotIfNeeded()
+    call notify_replot()
 
   end subroutine
 
@@ -762,7 +767,7 @@ function buildLensEditTable() result(store)
     CALL PROCESKDP('EOS')
     mod_update = .TRUE.
     call refreshLensDataStruct()
-    call zoatabMgr%rePlotIfNeeded()
+    call notify_replot()
 
     call gtk_window_destroy(gdata)
 
@@ -778,7 +783,7 @@ function buildLensEditTable() result(store)
     ! This is a bad design but not sure what else to do to get rid of the "P" entry without
     ! yet another global
     call refreshLensDataStruct()
-    call zoatabMgr%rePlotIfNeeded()    
+    call notify_replot()    
     call gtk_window_destroy(parentWin)
 
   end subroutine  
@@ -999,7 +1004,7 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
   mod_update = .TRUE.
   call gtk_menu_button_set_icon_name(curr_btn, 'letter-s'//c_null_char)
   !call refreshLensDataStruct()
-  !call zoatabMgr%rePlotIfNeeded()
+  !call notify_replot()
 
 
   call gtk_window_close(win_modal_solve)
@@ -1569,9 +1574,10 @@ function getCurrentLensEditorRow() result(currPos)
 end function
 
 subroutine rebuildLensEditorTable()
+  use handlers, only: pending_events
 
   type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
-  integer(c_int) :: oldPos 
+  integer(c_int) :: oldPos
   real(c_double) :: vPos, hPos
   logical :: boolResult
 

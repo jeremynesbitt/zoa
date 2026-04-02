@@ -20,9 +20,9 @@ module zoa_ui_callbacks
   public :: notify_replot, notify_refresh_status, notify_close_all_tabs
   public :: zoa_set_replot_callback, zoa_set_refresh_status_callback, &
             zoa_set_close_all_tabs_callback
-  ! notify_show_optimizer_ui omitted: optimizer_ui uses handlers, creating a cycle
-  ! notify_show_editor_ui omitted: lens_editor uses handlers, creating a cycle
-  ! notify_show_sysconfig_ui omitted: ui_sys_config uses handlers, creating a cycle
+  ! notify_show_optimizer_ui, notify_show_editor_ui, notify_show_sysconfig_ui:
+  ! not needed — those subroutines call the UI modules directly (no cycle after
+  ! moving my_window to global_widgets and removing use handlers from those modules)
   public :: notify_show_macro_ui, zoa_set_show_macro_ui_callback
   public :: query_confirm, zoa_set_query_confirm_callback
   public :: query_yes_no, zoa_set_query_yes_no_callback
@@ -40,9 +40,6 @@ module zoa_ui_callbacks
 
     subroutine close_tabs_iface(msg)
       character(len=*), intent(in) :: msg
-    end subroutine
-
-    subroutine show_optimizer_ui_iface()
     end subroutine
 
     subroutine show_macro_ui_iface()
@@ -80,7 +77,6 @@ module zoa_ui_callbacks
   procedure(replot_iface),              pointer :: replot_cb             => null()
   procedure(refresh_status_iface),      pointer :: refresh_status_cb     => null()
   procedure(close_tabs_iface),          pointer :: close_tabs_cb         => null()
-  procedure(show_optimizer_ui_iface),   pointer :: show_optimizer_ui_cb  => null()
   procedure(show_macro_ui_iface),       pointer :: show_macro_ui_cb      => null()
   procedure(query_confirm_iface),       pointer :: query_confirm_cb      => null()
   procedure(query_yes_no_iface),        pointer :: query_yes_no_cb       => null()
@@ -103,11 +99,6 @@ contains
   subroutine zoa_set_close_all_tabs_callback(cb)
     procedure(close_tabs_iface) :: cb
     close_tabs_cb => cb
-  end subroutine
-
-  subroutine zoa_set_show_optimizer_ui_callback(cb)
-    procedure(show_optimizer_ui_iface) :: cb
-    show_optimizer_ui_cb => cb
   end subroutine
 
   subroutine zoa_set_show_macro_ui_callback(cb)
@@ -153,10 +144,6 @@ contains
   subroutine notify_close_all_tabs(msg)
     character(len=*), intent(in) :: msg
     if (associated(close_tabs_cb)) call close_tabs_cb(msg)
-  end subroutine
-
-  subroutine notify_show_optimizer_ui()
-    if (associated(show_optimizer_ui_cb)) call show_optimizer_ui_cb()
   end subroutine
 
   subroutine notify_show_macro_ui()
