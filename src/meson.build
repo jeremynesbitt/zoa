@@ -191,7 +191,7 @@ srcs += files(
   'RAYTRA2.FOR',
   'RAYTRA3.FOR',
   'RAYTRA4.FOR',
-  'RAYTRA5.FOR',
+  'RAYTRA5.f90',
   'raytra6.FOR',
   'raytra7.FOR',
   'raytra8.FOR',
