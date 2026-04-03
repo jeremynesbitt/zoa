@@ -4,10 +4,10 @@
         USE GLOBALS
         use DATSP1
         use DATHGR
+        use DATCFG
         IMPLICIT NONE
 
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATCFG.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
