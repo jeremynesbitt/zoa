@@ -2954,11 +2954,49 @@ SUBROUTINE RAYTRA_OLD
       CALL GLPRY
       GLOBE=.FALSE.
    END IF
-   RAYRAY(25,NEWOBJ:NEWIMG)=0.0D0
-   RAYRAY(34:38,NEWOBJ:NEWIMG)=0.0D0
-!     COMPUTE RAY ENERGY
-   RAYRAY(34:38,I)=0.0D0
+   call compute_ray_energy
+   RETURN
+END
+! -----------------------------------------------------------------------
+! compute_ray_energy — accumulate energy/transmission factors across surfaces
+!
+! Loops NEWOBJ..NEWIMG and fills RAYRAY(25,:) (energy) and
+! RAYRAY(34:40,:) (polarisation factors) for the most recently traced ray.
+! Handles: initial energy seed (WW4 or REFEXT), refractive index lookup,
+! apodization grid (surface type 19), screen vignetting, polarisation angle,
+! coating ENERGY_ADJUST, and grating DIFFRACTION_EFFICIENCY.
+!
+! All ray/system data are accessed through the DATLEN and DATMAI modules;
+! no arguments are needed.  On grid-file error the routine sets STOPP=1
+! and returns early — the caller must check STOPP before proceeding.
+! -----------------------------------------------------------------------
+subroutine compute_ray_energy
+   use GLOBALS
+   use DATLEN
+   use DATMAI, only: PII, OUTLYNE
+   use surface_params
+   implicit none
+   integer  :: I, J, ISURF, IPASS1, WA3
+   real(8)  :: RN1, RN2, POLANG, FACT_PAR, FACT_PER, PHASE_PAR, PHASE_PER
+   real(8)  :: IA, IAP, PATHL, ENERGY_FACTOR, AOI, D, H, S, FACTOR, DP, MAG
+   real(8)  :: JK_L1, JK_M1, JK_N1, JK_L2, JK_M2, JK_N2
+   real(8)  :: JK_CPL, JK_CPM, JK_CPN, SA_CPL, SA_CPM, SA_CPN
+   real(8)  :: XPASS, YPASS, ZPASS
+   logical  :: GERROR
+   COMMON/SAGPAS/XPASS,YPASS,ZPASS
+
+   WA3       = INT(WW3)
+   FACT_PAR  = 0.0D0
+   FACT_PER  = 0.0D0
+   PHASE_PAR = 0.0D0
+   PHASE_PER = 0.0D0
+   POLANG    = 0.0D0
+
+   RAYRAY(25,NEWOBJ:NEWIMG)    = 0.0D0
+   RAYRAY(34:38,NEWOBJ:NEWIMG) = 0.0D0
+
    DO I=NEWOBJ,NEWIMG
+      ! --- seed energy -------------------------------------------------
       IF(I.EQ.NEWOBJ) THEN
          IF(REFEXT) THEN
             RAYRAY(25,I)=WW4*REFRY(9,NEWOBJ)
@@ -2968,6 +3006,7 @@ SUBROUTINE RAYTRA_OLD
       ELSE
          RAYRAY(25,I)=RAYRAY(25,I-1)
       END IF
+      ! --- refractive indices either side of this surface --------------
       IF(I.EQ.NEWOBJ) THEN
          IF(WA3.GE.1.AND.WA3.LE.5) THEN
             RN1=(ALENS(A_N_OFFSET+WA3,I))
@@ -2987,14 +3026,12 @@ SUBROUTINE RAYTRA_OLD
             RN2=(ALENS(A_N2_OFFSET+WA3,I))
          END IF
       END IF
+      ! --- apodization grid surface (type 19) --------------------------
       IF(ALENS(A_SURFTYPE,I).EQ.19.0D0) THEN
-!     CALL THE GRIDS ROUTINE WITH ARG = 2
-!     THIS CAUSES THE RAY ENERGY TO BE MULTIPLIED BY THE
-!     APODIZATION REPRESENTED IN THE APGRI FILE
          ISURF=I
          GERROR=.FALSE.
-         XPASS=X
-         YPASS=Y
+         XPASS=RAYRAY(1,I)
+         YPASS=RAYRAY(2,I)
          IPASS1=2
          CALL GRIDS(2,ISURF,GERROR)
          IF(.NOT.GERROR) GRIDSUNLOADED19(I)=.FALSE.
@@ -3002,11 +3039,9 @@ SUBROUTINE RAYTRA_OLD
             IF(MSG) THEN
                WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
                CALL SHOWIT(1)
-               OUTLYNE=&
-               &'GRID FILE DOES NOT EXIST FOR THIS SURFACE'
+               OUTLYNE='GRID FILE DOES NOT EXIST FOR THIS SURFACE'
                CALL SHOWIT(1)
-               OUTLYNE=&
-               &'OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE'
+               OUTLYNE='OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE'
                CALL SHOWIT(1)
             END IF
             STOPP=1
@@ -3022,10 +3057,9 @@ SUBROUTINE RAYTRA_OLD
          PHASE_PER=0.0D0
          POLANG=0.0D0
       END IF
+      ! --- screen surface vignetting -----------------------------------
       IF(SYSTEM(SYS_SCREEN).EQ.1.0D0) THEN
-!     SCREEN SURFACE
          IF(I.EQ.INT(SYSTEM(SYS_SCREEN_SURF))) THEN
-!       GOT THE SCREEN SURFACE
             AOI=DABS(DACOS(RAYRAY(9,I)))
             D=SYSTEM(SYS_SCREEN_D)
             H=SYSTEM(SYS_SCREEN_H)
@@ -3041,16 +3075,13 @@ SUBROUTINE RAYTRA_OLD
             RAYRAY(25,I)=RAYRAY(25,I)*FACTOR
          END IF
       END IF
+      ! --- non-apodization surface: polarisation + coatings + grating --
       IF(ALENS(A_SURFTYPE,I).NE.19.0D0) THEN
-!
-!     NOT AN APODIZATION SURFACE
          IF(DUM(I).AND.I.GT.0) THEN
             RAYRAY(34:38,I)=0.0D0
          END IF
-!       EVEN THOUGH WE DON'T ALWAYS DO POLARIZATION, WE NEED THE POLANG
-!       THE UNIT VECTOR JK_CPL,JK_CPM,JK_CPN IS NORMAL TO
-!       THE PLANE OF INCIDENCE AND LIES IN A PLANE
-!       NORMAL TO THE SURFACE AT THE POINT OF INTERSECTION
+         ! Compute polarisation angle
+         ! JK_CPL/M/N = unit vector normal to plane of incidence
          JK_L1=RAYRAY(19,I)
          JK_M1=RAYRAY(20,I)
          JK_N1=RAYRAY(21,I)
@@ -3080,8 +3111,7 @@ SUBROUTINE RAYTRA_OLD
             JK_CPM=0.0D0
             JK_CPN=0.0D0
          END IF
-!       THE UNIT VECTOR IN THE
-!       INCIDENT DIRECTION IS:
+         ! SA_CPL/M/N = incident direction unit vector (Z parallel to RYN)
          JK_L1=JK_CPL
          JK_M1=JK_CPM
          JK_N1=JK_CPN
@@ -3103,17 +3133,11 @@ SUBROUTINE RAYTRA_OLD
             SA_CPM=1.0D0
             SA_CPN=0.0D0
          END IF
-!       WE NEED TO USE THIS INCIDENT DIRECTION VECTOR BUT IT NEEDS TO BE
-!       MODIFIED SO THAT ITS Z-ORIENTATION IS PARALLEL TO THE Z-COORDINATE
-!       OF THE RYL,RYM,RYN VECTOR
          SA_CPN = RYN(I)
          MAG=DSQRT((1.0D0-(SA_CPN**2))/((SA_CPL**2)+(SA_CPM**2)))
          SA_CPL=MAG*SA_CPL
          SA_CPM=MAG*SA_CPM
          MAG=DSQRT((SA_CPL**2)+(SA_CPM**2)+(SA_CPN**2))
-!       THE DOT PRODUCT OF THIS UNIT VECTOR WITH RYL,RYM,RYM UNIT VECTOR
-!       GIVES THE COSINE OF THE ANGLE BETWEEN THE Y-VECTOR OF THE RAY
-!       AND THE DIRECTION OF INCIDENCE
          JK_L1=RYL(I)
          JK_M1=RYM(I)
          JK_N1=RYN(I)
@@ -3121,7 +3145,6 @@ SUBROUTINE RAYTRA_OLD
          JK_M2=SA_CPM
          JK_N2=SA_CPN
          CALL DOT_PRODUCT(DP,JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2)
-!       POLARIZATION COSINE IS THEN
          IF(DP.GT.1.0D0) DP=1.0D0
          IF(DP.LT.-1.0D0) DP=-1.0D0
          POLANG=DACOS(DP)
@@ -3130,7 +3153,7 @@ SUBROUTINE RAYTRA_OLD
          RAYRAY(38,I)=(POLANG*180.0D0)/PII
          RAYRAY(39,I)=DCOS(POLANG)*DACOS(RAYRAY(9,I))
          RAYRAY(40,I)=DSIN(POLANG)*DACOS(RAYRAY(9,I))
-!       POL ANG DONE
+         ! Coating transmission
          IF(COATSET) THEN
             J=INT(ALENS(A_COATING,I))
             IF(RAYRAY(9,I).GT.1.0D0) RAYRAY(9,I)=1.0D0
@@ -3147,6 +3170,7 @@ SUBROUTINE RAYTRA_OLD
             &,FACT_PAR,FACT_PER,PHASE_PAR,PHASE_PER,PATHL)
             IF(I.GT.NEWOBJ) RAYRAY(25,I)=RAYRAY(25,I)*ENERGY_FACTOR
          END IF
+         ! Grating diffraction efficiency
          IF(ALENS(A_GRATING,I).EQ.1.0D0.AND.&
          &ALENS(A_GRAT_SPACE,I).NE.0.0D0) THEN
             IA=DACOS(RAYRAY(9,I))
@@ -3161,8 +3185,8 @@ SUBROUTINE RAYTRA_OLD
          RAYRAY(37,I)=PHASE_PER
       END IF
    END DO
-   RETURN
-END
+end subroutine compute_ray_energy
+
 ! -----------------------------------------------------------------------
 ! compute_aim_target — compute the XY target point on the reference surface
 !
