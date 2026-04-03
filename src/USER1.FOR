@@ -5,6 +5,7 @@ C
       use DATSP1
       use DATHGR
       use DATCFG
+      use DATSPD
       IMPLICIT NONE
       REAL*8 RHO,RHO2,C,C2,X,Y,Z,KAPPA,DEN
       INTEGER I
@@ -25,7 +26,6 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSPD.INC'
         UERROR=.FALSE.
 C
         RHO2=((X**2)+(Y**2))
@@ -68,10 +68,10 @@ C
       use DATSP1
       use DATHGR
       use DATCFG
+      use DATSPD
       IMPLICIT NONE
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATPTS.INC'
-      INCLUDE 'DATSPD.INC'
       INCLUDE 'DATSUB.INC'
       REAL*8 X,Y,Z,T
       INTEGER I
@@ -89,12 +89,12 @@ C
       use DATSP1
       use DATHGR
       use DATCFG
+      use DATSPD
       IMPLICIT NONE
       REAL*8 X,Y,Z,T,RESULT,C,K,R
       INTEGER I
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATPTS.INC'
-      INCLUDE 'DATSPD.INC'
       INCLUDE 'DATSUB.INC'
 C     CASE T=1
       IF(INT(T).EQ.1) THEN
@@ -164,10 +164,10 @@ C
       use DATSP1
       use DATHGR
       use DATCFG
+      use DATSPD
       IMPLICIT NONE
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATPTS.INC'
-      INCLUDE 'DATSPD.INC'
       INCLUDE 'DATSUB.INC'
       WRITE(OUTLYNE,*) 'RUNNING THE USERSUBR.FOR SUBROUTINE'
       CALL SHOWIT(1)

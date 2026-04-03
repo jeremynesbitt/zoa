@@ -12,6 +12,7 @@ C
         use DATSP1
         use DATHGR
         use DATCFG
+        use DATSPD
         IMPLICIT NONE
 C
 C       THIS IS CALLED BY THE UI at program initialization
@@ -131,7 +132,6 @@ C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSPD.INC'
 
         call initializeCmds()
         gdb = glassdb()

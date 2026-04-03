@@ -1005,12 +1005,12 @@ end subroutine
 subroutine getOPDData(lambda)
   use iso_fortran_env, only: real64
   use DATSP1
+  use DATSPD
   implicit none
   ! This is taken from PLOTCAPCO in PLOTCAD4.FOR.  
   integer :: lambda, loopFlag, I, KKV, KKK
   real(kind=real64) :: WVAL
   
-  INCLUDE 'DATSPD.INC'  
 
   loopFlag = 1
 

@@ -15,6 +15,7 @@ contains
         USE GLOBALS
 
         use DATSP1
+        use DATSPD
         IMPLICIT NONE
 
         integer :: refSphereAlgo
@@ -28,7 +29,6 @@ contains
 
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
 !
       LOGICAL REFERR
 
@@ -121,6 +121,7 @@ function updateOCOR(typeCode) result(opdCorrection)
 
         USE GLOBALS
         use DATSP1
+        use DATSPD
         IMPLICIT NONE
 
           real*8 :: opdCorrection
@@ -140,7 +141,6 @@ function updateOCOR(typeCode) result(opdCorrection)
 !
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
 
     select case (typeCode)
     case(TC_PERFECT)
@@ -259,6 +259,7 @@ subroutine updateRefSphereParaxialPupil(REFERR)
 ! TODO:  Have propoer input/output.
         USE GLOBALS
         use DATSP1
+        use DATSPD
         IMPLICIT NONE
 
         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -273,7 +274,6 @@ subroutine updateRefSphereParaxialPupil(REFERR)
 !
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
 
 !       THE REFERENCE SPHERE IS CENTERED WHERE THE REAL CHIEF
 !       RAY CROSSES THE FINAL SURFACE.
@@ -415,6 +415,7 @@ subroutine updateRefSphereRealPupil(REFERR)
 ! TODO make this proper input/output
         USE GLOBALS
         use DATSP1
+        use DATSPD
         IMPLICIT NONE
 
         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -429,7 +430,6 @@ subroutine updateRefSphereRealPupil(REFERR)
 !
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
 
 
 !       THE REFERENCE SPHERE IS CENTERED WHERE THE REAL CHIEF

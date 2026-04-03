@@ -872,6 +872,7 @@ C SUB AGET.FOR
 C
         use DATSP1
         use DATCFG
+        use DATSPD
         IMPLICIT NONE
 C
 C
@@ -886,7 +887,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSPD.INC'
         INCLUDE 'DATSUB.INC'
 C
       AAVAL=AA//AA//AA//AA
@@ -1177,6 +1177,7 @@ C SUB GET.FOR
 C
         use DATSP1
         use DATCFG
+        use DATSPD
         IMPLICIT NONE
 C
 C       SUBROUTINE GET SERVES TO PASS ANY OF A LARGE NUMBER
@@ -1234,7 +1235,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSPD.INC'
         INCLUDE 'DATSUB.INC'
 C
       EXTERNAL EDGTHK

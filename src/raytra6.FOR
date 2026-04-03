@@ -2879,9 +2879,9 @@ C     WRITE DOWN THE THIRD X VALUE
                    END IF
                    END
       SUBROUTINE COFACTOR
+      use DATSPD
       IMPLICIT NONE
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATSPD.INC'
       COHERENCE_FACTOR=W1
                 RETURN
                         END

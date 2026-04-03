@@ -5,6 +5,7 @@
 
         USE GLOBALS
 C
+        use DATSPD
         IMPLICIT NONE
 
         character(len=*), intent(in) :: subName
@@ -47,7 +48,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSPD.INC'
 
 
         PRINT FMTFLAGS, subName, F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,

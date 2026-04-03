@@ -5,12 +5,12 @@
         use DATSP1
         use DATHGR
         use DATCFG
+        use DATSPD
         IMPLICIT NONE
 
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSPD.INC'
 
         INTEGER CATLIST
 
