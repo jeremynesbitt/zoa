@@ -141,7 +141,8 @@ if fortran.get_id().contains('gcc')
     '-static-libgfortran',
     '-fPIC',
     '-g',
-    '-cpp'])
+    '-cpp',
+    '-static'])
 endif
 
 
