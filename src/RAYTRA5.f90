@@ -2705,261 +2705,9 @@ SUBROUTINE RAYTRA_OLD
 !       NRAITR. (DEFAULT IS 100).
 !
       IF(I.EQ.NEWREF) THEN
-!       CALCULATE TARX AND TARY
-         IF(DABS(ALENS(A_APTYPE,I)).GE.1.0D0.AND.&
-         &DABS(ALENS(A_APTYPE,I)).LE.6.0D0.AND.&
-         &ALENS(A_MULTICLAP,I).EQ.0.0D0) THEN
-!     CLAPT=TRUE FOR CLAP TILTS AND DECENTED AND FALSE OTHERWISE
-            CLAPT=.FALSE.
-            IF(ALENS(A_CLAP_YD,I).NE.0.0D0.OR.&
-            &ALENS(A_CLAP_XD,I).NE.0.0D0.OR.&
-            &ALENS(A_CLAP_TILT,I).NE.0.0D0) CLAPT=.TRUE.
-!       REF SURF HAS CLAP ON IT
-!       THE VALUES OF TARY AND TARX ARE COORDINATES IN THE
-!       LOCAL COORDINATE SYSTEM OF THE REFERENCE SYSTEM.
-!       IF THE CLAP IS DECENTERED, THE TAR() VALUES ARE
-!       MODIFIED BY ADDING THE CLAP DECENTRATIONS SINCE THE RAY
-!       IS AIMED TO THE RELATIVE REFERENCE SURFACE COORDINATES.
-!
-!       SET TARGET TO CENTER OF DECENTERED CLAP, ALENS(A_CLAP_YD,I),
-!       AND ALENS(A_CLAP_XD,I) ARE CLAP DECENTRATIONS
-!
-            WWW1=WW1
-            WWW2=WW2
-            IF(SYSTEM(SYS_APLANATIC).EQ.1.0D0.AND.&
-            &ALENS(A_CURV,I).NE.0.0D0.AND.&
-            &ALENS(A_APTYPE,I).EQ.1.0D0.AND.ALENS(A_CLAP_YD,I).EQ.0.0D0.AND.&
-            &ALENS(A_CLAP_XD,I).EQ.0.0D0.AND.&
-            &ALENS(A_CLAP_TILT,I).EQ.0.0D0) THEN
-               IF(DABS(1.0D0/ALENS(A_CURV,I)).GE.DABS(ALENS(A_CLAP_P1,I)).AND.&
-               &DABS(1.0D0/ALENS(A_CURV,I)).GE.DABS(ALENS(A_CLAP_P2,I)))&
-               &CALL APLANA(I,WW1,WW2,WWW1,WWW2)
-            END IF
-!
-!       CIRCULAR CLAP
-!
-            IF(DABS(ALENS(A_APTYPE,I)).EQ.1.0D0) THEN
-               IF(CLAPT) THEN
-                  IF(ALENS(A_CLAP_P1,I).LE.ALENS(A_CLAP_P2,I)) THEN
-                     TARY=(ALENS(A_CLAP_P1,I)*WWW1)
-                     TARX=(ALENS(A_CLAP_P1,I)*WWW2)
-                  ELSE
-                     TARY=(ALENS(A_CLAP_YD,I))+(ALENS(A_CLAP_P2,I)*WWW1)
-                     TARX=(ALENS(A_CLAP_XD,I))+(ALENS(A_CLAP_P2,I)*WWW2)
-                  END IF
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  TARX=TARX+ALENS(A_CLAP_XD,I)
-                  TARY=TARY+ALENS(A_CLAP_YD,I)
-!       NOW IS THE CLAP TILTED ?
-                  GAMMA=(ALENS(A_CLAP_TILT,I)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               ELSE
-!     NO CLAP DEC OR TILTS
-                  TARY=(ALENS(A_CLAP_P1,I)*WWW1)
-                  TARX=(ALENS(A_CLAP_P1,I)*WWW2)
-                  IF(ALENS(A_CLAP_P1,I).LE.ALENS(A_CLAP_P2,I)) THEN
-                     TARY=(ALENS(A_CLAP_P1,I)*WWW1)
-                     TARX=(ALENS(A_CLAP_P1,I)*WWW2)
-                  ELSE
-                     TARY=(ALENS(A_CLAP_P2,I)*WWW1)
-                     TARX=(ALENS(A_CLAP_P2,I)*WWW2)
-                  END IF
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-!       NOW IS THE REF SURF ORIENTATION ANGLE ?
-                  GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               END IF
-!       NOT CIRCULAR CLAP
-            END IF
-!        RECT CLAP
-!
-            IF(DABS(ALENS(A_APTYPE,I)).EQ.2.0D0) THEN
-               IF(CLAPT) THEN
-                  IF(ANAAIM) THEN
-                     TARY=(ALENS(A_CLAP_P1,I)*WW1)
-                     TARX=(ALENS(A_CLAP_P2,I)*WW2)
-                  ELSE
-                     IF(DABS(ALENS(A_CLAP_P1,I)).GT.DABS(ALENS(A_CLAP_P2,I))) THEN
-                        TARY=(ALENS(A_CLAP_P1,I)*WW1)
-                        TARX=(ALENS(A_CLAP_P1,I)*WW2)
-                     ELSE
-                        TARY=(ALENS(A_CLAP_YD,I))+(ALENS(A_CLAP_P2,I)*WW1)
-                        TARX=(ALENS(A_CLAP_XD,I))+(ALENS(A_CLAP_P2,I)*WW2)
-                     END IF
-                  END IF
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  TARX=TARX+ALENS(A_CLAP_XD,I)
-                  TARY=TARY+ALENS(A_CLAP_YD,I)
-!       NOW IS THE CLAP TILTED ?
-                  GAMMA=(ALENS(A_CLAP_TILT,I)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               ELSE
-                  TARY=(ALENS(A_CLAP_P1,I)*WW1)
-                  TARX=(ALENS(A_CLAP_P2,I)*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               END IF
-!       NOT RECT CLAP
-            END IF
-!        ELIP CLAP
-!
-            YVALUE=ALENS(A_CLAP_P1,I)
-            XVALUE=ALENS(A_CLAP_P2,I)
-!
-            IF(DABS(ALENS(A_APTYPE,I)).EQ.3.0D0) THEN
-               IF(CLAPT) THEN
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  TARX=TARX+ALENS(A_CLAP_XD,I)
-                  TARY=TARY+ALENS(A_CLAP_YD,I)
-!       NOW IS THE CLAP TILTED ?
-                  GAMMA=(ALENS(A_CLAP_TILT,I)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               ELSE
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               END IF
-!       NOT ELIP CLAP
-            END IF
-!        RCTK CLAP
-!
-            IF(DABS(ALENS(A_APTYPE,I)).EQ.4.0D0) THEN
-               IF(CLAPT) THEN
-                  YVALUE=ALENS(A_CLAP_P1,I)
-                  XVALUE=ALENS(A_CLAP_P2,I)
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  TARX=TARX+ALENS(A_CLAP_XD,I)
-                  TARY=TARY+ALENS(A_CLAP_YD,I)
-!       NOW IS THE CLAP TILTED ?
-                  GAMMA=(ALENS(A_CLAP_TILT,I)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               ELSE
-                  YVALUE=ALENS(A_CLAP_P1,I)
-                  XVALUE=ALENS(A_CLAP_P2,I)
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               END IF
-!       NOT RCTK CLAP
-            END IF
-!        POLY CLAP
-!
-            IF(DABS(ALENS(A_APTYPE,I)).EQ.5.0D0) THEN
-               IF(CLAPT) THEN
-                  YVALUE=ALENS(A_CLAP_P1,I)
-                  XVALUE=ALENS(A_CLAP_P1,I)
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  TARX=TARX+ALENS(A_CLAP_XD,I)
-                  TARY=TARY+ALENS(A_CLAP_YD,I)
-!       NOW IS THE CLAP TILTED ?
-                  GAMMA=(ALENS(A_CLAP_TILT,I)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               ELSE
-                  YVALUE=ALENS(A_CLAP_P1,I)
-                  XVALUE=ALENS(A_CLAP_P1,I)
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               END IF
-!       NOT POLY CLAP
-            END IF
-            IF(DABS(ALENS(A_APTYPE,I)).EQ.6.0D0) THEN
-               IF(CLAPT) THEN
-                  YVALUE=ALENS(A_CLAP_P3,I)
-                  XVALUE=ALENS(A_CLAP_P3,I)
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  TARX=TARX+ALENS(A_CLAP_XD,I)
-                  TARY=TARY+ALENS(A_CLAP_YD,I)
-!       NOW IS THE CLAP TILTED ?
-                  GAMMA=(ALENS(A_CLAP_TILT,I)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               ELSE
-                  YVALUE=ALENS(A_CLAP_P2,I)
-                  XVALUE=ALENS(A_CLAP_P2,I)
-                  TARY=(YVALUE*WW1)
-                  TARX=(XVALUE*WW2)
-                  IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-                  GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-                  TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-                  TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-                  TARY=TARRY
-                  TARX=TARRX
-               END IF
-!       NOT IPOLY CLAP
-            END IF
-!
-         ELSE
-!       NO CLAP ON REF SURF OR MULTI-CLAP
-            TARY=(PXTRAY(1,I)*WW1)
-            TARX=(PXTRAX(1,I)*WW2)
-            IF(SYSTEM(SYS_FLIPREFX).NE.0.0D0) TARX=-TARX
-            IF(SYSTEM(SYS_FLIPREFY).NE.0.0D0) TARY=-TARY
-            GAMMA=(SYSTEM(SYS_REF_ORIENT)*(PII))/180.0D0
-            TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
-            TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
-            TARY=TARRY
-            TARX=TARRX
-         END IF
+!       CALCULATE TARX AND TARY — the target point on the reference surface
+!       that the ray is being aimed at.
+         call compute_aim_target(I, WW1, WW2, TARX, TARY)
 !
          TEST=DSQRT(((TARX-X)**2)+((TARY-Y)**2))
          !call logger%logTextWithNum("RAYTRA AIMTOL CHECK IS ", TEST)
@@ -3415,6 +3163,213 @@ SUBROUTINE RAYTRA_OLD
    END DO
    RETURN
 END
+! -----------------------------------------------------------------------
+! compute_aim_target — compute the XY target point on the reference surface
+!
+! Given a reference surface index and fractional field heights (ww1, ww2),
+! returns the target coordinates (tarx, tary) in the local coordinate
+! system of that surface. The ray aiming iteration drives the ray to hit
+! this point within AIMTOL.
+!
+! Logic:
+!   If the surface has a clear aperture (types 1-6) and no multi-clap:
+!     - If the aperture is decentered/tilted (clapt=.true.):
+!         scale by aperture dims, apply decentration, then rotate by clap tilt
+!     - Otherwise:
+!         scale by aperture dims, rotate by reference surface orientation angle
+!   Otherwise (no aperture, or multi-clap present):
+!     use paraxial ray heights (PXTRAX/PXTRAY) scaled by field heights,
+!     rotated by reference surface orientation angle
+! -----------------------------------------------------------------------
+subroutine compute_aim_target(ref_surf, ww1_in, ww2_in, tarx, tary)
+   use DATLEN
+   use DATMAI, only: PII
+   use surface_params
+   implicit none
+
+   integer,  intent(in)  :: ref_surf  ! reference surface index
+   real(8),  intent(in)  :: ww1_in    ! fractional Y field height
+   real(8),  intent(in)  :: ww2_in    ! fractional X field height
+   real(8),  intent(out) :: tarx      ! target X on reference surface
+   real(8),  intent(out) :: tary      ! target Y on reference surface
+
+   real(8) :: www1, www2   ! possibly aplanatic-adjusted field heights
+   real(8) :: yval, xval   ! aperture dimensions for current type
+   real(8) :: gamma        ! aperture or surface rotation angle (radians)
+   real(8) :: tarrx, tarry ! rotated temporaries
+   logical :: clapt        ! .true. if aperture is decentered or tilted
+
+   www1 = ww1_in
+   www2 = ww2_in
+
+   if (dabs(ALENS(A_APTYPE,ref_surf)) >= 1.0d0 .and. &
+       dabs(ALENS(A_APTYPE,ref_surf)) <= 6.0d0 .and. &
+       ALENS(A_MULTICLAP,ref_surf) == 0.0d0) then
+
+      ! Surface has a single clear aperture — determine if it is decentered/tilted
+      clapt = (ALENS(A_CLAP_YD,ref_surf)   /= 0.0d0 .or. &
+               ALENS(A_CLAP_XD,ref_surf)   /= 0.0d0 .or. &
+               ALENS(A_CLAP_TILT,ref_surf) /= 0.0d0)
+
+      ! Aplanatic aiming adjustment for centred circular apertures
+      if (SYSTEM(SYS_APLANATIC) == 1.0d0             .and. &
+          ALENS(A_CURV,ref_surf)      /= 0.0d0        .and. &
+          ALENS(A_APTYPE,ref_surf)    == 1.0d0        .and. &
+          ALENS(A_CLAP_YD,ref_surf)   == 0.0d0        .and. &
+          ALENS(A_CLAP_XD,ref_surf)   == 0.0d0        .and. &
+          ALENS(A_CLAP_TILT,ref_surf) == 0.0d0) then
+         if (dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(ALENS(A_CLAP_P1,ref_surf)) .and. &
+             dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(ALENS(A_CLAP_P2,ref_surf))) &
+            call APLANA(ref_surf, ww1_in, ww2_in, www1, www2)
+      end if
+
+      select case (int(dabs(ALENS(A_APTYPE,ref_surf))))
+
+      case (AP_CIRC)  ! circular
+         if (clapt) then
+            if (ALENS(A_CLAP_P1,ref_surf) <= ALENS(A_CLAP_P2,ref_surf)) then
+               tary = ALENS(A_CLAP_P1,ref_surf) * www1
+               tarx = ALENS(A_CLAP_P1,ref_surf) * www2
+            else
+               tary = ALENS(A_CLAP_YD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * www1
+               tarx = ALENS(A_CLAP_XD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * www2
+            end if
+            if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+            if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
+            tary = tary + ALENS(A_CLAP_YD,ref_surf)
+            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+         else
+            if (ALENS(A_CLAP_P1,ref_surf) <= ALENS(A_CLAP_P2,ref_surf)) then
+               tary = ALENS(A_CLAP_P1,ref_surf) * www1
+               tarx = ALENS(A_CLAP_P1,ref_surf) * www2
+            else
+               tary = ALENS(A_CLAP_P2,ref_surf) * www1
+               tarx = ALENS(A_CLAP_P2,ref_surf) * www2
+            end if
+            if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+            if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+            gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+         end if
+
+      case (AP_RECT)  ! rectangular
+         if (clapt) then
+            if (ANAAIM) then
+               tary = ALENS(A_CLAP_P1,ref_surf) * ww1_in
+               tarx = ALENS(A_CLAP_P2,ref_surf) * ww2_in
+            else if (dabs(ALENS(A_CLAP_P1,ref_surf)) > dabs(ALENS(A_CLAP_P2,ref_surf))) then
+               tary = ALENS(A_CLAP_P1,ref_surf) * ww1_in
+               tarx = ALENS(A_CLAP_P1,ref_surf) * ww2_in
+            else
+               tary = ALENS(A_CLAP_YD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * ww1_in
+               tarx = ALENS(A_CLAP_XD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * ww2_in
+            end if
+            if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+            if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
+            tary = tary + ALENS(A_CLAP_YD,ref_surf)
+            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+         else
+            tary = ALENS(A_CLAP_P1,ref_surf) * ww1_in
+            tarx = ALENS(A_CLAP_P2,ref_surf) * ww2_in
+            if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+            if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+            gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+         end if
+
+      case (AP_ELLIP)  ! elliptical
+         yval = ALENS(A_CLAP_P1,ref_surf)
+         xval = ALENS(A_CLAP_P2,ref_surf)
+         tary = yval * ww1_in
+         tarx = xval * ww2_in
+         if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+         if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+         if (clapt) then
+            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
+            tary = tary + ALENS(A_CLAP_YD,ref_surf)
+            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+         else
+            gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+         end if
+
+      case (AP_RCTK)  ! racetrack
+         yval = ALENS(A_CLAP_P1,ref_surf)
+         xval = ALENS(A_CLAP_P2,ref_surf)
+         tary = yval * ww1_in
+         tarx = xval * ww2_in
+         if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+         if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+         if (clapt) then
+            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
+            tary = tary + ALENS(A_CLAP_YD,ref_surf)
+            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+         else
+            gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+         end if
+
+      case (AP_POLY)  ! regular polygon — radius to corner is A_CLAP_P1
+         yval = ALENS(A_CLAP_P1,ref_surf)
+         xval = ALENS(A_CLAP_P1,ref_surf)
+         tary = yval * ww1_in
+         tarx = xval * ww2_in
+         if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+         if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+         if (clapt) then
+            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
+            tary = tary + ALENS(A_CLAP_YD,ref_surf)
+            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+         else
+            gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+         end if
+
+      case (AP_IPOLY)  ! irregular polygon — max dim: A_CLAP_P3 (decentered) or A_CLAP_P2 (centred)
+         if (clapt) then
+            yval = ALENS(A_CLAP_P3,ref_surf)
+            xval = ALENS(A_CLAP_P3,ref_surf)
+         else
+            yval = ALENS(A_CLAP_P2,ref_surf)
+            xval = ALENS(A_CLAP_P2,ref_surf)
+         end if
+         tary = yval * ww1_in
+         tarx = xval * ww2_in
+         if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+         if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+         if (clapt) then
+            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
+            tary = tary + ALENS(A_CLAP_YD,ref_surf)
+            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+         else
+            gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+         end if
+
+      case default
+         tarx = 0.0d0
+         tary = 0.0d0
+         gamma = 0.0d0
+      end select
+
+      ! Apply rotation (either clap tilt or reference surface orientation)
+      tarrx = (tarx * dcos(gamma)) - (tary * dsin(gamma))
+      tarry = (tarx * dsin(gamma)) + (tary * dcos(gamma))
+      tarx = tarrx
+      tary = tarry
+
+   else
+      ! No clear aperture on reference surface, or multi-clap present —
+      ! aim to the paraxial ray height scaled by fractional field
+      tary = PXTRAY(1,ref_surf) * ww1_in
+      tarx = PXTRAX(1,ref_surf) * ww2_in
+      if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
+      if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
+      gamma = (SYSTEM(SYS_REF_ORIENT) * PII) / 180.0d0
+      tarrx = (tarx * dcos(gamma)) - (tary * dsin(gamma))
+      tarry = (tarx * dsin(gamma)) + (tary * dcos(gamma))
+      tarx = tarrx
+      tary = tarry
+   end if
+
+end subroutine compute_aim_target
+
 ! SUB RAYTRA2.FOR
 
 SUBROUTINE RAYTRA2
