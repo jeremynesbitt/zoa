@@ -6,10 +6,10 @@
         use DATHGR
         use DATCFG
         use DATSPD
+        use DATSUB
         IMPLICIT NONE
 
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
 
         INTEGER CATLIST

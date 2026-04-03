@@ -7,6 +7,7 @@ C     CALCULATES AND LOADS THE VALUE OF OPERAND NUMBER PREDEFI
 C
         use DATCFG
         use DATSPD
+        use DATSUB
         IMPLICIT NONE
 C
         COMMON/SOLU/X
@@ -60,7 +61,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSUB.INC'
 C
                        REG(9)=0.0D0
 C

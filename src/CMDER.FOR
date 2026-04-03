@@ -17,7 +17,9 @@ C
         use DATSP1
         use DATHGR
         use DATSPD
+        use DATSUB
         IMPLICIT NONE
+        LOGICAL ITERROR
 
 C
         CHARACTER DDATE*10,TTIME*8,FILNM*10,NM*8,TTTIM*8,DDDAT*10
@@ -83,7 +85,6 @@ C
 
         !INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSUB.INC'
 C        INCLUDE 'DATMAC.INC' - binary macro system removed
         REAL*8 TESTA,TESTB,TESTC,TESTD,TESTE
 C
@@ -3774,9 +3775,9 @@ C       INITIATE MONTE-CARLO ANALYSIS
         USE GLOBALS
         use DATSP1
         use DATSPD
+        use DATSUB
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSUB.INC'
         INTEGER ALLOERR
                    PSFEXT=.FALSE.
 C WINTER

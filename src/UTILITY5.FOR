@@ -162,6 +162,7 @@ C SUB CONTRO.FOR
         use iso_c_binding, only: c_associated  
         use DATLEN      
 C
+        use DATSUB
         IMPLICIT NONE
 C
         CHARACTER WCC(1:16000)*8,WC1*8,WQ1*8,WS1*80
@@ -181,7 +182,6 @@ C
         COMMON/WQREM/REMWQ
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSUB.INC'
         !INCLUDE 'DATLEN.INC'
 
         !PRINT *, "CONTRO ROUTINE STARTED! "

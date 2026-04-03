@@ -18,9 +18,10 @@ C four flag assignments at the top run; the rest is dead code.
 C ---------------------------------------------------------------------------
         SUBROUTINE MACFAL
         USE GLOBALS
+        use DATSUB
         IMPLICIT NONE
+        LOGICAL ITERROR
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSUB.INC'
 C
                         FOBRUN=.FALSE.
                         ITERROR=.TRUE.

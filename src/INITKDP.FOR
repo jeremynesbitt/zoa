@@ -13,7 +13,9 @@ C
         use DATHGR
         use DATCFG
         use DATSPD
+        use DATSUB
         IMPLICIT NONE
+        LOGICAL ITERROR
 C
 C       THIS IS CALLED BY THE UI at program initialization
 C
@@ -130,7 +132,6 @@ C
        COMMON/OPENGR/GROPEN
 C
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
 
         call initializeCmds()

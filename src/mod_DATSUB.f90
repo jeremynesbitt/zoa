@@ -220,8 +220,8 @@ module DATSUB
     LOGICAL L_DERLIM
     COMMON/LIMDER/DERLIM,L_DERLIM
 !
-!       4/27/2003 ITERROR ADDED TO STOP LOOPS WHEN "ITER" GOES BAD.
-    LOGICAL ITERROR
+!       4/27/2003 ITERROR was here but removed — it was never in a COMMON block
+!       and conflicts with the dummy argument of the same name in ITER/RECURSIVEITER
 !
 !       CLEARX,CLEARY VARIABLES
     REAL*8 CLFOB1,CLFOB2,CLRAY1,CLRAY2,CLSRF1,CLSRF2

@@ -5,6 +5,7 @@ C SUB LENOUT.FOR
         USE GLOBALS
 C
         use DATCFG
+        use DATSUB
         IMPLICIT NONE
 C
 C       IT IS WITHIN THIS SUBROUTINE THAT (LENO) COMMANDS
@@ -23,7 +24,6 @@ C
 C
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATSUB.INC'
       ISKDP=.TRUE.
       ISAC=.FALSE.
       ISCV=.FALSE.

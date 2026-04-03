@@ -1,8 +1,8 @@
 
       SUBROUTINE NEWFIELD
+      use DATSUB
       IMPLICIT NONE
       INTEGER I
-      INCLUDE 'DATSUB.INC'
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATLEN.INC'
                 FIELDX(1)=0.0D0
@@ -92,9 +92,9 @@
                         RETURN
                         END
       SUBROUTINE NEWRAY
+      use DATSUB
       IMPLICIT NONE
       INTEGER I
-      INCLUDE 'DATSUB.INC'
       INCLUDE 'DATMAI.INC'
       INCLUDE 'DATLEN.INC'
           I=41
@@ -435,10 +435,10 @@ C
       use DATSP1
       use DATCFG
       use DATSPD
+      use DATSUB
       IMPLICIT NONE
       CHARACTER KKDP*3
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         IF(F1.EQ.1.AND.F17.EQ.0) THEN
                    KKDP='CMD'
@@ -541,11 +541,11 @@ C     FALL THROUGH OPTION TO CHECK IS MISSED SOMETHING
       use DATHGR
       use DATCFG
       use DATSPD
+      use DATSUB
       IMPLICIT NONE
         INTEGER N
         CHARACTER*127 CLINE
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
       WRITE(OUTLYNE,*)'         MAXIMUM LENS SURFACES = ',MAXSUR-1
       CALL SHOWIT(1)
