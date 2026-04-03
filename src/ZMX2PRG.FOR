@@ -25,6 +25,7 @@ C SUB ZMX2PRG.FOR
         use global_widgets, only : sysConfig
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       CHARACTER ZMXFILENAME*80,KDPFILENAME*80,ZMX_INPUT_STRING*1024
@@ -68,7 +69,6 @@ C
 C
       ALLOCATABLE :: TEMPA,TEMPB,TEMPC
 C
-      INCLUDE 'DATMAI.INC'
 
       SUB = 256
       write(substr, "(I3)") SUB

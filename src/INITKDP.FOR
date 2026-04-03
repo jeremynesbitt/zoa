@@ -15,6 +15,7 @@ C
         use DATSPD
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
         LOGICAL ITERROR
 C
@@ -132,7 +133,6 @@ C
        LOGICAL GROPEN(1:10)
        COMMON/OPENGR/GROPEN
 C
-        INCLUDE 'DATMAI.INC'
 
         call initializeCmds()
         gdb = glassdb()

@@ -321,6 +321,7 @@ module zoa_file_handler
 
 
         USE GLOBALS
+        use DATMAI
         implicit none
 
 
@@ -330,7 +331,6 @@ module zoa_file_handler
         character(len=20)  :: STAMP
           INTEGER :: M1, M2, M3
 
-        INCLUDE 'DATMAI.INC'
 
         inquire(iolength=recLength) MNAME, M1, M2, M3, STAMP
 

@@ -3,6 +3,7 @@ C       THIRD SET OF UTILTIY ROUTINES GO HERE
 C SUB RGMATH.FOR
         SUBROUTINE RGMATH
 C
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE IS CALLED TO DO SYMBOLIC REGISTER
@@ -25,7 +26,6 @@ C
 C
         COMMON/ACCSB2/ACCSUB,ACCCNT
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(WC.NE.'WRITE') THEN
         IF(SST.EQ.1.OR.SN.EQ.1) THEN
@@ -145,9 +145,9 @@ C
                         END
 C SUB PLUS.FOR
         FUNCTION PLUS()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 PLUS
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') PLUS=REG(9)+REG(1)
         IF(WQ.EQ.'B') PLUS=REG(9)+REG(2)
@@ -182,9 +182,9 @@ C SUB PLUS.FOR
                         END
 C SUB MINUS.FOR
         FUNCTION MINUS()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 MINUS
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') MINUS=REG(9)-REG(1)
         IF(WQ.EQ.'B') MINUS=REG(9)-REG(2)
@@ -219,9 +219,9 @@ C SUB MINUS.FOR
                         END
 C SUB MPY.FOR
         FUNCTION MPY()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 MPY
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') MPY=REG(9)*REG(1)
         IF(WQ.EQ.'B') MPY=REG(9)*REG(2)
@@ -256,9 +256,9 @@ C SUB MPY.FOR
                         END
 C SUB MOVE.FOR
         FUNCTION MOVE()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 MOVE
-      INCLUDE 'DATMAI.INC'
       IF(WQ.NE.'X'.AND.WQ.NE.'Y'.AND.WQ.NE.'Z'.AND.WQ.NE.'T') THEN
       REG(40)=REG(9)
         END IF
@@ -295,9 +295,9 @@ C SUB MOVE.FOR
                         END
 C SUB DIV.FOR
         FUNCTION DIV()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 DIV
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') THEN
         IF(REG(1).NE.0.0D0) DIV=REG(9)/REG(1)
@@ -555,9 +555,9 @@ C SUB DIV.FOR
                         END
 C SUB SINE.FOR
         FUNCTION SINE()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 SINE
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') SINE=DSIN(REG(1))
         IF(WQ.EQ.'B') SINE=DSIN(REG(2))
@@ -592,9 +592,9 @@ C SUB SINE.FOR
                 END
 C SUB COSINE.FOR
         FUNCTION COSINE()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 COSINE
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') COSINE=DCOS(REG(1))
         IF(WQ.EQ.'B') COSINE=DCOS(REG(2))
@@ -629,9 +629,9 @@ C SUB COSINE.FOR
                 END
 C SUB TANN.FOR
         FUNCTION TANN()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 TANN
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') TANN=DTAN(REG(1))
         IF(WQ.EQ.'B') TANN=DTAN(REG(2))
@@ -666,9 +666,9 @@ C SUB TANN.FOR
                 END
 C SUB SINHH.FOR
         FUNCTION SINHH()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 SINHH
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') SINHH=DSINH(REG(1))
         IF(WQ.EQ.'B') SINHH=DSINH(REG(2))
@@ -703,9 +703,9 @@ C SUB SINHH.FOR
                 END
 C SUB COSHH.FOR
         FUNCTION COSHH()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 COSHH
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') COSHH=DCOSH(REG(1))
         IF(WQ.EQ.'B') COSHH=DCOSH(REG(2))
@@ -740,9 +740,9 @@ C SUB COSHH.FOR
                 END
 C SUB TANHH.FOR
         FUNCTION TANHH()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 TANHH
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') TANHH=DTANH(REG(1))
         IF(WQ.EQ.'B') TANHH=DTANH(REG(2))
@@ -777,9 +777,9 @@ C SUB TANHH.FOR
                 END
 C SUB SROOT.FOR
         FUNCTION SROOT()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 SROOT
-      INCLUDE 'DATMAI.INC'
         GO TO 11
  10                    CONTINUE
         OUTLYNE='INVALID NEG. SQRT ARGUMENT'
@@ -908,9 +908,9 @@ C SUB SROOT.FOR
                         END
 C SUB POW.FOR
         FUNCTION POW()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 POW
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') THEN
         IF(REG(9).EQ.0.0D0.AND.REG(1).EQ.0.0D0) THEN
@@ -1126,9 +1126,9 @@ C SUB POW.FOR
                         END
 C SUB EEXP.FOR
         FUNCTION EEXP()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 EEXP,REGGY
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') REGGY=REG(1)
         IF(WQ.EQ.'B') REGGY=REG(2)
@@ -1173,9 +1173,9 @@ C SUB EEXP.FOR
                         END
 C SUB LLOG10.FOR
         FUNCTION LLOG10()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 LLOG10
-      INCLUDE 'DATMAI.INC'
                 GO TO 201
  200            CONTINUE
         OUTLYNE='ARG FOR "LOG10" IN REG '//WQ//' IS ZERO'
@@ -1302,9 +1302,9 @@ C SUB LLOG10.FOR
                         END
 C SUB LLN.FOR
         FUNCTION LLN()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 LLN
-      INCLUDE 'DATMAI.INC'
                 GO TO 201
  200            CONTINUE
         OUTLYNE='ARG FOR "LN" IN REG '//WQ//' IS ZERO'
@@ -1431,9 +1431,9 @@ C SUB LLN.FOR
                         END
 C SUB RECIP.FOR
         FUNCTION RECIP()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 RECIP
-      INCLUDE 'DATMAI.INC'
                 GO TO 201
  200            CONTINUE
         OUTLYNE='ARG FOR "RECIP" IN REG '//WQ//' IS ZERO'
@@ -1560,9 +1560,9 @@ C SUB RECIP.FOR
                         END
 C SUB ABSOL.FOR
         FUNCTION ABSOL()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 ABSOL
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') ABSOL=DABS(REG(1))
         IF(WQ.EQ.'B') ABSOL=DABS(REG(2))
@@ -1597,6 +1597,7 @@ C SUB ABSOL.FOR
                         END
 C SUB STORE.FOR
         SUBROUTINE STORE
+        use DATMAI
         IMPLICIT NONE
 C       THIS SUBROUTINE IS USED TO STORE THE CONTENTS OF THE
 C       ACCUMULATOR INTO REGISTERS A THROUGH H, X,Y,Z,T,IX,IY
@@ -1604,7 +1605,6 @@ C       IZ,OR IT. THE STORE COMMAND IS THE INVERSE OF THE MOVE
 C       COMMAND. ALSO WORKS ON I,J,ITEST AND JTEST
 C       ALSO WORKS ON K,L,KTEST AND LTEST
 C       ALSO WORKS ON M,N,MTEST AND NTEST
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
                 IF(WQ.EQ.'A') REG(1)=REG(9)
                 IF(WQ.EQ.'B') REG(2)=REG(9)
@@ -1648,6 +1648,7 @@ C       ALSO WORKS ON M,N,MTEST AND NTEST
 C SUB JK_MINVAL.FOR
         SUBROUTINE JK_MINVAL(V1,V2)
         use DATSUB
+        use DATMAI
         IMPLICIT NONE
 C       THIS SUBROUTINE IS USED TO FIND THE MINUMUM VALUE
 C       ALL THE VALUES STORED IN THE MAXREG GENERAL PURPOSE REGISTERS
@@ -1658,7 +1659,6 @@ C
 C
         INTEGER I
 C
-        INCLUDE 'DATMAI.INC'
 C
       V1=GPREG(1)
       V2=1.0D0
@@ -1673,6 +1673,7 @@ C
 C SUB JK_MAXVAL.FOR
         SUBROUTINE JK_MAXVAL(V1,V2)
         use DATSUB
+        use DATMAI
         IMPLICIT NONE
 C       THIS SUBROUTINE IS USED TO FIND THE MAXIMUM VALUE
 C       ALL THE VALUES STORED IN THE MAXREG GENERAL PURPOSE REGISTERS
@@ -1683,7 +1684,6 @@ C
 C
       INTEGER I
 C
-        INCLUDE 'DATMAI.INC'
 C
                 V1=GPREG(1)
                 V2=1.0D0
@@ -1697,9 +1697,9 @@ C
                 END
 C SUB SSGN.FOR
         FUNCTION SSGN()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 SSGN
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') THEN
         REG(9)=REG(1)
@@ -1820,9 +1820,9 @@ C SUB SSGN.FOR
                         END
 C SUB MINTGR.FOR
         FUNCTION MINTGR()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 MINTGR
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'B') MINTGR=INT(REG(2))
         IF(WQ.EQ.'C') MINTGR=INT(REG(3))
@@ -1856,9 +1856,9 @@ C SUB MINTGR.FOR
                         END
 C SUB MFRAC.FOR
         FUNCTION MFRAC()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 MFRAC
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') MFRAC=REG(1)-INT(REG(1))
         IF(WQ.EQ.'B') MFRAC=REG(2)-INT(REG(2))
@@ -1893,11 +1893,11 @@ C SUB MFRAC.FOR
                         END
 C SUB FACT.FOR
         FUNCTION FACT()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 FACT
         REAL*8 DARG,NFACT,REGG
         INTEGER ARG,I
-      INCLUDE 'DATMAI.INC'
         IF(WQ.EQ.'A') REGG=REG(1)
         IF(WQ.EQ.'B') REGG=REG(2)
         IF(WQ.EQ.'C') REGG=REG(3)
@@ -1976,9 +1976,9 @@ C       NOW CALCULATE FACTORIAL
                         END
 C SUB CHSIGN.FOR
         FUNCTION CHSIGN()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 CHSIGN
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') CHSIGN=-REG(1)
         IF(WQ.EQ.'B') CHSIGN=-REG(2)
@@ -2013,9 +2013,9 @@ C SUB CHSIGN.FOR
                         END
 C SUB DEGRAD.FOR
         FUNCTION DEGRA()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 PI,DEGRA,AAA
-        INCLUDE 'DATMAI.INC'
         PI=PII
         IF(WC.EQ.'RTD') THEN
         AAA=(180.0D0/PI)
@@ -2089,9 +2089,9 @@ C SUB DEGRAD.FOR
                         END
 C SUB PI.FOR
         SUBROUTINE PI
+        use DATMAI
         IMPLICIT NONE
         REAL*8 RWW1
-        INCLUDE 'DATMAI.INC'
         RWW1=PII
         IF(WQ.EQ.'A') REG(1)=RWW1
         IF(WQ.EQ.'B') REG(2)=RWW1
@@ -2131,9 +2131,9 @@ C SUB PI.FOR
         END
 C SUB ATANN.FOR
         FUNCTION ATANN()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 ATANN
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') ATANN=DATAN(REG(1))
         IF(WQ.EQ.'B') ATANN=DATAN(REG(2))
@@ -2168,9 +2168,9 @@ C SUB ATANN.FOR
                         END
 C SUB ASINE.FOR
         FUNCTION ASINE()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 ASINE
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') ASINE=(REG(1))
         IF(WQ.EQ.'B') ASINE=(REG(2))
@@ -2224,9 +2224,9 @@ C SUB ASINE.FOR
                         END
 C SUB ACOSIN.FOR
         FUNCTION ACOSIN()
+        use DATMAI
         IMPLICIT NONE
         REAL*8 ACOSIN
-      INCLUDE 'DATMAI.INC'
       REG(40)=REG(9)
         IF(WQ.EQ.'A') ACOSIN=REG(1)
         IF(WQ.EQ.'B') ACOSIN=REG(2)
@@ -2281,9 +2281,9 @@ C SUB ACOSIN.FOR
 C SUB FORMER.FOR
         SUBROUTINE FORMER
 C
+        use DATMAI
         IMPLICIT NONE
 C
-      INCLUDE 'DATMAI.INC'
 C
       INTEGER I,LL
 C
@@ -2333,6 +2333,7 @@ C
 C SUB REWIND.FOR
         SUBROUTINE REWIND
 C
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE IS CALLED TO REWIND THE CARDTEXT.DAT FILE
@@ -2343,7 +2344,6 @@ C               CP = CARDTEXT.DATA = (UNIT=8)
 C
       LOGICAL OPEN8,EXIST8,OPEN67,EXIST67
 C
-      INCLUDE 'DATMAI.INC'
 C
         IF(SST.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE='"REWIND" ONLY TAKES QUALIFIER INPUT'
@@ -2400,11 +2400,11 @@ C SUB ALLDEF.FOR
         SUBROUTINE ALLDEF
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS DOES THE "ALL" COMMAND
 C
-        INCLUDE 'DATMAI.INC'
 C
 C       CHECK FOR STRING INPUT
         IF(STI.EQ.1) THEN
@@ -2437,11 +2437,11 @@ C SUB SETCOAT.FOR
         SUBROUTINE SETCOAT
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS DOES THE "COATINGS" COMMAND
 C
-        INCLUDE 'DATMAI.INC'
 C
 C       CHECK FOR STRING INPUT
         IF(STI.EQ.1) THEN
@@ -2473,6 +2473,7 @@ C       CHECK FOR STRING INPUT
 C SUB ATANN2.FOR
         SUBROUTINE ATANN2
 C
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE IS CALLED TO CALCULATE THE DATAN2 FUNCTION
@@ -2483,7 +2484,6 @@ C       THE RESULT IS LEFT IN THE ACCUMULATOR.
 C       IN GENERAL THE RESULT IS RETURNED AS AN ANGULAR
 C       VALUE IN RADIANS BETWEEN -PI/2 AND +PI/2.
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
         OUTLYNE='"ATANN2" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
@@ -2525,6 +2525,7 @@ C
 C SUB WRITE.FOR
         SUBROUTINE WRITE
 C
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE IS CALLED TO WRITE OUT THE CONTENTS
@@ -2542,7 +2543,6 @@ C
 C
         COMMON/ACCSB2/ACCSUB,ACCCNT
 C
-      INCLUDE 'DATMAI.INC'
 C
 C               TEST TO SEE IF LABEL IS BLANK. IF YES, PRINT
 C               REGISTER NAME FOLLOWED BY EQUAL SIGN IF

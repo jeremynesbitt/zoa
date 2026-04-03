@@ -14,6 +14,7 @@ module paraxial_ray_trace_test
     !
             use global_widgets
     
+            use DATMAI
             IMPLICIT NONE
     !
     !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -42,7 +43,6 @@ module paraxial_ray_trace_test
     !
             COMMON/PIKCOM/COMI
     !
-            INCLUDE 'DATMAI.INC'
             !INCLUDE 'DATLEN.INC'
           INTEGER WWVN
           IF(INT(SYSTEM(11)).EQ.1) WWVN=46
@@ -1366,6 +1366,7 @@ module paraxial_ray_trace_test
     !
             use global_widgets
     
+            use DATMAI
             IMPLICIT NONE
     !
     !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -1394,7 +1395,6 @@ module paraxial_ray_trace_test
     !
             COMMON/PIKCOM/COMI
     !
-            INCLUDE 'DATMAI.INC'
             !INCLUDE 'DATLEN.INC'
           INTEGER WWVN
           IF(INT(SYSTEM(11)).EQ.1) WWVN=46

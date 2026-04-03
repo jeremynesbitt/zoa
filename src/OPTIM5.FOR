@@ -9,6 +9,7 @@ C
         use DATSPD
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         COMMON/SOLU/X
@@ -60,7 +61,6 @@ C
 C
         INTEGER ONUM,CFNUM
 C
-        INCLUDE 'DATMAI.INC'
 C
                        REG(9)=0.0D0
 C
@@ -5840,11 +5840,11 @@ C     RESTORE ORIGINAL ACCUMULATOR VALUE
                       RETURN
                       END
       FUNCTION RUN_OPT_MAC(I)
+      use DATMAI
       IMPLICIT NONE
       INTEGER I,OLDOUT1
       REAL*8 RUN_OPT_MAC
       COMMON/OLDOUTT/OLDOUT1
-      INCLUDE 'DATMAI.INC'
       OLDOUT1=OUT
       OUT=98
       SAVE_KDP(1)=SAVEINPT(1)

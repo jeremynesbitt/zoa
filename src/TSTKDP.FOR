@@ -8,9 +8,9 @@
         use DATSPD
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
-        INCLUDE 'DATMAI.INC'
 
         INTEGER CATLIST
 
@@ -90,11 +90,11 @@ C        STOP
         SUBROUTINE getOpticalSystemLastSurface(res)
         USE GLOBALS
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         INTEGER, intent(inout) :: res
 
-        INCLUDE 'DATMAI.INC'
 
         res = INT(SYSTEM(20))
 
@@ -108,6 +108,7 @@ C        STOP
       ! gets the data from the output arrays.
       use DATHGR
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
 
       integer, intent(in) :: calcCode
@@ -139,7 +140,6 @@ C
 
 
 C
-        INCLUDE 'DATMAI.INC'
 C
 
         select case (calcCode)
@@ -196,11 +196,11 @@ C
         SUBROUTINE getRayTraceOutput(res)
         USE GLOBALS
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         REAL*8 res(1:50,0:499)
 
-        INCLUDE 'DATMAI.INC'
 
         res = RAYRAY
 

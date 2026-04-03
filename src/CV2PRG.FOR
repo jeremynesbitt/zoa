@@ -7,6 +7,7 @@ C SUB CV2PRG.FOR
         !use kdp_interfaces, only: OUTKDP
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       character(len=80) :: tokens(40)
@@ -55,7 +56,6 @@ C
 
       integer :: dotLoc
 C
-      INCLUDE 'DATMAI.INC'
 
       SUB = 256
       write(substr, "(I3)") SUB
@@ -2060,12 +2060,12 @@ C     NOW HOE STUFF IF NEEDED
 
         USE GLOBALS
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         CHARACTER(LEN=1024) :: OUTLYNE2
         INTEGER :: SUB
 
-      INCLUDE 'DATMAI.INC'
 
           SAVE_KDP(1)=SAVEINPT(1)
           INPUT(1:SUB)=OUTLYNE2(1:SUB)

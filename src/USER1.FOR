@@ -8,6 +8,7 @@ C
       use DATSPD
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       REAL*8 RHO,RHO2,C,C2,X,Y,Z,KAPPA,DEN
       INTEGER I
@@ -25,7 +26,6 @@ C
 C     THIS Z VALUE IS ADDED TO ANY EXISTING Z COMPUTED FOR THINGS LIKE
 C     CURVATURE AND ASPHERIC DEFORMATIONS IN THE REGULAR LENS DATABASE.
 C
-        INCLUDE 'DATMAI.INC'
         UERROR=.FALSE.
 C
         RHO2=((X**2)+(Y**2))
@@ -70,8 +70,8 @@ C
       use DATCFG
       use DATSPD
       use DATSUB
+      use DATMAI
       IMPLICIT NONE
-      INCLUDE 'DATMAI.INC'
       INCLUDE 'DATPTS.INC'
       REAL*8 X,Y,Z,T
       INTEGER I
@@ -91,10 +91,10 @@ C
       use DATCFG
       use DATSPD
       use DATSUB
+      use DATMAI
       IMPLICIT NONE
       REAL*8 X,Y,Z,T,RESULT,C,K,R
       INTEGER I
-      INCLUDE 'DATMAI.INC'
       INCLUDE 'DATPTS.INC'
 C     CASE T=1
       IF(INT(T).EQ.1) THEN
@@ -166,8 +166,8 @@ C
       use DATCFG
       use DATSPD
       use DATSUB
+      use DATMAI
       IMPLICIT NONE
-      INCLUDE 'DATMAI.INC'
       INCLUDE 'DATPTS.INC'
       WRITE(OUTLYNE,*) 'RUNNING THE USERSUBR.FOR SUBROUTINE'
       CALL SHOWIT(1)

@@ -3,6 +3,7 @@ C       THIRD FILE OF MACRO FILES
 C SUB MACLOD.FOR
         SUBROUTINE MACLOD
 C
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL EXST
@@ -25,7 +26,6 @@ C
         COMMON/FFL/FLG
 C
         INCLUDE 'DATMAC.INC'
-        INCLUDE 'DATMAI.INC'
 
         PRINT *, "MACLOD function called! "
 C
@@ -92,6 +92,7 @@ C       FUNCTION LOADED INTO MAC ARRAYS
 C SUB MACIN.FOR
         SUBROUTINE MACIN(WWW1)
 C
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE IS ONLY CALLED WHEN FLAG F2=1 (MACRO
@@ -127,7 +128,6 @@ C
         COMMON/MACID2/MACLOC,IMACEN
 C
       INCLUDE 'DATMAC.INC'
-      INCLUDE 'DATMAI.INC'
 C
 C       TEST FOR MACRO INPUT COMMANDS. IF THERE ARE NONE, GO TO
 C       CREATION PHASE IE COMMANDS WHICH EXECUTE IMMEDIATELY AND
@@ -736,6 +736,7 @@ C SUB MACCOM.FOR
         SUBROUTINE MACCOM
           use zoa_file_handler
 C
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL EXST,EXISJK
@@ -754,7 +755,6 @@ C
 C
       COMMON/COMNAM/FILNAM
 C
-        INCLUDE 'DATMAI.INC'
         INCLUDE 'DATMAC.INC'
 C
 C       OPEN UNIT 20 FOR I/O
@@ -839,6 +839,7 @@ C SUB MACCOM1.FOR
         SUBROUTINE MACCOM1
           use zoa_file_handler
 C
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL EXST,EXISJK
@@ -857,7 +858,6 @@ C
 C
       COMMON/COMNAM/FILNAM
 C
-        INCLUDE 'DATMAI.INC'
         INCLUDE 'DATMAC.INC'
 C
 C       OPEN UNIT 20 FOR I/O
@@ -934,6 +934,7 @@ C SUB MACEDT.FOR
         SUBROUTINE MACEDT
           use zoa_file_handler
 C
+        use DATMAI
         IMPLICIT NONE
 
         INTEGER I,K,J,L,MAXLL
@@ -950,7 +951,6 @@ C
 C
       COMMON/COMNAM/FILNAM
 C
-        INCLUDE 'DATMAI.INC'
         INCLUDE 'DATMAC.INC'
 C
 C       THIS SUBROUTINE IS CALLED INITIALLY BY MMEDIT
@@ -1070,6 +1070,7 @@ C SUB MACEXC.FOR
         SUBROUTINE MACEXC
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS THE SUBROUTINE THAT REALLY DOES IT. YES BOYS AND GIRLS
@@ -1134,7 +1135,6 @@ C
       COMMON/COMFUN/FUN
 C
         INCLUDE 'DATMAC.INC'
-        INCLUDE 'DATMAI.INC'
 
         PRINT *, "MACRO EXECUTION ROUTINE..."
 C
@@ -3907,10 +3907,10 @@ C SUB MACFAL.FOR
         USE GLOBALS
 C
         use DATSUB
+        use DATMAI
         IMPLICIT NONE
         LOGICAL ITERROR
 C
-      INCLUDE 'DATMAI.INC'
       INCLUDE 'DATMAC.INC'
 
       !OUTLYNE = "MACFAL ROUTINE 4071"
@@ -4172,6 +4172,7 @@ C
 C Refactor all calls to read macro file data to this routine
 C TODO:  Pass MACCW etc around somehow vs a global
        SUBROUTINE READMACROFILE(macrofilepath)
+       use DATMAI
 
          CHARACTER(len=*) :: macrofilepath
          INTEGER rec30, L, K
@@ -4180,7 +4181,6 @@ C TODO:  Pass MACCW etc around somehow vs a global
 
 
          INCLUDE 'DATMAC.INC'
-         INCLUDE 'DATMAI.INC'
 
         L = 1 
 
@@ -4220,6 +4220,7 @@ C
 
        SUBROUTINE WRITEMACROFILE(macrofilename)
          use zoa_file_handler
+         use DATMAI
          CHARACTER(len=*) :: macrofilename
          INTEGER L, K, uFile
 
@@ -4227,7 +4228,6 @@ C
          COMMON/MACID2/MACLOC,IMACEN
 
          INCLUDE 'DATMAC.INC'
-         INCLUDE 'DATMAI.INC'
 
 
          uFile = open_macro_file(macrofilename)
@@ -4253,8 +4253,8 @@ C
        END
 
        SUBROUTINE DOESMACROFILEEXIST(FILNAM, EXST)
+       use DATMAI
          INCLUDE 'DATMAC.INC'
-         INCLUDE 'DATMAI.INC'
          LOGICAL, intent(inout) :: EXST
          CHARACTER FILNAM*10
 

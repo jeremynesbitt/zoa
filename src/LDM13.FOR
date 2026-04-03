@@ -4,6 +4,7 @@ C SUB FNDGLS.FOR
         SUBROUTINE FNDGLS
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FNDGLS WHICH IMPLEMENTS THE FINDGLAS
@@ -17,7 +18,6 @@ C
         DIMENSION ASORTIT(:,:),ASORTIT2(:,:)
         ALLOCATABLE :: SORTIT,ASORTIT,SORTIT2,ASORTIT2
 C
-        INCLUDE 'DATMAI.INC'
         PN(LAMBDA,A0,A1,A2,A3,A4,A5)=
      1  DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+
      2  (A3*(1.0D0/(LAMBDA**4)))+(A4*(1.0D0/(LAMBDA**6)))+
@@ -1126,8 +1126,8 @@ C
                         END
       SUBROUTINE GLASSP_RUSSIAN1
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
       CHARACTER*13 RNAME(1:113)
       INTEGER I
       RNAME(1)=   'LK1'
@@ -1255,8 +1255,8 @@ C
                         END
       SUBROUTINE GLASSP_RUSSIAN2
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
         CHARACTER*13 RNAME(1:113),NAME1,NAME2
         CHARACTER*12 FLNAME
       REAL*8 LAMUPP,LAMLOW
@@ -1422,6 +1422,7 @@ C SUB GLASSP.FOR
         use command_utils, only : parseCommandIntoTokens
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         character(len=80) :: tokens(40)
@@ -1441,7 +1442,6 @@ C
       CHARACTER NAME*13,NUMBER*13,FLNAME*12,NAME1*13,NAME2*13
      1,CATNAME*13
 C
-        INCLUDE 'DATMAI.INC'
 C
         LOGICAL EXIS_USER
 C
@@ -1859,9 +1859,9 @@ C
             use zoa_output, only:  zoa_emit
             use glass_manager
             use DATLEN
+            use DATMAI
 
             integer :: i
-            INCLUDE 'DATMAI.INC'  
 
             do i=1,size(specCat%names)
                 call zoa_emit('SPECIAL  '
@@ -1875,8 +1875,8 @@ C
 
       SUBROUTINE PRINTMATLGLASSES
       use DATLEN
+      use DATMAI
 
-            INCLUDE 'DATMAI.INC'            
 
  3000 FORMAT('MATL          ACRYLIC      ',
      1'-   Acrylic (Lucite)')

@@ -6,6 +6,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER I,CFGCHK,II,TAGER
@@ -16,7 +17,6 @@ C
 C
         CHARACTER CNAM*3,FNAMER*6,DASHER*3
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
         ALLER=.TRUE.
@@ -365,6 +365,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER I,CFGCHK,TAGER
@@ -375,7 +376,6 @@ C
 C
         CHARACTER CNAM*3,FNAMER*5,DASHER*3
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
         ALLER=.TRUE.
@@ -721,6 +721,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER J,I,CFGCHK,TAGER
@@ -729,7 +730,6 @@ C
 C
         CHARACTER CNAM*3,FNAMER*5,DASHER*3
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
         ALLER=.TRUE.

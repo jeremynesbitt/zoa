@@ -9,6 +9,7 @@ C     CALLS LNSEOS1. THIS IS HERE TO SUPPORT AUTOFUNC
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL SAV2,RES2,EXIS49
@@ -16,7 +17,6 @@ C
       INTEGER I,J,OF5,OF6,ALLOERR
         COMMON/OLDFVAL/OF5,OF6
 C
-        INCLUDE 'DATMAI.INC'
         OF5=F5
         OF6=F6
 
@@ -242,10 +242,10 @@ C     SET PARAXIAL FLAGS TO FALSE
       SUBROUTINE TILT_RETURN(ERCODE,TRYES)
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       INTEGER I,J
       LOGICAL ERCODE,TRYES
-        INCLUDE 'DATMAI.INC'
 C     TEST FOR NESTED TILT RETS
                         DO I=0,INT(SYSTEM(20))
       IF(ALENS(25,I).EQ.6.0D0) THEN
@@ -339,6 +339,7 @@ C     AND IT IS AT THE BOTTOM OF THE ROUTINE
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE LNSEOS. THIS IS THE SUBROUTINE WHICH
@@ -362,7 +363,6 @@ C
 C
         LOGICAL NOSTOP,NOREF,SKIP
 C
-        INCLUDE 'DATMAI.INC'
 
 
         OUTLYNE = "LNSEOS1 Routine Starting!"
@@ -2455,8 +2455,8 @@ C     DONE
                         END
       SUBROUTINE REDOXOBJ(REDOLNSEOS)
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
-      INCLUDE 'DATMAI.INC'
       REAL*8 A,B,JK_FACTOR
       LOGICAL REDOLNSEOS
 C
@@ -2492,8 +2492,8 @@ C     SET SCX
                         END
       SUBROUTINE REDOYOBJ(REDOLNSEOS)
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
-      INCLUDE 'DATMAI.INC'
       REAL*8 A,B,JK_FACTOR
       LOGICAL REDOLNSEOS
 C
@@ -2529,9 +2529,9 @@ C     SET SCY
                         END
       SUBROUTINE RERROR
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
         INTEGER I
-        INCLUDE 'DATMAI.INC'
                   DO I=1,INT(SYSTEM(20))
       IF(ALENS(144,I).NE.0.0D0) THEN
       WRITE(OUTLYNE,10) ALENS(144,I),I

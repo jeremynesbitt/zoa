@@ -19,9 +19,9 @@ C ---------------------------------------------------------------------------
         SUBROUTINE MACFAL
         USE GLOBALS
         use DATSUB
+        use DATMAI
         IMPLICIT NONE
         LOGICAL ITERROR
-        INCLUDE 'DATMAI.INC'
 C
                         FOBRUN=.FALSE.
                         ITERROR=.TRUE.
@@ -128,11 +128,11 @@ C Used for field sorting in PLOTCAD4 and WAVSPOT7.
 C ---------------------------------------------------------------------------
       SUBROUTINE SORT_JK1(N,RA,RA1,RA2)
 C     USED IN FIELD SORTING OR MULTIPLE FIELDS OF VIEW
+      use DATMAI
       IMPLICIT NONE
       REAL*8 RA,RRA,RRA1,RRA2,RA1,RA2
       INTEGER N,L,IR,J,I
       DIMENSION RA(N),RA1(N),RA2(N)
-      INCLUDE 'DATMAI.INC'
       L=N/2+1
       IR=N
  10   CONTINUE
@@ -184,10 +184,10 @@ C LENSSAVE_NOOPT - LSAVE command: save lens without optimization data
 C ---------------------------------------------------------------------------
         SUBROUTINE LENSSAVE_NOOPT
         USE GLOBALS
+        use DATMAI
         IMPLICIT NONE
         CHARACTER LFILENAME*80
         INTEGER WSCNT
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -244,10 +244,10 @@ C LENSSAVE - LENSSAVE command: save lens with all data
 C ---------------------------------------------------------------------------
         SUBROUTINE LENSSAVE
         USE GLOBALS
+        use DATMAI
         IMPLICIT NONE
         CHARACTER LFILENAME*80
         INTEGER WSCNT
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -302,11 +302,11 @@ C ---------------------------------------------------------------------------
 C LENSREST - LENSREST command: restore lens from file
 C ---------------------------------------------------------------------------
         SUBROUTINE LENSREST
+        use DATMAI
         IMPLICIT NONE
         CHARACTER LFILENAME*80
         INTEGER WSCNT
         LOGICAL EXISJK
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -387,8 +387,8 @@ C ---------------------------------------------------------------------------
 C MMOD - MOD command: compute W1 modulo W2, result in accumulator REG(9).
 C ---------------------------------------------------------------------------
         SUBROUTINE MMOD
+        use DATMAI
         IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
         IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1
      1  .OR.S5.EQ.1) THEN
       WRITE(OUTLYNE,*)'"MOD" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
@@ -421,9 +421,9 @@ C ---------------------------------------------------------------------------
 C NO_ZEROS - strip redundant zeros from numeric string output.
 C ---------------------------------------------------------------------------
       SUBROUTINE NO_ZEROS(STRING,N)
+      use DATMAI
       INTEGER N,I,J
       CHARACTER STRING*(*)
-      INCLUDE 'DATMAI.INC'
  20                     CONTINUE
                         J=1
                         DO I=1,N

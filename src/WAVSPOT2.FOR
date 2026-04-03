@@ -8,6 +8,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SUMSPREDSQ.FOR.
@@ -36,7 +37,6 @@ C
 C
       REAL*8 W1W
 C
-        INCLUDE 'DATMAI.INC'
 C
       REAL*8 LARGER
       DIMENSION LARGER(:,:)
@@ -266,6 +266,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPREDSQ.FOR.
@@ -297,7 +298,6 @@ C
 C
       CHARACTER J_UN*13
 C
-        INCLUDE 'DATMAI.INC'
 C
       REAL*8 LARGER
       DIMENSION LARGER(:,:)
@@ -969,6 +969,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SUMSPRED.FOR.
@@ -997,7 +998,6 @@ C
 C
       REAL*8 W1W
 C
-        INCLUDE 'DATMAI.INC'
 C
       REAL*8 LARGER
       DIMENSION LARGER(:,:)
@@ -1229,6 +1229,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL OPEN32
@@ -1240,7 +1241,6 @@ C
      1  APFAC,
      2  DS9,DS12
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(SQ.EQ.0) WQ='SPOTS'
                    DO I=8,1,-1
@@ -1359,6 +1359,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPRED.FOR.
@@ -1390,7 +1391,6 @@ C
 C
       CHARACTER J_UN*13
 C
-        INCLUDE 'DATMAI.INC'
 C
       REAL*8 LARGER
       DIMENSION LARGER(:,:)
@@ -2269,6 +2269,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE DSPRED.FOR.
@@ -2306,7 +2307,6 @@ C
 C
       CHARACTER J_UN*13
 
-        INCLUDE 'DATMAI.INC'
 C
       REAL*8 LARGER
       DIMENSION LARGER(:,:)
@@ -2732,6 +2732,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE DSPREDSQ.FOR.
@@ -2772,7 +2773,6 @@ C
 C
       CHARACTER J_UN*13
 C
-        INCLUDE 'DATMAI.INC'
 C
       REAL*8 LARGER
       DIMENSION LARGER(:,:)
@@ -3201,6 +3201,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE OPSPOTSET.FOR. THIS DOES ALL SPOT SETUPS.
@@ -3208,7 +3209,6 @@ C     FOR OPTIM AND TOLERANCING
 C
       INTEGER I,IV
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(WC.EQ.'OPSPDRST') THEN
         IF(STI.EQ.1) THEN
@@ -3514,6 +3514,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE OPSPOTSET.FOR. THIS DOES ALL SPOT SETUPS
@@ -3521,7 +3522,6 @@ C     EXCEPT FOR OPTIM AND TOLERANCING
 C
       INTEGER I
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(WC.EQ.'SPDRESET') THEN
         IF(STI.EQ.1) THEN

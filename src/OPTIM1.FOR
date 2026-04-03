@@ -8,11 +8,11 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,J,K,L,II,JJ
 C
-        INCLUDE 'DATMAI.INC'
 C
  30                     CONTINUE
                         DO I=1,TVBCNT
@@ -57,11 +57,11 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,J,K,L,II,JJ
 C
-        INCLUDE 'DATMAI.INC'
  30                     CONTINUE
                         DO I=1,VBCNT
                         II=I
@@ -108,6 +108,7 @@ C
       use DATCFG
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       LOGICAL ITERROR
 C
@@ -117,7 +118,6 @@ C
       REAL*8 BESTFMT,BESTPFAC
       COMMON/BESTCHOICE/BESTFMT,BESTPFAC
 C
-        INCLUDE 'DATMAI.INC'
 C
 C       THIS IS SUBROUTINE PFIND. THIS IS THE SUBROUTINE WHICH
 C       HANDLES THE "PFIND" COMMAND.
@@ -328,6 +328,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         CHARACTER CNAM*3,LWQ*8
@@ -336,7 +337,6 @@ C
 C
        LOGICAL DESYES,ALLER,CFGER
 C
-        INCLUDE 'DATMAI.INC'
 C
         ALLER=.TRUE.
         CFGER=.FALSE.
@@ -559,13 +559,13 @@ C SUB OPRCLN.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,J,K,L,II,JJ
 C
       LOGICAL OPGO
 C
-        INCLUDE 'DATMAI.INC'
 C
  30                     CONTINUE
                         DO I=1,OPCNT
@@ -619,6 +619,7 @@ C
         use DATSPD
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER I,MACYES,JJ,STRT,CNTER,KLI,II,PREDEFI,OF28,OF31
@@ -640,7 +641,6 @@ C
 C
       COMMON/COMFUN/FUN
 C
-        INCLUDE 'DATMAI.INC'
       OF28=F28
       OF31=F31
         SENSERR=.FALSE.
@@ -878,6 +878,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         CHARACTER VNAME*6
@@ -886,7 +887,6 @@ C
 C
         INTEGER I,II
 C
-        INCLUDE 'DATMAI.INC'
 C
 C       THIS IS SUBROUTINE TVBA. THIS IS THE SUBROUTINE WHICH DOES TVAR
 C       OUTPUT COMMANDS AT THE CMD LEVEL AND FROM INSIDE TVARIABLE AND
@@ -1343,6 +1343,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       LOGICAL YES
@@ -1353,7 +1354,6 @@ C
 C
         INTEGER I
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(DF1.EQ.1) ALLER=.TRUE.
       IF(DF1.EQ.0) ALLER=.FALSE.
@@ -1760,6 +1760,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         CHARACTER VNAME*7,TAGNAM*4
@@ -1768,7 +1769,6 @@ C
 C
         INTEGER I,CFGCHK,TAGER,TAG4
 C
-        INCLUDE 'DATMAI.INC'
 C
         ALLER=.TRUE.
         CFGER=.FALSE.

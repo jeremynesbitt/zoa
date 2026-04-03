@@ -431,6 +431,7 @@ subroutine PLTIMTST
   use plplot_extra
 
 
+use DATMAI
 IMPLICIT NONE
 
 character(len=23) :: ffieldstr
@@ -478,7 +479,6 @@ type(c_ptr) :: canvas
 type(zoaPlotImg) :: zpImg
 type(multiplot) :: mplt
 
-INCLUDE 'DATMAI.INC'
 
 
 
@@ -583,6 +583,7 @@ subroutine PLT3DTST
   use plplot_extra
 
 
+use DATMAI
 IMPLICIT NONE
 
 character(len=23) :: ffieldstr
@@ -631,7 +632,6 @@ type(c_ptr) :: canvas
 type(zoaPlot3d) :: zp3d
 type(multiplot) :: mplt
 
-INCLUDE 'DATMAI.INC'
 
 !   Process command-line arguments
 plparseopts_rc = plparseopts(PL_PARSE_FULL)
@@ -925,6 +925,7 @@ subroutine powsym_ideal(surfaceno, w, w_sum, symcalc, s_sum)
   use iso_c_binding, only:  c_ptr, c_null_char
 
 
+use DATMAI
 IMPLICIT NONE
 
 real, intent(in) :: w(:), symcalc(:)
@@ -942,7 +943,6 @@ type(multiplot) :: mplt
 character(len=100) :: strTitle
 
 
-INCLUDE 'DATMAI.INC'
 
  !call checkCommandInput(ID_CMD_ALPHA)
 
@@ -1052,6 +1052,7 @@ subroutine plot_seidel()
   use iso_c_binding, only:  c_ptr, c_null_char
 
 
+use DATMAI
 IMPLICIT NONE
 
 integer, parameter :: nS = 7 ! number of seidel terms to plot
@@ -1071,7 +1072,6 @@ character(len=20), dimension(nS) :: yLabels
 character(len=23) :: cmdTxt
 
 
-INCLUDE 'DATMAI.INC'
 
 call zoa_emit(INPUT, "blue")
 inputCmd = INPUT

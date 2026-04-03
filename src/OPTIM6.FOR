@@ -5,10 +5,10 @@ C
       SUBROUTINE DEROFF
 C
         use DATSUB
+        use DATMAI
         IMPLICIT NONE
         LOGICAL ITERROR
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(OPTM_INIT.EQ.1) THEN
                 DEREXT=.FALSE.
@@ -25,6 +25,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -33,7 +34,6 @@ C
 C
       LOGICAL NOP,ALLER,CFGER
 C
-        INCLUDE 'DATMAI.INC'
 C
                    CFGER=.FALSE.
                    TAGER=0
@@ -213,6 +213,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -221,7 +222,6 @@ C
 C
       LOGICAL NOP,ALLER,CFGER
 C
-        INCLUDE 'DATMAI.INC'
 C
 
       !call LogTermDebug("In loud version FMT2")
@@ -396,6 +396,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -404,7 +405,6 @@ C
 C
       LOGICAL NOP,ALLER,CFGER
 C
-        INCLUDE 'DATMAI.INC'
 C
                    CFGER=.FALSE.
                    TAGER=0
@@ -562,11 +562,11 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER II,I,J,VALT,VBSURF
 C
-        INCLUDE 'DATMAI.INC'
 C
                         DO I=1,MAXCMP
       IF(ISCOMP(I)) THEN
@@ -973,11 +973,11 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER II,I,J,VALT,VBSURF
 C
-        INCLUDE 'DATMAI.INC'
 C
 C     NOW BUILD THE VARIABLE ENTRY
 C       J=1  > 1 THROUGH 164, A VARIABLE TYPE DESIGNATOR
@@ -1532,11 +1532,11 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER I,J,VALT,VBSURF,VADD
 C
-        INCLUDE 'DATMAI.INC'
 C
 C     NOW BUILD THE VARIABLE ENTRY
 C       J=1  > 2 THROUGH 133, A VARIABLE TYPE DESIGNATOR
@@ -2165,10 +2165,10 @@ C       ALL DONE
       SUBROUTINE FIELDS
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       CHARACTER AVAL3*3
       INTEGER I
-      INCLUDE 'DATMAI.INC'
                 AVAL3(1:3)=WC(2:4)
                 CALL ATOII(AVAL3,I)
       IF(STI.EQ.1) THEN
@@ -2245,7 +2245,7 @@ C       ALL DONE
       use DATCFG
       use DATSUB
       use DATLEN
-      INCLUDE 'DATMAI.INC'
+      use DATMAI
       INTEGER IVAL,I,J,K,DFNRD,L,LL,LLL,LLLL,DFNRAYS
       REAL*8 JK_WW1,JK_WW2,VL,XPOS,YPOS,STEP,WT1,WT2,WAY,THETA
       REAL*8 TESTLENGTH,LAST_TESTLENGTH,YSTART_POS,XSTART_POS
@@ -3208,9 +3208,9 @@ C SUB TOPER.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
-        INCLUDE 'DATMAI.INC'
 C
         INTEGER I,J
 C
@@ -3254,9 +3254,9 @@ C SUB FOCRIT.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
-        INCLUDE 'DATMAI.INC'
 C
         INTEGER I,J
 C
@@ -3302,9 +3302,9 @@ C SUB MERIT.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
-        INCLUDE 'DATMAI.INC'
 C
         INTEGER I,J
 C
@@ -3348,6 +3348,7 @@ C
       use DATCFG
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
 C
       INTEGER I,K,J,IID,JJD
@@ -3358,7 +3359,6 @@ C
 C
       REAL*8 VAL
 C
-        INCLUDE 'DATMAI.INC'
       CHARACTER AI1*3,AI2*3,AI3*3,AI4*3,AVAL1*13,AVAL2*13,AVAL3*13,
      1AVAL4*13
 C
@@ -3455,6 +3455,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -3463,7 +3464,6 @@ C
 C
       LOGICAL NOP,ALLER,CFGER
 C
-        INCLUDE 'DATMAI.INC'
 C
 
       !call LogTermDebug("In Silent version FMT3")
@@ -3555,6 +3555,7 @@ C
       use DATCFG
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
 C
       INTEGER I,K,J,IID,JJD,SUM1,IIID,JJJD,MAXCNT,ALLOERR
@@ -3571,7 +3572,6 @@ C
       DIMENSION DERIV(:,:)
       ALLOCATABLE :: DERIV
 C
-        INCLUDE 'DATMAI.INC'
 C
 C       THIS IS SUBROUTINE MDUMP. THIS IS THE SUBROUTINE WHICH
 C       HANDLES AN "ITER ADJUST" COMMAND.

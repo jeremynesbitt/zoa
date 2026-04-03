@@ -437,6 +437,7 @@ end function
   ! Note.  Needs some refactoring to separate opening file
   use iso_fortran_env, only: real64
   use type_utils, only: real2str
+  use DATMAI
   implicit none
   class(glassdb) :: self
   character(len=*) :: strName
@@ -449,7 +450,6 @@ end function
   CHARACTER(len=13) NAME,NUMBER
   logical :: EXIS36
 
-  INCLUDE 'DATMAI.INC'
 
   boolResult = .FALSE.
 

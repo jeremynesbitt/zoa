@@ -3,7 +3,7 @@
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
                         RETURN
                         END

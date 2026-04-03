@@ -6,6 +6,7 @@ C SUB SAGCACO.FOR
         SUBROUTINE SAGCACO(JK_I,JK_X,JK_Y,JK_SAG,ISITIN)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         EXTERNAL INSID1,INSID2
@@ -34,7 +35,6 @@ C
       LOGICAL TCLPRF,SPDTRA,ISITIN
 C
       COMMON/SPRA1/SPDTRA
-        INCLUDE 'DATMAI.INC'
         ISITIN=.FALSE.
 C
 C       THE CALL TO THIS ROUTINE IS:
@@ -756,6 +756,7 @@ C SUB FDISTOP.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FDISTOP. THIS SUBROUTINE IMPLEMENTS
@@ -777,7 +778,6 @@ C
       INTEGER NUM5
       COMMON/GV/VALUE,NUM5
 C
-        INCLUDE 'DATMAI.INC'
           GRASET=.FALSE.
       O18=SYSTEM(18)
       O19=SYSTEM(19)
@@ -884,6 +884,7 @@ C SUB FDISTOR.FOR
         SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE DISTOR. THIS SUBROUTINE IMPLEMENTS
@@ -908,7 +909,6 @@ C
       INTEGER NUM5
       COMMON/GV/VALUE,NUM5
 C
-        INCLUDE 'DATMAI.INC'
       O18=SYSTEM(18)
       O19=SYSTEM(19)
       SYSTEM(18)=0.0D0
@@ -1017,6 +1017,7 @@ C SUB DISTOP.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE DISTOP. THIS SUBROUTINE IMPLEMENTS
@@ -1038,7 +1039,6 @@ C
       INTEGER NUM5
       COMMON/GV/VALUE,NUM5
 C
-        INCLUDE 'DATMAI.INC'
           GRASET=.FALSE.
       O18=SYSTEM(18)
       O19=SYSTEM(19)
@@ -1133,6 +1133,7 @@ C
 C     PY
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -1148,7 +1149,6 @@ C
 C
       INTEGER K
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -1265,6 +1265,7 @@ C
 C     PX
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -1280,7 +1281,6 @@ C
 C
       INTEGER K
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -1396,6 +1396,7 @@ C
 C     PUY
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -1411,7 +1412,6 @@ C
 C
       INTEGER K,GFLAG
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -1559,6 +1559,7 @@ C
 C     PUX
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -1574,7 +1575,6 @@ C
 C
       INTEGER K
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -1724,6 +1724,7 @@ C
 C     PCY
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -1739,7 +1740,6 @@ C
 C
       INTEGER K,GFLAG
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -1860,6 +1860,7 @@ C
 C     PCX
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -1875,7 +1876,6 @@ C
 C
       INTEGER K,GFLAG
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -1994,6 +1994,7 @@ C
 C     PUCY
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -2009,7 +2010,6 @@ C
 C
       INTEGER K,GFLAG
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -2158,6 +2158,7 @@ C
 C     PUCX
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -2173,7 +2174,6 @@ C
 C
       INTEGER K,GFLAG
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -2322,6 +2322,7 @@ C SUB GNPRT.FOR
      1MYW1,MYW2,MYW3,MYW4,GFLAG)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,PX,PY,PUX,PUY,PCX,VAL1,VAL2,SIG,XHT,YHT
@@ -2333,7 +2334,6 @@ C
 C
       INTEGER K
 C
-        INCLUDE 'DATMAI.INC'
         PY=0.0D0
         PX=0.0D0
         PCY=0.0D0
@@ -2654,6 +2654,7 @@ C SUB GNPRTGEN.FOR
      1,DWORD1,DWORD2,DWORD3,DWORD4,GFLAG)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,PX,PY,PUX,PUY,PCX,VAL1,VAL2,SIG,XHT,YHT
@@ -2670,7 +2671,6 @@ C
 C
       INTEGER K
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
           PX=0.0D0
@@ -2992,6 +2992,7 @@ C
 C     PY
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT
@@ -3009,7 +3010,6 @@ C
 C
       INTEGER K
 C
-        INCLUDE 'DATMAI.INC'
 C
           ERROR=0
 C
@@ -3322,6 +3322,7 @@ C SUB DISTOR.FOR
         SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE DISTOR. THIS SUBROUTINE IMPLEMENTS
@@ -3346,7 +3347,6 @@ C
       INTEGER NUM5
       COMMON/GV/VALUE,NUM5
 C
-        INCLUDE 'DATMAI.INC'
       O18=SYSTEM(18)
       O19=SYSTEM(19)
       SYSTEM(18)=0.0D0
@@ -3458,6 +3458,7 @@ C SUB CACHEK.FOR
         SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         EXTERNAL INSID1,INSID2
@@ -3490,7 +3491,6 @@ C
       COMMON/SPRA2/SPDCD1,SPDCD2
 C
       COMMON/SPRA1/SPDTRA
-        INCLUDE 'DATMAI.INC'
 C
 C       THE CALL TO THIS ROUTINE IS:
 C       CALL CACHEK

@@ -1028,6 +1028,7 @@ subroutine rmsfield_go(psm)
   use plplot_extra
   use iso_c_binding, only: c_ptr, c_null_ptr
 
+use DATMAI
 IMPLICIT NONE
 
 character(len=23) :: ffieldstr
@@ -1041,7 +1042,6 @@ REAL, allocatable :: x(:), y(:)
 type(zoaplot_setting_manager) :: psm
 type(multiplot) :: mplt
 
-INCLUDE 'DATMAI.INC'
 
  !call checkCommandInput(ID_CMD_ALPHA)
 

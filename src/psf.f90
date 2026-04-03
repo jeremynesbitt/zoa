@@ -19,6 +19,7 @@ module mod_psf
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
 !
 !
 !     THIS IS SUBROUTINE DOPSF.FOR.
@@ -64,7 +65,6 @@ module mod_psf
 !
         LOGICAL ERR
 !
-        INCLUDE 'DATMAI.INC'
 
 !
       INTEGER IREAL,IIMAG,INDEX,SHTNM,IX,IY,II,I,J,NDAT,NDIM, &

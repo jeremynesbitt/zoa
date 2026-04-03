@@ -6,6 +6,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS ROUTINE INPUTS THE COMPEX APERTURE FUNCTION FROM CAPFNOUT.DAT
@@ -33,7 +34,6 @@ C
       LOGICAL PLOTIT(1:10)
       COMMON/ITPLOT/PLOTIT
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
         IF(STI.EQ.1) THEN
@@ -286,6 +286,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION AS A PHASE
@@ -299,7 +300,6 @@ C
 C
       REAL*8 SPACING,WAV,MAXX,MAXY,MINX,MINY
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -453,6 +453,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION TO AN ASCII FILE
@@ -465,7 +466,6 @@ C
       CHARACTER CAPOUT*80,BCAPOUT*80
 C
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -616,6 +616,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -626,7 +627,6 @@ C
 C
         REAL*8 REFHT,WVAL
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -771,6 +771,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -781,7 +782,6 @@ C
 c
         REAL*8 REFHT,WVAL
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         OUTLYNE=
@@ -929,6 +929,7 @@ C     KKV IS THE TOTAL NUMBER OF POINTS TO BE READ IN FROM DSPOTT
 C
         use DATSP1
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER KVAL,K,I,J,NNX,NNY,KK,KKK,IQ,KKV,II,IIVAL
@@ -940,7 +941,6 @@ C
 C
       DIMENSION F(KKK,KKK),X(KKK),Y(KKK)
 C
-        INCLUDE 'DATMAI.INC'
 C
           XMAX=-1.0E10
           YMAX=-1.0E10
@@ -1231,6 +1231,7 @@ C     KKV IS THE TOTAL NUMBER OF POINTS TO BE READ IN FROM DSPOTT
 C
         use DATSP1
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER KVAL,K,I,J,NNX,NNY,KK,KKK,IQ,KKV,II,IIVAL
@@ -1242,7 +1243,6 @@ C
 C
       DIMENSION F(KKK,KKK),X(KKK),Y(KKK)
 C
-        INCLUDE 'DATMAI.INC'
 C
           XMAX=-1.0E10
           YMAX=-1.0E10
@@ -1533,6 +1533,7 @@ C SUB OPDLOD.FOR
 C
         use DATSP1
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         EXTERNAL FF3
@@ -1562,7 +1563,6 @@ C
         REAL*8 DWW1,DWW2,DWW3,DWW4,
      1  TERM,FF3,RHO,THETA
 C
-        INCLUDE 'DATMAI.INC'
 C
         REAL*8 W,V,U,
      2  B,XXX
@@ -1865,6 +1865,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         EXTERNAL FF3
@@ -1891,7 +1892,6 @@ C
         DOUBLE PRECISION DWW1,DWW2,DWW3,DWW4,
      1  TERM,FF3,RHO,THETA
 C
-        INCLUDE 'DATMAI.INC'
 C
         DOUBLE PRECISION W,V,U,
      2  B,XXX,WV
@@ -2221,6 +2221,7 @@ C SUB OPDLIS.FOR
 C
         use DATSP1
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE OPDLIS. THIS IS THE SUBROUTINE WHICH
@@ -2248,7 +2249,6 @@ C
 C
         REAL*8 THETA
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE=
@@ -2383,6 +2383,7 @@ C SUB WRTCOEFS.FOR
 C
         use DATSP1
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS THE SUBROUTINE WHICH
@@ -2409,7 +2410,6 @@ C
 C
         REAL*8 THETA
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE=
@@ -2459,6 +2459,7 @@ C SUB WRTREPORT.FOR
         SUBROUTINE WRTREPORT
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS DOES THE LISTREPT COMMAND
@@ -2475,7 +2476,6 @@ C
 C
         INTEGER I
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
 C               THIS IS A CMD LEVEL COMMAND ONLY
@@ -2713,6 +2713,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS IS SUBROUTINE AWRTSUM.FOR.
@@ -2726,7 +2727,6 @@ C
 C
       CHARACTER NAMER*8,FNAMER*8
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(STI.EQ.1) THEN
       OUTLYNE=
@@ -2856,6 +2856,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS IS SUBROUTINE BWRTSUM.FOR.
@@ -2869,7 +2870,6 @@ C
 C
       CHARACTER NAMER*8,FNAMER*8
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(STI.EQ.1) THEN
       OUTLYNE=
@@ -2988,6 +2988,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS IS SUBROUTINE AWRTSPOT.FOR.
@@ -3001,7 +3002,6 @@ C
 C
       CHARACTER NAMER*8
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(STI.EQ.1) THEN
       OUTLYNE=
@@ -3114,6 +3114,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C     THIS IS SUBROUTINE BWRTSPOT.FOR.
@@ -3127,7 +3128,6 @@ C
 C
       CHARACTER NAMER*8
 C
-        INCLUDE 'DATMAI.INC'
 C
       IF(STI.EQ.1) THEN
       OUTLYNE=
@@ -3216,11 +3216,11 @@ C SUB STATT.FOR
         SUBROUTINE STATT
 C
         use DATSP1
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE STATT.FOR.
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(SST.EQ.1.OR.SN.EQ.1) THEN
         OUTLYNE=
@@ -3264,6 +3264,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL EXIS32,OPEN32
@@ -3276,7 +3277,6 @@ C
       COMMON/SPTWTS/SPT1,SPT2,SPT3,SPT4,SPT5
      1,SPT6,SPT7,SPT8,SPT9,SPT10
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
         OUTLYNE='"SPDSAVE" OR "SPDADD" TAKE NO'
@@ -3446,6 +3446,7 @@ C SUB OPDLOD2.FOR
 C
         use DATSP1
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         EXTERNAL FF3
@@ -3477,7 +3478,6 @@ C
       COMMON/OPDFIT1/ERROP
       COMMON/OPDFIT2/WVNUMOP
 C
-        INCLUDE 'DATMAI.INC'
 C
         REAL*8 W,V,U,
      2  B,XXX

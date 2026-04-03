@@ -2,6 +2,7 @@
 
       SUBROUTINE PLTFILL
       use DATLEN
+      use DATMAI
       !use GLOBALS
       REAL*8 VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO
 
@@ -21,7 +22,6 @@
       !COMMON/KDPSAVE/SAVE_KDP
       !COMMON INPUT
 
-        INCLUDE 'DATMAI.INC'
 
 
         PRINT *, "WAS ABLE TO ADD COMMAND!"

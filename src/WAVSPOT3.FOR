@@ -9,6 +9,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPOT.FOR. THIS DOES ALL SPOT DIAGRAMS.
@@ -29,7 +30,6 @@ C
       LOGICAL NOCOBSPSF
       COMMON/PSFCOBS/NOCOBSPSF
 C
-        INCLUDE 'DATMAI.INC'
 
       INTEGER RAYMAX,IWV
 C
@@ -784,6 +784,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       INTEGER K,I,TOTI,J,TOTII,NSTEP,BUCKET(1:100)
@@ -797,7 +798,6 @@ C
 C
       CHARACTER STUNI*9
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
                    EXTGMTF1=.FALSE.
@@ -919,6 +919,7 @@ C SUB SPOPD1.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPOPD1.FOR.
@@ -930,7 +931,6 @@ C
 C
         INTEGER JJ,J
 C
-        INCLUDE 'DATMAI.INC'
       INTEGER WWVN,WWRF
       IF(INT(CURLAM).EQ.1) WWVN=46
       IF(INT(CURLAM).EQ.2) WWVN=47
@@ -975,6 +975,7 @@ C SUB SPOPD2.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPOPD2.FOR.
@@ -986,7 +987,6 @@ C
 C
         INTEGER JJ,J,TPT
 C
-        INCLUDE 'DATMAI.INC'
 C
       INTEGER WWVN,WWRF
       IF(INT(CURLAM).EQ.1) WWVN=46
@@ -1091,12 +1091,12 @@ C     REFLOC=1= CHIEF RAY
                         RETURN
                         END
       SUBROUTINE SLOPES
+      use DATMAI
 C
       REAL*8 X,Y
 C
       COMMON/SLOPY/X,Y
 C
-      INCLUDE 'DATMAI.INC'
 C
 C     RAY SLOPES
       IF(X.GT.(PII/2.0D0).AND.X.LE.PII) X=-(PII-X)
@@ -1110,9 +1110,9 @@ C     RAY SLOPES
       SUBROUTINE SPOTIT(I)
       USE GLOBALS
       use DATSP1
+      use DATMAI
       IMPLICIT NONE
       INTEGER ALLOERR,I,J
-      INCLUDE 'DATMAI.INC'
           IF(I.EQ.1) THEN
 C     DEALLOCATE THE DSPOTT ARRAY
       DEALLOCATE (DSPOTT,STAT=ALLOERR)
@@ -1151,6 +1151,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
       REAL*8 SPT,V1,VALUE
@@ -1203,7 +1204,6 @@ C
 C
       COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
 C
-        INCLUDE 'DATMAI.INC'
       JA=COS_A_ANG
       JB=COS_B_ANG
 C
@@ -1603,6 +1603,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         CHARACTER UN*11
@@ -1623,7 +1624,6 @@ C
 C
         COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
 C
-        INCLUDE 'DATMAI.INC'
 C
       JA=COS_A_ANG
       JB=COS_B_ANG
@@ -2044,8 +2044,8 @@ C
                 END
         SUBROUTINE REVERSECA
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
         INTEGER SPDCD1,SPDCD2,I
         COMMON/SPRA2/SPDCD1,SPDCD2
 C       IF CURRENT RAY FAILS AT SURFACE I, SET SPDCD1 AND SPDCD2
@@ -2073,6 +2073,7 @@ C
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         CHARACTER UN*11
@@ -2148,7 +2149,6 @@ C
 C
       COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
 C
-        INCLUDE 'DATMAI.INC'
         IF(DF2.EQ.1) CAFORWARD=.TRUE.
         IF(DF2.EQ.0) CAFORWARD=.FALSE.
 C

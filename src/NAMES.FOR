@@ -3,6 +3,7 @@ C SUB NAMES.FOR
         use type_utils, only: int2str
         use codeV_commands, only: zoaCmds
 C
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE DEFINES ALL OF THE VALID PROGRAM COMMAND NAMES
@@ -13,7 +14,6 @@ C
 C
         INTEGER NNN,V,I
 C
-      INCLUDE 'DATMAI.INC'
 C
 C               HERE IS WHERE ALL POSSIBLE VALID PROGRAM COMMAND WORDS
 C               ARE INITIALIZED AND STORED IN ARRAY WCC WHICH IS PASSED

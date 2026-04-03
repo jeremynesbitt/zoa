@@ -1,7 +1,7 @@
         SUBROUTINE DOESLIBDATEXIST(EXISJK, EXISTAG)
         use DATLEN
+        use DATMAI
           LOGICAL, intent(inout) :: EXISJK,EXISTAG
-          INCLUDE 'DATMAI.INC'
 
                         EXISJK=.FALSE.
         INQUIRE(FILE=trim(LIBLEN)//'LIB.DAT',EXIST=EXISJK)
@@ -27,10 +27,10 @@
 
         SUBROUTINE OPENLIBDAT(fileID)
 
+        use DATMAI
         IMPLICIT NONE
 
         INTEGER :: rec22, II, fileID
-        INCLUDE 'DATMAI.INC'
         CHARACTER DATA*80
 
         inquire(iolength=rec22) II, DATA
@@ -45,12 +45,12 @@
         SUBROUTINE OPENLIBTAGDAT(fileID)
 
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         INTEGER :: rec27
         logical :: existTag
         integer, intent(inout) :: fileID
-        INCLUDE 'DATMAI.INC'
 
         INQUIRE(FILE=trim(LIBLEN)//'LIBTAG.DAT',EXIST=existTag)
         if(existTag) then
@@ -73,6 +73,7 @@ C SUB LSTAT.FOR
         SUBROUTINE myLSTAT
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE RETURNS THE NUMBER OF LENSES
@@ -87,7 +88,6 @@ C
 C
         COMMON/DATA/I,J,K,II
 C
-        INCLUDE 'DATMAI.INC'
 C
         CALL DOESLIBDATEXIST(EXISJK, EXISTAG)
 
@@ -127,9 +127,9 @@ C SUB LLIB.FOR
         USE GLOBALS
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
-        INCLUDE 'DATMAI.INC'
 
         !print *, 'In LLIB=',WQ
 C
@@ -182,11 +182,11 @@ C SUB OOPDIF.FOR
         SUBROUTINE OOPDIF
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS ROUTINE DOES THE OOPDIF COMMAND
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         IF(OPDIF) WRITE(OUTLYNE,100)
@@ -234,11 +234,11 @@ C SUB LLDDFF.FOR
         SUBROUTINE LLDDFF
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS ROUTINE DOES THE LDIF SETTING VIA THE DIFRAY COMMAND
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         IF(LDIF) WRITE(OUTLYNE,100)
@@ -286,11 +286,11 @@ C SUB LLDDF2.FOR
         SUBROUTINE LLDDF2
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS ROUTINE DOES THE LDIF2 SETTING VIA THE DIFFOB COMMAND
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         IF(LDIF2) WRITE(OUTLYNE,100)
@@ -338,11 +338,11 @@ C SUB LLDDF3.FOR
         SUBROUTINE LLDDF3
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS ROUTINE DOES THE SETTING OR NOVIRT VIA THE VIRTRAY COMMAND
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(STI.EQ.1) THEN
         IF(NOVIRT) WRITE(OUTLYNE,100)
@@ -391,6 +391,7 @@ C SUB LEPRT.FOR
 C
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE LEPRT. THIS SUBROUTINE IMPLEMENTS
@@ -402,7 +403,6 @@ C
 C
         CHARACTER IAW3*3
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(S2.EQ.1.OR.SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.
      1S4.EQ.1.OR.S5.EQ.1) THEN
@@ -569,12 +569,12 @@ C SUB LENUP.FOR
         use type_utils, only: real2str
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE LENUP. THIS IS THE SUBROUTINE WHICH
 C       HANDLES THE CHANGES AN EXISTING LENS.
 C
-        INCLUDE 'DATMAI.INC'
         REAL*8 RAL,RBE,CGAM,SGAM,RGAM
 C
         !PRINT *, "IN LENUP ROUTINE"
@@ -1309,8 +1309,8 @@ C       COMMANDS (PIKD)
         SUBROUTINE RE_DISPLAY_LENS(YESEOS)
         USE GLOBALS
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
-        INCLUDE 'DATMAI.INC'
         INTEGER SAVESURF
         LOGICAL YESEOS
         SAVE SAVESURF
@@ -1386,6 +1386,7 @@ C
         use DATCFG
         use DATSUB
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
         LOGICAL ITERROR
 C
@@ -1417,7 +1418,6 @@ C
 C
         COMMON/FFL/FLG
 C
-        INCLUDE 'DATMAI.INC'
 C
 
         CALL DOESLIBDATEXIST(EXISJK, EXISTAG)

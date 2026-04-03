@@ -57,6 +57,7 @@ contains
         USE GLOBALS
 !
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -100,7 +101,6 @@ contains
 
       REAL*8 AOI,D,H,S,FACTOR
 !
-        INCLUDE 'DATMAI.INC'
 
 !
                         KKK=0

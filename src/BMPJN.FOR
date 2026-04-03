@@ -1,6 +1,7 @@
         SUBROUTINE READIMAGEARRAY(II,WRD1)
 
         USE GLOBALS
+        use DATMAI
         IMPLICIT NONE
         INTEGER I,J,K,L,INFO(3),LENGTH,NX,NY,II
         INTEGER IR,IG,IB,ALLOERR,IERROR
@@ -21,7 +22,6 @@ C         call Bits(4,header(19:22),im) !Width
 C         call Bits(4,header(23:26),jm) !Height
 
         COMMON/FILEBMP/BMPFILE
-        INCLUDE 'DATMAI.INC'
         ALLOCATABLE :: ABMPDATA24
         PRINT *, "READ IMAGE ARRAY.."
         open(unit=1,file=BMPFILE,status='old',recl=54,
@@ -240,6 +240,7 @@ C        CALL WRGBsplit(ABMPDATA24(L),IR,IG,IB)
 
         USE GLOBALS
         !USE csv_file
+        use DATMAI
         IMPLICIT NONE
         INTEGER I,J,K,L
         INTEGER LENBMP, lun
@@ -248,7 +249,6 @@ C        CALL WRGBsplit(ABMPDATA24(L),IR,IG,IB)
         REAL*8 PEAKER,TRIMMER
         CHARACTER*80 BMPFILE
         character*1 rgb(3,OBJNX,OBJNY) !      RGB pixel data array
-        INCLUDE 'DATMAI.INC'
         BMPFILE=TRIM('PLOTBMP.BMP')
         PRINT *, "PLOTIMAGEARRAY ROUTINE..."
         IF(I.EQ.1) THEN
@@ -364,6 +364,7 @@ C     1 ,IMGNY-(2*INT(TRIMMER)))
         SUBROUTINE WRITEIMAGEARRAY(I,LENBMP,BMPFILE)
 
         USE GLOBALS
+        use DATMAI
         IMPLICIT NONE
         INTEGER I,J,K,L
         INTEGER LENBMP
@@ -371,7 +372,6 @@ C     1 ,IMGNY-(2*INT(TRIMMER)))
         INTEGER*4 BMPDATA24(1:LENBMP)
         REAL*8 PEAKER
         CHARACTER*80 BMPFILE
-        INCLUDE 'DATMAI.INC'
         PRINT *, "WRITEIMAGEARRAY ROUTINE.."
         IF(I.EQ.1) THEN
 C       PLOT OBJECT

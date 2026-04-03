@@ -4,6 +4,7 @@ C SUB MACOUT.FOR
         SUBROUTINE MACOUT
           use zoa_file_handler
 C
+        use DATMAI
         IMPLICIT NONE
 C
         LOGICAL EXST,EXISJK
@@ -27,7 +28,6 @@ C
       COMMON/COMNAM/FILNAM
 C
         INCLUDE 'DATMAC.INC'
-        INCLUDE 'DATMAI.INC'
       BLIN80=AA//AA//AA//AA
       BLIN13=AA//AA//AA//AA//AA//AA//AA
 C
@@ -411,9 +411,9 @@ C     IS LINE BLANK? IF YES RETURN
                        RETURN
                        END
       SUBROUTINE NO_ZEROS(STRING,N)
+      use DATMAI
       INTEGER N,I,J
       CHARACTER STRING*(*)
-      INCLUDE 'DATMAI.INC'
 C     STRIP LEADING BLANKS
 
 20                      CONTINUE
@@ -439,6 +439,7 @@ C     STRIP LEADING BLANKS
 C SUB NEWMAC.FOR
         SUBROUTINE NEWMAC
 C
+        use DATMAI
         IMPLICIT NONE
 C
         CHARACTER STAMP*20
@@ -477,7 +478,6 @@ C
         COMMON/IMAC/IMAC
 C
         INCLUDE 'DATMAC.INC'
-        INCLUDE 'DATMAI.INC'
 C
 C
         call does_mac_dat_exist(EXISJK)
@@ -570,6 +570,7 @@ C
                         END
         SUBROUTINE MACARRAY_LOAD(NUMINLIST, MACARRAY)
           use GLOBALS
+        use DATMAI
         IMPLICIT NONE
 C       ARRAY TO SUPPORT MACRO GUI
 
@@ -577,7 +578,6 @@ C       ARRAY TO SUPPORT MACRO GUI
         CHARACTER(len=8), dimension(1024), intent(inout) :: MACARRAY
         INTEGER, intent(inout) :: NUMINLIST
 
-        INCLUDE 'DATMAI.INC'
         INCLUDE 'DATMAC.INC'
         INTEGER OLDOUT,OLDIN,I,J, rec9
         CHARACTER*132 LINE
@@ -615,10 +615,10 @@ C       ARRAY TO SUPPORT MACRO GUI
         END
 
         subroutine does_mac_dat_exist(boolResult)
+        use DATMAI
 
          logical :: boolResult
 
-          INCLUDE 'DATMAI.INC'
 
           INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=boolResult)
           IF(.NOT.boolResult) THEN

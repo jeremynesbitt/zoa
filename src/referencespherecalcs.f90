@@ -17,6 +17,7 @@ contains
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         integer :: refSphereAlgo
@@ -28,7 +29,6 @@ contains
 !
         INTEGER TPT
 
-        INCLUDE 'DATMAI.INC'
 !
       LOGICAL REFERR
 
@@ -123,6 +123,7 @@ function updateOCOR(typeCode) result(opdCorrection)
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
           real*8 :: opdCorrection
@@ -140,7 +141,6 @@ function updateOCOR(typeCode) result(opdCorrection)
       INTEGER TPT
 
 !
-        INCLUDE 'DATMAI.INC'
 
     select case (typeCode)
     case(TC_PERFECT)
@@ -261,6 +261,7 @@ subroutine updateRefSphereParaxialPupil(REFERR)
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -273,7 +274,6 @@ subroutine updateRefSphereParaxialPupil(REFERR)
       LOGICAL REFERR
 
 !
-        INCLUDE 'DATMAI.INC'
 
 !       THE REFERENCE SPHERE IS CENTERED WHERE THE REAL CHIEF
 !       RAY CROSSES THE FINAL SURFACE.
@@ -417,6 +417,7 @@ subroutine updateRefSphereRealPupil(REFERR)
         use DATSP1
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 
         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -429,7 +430,6 @@ subroutine updateRefSphereRealPupil(REFERR)
       LOGICAL REFERR
 
 !
-        INCLUDE 'DATMAI.INC'
 
 
 !       THE REFERENCE SPHERE IS CENTERED WHERE THE REAL CHIEF

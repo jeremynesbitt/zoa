@@ -18,6 +18,7 @@ C
         use DATHGR
         use DATSPD
         use DATSUB
+        use DATMAI
         IMPLICIT NONE
         LOGICAL ITERROR
 
@@ -84,7 +85,6 @@ C
        !EXTERNAL SAVEINPT
 
         !INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATMAI.INC'
 C        INCLUDE 'DATMAC.INC' - binary macro system removed
         REAL*8 TESTA,TESTB,TESTC,TESTD,TESTE
 C
@@ -3777,7 +3777,7 @@ C       INITIATE MONTE-CARLO ANALYSIS
         use DATSPD
         use DATSUB
         use DATLEN
-        INCLUDE 'DATMAI.INC'
+        use DATMAI
         INTEGER ALLOERR
                    PSFEXT=.FALSE.
 C WINTER

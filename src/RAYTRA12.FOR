@@ -8,6 +8,7 @@ C SUB REFRAY.FOR
         use type_utils, only: real2str, int2str
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE REFRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -44,7 +45,6 @@ C       FOBB0=TRUE FOR ON AXIS AND FALSE FOR OFF AXIS
 C
         COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
 C
-        INCLUDE 'DATMAI.INC'
 
         !call logger%logText("Reference Ray Routine Started")
 

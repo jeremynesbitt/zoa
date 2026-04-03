@@ -2,9 +2,9 @@
       SUBROUTINE NEWFIELD
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       INTEGER I
-      INCLUDE 'DATMAI.INC'
                 FIELDX(1)=0.0D0
                 FIELDX(2)=0.0D0
                 FIELDX(3)=0.0D0
@@ -94,9 +94,9 @@
       SUBROUTINE NEWRAY
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       INTEGER I
-      INCLUDE 'DATMAI.INC'
           I=41
                 RAYW(1:41)=SYSTEM(11)
                 RAYW(42:82)=SYSTEM(7)
@@ -437,9 +437,9 @@ C
       use DATSPD
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
       CHARACTER KKDP*3
-        INCLUDE 'DATMAI.INC'
         IF(F1.EQ.1.AND.F17.EQ.0) THEN
                    KKDP='CMD'
                    RETURN
@@ -543,10 +543,10 @@ C     FALL THROUGH OPTION TO CHECK IS MISSED SOMETHING
       use DATSPD
       use DATSUB
       use DATLEN
+      use DATMAI
       IMPLICIT NONE
         INTEGER N
         CHARACTER*127 CLINE
-        INCLUDE 'DATMAI.INC'
       WRITE(OUTLYNE,*)'         MAXIMUM LENS SURFACES = ',MAXSUR-1
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)' MAX# ALTERNATE CONFIGURATIONS = ',MAXCFG

@@ -3,9 +3,9 @@
 C     THIS IS THE DRIVER ROUTINE FOR SENDING GRAPHICS TO
 C     HARDCOPY DEVICES
 C      USE WINTERACTER
+      use DATMAI
       IMPLICIT NONE
       CHARACTER CEELINE*(*)
-      INCLUDE 'DATMAI.INC'
       PRINT *, "RUN_WPLOT CEELINE = ", CEELINE
       CALL WPLOT(CEELINE)
       RETURN
@@ -13,11 +13,11 @@ C      USE WINTERACTER
       SUBROUTINE WPLOT(CEELINE)
 C     PLOTTING ROUTINE FOR HARDCOPY
 C      USE WINTERACTER
+      use DATMAI
       IMPLICIT NONE
       LOGICAL OPEN28,EXIS28
       CHARACTER CEELINE*(*),FILNAME*12
       INTEGER NCOL256,I,ID
-      INCLUDE 'DATMAI.INC'
                         DO I=1,10
       IF(CEELINE(1:1).EQ.' ') CEELINE(1:80)=CEELINE(2:80)//' '
                         END DO
@@ -69,6 +69,7 @@ C      USE WINTERACTER
       use RCImageBasic
       use RCImageIO
       use RCImagePrimitive
+      use DATMAI
       IMPLICIT NONE
 
       REAL MINII1, MINII2, MAXII1, MAXII2
@@ -140,7 +141,6 @@ C      USE WINTERACTER
       INTEGER PENPOSX,PENPOSY,NEUTTOTAL
       COMMON/TOTALNEUT/NEUTTOTAL
       COMMON/PENPEN2/PENPOSX,PENPOSY
-      INCLUDE 'DATMAI.INC'
 
       call alloc_img(animage, 7400, 5652)
       call fill_img(animage, rgb(255,255,255))
@@ -839,6 +839,7 @@ C      USE WINTERACTER
       use RCImagePrimitive
 
       use DATHGR
+      use DATMAI
       IMPLICIT NONE
       type(rgbimage) :: animage
       type(rgb) :: color
@@ -900,7 +901,6 @@ C      USE WINTERACTER
       COMMON/COLCOM/COLPASS,COLTRUE
       REAL JJ_X,JJ_Y
       COMMON/ASPECTER/JJ_X,JJ_Y
-      INCLUDE 'DATMAI.INC'
 C     INITIALIZE CHARACTER ASPECT RATIO
       JJ_X=1.0
       JJ_Y=1.0

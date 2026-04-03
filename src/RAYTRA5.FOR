@@ -5,6 +5,7 @@ C SUB QRRAY.FOR
         USE GLOBALS
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE QRRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -29,7 +30,6 @@ C
 C
         REAL RX,RY,RZ,RL,RM,RN,SFL,SFM,SFN,AREA3
 C
-        INCLUDE 'DATMAI.INC'
 C
 C     CHECK INPUT
 C
@@ -321,13 +321,13 @@ C
         SUBROUTINE FTGRID
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER FOTLIM
 C
       COMMON/LIMMER/FOTLIM
 C
-        INCLUDE 'DATMAI.INC'
 C     CHECK INPUT
 C
       IF(STI.EQ.1) THEN
@@ -368,6 +368,7 @@ C SUB QTRA1.FOR
         SUBROUTINE QTRA1(FOOT_TRACE)
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE QTRA1.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -394,7 +395,6 @@ C
       INTEGER RAYCD1,RAYCD2,RAYCD3
       COMMON/RAYCD/RAYCD1,RAYCD2,RAYCD3
 C
-        INCLUDE 'DATMAI.INC'
 C
 C     PROPER INITIALIZE PROCEEDURE 3/3/96
                 R_X=0.0D0
@@ -1315,6 +1315,7 @@ C SUB RAYDMP.FOR
         SUBROUTINE RAYDMP
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE CONTROLS THE OPERATION OF THE "RAYDUMP"
@@ -1328,7 +1329,6 @@ C
 C
       COMMON/ACLEN/ACLENG
 C
-        INCLUDE 'DATMAI.INC'
 C
         IF(SN.EQ.1.OR.SST.EQ.1.OR.SQ.EQ.1) THEN
         WRITE(OUTLYNE,*)'"RAYDUMP" TAKES NO INPUT'
@@ -1732,6 +1732,7 @@ C SUB RAYTRA.FOR
         use type_utils, only: real2str, int2str
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
         integer :: jj
 C
@@ -1776,7 +1777,6 @@ C
 
       REAL*8 AOI,D,H,S,FACTOR
 C
-        INCLUDE 'DATMAI.INC'
 
 C
                         KKK=0
@@ -3409,6 +3409,7 @@ C SUB RAYTRA2.FOR
         use real_ray_trace
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE RAYTRA2.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3447,7 +3448,6 @@ C
 C
       REAL*8 AOI,D,H,S,FACTOR
 C
-        INCLUDE 'DATMAI.INC'
 
 C
                         KKK=0

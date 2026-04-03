@@ -4,6 +4,7 @@ C SUB FOBA.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FOBA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -16,7 +17,6 @@ C
 C
       REAL*8 YAYA,NWW1,NWW2,NWW3
 C
-        INCLUDE 'DATMAI.INC'
 C
 C
         FOBRUN=.TRUE.
@@ -217,6 +217,7 @@ C SUB FFOBH.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FFOBH.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -254,7 +255,6 @@ C
 C
       COMMON/FBDIFF/FS,FT,FFS,FFT
 C
-        INCLUDE 'DATMAI.INC'
         FOBRUN=.TRUE.
 C
       DLLX=0.0D0
@@ -1336,6 +1336,7 @@ C SUB FFOB2.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FFOB2.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1370,7 +1371,6 @@ C
 C
       COMMON/FBDIFF/FS,FT,FFS,FFT
 C
-        INCLUDE 'DATMAI.INC'
         FOBRUN=.TRUE.
       DLLX=0.0D0
       DLLY=0.0D0
@@ -2460,6 +2460,7 @@ C SUB FASTFFOB.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
         INTEGER IISURF,FFT,FFS,I,J,ICNT,ICNTEST
@@ -2491,7 +2492,6 @@ C
 C
       COMMON/FBDIFF/FS,FT,FFS,FFT
 C
-        INCLUDE 'DATMAI.INC'
         FOBRUN=.TRUE.
 C
       DLLX=0.0D0
@@ -2947,6 +2947,7 @@ C SUB SLOWFFOB.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       SLOWFFOB IS USED BY IMTRACE3 FOR IMAGE CREATION
@@ -2982,7 +2983,6 @@ C
 C
       COMMON/FBDIFF/FS,FT,FFS,FFT
 C
-        INCLUDE 'DATMAI.INC'
         FOBRUN=.TRUE.
 C
       DLLX=0.0D0
@@ -4218,6 +4218,7 @@ C SUB MFFOBS
         USE GLOBALS
 C
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE MFFOBS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4226,7 +4227,6 @@ C
         INTEGER I,J,N
         REAL*8 XSTEP,YSTEP,SW1,SW2
 C
-        INCLUDE 'DATMAI.INC'
 C       SET DEFAULT NUMERICS
         IF(STI.NE.1) THEN
         IF(DF1.EQ.1) W1=0.0D0
@@ -4303,6 +4303,7 @@ C SUB FFOB.FOR
 C
         use DATSPD
         use DATLEN
+        use DATMAI
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FFOB.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4343,7 +4344,6 @@ C
 C
       COMMON/FBDIFF/FS,FT,FFS,FFT
 C
-        INCLUDE 'DATMAI.INC'
         FOBRUN=.TRUE.
         DEBUGZEE=.FALSE.
 C
@@ -5714,9 +5714,9 @@ C
         use GLOBALS
         use DATSPD
         use DATLEN
+        use DATMAI
         implicit none
 
-        INCLUDE 'DATMAI.INC'
 
         IF(INT(W4).NE.1.AND.
      1INT(W4).NE.2.AND.
@@ -5779,11 +5779,11 @@ C
         use GLOBALS
         use DATSPD
         use DATLEN
+        use DATMAI
         implicit none
 
         integer :: I
 
-        INCLUDE 'DATMAI.INC'
 
 
 
