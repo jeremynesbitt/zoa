@@ -9,6 +9,7 @@ contains
 subroutine plot_axes(pixY, pixX, marginY, marginX, axesColor)
 
   use DATHGR
+  use DATLEN
   IMPLICIT NONE
 
   INTEGER :: COLPAS, pixY, pixX, axesColor, numTicks
@@ -19,7 +20,6 @@ subroutine plot_axes(pixY, pixX, marginY, marginX, axesColor)
   real :: tickSpacingX, tickSpacingY
   integer :: i
 
-  INCLUDE 'DATLEN.INC'
 !     PLOTS A SET OF AXES WITH 10 DIVISION UP AND 5 ACROSS
   COLPAS=COLAXS
   CALL MY_COLTYP(COLPAS)

@@ -347,6 +347,7 @@ C               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 C SUB DODODO.FOR
         SUBROUTINE DODODO
 C
+        use DATLEN
         IMPLICIT NONE
 C
 C       THIS SUBROUTINE IS CALLED TO DO THE "DO" STATEMENT
@@ -355,7 +356,6 @@ C
         INTEGER I
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
         IF(SST.EQ.1) THEN
         WRITE(OUTLYNE,*)'"DO" TAKES NO STRING INPUT'
@@ -874,6 +874,7 @@ C
         use DATCFG
         use DATSPD
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
 C
@@ -886,7 +887,6 @@ C
         CHARACTER REMWQ*8
         COMMON/WQREM/REMWQ
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
       AAVAL=AA//AA//AA//AA
@@ -1040,6 +1040,7 @@ C
                         END
       FUNCTION EDGTHK(I,K)
 C
+      use DATLEN
       IMPLICIT NONE
 C
       REAL*8 EDGTHK
@@ -1052,7 +1053,6 @@ C
 C
       REAL*8 CA1,CA2,CA,TH12,SAGIT,SAG1,SAG2
 C
-        INCLUDE 'DATLEN.INC'
 C
       ETERROR=.FALSE.
 C
@@ -1143,6 +1143,7 @@ C     CALC SAG1 AND SAG2
       END
       FUNCTION SAGIT(I,CA,K,ETERROR)
 C
+      use DATLEN
       IMPLICIT NONE
 C
       INTEGER I,K
@@ -1151,7 +1152,6 @@ C
 C
       REAL*8 CA,SAGIT,SAG1,SAG2,SAG
 C
-        INCLUDE 'DATLEN.INC'
 C
           IF(K.EQ.1) THEN
 C     YZ PLANE CALCULATION FROM SURFACE I TO I+1
@@ -1179,6 +1179,7 @@ C
         use DATCFG
         use DATSPD
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
         LOGICAL ITERROR
 C
@@ -1235,7 +1236,6 @@ C
         CHARACTER REMWQ*8
         COMMON/WQREM/REMWQ
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
       EXTERNAL EDGTHK

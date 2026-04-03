@@ -1,6 +1,7 @@
 
 
       SUBROUTINE PLTFILL
+      use DATLEN
       !use GLOBALS
       REAL*8 VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO
 
@@ -21,7 +22,6 @@
       !COMMON INPUT
 
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 
 
         PRINT *, "WAS ABLE TO ADD COMMAND!"

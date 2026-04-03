@@ -24,6 +24,7 @@ C SUB FMT.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -33,7 +34,6 @@ C
       LOGICAL NOP,ALLER,CFGER
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
                    CFGER=.FALSE.
                    TAGER=0
@@ -212,6 +212,7 @@ C SUB FMT2.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -221,7 +222,6 @@ C
       LOGICAL NOP,ALLER,CFGER
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 
       !call LogTermDebug("In loud version FMT2")
@@ -395,6 +395,7 @@ C SUB FMT4.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -404,7 +405,6 @@ C
       LOGICAL NOP,ALLER,CFGER
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
                    CFGER=.FALSE.
                    TAGER=0
@@ -561,12 +561,12 @@ C SUB FIXCVAR.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER II,I,J,VALT,VBSURF
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
                         DO I=1,MAXCMP
       IF(ISCOMP(I)) THEN
@@ -972,12 +972,12 @@ C SUB FIXTVAR.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER II,I,J,VALT,VBSURF
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C     NOW BUILD THE VARIABLE ENTRY
 C       J=1  > 1 THROUGH 164, A VARIABLE TYPE DESIGNATOR
@@ -1531,12 +1531,12 @@ C SUB FIXVAR.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER I,J,VALT,VBSURF,VADD
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C     NOW BUILD THE VARIABLE ENTRY
 C       J=1  > 2 THROUGH 133, A VARIABLE TYPE DESIGNATOR
@@ -2164,11 +2164,11 @@ C       ALL DONE
                         END
       SUBROUTINE FIELDS
       use DATSUB
+      use DATLEN
       IMPLICIT NONE
       CHARACTER AVAL3*3
       INTEGER I
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATLEN.INC'
                 AVAL3(1:3)=WC(2:4)
                 CALL ATOII(AVAL3,I)
       IF(STI.EQ.1) THEN
@@ -2244,8 +2244,8 @@ C       ALL DONE
       use DATSP1
       use DATCFG
       use DATSUB
+      use DATLEN
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATLEN.INC'
       INTEGER IVAL,I,J,K,DFNRD,L,LL,LLL,LLLL,DFNRAYS
       REAL*8 JK_WW1,JK_WW2,VL,XPOS,YPOS,STEP,WT1,WT2,WAY,THETA
       REAL*8 TESTLENGTH,LAST_TESTLENGTH,YSTART_POS,XSTART_POS
@@ -3207,10 +3207,10 @@ C SUB TOPER.FOR
         SUBROUTINE TOPER
 C
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
         INTEGER I,J
 C
@@ -3253,10 +3253,10 @@ C SUB FOCRIT.FOR
         SUBROUTINE FOCRIT
 C
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
         INTEGER I,J
 C
@@ -3301,10 +3301,10 @@ C SUB MERIT.FOR
         SUBROUTINE MERIT
 C
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
         INTEGER I,J
 C
@@ -3347,6 +3347,7 @@ C SUB MDUMP.FOR
 C
       use DATCFG
       use DATSUB
+      use DATLEN
       IMPLICIT NONE
 C
       INTEGER I,K,J,IID,JJD
@@ -3358,7 +3359,6 @@ C
       REAL*8 VAL
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
       CHARACTER AI1*3,AI2*3,AI3*3,AI4*3,AVAL1*13,AVAL2*13,AVAL3*13,
      1AVAL4*13
 C
@@ -3454,6 +3454,7 @@ C       SILENT VERSION OF FMT2
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,TAGER,CFGCHK
@@ -3463,7 +3464,6 @@ C
       LOGICAL NOP,ALLER,CFGER
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 
       !call LogTermDebug("In Silent version FMT3")
@@ -3554,6 +3554,7 @@ C SUB ITERADJUST.FOR
 C
       use DATCFG
       use DATSUB
+      use DATLEN
       IMPLICIT NONE
 C
       INTEGER I,K,J,IID,JJD,SUM1,IIID,JJJD,MAXCNT,ALLOERR
@@ -3571,7 +3572,6 @@ C
       ALLOCATABLE :: DERIV
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C       THIS IS SUBROUTINE MDUMP. THIS IS THE SUBROUTINE WHICH
 C       HANDLES AN "ITER ADJUST" COMMAND.

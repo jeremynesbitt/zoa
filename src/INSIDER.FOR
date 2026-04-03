@@ -2,6 +2,7 @@ C SUB MISSREF.FOR
 
         SUBROUTINE MISSREF(X,Y)
 C
+        use DATLEN
         IMPLICIT NONE
 C
         EXTERNAL INSID1,INSID2
@@ -29,7 +30,6 @@ C
       LOGICAL TCLPRF,SPDTRA
 C
       COMMON/SPRA1/SPDTRA
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
                         I=NEWREF
                         LS=0

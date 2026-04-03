@@ -3,6 +3,7 @@ C       THIRTEENTH FILE FOR LENS DATABASE MANAGER FILES
 C SUB FNDGLS.FOR
         SUBROUTINE FNDGLS
 C
+        use DATLEN
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FNDGLS WHICH IMPLEMENTS THE FINDGLAS
@@ -16,7 +17,6 @@ C
         DIMENSION ASORTIT(:,:),ASORTIT2(:,:)
         ALLOCATABLE :: SORTIT,ASORTIT,SORTIT2,ASORTIT2
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         PN(LAMBDA,A0,A1,A2,A3,A4,A5)=
      1  DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+
@@ -1125,8 +1125,8 @@ C
                         RETURN
                         END
       SUBROUTINE GLASSP_RUSSIAN1
+      use DATLEN
       IMPLICIT NONE
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
       CHARACTER*13 RNAME(1:113)
       INTEGER I
@@ -1254,8 +1254,8 @@ C
                         RETURN
                         END
       SUBROUTINE GLASSP_RUSSIAN2
+      use DATLEN
       IMPLICIT NONE
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         CHARACTER*13 RNAME(1:113),NAME1,NAME2
         CHARACTER*12 FLNAME
@@ -1421,6 +1421,7 @@ C SUB GLASSP.FOR
         use glass_manager
         use command_utils, only : parseCommandIntoTokens
 C
+        use DATLEN
         IMPLICIT NONE
 
         character(len=80) :: tokens(40)
@@ -1440,7 +1441,6 @@ C
       CHARACTER NAME*13,NUMBER*13,FLNAME*12,NAME1*13,NAME2*13
      1,CATNAME*13
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
         LOGICAL EXIS_USER
@@ -1858,9 +1858,9 @@ C
       SUBROUTINE PRINTSPECIALCATALOGMATERIALS
             use zoa_output, only:  zoa_emit
             use glass_manager
+            use DATLEN
 
             integer :: i
-            INCLUDE 'DATLEN.INC'
             INCLUDE 'DATMAI.INC'  
 
             do i=1,size(specCat%names)
@@ -1874,8 +1874,8 @@ C
       END SUBROUTINE
 
       SUBROUTINE PRINTMATLGLASSES
+      use DATLEN
 
-            INCLUDE 'DATLEN.INC'
             INCLUDE 'DATMAI.INC'            
 
  3000 FORMAT('MATL          ACRYLIC      ',

@@ -9,6 +9,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
             use type_utils
             use mod_lens_data_manager
     
+            use DATLEN
             IMPLICIT NONE
     
     !       THIS IS SUBROUTINE MMAB3. THIS SUBROUTINE IMPLEMENTS
@@ -24,7 +25,6 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
             REAL(kind=real64) :: INV
             character(len=40), dimension(7) :: colHeaders
     
-            INCLUDE 'DATLEN.INC'
             INCLUDE 'DATMAI.INC'
     
             CALL PRTRC

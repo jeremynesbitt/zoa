@@ -18,6 +18,7 @@ module mod_psf
         use mod_analysis_manager
         use DATSP1
         use DATSPD
+        use DATLEN
 !
 !
 !     THIS IS SUBROUTINE DOPSF.FOR.
@@ -63,7 +64,6 @@ module mod_psf
 !
         LOGICAL ERR
 !
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
 !

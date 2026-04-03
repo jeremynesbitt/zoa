@@ -3776,7 +3776,7 @@ C       INITIATE MONTE-CARLO ANALYSIS
         use DATSP1
         use DATSPD
         use DATSUB
-        INCLUDE 'DATLEN.INC'
+        use DATLEN
         INCLUDE 'DATMAI.INC'
         INTEGER ALLOERR
                    PSFEXT=.FALSE.

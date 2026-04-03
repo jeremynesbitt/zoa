@@ -5,6 +5,7 @@ C SUB TOPOUT.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER I,CFGCHK,II,TAGER
@@ -16,7 +17,6 @@ C
         CHARACTER CNAM*3,FNAMER*6,DASHER*3
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C
         ALLER=.TRUE.
@@ -364,6 +364,7 @@ C SUB CRITOUT.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER I,CFGCHK,TAGER
@@ -375,7 +376,6 @@ C
         CHARACTER CNAM*3,FNAMER*5,DASHER*3
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C
         ALLER=.TRUE.
@@ -720,6 +720,7 @@ C SUB MAROUT.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER J,I,CFGCHK,TAGER
@@ -729,7 +730,6 @@ C
         CHARACTER CNAM*3,FNAMER*5,DASHER*3
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C
         ALLER=.TRUE.

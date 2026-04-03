@@ -7,12 +7,12 @@ C     THIS REMOVES DUPLICATE ENTRIES, KEEPING ONLY THE LAST ENTRY
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,J,K,L,II,JJ
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
  30                     CONTINUE
                         DO I=1,TVBCNT
@@ -56,12 +56,12 @@ C     THIS REMOVES DUPLICATE ENTRIES, KEEPING ONLY THE LAST ENTRY
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,J,K,L,II,JJ
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
  30                     CONTINUE
                         DO I=1,VBCNT
                         II=I
@@ -107,6 +107,7 @@ C SUB PFIND.FOR
 C
       use DATCFG
       use DATSUB
+      use DATLEN
       IMPLICIT NONE
       LOGICAL ITERROR
 C
@@ -117,7 +118,6 @@ C
       COMMON/BESTCHOICE/BESTFMT,BESTPFAC
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C       THIS IS SUBROUTINE PFIND. THIS IS THE SUBROUTINE WHICH
 C       HANDLES THE "PFIND" COMMAND.
@@ -327,6 +327,7 @@ C       HANDLES CMD LEVEL COMMAND "OPRD"
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         CHARACTER CNAM*3,LWQ*8
@@ -336,7 +337,6 @@ C
        LOGICAL DESYES,ALLER,CFGER
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
         ALLER=.TRUE.
         CFGER=.FALSE.
@@ -558,6 +558,7 @@ C SUB OPRCLN.FOR
         SUBROUTINE OPRCLN
 C
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER I,J,K,L,II,JJ
@@ -565,7 +566,6 @@ C
       LOGICAL OPGO
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
  30                     CONTINUE
                         DO I=1,OPCNT
@@ -618,6 +618,7 @@ C
         use DATCFG
         use DATSPD
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         INTEGER I,MACYES,JJ,STRT,CNTER,KLI,II,PREDEFI,OF28,OF31
@@ -639,7 +640,6 @@ C
 C
       COMMON/COMFUN/FUN
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
       OF28=F28
       OF31=F31
@@ -877,6 +877,7 @@ C SUB TVBA.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         CHARACTER VNAME*6
@@ -886,7 +887,6 @@ C
         INTEGER I,II
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 C       THIS IS SUBROUTINE TVBA. THIS IS THE SUBROUTINE WHICH DOES TVAR
 C       OUTPUT COMMANDS AT THE CMD LEVEL AND FROM INSIDE TVARIABLE AND
@@ -1342,6 +1342,7 @@ C SUB CVBA.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
       LOGICAL YES
@@ -1353,7 +1354,6 @@ C
         INTEGER I
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
       IF(DF1.EQ.1) ALLER=.TRUE.
       IF(DF1.EQ.0) ALLER=.FALSE.
@@ -1759,6 +1759,7 @@ C SUB VBA.FOR
 C
         use DATCFG
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         CHARACTER VNAME*7,TAGNAM*4
@@ -1768,7 +1769,6 @@ C
         INTEGER I,CFGCHK,TAGER,TAG4
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
         ALLER=.TRUE.
         CFGER=.FALSE.

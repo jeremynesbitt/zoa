@@ -24,6 +24,7 @@ C SUB ZMX2PRG.FOR
         use kdp_data_types, only: RAYAIM_PARAX, RAYAIM_REAL
         use global_widgets, only : sysConfig
 C
+        use DATLEN
         IMPLICIT NONE
 C
       CHARACTER ZMXFILENAME*80,KDPFILENAME*80,ZMX_INPUT_STRING*1024
@@ -68,7 +69,6 @@ C
       ALLOCATABLE :: TEMPA,TEMPB,TEMPC
 C
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATLEN.INC'
 
       SUB = 256
       write(substr, "(I3)") SUB

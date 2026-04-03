@@ -7,9 +7,9 @@
         use DATCFG
         use DATSPD
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
         INTEGER CATLIST
@@ -89,11 +89,11 @@ C        STOP
 
         SUBROUTINE getOpticalSystemLastSurface(res)
         USE GLOBALS
+        use DATLEN
         IMPLICIT NONE
 
         INTEGER, intent(inout) :: res
 
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
         res = INT(SYSTEM(20))
@@ -107,6 +107,7 @@ C        STOP
       ! This routine currently assumes that the AST command was just run and
       ! gets the data from the output arrays.
       use DATHGR
+      use DATLEN
       IMPLICIT NONE
 
       integer, intent(in) :: calcCode
@@ -139,7 +140,6 @@ C
 
 C
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
 C
 
         select case (calcCode)
@@ -195,11 +195,11 @@ C
 
         SUBROUTINE getRayTraceOutput(res)
         USE GLOBALS
+        use DATLEN
         IMPLICIT NONE
 
         REAL*8 res(1:50,0:499)
 
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
         res = RAYRAY
@@ -221,8 +221,8 @@ C
         END SUBROUTINE
 
         SUBROUTINE getVIECOScaleFactor(scaleFactor)
+              use DATLEN
               IMPLICIT NONE
-              INCLUDE 'DATLEN.INC'
 
               REAL*8, INTENT(INOUT) :: scaleFactor
 

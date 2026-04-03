@@ -14,6 +14,7 @@ C
         use DATCFG
         use DATSPD
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
         LOGICAL ITERROR
 C
@@ -131,7 +132,6 @@ C
        LOGICAL GROPEN(1:10)
        COMMON/OPENGR/GROPEN
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
         call initializeCmds()

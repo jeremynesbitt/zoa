@@ -2,8 +2,8 @@
         USE GLOBALS
         use DATSP1
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
                         RETURN
                         END

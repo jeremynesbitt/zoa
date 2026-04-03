@@ -8,6 +8,7 @@ C
         use DATCFG
         use DATSPD
         use DATSUB
+        use DATLEN
         IMPLICIT NONE
 C
         COMMON/SOLU/X
@@ -59,7 +60,6 @@ C
 C
         INTEGER ONUM,CFNUM
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
                        REG(9)=0.0D0

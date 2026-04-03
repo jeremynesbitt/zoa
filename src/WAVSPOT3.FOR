@@ -8,6 +8,7 @@ C SUB SPOT.FOR
 C
         use DATSP1
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPOT.FOR. THIS DOES ALL SPOT DIAGRAMS.
@@ -28,7 +29,6 @@ C
       LOGICAL NOCOBSPSF
       COMMON/PSFCOBS/NOCOBSPSF
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 
       INTEGER RAYMAX,IWV
@@ -783,6 +783,7 @@ C SUB ISTAT.FOR
 C
         use DATSP1
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
       INTEGER K,I,TOTI,J,TOTII,NSTEP,BUCKET(1:100)
@@ -796,7 +797,6 @@ C
 C
       CHARACTER STUNI*9
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
 C
@@ -918,6 +918,7 @@ C SUB SPOPD1.FOR
         SUBROUTINE SPOPD1
 C
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPOPD1.FOR.
@@ -929,7 +930,6 @@ C
 C
         INTEGER JJ,J
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
       INTEGER WWVN,WWRF
       IF(INT(CURLAM).EQ.1) WWVN=46
@@ -974,6 +974,7 @@ C SUB SPOPD2.FOR
           use referencespherecalcs
 C
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE SPOPD2.FOR.
@@ -985,7 +986,6 @@ C
 C
         INTEGER JJ,J,TPT
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
       INTEGER WWVN,WWRF
@@ -1150,6 +1150,7 @@ C     GREYS OPERAND
 C
         use DATSP1
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
       REAL*8 SPT,V1,VALUE
@@ -1202,7 +1203,6 @@ C
 C
       COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
       JA=COS_A_ANG
       JB=COS_B_ANG
@@ -1602,6 +1602,7 @@ C SUB SPMOVE.FOR
 C
         use DATSP1
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
         CHARACTER UN*11
@@ -1622,7 +1623,6 @@ C
 C
         COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
 C
       JA=COS_A_ANG
@@ -1987,8 +1987,8 @@ C
                         RETURN
                         END
         SUBROUTINE FIXWV(W2)
+        use DATLEN
         IMPLICIT NONE
-        INCLUDE 'DATLEN.INC'
         REAL*8 OLDWT(1:10),W2
         COMMON/OLDSTUFFWV/OLDWT
         OLDWT(1)=SYSTEM(31)
@@ -2026,8 +2026,8 @@ C
                 RETURN
                 END
         SUBROUTINE UNFIXWV
+        use DATLEN
         IMPLICIT NONE
-        INCLUDE 'DATLEN.INC'
         REAL*8 OLDWT(1:10)
         COMMON/OLDSTUFFWV/OLDWT
         SYSTEM(31)=OLDWT(1)
@@ -2043,9 +2043,9 @@ C
                 RETURN
                 END
         SUBROUTINE REVERSECA
+        use DATLEN
         IMPLICIT NONE
         INCLUDE 'DATMAI.INC'
-        INCLUDE 'DATLEN.INC'
         INTEGER SPDCD1,SPDCD2,I
         COMMON/SPRA2/SPDCD1,SPDCD2
 C       IF CURRENT RAY FAILS AT SURFACE I, SET SPDCD1 AND SPDCD2
@@ -2072,6 +2072,7 @@ C SUB SPOT1.FOR
 C
         use DATSP1
         use DATSPD
+        use DATLEN
         IMPLICIT NONE
 C
         CHARACTER UN*11
@@ -2147,7 +2148,6 @@ C
 C
       COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
 C
-        INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         IF(DF2.EQ.1) CAFORWARD=.TRUE.
         IF(DF2.EQ.0) CAFORWARD=.FALSE.
