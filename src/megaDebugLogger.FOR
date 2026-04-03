@@ -84,9 +84,9 @@ C
       subroutine PRINTNEUTARRAY()
 
         USE GLOBALS
+        use DATHGR
         IMPLICIT NONE
 
-        INCLUDE 'DATHGR.INC'
 
         INTEGER :: J, I1,I2,I3,I4,I5,I6,I7,I8
         REAL :: RRR1, RRR2

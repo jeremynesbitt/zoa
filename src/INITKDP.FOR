@@ -10,6 +10,7 @@
         use mod_lens_data_manager
 C
         use DATSP1
+        use DATHGR
         IMPLICIT NONE
 C
 C       THIS IS CALLED BY THE UI at program initialization
@@ -131,7 +132,6 @@ C
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATHGR.INC'
 
         call initializeCmds()
         gdb = glassdb()

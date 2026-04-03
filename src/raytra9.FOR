@@ -3437,6 +3437,7 @@ C SUB FANS.FOR
         use global_widgets, only: curr_ray_fan_data        
         use GLOBALS, only: long
 C
+        use DATHGR
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3467,7 +3468,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATHGR.INC'
 
 
       JA=COS_A_ANG
@@ -4651,6 +4651,7 @@ C                        GRASET=.FALSE.
 C SUB FANS.FOR
         SUBROUTINE FANSOLD
 C
+        use DATHGR
         IMPLICIT NONE
 C
 C       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4686,7 +4687,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATHGR.INC'
       JA=COS_A_ANG
       JB=COS_B_ANG
       IF(INT(LFOB(4)).EQ.1) WWRF=46

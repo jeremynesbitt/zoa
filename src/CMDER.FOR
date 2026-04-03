@@ -15,6 +15,7 @@ C SUB CMDER.FOR
         
 C
         use DATSP1
+        use DATHGR
         IMPLICIT NONE
 
 C
@@ -84,7 +85,6 @@ C
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATSPD.INC'
 C        INCLUDE 'DATMAC.INC' - binary macro system removed
-        INCLUDE 'DATHGR.INC'
         REAL*8 TESTA,TESTB,TESTC,TESTD,TESTE
 C
 C     REMEMBER ORIGINAL REFLOC SETTING FOR MULTIPLE FOV DIFFRACTION

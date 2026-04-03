@@ -838,6 +838,7 @@ C      USE WINTERACTER
       use RCImageIO
       use RCImagePrimitive
 
+      use DATHGR
       IMPLICIT NONE
       type(rgbimage) :: animage
       type(rgb) :: color
@@ -900,7 +901,6 @@ C      USE WINTERACTER
       REAL JJ_X,JJ_Y
       COMMON/ASPECTER/JJ_X,JJ_Y
       INCLUDE 'DATMAI.INC'
-      INCLUDE 'DATHGR.INC'
 C     INITIALIZE CHARACTER ASPECT RATIO
       JJ_X=1.0
       JJ_Y=1.0

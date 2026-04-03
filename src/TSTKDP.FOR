@@ -3,6 +3,7 @@
         SUBROUTINE TSTKDP
         USE GLOBALS
         use DATSP1
+        use DATHGR
         IMPLICIT NONE
 
         INCLUDE 'DATLEN.INC'
@@ -10,7 +11,6 @@
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATHGR.INC'
 
         INTEGER CATLIST
 
@@ -106,6 +106,7 @@ C        STOP
         SUBROUTINE getFieldCalcResult(X1, X2, Y, numPts, calcCode)
       ! This routine currently assumes that the AST command was just run and
       ! gets the data from the output arrays.
+      use DATHGR
       IMPLICIT NONE
 
       integer, intent(in) :: calcCode
@@ -139,7 +140,6 @@ C
 C
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATLEN.INC'
-        INCLUDE 'DATHGR.INC'
 C
 
         select case (calcCode)
