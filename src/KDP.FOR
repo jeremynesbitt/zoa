@@ -432,6 +432,7 @@ C
                         RETURN
                         END
       SUBROUTINE SELECTKDP(KKDP)
+      use DATSP1
       IMPLICIT NONE
       CHARACTER KKDP*3
         INCLUDE 'DATLEN.INC'
@@ -439,7 +440,6 @@ C
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATSP1.INC'
         IF(F1.EQ.1.AND.F17.EQ.0) THEN
                    KKDP='CMD'
                    RETURN
@@ -537,6 +537,7 @@ C     FALL THROUGH OPTION TO CHECK IS MISSED SOMETHING
                         RETURN
                         END
       SUBROUTINE PROGSIZE
+      use DATSP1
       IMPLICIT NONE
         INTEGER N
         CHARACTER*127 CLINE
@@ -545,7 +546,6 @@ C     FALL THROUGH OPTION TO CHECK IS MISSED SOMETHING
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATSP1.INC'
         INCLUDE 'DATHGR.INC'
       WRITE(OUTLYNE,*)'         MAXIMUM LENS SURFACES = ',MAXSUR-1
       CALL SHOWIT(1)

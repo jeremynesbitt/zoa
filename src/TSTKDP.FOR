@@ -2,6 +2,7 @@
 
         SUBROUTINE TSTKDP
         USE GLOBALS
+        use DATSP1
         IMPLICIT NONE
 
         INCLUDE 'DATLEN.INC'
@@ -9,7 +10,6 @@
         INCLUDE 'DATSUB.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATSP1.INC'
         INCLUDE 'DATHGR.INC'
 
         INTEGER CATLIST

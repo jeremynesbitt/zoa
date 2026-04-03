@@ -14,6 +14,7 @@ C SUB CMDER.FOR
         use DATLEN
         
 C
+        use DATSP1
         IMPLICIT NONE
 
 C
@@ -81,7 +82,6 @@ C
         !INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
-        INCLUDE 'DATSP1.INC'
         INCLUDE 'DATSPD.INC'
 C        INCLUDE 'DATMAC.INC' - binary macro system removed
         INCLUDE 'DATHGR.INC'
@@ -3772,10 +3772,10 @@ C       INITIATE MONTE-CARLO ANALYSIS
                                 END
       SUBROUTINE DELPSF
         USE GLOBALS
+        use DATSP1
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSUB.INC'
-        INCLUDE 'DATSP1.INC'
         INCLUDE 'DATSPD.INC'
         INTEGER ALLOERR
                    PSFEXT=.FALSE.

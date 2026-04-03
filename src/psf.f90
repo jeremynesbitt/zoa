@@ -16,6 +16,7 @@ module mod_psf
         use data_registers
         use type_utils
         use mod_analysis_manager
+        use DATSP1
 !
 !
 !     THIS IS SUBROUTINE DOPSF.FOR.
@@ -64,7 +65,6 @@ module mod_psf
         INCLUDE 'DATLEN.INC'
         INCLUDE 'DATMAI.INC'
         INCLUDE 'DATSPD.INC'
-        INCLUDE 'DATSP1.INC'
 
 !
       INTEGER IREAL,IIMAG,INDEX,SHTNM,IX,IY,II,I,J,NDAT,NDIM, &
