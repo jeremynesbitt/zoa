@@ -298,6 +298,11 @@ test('macro_ex1', test_runner,
             meson.project_source_root() / 'test/macro_ex1.ref'],
      timeout: 120, is_parallel: false)
 
+test('raytrace', test_runner,
+     args: [meson.project_source_root() / 'test/raytrace.zoa',
+            meson.project_source_root() / 'test/raytrace.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'

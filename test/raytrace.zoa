@@ -1,0 +1,12 @@
+CV2PRG LithoKotaro.seq
+RSI 0 0
+RSI 1 1
+RSI 1 0
+RSI 0 1
+RSI -1 -1
+CV2PRG DoubleGauss.seq
+RSI 0 0
+RSI 1 1
+RSI 1 0
+RSI 0 1
+RSI -1 -1
