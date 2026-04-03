@@ -1764,7 +1764,7 @@ SUBROUTINE RAYTRA_OLD
 !
 !     VARIABLES FOR SPOT TRACING
    LOGICAL TCLPRF,SPDTRA,MMSG
-   LOGICAL AIMOK,CLAPT,OLDPASS,GERROR,DELFAIL
+   LOGICAL AIMOK,CLAPT,OLDPASS,GERROR,DELFAIL,ray_blocked
    COMMON/PASSOLD/OLDPASS
 !
    INTEGER SPDCD1,SPDCD2
@@ -1964,7 +1964,7 @@ SUBROUTINE RAYTRA_OLD
       JKY=(PXTRAY(1,NEWOBJ+1))
    END IF
 !
-989 CONTINUE
+   outer_retry: do
    IF(RAYCOD(1).EQ.1.AND.KKK.GT.1) THEN
       PRINT *, "RAYTRA FAILED LINE 1928 RAYTRA5.FOR"
       STOPP=1
@@ -2132,7 +2132,7 @@ SUBROUTINE RAYTRA_OLD
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
 !       SURFACE POINT INTERSECTION
-9  CONTINUE
+   newton_raphson: do
    IF(ALENS(A_THI,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
    IF(ALENS(A_THI,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
@@ -2377,8 +2377,7 @@ SUBROUTINE RAYTRA_OLD
    YN=-(1.0D0*DSIN(YANG))
 !
    ISYS20=NEWIMG
-   I=0
-   DO 10 I=(NEWOBJ+1),ISYS20
+   surface_loop: do I=(NEWOBJ+1),ISYS20
 
 !
 !
@@ -2643,7 +2642,7 @@ SUBROUTINE RAYTRA_OLD
             JKY=0.0D0
             STOPP=0
             KKK=KKK+1
-            GO TO 989
+            CYCLE outer_retry
          END IF
          FAIL=.TRUE.
          RAYEXT=.FALSE.
@@ -2715,7 +2714,7 @@ SUBROUTINE RAYTRA_OLD
          &.OR.SYSTEM(SYS_RAY_AIMING).EQ.0.0D0.OR.ITRACE) THEN
 !       AIM IS GOOD ENOUGH, PROCEED
             AIMOK=.TRUE.
-            GO TO 100
+            CYCLE surface_loop
          ELSE
             AIMOK=.FALSE.
 !       AIM NOT GOOD ENOUGH, IMPROVE GUESS
@@ -2781,7 +2780,7 @@ SUBROUTINE RAYTRA_OLD
             X1AIM=R_TX
             Y1AIM=R_TY
             Z1AIM=R_TZ
-            GO TO 9
+            CYCLE newton_raphson
 !       THIS IS NOT THE FIRST REFINEMENT, KKK NOT = 1
          END IF
 !
@@ -2817,14 +2816,15 @@ SUBROUTINE RAYTRA_OLD
          IF(DELFAIL) THEN
             RETURN
          ELSE
-            GO TO 9
+            CYCLE newton_raphson
          END IF
 !       NOT AT THE REFERENCE SURFACE, NO RAY AIMING NEEDED
       END IF
 !
-100   CONTINUE
-!
-10 CONTINUE
+   end do surface_loop
+   EXIT outer_retry
+   end do newton_raphson
+   end do outer_retry
 !       CACOCH IS THE FLAG WHICH TELLS WHETHER OR NOT
 !       TO CHECK FOR CLAP/COBS INTERFERENCE.
 !       IF CACOCH=0 DO NOT CHECK
@@ -2832,7 +2832,8 @@ SUBROUTINE RAYTRA_OLD
 !       HERE WE CHECK FOR BLOCKAGE BY CLAP OR COBS.
 !       AND DO THE APPROPRIATE THINGS.
    IF(CACOCH.EQ.1) THEN
-      DO R_I=NEWOBJ+1,NEWIMG-1
+      ray_blocked = .false.
+      cacoch_loop: do R_I=NEWOBJ+1,NEWIMG-1
 !       CALL CLAP CHECKING ROUTINE
          R_X=RAYRAY(1,R_I)
          R_Y=RAYRAY(2,R_I)
@@ -2861,10 +2862,10 @@ SUBROUTINE RAYTRA_OLD
                         SPDCD2=RAYCOD(2)
                         STOPP=0
                         RAYEXT=.TRUE.
-                        GO TO 25
+                         EXIT
                      END IF
                   END DO
-25                CONTINUE
+
                END IF
                IF(INT(ALENS(A_MULTICOBS,R_I)).NE.0) THEN
                   DO JK=1,INT(ALENS(A_MULTICOBS,R_I))
@@ -2881,10 +2882,10 @@ SUBROUTINE RAYTRA_OLD
                         SPDCD2=RAYCOD(2)
                         STOPP=1
                         RAYEXT=.TRUE.
-                        GO TO 26
+                         EXIT
                      END IF
                   END DO
-26                CONTINUE
+
                END IF
             END IF
          END IF
@@ -2893,22 +2894,25 @@ SUBROUTINE RAYTRA_OLD
 !       CAERAS AND COERAS
 !       SET IF THE CURRENT SURFACE HAD A COBS OR
 !       CLAP ERASE.
-         IF(STOPP.EQ.1) GO TO 90
+         IF(STOPP.EQ.1) THEN
+            ray_blocked = .true.
+            EXIT cacoch_loop
+         END IF
          STOPP=0
          FAIL=.FALSE.
          RAYEXT=.TRUE.
 !       CONTINUE THE RAYTRACE
-      END DO
-      GO TO 91
+      end do cacoch_loop
+
    ELSE
 !       NO CHECK TO BE MADE FOR CLAPS/COBS BLOCKAGE
    END IF
-   GO TO 91
-90 CONTINUE
+
+   IF(ray_blocked) THEN
    FAIL=.TRUE.
    RAYEXT=.FALSE.
    POLEXT=.FALSE.
-91 CONTINUE
+   END IF
 !
 !     FINISHED CLAP/COBS CHEKING
 !       IF GLOBAL IS TRUE, CALCULATE THE CURRENT RAY'S GLOBAL
@@ -2928,13 +2932,13 @@ SUBROUTINE RAYTRA_OLD
          CALL SHOWIT(1)
       END IF
       GLSURF=-99
-      DO I=0,NEWIMG
+      glsurf_search: do I=0,NEWIMG
          IF(DABS(ALENS(A_THI,I)).LE.1.0D10) THEN
             GLSURF=I
-            GO TO 876
+            EXIT glsurf_search
          END IF
-      END DO
-876   CONTINUE
+      end do glsurf_search
+
       IF(GLSURF.EQ.-99) THEN
          GLOBE=.FALSE.
          OUTLYNE='ALL SURFACES WERE OF INFINITE THICKNESS'
