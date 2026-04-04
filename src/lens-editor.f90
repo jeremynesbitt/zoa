@@ -1579,7 +1579,6 @@ subroutine rebuildLensEditorTable()
   type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
   integer(c_int) :: oldPos
   real(c_double) :: vPos, hPos
-  logical :: boolResult
 
 
   print *, "Rebuild lens table starting" 
@@ -1617,9 +1616,9 @@ subroutine rebuildLensEditorTable()
   call setLensEditColumns(cv)
 
   ! Set selection to previous
-  !model = gtk_column_view_get_model(cv)
-  boolResult = gtk_selection_model_select_item(selection, oldPos, 1_c_int)
-  print *, "boolResult is ", boolResult
+  if (oldPos >= 0_c_int) then
+    call gtk_single_selection_set_selected(selection, oldPos)
+  end if
 
   call pending_events() ! Critical for following to work!
   vadj = gtk_scrolled_window_get_vadjustment(swin)

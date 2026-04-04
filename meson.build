@@ -64,9 +64,10 @@ gresource = gnome.compile_resources(
 #config_h = configuration_data()
 
 fortran = meson.get_compiler('fortran')
+supported_arguments = []
+pkgconf = find_program('pkg-config', required: true)
 
-
-if fortran.get_id().contains('intel-cl')
+if fortran.get_id().contains('intel-cl') or fortran.get_id().contains('intel-llvm-cl')
   # Define arguments for different build types (debug is default):
   if build_type == 'debug'
     #warning_level = 2
@@ -161,6 +162,33 @@ dep1 = dependency('plplot', version: '>=5.13.0', required: true)
 dep2 = dependency('plplot-fortran',
        version: '>=5.13.0',
        required: true)
+
+if system == 'windows'
+  dep0_compile_args_raw = run_command(
+    pkgconf, ['--cflags', 'gtk-4-fortran'], check: true
+  ).stdout().strip().split()
+  dep0_compile_args = []
+  foreach arg : dep0_compile_args_raw
+    if arg != '/machine:x64'
+      dep0_compile_args += arg
+    endif
+  endforeach
+
+  dep0_link_args_raw = run_command(
+    pkgconf, ['--libs', 'gtk-4-fortran'], check: true
+  ).stdout().strip().split()
+  dep0_link_args = []
+  foreach arg : dep0_link_args_raw
+    if not arg.startswith('-Wl,-rpath,')
+      dep0_link_args += arg
+    endif
+  endforeach
+
+  dep0 = declare_dependency(
+    compile_args: dep0_compile_args,
+    link_args: dep0_link_args,
+  )
+endif
 
 zoa_deps = [dep3, dep0, dep1, dep2]
 

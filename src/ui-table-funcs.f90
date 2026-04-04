@@ -5,24 +5,16 @@ module ui_table_funcs
     use g
     use handlers, only: pending_events
 
-    ! For setting up ui table
-    ! abstract interface
-    ! subroutine setCoumns(cv)
-    !     import c_ptr
-    !     type(c_ptr), value :: cv
-
-    ! end subroutine
-    ! end interface
+    abstract interface
+      subroutine setColumns(cv)
+        import c_ptr
+        type(c_ptr), value :: cv
+      end subroutine
+    end interface
 
     contains
 
     subroutine setColumnViewDefault(cv, setColumnFunc) 
-        interface setColumns 
-        subroutine setColumns(cv)
-            import c_ptr 
-            type(c_ptr), value :: cv 
-        end subroutine
-        end interface
         type(c_ptr) :: cv
         type(c_ptr) :: store, selection
         procedure(setColumns) :: setColumnFunc
@@ -37,18 +29,11 @@ module ui_table_funcs
     end subroutine
 
     subroutine rebuildTable(cv, store, setColumnFunc)
-        interface setColumns 
-        subroutine setColumns(cv)
-            import c_ptr 
-            type(c_ptr), value :: cv 
-        end subroutine
-        end interface        
         procedure(setColumns) :: setColumnFunc
         type(c_ptr) :: cv ! column view
         type(c_ptr) :: store, selection, model, column, vadj, hadj, swin
         integer(c_int) :: oldPos 
         real(c_double) :: vPos, hPos
-        logical :: boolResult
      
                
         ! Get current position
@@ -75,9 +60,9 @@ module ui_table_funcs
         call setColumnViewDefault(cv, setColumnFunc)
       
         ! Set selection to previous
-        !model = gtk_column_view_get_model(cv)
-        boolResult = gtk_selection_model_select_item(selection, oldPos, 1_c_int)
-        print *, "boolResult is ", boolResult
+        if (oldPos >= 0_c_int) then
+          call gtk_single_selection_set_selected(selection, oldPos)
+        end if
       
         call pending_events() ! Critical for following to work!
         vadj = gtk_scrolled_window_get_vadjustment(swin)
