@@ -186,28 +186,21 @@ module zoa_macro_ui
 
   subroutine populatemacrolist()
     use zoa_file_handler
-     
-    character(len=24) :: line
-    integer :: i, ltr, NUMINLIST
+
+    character(len=1024) :: line
+    integer :: i, NUMINLIST
     CHARACTER(len=1024), dimension(1024) :: MACARRAY
-    !! This is a FORD test!
 
     call hl_gtk_list1_rem(ihlist)
-    call logger%logText("About to call MACARRAY_LOAD")
-    ! Now put 10 rows into it
-    call getListofFilesInDirectory(trim(getMacroDir()), '.zoa', MACARRAY, NUMINLIST)
-    !CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
+    ! Scan the macro directory, including one level of subdirectories.
+    ! Subdirectory files are listed as "subdir/filename.zoa".
+    NUMINLIST = 0
+    call getListofFilesInDirectoryRecursive(trim(getMacroDir()), '.zoa', MACARRAY, NUMINLIST)
     PRINT *, "NUMINLIST IS ", NUMINLIST
-    do i=1,NUMINLIST
-       !write(line,"('List entry number ',I0)") i
-       !ltr=len_trim(line)+1
+    do i = 1, NUMINLIST
        line = MACARRAY(i)
-       !line(ltr:ltr)=c_null_char
-       print *, line
        call hl_gtk_list1_ins(ihlist, trim(line)//c_null_char)
-
     end do
-
 
   end subroutine
 

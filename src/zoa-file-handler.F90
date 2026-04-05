@@ -582,7 +582,74 @@ subroutine getListofFilesInDirectory(dirName, extension, outList, iL)
 
 end subroutine
 
-!Prototype func to eventually translate to list all files 
+! Like getListofFilesInDirectory but also recurses one level into subdirectories.
+! Files in subdirectories are returned as "subdir/filename.ext".
+! iL must be initialised to 0 by the caller before the first (non-recursive) call.
+recursive subroutine getListofFilesInDirectoryRecursive(dirName, extension, outList, iL, prefix)
+
+  use g
+  use gtk
+  use iso_c_binding
+  use gtk_sup
+  use strings
+
+  implicit none
+
+  character(len=*), intent(in)                   :: dirName, extension
+  character(len=*), dimension(:), intent(inout)  :: outList
+  integer,                        intent(inout)  :: iL
+  character(len=*), intent(in),   optional       :: prefix
+
+  type(c_ptr)          :: dir, fptr
+  integer(c_int)       :: dirTest
+  character(len=200)   :: fpath
+  character(len=1024)  :: subDirPath, entryPrefix
+  logical              :: boolLoop
+  integer              :: extLoc
+
+  dir = g_dir_open(trim(dirName)//c_null_char, 0_c_int, c_null_ptr)
+  if (.not. c_associated(dir)) return
+
+  boolLoop = .TRUE.
+  do while (boolLoop)
+    fptr = g_dir_read_name(dir)
+    if (.not. c_associated(fptr)) then
+      boolLoop = .FALSE.
+    else
+      call convert_c_string(fptr, fpath)
+      ! Test whether this entry is itself a directory
+      dirTest = g_file_test(trim(dirName)//getFileSep()//trim(fpath)//getFileSep(), &
+                            G_FILE_TEST_IS_DIR)
+      if (dirTest /= 0) then
+        ! It is a directory — recurse into it with an updated prefix
+        subDirPath  = trim(dirName)//getFileSep()//trim(fpath)
+        if (present(prefix)) then
+          entryPrefix = trim(prefix)//trim(fpath)//getFileSep()
+        else
+          entryPrefix = trim(fpath)//getFileSep()
+        end if
+        call getListofFilesInDirectoryRecursive(trim(subDirPath), extension, &
+                                                outList, iL, prefix=trim(entryPrefix))
+      else
+        ! It is a file — add it if the extension matches
+        extLoc = index(trim(fpath), extension, .TRUE.)
+        if (len_trim(fpath) - extLoc + 1 == len(extension)) then
+          iL = iL + 1
+          if (present(prefix)) then
+            outList(iL:iL) = trim(prefix)//trim(fpath)
+          else
+            outList(iL:iL) = trim(fpath)
+          end if
+        end if
+      end if
+    end if
+  end do
+
+  call g_dir_close(dir)
+
+end subroutine
+
+!Prototype func to eventually translate to list all files
 !in a dir with a specific extension
 subroutine printFilesInCurrentDirectory()
 
