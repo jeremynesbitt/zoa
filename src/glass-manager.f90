@@ -487,6 +487,7 @@ end function
 
       END IF
     END DO
+    close(unit=36)  ! close whether or not the glass was found
   ELSE
     call LogTermFOR("Warning:  Unable to open "//trim(candCatalog)//".  Moving to next catalog")
   END IF

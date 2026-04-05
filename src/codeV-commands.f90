@@ -1960,7 +1960,7 @@ module codeV_commands
     ! for model glass
     function getSetGlassText(strInput) result(strOut)
         use command_utils, only : isInputNumber
-        use glass_manager, only: parseModelGlassEntry
+        use glass_manager, only: parseModelGlassEntry, gdb
         character(len=*) :: strInput
         character(len=1024) :: strOut
         real(kind=real64) :: nd, vd
@@ -1972,15 +1972,14 @@ module codeV_commands
             strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)
             call LogTermFOR("STROUT is "//trim(strOut))
         else
-            ! If the name starts with N but has no dash in position 2, insert one.
+            ! If the name starts with N but has no dash in position 2, and is not
+            ! found as-is in any catalog, retry with a dash after the N.
             ! e.g. NBK7 → N-BK7, NBAF10 → N-BAF10.
-            ! Schott N-series glasses are always stored as N-XXX in the catalog.
-            ! Note: we do NOT query the catalog here to avoid side-effects from
-            ! the catalog file I/O (isGlassInCatalog leaves unit 36 open on miss).
             glassName = trim(strInput)
             if (len_trim(glassName) >= 2 .and. &
                 uppercase(glassName(1:1)) == 'N' .and. &
-                glassName(2:2) /= '-') then
+                glassName(2:2) /= '-' .and. &
+                .not. gdb%isGlassInAnyCatalog(uppercase(trim(glassName)))) then
                 glassName = 'N-'//glassName(2:len_trim(glassName))
                 call zoa_emit("Note: using '"//trim(glassName)//"' for '"//trim(strInput)//"'", "blue")
             end if
