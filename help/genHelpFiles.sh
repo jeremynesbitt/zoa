@@ -1,5 +1,7 @@
 #!/bin/bash
 
+python3 ./gen_docs.py
+
 pandoc ./md/index.md            -f gfm -t html -s -o ./html/index.html
 pandoc ./md/command_table.md    -f gfm -t html -s -o ./html/command_table.html
 pandoc ./md/constraints_table.md -f gfm -t html -s -o ./html/constraints_table.html

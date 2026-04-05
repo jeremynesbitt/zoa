@@ -1442,6 +1442,13 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      STO
+    !## syntax:   STO [Sk]
+    !## category: Surface Parameters
+    !## desc:     Sets surface Sk as the aperture stop.
+    !##           Sk can be S0 (object), S1..SN, or Si (current surface).
+    !##           If Sk is omitted, uses the current surface pointer.
+    !##
     subroutine execSTO(iptStr)
         use command_utils, only : parseCommandIntoTokens
         use mod_lens_data_manager, only: ldm
@@ -1476,6 +1483,14 @@ module codeV_commands
         & '; ASTOP; REFS')
     end subroutine
 
+    !## cmd:      RES
+    !## syntax:   RES filename
+    !## category: File I/O
+    !## desc:     Restores a lens system from filename.zoa in the Projects folder.
+    !##           Use RES macro:filename to load a file from the Macros folder.
+    !##           Subdirectories are supported: RES macro:Bentley/Bentley3p1
+    !##           Both forward and backward slashes are accepted.
+    !##
     subroutine execRestore(iptStr)
         implicit none
         character(len=*) :: iptStr
@@ -1491,7 +1506,7 @@ module codeV_commands
             call processZoaFileInput(trim(tokens(2)))
 
         else
-            call zoa_emit("Error!  Expect two inputs, eg RES file or RES zoa_macro:file", "red")
+            call zoa_emit("Error!  Expect two inputs, eg RES file or RES macro:file", "red")
 
 
         end if
@@ -1603,6 +1618,13 @@ module codeV_commands
         integer :: numTokens, locDot, fID
     end subroutine
 
+    !## cmd:      SAV
+    !## syntax:   SAV [filename]
+    !## category: File I/O
+    !## desc:     Saves the current lens system to filename.zoa in the Projects folder.
+    !##           If filename is omitted, saves as currlens.zoa in the temp folder.
+    !##           The .zoa extension is added automatically if not provided.
+    !##
     subroutine execSAV(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
@@ -1730,8 +1752,13 @@ module codeV_commands
     end subroutine
 
     ! RMD Sk REFR REFL TIR
-    ! Change surface to refraction, reflection tir
-
+    !## cmd:      RMD
+    !## syntax:   RMD Sk TYPE
+    !## category: Surface Parameters
+    !## desc:     Sets the ray mode (surface type) of surface Sk.
+    !##           TYPE can be REFL (mirror), REFR (refracting, default),
+    !##           or TIR (total internal reflection surface).
+    !##
     subroutine execRMD(iptStr)
         use command_utils, only : parseCommandIntoTokens
         implicit none
@@ -1799,6 +1826,12 @@ module codeV_commands
         end if
     end subroutine
 
+    !## cmd:      RED
+    !## syntax:   RED X
+    !## category: Solves
+    !## desc:     Adds a thickness solve on the object surface (S0) to set
+    !##           a paraxial reduction (magnification) factor of X.
+    !##
     subroutine setMagSolve(iptStr)
         use command_utils, only: isInputNumber
         implicit none
@@ -1823,8 +1856,13 @@ module codeV_commands
 
     end subroutine
 
-    ! Format:  DEL SOL CUY S2
-    !          DEL PIM
+    !## cmd:      DEL
+    !## syntax:   DEL PIM / DEL SOL CUY Sk / DEL CON id
+    !## category: System Management
+    !## desc:     Deletes a system element. DEL PIM removes the paraxial image solve.
+    !##           DEL SOL CUY Sk removes the curvature solve on surface Sk.
+    !##           DEL CON id removes the optimization constraint with the given ID number.
+    !##
     subroutine deleteStuff(iptStr)
         use command_utils, only: isInputNumber
         use global_widgets, only: curr_lens_data
@@ -1876,6 +1914,11 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      EPD
+    !## syntax:   EPD X
+    !## category: System Parameters
+    !## desc:     Sets the entrance pupil diameter to X lens units.
+    !##
     subroutine setEPD()
         use command_utils
         implicit none
@@ -1893,6 +1936,13 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      PIM
+    !## syntax:   PIM
+    !## category: Solves
+    !## desc:     Adds a paraxial image solve on the surface before the image surface.
+    !##           Automatically adjusts that surface's thickness to place the
+    !##           paraxial focus at the image plane.
+    !##
     subroutine setParaxialImageSolve()
         use global_widgets, only: curr_lens_data
         integer :: surfNum
@@ -2117,6 +2167,12 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      INS
+    !## syntax:   INS Sk
+    !## category: System Management
+    !## desc:     Inserts a new surface before surface Sk.
+    !##           Use range notation (Si..k) to insert multiple surfaces at once.
+    !##
     subroutine insertSurf(iptStr)
         use command_utils, only: isInputNumber
         implicit none
@@ -2177,6 +2233,12 @@ module codeV_commands
 
 
 
+    !## cmd:      DIM
+    !## syntax:   DIM K
+    !## category: System Parameters
+    !## desc:     Sets the lens system units. K can be M (millimetres),
+    !##           C (centimetres), or I (inches).
+    !##
     subroutine setDim(iptStr)
         use command_utils
         character(len=*) :: iptStr
@@ -2244,8 +2306,12 @@ module codeV_commands
       
       end subroutine    
 
-      !TIT
-      ! todo:  Send title to parseTitleCommand to clean this up a bit
+      !## cmd:      TIT
+      !## syntax:   TIT 'titletext'
+      !## category: System Parameters
+      !## desc:     Sets the title of the lens system to titletext.
+      !##           Enclose the title in single quotes if it contains spaces.
+      !##
       subroutine setLensTitle(iptStr)
         use command_utils
 
@@ -3036,33 +3102,47 @@ module codeV_commands
         implicit none
         character(len=*) :: iptStr
         logical, optional :: printOnly
-        integer :: locStr, locDot
+        integer :: locStr, locDot, i
         character(len=1024) :: fileName
+        character(len=1) :: fileSep
 
-            ! Look for special code
-        locStr = index(iptStr, uppercase('zoa_macro:'))
+        fileSep = getFileSep()
 
-        if (locStr .ne. 0) then 
-            fileName = iptStr(len('zoa_macro:')+1:len_trim(iptStr))
+        ! Match both "macro:" and legacy "zoa_macro:" prefixes (case-insensitive).
+        ! index() on the uppercased input finds "MACRO:" at position 1 for "macro:file"
+        ! and at position 5 for "zoa_macro:file", so we can use the same extraction in both cases.
+        locStr = index(uppercase(iptStr), 'MACRO:')
+
+        if (locStr .ne. 0) then
+            ! Extract the path after the "macro:" or "zoa_macro:" prefix
+            fileName = iptStr(locStr + len('MACRO:') : len_trim(iptStr))
+
+            ! Normalize path separators: accept / or \ from the user
+            do i = 1, len_trim(fileName)
+                if (fileName(i:i) == '/' .or. fileName(i:i) == '\') then
+                    fileName(i:i) = fileSep
+                end if
+            end do
+
             locDot = INDEX(fileName, '.')
             if (locDot == 0) then
                 fileName = trim(fileName)//'.zoa'
             end if
             fileName = trim(getMacroDir())//trim(fileName)
             if (doesFileExist(trim(fileName))) then
-            if (present(printOnly)) then
-                call process_zoa_file(trim(fileName), printOnly=.TRUE.)
-            else 
-                call process_zoa_file(trim(fileName))
+                if (present(printOnly)) then
+                    call process_zoa_file(trim(fileName), printOnly=.TRUE.)
+                else
+                    call process_zoa_file(trim(fileName))
+                end if
             end if
-            end if ! Does file exist
 
         else ! Look in main directory
             fileName = trim(iptStr)
             locDot = INDEX(fileName, '.')
             if (locDot == 0) then
                 fileName = trim(fileName)//'.zoa'
-            end if    
+            end if
 
             fileName = getRestoreFilePath(trim(fileName))
 
@@ -3070,11 +3150,11 @@ module codeV_commands
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
-                    call process_zoa_file(trim(trim(fileName)))
-                end if   
+                    call process_zoa_file(trim(fileName))
+                end if
             end if
-                    
-        end if        
+
+        end if
 
 
     end subroutine
@@ -3101,7 +3181,7 @@ module codeV_commands
             call processZoaFileInput(trim(tokens(2)), printOnly=.TRUE.)
 
         else
-            call zoa_emit("Error!  Expect two inputs, eg PRT file or PRT zoa_macro:file", "red")
+            call zoa_emit("Error!  Expect two inputs, eg PRT file or PRT macro:file", "red")
 
 
         end if

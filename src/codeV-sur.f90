@@ -136,12 +136,25 @@ module procedure execSUR
     !     end if       
 
     ! end procedure
+    !## cmd:      THI
+    !## syntax:   THI Sk X
+    !## category: Surface Parameters
+    !## desc:     Sets the thickness on surface Sk to X.
+    !##           Sk can be S0 (object), S1..SN (surface by number), or Si (current surface).
+    !##           X is the new thickness value in current lens units.
+    !##
     module procedure setThickness
         call execTranslatedSurfCmd(iptStr, 'TH')
     
     end procedure    
 
-    ! format:  GLA Sk GLASSNAME
+    !## cmd:      GLA
+    !## syntax:   GLA Sk name
+    !## category: Surface Parameters
+    !## desc:     Sets the glass at surface Sk to the named material.
+    !##           Searches through available glass catalogs for the name.
+    !##           Use a numeric nd,vd pair (e.g. 1.5,50) to specify a model glass.
+    !##
     module procedure setGlass
         use command_utils, only : checkCommandInput, getInputNumber, isInputNumber
         use glass_manager, only: parseModelGlassEntry
@@ -192,7 +205,13 @@ module procedure execSUR
 
     end function
 
-    ! Format:  CUY Sk SOLVETYPE VAL
+    !## cmd:      CUY
+    !## syntax:   CUY Sk X
+    !## category: Surface Parameters
+    !## desc:     Sets the curvature (1/radius) on surface Sk to X.
+    !##           Sk can be S0 (object), S1..SN (surface by number), or Si (current surface).
+    !##           Use CUY Sk UMY X to set a paraxial marginal ray angle solve.
+    !##
     module procedure setCurvature
         use command_utils, only : parseCommandIntoTokens, isInputNumber
         implicit none
@@ -234,7 +253,13 @@ module procedure execSUR
 
     end procedure
 
-    !Format RDY Sk Val
+    !## cmd:      RDY
+    !## syntax:   RDY Sk X
+    !## category: Surface Parameters
+    !## desc:     Sets the radius of surface Sk to X.
+    !##           Sk can be S0 (object), S1..SN (surface by number), or Si (current surface).
+    !##           X is the new radius value in current lens units.
+    !##
     module procedure setRadius
         use strings
         implicit none
