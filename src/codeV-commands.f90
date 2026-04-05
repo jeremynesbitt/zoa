@@ -1964,17 +1964,28 @@ module codeV_commands
         character(len=*) :: strInput
         character(len=1024) :: strOut
         real(kind=real64) :: nd, vd
+        character(len=256) :: glassName
 
         if (isInputNumber(strInput)) then ! Assume user entered model glass
-            !PRINT *, "Model Glass Entered!"
             call LogTermFOR("Model Glass Entered! "//strInput)
             call parseModelGlassEntry(strInput, nd, vd)
-            strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)   
+            strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)
             call LogTermFOR("STROUT is "//trim(strOut))
-        else ! Assume it is glass name          
-            strOut = 'GLAK ' // strInput
-        end if            
-
+        else
+            ! If the name starts with N but has no dash in position 2, insert one.
+            ! e.g. NBK7 → N-BK7, NBAF10 → N-BAF10.
+            ! Schott N-series glasses are always stored as N-XXX in the catalog.
+            ! Note: we do NOT query the catalog here to avoid side-effects from
+            ! the catalog file I/O (isGlassInCatalog leaves unit 36 open on miss).
+            glassName = trim(strInput)
+            if (len_trim(glassName) >= 2 .and. &
+                uppercase(glassName(1:1)) == 'N' .and. &
+                glassName(2:2) /= '-') then
+                glassName = 'N-'//glassName(2:len_trim(glassName))
+                call zoa_emit("Note: using '"//trim(glassName)//"' for '"//trim(strInput)//"'", "blue")
+            end if
+            strOut = 'GLAK ' // trim(glassName)
+        end if
 
     end function
 
