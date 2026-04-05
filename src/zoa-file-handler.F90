@@ -281,21 +281,33 @@ module zoa_file_handler
         n = 0
     
         do
-            !read(99, '(A)', iostat=ios) line
             read(99, '(A)', iostat=ios) line
             if (ios /= 0) then
-              !call LogtermFOR("End of file")
               close(99)
               return
+            end if
+
+            ! Strip inline ! comments, respecting single-quoted strings.
+            ! e.g.  TIT 'OSDlens'  ! note title in quotes  →  TIT 'OSDlens'
+            block
+              integer :: k
+              logical :: inQuote
+              inQuote = .FALSE.
+              do k = 1, len_trim(line)
+                if (line(k:k) == "'") inQuote = .not. inQuote
+                if (line(k:k) == '!' .and. .not. inQuote) then
+                  line = line(1:k-1)
+                  exit
+                end if
+              end do
+            end block
+
+            if (len_trim(line) == 0) cycle
+
+            if (present(printOnly)) then
+              call LogTermFOR(trim(line))
             else
-              if (len_trim(line) == 0) cycle
-              if (line(verify(line,' '):verify(line,' ')) == '!') cycle
-              !call LogTermFOR("Processing "//trim(line))
-              if (present(printOnly)) then
-                call LogTermFOR(trim(line))
-              else
-                call PROCESKDP(trim(line))
-              end if
+              call PROCESKDP(trim(line))
             end if
             n = n + 1
         end do      
