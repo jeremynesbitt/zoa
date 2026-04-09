@@ -3,7 +3,7 @@
 
 
 program zoa_program
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char, c_null_ptr
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char, c_null_ptr, c_int
   use gtk, only: gtk_application_new, G_APPLICATION_FLAGS_NONE, gtk_application_set_accels_for_action, &
   & gtk_icon_theme_get_for_display
   use gdk, only:  gdk_display_get_default
@@ -13,12 +13,25 @@ program zoa_program
   use zoa_ui
   use global_widgets
   use GLOBALS, only: zoaVersion
-#ifdef WINDOWS
-    use kernel32
-    use user32
-    use ifwinty
-#endif
   implicit none
+
+#ifdef WINDOWS
+  interface
+    function GetConsoleWindow() bind(c, name='GetConsoleWindow') result(hwnd)
+      import :: c_ptr
+      type(c_ptr) :: hwnd
+    end function GetConsoleWindow
+
+    function ShowWindow(hwnd, nCmdShow) bind(c, name='ShowWindow') result(status)
+      import :: c_ptr, c_int
+      type(c_ptr), value :: hwnd
+      integer(c_int), value :: nCmdShow
+      integer(c_int) :: status
+    end function ShowWindow
+  end interface
+
+  integer(c_int), parameter :: SW_HIDE = 0_c_int
+#endif
 
   integer(c_int)     :: status
   
@@ -26,8 +39,8 @@ program zoa_program
 !This solution is inspired by:
 !https://stackoverflow.com/questions/29763647/how-to-make-a-program-that-does-not-display-the-console-window/29764309#29764309
 #ifdef WINDOWS
-  integer(handle) :: console
-  integer :: closeWin
+  type(c_ptr) :: console
+  integer(c_int) :: closeWin
 #ifdef __RELEASE
           PRINT *, "Hide console window"
           console = GetConsoleWindow()

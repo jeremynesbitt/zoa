@@ -177,9 +177,14 @@ if system == 'windows'
   dep0_link_args_raw = run_command(
     pkgconf, ['--libs', 'gtk-4-fortran'], check: true
   ).stdout().strip().split()
+  dep0_libdir = run_command(
+    pkgconf, ['--variable=libdir', 'gtk-4-fortran'], check: true
+  ).stdout().strip()
   dep0_link_args = []
   foreach arg : dep0_link_args_raw
-    if not arg.startswith('-Wl,-rpath,')
+    if arg == '-lgtk-4-fortran' and fortran.get_id().contains('gcc')
+      dep0_link_args += dep0_libdir / 'libgtk-4-fortran.a'
+    elif not arg.startswith('-Wl,-rpath,')
       dep0_link_args += arg
     endif
   endforeach
@@ -187,6 +192,27 @@ if system == 'windows'
   dep0 = declare_dependency(
     compile_args: dep0_compile_args,
     link_args: dep0_link_args,
+  )
+
+  dep3_compile_args = run_command(
+    pkgconf, ['--cflags', 'gtk4'], check: true
+  ).stdout().strip().split()
+  dep3_link_args_raw = run_command(
+    pkgconf, ['--libs', 'gtk4'], check: true
+  ).stdout().strip().split()
+  dep3_libdir = run_command(
+    pkgconf, ['--variable=libdir', 'gtk4'], check: true
+  ).stdout().strip()
+  dep3_link_args = ['-L' + dep3_libdir]
+  foreach arg : dep3_link_args_raw
+    if not arg.startswith('-Wl,-rpath,')
+      dep3_link_args += arg
+    endif
+  endforeach
+
+  dep3 = declare_dependency(
+    compile_args: dep3_compile_args,
+    link_args: dep3_link_args,
   )
 endif
 
