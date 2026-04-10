@@ -82,8 +82,7 @@ module codeV_commands
         ! Initialize null ptr textView to dump KDP print statements when needed
         call ioConfig%registerTextView(c_null_ptr, ID_TERMINAL_KDPDUMP)
 
-        zoaCmds(1)%cmd = "RMD"
-        zoaCmds(1)%execFunc => execRMD
+
         !zoaCmds(2)%cmd = 'WL'
         !zoaCmds(2)%execFunc => setWavelength
         do i = 1,499
@@ -441,6 +440,8 @@ module codeV_commands
         zoaCmds(679)%execFunc => listConstraints
         zoaCmds(680)%cmd = 'DCON'
         zoaCmds(680)%execFunc => deleteConstraints
+        zoaCmds(681)%cmd = "RMD"
+        zoaCmds(681)%execFunc => execRMD        
 
 
     end subroutine
@@ -1777,14 +1778,14 @@ module codeV_commands
                 select case(trim(tokens(3)))
                 case ('REFL')
                     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; REFL')
+                    & '; REFL; GO')
                 case ('REFR')
                     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; AIR')                    
+                    & '; AIR; GO')
 
                 case ('TIR')
                     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; REFLTIRO')                    
+                    & '; REFLTIRO; GO')
                     
 
                 end select                          

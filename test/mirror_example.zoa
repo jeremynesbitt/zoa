@@ -1,0 +1,7 @@
+LEN NEW
+EPD  20
+TIT 'OSDmirror'
+RDY S1 -100
+PIM
+RMD S1 REFL
+VIE ; GO
