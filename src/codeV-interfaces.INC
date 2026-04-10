@@ -24,6 +24,217 @@
    module subroutine execSeidelBarChart(iptStr)
    character(len=*) :: iptStr
    end subroutine execSeidelBarChart    
+   module function adjustImageFocus(x) result(f)
+   double precision, intent(in) :: x
+   double precision :: f
+   end function adjustImageFocus
+   module subroutine findBestFocus(iptStr)
+   character(len=*) :: iptStr
+   end subroutine findBestFocus
+   module subroutine execFAN(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execFAN
+   module function checkForExistingPlot(tokens, psm, plot_code) result(plotExists)
+   character(len=*), dimension(:) :: tokens
+   type(zoaplot_setting_manager), intent(inout) :: psm
+   integer, intent(in) :: plot_code
+   logical :: plotExists
+   end function checkForExistingPlot
+   module function initiatePlotLoop(iptStr, plot_code, psm) result(boolResult)
+   character(len=*) :: iptStr
+   integer :: plot_code
+   type(zoaplot_setting_manager) :: psm
+   logical :: boolResult
+   end function initiatePlotLoop
+   module subroutine setPlotScale(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setPlotScale
+   module subroutine updateMaxFrequency(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateMaxFrequency
+   module subroutine updateFrequencyInterval(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateFrequencyInterval
+   module subroutine execRayAberrationPlot(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execRayAberrationPlot
+   module subroutine execPMAPlot(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execPMAPlot
+   module subroutine execAstigFieldCurvDistPlot(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execAstigFieldCurvDistPlot
+   module subroutine execTOW(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execTOW
+   module subroutine execAUT(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execAUT
+   module subroutine execTAR(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execTAR
+   module subroutine execSPO(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSPO
+   module subroutine execSPO_old(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSPO_old
+   module subroutine execCIR(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execCIR
+   module subroutine execSTO(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSTO
+   module subroutine execRestore(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execRestore
+   module subroutine execRestore_old(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execRestore_old
+   module subroutine exportLensToCodeV(iptStr)
+   character(len=*) :: iptStr
+   end subroutine exportLensToCodeV
+   module subroutine exportLensToZemax(iptStr)
+   character(len=*) :: iptStr
+   end subroutine exportLensToZemax
+   module subroutine execSAV(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSAV
+   module subroutine execSaveSessionToFile(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSaveSessionToFile
+   module subroutine execSetWavelengthIndex(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSetWavelengthIndex
+   module subroutine execRMD(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execRMD
+   module subroutine execSetCodeVCmd()
+   end subroutine execSetCodeVCmd
+   module subroutine setMagSolve(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setMagSolve
+   module subroutine deleteStuff(iptStr)
+   character(len=*) :: iptStr
+   end subroutine deleteStuff
+   module subroutine setEPD()
+   end subroutine setEPD
+   module subroutine setParaxialImageSolve()
+   end subroutine setParaxialImageSolve
+   module function getSetGlassText(strInput) result(strOut)
+   character(len=*) :: strInput
+   character(len=1024) :: strOut
+   end function getSetGlassText
+   module subroutine updateVarCodes(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateVarCodes
+   module subroutine updateConstraint(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateConstraint
+   module subroutine execNBR(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execNBR
+   module subroutine execCLI(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execCLI
+   module subroutine insertSurf(iptStr)
+   character(len=*) :: iptStr
+   end subroutine insertSurf
+   module subroutine setDim(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setDim
+   module subroutine newLens()
+   end subroutine newLens
+   module subroutine setLensTitle(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setLensTitle
+   module subroutine processFileComment(iptStr)
+   character(len=*) :: iptStr
+   end subroutine processFileComment
+   module subroutine setFieldWeights(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setFieldWeights
+   module subroutine setWavelengthWeights(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setWavelengthWeights
+   module subroutine setField(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setField
+   module subroutine setWavelength(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setWavelength
+   module subroutine setSurfaceCodeVStyle(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setSurfaceCodeVStyle
+   module subroutine scaleSystem(iptStr)
+   character(len=*) :: iptStr
+   end subroutine scaleSystem
+   module function getDefaultMaxFrequency() result(maxFreq)
+   real :: maxFreq
+   end function getDefaultMaxFrequency
+   module subroutine updateOptimImprovementGoal(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateOptimImprovementGoal
+   module subroutine updateRMSPlotType(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateRMSPlotType
+   module subroutine aut_ui(iptStr)
+   character(len=*) :: iptStr
+   end subroutine aut_ui
+   module subroutine updateDatabase(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateDatabase
+   module subroutine changeDatabase(iptStr)
+   character(len=*) :: iptStr
+   end subroutine changeDatabase
+   module subroutine evaluateCmd(iptStr)
+   character(len=*) :: iptStr
+   end subroutine evaluateCmd
+   module function evalFunc(iptStr, logResult) result(res)
+   character(len=*) :: iptStr
+   logical, optional :: logResult
+   real(kind=long) :: res
+   end function evalFunc
+   module subroutine listConstraints(iptStr)
+   character(len=*) :: iptStr
+   end subroutine listConstraints
+   module subroutine deleteConstraints(iptStr)
+   character(len=*) :: iptStr
+   end subroutine deleteConstraints
+   module subroutine executeGo()
+   end subroutine executeGo
+   module subroutine setLens()
+   end subroutine setLens
+   module subroutine flipSurfaces(iptStr)
+   character(len=*) :: iptStr
+   end subroutine flipSurfaces
+   module function getSymmetryPlane(surfs) result(midPoint)
+   integer, dimension(:) :: surfs
+   real :: midPoint
+   end function getSymmetryPlane
+   module function isInputSurfaceParameter(iptStr) result(boolResult)
+   character(len=*) :: iptStr
+   logical :: boolResult
+   end function isInputSurfaceParameter
+   module subroutine setPickup(param1, si, sj, scale, offset, param2)
+   character(len=*) :: param1
+   integer :: si, sj
+   real(long) :: scale, offset
+   character(len=*), optional :: param2
+   end subroutine setPickup
+   module subroutine parsePickupInput(iptStr)
+   character(len=*) :: iptStr
+   end subroutine parsePickupInput
+   module subroutine processZoaFileInput(iptStr, printOnly)
+   character(len=*) :: iptStr
+   logical, optional :: printOnly
+   end subroutine processZoaFileInput
+   module subroutine printFile(iptStr)
+   character(len=*) :: iptStr
+   end subroutine printFile
+   module subroutine getRayData(iptStr)
+   character(len=*) :: iptStr
+   end subroutine getRayData
    module subroutine setThickness(iptStr)
     character(len=*) :: iptStr
    end subroutine setThickness 

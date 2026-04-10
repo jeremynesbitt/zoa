@@ -495,7 +495,7 @@ function buildLensEditTable() result(store)
     allocate(c_ptr_array(numThickSolves+1))    
     do i = 1, numThickSolves
       thicSolves(i) = trim(thick_solves(i)%uiText)
-      call f_c_string(trim(thicSolves(i)), strTmp)
+      call convert_f_string(trim(thicSolves(i)), strTmp)
       allocate(ptrTmp(size(strTmp)))
       ! A Fortran pointer toward the Fortran string:
       ptrTmp(:) = strTmp(:)
@@ -510,7 +510,7 @@ function buildLensEditTable() result(store)
     allocate(c_ptr_array(numCurvSolves+1))  
     do i = 1, numCurvSolves
       curvSolves(i) = trim(curv_solves(i)%uiText)
-      call f_c_string(trim(curvSolves(i)), strTmp)
+      call convert_f_string(trim(curvSolves(i)), strTmp)
       allocate(ptrTmp(size(strTmp)))
       ! A Fortran pointer toward the Fortran string:
       ptrTmp(:) = strTmp(:)
@@ -549,7 +549,7 @@ function buildLensEditTable() result(store)
 
     
     do i = 1, size(surfList)
-      call f_c_string(surfList(i), strTmp)
+      call convert_f_string(surfList(i), strTmp)
       allocate(ptrTmp(size(strTmp)))
       ! A Fortran pointer toward the Fortran string:
       ptrTmp(:) = strTmp(:)
@@ -579,7 +579,7 @@ function buildLensEditTable() result(store)
     
     
     do i = 1, size(surfIdx)
-      call f_c_string(trim(int2str(surfIdx(i))), strTmp)
+      call convert_f_string(trim(int2str(surfIdx(i))), strTmp)
       allocate(ptrTmp(size(strTmp)))
       ! A Fortran pointer toward the Fortran string:
       ptrTmp(:) = strTmp(:)

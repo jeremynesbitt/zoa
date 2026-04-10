@@ -727,7 +727,7 @@ function createNullTerminatedCString(fstring) result(c_ptr_array)
   character(kind=c_char), pointer, dimension(:) :: tmp_credit
 
 
-  call f_c_string(fstring, tmp_string)
+  call convert_f_string(fstring, tmp_string)
     allocate(tmp_credit(size(tmp_string)))
      ! A Fortran pointer toward the Fortran string:
     tmp_credit(:) = tmp_string(:)

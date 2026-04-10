@@ -816,7 +816,7 @@ module optimizer_ui
 
             
             do ii = 1, size(iptStrList)
-              call f_c_string(iptStrList(ii), strTmp)
+              call convert_f_string(iptStrList(ii), strTmp)
               allocate(ptrTmp(size(strTmp)))
               ! A Fortran pointer toward the Fortran string:
               ptrTmp(:) = strTmp(:)
