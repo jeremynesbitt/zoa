@@ -93,7 +93,6 @@ if fortran.get_id().contains('intel-cl') or fortran.get_id().contains('intel-llv
     #'-pthread',
     '-w',
     '/Qdiag-disable:remark',
-    '/O2',
     '/DNDEBUG',
     '/winapp',
     '/assume:byterecl',

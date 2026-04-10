@@ -58,6 +58,41 @@ module optim_types
 
  end interface        
 
+    interface
+        module function getSPO(self) result(res)
+            class(operand) :: self
+            real(long) :: res
+        end function
+        module function getEFLConstraint(self) result(res)
+            class(constraint) :: self
+            real(long) :: res
+        end function
+        module function getTransverseComaConstraint(self) result(res)
+            class(constraint) :: self
+            real(long) :: res
+        end function
+        module function getSphericalConstraint(self) result(res)
+            class(constraint) :: self
+            real(long) :: res
+        end function
+        module function getTransverseAstigmatismConstraint(self) result(res)
+            class(constraint) :: self
+            real(long) :: res
+        end function
+        module function getPetzvalBlurConstraint(self) result(res)
+            class(constraint) :: self
+            real(long) :: res
+        end function
+        module function setDistanceToImagePlaneConstraint(self) result(res)
+            class(constraint) :: self
+            real(long) :: res
+        end function
+        module function getConstraintTypeAsText(self) result(strType)
+            class(constraint) :: self
+            character(len=1) :: strType
+        end function
+    end interface
+
 
 
 
@@ -116,35 +151,6 @@ module optim_types
 
     end function
 
-    function getSPO(self) result(res)
-        use DATSPD, only: RMSX, RMSY, RMS
-        use plot_functions,only: getKDPSpotPlotCommand
-        use global_widgets, only: sysConfig
-        implicit none
-        class(operand) :: self
-        !integer, optional :: iW, iF, density
-        !real(long), optional :: px, py, hx, hy        
-        real(long), dimension(2,sysConfig%numFields) :: rmsxyData
-        real(long) :: res
-        integer :: i
-        integer :: nRect , iLambda
-
-        iLambda = sysConfig%refWavelengthIndex
-        nRect = 20
-
-        do i=1,sysConfig%numFields
-           call PROCESSILENT(trim(getKDPSpotPlotCommand(i, iLambda, ID_SPOT_RECT, nRect, -1, -1)))
-           rmsxyData(1,i) = RMSX
-           rmsxyData(2,i) = RMSY
-        end do
-        !CALL PROCESSILENT("SPD")
-        !CALL PROCESSILENT("OPRD CFG, 1")
-        ! Error function is the average of the x and y value for each field point.
-
-        res = sum(rmsxyData)/size(rmsxyData)
-
-    end function
-
     ! function getSPO(iW, iF, px,py, hx,hy, density) result(res)
     !     integer, optional :: iW, iF, density
     !     real(long), optional :: px, py, hx, hy        
@@ -153,95 +159,6 @@ module optim_types
     !     res = 0.1
 
     ! end function
-
-    function getEFLConstraint(self) result(res)
-        use mod_lens_data_manager
-        class(constraint) :: self
-        real(long) :: res
-        ! integer, optional :: iW, iF, density
-        ! real(long), optional :: px, py, hx, hy        
-        ! real(long) :: res
-        
-        res = ldm%getEFL() 
-
-    end function
-
-    function getTransverseComaConstraint(self) result(res)
-        use mod_analysis_manager
-        class(constraint) :: self
-        real(long) :: res
-        ! integer, optional :: iW, iF, density
-        ! real(long), optional :: px, py, hx, hy        
-        ! real(long) :: res
-        
-        res = am%getTransverseComa() 
-
-    end function    
-
-    function getSphericalConstraint(self) result(res)
-        use mod_analysis_manager
-        class(constraint) :: self
-        real(long) :: res
-
-        res = am%getTransverseSpherical() 
-    end function
-
-    function getTransverseAstigmatismConstraint(self) result(res)
-        use mod_analysis_manager
-        class(constraint) :: self
-        real(long) :: res
-        ! integer, optional :: iW, iF, density
-        ! real(long), optional :: px, py, hx, hy        
-        ! real(long) :: res
-        
-        res = am%getTransverseAstigmatism() 
-
-    end function        
-
-    function getPetzvalBlurConstraint(self) result(res)
-        use mod_analysis_manager
-        class(constraint) :: self
-        real(long) :: res
-        ! integer, optional :: iW, iF, density
-        ! real(long), optional :: px, py, hx, hy        
-        ! real(long) :: res
-        
-        res = am%getPetzvalBlur() 
-
-    end function      
-
-    function setDistanceToImagePlaneConstraint(self) result(res)
-        use mod_lens_data_manager
-        class(constraint) :: self
-        real(long) :: res
-        ! integer, optional :: iW, iF, density
-        ! real(long), optional :: px, py, hx, hy        
-        ! real(long) :: res
-        
-        res = ldm%getSurfThi(ldm%getLastSurf()-1)
-
-        if (self%conType == ID_CON_EXACT .or. self%conType == ID_CON_GREATER_THAN) then
-           res = res - self%targ
-        else ! lower bound
-            res = res - self%targ
-        end if
-
-    end function      
-
-    function getConstraintTypeAsText(self) result (strType)
-        class(constraint) :: self
-        character(len=1) :: strType
-
-        select case (self%conType)
-            case(ID_CON_EXACT)
-                strType = '='
-            case(ID_CON_GREATER_THAN)
-                strType = '>'
-            case(ID_CON_LESS_THAN)
-                strType = '<'
-        end select   
-
-    end function
 
     subroutine addOptimVariable(surf, int_code)
 
