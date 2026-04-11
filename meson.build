@@ -220,6 +220,7 @@ zoa_deps = [dep3, dep0, dep1, dep2]
 lib_deps = []
 
 srcs = []
+plotcad5_src = []
 prog = []
 src_c = []
 
@@ -267,6 +268,21 @@ zoa_lib = static_library(
   #install_dir: 'Contents/libs'
 )
 
+plotcad5_override_options = []
+if (fortran.get_id().contains('intel-cl') or fortran.get_id().contains('intel-llvm-cl')) and build_type == 'release'
+  plotcad5_override_options = ['optimization=0']
+endif
+
+plotcad5_lib = static_library(
+  'zoa_plotcad5',
+  sources: plotcad5_src,
+  link_with: zoa_lib,
+  dependencies: [zoa_deps, c_dep],
+  link_language: 'fortran',
+  override_options: plotcad5_override_options,
+  install: false
+)
+
 
 # Icons
 # Define PKG_DATADIR as a global symbol
@@ -296,7 +312,7 @@ xtb_exe = executable(
   meson.project_name(),
   gresource,
   sources: prog,
-  link_with: zoa_lib,
+  link_with: [zoa_lib, plotcad5_lib],
   dependencies:  [zoa_deps, thread_dep],
   link_language: 'fortran',
   install: true
@@ -308,7 +324,7 @@ if zmq_dep.found()
   zoa_server_exe = executable(
     'zoa_server',
     sources: [server_prog, server_srcs],
-    link_with: zoa_lib,
+    link_with: [zoa_lib, plotcad5_lib],
     dependencies: [zoa_deps, thread_dep, zmq_dep],
     link_language: 'fortran',
     install: false
@@ -319,7 +335,7 @@ endif
 test_runner = executable(
   'zoa_test',
   sources: test_prog,
-  link_with: zoa_lib,
+  link_with: [zoa_lib, plotcad5_lib],
   dependencies: [zoa_deps, thread_dep],
   link_language: 'fortran',
   install: false

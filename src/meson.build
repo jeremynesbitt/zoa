@@ -39,7 +39,9 @@ srcs += files(
   'algos.f90',
   'zoa-ui.f90',
   'kdp-utils.f90',
+  'plot-command-utils.f90',
   'plot-functions.f90',
+  'plot-functions-fft.f90',
   'optim-functions.f90',
   'command-utils.f90',
   'plotsettingtypes.f90',
@@ -185,7 +187,6 @@ srcs += files(
   'PLOTCAD2.FOR',
   'PLOTCAD3.FOR',
   'PLOTCAD4.FOR',
-  'PLOTCAD5.FOR',
   'PLOTCAD6.FOR',
   'PLOTCAD7.FOR',
   'PLOTCAD8.FOR',
@@ -238,7 +239,9 @@ srcs += files(
   'zoa-test-capture.f90',
   'zoa-plot-output.f90',
   'zoa-headless-plot.f90'
-  )
+)
+
+plotcad5_src += files('PLOTCAD5.FOR')
 
 test_prog = files('zoa-test-runner.f90')
 server_prog = files('zoa-server.f90')

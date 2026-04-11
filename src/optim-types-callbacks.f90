@@ -4,7 +4,7 @@ contains
 
     module function getSPO(self) result(res)
         use DATSPD, only: RMSX, RMSY
-        use plot_functions,only: getKDPSpotPlotCommand
+        use plot_command_utils, only: getKDPSpotPlotCommand
         use global_widgets, only: sysConfig
         implicit none
         class(operand) :: self

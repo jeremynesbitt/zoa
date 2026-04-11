@@ -5,8 +5,8 @@ contains
     module procedure executeGo
         use global_widgets, only: ioConfig
         use kdp_utils, only: inLensUpdateLevel
-        use plot_functions
-        use optim_functions
+        use plot_functions, only: mtf_go, psf_go, vie_go, spo_go, seidel_go, ast_go, pma_go, rayaberration_go, rmsfield_go, zern_go
+        use optim_functions, only: aut_go
         use tow_functions, only: tow_go
 
         if (cmd_loop == ID_PLOTTYPE_MTF) then
