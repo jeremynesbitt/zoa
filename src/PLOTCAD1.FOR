@@ -867,31 +867,7 @@ C     NOW KILL OFF THE FANEXT
                         LDIF=OLDIF
                         ELSE
                         END IF
-C     PFANAXIS
-      IF(WC.EQ.'PFANAXIS') THEN
-                        CALL PFANAXIS
-                        ELSE
-                        END IF
-C     PFANLBL
-      IF(WC.EQ.'PFANLBL') THEN
-                        CALL PFANLBL
-                        ELSE
-                        END IF
-C     PFANCAP
-      IF(WC.EQ.'PFANCAP') THEN
-                        CALL PFANCAP
-                        ELSE
-                        END IF
-C     PFANSSI
-      IF(WC.EQ.'PFANSSI') THEN
-                        CALL PFANSSI
-                        ELSE
-                        END IF
-C     PFANCOMP
-      IF(WC.EQ.'PFANCOMP') THEN
-                        CALL PFANCOMP
-                        ELSE
-                        END IF
+C     PFANAXIS/PFANLBL/PFANCAP/PFANSSI/PFANCOMP removed (PLOTCAD6 fan routines deleted)
 C     ORIENT
         IF(WC.EQ.'ORIENT'.OR.WC.EQ.'NORIENT') THEN
                         CALL ORIENT

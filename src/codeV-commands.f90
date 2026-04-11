@@ -349,8 +349,6 @@ module codeV_commands
         zoaCmds(633)%execFunc => wrap_SPDSSI
         zoaCmds(634)%cmd = 'DET'
         zoaCmds(634)%execFunc => wrap_DET
-        zoaCmds(635)%cmd = 'FANFIELD'
-        zoaCmds(635)%execFunc => wrap_FANFIELD
         zoaCmds(636)%cmd = 'GRAOUT'
         zoaCmds(636)%execFunc => wrap_GRAOUT
         zoaCmds(637)%cmd = 'GRID'

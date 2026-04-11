@@ -622,23 +622,7 @@ C       CALL TO PSTAT( PLOT LIBRARY STATUS)
          CALL PLSTAT
                         RETURN
         END IF
-C                PLOT LIBRARY COMMANDS
-        IF(WC.EQ.'PLIB') THEN
-        IF(NEUTFILE) THEN
-        CALL PLLIB
-                        ELSE
-        OUTLYNE='AUTOMATIC STORAGE OF GRAPHICS DATA IS "OFF"'
-        CALL SHOWIT(1)
-        OUTLYNE='NO PLOT LIBRARY COMMANDS MAY BE ISSUED'
-        CALL SHOWIT(1)
-        OUTLYNE='USE "NEUTFILE (YES or ON or NO or OFF)"'
-        CALL SHOWIT(1)
-        OUTLYNE='TO CONTROL ACCESS TO THE PLOT LIBRARY FEATURE'
-        CALL SHOWIT(1)
-                        CALL MACFAL
-                        END IF
-        RETURN
-        END IF
+C                PLOT LIBRARY COMMANDS (PLIB/PLLIB removed)
 C
         IF(WC.EQ.'PRSPR') THEN
         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
@@ -1015,11 +999,7 @@ C        CALL SPIDER
         CALL EXITT(0)
         RETURN
         END IF
-        IF(WC.EQ.'X1'.OR.WC.EQ.'X2'.OR.WC.EQ.'Y1'.OR.
-     1  WC.EQ.'Y2'.OR.WC.EQ.'Z1'.OR.WC.EQ.'Z2') THEN
-        CALL THREEDEESET
-        RETURN
-        END IF
+C       THREEDEESET (PLOTCAD2) removed
         IF(WC.EQ.'X1Y1='.OR.WC.EQ.'X2Y2='.OR.
      1  WC.EQ.'X3Y3='.OR.WC.EQ.'X4Y4='.OR.
      2  WC.EQ.'INTERP') THEN
@@ -2026,26 +2006,7 @@ C       DO A FORCED RETURN TO CFG1
         CALL CAPFNROT
         RETURN
         END IF
-        IF(WC.EQ.'PLOT'.AND.WQ.EQ.'CAPFNOPD'.OR.
-     1WC.EQ.'PLOT'.AND.WQ.EQ.'CAPFNAPD') THEN
-        CALL PLTCAPFN
-       PLOTCAPCON=.FALSE.
-        RETURN
-        END IF
-        IF(WC.EQ.'PLOTCON'.AND.WQ.EQ.'CAPFNOPD'.OR.
-     1WC.EQ.'PLOTCON'.AND.WQ.EQ.'CAPFNAPD') THEN
-        OCOLBAC=COLBAC
-        COLBAC=0
-        OCOLDEF=COLDEF
-        COLBAC=0
-        COLDEF=14
-        IU=0
-        CALL PLTCAPCO(IU)
-        REST_KDP(1)=RESTINPT(1)
-        COLBAC=OCOLBAC
-        COLDEF=OCOLDEF
-        RETURN
-        END IF
+C       PLTCAPFN/PLTCAPCO (PLOTCAD4) removed
         IF(WC.EQ.'USERCONT') THEN
         OCOLBAC=COLBAC
         COLBAC=0
@@ -3300,10 +3261,7 @@ C
         CALL TFDOTF
         RETURN
         END IF
-        IF(WC.EQ.'BEST'.OR.WC.EQ.'NOTILT') THEN
-        CALL CAPFIX
-        RETURN
-        END IF
+C       CAPFIX (PLOTCAD4) removed
         IF(WC.EQ.'VAR'.OR.WC.EQ.'APSTREHL'.OR.WC.EQ.'STREHL') THEN
         CALL APSTREHL
         LSF=.FALSE.
@@ -3454,14 +3412,8 @@ C
         CALL PLTLSF
         RETURN
         END IF
-        IF(WC.EQ.'PLTCHRSH')  THEN
-        CALL PLTCHRSH
-        RETURN
-        END IF
-        IF(WC.EQ.'PLTRED'.OR.WC.EQ.'PLTESED')  THEN
-        CALL PLTRED
-        RETURN
-        END IF
+C       PLTCHRSH (PLOTCAD4) removed
+C       PLTRED/PLTESED (PLOTCAD2) removed
         IF(WC.EQ.'GPXTX'.OR.WC.EQ.'GPXTY') THEN
         CALL GPXT
         RETURN

@@ -220,10 +220,7 @@ contains
         call DETECTOR
     end subroutine
 
-    subroutine wrap_FANFIELD(iptStr)
-        character(len=*) :: iptStr
-        call FANFOV
-    end subroutine
+! wrap_FANFIELD removed (FANFOV was in PLOTCAD8_fan, now deleted)
 
     subroutine wrap_GRAOUT(iptStr)
         character(len=*) :: iptStr
