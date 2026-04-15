@@ -2878,53 +2878,39 @@ C
      1GO TO 3001
 C     BINARY MACRO SYSTEM REMOVED - TEXT .ZOA FILES USED INSTEAD
         IF(F1.EQ.1.AND.F4.EQ.0.AND.F17.EQ.0) THEN
-      OUTLYNE='INVALID CMD LEVEL COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID CMD LEVEL COMMAND')
       RETURN
                 END IF
         IF(F1.EQ.1.AND.F4.EQ.1.AND.F17.EQ.0) THEN
-      OUTLYNE='INVALID CMD LEVEL COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID CMD LEVEL COMMAND')
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F5.EQ.1) THEN
-          !call LogTermFOR("INPUT "//trim(INPUT)) 
-          !call sleep(5)    
-      OUTLYNE='INVALID LENS INPUT COMMAND'
-      CALL SHOWIT(1)
-      OUTLYNE=INPUT
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID LENS INPUT COMMAND')
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F6.EQ.1) THEN
-      OUTLYNE='INVALID LENS UPDATE COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID LENS UPDATE COMMAND')
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F7.EQ.1) THEN
-      OUTLYNE='INVALID SPSRF INPUT COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID SPSRF INPUT COMMAND')
       RETURN
                 END IF
         IF(F1.EQ.0.AND.F8.EQ.1) THEN
-      OUTLYNE='INVALID UPDATE SPSRF COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID UPDATE SPSRF COMMAND')
                 END IF
         IF(F1.EQ.0.AND.F9.EQ.1) THEN
-      OUTLYNE='INVALID SPFIT COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID SPFIT COMMAND')
                 END IF
         IF(F1.EQ.0.AND.F10.EQ.1) THEN
-      OUTLYNE='INVALID CONFIGS INPUT COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID CONFIGS INPUT COMMAND')
                 END IF
         IF(F1.EQ.0.AND.F11.EQ.1) THEN
-      OUTLYNE='INVALID CONFIGS UPDATE COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID CONFIGS UPDATE COMMAND')
                 END IF
         IF(F1.EQ.1.AND.F17.EQ.1) THEN
-      OUTLYNE='INVALID SPECT COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID SPECT COMMAND')
                 END IF
           FNYES1=.FALSE.
                 
@@ -8447,8 +8433,7 @@ C
                 IF(WC.EQ.'PAUSE')       IS=.TRUE.
                 IF(WC.EQ.'SSTEP')       IS=.TRUE.
                         IF(IS) THEN
-      OUTLYNE='INVALID SPECT LEVEL COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID SPECT LEVEL COMMAND')
                 STP=.TRUE.
                 CALL MACFAL
                 RETURN
@@ -8457,4 +8442,17 @@ C
                 END IF
                                 RETURN
                                 END
+C     ---------------------------------------------------------------
+C     Print an "invalid command" error and echo the offending command.
+C     All INVALID ... COMMAND error paths should call this subroutine.
+C     ---------------------------------------------------------------
+      SUBROUTINE SHOW_INVALID_CMD(ERRMSG)
+      USE GLOBALS
+      INCLUDE 'DATMAI.INC'
+      CHARACTER*(*) ERRMSG
+      OUTLYNE=ERRMSG
+      CALL SHOWIT(1)
+      OUTLYNE='  Command: '//trim(INPUT)
+      CALL SHOWIT(1)
+      END SUBROUTINE SHOW_INVALID_CMD
 C       FIFTH SET OF UTILTIY ROUTINES GO HERE

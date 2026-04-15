@@ -3717,8 +3717,7 @@ C       INITIATE MONTE-CARLO ANALYSIS
                         CALL NSSCALL
                         RETURN
                          END IF
-      OUTLYNE= 'INVALID CMD LEVEL COMMAND'
-      CALL SHOWIT(1)
+      CALL SHOW_INVALID_CMD('INVALID CMD LEVEL COMMAND')
         CALL MACFAL
         END IF
         RETURN
