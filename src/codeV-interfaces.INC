@@ -264,5 +264,8 @@
    end subroutine updateConicConstant      
    module subroutine updateSurfaceLabel(iptStr)
     character(len=*) :: iptStr
-   end subroutine updateSurfaceLabel                       
+   end subroutine updateSurfaceLabel
+   module subroutine execEDI(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execEDI
     end interface

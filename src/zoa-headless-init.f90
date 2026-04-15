@@ -16,7 +16,7 @@ contains
     use GLOBALS
     use global_widgets
     use kdp_data_types
-    use zoa_file_handler, only: getZoaPath
+    use zoa_file_handler, only: getZoaPath, loadPreferences, applyGlassCatalogDirFromPrefs
     implicit none
 
     HEADLESS_MODE = .TRUE.
@@ -28,6 +28,7 @@ contains
 
     ! Set base path for data files (glass catalogs, etc.)
     basePath = getZoaPath()
+    call loadPreferences()
 
     ! Allocate command history (mirrors zoamain.F90 line 60)
     if (.not. associated(uiSettingCommands)) then
@@ -37,6 +38,9 @@ contains
     ! Initialize the optical engine (COMMON blocks, glass catalogs, defaults, commands)
     ! Output during init goes to stdout via zoa_output default handler
     call INITKDP
+
+    ! Override LIBGLA if user has a custom glass catalog directory in preferences
+    call applyGlassCatalogDirFromPrefs()
 
     ! Sync modern data structures with legacy COMMON block state
     call refreshLensDataStruct()

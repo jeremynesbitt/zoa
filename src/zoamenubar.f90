@@ -156,6 +156,8 @@ contains
     call addFuncMenuItem(menu, "Save .zoa File", "SaveZoa", c_funloc(save_zoa), win)
 
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
+    call addFuncMenuItem(menu, "Preferences", "Preferences", c_funloc(zoa_preferencesUI), win)
+
     call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
     call g_menu_append_submenu (menubar, "Macro"//c_null_char, menu_macro)
 
@@ -533,6 +535,15 @@ contains
     end if
 
   end subroutine 
+
+  subroutine zoa_preferencesUI(act, param, gdata) bind(c)
+    use ui_preferences
+    use global_widgets, only: preferences_window, my_window
+    type(c_ptr), value, intent(in) :: act, param, gdata
+    if (.not. c_associated(preferences_window)) then
+      call preferences_new(my_window)
+    end if
+  end subroutine
 
   subroutine quit_activated (act, param, win) bind(c)
     type(c_ptr), value, intent(in) :: act, param, win

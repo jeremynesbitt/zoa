@@ -499,6 +499,7 @@ contains
 
     ! INIT KDP
     CALL INITKDP
+    call applyGlassCatalogDirFromPrefs()
     call refreshLensDataStruct()
 
     PRINT *, "DONE WITH INITKDP!"

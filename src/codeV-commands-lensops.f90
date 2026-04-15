@@ -138,7 +138,7 @@ contains
     module procedure execSAV
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens
-        use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory
+        use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory, getCurrentLensFileName
         use optim_types, only: optim
         use mod_lens_data_manager
         implicit none
@@ -154,7 +154,7 @@ contains
         call LogTermFOR("Number of tokens is "//int2str(numTokens))
         select case(numTokens)
         case (1)
-            fName = 'currlens.zoa'
+            fName = getCurrentLensFileName()
             call zoa_emit("File name to save is "//trim(getTempDirectory())//trim(fName), "black")
             fID = open_file_to_sav_lens(fName, dirName=getTempDirectory(), overwriteFlag=.TRUE.)
         case (2)
@@ -371,5 +371,39 @@ contains
             strOut = 'GLAK ' // strInput
         end if
     end function getSetGlassText
+
+    module procedure execEDI
+        use command_utils, only : parseCommandIntoTokens
+        use globals, only: HEADLESS_MODE
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+
+        if (numTokens < 2) then
+            call zoa_emit("EDI requires a subcommand (e.g. EDI PREF)", "red")
+            return
+        end if
+
+        select case (trim(tokens(2)))
+        case ('PREF')
+            if (HEADLESS_MODE) then
+                call zoa_emit("EDI PREF requires GUI", "red")
+            else
+                block
+                    use ui_preferences
+                    use global_widgets, only: preferences_window, my_window
+                    use iso_c_binding, only: c_associated
+                    if (.not. c_associated(preferences_window)) then
+                        call preferences_new(my_window)
+                    end if
+                end block
+            end if
+        case default
+            call zoa_emit("Unknown EDI subcommand: "//trim(tokens(2)), "red")
+        end select
+    end procedure execEDI
 
 end submodule mod_codev_lensops

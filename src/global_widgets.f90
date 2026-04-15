@@ -36,6 +36,7 @@ module global_widgets
   type(c_ptr) :: sys_config_window = c_null_ptr
   type(c_ptr) :: macro_ui_window = c_null_ptr
   type(c_ptr) :: optimizer_window = c_null_ptr
+  type(c_ptr) :: preferences_window = c_null_ptr
 
 
   REAL :: kdp_width = 10500

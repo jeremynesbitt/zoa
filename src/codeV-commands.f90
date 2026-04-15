@@ -440,7 +440,9 @@ module codeV_commands
         zoaCmds(680)%cmd = 'DCON'
         zoaCmds(680)%execFunc => deleteConstraints
         zoaCmds(681)%cmd = "RMD"
-        zoaCmds(681)%execFunc => execRMD        
+        zoaCmds(681)%execFunc => execRMD
+        zoaCmds(682)%cmd = "EDI"
+        zoaCmds(682)%execFunc => execEDI
 
 
     end subroutine

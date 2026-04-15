@@ -109,6 +109,7 @@ srcs += files(
   'referencespherecalcs.f90',
   'ui-utilities.f90',
   'ui-dialogs.f90',
+  'ui-preferences.f90',
   'AIMDIFRYS.FOR',
   'ASTRO1.FOR',
   'BICUBIC.FOR',

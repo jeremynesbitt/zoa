@@ -1387,8 +1387,9 @@ C     LENSTEXT.DAT HAS BEEN LOADED
  8888   BACKSPACE(UNIT=89)
         REWIND (UNIT=89)
         CALL CLOSE_FILE(89,1)
-        ! Restore lens from new save file system    
-        call process_zoa_file(trim(getTempDirectory())//'currlens.zoa')   
+        ! Restore lens from new save file system
+        SPL=trim(getTempDirectory())//getCurrentLensFileName()
+        call process_zoa_file(trim(SPL))
 
                        GO TO 8889
  8887   BACKSPACE(UNIT=89)

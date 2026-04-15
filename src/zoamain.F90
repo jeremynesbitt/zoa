@@ -8,7 +8,7 @@ program zoa_program
   & gtk_icon_theme_get_for_display
   use gdk, only:  gdk_display_get_default
   use g, only: g_application_run, g_object_unref
-  use zoa_file_handler, only: getZoaPath
+  use zoa_file_handler, only: getZoaPath, loadPreferences
   use handlers
   use zoa_ui
   use global_widgets
@@ -68,6 +68,7 @@ zoaVersion = __VERSION
 
   ! This also doubles as storing OS
   basePath = getZoaPath()
+  call loadPreferences()
 
   !For saving command history.
   allocate(uiSettingCommands(cmdHistorySize))

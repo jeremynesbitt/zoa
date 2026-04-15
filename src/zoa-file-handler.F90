@@ -10,6 +10,8 @@ module zoa_file_handler
       character(len=1024) :: codevdir
       character(len=1024) :: savresDir
       character(len=1024) :: currSaveDir, tempDir
+      character(len=1024) :: macroDir
+      character(len=1024) :: glassCatalogDirOverride = ''
 
       integer :: ID_SYSTEM = -1000
       integer, parameter :: ID_OS_WINDOWS = 3
@@ -159,9 +161,10 @@ module zoa_file_handler
 
         ! Since this method essentially serves as an initialization
         ! add this here.  Should probably go somewhere else.
-        codevdir = trim(path)//getFileSep()//'CodeV'//getFileSep()
+        codevdir  = trim(path)//getFileSep()//'CodeV'//getFileSep()
         savresDir = trim(path)//getFileSep()//'Projects'//getFileSep()
         tempDir   = trim(path)//'Temp'//getFileSep()
+        macroDir  = trim(path)//'MACROS'//getFileSep()
 
         currSaveDir = savresDir
 
@@ -452,13 +455,10 @@ function getZemaxDir() result(res)
 end function
 
 function getProjectDir() result(res)
-  use GLOBALS, only : basePath
   implicit none
   character(len=250) :: res
 
-  !codevdir = trim(basePath)//'CodeV'//getFileSep()
-  ! TODO:  Add a ui so users can set this themselves
-  res = trim(basePath)//'Projects'//getFileSep()
+  res = trim(savresDir)
 
 
 end function
@@ -496,9 +496,21 @@ function getTempDirectory() result(outDir)
   character(len=1024) :: outDir
 
   outDir = tempDir
-  
+
 end function
 
+! Return the filename (not full path) for the current-lens autosave.
+! In headless/test mode use a separate file so that running tests does
+! not overwrite the user's interactive session state.
+function getCurrentLensFileName() result(fname)
+  use GLOBALS, only: HEADLESS_MODE
+  character(len=32) :: fname
+  if (HEADLESS_MODE) then
+    fname = 'templens.zoa'
+  else
+    fname = 'currlens.zoa'
+  end if
+end function
 
 function getFileNameFromPath(fileName) result(res)
   implicit none
@@ -516,18 +528,135 @@ function getMacroDir() result (outDir)
 
   character(len=1024) :: outDir
 
-  outDir = trim(getZoaPath())//'MACROS'//getFileSep()
+  outDir = macroDir
 
 end function
 
 function getPermMacroDir() result(permDir)
-  ! Eventually want to support user changing directories
-  ! For now use this fcn to put all directory changes in
-  ! one place
   character(len=500) :: permDir
   permDir = trim(getZoaPath())//'PERMAC'//getFileSep()
 
 end function
+
+! =========================================================================
+! Directory setters — used by the Preferences dialog
+! =========================================================================
+
+subroutine setMacroDir(dir)
+  character(len=*), intent(in) :: dir
+  macroDir = trim(addFileSepIfNeeded(dir))
+end subroutine
+
+subroutine setTempDir(dir)
+  character(len=*), intent(in) :: dir
+  tempDir = trim(addFileSepIfNeeded(dir))
+end subroutine
+
+subroutine setProjectDir(dir)
+  character(len=*), intent(in) :: dir
+  call setSaveDirectory(dir)
+  savresDir = currSaveDir
+end subroutine
+
+subroutine setGlassCatalogDir(dir)
+  character(len=*), intent(in) :: dir
+  glassCatalogDirOverride = trim(addFileSepIfNeeded(dir))
+end subroutine
+
+function getGlassCatalogDir() result(res)
+  include 'DATMAI.INC'
+  character(len=1024) :: res
+  if (len_trim(glassCatalogDirOverride) > 0) then
+    res = glassCatalogDirOverride
+  else
+    res = LIBGLA
+  end if
+end function
+
+! Apply the glass catalog override to LIBGLA after INITKDP has run.
+! INITKDP unconditionally sets LIBGLA from basePath, so we override
+! it here if the user has set a custom glass catalog directory.
+subroutine applyGlassCatalogDirFromPrefs()
+  include 'DATMAI.INC'
+  if (len_trim(glassCatalogDirOverride) > 0) then
+    LIBGLA = glassCatalogDirOverride
+  end if
+end subroutine
+
+! Check whether a directory path exists (INQUIRE works for directories
+! on macOS, Linux, and Windows when not trailing-slash-terminated).
+function doesDirectoryExist(dirPath) result(res)
+  character(len=*), intent(in) :: dirPath
+  logical :: res
+  character(len=len(dirPath)) :: testPath
+  integer :: k
+  ! Strip trailing separator for INQUIRE compatibility
+  testPath = trim(dirPath)
+  k = len_trim(testPath)
+  if (k > 1 .and. (testPath(k:k) == '/' .or. testPath(k:k) == '\')) then
+    testPath = testPath(1:k-1)
+  end if
+  INQUIRE(FILE=trim(testPath), EXIST=res)
+end function
+
+! =========================================================================
+! Preferences persistence — simple key=value text file in basePath
+! =========================================================================
+
+subroutine savePreferences()
+  use GLOBALS, only: basePath
+  implicit none
+  character(len=1024) :: filePath
+  integer :: funit
+
+  filePath = trim(basePath)//'preferences.ini'
+  funit = 99
+  open(unit=funit, file=trim(filePath), status='replace', action='write', form='formatted')
+  write(funit, '(A)') 'ProjectDir='//trim(savresDir)
+  write(funit, '(A)') 'TempDir='//trim(tempDir)
+  write(funit, '(A)') 'MacroDir='//trim(macroDir)
+  write(funit, '(A)') 'GlassDir='//trim(glassCatalogDirOverride)
+  close(funit)
+end subroutine
+
+subroutine loadPreferences()
+  use GLOBALS, only: basePath
+  implicit none
+  character(len=1024) :: filePath, line, key, val
+  integer :: funit, ios, eq
+
+  filePath = trim(basePath)//'preferences.ini'
+  funit = 98
+  open(unit=funit, file=trim(filePath), status='old', action='read', &
+       form='formatted', iostat=ios)
+  if (ios /= 0) return   ! no file yet — use defaults
+
+  do
+    read(funit, '(A)', iostat=ios) line
+    if (ios /= 0) exit
+    line = adjustl(line)
+    if (len_trim(line) == 0) cycle
+    eq = index(line, '=')
+    if (eq < 2) cycle
+    key = line(1:eq-1)
+    val = line(eq+1:len_trim(line))
+    select case (trim(key))
+    case ('ProjectDir')
+      if (len_trim(val) > 0) then
+        savresDir   = trim(val)
+        currSaveDir = trim(val)
+      end if
+    case ('TempDir')
+      if (len_trim(val) > 0) tempDir = trim(val)
+    case ('MacroDir')
+      if (len_trim(val) > 0) macroDir = trim(val)
+    case ('GlassDir')
+      glassCatalogDirOverride = trim(val)
+    end select
+  end do
+
+  close(funit)
+end subroutine
 
 function genOutputLineWithSpacing(blnk, p1, p2, p3, p4) result(outStr)
   implicit none
