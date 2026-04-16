@@ -36,7 +36,11 @@ module handlers
 
   type(zoatabManager) :: zoatabMgr
 
-
+  ! Top-level command queue — prevents re-entrant execution via pending_events()
+  logical :: cmd_in_progress = .false.
+  integer, parameter :: CMD_QUEUE_SIZE = 50
+  character(len=140) :: cmd_queue(CMD_QUEUE_SIZE)
+  integer :: cmd_queue_count = 0
 
 contains
 
@@ -254,10 +258,30 @@ contains
 
     !call pending_events()
 
-    ! Finally actually process the command
-    CALL PROCESKDP(ftext)
-
-
+    ! Finally actually process the command.
+    ! Guard against re-entrant execution: pending_events() inside updateTerminalLog
+    ! can fire name_enter again while a command is still on the call stack.
+    ! Queue any command that arrives during execution and drain after each completes.
+    if (cmd_in_progress) then
+        if (cmd_queue_count < CMD_QUEUE_SIZE) then
+            cmd_queue_count = cmd_queue_count + 1
+            cmd_queue(cmd_queue_count) = trim(ftext)
+        else
+            call zoa_emit("Command queue full — command discarded", "red")
+        end if
+    else
+        cmd_in_progress = .true.
+        call PROCESKDP(trim(ftext))
+        do while (cmd_queue_count > 0)
+            ftext = cmd_queue(1)
+            if (cmd_queue_count > 1) then
+                cmd_queue(1:cmd_queue_count-1) = cmd_queue(2:cmd_queue_count)
+            end if
+            cmd_queue_count = cmd_queue_count - 1
+            call PROCESKDP(trim(ftext))
+        end do
+        cmd_in_progress = .false.
+    end if
 
   end subroutine name_enter
 
