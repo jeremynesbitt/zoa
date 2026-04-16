@@ -1375,11 +1375,8 @@ C
      1INPUT(1:1).EQ.'0'
      1.OR.INPUT(1:8).EQ.'FLDSRAYS') THEN
                 ELSE
-                !PRINT *, "ABOUT TO EXECUTE INPUT ", INPUT  
-                IF(INDEX(INPUT,'EOS').GT.0) THEN
-                        PRINT *, "EOS IN PROCES"
-                    end if                      
-                CALL PROCES
+C     SKIP COMMAND EXECUTION - LENS IS FULLY RESTORED FROM currlens.zoa BELOW.
+C     LENSTEXT.DAT IS ONLY READ FOR FLDSRAYS (RAY GRID) DATA.
                 END IF
                 END IF
                         GO TO 3141
@@ -1387,18 +1384,20 @@ C     LENSTEXT.DAT HAS BEEN LOADED
  8888   BACKSPACE(UNIT=89)
         REWIND (UNIT=89)
         CALL CLOSE_FILE(89,1)
-        ! Restore lens from new save file system
-        SPL=trim(getTempDirectory())//getCurrentLensFileName()
-        call process_zoa_file(trim(SPL))
-
                        GO TO 8889
  8887   BACKSPACE(UNIT=89)
         BACKSPACE(UNIT=89)
                         GO TO 3141
  8889                   CONTINUE
                         ELSE
-C     NO LENSTEXT EXISTS,OR AN ERROR EXITSED
+C     NO LENSTEXT EXISTS
                         END IF
+C     ALWAYS RESTORE LENS FROM NEW-FORMAT SAVE FILE (currlens.zoa).
+C     THIS RUNS WHETHER OR NOT LENSTEXT.DAT WAS PRESENT, AND PROVIDES
+C     A CLEAN LENS LOAD WITHOUT THE COMMAND ERRORS FROM LENSTEXT.DAT.
+        SPL=trim(getTempDirectory())//getCurrentLensFileName()
+        INQUIRE(FILE=trim(SPL),EXIST=EXIS89)
+        IF(EXIS89) call process_zoa_file(trim(SPL))
           IN=OLDIN
         OPTMES=.TRUE.
         !PRINT *, "Got to line 1470"
