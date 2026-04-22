@@ -150,13 +150,10 @@ contains
       read(tok1, *, iostat=ios1) val1
       read(tok2, *, iostat=ios2) val2
       if (ios1 == 0 .and. ios2 == 0) then
-        ! Both are numbers — compare with tolerance
-        if (abs(val2) > 1.0d-30) then
-          diff = abs((val1 - val2) / val2)
-        else
-          diff = abs(val1 - val2)
-        end if
-        if (diff > tolerance) then
+        ! Combined absolute+relative tolerance (like numpy isclose).
+        ! abs_tol=1e-6 handles near-zero values where sign flips from
+        ! compiler optimization would otherwise cause spurious failures.
+        if (abs(val1 - val2) > 1.0d-6 + tolerance * max(abs(val1), abs(val2))) then
           match = .false.
           return
         end if

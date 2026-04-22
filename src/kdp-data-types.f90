@@ -1422,13 +1422,14 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
 
   class(sys_config), intent(inout) :: self
   real(kind=real64) :: absFields(:)
-  real(kind=real64) :: maxField
-  
+  real(kind=real64) :: maxField = 0.0_real64
+
   integer, intent(in) :: fieldDir
   integer :: i
 
   include "DATLEN.INC"
 
+  maxField = 0.0_real64
   ! Figure out which one is maximum
   do i=1,size(absFields)
     if (absFields(i) > maxField) maxField = absFields(i)
@@ -1451,11 +1452,15 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
   ! ! Update number of fields based on size of absFields
   ! call LogTermFOR("Number of Fields is "//int2str(size(absFields)))
   ! call self%setNumFields(size(absFields))
-  
+
   ! Update vals
   do i=1,size(absFields)
     !self%relativeFields(fieldDir, i) = absFields(i)
-    self%relativeFields(fieldDir, i) = absFields(i)/maxField
+    if (maxField /= 0.0_real64) then
+      self%relativeFields(fieldDir, i) = absFields(i)/maxField
+    else
+      self%relativeFields(fieldDir, i) = 0.0_real64
+    end if
 
   end do
   CFLDS = self%relativeFields  

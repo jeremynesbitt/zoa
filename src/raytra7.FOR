@@ -3400,6 +3400,8 @@ C     AND GET ITS X AND Y POSITIONS AT THE IMAGE PLANE.
 C     SET MSG TO FALSE
         MSG=.FALSE.
           ERROR=0
+      SQ=0
+      WQ='        '
       WC='FOB'
       CALL FFOB
       LDIF2=OLDLDIF2

@@ -2776,6 +2776,8 @@ C       CALCULATE X AND Y STEPS
         FW4=INT(SYSTEM(11))
         FW4=FW3
         W4=FW3
+        SQ=0
+        WQ='        '
         WC='FOB'
                 REFEXT=.FALSE.
                         CALL FFOB
@@ -3220,6 +3222,8 @@ C       CALCULATE X AND Y STEPS
         FW4=INT(SYSTEM(11))
         FW4=FW3
         W4=FW3
+        SQ=0
+        WQ='        '
         WC='FOB'
                 REFEXT=.FALSE.
                         CALL FFOB

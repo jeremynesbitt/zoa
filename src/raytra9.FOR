@@ -76,12 +76,12 @@ C     TRACE THE DESIRED GUT RAY WITH DIFFERENTIAL TRACING
 C     SET MSG TO FALSE
         MSG=.FALSE.
           ERROR=0
+        WQ='        '
+        SQ=0
       WC='FOB     '
         CALL FFOB
       REST_KDP(1)=RESTINPT(1)
       SAVE_KDP(1)=SAVEINPT(1)
-        WQ='        '
-        SQ=0
         SST=0
         DF1=1
         DF2=1
@@ -470,12 +470,12 @@ C     TRACE THE DESIRED GUT RAY WITH DIFFERENTIAL TRACING
 C     SET MSG TO FALSE
         MSG=.FALSE.
           ERROR=0
+        WQ='        '
+        SQ=0
       WC='FOB     '
         CALL FFOB
       REST_KDP(1)=RESTINPT(1)
       SAVE_KDP(1)=SAVEINPT(1)
-        WQ='        '
-        SQ=0
         SST=0
         DF1=1
         DF2=1
