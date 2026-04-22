@@ -1,0 +1,8767 @@
+!       EIGHTH SET OF OPTIMIZATION ROUTINES
+
+! SUB MERIT2.FOR
+SUBROUTINE MERIT2
+!
+   use DATCFG
+   use DATSPD
+   use DATSUB
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+!
+   INTEGER I,J,K,L,OPT,SHTNM
+!
+   LOGICAL ERRR,ERRFOB,PSFEXT2
+!
+   REAL*8 OPWEIT,IREG,OUTEXTENT,INEXTENT,OUTSPACE &
+   &,DIAM,GRNX,GRNY,SHTVALUE,VALUE,INSPACE,EFFER,VALVAL,SEFFER
+!
+!
+!       THIS IS SUBROUTINE MERIT2. THIS IS THE SUBROUTINE WHICH
+!       HANDLES OPNRD
+!       AT THE CMD LEVEL
+   print *, "NRD at beginning of MERTI2 is ", INT(NRD)
+   PSFEXT2=PSFEXT
+!
+!             NRD
+!
+   IF(WC.EQ.'NRD') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"NRD" SETS PUPIL RAY GRID FOR CAPFN CALCULATIONS IN PSF'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'NRD CURRENTLY SET TO ',INT(NRD)
+         print *, "OUTLYNE IS ", OUTLYNE
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"NRD" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"NRD" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LT.16.0D0.OR.W1.GT.512.0D0.OR.&
+      &(W1-DBLE(INT(W1))).NE.0.0D0.OR.W1.GT.512.0D0.OR.&
+      &((W1/2.0D0)-DBLE(INT(W1/2.0D0))).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"NRD" REQUIERS NUMERIC INPUT TO BE A POSITIVE EVEN INTEGER'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'EVEN INTEGER VALUE FROM 16 TO 512'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*) '"NRD" RESET TO 16'
+         CALL SHOWIT(1)
+         W1=16.0D0
+      END IF
+      IF(INT(W1).GT.TGR) THEN
+         WRITE(OUTLYNE,*)&
+         &'"NRD" MAY NOT BE SET TO BE GREATER THAN THE CURRENT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'VALUE OF TGR WHICH IS : ',TGR
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'"NRD" HAS BEEN RESET TO ',TGR
+         CALL SHOWIT(1)
+         NRD=TGR
+         RETURN
+      END IF
+      NRD=INT(W1)
+      NRDFLG=1
+      GRIFLG=0
+      CPFNEXT=.FALSE.
+      RETURN
+   END IF
+!
+!             CAPFNNRD
+!
+   IF(WC.EQ.'CAPFNNRD') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"CAPFNNRD" SETS PUPIL RAY GRID FOR CAPFN CALCULATIONS'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'CAPFNNRD CURRENTLY SET TO ',INT(CAPDEF)
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"CAPFNNRD" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"CAPFNNRD" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LT.16.0D0.OR.W1.GT.512.0D0.OR.&
+      &(W1-DBLE(INT(W1))).NE.0.0D0.OR.&
+      &((W1/2.0D0)-DBLE(INT(W1/2.0D0))).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"CAPFNNRD" REQUIERS NUMERIC INPUT TO BE A POSITIVE EVEN INTEGER'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'EVEN INTEGER VALUE FROM 16 TO 512'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      CAPDEF=DBLE(INT(W1))
+      NRD=INT(CAPDEF)
+      IF(NRD.EQ.8) TGR=32
+      IF(NRD.EQ.16) TGR=64
+      IF(NRD.GT.16.AND.NRD.LE.32) TGR=128
+      IF(NRD.GT.32.AND.NRD.LE.64) TGR=256
+      IF(NRD.GT.64.AND.NRD.LE.128) TGR=512
+      PGR=TGR-1
+      RETURN
+   END IF
+!
+!             GRI
+!
+   IF(WC.EQ.'GRI') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"GRI" SETS GRID SPACING IN THE PSF'
+         CALL SHOWIT(1)
+         IF(GRIFLG.EQ.1)&
+         &WRITE(OUTLYNE,*)'GRI CURRENTLY SET TO ',GRI
+         IF(GRIFLG.EQ.0)&
+         &WRITE(OUTLYNE,*)'GRI VALUE HAS NOT BEEN EXPLICITLY SET'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'AND WILL BE SET BY "TGR" AND "NRD"'
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"GRI" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"GRI" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"GRI" REQUIERS NUMERIC INPUT TO BE GREATER THAN ZERO'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      GRI=W1
+      NRDFLG=0
+      GRIFLG=1
+      CPFNEXT=.FALSE.
+      RETURN
+   END IF
+!
+!             EXTENT
+!
+   IF(WC.EQ.'EXTENT') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"EXTENT" SETS GRID SPACING/EXTENT IN THE PSF'
+         CALL SHOWIT(1)
+         IF(GRIFLG.EQ.1)&
+         &WRITE(OUTLYNE,*)'EXTENT CURRENTLY SET TO ',GRI*DBLE(PGR)
+         IF(GRIFLG.EQ.0)&
+         &WRITE(OUTLYNE,*)'EXTENT VALUE HAS NOT BEEN EXPLICITLY SET'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'AND WILL BE SET BY "TGR", "NRD" AND "PGR"'
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"EXTENT" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"EXTENT" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"EXTENT" REQUIERS NUMERIC INPUT TO BE GREATER THAN ZERO'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      GRI=W1/DBLE(PGR)
+      NRDFLG=0
+      GRIFLG=1
+      CPFNEXT=.FALSE.
+      RETURN
+   END IF
+!
+!             TGR
+!
+   IF(WC.EQ.'TGR') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"TGR" SETS TRANSFORM GRID FOR PSF'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'TGR CURRENTLY SET TO ',TGR
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"TGR" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"TGR" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(&
+      &W1.NE.64.0D0.AND.W1.NE.128.0D0.AND.W1.NE.256.0D0 &
+      &.AND.W1.NE.512.0D0.AND.W1.NE.1024.0D0.AND.W1.NE.2048.0D0 &
+      &.AND.W1.NE.4096) THEN
+         PGR=TGR-1
+         WRITE(OUTLYNE,*)&
+         &'"TGR" REQUIERS NUMERIC INPUT TO BE A POSITIVE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'POWER OF 2 BETWEEN 32 AND 4096'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(INT(W1).LT.NRD) THEN
+         WRITE(OUTLYNE,*)&
+         &'"TGR" MAY NOT BE SET TO LESS THAN THE CURRENT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'VALUE OF NRD WHICH IS : ',NRD
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      TGR=INT(W1)
+      TGRFLG=1
+      CPFNEXT=.FALSE.
+      IF((TGR-1).LE.PGR) THEN
+         PGR=TGR-1
+         RETURN
+      END IF
+   END IF
+!
+!
+!             PGR
+!
+   IF(WC.EQ.'PGR') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"PGR" SETS PLOTTING GRID FOR PSF'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'PGR CURRENTLY SET TO ',PGR
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"PGR" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"PGR" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(INT(W1).GE.TGR) THEN
+         WRITE(OUTLYNE,*)&
+         &'"PGR" MUST BE LESS THAN TGR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF((DBLE(INT(W1)/2)*2.0D0).EQ.W1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"PGR" MUST BE SET TO AN ODD INTEGER VALUE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      PGR=INT(W1)
+      CPFNEXT=.FALSE.
+   END IF
+!
+!             OPNRD
+!
+   IF(WC.EQ.'OPNRD') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OPNRD" SETS GRID FOR CAPFN CALCULATIONS IN OPTIMIZATION'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'OPNRD CURRENTLY SET TO ',OPNRD
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"OPNRD" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"OPNRD" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LT.16.0D0.OR.W1.GT.512.0D0.OR.&
+      &(W1-DBLE(INT(W1))).NE.0.0D0.OR.&
+      &((W1/2.0D0)-DBLE(INT(W1/2.0D0))).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OPNRD" REQUIERS NUMERIC INPUT TO BE A POSITIVE EVEN INTEGER'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'EVEN INTEGER VALUE FROM 16 TO 512'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      OPNRD=INT(W1)
+      CPFNEXT=.FALSE.
+      RETURN
+   END IF
+!            TOLNRD
+!
+   IF(WC.EQ.'TOLNRD') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"TOLNRD" SETS GRID FOR CAPFN CALCULATIONS IN TOLERANCING'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'TOLNRD CURRENTLY SET TO ',TOLNRD
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"TOLNRD" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"TOLNRD" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LT.16.0D0.OR.W1.GT.512.0D0.OR.&
+      &(W1-DBLE(INT(W1))).NE.0.0D0.OR.&
+      &((W1/2.0D0)-DBLE(INT(W1/2.0D0))).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"TOLNRD" REQUIERS NUMERIC INPUT TO BE A POSITIVE EVEN INTEGER'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'EVEN INTEGER VALUE FROM 16 TO 512'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      TOLNRD=INT(W1)
+      CPFNEXT=.FALSE.
+      RETURN
+   END IF
+!
+   RETURN
+END
+! SUB TOPER1.FOR
+SUBROUTINE TOPER1
+!
+   use DATCFG
+   use DATSPD
+   use DATSUB
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+!
+   INTEGER OS5,ODF5,I,II,J,K,L,OPT
+!
+   REAL*8 OW5
+!
+   CHARACTER*8 OPNM
+!
+   LOGICAL YES
+!
+   REAL*8 OPWEIT,IREG
+!
+   REAL*8 OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
+   &,OP11,OP12,OP13,OP14,OP15,OP16,OP17,OP18,OP19,OP20
+!
+!
+!       THIS IS SUBROUTINE TOPER1. THIS IS THE SUBROUTINE WHICH
+!       HANDLES TOPER INPUT AND TOPER UPDATE COMMANDS AND
+!       OUTPUT COMMANDS AT THE CMD LEVEL
+!
+!       THE ARRAY OPERND AND OPNAM STORE TOPER INFORMATION
+!       IT IS PASSED IN COMMON IN THE INCLUDE FILE DATSUB.FOR
+!
+!       OPERND(I,J) WHERE I COUNTS THE NUMBER OF OPERAND ENTRIES
+!       AND J TAKES ON THE FOLLOWING VALUES AND MEANIINGS.
+!
+!       I WILL BE 1 TO 5 PLUS MAXFOCRIT ONLY
+!
+!       J=1  > 1 THROUGH 10, THE NUMBER OF THE FUNCTION IN WHICH
+!               THE ACTUAL OPERAND IS CALCULATED (COMMAND WORD)
+!         (0 IS PREDEFINED OPERAND)
+!
+!       J=2  > TARGET VALUE OF THE OPERAND, THIS WILL BE THE ORIGINAL VALUE
+!       J=3  > OPERAND ORIGINAL VALUE
+!       J=4  > OPERAND CURRENT VALUE
+!       J=5  > OPERAND PREVIOUS VALUE
+!       J=6  > LAST OPERAND CHANGE VALUE (CURRENT-PREVIOUS)
+!       J=7  > MAX TOPER CHANGE BEFORE MESSAGE IS ISSUED
+!
+!       J=8  > NUMBER OF THE GENERAL PURPOSE REGISTER CONTAINING
+!               THE ACTUAL OPERAND VALUE AS RETURNED FROM THE
+!               CALCULATING FUNCTION (NUMERIC WORD #2) (VALUES 1 TO 300)
+!               (A DEFAULT ENTRY HERE CAUSES THE ACCUMULATOR TO BE USED)
+!       FOR PREDEFINED OPERAND, IT IS THE (I) INPUT VALUE
+!
+!       J=9  > OPTIONAL NW1 FOR THE FUNCTION (USING NSUB) (NUMERIC WORD #3)
+!       J=10 > OPTIONAL NW2 FOR THE FUNCTION (USING NSUB) (NUMERIC WORD #4)
+!     FOR PREDEFINED OPERANDS J=9 AND J=10 ARE THE (J) AND (K) INPUT VALUES
+!       J=11 > DEFAULT FLAG FOR NW1
+!       J=12 > DEFAULT FLAG FOR NW2
+!       J=13 > COR MODE 10=HLD ALWAYS 10
+   CORMOD=10
+!       J=14 > SQUARE ROOT OF WEIGHT TIMES (CURRENT VAL-TARGET))
+!       J=15 > 0 BEFORE THE FIRST CALCULATION OF OPERAND VALUES
+!              1 AFTER THE FIRST CALULATION
+!       J=16 > CFG # FOR PREDEFINED OPERANDS (ALWAYS 1)
+!       J=17 > CODE FOR THE PREDEFINED OPERANDS
+!       J=18 > DEFAULT FLAG FOR W3 = DBLE(DF3)
+!       J=19 > 0 IF OP CALCULABLE, 1 IF NOT
+!       J=20 > MAX TOPER CHANGE BEFORE MESSAGE IS ISSUED
+!             1=X
+!             2=Y
+!             3=Z
+!             4=DCL OR K
+!             5=DCM OR L
+!             6=DCN OR M
+!             7=DX
+!             8=DY
+!             9=DR
+!            10=DXA
+!            11=DYA
+!            12=DRA
+!            13=XANG
+!            14=YANG
+!            15=OPL
+!            16=OPD
+!            17=OPDW
+!            18=LOLD
+!            19=MOLD
+!            20=NOLD
+!            21=LEN
+!            22=AII
+!            23=AIP
+!            24=LN
+!            25=MN
+!            26=NN
+!            27=PXPX
+!            28=PXPY
+!            29=PYPX
+!            30=PYPY
+!            31=PXAPX
+!            32=PXAPY
+!            33=PYAPX
+!            34=PYAPY
+!            35=DXDX
+!            36=DXDY
+!            37=DYDX
+!            38=DYDY
+!            39=DXADX
+!            40=DXADY
+!            41=DYADX
+!            42=DYADY
+!            43=XREF
+!            44=YREF
+!            45=ZREF
+!            46=LREF
+!            47=MREF
+!            48=NREF
+!            49=LREFOL
+!            50=MREFOL
+!            51=NREFOL
+!            52=IREF
+!            53=IPREF
+!            54=XAREF
+!            55=YAREF
+!            56=LNREF
+!            57=MNREF
+!            58=NNREF
+!            59=GLX
+!            60=GLY
+!            61=GLZ
+!            62=GLL
+!            63=GLM
+!            64=GLN
+!            65=GLLOLD
+!            66=GLMOLD
+!            67=GLNOLD
+!            68=LENREF
+!            69=OPLREF
+!            70=RD
+!            71=CV
+!            72=TH
+!            73=CC
+!            74=AC
+!            75=AD
+!            76=AE
+!            77=AF
+!            78=AG
+!            79=RDTOR
+!            80=CVTOR
+!            81=CCTOR
+!            82=ADTOR
+!            83=AETOR
+!            84=AFTOR
+!            85=AGTOR
+!            86=ALPHA
+!            87=BETA
+!            88=GAMMA
+!            89=VNUM
+!            90=PARTL
+!            91=INDEX
+!            92=XD
+!            93=YD
+!            94=XVERT
+!            95=YVERT
+!            96=ZVERT
+!            97=LXVERT
+!            98=MXVERT
+!            99=NXVERT
+!           100=LYVERT
+!           101=MYVERT
+!           102=NYVERT
+!           103=LZVERT
+!           104=MZVERT
+!           105=NZVERT
+!           106=LENGTH
+!           106=OAL
+!           107=MLENGTH
+!           107=OPTLEN
+!           108=ET
+!           108=ETY
+!           109=ETX
+!           110=SHAPEFAC
+!           111 TO 206 = C1 THROUGH C96
+!           207=PWRY
+!           208=PWRX
+!           209=FLCLTHX
+!           210=FLCLTH OR FLCLTHY
+!           211=PY
+!           212=PX
+!           213=PCY
+!           214=PCX
+!           215=PUY
+!           216=PUX
+!           217=PUCY
+!           218=PUCX
+!           219=PIY
+!           220=PIX
+!           221=PICY
+!           222=PICX
+!           223=PIYP
+!           224=PIXP
+!           225=PICYP
+!           226=PICXP
+!           227=PACY
+!           228=PACX
+!           229=PLCY
+!           230=PLCX
+!           231=SACY
+!           232=SACX
+!           233=SLCY
+!           234=SLCX
+!           235=IMDISX
+!           236=IMDISY
+!           237=CENTX
+!           238=CENTY
+!           239=RMSX
+!           240=RMSY
+!           241=RMS
+!           242=RSSX
+!           243=RSSY
+!           244=RSS
+!           245=RMSOPD
+!           246=ZERN37
+!           247=MAGX
+!           248=MAGY
+!           249=MAGXOR
+!           250=MAGYOR
+!           251=FFLX
+!           252=FFLY
+!           253=BFLX
+!           254=BFLY
+!           255=FFNX
+!           256=FFNY
+!           257=BFNX
+!           258=BFNY
+!           259=EFLX
+!           260=EFLY
+!           261=ENDIAX
+!           262=ENDIAY
+!           263=EXDIAX
+!           264=EXDIAY
+!           265=ENPOSX
+!           266=ENPOSY
+!           267=ENPOSZ
+!           268=EXPOSX
+!           269=EXPOSY
+!           270=EXPOSZ
+!           271=FNUMX
+!           272=FNUMY
+!           273=OBFNUMX
+!           274=OBFNUMY
+!           275=ENPDIAX
+!           276=ENPDIAY
+!           277=EXPDIAX
+!           278=EXPDIAY
+!           279=PUPDIAX
+!           280=PUPDIAY
+!           281=PUPDISX
+!           282=PUPDISY
+!           283=CHFIMX
+!           284=CHFIMY
+!           285=GPX
+!           286=GPY
+!           287=GPUX
+!           288=GPUY
+!           289=GPCX
+!           290=GPCY
+!           291=GPUCX
+!           292=GPUCY
+!           293=DIST
+!           294=XFOC
+!           295=YFOC
+!           296=AST
+!           297=SA3
+!           298=XSA3
+!           299=CMA3
+!           300=XCMA3
+!           301=AST3
+!           302=XAST3
+!           303=DIS3
+!           304=XDIS3
+!           305=PTZ3
+!           306=XPTZ3
+!           307=SA5
+!           308=XSA5
+!           309=CMA5
+!           310=XCMA5
+!           311=AST5
+!           312=XAST5
+!           313=DIS5
+!           314=XDIS5
+!           315=PTZ5
+!           316=XPTZ5
+!           317=TOBSA
+!           318=XTOBSA
+!           319=SOBSA
+!           320=XSOBSA
+!           321=ELCMA
+!           322=XELCMA
+!           323=TAS
+!           324=XTAS
+!           325=SAS
+!           326=XSAS
+!           327=SA7
+!           328=XSA7
+!           329=SA3P
+!           330=XSA3P
+!           331=CMA3P
+!           332=XCMA3P
+!           333=AST3P
+!           334=XAST3P
+!           335=DIS3P
+!           336=XDIS3P
+!           337=PTZ3P
+!           338=XPTZ3P
+!           339=SA5P
+!           340=XSA5P
+!           341=CMA3P
+!           342=XCMA3P
+!           343=AST5P
+!           344=XAST5P
+!           345=DIS5P
+!           346=XDIS5P
+!           347=PTZ5P
+!           348=XPTZ5P
+!           349=TOBSAP
+!           350=XTOBSAP
+!           351=SOBSAP
+!           352=XSOBSAP
+!           353=ELCMAP
+!           354=XELCMAP
+!           355=TASP
+!           356=XTASP
+!           357=SASP
+!           358=XSASP
+!           359=SA7P
+!           360=XSA7P
+!           361=SA3S
+!           362=XSA3S
+!           363=CMA3S
+!           364=XCMA3S
+!           365=AST3S
+!           366=XAST3S
+!           367=DIS3S
+!           368=XDIS3S
+!           369=PTZ3S
+!           370=XPTZ3S
+!           371=SA5S
+!           372=XSA5S
+!           373=CMA5S
+!           374=XCMA5S
+!           375=AST5S
+!           376=XAST5S
+!           377=DIS5S
+!           378=XDIS5S
+!           379=PTZ5S
+!           380=XPTZ5S
+!           381=TOBSAS
+!           382=XTOBSAS
+!           383=SOBSAS
+!           384=XSOBSAS
+!           385=ELCMAS
+!           386=XELCMAS
+!           387=TASS
+!           388=XTASS
+!           389=SASS
+!           390=XSASS
+!           391=SA7S
+!           392=XSA7S
+!           393=SA5I
+!           394=XSA5I
+!           395=CMA5I
+!           396=XCMA5I
+!           397=AST5I
+!           398=XAST5I
+!           399=DIS5I
+!           400=XDIS5I
+!           401=PTZ5I
+!           402=XPTZ5I
+!           403=TOBSAI
+!           404=XTOBSAI
+!           405=SOBSAI
+!           406=XSOBSAI
+!           407=ELCMAI
+!           408=XELCMAI
+!           409=TASI
+!           410=XTASI
+!           411=SASI
+!           412=XSASI
+!           413=SA7I
+!           414=XSA7I
+!           415=PSA3
+!           416=XPSA3
+!           417=PCMA3
+!           418=XPCMA3
+!           419=PAST3
+!           420=XPAST3
+!           421=PDIS3
+!           422=XPDIS3
+!           423=PPTZ3
+!           424=XPPTZ3
+!           425=PSA3P
+!           426=XPSA3P
+!           427=PCMA3P
+!           428=XPCMA3P
+!           429=PAST3P
+!           430=XPAST3P
+!           431=PDIS3P
+!           432=XPDIS3P
+!           433=PPTZ3P
+!           434=XPPTZ3P
+!           435=PSA3S
+!           436=XPSA3S
+!           437=PCMA3S
+!           438=XPCMA3S
+!           439=PAST3S
+!           440=XPAST3S
+!           441=PDIS3S
+!           442=XPDIS3S
+!           443=PPTZ3S
+!           444=XPPTZ3S
+!           445=PTZCV
+!           446=XPTZCV
+!           447=AH
+!           448=AI
+!           449=AJ
+!           450=AK
+!           451=AL
+!           452='GBRADX'
+!           453='GBRADY'
+!           454='GBDISX'
+!           455='GBDISY'
+!           456='GBRCVX'
+!           457='GBRCVY'
+!           458='GBWAISTX'
+!           459='GBWAISTY'
+!           460='MGOTF'
+!           461='PGOTF'
+!           462='MDOTF'
+!           463='PDOTF'
+!           460='GOTFM'
+!           461='GOTFP'
+!           462='DOTFM'
+!           463='DOTFP'
+!           464='REDK'
+!           465='REDCEN'
+!           466='FISHDIST'
+!           467='ZD'
+!           468='SYMX'
+!           469='SYMY'
+!           470='ASYMX'
+!           471='ASYMY'
+!           472='PACM'
+!           473='PACZ'
+!           474='SACM'
+!           475='SACZ'
+!           476='PLCM'
+!           477='PLCZ'
+!           478='SLCM'
+!           479='SLCZ'
+!           480='CTSX'
+!           481='CTSY'
+!           482='SCEX'
+!           483='SCEY'
+!           484='GREYS'
+!           485='PIVX'
+!           486='PIVY'
+!           487='PIVZ'
+!           488='N1'
+!           489='N2'
+!           490='N3'
+!           491='N4'
+!           492='N5'
+!           493='N6'
+!           494='N7'
+!           495='N8'
+!           496='N9'
+!           497='N10'
+!           498='ABBE'
+!           499='DPART'
+!           500='CLPX'
+!           501='CLPY'
+!           502='GDX'
+!           503='GDY'
+!           504='GDZ'
+!           505='GALPHA'
+!           506='GBETA'
+!           507='GGAMMA'
+!           508='GRS'
+!           509='WEIGHT'
+!           510='DMINUSD'
+!           511='COST'
+!           512='MACOPT'
+!           513='RMSYX'
+!
+!       OPNM=(8 CHARACTER USER DEFINED, NON-DUPLICATED OPERAND NAME)
+!
+   IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
+      CALL MESCOM
+      RETURN
+   END IF
+!
+!       "TOPS" OUTPUT TOPER DATA FROM INSIDE
+!       AND OUTSIDE OF THE TOPER SUBFILE VIA SUBROUTINE FCOUT.FOR.
+   IF(WC.EQ.'TOPS') THEN
+      OPTMES=.FALSE.
+      CALL TOPOUT
+      OPTMES=.TRUE.
+      RETURN
+   END IF
+!
+!       NOW DO CASE OF WC = EOS
+!
+!***********************************************************************
+!       DEAL WITH WC=EOS
+   IF(WC.EQ.'EOS') THEN
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1)THEN
+         WRITE(OUTLYNE,*)'"EOS" TAKES NO EXPLICIT INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!       PROCEED WITH ACTION FOR COMMAND
+      F1=1
+      F53=0
+      YES=.FALSE.
+      DO II=1,MAXTOP
+         IF(ISTOP(II)) YES=.TRUE.
+      END DO
+      IF(.NOT.YES) TOPCNT=0
+      IF(YES) TOPCNT=1
+      IF(TOPCNT.EQ.0) THEN
+         WRITE(OUTLYNE,*)'THE TOPER SUBFILE IS EMPTY'
+         CALL SHOWIT(1)
+      END IF
+      RETURN
+!       ACTION COMPLETED
+   END IF
+!
+!       EOS DONE
+!***********************************************************************
+!
+!       NOW DO WC=DEL
+   IF(WC.EQ.'DELK') THEN
+      IF(F53.NE.2) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" IS ONLY AVAILABLE FROM THE "UPDATE TOPER" LEVEL'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'NO ACTION TAKEN'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
+      &.OR.S5.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LT.1.0D0.OR.W1.GT.5.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" REQUIRES NUMERIC INPUT FROM 1 TO 5 ONLY'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      FMTEXT=.FALSE.
+!
+!     HERE IS WHERE TOPER IS DELETED
+      ISTOP(INT(W1))=.FALSE.
+      DO II=1,20
+         OPERND(INT(W1),II+MAXFOCRIT)=0.0D0
+      END DO
+      YES=.FALSE.
+      DO II=1,MAXTOP
+         IF(ISTOP(II)) YES=.TRUE.
+      END DO
+      IF(.NOT.YES) TOPCNT=0
+      IF(YES) TOPCNT=1
+      IF(TOPCNT.EQ.0) THEN
+         WRITE(OUTLYNE,*)'THE TOPER SUBFILE IS EMPTY'
+         CALL SHOWIT(1)
+      END IF
+!     ALL DELETIONS COMPLETED
+      RETURN
+!
+   END IF
+!***********************************************************************
+!
+!       NOW DO WC=OP_DESC
+   IF(WC.EQ.'OP_DESC') THEN
+      IF(SN.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" TAKES NO NUMERIC INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(SQ.EQ.0.OR.SST.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" REQUIRES EXPLICIT QUALIFIER AND STRING INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      OPOK=.FALSE.
+      IF(WQ.EQ.'OP1') OPOK=.TRUE.
+      IF(WQ.EQ.'OP2') OPOK=.TRUE.
+      IF(WQ.EQ.'OP3') OPOK=.TRUE.
+      IF(WQ.EQ.'OP4') OPOK=.TRUE.
+      IF(WQ.EQ.'OP5') OPOK=.TRUE.
+      IF(WQ.EQ.'OP1') OPNNM=1
+      IF(WQ.EQ.'OP2') OPNNM=2
+      IF(WQ.EQ.'OP3') OPNNM=3
+      IF(WQ.EQ.'OP4') OPNNM=4
+      IF(WQ.EQ.'OP5') OPNNM=5
+      IF(.NOT.OPOK) THEN
+         WRITE(OUTLYNE,*)&
+         &'DURING TOLERANCE OPERAND INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" REQUIRES A QUALIFIER WORD "OP1" THROUGH "OP5"'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(.NOT.ISTOP(OPNNM)) THEN
+         WRITE(OUTLYNE,*)&
+         &'TOLERANCE OPERAND ',OPNNM,' HAS NOT YET BEEN DEFINED'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'A TOLERANCE OPERAND DESCRIPTION ENTRY IS NOT ALLOWED'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'NO ACTION TAKEN'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     HERE IS WHERE OP_DESC IS ASSIGNED
+      IF(WS(1:8).NE.'        ') OPERDESC(MAXFOCRIT+OPNNM)=WS
+      RETURN
+!
+   END IF
+!
+!     SAVE NUMERIC WORD #5
+   OW5=W5
+   ODF5=DF5
+   OS5=S5
+   IF(DF5.EQ.1) OW5=0.0D0
+!
+!     HERE WE SHIFT THE INPUT EXCEPT FOR W1
+   W5=W4
+   DF5=DF4
+   S5=S4
+   W4=W3
+   DF4=DF3
+   S4=S3
+   W3=W2
+   DF3=DF2
+   S3=S2
+   W2=0.0D0
+   S2=0
+   DF2=1
+!
+!
+!     START DOING THE FUNCTION NAMES HERE
+   OPT=-1
+   IF(WC.EQ.'FUNC00  ') OPT=0
+   IF(WC.EQ.'FUNC01  ') OPT=1
+   IF(WC.EQ.'FUNC02  ') OPT=2
+   IF(WC.EQ.'FUNC03  ') OPT=3
+   IF(WC.EQ.'FUNC04  ') OPT=4
+   IF(WC.EQ.'FUNC05  ') OPT=5
+   IF(WC.EQ.'FUNC06  ') OPT=6
+   IF(WC.EQ.'FUNC07  ') OPT=7
+   IF(WC.EQ.'FUNC08  ') OPT=8
+   IF(WC.EQ.'FUNC09  ') OPT=9
+   IF(WC.EQ.'FUNC10  ') OPT=10
+   IF(OPT.EQ.-1) THEN
+      WRITE(OUTLYNE,*)&
+      &'INVALID FUNCTION NAME COMMAND WORD'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+!
+!     NUMERIC WORDS AND DEFAULTS
+!
+!     NW1 IS THE OPERAND NUMBER, DEFUALT WILL BE ORIGINAL VALUE
+!
+   IF(DF1.EQ.1) THEN
+      WRITE(OUTLYNE,*)&
+      &'EXPLICIT TOPER NUMBER MUST BE INPUT AS NUMERIC WORD #1'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(W1.LT.1.OR.W1.GT.5.0D0) THEN
+      WRITE(OUTLYNE,*)&
+      &'EXPLICIT TOPER NUMBER MUST BE IN THE RANGE 1 TO 5'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   OPWEIT=1.0D0
+   IF(OPT.NE.0) THEN
+!     NW2 IS GENERAL PURPOSE STORAGE REGISTER VALUE
+      IF(DF3.EQ.1) THEN
+         IF(F53.EQ.1.OR.F53.EQ.2) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) MUST BE EXPLICITLY INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR A USER DEFINED TOLERANCE OPERAND'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      ELSE
+!     NOT DEFAULT
+         IF((DBLE(DINT(W3))-W3).NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) MUST BE AN INTEGER'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.1.0D0.OR.W3.GT.400.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'VALID RANGE IS 1 TO 400'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF3.NE.1.AND.W3.LT.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) MAY NOT BE NEGATIVE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+   END IF
+
+!     NW4 IS NW1 FOR FUNCTION NSUB FOR USER DEF OPS
+!     NW5 IS NW2 FOR FUNCTION NSUB FOR USER DEF OPS
+!     DEFAULT STATUS WILL BE HANDLED DURING FUNCTION CALLING
+!     AND WILL BE PASSED IN ITEMS J=11 AND J=12
+!
+   IF(OPT.GE.1.AND.OPT.LE.10) GO TO 3141
+!
+   OPNM=WQ
+   IF(OPNM.EQ.'X       ') OP17=1.0D0
+   IF(OPNM.EQ.'Y       ') OP17=2.0D0
+   IF(OPNM.EQ.'Z       ') OP17=3.0D0
+   IF(OPNM.EQ.'DCL     ') OP17=4.0D0
+   IF(OPNM.EQ.'K       ') OP17=4.0D0
+   IF(OPNM.EQ.'DCM     ') OP17=5.0D0
+   IF(OPNM.EQ.'L       ') OP17=5.0D0
+   IF(OPNM.EQ.'DCN     ') OP17=6.0D0
+   IF(OPNM.EQ.'M       ') OP17=6.0D0
+   IF(OPNM.EQ.'DX      ') OP17=7.0D0
+   IF(OPNM.EQ.'DY      ') OP17=8.0D0
+   IF(OPNM.EQ.'DR      ') OP17=9.0D0
+   IF(OPNM.EQ.'DXA     ') OP17=10.0D0
+   IF(OPNM.EQ.'DYA     ') OP17=11.0D0
+   IF(OPNM.EQ.'DRA     ') OP17=12.0D0
+   IF(OPNM.EQ.'XANG    ') OP17=13.0D0
+   IF(OPNM.EQ.'YANG    ') OP17=14.0D0
+   IF(OPNM.EQ.'OPL     ') OP17=15.0D0
+   IF(OPNM.EQ.'OPD     ') OP17=16.0D0
+   IF(OPNM.EQ.'OPDW    ') OP17=17.0D0
+   IF(OPNM.EQ.'LOLD    ') OP17=18.0D0
+   IF(OPNM.EQ.'MOLD    ') OP17=19.0D0
+   IF(OPNM.EQ.'NOLD    ') OP17=20.0D0
+   IF(OPNM.EQ.'LEN     ') OP17=21.0D0
+   IF(OPNM.EQ.'AII     ') OP17=22.0D0
+   IF(OPNM.EQ.'AIP     ') OP17=23.0D0
+   IF(OPNM.EQ.'LN      ') OP17=24.0D0
+   IF(OPNM.EQ.'MN      ') OP17=25.0D0
+   IF(OPNM.EQ.'NN      ') OP17=26.0D0
+   IF(OPNM.EQ.'PXPX    ') OP17=27.0D0
+   IF(OPNM.EQ.'PXPY    ') OP17=28.0D0
+   IF(OPNM.EQ.'PYPX    ') OP17=29.0D0
+   IF(OPNM.EQ.'PYPY    ') OP17=30.0D0
+   IF(OPNM.EQ.'PXAPX   ') OP17=31.0D0
+   IF(OPNM.EQ.'PXAPY   ') OP17=32.0D0
+   IF(OPNM.EQ.'PYAPX   ') OP17=33.0D0
+   IF(OPNM.EQ.'PYAPY   ') OP17=34.0D0
+   IF(OPNM.EQ.'DXDX    ') OP17=35.0D0
+   IF(OPNM.EQ.'DXDY    ') OP17=36.0D0
+   IF(OPNM.EQ.'DYDX    ') OP17=37.0D0
+   IF(OPNM.EQ.'DYDY    ') OP17=38.0D0
+   IF(OPNM.EQ.'DXADX   ') OP17=39.0D0
+   IF(OPNM.EQ.'DXADY   ') OP17=40.0D0
+   IF(OPNM.EQ.'DYADX   ') OP17=41.0D0
+   IF(OPNM.EQ.'DYADY   ') OP17=42.0D0
+   IF(OPNM.EQ.'XREF    ') OP17=43.0D0
+   IF(OPNM.EQ.'YREF    ') OP17=44.0D0
+   IF(OPNM.EQ.'ZREF    ') OP17=45.0D0
+   IF(OPNM.EQ.'LREF    ') OP17=46.0D0
+   IF(OPNM.EQ.'MREF    ') OP17=47.0D0
+   IF(OPNM.EQ.'NREF    ') OP17=48.0D0
+   IF(OPNM.EQ.'LREFOL  ') OP17=49.0D0
+   IF(OPNM.EQ.'MREFOL  ') OP17=50.0D0
+   IF(OPNM.EQ.'NREFOL  ') OP17=51.0D0
+   IF(OPNM.EQ.'IREF    ') OP17=52.0D0
+   IF(OPNM.EQ.'IPREF   ') OP17=53.0D0
+   IF(OPNM.EQ.'XAREF   ') OP17=54.0D0
+   IF(OPNM.EQ.'YAREF   ') OP17=55.0D0
+   IF(OPNM.EQ.'LNREF   ') OP17=56.0D0
+   IF(OPNM.EQ.'MNREF   ') OP17=57.0D0
+   IF(OPNM.EQ.'NNREF   ') OP17=58.0D0
+   IF(OPNM.EQ.'GLX     ') OP17=59.0D0
+   IF(OPNM.EQ.'GLY     ') OP17=60.0D0
+   IF(OPNM.EQ.'GLZ     ') OP17=61.0D0
+   IF(OPNM.EQ.'GLL     ') OP17=62.0D0
+   IF(OPNM.EQ.'GLM     ') OP17=63.0D0
+   IF(OPNM.EQ.'GLN     ') OP17=64.0D0
+   IF(OPNM.EQ.'GLLOLD  ') OP17=65.0D0
+   IF(OPNM.EQ.'GLMOLD  ') OP17=66.0D0
+   IF(OPNM.EQ.'GLNOLD  ') OP17=67.0D0
+   IF(OPNM.EQ.'LENREF  ') OP17=68.0D0
+   IF(OPNM.EQ.'OPLREF  ') OP17=69.0D0
+   IF(OPNM.EQ.'RD      ') OP17=70.0D0
+   IF(OPNM.EQ.'CV      ') OP17=71.0D0
+   IF(OPNM.EQ.'TH      ') OP17=72.0D0
+   IF(OPNM.EQ.'CC      ') OP17=73.0D0
+   IF(OPNM.EQ.'AC      ') OP17=74.0D0
+   IF(OPNM.EQ.'AD      ') OP17=75.0D0
+   IF(OPNM.EQ.'AE      ') OP17=76.0D0
+   IF(OPNM.EQ.'AF      ') OP17=77.0D0
+   IF(OPNM.EQ.'AG      ') OP17=78.0D0
+   IF(OPNM.EQ.'RDTOR   ') OP17=79.0D0
+   IF(OPNM.EQ.'CVTOR   ') OP17=80.0D0
+   IF(OPNM.EQ.'CCTOR   ') OP17=81.0D0
+   IF(OPNM.EQ.'ADTOR   ') OP17=82.0D0
+   IF(OPNM.EQ.'AETOR   ') OP17=83.0D0
+   IF(OPNM.EQ.'AFTOR   ') OP17=84.0D0
+   IF(OPNM.EQ.'AGTOR   ') OP17=85.0D0
+   IF(OPNM.EQ.'ALPHA   ') OP17=86.0D0
+   IF(OPNM.EQ.'BETA    ') OP17=87.0D0
+   IF(OPNM.EQ.'GAMMA   ') OP17=88.0D0
+   IF(OPNM.EQ.'VNUM    ') OP17=89.0D0
+   IF(OPNM.EQ.'PARTL   ') OP17=90.0D0
+   IF(OPNM.EQ.'INDEX   ') OP17=91.0D0
+   IF(OPNM.EQ.'XD      ') OP17=92.0D0
+   IF(OPNM.EQ.'YD      ') OP17=93.0D0
+   IF(OPNM.EQ.'XVERT   ') OP17=94.0D0
+   IF(OPNM.EQ.'YVERT   ') OP17=95.0D0
+   IF(OPNM.EQ.'ZVERT   ') OP17=96.0D0
+   IF(OPNM.EQ.'LXVERT  ') OP17=97.0D0
+   IF(OPNM.EQ.'MXVERT  ') OP17=98.0D0
+   IF(OPNM.EQ.'NXVERT  ') OP17=99.0D0
+   IF(OPNM.EQ.'LYVERT  ') OP17=100.0D0
+   IF(OPNM.EQ.'MYVERT  ') OP17=101.0D0
+   IF(OPNM.EQ.'NYVERT  ') OP17=102.0D0
+   IF(OPNM.EQ.'LZVERT  ') OP17=103.0D0
+   IF(OPNM.EQ.'MZVERT  ') OP17=104.0D0
+   IF(OPNM.EQ.'NZVERT  ') OP17=105.0D0
+   IF(OPNM.EQ.'LENGTH  ') OP17=106.0D0
+   IF(OPNM.EQ.'OAL     ') OP17=106.0D0
+   IF(OPNM.EQ.'MLENGTH ') OP17=107.0D0
+   IF(OPNM.EQ.'OPTLEN  ') OP17=107.0D0
+   IF(OPNM.EQ.'ET      ') OP17=108.0D0
+   IF(OPNM.EQ.'ETY     ') OP17=108.0D0
+   IF(OPNM.EQ.'ETX     ') OP17=109.0D0
+   IF(OPNM.EQ.'SHAPEFAC') OP17=110.0D0
+   IF(OPNM.EQ.'C1      ') OP17=111.0D0
+   IF(OPNM.EQ.'C2      ') OP17=112.0D0
+   IF(OPNM.EQ.'C3      ') OP17=113.0D0
+   IF(OPNM.EQ.'C4      ') OP17=114.0D0
+   IF(OPNM.EQ.'C5      ') OP17=115.0D0
+   IF(OPNM.EQ.'C6      ') OP17=116.0D0
+   IF(OPNM.EQ.'C7      ') OP17=117.0D0
+   IF(OPNM.EQ.'C8      ') OP17=118.0D0
+   IF(OPNM.EQ.'C9      ') OP17=119.0D0
+   IF(OPNM.EQ.'C10     ') OP17=120.0D0
+   IF(OPNM.EQ.'C11     ') OP17=121.0D0
+   IF(OPNM.EQ.'C12     ') OP17=122.0D0
+   IF(OPNM.EQ.'C13     ') OP17=123.0D0
+   IF(OPNM.EQ.'C14     ') OP17=124.0D0
+   IF(OPNM.EQ.'C15     ') OP17=125.0D0
+   IF(OPNM.EQ.'C16     ') OP17=126.0D0
+   IF(OPNM.EQ.'C17     ') OP17=127.0D0
+   IF(OPNM.EQ.'C18     ') OP17=128.0D0
+   IF(OPNM.EQ.'C19     ') OP17=129.0D0
+   IF(OPNM.EQ.'C20     ') OP17=130.0D0
+   IF(OPNM.EQ.'C21     ') OP17=131.0D0
+   IF(OPNM.EQ.'C22     ') OP17=132.0D0
+   IF(OPNM.EQ.'C23     ') OP17=133.0D0
+   IF(OPNM.EQ.'C24     ') OP17=134.0D0
+   IF(OPNM.EQ.'C25     ') OP17=135.0D0
+   IF(OPNM.EQ.'C26     ') OP17=136.0D0
+   IF(OPNM.EQ.'C27     ') OP17=137.0D0
+   IF(OPNM.EQ.'C28     ') OP17=138.0D0
+   IF(OPNM.EQ.'C29     ') OP17=139.0D0
+   IF(OPNM.EQ.'C30     ') OP17=140.0D0
+   IF(OPNM.EQ.'C31     ') OP17=141.0D0
+   IF(OPNM.EQ.'C32     ') OP17=142.0D0
+   IF(OPNM.EQ.'C33     ') OP17=143.0D0
+   IF(OPNM.EQ.'C34     ') OP17=144.0D0
+   IF(OPNM.EQ.'C35     ') OP17=145.0D0
+   IF(OPNM.EQ.'C36     ') OP17=146.0D0
+   IF(OPNM.EQ.'C37     ') OP17=147.0D0
+   IF(OPNM.EQ.'C38     ') OP17=148.0D0
+   IF(OPNM.EQ.'C39     ') OP17=149.0D0
+   IF(OPNM.EQ.'C40     ') OP17=150.0D0
+   IF(OPNM.EQ.'C41     ') OP17=151.0D0
+   IF(OPNM.EQ.'C42     ') OP17=152.0D0
+   IF(OPNM.EQ.'C43     ') OP17=153.0D0
+   IF(OPNM.EQ.'C44     ') OP17=154.0D0
+   IF(OPNM.EQ.'C45     ') OP17=155.0D0
+   IF(OPNM.EQ.'C46     ') OP17=156.0D0
+   IF(OPNM.EQ.'C47     ') OP17=157.0D0
+   IF(OPNM.EQ.'C48     ') OP17=158.0D0
+   IF(OPNM.EQ.'C49     ') OP17=159.0D0
+   IF(OPNM.EQ.'C50     ') OP17=160.0D0
+   IF(OPNM.EQ.'C51     ') OP17=161.0D0
+   IF(OPNM.EQ.'C52     ') OP17=162.0D0
+   IF(OPNM.EQ.'C53     ') OP17=163.0D0
+   IF(OPNM.EQ.'C54     ') OP17=164.0D0
+   IF(OPNM.EQ.'C55     ') OP17=165.0D0
+   IF(OPNM.EQ.'C56     ') OP17=166.0D0
+   IF(OPNM.EQ.'C57     ') OP17=167.0D0
+   IF(OPNM.EQ.'C58     ') OP17=168.0D0
+   IF(OPNM.EQ.'C59     ') OP17=169.0D0
+   IF(OPNM.EQ.'C60     ') OP17=170.0D0
+   IF(OPNM.EQ.'C61     ') OP17=171.0D0
+   IF(OPNM.EQ.'C62     ') OP17=172.0D0
+   IF(OPNM.EQ.'C63     ') OP17=173.0D0
+   IF(OPNM.EQ.'C64     ') OP17=174.0D0
+   IF(OPNM.EQ.'C65     ') OP17=175.0D0
+   IF(OPNM.EQ.'C66     ') OP17=176.0D0
+   IF(OPNM.EQ.'C67     ') OP17=177.0D0
+   IF(OPNM.EQ.'C68     ') OP17=178.0D0
+   IF(OPNM.EQ.'C69     ') OP17=179.0D0
+   IF(OPNM.EQ.'C70     ') OP17=180.0D0
+   IF(OPNM.EQ.'C71     ') OP17=181.0D0
+   IF(OPNM.EQ.'C72     ') OP17=182.0D0
+   IF(OPNM.EQ.'C73     ') OP17=183.0D0
+   IF(OPNM.EQ.'C74     ') OP17=184.0D0
+   IF(OPNM.EQ.'C75     ') OP17=185.0D0
+   IF(OPNM.EQ.'C76     ') OP17=186.0D0
+   IF(OPNM.EQ.'C77     ') OP17=187.0D0
+   IF(OPNM.EQ.'C78     ') OP17=188.0D0
+   IF(OPNM.EQ.'C79     ') OP17=189.0D0
+   IF(OPNM.EQ.'C80     ') OP17=190.0D0
+   IF(OPNM.EQ.'C81     ') OP17=191.0D0
+   IF(OPNM.EQ.'C82     ') OP17=192.0D0
+   IF(OPNM.EQ.'C83     ') OP17=193.0D0
+   IF(OPNM.EQ.'C84     ') OP17=194.0D0
+   IF(OPNM.EQ.'C85     ') OP17=195.0D0
+   IF(OPNM.EQ.'C86     ') OP17=196.0D0
+   IF(OPNM.EQ.'C87     ') OP17=197.0D0
+   IF(OPNM.EQ.'C88     ') OP17=198.0D0
+   IF(OPNM.EQ.'C89     ') OP17=199.0D0
+   IF(OPNM.EQ.'C90     ') OP17=200.0D0
+   IF(OPNM.EQ.'C91     ') OP17=201.0D0
+   IF(OPNM.EQ.'C92     ') OP17=202.0D0
+   IF(OPNM.EQ.'C93     ') OP17=203.0D0
+   IF(OPNM.EQ.'C94     ') OP17=204.0D0
+   IF(OPNM.EQ.'C95     ') OP17=205.0D0
+   IF(OPNM.EQ.'C96     ') OP17=206.0D0
+   IF(OPNM.EQ.'PWRY    ') OP17=207.0D0
+   IF(OPNM.EQ.'PWRX    ') OP17=208.0D0
+   IF(OPNM.EQ.'FLCLTHX ') OP17=209.0D0
+   IF(OPNM.EQ.'FLCLTH  ') OP17=210.0D0
+   IF(OPNM.EQ.'FLCLTHY ') OP17=210.0D0
+   IF(OPNM.EQ.'PY      ') OP17=211.0D0
+   IF(OPNM.EQ.'PX      ') OP17=212.0D0
+   IF(OPNM.EQ.'PCY     ') OP17=213.0D0
+   IF(OPNM.EQ.'PCX     ') OP17=214.0D0
+   IF(OPNM.EQ.'PUY     ') OP17=215.0D0
+   IF(OPNM.EQ.'PUX     ') OP17=216.0D0
+   IF(OPNM.EQ.'PUCY    ') OP17=217.0D0
+   IF(OPNM.EQ.'PUCX    ') OP17=218.0D0
+   IF(OPNM.EQ.'PIY     ') OP17=219.0D0
+   IF(OPNM.EQ.'PIX     ') OP17=220.0D0
+   IF(OPNM.EQ.'PICY    ') OP17=221.0D0
+   IF(OPNM.EQ.'PICX    ') OP17=222.0D0
+   IF(OPNM.EQ.'PIYP    ') OP17=223.0D0
+   IF(OPNM.EQ.'PIXP    ') OP17=224.0D0
+   IF(OPNM.EQ.'PICYP   ') OP17=225.0D0
+   IF(OPNM.EQ.'PICXP   ') OP17=226.0D0
+   IF(OPNM.EQ.'PACY    ') OP17=227.0D0
+   IF(OPNM.EQ.'PACX    ') OP17=228.0D0
+   IF(OPNM.EQ.'PLCY    ') OP17=229.0D0
+   IF(OPNM.EQ.'PLCX    ') OP17=230.0D0
+   IF(OPNM.EQ.'SACY    ') OP17=231.0D0
+   IF(OPNM.EQ.'SACX    ') OP17=232.0D0
+   IF(OPNM.EQ.'SLCY    ') OP17=233.0D0
+   IF(OPNM.EQ.'SLCX    ') OP17=234.0D0
+   IF(OPNM.EQ.'IMDISX  ') OP17=235.0D0
+   IF(OPNM.EQ.'IMDISY  ') OP17=236.0D0
+   IF(OPNM.EQ.'CENTX   ') OP17=237.0D0
+   IF(OPNM.EQ.'CENTY   ') OP17=238.0D0
+   IF(OPNM.EQ.'RMSX    ') OP17=239.0D0
+   IF(OPNM.EQ.'RMSY    ') OP17=240.0D0
+   IF(OPNM.EQ.'RMS     ') OP17=241.0D0
+   IF(OPNM.EQ.'RSSX    ') OP17=242.0D0
+   IF(OPNM.EQ.'RSSY    ') OP17=243.0D0
+   IF(OPNM.EQ.'RSS     ') OP17=244.0D0
+   IF(OPNM.EQ.'RMSOPD  ') OP17=245.0D0
+   IF(OPNM.EQ.'ZERN37  ') OP17=246.0D0
+   IF(OPNM.EQ.'MAGX    ') OP17=247.0D0
+   IF(OPNM.EQ.'MAGY    ') OP17=248.0D0
+   IF(OPNM.EQ.'MAGXOR  ') OP17=249.0D0
+   IF(OPNM.EQ.'MAGYOR  ') OP17=250.0D0
+   IF(OPNM.EQ.'FFLX    ') OP17=251.0D0
+   IF(OPNM.EQ.'FFLY    ') OP17=252.0D0
+   IF(OPNM.EQ.'BFLX    ') OP17=253.0D0
+   IF(OPNM.EQ.'BFLY    ') OP17=254.0D0
+   IF(OPNM.EQ.'FFNX    ') OP17=255.0D0
+   IF(OPNM.EQ.'FFNY    ') OP17=256.0D0
+   IF(OPNM.EQ.'BFNX    ') OP17=257.0D0
+   IF(OPNM.EQ.'BFNY    ') OP17=258.0D0
+   IF(OPNM.EQ.'EFLX    ') OP17=259.0D0
+   IF(OPNM.EQ.'EFLY    ') OP17=260.0D0
+   IF(OPNM.EQ.'ENDIAX  ') OP17=261.0D0
+   IF(OPNM.EQ.'ENDIAY  ') OP17=262.0D0
+   IF(OPNM.EQ.'EXDIAX  ') OP17=263.0D0
+   IF(OPNM.EQ.'EXDIAY  ') OP17=264.0D0
+   IF(OPNM.EQ.'ENPOSX  ') OP17=265.0D0
+   IF(OPNM.EQ.'ENPOSY  ') OP17=266.0D0
+   IF(OPNM.EQ.'ENPOSZ  ') OP17=267.0D0
+   IF(OPNM.EQ.'EXPOSX  ') OP17=268.0D0
+   IF(OPNM.EQ.'EXPOSY  ') OP17=269.0D0
+   IF(OPNM.EQ.'EXPOSZ  ') OP17=270.0D0
+   IF(OPNM.EQ.'FNUMX   ') OP17=271.0D0
+   IF(OPNM.EQ.'FNYMY   ') OP17=272.0D0
+   IF(OPNM.EQ.'OBFNUMX ') OP17=273.0D0
+   IF(OPNM.EQ.'OBFNUMY ') OP17=274.0D0
+   IF(OPNM.EQ.'ENPDIAX ') OP17=275.0D0
+   IF(OPNM.EQ.'ENPDIAY ') OP17=276.0D0
+   IF(OPNM.EQ.'EXPDIAX ') OP17=277.0D0
+   IF(OPNM.EQ.'EXPDIAY ') OP17=278.0D0
+   IF(OPNM.EQ.'PUPDIAX ') OP17=279.0D0
+   IF(OPNM.EQ.'PUPDIAY ') OP17=280.0D0
+   IF(OPNM.EQ.'PUPDISX ') OP17=281.0D0
+   IF(OPNM.EQ.'PUPDISY ') OP17=282.0D0
+   IF(OPNM.EQ.'CHFIMX  ') OP17=283.0D0
+   IF(OPNM.EQ.'CHFIMY  ') OP17=284.0D0
+   IF(OPNM.EQ.'GPX     ') OP17=285.0D0
+   IF(OPNM.EQ.'GPY     ') OP17=286.0D0
+   IF(OPNM.EQ.'GPUX    ') OP17=287.0D0
+   IF(OPNM.EQ.'GPUY    ') OP17=288.0D0
+   IF(OPNM.EQ.'GPCX    ') OP17=289.0D0
+   IF(OPNM.EQ.'GPCY    ') OP17=290.0D0
+   IF(OPNM.EQ.'GPUCX   ') OP17=291.0D0
+   IF(OPNM.EQ.'GPUCY   ') OP17=292.0D0
+   IF(OPNM.EQ.'DIST    ') OP17=293.0D0
+   IF(OPNM.EQ.'XFOC    ') OP17=294.0D0
+   IF(OPNM.EQ.'YFOC    ') OP17=295.0D0
+   IF(OPNM.EQ.'AST     ') OP17=296.0D0
+   IF(OPNM.EQ.'SA3     ') OP17=297.0D0
+   IF(OPNM.EQ.'XSA3    ') OP17=298.0D0
+   IF(OPNM.EQ.'CMA3    ') OP17=299.0D0
+   IF(OPNM.EQ.'XCMA3   ') OP17=300.0D0
+   IF(OPNM.EQ.'AST3    ') OP17=301.0D0
+   IF(OPNM.EQ.'XAST3   ') OP17=302.0D0
+   IF(OPNM.EQ.'DIS3    ') OP17=303.0D0
+   IF(OPNM.EQ.'XDIS3   ') OP17=304.0D0
+   IF(OPNM.EQ.'PTZ3    ') OP17=305.0D0
+   IF(OPNM.EQ.'XPTZ3   ') OP17=306.0D0
+   IF(OPNM.EQ.'SA5     ') OP17=307.0D0
+   IF(OPNM.EQ.'XSA5    ') OP17=308.0D0
+   IF(OPNM.EQ.'CMA5    ') OP17=309.0D0
+   IF(OPNM.EQ.'XCMA5   ') OP17=310.0D0
+   IF(OPNM.EQ.'AST5    ') OP17=311.0D0
+   IF(OPNM.EQ.'XAST5   ') OP17=312.0D0
+   IF(OPNM.EQ.'DIS5    ') OP17=313.0D0
+   IF(OPNM.EQ.'XDIS5   ') OP17=314.0D0
+   IF(OPNM.EQ.'PTZ5    ') OP17=315.0D0
+   IF(OPNM.EQ.'XPTZ5   ') OP17=316.0D0
+   IF(OPNM.EQ.'TOBSA   ') OP17=317.0D0
+   IF(OPNM.EQ.'XTOBSA  ') OP17=318.0D0
+   IF(OPNM.EQ.'SOBSA   ') OP17=319.0D0
+   IF(OPNM.EQ.'XSOBSA  ') OP17=320.0D0
+   IF(OPNM.EQ.'ELCMA   ') OP17=321.0D0
+   IF(OPNM.EQ.'XELCMA  ') OP17=322.0D0
+   IF(OPNM.EQ.'TAS     ') OP17=323.0D0
+   IF(OPNM.EQ.'XTAS    ') OP17=324.0D0
+   IF(OPNM.EQ.'SAS     ') OP17=325.0D0
+   IF(OPNM.EQ.'XSAS    ') OP17=326.0D0
+   IF(OPNM.EQ.'SA7     ') OP17=327.0D0
+   IF(OPNM.EQ.'XSA7    ') OP17=328.0D0
+   IF(OPNM.EQ.'SA3P    ') OP17=329.0D0
+   IF(OPNM.EQ.'XSA3P   ') OP17=330.0D0
+   IF(OPNM.EQ.'CMA3P   ') OP17=331.0D0
+   IF(OPNM.EQ.'XCMA3P  ') OP17=332.0D0
+   IF(OPNM.EQ.'AST3P   ') OP17=333.0D0
+   IF(OPNM.EQ.'XAST3P  ') OP17=334.0D0
+   IF(OPNM.EQ.'DIS3P   ') OP17=335.0D0
+   IF(OPNM.EQ.'XDIS3P  ') OP17=336.0D0
+   IF(OPNM.EQ.'PTZ3P   ') OP17=337.0D0
+   IF(OPNM.EQ.'XPTZ3P  ') OP17=338.0D0
+   IF(OPNM.EQ.'SA5P    ') OP17=339.0D0
+   IF(OPNM.EQ.'XSA5P   ') OP17=340.0D0
+   IF(OPNM.EQ.'CMA5P   ') OP17=341.0D0
+   IF(OPNM.EQ.'XCMA5P  ') OP17=342.0D0
+   IF(OPNM.EQ.'AST5P   ') OP17=343.0D0
+   IF(OPNM.EQ.'XAST5P  ') OP17=344.0D0
+   IF(OPNM.EQ.'DIS5P   ') OP17=345.0D0
+   IF(OPNM.EQ.'XDIS5P  ') OP17=346.0D0
+   IF(OPNM.EQ.'PTZ5P   ') OP17=347.0D0
+   IF(OPNM.EQ.'XPTZ5P  ') OP17=348.0D0
+   IF(OPNM.EQ.'TOBSAP  ') OP17=349.0D0
+   IF(OPNM.EQ.'XTOBSAP ') OP17=350.0D0
+   IF(OPNM.EQ.'SOBSAP  ') OP17=351.0D0
+   IF(OPNM.EQ.'XSOBSAP ') OP17=352.0D0
+   IF(OPNM.EQ.'ELCMAP  ') OP17=353.0D0
+   IF(OPNM.EQ.'XELCMAP ') OP17=354.0D0
+   IF(OPNM.EQ.'TASP    ') OP17=355.0D0
+   IF(OPNM.EQ.'XTASP   ') OP17=356.0D0
+   IF(OPNM.EQ.'SASP    ') OP17=357.0D0
+   IF(OPNM.EQ.'XSASP   ') OP17=358.0D0
+   IF(OPNM.EQ.'SA7P    ') OP17=359.0D0
+   IF(OPNM.EQ.'XSA7P   ') OP17=360.0D0
+   IF(OPNM.EQ.'SA3S    ') OP17=361.0D0
+   IF(OPNM.EQ.'XSA3S   ') OP17=362.0D0
+   IF(OPNM.EQ.'CMA3S   ') OP17=363.0D0
+   IF(OPNM.EQ.'XCMA3S  ') OP17=364.0D0
+   IF(OPNM.EQ.'AST3S   ') OP17=365.0D0
+   IF(OPNM.EQ.'XAST3S  ') OP17=366.0D0
+   IF(OPNM.EQ.'DIS3S   ') OP17=367.0D0
+   IF(OPNM.EQ.'XDIS3S  ') OP17=368.0D0
+   IF(OPNM.EQ.'PTZ3S   ') OP17=369.0D0
+   IF(OPNM.EQ.'XPTZ3S  ') OP17=370.0D0
+   IF(OPNM.EQ.'SA5S    ') OP17=371.0D0
+   IF(OPNM.EQ.'XSA5S   ') OP17=372.0D0
+   IF(OPNM.EQ.'CMA5S   ') OP17=373.0D0
+   IF(OPNM.EQ.'XCMA5S  ') OP17=374.0D0
+   IF(OPNM.EQ.'AST5S   ') OP17=375.0D0
+   IF(OPNM.EQ.'XAST5S  ') OP17=376.0D0
+   IF(OPNM.EQ.'DIS5S   ') OP17=377.0D0
+   IF(OPNM.EQ.'XDIS5S  ') OP17=378.0D0
+   IF(OPNM.EQ.'PTZ5S   ') OP17=379.0D0
+   IF(OPNM.EQ.'XPTZ5S  ') OP17=380.0D0
+   IF(OPNM.EQ.'TOBSAS  ') OP17=381.0D0
+   IF(OPNM.EQ.'XTOBSAS ') OP17=382.0D0
+   IF(OPNM.EQ.'SOBSAS  ') OP17=383.0D0
+   IF(OPNM.EQ.'XSOBSAS ') OP17=384.0D0
+   IF(OPNM.EQ.'ELCMAS  ') OP17=385.0D0
+   IF(OPNM.EQ.'XELCMAS ') OP17=386.0D0
+   IF(OPNM.EQ.'TASS    ') OP17=387.0D0
+   IF(OPNM.EQ.'XTASS   ') OP17=388.0D0
+   IF(OPNM.EQ.'SASS    ') OP17=389.0D0
+   IF(OPNM.EQ.'XSASS   ') OP17=390.0D0
+   IF(OPNM.EQ.'SA7S    ') OP17=391.0D0
+   IF(OPNM.EQ.'XSA7S   ') OP17=392.0D0
+   IF(OPNM.EQ.'SA5I    ') OP17=393.0D0
+   IF(OPNM.EQ.'XSA5I   ') OP17=394.0D0
+   IF(OPNM.EQ.'CMA5I   ') OP17=395.0D0
+   IF(OPNM.EQ.'XCMA5I  ') OP17=396.0D0
+   IF(OPNM.EQ.'AST5I   ') OP17=397.0D0
+   IF(OPNM.EQ.'XAST5I  ') OP17=398.0D0
+   IF(OPNM.EQ.'DIS5I   ') OP17=399.0D0
+   IF(OPNM.EQ.'XDIS5I  ') OP17=400.0D0
+   IF(OPNM.EQ.'PTZ5I   ') OP17=401.0D0
+   IF(OPNM.EQ.'XPTZ5I  ') OP17=402.0D0
+   IF(OPNM.EQ.'TOBSAI  ') OP17=403.0D0
+   IF(OPNM.EQ.'XTOBSAI ') OP17=404.0D0
+   IF(OPNM.EQ.'SOBSAI  ') OP17=405.0D0
+   IF(OPNM.EQ.'XSOBSAI ') OP17=406.0D0
+   IF(OPNM.EQ.'ELCMAI  ') OP17=407.0D0
+   IF(OPNM.EQ.'XELCMAI ') OP17=408.0D0
+   IF(OPNM.EQ.'TASI    ') OP17=409.0D0
+   IF(OPNM.EQ.'XTASI   ') OP17=410.0D0
+   IF(OPNM.EQ.'SASI    ') OP17=411.0D0
+   IF(OPNM.EQ.'XSASI   ') OP17=412.0D0
+   IF(OPNM.EQ.'SA7I    ') OP17=413.0D0
+   IF(OPNM.EQ.'XSA7I   ') OP17=414.0D0
+   IF(OPNM.EQ.'PSA3    ') OP17=415.0D0
+   IF(OPNM.EQ.'XPSA3   ') OP17=416.0D0
+   IF(OPNM.EQ.'PCMA3   ') OP17=417.0D0
+   IF(OPNM.EQ.'XPCMA3  ') OP17=418.0D0
+   IF(OPNM.EQ.'PAST3   ') OP17=419.0D0
+   IF(OPNM.EQ.'XPAST3  ') OP17=420.0D0
+   IF(OPNM.EQ.'PDIS3   ') OP17=421.0D0
+   IF(OPNM.EQ.'XPDIS3  ') OP17=422.0D0
+   IF(OPNM.EQ.'PPTZ3   ') OP17=423.0D0
+   IF(OPNM.EQ.'XPPTZ3  ') OP17=424.0D0
+   IF(OPNM.EQ.'PSA3P   ') OP17=425.0D0
+   IF(OPNM.EQ.'XPSA3P  ') OP17=426.0D0
+   IF(OPNM.EQ.'PCMA3P  ') OP17=427.0D0
+   IF(OPNM.EQ.'XPCMA3P ') OP17=428.0D0
+   IF(OPNM.EQ.'PAST3P  ') OP17=429.0D0
+   IF(OPNM.EQ.'XPAST3P ') OP17=430.0D0
+   IF(OPNM.EQ.'PDIS3P  ') OP17=431.0D0
+   IF(OPNM.EQ.'XPDIS3P ') OP17=432.0D0
+   IF(OPNM.EQ.'PPTZ3P  ') OP17=433.0D0
+   IF(OPNM.EQ.'XPPTZ3P ') OP17=434.0D0
+   IF(OPNM.EQ.'PSA3S   ') OP17=435.0D0
+   IF(OPNM.EQ.'XPSA3S  ') OP17=436.0D0
+   IF(OPNM.EQ.'PCMA3S  ') OP17=437.0D0
+   IF(OPNM.EQ.'XPCMA3S ') OP17=438.0D0
+   IF(OPNM.EQ.'PAST3S  ') OP17=439.0D0
+   IF(OPNM.EQ.'XPAST3S ') OP17=430.0D0
+   IF(OPNM.EQ.'PDIS3S  ') OP17=431.0D0
+   IF(OPNM.EQ.'XPDIS3S ') OP17=442.0D0
+   IF(OPNM.EQ.'PPTZ3S  ') OP17=443.0D0
+   IF(OPNM.EQ.'XPPTZ3S ') OP17=444.0D0
+   IF(OPNM.EQ.'PTZCV   ') OP17=445.0D0
+   IF(OPNM.EQ.'XPTZCV  ') OP17=446.0D0
+   IF(OPNM.EQ.'AH      ') OP17=447.0D0
+   IF(OPNM.EQ.'AI      ') OP17=448.0D0
+   IF(OPNM.EQ.'AJ      ') OP17=449.0D0
+   IF(OPNM.EQ.'AK      ') OP17=450.0D0
+   IF(OPNM.EQ.'AL      ') OP17=451.0D0
+   IF(OPNM.EQ.'GBRADX  ') OP17=452.0D0
+   IF(OPNM.EQ.'GBRADY  ') OP17=453.0D0
+   IF(OPNM.EQ.'GBDISX  ') OP17=454.0D0
+   IF(OPNM.EQ.'GBDISY  ') OP17=455.0D0
+   IF(OPNM.EQ.'GBRCVX  ') OP17=456.0D0
+   IF(OPNM.EQ.'GBRCVY  ') OP17=457.0D0
+   IF(OPNM.EQ.'GBWAISTX') OP17=458.0D0
+   IF(OPNM.EQ.'GBWAISTY') OP17=459.0D0
+   IF(OPNM.EQ.'MGOTF')    OP17=460.0D0
+   IF(OPNM.EQ.'PGOTF')    OP17=461.0D0
+   IF(OPNM.EQ.'MDOTF')    OP17=462.0D0
+   IF(OPNM.EQ.'PDOTF')    OP17=463.0D0
+   IF(OPNM.EQ.'GOTFM')    OP17=460.0D0
+   IF(OPNM.EQ.'GOTFP')    OP17=461.0D0
+   IF(OPNM.EQ.'DOTFM')    OP17=462.0D0
+   IF(OPNM.EQ.'DOTFP')    OP17=463.0D0
+   IF(OPNM.EQ.'REDK')      OP17=464.0D0
+   IF(OPNM.EQ.'REDCEN')   OP17=465.0D0
+   IF(OPNM.EQ.'FISHDIST') OP17=466.0D0
+   IF(OPNM.EQ.'ZD')       OP17=467.0D0
+   IF(OPNM.EQ.'SYMX')     OP17=468.0D0
+   IF(OPNM.EQ.'SYMY')     OP17=469.0D0
+   IF(OPNM.EQ.'ASYMX')    OP17=470.0D0
+   IF(OPNM.EQ.'ASYMY')    OP17=471.0D0
+   IF(OPNM.EQ.'PACM')     OP17=472.0D0
+   IF(OPNM.EQ.'PACZ')     OP17=473.0D0
+   IF(OPNM.EQ.'SACM')     OP17=474.0D0
+   IF(OPNM.EQ.'SACZ')     OP17=475.0D0
+   IF(OPNM.EQ.'PLCM')     OP17=476.0D0
+   IF(OPNM.EQ.'PLCZ')     OP17=477.0D0
+   IF(OPNM.EQ.'SLCM')     OP17=478.0D0
+   IF(OPNM.EQ.'SLCZ')     OP17=479.0D0
+   IF(OPNM.EQ.'CTSX')     OP17=480.0D0
+   IF(OPNM.EQ.'CTSY')     OP17=481.0D0
+   IF(OPNM.EQ.'SCEX')     OP17=482.0D0
+   IF(OPNM.EQ.'SCEY')     OP17=483.0D0
+   IF(OPNM.EQ.'GREYS')    OP17=484.0D0
+   IF(OPNM.EQ.'PIVX')     OP17=485.0D0
+   IF(OPNM.EQ.'PIVY')     OP17=486.0D0
+   IF(OPNM.EQ.'PIVZ')     OP17=487.0D0
+   IF(OPNM.EQ.'N1')       OP17=488.0D0
+   IF(OPNM.EQ.'N2')       OP17=489.0D0
+   IF(OPNM.EQ.'N3')       OP17=490.0D0
+   IF(OPNM.EQ.'N4')       OP17=491.0D0
+   IF(OPNM.EQ.'N5')       OP17=492.0D0
+   IF(OPNM.EQ.'N6')       OP17=493.0D0
+   IF(OPNM.EQ.'N7')       OP17=494.0D0
+   IF(OPNM.EQ.'N8')       OP17=495.0D0
+   IF(OPNM.EQ.'N9')       OP17=496.0D0
+   IF(OPNM.EQ.'N10')      OP17=497.0D0
+   IF(OPNM.EQ.'ABBE')     OP17=498.0D0
+   IF(OPNM.EQ.'DPART')    OP17=499.0D0
+   IF(OPNM.EQ.'CLPX')     OP17=500.0D0
+   IF(OPNM.EQ.'CLPY')     OP17=501.0D0
+   IF(OPNM.EQ.'GDX')      OP17=502.0D0
+   IF(OPNM.EQ.'GDY')      OP17=503.0D0
+   IF(OPNM.EQ.'GDZ')      OP17=504.0D0
+   IF(OPNM.EQ.'GALPHA')   OP17=505.0D0
+   IF(OPNM.EQ.'GBETA')    OP17=506.0D0
+   IF(OPNM.EQ.'GGAMMA')   OP17=507.0D0
+   IF(OPNM.EQ.'GRS')      OP17=508.0D0
+   IF(OPNM.EQ.'WEIGHT')   OP17=509.0D0
+   IF(OPNM.EQ.'DMINUSD')  OP17=510.0D0
+   IF(OPNM.EQ.'COST')     OP17=511.0D0
+   IF(OPNM.EQ.'MACOPT')   OP17=512.0D0
+   IF(OPNM.EQ.'RMSYX')    OP17=513.0D0
+!
+   IF(OP17.EQ.512.0D0) THEN
+!     MACOPT OPERAND
+      IF(INT(W3).LT.1.OR.INT(W3).GT.1000) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM,' REQUIRES'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'"NUMERIC WORD #2 IN THE RANGE 1 TO 1000'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+   IF(OP17.GE.480.0D0.AND.OP17.LE.481.0D0) THEN
+!     CTSX AND CTSY OPERANDS
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.482.0D0.AND.OP17.LE.483.0D0) THEN
+!     SCEX AND SCEY OPERANDS
+      IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+!
+   IF(OP17.GE.472.0D0.AND.OP17.LE.479.0D0.OR.OP17.EQ.479.0D0 &
+   &.OR.OP17.EQ.510.0D0) THEN
+!     REAL RAY COLOR OPERANDS, NO INPUT NEEDED TO DEFINE
+!     FRACTIONAL OBJECT POS., REL RAY POS OR COLORS.
+      IF(DF3.EQ.0.OR.DF4.EQ.0.OR.DF5.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'ONLY TAKES NUMERIC WORD #1 AND #5(OPTIONAL) INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!     SYMX,SYMY,ASYMX AND ASYMY
+   IF(OP17.GE.468.0D0.AND.OP17.LE.471.0D0) THEN
+!     W3 (CALLED W2) ANY VALUE MAY BE INPUT ( ONLY ABS VALUE USED)
+      IF(DF3.EQ.1) THEN
+         DF3=0
+         W3=0.7D0
+      END IF
+      W3=DABS(W3)
+!     W4 (CALLED W3) 1 TO 200 (FIELD NUMBER)
+      IF(DF4.EQ.1) THEN
+         DF4=0
+         W4=1.0D0
+      END IF
+!     W5 (CALLED W4) 1 TO 10 (WAVELENGTH NUMBER)
+      IF(DF5.EQ.1) THEN
+         DF5=0
+         W5=SYSTEM(11)
+      END IF
+!     OUT OF RANGE INPUT W4
+      IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W5
+      IF(INT(W5).LT.1.OR.INT(W5).GT.10.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'WAVELENGTH NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=DBLE(INT(W4))
+      OP11=DBLE(DF4)
+      OP10 =DBLE(INT(W5))
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.1.0D0.AND.OP17.LE.15.0D0.OR.OP17.GE.18.0D0.AND.OP17 &
+   &.LE.69.0D0) THEN
+!     RAY BASED PREDEFINED OPERANDS
+!
+!
+      IF(OP17.EQ.68.0D0.OR.OP17.EQ.69.0D0) THEN
+         IF(W3.LT.1.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES NUMERIC WORD #2 INPUT GREATER THAN 0'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     DEFAULT NW3
+      IF(OP17.GE.1.0D0.AND.OP17.LE.14.0D0.OR.&
+      &OP17.GE.18.0D0.AND.OP17.LE.20.0D0.OR.&
+      &OP17.GE.22.0D0.AND.OP17.LE.23.0D0.OR.&
+      &OP17.GE.27.0D0.AND.OP17.LE.55.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            W3=DBLE(NEWIMG)
+            DF3=0
+            IREG=W3
+            OP8 =IREG
+            OP18 =DBLE(DF3)
+         END IF
+      END IF
+!
+      IF(OP17.EQ.15.0D0.OR.&
+      &OP17.EQ.21D0.OR.&
+      &OP17.GE.24.0D0.AND.OP17.LE.26.0D0.OR.&
+      &OP17.GE.56.0D0.AND.OP17.LE.69.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.43.AND.OP17.LE.58.0D0.OR.OP17.GE.68.0D0.AND.&
+      &OP17.LE.69.0D0) THEN
+!     REFERENCE RAYS
+!     DEFAULT INPUT W4
+!
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #5 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         DF5=0
+         S5=1
+         W5=0
+
+!     OUT OF RANGE INPUT W3
+         IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'SURFACE NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W4
+         IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      ELSE
+!     NOT REFERENCE RAYS
+!     DEFAULT INPUT W4 AND W5
+!
+         IF(DF4.EQ.1.OR.DF5.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 AND #5 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+
+!     OUT OF RANGE INPUT W3
+         IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'SURFACE NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W4
+         IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W5
+         IF(INT(W5).LT.1.OR.INT(W5).GT.500) THEN
+            WRITE(OUTLYNE,*)&
+            &'RAY POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+
+   END IF
+!     *****************************************************************
+   IF(OP17.EQ.16.0D0.OR.OP17.EQ.17.0D0) THEN
+!     OPD OR OPDW
+!
+      IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORD #2 AND #3 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W3
+      IF(INT(W3).LT.1.OR.INT(W3).GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W4
+      IF(INT(W4).LT.1.OR.INT(W4).GT.500) THEN
+         WRITE(OUTLYNE,*)&
+         &'RAY POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     W5
+      IF(S5.EQ.1.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+   END IF
+!     *****************************************************************
+   IF(OP17.GE.70.0D0.AND.OP17.LE.206.0D0.OR.&
+   &OP17.GE.447.0D0.AND.OP17.LE.451.0D0.OR.&
+   &OP17.EQ.467.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.511.0D0) THEN
+!     LENS DATABASE OPERANDS
+      IF(OP17.EQ.15.0D0.OR.OP17.EQ.21.0D0) THEN
+         IF(W3.LT.1.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES NUMERIC WORD #2 GREATER THAN 0'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     DEFAULT INPUT W5
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(OP17.NE.91.0D0.AND.OP17.NE.106.0D0.AND.&
+      &OP17.NE.107.0D0.AND.OP17.NE.509.0D0.AND.OP17.NE.511.0D0) THEN
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET DEFAULTS FOR LENGTH AND MLENGTH AND WEIGHT
+      IF(OP17.EQ.106.0D0.OR.&
+      &OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0.OR.OP17.EQ.511.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(DF3.EQ.1) W3=0.0D0
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(20)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+!     SET DEFAULTS FOR VERTEX DATA
+      IF(OP17.GE.94.0D0.AND.OP17.LE.105.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET SURFACE DATA NUMERIC WORD #2
+      IF(OP17.GE.70.0D0.AND.&
+      &OP17.LE.89.0D0.OR.OP17.GE.447.0D0.AND.&
+      &OP17.LE.451.0D0.OR.OP17.GE.92.0D0.AND.&
+      &OP17.LE.93.0D0.OR.OP17.GE.108.0D0.AND.&
+      &OP17.LE.206.0D0.OR.OP17.EQ.467.0D0.OR.OP17.GE.485.0D0.AND.&
+      &OP17.LE.499.0D0.OR.OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.70.0D0.AND.OP17.LE.90.0D0.OR.&
+      &OP17.GE.92.0D0.AND.&
+      &OP17.LE.93.0D0.OR.OP17.EQ.467.0D0.OR.OP17.GE.&
+      &108.0D0.AND.OP17.LE.206.0D0.OR.OP17.GE.447.0D0 &
+      &.AND.OP17.LE.451.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0 &
+      &.OR.OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.94.0D0.AND.OP17.LE.105.0D0) THEN
+         IF(W3.LT.DBLE(NEWOBJ).OR.W3.GT.DBLE(NEWIMG)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER, NW2, ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.DBLE(NEWOBJ).OR.W4.GT.DBLE(NEWIMG)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER, NW3, ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.EQ.106.0D0.OR.OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0 &
+      &.OR.OP17.EQ.511.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.W3.GE.W4.OR.W4.LT.0.0D0 &
+         &.OR.W4.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBERS ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.EQ.91.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+   IF(OP17.GE.207.0D0.AND.OP17.LE.236.0D0) THEN
+!
+      IF(OP17.GE.207.0D0.AND.OP17.LE.236.0D0) THEN
+!     PARAXIAL OPERANDS
+!     DEFAULT INPUT W5
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
+         IF(S4.EQ.1.AND.W4.NE.0.0D0.OR.S5.EQ.1.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET DEFAULTS FOR PWRY,PWRX,FLCLTH OR FLCLTHY AND FLCLTHX
+      IF(OP17.GE.207.0D0.AND.&
+      &OP17.LE.210.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(DF3.EQ.1) W3=0.0D0
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(20)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+         DF5=1
+         W5=0.0D0
+      END IF
+!     SET DEFAULTS FOR 211 TO 226
+      IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(11)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+!     SET DEFAULTS FOR 227 TO 234
+      IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+!     SET NW3 FOR 235 TO 236
+      IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.GE.207.0D0.AND.OP17.LE.210.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.&
+         &W4.LT.0.0D0.OR.W4.GT.SYSTEM(20).OR.&
+         &W4.LE.W3) THEN
+!     BAD SURFACE NUMBERS
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBERS ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W4=DBLE(INT(W4))
+            OP9 = W4
+         END IF
+      END IF
+      IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+!
+!     *****************************************************************
+   IF(OP17.GE.237.0D0.AND.OP17.LE.245.0D0.OR.OP17.EQ.513.0D0) THEN
+!     FIRST GROUP OF SPOT OPERANDS
+!     DEFAULT INPUT W5
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     DEFAULT INPUT W3
+      IF(DF3.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+         WRITE(OUTLYNE,*)&
+         &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(W4.LE.0.0D0.OR.W4.GT.10.0D0) THEN
+         W4=0.0D0
+         DF4=1
+      END IF
+      IF(DF4.EQ.0) THEN
+         IF(W4.NE.1.0D0.AND.&
+         &W4.NE.2.0D0.AND.&
+         &W4.NE.3.0D0.AND.&
+         &W4.NE.4.0D0.AND.&
+         &W4.NE.5.0D0.AND.&
+         &W4.NE.6.0D0.AND.&
+         &W4.NE.7.0D0.AND.&
+         &W4.NE.8.0D0.AND.&
+         &W4.NE.9.0D0.AND.&
+         &W4.NE.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+      OP9=W4
+      OP11=DBLE(DF4)
+!
+   END IF
+!     *****************************************************************
+   IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+   &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+!     CAPFN OPERANDS AND SECOND GROUP OF SPOT OPERANDS
+!
+      IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+      &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+!     SPOT OPERANDS
+!     DEFAULT INPUT W3
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+      &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0) THEN
+         IF(W4.LT.1.0D0.OR.W4.GT.37.0D0) THEN
+!     BAD ZERN NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID ZERN COEFFICIENT NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD ZERN NUMBER
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.484.0D0) THEN
+         IF(DF4.EQ.1) THEN
+            DF4=0
+            S4=1
+            W4=1.0D0
+         END IF
+         IF(W4.LT.0.0D0) THEN
+!     BAD OPDWEIGT
+            WRITE(OUTLYNE,*)&
+            &'OPD WEIGHT MUST BE GREATER THAN ZERO'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.EQ.464.0D0.OR.OP17.EQ.465.0D0) THEN
+         IF(W4.LE.0.0D0.OR.W4.GT.100.0D0) THEN
+!     BAD % NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID ENCIRLED ENERGY PERCENTAGE ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.465.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD W4
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(DF5.EQ.1) W5=SYSTEM(11)
+         OP10 =W5
+         IF(DF5.EQ.1) DF5=0
+         OP12 =DBLE(DF5)
+      END IF
+      IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(W5.LT.1.0D0.OR.W5.GT.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.464.0D0.AND.OP17.LE.465.0D0) THEN
+         IF(DF5.EQ.0) THEN
+!     BAD W5 NUMBER
+            WRITE(OUTLYNE,*)&
+            &'NO NUMERIC WORD #4 INPUT IS USED WITH'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.463.0D0) THEN
+         IF(DF5.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT NUMERIC WORD #4 INPUT REQUIRED WITH'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.463.0D0) THEN
+         IF(DF5.EQ.1.AND.W1.NE.0.0D0.AND.W2.NE.90.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #4, ORIENTATION VALUE MUST BE 0 OR 90 FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+   END IF
+!
+!
+!     *****************************************************************
+!
+   IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0.OR.&
+   &OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+!
+      IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0) THEN
+!     SPECIAL OPERANDS
+!     DEFAULT INPUT W5
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.247.0D0.AND.OP17.LE.284.OR.&
+      &OP17.GE.293.0D0.AND.OP17.LE.296.0D0.OR.OP17.EQ.466.0D0) THEN
+!     CAPFN OPERANDS
+!     DEFAULT INPUT W4
+         IF(DF4.EQ.0.AND.W4.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0) THEN
+!     SPECIAL OPERANDS
+!     DEFAULT INPUT W3
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.GE.247.0D0.AND.OP17.LE.278.0D0.OR.&
+      &OP17.LE.293.0D0.AND.OP17.LE.296.0D0.OR.OP17.EQ.466.0D0) THEN
+         IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.279.0D0.AND.OP17.LE.284.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.285.0D0.AND.OP17.LE.292.0D0) THEN
+         IF(DF3.EQ.1) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT SURFACE NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF4.EQ.1) THEN
+!     BAD FIELD NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT FIELD NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.DBLE(NEWOBJ).OR.W3.GT.DBLE(NEWIMG)) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            DF3=0
+            W3=INT(SYSTEM(20))
+         END IF
+      END IF
+      IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD FIELD NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT FIELD NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF5.EQ.0) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'NO NUMERIC WORD #4 USED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD FIELD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+!
+!     *****************************************************************
+   IF(OP17.GE.297.0D0.AND.OP17.LE.446.0D0) THEN
+!     3,5,7 ABERRATIONS
+!
+!     DEFAULT INPUT W4 AND W5
+      IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+      IF(DF3.EQ.1) W3=SYSTEM(20)
+      IF(DF3.EQ.1) DF3=0
+      IREG=W3
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+!
+      IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+         WRITE(OUTLYNE,*)&
+         &'INVALID SURFACE NUMBER ISSUED FOR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+   END IF
+!
+!     INPUT OK FOR W3, W4 AND W5
+!
+3141 CONTINUE
+!     ANY 8 CHARACTER QUALIFIER WORD OPERAND NAME MAY BE USED
+!     BUT DUPLICATE NAMES CAUSE REPLACEMENT
+!     HERE IS WERE THE REPLACEMENT HAPPENS
+   I=INT(W1)+MAXFOCRIT
+   IF(WQ.EQ.OPNAM(I).AND.&
+   &W3.EQ.OPERND(I,8).AND.W4.EQ.OPERND(I,9)&
+   &.AND.W5.EQ.OPERND(I,10).AND.OPT.EQ.OPERND(I,1)&
+   &.AND.DBLE(CORMOD).EQ.OPERND(I,13)) THEN
+!     FUNC, NAME, NW3,NW4,NW5,CFG AND CORMOD MUST MATCH OR NO REPLACEMENT
+!
+      OP1 =DBLE(OPT)
+      OPNM=WQ
+      OP2 =0.0D0
+      OP3 =0.0D0
+      OP4 =0.0D0
+      OP5 =0.0D0
+      OP6 =0.0D0
+      OP7 =OW5
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9 = W4
+      OP10 =W5
+      OP11 =DBLE(DF4)
+      OP12 =DBLE(DF5)
+      OP13 =DBLE(CORMOD)
+      OP14 = 0.0D0
+      OP15 = 0.0D0
+      IF(OPT.EQ.0) OP16 = 1.0D0
+      IF(OPT.NE.0) OP16 = 0.0D0
+      IREG=W3
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+      OP20=OW5
+!
+      OPERND(I,1) =OP1
+      OPERND(I,2) =OP2
+      OPERND(I,3) =OP3
+      OPERND(I,4) =OP4
+      OPERND(I,5) =OP5
+      OPERND(I,6) =OP6
+      OPERND(I,7) =OP7
+      OPERND(I,8) =OP8
+      OPERND(I,9) =OP9
+      OPERND(I,10) =OP10
+      OPERND(I,11) =OP11
+      OPERND(I,12) =OP12
+      OPERND(I,13) =OP13
+      OPERND(I,14) =OP14
+      OPERND(I,15) =OP15
+      OPERND(I,16) =OP16
+      OPERND(I,17) =OP17
+      OPERND(I,18) =OP18
+      OPERND(I,19) =OP19
+      OPERND(I,20) =OP20
+      ISTOP(I-MAXFOCRIT)=.TRUE.
+      RETURN
+   END IF
+!
+!     IT IS A NEW OPERAND
+   OP1 =DBLE(OPT)
+   OPNM=WQ
+   OP2 =0.0D0
+   OP3 =0.0D0
+   OP4 =0.0D0
+   OP5 =0.0D0
+   OP6 =0.0D0
+   OP7 =OPWEIT
+   IREG=W3
+   OP8 =IREG
+   OP18 =DBLE(DF3)
+   OP9 = W4
+   OP10 =W5
+   OP11 =DBLE(DF4)
+   OP12 =DBLE(DF5)
+   OP13 =DBLE(CORMOD)
+   OP14 = 0.0D0
+   OP15 = 0.0D0
+   IREG=W3
+   OP18=DBLE(DF3)
+   OP19=0.0D0
+   IF(OPT.EQ.0) OP16 = 1.0D0
+   IF(OPT.NE.0) OP16 = 0.0D0
+   OP20=OW5
+!
+   I=INT(W1)+MAXFOCRIT
+   OPNAM(I)=OPNM
+   OPERND(I,1) =OP1
+   OPERND(I,2) =OP2
+   OPERND(I,3) =OP3
+   OPERND(I,4) =OP4
+   OPERND(I,5) =OP5
+   OPERND(I,6) =OP6
+   OPERND(I,7) =OP7
+   OPERND(I,8) =OP8
+   OPERND(I,9) =OP9
+   OPERND(I,10) =OP10
+   OPERND(I,11) =OP11
+   OPERND(I,12) =OP12
+   OPERND(I,13) =OP13
+   OPERND(I,14) =OP14
+   OPERND(I,15) =OP15
+   OPERND(I,16) =OP16
+   OPERND(I,17) =OP17
+   OPERND(I,18) =OP18
+   OPERND(I,19) =OP19
+   OPERND(I,20) =OP20
+   ISTOP(I-MAXFOCRIT)=.TRUE.
+   RETURN
+!       ALL DONE
+END
+! SUB FOCRIT1.FOR
+SUBROUTINE FOCRIT1
+!
+   use DATCFG
+   use DATSPD
+   use DATSUB
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+!
+   INTEGER II,I,J,K,L,OPT
+!
+   CHARACTER*8 OPNM
+!
+   LOGICAL YES
+!
+   REAL*8 OPWEIT,IREG
+!
+   REAL*8 OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
+   &,OP11,OP12,OP13,OP14,OP15,OP16,OP17,OP18,OP19
+!
+!
+!       THIS IS SUBROUTINE FOCRIT. THIS IS THE SUBROUTINE WHICH
+!       HANDLES FOCRIT INPUT AND FOCRIT UPDATE COMMANDS AND
+!       OUTPUT COMMANDS AT THE CMD LEVEL
+!
+!       THE ARRAY OPERND AND OPNAM STORE FOCRIT INFORMATION
+!       IT IS PASSED IN COMMON IN THE INCLUDE FILE DATSUB.FOR
+!
+!       OPERND(I,J) WHERE I COUNTS THE NUMBER OF OPERAND ENTRIES
+!       AND J TAKES ON THE FOLLOWING VALUES AND MEANIINGS.
+!
+!       I WILL BE 1 TO 5 ONLY
+!
+!       J=1  > 1 THROUGH 10, THE NUMBER OF THE FUNCTION IN WHICH
+!               THE ACTUAL OPERAND IS CALCULATED (COMMAND WORD)
+!         (0 IS PREDEFINED OPERAND)
+!
+!       J=2  > TARGET VALUE OF THE OPERAND, THIS WILL BE THE ORIGINAL VALUE
+!       J=3  > OPERAND ORIGINAL VALUE
+!       J=4  > OPERAND CURRENT VALUE
+!       J=5  > OPERAND PREVIOUS VALUE
+!       J=6  > LAST OPERAND CHANGE VALUE (CURRENT-PREVIOUS)
+!       J=7  > WT, THE WEIGHTING FACTOR DURING OPTIMIZATION ALWAYS 1
+!
+!       J=8  > NUMBER OF THE GENERAL PURPOSE REGISTER CONTAINING
+!               THE ACTUAL OPERAND VALUE AS RETURNED FROM THE
+!               CALCULATING FUNCTION (NUMERIC WORD #2) (VALUES 1 TO 400)
+!               (A DEFAULT ENTRY HERE CAUSES THE ACCUMULATOR TO BE USED)
+!       FOR PREDEFINED OPERAND, IT IS THE (I) INPUT VALUE
+!
+!       J=9  > OPTIONAL NW1 FOR THE FUNCTION (USING NSUB) (NUMERIC WORD #3)
+!       J=10 > OPTIONAL NW2 FOR THE FUNCTION (USING NSUB) (NUMERIC WORD #4)
+!     FOR PREDEFINED OPERANDS J=9 AND J=10 ARE THE (J) AND (K) INPUT VALUES
+!       J=11 > DEFAULT FLAG FOR NW1
+!       J=12 > DEFAULT FLAG FOR NW2
+!       J=13 > COR MODE 10
+   CORMOD=10
+!       J=14 > SQUARE ROOT OF WEIGHT TIMES (CURRENT VAL-TARGET))
+!       J=15 > 0 BEFORE THE FIRST CALCULATION OF OPERAND VALUES
+!              1 AFTER THE FIRST CALULATION
+!       J=16 > CFG # FOR PREDEFINED OPERANDS (ALWAYS 1)
+!       J=17 > CODE FOR THE PREDEFINED OPERANDS
+!       J=18 > DEFAULT FLAG FOR W2 = DBLE(DF2)
+!       J=19 > 0 IF OP CALCULABLE, 1 IF NOT
+!       J=20 > RESERVED FOR EXPANSION
+!             1=X
+!             2=Y
+!             3=Z
+!             4=L
+!             5=M
+!             6=N
+!             7=DX
+!             8=DY
+!             9=DR
+!            10=DXA
+!            11=DYA
+!            12=DRA
+!            13=XANG
+!            14=YANG
+!            15=OPL
+!            16=OPD
+!            17=OPDW
+!            18=LOLD
+!            19=MOLD
+!            20=NOLD
+!            21=LEN
+!            22=AII
+!            23=AIP
+!            24=LN
+!            25=MN
+!            26=NN
+!            27=PXPX
+!            28=PXPY
+!            29=PYPX
+!            30=PYPY
+!            31=PXAPX
+!            32=PXAPY
+!            33=PYAPX
+!            34=PYAPY
+!            35=DXDX
+!            36=DXDY
+!            37=DYDX
+!            38=DYDY
+!            39=DXADX
+!            40=DXADY
+!            41=DYADX
+!            42=DYADY
+!            43=XREF
+!            44=YREF
+!            45=ZREF
+!            46=LREF
+!            47=MREF
+!            48=NREF
+!            49=LREFOL
+!            50=MREFOL
+!            51=NREFOL
+!            52=IREF
+!            53=IPREF
+!            54=XAREF
+!            55=YAREF
+!            56=LNREF
+!            57=MNREF
+!            58=NNREF
+!            59=GLX
+!            60=GLY
+!            61=GLZ
+!            62=GLL
+!            63=GLM
+!            64=GLN
+!            65=GLLOLD
+!            66=GLMOLD
+!            67=GLNOLD
+!            68=LENREF
+!            69=OPLREF
+!            70=RD
+!            71=CV
+!            72=TH
+!            73=CC
+!            74=AC
+!            75=AD
+!            76=AE
+!            77=AF
+!            78=AG
+!            79=RDTOR
+!            80=CVTOR
+!            81=CCTOR
+!            82=ADTOR
+!            83=AETOR
+!            84=AFTOR
+!            85=AGTOR
+!            86=ALPHA
+!            87=BETA
+!            88=GAMMA
+!            89=VNUM
+!            90=PARTL
+!            91=INDEX
+!            92=XD
+!            93=YD
+!            94=XVERT
+!            95=YVERT
+!            96=ZVERT
+!            97=LXVERT
+!            98=MXVERT
+!            99=NXVERT
+!           100=LYVERT
+!           101=MYVERT
+!           102=NYVERT
+!           103=LZVERT
+!           104=MZVERT
+!           105=NZVERT
+!           106=LENGTH
+!           106=OAL
+!           107=MLENGTH
+!           107=OPTLEN
+!           108=ET
+!           108=ETY
+!           109=ETX
+!           110=SHAPEFAC
+!           111 TO 206 = C1 THROUGH C96
+!           207=PWRY
+!           208=PWRX
+!           209=FLCLTHX
+!           210=FLCLTH OR FLCLTHY
+!           211=PY
+!           212=PX
+!           213=PCY
+!           214=PCX
+!           215=PUY
+!           216=PUX
+!           217=PUCY
+!           218=PUCX
+!           219=PIY
+!           220=PIX
+!           221=PICY
+!           222=PICX
+!           223=PIYP
+!           224=PIXP
+!           225=PICYP
+!           226=PICXP
+!           227=PACY
+!           228=PACX
+!           229=PLCY
+!           230=PLCX
+!           231=SACY
+!           232=SACX
+!           233=SLCY
+!           234=SLCX
+!           235=IMDISX
+!           236=IMDISY
+!           237=CENTX
+!           238=CENTY
+!           239=RMSX
+!           240=RMSY
+!           241=RMS
+!           242=RSSX
+!           243=RSSY
+!           244=RSS
+!           245=RMSOPD
+!           246=ZERN37
+!           247=MAGX
+!           248=MAGY
+!           249=MAGXOR
+!           250=MAGYOR
+!           251=FFLX
+!           252=FFLY
+!           253=BFLX
+!           254=BFLY
+!           255=FFNX
+!           256=FFNY
+!           257=BFNX
+!           258=BFNY
+!           259=EFLX
+!           260=EFLY
+!           261=ENDIAX
+!           262=ENDIAY
+!           263=EXDIAX
+!           264=EXDIAY
+!           265=ENPOSX
+!           266=ENPOSY
+!           267=ENPOSZ
+!           268=EXPOSX
+!           269=EXPOSY
+!           270=EXPOSZ
+!           271=FNUMX
+!           272=FNUMY
+!           273=OBFNUMX
+!           274=OBFNUMY
+!           275=ENPDIAX
+!           276=ENPDIAY
+!           277=EXPDIAX
+!           278=EXPDIAY
+!           279=PUPDIAX
+!           280=PUPDIAY
+!           281=PUPDISX
+!           282=PUPDISY
+!           283=CHFIMX
+!           284=CHFIMY
+!           285=GPX
+!           286=GPY
+!           287=GPUX
+!           288=GPUY
+!           289=GPCX
+!           290=GPCY
+!           291=GPUCX
+!           292=GPUCY
+!           293=DIST
+!           294=XFOC
+!           295=YFOC
+!           296=AST
+!           297=SA3
+!           298=XSA3
+!           299=CMA3
+!           300=XCMA3
+!           301=AST3
+!           302=XAST3
+!           303=DIS3
+!           304=XDIS3
+!           305=PTZ3
+!           306=XPTZ3
+!           307=SA5
+!           308=XSA5
+!           309=CMA5
+!           310=XCMA5
+!           311=AST5
+!           312=XAST5
+!           313=DIS5
+!           314=XDIS5
+!           315=PTZ5
+!           316=XPTZ5
+!           317=TOBSA
+!           318=XTOBSA
+!           319=SOBSA
+!           320=XSOBSA
+!           321=ELCMA
+!           322=XELCMA
+!           323=TAS
+!           324=XTAS
+!           325=SAS
+!           326=XSAS
+!           327=SA7
+!           328=XSA7
+!           329=SA3P
+!           330=XSA3P
+!           331=CMA3P
+!           332=XCMA3P
+!           333=AST3P
+!           334=XAST3P
+!           335=DIS3P
+!           336=XDIS3P
+!           337=PTZ3P
+!           338=XPTZ3P
+!           339=SA5P
+!           340=XSA5P
+!           341=CMA3P
+!           342=XCMA3P
+!           343=AST5P
+!           344=XAST5P
+!           345=DIS5P
+!           346=XDIS5P
+!           347=PTZ5P
+!           348=XPTZ5P
+!           349=TOBSAP
+!           350=XTOBSAP
+!           351=SOBSAP
+!           352=XSOBSAP
+!           353=ELCMAP
+!           354=XELCMAP
+!           355=TASP
+!           356=XTASP
+!           357=SASP
+!           358=XSASP
+!           359=SA7P
+!           360=XSA7P
+!           361=SA3S
+!           362=XSA3S
+!           363=CMA3S
+!           364=XCMA3S
+!           365=AST3S
+!           366=XAST3S
+!           367=DIS3S
+!           368=XDIS3S
+!           369=PTZ3S
+!           370=XPTZ3S
+!           371=SA5S
+!           372=XSA5S
+!           373=CMA5S
+!           374=XCMA5S
+!           375=AST5S
+!           376=XAST5S
+!           377=DIS5S
+!           378=XDIS5S
+!           379=PTZ5S
+!           380=XPTZ5S
+!           381=TOBSAS
+!           382=XTOBSAS
+!           383=SOBSAS
+!           384=XSOBSAS
+!           385=ELCMAS
+!           386=XELCMAS
+!           387=TASS
+!           388=XTASS
+!           389=SASS
+!           390=XSASS
+!           391=SA7S
+!           392=XSA7S
+!           393=SA5I
+!           394=XSA5I
+!           395=CMA5I
+!           396=XCMA5I
+!           397=AST5I
+!           398=XAST5I
+!           399=DIS5I
+!           400=XDIS5I
+!           401=PTZ5I
+!           402=XPTZ5I
+!           403=TOBSAI
+!           404=XTOBSAI
+!           405=SOBSAI
+!           406=XSOBSAI
+!           407=ELCMAI
+!           408=XELCMAI
+!           409=TASI
+!           410=XTASI
+!           411=SASI
+!           412=XSASI
+!           413=SA7I
+!           414=XSA7I
+!           415=PSA3
+!           416=XPSA3
+!           417=PCMA3
+!           418=XPCMA3
+!           419=PAST3
+!           420=XPAST3
+!           421=PDIS3
+!           422=XPDIS3
+!           423=PPTZ3
+!           424=XPPTZ3
+!           425=PSA3P
+!           426=XPSA3P
+!           427=PCMA3P
+!           428=XPCMA3P
+!           429=PAST3P
+!           430=XPAST3P
+!           431=PDIS3P
+!           432=XPDIS3P
+!           433=PPTZ3P
+!           434=XPPTZ3P
+!           435=PSA3S
+!           436=XPSA3S
+!           437=PCMA3S
+!           438=XPCMA3S
+!           439=PAST3S
+!           440=XPAST3S
+!           441=PDIS3S
+!           442=XPDIS3S
+!           443=PPTZ3S
+!           444=XPPTZ3S
+!           445=PTZCV
+!           446=XPTZCV
+!           447=AH
+!           448=AI
+!           449=AJ
+!           450=AK
+!           451=AL
+!           452='GBRADX'
+!           453='GBRADY'
+!           454='GBDISX'
+!           455='GBDISY'
+!           456='GBRCVX'
+!           457='GBRCVY'
+!           458='GBWAISTX'
+!           459='GBWAISTY'
+!           460='MGOTF'
+!           461='PGOTF'
+!           462='MDOTF'
+!           463='PDOTF'
+!           460='GOTFM'
+!           461='GOTFP'
+!           462='DOTFM'
+!           463='DOTFP'
+!           464='REDK'
+!           465='REDCEN'
+!           466='FISHDIST'
+!           467='ZD'
+!           468='SYMX'
+!           469='SYMY'
+!           470='ASYMX'
+!           471='ASYMY'
+!           472='PACM'
+!           473='PACZ'
+!           474='SACM'
+!           475='SACZ'
+!           476='PLCM'
+!           477='PLCZ'
+!           478='SLCM'
+!           479='SLCZ'
+!           480='CTSX'
+!           481='CTSY'
+!           482='SCEX'
+!           483='SCEY'
+!           484='GREYS'
+!           485='PIVX'
+!           486='PIVY'
+!           487='PIVZ'
+!           488='N1'
+!           489='N2'
+!           490='N3'
+!           491='N4'
+!           492='N5'
+!           493='N6'
+!           494='N7'
+!           495='N8'
+!           496='N9'
+!           497='N10'
+!           498='ABBE'
+!           499='DPART'
+!           500='CLPX'
+!           501='CLPY'
+!           502='GDX'
+!           503='GDY'
+!           504='GDZ'
+!           505='GALPHA'
+!           506='GBETA'
+!           507='GGAMMA'
+!           508='GRS'
+!           509='WEIGHT'
+!           510='DMINUSD'
+!           511='COST'
+!           512='MACOPT'
+!           513='RMSYX'
+!
+!       OPNM=(8 CHARACTER USER DEFINED, NON-DUPLICATED OPERAND NAME)
+!
+   IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
+      CALL MESCOM
+      RETURN
+   END IF
+!
+!       "CRITS" OUTPUT FOCRIT DATA FROM INSIDE
+!       AND OUTSIDE OF THE FOCRIT SUBFILE VIA SUBROUTINE FCOUT.FOR.
+   IF(WC.EQ.'CRITS') THEN
+      OPTMES=.FALSE.
+      CALL CRITOUT
+      OPTMES=.TRUE.
+      RETURN
+   END IF
+!
+!       NOW DO CASE OF WC = EOS
+!
+!***********************************************************************
+!       DEAL WITH WC=EOS
+   IF(WC.EQ.'EOS') THEN
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1)THEN
+         WRITE(OUTLYNE,*)'"EOS" TAKES NO EXPLICIT INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!       PROCEED WITH ACTION FOR COMMAND
+      F1=1
+      F54=0
+      YES=.FALSE.
+      DO II=1,MAXFOCRIT
+         IF(ISCRIT(II)) YES=.TRUE.
+      END DO
+      IF(.NOT.YES) FCCNT=0
+      IF(YES) FCCNT=1
+      IF(FCCNT.EQ.0) THEN
+         WRITE(OUTLYNE,*)'THE FOCRIT SUBFILE IS EMPTY'
+         CALL SHOWIT(1)
+      END IF
+      RETURN
+!       ACTION COMPLETED
+   END IF
+!
+!       EOS DONE
+!***********************************************************************
+!
+!       NOW DO WC=DEL
+   IF(WC.EQ.'DELK') THEN
+      IF(F54.NE.2) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" IS ONLY AVAILABLE FROM THE "UPDATE FOCRIT" LEVEL'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'NO ACTION TAKEN'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
+      &.OR.S5.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W1.LT.1.0D0.OR.W1.GT.5.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" REQUIRES NUMERIC INPUT FROM 1 TO 5 ONLY'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      FMTEXT=.FALSE.
+!
+!     HERE IS WHERE FOCRIT IS DELETED
+      ISCRIT(INT(W1))=.FALSE.
+      OPERND(INT(W1),1:20)=0.0D0
+      YES=.FALSE.
+      DO II=1,MAXFOCRIT
+         IF(ISCRIT(II)) YES=.TRUE.
+      END DO
+      IF(.NOT.YES) FCCNT=0
+      IF(YES) FCCNT=1
+      IF(FCCNT.EQ.0) THEN
+         WRITE(OUTLYNE,*)'THE FOCRIT SUBFILE IS EMPTY'
+         CALL SHOWIT(1)
+      END IF
+!     ALL DELETIONS COMPLETED
+      RETURN
+!
+   END IF
+!***********************************************************************
+!
+!       NOW DO WC=OP_DESC
+   IF(WC.EQ.'OP_DESC') THEN
+      IF(SN.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" TAKES NO NUMERIC INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(SQ.EQ.0.OR.SST.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" REQUIRES EXPLICIT QUALIFIER AND STRING INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      OPOK=.FALSE.
+      IF(WQ.EQ.'OP1') OPOK=.TRUE.
+      IF(WQ.EQ.'OP2') OPOK=.TRUE.
+      IF(WQ.EQ.'OP3') OPOK=.TRUE.
+      IF(WQ.EQ.'OP4') OPOK=.TRUE.
+      IF(WQ.EQ.'OP5') OPOK=.TRUE.
+      IF(WQ.EQ.'OP1') OPNNM=1
+      IF(WQ.EQ.'OP2') OPNNM=2
+      IF(WQ.EQ.'OP3') OPNNM=3
+      IF(WQ.EQ.'OP4') OPNNM=4
+      IF(WQ.EQ.'OP5') OPNNM=5
+      IF(.NOT.OPOK) THEN
+         WRITE(OUTLYNE,*)&
+         &'DURING FOCRIT OPERAND INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" REQUIRES A QUALIFIER WORD "OP1" THROUGH "OP5"'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(.NOT.ISTOP(OPNNM)) THEN
+         WRITE(OUTLYNE,*)&
+         &'FOCRIT OPERAND ',OPNNM,' HAS NOT YET BEEN DEFINED'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'A FOCRIT OPERAND DESCRIPTION ENTRY IS NOT ALLOWED'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'NO ACTION TAKEN'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     HERE IS WHERE OP_DESC IS ASSIGNED
+      IF(WS(1:8).NE.'        ') OPERDESC(OPNNM)=WS
+      RETURN
+!
+   END IF
+!
+!     HERE WE SHIFT THE INPUT EXCEPT FOR W1
+   W5=W4
+   DF5=DF4
+   S5=S4
+   W4=W3
+   DF4=DF3
+   S4=S3
+   W3=W2
+   DF3=DF2
+   S3=S2
+   W2=0.0D0
+   S2=0
+   DF2=1
+!
+!
+!     START DOING THE FUNCTION NAMES HERE
+   OPT=-1
+   IF(WC.EQ.'FUNC00  ') OPT=0
+   IF(WC.EQ.'FUNC01  ') OPT=1
+   IF(WC.EQ.'FUNC02  ') OPT=2
+   IF(WC.EQ.'FUNC03  ') OPT=3
+   IF(WC.EQ.'FUNC04  ') OPT=4
+   IF(WC.EQ.'FUNC05  ') OPT=5
+   IF(WC.EQ.'FUNC06  ') OPT=6
+   IF(WC.EQ.'FUNC07  ') OPT=7
+   IF(WC.EQ.'FUNC08  ') OPT=8
+   IF(WC.EQ.'FUNC09  ') OPT=9
+   IF(WC.EQ.'FUNC10  ') OPT=10
+   IF(OPT.EQ.-1) THEN
+      WRITE(OUTLYNE,*)&
+      &'INVALID FUNCTION NAME COMMAND WORD'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+!
+!     NUMERIC WORDS AND DEFAULTS
+!
+!     NW1 IS THE OPERAND NUMBER, DEFUALT WILL BE ORIGINAL VALUE
+!
+   IF(DF1.EQ.1) THEN
+      WRITE(OUTLYNE,*)&
+      &'EXPLICIT FOCRIT NUMBER MUST BE INPUT AS NUMERIC WORD #1'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(W1.LT.1.OR.W1.GT.5.0D0) THEN
+      WRITE(OUTLYNE,*)&
+      &'EXPLICIT FOCRIT NUMBER MUST BE IN THE RANGE 1 TO 5'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   OPWEIT=1.0D0
+   IF(OPT.NE.0) THEN
+!     NW3 IS GENERAL PURPOSE STORAGE REGISTER VALUE
+      IF(DF3.EQ.1) THEN
+         IF(F54.EQ.1.OR.F54.EQ.2) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) MUST BE EXPLICITLY INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'A USER DEFINED FOCRIT OPERAND'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      ELSE
+!     NOT DEFAULT
+         IF((DBLE(DINT(W3))-W3).NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) MUST BE AN INTEGER'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.1.0D0.OR.W3.GT.400.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'VALID RANGE IS 1 TO 400'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF3.NE.1.AND.W3.LT.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #2 (GP REGISTER ADDRESS) MAY NOT BE NEGATIVE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+   END IF
+
+!     NW4 IS NW1 FOR FUNCTION NSUB FOR USER DEF OPS
+!     NW5 IS NW2 FOR FUNCTION NSUB FOR USER DEF OPS
+!     DEFAULT STATUS WILL BE HANDLED DURING FUNCTION CALLING
+!     AND WILL BE PASSED IN ITEMS J=11 AND J=12
+!
+   IF(OPT.GE.1.AND.OPT.LE.10) GO TO 3141
+!
+   OPNM=WQ
+   IF(OPNM.EQ.'X       ') OP17=1.0D0
+   IF(OPNM.EQ.'Y       ') OP17=2.0D0
+   IF(OPNM.EQ.'Z       ') OP17=3.0D0
+   IF(OPNM.EQ.'DCL     ') OP17=4.0D0
+   IF(OPNM.EQ.'K       ') OP17=4.0D0
+   IF(OPNM.EQ.'DCM     ') OP17=5.0D0
+   IF(OPNM.EQ.'L       ') OP17=5.0D0
+   IF(OPNM.EQ.'DCN     ') OP17=6.0D0
+   IF(OPNM.EQ.'M       ') OP17=6.0D0
+   IF(OPNM.EQ.'DX      ') OP17=7.0D0
+   IF(OPNM.EQ.'DY      ') OP17=8.0D0
+   IF(OPNM.EQ.'DR      ') OP17=9.0D0
+   IF(OPNM.EQ.'DXA     ') OP17=10.0D0
+   IF(OPNM.EQ.'DYA     ') OP17=11.0D0
+   IF(OPNM.EQ.'DRA     ') OP17=12.0D0
+   IF(OPNM.EQ.'XANG    ') OP17=13.0D0
+   IF(OPNM.EQ.'YANG    ') OP17=14.0D0
+   IF(OPNM.EQ.'OPL     ') OP17=15.0D0
+   IF(OPNM.EQ.'OPD     ') OP17=16.0D0
+   IF(OPNM.EQ.'OPDW    ') OP17=17.0D0
+   IF(OPNM.EQ.'LOLD    ') OP17=18.0D0
+   IF(OPNM.EQ.'MOLD    ') OP17=19.0D0
+   IF(OPNM.EQ.'NOLD    ') OP17=20.0D0
+   IF(OPNM.EQ.'LEN     ') OP17=21.0D0
+   IF(OPNM.EQ.'AII     ') OP17=22.0D0
+   IF(OPNM.EQ.'AIP     ') OP17=23.0D0
+   IF(OPNM.EQ.'LN      ') OP17=24.0D0
+   IF(OPNM.EQ.'MN      ') OP17=25.0D0
+   IF(OPNM.EQ.'NN      ') OP17=26.0D0
+   IF(OPNM.EQ.'PXPX    ') OP17=27.0D0
+   IF(OPNM.EQ.'PXPY    ') OP17=28.0D0
+   IF(OPNM.EQ.'PYPX    ') OP17=29.0D0
+   IF(OPNM.EQ.'PYPY    ') OP17=30.0D0
+   IF(OPNM.EQ.'PXAPX   ') OP17=31.0D0
+   IF(OPNM.EQ.'PXAPY   ') OP17=32.0D0
+   IF(OPNM.EQ.'PYAPX   ') OP17=33.0D0
+   IF(OPNM.EQ.'PYAPY   ') OP17=34.0D0
+   IF(OPNM.EQ.'DXDX    ') OP17=35.0D0
+   IF(OPNM.EQ.'DXDY    ') OP17=36.0D0
+   IF(OPNM.EQ.'DYDX    ') OP17=37.0D0
+   IF(OPNM.EQ.'DYDY    ') OP17=38.0D0
+   IF(OPNM.EQ.'DXADX   ') OP17=39.0D0
+   IF(OPNM.EQ.'DXADY   ') OP17=40.0D0
+   IF(OPNM.EQ.'DYADX   ') OP17=41.0D0
+   IF(OPNM.EQ.'DYADY   ') OP17=42.0D0
+   IF(OPNM.EQ.'XREF    ') OP17=43.0D0
+   IF(OPNM.EQ.'YREF    ') OP17=44.0D0
+   IF(OPNM.EQ.'ZREF    ') OP17=45.0D0
+   IF(OPNM.EQ.'LREF    ') OP17=46.0D0
+   IF(OPNM.EQ.'MREF    ') OP17=47.0D0
+   IF(OPNM.EQ.'NREF    ') OP17=48.0D0
+   IF(OPNM.EQ.'LREFOL  ') OP17=49.0D0
+   IF(OPNM.EQ.'MREFOL  ') OP17=50.0D0
+   IF(OPNM.EQ.'NREFOL  ') OP17=51.0D0
+   IF(OPNM.EQ.'IREF    ') OP17=52.0D0
+   IF(OPNM.EQ.'IPREF   ') OP17=53.0D0
+   IF(OPNM.EQ.'XAREF   ') OP17=54.0D0
+   IF(OPNM.EQ.'YAREF   ') OP17=55.0D0
+   IF(OPNM.EQ.'LNREF   ') OP17=56.0D0
+   IF(OPNM.EQ.'MNREF   ') OP17=57.0D0
+   IF(OPNM.EQ.'NNREF   ') OP17=58.0D0
+   IF(OPNM.EQ.'GLX     ') OP17=59.0D0
+   IF(OPNM.EQ.'GLY     ') OP17=60.0D0
+   IF(OPNM.EQ.'GLZ     ') OP17=61.0D0
+   IF(OPNM.EQ.'GLL     ') OP17=62.0D0
+   IF(OPNM.EQ.'GLM     ') OP17=63.0D0
+   IF(OPNM.EQ.'GLN     ') OP17=64.0D0
+   IF(OPNM.EQ.'GLLOLD  ') OP17=65.0D0
+   IF(OPNM.EQ.'GLMOLD  ') OP17=66.0D0
+   IF(OPNM.EQ.'GLNOLD  ') OP17=67.0D0
+   IF(OPNM.EQ.'LENREF  ') OP17=68.0D0
+   IF(OPNM.EQ.'OPLREF  ') OP17=69.0D0
+   IF(OPNM.EQ.'RD      ') OP17=70.0D0
+   IF(OPNM.EQ.'CV      ') OP17=71.0D0
+   IF(OPNM.EQ.'TH      ') OP17=72.0D0
+   IF(OPNM.EQ.'CC      ') OP17=73.0D0
+   IF(OPNM.EQ.'AC      ') OP17=74.0D0
+   IF(OPNM.EQ.'AD      ') OP17=75.0D0
+   IF(OPNM.EQ.'AE      ') OP17=76.0D0
+   IF(OPNM.EQ.'AF      ') OP17=77.0D0
+   IF(OPNM.EQ.'AG      ') OP17=78.0D0
+   IF(OPNM.EQ.'RDTOR   ') OP17=79.0D0
+   IF(OPNM.EQ.'CVTOR   ') OP17=80.0D0
+   IF(OPNM.EQ.'CCTOR   ') OP17=81.0D0
+   IF(OPNM.EQ.'ADTOR   ') OP17=82.0D0
+   IF(OPNM.EQ.'AETOR   ') OP17=83.0D0
+   IF(OPNM.EQ.'AFTOR   ') OP17=84.0D0
+   IF(OPNM.EQ.'AGTOR   ') OP17=85.0D0
+   IF(OPNM.EQ.'ALPHA   ') OP17=86.0D0
+   IF(OPNM.EQ.'BETA    ') OP17=87.0D0
+   IF(OPNM.EQ.'GAMMA   ') OP17=88.0D0
+   IF(OPNM.EQ.'VNUM    ') OP17=89.0D0
+   IF(OPNM.EQ.'PARTL   ') OP17=90.0D0
+   IF(OPNM.EQ.'INDEX   ') OP17=91.0D0
+   IF(OPNM.EQ.'XD      ') OP17=92.0D0
+   IF(OPNM.EQ.'YD      ') OP17=93.0D0
+   IF(OPNM.EQ.'XVERT   ') OP17=94.0D0
+   IF(OPNM.EQ.'YVERT   ') OP17=95.0D0
+   IF(OPNM.EQ.'ZVERT   ') OP17=96.0D0
+   IF(OPNM.EQ.'LXVERT  ') OP17=97.0D0
+   IF(OPNM.EQ.'MXVERT  ') OP17=98.0D0
+   IF(OPNM.EQ.'NXVERT  ') OP17=99.0D0
+   IF(OPNM.EQ.'LYVERT  ') OP17=100.0D0
+   IF(OPNM.EQ.'MYVERT  ') OP17=101.0D0
+   IF(OPNM.EQ.'NYVERT  ') OP17=102.0D0
+   IF(OPNM.EQ.'LZVERT  ') OP17=103.0D0
+   IF(OPNM.EQ.'MZVERT  ') OP17=104.0D0
+   IF(OPNM.EQ.'NZVERT  ') OP17=105.0D0
+   IF(OPNM.EQ.'LENGTH  ') OP17=106.0D0
+   IF(OPNM.EQ.'OAL     ') OP17=106.0D0
+   IF(OPNM.EQ.'MLENGTH ') OP17=107.0D0
+   IF(OPNM.EQ.'OPTLEN  ') OP17=107.0D0
+   IF(OPNM.EQ.'ET      ') OP17=108.0D0
+   IF(OPNM.EQ.'ETY     ') OP17=108.0D0
+   IF(OPNM.EQ.'ETX     ') OP17=109.0D0
+   IF(OPNM.EQ.'SHAPEFAC') OP17=110.0D0
+   IF(OPNM.EQ.'C1      ') OP17=111.0D0
+   IF(OPNM.EQ.'C2      ') OP17=112.0D0
+   IF(OPNM.EQ.'C3      ') OP17=113.0D0
+   IF(OPNM.EQ.'C4      ') OP17=114.0D0
+   IF(OPNM.EQ.'C5      ') OP17=115.0D0
+   IF(OPNM.EQ.'C6      ') OP17=116.0D0
+   IF(OPNM.EQ.'C7      ') OP17=117.0D0
+   IF(OPNM.EQ.'C8      ') OP17=118.0D0
+   IF(OPNM.EQ.'C9      ') OP17=119.0D0
+   IF(OPNM.EQ.'C10     ') OP17=120.0D0
+   IF(OPNM.EQ.'C11     ') OP17=121.0D0
+   IF(OPNM.EQ.'C12     ') OP17=122.0D0
+   IF(OPNM.EQ.'C13     ') OP17=123.0D0
+   IF(OPNM.EQ.'C14     ') OP17=124.0D0
+   IF(OPNM.EQ.'C15     ') OP17=125.0D0
+   IF(OPNM.EQ.'C16     ') OP17=126.0D0
+   IF(OPNM.EQ.'C17     ') OP17=127.0D0
+   IF(OPNM.EQ.'C18     ') OP17=128.0D0
+   IF(OPNM.EQ.'C19     ') OP17=129.0D0
+   IF(OPNM.EQ.'C20     ') OP17=130.0D0
+   IF(OPNM.EQ.'C21     ') OP17=131.0D0
+   IF(OPNM.EQ.'C22     ') OP17=132.0D0
+   IF(OPNM.EQ.'C23     ') OP17=133.0D0
+   IF(OPNM.EQ.'C24     ') OP17=134.0D0
+   IF(OPNM.EQ.'C25     ') OP17=135.0D0
+   IF(OPNM.EQ.'C26     ') OP17=136.0D0
+   IF(OPNM.EQ.'C27     ') OP17=137.0D0
+   IF(OPNM.EQ.'C28     ') OP17=138.0D0
+   IF(OPNM.EQ.'C29     ') OP17=139.0D0
+   IF(OPNM.EQ.'C30     ') OP17=140.0D0
+   IF(OPNM.EQ.'C31     ') OP17=141.0D0
+   IF(OPNM.EQ.'C32     ') OP17=142.0D0
+   IF(OPNM.EQ.'C33     ') OP17=143.0D0
+   IF(OPNM.EQ.'C34     ') OP17=144.0D0
+   IF(OPNM.EQ.'C35     ') OP17=145.0D0
+   IF(OPNM.EQ.'C36     ') OP17=146.0D0
+   IF(OPNM.EQ.'C37     ') OP17=147.0D0
+   IF(OPNM.EQ.'C38     ') OP17=148.0D0
+   IF(OPNM.EQ.'C39     ') OP17=149.0D0
+   IF(OPNM.EQ.'C40     ') OP17=150.0D0
+   IF(OPNM.EQ.'C41     ') OP17=151.0D0
+   IF(OPNM.EQ.'C42     ') OP17=152.0D0
+   IF(OPNM.EQ.'C43     ') OP17=153.0D0
+   IF(OPNM.EQ.'C44     ') OP17=154.0D0
+   IF(OPNM.EQ.'C45     ') OP17=155.0D0
+   IF(OPNM.EQ.'C46     ') OP17=156.0D0
+   IF(OPNM.EQ.'C47     ') OP17=157.0D0
+   IF(OPNM.EQ.'C48     ') OP17=158.0D0
+   IF(OPNM.EQ.'C49     ') OP17=159.0D0
+   IF(OPNM.EQ.'C50     ') OP17=160.0D0
+   IF(OPNM.EQ.'C51     ') OP17=161.0D0
+   IF(OPNM.EQ.'C52     ') OP17=162.0D0
+   IF(OPNM.EQ.'C53     ') OP17=163.0D0
+   IF(OPNM.EQ.'C54     ') OP17=164.0D0
+   IF(OPNM.EQ.'C55     ') OP17=165.0D0
+   IF(OPNM.EQ.'C56     ') OP17=166.0D0
+   IF(OPNM.EQ.'C57     ') OP17=167.0D0
+   IF(OPNM.EQ.'C58     ') OP17=168.0D0
+   IF(OPNM.EQ.'C59     ') OP17=169.0D0
+   IF(OPNM.EQ.'C60     ') OP17=170.0D0
+   IF(OPNM.EQ.'C61     ') OP17=171.0D0
+   IF(OPNM.EQ.'C62     ') OP17=172.0D0
+   IF(OPNM.EQ.'C63     ') OP17=173.0D0
+   IF(OPNM.EQ.'C64     ') OP17=174.0D0
+   IF(OPNM.EQ.'C65     ') OP17=175.0D0
+   IF(OPNM.EQ.'C66     ') OP17=176.0D0
+   IF(OPNM.EQ.'C67     ') OP17=177.0D0
+   IF(OPNM.EQ.'C68     ') OP17=178.0D0
+   IF(OPNM.EQ.'C69     ') OP17=179.0D0
+   IF(OPNM.EQ.'C70     ') OP17=180.0D0
+   IF(OPNM.EQ.'C71     ') OP17=181.0D0
+   IF(OPNM.EQ.'C72     ') OP17=182.0D0
+   IF(OPNM.EQ.'C73     ') OP17=183.0D0
+   IF(OPNM.EQ.'C74     ') OP17=184.0D0
+   IF(OPNM.EQ.'C75     ') OP17=185.0D0
+   IF(OPNM.EQ.'C76     ') OP17=186.0D0
+   IF(OPNM.EQ.'C77     ') OP17=187.0D0
+   IF(OPNM.EQ.'C78     ') OP17=188.0D0
+   IF(OPNM.EQ.'C79     ') OP17=189.0D0
+   IF(OPNM.EQ.'C80     ') OP17=190.0D0
+   IF(OPNM.EQ.'C81     ') OP17=191.0D0
+   IF(OPNM.EQ.'C82     ') OP17=192.0D0
+   IF(OPNM.EQ.'C83     ') OP17=193.0D0
+   IF(OPNM.EQ.'C84     ') OP17=194.0D0
+   IF(OPNM.EQ.'C85     ') OP17=195.0D0
+   IF(OPNM.EQ.'C86     ') OP17=196.0D0
+   IF(OPNM.EQ.'C87     ') OP17=197.0D0
+   IF(OPNM.EQ.'C88     ') OP17=198.0D0
+   IF(OPNM.EQ.'C89     ') OP17=199.0D0
+   IF(OPNM.EQ.'C90     ') OP17=200.0D0
+   IF(OPNM.EQ.'C91     ') OP17=201.0D0
+   IF(OPNM.EQ.'C92     ') OP17=202.0D0
+   IF(OPNM.EQ.'C93     ') OP17=203.0D0
+   IF(OPNM.EQ.'C94     ') OP17=204.0D0
+   IF(OPNM.EQ.'C95     ') OP17=205.0D0
+   IF(OPNM.EQ.'C96     ') OP17=206.0D0
+   IF(OPNM.EQ.'PWRY    ') OP17=207.0D0
+   IF(OPNM.EQ.'PWRX    ') OP17=208.0D0
+   IF(OPNM.EQ.'FLCLTHX ') OP17=209.0D0
+   IF(OPNM.EQ.'FLCLTH  ') OP17=210.0D0
+   IF(OPNM.EQ.'FLCLTHY ') OP17=210.0D0
+   IF(OPNM.EQ.'PY      ') OP17=211.0D0
+   IF(OPNM.EQ.'PX      ') OP17=212.0D0
+   IF(OPNM.EQ.'PCY     ') OP17=213.0D0
+   IF(OPNM.EQ.'PCX     ') OP17=214.0D0
+   IF(OPNM.EQ.'PUY     ') OP17=215.0D0
+   IF(OPNM.EQ.'PUX     ') OP17=216.0D0
+   IF(OPNM.EQ.'PUCY    ') OP17=217.0D0
+   IF(OPNM.EQ.'PUCX    ') OP17=218.0D0
+   IF(OPNM.EQ.'PIY     ') OP17=219.0D0
+   IF(OPNM.EQ.'PIX     ') OP17=220.0D0
+   IF(OPNM.EQ.'PICY    ') OP17=221.0D0
+   IF(OPNM.EQ.'PICX    ') OP17=222.0D0
+   IF(OPNM.EQ.'PIYP    ') OP17=223.0D0
+   IF(OPNM.EQ.'PIXP    ') OP17=224.0D0
+   IF(OPNM.EQ.'PICYP   ') OP17=225.0D0
+   IF(OPNM.EQ.'PICXP   ') OP17=226.0D0
+   IF(OPNM.EQ.'PACY    ') OP17=227.0D0
+   IF(OPNM.EQ.'PACX    ') OP17=228.0D0
+   IF(OPNM.EQ.'PLCY    ') OP17=229.0D0
+   IF(OPNM.EQ.'PLCX    ') OP17=230.0D0
+   IF(OPNM.EQ.'SACY    ') OP17=231.0D0
+   IF(OPNM.EQ.'SACX    ') OP17=232.0D0
+   IF(OPNM.EQ.'SLCY    ') OP17=233.0D0
+   IF(OPNM.EQ.'SLCX    ') OP17=234.0D0
+   IF(OPNM.EQ.'IMDISX  ') OP17=235.0D0
+   IF(OPNM.EQ.'IMDISY  ') OP17=236.0D0
+   IF(OPNM.EQ.'CENTX   ') OP17=237.0D0
+   IF(OPNM.EQ.'CENTY   ') OP17=238.0D0
+   IF(OPNM.EQ.'RMSX    ') OP17=239.0D0
+   IF(OPNM.EQ.'RMSY    ') OP17=240.0D0
+   IF(OPNM.EQ.'RMS     ') OP17=241.0D0
+   IF(OPNM.EQ.'RSSX    ') OP17=242.0D0
+   IF(OPNM.EQ.'RSSY    ') OP17=243.0D0
+   IF(OPNM.EQ.'RSS     ') OP17=244.0D0
+   IF(OPNM.EQ.'RMSOPD  ') OP17=245.0D0
+   IF(OPNM.EQ.'ZERN37  ') OP17=246.0D0
+   IF(OPNM.EQ.'MAGX    ') OP17=247.0D0
+   IF(OPNM.EQ.'MAGY    ') OP17=248.0D0
+   IF(OPNM.EQ.'MAGXOR  ') OP17=249.0D0
+   IF(OPNM.EQ.'MAGYOR  ') OP17=250.0D0
+   IF(OPNM.EQ.'FFLX    ') OP17=251.0D0
+   IF(OPNM.EQ.'FFLY    ') OP17=252.0D0
+   IF(OPNM.EQ.'BFLX    ') OP17=253.0D0
+   IF(OPNM.EQ.'BFLY    ') OP17=254.0D0
+   IF(OPNM.EQ.'FFNX    ') OP17=255.0D0
+   IF(OPNM.EQ.'FFNY    ') OP17=256.0D0
+   IF(OPNM.EQ.'BFNX    ') OP17=257.0D0
+   IF(OPNM.EQ.'BFNY    ') OP17=258.0D0
+   IF(OPNM.EQ.'EFLX    ') OP17=259.0D0
+   IF(OPNM.EQ.'EFLY    ') OP17=260.0D0
+   IF(OPNM.EQ.'ENDIAX  ') OP17=261.0D0
+   IF(OPNM.EQ.'ENDIAY  ') OP17=262.0D0
+   IF(OPNM.EQ.'EXDIAX  ') OP17=263.0D0
+   IF(OPNM.EQ.'EXDIAY  ') OP17=264.0D0
+   IF(OPNM.EQ.'ENPOSX  ') OP17=265.0D0
+   IF(OPNM.EQ.'ENPOSY  ') OP17=266.0D0
+   IF(OPNM.EQ.'ENPOSZ  ') OP17=267.0D0
+   IF(OPNM.EQ.'EXPOSX  ') OP17=268.0D0
+   IF(OPNM.EQ.'EXPOSY  ') OP17=269.0D0
+   IF(OPNM.EQ.'EXPOSZ  ') OP17=270.0D0
+   IF(OPNM.EQ.'FNUMX   ') OP17=271.0D0
+   IF(OPNM.EQ.'FNYMY   ') OP17=272.0D0
+   IF(OPNM.EQ.'OBFNUMX ') OP17=273.0D0
+   IF(OPNM.EQ.'OBFNUMY ') OP17=274.0D0
+   IF(OPNM.EQ.'ENPDIAX ') OP17=275.0D0
+   IF(OPNM.EQ.'ENPDIAY ') OP17=276.0D0
+   IF(OPNM.EQ.'EXPDIAX ') OP17=277.0D0
+   IF(OPNM.EQ.'EXPDIAY ') OP17=278.0D0
+   IF(OPNM.EQ.'PUPDIAX ') OP17=279.0D0
+   IF(OPNM.EQ.'PUPDIAY ') OP17=280.0D0
+   IF(OPNM.EQ.'PUPDISX ') OP17=281.0D0
+   IF(OPNM.EQ.'PUPDISY ') OP17=282.0D0
+   IF(OPNM.EQ.'CHFIMX  ') OP17=283.0D0
+   IF(OPNM.EQ.'CHFIMY  ') OP17=284.0D0
+   IF(OPNM.EQ.'GPX     ') OP17=285.0D0
+   IF(OPNM.EQ.'GPY     ') OP17=286.0D0
+   IF(OPNM.EQ.'GPUX    ') OP17=287.0D0
+   IF(OPNM.EQ.'GPUY    ') OP17=288.0D0
+   IF(OPNM.EQ.'GPCX    ') OP17=289.0D0
+   IF(OPNM.EQ.'GPCY    ') OP17=290.0D0
+   IF(OPNM.EQ.'GPUCX   ') OP17=291.0D0
+   IF(OPNM.EQ.'GPUCY   ') OP17=292.0D0
+   IF(OPNM.EQ.'DIST    ') OP17=293.0D0
+   IF(OPNM.EQ.'XFOC    ') OP17=294.0D0
+   IF(OPNM.EQ.'YFOC    ') OP17=295.0D0
+   IF(OPNM.EQ.'AST     ') OP17=296.0D0
+   IF(OPNM.EQ.'SA3     ') OP17=297.0D0
+   IF(OPNM.EQ.'XSA3    ') OP17=298.0D0
+   IF(OPNM.EQ.'CMA3    ') OP17=299.0D0
+   IF(OPNM.EQ.'XCMA3   ') OP17=300.0D0
+   IF(OPNM.EQ.'AST3    ') OP17=301.0D0
+   IF(OPNM.EQ.'XAST3   ') OP17=302.0D0
+   IF(OPNM.EQ.'DIS3    ') OP17=303.0D0
+   IF(OPNM.EQ.'XDIS3   ') OP17=304.0D0
+   IF(OPNM.EQ.'PTZ3    ') OP17=305.0D0
+   IF(OPNM.EQ.'XPTZ3   ') OP17=306.0D0
+   IF(OPNM.EQ.'SA5     ') OP17=307.0D0
+   IF(OPNM.EQ.'XSA5    ') OP17=308.0D0
+   IF(OPNM.EQ.'CMA5    ') OP17=309.0D0
+   IF(OPNM.EQ.'XCMA5   ') OP17=310.0D0
+   IF(OPNM.EQ.'AST5    ') OP17=311.0D0
+   IF(OPNM.EQ.'XAST5   ') OP17=312.0D0
+   IF(OPNM.EQ.'DIS5    ') OP17=313.0D0
+   IF(OPNM.EQ.'XDIS5   ') OP17=314.0D0
+   IF(OPNM.EQ.'PTZ5    ') OP17=315.0D0
+   IF(OPNM.EQ.'XPTZ5   ') OP17=316.0D0
+   IF(OPNM.EQ.'TOBSA   ') OP17=317.0D0
+   IF(OPNM.EQ.'XTOBSA  ') OP17=318.0D0
+   IF(OPNM.EQ.'SOBSA   ') OP17=319.0D0
+   IF(OPNM.EQ.'XSOBSA  ') OP17=320.0D0
+   IF(OPNM.EQ.'ELCMA   ') OP17=321.0D0
+   IF(OPNM.EQ.'XELCMA  ') OP17=322.0D0
+   IF(OPNM.EQ.'TAS     ') OP17=323.0D0
+   IF(OPNM.EQ.'XTAS    ') OP17=324.0D0
+   IF(OPNM.EQ.'SAS     ') OP17=325.0D0
+   IF(OPNM.EQ.'XSAS    ') OP17=326.0D0
+   IF(OPNM.EQ.'SA7     ') OP17=327.0D0
+   IF(OPNM.EQ.'XSA7    ') OP17=328.0D0
+   IF(OPNM.EQ.'SA3P    ') OP17=329.0D0
+   IF(OPNM.EQ.'XSA3P   ') OP17=330.0D0
+   IF(OPNM.EQ.'CMA3P   ') OP17=331.0D0
+   IF(OPNM.EQ.'XCMA3P  ') OP17=332.0D0
+   IF(OPNM.EQ.'AST3P   ') OP17=333.0D0
+   IF(OPNM.EQ.'XAST3P  ') OP17=334.0D0
+   IF(OPNM.EQ.'DIS3P   ') OP17=335.0D0
+   IF(OPNM.EQ.'XDIS3P  ') OP17=336.0D0
+   IF(OPNM.EQ.'PTZ3P   ') OP17=337.0D0
+   IF(OPNM.EQ.'XPTZ3P  ') OP17=338.0D0
+   IF(OPNM.EQ.'SA5P    ') OP17=339.0D0
+   IF(OPNM.EQ.'XSA5P   ') OP17=340.0D0
+   IF(OPNM.EQ.'CMA5P   ') OP17=341.0D0
+   IF(OPNM.EQ.'XCMA5P  ') OP17=342.0D0
+   IF(OPNM.EQ.'AST5P   ') OP17=343.0D0
+   IF(OPNM.EQ.'XAST5P  ') OP17=344.0D0
+   IF(OPNM.EQ.'DIS5P   ') OP17=345.0D0
+   IF(OPNM.EQ.'XDIS5P  ') OP17=346.0D0
+   IF(OPNM.EQ.'PTZ5P   ') OP17=347.0D0
+   IF(OPNM.EQ.'XPTZ5P  ') OP17=348.0D0
+   IF(OPNM.EQ.'TOBSAP  ') OP17=349.0D0
+   IF(OPNM.EQ.'XTOBSAP ') OP17=350.0D0
+   IF(OPNM.EQ.'SOBSAP  ') OP17=351.0D0
+   IF(OPNM.EQ.'XSOBSAP ') OP17=352.0D0
+   IF(OPNM.EQ.'ELCMAP  ') OP17=353.0D0
+   IF(OPNM.EQ.'XELCMAP ') OP17=354.0D0
+   IF(OPNM.EQ.'TASP    ') OP17=355.0D0
+   IF(OPNM.EQ.'XTASP   ') OP17=356.0D0
+   IF(OPNM.EQ.'SASP    ') OP17=357.0D0
+   IF(OPNM.EQ.'XSASP   ') OP17=358.0D0
+   IF(OPNM.EQ.'SA7P    ') OP17=359.0D0
+   IF(OPNM.EQ.'XSA7P   ') OP17=360.0D0
+   IF(OPNM.EQ.'SA3S    ') OP17=361.0D0
+   IF(OPNM.EQ.'XSA3S   ') OP17=362.0D0
+   IF(OPNM.EQ.'CMA3S   ') OP17=363.0D0
+   IF(OPNM.EQ.'XCMA3S  ') OP17=364.0D0
+   IF(OPNM.EQ.'AST3S   ') OP17=365.0D0
+   IF(OPNM.EQ.'XAST3S  ') OP17=366.0D0
+   IF(OPNM.EQ.'DIS3S   ') OP17=367.0D0
+   IF(OPNM.EQ.'XDIS3S  ') OP17=368.0D0
+   IF(OPNM.EQ.'PTZ3S   ') OP17=369.0D0
+   IF(OPNM.EQ.'XPTZ3S  ') OP17=370.0D0
+   IF(OPNM.EQ.'SA5S    ') OP17=371.0D0
+   IF(OPNM.EQ.'XSA5S   ') OP17=372.0D0
+   IF(OPNM.EQ.'CMA5S   ') OP17=373.0D0
+   IF(OPNM.EQ.'XCMA5S  ') OP17=374.0D0
+   IF(OPNM.EQ.'AST5S   ') OP17=375.0D0
+   IF(OPNM.EQ.'XAST5S  ') OP17=376.0D0
+   IF(OPNM.EQ.'DIS5S   ') OP17=377.0D0
+   IF(OPNM.EQ.'XDIS5S  ') OP17=378.0D0
+   IF(OPNM.EQ.'PTZ5S   ') OP17=379.0D0
+   IF(OPNM.EQ.'XPTZ5S  ') OP17=380.0D0
+   IF(OPNM.EQ.'TOBSAS  ') OP17=381.0D0
+   IF(OPNM.EQ.'XTOBSAS ') OP17=382.0D0
+   IF(OPNM.EQ.'SOBSAS  ') OP17=383.0D0
+   IF(OPNM.EQ.'XSOBSAS ') OP17=384.0D0
+   IF(OPNM.EQ.'ELCMAS  ') OP17=385.0D0
+   IF(OPNM.EQ.'XELCMAS ') OP17=386.0D0
+   IF(OPNM.EQ.'TASS    ') OP17=387.0D0
+   IF(OPNM.EQ.'XTASS   ') OP17=388.0D0
+   IF(OPNM.EQ.'SASS    ') OP17=389.0D0
+   IF(OPNM.EQ.'XSASS   ') OP17=390.0D0
+   IF(OPNM.EQ.'SA7S    ') OP17=391.0D0
+   IF(OPNM.EQ.'XSA7S   ') OP17=392.0D0
+   IF(OPNM.EQ.'SA5I    ') OP17=393.0D0
+   IF(OPNM.EQ.'XSA5I   ') OP17=394.0D0
+   IF(OPNM.EQ.'CMA5I   ') OP17=395.0D0
+   IF(OPNM.EQ.'XCMA5I  ') OP17=396.0D0
+   IF(OPNM.EQ.'AST5I   ') OP17=397.0D0
+   IF(OPNM.EQ.'XAST5I  ') OP17=398.0D0
+   IF(OPNM.EQ.'DIS5I   ') OP17=399.0D0
+   IF(OPNM.EQ.'XDIS5I  ') OP17=400.0D0
+   IF(OPNM.EQ.'PTZ5I   ') OP17=401.0D0
+   IF(OPNM.EQ.'XPTZ5I  ') OP17=402.0D0
+   IF(OPNM.EQ.'TOBSAI  ') OP17=403.0D0
+   IF(OPNM.EQ.'XTOBSAI ') OP17=404.0D0
+   IF(OPNM.EQ.'SOBSAI  ') OP17=405.0D0
+   IF(OPNM.EQ.'XSOBSAI ') OP17=406.0D0
+   IF(OPNM.EQ.'ELCMAI  ') OP17=407.0D0
+   IF(OPNM.EQ.'XELCMAI ') OP17=408.0D0
+   IF(OPNM.EQ.'TASI    ') OP17=409.0D0
+   IF(OPNM.EQ.'XTASI   ') OP17=410.0D0
+   IF(OPNM.EQ.'SASI    ') OP17=411.0D0
+   IF(OPNM.EQ.'XSASI   ') OP17=412.0D0
+   IF(OPNM.EQ.'SA7I    ') OP17=413.0D0
+   IF(OPNM.EQ.'XSA7I   ') OP17=414.0D0
+   IF(OPNM.EQ.'PSA3    ') OP17=415.0D0
+   IF(OPNM.EQ.'XPSA3   ') OP17=416.0D0
+   IF(OPNM.EQ.'PCMA3   ') OP17=417.0D0
+   IF(OPNM.EQ.'XPCMA3  ') OP17=418.0D0
+   IF(OPNM.EQ.'PAST3   ') OP17=419.0D0
+   IF(OPNM.EQ.'XPAST3  ') OP17=420.0D0
+   IF(OPNM.EQ.'PDIS3   ') OP17=421.0D0
+   IF(OPNM.EQ.'XPDIS3  ') OP17=422.0D0
+   IF(OPNM.EQ.'PPTZ3   ') OP17=423.0D0
+   IF(OPNM.EQ.'XPPTZ3  ') OP17=424.0D0
+   IF(OPNM.EQ.'PSA3P   ') OP17=425.0D0
+   IF(OPNM.EQ.'XPSA3P  ') OP17=426.0D0
+   IF(OPNM.EQ.'PCMA3P  ') OP17=427.0D0
+   IF(OPNM.EQ.'XPCMA3P ') OP17=428.0D0
+   IF(OPNM.EQ.'PAST3P  ') OP17=429.0D0
+   IF(OPNM.EQ.'XPAST3P ') OP17=430.0D0
+   IF(OPNM.EQ.'PDIS3P  ') OP17=431.0D0
+   IF(OPNM.EQ.'XPDIS3P ') OP17=432.0D0
+   IF(OPNM.EQ.'PPTZ3P  ') OP17=433.0D0
+   IF(OPNM.EQ.'XPPTZ3P ') OP17=434.0D0
+   IF(OPNM.EQ.'PSA3S   ') OP17=435.0D0
+   IF(OPNM.EQ.'XPSA3S  ') OP17=436.0D0
+   IF(OPNM.EQ.'PCMA3S  ') OP17=437.0D0
+   IF(OPNM.EQ.'XPCMA3S ') OP17=438.0D0
+   IF(OPNM.EQ.'PAST3S  ') OP17=439.0D0
+   IF(OPNM.EQ.'XPAST3S ') OP17=430.0D0
+   IF(OPNM.EQ.'PDIS3S  ') OP17=431.0D0
+   IF(OPNM.EQ.'XPDIS3S ') OP17=442.0D0
+   IF(OPNM.EQ.'PPTZ3S  ') OP17=443.0D0
+   IF(OPNM.EQ.'XPPTZ3S ') OP17=444.0D0
+   IF(OPNM.EQ.'PTZCV   ') OP17=445.0D0
+   IF(OPNM.EQ.'XPTZCV  ') OP17=446.0D0
+   IF(OPNM.EQ.'AH      ') OP17=447.0D0
+   IF(OPNM.EQ.'AI      ') OP17=448.0D0
+   IF(OPNM.EQ.'AJ      ') OP17=449.0D0
+   IF(OPNM.EQ.'AK      ') OP17=450.0D0
+   IF(OPNM.EQ.'AL      ') OP17=451.0D0
+   IF(OPNM.EQ.'GBRADX  ') OP17=452.0D0
+   IF(OPNM.EQ.'GBRADY  ') OP17=453.0D0
+   IF(OPNM.EQ.'GBDISX  ') OP17=454.0D0
+   IF(OPNM.EQ.'GBDISY  ') OP17=455.0D0
+   IF(OPNM.EQ.'GBRCVX  ') OP17=456.0D0
+   IF(OPNM.EQ.'GBRCVY  ') OP17=457.0D0
+   IF(OPNM.EQ.'GBWAISTX') OP17=458.0D0
+   IF(OPNM.EQ.'GBWAISTY') OP17=459.0D0
+   IF(OPNM.EQ.'MGOTF')    OP17=460.0D0
+   IF(OPNM.EQ.'PGOTF')    OP17=461.0D0
+   IF(OPNM.EQ.'MDOTF')    OP17=462.0D0
+   IF(OPNM.EQ.'PDOTF')    OP17=463.0D0
+   IF(OPNM.EQ.'GOTFM')    OP17=460.0D0
+   IF(OPNM.EQ.'GOTFP')    OP17=461.0D0
+   IF(OPNM.EQ.'DOTFM')    OP17=462.0D0
+   IF(OPNM.EQ.'DOTFP')    OP17=463.0D0
+   IF(OPNM.EQ.'REDK')      OP17=464.0D0
+   IF(OPNM.EQ.'REDCEN')   OP17=465.0D0
+   IF(OPNM.EQ.'FISHDIST') OP17=466.0D0
+   IF(OPNM.EQ.'ZD')       OP17=467.0D0
+   IF(OPNM.EQ.'SYMX')     OP17=468.0D0
+   IF(OPNM.EQ.'SYMY')     OP17=469.0D0
+   IF(OPNM.EQ.'ASYMX')    OP17=470.0D0
+   IF(OPNM.EQ.'ASYMY')    OP17=471.0D0
+   IF(OPNM.EQ.'PACM')     OP17=472.0D0
+   IF(OPNM.EQ.'PACZ')     OP17=473.0D0
+   IF(OPNM.EQ.'SACM')     OP17=474.0D0
+   IF(OPNM.EQ.'SACZ')     OP17=475.0D0
+   IF(OPNM.EQ.'PLCM')     OP17=476.0D0
+   IF(OPNM.EQ.'PLCZ')     OP17=477.0D0
+   IF(OPNM.EQ.'SLCM')     OP17=478.0D0
+   IF(OPNM.EQ.'SLCZ')     OP17=479.0D0
+   IF(OPNM.EQ.'CTSX')     OP17=480.0D0
+   IF(OPNM.EQ.'CTSY')     OP17=481.0D0
+   IF(OPNM.EQ.'SCEX')     OP17=482.0D0
+   IF(OPNM.EQ.'SCEY')     OP17=483.0D0
+   IF(OPNM.EQ.'GREYS')    OP17=484.0D0
+   IF(OPNM.EQ.'PIVX')     OP17=485.0D0
+   IF(OPNM.EQ.'PIVY')     OP17=486.0D0
+   IF(OPNM.EQ.'PIVZ')     OP17=487.0D0
+   IF(OPNM.EQ.'N1')       OP17=488.0D0
+   IF(OPNM.EQ.'N2')       OP17=489.0D0
+   IF(OPNM.EQ.'N3')       OP17=490.0D0
+   IF(OPNM.EQ.'N4')       OP17=491.0D0
+   IF(OPNM.EQ.'N5')       OP17=492.0D0
+   IF(OPNM.EQ.'N6')       OP17=493.0D0
+   IF(OPNM.EQ.'N7')       OP17=494.0D0
+   IF(OPNM.EQ.'N8')       OP17=495.0D0
+   IF(OPNM.EQ.'N9')       OP17=496.0D0
+   IF(OPNM.EQ.'N10')      OP17=497.0D0
+   IF(OPNM.EQ.'ABBE')     OP17=498.0D0
+   IF(OPNM.EQ.'DPART')    OP17=499.0D0
+   IF(OPNM.EQ.'CLPX')     OP17=500.0D0
+   IF(OPNM.EQ.'CLPY')     OP17=501.0D0
+   IF(OPNM.EQ.'GDX')      OP17=502.0D0
+   IF(OPNM.EQ.'GDY')      OP17=503.0D0
+   IF(OPNM.EQ.'GDZ')      OP17=504.0D0
+   IF(OPNM.EQ.'GALPHA')   OP17=505.0D0
+   IF(OPNM.EQ.'GBETA')    OP17=506.0D0
+   IF(OPNM.EQ.'GGAMMA')   OP17=507.0D0
+   IF(OPNM.EQ.'GRS')      OP17=508.0D0
+   IF(OPNM.EQ.'WEIGHT')   OP17=509.0D0
+   IF(OPNM.EQ.'DMINUSD')  OP17=510.0D0
+   IF(OPNM.EQ.'COST')     OP17=511.0D0
+   IF(OPNM.EQ.'MACOPT')   OP17=512.0D0
+   IF(OPNM.EQ.'RMSYX')    OP17=513.0D0
+!
+   IF(OP17.EQ.512.0D0) THEN
+!     MACOPT OPERAND
+      IF(INT(W3).LT.1.OR.INT(W3).GT.1000) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM,' REQUIRES'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'"NUMERIC WORD #2 IN THE RANGE 1 TO 1000'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.480.0D0.AND.OP17.LE.481.0D0) THEN
+!     CTSX AND CTSY OPERANDS
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.482.0D0.AND.OP17.LE.483.0D0) THEN
+!     SCEX AND SCEY OPERANDS
+      IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+!
+   IF(OP17.GE.472.0D0.AND.OP17.LE.479.0D0.OR.OP17.EQ.479.0D0 &
+   &.OR.OP17.EQ.510.0D0) THEN
+!     REAL RAY COLOR OPERANDS, NO INPUT NEEDED TO DEFINE
+!     FRACTIONAL OBJECT POS., REL RAY POS OR COLORS.
+      IF(DF3.EQ.0.OR.DF4.EQ.0.OR.DF5.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!     SYMX,SYMY,ASYMX AND ASYMY
+   IF(OP17.GE.468.0D0.AND.OP17.LE.471.0D0) THEN
+!     W3 (CALLED W2) ANY VALUE MAY BE INPUT ( ONLY ABS VALUE USED)
+      IF(DF3.EQ.1) THEN
+         DF3=0
+         W3=0.7D0
+      END IF
+      W3=DABS(W3)
+!     W4 (CALLED W3) 1 TO 200 (FIELD NUMBER)
+      IF(DF4.EQ.1) THEN
+         DF4=0
+         W4=1.0D0
+      END IF
+!     W5 (CALLED W4) 1 TO 10 (WAVELENGTH NUMBER)
+      IF(DF5.EQ.1) THEN
+         DF5=0
+         W5=SYSTEM(11)
+      END IF
+!     OUT OF RANGE INPUT W4
+      IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W5
+      IF(INT(W5).LT.1.OR.INT(W5).GT.10.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'WAVELENGTH NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+!
+   IF(OP17.GE.1.0D0.AND.OP17.LE.15.0D0.OR.OP17.GE.18.0D0.AND.OP17 &
+   &.LE.69.0D0) THEN
+!
+!     RAY BASED PREDEFINED OPERANDS
+!
+!
+      IF(OP17.EQ.68.0D0.OR.OP17.EQ.69.0D0) THEN
+         IF(W3.LT.1.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES NUMERIC WORD #2 INPUT GREATER THAN 0'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     DEFAULT NW3
+      IF(OP17.GE.1.0D0.AND.OP17.LE.14.0D0.OR.&
+      &OP17.GE.18.0D0.AND.OP17.LE.20.0D0.OR.&
+      &OP17.GE.22.0D0.AND.OP17.LE.23.0D0.OR.&
+      &OP17.GE.27.0D0.AND.OP17.LE.55.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            W3=DBLE(NEWIMG)
+            DF3=0
+            IREG=W3
+            OP8 =IREG
+            OP18 =DBLE(DF3)
+         END IF
+      END IF
+!
+      IF(OP17.EQ.15.0D0.OR.&
+      &OP17.EQ.21D0.OR.&
+      &OP17.GE.24.0D0.AND.OP17.LE.26.0D0.OR.&
+      &OP17.GE.56.0D0.AND.OP17.LE.69.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.43.AND.OP17.LE.58.0D0.OR.OP17.GE.68.0D0.AND.&
+      &OP17.LE.69.0D0) THEN
+!     REFERENCE RAYS
+!     DEFAULT INPUT W4
+!
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         DF5=0
+         S5=1
+         W5=0
+
+!     OUT OF RANGE INPUT W3
+         IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'SURFACE NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W4
+         IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      ELSE
+!     NOT REFERENCE RAYS
+!     DEFAULT INPUT W4 AND W5
+!
+         IF(DF4.EQ.1.OR.DF5.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 AND #5 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+
+!     OUT OF RANGE INPUT W3
+         IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'SURFACE NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W4
+         IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W5
+         IF(INT(W5).LT.1.OR.INT(W5).GT.500) THEN
+            WRITE(OUTLYNE,*)&
+            &'RAY POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+   END IF
+!     *****************************************************************
+   IF(OP17.EQ.16.0D0.OR.OP17.EQ.17.0D0) THEN
+!     OPD OR OPDW
+!
+      IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORD #2 AND #3 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W3
+      IF(INT(W3).LT.1.OR.INT(W3).GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W4
+      IF(INT(W4).LT.1.OR.INT(W4).GT.500) THEN
+         WRITE(OUTLYNE,*)&
+         &'RAY POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     W5
+      IF(S5.EQ.1.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+   END IF
+!     *****************************************************************
+   IF(OP17.GE.70.0D0.AND.OP17.LE.206.0D0.OR.&
+   &OP17.GE.447.0D0.AND.OP17.LE.451.0D0.OR.&
+   &OP17.EQ.467.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.511.0D0) THEN
+!     LENS DATABASE OPERANDS
+      IF(OP17.EQ.15.0D0.OR.OP17.EQ.21.0D0) THEN
+         IF(W3.LT.1.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES NUMERIC WORD #2 GREATER THAN 0'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     DEFAULT INPUT W5
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(OP17.NE.91.0D0.AND.OP17.NE.106.0D0.AND.&
+      &OP17.NE.107.0D0.AND.OP17.NE.509.0D0.AND.OP17.NE.511.0D0) THEN
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET DEFAULTS FOR LENGTH AND MLENGTH AND WEIGHT
+      IF(OP17.EQ.106.0D0.OR.&
+      &OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0.OR.OP17.EQ.511.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(DF3.EQ.1) W3=0.0D0
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(20)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+!     SET DEFAULTS FOR VERTEX DATA
+      IF(OP17.GE.94.0D0.AND.OP17.LE.105.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET SURFACE DATA NUMERIC WORD #2
+      IF(OP17.GE.70.0D0.AND.&
+      &OP17.LE.89.0D0.OR.OP17.GE.447.0D0.AND.&
+      &OP17.LE.451.0D0.OR.OP17.GE.92.0D0.AND.&
+      &OP17.LE.93.0D0.OR.OP17.GE.108.0D0.AND.&
+      &OP17.LE.206.0D0.OR.OP17.EQ.467.0D0.OR.OP17.GT.485.0D0.AND.OP17 &
+      &.LE.499.0D0.OR.OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.70.0D0.AND.OP17.LE.90.0D0.OR.&
+      &OP17.GE.92.0D0.AND.&
+      &OP17.LE.93.0D0.OR.OP17.EQ.467.0D0.OR.OP17.GE.&
+      &108.0D0.AND.OP17.LE.206.0D0.OR.OP17.GE.447.0D0 &
+      &.AND.OP17.LE.451.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0 &
+      &.OR.OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.94.0D0.AND.OP17.LE.105.0D0) THEN
+         IF(W3.LT.DBLE(NEWOBJ).OR.W3.GT.DBLE(NEWIMG)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER, NW2, ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.DBLE(NEWOBJ).OR.W4.GT.DBLE(NEWIMG)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER, NW3, ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.EQ.106.0D0.OR.OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0 &
+      &.OR.OP17.EQ.511.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.W3.GE.W4.OR.W4.LT.0.0D0 &
+         &.OR.W4.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBERS ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.EQ.91.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+   IF(OP17.GE.207.0D0.AND.OP17.LE.236.0D0) THEN
+!
+      IF(OP17.GE.207.0D0.AND.OP17.LE.236.0D0) THEN
+!     PARAXIAL OPERANDS
+!     DEFAULT INPUT W5
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
+         IF(S4.EQ.1.AND.W4.NE.0.0D0.OR.S5.EQ.1.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET DEFAULTS FOR PWRY,PWRX,FLCLTH OR FLCLTHY AND FLCLTHX
+      IF(OP17.GE.207.0D0.AND.&
+      &OP17.LE.210.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(DF3.EQ.1) W3=0.0D0
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(20)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+         DF5=1
+         W5=0.0D0
+      END IF
+!     SET DEFAULTS FOR 211 TO 226
+      IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(11)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+!     SET DEFAULTS FOR 227 TO 234
+      IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+      END IF
+!     SET NW3 FOR 235 TO 236
+      IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.GE.207.0D0.AND.OP17.LE.210.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.&
+         &W4.LT.0.0D0.OR.W4.GT.SYSTEM(20).OR.&
+         &W4.LE.W3) THEN
+!     BAD SURFACE NUMBERS
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBERS ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W4=DBLE(INT(W4))
+            OP9 = W4
+         END IF
+      END IF
+      IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+!
+!     *****************************************************************
+   IF(OP17.GE.237.0D0.AND.OP17.LE.245.0D0.OR.OP17.EQ.513.0D0) THEN
+!     SPOT OPERANDS
+!     DEFAULT INPUT W5
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     SPOT OPERANDS
+!     DEFAULT INPUT W3
+      IF(DF3.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+         WRITE(OUTLYNE,*)&
+         &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(W4.LE.0.0D0.OR.W4.GT.10.0D0) THEN
+         W4=0.0D0
+         DF4=1
+      END IF
+      IF(DF4.EQ.0) THEN
+         IF(W4.NE.1.0D0.AND.&
+         &W4.NE.2.0D0.AND.&
+         &W4.NE.3.0D0.AND.&
+         &W4.NE.4.0D0.AND.&
+         &W4.NE.5.0D0.AND.&
+         &W4.NE.6.0D0.AND.&
+         &W4.NE.7.0D0.AND.&
+         &W4.NE.8.0D0.AND.&
+         &W4.NE.9.0D0.AND.&
+         &W4.NE.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+      OP9=W4
+      OP11=DBLE(DF4)
+!
+   END IF
+!     *****************************************************************
+!     *****************************************************************
+   IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+   &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+!     CAPFN OPERANDS AND SECOND GROUP OF SPOT OPERANDS
+!
+      IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+      &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+!     SPOT OPERANDS
+!     DEFAULT INPUT W3
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+      &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0) THEN
+         IF(W4.LT.1.0D0.OR.W4.GT.37.0D0) THEN
+!     BAD ZERN NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID ZERN COEFFICIENT NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD ZERN NUMBER
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.484.0D0) THEN
+         IF(DF4.EQ.1) THEN
+            DF4=0
+            S4=1
+            W4=1.0D0
+         END IF
+         IF(W4.LT.0.0D0) THEN
+!     BAD OPDWEIGT
+            WRITE(OUTLYNE,*)&
+            &'OPD WEIGHT MUST BE GREATER THAN ZERO'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.EQ.464.0D0.OR.OP17.EQ.465.0D0) THEN
+         IF(W4.LE.0.0D0.OR.W4.GT.100.0D0) THEN
+!     BAD % NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID ENCIRLED ENERGY PERCENTAGE ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.465.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD W4
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(DF5.EQ.1) W5=SYSTEM(11)
+         OP10 =W5
+         IF(DF5.EQ.1) DF5=0
+         OP12 =DBLE(DF5)
+      END IF
+      IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(W5.LT.1.0D0.OR.W5.GT.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.464.0D0.AND.OP17.LE.465.0D0) THEN
+         IF(DF5.EQ.0) THEN
+!     BAD W5 NUMBER
+            WRITE(OUTLYNE,*)&
+            &'NO NUMERIC WORD #4 INPUT IS USED WITH'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.463.0D0) THEN
+         IF(DF5.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT NUMERIC WORD #4 INPUT REQUIRED WITH'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.463.0D0) THEN
+         IF(DF5.EQ.1.AND.W1.NE.0.0D0.AND.W2.NE.90.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #4, ORIENTATION VALUE MUST BE 0 OR 90 FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+   END IF
+!
+   IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0.OR.&
+   &OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+!
+      IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0) THEN
+!     SPECIAL OPERANDS
+!     DEFAULT INPUT W5
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.247.0D0.AND.OP17.LE.284.OR.&
+      &OP17.GE.293.0D0.AND.OP17.LE.296.0D0.OR.OP17.EQ.466.0D0) THEN
+!     CAPFN OPERANDS
+!     DEFAULT INPUT W4
+         IF(DF4.EQ.0.AND.W4.NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'TAKES NO NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0) THEN
+!     SPECIAL OPERANDS
+!     DEFAULT INPUT W3
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #2 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.GE.247.0D0.AND.OP17.LE.278.0D0.OR.&
+      &OP17.LE.293.0D0.AND.OP17.LE.296.0D0.OR.OP17.EQ.466.0D0) THEN
+         IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.279.0D0.AND.OP17.LE.284.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.285.0D0.AND.OP17.LE.292.0D0) THEN
+         IF(DF3.EQ.1) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT SURFACE NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF4.EQ.1) THEN
+!     BAD FIELD NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT FIELD NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.DBLE(NEWOBJ).OR.W3.GT.DBLE(NEWIMG)) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            DF3=0
+            W3=INT(SYSTEM(20))
+         END IF
+      END IF
+      IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD FIELD NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT FIELD NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF5.EQ.0) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'NO NUMERIC WORD #4 USED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD FIELD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+!
+!     *****************************************************************
+   IF(OP17.GE.297.0D0.AND.OP17.LE.446.0D0) THEN
+!     3,5,7 ABERRATIONS
+!
+!     DEFAULT INPUT W4 AND W5
+      IF(DF4.EQ.0.AND.W5.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'TAKES NO NUMERIC WORD #3 OR #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+      IF(DF3.EQ.1) W3=SYSTEM(20)
+      IF(DF3.EQ.1) DF3=0
+      IREG=W3
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+!
+      IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+         WRITE(OUTLYNE,*)&
+         &'INVALID SURFACE NUMBER ISSUED FOR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+   END IF
+!
+!     INPUT OK FOR W3, W4 AND W5
+!
+3141 CONTINUE
+!     ANY 8 CHARACTER QUALIFIER WORD OPERAND NAME MAY BE USED
+!     BUT DUPLICATE NAMES CAUSE REPLACEMENT
+!     HERE IS WERE THE REPLACEMENT HAPPENS
+   I=INT(W1)
+   IF(WQ.EQ.OPNAM(I).AND.&
+   &W3.EQ.OPERND(I,8).AND.W4.EQ.OPERND(I,9)&
+   &.AND.W5.EQ.OPERND(I,10).AND.OPT.EQ.OPERND(I,1)&
+   &.AND.DBLE(CORMOD).EQ.OPERND(I,13)) THEN
+!     FUNC, NAME, NW3,NW4,NW5,CFG AND CORMOD MUST MATCH OR NO REPLACEMENT
+!
+      OP1 =DBLE(OPT)
+      OPNM=WQ
+      OP2 =0.0D0
+      OP3 =0.0D0
+      OP4 =0.0D0
+      OP5 =0.0D0
+      OP6 =0.0D0
+      OP7 =OPWEIT
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9 = W4
+      OP10 =W5
+      OP11 =DBLE(DF4)
+      OP12 =DBLE(DF5)
+      OP13 =DBLE(CORMOD)
+      OP14 = 0.0D0
+      OP15 = 0.0D0
+      IF(OPT.EQ.0) OP16 = 1.0D0
+      IF(OPT.NE.0) OP16 = 0.0D0
+      IREG=W3
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+!
+      OPERND(I,1) =OP1
+      OPERND(I,2) =OP2
+      OPERND(I,3) =OP3
+      OPERND(I,4) =OP4
+      OPERND(I,5) =OP5
+      OPERND(I,6) =OP6
+      OPERND(I,7) =OP7
+      OPERND(I,8) =OP8
+      OPERND(I,9) =OP9
+      OPERND(I,10) =OP10
+      OPERND(I,11) =OP11
+      OPERND(I,12) =OP12
+      OPERND(I,13) =OP13
+      OPERND(I,14) =OP14
+      OPERND(I,15) =OP15
+      OPERND(I,16) =OP16
+      OPERND(I,17) =OP17
+      OPERND(I,18) =OP18
+      OPERND(I,19) =OP19
+      ISCRIT(I)=.TRUE.
+      RETURN
+   END IF
+!
+!     IT IS A NEW OPERAND
+   OP1 =DBLE(OPT)
+   OPNM=WQ
+   OP2 =0.0D0
+   OP3 =0.0D0
+   OP4 =0.0D0
+   OP5 =0.0D0
+   OP6 =0.0D0
+   OP7 =OPWEIT
+   IREG=W3
+   OP8 =IREG
+   OP18 =DBLE(DF3)
+   OP9 = W4
+   OP10 =W5
+   OP11 =DBLE(DF4)
+   OP12 =DBLE(DF5)
+   OP13 =DBLE(CORMOD)
+   OP14 = 0.0D0
+   OP15 = 0.0D0
+   IREG=W3
+   OP18=DBLE(DF3)
+   OP19=0.0D0
+   IF(OPT.EQ.0) OP16 = 1.0D0
+   IF(OPT.NE.0) OP16 = 0.0D0
+!
+   I=INT(W1)
+   OPNAM(I)=OPNM
+   OPERND(I,1) =OP1
+   OPERND(I,2) =OP2
+   OPERND(I,3) =OP3
+   OPERND(I,4) =OP4
+   OPERND(I,5) =OP5
+   OPERND(I,6) =OP6
+   OPERND(I,7) =OP7
+   OPERND(I,8) =OP8
+   OPERND(I,9) =OP9
+   OPERND(I,10) =OP10
+   OPERND(I,11) =OP11
+   OPERND(I,12) =OP12
+   OPERND(I,13) =OP13
+   OPERND(I,14) =OP14
+   OPERND(I,15) =OP15
+   OPERND(I,16) =OP16
+   OPERND(I,17) =OP17
+   OPERND(I,18) =OP18
+   OPERND(I,19) =OP19
+   ISCRIT(I)=.TRUE.
+   RETURN
+!       ALL DONE
+END
+! SUB MERIT1.FOR
+SUBROUTINE MERIT1
+!
+   use DATCFG
+   use DATSPD
+   use DATSUB
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+!
+   INTEGER I,J,K,L,OPT
+!
+   CHARACTER OPNM*8,OPCHR*3
+!
+   INTEGER VL
+!
+   CHARACTER BF*140
+!
+   REAL*8 OPWEIT,IREG
+!
+   REAL*8 OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
+   &,OP11,OP12,OP13,OP14,OP15,OP16,OP17,OP18,OP19
+!
+!
+!       THIS IS SUBROUTINE MERIT. THIS IS THE SUBROUTINE WHICH
+!       HANDLES MERIT INPUT AND MERIT UPDATE COMMANDS AND
+!       OUTPUT COMMANDS AT THE CMD LEVEL
+!
+!       THE ARRAY OPERND AND OPNAM STORE MERIT INFORMATION
+!       IT IS PASSED IN COMMON IN THE INCLUDE FILE DATSUB.FOR
+!
+!       OPERND(I,J) WHERE I COUNTS THE NUMBER OF OPERAND ENTRIES
+!       AND J TAKES ON THE FOLLOWING VALUES AND MEANIINGS.
+!
+!       J=1  > 1 THROUGH 10, THE NUMBER OF THE FUNCTION IN WHICH
+!               THE ACTUAL OPERAND IS CALCULATED (COMMAND WORD)
+!         (0 IS PREDEFINED OPERAND)
+!
+!       J=2  > TARGET VALUE OF THE OPERAND (NUMERIC WORD #1)
+!       J=3  > OPERAND ORIGINAL VALUE
+!       J=4  > OPERAND CURRENT VALUE
+!       J=5  > OPERAND PREVIOUS VALUE
+!       J=6  > LAST OPERAND CHANGE VALUE (CURRENT-PREVIOUS)
+!       J=7  > WT, THE WEIGHTING FACTOR DURING OPTIMIZATION (NUMERIC WORD #2)
+!
+!       J=8  > NUMBER OF THE GENERAL PURPOSE REGISTER CONTAINING
+!               THE ACTUAL OPERAND VALUE AS RETURNED FROM THE
+!               CALCULATING FUNCTION (NUMERIC WORD #3) (VALUES 1 TO 300)
+!               (A DEFAULT ENTRY HERE CAUSES THE ACCUMULATOR TO BE USED)
+!       FOR PREDEFINED OPERAND, IT IS THE (I) INPUT VALUE
+!
+!       J=9  > OPTIONAL NW1 FOR THE FUNCTION (USING NSUB) (NUMERIC WORD #4)
+!       J=10 > OPTIONAL NW2 FOR THE FUNCTION (USING NSUB) (NUMERIC WORD #5)
+!     FOR PREDEFINED OPERANDS J=9 AND J=10 ARE THE (J) AND (K) INPUT VALUES
+!       J=11 > DEFAULT FLAG FOR NW1
+!       J=12 > DEFAULT FLAG FOR NW2
+!       J=13 > COR MODE 1=COR, 0=BYP, BLO,GTE=-2, BHI,LTE=+2, HLD=10
+!       J=14 > SQUARE ROOT OF WEIGHT TIMES (CURRENT VAL-TARGET))
+!       J=15 > 0 BEFORE THE FIRST CALCULATION OF OPERAND VALUES
+!              1 AFTER THE FIRST CALULATION
+!       J=16 > CFG # FOR PREDEFINED OPERANDS (NW3)
+!       J=17 > CODE FOR THE PREDEFINED OPERANDS
+!       J=18 > DEFAULT FLAG FOR W3 = DBLE(DF3)
+!       J=19 > 0 IF OP CALCULABLE, 1 IF NOT
+!       J=20 > RESERVED FOR EXPANSION
+!             1=X
+!             2=Y
+!             3=Z
+!             4=L
+!             5=M
+!             6=N
+!             7=DX
+!             8=DY
+!             9=DR
+!            10=DXA
+!            11=DYA
+!            12=DRA
+!            13=XANG
+!            14=YANG
+!            15=OPL
+!            16=OPD
+!            17=OPDW
+!            18=LOLD
+!            19=MOLD
+!            20=NOLD
+!            21=LEN
+!            22=AII
+!            23=AIP
+!            24=LN
+!            25=MN
+!            26=NN
+!            27=PXPX
+!            28=PXPY
+!            29=PYPX
+!            30=PYPY
+!            31=PXAPX
+!            32=PXAPY
+!            33=PYAPX
+!            34=PYAPY
+!            35=DXDX
+!            36=DXDY
+!            37=DYDX
+!            38=DYDY
+!            39=DXADX
+!            40=DXADY
+!            41=DYADX
+!            42=DYADY
+!            43=XREF
+!            44=YREF
+!            45=ZREF
+!            46=LREF
+!            47=MREF
+!            48=NREF
+!            49=LREFOL
+!            50=MREFOL
+!            51=NREFOL
+!            52=IREF
+!            53=IPREF
+!            54=XAREF
+!            55=YAREF
+!            56=LNREF
+!            57=MNREF
+!            58=NNREF
+!            59=GLX
+!            60=GLY
+!            61=GLZ
+!            62=GLL
+!            63=GLM
+!            64=GLN
+!            65=GLLOLD
+!            66=GLMOLD
+!            67=GLNOLD
+!            68=LENREF
+!            69=OPLREF
+!            70=RD
+!            71=CV
+!            72=TH
+!            73=CC
+!            74=AC
+!            75=AD
+!            76=AE
+!            77=AF
+!            78=AG
+!            79=RDTOR
+!            80=CVTOR
+!            81=CCTOR
+!            82=ADTOR
+!            83=AETOR
+!            84=AFTOR
+!            85=AGTOR
+!            86=ALPHA
+!            87=BETA
+!            88=GAMMA
+!            89=VNUM
+!            90=PARTL
+!            91=INDEX
+!            92=XD
+!            93=YD
+!            94=XVERT
+!            95=YVERT
+!            96=ZVERT
+!            97=LXVERT
+!            98=MXVERT
+!            99=NXVERT
+!           100=LYVERT
+!           101=MYVERT
+!           102=NYVERT
+!           103=LZVERT
+!           104=MZVERT
+!           105=NZVERT
+!           106=LENGTH
+!           106=OAL
+!           107=MLENGTH
+!           107=OPTLEN
+!           108=ET
+!           108=ETY
+!           109=ETX
+!           110=SHAPEFAC
+!           111 TO 206 = C1 THROUGH C96
+!           207=PWRY
+!           208=PWRX
+!           209=FLCLTHX
+!           210=FLCLTH OR FLCLTHY
+!           211=PY
+!           212=PX
+!           213=PCY
+!           214=PCX
+!           215=PUY
+!           216=PUX
+!           217=PUCY
+!           218=PUCX
+!           219=PIY
+!           220=PIX
+!           221=PICY
+!           222=PICX
+!           223=PIYP
+!           224=PIXP
+!           225=PICYP
+!           226=PICXP
+!           227=PACY
+!           228=PACX
+!           229=PLCY
+!           230=PLCX
+!           231=SACY
+!           232=SACX
+!           233=SLCY
+!           234=SLCX
+!           235=IMDISX
+!           236=IMDISY
+!           237=CENTX
+!           238=CENTY
+!           239=RMSX
+!           240=RMSY
+!           241=RMS
+!           242=RSSX
+!           243=RSSY
+!           244=RSS
+!           245=RMSOPD
+!           246=ZERN37
+!           247=MAGX
+!           248=MAGY
+!           249=MAGXOR
+!           250=MAGYOR
+!           251=FFLX
+!           252=FFLY
+!           253=BFLX
+!           254=BFLY
+!           255=FFNX
+!           256=FFNY
+!           257=BFNX
+!           258=BFNY
+!           259=EFLX
+!           260=EFLY
+!           261=ENDIAX
+!           262=ENDIAY
+!           263=EXDIAX
+!           264=EXDIAY
+!           265=ENPOSX
+!           266=ENPOSY
+!           267=ENPOSZ
+!           268=EXPOSX
+!           269=EXPOSY
+!           270=EXPOSZ
+!           271=FNUMX
+!           272=FNUMY
+!           273=OBFNUMX
+!           274=OBFNUMY
+!           275=ENPDIAX
+!           276=ENPDIAY
+!           277=EXPDIAX
+!           278=EXPDIAY
+!           279=PUPDIAX
+!           280=PUPDIAY
+!           281=PUPDISX
+!           282=PUPDISY
+!           283=CHFIMX
+!           284=CHFIMY
+!           285=GPX
+!           286=GPY
+!           287=GPUX
+!           288=GPUY
+!           289=GPCX
+!           290=GPCY
+!           291=GPUCX
+!           292=GPUCY
+!           293=DIST
+!           294=XFOC
+!           295=YFOC
+!           296=AST
+!           297=SA3
+!           298=XSA3
+!           299=CMA3
+!           300=XCMA3
+!           301=AST3
+!           302=XAST3
+!           303=DIS3
+!           304=XDIS3
+!           305=PTZ3
+!           306=XPTZ3
+!           307=SA5
+!           308=XSA5
+!           309=CMA5
+!           310=XCMA5
+!           311=AST5
+!           312=XAST5
+!           313=DIS5
+!           314=XDIS5
+!           315=PTZ5
+!           316=XPTZ5
+!           317=TOBSA
+!           318=XTOBSA
+!           319=SOBSA
+!           320=XSOBSA
+!           321=ELCMA
+!           322=XELCMA
+!           323=TAS
+!           324=XTAS
+!           325=SAS
+!           326=XSAS
+!           327=SA7
+!           328=XSA7
+!           329=SA3P
+!           330=XSA3P
+!           331=CMA3P
+!           332=XCMA3P
+!           333=AST3P
+!           334=XAST3P
+!           335=DIS3P
+!           336=XDIS3P
+!           337=PTZ3P
+!           338=XPTZ3P
+!           339=SA5P
+!           340=XSA5P
+!           341=CMA3P
+!           342=XCMA3P
+!           343=AST5P
+!           344=XAST5P
+!           345=DIS5P
+!           346=XDIS5P
+!           347=PTZ5P
+!           348=XPTZ5P
+!           349=TOBSAP
+!           350=XTOBSAP
+!           351=SOBSAP
+!           352=XSOBSAP
+!           353=ELCMAP
+!           354=XELCMAP
+!           355=TASP
+!           356=XTASP
+!           357=SASP
+!           358=XSASP
+!           359=SA7P
+!           360=XSA7P
+!           361=SA3S
+!           362=XSA3S
+!           363=CMA3S
+!           364=XCMA3S
+!           365=AST3S
+!           366=XAST3S
+!           367=DIS3S
+!           368=XDIS3S
+!           369=PTZ3S
+!           370=XPTZ3S
+!           371=SA5S
+!           372=XSA5S
+!           373=CMA5S
+!           374=XCMA5S
+!           375=AST5S
+!           376=XAST5S
+!           377=DIS5S
+!           378=XDIS5S
+!           379=PTZ5S
+!           380=XPTZ5S
+!           381=TOBSAS
+!           382=XTOBSAS
+!           383=SOBSAS
+!           384=XSOBSAS
+!           385=ELCMAS
+!           386=XELCMAS
+!           387=TASS
+!           388=XTASS
+!           389=SASS
+!           390=XSASS
+!           391=SA7S
+!           392=XSA7S
+!           393=SA5I
+!           394=XSA5I
+!           395=CMA5I
+!           396=XCMA5I
+!           397=AST5I
+!           398=XAST5I
+!           399=DIS5I
+!           400=XDIS5I
+!           401=PTZ5I
+!           402=XPTZ5I
+!           403=TOBSAI
+!           404=XTOBSAI
+!           405=SOBSAI
+!           406=XSOBSAI
+!           407=ELCMAI
+!           408=XELCMAI
+!           409=TASI
+!           410=XTASI
+!           411=SASI
+!           412=XSASI
+!           413=SA7I
+!           414=XSA7I
+!           415=PSA3
+!           416=XPSA3
+!           417=PCMA3
+!           418=XPCMA3
+!           419=PAST3
+!           420=XPAST3
+!           421=PDIS3
+!           422=XPDIS3
+!           423=PPTZ3
+!           424=XPPTZ3
+!           425=PSA3P
+!           426=XPSA3P
+!           427=PCMA3P
+!           428=XPCMA3P
+!           429=PAST3P
+!           430=XPAST3P
+!           431=PDIS3P
+!           432=XPDIS3P
+!           433=PPTZ3P
+!           434=XPPTZ3P
+!           435=PSA3S
+!           436=XPSA3S
+!           437=PCMA3S
+!           438=XPCMA3S
+!           439=PAST3S
+!           440=XPAST3S
+!           441=PDIS3S
+!           442=XPDIS3S
+!           443=PPTZ3S
+!           444=XPPTZ3S
+!           445=PTZCV
+!           446=XPTZCV
+!           447=AH
+!           448=AI
+!           449=AJ
+!           450=AK
+!           451=AL
+!           452='GBRADX'
+!           453='GBRADY'
+!           454='GBDISX'
+!           455='GBDISY'
+!           456='GBRCVX'
+!           457='GBRCVY'
+!           458='GBWAISTX'
+!           459='GBWAISTY'
+!           460='MGOTF'
+!           461='PGOTF'
+!           462='MDOTF'
+!           463='PDOTF'
+!           460='GOTFM'
+!           461='GOTFP'
+!           462='DOTFM'
+!           463='DOTFP'
+!           464='REDK'
+!           465='REDCEN'
+!           466='FISHDIST'
+!           467='ZD'
+!           468='SYMX'
+!           469='SYMY'
+!           470='ASYMX'
+!           471='ASYMY'
+!           472='PACM'
+!           473='PACZ'
+!           474='SACM'
+!           475='SACZ'
+!           476='PLCM'
+!           477='PLCZ'
+!           478='SLCM'
+!           479='SLCZ'
+!           480='CTSX'
+!           481='CTSY'
+!           482='SCEX'
+!           483='SCEY'
+!           484='GREYS'
+!           485='PIVX'
+!           486='PIVY'
+!           487='PIVZ'
+!           488='N1'
+!           489='N2'
+!           490='N3'
+!           491='N4'
+!           492='N5'
+!           493='N6'
+!           494='N7'
+!           495='N8'
+!           496='N9'
+!           497='N10'
+!           498='ABBE'
+!           499='DPART'
+!           500='CLPX'
+!           501='CLPY'
+!           502='GDX'
+!           503='GDY'
+!           504='GDZ'
+!           505='GALPHA'
+!           506='GBETA'
+!           507='GGAMMA'
+!           508='GRS'
+!           509='WEIGHT'
+!           510='DMINUSD'
+!           511='COST'
+!           512='MACOPT'
+!           513='RMSYX'
+!           514='CLEARX'
+!           515='CLEARY'
+!           801='ACT'
+!
+!       OPNM=(8 CHARACTER USER DEFINED, NON-DUPLICATED OPERAND NAME)
+!
+   IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
+      CALL MESCOM
+      RETURN
+   END IF
+!
+!       "MR"/"OP" AND "MRA"/"OPA" OUTPUT MERIT DATA FROM INSIDE
+!       AND OUTSIDE OF THE MERIT SUBFILE VIA SUBROUTINE MAROUT.FOR.
+   IF(WC.EQ.'MRA'.OR.WC.EQ.'MR'.OR.WC.EQ.'OP'.OR.WC.EQ.'OPA') THEN
+      OPTMES=.FALSE.
+      CALL MAROUT
+      OPTMES=.TRUE.
+      RETURN
+   END IF
+!
+!             CFG
+!
+   IF(WC.EQ.'CFG') THEN
+!     SYNTAX CHECK
+      IF(STI.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"CFG" SETS THE CONFIGURATION FOR PREDEFINED OPERANDS'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'"IT TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1 &
+      &.OR.SQ.EQ.1) THEN
+         WRITE(OUTLYNE,*)'"CFG" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)'"CFG" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(INT(W1).GT.MAXCFG) THEN
+         WRITE(OUTLYNE,*)'CFG# BEYOND CURRENTLY DEFINED BOUNDS'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(INT(W1).GT.1) THEN
+         IF(INT(W1).LE.MAXCFG.AND.CFGCNT(INT(W1)).LE.0) THEN
+            WRITE(OUTLYNE,*)'CFG# ',INT(W1),' IS IDENTICAL TO CFG# 1'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'NO ACTION TAKEN, "CFG" COMMAND WAS IGNORED'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      CURFIG=W1
+      RETURN
+   END IF
+!
+!       NOW DO CASE OF WC = EOS
+!
+!***********************************************************************
+!       DEAL WITH WC=EOS
+   IF(WC.EQ.'EOS') THEN
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1)THEN
+         WRITE(OUTLYNE,*)'"EOS" TAKES NO EXPLICIT INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!       PROCEED WITH ACTION FOR COMMAND
+      F1=1
+      F27=0
+      IF(OPCNT.EQ.0) THEN
+         WRITE(OUTLYNE,*)'THE MERIT SUBFILE IS EMPTY'
+         CALL SHOWIT(1)
+      END IF
+      F1=1
+      F27=0
+      CALL OPRCLN
+      RETURN
+!       ACTION COMPLETED
+   END IF
+!
+!       EOS DONE
+!***********************************************************************
+!
+!       NOW DO WC=DEL
+   IF(WC.EQ.'DELK') THEN
+      IF(F27.NE.2) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" IS ONLY AVAILABLE FROM THE "UPDATE MERIT" LEVEL'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'NO ACTION TAKEN'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
+      &.OR.S5.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" ONLY TAKES NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(S1.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"DEL" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     CHECK FOR VALID QUALIFIER WORDS AND ASSIGN ASSOCIATED NUMERICAL
+!     VALUES
+      DELOP = -1
+      IF(INT(W1).LE.0.OR.INT(W1).GT.OPCNT) THEN
+         WRITE(OUTLYNE,*)&
+         &'OPERAND NUMBER BEYOND LEGAL BOUNDS'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      DELOP=INT(W1)
+!     HERE IS WHERE OPERAND IS DELETED
+!     DELETE TAGGED ITEM, ENTRY DELOP
+!     DELETE ITEM I=DELOP
+      IF(OPCNT.GT.1) THEN
+         DO I=DELOP,OPCNT-1
+            OPERND(I,1:20)=OPERND(I+1,1:20)
+            OPNAM(I)=OPNAM(I+1)
+         END DO
+         OPCNT=OPCNT-1
+      ELSE
+!     OPCNT WAS 1
+!     MAKE IT ZERO
+         OPCNT=0
+         FMTEXT=.FALSE.
+      END IF
+!     ALL DELETIONS COMPLETED
+      CALL OPRCLN
+      RETURN
+!
+   END IF
+!***********************************************************************
+!
+!       NOW DO WC=OP_DESC
+   IF(WC.EQ.'OP_DESC') THEN
+      IF(SN.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" TAKES NO NUMERIC INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(SQ.EQ.0.OR.SST.EQ.0) THEN
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" REQUIRES EXPLICIT QUALIFIER AND STRING INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      OPOK=.FALSE.
+      OPCHR=WQ(3:5)
+      WRITE(BF,110) OPCHR
+      READ(BF,100) VL
+100   FORMAT(I3)
+110   FORMAT(A3)
+      IF(VL.GT.OPCNT) THEN
+         WRITE(OUTLYNE,*)&
+         &'DURING OPERAND INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'"OP_DESC" REQUIRES A QUALIFIER WORD "OP1" TO "OP(# OF OPERANDS)"'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     HERE IS WHERE OP_DESC IS ASSIGNED
+      IF(WS(1:8).NE.'        ') OPERDESC(VL)=WS
+      RETURN
+!
+   END IF
+!
+!
+!     WC = COR,BLO,BHI,HLD,BYP
+   IF(WC.EQ.'COR'.OR.WC.EQ.'BYP'.OR.WC.EQ.'BHI'.OR.WC.EQ.'BLO'&
+   &.OR.WC.EQ.'HLD'.OR.WC.EQ.'GTE'.OR.WC.EQ.'LTE') THEN
+      IF(STI.EQ.1) THEN
+         IF(CORMOD.EQ.0) CORNAM='BYP'
+         IF(CORMOD.EQ.1) CORNAM='COR'
+         IF(CORMOD.EQ.-2) CORNAM='GTE'
+         IF(CORMOD.EQ.2) CORNAM='LTE'
+         IF(CORMOD.EQ.10) CORNAM='HLD'
+         WRITE(OUTLYNE,*)&
+         &'CURRENT CORRECTIONAL MODE = ','"',CORNAM,'"'
+         CALL SHOWIT(1)
+         RETURN
+      END IF
+      IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'"',WC(1:3),'" TAKES NO ADDITIONAL INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(WC.EQ.'COR'.OR.WC.EQ.'BYP'.OR.WC.EQ.'BLO'.OR.WC.EQ.'GTE'.OR.&
+      &WC.EQ.'BHI'.OR.WC.EQ.'LTE'.OR.WC.EQ.'HLD') JK_CHMODE=.TRUE.
+      MODEFLAG=.TRUE.
+      IF(WC.EQ.'COR') CORMOD=1
+      IF(WC.EQ.'BYP') CORMOD=0
+      IF(WC.EQ.'BLO'.OR.WC.EQ.'GTE') CORMOD=-2
+      IF(WC.EQ.'BHI'.OR.WC.EQ.'LTE') CORMOD=2
+      IF(WC.EQ.'HLD') CORMOD=10
+      RETURN
+   END IF
+!
+!     START DOING THE FUNCTION NAMES HERE
+   OPT=-1
+   IF(WC.EQ.'FUNC00  ') OPT=0
+   IF(WC.EQ.'FUNC01  ') OPT=1
+   IF(WC.EQ.'FUNC02  ') OPT=2
+   IF(WC.EQ.'FUNC03  ') OPT=3
+   IF(WC.EQ.'FUNC04  ') OPT=4
+   IF(WC.EQ.'FUNC05  ') OPT=5
+   IF(WC.EQ.'FUNC06  ') OPT=6
+   IF(WC.EQ.'FUNC07  ') OPT=7
+   IF(WC.EQ.'FUNC08  ') OPT=8
+   IF(WC.EQ.'FUNC09  ') OPT=9
+   IF(WC.EQ.'FUNC10  ') OPT=10
+   IF(OPT.EQ.-1) THEN
+      WRITE(OUTLYNE,*)&
+      &'INVALID FUNCTION NAME COMMAND WORD'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+!
+!     NUMERIC WORDS AND DEFAULTS
+!
+!     NW1 IS THE OPERAND TARGET, DEFUALT WILL BE 0.0D0
+   IF(DF1.EQ.1) W1=0.0D0
+!
+!     NW2 IS WEIGHT, DEFAULT WILL BE 1.0D0
+   IF(DF2.EQ.1) THEN
+!     DEFAULT INPUT
+      W2=1.0D0
+      OPWEIT=W2
+   ELSE
+!     NOT DEFAULT
+      IF(W2.LT.0.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'NUMERIC WORD #2 (WEIGHT) MUST NOT BE NEGATIVE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      ELSE
+!     NW2 OK, PROCEED
+         OPWEIT=W2
+      END IF
+   END IF
+   IF(OPT.NE.0) THEN
+!     NW3 IS GENERAL PURPOSE STORAGE REGISTER VALUE
+      IF(DF3.EQ.1) THEN
+         IF(F27.EQ.1.OR.F27.EQ.2) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #3 (GP REGISTER ADDRESS) MUST BE EXPLICITLY INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'AT THE "UPDATE MERIT" LEVEL FOR A USER DEFINED OPERAND'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      ELSE
+!     NOT DEFAULT
+         IF((DBLE(DINT(W3))-W3).NE.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #3 (GP REGISTER ADDRESS) MUST BE AN INTEGER'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.1.0D0.OR.W3.GT.400.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #3 (GP REGISTER ADDRESS) BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'VALID RANGE IS 1 TO 400'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF3.NE.1.AND.W3.LT.0.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #3 (GP REGISTER ADDRESS) MAY NOT BE NEGATIVE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+      END IF
+   END IF
+
+!     NW4 IS NW1 FOR FUNCTION NSUB FOR USER DEF OPS
+!     NW5 IS NW2 FOR FUNCTION NSUB FOR USER DEF OPS
+!     DEFAULT STATUS WILL BE HANDLED DURING FUNCTION CALLING
+!     AND WILL BE PASSED IN ITEMS J=11 AND J=12
+!
+   IF(OPT.GE.1.AND.OPT.LE.10) GO TO 3141
+!
+   OPNM=WQ
+   IF(OPNM.EQ.'X       ') OP17=1.0D0
+   IF(OPNM.EQ.'Y       ') OP17=2.0D0
+   IF(OPNM.EQ.'Z       ') OP17=3.0D0
+   IF(OPNM.EQ.'DCL     ') OP17=4.0D0
+   IF(OPNM.EQ.'K       ') OP17=4.0D0
+   IF(OPNM.EQ.'DCM     ') OP17=5.0D0
+   IF(OPNM.EQ.'L       ') OP17=5.0D0
+   IF(OPNM.EQ.'DCN     ') OP17=6.0D0
+   IF(OPNM.EQ.'M       ') OP17=6.0D0
+   IF(OPNM.EQ.'DX      ') OP17=7.0D0
+   IF(OPNM.EQ.'DY      ') OP17=8.0D0
+   IF(OPNM.EQ.'DR      ') OP17=9.0D0
+   IF(OPNM.EQ.'DXA     ') OP17=10.0D0
+   IF(OPNM.EQ.'DYA     ') OP17=11.0D0
+   IF(OPNM.EQ.'DRA     ') OP17=12.0D0
+   IF(OPNM.EQ.'XANG    ') OP17=13.0D0
+   IF(OPNM.EQ.'YANG    ') OP17=14.0D0
+   IF(OPNM.EQ.'OPL     ') OP17=15.0D0
+   IF(OPNM.EQ.'OPD     ') OP17=16.0D0
+   IF(OPNM.EQ.'OPDW    ') OP17=17.0D0
+   IF(OPNM.EQ.'LOLD    ') OP17=18.0D0
+   IF(OPNM.EQ.'MOLD    ') OP17=19.0D0
+   IF(OPNM.EQ.'NOLD    ') OP17=20.0D0
+   IF(OPNM.EQ.'LEN     ') OP17=21.0D0
+   IF(OPNM.EQ.'AII     ') OP17=22.0D0
+   IF(OPNM.EQ.'AIP     ') OP17=23.0D0
+   IF(OPNM.EQ.'LN      ') OP17=24.0D0
+   IF(OPNM.EQ.'MN      ') OP17=25.0D0
+   IF(OPNM.EQ.'NN      ') OP17=26.0D0
+   IF(OPNM.EQ.'PXPX    ') OP17=27.0D0
+   IF(OPNM.EQ.'PXPY    ') OP17=28.0D0
+   IF(OPNM.EQ.'PYPX    ') OP17=29.0D0
+   IF(OPNM.EQ.'PYPY    ') OP17=30.0D0
+   IF(OPNM.EQ.'PXAPX   ') OP17=31.0D0
+   IF(OPNM.EQ.'PXAPY   ') OP17=32.0D0
+   IF(OPNM.EQ.'PYAPX   ') OP17=33.0D0
+   IF(OPNM.EQ.'PYAPY   ') OP17=34.0D0
+   IF(OPNM.EQ.'DXDX    ') OP17=35.0D0
+   IF(OPNM.EQ.'DXDY    ') OP17=36.0D0
+   IF(OPNM.EQ.'DYDX    ') OP17=37.0D0
+   IF(OPNM.EQ.'DYDY    ') OP17=38.0D0
+   IF(OPNM.EQ.'DXADX   ') OP17=39.0D0
+   IF(OPNM.EQ.'DXADY   ') OP17=40.0D0
+   IF(OPNM.EQ.'DYADX   ') OP17=41.0D0
+   IF(OPNM.EQ.'DYADY   ') OP17=42.0D0
+   IF(OPNM.EQ.'XREF    ') OP17=43.0D0
+   IF(OPNM.EQ.'YREF    ') OP17=44.0D0
+   IF(OPNM.EQ.'ZREF    ') OP17=45.0D0
+   IF(OPNM.EQ.'LREF    ') OP17=46.0D0
+   IF(OPNM.EQ.'MREF    ') OP17=47.0D0
+   IF(OPNM.EQ.'NREF    ') OP17=48.0D0
+   IF(OPNM.EQ.'LREFOL  ') OP17=49.0D0
+   IF(OPNM.EQ.'MREFOL  ') OP17=50.0D0
+   IF(OPNM.EQ.'NREFOL  ') OP17=51.0D0
+   IF(OPNM.EQ.'IREF    ') OP17=52.0D0
+   IF(OPNM.EQ.'IPREF   ') OP17=53.0D0
+   IF(OPNM.EQ.'XAREF   ') OP17=54.0D0
+   IF(OPNM.EQ.'YAREF   ') OP17=55.0D0
+   IF(OPNM.EQ.'LNREF   ') OP17=56.0D0
+   IF(OPNM.EQ.'MNREF   ') OP17=57.0D0
+   IF(OPNM.EQ.'NNREF   ') OP17=58.0D0
+   IF(OPNM.EQ.'GLX     ') OP17=59.0D0
+   IF(OPNM.EQ.'GLY     ') OP17=60.0D0
+   IF(OPNM.EQ.'GLZ     ') OP17=61.0D0
+   IF(OPNM.EQ.'GLL     ') OP17=62.0D0
+   IF(OPNM.EQ.'GLM     ') OP17=63.0D0
+   IF(OPNM.EQ.'GLN     ') OP17=64.0D0
+   IF(OPNM.EQ.'GLLOLD  ') OP17=65.0D0
+   IF(OPNM.EQ.'GLMOLD  ') OP17=66.0D0
+   IF(OPNM.EQ.'GLNOLD  ') OP17=67.0D0
+   IF(OPNM.EQ.'LENREF  ') OP17=68.0D0
+   IF(OPNM.EQ.'OPLREF  ') OP17=69.0D0
+   IF(OPNM.EQ.'RD      ') OP17=70.0D0
+   IF(OPNM.EQ.'CV      ') OP17=71.0D0
+   IF(OPNM.EQ.'TH      ') OP17=72.0D0
+   IF(OPNM.EQ.'CC      ') OP17=73.0D0
+   IF(OPNM.EQ.'AC      ') OP17=74.0D0
+   IF(OPNM.EQ.'AD      ') OP17=75.0D0
+   IF(OPNM.EQ.'AE      ') OP17=76.0D0
+   IF(OPNM.EQ.'AF      ') OP17=77.0D0
+   IF(OPNM.EQ.'AG      ') OP17=78.0D0
+   IF(OPNM.EQ.'RDTOR   ') OP17=79.0D0
+   IF(OPNM.EQ.'CVTOR   ') OP17=80.0D0
+   IF(OPNM.EQ.'CCTOR   ') OP17=81.0D0
+   IF(OPNM.EQ.'ADTOR   ') OP17=82.0D0
+   IF(OPNM.EQ.'AETOR   ') OP17=83.0D0
+   IF(OPNM.EQ.'AFTOR   ') OP17=84.0D0
+   IF(OPNM.EQ.'AGTOR   ') OP17=85.0D0
+   IF(OPNM.EQ.'ALPHA   ') OP17=86.0D0
+   IF(OPNM.EQ.'BETA    ') OP17=87.0D0
+   IF(OPNM.EQ.'GAMMA   ') OP17=88.0D0
+   IF(OPNM.EQ.'VNUM    ') OP17=89.0D0
+   IF(OPNM.EQ.'PARTL   ') OP17=90.0D0
+   IF(OPNM.EQ.'INDEX   ') OP17=91.0D0
+   IF(OPNM.EQ.'XD      ') OP17=92.0D0
+   IF(OPNM.EQ.'YD      ') OP17=93.0D0
+   IF(OPNM.EQ.'XVERT   ') OP17=94.0D0
+   IF(OPNM.EQ.'YVERT   ') OP17=95.0D0
+   IF(OPNM.EQ.'ZVERT   ') OP17=96.0D0
+   IF(OPNM.EQ.'LXVERT  ') OP17=97.0D0
+   IF(OPNM.EQ.'MXVERT  ') OP17=98.0D0
+   IF(OPNM.EQ.'NXVERT  ') OP17=99.0D0
+   IF(OPNM.EQ.'LYVERT  ') OP17=100.0D0
+   IF(OPNM.EQ.'MYVERT  ') OP17=101.0D0
+   IF(OPNM.EQ.'NYVERT  ') OP17=102.0D0
+   IF(OPNM.EQ.'LZVERT  ') OP17=103.0D0
+   IF(OPNM.EQ.'MZVERT  ') OP17=104.0D0
+   IF(OPNM.EQ.'NZVERT  ') OP17=105.0D0
+   IF(OPNM.EQ.'LENGTH  ') OP17=106.0D0
+   IF(OPNM.EQ.'OAL     ') OP17=106.0D0
+   IF(OPNM.EQ.'MLENGTH ') OP17=107.0D0
+   IF(OPNM.EQ.'OPTLEN  ') OP17=107.0D0
+   IF(OPNM.EQ.'ET      ') OP17=108.0D0
+   IF(OPNM.EQ.'ETY     ') OP17=108.0D0
+   IF(OPNM.EQ.'ETX     ') OP17=109.0D0
+   IF(OPNM.EQ.'SHAPEFAC') OP17=110.0D0
+   IF(OPNM.EQ.'C1      ') OP17=111.0D0
+   IF(OPNM.EQ.'C2      ') OP17=112.0D0
+   IF(OPNM.EQ.'C3      ') OP17=113.0D0
+   IF(OPNM.EQ.'C4      ') OP17=114.0D0
+   IF(OPNM.EQ.'C5      ') OP17=115.0D0
+   IF(OPNM.EQ.'C6      ') OP17=116.0D0
+   IF(OPNM.EQ.'C7      ') OP17=117.0D0
+   IF(OPNM.EQ.'C8      ') OP17=118.0D0
+   IF(OPNM.EQ.'C9      ') OP17=119.0D0
+   IF(OPNM.EQ.'C10     ') OP17=120.0D0
+   IF(OPNM.EQ.'C11     ') OP17=121.0D0
+   IF(OPNM.EQ.'C12     ') OP17=122.0D0
+   IF(OPNM.EQ.'C13     ') OP17=123.0D0
+   IF(OPNM.EQ.'C14     ') OP17=124.0D0
+   IF(OPNM.EQ.'C15     ') OP17=125.0D0
+   IF(OPNM.EQ.'C16     ') OP17=126.0D0
+   IF(OPNM.EQ.'C17     ') OP17=127.0D0
+   IF(OPNM.EQ.'C18     ') OP17=128.0D0
+   IF(OPNM.EQ.'C19     ') OP17=129.0D0
+   IF(OPNM.EQ.'C20     ') OP17=130.0D0
+   IF(OPNM.EQ.'C21     ') OP17=131.0D0
+   IF(OPNM.EQ.'C22     ') OP17=132.0D0
+   IF(OPNM.EQ.'C23     ') OP17=133.0D0
+   IF(OPNM.EQ.'C24     ') OP17=134.0D0
+   IF(OPNM.EQ.'C25     ') OP17=135.0D0
+   IF(OPNM.EQ.'C26     ') OP17=136.0D0
+   IF(OPNM.EQ.'C27     ') OP17=137.0D0
+   IF(OPNM.EQ.'C28     ') OP17=138.0D0
+   IF(OPNM.EQ.'C29     ') OP17=139.0D0
+   IF(OPNM.EQ.'C30     ') OP17=140.0D0
+   IF(OPNM.EQ.'C31     ') OP17=141.0D0
+   IF(OPNM.EQ.'C32     ') OP17=142.0D0
+   IF(OPNM.EQ.'C33     ') OP17=143.0D0
+   IF(OPNM.EQ.'C34     ') OP17=144.0D0
+   IF(OPNM.EQ.'C35     ') OP17=145.0D0
+   IF(OPNM.EQ.'C36     ') OP17=146.0D0
+   IF(OPNM.EQ.'C37     ') OP17=147.0D0
+   IF(OPNM.EQ.'C38     ') OP17=148.0D0
+   IF(OPNM.EQ.'C39     ') OP17=149.0D0
+   IF(OPNM.EQ.'C40     ') OP17=150.0D0
+   IF(OPNM.EQ.'C41     ') OP17=151.0D0
+   IF(OPNM.EQ.'C42     ') OP17=152.0D0
+   IF(OPNM.EQ.'C43     ') OP17=153.0D0
+   IF(OPNM.EQ.'C44     ') OP17=154.0D0
+   IF(OPNM.EQ.'C45     ') OP17=155.0D0
+   IF(OPNM.EQ.'C46     ') OP17=156.0D0
+   IF(OPNM.EQ.'C47     ') OP17=157.0D0
+   IF(OPNM.EQ.'C48     ') OP17=158.0D0
+   IF(OPNM.EQ.'C49     ') OP17=159.0D0
+   IF(OPNM.EQ.'C50     ') OP17=160.0D0
+   IF(OPNM.EQ.'C51     ') OP17=161.0D0
+   IF(OPNM.EQ.'C52     ') OP17=162.0D0
+   IF(OPNM.EQ.'C53     ') OP17=163.0D0
+   IF(OPNM.EQ.'C54     ') OP17=164.0D0
+   IF(OPNM.EQ.'C55     ') OP17=165.0D0
+   IF(OPNM.EQ.'C56     ') OP17=166.0D0
+   IF(OPNM.EQ.'C57     ') OP17=167.0D0
+   IF(OPNM.EQ.'C58     ') OP17=168.0D0
+   IF(OPNM.EQ.'C59     ') OP17=169.0D0
+   IF(OPNM.EQ.'C60     ') OP17=170.0D0
+   IF(OPNM.EQ.'C61     ') OP17=171.0D0
+   IF(OPNM.EQ.'C62     ') OP17=172.0D0
+   IF(OPNM.EQ.'C63     ') OP17=173.0D0
+   IF(OPNM.EQ.'C64     ') OP17=174.0D0
+   IF(OPNM.EQ.'C65     ') OP17=175.0D0
+   IF(OPNM.EQ.'C66     ') OP17=176.0D0
+   IF(OPNM.EQ.'C67     ') OP17=177.0D0
+   IF(OPNM.EQ.'C68     ') OP17=178.0D0
+   IF(OPNM.EQ.'C69     ') OP17=179.0D0
+   IF(OPNM.EQ.'C70     ') OP17=180.0D0
+   IF(OPNM.EQ.'C71     ') OP17=181.0D0
+   IF(OPNM.EQ.'C72     ') OP17=182.0D0
+   IF(OPNM.EQ.'C73     ') OP17=183.0D0
+   IF(OPNM.EQ.'C74     ') OP17=184.0D0
+   IF(OPNM.EQ.'C75     ') OP17=185.0D0
+   IF(OPNM.EQ.'C76     ') OP17=186.0D0
+   IF(OPNM.EQ.'C77     ') OP17=187.0D0
+   IF(OPNM.EQ.'C78     ') OP17=188.0D0
+   IF(OPNM.EQ.'C79     ') OP17=189.0D0
+   IF(OPNM.EQ.'C80     ') OP17=190.0D0
+   IF(OPNM.EQ.'C81     ') OP17=191.0D0
+   IF(OPNM.EQ.'C82     ') OP17=192.0D0
+   IF(OPNM.EQ.'C83     ') OP17=193.0D0
+   IF(OPNM.EQ.'C84     ') OP17=194.0D0
+   IF(OPNM.EQ.'C85     ') OP17=195.0D0
+   IF(OPNM.EQ.'C86     ') OP17=196.0D0
+   IF(OPNM.EQ.'C87     ') OP17=197.0D0
+   IF(OPNM.EQ.'C88     ') OP17=198.0D0
+   IF(OPNM.EQ.'C89     ') OP17=199.0D0
+   IF(OPNM.EQ.'C90     ') OP17=200.0D0
+   IF(OPNM.EQ.'C91     ') OP17=201.0D0
+   IF(OPNM.EQ.'C92     ') OP17=202.0D0
+   IF(OPNM.EQ.'C93     ') OP17=203.0D0
+   IF(OPNM.EQ.'C94     ') OP17=204.0D0
+   IF(OPNM.EQ.'C95     ') OP17=205.0D0
+   IF(OPNM.EQ.'C96     ') OP17=206.0D0
+   IF(OPNM.EQ.'PWRY    ') OP17=207.0D0
+   IF(OPNM.EQ.'PWRX    ') OP17=208.0D0
+   IF(OPNM.EQ.'FLCLTHX ') OP17=209.0D0
+   IF(OPNM.EQ.'FLCLTH  ') OP17=210.0D0
+   IF(OPNM.EQ.'FLCLTHY ') OP17=210.0D0
+   IF(OPNM.EQ.'PY      ') OP17=211.0D0
+   IF(OPNM.EQ.'PX      ') OP17=212.0D0
+   IF(OPNM.EQ.'PCY     ') OP17=213.0D0
+   IF(OPNM.EQ.'PCX     ') OP17=214.0D0
+   IF(OPNM.EQ.'PUY     ') OP17=215.0D0
+   IF(OPNM.EQ.'PUX     ') OP17=216.0D0
+   IF(OPNM.EQ.'PUCY    ') OP17=217.0D0
+   IF(OPNM.EQ.'PUCX    ') OP17=218.0D0
+   IF(OPNM.EQ.'PIY     ') OP17=219.0D0
+   IF(OPNM.EQ.'PIX     ') OP17=220.0D0
+   IF(OPNM.EQ.'PICY    ') OP17=221.0D0
+   IF(OPNM.EQ.'PICX    ') OP17=222.0D0
+   IF(OPNM.EQ.'PIYP    ') OP17=223.0D0
+   IF(OPNM.EQ.'PIXP    ') OP17=224.0D0
+   IF(OPNM.EQ.'PICYP   ') OP17=225.0D0
+   IF(OPNM.EQ.'PICXP   ') OP17=226.0D0
+   IF(OPNM.EQ.'PACY    ') OP17=227.0D0
+   IF(OPNM.EQ.'PACX    ') OP17=228.0D0
+   IF(OPNM.EQ.'PLCY    ') OP17=229.0D0
+   IF(OPNM.EQ.'PLCX    ') OP17=230.0D0
+   IF(OPNM.EQ.'SACY    ') OP17=231.0D0
+   IF(OPNM.EQ.'SACX    ') OP17=232.0D0
+   IF(OPNM.EQ.'SLCY    ') OP17=233.0D0
+   IF(OPNM.EQ.'SLCX    ') OP17=234.0D0
+   IF(OPNM.EQ.'IMDISX  ') OP17=235.0D0
+   IF(OPNM.EQ.'IMDISY  ') OP17=236.0D0
+   IF(OPNM.EQ.'CENTX   ') OP17=237.0D0
+   IF(OPNM.EQ.'CENTY   ') OP17=238.0D0
+   IF(OPNM.EQ.'RMSX    ') OP17=239.0D0
+   IF(OPNM.EQ.'RMSY    ') OP17=240.0D0
+   IF(OPNM.EQ.'RMS     ') OP17=241.0D0
+   IF(OPNM.EQ.'RSSX    ') OP17=242.0D0
+   IF(OPNM.EQ.'RSSY    ') OP17=243.0D0
+   IF(OPNM.EQ.'RSS     ') OP17=244.0D0
+   IF(OPNM.EQ.'RMSOPD  ') OP17=245.0D0
+   IF(OPNM.EQ.'ZERN37  ') OP17=246.0D0
+   IF(OPNM.EQ.'MAGX    ') OP17=247.0D0
+   IF(OPNM.EQ.'MAGY    ') OP17=248.0D0
+   IF(OPNM.EQ.'MAGXOR  ') OP17=249.0D0
+   IF(OPNM.EQ.'MAGYOR  ') OP17=250.0D0
+   IF(OPNM.EQ.'FFLX    ') OP17=251.0D0
+   IF(OPNM.EQ.'FFLY    ') OP17=252.0D0
+   IF(OPNM.EQ.'BFLX    ') OP17=253.0D0
+   IF(OPNM.EQ.'BFLY    ') OP17=254.0D0
+   IF(OPNM.EQ.'FFNX    ') OP17=255.0D0
+   IF(OPNM.EQ.'FFNY    ') OP17=256.0D0
+   IF(OPNM.EQ.'BFNX    ') OP17=257.0D0
+   IF(OPNM.EQ.'BFNY    ') OP17=258.0D0
+   IF(OPNM.EQ.'EFLX    ') OP17=259.0D0
+   IF(OPNM.EQ.'EFLY    ') OP17=260.0D0
+   IF(OPNM.EQ.'ENDIAX  ') OP17=261.0D0
+   IF(OPNM.EQ.'ENDIAY  ') OP17=262.0D0
+   IF(OPNM.EQ.'EXDIAX  ') OP17=263.0D0
+   IF(OPNM.EQ.'EXDIAY  ') OP17=264.0D0
+   IF(OPNM.EQ.'ENPOSX  ') OP17=265.0D0
+   IF(OPNM.EQ.'ENPOSY  ') OP17=266.0D0
+   IF(OPNM.EQ.'ENPOSZ  ') OP17=267.0D0
+   IF(OPNM.EQ.'EXPOSX  ') OP17=268.0D0
+   IF(OPNM.EQ.'EXPOSY  ') OP17=269.0D0
+   IF(OPNM.EQ.'EXPOSZ  ') OP17=270.0D0
+   IF(OPNM.EQ.'FNUMX   ') OP17=271.0D0
+   IF(OPNM.EQ.'FNYMY   ') OP17=272.0D0
+   IF(OPNM.EQ.'OBFNUMX ') OP17=273.0D0
+   IF(OPNM.EQ.'OBFNUMY ') OP17=274.0D0
+   IF(OPNM.EQ.'ENPDIAX ') OP17=275.0D0
+   IF(OPNM.EQ.'ENPDIAY ') OP17=276.0D0
+   IF(OPNM.EQ.'EXPDIAX ') OP17=277.0D0
+   IF(OPNM.EQ.'EXPDIAY ') OP17=278.0D0
+   IF(OPNM.EQ.'PUPDIAX ') OP17=279.0D0
+   IF(OPNM.EQ.'PUPDIAY ') OP17=280.0D0
+   IF(OPNM.EQ.'PUPDISX ') OP17=281.0D0
+   IF(OPNM.EQ.'PUPDISY ') OP17=282.0D0
+   IF(OPNM.EQ.'CHFIMX  ') OP17=283.0D0
+   IF(OPNM.EQ.'CHFIMY  ') OP17=284.0D0
+   IF(OPNM.EQ.'GPX     ') OP17=285.0D0
+   IF(OPNM.EQ.'GPY     ') OP17=286.0D0
+   IF(OPNM.EQ.'GPUX    ') OP17=287.0D0
+   IF(OPNM.EQ.'GPUY    ') OP17=288.0D0
+   IF(OPNM.EQ.'GPCX    ') OP17=289.0D0
+   IF(OPNM.EQ.'GPCY    ') OP17=290.0D0
+   IF(OPNM.EQ.'GPUCX   ') OP17=291.0D0
+   IF(OPNM.EQ.'GPUCY   ') OP17=292.0D0
+   IF(OPNM.EQ.'DIST    ') OP17=293.0D0
+   IF(OPNM.EQ.'XFOC    ') OP17=294.0D0
+   IF(OPNM.EQ.'YFOC    ') OP17=295.0D0
+   IF(OPNM.EQ.'AST     ') OP17=296.0D0
+   IF(OPNM.EQ.'SA3     ') OP17=297.0D0
+   IF(OPNM.EQ.'XSA3    ') OP17=298.0D0
+   IF(OPNM.EQ.'CMA3    ') OP17=299.0D0
+   IF(OPNM.EQ.'XCMA3   ') OP17=300.0D0
+   IF(OPNM.EQ.'AST3    ') OP17=301.0D0
+   IF(OPNM.EQ.'XAST3   ') OP17=302.0D0
+   IF(OPNM.EQ.'DIS3    ') OP17=303.0D0
+   IF(OPNM.EQ.'XDIS3   ') OP17=304.0D0
+   IF(OPNM.EQ.'PTZ3    ') OP17=305.0D0
+   IF(OPNM.EQ.'XPTZ3   ') OP17=306.0D0
+   IF(OPNM.EQ.'SA5     ') OP17=307.0D0
+   IF(OPNM.EQ.'XSA5    ') OP17=308.0D0
+   IF(OPNM.EQ.'CMA5    ') OP17=309.0D0
+   IF(OPNM.EQ.'XCMA5   ') OP17=310.0D0
+   IF(OPNM.EQ.'AST5    ') OP17=311.0D0
+   IF(OPNM.EQ.'XAST5   ') OP17=312.0D0
+   IF(OPNM.EQ.'DIS5    ') OP17=313.0D0
+   IF(OPNM.EQ.'XDIS5   ') OP17=314.0D0
+   IF(OPNM.EQ.'PTZ5    ') OP17=315.0D0
+   IF(OPNM.EQ.'XPTZ5   ') OP17=316.0D0
+   IF(OPNM.EQ.'TOBSA   ') OP17=317.0D0
+   IF(OPNM.EQ.'XTOBSA  ') OP17=318.0D0
+   IF(OPNM.EQ.'SOBSA   ') OP17=319.0D0
+   IF(OPNM.EQ.'XSOBSA  ') OP17=320.0D0
+   IF(OPNM.EQ.'ELCMA   ') OP17=321.0D0
+   IF(OPNM.EQ.'XELCMA  ') OP17=322.0D0
+   IF(OPNM.EQ.'TAS     ') OP17=323.0D0
+   IF(OPNM.EQ.'XTAS    ') OP17=324.0D0
+   IF(OPNM.EQ.'SAS     ') OP17=325.0D0
+   IF(OPNM.EQ.'XSAS    ') OP17=326.0D0
+   IF(OPNM.EQ.'SA7     ') OP17=327.0D0
+   IF(OPNM.EQ.'XSA7    ') OP17=328.0D0
+   IF(OPNM.EQ.'SA3P    ') OP17=329.0D0
+   IF(OPNM.EQ.'XSA3P   ') OP17=330.0D0
+   IF(OPNM.EQ.'CMA3P   ') OP17=331.0D0
+   IF(OPNM.EQ.'XCMA3P  ') OP17=332.0D0
+   IF(OPNM.EQ.'AST3P   ') OP17=333.0D0
+   IF(OPNM.EQ.'XAST3P  ') OP17=334.0D0
+   IF(OPNM.EQ.'DIS3P   ') OP17=335.0D0
+   IF(OPNM.EQ.'XDIS3P  ') OP17=336.0D0
+   IF(OPNM.EQ.'PTZ3P   ') OP17=337.0D0
+   IF(OPNM.EQ.'XPTZ3P  ') OP17=338.0D0
+   IF(OPNM.EQ.'SA5P    ') OP17=339.0D0
+   IF(OPNM.EQ.'XSA5P   ') OP17=340.0D0
+   IF(OPNM.EQ.'CMA5P   ') OP17=341.0D0
+   IF(OPNM.EQ.'XCMA5P  ') OP17=342.0D0
+   IF(OPNM.EQ.'AST5P   ') OP17=343.0D0
+   IF(OPNM.EQ.'XAST5P  ') OP17=344.0D0
+   IF(OPNM.EQ.'DIS5P   ') OP17=345.0D0
+   IF(OPNM.EQ.'XDIS5P  ') OP17=346.0D0
+   IF(OPNM.EQ.'PTZ5P   ') OP17=347.0D0
+   IF(OPNM.EQ.'XPTZ5P  ') OP17=348.0D0
+   IF(OPNM.EQ.'TOBSAP  ') OP17=349.0D0
+   IF(OPNM.EQ.'XTOBSAP ') OP17=350.0D0
+   IF(OPNM.EQ.'SOBSAP  ') OP17=351.0D0
+   IF(OPNM.EQ.'XSOBSAP ') OP17=352.0D0
+   IF(OPNM.EQ.'ELCMAP  ') OP17=353.0D0
+   IF(OPNM.EQ.'XELCMAP ') OP17=354.0D0
+   IF(OPNM.EQ.'TASP    ') OP17=355.0D0
+   IF(OPNM.EQ.'XTASP   ') OP17=356.0D0
+   IF(OPNM.EQ.'SASP    ') OP17=357.0D0
+   IF(OPNM.EQ.'XSASP   ') OP17=358.0D0
+   IF(OPNM.EQ.'SA7P    ') OP17=359.0D0
+   IF(OPNM.EQ.'XSA7P   ') OP17=360.0D0
+   IF(OPNM.EQ.'SA3S    ') OP17=361.0D0
+   IF(OPNM.EQ.'XSA3S   ') OP17=362.0D0
+   IF(OPNM.EQ.'CMA3S   ') OP17=363.0D0
+   IF(OPNM.EQ.'XCMA3S  ') OP17=364.0D0
+   IF(OPNM.EQ.'AST3S   ') OP17=365.0D0
+   IF(OPNM.EQ.'XAST3S  ') OP17=366.0D0
+   IF(OPNM.EQ.'DIS3S   ') OP17=367.0D0
+   IF(OPNM.EQ.'XDIS3S  ') OP17=368.0D0
+   IF(OPNM.EQ.'PTZ3S   ') OP17=369.0D0
+   IF(OPNM.EQ.'XPTZ3S  ') OP17=370.0D0
+   IF(OPNM.EQ.'SA5S    ') OP17=371.0D0
+   IF(OPNM.EQ.'XSA5S   ') OP17=372.0D0
+   IF(OPNM.EQ.'CMA5S   ') OP17=373.0D0
+   IF(OPNM.EQ.'XCMA5S  ') OP17=374.0D0
+   IF(OPNM.EQ.'AST5S   ') OP17=375.0D0
+   IF(OPNM.EQ.'XAST5S  ') OP17=376.0D0
+   IF(OPNM.EQ.'DIS5S   ') OP17=377.0D0
+   IF(OPNM.EQ.'XDIS5S  ') OP17=378.0D0
+   IF(OPNM.EQ.'PTZ5S   ') OP17=379.0D0
+   IF(OPNM.EQ.'XPTZ5S  ') OP17=380.0D0
+   IF(OPNM.EQ.'TOBSAS  ') OP17=381.0D0
+   IF(OPNM.EQ.'XTOBSAS ') OP17=382.0D0
+   IF(OPNM.EQ.'SOBSAS  ') OP17=383.0D0
+   IF(OPNM.EQ.'XSOBSAS ') OP17=384.0D0
+   IF(OPNM.EQ.'ELCMAS  ') OP17=385.0D0
+   IF(OPNM.EQ.'XELCMAS ') OP17=386.0D0
+   IF(OPNM.EQ.'TASS    ') OP17=387.0D0
+   IF(OPNM.EQ.'XTASS   ') OP17=388.0D0
+   IF(OPNM.EQ.'SASS    ') OP17=389.0D0
+   IF(OPNM.EQ.'XSASS   ') OP17=390.0D0
+   IF(OPNM.EQ.'SA7S    ') OP17=391.0D0
+   IF(OPNM.EQ.'XSA7S   ') OP17=392.0D0
+   IF(OPNM.EQ.'SA5I    ') OP17=393.0D0
+   IF(OPNM.EQ.'XSA5I   ') OP17=394.0D0
+   IF(OPNM.EQ.'CMA5I   ') OP17=395.0D0
+   IF(OPNM.EQ.'XCMA5I  ') OP17=396.0D0
+   IF(OPNM.EQ.'AST5I   ') OP17=397.0D0
+   IF(OPNM.EQ.'XAST5I  ') OP17=398.0D0
+   IF(OPNM.EQ.'DIS5I   ') OP17=399.0D0
+   IF(OPNM.EQ.'XDIS5I  ') OP17=400.0D0
+   IF(OPNM.EQ.'PTZ5I   ') OP17=401.0D0
+   IF(OPNM.EQ.'XPTZ5I  ') OP17=402.0D0
+   IF(OPNM.EQ.'TOBSAI  ') OP17=403.0D0
+   IF(OPNM.EQ.'XTOBSAI ') OP17=404.0D0
+   IF(OPNM.EQ.'SOBSAI  ') OP17=405.0D0
+   IF(OPNM.EQ.'XSOBSAI ') OP17=406.0D0
+   IF(OPNM.EQ.'ELCMAI  ') OP17=407.0D0
+   IF(OPNM.EQ.'XELCMAI ') OP17=408.0D0
+   IF(OPNM.EQ.'TASI    ') OP17=409.0D0
+   IF(OPNM.EQ.'XTASI   ') OP17=410.0D0
+   IF(OPNM.EQ.'SASI    ') OP17=411.0D0
+   IF(OPNM.EQ.'XSASI   ') OP17=412.0D0
+   IF(OPNM.EQ.'SA7I    ') OP17=413.0D0
+   IF(OPNM.EQ.'XSA7I   ') OP17=414.0D0
+   IF(OPNM.EQ.'PSA3    ') OP17=415.0D0
+   IF(OPNM.EQ.'XPSA3   ') OP17=416.0D0
+   IF(OPNM.EQ.'PCMA3   ') OP17=417.0D0
+   IF(OPNM.EQ.'XPCMA3  ') OP17=418.0D0
+   IF(OPNM.EQ.'PAST3   ') OP17=419.0D0
+   IF(OPNM.EQ.'XPAST3  ') OP17=420.0D0
+   IF(OPNM.EQ.'PDIS3   ') OP17=421.0D0
+   IF(OPNM.EQ.'XPDIS3  ') OP17=422.0D0
+   IF(OPNM.EQ.'PPTZ3   ') OP17=423.0D0
+   IF(OPNM.EQ.'XPPTZ3  ') OP17=424.0D0
+   IF(OPNM.EQ.'PSA3P   ') OP17=425.0D0
+   IF(OPNM.EQ.'XPSA3P  ') OP17=426.0D0
+   IF(OPNM.EQ.'PCMA3P  ') OP17=427.0D0
+   IF(OPNM.EQ.'XPCMA3P ') OP17=428.0D0
+   IF(OPNM.EQ.'PAST3P  ') OP17=429.0D0
+   IF(OPNM.EQ.'XPAST3P ') OP17=430.0D0
+   IF(OPNM.EQ.'PDIS3P  ') OP17=431.0D0
+   IF(OPNM.EQ.'XPDIS3P ') OP17=432.0D0
+   IF(OPNM.EQ.'PPTZ3P  ') OP17=433.0D0
+   IF(OPNM.EQ.'XPPTZ3P ') OP17=434.0D0
+   IF(OPNM.EQ.'PSA3S   ') OP17=435.0D0
+   IF(OPNM.EQ.'XPSA3S  ') OP17=436.0D0
+   IF(OPNM.EQ.'PCMA3S  ') OP17=437.0D0
+   IF(OPNM.EQ.'XPCMA3S ') OP17=438.0D0
+   IF(OPNM.EQ.'PAST3S  ') OP17=439.0D0
+   IF(OPNM.EQ.'XPAST3S ') OP17=430.0D0
+   IF(OPNM.EQ.'PDIS3S  ') OP17=431.0D0
+   IF(OPNM.EQ.'XPDIS3S ') OP17=442.0D0
+   IF(OPNM.EQ.'PPTZ3S  ') OP17=443.0D0
+   IF(OPNM.EQ.'XPPTZ3S ') OP17=444.0D0
+   IF(OPNM.EQ.'PTZCV   ') OP17=445.0D0
+   IF(OPNM.EQ.'XPTZCV  ') OP17=446.0D0
+   IF(OPNM.EQ.'AH      ') OP17=447.0D0
+   IF(OPNM.EQ.'AI      ') OP17=448.0D0
+   IF(OPNM.EQ.'AJ      ') OP17=449.0D0
+   IF(OPNM.EQ.'AK      ') OP17=450.0D0
+   IF(OPNM.EQ.'AL      ') OP17=451.0D0
+   IF(OPNM.EQ.'GBRADX  ') OP17=452.0D0
+   IF(OPNM.EQ.'GBRADY  ') OP17=453.0D0
+   IF(OPNM.EQ.'GBDISX  ') OP17=454.0D0
+   IF(OPNM.EQ.'GBDISY  ') OP17=455.0D0
+   IF(OPNM.EQ.'GBRCVX  ') OP17=456.0D0
+   IF(OPNM.EQ.'GBRCVY  ') OP17=457.0D0
+   IF(OPNM.EQ.'GBWAISTX') OP17=458.0D0
+   IF(OPNM.EQ.'GBWAISTY') OP17=459.0D0
+   IF(OPNM.EQ.'MGOTF')    OP17=460.0D0
+   IF(OPNM.EQ.'PGOTF')    OP17=461.0D0
+   IF(OPNM.EQ.'MDOTF')    OP17=462.0D0
+   IF(OPNM.EQ.'PDOTF')    OP17=463.0D0
+   IF(OPNM.EQ.'GOTFM')    OP17=460.0D0
+   IF(OPNM.EQ.'GOTFP')    OP17=461.0D0
+   IF(OPNM.EQ.'DOTFM')    OP17=462.0D0
+   IF(OPNM.EQ.'DOTFP')    OP17=463.0D0
+   IF(OPNM.EQ.'REDK')      OP17=464.0D0
+   IF(OPNM.EQ.'REDCEN')   OP17=465.0D0
+   IF(OPNM.EQ.'FISHDIST') OP17=466.0D0
+   IF(OPNM.EQ.'ZD')       OP17=467.0D0
+   IF(OPNM.EQ.'SYMX')     OP17=468.0D0
+   IF(OPNM.EQ.'SYMY')     OP17=469.0D0
+   IF(OPNM.EQ.'ASYMX')    OP17=470.0D0
+   IF(OPNM.EQ.'ASYMY')    OP17=471.0D0
+   IF(OPNM.EQ.'PACM')     OP17=472.0D0
+   IF(OPNM.EQ.'PACZ')     OP17=473.0D0
+   IF(OPNM.EQ.'SACM')     OP17=474.0D0
+   IF(OPNM.EQ.'SACZ')     OP17=475.0D0
+   IF(OPNM.EQ.'PLCM')     OP17=476.0D0
+   IF(OPNM.EQ.'PLCZ')     OP17=477.0D0
+   IF(OPNM.EQ.'SLCM')     OP17=478.0D0
+   IF(OPNM.EQ.'SLCZ')     OP17=479.0D0
+   IF(OPNM.EQ.'CTSX')     OP17=480.0D0
+   IF(OPNM.EQ.'CTSY')     OP17=481.0D0
+   IF(OPNM.EQ.'SCEX')     OP17=482.0D0
+   IF(OPNM.EQ.'SCEY')     OP17=483.0D0
+   IF(OPNM.EQ.'GREYS')    OP17=484.0D0
+   IF(OPNM.EQ.'PIVX')     OP17=485.0D0
+   IF(OPNM.EQ.'PIVY')     OP17=486.0D0
+   IF(OPNM.EQ.'PIVZ')     OP17=487.0D0
+   IF(OPNM.EQ.'N1')       OP17=488.0D0
+   IF(OPNM.EQ.'N2')       OP17=489.0D0
+   IF(OPNM.EQ.'N3')       OP17=490.0D0
+   IF(OPNM.EQ.'N4')       OP17=491.0D0
+   IF(OPNM.EQ.'N5')       OP17=492.0D0
+   IF(OPNM.EQ.'N6')       OP17=493.0D0
+   IF(OPNM.EQ.'N7')       OP17=494.0D0
+   IF(OPNM.EQ.'N8')       OP17=495.0D0
+   IF(OPNM.EQ.'N9')       OP17=496.0D0
+   IF(OPNM.EQ.'N10')      OP17=497.0D0
+   IF(OPNM.EQ.'ABBE')     OP17=498.0D0
+   IF(OPNM.EQ.'DPART')    OP17=499.0D0
+   IF(OPNM.EQ.'CLPX')     OP17=500.0D0
+   IF(OPNM.EQ.'CLPY')     OP17=501.0D0
+   IF(OPNM.EQ.'GDX')      OP17=502.0D0
+   IF(OPNM.EQ.'GDY')      OP17=503.0D0
+   IF(OPNM.EQ.'GDZ')      OP17=504.0D0
+   IF(OPNM.EQ.'GALPHA')   OP17=505.0D0
+   IF(OPNM.EQ.'GBETA')    OP17=506.0D0
+   IF(OPNM.EQ.'GGAMMA')   OP17=507.0D0
+   IF(OPNM.EQ.'GRS')      OP17=508.0D0
+   IF(OPNM.EQ.'WEIGHT')   OP17=509.0D0
+   IF(OPNM.EQ.'DMINUSD')  OP17=510.0D0
+   IF(OPNM.EQ.'COST')     OP17=511.0D0
+   IF(OPNM.EQ.'MACOPT')   OP17=512.0D0
+   IF(OPNM.EQ.'RMSYX')    OP17=513.0D0
+   IF(OPNM.EQ.'CLEARX')   OP17=514.0D0
+   IF(OPNM.EQ.'CLEARY')   OP17=515.0D0
+   IF(OPNM.EQ.'ACT')      OP17=801.0D0
+!
+   IF(OP17.EQ.512.0D0) THEN
+!     MACOPT OPERAND
+      IF(INT(W3).LT.1.OR.INT(W3).GT.1000) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM,' REQUIRES'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'"NUMERIC WORD #2 IN THE RANGE 1 TO 1000'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.480.0D0.AND.OP17.LE.481.0D0) THEN
+!     CTSX AND CTSY OPERANDS
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         DF5=1
+         S5=0
+         W5=0.0D0
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.482.0D0.AND.OP17.LE.483.0D0) THEN
+!     SCEX AND SCEY OPERANDS
+      IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.&
+      &W5.NE.0.0D0) THEN
+         DF4=1
+         S4=0
+         W4=0.0D0
+         DF5=1
+         S5=0
+         W5=0.0D0
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.472.0D0.AND.OP17.LE.479.0D0.OR.OP17.EQ.479.0D0 &
+   &.OR.OP17.EQ.510.0D0) THEN
+!     REAL RAY COLOR OPERANDS, NO INPUT NEEDED TO DEFINE
+!     FRACTIONAL OBJECT POS., REL RAY POS OR COLORS.
+      IF(DF3.EQ.0.OR.DF4.EQ.0.OR.DF5.EQ.0) THEN
+         DF3=1
+         S3=0
+         W3=0.0D0
+         DF4=1
+         S4=0
+         W4=0.0D0
+         DF5=1
+         S5=0
+         W5=0.0D0
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+!     SYMX,SYMY,ASYMX AND ASYMY
+   IF(OP17.GE.468.0D0.AND.OP17.LE.471.0D0) THEN
+!     W3 ANY VALUE MAY BE INPUT ( ONLY ABS VALUE USED)
+      IF(DF3.EQ.1) THEN
+         DF3=0
+         W3=0.7D0
+      END IF
+      W3=DABS(W3)
+!     W4 1 TO 200 (FIELD NUMBER)
+      IF(DF4.EQ.1) THEN
+         DF4=0
+         W4=1.0D0
+      END IF
+!     W5 1 TO 10 (WAVELENGTH NUMBER)
+      IF(DF5.EQ.1) THEN
+         DF5=0
+         W5=SYSTEM(11)
+      END IF
+!     OUT OF RANGE INPUT W4
+      IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W5
+      IF(INT(W5).LT.1.OR.INT(W5).GT.10.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'WAVELENGTH NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!
+   IF(OP17.GE.1.0D0.AND.OP17.LE.15.0D0.OR.OP17.GE.18.0D0.AND.OP17 &
+   &.LE.69.0D0) THEN
+!     RAY BASED PREDEFINED OPERANDS
+!
+      IF(OP17.EQ.68.0D0.OR.OP17.EQ.69.0D0) THEN
+         IF(W3.LT.1.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES NUMERIC WORD #3 INPUT GREATER THAN 0'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     DEFAULT NW3
+      IF(OP17.GE.1.0D0.AND.OP17.LE.14.0D0.OR.&
+      &OP17.GE.18.0D0.AND.OP17.LE.20.0D0.OR.&
+      &OP17.GE.22.0D0.AND.OP17.LE.23.0D0.OR.&
+      &OP17.GE.27.0D0.AND.OP17.LE.55.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            W3=DBLE(NEWIMG)
+            S1=1
+            DF3=0
+            IREG=W3
+            OP8 =IREG
+            OP18 =DBLE(DF3)
+         END IF
+      END IF
+!
+      IF(OP17.EQ.15.0D0.OR.&
+      &OP17.EQ.21D0.OR.&
+      &OP17.GE.24.0D0.AND.OP17.LE.26.0D0.OR.&
+      &OP17.GE.56.0D0.AND.OP17.LE.69.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.43.AND.OP17.LE.58.0D0.OR.OP17.GE.68.0D0.AND.&
+      &OP17.LE.69.0D0) THEN
+!     REFERENCE RAYS
+!     DEFAULT INPUT W4
+!
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+         DF5=0
+         S5=1
+         W5=0
+
+!     OUT OF RANGE INPUT W3
+         IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'SURFACE NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W4
+         IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      ELSE
+!     NOT REFERENCE RAYS
+!     DEFAULT INPUT W4 AND W5
+!
+         IF(DF4.EQ.1.OR.DF5.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 AND #5 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+
+!     OUT OF RANGE INPUT W3
+         IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'SURFACE NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W4
+         IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+!     OUT OF RANGE INPUT W5
+         IF(INT(W5).LT.1.OR.INT(W5).GT.500) THEN
+            WRITE(OUTLYNE,*)&
+            &'RAY POSITION NUMBER BEYOND LEGAL RANGE'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'FOR PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+   END IF
+!     *****************************************************************
+   IF(OP17.EQ.16.0D0.OR.OP17.EQ.17.0D0) THEN
+!     OPD OR OPDW
+!
+      IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORD #3 AND #4 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W3
+      IF(INT(W3).LT.1.OR.INT(W3).GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'FIELD POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     OUT OF RANGE INPUT W4
+      IF(INT(W4).LT.1.OR.INT(W4).GT.500) THEN
+         WRITE(OUTLYNE,*)&
+         &'RAY POSITION NUMBER BEYOND LEGAL RANGE'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FOR PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!     W5
+      IF(S5.EQ.1.AND.W5.NE.0.0D0) THEN
+         DF5=1
+         S5=0
+         W5=0.0D0
+      END IF
+      IREG=W3
+      OP8 =IREG
+      OP18 =DBLE(DF3)
+   END IF
+!     *****************************************************************
+   IF(OP17.GE.70.0D0.AND.OP17.LE.206.0D0.OR.&
+   &OP17.GE.447.0D0.AND.OP17.LE.451.0D0.OR.&
+   &OP17.EQ.467.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.511.0D0.OR.&
+   &OP17.GE.801.0D0.AND.OP17.LE.805.0D0) THEN
+!     LENS DATABASE OPERANDS
+      IF(OP17.EQ.15.0D0.OR.OP17.EQ.21.0D0) THEN
+         IF(W3.LT.1.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES NUMERIC WORD #3 GREATER THAN 0'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.801.0D0.AND.OP17.LE.805.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES A VALID SURFACE NUMBER FOR NUMERIC WORD #3'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.801.0D0) THEN
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.(ALENS(105,INT(W3))**2)) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES AN ACTIVE ACTUATOR NUMBER AS NUMERIC WORD #4'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.802.0D0.AND.OP17.LE.805.0D0) THEN
+         IF(DF4.EQ.0.OR.DF5.EQ.0) THEN
+            DF4=1
+            S4=0
+            W4=0.0D0
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+      IF(OP17.EQ.801.0D0) THEN
+         IF(DF5.EQ.0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+!     DEFAULT INPUT W5
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         DF5=1
+         S5=0
+         W5=0.0D0
+      END IF
+      IF(OP17.NE.91.0D0.AND.OP17.NE.106.0D0.AND.&
+      &OP17.NE.107.0D0.AND.OP17.NE.509.0D0.AND.OP17.NE.511.0D0) THEN
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+!     SET DEFAULTS FOR LENGTH AND MLENGTH AND WEIGHT
+      IF(OP17.EQ.106.0D0.OR.&
+      &OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0.OR.OP17.EQ.511.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(DF3.EQ.1) W3=0.0D0
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(20)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+      END IF
+!     SET DEFAULTS FOR VERTEX DATA
+      IF(OP17.GE.94.0D0.AND.OP17.LE.105.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF4.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!     SET SURFACE DATA NUMERIC WORD #3
+      IF(OP17.GE.70.0D0.AND.&
+      &OP17.LE.89.0D0.OR.OP17.GE.447.0D0.AND.&
+      &OP17.LE.451.0D0.OR.OP17.GE.92.0D0.AND.&
+      &OP17.LE.93.0D0.OR.OP17.EQ.467.0D0.OR.OP17.GE.108.0D0.AND.&
+      &OP17.LE.206.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0.OR.&
+      &OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            DF4=1
+            S4=0
+            W4=0.0D0
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+!
+      IF(OP17.GE.70.0D0.AND.OP17.LE.90.0D0.OR.&
+      &OP17.GE.92.0D0.AND.&
+      &OP17.LE.93.0D0.OR.OP17.EQ.467.0D0.OR.OP17.GE.&
+      &108.0D0.AND.OP17.LE.206.0D0.OR.OP17.GE.447.0D0 &
+      &.AND.OP17.LE.451.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0.OR.&
+      &OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.GE.94.0D0.AND.OP17.LE.105.0D0) THEN
+         IF(W3.LT.DBLE(NEWOBJ).OR.W3.GT.DBLE(NEWIMG)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER, NW3, ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.DBLE(NEWOBJ).OR.W4.GT.DBLE(NEWIMG)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER, NW4, ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.EQ.106.0D0.OR.OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0 &
+      &.OR.OP17.EQ.511.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.W3.GE.W4.OR.W4.LT.0.0D0 &
+         &.OR.W4.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBERS ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+      IF(OP17.EQ.91.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+   IF(OP17.GE.207.0D0.AND.OP17.LE.236.0D0) THEN
+!
+      IF(OP17.GE.207.0D0.AND.OP17.LE.236.0D0) THEN
+!     PARAXIAL OPERANDS
+!     DEFAULT INPUT W5
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+      IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
+         IF(S4.EQ.1.AND.W4.NE.0.0D0.OR.S5.EQ.1.AND.W5.NE.0.0D0) THEN
+            DF4=1
+            S4=0
+            W4=0.0D0
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+!     SET DEFAULTS FOR PWRY,PWRX,FLCLTH OR FLCLTHY AND FLCLTHX
+      IF(OP17.GE.207.0D0.AND.&
+      &OP17.LE.210.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(DF3.EQ.1) W3=0.0D0
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(20)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         DF5=1
+         W5=0.0D0
+      END IF
+!     SET DEFAULTS FOR 211 TO 226
+      IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(DF3.EQ.1) DF3=0
+         IF(DF4.EQ.1) W4=SYSTEM(11)
+         OP9 = W4
+         IF(DF4.EQ.1) DF4=0
+         OP11 =DBLE(DF4)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+      END IF
+!     SET DEFAULTS FOR 227 TO 234
+      IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+      END IF
+!     SET NW3 FOR 235 TO 236
+      IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.GE.207.0D0.AND.OP17.LE.210.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.&
+         &W4.LT.0.0D0.OR.W4.GT.SYSTEM(20).OR.&
+         &W4.LE.W3) THEN
+!     BAD SURFACE NUMBERS
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBERS ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W4=DBLE(INT(W4))
+            OP9 = W4
+         END IF
+      END IF
+      IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+!
+!     *****************************************************************
+   IF(OP17.GE.237.0D0.AND.OP17.LE.245.0D0.OR.OP17.EQ.513.0D0) THEN
+!     SPOT OPERANDS
+!     DEFAULT INPUT W5
+      IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         DF5=1
+         S5=0
+         W5=0.0D0
+      END IF
+!     SPOT OPERANDS
+!     DEFAULT INPUT W3
+      IF(DF3.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+         WRITE(OUTLYNE,*)&
+         &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(W4.LE.0.0D0.OR.W4.GT.10.0D0) THEN
+         W4=0.0D0
+         DF4=1
+      END IF
+      IF(DF4.EQ.0) THEN
+         IF(W4.NE.1.0D0.AND.&
+         &W4.NE.2.0D0.AND.&
+         &W4.NE.3.0D0.AND.&
+         &W4.NE.4.0D0.AND.&
+         &W4.NE.5.0D0.AND.&
+         &W4.NE.6.0D0.AND.&
+         &W4.NE.7.0D0.AND.&
+         &W4.NE.8.0D0.AND.&
+         &W4.NE.9.0D0.AND.&
+         &W4.NE.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+      OP9=W4
+      OP11=DBLE(DF4)
+!
+   END IF
+!     *****************************************************************
+   IF(OP17.EQ.514.0D0.OR.OP17.EQ.515) THEN
+!     SPOT OPERANDS
+!     NO DEFAULTS
+      IF(DF3.EQ.1.OR.DF4.EQ.1.OR.DF5.EQ.1) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'REQUIRES EXPLICIT NUMERIC WORDS #3, #4 AND #5 INPUT'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+! FOB1,RAY1
+      CLFOB1=DABS(DBLE(INT(W3)))
+      CLRAY1=DBLE(NINT(DABS(DABS(W3)-DBLE(INT(DABS(W3))))*10000.0D0))
+      CLFOB2=DABS(DBLE(INT(W4)))
+      CLRAY2=DBLE(NINT(DABS(DABS(W4)-DBLE(INT(DABS(W4))))*10000.0D0))
+      CLSRF1=DABS(DBLE(INT(W5)))
+      CLSRF2=DBLE(NINT(DABS(DABS(W5)-DBLE(INT(DABS(W5))))*1000.0D0))
+      IF(CLFOB1.LT.1.0D0.OR.CLFOB1.GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FIRST FIELD OF VIEW POSITION OUT OF RANGE (1-200)'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(CLFOB2.LT.1.0D0.OR.CLFOB2.GT.200.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'SECOND FIELD OF VIEW POSITION OUT OF RANGE (1-200)'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(CLRAY1.LT.1.0D0.OR.CLRAY1.GT.5000.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FIRST RAY POSITION OUT OF RANGE (1-5000)'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(CLRAY2.LT.1.0D0.OR.CLRAY2.GT.5000.0D0) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'SECOND RAY POSITION OUT OF RANGE (1-5000)'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(CLSRF1.LT.0.0D0.OR.CLSRF1.GT.DBLE(MAXSUR)) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'FIRST SURFACE NUMBER OUT OF RANGE (1-',MAXSUR,')'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(CLSRF2.LT.0.0D0.OR.CLSRF2.GT.DBLE(MAXSUR)) THEN
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'SECOND SURFACE NUMBER OUT OF RANGE (1-',MAXSUR,')'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+
+      OP8=W3
+      OP18=DBLE(DF3)
+      OP19=0.0D0
+      OP9=W4
+      OP11=DBLE(DF4)
+      OP10 =W5
+      OP12 =DBLE(DF5)
+   END IF
+!     *****************************************************************
+   IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+   &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+!     CAPFN OPERANDS AND SECOND GROUP OF SPOT OPERANDS
+      IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+      &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+!     SPOT OPERANDS
+!     DEFAULT INPUT W3
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.EQ.246.0D0.OR.OP17.GE.460.0D0.AND.&
+      &OP17.LE.465.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0) THEN
+         IF(W4.LT.1.0D0.OR.W4.GT.37.0D0) THEN
+!     BAD ZERN NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID ZERN COEFFICIENT NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD ZERN NUMBER
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.484.0D0) THEN
+         IF(DF4.EQ.1) THEN
+            DF4=0
+            S4=1
+            W4=1.0D0
+         END IF
+         IF(W4.LT.0.0D0) THEN
+!     BAD OPDWEIGT
+            WRITE(OUTLYNE,*)&
+            &'OPD WEIGHT MUST BE GREATER THAN ZERO'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.EQ.464.0D0.OR.OP17.EQ.465.0D0) THEN
+         IF(W4.LE.0.0D0.OR.W4.GT.100.0D0) THEN
+!     BAD % NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID ENCIRLED ENERGY PERCENTAGE ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            OP9=W4
+            OP11=DBLE(DF4)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.465.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD W4
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #4 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(DF5.EQ.1) W5=SYSTEM(11)
+         OP10 =W5
+         IF(DF5.EQ.1) DF5=0
+         OP12 =DBLE(DF5)
+      END IF
+      IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
+         IF(W5.LT.1.0D0.OR.W5.GT.10.0D0) THEN
+!     BAD WAVELENGTH NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID WAVELENGTH NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.464.0D0.AND.OP17.LE.465.0D0) THEN
+         IF(DF5.EQ.0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.463.0D0) THEN
+         IF(DF5.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT NUMERIC WORD #5 INPUT REQUIRED WITH'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+      IF(OP17.GE.460.0D0.AND.OP17.LE.463.0D0) THEN
+         IF(DF5.EQ.1.AND.W1.NE.0.0D0.AND.W2.NE.90.0D0) THEN
+            WRITE(OUTLYNE,*)&
+            &'NUMERIC WORD #5, ORIENTATION VALUE MUST BE 0 OR 90 FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         ELSE
+            W5=DBLE(INT(W5))
+            OP10 =W5
+            OP12 =DBLE(DF5)
+         END IF
+      END IF
+   END IF
+!     *****************************************************************
+!
+   IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0.OR.&
+   &OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+!
+      IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0) THEN
+!     SPECIAL OPERANDS
+!     DEFAULT INPUT W5
+         IF(DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+      END IF
+      IF(OP17.GE.247.0D0.AND.OP17.LE.284.OR.&
+      &OP17.GE.293.0D0.AND.OP17.LE.296.0D0.OR.OP17.EQ.466.0D0) THEN
+!     CAPFN OPERANDS
+!     DEFAULT INPUT W4
+         IF(DF4.EQ.0.AND.W4.NE.0.0D0) THEN
+            DF4=1
+            S4=0
+            W4=0.0D0
+         END IF
+      END IF
+      IF(OP17.GE.247.0D0.AND.OP17.LE.296.0D0) THEN
+!     SPECIAL OPERANDS
+!     DEFAULT INPUT W3
+         IF(DF3.EQ.1) THEN
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'REQUIRES EXPLICIT NUMERIC WORD #3 INPUT'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+!     OUT OF RANGE INPUT
+!
+      IF(OP17.GE.247.0D0.AND.OP17.LE.278.0D0.OR.&
+      &OP17.LE.293.0D0.AND.OP17.LE.296.0D0.OR.OP17.EQ.466.0D0) THEN
+         IF(W3.LT.1.0D0.OR.W3.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.279.0D0.AND.OP17.LE.284.0D0) THEN
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.285.0D0.AND.OP17.LE.292.0D0) THEN
+         IF(DF3.EQ.1) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT SURFACE NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF4.EQ.1) THEN
+!     BAD FIELD NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT FIELD NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.DBLE(NEWOBJ).OR.W3.GT.DBLE(NEWIMG)) THEN
+!     BAD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+      IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+         IF(DF3.EQ.1) THEN
+            DF3=0
+            W3=INT(SYSTEM(20))
+         END IF
+      END IF
+      IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
+         IF(DF4.EQ.1) THEN
+!     BAD FIELD NUMBER
+            WRITE(OUTLYNE,*)&
+            &'EXPLICIT FIELD NUMBER REQUIRED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(DF5.EQ.0) THEN
+            DF5=1
+            S5=0
+            W5=0.0D0
+         END IF
+         IF(W4.LT.1.0D0.OR.W4.GT.200.0D0) THEN
+!     BAD FIELD POS NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID FIELD POSITION NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD FIELD SURF NUMBER
+            WRITE(OUTLYNE,*)&
+            &'INVALID SURFACE NUMBER ISSUED FOR'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)&
+            &'PREDEFINED OPERAND ',OPNM
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+      END IF
+!
+   END IF
+!
+!     *****************************************************************
+   IF(OP17.GE.297.0D0.AND.OP17.LE.446.0D0) THEN
+!     3,5,7 ABERRATIONS
+!
+!     DEFAULT INPUT W4 AND W5
+      IF(DF4.EQ.0.AND.W4.NE.0.0D0.OR.DF5.EQ.0.AND.W5.NE.0.0D0) THEN
+         DF4=1
+         DF5=1
+         S4=0
+         S5=0
+         W4=0.0D0
+         W5=0.0D0
+      END IF
+      IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
+      IF(DF3.EQ.1) W3=SYSTEM(20)
+      IF(DF3.EQ.1) DF3=0
+      IREG=W3
+      OP8=W3
+      OP18=DBLE(DF3)
+!
+      IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+!     BAD SURFACE NUMBER
+         WRITE(OUTLYNE,*)&
+         &'INVALID SURFACE NUMBER ISSUED FOR'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)&
+         &'PREDEFINED OPERAND ',OPNM
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+!
+   END IF
+!
+!     INPUT OK FOR W3, W4 AND W5
+!
+3141 CONTINUE
+!     ANY 8 CHARACTER QUALIFIER WORD OPERAND NAME MAY BE USED
+!     BUT DUPLICATE NAMES CAUSE REPLACEMENT
+!     HERE IS WERE THE REPLACEMENT HAPPENS
+   DO I=1,OPCNT
+      IF(WQ.EQ.OPNAM(I).AND.CURFIG.EQ.OPERND(I,16).AND.&
+      &W3.EQ.OPERND(I,8).AND.W4.EQ.OPERND(I,9)&
+      &.AND.W5.EQ.OPERND(I,10).AND.OPT.EQ.OPERND(I,1)&
+      &.AND.DBLE(CORMOD).EQ.OPERND(I,13)) THEN
+!     FUNC, NAME, NW3,NW4,NW5,CFG AND CORMOD MUST MATCH OR NO REPLACEMENT
+!
+         OP1 =DBLE(OPT)
+         OPNM=WQ
+         OP2 =W1
+         OP3 =0.0D0
+         OP4 =0.0D0
+         OP5 =0.0D0
+         OP6 =0.0D0
+         OP7 =OPWEIT
+         IREG=W3
+         OP8 =IREG
+         OP18 =DBLE(DF3)
+         OP9 = W4
+         OP10 =W5
+         OP11 =DBLE(DF4)
+         OP12 =DBLE(DF5)
+         OP13 =DBLE(CORMOD)
+         OP14 = 0.0D0
+         OP15 = 0.0D0
+         IF(OPT.EQ.0) OP16 = CURFIG
+         IF(OPT.NE.0) OP16 = 0.0D0
+         IREG=W3
+         OP8=W3
+         OP18=DBLE(DF3)
+         OP19=0.0D0
+!
+         OPERND(I,1) =OP1
+         OPERND(I,2) =OP2
+         OPERND(I,3) =OP3
+         OPERND(I,4) =OP4
+         OPERND(I,5) =OP5
+         OPERND(I,6) =OP6
+         OPERND(I,7) =OP7
+         OPERND(I,8) =OP8
+         OPERND(I,9) =OP9
+         OPERND(I,10) =OP10
+         OPERND(I,11) =OP11
+         OPERND(I,12) =OP12
+         OPERND(I,13) =OP13
+         OPERND(I,14) =OP14
+         OPERND(I,15) =OP15
+         OPERND(I,16) =OP16
+         OPERND(I,17) =OP17
+         OPERND(I,18) =OP18
+         OPERND(I,19) =OP19
+         CALL OPRCLN
+         RETURN
+      END IF
+   END DO
+!
+!     IT IS A NEW OPERAND
+!     CHECK FOR A POSSIBLE OVERFLOW
+   IF(OPCNT.EQ.MAXOPT) THEN
+!     NO MORE OPERANDS
+      WRITE(OUTLYNE,*)&
+      &'THE MAXIMUM OF ',MAXOPT,' OPERANDS HAS BEEN REACHED'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'NO MORE MAY BE ENTERED'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   OP1 =DBLE(OPT)
+   OPNM=WQ
+   OP2 =W1
+   OP3 =0.0D0
+   OP4 =0.0D0
+   OP5 =0.0D0
+   OP6 =0.0D0
+   OP7 =OPWEIT
+   IREG=W3
+   OP8 =IREG
+   OP18 =DBLE(DF3)
+   OP9 = W4
+   OP10 =W5
+   OP11 =DBLE(DF4)
+   OP12 =DBLE(DF5)
+   OP13 =DBLE(CORMOD)
+   OP14 = 0.0D0
+   OP15 = 0.0D0
+   IREG=W3
+   OP18=DBLE(DF3)
+   OP19=0.0D0
+   IF(OPT.EQ.0) OP16 = CURFIG
+   IF(OPT.NE.0) OP16 = 0.0D0
+!
+   OPNAM(OPCNT+1)=OPNM
+   OPERND(OPCNT+1,1) =OP1
+   OPERND(OPCNT+1,2) =OP2
+   OPERND(OPCNT+1,3) =OP3
+   OPERND(OPCNT+1,4) =OP4
+   OPERND(OPCNT+1,5) =OP5
+   OPERND(OPCNT+1,6) =OP6
+   OPERND(OPCNT+1,7) =OP7
+   OPERND(OPCNT+1,8) =OP8
+   OPERND(OPCNT+1,9) =OP9
+   OPERND(OPCNT+1,10) =OP10
+   OPERND(OPCNT+1,11) =OP11
+   OPERND(OPCNT+1,12) =OP12
+   OPERND(OPCNT+1,13) =OP13
+   OPERND(OPCNT+1,14) =OP14
+   OPERND(OPCNT+1,15) =OP15
+   OPERND(OPCNT+1,16) =OP16
+   OPERND(OPCNT+1,17) =OP17
+   OPERND(OPCNT+1,18) =OP18
+   OPERND(OPCNT+1,19) =OP19
+   OPCNT=OPCNT+1
+   CALL OPRCLN
+   RETURN
+!       ALL DONE
+END

@@ -1,0 +1,5267 @@
+!       FIRST FILE OF CONFIGS FILES
+
+! SUB SORDER.FOR
+SUBROUTINE SORDER(I)
+!
+   use DATCFG
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+!
+!       THIS IS SUBROUTINE SORDER. IT REMOVES INCONSISTENCIES
+!       IN SPECIAL SURFACE DATA WITHIN
+!       CONFIGURATION DATA FOR CONFIGURATION (I).
+
+   INTEGER SCRCNT,ULINE,ELINE,&
+   &TESTV1,TESTV2,EXSST(1:2000),I,J,III,&
+   &ALLOERR,JJ,KKK,JJJ,JK
+!
+   CHARACTER BLANK*140,CSTUFF*3
+!
+   COMMON/BLAAA/BLANK
+!
+!
+   CHARACTER*140 SCRATH
+   DIMENSION SCRATH(:)
+   ALLOCATABLE :: SCRATH
+   INTEGER NANA,IL
+   NANA=2000
+   DEALLOCATE (SCRATH,STAT=ALLOERR)
+   ALLOCATE (SCRATH(NANA),STAT=ALLOERR)
+!
+!
+   BLANK=AA//AA//AA//AA//AA//AA//AA
+   SCRATH(1:2000)=BLANK
+!
+!       FIND THE LOCATION OF THE U SP AND ITS EOS LINE
+!
+   ULINE=0
+   ELINE=1
+   SCRCNT=0
+!       CHECK FOR U SP
+   DO 20 J=1,CFGCNT(I)
+!
+      EE12=CONFG(I,J)
+      HOLDER=EE12
+      IF((HOLDER(1:11)).EQ.'U        SP'.OR.&
+      &(HOLDER(1:14)).EQ.'UPDATE   SPSRF'.OR.&
+      &(HOLDER(1:11)).EQ.'UPDATE   SP'.OR.&
+      &(HOLDER(1:14)).EQ.'U        SPSRF') THEN
+!       FOUND U SP, SET ULINE TO J
+         ULINE=J
+         GO TO 21
+      END IF
+20 CONTINUE
+21 CONTINUE
+   IF(ULINE.EQ.0) THEN
+!       NOTHING TO CLEAN UP, JUST RETURN
+      DEALLOCATE(SCRATH,STAT=ALLOERR)
+      RETURN
+   ELSE
+!       LOOK FOR EOS
+   END IF
+   DO 30 J=(ULINE+1),CFGCNT(I)
+      EE12=CONFG(I,J)
+      HOLDER=EE12
+      IF((HOLDER(1:3)).EQ.'EOS') THEN
+         ELINE=J
+         GO TO 31
+      ELSE
+!       CONTINUE SEARCH
+      END IF
+30 CONTINUE
+31 CONTINUE
+   IF(ELINE.EQ.0) THEN
+      WRITE(OUTLYNE,*)'SERIOUS ERROR IN SCLEAN SUBROUTINE'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'REPORT THIS ERROR!'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'SCLEAN TOOK NO ACTION'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      DEALLOCATE(SCRATH,STAT=ALLOERR)
+      RETURN
+   END IF
+!       WRITE THE FIRST LINE
+   SCRCNT=SCRCNT+1
+   EE12=CONFG(I,ULINE)
+   HOLDER=EE12
+   SCRATH(SCRCNT)=HOLDER
+!
+!       NOW WE HAVE ULINE AND ELINE. NOW FIND ALL THE "SPECIAL" LINES
+!       , "SPDEL", "SPSRF ON", "SPSRF OFF" LINES AND "C1" TO C96" LINES
+!       THAT LIE BETWEEN ULINE AND ELINE. ORDER THEM
+!       IN ASSENDING SURFACE ORDER.
+!       NOW SPECIAL/SPDEL
+!       NOW CHECK 'SPECIAL'/'SPDEL', ONLY ONE OR THE OTHER IS
+!       ALLOWED PER SURFACE NUMBER
+!
+!       START CHECKING FROM END OF DATA LIST FOR EACH VALID
+!       SURFACE NUMBER FROM 1 TO INT(SYSTEM(20)
+   DO 110 III=1,INT(SYSTEM(20))
+!
+      DO 120 JJ=ELINE-1,ULINE+1,-1
+!
+         EE12=CONFG(I,JJ)
+         HOLDER=EE12
+         IF(HOLDER(1:7).EQ.'SPECIAL'.OR.&
+         &HOLDER(1:5).EQ.'SPDEL'.OR.HOLDER(1:4).EQ.'GENL') THEN
+!       CONVERT NUMERIC ENTRY TO INTEGER AND CONPARE WITH
+!       VALUE OF III. IF NO MATCH, GO TO 120
+            CALL CONVR2(HOLDER(1:140),TESTV1)
+            IF(TESTV1.NE.III) GO TO 120
+!       TESTV1=III, PROCEED.
+!       FOUND AND ENTRY FOR THE SCRATH ARRAY
+            SCRCNT=SCRCNT+1
+            SCRATH(SCRCNT)=HOLDER
+            CONFG(I,JJ)=BLANK(1:140)
+            GO TO 110
+         ELSE
+!       FIRST OCCURENCE OF SPECIAL/SPDEL NOT FOUND, CHECK NEXT ENTRY
+         END IF
+120   CONTINUE
+!
+!       NOW DECREMENT SURFACE COUNTER AND CHECK NEXT SURFACE NUMBER
+110 CONTINUE
+!       NOW ALL SPECIAL/SPDEL COMMANDS ARE RE-WRITTEN TO SCRATH ARRAY
+!       SPECIAL DONE
+!
+!       NOW SPSRF ON/SPSRF OFF
+!       NOW CHECK 'SPSRF ON/SPSRF OFF', ONLY ONE OR THE OTHER IS
+!       ALLOWED PER SURFACE NUMBER
+!
+!       START CHECKING FROM END OF DATA LIST FOR EACH VALID
+!       SURFACE NUMBER FROM 1 TO INT(SYSTEM(20)
+   DO 1105 III=1,INT(SYSTEM(20))
+!
+      DO 1205 JJ=ELINE-1,ULINE+1,-1
+!
+         EE12=CONFG(I,JJ)
+         HOLDER=EE12
+         IF(HOLDER(1:11).EQ.'SPSRF    ON'.OR.&
+         &HOLDER(1:12).EQ.'SPSRF    OFF') THEN
+!       CONVERT NUMERIC ENTRY TO INTEGER AND CONPARE WITH
+!       VALUE OF III. IF NO MATCH, GO TO 1205
+            CALL CONVR1(HOLDER(1:140),TESTV1)
+            IF(TESTV1.NE.III) GO TO 1205
+!       TESTV1=III, PROCEED.
+!       FOUND AND ENTRY FOR THE SCRATH ARRAY
+            SCRCNT=SCRCNT+1
+            SCRATH(SCRCNT)=HOLDER
+            CONFG(I,JJ)=BLANK(1:40)
+            GO TO 1105
+         ELSE
+!       FIRST OCCURENCE OF SPECIAL/SPDEL NOT FOUND, CHECK NEXT ENTRY
+         END IF
+1205  CONTINUE
+!
+!       NOW DECREMENT SURFACE COUNTER AND CHECK NEXT SURFACE NUMBER
+1105 CONTINUE
+!       NOW ALL SPECIAL/SPDEL COMMANDS ARE RE-WRITTEN TO SCRATH ARRAY
+!       SPECIAL DONE
+!
+!       CHECK EXISTENCE OF SPECIAL SURFACE DEFINITIONS ON
+!       EACH SURFACE FOR THE CURRENT CFG AND SET THE EXISTENCE
+!       FLAG EXSTT(SURF) TO 1 IF THERE IS A DEFINITION AND 0
+!       IF THERE IS NOT
+   KKK=INT(SYSTEM(20))
+   EXSST(0:KKK)=0
+   DO 1100 KKK=1,INT(SYSTEM(20))
+!       FIRST IF SURFACE IS SPECIAL IN LENS DATA
+      IF(ALENS(34,KKK).NE.0.0D0) THEN
+!       SURFACE IS SPECIAL IN LENS DATA.
+         EXSST(KKK)=1
+      ELSE
+!       SURFACE NOT SPECIAL, CONTINUE
+      END IF
+      DO 1101 JJ=1,SCRCNT
+!       ARE THERE SPECIAL OR SPDEL FOR SURFACE I?
+         IF(SCRATH(JJ)(1:5).EQ.'SPDEL') THEN
+            CALL CONVR2(SCRATH(JJ)(1:140),TESTV1)
+            IF(TESTV1.EQ.KKK) EXSST(KKK)=0
+         ELSE
+!       NOT SPDEL, CONTINUE
+         END IF
+         IF(SCRATH(JJ)(1:7).EQ.'SPECIAL'.OR.&
+         &SCRATH(JJ)(1:4).EQ.'GENL') THEN
+            CALL CONVR2(SCRATH(JJ)(1:140),TESTV1)
+            IF(TESTV1.EQ.KKK) EXSST(KKK)=1
+         ELSE
+!       NOT SPECIAL,CONTINUE
+         END IF
+         IF(SCRATH(JJ)(1:12).EQ.'SPSRF    OFF') THEN
+            CALL CONVR1(SCRATH(JJ)(1:140),TESTV1)
+            IF(TESTV1.EQ.KKK) EXSST(KKK)=1
+         ELSE
+!       NOT SPSRF OFF,CONTINUE
+         END IF
+         IF(SCRATH(JJ)(1:11).EQ.'SPSRF    ON') THEN
+            CALL CONVR1(SCRATH(JJ)(1:140),TESTV1)
+            IF(TESTV1.EQ.KKK) EXSST(KKK)=1
+         ELSE
+!       NOT SPSRF OFF,CONTINUE
+         END IF
+1101  CONTINUE
+1100 CONTINUE
+!
+!       NOW THE COEFFICIENTS STARTING FROM SURFACE 1 TO SYSTEM(20)
+!
+!       START CHECKING FROM END OF DATA LIST FOR EACH VALID
+!       SURFACE NUMBER FROM 1 TO INT(SYSTEM(20)
+!
+   DO 310 III=1,INT(SYSTEM(20))
+!
+      DO 400 JJJ=1,96
+         IF(JJJ.EQ.1) CSTUFF='C1 '
+         IF(JJJ.EQ.2) CSTUFF='C2 '
+         IF(JJJ.EQ.3) CSTUFF='C3 '
+         IF(JJJ.EQ.4) CSTUFF='C4 '
+         IF(JJJ.EQ.5) CSTUFF='C5 '
+         IF(JJJ.EQ.6) CSTUFF='C6 '
+         IF(JJJ.EQ.7) CSTUFF='C7 '
+         IF(JJJ.EQ.8) CSTUFF='C8 '
+         IF(JJJ.EQ.9) CSTUFF='C9 '
+         IF(JJJ.EQ.10) CSTUFF='C10'
+         IF(JJJ.EQ.11) CSTUFF='C11'
+         IF(JJJ.EQ.12) CSTUFF='C12'
+         IF(JJJ.EQ.13) CSTUFF='C13'
+         IF(JJJ.EQ.14) CSTUFF='C14'
+         IF(JJJ.EQ.15) CSTUFF='C15'
+         IF(JJJ.EQ.16) CSTUFF='C16'
+         IF(JJJ.EQ.17) CSTUFF='C17'
+         IF(JJJ.EQ.18) CSTUFF='C18'
+         IF(JJJ.EQ.19) CSTUFF='C19'
+         IF(JJJ.EQ.20) CSTUFF='C20'
+         IF(JJJ.EQ.21) CSTUFF='C21'
+         IF(JJJ.EQ.22) CSTUFF='C22'
+         IF(JJJ.EQ.23) CSTUFF='C23'
+         IF(JJJ.EQ.24) CSTUFF='C24'
+         IF(JJJ.EQ.25) CSTUFF='C25'
+         IF(JJJ.EQ.26) CSTUFF='C26'
+         IF(JJJ.EQ.27) CSTUFF='C27'
+         IF(JJJ.EQ.28) CSTUFF='C28'
+         IF(JJJ.EQ.29) CSTUFF='C29'
+         IF(JJJ.EQ.30) CSTUFF='C30'
+         IF(JJJ.EQ.31) CSTUFF='C31'
+         IF(JJJ.EQ.32) CSTUFF='C32'
+         IF(JJJ.EQ.33) CSTUFF='C33'
+         IF(JJJ.EQ.34) CSTUFF='C34'
+         IF(JJJ.EQ.35) CSTUFF='C35'
+         IF(JJJ.EQ.36) CSTUFF='C36'
+         IF(JJJ.EQ.37) CSTUFF='C37'
+         IF(JJJ.EQ.38) CSTUFF='C38'
+         IF(JJJ.EQ.39) CSTUFF='C39'
+         IF(JJJ.EQ.40) CSTUFF='C40'
+         IF(JJJ.EQ.41) CSTUFF='C41'
+         IF(JJJ.EQ.42) CSTUFF='C42'
+         IF(JJJ.EQ.43) CSTUFF='C43'
+         IF(JJJ.EQ.44) CSTUFF='C44'
+         IF(JJJ.EQ.45) CSTUFF='C45'
+         IF(JJJ.EQ.46) CSTUFF='C46'
+         IF(JJJ.EQ.47) CSTUFF='C47'
+         IF(JJJ.EQ.48) CSTUFF='C48'
+         IF(JJJ.EQ.49) CSTUFF='C49'
+         IF(JJJ.EQ.50) CSTUFF='C50'
+         IF(JJJ.EQ.51) CSTUFF='C51'
+         IF(JJJ.EQ.52) CSTUFF='C52'
+         IF(JJJ.EQ.53) CSTUFF='C53'
+         IF(JJJ.EQ.54) CSTUFF='C54'
+         IF(JJJ.EQ.55) CSTUFF='C55'
+         IF(JJJ.EQ.56) CSTUFF='C56'
+         IF(JJJ.EQ.57) CSTUFF='C57'
+         IF(JJJ.EQ.58) CSTUFF='C58'
+         IF(JJJ.EQ.59) CSTUFF='C59'
+         IF(JJJ.EQ.60) CSTUFF='C60'
+         IF(JJJ.EQ.61) CSTUFF='C61'
+         IF(JJJ.EQ.62) CSTUFF='C62'
+         IF(JJJ.EQ.63) CSTUFF='C63'
+         IF(JJJ.EQ.64) CSTUFF='C64'
+         IF(JJJ.EQ.65) CSTUFF='C65'
+         IF(JJJ.EQ.66) CSTUFF='C66'
+         IF(JJJ.EQ.67) CSTUFF='C67'
+         IF(JJJ.EQ.68) CSTUFF='C68'
+         IF(JJJ.EQ.69) CSTUFF='C69'
+         IF(JJJ.EQ.70) CSTUFF='C70'
+         IF(JJJ.EQ.71) CSTUFF='C71'
+         IF(JJJ.EQ.72) CSTUFF='C72'
+         IF(JJJ.EQ.73) CSTUFF='C73'
+         IF(JJJ.EQ.74) CSTUFF='C74'
+         IF(JJJ.EQ.75) CSTUFF='C75'
+         IF(JJJ.EQ.76) CSTUFF='C76'
+         IF(JJJ.EQ.77) CSTUFF='C77'
+         IF(JJJ.EQ.78) CSTUFF='C78'
+         IF(JJJ.EQ.79) CSTUFF='C79'
+         IF(JJJ.EQ.80) CSTUFF='C80'
+         IF(JJJ.EQ.81) CSTUFF='C81'
+         IF(JJJ.EQ.82) CSTUFF='C82'
+         IF(JJJ.EQ.83) CSTUFF='C83'
+         IF(JJJ.EQ.84) CSTUFF='C84'
+         IF(JJJ.EQ.85) CSTUFF='C85'
+         IF(JJJ.EQ.86) CSTUFF='C86'
+         IF(JJJ.EQ.87) CSTUFF='C87'
+         IF(JJJ.EQ.88) CSTUFF='C88'
+         IF(JJJ.EQ.89) CSTUFF='C89'
+         IF(JJJ.EQ.90) CSTUFF='C90'
+         IF(JJJ.EQ.91) CSTUFF='C91'
+         IF(JJJ.EQ.92) CSTUFF='C92'
+         IF(JJJ.EQ.93) CSTUFF='C93'
+         IF(JJJ.EQ.94) CSTUFF='C94'
+         IF(JJJ.EQ.95) CSTUFF='C95'
+         IF(JJJ.EQ.96) CSTUFF='C96'
+!
+!       NOW C#
+!       NOW CHECK 'C#'
+!
+         DO 320 JJ=ELINE-1,ULINE+1,-1
+!
+            EE12=CONFG(I,JJ)
+            HOLDER=EE12
+            IF(HOLDER(1:3).EQ.CSTUFF) THEN
+               CALL CONVR2(HOLDER(1:140),TESTV2)
+!
+               IF(TESTV2.EQ.III.AND.EXSST(III).EQ.0) THEN
+!       DON'T PROCESS COEFS JUST
+!       GO TO NEXT SURFACE
+                  GO TO 310
+               ELSE
+!       PROCEED PROCESSING THE COEFFICIENTS
+               END IF
+!
+
+!       CONVERT NUMERIC ENTRY TO INTEGER AND CONPARE WITH
+!       VALUE OF III. IF NO MATCH, GO TO 320
+               CALL CONVR2(HOLDER(1:140),TESTV2)
+               IF(TESTV2.NE.III) GO TO 320
+!       TESTV2=III, PROCEED.
+!       FOUND AND ENTRY FOR THE SCRATH ARRAY
+               SCRCNT=SCRCNT+1
+               SCRATH(SCRCNT)=HOLDER
+               CONFG(I,JJ)=BLANK(1:140)
+!       CHECK FOR NEXT COEFFICIENT
+               GO TO 400
+            ELSE
+!       FIRST OCCURENCE OF 'C#' NOT FOUND, CHECK NEXT ENTRY
+            END IF
+320      CONTINUE
+!
+!       NOW ALL 'C#' COMMANDS ARE RE-WRITTEN TO SCRATH ARRAY
+!       'C#' DONE
+400   CONTINUE
+!       NOW DECREMENT SURFACE COUNTER AND CHECK NEXT SURFACE NUMBER
+310 CONTINUE
+!       NOW WRITE THE REST OF THE CONFIGS ARRAY TO THE SCRATH ARRAY
+!
+   DO 135 J=ELINE,CFGCNT(I)
+      SCRCNT=SCRCNT+1
+      EE12=CONFG(I,J)
+      HOLDER=EE12
+      SCRATH(SCRCNT)=HOLDER
+135 CONTINUE
+!
+!       NOW BLANK THE LINES ULINE TO CFGCNT(I)
+!       IN THE CONFIGS ARRAY
+   CONFG(I,ULINE:CFGCNT(I))=BLANK(1:140)
+!
+!       NOW WRITE SCRATH BACK INTO CONFIG ARRAY
+   JJ=ULINE
+   DO 16 J=1,SCRCNT
+
+      CONFG(I,JJ)=SCRATH(J)(1:140)
+      JJ=JJ+1
+16 CONTINUE
+!
+!       RESET CFGCNT(I)
+   CFGCNT(I)=SCRCNT
+!
+   DEALLOCATE(SCRATH,STAT=ALLOERR)
+   RETURN
+END
+! SUB REMOVE.FOR
+SUBROUTINE REMOVE
+!
+   use DATCFG
+   use DATMAI
+   IMPLICIT NONE
+!
+!       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL.
+!       IT WORKS BY REMOVING THE JTH THROUGH THE KTH
+!       ENTRIES IN THE CONFIGS SUBFILE FOR THE ITH CONFIG
+!
+!       THE COMMAND IS: REMOVE,I J K
+!
+!       EXPLICIT NUMERIC INPUT FOR ALL THREE NUMERIC WORDS
+!       IS REQUIRED. K MUST BE GREATER THAN J
+!       I IS VALID FOR I=2 TO K=100
+!
+   CHARACTER &
+   &A*17,B*17,C*17,D*17,E*17,F*17,G*17,H*17,AI*3
+!
+   INTEGER DELCNT,RET,I,J,RETRET,LEOS,SPEOS
+!
+   COMMON/RETIT/RET,RETRET,LEOS,SPEOS
+!
+!
+   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
+      WRITE(OUTLYNE,*)&
+      &'"REMOVE" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+!
+   IF(DF1.EQ.1.OR.DF2.EQ.1.OR.DF3.EQ.1) THEN
+      WRITE(OUTLYNE,*)&
+      &'"REMOVE" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(W2.GT.W3) THEN
+      WRITE(OUTLYNE,*)&
+      &'NUMERIC WORD (2) MUST BE < OR = NUMERIC WORD (3)'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(INT(W1).LT.2.OR.INT(W1).GT.2000) THEN
+      WRITE(OUTLYNE,*)'REQUESTED CONFIGURATION  BEYOND LEGAL RANGE'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(CFGCNT(INT(W1)).EQ.0) THEN
+      WRITE(OUTLYNE,*)'NO CONFIGURATION DATA FOR CFG ',INT(W1)
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(INT(W3).GT.CFGCNT(INT(W1))) THEN
+!       REQUEST BEYOND LINES EXISTING
+      WRITE(OUTLYNE,*)'REQUESTED DELETION BEYOND EXISTING DATA'
+      CALL SHOWIT(1)
+      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+!
+!       ALL INPUT OK, DELETE THE REQUESTED DATA
+!       THE FIRST DATA LINE TO GO IS
+!       INT(W2), THE LAST TO GO IS INT(W3)
+!       ANY ENTRY AHEAD OF INT(W2) IS NOT AFFECTED
+!
+!       THE FOLLOWING STINGS MAY NOT BE DIRECTLY REMOVED:
+!
+!       'U        L       ,,,,,,'
+!       'UPDATE   LENS    ,,,,,,'
+!       'U        SP      ,,,,,,'
+!       'UPDATE   SPSRF   ,,,,,,'
+!       'EOS'
+   A='U        L      '
+   B='UPDATE   LENS    '
+   C='U        SP      '
+   D='UPDATE   SPSRF   '
+   E='UPDATE   L      '
+   F='U        LENS    '
+   G='UPDATE   SP      '
+   H='U        SPSRF   '
+   AI='EOS'
+!
+!       IN THE ABSENCE OF THESE FORBIDDEN STRINGS
+!       HOW MANY LINES ARE REQUESTED TO BE DELETED
+!       INT(W3)-INT(W2)+1
+!       SET THE DELETION COUNTER
+   DELCNT=INT(W3)-INT(W2)+1
+!       START AT LINE INT(W2)
+5  I=INT(W2)
+10 CONTINUE
+   EE12=CONFG(INT(W1),I)
+   HOLDER=EE12
+   IF(HOLDER(1:17).NE.A.AND.&
+   &HOLDER(1:17).NE.B.AND.&
+   &HOLDER(1:17).NE.C.AND.&
+   &HOLDER(1:17).NE.D.AND.&
+   &HOLDER(1:17).NE.E.AND.&
+   &HOLDER(1:17).NE.F.AND.&
+   &HOLDER(1:17).NE.G.AND.&
+   &HOLDER(1:17).NE.H.AND.&
+   &HOLDER(1:3).NE.AI) THEN
+!       DELETE THE LINE
+      DO 20 J=I,(CFGCNT(INT(W1))-1)
+         EE12=CONFG(INT(W1),(J+1))
+         HOLDER=EE12
+         CONFG(INT(W1),(J))=HOLDER(1:140)
+20    CONTINUE
+!       ONE LINE DELETED
+!       DECREMENT THE DELETION COUNTER
+      DELCNT=DELCNT-1
+!       DECREMENT THE CFGCNT COUNTER
+      CFGCNT(INT(W1))=CFGCNT(INT(W1))-1
+!       IS THE DELETION COUNTER ZERO
+      IF(DELCNT.LE.0) THEN
+!       DELETIONS COMPLETE,RETURN
+         GO TO 30
+      ELSE
+!       DELETIONS NOT ZERO, CONTINUE
+         GO TO 10
+      END IF
+   ELSE
+!       FOUND A STRING NOT TO DELETE
+      I=I+1
+      W2=W2+1.0
+!       DECREMENT THE DELETION  COUNTER
+      DELCNT=DELCNT-1
+      IF(DELCNT.LE.0) GO TO 30
+!       PROCEED
+      GO TO 5
+   END IF
+!
+30 CONTINUE
+!
+   RET=1
+   F1=0
+   F11=1
+   F12=INT(W1)
+   CALL CFGIN3
+   F1=1
+   F11=0
+   F12=1
+   RETURN
+END
+! SUB CFSC1.FOR
+SUBROUTINE CFSC1
+!
+   use DATCFG
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+!
+!       THIS IS SUBROUTINE CFSC1 DOES SCALING OF CONFIG
+!       DATA WHEN SAY,SAX,SCY,SCX,SCY FANG, SCX FANG
+!       WRX,WRY (BDX AND BDY GET SCALED BY THE INVERSE OF THE SCALE FACTOR)
+!       ARE SCALED WITH SURFACE DATA.
+!
+   CHARACTER HOLD*140,AVAL1*23,&
+   &AVAL2*23,AVAL3*23,AVAL4*23,AVAL5*23,SNAME*9,&
+   &LNAME*18,AN1*23,AV1*23
+!
+   INTEGER &
+   &ULINE,ELINE,IEND,CHG1,ISTART,ISTOP,STARL,STOPL,ISTA,&
+   &ISTO,I,J
+!
+   REAL*8 VAL1,VAL2,MM1,&
+   &VAL3,VAL4,VAL5,N1,V1
+!
+   COMMON/JK_NTA3/V1,AV1
+!
+   COMMON/CAUX1/N1,AN1
+!
+!
+!       STRAIGHT SCALING (SC,FACT,I,J)
+!       W1=FACTOR
+!       W2=STARTING SURFACE
+!       W3=ENDING SURFACE
+!       SAY,SAX,SCY,SCX STARTING VALUES ALSO SCALED
+!
+!
+!       I TRACKS THE CONFIGURATION BEING HANDLED
+!
+!       J TRACKS THE ENTRY NUMBER
+!
+   IEND=INT(SYSTEM(56))
+   DO 10 I=2,IEND
+!       LOOP THROUGH ALL NON BLANK CONFIGS
+      ELINE=1
+      ULINE=0
+!
+!       REMOVE ALL FNBY/ER/MAG ENTRIES BY CALLIN FNBDE
+!     UNLESS WRX,WRY,BDX OR BDY ENTERED
+      IF(WC.NE.'BDX'.AND.WC.NE.'BDY'.AND.WC.NE.'WRX'.AND.&
+      &WC.NE.'WRY') CALL FNBDE(I)
+!
+!       DETERMINE LOCATION OF U L,EOS AND FIRST CHG
+      DO 15 J=1,CFGCNT(I)
+         EE12=CONFG(I,J)
+         HOLDER=EE12
+         IF((HOLDER(1:10)).EQ.'U        L'.OR.&
+         &(HOLDER(1:13)).EQ.'UPDATE   LENS'.OR.&
+         &(HOLDER(1:10)).EQ.'UPDATE   L'.OR.&
+         &(HOLDER(1:13)).EQ.'U        LENS') ULINE=J
+         IF((HOLDER(1:3)).EQ.'EOS'.AND.J.GT.ULINE)THEN
+            ELINE=J
+            GO TO 16
+         ELSE
+         END IF
+15    CONTINUE
+16    CONTINUE
+      CHG1=ELINE
+      DO 20 J=(ULINE+1),(ELINE-1)
+         EE12=CONFG(I,J)
+         HOLDER=EE12
+         IF((HOLDER(1:3)).EQ.'CHG') THEN
+            CHG1=J
+            GO TO 21
+         ELSE
+         END IF
+20    CONTINUE
+21    CONTINUE
+!       ANYTHING BETWEEN ULINE+1 AND CHG1-1 IS NON SURFACE DATA
+!       MAYBE TO SCALE
+      IF(CHG1.GT.(ULINE+1)) THEN
+!       THERE IS NON SURFACE DATA TO PROCESS
+!       CHECK FOR SAY, SAX, WRX AND WRY
+         DO 30 J=(ULINE+1),(CHG1-1)
+            EE12=CONFG(I,J)
+            HOLDER=EE12
+!       SET DEFAULT VALUES
+            VAL1=0.0D0
+            VAL2=0.0D0
+            AVAL1='                    '
+            AVAL2='                    '
+            IF((HOLDER(1:3)).EQ.'SAY'.OR.&
+            &(HOLDER(1:3)).EQ.'SAX'.OR.HOLDER(1:3).EQ.'WRX'.OR.&
+            &HOLDER(1:3).EQ.'WRY') THEN
+!       FOUND SAY, SAX, WRX OR WRY TO PROCESS
+               AVAL1=(HOLDER(10:32))
+               AV1=AVAL1
+               CALL ATON3
+               VAL1=V1
+!       SCALE VAL1
+               VAL1=VAL1*W1
+               V1=VAL1
+               CALL NTOA3
+               AVAL1=AV1
+!       REBUILD CONFIG ENTRY
+               HOLDER=HOLDER(1:9)//AVAL1//',,,,,'
+               CONFG(I,J)=HOLDER(1:140)
+!       CHECK NEXT CONFIG LINE
+               GO TO 30
+            ELSE
+!       NOT SAY OR SAX, PROCEED
+            END IF
+            HOLDER=EE12
+!       SET DEFAULT VALUES
+            VAL1=0.0D0
+            VAL2=0.0D0
+            AVAL1='                    '
+            AVAL2='                    '
+            IF((HOLDER(1:3)).EQ.'BDY'.OR.&
+            &(HOLDER(1:3)).EQ.'BDX') THEN
+!       BDX OR BDY TO PROCESS
+               AVAL1=(HOLDER(10:32))
+               AV1=AVAL1
+               CALL ATON3
+               VAL1=V1
+!       SCALE VAL1
+               VAL1=VAL1/W1
+               V1=VAL1
+               CALL NTOA3
+               AVAL1=AV1
+!       REBUILD CONFIG ENTRY
+               HOLDER=HOLDER(1:9)//AVAL1//',,,,,'
+               CONFG(I,J)=HOLDER(1:140)
+!       CHECK NEXT CONFIG LINE
+               GO TO 30
+            ELSE
+!       NOT BDY OR BDX, PROCEED
+            END IF
+!       NOW DO SCY AND SCX
+            IF((HOLDER(1:3)).EQ.'SCY'.OR.&
+            &(HOLDER(1:3)).EQ.'SCX') THEN
+!       SET DEFAULT VALUES
+               VAL1=0.0D0
+               VAL2=0.0D0
+               AVAL1='                    '
+               AVAL2='                    '
+               IF((HOLDER(1:17)).NE.'SCY      FANG    '.AND.&
+               &(HOLDER(1:17)).NE.'SCX      FANG    ')THEN
+!       FOUND SCY OR SCX TO PROCESS
+                  AVAL1=(HOLDER(10:32))
+                  AV1=AVAL1
+                  CALL ATON3
+                  VAL1=V1
+!       SCALE VAL1
+                  VAL1=VAL1*W1
+                  V1=VAL1
+                  CALL NTOA3
+                  AVAL1=AV1
+                  AVAL2=(HOLDER(34:56))
+                  AV1=AVAL2
+                  CALL ATON3
+                  VAL2=V1
+!       SCALE VAL2
+                  VAL2=VAL2*W1
+                  V1=VAL2
+                  CALL NTOA3
+                  AVAL2=AV1
+!       REBUILD CONFIG ENTRY
+                  HOLDER=HOLDER(1:9)//AVAL1//','//AVAL2//',,,,'
+                  CONFG(I,J)=HOLDER(1:140)
+!       CHECK NEXT CONFIG LINE
+                  GO TO 30
+               ELSE
+!       NOT SCY OR SCX, PROCEED
+               END IF
+!       CHECK FOR SCY FANG AND SCX FANG
+!       SET DEFAULT VALUES
+               VAL1=0.0D0
+               VAL2=0.0D0
+               AVAL1='                    '
+               AVAL2='                    '
+               IF((HOLDER(1:17)).EQ.'SCY      FANG    '.OR.&
+               &(HOLDER(1:17)).EQ.'SCX      FANG    ')THEN
+!       FOUND SCY FANG OR SCX FANG TO PROCESS
+                  AVAL1=(HOLDER(19:41))
+                  AV1=AVAL1
+                  CALL ATON3
+                  VAL1=V1
+!       SCALE VAL1
+!     THE ANGLE DOES NOT GET SCALED !
+                  VAL1=VAL1
+                  V1=VAL1
+                  CALL NTOA3
+                  AVAL1=AV1
+                  AVAL2=(HOLDER(43:65))
+                  AV1=AVAL2
+                  CALL ATON3
+                  VAL2=V1
+!       SCALE VAL2
+                  VAL2=VAL2*W1
+                  V1=VAL2
+                  CALL NTOA3
+                  AVAL2=AV1
+!       REBUILD CONFIG ENTRY
+                  HOLDER=HOLDER(1:18)//AVAL1//','//AVAL2//',,,,'
+                  CONFG(I,J)=HOLDER(1:140)
+!       CHECK NEXT CONFIG ENTRY
+               ELSE
+!       NOT SCY FANG OR SCX FANG, PROCEED
+               END IF
+            ELSE
+            END IF
+!       NOW DO PXIM AND PYIM AND RXIM AND RYIM
+            IF((HOLDER(1:4)).EQ.'PXIM'.OR.&
+            &(HOLDER(1:4)).EQ.'PYIM'.OR.&
+            &(HOLDER(1:4)).EQ.'RXIM'.OR.&
+            &(HOLDER(1:4)).EQ.'RYIM') THEN
+!       SET DEFAULT VALUES
+               VAL1=0.0D0
+               AVAL1='                    '
+               IF((HOLDER(1:17)).NE.'PXIM     FANG    '.AND.&
+               &(HOLDER(1:17)).NE.'PYIM     FANG    '.OR.&
+               &(HOLDER(1:17)).NE.'RXIM     FANG    '.OR.&
+               &(HOLDER(1:17)).NE.'RYIM     FANG    ')THEN
+!       PROCESS
+                  AVAL1=(HOLDER(10:32))
+                  AV1=AVAL1
+                  CALL ATON3
+                  VAL1=V1
+!       SCALE VAL1
+                  VAL1=VAL1*W1
+                  V1=VAL1
+                  CALL NTOA3
+                  AVAL1=AV1
+!       REBUILD CONFIG ENTRY
+                  HOLDER=HOLDER(1:9)//AVAL1//',,,,,'
+                  CONFG(I,J)=HOLDER(1:140)
+!       CHECK NEXT CONFIG LINE
+                  GO TO 30
+               ELSE
+!       PROCEED
+               END IF
+!       CHECK FOR PXIM FANG AND PYIM FANG
+!       CHECK FOR RXIM FANG AND RYIM FANG
+!       SET DEFAULT VALUES
+               VAL1=0.0D0
+               AVAL1='                    '
+               IF((HOLDER(1:17)).EQ.'PXIM     FANG    '.OR.&
+               &(HOLDER(1:17)).EQ.'PYIM     FANG    '.OR.&
+               &(HOLDER(1:17)).EQ.'RXIM     FANG    '.OR.&
+               &(HOLDER(1:17)).EQ.'RYIM     FANG    ')THEN
+!       PROCESS
+                  AVAL1=(HOLDER(19:41))
+                  AV1=AVAL1
+                  CALL ATON3
+                  VAL1=V1
+!       SCALE VAL1
+!     THE ANGLE DOES NOT GET SCALED !
+                  VAL1=VAL1
+                  V1=VAL1
+                  CALL NTOA3
+                  AVAL1=AV1
+!       REBUILD CONFIG ENTRY
+                  HOLDER=HOLDER(1:18)//AVAL1//',,,,,'
+                  CONFG(I,J)=HOLDER(1:140)
+!       CHECK NEXT CONFIG ENTRY
+               ELSE
+!       PROCEED
+               END IF
+            ELSE
+            END IF
+30       CONTINUE
+      ELSE
+!       NO NON SURFACE DATA,PROCEED WITH SURFACE DATA
+      END IF
+!
+!       NOW SURFACE DATA. WE SCALE ALL SURFACE DATA BETWEEN
+!       SURFACE W2 AND SURFACE W3 AS INPUT IN THE SCALING COMMAND
+!
+      ISTART=INT(W2)
+      ISTOP= INT(W3)
+      ISTA=0
+      ISTO=0
+!
+!       THE LINES BETWEEN WHICH SCALING WILL OCCUR ARE
+!       NOW DETERMINED.
+!       SEARCH FOR THE STARTING LINE.(STARL)
+      DO 100 J=CHG1,(ELINE-1)
+         EE12=CONFG(I,J)
+         HOLDER=EE12
+         IF((HOLDER(1:3)).EQ.'CHG') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            IF(INT(VAL1).LT.ISTART) GO TO 100
+            IF(INT(VAL1).GE.ISTART) THEN
+               IF(ISTA.EQ.0) THEN
+                  ISTA=1
+                  STARL=J+1
+!       STARTING LINE STARL ASSIGNED
+                  GO TO 101
+               ELSE
+!       ISTA NOT 0, STARL ALREADY ASSIGNED
+               END IF
+            ELSE
+            END IF
+         ELSE
+!       NOT CHG, PROCEED
+         END IF
+!
+100   CONTINUE
+!       IF GOT HERE, DID NOT FIND STARTING LINE AND THEREFORE
+!       NO ENDING LINE EXISTS SO NOTHING TO SCALE. GO TO 10
+!       AND CHECK NEXT CONFIG
+      GO TO 10
+101   CONTINUE
+!       SEARCH FOR THE ENDING LINE.(ENDL)
+      DO 200 J=STARL,(ELINE-1)
+         EE12=CONFG(I,J)
+         HOLDER=EE12
+         IF((HOLDER(1:3)).EQ.'CHG') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            IF(INT(VAL1).LE.ISTOP) GO TO 200
+            IF(INT(VAL1).GT.ISTOP) THEN
+               IF(ISTO.EQ.0) THEN
+                  ISTO=1
+                  STOPL=J-1
+!       HALTING LINE STOPL ASSIGNED
+                  GO TO 201
+               ELSE
+!       ISTO NOT 0
+               END IF
+            ELSE
+            END IF
+         ELSE
+!       NOT CHG, PROCEED
+         END IF
+!
+200   CONTINUE
+!       IF GOT HERE, DID NOT FIND HALTING LINE AND THEREFORE
+!       HALTING LINE IS ELINE-1
+!                       ISTO=1
+      STOPL=(ELINE-1)
+201   CONTINUE
+!
+!       PROCEED TO SCALE NOW
+      DO 300 J=STARL,STOPL
+         EE12=CONFG(I,J)
+         HOLDER=EE12
+!
+!       SCALE ALL APPROPRIATE SURFACE ENTRYS AND REMEMBER TO SKIP
+!       INTERMEDIATE CHG STATMENTS.
+!               SKIP CHG STATMENTS
+         IF((HOLDER(1:3)).EQ.'CHG') GO TO 300
+!
+!       SCALE (CV)
+         IF((HOLDER(1:2)).EQ.'CV') THEN
+            AVAL1=(HOLDER(10:32))
+            HOLD(1:140)=HOLDER(33:140)
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='CV      ,'//AVAL1//HOLD(1:103)
+            GO TO 299
+         ELSE
+!       NOT CV
+         END IF
+!       SCALE (RD)
+         IF((HOLDER(1:2)).EQ.'RD') THEN
+            AVAL1=(HOLDER(10:32))
+            HOLD(1:140)=HOLDER(33:140)
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='RD      ,'//AVAL1//HOLD(1:103)
+            GO TO 299
+         ELSE
+!       NOT RD
+         END IF
+!       SCALE (TH)
+         IF((HOLDER(1:2)).EQ.'TH') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='TH      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (THM)
+         IF((HOLDER(1:3)).EQ.'THM') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='THM     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AC)
+         IF((HOLDER(1:2)).EQ.'AC') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AC      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (AD)
+         IF((HOLDER(1:2)).EQ.'AD') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**3)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AD      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (ADTOR)
+         IF((HOLDER(1:5)).EQ.'ADTOR') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**3)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='ADTOR   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AE)
+         IF((HOLDER(1:2)).EQ.'AE') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**5)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AE      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (AETOR)
+         IF((HOLDER(1:5)).EQ.'AETOR') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**5)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AETOR   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AF)
+         IF((HOLDER(1:2)).EQ.'AF') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**7)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AF      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (AFTOR)
+         IF((HOLDER(1:5)).EQ.'AFTOR') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**7)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AFTOR   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AG)
+         IF((HOLDER(1:2)).EQ.'AG') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**9)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AG      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (AGTOR)
+         IF((HOLDER(1:5)).EQ.'AGTOR') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**9)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AGTOR   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AH)
+         IF((HOLDER(1:2)).EQ.'AH') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**11)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AH      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AI)
+         IF((HOLDER(1:2)).EQ.'AI') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**13)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AI      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AJ)
+         IF((HOLDER(1:2)).EQ.'AJ') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**15)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AJ      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AK)
+         IF((HOLDER(1:2)).EQ.'AK') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**17)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AK      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (AL)
+         IF((HOLDER(1:2)).EQ.'AL') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/(W1**19)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='AL      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (ASPH)
+         IF((HOLDER(1:4)).EQ.'ASPH') THEN
+            HOLDER=HOLDER(10:140)
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL1=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL1=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL2=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL2=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL3=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL3=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL4=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL4=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL5=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL5=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF(AVAL1.NE.',') THEN
+               AV1=AVAL1
+               CALL ATON3
+               VAL1=V1
+               VAL1=VAL1/(W1**3)
+               V1=VAL1
+               CALL NTOA3
+               AVAL1=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL2.NE.',') THEN
+               AV1=AVAL2
+               CALL ATON3
+               VAL2=V1
+               VAL2=VAL2/(W1**5)
+               V1=VAL2
+               CALL NTOA3
+               AVAL2=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL3.NE.',') THEN
+               AV1=AVAL3
+               CALL ATON3
+               VAL3=V1
+               VAL3=VAL3/(W1**7)
+               V1=VAL3
+               CALL NTOA3
+               AVAL3=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL4.NE.',') THEN
+               AV1=AVAL4
+               CALL ATON3
+               VAL4=V1
+               VAL4=VAL4/(W1**9)
+               V1=VAL4
+               CALL NTOA3
+               AVAL4=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL5.NE.',') THEN
+               AV1=AVAL5
+               CALL ATON3
+               VAL5=V1
+               VAL5=VAL5/(W1)
+               V1=VAL5
+               CALL NTOA3
+               AVAL5=AV1
+            ELSE
+            END IF
+!       RE-CONSTRUCT HOLDER
+            HOLDER='ASPH    ,'
+            IF(AVAL1.NE.',') THEN
+               HOLDER=HOLDER//AVAL1//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL2.NE.',') THEN
+               HOLDER=HOLDER//AVAL2//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL3.NE.',') THEN
+               HOLDER=HOLDER//AVAL3//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL4.NE.',') THEN
+               HOLDER=HOLDER//AVAL4//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL5.NE.',') THEN
+               HOLDER=HOLDER//AVAL5//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (ASPH2)
+         IF((HOLDER(1:5)).EQ.'ASPH2') THEN
+            HOLDER=HOLDER(10:140)
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL1=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL1=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL2=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL2=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL3=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL3=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL4=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL4=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL5=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL5=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF(AVAL1.NE.',') THEN
+               AV1=AVAL1
+               CALL ATON3
+               VAL1=V1
+               VAL1=VAL1/(W1**11)
+               V1=VAL1
+               CALL NTOA3
+               AVAL1=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL2.NE.',') THEN
+               AV1=AVAL2
+               CALL ATON3
+               VAL2=V1
+               VAL2=VAL2/(W1**13)
+               V1=VAL2
+               CALL NTOA3
+               AVAL2=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL3.NE.',') THEN
+               AV1=AVAL3
+               CALL ATON3
+               VAL3=V1
+               VAL3=VAL3/(W1**15)
+               V1=VAL3
+               CALL NTOA3
+               AVAL3=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL4.NE.',') THEN
+               AV1=AVAL4
+               CALL ATON3
+               VAL4=V1
+               VAL4=VAL4/(W1**17)
+               V1=VAL4
+               CALL NTOA3
+               AVAL4=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL5.NE.',') THEN
+               AV1=AVAL5
+               CALL ATON3
+               VAL5=V1
+               VAL5=VAL5/(W1**19)
+               V1=VAL5
+               CALL NTOA3
+               AVAL5=AV1
+            ELSE
+            END IF
+!       RE-CONSTRUCT HOLDER
+            HOLDER='ASPH2   ,'
+            IF(AVAL1.NE.',') THEN
+               HOLDER=HOLDER//AVAL1//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL2.NE.',') THEN
+               HOLDER=HOLDER//AVAL2//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL3.NE.',') THEN
+               HOLDER=HOLDER//AVAL3//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL4.NE.',') THEN
+               HOLDER=HOLDER//AVAL4//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL5.NE.',') THEN
+               HOLDER=HOLDER//AVAL5//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (TASPH)
+         IF((HOLDER(1:5)).EQ.'TASPH') THEN
+            HOLDER=HOLDER(10:140)
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL1=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL1=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL2=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL2=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL3=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL3=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL4=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL4=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL5=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL5=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF(AVAL1.NE.',') THEN
+               AV1=AVAL1
+               CALL ATON3
+               VAL1=V1
+               VAL1=VAL1/(W1)
+               V1=VAL1
+               CALL NTOA3
+               AVAL1=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL1.NE.',') THEN
+               AV1=AVAL1
+               CALL ATON3
+               VAL1=V1
+               VAL1=VAL1/(W1**3)
+               V1=VAL1
+               CALL NTOA3
+               AVAL1=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL2.NE.',') THEN
+               AV1=AVAL2
+               CALL ATON3
+               VAL2=V1
+               VAL2=VAL2/(W1**5)
+               V1=VAL2
+               CALL NTOA3
+               AVAL2=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL3.NE.',') THEN
+               AV1=AVAL3
+               CALL ATON3
+               VAL3=V1
+               VAL3=VAL3/(W1**7)
+               V1=VAL3
+               CALL NTOA3
+               AVAL3=AV1
+            ELSE
+            END IF
+!
+            IF(AVAL4.NE.',') THEN
+               AV1=AVAL4
+               CALL ATON3
+               VAL4=V1
+               VAL4=VAL4/(W1**9)
+               V1=VAL4
+               CALL NTOA3
+               AVAL4=AV1
+            ELSE
+            END IF
+!       RE-CONSTRUCT HOLDER
+            HOLDER='TASPH   ,'
+            IF(AVAL1.NE.',') THEN
+               HOLDER=HOLDER//AVAL1//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL2.NE.',') THEN
+               HOLDER=HOLDER//AVAL2//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL3.NE.',') THEN
+               HOLDER=HOLDER//AVAL3//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL4.NE.',') THEN
+               HOLDER=HOLDER//AVAL4//',,'
+            ELSE
+               HOLDER=HOLDER//',,'
+            END IF
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (CLAP OR COBS)
+         MM1=DABS(W1)
+!
+         IF((HOLDER(1:4)).EQ.'CLAP'.OR.&
+         &(HOLDER(1:4)).EQ.'COBS') THEN
+!
+            IF((HOLDER(9:9)).EQ.',') THEN
+               SNAME=HOLDER(1:9)
+               LNAME='                  '
+               HOLDER=HOLDER(10:140)
+            ELSE
+               SNAME='         '
+               LNAME=HOLDER(1:18)
+               HOLDER=HOLDER(19:140)
+            END IF
+!       RESOLVE NUMERIC VALUES
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL1=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL1=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL2=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL2=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL3=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL3=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL4=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL4=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL5=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL5=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+!       NOW RESOLVE SCALING (DEPENDING ON QUALIFIER VALUE)
+!
+!       NO QUALIFIER JUST CLAP OR COBS
+!
+            IF(LNAME(1:6).EQ.'      ') THEN
+!       JUST CLAP OR COBS, SCALE ALL VALUES
+               IF(AVAL1.NE.',') THEN
+                  AV1=AVAL1
+                  CALL ATON3
+                  VAL1=V1
+                  VAL1=VAL1*MM1
+                  V1=VAL1
+                  CALL NTOA3
+                  AVAL1=AV1
+               ELSE
+               END IF
+               IF(AVAL2.NE.',') THEN
+                  AV1=AVAL2
+                  CALL ATON3
+                  VAL2=V1
+                  VAL2=VAL2*MM1
+                  V1=VAL3
+                  CALL NTOA3
+                  AVAL3=AV1
+               ELSE
+               END IF
+               IF(AVAL3.NE.',') THEN
+                  AV1=AVAL3
+                  CALL ATON3
+                  VAL3=V1
+                  VAL3=VAL3*MM1
+                  V1=VAL3
+                  CALL NTOA3
+                  AVAL3=AV1
+               ELSE
+               END IF
+               AVAL4=','
+               AVAL5=','
+!
+!       RE-CONSTRUCT HOLDER
+!
+               HOLDER=SNAME
+               IF(AVAL1.NE.',') THEN
+                  HOLDER=HOLDER//AVAL1//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL2.NE.',') THEN
+                  HOLDER=HOLDER//AVAL2//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL3.NE.',') THEN
+                  HOLDER=HOLDER//AVAL3//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL4.NE.',') THEN
+                  HOLDER=HOLDER//AVAL4//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL5.NE.',') THEN
+                  HOLDER=HOLDER//AVAL5//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+            ELSE
+!       LNAME WAS NOT BLANK, THERE MUST HAVE BEEN A QUALIFIER
+!       HANDEL IT
+!       BREAK OUT THE QUALIFIER PART OR LNAME
+!       WHICH IS LNAME(10:17) AND DECIDE WHAT TO DO IN TERMS
+!       OF SCALING. THEN RE-CONSTRUCT HOLDER
+!
+!       LNAME(10:17)= 'ERASE   '
+               IF(LNAME(10:17).EQ.'ERASE   ') THEN
+!       SAME SCALING AS CLAP OR COBS.
+                  IF(AVAL1.NE.',') THEN
+                     AV1=AVAL1
+                     CALL ATON3
+                     VAL1=V1
+                     VAL1=VAL1*MM1
+                     V1=VAL1
+                     CALL NTOA3
+                     AVAL1=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL2.NE.',') THEN
+                     AV1=AVAL2
+                     CALL ATON3
+                     VAL2=V1
+                     VAL2=VAL2*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL3.NE.',') THEN
+                     AV1=AVAL3
+                     CALL ATON3
+                     VAL3=V1
+                     VAL3=VAL3*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  AVAL4=','
+                  AVAL5=','
+               ELSE
+!       NOT 'ERASE'
+               END IF
+!
+!       LNAME(10:17)= 'ELIP    ' OR 'ELIPE'
+               IF(LNAME(10:17).EQ.'ELIP    '.OR.LNAME(10:17)&
+               &.EQ.'ELIPE   ') THEN
+                  IF(AVAL1.NE.',') THEN
+                     AV1=AVAL1
+                     CALL ATON3
+                     VAL1=V1
+                     VAL1=VAL1*MM1
+                     V1=VAL1
+                     CALL NTOA3
+                     AVAL1=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL2.NE.',') THEN
+                     AV1=AVAL2
+                     CALL ATON3
+                     VAL2=V1
+                     VAL2=VAL2*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL3.NE.',') THEN
+                     AV1=AVAL3
+                     CALL ATON3
+                     VAL3=V1
+                     VAL3=VAL3*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL4.NE.',') THEN
+                     AV1=AVAL4
+                     CALL ATON3
+                     VAL4=V1
+                     VAL4=VAL4*MM1
+                     V1=VAL4
+                     CALL NTOA3
+                     AVAL4=AV1
+                  ELSE
+                  END IF
+                  AVAL5=','
+               ELSE
+!       NOT 'ELIP'
+               END IF
+!
+!
+!       LNAME(10:17)= 'RECT    ' OR 'RECTE'
+               IF(LNAME(10:17).EQ.'RECT    '.OR.LNAME(10:17)&
+               &.EQ.'RECTE   ') THEN
+                  IF(AVAL1.NE.',') THEN
+                     AV1=AVAL1
+                     CALL ATON3
+                     VAL1=V1
+                     VAL1=VAL1*MM1
+                     V1=VAL1
+                     CALL NTOA3
+                     AVAL1=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL2.NE.',') THEN
+                     AV1=AVAL2
+                     CALL ATON3
+                     VAL2=V1
+                     VAL2=VAL2*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL3.NE.',') THEN
+                     AV1=AVAL3
+                     CALL ATON3
+                     VAL3=V1
+                     VAL3=VAL3*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL4.NE.',') THEN
+                     AV1=AVAL4
+                     CALL ATON3
+                     VAL4=V1
+                     VAL4=VAL4*MM1
+                     V1=VAL4
+                     CALL NTOA3
+                     AVAL4=AV1
+                  ELSE
+                  END IF
+                  AVAL5=','
+               ELSE
+!       NOT 'RECT'
+               END IF
+!
+!       LNAME(10:17)=RCTK OR RCTKE
+               IF(LNAME(10:17).EQ.'RCTK    '.OR.&
+               &LNAME(10:17).EQ.'RCTKE   ') THEN
+                  IF(AVAL1.NE.',') THEN
+                     AV1=AVAL1
+                     CALL ATON3
+                     VAL1=V1
+                     VAL1=VAL1*MM1
+                     V1=VAL1
+                     CALL NTOA3
+                     AVAL1=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL2.NE.',') THEN
+                     AV1=AVAL2
+                     CALL ATON3
+                     VAL2=V1
+                     VAL2=VAL2*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL3.NE.',') THEN
+                     AV1=AVAL3
+                     CALL ATON3
+                     VAL3=V1
+                     VAL3=VAL3*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL4.NE.',') THEN
+                     AV1=AVAL4
+                     CALL ATON3
+                     VAL4=V1
+                     VAL4=VAL4*MM1
+                     V1=VAL4
+                     CALL NTOA3
+                     AVAL4=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL5.NE.',') THEN
+                     AV1=AVAL5
+                     CALL ATON3
+                     VAL5=V1
+                     VAL5=VAL5*MM1
+                     V1=VAL5
+                     CALL NTOA3
+                     AVAL5=AV1
+                  ELSE
+                  END IF
+               ELSE
+!       NOT RCTK OR RCTKE
+               END IF
+!
+!       LNAME(10:17)=POLY OR POLYE
+               IF(LNAME(10:17).EQ.'POLY    '.OR.&
+               &LNAME(10:17).EQ.'POLYE   ') THEN
+                  IF(AVAL1.NE.',') THEN
+                     AV1=AVAL1
+                     CALL ATON3
+                     VAL1=V1
+                     VAL1=VAL1*MM1
+                     V1=VAL1
+                     CALL NTOA3
+                     AVAL1=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL2.NE.',') THEN
+                     AV1=AVAL2
+                     CALL ATON3
+                     VAL2=V1
+                     VAL2=VAL2
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL3.NE.',') THEN
+                     AV1=AVAL3
+                     CALL ATON3
+                     VAL3=V1
+                     VAL3=VAL3*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL4.NE.',') THEN
+                     AV1=AVAL4
+                     CALL ATON3
+                     VAL4=V1
+                     VAL4=VAL4*MM1
+                     V1=VAL4
+                     CALL NTOA3
+                     AVAL4=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL5.NE.',') THEN
+                     AV1=AVAL5
+                     CALL ATON3
+                     VAL5=V1
+                     VAL5=VAL5
+                     V1=VAL5
+                     CALL NTOA3
+                     AVAL5=AV1
+                  ELSE
+                  END IF
+               ELSE
+!       NOT POLY OR POLYE
+               END IF
+!
+!       LNAME(10:17)=IPOLY OR IPOLYE
+               IF(LNAME(10:17).EQ.'IPOLY   '.OR.&
+               &LNAME(10:17).EQ.'IPOLYE  ') THEN
+                  IF(AVAL1.NE.',') THEN
+                     AV1=AVAL1
+                     CALL ATON3
+                     VAL1=V1
+                     VAL1=VAL1
+                     V1=VAL1
+                     CALL NTOA3
+                     AVAL1=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL2.NE.',') THEN
+                     AV1=AVAL2
+                     CALL ATON3
+                     VAL2=V1
+                     VAL2=VAL2
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL3.NE.',') THEN
+                     AV1=AVAL3
+                     CALL ATON3
+                     VAL3=V1
+                     VAL3=VAL3*MM1
+                     V1=VAL3
+                     CALL NTOA3
+                     AVAL3=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL4.NE.',') THEN
+                     AV1=AVAL4
+                     CALL ATON3
+                     VAL4=V1
+                     VAL4=VAL4*MM1
+                     V1=VAL4
+                     CALL NTOA3
+                     AVAL4=AV1
+                  ELSE
+                  END IF
+                  IF(AVAL5.NE.',') THEN
+                     AV1=AVAL5
+                     CALL ATON3
+                     VAL5=V1
+                     VAL5=VAL5*MM1
+                     V1=VAL5
+                     CALL NTOA3
+                     AVAL5=AV1
+                  ELSE
+                  END IF
+               ELSE
+!       NOT IPOLY OR IPOLYE
+               END IF
+!       RE-CONSTRUCT HOLDER
+!
+               HOLDER=LNAME
+               IF(AVAL1.NE.',') THEN
+                  HOLDER=HOLDER//AVAL1//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL2.NE.',') THEN
+                  HOLDER=HOLDER//AVAL2//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL3.NE.',') THEN
+                  HOLDER=HOLDER//AVAL3//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL4.NE.',') THEN
+                  HOLDER=HOLDER//AVAL4//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+               IF(AVAL5.NE.',') THEN
+                  HOLDER=HOLDER//AVAL5//','
+               ELSE
+                  HOLDER=HOLDER//','
+               END IF
+            END IF
+            GO TO 299
+         ELSE
+!       NOT CLAP OR COBS, PROCEED
+         END IF
+!
+!       NOW TORIC CURVATUURE AND RADIUS
+!       SCALE (CVTOR)
+         IF((HOLDER(1:5)).EQ.'CVTOR') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1/W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='CVTOR   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (RDTOR)
+         IF((HOLDER(1:5)).EQ.'RDTOR') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='RDTOR   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (DEC)
+         IF((HOLDER(1:3)).EQ.'DEC') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            AVAL2=(HOLDER(34:56))
+            AV1=AVAL2
+            CALL ATON3
+            VAL2=V1
+            VAL2=VAL2*W1
+            V1=VAL2
+            CALL NTOA3
+            AVAL2=AV1
+            AVAL3=(HOLDER(58:80))
+            AV1=AVAL3
+            CALL ATON3
+            VAL3=V1
+            VAL3=VAL3*W1
+            V1=VAL3
+            CALL NTOA3
+            AVAL3=AV1
+            HOLDER='DEC     ,'//AVAL1//','//AVAL2//','//AVAL3//',,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (PIVOT)
+         IF((HOLDER(1:5)).EQ.'PIVOT') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            AVAL2=(HOLDER(34:56))
+            AV1=AVAL2
+            CALL ATON3
+            VAL2=V1
+            VAL2=VAL2*W1
+            V1=VAL2
+            CALL NTOA3
+            AVAL2=AV1
+            AVAL3=(HOLDER(58:80))
+            AV1=AVAL3
+            CALL ATON3
+            VAL3=V1
+            VAL3=VAL3*W1
+            V1=VAL3
+            CALL NTOA3
+            AVAL3=AV1
+            HOLDER='PIVOT   ,'//AVAL1//','//AVAL2//','//AVAL3//',,,'
+            GO TO 299
+         ELSE
+         END IF
+!       SCALE (PY)
+         IF((HOLDER(1:2)).EQ.'PY') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PY      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (PX)
+         IF((HOLDER(1:2)).EQ.'PX') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PX      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (PCY)
+         IF((HOLDER(1:3)).EQ.'PCY') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PCY     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (PCX)
+         IF((HOLDER(1:3)).EQ.'PCX') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PCX     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (CAY)
+         IF((HOLDER(1:3)).EQ.'CAY') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='CAY     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (CAX)
+         IF((HOLDER(1:3)).EQ.'CAX') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='CAX     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (XD)
+         IF((HOLDER(1:2)).EQ.'XD') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*DABS(W1)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='XD      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (YD)
+         IF((HOLDER(1:2)).EQ.'YD') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*DABS(W1)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='YD      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (ZD)
+         IF((HOLDER(1:2)).EQ.'ZD') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='ZD      ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (GDX)
+         IF((HOLDER(1:3)).EQ.'GDX') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*DABS(W1)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='GDX     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (GDY)
+         IF((HOLDER(1:3)).EQ.'GDY') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*DABS(W1)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='GDY     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (GDZ)
+         IF((HOLDER(1:3)).EQ.'GDZ') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='GDZ     ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA)
+         IF((HOLDER(1:5)).EQ.'ALPHA'.OR.&
+         &(HOLDER(1:4)).EQ.'BETA'.OR.&
+         &(HOLDER(1:5)).EQ.'GAMMA'.OR.&
+         &(HOLDER(1:6)).EQ.'GALPHA'.OR.&
+         &(HOLDER(1:5)).EQ.'GBETA'.OR.&
+         &(HOLDER(1:6)).EQ.'GGAMMA') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=-VAL1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            IF(HOLDER(1:5).EQ.'ALPHA') HOLDER='ALPHA   ,'//AVAL1//',,,,,'
+            IF(HOLDER(1:4).EQ.'BETA') HOLDER='ALPHA   ,'//AVAL1//',,,,,'
+            IF(HOLDER(1:5).EQ.'GAMMA') HOLDER='ALPHA   ,'//AVAL1//',,,,,'
+            IF(HOLDER(1:6).EQ.'GALPHA') HOLDER='ALPHA   ,'//AVAL1//',,,,,'
+            IF(HOLDER(1:5).EQ.'GBETA') HOLDER='ALPHA   ,'//AVAL1//',,,,,'
+            IF(HOLDER(1:6).EQ.'GGAMMA') HOLDER='ALPHA   ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (PIVX)
+         IF((HOLDER(1:4)).EQ.'PIVX') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*DABS(W1)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PIVX    ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (PIVY)
+         IF((HOLDER(1:4)).EQ.'PIVY') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*DABS(W1)
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PIVY    ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       SCALE (PIVZ)
+         IF((HOLDER(1:4)).EQ.'PIVZ') THEN
+            AVAL1=(HOLDER(10:32))
+            AV1=AVAL1
+            CALL ATON3
+            VAL1=V1
+            VAL1=VAL1*W1
+            V1=VAL1
+            CALL NTOA3
+            AVAL1=AV1
+            HOLDER='PIVZ    ,'//AVAL1//',,,,,'
+            GO TO 299
+         ELSE
+         END IF
+!
+!       NOW WE MUST SCALE ALL PIKUPS CORRECTLY
+!
+!       SCALE (PIKUP)S AS APPROPRIATE
+!
+         IF((HOLDER(1:5)).EQ.'PIKUP')THEN
+            IF((HOLDER(10:17)).EQ.'RD      '.OR.&
+            &(HOLDER(10:17)).EQ.'CV      '.OR.&
+            &(HOLDER(10:17)).EQ.'TH      '.OR.&
+            &(HOLDER(10:17)).EQ.'AC      '.OR.&
+            &(HOLDER(10:17)).EQ.'AD      '.OR.&
+            &(HOLDER(10:17)).EQ.'AE      '.OR.&
+            &(HOLDER(10:17)).EQ.'AF      '.OR.&
+            &(HOLDER(10:17)).EQ.'AG      '.OR.&
+            &(HOLDER(10:17)).EQ.'AH      '.OR.&
+            &(HOLDER(10:17)).EQ.'AI      '.OR.&
+            &(HOLDER(10:17)).EQ.'AJ      '.OR.&
+            &(HOLDER(10:17)).EQ.'AK      '.OR.&
+            &(HOLDER(10:17)).EQ.'AL      ') THEN
+               GO TO 1000
+            ELSE
+            END IF
+            IF((HOLDER(10:17)).EQ.'ADTOR   '.OR.&
+            &(HOLDER(10:17)).EQ.'AETOR   '.OR.&
+            &(HOLDER(10:17)).EQ.'AFTOR   '.OR.&
+            &(HOLDER(10:17)).EQ.'AGTOR   '.OR.&
+            &(HOLDER(10:17)).EQ.'YD      '.OR.&
+            &(HOLDER(10:17)).EQ.'ZD      '.OR.&
+            &(HOLDER(10:17)).EQ.'XD      '.OR.&
+            &(HOLDER(10:17)).EQ.'GDX     '.OR.&
+            &(HOLDER(10:17)).EQ.'GDY     '.OR.&
+            &(HOLDER(10:17)).EQ.'GDZ     '.OR.&
+            &(HOLDER(10:17)).EQ.'ALPHA   '.OR.&
+            &(HOLDER(10:17)).EQ.'BETA    '.OR.&
+            &(HOLDER(10:17)).EQ.'GAMMA   '.OR.&
+            &(HOLDER(10:17)).EQ.'GALPHA  '.OR.&
+            &(HOLDER(10:17)).EQ.'GBETA   '.OR.&
+            &(HOLDER(10:17)).EQ.'GGAMMA  '.OR.&
+            &(HOLDER(10:17)).EQ.'PIVX    '.OR.&
+            &(HOLDER(10:17)).EQ.'PIVY    '.OR.&
+            &(HOLDER(10:17)).EQ.'PIVZ    ') THEN
+               GO TO 1000
+            ELSE
+            END IF
+            IF((HOLDER(10:17)).EQ.'CLAP    '.OR.&
+            &(HOLDER(10:17)).EQ.'COBS    '.OR.&
+            &(HOLDER(10:17)).EQ.'RDTOR   '.OR.&
+            &(HOLDER(10:17)).EQ.'CVTOR   ')THEN
+!
+!       FOUND PIKUP TO SCALE, JUMP TO 1000
+               GO TO 1000
+            ELSE
+!       DON'T SCALE PIKUP JUST JUMP TO 300
+!
+            END IF
+1000        CONTINUE
+            LNAME=HOLDER(1:18)
+            HOLDER=HOLDER(19:140)
+!
+!       RESOLVE NUMERIC VALUES
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL1=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL1=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL2=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL2=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL3=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL3=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL4=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL4=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+            IF((HOLDER(1:1)).NE.',') THEN
+               AVAL5=(HOLDER(1:23))
+               HOLDER=HOLDER(24:140)
+            ELSE
+               AVAL5=','
+               HOLDER=HOLDER(2:140)
+            END IF
+!
+!       THE ALPHA STRING REPRESENTATIONS ARE NOW BROKEN OUT
+!       AS AVAL1 TO AVAL5
+!
+            IF(AVAL4.NE.',') THEN
+!       MAYBE AVAL4 IS 1.0 AND WE HAVE 'SPECIAL' PIKUP OPTION
+!       IN WHICH CASE NO SCALEING OCCURS.
+               AV1=AVAL4
+               CALL ATON3
+               VAL4=V1
+               IF(VAL4.EQ.1.0D0) THEN
+!       CASE OF 'SPECIAL' PIKUP OPTION, NO SCALING, JUMP TO 300
+                  GO TO 300
+!               ELSE
+!       VAL4 NOT 1.0, JUST CONTINUE
+               END IF
+            ELSE
+!       AVAL4 IS DEFAULT, CONTINUE
+            END IF
+
+!       WE ONLY SCALE THE THIRD NUMERIC WORD IF ANY
+!
+!       LNAME(10:17)= RD,TH,XD,YD,RDTOR,PIVX,PIVY,PIVZ
+!       LNAME(10:17)= OR GLOBAL TILTS AND DECENTERS
+            IF(LNAME(10:17).EQ.'RD      '.OR.&
+            &LNAME(10:17).EQ.'RDTOR   '.OR.&
+            &LNAME(10:17).EQ.'XD      '.OR.&
+            &LNAME(10:17).EQ.'ZD      '.OR.&
+            &LNAME(10:17).EQ.'YD      '.OR.&
+            &LNAME(10:17).EQ.'GDX     '.OR.&
+            &LNAME(10:17).EQ.'GDY     '.OR.&
+            &LNAME(10:17).EQ.'GDZ     '.OR.&
+            &LNAME(10:17).EQ.'ALPHA   '.OR.&
+            &LNAME(10:17).EQ.'BETA    '.OR.&
+            &LNAME(10:17).EQ.'GAMMA   '.OR.&
+            &LNAME(10:17).EQ.'GALPHA  '.OR.&
+            &LNAME(10:17).EQ.'GBETA   '.OR.&
+            &LNAME(10:17).EQ.'GGAMMA  '.OR.&
+            &LNAME(10:17).EQ.'PIVX    '.OR.&
+            &LNAME(10:17).EQ.'PIVY    '.OR.&
+            &LNAME(10:17).EQ.'PIVZ    '.OR.&
+            &LNAME(10:17).EQ.'TH      ') THEN
+!       LINEAR SCALING
+               IF(AVAL4.NE.',') THEN
+                  AV1=AVAL4
+                  CALL ATON3
+                  VAL4=V1
+                  IF(LNAME(10:17).EQ.'XD      '.OR.&
+                  &LNAME(10:17).EQ.'YD      '.OR.&
+                  &LNAME(10:17).EQ.'PIVX    '.OR.&
+                  &LNAME(10:17).EQ.'PIVY    '.OR.&
+                  &LNAME(10:17).EQ.'GDX     '.OR.&
+                  &LNAME(10:17).EQ.'GDY     ') THEN
+                     VAL4=VAL4*DABS(W1)
+                     GO TO 1001
+                  END IF
+                  IF(LNAME(10:17).EQ.'ALPHA   '.OR.&
+                  &LNAME(10:17).EQ.'BETA    '.OR.&
+                  &LNAME(10:17).EQ.'GAMMA   '.OR.&
+                  &LNAME(10:17).EQ.'GALPHA  '.OR.&
+                  &LNAME(10:17).EQ.'GBETA   '.OR.&
+                  &LNAME(10:17).EQ.'GGAMMA  ') THEN
+                     VAL4=-VAL4
+                     GO TO 1001
+                  END IF
+                  VAL4=VAL4*(W1)
+1001              V1=VAL4
+                  CALL NTOA3
+                  AVAL4=AV1
+               ELSE
+               END IF
+            ELSE
+            END IF
+!       LNAME(10:17)= CLAP OR COBS
+            IF(LNAME(10:17).EQ.'CLAP    '.OR.&
+            &LNAME(10:17).EQ.'COBS    ') THEN
+!       LINEAR SCALING
+               IF(AVAL4.NE.',') THEN
+                  AV1=AVAL4
+                  CALL ATON3
+                  VAL4=V1
+                  VAL4=VAL4*DABS(W1)
+                  V1=VAL4
+                  CALL NTOA3
+                  AVAL4=AV1
+               ELSE
+               END IF
+            ELSE
+            END IF
+!       LNAME(10:17)= CV,CVTOR
+            IF(LNAME(10:17).EQ.'CV      '.OR.&
+            &LNAME(10:17).EQ.'CVTOR   ')THEN
+!       RECIPROCAL SCALING
+               IF(AVAL4.NE.',') THEN
+                  AV1=AVAL4
+                  CALL ATON3
+                  VAL4=V1
+                  VAL4=VAL4/W1
+                  V1=VAL4
+                  CALL NTOA3
+                  AVAL4=AV1
+               ELSE
+               END IF
+            ELSE
+            END IF
+!       LNAME(10:17)= AD OR ADTOR
+            IF(LNAME(10:17).EQ.'AD      '.OR.&
+            &LNAME(10:17).EQ.'AC      '.OR.&
+            &LNAME(10:17).EQ.'AE      '.OR.&
+            &LNAME(10:17).EQ.'AF      '.OR.&
+            &LNAME(10:17).EQ.'AG      '.OR.&
+            &LNAME(10:17).EQ.'AH      '.OR.&
+            &LNAME(10:17).EQ.'AI      '.OR.&
+            &LNAME(10:17).EQ.'AO      '.OR.&
+            &LNAME(10:17).EQ.'AK      '.OR.&
+            &LNAME(10:17).EQ.'AL      '.OR.&
+            &LNAME(10:17).EQ.'ADTOR   '.OR.&
+            &LNAME(10:17).EQ.'AETOR   '.OR.&
+            &LNAME(10:17).EQ.'AFTOR   '.OR.&
+            &LNAME(10:17).EQ.'AGTOR   ') THEN
+!       SPECIAL SCALING
+               IF(AVAL4.NE.',') THEN
+                  AV1=AVAL4
+                  CALL ATON3
+                  VAL4=V1
+                  IF(LNAME(10:17).EQ.'AC      ')THEN
+                     VAL4=VAL4/W1
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AD      '.OR.&
+                  &LNAME(10:17).EQ.'ADTOR   ') THEN
+                     VAL4=VAL4/(W1**3)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AE      '.OR.&
+                  &LNAME(10:17).EQ.'AETOR   ') THEN
+                     VAL4=VAL4/(W1**5)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AF      '.OR.&
+                  &LNAME(10:17).EQ.'AFTOR   ') THEN
+                     VAL4=VAL4/(W1**7)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AG      '.OR.&
+                  &LNAME(10:17).EQ.'AGTOR   ') THEN
+                     VAL4=VAL4/(W1**9)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AH      ') THEN
+                     VAL4=VAL4/(W1**11)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AI      ') THEN
+                     VAL4=VAL4/(W1**13)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AJ      ') THEN
+                     VAL4=VAL4/(W1**15)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AK      ') THEN
+                     VAL4=VAL4/(W1**17)
+                  ELSE
+                  END IF
+                  IF(LNAME(10:17).EQ.'AL      ') THEN
+                     VAL4=VAL4/(W1**19)
+                  ELSE
+                  END IF
+                  V1=VAL4
+                  CALL NTOA3
+                  AVAL4=AV1
+               ELSE
+               END IF
+            ELSE
+            END IF
+!
+!       RE-CONSTRUCT HOLDER
+!
+            HOLDER=LNAME
+            IF(AVAL1.NE.',') THEN
+               HOLDER=HOLDER//AVAL1//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL2.NE.',') THEN
+               HOLDER=HOLDER//AVAL2//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL3.NE.',') THEN
+               HOLDER=HOLDER//AVAL3//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL4.NE.',') THEN
+               HOLDER=HOLDER//AVAL4//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            IF(AVAL5.NE.',') THEN
+               HOLDER=HOLDER//AVAL5//','
+            ELSE
+               HOLDER=HOLDER//','
+            END IF
+            GO TO 299
+         ELSE
+!       NOT PIKUP
+         END IF
+         GO TO 300
+!************************************************************
+299      CONFG(I,J)=HOLDER(1:140)
+300   CONTINUE
+!
+      DO J=1,CFGCNT(I)
+!     I IS THE CONFIG NUMBER, J IS THE ENTRY NUMBER
+         IF(CONFG(I,J)(1:2).EQ.'C1') THEN
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.4.OR.SPECF2(I,J).EQ.4) THEN
+!     TYPE 4
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+!
+         IF(CONFG(I,J)(1:2).EQ.'C2') THEN
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:32)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.4.OR.SPECF2(I,J).EQ.4) THEN
+!     TYPE 4
+               VAL2=VAL2*W2
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+!
+         IF(CONFG(I,J)(1:2).EQ.'C3') THEN
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.4.OR.SPECF2(I,J).EQ.4) THEN
+!     TYPE 4
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+!
+         IF(CONFG(I,J)(1:2).EQ.'C4') THEN
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/W1
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+!
+         IF(CONFG(I,J)(1:2).EQ.'C5') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/W1
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:2).EQ.'C6') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:2).EQ.'C7') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**2)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:2).EQ.'C8') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**2)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:2).EQ.'C9') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**2)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C10') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**2)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C11') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/W1
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2*W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2*W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C12') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**2)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C13') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/W1
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C14') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**2)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C15') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**3)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C16') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/W1
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C17') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**2)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C18') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**2)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C19') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**2)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C20') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**2)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C21') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**4)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**3)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C22') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**12)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**3)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C23') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**13)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.12.OR.SPECF2(I,J).EQ.12) THEN
+!     TYPE 12
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**3)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C24') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**14)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**3)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C25') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**15)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**3)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C26') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**16)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**4)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C27') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**17)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**4)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C28') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**18)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**5)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**4)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C29') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**19)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**4)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C30') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**20)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**4)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C31') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**21)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**4)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C32') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**22)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C33') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**23)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C34') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**24)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C35') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**25)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C36') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**26)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**6)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C37') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**27)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C38') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**28)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**5)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C39') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**29)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C40') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**30)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C41') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**31)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C42') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**32)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C44') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**34)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C45') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**35)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**7)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C46') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**36)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**6)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C47') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**37)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C48') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
+            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+!     TYPE 1 OR 6
+               VAL2=VAL2/(W1**38)
+            END IF
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C49') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C50') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C51') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C52') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C53') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C54') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C55') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**8)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**7)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C56') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C57') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C58') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C59') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C60') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C61') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C62') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C63') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C64') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C65') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**8)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C66') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**9)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C67') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C68') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C69') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C70') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C71') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C72') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C73') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C74') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C75') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C76') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**9)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C77') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C78') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**10)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C79') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C80') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C81') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C82') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C83') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C84') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C85') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C86') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C87') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C88') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+            IF(SPECFF(I,J).EQ.13.OR.SPECF2(I,J).EQ.13) THEN
+!     TYPE 13
+               VAL2=VAL2/(W1**10)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C89') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C90') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+         IF(CONFG(I,J)(1:3).EQ.'C91') THEN
+!                     SCALE IT
+!     BREAK OUT SURF NUMBER AND VALUE
+            AN1=CONFG(I,J)(10:23)
+            CALL AUXATN
+            VAL1=N1
+            AN1=CONFG(I,J)(34:56)
+            CALL AUXATN
+            VAL2=N1
+!     WHAT KIND OF SPECIAL SURFACE IS IT ?
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
+            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+!     TYPE 7 OR 8
+               VAL2=VAL2/(W1**11)
+            END IF
+!     CONVERT THE SCALED VALUE
+            N1=VAL2
+            CALL AUXNTA
+            AVAL2=AN1
+!     STORE THE SCALED VALUE
+            CONFG(I,J)(34:56)=AVAL2
+         END IF
+      END DO
+!       FINISHED SCALING OF SURFACE DATA
+!
+10 CONTINUE
+   RETURN
+END
