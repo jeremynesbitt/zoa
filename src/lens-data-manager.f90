@@ -125,13 +125,13 @@ module mod_lens_data_manager
     !Sphere, Asphere, etc.  eventually need to compile a list of these
     !For UI selection
     function getSurfTypeName(self, idx) result(strName)
-        use DATLEN, only: ALENS
+        use mod_surface, only: surf_is_asphere
         class(lens_data_manager) :: self
         integer, intent(in) :: idx
         character(len=20) :: strName
 
         strName='Sphere'
-        if(ALENS(8,idx) == 1 ) strName='Asphere'
+        if(surf_is_asphere(idx)) strName='Asphere'
 
     end function
 
@@ -193,36 +193,35 @@ module mod_lens_data_manager
     end subroutine 
 
     function getSurfThi(self, surfIdx) result(thi)
-        use DATLEN, only: ALENS
+        use mod_surface, only: surf_thickness
         class(lens_data_manager) :: self
         integer :: surfIdx
         real(kind=real64) :: thi
 
-        thi = ALENS(3,surfIdx)
+        thi = surf_thickness(surfIdx)
         !thi = curr_lens_data%thicknesses(surfIdx+1)
 
     end function
 
     function getConicConstant(self, surfIdx) result(k)
-        use DATLEN, only: ALENS
+        use mod_surface, only: surf_conic
         class(lens_data_manager) :: self
         integer :: surfIdx
-        real(kind=real64) :: k 
-        
-        k = ALENS(2,surfIdx)
+        real(kind=real64) :: k
+
+        k = surf_conic(surfIdx)
 
     end function
 
 
-    subroutine setSurfThi(self, surfIdx, thi) 
-        use DATLEN, only: ALENS
+    subroutine setSurfThi(self, surfIdx, thi)
+        use mod_surface, only: set_surf_thickness
         implicit none
         class(lens_data_manager) :: self
         integer :: surfIdx
         real(kind=real64) :: thi
 
-
-        ALENS(3,surfIdx) = thi
+        call set_surf_thickness(surfIdx, thi)
    
     end subroutine    
 
@@ -249,7 +248,6 @@ module mod_lens_data_manager
     end function
 
     function getSurfRad(self, surfIdx) result (rad)
-        use DATLEN, only: ALENS
         implicit none
         class(lens_data_manager) :: self
         integer :: surfIdx
@@ -260,7 +258,8 @@ module mod_lens_data_manager
     end function
 
     function getSurfCurv(self, surfIdx, useXZPlane) result(curv)
-        use DATLEN, only: ALENS
+        use mod_surface, only: surf_toric_flag, surf_toric_curvature, &
+                               surf_curvature, surf_asphere_coeff
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical, optional :: useXZPlane
@@ -268,17 +267,18 @@ module mod_lens_data_manager
 
         ! TODO: clean this up, add XZ logic
 
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
-        IF(ALENS(23,surfIdx).EQ.2.0D0) THEN
-            curv=ALENS(24,surfIdx)
-        ELSE
-            IF(ALENS(1,surfIdx).EQ.0.0D0.AND.ALENS(43,surfIdx).NE.0.0D0) THEN
-                curv=ALENS(43,surfIdx)*2.0D0
-            ELSE
-                curv=ALENS(1,surfIdx)
-            END IF
-        END IF
+        ! X-toric surfaces store the toric curvature at index 24
+        if (surf_toric_flag(surfIdx) == 2) then
+            curv = surf_toric_curvature(surfIdx)
+        else
+            ! Plano surfaces with a 2nd-order aspheric term store effective curvature there
+            if (surf_curvature(surfIdx) == 0.0_real64 .and. &
+                surf_asphere_coeff(surfIdx, 2) /= 0.0_real64) then
+                curv = surf_asphere_coeff(surfIdx, 2) * 2.0_real64
+            else
+                curv = surf_curvature(surfIdx)
+            end if
+        end if
 
     end function 
 
@@ -542,7 +542,7 @@ module mod_lens_data_manager
     subroutine genLDMSaveOutputText(self, fID)
         use type_utils, only: real2str, blankStr, int2str
         use zoa_file_handler, only: genOutputLineWithSpacing
-        use DATLEN, only: ALENS
+        use mod_surface, only: surf_curvature, surf_radius, surf_thickness, surf_conic
         class(lens_data_manager) :: self
         integer :: fID
         integer :: ii, jj
@@ -555,11 +555,11 @@ module mod_lens_data_manager
       
         ! Do Object SUrface
         strSurfLine = 'SO'
-        write(strTHI, '(D23.15)') ALENS(3,0)
-        if (ALENS(1,0) == 0.0 ) then
+        write(strTHI, '(D23.15)') surf_thickness(0)
+        if (surf_curvature(0) == 0.0_real64) then
           write(strRdy, '(D23.15)') 0.0d0
         else
-           write(strRdy, '(D23.15)') 1.0d0/ALENS(1,0)
+          write(strRdy, '(D23.15)') surf_radius(0)
         end if
       
         if (rdmFlag) then
@@ -584,13 +584,12 @@ module mod_lens_data_manager
       
           !glassStr = self%glassnames(ii)
           !if (isModelGlass(glassStr)) glassStr = set 
-          write(strTHI, '(D23.15)') ALENS(3,ii-1) !self%thicknesses(ii)
-          if (ALENS(1,ii-1) == 0.0 ) then
+          write(strTHI, '(D23.15)') surf_thickness(ii-1)
+          if (surf_curvature(ii-1) == 0.0_real64) then
             write(strRdy, '(D23.15)') 0.0d0
           else
-             write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
-          end if    
-          !write(strRdy, '(D23.15)') 1.0d0/ALENS(1,ii-1)
+            write(strRdy, '(D23.15)') surf_radius(ii-1)
+          end if
           if(rdmFlag) then
             strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
             & trim(strRdy), trim(strTHI), & 
@@ -628,8 +627,8 @@ module mod_lens_data_manager
           end if
       
           ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager
-          if (curr_lens_data%isConicConstantOnSurface(ii-1)) then 
-            strSurfLine = blankStr(2)//'K '//trim(real2str(ALENS(2,ii-1), sci=.TRUE.))
+          if (curr_lens_data%isConicConstantOnSurface(ii-1)) then
+            strSurfLine = blankStr(2)//'K '//trim(real2str(surf_conic(ii-1), sci=.TRUE.))
             write(fID, *) trim(strSurfLine)
           end if
       

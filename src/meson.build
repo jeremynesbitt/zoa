@@ -53,6 +53,7 @@ srcs += files(
   'mod_DATCFG.f90',
   'mod_DATSP1.f90',
   'mod_DATHGR.f90',
+  'mod_surface.f90',
   'lens-data-manager.f90',
   'analysis-manager.f90',
   'paraxial-ray-trace.f90',
