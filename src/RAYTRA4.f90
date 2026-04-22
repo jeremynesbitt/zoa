@@ -5,6 +5,7 @@ SUBROUTINE PHASOR
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_special_type
    IMPLICIT NONE
 !
    REAL*8 L1,M1,MAG
@@ -20,37 +21,37 @@ SUBROUTINE PHASOR
    INTEGER WWVN
    COMMON/WVPASS/WWVN
 !
-   IF(ALENS(34,MYI).EQ.6.0D0) THEN
+   IF(surf_special_type(MYI) == 6) THEN
 !
 !     RADIAL PHASE SURFACE
       CALL PHAS6
       RETURN
    END IF
-   IF(ALENS(34,MYI).EQ.9.0D0) THEN
+   IF(surf_special_type(MYI) == 9) THEN
 !
 !     66 TERM ZERNIKE PHASE
       CALL PHAS9
       RETURN
    END IF
-   IF(ALENS(34,MYI).EQ.10.0D0) THEN
+   IF(surf_special_type(MYI) == 10) THEN
       CALL PHAS10
 !
 !     37 TERM ZERNIKE PHASE
       RETURN
    END IF
-   IF(ALENS(34,MYI).EQ.15.0D0) THEN
+   IF(surf_special_type(MYI) == 15) THEN
       CALL PHAS15
 !
 !     48 TERM ABERRATION PHASE
       RETURN
    END IF
-   IF(ALENS(34,MYI).EQ.7.0D0) THEN
+   IF(surf_special_type(MYI) == 7) THEN
 !
 !     91 TERM RECTANGULAR PHASE
       CALL PHAS7
       RETURN
    END IF
-   IF(ALENS(34,MYI).EQ.11.0D0) THEN
+   IF(surf_special_type(MYI) == 11) THEN
       REG(40)=REG(9)
       REG(9)=MYX
       REG(10)=MYY
@@ -5092,6 +5093,7 @@ SUBROUTINE PROPD
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PROPD WHICH IMPLEMENTS THE OPD
@@ -5139,8 +5141,8 @@ SUBROUTINE PROPD
       LEN=0.0D0
       RCOR=0.0D0
       OCOR=0.0D0
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
-      IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
+      IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
       DO J=JJ,NEWIMG
          LEN=LEN+RAYRAY(7,J)&
          &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
@@ -5226,6 +5228,7 @@ SUBROUTINE PRGLBL
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRGLBL. THIS SUBROUTINE IMPLEMENTS
@@ -5287,7 +5290,7 @@ SUBROUTINE PRGLBL
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
 !       PRINT WARNING FOR OBJECT THICKNESS INFINITE
-      IF(DABS(ALENS(3,NEWOBJ)).GT.1.0D10)THEN
+      IF(DABS(surf_thickness(NEWOBJ)).GT.1.0D10)THEN
          WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)&
@@ -5345,7 +5348,7 @@ SUBROUTINE PRGLBL
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB') THEN
       SF=NEWOBJ
-      IF(DABS(ALENS(3,SF)).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(SF)).GT.1.0D10) THEN
          WRITE(OUTLYNE,*)&
          &'NO GLOBAL RAY DATA EXISTS FOR THE OBJECT SURFACE'
          CALL SHOWIT(1)
@@ -5456,7 +5459,7 @@ SUBROUTINE PRGLBL
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
       SF=NEWIMG
-      IF(DABS(ALENS(3,I)).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(I)).GT.1.0D10) THEN
          WRITE(OUTLYNE,*)&
          &'NO GLOBAL RAY DATA EXISTS FOR THE OBJECT SURFACE'
          CALL SHOWIT(1)
