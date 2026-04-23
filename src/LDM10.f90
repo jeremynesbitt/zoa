@@ -173,6 +173,7 @@ SUBROUTINE PRSLV
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_solve_flag, surf_thickness, surf_curvature
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRSLV WHICH IMPLEMENTS THE SLV
@@ -286,7 +287,7 @@ SUBROUTINE PRSLV
 !
 !       FIRST DETERMINE IF THERE ARE SOLVES ON A SURFACE
 !
-      IF(ALENS(33,SURFF).EQ.0.0D0) THEN
+      IF(surf_solve_flag(SURFF).EQ.0.0D0) THEN
 !       NO SOLVES
          WRITE(OUTLYNE,110) SURFF
          CALL SHOWIT(0)
@@ -294,14 +295,14 @@ SUBROUTINE PRSLV
       ELSE
       END IF
 !       THERE ARE SOLVES
-      INTPRT=INT(ALENS(33,SURFF))
+      INTPRT=INT(surf_solve_flag(SURFF))
       IF(INTPRT.EQ.1.OR.INTPRT.EQ.3) THEN
 !       THERE ARE YZ PLANE THICKNESS SOLVES TO PRINT
          IF(SOLVE(6,SURFF).EQ.1.0D0) TYPE1='PY'
          IF(SOLVE(6,SURFF).EQ.2.0D0) TYPE1='PCY'
          IF(SOLVE(6,SURFF).EQ.3.0D0) TYPE1='CAY'
          TYPE2='TH'
-         PARVAL=ALENS(3,SURFF)
+         PARVAL=surf_thickness(SURFF)
          SLVVAL=SOLVE(7,SURFF)
          IF(HEADIN) WRITE(OUTLYNE,2000)
          IF(HEADIN) CALL SHOWIT(0)
@@ -311,15 +312,15 @@ SUBROUTINE PRSLV
 !       NO YZ THICKNESS SOLVES
       END IF
 !       NOW HOW ABOUT XZ PLANE
-      FRACPT=INT((ALENS(33,SURFF)*10))-&
-      &(DBLE(INT(ALENS(33,SURFF)))*10.0D0)
+      FRACPT=INT((surf_solve_flag(SURFF)*10))-&
+      &(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
       IF(FRACPT.EQ.1.OR.FRACPT.EQ.3) THEN
 !       THERE ARE XZ PLANE THICKNESS SOLVES TO PRINT
          IF(SOLVE(4,SURFF).EQ.4.0D0) TYPE1='PX'
          IF(SOLVE(4,SURFF).EQ.5.0D0) TYPE1='PCX'
          IF(SOLVE(4,SURFF).EQ.6.0D0) TYPE1='CAX'
          TYPE2='TH'
-         PARVAL=ALENS(3,SURFF)
+         PARVAL=surf_thickness(SURFF)
          SLVVAL=SOLVE(3,SURFF)
          IF(HEADIN) WRITE(OUTLYNE,2000)
          IF(HEADIN) CALL SHOWIT(0)
@@ -328,7 +329,7 @@ SUBROUTINE PRSLV
       ELSE
       END IF
 !       CHECK FOR CURVATURE SOLVES
-      INTPRT=INT(ALENS(33,SURFF))
+      INTPRT=INT(surf_solve_flag(SURFF))
       IF(INTPRT.EQ.2.OR.INTPRT.EQ.3) THEN
 !       YZ PLANE CURVATURE SOLVES TO PRINT
          IF(SOLVE(8,SURFF).EQ.1.0D0)  TYPE3='APY'
@@ -339,7 +340,7 @@ SUBROUTINE PRSLV
          IF(SOLVE(8,SURFF).EQ.6.0D0)  TYPE3='PUCY'
          IF(SOLVE(8,SURFF).EQ.7.0D0)  TYPE3='COCY'
          TYPE4='CV'
-         PARVAL=ALENS(1,SURFF)
+         PARVAL=surf_curvature(SURFF)
          SLVVAL=SOLVE(9,SURFF)
          IF(HEADIN) WRITE(OUTLYNE,2000)
          IF(HEADIN) CALL SHOWIT(0)
@@ -349,8 +350,8 @@ SUBROUTINE PRSLV
 !       NO YZ PLANE CURVATURE SOLVES TO PRINT
       END IF
 !       CHECK FOR XZ PLANE CURVATURE SOLVE
-      FRACPT=INT((ALENS(33,SURFF)*10))-&
-      &(DBLE(INT(ALENS(33,SURFF)))*10.0D0)
+      FRACPT=INT((surf_solve_flag(SURFF)*10))-&
+      &(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
       IF(FRACPT.EQ.2.OR.FRACPT.EQ.3) THEN
 !       XZ PLANE CURVATURE SOLVES TO PRINT
          IF(SOLVE(2,SURFF).EQ.8.0D0)  TYPE3='APX'
@@ -361,7 +362,7 @@ SUBROUTINE PRSLV
          IF(SOLVE(2,SURFF).EQ.13.0D0)  TYPE3='PUCX'
          IF(SOLVE(2,SURFF).EQ.14.0D0)  TYPE3='COCX'
          TYPE4='CV'
-         PARVAL=ALENS(1,SURFF)
+         PARVAL=surf_curvature(SURFF)
          SLVVAL=SOLVE(1,SURFF)
          IF(HEADIN) WRITE(OUTLYNE,2000)
          IF(HEADIN) CALL SHOWIT(0)
@@ -380,7 +381,7 @@ SUBROUTINE PRSLV
 !       SET THE SOLVE COUNTER. IT IS USED TO DETERMINE
 !       THE CASE OF NO SOLVES IN A LENS
       DO 16 SUR=0,INT(SYSTEM(20))
-         IF(ALENS(33,SUR).NE.0.0D0) THEN
+         IF(surf_solve_flag(SUR).NE.0.0D0) THEN
             SLVCNT=SLVCNT+1
          ELSE
          END IF
@@ -401,41 +402,41 @@ SUBROUTINE PRSLV
       DO 15 SUR=0,INT(SYSTEM(20))
 !
 !       CHECK FOR A SOLVE ON CURRENT SURFACE
-         IF(ALENS(33,SUR).EQ.0.0D0) THEN
+         IF(surf_solve_flag(SUR).EQ.0.0D0) THEN
 !       NO SOLVES, GO TO NEXT SURFACE BY A (GO TO 15)
             GO TO 15
          ELSE
          END IF
 !       THERE ARE SOLVES
-         INTPRT=INT(ALENS(33,SUR))
+         INTPRT=INT(surf_solve_flag(SUR))
          IF(INTPRT.EQ.1.OR.INTPRT.EQ.3) THEN
 !       THERE ARE YZ PLANE THICKNESS SOLVES TO PRINT
             IF(SOLVE(6,SUR).EQ.1.0D0) TYPE1='PY'
             IF(SOLVE(6,SUR).EQ.2.0D0) TYPE1='PCY'
             IF(SOLVE(6,SUR).EQ.3.0D0) TYPE1='CAY'
             TYPE2='TH'
-            PARVAL=ALENS(3,SUR)
+            PARVAL=surf_thickness(SUR)
             SLVVAL=SOLVE(7,SUR)
             WRITE(OUTLYNE,200) SUR,TYPE1,TYPE2,PARVAL,SLVVAL
             CALL SHOWIT(0)
          ELSE
          END IF
-         FRACPT=INT((ALENS(33,SUR)*10))-&
-         &(DBLE(INT(ALENS(33,SUR)))*10.0D0)
+         FRACPT=INT((surf_solve_flag(SUR)*10))-&
+         &(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
          IF(FRACPT.EQ.1.OR.FRACPT.EQ.3) THEN
 !       THERE ARE XZ PLANE THICKNESS SOLVES TO PRINT
             IF(SOLVE(4,SUR).EQ.4.0D0) TYPE1='PX'
             IF(SOLVE(4,SUR).EQ.5.0D0) TYPE1='PCX'
             IF(SOLVE(4,SUR).EQ.6.0D0) TYPE1='CAX'
             TYPE2='TH'
-            PARVAL=ALENS(3,SUR)
+            PARVAL=surf_thickness(SUR)
             SLVVAL=SOLVE(3,SUR)
             WRITE(OUTLYNE,200) SUR,TYPE1,TYPE2,PARVAL,SLVVAL
             CALL SHOWIT(0)
          ELSE
          END IF
 !       CHECK FOR CURVATURE SOLVES
-         INTPRT=(INT(ALENS(33,SUR)))
+         INTPRT=(INT(surf_solve_flag(SUR)))
          IF(INTPRT.EQ.2.OR.INTPRT.EQ.3) THEN
 !       YZ PLANE CURVATURE SOLVES TO PRINT
             IF(SOLVE(8,SUR).EQ.1.0D0)  TYPE3='APY'
@@ -446,7 +447,7 @@ SUBROUTINE PRSLV
             IF(SOLVE(8,SUR).EQ.6.0D0)  TYPE3='PUCY'
             IF(SOLVE(8,SUR).EQ.7.0D0)  TYPE3='COCY'
             TYPE4='CV'
-            PARVAL=ALENS(1,SUR)
+            PARVAL=surf_curvature(SUR)
             SLVVAL=SOLVE(9,SUR)
             WRITE(OUTLYNE,200) SUR,TYPE3,TYPE4,PARVAL,SLVVAL
             CALL SHOWIT(0)
@@ -454,8 +455,8 @@ SUBROUTINE PRSLV
 !       NO YZ PLANE CURVATURE SOLVES TO PRINT
          END IF
 !       CHECK FOR XZ PLANE CURVATURE SOLVE
-         FRACPT=INT((ALENS(33,SUR)*10))-&
-         &(DBLE(INT(ALENS(33,SUR)))*10.0D0)
+         FRACPT=INT((surf_solve_flag(SUR)*10))-&
+         &(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
          IF(FRACPT.EQ.2.OR.FRACPT.EQ.3) THEN
 !       XZ PLANE CURVATURE SOLVES TO PRINT
             IF(SOLVE(2,SUR).EQ.8.0D0)  TYPE3='APX'
@@ -466,7 +467,7 @@ SUBROUTINE PRSLV
             IF(SOLVE(2,SUR).EQ.13.0D0)  TYPE3='PUCX'
             IF(SOLVE(2,SUR).EQ.14.0D0)  TYPE3='COCX'
             TYPE4='CV'
-            PARVAL=ALENS(1,SUR)
+            PARVAL=surf_curvature(SUR)
             SLVVAL=SOLVE(1,SUR)
             WRITE(OUTLYNE,200) SUR,TYPE3,TYPE4,PARVAL,SLVVAL
             CALL SHOWIT(0)
@@ -1097,6 +1098,7 @@ SUBROUTINE OCD
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness, surf_pickup_count
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OCD. THIS SUBROUTINE IMPLEMENTS
@@ -1204,7 +1206,7 @@ SUBROUTINE OCD
    IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
 !       FOCAL MODE
 !               IS IT STATE 1 OR 2?
-      IF(DABS(ALENS(3,0)).GE.1.0D10) THEN
+      IF(DABS(surf_thickness(0)).GE.1.0D10) THEN
 !       STATE 1
 !               EFL
          I=0
@@ -1217,7 +1219,7 @@ SUBROUTINE OCD
          &PXTRAX(6,I)))/&
          &((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
 !               BACK FOCAL DISTANCE
-         BFD=ALENS(3,(J-1))
+         BFD=surf_thickness(J-1)
 !               F-NUMBER YZ
          PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
          IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
@@ -1234,7 +1236,7 @@ SUBROUTINE OCD
 !       DIST FROM 1 TO IMAGE-1
          LENGTH=0.0
          DO 10 K=1,(J-1)
-            LENGTH=LENGTH+ALENS(3,K)
+            LENGTH=LENGTH+surf_thickness(K)
 10       CONTINUE
 !       GIH
          GIHY=PXTRAY(5,J)
@@ -1297,7 +1299,7 @@ SUBROUTINE OCD
          &PXTRAX(6,I)))/&
          &((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
 !               BACK FOCAL DISTANCE
-         BFD=ALENS(3,(J-1))
+         BFD=surf_thickness(J-1)
 !               F-NUMBER YZ IN IMGAE SPACE
          IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
             FNY=-1.0D0/(2.0D0*PXTRAY(2,J))
@@ -1313,12 +1315,12 @@ SUBROUTINE OCD
 !       DIST FROM 1 TO IMAGE-1
          LENGTH=0.0
          DO 11 K=1,(J-1)
-            LENGTH=LENGTH+ALENS(3,K)
+            LENGTH=LENGTH+surf_thickness(K)
 11       CONTINUE
 !       OAL
          OAL=0.0
          DO 12 K=0,J
-            OAL=OAL+ALENS(3,K)
+            OAL=OAL+surf_thickness(K)
 12       CONTINUE
 !       TMAG
          IF(DABS(PXTRAY(5,0)).GE.1.0D-15) THEN
@@ -1413,7 +1415,7 @@ SUBROUTINE OCD
 !       DIST FROM 1 TO IMAGE
       LENGTH=0.0
       DO 15 K=1,J
-         LENGTH=LENGTH+ALENS(3,K)
+         LENGTH=LENGTH+surf_thickness(K)
 15    CONTINUE
       IF(WC.EQ.'OCDY')THEN
          IF(DABS(PXTRAY(6,J)).GT.1.0D-15) THEN
@@ -1509,6 +1511,7 @@ SUBROUTINE PRPIK
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_pickup_count
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRPIK WHICH IMPLEMENTS THE PIK
@@ -1612,7 +1615,7 @@ SUBROUTINE PRPIK
 !
 !       FIRST DETERMINE IF THERE ARE PIKUPS ON A SURFACE
 !
-      IF(ALENS(32,SURF).EQ.0.0D0) THEN
+      IF(surf_pickup_count(SURF) == 0) THEN
 !       NO PIKUPS
          WRITE(OUTLYNE,110) SURF
          CALL SHOWIT(0)
@@ -2212,7 +2215,7 @@ SUBROUTINE PRPIK
 !       SET THE PIKUP COUNTER. IT IS USED TO DETERMINE
 !       THE CASE OF NO PIKUPS IN A LENS
       DO 16 SURF=0,INT(SYSTEM(20))
-         IF(ALENS(32,SURF).NE.0.0D0) THEN
+         IF(surf_pickup_count(SURF) /= 0) THEN
             PIKCNT=PIKCNT+1
          ELSE
          END IF
@@ -2233,7 +2236,7 @@ SUBROUTINE PRPIK
       DO 17 SURF=0,INT(SYSTEM(20))
 !
 !       CHECK FOR A PIKUP ON CURRENT SURFACE
-         IF(ALENS(32,SURF).EQ.0.0D0) THEN
+         IF(surf_pickup_count(SURF) == 0) THEN
 !       NO PIKUPS
 !       GO TO NEXT SURFACE IN LOOP
             GO TO 17

@@ -4,6 +4,7 @@ SUBROUTINE MISSREF(X,Y)
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt
    IMPLICIT NONE
 !
    EXTERNAL INSID1,INSID2
@@ -37,15 +38,15 @@ SUBROUTINE MISSREF(X,Y)
 !       I IS THE REF SURFACE NUMBER
 !
 !
-   IF(ALENS(9,I).EQ.0.0D0) THEN
+   IF(surf_clap_type(I) == 0) THEN
 !
 !       NO CLAPS OR COBS, JUST RETURN
       RETURN
 !       THERE ARE CLAPS AND COBS, PROCEED CHECKING
    END IF
 !
-   IF(ALENS(9,I).NE.0.0D0) THEN
-      CAFLG=INT(ALENS(9,I))
+   IF(surf_clap_type(I) /= 0) THEN
+      CAFLG=surf_clap_type(I)
 !       CLAP EXISTS
 !******************************************************************
 !
@@ -66,15 +67,15 @@ SUBROUTINE MISSREF(X,Y)
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE. REMEMBER.
 
-         XR=X-ALENS(13,I)-JK1
-         YR=Y-ALENS(12,I)-JK2
+         XR=X-surf_clap_dim(I, 4)-JK1
+         YR=Y-surf_clap_dim(I, 3)-JK2
 !
          LS=DSQRT((XR**2)+(YR**2))
 !
-         IF(DABS(ALENS(10,I)).LE.DABS(ALENS(11,I))) THEN
-            RS=DSQRT(ALENS(10,I)**2)+AIMTOL
+         IF(DABS(surf_clap_dim(I, 1)).LE.DABS(surf_clap_dim(I, 2))) THEN
+            RS=DSQRT(surf_clap_dim(I, 1)**2)+AIMTOL
          ELSE
-            RS=DSQRT(ALENS(11,I)**2)+AIMTOL
+            RS=DSQRT(surf_clap_dim(I, 2)**2)+AIMTOL
          END IF
          IF(REAL(LS).GT.REAL(RS)) THEN
             LS=10.0D0
@@ -99,14 +100,14 @@ SUBROUTINE MISSREF(X,Y)
 !
 !       IN THE COORDINATE SYSTEM OF THE RECTANGLE, THE CORNER
 !       COORDINATES ARE:
-      X1=-ALENS(11,I)-AIMTOL
-      Y1=ALENS(10,I)+AIMTOL
-      X2=-ALENS(11,I)-AIMTOL
-      Y2=-ALENS(10,I)-AIMTOL
-      X3=ALENS(11,I)+AIMTOL
-      Y3=-ALENS(10,I)-AIMTOL
-      X4=ALENS(11,I)+AIMTOL
-      Y4=ALENS(10,I)+AIMTOL
+      X1=-surf_clap_dim(I, 2)-AIMTOL
+      Y1=surf_clap_dim(I, 1)+AIMTOL
+      X2=-surf_clap_dim(I, 2)-AIMTOL
+      Y2=-surf_clap_dim(I, 1)-AIMTOL
+      X3=surf_clap_dim(I, 2)+AIMTOL
+      Y3=-surf_clap_dim(I, 1)-AIMTOL
+      X4=surf_clap_dim(I, 2)+AIMTOL
+      Y4=surf_clap_dim(I, 1)+AIMTOL
 !
       XRD=X
       YRD=Y
@@ -116,8 +117,8 @@ SUBROUTINE MISSREF(X,Y)
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE. REMEMBER.
 
-      XRD=XRD-ALENS(13,I)-JK1
-      YRD=YRD-ALENS(12,I)-JK2
+      XRD=XRD-surf_clap_dim(I, 4)-JK1
+      YRD=YRD-surf_clap_dim(I, 3)-JK2
 !
 !       IF A NON-ZERO CLAP TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
@@ -126,7 +127,7 @@ SUBROUTINE MISSREF(X,Y)
 !       COBS HAS THE SAME SIGN AS IN A SURFACE ROTATION
 !     (THE ROTATION IS ALWAYS ABOUT THE LOCAL Z-AXIS OF THE SURFACE VERTEX)
 
-      A15=(ALENS(15,I)+JK3)*PII/180.0D0
+      A15=(surf_clap_tilt(I)+JK3)*PII/180.0D0
       XR=(XRD*DCOS(A15))+(YRD*DSIN(A15))
       YR=(YRD*DCOS(A15))-(XRD*DSIN(A15))
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
@@ -180,8 +181,8 @@ SUBROUTINE MISSREF(X,Y)
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE. REMEMBER.
 
-      XRD=XRD-ALENS(13,I)-JK1
-      YRD=YRD-ALENS(12,I)-JK2
+      XRD=XRD-surf_clap_dim(I, 4)-JK1
+      YRD=YRD-surf_clap_dim(I, 3)-JK2
 !
 !       IF A NON-ZERO CLAP TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
@@ -189,12 +190,12 @@ SUBROUTINE MISSREF(X,Y)
 !       CLEAR APERTURE. REMEMBER. GAMMA ROTATION OF A CLAP OR
 !       COBS HAS THE SAME SIGN AS IN A SURFACE ROTATION
 
-      A15=ALENS(15,I)*PII/180.0D0
-      A15=(ALENS(15,I)+JK3)*PII/180.0D0
+      A15=surf_clap_tilt(I)*PII/180.0D0
+      A15=(surf_clap_tilt(I)+JK3)*PII/180.0D0
       XR=(XRD*DCOS(A15))+(YRD*DSIN(A15))
       YR=(YRD*DCOS(A15))-(XRD*DSIN(A15))
-      LS=((XR**2)/(ALENS(11,I)**2))+&
-      &((YR**2)/(ALENS(10,I)**2))
+      LS=((XR**2)/(surf_clap_dim(I, 2)**2))+&
+      &((YR**2)/(surf_clap_dim(I, 1)**2))
 !
       IF(REAL(LS).GT.(1.0+(AIMTOL**2))) THEN
 !       RAY BLOCKED
@@ -222,44 +223,44 @@ SUBROUTINE MISSREF(X,Y)
 !       CHECKED AS WELL AS THE FOUR CIRCLES. IF NOT, THE BASE RECTANGE
 !       AND THE FOUR CIRCLES NEED TO BE CHECKED.
 !
-      IF(ALENS(10,I).LE.ALENS(11,I)) THEN
-!       ALENS(11,I) = MAXSID
-         MAXSID=ALENS(11,I)
+      IF(surf_clap_dim(I, 1).LE.surf_clap_dim(I, 2)) THEN
+!       surf_clap_dim(I, 2) = MAXSID
+         MAXSID=surf_clap_dim(I, 2)
       ELSE
-         MAXSID=ALENS(10,I)
+         MAXSID=surf_clap_dim(I, 1)
       END IF
-      IF(ALENS(14,I).LT.MAXSID) THEN
+      IF(surf_clap_dim(I, 5).LT.MAXSID) THEN
 !       SETUP THE 8 SIDED BOX
          N=8
-         X1=-ALENS(11,I)+ALENS(14,I)-AIMTOL
-         Y1=ALENS(10,I)+AIMTOL
-         X2=-ALENS(11,I)-AIMTOL
-         Y2=ALENS(10,I)-ALENS(14,I)+AIMTOL
-         X3=-ALENS(11,I)-AIMTOL
-         Y3=-ALENS(10,I)+ALENS(14,I)-AIMTOL
-         X4=-ALENS(11,I)+ALENS(14,I)-AIMTOL
-         Y4=-ALENS(10,I)-AIMTOL
-         X5=ALENS(11,I)-ALENS(14,I)+AIMTOL
-         Y5=-ALENS(10,I)-AIMTOL
-         X6=ALENS(11,I)+AIMTOL
-         Y6=-ALENS(10,I)+ALENS(14,I)-AIMTOL
-         X7=ALENS(11,I)+AIMTOL
-         Y7=ALENS(10,I)-ALENS(14,I)+AIMTOL
-         X8=ALENS(11,I)-ALENS(14,I)+AIMTOL
-         Y8=ALENS(10,I)+AIMTOL
+         X1=-surf_clap_dim(I, 2)+surf_clap_dim(I, 5)-AIMTOL
+         Y1=surf_clap_dim(I, 1)+AIMTOL
+         X2=-surf_clap_dim(I, 2)-AIMTOL
+         Y2=surf_clap_dim(I, 1)-surf_clap_dim(I, 5)+AIMTOL
+         X3=-surf_clap_dim(I, 2)-AIMTOL
+         Y3=-surf_clap_dim(I, 1)+surf_clap_dim(I, 5)-AIMTOL
+         X4=-surf_clap_dim(I, 2)+surf_clap_dim(I, 5)-AIMTOL
+         Y4=-surf_clap_dim(I, 1)-AIMTOL
+         X5=surf_clap_dim(I, 2)-surf_clap_dim(I, 5)+AIMTOL
+         Y5=-surf_clap_dim(I, 1)-AIMTOL
+         X6=surf_clap_dim(I, 2)+AIMTOL
+         Y6=-surf_clap_dim(I, 1)+surf_clap_dim(I, 5)-AIMTOL
+         X7=surf_clap_dim(I, 2)+AIMTOL
+         Y7=surf_clap_dim(I, 1)-surf_clap_dim(I, 5)+AIMTOL
+         X8=surf_clap_dim(I, 2)-surf_clap_dim(I, 5)+AIMTOL
+         Y8=surf_clap_dim(I, 1)+AIMTOL
 !
 !
       ELSE
 !       SET UP THE FOUR SIDED BOX
          N=4
-         X1=-ALENS(11,I)-AIMTOL
-         Y1=ALENS(10,I)+AIMTOL
-         X2=-ALENS(11,I)-AIMTOL
-         Y2=-ALENS(10,I)-AIMTOL
-         X3=ALENS(11,I)+AIMTOL
-         Y3=-ALENS(10,I)-AIMTOL
-         X4=ALENS(11,I)+AIMTOL
-         Y4=ALENS(10,I)+AIMTOL
+         X1=-surf_clap_dim(I, 2)-AIMTOL
+         Y1=surf_clap_dim(I, 1)+AIMTOL
+         X2=-surf_clap_dim(I, 2)-AIMTOL
+         Y2=-surf_clap_dim(I, 1)-AIMTOL
+         X3=surf_clap_dim(I, 2)+AIMTOL
+         Y3=-surf_clap_dim(I, 1)-AIMTOL
+         X4=surf_clap_dim(I, 2)+AIMTOL
+         Y4=surf_clap_dim(I, 1)+AIMTOL
       END IF
 !
       XRD=X
@@ -270,8 +271,8 @@ SUBROUTINE MISSREF(X,Y)
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE. REMEMBER.
 
-      XRD=XRD-ALENS(13,I)-JK1
-      YRD=YRD-ALENS(12,I)-JK2
+      XRD=XRD-surf_clap_dim(I, 4)-JK1
+      YRD=YRD-surf_clap_dim(I, 3)-JK2
 !
 !       IF A NON-ZERO CLAP TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
@@ -279,8 +280,8 @@ SUBROUTINE MISSREF(X,Y)
 !       CLEAR APERTURE. REMEMBER. GAMMA ROTATION OF A CLAP OR
 !       COBS HAS THE SAME SIGN AS IN A SURFACE ROTATION
 
-      A15=ALENS(15,I)*PII/180.0D0
-      A15=(ALENS(15,I)+JK3)*PII/180.0D0
+      A15=surf_clap_tilt(I)*PII/180.0D0
+      A15=(surf_clap_tilt(I)+JK3)*PII/180.0D0
       XR=(XRD*DCOS(A15))+(YRD*DSIN(A15))
       YR=(YRD*DCOS(A15))-(XRD*DSIN(A15))
 !       ARE THE POINTS XR AND YR ON THE POLYGON OR OUTSIDE
@@ -326,23 +327,23 @@ SUBROUTINE MISSREF(X,Y)
       END IF
 ! NOW IS THE POINT INSIDE ANY OF THE FOUR CIRCLES
 !       CENTER OF THE FIRST CIRCLE IS AT
-      XC1=-ALENS(11,I)+ALENS(14,I)
-      YC1= ALENS(10,I)-ALENS(14,I)
+      XC1=-surf_clap_dim(I, 2)+surf_clap_dim(I, 5)
+      YC1= surf_clap_dim(I, 1)-surf_clap_dim(I, 5)
       CS1=DSQRT(((XR-XC1)**2)+((YR-YC1)**2))
 !       CENTER OF THE SECOND CIRCLE IS AT
-      XC2= -ALENS(11,I)+ALENS(14,I)
-      YC2= -ALENS(10,I)+ALENS(14,I)
+      XC2= -surf_clap_dim(I, 2)+surf_clap_dim(I, 5)
+      YC2= -surf_clap_dim(I, 1)+surf_clap_dim(I, 5)
       CS2=DSQRT(((XR-XC2)**2)+((YR-YC2)**2))
 !       CENTER OF THE THIRD CIRCLE IS AT
-      XC3= ALENS(11,I)-ALENS(14,I)
-      YC3=-ALENS(10,I)+ALENS(14,I)
+      XC3= surf_clap_dim(I, 2)-surf_clap_dim(I, 5)
+      YC3=-surf_clap_dim(I, 1)+surf_clap_dim(I, 5)
       CS3=DSQRT(((XR-XC3)**2)+((YR-YC3)**2))
 !       CENTER OF THE FIRST CIRCLE IS AT
-      XC4=ALENS(11,I)-ALENS(14,I)
-      YC4=ALENS(10,I)-ALENS(14,I)
+      XC4=surf_clap_dim(I, 2)-surf_clap_dim(I, 5)
+      YC4=surf_clap_dim(I, 1)-surf_clap_dim(I, 5)
       CS4=DSQRT(((XR-XC4)**2)+((YR-YC4)**2))
 !
-      RAD2=DSQRT(ALENS(14,I)**2)+AIMTOL
+      RAD2=DSQRT(surf_clap_dim(I, 5)**2)+AIMTOL
 !
 
       IF(.NOT.INS.AND.REAL(CS1).GT.REAL(RAD2)&
@@ -368,15 +369,15 @@ SUBROUTINE MISSREF(X,Y)
       LS=0.0D0
 !
 !       IN THE COORDINATE SYSTEM OF THE POLYGON, THE CORNER
-!       NUMBER OF POINTS IS ALENS(11,I), CENTER TO CORNER DISTANCE
+!       NUMBER OF POINTS IS surf_clap_dim(I, 2), CENTER TO CORNER DISTANCE
 !       IS ALENS(10,II). POINTS GO COUNTER CLOCKWISE LOOKING
 !       TOWARD THE +Z DIRECTION
 !       COORDINATES ARE:
       ANGLE=0.0D0
-      DO III=1,INT(ALENS(11,I))
-         XT(III)=ALENS(10,I)*DCOS(ANGLE+(PII/2.0D0))
-         YT(III)=ALENS(10,I)*DSIN(ANGLE+(PII/2.0D0))
-         ANGLE=ANGLE+((TWOPII)/ALENS(11,I))
+      DO III=1,INT(surf_clap_dim(I, 2))
+         XT(III)=surf_clap_dim(I, 1)*DCOS(ANGLE+(PII/2.0D0))
+         YT(III)=surf_clap_dim(I, 1)*DSIN(ANGLE+(PII/2.0D0))
+         ANGLE=ANGLE+((TWOPII)/surf_clap_dim(I, 2))
       END DO
       XRD=X
       YRD=Y
@@ -386,23 +387,23 @@ SUBROUTINE MISSREF(X,Y)
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(13,I)-JK1
-      YRD=YRD-ALENS(12,I)-JK2
+      XRD=XRD-surf_clap_dim(I, 4)-JK1
+      YRD=YRD-surf_clap_dim(I, 3)-JK2
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      A15=ALENS(15,I)*PII/180.0D0
-      A15=(ALENS(15,I)+JK3)*PII/180.0D0
+      A15=surf_clap_tilt(I)*PII/180.0D0
+      A15=(surf_clap_tilt(I)+JK3)*PII/180.0D0
       XR=(XRD*DCOS(A15))+(YRD*DSIN(A15))
       YR=(YRD*DCOS(A15))-(XRD*DSIN(A15))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       X0=XR
       Y0=YR
-      NP=INT(ALENS(11,I))
+      NP=INT(surf_clap_dim(I, 2))
       INS=INSID1()
       IF(INS) THEN
 !       RAY NOT BLOCKED
@@ -428,7 +429,7 @@ SUBROUTINE MISSREF(X,Y)
 !       TOWARD THE +Z DIRECTION
 !       COORDINATES ARE:
       ANGLE=0.0D0
-      DO III=1,INT(ALENS(11,I))
+      DO III=1,INT(surf_clap_dim(I, 2))
          XT(III)=IPOLYX(III,I,1)
          YT(III)=IPOLYY(III,I,1)
       END DO
@@ -440,23 +441,23 @@ SUBROUTINE MISSREF(X,Y)
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(13,I)-JK1
-      YRD=YRD-ALENS(12,I)-JK2
+      XRD=XRD-surf_clap_dim(I, 4)-JK1
+      YRD=YRD-surf_clap_dim(I, 3)-JK2
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      A15=ALENS(15,I)*PII/180.0D0
-      A15=(ALENS(15,I)+JK3)*PII/180.0D0
+      A15=surf_clap_tilt(I)*PII/180.0D0
+      A15=(surf_clap_tilt(I)+JK3)*PII/180.0D0
       XR=(XRD*DCOS(A15))+(YRD*DSIN(A15))
       YR=(YRD*DCOS(A15))-(XRD*DSIN(A15))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       X0=XR
       Y0=YR
-      NP=INT(ALENS(11,I))
+      NP=INT(surf_clap_dim(I, 2))
       INS=INSID1()
       IF(INS) THEN
 !       RAY NOT BLOCKED
