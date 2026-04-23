@@ -785,6 +785,7 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER K,I,TOTI,J,TOTII,NSTEP,BUCKET(1:100)
@@ -808,7 +809,7 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
 !
 !     FIELD OF VIEW DATA
 !
-   IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+   IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
 !     ANGULAR
       XOBP=SYSTEM(23)*LFOB(2)
       YOBP=SYSTEM(21)*LFOB(1)
@@ -920,6 +921,7 @@ SUBROUTINE SPOPD1
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOPD1.FOR.
@@ -956,8 +958,8 @@ SUBROUTINE SPOPD1
 !       OPD
    IF(RAYEXT.AND.REFEXT) THEN
       OOPD=0.0D0
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
-      IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
+      IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
       DO J=JJ,NEWIMG
          OOPD=OOPD+RAYRAY(7,J)&
          &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
@@ -1152,6 +1154,7 @@ SUBROUTINE GSPOT
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    REAL*8 SPT,V1,VALUE &
@@ -1266,21 +1269,21 @@ SUBROUTINE GSPOT
 !       TERM TOT.
 !     DOES THE NEWREF SURFACE HAVE A CLAP ON IT ?
    TCLPRF=.FALSE.
-   IF(ALENS(9,NEWREF).EQ.0.0D0.OR.ALENS(127,NEWREF).NE.0.0D0) THEN
+   IF(surf_clap_type(NEWREF) == 0.OR.surf_array_parity(NEWREF) /= 0) THEN
 !     RING SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-      ALENS(9,NEWREF)=1.0D0
+      call set_surf_clap_type(NEWREF, 1)
       IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-         ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-         ALENS(11,NEWREF)=ALENS(10,NEWREF)
+         call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+         call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
       ELSE
-         ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-         ALENS(11,NEWREF)=ALENS(10,NEWREF)
+         call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+         call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
       END IF
-      ALENS(12,NEWREF)=0.0D0
-      ALENS(13,NEWREF)=0.0D0
-      ALENS(14,NEWREF)=0.0D0
-      ALENS(15,NEWREF)=0.0D0
+      call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+      call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+      call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+      call set_surf_clap_tilt(NEWREF, 0.0D0)
       TCLPRF=.TRUE.
 !     THERE WAS A CLEAR APERTURE, USE ITS VALUES
    END IF
@@ -1428,8 +1431,8 @@ SUBROUTINE GSPOT
                   LEN=0.0D0
                   RCOR=0.0D0
                   OCOR=0.0D0
-                  IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJJ=NEWOBJ+2
-                  IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJJ=NEWOBJ+1
+                  IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJJ=NEWOBJ+2
+                  IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJJ=NEWOBJ+1
                   DO J=JJJ,NEWIMG
                      LEN=LEN+RAYRAY(7,J)&
                      &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
@@ -2074,6 +2077,7 @@ SUBROUTINE SPOT1(TPT)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    CHARACTER UN*11
@@ -2414,22 +2418,22 @@ SUBROUTINE SPOT1(TPT)
       TCLPRF=.FALSE.
       IF(TPT.EQ.1) THEN
 !
-         IF(ALENS(9,NEWREF).EQ.0.0D0.OR.ALENS(127,NEWREF).NE.0.0D0) THEN
+         IF(surf_clap_type(NEWREF) == 0.OR.surf_array_parity(NEWREF) /= 0) THEN
             IF(SPDTYPE.EQ.1) THEN
 !     RECT SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-               ALENS(9,NEWREF)=1.0D0
+               call set_surf_clap_type(NEWREF, 1)
                IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-                  ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                ELSE
-                  ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                END IF
-               ALENS(12,NEWREF)=0.0D0
-               ALENS(13,NEWREF)=0.0D0
-               ALENS(14,NEWREF)=0.0D0
-               ALENS(15,NEWREF)=0.0D0
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
                TCLPRF=.TRUE.
 !
                IF(WQ.NE.'ACC') THEN
@@ -2450,18 +2454,18 @@ SUBROUTINE SPOT1(TPT)
             IF(SPDTYPE.EQ.2) THEN
 !     RING SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-               ALENS(9,NEWREF)=1.0D0
+               call set_surf_clap_type(NEWREF, 1)
                IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-                  ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                ELSE
-                  ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                END IF
-               ALENS(12,NEWREF)=0.0D0
-               ALENS(13,NEWREF)=0.0D0
-               ALENS(14,NEWREF)=0.0D0
-               ALENS(15,NEWREF)=0.0D0
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
                TCLPRF=.TRUE.
 !
                IF(WQ.NE.'ACC') THEN
@@ -2482,18 +2486,18 @@ SUBROUTINE SPOT1(TPT)
             IF(SPDTYPE.EQ.3) THEN
 !     RAND SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-               ALENS(9,NEWREF)=1.0D0
+               call set_surf_clap_type(NEWREF, 1)
                IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-                  ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                ELSE
-                  ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                END IF
-               ALENS(12,NEWREF)=0.0D0
-               ALENS(13,NEWREF)=0.0D0
-               ALENS(14,NEWREF)=0.0D0
-               ALENS(15,NEWREF)=0.0D0
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
                TCLPRF=.TRUE.
 !
                IF(WQ.NE.'ACC') THEN
@@ -2514,58 +2518,58 @@ SUBROUTINE SPOT1(TPT)
       END IF
 !
       IF(TPT.EQ.2) THEN
-         IF(ALENS(9,NEWREF).EQ.0.0D0.OR.ALENS(127,NEWREF).NE.0.0D0) THEN
+         IF(surf_clap_type(NEWREF) == 0.OR.surf_array_parity(NEWREF) /= 0) THEN
             IF(OPSPDTYPE.EQ.1) THEN
 !     RECT SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-               ALENS(9,NEWREF)=1.0D0
+               call set_surf_clap_type(NEWREF, 1)
                IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-                  ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                ELSE
-                  ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                END IF
-               ALENS(12,NEWREF)=0.0D0
-               ALENS(13,NEWREF)=0.0D0
-               ALENS(14,NEWREF)=0.0D0
-               ALENS(15,NEWREF)=0.0D0
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
                TCLPRF=.TRUE.
 !     OPSPDTYPE NOT 1 FOR RECT
             END IF
             IF(OPSPDTYPE.EQ.2) THEN
 !     RING SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-               ALENS(9,NEWREF)=1.0D0
+               call set_surf_clap_type(NEWREF, 1)
                IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-                  ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                ELSE
-                  ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                END IF
-               ALENS(12,NEWREF)=0.0D0
-               ALENS(13,NEWREF)=0.0D0
-               ALENS(14,NEWREF)=0.0D0
-               ALENS(15,NEWREF)=0.0D0
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
                TCLPRF=.TRUE.
 !     OPSPDTYPE NOT 2 FOR RING
             END IF
             IF(OPSPDTYPE.EQ.3) THEN
 !     RAND SPOT
 !     ASSIGN A TEMPORARY CIRCULAR CLAP
-               ALENS(9,NEWREF)=1.0D0
+               call set_surf_clap_type(NEWREF, 1)
                IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
-                  ALENS(10,NEWREF)=PXTRAY(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                ELSE
-                  ALENS(10,NEWREF)=PXTRAX(1,NEWREF)
-                  ALENS(11,NEWREF)=ALENS(10,NEWREF)
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
                END IF
-               ALENS(12,NEWREF)=0.0D0
-               ALENS(13,NEWREF)=0.0D0
-               ALENS(14,NEWREF)=0.0D0
-               ALENS(15,NEWREF)=0.0D0
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
                TCLPRF=.TRUE.
 !     OPSPDTYPE NOT 3 FOR RAND
             END IF

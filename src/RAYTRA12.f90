@@ -9,6 +9,7 @@ SUBROUTINE REFRAY(WPAS)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE REFRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -164,13 +165,13 @@ SUBROUTINE REFRAY(WPAS)
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -219,8 +220,8 @@ SUBROUTINE REFRAY(WPAS)
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.SYSTEM(98).NE.0.0D0 &
-      &.OR.SYSTEM(99).NE.0.0D0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.SYSTEM(98).NE.0.0D0 &
+      &.OR.SYSTEM(99).NE.0.0D0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -237,54 +238,54 @@ SUBROUTINE REFRAY(WPAS)
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-         ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(WW3*surf_thickness(NEWOBJ))+ZSAG
       ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=WW2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=WW1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=WW2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=WW1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             ELSE
-               XSTRT=WW2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=WW1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=WW2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=WW1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-            ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(WW3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=WW2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=WW1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=WW2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=WW1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
 
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-            ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(WW3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.6.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=WW2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=WW1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 6.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=WW2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=WW1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
 
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-            ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(WW3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LE.4.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=WW2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=WW1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) > 1.AND.surf_clap_type(NEWOBJ) <= 4.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=WW2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=WW1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
 
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-            ZSTRT=(WW3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(WW3*surf_thickness(NEWOBJ))+ZSAG
          END IF
       END IF
    END IF
@@ -332,9 +333,9 @@ SUBROUTINE REFRAY(WPAS)
       IF(SYSTEM(63).EQ.0.0D0) THEN
 !     TEL OFF
          X1AIM=PXTRAX(5,(NEWOBJ+1))
-         X1AIM=(X1AIM*WW2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+         X1AIM=(X1AIM*WW2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
          Y1AIM=PXTRAY(5,(NEWOBJ+1))
-         Y1AIM=(Y1AIM*WW1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+         Y1AIM=(Y1AIM*WW1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
          Z1AIM=SYSTEM(89)
       ELSE
 !     TEL ON,ALL RAYS ARE PARALLEL
@@ -560,8 +561,8 @@ SUBROUTINE REFRAY(WPAS)
    REFRY(20,NEWOBJ)=MSTART
    REFRY(21,NEWOBJ)=NSTART
    REFRY(22,NEWOBJ)=0.0D0
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
 !
    X=XSTRT
    Y=YSTRT
@@ -802,7 +803,7 @@ SUBROUTINE REFRAY(WPAS)
          REFRY(8,I)=0.0D0
       END IF
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
-         REFRY(8,I)=-(ALENS(121,I-1)-ALENS(3,I-1))*REFRY(6,I-1)
+         REFRY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*REFRY(6,I-1)
       END IF
       IF(INT(WW4).GE.1.AND.INT(WW4).LE.5)&
       &REFRY(7,I)=REFRY(8,I)*DABS(ALENS(45+INT(WW4),(I-1)))
@@ -908,18 +909,18 @@ SUBROUTINE REFRAY(WPAS)
 
       IF(I.EQ.NEWREF) THEN
 !       CALCULATE TARX AND TARY
-         IF(ALENS(9,I).GE.1.0D0.AND.ALENS(9,I).LE.6.0D0.AND.&
-         &ALENS(127,I).EQ.0.0D0) THEN
+         IF(surf_clap_type(I) >= 1.AND.surf_clap_type(I) <= 6.AND.&
+         &surf_array_parity(I) == 0) THEN
 !       REF SURF HAS CLAP ON IT
 !       SET TARGET TO CENTER OF DECENTERED CLAP,
 !
-!       ALENS(12,I) AND ALENS(13,I) ARE CLAP DECENTRATIONS
+!       surf_clap_dim(I, 3) AND surf_clap_dim(I, 4) ARE CLAP DECENTRATIONS
 !       HERE IS WERE THE TARGET FOR RAY AIMING IS SET FOR THE
 !       CHIEF RAY. A SIMILAR BUT MORE COMPLEX SETTING IS REQUIRED
 !       FOR NON-CHIEF RAYS IN THE SUBROUTINE RAYTRA.FOR
 !
-            TARY=ALENS(12,I)
-            TARX=ALENS(13,I)
+            TARY=surf_clap_dim(I, 3)
+            TARX=surf_clap_dim(I, 4)
          ELSE
 !       NO CLAP OF REF SURF.
             TARX=0.0D0
@@ -993,7 +994,7 @@ SUBROUTINE REFRAY(WPAS)
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC

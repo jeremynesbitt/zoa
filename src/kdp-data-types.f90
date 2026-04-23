@@ -330,6 +330,7 @@ subroutine getImageSurface(self, intSurf)
 end subroutine
 
 subroutine set_num_surfaces(self, input)
+   use mod_surface
 
 class(lens_data), intent(inout) :: self
 integer, intent(in) :: input
@@ -419,6 +420,7 @@ end function
 ! aberrations will not be converted to transverse linear measure 
 !(i.e., they remain the direct sum of surface contribution coefficients).  
 function isUSystem(self) result(boolResult)
+   use mod_surface
 implicit none
 class(sys_config) :: self
 logical :: boolResult
@@ -444,14 +446,15 @@ IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) boolResult = .TRUE.
 end function
 
 function isObjectAfInf(self) result(boolResult)
+   use mod_surface
 class(sys_config) :: self
 logical :: boolResult
 include "DATLEN.INC"
 
 boolResult = .FALSE.
 ! TODO:  Where do document quantitative definition of infinity?
-if(DABS(ALENS(3,0)).GT.1E11) boolResult = .TRUE.
-!PRINT *, "Value being compared is ", ALENS(3,0)
+if(DABS(surf_thickness(0)).GT.1.0D11) boolResult = .TRUE.
+!PRINT *, "Value being compared is ", surf_thickness(0)
 
 end function
 
@@ -464,6 +467,7 @@ boolResult = .FALSE.
 end function
 
 subroutine updateAsphereTable(self, maxSurf)
+   use mod_surface
 class(aspheric_surf_data), intent(inout) :: self
 
 integer :: I, maxSurf
@@ -479,30 +483,30 @@ allocate(self%asphereTerms(maxSurf,8))
 ! Logic taken from the LOADSHEET.INC routine.
 do I = 0,maxSurf-1
 
-     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                     ALENS(2,I)=0.0D0
+     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                     call set_surf_conic(I, 0.0D0)
                      END IF
-     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                     ALENS(43,I)=0.0D0
+     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                     call set_surf_asphere_coeff(I, 2, 0.0D0)
                      END IF
-  !    IF(ALENS(4,I).EQ.0.0D0.AND.ALENS(5,I).EQ.0.0D0.AND.     &
-  ! &  ALENS(6,I).EQ.0.0D0.AND.ALENS(7,I).EQ.0.0D0.AND.        &
-  ! &  ALENS(81,I).EQ.0.0D0.AND.ALENS(82,I).EQ.0.0D0.AND.      &
-  ! &  ALENS(83,I).EQ.0.0D0.AND.ALENS(84,I).EQ.0.0D0.AND.      &
-  ! &  ALENS(85,I).EQ.0.0D0.AND.ALENS(43,I).EQ.0.0D0) THEN
-  !                    ALENS(8,I)=0.0D0
+  !    IF(surf_asphere_coeff(I, 4).EQ.0.0D0.AND.surf_asphere_coeff(I, 5).EQ.0.0D0.AND.     &
+  ! &  surf_asphere_coeff(I, 6).EQ.0.0D0.AND.surf_asphere_coeff(I, 7).EQ.0.0D0.AND.        &
+  ! &  surf_asphere_coeff(I, 12).EQ.0.0D0.AND.surf_asphere_coeff(I, 14).EQ.0.0D0.AND.      &
+  ! &  surf_asphere_coeff(I, 16).EQ.0.0D0.AND.surf_asphere_coeff(I, 18).EQ.0.0D0.AND.      &
+  ! &  surf_asphere_coeff(I, 20).EQ.0.0D0.AND.surf_asphere_coeff(I, 2).EQ.0.0D0) THEN
+  !                    surf_is_asphere(I)=0.0D0
   !                    END IF
-     IF(ALENS(23,I).NE.0.0D0.OR.ALENS(8,I).NE.0.0D0.OR.      &
-  &  ALENS(2,I).NE.0.0D0.OR.ALENS(4,I).NE.0.0D0.OR.          &
-  &  ALENS(5,I).NE.0.0D0.OR.ALENS(6,I).NE.0.0D0.OR.          &
-  &  ALENS(7,I).NE.0.0D0.OR.ALENS(36,I).NE.0.0D0.OR.         &
-  &  ALENS(37,I).NE.0.0D0.OR.ALENS(38,I).NE.0.0D0.OR.        &
-  &  ALENS(39,I).NE.0.0D0.OR.ALENS(40,I).NE.0.0D0.OR.        &
-  &  ALENS(41,I).NE.0.0D0.OR.ALENS(43,I).NE.0.0D0.OR.        &
-  &  ALENS(81,I).NE.0.0D0.OR.ALENS(82,I).NE.0.0D0.OR.        &
-  &  ALENS(83,I).NE.0.0D0.OR.ALENS(85,I).NE.0.0D0.OR.        &
-  &  ALENS(85,I).NE.0.0D0) THEN
-     self%conic_constant(I+1) = ALENS(2,I)
+     IF(surf_toric_flag(I) /= 0.OR.surf_is_asphere(I).OR.      &
+  &  surf_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 4).NE.0.0D0.OR.          &
+  &  surf_asphere_coeff(I, 5).NE.0.0D0.OR.surf_asphere_coeff(I, 6).NE.0.0D0.OR.          &
+  &  surf_asphere_coeff(I, 7).NE.0.0D0.OR.surf_anamorphic_flag(I) /= 0.OR.         &
+  &  surf_anamorphic_coeff(I, 4).NE.0.0D0.OR.surf_anamorphic_coeff(I, 6).NE.0.0D0.OR.        &
+  &  surf_anamorphic_coeff(I, 8).NE.0.0D0.OR.surf_anamorphic_coeff(I, 10).NE.0.0D0.OR.        &
+  &  surf_anamorphic_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 2).NE.0.0D0.OR.        &
+  &  surf_asphere_coeff(I, 12).NE.0.0D0.OR.surf_asphere_coeff(I, 14).NE.0.0D0.OR.        &
+  &  surf_asphere_coeff(I, 16).NE.0.0D0.OR.surf_asphere_coeff(I, 20).NE.0.0D0.OR.        &
+  &  surf_asphere_coeff(I, 20).NE.0.0D0) THEN
+     self%conic_constant(I+1) = surf_conic(I)
      self%asphereTerms(I+1,1:4) = ALENS(4:7,I)
      self%asphereTerms(I+1,5:8) = ALENS(81:84,I)
    else
@@ -1833,6 +1837,7 @@ end function
 subroutine updateLensData(self)
   use iso_fortran_env, only: real64
   use command_utils, only: isInputNumber
+  use mod_surface
   implicit none
   class(lens_data) :: self
   integer :: JJ
@@ -1845,16 +1850,16 @@ subroutine updateLensData(self)
   self%ref_stop = INT(SYSTEM(25)+1)
   DO JJ=0,self%num_surfaces-1
     CALL SINDEXJN(JJ, INDEX, VNUM)
-    IF(ALENS(1,JJ).EQ.0.0D0) THEN
+    IF(surf_curvature(JJ).EQ.0.0D0) THEN
       RD=0.0D0
     ELSE
-      RD=1.0D0/(ALENS(1,JJ))
+      RD=1.0D0/(surf_curvature(JJ))
     END IF
 
 !     Dump data to interface
     self%radii(JJ+1) = RD
-    self%curvatures(JJ+1) = ALENS(1,JJ)
-    self%thicknesses(JJ+1) = ALENS(3,JJ)
+    self%curvatures(JJ+1) = surf_curvature(JJ)
+    self%thicknesses(JJ+1) = surf_thickness(JJ)
     self%surf_index(JJ+1) = INDEX
     self%surf_vnum(JJ+1) = VNUM
     self%glassnames(JJ+1) = GLANAM(JJ,2)
@@ -1902,6 +1907,7 @@ end function
 
 
 subroutine calculateFirstOrderParameters(self, lData)
+   use mod_surface
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
   integer :: I,J
@@ -1973,6 +1979,7 @@ end subroutine
 
 function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   use type_utils, only: real2str
+   use mod_surface
   implicit none
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
@@ -2087,13 +2094,14 @@ end function
 
 function isAsphereOnSurface(self, surf) result(boolResult)
   use DATLEN, only: ALENS
+   use mod_surface
   class(lens_data) :: self
   integer :: surf
   logical :: boolResult
 
   boolResult = .FALSE.
 
-  if (ALENS(8,surf) == 1.0d0) then
+  if (surf_is_asphere(surf)) then
     boolResult = .TRUE.
   end if
 
@@ -2101,12 +2109,13 @@ end function
 
 function isConicConstantOnSurface(self, surf) result(boolResult)
   use DATLEN, only: ALENS
+   use mod_surface
   class(lens_data) :: self
   integer :: surf
   logical :: boolResult
 
   boolResult = .FALSE.
-  if (ALENS(2,surf) .ne. 0.0d0) then
+  if (surf_conic(surf) .ne. 0.0d0) then
     boolResult = .TRUE.
   end if
 
@@ -2155,6 +2164,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
 end function
 
 function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
+   use mod_surface
   implicit none
   class(lens_data) :: self
   type(solve_options), dimension(:) :: solveOptions
@@ -2198,7 +2208,7 @@ end function
 ! I want to be able to accurately report to users what the 
 ! clear apertures are, but not break existing KDP functionality,
 ! Which assumes that a stored value of 0 means it is automatically calculated
-! So the purpose here is to calculate the clear aperture and if ALENS(10,i) is
+! So the purpose here is to calculate the clear aperture and if surf_clap_dim(i, 1) is
 ! 0 then I will report the values calculated here to the user.                            
 
 SUBROUTINE check_clear_apertures(lData)
@@ -2208,6 +2218,7 @@ SUBROUTINE check_clear_apertures(lData)
 !
   use DATLEN
   use DATMAI
+  use mod_surface
   IMPLICIT NONE
   class(lens_data), intent(inout) :: lData
 
@@ -2259,8 +2270,8 @@ FWARN=0
 !     EIGHT PLACES AROUND THE FULL FOV
                  KK=0
                  DO K=0,8
-IF(ALENS(9,NEWOBJ).NE.2.0D0.AND.ALENS(9,NEWOBJ).NE.4.0D0 &
-.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+IF(surf_clap_type(NEWOBJ) /= 2.AND.surf_clap_type(NEWOBJ) /= 4 &
+.AND.surf_array_parity(NEWOBJ) == 0) THEN
 IF(K.EQ.0) THEN
 YF=0.0D0
 XF=1.0D0
@@ -2298,7 +2309,7 @@ YF=0.0D0
 XF=0.0D0
 END IF
                      ELSE
-IF(ALENS(9,NEWOBJ).EQ.2.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+IF(surf_clap_type(NEWOBJ) == 2.AND.surf_array_parity(NEWOBJ) == 0) THEN
 IF(K.EQ.0) THEN
 YF=0.0D0
 XF=1.0D0
@@ -2336,9 +2347,9 @@ YF=0.0D0
 XF=0.0D0
 END IF
          END IF
-IF(ALENS(9,NEWOBJ).EQ.4.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-YFFIX=DABS(ALENS(14,NEWOBJ)/ALENS(10,NEWOBJ))
-XFFIX=DABS(ALENS(14,NEWOBJ)/ALENS(11,NEWOBJ))
+IF(surf_clap_type(NEWOBJ) == 4.AND.surf_array_parity(NEWOBJ) == 0) THEN
+YFFIX=DABS(surf_clap_dim(NEWOBJ, 5)/surf_clap_dim(NEWOBJ, 1))
+XFFIX=DABS(surf_clap_dim(NEWOBJ, 5)/surf_clap_dim(NEWOBJ, 2))
 IF(K.EQ.0) THEN
 YF=0.0D0
 XF=1.0D0
@@ -2420,8 +2431,8 @@ CALL VIGCAL(N,YLO,YHI,2)
                  DO L=0,7
                  KK=KK+1
                  M=(3*KK)-2
-IF(ALENS(9,NEWREF).NE.2.0D0.AND.ALENS(9,NEWREF).NE.4.0D0 &
-.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+IF(surf_clap_type(NEWREF) /= 2.AND.surf_clap_type(NEWREF) /= 4 &
+.AND.surf_array_parity(NEWREF) == 0) THEN
 IF(L.EQ.0) THEN
 YR=0.0D0
 XR=XHI
@@ -2455,7 +2466,7 @@ YR=YLO*DSQRT(2.0D0)/2.0D0
 XR=XHI*DSQRT(2.0D0)/2.0D0
 END IF
                      ELSE
-IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+IF(surf_clap_type(NEWREF) == 2.AND.surf_array_parity(NEWREF) == 0) THEN
 IF(L.EQ.0) THEN
 YR=0.0D0
 XR=XHI
@@ -2489,9 +2500,9 @@ YR=YLO
 XR=XHI
          END IF
          END IF
-IF(ALENS(9,NEWREF).EQ.4.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-YRFIX=DABS(ALENS(14,NEWREF)/ALENS(10,NEWREF))
-XRFIX=DABS(ALENS(14,NEWREF)/ALENS(11,NEWREF))
+IF(surf_clap_type(NEWREF) == 4.AND.surf_array_parity(NEWREF) == 0) THEN
+YRFIX=DABS(surf_clap_dim(NEWREF, 5)/surf_clap_dim(NEWREF, 1))
+XRFIX=DABS(surf_clap_dim(NEWREF, 5)/surf_clap_dim(NEWREF, 2))
 IF(L.EQ.0) THEN
 YR=0.0D0
 XR=XHI
@@ -2609,22 +2620,22 @@ YRAD=DABS((HYMAX-HYMIN)/2.0D0)
 XRAD=DABS((HXMAX-HXMIN)/2.0D0)
 !call LogTermFOR("YRAD is "//trim(real2str(YRAD)))
 !call LogTermFOR("XRAD is "//trim(real2str(XRAD)))
-!call LogTermFOR("ALENS(10,I) is "//trim(real2str(ALENS(10,I))))
+!call LogTermFOR("surf_clap_dim(I, 1) is "//trim(real2str(surf_clap_dim(I, 1))))
 
-IF(ALENS(10,I).EQ.0.0) THEN
+IF(surf_clap_dim(I, 1).EQ.0.0) THEN
   lData%clearAps(I+1)%userDefined = .FALSE.
   lData%clearAps(I+1)%yRad = YRAD
   lData%clearAps(I+1)%xRad = XRAD
 ELSE
   ! equivalence wasn't working so used this value;  TODO: Clean this up
   ! either find rood cause or use sqrt(eps)
-  IF(DABS(ALENS(10,I)-YRAD) > 1e-7) THEN
+  IF(DABS(surf_clap_dim(I, 1)-YRAD) > 1e-7) THEN
 
   lData%clearAps(I+1)%userDefined = .TRUE.               
-  lData%clearAps(I+1)%yRad = ALENS(10,I)
-  lData%clearAps(I+1)%xRad = ALENS(11,I)        
+  lData%clearAps(I+1)%yRad = surf_clap_dim(I, 1)
+  lData%clearAps(I+1)%xRad = surf_clap_dim(I, 2)        
   END IF
-  IF(DABS(ALENS(10,I)-YRAD) < 1e-7) THEN
+  IF(DABS(surf_clap_dim(I, 1)-YRAD) < 1e-7) THEN
 
       lData%clearAps(I+1)%userDefined = .FALSE.               
       lData%clearAps(I+1)%yRad = YRAD
@@ -2641,10 +2652,10 @@ RRAD=YRAD
   !else    
   lData%clearAps(I+1)%userDefined = .FALSE. 
   !end if              
-  lData%clearAps(I+1)%yRad = ALENS(10,I)
-  lData%clearAps(I+1)%xRad = ALENS(11,I)              
-  !call LogTermFOR("YRAD is "//trim(real2str(ALENS(10,I))))
-  !call LogTermFOR("XRAD is "//trim(real2str(ALENS(11,I))))
+  lData%clearAps(I+1)%yRad = surf_clap_dim(I, 1)
+  lData%clearAps(I+1)%xRad = surf_clap_dim(I, 2)              
+  !call LogTermFOR("YRAD is "//trim(real2str(surf_clap_dim(I, 1))))
+  !call LogTermFOR("XRAD is "//trim(real2str(surf_clap_dim(I, 2))))
                   END IF
               END IF
   !call LogTermFOR("CA YRAD is "//trim(real2str( lData%clearAps(I+1)%yRad)))

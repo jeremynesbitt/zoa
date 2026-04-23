@@ -8,6 +8,7 @@ SUBROUTINE FRFDIF
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       DIFFERENTIAL RAY WITH RESPECT TO A CHANGE IN RAY HEIGHT AT
@@ -87,7 +88,7 @@ SUBROUTINE FRFDIF
 !     WE NEED AN ANGLE WHICH HAS ITS TANGENT EQUAL TO IS RADIAN MEASURE
 !     TO 10 DIGITS THIS IS TRUE AT 1 ARC SEC
 !
-   XSCYFAC=DABS(0.000004848D0*ALENS(3,NEWOBJ))
+   XSCYFAC=DABS(0.000004848D0*surf_thickness(NEWOBJ))
 !
    SHIFTX=XSCYFAC*SIG
    IF(SYSTEM(16).GE.0.0D0) SHIFTX=DABS(SHIFTX)
@@ -163,8 +164,8 @@ SUBROUTINE FRFDIF
 !       CHIEF RAY AIMING.
 !
 9  CONTINUE
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
@@ -332,7 +333,7 @@ SUBROUTINE FRFDIF
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
@@ -416,7 +417,7 @@ SUBROUTINE FRFDIF
 !     WE NEED AN ANGLE WHICH HAS ITS TANGENT EQUAL TO IS RADIAN MEASURE
 !     TO 10 DIGITS THIS IS TRUE AT 1 ARC SEC
 !
-   YSCYFAC=DABS(0.000004848D0*ALENS(3,NEWOBJ))
+   YSCYFAC=DABS(0.000004848D0*surf_thickness(NEWOBJ))
 !
    SHIFTY=YSCYFAC*SIG
    IF(SYSTEM(14).GE.0.0D0) SHIFTY=DABS(SHIFTY)
@@ -483,8 +484,8 @@ SUBROUTINE FRFDIF
 !       CHIEF RAY AIMING.
 !
 19 CONTINUE
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
@@ -606,16 +607,16 @@ SUBROUTINE FRFDIF
 !
       IF(I.EQ.NEWREF) THEN
 !       CALCULATE TARX AND TARY
-         IF(ALENS(9,I).GE.1.0D0.AND.ALENS(9,I).LE.6.0D0.AND.&
-         &ALENS(127,I).EQ.0.0D0) THEN
+         IF(surf_clap_type(I) >= 1.AND.surf_clap_type(I) <= 6.AND.&
+         &surf_array_parity(I) == 0) THEN
 !       REF SURF HAS CLAP ON IT
-!       SET TARGET TO CENTER OF DECENTERED CLAP, ALENS(12,I),
-!       AND ALENS(13,I) ARE CLAP DECENTRATIONS
+!       SET TARGET TO CENTER OF DECENTERED CLAP, surf_clap_dim(I, 3),
+!       AND surf_clap_dim(I, 4) ARE CLAP DECENTRATIONS
 !       HERE IS WERE THE TARGET FOR RAY AIMING IS SET FOR THE
 !       CHIEF RAY. A SIMILAR BY MORE COMPLEX SETTING IS REQUIRED
 !       FOR NON-CHIEF RAYS IN THE SUBROUTINE RAYTRA.FOR
-            TARY=ALENS(12,I)
-            TARX=ALENS(13,I)
+            TARY=surf_clap_dim(I, 3)
+            TARX=surf_clap_dim(I, 4)
          ELSE
 !       NO CLAP OF REF SURF.
             TARX=0.0D0
@@ -664,7 +665,7 @@ SUBROUTINE FRFDIF
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
@@ -811,6 +812,7 @@ SUBROUTINE DIFRAY
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       DIFFERENTIAL RAY WITH RESPECT TO A CHANGE IN RAY HEIGHT AT
@@ -858,63 +860,63 @@ SUBROUTINE DIFRAY
 !
 !     SET REF AP HT
 !
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.&
-   &DABS(ALENS(9,NEWREF)).LE.6.0D0.AND.&
-   &ALENS(127,NEWREF).EQ.0.0D0) THEN
+   IF(surf_clap_type(NEWREF) >= 1.AND.&
+   &surf_clap_type(NEWREF) <= 6.AND.&
+   &surf_array_parity(NEWREF) == 0) THEN
 !
 !       CLAP IS ON REFERENCE SURFACE
 !
 !       CIRCULAR CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0.AND.&
-      &ALENS(127,NEWREF).EQ.0.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            SYS12=ALENS(10,NEWREF)
-            SYS13=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 1.AND.&
+      &surf_array_parity(NEWREF) == 0) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            SYS12=surf_clap_dim(NEWREF, 1)
+            SYS13=surf_clap_dim(NEWREF, 1)
          ELSE
-            SYS12=ALENS(11,NEWREF)
-            SYS13=ALENS(11,NEWREF)
+            SYS12=surf_clap_dim(NEWREF, 2)
+            SYS13=surf_clap_dim(NEWREF, 2)
          END IF
 !       NOT CIRCULAR CLAP
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0.AND.&
-      &ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(11,NEWREF)
+      IF(surf_clap_type(NEWREF) == 2.AND.&
+      &surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 2)
 !       NOT RECT CLAP
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0.AND.&
-      &ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(11,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3.AND.&
+      &surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 2)
 !       NOT ELIP CLAP
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0.AND.&
-      &ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(11,NEWREF)
+      IF(surf_clap_type(NEWREF) == 4.AND.&
+      &surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 2)
 !       NOT RCTK CLAP
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0.AND.&
-      &ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 5.AND.&
+      &surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 1)
 !       NOT POLY CLAP
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0.AND.&
-      &ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(14,NEWREF)
-         SYS13=ALENS(14,NEWREF)
+      IF(surf_clap_type(NEWREF) == 6.AND.&
+      &surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 5)
+         SYS13=surf_clap_dim(NEWREF, 5)
 !       NOT IPOLY CLAP
       END IF
 !
@@ -1012,8 +1014,8 @@ SUBROUTINE DIFRAY
 !       CHIEF RAY AIMING.
 !
 9  CONTINUE
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
@@ -1182,7 +1184,7 @@ SUBROUTINE DIFRAY
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
@@ -1322,8 +1324,8 @@ SUBROUTINE DIFRAY
 !       CHIEF RAY AIMING.
 !
 19 CONTINUE
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
@@ -1493,7 +1495,7 @@ SUBROUTINE DIFRAY
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
@@ -1566,6 +1568,7 @@ SUBROUTINE FOBDIF
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       DIFFERENTIAL TRACE FOR CHIEF RAY. THIS IS A SET OF
@@ -1614,63 +1617,63 @@ SUBROUTINE FOBDIF
    MOLD=0.0D0
    NOLD=0.0D0
 !
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.&
-   &DABS(ALENS(9,NEWREF)).LE.6.0D0.AND.&
-   &ALENS(127,NEWREF).EQ.0.0D0) THEN
+   IF(surf_clap_type(NEWREF) >= 1.AND.&
+   &surf_clap_type(NEWREF) <= 6.AND.&
+   &surf_array_parity(NEWREF) == 0) THEN
 !
 !       CLAP IS ON REFERENCE SURFACE
 !
 !       CIRCULAR CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0 &
-      &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            SYS12=ALENS(10,NEWREF)
-            SYS13=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 1 &
+      &.AND.surf_array_parity(NEWREF) == 0) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            SYS12=surf_clap_dim(NEWREF, 1)
+            SYS13=surf_clap_dim(NEWREF, 1)
          ELSE
-            SYS12=ALENS(11,NEWREF)
-            SYS13=ALENS(11,NEWREF)
+            SYS12=surf_clap_dim(NEWREF, 2)
+            SYS13=surf_clap_dim(NEWREF, 2)
          END IF
 !       NOT CIRCULAR CLAP
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0 &
-      &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(11,NEWREF)
+      IF(surf_clap_type(NEWREF) == 2 &
+      &.AND.surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 2)
 !       NOT RECT CLAP
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0 &
-      &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(11,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3 &
+      &.AND.surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 2)
 !       NOT ELIP CLAP
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0 &
-      &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(11,NEWREF)
+      IF(surf_clap_type(NEWREF) == 4 &
+      &.AND.surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 2)
 !       NOT RCTK CLAP
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0 &
-      &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(10,NEWREF)
-         SYS13=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 5 &
+      &.AND.surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 1)
+         SYS13=surf_clap_dim(NEWREF, 1)
 !       NOT POLY CLAP
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0 &
-      &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-         SYS12=ALENS(14,NEWREF)
-         SYS13=ALENS(14,NEWREF)
+      IF(surf_clap_type(NEWREF) == 6 &
+      &.AND.surf_array_parity(NEWREF) == 0) THEN
+         SYS12=surf_clap_dim(NEWREF, 5)
+         SYS13=surf_clap_dim(NEWREF, 5)
 !       NOT IPOLY CLAP
       END IF
 !
@@ -1778,8 +1781,8 @@ SUBROUTINE FOBDIF
 !       CHIEF RAY AIMING.
 !
 9  CONTINUE
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
@@ -1951,7 +1954,7 @@ SUBROUTINE FOBDIF
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
@@ -2096,8 +2099,8 @@ SUBROUTINE FOBDIF
 !       CHIEF RAY AIMING.
 !
 19 CONTINUE
-   IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
@@ -2271,7 +2274,7 @@ SUBROUTINE FOBDIF
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC

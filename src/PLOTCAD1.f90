@@ -7,6 +7,7 @@ SUBROUTINE PPLOTT
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL PLOTTING PROCEDURES.
@@ -484,7 +485,7 @@ SUBROUTINE PPLOTT
 !     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
       GLSURF=-99
       DO I=NEWIMG,0,-1
-         IF(DABS(ALENS(3,I)).LE.1.0D10) GLSURF=I
+         IF(DABS(surf_thickness(I)).LE.1.0D10) GLSURF=I
       END DO
       IF(GLSURF.EQ.-99) THEN
          GLOBE=.FALSE.
@@ -666,7 +667,7 @@ SUBROUTINE PPLOTT
       IF(DF3.EQ.1) W3=1.0D0
 !       DEFAULT VALUES
       IF(DF1.EQ.1) THEN
-         IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+         IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
             W1=DBLE(1)
          ELSE
             W1=DBLE(0)
@@ -720,8 +721,8 @@ SUBROUTINE PPLOTT
       MDX=0.0D0
       MDY=0.0D0
       DO I=STASUR,STPSUR
-         IF(ALENS(127,I).NE.0.0D0) THEN
-            DO J=1,INT(ALENS(127,I))
+         IF(surf_array_parity(I) /= 0) THEN
+            DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)
                MDY=MULTCLAP(J,2,I)
                GAMGAM=MULTCLAP(J,3,I)
@@ -730,8 +731,8 @@ SUBROUTINE PPLOTT
          ELSE
             CALL PLTCLP(1,I,SFI,0.0D0,0.0D0,0.0D0)
          END IF
-         IF(ALENS(127,I).NE.0.0D0) THEN
-            DO J=1,INT(ALENS(127,I))
+         IF(surf_array_parity(I) /= 0) THEN
+            DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)
                MDY=MULTCLAP(J,2,I)
                GAMGAM=MULTCLAP(J,3,I)
@@ -776,7 +777,7 @@ SUBROUTINE PPLOTT
       IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
 !       DEFAULT VALUES
       IF(DF1.EQ.1) THEN
-         IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+         IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
             W1=DBLE(1)
          ELSE
             W1=DBLE(0)
@@ -828,8 +829,8 @@ SUBROUTINE PPLOTT
       MDX=0.0D0
       MDY=0.0D0
       DO I=STASUR,STPSUR
-         IF(ALENS(128,I).NE.0.0D0) THEN
-            DO J=1,INT(ALENS(128,I))
+         IF(surf_multi_cobs_flag(I) /= 0) THEN
+            DO J=1,surf_multi_cobs_flag(I)
                MDX=MULTCOBS(J,1,I)
                MDY=MULTCOBS(J,2,I)
                GAMGAM=MULTCOBS(J,3,I)
@@ -1482,6 +1483,7 @@ SUBROUTINE PLTSC5(XMINI,XMAXI,YMINI,YMAXI,JJ &
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -1597,33 +1599,33 @@ SUBROUTINE PLTSC5(XMINI,XMAXI,YMINI,YMAXI,JJ &
          END IF
          IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
             DO I=STASUR,STPSUR
-               IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+               IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                   TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                   TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                   TMAXI=TMAXIX
                   IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                ELSE
-                  IF(ALENS(9,I).EQ.1.0D0) THEN
-                     TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                     TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                  IF(surf_clap_type(I) == 1) THEN
+                     TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                     TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                      TMINI=-TMAXI
                      IF(TMAXI.GT.MAXI) MAXI=TMAXI
                      IF(TMINI.LT.MAXI) MINI=TMINI
                   END IF
-                  IF(ALENS(9,I).EQ.6.0D0) THEN
-                     TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                     TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                  IF(surf_clap_type(I) == 6) THEN
+                     TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                     TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                      TMINI=-TMAXI
                      IF(TMAXI.GT.MAXI) MAXI=TMAXI
                      IF(TMINI.LT.MAXI) MINI=TMINI
                   END IF
-                  IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                     TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                     TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                  IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                     TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                     TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                      TMINI=-TMAXI
@@ -1743,6 +1745,7 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -1840,33 +1843,33 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
             END IF
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+                  IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                      TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                   ELSE
-                     IF(ALENS(9,I).EQ.1.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 1) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).EQ.6.0D0) THEN
-                        TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 6) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
@@ -1880,8 +1883,8 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
 !     NOW CALCULATE THE AUTO SCALE FACTOR AND SET APPROPRIATE FLAGS
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  TMAXI=DABS(ALENS(10,I))
-                  TMINI=-DABS(ALENS(10,I))
+                  TMAXI=DABS(surf_clap_dim(I, 1))
+                  TMINI=-DABS(surf_clap_dim(I, 1))
                   IF(TMAXI.GT.MAXI) MAXI=TMAXI
                   IF(TMINI.LT.MAXI) MINI=TMINI
                END DO
@@ -2045,33 +2048,33 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
             END IF
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+                  IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                      TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                   ELSE
-                     IF(ALENS(9,I).EQ.1.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 1) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).EQ.6.0D0) THEN
-                        TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 6) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
@@ -2085,8 +2088,8 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
 !     NOW CALCULATE THE AUTO SCALE FACTOR AND SET APPROPRIATE FLAGS
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  TMAXI=DABS(ALENS(10,I))
-                  TMINI=-DABS(ALENS(10,I))
+                  TMAXI=DABS(surf_clap_dim(I, 1))
+                  TMINI=-DABS(surf_clap_dim(I, 1))
                   IF(TMAXI.GT.MAXI) MAXI=TMAXI
                   IF(TMINI.LT.MAXI) MINI=TMINI
                END DO
@@ -2208,6 +2211,7 @@ SUBROUTINE PLTSC3(XMINI,XMAXI,YMINI,YMAXI,JJ &
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -2288,33 +2292,33 @@ SUBROUTINE PLTSC3(XMINI,XMAXI,YMINI,YMAXI,JJ &
             MINI=XMINI
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+                  IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                      TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                   ELSE
-                     IF(ALENS(9,I).EQ.1.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 1) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).EQ.6.0D0) THEN
-                        TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 6) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
@@ -2477,33 +2481,33 @@ SUBROUTINE PLTSC3(XMINI,XMAXI,YMINI,YMAXI,JJ &
             END IF
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+                  IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                      TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                   ELSE
-                     IF(ALENS(9,I).EQ.1.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 1) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).EQ.6.0D0) THEN
-                        TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 6) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
@@ -2623,6 +2627,7 @@ SUBROUTINE PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -2718,33 +2723,33 @@ SUBROUTINE PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
             END IF
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+                  IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                      TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                   ELSE
-                     IF(ALENS(9,I).EQ.1.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 1) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).EQ.6.0D0) THEN
-                        TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 6) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
@@ -2868,33 +2873,33 @@ SUBROUTINE PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
             END IF
             IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
                DO I=STASUR,STPSUR
-                  IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+                  IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                      TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                   ELSE
-                     IF(ALENS(9,I).EQ.1.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 1) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).EQ.6.0D0) THEN
-                        TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) == 6) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
                         IF(TMAXI.GT.MAXI) MAXI=TMAXI
                         IF(TMINI.LT.MAXI) MINI=TMINI
                      END IF
-                     IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                        TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                        TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                     IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                        TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                        TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                         TMAXI=TMAXIX
                         IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                         TMINI=-TMAXI
@@ -2977,6 +2982,7 @@ SUBROUTINE PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR PLOT RAY
@@ -3066,33 +3072,33 @@ SUBROUTINE PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
          END IF
          IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
             DO I=STASUR,STPSUR
-               IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(9,I).EQ.5.0D0) THEN
+               IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
                   TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                   TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                   TMAXI=TMAXIX
                   IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                ELSE
-                  IF(ALENS(9,I).EQ.1.0D0) THEN
-                     TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                     TMAXIX=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+                  IF(surf_clap_type(I) == 1) THEN
+                     TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                     TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                      TMINI=-TMAXI
                      IF(TMAXI.GT.MAXI) MAXI=TMAXI
                      IF(TMINI.LT.MAXI) MINI=TMINI
                   END IF
-                  IF(ALENS(9,I).EQ.6.0D0) THEN
-                     TMAXIY=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-                     TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                  IF(surf_clap_type(I) == 6) THEN
+                     TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+                     TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                      TMINI=-TMAXI
                      IF(TMAXI.GT.MAXI) MAXI=TMAXI
                      IF(TMINI.LT.MAXI) MINI=TMINI
                   END IF
-                  IF(ALENS(9,I).GE.2.0D0.AND.ALENS(9,I).LE.4.0D0) THEN
-                     TMAXIY=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-                     TMAXIX=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+                  IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+                     TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+                     TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
                      TMAXI=TMAXIX
                      IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
                      TMINI=-TMAXI

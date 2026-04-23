@@ -34,6 +34,7 @@ SUBROUTINE AB357
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER IAB,CW,SF,I,J
@@ -66,8 +67,8 @@ SUBROUTINE AB357
       IF(CW.GE.6.AND.CW.LE.10)&
       &CW= CW+65
 !
-!       REFRACTIVE INDICES ARE IN ALENS(46,SURF) TO
-!       ALENS(50,SURF)
+!       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
+!       surf_refractive_index(SURF, 5)
 !
 !       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
 !       INDEX AT:
@@ -92,12 +93,12 @@ SUBROUTINE AB357
       END IF
 !
       DO 10 I=0,INT(SYSTEM(20))
-         IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-            CV=ALENS(43,I)/2.0D0
+         IF(surf_curvature(I).EQ.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+            CV=surf_asphere_coeff(I, 2)/2.0D0
             CC=-1.0D0
          ELSE
-            CV=ALENS(1,I)
-            CC=ALENS(2,I)
+            CV=surf_curvature(I)
+            CC=surf_conic(I)
          END IF
 !
 !       AT THE OBJECT ALL IS 0.0D0
@@ -119,14 +120,14 @@ SUBROUTINE AB357
 !       CALCULATE C1,C2,C3,C1BAR AND C2BAR FOR ASPHERIC TERMS
 !
 !       CHECK FOR X-TORICS
-         IF(ALENS(23,I).NE.2.0D0) THEN
+         IF(surf_toric_flag(I) /= 2) THEN
 !       SURFACE IS NOT X-TORIC
-            C1=(8.0D0*ALENS(4,I))+(CC*(CV**3))
+            C1=(8.0D0*surf_asphere_coeff(I, 4))+(CC*(CV**3))
             C21=((CV**3)*CC*(CC &
             &+2.0D0))-(2.0D0*C1)
-            C22=(0.25D0*(CV**2)*C21)+(4.0D0*ALENS(5,I))
+            C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 5))
             C2=3.0D0*C22
-            CF16=16.0D0*ALENS(6,I)
+            CF16=16.0D0*surf_asphere_coeff(I, 6)
             C31=(CC**2)+(3.0D0*CC)+3.0D0
             C32=((CV**3)*CC*C31)-(3.0D0*C1)
             C33=(5.0D0*(CV**2)*C32)-(12.0D0*C2)
@@ -134,18 +135,18 @@ SUBROUTINE AB357
             C3=CF16+(0.125D0*C34)
          ELSE
 !       SURFACE IS X-TORIC
-            C1=(8.0D0*((ALENS(37,I)**2)*ALENS(4,I))+&
-            &(ALENS(41,I)*(ALENS(24,I)**3)))
-            C21=((ALENS(24,I)**3)*ALENS(41,I)*(ALENS(41,I)&
+            C1=(8.0D0*((surf_anamorphic_coeff(I, 4)**2)*surf_asphere_coeff(I, 4))+&
+            &(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
+            C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)&
             &+2.0D0))-(2.0D0*C1)
-            C22=(0.25D0*(ALENS(24,I)**2)*C21)+(4.0D0*(ALENS(5,I)*&
-            &(ALENS(38,I)**3)))
+            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 5)*&
+            &(surf_anamorphic_coeff(I, 6)**3)))
             C2=3.0D0*C22
-            CF16=16.0D0*ALENS(6,I)*(ALENS(39,I)**4)
-            C31=(ALENS(41,I)**2)+(3.0D0*ALENS(41,I))+3.0D0
-            C32=((ALENS(24,I)**3)*ALENS(41,I)*C31)-(3.0D0*C1)
-            C33=(5.0D0*(ALENS(24,I)**2)*C32)-(12.0D0*C2)
-            C34=(-6.0D0*ALENS(24,I)*(C1**2))+((ALENS(24,I)**2)*C33)
+            CF16=16.0D0*surf_asphere_coeff(I, 6)*(surf_anamorphic_coeff(I, 8)**4)
+            C31=(surf_anamorphic_conic(I)**2)+(3.0D0*surf_anamorphic_conic(I))+3.0D0
+            C32=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*C31)-(3.0D0*C1)
+            C33=(5.0D0*(surf_toric_curvature(I)**2)*C32)-(12.0D0*C2)
+            C34=(-6.0D0*surf_toric_curvature(I)*(C1**2))+((surf_toric_curvature(I)**2)*C33)
             C3=CF16+(0.125D0*C34)
          END IF
          C1BAR=C1*(N-J_NP)
@@ -200,7 +201,7 @@ SUBROUTINE AB357
 !
 !       THIRD ORDER PETZVAL SUM
 !       CHECK FOR X-TORICS
-         IF(ALENS(23,I).NE.2.0D0) THEN
+         IF(surf_toric_flag(I) /= 2) THEN
 !       NOT X-TORIC
             PIE=(((INV**2)*(CV*(K-1.0D0)))/N)
             PIECV=PIE/(INV**2)
@@ -211,7 +212,7 @@ SUBROUTINE AB357
             IF(DABS(MAB3(5,I)).LT.1.0D-15) MAB3(5,I)=0.0D0
          ELSE
 !       X-TORIC
-            PIE=(((INV**2)*(ALENS(24,I)*(K-1.0D0)))/N)
+            PIE=(((INV**2)*(surf_toric_curvature(I)*(K-1.0D0)))/N)
             PIECV=PIE/(INV**2)
             APIE=0.0D0
             MAB3(11,I)=PIECV
@@ -351,7 +352,7 @@ SUBROUTINE AB357
 !       NOW JO,JOBAR,ALPHA,BETA,GAMMA,LAMBDA,MU,NU
 !
 !       CHECK FOR X-TORICS
-         IF(ALENS(23,I).NE.2.0D0) THEN
+         IF(surf_toric_flag(I) /= 2) THEN
 !
             JO=(C2BAR*PXTRAY(1,I))-(0.25D0*CV*C1BAR*&
             &((3.0D0*PXTRAY(4,I))-(5.0D0*PXTRAY(2,I))))
@@ -360,9 +361,9 @@ SUBROUTINE AB357
 !
          ELSE
 !       X-TORIC PRESENT
-            JO=(C2BAR*PXTRAY(1,I))-(0.25D0*ALENS(24,I)*C1BAR*&
+            JO=(C2BAR*PXTRAY(1,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
             &((3.0D0*PXTRAY(4,I))-(5.0D0*PXTRAY(2,I))))
-            JOBAR=(C2BAR*PXTRAY(5,I))-(0.25D0*ALENS(24,I)*C1BAR*&
+            JOBAR=(C2BAR*PXTRAY(5,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
             &((3.0D0*PXTRAY(8,I))-(5.0D0*PXTRAY(6,I))))
          END IF
 !
@@ -505,12 +506,12 @@ SUBROUTINE AB357
 !
          B71=((0.125D0*SI*PXTRAY(3,I))*((2.0D0*PXTRAY(2,I))&
          &-(5.0D0*PXTRAY(2,(I-1)))))/N
-         IF(ALENS(23,I).NE.2.0D0) THEN
+         IF(surf_toric_flag(I) /= 2) THEN
 !       NO X-TORIC
             B72=(10.0D0*(WI**2))+(B71*CV)
          ELSE
 !       X-TORIC
-            B72=(10.0D0*(WI**2))+(B71*ALENS(24,I))
+            B72=(10.0D0*(WI**2))+(B71*surf_toric_curvature(I))
          END IF
          SLH=(SI*(PXTRAY(3,I)**2))*B72
 ! NOW FOR THE ASPHERIC PART
@@ -518,23 +519,23 @@ SUBROUTINE AB357
 !       GAMMA1
          GAMMA1=C1*(PXTRAY(1,I)**2)
 !       CHECK IF X-TORIC
-         IF(ALENS(23,I).NE.2.0D0) THEN
+         IF(surf_toric_flag(I) /= 2) THEN
             GAMMA2=(PXTRAY(1,I)**3)*((C2*PXTRAY(1,I))+&
             &(0.25D0*CV*C1*(PXTRAY(3,I)+&
             &(3.0D0*PXTRAY(2,(I-1))))))
          ELSE
             GAMMA2=(PXTRAY(1,I)**3)*((C2*PXTRAY(1,I))+&
-            &(0.25D0*ALENS(24,I)*C1*(PXTRAY(3,I)+&
+            &(0.25D0*surf_toric_curvature(I)*C1*(PXTRAY(3,I)+&
             &(3.0D0*PXTRAY(2,(I-1))))))
          END IF
          G32=C3*(PXTRAY(1,I)**2)
          G33=((C2*PXTRAY(1,I)*(PXTRAY(3,I)+&
          &(5.0D0*PXTRAY(2,(I-1)))))/3.0D0)
 !       CHECK FOR X-TORIC
-         IF(ALENS(23,I).NE.2.0D0)THEN
+         IF(surf_toric_flag(I) /= 2)THEN
             G34=CV
          ELSE
-            G34=ALENS(24,I)
+            G34=surf_toric_curvature(I)
          END IF
          G36=(0.125D0*C1)*&
          &((PXTRAY(3,I)*(PXTRAY(3,I)+(5.0D0*PXTRAY(2,(I-1)))))-&
@@ -557,14 +558,14 @@ SUBROUTINE AB357
          D34=0.125D0*C1
          D35=GAMMA1*PXTRAY(1,I)*(1.0D0+(2.0D0*K*(K-1.0D0)))
 !       CHECK FOR X-TORIC
-         IF(ALENS(23,I).NE.2.0D0) THEN
+         IF(surf_toric_flag(I) /= 2) THEN
             D36=CV*PXTRAY(1,I)
             D37=4.0D0*CV*PXTRAY(1,I)*(PXTRAY(3,I)+&
             &PXTRAY(2,(I-1)))
          ELSE
 !       X-TORIC
-            D36=ALENS(24,I)*PXTRAY(1,I)
-            D37=4.0D0*ALENS(24,I)*PXTRAY(1,I)*(PXTRAY(3,I)+&
+            D36=surf_toric_curvature(I)*PXTRAY(1,I)
+            D37=4.0D0*surf_toric_curvature(I)*PXTRAY(1,I)*(PXTRAY(3,I)+&
             &PXTRAY(2,(I-1)))
          END IF
          D38=PXTRAY(4,I)*(5.0D0*((2.0D0*PXTRAY(2,I))+PXTRAY(3,I))&
@@ -801,8 +802,8 @@ SUBROUTINE AB357
       IF(CW.GE.6.AND.CW.LE.10)&
       &CW= CW+65
 !
-!       REFRACTIVE INDICES ARE IN ALENS(46,SURF) TO
-!       ALENS(50,SURF)
+!       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
+!       surf_refractive_index(SURF, 5)
 !
 !       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
 !       INDEX AT:
@@ -824,12 +825,12 @@ SUBROUTINE AB357
       END IF
 !
       DO 15 I=0,INT(SYSTEM(20))
-         IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-            CV=ALENS(43,I)/2.0D0
+         IF(surf_curvature(I).EQ.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+            CV=surf_asphere_coeff(I, 2)/2.0D0
             CC=-1.0D0
          ELSE
-            CV=ALENS(1,I)
-            CC=ALENS(2,I)
+            CV=surf_curvature(I)
+            CC=surf_conic(I)
          END IF
 !
 !       AT THE OBJECT ALL IS 0.0
@@ -850,14 +851,14 @@ SUBROUTINE AB357
 !       CALCULATE C1,C2,C3,C1BAR AND C2BAR FOR ASPHERIC TERMS
 !
 !       CHECK FOR Y-TORICS
-         IF(ALENS(23,I).NE.1.0D0) THEN
+         IF(surf_toric_flag(I) /= 1) THEN
 !       SURFACE IS NOT Y-TORIC
-            C1=(8.0D0*ALENS(4,I))+(CC*(CV**3))
+            C1=(8.0D0*surf_asphere_coeff(I, 4))+(CC*(CV**3))
             C21=((CV**3)*CC*(CC+2.0D0))&
             &-(2.0D0*C1)
-            C22=(0.25D0*(CV**2)*C21)+(4.0D0*ALENS(5,I))
+            C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 5))
             C2=3.0D0*C22
-            CF16=16.0D0*ALENS(6,I)
+            CF16=16.0D0*surf_asphere_coeff(I, 6)
             C31=(CC**2)+(3.0D0*CC)+3.0D0
             C32=((CV**3)*CC*C31)-(3.0D0*C1)
             C33=(5.0D0*(CV**2)*C32)-(12.0D0*C2)
@@ -865,18 +866,18 @@ SUBROUTINE AB357
             C3=CF16+(0.125D0*C34)
          ELSE
 !       SURFACE IS Y-TORIC
-            C1=(8.0D0*((ALENS(37,I)**2)*ALENS(4,I))+&
-            &(ALENS(41,I)*(ALENS(24,I)**3)))
-            C21=((ALENS(24,I)**3)*ALENS(41,I)*(ALENS(41,I)+2.0D0))&
+            C1=(8.0D0*((surf_anamorphic_coeff(I, 4)**2)*surf_asphere_coeff(I, 4))+&
+            &(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
+            C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)+2.0D0))&
             &-(2.0D0*C1)
-            C22=(0.25D0*(ALENS(24,I)**2)*C21)+(4.0D0*(ALENS(5,I)*&
-            &(ALENS(38,I)**3)))
+            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 5)*&
+            &(surf_anamorphic_coeff(I, 6)**3)))
             C2=3.0D0*C22
-            CF16=16.0D0*ALENS(6,I)*(ALENS(39,I)**4)
-            C31=(ALENS(41,I)**2)+(3.0D0*ALENS(41,I))+3.0D0
-            C32=((ALENS(24,I)**3)*ALENS(41,I)*C31)-(3.0D0*C1)
-            C33=(5.0D0*(ALENS(24,I)**2)*C32)-(12.0D0*C2)
-            C34=(-6.0D0*ALENS(24,I)*(C1**2))+((ALENS(24,I)**2)*C33)
+            CF16=16.0D0*surf_asphere_coeff(I, 6)*(surf_anamorphic_coeff(I, 8)**4)
+            C31=(surf_anamorphic_conic(I)**2)+(3.0D0*surf_anamorphic_conic(I))+3.0D0
+            C32=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*C31)-(3.0D0*C1)
+            C33=(5.0D0*(surf_toric_curvature(I)**2)*C32)-(12.0D0*C2)
+            C34=(-6.0D0*surf_toric_curvature(I)*(C1**2))+((surf_toric_curvature(I)**2)*C33)
             C3=CF16+(0.125D0*C34)
          END IF
          C1BAR=C1*(N-J_NP)
@@ -918,7 +919,7 @@ SUBROUTINE AB357
 !
 !       THIRD ORDER PETZVAL SUM
 !       CHECK FOR Y-TORICS
-         IF(ALENS(23,I).NE.1.0D0) THEN
+         IF(surf_toric_flag(I) /= 1) THEN
 !       NOT Y-TORIC
             PIE=(((INV**2)*(CV*(K-1.0D0)))/N)
             PIECV=PIE/(INV**2)
@@ -928,7 +929,7 @@ SUBROUTINE AB357
             IF(DABS(XMAB3(5,I)).LT.1.0D-15) XMAB3(5,I)=0.0D0
          ELSE
 !       Y-TORIC
-            PIE=(((INV**2)*(ALENS(24,I)*(K-1.0D0)))/N)
+            PIE=(((INV**2)*(surf_toric_curvature(I)*(K-1.0D0)))/N)
             PIECV=PIE/(INV**2)
             APIE=0.0D0
             XMAB3(11,I)=PIECV
@@ -1065,7 +1066,7 @@ SUBROUTINE AB357
 !       NOW JO,JOBAR,ALPHA,BETA,GAMMA,LAMBDA,MU,NU
 !
 !       CHECK FOR Y-TORICS
-         IF(ALENS(23,I).NE.1.0D0) THEN
+         IF(surf_toric_flag(I) /= 1) THEN
 !
             JO=(C2BAR*PXTRAX(1,I))-(0.25D0*CV*C1BAR*&
             &((3.0D0*PXTRAX(4,I))-(5.0D0*PXTRAX(2,I))))
@@ -1074,9 +1075,9 @@ SUBROUTINE AB357
 !
          ELSE
 !       Y-TORIC PRESENT
-            JO=(C2BAR*PXTRAX(1,I))-(0.25D0*ALENS(24,I)*C1BAR*&
+            JO=(C2BAR*PXTRAX(1,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
             &((3.0D0*PXTRAX(4,I))-(5.0D0*PXTRAX(2,I))))
-            JOBAR=(C2BAR*PXTRAX(5,I))-(0.25D0*ALENS(24,I)*C1BAR*&
+            JOBAR=(C2BAR*PXTRAX(5,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
             &((3.0D0*PXTRAX(8,I))-(5.0D0*PXTRAX(6,I))))
          END IF
 !
@@ -1219,12 +1220,12 @@ SUBROUTINE AB357
 !
          B71=((0.125D0*SI*PXTRAX(3,I))*((2.0D0*PXTRAX(2,I))&
          &-(5.0D0*PXTRAX(2,(I-1)))))/N
-         IF(ALENS(23,I).NE.1.0D0) THEN
+         IF(surf_toric_flag(I) /= 1) THEN
 !       NO Y-TORIC
             B72=(10.0D0*(WI**2))+(B71*CV)
          ELSE
 !       Y-TORIC
-            B72=(10.0D0*(WI**2))+(B71*ALENS(24,I))
+            B72=(10.0D0*(WI**2))+(B71*surf_toric_curvature(I))
          END IF
          SLH=(SI*(PXTRAX(3,I)**2))*B72
 ! NOW FOR THE ASPHERIC PART
@@ -1232,23 +1233,23 @@ SUBROUTINE AB357
 !       GAMMA1
          GAMMA1=C1*(PXTRAX(1,I)**2)
 !       CHECK IF Y-TORIC
-         IF(ALENS(23,I).NE.1.0D0) THEN
+         IF(surf_toric_flag(I) /= 1) THEN
             GAMMA2=(PXTRAX(1,I)**3)*((C2*PXTRAX(1,I))+&
             &(0.25D0*CV*C1*(PXTRAX(3,I)+(3.0D0*&
             &PXTRAX(2,(I-1))))))
          ELSE
             GAMMA2=(PXTRAX(1,I)**3)*((C2*PXTRAX(1,I))+&
-            &(0.25D0*ALENS(24,I)*C1*(PXTRAX(3,I)+(3.0D0*&
+            &(0.25D0*surf_toric_curvature(I)*C1*(PXTRAX(3,I)+(3.0D0*&
             &PXTRAX(2,(I-1))))))
          END IF
          G32=C3*(PXTRAX(1,I)**2)
          G33=((C2*PXTRAX(1,I)*(PXTRAX(3,I)+&
          &(5.0D0*PXTRAX(2,(I-1)))))/3.0D0)
 !       CHECK FOR Y-TORIC
-         IF(ALENS(23,I).NE.1.0D0)THEN
+         IF(surf_toric_flag(I) /= 1)THEN
             G34=CV
          ELSE
-            G34=ALENS(24,I)
+            G34=surf_toric_curvature(I)
          END IF
          G36=(0.125D0*C1)*&
          &((PXTRAX(3,I)*(PXTRAX(3,I)+(5.0D0*PXTRAX(2,(I-1)))))-&
@@ -1271,14 +1272,14 @@ SUBROUTINE AB357
          D34=0.125D0*C1
          D35=GAMMA1*PXTRAX(1,I)*(1.0D0+(2.0D0*K*(K-1.0D0)))
 !       CHECK FOR Y-TORIC
-         IF(ALENS(23,I).NE.1.0D0) THEN
+         IF(surf_toric_flag(I) /= 1) THEN
             D36=CV*PXTRAX(1,I)
             D37=4.0D0*CV*PXTRAX(1,I)*(PXTRAX(3,I)+&
             &PXTRAX(2,(I-1)))
          ELSE
 !       Y-TORIC
-            D36=ALENS(24,I)*PXTRAX(1,I)
-            D37=4.0D0*ALENS(24,I)*PXTRAX(1,I)*(PXTRAX(3,I)+&
+            D36=surf_toric_curvature(I)*PXTRAX(1,I)
+            D37=4.0D0*surf_toric_curvature(I)*PXTRAX(1,I)*(PXTRAX(3,I)+&
             &PXTRAX(2,(I-1)))
          END IF
          D38=PXTRAX(4,I)*(5.0D0*((2.0D0*PXTRAX(2,I))+PXTRAX(3,I))&
