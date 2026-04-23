@@ -454,6 +454,7 @@ SUBROUTINE OPDOUT
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
 !     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION TO AN ASCII FILE
@@ -508,44 +509,43 @@ SUBROUTINE OPDOUT
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !
 !       IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
 !
    ELSE
@@ -617,6 +617,7 @@ SUBROUTINE WAMAP
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -681,43 +682,42 @@ SUBROUTINE WAMAP
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
 !
    ELSE
@@ -772,6 +772,7 @@ SUBROUTINE AMAP
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -836,43 +837,42 @@ SUBROUTINE AMAP
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
 !
    ELSE
@@ -1534,6 +1534,7 @@ SUBROUTINE OPDLOD
    use DATSP1
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -1635,43 +1636,42 @@ SUBROUTINE OPDLOD
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
 !
    ELSE
@@ -1865,6 +1865,7 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -1921,43 +1922,42 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
 !
    ELSE
@@ -2221,6 +2221,7 @@ SUBROUTINE OPDLIS
    use DATSP1
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPDLIS. THIS IS THE SUBROUTINE WHICH
@@ -2271,43 +2272,42 @@ SUBROUTINE OPDLIS
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
    ELSE
 !       NO CLAP ON REF SURF.
@@ -3446,6 +3446,7 @@ SUBROUTINE OPDLOD2
    use DATSP1
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -3508,43 +3509,42 @@ SUBROUTINE OPDLOD2
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
-   &.LE.5.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         IF(ALENS(10,NEWREF).LE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+   IF(surf_clap_type(NEWREF) >= 1.AND.surf_clap_type(NEWREF) <= 5.AND.surf_array_parity(NEWREF) == 0) THEN
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         IF(surf_clap_dim(NEWREF, 1).LE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=ALENS(10,NEWREF)
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=surf_clap_dim(NEWREF, 1)
          ELSE
-            REFHT=ALENS(11,NEWREF)
+            REFHT=surf_clap_dim(NEWREF, 2)
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         REFHT=DSQRT((ALENS(10,NEWREF)**2)+(ALENS(11,NEWREF)**2))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         REFHT=DSQRT((surf_clap_dim(NEWREF, 1)**2)+(surf_clap_dim(NEWREF, 2)**2))
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=DABS(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 1))
       END IF
 !        IPOLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-         REFHT=DABS(ALENS(14,NEWREF))
+      IF(surf_clap_type(NEWREF) == 6) THEN
+         REFHT=DABS(surf_clap_dim(NEWREF, 5))
       END IF
 !
    ELSE
