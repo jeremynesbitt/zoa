@@ -42,7 +42,28 @@ module mod_surface
         surf_toric_flag,      set_surf_toric_flag,       &
         surf_toric_curvature, set_surf_toric_curvature,  &
         surf_pickup_count,    set_surf_pickup_count,     &
-        surf_solve_flag,      set_surf_solve_flag
+        surf_solve_flag,      set_surf_solve_flag,       &
+        surf_anamorphic_flag,   set_surf_anamorphic_flag,  &
+        surf_anamorphic_coeff,  set_surf_anamorphic_coeff, &
+        surf_anamorphic_conic,  set_surf_anamorphic_conic, &
+        surf_label_flag,        set_surf_label_flag,       &
+        surf_ret_surf_num,      set_surf_ret_surf_num,     &
+        surf_inr_value,         set_surf_inr_value,        &
+        surf_tilt_return_flag,  set_surf_tilt_return_flag, &
+        surf_global_dx,         set_surf_global_dx,        &
+        surf_global_dy,         set_surf_global_dy,        &
+        surf_global_dz,         set_surf_global_dz,        &
+        surf_global_alpha,      set_surf_global_alpha,     &
+        surf_global_beta,       set_surf_global_beta,      &
+        surf_global_gamma,      set_surf_global_gamma,     &
+        surf_mirror_thickness,  set_surf_mirror_thickness, &
+        surf_ideal_efl,         set_surf_ideal_efl,        &
+        surf_ccr_flag,          set_surf_ccr_flag,         &
+        surf_multi_clap_flag,   set_surf_multi_clap_flag,  &
+        surf_multi_cobs_flag,   set_surf_multi_cobs_flag,  &
+        surf_array_dx,          set_surf_array_dx,         &
+        surf_array_dy,          set_surf_array_dy,         &
+        surf_array_parity,      set_surf_array_parity
 
 contains
 
