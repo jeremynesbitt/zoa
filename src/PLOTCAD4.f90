@@ -558,6 +558,7 @@ SUBROUTINE CAPFIX
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE BEST AND NOTILT COMMANDS
@@ -662,42 +663,42 @@ SUBROUTINE CAPFIX
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
+   IF(surf_clap_type(NEWREF) >= 1.AND.abs(surf_clap_type(NEWREF))&
    &.LE.5.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         REFHT=(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         REFHT=(surf_clap_dim(NEWREF, 1))
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=(ALENS(11,NEWREF))
+            REFHT=(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=(ALENS(11,NEWREF))
+            REFHT=(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=(ALENS(11,NEWREF))
+            REFHT=(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=(surf_clap_dim(NEWREF, 1))
       END IF
 !
    ELSE
@@ -1373,6 +1374,7 @@ SUBROUTINE PLTCAPFN
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE PLOT CAPFNOPD AND PLOT CAPFNAPD COMMANDS
@@ -1495,42 +1497,42 @@ SUBROUTINE PLTCAPFN
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
+   IF(surf_clap_type(NEWREF) >= 1.AND.abs(surf_clap_type(NEWREF))&
    &.LE.5.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=SNGL(ALENS(11,NEWREF))
+            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=SNGL(ALENS(11,NEWREF))
+            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=SNGL(ALENS(11,NEWREF))
+            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
       END IF
 !
    ELSE
@@ -4995,6 +4997,7 @@ SUBROUTINE PLTCAPCO(IIU)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE PLOTCON CAPFNOPD AND
@@ -5092,42 +5095,42 @@ SUBROUTINE PLTCAPCO(IIU)
 !
 !     DETERMINE THE REFERNCE APERTURE HEIGHT
 !     OF THE REF SURFACE COORDINATES
-   IF(DABS(ALENS(9,NEWREF)).GE.1.0D0.AND.DABS(ALENS(9,NEWREF))&
+   IF(surf_clap_type(NEWREF) >= 1.AND.abs(surf_clap_type(NEWREF))&
    &.LE.5.0D0) THEN
-      IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-         REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 1) THEN
+         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
       END IF
 !        RECT CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 2) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=SNGL(ALENS(11,NEWREF))
+            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        ELIP CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 3) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=SNGL(ALENS(11,NEWREF))
+            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        RCTK CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-         IF(ALENS(10,NEWREF).GE.ALENS(11,NEWREF)) THEN
-            REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 4) THEN
+         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
+            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
          ELSE
-            REFHT=SNGL(ALENS(11,NEWREF))
+            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
          END IF
       END IF
 !        POLY CLAP
 !
-      IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-         REFHT=SNGL(ALENS(10,NEWREF))
+      IF(surf_clap_type(NEWREF) == 5) THEN
+         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
       END IF
 !
    ELSE
