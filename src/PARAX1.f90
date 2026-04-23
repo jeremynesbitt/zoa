@@ -61,8 +61,8 @@ SUBROUTINE PRCOL
 !       COLY(1,1)
       COLY(1,1)=PXTRAY(1,1)
 !       COLY(2,1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 2) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -80,8 +80,8 @@ SUBROUTINE PRCOL
       &(ALENS(WWVN,1)))*COLY(2,0)
 !
 !       COLY(3,1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 2) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -100,8 +100,8 @@ SUBROUTINE PRCOL
       COLY(5,1)=PXTRAY(5,1)
 !
 !       COLY(6,1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 2) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -119,8 +119,8 @@ SUBROUTINE PRCOL
       &(ALENS(WWVN,1)))*COLY(6,0)
 !
 !       COLY(7,1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 2) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -146,8 +146,8 @@ SUBROUTINE PRCOL
          COLY(1,L)=COLY(1,(L-1))+(surf_thickness(L-1)*COLY(2,(L-1)))
 !******************************************************************************
 !       NOW CALCULATE COLY(2,L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 2) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -165,8 +165,8 @@ SUBROUTINE PRCOL
          &(ALENS(WWVN,L)))*COLY(2,(L-1))
 !*****************************************************************
 !       COLY(3,L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 2) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -186,8 +186,8 @@ SUBROUTINE PRCOL
          COLY(5,L)=COLY(5,(L-1))+(surf_thickness(L-1)*COLY(6,(L-1)))
 !************************************************************************
 !       COLY(6,L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 2) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -205,8 +205,8 @@ SUBROUTINE PRCOL
          &(ALENS(WWVN,L)))*COLY(6,(L-1))
 !**************************************************************
 !       COLY(7,L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 2) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -252,8 +252,8 @@ SUBROUTINE PRCOL
 !       COLX(1,1)
       COLX(1,1)=PXTRAX(1,1)
 !       COLX(2,1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 1) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -271,8 +271,8 @@ SUBROUTINE PRCOL
       &(ALENS(WWVN,1)))*COLX(2,0)
 !
 !       COLX(3,1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 1) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -291,8 +291,8 @@ SUBROUTINE PRCOL
       COLX(5,1)=PXTRAX(5,1)
 !
 !       COLX(6,1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 1) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -310,8 +310,8 @@ SUBROUTINE PRCOL
       &(ALENS(WWVN,1)))*COLX(6,0)
 !
 !       COLX(7,1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
       IF(surf_toric_flag(1) == 1) THEN
          CURV=surf_toric_curvature(1)
       ELSE
@@ -337,8 +337,8 @@ SUBROUTINE PRCOL
          COLX(1,L)=COLX(1,(L-1))+(surf_thickness(L-1)*COLX(2,(L-1)))
 !******************************************************************************
 !       NOW CALCULATE COLX(2,L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 1) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -356,8 +356,8 @@ SUBROUTINE PRCOL
          &(ALENS(WWVN,L)))*COLX(2,(L-1))
 !*****************************************************************
 !       COLX(3,L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 1) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -377,8 +377,8 @@ SUBROUTINE PRCOL
          COLX(5,L)=COLX(5,(L-1))+(surf_thickness(L-1)*COLX(6,(L-1)))
 !************************************************************************
 !       COLX(6,L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 1) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -396,8 +396,8 @@ SUBROUTINE PRCOL
          &(ALENS(WWVN,L)))*COLX(6,(L-1))
 !**************************************************************
 !       COLX(7,L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(L) == 1) THEN
             CURV=surf_toric_curvature(L)
          ELSE
@@ -694,8 +694,8 @@ SUBROUTINE PRTRA_OLD
 
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 !
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -718,8 +718,8 @@ SUBROUTINE PRTRA_OLD
 
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -739,8 +739,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(5,1)=CON
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -762,8 +762,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -801,8 +801,8 @@ SUBROUTINE PRTRA_OLD
                PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -824,8 +824,8 @@ SUBROUTINE PRTRA_OLD
                &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -845,8 +845,8 @@ SUBROUTINE PRTRA_OLD
                PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -868,8 +868,8 @@ SUBROUTINE PRTRA_OLD
                &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -979,8 +979,8 @@ SUBROUTINE PRTRA_OLD
          !PXTRAY(1,1)=(SYSTEM(12))
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1001,8 +1001,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1022,8 +1022,8 @@ SUBROUTINE PRTRA_OLD
          PXTRAY(5,1)=SYSTEM(15)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1044,8 +1044,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1077,8 +1077,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1100,8 +1100,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1121,8 +1121,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1144,8 +1144,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1205,8 +1205,8 @@ SUBROUTINE PRTRA_OLD
 !*******************************************************************************
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1228,8 +1228,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1253,8 +1253,8 @@ SUBROUTINE PRTRA_OLD
 !************************************************************************
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1276,8 +1276,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1379,8 +1379,8 @@ SUBROUTINE PRTRA_OLD
          !PXTRAY(1,1)=(SYSTEM(12))
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1402,8 +1402,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1424,8 +1424,8 @@ SUBROUTINE PRTRA_OLD
          IF(SYSTEM(63).EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1447,8 +1447,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -1501,8 +1501,8 @@ SUBROUTINE PRTRA_OLD
 !*******************************************************************************
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1524,8 +1524,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1550,8 +1550,8 @@ SUBROUTINE PRTRA_OLD
 !************************************************************************
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1573,8 +1573,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -1746,8 +1746,8 @@ SUBROUTINE PRTRA_OLD
 
 !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
 !
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -1770,8 +1770,8 @@ SUBROUTINE PRTRA_OLD
 
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -1791,8 +1791,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(5,1)=CON
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -1814,8 +1814,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -1847,8 +1847,8 @@ SUBROUTINE PRTRA_OLD
                PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -1870,8 +1870,8 @@ SUBROUTINE PRTRA_OLD
                &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -1891,8 +1891,8 @@ SUBROUTINE PRTRA_OLD
                PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -1914,8 +1914,8 @@ SUBROUTINE PRTRA_OLD
                &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -2006,8 +2006,8 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(1,1)=(SYS13)
 !
 !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2028,8 +2028,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2049,8 +2049,8 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(5,1)=SYSTEM(17)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2071,8 +2071,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2104,8 +2104,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2127,8 +2127,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2148,8 +2148,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2171,8 +2171,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2233,8 +2233,8 @@ SUBROUTINE PRTRA_OLD
 !*******************************************************************************
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2256,8 +2256,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2281,8 +2281,8 @@ SUBROUTINE PRTRA_OLD
 !************************************************************************
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2304,8 +2304,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2396,8 +2396,8 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(1,1)=(SYS13)
 !
 !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2419,8 +2419,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2441,8 +2441,8 @@ SUBROUTINE PRTRA_OLD
          IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2464,8 +2464,8 @@ SUBROUTINE PRTRA_OLD
          &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -2518,8 +2518,8 @@ SUBROUTINE PRTRA_OLD
 !*******************************************************************************
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2541,8 +2541,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2567,8 +2567,8 @@ SUBROUTINE PRTRA_OLD
 !************************************************************************
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -2590,8 +2590,8 @@ SUBROUTINE PRTRA_OLD
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3335,8 +3335,8 @@ SUBROUTINE TR
 
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 !
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -3359,8 +3359,8 @@ SUBROUTINE TR
 
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -3380,8 +3380,8 @@ SUBROUTINE TR
             PXTRAY(5,1)=CON
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -3403,8 +3403,8 @@ SUBROUTINE TR
             &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 2) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -3432,8 +3432,8 @@ SUBROUTINE TR
                PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -3456,8 +3456,8 @@ SUBROUTINE TR
 
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -3477,8 +3477,8 @@ SUBROUTINE TR
                PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -3500,8 +3500,8 @@ SUBROUTINE TR
                &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 2) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -3583,8 +3583,8 @@ SUBROUTINE TR
          PXTRAY(1,1)=(SYSTEM(12))
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -3605,8 +3605,8 @@ SUBROUTINE TR
          &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -3626,8 +3626,8 @@ SUBROUTINE TR
          PXTRAY(5,1)=SYSTEM(15)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -3648,8 +3648,8 @@ SUBROUTINE TR
          &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -3677,8 +3677,8 @@ SUBROUTINE TR
             PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3700,8 +3700,8 @@ SUBROUTINE TR
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3721,8 +3721,8 @@ SUBROUTINE TR
             PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3744,8 +3744,8 @@ SUBROUTINE TR
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3790,8 +3790,8 @@ SUBROUTINE TR
 !**********************************************************************************
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3813,8 +3813,8 @@ SUBROUTINE TR
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3838,8 +3838,8 @@ SUBROUTINE TR
 !************************************************************************
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3861,8 +3861,8 @@ SUBROUTINE TR
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -3935,8 +3935,8 @@ SUBROUTINE TR
          PXTRAY(1,1)=(SYSTEM(12))
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -3958,8 +3958,8 @@ SUBROUTINE TR
          &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -3980,8 +3980,8 @@ SUBROUTINE TR
          IF(SYSTEM(63).EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4003,8 +4003,8 @@ SUBROUTINE TR
          &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 2) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4044,8 +4044,8 @@ SUBROUTINE TR
 !******************************************************************************
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4067,8 +4067,8 @@ SUBROUTINE TR
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4093,8 +4093,8 @@ SUBROUTINE TR
 !************************************************************************
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4116,8 +4116,8 @@ SUBROUTINE TR
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
-!       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 2) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4246,8 +4246,8 @@ SUBROUTINE TR
 
 !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
 !
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -4270,8 +4270,8 @@ SUBROUTINE TR
 
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -4291,8 +4291,8 @@ SUBROUTINE TR
             PXTRAX(5,1)=CON
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -4314,8 +4314,8 @@ SUBROUTINE TR
             &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
 !
 !       PICY(1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(1) == 1) THEN
                CURV=surf_toric_curvature(1)
             ELSE
@@ -4343,8 +4343,8 @@ SUBROUTINE TR
                PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -4367,8 +4367,8 @@ SUBROUTINE TR
 
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -4388,8 +4388,8 @@ SUBROUTINE TR
                PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -4411,8 +4411,8 @@ SUBROUTINE TR
                &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
                IF(surf_toric_flag(L) == 1) THEN
                   CURV=surf_toric_curvature(L)
                ELSE
@@ -4494,8 +4494,8 @@ SUBROUTINE TR
          PXTRAX(1,1)=(SYS13)
 !
 !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4516,8 +4516,8 @@ SUBROUTINE TR
          &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4537,8 +4537,8 @@ SUBROUTINE TR
          PXTRAX(5,1)=SYSTEM(17)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4559,8 +4559,8 @@ SUBROUTINE TR
          &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4588,8 +4588,8 @@ SUBROUTINE TR
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4611,8 +4611,8 @@ SUBROUTINE TR
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4632,8 +4632,8 @@ SUBROUTINE TR
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4655,8 +4655,8 @@ SUBROUTINE TR
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4697,8 +4697,8 @@ SUBROUTINE TR
 !**********************************************************************************
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4720,8 +4720,8 @@ SUBROUTINE TR
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4745,8 +4745,8 @@ SUBROUTINE TR
 !************************************************************************
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4768,8 +4768,8 @@ SUBROUTINE TR
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4840,8 +4840,8 @@ SUBROUTINE TR
          PXTRAX(1,1)=(SYS13)
 !
 !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4863,8 +4863,8 @@ SUBROUTINE TR
          &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4885,8 +4885,8 @@ SUBROUTINE TR
          IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4908,8 +4908,8 @@ SUBROUTINE TR
          &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
          IF(surf_toric_flag(1) == 1) THEN
             CURV=surf_toric_curvature(1)
          ELSE
@@ -4944,8 +4944,8 @@ SUBROUTINE TR
 !******************************************************************************
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4967,8 +4967,8 @@ SUBROUTINE TR
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -4993,8 +4993,8 @@ SUBROUTINE TR
 !************************************************************************
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE
@@ -5016,8 +5016,8 @@ SUBROUTINE TR
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
-!       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-!       ELSE SET CURV=ALENS(1,-)
+!       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+!       ELSE SET CURV=surf_curvature(-)
             IF(surf_toric_flag(L) == 1) THEN
                CURV=surf_toric_curvature(L)
             ELSE

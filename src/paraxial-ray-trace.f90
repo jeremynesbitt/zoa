@@ -453,8 +453,8 @@ module paraxial_ray_trace_test
     
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
     !
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -477,8 +477,8 @@ module paraxial_ray_trace_test
     
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -498,8 +498,8 @@ module paraxial_ray_trace_test
                             PXTRAX(5,1)=CON
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -521,8 +521,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
     !
     !       PICY(1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -554,8 +554,8 @@ module paraxial_ray_trace_test
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -577,8 +577,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -598,8 +598,8 @@ module paraxial_ray_trace_test
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -621,8 +621,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -713,8 +713,8 @@ module paraxial_ray_trace_test
                             PXTRAX(1,1)=(SYS13)
     !
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -735,8 +735,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -756,8 +756,8 @@ module paraxial_ray_trace_test
                             PXTRAX(5,1)=SYSTEM(17)
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -778,8 +778,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
     !
     !       PICX(1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -811,8 +811,8 @@ module paraxial_ray_trace_test
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -834,8 +834,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -855,8 +855,8 @@ module paraxial_ray_trace_test
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -878,8 +878,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -940,8 +940,8 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -963,8 +963,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -988,8 +988,8 @@ module paraxial_ray_trace_test
     !************************************************************************
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1011,8 +1011,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1103,8 +1103,8 @@ module paraxial_ray_trace_test
                             PXTRAX(1,1)=(SYS13)
     !
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1126,8 +1126,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1148,8 +1148,8 @@ module paraxial_ray_trace_test
             IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1171,8 +1171,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
     !
     !       PICX(1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1225,8 +1225,8 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1248,8 +1248,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1274,8 +1274,8 @@ module paraxial_ray_trace_test
     !************************************************************************
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1297,8 +1297,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1576,8 +1576,8 @@ module paraxial_ray_trace_test
             ! Experimental code !  go back to original and fix it correctly!
             PXTRAY(1,1) = marPos1
 
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1602,8 +1602,8 @@ module paraxial_ray_trace_test
     
     !
     !       PIY(1)=CV(1)*PY(1)+PUY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1624,8 +1624,8 @@ module paraxial_ray_trace_test
             PXTRAY(5,1)=CON
     !
     !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1647,8 +1647,8 @@ module paraxial_ray_trace_test
           PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
     !
     !       PICY(1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1767,8 +1767,8 @@ module paraxial_ray_trace_test
             PXTRAY(1,1) = marPos1
 
     !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1789,8 +1789,8 @@ module paraxial_ray_trace_test
           PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
     !
     !       PIY(1)=CV(1)*PY(1)+PUY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1811,8 +1811,8 @@ module paraxial_ray_trace_test
                             PXTRAY(5,1)=SYSTEM(15)
     !
     !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1833,8 +1833,8 @@ module paraxial_ray_trace_test
           PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
     !
     !       PICY(1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -1866,8 +1866,8 @@ module paraxial_ray_trace_test
             PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
     !
     !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1889,8 +1889,8 @@ module paraxial_ray_trace_test
           PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
     !
     !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1910,8 +1910,8 @@ module paraxial_ray_trace_test
             PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
     !
     !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1933,8 +1933,8 @@ module paraxial_ray_trace_test
           PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
     !
     !       PICY(L)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -1994,8 +1994,8 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !
     !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2017,8 +2017,8 @@ module paraxial_ray_trace_test
           PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
     !
     !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2042,8 +2042,8 @@ module paraxial_ray_trace_test
     !************************************************************************
     !
     !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2065,8 +2065,8 @@ module paraxial_ray_trace_test
           PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
     !
     !       PICY(L)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2168,8 +2168,8 @@ module paraxial_ray_trace_test
                             !PXTRAY(1,1)=(SYSTEM(12))
     !
     !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2191,8 +2191,8 @@ module paraxial_ray_trace_test
           PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
     !
     !       PIY(1)=CV(1)*PY(1)+PUY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2213,8 +2213,8 @@ module paraxial_ray_trace_test
             IF(SYSTEM(63).EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
     !
     !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2236,8 +2236,8 @@ module paraxial_ray_trace_test
           PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
     !
     !       PICY(1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 2) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2290,8 +2290,8 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !
     !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2313,8 +2313,8 @@ module paraxial_ray_trace_test
           PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
     !
     !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2339,8 +2339,8 @@ module paraxial_ray_trace_test
     !************************************************************************
     !
     !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2362,8 +2362,8 @@ module paraxial_ray_trace_test
           PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
     !
     !       PICY(L)
-    !       CHECK FOR X-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 2) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2536,8 +2536,8 @@ module paraxial_ray_trace_test
     
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
     !
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2560,8 +2560,8 @@ module paraxial_ray_trace_test
     
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2581,8 +2581,8 @@ module paraxial_ray_trace_test
                             PXTRAX(5,1)=CON
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2604,8 +2604,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
     !
     !       PICY(1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2637,8 +2637,8 @@ module paraxial_ray_trace_test
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2660,8 +2660,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2681,8 +2681,8 @@ module paraxial_ray_trace_test
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2704,8 +2704,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2796,8 +2796,8 @@ module paraxial_ray_trace_test
                             PXTRAX(1,1)=(SYS13)
     !
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2818,8 +2818,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2839,8 +2839,8 @@ module paraxial_ray_trace_test
                             PXTRAX(5,1)=SYSTEM(17)
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2861,8 +2861,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
     !
     !       PICX(1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -2894,8 +2894,8 @@ module paraxial_ray_trace_test
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2917,8 +2917,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2938,8 +2938,8 @@ module paraxial_ray_trace_test
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -2961,8 +2961,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3023,8 +3023,8 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3046,8 +3046,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3071,8 +3071,8 @@ module paraxial_ray_trace_test
     !************************************************************************
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3094,8 +3094,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3186,8 +3186,8 @@ module paraxial_ray_trace_test
                             PXTRAX(1,1)=(SYS13)
     !
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -3209,8 +3209,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -3231,8 +3231,8 @@ module paraxial_ray_trace_test
             IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -3254,8 +3254,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
     !
     !       PICX(1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(1) == 1) THEN
                     CURV=surf_toric_curvature(1)
                     ELSE
@@ -3308,8 +3308,8 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3331,8 +3331,8 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3357,8 +3357,8 @@ module paraxial_ray_trace_test
     !************************************************************************
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
@@ -3380,8 +3380,8 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
     !
     !       PICX(L)
-    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=ALENS(24,-)
-    !       ELSE SET CURV=ALENS(1,-)
+    !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
+    !       ELSE SET CURV=surf_curvature(-)
                     IF(surf_toric_flag(L) == 1) THEN
                     CURV=surf_toric_curvature(L)
                     ELSE
