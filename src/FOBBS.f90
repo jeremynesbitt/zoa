@@ -5,6 +5,7 @@ SUBROUTINE FOBA
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FOBA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -154,14 +155,14 @@ SUBROUTINE FOBA
    END IF
    IF(SYSTEM(18).EQ.0.0D0.AND.SYSTEM(19).EQ.0.0D0) THEN
 !     LINEAR INPUT MODE
-      IF(W1.NE.0.0D0.AND.ALENS(3,NEWOBJ).NE.0.0D0) THEN
-         YAYA=DTAN(W1*PII/180.0D0)*ALENS(3,NEWOBJ)
+      IF(W1.NE.0.0D0.AND.surf_thickness(NEWOBJ).NE.0.0D0) THEN
+         YAYA=DTAN(W1*PII/180.0D0)*surf_thickness(NEWOBJ)
          W1=-YAYA/SYSTEM(14)
       ELSE
          W1=0.0D0
       END IF
-      IF(W2.NE.0.0D0.AND.ALENS(3,NEWOBJ).NE.0.0D0) THEN
-         YAYA=DTAN(W2*PII/180.0D0)*ALENS(3,NEWOBJ)
+      IF(W2.NE.0.0D0.AND.surf_thickness(NEWOBJ).NE.0.0D0) THEN
+         YAYA=DTAN(W2*PII/180.0D0)*surf_thickness(NEWOBJ)
          W2=-YAYA/SYSTEM(16)
       ELSE
          W2=0.0D0
@@ -218,6 +219,7 @@ SUBROUTINE FFOBH
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOBH.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -273,7 +275,7 @@ SUBROUTINE FFOBH
    NWW3=W3
    W1=W1/SYSTEM(14)
    W2=W2/SYSTEM(16)
-   W3=W3/ALENS(3,NEWOBJ)
+   W3=W3/surf_thickness(NEWOBJ)
 !     FRACTIONALS WHICH CAN BE PROCESSED
 !
 !       CHECK FOR STRING INPUT
@@ -321,7 +323,7 @@ SUBROUTINE FFOBH
 !     OBJECT ANGLES NOT INPUT
    ANGIN=.FALSE.
 !
-   IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+   IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -333,34 +335,34 @@ SUBROUTINE FFOBH
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
-      ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+      ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
    ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-      IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-         IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+         IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
          ELSE
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
          END IF
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       END IF
-      IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-         XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-         YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+         XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+         YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
 
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       END IF
-      IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-      &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-         XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-         YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+      &surf_array_parity(NEWOBJ) == 0) THEN
+         XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+         YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -377,14 +379,14 @@ SUBROUTINE FFOBH
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    X1AIM=PXTRAX(5,(NEWOBJ+1))
-   X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
    Y1AIM=PXTRAY(5,(NEWOBJ+1))
-   Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
    IISURF=NEWOBJ+1
    CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -410,7 +412,7 @@ SUBROUTINE FFOBH
    ZC=TRYZ
    ZEEERR=.FALSE.
    PRINT *, "TRYY 451 IS ", TRYY
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -704,8 +706,8 @@ SUBROUTINE FFOBH
          XNN=1.0D0
       END IF
       DO J=0,INT(SYSTEM(20))
-         IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-         IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
       IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -897,7 +899,7 @@ SUBROUTINE FFOBH
 !     OBJECT ANGLES NOT INPUT
    ANGIN=.FALSE.
 !
-   IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+   IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -922,16 +924,16 @@ SUBROUTINE FFOBH
          CALL MACFAL
          RETURN
       END IF
-      ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+      ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
    ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-      IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0)THEN
-         IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0)THEN
+         IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
          ELSE
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
          END IF
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -949,11 +951,11 @@ SUBROUTINE FFOBH
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       END IF
-      IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0)THEN
-         XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-         YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0)THEN
+         XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+         YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -970,12 +972,12 @@ SUBROUTINE FFOBH
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       END IF
-      IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-      &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-         XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-         YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+      IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+      &surf_array_parity(NEWOBJ) == 0) THEN
+         XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+         YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -992,15 +994,15 @@ SUBROUTINE FFOBH
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
 !     NOT ANGIN
    X1AIM=PXTRAX(5,(NEWOBJ+1))
-   X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
    Y1AIM=PXTRAY(5,(NEWOBJ+1))
-   Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
    IISURF=NEWOBJ+1
    CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -1028,7 +1030,7 @@ SUBROUTINE FFOBH
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -1058,7 +1060,7 @@ SUBROUTINE FFOBH
       YC=TRYY
       ZC=TRYZ
       ZEEERR=.FALSE.
-      IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+      IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
       &CALL GETZEE1
       IF(ZEEERR) THEN
          XC=TRYX
@@ -1098,7 +1100,7 @@ SUBROUTINE FFOBH
          YC=TRYY
          ZC=TRYZ
          ZEEERR=.FALSE.
-         IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+         IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
          &CALL GETZEE1
          IF(ZEEERR) THEN
             XC=TRYX
@@ -1142,8 +1144,8 @@ SUBROUTINE FFOBH
    REFEXT=.TRUE.
    FOBYES=.TRUE.
    DO J=0,INT(SYSTEM(20))
-      IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-      IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
    IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -1337,6 +1339,7 @@ SUBROUTINE FFOB2
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_tilt_flag, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB2.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1453,13 +1456,13 @@ SUBROUTINE FFOB2
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -1508,7 +1511,7 @@ SUBROUTINE FFOB2
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -1527,16 +1530,16 @@ SUBROUTINE FFOB2
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             ELSE
-               XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -1548,11 +1551,11 @@ SUBROUTINE FFOB2
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -1563,12 +1566,12 @@ SUBROUTINE FFOB2
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -1579,23 +1582,23 @@ SUBROUTINE FFOB2
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -1615,7 +1618,7 @@ SUBROUTINE FFOB2
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -1768,7 +1771,7 @@ SUBROUTINE FFOB2
          END IF
 !
          DO I=0,NEWREF
-            IF(ALENS(25,I).EQ.2.0D0.OR.ALENS(25,I).EQ.3.0D0) THEN
+            IF(surf_tilt_flag(I) == 2.OR.surf_tilt_flag(I) == 3) THEN
                OUTLYNE='A "TILT AUTO" OR "TILT AUTOM" IS NOT ALLOWED'
                CALL SHOWIT(1)
                OUTLYNE='BEFORE OR ON THE NEW REFERENCE SURFACE'
@@ -2002,8 +2005,8 @@ SUBROUTINE FFOB2
          XNN=1.0D0
       END IF
       DO J=0,INT(SYSTEM(20))
-         IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-         IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
       IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -2127,13 +2130,13 @@ SUBROUTINE FFOB2
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -2182,7 +2185,7 @@ SUBROUTINE FFOB2
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -2201,16 +2204,16 @@ SUBROUTINE FFOB2
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             ELSE
-               XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -2222,11 +2225,11 @@ SUBROUTINE FFOB2
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -2237,12 +2240,12 @@ SUBROUTINE FFOB2
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -2253,23 +2256,23 @@ SUBROUTINE FFOB2
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -2292,7 +2295,7 @@ SUBROUTINE FFOB2
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -2322,7 +2325,7 @@ SUBROUTINE FFOB2
       YC=TRYY
       ZC=TRYZ
       ZEEERR=.FALSE.
-      IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+      IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
       &CALL GETZEE1
       IF(ZEEERR) THEN
          XC=TRYX
@@ -2362,7 +2365,7 @@ SUBROUTINE FFOB2
          YC=TRYY
          ZC=TRYZ
          ZEEERR=.FALSE.
-         IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+         IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
          &CALL GETZEE1
          IF(ZEEERR) THEN
             XC=TRYX
@@ -2396,8 +2399,8 @@ SUBROUTINE FFOB2
    REFEXT=.TRUE.
    FOBYES=.TRUE.
    DO J=0,INT(SYSTEM(20))
-      IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-      IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
    IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -2461,6 +2464,7 @@ SUBROUTINE FASTFFOB(WPAS)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_decenter_y, surf_decenter_x
    IMPLICIT NONE
 !
    INTEGER IISURF,FFT,FFS,I,J,ICNT,ICNTEST
@@ -2512,7 +2516,7 @@ SUBROUTINE FASTFFOB(WPAS)
    ANGJK1=AWW1
    ANGJK2=AWW2
 
-   ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+   ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 !     OBJECT ANGLES NOT INPUT
    ANGIN=.FALSE.
 !
@@ -2534,13 +2538,13 @@ SUBROUTINE FASTFFOB(WPAS)
       CALL MACFAL
       RETURN
    END IF
-   ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+   ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
 !
 !     NOT ANGIN
    X1AIM=PXTRAX(5,(NEWOBJ+1))
-   X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
    Y1AIM=PXTRAY(5,(NEWOBJ+1))
-   Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
    IISURF=NEWOBJ+1
    CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -2559,7 +2563,7 @@ SUBROUTINE FASTFFOB(WPAS)
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -2789,20 +2793,20 @@ SUBROUTINE FASTFFOB(WPAS)
       CALL MACFAL
       RETURN
    END IF
-   ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+   ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -2825,7 +2829,7 @@ SUBROUTINE FASTFFOB(WPAS)
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -2855,7 +2859,7 @@ SUBROUTINE FASTFFOB(WPAS)
       YC=TRYY
       ZC=TRYZ
       ZEEERR=.FALSE.
-      IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+      IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
       &CALL GETZEE1
       IF(ZEEERR) THEN
          XC=TRYX
@@ -2895,7 +2899,7 @@ SUBROUTINE FASTFFOB(WPAS)
          YC=TRYY
          ZC=TRYZ
          ZEEERR=.FALSE.
-         IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+         IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
          &CALL GETZEE1
          IF(ZEEERR) THEN
             XC=TRYX
@@ -2948,6 +2952,7 @@ SUBROUTINE SLOWFFOB(WPAS)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
    IMPLICIT NONE
 !
 !       SLOWFFOB IS USED BY IMTRACE3 FOR IMAGE CREATION
@@ -3065,13 +3070,13 @@ SUBROUTINE SLOWFFOB(WPAS)
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -3120,7 +3125,7 @@ SUBROUTINE SLOWFFOB(WPAS)
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -3145,16 +3150,16 @@ SUBROUTINE SLOWFFOB(WPAS)
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             ELSE
-               XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -3172,11 +3177,11 @@ SUBROUTINE SLOWFFOB(WPAS)
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -3193,12 +3198,12 @@ SUBROUTINE SLOWFFOB(WPAS)
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -3215,23 +3220,23 @@ SUBROUTINE SLOWFFOB(WPAS)
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -3257,7 +3262,7 @@ SUBROUTINE SLOWFFOB(WPAS)
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -3486,8 +3491,8 @@ SUBROUTINE SLOWFFOB(WPAS)
          XNN=1.0D0
       END IF
       DO J=0,INT(SYSTEM(20))
-         IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-         IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
       IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -3717,13 +3722,13 @@ SUBROUTINE SLOWFFOB(WPAS)
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -3772,7 +3777,7 @@ SUBROUTINE SLOWFFOB(WPAS)
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -3797,16 +3802,16 @@ SUBROUTINE SLOWFFOB(WPAS)
             CALL MACFAL
             RETURN
          END IF
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
       ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             ELSE
-               XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -3824,11 +3829,11 @@ SUBROUTINE SLOWFFOB(WPAS)
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -3845,12 +3850,12 @@ SUBROUTINE SLOWFFOB(WPAS)
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) THEN
@@ -3867,23 +3872,23 @@ SUBROUTINE SLOWFFOB(WPAS)
                CALL MACFAL
                RETURN
             END IF
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -3912,7 +3917,7 @@ SUBROUTINE SLOWFFOB(WPAS)
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -3942,7 +3947,7 @@ SUBROUTINE SLOWFFOB(WPAS)
       YC=TRYY
       ZC=TRYZ
       ZEEERR=.FALSE.
-      IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+      IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
       &CALL GETZEE1
       IF(ZEEERR) THEN
          XC=TRYX
@@ -3982,7 +3987,7 @@ SUBROUTINE SLOWFFOB(WPAS)
          YC=TRYY
          ZC=TRYZ
          ZEEERR=.FALSE.
-         IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+         IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
          &CALL GETZEE1
          IF(ZEEERR) THEN
             XC=TRYX
@@ -4026,8 +4031,8 @@ SUBROUTINE SLOWFFOB(WPAS)
    REFEXT=.TRUE.
    FOBYES=.TRUE.
    DO J=0,INT(SYSTEM(20))
-      IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-      IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
    IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -4304,6 +4309,9 @@ SUBROUTINE FFOB
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness, surf_curvature, surf_clap_type, &
+      surf_clap_dim, surf_special_type, surf_array_parity, surf_decenter_y, &
+      surf_decenter_x, surf_tilt_flag
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4452,14 +4460,14 @@ SUBROUTINE FFOB
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
       !PRINT *, "YSTRT FOBBS 4516 =", YSTRT
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -4510,7 +4518,7 @@ SUBROUTINE FFOB
       ANGIN=.FALSE.
       !call logger%logText("FFOB Object Height Loop ")
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -4528,64 +4536,64 @@ SUBROUTINE FFOB
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          !call logger%logTextWithReal("Z start = ",ZSTRT)
 
       ELSE
          !call logger%logText("USE Y HEIGHT OF CLAP WITH OFFSETS")
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             ELSE
-               XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
             !if (ieee_is_nan(ZSAG)) ZSAG = 0
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
 
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             !PRINT *, "YSTRT FOBBS 4632 =", YSTRT
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
             !if (ieee_is_nan(ZSAG)) ZSAG = 0
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             !PRINT *, "YSTRT FOBBS 4656 =", YSTRT
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
             !if (ieee_is_nan(ZSAG)) ZSAG = 0
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
          END IF
       END IF
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       !call logger%logTextWithNum("Surf = ", IISURF)
       !call logger%logTextWithReal("X1 Aim = ", X1AIM)
       !call logger%logTextWithReal("Y1 Aim = ", X1AIM)
@@ -4606,7 +4614,7 @@ SUBROUTINE FFOB
    ZC=TRYZ
    ZEEERR=.FALSE.
    !PRINT *, "TRYY 4710 IS ", TRYY
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -4886,8 +4894,8 @@ SUBROUTINE FFOB
          XNN=1.0D0
       END IF
       DO J=0,INT(SYSTEM(20))
-         IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-         IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+         IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
       IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -5117,14 +5125,14 @@ SUBROUTINE FFOB
       YYANG=ANGJK1*PII/180.0D0
       XXANG=ANGJK2*PII/180.0D0
 !
-      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK1).GT.90.0D0) YSTRT=DTAN(YYANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK1).LE.90.0D0) YSTRT=-DTAN(YYANG)*surf_thickness(NEWOBJ)
       !PRINT *, "YSTRT FOBBS 5381 =", YSTRT
 !
-      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*ALENS(3,NEWOBJ)
-      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*ALENS(3,NEWOBJ)
+      IF(DABS(ANGJK2).GT.90.0D0) XSTRT=DTAN(XXANG)*surf_thickness(NEWOBJ)
+      IF(DABS(ANGJK2).LE.90.0D0) XSTRT=-DTAN(XXANG)*surf_thickness(NEWOBJ)
 
-      ZSTRT=2.0D0*ALENS(3,NEWOBJ)
+      ZSTRT=2.0D0*surf_thickness(NEWOBJ)
 
       IF(ANGJK1.GT.90.0D0.AND.ANGJK1.LT.270.0D0.OR.&
       &ANGJK1.LT.-90.0D0.AND.ANGJK1.GT.-270.0D0) THEN
@@ -5173,7 +5181,7 @@ SUBROUTINE FFOB
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(ALENS(9,NEWOBJ).EQ.0.OR.ALENS(127,NEWOBJ).NE.0.0D0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
@@ -5187,50 +5195,50 @@ SUBROUTINE FFOB
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-         ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+         ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
 
-         !PRINT *, "ALENS(3,NEWOBJ) ",ALENS(3,NEWOBJ),"SAG ",ZSAG
+         !PRINT *, "surf_thickness(NEWOBJ) ",surf_thickness(NEWOBJ),"SAG ",ZSAG
          !PRINT *, "ZSTRT FOBBS 5465 ", ZSTRT
       ELSE
 !     USE Y HEIGHT OF CLAP WITH OFFSETS
-         IF(ALENS(9,NEWOBJ).EQ.1.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            IF(ALENS(10,NEWOBJ).LE.ALENS(11,NEWOBJ)) THEN
-               XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 1.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            IF(surf_clap_dim(NEWOBJ, 1).LE.surf_clap_dim(NEWOBJ, 2)) THEN
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
                !PRINT *, "YSTRT FOBBS 5468 =", YSTRT
             ELSE
-               XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-               YSTRT=W1*(ALENS(11,NEWOBJ)+ALENS(12,NEWOBJ))
+               XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+               YSTRT=W1*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 3))
                !PRINT *, "YSTRT FOBBS 5472 =", YSTRT
             END IF
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
             !if (ieee_is_nan(ZSAG)) ZSAG = 0
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
             !PRINT *, "ZSTRT FOBBS 5496 ", ZSTRT
          END IF
-         IF(ALENS(9,NEWOBJ).EQ.5.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(10,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ) == 5.AND.surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             !PRINT *, "YSTRT FOBBS 5495 =", YSTRT
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
             !if (ieee_is_nan(ZSAG)) ZSAG = 0
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
             !PRINT *, "ZSTRT FOBBS 5519 ", ZSTRT
          END IF
-         IF(ALENS(9,NEWOBJ).GT.1.0D0.AND.ALENS(9,NEWOBJ).LT.5.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-            XSTRT=W2*(ALENS(11,NEWOBJ)+ALENS(13,NEWOBJ))
-            YSTRT=W1*(ALENS(10,NEWOBJ)+ALENS(12,NEWOBJ))
+         IF(surf_clap_type(NEWOBJ).GT.1.0D0.AND.surf_clap_type(NEWOBJ).LT.5.0D0.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
+            XSTRT=W2*(surf_clap_dim(NEWOBJ, 2)+surf_clap_dim(NEWOBJ, 4))
+            YSTRT=W1*(surf_clap_dim(NEWOBJ, 1)+surf_clap_dim(NEWOBJ, 3))
             !PRINT *, "YSTRT FOBBS 5518 =", YSTRT
             IISURF=NEWOBJ
             CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
             IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
             !if (ieee_is_nan(ZSAG)) ZSAG = 0
-            ZSTRT=(W3*ALENS(3,NEWOBJ))+ZSAG
+            ZSTRT=(W3*surf_thickness(NEWOBJ))+ZSAG
             !PRINT *, "ZSTRT FOBBS 5543 ", ZSTRT
          END IF
       END IF
@@ -5238,16 +5246,16 @@ SUBROUTINE FFOB
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       Z1AIM=SYSTEM(89)
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-ALENS(31,NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-ALENS(30,NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
@@ -5264,7 +5272,7 @@ SUBROUTINE FFOB
    YC=TRYY
    ZC=TRYZ
    ZEEERR=.FALSE.
-   IF(ALENS(1,NEWOBJ+1).NE.0.0D0)&
+   IF(surf_curvature(NEWOBJ+1).NE.0.0D0)&
    &CALL GETZEE1
 !     STARTING INTERSECTION POINT ON SURF 1 IS
    TRYX=XC
@@ -5302,7 +5310,7 @@ SUBROUTINE FFOB
       ZC=TRYZ
       ZEEERR=.FALSE.
       !PRINT *, "FOBBS 5600 YC IS ", YC
-      IF(ALENS(1,NEWOBJ+1).NE.0.0D0) CALL GETZEE1
+      IF(surf_curvature(NEWOBJ+1).NE.0.0D0) CALL GETZEE1
       !PRINT *, "FOBBS 5602 POST GETZEE1 YC IS ", YC
       IF(ZEEERR) THEN
          !call logger%logText("GetZee1 Failed after RefRay failed!")
@@ -5387,7 +5395,7 @@ SUBROUTINE FFOB
 
             DEBUGZEE = .TRUE.
          END IF
-         IF(ALENS(1,NEWOBJ+1).NE.0.0D0) CALL GETZEE1
+         IF(surf_curvature(NEWOBJ+1).NE.0.0D0) CALL GETZEE1
          IF (ICNT.EQ.1) THEN
 
             DEBUGZEE = .FALSE.
@@ -5443,8 +5451,8 @@ SUBROUTINE FFOB
    REFEXT=.TRUE.
    FOBYES=.TRUE.
    DO J=0,INT(SYSTEM(20))
-      IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-      IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
    IF(LDIF2) THEN
 !       TRACE DIFFERENTIAL RAY WITHRESPECT TO AN OBJECT POINT
@@ -5780,6 +5788,7 @@ SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_tilt_flag
    implicit none
 
    integer :: I
@@ -5810,7 +5819,7 @@ SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
          END IF
 !
          DO I=0,NEWREF
-            IF(ALENS(25,I).EQ.2.0D0.OR.ALENS(25,I).EQ.3.0D0) THEN
+            IF(surf_tilt_flag(I) == 2.OR.surf_tilt_flag(I) == 3) THEN
                OUTLYNE='A "TILT AUTO" OR "TILT AUTOM" IS NOT ALLOWED'
                CALL SHOWIT(1)
                OUTLYNE='BEFORE OR ON THE NEW REFERENCE SURFACE'
