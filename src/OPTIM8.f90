@@ -5911,6 +5911,7 @@ SUBROUTINE MERIT1
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,OPT
@@ -7685,7 +7686,7 @@ SUBROUTINE MERIT1
             CALL MACFAL
             RETURN
          END IF
-         IF(W4.LT.1.0D0.OR.W4.GT.(ALENS(105,INT(W3))**2)) THEN
+         IF(W4.LT.1.0D0.OR.W4.GT.(surf_mtracei_ny(INT(W3))**2)) THEN
             WRITE(OUTLYNE,*)&
             &'PREDEFINED OPERAND ',OPNM
             CALL SHOWIT(1)

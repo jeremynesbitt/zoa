@@ -702,6 +702,7 @@ SUBROUTINE SPSPEC(ITP)
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSPEC. THIS IS THE SUBROUTINE WHICH
@@ -742,7 +743,7 @@ SUBROUTINE SPSPEC(ITP)
          RETURN
       END IF
 !
-      IF(ALENS(103,INT(W1)).EQ.1.0D0) THEN
+      IF(surf_default_flag(INT(W1)) == 1) THEN
          OUTLYNE=&
          &'A DEFORMABLE SURFACE MAY NOT BE DEFINED AS A SPECIAL SURFACE'
          CALL SHOWIT(1)
@@ -752,7 +753,7 @@ SUBROUTINE SPSPEC(ITP)
          RETURN
       END IF
 !     ARRAY LENS NOT ALLOWED
-      IF(ALENS(133,INT(W1)).NE.0.0D0) THEN
+      IF(surf_array_parity(INT(W1)) /= 0) THEN
          OUTLYNE=&
          &'AN ARRAY SURFACE MAY NOT BE DEFINED AS A SPECIAL SURFACE'
          CALL SHOWIT(1)
@@ -795,8 +796,8 @@ SUBROUTINE SPSPEC(ITP)
    END IF
 !     CHECK FOR INVALID SURFACE TYPES FOR A TYPE 18 SURFACE
    IF(INT(DABS(W2)).EQ.18) THEN
-      IF(ALENS(23,INT(W1)).NE.0.0D0.OR.ALENS(8,INT(W1)).NE.0.0D0 &
-      &.OR.ALENS(1,INT(W1)).EQ.0.0D0.OR.&
+      IF(surf_toric_flag(INT(W1)) /= 0.OR.surf_is_asphere(INT(W1)) &
+      &.OR.surf_curvature(INT(W1)).EQ.0.0D0.OR.&
       &GLANAM(INT(W1),2).NE.'REFL         '&
       &.OR.GLANAM(INT(W1),1).NE.'             '.AND.&
       &GLANAM(INT(W1),2).EQ.'REFL         ') THEN
@@ -829,31 +830,31 @@ SUBROUTINE SPSPEC(ITP)
       &GLANAM(INT(W1),2).NE.'PERFECT      ') DM=.TRUE.
       IF(GLANAM(INT(W1),1).EQ.'MODEL        ') DM=.FALSE.
       IF(GLANAM(INT(W1)-1,1).EQ.'MODEL        ') DM=.FALSE.
-      IF(ALENS(46,INT(W1)).EQ.ALENS(46,INT(W1)-1).AND.&
-      &ALENS(47,INT(W1)).EQ.ALENS(47,INT(W1)-1).AND.&
-      &ALENS(48,INT(W1)).EQ.ALENS(48,INT(W1)-1).AND.&
-      &ALENS(49,INT(W1)).EQ.ALENS(49,INT(W1)-1).AND.&
-      &ALENS(71,INT(W1)).EQ.ALENS(71,INT(W1)-1).AND.&
-      &ALENS(72,INT(W1)).EQ.ALENS(72,INT(W1)-1).AND.&
-      &ALENS(73,INT(W1)).EQ.ALENS(73,INT(W1)-1).AND.&
-      &ALENS(74,INT(W1)).EQ.ALENS(74,INT(W1)-1).AND.&
-      &ALENS(75,INT(W1)).EQ.ALENS(75,INT(W1)-1).AND.&
-      &ALENS(50,INT(W1)).EQ.ALENS(50,INT(W1)-1)) DM=.TRUE.
+      IF(surf_refractive_index(INT(W1), 1).EQ.surf_refractive_index(INT(W1)-1, 1).AND.&
+      &surf_refractive_index(INT(W1), 2).EQ.surf_refractive_index(INT(W1)-1, 2).AND.&
+      &surf_refractive_index(INT(W1), 3).EQ.surf_refractive_index(INT(W1)-1, 3).AND.&
+      &surf_refractive_index(INT(W1), 4).EQ.surf_refractive_index(INT(W1)-1, 4).AND.&
+      &surf_refractive_index(INT(W1), 6).EQ.surf_refractive_index(INT(W1)-1, 6).AND.&
+      &surf_refractive_index(INT(W1), 7).EQ.surf_refractive_index(INT(W1)-1, 7).AND.&
+      &surf_refractive_index(INT(W1), 8).EQ.surf_refractive_index(INT(W1)-1, 8).AND.&
+      &surf_refractive_index(INT(W1), 9).EQ.surf_refractive_index(INT(W1)-1, 9).AND.&
+      &surf_refractive_index(INT(W1), 10).EQ.surf_refractive_index(INT(W1)-1, 10).AND.&
+      &surf_refractive_index(INT(W1), 5).EQ.surf_refractive_index(INT(W1)-1, 5)) DM=.TRUE.
       IF(GLANAM(INT(W1),1).EQ.'MODEL        '.AND.&
       &GLANAM(INT(W1)-1,1).EQ.'MODEL        '.AND.&
       &GLANAM(INT(W1)-1,2).EQ.GLANAM(INT(W1),2)) THEN
          DM=.FALSE.
-         IF(ALENS(86,INT(W1)).EQ.ALENS(86,INT(W1)-1).AND.&
-         &ALENS(87,INT(W1)).EQ.ALENS(87,INT(W1)-1).AND.&
-         &ALENS(89,INT(W1)).EQ.ALENS(89,INT(W1)-1)) DM=.TRUE.
+         IF(surf_fict_n(INT(W1)).EQ.surf_fict_n(INT(W1)-1).AND.&
+         &surf_fict_v(INT(W1)).EQ.surf_fict_v(INT(W1)-1).AND.&
+         &surf_fict_w(INT(W1)).EQ.surf_fict_w(INT(W1)-1)) DM=.TRUE.
       END IF
-      IF(ALENS(68,INT(W1)).EQ.1.0D0.AND.DM)&
+      IF(surf_dummy_val(INT(W1)) == 1.AND.DM)&
       &DM=.FALSE.
-      IF(ALENS(68,INT(W1)).EQ.0.0D0.AND..NOT.DM)&
+      IF(surf_dummy_val(INT(W1)) == 0.AND..NOT.DM)&
       &DM=.TRUE.
 !
-      IF(ALENS(23,INT(W1)).NE.0.0D0.OR.ALENS(8,INT(W1)).NE.0.0D0 &
-      &.OR.ALENS(1,INT(W1)).NE.0.0D0.OR..NOT.DM) THEN
+      IF(surf_toric_flag(INT(W1)) /= 0.OR.surf_is_asphere(INT(W1)) &
+      &.OR.surf_curvature(INT(W1)).NE.0.0D0.OR..NOT.DM) THEN
 !     SURFACE NOT A PLANO DUMMY
          WRITE(OUTLYNE,*) 'TYPE ',INT(DABS(W2)),&
          &' SURFACE MUST BE A PLANO-DUMMY SURFACE'
@@ -866,7 +867,7 @@ SUBROUTINE SPSPEC(ITP)
    END IF
 !     CHECK FOR INVALID SURFACE TYPES FOR A TYPE 23 SURFACE
    IF(INT(DABS(W2)).EQ.23) THEN
-      IF(ALENS(23,INT(W1)).NE.0.0D0) THEN
+      IF(surf_toric_flag(INT(W1)) /= 0) THEN
 !     SURFACE NOT A ROTATIONALLY SYMMETRIC SURFACE
          OUTLYNE='TYPE 23 SURFACE MUST BE ROTATIONALLY'
          CALL SHOWIT(1)
@@ -879,8 +880,8 @@ SUBROUTINE SPSPEC(ITP)
       END IF
    END IF
    IF(INT(DABS(W2)).EQ.24) THEN
-      IF(ALENS(25,INT(W1)).EQ.2.0D0 &
-      &.OR.ALENS(25,INT(W1)).EQ.3.0D0 ) THEN
+      IF(surf_tilt_flag(INT(W1)) == 2 &
+      &.OR.surf_tilt_flag(INT(W1)) == 3 ) THEN
 !     SURFACE CAN'T HAVE A TILT AUTO ON IT
          OUTLYNE='TYPE 24 SURFACE MAY NOT HAVE TILT AUTO OR TILT AUTOM'
          CALL SHOWIT(1)
