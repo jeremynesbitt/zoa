@@ -72,6 +72,7 @@ contains
 
   subroutine calcExitPupil(epRadius, epPosition)
         use iso_fortran_env
+        use mod_surface
 
         real(kind=real64) :: epRadius, epPosition, imgAngle
         integer :: newImage
@@ -80,7 +81,7 @@ contains
 
         newImage = NEWIMG
 
-        IF(ALENS(3,(newImage-1)).EQ.0.0D0.OR.ALENS(3,(newImage-1)).NE.0.0D0.AND..NOT.LDIF2) THEN
+        IF(surf_thickness(newImage-1).EQ.0.0D0.OR.surf_thickness(newImage-1).NE.0.0D0.AND..NOT.LDIF2) THEN
 !       DIST FROM I-1 TO I IS ZERO OF LDIF2 IS FALSE AND DIST NOT 0
 !       DO AN INTERNAL "ASTOP EX" ADJUSTMENT
         IF(DABS(PXTRAY(5,newImage)*1.0D-15).LT.DABS(PXTRAY(6,newImage))) THEN
@@ -95,7 +96,7 @@ contains
 !       USE EXISTING THICKNESS OF NEWIMG-1 AS RAD
         ELSE
         Print *, "Use Existing Thickness for epRadius"
-        epPosition=ALENS(3,newImage-1)
+        epPosition=surf_thickness(newImage-1)
                         END IF
         !epPosition = 0.0
         imgAngle =  PXTRAY(2,INT(SYSTEM(20)))

@@ -5,6 +5,7 @@ SUBROUTINE FADJ
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FADJ. THIS IS THE SUBROUTINE
@@ -55,12 +56,12 @@ SUBROUTINE FADJ
             RETURN
          ELSE
             IF(SYSTEM(64).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-               SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+               SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
             END IF
             IF(SYSTEM(67).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-               SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+               SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
             END IF
          END IF
       END IF
@@ -124,12 +125,12 @@ SUBROUTINE FADJ
             RETURN
          ELSE
             IF(SYSTEM(64).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-               SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+               SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
             END IF
             IF(SYSTEM(67).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-               SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+               SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
             END IF
          END IF
       END IF
