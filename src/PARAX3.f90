@@ -5,6 +5,7 @@ SUBROUTINE ENEXRS
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness, surf_refractive_index, set_surf_thickness
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ENEXRS. IT IS CALLED FROM PRTRA1
@@ -80,16 +81,16 @@ SUBROUTINE ENEXRS
       &.AND.SOLVE(2,2).EQ.0.0D0 &
       &.AND.SOLVE(6,2).EQ.0.0D0 &
       &.AND.SOLVE(8,2).EQ.0.0D0 &
-      &.AND.ALENS(46,0).EQ.ALENS(46,1)&
-      &.AND.ALENS(47,0).EQ.ALENS(47,1)&
-      &.AND.ALENS(48,0).EQ.ALENS(48,1)&
-      &.AND.ALENS(49,0).EQ.ALENS(49,1)&
-      &.AND.ALENS(50,0).EQ.ALENS(50,1)&
-      &.AND.ALENS(46,0).EQ.ALENS(46,2)&
-      &.AND.ALENS(47,0).EQ.ALENS(47,2)&
-      &.AND.ALENS(48,0).EQ.ALENS(48,2)&
-      &.AND.ALENS(49,0).EQ.ALENS(49,2)&
-      &.AND.ALENS(50,0).EQ.ALENS(50,2)) THEN
+      &.AND.surf_refractive_index(0, 1).EQ.surf_refractive_index(1, 1)&
+      &.AND.surf_refractive_index(0, 2).EQ.surf_refractive_index(1, 2)&
+      &.AND.surf_refractive_index(0, 3).EQ.surf_refractive_index(1, 3)&
+      &.AND.surf_refractive_index(0, 4).EQ.surf_refractive_index(1, 4)&
+      &.AND.surf_refractive_index(0, 5).EQ.surf_refractive_index(1, 5)&
+      &.AND.surf_refractive_index(0, 1).EQ.surf_refractive_index(2, 1)&
+      &.AND.surf_refractive_index(0, 2).EQ.surf_refractive_index(2, 2)&
+      &.AND.surf_refractive_index(0, 3).EQ.surf_refractive_index(2, 3)&
+      &.AND.surf_refractive_index(0, 4).EQ.surf_refractive_index(2, 4)&
+      &.AND.surf_refractive_index(0, 5).EQ.surf_refractive_index(2, 5)) THEN
 !       YES, SURFACE IS OK FOR ADJUSTMENT
       ELSE
 !       ADJUSTMENT CAN'T BE DONE.
@@ -122,8 +123,8 @@ SUBROUTINE ENEXRS
          THNEW=(-PXTRAY(5,(1)))/(PXTRAY(6,1))
       END IF
 !
-      ALENS(3,1)=THNEW
-      ALENS(3,2)=-THNEW
+      call set_surf_thickness(1, THNEW)
+      call set_surf_thickness(2, -THNEW)
 !
 !       NOW WE RE-CALCULATE ALL THE PARAXIAL VALUES AT
 !       SURFACE 2
@@ -132,9 +133,9 @@ SUBROUTINE ENEXRS
 !
 !       PY(2) = USED TO BE THE SAY VALUE WHICH MUST BE ADJUSTED NOW:
 !       PY(2)=PY(1)+(TH(1)*PUY(1))
-      PXTRAY(1,2)=PXTRAY(1,1)+(PXTRAY(2,1)*ALENS(3,1))
+      PXTRAY(1,2)=PXTRAY(1,1)+(PXTRAY(2,1)*surf_thickness(1))
 !       PCY(2) = PCY(1)+(TH(1)*PUCY(1)) ; THIS IS THE TRANSFER EQUATION
-      PXTRAY(5,2)=PXTRAY(5,(1))+(ALENS(3,(1))*PXTRAY(6,(1)))
+      PXTRAY(5,2)=PXTRAY(5,(1))+(surf_thickness(1)*PXTRAY(6,(1)))
 !
    ELSE
 !        NO EN ADJUSTMENT WAS REQUESTED, PROCEED WITH PROCESSING
@@ -183,21 +184,21 @@ SUBROUTINE ENEXRS
       IM1=IMSUR-1
       IF(SOLVE(4,IM1).EQ.0.0D0.AND.SOLVE(2,IM1).EQ.0.0D0 &
       &.AND.SOLVE(6,IM1).EQ.0.0D0.AND.SOLVE(8,IM1).EQ.0.0D0 &
-      &.AND.ALENS(46,IM1).EQ.ALENS(46,IMSUR)&
-      &.AND.ALENS(47,IM1).EQ.ALENS(47,IMSUR)&
-      &.AND.ALENS(48,IM1).EQ.ALENS(48,IMSUR)&
-      &.AND.ALENS(49,IM1).EQ.ALENS(49,IMSUR)&
-      &.AND.ALENS(50,IM1).EQ.ALENS(50,IMSUR)&
-      &.AND.ALENS(46,IM1).EQ.ALENS(46,IM2)&
-      &.AND.ALENS(47,IM1).EQ.ALENS(47,IM2)&
-      &.AND.ALENS(48,IM1).EQ.ALENS(48,IM2)&
-      &.AND.ALENS(49,IM1).EQ.ALENS(49,IM2)&
-      &.AND.ALENS(50,IM1).EQ.ALENS(50,IM2)&
-      &.AND.ALENS(46,IM1).EQ.ALENS(46,IM2-1)&
-      &.AND.ALENS(47,IM1).EQ.ALENS(47,IM2-1)&
-      &.AND.ALENS(48,IM1).EQ.ALENS(48,IM2-1)&
-      &.AND.ALENS(49,IM1).EQ.ALENS(49,IM2-1)&
-      &.AND.ALENS(50,IM1).EQ.ALENS(50,IM2-1)&
+      &.AND.surf_refractive_index(IM1, 1).EQ.surf_refractive_index(IMSUR, 1)&
+      &.AND.surf_refractive_index(IM1, 2).EQ.surf_refractive_index(IMSUR, 2)&
+      &.AND.surf_refractive_index(IM1, 3).EQ.surf_refractive_index(IMSUR, 3)&
+      &.AND.surf_refractive_index(IM1, 4).EQ.surf_refractive_index(IMSUR, 4)&
+      &.AND.surf_refractive_index(IM1, 5).EQ.surf_refractive_index(IMSUR, 5)&
+      &.AND.surf_refractive_index(IM1, 1).EQ.surf_refractive_index(IM2, 1)&
+      &.AND.surf_refractive_index(IM1, 2).EQ.surf_refractive_index(IM2, 2)&
+      &.AND.surf_refractive_index(IM1, 3).EQ.surf_refractive_index(IM2, 3)&
+      &.AND.surf_refractive_index(IM1, 4).EQ.surf_refractive_index(IM2, 4)&
+      &.AND.surf_refractive_index(IM1, 5).EQ.surf_refractive_index(IM2, 5)&
+      &.AND.surf_refractive_index(IM1, 1).EQ.surf_refractive_index(IM2-1, 1)&
+      &.AND.surf_refractive_index(IM1, 2).EQ.surf_refractive_index(IM2-1, 2)&
+      &.AND.surf_refractive_index(IM1, 3).EQ.surf_refractive_index(IM2-1, 3)&
+      &.AND.surf_refractive_index(IM1, 4).EQ.surf_refractive_index(IM2-1, 4)&
+      &.AND.surf_refractive_index(IM1, 5).EQ.surf_refractive_index(IM2-1, 5)&
       &.AND.SOLVE(4,IM2).EQ.0.0D0.AND.SOLVE(2,IM2).EQ.0.0D0 &
       &.AND.SOLVE(6,IM2).EQ.0.0D0.AND.SOLVE(8,IM2).EQ.0.0D0) THEN
 !       YES, SURFACE IS OK FOR ADJUSTMENT
@@ -233,18 +234,18 @@ SUBROUTINE ENEXRS
          THNEW2=(-PXTRAY(5,(IM2)))/(PXTRAY(6,IM2))
       END IF
 !
-      ALENS(3,IM2)=THNEW2
-      ALENS(3,IM1)=-THNEW2
+      call set_surf_thickness(IM2, THNEW2)
+      call set_surf_thickness(IM1, -THNEW2)
 !
 !       NOW WE RE-CALCULATE ALL THE PARAXIAL VALUES AT
 !       SURFACE IM1 ONLY THE INTERCEPTS NEED RECALCULATION
 !       AS ASTOP EX DOES NOT AFFECT SLOPES
 !
 !       PY(IM1) = PY(IM2)+TH(IM2)*PUY(IM2) ; THIS IS THE TRANSFER EQUATION
-      PXTRAY(1,IM1)=PXTRAY(1,(IM2))+(ALENS(3,(IM2))*PXTRAY(2,(IM2)))
+      PXTRAY(1,IM1)=PXTRAY(1,(IM2))+(surf_thickness(IM2)*PXTRAY(2,(IM2)))
 !
 !       PCY(IM1) = PCY(IM2)+TH(IM2)*PUCY(IM2) ; THIS IS THE TRANSFER EQUATION
-      PXTRAY(5,IM1)=PXTRAY(5,(IM2))+(ALENS(3,(IM2))*PXTRAY(6,(IM2)))
+      PXTRAY(5,IM1)=PXTRAY(5,(IM2))+(surf_thickness(IM2)*PXTRAY(6,(IM2)))
 !
    ELSE
 !       WE ARE DONE WITH THE ADJUSTMENTS
@@ -257,6 +258,7 @@ SUBROUTINE ERADJ
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness, set_surf_thickness
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ERADJ. THIS IS THE SUBROUTINE
@@ -322,12 +324,12 @@ SUBROUTINE ERADJ
             RETURN
          ELSE
             IF(SYSTEM(64).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-               SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+               SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
             END IF
             IF(SYSTEM(67).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-               SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+               SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
             END IF
          END IF
       END IF
@@ -405,12 +407,12 @@ SUBROUTINE ERADJ
             RETURN
          ELSE
             IF(SYSTEM(64).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-               SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+               SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
             END IF
             IF(SYSTEM(67).EQ.1.0D0) THEN
-               SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-               SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+               SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
             END IF
          END IF
       END IF
@@ -3229,6 +3231,7 @@ SUBROUTINE CCOL
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_refractive_index
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CALCULATES THE YZ PLANE (ITYPEP=1)
@@ -3289,8 +3292,8 @@ SUBROUTINE CCOL
       IF(INT(SYSTEM(10)).GE.6.AND.INT(SYSTEM(10)).LE.10)&
       &SW2= (INT(SYSTEM(10))+65)
 !
-!       REFRACTIVE INDICES ARE IN ALENS(46,SURF) TO
-!       ALENS(50,SURF)
+!       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
+!       surf_refractive_index(SURF, 5)
 !
 !       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
 !       INDEX AT CW IS ALENS(CW,I)
@@ -3420,8 +3423,8 @@ SUBROUTINE CCOL
       IF(INT(SYSTEM(10)).GE.6.AND.INT(SYSTEM(10)).LE.10)&
       &SW2= (INT(SYSTEM(10))+65)
 !
-!       REFRACTIVE INDICES ARE IN ALENS(46,SURF) TO
-!       ALENS(50,SURF)
+!       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
+!       surf_refractive_index(SURF, 5)
 !
 !       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
 !       INDEX AT CW IS ALENS(CW,I)
@@ -3810,6 +3813,7 @@ SUBROUTINE FINIYZ
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIYZ. THIS IS THE
@@ -3843,18 +3847,18 @@ SUBROUTINE FINIYZ
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
 !
-   IF(ALENS(32,K).NE.0.0D0) CALL PIKRES
+   IF(surf_pickup_count(K).NE.0.0D0) CALL PIKRES
 !
    IF(K.GT.0) THEN
-      PXTRAY(1,K)=PXTRAY(1,(K-1))+(ALENS(3,(K-1))*PXTRAY(2,(K-1)))
+      PXTRAY(1,K)=PXTRAY(1,(K-1))+(surf_thickness(K-1)*PXTRAY(2,(K-1)))
 !
-      IF(ALENS(23,K).EQ.2.0D0) THEN
-         CURV=ALENS(24,K)
+      IF(surf_toric_flag(K).EQ.2.0D0) THEN
+         CURV=surf_toric_curvature(K)
       ELSE
-         IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-            CURV=ALENS(43,K)/2.0D0
+         IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+            CURV=surf_asphere_coeff(K, 2)/2.0D0
          ELSE
-            CURV=ALENS(1,K)
+            CURV=surf_curvature(K)
          END IF
       END IF
       PXTRAY(2,K)=-CURV*PXTRAY(1,K)*&
@@ -3864,17 +3868,17 @@ SUBROUTINE FINIYZ
       &((ALENS(WWVN,(K-1)))/&
       &(ALENS(WWVN,K)))*PXTRAY(2,(K-1))
       IF(GLANAM(K,2).EQ.'PERFECT      ')&
-      &PXTRAY(2,K)=(-(1.0D0/ALENS(3,K))*PXTRAY(1,K))+PXTRAY(2,K-1)
+      &PXTRAY(2,K)=(-(1.0D0/surf_thickness(K))*PXTRAY(1,K))+PXTRAY(2,K-1)
       IF(GLANAM(K,2).EQ.'IDEAL        ')&
-      &PXTRAY(2,K)=(-(1.0D0/ALENS(121,K))*PXTRAY(1,K))+PXTRAY(2,K-1)
+      &PXTRAY(2,K)=(-(1.0D0/surf_ideal_efl(K))*PXTRAY(1,K))+PXTRAY(2,K-1)
 !
-      IF(ALENS(23,K).EQ.2.0D0) THEN
-         CURV=ALENS(24,K)
+      IF(surf_toric_flag(K).EQ.2.0D0) THEN
+         CURV=surf_toric_curvature(K)
       ELSE
-         IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-            CURV=ALENS(43,K)/2.0D0
+         IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+            CURV=surf_asphere_coeff(K, 2)/2.0D0
          ELSE
-            CURV=ALENS(1,K)
+            CURV=surf_curvature(K)
          END IF
       END IF
       PXTRAY(3,K)=CURV*PXTRAY(1,K)+PXTRAY(2,(K-1))
@@ -3882,15 +3886,15 @@ SUBROUTINE FINIYZ
       PXTRAY(4,K)=((ALENS((WWVN),(K-1)))/&
       &(ALENS((WWVN),K)))*PXTRAY(3,K)
 !
-      PXTRAY(5,K)=PXTRAY(5,(K-1))+(ALENS(3,(K-1))*PXTRAY(6,(K-1)))
+      PXTRAY(5,K)=PXTRAY(5,(K-1))+(surf_thickness(K-1)*PXTRAY(6,(K-1)))
 !
-      IF(ALENS(23,K).EQ.2.0D0) THEN
-         CURV=ALENS(24,K)
+      IF(surf_toric_flag(K).EQ.2.0D0) THEN
+         CURV=surf_toric_curvature(K)
       ELSE
-         IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-            CURV=ALENS(43,K)/2.0D0
+         IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+            CURV=surf_asphere_coeff(K, 2)/2.0D0
          ELSE
-            CURV=ALENS(1,K)
+            CURV=surf_curvature(K)
          END IF
       END IF
       PXTRAY(6,K)=-CURV*PXTRAY(5,K)*&
@@ -3900,17 +3904,17 @@ SUBROUTINE FINIYZ
       &((ALENS(WWVN,(K-1)))/&
       &(ALENS(WWVN,K)))*PXTRAY(6,(K-1))
       IF(GLANAM(K,2).EQ.'PERFECT      ')&
-      &PXTRAY(6,K)=(-(1.0D0/ALENS(3,K))*PXTRAY(5,K))+PXTRAY(6,K-1)
+      &PXTRAY(6,K)=(-(1.0D0/surf_thickness(K))*PXTRAY(5,K))+PXTRAY(6,K-1)
       IF(GLANAM(K,2).EQ.'IDEAL        ')&
-      &PXTRAY(6,K)=(-(1.0D0/ALENS(121,K))*PXTRAY(5,K))+PXTRAY(6,K-1)
+      &PXTRAY(6,K)=(-(1.0D0/surf_ideal_efl(K))*PXTRAY(5,K))+PXTRAY(6,K-1)
 !
-      IF(ALENS(23,K).EQ.2.0D0) THEN
-         CURV=ALENS(24,K)
+      IF(surf_toric_flag(K).EQ.2.0D0) THEN
+         CURV=surf_toric_curvature(K)
       ELSE
-         IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-            CURV=ALENS(43,K)/2.0D0
+         IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+            CURV=surf_asphere_coeff(K, 2)/2.0D0
          ELSE
-            CURV=ALENS(1,K)
+            CURV=surf_curvature(K)
          END IF
       END IF
       PXTRAY(7,K)=(CURV*PXTRAY(5,K))+PXTRAY(6,(K-1))
@@ -3927,6 +3931,7 @@ SUBROUTINE FINIXZ
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIXZ. THIS IS THE
@@ -3958,17 +3963,17 @@ SUBROUTINE FINIXZ
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
 !
-   IF(ALENS(32,K).NE.0.0D0) CALL PIKRES
+   IF(surf_pickup_count(K).NE.0.0D0) CALL PIKRES
 !
-   PXTRAX(1,K)=PXTRAX(1,(K-1))+(ALENS(3,(K-1))*PXTRAX(2,(K-1)))
+   PXTRAX(1,K)=PXTRAX(1,(K-1))+(surf_thickness(K-1)*PXTRAX(2,(K-1)))
 !
-   IF(ALENS(23,K).EQ.1.0D0) THEN
-      CURV=ALENS(24,K)
+   IF(surf_toric_flag(K).EQ.1.0D0) THEN
+      CURV=surf_toric_curvature(K)
    ELSE
-      IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-         CURV=ALENS(43,K)/2.0D0
+      IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+         CURV=surf_asphere_coeff(K, 2)/2.0D0
       ELSE
-         CURV=ALENS(1,K)
+         CURV=surf_curvature(K)
       END IF
    END IF
    PXTRAX(2,K)=-CURV*PXTRAX(1,K)*&
@@ -3978,17 +3983,17 @@ SUBROUTINE FINIXZ
    &((ALENS(WWVN,(K-1)))/&
    &(ALENS(WWVN,K)))*PXTRAX(2,(K-1))
    IF(GLANAM(K,2).EQ.'PERFECT      ')&
-   &PXTRAY(2,K)=(-(1.0D0/ALENS(3,K))*PXTRAY(1,K))+PXTRAY(2,K-1)
+   &PXTRAY(2,K)=(-(1.0D0/surf_thickness(K))*PXTRAY(1,K))+PXTRAY(2,K-1)
    IF(GLANAM(K,2).EQ.'IDEAL        ')&
-   &PXTRAY(2,K)=(-(1.0D0/ALENS(121,K))*PXTRAY(1,K))+PXTRAY(2,K-1)
+   &PXTRAY(2,K)=(-(1.0D0/surf_ideal_efl(K))*PXTRAY(1,K))+PXTRAY(2,K-1)
 
-   IF(ALENS(23,K).EQ.1.0D0) THEN
-      CURV=ALENS(24,K)
+   IF(surf_toric_flag(K).EQ.1.0D0) THEN
+      CURV=surf_toric_curvature(K)
    ELSE
-      IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-         CURV=ALENS(43,K)/2.0D0
+      IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+         CURV=surf_asphere_coeff(K, 2)/2.0D0
       ELSE
-         CURV=ALENS(1,K)
+         CURV=surf_curvature(K)
       END IF
    END IF
    PXTRAX(3,K)=CURV*PXTRAX(1,K)+PXTRAX(2,(K-1))
@@ -3996,15 +4001,15 @@ SUBROUTINE FINIXZ
    PXTRAX(4,K)=((ALENS((WWVN),(K-1)))/&
    &(ALENS((WWVN),K)))*PXTRAX(3,K)
 !
-   PXTRAX(5,K)=PXTRAX(5,(K-1))+(ALENS(3,(K-1))*PXTRAX(6,(K-1)))
+   PXTRAX(5,K)=PXTRAX(5,(K-1))+(surf_thickness(K-1)*PXTRAX(6,(K-1)))
 !
-   IF(ALENS(23,K).EQ.1.0D0) THEN
-      CURV=ALENS(24,K)
+   IF(surf_toric_flag(K).EQ.1.0D0) THEN
+      CURV=surf_toric_curvature(K)
    ELSE
-      IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-         CURV=ALENS(43,K)/2.0D0
+      IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+         CURV=surf_asphere_coeff(K, 2)/2.0D0
       ELSE
-         CURV=ALENS(1,K)
+         CURV=surf_curvature(K)
       END IF
    END IF
    PXTRAX(6,K)=-CURV*PXTRAX(5,K)*&
@@ -4014,17 +4019,17 @@ SUBROUTINE FINIXZ
    &((ALENS(WWVN,(K-1)))/&
    &(ALENS(WWVN,K)))*PXTRAX(6,(K-1))
    IF(GLANAM(K,2).EQ.'PERFECT      ')&
-   &PXTRAX(6,K)=(-(1.0D0/ALENS(3,K))*PXTRAX(5,K))+PXTRAX(6,K-1)
+   &PXTRAX(6,K)=(-(1.0D0/surf_thickness(K))*PXTRAX(5,K))+PXTRAX(6,K-1)
    IF(GLANAM(K,2).EQ.'IDEAL        ')&
-   &PXTRAX(6,K)=(-(1.0D0/ALENS(121,K))*PXTRAX(5,K))+PXTRAX(6,K-1)
+   &PXTRAX(6,K)=(-(1.0D0/surf_ideal_efl(K))*PXTRAX(5,K))+PXTRAX(6,K-1)
 !
-   IF(ALENS(23,K).EQ.1.0D0) THEN
-      CURV=ALENS(24,K)
+   IF(surf_toric_flag(K).EQ.1.0D0) THEN
+      CURV=surf_toric_curvature(K)
    ELSE
-      IF(ALENS(1,K).EQ.0.0D0.AND.ALENS(43,K).NE.0.0D0) THEN
-         CURV=ALENS(43,K)/2.0D0
+      IF(surf_curvature(K).EQ.0.0D0.AND.surf_asphere_coeff(K, 2).NE.0.0D0) THEN
+         CURV=surf_asphere_coeff(K, 2)/2.0D0
       ELSE
-         CURV=ALENS(1,K)
+         CURV=surf_curvature(K)
       END IF
    END IF
    PXTRAX(7,K)=(CURV*PXTRAX(5,K))+PXTRAX(6,(K-1))
