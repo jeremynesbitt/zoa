@@ -173,6 +173,7 @@ SUBROUTINE SIZES
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIZES
@@ -310,8 +311,8 @@ SUBROUTINE SIZES
 !     EIGHT PLACES AROUND THE FULL FOV
       KK=0
       DO K=0,8
-         IF(ALENS(9,NEWOBJ).NE.2.0D0.AND.ALENS(9,NEWOBJ).NE.4.0D0.AND.&
-         &ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+         IF(surf_clap_type(NEWOBJ) /= 2.AND.surf_clap_type(NEWOBJ) /= 4.AND.&
+         &surf_array_parity(NEWOBJ) == 0) THEN
             IF(K.EQ.0) THEN
                YF=0.0D0
                XF=1.0D0
@@ -349,7 +350,7 @@ SUBROUTINE SIZES
                XF=0.0D0
             END IF
          ELSE
-            IF(ALENS(9,NEWOBJ).EQ.2.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+            IF(surf_clap_type(NEWOBJ) == 2.AND.surf_array_parity(NEWOBJ) == 0) THEN
                IF(K.EQ.0) THEN
                   YF=0.0D0
                   XF=1.0D0
@@ -387,9 +388,9 @@ SUBROUTINE SIZES
                   XF=0.0D0
                END IF
             END IF
-            IF(ALENS(9,NEWOBJ).EQ.4.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-               YFFIX=DABS(ALENS(14,NEWOBJ)/ALENS(10,NEWOBJ))
-               XFFIX=DABS(ALENS(14,NEWOBJ)/ALENS(11,NEWOBJ))
+            IF(surf_clap_type(NEWOBJ) == 4.AND.surf_array_parity(NEWOBJ) == 0) THEN
+               YFFIX=DABS(surf_clap_dim(NEWOBJ, 5)/surf_clap_dim(NEWOBJ, 1))
+               XFFIX=DABS(surf_clap_dim(NEWOBJ, 5)/surf_clap_dim(NEWOBJ, 2))
                IF(K.EQ.0) THEN
                   YF=0.0D0
                   XF=1.0D0
@@ -471,8 +472,8 @@ SUBROUTINE SIZES
          DO L=0,7
             KK=KK+1
             M=(3*KK)-2
-            IF(ALENS(9,NEWREF).NE.2.0D0.AND.ALENS(9,NEWREF).NE.4.0D0 &
-            &.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+            IF(surf_clap_type(NEWREF) /= 2.AND.surf_clap_type(NEWREF) /= 4 &
+            &.AND.surf_array_parity(NEWOBJ) == 0) THEN
                IF(L.EQ.0) THEN
                   YR=0.0D0
                   XR=XHI
@@ -506,7 +507,7 @@ SUBROUTINE SIZES
                   XR=XHI*DSQRT(2.0D0)/2.0D0
                END IF
             ELSE
-               IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+               IF(surf_clap_type(NEWREF) == 2.AND.surf_array_parity(NEWREF) == 0) THEN
                   IF(L.EQ.0) THEN
                      YR=0.0D0
                      XR=XHI
@@ -540,9 +541,9 @@ SUBROUTINE SIZES
                      XR=XHI
                   END IF
                END IF
-               IF(ALENS(9,NEWREF).EQ.4.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-                  YRFIX=DABS(ALENS(14,NEWREF)/ALENS(10,NEWREF))
-                  XRFIX=DABS(ALENS(14,NEWREF)/ALENS(11,NEWREF))
+               IF(surf_clap_type(NEWREF) == 4.AND.surf_array_parity(NEWREF) == 0) THEN
+                  YRFIX=DABS(surf_clap_dim(NEWREF, 5)/surf_clap_dim(NEWREF, 1))
+                  XRFIX=DABS(surf_clap_dim(NEWREF, 5)/surf_clap_dim(NEWREF, 2))
                   IF(L.EQ.0) THEN
                      YR=0.0D0
                      XR=XHI
@@ -692,6 +693,8 @@ SUBROUTINE SETCLAP
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, surf_array_parity, &
+      set_surf_clap_type, set_surf_clap_dim, set_surf_clap_tilt
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SETCLAP
@@ -815,9 +818,9 @@ SUBROUTINE SETCLAP
       DO I=0,INT(SYSTEM(20))
          IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
             IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
-               IF(ALENS(9,I).EQ.0.0D0.AND.ALENS(9,I).NE.5.0D0.AND.&
-               &ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(9,I)=1.0D0
+               IF(surf_clap_type(I) == 0.AND.surf_clap_type(I) /= 5.AND.&
+               &surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_type(I, 1)
                   IF(I.EQ.0) THEN
                      IF(SYSTEM(16).NE.0.0D0) HX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      IF(SYSTEM(16).EQ.0.0D0) HX=DABS(PXTRAX(1,I))
@@ -827,24 +830,24 @@ SUBROUTINE SETCLAP
                      HX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      HY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                   END IF
-                  IF(HX.GT.HY) ALENS(10,I)=HX
-                  IF(HX.LE.HY) ALENS(10,I)=HY
-                  IF(ALENS(9,I).EQ.1.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
-                     ALENS(11,I)=ALENS(10,I)
+                  IF(HX.GT.HY) call set_surf_clap_dim(I, 1, HX)
+                  IF(HX.LE.HY) call set_surf_clap_dim(I, 1, HY)
+                  IF(surf_clap_type(I) == 1.AND.surf_array_parity(I) == 0) THEN
+                     call set_surf_clap_dim(I, 2, surf_clap_dim(I, 1))
                   ELSE
-                     ALENS(11,I)=0.0D0
+                     call set_surf_clap_dim(I, 2, 0.0D0)
                   END IF
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  ALENS(14,I)=0.0D0
-                  ALENS(15,I)=0.0D0
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
+                  call set_surf_clap_tilt(I, 0.0D0)
                   WRITE(OUTLYNE,10) I
                   CALL SHOWIT(0)
 10                FORMAT('          CLEAR APERTURE ASSIGNED TO SURFACE ',I3)
 15                FORMAT('CLEAR APERTURE DIMENSIONS CHANGED AT SURFACE ',I3)
                END IF
-               IF(ALENS(9,I).EQ.5.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(9,I)=5.0D0
+               IF(surf_clap_type(I) == 5.AND.surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_type(I, 5)
                   IF(I.EQ.0) THEN
                      IF(SYSTEM(16).NE.0.0D0) HX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      IF(SYSTEM(16).EQ.0.0D0) HX=DABS(PXTRAX(1,I))
@@ -854,12 +857,12 @@ SUBROUTINE SETCLAP
                      HX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
                      HY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
                   END IF
-                  IF(HX.GT.HY) ALENS(10,I)=HX
-                  IF(HX.LE.HY) ALENS(10,I)=HY
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  ALENS(14,I)=0.0D0
-                  ALENS(15,I)=0.0D0
+                  IF(HX.GT.HY) call set_surf_clap_dim(I, 1, HX)
+                  IF(HX.LE.HY) call set_surf_clap_dim(I, 1, HY)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
+                  call set_surf_clap_tilt(I, 0.0D0)
                   WRITE(OUTLYNE,10) I
                   CALL SHOWIT(0)
                END IF
@@ -881,8 +884,8 @@ SUBROUTINE SETCLAP
 !     EIGHT PLACES AROUND THE FULL FOV
       KK=0
       DO K=0,8
-         IF(ALENS(9,NEWOBJ).NE.2.0D0.AND.ALENS(9,NEWOBJ).NE.4.0D0 &
-         &.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+         IF(surf_clap_type(NEWOBJ) /= 2.AND.surf_clap_type(NEWOBJ) /= 4 &
+         &.AND.surf_array_parity(NEWOBJ) == 0) THEN
             IF(K.EQ.0) THEN
                YF=0.0D0
                XF=1.0D0
@@ -920,7 +923,7 @@ SUBROUTINE SETCLAP
                XF=0.0D0
             END IF
          ELSE
-            IF(ALENS(9,NEWOBJ).EQ.2.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
+            IF(surf_clap_type(NEWOBJ) == 2.AND.surf_array_parity(NEWOBJ) == 0) THEN
                IF(K.EQ.0) THEN
                   YF=0.0D0
                   XF=1.0D0
@@ -958,9 +961,9 @@ SUBROUTINE SETCLAP
                   XF=0.0D0
                END IF
             END IF
-            IF(ALENS(9,NEWOBJ).EQ.4.0D0.AND.ALENS(127,NEWOBJ).EQ.0.0D0) THEN
-               YFFIX=DABS(ALENS(14,NEWOBJ)/ALENS(10,NEWOBJ))
-               XFFIX=DABS(ALENS(14,NEWOBJ)/ALENS(11,NEWOBJ))
+            IF(surf_clap_type(NEWOBJ) == 4.AND.surf_array_parity(NEWOBJ) == 0) THEN
+               YFFIX=DABS(surf_clap_dim(NEWOBJ, 5)/surf_clap_dim(NEWOBJ, 1))
+               XFFIX=DABS(surf_clap_dim(NEWOBJ, 5)/surf_clap_dim(NEWOBJ, 2))
                IF(K.EQ.0) THEN
                   YF=0.0D0
                   XF=1.0D0
@@ -1042,8 +1045,8 @@ SUBROUTINE SETCLAP
          DO L=0,7
             KK=KK+1
             M=(3*KK)-2
-            IF(ALENS(9,NEWREF).NE.2.0D0.AND.ALENS(9,NEWREF).NE.4.0D0 &
-            &.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+            IF(surf_clap_type(NEWREF) /= 2.AND.surf_clap_type(NEWREF) /= 4 &
+            &.AND.surf_array_parity(NEWREF) == 0) THEN
                IF(L.EQ.0) THEN
                   YR=0.0D0
                   XR=XHI
@@ -1077,7 +1080,7 @@ SUBROUTINE SETCLAP
                   XR=XHI*DSQRT(2.0D0)/2.0D0
                END IF
             ELSE
-               IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+               IF(surf_clap_type(NEWREF) == 2.AND.surf_array_parity(NEWREF) == 0) THEN
                   IF(L.EQ.0) THEN
                      YR=0.0D0
                      XR=XHI
@@ -1111,9 +1114,9 @@ SUBROUTINE SETCLAP
                      XR=XHI
                   END IF
                END IF
-               IF(ALENS(9,NEWREF).EQ.4.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
-                  YRFIX=DABS(ALENS(14,NEWREF)/ALENS(10,NEWREF))
-                  XRFIX=DABS(ALENS(14,NEWREF)/ALENS(11,NEWREF))
+               IF(surf_clap_type(NEWREF) == 4.AND.surf_array_parity(NEWREF) == 0) THEN
+                  YRFIX=DABS(surf_clap_dim(NEWREF, 5)/surf_clap_dim(NEWREF, 1))
+                  XRFIX=DABS(surf_clap_dim(NEWREF, 5)/surf_clap_dim(NEWREF, 2))
                   IF(L.EQ.0) THEN
                      YR=0.0D0
                      XR=XHI
@@ -1207,8 +1210,8 @@ SUBROUTINE SETCLAP
 !
       DO I=0,INT(SYSTEM(20))
          call LogTermFOR("Surf "//trim(int2str(I))//&
-         &" ALENS(9,1 ) "//trim(real2str(ALENS(9,I))) //&
-         &" ALENS(127,I) "//trim(real2str(ALENS(127,I))) //&
+         &" ALENS(9,1 ) "//trim(real2str(surf_clap_type(I))) //&
+         &" surf_array_parity(I) "//trim(real2str(surf_array_parity(I))) //&
          &" W1 is "//trim(real2str(W1)) //&
          &" W2 is "//trim(real2str(W2)))
          PRINT *, "DUMMY(I) is ", DUMMMY(I)
@@ -1236,79 +1239,79 @@ SUBROUTINE SETCLAP
                XRAD=DABS((HXMAX-HXMIN)/2.0D0)
                RRAD=YRAD
                IF(XRAD.GT.RRAD) RRAD=XRAD
-               IF(ALENS(9,I).EQ.0.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
-               &.AND.ALENS(127,I).EQ.0.0D0) THEN
+               IF(surf_clap_type(I) == 0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
+               &.AND.surf_array_parity(I) == 0) THEN
                   call LogTermFOR("In here and RRAD is "//trim(real2str(RRAD)))
-                  ALENS(9,I)=1.0D0
-                  ALENS(10,I)=RRAD
-                  ALENS(11,I)=RRAD
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  IF(DABS(YCENPOS).GT.1.0D-6) ALENS(12,I)=YCENPOS
-                  IF(DABS(XCENPOS).GT.1.0D-6) ALENS(13,I)=XCENPOS
-                  ALENS(14,I)=0.0D0
-                  ALENS(15,I)=0.0D0
+                  call set_surf_clap_type(I, 1)
+                  call set_surf_clap_dim(I, 1, RRAD)
+                  call set_surf_clap_dim(I, 2, RRAD)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  IF(DABS(YCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 3, YCENPOS)
+                  IF(DABS(XCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 4, XCENPOS)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
+                  call set_surf_clap_tilt(I, 0.0D0)
                   WRITE(OUTLYNE,10) I
                   CALL SHOWIT(0)
                END IF
-               IF(ALENS(9,I).EQ.1.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
-               &.AND.ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(10,I)=RRAD
-                  ALENS(11,I)=RRAD
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  IF(DABS(YCENPOS).GT.1.0D-6) ALENS(12,I)=YCENPOS
-                  IF(DABS(XCENPOS).GT.1.0D-6) ALENS(13,I)=XCENPOS
-                  ALENS(14,I)=0.0D0
-                  ALENS(15,I)=0.0D0
+               IF(surf_clap_type(I) == 1.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
+               &.AND.surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_dim(I, 1, RRAD)
+                  call set_surf_clap_dim(I, 2, RRAD)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  IF(DABS(YCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 3, YCENPOS)
+                  IF(DABS(XCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 4, XCENPOS)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
+                  call set_surf_clap_tilt(I, 0.0D0)
                   WRITE(OUTLYNE,15) I
                   CALL SHOWIT(0)
                END IF
-               IF(ALENS(9,I).EQ.2.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
-               &.AND.ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(10,I)=YRAD
-                  ALENS(11,I)=XRAD
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  IF(DABS(YCENPOS).GT.1.0D-6) ALENS(12,I)=YCENPOS
-                  IF(DABS(XCENPOS).GT.1.0D-6) ALENS(13,I)=XCENPOS
-                  ALENS(14,I)=0.0D0
+               IF(surf_clap_type(I) == 2.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
+               &.AND.surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_dim(I, 1, YRAD)
+                  call set_surf_clap_dim(I, 2, XRAD)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  IF(DABS(YCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 3, YCENPOS)
+                  IF(DABS(XCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 4, XCENPOS)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
                   WRITE(OUTLYNE,15) I
                   CALL SHOWIT(0)
                END IF
-               IF(ALENS(9,I).EQ.3.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
-               &.AND.ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(10,I)=YRAD
-                  ALENS(11,I)=XRAD
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  IF(DABS(YCENPOS).GT.1.0D-6) ALENS(12,I)=YCENPOS
-                  IF(DABS(XCENPOS).GT.1.0D-6) ALENS(13,I)=XCENPOS
-                  ALENS(14,I)=0.0D0
+               IF(surf_clap_type(I) == 3.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
+               &.AND.surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_dim(I, 1, YRAD)
+                  call set_surf_clap_dim(I, 2, XRAD)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  IF(DABS(YCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 3, YCENPOS)
+                  IF(DABS(XCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 4, XCENPOS)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
                   WRITE(OUTLYNE,15) I
                   CALL SHOWIT(0)
                END IF
-               IF(ALENS(9,I).EQ.4.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
-               &.AND.ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(10,I)=YRAD
-                  ALENS(11,I)=XRAD
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  IF(DABS(YCENPOS).GT.1.0D-6) ALENS(12,I)=YCENPOS
-                  IF(DABS(XCENPOS).GT.1.0D-6) ALENS(13,I)=XCENPOS
-                  ALENS(14,I)=0.0D0
+               IF(surf_clap_type(I) == 4.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
+               &.AND.surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_dim(I, 1, YRAD)
+                  call set_surf_clap_dim(I, 2, XRAD)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  IF(DABS(YCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 3, YCENPOS)
+                  IF(DABS(XCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 4, XCENPOS)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
                   WRITE(OUTLYNE,15) I
                   CALL SHOWIT(0)
                END IF
-               IF(ALENS(9,I).EQ.5.0D0.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
-               &.AND.ALENS(127,I).EQ.0.0D0) THEN
-                  ALENS(10,I)=XRAD
-                  IF(YRAD.GT.XRAD) ALENS(10,I)=YRAD
-                  ALENS(12,I)=0.0D0
-                  ALENS(13,I)=0.0D0
-                  IF(DABS(YCENPOS).GT.1.0D-6) ALENS(12,I)=YCENPOS
-                  IF(DABS(XCENPOS).GT.1.0D-6) ALENS(13,I)=XCENPOS
-                  ALENS(14,I)=0.0D0
+               IF(surf_clap_type(I) == 5.AND.FWARN.EQ.0.AND.RWARN.EQ.0 &
+               &.AND.surf_array_parity(I) == 0) THEN
+                  call set_surf_clap_dim(I, 1, XRAD)
+                  IF(YRAD.GT.XRAD) call set_surf_clap_dim(I, 1, YRAD)
+                  call set_surf_clap_dim(I, 3, 0.0D0)
+                  call set_surf_clap_dim(I, 4, 0.0D0)
+                  IF(DABS(YCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 3, YCENPOS)
+                  IF(DABS(XCENPOS).GT.1.0D-6) call set_surf_clap_dim(I, 4, XCENPOS)
+                  call set_surf_clap_dim(I, 5, 0.0D0)
                   WRITE(OUTLYNE,15) I
                   CALL SHOWIT(0)
                END IF
@@ -1542,6 +1545,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_thickness, surf_ideal_efl
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HOERAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1683,8 +1687,8 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
    FAIL=.FALSE.
 !
 9  CONTINUE
-   IF(ALENS(3,0).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(3,0).GE.0.0D0) REVSTR=.FALSE.
+   IF(surf_thickness(0).LT.0.0D0) REVSTR=.TRUE.
+   IF(surf_thickness(0).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
    KKK=KKK+1
 !       IF KKK EXCEEDS 100 TRIES, PRINT RAY ITERRATION ERROR
@@ -1952,7 +1956,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
          H_RAY(8,I)=0.0D0
       END IF
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
-         H_RAY(8,I)=-(ALENS(121,I-1)-ALENS(3,I-1))*H_RAY(6,I-1)
+         H_RAY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*H_RAY(6,I-1)
       END IF
 
       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5)&
@@ -2083,7 +2087,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
             XC1=XC
             YC1=YC
             ZC1=ZC
-            IF(ALENS(1,1).NE.0.0D0)&
+            IF(surf_curvature(1).NE.0.0D0)&
             &CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
@@ -2141,6 +2145,7 @@ SUBROUTINE RRAY2
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_special_type
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2229,8 +2234,8 @@ SUBROUTINE RRAY2
 !       THE FULL RAY DATA FOR THE FULLY AIMMED AND TRACED
 !       RAY.
    DO J=0,INT(SYSTEM(20))
-      IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-      IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
    IF(LDIF) THEN
 !       RAY WAS TRACED, NOW TRACE THE DIFFERENTIAL RAY
@@ -2888,6 +2893,7 @@ SUBROUTINE RRAY
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_special_type
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3043,8 +3049,8 @@ SUBROUTINE RRAY
 !       THE FULL RAY DATA FOR THE FULLY AIMMED AND TRACED
 !       RAY.
    DO J=0,INT(SYSTEM(20))
-      IF(ALENS(34,J).EQ.18.0D0) LDIF2=.FALSE.
-      IF(ALENS(34,J).EQ.18.0D0) LDIF=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF2=.FALSE.
+      IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
    IF(LDIF) THEN
 !       RAY WAS TRACED, NOW TRACE THE DIFFERENTIAL RAY
@@ -3341,6 +3347,7 @@ SUBROUTINE MTRACERI_GRID1
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, surf_array_parity
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTRACERI IT DOES THE MTRACEI1 (GRID) COMMAND
@@ -3496,24 +3503,24 @@ SUBROUTINE MTRACERI_GRID1
 !       LIMITED TO CIRCULAR, ELLIPSE,RECTANGULAR OF RACETRACE,POLY OR IPOLY, NO MULTI-POLYS
 !       THEN SEE IF ANY GRID POINTS ARE OUTSIDE THE CLAP AND ARE TO BE DIS-ALLOWED
 !       CALLCULATE TOTAL AREA OF THE CLAP ON THE SPOT DIAGRAM SURFACE
-   IF(ALENS(9,NEWIMG).EQ.1.0D0.OR.&
-   &ALENS(9,NEWIMG).EQ.2.0D0.OR.&
-   &ALENS(9,NEWIMG).EQ.3.0D0.OR.&
-   &ALENS(9,NEWIMG).EQ.4.0D0) THEN
-      IF(ALENS(9,NEWIMG).EQ.1.0D0) THEN
-         TAREA=(ALENS(10,NEWIMG)**2)*PII
+   IF(surf_clap_type(NEWIMG) == 1.OR.&
+   &surf_clap_type(NEWIMG) == 2.OR.&
+   &surf_clap_type(NEWIMG) == 3.OR.&
+   &surf_clap_type(NEWIMG) == 4) THEN
+      IF(surf_clap_type(NEWIMG) == 1) THEN
+         TAREA=(surf_clap_dim(NEWIMG, 1)**2)*PII
       END IF
-      IF(ALENS(9,NEWIMG).EQ.2.0D0) THEN
-         TAREA=(4.0D0*ALENS(10,NEWIMG)*ALENS(11,NEWIMG))
+      IF(surf_clap_type(NEWIMG) == 2) THEN
+         TAREA=(4.0D0*surf_clap_dim(NEWIMG, 1)*surf_clap_dim(NEWIMG, 2))
       END IF
-      IF(ALENS(9,NEWIMG).EQ.3.0D0) THEN
-         TAREA=ALENS(11,NEWIMG)*ALENS(10,NEWIMG)*PII
+      IF(surf_clap_type(NEWIMG) == 3) THEN
+         TAREA=surf_clap_dim(NEWIMG, 2)*surf_clap_dim(NEWIMG, 1)*PII
       END IF
-      IF(ALENS(9,NEWIMG).EQ.4.0D0) THEN
-         TAREA=(4.0D0*ALENS(10,NEWIMG)*ALENS(11,NEWIMG))&
+      IF(surf_clap_type(NEWIMG) == 4) THEN
+         TAREA=(4.0D0*surf_clap_dim(NEWIMG, 1)*surf_clap_dim(NEWIMG, 2))&
          &-(&
-         &((2.0D0*ALENS(14,NEWIMG))**2)&
-         &-(PII*(ALENS(14,NEWIMG)**2)))
+         &((2.0D0*surf_clap_dim(NEWIMG, 5))**2)&
+         &-(PII*(surf_clap_dim(NEWIMG, 5)**2)))
       END IF
 !       DIS-ALLOW POINTS
       DO I=1,NX
@@ -3885,6 +3892,7 @@ SUBROUTINE MTRACERI_GRID2
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_clap_type, surf_clap_dim
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTRACERI IT DOES THE MTRACEI2 (GRID) COMMAND
@@ -4043,10 +4051,10 @@ SUBROUTINE MTRACERI_GRID2
 !       LIMITED TO CIRCULAR, ELLIPSE,RECTANGULAR OF RACETRACE,POLY OR IPOLY, NO MULTI-POLYS
 !       THEN SEE IF ANY GRID POINTS ARE OUTSIDE THE CLAP AND ARE TO BE DIS-ALLOWED
 !       DIS-ALLOW POINTS
-   IF(ALENS(9,NEWIMG).EQ.1.0D0.OR.&
-   &ALENS(9,NEWIMG).EQ.2.0D0.OR.&
-   &ALENS(9,NEWIMG).EQ.3.0D0.OR.&
-   &ALENS(9,NEWIMG).EQ.4.0D0) THEN
+   IF(surf_clap_type(NEWIMG) == 1.OR.&
+   &surf_clap_type(NEWIMG) == 2.OR.&
+   &surf_clap_type(NEWIMG) == 3.OR.&
+   &surf_clap_type(NEWIMG) == 4) THEN
       DO I=1,NX
          DO J=1,NY
             X=IXARRAY(I,J)
