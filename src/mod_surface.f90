@@ -63,7 +63,15 @@ module mod_surface
         surf_multi_cobs_flag,   set_surf_multi_cobs_flag,  &
         surf_array_dx,          set_surf_array_dx,         &
         surf_array_dy,          set_surf_array_dy,         &
-        surf_array_parity,      set_surf_array_parity
+        surf_array_parity,      set_surf_array_parity,     &
+        surf_dummy_val,         set_surf_dummy_val,        &
+        surf_paraxial_val,      set_surf_paraxial_val,     &
+        surf_coat_type,         set_surf_coat_type,        &
+        surf_default_flag,      set_surf_default_flag,     &
+        surf_pivot_axis,        set_surf_pivot_axis,       &
+        surf_focus_dx,          set_surf_focus_dx,         &
+        surf_focus_dy,          set_surf_focus_dy,         &
+        surf_focus_dz,          set_surf_focus_dz
 
 contains
 
@@ -757,6 +765,92 @@ contains
     subroutine set_surf_array_parity(s, val)
         integer, intent(in) :: s, val
         ALENS(133, s) = real(val, real64)
+    end subroutine
+
+    ! Raw dummy flag (ALENS 68): 0=dummy surface, 1=not dummy
+    integer function surf_dummy_val(s)
+        integer, intent(in) :: s
+        surf_dummy_val = nint(ALENS(68, s))
+    end function
+
+    subroutine set_surf_dummy_val(s, val)
+        integer, intent(in) :: s, val
+        ALENS(68, s) = real(val, real64)
+    end subroutine
+
+    ! Raw paraxial flag (ALENS 124): 0=real ray trace, 1=paraxial
+    integer function surf_paraxial_val(s)
+        integer, intent(in) :: s
+        surf_paraxial_val = nint(ALENS(124, s))
+    end function
+
+    subroutine set_surf_paraxial_val(s, val)
+        integer, intent(in) :: s, val
+        ALENS(124, s) = real(val, real64)
+    end subroutine
+
+    ! Coat type (ALENS 16): 0=none, 1-6 coating type codes
+    integer function surf_coat_type(s)
+        integer, intent(in) :: s
+        surf_coat_type = nint(ALENS(16, s))
+    end function
+
+    subroutine set_surf_coat_type(s, val)
+        integer, intent(in) :: s, val
+        ALENS(16, s) = real(val, real64)
+    end subroutine
+
+    ! Default flag (ALENS 103): 1 when surface inherits default parameters
+    integer function surf_default_flag(s)
+        integer, intent(in) :: s
+        surf_default_flag = nint(ALENS(103, s))
+    end function
+
+    subroutine set_surf_default_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(103, s) = real(val, real64)
+    end subroutine
+
+    ! Pivot axis mode (ALENS 113): 0=vertex, 1=normal
+    integer function surf_pivot_axis(s)
+        integer, intent(in) :: s
+        surf_pivot_axis = nint(ALENS(113, s))
+    end function
+
+    subroutine set_surf_pivot_axis(s, val)
+        integer, intent(in) :: s, val
+        ALENS(113, s) = real(val, real64)
+    end subroutine
+
+    ! Focus offset x/y/z (ALENS 114-116)
+    real(real64) function surf_focus_dx(s)
+        integer, intent(in) :: s
+        surf_focus_dx = ALENS(114, s)
+    end function
+
+    subroutine set_surf_focus_dx(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(114, s) = val
+    end subroutine
+
+    real(real64) function surf_focus_dy(s)
+        integer, intent(in) :: s
+        surf_focus_dy = ALENS(115, s)
+    end function
+
+    subroutine set_surf_focus_dy(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(115, s) = val
+    end subroutine
+
+    real(real64) function surf_focus_dz(s)
+        integer, intent(in) :: s
+        surf_focus_dz = ALENS(116, s)
+    end function
+
+    subroutine set_surf_focus_dz(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(116, s) = val
     end subroutine
 
 end module mod_surface

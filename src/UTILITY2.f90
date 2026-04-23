@@ -302,6 +302,7 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
    use ieee_arithmetic, only: ieee_is_nan
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGFLT.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -320,25 +321,25 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
    !PRINT *, "SAGCODE in SAGFLT is ", SAGCODE
 
 
-   IF(ALENS(133,I).NE.0.0D0) CALL SAGARRAY(I,X,Y)
+   IF(surf_array_parity(I) /= 0) CALL SAGARRAY(I,X,Y)
 !
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.1) THEN
-      SAG=((((X**2)+(Y**2)))*ALENS(43,I))+&
-      &((((X**2)+(Y**2))**2)*ALENS(4,I))+&
-      &((((X**2)+(Y**2))**3)*ALENS(5,I))+&
-      &((((X**2)+(Y**2))**4)*ALENS(6,I))+&
-      &((((X**2)+(Y**2))**5)*ALENS(7,I))+&
-      &((((X**2)+(Y**2))**6)*ALENS(81,I))+&
-      &((((X**2)+(Y**2))**7)*ALENS(82,I))+&
-      &((((X**2)+(Y**2))**8)*ALENS(83,I))+&
-      &((((X**2)+(Y**2))**9)*ALENS(84,I))+&
-      &((((X**2)+(Y**2))**10)*ALENS(85,I))
+      SAG=((((X**2)+(Y**2)))*surf_asphere_coeff(I, 2))+&
+      &((((X**2)+(Y**2))**2)*surf_asphere_coeff(I, 4))+&
+      &((((X**2)+(Y**2))**3)*surf_asphere_coeff(I, 6))+&
+      &((((X**2)+(Y**2))**4)*surf_asphere_coeff(I, 8))+&
+      &((((X**2)+(Y**2))**5)*surf_asphere_coeff(I, 10))+&
+      &((((X**2)+(Y**2))**6)*surf_asphere_coeff(I, 12))+&
+      &((((X**2)+(Y**2))**7)*surf_asphere_coeff(I, 14))+&
+      &((((X**2)+(Y**2))**8)*surf_asphere_coeff(I, 16))+&
+      &((((X**2)+(Y**2))**9)*surf_asphere_coeff(I, 18))+&
+      &((((X**2)+(Y**2))**10)*surf_asphere_coeff(I, 20))
       ! JN - for Afocal systems this term can
       ! lead to NaN in gfortran hence this call
       if (ieee_is_nan(SAG)) SAG = 0.0D0
       !PRINT *, "X ", X, "Y ", Y
       !PRINT *, "SAG in SAGFLT SAGCODE 0 is ", SAG
-      !PRINT *, "10th order ", ((((X**2)+(Y**2))**10)*ALENS(85,I))
+      !PRINT *, "10th order ", ((((X**2)+(Y**2))**10)*surf_asphere_coeff(I, 20))
 
    ELSE
       SAG=0.0D0
@@ -346,18 +347,18 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
 
 !       SPECIAL SURFACE ?
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.2) THEN
-      IF(ALENS(34,I).NE.0.0D0.AND.&
-      &ALENS(34,I).NE.6.0D0.AND.ALENS(34,I).NE.7.0D0.AND.&
-      &ALENS(34,I).NE.9.0D0.AND.ALENS(34,I).NE.10.0D0.AND.&
-      &ALENS(34,I).NE.12.0D0.AND.ALENS(34,I).NE.13.0D0.OR.&
-      &ALENS(103,I).EQ.1.0D0) THEN
+      IF(surf_special_type(I) /= 0.AND.&
+      &surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.&
+      &surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.&
+      &surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.&
+      &surf_default_flag(I) == 1) THEN
          CALL SAGSPC(I,X,Y,Z)
-         IF(ALENS(34,I).EQ.24.0D0.AND.FTFL01(2,I).EQ.-1.0D0) THEN
+         IF(surf_special_type(I) == 24.AND.FTFL01(2,I).EQ.-1.0D0) THEN
             SAG=Z
          ELSE
             SAG=SAG+Z
          END IF
-         IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+         IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       END IF
    END IF
    RETURN
@@ -368,6 +369,7 @@ SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    REAL*8 CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
@@ -375,7 +377,7 @@ SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
 !
    INTEGER I
 !
-   IF(ALENS(133,I).NE.0.0D0) CALL SAGARRAY(I,X,Y)
+   IF(surf_array_parity(I) /= 0) CALL SAGARRAY(I,X,Y)
 !
    R1=(DY*((((1.0D0-DX)*(X**2))+((1.0D0+DX)*(Y**2)))**2))
    R2=(EY*((((1.0D0-EX)*(X**2))+((1.0D0+EX)*(Y**2)))**3))
@@ -394,18 +396,18 @@ SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
    END IF
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.2) THEN
 !       SPECIAL SURFACE ?
-      IF(ALENS(34,I).NE.0.0D0.AND.&
-      &ALENS(34,I).NE.6.0D0.AND.ALENS(34,I).NE.7.0D0.AND.&
-      &ALENS(34,I).NE.9.0D0.AND.ALENS(34,I).NE.10.0D0.AND.&
-      &ALENS(34,I).NE.12.0D0.AND.ALENS(34,I).NE.13.0D0.OR.&
-      &ALENS(103,I).EQ.1.0D0) THEN
+      IF(surf_special_type(I) /= 0.AND.&
+      &surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.&
+      &surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.&
+      &surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.&
+      &surf_default_flag(I) == 1) THEN
          CALL SAGSPC(I,X,Y,Z)
-         IF(ALENS(34,I).EQ.24.0D0.AND.FTFL01(2,I).EQ.-1.0D0) THEN
+         IF(surf_special_type(I) == 24.AND.FTFL01(2,I).EQ.-1.0D0) THEN
             SAG=Z
          ELSE
             SAG=SAG+Z
          END IF
-         IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+         IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       END IF
    END IF
    RETURN
@@ -415,38 +417,39 @@ SUBROUTINE SAGASP(I,X,Y,SAG)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER I
 !
    REAL*8 X,Y,SAG,C2,RHO2,RHO,Z,R
 !
-   IF(ALENS(133,I).NE.0.0D0) CALL SAGARRAY(I,X,Y)
+   IF(surf_array_parity(I) /= 0) CALL SAGARRAY(I,X,Y)
 !
    RHO2=(X**2)+(Y**2)
    RHO=DSQRT(RHO2)
-   C2=ALENS(1,I)**2
-   R=1.0D0-((ALENS(2,I)+1.0D0)*(C2*RHO2))
+   C2=surf_curvature(I)**2
+   R=1.0D0-((surf_conic(I)+1.0D0)*(C2*RHO2))
    IF(R.LT.0.0D0) THEN
-      R=1.0D0-((ALENS(2,I)+1))
+      R=1.0D0-((surf_conic(I)+1))
       IF(R.LT.0.0D0) R=0.0D0
-      SAG=(1.0D0/ALENS(1,I))/(1.0D0+DSQRT(R))
+      SAG=(1.0D0/surf_curvature(I))/(1.0D0+DSQRT(R))
       RETURN
    END IF
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.1) THEN
-      SAG=(ALENS(1,I)*RHO2)/&
+      SAG=(surf_curvature(I)*RHO2)/&
       &(1.0D0+DSQRT(R))
-      IF(ALENS(8,I).NE.0.0D0) THEN
+      IF(surf_is_asphere(I)) THEN
          SAG=SAG+&
-         &(ALENS(4,I)*(RHO**4))&
-         &+(ALENS(5,I)*(RHO**6))&
-         &+(ALENS(6,I)*(RHO**8))&
-         &+(ALENS(7,I)*(RHO**10))&
-         &+(ALENS(81,I)*(RHO**12))&
-         &+(ALENS(82,I)*(RHO**14))&
-         &+(ALENS(83,I)*(RHO**16))&
-         &+(ALENS(84,I)*(RHO**18))&
-         &+(ALENS(85,I)*(RHO**20))
+         &(surf_asphere_coeff(I, 4)*(RHO**4))&
+         &+(surf_asphere_coeff(I, 6)*(RHO**6))&
+         &+(surf_asphere_coeff(I, 8)*(RHO**8))&
+         &+(surf_asphere_coeff(I, 10)*(RHO**10))&
+         &+(surf_asphere_coeff(I, 12)*(RHO**12))&
+         &+(surf_asphere_coeff(I, 14)*(RHO**14))&
+         &+(surf_asphere_coeff(I, 16)*(RHO**16))&
+         &+(surf_asphere_coeff(I, 18)*(RHO**18))&
+         &+(surf_asphere_coeff(I, 20)*(RHO**20))
       END IF
    ELSE
       SAG=0.0D0
@@ -454,18 +457,18 @@ SUBROUTINE SAGASP(I,X,Y,SAG)
 !
 !       SPECIAL SURFACE ?
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.2) THEN
-      IF(ALENS(34,I).NE.0.0D0.AND.&
-      &ALENS(34,I).NE.6.0D0.AND.ALENS(34,I).NE.7.0D0.AND.&
-      &ALENS(34,I).NE.9.0D0.AND.ALENS(34,I).NE.10.0D0.AND.&
-      &ALENS(34,I).NE.12.0D0.AND.ALENS(34,I).NE.13.0D0.OR.&
-      &ALENS(103,I).EQ.1.0D0) THEN
+      IF(surf_special_type(I) /= 0.AND.&
+      &surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.&
+      &surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.&
+      &surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.&
+      &surf_default_flag(I) == 1) THEN
          CALL SAGSPC(I,X,Y,Z)
-         IF(ALENS(34,I).EQ.24.0D0.AND.FTFL01(2,I).EQ.-1.0D0) THEN
+         IF(surf_special_type(I) == 24.AND.FTFL01(2,I).EQ.-1.0D0) THEN
             SAG=Z
          ELSE
             SAG=SAG+Z
          END IF
-         IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+         IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       END IF
    END IF
    RETURN
@@ -476,6 +479,7 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    REAL*8 C,K,Z,DELTA,ARG,MAXCLAP,DELCLAP &
@@ -498,8 +502,8 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
    Y2=Y+DELTA
 !
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-   IF(ALENS(1,I).EQ.0.0D0 &
-   &.AND.ALENS(23,I).EQ.0.0D0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 &
+   &.AND.surf_toric_flag(I) == 0) THEN
       CALL SAGFLT(I,X,Y,Z)
       CALL SAGFLT(I,X,Y2,Z2)
       CALL SAGFLT(I,X,Y1,Z1)
@@ -511,9 +515,9 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
       RETURN
    END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-   IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-      C=ALENS(1,I)
-      K=ALENS(2,I)
+   IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+      C=surf_curvature(I)
+      K=surf_conic(I)
       ARG= ARG1(C,K,X,Y)
       ARGA= ARG1(C,K,X1,Y)
       ARGB= ARG1(C,K,X2,Y)
@@ -540,38 +544,38 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
          RETURN
       END IF
    END IF
-   IF(ALENS(23,I).NE.0.0D0) THEN
+   IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-      IF(ALENS(23,I).EQ.1.0D0) THEN
+      IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-         CY=ALENS(1,I)
-         KY=ALENS(2,I)
-         DY=ALENS(4,I)
-         EY=ALENS(5,I)
-         FY=ALENS(6,I)
-         GY=ALENS(7,I)
-         CX=ALENS(24,I)
-         KX=ALENS(41,I)
-         DX=ALENS(37,I)
-         EX=ALENS(38,I)
-         FX=ALENS(39,I)
-         GX=ALENS(40,I)
+         CY=surf_curvature(I)
+         KY=surf_conic(I)
+         DY=surf_asphere_coeff(I, 4)
+         EY=surf_asphere_coeff(I, 6)
+         FY=surf_asphere_coeff(I, 8)
+         GY=surf_asphere_coeff(I, 10)
+         CX=surf_toric_curvature(I)
+         KX=surf_anamorphic_conic(I)
+         DX=surf_anamorphic_coeff(I, 4)
+         EX=surf_anamorphic_coeff(I, 6)
+         FX=surf_anamorphic_coeff(I, 8)
+         GX=surf_anamorphic_coeff(I, 10)
       END IF
-      IF(ALENS(23,I).EQ.2.0D0) THEN
+      IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-         CX=ALENS(1,I)
-         KX=ALENS(2,I)
-         DX=ALENS(4,I)
-         EX=ALENS(5,I)
-         FX=ALENS(6,I)
-         GX=ALENS(7,I)
-         CY=ALENS(24,I)
-         KY=ALENS(41,I)
-         DY=ALENS(37,I)
-         EY=ALENS(38,I)
-         FY=ALENS(39,I)
-         GY=ALENS(40,I)
+         CX=surf_curvature(I)
+         KX=surf_conic(I)
+         DX=surf_asphere_coeff(I, 4)
+         EX=surf_asphere_coeff(I, 6)
+         FX=surf_asphere_coeff(I, 8)
+         GX=surf_asphere_coeff(I, 10)
+         CY=surf_toric_curvature(I)
+         KY=surf_anamorphic_conic(I)
+         DY=surf_anamorphic_coeff(I, 4)
+         EY=surf_anamorphic_coeff(I, 6)
+         FY=surf_anamorphic_coeff(I, 8)
+         GY=surf_anamorphic_coeff(I, 10)
       END IF
       ARG=ARG2(CX,CY,KX,KY,X,Y)
       ARGA=ARG2(CX,CY,KX,KY,X1,Y)
@@ -604,6 +608,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGITT.
@@ -631,17 +636,17 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
       X=CA
    END IF
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-   IF(ALENS(1,I).EQ.0.0D0 &
-   &.AND.ALENS(23,I).EQ.0.0D0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 &
+   &.AND.surf_toric_flag(I) == 0) THEN
       CALL SAGFLT(I,X,Y,SAG)
       IF(DABS(SAG).LT.1E-15) SAG=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+      IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       RETURN
    END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-   IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-      C=ALENS(1,I)
-      K=ALENS(2,I)
+   IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+      C=surf_curvature(I)
+      K=surf_conic(I)
       ARG= ARG1(C,K,X,Y)
       IF(ARG.LT.0.0D0) THEN
          WRITE(OUTLYNE,*)&
@@ -655,41 +660,41 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
 !                        PROCEED
       CALL SAGASP(I,X,Y,SAG)
       IF(DABS(SAG).LT.1E-15) SAG=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+      IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       RETURN
    END IF
-   IF(ALENS(23,I).NE.0.0D0) THEN
+   IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-      IF(ALENS(23,I).EQ.1.0D0) THEN
+      IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-         CY=ALENS(1,I)
-         KY=ALENS(2,I)
-         DY=ALENS(4,I)
-         EY=ALENS(5,I)
-         FY=ALENS(6,I)
-         GY=ALENS(7,I)
-         CX=ALENS(24,I)
-         KX=ALENS(41,I)
-         DX=ALENS(37,I)
-         EX=ALENS(38,I)
-         FX=ALENS(39,I)
-         GX=ALENS(40,I)
+         CY=surf_curvature(I)
+         KY=surf_conic(I)
+         DY=surf_asphere_coeff(I, 4)
+         EY=surf_asphere_coeff(I, 6)
+         FY=surf_asphere_coeff(I, 8)
+         GY=surf_asphere_coeff(I, 10)
+         CX=surf_toric_curvature(I)
+         KX=surf_anamorphic_conic(I)
+         DX=surf_anamorphic_coeff(I, 4)
+         EX=surf_anamorphic_coeff(I, 6)
+         FX=surf_anamorphic_coeff(I, 8)
+         GX=surf_anamorphic_coeff(I, 10)
       END IF
-      IF(ALENS(23,I).EQ.2.0D0) THEN
+      IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-         CX=ALENS(1,I)
-         KX=ALENS(2,I)
-         DX=ALENS(4,I)
-         EX=ALENS(5,I)
-         FX=ALENS(6,I)
-         GX=ALENS(7,I)
-         CY=ALENS(24,I)
-         KY=ALENS(41,I)
-         DY=ALENS(37,I)
-         EY=ALENS(38,I)
-         FY=ALENS(39,I)
-         GY=ALENS(40,I)
+         CX=surf_curvature(I)
+         KX=surf_conic(I)
+         DX=surf_asphere_coeff(I, 4)
+         EX=surf_asphere_coeff(I, 6)
+         FX=surf_asphere_coeff(I, 8)
+         GX=surf_asphere_coeff(I, 10)
+         CY=surf_toric_curvature(I)
+         KY=surf_anamorphic_conic(I)
+         DY=surf_anamorphic_coeff(I, 4)
+         EY=surf_anamorphic_coeff(I, 6)
+         FY=surf_anamorphic_coeff(I, 8)
+         GY=surf_anamorphic_coeff(I, 10)
       END IF
       ARG=ARG2(CX,CY,KX,KY,X,Y)
       IF(ARG.LT.0.0D0) THEN
@@ -704,10 +709,10 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
 !                       PROCEED
       CALL SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY,SAG,I)
       IF(DABS(SAG).LT.1E-15) SAG=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+      IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       RETURN
    END IF
-   IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+   IF(surf_paraxial_val(I) == 1) SAG=0.0D0
    RETURN
 END
 ! SUB SAGPLT.FOR
@@ -716,6 +721,7 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGPLT. THIS IS THE SUBROUTINE WHICH
@@ -731,19 +737,19 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !
 !
 !       FLAT SURFACE MAYBE ASPHERICS OR SPECIAL SURFACE STUFF
-   IF(ALENS(1,I).EQ.0.0D0 &
-   &.AND.ALENS(23,I).EQ.0.0D0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 &
+   &.AND.surf_toric_flag(I) == 0) THEN
       CALL SAGFLT(I,X,Y,SAG)
       IF(DABS(SAG).LT.1.0D-15) SAG=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+      IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       NO=0
    ELSE
 !       NOT PLANO WITH ASPHERICS
    END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-   IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-      C=ALENS(1,I)
-      K=ALENS(2,I)
+   IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+      C=surf_curvature(I)
+      K=surf_conic(I)
       ARG= ARG1(C,K,X,Y)
       IF(ARG.LT.0.0D0) THEN
          NO=1
@@ -753,44 +759,44 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !                       PROCEED
       CALL SAGASP(I,X,Y,SAG)
       IF(DABS(SAG).LT.1D-15) SAG=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+      IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       NO=0
    ELSE
 !       NOT ROTATIONALLY SYMMETRIC ASPHERIC
    END IF
-   IF(ALENS(23,I).NE.0.0D0) THEN
+   IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-      IF(ALENS(23,I).EQ.1.0D0) THEN
+      IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-         CY=ALENS(1,I)
-         KY=ALENS(2,I)
-         DY=ALENS(4,I)
-         EY=ALENS(5,I)
-         FY=ALENS(6,I)
-         GY=ALENS(7,I)
-         CX=ALENS(24,I)
-         KX=ALENS(41,I)
-         DX=ALENS(37,I)
-         EX=ALENS(38,I)
-         FX=ALENS(39,I)
-         GX=ALENS(40,I)
+         CY=surf_curvature(I)
+         KY=surf_conic(I)
+         DY=surf_asphere_coeff(I, 4)
+         EY=surf_asphere_coeff(I, 6)
+         FY=surf_asphere_coeff(I, 8)
+         GY=surf_asphere_coeff(I, 10)
+         CX=surf_toric_curvature(I)
+         KX=surf_anamorphic_conic(I)
+         DX=surf_anamorphic_coeff(I, 4)
+         EX=surf_anamorphic_coeff(I, 6)
+         FX=surf_anamorphic_coeff(I, 8)
+         GX=surf_anamorphic_coeff(I, 10)
       ELSE
       END IF
-      IF(ALENS(23,I).EQ.2.0D0) THEN
+      IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-         CX=ALENS(1,I)
-         KX=ALENS(2,I)
-         DX=ALENS(4,I)
-         EX=ALENS(5,I)
-         FX=ALENS(6,I)
-         GX=ALENS(7,I)
-         CY=ALENS(24,I)
-         KY=ALENS(41,I)
-         DY=ALENS(37,I)
-         EY=ALENS(38,I)
-         FY=ALENS(39,I)
-         GY=ALENS(40,I)
+         CX=surf_curvature(I)
+         KX=surf_conic(I)
+         DX=surf_asphere_coeff(I, 4)
+         EX=surf_asphere_coeff(I, 6)
+         FX=surf_asphere_coeff(I, 8)
+         GX=surf_asphere_coeff(I, 10)
+         CY=surf_toric_curvature(I)
+         KY=surf_anamorphic_conic(I)
+         DY=surf_anamorphic_coeff(I, 4)
+         EY=surf_anamorphic_coeff(I, 6)
+         FY=surf_anamorphic_coeff(I, 8)
+         GY=surf_anamorphic_coeff(I, 10)
       ELSE
       END IF
       ARG=ARG2(CX,CY,KX,KY,X,Y)
@@ -801,12 +807,12 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !                       PROCEED
       CALL SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY,SAG,I)
       IF(DABS(SAG).LT.1D-15) SAG=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+      IF(surf_paraxial_val(I) == 1) SAG=0.0D0
       NO=0
    ELSE
 !       NOT ANAMORPHIC ASPHERIC
    END IF
-   IF(ALENS(124,I).EQ.1.0D0) SAG=0.0D0
+   IF(surf_paraxial_val(I) == 1) SAG=0.0D0
    RETURN
 END
 ! SUB SAGSPC.FOR
@@ -815,6 +821,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE SAGSPC.FOR CALCULATES SAG FOR A SPECIAL SURFACE
@@ -845,11 +852,11 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    &,AMP5,OMEGA5X,OMEGA5Y
 !
 !
-   INR=ALENS(76,I)
+   INR=surf_inr_value(I)
 !
 !     SPECIAL SURFACE TYPE 1
    Z=0.0D0
-   IF(ALENS(34,I).EQ.1.0D0) THEN
+   IF(surf_special_type(I) == 1) THEN
       DO III=9,48
          IF(FTFL01(III,I).EQ.0.0D0.OR.X.EQ.0.0D0.AND.Y.EQ.0.0D0 &
          &.AND.(III-9).EQ.0) THEN
@@ -860,11 +867,11 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
             &(FTFL01(III,I)*(((DSQRT((X**2)+(Y**2)))**(III-9))))
          END IF
       END DO
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !     SPECIAL SURFACE TYPE 4
-   IF(ALENS(34,I).EQ.4.0D0) THEN
+   IF(surf_special_type(I) == 4) THEN
       IF(INT(SYSTEM(11)).EQ.1)  JK_WAVE=SYSTEM(1)
       IF(INT(SYSTEM(11)).EQ.2)  JK_WAVE=SYSTEM(2)
       IF(INT(SYSTEM(11)).EQ.3)  JK_WAVE=SYSTEM(3)
@@ -955,43 +962,43 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       &+(AMP3*(DCOS(OMEGA3X*X)*(DCOS(OMEGA3Y*Y))))&
       &+(AMP4*(DCOS(OMEGA4X*X)*(DCOS(OMEGA4Y*Y))))&
       &+(AMP5*(DCOS(OMEGA5X*X)*(DCOS(OMEGA5Y*Y))))
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 16 FRESNEL
    Z=0.0D0
-   IF(ALENS(34,I).EQ.16.0D0) THEN
-      IF(ALENS(1,I).EQ.0.0D0) THEN
+   IF(surf_special_type(I) == 16) THEN
+      IF(surf_curvature(I).EQ.0.0D0) THEN
          Z=0.0D0
-         IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+         IF(surf_paraxial_val(I) == 1) Z=0.0D0
       ELSE
-         IF(ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_toric_flag(I) == 0) THEN
             RRRHO=DSQRT((X**2)+(Y**2))
-            Z=(ALENS(1,I)*(RRRHO**2))/&
-            &(1.0D0+DSQRT(1.0D0-(1.0D0+ALENS(2,I))*(ALENS(1,I)**2)*(RRRHO**2)))
-            IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+            Z=(surf_curvature(I)*(RRRHO**2))/&
+            &(1.0D0+DSQRT(1.0D0-(1.0D0+surf_conic(I))*(surf_curvature(I)**2)*(RRRHO**2)))
+            IF(surf_paraxial_val(I) == 1) Z=0.0D0
          END IF
-         IF(ALENS(23,I).EQ.1.0D0) THEN
+         IF(surf_toric_flag(I) == 1) THEN
             RRRHO=X
-            Z=(ALENS(24,I)*(RRRHO**2))/&
-            &(1.0D0+DSQRT(1.0D0-(1.0D0+ALENS(41,I))*(ALENS(24,I)**2)&
+            Z=(surf_toric_curvature(I)*(RRRHO**2))/&
+            &(1.0D0+DSQRT(1.0D0-(1.0D0+surf_anamorphic_conic(I))*(surf_toric_curvature(I)**2)&
             &*(RRRHO**2)))
-            IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+            IF(surf_paraxial_val(I) == 1) Z=0.0D0
          END IF
-         IF(ALENS(23,I).EQ.2.0D0) THEN
+         IF(surf_toric_flag(I) == 2) THEN
             RRRHO=Y
-            Z=(ALENS(24,I)*(RRRHO**2))/&
-            &(1.0D0+DSQRT(1.0D0-(1.0D0+ALENS(41,I))*(ALENS(24,I)**2)&
+            Z=(surf_toric_curvature(I)*(RRRHO**2))/&
+            &(1.0D0+DSQRT(1.0D0-(1.0D0+surf_anamorphic_conic(I))*(surf_toric_curvature(I)**2)&
             &*(RRRHO**2)))
-            IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+            IF(surf_paraxial_val(I) == 1) Z=0.0D0
          END IF
       END IF
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 2
-   IF(ALENS(34,I).EQ.2.0D0) THEN
+   IF(surf_special_type(I) == 2) THEN
       AAAX=X/INR
       AAAY=Y/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -1012,12 +1019,12 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
          Z=Z+&
          &(FTFL01(III,I)*(FF2(R,THETA,III)))
       END DO
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 3
-   IF(ALENS(34,I).EQ.3.0D0) THEN
+   IF(surf_special_type(I) == 3) THEN
       AAAX=X/INR
       AAAY=Y/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -1038,13 +1045,13 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
          Z=Z+&
          &(FTFL01(III,I)*(FF3(R,THETA,III)))
       END DO
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !
 !     SPECIAL SURFACE TYPE 22
-   IF(ALENS(34,I).EQ.22.0D0) THEN
+   IF(surf_special_type(I) == 22) THEN
       XPASS=X
       YPASS=Y
       GERROR=.FALSE.
@@ -1060,12 +1067,12 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       ELSE
       END IF
       Z=Z+ZPASS
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     DEFORM
-   IF(ALENS(103,I).EQ.1.0D0) THEN
+   IF(surf_default_flag(I) == 1) THEN
       XPASS=X
       YPASS=Y
       GERROR1=.FALSE.
@@ -1090,24 +1097,24 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       ELSE
       END IF
       Z=Z+ZPASS
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !
 !     SPECIAL SURFACE TYPE 23
-   IF(ALENS(34,I).EQ.23.0D0) THEN
+   IF(surf_special_type(I) == 23) THEN
       XPASS=X
       YPASS=Y
       IPASS1=3
       CALL SPL23(I,XPASS,YPASS,ZPASS,IPASS1)
       Z=ZPASS
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 14
-   IF(ALENS(34,I).EQ.14.0D0) THEN
+   IF(surf_special_type(I) == 14) THEN
       AAAX=X/INR
       AAAY=Y/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -1128,20 +1135,20 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
          Z=Z+&
          &(FTFL01(III,I)*(FF5(R,THETA,III)))
       END DO
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 21
-   IF(ALENS(34,I).EQ.21.0D0) THEN
+   IF(surf_special_type(I) == 21) THEN
       CALL USERSURF(I,X,Y,Z,UERROR)
       IF(UERROR) Z=0.0D0
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 8
-   IF(ALENS(34,I).EQ.8.0D0) THEN
+   IF(surf_special_type(I) == 8) THEN
       XX=X
       YY=Y
       Z=0.0D0
@@ -1149,13 +1156,13 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
          Z=Z+&
          &(FTFL01(III,I)*(FF4(XX,YY,III)))
       END DO
-      IF(ALENS(124,I).EQ.1.0D0) Z=0.0D0
+      IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
 !
 !     SPECIAL SURFACE TYPE 5
 !     USER DEFINED SURFACE
-   IF(ALENS(34,I).EQ.5.0D0.OR.ALENS(34,I).EQ.17.0D0) THEN
+   IF(surf_special_type(I) == 5.OR.surf_special_type(I) == 17) THEN
       REG(40)=REG(9)
       REG(9)=X
       REG(10)=Y
@@ -1302,6 +1309,7 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGRET. THIS IS THE SUBROUTINE WHICH
@@ -1327,8 +1335,8 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
    END IF
 !
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-   IF(ALENS(1,I).EQ.0.0D0 &
-   &.AND.ALENS(23,I).EQ.0.0D0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 &
+   &.AND.surf_toric_flag(I) == 0) THEN
       !PRINT *, "SAGRET CALLING SAGFLT"
       CALL SAGFLT(I,X,Y,SAG)
       !PRINT *, "SAG AFTER SAGFLG ", SAG
@@ -1338,9 +1346,9 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
       RETURN
    END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-   IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-      C=ALENS(1,I)
-      K=ALENS(2,I)
+   IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+      C=surf_curvature(I)
+      K=surf_conic(I)
       ARG= ARG1(C,K,X,Y)
       IF(ARG.LT.0.0D0) THEN
          Z=0.0D0
@@ -1356,38 +1364,38 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
       !if (ieee_is_nan(Z)) Z = 0
       RETURN
    END IF
-   IF(ALENS(23,I).NE.0.0D0) THEN
+   IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-      IF(ALENS(23,I).EQ.1.0D0) THEN
+      IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-         CY=ALENS(1,I)
-         KY=ALENS(2,I)
-         DY=ALENS(4,I)
-         EY=ALENS(5,I)
-         FY=ALENS(6,I)
-         GY=ALENS(7,I)
-         CX=ALENS(24,I)
-         KX=ALENS(41,I)
-         DX=ALENS(37,I)
-         EX=ALENS(38,I)
-         FX=ALENS(39,I)
-         GX=ALENS(40,I)
+         CY=surf_curvature(I)
+         KY=surf_conic(I)
+         DY=surf_asphere_coeff(I, 4)
+         EY=surf_asphere_coeff(I, 6)
+         FY=surf_asphere_coeff(I, 8)
+         GY=surf_asphere_coeff(I, 10)
+         CX=surf_toric_curvature(I)
+         KX=surf_anamorphic_conic(I)
+         DX=surf_anamorphic_coeff(I, 4)
+         EX=surf_anamorphic_coeff(I, 6)
+         FX=surf_anamorphic_coeff(I, 8)
+         GX=surf_anamorphic_coeff(I, 10)
       END IF
-      IF(ALENS(23,I).EQ.2.0D0) THEN
+      IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-         CX=ALENS(1,I)
-         KX=ALENS(2,I)
-         DX=ALENS(4,I)
-         EX=ALENS(5,I)
-         FX=ALENS(6,I)
-         GX=ALENS(7,I)
-         CY=ALENS(24,I)
-         KY=ALENS(41,I)
-         DY=ALENS(37,I)
-         EY=ALENS(38,I)
-         FY=ALENS(39,I)
-         GY=ALENS(40,I)
+         CX=surf_curvature(I)
+         KX=surf_conic(I)
+         DX=surf_asphere_coeff(I, 4)
+         EX=surf_asphere_coeff(I, 6)
+         FX=surf_asphere_coeff(I, 8)
+         GX=surf_asphere_coeff(I, 10)
+         CY=surf_toric_curvature(I)
+         KY=surf_anamorphic_conic(I)
+         DY=surf_anamorphic_coeff(I, 4)
+         EY=surf_anamorphic_coeff(I, 6)
+         FY=surf_anamorphic_coeff(I, 8)
+         GY=surf_anamorphic_coeff(I, 10)
       END IF
       ARG=ARG2(CX,CY,KX,KY,X,Y)
       IF(ARG.LT.0.0D0) THEN
@@ -1406,41 +1414,42 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
 END
 SUBROUTINE MAX_CLAP_VAL(I,MAXCLAP)
    use DATLEN
+   use mod_surface
    IMPLICIT NONE
    REAL*8 MAXCLAP1,MAXCLAP2,MAXCLAP
    INTEGER I
-   IF(ALENS(9,I).EQ.0.0D0.OR.ALENS(127,I).NE.0.0D0) THEN
+   IF(surf_clap_type(I) == 0.OR.surf_array_parity(I) /= 0) THEN
       MAXCLAP1=DABS(PXTRAY(5,I))+DABS(PXTRAY(1,I))
       MAXCLAP2=DABS(PXTRAX(5,I))+DABS(PXTRAX(1,I))
       MAXCLAP=MAXCLAP2
       IF(MAXCLAP1.GT.MAXCLAP2) MAXCLAP=MAXCLAP1
       RETURN
    END IF
-   IF(ALENS(9,I).EQ.1.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
-      MAXCLAP1=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-      MAXCLAP2=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+   IF(surf_clap_type(I) == 1.AND.surf_array_parity(I) == 0) THEN
+      MAXCLAP1=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+      MAXCLAP2=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
       MAXCLAP=MAXCLAP2
       IF(MAXCLAP1.GT.MAXCLAP2) MAXCLAP=MAXCLAP1
       RETURN
    END IF
-   IF(ALENS(9,I).EQ.5.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
-      MAXCLAP1=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-      MAXCLAP2=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+   IF(surf_clap_type(I) == 5.AND.surf_array_parity(I) == 0) THEN
+      MAXCLAP1=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+      MAXCLAP2=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
       MAXCLAP=MAXCLAP2
       IF(MAXCLAP1.GT.MAXCLAP2) MAXCLAP=MAXCLAP1
       RETURN
    END IF
-   IF(ALENS(9,I).EQ.6.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
-      MAXCLAP1=DABS(ALENS(11,I))+DABS(ALENS(12,I))
-      MAXCLAP2=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+   IF(surf_clap_type(I) == 6.AND.surf_array_parity(I) == 0) THEN
+      MAXCLAP1=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+      MAXCLAP2=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
       MAXCLAP=MAXCLAP2
       IF(MAXCLAP1.GT.MAXCLAP2) MAXCLAP=MAXCLAP1
       RETURN
    END IF
-   IF(ALENS(9,I).GT.1.0D0.AND.ALENS(9,I).LE.4.0D0.AND.&
-   &ALENS(127,I).EQ.0.0D0) THEN
-      MAXCLAP1=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-      MAXCLAP2=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+   IF(surf_clap_type(I) > 1.AND.surf_clap_type(I) <= 4.AND.&
+   &surf_array_parity(I) == 0) THEN
+      MAXCLAP1=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+      MAXCLAP2=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
       MAXCLAP=MAXCLAP2
       IF(MAXCLAP1.GT.MAXCLAP2) MAXCLAP=MAXCLAP1
       RETURN
@@ -1452,6 +1461,7 @@ SUBROUTINE SSAAGG
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSAAGG. THIS IS THE SUBROUTINE WHICH
@@ -1503,8 +1513,8 @@ SUBROUTINE SSAAGG
 !
       I=INT(W1)
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-      IF(ALENS(1,I).EQ.0.0D0 &
-      &.AND.ALENS(23,I).EQ.0.0D0) THEN
+      IF(surf_curvature(I).EQ.0.0D0 &
+      &.AND.surf_toric_flag(I) == 0) THEN
          X=W2
          Y=W3
          CALL SAGFLT(I,X,Y,SAG)
@@ -1529,9 +1539,9 @@ SUBROUTINE SSAAGG
          RETURN
       END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-      IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-         C=ALENS(1,I)
-         K=ALENS(2,I)
+      IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+         C=surf_curvature(I)
+         K=surf_conic(I)
          X=W2
          Y=W3
          ARG= ARG1(C,K,X,Y)
@@ -1569,38 +1579,38 @@ SUBROUTINE SSAAGG
          GOO=0
          RETURN
       END IF
-      IF(ALENS(23,I).NE.0.0D0) THEN
+      IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-         IF(ALENS(23,I).EQ.1.0D0) THEN
+         IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-            CY=ALENS(1,I)
-            KY=ALENS(2,I)
-            DY=ALENS(4,I)
-            EY=ALENS(5,I)
-            FY=ALENS(6,I)
-            GY=ALENS(7,I)
-            CX=ALENS(24,I)
-            KX=ALENS(41,I)
-            DX=ALENS(37,I)
-            EX=ALENS(38,I)
-            FX=ALENS(39,I)
-            GX=ALENS(40,I)
+            CY=surf_curvature(I)
+            KY=surf_conic(I)
+            DY=surf_asphere_coeff(I, 4)
+            EY=surf_asphere_coeff(I, 6)
+            FY=surf_asphere_coeff(I, 8)
+            GY=surf_asphere_coeff(I, 10)
+            CX=surf_toric_curvature(I)
+            KX=surf_anamorphic_conic(I)
+            DX=surf_anamorphic_coeff(I, 4)
+            EX=surf_anamorphic_coeff(I, 6)
+            FX=surf_anamorphic_coeff(I, 8)
+            GX=surf_anamorphic_coeff(I, 10)
          END IF
-         IF(ALENS(23,I).EQ.2.0D0) THEN
+         IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-            CX=ALENS(1,I)
-            KX=ALENS(2,I)
-            DX=ALENS(4,I)
-            EX=ALENS(5,I)
-            FX=ALENS(6,I)
-            GX=ALENS(7,I)
-            CY=ALENS(24,I)
-            KY=ALENS(41,I)
-            DY=ALENS(37,I)
-            EY=ALENS(38,I)
-            FY=ALENS(39,I)
-            GY=ALENS(40,I)
+            CX=surf_curvature(I)
+            KX=surf_conic(I)
+            DX=surf_asphere_coeff(I, 4)
+            EX=surf_asphere_coeff(I, 6)
+            FX=surf_asphere_coeff(I, 8)
+            GX=surf_asphere_coeff(I, 10)
+            CY=surf_toric_curvature(I)
+            KY=surf_anamorphic_conic(I)
+            DY=surf_anamorphic_coeff(I, 4)
+            EY=surf_anamorphic_coeff(I, 6)
+            FY=surf_anamorphic_coeff(I, 8)
+            GY=surf_anamorphic_coeff(I, 10)
          END IF
          NPOINT=INT((W3-W2)/W4)
          X=W2
@@ -1811,8 +1821,8 @@ SUBROUTINE SSAAGG
 !
          I=INT(W1)
 !       FLAT SURFACE MAYBE ASPHERICS OR SPECIAL
-         IF(ALENS(1,I).EQ.0.0D0 &
-         &.AND.ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 &
+         &.AND.surf_toric_flag(I) == 0) THEN
             NPOINT=INT((W3-W2)/W4)
 !       PRINT HEADING
             X=0.0D0
@@ -1866,9 +1876,9 @@ SUBROUTINE SSAAGG
             RETURN
          END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-         IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-            C=ALENS(1,I)
-            K=ALENS(2,I)
+         IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+            C=surf_curvature(I)
+            K=surf_conic(I)
             NPOINT=INT((W3-W2)/W4)
             X=0.0D0
             Y=0.0D0
@@ -1935,38 +1945,38 @@ SUBROUTINE SSAAGG
             END DO
             RETURN
          END IF
-         IF(ALENS(23,I).NE.0.0D0) THEN
+         IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-            IF(ALENS(23,I).EQ.1.0D0) THEN
+            IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-               CY=ALENS(1,I)
-               KY=ALENS(2,I)
-               DY=ALENS(4,I)
-               EY=ALENS(5,I)
-               FY=ALENS(6,I)
-               GY=ALENS(7,I)
-               CX=ALENS(24,I)
-               KX=ALENS(41,I)
-               DX=ALENS(37,I)
-               EX=ALENS(38,I)
-               FX=ALENS(39,I)
-               GX=ALENS(40,I)
+               CY=surf_curvature(I)
+               KY=surf_conic(I)
+               DY=surf_asphere_coeff(I, 4)
+               EY=surf_asphere_coeff(I, 6)
+               FY=surf_asphere_coeff(I, 8)
+               GY=surf_asphere_coeff(I, 10)
+               CX=surf_toric_curvature(I)
+               KX=surf_anamorphic_conic(I)
+               DX=surf_anamorphic_coeff(I, 4)
+               EX=surf_anamorphic_coeff(I, 6)
+               FX=surf_anamorphic_coeff(I, 8)
+               GX=surf_anamorphic_coeff(I, 10)
             END IF
-            IF(ALENS(23,I).EQ.2.0D0) THEN
+            IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-               CX=ALENS(1,I)
-               KX=ALENS(2,I)
-               DX=ALENS(4,I)
-               EX=ALENS(5,I)
-               FX=ALENS(6,I)
-               GX=ALENS(7,I)
-               CY=ALENS(24,I)
-               KY=ALENS(41,I)
-               DY=ALENS(37,I)
-               EY=ALENS(38,I)
-               FY=ALENS(39,I)
-               GY=ALENS(40,I)
+               CX=surf_curvature(I)
+               KX=surf_conic(I)
+               DX=surf_asphere_coeff(I, 4)
+               EX=surf_asphere_coeff(I, 6)
+               FX=surf_asphere_coeff(I, 8)
+               GX=surf_asphere_coeff(I, 10)
+               CY=surf_toric_curvature(I)
+               KY=surf_anamorphic_conic(I)
+               DY=surf_anamorphic_coeff(I, 4)
+               EY=surf_anamorphic_coeff(I, 6)
+               FY=surf_anamorphic_coeff(I, 8)
+               GY=surf_anamorphic_coeff(I, 10)
             END IF
             NPOINT=INT((W3-W2)/W4)
             X=0.0D0
@@ -2051,8 +2061,8 @@ SUBROUTINE SSAAGG
 !
          I=INT(W1)
 !       FLAT SURFACE MAYBE ASPHERICS AND SPECIAL
-         IF(ALENS(1,I).EQ.0.0D0 &
-         &.AND.ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 &
+         &.AND.surf_toric_flag(I) == 0) THEN
             X=W2
             Y=W3
 
@@ -2103,9 +2113,9 @@ SUBROUTINE SSAAGG
             RETURN
          END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-         IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-            C=ALENS(1,I)
-            K=ALENS(2,I)
+         IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+            C=surf_curvature(I)
+            K=surf_conic(I)
             X=W2
             Y=W3
 
@@ -2168,38 +2178,38 @@ SUBROUTINE SSAAGG
             GOO=0
             RETURN
          END IF
-         IF(ALENS(23,I).NE.0.0D0) THEN
+         IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-            IF(ALENS(23,I).EQ.1.0D0) THEN
+            IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-               CY=ALENS(1,I)
-               KY=ALENS(2,I)
-               DY=ALENS(4,I)
-               EY=ALENS(5,I)
-               FY=ALENS(6,I)
-               GY=ALENS(7,I)
-               CX=ALENS(24,I)
-               KX=ALENS(41,I)
-               DX=ALENS(37,I)
-               EX=ALENS(38,I)
-               FX=ALENS(39,I)
-               GX=ALENS(40,I)
+               CY=surf_curvature(I)
+               KY=surf_conic(I)
+               DY=surf_asphere_coeff(I, 4)
+               EY=surf_asphere_coeff(I, 6)
+               FY=surf_asphere_coeff(I, 8)
+               GY=surf_asphere_coeff(I, 10)
+               CX=surf_toric_curvature(I)
+               KX=surf_anamorphic_conic(I)
+               DX=surf_anamorphic_coeff(I, 4)
+               EX=surf_anamorphic_coeff(I, 6)
+               FX=surf_anamorphic_coeff(I, 8)
+               GX=surf_anamorphic_coeff(I, 10)
             END IF
-            IF(ALENS(23,I).EQ.2.0D0) THEN
+            IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-               CX=ALENS(1,I)
-               KX=ALENS(2,I)
-               DX=ALENS(4,I)
-               EX=ALENS(5,I)
-               FX=ALENS(6,I)
-               GX=ALENS(7,I)
-               CY=ALENS(24,I)
-               KY=ALENS(41,I)
-               DY=ALENS(37,I)
-               EY=ALENS(38,I)
-               FY=ALENS(39,I)
-               GY=ALENS(40,I)
+               CX=surf_curvature(I)
+               KX=surf_conic(I)
+               DX=surf_asphere_coeff(I, 4)
+               EX=surf_asphere_coeff(I, 6)
+               FX=surf_asphere_coeff(I, 8)
+               GX=surf_asphere_coeff(I, 10)
+               CY=surf_toric_curvature(I)
+               KY=surf_anamorphic_conic(I)
+               DY=surf_anamorphic_coeff(I, 4)
+               EY=surf_anamorphic_coeff(I, 6)
+               FY=surf_anamorphic_coeff(I, 8)
+               GY=surf_anamorphic_coeff(I, 10)
             END IF
             NPOINT=INT((W3-W2)/W4)
             X=W2
@@ -2298,16 +2308,16 @@ SUBROUTINE SSAAGG
             X=-MAXCLAP
             DO L=1,N
 !       FLAT SURFACE MAYBE ASPHERICS AND SPECIAL
-               IF(ALENS(1,I).EQ.0.0D0 &
-               &.AND.ALENS(23,I).EQ.0.0D0) THEN
+               IF(surf_curvature(I).EQ.0.0D0 &
+               &.AND.surf_toric_flag(I) == 0) THEN
                   CALL SAGFLT(I,X,Y,SAG)
                   IF(DABS(SAG).LT.1E-15) SAG=0.0D0
 
                END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-               IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-                  C=ALENS(1,I)
-                  K=ALENS(2,I)
+               IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I) == 0) THEN
+                  C=surf_curvature(I)
+                  K=surf_conic(I)
                   ARG= ARG1(C,K,X,Y)
                   IF(ARG.LT.0.0D0) THEN
                      WRITE(OUTLYNE,*)&
@@ -2325,38 +2335,38 @@ SUBROUTINE SSAAGG
                   END IF
                   GOO=0
                END IF
-               IF(ALENS(23,I).NE.0.0D0) THEN
+               IF(surf_toric_flag(I) /= 0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-                  IF(ALENS(23,I).EQ.1.0D0) THEN
+                  IF(surf_toric_flag(I) == 1) THEN
 !       Y-TORIC
-                     CY=ALENS(1,I)
-                     KY=ALENS(2,I)
-                     DY=ALENS(4,I)
-                     EY=ALENS(5,I)
-                     FY=ALENS(6,I)
-                     GY=ALENS(7,I)
-                     CX=ALENS(24,I)
-                     KX=ALENS(41,I)
-                     DX=ALENS(37,I)
-                     EX=ALENS(38,I)
-                     FX=ALENS(39,I)
-                     GX=ALENS(40,I)
+                     CY=surf_curvature(I)
+                     KY=surf_conic(I)
+                     DY=surf_asphere_coeff(I, 4)
+                     EY=surf_asphere_coeff(I, 6)
+                     FY=surf_asphere_coeff(I, 8)
+                     GY=surf_asphere_coeff(I, 10)
+                     CX=surf_toric_curvature(I)
+                     KX=surf_anamorphic_conic(I)
+                     DX=surf_anamorphic_coeff(I, 4)
+                     EX=surf_anamorphic_coeff(I, 6)
+                     FX=surf_anamorphic_coeff(I, 8)
+                     GX=surf_anamorphic_coeff(I, 10)
                   END IF
-                  IF(ALENS(23,I).EQ.2.0D0) THEN
+                  IF(surf_toric_flag(I) == 2) THEN
 !       X-TORIC
-                     CX=ALENS(1,I)
-                     KX=ALENS(2,I)
-                     DX=ALENS(4,I)
-                     EX=ALENS(5,I)
-                     FX=ALENS(6,I)
-                     GX=ALENS(7,I)
-                     CY=ALENS(24,I)
-                     KY=ALENS(41,I)
-                     DY=ALENS(37,I)
-                     EY=ALENS(38,I)
-                     FY=ALENS(39,I)
-                     GY=ALENS(40,I)
+                     CX=surf_curvature(I)
+                     KX=surf_conic(I)
+                     DX=surf_asphere_coeff(I, 4)
+                     EX=surf_asphere_coeff(I, 6)
+                     FX=surf_asphere_coeff(I, 8)
+                     GX=surf_asphere_coeff(I, 10)
+                     CY=surf_toric_curvature(I)
+                     KY=surf_anamorphic_conic(I)
+                     DY=surf_anamorphic_coeff(I, 4)
+                     EY=surf_anamorphic_coeff(I, 6)
+                     FY=surf_anamorphic_coeff(I, 8)
+                     GY=surf_anamorphic_coeff(I, 10)
                   END IF
                   NPOINT=INT((W3-W2)/W4)
                   ARG=ARG2(CX,CY,KX,KY,X,Y)
@@ -2471,12 +2481,13 @@ END
 SUBROUTINE SAGARRAY(I,X,Y)
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
    REAL*8 X,Y,DX,DY,XWORKING,YWORKING,N_X,N_Y,SGNX,SGNY
    INTEGER I
-   DX=ALENS(131,I)
-   DY=ALENS(132,I)
-   IF(ALENS(133,I).EQ.-1.0D0) THEN
+   DX=surf_array_dx(I)
+   DY=surf_array_dy(I)
+   IF(surf_array_parity(I).EQ.-1.0D0) THEN
 !       ODD
       N_X=DBLE(NINT(X/DX))
       N_Y=DBLE(NINT(Y/DY))
@@ -2485,7 +2496,7 @@ SUBROUTINE SAGARRAY(I,X,Y)
       X=XWORKING
       Y=YWORKING
    END IF
-   IF(ALENS(133,I).EQ.1.0D0) THEN
+   IF(surf_array_parity(I) == 1) THEN
 !       EVEN
       IF(X.EQ.0.0D0) THEN
          SGNX=1.0D0

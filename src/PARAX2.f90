@@ -125,9 +125,9 @@ SUBROUTINE AB357
             C1=(8.0D0*surf_asphere_coeff(I, 4))+(CC*(CV**3))
             C21=((CV**3)*CC*(CC &
             &+2.0D0))-(2.0D0*C1)
-            C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 5))
+            C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 6))
             C2=3.0D0*C22
-            CF16=16.0D0*surf_asphere_coeff(I, 6)
+            CF16=16.0D0*surf_asphere_coeff(I, 8)
             C31=(CC**2)+(3.0D0*CC)+3.0D0
             C32=((CV**3)*CC*C31)-(3.0D0*C1)
             C33=(5.0D0*(CV**2)*C32)-(12.0D0*C2)
@@ -139,10 +139,10 @@ SUBROUTINE AB357
             &(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
             C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)&
             &+2.0D0))-(2.0D0*C1)
-            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 5)*&
+            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 6)*&
             &(surf_anamorphic_coeff(I, 6)**3)))
             C2=3.0D0*C22
-            CF16=16.0D0*surf_asphere_coeff(I, 6)*(surf_anamorphic_coeff(I, 8)**4)
+            CF16=16.0D0*surf_asphere_coeff(I, 8)*(surf_anamorphic_coeff(I, 8)**4)
             C31=(surf_anamorphic_conic(I)**2)+(3.0D0*surf_anamorphic_conic(I))+3.0D0
             C32=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*C31)-(3.0D0*C1)
             C33=(5.0D0*(surf_toric_curvature(I)**2)*C32)-(12.0D0*C2)
@@ -856,9 +856,9 @@ SUBROUTINE AB357
             C1=(8.0D0*surf_asphere_coeff(I, 4))+(CC*(CV**3))
             C21=((CV**3)*CC*(CC+2.0D0))&
             &-(2.0D0*C1)
-            C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 5))
+            C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 6))
             C2=3.0D0*C22
-            CF16=16.0D0*surf_asphere_coeff(I, 6)
+            CF16=16.0D0*surf_asphere_coeff(I, 8)
             C31=(CC**2)+(3.0D0*CC)+3.0D0
             C32=((CV**3)*CC*C31)-(3.0D0*C1)
             C33=(5.0D0*(CV**2)*C32)-(12.0D0*C2)
@@ -870,10 +870,10 @@ SUBROUTINE AB357
             &(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
             C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)+2.0D0))&
             &-(2.0D0*C1)
-            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 5)*&
+            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 6)*&
             &(surf_anamorphic_coeff(I, 6)**3)))
             C2=3.0D0*C22
-            CF16=16.0D0*surf_asphere_coeff(I, 6)*(surf_anamorphic_coeff(I, 8)**4)
+            CF16=16.0D0*surf_asphere_coeff(I, 8)*(surf_anamorphic_coeff(I, 8)**4)
             C31=(surf_anamorphic_conic(I)**2)+(3.0D0*surf_anamorphic_conic(I))+3.0D0
             C32=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*C31)-(3.0D0*C1)
             C33=(5.0D0*(surf_toric_curvature(I)**2)*C32)-(12.0D0*C2)

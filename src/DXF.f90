@@ -130,6 +130,7 @@ SUBROUTINE DDXFF
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL DXF PROCEDURES.
@@ -313,7 +314,7 @@ SUBROUTINE DDXFF
       IF(DF3.EQ.1) W3=1.0D0
 !       DEFAULT VALUES
       IF(DF1.EQ.1) THEN
-         IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+         IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
             W1=DBLE(1)
          ELSE
             W1=DBLE(0)
@@ -367,8 +368,8 @@ SUBROUTINE DDXFF
       MDY=0.0D0
       IF(SFI.EQ.0.0D0) SFI=1.0D0
       DO I=STASUR,STPSUR
-         IF(ALENS(127,I).NE.0.0D0) THEN
-            DO J=1,INT(ALENS(127,I))
+         IF(surf_array_parity(I) /= 0) THEN
+            DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)
                MDY=MULTCLAP(J,2,I)
                GAMGAM=MULTCLAP(J,3,I)
@@ -377,8 +378,8 @@ SUBROUTINE DDXFF
          ELSE
             CALL DXFCLP(1,I,SFI,0.0D0,0.0D0,0.0D0)
          END IF
-         IF(ALENS(127,I).NE.0.0D0) THEN
-            DO J=1,INT(ALENS(127,I))
+         IF(surf_array_parity(I) /= 0) THEN
+            DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)
                MDY=MULTCLAP(J,2,I)
                GAMGAM=MULTCLAP(J,3,I)
@@ -625,6 +626,7 @@ SUBROUTINE DXFPRO1
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF PROF COMMAND AT THE CMD LEVEL
@@ -732,7 +734,7 @@ SUBROUTINE DXFPRO1
    THETA=W3*PII/180.0D0
 !       DEFAULT VALUES
    IF(DF1.EQ.1) THEN
-      IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
          W1=1.0D0
       ELSE
          W1=0.0D0
@@ -896,7 +898,7 @@ SUBROUTINE DXFPRO1
          ACALL2=Y
 
          ALT=.FALSE.
-         IF(ALENS(34,III).NE.18.0D0) THEN
+         IF(surf_special_type(III) /= 18) THEN
             ALT=.FALSE.
             IF(X.LT.AX1) THEN
                ACALL1=AX1
@@ -915,7 +917,7 @@ SUBROUTINE DXFPRO1
                ALT=.TRUE.
             END IF
          END IF
-         IF(ALENS(9,III).EQ.1.0D0) THEN
+         IF(surf_clap_type(III) == 1) THEN
 !     CIRCULAR CLEAR APERTURE, MAY BE TYPE 18 SPECIAL SURFACE
             ALT=.FALSE.
             IF(X.LT.AX1) THEN
@@ -936,18 +938,18 @@ SUBROUTINE DXFPRO1
             END IF
          END IF
          CALL SAGPLT(III,ACALL1,ACALL2,Z,NO)
-         IF(ALENS(9,III).EQ.5.0D0.OR.ALENS(9,III).EQ.6.0D0) THEN
+         IF(surf_clap_type(III) == 5.OR.surf_clap_type(III) == 6) THEN
             ZDELZ=0.0D0
             ZDELZ1=0.0D0
          ELSE
-            IF(ALENS(9,III).NE.1.0D0.OR.ALENS(9,III).EQ.1.0D0.AND.&
-            &ALENS(12,III).NE.0.0D0.OR.ALENS(9,III).EQ.1.0D0.AND.&
-            &ALENS(13,III).NE.0.0D0) THEN
+            IF(surf_clap_type(III) /= 1.OR.surf_clap_type(III) == 1.AND.&
+            &surf_clap_dim(III, 3).NE.0.0D0.OR.surf_clap_type(III) == 1.AND.&
+            &surf_clap_dim(III, 4).NE.0.0D0) THEN
                FRACRAD=0.0D0
             ELSE
-               IF(ALENS(10,III).NE.ALENS(11,III)) THEN
-                  FRACRAD=((DSQRT((X**2)+(Y**2))-ALENS(11,III))/&
-                  &(ALENS(10,III)-ALENS(11,III)))
+               IF(surf_clap_dim(III, 1).NE.surf_clap_dim(III, 2)) THEN
+                  FRACRAD=((DSQRT((X**2)+(Y**2))-surf_clap_dim(III, 2))/&
+                  &(surf_clap_dim(III, 1)-surf_clap_dim(III, 2)))
                   IF(FRACRAD.LE.0.0D0) FRACRAD=0.0D0
                ELSE
                   FRACRAD=0.0D0
@@ -959,7 +961,7 @@ SUBROUTINE DXFPRO1
          IF(NO.EQ.1) DRAPRO=0.0D0
          IF(NO.NE.1) DRAPRO=1.0D0
 !
-         IF(ALENS(34,II).NE.18.0D0) THEN
+         IF(surf_special_type(II) /= 18) THEN
 !     ASSIGN ARRAY VALUES
             PRO(J,1,II)=X
             PRO(J,2,II)=Y
@@ -1135,15 +1137,15 @@ SUBROUTINE DXFPRO1
    DO I=STASUR,STPSUR
 !     SET VISIBILITY FACTOR
       VIS(I)=.TRUE.
-      IF(DUMMMY(I).AND.ALENS(9,I).EQ.0.0D0.AND.&
-      &ALENS(16,I).EQ.0.0D0.AND.I.NE.STASUR.AND.I.NE.STPSUR)&
+      IF(DUMMMY(I).AND.surf_clap_type(I) == 0.AND.&
+      &surf_coat_type(I) == 0.AND.I.NE.STASUR.AND.I.NE.STPSUR)&
       &VIS(I)=.FALSE.
    END DO
 !
    IF(.NOT.DXFEXIS) DXFEXIS=.TRUE.
 !
    DO I=STASUR,STPSUR
-      IF(ALENS(127,I).NE.0.0D0) GO TO 51
+      IF(surf_array_parity(I) /= 0) GO TO 51
       IF(VIS(I)) THEN
 !     ADD DATA TO DXF FILE
          K=1
@@ -1172,6 +1174,7 @@ SUBROUTINE DXFRAE
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXFRAY COMMAND AT THE CMD LEVEL
@@ -1249,7 +1252,7 @@ SUBROUTINE DXFRAE
    IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
 !       DEFAULT VALUES
    IF(DF1.EQ.1) THEN
-      IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
          W1=DBLE(1)
       ELSE
          W1=DBLE(0)
@@ -1258,7 +1261,7 @@ SUBROUTINE DXFRAE
 !       DF1 NOT 1, W1 EXPLICITLY ENTERED
    END IF
    IF(DF2.EQ.1) THEN
-      IF(DABS(ALENS(3,(NEWIMG-1))).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(NEWIMG-1)).GT.1.0D10) THEN
          W2=DBLE(NEWIMG-1)
       ELSE
          W2=DBLE(NEWIMG)
@@ -1324,7 +1327,7 @@ SUBROUTINE DXFRAE
    DO I=STASUR,STPSUR
       GLVIRT(I)=.FALSE.
 !     IF THE CURRENT SURFACE IS A TRUE DUMMY
-      IF(DUM(I).AND.ALENS(34,I).EQ.0.0D0 &
+      IF(DUM(I).AND.surf_special_type(I) == 0 &
       &.AND.I.NE.NEWIMG) GLVIRT(I)=.TRUE.
       IF(I.EQ.NEWIMG.OR.I.EQ.STASUR.OR.I.EQ.STPSUR) GLVIRT(I)=.FALSE.
    END DO
@@ -1350,6 +1353,7 @@ SUBROUTINE DXFVERTLINE
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT LINE CONNECTING SURFACE VERTICES
@@ -1404,7 +1408,7 @@ SUBROUTINE DXFVERTLINE
    IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
 !       DEFAULT VALUES
    IF(DF1.EQ.1) THEN
-      IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
          W1=DBLE(1)
       ELSE
          W1=DBLE(0)
@@ -1413,7 +1417,7 @@ SUBROUTINE DXFVERTLINE
 !       DF1 NOT 1, W1 EXPLICITLY ENTERED
    END IF
    IF(DF2.EQ.1) THEN
-      IF(DABS(ALENS(3,(NEWIMG-1))).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(NEWIMG-1)).GT.1.0D10) THEN
          W2=DBLE(NEWIMG-1)
       ELSE
          W2=DBLE(NEWIMG)
@@ -1468,7 +1472,7 @@ SUBROUTINE DXFVERTLINE
    DO I=STASUR,STPSUR
       GLVIRT(I)=.FALSE.
 !     IF THE CURRENT SURFACE IS A TRUE DUMMY
-      IF(DUM(I).AND.ALENS(34,I).EQ.0.0D0 &
+      IF(DUM(I).AND.surf_special_type(I) == 0 &
       &.AND.I.NE.NEWIMG) GLVIRT(I)=.TRUE.
       IF(I.EQ.NEWIMG.OR.I.EQ.STASUR.OR.I.EQ.STPSUR) GLVIRT(I)=.FALSE.
    END DO
@@ -1493,6 +1497,7 @@ SUBROUTINE DXFEDG
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF EDGEX/EDGEY COMMAND AT THE CMD LEVEL
@@ -1594,7 +1599,7 @@ SUBROUTINE DXFEDG
    IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
 !       DEFAULT VALUES
    IF(DF1.EQ.1) THEN
-      IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+      IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
          W1=DBLE(1)
       ELSE
          W1=DBLE(0)
@@ -1879,11 +1884,11 @@ SUBROUTINE DXFEDG
                   &GLANAM(I-1,2).EQ.'REFLTIRO     '.OR.&
                   &GLANAM(I-1,2).EQ.'REFLTIR      '.OR.&
                   &GLANAM(I-1,2).EQ.'REFL         '.AND.&
-                  &DABS(ALENS(46,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(47,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(48,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(49,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                  &DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                      IPST=0
                      IPX(I)=IPST
                   ELSE
@@ -1904,8 +1909,8 @@ SUBROUTINE DXFEDG
 !     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE ARRAY
 !
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -1920,8 +1925,8 @@ SUBROUTINE DXFEDG
                END IF
             END DO
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -1966,15 +1971,15 @@ SUBROUTINE DXFEDG
                   &GLANAM(I-1,2).EQ.'REFLTIRO     '.OR.&
                   &GLANAM(I-1,2).EQ.'REFLTIR      '.OR.&
                   &GLANAM(I-1,2).EQ.'REFL         '.AND.&
-                  &DABS(ALENS(46,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(47,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(48,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(49,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                  &DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                      IPST=0
                      IPX(I)=IPST
                   ELSE
-                     IF(ALENS(16,I).NE.0.0D0.AND.ALENS(16,I-1).NE.0.0D0) THEN
+                     IF(surf_coat_type(I) /= 0.AND.surf_coat_type(I-1) /= 0) THEN
                         IPST=1
                         IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
                         IPX(I)=IPST
@@ -1995,8 +2000,8 @@ SUBROUTINE DXFEDG
 !     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE ARRAY
 !
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -2011,8 +2016,8 @@ SUBROUTINE DXFEDG
                END IF
             END DO
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -2058,11 +2063,11 @@ SUBROUTINE DXFEDG
                   &GLANAM(I-1,2).EQ.'REFLTIRO     '.OR.&
                   &GLANAM(I-1,2).EQ.'REFLTIR      '.OR.&
                   &GLANAM(I-1,2).EQ.'REFL         '.AND.&
-                  &DABS(ALENS(46,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(47,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(48,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(49,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                  &DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                      IPST=0
                      IPX(I)=IPST
                   ELSE
@@ -2083,8 +2088,8 @@ SUBROUTINE DXFEDG
 !     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE ARRAY
 !
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -2099,8 +2104,8 @@ SUBROUTINE DXFEDG
                END IF
             END DO
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -2144,15 +2149,15 @@ SUBROUTINE DXFEDG
                   &GLANAM(I-1,2).EQ.'REFLTIR      '.OR.&
                   &GLANAM(I-1,2).EQ.'REFLTIRO     '.OR.&
                   &GLANAM(I-1,2).EQ.'REFL         '.AND.&
-                  &DABS(ALENS(46,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(47,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(48,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(49,I-1)).EQ.1.0D0.AND.&
-                  &DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+                  &DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND.&
+                  &DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                      IPST=0
                      IPX(I)=IPST
                   ELSE
-                     IF(ALENS(16,I).NE.0.0D0.AND.ALENS(16,I-1).NE.0.0D0) THEN
+                     IF(surf_coat_type(I) /= 0.AND.surf_coat_type(I-1) /= 0) THEN
                         IPST=1
                         IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
                         IPX(I)=IPST
@@ -2173,8 +2178,8 @@ SUBROUTINE DXFEDG
 !     NOW ISSUE THE PLOTTING COMMANDS STORED IN THE ARRAY
 !
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -2189,8 +2194,8 @@ SUBROUTINE DXFEDG
                END IF
             END DO
             DO IK=STASUR,STPSUR-1
-               IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.&
-               &ALENS(127,IK-1).NE.0.0D0) THEN
+               IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.&
+               &surf_array_parity(IK-1) /= 0) THEN
                ELSE
                   IF(IPX(IK+1).EQ.1) THEN
 !     DRAW A LINE
@@ -2224,6 +2229,7 @@ SUBROUTINE DXFDEV
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "DXF NEW" COMMAND AT THE CMD
@@ -2239,7 +2245,7 @@ SUBROUTINE DXFDEV
 !       THIS ROUTINE SETS DXFSET AND DEVTYP
    GLSURF=-99
    DO I=NEWIMG,NEWOBJ,-1
-      IF(DABS(ALENS(3,I)).LE.1.0D10) GLSURF=I
+      IF(DABS(surf_thickness(I)).LE.1.0D10) GLSURF=I
    END DO
    GLOBE=.TRUE.
    OFFX=0.0D0
@@ -2278,6 +2284,7 @@ SUBROUTINE DXFCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF CLAP COMMAND
@@ -2336,8 +2343,8 @@ SUBROUTINE DXFCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
 !
 !     CYCLE THROUGH ALL THE SURFACES
 !
-      IF(ALENS(34,II).EQ.18.0D0) JJSTOP=2
-      IF(ALENS(34,II).NE.18.0D0) JJSTOP=1
+      IF(surf_special_type(II) == 18) JJSTOP=2
+      IF(surf_special_type(II) /= 18) JJSTOP=1
       DO JJ=1,JJSTOP
 !
 !     1. WE WILL CLOCK AROUND THE CLEAR APERTURE FROM THE LOCAL +X
@@ -2385,8 +2392,8 @@ SUBROUTINE DXFCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
 !     3. THE ARRAYS NOW HAVE LOCAL X,Y AND Z VALUES STORED IN THEM
 !     CONVERT THE LOCAL X ANY Y CLAPS TO GLOBAL NUMBERS
 !     GLOBAL VERTEX DATA IS
-      IF(ALENS(34,II).EQ.18.0D0) JJSTOP=2
-      IF(ALENS(34,II).NE.18.0D0) JJSTOP=1
+      IF(surf_special_type(II) == 18) JJSTOP=2
+      IF(surf_special_type(II) /= 18) JJSTOP=1
       DO JJ=1,JJSTOP
          DO I=0,180
             X00=VERTEX(1,II)
@@ -2419,7 +2426,7 @@ SUBROUTINE DXFCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
 !
 !     PUT THE CALLS TO THE DXF ROUTINES HERE FOR ALL THE SURFACES
       IOP=1
-      IF(DUMMMY(II).AND.ALENS(9,II).EQ.0.0D0.AND.&
+      IF(DUMMMY(II).AND.surf_clap_type(II) == 0.AND.&
       &II.NE.STASUR.AND.II.NE.STPSUR) THEN
       ELSE
          DO L=1,2

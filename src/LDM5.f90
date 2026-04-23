@@ -1321,7 +1321,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L, 4)*(EDGVAL**4))+&
-               &(surf_asphere_coeff(L, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L, 8)*(EDGVAL**6))+&
                &(surf_asphere_coeff(L, 8)*(EDGVAL**8))+&
                &(surf_asphere_coeff(L, 10)*(EDGVAL**10))+&
                &(surf_asphere_coeff(L, 12)*(EDGVAL**12))+&
@@ -1339,7 +1339,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L, 4)*(((1.0D0-surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L, 6)*(((1.0D0-surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0-surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L, 8)*(((1.0D0-surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L, 10)*(((1.0D0-surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
@@ -1351,7 +1351,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_toric_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L, 4)*(((1.0D0+surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L, 6)*(((1.0D0+surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0+surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L, 8)*(((1.0D0+surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L, 10)*(((1.0D0+surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
@@ -1373,7 +1373,7 @@ SUBROUTINE SLVRS
                SAGLP1=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L+1, 4)*(EDGVAL**4))+&
-               &(surf_asphere_coeff(L+1, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L+1, 8)*(EDGVAL**6))+&
                &(surf_asphere_coeff(L+1, 8)*(EDGVAL**8))+&
                &(surf_asphere_coeff(L+1, 10)*(EDGVAL**10))+&
                &(surf_asphere_coeff(L+1, 12)*(EDGVAL**12))+&
@@ -1391,7 +1391,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L+1, 4)*(((1.0D0-surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L+1, 6)*(((1.0D0-surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0-surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L+1, 8)*(((1.0D0-surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L+1, 10)*(((1.0D0-surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
@@ -1403,7 +1403,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_toric_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L+1, 4)*(((1.0D0+surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L+1, 6)*(((1.0D0+surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0+surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L+1, 8)*(((1.0D0+surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L+1, 10)*(((1.0D0+surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
@@ -2172,7 +2172,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L, 4)*(EDGVAL**4))+&
-               &(surf_asphere_coeff(L, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L, 8)*(EDGVAL**6))+&
                &(surf_asphere_coeff(L, 8)*(EDGVAL**8))+&
                &(surf_asphere_coeff(L, 10)*(EDGVAL**10))+&
                &(surf_asphere_coeff(L, 12)*(EDGVAL**12))+&
@@ -2190,7 +2190,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_toric_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L, 4)*(((1.0D0+surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L, 6)*(((1.0D0+surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0+surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L, 8)*(((1.0D0+surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L, 10)*(((1.0D0+surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
@@ -2202,7 +2202,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L, 4)*(((1.0D0-surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L, 6)*(((1.0D0-surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0-surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L, 8)*(((1.0D0-surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L, 10)*(((1.0D0-surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
@@ -2224,7 +2224,7 @@ SUBROUTINE SLVRS
                SAGLP1=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L+1, 4)*(EDGVAL**4))+&
-               &(surf_asphere_coeff(L+1, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L+1, 8)*(EDGVAL**6))+&
                &(surf_asphere_coeff(L+1, 8)*(EDGVAL**8))+&
                &(surf_asphere_coeff(L+1, 10)*(EDGVAL**10))+&
                &(surf_asphere_coeff(L+1, 12)*(EDGVAL**12))+&
@@ -2242,7 +2242,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_toric_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L+1, 4)*(((1.0D0+surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L+1, 6)*(((1.0D0+surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0+surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L+1, 8)*(((1.0D0+surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L+1, 10)*(((1.0D0+surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
@@ -2254,7 +2254,7 @@ SUBROUTINE SLVRS
                SAGL=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
                &(surf_asphere_coeff(L+1, 4)*(((1.0D0-surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
-               &(surf_asphere_coeff(L+1, 6)*(((1.0D0-surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0-surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
                &(surf_asphere_coeff(L+1, 8)*(((1.0D0-surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
                &(surf_asphere_coeff(L+1, 10)*(((1.0D0-surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE

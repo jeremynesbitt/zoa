@@ -126,6 +126,7 @@ SUBROUTINE HIT17
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HIT17.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -208,7 +209,7 @@ SUBROUTINE HIT17
 !
 !       SUBROUTINE NR4 INTERSECTS
 !
-   INR=ALENS(76,R_I)
+   INR=surf_inr_value(R_I)
    CALL NR4
 !
    R_X=REG(9)
@@ -291,8 +292,8 @@ SUBROUTINE HIT17
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(ALENS(3,R_I).GT.0.0D0.AND.ALENS(3,R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.ALENS(3,R_I).LT.0.0D0.AND.ALENS(3,R_I-1)&
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
+   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
    &.GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
@@ -344,6 +345,7 @@ SUBROUTINE HITSUR
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITSUR.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -365,17 +367,17 @@ SUBROUTINE HITSUR
 !
    PHASE=0.0D0
 !
-   IF(ALENS(46,R_I).EQ.ALENS(46,(R_I-1)).AND.ALENS(47,R_I).EQ.&
-   &ALENS(47,(R_I-1)).AND.ALENS(48,R_I).EQ.ALENS(48,(R_I-1)).AND.&
-   &ALENS(49,R_I).EQ.ALENS(49,(R_I-1)).AND.ALENS(50,R_I).EQ.&
-   &ALENS(50,(R_I-1)).AND.&
-   &ALENS(71,R_I).EQ.ALENS(71,(R_I-1)).AND.ALENS(72,R_I).EQ.&
-   &ALENS(72,(R_I-1)).AND.ALENS(73,R_I).EQ.ALENS(73,(R_I-1)).AND.&
-   &ALENS(74,R_I).EQ.ALENS(74,(R_I-1)).AND.ALENS(75,R_I).EQ.&
-   &ALENS(75,(R_I-1))) THEN
+   IF(surf_refractive_index(R_I, 1).EQ.surf_refractive_index(R_I-1, 1).AND.surf_refractive_index(R_I, 2).EQ.&
+   &surf_refractive_index(R_I-1, 2).AND.surf_refractive_index(R_I, 3).EQ.surf_refractive_index(R_I-1, 3).AND.&
+   &surf_refractive_index(R_I, 4).EQ.surf_refractive_index(R_I-1, 4).AND.surf_refractive_index(R_I, 5).EQ.&
+   &surf_refractive_index(R_I-1, 5).AND.&
+   &surf_refractive_index(R_I, 6).EQ.surf_refractive_index(R_I-1, 6).AND.surf_refractive_index(R_I, 7).EQ.&
+   &surf_refractive_index(R_I-1, 7).AND.surf_refractive_index(R_I, 8).EQ.surf_refractive_index(R_I-1, 8).AND.&
+   &surf_refractive_index(R_I, 9).EQ.surf_refractive_index(R_I-1, 9).AND.surf_refractive_index(R_I, 10).EQ.&
+   &surf_refractive_index(R_I-1, 10)) THEN
 !       SURFACE IS A DUMMY
-      IF(ALENS(68,R_I).EQ.0.0D0) DUM(R_I)=.TRUE.
-      IF(ALENS(68,R_I).EQ.1.0D0) DUM(R_I)=.FALSE.
+      IF(surf_dummy_val(R_I) == 0) DUM(R_I)=.TRUE.
+      IF(surf_dummy_val(R_I) == 1) DUM(R_I)=.FALSE.
    ELSE
       DUM(R_I)=.FALSE.
    END IF
@@ -398,7 +400,7 @@ SUBROUTINE HITSUR
 !
 !                   INTERSECT USER-DEFINED TYPE 17 SURFACES
 !
-   IF(ALENS(34,R_I).EQ.17.0D0.AND.ALENS(124,R_I).EQ.0.0D0) THEN
+   IF(surf_special_type(R_I) == 17.AND.surf_paraxial_val(R_I) == 0) THEN
       CALL HIT17
       RETURN
    END IF
@@ -409,17 +411,17 @@ SUBROUTINE HITSUR
 !
 !                   INTERSECT FRESNEL-1 SURFACES
 !
-   IF(ALENS(34,R_I).EQ.16.0D0.AND.ALENS(1,R_I).EQ.0.0D0.AND.&
-   &ALENS(23,R_I).EQ.0.0D0.OR.&
-   &ALENS(34,R_I).EQ.16.0D0.AND.ALENS(23,R_I).NE.0.0D0.AND.&
-   &ALENS(24,R_I).EQ.0.0D0) THEN
+   IF(surf_special_type(R_I) == 16.AND.surf_curvature(R_I).EQ.0.0D0.AND.&
+   &surf_toric_flag(R_I) == 0.OR.&
+   &surf_special_type(R_I) == 16.AND.surf_toric_flag(R_I) /= 0.AND.&
+   &surf_toric_curvature(R_I).EQ.0.0D0) THEN
       CALL HITFRZFL
       RETURN
    END IF
-   IF(ALENS(34,R_I).EQ.16.0D0.AND.ALENS(1,R_I).NE.0.0D0 &
-   &.AND.ALENS(23,R_I).EQ.0.0D0.OR.&
-   &ALENS(34,R_I).EQ.16.0D0.AND.ALENS(23,R_I).NE.0.0D0.AND.&
-   &ALENS(24,R_I).NE.0.0D0) THEN
+   IF(surf_special_type(R_I) == 16.AND.surf_curvature(R_I).NE.0.0D0 &
+   &.AND.surf_toric_flag(R_I) == 0.OR.&
+   &surf_special_type(R_I) == 16.AND.surf_toric_flag(R_I) /= 0.AND.&
+   &surf_toric_curvature(R_I).NE.0.0D0) THEN
       CALL HITFRZCV
       RETURN
    END IF
@@ -430,7 +432,7 @@ SUBROUTINE HITSUR
 !
 !                   INTERSECT GRAZING INCIDENCE SURFACES
 !
-   IF(ALENS(34,R_I).EQ.18.0D0) THEN
+   IF(surf_special_type(R_I) == 18) THEN
       CALL HITGRAZ
       RETURN
    END IF
@@ -443,15 +445,15 @@ SUBROUTINE HITSUR
 !**********************************************************************
 !       PARAXIAL SURFACE
 !
-   IF(ALENS(124,R_I).EQ.1.0D0) THEN
+   IF(surf_paraxial_val(R_I) == 1) THEN
       CALL HITPARAX(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(ALENS(34,R_I).NE.13.0D0.OR.ALENS(34,R_I).EQ.13.0D0 &
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
          &.AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
          END IF
-         IF(ALENS(34,R_I).EQ.13.0D0.AND.F12.EQ.1) THEN
+         IF(surf_special_type(R_I) == 13.AND.F12.EQ.1) THEN
 !     SET THE TARGET POSITIONS ON THE HOE AND RETURN
             XHOE=R_X
             YHOE=R_Y
@@ -474,10 +476,10 @@ SUBROUTINE HITSUR
 !       SURFACE R_I IS PLANO AND MAY CONTAIN 2ND, 4TH, 6TH, 8TH AND 10TH ORDER
 !       ASPHERIC TERMS AND SPECIAL STUFF
 !
-   IF(ALENS(1,R_I).EQ.0.0D0.AND.ALENS(23,R_I)&
+   IF(surf_curvature(R_I).EQ.0.0D0.AND.surf_toric_flag(R_I)&
    &.EQ.0.0D0) THEN
 !
-      IF(ALENS(133,R_I).NE.0.0D0) THEN
+      IF(surf_array_parity(R_I) /= 0) THEN
 !
 !       CODE GOES HERE FOR ARRAY SURFACE IN SIDE
 !
@@ -491,18 +493,18 @@ SUBROUTINE HITSUR
       END IF
       CALL HITFLA(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(ALENS(34,R_I).NE.13.0D0.OR.ALENS(34,R_I).EQ.13.0D0 &
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
          &.AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
 !
 !       CODE GOES HERE FOR ARRAY SURFACE OUT SIDE
 !
-            IF(ALENS(133,R_I).NE.0.0D0) THEN
+            IF(surf_array_parity(R_I) /= 0) THEN
                CALL ARRAYOUT_FIX(N_X,N_Y)
             END IF
          END IF
-         IF(ALENS(34,R_I).EQ.13.0D0.AND.F12.EQ.1) THEN
+         IF(surf_special_type(R_I) == 13.AND.F12.EQ.1) THEN
 !     SET THE TARGET POSITIONS ON THE HOE AND RETURN
             XHOE=R_X
             YHOE=R_Y
@@ -526,8 +528,8 @@ SUBROUTINE HITSUR
    XOLD=R_X
    YOLD=R_Y
    ZOLD=R_Z
-   IF(ALENS(1,R_I).NE.0.0D0.AND.ALENS(23,R_I).EQ.0.0D0) THEN
-      IF(ALENS(133,R_I).NE.0.0D0) THEN
+   IF(surf_curvature(R_I).NE.0.0D0.AND.surf_toric_flag(R_I) == 0) THEN
+      IF(surf_array_parity(R_I) /= 0) THEN
 !
 !       CODE GOES HERE FOR ARRAY SURFACE IN SIDE
 !
@@ -541,18 +543,18 @@ SUBROUTINE HITSUR
       END IF
       CALL HITASP(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(ALENS(34,R_I).NE.13.0D0.OR.ALENS(34,R_I).EQ.13.0D0 &
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
          &.AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
 !
 !       CODE GOES HERE FOR ARRAY SURFACE OUT SIDE
 !
-            IF(ALENS(133,R_I).NE.0.0D0) THEN
+            IF(surf_array_parity(R_I) /= 0) THEN
                CALL ARRAYOUT_FIX(N_X,N_Y)
             END IF
          END IF
-         IF(ALENS(34,R_I).EQ.13.0D0.AND.F12.EQ.1) THEN
+         IF(surf_special_type(R_I) == 13.AND.F12.EQ.1) THEN
 !     SET THE TARGET POSITIONS ON THE HOE AND RETURN
             XHOE=R_X
             YHOE=R_Y
@@ -575,9 +577,9 @@ SUBROUTINE HITSUR
 !       SURFACE R_I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
 !
-   IF(ALENS(23,R_I).NE.0.0D0) THEN
+   IF(surf_toric_flag(R_I) /= 0) THEN
 !
-      IF(ALENS(133,R_I).NE.0.0D0) THEN
+      IF(surf_array_parity(R_I) /= 0) THEN
 !
 !       CODE GOES HERE FOR ARRAY SURFACE IN SIDE
 !
@@ -591,18 +593,18 @@ SUBROUTINE HITSUR
       END IF
       CALL HITANA(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(ALENS(34,R_I).NE.13.0D0.OR.ALENS(34,R_I).EQ.13.0D0 &
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
          &.AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
 !
 !       CODE GOES HERE FOR ARRAY SURFACE OUT SIDE
 !
-            IF(ALENS(133,R_I).NE.0.0D0) THEN
+            IF(surf_array_parity(R_I) /= 0) THEN
                CALL ARRAYOUT_FIX(N_X,N_Y)
             END IF
          END IF
-         IF(ALENS(34,R_I).EQ.13.0D0.AND.F12.EQ.1) THEN
+         IF(surf_special_type(R_I) == 13.AND.F12.EQ.1) THEN
 !     SET THE TARGET POSITIONS ON THE HOE AND RETURN
             XHOE=R_X
             YHOE=R_Y
@@ -628,6 +630,7 @@ END
 SUBROUTINE APLANA(I,WWWW1,WWWW2,WWWWW1,WWWWW2)
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
    REAL*8 WX,WY,PARTX,PARTY,WWWW1,WWWW2,RD,HGT,FULL &
    &,WWWWW1,WWWWW2
@@ -637,12 +640,12 @@ SUBROUTINE APLANA(I,WWWW1,WWWW2,WWWWW1,WWWWW2)
    IF(WWWW2.GE.0.0D0) WX= 1.0D0
    IF(WWWW2.LT.0.0D0) WX=-1.0D0
 !     DETERMINE THE NEW WW1 AND WW2 VALUES
-   IF(ALENS(127,I).EQ.0.0D0) THEN
-      HGT=ALENS(9,I)
+   IF(surf_array_parity(I) == 0) THEN
+      HGT=surf_clap_type(I)
    ELSE
       HGT=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
    END IF
-   RD=1.0D0/ALENS(1,I)
+   RD=1.0D0/surf_curvature(I)
 !     DETERMINE THE ANGLE OF THE FULL RAY
    FULL=DASIN(HGT/RD)
    PARTX=FULL*DABS(WWWW2)
@@ -657,6 +660,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITASP.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -708,8 +712,8 @@ SUBROUTINE HITASP(OR_N,OR_Z)
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
 !
 !       SURFACE IS CONIC
-   CV=ALENS(1,R_I)
-   CC=ALENS(2,R_I)
+   CV=surf_curvature(R_I)
+   CC=surf_conic(R_I)
    IF(CC.EQ.-1.0D0.AND.CV.GT.0.0D0) ZTEST=1.0D20
    IF(CC.EQ.-1.0D0.AND.CV.LT.0.0D0) ZTEST=-1.0D20
    IF(CC.NE.-1.0D0) ZTEST=1.0D0/((CC+1.0D0)*CV)
@@ -1059,10 +1063,10 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !       COSINES OF THE SURFACE NORMAL TO THE ASPHERIC.
 !       NR2 ALSO DEALS WITH SPECIAL SURFACE TYPES:
 !
-   INR=ALENS(76,R_I)
-   IF(ALENS(8,R_I).NE.0.0D0.OR.ALENS(34,R_I).GT.0.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.19.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.20.0D0.OR.ALENS(103,R_I).EQ.1.0D0) THEN
+   INR=surf_inr_value(R_I)
+   IF(surf_is_asphere(R_I).OR.surf_special_type(R_I) > 0.AND.&
+   &surf_special_type(R_I) /= 19.AND.&
+   &surf_special_type(R_I) /= 20.OR.surf_default_flag(R_I) == 1) THEN
       ERR=.FALSE.
       !call logger%logTextWithNum("Call NR2 for surface ", R_I)
       CALL NR2(ERR)
@@ -1089,6 +1093,7 @@ SUBROUTINE GETZEE1
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     CALCULATES BEST INTERSECTION POINT TO FIRST SURFACE
@@ -1115,8 +1120,8 @@ SUBROUTINE GETZEE1
    !PRINT *, "DEBUGZEE IS ", DEBUGZEE
 !
 !       SURFACE IS CONIC OR SPHERE
-   CV=ALENS(1,1)
-   CC=ALENS(2,1)
+   CV=surf_curvature(1)
+   CC=surf_conic(1)
    IF(CC.EQ.-1.0D0.AND.CV.GT.0.0D0) ZTEST=1.0D20
    IF(CC.EQ.-1.0D0.AND.CV.LT.0.0D0) ZTEST=-1.0D20
    IF(CC.NE.-1.0D0) ZTEST=1.0D0/((CC+1.0D0)*CV)
@@ -1287,6 +1292,7 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITFLA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1421,11 +1427,11 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
 !       WITH THE SIMPLE PLANO AS A STARTING POINT. IT
 !       ALSO TAKES CARE OF SPECIAL SURFACES OF TYPES:
 !
-   INR=ALENS(76,R_I)
-   IF(ALENS(8,R_I).NE.0.0D0.OR.ALENS(34,R_I).GT.0.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.19.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.20.0D0 &
-   &.OR.ALENS(103,R_I).EQ.1.0D0) THEN
+   INR=surf_inr_value(R_I)
+   IF(surf_is_asphere(R_I).OR.surf_special_type(R_I) > 0.AND.&
+   &surf_special_type(R_I) /= 19.AND.&
+   &surf_special_type(R_I) /= 20 &
+   &.OR.surf_default_flag(R_I) == 1) THEN
       ERR=.FALSE.
       CALL NR1(ERR)
       IF(ERR) THEN
@@ -1473,6 +1479,7 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITPARAX.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1601,7 +1608,7 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
 !
 !       SUBROUTINE NRPARAX COMPUTES THE SURFACE NORMAL
 !
-   INR=ALENS(76,R_I)
+   INR=surf_inr_value(R_I)
    CALL NRPARAX
    RETURN
 END
@@ -1610,6 +1617,7 @@ SUBROUTINE HITFRZFL
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     FLAT FREZNEL-1 SURFACE
@@ -1712,15 +1720,15 @@ SUBROUTINE HITFRZFL
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
-   IF(ALENS(23,R_I).EQ.0.0D0) THEN
+   IF(surf_toric_flag(R_I) == 0) THEN
       RRXX=R_X
       RRYY=R_Y
    END IF
-   IF(ALENS(23,R_I).EQ.1.0D0) THEN
+   IF(surf_toric_flag(R_I) == 1) THEN
       RRXX=R_X
       RRYY=0.0D0
    END IF
-   IF(ALENS(23,R_I).EQ.2.0D0) THEN
+   IF(surf_toric_flag(R_I) == 2) THEN
       RRXX=0.0D0
       RRYY=R_Y
    END IF
@@ -1879,8 +1887,8 @@ SUBROUTINE HITFRZFL
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(ALENS(3,R_I).GT.0.0D0.AND.ALENS(3,R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.ALENS(3,R_I).LT.0.0D0.AND.ALENS(3,R_I-1)&
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
+   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
    &.GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
@@ -1936,6 +1944,7 @@ SUBROUTINE HITFRZCV
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     CURVED FRESNEL-1
@@ -1980,13 +1989,13 @@ SUBROUTINE HITFRZCV
    SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
 !
-   IF(ALENS(23,R_I).EQ.0.0D0) THEN
-      CV=ALENS(1,R_I)
-      CC=ALENS(2,R_I)
+   IF(surf_toric_flag(R_I) == 0) THEN
+      CV=surf_curvature(R_I)
+      CC=surf_conic(R_I)
    END IF
-   IF(ALENS(23,R_I).NE.0.0D0) THEN
-      CV=ALENS(24,R_I)
-      CC=ALENS(41,R_I)
+   IF(surf_toric_flag(R_I) /= 0) THEN
+      CV=surf_toric_curvature(R_I)
+      CC=surf_anamorphic_conic(R_I)
    END IF
    IF(CC.EQ.-1.0D0.AND.CV.GT.0.0D0) ZTEST=1.0D20
    IF(CC.EQ.-1.0D0.AND.CV.LT.0.0D0) ZTEST=-1.0D20
@@ -2009,15 +2018,15 @@ SUBROUTINE HITFRZCV
 !       NOW INTERSECT THE SURFACE
 !       THE FOLLOWING CALCULATIONS ARE INTERMEDIATE STEPS:
 !
-   IF(ALENS(23,R_I).EQ.0.0D0) THEN
+   IF(surf_toric_flag(R_I) == 0) THEN
       RRXX=R_X
       RRYY=R_Y
    END IF
-   IF(ALENS(23,R_I).EQ.1.0D0) THEN
+   IF(surf_toric_flag(R_I) == 1) THEN
       RRXX=R_X
       RRYY=0.0D0
    END IF
-   IF(ALENS(23,R_I).EQ.2.0D0) THEN
+   IF(surf_toric_flag(R_I) == 2) THEN
       RRXX=0.0D0
       RRYY=R_Y
    END IF
@@ -2115,15 +2124,15 @@ SUBROUTINE HITFRZCV
    END IF
 !
 !
-   IF(ALENS(23,R_I).EQ.0.0D0) THEN
+   IF(surf_toric_flag(R_I) == 0) THEN
       RRXX=X1
       RRYY=Y1
    END IF
-   IF(ALENS(23,R_I).EQ.1.0D0) THEN
+   IF(surf_toric_flag(R_I) == 1) THEN
       RRXX=X1
       RRYY=0.0D0
    END IF
-   IF(ALENS(23,R_I).EQ.2.0D0) THEN
+   IF(surf_toric_flag(R_I) == 2) THEN
       RRXX=0.0D0
       RRYY=Y1
    END IF
@@ -2183,15 +2192,15 @@ SUBROUTINE HITFRZCV
 !       NOW THE DIRECTION COSINES OF THE SECOND POINT IF IT EXISTS
    IF(INTERS.EQ.2) THEN
 !       FIRST THE DIRECTION COSINES OF THE SURFACE NORMAL
-      IF(ALENS(23,R_I).EQ.0.0D0) THEN
+      IF(surf_toric_flag(R_I) == 0) THEN
          RRXX=X2
          RRYY=Y2
       END IF
-      IF(ALENS(23,R_I).EQ.1.0D0) THEN
+      IF(surf_toric_flag(R_I) == 1) THEN
          RRXX=X2
          RRYY=0.0D0
       END IF
-      IF(ALENS(23,R_I).EQ.2.0D0) THEN
+      IF(surf_toric_flag(R_I) == 2) THEN
          RRXX=0.0D0
          RRYY=Y2
       END IF
@@ -2381,15 +2390,15 @@ SUBROUTINE HITFRZCV
    C9=FTFL01(9,R_I)
    C10=FTFL01(10,R_I)
    C11=FTFL01(11,R_I)
-   IF(ALENS(23,R_I).EQ.0.0D0) THEN
+   IF(surf_toric_flag(R_I) == 0) THEN
       RRXX=R_X
       RRYY=R_Y
    END IF
-   IF(ALENS(23,R_I).EQ.1.0D0) THEN
+   IF(surf_toric_flag(R_I) == 1) THEN
       RRXX=R_X
       RRYY=0.0D0
    END IF
-   IF(ALENS(23,R_I).EQ.1.0D0) THEN
+   IF(surf_toric_flag(R_I) == 1) THEN
       RRXX=0.0D0
       RRYY=R_Y
    END IF
@@ -2539,8 +2548,8 @@ SUBROUTINE HITFRZCV
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(ALENS(3,R_I).GT.0.0D0.AND.ALENS(3,R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.ALENS(3,R_I).LT.0.0D0.AND.ALENS(3,R_I-1)&
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
+   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
    &.GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
@@ -2596,6 +2605,7 @@ SUBROUTINE HITGRAZ
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITGRAZ.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2644,8 +2654,8 @@ SUBROUTINE HITGRAZ
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
 !
 !       SURFACE IS CONIC BY DEFINITION
-   CV=ALENS(1,R_I)
-   CC=ALENS(2,R_I)
+   CV=surf_curvature(R_I)
+   CC=surf_conic(R_I)
    IF(CC.EQ.-1.0D0.AND.CV.GT.0.0D0) ZTEST=1.0D20
    IF(CC.EQ.-1.0D0.AND.CV.LT.0.0D0) ZTEST=-1.0D20
    IF(CC.NE.-1.0D0) ZTEST=1.0D0/((CC+1.0D0)*CV)
@@ -3008,7 +3018,7 @@ SUBROUTINE HITGRAZ
    &.OR.FTFL01(14,R_I).NE.0.0D0.OR.FTFL01(15,R_I).NE.0.0D0 &
    &.OR.FTFL01(16,R_I).NE.0.0D0.OR.FTFL01(17,R_I).NE.0.0D0 &
    &.OR.FTFL01(18,R_I).NE.0.0D0) THEN
-      INR=ALENS(76,R_I)
+      INR=surf_inr_value(R_I)
       CALL NR5
    END IF
 !
@@ -3127,14 +3137,15 @@ END
 SUBROUTINE POSARRAY1(I,X,Y,N_X,N_Y)
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
    REAL*8 X,Y,DX,DY,XWORKING,YWORKING,SGNX,SGNY
    INTEGER I,N_X,N_Y
 !       X AND Y  PASS IN AS THE X AND Y COORDINATES AND PASS BACK AS THE X AND Y
 !       COORDINATES AT A SINGLE LENSLET
-   DX=ALENS(131,I)
-   DY=ALENS(132,I)
-   IF(ALENS(133,I).EQ.-1.0D0) THEN
+   DX=surf_array_dx(I)
+   DY=surf_array_dy(I)
+   IF(surf_array_parity(I).EQ.-1.0D0) THEN
 !       ODD
       N_X=DBLE(NINT(X/DX))
       N_Y=DBLE(NINT(Y/DY))
@@ -3143,7 +3154,7 @@ SUBROUTINE POSARRAY1(I,X,Y,N_X,N_Y)
       X=XWORKING
       Y=YWORKING
    END IF
-   IF(ALENS(133,I).EQ.1.0D0) THEN
+   IF(surf_array_parity(I) == 1) THEN
 !       EVEN
       IF(X.EQ.0.0D0) THEN
          SGNX=1.0D0
@@ -3168,20 +3179,21 @@ END
 SUBROUTINE POSARRAY2(I,X,Y,N_X,N_Y)
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
    REAL*8 X,Y,DX,DY,XWORKING,YWORKING
    INTEGER I,N_X,N_Y
 !       INVERSE OF POSARRAY1
-   DX=ALENS(131,I)
-   DY=ALENS(132,I)
-   IF(ALENS(133,I).EQ.-1.0D0) THEN
+   DX=surf_array_dx(I)
+   DY=surf_array_dy(I)
+   IF(surf_array_parity(I).EQ.-1.0D0) THEN
 !       ODD
       XWORKING=X+(N_X*DX)
       YWORKING=Y+(N_Y*DY)
       X=XWORKING
       Y=YWORKING
    END IF
-   IF(ALENS(133,I).EQ.1.0D0) THEN
+   IF(surf_array_parity(I) == 1) THEN
 !       EVEN
       XWORKING=X+(N_X*DX/2.0D0)
       YWORKING=Y+(N_Y*DY/2.0D0)
@@ -3196,6 +3208,7 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3241,8 +3254,8 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
    R1=0.0D0
    R2=0.0D0
-   IF(ALENS(1,R_I).NE.0.0D0) R1=1.0D0/ALENS(1,R_I)
-   IF(ALENS(24,R_I).NE.0.0D0) R2=1.0D0/ALENS(24,R_I)
+   IF(surf_curvature(R_I).NE.0.0D0) R1=1.0D0/surf_curvature(R_I)
+   IF(surf_toric_curvature(R_I).NE.0.0D0) R2=1.0D0/surf_toric_curvature(R_I)
    RD=(R1+R2)/2.0D0
    CV=0.0D0
    IF(RD.NE.0.0D0) CV=1.0D0/RD
@@ -3533,7 +3546,7 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
 !       THIS ALSO DEALS WITH SPECIAL SURFACE TYPES:
 !                       1, 2 AND 3
 !
-   INR=ALENS(76,R_I)
+   INR=surf_inr_value(R_I)
    ERR=.FALSE.
    CALL NR3(ERR)
    IF(ERR) THEN
@@ -3559,6 +3572,7 @@ SUBROUTINE HITANA(OR_N,OR_Z)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3604,8 +3618,8 @@ SUBROUTINE HITANA(OR_N,OR_Z)
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
    R1=0.0D0
    R2=0.0D0
-   IF(ALENS(1,R_I).NE.0.0D0) R1=1.0D0/ALENS(1,R_I)
-   IF(ALENS(24,R_I).NE.0.0D0) R2=1.0D0/ALENS(24,R_I)
+   IF(surf_curvature(R_I).NE.0.0D0) R1=1.0D0/surf_curvature(R_I)
+   IF(surf_toric_curvature(R_I).NE.0.0D0) R2=1.0D0/surf_toric_curvature(R_I)
    RD=(R1+R2)/2.0D0
    CV=0.0D0
    IF(RD.NE.0.0D0) CV=1.0D0/RD
@@ -3635,7 +3649,7 @@ SUBROUTINE HITANA(OR_N,OR_Z)
 !       THIS ALSO DEALS WITH SPECIAL SURFACE TYPES:
 !                       1, 2 AND 3
 !
-   INR=ALENS(76,R_I)
+   INR=surf_inr_value(R_I)
    ERR=.FALSE.
    CALL NR3(ERR)
    IF(ERR) THEN

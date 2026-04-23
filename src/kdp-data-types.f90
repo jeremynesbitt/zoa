@@ -489,8 +489,8 @@ do I = 0,maxSurf-1
      IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
                      call set_surf_asphere_coeff(I, 2, 0.0D0)
                      END IF
-  !    IF(surf_asphere_coeff(I, 4).EQ.0.0D0.AND.surf_asphere_coeff(I, 5).EQ.0.0D0.AND.     &
-  ! &  surf_asphere_coeff(I, 6).EQ.0.0D0.AND.surf_asphere_coeff(I, 7).EQ.0.0D0.AND.        &
+  !    IF(surf_asphere_coeff(I, 4).EQ.0.0D0.AND.surf_asphere_coeff(I, 8).EQ.0.0D0.AND.     &
+  ! &  surf_asphere_coeff(I, 8).EQ.0.0D0.AND.surf_asphere_coeff(I, 10).EQ.0.0D0.AND.        &
   ! &  surf_asphere_coeff(I, 12).EQ.0.0D0.AND.surf_asphere_coeff(I, 14).EQ.0.0D0.AND.      &
   ! &  surf_asphere_coeff(I, 16).EQ.0.0D0.AND.surf_asphere_coeff(I, 18).EQ.0.0D0.AND.      &
   ! &  surf_asphere_coeff(I, 20).EQ.0.0D0.AND.surf_asphere_coeff(I, 2).EQ.0.0D0) THEN
@@ -498,8 +498,8 @@ do I = 0,maxSurf-1
   !                    END IF
      IF(surf_toric_flag(I) /= 0.OR.surf_is_asphere(I).OR.      &
   &  surf_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 4).NE.0.0D0.OR.          &
-  &  surf_asphere_coeff(I, 5).NE.0.0D0.OR.surf_asphere_coeff(I, 6).NE.0.0D0.OR.          &
-  &  surf_asphere_coeff(I, 7).NE.0.0D0.OR.surf_anamorphic_flag(I) /= 0.OR.         &
+  &  surf_asphere_coeff(I, 6).NE.0.0D0.OR.surf_asphere_coeff(I, 8).NE.0.0D0.OR.          &
+  &  surf_asphere_coeff(I, 10).NE.0.0D0.OR.surf_anamorphic_flag(I) /= 0.OR.         &
   &  surf_anamorphic_coeff(I, 4).NE.0.0D0.OR.surf_anamorphic_coeff(I, 6).NE.0.0D0.OR.        &
   &  surf_anamorphic_coeff(I, 8).NE.0.0D0.OR.surf_anamorphic_coeff(I, 10).NE.0.0D0.OR.        &
   &  surf_anamorphic_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 2).NE.0.0D0.OR.        &

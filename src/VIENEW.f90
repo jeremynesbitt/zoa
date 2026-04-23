@@ -24,6 +24,7 @@ SUBROUTINE VIE_psm(psm)
 !
 
     use DATMAI
+      use mod_surface
     IMPLICIT NONE
 
        type(zoaplot_setting_manager) :: psm
@@ -329,8 +330,8 @@ SUBROUTINE VIE_psm(psm)
                     SFI=1.0D0
                     DO I=Si, Sf
                     !DO I=INT(W1),INT(W2)
-               IF(ALENS(127,I).NE.0.0D0) THEN
-                   DO J=1,INT(ALENS(127,I))
+               IF(surf_array_parity(I) /= 0) THEN
+                   DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)
                MDY=MULTCLAP(J,2,I)
                GAMGAM=MULTCLAP(J,2,I)
@@ -339,8 +340,8 @@ SUBROUTINE VIE_psm(psm)
                    ELSE
                CALL PLTCLP(1,I,SFI,0.0D0,0.0D0,0.0D0)
                    END IF
-               IF(ALENS(127,I).NE.0.0D0) THEN
-                   DO J=1,INT(ALENS(127,I))
+               IF(surf_array_parity(I) /= 0) THEN
+                   DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)
                MDY=MULTCLAP(J,2,I)
                GAMGAM=MULTCLAP(J,3,I)
@@ -349,8 +350,8 @@ SUBROUTINE VIE_psm(psm)
                    ELSE
                CALL PLTCLP(2,I,SFI,0.0D0,0.0D0,0.0D0)
                    END IF
-               IF(ALENS(128,I).NE.0.0D0) THEN
-                   DO J=1,INT(ALENS(128,I))
+               IF(surf_multi_cobs_flag(I) /= 0) THEN
+                   DO J=1,surf_multi_cobs_flag(I)
                MDX=MULTCOBS(J,1,I)
                MDY=MULTCOBS(J,2,I)
                GAMGAM=MULTCOBS(J,3,I)
@@ -630,6 +631,7 @@ SUBROUTINE PLTRAE
   use type_utils, only: real2str, int2str
 !
   use DATMAI
+  use mod_surface
   IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT RAY COMMAND AT THE CMD LEVEL
@@ -695,7 +697,7 @@ IF(RAYCOD(1).EQ.18) STOPAT=RAYCOD(2)
 !     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
                   GLSURF=-99
                   DO I=NEWIMG,0,-1
-IF(DABS(ALENS(3,I)).LE.1.0D10) GLSURF=I
+IF(DABS(surf_thickness(I)).LE.1.0D10) GLSURF=I
                   END DO
 IF(GLSURF.EQ.-99) THEN
                   GLOBE=.FALSE.
@@ -752,7 +754,7 @@ CALL SHOWIT(1)
   IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
 !       DEFAULT VALUES
   IF(DF1.EQ.1) THEN
-  IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+  IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
                   W1=DBLE(1)
                   ELSE
                   W1=DBLE(0)
@@ -761,7 +763,7 @@ CALL SHOWIT(1)
 !       DF1 NOT 1, W1 EXPLICITLY ENTERED
                   END IF
   IF(DF2.EQ.1) THEN
-  IF(DABS(ALENS(3,(NEWIMG-1))).GT.1.0D10) THEN
+  IF(DABS(surf_thickness(NEWIMG-1)).GT.1.0D10) THEN
                   W2=DBLE(NEWIMG-1)
                   ELSE
                   W2=DBLE(NEWIMG)
@@ -1805,6 +1807,7 @@ NORAYPLOT=.FALSE.
 
 !
         use DATMAI
+        use mod_surface
         IMPLICIT NONE
 
        !type(hdf5_file) :: h5f
@@ -1897,7 +1900,7 @@ NORAYPLOT=.FALSE.
 !     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
                         GLSURF=-99
                         DO I=NEWIMG,0,-1
-      IF(DABS(ALENS(3,I)).LE.1.0D10) GLSURF=I
+      IF(DABS(surf_thickness(I)).LE.1.0D10) GLSURF=I
                         END DO
       IF(GLSURF.EQ.-99) THEN
                         GLOBE=.FALSE.
@@ -1967,7 +1970,7 @@ NORAYPLOT=.FALSE.
         THETA=W3*PII/180.0D0
 !       DEFAULT VALUES
         IF(DF1.EQ.1) THEN
-        IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+        IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
                         W1=1.0D0
                         ELSE
                         W1=0.0D0
@@ -2133,7 +2136,7 @@ NORAYPLOT=.FALSE.
       ACALL1=X
       ACALL2=Y
       ALT=.FALSE.
-      IF(ALENS(34,III).NE.18.0D0) THEN
+      IF(surf_special_type(III) /= 18) THEN
       ALT=.FALSE.
       IF(X.LT.AX1) THEN
       ACALL1=AX1
@@ -2152,7 +2155,7 @@ NORAYPLOT=.FALSE.
       ALT=.TRUE.
       END IF
       END IF
-      IF(ALENS(9,III).EQ.1.0D0) THEN
+      IF(surf_clap_type(III) == 1) THEN
 !     CIRCULAR CLEAR APERTURE, MAY BE TYPE 18 SPECIAL SURFACE
       ALT=.FALSE.
       IF(X.LT.AX1) THEN
@@ -2173,18 +2176,18 @@ NORAYPLOT=.FALSE.
       END IF
       END IF
       CALL SAGPLT(III,ACALL1,ACALL2,Z,NO)
-      IF(ALENS(9,III).EQ.5.0D0.OR.ALENS(9,III).EQ.6.0D0) THEN
+      IF(surf_clap_type(III) == 5.OR.surf_clap_type(III) == 6) THEN
       ZDELZ=0.0D0
       ZDELZ1=0.0D0
                    ELSE
-      IF(ALENS(9,III).NE.1.0D0.OR.ALENS(9,III).EQ.1.0D0.AND. &
-      ALENS(12,III).NE.0.0D0.OR.ALENS(9,III).EQ.1.0D0.AND. &
-      ALENS(13,III).NE.0.0D0) THEN
+      IF(surf_clap_type(III) /= 1.OR.surf_clap_type(III) == 1.AND. &
+      surf_clap_dim(III, 3).NE.0.0D0.OR.surf_clap_type(III) == 1.AND. &
+      surf_clap_dim(III, 4).NE.0.0D0) THEN
                FRACRAD=0.0D0
                ELSE
-      IF(ALENS(10,III).NE.ALENS(11,III)) THEN
-      FRACRAD=((DSQRT((X**2)+(Y**2))-ALENS(11,III))/ &
-      (ALENS(10,III)-ALENS(11,III)))
+      IF(surf_clap_dim(III, 1).NE.surf_clap_dim(III, 2)) THEN
+      FRACRAD=((DSQRT((X**2)+(Y**2))-surf_clap_dim(III, 2))/ &
+      (surf_clap_dim(III, 1)-surf_clap_dim(III, 2)))
       IF(FRACRAD.LE.0.0D0) FRACRAD=0.0D0
                ELSE
       FRACRAD=0.0D0
@@ -2196,7 +2199,7 @@ NORAYPLOT=.FALSE.
          IF(NO.EQ.1) DRAPRO=0.0D0
          IF(NO.NE.1) DRAPRO=1.0D0
 !
-      IF(ALENS(34,II).NE.18.0D0) THEN
+      IF(surf_special_type(II) /= 18) THEN
 !     ASSIGN ARRAY VALUES
                 PRO(J,1,II)=X
                 PRO(J,2,II)=Y
@@ -2353,10 +2356,10 @@ NORAYPLOT=.FALSE.
                 Y=PRO(I,2,II)
                 SECPLT(II)=.FALSE.
         IF(KKK.EQ.2) THEN
-        IF(ALENS(110,II).NE.0.0D0) THEN
-        ZCORR=DABS(ALENS(110,II))
-        IF(ALENS(46,II).LT.0.0D0) PRO(I,3,II)=PRO(I,3,II)+ZCORR
-        IF(ALENS(46,II).GT.0.0D0) PRO(I,3,II)=PRO(I,3,II)-ZCORR
+        IF(surf_mirror_thickness(II).NE.0.0D0) THEN
+        ZCORR=DABS(surf_mirror_thickness(II))
+        IF(surf_refractive_index(II, 1).LT.0.0D0) PRO(I,3,II)=PRO(I,3,II)+ZCORR
+        IF(surf_refractive_index(II, 1).GT.0.0D0) PRO(I,3,II)=PRO(I,3,II)-ZCORR
                        SECPLT(II)=.TRUE.
                            ELSE
                        SECPLT(II)=.FALSE.
@@ -2513,7 +2516,7 @@ NORAYPLOT=.FALSE.
                         END DO
 !
                         DO I=STASUR,STPSUR
-      IF(ALENS(127,I).NE.0.0D0) GO TO 51
+      IF(surf_array_parity(I) /= 0) GO TO 51
 !     NOW DRAW THE X PROFILE OF THE CLAP AT SURFACE I
 !     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
         IF(.NOT.PLEXIS) PLEXIS=.TRUE.
@@ -2553,9 +2556,9 @@ NORAYPLOT=.FALSE.
       LNTYPE=0
 !     DASH, SOLID OR INVISIBLE
                         CLRR=0
-      IF(DUMMMY(I).AND.ALENS(9,I).EQ.0.0D0) &
+      IF(DUMMMY(I).AND.surf_clap_type(I) == 0) &
       CLRR=-1
-      IF(DUMMMY(I).AND.ALENS(9,I).NE.0.0D0) THEN
+      IF(DUMMMY(I).AND.surf_clap_type(I) /= 0) THEN
       IF(DASHH) LNTYPE=2
                         ELSE
 !     LEAVE LINE ALONE
@@ -2607,7 +2610,7 @@ NORAYPLOT=.FALSE.
         IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
         .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,I).NE.0.0D0) &
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(I) /= 0) &
       CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
@@ -2695,8 +2698,8 @@ NORAYPLOT=.FALSE.
                         END DO
         FIXUP=.FALSE.
                         DO I=0,INT(SYSTEM(20))
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,I).NE.0.0D0) THEN
-        IF(ALENS(110,I).NE.0.0D0) THEN
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(I) /= 0) THEN
+        IF(surf_mirror_thickness(I).NE.0.0D0) THEN
           !PRINT *, "LINE 5755 PLTPRO1 Executed!"
       CALL PENMV1(STARTPOINT(1,1,I),STARTPOINT(1,2,I),0)
       CALL PENMV1(STOPPOINT(1,1,I),STOPPOINT(1,2,I),1)
@@ -2774,6 +2777,7 @@ NORAYPLOT=.FALSE.
         use kdp_plot_gen
 !
         use DATMAI
+        use mod_surface
         IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT EDGEX/EDGEY COMMAND AT THE CMD LEVEL
@@ -2827,7 +2831,7 @@ NORAYPLOT=.FALSE.
 !     THE FIRST SURFACE WITHOUT AN INFINITE THICKNESS
                         GLSURF=-99
                         DO I=NEWIMG,0,-1
-      IF(DABS(ALENS(3,I)).LE.1.0D10) GLSURF=I
+      IF(DABS(surf_thickness(I)).LE.1.0D10) GLSURF=I
                         END DO
       IF(GLSURF.EQ.-99) THEN
                         GLOBE=.FALSE.
@@ -2894,7 +2898,7 @@ NORAYPLOT=.FALSE.
         IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
 !       DEFAULT VALUES
         IF(DF1.EQ.1) THEN
-        IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
+        IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
                         W1=DBLE(1)
                         ELSE
                         W1=DBLE(0)
@@ -3353,11 +3357,11 @@ NORAYPLOT=.FALSE.
       GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
       GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
       GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
                         IPST=1
@@ -3391,8 +3395,8 @@ NORAYPLOT=.FALSE.
                         DO IK=STASUR,STPSUR
         IF(IK.GT.STASUR) THEN
 
-      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND. &
-      ALENS(127,IK-1).NE.0.0D0) THEN
+      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND. &
+      surf_array_parity(IK-1) /= 0) THEN
                         ELSE
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
@@ -3400,7 +3404,7 @@ NORAYPLOT=.FALSE.
         .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
       END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
       CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
@@ -3434,14 +3438,14 @@ NORAYPLOT=.FALSE.
       GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
       GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
       GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
-      IF(ALENS(16,I).NE.0.0D0.AND.ALENS(16,I-1).NE.0.0D0) THEN
+      IF(surf_coat_type(I) /= 0.AND.surf_coat_type(I-1) /= 0) THEN
                         IPST=1
       IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
                         ELSE
@@ -3474,8 +3478,8 @@ NORAYPLOT=.FALSE.
         FIXUP=.FALSE.
                         DO IK=STASUR,STPSUR
       IF(IK.GT.STASUR) THEN
-      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND. &
-      ALENS(127,IK-1).NE.0.0D0) THEN
+      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND. &
+      surf_array_parity(IK-1) /= 0) THEN
                         ELSE
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
@@ -3483,7 +3487,7 @@ NORAYPLOT=.FALSE.
         .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
       END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
       CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
@@ -3518,11 +3522,11 @@ NORAYPLOT=.FALSE.
       GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
       GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
       GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
                         IPST=1
@@ -3556,12 +3560,12 @@ NORAYPLOT=.FALSE.
 
                         DO IK=STASUR,STPSUR
         ! Original code did not compile with checkflags
-  !      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
-  !   1ALENS(127,IK-1).NE.0.0D0) THEN
+  !      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.
+  !   1surf_array_parity(IK-1) /= 0) THEN
         SKIPNEXT = 0
-        IF(ALENS(127,IK).NE.0.0D0) SKIPNEXT = 1
+        IF(surf_array_parity(IK) /= 0) SKIPNEXT = 1
         IF((IK-1).GT.-1) THEN
-          IF(IK.NE.STASUR.AND.ALENS(127,IK-1).NE.0.0D0) THEN
+          IF(IK.NE.STASUR.AND.surf_array_parity(IK-1) /= 0) THEN
             SKIPNEXT=1
           END IF
         END IF
@@ -3572,7 +3576,7 @@ NORAYPLOT=.FALSE.
         IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
         .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
       CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
@@ -3606,14 +3610,14 @@ NORAYPLOT=.FALSE.
       GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
       GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
       GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(ALENS(46,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(47,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(48,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(49,I-1)).EQ.1.0D0.AND. &
-      DABS(ALENS(50,I-1)).EQ.1.0D0) THEN
+      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
+      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
-      IF(ALENS(16,I).NE.0.0D0.AND.ALENS(16,I-1).NE.0.0D0) THEN
+      IF(surf_coat_type(I) /= 0.AND.surf_coat_type(I-1) /= 0) THEN
                         IPST=1
       IF(I.EQ.STASUR.AND.GLANAM(I,2).EQ.'AIR') IPST=0
                         ELSE
@@ -3647,15 +3651,15 @@ NORAYPLOT=.FALSE.
         FIXUP=.FALSE.
                         DO IK=STASUR,STPSUR
         SKIPNEXT = 0
-        IF(ALENS(127,IK).NE.0.0D0) SKIPNEXT = 1
+        IF(surf_array_parity(IK) /= 0) SKIPNEXT = 1
         IF((IK-1).GT.-1) THEN
-          IF(IK.NE.STASUR.AND.ALENS(127,IK-1).NE.0.0D0) THEN
+          IF(IK.NE.STASUR.AND.surf_array_parity(IK-1) /= 0) THEN
             SKIPNEXT=1
           END IF
         END IF
           IF(SKIPNEXT.EQ.1) THEN
-!      IF(ALENS(127,IK).NE.0.0D0.OR.IK.NE.STASUR.AND.
-!     1ALENS(127,IK-1).NE.0.0D0) THEN
+!      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND.
+!     1surf_array_parity(IK-1) /= 0) THEN
                         ELSE
 !
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
@@ -3664,7 +3668,7 @@ NORAYPLOT=.FALSE.
         .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
 !
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.ALENS(9,IK).NE.0.0D0) &
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
       CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO

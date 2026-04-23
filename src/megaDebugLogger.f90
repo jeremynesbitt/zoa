@@ -62,7 +62,7 @@ subroutine megaDebugLogger(subName)
 
 1234 FORMAT(G15.7, G15.7, G15.7, G15.7, G15.7,&
    &G15.7, G15.7, G15.7, G15.7, G15.7)
-   PRINT 1234, surf_asphere_coeff(I,2), surf_asphere_coeff(I,4), surf_asphere_coeff(I,6),&
+   PRINT 1234, surf_asphere_coeff(I,2), surf_asphere_coeff(I,4), surf_asphere_coeff(I, 8),&
    &surf_asphere_coeff(I,8),surf_asphere_coeff(I,10),surf_asphere_coeff(I,12),surf_asphere_coeff(I,14),&
    &surf_asphere_coeff(I,16),surf_asphere_coeff(I,18),surf_asphere_coeff(I,20)
 
