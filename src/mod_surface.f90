@@ -71,7 +71,21 @@ module mod_surface
         surf_pivot_axis,        set_surf_pivot_axis,       &
         surf_focus_dx,          set_surf_focus_dx,         &
         surf_focus_dy,          set_surf_focus_dy,         &
-        surf_focus_dz,          set_surf_focus_dz
+        surf_focus_dz,          set_surf_focus_dz,         &
+        surf_cobs_poly,         set_surf_cobs_poly,        &
+        surf_cobs_ape_type,     set_surf_cobs_ape_type,    &
+        surf_cobs_ape_data,     set_surf_cobs_ape_data,    &
+        surf_cobs_era_type,     set_surf_cobs_era_type,    &
+        surf_cobs_era_data,     set_surf_cobs_era_data,    &
+        surf_fict_w,            set_surf_fict_w,           &
+        surf_aux88,             set_surf_aux88,            &
+        surf_alpha_deg,         set_surf_alpha_deg,        &
+        surf_beta_deg,          set_surf_beta_deg,         &
+        surf_gamma_deg,         set_surf_gamma_deg,        &
+        surf_mtracei_nx,        set_surf_mtracei_nx,       &
+        surf_mtracei_ny,        set_surf_mtracei_ny,       &
+        surf_psfbin_data,       set_surf_psfbin_data,      &
+        surf_profit_data,       set_surf_profit_data
 
 contains
 
@@ -851,6 +865,150 @@ contains
     subroutine set_surf_focus_dz(s, val)
         integer, intent(in) :: s; real(real64), intent(in) :: val
         ALENS(116, s) = val
+    end subroutine
+
+    ! ── COBS surface parameters ──────────────────────────────────────────────
+    ! ALENS(17..22,s): COBS polynomial parameters (n=1..6)
+    real(real64) function surf_cobs_poly(s, n)
+        integer, intent(in) :: s, n
+        surf_cobs_poly = ALENS(16 + n, s)
+    end function
+    subroutine set_surf_cobs_poly(s, n, val)
+        integer, intent(in) :: s, n; real(real64), intent(in) :: val
+        ALENS(16 + n, s) = val
+    end subroutine
+
+    ! ALENS(51,s): COBS aperture shape type (0=none, 1=erase, 2=recte, 3=elipe, ...)
+    integer function surf_cobs_ape_type(s)
+        integer, intent(in) :: s
+        surf_cobs_ape_type = nint(ALENS(51, s))
+    end function
+    subroutine set_surf_cobs_ape_type(s, val)
+        integer, intent(in) :: s, val
+        ALENS(51, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(52..57,s): COBS aperture shape data (n=1..6)
+    real(real64) function surf_cobs_ape_data(s, n)
+        integer, intent(in) :: s, n
+        surf_cobs_ape_data = ALENS(51 + n, s)
+    end function
+    subroutine set_surf_cobs_ape_data(s, n, val)
+        integer, intent(in) :: s, n; real(real64), intent(in) :: val
+        ALENS(51 + n, s) = val
+    end subroutine
+
+    ! ALENS(61,s): COBS erase/obscuration shape type
+    integer function surf_cobs_era_type(s)
+        integer, intent(in) :: s
+        surf_cobs_era_type = nint(ALENS(61, s))
+    end function
+    subroutine set_surf_cobs_era_type(s, val)
+        integer, intent(in) :: s, val
+        ALENS(61, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(62..67,s): COBS erase/obscuration data (n=1..6)
+    real(real64) function surf_cobs_era_data(s, n)
+        integer, intent(in) :: s, n
+        surf_cobs_era_data = ALENS(61 + n, s)
+    end function
+    subroutine set_surf_cobs_era_data(s, n, val)
+        integer, intent(in) :: s, n; real(real64), intent(in) :: val
+        ALENS(61 + n, s) = val
+    end subroutine
+
+    ! ── Glass model / auxiliary ───────────────────────────────────────────────
+    ! ALENS(89,s): third glass model parameter (alongside fict_n/fict_v)
+    real(real64) function surf_fict_w(s)
+        integer, intent(in) :: s
+        surf_fict_w = ALENS(89, s)
+    end function
+    subroutine set_surf_fict_w(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(89, s) = val
+    end subroutine
+
+    ! ALENS(88,s): per-surface auxiliary reset/init flag
+    real(real64) function surf_aux88(s)
+        integer, intent(in) :: s
+        surf_aux88 = ALENS(88, s)
+    end function
+    subroutine set_surf_aux88(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(88, s) = val
+    end subroutine
+
+    ! ── Tilt angles in degrees (separate from radians-based alpha/beta/gamma) ─
+    ! ALENS(118,s): alpha tilt angle in degrees
+    real(real64) function surf_alpha_deg(s)
+        integer, intent(in) :: s
+        surf_alpha_deg = ALENS(118, s)
+    end function
+    subroutine set_surf_alpha_deg(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(118, s) = val
+    end subroutine
+
+    ! ALENS(119,s): beta tilt angle in degrees
+    real(real64) function surf_beta_deg(s)
+        integer, intent(in) :: s
+        surf_beta_deg = ALENS(119, s)
+    end function
+    subroutine set_surf_beta_deg(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(119, s) = val
+    end subroutine
+
+    ! ALENS(120,s): gamma tilt angle in degrees
+    real(real64) function surf_gamma_deg(s)
+        integer, intent(in) :: s
+        surf_gamma_deg = ALENS(120, s)
+    end function
+    subroutine set_surf_gamma_deg(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(120, s) = val
+    end subroutine
+
+    ! ── MTRACEI / PSF / PROFIT surface parameters ─────────────────────────────
+    ! ALENS(104,s): MTRACEI output — grid size X
+    real(real64) function surf_mtracei_nx(s)
+        integer, intent(in) :: s
+        surf_mtracei_nx = ALENS(104, s)
+    end function
+    subroutine set_surf_mtracei_nx(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(104, s) = val
+    end subroutine
+
+    ! ALENS(105,s): MTRACEI binary irradiance — grid size Y
+    real(real64) function surf_mtracei_ny(s)
+        integer, intent(in) :: s
+        surf_mtracei_ny = ALENS(105, s)
+    end function
+    subroutine set_surf_mtracei_ny(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(105, s) = val
+    end subroutine
+
+    ! ALENS(106,s): PSFBIN data
+    real(real64) function surf_psfbin_data(s)
+        integer, intent(in) :: s
+        surf_psfbin_data = ALENS(106, s)
+    end function
+    subroutine set_surf_psfbin_data(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(106, s) = val
+    end subroutine
+
+    ! ALENS(107,s): PROFIT data (ALENS 107-109 are profit-related)
+    real(real64) function surf_profit_data(s)
+        integer, intent(in) :: s
+        surf_profit_data = ALENS(107, s)
+    end function
+    subroutine set_surf_profit_data(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(107, s) = val
     end subroutine
 
 end module mod_surface

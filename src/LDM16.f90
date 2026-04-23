@@ -570,6 +570,7 @@ SUBROUTINE LENUP
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENUP. THIS IS THE SUBROUTINE WHICH
@@ -856,7 +857,7 @@ SUBROUTINE LENUP
 !       COMMAND (TH)
       IF(WC.EQ.'TH') THEN
          CALL STH
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -885,7 +886,7 @@ SUBROUTINE LENUP
 !
 !       COMMAND (DEFORM)
       IF(WC.EQ.'DEFORM') THEN
-         IF(ALENS(34,SURF).NE.0.0D0) THEN
+         IF(surf_special_type(SURF) /= 0) THEN
             OUTLYNE=&
             &'A SPECIAL SURFACE MAY NOT BE DEFINED AS A DEFORMABLE SURFACE'
             CALL SHOWIT(1)
@@ -900,7 +901,7 @@ SUBROUTINE LENUP
 !
 !       COMMAND (DELDEFOR)
       IF(WC.EQ.'DELDEFOR') THEN
-         IF(ALENS(103,SURF).EQ.0.0D0) THEN
+         IF(surf_default_flag(SURF) == 0) THEN
             OUTLYNE=&
             &'NO DEFORMABLE SURFACE DEFINITION EXISTS TO BE DELETED'
             CALL SHOWIT(1)
@@ -1103,13 +1104,13 @@ SUBROUTINE LENUP
       IF(WC.EQ.'CLAP'.OR.WC.EQ.'COBS') THEN
          CALL SAPE
 !       CLAP
-         IF(ALENS(9,SURF).EQ.6.0D0)  CALL LOADIPOLY(1,SURF)
+         IF(surf_clap_type(SURF) == 6.0)  CALL LOADIPOLY(1,SURF)
 !       CLAP ERASE
-         IF(ALENS(51,SURF).EQ.6.0D0) CALL LOADIPOLY(2,SURF)
+         IF(surf_cobs_ape_type(SURF) == 6.0) CALL LOADIPOLY(2,SURF)
 !       COBS
-         IF(ALENS(16,SURF).EQ.6.0D0) CALL LOADIPOLY(3,SURF)
+         IF(surf_coat_type(SURF) == 6.0) CALL LOADIPOLY(3,SURF)
 !       COBS ERASE
-         IF(ALENS(61,SURF).EQ.6.0D0) CALL LOADIPOLY(4,SURF)
+         IF(surf_cobs_era_type(SURF) == 6.0) CALL LOADIPOLY(4,SURF)
          RETURN
       END IF
 !       COMMAND (CLAPD OR COBSD)
@@ -1141,18 +1142,18 @@ SUBROUTINE LENUP
       &'GAMMA') THEN
          CALL SANGLE
 !     USE THE CODE-V DEFAULT GAMMA ONLY IF IT IS NOT EXPLICITLY INPUT
-         IF(ALENS(25,SURF).EQ.4.0D0) THEN
+         IF(surf_tilt_flag(SURF) == 4.0) THEN
 !       TILT BEN
-            RAL=(PII/180.0D0)*ALENS(26,SURF)
-            RBE=(PII/180.0D0)*ALENS(27,SURF)
+            RAL=(PII/180.0D0)*surf_alpha(SURF)
+            RBE=(PII/180.0D0)*surf_beta(SURF)
             CGAM=(DCOS(RAL)+DCOS(RBE))/(1.0D0+(DCOS(RAL)*DCOS(RBE)))
             SGAM=-(DSIN(RAL)*DSIN(RBE))/(1.0D0+(DCOS(RAL)*DCOS(RBE)))
             IF(CGAM.LT.-1.0D0) CGAM=-1.0D0
             IF(CGAM.GT.+1.0D0) CGAM=+1.0D0
             IF(SGAM.GE.0.0D0) RGAM=DABS(DACOS(CGAM))
             IF(SGAM.LT.0.0D0) RGAM=-DABS(DACOS(CGAM))
-            ALENS(28,SURF)=RGAM*180.0D0/PII
-            ALENS(120,SURF)=RGAM*180.0D0/PII
+            call set_surf_gamma(SURF, RGAM*180.0D0/PII)
+            call set_surf_gamma_deg(SURF, RGAM*180.0D0/PII)
          END IF
          RETURN
       END IF
@@ -1265,7 +1266,7 @@ SUBROUTINE LENUP
          CALL THSOLV
 
 
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -1289,7 +1290,7 @@ SUBROUTINE LENUP
 !       COMMANDS (PIKUP)
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)

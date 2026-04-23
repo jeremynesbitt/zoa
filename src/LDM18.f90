@@ -33,6 +33,7 @@ SUBROUTINE LENIN
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENIN. THIS IS THE SUBROUTINE WHICH
@@ -184,7 +185,7 @@ SUBROUTINE LENIN
 !       COMMAND (TH)
       IF(WC.EQ.'TH') THEN
          CALL STH
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -213,7 +214,7 @@ SUBROUTINE LENIN
 !
 !       COMMAND (DEFORM)
       IF(WC.EQ.'DEFORM') THEN
-         IF(ALENS(34,SURF).NE.0.0D0) THEN
+         IF(surf_special_type(SURF) /= 0) THEN
             OUTLYNE=&
             &'A SPECIAL SURFACE MAY NOT BE DEFINED AS A DEFORMABLE SURFACE'
             CALL SHOWIT(1)
@@ -398,13 +399,13 @@ SUBROUTINE LENIN
       IF(WC.EQ.'CLAP'.OR.WC.EQ.'COBS') THEN
          CALL SAPE
 !       CLAP
-         IF(ALENS(9,SURF).EQ.6.0D0)  CALL LOADIPOLY(1,SURF)
+         IF(surf_clap_type(SURF) == 6.0)  CALL LOADIPOLY(1,SURF)
 !       CLAP ERASE
-         IF(ALENS(51,SURF).EQ.6.0D0) CALL LOADIPOLY(2,SURF)
+         IF(surf_cobs_ape_type(SURF) == 6.0) CALL LOADIPOLY(2,SURF)
 !       COBS
-         IF(ALENS(16,SURF).EQ.6.0D0) CALL LOADIPOLY(3,SURF)
+         IF(surf_coat_type(SURF) == 6.0) CALL LOADIPOLY(3,SURF)
 !       COBS ERASE
-         IF(ALENS(61,SURF).EQ.6.0D0) CALL LOADIPOLY(4,SURF)
+         IF(surf_cobs_era_type(SURF) == 6.0) CALL LOADIPOLY(4,SURF)
          RETURN
       END IF
 !       COMMAND (AC,AD,AE,AF,AG,ADTOR,AETOR,AFTOR,AGTOR)
@@ -431,18 +432,18 @@ SUBROUTINE LENIN
       &'GAMMA') THEN
          CALL SANGLE
 !     USE THE CODE-V DEFAULT GAMMA ONLY IF IT IS NOT EXPLICITLY INPUT
-         IF(ALENS(25,SURF).EQ.4.0D0) THEN
+         IF(surf_tilt_flag(SURF) == 4.0) THEN
 !       TILT BEN
-            RAL=(PII/180.0D0)*ALENS(26,SURF)
-            RBE=(PII/180.0D0)*ALENS(27,SURF)
+            RAL=(PII/180.0D0)*surf_alpha(SURF)
+            RBE=(PII/180.0D0)*surf_beta(SURF)
             CGAM=(DCOS(RAL)+DCOS(RBE))/(1.0D0+(DCOS(RAL)*DCOS(RBE)))
             SGAM=-(DSIN(RAL)*DSIN(RBE))/(1.0D0+(DCOS(RAL)*DCOS(RBE)))
             IF(CGAM.LT.-1.0D0) CGAM=-1.0D0
             IF(CGAM.GT.+1.0D0) CGAM=+1.0D0
             IF(SGAM.GE.0.0D0) RGAM=DABS(DACOS(CGAM))
             IF(SGAM.LT.0.0D0) RGAM=-DABS(DACOS(CGAM))
-            ALENS(28,SURF)=RGAM*180.0D0/PII
-            ALENS(120,SURF)=RGAM*180.0D0/PII
+            call set_surf_gamma(SURF, RGAM*180.0D0/PII)
+            call set_surf_gamma_deg(SURF, RGAM*180.0D0/PII)
          END IF
          RETURN
       END IF
@@ -527,7 +528,7 @@ SUBROUTINE LENIN
       &.OR.WC.EQ.'REDSLV') THEN
          !call LogTermFOR("Got to THSOLV call from LENIN!")
          CALL THSOLV
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -549,7 +550,7 @@ SUBROUTINE LENIN
 !       COMMAND (PIKUP)
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -1434,6 +1435,7 @@ END
 SUBROUTINE LOADIPOLY(J,SUR)
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
    INTEGER J,SUR,N,I,M
    REAL*8 X,Y
@@ -1446,7 +1448,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
 !       open appropriate file, read data and load appropriate IPOLYX and IPOLYY arrays.
 !
    IF(J.EQ.1) THEN
-      N=INT(ALENS(10,SURF))
+      N=INT(surf_clap_dim(SURF, 1))
       CALL ITOA2(N,AN)
       FILE_NAME='IPOLY'//AN//'.DAT'
 !
@@ -1471,7 +1473,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
       &,FORM='FORMATTED',FILE=FILE_NAME &
       &,STATUS='UNKNOWN')
       REWIND(UNIT=67)
-      DO I=1,INT(ALENS(11,SURF))
+      DO I=1,INT(surf_clap_dim(SURF, 2))
          READ(UNIT=67,FMT=*,END=9991,ERR=9991) M,X,Y
          IPOLYX(I,SUR,J)=X
          IPOLYY(I,SUR,J)=Y
@@ -1479,7 +1481,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
    END IF
 !
    IF(J.EQ.2) THEN
-      N=INT(ALENS(52,SURF))
+      N=INT(surf_cobs_ape_data(SURF, 1))
       CALL ITOA2(N,AN)
       FILE_NAME='IPOLY'//AN//'.DAT'
 !
@@ -1504,7 +1506,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
       &,FORM='FORMATTED',FILE=FILE_NAME &
       &,STATUS='UNKNOWN')
       REWIND(UNIT=67)
-      DO I=1,INT(ALENS(53,SURF))
+      DO I=1,INT(surf_cobs_ape_data(SURF, 2))
          READ(UNIT=67,FMT=*,END=9991,ERR=9991) M,X,Y
          IPOLYX(I,SUR,J)=X
          IPOLYY(I,SUR,J)=Y
@@ -1513,7 +1515,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
 !
 !
    IF(J.EQ.3) THEN
-      N=INT(ALENS(17,SURF))
+      N=INT(surf_cobs_poly(SURF, 1))
       CALL ITOA2(N,AN)
       FILE_NAME='IPOLY'//AN//'.DAT'
 !
@@ -1538,7 +1540,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
       &,FORM='FORMATTED',FILE=FILE_NAME &
       &,STATUS='UNKNOWN')
       REWIND(UNIT=67)
-      DO I=1,INT(ALENS(18,SURF))
+      DO I=1,INT(surf_cobs_poly(SURF, 2))
          READ(UNIT=67,FMT=*,END=9991,ERR=9991) M,X,Y
          IPOLYX(I,SUR,J)=X
          IPOLYY(I,SUR,J)=Y
@@ -1547,7 +1549,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
 !
 !
    IF(J.EQ.4) THEN
-      N=INT(ALENS(62,SURF))
+      N=INT(surf_cobs_era_data(SURF, 1))
       CALL ITOA2(N,AN)
       FILE_NAME='IPOLY'//AN//'.DAT'
 !
@@ -1572,7 +1574,7 @@ SUBROUTINE LOADIPOLY(J,SUR)
       &,FORM='FORMATTED',FILE=FILE_NAME &
       &,STATUS='UNKNOWN')
       REWIND(UNIT=67)
-      DO I=1,INT(ALENS(63,SURF))
+      DO I=1,INT(surf_cobs_era_data(SURF, 2))
          READ(UNIT=67,FMT=*,END=9991,ERR=9991) M,X,Y
          IPOLYX(I,SUR,J)=X
          IPOLYY(I,SUR,J)=Y
