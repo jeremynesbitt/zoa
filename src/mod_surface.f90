@@ -498,4 +498,244 @@ contains
         ALENS(33, s) = val
     end subroutine
 
+    ! Anamorphic asphere group (ALENS 36-41)
+    integer function surf_anamorphic_flag(s)
+        integer, intent(in) :: s
+        surf_anamorphic_flag = nint(ALENS(36, s))
+    end function
+
+    subroutine set_surf_anamorphic_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(36, s) = real(val, real64)
+    end subroutine
+
+    ! order: 4,6,8,10 → ALENS(37,38,39,40); conic → ALENS(41)
+    real(real64) function surf_anamorphic_coeff(s, order)
+        integer, intent(in) :: s, order
+        select case (order)
+        case (4);  surf_anamorphic_coeff = ALENS(37, s)
+        case (6);  surf_anamorphic_coeff = ALENS(38, s)
+        case (8);  surf_anamorphic_coeff = ALENS(39, s)
+        case (10); surf_anamorphic_coeff = ALENS(40, s)
+        case default; surf_anamorphic_coeff = 0.0_real64
+        end select
+    end function
+
+    subroutine set_surf_anamorphic_coeff(s, order, val)
+        integer, intent(in) :: s, order
+        real(real64), intent(in) :: val
+        select case (order)
+        case (4);  ALENS(37, s) = val
+        case (6);  ALENS(38, s) = val
+        case (8);  ALENS(39, s) = val
+        case (10); ALENS(40, s) = val
+        end select
+    end subroutine
+
+    real(real64) function surf_anamorphic_conic(s)
+        integer, intent(in) :: s
+        surf_anamorphic_conic = ALENS(41, s)
+    end function
+
+    subroutine set_surf_anamorphic_conic(s, val)
+        integer, intent(in) :: s
+        real(real64), intent(in) :: val
+        ALENS(41, s) = val
+    end subroutine
+
+    ! Surface label flag (ALENS 44): 0=no label, 1=label exists
+    integer function surf_label_flag(s)
+        integer, intent(in) :: s
+        surf_label_flag = nint(ALENS(44, s))
+    end function
+
+    subroutine set_surf_label_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(44, s) = real(val, real64)
+    end subroutine
+
+    ! RET surface number for TILT RET (ALENS 70)
+    integer function surf_ret_surf_num(s)
+        integer, intent(in) :: s
+        surf_ret_surf_num = nint(ALENS(70, s))
+    end function
+
+    subroutine set_surf_ret_surf_num(s, val)
+        integer, intent(in) :: s, val
+        ALENS(70, s) = real(val, real64)
+    end subroutine
+
+    ! Current INR surface value (ALENS 76)
+    real(real64) function surf_inr_value(s)
+        integer, intent(in) :: s
+        surf_inr_value = ALENS(76, s)
+    end function
+
+    subroutine set_surf_inr_value(s, val)
+        integer, intent(in) :: s
+        real(real64), intent(in) :: val
+        ALENS(76, s) = val
+    end subroutine
+
+    ! Tilt return resolution flag (ALENS 77)
+    integer function surf_tilt_return_flag(s)
+        integer, intent(in) :: s
+        surf_tilt_return_flag = nint(ALENS(77, s))
+    end function
+
+    subroutine set_surf_tilt_return_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(77, s) = real(val, real64)
+    end subroutine
+
+    ! Global transform group (ALENS 89-96)
+    real(real64) function surf_global_dx(s)
+        integer, intent(in) :: s
+        surf_global_dx = ALENS(90, s)
+    end function
+
+    real(real64) function surf_global_dy(s)
+        integer, intent(in) :: s
+        surf_global_dy = ALENS(91, s)
+    end function
+
+    real(real64) function surf_global_dz(s)
+        integer, intent(in) :: s
+        surf_global_dz = ALENS(92, s)
+    end function
+
+    real(real64) function surf_global_alpha(s)
+        integer, intent(in) :: s
+        surf_global_alpha = ALENS(93, s)
+    end function
+
+    real(real64) function surf_global_beta(s)
+        integer, intent(in) :: s
+        surf_global_beta = ALENS(94, s)
+    end function
+
+    real(real64) function surf_global_gamma(s)
+        integer, intent(in) :: s
+        surf_global_gamma = ALENS(95, s)
+    end function
+
+    subroutine set_surf_global_dx(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(90, s) = val
+    end subroutine
+
+    subroutine set_surf_global_dy(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(91, s) = val
+    end subroutine
+
+    subroutine set_surf_global_dz(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(92, s) = val
+    end subroutine
+
+    subroutine set_surf_global_alpha(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(93, s) = val
+    end subroutine
+
+    subroutine set_surf_global_beta(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(94, s) = val
+    end subroutine
+
+    subroutine set_surf_global_gamma(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(95, s) = val
+    end subroutine
+
+    ! Mirror thickness (ALENS 110)
+    real(real64) function surf_mirror_thickness(s)
+        integer, intent(in) :: s
+        surf_mirror_thickness = ALENS(110, s)
+    end function
+
+    subroutine set_surf_mirror_thickness(s, val)
+        integer, intent(in) :: s
+        real(real64), intent(in) :: val
+        ALENS(110, s) = val
+    end subroutine
+
+    ! Focal length of ideal lens (ALENS 121)
+    real(real64) function surf_ideal_efl(s)
+        integer, intent(in) :: s
+        surf_ideal_efl = ALENS(121, s)
+    end function
+
+    subroutine set_surf_ideal_efl(s, val)
+        integer, intent(in) :: s
+        real(real64), intent(in) :: val
+        ALENS(121, s) = val
+    end subroutine
+
+    ! CCR/roof flag (ALENS 126): 0=none, 1=roof, 2=CCR
+    integer function surf_ccr_flag(s)
+        integer, intent(in) :: s
+        surf_ccr_flag = nint(ALENS(126, s))
+    end function
+
+    subroutine set_surf_ccr_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(126, s) = real(val, real64)
+    end subroutine
+
+    ! Multi-clap flag (ALENS 127): 0=none, 1=multi-clap
+    integer function surf_multi_clap_flag(s)
+        integer, intent(in) :: s
+        surf_multi_clap_flag = nint(ALENS(127, s))
+    end function
+
+    subroutine set_surf_multi_clap_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(127, s) = real(val, real64)
+    end subroutine
+
+    ! Multi-cobs flag (ALENS 128): 0=none, 1=multi-cobs
+    integer function surf_multi_cobs_flag(s)
+        integer, intent(in) :: s
+        surf_multi_cobs_flag = nint(ALENS(128, s))
+    end function
+
+    subroutine set_surf_multi_cobs_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(128, s) = real(val, real64)
+    end subroutine
+
+    ! Array lens parameters (ALENS 131-133)
+    real(real64) function surf_array_dx(s)
+        integer, intent(in) :: s
+        surf_array_dx = ALENS(131, s)
+    end function
+
+    real(real64) function surf_array_dy(s)
+        integer, intent(in) :: s
+        surf_array_dy = ALENS(132, s)
+    end function
+
+    ! Array lens parity: -1=odd, 1=even, 0=none (ALENS 133)
+    integer function surf_array_parity(s)
+        integer, intent(in) :: s
+        surf_array_parity = nint(ALENS(133, s))
+    end function
+
+    subroutine set_surf_array_dx(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(131, s) = val
+    end subroutine
+
+    subroutine set_surf_array_dy(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(132, s) = val
+    end subroutine
+
+    subroutine set_surf_array_parity(s, val)
+        integer, intent(in) :: s, val
+        ALENS(133, s) = real(val, real64)
+    end subroutine
+
 end module mod_surface
