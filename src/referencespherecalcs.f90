@@ -18,6 +18,7 @@ contains
         use DATSPD
         use DATLEN
         use DATMAI
+        use mod_surface, only: surf_thickness
         IMPLICIT NONE
 
         integer :: refSphereAlgo
@@ -124,6 +125,7 @@ function updateOCOR(typeCode) result(opdCorrection)
         use DATSPD
         use DATLEN
         use DATMAI
+        use mod_surface, only: surf_thickness
         IMPLICIT NONE
 
           real*8 :: opdCorrection
@@ -262,6 +264,7 @@ subroutine updateRefSphereParaxialPupil(REFERR)
         use DATSPD
         use DATLEN
         use DATMAI
+        use mod_surface, only: surf_thickness
         IMPLICIT NONE
 
         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -299,7 +302,7 @@ subroutine updateRefSphereParaxialPupil(REFERR)
         !call logger%logTextWithNum("ZREFI=",ZREFI)
 
 
-        IF(ALENS(3,(NEWIMG-1)).EQ.0.0D0.OR.ALENS(3,(NEWIMG-1)).NE. &
+        IF(surf_thickness(NEWIMG-1).EQ.0.0D0.OR.surf_thickness(NEWIMG-1).NE. &
       0.0D0.AND..NOT.LDIF2) THEN
 !       DIST FROM I-1 TO I IS ZERO OF LDIF2 IS FALSE AND DIST NOT 0
 !       DO AN INTERNAL "ASTOP EX" ADJUSTMENT
@@ -317,7 +320,7 @@ subroutine updateRefSphereParaxialPupil(REFERR)
         END IF
 !       USE EXISTING THICKNESS OF NEWIMG-1 AS RAD
         ELSE
-        RAD=ALENS(3,NEWIMG-1)
+        RAD=surf_thickness(NEWIMG-1)
         RREF=RAD
                         END IF
 !
@@ -418,6 +421,7 @@ subroutine updateRefSphereRealPupil(REFERR)
         use DATSPD
         use DATLEN
         use DATMAI
+        use mod_surface, only: surf_thickness
         IMPLICIT NONE
 
         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &

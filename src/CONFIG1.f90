@@ -6,6 +6,7 @@ SUBROUTINE SORDER(I)
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_special_type
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SORDER. IT REMOVES INCONSISTENCIES
@@ -168,7 +169,7 @@ SUBROUTINE SORDER(I)
    EXSST(0:KKK)=0
    DO 1100 KKK=1,INT(SYSTEM(20))
 !       FIRST IF SURFACE IS SPECIAL IN LENS DATA
-      IF(ALENS(34,KKK).NE.0.0D0) THEN
+      IF(surf_special_type(KKK) /= 0) THEN
 !       SURFACE IS SPECIAL IN LENS DATA.
          EXSST(KKK)=1
       ELSE

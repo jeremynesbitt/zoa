@@ -8,6 +8,7 @@ subroutine megaDebugLogger(subName)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_asphere_coeff
    IMPLICIT NONE
 
    character(len=*), intent(in) :: subName
@@ -61,9 +62,9 @@ subroutine megaDebugLogger(subName)
 
 1234 FORMAT(G15.7, G15.7, G15.7, G15.7, G15.7,&
    &G15.7, G15.7, G15.7, G15.7, G15.7)
-   PRINT 1234, ALENS(43,I), ALENS(4,I), ALENS(5,I),&
-   &ALENS(6,I),ALENS(7,I),ALENS(81,I),ALENS(82,I),&
-   &ALENS(83,I),ALENS(84,I),ALENS(85,I)
+   PRINT 1234, surf_asphere_coeff(I,2), surf_asphere_coeff(I,4), surf_asphere_coeff(I,6),&
+   &surf_asphere_coeff(I,8),surf_asphere_coeff(I,10),surf_asphere_coeff(I,12),surf_asphere_coeff(I,14),&
+   &surf_asphere_coeff(I,16),surf_asphere_coeff(I,18),surf_asphere_coeff(I,20)
 
 !     LATEST STUFF
 !

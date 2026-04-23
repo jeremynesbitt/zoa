@@ -6,6 +6,7 @@ SUBROUTINE CFGUP
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_special_type
    IMPLICIT NONE
 !
    INTEGER I,J
@@ -46,7 +47,7 @@ SUBROUTINE CFGUP
    F12=2
    DO J=2,MAXCFG
       DO I=0,INT(SYSTEM(20))
-         SPECF2(J,I)=INT(DABS(ALENS(34,I)))
+         SPECF2(J,I)=abs(surf_special_type(I))
       END DO
    END DO
 !       IF THIS CONFIG IS EMPTY, THE STARTING ADDRESS IS 0
