@@ -5,6 +5,7 @@ SUBROUTINE SNAO
 !
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNAO WHICH IMPLEMENTS THE NAO(X OR Y) COMMAND
@@ -37,13 +38,13 @@ SUBROUTINE SNAO
                CALL SHOWIT(1)
                IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
                   SYSTEM(65)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(12))/&
-                  &DSQRT((ALENS(3,0)**2)+(SYSTEM(12)**2))
+                  &DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
                IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
                   SYSTEM(65)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(12))/&
-                  &DSQRT((ALENS(3,0)**2)+(SYSTEM(12)**2))
+                  &DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
@@ -60,13 +61,13 @@ SUBROUTINE SNAO
                CALL SHOWIT(1)
                IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
                   SYSTEM(66)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(13))/&
-                  &DSQRT((ALENS(3,0)**2)+(SYSTEM(13)**2))
+                  &DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
                IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
                   SYSTEM(66)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(13))/&
-                  &DSQRT((ALENS(3,0)**2)+(SYSTEM(13)**2))
+                  &DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
@@ -193,7 +194,7 @@ SUBROUTINE SNAO
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(3,0)).GE.1.0D10) THEN
+      IF(DABS(surf_thickness(0)).GE.1.0D10) THEN
 !     INFINITE OBJECT THICKNESS, DON'T ALLOW
          IF(WC.EQ.'NAOY') THEN
             OUTLYNE='OBJECT DISTANCE IS GREATER THAN +/-1.0D10'
@@ -589,6 +590,12 @@ END
 SUBROUTINE SLVRS
    use global_widgets, only: curr_par_ray_trace, curr_lens_data
    use type_utils, only: int2str
+   use mod_surface, only: surf_thickness, surf_curvature, surf_conic, &
+      surf_toric_flag, surf_toric_curvature, surf_anamorphic_flag, &
+      surf_anamorphic_conic, surf_anamorphic_coeff, surf_asphere_coeff, &
+      surf_array_parity, surf_clap_type, surf_clap_dim, &
+      set_surf_curvature, set_surf_conic, set_surf_thickness, &
+      set_surf_toric_curvature, set_surf_asphere_coeff
 !
    use DATLEN
    use DATMAI
@@ -637,23 +644,23 @@ SUBROUTINE SLVRS
 !       AND PUY(L)=SOLVE TARGET
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC
             PXTRAY(2,L)=SOLVE(9,L)
             IF(PXTRAY(1,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=((-PXTRAY(2,L))+((N/J_NP)*PXTRAY(2,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(1,L))
+               call set_surf_toric_curvature(L, ((-PXTRAY(2,L))+((N/J_NP)*PXTRAY(2,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(1,L)))
             END IF
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             PXTRAY(2,L)=SOLVE(9,L)
             IF(PXTRAY(1,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -662,8 +669,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -674,11 +681,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=((-PXTRAY(2,L))+((N/J_NP)*PXTRAY(2,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(1,L))
+               call set_surf_curvature(L, ((-PXTRAY(2,L))+((N/J_NP)*PXTRAY(2,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(1,L)))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -687,8 +694,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -715,23 +722,23 @@ SUBROUTINE SLVRS
 !       AND PUCY(L)=SOLVE TARGET
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC
             PXTRAY(6,L)=SOLVE(9,L)
             IF(PXTRAY(5,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=((-PXTRAY(6,L))+((N/J_NP)*PXTRAY(6,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(5,L))
+               call set_surf_toric_curvature(L, ((-PXTRAY(6,L))+((N/J_NP)*PXTRAY(6,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(5,L)))
             END IF
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             PXTRAY(6,L)=SOLVE(9,L)
             IF(PXTRAY(5,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -740,8 +747,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -752,11 +759,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=((-PXTRAY(6,L))+((N/J_NP)*PXTRAY(6,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(5,L))
+               call set_surf_curvature(L, ((-PXTRAY(6,L))+((N/J_NP)*PXTRAY(6,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAY(5,L)))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -765,8 +772,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -793,23 +800,23 @@ SUBROUTINE SLVRS
 !       AND PIY(L)=SOLVE TARGET
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC
             PXTRAY(3,L)=SOLVE(9,L)
             IF(PXTRAY(1,L).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=(PXTRAY(3,L)-PXTRAY(2,(L-1)))/&
-               &(PXTRAY(1,(L)))
+               call set_surf_toric_curvature(L, (PXTRAY(3,L)-PXTRAY(2,(L-1)))/&
+               &(PXTRAY(1,(L))))
             END IF
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             PXTRAY(3,L)=SOLVE(9,L)
             IF(PXTRAY(1,L).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -818,8 +825,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -830,11 +837,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=(PXTRAY(3,L)-PXTRAY(2,(L-1)))/&
-               &(PXTRAY(1,(L)))
+               call set_surf_curvature(L, (PXTRAY(3,L)-PXTRAY(2,(L-1)))/&
+               &(PXTRAY(1,(L))))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -843,8 +850,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -871,23 +878,23 @@ SUBROUTINE SLVRS
 !       AND PICY(L)=SOLVE TARGET
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC
             PXTRAY(7,L)=SOLVE(9,L)
             IF(PXTRAY(5,L).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=(PXTRAY(7,L)-PXTRAY(6,(L-1)))/&
-               &(PXTRAY(5,(L)))
+               call set_surf_toric_curvature(L, (PXTRAY(7,L)-PXTRAY(6,(L-1)))/&
+               &(PXTRAY(5,(L))))
             END IF
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             PXTRAY(7,L)=SOLVE(9,L)
             IF(PXTRAY(5,L).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -896,8 +903,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -908,11 +915,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=(PXTRAY(7,L)-PXTRAY(6,(L-1)))/&
-               &(PXTRAY(5,(L-1)))
+               call set_surf_curvature(L, (PXTRAY(7,L)-PXTRAY(6,(L-1)))/&
+               &(PXTRAY(5,(L-1))))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -921,8 +928,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -952,26 +959,26 @@ SUBROUTINE SLVRS
 !       PIY'(L)=(N/N')*PIY(L)
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC, PROCEED
             IF(PXTRAY(1,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=-(PXTRAY(2,(L-1))/PXTRAY(1,L))*((J_NP+N)/N)
+               call set_surf_toric_curvature(L, -(PXTRAY(2,(L-1))/PXTRAY(1,L))*((J_NP+N)/N))
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAY(2,L)=((N/J_NP)*PXTRAY(2,(L-1)))-(ALENS(24,L)*&
+            PXTRAY(2,L)=((N/J_NP)*PXTRAY(2,(L-1)))-(surf_toric_curvature(L)*&
             &PXTRAY(1,L)*((J_NP-N)/J_NP))
-            PXTRAY(3,L)=(ALENS(24,L)*PXTRAY(1,L))+PXTRAY(2,(L-1))
+            PXTRAY(3,L)=(surf_toric_curvature(L)*PXTRAY(1,L))+PXTRAY(2,(L-1))
             PXTRAY(4,L)=(N/J_NP)*PXTRAY(3,L)
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             IF(PXTRAY(1,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -980,8 +987,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -992,10 +999,10 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=-(PXTRAY(2,(L-1))/PXTRAY(1,L))*((J_NP+N)/N)
+               call set_surf_curvature(L, -(PXTRAY(2,(L-1))/PXTRAY(1,L))*((J_NP+N)/N))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1004,8 +1011,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1018,9 +1025,9 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAY(2,L)=((N/J_NP)*PXTRAY(2,(L-1)))-(ALENS(1,L)*&
+            PXTRAY(2,L)=((N/J_NP)*PXTRAY(2,(L-1)))-(surf_curvature(L)*&
             &PXTRAY(1,L)*((J_NP-N)/J_NP))
-            PXTRAY(3,L)=(ALENS(1,L)*PXTRAY(1,L))+PXTRAY(2,(L-1))
+            PXTRAY(3,L)=(surf_curvature(L)*PXTRAY(1,L))+PXTRAY(2,(L-1))
             PXTRAY(4,L)=(N/J_NP)*PXTRAY(3,L)
          END IF
 !       APY SOLVE FOR SURFACE L HANDLED.
@@ -1041,26 +1048,26 @@ SUBROUTINE SLVRS
 !       PICY'(L)=(N/N')*PICY(L)
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC, PROCEED
             IF(PXTRAY(5,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=-(PXTRAY(6,(L-1))/PXTRAY(5,L))*((J_NP+N)/N)
+               call set_surf_toric_curvature(L, -(PXTRAY(6,(L-1))/PXTRAY(5,L))*((J_NP+N)/N))
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(ALENS(24,L)*&
+            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(surf_toric_curvature(L)*&
             &PXTRAY(5,L)*((J_NP-N)/J_NP))
-            PXTRAY(7,L)=(ALENS(24,L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
+            PXTRAY(7,L)=(surf_toric_curvature(L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
             PXTRAY(8,L)=(N/J_NP)*PXTRAY(7,L)
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             IF(PXTRAY(5,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1069,8 +1076,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1081,10 +1088,10 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=-(PXTRAY(6,(L-1))/PXTRAY(5,L))*((J_NP+N)/N)
+               call set_surf_curvature(L, -(PXTRAY(6,(L-1))/PXTRAY(5,L))*((J_NP+N)/N))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1093,8 +1100,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1107,9 +1114,9 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(ALENS(1,L)*&
+            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(surf_curvature(L)*&
             &PXTRAY(5,L)*((J_NP-N)/J_NP))
-            PXTRAY(7,L)=(ALENS(1,L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
+            PXTRAY(7,L)=(surf_curvature(L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
             PXTRAY(8,L)=(N/J_NP)*PXTRAY(7,L)
          END IF
 !       APCY SOLVE FOR SURFACE L HANDLED.
@@ -1129,13 +1136,13 @@ SUBROUTINE SLVRS
          TAR=INT(SOLVE(9,L))
          IF(TAR.LT.L) THEN
             DO I=TAR,(L-1)
-               DIS=DIS+ALENS(3,I)
+               DIS=DIS+surf_thickness(I)
             END DO
          ELSE
          END IF
          IF(TAR.GT.L) THEN
             DO I=L,(TAR-1)
-               DIS=DIS+ALENS(3,I)
+               DIS=DIS+surf_thickness(I)
             END DO
          ELSE
          END IF
@@ -1146,11 +1153,11 @@ SUBROUTINE SLVRS
 !       PICY'(L)=(N/N')*PICY(L)
 !       IS SURFACE L AN X-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.2.0D0) THEN
+         IF(surf_toric_flag(L) == 2) THEN
 !       SURFACE IS X-TORIC, PROCEED
             IF(DIS.NE.0.0D0) THEN
-               IF(TAR.LT.L) ALENS(24,L)=-1.0D0/DIS
-               IF(TAR.GT.L) ALENS(24,L)= 1.0D0/DIS
+               IF(TAR.LT.L) call set_surf_toric_curvature(L, -1.0D0/DIS)
+               IF(TAR.GT.L) call set_surf_toric_curvature(L, 1.0D0/DIS)
             ELSE
 !       DIS IS ZERO, CONCENTRIC SOLVE IGNORED
                OUTLYNE='(COCY) SOLVE RESULTS IN A ZERO RADIUS OF CURVATURE'
@@ -1162,18 +1169,18 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(ALENS(24,L)*&
+            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(surf_toric_curvature(L)*&
             &PXTRAY(5,L)*((J_NP-N)/J_NP))
-            PXTRAY(7,L)=(ALENS(24,L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
+            PXTRAY(7,L)=(surf_toric_curvature(L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
             PXTRAY(8,L)=(N/J_NP)*PXTRAY(7,L)
          ELSE
 !       SURFACE NOT X-TORIC,PROCEED
             IF(DIS.NE.0.0D0) THEN
-               IF(TAR.LT.L) ALENS(1,L)=-1.0D0/DIS
-               IF(TAR.GT.L) ALENS(1,L)=1.0D0/DIS
+               IF(TAR.LT.L) call set_surf_curvature(L, -1.0D0/DIS)
+               IF(TAR.GT.L) call set_surf_curvature(L, 1.0D0/DIS)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1182,8 +1189,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1204,9 +1211,9 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(ALENS(1,L)*&
+            PXTRAY(6,L)=((N/J_NP)*PXTRAY(6,(L-1)))-(surf_curvature(L)*&
             &PXTRAY(5,L)*((J_NP-N)/J_NP))
-            PXTRAY(7,L)=(ALENS(1,L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
+            PXTRAY(7,L)=(surf_curvature(L)*PXTRAY(5,L))+PXTRAY(6,(L-1))
             PXTRAY(8,L)=(N/J_NP)*PXTRAY(7,L)
          END IF
 !       COCY SOLVE FOR SURFACE L HANDLED.
@@ -1225,16 +1232,16 @@ SUBROUTINE SLVRS
 !       TH(L)=(SOLVE TARGET-PY(L))/PUY(L)
 !
          IF(PXTRAY(2,L).EQ.0.0D0) THEN
-            ALENS(3,L)=1D20
+            call set_surf_thickness(L, 1D20)
          ELSE
-            ALENS(3,L)=(SOLVE(7,L)-PXTRAY(1,(L)))/(PXTRAY(2,L))
-            IF(DABS(ALENS(3,L)).GT.1.0D20)THEN
-               IF(ALENS(3,L).GT.0.0D0) THEN
-                  ALENS(3,L)=1.0D20
+            call set_surf_thickness(L, (SOLVE(7,L)-PXTRAY(1,(L)))/(PXTRAY(2,L)))
+            IF(DABS(surf_thickness(L)).GT.1.0D20)THEN
+               IF(surf_thickness(L).GT.0.0D0) THEN
+                  call set_surf_thickness(L, 1.0D20)
                ELSE
                END IF
-               IF(ALENS(3,L).LT.0.0D0) THEN
-                  ALENS(3,L)=-1.0D20
+               IF(surf_thickness(L).LT.0.0D0) THEN
+                  call set_surf_thickness(L, -1.0D20)
                ELSE
                END IF
             ELSE
@@ -1254,16 +1261,16 @@ SUBROUTINE SLVRS
 !       TH(L)=(SOLVE TARGET-PCY(L))/PUCY(L)
 !
          IF(PXTRAY(6,L).EQ.0.0D0) THEN
-            ALENS(3,L)=1.0D20
+            call set_surf_thickness(L, 1.0D20)
          ELSE
-            ALENS(3,L)=(SOLVE(7,L)-PXTRAY(5,(L)))/(PXTRAY(6,L))
-            IF(DABS(ALENS(3,L)).GT.1D20)THEN
-               IF(ALENS(3,L).GT.0.0D0) THEN
-                  ALENS(3,L)=1.0D20
+            call set_surf_thickness(L, (SOLVE(7,L)-PXTRAY(5,(L)))/(PXTRAY(6,L)))
+            IF(DABS(surf_thickness(L)).GT.1D20)THEN
+               IF(surf_thickness(L).GT.0.0D0) THEN
+                  call set_surf_thickness(L, 1.0D20)
                ELSE
                END IF
-               IF(ALENS(3,L).LT.0.0D0) THEN
-                  ALENS(3,L)=-1.0D20
+               IF(surf_thickness(L).LT.0.0D0) THEN
+                  call set_surf_thickness(L, -1.0D20)
                ELSE
                END IF
             ELSE
@@ -1280,13 +1287,13 @@ SUBROUTINE SLVRS
       IF(SOLVE(6,(L)).EQ.3.0D0) THEN
 !       THERE IS A CAY SOLVE ON (L) WHICH AFFECTS TH(L), HANDLE IT.
 !       IS THER A CIRCULAR CLEAR APERTURE ON SURFACE L
-         IF(ALENS(9,(L)).EQ.1.0D0.AND.ALENS(127,L).NE.0.0D0.OR.&
-         &ALENS(9,(L)).EQ.1.0D0.AND.ALENS(127,L).NE.0.0D0) THEN
+         IF(surf_clap_type(L) == 1.AND.surf_array_parity(L) /= 0.OR.&
+         &surf_clap_type(L) == 1.AND.surf_array_parity(L) /= 0) THEN
 !       YES THERE IS, SET EDGVAL TO IT
-            IF(ALENS(10,L).LE.ALENS(11,L)) THEN
-               EDGVAL=DABS(ALENS(10,(L)))
+            IF(surf_clap_dim(L, 1).LE.surf_clap_dim(L, 2)) THEN
+               EDGVAL=DABS(surf_clap_dim(L, 1))
             ELSE
-               EDGVAL=DABS(ALENS(11,(L)))
+               EDGVAL=DABS(surf_clap_dim(L, 2))
             END IF
          ELSE
 !       NO CIRCULAR CLAP, USE PY(L)+PCY(L) FOR EDGVAL
@@ -1299,106 +1306,106 @@ SUBROUTINE SLVRS
 !       TORICS IF PRESENT. CONSIDER CONIC AND ASPHERIC
 !       TERMS IF PRESENT.
 !       CHECK FOR ANAMORPHICS
-         IF(ALENS(36,L).EQ.0.0D0) THEN
+         IF(surf_anamorphic_flag(L) == 0) THEN
 !       IS THE SURFACE L X-TORIC BUT NOT ANAMORPHIC ASPHERE?
-            IF(ALENS(23,(L)).EQ.2.0D0) THEN
+            IF(surf_toric_flag(L) == 2) THEN
 !       USE TORIC DATA IN SAG CALC
-               ARG=(1.0D0-((1.0D0)*(ALENS(24,L)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((1.0D0)*(surf_toric_curvature(L)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(24,(L))))/&
+               SAGL=(((EDGVAL**2)*(surf_toric_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))
             ELSE
 !       NOT X-TORIC
-               ARG=(1.0D0-((ALENS(2,L)+1.0D0)*(ALENS(1,L)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((surf_conic(L)+1.0D0)*(surf_curvature(L)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(1,(L))))/&
+               SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L))*(EDGVAL**4))+&
-               &(ALENS(5,(L))*(EDGVAL**6))+&
-               &(ALENS(6,(L))*(EDGVAL**8))+&
-               &(ALENS(7,(L))*(EDGVAL**10))+&
-               &(ALENS(81,(L))*(EDGVAL**12))+&
-               &(ALENS(82,(L))*(EDGVAL**14))+&
-               &(ALENS(83,(L))*(EDGVAL**16))+&
-               &(ALENS(84,(L))*(EDGVAL**18))+&
-               &(ALENS(85,(L))*(EDGVAL**20))
+               &(surf_asphere_coeff(L, 4)*(EDGVAL**4))+&
+               &(surf_asphere_coeff(L, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L, 8)*(EDGVAL**8))+&
+               &(surf_asphere_coeff(L, 10)*(EDGVAL**10))+&
+               &(surf_asphere_coeff(L, 12)*(EDGVAL**12))+&
+               &(surf_asphere_coeff(L, 14)*(EDGVAL**14))+&
+               &(surf_asphere_coeff(L, 16)*(EDGVAL**16))+&
+               &(surf_asphere_coeff(L, 18)*(EDGVAL**18))+&
+               &(surf_asphere_coeff(L, 20)*(EDGVAL**20))
             END IF
          ELSE
 !       ANAMORPHIC ASPHERIC
-            IF(ALENS(23,L).EQ.1.0D0) THEN
+            IF(surf_toric_flag(L) == 1) THEN
 !       Y-TORIC
-               ARG=(1.0D0-((ALENS(2,L)+1.0D0)*(ALENS(1,L)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((surf_conic(L)+1.0D0)*(surf_curvature(L)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(1,L)))/&
+               SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,L)*(((1.0D0-ALENS(37,L))*(EDGVAL**2))**2))+&
-               &(ALENS(5,L)*(((1.0D0-ALENS(38,L))*(EDGVAL**2))**3))+&
-               &(ALENS(6,L)*(((1.0D0-ALENS(39,L))*(EDGVAL**2))**4))+&
-               &(ALENS(7,L)*(((1.0D0-ALENS(40,L))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L, 4)*(((1.0D0-surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L, 6)*(((1.0D0-surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0-surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L, 10)*(((1.0D0-surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
-            IF(ALENS(23,L).EQ.2.0D0) THEN
+            IF(surf_toric_flag(L) == 2) THEN
 !       X-TORIC
-               ARG=(1.0D0-((ALENS(41,L)+1.0D0)*(ALENS(24,L)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((surf_anamorphic_conic(L)+1.0D0)*(surf_toric_curvature(L)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(24,L)))/&
+               SAGL=(((EDGVAL**2)*(surf_toric_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,L)*(((1.0D0+ALENS(37,L))*(EDGVAL**2))**2))+&
-               &(ALENS(5,L)*(((1.0D0+ALENS(38,L))*(EDGVAL**2))**3))+&
-               &(ALENS(6,L)*(((1.0D0+ALENS(39,L))*(EDGVAL**2))**4))+&
-               &(ALENS(7,L)*(((1.0D0+ALENS(40,L))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L, 4)*(((1.0D0+surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L, 6)*(((1.0D0+surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0+surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L, 10)*(((1.0D0+surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
          END IF
 !       CHECK FOR ANAMORPHICS
-         IF(ALENS(36,(L+1)).EQ.0.0D0) THEN
+         IF(surf_anamorphic_flag(L+1) == 0) THEN
 !       IS THE SURFACE L+1 X-TORIC BUT NOT ANAMORPHIC ASPHERE ?
-            IF(ALENS(23,(L+1)).EQ.2.0D0) THEN
+            IF(surf_toric_flag(L+1) == 2) THEN
 !       USE TORIC DATA IN SAG CALC
-               ARG=(1.0D0-((1.0D0)*(ALENS(24,L)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((1.0D0)*(surf_toric_curvature(L)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGLP1=(((EDGVAL**2)*(ALENS(24,(L+1))))/&
+               SAGLP1=(((EDGVAL**2)*(surf_toric_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))
             ELSE
 !       NOT X-TORIC
-               ARG=(1.0D0-((ALENS(2,L+1)+1.0D0)*(ALENS(1,L+1)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((surf_conic(L+1)+1.0D0)*(surf_curvature(L+1)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGLP1=(((EDGVAL**2)*(ALENS(1,(L+1))))/&
+               SAGLP1=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L+1))*(EDGVAL**4))+&
-               &(ALENS(5,(L+1))*(EDGVAL**6))+&
-               &(ALENS(6,(L+1))*(EDGVAL**8))+&
-               &(ALENS(7,(L+1))*(EDGVAL**10))+&
-               &(ALENS(81,(L+1))*(EDGVAL**12))+&
-               &(ALENS(82,(L+1))*(EDGVAL**14))+&
-               &(ALENS(83,(L+1))*(EDGVAL**16))+&
-               &(ALENS(84,(L+1))*(EDGVAL**18))+&
-               &(ALENS(85,(L+1))*(EDGVAL**20))
+               &(surf_asphere_coeff(L+1, 4)*(EDGVAL**4))+&
+               &(surf_asphere_coeff(L+1, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L+1, 8)*(EDGVAL**8))+&
+               &(surf_asphere_coeff(L+1, 10)*(EDGVAL**10))+&
+               &(surf_asphere_coeff(L+1, 12)*(EDGVAL**12))+&
+               &(surf_asphere_coeff(L+1, 14)*(EDGVAL**14))+&
+               &(surf_asphere_coeff(L+1, 16)*(EDGVAL**16))+&
+               &(surf_asphere_coeff(L+1, 18)*(EDGVAL**18))+&
+               &(surf_asphere_coeff(L+1, 20)*(EDGVAL**20))
             END IF
          ELSE
 !       ANAMORPHIC ASPHERIC
-            IF(ALENS(23,(L+1)).EQ.1.0D0) THEN
+            IF(surf_toric_flag(L+1) == 1) THEN
 !       Y-TORIC
-               ARG=(1.0D0-((ALENS(2,L+1)+1.0D0)*(ALENS(1,L+1)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((surf_conic(L+1)+1.0D0)*(surf_curvature(L+1)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(1,(L+1))))/&
+               SAGL=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L+1))*(((1.0D0-ALENS(37,(L+1)))*(EDGVAL**2))**2))+&
-               &(ALENS(5,(L+1))*(((1.0D0-ALENS(38,(L+1)))*(EDGVAL**2))**3))+&
-               &(ALENS(6,(L+1))*(((1.0D0-ALENS(39,(L+1)))*(EDGVAL**2))**4))+&
-               &(ALENS(7,(L+1))*(((1.0D0-ALENS(40,(L+1)))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L+1, 4)*(((1.0D0-surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L+1, 6)*(((1.0D0-surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0-surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L+1, 10)*(((1.0D0-surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
-            IF(ALENS(23,L).EQ.2.0D0) THEN
+            IF(surf_toric_flag(L) == 2) THEN
 !       X-TORIC
-               ARG=(1.0D0-((ALENS(41,L+1)+1.0D0)*(ALENS(24,L+1)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-((surf_anamorphic_conic(L+1)+1.0D0)*(surf_toric_curvature(L+1)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(24,(L+1))))/&
+               SAGL=(((EDGVAL**2)*(surf_toric_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L+1))*(((1.0D0+ALENS(37,(L+1)))*(EDGVAL**2))**2))+&
-               &(ALENS(5,(L+1))*(((1.0D0+ALENS(38,(L+1)))*(EDGVAL**2))**3))+&
-               &(ALENS(6,(L+1))*(((1.0D0+ALENS(39,(L+1)))*(EDGVAL**2))**4))+&
-               &(ALENS(7,(L+1))*(((1.0D0+ALENS(40,(L+1)))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L+1, 4)*(((1.0D0+surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L+1, 6)*(((1.0D0+surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0+surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L+1, 10)*(((1.0D0+surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
          END IF
@@ -1410,10 +1417,10 @@ SUBROUTINE SLVRS
 !               TH(L)=(CAY TARGET VALUE)+(SAGL-SAGLP1)
 !               IF SAGL-SAGLP1)<OR= 0 THEN
 !               TH(L)=(CAY TARGET VALUE)
-         IF((SAGL-SAGLP1).GT.0.0D0)&
-         &ALENS(3,(L))=SOLVE(7,(L))+(SAGL-SAGLP1)
-         IF((SAGL-SAGLP1).LE.0.0D0)&
-         &ALENS(3,(L))=SOLVE(7,(L))
+         IF((SAGL-SAGLP1).GT.0.0D0) &
+         & call set_surf_thickness(L, SOLVE(7,(L))+(SAGL-SAGLP1))
+         IF((SAGL-SAGLP1).LE.0.0D0) &
+         & call set_surf_thickness(L, SOLVE(7,(L)))
 !       HANDLING OF CAY SOLVE IS COMPLETED
       ELSE
 !       NO CAY SOLVE IS PRESENT, PROCEED
@@ -1431,7 +1438,7 @@ SUBROUTINE SLVRS
          &curr_par_ray_trace%getObjectThicknessToSetParaxialMag(&
          &-1*SOLVE(7,L), curr_lens_data)
 
-         ALENS(3,0) = newThick
+         call set_surf_thickness(0, newThick)
 
       END IF
 
@@ -1490,23 +1497,23 @@ SUBROUTINE SLVRS
 !       AND PUX(L)=SOLVE TARGET
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC
             PXTRAX(2,L)=SOLVE(1,L)
             IF(PXTRAX(1,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=((-PXTRAX(2,L))+((N/J_NP)*PXTRAX(2,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(1,L))
+               call set_surf_toric_curvature(L, ((-PXTRAX(2,L))+((N/J_NP)*PXTRAX(2,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(1,L)))
             END IF
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             PXTRAX(2,L)=SOLVE(1,L)
             IF(PXTRAX(1,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1515,8 +1522,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1527,11 +1534,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=((-PXTRAX(2,L))+((N/J_NP)*PXTRAX(2,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(1,L))
+               call set_surf_curvature(L, ((-PXTRAX(2,L))+((N/J_NP)*PXTRAX(2,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(1,L)))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1540,8 +1547,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1568,23 +1575,23 @@ SUBROUTINE SLVRS
 !       AND PUCX(L)=SOLVE TARGET
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC
             PXTRAX(6,L)=SOLVE(1,L)
             IF(PXTRAX(5,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=((-PXTRAX(6,L))+((N/J_NP)*PXTRAX(6,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(5,L))
+               call set_surf_toric_curvature(L, ((-PXTRAX(6,L))+((N/J_NP)*PXTRAX(6,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(5,L)))
             END IF
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             PXTRAX(6,L)=SOLVE(1,L)
             IF(PXTRAX(5,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1593,8 +1600,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1605,11 +1612,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=((-PXTRAX(6,L))+((N/J_NP)*PXTRAX(6,(L-1))))*&
-               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(5,L))
+               call set_surf_curvature(L, ((-PXTRAX(6,L))+((N/J_NP)*PXTRAX(6,(L-1))))*&
+               &(J_NP/(J_NP-N))*(1.0D0/PXTRAX(5,L)))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1618,8 +1625,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1646,23 +1653,23 @@ SUBROUTINE SLVRS
 !       AND PIX(L)=SOLVE TARGET
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC
             PXTRAX(3,L)=SOLVE(1,L)
             IF(PXTRAX(1,L).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=(PXTRAX(3,L)-PXTRAX(2,(L-1)))/&
-               &(PXTRAX(1,(L)))
+               call set_surf_toric_curvature(L, (PXTRAX(3,L)-PXTRAX(2,(L-1)))/&
+               &(PXTRAX(1,(L))))
             END IF
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             PXTRAX(3,L)=SOLVE(1,L)
             IF(PXTRAX(1,L).EQ.0.0D0.OR.(J_NP-N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1671,8 +1678,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1683,11 +1690,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=(PXTRAX(3,L)-PXTRAX(2,(L-1)))/&
-               &(PXTRAX(1,(L)))
+               call set_surf_curvature(L, (PXTRAX(3,L)-PXTRAX(2,(L-1)))/&
+               &(PXTRAX(1,(L))))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1696,8 +1703,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1724,23 +1731,23 @@ SUBROUTINE SLVRS
 !       AND PICX(L)=SOLVE TARGET
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC
             PXTRAX(7,L)=SOLVE(1,L)
             IF(PXTRAX(5,L).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=(PXTRAX(7,L)-PXTRAX(6,(L-1)))/&
-               &(PXTRAX(5,(L)))
+               call set_surf_toric_curvature(L, (PXTRAX(7,L)-PXTRAX(6,(L-1)))/&
+               &(PXTRAX(5,(L))))
             END IF
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             PXTRAX(7,L)=SOLVE(1,L)
             IF(PXTRAX(5,L).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1749,8 +1756,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1761,11 +1768,11 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=(PXTRAX(7,L)-PXTRAX(6,(L-1)))/&
-               &(PXTRAX(5,(L-1)))
+               call set_surf_curvature(L, (PXTRAX(7,L)-PXTRAX(6,(L-1)))/&
+               &(PXTRAX(5,(L-1))))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1774,8 +1781,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1805,26 +1812,26 @@ SUBROUTINE SLVRS
 !       PIX'(L)=(N/N')*PIX(L)
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC, PROCEED
             IF(PXTRAX(1,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=-(PXTRAX(2,(L-1))/PXTRAX(1,L))*((J_NP+N)/N)
+               call set_surf_toric_curvature(L, -(PXTRAX(2,(L-1))/PXTRAX(1,L))*((J_NP+N)/N))
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAX(2,L)=((N/NP)*PXTRAX(2,(L-1)))-(ALENS(24,L)*&
+            PXTRAX(2,L)=((N/NP)*PXTRAX(2,(L-1)))-(surf_toric_curvature(L)*&
             &PXTRAX(1,L)*((J_NP-N)/J_NP))
-            PXTRAX(3,L)=(ALENS(24,L)*PXTRAX(1,L))+PXTRAX(2,(L-1))
+            PXTRAX(3,L)=(surf_toric_curvature(L)*PXTRAX(1,L))+PXTRAX(2,(L-1))
             PXTRAX(4,L)=(N/J_NP)*PXTRAX(3,L)
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             IF(PXTRAX(1,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1833,8 +1840,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1845,10 +1852,10 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=-(PXTRAX(2,(L-1))/PXTRAX(1,L))*((J_NP+N)/N)
+               call set_surf_curvature(L, -(PXTRAX(2,(L-1))/PXTRAX(1,L))*((J_NP+N)/N))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1857,8 +1864,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1871,9 +1878,9 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAX(2,L)=((N/J_NP)*PXTRAX(2,(L-1)))-(ALENS(1,L)*&
+            PXTRAX(2,L)=((N/J_NP)*PXTRAX(2,(L-1)))-(surf_curvature(L)*&
             &PXTRAX(1,L)*((J_NP-N)/J_NP))
-            PXTRAX(3,L)=(ALENS(1,L)*PXTRAX(1,L))+PXTRAX(2,(L-1))
+            PXTRAX(3,L)=(surf_curvature(L)*PXTRAX(1,L))+PXTRAX(2,(L-1))
             PXTRAX(4,L)=(N/J_NP)*PXTRAX(3,L)
          END IF
 !       APX SOLVE FOR SURFACE L HANDLED.
@@ -1894,26 +1901,26 @@ SUBROUTINE SLVRS
 !       PICX'(L)=(N/N')*PICX(L)
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC, PROCEED
             IF(PXTRAX(5,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(24,L)=0.0D0
+               call set_surf_toric_curvature(L, 0.0D0)
             ELSE
-               ALENS(24,L)=-(PXTRAX(6,(L-1))/PXTRAX(5,L))*((J_NP+N)/N)
+               call set_surf_toric_curvature(L, -(PXTRAX(6,(L-1))/PXTRAX(5,L))*((J_NP+N)/N))
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(ALENS(24,L)*&
+            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(surf_toric_curvature(L)*&
             &PXTRAX(5,L)*((J_NP-N)/J_NP))
-            PXTRAX(7,L)=(ALENS(24,L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
+            PXTRAX(7,L)=(surf_toric_curvature(L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
             PXTRAX(8,L)=(N/J_NP)*PXTRAX(7,L)
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             IF(PXTRAX(5,L).EQ.0.0D0.OR.(J_NP+N).EQ.0.0D0) THEN
-               ALENS(1,L)=0.0D0
+               call set_surf_curvature(L, 0.0D0)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1922,8 +1929,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1934,10 +1941,10 @@ SUBROUTINE SLVRS
                END IF
 !
             ELSE
-               ALENS(1,L)=-(PXTRAX(6,(L-1))/PXTRAX(5,L))*((J_NP+N)/N)
+               call set_surf_curvature(L, -(PXTRAX(6,(L-1))/PXTRAX(5,L))*((J_NP+N)/N))
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1946,8 +1953,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -1960,9 +1967,9 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(ALENS(1,L)*&
+            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(surf_curvature(L)*&
             &PXTRAX(5,L)*((J_NP-N)/J_NP))
-            PXTRAX(7,L)=(ALENS(1,L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
+            PXTRAX(7,L)=(surf_curvature(L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
             PXTRAX(8,L)=(N/J_NP)*PXTRAX(7,L)
          END IF
 !       APCX SOLVE FOR SURFACE L HANDLED.
@@ -1982,12 +1989,12 @@ SUBROUTINE SLVRS
          TAR=INT(SOLVE(1,L))
          IF(TAR.LT.L) THEN
             DO I=TAR,(L-1)
-               DIS=DIS+ALENS(3,I)
+               DIS=DIS+surf_thickness(I)
             END DO
          END IF
          IF(TAR.GT.L) THEN
             DO I=L,(TAR-1)
-               DIS=DIS+ALENS(3,I)
+               DIS=DIS+surf_thickness(I)
             END DO
          END IF
 !       CASE OF TAR=L ELIMINATED INSIDE OD SUBROUTINE LNSEOS.
@@ -1997,11 +2004,11 @@ SUBROUTINE SLVRS
 !       PICX'(L)=(N/N')*PICX(L)
 !       IS SURFACE L AN Y-TORIC,IF SO THE TORIC CURVATURE AND
 !       NOT THE MAIN CURVATURE IS CHANGED.
-         IF(ALENS(23,L).EQ.1.0D0) THEN
+         IF(surf_toric_flag(L) == 1) THEN
 !       SURFACE IS Y-TORIC, PROCEED
             IF(DIS.NE.0.0D0) THEN
-               IF(TAR.LT.L) ALENS(24,L)=-1.0D0/DIS
-               IF(TAR.GT.L) ALENS(24,L)= 1.0D0/DIS
+               IF(TAR.LT.L) call set_surf_toric_curvature(L, -1.0D0/DIS)
+               IF(TAR.GT.L) call set_surf_toric_curvature(L, 1.0D0/DIS)
             ELSE
 !       DIS IS ZERO, CONCENTRIC SOLVE IGNORED
                OUTLYNE='(COCX) SOLVE RESULTS IN A ZERO RADIUS OF CURVATURE'
@@ -2013,18 +2020,18 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(ALENS(24,L)*&
+            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(surf_toric_curvature(L)*&
             &PXTRAX(5,L)*((J_NP-N)/J_NP))
-            PXTRAX(7,L)=(ALENS(24,L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
+            PXTRAX(7,L)=(surf_toric_curvature(L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
             PXTRAX(8,L)=(N/J_NP)*PXTRAX(7,L)
          ELSE
 !       SURFACE NOT Y-TORIC,PROCEED
             IF(DIS.NE.0.0D0) THEN
-               IF(TAR.LT.L) ALENS(1,L)=-1.0D0/DIS
-               IF(TAR.GT.L) ALENS(1,L)=1.0D0/DIS
+               IF(TAR.LT.L) call set_surf_curvature(L, -1.0D0/DIS)
+               IF(TAR.GT.L) call set_surf_curvature(L, 1.0D0/DIS)
 !
-               IF(ALENS(1,L).EQ.0.0D0.AND.ALENS(2,L).NE.0.0D0) THEN
-                  ALENS(2,L)=0.0D0
+               IF(surf_curvature(L).EQ.0.0D0.AND.surf_conic(L).NE.0.0D0) THEN
+                  call set_surf_conic(L, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -2033,8 +2040,8 @@ SUBROUTINE SLVRS
                   &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                   CALL SHOWIT(1)
                END IF
-               IF(ALENS(1,L).NE.0.0D0.AND.ALENS(43,L).NE.0.0D0) THEN
-                  ALENS(43,L)=0.0D0
+               IF(surf_curvature(L).NE.0.0D0.AND.surf_asphere_coeff(L, 2).NE.0.0D0) THEN
+                  call set_surf_asphere_coeff(L, 2, 0.0D0)
                   OUTLYNE='WARNING:'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*) 'FOR SURFACE ',L
@@ -2055,9 +2062,9 @@ SUBROUTINE SLVRS
             END IF
 !       RECALCULATE ANGLES OF INCIDENCE,REFLECTION/REFRACTION
 !       AND EXITING SLOPE ANGLE
-            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(ALENS(1,L)*&
+            PXTRAX(6,L)=((N/J_NP)*PXTRAX(6,(L-1)))-(surf_curvature(L)*&
             &PXTRAX(5,L)*((J_NP-N)/J_NP))
-            PXTRAX(7,L)=(ALENS(1,L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
+            PXTRAX(7,L)=(surf_curvature(L)*PXTRAX(5,L))+PXTRAX(6,(L-1))
             PXTRAX(8,L)=(N/J_NP)*PXTRAX(7,L)
          END IF
 !       COCX SOLVE FOR SURFACE L HANDLED.
@@ -2076,16 +2083,16 @@ SUBROUTINE SLVRS
 !       TH(L)=(SOLVE TARGET-PX(L))/PUX(L)
 !
          IF(PXTRAX(2,L).EQ.0.0D0) THEN
-            ALENS(3,L)=1D20
+            call set_surf_thickness(L, 1D20)
          ELSE
-            ALENS(3,L)=(SOLVE(3,L)-PXTRAX(1,(L)))/(PXTRAX(2,L))
-            IF(DABS(ALENS(3,L)).GT.1D20) THEN
-               IF(ALENS(3,L).GT.0.0D0)THEN
-                  ALENS(3,L)=1D20
+            call set_surf_thickness(L, (SOLVE(3,L)-PXTRAX(1,(L)))/(PXTRAX(2,L)))
+            IF(DABS(surf_thickness(L)).GT.1D20) THEN
+               IF(surf_thickness(L).GT.0.0D0)THEN
+                  call set_surf_thickness(L, 1D20)
                ELSE
                END IF
-               IF(ALENS(3,L).LT.0.0D0) THEN
-                  ALENS(3,L)=-1D20
+               IF(surf_thickness(L).LT.0.0D0) THEN
+                  call set_surf_thickness(L, -1D20)
                ELSE
                END IF
             ELSE
@@ -2105,16 +2112,16 @@ SUBROUTINE SLVRS
 !       TH(L)=(SOLVE TARGET-PCX(L))/PUCX(L)
 !
          IF(PXTRAX(6,L).EQ.0.0D0) THEN
-            ALENS(3,L)=1D20
+            call set_surf_thickness(L, 1D20)
          ELSE
-            ALENS(3,L)=(SOLVE(3,L)-PXTRAX(5,(L)))/(PXTRAX(6,L))
-            IF(DABS(ALENS(3,L)).GT.1D20) THEN
-               IF(ALENS(3,L).GT.0.0D0)THEN
-                  ALENS(3,L)=1D20
+            call set_surf_thickness(L, (SOLVE(3,L)-PXTRAX(5,(L)))/(PXTRAX(6,L)))
+            IF(DABS(surf_thickness(L)).GT.1D20) THEN
+               IF(surf_thickness(L).GT.0.0D0)THEN
+                  call set_surf_thickness(L, 1D20)
                ELSE
                END IF
-               IF(ALENS(3,L).LT.0.0D0) THEN
-                  ALENS(3,L)=-1D20
+               IF(surf_thickness(L).LT.0.0D0) THEN
+                  call set_surf_thickness(L, -1D20)
                ELSE
                END IF
             ELSE
@@ -2131,13 +2138,13 @@ SUBROUTINE SLVRS
       IF(SOLVE(4,(L)).EQ.6.0D0) THEN
 !       THERE IS A CAX SOLVE ON (L) WHICH AFFECTS TH(L), HANDLE IT.
 !       IS THER A CIRCULAR CLEAR APERTURE ON SURFACE L
-         IF(ALENS(9,(L)).EQ.1.0D0.AND.ALENS(127,L).NE.0.0D0.OR.&
-         &ALENS(9,(L)).EQ.1.0D0.AND.ALENS(127,L).NE.0.0D0) THEN
+         IF(surf_clap_type(L) == 1.AND.surf_array_parity(L) /= 0.OR.&
+         &surf_clap_type(L) == 1.AND.surf_array_parity(L) /= 0) THEN
 !       YES THERE IS, SET EDGVAL TO IT
-            IF(ALENS(10,L).LE.ALENS(11,L)) THEN
-               EDGVAL=DABS(ALENS(10,(L)))
+            IF(surf_clap_dim(L, 1).LE.surf_clap_dim(L, 2)) THEN
+               EDGVAL=DABS(surf_clap_dim(L, 1))
             ELSE
-               EDGVAL=DABS(ALENS(11,(L)))
+               EDGVAL=DABS(surf_clap_dim(L, 2))
             END IF
          ELSE
 !       NO CIRCULAR CLAP, USE PX(L)+PCX(L) FOR EDGVAL
@@ -2150,106 +2157,106 @@ SUBROUTINE SLVRS
 !       TORICS IF PRESENT. CONSIDER CONIC AND ASPHERIC
 !       TERMS IF PRESENT.
 !       CHECK FOR ANAMORPHICS
-         IF(ALENS(36,L).EQ.0.0D0) THEN
+         IF(surf_anamorphic_flag(L) == 0) THEN
 !       IS THE SURFACE L Y-TORIC BUT NOT ANAMORPHIC ASPHERIC ?
-            IF(ALENS(23,(L)).EQ.1D0) THEN
+            IF(surf_toric_flag(L) == 1) THEN
 !       USE TORIC DATA IN SAG CALC
-               ARG=(1.0D0-(1.0D0*(ALENS(1,L)**2)*(EDGVAL**2)))
+               ARG=(1.0D0-(1.0D0*(surf_curvature(L)**2)*(EDGVAL**2)))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(24,(L))))/&
+               SAGL=(((EDGVAL**2)*(surf_toric_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))
             ELSE
 !       NOT Y-TORIC
-               ARG=1.0D0-((ALENS(2,L)+1.0D0)*(ALENS(1,L)**2)*(EDGVAL**2))
+               ARG=1.0D0-((surf_conic(L)+1.0D0)*(surf_curvature(L)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(1,(L))))/&
+               SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L))*(EDGVAL**4))+&
-               &(ALENS(5,(L))*(EDGVAL**6))+&
-               &(ALENS(6,(L))*(EDGVAL**8))+&
-               &(ALENS(7,(L))*(EDGVAL**10))+&
-               &(ALENS(81,(L))*(EDGVAL**12))+&
-               &(ALENS(82,(L))*(EDGVAL**14))+&
-               &(ALENS(83,(L))*(EDGVAL**16))+&
-               &(ALENS(84,(L))*(EDGVAL**18))+&
-               &(ALENS(85,(L))*(EDGVAL**20))
+               &(surf_asphere_coeff(L, 4)*(EDGVAL**4))+&
+               &(surf_asphere_coeff(L, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L, 8)*(EDGVAL**8))+&
+               &(surf_asphere_coeff(L, 10)*(EDGVAL**10))+&
+               &(surf_asphere_coeff(L, 12)*(EDGVAL**12))+&
+               &(surf_asphere_coeff(L, 14)*(EDGVAL**14))+&
+               &(surf_asphere_coeff(L, 16)*(EDGVAL**16))+&
+               &(surf_asphere_coeff(L, 18)*(EDGVAL**18))+&
+               &(surf_asphere_coeff(L, 20)*(EDGVAL**20))
             END IF
          ELSE
 !       ANAMORPHIC ASPHERIC
-            IF(ALENS(23,L).EQ.1.0D0) THEN
+            IF(surf_toric_flag(L) == 1) THEN
 !       Y-TORIC
-               ARG=1.0D0-((ALENS(41,L)+1.0D0)*(ALENS(24,L)**2)*(EDGVAL**2))
+               ARG=1.0D0-((surf_anamorphic_conic(L)+1.0D0)*(surf_toric_curvature(L)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(24,L)))/&
+               SAGL=(((EDGVAL**2)*(surf_toric_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,L)*(((1.0D0+ALENS(37,L))*(EDGVAL**2))**2))+&
-               &(ALENS(5,L)*(((1.0D0+ALENS(38,L))*(EDGVAL**2))**3))+&
-               &(ALENS(6,L)*(((1.0D0+ALENS(39,L))*(EDGVAL**2))**4))+&
-               &(ALENS(7,L)*(((1.0D0+ALENS(40,L))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L, 4)*(((1.0D0+surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L, 6)*(((1.0D0+surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0+surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L, 10)*(((1.0D0+surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
-            IF(ALENS(23,L).EQ.2.0D0) THEN
+            IF(surf_toric_flag(L) == 2) THEN
 !       X-TORIC
-               ARG=1.0D0-((ALENS(2,L)+1.0D0)*(ALENS(1,L)**2)*(EDGVAL**2))
+               ARG=1.0D0-((surf_conic(L)+1.0D0)*(surf_curvature(L)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(1,L)))/&
+               SAGL=(((EDGVAL**2)*(surf_curvature(L)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,L)*(((1.0D0-ALENS(37,L))*(EDGVAL**2))**2))+&
-               &(ALENS(5,L)*(((1.0D0-ALENS(38,L))*(EDGVAL**2))**3))+&
-               &(ALENS(6,L)*(((1.0D0-ALENS(39,L))*(EDGVAL**2))**4))+&
-               &(ALENS(7,L)*(((1.0D0-ALENS(40,L))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L, 4)*(((1.0D0-surf_anamorphic_coeff(L, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L, 6)*(((1.0D0-surf_anamorphic_coeff(L, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L, 8)*(((1.0D0-surf_anamorphic_coeff(L, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L, 10)*(((1.0D0-surf_anamorphic_coeff(L, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
          END IF
 !       CHECK FOR ANAMORPHICS
-         IF(ALENS(36,(L+1)).EQ.0.0D0) THEN
+         IF(surf_anamorphic_flag(L+1) == 0) THEN
 !       IS THE SURFACE L+1 Y-TORIC BUT NOT ANAMORPHIC ASPHERIC ?
-            IF(ALENS(23,(L+1)).EQ.1.0D0) THEN
+            IF(surf_toric_flag(L+1) == 1) THEN
 !       USE TORIC DATA IN SAG CALC
-               ARG=1.0D0-((1.0D0)*(ALENS(2,L)**2)*(EDGVAL**2))
+               ARG=1.0D0-((1.0D0)*(surf_conic(L)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGLP1=(((EDGVAL**2)*(ALENS(24,(L+1))))/&
+               SAGLP1=(((EDGVAL**2)*(surf_toric_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))
             ELSE
 !       NOT Y-TORIC
-               ARG=1.0D0-((ALENS(2,L+1)+1.0D0)*(ALENS(1,L+1)**2)*(EDGVAL**2))
+               ARG=1.0D0-((surf_conic(L+1)+1.0D0)*(surf_curvature(L+1)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGLP1=(((EDGVAL**2)*(ALENS(1,(L+1))))/&
+               SAGLP1=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L+1))*(EDGVAL**4))+&
-               &(ALENS(5,(L+1))*(EDGVAL**6))+&
-               &(ALENS(6,(L+1))*(EDGVAL**8))+&
-               &(ALENS(7,(L+1))*(EDGVAL**10))+&
-               &(ALENS(81,(L+1))*(EDGVAL**12))+&
-               &(ALENS(82,(L+1))*(EDGVAL**14))+&
-               &(ALENS(83,(L+1))*(EDGVAL**16))+&
-               &(ALENS(84,(L+1))*(EDGVAL**18))+&
-               &(ALENS(85,(L+1))*(EDGVAL**20))
+               &(surf_asphere_coeff(L+1, 4)*(EDGVAL**4))+&
+               &(surf_asphere_coeff(L+1, 6)*(EDGVAL**6))+&
+               &(surf_asphere_coeff(L+1, 8)*(EDGVAL**8))+&
+               &(surf_asphere_coeff(L+1, 10)*(EDGVAL**10))+&
+               &(surf_asphere_coeff(L+1, 12)*(EDGVAL**12))+&
+               &(surf_asphere_coeff(L+1, 14)*(EDGVAL**14))+&
+               &(surf_asphere_coeff(L+1, 16)*(EDGVAL**16))+&
+               &(surf_asphere_coeff(L+1, 18)*(EDGVAL**18))+&
+               &(surf_asphere_coeff(L+1, 20)*(EDGVAL**20))
             END IF
          ELSE
 !       ANAMORPHIC ASPHERIC
-            IF(ALENS(23,(L+1)).EQ.1.0D0) THEN
+            IF(surf_toric_flag(L+1) == 1) THEN
 !       Y-TORIC
-               ARG=1.0D0-((ALENS(41,L+1)+1.0D0)*(ALENS(24,L+1)**2)*(EDGVAL**2))
+               ARG=1.0D0-((surf_anamorphic_conic(L+1)+1.0D0)*(surf_toric_curvature(L+1)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(24,(L+1))))/&
+               SAGL=(((EDGVAL**2)*(surf_toric_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L+1))*(((1.0D0+ALENS(37,(L+1)))*(EDGVAL**2))**2))+&
-               &(ALENS(5,(L+1))*(((1.0D0+ALENS(38,(L+1)))*(EDGVAL**2))**3))+&
-               &(ALENS(6,(L+1))*(((1.0D0+ALENS(39,(L+1)))*(EDGVAL**2))**4))+&
-               &(ALENS(7,(L+1))*(((1.0D0+ALENS(40,(L+1)))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L+1, 4)*(((1.0D0+surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L+1, 6)*(((1.0D0+surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0+surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L+1, 10)*(((1.0D0+surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
-            IF(ALENS(23,L).EQ.2.0D0) THEN
+            IF(surf_toric_flag(L) == 2) THEN
 !       X-TORIC
-               ARG=1.0D0-((ALENS(2,L+1)+1.0D0)*(ALENS(1,L+1)**2)*(EDGVAL**2))
+               ARG=1.0D0-((surf_conic(L+1)+1.0D0)*(surf_curvature(L+1)**2)*(EDGVAL**2))
                IF(ARG.LT.0.0D0) ARG=0.0D0
-               SAGL=(((EDGVAL**2)*(ALENS(1,(L+1))))/&
+               SAGL=(((EDGVAL**2)*(surf_curvature(L+1)))/&
                &(1.0D0+DSQRT(ARG)))+&
-               &(ALENS(4,(L+1))*(((1.0D0-ALENS(37,(L+1)))*(EDGVAL**2))**2))+&
-               &(ALENS(5,(L+1))*(((1.0D0-ALENS(38,(L+1)))*(EDGVAL**2))**3))+&
-               &(ALENS(6,(L+1))*(((1.0D0-ALENS(39,(L+1)))*(EDGVAL**2))**4))+&
-               &(ALENS(7,(L+1))*(((1.0D0-ALENS(40,(L+1)))*(EDGVAL**2))**5))
+               &(surf_asphere_coeff(L+1, 4)*(((1.0D0-surf_anamorphic_coeff(L+1, 4))*(EDGVAL**2))**2))+&
+               &(surf_asphere_coeff(L+1, 6)*(((1.0D0-surf_anamorphic_coeff(L+1, 6))*(EDGVAL**2))**3))+&
+               &(surf_asphere_coeff(L+1, 8)*(((1.0D0-surf_anamorphic_coeff(L+1, 8))*(EDGVAL**2))**4))+&
+               &(surf_asphere_coeff(L+1, 10)*(((1.0D0-surf_anamorphic_coeff(L+1, 10))*(EDGVAL**2))**5))
             ELSE
             END IF
          END IF
@@ -2261,10 +2268,10 @@ SUBROUTINE SLVRS
 !               TH(L)=(CAX TARGET VALUE)+(SAGL-SAGLP1)
 !               IF SAGL-SAGLP1)<OR= 0 THEN
 !               TH(L)=(CAX TARGET VALUE)
-         IF((SAGL-SAGLP1).GT.0.0D0)&
-         &ALENS(3,(L))=SOLVE(3,(L))+(SAGL-SAGLP1)
-         IF((SAGL-SAGLP1).LE.0.0D0)&
-         &ALENS(3,(L))=SOLVE(3,(L))
+         IF((SAGL-SAGLP1).GT.0.0D0) &
+         & call set_surf_thickness(L, SOLVE(3,(L))+(SAGL-SAGLP1))
+         IF((SAGL-SAGLP1).LE.0.0D0) &
+         & call set_surf_thickness(L, SOLVE(3,(L)))
 !       HANDLEING OF CAX SOLVE IS COMPLETED
       ELSE
 !       NO CAX SOLVE IS PRESENT, PROCEED
