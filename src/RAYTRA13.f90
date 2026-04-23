@@ -328,6 +328,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
 
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature
    IMPLICIT NONE
    REAL*8 MF1,MF2,D11,D12,D21,D22,DDELX,DDELY,XC1,YC1,ZC1
    LOGICAL DELFAIL
@@ -374,7 +375,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -410,7 +411,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -446,7 +447,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -482,7 +483,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -518,7 +519,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -554,7 +555,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -588,7 +589,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -621,7 +622,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -654,7 +655,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC
@@ -687,7 +688,7 @@ SUBROUTINE NEWDEL(MF1,MF2,D11,D12,D21,D22,DELFAIL)
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0)&
+      IF(surf_curvature(1) /= 0.0_8)&
       &CALL GETZEE1
       X1AIM=XC
       Y1AIM=YC

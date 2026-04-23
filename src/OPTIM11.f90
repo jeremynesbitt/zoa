@@ -335,6 +335,7 @@ SUBROUTINE MONTE
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_curvature, surf_toric_flag, surf_toric_curvature
    IMPLICIT NONE
 !
    INTEGER K,KKK,I,J,L,VTYPE,ALTYPE,VADD,II,JJ
@@ -621,7 +622,7 @@ SUBROUTINE MONTE
 !     SURFACE RADIUS OR CURVATURE
             SURF=INT(VARABL(I,3))
             SAVE_KDP(7)=SAVEINPT(7)
-            OLDVAL=ALENS(1,SURF)
+            OLDVAL=surf_curvature(SURF)
             IF(VTYPE.EQ.2.OR.VTYPE.EQ.135) WC='CV'
             IF(VTYPE.EQ.1.OR.VTYPE.EQ.134) WC='RD'
             IF(VTYPE.EQ.2.OR.VTYPE.EQ.135) WC='CV'
@@ -1034,7 +1035,7 @@ SUBROUTINE MONTE
          IF(VTYPE.EQ.9.OR.VTYPE.EQ.10) THEN
 !     TORIC RADIUS OR CURVATUE
             SURF=INT(VARABL(I,3))
-            IF(ALENS(23,SURF).EQ.0.0D0) THEN
+            IF(surf_toric_flag(SURF) == 0) THEN
 !     NOT TORIC SET AS SO
                TORRY=.FALSE.
                SAVE_KDP(7)=SAVEINPT(7)
@@ -1059,7 +1060,7 @@ SUBROUTINE MONTE
                TORRY=.TRUE.
             END IF
             SAVE_KDP(7)=SAVEINPT(7)
-            OLDVAL=ALENS(24,SURF)
+            OLDVAL=surf_toric_curvature(SURF)
             IF(VTYPE.EQ.9.OR.VTYPE.EQ.136) WC='RDTOR'
             IF(VTYPE.EQ.10.OR.VTYPE.EQ.137) WC='CVTOR'
             IF(VTYPE.EQ.9.OR.VTYPE.EQ.10) WQ='CENT'

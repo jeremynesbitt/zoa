@@ -216,6 +216,7 @@ SUBROUTINE BASOP
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_surface, only: surf_thickness
    IMPLICIT NONE
 !
 !       SUBROUTINE GET SERVES TO GET LENGTH,MLENGTH,PWRY,PWRX
@@ -266,7 +267,7 @@ SUBROUTINE BASOP
          IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
             CW=INT(SYSTEM(11))+65
          END IF
-         VALUE=VALUE+(ALENS(3,I)*ALENS(CW,I))
+         VALUE=VALUE+(surf_thickness(I)*ALENS(CW,I))
       END DO
       RETURN
    ELSE
@@ -277,7 +278,7 @@ SUBROUTINE BASOP
    IF(WQ.EQ.'LENGTH'.OR.WQ.EQ.'OAL') THEN
       VALUE=0.0D0
       DO I=INT(W1),INT(W2)-1
-         VALUE=VALUE+ALENS(3,I)
+         VALUE=VALUE+surf_thickness(I)
       END DO
       RETURN
    ELSE
@@ -3075,6 +3076,7 @@ END
 SUBROUTINE GCONVERT
    use DATLEN
    use DATMAI
+   use mod_surface, only: set_surf_thickness
    REAL*8 LOCAL_XVERT,LOCAL_YVERT,LOCAL_ZVERT
    REAL*8 LOCAL_LXVERT,LOCAL_MXVERT,LOCAL_NXVERT
    REAL*8 LOCAL_LYVERT,LOCAL_MYVERT,LOCAL_NYVERT
@@ -3372,7 +3374,7 @@ SUBROUTINE GCONVERT
       CALL PROCES
       REST_KDP(20)=RESTINPT(20)
       SAVE_KDP(20)=SAVEINPT(20)
-      ALENS(3,I)=0.0D0
+      call set_surf_thickness(I, 0.0_8)
       REST_KDP(20)=RESTINPT(20)
       SAVE_KDP(20)=SAVEINPT(20)
       INPUT='EOS'
