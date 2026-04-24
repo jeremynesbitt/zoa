@@ -103,7 +103,9 @@ module mod_surface
         surf_spider_angle,      set_surf_spider_angle,     &
         surf_spider_width,      set_surf_spider_width,     &
         surf_roof_a,            set_surf_roof_a,           &
+        surf_roof_angle_err,    set_surf_roof_angle_err,   &
         surf_roof_b,            set_surf_roof_b,           &
+        surf_ccr_angle_err2,    set_surf_ccr_angle_err2,   &
         surf_ccr_b,             set_surf_ccr_b,            &
         surf_inr_flag,          set_surf_inr_flag
 
@@ -1189,6 +1191,26 @@ contains
     subroutine set_surf_spider_width(s, val)
         integer, intent(in) :: s; real(real64), intent(in) :: val
         ALENS(137, s) = val
+    end subroutine
+
+    ! ALENS(139,s): roof/CCR tolerance parameter 1 (ROO angle err; CCR angle err #1)
+    real(real64) function surf_roof_angle_err(s)
+        integer, intent(in) :: s
+        surf_roof_angle_err = ALENS(139, s)
+    end function
+    subroutine set_surf_roof_angle_err(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(139, s) = val
+    end subroutine
+
+    ! ALENS(141,s): CCR tolerance parameter 2 (CCR angle err #2)
+    real(real64) function surf_ccr_angle_err2(s)
+        integer, intent(in) :: s
+        surf_ccr_angle_err2 = ALENS(141, s)
+    end function
+    subroutine set_surf_ccr_angle_err2(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(141, s) = val
     end subroutine
 
     ! ALENS(138,s): roof/CCR parameter 1 (angle or depth)
