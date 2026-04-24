@@ -9,6 +9,7 @@ SUBROUTINE LNSEOS
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -45,8 +46,8 @@ SUBROUTINE LNSEOS
    ALENS(27,1:I)=ALENS(119,1:I)
    ALENS(28,1:I)=ALENS(120,1:I)
    DO I=0,INT(SYSTEM(20))
-      IF(ALENS(31,I).NE.0.0D0.OR.ALENS(30,I).NE.0.0D0.OR.&
-      &ALENS(69,I).NE.0.0D0) ALENS(29,I)=1.0D0
+      IF(surf_decenter_x(I).NE.0.0D0.OR.surf_decenter_y(I).NE.0.0D0.OR.&
+      &surf_decenter_z(I).NE.0.0D0) call set_surf_decenter_flag(I, 1)
    END DO
 !
    IF(INT(SYSTEM(91)).EQ.0) F57=0
@@ -242,18 +243,19 @@ END
 SUBROUTINE TILT_RETURN(ERCODE,TRYES)
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER I,J
    LOGICAL ERCODE,TRYES
 !     TEST FOR NESTED TILT RETS
    DO I=0,INT(SYSTEM(20))
-      IF(ALENS(25,I).EQ.6.0D0) THEN
+      IF(surf_tilt_flag(I) == 6) THEN
          TRYES=.TRUE.
 !     FOUND A TILT RET ON SURFACE I
 !     THAT TILT RET MUST NOT REFER TO A SURFACE WITH A TILT RET ON IT
          J=INT(ALENS(70,I))
-         IF(ALENS(25,J).EQ.6.0D0) THEN
+         IF(surf_tilt_flag(J) == 6) THEN
 !     TILT RET REFERS TO A SURFACE WHICH HAS A TILT RET ON IT, DROP THE
 !     TILT RETURN
             ALENS(25:28,I)=0.0D0
@@ -278,10 +280,10 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
       END IF
    END DO
    DO I=0,INT(SYSTEM(20))
-      IF(ALENS(25,I).EQ.6.0D0) THEN
+      IF(surf_tilt_flag(I) == 6) THEN
 !     TILT RET
          DO J=0,I
-            IF(ALENS(25,J).EQ.2.0D0.OR.ALENS(25,J).EQ.3.0D0) THEN
+            IF(surf_tilt_flag(J) == 2.OR.surf_tilt_flag(J) == 3) THEN
 !     PREVIOUS TILT AUTO FOUND
 !     DELETE THE TILT RET ON I
                ALENS(25:28,I)=0.0D0
@@ -307,7 +309,7 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
       END IF
    END DO
    DO I=0,INT(SYSTEM(20))
-      IF(ALENS(25,I).EQ.6.0D0) THEN
+      IF(surf_tilt_flag(I) == 6) THEN
 !     TILT RET
          IF(INT(ALENS(70,I)).GE.I) THEN
             ERCODE=.TRUE.
@@ -339,6 +341,7 @@ SUBROUTINE LNSEOS1
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -410,16 +413,16 @@ SUBROUTINE LNSEOS1
    SELECT CASE (SKIP)
     CASE (.TRUE.)
 !       CHECK FOR OBJECT THICKNESS ZERO
-      IF(DABS(ALENS(3,0)).EQ.0.0D0) THEN
+      IF(DABS(surf_thickness(0)).EQ.0.0D0) THEN
          OUTLYNE=&
          &'WARNING: OBJECT THICKNESS IS ZERO'
          CALL SHOWIT(1)
          OUTLYNE='IS CHANGED TO 1.0D20'
          CALL SHOWIT(1)
-         ALENS(3,0)=1.0D20
+         call set_surf_thickness(0, 1.0D20)
       END IF
 !       CHECK FOR OBJECT THICKNESS LESS THAN SAY OR SAX
-      IF(DABS(ALENS(3,0)).LT.0.01D0) THEN
+      IF(DABS(surf_thickness(0)).LT.0.01D0) THEN
          OUTLYNE=&
          &'WARNING: OBJECT THICKNESS IS LESS THAN 0.01 LENS UNITS.'
          CALL SHOWIT(1)
@@ -432,12 +435,12 @@ SUBROUTINE LNSEOS1
 !     OR LESS THAN 1.0D-20
 !       THIS HELPS OVERFLOWING ON MACHINES.
       DO KIL=0,INT(SYSTEM(20))
-         IF(ALENS(3,KIL).GT.1.0D200)&
-         &ALENS(3,KIL)=1.0D200
-         IF(ALENS(3,KIL).LT.-1.0D200)&
-         &ALENS(3,KIL)=-1.0D200
-         IF(DABS(ALENS(3,KIL)).LT.1.0D-20)&
-         &ALENS(3,KIL)=0.0D0
+         IF(surf_thickness(KIL).GT.1.0D200)&
+         &call set_surf_thickness(KIL, 1.0D200)
+         IF(surf_thickness(KIL).LT.-1.0D200)&
+         &call set_surf_thickness(KIL, -1.0D200)
+         IF(DABS(surf_thickness(KIL)).LT.1.0D-20)&
+         &call set_surf_thickness(KIL, 0.0D0)
       END DO
 !       RESET NEWOBJ,NEWREF AND NEWIMG
       CALL RESSUR
@@ -540,8 +543,8 @@ SUBROUTINE LNSEOS1
 !     PIKUPS ON THIS LAST SURFACE
       IF(F5.EQ.1) THEN
 !     IS THERE A THICKNESS SOLVE OR PIKUP ON SURF INT(SYSTEM(20))-1?
-         IF(ALENS(32,INT(SYSTEM(20))-1).NE.0.0D0.OR.&
-         &ALENS(33,INT(SYSTEM(20))-1).NE.0.0D0.OR.ALENS(3,INT(SYSTEM(20)))&
+         IF(surf_pickup_count(INT(SYSTEM(20))-1).NE.0.0D0.OR.&
+         &surf_solve_flag(INT(SYSTEM(20))-1).NE.0.0D0.OR.surf_thickness(INT(SYSTEM(20)))&
          &.NE.0.0D0) THEN
 !     HAS SOLVES OR PIKUPS OR THICKNESS ON I-1, DON'T REDUCE THE COUNT
          ELSE
@@ -593,16 +596,16 @@ SUBROUTINE LNSEOS1
 !       PARAXIAL OR REAL RAY TRACING. FOR NEATNESS, THE NAME OF THE
 !       GLASS TYPE OF SURFACE SYSTEM(20) IS SET TO "IMAGE SURFACE"
 !       AND THE INDEX OF REFRACTION IS SET = TO SURFACE SYSTEM(20)-1
-      ALENS(46,INT(SYSTEM(20)))=ALENS(46,(INT(SYSTEM(20))-1))
-      ALENS(47,INT(SYSTEM(20)))=ALENS(47,(INT(SYSTEM(20))-1))
-      ALENS(48,INT(SYSTEM(20)))=ALENS(48,(INT(SYSTEM(20))-1))
-      ALENS(49,INT(SYSTEM(20)))=ALENS(49,(INT(SYSTEM(20))-1))
-      ALENS(50,INT(SYSTEM(20)))=ALENS(50,(INT(SYSTEM(20))-1))
-      ALENS(71,INT(SYSTEM(20)))=ALENS(71,(INT(SYSTEM(20))-1))
-      ALENS(72,INT(SYSTEM(20)))=ALENS(72,(INT(SYSTEM(20))-1))
-      ALENS(73,INT(SYSTEM(20)))=ALENS(73,(INT(SYSTEM(20))-1))
-      ALENS(74,INT(SYSTEM(20)))=ALENS(74,(INT(SYSTEM(20))-1))
-      ALENS(75,INT(SYSTEM(20)))=ALENS(75,(INT(SYSTEM(20))-1))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 1, surf_refractive_index(INT(SYSTEM(20))-1, 1))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 2, surf_refractive_index(INT(SYSTEM(20))-1, 2))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 3, surf_refractive_index(INT(SYSTEM(20))-1, 3))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 4, surf_refractive_index(INT(SYSTEM(20))-1, 4))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 5, surf_refractive_index(INT(SYSTEM(20))-1, 5))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 6, surf_refractive_index(INT(SYSTEM(20))-1, 6))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 7, surf_refractive_index(INT(SYSTEM(20))-1, 7))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 8, surf_refractive_index(INT(SYSTEM(20))-1, 8))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 9, surf_refractive_index(INT(SYSTEM(20))-1, 9))
+      call set_surf_refractive_index(INT(SYSTEM(20)), 10, surf_refractive_index(INT(SYSTEM(20))-1, 10))
       GLANAM(INT(SYSTEM(20)),1)=' '
       GLANAM(INT(SYSTEM(20)),2)='LAST SURFACE'
    ELSE
@@ -640,10 +643,10 @@ SUBROUTINE LNSEOS1
             OUTLYNE= '"NAOY" SETTING TURNED OFF'
             CALL SHOWIT(1)
             YTERM=1.0D0
-            SYSTEM(12)=ALENS(3,0)*DTAN(DASIN(YTERM))
+            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
             SYSTEM(64)=0.0D0
          ELSE
-            SYSTEM(12)=ALENS(3,0)*DTAN(DASIN(YTERM))
+            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
          END IF
       END IF
       IF(SYSTEM(64).EQ.2.0D0) THEN
@@ -660,10 +663,10 @@ SUBROUTINE LNSEOS1
             OUTLYNE= '"NAOX" SETTING TURNED OFF'
             CALL SHOWIT(1)
             XTERM=1.0D0
-            SYSTEM(13)=ALENS(3,0)*DTAN(DASIN(XTERM))
+            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
             SYSTEM(64)=0.0D0
          ELSE
-            SYSTEM(13)=ALENS(3,0)*DTAN(DASIN(XTERM))
+            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
          END IF
       END IF
       IF(SYSTEM(64).EQ.3.0D0) THEN
@@ -682,10 +685,10 @@ SUBROUTINE LNSEOS1
             OUTLYNE= '"NAOY" SETTING TURNED OFF'
             CALL SHOWIT(1)
             YTERM=1.0D0
-            SYSTEM(12)=ALENS(3,0)*DTAN(DASIN(YTERM))
+            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
             SYSTEM(64)=0.0D0
          ELSE
-            SYSTEM(12)=ALENS(3,0)*DTAN(DASIN(YTERM))
+            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
          END IF
          IF(DABS(XTERM).GT.1.0D0) THEN
             OUTLYNE=&
@@ -694,22 +697,22 @@ SUBROUTINE LNSEOS1
             OUTLYNE= '"NAOX" SETTING TURNED OFF'
             CALL SHOWIT(1)
             XTERM=1.0D0
-            SYSTEM(13)=ALENS(3,0)*DTAN(DASIN(XTERM))
+            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
             SYSTEM(64)=0.0D0
          ELSE
-            SYSTEM(13)=ALENS(3,0)*DTAN(DASIN(XTERM))
+            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
          END IF
       END IF
 
       IF(SYSTEM(67).EQ.1.0D0) THEN
-         SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+         SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
       END IF
       IF(SYSTEM(67).EQ.2.0D0) THEN
-         SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+         SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
       END IF
       IF(SYSTEM(67).EQ.3.0D0) THEN
-         SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-         SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+         SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+         SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
       END IF
 !
       IF(SYSTEM(49).NE.2.0D0.AND.SYSTEM(49).NE.3.0D0) THEN
@@ -719,7 +722,7 @@ SUBROUTINE LNSEOS1
 !       NO FIX IS NECESARRY
       END IF
 !
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10.AND.SYSTEM(60).EQ.0.0D0 &
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10.AND.SYSTEM(60).EQ.0.0D0 &
       &.AND.SYSTEM(61).EQ.0.0D0) THEN
 !     OBJECT AT INFINITY, NO SCY (FANG) OR SCX (FANG) COMMANDS ISSED
 !     SET SCY FANG AND SCX FANG TO 1.0 DEGREES
@@ -738,7 +741,7 @@ SUBROUTINE LNSEOS1
          SYSTEM(53)=1.0D0
          SYSTEM(54)=1.0D0
       END IF
-      IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10.AND.SYSTEM(60).EQ.0.0D0 &
+      IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10.AND.SYSTEM(60).EQ.0.0D0 &
       &.AND.SYSTEM(61).EQ.0.0D0) THEN
 !     OBJECT NEAR, NO SCY (FANG) OR SCX (FANG) COMMANDS ISSED
 !     SET SCY AND SCX TO 1.0 LENS UNIT
@@ -765,7 +768,7 @@ SUBROUTINE LNSEOS1
 !       A WARNING MESSAGE AS WELL.
 !
          I=0
-         IF(ALENS(3,0).EQ.0.0D0) THEN
+         IF(surf_thickness(0).EQ.0.0D0) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
             OUTLYNE=' OBJECT THICKNESS ZERO. SCY FANG SET TO 1.0'
@@ -773,26 +776,26 @@ SUBROUTINE LNSEOS1
             OUTLYNE=' OBJECT THICKNESS RESET TO 1.0D20'
             CALL SHOWIT(1)
             SYSTEM(21)=1.0D0
-            ALENS(3,0)=1.0D20
+            call set_surf_thickness(0, 1.0D20)
          ELSE
 !     OBJECT THICKNESS NOT ZERO
 !       PROCEED WITH SCY FANG CALCULATION
 !
             IF(SYSTEM(26).NE.-99.0D0) THEN
                IF(DABS(SYSTEM(14)).LE.1.0D-15.AND.&
-               &DABS(ALENS(3,0)).LE.1.0D-15) THEN
+               &DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2(SYSTEM(14),ALENS(3,0))
+                  JK_TEMP=DATAN2(SYSTEM(14),surf_thickness(0))
                END IF
                SYSTEM(21)=JK_TEMP
 
-               IF(ALENS(3,0).GT.0.0D0) THEN
+               IF(surf_thickness(0).GT.0.0D0) THEN
                   IF(SYSTEM(14).GT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
                   IF(SYSTEM(14).LT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
                   IF(SYSTEM(14).EQ.0.0D0) SYSTEM(21)=0.0D0
                END IF
-               IF(ALENS(3,0).LT.0.0D0) THEN
+               IF(surf_thickness(0).LT.0.0D0) THEN
                   IF(SYSTEM(14).GT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
                   IF(SYSTEM(14).LT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
                   IF(SYSTEM(14).EQ.0.0D0) SYSTEM(21)=0.0D0
@@ -801,18 +804,18 @@ SUBROUTINE LNSEOS1
 !
             IF(SYSTEM(26).EQ.-99.0D0) THEN
                IF(DABS(SYSTEM(14)-SYSTEM(15)).LE.1.0D-15.AND.&
-               &DABS(ALENS(3,0)).LE.1.0D-15) THEN
+               &DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2((SYSTEM(14)-SYSTEM(15)),ALENS(3,0))
+                  JK_TEMP=DATAN2((SYSTEM(14)-SYSTEM(15)),surf_thickness(0))
                END IF
                SYSTEM(21)=JK_TEMP
-               IF(ALENS(3,0).GT.0.0D0) THEN
+               IF(surf_thickness(0).GT.0.0D0) THEN
                   IF((SYSTEM(14)-SYSTEM(15)).GT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
                   IF((SYSTEM(14)-SYSTEM(15)).LT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
                   IF((SYSTEM(14)-SYSTEM(15)).EQ.0.0D0) SYSTEM(21)=0.0D0
                END IF
-               IF(ALENS(3,0).LT.0.0D0) THEN
+               IF(surf_thickness(0).LT.0.0D0) THEN
                   IF((SYSTEM(14)-SYSTEM(15)).GT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
                   IF((SYSTEM(14)-SYSTEM(15)).LT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
                   IF((SYSTEM(14)-SYSTEM(15)).EQ.0.0D0) SYSTEM(21)=0.0D0
@@ -841,7 +844,7 @@ SUBROUTINE LNSEOS1
          END IF
 !
          I=0
-         IF(ALENS(3,0).EQ.0.0D0) THEN
+         IF(surf_thickness(0).EQ.0.0D0) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
             OUTLYNE=' OBJECT THICKNESS ZERO. SCX FANG SET TO 1.0'
@@ -849,24 +852,24 @@ SUBROUTINE LNSEOS1
             OUTLYNE=' OBJECT THICKNESS RESET TO 1.0D20'
             CALL SHOWIT(1)
             SYSTEM(23)=1.0D0
-            ALENS(3,0)=1.0D20
+            call set_surf_thickness(0, 1.0D20)
          ELSE
 !       PROCEED WITH SCX FANG CALCULATION
 !
             IF(SYSTEM(26).NE.-99.0D0)THEN
                IF(DABS(SYSTEM(16)).LE.1.0D-15.AND.&
-               &DABS(ALENS(3,0)).LE.1.0D-15) THEN
+               &DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2(SYSTEM(16),ALENS(3,0))
+                  JK_TEMP=DATAN2(SYSTEM(16),surf_thickness(0))
                END IF
                SYSTEM(23)=JK_TEMP
-               IF(ALENS(3,0).GT.0.0D0) THEN
+               IF(surf_thickness(0).GT.0.0D0) THEN
                   IF(SYSTEM(16).GT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
                   IF(SYSTEM(16).LT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
                   IF(SYSTEM(16).EQ.0.0D0) SYSTEM(23)=0.0D0
                END IF
-               IF(ALENS(3,0).LT.0.0D0) THEN
+               IF(surf_thickness(0).LT.0.0D0) THEN
                   IF(SYSTEM(16).GT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
                   IF(SYSTEM(16).LT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
                   IF(SYSTEM(16).EQ.0.0D0) SYSTEM(23)=0.0D0
@@ -874,18 +877,18 @@ SUBROUTINE LNSEOS1
             END IF
             IF(SYSTEM(26).EQ.-99.0D0)THEN
                IF(DABS(SYSTEM(16)-SYSTEM(17)).LE.1.0D-15.AND.&
-               &DABS(ALENS(3,0)).LE.1.0D-15) THEN
+               &DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2((SYSTEM(16)-SYSTEM(17)),ALENS(3,0))
+                  JK_TEMP=DATAN2((SYSTEM(16)-SYSTEM(17)),surf_thickness(0))
                END IF
                SYSTEM(23)=JK_TEMP
-               IF(ALENS(3,0).GT.0.0D0) THEN
+               IF(surf_thickness(0).GT.0.0D0) THEN
                   IF((SYSTEM(16)-SYSTEM(17)).GT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
                   IF((SYSTEM(16)-SYSTEM(17)).LT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
                   IF((SYSTEM(16)-SYSTEM(17)).EQ.0.0D0) SYSTEM(23)=0.0D0
                END IF
-               IF(ALENS(3,0).LT.0.0D0) THEN
+               IF(surf_thickness(0).LT.0.0D0) THEN
                   IF((SYSTEM(16)-SYSTEM(17)).GT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
                   IF((SYSTEM(16)-SYSTEM(17)).LT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
                   IF((SYSTEM(16)-SYSTEM(17)).EQ.0.0D0) SYSTEM(23)=0.0D0
@@ -904,7 +907,7 @@ SUBROUTINE LNSEOS1
 !       CALCULATE SCY FROM SCY FANG IF REQUIRED
 !
          I=0
-         SYSTEM(14)=-ALENS(3,0)*&
+         SYSTEM(14)=-surf_thickness(0)*&
          &DTAN((PII/180.0D0)*SYSTEM(21))
          IF(SYSTEM(26).EQ.-99.0D0) SYSTEM(14)=SYSTEM(14)+SYSTEM(15)
       END IF
@@ -924,7 +927,7 @@ SUBROUTINE LNSEOS1
          END IF
 
          I=0
-         SYSTEM(16)=-ALENS(3,0)*&
+         SYSTEM(16)=-surf_thickness(0)*&
          &DTAN((PII/180.0D0)*SYSTEM(23))
          IF(SYSTEM(26).EQ.-99.0D0) SYSTEM(16)=SYSTEM(16)+SYSTEM(17)
       END IF
@@ -971,11 +974,11 @@ SUBROUTINE LNSEOS1
       DO 56 I=0,SLVMRK-1
 !       ARE THERE SOLVES?
 !
-         IF(ALENS(33,I).NE.0.0D0) THEN
+         IF(surf_solve_flag(I).NE.0.0D0) THEN
 !       FOUND A SOLVE INFRONT OF THE ASTOP SURFACE, REMOVE IT
 !       AND PRINT MESSAGE IN SOME CASES
 !     NO CHIEF RAY SOLVES IN FRONT OF STOP INCLUDING APY AND APX SOLVES
-!     THEN RESOLVE THE VALUE OF ALENS(33,I)
+!     THEN RESOLVE THE VALUE OF surf_solve_flag(I)
 
 !     CHIEF RAY SOLVES OF ANY TYPE ARE NOT ALLOWED IN FRONT OF THE STOP
             IF(SOLVE(6,I).EQ.2.0D0) THEN
@@ -1138,19 +1141,19 @@ SUBROUTINE LNSEOS1
             ELSE
 !     NOT SAX FLOAT
             END IF
-!       CALCULATE THE CORRECT VALUE OF ALENS(33,SURF)
+!       CALCULATE THE CORRECT VALUE OF surf_solve_flag(SURF)
 !
-            ALENS(33,SURF)=0.0D0
-            IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-            IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-            IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-            IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+            call set_surf_solve_flag(SURF, 0.0D0)
+            IF(SOLVE(6,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+            IF(SOLVE(4,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+            IF(SOLVE(8,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+            IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
 !
-            IF(ALENS(33,I).EQ.0.0D0) THEN
+            IF(surf_solve_flag(I).EQ.0.0D0) THEN
                WRITE(OUTLYNE,*)'SURFACE',SURF,&
                &'NO SOLVES REMAIN ON SURFACE'
                CALL SHOWIT(1)
-               ALENS(33,I)=0.0D0
+               call set_surf_solve_flag(I, 0.0D0)
 !       TESTED SURFACE DOES NOT HAVE SOLVE, PROCEED
             END IF
          END IF
@@ -1175,7 +1178,7 @@ SUBROUTINE LNSEOS1
 !       (SURFACE NUMBER = INT(SYSTEM(20))-1).
 !       IF A SURFACE IS FOUND TO HAVE A GLANAM(SURF,1)='REFL'
 !       THEN FOR THAT SURFACE THE INDICES STORED IN
-!       ALENS(46,SURF) THROUGH ALENS(50,SURF) ARE SET EQUAL TO BUT
+!       surf_refractive_index(SURF, 1) THROUGH surf_refractive_index(SURF, 5) ARE SET EQUAL TO BUT
 !     (AND 71 TO 75 FOR WAVELENGTHS 6 TO 10)
 !       OPPOSITE IN SIGN TO THE CORRESPONDING VALUES ON SURFACE
 !       (SURF-1). THEN A RETURN TO THE CMD LEVEL IS PERFORMED.
@@ -1210,28 +1213,28 @@ SUBROUTINE LNSEOS1
          END IF
          IF(F21.EQ.0) GO TO 10
          IF(F21.EQ.-1) THEN
-            IF(ALENS(46,I).GT.0.0D0)  ALENS(46,I)=-ALENS(46,I)
-            IF(ALENS(47,I).GT.0.0D0)  ALENS(47,I)=-ALENS(47,I)
-            IF(ALENS(48,I).GT.0.0D0)  ALENS(48,I)=-ALENS(48,I)
-            IF(ALENS(49,I).GT.0.0D0)  ALENS(49,I)=-ALENS(49,I)
-            IF(ALENS(50,I).GT.0.0D0)  ALENS(50,I)=-ALENS(50,I)
-            IF(ALENS(71,I).GT.0.0D0)  ALENS(71,I)=-ALENS(71,I)
-            IF(ALENS(72,I).GT.0.0D0)  ALENS(72,I)=-ALENS(72,I)
-            IF(ALENS(73,I).GT.0.0D0)  ALENS(73,I)=-ALENS(73,I)
-            IF(ALENS(74,I).GT.0.0D0)  ALENS(74,I)=-ALENS(74,I)
-            IF(ALENS(75,I).GT.0.0D0)  ALENS(75,I)=-ALENS(75,I)
+            IF(surf_refractive_index(I, 1).GT.0.0D0) call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+            IF(surf_refractive_index(I, 2).GT.0.0D0) call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+            IF(surf_refractive_index(I, 3).GT.0.0D0) call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+            IF(surf_refractive_index(I, 4).GT.0.0D0) call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+            IF(surf_refractive_index(I, 5).GT.0.0D0) call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+            IF(surf_refractive_index(I, 6).GT.0.0D0) call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+            IF(surf_refractive_index(I, 7).GT.0.0D0) call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+            IF(surf_refractive_index(I, 8).GT.0.0D0) call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+            IF(surf_refractive_index(I, 9).GT.0.0D0) call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+            IF(surf_refractive_index(I, 10).GT.0.0D0) call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
          END IF
          IF(F21.EQ.1) THEN
-            IF(ALENS(46,I).LT.0.0D0)ALENS(46,I)=DABS(ALENS(46,I))
-            IF(ALENS(47,I).LT.0.0D0)ALENS(47,I)=DABS(ALENS(47,I))
-            IF(ALENS(48,I).LT.0.0D0)ALENS(48,I)=DABS(ALENS(48,I))
-            IF(ALENS(49,I).LT.0.0D0)ALENS(49,I)=DABS(ALENS(49,I))
-            IF(ALENS(50,I).LT.0.0D0)ALENS(50,I)=DABS(ALENS(50,I))
-            IF(ALENS(71,I).LT.0.0D0)ALENS(71,I)=DABS(ALENS(71,I))
-            IF(ALENS(72,I).LT.0.0D0)ALENS(72,I)=DABS(ALENS(72,I))
-            IF(ALENS(73,I).LT.0.0D0)ALENS(73,I)=DABS(ALENS(73,I))
-            IF(ALENS(74,I).LT.0.0D0)ALENS(74,I)=DABS(ALENS(74,I))
-            IF(ALENS(75,I).LT.0.0D0)ALENS(75,I)=DABS(ALENS(75,I))
+            IF(surf_refractive_index(I, 1).LT.0.0D0) call set_surf_refractive_index(I, 1, DABS(surf_refractive_index(I, 1)))
+            IF(surf_refractive_index(I, 2).LT.0.0D0) call set_surf_refractive_index(I, 2, DABS(surf_refractive_index(I, 2)))
+            IF(surf_refractive_index(I, 3).LT.0.0D0) call set_surf_refractive_index(I, 3, DABS(surf_refractive_index(I, 3)))
+            IF(surf_refractive_index(I, 4).LT.0.0D0) call set_surf_refractive_index(I, 4, DABS(surf_refractive_index(I, 4)))
+            IF(surf_refractive_index(I, 5).LT.0.0D0) call set_surf_refractive_index(I, 5, DABS(surf_refractive_index(I, 5)))
+            IF(surf_refractive_index(I, 6).LT.0.0D0) call set_surf_refractive_index(I, 6, DABS(surf_refractive_index(I, 6)))
+            IF(surf_refractive_index(I, 7).LT.0.0D0) call set_surf_refractive_index(I, 7, DABS(surf_refractive_index(I, 7)))
+            IF(surf_refractive_index(I, 8).LT.0.0D0) call set_surf_refractive_index(I, 8, DABS(surf_refractive_index(I, 8)))
+            IF(surf_refractive_index(I, 9).LT.0.0D0) call set_surf_refractive_index(I, 9, DABS(surf_refractive_index(I, 9)))
+            IF(surf_refractive_index(I, 10).LT.0.0D0) call set_surf_refractive_index(I, 10, DABS(surf_refractive_index(I, 10)))
          END IF
 10    CONTINUE
 !
@@ -1276,7 +1279,7 @@ SUBROUTINE LNSEOS1
                      CALL SHOWIT(1)
                      SOLVE(8,I)=0.0D0
                      SOLVE(9,I)=0.0D0
-                     ALENS(33,I)=ALENS(33,I)-2.0D0
+                     call set_surf_solve_flag(I, surf_solve_flag(I)-2.0D0)
 !       NOT A COCY SOLVE,PROCEED
                   END IF
                   IF(SOLVE(2,I).EQ.14.0D0) THEN
@@ -1287,7 +1290,7 @@ SUBROUTINE LNSEOS1
                      CALL SHOWIT(1)
                      SOLVE(2,I)=0.0D0
                      SOLVE(1,I)=0.0D0
-                     ALENS(33,I)=ALENS(33,I)-2.0D0
+                     call set_surf_solve_flag(I, surf_solve_flag(I)-2.0D0)
 !       NOT A COCX SOLVE,PROCEED
                   END IF
 !       TESTIT IS ZERO, NO SOLVE TO REMOVE, PROCEED
@@ -1327,24 +1330,24 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                END IF
                IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
                IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
             END IF
          END IF
@@ -1402,24 +1405,24 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                END IF
                IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
                IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
             END IF
          END IF
@@ -1480,24 +1483,24 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                END IF
                IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
                IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
             END IF
          END IF
@@ -1555,24 +1558,24 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                END IF
                IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
                IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
             END IF
          END IF
@@ -1642,24 +1645,24 @@ SUBROUTINE LNSEOS1
          RETURN
       ELSE
          IF(SYSTEM(64).EQ.1.0D0) THEN
-            SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+            SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
          END IF
          IF(SYSTEM(64).EQ.2.0D0) THEN
-            SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+            SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
          END IF
          IF(SYSTEM(64).EQ.3.0D0) THEN
-            SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-            SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+            SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+            SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
          END IF
          IF(SYSTEM(67).EQ.1.0D0) THEN
-            SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+            SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
          END IF
          IF(SYSTEM(67).EQ.2.0D0) THEN
-            SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+            SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
          END IF
          IF(SYSTEM(67).EQ.3.0D0) THEN
-            SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-            SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+            SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+            SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
          END IF
       END IF
    END IF
@@ -1673,32 +1676,32 @@ SUBROUTINE LNSEOS1
 !
    IF(SYSTEM(83).NE.0.0D0.AND.SYSTEM(26).NE.-99.0D0.OR.&
    &SYSTEM(84).NE.0.0D0.AND.SYSTEM(26).NE.-99.0D0) THEN
-      IF(ALENS(9,INT(SYSTEM(26))).EQ.0.0D0.OR.&
-      &ALENS(127,INT(SYSTEM(26))).NE.0.0D0) THEN
+      IF(surf_clap_type(INT(SYSTEM(26))).EQ.0.0D0.OR.&
+      &surf_multi_clap_flag(INT(SYSTEM(26))).NE.0.0D0) THEN
 !     NO ADJUSTMENTS TO SAY AND SAX ARE DONE, NO CLAP IS ON
 !     STOP SURFACE
       ELSE
-         IF(ALENS(9,INT(SYSTEM(26))).EQ.1.0D0.AND.&
-         &ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
-            IF(ALENS(10,INT(SYSTEM(26))).LE.&
-            &ALENS(11,INT(SYSTEM(26)))) THEN
-               YCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(SYSTEM(26))).EQ.1.0D0.AND.&
+         &surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            IF(surf_clap_dim(INT(SYSTEM(26)), 1).LE.&
+            &surf_clap_dim(INT(SYSTEM(26)), 2)) THEN
+               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
             ELSE
-               YCLAP=ALENS(11,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=ALENS(11,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
             END IF
          END IF
-         IF(ALENS(9,INT(SYSTEM(26))).EQ.5.0D0.AND.&
-         &ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(SYSTEM(26))).EQ.5.0D0.AND.&
+         &surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
          END IF
-         IF(ALENS(9,INT(SYSTEM(26))).GT.1.0D0.AND.&
-         &ALENS(9,INT(SYSTEM(26))).LE.4.0D0.AND.&
-         &ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=ALENS(11,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(SYSTEM(26))).GT.1.0D0.AND.&
+         &surf_clap_type(INT(SYSTEM(26))).LE.4.0D0.AND.&
+         &surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
          END IF
          IF(SYSTEM(83).NE.0.0D0) THEN
             SYSTEM(12)=SYSTEM(12)*YCLAP
@@ -1722,24 +1725,24 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                END IF
                IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
                IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
             END IF
          END IF
@@ -1748,27 +1751,27 @@ SUBROUTINE LNSEOS1
          OUTLYNE = "JUST CALLED PRTRA"
          CALL SHOWIT(19)
 
-         IF(ALENS(9,INT(SYSTEM(26))).EQ.1.0D0.AND.&
-         &ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
-            IF(ALENS(10,INT(SYSTEM(26))).LE.&
-            &ALENS(11,INT(SYSTEM(26)))) THEN
-               YCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(SYSTEM(26))).EQ.1.0D0.AND.&
+         &surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            IF(surf_clap_dim(INT(SYSTEM(26)), 1).LE.&
+            &surf_clap_dim(INT(SYSTEM(26)), 2)) THEN
+               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
             ELSE
-               YCLAP=ALENS(11,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=ALENS(11,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
             END IF
          END IF
-         IF(ALENS(9,INT(SYSTEM(26))).EQ.5.0D0.AND.&
-         &ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(SYSTEM(26))).EQ.5.0D0.AND.&
+         &surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
          END IF
-         IF(ALENS(9,INT(SYSTEM(26))).GT.1.0D0.AND.&
-         &ALENS(9,INT(SYSTEM(26))).LE.4.0D0.AND.&
-         &ALENS(127,INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=ALENS(10,INT(SYSTEM(26)))/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=ALENS(11,INT(SYSTEM(26)))/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(SYSTEM(26))).GT.1.0D0.AND.&
+         &surf_clap_type(INT(SYSTEM(26))).LE.4.0D0.AND.&
+         &surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
+            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
          END IF
          IF(SYSTEM(83).NE.0.0D0) THEN
             SYSTEM(12)=SYSTEM(12)*YCLAP
@@ -1792,24 +1795,24 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
                END IF
                IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)*SYSTEM(65)
-                  SYSTEM(13)=ALENS(3,0)*SYSTEM(66)
+                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
                END IF
                IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                END IF
                IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
                IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=ALENS(3,0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=ALENS(3,0)/(2.0D0*SYSTEM(69))
+                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                END IF
             END IF
          END IF
@@ -1835,26 +1838,26 @@ SUBROUTINE LNSEOS1
 !
 !       IF THERE IS AN XD, BETA OR GAMMA NON-ZERO
 !       SET SYSTEM(28)=0.0D0
-      IF(ALENS(27,III).NE.0.0D0.OR.&
-      &ALENS(28,III).NE.0.0D0.OR.&
-      &ALENS(31,III).NE.0.0D0) THEN
+      IF(surf_beta(III).NE.0.0D0.OR.&
+      &surf_gamma(III).NE.0.0D0.OR.&
+      &surf_decenter_x(III).NE.0.0D0) THEN
          SYSTEM(28)=0.0D0
          GO TO 628
       END IF
 !       IF A NON-ROTATIONALLY SYMMETRIC SPECIAL SURFACE EXISTS
 !       AT THIS TIME (SEPT 1989) ONLY TYPE 0 (NONE) AND TYPE 1
 !       (ROTATIONAL POLYNOMIAL) ARE ROTATIONALLY SYMMETRIC.
-      IF(DABS(ALENS(34,III)).NE.0.0D0.AND.&
-      &DABS(ALENS(34,III)).NE.1.0D0) THEN
+      IF(ABS(surf_special_type(III)) /= 0.AND.&
+      &ABS(surf_special_type(III)) /= 1) THEN
          SYSTEM(28)=0.0D0
          GO TO 628
       END IF
    END DO
 !       REFS ORIENTATION NOT 0.0 OR CLAP TILT EXITS ON THE
 !       REFERENCE SURFACE
-   IF(ALENS(9,NEWREF).NE.0.0D0.AND.ALENS(15,NEWREF).NE.0.0D0 &
-   &.AND.ALENS(127,NEWREF).EQ.0.0D0.OR.&
-   &ALENS(127,NEWREF).EQ.0.0D0 &
+   IF(surf_clap_type(NEWREF) /= 0.AND.surf_clap_tilt(NEWREF).NE.0.0D0 &
+   &.AND.surf_multi_clap_flag(NEWREF) == 0.OR.&
+   &surf_multi_clap_flag(NEWREF) == 0 &
    &.AND.SYSTEM(59).NE.0.0D0) SYSTEM(28)=0.0D0
 628 CONTINUE
 !     YZ-PLANE
@@ -1867,17 +1870,17 @@ SUBROUTINE LNSEOS1
 !
 !       IF THERE IS AN YD, ALPHA OR GAMMA NON-ZERO
 !       SET SYSTEM(48)=0.0D0
-      IF(ALENS(118,III).NE.0.0D0.OR.&
-      &ALENS(120,III).NE.0.0D0.OR.&
-      &ALENS(115,III).NE.0.0D0) THEN
+      IF(surf_alpha_deg(III).NE.0.0D0.OR.&
+      &surf_gamma_deg(III).NE.0.0D0.OR.&
+      &surf_focus_dy(III).NE.0.0D0) THEN
          SYSTEM(48)=0.0D0
          GO TO 629
       END IF
 !       IF A NON-ROTATIONALLY SYMMETRIC SPECIAL SURFACE EXISTS
 !       AT THIS TIME (SEPT 1989) ONLY TYPE 0 (NONE) AND TYPE 1
 !       (ROTATIONAL POLYNOMIAL) ARE ROTATIONALLY SYMMETRIC.
-      IF(DABS(ALENS(34,III)).NE.0.0D0.AND.&
-      &DABS(ALENS(34,III)).NE.1.0D0) THEN
+      IF(ABS(surf_special_type(III)) /= 0.AND.&
+      &ABS(surf_special_type(III)) /= 1) THEN
          SYSTEM(48)=0.0D0
          GO TO 629
       END IF
@@ -1912,25 +1915,25 @@ SUBROUTINE LNSEOS1
       &GLANAM(ZZTOP,2).NE.'PERFECT      ') DUMMMY(ZZTOP)=.TRUE.
       IF(GLANAM(ZZTOP,1).EQ.'MODEL        ') DUMMMY(ZZTOP)=.FALSE.
       IF(GLANAM(ZZTOP-1,1).EQ.'MODEL        ') DUMMMY(ZZTOP)=.FALSE.
-      IF(ALENS(46,ZZTOP).EQ.ALENS(46,ZZTOP-1).AND.&
-      &ALENS(47,ZZTOP).EQ.ALENS(47,ZZTOP-1).AND.&
-      &ALENS(48,ZZTOP).EQ.ALENS(48,ZZTOP-1).AND.&
-      &ALENS(49,ZZTOP).EQ.ALENS(49,ZZTOP-1).AND.&
-      &ALENS(71,ZZTOP).EQ.ALENS(71,ZZTOP-1).AND.&
-      &ALENS(72,ZZTOP).EQ.ALENS(72,ZZTOP-1).AND.&
-      &ALENS(73,ZZTOP).EQ.ALENS(73,ZZTOP-1).AND.&
-      &ALENS(74,ZZTOP).EQ.ALENS(74,ZZTOP-1).AND.&
-      &ALENS(75,ZZTOP).EQ.ALENS(75,ZZTOP-1).AND.&
-      &ALENS(50,ZZTOP).EQ.ALENS(50,ZZTOP-1)) DUMMMY(ZZTOP)=.TRUE.
+      IF(surf_refractive_index(ZZTOP, 1).EQ.surf_refractive_index(ZZTOP-1, 1).AND.&
+      &surf_refractive_index(ZZTOP, 2).EQ.surf_refractive_index(ZZTOP-1, 2).AND.&
+      &surf_refractive_index(ZZTOP, 3).EQ.surf_refractive_index(ZZTOP-1, 3).AND.&
+      &surf_refractive_index(ZZTOP, 4).EQ.surf_refractive_index(ZZTOP-1, 4).AND.&
+      &surf_refractive_index(ZZTOP, 6).EQ.surf_refractive_index(ZZTOP-1, 6).AND.&
+      &surf_refractive_index(ZZTOP, 7).EQ.surf_refractive_index(ZZTOP-1, 7).AND.&
+      &surf_refractive_index(ZZTOP, 8).EQ.surf_refractive_index(ZZTOP-1, 8).AND.&
+      &surf_refractive_index(ZZTOP, 9).EQ.surf_refractive_index(ZZTOP-1, 9).AND.&
+      &surf_refractive_index(ZZTOP, 10).EQ.surf_refractive_index(ZZTOP-1, 10).AND.&
+      &surf_refractive_index(ZZTOP, 5).EQ.surf_refractive_index(ZZTOP-1, 5)) DUMMMY(ZZTOP)=.TRUE.
       IF(GLANAM(ZZTOP,1).EQ.'MODEL        '.AND.&
       &GLANAM(ZZTOP-1,1).EQ.'MODEL        '.AND.&
       &GLANAM(ZZTOP-1,2).EQ.GLANAM(ZZTOP,2)) THEN
          DUMMMY(ZZTOP)=.FALSE.
-         IF(ALENS(86,ZZTOP).EQ.ALENS(86,ZZTOP-1).AND.&
-         &ALENS(87,ZZTOP).EQ.ALENS(87,ZZTOP-1).AND.&
-         &ALENS(89,ZZTOP).EQ.ALENS(89,ZZTOP-1)) DUMMMY(ZZTOP)=.TRUE.
+         IF(surf_fict_n(ZZTOP).EQ.surf_fict_n(ZZTOP-1).AND.&
+         &surf_fict_v(ZZTOP).EQ.surf_fict_v(ZZTOP-1).AND.&
+         &surf_fict_w(ZZTOP).EQ.surf_fict_w(ZZTOP-1)) DUMMMY(ZZTOP)=.TRUE.
       END IF
-      IF(ALENS(68,ZZTOP).EQ.1.0D0.AND.DUMMMY(ZZTOP))&
+      IF(surf_dummy_val(ZZTOP) == 1.AND.DUMMMY(ZZTOP))&
       &DUMMMY(ZZTOP)=.FALSE.
 !
    END DO
@@ -1938,161 +1941,161 @@ SUBROUTINE LNSEOS1
 !     RESOLVE CHARACTERISTICS OF PERFECT LENSES
    I=INT(SYSTEM(20))-1
    IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
-      ALENS(1,I)=0.0D0
-      ALENS(2,I)=0.0D0
-      ALENS(4,I)=0.0D0
-      ALENS(5,I)=0.0D0
-      ALENS(6,I)=0.0D0
-      ALENS(7,I)=0.0D0
-      ALENS(8,I)=0.0D0
-      ALENS(9,I)=0.0D0
-      ALENS(127,I)=0.0D0
-      ALENS(23,I)=0.0D0
-      ALENS(24,I)=0.0D0
-      ALENS(29,I)=0.0D0
-      ALENS(30,I)=0.0D0
-      ALENS(31,I)=0.0D0
-      ALENS(32,I)=0.0D0
-      ALENS(33,I)=0.0D0
-      ALENS(34,I)=0.0D0
+      call set_surf_curvature(I, 0.0D0)
+      call set_surf_conic(I, 0.0D0)
+      call set_surf_asphere_coeff(I, 4, 0.0D0)
+      call set_surf_asphere_coeff(I, 6, 0.0D0)
+      call set_surf_asphere_coeff(I, 8, 0.0D0)
+      call set_surf_asphere_coeff(I, 10, 0.0D0)
+      call set_surf_asphere_flag(I, .false.)
+      call set_surf_clap_type(I, 0)
+      call set_surf_multi_clap_flag(I, 0)
+      call set_surf_toric_flag(I, 0)
+      call set_surf_toric_curvature(I, 0.0D0)
+      call set_surf_decenter_flag(I, 0)
+      call set_surf_decenter_y(I, 0.0D0)
+      call set_surf_decenter_x(I, 0.0D0)
+      call set_surf_pickup_count(I, 0)
+      call set_surf_solve_flag(I, 0.0D0)
+      call set_surf_special_type(I, 0)
       ALENS(35,I)=0.0D0
-      ALENS(36,I)=0.0D0
-      ALENS(37,I)=0.0D0
-      ALENS(38,I)=0.0D0
-      ALENS(39,I)=0.0D0
-      ALENS(40,I)=0.0D0
-      ALENS(41,I)=0.0D0
-      ALENS(43,I)=0.0D0
+      call set_surf_anamorphic_flag(I, 0)
+      call set_surf_anamorphic_coeff(I, 4, 0.0D0)
+      call set_surf_anamorphic_coeff(I, 6, 0.0D0)
+      call set_surf_anamorphic_coeff(I, 8, 0.0D0)
+      call set_surf_anamorphic_coeff(I, 10, 0.0D0)
+      call set_surf_anamorphic_conic(I, 0.0D0)
+      call set_surf_asphere_coeff(I, 2, 0.0D0)
       ALENS(45,I)=0.0D0
-      ALENS(51,I)=0.0D0
+      call set_surf_cobs_ape_type(I, 0)
       ALENS(59,I)=0.0D0
-      ALENS(61,I)=0.0D0
-      ALENS(68,I)=1.0D0
-      ALENS(69,I)=0.0D0
+      call set_surf_cobs_era_type(I, 0)
+      call set_surf_dummy_val(I, 1)
+      call set_surf_decenter_z(I, 0.0D0)
       ALENS(70,I)=0.0D0
-      ALENS(77,I)=0.0D0
-      ALENS(78,I)=0.0D0
-      ALENS(79,I)=0.0D0
-      ALENS(80,I)=0.0D0
-      ALENS(80,I)=0.0D0
-      ALENS(81,I)=0.0D0
-      ALENS(82,I)=0.0D0
-      ALENS(83,I)=0.0D0
-      ALENS(84,I)=0.0D0
-      ALENS(85,I)=0.0D0
-      ALENS(86,I)=0.0D0
-      ALENS(87,I)=0.0D0
-      ALENS(88,I)=0.0D0
-      ALENS(89,I)=0.0D0
+      call set_surf_tilt_return_flag(I, 0)
+      call set_surf_pivot_x(I, 0.0D0)
+      call set_surf_pivot_y(I, 0.0D0)
+      call set_surf_pivot_z(I, 0.0D0)
+      call set_surf_pivot_z(I, 0.0D0)
+      call set_surf_asphere_coeff(I, 12, 0.0D0)
+      call set_surf_asphere_coeff(I, 14, 0.0D0)
+      call set_surf_asphere_coeff(I, 16, 0.0D0)
+      call set_surf_asphere_coeff(I, 18, 0.0D0)
+      call set_surf_asphere_coeff(I, 20, 0.0D0)
+      call set_surf_fict_n(I, 0.0D0)
+      call set_surf_fict_v(I, 0.0D0)
+      call set_surf_aux88(I, 0.0D0)
+      call set_surf_fict_w(I, 0.0D0)
       ALENS(90,I)=0.0D0
       ALENS(91,I)=0.0D0
       ALENS(92,I)=0.0D0
       ALENS(93,I)=0.0D0
       ALENS(94,I)=0.0D0
       ALENS(95,I)=0.0D0
-      ALENS(96,I)=0.0D0
-      ALENS(97,I)=0.0D0
-      ALENS(98,I)=0.0D0
-      ALENS(99,I)=0.0D0
-      ALENS(100,I)=0.0D0
-      ALENS(101,I)=0.0D0
+      call set_surf_diffraction_flag(I, 0)
+      call set_surf_grating_order(I, 0.0D0)
+      call set_surf_grating_spacing(I, 0.0D0)
+      call set_surf_grating_vx(I, 0.0D0)
+      call set_surf_grating_vy(I, 0.0D0)
+      call set_surf_grating_vz(I, 0.0D0)
       ALENS(102,I)=0.0D0
-      ALENS(103,I)=0.0D0
-      ALENS(104,I)=0.0D0
-      ALENS(105,I)=0.0D0
-      ALENS(106,I)=0.0D0
-      ALENS(107,I)=0.0D0
+      call set_surf_default_flag(I, 0)
+      call set_surf_mtracei_nx(I, 0.0D0)
+      call set_surf_mtracei_ny(I, 0.0D0)
+      call set_surf_psfbin_data(I, 0.0D0)
+      call set_surf_profit_data(I, 0.0D0)
       ALENS(108,I)=0.0D0
       ALENS(109,I)=0.0D0
-      ALENS(110,I)=0.0D0
-      ALENS(25,I)=0.0D0
-      ALENS(26,I)=0.0D0
-      ALENS(27,I)=0.0D0
-      ALENS(28,I)=0.0D0
-      ALENS(114,I)=0.0D0
-      ALENS(115,I)=0.0D0
-      ALENS(116,I)=0.0D0
-      ALENS(118,I)=0.0D0
-      ALENS(119,I)=0.0D0
-      ALENS(120,I)=0.0D0
+      call set_surf_mirror_thickness(I, 0.0D0)
+      call set_surf_tilt_flag(I, 0)
+      call set_surf_alpha(I, 0.0D0)
+      call set_surf_beta(I, 0.0D0)
+      call set_surf_gamma(I, 0.0D0)
+      call set_surf_focus_dx(I, 0.0D0)
+      call set_surf_focus_dy(I, 0.0D0)
+      call set_surf_focus_dz(I, 0.0D0)
+      call set_surf_alpha_deg(I, 0.0D0)
+      call set_surf_beta_deg(I, 0.0D0)
+      call set_surf_gamma_deg(I, 0.0D0)
       I=INT(SYSTEM(20))
-      ALENS(1,I)=0.0D0
-      ALENS(2,I)=0.0D0
-      ALENS(4,I)=0.0D0
-      ALENS(5,I)=0.0D0
-      ALENS(6,I)=0.0D0
-      ALENS(7,I)=0.0D0
-      ALENS(8,I)=0.0D0
-      ALENS(9,I)=0.0D0
-      ALENS(127,I)=0.0D0
-      ALENS(23,I)=0.0D0
-      ALENS(24,I)=0.0D0
-      ALENS(29,I)=0.0D0
-      ALENS(30,I)=0.0D0
-      ALENS(114,I)=0.0D0
-      ALENS(115,I)=0.0D0
-      ALENS(116,I)=0.0D0
-      ALENS(31,I)=0.0D0
-      ALENS(32,I)=0.0D0
-      ALENS(33,I)=0.0D0
-      ALENS(34,I)=0.0D0
+      call set_surf_curvature(I, 0.0D0)
+      call set_surf_conic(I, 0.0D0)
+      call set_surf_asphere_coeff(I, 4, 0.0D0)
+      call set_surf_asphere_coeff(I, 6, 0.0D0)
+      call set_surf_asphere_coeff(I, 8, 0.0D0)
+      call set_surf_asphere_coeff(I, 10, 0.0D0)
+      call set_surf_asphere_flag(I, .false.)
+      call set_surf_clap_type(I, 0)
+      call set_surf_multi_clap_flag(I, 0)
+      call set_surf_toric_flag(I, 0)
+      call set_surf_toric_curvature(I, 0.0D0)
+      call set_surf_decenter_flag(I, 0)
+      call set_surf_decenter_y(I, 0.0D0)
+      call set_surf_focus_dx(I, 0.0D0)
+      call set_surf_focus_dy(I, 0.0D0)
+      call set_surf_focus_dz(I, 0.0D0)
+      call set_surf_decenter_x(I, 0.0D0)
+      call set_surf_pickup_count(I, 0)
+      call set_surf_solve_flag(I, 0.0D0)
+      call set_surf_special_type(I, 0)
       ALENS(35,I)=0.0D0
-      ALENS(36,I)=0.0D0
-      ALENS(37,I)=0.0D0
-      ALENS(38,I)=0.0D0
-      ALENS(39,I)=0.0D0
-      ALENS(40,I)=0.0D0
-      ALENS(41,I)=0.0D0
-      ALENS(43,I)=0.0D0
+      call set_surf_anamorphic_flag(I, 0)
+      call set_surf_anamorphic_coeff(I, 4, 0.0D0)
+      call set_surf_anamorphic_coeff(I, 6, 0.0D0)
+      call set_surf_anamorphic_coeff(I, 8, 0.0D0)
+      call set_surf_anamorphic_coeff(I, 10, 0.0D0)
+      call set_surf_anamorphic_conic(I, 0.0D0)
+      call set_surf_asphere_coeff(I, 2, 0.0D0)
       ALENS(45,I)=0.0D0
-      ALENS(51,I)=0.0D0
+      call set_surf_cobs_ape_type(I, 0)
       ALENS(59,I)=0.0D0
-      ALENS(61,I)=0.0D0
-      ALENS(68,I)=1.0D0
-      ALENS(69,I)=0.0D0
+      call set_surf_cobs_era_type(I, 0)
+      call set_surf_dummy_val(I, 1)
+      call set_surf_decenter_z(I, 0.0D0)
       ALENS(70,I)=0.0D0
-      ALENS(77,I)=0.0D0
-      ALENS(78,I)=0.0D0
-      ALENS(79,I)=0.0D0
-      ALENS(80,I)=0.0D0
-      ALENS(80,I)=0.0D0
-      ALENS(81,I)=0.0D0
-      ALENS(82,I)=0.0D0
-      ALENS(83,I)=0.0D0
-      ALENS(84,I)=0.0D0
-      ALENS(85,I)=0.0D0
-      ALENS(86,I)=0.0D0
-      ALENS(87,I)=0.0D0
-      ALENS(88,I)=0.0D0
-      ALENS(89,I)=0.0D0
+      call set_surf_tilt_return_flag(I, 0)
+      call set_surf_pivot_x(I, 0.0D0)
+      call set_surf_pivot_y(I, 0.0D0)
+      call set_surf_pivot_z(I, 0.0D0)
+      call set_surf_pivot_z(I, 0.0D0)
+      call set_surf_asphere_coeff(I, 12, 0.0D0)
+      call set_surf_asphere_coeff(I, 14, 0.0D0)
+      call set_surf_asphere_coeff(I, 16, 0.0D0)
+      call set_surf_asphere_coeff(I, 18, 0.0D0)
+      call set_surf_asphere_coeff(I, 20, 0.0D0)
+      call set_surf_fict_n(I, 0.0D0)
+      call set_surf_fict_v(I, 0.0D0)
+      call set_surf_aux88(I, 0.0D0)
+      call set_surf_fict_w(I, 0.0D0)
       ALENS(90,I)=0.0D0
       ALENS(91,I)=0.0D0
       ALENS(92,I)=0.0D0
       ALENS(93,I)=0.0D0
       ALENS(94,I)=0.0D0
       ALENS(95,I)=0.0D0
-      ALENS(96,I)=0.0D0
-      ALENS(97,I)=0.0D0
-      ALENS(98,I)=0.0D0
-      ALENS(99,I)=0.0D0
-      ALENS(100,I)=0.0D0
-      ALENS(101,I)=0.0D0
+      call set_surf_diffraction_flag(I, 0)
+      call set_surf_grating_order(I, 0.0D0)
+      call set_surf_grating_spacing(I, 0.0D0)
+      call set_surf_grating_vx(I, 0.0D0)
+      call set_surf_grating_vy(I, 0.0D0)
+      call set_surf_grating_vz(I, 0.0D0)
       ALENS(102,I)=0.0D0
-      ALENS(103,I)=0.0D0
-      ALENS(104,I)=0.0D0
-      ALENS(105,I)=0.0D0
-      ALENS(106,I)=0.0D0
-      ALENS(107,I)=0.0D0
+      call set_surf_default_flag(I, 0)
+      call set_surf_mtracei_nx(I, 0.0D0)
+      call set_surf_mtracei_ny(I, 0.0D0)
+      call set_surf_psfbin_data(I, 0.0D0)
+      call set_surf_profit_data(I, 0.0D0)
       ALENS(108,I)=0.0D0
       ALENS(109,I)=0.0D0
-      ALENS(110,I)=0.0D0
-      ALENS(25,I)=0.0D0
-      ALENS(26,I)=0.0D0
-      ALENS(27,I)=0.0D0
-      ALENS(28,I)=0.0D0
-      ALENS(118,I)=0.0D0
-      ALENS(119,I)=0.0D0
-      ALENS(120,I)=0.0D0
+      call set_surf_mirror_thickness(I, 0.0D0)
+      call set_surf_tilt_flag(I, 0)
+      call set_surf_alpha(I, 0.0D0)
+      call set_surf_beta(I, 0.0D0)
+      call set_surf_gamma(I, 0.0D0)
+      call set_surf_alpha_deg(I, 0.0D0)
+      call set_surf_beta_deg(I, 0.0D0)
+      call set_surf_gamma_deg(I, 0.0D0)
    END IF
    I=INT(SYSTEM(20))-1
    IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
@@ -2111,16 +2114,16 @@ SUBROUTINE LNSEOS1
    IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
       ALENS(1:2,I)=0.0D0
       ALENS(4:9,I)=0.0D0
-      ALENS(127,I)=0.0D0
+      call set_surf_multi_clap_flag(I, 0)
       ALENS(23:24,I)=0.0D0
-      ALENS(29,I)=0.0D0
+      call set_surf_decenter_flag(I, 0)
       ALENS(30:43,I)=0.0D0
       ALENS(45,I)=0.0D0
-      ALENS(51,I)=0.0D0
+      call set_surf_cobs_ape_type(I, 0)
       ALENS(59,I)=0.0D0
-      ALENS(61,I)=0.0D0
-      ALENS(68,I)=1.0D0
-      ALENS(69,I)=0.0D0
+      call set_surf_cobs_era_type(I, 0)
+      call set_surf_dummy_val(I, 1)
+      call set_surf_decenter_z(I, 0.0D0)
       ALENS(70,I)=0.0D0
       ALENS(77:110,I)=0.0D0
       ALENS(25:28,I)=0.0D0
@@ -2128,17 +2131,17 @@ SUBROUTINE LNSEOS1
       I=INT(SYSTEM(20))
       ALENS(1:2,I)=0.0D0
       ALENS(4:9,I)=0.0D0
-      ALENS(127,I)=0.0D0
+      call set_surf_multi_clap_flag(I, 0)
       ALENS(23:24,I)=0.0D0
       ALENS(29:30,I)=0.0D0
       ALENS(114:116,I)=0.0D0
       ALENS(31:43,I)=0.0D0
       ALENS(45,I)=0.0D0
-      ALENS(51,I)=0.0D0
+      call set_surf_cobs_ape_type(I, 0)
       ALENS(59,I)=0.0D0
-      ALENS(61,I)=0.0D0
-      ALENS(68,I)=1.0D0
-      ALENS(69,I)=0.0D0
+      call set_surf_cobs_era_type(I, 0)
+      call set_surf_dummy_val(I, 1)
+      call set_surf_decenter_z(I, 0.0D0)
       ALENS(70,I)=0.0D0
       ALENS(77:110,I)=0.0D0
       ALENS(25:28,I)=0.0D0
@@ -2281,7 +2284,7 @@ SUBROUTINE LNSEOS1
 !     PARAXIAL DEFAULT PUPIL DATA
 !     NOW THE ENTRANCE AND EXIT PUPIL POSITIONS
    IF(DABS(PXTRAY(6,1)).EQ.0.0) THEN
-      ENPOSY=-(ALENS(3,0))
+      ENPOSY=-(surf_thickness(0))
    ELSE
       !ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,1))
       ! JN:  The entrance pupil position was not being
@@ -2293,7 +2296,7 @@ SUBROUTINE LNSEOS1
       ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,0))
    END IF
    IF(DABS(PXTRAX(6,1)).EQ.0.0D0) THEN
-      ENPOSX=-(ALENS(3,0))
+      ENPOSX=-(surf_thickness(0))
    ELSE
       !ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,1))
       ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,0))
@@ -2303,12 +2306,12 @@ SUBROUTINE LNSEOS1
    ENPUZ=(ENPOSX+ENPOSY)/2.0D0
 !     NOW THE EXIT PUPIL POSITIONS
    IF(DABS(PXTRAY(6,INT(SYSTEM(20)))).EQ.0.0D0) THEN
-      EXPOSY=ALENS(3,0)
+      EXPOSY=surf_thickness(0)
    ELSE
       EXPOSY=(-PXTRAY(5,INT(SYSTEM(20)))/PXTRAY(6,INT(SYSTEM(20))))
    END IF
    IF(DABS(PXTRAX(6,INT(SYSTEM(20)))).EQ.0.0D0) THEN
-      EXPOSX=ALENS(3,0)
+      EXPOSX=surf_thickness(0)
    ELSE
       EXPOSX=(-PXTRAX(5,INT(SYSTEM(20)))/PXTRAX(6,INT(SYSTEM(20))))
    END IF
@@ -2338,28 +2341,28 @@ SUBROUTINE LNSEOS1
    DO I=0,INT(SYSTEM(20))
       IF(ALENS(143,I).EQ.0.0D0) THEN
 !     MAKE A DEFAULT ASSIGNMENT
-         IF(ALENS(9,I).NE.0.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
+         IF(surf_clap_type(I) /= 0.AND.surf_multi_clap_flag(I) == 0) THEN
 !     USE CLAP DATA
-            IF(ALENS(9,I).NE.5.0D0) THEN
-               A1=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-               A2=DABS(ALENS(11,I))+DABS(ALENS(13,I))
+            IF(surf_clap_type(I) /= 5) THEN
+               A1=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+               A2=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
             ELSE
-               A1=DABS(ALENS(10,I))+DABS(ALENS(12,I))
-               A2=DABS(ALENS(10,I))+DABS(ALENS(13,I))
+               A1=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+               A2=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
             END IF
             IF(A1.GE.A2) THEN
-               ALENS(76,I)=A1
+               call set_surf_inr_value(I, A1)
             ELSE
-               ALENS(76,I)=A2
+               call set_surf_inr_value(I, A2)
             END IF
          ELSE
 !     USE PARAX DATA
             A1=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
             A2=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
             IF(A1.GE.A2) THEN
-               ALENS(76,I)=A1
+               call set_surf_inr_value(I, A1)
             ELSE
-               ALENS(76,I)=A2
+               call set_surf_inr_value(I, A2)
             END IF
          END IF
 !     NO ASSIGNMENT IS NECESSARY
@@ -2372,14 +2375,14 @@ SUBROUTINE LNSEOS1
    DO I=0,INT(SYSTEM(20))
 !     IF THE TILT RET FLAG RES WAS ON, SET THE TILT TYPE TO TILT RET
 !     THEN SET RESOLUTION FLAG TO OFF OR ZERO
-      IF(ALENS(77,I).EQ.1.0D0) ALENS(25,I)=6.0D0
-      ALENS(77,I)=0.0D0
+      IF(surf_tilt_return_flag(I) == 1) call set_surf_tilt_flag(I, 6)
+      call set_surf_tilt_return_flag(I, 0)
    END DO
 !     RESOLVE ALL PIVOTS WHICH BY THEIR NATURE DEFINE NEW DECENTERS
 !     ON THE AFFECTED SURFACES
    DO I=0,INT(SYSTEM(20))
-      IF(ALENS(25,I).EQ.1.0D0.OR.ALENS(25,I).EQ.-1.0D0.OR.&
-      &ALENS(25,I).EQ.5.0D0) THEN
+      IF(surf_tilt_flag(I) == 1.OR.surf_tilt_flag(I).EQ.-1.0D0.OR.&
+      &surf_tilt_flag(I) == 5) THEN
          OUTLYNE = "ABOUT TO CHECK PIVDEC"
          CALL SHOWIT(19)
          IF(ALENS(59,I).EQ.1.0D0) CALL PIVDEC(I)
@@ -2414,16 +2417,16 @@ SUBROUTINE LNSEOS1
 !       CHECK FOR LAST SURFACE THICKNESS NOT ZERO
 !     THE FINAL SURFACE ALWAYS HAS ZERO THICKNESS
    ! JN:  test violating this
-!       IF(ALENS(3,INT(SYSTEM(20))).NE.0.0D0) THEN
-!       ALENS(3,INT(SYSTEM(20)))=0.0D0
+!       IF(surf_thickness(INT(SYSTEM(20))).NE.0.0D0) THEN
+!       surf_thickness(INT(SYSTEM(20)))=0.0D0
 !         OUTLYNE=
 !      1  'WARNING: FINAL SURFACE THICKNESS WAS RESET TO ZERO'
 !       CALL SHOWIT(1)
 !                         END IF
    DO I=1,INT(SYSTEM(20))
-      ALENS(29,I)=0.0D0
-      IF(ALENS(30,I).NE.0.0D0.OR.ALENS(31,I).NE.0.0D0.OR.&
-      &ALENS(69,I).NE.0.0D0) ALENS(29,I)=1.0D0
+      call set_surf_decenter_flag(I, 0)
+      IF(surf_decenter_y(I).NE.0.0D0.OR.surf_decenter_x(I).NE.0.0D0.OR.&
+      &surf_decenter_z(I).NE.0.0D0) call set_surf_decenter_flag(I, 1)
    END DO
    IF(.NOT.REDOLNSEOS) THEN
       IF(SYSTEM(94).NE.0.0D0.OR.SYSTEM(98).NE.0.0D0) THEN
@@ -2455,6 +2458,7 @@ SUBROUTINE LNSEOS1
 END
 SUBROUTINE REDOXOBJ(REDOLNSEOS)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    REAL*8 A,B,JK_FACTOR
@@ -2492,6 +2496,7 @@ SUBROUTINE REDOXOBJ(REDOLNSEOS)
 END
 SUBROUTINE REDOYOBJ(REDOLNSEOS)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    REAL*8 A,B,JK_FACTOR
@@ -2529,12 +2534,13 @@ SUBROUTINE REDOYOBJ(REDOLNSEOS)
 END
 SUBROUTINE RERROR
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER I
    DO I=1,INT(SYSTEM(20))
-      IF(ALENS(144,I).NE.0.0D0) THEN
-         WRITE(OUTLYNE,10) ALENS(144,I),I
+      IF(surf_ray_error(I).NE.0.0D0) THEN
+         WRITE(OUTLYNE,10) surf_ray_error(I),I
          CALL SHOWIT(0)
 10       FORMAT('RAYERROR = ',G23.15,' FOR SURFACE # ',I3)
       END IF
