@@ -5,6 +5,7 @@ SUBROUTINE SCHG
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCHG WHICH IMPLEMENTS THE CHG
@@ -17,8 +18,7 @@ SUBROUTINE SCHG
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
 !
       OUTLYNE='"CHG" ONLY TAKES NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
@@ -65,6 +65,7 @@ SUBROUTINE SCC
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCC WHICH IMPLEMENTS THE CC
@@ -77,22 +78,17 @@ SUBROUTINE SCC
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1) THEN
-      IF(WC.EQ.'CC')&
-      &OUTLYNE='"CC" TAKES NO STRING INPUT'
-      IF(WC.EQ.'CCTOR')&
-      &OUTLYNE='"CCTOR" TAKES NO STRING INPUT'
+      IF(WC.EQ.'CC')OUTLYNE='"CC" TAKES NO STRING INPUT'
+      IF(WC.EQ.'CCTOR')OUTLYNE='"CCTOR" TAKES NO STRING INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
-   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
-      IF(WC.EQ.'CC')&
-      &OUTLYNE='"CC" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-      IF(WC.EQ.'CCTOR')&
-      &OUTLYNE='"CCTOR" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
+      IF(WC.EQ.'CC')OUTLYNE='"CC" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      IF(WC.EQ.'CCTOR')OUTLYNE='"CCTOR" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -100,10 +96,8 @@ SUBROUTINE SCC
       RETURN
    END IF
    IF(SQ.EQ.1.AND.F5.EQ.1) THEN
-      IF(WC.EQ.'CC')&
-      &OUTLYNE='"CC" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
-      IF(WC.EQ.'CCTOR')&
-      &OUTLYNE='"CCTOR" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
+      IF(WC.EQ.'CC')OUTLYNE='"CC" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
+      IF(WC.EQ.'CCTOR')OUTLYNE='"CCTOR" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -113,10 +107,8 @@ SUBROUTINE SCC
    IF(F6.EQ.1) THEN
 !
       IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT') THEN
-         IF(WC.EQ.'CC')&
-         &OUTLYNE='INVALID QUALIFIER WORD USED WITH "CC"'
-         IF(WC.EQ.'CCTOR')&
-         &OUTLYNE='INVALID QUALIFIER WORD USED WITH "CCTOR"'
+         IF(WC.EQ.'CC')OUTLYNE='INVALID QUALIFIER WORD USED WITH "CC"'
+         IF(WC.EQ.'CCTOR')OUTLYNE='INVALID QUALIFIER WORD USED WITH "CCTOR"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -125,10 +117,8 @@ SUBROUTINE SCC
       END IF
    END IF
    IF(DF1.EQ.1)THEN
-      IF(WC.EQ.'CC')&
-      &OUTLYNE='"CC" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-      IF(WC.EQ.'CCTOR')&
-      &OUTLYNE='"CCTOR" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+      IF(WC.EQ.'CC')OUTLYNE='"CC" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+      IF(WC.EQ.'CCTOR')OUTLYNE='"CCTOR" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -138,14 +128,13 @@ SUBROUTINE SCC
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
    IF(WC.EQ.'CC') THEN
-      IF(SQ.EQ.0) ALENS(2,SURF)=W1
-      IF(WQ.EQ.'DELT') ALENS(2,SURF)=ALENS(2,SURF)+W1
-      IF(WQ.EQ.'CENT')&
-      &ALENS(2,SURF)=ALENS(2,SURF)+(W1*0.0D0*ALENS(2,SURF))
+      IF(SQ.EQ.0) call set_surf_conic(SURF, W1)
+      IF(WQ.EQ.'DELT') call set_surf_conic(SURF, surf_conic(SURF)+W1)
+      IF(WQ.EQ.'CENT')call set_surf_conic(SURF, surf_conic(SURF)+(W1*0.0D0*surf_conic(SURF)))
 
       ! For now, if K is set then make surr asphere
-      if (ALENS(2,SURF) .NE. 0) then
-         ALENS(8,SURF) = 1
+      if (surf_conic(SURF) .NE. 0) then
+         call set_surf_asphere_flag(SURF, .true.)
       end if
 !
 !       CHECK FOR CC PIKUPS AND DELETE IF FOUND
@@ -154,24 +143,24 @@ SUBROUTINE SCC
 !       DELETE THE PIKUP
       IF(PIKUP(1,SURF,4).GT.0.0D0) THEN
          PIKUP(1:6,SURF,4)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (CC) DELETED'
          CALL SHOWIT(1)
       END IF
       IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
          PIKUP(1:6,SURF,11)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
          CALL SHOWIT(1)
       END IF
       IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
          PIKUP(1:6,SURF,12)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
          CALL SHOWIT(1)
       END IF
 !
-!       ARE THERE MORE PIKUPS? IF NOT SET ALENS(32,SURF) TO ZERO.
+!       ARE THERE MORE PIKUPS? IF NOT SET surf_special_type(SURF) TO ZERO.
 !
       PIKCNT=0
       DO 10 I=1,PSIZ
@@ -180,12 +169,12 @@ SUBROUTINE SCC
          ELSE
          END IF
 10    CONTINUE
-      IF(PIKCNT.EQ.0) ALENS(32,SURF)=0.0D0
+      IF(PIKCNT.EQ.0) call set_surf_special_type(SURF, 0)
       RETURN
    ELSE
    END IF
    IF(WC.EQ.'CCTOR') THEN
-      IF(ALENS(24,SURF).EQ.0.0D0)THEN
+      IF(surf_toric_curvature(SURF).EQ.0.0D0)THEN
          OUTLYNE='WARNING:'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'FOR SURFACE ',SURF
@@ -202,7 +191,7 @@ SUBROUTINE SCC
          RETURN
       END IF
 !       CHECK FOR TORIC SURFACE
-      IF(ALENS(23,SURF).EQ.0.0D0) THEN
+      IF(surf_toric_flag(SURF).EQ.0.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' NOT DEFINED AS ANAMORPHIC'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -213,34 +202,33 @@ SUBROUTINE SCC
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
-      IF(SQ.EQ.0) ALENS(41,SURF)=W1
-      IF(WQ.EQ.'DELT') ALENS(41,SURF)=ALENS(41,SURF)+W1
-      IF(WQ.EQ.'CENT')&
-      &ALENS(41,SURF)=ALENS(41,SURF)+(W1*0.0D0*ALENS(41,SURF))
+      IF(SQ.EQ.0) call set_surf_anamorphic_conic(SURF, W1)
+      IF(WQ.EQ.'DELT') call set_surf_anamorphic_conic(SURF, surf_anamorphic_conic(SURF)+W1)
+      IF(WQ.EQ.'CENT')call set_surf_anamorphic_conic(SURF, surf_anamorphic_conic(SURF)+(W1*0.0D0*surf_anamorphic_conic(SURF)))
 !
 !
 !       DELETE THE PIKUP
       IF(PIKUP(1,SURF,4).GT.0.0D0) THEN
          PIKUP(1:6,SURF,21)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP(CC) DELETED'
          CALL SHOWIT(1)
       END IF
 !       DUMP PIKUP PRO AND NPRO IF FOUND
       IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
          PIKUP(1:6,SURF,11)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
          CALL SHOWIT(1)
       END IF
       IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
          PIKUP(1:6,SURF,12)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
          CALL SHOWIT(1)
       END IF
 !
-!       ARE THERE MORE PIKUPS? IF NOT SET ALENS(32,SURF) TO ZERO.
+!       ARE THERE MORE PIKUPS? IF NOT SET surf_special_type(SURF) TO ZERO.
 !
       PIKCNT=0
       DO 101 I=1,PSIZ
@@ -250,7 +238,7 @@ SUBROUTINE SCC
          END IF
 101   CONTINUE
 !
-      IF(PIKCNT.EQ.0) ALENS(32,SURF)=0.0D0
+      IF(PIKCNT.EQ.0) call set_surf_special_type(SURF, 0)
    ELSE
    END IF
    RETURN
@@ -260,6 +248,7 @@ SUBROUTINE SCASPC(SCW1)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCALE WHICH IMPLEMENTS ALL SC
@@ -273,7 +262,7 @@ SUBROUTINE SCASPC(SCW1)
 !
    DO I=0,INT(SYSTEM(20))
 !     TYPE 1 AND 6
-      IF(DABS(ALENS(34,I)).EQ.1.0D0.OR.DABS(ALENS(34,I)).EQ.6.0D0) THEN
+      IF(ABS(surf_asi_flag(I)).EQ.1.0D0.OR.ABS(surf_asi_flag(I)).EQ.6.0D0) THEN
          IF(FTFL01(9,I).NE.0.0D0) FTFL01(9,I)= FTFL01(9,I)*SCW1
          IF(FTFL01(10,I).NE.0.0D0) FTFL01(10,I)=FTFL01(10,I)
          DO J=11,48
@@ -283,13 +272,13 @@ SUBROUTINE SCASPC(SCW1)
          END DO
       END IF
 !     TYPE 23
-      IF(DABS(ALENS(34,I)).EQ.23.0D0) THEN
+      IF(ABS(surf_asi_flag(I)).EQ.23.0D0) THEN
          DO J=2,96
             FTFL01(J,I)=FTFL01(J,I)*(SCW1)
          END DO
       END IF
 !     TYPE 4
-      IF(DABS(ALENS(34,I)).EQ.4.0D0) THEN
+      IF(ABS(surf_asi_flag(I)).EQ.4.0D0) THEN
          FTFL01(1,I)=FTFL01(1,I)*SCW1
          FTFL01(2,I)=FTFL01(2,I)*SCW1
          FTFL01(3,I)=FTFL01(3,I)*SCW1
@@ -307,7 +296,7 @@ SUBROUTINE SCASPC(SCW1)
          FTFL01(15,I)=FTFL01(15,I)*SCW1
       END IF
 !     TYPE 7 AND 8
-      IF(DABS(ALENS(34,I)).EQ.7.0D0.OR.DABS(ALENS(34,I)).EQ.8.0D0) THEN
+      IF(ABS(surf_asi_flag(I)).EQ.7.0D0.OR.ABS(surf_asi_flag(I)).EQ.8.0D0) THEN
          IF(FTFL01(1,I).NE.0.0D0) FTFL01(1,I)=FTFL01(1,1)*SCW1
          IF(FTFL01(2,I).NE.0.0D0) FTFL01(2,I)=FTFL01(2,I)
          IF(FTFL01(3,I).NE.0.0D0) FTFL01(3,I)=FTFL01(3,I)
@@ -401,7 +390,7 @@ SUBROUTINE SCASPC(SCW1)
          IF(FTFL01(91,I).NE.0.0D0) FTFL01(91,I)=FTFL01(91,I)/(SCW1**11)
       END IF
 !     TYPE 12
-      IF(DABS(ALENS(34,I)).EQ.12.0D0) THEN
+      IF(ABS(surf_asi_flag(I)).EQ.12.0D0) THEN
          FTFL01(1,I)=FTFL01(1,I)*(SCW1/DABS(SCW1))
          IF(FTFL01(3,I).NE.0.0D0) FTFL01(3,I)=FTFL01(3,I)*SCW1
          IF(FTFL01(4,I).NE.0.0D0) FTFL01(4,I)=FTFL01(4,I)*SCW1
@@ -432,6 +421,7 @@ SUBROUTINE AUTOFUNC
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE AUTOFUNC WHICH IMPLEMENTS THE AUTOFUNC
@@ -468,6 +458,7 @@ SUBROUTINE TTHM
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TTHM WHICH IMPLEMENTS THE THM
@@ -486,8 +477,7 @@ SUBROUTINE TTHM
       RETURN
    END IF
    IF(SQ.EQ.1.AND.S1.EQ.1) THEN
-      OUTLYNE=&
-      &'AT THE CMD LEVEL, "THM" TAKES EITHER QUALIFIER OR'
+      OUTLYNE='AT THE CMD LEVEL, "THM" TAKES EITHER QUALIFIER OR'
       CALL SHOWIT(1)
       OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
       CALL SHOWIT(1)
@@ -497,11 +487,9 @@ SUBROUTINE TTHM
       RETURN
    END IF
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'AT THE CMD LEVEL,'
+      OUTLYNE='AT THE CMD LEVEL,'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'"THM" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      OUTLYNE='"THM" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -549,9 +537,7 @@ SUBROUTINE TTHM
          CALL MACFAL
          RETURN
       END IF
-      IF(GLANAM(I,2).NE.'REFL         '.AND.&
-      &GLANAM(I,2).NE.'REFLTIRO     '.AND.&
-      &GLANAM(I,2).NE.'REFLTIR      ') THEN
+      IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'REFLTIR      ') THEN
          OUTLYNE='NON-REFLECTIVE SURFACES HAVE NO THM VALUE ASSIGNED'
          CALL SHOWIT(1)
          CALL MACFAL
@@ -559,7 +545,7 @@ SUBROUTINE TTHM
       END IF
       IF(HEADIN) WRITE(OUTLYNE,500)
       IF(HEADIN) CALL SHOWIT(0)
-      WRITE(OUTLYNE,100)I,DABS(ALENS(110,I))
+      WRITE(OUTLYNE,100)I,DABS(surf_mirror_thickness(I))
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -576,7 +562,7 @@ SUBROUTINE TTHM
 !       CHECK FOR NO DATA
       CLCNT=0
       DO SURF=0,INT(SYSTEM(20))
-         IF(ALENS(110,SURF).NE.0.0D0) THEN
+         IF(surf_mirror_thickness(SURF).NE.0.0D0) THEN
             CLCNT=CLCNT+1
          ELSE
          END IF
@@ -599,15 +585,13 @@ SUBROUTINE TTHM
       CALL SHOWIT(0)
       DO I=0,INT(SYSTEM(20))
 
-         IF(GLANAM(I,2).NE.'REFL         '.AND.&
-         &GLANAM(I,2).NE.'REFLTIRO     '.AND.&
-         &GLANAM(I,2).NE.'REFLTIR      ') THEN
+         IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'REFLTIR      ') THEN
             WRITE(OUTLYNE,101)I
             CALL SHOWIT(0)
             GO TO 200
          END IF
-         IF(ALENS(110,I).NE.0.0D0) THEN
-            WRITE(OUTLYNE,100)I,DABS(ALENS(110,I))
+         IF(surf_mirror_thickness(I).NE.0.0D0) THEN
+            WRITE(OUTLYNE,100)I,DABS(surf_mirror_thickness(I))
             CALL SHOWIT(0)
          END IF
 200      CONTINUE
@@ -615,8 +599,7 @@ SUBROUTINE TTHM
 !
 400   FORMAT('MIRROR THICKNESS VALUES')
 401   FORMAT(1X)
-500   FORMAT('SURF',5X,&
-      &'"MIRROR THICKNESS" VALUE (IN CURRENT LENS UNITS)')
+500   FORMAT('SURF',5X,'"MIRROR THICKNESS" VALUE (IN CURRENT LENS UNITS)')
 100   FORMAT(I3,11X,G15.8)
 101   FORMAT(I3,11X,'THM NOT VALID ON THIS NON-REFLECTIVE SURFACE')
    END IF
@@ -627,6 +610,7 @@ SUBROUTINE PPRICE
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PPRIC WHICH IMPLEMENTS THE PRICE
@@ -645,8 +629,7 @@ SUBROUTINE PPRICE
       RETURN
    END IF
    IF(SQ.EQ.1.AND.S1.EQ.1) THEN
-      OUTLYNE=&
-      &'AT THE CMD LEVEL, "PRICE" TAKES EITHER QUALIFIER OR'
+      OUTLYNE='AT THE CMD LEVEL, "PRICE" TAKES EITHER QUALIFIER OR'
       CALL SHOWIT(1)
       OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
       CALL SHOWIT(1)
@@ -656,11 +639,9 @@ SUBROUTINE PPRICE
       RETURN
    END IF
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'AT THE CMD LEVEL,'
+      OUTLYNE='AT THE CMD LEVEL,'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'"PRICE" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      OUTLYNE='"PRICE" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -710,7 +691,7 @@ SUBROUTINE PPRICE
       END IF
       IF(HEADIN) WRITE(OUTLYNE,500)
       IF(HEADIN) CALL SHOWIT(0)
-      WRITE(OUTLYNE,100)I,DABS(ALENS(111,I))
+      WRITE(OUTLYNE,100)I,DABS(surf_price(I))
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -727,7 +708,7 @@ SUBROUTINE PPRICE
 !       CHECK FOR NO DATA
       CLCNT=0
       DO SURF=0,INT(SYSTEM(20))
-         IF(ALENS(111,SURF).NE.0.0D0) THEN
+         IF(surf_price(SURF).NE.0.0D0) THEN
             CLCNT=CLCNT+1
          ELSE
          END IF
@@ -749,8 +730,8 @@ SUBROUTINE PPRICE
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
       DO I=0,INT(SYSTEM(20))
-         IF(ALENS(111,I).NE.0.0D0) THEN
-            WRITE(OUTLYNE,100)I,DABS(ALENS(111,I))
+         IF(surf_price(I).NE.0.0D0) THEN
+            WRITE(OUTLYNE,100)I,DABS(surf_price(I))
             CALL SHOWIT(0)
          END IF
       END DO
@@ -767,6 +748,7 @@ SUBROUTINE INRINR
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE INRINR WHICH IMPLEMENTS THE INR
@@ -804,8 +786,7 @@ SUBROUTINE INRINR
          CALL MACFAL
          RETURN
       END IF
-      IF(SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'CENT'.AND.&
-      &SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'DELT') THEN
+      IF(SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'CENT'.AND.SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'DELT') THEN
          OUTLYNE='INVALID QUALIFIER INPUT FOR "INR" AT LENS UPDATE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -822,17 +803,16 @@ SUBROUTINE INRINR
          RETURN
       END IF
       IF(F6.EQ.1.AND.WQ.EQ.'DELT') THEN
-         ALENS(76,SURF)=ALENS(76,SURF)+(W1)
-         ALENS(143,SURF)=1.0D0
+         call set_surf_inr_value(SURF, surf_inr_value(SURF)+(W1))
+         call set_surf_inr_flag(SURF, 1)
       END IF
       IF(F6.EQ.1.AND.WQ.EQ.'CENT') THEN
-         ALENS(76,SURF)=&
-         &ALENS(76,SURF)+(W1*0.01D0*ALENS(76,SURF))
-         ALENS(143,SURF)=1.0D0
+         call set_surf_inr_value(SURF, surf_inr_value(SURF)+(W1*0.01D0*surf_inr_value(SURF)))
+         call set_surf_inr_flag(SURF, 1)
       END IF
       IF(F5.EQ.1.OR.F6.EQ.1.AND.SQ.EQ.0) THEN
-         ALENS(76,SURF)=W1
-         ALENS(143,SURF)=1.0D0
+         call set_surf_inr_value(SURF, W1)
+         call set_surf_inr_flag(SURF, 1)
       END IF
 !
    ELSE
@@ -846,8 +826,7 @@ SUBROUTINE INRINR
          RETURN
       END IF
       IF(SQ.EQ.1.AND.S1.EQ.1) THEN
-         OUTLYNE=&
-         &'AT THE CMD LEVEL, "INR" TAKES EITHER QUALIFIER OR'
+         OUTLYNE='AT THE CMD LEVEL, "INR" TAKES EITHER QUALIFIER OR'
          CALL SHOWIT(1)
          OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -857,11 +836,9 @@ SUBROUTINE INRINR
          RETURN
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'AT THE CMD LEVEL,'
+         OUTLYNE='AT THE CMD LEVEL,'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'"INR" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"INR" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -911,7 +888,7 @@ SUBROUTINE INRINR
          END IF
          IF(HEADIN) WRITE(OUTLYNE,500)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,100)I,ALENS(76,I)
+         WRITE(OUTLYNE,100)I,surf_inr_value(I)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -939,13 +916,12 @@ SUBROUTINE INRINR
          WRITE(OUTLYNE,500)
          CALL SHOWIT(0)
          DO I=0,INT(SYSTEM(20))
-            WRITE(OUTLYNE,100)I,ALENS(76,I)
+            WRITE(OUTLYNE,100)I,surf_inr_value(I)
             CALL SHOWIT(0)
          END DO
 !
 400      FORMAT('SURFACE "INR" VALUES')
-402      FORMAT &
-         &('"INR" IS THE REFERENCE RADIUS FOR "FRINGE" CALCULATIONS')
+402      FORMAT ('"INR" IS THE REFERENCE RADIUS FOR "FRINGE" CALCULATIONS')
 401      FORMAT(1X)
 500      FORMAT('SURF',5X,'"INR" VALUE (IN CURRENT LENS UNITS)')
 100      FORMAT(I3,11X,G15.8)
@@ -958,6 +934,7 @@ SUBROUTINE INRINRD
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE INRINRD WHICH IMPLEMENTS THE INRD
@@ -970,11 +947,9 @@ SUBROUTINE INRINRD
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'"INRD" TAKES NO STRING OR QUALIFIER'
+      OUTLYNE='"INRD" TAKES NO STRING OR QUALIFIER'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'OR NUMERIC WORD #3 THROUGH #5 INPUT'
+      OUTLYNE='OR NUMERIC WORD #3 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -990,8 +965,7 @@ SUBROUTINE INRINRD
       DF2=0
    END IF
    IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
-      OUTLYNE=&
-      &'"INRD" USES EITHER TWO OR ZERO NUMERIC WORDS'
+      OUTLYNE='"INRD" USES EITHER TWO OR ZERO NUMERIC WORDS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -999,8 +973,7 @@ SUBROUTINE INRINRD
       RETURN
    END IF
    IF(INT(W1).LT.0) THEN
-      OUTLYNE=&
-      &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
+      OUTLYNE='STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1008,9 +981,7 @@ SUBROUTINE INRINRD
       RETURN
    END IF
    IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-      &INT(SYSTEM(20))
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1018,11 +989,9 @@ SUBROUTINE INRINRD
       RETURN
    END IF
    IF(W1.GT.W2) THEN
-      OUTLYNE=&
-      &'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
+      OUTLYNE='THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE STARTING SURFACE #'
+      OUTLYNE='THE STARTING SURFACE #'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1030,17 +999,14 @@ SUBROUTINE INRINRD
       RETURN
    END IF
    DO SF=INT(W1),INT(W2)
-      IF(ALENS(143,SF).EQ.1.0D0) THEN
+      IF(surf_inr_flag(SF).EQ.1.0D0) THEN
 !     EXPLICIT ASSIGNMENT EXISTS
-         ALENS(76,SF)=0.0D0
-         ALENS(143,SF)=0.0D0
-         WRITE(OUTLYNE,*)&
-         &'EXPLICIT "INR" ASSIGNMENT FOR SURFACE',SF,' DELETED'
+         call set_surf_inr_value(SF, 0.0D0)
+         call set_surf_inr_flag(SF, 0)
+         WRITE(OUTLYNE,*)'EXPLICIT "INR" ASSIGNMENT FOR SURFACE',SF,' DELETED'
          CALL SHOWIT(1)
       ELSE
-         WRITE(OUTLYNE,*)&
-         &'EXPLICIT "INR" ASSIGNMENT NOT DEFINED FOR SURFACE'&
-         &,SF
+         WRITE(OUTLYNE,*)'EXPLICIT "INR" ASSIGNMENT NOT DEFINED FOR SURFACE',SF
          CALL SHOWIT(1)
          CALL MACFAL
       END IF
@@ -1052,6 +1018,7 @@ SUBROUTINE SPGR
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPGR WHICH IMPLEMENTS THE SPGR
@@ -1089,8 +1056,7 @@ SUBROUTINE SPGR
          CALL MACFAL
          RETURN
       END IF
-      IF(SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'CENT'.AND.&
-      &SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'DELT') THEN
+      IF(SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'CENT'.AND.SQ.EQ.1.AND.F6.EQ.1.AND.WQ.NE.'DELT') THEN
          OUTLYNE='INVALID QUALIFIER INPUT FOR "SPGR" AT LENS UPDATE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -1107,14 +1073,13 @@ SUBROUTINE SPGR
          RETURN
       END IF
       IF(F6.EQ.1.AND.WQ.EQ.'DELT') THEN
-         ALENS(102,SURF)=DABS(ALENS(102,SURF)+(W1))
+         call set_surf_spgr(SURF, DABS(surf_spgr(SURF)+(W1)))
       END IF
       IF(F6.EQ.1.AND.WQ.EQ.'CENT') THEN
-         ALENS(102,SURF)=&
-         &DABS(ALENS(102,SURF)+(W1*0.01D0*ALENS(102,SURF)))
+         call set_surf_spgr(SURF, DABS(surf_spgr(SURF)+(W1*0.01D0*surf_spgr(SURF))))
       END IF
       IF(F5.EQ.1.OR.F6.EQ.1.AND.SQ.EQ.0) THEN
-         ALENS(102,SURF)=DABS(W1)
+         call set_surf_spgr(SURF, DABS(W1))
       END IF
 !
    ELSE
@@ -1128,8 +1093,7 @@ SUBROUTINE SPGR
          RETURN
       END IF
       IF(SQ.EQ.1.AND.S1.EQ.1) THEN
-         OUTLYNE=&
-         &'AT THE CMD LEVEL, "SPGR" TAKES EITHER QUALIFIER OR'
+         OUTLYNE='AT THE CMD LEVEL, "SPGR" TAKES EITHER QUALIFIER OR'
          CALL SHOWIT(1)
          OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -1139,11 +1103,9 @@ SUBROUTINE SPGR
          RETURN
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'AT THE CMD LEVEL,'
+         OUTLYNE='AT THE CMD LEVEL,'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'"SPGR" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"SPGR" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1193,7 +1155,7 @@ SUBROUTINE SPGR
          END IF
          IF(HEADIN) WRITE(OUTLYNE,500)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,100)I,DABS(ALENS(102,I))
+         WRITE(OUTLYNE,100)I,DABS(surf_spgr(I))
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -1219,7 +1181,7 @@ SUBROUTINE SPGR
          WRITE(OUTLYNE,500)
          CALL SHOWIT(0)
          DO I=0,INT(SYSTEM(20))
-            WRITE(OUTLYNE,100)I,DABS(ALENS(102,I))
+            WRITE(OUTLYNE,100)I,DABS(surf_spgr(I))
             CALL SHOWIT(0)
          END DO
 !
@@ -1236,6 +1198,7 @@ SUBROUTINE SCAOB
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCAOB WHICH IMPLEMENTS THE CAOB
@@ -1244,11 +1207,9 @@ SUBROUTINE SCAOB
 !       THE NUMERIC ENTRY W1, IS THE SURFACE DESIGNATOR
 !       FOR PRINTOUT OF ONE SURFACE'S DATA ONLY
 !
-   CHARACTER CLTYPE*8,COTYPE*8,CLETYPE*8,COETYPE*8 &
-   &,ASURF*3,SPCE*1,LINE*80,SP10*10,AAL*10
+   CHARACTER CLTYPE*8,COTYPE*8,CLETYPE*8,COETYPE*8 ,ASURF*3,SPCE*1,LINE*80,SP10*10,AAL*10
 !
-   INTEGER SF,I,J,K &
-   &,CLAP,COBS,CLCNT,CLAPE,COBSE
+   INTEGER SF,I,J,K ,CLAP,COBS,CLCNT,CLAPE,COBSE
 !
    LOGICAL NOHEAD
 !
@@ -1277,8 +1238,7 @@ SUBROUTINE SCAOB
       S1=0
       DF1=0
       W1=0.0D0
-      OUTLYNE=&
-      &'"CAOB" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+      OUTLYNE='"CAOB" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='BUT NOT BOTH'
       CALL SHOWIT(1)
@@ -1342,34 +1302,34 @@ SUBROUTINE SCAOB
       COBSE=0
       CLAP=0
       CLAPE=0
-      IF(ALENS(9,SURF).NE.0.0D0) CLAP=1
-      IF(ALENS(51,SURF).NE.0.0D0) CLAPE=1
-      IF(ALENS(9,SURF).EQ.1.0) CLTYPE ='    CIRC'
-      IF(ALENS(9,SURF).EQ.2.0) CLTYPE ='    RECT'
-      IF(ALENS(9,SURF).EQ.3.0) CLTYPE ='    ELIP'
-      IF(ALENS(9,SURF).EQ.4.0) CLTYPE ='    RCTK'
-      IF(ALENS(9,SURF).EQ.5.0) CLTYPE ='    POLY'
-      IF(ALENS(9,SURF).EQ.6.0) CLTYPE ='   IPOLY'
-      IF(ALENS(51,SURF).EQ.1.0) CLETYPE='   ERASE'
-      IF(ALENS(51,SURF).EQ.2.0) CLETYPE='   RECTE'
-      IF(ALENS(51,SURF).EQ.3.0) CLETYPE='   ELIPE'
-      IF(ALENS(51,SURF).EQ.4.0) CLETYPE='   RCTKE'
-      IF(ALENS(51,SURF).EQ.5.0) CLETYPE='   POLYE'
-      IF(ALENS(51,SURF).EQ.6.0) CLETYPE='  IPOLYE'
-      IF(ALENS(16,SURF).NE.0.0D0) COBS=1
-      IF(ALENS(61,SURF).NE.0.0D0) COBSE=1
-      IF(ALENS(16,SURF).EQ.1.0) COTYPE= 'OB  CIRC'
-      IF(ALENS(16,SURF).EQ.2.0) COTYPE= 'OB  RECT'
-      IF(ALENS(16,SURF).EQ.3.0) COTYPE= 'OB  ELIP'
-      IF(ALENS(16,SURF).EQ.4.0) COTYPE= 'OB  RCTK'
-      IF(ALENS(16,SURF).EQ.5.0) COTYPE= 'OB  POLY'
-      IF(ALENS(16,SURF).EQ.6.0) COTYPE= 'OB IPOLY'
-      IF(ALENS(61,SURF).EQ.1.0) COETYPE='OB ERASE'
-      IF(ALENS(61,SURF).EQ.2.0) COETYPE='OB RECTE'
-      IF(ALENS(61,SURF).EQ.3.0) COETYPE='OB ELIPE'
-      IF(ALENS(61,SURF).EQ.4.0) COETYPE='OB RCTKE'
-      IF(ALENS(61,SURF).EQ.5.0) COETYPE='OB POLYE'
-      IF(ALENS(61,SURF).EQ.6.0) COETYPE='OBIPOLYE'
+      IF(surf_clap_type(SURF).NE.0.0D0) CLAP=1
+      IF(surf_cobs_ape_type(SURF).NE.0.0D0) CLAPE=1
+      IF(surf_clap_type(SURF).EQ.1.0) CLTYPE ='    CIRC'
+      IF(surf_clap_type(SURF).EQ.2.0) CLTYPE ='    RECT'
+      IF(surf_clap_type(SURF).EQ.3.0) CLTYPE ='    ELIP'
+      IF(surf_clap_type(SURF).EQ.4.0) CLTYPE ='    RCTK'
+      IF(surf_clap_type(SURF).EQ.5.0) CLTYPE ='    POLY'
+      IF(surf_clap_type(SURF).EQ.6.0) CLTYPE ='   IPOLY'
+      IF(surf_cobs_ape_type(SURF).EQ.1.0) CLETYPE='   ERASE'
+      IF(surf_cobs_ape_type(SURF).EQ.2.0) CLETYPE='   RECTE'
+      IF(surf_cobs_ape_type(SURF).EQ.3.0) CLETYPE='   ELIPE'
+      IF(surf_cobs_ape_type(SURF).EQ.4.0) CLETYPE='   RCTKE'
+      IF(surf_cobs_ape_type(SURF).EQ.5.0) CLETYPE='   POLYE'
+      IF(surf_cobs_ape_type(SURF).EQ.6.0) CLETYPE='  IPOLYE'
+      IF(surf_coat_type(SURF).NE.0.0D0) COBS=1
+      IF(surf_cobs_era_type(SURF).NE.0.0D0) COBSE=1
+      IF(surf_coat_type(SURF).EQ.1.0) COTYPE= 'OB  CIRC'
+      IF(surf_coat_type(SURF).EQ.2.0) COTYPE= 'OB  RECT'
+      IF(surf_coat_type(SURF).EQ.3.0) COTYPE= 'OB  ELIP'
+      IF(surf_coat_type(SURF).EQ.4.0) COTYPE= 'OB  RCTK'
+      IF(surf_coat_type(SURF).EQ.5.0) COTYPE= 'OB  POLY'
+      IF(surf_coat_type(SURF).EQ.6.0) COTYPE= 'OB IPOLY'
+      IF(surf_cobs_era_type(SURF).EQ.1.0) COETYPE='OB ERASE'
+      IF(surf_cobs_era_type(SURF).EQ.2.0) COETYPE='OB RECTE'
+      IF(surf_cobs_era_type(SURF).EQ.3.0) COETYPE='OB ELIPE'
+      IF(surf_cobs_era_type(SURF).EQ.4.0) COETYPE='OB RCTKE'
+      IF(surf_cobs_era_type(SURF).EQ.5.0) COETYPE='OB POLYE'
+      IF(surf_cobs_era_type(SURF).EQ.6.0) COETYPE='OBIPOLYE'
 !
 !       FIRST PRINT CLAP DATA THEN COBS DATA
 !               HANDEL NO DATA FOR A SURFACE
@@ -1389,36 +1349,36 @@ SUBROUTINE SCAOB
       IF(CLAP.EQ.1) THEN
          CALL NTOAN1(SURF,ASURF)
          LINE=ASURF(1:3)//SPCE(1:1)//CLTYPE(1:8)//SPCE(1:1)
-         CALL NTOAN2(ALENS(10,SURF),AAL(1:10))
+         CALL NTOAN2(surf_clap_dim(SURF, 1),AAL(1:10))
          LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
-         IF(ALENS(11,SURF).EQ.0.0D0) THEN
+         IF(surf_clap_dim(SURF, 2).EQ.0.0D0) THEN
             LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(11,SURF),AAL(1:10))
+            CALL NTOAN2(surf_clap_dim(SURF, 2),AAL(1:10))
             LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(12,SURF).EQ.0.0D0) THEN
+         IF(surf_clap_dim(SURF, 3).EQ.0.0D0) THEN
             LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(12,SURF),AAL(1:10))
+            CALL NTOAN2(surf_clap_dim(SURF, 3),AAL(1:10))
             LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(13,SURF).EQ.0.0D0) THEN
+         IF(surf_clap_dim(SURF, 4).EQ.0.0D0) THEN
             LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(13,SURF),AAL(1:10))
+            CALL NTOAN2(surf_clap_dim(SURF, 4),AAL(1:10))
             LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(14,SURF).EQ.0.0D0) THEN
+         IF(surf_clap_dim(SURF, 5).EQ.0.0D0) THEN
             LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(14,SURF),AAL(1:10))
+            CALL NTOAN2(surf_clap_dim(SURF, 5),AAL(1:10))
             LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(15,SURF).EQ.0.0D0) THEN
+         IF(surf_clap_tilt(SURF).EQ.0.0D0) THEN
             LINE=LINE(1:68)//SP10(1:10)
          ELSE
-            CALL NTOAN2(ALENS(15,SURF),AAL(1:10))
+            CALL NTOAN2(surf_clap_tilt(SURF),AAL(1:10))
             LINE=LINE(1:68)//AAL(1:10)
          END IF
 
@@ -1437,36 +1397,36 @@ SUBROUTINE SCAOB
       IF(CLAPE.EQ.1) THEN
          CALL NTOAN1(SURF,ASURF)
          LINE=ASURF(1:3)//SPCE(1:1)//CLETYPE(1:8)//SPCE(1:1)
-         CALL NTOAN2(ALENS(52,SURF),AAL(1:10))
+         CALL NTOAN2(surf_cobs_ape_data(SURF, 1),AAL(1:10))
          LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
-         IF(ALENS(53,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_ape_data(SURF, 2).EQ.0.0D0) THEN
             LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(53,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_ape_data(SURF, 2),AAL(1:10))
             LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(54,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_ape_data(SURF, 3).EQ.0.0D0) THEN
             LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(54,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_ape_data(SURF, 3),AAL(1:10))
             LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(55,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_ape_data(SURF, 4).EQ.0.0D0) THEN
             LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(55,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_ape_data(SURF, 4),AAL(1:10))
             LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(56,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_ape_data(SURF, 5).EQ.0.0D0) THEN
             LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(56,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_ape_data(SURF, 5),AAL(1:10))
             LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(57,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_ape_data(SURF, 6).EQ.0.0D0) THEN
             LINE=LINE(1:68)//SP10(1:10)
          ELSE
-            CALL NTOAN2(ALENS(57,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_ape_data(SURF, 6),AAL(1:10))
             LINE=LINE(1:68)//AAL(1:10)
          END IF
          IF(HEADIN) THEN
@@ -1484,38 +1444,38 @@ SUBROUTINE SCAOB
       IF(COBS.EQ.1) THEN
          CALL NTOAN1(SURF,ASURF)
          LINE=ASURF(1:3)//SPCE(1:1)//COTYPE(1:8)//SPCE(1:1)
-         CALL NTOAN2(ALENS(17,SURF),AAL)
+         CALL NTOAN2(surf_cobs_poly(SURF, 1),AAL)
          LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
 !
-         IF(ALENS(18,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_poly(SURF, 2).EQ.0.0D0) THEN
             LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(18,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_poly(SURF, 2),AAL(1:10))
             LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
          END IF
 !
-         IF(ALENS(19,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_poly(SURF, 3).EQ.0.0D0) THEN
             LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(19,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_poly(SURF, 3),AAL(1:10))
             LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(20,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_poly(SURF, 4).EQ.0.0D0) THEN
             LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(20,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_poly(SURF, 4),AAL(1:10))
             LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(21,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_poly(SURF, 5).EQ.0.0D0) THEN
             LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(21,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_poly(SURF, 5),AAL(1:10))
             LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(22,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_poly(SURF, 6).EQ.0.0D0) THEN
             LINE=LINE(1:68)//SP10(1:10)
          ELSE
-            CALL NTOAN2(ALENS(22,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_poly(SURF, 6),AAL(1:10))
             LINE=LINE(1:68)//AAL(1:10)
          END IF
          IF(HEADIN) THEN
@@ -1532,38 +1492,38 @@ SUBROUTINE SCAOB
       IF(COBSE.EQ.1) THEN
          CALL NTOAN1(SURF,ASURF)
          LINE=ASURF(1:3)//SPCE(1:1)//COETYPE(1:8)//SPCE(1:1)
-         CALL NTOAN2(ALENS(62,SURF),AAL)
+         CALL NTOAN2(surf_cobs_era_data(SURF, 1),AAL)
          LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
 !
-         IF(ALENS(63,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_era_data(SURF, 2).EQ.0.0D0) THEN
             LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(63,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_era_data(SURF, 2),AAL(1:10))
             LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
          END IF
 !
-         IF(ALENS(64,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_era_data(SURF, 3).EQ.0.0D0) THEN
             LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(64,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_era_data(SURF, 3),AAL(1:10))
             LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(65,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_era_data(SURF, 4).EQ.0.0D0) THEN
             LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(65,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_era_data(SURF, 4),AAL(1:10))
             LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(66,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_era_data(SURF, 5).EQ.0.0D0) THEN
             LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
          ELSE
-            CALL NTOAN2(ALENS(66,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_era_data(SURF, 5),AAL(1:10))
             LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
          END IF
-         IF(ALENS(67,SURF).EQ.0.0D0) THEN
+         IF(surf_cobs_era_data(SURF, 6).EQ.0.0D0) THEN
             LINE=LINE(1:68)//SP10(1:10)
          ELSE
-            CALL NTOAN2(ALENS(67,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_era_data(SURF, 6),AAL(1:10))
             LINE=LINE(1:68)//AAL(1:10)
          END IF
          IF(HEADIN) THEN
@@ -1578,31 +1538,27 @@ SUBROUTINE SCAOB
          CALL SHOWIT(0)
       END IF
 2008  FORMAT(I3,4X,I4,5X,G13.6,1X,G13.6,1X,G13.6)
-      IF(ALENS(127,SURF).NE.0.0D0) THEN
-         DO I=1,INT(ALENS(127,SURF))
+      IF(surf_multi_clap_flag(SURF).NE.0.0D0) THEN
+         DO I=1,INT(surf_multi_clap_flag(SURF))
             IF(HEADIN) THEN
                WRITE(OUTLYNE,2009)
                CALL SHOWIT(0)
                WRITE(OUTLYNE,2010)
                CALL SHOWIT(0)
             END IF
-            WRITE(OUTLYNE,2008)&
-            &SURF,I,MULTCLAP(I,1,SURF),MULTCLAP(I,2,SURF),&
-            &MULTCLAP(I,3,SURF)
+            WRITE(OUTLYNE,2008)SURF,I,MULTCLAP(I,1,SURF),MULTCLAP(I,2,SURF),MULTCLAP(I,3,SURF)
             CALL SHOWIT(1)
          END DO
       END IF
-      IF(ALENS(128,SURF).NE.0.0D0) THEN
-         DO I=1,INT(ALENS(128,SURF))
+      IF(surf_multi_cobs_flag(SURF).NE.0.0D0) THEN
+         DO I=1,INT(surf_multi_cobs_flag(SURF))
             IF(HEADIN) THEN
                WRITE(OUTLYNE,3009)
                CALL SHOWIT(0)
                WRITE(OUTLYNE,2010)
                CALL SHOWIT(0)
             END IF
-            WRITE(OUTLYNE,2008)&
-            &SURF,I,MULTCOBS(I,1,SURF),MULTCOBS(I,2,SURF),&
-            &MULTCOBS(I,3,SURF)
+            WRITE(OUTLYNE,2008)SURF,I,MULTCOBS(I,1,SURF),MULTCOBS(I,2,SURF),MULTCOBS(I,3,SURF)
             CALL SHOWIT(1)
          END DO
       END IF
@@ -1615,8 +1571,7 @@ SUBROUTINE SCAOB
 !       PRINT HEADING DATA
 !
       DO 15 SURF=0,INT(SYSTEM(20))
-         IF(ALENS(9,SURF).NE.0.0.AND.ALENS(16,SURF).NE.0.0 &
-         &.OR.ALENS(9,SURF).NE.0.0.OR.ALENS(16,SURF).NE.0.0D0) THEN
+         IF(surf_clap_type(SURF).NE.0.0.AND.surf_coat_type(SURF).NE.0.0 .OR.surf_clap_type(SURF).NE.0.0.OR.surf_coat_type(SURF).NE.0.0D0) THEN
             CLCNT=CLCNT+1
          ELSE
          END IF
@@ -1642,34 +1597,34 @@ SUBROUTINE SCAOB
          CLAPE=0
          COBS=0
          COBSE=0
-         IF(ALENS(9,SURF).NE.0.0D0) CLAP=1
-         IF(ALENS(51,SURF).NE.0.0D0) CLAPE=1
-         IF(ALENS(9,SURF).EQ.1.0) CLTYPE ='    CIRC'
-         IF(ALENS(9,SURF).EQ.2.0) CLTYPE ='    RECT'
-         IF(ALENS(9,SURF).EQ.3.0) CLTYPE ='    ELIP'
-         IF(ALENS(9,SURF).EQ.4.0) CLTYPE ='    RCTK'
-         IF(ALENS(9,SURF).EQ.5.0) CLTYPE ='    POLY'
-         IF(ALENS(9,SURF).EQ.6.0) CLTYPE ='   IPOLY'
-         IF(ALENS(51,SURF).EQ.1.0) CLETYPE='   ERASE'
-         IF(ALENS(51,SURF).EQ.2.0) CLETYPE='   RECTE'
-         IF(ALENS(51,SURF).EQ.3.0) CLETYPE='   ELIPE'
-         IF(ALENS(51,SURF).EQ.4.0) CLETYPE='   RCTKE'
-         IF(ALENS(51,SURF).EQ.5.0) CLETYPE='   POLYE'
-         IF(ALENS(51,SURF).EQ.6.0) CLETYPE='  IPOLYE'
-         IF(ALENS(16,SURF).NE.0.0D0) COBS=1
-         IF(ALENS(61,SURF).NE.0.0D0) COBSE=1
-         IF(ALENS(16,SURF).EQ.1.0) COTYPE= 'OB  CIRC'
-         IF(ALENS(16,SURF).EQ.2.0) COTYPE= 'OB  RECT'
-         IF(ALENS(16,SURF).EQ.3.0) COTYPE= 'OB  ELIP'
-         IF(ALENS(16,SURF).EQ.4.0) COTYPE= 'OB  RCTK'
-         IF(ALENS(16,SURF).EQ.5.0) COTYPE= 'OB  POLY'
-         IF(ALENS(16,SURF).EQ.6.0) COTYPE= 'OB IPOLY'
-         IF(ALENS(61,SURF).EQ.1.0) COETYPE='OB ERASE'
-         IF(ALENS(61,SURF).EQ.2.0) COETYPE='OB RECTE'
-         IF(ALENS(61,SURF).EQ.3.0) COETYPE='OB ELIPE'
-         IF(ALENS(61,SURF).EQ.4.0) COETYPE='OB RCTKE'
-         IF(ALENS(61,SURF).EQ.5.0) COETYPE='OB POLYE'
-         IF(ALENS(61,SURF).EQ.6.0) COETYPE='OBIPOLYE'
+         IF(surf_clap_type(SURF).NE.0.0D0) CLAP=1
+         IF(surf_cobs_ape_type(SURF).NE.0.0D0) CLAPE=1
+         IF(surf_clap_type(SURF).EQ.1.0) CLTYPE ='    CIRC'
+         IF(surf_clap_type(SURF).EQ.2.0) CLTYPE ='    RECT'
+         IF(surf_clap_type(SURF).EQ.3.0) CLTYPE ='    ELIP'
+         IF(surf_clap_type(SURF).EQ.4.0) CLTYPE ='    RCTK'
+         IF(surf_clap_type(SURF).EQ.5.0) CLTYPE ='    POLY'
+         IF(surf_clap_type(SURF).EQ.6.0) CLTYPE ='   IPOLY'
+         IF(surf_cobs_ape_type(SURF).EQ.1.0) CLETYPE='   ERASE'
+         IF(surf_cobs_ape_type(SURF).EQ.2.0) CLETYPE='   RECTE'
+         IF(surf_cobs_ape_type(SURF).EQ.3.0) CLETYPE='   ELIPE'
+         IF(surf_cobs_ape_type(SURF).EQ.4.0) CLETYPE='   RCTKE'
+         IF(surf_cobs_ape_type(SURF).EQ.5.0) CLETYPE='   POLYE'
+         IF(surf_cobs_ape_type(SURF).EQ.6.0) CLETYPE='  IPOLYE'
+         IF(surf_coat_type(SURF).NE.0.0D0) COBS=1
+         IF(surf_cobs_era_type(SURF).NE.0.0D0) COBSE=1
+         IF(surf_coat_type(SURF).EQ.1.0) COTYPE= 'OB  CIRC'
+         IF(surf_coat_type(SURF).EQ.2.0) COTYPE= 'OB  RECT'
+         IF(surf_coat_type(SURF).EQ.3.0) COTYPE= 'OB  ELIP'
+         IF(surf_coat_type(SURF).EQ.4.0) COTYPE= 'OB  RCTK'
+         IF(surf_coat_type(SURF).EQ.5.0) COTYPE= 'OB  POLY'
+         IF(surf_coat_type(SURF).EQ.6.0) COTYPE= 'OB IPOLY'
+         IF(surf_cobs_era_type(SURF).EQ.1.0) COETYPE='OB ERASE'
+         IF(surf_cobs_era_type(SURF).EQ.2.0) COETYPE='OB RECTE'
+         IF(surf_cobs_era_type(SURF).EQ.3.0) COETYPE='OB ELIPE'
+         IF(surf_cobs_era_type(SURF).EQ.4.0) COETYPE='OB RCTKE'
+         IF(surf_cobs_era_type(SURF).EQ.5.0) COETYPE='OB POLYE'
+         IF(surf_cobs_era_type(SURF).EQ.6.0) COETYPE='OBIPOLYE'
 !
 !                       DO PRINTING NOW
 !*****************************************************************
@@ -1679,36 +1634,36 @@ SUBROUTINE SCAOB
          IF(CLAP.EQ.1) THEN
             CALL NTOAN1(SURF,ASURF)
             LINE=ASURF(1:3)//SPCE(1:1)//CLTYPE(1:8)//SPCE(1:1)
-            CALL NTOAN2(ALENS(10,SURF),AAL(1:10))
+            CALL NTOAN2(surf_clap_dim(SURF, 1),AAL(1:10))
             LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
-            IF(ALENS(11,SURF).EQ.0.0D0) THEN
+            IF(surf_clap_dim(SURF, 2).EQ.0.0D0) THEN
                LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(11,SURF),AAL(1:10))
+               CALL NTOAN2(surf_clap_dim(SURF, 2),AAL(1:10))
                LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(12,SURF).EQ.0.0D0) THEN
+            IF(surf_clap_dim(SURF, 3).EQ.0.0D0) THEN
                LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(12,SURF),AAL(1:10))
+               CALL NTOAN2(surf_clap_dim(SURF, 3),AAL(1:10))
                LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(13,SURF).EQ.0.0D0) THEN
+            IF(surf_clap_dim(SURF, 4).EQ.0.0D0) THEN
                LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(13,SURF),AAL(1:10))
+               CALL NTOAN2(surf_clap_dim(SURF, 4),AAL(1:10))
                LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(14,SURF).EQ.0.0D0) THEN
+            IF(surf_clap_dim(SURF, 5).EQ.0.0D0) THEN
                LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(14,SURF),AAL(1:10))
+               CALL NTOAN2(surf_clap_dim(SURF, 5),AAL(1:10))
                LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(15,SURF).EQ.0.0D0) THEN
+            IF(surf_clap_tilt(SURF).EQ.0.0D0) THEN
                LINE=LINE(1:68)//SP10(1:10)
             ELSE
-               CALL NTOAN2(ALENS(15,SURF),AAL(1:10))
+               CALL NTOAN2(surf_clap_tilt(SURF),AAL(1:10))
                LINE=LINE(1:68)//AAL(1:10)
             END IF
             WRITE(OUTLYNE,200) LINE(1:79)
@@ -1717,36 +1672,36 @@ SUBROUTINE SCAOB
          IF(CLAPE.EQ.1) THEN
             CALL NTOAN1(SURF,ASURF)
             LINE=ASURF(1:3)//SPCE(1:1)//CLETYPE(1:8)//SPCE(1:1)
-            CALL NTOAN2(ALENS(52,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_ape_data(SURF, 1),AAL(1:10))
             LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
-            IF(ALENS(53,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_ape_data(SURF, 2).EQ.0.0D0) THEN
                LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(53,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_ape_data(SURF, 2),AAL(1:10))
                LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(54,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_ape_data(SURF, 3).EQ.0.0D0) THEN
                LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(54,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_ape_data(SURF, 3),AAL(1:10))
                LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(55,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_ape_data(SURF, 4).EQ.0.0D0) THEN
                LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(55,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_ape_data(SURF, 4),AAL(1:10))
                LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(56,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_ape_data(SURF, 5).EQ.0.0D0) THEN
                LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(56,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_ape_data(SURF, 5),AAL(1:10))
                LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(57,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_ape_data(SURF, 6).EQ.0.0D0) THEN
                LINE=LINE(1:68)//SP10(1:10)
             ELSE
-               CALL NTOAN2(ALENS(57,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_ape_data(SURF, 6),AAL(1:10))
                LINE=LINE(1:68)//AAL(1:10)
             END IF
             WRITE(OUTLYNE,200) LINE(1:79)
@@ -1756,38 +1711,38 @@ SUBROUTINE SCAOB
          IF(COBS.EQ.1) THEN
             CALL NTOAN1(SURF,ASURF)
             LINE=ASURF(1:3)//SPCE(1:1)//COTYPE(1:8)//SPCE(1:1)
-            CALL NTOAN2(ALENS(17,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_poly(SURF, 1),AAL(1:10))
             LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
 !
-            IF(ALENS(18,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_poly(SURF, 2).EQ.0.0D0) THEN
                LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(18,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_poly(SURF, 2),AAL(1:10))
                LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
             END IF
 !
-            IF(ALENS(19,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_poly(SURF, 3).EQ.0.0D0) THEN
                LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(19,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_poly(SURF, 3),AAL(1:10))
                LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(20,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_poly(SURF, 4).EQ.0.0D0) THEN
                LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(20,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_poly(SURF, 4),AAL(1:10))
                LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(21,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_poly(SURF, 5).EQ.0.0D0) THEN
                LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(21,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_poly(SURF, 5),AAL(1:10))
                LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(22,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_poly(SURF, 6).EQ.0.0D0) THEN
                LINE=LINE(1:68)//SP10(1:10)
             ELSE
-               CALL NTOAN2(ALENS(22,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_poly(SURF, 6),AAL(1:10))
                LINE=LINE(1:68)//AAL(1:10)
             END IF
             WRITE(OUTLYNE,300) LINE(1:79)
@@ -1796,38 +1751,38 @@ SUBROUTINE SCAOB
          IF(COBSE.EQ.1) THEN
             CALL NTOAN1(SURF,ASURF)
             LINE=ASURF(1:3)//SPCE(1:1)//COTYPE(1:8)//SPCE(1:1)
-            CALL NTOAN2(ALENS(62,SURF),AAL(1:10))
+            CALL NTOAN2(surf_cobs_era_data(SURF, 1),AAL(1:10))
             LINE=LINE(1:13)//AAL(1:10)//SPCE(1:1)
 !
-            IF(ALENS(63,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_era_data(SURF, 2).EQ.0.0D0) THEN
                LINE=LINE(1:24)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(63,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_era_data(SURF, 2),AAL(1:10))
                LINE=LINE(1:24)//AAL(1:10)//SPCE(1:1)
             END IF
 !
-            IF(ALENS(64,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_era_data(SURF, 3).EQ.0.0D0) THEN
                LINE=LINE(1:35)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(64,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_era_data(SURF, 3),AAL(1:10))
                LINE=LINE(1:35)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(65,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_era_data(SURF, 4).EQ.0.0D0) THEN
                LINE=LINE(1:46)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(65,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_era_data(SURF, 4),AAL(1:10))
                LINE=LINE(1:46)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(66,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_era_data(SURF, 5).EQ.0.0D0) THEN
                LINE=LINE(1:57)//SP10(1:10)//SPCE(1:1)
             ELSE
-               CALL NTOAN2(ALENS(66,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_era_data(SURF, 5),AAL(1:10))
                LINE=LINE(1:57)//AAL(1:10)//SPCE(1:1)
             END IF
-            IF(ALENS(67,SURF).EQ.0.0D0) THEN
+            IF(surf_cobs_era_data(SURF, 6).EQ.0.0D0) THEN
                LINE=LINE(1:68)//SP10(1:10)
             ELSE
-               CALL NTOAN2(ALENS(67,SURF),AAL(1:10))
+               CALL NTOAN2(surf_cobs_era_data(SURF, 6),AAL(1:10))
                LINE=LINE(1:68)//AAL(1:10)
             END IF
             WRITE(OUTLYNE,300) LINE(1:79)
@@ -1837,7 +1792,7 @@ SUBROUTINE SCAOB
    END IF
    NOHEAD=.TRUE.
    DO SURF=1,INT(SYSTEM(20))
-      IF(ALENS(127,SURF).NE.0.0D0) THEN
+      IF(surf_multi_clap_flag(SURF).NE.0.0D0) THEN
          NOHEAD=.FALSE.
       END IF
    END DO
@@ -1848,17 +1803,16 @@ SUBROUTINE SCAOB
       CALL SHOWIT(0)
    END IF
    DO SURF=1,INT(SYSTEM(20))
-      IF(ALENS(127,SURF).NE.0.0D0) THEN
-         DO I=1,INT(ALENS(127,SURF))
-            WRITE(OUTLYNE,2008) SURF,I,MULTCLAP(I,1,SURF),MULTCLAP(I,2,SURF),&
-            &MULTCLAP(I,3,SURF)
+      IF(surf_multi_clap_flag(SURF).NE.0.0D0) THEN
+         DO I=1,INT(surf_multi_clap_flag(SURF))
+            WRITE(OUTLYNE,2008) SURF,I,MULTCLAP(I,1,SURF),MULTCLAP(I,2,SURF),MULTCLAP(I,3,SURF)
             CALL SHOWIT(1)
          END DO
       END IF
    END DO
    NOHEAD=.TRUE.
    DO SURF=1,INT(SYSTEM(20))
-      IF(ALENS(128,SURF).NE.0.0D0) THEN
+      IF(surf_multi_cobs_flag(SURF).NE.0.0D0) THEN
          NOHEAD=.FALSE.
       END IF
    END DO
@@ -1869,10 +1823,9 @@ SUBROUTINE SCAOB
       CALL SHOWIT(0)
    END IF
    DO SURF=1,INT(SYSTEM(20))
-      IF(ALENS(128,SURF).NE.0.0D0) THEN
-         DO I=1,INT(ALENS(128,SURF))
-            WRITE(OUTLYNE,2008) SURF,I,MULTCOBS(I,1,SURF),MULTCOBS(I,2,SURF),&
-            &MULTCOBS(I,3,SURF)
+      IF(surf_multi_cobs_flag(SURF).NE.0.0D0) THEN
+         DO I=1,INT(surf_multi_cobs_flag(SURF))
+            WRITE(OUTLYNE,2008) SURF,I,MULTCOBS(I,1,SURF),MULTCOBS(I,2,SURF),MULTCOBS(I,3,SURF)
             CALL SHOWIT(1)
          END DO
       END IF
@@ -1881,16 +1834,13 @@ SUBROUTINE SCAOB
 200 FORMAT(A79)
 300 FORMAT(A79)
 !
-100 FORMAT('SURF',1X,A3,1X,&
-   &':NO CLEAR APERTURE OR OBSCURATION DATA')
+100 FORMAT('SURF',1X,A3,1X,':NO CLEAR APERTURE OR OBSCURATION DATA')
 110 FORMAT('NO CLEAR APERTURE OR OBSCURATION DATA')
 1000 FORMAT('CLEAR APERTURES AND OBSCURATIONS')
-2000 FORMAT('SURF',4X,'TYPE',3X,'Y-SEMI.',4X,'X-SEMI.',&
-   &4X,'Y-DEC',6X,'X-DEC',2X,'CORNER-RADIUS',1X,'TILT(DEG)')
+2000 FORMAT('SURF',4X,'TYPE',3X,'Y-SEMI.',4X,'X-SEMI.',4X,'Y-DEC',6X,'X-DEC',2X,'CORNER-RADIUS',1X,'TILT(DEG)')
 2009 FORMAT('MULTIPLE CLEAR APERTURE DEFINITIONS')
 3009 FORMAT('MULTIPLE OBSCURATION DEFINITIONS')
-2010 FORMAT('SURF',4X,'MULTI#',3X,'  X  ',8X,'   Y   ',&
-   &9X,' GAMMA ')
+2010 FORMAT('SURF',4X,'MULTI#',3X,'  X  ',8X,'   Y   ',9X,' GAMMA ')
 2001 FORMAT(14X,'(RADIUS)',3X,'(N-POLY)')
 3000 FORMAT(25X,'(RAD-FLT)',22X,'(DELTA-Z)')
 1500 FORMAT(1X)
@@ -1902,6 +1852,7 @@ SUBROUTINE SCALLE
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCALE WHICH IMPLEMENTS THE SC AND WSC
@@ -1957,8 +1908,7 @@ SUBROUTINE SCALLE
 !       SIMPLE SCALE FACTOR
 !
       IF(W1.EQ.0.0D0) THEN
-         OUTLYNE=&
-         &'ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
+         OUTLYNE='ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1971,8 +1921,7 @@ SUBROUTINE SCALLE
       IF(DF2.EQ.1) W2=NEWOBJ
       IF(DF3.EQ.1) W3=NEWIMG
       IF(DF4.EQ.0.OR.DF5.EQ.0) THEN
-         OUTLYNE=&
-         &'"SC" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+         OUTLYNE='"SC" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1996,8 +1945,7 @@ SUBROUTINE SCALLE
          RETURN
       END IF
       IF(W2.GE.W3) THEN
-         OUTLYNE=&
-         &'STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
+         OUTLYNE='STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2016,8 +1964,7 @@ SUBROUTINE SCALLE
 !*********************************************************
 !       SIMPLE WORKING SCALE FACTOR
       IF(W1.EQ.0.0D0) THEN
-         OUTLYNE=&
-         &'ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
+         OUTLYNE='ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2030,8 +1977,7 @@ SUBROUTINE SCALLE
       IF(DF2.EQ.1) W2=NEWOBJ
       IF(DF3.EQ.1) W3=NEWIMG
       IF(DF4.EQ.0.OR.DF5.EQ.0) THEN
-         OUTLYNE=&
-         &'"WSC" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+         OUTLYNE='"WSC" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2055,8 +2001,7 @@ SUBROUTINE SCALLE
          RETURN
       END IF
       IF(W2.GE.W3) THEN
-         OUTLYNE=&
-         &'STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
+         OUTLYNE='STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2082,8 +2027,7 @@ SUBROUTINE SCALLE
 !       WQ MUST BE "FY", SCALE EFL
 !
       IF(W1.EQ.0.0D0) THEN
-         OUTLYNE=&
-         &'ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
+         OUTLYNE='ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2096,8 +2040,7 @@ SUBROUTINE SCALLE
       IF(DF2.EQ.1) W2=NEWOBJ
       IF(DF3.EQ.1) W3=NEWIMG
       IF(DF4.EQ.0.OR.DF5.EQ.0) THEN
-         OUTLYNE=&
-         &'"SC FY" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+         OUTLYNE='"SC FY" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2121,8 +2064,7 @@ SUBROUTINE SCALLE
          RETURN
       END IF
       IF(W2.GE.W3) THEN
-         OUTLYNE=&
-         &'STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
+         OUTLYNE='STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2147,8 +2089,7 @@ SUBROUTINE SCALLE
 !       WQ MUST BE "FY", (WORKING) SCALE EFL
 !
       IF(W1.EQ.0.0D0) THEN
-         OUTLYNE=&
-         &'ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
+         OUTLYNE='ZERO FOR THE SCALE FACTOR IS NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2161,8 +2102,7 @@ SUBROUTINE SCALLE
       IF(DF2.EQ.1) W2=NEWOBJ
       IF(DF3.EQ.1) W3=NEWIMG
       IF(DF4.EQ.0.OR.DF5.EQ.0) THEN
-         OUTLYNE=&
-         &'"WSC FY" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+         OUTLYNE='"WSC FY" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2186,8 +2126,7 @@ SUBROUTINE SCALLE
          RETURN
       END IF
       IF(W2.GE.W3) THEN
-         OUTLYNE=&
-         &'STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
+         OUTLYNE='STARTING AND ENDING SURFACE NUMBERS OUT OF ORDER'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2242,6 +2181,7 @@ SUBROUTINE SCALEA1
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     THIS DOES SC WITHOUT FY
@@ -2302,30 +2242,30 @@ SUBROUTINE SCALEA1
 !       FACTOR = 2 INCREASES RADIUS BY 2X OR REDUCES CURVATURE
 !       BY FACTOR OF 2X.
 !
-      ALENS(1,I)=ALENS(1,I)*(1/W1)
+      call set_surf_curvature(I, surf_curvature(I)*(1/W1))
 !
 !       CONIC CONSTANT DOES NOT CHANGE
 !
 !       THICKNESS
 !
-      ALENS(3,I)=ALENS(3,I)*W1
+      call set_surf_thickness(I, surf_thickness(I)*W1)
 !
 !       ROOF AND THICKNESS
 !
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     ROOF
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(140,I)=ALENS(140,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_roof_b(I, surf_roof_b(I)*W1)
       END IF
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     CCR
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(142,I)=ALENS(142,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_ccr_b(I, surf_ccr_b(I)*W1)
       END IF
 !
 !       IDEAL LENS THICKNESS
 !
-      ALENS(121,I)=ALENS(121,I)*W1
+      call set_surf_ideal_efl(I, surf_ideal_efl(I)*W1)
 !
 !       FOURTH, SIXTH, EIGHTH AND TENTH ORDER ASPHERICS
 !       FACTOR OF NX CHANGES THE FOURTH ORDER COEFFICIENT
@@ -2334,180 +2274,180 @@ SUBROUTINE SCALEA1
 !       AE TO AE/(NX**5) AND AF TO AF/(NX**7) AND
 !       AG TO AG/(NX**9)
 !
-      ALENS(43,I)=ALENS(43,I)/W1
-      ALENS(4,I)=ALENS(4,I)/(W1**3)
-      ALENS(5,I)=ALENS(5,I)/(W1**5)
-      ALENS(6,I)=ALENS(6,I)/(W1**7)
-      ALENS(7,I)=ALENS(7,I)/(W1**9)
-      ALENS(81,I)=ALENS(81,I)/(W1**11)
-      ALENS(82,I)=ALENS(82,I)/(W1**13)
-      ALENS(83,I)=ALENS(83,I)/(W1**15)
-      ALENS(84,I)=ALENS(84,I)/(W1**17)
-      ALENS(85,I)=ALENS(85,I)/(W1**19)
+      call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(I, 2)/W1)
+      call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(I, 4)/(W1**3))
+      call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(I, 6)/(W1**5))
+      call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(I, 8)/(W1**7))
+      call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(I, 10)/(W1**9))
+      call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(I, 12)/(W1**11))
+      call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(I, 14)/(W1**13))
+      call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(I, 16)/(W1**15))
+      call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(I, 18)/(W1**17))
+      call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(I, 20)/(W1**19))
 !
 !       NOW THE CLEAR APERTURES AND OBSCURATIONS
 !
       M1=DABS(W1)
 !     CLAP MULT SCALING
-      IF(ALENS(127,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(127,I))
+      IF(surf_multi_clap_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_clap_flag(I))
             MULTCLAP(J,1,I)=MULTCLAP(J,1,I)*M1
             MULTCLAP(J,2,I)=MULTCLAP(J,2,I)*M1
          END DO
       END IF
 !     COBS MULT SCALING
-      IF(ALENS(128,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(128,I))
+      IF(surf_multi_cobs_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_cobs_flag(I))
             MULTCOBS(J,1,I)=MULTCOBS(J,1,I)*M1
             MULTCOBS(J,2,I)=MULTCOBS(J,2,I)*M1
          END DO
       END IF
 !     SPIDER SCALING
-      IF(ALENS(134,I).NE.0.0D0) THEN
-         ALENS(136,I)=ALENS(136,I)*M1
-         ALENS(137,I)=ALENS(137,I)*M1
+      IF(surf_spider_flag(I).NE.0.0D0) THEN
+         call set_surf_spider_angle(I, surf_spider_angle(I)*M1)
+         call set_surf_spider_width(I, surf_spider_width(I)*M1)
       END IF
 !       CIRCULAR
-      IF(DABS(ALENS(9,I)).EQ.1.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.1.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.1.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(17,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.1.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       ELLIPTICAL
-      IF(DABS(ALENS(9,I)).EQ.3.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.3.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.3.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.3.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       RECTANGULAR
-      IF(DABS(ALENS(9,I)).EQ.2.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.2.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.2.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.2.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !
 !       RACETRACK
-      IF(DABS(ALENS(9,I)).EQ.4.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*W1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.4.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*W1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.4.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.4.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       POLY
-      IF(DABS(ALENS(9,I)).EQ.5.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.5.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2))
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2))
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.5.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.5.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2))
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2))
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       IPOLY
-      IF(DABS(ALENS(9,I)).EQ.6.0D0) THEN
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(13,I)=ALENS(14,I)*M1
-         ALENS(53,I)=ALENS(54,I)*M1
-         ALENS(54,I)=ALENS(55,I)*M1
-         ALENS(55,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.6.0D0) THEN
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.6.0D0) THEN
-         ALENS(18,I)=ALENS(19,I)*M1
-         ALENS(19,I)=ALENS(20,I)*M1
-         ALENS(20,I)=ALENS(21,I)*M1
-         ALENS(63,I)=ALENS(64,I)*M1
-         ALENS(64,I)=ALENS(65,I)*M1
-         ALENS(65,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.6.0D0) THEN
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
@@ -2515,41 +2455,41 @@ SUBROUTINE SCALEA1
 !
 !       TORIC CURVATURE
 !
-      ALENS(24,I)=ALENS(24,I)/(W1)
+      call set_surf_toric_curvature(I, surf_toric_curvature(I)/(W1))
 !
 !       X,Y AND Z DECENTERS
 !
-      ALENS(30,I)=ALENS(30,I)*DABS(W1)
-      ALENS(31,I)=ALENS(31,I)*DABS(W1)
-      ALENS(69,I)=ALENS(69,I)*W1
-      ALENS(114,I)=ALENS(114,I)*DABS(W1)
-      ALENS(115,I)=ALENS(115,I)*DABS(W1)
-      ALENS(116,I)=ALENS(116,I)*W1
-      ALENS(90,I)=ALENS(90,I)*DABS(W1)
-      ALENS(91,I)=ALENS(91,I)*DABS(W1)
-      ALENS(92,I)=ALENS(92,I)*W1
-      IF(W1.LT.0.0D0) ALENS(26,I)=-ALENS(26,I)
-      IF(W1.LT.0.0D0) ALENS(27,I)=-ALENS(27,I)
-      IF(W1.LT.0.0D0) ALENS(28,I)=-ALENS(28,I)
-      IF(W1.LT.0.0D0) ALENS(118,I)=-ALENS(118,I)
-      IF(W1.LT.0.0D0) ALENS(119,I)=-ALENS(119,I)
-      IF(W1.LT.0.0D0) ALENS(120,I)=-ALENS(120,I)
-      IF(W1.LT.0.0D0) ALENS(93,I)=-ALENS(93,I)
-      IF(W1.LT.0.0D0) ALENS(94,I)=-ALENS(94,I)
-      IF(W1.LT.0.0D0) ALENS(95,I)=-ALENS(95,I)
+      call set_surf_decenter_y(I, surf_decenter_y(I)*DABS(W1))
+      call set_surf_decenter_x(I, surf_decenter_x(I)*DABS(W1))
+      call set_surf_decenter_z(I, surf_decenter_z(I)*W1)
+      call set_surf_focus_dx(I, surf_focus_dx(I)*DABS(W1))
+      call set_surf_focus_dy(I, surf_focus_dy(I)*DABS(W1))
+      call set_surf_focus_dz(I, surf_focus_dz(I)*W1)
+      call set_surf_global_dx(I, surf_global_dx(I)*DABS(W1))
+      call set_surf_global_dy(I, surf_global_dy(I)*DABS(W1))
+      call set_surf_global_dz(I, surf_global_dz(I)*W1)
+      IF(W1.LT.0.0D0) call set_surf_alpha(I, -surf_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_beta(I, -surf_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma(I, -surf_gamma(I))
+      IF(W1.LT.0.0D0) call set_surf_alpha_deg(I, -surf_alpha_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_beta_deg(I, -surf_beta_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma_deg(I, -surf_gamma_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_global_alpha(I, -surf_global_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_global_beta(I, -surf_global_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_global_gamma(I, -surf_global_gamma(I))
 
 !       X,Y AND Z PIVOTS
 !
-      ALENS(78,I)=ALENS(78,I)*DABS(W1)
-      ALENS(79,I)=ALENS(79,I)*DABS(W1)
-      ALENS(80,I)=ALENS(80,I)*W1
+      call set_surf_pivot_x(I, surf_pivot_x(I)*DABS(W1))
+      call set_surf_pivot_y(I, surf_pivot_y(I)*DABS(W1))
+      call set_surf_pivot_z(I, surf_pivot_z(I)*W1)
 !
 !       ASPHERIC TORIC COEFFICIENTS
 !
-      ALENS(37,I)=ALENS(37,I)/(W1**3)
-      ALENS(38,I)=ALENS(38,I)/(W1**5)
-      ALENS(39,I)=ALENS(39,I)/(W1**7)
-      ALENS(40,I)=ALENS(40,I)/(W1**9)
+      call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(I, 4)/(W1**3))
+      call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(I, 6)/(W1**5))
+      call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(I, 8)/(W1**7))
+      call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(I, 10)/(W1**9))
 !
 !       ALL THE SYSTEM AND ALENS VALUES THAT NEEDED
 !       SCALING HAVE BEEN SCALED.
@@ -2559,13 +2499,11 @@ SUBROUTINE SCALEA1
 !       ANGULAR TARGETS ARE NOT SCALED
 !       DIMENSIONAL TARGETS ARE SCALED
 !
-      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I)&
-      &.EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
+      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I).EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
          SOLVE(7,I)=SOLVE(7,I)*W1
       ELSE
       END IF
-      IF(SOLVE(4,I).EQ.4.0.OR.SOLVE(4,I)&
-      &.EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
+      IF(SOLVE(4,I).EQ.4.0.OR.SOLVE(4,I).EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
          SOLVE(3,I)=SOLVE(3,I)*W1
       ELSE
       END IF
@@ -2659,6 +2597,7 @@ SUBROUTINE SCALEA2
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITHOUT FY
@@ -2701,30 +2640,30 @@ SUBROUTINE SCALEA2
 !       FACTOR = 2 INCREASES RADIUS BY 2X OR REDUCES CURVATURE
 !       BY FACTOR OF 2X.
 !
-      ALENS(1,I)=ALENS(1,I)*(1/W1)
+      call set_surf_curvature(I, surf_curvature(I)*(1/W1))
 !
 !       CONIC CONSTANT DOES NOT CHANGE
 !
 !       THICKNESS
 !
-      ALENS(3,I)=ALENS(3,I)*W1
+      call set_surf_thickness(I, surf_thickness(I)*W1)
 !
 !       ROOF AND THICKNESS
 !
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     ROOF
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(140,I)=ALENS(140,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_roof_b(I, surf_roof_b(I)*W1)
       END IF
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     CCR
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(142,I)=ALENS(142,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_ccr_b(I, surf_ccr_b(I)*W1)
       END IF
 !
 !       IDEAL LENS THICKNESS
 !
-      ALENS(121,I)=ALENS(121,I)*W1
+      call set_surf_ideal_efl(I, surf_ideal_efl(I)*W1)
 !
 !       FOURTH, SIXTH, EIGHTH AND TENTH ORDER ASPHERICS
 !       FACTOR OF NX CHANGES THE FOURTH ORDER COEFFICIENT
@@ -2733,180 +2672,180 @@ SUBROUTINE SCALEA2
 !       AE TO AE/(NX**5) AND AF TO AF/(NX**7) AND
 !       AG TO AG/(NX**9)
 !
-      ALENS(43,I)=ALENS(43,I)/W1
-      ALENS(4,I)=ALENS(4,I)/(W1**3)
-      ALENS(5,I)=ALENS(5,I)/(W1**5)
-      ALENS(6,I)=ALENS(6,I)/(W1**7)
-      ALENS(7,I)=ALENS(7,I)/(W1**9)
-      ALENS(81,I)=ALENS(81,I)/(W1**11)
-      ALENS(82,I)=ALENS(82,I)/(W1**13)
-      ALENS(83,I)=ALENS(83,I)/(W1**15)
-      ALENS(84,I)=ALENS(84,I)/(W1**17)
-      ALENS(85,I)=ALENS(85,I)/(W1**19)
+      call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(I, 2)/W1)
+      call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(I, 4)/(W1**3))
+      call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(I, 6)/(W1**5))
+      call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(I, 8)/(W1**7))
+      call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(I, 10)/(W1**9))
+      call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(I, 12)/(W1**11))
+      call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(I, 14)/(W1**13))
+      call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(I, 16)/(W1**15))
+      call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(I, 18)/(W1**17))
+      call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(I, 20)/(W1**19))
 !
 !       NOW THE CLEAR APERTURES AND OBSCURATIONS
       M1=DABS(W1)
 !
 !     CLAP MULT SCALING
-      IF(ALENS(127,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(127,I))
+      IF(surf_multi_clap_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_clap_flag(I))
             MULTCLAP(J,1,I)=MULTCLAP(J,1,I)*M1
             MULTCLAP(J,2,I)=MULTCLAP(J,2,I)*M1
          END DO
       END IF
 !     COBS MULT SCALING
-      IF(ALENS(128,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(128,I))
+      IF(surf_multi_cobs_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_cobs_flag(I))
             MULTCOBS(J,1,I)=MULTCOBS(J,1,I)*M1
             MULTCOBS(J,2,I)=MULTCOBS(J,2,I)*M1
          END DO
       END IF
 !     SPIDER SCALING
-      IF(ALENS(134,I).NE.0.0D0) THEN
-         ALENS(136,I)=ALENS(136,I)*M1
-         ALENS(137,I)=ALENS(137,I)*M1
+      IF(surf_spider_flag(I).NE.0.0D0) THEN
+         call set_surf_spider_angle(I, surf_spider_angle(I)*M1)
+         call set_surf_spider_width(I, surf_spider_width(I)*M1)
       END IF
 !       CIRCULAR
-      IF(DABS(ALENS(9,I)).EQ.1.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.1.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.1.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(17,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.1.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       RECTANGULAR
-      IF(DABS(ALENS(9,I)).EQ.2.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.2.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.2.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.2.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       ELLIPTICAL
-      IF(DABS(ALENS(9,I)).EQ.3.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.3.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.3.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.3.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !
 !       RACETRACK
-      IF(DABS(ALENS(9,I)).EQ.4.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.4.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.4.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.4.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       POLY
-      IF(DABS(ALENS(9,I)).EQ.5.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.5.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2))
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2))
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.5.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.5.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2))
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2))
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       IPOLY
-      IF(DABS(ALENS(9,I)).EQ.6.0D0) THEN
-         ALENS(11,I)=ALENS(12,I)*M1
-         ALENS(12,I)=ALENS(13,I)*M1
-         ALENS(13,I)=ALENS(14,I)*M1
-         ALENS(53,I)=ALENS(54,I)*M1
-         ALENS(54,I)=ALENS(55,I)*M1
-         ALENS(55,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.6.0D0) THEN
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.6.0D0) THEN
-         ALENS(18,I)=ALENS(19,I)*M1
-         ALENS(19,I)=ALENS(20,I)*M1
-         ALENS(20,I)=ALENS(21,I)*M1
-         ALENS(63,I)=ALENS(64,I)*M1
-         ALENS(64,I)=ALENS(65,I)*M1
-         ALENS(65,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.6.0D0) THEN
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
@@ -2914,41 +2853,41 @@ SUBROUTINE SCALEA2
 !
 !       TORIC CURVATURE
 !
-      ALENS(24,I)=ALENS(24,I)/(W1)
+      call set_surf_toric_curvature(I, surf_toric_curvature(I)/(W1))
 !
 !       X,Y AND Z DECENTERS
 !
-      ALENS(30,I)=ALENS(30,I)*DABS(W1)
-      ALENS(31,I)=ALENS(31,I)*DABS(W1)
-      ALENS(69,I)=ALENS(69,I)*W1
-      ALENS(114,I)=ALENS(114,I)*DABS(W1)
-      ALENS(115,I)=ALENS(115,I)*DABS(W1)
-      ALENS(116,I)=ALENS(116,I)*W1
-      ALENS(90,I)=ALENS(90,I)*DABS(W1)
-      ALENS(91,I)=ALENS(91,I)*DABS(W1)
-      ALENS(92,I)=ALENS(92,I)*W1
-      IF(W1.LT.0.0D0) ALENS(26,I)=-ALENS(26,I)
-      IF(W1.LT.0.0D0) ALENS(27,I)=-ALENS(27,I)
-      IF(W1.LT.0.0D0) ALENS(28,I)=-ALENS(28,I)
-      IF(W1.LT.0.0D0) ALENS(118,I)=-ALENS(118,I)
-      IF(W1.LT.0.0D0) ALENS(119,I)=-ALENS(119,I)
-      IF(W1.LT.0.0D0) ALENS(120,I)=-ALENS(120,I)
-      IF(W1.LT.0.0D0) ALENS(93,I)=-ALENS(93,I)
-      IF(W1.LT.0.0D0) ALENS(94,I)=-ALENS(94,I)
-      IF(W1.LT.0.0D0) ALENS(95,I)=-ALENS(95,I)
+      call set_surf_decenter_y(I, surf_decenter_y(I)*DABS(W1))
+      call set_surf_decenter_x(I, surf_decenter_x(I)*DABS(W1))
+      call set_surf_decenter_z(I, surf_decenter_z(I)*W1)
+      call set_surf_focus_dx(I, surf_focus_dx(I)*DABS(W1))
+      call set_surf_focus_dy(I, surf_focus_dy(I)*DABS(W1))
+      call set_surf_focus_dz(I, surf_focus_dz(I)*W1)
+      call set_surf_global_dx(I, surf_global_dx(I)*DABS(W1))
+      call set_surf_global_dy(I, surf_global_dy(I)*DABS(W1))
+      call set_surf_global_dz(I, surf_global_dz(I)*W1)
+      IF(W1.LT.0.0D0) call set_surf_alpha(I, -surf_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_beta(I, -surf_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma(I, -surf_gamma(I))
+      IF(W1.LT.0.0D0) call set_surf_alpha_deg(I, -surf_alpha_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_beta_deg(I, -surf_beta_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma_deg(I, -surf_gamma_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_global_alpha(I, -surf_global_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_global_beta(I, -surf_global_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_global_gamma(I, -surf_global_gamma(I))
 !
 !       X,Y AND Z PIVOTS
 !
-      ALENS(78,I)=ALENS(78,I)*DABS(W1)
-      ALENS(79,I)=ALENS(79,I)*DABS(W1)
-      ALENS(80,I)=ALENS(80,I)*W1
+      call set_surf_pivot_x(I, surf_pivot_x(I)*DABS(W1))
+      call set_surf_pivot_y(I, surf_pivot_y(I)*DABS(W1))
+      call set_surf_pivot_z(I, surf_pivot_z(I)*W1)
 !
 !       ASPHERIC TORIC COEFFICIENTS
 !
-      ALENS(37,I)=ALENS(37,I)/(W1**3)
-      ALENS(38,I)=ALENS(38,I)/(W1**5)
-      ALENS(39,I)=ALENS(39,I)/(W1**7)
-      ALENS(40,I)=ALENS(40,I)/(W1**9)
+      call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(I, 4)/(W1**3))
+      call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(I, 6)/(W1**5))
+      call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(I, 8)/(W1**7))
+      call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(I, 10)/(W1**9))
 !
 !       ALL THE SYSTEM AND ALENS VALUES THAT NEEDED
 !       SCALING HAVE BEEN SCALED.
@@ -2958,13 +2897,11 @@ SUBROUTINE SCALEA2
 !       ANGULAR TARGETS ARE NOT SCALED
 !       DIMENSIONAL TARGETS ARE SCALED
 !
-      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I)&
-      &.EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
+      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I).EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
          SOLVE(7,I)=SOLVE(7,I)*W1
       ELSE
       END IF
-      IF(SOLVE(4,I).EQ.4.0D0.OR.SOLVE(4,I)&
-      &.EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
+      IF(SOLVE(4,I).EQ.4.0D0.OR.SOLVE(4,I).EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
          SOLVE(3,I)=SOLVE(3,I)*W1
       ELSE
       END IF
@@ -3058,6 +2995,7 @@ SUBROUTINE SCALEA3
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     THIS DOES SC WITH FY
@@ -3090,9 +3028,7 @@ SUBROUTINE SCALEA3
       I=INT(W2)
    END IF
    J=INT(W3)
-   EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)&
-   &*PXTRAY(6,I)))/&
-   &((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+   EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
    IF(EFLY.EQ.0.0D0.OR.DABS(EFLY).GT.1.0D10) THEN
       OUTLYNE='NO EFL CAN BE CALCULATED FOR SPECIFIED SURFACES'
       CALL SHOWIT(1)
@@ -3150,30 +3086,30 @@ SUBROUTINE SCALEA3
 !       FACTOR = 2 INCREASES RADIUS BY 2X OR REDUCES CURVATURE
 !       BY FACTOR OF 2X.
 !
-      ALENS(1,I)=ALENS(1,I)*(1/W1)
+      call set_surf_curvature(I, surf_curvature(I)*(1/W1))
 !
 !       CONIC CONSTANT DOES NOT CHANGE
 !
 !       THICKNESS
 !
-      ALENS(3,I)=ALENS(3,I)*W1
+      call set_surf_thickness(I, surf_thickness(I)*W1)
 !
 !       ROOF AND THICKNESS
 !
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     ROOF
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(140,I)=ALENS(140,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_roof_b(I, surf_roof_b(I)*W1)
       END IF
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     CCR
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(142,I)=ALENS(142,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_ccr_b(I, surf_ccr_b(I)*W1)
       END IF
 !
 !       IDEAL LENS THICKNESS
 !
-      ALENS(121,I)=ALENS(121,I)*W1
+      call set_surf_ideal_efl(I, surf_ideal_efl(I)*W1)
 !
 !       FOURTH, SIXTH, EIGHTH AND TENTH ORDER ASPHERICS
 !       FACTOR OF NX CHANGES THE FOURTH ORDER COEFFICIENT
@@ -3182,180 +3118,180 @@ SUBROUTINE SCALEA3
 !       AE TO AE/(NX**5) AND AF TO AF/(NX**7) AND
 !       AG TO AG/(NX**9)
 !
-      ALENS(43,I)=ALENS(43,I)/W1
-      ALENS(4,I)=ALENS(4,I)/(W1**3)
-      ALENS(5,I)=ALENS(5,I)/(W1**5)
-      ALENS(6,I)=ALENS(6,I)/(W1**7)
-      ALENS(7,I)=ALENS(7,I)/(W1**9)
-      ALENS(81,I)=ALENS(81,I)/(W1**11)
-      ALENS(82,I)=ALENS(82,I)/(W1**13)
-      ALENS(83,I)=ALENS(83,I)/(W1**15)
-      ALENS(84,I)=ALENS(84,I)/(W1**17)
-      ALENS(85,I)=ALENS(85,I)/(W1**19)
+      call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(I, 2)/W1)
+      call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(I, 4)/(W1**3))
+      call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(I, 6)/(W1**5))
+      call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(I, 8)/(W1**7))
+      call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(I, 10)/(W1**9))
+      call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(I, 12)/(W1**11))
+      call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(I, 14)/(W1**13))
+      call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(I, 16)/(W1**15))
+      call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(I, 18)/(W1**17))
+      call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(I, 20)/(W1**19))
 !
 !       NOW THE CLEAR APERTURES AND OBSCURATIONS
       M1=DABS(W1)
 !
 !     CLAP MULT SCALING
-      IF(ALENS(127,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(127,I))
+      IF(surf_multi_clap_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_clap_flag(I))
             MULTCLAP(J,1,I)=MULTCLAP(J,1,I)*M1
             MULTCLAP(J,2,I)=MULTCLAP(J,2,I)*M1
          END DO
       END IF
 !     COBS MULT SCALING
-      IF(ALENS(128,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(128,I))
+      IF(surf_multi_cobs_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_cobs_flag(I))
             MULTCOBS(J,1,I)=MULTCOBS(J,1,I)*M1
             MULTCOBS(J,2,I)=MULTCOBS(J,2,I)*M1
          END DO
       END IF
 !     SPIDER SCALING
-      IF(ALENS(134,I).NE.0.0D0) THEN
-         ALENS(136,I)=ALENS(136,I)*M1
-         ALENS(137,I)=ALENS(137,I)*M1
+      IF(surf_spider_flag(I).NE.0.0D0) THEN
+         call set_surf_spider_angle(I, surf_spider_angle(I)*M1)
+         call set_surf_spider_width(I, surf_spider_width(I)*M1)
       END IF
 !       CIRCULAR
-      IF(DABS(ALENS(9,I)).EQ.1.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.1.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.1.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(17,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.1.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       RECTANGULAR
-      IF(DABS(ALENS(9,I)).EQ.2.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.2.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.2.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.2.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       ELLIPTICAL
-      IF(DABS(ALENS(9,I)).EQ.3.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.3.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.3.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.3.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !
 !       RACETRACK
-      IF(DABS(ALENS(9,I)).EQ.4.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.4.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.4.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.4.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       POLY
-      IF(DABS(ALENS(9,I)).EQ.5.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.5.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2))
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2))
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.5.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.5.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2))
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2))
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       IPOLY
-      IF(DABS(ALENS(9,I)).EQ.6.0D0) THEN
-         ALENS(11,I)=ALENS(12,I)*M1
-         ALENS(12,I)=ALENS(13,I)*M1
-         ALENS(13,I)=ALENS(14,I)*M1
-         ALENS(53,I)=ALENS(54,I)*M1
-         ALENS(54,I)=ALENS(55,I)*M1
-         ALENS(55,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.6.0D0) THEN
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.6.0D0) THEN
-         ALENS(18,I)=ALENS(19,I)*M1
-         ALENS(19,I)=ALENS(20,I)*M1
-         ALENS(20,I)=ALENS(21,I)*M1
-         ALENS(63,I)=ALENS(64,I)*M1
-         ALENS(64,I)=ALENS(65,I)*M1
-         ALENS(65,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.6.0D0) THEN
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
@@ -3363,41 +3299,41 @@ SUBROUTINE SCALEA3
 !
 !       TORIC CURVATURE
 !
-      ALENS(24,I)=ALENS(24,I)/(W1)
+      call set_surf_toric_curvature(I, surf_toric_curvature(I)/(W1))
 !
 !       X,Y AND Z DECENTERS
 !
-      ALENS(30,I)=ALENS(30,I)*DABS(W1)
-      ALENS(31,I)=ALENS(31,I)*DABS(W1)
-      ALENS(69,I)=ALENS(69,I)*W1
-      ALENS(114,I)=ALENS(114,I)*DABS(W1)
-      ALENS(115,I)=ALENS(115,I)*DABS(W1)
-      ALENS(116,I)=ALENS(116,I)*W1
-      ALENS(90,I)=ALENS(90,I)*DABS(W1)
-      ALENS(91,I)=ALENS(91,I)*DABS(W1)
-      ALENS(92,I)=ALENS(92,I)*W1
-      IF(W1.LT.0.0D0) ALENS(26,I)=-ALENS(26,I)
-      IF(W1.LT.0.0D0) ALENS(27,I)=-ALENS(27,I)
-      IF(W1.LT.0.0D0) ALENS(28,I)=-ALENS(28,I)
-      IF(W1.LT.0.0D0) ALENS(118,I)=-ALENS(118,I)
-      IF(W1.LT.0.0D0) ALENS(119,I)=-ALENS(119,I)
-      IF(W1.LT.0.0D0) ALENS(120,I)=-ALENS(120,I)
-      IF(W1.LT.0.0D0) ALENS(93,I)=-ALENS(93,I)
-      IF(W1.LT.0.0D0) ALENS(94,I)=-ALENS(94,I)
-      IF(W1.LT.0.0D0) ALENS(95,I)=-ALENS(95,I)
+      call set_surf_decenter_y(I, surf_decenter_y(I)*DABS(W1))
+      call set_surf_decenter_x(I, surf_decenter_x(I)*DABS(W1))
+      call set_surf_decenter_z(I, surf_decenter_z(I)*W1)
+      call set_surf_focus_dx(I, surf_focus_dx(I)*DABS(W1))
+      call set_surf_focus_dy(I, surf_focus_dy(I)*DABS(W1))
+      call set_surf_focus_dz(I, surf_focus_dz(I)*W1)
+      call set_surf_global_dx(I, surf_global_dx(I)*DABS(W1))
+      call set_surf_global_dy(I, surf_global_dy(I)*DABS(W1))
+      call set_surf_global_dz(I, surf_global_dz(I)*W1)
+      IF(W1.LT.0.0D0) call set_surf_alpha(I, -surf_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_beta(I, -surf_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma(I, -surf_gamma(I))
+      IF(W1.LT.0.0D0) call set_surf_alpha_deg(I, -surf_alpha_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_beta_deg(I, -surf_beta_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma_deg(I, -surf_gamma_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_global_alpha(I, -surf_global_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_global_beta(I, -surf_global_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_global_gamma(I, -surf_global_gamma(I))
 !
 !       X,Y AND Z PIVOTS
 !
-      ALENS(78,I)=ALENS(78,I)*DABS(W1)
-      ALENS(79,I)=ALENS(79,I)*DABS(W1)
-      ALENS(80,I)=ALENS(80,I)*W1
+      call set_surf_pivot_x(I, surf_pivot_x(I)*DABS(W1))
+      call set_surf_pivot_y(I, surf_pivot_y(I)*DABS(W1))
+      call set_surf_pivot_z(I, surf_pivot_z(I)*W1)
 !
 !       ASPHERIC TORIC COEFFICIENTS
 !
-      ALENS(37,I)=ALENS(37,I)/(W1**3)
-      ALENS(38,I)=ALENS(38,I)/(W1**5)
-      ALENS(39,I)=ALENS(39,I)/(W1**7)
-      ALENS(40,I)=ALENS(40,I)/(W1**9)
+      call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(I, 4)/(W1**3))
+      call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(I, 6)/(W1**5))
+      call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(I, 8)/(W1**7))
+      call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(I, 10)/(W1**9))
 !
 !       ALL THE SYSTEM AND ALENS VALUES THAT NEEDED
 !       SCALING HAVE BEEN SCALED.
@@ -3407,13 +3343,11 @@ SUBROUTINE SCALEA3
 !       ANGULAR TARGETS ARE NOT SCALED
 !       DIMENSIONAL TARGETS ARE SCALED
 !
-      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I)&
-      &.EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
+      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I).EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
          SOLVE(7,I)=SOLVE(7,I)*W1
       ELSE
       END IF
-      IF(SOLVE(4,I).EQ.4.0D0.OR.SOLVE(4,I)&
-      &.EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
+      IF(SOLVE(4,I).EQ.4.0D0.OR.SOLVE(4,I).EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
          SOLVE(3,I)=SOLVE(3,I)*W1
       ELSE
       END IF
@@ -3507,6 +3441,7 @@ SUBROUTINE SCALEA4
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITH FY
@@ -3539,9 +3474,7 @@ SUBROUTINE SCALEA4
       I=INT(W2)
    END IF
    J=INT(W3)
-   EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)&
-   &*PXTRAY(6,I)))/&
-   &((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+   EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
    IF(EFLY.EQ.0.0D0.OR.DABS(EFLY).GT.1.0D10) THEN
       OUTLYNE='NO EFL CAN BE CALCULATED FOR SPECIFIED SURFACES'
       CALL SHOWIT(1)
@@ -3578,30 +3511,30 @@ SUBROUTINE SCALEA4
 !       FACTOR = 2 INCREASES RADIUS BY 2X OR REDUCES CURVATURE
 !       BY FACTOR OF 2X.
 !
-      ALENS(1,I)=ALENS(1,I)*(1/W1)
+      call set_surf_curvature(I, surf_curvature(I)*(1/W1))
 !
 !       CONIC CONSTANT DOES NOT CHANGE
 !
 !       THICKNESS
 !
-      ALENS(3,I)=ALENS(3,I)*W1
+      call set_surf_thickness(I, surf_thickness(I)*W1)
 !
 !       ROOF AND THICKNESS
 !
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     ROOF
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(140,I)=ALENS(140,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_roof_b(I, surf_roof_b(I)*W1)
       END IF
-      IF(ALENS(126,I).EQ.1.0D0) THEN
+      IF(surf_ccr_flag(I).EQ.1.0D0) THEN
 !     CCR
-         ALENS(138,I)=ALENS(138,I)*W1
-         ALENS(142,I)=ALENS(142,I)*W1
+         call set_surf_roof_a(I, surf_roof_a(I)*W1)
+         call set_surf_ccr_b(I, surf_ccr_b(I)*W1)
       END IF
 !
 !       IDEAL LENS THICKNESS
 !
-      ALENS(121,I)=ALENS(121,I)*W1
+      call set_surf_ideal_efl(I, surf_ideal_efl(I)*W1)
 !
 !       FOURTH, SIXTH, EIGHTH AND TENTH ORDER ASPHERICS
 !       FACTOR OF NX CHANGES THE FOURTH ORDER COEFFICIENT
@@ -3610,180 +3543,180 @@ SUBROUTINE SCALEA4
 !       AE TO AE/(NX**5) AND AF TO AF/(NX**7) AND
 !       AG TO AG/(NX**9)
 !
-      ALENS(43,I)=ALENS(43,I)/W1
-      ALENS(4,I)=ALENS(4,I)/(W1**3)
-      ALENS(5,I)=ALENS(5,I)/(W1**5)
-      ALENS(6,I)=ALENS(6,I)/(W1**7)
-      ALENS(7,I)=ALENS(7,I)/(W1**9)
-      ALENS(81,I)=ALENS(81,I)/(W1**11)
-      ALENS(82,I)=ALENS(82,I)/(W1**13)
-      ALENS(83,I)=ALENS(83,I)/(W1**15)
-      ALENS(84,I)=ALENS(84,I)/(W1**17)
-      ALENS(85,I)=ALENS(85,I)/(W1**19)
+      call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(I, 2)/W1)
+      call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(I, 4)/(W1**3))
+      call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(I, 6)/(W1**5))
+      call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(I, 8)/(W1**7))
+      call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(I, 10)/(W1**9))
+      call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(I, 12)/(W1**11))
+      call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(I, 14)/(W1**13))
+      call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(I, 16)/(W1**15))
+      call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(I, 18)/(W1**17))
+      call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(I, 20)/(W1**19))
 !
 !       NOW THE CLEAR APERTURES AND OBSCURATIONS
 !
       M1=DABS(W1)
 !     CLAP MULT SCALING
-      IF(ALENS(127,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(127,I))
+      IF(surf_multi_clap_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_clap_flag(I))
             MULTCLAP(J,1,I)=MULTCLAP(J,1,I)*M1
             MULTCLAP(J,2,I)=MULTCLAP(J,2,I)*M1
          END DO
       END IF
 !     COBS MULT SCALING
-      IF(ALENS(128,I).NE.0.0D0) THEN
-         DO J=1,INT(ALENS(128,I))
+      IF(surf_multi_cobs_flag(I).NE.0.0D0) THEN
+         DO J=1,INT(surf_multi_cobs_flag(I))
             MULTCOBS(J,1,I)=MULTCOBS(J,1,I)*M1
             MULTCOBS(J,2,I)=MULTCOBS(J,2,I)*M1
          END DO
       END IF
 !     SPIDER SCALING
-      IF(ALENS(134,I).NE.0.0D0) THEN
-         ALENS(136,I)=ALENS(136,I)*M1
-         ALENS(137,I)=ALENS(137,I)*M1
+      IF(surf_spider_flag(I).NE.0.0D0) THEN
+         call set_surf_spider_angle(I, surf_spider_angle(I)*M1)
+         call set_surf_spider_width(I, surf_spider_width(I)*M1)
       END IF
 !       CIRCULAR
-      IF(DABS(ALENS(9,I)).EQ.1.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.1.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.1.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(17,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.1.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       RECTANGULAR
-      IF(DABS(ALENS(9,I)).EQ.2.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.2.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.2.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.2.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !       ELLIPTICAL
-      IF(DABS(ALENS(9,I)).EQ.3.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.3.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.3.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.3.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
       ELSE
       END IF
 !
 !       RACETRACK
-      IF(DABS(ALENS(9,I)).EQ.4.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)*M1
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)*M1
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.4.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.4.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)*M1
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)*M1
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.4.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       POLY
-      IF(DABS(ALENS(9,I)).EQ.5.0D0) THEN
-         ALENS(10,I)=ALENS(10,I)*M1
-         ALENS(11,I)=ALENS(11,I)
-         ALENS(12,I)=ALENS(12,I)*M1
-         ALENS(13,I)=ALENS(13,I)*M1
-         ALENS(14,I)=ALENS(14,I)*M1
-         ALENS(52,I)=ALENS(52,I)*M1
-         ALENS(53,I)=ALENS(53,I)
-         ALENS(54,I)=ALENS(54,I)*M1
-         ALENS(55,I)=ALENS(55,I)*M1
-         ALENS(56,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.5.0D0) THEN
+         call set_surf_clap_dim(I, 1, surf_clap_dim(I, 1)*M1)
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 2))
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 5, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 1, surf_cobs_ape_data(I, 1)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 2))
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 5, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.5.0D0) THEN
-         ALENS(17,I)=ALENS(17,I)*M1
-         ALENS(18,I)=ALENS(18,I)
-         ALENS(19,I)=ALENS(19,I)*M1
-         ALENS(20,I)=ALENS(20,I)*M1
-         ALENS(21,I)=ALENS(21,I)*M1
-         ALENS(62,I)=ALENS(62,I)*M1
-         ALENS(63,I)=ALENS(63,I)
-         ALENS(64,I)=ALENS(64,I)*M1
-         ALENS(65,I)=ALENS(65,I)*M1
-         ALENS(66,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.5.0D0) THEN
+         call set_surf_cobs_poly(I, 1, surf_cobs_poly(I, 1)*M1)
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 2))
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 5, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 1, surf_cobs_era_data(I, 1)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 2))
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 5, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
 !       IPOLY
-      IF(DABS(ALENS(9,I)).EQ.6.0D0) THEN
-         ALENS(11,I)=ALENS(12,I)*M1
-         ALENS(12,I)=ALENS(13,I)*M1
-         ALENS(13,I)=ALENS(14,I)*M1
-         ALENS(53,I)=ALENS(54,I)*M1
-         ALENS(54,I)=ALENS(55,I)*M1
-         ALENS(55,I)=ALENS(56,I)*M1
+      IF(ABS(surf_clap_type(I)).EQ.6.0D0) THEN
+         call set_surf_clap_dim(I, 2, surf_clap_dim(I, 3)*M1)
+         call set_surf_clap_dim(I, 3, surf_clap_dim(I, 4)*M1)
+         call set_surf_clap_dim(I, 4, surf_clap_dim(I, 5)*M1)
+         call set_surf_cobs_ape_data(I, 2, surf_cobs_ape_data(I, 3)*M1)
+         call set_surf_cobs_ape_data(I, 3, surf_cobs_ape_data(I, 4)*M1)
+         call set_surf_cobs_ape_data(I, 4, surf_cobs_ape_data(I, 5)*M1)
       ELSE
       END IF
-      IF(DABS(ALENS(16,I)).EQ.6.0D0) THEN
-         ALENS(18,I)=ALENS(19,I)*M1
-         ALENS(19,I)=ALENS(20,I)*M1
-         ALENS(20,I)=ALENS(21,I)*M1
-         ALENS(63,I)=ALENS(64,I)*M1
-         ALENS(64,I)=ALENS(65,I)*M1
-         ALENS(65,I)=ALENS(66,I)*M1
+      IF(ABS(surf_coat_type(I)).EQ.6.0D0) THEN
+         call set_surf_cobs_poly(I, 2, surf_cobs_poly(I, 3)*M1)
+         call set_surf_cobs_poly(I, 3, surf_cobs_poly(I, 4)*M1)
+         call set_surf_cobs_poly(I, 4, surf_cobs_poly(I, 5)*M1)
+         call set_surf_cobs_era_data(I, 2, surf_cobs_era_data(I, 3)*M1)
+         call set_surf_cobs_era_data(I, 3, surf_cobs_era_data(I, 4)*M1)
+         call set_surf_cobs_era_data(I, 4, surf_cobs_era_data(I, 5)*M1)
       ELSE
       END IF
 !
@@ -3791,41 +3724,41 @@ SUBROUTINE SCALEA4
 !
 !       TORIC CURVATURE
 !
-      ALENS(24,I)=ALENS(24,I)/(W1)
+      call set_surf_toric_curvature(I, surf_toric_curvature(I)/(W1))
 !
 !       X,Y AND Z DECENTERS
 !
-      ALENS(30,I)=ALENS(30,I)*DABS(W1)
-      ALENS(31,I)=ALENS(31,I)*DABS(W1)
-      ALENS(69,I)=ALENS(69,I)*W1
-      ALENS(114,I)=ALENS(114,I)*DABS(W1)
-      ALENS(115,I)=ALENS(115,I)*DABS(W1)
-      ALENS(116,I)=ALENS(116,I)*W1
-      ALENS(90,I)=ALENS(90,I)*DABS(W1)
-      ALENS(91,I)=ALENS(91,I)*DABS(W1)
-      ALENS(92,I)=ALENS(92,I)*W1
-      IF(W1.LT.0.0D0) ALENS(26,I)=-ALENS(26,I)
-      IF(W1.LT.0.0D0) ALENS(27,I)=-ALENS(27,I)
-      IF(W1.LT.0.0D0) ALENS(28,I)=-ALENS(28,I)
-      IF(W1.LT.0.0D0) ALENS(118,I)=-ALENS(118,I)
-      IF(W1.LT.0.0D0) ALENS(119,I)=-ALENS(119,I)
-      IF(W1.LT.0.0D0) ALENS(120,I)=-ALENS(120,I)
-      IF(W1.LT.0.0D0) ALENS(93,I)=-ALENS(93,I)
-      IF(W1.LT.0.0D0) ALENS(94,I)=-ALENS(94,I)
-      IF(W1.LT.0.0D0) ALENS(95,I)=-ALENS(95,I)
+      call set_surf_decenter_y(I, surf_decenter_y(I)*DABS(W1))
+      call set_surf_decenter_x(I, surf_decenter_x(I)*DABS(W1))
+      call set_surf_decenter_z(I, surf_decenter_z(I)*W1)
+      call set_surf_focus_dx(I, surf_focus_dx(I)*DABS(W1))
+      call set_surf_focus_dy(I, surf_focus_dy(I)*DABS(W1))
+      call set_surf_focus_dz(I, surf_focus_dz(I)*W1)
+      call set_surf_global_dx(I, surf_global_dx(I)*DABS(W1))
+      call set_surf_global_dy(I, surf_global_dy(I)*DABS(W1))
+      call set_surf_global_dz(I, surf_global_dz(I)*W1)
+      IF(W1.LT.0.0D0) call set_surf_alpha(I, -surf_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_beta(I, -surf_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma(I, -surf_gamma(I))
+      IF(W1.LT.0.0D0) call set_surf_alpha_deg(I, -surf_alpha_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_beta_deg(I, -surf_beta_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_gamma_deg(I, -surf_gamma_deg(I))
+      IF(W1.LT.0.0D0) call set_surf_global_alpha(I, -surf_global_alpha(I))
+      IF(W1.LT.0.0D0) call set_surf_global_beta(I, -surf_global_beta(I))
+      IF(W1.LT.0.0D0) call set_surf_global_gamma(I, -surf_global_gamma(I))
 !
 !       X,Y AND Z PIVOTS
 !
-      ALENS(78,I)=ALENS(78,I)*DABS(W1)
-      ALENS(79,I)=ALENS(79,I)*DABS(W1)
-      ALENS(80,I)=ALENS(80,I)*W1
+      call set_surf_pivot_x(I, surf_pivot_x(I)*DABS(W1))
+      call set_surf_pivot_y(I, surf_pivot_y(I)*DABS(W1))
+      call set_surf_pivot_z(I, surf_pivot_z(I)*W1)
 !
 !       ASPHERIC TORIC COEFFICIENTS
 !
-      ALENS(37,I)=ALENS(37,I)/(W1**3)
-      ALENS(38,I)=ALENS(38,I)/(W1**5)
-      ALENS(39,I)=ALENS(39,I)/(W1**7)
-      ALENS(40,I)=ALENS(40,I)/(W1**9)
+      call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(I, 4)/(W1**3))
+      call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(I, 6)/(W1**5))
+      call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(I, 8)/(W1**7))
+      call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(I, 10)/(W1**9))
 !
 !       ALL THE SYSTEM AND ALENS VALUES THAT NEEDED
 !       SCALING HAVE BEEN SCALED.
@@ -3835,13 +3768,11 @@ SUBROUTINE SCALEA4
 !       ANGULAR TARGETS ARE NOT SCALED
 !       DIMENSIONAL TARGETS ARE SCALED
 !
-      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I)&
-      &.EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
+      IF(SOLVE(6,I).EQ.1.0D0.OR.SOLVE(6,I).EQ.2.0D0.OR.SOLVE(6,I).EQ.3.0D0) THEN
          SOLVE(7,I)=SOLVE(7,I)*W1
       ELSE
       END IF
-      IF(SOLVE(4,I).EQ.4.0D0.OR.SOLVE(4,I)&
-      &.EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
+      IF(SOLVE(4,I).EQ.4.0D0.OR.SOLVE(4,I).EQ.5.0D0.OR.SOLVE(4,I).EQ.6.0D0) THEN
          SOLVE(3,I)=SOLVE(3,I)*W1
       ELSE
       END IF

@@ -95,7 +95,17 @@ module mod_surface
         surf_grating_vy,        set_surf_grating_vy,       &
         surf_grating_vz,        set_surf_grating_vz,       &
         surf_ray_error,         set_surf_ray_error,        &
-        surf_focus_flag,        set_surf_focus_flag
+        surf_focus_flag,        set_surf_focus_flag,       &
+        surf_spgr,              set_surf_spgr,             &
+        surf_price,             set_surf_price,            &
+        surf_spider_flag,       set_surf_spider_flag,      &
+        surf_spider_arms,       set_surf_spider_arms,      &
+        surf_spider_angle,      set_surf_spider_angle,     &
+        surf_spider_width,      set_surf_spider_width,     &
+        surf_roof_a,            set_surf_roof_a,           &
+        surf_roof_b,            set_surf_roof_b,           &
+        surf_ccr_b,             set_surf_ccr_b,            &
+        surf_inr_flag,          set_surf_inr_flag
 
 contains
 
@@ -1119,6 +1129,106 @@ contains
     subroutine set_surf_focus_flag(s, val)
         integer, intent(in) :: s, val
         ALENS(117, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(102,s): specific gravity (SPGR) for mass calculation
+    real(real64) function surf_spgr(s)
+        integer, intent(in) :: s
+        surf_spgr = ALENS(102, s)
+    end function
+    subroutine set_surf_spgr(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(102, s) = val
+    end subroutine
+
+    ! ALENS(111,s): price per unit mass (PRICE)
+    real(real64) function surf_price(s)
+        integer, intent(in) :: s
+        surf_price = ALENS(111, s)
+    end function
+    subroutine set_surf_price(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(111, s) = val
+    end subroutine
+
+    ! ALENS(134,s): spider obstruction flag (0=none)
+    integer function surf_spider_flag(s)
+        integer, intent(in) :: s
+        surf_spider_flag = nint(ALENS(134, s))
+    end function
+    subroutine set_surf_spider_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(134, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(135,s): spider arm count
+    real(real64) function surf_spider_arms(s)
+        integer, intent(in) :: s
+        surf_spider_arms = ALENS(135, s)
+    end function
+    subroutine set_surf_spider_arms(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(135, s) = val
+    end subroutine
+
+    ! ALENS(136,s): spider arm angle (degrees)
+    real(real64) function surf_spider_angle(s)
+        integer, intent(in) :: s
+        surf_spider_angle = ALENS(136, s)
+    end function
+    subroutine set_surf_spider_angle(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(136, s) = val
+    end subroutine
+
+    ! ALENS(137,s): spider arm width
+    real(real64) function surf_spider_width(s)
+        integer, intent(in) :: s
+        surf_spider_width = ALENS(137, s)
+    end function
+    subroutine set_surf_spider_width(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(137, s) = val
+    end subroutine
+
+    ! ALENS(138,s): roof/CCR parameter 1 (angle or depth)
+    real(real64) function surf_roof_a(s)
+        integer, intent(in) :: s
+        surf_roof_a = ALENS(138, s)
+    end function
+    subroutine set_surf_roof_a(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(138, s) = val
+    end subroutine
+
+    ! ALENS(140,s): roof parameter 2
+    real(real64) function surf_roof_b(s)
+        integer, intent(in) :: s
+        surf_roof_b = ALENS(140, s)
+    end function
+    subroutine set_surf_roof_b(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(140, s) = val
+    end subroutine
+
+    ! ALENS(142,s): CCR parameter 2
+    real(real64) function surf_ccr_b(s)
+        integer, intent(in) :: s
+        surf_ccr_b = ALENS(142, s)
+    end function
+    subroutine set_surf_ccr_b(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(142, s) = val
+    end subroutine
+
+    ! ALENS(143,s): inner radius (INR) present flag
+    integer function surf_inr_flag(s)
+        integer, intent(in) :: s
+        surf_inr_flag = nint(ALENS(143, s))
+    end function
+    subroutine set_surf_inr_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(143, s) = real(val, real64)
     end subroutine
 
 end module mod_surface
