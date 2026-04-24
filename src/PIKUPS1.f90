@@ -4,6 +4,7 @@
 SUBROUTINE PIKXYD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -76,8 +77,8 @@ SUBROUTINE PIKXYD
 !
 !
 !               INCR. PIKUP INDICATOR TO 1.0
-!               I.E. ALENS(32,SURF)
-   ALENS(32,SURF)=ALENS(32,SURF)+1.0
+!               I.E. surf_special_type(SURF)
+   call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,CT)=1.0
    PIKUP(2,SURF,CT)=W1
    PIKUP(3,SURF,CT)=W2
@@ -87,26 +88,23 @@ SUBROUTINE PIKXYD
 !
 !
 !       NOW SET THE DECENTER FLAG CORRECTLY
-!       IF ALENS(29,I) IS 1.0 FOR I = INT(W1)
-!       THEN ALENS(29,SURF) = 1.0 ELSE SET TO 0.0
+!       IF surf_decenter_flag(I) IS 1.0 FOR I = INT(W1)
+!       THEN surf_decenter_flag(SURF) = 1.0 ELSE SET TO 0.0
    IF(WQ(1:1).NE.'G') THEN
-      IF(ALENS(29,INT(W1)).EQ.1.0) THEN
-         ALENS(29,SURF)=1.0
+      IF(surf_decenter_flag(INT(W1)).EQ.1.0) THEN
+         call set_surf_decenter_flag(SURF, 1)
       ELSE
-         ALENS(29,SURF)=0.0
+         call set_surf_decenter_flag(SURF, 0)
       END IF
    END IF
 !
 !       IF THE SURFACE HAS A TILT AUTO THEN REMOVE THE
 !       AUTO AND PRINT MESSAGE
 !
-   IF(ALENS(25,SURF).EQ.2.0D0.OR.ALENS(25,SURF).EQ.&
-   &3.0D0) THEN
-      ALENS(25,SURF)=1.0D0
-      IF(ALENS(25,SURF).EQ.2.0D0) WRITE(OUTLYNE,*)&
-      &'"AUTO" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
-      IF(ALENS(25,SURF).EQ.3.0D0) WRITE(OUTLYNE,*)&
-      &'"AUTOM" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
+   IF(surf_tilt_flag(SURF).EQ.2.0D0.OR.surf_tilt_flag(SURF).EQ.3.0D0) THEN
+      call set_surf_tilt_flag(SURF, 1)
+      IF(surf_tilt_flag(SURF).EQ.2.0D0) WRITE(OUTLYNE,*)'"AUTO" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
+      IF(surf_tilt_flag(SURF).EQ.3.0D0) WRITE(OUTLYNE,*)'"AUTOM" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
       CALL SHOWIT(1)
    END IF
 !
@@ -119,6 +117,7 @@ END
 SUBROUTINE PIKPXYD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -188,8 +187,8 @@ SUBROUTINE PIKPXYD
 !
 !
 !               INCR. PIKUP INDICATOR TO 1.0
-!               I.E. ALENS(32,SURF)
-   ALENS(32,SURF)=ALENS(32,SURF)+1.0
+!               I.E. surf_special_type(SURF)
+   call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,CT)=1.0
    PIKUP(2,SURF,CT)=W1
    PIKUP(3,SURF,CT)=W2
@@ -199,25 +198,22 @@ SUBROUTINE PIKPXYD
 !
 !
 !       NOW SET THE PIVOT DECENTER FLAG CORRECTLY
-!       IF ALENS(59,I) IS 1.0 FOR I = INT(W1)
-!       THEN ALENS(59,SURF) = 1.0 ELSE SET TO 0.0
+!       IF surf_pivot_flag(I) IS 1.0 FOR I = INT(W1)
+!       THEN surf_pivot_flag(SURF) = 1.0 ELSE SET TO 0.0
 !
-   IF(ALENS(59,INT(W1)).EQ.1.0) THEN
-      ALENS(59,SURF)=1.0
+   IF(surf_pivot_flag(INT(W1)).EQ.1.0) THEN
+      call set_surf_pivot_flag(SURF, 1)
    ELSE
-      ALENS(59,SURF)=0.0
+      call set_surf_pivot_flag(SURF, 0)
    END IF
 !
 !       IF THE SURFACE HAS A TILT AUTO THEN REMOVE THE
 !       AUTO AND PRINT MESSAGE
 !
-   IF(ALENS(25,SURF).EQ.2.0D0.OR.ALENS(25,SURF).EQ.&
-   &3.0D0) THEN
-      ALENS(25,SURF)=1.0D0
-      IF(ALENS(25,SURF).EQ.2.0D0) WRITE(OUTLYNE,*)&
-      &'"AUTO" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
-      IF(ALENS(25,SURF).EQ.3.0D0) WRITE(OUTLYNE,*)&
-      &'"AUTOM" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
+   IF(surf_tilt_flag(SURF).EQ.2.0D0.OR.surf_tilt_flag(SURF).EQ.3.0D0) THEN
+      call set_surf_tilt_flag(SURF, 1)
+      IF(surf_tilt_flag(SURF).EQ.2.0D0) WRITE(OUTLYNE,*)'"AUTO" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
+      IF(surf_tilt_flag(SURF).EQ.3.0D0) WRITE(OUTLYNE,*)'"AUTOM" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
       CALL SHOWIT(1)
    END IF
 !
@@ -230,6 +226,7 @@ END
 SUBROUTINE PIKTH
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -321,9 +318,8 @@ SUBROUTINE PIKTH
       RETURN
    END IF
 !               INCREMENT PIKUP COUNTER BY 1.0D0
-!               I.E. ALENS(32,SURF)
-   IF(PIKUP(1,SURF,32).EQ.0.0D0)&
-   &ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+!               I.E. surf_special_type(SURF)
+   IF(PIKUP(1,SURF,32).EQ.0.0D0)call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,32)=0.0D0
    PIKUP(1,SURF,3)=1.0D0
    PIKUP(2,SURF,3)=W1
@@ -336,26 +332,24 @@ SUBROUTINE PIKTH
    IF(SOLVE(6,SURF).GT.0.0D0) THEN
       SOLVE(6,SURF)=0.0D0
       SOLVE(7,SURF)=0.0D0
-      WRITE(OUTLYNE,*)&
-      &'SURFACE',SURF,' :YZ PLANE THICKNESS SOLVE DELETED'
+      WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
    IF(SOLVE(4,SURF).GT.0.0D0) THEN
       SOLVE(4,SURF)=0.0D0
       SOLVE(3,SURF)=0.0D0
-      WRITE(OUTLYNE,*)&
-      &'SURFACE',SURF,' :XZ PLANE THICKNESS SOLVE DELETED'
+      WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
 !
    RETURN
@@ -364,6 +358,7 @@ END
 SUBROUTINE PIKTHOAL
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -446,8 +441,7 @@ SUBROUTINE PIKTHOAL
 !       IF DF4=1 TIS MEANS ADDITIVE CONSTANT ZERO
    IF(DF4.EQ.1) W4=0.0D0
    IF(DF5.EQ.1) W5=0.0D0
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20).OR.W2.LT.0.0D0 &
-   &.OR.W2.GT.SYSTEM(20).OR.W1.GT.W2) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20).OR.W2.LT.0.0D0 .OR.W2.GT.SYSTEM(20).OR.W1.GT.W2) THEN
       OUTLYNE='SOURCE SURFACE NUMBERS BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='"PIKUP THOAL" NOT ALLOWED'
@@ -456,9 +450,8 @@ SUBROUTINE PIKTHOAL
       RETURN
    END IF
 !               INCREMENT PIKUP COUNTER BY 1.0D0
-!               I.E. ALENS(32,SURF)
-   IF(PIKUP(1,SURF,3).EQ.0.0D0)&
-   &ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+!               I.E. surf_special_type(SURF)
+   IF(PIKUP(1,SURF,3).EQ.0.0D0)call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,3)=0.0D0
    PIKUP(1,SURF,32)=1.0D0
    PIKUP(2,SURF,32)=W1
@@ -471,26 +464,24 @@ SUBROUTINE PIKTHOAL
    IF(SOLVE(6,SURF).GT.0.0D0) THEN
       SOLVE(6,SURF)=0.0D0
       SOLVE(7,SURF)=0.0D0
-      WRITE(OUTLYNE,*)&
-      &'SURFACE',SURF,' :YZ PLANE THICKNESS SOLVE DELETED'
+      WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
    IF(SOLVE(4,SURF).GT.0.0D0) THEN
       SOLVE(4,SURF)=0.0D0
       SOLVE(3,SURF)=0.0D0
-      WRITE(OUTLYNE,*)&
-      &'SURFACE',SURF,' :XZ PLANE THICKNESS SOLVE DELETED'
+      WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
 !
    RETURN
@@ -499,6 +490,7 @@ END
 SUBROUTINE PIKRES
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -512,19 +504,18 @@ SUBROUTINE PIKRES
 !
    COMMON/PIKCOM/COMI
 !
-   REAL*8 DUMMY,DUMMY2,AALL1,AALL2,&
-   &AALL3,AALL4,TOTTH
+   REAL*8 DUMMY,DUMMY2,AALL1,AALL2,AALL3,AALL4,TOTTH
 !
 !
    I=COMI
 !
 !       ARE THERE PIKUPS ON THIS SURFACE ?
 !
-   IF(ALENS(32,I).GT.0.0D0) THEN
+   IF(surf_special_type(I).GT.0.0D0) THEN
 !       YES, RESOLVE THEM
-!       HOW MANY ARE THERE ? THERE ARE ALENS(32,I) OF THEM
+!       HOW MANY ARE THERE ? THERE ARE surf_special_type(I) OF THEM
 !       SET PIKUP COUNTER PIKCNT
-      PIKCNT=INT(ALENS(32,I))
+      PIKCNT=INT(surf_special_type(I))
       DO 10 K=PIKCNT,0,-1
          DO 20 J=1,PSIZ
             IF(PIKUP(1,I,J).GT.0.0D0) THEN
@@ -532,25 +523,25 @@ SUBROUTINE PIKRES
 !**************************************************************
                IF(PIKUP(6,I,J).EQ.0.0D0.OR.F12.EQ.1) THEN
 !     PIKUP FROM CURRENT LENS
-                  IF(ALENS(1,I).EQ.0.0D0) THEN
+                  IF(surf_curvature(I).EQ.0.0D0) THEN
                      AALL1=0.0D0
                   ELSE
-                     AALL1=1.0D0/ALENS(1,I)
+                     AALL1=1.0D0/surf_curvature(I)
                   END IF
-                  IF(ALENS(1,INT(PIKUP(2,I,J))).EQ.0.0D0) THEN
+                  IF(surf_curvature(INT(PIKUP(2,I,J))).EQ.0.0D0) THEN
                      AALL2=0.0D0
                   ELSE
-                     AALL2=1.0D0/(ALENS(1,INT(PIKUP(2,I,J))))
+                     AALL2=1.0D0/(surf_curvature(INT(PIKUP(2,I,J))))
                   END IF
-                  IF(ALENS(24,I).EQ.0.0D0) THEN
+                  IF(surf_toric_curvature(I).EQ.0.0D0) THEN
                      AALL3=0.0D0
                   ELSE
-                     AALL3=1.0D0/ALENS(24,I)
+                     AALL3=1.0D0/surf_toric_curvature(I)
                   END IF
-                  IF(ALENS(24,INT(PIKUP(2,I,J))).EQ.0.0D0) THEN
+                  IF(surf_toric_curvature(INT(PIKUP(2,I,J))).EQ.0.0D0) THEN
                      AALL4=0.0D0
                   ELSE
-                     AALL4=1.0D0/(ALENS(24,INT(PIKUP(2,I,J))))
+                     AALL4=1.0D0/(surf_toric_curvature(INT(PIKUP(2,I,J))))
                   END IF
                ELSE
 !     PIKUP FROM MAIN LENS
@@ -581,60 +572,54 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                   IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                     PIKUP(4,I,J)=(AALL1)-(PIKUP(3,I,J)*&
-                     &(AALL2))
+                     PIKUP(4,I,J)=(AALL1)-(PIKUP(3,I,J)*(AALL2))
                      PIKUP(5,I,J)=0.0D0
                   ELSE
 !       NO SPECIAL PIKUP OPTION
                   END IF
-                  DUMMY=((((AALL2)*&
-                  &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                  DUMMY=((((AALL2)*(PIKUP(3,I,J)))+PIKUP(4,I,J)))
                   IF(DUMMY.EQ.0.0D0) THEN
-                     ALENS(1,I)=0.0D0
+                     call set_surf_curvature(I, 0.0D0)
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
                   ELSE
-                     ALENS(1,I)=(1.0D0/DUMMY)
+                     call set_surf_curvature(I, (1.0D0/DUMMY))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,SURF)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(SURF, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
@@ -650,33 +635,29 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(1,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(1,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_curvature(I)-(PIKUP(3,I,J)*(surf_curvature(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(1,I)=(((ALENS(1,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_curvature(I, (((surf_curvature(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   ELSE
@@ -684,33 +665,29 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(1,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(1,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(1,I)-(PIKUP(3,I,J)*(ALENP(1,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(1,I)=(((ALENP(1,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_curvature(I, (((ALENP(1,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   END IF
@@ -727,28 +704,24 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(3,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(3,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_thickness(I)-(PIKUP(3,I,J)*(surf_thickness(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(3,I)=(((ALENS(3,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_thickness(I, (((surf_thickness(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIKUP FROM MAIN LENS
 !     PIKUP FROM CURRENT LENS
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(3,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(3,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(3,I)-(PIKUP(3,I,J)*(ALENP(3,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(3,I)=(((ALENP(3,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_thickness(I, (((ALENP(3,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 3, CONTINUE PROCESSING
@@ -762,10 +735,9 @@ SUBROUTINE PIKRES
 !       NO SPECIAL PIKUP OPTION FOR THOAL
                      TOTTH=0.0D0
                      DO ITHJK=INT(PIKUP(2,I,J)),INT(PIKUP(3,I,J))-1
-                        TOTTH=TOTTH+ALENS(3,ITHJK)
+                        TOTTH=TOTTH+surf_thickness(ITHJK)
                      END DO
-                     ALENS(3,I)=(((TOTTH*&
-                     &(PIKUP(4,I,J)))+PIKUP(5,I,J)))
+                     call set_surf_thickness(I, (((TOTTH*(PIKUP(4,I,J)))+PIKUP(5,I,J))))
                   ELSE
 !     PIKUP FROM MAIN LENS
 !     PIKUP FROM CURRENT LENS
@@ -773,8 +745,7 @@ SUBROUTINE PIKRES
                      DO ITHJK=INT(PIKUP(2,I,J)),INT(PIKUP(3,I,J))-1
                         TOTTH=TOTTH+ALENP(3,ITHJK)
                      END DO
-                     ALENS(3,I)=(((TOTTH*&
-                     &(PIKUP(4,I,J)))+PIKUP(5,I,J)))
+                     call set_surf_thickness(I, (((TOTTH*(PIKUP(4,I,J)))+PIKUP(5,I,J))))
                   END IF
                ELSE
 !       J NOT 32, CONTINUE PROCESSING
@@ -788,23 +759,20 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(2,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(2,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_conic(I)-(PIKUP(3,I,J)*(surf_conic(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(2,I)=(((ALENS(2,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_conic(I, (((surf_conic(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   ELSE
@@ -812,23 +780,20 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(2,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(2,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(2,I)-(PIKUP(3,I,J)*(ALENP(2,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(2,I)=(((ALENP(2,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_conic(I, (((ALENP(2,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   END IF
@@ -845,27 +810,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(4,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(4,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 4)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 4)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(4,I)=(((ALENS(4,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 4, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 4)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(4,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(4,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(4,I)-(PIKUP(3,I,J)*(ALENP(4,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(4,I)=(((ALENP(4,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 4, (((ALENP(4,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 5, CONTINUE PROCESSING
@@ -879,27 +840,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(5,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(5,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 6)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 6)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(5,I)=(((ALENS(5,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 6, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 6)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(5,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(5,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(5,I)-(PIKUP(3,I,J)*(ALENP(5,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(5,I)=(((ALENP(5,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 6, (((ALENP(5,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 6, CONTINUE PROCESSING
@@ -913,27 +870,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(6,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(6,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 8)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 8)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(6,I)=(((ALENS(6,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 8, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 8)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(6,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(6,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(6,I)-(PIKUP(3,I,J)*(ALENP(6,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(6,I)=(((ALENP(6,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 8, (((ALENP(6,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 7, CONTINUE PROCESSING
@@ -947,27 +900,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(7,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(7,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 10)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 10)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(7,I)=(((ALENS(7,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 10, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 10)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(7,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(7,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(7,I)-(PIKUP(3,I,J)*(ALENP(7,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(7,I)=(((ALENP(7,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 10, (((ALENP(7,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 8, CONTINUE PROCESSING
@@ -981,27 +930,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(81,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(81,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 12)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 12)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(81,I)=(((ALENS(81,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 12, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 12)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(81,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(81,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(81,I)-(PIKUP(3,I,J)*(ALENP(81,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(81,I)=(((ALENP(81,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 12, (((ALENP(81,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 27, CONTINUE PROCESSING
@@ -1015,27 +960,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(82,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(82,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 14)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 14)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(82,I)=(((ALENS(82,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 14, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 14)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(82,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(82,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(82,I)-(PIKUP(3,I,J)*(ALENP(82,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(82,I)=(((ALENP(82,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 14, (((ALENP(82,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 28, CONTINUE PROCESSING
@@ -1049,27 +990,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(83,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(83,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 16)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 16)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(83,I)=(((ALENS(83,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 16, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 16)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(83,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(83,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(83,I)-(PIKUP(3,I,J)*(ALENP(83,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(83,I)=(((ALENP(83,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 16, (((ALENP(83,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 29, CONTINUE PROCESSING
@@ -1083,27 +1020,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(84,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(84,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 18)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 18)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(84,I)=(((ALENS(84,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 18, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 18)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(84,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(84,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(84,I)-(PIKUP(3,I,J)*(ALENP(84,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(84,I)=(((ALENP(84,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 18, (((ALENP(84,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 30, CONTINUE PROCESSING
@@ -1117,27 +1050,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(85,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(85,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_asphere_coeff(I, 20)-(PIKUP(3,I,J)*(surf_asphere_coeff(INT(PIKUP(2,I,J)), 20)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(85,I)=(((ALENS(85,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 20, (((surf_asphere_coeff(INT(PIKUP(2,I,J)), 20)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(85,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(85,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(85,I)-(PIKUP(3,I,J)*(ALENP(85,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(85,I)=(((ALENP(85,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_asphere_coeff(I, 20, (((ALENP(85,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 31, CONTINUE PROCESSING
@@ -1151,8 +1080,7 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(24,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(24,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_toric_curvature(I)-(PIKUP(3,I,J)*(surf_toric_curvature(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
@@ -1164,27 +1092,24 @@ SUBROUTINE PIKRES
 !       OF THE PICKING SURFACE IS BEING CHANGED TO THE TORIC TYPE
 !       OF THE SURFACE BEING PICKED UP FROM.
                      PKD=INT(PIKUP(2,I,J))
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENS(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON TORIC'
+                     IF(surf_toric_flag(I).NE.surf_toric_flag(INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENS(23,INT(PIKUP(2,I,J)))
-                     ALENS(24,I)=(((ALENS(24,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_toric_flag(I, surf_toric_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_toric_curvature(I, (((surf_toric_curvature(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(24,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(24,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(24,I)-(PIKUP(3,I,J)*(ALENP(24,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
@@ -1199,17 +1124,15 @@ SUBROUTINE PIKRES
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENP(23,INT(PIKUP(2,I,J)))
-                     ALENS(24,I)=(((ALENP(24,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_toric_flag(I, INT(ALENP(23,INT(PIKUP(2,I,J)))))
+                     call set_surf_toric_curvature(I, (((ALENP(24,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 9, CONTINUE PROCESSING
@@ -1223,8 +1146,7 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=(AALL3)-(PIKUP(3,I,J)*&
-                        &(AALL4))
+                        PIKUP(4,I,J)=(AALL3)-(PIKUP(3,I,J)*(AALL4))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
@@ -1236,32 +1158,29 @@ SUBROUTINE PIKRES
 !       OF THE PICKING SURFACE IS BEING CHANGED TO THE TORIC TYPE
 !       OF THE SURFACE BEING PICKED UP FROM.
                      PKD=INT(PIKUP(2,I,J))
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENS(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
+                     IF(surf_toric_flag(I).NE.surf_toric_flag(INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENS(23,INT(PIKUP(2,I,J)))
-                     DUMMY2=((((AALL4)*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_toric_flag(I, surf_toric_flag(INT(PIKUP(2,I,J))))
+                     DUMMY2=((((AALL4)*(PIKUP(3,I,J)))+PIKUP(4,I,J)))
                      IF(DUMMY.EQ.0.0D0) THEN
-                        ALENS(24,I)=0.0D0
+                        call set_surf_toric_curvature(I, 0.0D0)
                      ELSE
-                        ALENS(24,I)=(1.0D0/DUMMY2)
+                        call set_surf_toric_curvature(I, (1.0D0/DUMMY2))
                      END IF
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=(AALL3)-(PIKUP(3,I,J)*&
-                        &(AALL4))
+                        PIKUP(4,I,J)=(AALL3)-(PIKUP(3,I,J)*(AALL4))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
@@ -1276,21 +1195,19 @@ SUBROUTINE PIKRES
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENP(23,INT(PIKUP(2,I,J)))
-                     DUMMY2=((((AALL4)*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_toric_flag(I, INT(ALENP(23,INT(PIKUP(2,I,J)))))
+                     DUMMY2=((((AALL4)*(PIKUP(3,I,J)))+PIKUP(4,I,J)))
                      IF(DUMMY.EQ.0.0D0) THEN
-                        ALENS(24,I)=0.0D0
+                        call set_surf_toric_curvature(I, 0.0D0)
                      ELSE
-                        ALENS(24,I)=(1.0D0/DUMMY2)
+                        call set_surf_toric_curvature(I, (1.0D0/DUMMY2))
                      END IF
                   END IF
                ELSE
@@ -1305,54 +1222,52 @@ SUBROUTINE PIKRES
 !       PIKUP PRO HAS NO SPECIAL PIKUP OPTION
 !       PIKUP EVERY SURFACE PROILE DATA ITEM FROM THE
 !       SOURCE SURFACE TO THE TARGET SURFACE
-                     ALENS(1,I)=ALENS(1,INT(PIKUP(2,I,J)))
-                     ALENS(2,I)=ALENS(2,INT(PIKUP(2,I,J)))
-                     ALENS(4,I)=ALENS(4,INT(PIKUP(2,I,J)))
-                     ALENS(5,I)=ALENS(5,INT(PIKUP(2,I,J)))
-                     ALENS(6,I)=ALENS(6,INT(PIKUP(2,I,J)))
-                     ALENS(7,I)=ALENS(7,INT(PIKUP(2,I,J)))
+                     call set_surf_curvature(I, surf_curvature(INT(PIKUP(2,I,J))))
+                     call set_surf_conic(I, surf_conic(INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(INT(PIKUP(2,I,J)), 4))
+                     call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(INT(PIKUP(2,I,J)), 6))
+                     call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(INT(PIKUP(2,I,J)), 8))
+                     call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(INT(PIKUP(2,I,J)), 10))
                      ALENS(8,I)=ALENS(8,INT(PIKUP(2,I,J)))
-                     ALENS(81,I)=ALENS(81,INT(PIKUP(2,I,J)))
-                     ALENS(82,I)=ALENS(82,INT(PIKUP(2,I,J)))
-                     ALENS(83,I)=ALENS(83,INT(PIKUP(2,I,J)))
-                     ALENS(84,I)=ALENS(84,INT(PIKUP(2,I,J)))
-                     ALENS(85,I)=ALENS(85,INT(PIKUP(2,I,J)))
-                     ALENS(96,I)=ALENS(96,INT(PIKUP(2,I,J)))
-                     ALENS(97,I)=ALENS(97,INT(PIKUP(2,I,J)))
-                     ALENS(98,I)=ALENS(98,INT(PIKUP(2,I,J)))
-                     ALENS(99,I)=ALENS(99,INT(PIKUP(2,I,J)))
-                     ALENS(100,I)=ALENS(100,INT(PIKUP(2,I,J)))
-                     ALENS(101,I)=ALENS(101,INT(PIKUP(2,I,J)))
-                     ALENS(126,I)=ALENS(126,INT(PIKUP(2,I,J)))
-                     ALENS(138,I)=ALENS(138,INT(PIKUP(2,I,J)))
-                     ALENS(139,I)=ALENS(139,INT(PIKUP(2,I,J)))
-                     ALENS(140,I)=ALENS(140,INT(PIKUP(2,I,J)))
-                     ALENS(141,I)=ALENS(141,INT(PIKUP(2,I,J)))
-                     ALENS(142,I)=ALENS(142,INT(PIKUP(2,I,J)))
-                     IF(ALENS(34,INT(PIKUP(2,I,J))).NE.0.0D0) THEN
-                        ALENS(34,I)=ALENS(34,INT(PIKUP(2,I,J)))
+                     call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(INT(PIKUP(2,I,J)), 12))
+                     call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(INT(PIKUP(2,I,J)), 14))
+                     call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(INT(PIKUP(2,I,J)), 16))
+                     call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(INT(PIKUP(2,I,J)), 18))
+                     call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(INT(PIKUP(2,I,J)), 20))
+                     call set_surf_diffraction_flag(I, surf_diffraction_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_order(I, surf_grating_order(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_spacing(I, surf_grating_spacing(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vx(I, surf_grating_vx(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vy(I, surf_grating_vy(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vz(I, surf_grating_vz(INT(PIKUP(2,I,J))))
+                     call set_surf_ccr_flag(I, surf_ccr_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_roof_a(I, surf_roof_a(INT(PIKUP(2,I,J))))
+                     call set_surf_roof_angle_err(I, surf_roof_angle_err(INT(PIKUP(2,I,J))))
+                     call set_surf_roof_b(I, surf_roof_b(INT(PIKUP(2,I,J))))
+                     call set_surf_ccr_angle_err2(I, surf_ccr_angle_err2(INT(PIKUP(2,I,J))))
+                     call set_surf_ccr_b(I, surf_ccr_b(INT(PIKUP(2,I,J))))
+                     IF(surf_asi_flag(INT(PIKUP(2,I,J))).NE.0.0D0) THEN
+                        call set_surf_asi_flag(I, surf_asi_flag(INT(PIKUP(2,I,J))))
                         FTFL01(1:96,I)=FTFL01(1:96,INT(PIKUP(2,I,J)))
                      END IF
 
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
@@ -1363,36 +1278,34 @@ SUBROUTINE PIKRES
 !       OF THE PICKING SURFACE IS BEING CHANGED TO THE TORIC TYPE
 !       OF THE SURFACE BEING PICKED UP FROM.
                      PKD=INT(PIKUP(2,I,J))
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENS(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
+                     IF(surf_toric_flag(I).NE.surf_toric_flag(INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENS(23,INT(PIKUP(2,I,J)))
-                     ALENS(24,I)=ALENS(24,INT(PIKUP(2,I,J)))
-                     ALENS(34,I)=ALENS(34,INT(PIKUP(2,I,J)))
-                     ALENS(36,I)=ALENS(36,INT(PIKUP(2,I,J)))
-                     ALENS(37,I)=ALENS(37,INT(PIKUP(2,I,J)))
-                     ALENS(38,I)=ALENS(38,INT(PIKUP(2,I,J)))
-                     ALENS(39,I)=ALENS(39,INT(PIKUP(2,I,J)))
-                     ALENS(40,I)=ALENS(40,INT(PIKUP(2,I,J)))
-                     ALENS(41,I)=ALENS(41,INT(PIKUP(2,I,J)))
-                     ALENS(43,I)=ALENS(43,INT(PIKUP(2,I,J)))
+                     call set_surf_toric_flag(I, surf_toric_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_toric_curvature(I, surf_toric_curvature(INT(PIKUP(2,I,J))))
+                     call set_surf_asi_flag(I, surf_asi_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_flag(I, surf_anamorphic_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 4))
+                     call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 6))
+                     call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 8))
+                     call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 10))
+                     call set_surf_anamorphic_conic(I, surf_anamorphic_conic(INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(INT(PIKUP(2,I,J)), 2))
 !
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   ELSE
@@ -1400,43 +1313,41 @@ SUBROUTINE PIKRES
 !       PIKUP PRO HAS NO SPECIAL PIKUP OPTION
 !       PIKUP EVERY SURFACE PROILE DATA ITEM FROM THE
 !       SOURCE SURFACE TO THE TARGET SURFACE
-                     ALENS(1,I)=ALENP(1,INT(PIKUP(2,I,J)))
-                     ALENS(2,I)=ALENP(2,INT(PIKUP(2,I,J)))
-                     ALENS(4,I)=ALENP(4,INT(PIKUP(2,I,J)))
-                     ALENS(5,I)=ALENP(5,INT(PIKUP(2,I,J)))
-                     ALENS(6,I)=ALENP(6,INT(PIKUP(2,I,J)))
-                     ALENS(7,I)=ALENP(7,INT(PIKUP(2,I,J)))
+                     call set_surf_curvature(I, ALENP(1,INT(PIKUP(2,I,J))))
+                     call set_surf_conic(I, ALENP(2,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 4, ALENP(4,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 6, ALENP(5,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 8, ALENP(6,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 10, ALENP(7,INT(PIKUP(2,I,J))))
                      ALENS(8,I)=ALENP(8,INT(PIKUP(2,I,J)))
-                     ALENS(81,I)=ALENP(81,INT(PIKUP(2,I,J)))
-                     ALENS(82,I)=ALENP(82,INT(PIKUP(2,I,J)))
-                     ALENS(83,I)=ALENP(83,INT(PIKUP(2,I,J)))
-                     ALENS(84,I)=ALENP(84,INT(PIKUP(2,I,J)))
-                     ALENS(85,I)=ALENP(85,INT(PIKUP(2,I,J)))
-                     ALENS(96,I)=ALENS(96,INT(PIKUP(2,I,J)))
-                     ALENS(97,I)=ALENS(97,INT(PIKUP(2,I,J)))
-                     ALENS(98,I)=ALENS(98,INT(PIKUP(2,I,J)))
-                     ALENS(99,I)=ALENS(99,INT(PIKUP(2,I,J)))
-                     ALENS(100,I)=ALENS(100,INT(PIKUP(2,I,J)))
-                     ALENS(101,I)=ALENS(101,INT(PIKUP(2,I,J)))
+                     call set_surf_asphere_coeff(I, 12, ALENP(81,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 14, ALENP(82,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 16, ALENP(83,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 18, ALENP(84,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 20, ALENP(85,INT(PIKUP(2,I,J))))
+                     call set_surf_diffraction_flag(I, surf_diffraction_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_order(I, surf_grating_order(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_spacing(I, surf_grating_spacing(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vx(I, surf_grating_vx(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vy(I, surf_grating_vy(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vz(I, surf_grating_vz(INT(PIKUP(2,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
@@ -1450,33 +1361,31 @@ SUBROUTINE PIKRES
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENP(23,INT(PIKUP(2,I,J)))
-                     ALENS(24,I)=ALENP(24,INT(PIKUP(2,I,J)))
-                     ALENS(34,I)=ALENP(34,INT(PIKUP(2,I,J)))
-                     ALENS(36,I)=ALENP(36,INT(PIKUP(2,I,J)))
-                     ALENS(37,I)=ALENP(37,INT(PIKUP(2,I,J)))
-                     ALENS(38,I)=ALENP(38,INT(PIKUP(2,I,J)))
-                     ALENS(39,I)=ALENP(39,INT(PIKUP(2,I,J)))
-                     ALENS(40,I)=ALENP(40,INT(PIKUP(2,I,J)))
-                     ALENS(41,I)=ALENP(41,INT(PIKUP(2,I,J)))
-                     ALENS(43,I)=ALENP(43,INT(PIKUP(2,I,J)))
+                     call set_surf_toric_flag(I, INT(ALENP(23,INT(PIKUP(2,I,J)))))
+                     call set_surf_toric_curvature(I, ALENP(24,INT(PIKUP(2,I,J))))
+                     call set_surf_asi_flag(I, INT(ALENP(34,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_flag(I, INT(ALENP(36,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_coeff(I, 4, ALENP(37,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 6, ALENP(38,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 8, ALENP(39,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 10, ALENP(40,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_conic(I, ALENP(41,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 2, ALENP(43,INT(PIKUP(2,I,J))))
 !
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   END IF
@@ -1493,49 +1402,47 @@ SUBROUTINE PIKRES
 !       PIKUP NPRO HAS NO SPECIAL PIKUP OPTION
 !       PIKUP EVERY SURFACE PROILE DATA ITEM FROM THE
 !       SOURCE SURFACE TO THE TARGET SURFACE
-                     ALENS(1,I)=-ALENS(1,INT(PIKUP(2,I,J)))
-                     ALENS(2,I)=ALENS(2,INT(PIKUP(2,I,J)))
-                     ALENS(4,I)=-ALENS(4,INT(PIKUP(2,I,J)))
-                     ALENS(5,I)=-ALENS(5,INT(PIKUP(2,I,J)))
-                     ALENS(6,I)=-ALENS(6,INT(PIKUP(2,I,J)))
-                     ALENS(7,I)=-ALENS(7,INT(PIKUP(2,I,J)))
+                     call set_surf_curvature(I, -surf_curvature(INT(PIKUP(2,I,J))))
+                     call set_surf_conic(I, surf_conic(INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 4, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 4))
+                     call set_surf_asphere_coeff(I, 6, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 6))
+                     call set_surf_asphere_coeff(I, 8, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 8))
+                     call set_surf_asphere_coeff(I, 10, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 10))
                      ALENS(8,I)=ALENS(8,INT(PIKUP(2,I,J)))
-                     ALENS(81,I)=-ALENS(81,INT(PIKUP(2,I,J)))
-                     ALENS(82,I)=-ALENS(82,INT(PIKUP(2,I,J)))
-                     ALENS(83,I)=-ALENS(83,INT(PIKUP(2,I,J)))
-                     ALENS(84,I)=-ALENS(84,INT(PIKUP(2,I,J)))
-                     ALENS(85,I)=-ALENS(85,INT(PIKUP(2,I,J)))
-                     ALENS(96,I)=ALENS(96,INT(PIKUP(2,I,J)))
-                     ALENS(97,I)=ALENS(97,INT(PIKUP(2,I,J)))
-                     ALENS(98,I)=ALENS(98,INT(PIKUP(2,I,J)))
-                     ALENS(99,I)=ALENS(99,INT(PIKUP(2,I,J)))
-                     ALENS(100,I)=ALENS(100,INT(PIKUP(2,I,J)))
-                     ALENS(101,I)=ALENS(101,INT(PIKUP(2,I,J)))
-                     ALENS(126,I)=ALENS(126,INT(PIKUP(2,I,J)))
-                     ALENS(138,I)=ALENS(138,INT(PIKUP(2,I,J)))
-                     ALENS(139,I)=-ALENS(139,INT(PIKUP(2,I,J)))
-                     ALENS(140,I)=-ALENS(140,INT(PIKUP(2,I,J)))
-                     ALENS(141,I)=-ALENS(141,INT(PIKUP(2,I,J)))
-                     ALENS(142,I)=-ALENS(142,INT(PIKUP(2,I,J)))
+                     call set_surf_asphere_coeff(I, 12, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 12))
+                     call set_surf_asphere_coeff(I, 14, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 14))
+                     call set_surf_asphere_coeff(I, 16, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 16))
+                     call set_surf_asphere_coeff(I, 18, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 18))
+                     call set_surf_asphere_coeff(I, 20, -surf_asphere_coeff(INT(PIKUP(2,I,J)), 20))
+                     call set_surf_diffraction_flag(I, surf_diffraction_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_order(I, surf_grating_order(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_spacing(I, surf_grating_spacing(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vx(I, surf_grating_vx(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vy(I, surf_grating_vy(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vz(I, surf_grating_vz(INT(PIKUP(2,I,J))))
+                     call set_surf_ccr_flag(I, surf_ccr_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_roof_a(I, surf_roof_a(INT(PIKUP(2,I,J))))
+                     call set_surf_roof_angle_err(I, -surf_roof_angle_err(INT(PIKUP(2,I,J))))
+                     call set_surf_roof_b(I, -surf_roof_b(INT(PIKUP(2,I,J))))
+                     call set_surf_ccr_angle_err2(I, -surf_ccr_angle_err2(INT(PIKUP(2,I,J))))
+                     call set_surf_ccr_b(I, -surf_ccr_b(INT(PIKUP(2,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
@@ -1546,36 +1453,34 @@ SUBROUTINE PIKRES
 !       OF THE PICKING SURFACE IS BEING CHANGED TO THE TORIC TYPE
 !       OF THE SURFACE BEING PICKED UP FROM.
                      PKD=INT(PIKUP(2,I,J))
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
-                     IF(ALENS(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENS(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
+                     IF(surf_toric_flag(INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
+                     IF(surf_toric_flag(I).NE.surf_toric_flag(INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENS(23,INT(PIKUP(2,I,J)))
-                     ALENS(24,I)=-ALENS(24,INT(PIKUP(2,I,J)))
-                     ALENS(34,I)=ALENS(34,INT(PIKUP(2,I,J)))
-                     ALENS(36,I)=ALENS(36,INT(PIKUP(2,I,J)))
-                     ALENS(37,I)=-ALENS(37,INT(PIKUP(2,I,J)))
-                     ALENS(38,I)=-ALENS(38,INT(PIKUP(2,I,J)))
-                     ALENS(39,I)=-ALENS(39,INT(PIKUP(2,I,J)))
-                     ALENS(40,I)=-ALENS(40,INT(PIKUP(2,I,J)))
-                     ALENS(41,I)=ALENS(41,INT(PIKUP(2,I,J)))
-                     ALENS(43,I)=ALENS(43,INT(PIKUP(2,I,J)))
+                     call set_surf_toric_flag(I, surf_toric_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_toric_curvature(I, -surf_toric_curvature(INT(PIKUP(2,I,J))))
+                     call set_surf_asi_flag(I, surf_asi_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_flag(I, surf_anamorphic_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 4, -surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 4))
+                     call set_surf_anamorphic_coeff(I, 6, -surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 6))
+                     call set_surf_anamorphic_coeff(I, 8, -surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 8))
+                     call set_surf_anamorphic_coeff(I, 10, -surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 10))
+                     call set_surf_anamorphic_conic(I, surf_anamorphic_conic(INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(INT(PIKUP(2,I,J)), 2))
 !
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   ELSE
@@ -1583,43 +1488,41 @@ SUBROUTINE PIKRES
 !       PIKUP NPRO HAS NO SPECIAL PIKUP OPTION
 !       PIKUP EVERY SURFACE PROILE DATA ITEM FROM THE
 !       SOURCE SURFACE TO THE TARGET SURFACE
-                     ALENS(1,I)=-ALENP(1,INT(PIKUP(2,I,J)))
-                     ALENS(2,I)=ALENP(2,INT(PIKUP(2,I,J)))
-                     ALENS(4,I)=-ALENP(4,INT(PIKUP(2,I,J)))
-                     ALENS(5,I)=-ALENP(5,INT(PIKUP(2,I,J)))
-                     ALENS(6,I)=-ALENP(6,INT(PIKUP(2,I,J)))
-                     ALENS(7,I)=-ALENP(7,INT(PIKUP(2,I,J)))
+                     call set_surf_curvature(I, -ALENP(1,INT(PIKUP(2,I,J))))
+                     call set_surf_conic(I, ALENP(2,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 4, -ALENP(4,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 6, -ALENP(5,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 8, -ALENP(6,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 10, -ALENP(7,INT(PIKUP(2,I,J))))
                      ALENS(8,I)=ALENP(8,INT(PIKUP(2,I,J)))
-                     ALENS(81,I)=-ALENP(81,INT(PIKUP(2,I,J)))
-                     ALENS(82,I)=-ALENP(82,INT(PIKUP(2,I,J)))
-                     ALENS(83,I)=-ALENP(83,INT(PIKUP(2,I,J)))
-                     ALENS(84,I)=-ALENP(84,INT(PIKUP(2,I,J)))
-                     ALENS(85,I)=-ALENP(85,INT(PIKUP(2,I,J)))
-                     ALENS(96,I)=ALENS(96,INT(PIKUP(2,I,J)))
-                     ALENS(97,I)=ALENS(97,INT(PIKUP(2,I,J)))
-                     ALENS(98,I)=ALENS(98,INT(PIKUP(2,I,J)))
-                     ALENS(99,I)=ALENS(99,INT(PIKUP(2,I,J)))
-                     ALENS(100,I)=ALENS(100,INT(PIKUP(2,I,J)))
-                     ALENS(101,I)=ALENS(101,INT(PIKUP(2,I,J)))
+                     call set_surf_asphere_coeff(I, 12, -ALENP(81,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 14, -ALENP(82,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 16, -ALENP(83,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 18, -ALENP(84,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 20, -ALENP(85,INT(PIKUP(2,I,J))))
+                     call set_surf_diffraction_flag(I, surf_diffraction_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_order(I, surf_grating_order(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_spacing(I, surf_grating_spacing(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vx(I, surf_grating_vx(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vy(I, surf_grating_vy(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vz(I, surf_grating_vz(INT(PIKUP(2,I,J))))
 !
-                     IF(ALENS(1,I).EQ.0.0D0.AND.ALENS(2,I).NE.0.0D0) THEN
-                        ALENS(2,I)=0.0D0
+                     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
+                        call set_surf_conic(I, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
+                        OUTLYNE='THE CONIC CONSTANT RESET TO 0.0 FOR THIS PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
 !
@@ -1633,33 +1536,31 @@ SUBROUTINE PIKRES
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.1.0D0) TTP='AN  Y-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.2.0D0) TTP='A   X-TORIC'
                      IF(ALENP(23,INT(PIKUP(2,I,J))).EQ.0.0D0) TTP='A NON-TORIC'
-                     IF(&
-                     &ALENS(23,I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
+                     IF(surf_toric_flag(I).NE.ALENP(23,INT(PIKUP(2,I,J)))) THEN
                         WRITE(OUTLYNE,100) I
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,200) TTP,PKD
                         CALL SHOWIT(1)
                      END IF
 !
-                     ALENS(23,I)=ALENP(23,INT(PIKUP(2,I,J)))
-                     ALENS(24,I)=-ALENP(24,INT(PIKUP(2,I,J)))
-                     ALENS(34,I)=ALENP(34,INT(PIKUP(2,I,J)))
-                     ALENS(36,I)=ALENP(36,INT(PIKUP(2,I,J)))
-                     ALENS(37,I)=-ALENP(37,INT(PIKUP(2,I,J)))
-                     ALENS(38,I)=-ALENP(38,INT(PIKUP(2,I,J)))
-                     ALENS(39,I)=-ALENP(39,INT(PIKUP(2,I,J)))
-                     ALENS(40,I)=-ALENP(40,INT(PIKUP(2,I,J)))
-                     ALENS(41,I)=ALENP(41,INT(PIKUP(2,I,J)))
-                     ALENS(43,I)=ALENP(43,INT(PIKUP(2,I,J)))
+                     call set_surf_toric_flag(I, INT(ALENP(23,INT(PIKUP(2,I,J)))))
+                     call set_surf_toric_curvature(I, -ALENP(24,INT(PIKUP(2,I,J))))
+                     call set_surf_asi_flag(I, INT(ALENP(34,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_flag(I, INT(ALENP(36,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_coeff(I, 4, -ALENP(37,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 6, -ALENP(38,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 8, -ALENP(39,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 10, -ALENP(40,INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_conic(I, ALENP(41,INT(PIKUP(2,I,J))))
+                     call set_surf_asphere_coeff(I, 2, ALENP(43,INT(PIKUP(2,I,J))))
 !
-                     IF(ALENS(1,I).NE.0.0D0.AND.ALENS(43,I).NE.0.0D0) THEN
-                        ALENS(43,I)=0.0D0
+                     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
+                        call set_surf_asphere_coeff(I, 2, 0.0D0)
                         OUTLYNE='WARNING:'
                         CALL SHOWIT(1)
                         WRITE(OUTLYNE,*)'FOR SURFACE ',I
                         CALL SHOWIT(1)
-                        OUTLYNE=&
-                        &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+                        OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
                         CALL SHOWIT(1)
                      END IF
                   END IF
@@ -1676,33 +1577,27 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(115,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(115,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_focus_dy(I)-(PIKUP(3,I,J)*(surf_focus_dy(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0d0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(29,I)=(ALENS(29,INT(PIKUP(2,I,J))))
-                     ALENS(30,I)=(((ALENS(30,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(115,I)=(((ALENS(115,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_decenter_flag(I, (surf_decenter_flag(INT(PIKUP(2,I,J)))))
+                     call set_surf_decenter_y(I, (((surf_decenter_y(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_focus_dy(I, (((surf_focus_dy(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(30,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(30,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(30,I)-(PIKUP(3,I,J)*(ALENP(30,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(29,I)=(ALENP(29,INT(PIKUP(2,I,J))))
-                     ALENS(30,I)=(((ALENP(30,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(115,I)=(((ALENP(115,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_decenter_flag(I, INT((ALENP(29,INT(PIKUP(2,I,J))))))
+                     call set_surf_decenter_y(I, (((ALENP(30,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_focus_dy(I, (((ALENP(115,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 13, CONTINUE PROCESSING
@@ -1716,33 +1611,27 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(116,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(116,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_focus_dz(I)-(PIKUP(3,I,J)*(surf_focus_dz(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0d0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(29,I)=(ALENS(29,INT(PIKUP(2,I,J))))
-                     ALENS(69,I)=(((ALENS(69,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(116,I)=(((ALENS(116,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_decenter_flag(I, (surf_decenter_flag(INT(PIKUP(2,I,J)))))
+                     call set_surf_decenter_z(I, (((surf_decenter_z(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_focus_dz(I, (((surf_focus_dz(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(69,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(69,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(69,I)-(PIKUP(3,I,J)*(ALENP(69,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(29,I)=(ALENP(29,INT(PIKUP(2,I,J))))
-                     ALENS(69,I)=(((ALENP(69,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(116,I)=(((ALENP(116,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_decenter_flag(I, INT((ALENP(29,INT(PIKUP(2,I,J))))))
+                     call set_surf_decenter_z(I, (((ALENP(69,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_focus_dz(I, (((ALENP(116,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 33, CONTINUE PROCESSING
@@ -1755,29 +1644,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(78,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(78,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_pivot_x(I)-(PIKUP(3,I,J)*(surf_pivot_x(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(59,I)=(ALENS(59,INT(PIKUP(2,I,J))))
-                     ALENS(78,I)=(((ALENS(78,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_pivot_flag(I, (surf_pivot_flag(INT(PIKUP(2,I,J)))))
+                     call set_surf_pivot_x(I, (((surf_pivot_x(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(78,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(78,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(78,I)-(PIKUP(3,I,J)*(ALENP(78,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(59,I)=(ALENP(59,INT(PIKUP(2,I,J))))
-                     ALENS(78,I)=(((ALENP(78,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_pivot_flag(I, INT((ALENP(59,INT(PIKUP(2,I,J))))))
+                     call set_surf_pivot_x(I, (((ALENP(78,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 34, CONTINUE PROCESSING
@@ -1790,29 +1675,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(79,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(79,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_pivot_y(I)-(PIKUP(3,I,J)*(surf_pivot_y(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(59,I)=(ALENS(59,INT(PIKUP(2,I,J))))
-                     ALENS(79,I)=(((ALENS(79,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_pivot_flag(I, (surf_pivot_flag(INT(PIKUP(2,I,J)))))
+                     call set_surf_pivot_y(I, (((surf_pivot_y(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(79,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(79,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(79,I)-(PIKUP(3,I,J)*(ALENP(79,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(59,I)=(ALENP(59,INT(PIKUP(2,I,J))))
-                     ALENS(79,I)=(((ALENP(79,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_pivot_flag(I, INT((ALENP(59,INT(PIKUP(2,I,J))))))
+                     call set_surf_pivot_y(I, (((ALENP(79,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 35, CONTINUE PROCESSING
@@ -1825,29 +1706,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(80,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(80,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_pivot_z(I)-(PIKUP(3,I,J)*(surf_pivot_z(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(59,I)=(ALENS(59,INT(PIKUP(2,I,J))))
-                     ALENS(80,I)=(((ALENS(80,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_pivot_flag(I, (surf_pivot_flag(INT(PIKUP(2,I,J)))))
+                     call set_surf_pivot_z(I, (((surf_pivot_z(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(80,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(80,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(80,I)-(PIKUP(3,I,J)*(ALENP(80,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(59,I)=(ALENP(59,INT(PIKUP(2,I,J))))
-                     ALENS(80,I)=(((ALENP(80,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_pivot_flag(I, INT((ALENP(59,INT(PIKUP(2,I,J))))))
+                     call set_surf_pivot_z(I, (((ALENP(80,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 36, CONTINUE PROCESSING
@@ -1860,33 +1737,27 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(114,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(114,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_focus_dx(I)-(PIKUP(3,I,J)*(surf_focus_dx(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(29,I)=(ALENS(29,INT(PIKUP(2,I,J))))
-                     ALENS(31,I)=(((ALENS(31,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(114,I)=(((ALENS(114,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_decenter_flag(I, (surf_decenter_flag(INT(PIKUP(2,I,J)))))
+                     call set_surf_decenter_x(I, (((surf_decenter_x(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_focus_dx(I, (((surf_focus_dx(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(31,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(31,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(31,I)-(PIKUP(3,I,J)*(ALENP(31,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(29,I)=(ALENP(29,INT(PIKUP(2,I,J))))
-                     ALENS(31,I)=(((ALENP(31,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(114,I)=(((ALENP(114,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_decenter_flag(I, INT((ALENP(29,INT(PIKUP(2,I,J))))))
+                     call set_surf_decenter_x(I, (((ALENP(31,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_focus_dx(I, (((ALENP(114,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 14, CONTINUE PROCESSING
@@ -1900,27 +1771,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(90,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(90,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_global_dx(I)-(PIKUP(3,I,J)*(surf_global_dx(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(90,I)=(((ALENS(90,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_dx(I, (((surf_global_dx(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(90,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(90,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(90,I)-(PIKUP(3,I,J)*(ALENP(90,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(90,I)=(((ALENP(90,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_dx(I, (((ALENP(90,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 37, CONTINUE PROCESSING
@@ -1934,27 +1801,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(91,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(91,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_global_dy(I)-(PIKUP(3,I,J)*(surf_global_dy(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(91,I)=(((ALENS(91,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_dy(I, (((surf_global_dy(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(91,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(91,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(91,I)-(PIKUP(3,I,J)*(ALENP(91,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(91,I)=(((ALENP(91,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_dy(I, (((ALENP(91,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 38, CONTINUE PROCESSING
@@ -1968,27 +1831,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(92,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(92,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_global_dz(I)-(PIKUP(3,I,J)*(surf_global_dz(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(92,I)=(((ALENS(92,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_dz(I, (((surf_global_dz(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(92,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(92,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(92,I)-(PIKUP(3,I,J)*(ALENP(92,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(92,I)=(((ALENP(92,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_dz(I, (((ALENP(92,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 39, CONTINUE PROCESSING
@@ -2002,27 +1861,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(93,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(93,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_global_alpha(I)-(PIKUP(3,I,J)*(surf_global_alpha(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(93,I)=(((ALENS(93,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_alpha(I, (((surf_global_alpha(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(93,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(93,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(93,I)-(PIKUP(3,I,J)*(ALENP(93,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(93,I)=(((ALENP(93,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_alpha(I, (((ALENP(93,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 40, CONTINUE PROCESSING
@@ -2036,27 +1891,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(94,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(94,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_global_beta(I)-(PIKUP(3,I,J)*(surf_global_beta(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(94,I)=(((ALENS(94,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_beta(I, (((surf_global_beta(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(94,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(94,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(94,I)-(PIKUP(3,I,J)*(ALENP(94,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(94,I)=(((ALENP(94,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_beta(I, (((ALENP(94,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 41, CONTINUE PROCESSING
@@ -2070,27 +1921,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(95,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(95,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_global_gamma(I)-(PIKUP(3,I,J)*(surf_global_gamma(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(95,I)=(((ALENS(95,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_gamma(I, (((surf_global_gamma(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(95,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(95,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(95,I)-(PIKUP(3,I,J)*(ALENP(95,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(95,I)=(((ALENP(95,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_global_gamma(I, (((ALENP(95,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 42, CONTINUE PROCESSING
@@ -2104,33 +1951,26 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(26,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(26,INT(PIKUP(2,I,J)))))
-                        PIKUP(4,I,J)=ALENS(118,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(118,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_alpha(I)-(PIKUP(3,I,J)*(surf_alpha(INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_alpha_deg(I)-(PIKUP(3,I,J)*(surf_alpha_deg(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(118,I)=(((ALENS(118,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(26,I)=(((ALENS(26,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_alpha_deg(I, (((surf_alpha_deg(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_alpha(I, (((surf_alpha(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(26,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(26,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(26,I)-(PIKUP(3,I,J)*(ALENP(26,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(26,I)=(((ALENP(26,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(118,I)=(((ALENP(118,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_alpha(I, (((ALENP(26,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_alpha_deg(I, (((ALENP(118,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 15, CONTINUE PROCESSING
@@ -2144,33 +1984,26 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=(ALENS(27,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(27,INT(PIKUP(2,I,J))))))
-                        PIKUP(4,I,J)=(ALENS(119,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(119,INT(PIKUP(2,I,J))))))
+                        PIKUP(4,I,J)=(surf_beta(I)-(PIKUP(3,I,J)*(surf_beta(INT(PIKUP(2,I,J))))))
+                        PIKUP(4,I,J)=(surf_beta_deg(I)-(PIKUP(3,I,J)*(surf_beta_deg(INT(PIKUP(2,I,J))))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(119,I)=(((ALENS(119,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(27,I)=(((ALENS(27,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_beta_deg(I, (((surf_beta_deg(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_beta(I, (((surf_beta(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=(ALENP(27,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(27,INT(PIKUP(2,I,J))))))
+                        PIKUP(4,I,J)=(ALENP(27,I)-(PIKUP(3,I,J)*(ALENP(27,INT(PIKUP(2,I,J))))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(27,I)=(((ALENP(27,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(119,I)=(((ALENP(119,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_beta(I, (((ALENP(27,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_beta_deg(I, (((ALENP(119,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 16, CONTINUE PROCESSING
@@ -2184,30 +2017,24 @@ SUBROUTINE PIKRES
 !     PIK FROM CURRENT CFG
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(120,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(120,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_gamma_deg(I)-(PIKUP(3,I,J)*(surf_gamma_deg(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(28,I)=(((ALENS(28,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(120,I)=(((ALENS(120,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_gamma(I, (((surf_gamma(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_gamma_deg(I, (((surf_gamma_deg(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(28,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(28,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(28,I)-(PIKUP(3,I,J)*(ALENP(28,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(28,I)=(((ALENP(28,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
-                     ALENS(120,I)=(((ALENP(120,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_gamma(I, (((ALENP(28,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
+                     call set_surf_gamma_deg(I, (((ALENP(120,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 14, CONTINUE PROCESSING
@@ -2219,33 +2046,33 @@ SUBROUTINE PIKRES
                   IF(PIKUP(6,I,J).EQ.0.0D0.OR.F12.EQ.1) THEN
 !     PIK FROM CURRENT CFG
 !       PIKUP CLAP HAS NO SPECIAL PIKUP OPTION
-                     ALENS(10,I)=(ALENS(10,INT(PIKUP(2,I,J))))
-                     ALENS(11,I)=(ALENS(11,INT(PIKUP(2,I,J))))
-                     ALENS(12,I)=(ALENS(12,INT(PIKUP(2,I,J))))
-                     ALENS(13,I)=(ALENS(13,INT(PIKUP(2,I,J))))
-                     ALENS(14,I)=(ALENS(14,INT(PIKUP(2,I,J))))
-                     ALENS(15,I)=(ALENS(15,INT(PIKUP(2,I,J))))
-                     ALENS(52,I)=(ALENS(52,INT(PIKUP(2,I,J))))
-                     ALENS(53,I)=(ALENS(53,INT(PIKUP(2,I,J))))
-                     ALENS(54,I)=(ALENS(54,INT(PIKUP(2,I,J))))
-                     ALENS(55,I)=(ALENS(55,INT(PIKUP(2,I,J))))
-                     ALENS(56,I)=(ALENS(56,INT(PIKUP(2,I,J))))
-                     ALENS(57,I)=(ALENS(57,INT(PIKUP(2,I,J))))
+                     call set_surf_clap_dim(I, 1, (surf_clap_dim(INT(PIKUP(2,I,J)), 1)))
+                     call set_surf_clap_dim(I, 2, (surf_clap_dim(INT(PIKUP(2,I,J)), 2)))
+                     call set_surf_clap_dim(I, 3, (surf_clap_dim(INT(PIKUP(2,I,J)), 3)))
+                     call set_surf_clap_dim(I, 4, (surf_clap_dim(INT(PIKUP(2,I,J)), 4)))
+                     call set_surf_clap_dim(I, 5, (surf_clap_dim(INT(PIKUP(2,I,J)), 5)))
+                     call set_surf_clap_tilt(I, (surf_clap_tilt(INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 1, (surf_cobs_ape_data(INT(PIKUP(2,I,J)), 1)))
+                     call set_surf_cobs_ape_data(I, 2, (surf_cobs_ape_data(INT(PIKUP(2,I,J)), 2)))
+                     call set_surf_cobs_ape_data(I, 3, (surf_cobs_ape_data(INT(PIKUP(2,I,J)), 3)))
+                     call set_surf_cobs_ape_data(I, 4, (surf_cobs_ape_data(INT(PIKUP(2,I,J)), 4)))
+                     call set_surf_cobs_ape_data(I, 5, (surf_cobs_ape_data(INT(PIKUP(2,I,J)), 5)))
+                     call set_surf_cobs_ape_data(I, 6, (surf_cobs_ape_data(INT(PIKUP(2,I,J)), 6)))
                   ELSE
 !     PIK FROM MAIN CFG
 !       PIKUP CLAP HAS NO SPECIAL PIKUP OPTION
-                     ALENS(10,I)=(ALENP(10,INT(PIKUP(2,I,J))))
-                     ALENS(11,I)=(ALENP(11,INT(PIKUP(2,I,J))))
-                     ALENS(12,I)=(ALENP(12,INT(PIKUP(2,I,J))))
-                     ALENS(13,I)=(ALENP(13,INT(PIKUP(2,I,J))))
-                     ALENS(14,I)=(ALENP(14,INT(PIKUP(2,I,J))))
-                     ALENS(15,I)=(ALENP(15,INT(PIKUP(2,I,J))))
-                     ALENS(52,I)=(ALENP(52,INT(PIKUP(2,I,J))))
-                     ALENS(53,I)=(ALENP(53,INT(PIKUP(2,I,J))))
-                     ALENS(54,I)=(ALENP(54,INT(PIKUP(2,I,J))))
-                     ALENS(55,I)=(ALENP(55,INT(PIKUP(2,I,J))))
-                     ALENS(56,I)=(ALENP(56,INT(PIKUP(2,I,J))))
-                     ALENS(57,I)=(ALENP(57,INT(PIKUP(2,I,J))))
+                     call set_surf_clap_dim(I, 1, (ALENP(10,INT(PIKUP(2,I,J)))))
+                     call set_surf_clap_dim(I, 2, (ALENP(11,INT(PIKUP(2,I,J)))))
+                     call set_surf_clap_dim(I, 3, (ALENP(12,INT(PIKUP(2,I,J)))))
+                     call set_surf_clap_dim(I, 4, (ALENP(13,INT(PIKUP(2,I,J)))))
+                     call set_surf_clap_dim(I, 5, (ALENP(14,INT(PIKUP(2,I,J)))))
+                     call set_surf_clap_tilt(I, (ALENP(15,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 1, (ALENP(52,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 2, (ALENP(53,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 3, (ALENP(54,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 4, (ALENP(55,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 5, (ALENP(56,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_ape_data(I, 6, (ALENP(57,INT(PIKUP(2,I,J)))))
                   END IF
                ELSE
 !       J NOT 18, CONTINUE PROCESSING
@@ -2257,33 +2084,33 @@ SUBROUTINE PIKRES
                   IF(PIKUP(6,I,J).EQ.0.0D0.OR.F12.EQ.1) THEN
 !     PIK FROM CURRENT CFG
 !       PIKUP COBS HAS NO SPECIAL PIKUP OPTION
-                     ALENS(17,I)=(ALENS(17,INT(PIKUP(2,I,J))))
-                     ALENS(18,I)=(ALENS(18,INT(PIKUP(2,I,J))))
-                     ALENS(19,I)=(ALENS(19,INT(PIKUP(2,I,J))))
-                     ALENS(20,I)=(ALENS(20,INT(PIKUP(2,I,J))))
-                     ALENS(21,I)=(ALENS(21,INT(PIKUP(2,I,J))))
-                     ALENS(22,I)=(ALENS(22,INT(PIKUP(2,I,J))))
-                     ALENS(62,I)=(ALENS(62,INT(PIKUP(2,I,J))))
-                     ALENS(63,I)=(ALENS(63,INT(PIKUP(2,I,J))))
-                     ALENS(64,I)=(ALENS(64,INT(PIKUP(2,I,J))))
-                     ALENS(65,I)=(ALENS(65,INT(PIKUP(2,I,J))))
-                     ALENS(66,I)=(ALENS(66,INT(PIKUP(2,I,J))))
-                     ALENS(67,I)=(ALENS(67,INT(PIKUP(2,I,J))))
+                     call set_surf_cobs_poly(I, 1, (surf_cobs_poly(INT(PIKUP(2,I,J)), 1)))
+                     call set_surf_cobs_poly(I, 2, (surf_cobs_poly(INT(PIKUP(2,I,J)), 2)))
+                     call set_surf_cobs_poly(I, 3, (surf_cobs_poly(INT(PIKUP(2,I,J)), 3)))
+                     call set_surf_cobs_poly(I, 4, (surf_cobs_poly(INT(PIKUP(2,I,J)), 4)))
+                     call set_surf_cobs_poly(I, 5, (surf_cobs_poly(INT(PIKUP(2,I,J)), 5)))
+                     call set_surf_cobs_poly(I, 6, (surf_cobs_poly(INT(PIKUP(2,I,J)), 6)))
+                     call set_surf_cobs_era_data(I, 1, (surf_cobs_era_data(INT(PIKUP(2,I,J)), 1)))
+                     call set_surf_cobs_era_data(I, 2, (surf_cobs_era_data(INT(PIKUP(2,I,J)), 2)))
+                     call set_surf_cobs_era_data(I, 3, (surf_cobs_era_data(INT(PIKUP(2,I,J)), 3)))
+                     call set_surf_cobs_era_data(I, 4, (surf_cobs_era_data(INT(PIKUP(2,I,J)), 4)))
+                     call set_surf_cobs_era_data(I, 5, (surf_cobs_era_data(INT(PIKUP(2,I,J)), 5)))
+                     call set_surf_cobs_era_data(I, 6, (surf_cobs_era_data(INT(PIKUP(2,I,J)), 6)))
                   ELSE
 !     PIK FROM MAIN CFG
 !       PIKUP COBS HAS NO SPECIAL PIKUP OPTION
-                     ALENS(17,I)=(ALENP(17,INT(PIKUP(2,I,J))))
-                     ALENS(18,I)=(ALENP(18,INT(PIKUP(2,I,J))))
-                     ALENS(19,I)=(ALENP(19,INT(PIKUP(2,I,J))))
-                     ALENS(20,I)=(ALENP(20,INT(PIKUP(2,I,J))))
-                     ALENS(21,I)=(ALENP(21,INT(PIKUP(2,I,J))))
-                     ALENS(22,I)=(ALENP(22,INT(PIKUP(2,I,J))))
-                     ALENS(62,I)=(ALENP(62,INT(PIKUP(2,I,J))))
-                     ALENS(63,I)=(ALENP(63,INT(PIKUP(2,I,J))))
-                     ALENS(64,I)=(ALENP(64,INT(PIKUP(2,I,J))))
-                     ALENS(65,I)=(ALENP(65,INT(PIKUP(2,I,J))))
-                     ALENS(66,I)=(ALENP(66,INT(PIKUP(2,I,J))))
-                     ALENS(67,I)=(ALENP(67,INT(PIKUP(2,I,J))))
+                     call set_surf_cobs_poly(I, 1, (ALENP(17,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_poly(I, 2, (ALENP(18,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_poly(I, 3, (ALENP(19,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_poly(I, 4, (ALENP(20,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_poly(I, 5, (ALENP(21,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_poly(I, 6, (ALENP(22,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_era_data(I, 1, (ALENP(62,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_era_data(I, 2, (ALENP(63,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_era_data(I, 3, (ALENP(64,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_era_data(I, 4, (ALENP(65,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_era_data(I, 5, (ALENP(66,INT(PIKUP(2,I,J)))))
+                     call set_surf_cobs_era_data(I, 6, (ALENP(67,INT(PIKUP(2,I,J)))))
                   END IF
                ELSE
 !       J NOT 19, CONTINUE PROCESSING
@@ -2297,118 +2124,103 @@ SUBROUTINE PIKRES
 !       PIKUP GLASS HAS NO SPECIAL PIKUP OPTION
                      GLANAM(I,1)=GLANAM(INT(PIKUP(2,I,J)),1)
                      GLANAM(I,2)=GLANAM(INT(PIKUP(2,I,J)),2)
-                     ALENS(46,I)=(ALENS(46,INT(PIKUP(2,I,J))))
-                     ALENS(47,I)=(ALENS(47,INT(PIKUP(2,I,J))))
-                     ALENS(48,I)=(ALENS(48,INT(PIKUP(2,I,J))))
-                     ALENS(49,I)=(ALENS(49,INT(PIKUP(2,I,J))))
-                     ALENS(50,I)=(ALENS(50,INT(PIKUP(2,I,J))))
-                     ALENS(71,I)=(ALENS(71,INT(PIKUP(2,I,J))))
-                     ALENS(72,I)=(ALENS(72,INT(PIKUP(2,I,J))))
-                     ALENS(73,I)=(ALENS(73,INT(PIKUP(2,I,J))))
-                     ALENS(74,I)=(ALENS(74,INT(PIKUP(2,I,J))))
-                     ALENS(75,I)=(ALENS(75,INT(PIKUP(2,I,J))))
-                     ALENS(86,I)=(ALENS(86,INT(PIKUP(2,I,J))))
-                     ALENS(87,I)=(ALENS(87,INT(PIKUP(2,I,J))))
-                     ALENS(89,I)=(ALENS(89,INT(PIKUP(2,I,J))))
-                     IF(I.EQ.0.AND.ALENS(46,I).LT.0.0D0.AND.&
-                     &GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.&
-                     &GLANAM(I,2).NE.'REFLTIRO') THEN
+                     call set_surf_refractive_index(I, 1, (surf_refractive_index(INT(PIKUP(2,I,J)), 1)))
+                     call set_surf_refractive_index(I, 2, (surf_refractive_index(INT(PIKUP(2,I,J)), 2)))
+                     call set_surf_refractive_index(I, 3, (surf_refractive_index(INT(PIKUP(2,I,J)), 3)))
+                     call set_surf_refractive_index(I, 4, (surf_refractive_index(INT(PIKUP(2,I,J)), 4)))
+                     call set_surf_refractive_index(I, 5, (surf_refractive_index(INT(PIKUP(2,I,J)), 5)))
+                     call set_surf_refractive_index(I, 6, (surf_refractive_index(INT(PIKUP(2,I,J)), 6)))
+                     call set_surf_refractive_index(I, 7, (surf_refractive_index(INT(PIKUP(2,I,J)), 7)))
+                     call set_surf_refractive_index(I, 8, (surf_refractive_index(INT(PIKUP(2,I,J)), 8)))
+                     call set_surf_refractive_index(I, 9, (surf_refractive_index(INT(PIKUP(2,I,J)), 9)))
+                     call set_surf_refractive_index(I, 10, (surf_refractive_index(INT(PIKUP(2,I,J)), 10)))
+                     call set_surf_fict_n(I, (surf_fict_n(INT(PIKUP(2,I,J)))))
+                     call set_surf_fict_v(I, (surf_fict_v(INT(PIKUP(2,I,J)))))
+                     call set_surf_fict_w(I, (surf_fict_w(INT(PIKUP(2,I,J)))))
+                     IF(I.EQ.0.AND.surf_refractive_index(I, 1).LT.0.0D0.AND.GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.GLANAM(I,2).NE.'REFLTIRO') THEN
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE POSITIVE UNLESS GLASS
 !     IS REFL
-                        ALENS(46,I)=-ALENS(46,I)
-                        ALENS(47,I)=-ALENS(47,I)
-                        ALENS(48,I)=-ALENS(48,I)
-                        ALENS(49,I)=-ALENS(49,I)
-                        ALENS(50,I)=-ALENS(50,I)
-                        ALENS(71,I)=-ALENS(71,I)
-                        ALENS(72,I)=-ALENS(72,I)
-                        ALENS(73,I)=-ALENS(73,I)
-                        ALENS(74,I)=-ALENS(74,I)
-                        ALENS(75,I)=-ALENS(75,I)
+                        call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                        call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                        call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                        call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                        call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                        call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                        call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                        call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                        call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                        call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                      END IF
-                     IF(I.EQ.0.AND.ALENS(46,I).GT.0.0D0.AND.&
-                     &GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.OR.&
-                     &I.EQ.0.AND.ALENS(46,I).GT.0.0D0.AND.&
-                     &GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO') THEN
+                     IF(I.EQ.0.AND.surf_refractive_index(I, 1).GT.0.0D0.AND.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.OR.I.EQ.0.AND.surf_refractive_index(I, 1).GT.0.0D0.AND.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO') THEN
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE POSITIVE UNLESS GLASS
 !     IS REFL
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE ALWAYS POSITIVE
-                        ALENS(46,I)=-ALENS(46,I)
-                        ALENS(47,I)=-ALENS(47,I)
-                        ALENS(48,I)=-ALENS(48,I)
-                        ALENS(49,I)=-ALENS(49,I)
-                        ALENS(50,I)=-ALENS(50,I)
-                        ALENS(71,I)=-ALENS(71,I)
-                        ALENS(72,I)=-ALENS(72,I)
-                        ALENS(73,I)=-ALENS(73,I)
-                        ALENS(74,I)=-ALENS(74,I)
-                        ALENS(75,I)=-ALENS(75,I)
+                        call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                        call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                        call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                        call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                        call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                        call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                        call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                        call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                        call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                        call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                      END IF
-                     IF(I.GT.0.AND.ALENS(46,I-1).LT.0.0D0) THEN
+                     IF(I.GT.0.AND.surf_refractive_index(I-1, 1).LT.0.0D0) THEN
 !     NOT AT OBJECT AND PREVIOUS SURFACE HAS NEG INDEX
 !     IF CURRENT SURFACE IS REFL, AND INDECIS ARE NEG, MAKE POS
-                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFL'.AND.ALENS(46,I).LT.0.0D0.OR.&
-                        &GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFLTIRO'.AND.ALENS(46,I).LT.0.0D0) THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.AND.surf_refractive_index(I, 1).LT.0.0D0.OR.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO'.AND.surf_refractive_index(I, 1).LT.0.0D0) THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
 !     IF CURRENT SURFACE IS NOT REFL, AND INDECIS ARE POS, MAKE NEG
-                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.&
-                        &GLANAM(I,2).NE.'REFL'.AND.ALENS(46,I).GT.0.0D0.AND.&
-                        &GLANAM(I,2).NE.'REFLTIRO') THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.surf_refractive_index(I, 1).GT.0.0D0.AND.GLANAM(I,2).NE.'REFLTIRO') THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
                      END IF
-                     IF(I.GT.0.AND.ALENS(46,I-1).GT.0.0D0) THEN
+                     IF(I.GT.0.AND.surf_refractive_index(I-1, 1).GT.0.0D0) THEN
 !     NOT AT OBJECT AND PREVIOUS SURFACE HAS POS INDEX
 !     IF CURRENT SURFACE IS REFL, AND INDECIS ARE POS, MAKE NEG
-                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFL'.AND.ALENS(46,I).GT.0.0D0.OR.&
-                        &GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFLTIRO'.AND.ALENS(46,I).GT.0.0D0) THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.AND.surf_refractive_index(I, 1).GT.0.0D0.OR.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO'.AND.surf_refractive_index(I, 1).GT.0.0D0) THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
-                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.&
-                        &GLANAM(I,2).NE.'REFL'.AND.ALENS(46,I).LT.0.0D0.AND.&
-                        &GLANAM(I,2).NE.'REFLTIRO') THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.surf_refractive_index(I, 1).LT.0.0D0.AND.GLANAM(I,2).NE.'REFLTIRO') THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
                      END IF
                   ELSE
@@ -2416,119 +2228,105 @@ SUBROUTINE PIKRES
 !       PIKUP GLASS HAS NO SPECIAL PIKUP OPTION
                      GLANAM(I,1)=GLANMP(INT(PIKUP(2,I,J)),1)
                      GLANAM(I,2)=GLANMP(INT(PIKUP(2,I,J)),2)
-                     ALENS(46,I)=(ALENP(46,INT(PIKUP(2,I,J))))
-                     ALENS(47,I)=(ALENP(47,INT(PIKUP(2,I,J))))
-                     ALENS(48,I)=(ALENP(48,INT(PIKUP(2,I,J))))
-                     ALENS(49,I)=(ALENP(49,INT(PIKUP(2,I,J))))
-                     ALENS(50,I)=(ALENP(50,INT(PIKUP(2,I,J))))
-                     ALENS(71,I)=(ALENP(71,INT(PIKUP(2,I,J))))
-                     ALENS(72,I)=(ALENP(72,INT(PIKUP(2,I,J))))
-                     ALENS(73,I)=(ALENP(73,INT(PIKUP(2,I,J))))
-                     ALENS(74,I)=(ALENP(74,INT(PIKUP(2,I,J))))
-                     ALENS(75,I)=(ALENP(75,INT(PIKUP(2,I,J))))
-                     ALENS(86,I)=(ALENP(86,INT(PIKUP(2,I,J))))
-                     ALENS(87,I)=(ALENP(87,INT(PIKUP(2,I,J))))
-                     ALENS(89,I)=(ALENP(89,INT(PIKUP(2,I,J))))
-                     IF(I.EQ.0.AND.ALENS(46,I).LT.0.0D0.AND.&
-                     &GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.&
-                     &GLANAM(I,2).NE.'REFLTIRO') THEN
+                     call set_surf_refractive_index(I, 1, (ALENP(46,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 2, (ALENP(47,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 3, (ALENP(48,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 4, (ALENP(49,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 5, (ALENP(50,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 6, (ALENP(71,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 7, (ALENP(72,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 8, (ALENP(73,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 9, (ALENP(74,INT(PIKUP(2,I,J)))))
+                     call set_surf_refractive_index(I, 10, (ALENP(75,INT(PIKUP(2,I,J)))))
+                     call set_surf_fict_n(I, (ALENP(86,INT(PIKUP(2,I,J)))))
+                     call set_surf_fict_v(I, (ALENP(87,INT(PIKUP(2,I,J)))))
+                     call set_surf_fict_w(I, (ALENP(89,INT(PIKUP(2,I,J)))))
+                     IF(I.EQ.0.AND.surf_refractive_index(I, 1).LT.0.0D0.AND.GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.GLANAM(I,2).NE.'REFLTIRO') THEN
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE POSITIVE UNLESS GLASS
 !     IS REFL
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE ALWAYS POSITIVE
-                        ALENS(46,I)=-ALENS(46,I)
-                        ALENS(47,I)=-ALENS(47,I)
-                        ALENS(48,I)=-ALENS(48,I)
-                        ALENS(49,I)=-ALENS(49,I)
-                        ALENS(50,I)=-ALENS(50,I)
-                        ALENS(71,I)=-ALENS(71,I)
-                        ALENS(72,I)=-ALENS(72,I)
-                        ALENS(73,I)=-ALENS(73,I)
-                        ALENS(74,I)=-ALENS(74,I)
-                        ALENS(75,I)=-ALENS(75,I)
+                        call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                        call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                        call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                        call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                        call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                        call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                        call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                        call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                        call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                        call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                      END IF
-                     IF(I.EQ.0.AND.ALENS(46,I).GT.0.0D0.AND.&
-                     &GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.OR.&
-                     &I.EQ.0.AND.ALENS(46,I).GT.0.0D0.AND.&
-                     &GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO') THEN
+                     IF(I.EQ.0.AND.surf_refractive_index(I, 1).GT.0.0D0.AND.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.OR.I.EQ.0.AND.surf_refractive_index(I, 1).GT.0.0D0.AND.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO') THEN
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE POSITIVE UNLESS GLASS
 !     IS REFL
 !     AT OBJECT SURFACE, REFRACTIVE INDECIS ARE ALWAYS POSITIVE
-                        ALENS(46,I)=-ALENS(46,I)
-                        ALENS(47,I)=-ALENS(47,I)
-                        ALENS(48,I)=-ALENS(48,I)
-                        ALENS(49,I)=-ALENS(49,I)
-                        ALENS(50,I)=-ALENS(50,I)
-                        ALENS(71,I)=-ALENS(71,I)
-                        ALENS(72,I)=-ALENS(72,I)
-                        ALENS(73,I)=-ALENS(73,I)
-                        ALENS(74,I)=-ALENS(74,I)
-                        ALENS(75,I)=-ALENS(75,I)
+                        call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                        call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                        call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                        call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                        call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                        call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                        call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                        call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                        call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                        call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                      END IF
-                     IF(I.GT.0.AND.ALENS(46,I-1).LT.0.0D0) THEN
+                     IF(I.GT.0.AND.surf_refractive_index(I-1, 1).LT.0.0D0) THEN
 !     NOT AT OBJECT AND PREVIOUS SURFACE HAS NEG INDEX
 !     IF CURRENT SURFACE IS REFL, AND INDECIS ARE NEG, MAKE POS
-                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFL'.AND.ALENS(46,I).LT.0.0D0.OR.&
-                        &GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFLTIRO'.AND.ALENS(46,I).LT.0.0D0) THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.AND.surf_refractive_index(I, 1).LT.0.0D0.OR.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO'.AND.surf_refractive_index(I, 1).LT.0.0D0) THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
 !     IF CURRENT SURFACE IS NOT REFL, AND INDECIS ARE POS, MAKE NEG
-                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.&
-                        &GLANAM(I,2).NE.'REFL'.AND.ALENS(46,I).GT.0.0D0.AND.&
-                        &GLANAM(I,2).NE.'REFLTIRO') THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFL'.AND.surf_refractive_index(I, 1).GT.0.0D0.AND.GLANAM(I,2).NE.'REFLTIRO') THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
                      END IF
-                     IF(I.GT.0.AND.ALENS(46,I-1).GT.0.0D0) THEN
+                     IF(I.GT.0.AND.surf_refractive_index(I-1, 1).GT.0.0D0) THEN
 !     NOT AT OBJECT AND PREVIOUS SURFACE HAS POS INDEX
 !     IF CURRENT SURFACE IS REFL, AND INDECIS ARE POS, MAKE NEG
-                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFL'.AND.ALENS(46,I).GT.0.0D0.OR.&
-                        &GLANAM(I,1)(1:5).EQ.'     '.AND.&
-                        &GLANAM(I,2).EQ.'REFLTIRO'.AND.ALENS(46,I).GT.0.0D0) THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFL'.AND.surf_refractive_index(I, 1).GT.0.0D0.OR.GLANAM(I,1)(1:5).EQ.'     '.AND.GLANAM(I,2).EQ.'REFLTIRO'.AND.surf_refractive_index(I, 1).GT.0.0D0) THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
 !     IF CURRENT SURFACE IS NOT REFL, AND INDECIS ARE NEG, MAKE POS
-                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFLTIRO'&
-                        &.AND.GLANAM(I,2).NE.'REFL'.AND.ALENS(46,I).LT.0.0D0) THEN
-                           ALENS(46,I)=-ALENS(46,I)
-                           ALENS(47,I)=-ALENS(47,I)
-                           ALENS(48,I)=-ALENS(48,I)
-                           ALENS(49,I)=-ALENS(49,I)
-                           ALENS(50,I)=-ALENS(50,I)
-                           ALENS(71,I)=-ALENS(71,I)
-                           ALENS(72,I)=-ALENS(72,I)
-                           ALENS(73,I)=-ALENS(73,I)
-                           ALENS(74,I)=-ALENS(74,I)
-                           ALENS(75,I)=-ALENS(75,I)
+                        IF(GLANAM(I,1)(1:5).NE.'     '.AND.GLANAM(I,2).NE.'REFLTIRO'.AND.GLANAM(I,2).NE.'REFL'.AND.surf_refractive_index(I, 1).LT.0.0D0) THEN
+                           call set_surf_refractive_index(I, 1, -surf_refractive_index(I, 1))
+                           call set_surf_refractive_index(I, 2, -surf_refractive_index(I, 2))
+                           call set_surf_refractive_index(I, 3, -surf_refractive_index(I, 3))
+                           call set_surf_refractive_index(I, 4, -surf_refractive_index(I, 4))
+                           call set_surf_refractive_index(I, 5, -surf_refractive_index(I, 5))
+                           call set_surf_refractive_index(I, 6, -surf_refractive_index(I, 6))
+                           call set_surf_refractive_index(I, 7, -surf_refractive_index(I, 7))
+                           call set_surf_refractive_index(I, 8, -surf_refractive_index(I, 8))
+                           call set_surf_refractive_index(I, 9, -surf_refractive_index(I, 9))
+                           call set_surf_refractive_index(I, 10, -surf_refractive_index(I, 10))
                         END IF
                      END IF
                   END IF
@@ -2542,16 +2340,16 @@ SUBROUTINE PIKRES
 !     PIKUP GLASS  FIXED ON 6/14/96 FOUND BY HANS PEW OF MOXTEC
 !
                DO 201 KK=0,INT(SYSTEM(20))
-                  ALENS(46,KK)=DABS(ALENS(46,KK))
-                  ALENS(47,KK)=DABS(ALENS(47,KK))
-                  ALENS(48,KK)=DABS(ALENS(48,KK))
-                  ALENS(49,KK)=DABS(ALENS(49,KK))
-                  ALENS(50,KK)=DABS(ALENS(50,KK))
-                  ALENS(71,KK)=DABS(ALENS(71,KK))
-                  ALENS(72,KK)=DABS(ALENS(72,KK))
-                  ALENS(73,KK)=DABS(ALENS(73,KK))
-                  ALENS(74,KK)=DABS(ALENS(74,KK))
-                  ALENS(75,KK)=DABS(ALENS(75,KK))
+                  call set_surf_refractive_index(KK, 1, DABS(surf_refractive_index(KK, 1)))
+                  call set_surf_refractive_index(KK, 2, DABS(surf_refractive_index(KK, 2)))
+                  call set_surf_refractive_index(KK, 3, DABS(surf_refractive_index(KK, 3)))
+                  call set_surf_refractive_index(KK, 4, DABS(surf_refractive_index(KK, 4)))
+                  call set_surf_refractive_index(KK, 5, DABS(surf_refractive_index(KK, 5)))
+                  call set_surf_refractive_index(KK, 6, DABS(surf_refractive_index(KK, 6)))
+                  call set_surf_refractive_index(KK, 7, DABS(surf_refractive_index(KK, 7)))
+                  call set_surf_refractive_index(KK, 8, DABS(surf_refractive_index(KK, 8)))
+                  call set_surf_refractive_index(KK, 9, DABS(surf_refractive_index(KK, 9)))
+                  call set_surf_refractive_index(KK, 10, DABS(surf_refractive_index(KK, 10)))
 201            CONTINUE
 !
                F21=0
@@ -2559,56 +2357,56 @@ SUBROUTINE PIKRES
                   IF(GLANAM(II,2).EQ.'REFL'.OR.GLANAM(II,2).EQ.'REFLTIRO') THEN
                      IF(F21.EQ.1.OR.F21.EQ.0) THEN
                         F21=-1
-                        ALENS(46,II)=ALENS(46,(II-1))
-                        ALENS(47,II)=ALENS(47,(II-1))
-                        ALENS(48,II)=ALENS(48,(II-1))
-                        ALENS(49,II)=ALENS(49,(II-1))
-                        ALENS(50,II)=ALENS(50,(II-1))
-                        ALENS(71,II)=ALENS(71,(II-1))
-                        ALENS(72,II)=ALENS(72,(II-1))
-                        ALENS(73,II)=ALENS(73,(II-1))
-                        ALENS(74,II)=ALENS(74,(II-1))
-                        ALENS(75,II)=ALENS(75,(II-1))
+                        call set_surf_refractive_index(II, 1, surf_refractive_index((II-1), 1))
+                        call set_surf_refractive_index(II, 2, surf_refractive_index((II-1), 2))
+                        call set_surf_refractive_index(II, 3, surf_refractive_index((II-1), 3))
+                        call set_surf_refractive_index(II, 4, surf_refractive_index((II-1), 4))
+                        call set_surf_refractive_index(II, 5, surf_refractive_index((II-1), 5))
+                        call set_surf_refractive_index(II, 6, surf_refractive_index((II-1), 6))
+                        call set_surf_refractive_index(II, 7, surf_refractive_index((II-1), 7))
+                        call set_surf_refractive_index(II, 8, surf_refractive_index((II-1), 8))
+                        call set_surf_refractive_index(II, 9, surf_refractive_index((II-1), 9))
+                        call set_surf_refractive_index(II, 10, surf_refractive_index((II-1), 10))
                      ELSE
                         IF(F21.EQ.-1)THEN
                            F21=1
-                           ALENS(46,II)=ALENS(46,(II-1))
-                           ALENS(47,II)=ALENS(47,(II-1))
-                           ALENS(48,II)=ALENS(48,(II-1))
-                           ALENS(49,II)=ALENS(49,(II-1))
-                           ALENS(50,II)=ALENS(50,(II-1))
-                           ALENS(71,II)=ALENS(71,(II-1))
-                           ALENS(72,II)=ALENS(72,(II-1))
-                           ALENS(73,II)=ALENS(73,(II-1))
-                           ALENS(74,II)=ALENS(74,(II-1))
-                           ALENS(75,II)=ALENS(75,(II-1))
+                           call set_surf_refractive_index(II, 1, surf_refractive_index((II-1), 1))
+                           call set_surf_refractive_index(II, 2, surf_refractive_index((II-1), 2))
+                           call set_surf_refractive_index(II, 3, surf_refractive_index((II-1), 3))
+                           call set_surf_refractive_index(II, 4, surf_refractive_index((II-1), 4))
+                           call set_surf_refractive_index(II, 5, surf_refractive_index((II-1), 5))
+                           call set_surf_refractive_index(II, 6, surf_refractive_index((II-1), 6))
+                           call set_surf_refractive_index(II, 7, surf_refractive_index((II-1), 7))
+                           call set_surf_refractive_index(II, 8, surf_refractive_index((II-1), 8))
+                           call set_surf_refractive_index(II, 9, surf_refractive_index((II-1), 9))
+                           call set_surf_refractive_index(II, 10, surf_refractive_index((II-1), 10))
                         END IF
                      END IF
                   END IF
                   IF(F21.EQ.0) GO TO 101
                   IF(F21.EQ.-1) THEN
-                     IF(ALENS(46,II).GT.0.0D0)  ALENS(46,II)=-ALENS(46,II)
-                     IF(ALENS(47,II).GT.0.0D0)  ALENS(47,II)=-ALENS(47,II)
-                     IF(ALENS(48,II).GT.0.0D0)  ALENS(48,II)=-ALENS(48,II)
-                     IF(ALENS(49,II).GT.0.0D0)  ALENS(49,II)=-ALENS(49,II)
-                     IF(ALENS(50,II).GT.0.0D0)  ALENS(50,II)=-ALENS(50,II)
-                     IF(ALENS(71,II).GT.0.0D0)  ALENS(71,II)=-ALENS(71,II)
-                     IF(ALENS(72,II).GT.0.0D0)  ALENS(72,II)=-ALENS(72,II)
-                     IF(ALENS(73,II).GT.0.0D0)  ALENS(73,II)=-ALENS(73,II)
-                     IF(ALENS(74,II).GT.0.0D0)  ALENS(74,II)=-ALENS(74,II)
-                     IF(ALENS(75,II).GT.0.0D0)  ALENS(75,II)=-ALENS(75,II)
+                     IF(surf_refractive_index(II, 1).GT.0.0D0)call set_surf_refractive_index(II, 1, -surf_refractive_index(II, 1))
+                     IF(surf_refractive_index(II, 2).GT.0.0D0)call set_surf_refractive_index(II, 2, -surf_refractive_index(II, 2))
+                     IF(surf_refractive_index(II, 3).GT.0.0D0)call set_surf_refractive_index(II, 3, -surf_refractive_index(II, 3))
+                     IF(surf_refractive_index(II, 4).GT.0.0D0)call set_surf_refractive_index(II, 4, -surf_refractive_index(II, 4))
+                     IF(surf_refractive_index(II, 5).GT.0.0D0)call set_surf_refractive_index(II, 5, -surf_refractive_index(II, 5))
+                     IF(surf_refractive_index(II, 6).GT.0.0D0)call set_surf_refractive_index(II, 6, -surf_refractive_index(II, 6))
+                     IF(surf_refractive_index(II, 7).GT.0.0D0)call set_surf_refractive_index(II, 7, -surf_refractive_index(II, 7))
+                     IF(surf_refractive_index(II, 8).GT.0.0D0)call set_surf_refractive_index(II, 8, -surf_refractive_index(II, 8))
+                     IF(surf_refractive_index(II, 9).GT.0.0D0)call set_surf_refractive_index(II, 9, -surf_refractive_index(II, 9))
+                     IF(surf_refractive_index(II, 10).GT.0.0D0)call set_surf_refractive_index(II, 10, -surf_refractive_index(II, 10))
                   END IF
                   IF(F21.EQ.1) THEN
-                     IF(ALENS(46,II).LT.0.0D0)ALENS(46,II)=DABS(ALENS(46,II))
-                     IF(ALENS(47,II).LT.0.0D0)ALENS(47,II)=DABS(ALENS(47,II))
-                     IF(ALENS(48,II).LT.0.0D0)ALENS(48,II)=DABS(ALENS(48,II))
-                     IF(ALENS(49,II).LT.0.0D0)ALENS(49,II)=DABS(ALENS(49,II))
-                     IF(ALENS(50,II).LT.0.0D0)ALENS(50,II)=DABS(ALENS(50,II))
-                     IF(ALENS(71,II).LT.0.0D0)ALENS(71,II)=DABS(ALENS(71,II))
-                     IF(ALENS(72,II).LT.0.0D0)ALENS(72,II)=DABS(ALENS(72,II))
-                     IF(ALENS(73,II).LT.0.0D0)ALENS(73,II)=DABS(ALENS(73,II))
-                     IF(ALENS(74,II).LT.0.0D0)ALENS(74,II)=DABS(ALENS(74,II))
-                     IF(ALENS(75,II).LT.0.0D0)ALENS(75,II)=DABS(ALENS(75,II))
+                     IF(surf_refractive_index(II, 1).LT.0.0D0)call set_surf_refractive_index(II, 1, DABS(surf_refractive_index(II, 1)))
+                     IF(surf_refractive_index(II, 2).LT.0.0D0)call set_surf_refractive_index(II, 2, DABS(surf_refractive_index(II, 2)))
+                     IF(surf_refractive_index(II, 3).LT.0.0D0)call set_surf_refractive_index(II, 3, DABS(surf_refractive_index(II, 3)))
+                     IF(surf_refractive_index(II, 4).LT.0.0D0)call set_surf_refractive_index(II, 4, DABS(surf_refractive_index(II, 4)))
+                     IF(surf_refractive_index(II, 5).LT.0.0D0)call set_surf_refractive_index(II, 5, DABS(surf_refractive_index(II, 5)))
+                     IF(surf_refractive_index(II, 6).LT.0.0D0)call set_surf_refractive_index(II, 6, DABS(surf_refractive_index(II, 6)))
+                     IF(surf_refractive_index(II, 7).LT.0.0D0)call set_surf_refractive_index(II, 7, DABS(surf_refractive_index(II, 7)))
+                     IF(surf_refractive_index(II, 8).LT.0.0D0)call set_surf_refractive_index(II, 8, DABS(surf_refractive_index(II, 8)))
+                     IF(surf_refractive_index(II, 9).LT.0.0D0)call set_surf_refractive_index(II, 9, DABS(surf_refractive_index(II, 9)))
+                     IF(surf_refractive_index(II, 10).LT.0.0D0)call set_surf_refractive_index(II, 10, DABS(surf_refractive_index(II, 10)))
                   END IF
 101            CONTINUE
 !
@@ -2621,27 +2419,23 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(41,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(41,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_anamorphic_conic(I)-(PIKUP(3,I,J)*(surf_anamorphic_conic(INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(41,I)=(((ALENS(41,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_conic(I, (((surf_anamorphic_conic(INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(41,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(41,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(41,I)-(PIKUP(3,I,J)*(ALENP(41,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(41,I)=(((ALENP(41,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_conic(I, (((ALENP(41,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 21, CONTINUE PROCESSING
@@ -2655,29 +2449,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(37,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(37,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_anamorphic_coeff(I, 4)-(PIKUP(3,I,J)*(surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 4)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENS(36,INT(PIKUP(2,I,J)))
-                     ALENS(37,I)=(((ALENS(37,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, surf_anamorphic_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 4, (((surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 4)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(37,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(37,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(37,I)-(PIKUP(3,I,J)*(ALENP(37,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENP(36,INT(PIKUP(2,I,J)))
-                     ALENS(37,I)=(((ALENP(37,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, INT(ALENP(36,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_coeff(I, 4, (((ALENP(37,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 22, CONTINUE PROCESSING
@@ -2691,29 +2481,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(38,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(38,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_anamorphic_coeff(I, 6)-(PIKUP(3,I,J)*(surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 6)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENS(36,INT(PIKUP(2,I,J)))
-                     ALENS(38,I)=(((ALENS(38,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, surf_anamorphic_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 6, (((surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 6)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(38,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(38,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(38,I)-(PIKUP(3,I,J)*(ALENP(38,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENP(36,INT(PIKUP(2,I,J)))
-                     ALENS(38,I)=(((ALENP(38,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, INT(ALENP(36,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_coeff(I, 6, (((ALENP(38,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 23, CONTINUE PROCESSING
@@ -2727,29 +2513,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(39,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(39,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_anamorphic_coeff(I, 8)-(PIKUP(3,I,J)*(surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 8)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENS(36,INT(PIKUP(2,I,J)))
-                     ALENS(39,I)=(((ALENS(39,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, surf_anamorphic_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 8, (((surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 8)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(39,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(39,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(39,I)-(PIKUP(3,I,J)*(ALENP(39,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENP(36,INT(PIKUP(2,I,J)))
-                     ALENS(39,I)=(((ALENP(39,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, INT(ALENP(36,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_coeff(I, 8, (((ALENP(39,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 24, CONTINUE PROCESSING
@@ -2763,29 +2545,25 @@ SUBROUTINE PIKRES
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENS(40,I)-(PIKUP(3,I,J)*&
-                        &(ALENS(40,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=surf_anamorphic_coeff(I, 10)-(PIKUP(3,I,J)*(surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 10)))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENS(36,INT(PIKUP(2,I,J)))
-                     ALENS(40,I)=(((ALENS(40,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, surf_anamorphic_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_anamorphic_coeff(I, 10, (((surf_anamorphic_coeff(INT(PIKUP(2,I,J)), 10)*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
 !       HANDLE SPECIAL PIKUP OPTION
                      IF(PIKUP(5,I,J).EQ.1.0D0) THEN
 !       FOUND SPECIAL PIKUP OPTION
-                        PIKUP(4,I,J)=ALENP(40,I)-(PIKUP(3,I,J)*&
-                        &(ALENP(40,INT(PIKUP(2,I,J)))))
+                        PIKUP(4,I,J)=ALENP(40,I)-(PIKUP(3,I,J)*(ALENP(40,INT(PIKUP(2,I,J)))))
                         PIKUP(5,I,J)=0.0D0
                      ELSE
 !       NO SPECIAL PIKUP OPTION
                      END IF
-                     ALENS(36,I)=ALENP(36,INT(PIKUP(2,I,J)))
-                     ALENS(40,I)=(((ALENP(40,INT(PIKUP(2,I,J)))*&
-                     &(PIKUP(3,I,J)))+PIKUP(4,I,J)))
+                     call set_surf_anamorphic_flag(I, INT(ALENP(36,INT(PIKUP(2,I,J)))))
+                     call set_surf_anamorphic_coeff(I, 10, (((ALENP(40,INT(PIKUP(2,I,J)))*(PIKUP(3,I,J)))+PIKUP(4,I,J))))
                   END IF
                ELSE
 !       J NOT 25, CONTINUE PROCESSING
@@ -2796,20 +2574,20 @@ SUBROUTINE PIKRES
 !       PIKUP GRT IS FOUND
                   IF(PIKUP(6,I,J).EQ.0.0D0.OR.F12.EQ.1) THEN
 !     PIK FROM CURRENT CFG
-                     ALENS(96,I)=ALENS(96,INT(PIKUP(2,I,J)))
-                     ALENS(97,I)=ALENS(97,INT(PIKUP(2,I,J)))
-                     ALENS(98,I)=ALENS(98,INT(PIKUP(2,I,J)))
-                     ALENS(99,I)=ALENS(99,INT(PIKUP(2,I,J)))
-                     ALENS(100,I)=ALENS(100,INT(PIKUP(2,I,J)))
-                     ALENS(101,I)=ALENS(101,INT(PIKUP(2,I,J)))
+                     call set_surf_diffraction_flag(I, surf_diffraction_flag(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_order(I, surf_grating_order(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_spacing(I, surf_grating_spacing(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vx(I, surf_grating_vx(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vy(I, surf_grating_vy(INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vz(I, surf_grating_vz(INT(PIKUP(2,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
-                     ALENS(96,I)=ALENP(96,INT(PIKUP(2,I,J)))
-                     ALENS(97,I)=ALENP(97,INT(PIKUP(2,I,J)))
-                     ALENS(98,I)=ALENP(98,INT(PIKUP(2,I,J)))
-                     ALENS(99,I)=ALENP(99,INT(PIKUP(2,I,J)))
-                     ALENS(100,I)=ALENP(100,INT(PIKUP(2,I,J)))
-                     ALENS(101,I)=ALENP(101,INT(PIKUP(2,I,J)))
+                     call set_surf_diffraction_flag(I, INT(ALENP(96,INT(PIKUP(2,I,J)))))
+                     call set_surf_grating_order(I, ALENP(97,INT(PIKUP(2,I,J))))
+                     call set_surf_grating_spacing(I, ALENP(98,INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vx(I, ALENP(99,INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vy(I, ALENP(100,INT(PIKUP(2,I,J))))
+                     call set_surf_grating_vz(I, ALENP(101,INT(PIKUP(2,I,J))))
                   END IF
                ELSE
 !       J NOT 43, CONTINUE PROCESSING
@@ -2820,10 +2598,10 @@ SUBROUTINE PIKRES
 !       PIKUP COATING IS FOUND
                   IF(PIKUP(6,I,J).EQ.0.0D0.OR.F12.EQ.1) THEN
 !     PIK FROM CURRENT CFG
-                     ALENS(112,I)=ALENS(112,INT(PIKUP(2,I,J)))
+                     call set_surf_coating_index(I, surf_coating_index(INT(PIKUP(2,I,J))))
                   ELSE
 !     PIK FROM MAIN CFG
-                     ALENS(112,I)=ALENP(112,INT(PIKUP(2,I,J)))
+                     call set_surf_coating_index(I, INT(ALENP(112,INT(PIKUP(2,I,J)))))
                   END IF
                ELSE
 !       J NOT 44, CONTINUE PROCESSING
@@ -2842,15 +2620,14 @@ SUBROUTINE PIKRES
    END IF
 !
    RETURN
-100 FORMAT(&
-   &'THE TORIC TYPE OF SURFACE ',I3,' IS BEING CHANGED')
-200 FORMAT(&
-   &'FROM ',A11,' TO MATCH THAT OF SURFACE ',I3)
+100 FORMAT('THE TORIC TYPE OF SURFACE ',I3,' IS BEING CHANGED')
+200 FORMAT('FROM ',A11,' TO MATCH THAT OF SURFACE ',I3)
 END
 ! SUB PIKPRO.FOR
 SUBROUTINE PIKPRO
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2911,8 +2688,7 @@ SUBROUTINE PIKPRO
    W4=0.0D0
    IF(DF5.EQ.1) W5=0.0D0
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1) THEN
-      OUTLYNE=&
-      &'"PIKUP (PRO OR NPRO)" ONLY TAKE NUMERIC WORD #1 AND #5 INPUT'
+      OUTLYNE='"PIKUP (PRO OR NPRO)" ONLY TAKE NUMERIC WORD #1 AND #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2940,105 +2716,103 @@ SUBROUTINE PIKPRO
    IF(SOLVE(8,SURF).GT.0.0D0) THEN
       SOLVE(8,SURF)=0.0D0
       SOLVE(9,SURF)=0.0D0
-      WRITE(OUTLYNE,*)'SURFACE',SURF,&
-      &' : ALL YZ PLANE CURVATURE SOLVES DELETED'
+      WRITE(OUTLYNE,*)'SURFACE',SURF,' : ALL YZ PLANE CURVATURE SOLVES DELETED'
       CALL SHOWIT(1)
    END IF
    IF(SOLVE(2,SURF).GT.0.0D0) THEN
       SOLVE(2,SURF)=0.0D0
       SOLVE(1,SURF)=0.0D0
-      WRITE(OUTLYNE,*)'SURFACE',SURF,&
-      &' : ALL XZ PLANE CURVATURE SOLVES DELETED'
+      WRITE(OUTLYNE,*)'SURFACE',SURF,' : ALL XZ PLANE CURVATURE SOLVES DELETED'
       CALL SHOWIT(1)
    ELSE
-!       RESOLVE ALENS(33,SURF)
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+!       RESOLVE surf_solve_flag(SURF)
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
 !       DUMP OLD CV  AND CV OR RD PIKUPS
    IF(PIKUP(1,SURF,1).GT.0.0D0) THEN
       PIKUP(1:6,SURF,1)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (RD) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,2).GT.0.0D0) THEN
       PIKUP(1:6,SURF,2)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (CV) DELETED'
       CALL SHOWIT(1)
    END IF
-   ALENS(1,SURF)=0.0D0
-   ALENS(2,SURF)=0.0D0
+   call set_surf_curvature(SURF, 0.0D0)
+   call set_surf_conic(SURF, 0.0D0)
 !       CONIC CONSTANT REMOVAL
    IF(PIKUP(1,SURF,4).GT.0.0D0) THEN
       PIKUP(1:6,SURF,4)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (CC) DELETED'
       CALL SHOWIT(1)
    END IF
-   ALENS(2,SURF)=0.0D0
+   call set_surf_conic(SURF, 0.0D0)
 !       ASPHERIC DEFINITION,TERM VALUES AND PIKUPS
    IF(PIKUP(1,SURF,26).GT.0.0D0) THEN
       PIKUP(1:6,SURF,26)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AC) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,5).GT.0.0D0) THEN
       PIKUP(1:6,SURF,5)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AD) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,6).GT.0.0D0) THEN
       PIKUP(1:6,SURF,6)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AE) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,7).GT.0.0D0) THEN
       PIKUP(1:6,SURF,7)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AF) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,8).GT.0.0D0) THEN
       PIKUP(1:6,SURF,8)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AG) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,27).GT.0.0D0) THEN
       PIKUP(1:6,SURF,27)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AH) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,28).GT.0.0D0) THEN
       PIKUP(1:6,SURF,28)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AI) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,29).GT.0.0D0) THEN
       PIKUP(1:6,SURF,29)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AJ) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,30).GT.0.0D0) THEN
       PIKUP(1:6,SURF,30)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AK) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,31).GT.0.0D0) THEN
       PIKUP(1:6,SURF,31)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AL) DELETED'
       CALL SHOWIT(1)
    END IF
@@ -3047,57 +2821,57 @@ SUBROUTINE PIKPRO
 !       TORIC DEFINITION,CONICS,ASPH AND CURVES
    IF(PIKUP(1,SURF,9).GT.0.0D0) THEN
       PIKUP(1:6,SURF,9)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (RDTOR) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,10).GT.0.0D0) THEN
       PIKUP(1:6,SURF,10)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (CVTOR) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,21).GT.0.0D0) THEN
       PIKUP(1:6,SURF,21)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (CCTOR) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,22).GT.0.0D0) THEN
       PIKUP(1:6,SURF,22)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (ADTOR) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,23).GT.0.0D0) THEN
       PIKUP(1:6,SURF,23)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AETOR) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,24).GT.0.0D0) THEN
       PIKUP(1:6,SURF,24)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AFTOR) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,25).GT.0.0D0) THEN
       PIKUP(1:6,SURF,25)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AGTOR) DELETED'
       CALL SHOWIT(1)
    END IF
 !       TORICS
    ALENS(23:24,SURF)=0.0D0
 !       SPSRF
-   ALENS(34,SURF)=0.0D0
+   call set_surf_asi_flag(SURF, 0)
 !       ASPHT
    ALENS(36:40,SURF)=0.0D0
 !       CCTOR
-   ALENS(41,SURF)=0.0D0
+   call set_surf_anamorphic_conic(SURF, 0.0D0)
    IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
       PIKUP(1:6,SURF,11)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
       CALL SHOWIT(1)
    END IF
@@ -3105,12 +2879,12 @@ SUBROUTINE PIKPRO
    ALENS(4:8,SURF)=0.0D0
    ALENS(81:85,SURF)=0.0D0
    ALENS(23:24,SURF)=0.0D0
-   ALENS(34,SURF)=0.0D0
+   call set_surf_asi_flag(SURF, 0)
    ALENS(36:41,SURF)=0.0D0
-   ALENS(43,SURF)=0.0D0
+   call set_surf_asphere_coeff(SURF, 2, 0.0D0)
    IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
       PIKUP(1:6,SURF,12)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
       CALL SHOWIT(1)
    END IF
@@ -3118,12 +2892,12 @@ SUBROUTINE PIKPRO
    ALENS(4:8,SURF)=0.0D0
    ALENS(81:85,SURF)=0.0D0
    ALENS(23:24,SURF)=0.0D0
-   ALENS(34,SURF)=0.0D0
+   call set_surf_asi_flag(SURF, 0)
    ALENS(36:41,SURF)=0.0D0
-   ALENS(43,SURF)=0.0D0
+   call set_surf_asphere_coeff(SURF, 2, 0.0D0)
 !               INCREMENT THEPIKUP COUNTER BY 1.0D0
-!               I.E. ALENS(32,SURF)
-   ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+!               I.E. surf_special_type(SURF)
+   call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    IF(WQ.EQ.'PRO') THEN
       PIKUP(1,SURF,11)=1.0D0
       PIKUP(2,SURF,11)=W1
@@ -3156,6 +2930,7 @@ END
 SUBROUTINE PIKCOAT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3185,10 +2960,8 @@ SUBROUTINE PIKCOAT
 !
 !       ONLY NUMERIC WORD 1 AND 5 ARE VALID FOR A GLASS COATING
 !
-   IF(DF2.EQ.0.OR.DF3.EQ.0.OR.&
-   &DF4.EQ.0) THEN
-      OUTLYNE=&
-      &'"PIKUP COATING" ONLY USES NUMERIC WORD #1 AND #5 DATA'
+   IF(DF2.EQ.0.OR.DF3.EQ.0.OR.DF4.EQ.0) THEN
+      OUTLYNE='"PIKUP COATING" ONLY USES NUMERIC WORD #1 AND #5 DATA'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3221,8 +2994,8 @@ SUBROUTINE PIKCOAT
    END IF
 !
 !               INCREMENT THE PIKUP COUNTER BY 1.0D0
-!               I.E. ALENS(32,SURF)
-   ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+!               I.E. surf_special_type(SURF)
+   call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,44)=1.0D0
    PIKUP(2,SURF,44)=W1
    PIKUP(3,SURF,44)=W2
@@ -3239,6 +3012,7 @@ END
 SUBROUTINE PIKGLS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3279,10 +3053,8 @@ SUBROUTINE PIKGLS
 !
 !       ONLY NUMERIC WORD 1 AND 5 ARE VALID FOR A GLASS PIKUP
 !
-   IF(DF2.EQ.0.OR.DF3.EQ.0.OR.&
-   &DF4.EQ.0) THEN
-      OUTLYNE=&
-      &'"PIKUP GLASS" ONLY USES NUMERIC WORD #1 AND #5 DATA'
+   IF(DF2.EQ.0.OR.DF3.EQ.0.OR.DF4.EQ.0) THEN
+      OUTLYNE='"PIKUP GLASS" ONLY USES NUMERIC WORD #1 AND #5 DATA'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3315,8 +3087,8 @@ SUBROUTINE PIKGLS
    END IF
 !
 !               INCREMENT THE PIKUP COUNTER BY 1.0D0
-!               I.E. ALENS(32,SURF)
-   ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+!               I.E. surf_special_type(SURF)
+   call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,20)=1.0D0
    PIKUP(2,SURF,20)=W1
    PIKUP(3,SURF,20)=W2
@@ -3341,6 +3113,7 @@ END
 SUBROUTINE PIKGRT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3371,10 +3144,8 @@ SUBROUTINE PIKGRT
 !
 !       ONLY NUMERIC WORD 1 AND 5 ARE VALID FOR A GRT PIKUP
 !
-   IF(DF2.EQ.0.OR.DF3.EQ.0.OR.&
-   &DF4.EQ.0) THEN
-      OUTLYNE=&
-      &'"PIKUP GRT" ONLY USES NUMERIC WORD #1 AND #5 DATA'
+   IF(DF2.EQ.0.OR.DF3.EQ.0.OR.DF4.EQ.0) THEN
+      OUTLYNE='"PIKUP GRT" ONLY USES NUMERIC WORD #1 AND #5 DATA'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3407,8 +3178,8 @@ SUBROUTINE PIKGRT
    END IF
 !
 !               INCREMENT THE PIKUP COUNTER BY 1.0D0
-!               I.E. ALENS(32,SURF)
-   ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+!               I.E. surf_special_type(SURF)
+   call set_surf_special_type(SURF, surf_special_type(SURF)+1)
    PIKUP(1,SURF,43)=1.0D0
    PIKUP(2,SURF,43)=W1
    PIKUP(3,SURF,43)=0.0D0
@@ -3422,6 +3193,7 @@ END
 SUBROUTINE PIKCVT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3482,12 +3254,11 @@ SUBROUTINE PIKCVT
 !
 !       IF THE SURFACE BEING PIKED UP FROM IS NOT A TORIC
 !       THEN THE PIKUP IS NOT ALLOWED. CHECK STATUS OF
-!       ALENS(23, ) FOR THAT SURFACE.
+!       surf_toric_flag() FOR THAT SURFACE.
 !
    FSURF=INT(W1)
-   IF(ALENS(23,FSURF).EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'SURFACE TO BE PIKED UP FROM IS NOT DEFINED AS TORIC'
+   IF(surf_toric_flag(FSURF).EQ.0.0D0) THEN
+      OUTLYNE='SURFACE TO BE PIKED UP FROM IS NOT DEFINED AS TORIC'
       CALL SHOWIT(1)
       OUTLYNE='TORIC PIKUP IS NOT ALLOWED'
       CALL SHOWIT(1)
@@ -3496,22 +3267,19 @@ SUBROUTINE PIKCVT
    END IF
 !       IF PIKING SURFACE IS NOT A TORIC, THE CVTOR/RDTOR PIKUP IS
 !       NOT ALLOWED.
-   IF(ALENS(23,SURF).NE.1.0D0.AND.&
-   &ALENS(23,SURF).NE.2.0D0) THEN
+   IF(surf_toric_flag(SURF).NE.1.0D0.AND.surf_toric_flag(SURF).NE.2.0D0) THEN
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :NOT DEFINED AS TORIC'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'('//WQ(1:5)//') PIKUP NOT ALLOWED ON NON-TORIC SURFACE'
+      OUTLYNE='('//WQ(1:5)//') PIKUP NOT ALLOWED ON NON-TORIC SURFACE'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
 !
 !               INCR. PIKUP INDICATOR BY 1.0D0
-!               I.E. ALENS(32,SURF)
+!               I.E. surf_special_type(SURF)
    IF(WQ.EQ.'CVTOR') THEN
-      IF(PIKUP(1,SURF,10).EQ.0.0D0)&
-      &ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+      IF(PIKUP(1,SURF,10).EQ.0.0D0)call set_surf_special_type(SURF, surf_special_type(SURF)+1)
       PIKUP(1,SURF,10)=0.0D0
       PIKUP(1,SURF,9)=1.0D0
       PIKUP(2,SURF,9)=W1
@@ -3521,8 +3289,7 @@ SUBROUTINE PIKCVT
       PIKUP(6,SURF,9)=W5
    END IF
    IF(WQ.EQ.'RDTOR') THEN
-      IF(PIKUP(1,SURF,9).EQ.0.0D0)&
-      &ALENS(32,SURF)=ALENS(32,SURF)+1.0D0
+      IF(PIKUP(1,SURF,9).EQ.0.0D0)call set_surf_special_type(SURF, surf_special_type(SURF)+1)
       PIKUP(1,SURF,9)=0.0D0
       PIKUP(1,SURF,10)=1.0D0
       PIKUP(2,SURF,10)=W1
@@ -3534,13 +3301,13 @@ SUBROUTINE PIKCVT
 !       DUMP PIKUP PRO AND NPRO IF FOUND
    IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
       PIKUP(1:6,SURF,11)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
       PIKUP(1:6,SURF,12)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
 
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
       CALL SHOWIT(1)
@@ -3573,32 +3340,30 @@ SUBROUTINE PIKCVT
 !       AXIS IS IN THE X DIRECTION. THUS THIS PIKUP
 !       WOULD ONLY DELETE A CURVATURE SOLVE IN THE YZ PLANE
 !
-   IF(ALENS(23,SURF).EQ.1.0D0) THEN
+   IF(surf_toric_flag(SURF).EQ.1.0D0) THEN
 !       SURF IS Y-TORIC, REMOVE ANY XZ SOLVES
       IF(SOLVE(2,SURF).GT.0.0D0) THEN
          SOLVE(2,SURF)=0.0D0
          SOLVE(1,SURF)=0.0D0
-         WRITE(OUTLYNE,*)&
-         &'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVES DELETED'
+         WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVES DELETED'
          CALL SHOWIT(1)
       END IF
    END IF
-   IF(ALENS(23,SURF).EQ.2.0D0) THEN
+   IF(surf_toric_flag(SURF).EQ.2.0D0) THEN
 !       SURF IS X-TORIC, REMOVE ANY YZ SOLVES
       IF(SOLVE(8,SURF).GT.0.0D0) THEN
          SOLVE(8,SURF)=0.0D0
          SOLVE(9,SURF)=0.0D0
-         WRITE(OUTLYNE,*)&
-         &'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVES DELETE'
+         WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVES DELETE'
          CALL SHOWIT(1)
       END IF
    END IF
-!       RESOLVE ALENS(33,SURF)
-   ALENS(33,SURF)=0.0D0
-   IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-   IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-   IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-   IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+!       RESOLVE surf_solve_flag(SURF)
+   call set_surf_solve_flag(SURF, 0.0D0)
+   IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+   IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+   IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+   IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
 !
 !       SOLVE CONFLICTS RESOLVED
 !
