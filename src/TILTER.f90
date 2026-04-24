@@ -3,6 +3,7 @@ SUBROUTINE PIVDEC(I)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !
@@ -74,12 +75,12 @@ SUBROUTINE PIVDEC(I)
 !       C33
    C33(AN)=1.0D0
 !     SET AEEA,BEEB,CEEC
-   AEEA=ALENS(26,I)
-   BEEB=ALENS(27,I)
-   CEEC=ALENS(28,I)
-   XEEX=ALENS(114,I)
-   YEEY=ALENS(115,I)
-   ZEEZ=ALENS(116,I)
+   AEEA=surf_alpha(I)
+   BEEB=surf_beta(I)
+   CEEC=surf_gamma(I)
+   XEEX=surf_focus_dx(I)
+   YEEY=surf_focus_dy(I)
+   ZEEZ=surf_focus_dz(I)
    LX0=1.0D0
    MX0=0.0D0
    NX0=0.0D0
@@ -92,15 +93,15 @@ SUBROUTINE PIVDEC(I)
 !     IF THE SURFACE HAS A TILT, RTILT OR TILT DAR AND IF THERE IS
 !     AN ALTERNATE PIVOT POINT DEFINED AND IF PIVAXIS IS SET TO NORMAL
 !     THEN COMPUTE A MODIFIED SET OF INTERNAL TILT VALUES
-   IF(ALENS(25,I).EQ.1.0D0.AND.ALENS(59,I).EQ.1.0D0.AND.&
-   &ALENS(113,I).EQ.1.0D0.OR.&
-   &ALENS(25,I).EQ.-1.0D0.AND.ALENS(59,I).EQ.1.0D0.AND.&
-   &ALENS(113,I).EQ.1.0D0.OR.&
-   &ALENS(25,I).EQ.5.0D0.AND.ALENS(59,I).EQ.1.0D0.AND.&
-   &ALENS(113,I).EQ.1.0D0) THEN
+   IF(surf_tilt_flag(I).EQ.1.0D0.AND.surf_pivot_flag(I).EQ.1.0D0.AND.&
+   &surf_pivot_axis(I).EQ.1.0D0.OR.&
+   &surf_tilt_flag(I).EQ.-1.0D0.AND.surf_pivot_flag(I).EQ.1.0D0.AND.&
+   &surf_pivot_axis(I).EQ.1.0D0.OR.&
+   &surf_tilt_flag(I).EQ.5.0D0.AND.surf_pivot_flag(I).EQ.1.0D0.AND.&
+   &surf_pivot_axis(I).EQ.1.0D0) THEN
 !     JX AND JY ARE THE X AND Y PIVOT POSITIONS
-      JX=ALENS(78,I)
-      JY=ALENS(79,I)
+      JX=surf_pivot_x(I)
+      JY=surf_pivot_y(I)
 !     THE SURFACE NORMAL DIRECTION COSINES AT THIS JX AND JY ARE:
 !     LL1,MM1,NN1
       CALL SAGINT(I,JX,JY,JZ,LL1,MM1,NN1)
@@ -268,9 +269,9 @@ SUBROUTINE PIVDEC(I)
 !     THE UNROTATED COORDINATE SYSTEM TO THESE NEW DIRECTION COSINES
       CALL NEWANGLES(AEEA,BEEB,CEEC,LX,MX,NX,LY,MY,NY,LZ,MZ,NZ)
 !       DONE WITH AEEA,BEEM,CEEC,XEEX,YEEY AND ZEEZ ADJUSTMENTS
-      ALENS(26,I)=AEEA
-      ALENS(27,I)=BEEB
-      ALENS(28,I)=CEEC
+      call set_surf_alpha(I, AEEA)
+      call set_surf_beta(I, BEEB)
+      call set_surf_gamma(I, CEEC)
 !     NOW CALCULATE THE CORRECTED XEEX,YEEY AND ZEEZ
       JLX=XEEX
       JLY=YEEY
@@ -294,16 +295,16 @@ SUBROUTINE PIVDEC(I)
 !     NOW AEEA,BEEB AND CEEC ARE DONE
 !     IF A PIVOT POINT IS DEFINED, REMEMBER THAT THE EXTRA DECENTER AMOUNTS
 !     WILL BE ADDED BACK IN LATER AS NEEDED.
-   ALENS(117,I)=0.0D0
-   IF(ALENS(114,I).NE.0.0D0.OR.ALENS(115,I).NE.0.0D0.OR.&
-   &ALENS(116,I).NE.0.0D0) ALENS(117,I)=1.0D0
-   ALENS(30,I)=0.0D0
-   ALENS(31,I)=0.0D0
-   ALENS(69,I)=0.0D0
+   call set_surf_focus_flag(I, 0)
+   IF(surf_focus_dx(I).NE.0.0D0.OR.surf_focus_dy(I).NE.0.0D0.OR.&
+   &surf_focus_dz(I).NE.0.0D0) call set_surf_focus_flag(I, 1)
+   call set_surf_decenter_y(I, 0.0D0)
+   call set_surf_decenter_x(I, 0.0D0)
+   call set_surf_decenter_z(I, 0.0D0)
 !     TX,TY AND TZ IS THE PIVOT POINT LOCATION
-   TX=ALENS(78,I)
-   TY=ALENS(79,I)
-   TZ=ALENS(80,I)
+   TX=surf_pivot_x(I)
+   TY=surf_pivot_y(I)
+   TZ=surf_pivot_z(I)
    TTX=TX
    TTY=TY
    TTZ=TZ
@@ -314,8 +315,8 @@ SUBROUTINE PIVDEC(I)
 !     WHICH RESULTS FROM THE SPECIFIED ROTATION ABOUT THE SPECIFIED
 !     PIVOT POINT.
 !
-   IF(ALENS(25,I).EQ.-1.0D0.OR.ALENS(25,I).EQ.1.0D0.OR.&
-   &ALENS(25,I).EQ.5.0D0) THEN
+   IF(surf_tilt_flag(I).EQ.-1.0D0.OR.surf_tilt_flag(I).EQ.1.0D0.OR.&
+   &surf_tilt_flag(I).EQ.5.0D0) THEN
 !     WE HAVE A TILT OR A TILT DAR WITH A PIVOT
 
       JK_AA=-AP*(PII/180.0D0)
@@ -336,15 +337,15 @@ SUBROUTINE PIVDEC(I)
       X1=(TX*C11(JK_AA))+(TY*C12(JK_AA))+(TZ*C13(JK_AA))
       Y1=(TX*C21(JK_AA))+(TY*C22(JK_AA))+(TZ*C23(JK_AA))
       Z1=(TX*C31(JK_AA))+(TY*C32(JK_AA))+(TZ*C33(JK_AA))
-      ALENS(31,I)=XEEX-(X1-TTX)
-      ALENS(30,I)=YEEY-(Y1-TTY)
-      ALENS(69,I)=ZEEZ-(Z1-TTZ)
-      ALENS(29,I)=1.0D0
-      IF(ALENS(30,I).EQ.0.0D0.AND.ALENS(31,I).EQ.0.0D0.AND.&
-      &ALENS(69,I).EQ.0.0D0) ALENS(29,I)=0.0D0
+      call set_surf_decenter_x(I, XEEX-(X1-TTX))
+      call set_surf_decenter_y(I, YEEY-(Y1-TTY))
+      call set_surf_decenter_z(I, ZEEZ-(Z1-TTZ))
+      call set_surf_decenter_flag(I, 1)
+      IF(surf_decenter_y(I).EQ.0.0D0.AND.surf_decenter_x(I).EQ.0.0D0.AND.&
+      &surf_decenter_z(I).EQ.0.0D0) call set_surf_decenter_flag(I, 0)
       RETURN
    END IF
-   IF(ALENS(25,I).EQ.-1.0D0) THEN
+   IF(surf_tilt_flag(I).EQ.-1.0D0) THEN
 !     WE HAVE AN RTILT WITH A PIVOT
 
 !       NOW ROTATE THE SUCKER!
@@ -366,12 +367,12 @@ SUBROUTINE PIVDEC(I)
       X1=(TX*A11(JK_AA))+(TY*A12(JK_AA))+(TZ*A13(JK_AA))
       Y1=(TX*A21(JK_AA))+(TY*A22(JK_AA))+(TZ*A23(JK_AA))
       Z1=(TX*A31(JK_AA))+(TY*A32(JK_AA))+(TZ*A33(JK_AA))
-      ALENS(31,I)=ALENS(114,I)-(X1-TTX)
-      ALENS(30,I)=ALENS(115,I)-(Y1-TTY)
-      ALENS(69,I)=ALENS(116,I)-(Z1-TTZ)
-      ALENS(29,I)=1.0D0
-      IF(ALENS(30,I).EQ.0.0D0.AND.ALENS(31,I).EQ.0.0D0.AND.&
-      &ALENS(69,I).EQ.0.0D0) ALENS(29,I)=0.0D0
+      call set_surf_decenter_x(I, surf_focus_dx(I)-(X1-TTX))
+      call set_surf_decenter_y(I, surf_focus_dy(I)-(Y1-TTY))
+      call set_surf_decenter_z(I, surf_focus_dz(I)-(Z1-TTZ))
+      call set_surf_decenter_flag(I, 1)
+      IF(surf_decenter_y(I).EQ.0.0D0.AND.surf_decenter_x(I).EQ.0.0D0.AND.&
+      &surf_decenter_z(I).EQ.0.0D0) call set_surf_decenter_flag(I, 0)
       RETURN
    END IF
 END
@@ -380,6 +381,7 @@ SUBROUTINE BAKONE
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE TAKES THE COORDINATES R_TX,R_TY AND R_TZ
@@ -468,30 +470,30 @@ SUBROUTINE BAKONE
    LZ0=0.0D0
    MZ0=0.0D0
    NZ0=1.0D0
-   AEEA=ALENS(26,NI)
-   BEEB=ALENS(27,NI)
-   CEEC=ALENS(28,NI)
-   XEEX=ALENS(31,NI)
-   YEEY=ALENS(30,NI)
-   ZEEZ=ALENS(69,NI)
+   AEEA=surf_alpha(NI)
+   BEEB=surf_beta(NI)
+   CEEC=surf_gamma(NI)
+   XEEX=surf_decenter_x(NI)
+   YEEY=surf_decenter_y(NI)
+   ZEEZ=surf_decenter_z(NI)
 !
 !       DO THE COORDINATE TRANSFORMATION
 !
 !       IF DECENTERS PRESENT
-   IF(ALENS(25,NEWOBJ+1).EQ.0.0D0) THEN
+   IF(surf_tilt_flag(NEWOBJ+1).EQ.0.0D0) THEN
 !     NO TILTS
 !     IF DECENTERS
-      IF(ALENS(29,NEWOBJ+1).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(NEWOBJ+1).EQ.1.0D0) THEN
          R_TX=R_TX+XEEX
          R_TY=R_TY+YEEY
          R_TZ=R_TZ+ZEEZ
       END IF
    ELSE
 !       TILTS OR RTILTS
-      IF(ALENS(25,NEWOBJ+1).EQ.-1.0D0) THEN
+      IF(surf_tilt_flag(NEWOBJ+1).EQ.-1.0D0) THEN
 !       NEWOBJ+1 WAS RTILTED, APPLY A TILT
 !     IF DECENTERS
-         IF(ALENS(29,NEWOBJ+1).EQ.1.0D0) THEN
+         IF(surf_decenter_flag(NEWOBJ+1).EQ.1.0D0) THEN
             R_TX=R_TX-XEEX
             R_TY=R_TY-YEEY
             R_TZ=R_TZ-ZEEZ
@@ -527,8 +529,8 @@ SUBROUTINE BAKONE
       END IF
 !       NOT RTILT
 !
-      IF(ALENS(25,NEWOBJ+1).EQ.1.0D0.OR.ALENS(25,NEWOBJ+1).EQ.4.0D0 &
-      &.OR.ALENS(25,NEWOBJ+1).EQ.5.0D0) THEN
+      IF(surf_tilt_flag(NEWOBJ+1).EQ.1.0D0.OR.surf_tilt_flag(NEWOBJ+1).EQ.4.0D0 &
+      &.OR.surf_tilt_flag(NEWOBJ+1).EQ.5.0D0) THEN
 !       NEWOBJ+1 WAS TILTED, APPLY AN RTILT
          IF(CEEC.NE.0.0D0) THEN
             JK_AA=-CEEC*(PII/180.0D0)
@@ -558,13 +560,13 @@ SUBROUTINE BAKONE
             R_TZ=TZ1
          END IF
 !       IF DECENTERS PRESENT
-         IF(ALENS(29,NEWOBJ+1).EQ.1.0D0) THEN
+         IF(surf_decenter_flag(NEWOBJ+1).EQ.1.0D0) THEN
             R_TX=R_TX+XEEX
             R_TY=R_TY+YEEY
             R_TZ=R_TZ+ZEEZ
          END IF
-         IF(ALENS(95,NEWOBJ+1).NE.0.0D0) THEN
-            JK_AA=-ALENS(95,NEWOBJ+1)*(PII/180.0D0)
+         IF(surf_global_gamma(NEWOBJ+1).NE.0.0D0) THEN
+            JK_AA=-surf_global_gamma(NEWOBJ+1)*(PII/180.0D0)
             TX1=(R_TX*C11(JK_AA))+(R_TY*C12(JK_AA))+(R_TZ*C13(JK_AA))
             TY1=(R_TX*C21(JK_AA))+(R_TY*C22(JK_AA))+(R_TZ*C23(JK_AA))
             TZ1=(R_TX*C31(JK_AA))+(R_TY*C32(JK_AA))+(R_TZ*C33(JK_AA))
@@ -572,8 +574,8 @@ SUBROUTINE BAKONE
             R_TY=TY1
             R_TZ=TZ1
          END IF
-         IF(ALENS(94,NEWOBJ+1).NE.0.0D0) THEN
-            JK_AA=-ALENS(94,NEWOBJ+1)*(PII/180.0D0)
+         IF(surf_global_beta(NEWOBJ+1).NE.0.0D0) THEN
+            JK_AA=-surf_global_beta(NEWOBJ+1)*(PII/180.0D0)
             TX1=(R_TX*B11(JK_AA))+(R_TY*B12(JK_AA))+(R_TZ*B13(JK_AA))
             TY1=(R_TX*B21(JK_AA))+(R_TY*B22(JK_AA))+(R_TZ*B23(JK_AA))
             TZ1=(R_TX*B31(JK_AA))+(R_TY*B32(JK_AA))+(R_TZ*B33(JK_AA))
@@ -581,8 +583,8 @@ SUBROUTINE BAKONE
             R_TY=TY1
             R_TZ=TZ1
          END IF
-         IF(ALENS(93,NEWOBJ+1).NE.0.0D0) THEN
-            JK_AA=-ALENS(93,NEWOBJ+1)*(PII/180.0D0)
+         IF(surf_global_alpha(NEWOBJ+1).NE.0.0D0) THEN
+            JK_AA=-surf_global_alpha(NEWOBJ+1)*(PII/180.0D0)
             TX1=(R_TX*A11(JK_AA))+(R_TY*A12(JK_AA))+(R_TZ*A13(JK_AA))
             TY1=(R_TX*A21(JK_AA))+(R_TY*A22(JK_AA))+(R_TZ*A23(JK_AA))
             TZ1=(R_TX*A31(JK_AA))+(R_TY*A32(JK_AA))+(R_TZ*A33(JK_AA))
@@ -590,12 +592,12 @@ SUBROUTINE BAKONE
             R_TY=TY1
             R_TZ=TZ1
          END IF
-         R_TX=R_TX+ALENS(90,(NEWOBJ+1))
-         R_TY=R_TY+ALENS(91,(NEWOBJ+1))
-         R_TZ=R_TZ+ALENS(92,(NEWOBJ+1))
+         R_TX=R_TX+surf_global_dx((NEWOBJ+1))
+         R_TY=R_TY+surf_global_dy((NEWOBJ+1))
+         R_TZ=R_TZ+surf_global_dz((NEWOBJ+1))
 !       NOT TILT
       END IF
-      IF(ALENS(25,NEWOBJ+1).EQ.4.0D0) THEN
+      IF(surf_tilt_flag(NEWOBJ+1).EQ.4.0D0) THEN
 !       NEWOBJ+1 WAS TILTED, APPLY AN RTILT TWICE
          IF(CEEC.NE.0.0D0) THEN
             JK_AA=-CEEC*(PII/180.0D0)
@@ -652,7 +654,7 @@ SUBROUTINE BAKONE
             R_TZ=TZ1
          END IF
 !       IF DECENTERS PRESENT
-         IF(ALENS(29,NEWOBJ+1).EQ.1.0D0) THEN
+         IF(surf_decenter_flag(NEWOBJ+1).EQ.1.0D0) THEN
             R_TX=R_TX+XEEX
             R_TY=R_TY+YEEY
             R_TZ=R_TZ+ZEEZ
@@ -660,7 +662,7 @@ SUBROUTINE BAKONE
 !       NOT TILT BEN
       END IF
    END IF
-   R_TZ=R_TZ+ALENS(3,NEWOBJ)
+   R_TZ=R_TZ+surf_thickness(NEWOBJ)
    RETURN
 END
 ! SUB FORONEL.FOR
@@ -668,6 +670,7 @@ SUBROUTINE FORONEL
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE TAKES THE COORDINATES R_TX,R_TY AND R_TZ
@@ -756,24 +759,24 @@ SUBROUTINE FORONEL
    LZ0=0.0D0
    MZ0=0.0D0
    NZ0=1.0D0
-   AEEA=ALENS(26,NI)
-   BEEB=ALENS(27,NI)
-   CEEC=ALENS(28,NI)
-   XEEX=ALENS(31,NI)
-   YEEY=ALENS(30,NI)
-   ZEEZ=ALENS(69,NI)
+   AEEA=surf_alpha(NI)
+   BEEB=surf_beta(NI)
+   CEEC=surf_gamma(NI)
+   XEEX=surf_decenter_x(NI)
+   YEEY=surf_decenter_y(NI)
+   ZEEZ=surf_decenter_z(NI)
 !     IF THE SURFACE HAS A TILT, RTILT OR TILT DAR AND IF THERE IS
 !     AN ALTERNATE PIVOT POINT DEFINED AND IF PIVAXIS IS SET TO NORMAL
 !     THEN COMPUTE A MODIFIED SET OF INTERNAL TILT VALUES
-   IF(ALENS(25,NI).EQ.1.0D0.AND.ALENS(59,NI).EQ.1.0D0.AND.&
-   &ALENS(113,NI).EQ.1.0D0.OR.&
-   &ALENS(25,NI).EQ.-1.0D0.AND.ALENS(59,NI).EQ.1.0D0.AND.&
-   &ALENS(113,NI).EQ.1.0D0.OR.&
-   &ALENS(25,NI).EQ.5.0D0.AND.ALENS(59,NI).EQ.1.0D0.AND.&
-   &ALENS(113,NI).EQ.1.0D0) THEN
+   IF(surf_tilt_flag(NI).EQ.1.0D0.AND.surf_pivot_flag(NI).EQ.1.0D0.AND.&
+   &surf_pivot_axis(NI).EQ.1.0D0.OR.&
+   &surf_tilt_flag(NI).EQ.-1.0D0.AND.surf_pivot_flag(NI).EQ.1.0D0.AND.&
+   &surf_pivot_axis(NI).EQ.1.0D0.OR.&
+   &surf_tilt_flag(NI).EQ.5.0D0.AND.surf_pivot_flag(NI).EQ.1.0D0.AND.&
+   &surf_pivot_axis(NI).EQ.1.0D0) THEN
 !     JX AND JY ARE THE X AND Y PIVOT POSITIONS
-      JX=ALENS(78,NI)
-      JY=ALENS(79,NI)
+      JX=surf_pivot_x(NI)
+      JY=surf_pivot_y(NI)
 !     THE SURFACE NORMAL DIRECTION COSINES AT THIS JX AND JY ARE:
 !     LL1,MM1,NN1
       CALL SAGINT(NI,JX,JY,JZ,LL1,MM1,NN1)
@@ -945,11 +948,11 @@ SUBROUTINE FORONEL
 !
 !       DO THE COORDINATE TRANSFORMATION
 !
-   IF(ALENS(25,NEWOBJ+1).EQ.0.0D0) THEN
+   IF(surf_tilt_flag(NEWOBJ+1).EQ.0.0D0) THEN
 !     NO TILTS
    ELSE
 !       TILTS OR RTILTS
-      IF(ALENS(25,NEWOBJ+1).EQ.-1.0D0) THEN
+      IF(surf_tilt_flag(NEWOBJ+1).EQ.-1.0D0) THEN
 !       NEWOBJ+1 WAS RTILTED, APPLY AN RTILT
          IF(CEEC.NE.0.0D0) THEN
             JK_AA=-CEEC*(PII/180.0D0)
@@ -982,7 +985,7 @@ SUBROUTINE FORONEL
       END IF
 !       NOT RTILT
 !
-      IF(ALENS(25,NEWOBJ+1).EQ.1.0D0) THEN
+      IF(surf_tilt_flag(NEWOBJ+1).EQ.1.0D0) THEN
 !       NEWOBJ+1 WAS TILTED, APPLY A TILT
          IF(AEEA.NE.0.0D0) THEN
             JK_AA=AEEA*(PII/180.0D0)
@@ -1013,7 +1016,7 @@ SUBROUTINE FORONEL
          END IF
 !       NOT TILT
       END IF
-      IF(ALENS(25,NEWOBJ+1).EQ.4.0D0) THEN
+      IF(surf_tilt_flag(NEWOBJ+1).EQ.4.0D0) THEN
 !       NEWOBJ+1 WAS TILTED, APPLY AN TILT TWICE
          IF(AEEA.NE.0.0D0) THEN
             JK_AA=AEEA*(PII/180.0D0)
@@ -1079,6 +1082,7 @@ SUBROUTINE TRNSF2
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TRNSF2.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1153,20 +1157,20 @@ SUBROUTINE TRNSF2
    C33(AN)=1.0D0
 !     BEFORE A ROTATION, THE LOCAL AXIS DIRECTION COSINES ARE:
 !
-   AEEA=ALENS(26,R_I)
-   BEEB=ALENS(27,R_I)
-   CEEC=ALENS(28,R_I)
-   XEEX=ALENS(31,R_I)
-   YEEY=ALENS(30,R_I)
-   ZEEZ=ALENS(69,R_I)
-   AEEAM=ALENS(26,R_I-1)
-   BEEBM=ALENS(27,R_I-1)
-   CEECM=ALENS(28,R_I-1)
-   XEEXM=ALENS(31,R_I-1)
-   YEEYM=ALENS(30,R_I-1)
-   ZEEZM=ALENS(69,R_I-1)
+   AEEA=surf_alpha(R_I)
+   BEEB=surf_beta(R_I)
+   CEEC=surf_gamma(R_I)
+   XEEX=surf_decenter_x(R_I)
+   YEEY=surf_decenter_y(R_I)
+   ZEEZ=surf_decenter_z(R_I)
+   AEEAM=surf_alpha(R_I-1)
+   BEEBM=surf_beta(R_I-1)
+   CEECM=surf_gamma(R_I-1)
+   XEEXM=surf_decenter_x(R_I-1)
+   YEEYM=surf_decenter_y(R_I-1)
+   ZEEZM=surf_decenter_z(R_I-1)
 !
-   IF(ALENS(25,R_I-1).EQ.7.0D0 ) THEN
+   IF(surf_tilt_flag(R_I-1).EQ.7.0D0 ) THEN
 !     RESOLVE TILT REV ISSUES
 !     WE MUST DO AN RTILT ON SURFACE I-1
 !       ROTATE THE SUCKER!
@@ -1216,7 +1220,7 @@ SUBROUTINE TRNSF2
          R_N=N1
       END IF
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I-1).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I-1).EQ.1.0D0) THEN
          R_X=R_X+XEEXM
          R_Y=R_Y+YEEYM
          R_Z=R_Z+ZEEZM
@@ -1227,7 +1231,7 @@ SUBROUTINE TRNSF2
 !       FOR ALL OTHER CASES CHECK FOR TILT BEN, TILT DAR
 !
 !     ARE THERE TILT BEN OR TILT DAR ISSUES TO RESOLVE
-   IF(ALENS(25,R_I-1).EQ.4.0D0) THEN
+   IF(surf_tilt_flag(R_I-1).EQ.4.0D0) THEN
 !     RESOLVE TILT BEN ISSUES
 !     THERE IS A TILT BEN ON SURFACE I-1. WE NEED TO DO ONE MORE
 !     TILT AT SURFACE I-1
@@ -1282,7 +1286,7 @@ SUBROUTINE TRNSF2
 !     NOW TAKE CARE OF THE TILTS AND DECENTERS AND TRANSFER TO SURFACE I
 !     COORDINATES
    END IF
-   IF(ALENS(25,R_I-1).EQ.5.0D0) THEN
+   IF(surf_tilt_flag(R_I-1).EQ.5.0D0) THEN
 !     RESOLVE TILT DAR ISSUES
 !     WE MUST DO AN RTILT ON SURFACE I-1
 !       ROTATE THE SUCKER!
@@ -1332,7 +1336,7 @@ SUBROUTINE TRNSF2
          R_N=N1
       END IF
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I-1).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I-1).EQ.1.0D0) THEN
          R_X=R_X+XEEXM
          R_Y=R_Y+YEEYM
          R_Z=R_Z+ZEEZM
@@ -1340,39 +1344,39 @@ SUBROUTINE TRNSF2
 !     NOW PROCEED WITH THE TILTS AND TRANSFER TO SURFACE I COORDINATES
    END IF
 !
-   IF(ALENS(25,R_I).EQ.7.0D0) THEN
-      R_Z=R_Z-ALENS(3,(R_I-1))
+   IF(surf_tilt_flag(R_I).EQ.7.0D0) THEN
+      R_Z=R_Z-surf_thickness((R_I-1))
       RETURN
    END IF
 !
-   IF(ALENS(25,R_I).EQ.0.0D0) THEN
+   IF(surf_tilt_flag(R_I).EQ.0.0D0) THEN
 !       NO TILTS
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X-XEEX
          R_Y=R_Y-YEEY
          R_Z=R_Z-ZEEZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
       RETURN
 !       TILTS PRESENT, WHAT KIND
    END IF
 !       TILT
-   IF(ALENS(25,R_I).EQ.1.0D0.OR.ALENS(25,R_I).EQ.6.0D0.OR.&
-   &ALENS(25,R_I)&
-   &.EQ.2.0D0.OR.ALENS(25,R_I)&
+   IF(surf_tilt_flag(R_I).EQ.1.0D0.OR.surf_tilt_flag(R_I).EQ.6.0D0.OR.&
+   &surf_tilt_flag(R_I)&
+   &.EQ.2.0D0.OR.surf_tilt_flag(R_I)&
    &.EQ.3.0D0 &
-   &.OR.ALENS(25,R_I).EQ.4.0D0.OR.ALENS(25,R_I).EQ.5.0D0) THEN
+   &.OR.surf_tilt_flag(R_I).EQ.4.0D0.OR.surf_tilt_flag(R_I).EQ.5.0D0) THEN
 !       TILT PRESENT
       TDECX=XEEX
       TDECY=YEEY
       TDECZ=ZEEZ
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X-TDECX
          R_Y=R_Y-TDECY
          R_Z=R_Z-TDECZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
 !
 !       NOW ROTATE THE SUCKER!
       IF(AEEA.NE.0.0D0) THEN
@@ -1420,12 +1424,12 @@ SUBROUTINE TRNSF2
          R_M=M1
          R_N=N1
       END IF
-      R_X=R_X-ALENS(90,R_I)
-      R_Y=R_Y-ALENS(91,R_I)
-      R_Z=R_Z-ALENS(92,R_I)
+      R_X=R_X-surf_global_dx(R_I)
+      R_Y=R_Y-surf_global_dy(R_I)
+      R_Z=R_Z-surf_global_dz(R_I)
 !       NOW ROTATE THE SUCKER!
-      IF(ALENS(93,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(93,R_I)*(PII/180.0D0)
+      IF(surf_global_alpha(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_alpha(R_I)*(PII/180.0D0)
          X1=(R_X*A11(JK_AA))+(R_Y*A12(JK_AA))+(R_Z*A13(JK_AA))
          Y1=(R_X*A21(JK_AA))+(R_Y*A22(JK_AA))+(R_Z*A23(JK_AA))
          Z1=(R_X*A31(JK_AA))+(R_Y*A32(JK_AA))+(R_Z*A33(JK_AA))
@@ -1439,8 +1443,8 @@ SUBROUTINE TRNSF2
          R_M=M1
          R_N=N1
       END IF
-      IF(ALENS(94,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(94,R_I)*(PII/180.0D0)
+      IF(surf_global_beta(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_beta(R_I)*(PII/180.0D0)
          X1=(R_X*B11(JK_AA))+(R_Y*B12(JK_AA))+(R_Z*B13(JK_AA))
          Y1=(R_X*B21(JK_AA))+(R_Y*B22(JK_AA))+(R_Z*B23(JK_AA))
          Z1=(R_X*B31(JK_AA))+(R_Y*B32(JK_AA))+(R_Z*B33(JK_AA))
@@ -1454,8 +1458,8 @@ SUBROUTINE TRNSF2
          R_M=M1
          R_N=N1
       END IF
-      IF(ALENS(95,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(95,R_I)*(PII/180.0D0)
+      IF(surf_global_gamma(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_gamma(R_I)*(PII/180.0D0)
          X1=(R_X*C11(JK_AA))+(R_Y*C12(JK_AA))+(R_Z*C13(JK_AA))
          Y1=(R_X*C21(JK_AA))+(R_Y*C22(JK_AA))+(R_Z*C23(JK_AA))
          Z1=(R_X*C31(JK_AA))+(R_Y*C32(JK_AA))+(R_Z*C33(JK_AA))
@@ -1473,7 +1477,7 @@ SUBROUTINE TRNSF2
    END IF
 !       KEEP CHECKING
 !       RTILT
-   IF(ALENS(25,R_I).EQ.-1.0D0) THEN
+   IF(surf_tilt_flag(R_I).EQ.-1.0D0) THEN
 !       RTILT PRESENT
 !       ROTATE THE SUCKER!
       IF(CEEC.NE.0.0D0) THEN
@@ -1522,12 +1526,12 @@ SUBROUTINE TRNSF2
          R_N=N1
       END IF
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X+XEEX
          R_Y=R_Y+YEEY
          R_Z=R_Z+ZEEZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
    END IF
    RETURN
 END
@@ -1536,6 +1540,7 @@ SUBROUTINE TRANSF
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TRANSF.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1618,20 +1623,20 @@ SUBROUTINE TRANSF
    OR_L=R_L
    OR_M=R_M
    OR_N=R_N
-   AEEA=ALENS(26,R_I)
-   BEEB=ALENS(27,R_I)
-   CEEC=ALENS(28,R_I)
-   XEEX=ALENS(31,R_I)
-   YEEY=ALENS(30,R_I)
-   ZEEZ=ALENS(69,R_I)
-   AEEAM=ALENS(26,R_I-1)
-   BEEBM=ALENS(27,R_I-1)
-   CEECM=ALENS(28,R_I-1)
-   XEEXM=ALENS(31,R_I-1)
-   YEEYM=ALENS(30,R_I-1)
-   ZEEZM=ALENS(69,R_I-1)
+   AEEA=surf_alpha(R_I)
+   BEEB=surf_beta(R_I)
+   CEEC=surf_gamma(R_I)
+   XEEX=surf_decenter_x(R_I)
+   YEEY=surf_decenter_y(R_I)
+   ZEEZ=surf_decenter_z(R_I)
+   AEEAM=surf_alpha(R_I-1)
+   BEEBM=surf_beta(R_I-1)
+   CEECM=surf_gamma(R_I-1)
+   XEEXM=surf_decenter_x(R_I-1)
+   YEEYM=surf_decenter_y(R_I-1)
+   ZEEZM=surf_decenter_z(R_I-1)
 !
-   IF(ALENS(25,R_I-1).EQ.7.0D0) THEN
+   IF(surf_tilt_flag(R_I-1).EQ.7.0D0) THEN
 !     RESOLVE TILT REV ISSUES
 !     WE MUST DO AN RTILT ON SURFACE I-1
 !       ROTATE THE SUCKER!
@@ -1681,7 +1686,7 @@ SUBROUTINE TRANSF
          R_N=N1
       END IF
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I-1).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I-1).EQ.1.0D0) THEN
          R_X=R_X+XEEXM
          R_Y=R_Y+YEEYM
          R_Z=R_Z+ZEEZM
@@ -1689,7 +1694,7 @@ SUBROUTINE TRANSF
    END IF
 !
 !     ARE THERE TILT BEN OR TILT DAR ISSUES TO RESOLVE
-   IF(ALENS(25,R_I-1).EQ.4.0D0) THEN
+   IF(surf_tilt_flag(R_I-1).EQ.4.0D0) THEN
 !     RESOLVE TILT BEN ISSUES
 !     THERE IS A TILT BEN ON SURFACE I-1. WE NEED TO DO ONE MORE
 !     TILT AT SURFACE I-1
@@ -1744,7 +1749,7 @@ SUBROUTINE TRANSF
 !     NOW TAKE CARE OF THE TILTS AND DECENTERS AND TRANSFER TO SURFACE I
 !     COORDINATES
    END IF
-   IF(ALENS(25,R_I-1).EQ.5.0D0) THEN
+   IF(surf_tilt_flag(R_I-1).EQ.5.0D0) THEN
 !     RESOLVE TILT DAR ISSUES
 !     WE MUST DO AN RTILT ON SURFACE I-1
 !       ROTATE THE SUCKER!
@@ -1794,7 +1799,7 @@ SUBROUTINE TRANSF
          R_N=N1
       END IF
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I-1).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I-1).EQ.1.0D0) THEN
          R_X=R_X+XEEXM
          R_Y=R_Y+YEEYM
          R_Z=R_Z+ZEEZM
@@ -1802,39 +1807,39 @@ SUBROUTINE TRANSF
 !     NOW PROCEED WITH THE TILTS AND TRANSFER TO SURFACE I COORDINATES
    END IF
 !
-   IF(ALENS(25,R_I).EQ.7.0D0) THEN
-      R_Z=R_Z-ALENS(3,(R_I-1))
+   IF(surf_tilt_flag(R_I).EQ.7.0D0) THEN
+      R_Z=R_Z-surf_thickness((R_I-1))
       RETURN
    END IF
-   IF(ALENS(25,R_I).EQ.0.0D0) THEN
+   IF(surf_tilt_flag(R_I).EQ.0.0D0) THEN
 !       NO TILTS
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X-XEEX
          R_Y=R_Y-YEEY
          R_Z=R_Z-ZEEZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
       RETURN
    END IF
 !       TILTS PRESENT, WHAT KIND
 !       TILT
-   IF(ALENS(25,R_I).EQ.1.0D0.OR.ALENS(25,R_I).EQ.6.0D0.OR.&
-   &ALENS(25,R_I)&
-   &.EQ.2.0D0.AND.FOB0.EQ.0.OR.ALENS(25,R_I)&
+   IF(surf_tilt_flag(R_I).EQ.1.0D0.OR.surf_tilt_flag(R_I).EQ.6.0D0.OR.&
+   &surf_tilt_flag(R_I)&
+   &.EQ.2.0D0.AND.FOB0.EQ.0.OR.surf_tilt_flag(R_I)&
    &.EQ.3.0D0.AND.FOB0.EQ.0 &
-   &.OR.ALENS(25,R_I).EQ.4.0D0.OR.ALENS(25,R_I).EQ.5.0D0) THEN
+   &.OR.surf_tilt_flag(R_I).EQ.4.0D0.OR.surf_tilt_flag(R_I).EQ.5.0D0) THEN
 !       REGULAR TILT PRESENT
 !       IF DECENTERS PRESENT
       TDECX=XEEX
       TDECY=YEEY
       TDECZ=ZEEZ
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X-TDECX
          R_Y=R_Y-TDECY
          R_Z=R_Z-TDECZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
 !
 !       NOW ROTATE THE SUCKER!
 !
@@ -1883,14 +1888,14 @@ SUBROUTINE TRANSF
          R_M=M1
          R_N=N1
       END IF
-      R_X=R_X-ALENS(90,R_I)
-      R_Y=R_Y-ALENS(91,R_I)
-      R_Z=R_Z-ALENS(92,R_I)
+      R_X=R_X-surf_global_dx(R_I)
+      R_Y=R_Y-surf_global_dy(R_I)
+      R_Z=R_Z-surf_global_dz(R_I)
 !
 !       NOW ROTATE THE SUCKER!
 !
-      IF(ALENS(93,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(93,R_I)*(PII/180.0D0)
+      IF(surf_global_alpha(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_alpha(R_I)*(PII/180.0D0)
          X1=(R_X*A11(JK_AA))+(R_Y*A12(JK_AA))+(R_Z*A13(JK_AA))
          Y1=(R_X*A21(JK_AA))+(R_Y*A22(JK_AA))+(R_Z*A23(JK_AA))
          Z1=(R_X*A31(JK_AA))+(R_Y*A32(JK_AA))+(R_Z*A33(JK_AA))
@@ -1904,8 +1909,8 @@ SUBROUTINE TRANSF
          R_M=M1
          R_N=N1
       END IF
-      IF(ALENS(94,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(94,R_I)*(PII/180.0D0)
+      IF(surf_global_beta(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_beta(R_I)*(PII/180.0D0)
          X1=(R_X*B11(JK_AA))+(R_Y*B12(JK_AA))+(R_Z*B13(JK_AA))
          Y1=(R_X*B21(JK_AA))+(R_Y*B22(JK_AA))+(R_Z*B23(JK_AA))
          Z1=(R_X*B31(JK_AA))+(R_Y*B32(JK_AA))+(R_Z*B33(JK_AA))
@@ -1919,8 +1924,8 @@ SUBROUTINE TRANSF
          R_M=M1
          R_N=N1
       END IF
-      IF(ALENS(95,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(95,R_I)*(PII/180.0D0)
+      IF(surf_global_gamma(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_gamma(R_I)*(PII/180.0D0)
          X1=(R_X*C11(JK_AA))+(R_Y*C12(JK_AA))+(R_Z*C13(JK_AA))
          Y1=(R_X*C21(JK_AA))+(R_Y*C22(JK_AA))+(R_Z*C23(JK_AA))
          Z1=(R_X*C31(JK_AA))+(R_Y*C32(JK_AA))+(R_Z*C33(JK_AA))
@@ -1938,7 +1943,7 @@ SUBROUTINE TRANSF
    END IF
 !       KEEP CHECKING
 !       RTILT
-   IF(ALENS(25,R_I).EQ.-1.0D0) THEN
+   IF(surf_tilt_flag(R_I).EQ.-1.0D0) THEN
 !       RTILT PRESENT
 !       ROTATE THE SUCKER!
       IF(CEEC.NE.0.0D0) THEN
@@ -1988,20 +1993,20 @@ SUBROUTINE TRANSF
       END IF
 !       CHECK DECENTERS
 !       IF DECENTERS PRESENT
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X+XEEX
          R_Y=R_Y+YEEY
          R_Z=R_Z+ZEEZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
       RETURN
    END IF
 !       KEEP CHECKING
 !       CHECK FOR TILT AUTOS AND HANDLE
-   IF(ALENS(25,R_I)&
-   &.EQ.2.0D0.AND.FOB0.EQ.1.OR.ALENS(25,R_I)&
+   IF(surf_tilt_flag(R_I)&
+   &.EQ.2.0D0.AND.FOB0.EQ.1.OR.surf_tilt_flag(R_I)&
    &.EQ.3.0D0.AND.FOB0.EQ.1) THEN
-      IF(ALENS(25,R_I).EQ.2.0D0) THEN
+      IF(surf_tilt_flag(R_I).EQ.2.0D0) THEN
 !       TILT AUTO, IMPLEMENT IT
 !       THE ALPHA,BETA AND GAMMA INPUT WITH
 !       TILT AUTO WERE STARTING VALUES WHICH ARE NOW
@@ -2020,7 +2025,7 @@ SUBROUTINE TRANSF
 !       ALPHA,BETA AND GAMMA(A,B,C).
 !       FIRST TRANSFER TO THE COORDINATE SYSTEM OF SURFACE I
 !       IGNORE INITIAL DECENTERS
-         R_Z=R_Z-ALENS(3,(R_I-1))
+         R_Z=R_Z-surf_thickness((R_I-1))
 !       IGNORE INITIAL TILTS
 !       NOW CALCULATE THE INTERSECTION POINT OF THIS RAY
 !       WITH THE PLANE LOCATED AT SURFACE I BUT DON'T
@@ -2045,44 +2050,44 @@ SUBROUTINE TRANSF
 !       NOW IF THE COORDINATE OF THE RAY INTERSECTION IS
 !       POSITIVE XP AND POSITIVE YP THEN WE MUST DECENTER
 !       SURFACE I BY YD=YP AND XD=XP
-         ALENS(29,R_I)=0.0D0
+         call set_surf_decenter_flag(R_I, 0)
          ALENP(29,R_I)=0.0D0
          IF(YP.NE.0.0D0.OR.XP.NE.0.0D0) THEN
-            ALENS(29,R_I)=1.0D0
-            ALENS(31,R_I)=XP
-            ALENS(30,R_I)=YP
-            ALENS(69,R_I)=ZP
+            call set_surf_decenter_flag(R_I, 1)
+            call set_surf_decenter_x(R_I, XP)
+            call set_surf_decenter_y(R_I, YP)
+            call set_surf_decenter_z(R_I, ZP)
             ALENP(29,R_I)=1.0D0
             ALENP(31,R_I)=XP
             ALENP(30,R_I)=YP
             ALENP(69,R_I)=ZP
-            ALENS(114,R_I)=XP
-            ALENS(115,R_I)=YP
-            ALENS(116,R_I)=ZP
+            call set_surf_focus_dx(R_I, XP)
+            call set_surf_focus_dy(R_I, YP)
+            call set_surf_focus_dz(R_I, ZP)
             ALENP(114,R_I)=XP
             ALENP(115,R_I)=YP
             ALENP(116,R_I)=ZP
-            XEEX=ALENS(31,R_I)
-            YEEY=ALENS(30,R_I)
-            ZEEZ=ALENS(69,R_I)
+            XEEX=surf_decenter_x(R_I)
+            YEEY=surf_decenter_y(R_I)
+            ZEEZ=surf_decenter_z(R_I)
          ELSE
             ALENP(29,R_I)=0.0D0
-            ALENS(30,R_I)=0.0D0
-            ALENS(31,R_I)=0.0D0
-            ALENS(69,R_I)=0.0D0
+            call set_surf_decenter_y(R_I, 0.0D0)
+            call set_surf_decenter_x(R_I, 0.0D0)
+            call set_surf_decenter_z(R_I, 0.0D0)
             ALENP(29,R_I)=0.0D0
             ALENP(30,R_I)=0.0D0
             ALENP(31,R_I)=0.0D0
             ALENP(69,R_I)=0.0D0
-            ALENS(114,R_I)=0.0D0
-            ALENS(115,R_I)=0.0D0
-            ALENS(116,R_I)=0.0D0
+            call set_surf_focus_dx(R_I, 0.0D0)
+            call set_surf_focus_dy(R_I, 0.0D0)
+            call set_surf_focus_dz(R_I, 0.0D0)
             ALENP(114,R_I)=0.0D0
             ALENP(115,R_I)=0.0D0
             ALENP(116,R_I)=0.0D0
-            XEEX=ALENS(31,R_I)
-            YEEY=ALENS(30,R_I)
-            ZEEZ=ALENS(69,R_I)
+            XEEX=surf_decenter_x(R_I)
+            YEEY=surf_decenter_y(R_I)
+            ZEEZ=surf_decenter_z(R_I)
 !                       NO DECENTER
          END IF
 !
@@ -2124,31 +2129,31 @@ SUBROUTINE TRANSF
 !       A BETA ROTATION (IN DEGREES) OF -ANGX BRINGS THE
 !       X- COMPONENT INTO ALIGNMENT WITH THE Z AXIS.
 !       NO GAMMA ROTATION IS REQUIRED
-         ALENS(26,R_I)=ANGY
-         ALENS(27,R_I)=-ANGX
-         ALENS(28,R_I)=0.0D0
+         call set_surf_alpha(R_I, ANGY)
+         call set_surf_beta(R_I, -ANGX)
+         call set_surf_gamma(R_I, 0.0D0)
          ALENP(26,R_I)=ANGY
          ALENP(27,R_I)=-ANGX
          ALENP(28,R_I)=0.0D0
-         ALENS(118,R_I)=ANGY
-         ALENS(119,R_I)=-ANGX
-         ALENS(120,R_I)=0.0D0
+         call set_surf_alpha_deg(R_I, ANGY)
+         call set_surf_beta_deg(R_I, -ANGX)
+         call set_surf_gamma_deg(R_I, 0.0D0)
          ALENP(118,R_I)=ANGY
          ALENP(119,R_I)=-ANGX
          ALENP(120,R_I)=0.0D0
-         AEEA=ALENS(26,R_I)
-         BEEB=ALENS(27,R_I)
-         CEEC=ALENS(28,R_I)
-         XEEX=ALENS(31,R_I)
-         YEEY=ALENS(30,R_I)
-         ZEEZ=ALENS(69,R_I)
+         AEEA=surf_alpha(R_I)
+         BEEB=surf_beta(R_I)
+         CEEC=surf_gamma(R_I)
+         XEEX=surf_decenter_x(R_I)
+         YEEY=surf_decenter_y(R_I)
+         ZEEZ=surf_decenter_z(R_I)
       ELSE
 !       TILT AUTOM, IMPLEMENT IT
 !       TILT AUTOM, IMPLEMENT IT
 !       THIS IS THE SAME AS TILT AUTO EXCEPT THAT THE RAY IS ALIGNED
 !       ANTI-PARALLEL TO THE LOCAL Z AXIS OF SURFACE I
 !       IGNORE INITIAL DECENTERS
-         R_Z=R_Z-ALENS(3,(R_I-1))
+         R_Z=R_Z-surf_thickness((R_I-1))
 !       IGNORE INITIAL TILTS
 !       NOW CALCULATE THE INTERSECTION POINT OF THIS RAY
 !       WITH THE PLANE LOCATED AT SURFACE I BUT DON'T
@@ -2173,44 +2178,44 @@ SUBROUTINE TRANSF
 !       NOW IF THE COORDINATE OF THE RAY INTERSECTION IS
 !       POSITIVE XP AND POSITIVE YP THEN WE MUST DECENTER
 !       SURFACE I BY YD=YP AND XD=XP
-         ALENS(29,R_I)=0.0D0
+         call set_surf_decenter_flag(R_I, 0)
          ALENP(29,R_I)=0.0D0
          IF(YP.NE.0.0D0.OR.XP.NE.0.0D0) THEN
-            ALENS(29,R_I)=1.0D0
-            ALENS(31,R_I)=XP
-            ALENS(30,R_I)=YP
-            ALENS(69,R_I)=ZP
+            call set_surf_decenter_flag(R_I, 1)
+            call set_surf_decenter_x(R_I, XP)
+            call set_surf_decenter_y(R_I, YP)
+            call set_surf_decenter_z(R_I, ZP)
             ALENP(29,R_I)=1.0D0
             ALENP(31,R_I)=XP
             ALENP(30,R_I)=YP
             ALENP(69,R_I)=ZP
-            ALENS(114,R_I)=XP
-            ALENS(115,R_I)=YP
-            ALENS(116,R_I)=ZP
+            call set_surf_focus_dx(R_I, XP)
+            call set_surf_focus_dy(R_I, YP)
+            call set_surf_focus_dz(R_I, ZP)
             ALENP(114,R_I)=XP
             ALENP(115,R_I)=YP
             ALENP(116,R_I)=ZP
-            XEEX=ALENS(31,R_I)
-            YEEY=ALENS(30,R_I)
-            ZEEZ=ALENS(69,R_I)
+            XEEX=surf_decenter_x(R_I)
+            YEEY=surf_decenter_y(R_I)
+            ZEEZ=surf_decenter_z(R_I)
          ELSE
             ALENP(29,R_I)=0.0D0
-            ALENS(30,R_I)=0.0D0
-            ALENS(31,R_I)=0.0D0
-            ALENS(69,R_I)=0.0D0
+            call set_surf_decenter_y(R_I, 0.0D0)
+            call set_surf_decenter_x(R_I, 0.0D0)
+            call set_surf_decenter_z(R_I, 0.0D0)
             ALENP(29,R_I)=0.0D0
             ALENP(30,R_I)=0.0D0
             ALENP(31,R_I)=0.0D0
             ALENP(69,R_I)=0.0D0
-            ALENS(114,R_I)=0.0D0
-            ALENS(115,R_I)=0.0D0
-            ALENS(116,R_I)=0.0D0
+            call set_surf_focus_dx(R_I, 0.0D0)
+            call set_surf_focus_dy(R_I, 0.0D0)
+            call set_surf_focus_dz(R_I, 0.0D0)
             ALENP(114,R_I)=0.0D0
             ALENP(115,R_I)=0.0D0
             ALENP(116,R_I)=0.0D0
-            XEEX=ALENS(31,R_I)
-            YEEY=ALENS(30,R_I)
-            ZEEZ=ALENS(69,R_I)
+            XEEX=surf_decenter_x(R_I)
+            YEEY=surf_decenter_y(R_I)
+            ZEEZ=surf_decenter_z(R_I)
 !                       NO DECENTER
          END IF
 !
@@ -2251,28 +2256,28 @@ SUBROUTINE TRANSF
 !       A BETA ROTATION (IN DEGREES) OF -ANGX BRINGS THE
 !       X- COMPONENT INTO ALIGNMENT WITH THE Z AXIS.
 !       NO GAMMA ROTATION IS REQUIRED
-         ALENS(26,R_I)=+ANGY
-         ALENS(27,R_I)=-ANGX
-         ALENS(27,R_I)=ALENS(27,R_I)+180.0D0
-         ALENS(28,R_I)=0.0D0
+         call set_surf_alpha(R_I, +ANGY)
+         call set_surf_beta(R_I, -ANGX)
+         call set_surf_beta(R_I, surf_beta(R_I)+180.0D0)
+         call set_surf_gamma(R_I, 0.0D0)
          ALENP(26,R_I)=+ANGY
          ALENP(27,R_I)=-ANGX
          ALENP(27,R_I)=ALENP(27,R_I)+180.0D0
          ALENP(28,R_I)=0.0D0
-         ALENS(118,R_I)=+ANGY
-         ALENS(119,R_I)=-ANGX
-         ALENS(119,R_I)=ALENS(27,R_I)+180.0D0
-         ALENS(120,R_I)=0.0D0
+         call set_surf_alpha_deg(R_I, +ANGY)
+         call set_surf_beta_deg(R_I, -ANGX)
+         call set_surf_beta_deg(R_I, surf_beta(R_I)+180.0D0)
+         call set_surf_gamma_deg(R_I, 0.0D0)
          ALENP(118,R_I)=+ANGY
          ALENP(119,R_I)=-ANGX
          ALENP(119,R_I)=ALENP(27,R_I)+180.0D0
          ALENP(120,R_I)=0.0D0
-         AEEA=ALENS(26,R_I)
-         BEEB=ALENS(27,R_I)
-         CEEC=ALENS(28,R_I)
-         XEEX=ALENS(31,R_I)
-         YEEY=ALENS(30,R_I)
-         ZEEZ=ALENS(69,R_I)
+         AEEA=surf_alpha(R_I)
+         BEEB=surf_beta(R_I)
+         CEEC=surf_gamma(R_I)
+         XEEX=surf_decenter_x(R_I)
+         YEEY=surf_decenter_y(R_I)
+         ZEEZ=surf_decenter_z(R_I)
       END IF
       R_X=OR_X
       R_Y=OR_Y
@@ -2286,12 +2291,12 @@ SUBROUTINE TRANSF
       TDECX=XEEX
       TDECY=YEEY
       TDECZ=ZEEZ
-      IF(ALENS(29,R_I).EQ.1.0D0) THEN
+      IF(surf_decenter_flag(R_I).EQ.1.0D0) THEN
          R_X=R_X-TDECX
          R_Y=R_Y-TDECY
          R_Z=R_Z-TDECZ
       END IF
-      R_Z=R_Z-ALENS(3,(R_I-1))
+      R_Z=R_Z-surf_thickness((R_I-1))
 !
 !       NOW ROTATE THE SUCKER!
 !
@@ -2340,14 +2345,14 @@ SUBROUTINE TRANSF
          R_M=M1
          R_N=N1
       END IF
-      R_X=R_X-ALENS(90,R_I)
-      R_Y=R_Y-ALENS(91,R_I)
-      R_Z=R_Z-ALENS(92,R_I)
+      R_X=R_X-surf_global_dx(R_I)
+      R_Y=R_Y-surf_global_dy(R_I)
+      R_Z=R_Z-surf_global_dz(R_I)
 !
 !       NOW ROTATE THE SUCKER!
 !
-      IF(ALENS(93,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(93,R_I)*(PII/180.0D0)
+      IF(surf_global_alpha(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_alpha(R_I)*(PII/180.0D0)
          X1=(R_X*A11(JK_AA))+(R_Y*A12(JK_AA))+(R_Z*A13(JK_AA))
          Y1=(R_X*A21(JK_AA))+(R_Y*A22(JK_AA))+(R_Z*A23(JK_AA))
          Z1=(R_X*A31(JK_AA))+(R_Y*A32(JK_AA))+(R_Z*A33(JK_AA))
@@ -2361,8 +2366,8 @@ SUBROUTINE TRANSF
          R_M=M1
          R_N=N1
       END IF
-      IF(ALENS(94,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(94,R_I)*(PII/180.0D0)
+      IF(surf_global_beta(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_beta(R_I)*(PII/180.0D0)
          X1=(R_X*B11(JK_AA))+(R_Y*B12(JK_AA))+(R_Z*B13(JK_AA))
          Y1=(R_X*B21(JK_AA))+(R_Y*B22(JK_AA))+(R_Z*B23(JK_AA))
          Z1=(R_X*B31(JK_AA))+(R_Y*B32(JK_AA))+(R_Z*B33(JK_AA))
@@ -2376,8 +2381,8 @@ SUBROUTINE TRANSF
          R_M=M1
          R_N=N1
       END IF
-      IF(ALENS(95,R_I).NE.0.0D0) THEN
-         JK_AA=ALENS(95,R_I)*(PII/180.0D0)
+      IF(surf_global_gamma(R_I).NE.0.0D0) THEN
+         JK_AA=surf_global_gamma(R_I)*(PII/180.0D0)
          X1=(R_X*C11(JK_AA))+(R_Y*C12(JK_AA))+(R_Z*C13(JK_AA))
          Y1=(R_X*C21(JK_AA))+(R_Y*C22(JK_AA))+(R_Z*C23(JK_AA))
          Z1=(R_X*C31(JK_AA))+(R_Y*C32(JK_AA))+(R_Z*C33(JK_AA))
@@ -2401,6 +2406,7 @@ SUBROUTINE GLVERT
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLVERT.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2422,7 +2428,7 @@ SUBROUTINE GLVERT
    &,OLX,OLY,OLZ,OMX,OMY,OMZ,ONX,ONY,ONZ
 !
 !
-!     ALENS(25,surf#) -- Tilt flag
+!     surf_tilt_flag(surf#) -- Tilt flag
 !                       0.0=NO TILT (DEFAULT VALUE)
 !                       1.0= TILT
 !                      -1.0= RTILT
@@ -2432,7 +2438,7 @@ SUBROUTINE GLVERT
 !                       5.0= TILT DAR
 !                       6.0= TILT RET
 !                       7.0= TILT REV
-!     ALENS(26,SURF) TO ALENS(28,SURF) STORE THE ALPHA,BETA AND GAMMA
+!     surf_alpha(SURF) TO surf_gamma(SURF) STORE THE ALPHA,BETA AND GAMMA
 !                       ANGLES IN DEGREES
 !
 !       ROTATION MATRICIES FUNCTIONS
@@ -2501,7 +2507,7 @@ SUBROUTINE GLVERT
 !       SHIFTING TO THE DESIRED GLOBAL REFERENCE SURFACE (NOT THE
 !       SAME AS THE "REFERENCE SURFACE".)
 !
-   IF(DABS(ALENS(3,0)).LE.1.0D10) THEN
+   IF(DABS(surf_thickness(0)).LE.1.0D10) THEN
 !       FINITE OBJECT DISTANCE
       X=0.0D0
       Y=0.0D0
@@ -2579,25 +2585,25 @@ SUBROUTINE GLVERT
 !       NOW PROCEED THROUGH THE REST OF THE SURFACES.
 !
    DO 10 I=JK,NEWIMG
-      AEEA=ALENS(26,I)
-      BEEB=ALENS(27,I)
-      CEEC=ALENS(28,I)
-      XEEX=ALENS(31,I)
-      YEEY=ALENS(30,I)
-      ZEEZ=ALENS(69,I)
-      AEEAM=ALENS(26,I-1)
-      BEEBM=ALENS(27,I-1)
-      CEECM=ALENS(28,I-1)
-      XEEXM=ALENS(31,I-1)
-      YEEYM=ALENS(30,I-1)
-      ZEEZM=ALENS(69,I-1)
+      AEEA=surf_alpha(I)
+      BEEB=surf_beta(I)
+      CEEC=surf_gamma(I)
+      XEEX=surf_decenter_x(I)
+      YEEY=surf_decenter_y(I)
+      ZEEZ=surf_decenter_z(I)
+      AEEAM=surf_alpha(I-1)
+      BEEBM=surf_beta(I-1)
+      CEECM=surf_gamma(I-1)
+      XEEXM=surf_decenter_x(I-1)
+      YEEYM=surf_decenter_y(I-1)
+      ZEEZM=surf_decenter_z(I-1)
 
-      IF(ALENS(25,I).EQ.7.0D0) THEN
+      IF(surf_tilt_flag(I).EQ.7.0D0) THEN
 !     SURFACE HAS A TILT REV
 !
 !     CODE GOES HERE IF DAR OR BEN WAS ON JK-1
 !
-         IF(ALENS(25,I-1).EQ.4.0D0) THEN
+         IF(surf_tilt_flag(I-1).EQ.4.0D0) THEN
 !     TILT BEN, THEN APPLY A TILT AT SURFACE I-1
             TLX=1.0D0
             TMX=0.0D0
@@ -2704,8 +2710,8 @@ SUBROUTINE GLVERT
             VERTEX(12,I)=NZ
 !     DONE WITH PRECALC FOR TILT BEN
          END IF
-         IF(ALENS(25,I-1).EQ.5.0D0 &
-         &.OR.ALENS(25,I-1).EQ.7.0D0)THEN
+         IF(surf_tilt_flag(I-1).EQ.5.0D0 &
+         &.OR.surf_tilt_flag(I-1).EQ.7.0D0)THEN
 !       DO TILT DAR, TILT BEN
             TLX=1.0D0
             TMX=0.0D0
@@ -2825,7 +2831,7 @@ SUBROUTINE GLVERT
          GDELX=0.0D0
          GDELY=0.0D0
          GDELZ=0.0D0
-         TH=ALENS(3,I-1)+GDELZ
+         TH=surf_thickness(I-1)+GDELZ
          X=X+(TH*LZ)+(GDELX*LX)+(GDELY*LY)
          Y=Y+(TH*MZ)+(GDELX*MX)+(GDELY*MY)
          Z=Z+(TH*NZ)+(GDELX*NX)+(GDELY*NY)
@@ -2844,13 +2850,13 @@ SUBROUTINE GLVERT
 !       FINISHED WITH TILT REV ON SURFACE I
       END IF
 !
-      IF(ALENS(25,I).NE.-1.0D0 &
-      &.AND.ALENS(25,I).NE.7.0D0) THEN
+      IF(surf_tilt_flag(I).NE.-1.0D0 &
+      &.AND.surf_tilt_flag(I).NE.7.0D0) THEN
 !       THIS DOES EVERYTHING EXCEPT TILT REV AND RTILT
 !
 !     CODE GOES HERE IF DAR OR BEN WAS ON JK-1
 !
-         IF(ALENS(25,I-1).EQ.4.0D0) THEN
+         IF(surf_tilt_flag(I-1).EQ.4.0D0) THEN
 !     TILT BEN, THEN APPLY A TILT AT SURFACE I-1
             TLX=1.0D0
             TMX=0.0D0
@@ -2957,8 +2963,8 @@ SUBROUTINE GLVERT
             VERTEX(12,I)=NZ
 !     DONE WITH PRECALC FOR TILT BEN
          END IF
-         IF(ALENS(25,I-1).EQ.5.0D0 &
-         &.OR.ALENS(25,I-1).EQ.7.0D0) THEN
+         IF(surf_tilt_flag(I-1).EQ.5.0D0 &
+         &.OR.surf_tilt_flag(I-1).EQ.7.0D0) THEN
 !       TILT DAR, TILT REV
             TLX=1.0D0
             TMX=0.0D0
@@ -3075,7 +3081,7 @@ SUBROUTINE GLVERT
 !     DONE WITH PRECALC FOR TILT DAR
          END IF
 !     GO TO THE VERTEX BEFORE THE RTILT
-         TH=ALENS(3,I-1)
+         TH=surf_thickness(I-1)
          X=X+(TH*LZ)
          Y=Y+(TH*MZ)
          Z=Z+(TH*NZ)
@@ -3198,7 +3204,7 @@ SUBROUTINE GLVERT
          VERTEX(12,I)=NZ
       END IF
 !
-      IF(ALENS(25,I).EQ.1.0D0) THEN
+      IF(surf_tilt_flag(I).EQ.1.0D0) THEN
 !       REGULAT TILT
          TLX=1.0D0
          TMX=0.0D0
@@ -3209,9 +3215,9 @@ SUBROUTINE GLVERT
          TLZ=0.0D0
          TMZ=0.0D0
          TNZ=1.0D0
-         GDELX=ALENS(90,I)
-         GDELY=ALENS(91,I)
-         GDELZ=ALENS(92,I)
+         GDELX=surf_global_dx(I)
+         GDELY=surf_global_dy(I)
+         GDELZ=surf_global_dz(I)
          X=X+(GDELZ*TLZ)+(GDELX*TLX)+(GDELY*TLY)
          Y=Y+(GDELZ*TMZ)+(GDELX*TMX)+(GDELY*TMY)
          Z=Z+(GDELZ*TNZ)+(GDELX*TNX)+(GDELY*TNY)
@@ -3221,8 +3227,8 @@ SUBROUTINE GLVERT
 !       DO REVERSE TILT THEN REVERSE DECENTER
 !
 !       NOW ROTATE THE LOCAL X,Y AND Z AXES BY ALPHA, BETA THEN GAMMA
-         IF(ALENS(95,I).NE.0.0D0) THEN
-            A=-ALENS(95,I)*(PII/180.0D0)
+         IF(surf_global_gamma(I).NE.0.0D0) THEN
+            A=-surf_global_gamma(I)*(PII/180.0D0)
             JLX1=(TLX*C11(A))+(TMX*C12(A))+(TNX*C13(A))
             JMX1=(TLX*C21(A))+(TMX*C22(A))+(TNX*C23(A))
             JNX1=(TLX*C31(A))+(TMX*C32(A))+(TNX*C33(A))
@@ -3242,8 +3248,8 @@ SUBROUTINE GLVERT
             TMZ=JMZ1
             TNZ=JNZ1
          END IF
-         IF(ALENS(94,I).NE.0.0D0) THEN
-            A=-ALENS(94,I)*(PII/180.0D0)
+         IF(surf_global_beta(I).NE.0.0D0) THEN
+            A=-surf_global_beta(I)*(PII/180.0D0)
             JLX1=(TLX*B11(A))+(TMX*B12(A))+(TNX*B13(A))
             JMX1=(TLX*B21(A))+(TMX*B22(A))+(TNX*B23(A))
             JNX1=(TLX*B31(A))+(TMX*B32(A))+(TNX*B33(A))
@@ -3263,8 +3269,8 @@ SUBROUTINE GLVERT
             TMZ=JMZ1
             TNZ=JNZ1
          END IF
-         IF(ALENS(93,I).NE.0.0D0) THEN
-            A=-ALENS(93,I)*(PII/180.0D0)
+         IF(surf_global_alpha(I).NE.0.0D0) THEN
+            A=-surf_global_alpha(I)*(PII/180.0D0)
             JLX1=(TLX*A11(A))+(TMX*A12(A))+(TNX*A13(A))
             JMX1=(TLX*A21(A))+(TMX*A22(A))+(TNX*A23(A))
             JNX1=(TLX*A31(A))+(TMX*A32(A))+(TNX*A33(A))
@@ -3314,11 +3320,11 @@ SUBROUTINE GLVERT
          VERTEX(11,I)=MZ
          VERTEX(12,I)=NZ
       END IF
-      IF(ALENS(25,I).EQ.-1.0D0) THEN
+      IF(surf_tilt_flag(I).EQ.-1.0D0) THEN
 !     RTILT DONE HERE
 !
 !     CODE GOES HERE IF DAR OR BEN WAS ON JK-1
-         IF(ALENS(25,I-1).EQ.4.0D0) THEN
+         IF(surf_tilt_flag(I-1).EQ.4.0D0) THEN
 !     TILT BEN, THEN APPLY A TILT AT SURFACE I-1
             TLX=1.0D0
             TMX=0.0D0
@@ -3425,8 +3431,8 @@ SUBROUTINE GLVERT
             VERTEX(12,I)=NZ
 !     DONE WITH PRECALC FOR RTILT BEN
          END IF
-         IF(ALENS(25,I-1).EQ.5.0D0 &
-         &.OR.ALENS(25,I-1).EQ.7.0D0) THEN
+         IF(surf_tilt_flag(I-1).EQ.5.0D0 &
+         &.OR.surf_tilt_flag(I-1).EQ.7.0D0) THEN
 !       TILT DAR, TILT REV
             TLX=1.0D0
             TMX=0.0D0
@@ -3544,7 +3550,7 @@ SUBROUTINE GLVERT
          END IF
 !
 !     GO TO THE VERTEX BEFORE THE RTILT
-         TH=ALENS(3,I-1)
+         TH=surf_thickness(I-1)
          X=X+(TH*LZ)
          Y=Y+(TH*MZ)
          Z=Z+(TH*NZ)
@@ -3695,8 +3701,8 @@ SUBROUTINE GLVERT
       MZ0=VERTEX(11,GLSURF)
       NZ0=VERTEX(12,GLSURF)
 !
-      IF(DABS(ALENS(3,0)).GT.1.0D10) JK=1
-      IF(DABS(ALENS(3,0)).LE.1.0D10) JK=0
+      IF(DABS(surf_thickness(0)).GT.1.0D10) JK=1
+      IF(DABS(surf_thickness(0)).LE.1.0D10) JK=0
       DO I=JK,NEWIMG
          X1=(LX0*(VERTEX(1,I)-X00))+(MX0*(VERTEX(2,I)-Y00))&
          &+(NX0*(VERTEX(3,I)-Z0))
@@ -3755,8 +3761,8 @@ SUBROUTINE GLVERT
       MZ0=VERTEX(11,GSURFF)
       NZ0=VERTEX(12,GSURFF)
 !
-      IF(DABS(ALENS(3,0)).GT.1.0D10) JK=1
-      IF(DABS(ALENS(3,0)).LE.1.0D10) JK=0
+      IF(DABS(surf_thickness(0)).GT.1.0D10) JK=1
+      IF(DABS(surf_thickness(0)).LE.1.0D10) JK=0
       DO I=JK,NEWIMG
          X1=(LX0*(VERTEX(1,I)-X00))+(MX0*(VERTEX(2,I)-Y00))&
          &+(NX0*(VERTEX(3,I)-Z0))
@@ -3905,8 +3911,8 @@ SUBROUTINE GLVERT
 !       COORDINATE SYSTEMS AXES DIRECTION COSINES. NOW TRANSFORM
 !       ALL VERTEX VALUES TO BE REPRESENTED WITH RESPECT TO THIS
 !       NEW SYSTEM.
-      IF(DABS(ALENS(3,0)).GT.1.0D10) JK=1
-      IF(DABS(ALENS(3,0)).LE.1.0D10) JK=0
+      IF(DABS(surf_thickness(0)).GT.1.0D10) JK=1
+      IF(DABS(surf_thickness(0)).LE.1.0D10) JK=0
       DO 12 I=JK,NEWIMG
          X1=(LX0*(VERTEX(1,I)-X00))+(MX0*(VERTEX(2,I)-Y00))&
          &+(NX0*(VERTEX(3,I)-Z0))
@@ -3975,6 +3981,7 @@ SUBROUTINE VERT123(&
 &ALPHA,BETA,GAMMA)
 !
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
    REAL*8 X1,Y1,Z1,XL1,XM1,XN1,YL1,YM1,YN1,ZL1,ZM1,ZN1
@@ -4163,6 +4170,7 @@ SUBROUTINE ROOFTILT(N,ISURF)
 !
    use DATLEN
    use DATMAI
+   use mod_surface
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ROOFTILT.FOR. THIS SUBROUTINE IMPLEMENTS

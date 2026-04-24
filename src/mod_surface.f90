@@ -94,7 +94,8 @@ module mod_surface
         surf_grating_vx,        set_surf_grating_vx,       &
         surf_grating_vy,        set_surf_grating_vy,       &
         surf_grating_vz,        set_surf_grating_vz,       &
-        surf_ray_error,         set_surf_ray_error
+        surf_ray_error,         set_surf_ray_error,        &
+        surf_focus_flag,        set_surf_focus_flag
 
 contains
 
@@ -1108,6 +1109,16 @@ contains
     subroutine set_surf_ray_error(s, val)
         integer, intent(in) :: s; real(real64), intent(in) :: val
         ALENS(144, s) = val
+    end subroutine
+
+    ! ALENS(117,s): focus-offset present flag (1 if any of focus_dx/dy/dz != 0)
+    integer function surf_focus_flag(s)
+        integer, intent(in) :: s
+        surf_focus_flag = nint(ALENS(117, s))
+    end function
+    subroutine set_surf_focus_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(117, s) = real(val, real64)
     end subroutine
 
 end module mod_surface
