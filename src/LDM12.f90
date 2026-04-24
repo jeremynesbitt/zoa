@@ -33,9 +33,7 @@ SUBROUTINE ILF
       EXISJK=.FALSE.
       INQUIRE(FILE=trim(LIBLEN)//FN,EXIST=EXISJK)
       IF(EXISJK) THEN
-         OPEN(UNIT=22,ACCESS='SEQUENTIAL',BLANK='NULL'&
-         &,FORM='FORMATTED',FILE=trim(LIBLEN)//FN &
-         &,STATUS='UNKNOWN')
+         OPEN(UNIT=22,ACCESS='SEQUENTIAL',BLANK='NULL',FORM='FORMATTED',FILE=trim(LIBLEN)//FN ,STATUS='UNKNOWN')
          CALL CLOSE_FILE(22,0)
       END IF
    END DO
@@ -62,6 +60,7 @@ END
 SUBROUTINE CVSOLV
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -72,94 +71,77 @@ SUBROUTINE CVSOLV
    INTEGER SF
 !
 !
-   IF(WC.EQ.'APY'.OR.WC.EQ.'APX'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PIX'&
-   &.OR.WC.EQ.'PUY'.OR.WC.EQ.'PUX'.OR.WC.EQ.'APCY'.OR.WC.EQ.'APCX'&
-   &.OR.WC.EQ.'PICY'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCY'.OR.WC.EQ.&
-   &'PUCX'.OR.WC.EQ.'COCY'.OR.WC.EQ.'COCX') THEN
+   IF(WC.EQ.'APY'.OR.WC.EQ.'APX'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PIX'.OR.WC.EQ.'PUY'.OR.WC.EQ.'PUX'.OR.WC.EQ.'APCY'.OR.WC.EQ.'APCX'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'COCY'.OR.WC.EQ.'COCX') THEN
       IF(STI.EQ.1) THEN
 !
          IF(WC.EQ.'APY') THEN
-            IF(SOLVE(8,SURF).EQ.1.0D0)&
-            &WRITE(OUTLYNE,101)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.1.0D0)WRITE(OUTLYNE,101)SOLVE(9,SURF),SURF
 101         FORMAT('"APY" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'APX') THEN
-            IF(SOLVE(2,SURF).EQ.8.0D0)&
-            &WRITE(OUTLYNE,102)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.8.0D0)WRITE(OUTLYNE,102)SOLVE(1,SURF),SURF
 102         FORMAT('"APX" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PIY') THEN
-            IF(SOLVE(8,SURF).EQ.2.0D0)&
-            &WRITE(OUTLYNE,103)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.2.0D0)WRITE(OUTLYNE,103)SOLVE(9,SURF),SURF
 103         FORMAT('"PIY" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PIX') THEN
-            IF(SOLVE(2,SURF).EQ.9.0D0)&
-            &WRITE(OUTLYNE,104)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.9.0D0)WRITE(OUTLYNE,104)SOLVE(1,SURF),SURF
 104         FORMAT('"PIX" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PUY') THEN
-            IF(SOLVE(8,SURF).EQ.3.0D0)&
-            &WRITE(OUTLYNE,105)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.3.0D0)WRITE(OUTLYNE,105)SOLVE(9,SURF),SURF
 105         FORMAT('"PUY" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PUX') THEN
-            IF(SOLVE(2,SURF).EQ.10.0D0)&
-            &WRITE(OUTLYNE,106)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.10.0D0)WRITE(OUTLYNE,106)SOLVE(1,SURF),SURF
 106         FORMAT('"PUX" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'APCY') THEN
-            IF(SOLVE(8,SURF).EQ.4.0D0)&
-            &WRITE(OUTLYNE,107)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.4.0D0)WRITE(OUTLYNE,107)SOLVE(9,SURF),SURF
 107         FORMAT('"APCY" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'APCX') THEN
-            IF(SOLVE(2,SURF).EQ.11.0D0)&
-            &WRITE(OUTLYNE,108)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.11.0D0)WRITE(OUTLYNE,108)SOLVE(1,SURF),SURF
 108         FORMAT('"APCX" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PICY') THEN
-            IF(SOLVE(8,SURF).EQ.5.0D0)&
-            &WRITE(OUTLYNE,109)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.5.0D0)WRITE(OUTLYNE,109)SOLVE(9,SURF),SURF
 109         FORMAT('"PICY" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PICX') THEN
-            IF(SOLVE(2,SURF).EQ.12.0D0)&
-            &WRITE(OUTLYNE,110)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.12.0D0)WRITE(OUTLYNE,110)SOLVE(1,SURF),SURF
 110         FORMAT('"PICX" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'PUCY') THEN
-            IF(SOLVE(8,SURF).EQ.6.0D0)&
-            &WRITE(OUTLYNE,111)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.6.0D0)WRITE(OUTLYNE,111)SOLVE(9,SURF),SURF
 111         FORMAT('"PUCY" = ',G23.15,' AT SURFACE #',I3)
          ELSE
          END IF
 !
          IF(WC.EQ.'PUCX') THEN
-            IF(SOLVE(2,SURF).EQ.13.0D0)&
-            &WRITE(OUTLYNE,112)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.13.0D0)WRITE(OUTLYNE,112)SOLVE(1,SURF),SURF
 112         FORMAT('"PUCX" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'COCY') THEN
-            IF(SOLVE(8,SURF).EQ.7.0D0)&
-            &WRITE(OUTLYNE,113)SOLVE(9,SURF),SURF
+            IF(SOLVE(8,SURF).EQ.7.0D0)WRITE(OUTLYNE,113)SOLVE(9,SURF),SURF
 113         FORMAT('"COCY" = ',G23.15,' AT SURFACE #',I3)
          END IF
 !
          IF(WC.EQ.'COCX') THEN
-            IF(SOLVE(2,SURF).EQ.14.0D0)&
-            &WRITE(OUTLYNE,114)SOLVE(1,SURF),SURF
+            IF(SOLVE(2,SURF).EQ.14.0D0)WRITE(OUTLYNE,114)SOLVE(1,SURF),SURF
 114         FORMAT('"COCX" = ',G23.15,' AT SURFACE #',I3)
          END IF
          CALL SHOWIT(0)
@@ -168,11 +150,9 @@ SUBROUTINE CVSOLV
    END IF
    IF(WC.EQ.'CSD'.OR.WC.EQ.'CSDX'.OR.WC.EQ.'CSDY') THEN
       IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"CSD", "CSDX" AND "CSDY" TAKE NO STRING'
+         OUTLYNE='"CSD", "CSDX" AND "CSDY" TAKE NO STRING'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'OR NUMERIC WORD #3 THROUGH #5 INPUT'
+         OUTLYNE='OR NUMERIC WORD #3 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -182,11 +162,9 @@ SUBROUTINE CVSOLV
 !       PROCEED
       END IF
       IF(SQ.EQ.1.AND.WQ.NE.'ALL     ') THEN
-         OUTLYNE=&
-         &'"CSD", "CSDX" AND "CSDY" ONLY ACCEPT "ALL" AS'
+         OUTLYNE='"CSD", "CSDX" AND "CSDY" ONLY ACCEPT "ALL" AS'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'VALID QUALIFIER INPUT'
+         OUTLYNE='VALID QUALIFIER INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -217,8 +195,7 @@ SUBROUTINE CVSOLV
       IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
          OUTLYNE='"CSD", "CSDX" AND "CSDY"'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'USE EITHER TWO OR ZERO NUMERIC WORDS OR QUALIFIER INPUT'
+         OUTLYNE='USE EITHER TWO OR ZERO NUMERIC WORDS OR QUALIFIER INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -226,8 +203,7 @@ SUBROUTINE CVSOLV
          RETURN
       END IF
       IF(INT(W1).LT.0) THEN
-         OUTLYNE=&
-         &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
+         OUTLYNE='STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -235,9 +211,7 @@ SUBROUTINE CVSOLV
          RETURN
       END IF
       IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-         WRITE(OUTLYNE,*)&
-         &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-         &INT(SYSTEM(20))
+         WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -245,11 +219,9 @@ SUBROUTINE CVSOLV
          RETURN
       END IF
       IF(W1.GT.W2) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
+         WRITE(OUTLYNE,*)'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'THE STARTING SURFACE #'
+         OUTLYNE='THE STARTING SURFACE #'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -266,8 +238,7 @@ SUBROUTINE CVSOLV
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
          IF(WC.EQ.'CSD') THEN
-            IF(SOLVE(8,SF).NE.0.0D0.OR.SOLVE(2,SF).NE.0.0D0 &
-            &.OR.SOLVE(9,SF).NE.0.0D0.OR.SOLVE(1,SF).NE.0.0D0) THEN
+            IF(SOLVE(8,SF).NE.0.0D0.OR.SOLVE(2,SF).NE.0.0D0 .OR.SOLVE(9,SF).NE.0.0D0.OR.SOLVE(1,SF).NE.0.0D0) THEN
                SOLVE(8,SF)=0.0D0
                SOLVE(9,SF)=0.0D0
                SOLVE(2,SF)=0.0D0
@@ -283,12 +254,10 @@ SUBROUTINE CVSOLV
             IF(SOLVE(8,SF).NE.0.0D0.OR.SOLVE(9,SF).NE.0.0D0) THEN
                SOLVE(8,SF)=0.0D0
                SOLVE(9,SF)=0.0D0
-               WRITE(OUTLYNE,*)&
-               &'SURFACE',SF,' :YZ PLANE CURVATURE SOLVE DELETED'
+               WRITE(OUTLYNE,*)'SURFACE',SF,' :YZ PLANE CURVATURE SOLVE DELETED'
                CALL SHOWIT(1)
             ELSE
-               WRITE(OUTLYNE,*)&
-               &'SURFACE',SF,' :NO YZ CURVATURE SOLVE TO DELETE'
+               WRITE(OUTLYNE,*)'SURFACE',SF,' :NO YZ CURVATURE SOLVE TO DELETE'
                CALL SHOWIT(1)
             END IF
          END IF
@@ -296,32 +265,29 @@ SUBROUTINE CVSOLV
             IF(SOLVE(2,SF).NE.0.0D0.OR.SOLVE(1,SF).NE.0.0D0) THEN
                SOLVE(2,SF)=0.0D0
                SOLVE(1,SF)=0.0D0
-               WRITE(OUTLYNE,*)&
-               &'SURFACE',SF,' :XZ PLANE CURVATURE SOLVE DELETED'
+               WRITE(OUTLYNE,*)'SURFACE',SF,' :XZ PLANE CURVATURE SOLVE DELETED'
                CALL SHOWIT(1)
             ELSE
-               WRITE(OUTLYNE,*)&
-               &'SURFACE',SF,' :NO XZ CURVATURE SOLVE TO DELETE'
+               WRITE(OUTLYNE,*)'SURFACE',SF,' :NO XZ CURVATURE SOLVE TO DELETE'
                CALL SHOWIT(1)
             END IF
          END IF
 !
 !
-!       RE CALCULATE ALENS(33,SF)
+!       RE CALCULATE surf_solve_flag(SF)
 !
-         ALENS(33,SF)=0.0D0
-         IF(SOLVE(6,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+1.0D0
-         IF(SOLVE(4,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+0.1D0
-         IF(SOLVE(8,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+2.0D0
-         IF(SOLVE(2,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+0.2D0
+         call set_surf_solve_flag(SF, 0.0D0)
+         IF(SOLVE(6,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+1.0D0)
+         IF(SOLVE(4,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.1D0)
+         IF(SOLVE(8,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+2.0D0)
+         IF(SOLVE(2,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.2D0)
 900      CONTINUE
       END DO
       RETURN
    ELSE
 !       NOT CSD,CSDX OR CSDY
    END IF
-   IF(WC.NE.'CSD'.AND.WC.NE.'CSDX'&
-   &.AND.WC.NE.'CSDY') THEN
+   IF(WC.NE.'CSD'.AND.WC.NE.'CSDX'.AND.WC.NE.'CSDY') THEN
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
@@ -345,8 +311,7 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
       END IF
-      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-      &.OR.S5.EQ.1) THEN
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          IF(WC.EQ.'PIY') THEN
             OUTLYNE='"PIY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
@@ -364,11 +329,9 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
       END IF
-      IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-      &.OR.S5.EQ.1) THEN
+      IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE=&
-            &'"PUY" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'
+            OUTLYNE='"PUY" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -376,8 +339,7 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE=&
-            &'"PUX" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'
+            OUTLYNE='"PUX" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -387,8 +349,7 @@ SUBROUTINE CVSOLV
       END IF
       IF(SQ.EQ.1.AND.WQ.NE.'FN') THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE=&
-            &'INVALID UALIFIER USED WITH "PUY"'
+            OUTLYNE='INVALID UALIFIER USED WITH "PUY"'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -396,8 +357,7 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE=&
-            &'INVALID QUALIFIER USED WITH "PUX"'
+            OUTLYNE='INVALID QUALIFIER USED WITH "PUX"'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -407,8 +367,7 @@ SUBROUTINE CVSOLV
       END IF
       IF(WQ.EQ.'FN'.AND.DF1.EQ.1) THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE=&
-            &'"PUY FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+            OUTLYNE='"PUY FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -416,8 +375,7 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE=&
-            &'"PUX FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+            OUTLYNE='"PUX FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -427,8 +385,7 @@ SUBROUTINE CVSOLV
       END IF
       IF(WQ.EQ.'FN'.AND.W1.EQ.0.0D0) THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE=&
-            &'"PUY FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'
+            OUTLYNE='"PUY FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -436,8 +393,7 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE=&
-            &'"PUX FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'
+            OUTLYNE='"PUX FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -463,8 +419,7 @@ SUBROUTINE CVSOLV
             RETURN
          END IF
       END IF
-      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-      &.OR.S5.EQ.1) THEN
+      IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          IF(WC.EQ.'PICY') THEN
             OUTLYNE='"PICY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
@@ -519,10 +474,8 @@ SUBROUTINE CVSOLV
 !       NO CURVATURE SOLVES ARE ALLOWED ON THE OBJECT SURFACE
 !       OR ON SURFACE 1
 !
-   IF(WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'PICY'.OR.&
-   &WC.EQ.'PICX'.OR.WC.EQ.'APCX'.OR.WC.EQ.'APCY') THEN
-      IF(SURF.LT.1.AND.SYSTEM(26).EQ.-99.0D0.OR.SURF.LT.&
-      &INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0) THEN
+   IF(WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PICX'.OR.WC.EQ.'APCX'.OR.WC.EQ.'APCY') THEN
+      IF(SURF.LT.1.AND.SYSTEM(26).EQ.-99.0D0.OR.SURF.LT.INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0) THEN
          OUTLYNE='             CHIEF RAY SOLVES ARE NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='                       OBJECT SURFACE'
@@ -547,101 +500,91 @@ SUBROUTINE CVSOLV
 !       DUMP PIKUP PRO AND NPRO IF FOUND
    IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
       PIKUP(1:6,SURF,11)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
       CALL SHOWIT(1)
    END IF
    IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
       PIKUP(1:6,SURF,12)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
       CALL SHOWIT(1)
    END IF
 !
 !       IF SURFACE IS NOT TORIC THEN NO RDTOR OR CVTOR TO CONSIDER
-   IF(ALENS(23,SURF).EQ.0.0D0) THEN
+   IF(surf_toric_flag(SURF).EQ.0.0D0) THEN
 !       NON-TORIC
-      IF(WC.EQ.'APY'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PUY'.OR.&
-      &WC.EQ.'APCY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY'.OR.&
-      &WC.EQ.'COCY') THEN
+      IF(WC.EQ.'APY'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PUY'.OR.WC.EQ.'APCY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY'.OR.WC.EQ.'COCY') THEN
          IF(PIKUP(1,SURF,1).EQ.1.0D0) THEN
             PIKUP(1:6,SURF,1)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :RADIUS PIKUP DELETED'
             CALL SHOWIT(1)
             IF(PIKUP(1,SURF,2).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,2)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :CURVATURE PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
          END IF
       END IF
-      IF(ALENS(23,SURF).EQ.1.0) THEN
+      IF(surf_toric_flag(SURF).EQ.1.0) THEN
 !       SURFACE IS A YTORIC
-         IF(WC.EQ.'APY'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PUY'.OR.&
-         &WC.EQ.'APCY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY'.OR.&
-         &WC.EQ.'COCY') THEN
+         IF(WC.EQ.'APY'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PUY'.OR.WC.EQ.'APCY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY'.OR.WC.EQ.'COCY') THEN
             IF(PIKUP(1,SURF,1).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,1)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :RADIUS PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
             IF(PIKUP(1,SURF,2).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,2)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :CURVATURE PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
          END IF
-         IF(WC.EQ.'APX'.OR.WC.EQ.'PIX'.OR.WC.EQ.'PUX'.OR.&
-         &WC.EQ.'APCX'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCX'.OR.&
-         &WC.EQ.'COCX') THEN
+         IF(WC.EQ.'APX'.OR.WC.EQ.'PIX'.OR.WC.EQ.'PUX'.OR.WC.EQ.'APCX'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'COCX') THEN
             IF(PIKUP(1,SURF,9).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,9)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :(CVTOR) PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
             IF(PIKUP(1,SURF,10).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,10)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :(RDTOR) PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
          END IF
       END IF
-      IF(ALENS(23,SURF).EQ.2.0D0) THEN
+      IF(surf_toric_flag(SURF).EQ.2.0D0) THEN
 !       SURFACE IS A XTORIC
-         IF(WC.EQ.'APY'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PUY'.OR.&
-         &WC.EQ.'APCY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY'.OR.&
-         &WC.EQ.'COCY') THEN
+         IF(WC.EQ.'APY'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PUY'.OR.WC.EQ.'APCY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY'.OR.WC.EQ.'COCY') THEN
             IF(PIKUP(1,SURF,9).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,9)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :(CVTOR) PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
             IF(PIKUP(1,SURF,10).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,10)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :(RDTOR) PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
          END IF
-         IF(WC.EQ.'APX'.OR.WC.EQ.'PIX'.OR.WC.EQ.'PUX'.OR.&
-         &WC.EQ.'APCX'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCX'.OR.&
-         &WC.EQ.'COCX') THEN
+         IF(WC.EQ.'APX'.OR.WC.EQ.'PIX'.OR.WC.EQ.'PUX'.OR.WC.EQ.'APCX'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'COCX') THEN
             IF(PIKUP(1,SURF,1).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,1)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :RADIUS PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
             IF(PIKUP(1,SURF,2).EQ.1.0D0) THEN
                PIKUP(1:6,SURF,2)=0.0D0
-               ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+               call set_surf_special_type(SURF, surf_special_type(SURF)-1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :CURVATURE PIKUP DELETED'
                CALL SHOWIT(1)
             END IF
@@ -656,13 +599,9 @@ SUBROUTINE CVSOLV
       IF(WC.EQ.'PICY') SOLVE(8,SURF)=5.0D0
       IF(WC.EQ.'PUCY') SOLVE(8,SURF)=6.0D0
       IF(WC.EQ.'PUY'.AND.SQ.EQ.0) SOLVE(9,SURF)=W1
-      IF(WC.EQ.'PUY'.AND.WQ.EQ.'FN')&
-      &SOLVE(9,SURF)=-1.0D0/(2.0D0*W1)
-      IF(WC.EQ.'PIY'&
-      &.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY')&
-      &SOLVE(9,SURF)=W1
-      IF(WC.EQ.'APY'.OR.WC.EQ.'APCY')&
-      &SOLVE(9,SURF)=0.0D0
+      IF(WC.EQ.'PUY'.AND.WQ.EQ.'FN')SOLVE(9,SURF)=-1.0D0/(2.0D0*W1)
+      IF(WC.EQ.'PIY'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PUCY')SOLVE(9,SURF)=W1
+      IF(WC.EQ.'APY'.OR.WC.EQ.'APCY')SOLVE(9,SURF)=0.0D0
       PRINT *, "DEBUG:SOLVE(8,SURF) IS ", SOLVE(8,SURF)
       PRINT *, "DEBUG:SURF IS ", SURF
       PRINT *, "DEBUG:SOLVE(9,SURF) IS ", SOLVE(9,SURF)
@@ -689,22 +628,15 @@ SUBROUTINE CVSOLV
       END IF
 !
 !
-      IF(WC.EQ.'APX'.AND.ALENS(23,SURF).EQ.0.0D0 &
-      &.OR.WC.EQ.'PIX'.AND.ALENS(23,SURF).EQ.0.0D0 &
-      &.OR.WC.EQ.'PUX'.AND.ALENS(23,SURF).EQ.0.0D0 &
-      &.OR.WC.EQ.'APCX'.AND.ALENS(23,SURF).EQ.0.0D0 &
-      &.OR.WC.EQ.'PICX'.AND.ALENS(23,SURF).EQ.0.0D0 &
-      &.OR.WC.EQ.'PUCX'.AND.ALENS(23,SURF).EQ.0.0D0 &
-      &.OR.WC.EQ.'COCX'.AND.ALENS(23,SURF).EQ.0.0D0) THEN
+      IF(WC.EQ.'APX'.AND.surf_toric_flag(SURF).EQ.0.0D0 .OR.WC.EQ.'PIX'.AND.surf_toric_flag(SURF).EQ.0.0D0 .OR.WC.EQ.'PUX'.AND.surf_toric_flag(SURF).EQ.0.0D0 .OR.WC.EQ.'APCX'.AND.surf_toric_flag(SURF).EQ.0.0D0 .OR.WC.EQ.'PICX'.AND.surf_toric_flag(SURF).EQ.0.0D0 .OR.WC.EQ.'PUCX'.AND.surf_toric_flag(SURF).EQ.0.0D0 .OR.WC.EQ.'COCX'.AND.surf_toric_flag(SURF).EQ.0.0D0) THEN
          OUTLYNE='XZ CURVATURE SOLVES VALID ONLY FOR TORIC SURFACES'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'XZ CURVATURE SOLVE NOT ASSIGNED FOR SURFACE',SURF
+         WRITE(OUTLYNE,*)'XZ CURVATURE SOLVE NOT ASSIGNED FOR SURFACE',SURF
          CALL SHOWIT(1)
          SOLVE(2,SURF)=0.0D0
          SOLVE(1,SURF)=0.0D0
       ELSE
-         IF(ALENS(23,SURF).GT.0.0D0) THEN
+         IF(surf_toric_flag(SURF).GT.0.0D0) THEN
 !       SURFACE IS A TORIC.
             IF(WC.EQ.'APX')THEN
                SOLVE(2,SURF)=8.0D0
@@ -767,14 +699,14 @@ SUBROUTINE CVSOLV
          END IF
       END IF
 !
-!       NOW UPDATE THE STATUS OF ALENS(33,SURF) TO PROPERLY
+!       NOW UPDATE THE STATUS OF surf_solve_flag(SURF) TO PROPERLY
 !       REPRESENT THE SOLVE STATUS ON SURFACE (SURF)
 !
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0) ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
       RETURN
    ELSE
 !       MUST BE A DELETION
@@ -786,6 +718,7 @@ END
 SUBROUTINE COERRS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -798,10 +731,7 @@ SUBROUTINE COERRS
 !
    INTEGER II,I,N,III
 !
-   REAL*8 X,Y,Z,ANGLE,&
-   &XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,&
-   &X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,&
-   &YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
+   REAL*8 X,Y,Z,ANGLE,XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
 !
    COMMON/CACO/CAERAS,COERAS,LS
 !
@@ -835,12 +765,12 @@ SUBROUTINE COERRS
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       COBS ERASE. REMEMBER.
 !
-      XR=X-ALENS(65,II)
-      YR=Y-ALENS(64,II)
+      XR=X-surf_cobs_era_data(II, 4)
+      YR=Y-surf_cobs_era_data(II, 3)
 !
       LS1=DSQRT((XR**2)+(YR**2))
 !
-      RS=DSQRT(ALENS(62,II)**2)+AIMTOL
+      RS=DSQRT(surf_cobs_era_data(II, 1)**2)+AIMTOL
       IF(REAL(LS1).GT.REAL(RS)) THEN
          LS1=10.0D0
       ELSE
@@ -859,21 +789,21 @@ SUBROUTINE COERRS
 !
 !       IN THE COORDINATE SYSTEM OF THE RECTANGLE, THE CORNER
 !       COORDINATES ARE:
-      X1=-ALENS(63,II)-AIMTOL
-      Y1=ALENS(62,II)+AIMTOL
-      X2=-ALENS(63,II)-AIMTOL
-      Y2=-ALENS(62,II)-AIMTOL
-      X3=ALENS(63,II)+AIMTOL
-      Y3=-ALENS(62,II)-AIMTOL
-      X4=ALENS(63,II)+AIMTOL
-      Y4=ALENS(62,II)+AIMTOL
+      X1=-surf_cobs_era_data(II, 2)-AIMTOL
+      Y1=surf_cobs_era_data(II, 1)+AIMTOL
+      X2=-surf_cobs_era_data(II, 2)-AIMTOL
+      Y2=-surf_cobs_era_data(II, 1)-AIMTOL
+      X3=surf_cobs_era_data(II, 2)+AIMTOL
+      Y3=-surf_cobs_era_data(II, 1)-AIMTOL
+      X4=surf_cobs_era_data(II, 2)+AIMTOL
+      Y4=surf_cobs_era_data(II, 1)+AIMTOL
 !
       XRD=X
       YRD=Y
-      XRD=XRD-ALENS(65,II)
-      YRD=YRD-ALENS(64,II)
-      XR=(XRD*DCOS(ALENS(67,II)))+(YRD*DSIN(ALENS(67,II)))
-      YR=(YRD*DCOS(ALENS(67,II)))-(XRD*DSIN(ALENS(67,II)))
+      XRD=XRD-surf_cobs_era_data(II, 4)
+      YRD=YRD-surf_cobs_era_data(II, 3)
+      XR=(XRD*DCOS(surf_cobs_era_data(II, 6)))+(YRD*DSIN(surf_cobs_era_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_era_data(II, 6)))-(XRD*DSIN(surf_cobs_era_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR INSIDE
       XT(1)=X1
@@ -914,13 +844,12 @@ SUBROUTINE COERRS
 !       ELSE IT IS NOT BLOCKED.
       XRD=X
       YRD=Y
-      XRD=XRD-ALENS(65,II)
-      YRD=YRD-ALENS(64,II)
-      XR=(XRD*DCOS(ALENS(67,II)))+(YRD*DSIN(ALENS(67,II)))
-      YR=(YRD*DCOS(ALENS(67,II)))-(XRD*DSIN(ALENS(67,II)))
+      XRD=XRD-surf_cobs_era_data(II, 4)
+      YRD=YRD-surf_cobs_era_data(II, 3)
+      XR=(XRD*DCOS(surf_cobs_era_data(II, 6)))+(YRD*DSIN(surf_cobs_era_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_era_data(II, 6)))-(XRD*DSIN(surf_cobs_era_data(II, 6)))
 !
-      LS=((XR**2)/(ALENS(63,II)**2))+&
-      &((YR**2)/(ALENS(62,II)**2))
+      LS=((XR**2)/(surf_cobs_era_data(II, 2)**2))+((YR**2)/(surf_cobs_era_data(II, 1)**2))
 !
       IF(REAL(LS).GT.(1.0*(AIMTOL**2))) THEN
 !       RAY BLOCKED
@@ -945,50 +874,50 @@ SUBROUTINE COERRS
 !       CHECKED AS WELL AS THE FOUR CIRCLES. IF NOT, THE BASE RECTANGE
 !       AND THE FOUR CIRCLES NEED TO BE CHECKED.
 !
-      IF(ALENS(62,II).LE.ALENS(63,II)) THEN
-!       ALENS(63,II) = MAXSID
-         MAXSID=ALENS(63,II)
+      IF(surf_cobs_era_data(II, 1).LE.surf_cobs_era_data(II, 2)) THEN
+!       surf_cobs_era_data(II, 2) = MAXSID
+         MAXSID=surf_cobs_era_data(II, 2)
       ELSE
-         MAXSID=ALENS(62,II)
+         MAXSID=surf_cobs_era_data(II, 1)
       END IF
-      IF(ALENS(66,II).LT.MAXSID) THEN
+      IF(surf_cobs_era_data(II, 5).LT.MAXSID) THEN
 !       SETUP THE 8 SIDED BOX
          N=8
-         X1=-ALENS(63,II)+ALENS(66,II)-AIMTOL
-         Y1=ALENS(62,II)+AIMTOL
-         X2=-ALENS(63,II)-AIMTOL
-         Y2=ALENS(62,II)-ALENS(66,II)+AIMTOL
-         X3=-ALENS(63,II)-AIMTOL
-         Y3=-ALENS(62,II)+ALENS(66,II)-AIMTOL
-         X4=-ALENS(63,II)+ALENS(66,II)-AIMTOL
-         Y4=-ALENS(62,II)-AIMTOL
-         X5=ALENS(63,II)-ALENS(66,II)+AIMTOL
-         Y5=-ALENS(62,II)-AIMTOL
-         X6=ALENS(63,II)+AIMTOL
-         Y6=-ALENS(62,II)+ALENS(66,II)-AIMTOL
-         X7=ALENS(63,II)+AIMTOL
-         Y7=ALENS(62,II)-ALENS(66,II)+AIMTOL
-         X8=ALENS(63,II)-ALENS(66,II)+AIMTOL
-         Y8=ALENS(62,II)+AIMTOL
+         X1=-surf_cobs_era_data(II, 2)+surf_cobs_era_data(II, 5)-AIMTOL
+         Y1=surf_cobs_era_data(II, 1)+AIMTOL
+         X2=-surf_cobs_era_data(II, 2)-AIMTOL
+         Y2=surf_cobs_era_data(II, 1)-surf_cobs_era_data(II, 5)+AIMTOL
+         X3=-surf_cobs_era_data(II, 2)-AIMTOL
+         Y3=-surf_cobs_era_data(II, 1)+surf_cobs_era_data(II, 5)-AIMTOL
+         X4=-surf_cobs_era_data(II, 2)+surf_cobs_era_data(II, 5)-AIMTOL
+         Y4=-surf_cobs_era_data(II, 1)-AIMTOL
+         X5=surf_cobs_era_data(II, 2)-surf_cobs_era_data(II, 5)+AIMTOL
+         Y5=-surf_cobs_era_data(II, 1)-AIMTOL
+         X6=surf_cobs_era_data(II, 2)+AIMTOL
+         Y6=-surf_cobs_era_data(II, 1)+surf_cobs_era_data(II, 5)-AIMTOL
+         X7=surf_cobs_era_data(II, 2)+AIMTOL
+         Y7=surf_cobs_era_data(II, 1)-surf_cobs_era_data(II, 5)+AIMTOL
+         X8=surf_cobs_era_data(II, 2)-surf_cobs_era_data(II, 5)+AIMTOL
+         Y8=surf_cobs_era_data(II, 1)+AIMTOL
       ELSE
 !       SET UP THE FOUR SIDED BOX
          N=4
-         X1=-ALENS(63,II)-AIMTOL
-         Y1=ALENS(62,II)+AIMTOL
-         X2=-ALENS(63,II)-AIMTOL
-         Y2=-ALENS(62,II)-AIMTOL
-         X3=ALENS(63,II)+AIMTOL
-         Y3=-ALENS(62,II)-AIMTOL
-         X4=ALENS(63,II)+AIMTOL
-         Y4=ALENS(62,II)+AIMTOL
+         X1=-surf_cobs_era_data(II, 2)-AIMTOL
+         Y1=surf_cobs_era_data(II, 1)+AIMTOL
+         X2=-surf_cobs_era_data(II, 2)-AIMTOL
+         Y2=-surf_cobs_era_data(II, 1)-AIMTOL
+         X3=surf_cobs_era_data(II, 2)+AIMTOL
+         Y3=-surf_cobs_era_data(II, 1)-AIMTOL
+         X4=surf_cobs_era_data(II, 2)+AIMTOL
+         Y4=surf_cobs_era_data(II, 1)+AIMTOL
       END IF
 !
       XRD=X
       YRD=Y
-      XRD=XRD-ALENS(65,II)
-      YRD=YRD-ALENS(64,II)
-      XR=(XRD*DCOS(ALENS(67,II)))+(YRD*DSIN(ALENS(67,II)))
-      YR=(YRD*DCOS(ALENS(67,II)))-(XRD*DSIN(ALENS(67,II)))
+      XRD=XRD-surf_cobs_era_data(II, 4)
+      YRD=YRD-surf_cobs_era_data(II, 3)
+      XR=(XRD*DCOS(surf_cobs_era_data(II, 6)))+(YRD*DSIN(surf_cobs_era_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_era_data(II, 6)))-(XRD*DSIN(surf_cobs_era_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE POLYGON OR INSIDE
       IF(N.EQ.4) THEN
@@ -1031,26 +960,25 @@ SUBROUTINE COERRS
       END IF
 ! NOW IS THE POINT INSIDE ANY OF THE FOUR CIRCLES
 !       CENTER OF THE FIRST CIRCLE IS AT
-      XC1=-ALENS(63,II)+ALENS(66,II)
-      YC1= ALENS(62,II)-ALENS(66,II)
+      XC1=-surf_cobs_era_data(II, 2)+surf_cobs_era_data(II, 5)
+      YC1= surf_cobs_era_data(II, 1)-surf_cobs_era_data(II, 5)
       CS1=DSQRT(((XR-XC1)**2)+((YR-YC1)**2))
 !       CENTER OF THE SECOND CIRCLE IS AT
-      XC2= -ALENS(63,II)+ALENS(66,II)
-      YC2= -ALENS(62,II)+ALENS(66,II)
+      XC2= -surf_cobs_era_data(II, 2)+surf_cobs_era_data(II, 5)
+      YC2= -surf_cobs_era_data(II, 1)+surf_cobs_era_data(II, 5)
       CS2=DSQRT(((XR-XC2)**2)+((YR-YC2)**2))
 !       CENTER OF THE THIRD CIRCLE IS AT
-      XC3= ALENS(63,II)-ALENS(66,II)
-      YC3=-ALENS(62,II)+ALENS(66,II)
+      XC3= surf_cobs_era_data(II, 2)-surf_cobs_era_data(II, 5)
+      YC3=-surf_cobs_era_data(II, 1)+surf_cobs_era_data(II, 5)
       CS3=DSQRT(((XR-XC3)**2)+((YR-YC3)**2))
 !       CENTER OF THE FIRST CIRCLE IS AT
-      XC4=ALENS(63,II)-ALENS(66,II)
-      YC4=ALENS(62,II)-ALENS(66,II)
+      XC4=surf_cobs_era_data(II, 2)-surf_cobs_era_data(II, 5)
+      YC4=surf_cobs_era_data(II, 1)-surf_cobs_era_data(II, 5)
       CS4=DSQRT(((XR-XC4)**2)+((YR-YC4)**2))
 !
-      RAD2=DSQRT(ALENS(66,II)**2)+AIMTOL
+      RAD2=DSQRT(surf_cobs_era_data(II, 5)**2)+AIMTOL
 !
-      IF(INS.OR.REAL(CS1).GT.REAL(RAD2).OR.REAL(CS2).GT.REAL(RAD2)&
-      &.OR.REAL(CS3).GT.REAL(RAD2).OR.REAL(CS4).GT.REAL(RAD2)) THEN
+      IF(INS.OR.REAL(CS1).GT.REAL(RAD2).OR.REAL(CS2).GT.REAL(RAD2).OR.REAL(CS3).GT.REAL(RAD2).OR.REAL(CS4).GT.REAL(RAD2)) THEN
 !     RAD BLOCKED BY BOX OR A CIRCLE
          LS1=10.0D0
       ELSE
@@ -1069,15 +997,15 @@ SUBROUTINE COERRS
       LS1=0.0D0
 !
 !       IN THE COORDINATE SYSTEM OF THE POLYGON, THE CORNER
-!       NUMBER OF POINTS IS ALENS(63,II), CENTER TO CORNER DISTANCE
-!       IS ALENS(62,II). POINTS GO COUNTER CLOCKWISE LOOKING
+!       NUMBER OF POINTS IS surf_cobs_era_data(II, 2), CENTER TO CORNER DISTANCE
+!       IS surf_cobs_era_data(II, 1). POINTS GO COUNTER CLOCKWISE LOOKING
 !       TOWARD THE +Z DIRECTION
 !       COORDINATES ARE:
       ANGLE=0.0D0
-      DO III=1,INT(ALENS(63,II))
-         XT(III)=ALENS(62,II)*DCOS(ANGLE+(PII/2.0D0))
-         YT(III)=ALENS(62,II)*DSIN(ANGLE+(PII/2.0D0))
-         ANGLE=ANGLE+((TWOPII)/ALENS(63,II))
+      DO III=1,INT(surf_cobs_era_data(II, 2))
+         XT(III)=surf_cobs_era_data(II, 1)*DCOS(ANGLE+(PII/2.0D0))
+         YT(III)=surf_cobs_era_data(II, 1)*DSIN(ANGLE+(PII/2.0D0))
+         ANGLE=ANGLE+((TWOPII)/surf_cobs_era_data(II, 2))
       END DO
       XRD=X
       YRD=Y
@@ -1087,21 +1015,21 @@ SUBROUTINE COERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       OBSCURATION ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(65,II)
-      YRD=YRD-ALENS(64,II)
+      XRD=XRD-surf_cobs_era_data(II, 4)
+      YRD=YRD-surf_cobs_era_data(II, 3)
 !
 !       IF A NON-ZERO COBS ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN COBS ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      XR=(XRD*DCOS(ALENS(67,II)))+(YRD*DSIN(ALENS(67,II)))
-      YR=(YRD*DCOS(ALENS(67,II)))-(XRD*DSIN(ALENS(67,II)))
+      XR=(XRD*DCOS(surf_cobs_era_data(II, 6)))+(YRD*DSIN(surf_cobs_era_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_era_data(II, 6)))-(XRD*DSIN(surf_cobs_era_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       X0=XR
       Y0=YR
-      NP=INT(ALENS(63,II))
+      NP=INT(surf_cobs_era_data(II, 2))
       INS=INSID2()
       IF(INS) THEN
 !       RAY NOT BLOCKED
@@ -1121,12 +1049,12 @@ SUBROUTINE COERRS
       LS1=0.0D0
 !
 !       IN THE COORDINATE SYSTEM OF THE POLYGON, THE CORNER
-!       NUMBER OF POINTS IS ALENS(63,II), CENTER TO CORNER DISTANCE
-!       IS ALENS(62,II). POINTS GO COUNTER CLOCKWISE LOOKING
+!       NUMBER OF POINTS IS surf_cobs_era_data(II, 2), CENTER TO CORNER DISTANCE
+!       IS surf_cobs_era_data(II, 1). POINTS GO COUNTER CLOCKWISE LOOKING
 !       TOWARD THE +Z DIRECTION
 !       COORDINATES ARE:
       ANGLE=0.0D0
-      DO III=1,INT(ALENS(63,II))
+      DO III=1,INT(surf_cobs_era_data(II, 2))
          XT(III)=IPOLYX(III,II,4)
          YT(III)=IPOLYY(III,II,4)
       END DO
@@ -1138,21 +1066,21 @@ SUBROUTINE COERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       OBSCURATION ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(65,II)
-      YRD=YRD-ALENS(64,II)
+      XRD=XRD-surf_cobs_era_data(II, 4)
+      YRD=YRD-surf_cobs_era_data(II, 3)
 !
 !       IF A NON-ZERO COBS ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN COBS ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      XR=(XRD*DCOS(ALENS(67,II)))+(YRD*DSIN(ALENS(67,II)))
-      YR=(YRD*DCOS(ALENS(67,II)))-(XRD*DSIN(ALENS(67,II)))
+      XR=(XRD*DCOS(surf_cobs_era_data(II, 6)))+(YRD*DSIN(surf_cobs_era_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_era_data(II, 6)))-(XRD*DSIN(surf_cobs_era_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       X0=XR
       Y0=YR
-      NP=INT(ALENS(63,II))
+      NP=INT(surf_cobs_era_data(II, 2))
       INS=INSID2()
       IF(INS) THEN
 !       RAY NOT BLOCKED
@@ -1174,6 +1102,7 @@ END
 SUBROUTINE CAERRS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1186,10 +1115,7 @@ SUBROUTINE CAERRS
 !
    INTEGER CAERAS,COERAS
 !
-   REAL*8 X,Y,Z,ANGLE,&
-   &XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,&
-   &X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,&
-   &YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
+   REAL*8 X,Y,Z,ANGLE,XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
 !
    COMMON/CACO/CAERAS,COERAS,LS
 !
@@ -1223,12 +1149,12 @@ SUBROUTINE CAERRS
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      XR=X-ALENS(55,II)
-      YR=Y-ALENS(54,II)
+      XR=X-surf_cobs_ape_data(II, 4)
+      YR=Y-surf_cobs_ape_data(II, 3)
 !
       LS1=DSQRT((XR**2)+(YR**2))
 !
-      RS=DSQRT(ALENS(52,II)**2)+AIMTOL
+      RS=DSQRT(surf_cobs_ape_data(II, 1)**2)+AIMTOL
       IF(REAL(LS1).GT.REAL(RS)) THEN
          LS1=10.0D0
       ELSE
@@ -1247,14 +1173,14 @@ SUBROUTINE CAERRS
 !
 !       IN THE COORDINATE SYSTEM OF THE RECTANGLE, THE CORNER
 !       COORDINATES ARE:
-      X1=-ALENS(53,II)-AIMTOL
-      Y1=ALENS(52,II)+AIMTOL
-      X2=-ALENS(53,II)-AIMTOL
-      Y2=-ALENS(52,II)-AIMTOL
-      X3=ALENS(53,II)+AIMTOL
-      Y3=-ALENS(52,II)-AIMTOL
-      X4=ALENS(53,II)+AIMTOL
-      Y4=ALENS(52,II)+AIMTOL
+      X1=-surf_cobs_ape_data(II, 2)-AIMTOL
+      Y1=surf_cobs_ape_data(II, 1)+AIMTOL
+      X2=-surf_cobs_ape_data(II, 2)-AIMTOL
+      Y2=-surf_cobs_ape_data(II, 1)-AIMTOL
+      X3=surf_cobs_ape_data(II, 2)+AIMTOL
+      Y3=-surf_cobs_ape_data(II, 1)-AIMTOL
+      X4=surf_cobs_ape_data(II, 2)+AIMTOL
+      Y4=surf_cobs_ape_data(II, 1)+AIMTOL
 !
       XRD=X
       YRD=Y
@@ -1264,16 +1190,16 @@ SUBROUTINE CAERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(55,II)
-      YRD=YRD-ALENS(54,II)
+      XRD=XRD-surf_cobs_ape_data(II, 4)
+      YRD=YRD-surf_cobs_ape_data(II, 3)
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      XR=(XRD*DCOS(ALENS(57,II)))+(YRD*DSIN(ALENS(57,II)))
-      YR=(YRD*DCOS(ALENS(57,II)))-(XRD*DSIN(ALENS(57,II)))
+      XR=(XRD*DCOS(surf_cobs_ape_data(II, 6)))+(YRD*DSIN(surf_cobs_ape_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_ape_data(II, 6)))-(XRD*DSIN(surf_cobs_ape_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       XT(1)=X1
@@ -1320,20 +1246,19 @@ SUBROUTINE CAERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(55,II)
-      YRD=YRD-ALENS(54,II)
+      XRD=XRD-surf_cobs_ape_data(II, 4)
+      YRD=YRD-surf_cobs_ape_data(II, 3)
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE.
 !
-      XR=(XRD*DCOS(ALENS(57,II)))+(YRD*DSIN(ALENS(57,II)))
-      YR=(YRD*DCOS(ALENS(57,II)))-(XRD*DSIN(ALENS(57,II)))
+      XR=(XRD*DCOS(surf_cobs_ape_data(II, 6)))+(YRD*DSIN(surf_cobs_ape_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_ape_data(II, 6)))-(XRD*DSIN(surf_cobs_ape_data(II, 6)))
 !
 !
-      LS=((XR**2)/(ALENS(53,II)**2))+&
-      &((YR**2)/(ALENS(52,II)**2))
+      LS=((XR**2)/(surf_cobs_ape_data(II, 2)**2))+((YR**2)/(surf_cobs_ape_data(II, 1)**2))
 !
       IF(REAL(LS).GT.(1.0+(AIMTOL**2))) THEN
 !       RAY BLOCKED
@@ -1358,42 +1283,42 @@ SUBROUTINE CAERRS
 !       CHECKED AS WELL AS THE FOUR CIRCLES. IF NOT, THE BASE RECTANGE
 !       AND THE FOUR CIRCLES NEED TO BE CHECKED.
 !
-      IF(ALENS(52,II).LE.ALENS(53,II)) THEN
-!       ALENS(53,II) = MAXSID
-         MAXSID=ALENS(53,II)
+      IF(surf_cobs_ape_data(II, 1).LE.surf_cobs_ape_data(II, 2)) THEN
+!       surf_cobs_ape_data(II, 2) = MAXSID
+         MAXSID=surf_cobs_ape_data(II, 2)
       ELSE
-         MAXSID=ALENS(52,II)
+         MAXSID=surf_cobs_ape_data(II, 1)
       END IF
-      IF(ALENS(56,II).LT.MAXSID) THEN
+      IF(surf_cobs_ape_data(II, 5).LT.MAXSID) THEN
 !       SETUP THE 8 SIDED BOX
          N=8
-         X1=-ALENS(53,II)+ALENS(56,II)-AIMTOL
-         Y1=ALENS(52,II)+AIMTOL
-         X2=-ALENS(53,II)-AIMTOL
-         Y2=ALENS(52,II)-ALENS(56,II)+AIMTOL
-         X3=-ALENS(53,II)-AIMTOL
-         Y3=-ALENS(52,II)+ALENS(56,II)-AIMTOL
-         X4=-ALENS(53,II)+ALENS(56,II)-AIMTOL
-         Y4=-ALENS(52,II)-AIMTOL
-         X5=ALENS(53,II)-ALENS(56,II)+AIMTOL
-         Y5=-ALENS(52,II)-AIMTOL
-         X6=ALENS(53,II)+AIMTOL
-         Y6=-ALENS(52,II)+ALENS(56,II)-AIMTOL
-         X7=ALENS(53,II)+AIMTOL
-         Y7=ALENS(52,II)-ALENS(56,II)+AIMTOL
-         X8=ALENS(53,II)-ALENS(56,II)+AIMTOL
-         Y8=ALENS(52,II)+AIMTOL
+         X1=-surf_cobs_ape_data(II, 2)+surf_cobs_ape_data(II, 5)-AIMTOL
+         Y1=surf_cobs_ape_data(II, 1)+AIMTOL
+         X2=-surf_cobs_ape_data(II, 2)-AIMTOL
+         Y2=surf_cobs_ape_data(II, 1)-surf_cobs_ape_data(II, 5)+AIMTOL
+         X3=-surf_cobs_ape_data(II, 2)-AIMTOL
+         Y3=-surf_cobs_ape_data(II, 1)+surf_cobs_ape_data(II, 5)-AIMTOL
+         X4=-surf_cobs_ape_data(II, 2)+surf_cobs_ape_data(II, 5)-AIMTOL
+         Y4=-surf_cobs_ape_data(II, 1)-AIMTOL
+         X5=surf_cobs_ape_data(II, 2)-surf_cobs_ape_data(II, 5)+AIMTOL
+         Y5=-surf_cobs_ape_data(II, 1)-AIMTOL
+         X6=surf_cobs_ape_data(II, 2)+AIMTOL
+         Y6=-surf_cobs_ape_data(II, 1)+surf_cobs_ape_data(II, 5)-AIMTOL
+         X7=surf_cobs_ape_data(II, 2)+AIMTOL
+         Y7=surf_cobs_ape_data(II, 1)-surf_cobs_ape_data(II, 5)+AIMTOL
+         X8=surf_cobs_ape_data(II, 2)-surf_cobs_ape_data(II, 5)+AIMTOL
+         Y8=surf_cobs_ape_data(II, 1)+AIMTOL
       ELSE
 !       SET UP THE FOUR SIDED BOX
          N=4
-         X1=-ALENS(53,II)-AIMTOL
-         Y1=ALENS(52,II)+AIMTOL
-         X2=-ALENS(53,II)-AIMTOL
-         Y2=-ALENS(52,II)-AIMTOL
-         X3=ALENS(53,II)+AIMTOL
-         Y3=-ALENS(52,II)-AIMTOL
-         X4=ALENS(53,II)+AIMTOL
-         Y4=ALENS(52,II)+AIMTOL
+         X1=-surf_cobs_ape_data(II, 2)-AIMTOL
+         Y1=surf_cobs_ape_data(II, 1)+AIMTOL
+         X2=-surf_cobs_ape_data(II, 2)-AIMTOL
+         Y2=-surf_cobs_ape_data(II, 1)-AIMTOL
+         X3=surf_cobs_ape_data(II, 2)+AIMTOL
+         Y3=-surf_cobs_ape_data(II, 1)-AIMTOL
+         X4=surf_cobs_ape_data(II, 2)+AIMTOL
+         Y4=surf_cobs_ape_data(II, 1)+AIMTOL
       END IF
 !
       XRD=X
@@ -1404,16 +1329,16 @@ SUBROUTINE CAERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(55,II)
-      YRD=YRD-ALENS(54,II)
+      XRD=XRD-surf_cobs_ape_data(II, 4)
+      YRD=YRD-surf_cobs_ape_data(II, 3)
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE .
 !
-      XR=(XRD*DCOS(ALENS(57,II)))+(YRD*DSIN(ALENS(57,II)))
-      YR=(YRD*DCOS(ALENS(57,II)))-(XRD*DSIN(ALENS(57,II)))
+      XR=(XRD*DCOS(surf_cobs_ape_data(II, 6)))+(YRD*DSIN(surf_cobs_ape_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_ape_data(II, 6)))-(XRD*DSIN(surf_cobs_ape_data(II, 6)))
 !
 !
 !       ARE THE POINTS XR AND YR ON THE POLYGON OR OUTSIDE
@@ -1457,27 +1382,25 @@ SUBROUTINE CAERRS
       END IF
 ! NOW IS THE POINT INSIDE ANY OF THE FOUR CIRCLES
 !       CENTER OF THE FIRST CIRCLE IS AT
-      XC1=-ALENS(53,II)+ALENS(56,II)
-      YC1= ALENS(52,II)-ALENS(56,II)
+      XC1=-surf_cobs_ape_data(II, 2)+surf_cobs_ape_data(II, 5)
+      YC1= surf_cobs_ape_data(II, 1)-surf_cobs_ape_data(II, 5)
       CS1=DSQRT(((XR-XC1)**2)+((YR-YC1)**2))
 !       CENTER OF THE SECOND CIRCLE IS AT
-      XC2=-ALENS(53,II)+ALENS(56,II)
-      YC2=-ALENS(52,II)+ALENS(56,II)
+      XC2=-surf_cobs_ape_data(II, 2)+surf_cobs_ape_data(II, 5)
+      YC2=-surf_cobs_ape_data(II, 1)+surf_cobs_ape_data(II, 5)
       CS2=DSQRT(((XR-XC2)**2)+((YR-YC2)**2))
 !       CENTER OF THE THIRD CIRCLE IS AT
-      XC3= ALENS(53,II)-ALENS(56,II)
-      YC3=-ALENS(52,II)+ALENS(56,II)
+      XC3= surf_cobs_ape_data(II, 2)-surf_cobs_ape_data(II, 5)
+      YC3=-surf_cobs_ape_data(II, 1)+surf_cobs_ape_data(II, 5)
       CS3=DSQRT(((XR-XC3)**2)+((YR-YC3)**2))
 !       CENTER OF THE FIRST CIRCLE IS AT
-      XC4=ALENS(53,II)-ALENS(56,II)
-      YC4=ALENS(52,II)-ALENS(56,II)
+      XC4=surf_cobs_ape_data(II, 2)-surf_cobs_ape_data(II, 5)
+      YC4=surf_cobs_ape_data(II, 1)-surf_cobs_ape_data(II, 5)
       CS4=DSQRT(((XR-XC4)**2)+((YR-YC4)**2))
 !
-      RAD2=DSQRT(ALENS(56,II)**2)+AIMTOL
+      RAD2=DSQRT(surf_cobs_ape_data(II, 5)**2)+AIMTOL
 !
-      IF(.NOT.INS.AND.REAL(CS1).GT.REAL(RAD2).AND.REAL(CS2)&
-      &.GT.REAL(RAD2).AND.REAL(CS3).GT.&
-      &REAL(RAD2).AND.REAL(CS4).GT.REAL(RAD2)) THEN
+      IF(.NOT.INS.AND.REAL(CS1).GT.REAL(RAD2).AND.REAL(CS2).GT.REAL(RAD2).AND.REAL(CS3).GT.REAL(RAD2).AND.REAL(CS4).GT.REAL(RAD2)) THEN
 !     RAY BLOCKED BY BOX AND CIRCLES
          LS1=10.0D0
       ELSE
@@ -1495,15 +1418,15 @@ SUBROUTINE CAERRS
       LS1=0.0D0
 !
 !       IN THE COORDINATE SYSTEM OF THE POLYGON, THE CORNER
-!       NUMBER OF POINTS IS ALENS(53,II), CENTER TO CORNER DISTANCE
-!       IS ALENS(52,II). POINTS GO COUNTER CLOCKWISE LOOKING
+!       NUMBER OF POINTS IS surf_cobs_ape_data(II, 2), CENTER TO CORNER DISTANCE
+!       IS surf_cobs_ape_data(II, 1). POINTS GO COUNTER CLOCKWISE LOOKING
 !       TOWARD THE +Z DIRECTION
 !       COORDINATES ARE:
       ANGLE=0.0D0
-      DO III=1,INT(ALENS(53,II))
-         XT(III)=ALENS(52,II)*DCOS(ANGLE+(PII/2.0D0))
-         YT(III)=ALENS(52,II)*DSIN(ANGLE+(PII/2.0D0))
-         ANGLE=ANGLE+((TWOPII)/ALENS(53,II))
+      DO III=1,INT(surf_cobs_ape_data(II, 2))
+         XT(III)=surf_cobs_ape_data(II, 1)*DCOS(ANGLE+(PII/2.0D0))
+         YT(III)=surf_cobs_ape_data(II, 1)*DSIN(ANGLE+(PII/2.0D0))
+         ANGLE=ANGLE+((TWOPII)/surf_cobs_ape_data(II, 2))
       END DO
       XRD=X
       YRD=Y
@@ -1513,21 +1436,21 @@ SUBROUTINE CAERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(55,II)
-      YRD=YRD-ALENS(54,II)
+      XRD=XRD-surf_cobs_ape_data(II, 4)
+      YRD=YRD-surf_cobs_ape_data(II, 3)
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      XR=(XRD*DCOS(ALENS(57,II)))+(YRD*DSIN(ALENS(57,II)))
-      YR=(YRD*DCOS(ALENS(57,II)))-(XRD*DSIN(ALENS(57,II)))
+      XR=(XRD*DCOS(surf_cobs_ape_data(II, 6)))+(YRD*DSIN(surf_cobs_ape_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_ape_data(II, 6)))-(XRD*DSIN(surf_cobs_ape_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       X0=XR
       Y0=YR
-      NP=INT(ALENS(53,II))
+      NP=INT(surf_cobs_ape_data(II, 2))
       INS=INSID1()
       IF(INS) THEN
 !       RAY NOT BLOCKED
@@ -1546,12 +1469,12 @@ SUBROUTINE CAERRS
       LS1=0.0D0
 !
 !       IN THE COORDINATE SYSTEM OF THE POLYGON, THE CORNER
-!       NUMBER OF POINTS IS ALENS(53,II), CENTER TO CORNER DISTANCE
-!       IS ALENS(52,II). POINTS GO COUNTER CLOCKWISE LOOKING
+!       NUMBER OF POINTS IS surf_cobs_ape_data(II, 2), CENTER TO CORNER DISTANCE
+!       IS surf_cobs_ape_data(II, 1). POINTS GO COUNTER CLOCKWISE LOOKING
 !       TOWARD THE +Z DIRECTION
 !       COORDINATES ARE:
       ANGLE=0.0D0
-      DO III=1,INT(ALENS(53,II))
+      DO III=1,INT(surf_cobs_ape_data(II, 2))
          XT(III)=IPOLYX(III,II,2)
          YT(III)=IPOLYY(III,II,2)
       END DO
@@ -1563,21 +1486,21 @@ SUBROUTINE CAERRS
 !       TO XRD AND YRD IN THE COORDINATE SYSTEM OF THE DECENTERED
 !       CLEAR APERTURE ERASE. REMEMBER.
 !
-      XRD=XRD-ALENS(55,II)
-      YRD=YRD-ALENS(54,II)
+      XRD=XRD-surf_cobs_ape_data(II, 4)
+      YRD=YRD-surf_cobs_ape_data(II, 3)
 !
 !       IF A NON-ZERO CLAP ERASE TILT EXISTS, IT MUST BE CONSIDERED
 !       IN CLAP ERASE CHECKING. WE CONVERT THE RAY COORDINATES XRD AND YRD
 !       TO XR AND YR IN THE COORDINATE SYSTEM OF THE ROTATED
 !       CLEAR APERTURE ERASE. REMEMBER.
 
-      XR=(XRD*DCOS(ALENS(57,II)))+(YRD*DSIN(ALENS(57,II)))
-      YR=(YRD*DCOS(ALENS(57,II)))-(XRD*DSIN(ALENS(57,II)))
+      XR=(XRD*DCOS(surf_cobs_ape_data(II, 6)))+(YRD*DSIN(surf_cobs_ape_data(II, 6)))
+      YR=(YRD*DCOS(surf_cobs_ape_data(II, 6)))-(XRD*DSIN(surf_cobs_ape_data(II, 6)))
 !
 !       ARE THE POINTS XR AND YR ON THE RECTANGLE OR OUTSIDE
       X0=XR
       Y0=YR
-      NP=INT(ALENS(53,II))
+      NP=INT(surf_cobs_ape_data(II, 2))
       INS=INSID1()
       IF(INS) THEN
 !       RAY NOT BLOCKED
@@ -1625,9 +1548,7 @@ SUBROUTINE FNBDE(I)
    DO 15 J=1,CFGCNT(I)
       EE12=CONFG(I,J)
       HOLDER=EE12
-      IF((HOLDER(1:3)).EQ.'MAG'.OR.&
-      &(HOLDER(1:3)).EQ.'FNB'.OR.&
-      &(HOLDER(1:2)).EQ.'ER') THEN
+      IF((HOLDER(1:3)).EQ.'MAG'.OR.(HOLDER(1:3)).EQ.'FNB'.OR.(HOLDER(1:2)).EQ.'ER') THEN
          IF((HOLDER(1:4)).EQ.'FNBY') THEN
             WRITE(OUTLYNE,*)'"FNBY" REMOVED FROM CONFIGURATION #',I
             CALL SHOWIT(1)
@@ -1678,6 +1599,7 @@ SUBROUTINE GLSWVL
    USE NSSMOD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1738,28 +1660,17 @@ SUBROUTINE GLSWVL
       END IF
    END IF
    IF(STI.EQ.1.OR.SN.EQ.0.AND.SQ.EQ.0.AND.SST.EQ.0) THEN
-100   FORMAT(&
-      &'THE TEN GLASS EVALUATION WAVELENGTHS IN MICRONS CURRENTLY ARE:')
-101   FORMAT(&
-      &'WAVELENGTH #1  = ',G13.6,'MICRONS')
-102   FORMAT(&
-      &'WAVELENGTH #2  = ',G13.6,'MICRONS')
-103   FORMAT(&
-      &'WAVELENGTH #3  = ',G13.6,'MICRONS')
-104   FORMAT(&
-      &'WAVELENGTH #4  = ',G13.6,'MICRONS')
-105   FORMAT(&
-      &'WAVELENGTH #5  = ',G13.6,'MICRONS')
-106   FORMAT(&
-      &'WAVELENGTH #6  = ',G13.6,'MICRONS')
-107   FORMAT(&
-      &'WAVELENGTH #7  = ',G13.6,'MICRONS')
-108   FORMAT(&
-      &'WAVELENGTH #8  = ',G13.6,'MICRONS')
-109   FORMAT(&
-      &'WAVELENGTH #9  = ',G13.6,'MICRONS')
-110   FORMAT(&
-      &'WAVELENGTH #10 = ',G13.6,'MICRONS')
+100   FORMAT('THE TEN GLASS EVALUATION WAVELENGTHS IN MICRONS CURRENTLY ARE:')
+101   FORMAT('WAVELENGTH #1  = ',G13.6,'MICRONS')
+102   FORMAT('WAVELENGTH #2  = ',G13.6,'MICRONS')
+103   FORMAT('WAVELENGTH #3  = ',G13.6,'MICRONS')
+104   FORMAT('WAVELENGTH #4  = ',G13.6,'MICRONS')
+105   FORMAT('WAVELENGTH #5  = ',G13.6,'MICRONS')
+106   FORMAT('WAVELENGTH #6  = ',G13.6,'MICRONS')
+107   FORMAT('WAVELENGTH #7  = ',G13.6,'MICRONS')
+108   FORMAT('WAVELENGTH #8  = ',G13.6,'MICRONS')
+109   FORMAT('WAVELENGTH #9  = ',G13.6,'MICRONS')
+110   FORMAT('WAVELENGTH #10 = ',G13.6,'MICRONS')
       WRITE(OUTLYNE,101) GLSWV(1)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,102) GLSWV(2)
@@ -1801,6 +1712,7 @@ SUBROUTINE GLSRIN
    use type_utils, only: real2str
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1815,9 +1727,7 @@ SUBROUTINE GLSRIN
 !
    INTEGER I,J,TOTAL,COUNT,LASCNT, uG, gdb_loc
 !
-   REAL*8 LMAX,LMIN,LAMBDA,A0,A1,&
-   &A2,A3,A4,A5,PN,LAM(1:10),LAMLOW,&
-   &LAMUPP,PNSC
+   REAL*8 LMAX,LMIN,LAMBDA,A0,A1,A2,A3,A4,A5,PN,LAM(1:10),LAMLOW,LAMUPP,PNSC
 !
 !
 !       NOW RESOLVE THE CALCULATION OF REFRACTIVE INDICES VIA
@@ -1826,16 +1736,9 @@ SUBROUTINE GLSRIN
 !       THERE IS AN EQUATION FOR CALCULATION OF INDICES USED
 !       ACROSS THE INDUSTRY. IT IS
 !
-   PN(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+&
-   &(A3*(1.0D0/(LAMBDA**4)))+(A4*(1.0D0/(LAMBDA**6)))+&
-   &(A5*(1.0D0/(LAMBDA**8))))
+   PN(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+(A3*(1.0D0/(LAMBDA**4)))+(A4*(1.0D0/(LAMBDA**6)))+(A5*(1.0D0/(LAMBDA**8))))
 !
-   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(&
-   &((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+&
-   &((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+&
-   &((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
+   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 
 
    !call LogTermFOR("In GLSRIN")
@@ -1902,8 +1805,7 @@ SUBROUTINE GLSRIN
    END IF
 !
 !       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
-   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'USER'&
-   &.OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'MATL') THEN
+   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'MATL') THEN
 
       CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
       IF (.NOT.boolResult) THEN
@@ -1956,241 +1858,151 @@ SUBROUTINE GLSRIN
                      GPREG(1)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(2).EQ.0.0D0) THEN
                      GPREG(2)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(3).EQ.0.0D0) THEN
                      GPREG(3)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(4).EQ.0.0D0) THEN
                      GPREG(4)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(5).EQ.0.0D0) THEN
                      GPREG(5)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(6).EQ.0.0D0) THEN
                      GPREG(6)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(7).EQ.0.0D0) THEN
                      GPREG(7)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(8).EQ.0.0D0) THEN
                      GPREG(8)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(9).EQ.0.0D0) THEN
                      GPREG(9)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
                   END IF
                   IF(LAM(10).EQ.0.0D0) THEN
                      GPREG(10)=1.0D0
                   ELSE
 !
-                     IF(FLNAME.EQ.'HOYA.BIN')&
-                     &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')&
-                     &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')&
-                     &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')&
-                     &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')&
-                     &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')&
-                     &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
 !
-                     IF(FLNAME.EQ.'SCHOTT.BIN')&
-                     &GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')&
-                     &GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')&
-                     &GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
                   END IF
                   RETURN
                ELSE
@@ -2198,8 +2010,7 @@ SUBROUTINE GLSRIN
                END IF
 300         CONTINUE
 !       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
-            OUTLYNE=&
-            &'GLASS NOT FOUND IN THE '//WC//' CATALOG'
+            OUTLYNE='GLASS NOT FOUND IN THE '//WC//' CATALOG'
             CALL SHOWIT(1)
             OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
             CALL SHOWIT(1)
@@ -2207,8 +2018,7 @@ SUBROUTINE GLSRIN
 !
          ELSE
 !       CATALOG REQUESTED NOT YET INSTALLED.
-            OUTLYNE=&
-            &WC//' GLASS CATALOG NOT YET INSTALLED'
+            OUTLYNE=WC//' GLASS CATALOG NOT YET INSTALLED'
             CALL SHOWIT(1)
             OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
             CALL SHOWIT(1)
@@ -2235,8 +2045,7 @@ SUBROUTINE GLSRIN
             ELSE
 !       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
 
-               OUTLYNE=&
-               &'GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
+               OUTLYNE='GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
                CALL SHOWIT(1)
                OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
                CALL SHOWIT(1)
@@ -2619,241 +2428,151 @@ SUBROUTINE GLSRIN
                         GPREG(1)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(2).EQ.0.0D0) THEN
                         GPREG(2)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(3).EQ.0.0D0) THEN
                         GPREG(3)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(4).EQ.0.0D0) THEN
                         GPREG(4)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(5).EQ.0.0D0) THEN
                         GPREG(5)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(6).EQ.0.0D0) THEN
                         GPREG(6)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(7).EQ.0.0D0) THEN
                         GPREG(7)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(8).EQ.0.0D0) THEN
                         GPREG(8)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(9).EQ.0.0D0) THEN
                         GPREG(9)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
                      END IF
                      IF(LAM(10).EQ.0.0D0) THEN
                         GPREG(10)=1.0D0
                      ELSE
 !
-                        IF(FLNAME.EQ.'HOYA.BIN')&
-                        &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')&
-                        &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')&
-                        &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')&
-                        &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')&
-                        &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')&
-                        &GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
 !
-                        IF(FLNAME.EQ.'SCHOTT.BIN')&
-                        &GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')&
-                        &GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')&
-                        &GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
+                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
                      END IF
                      RETURN
                   ELSE
@@ -2862,8 +2581,7 @@ SUBROUTINE GLSRIN
                END DO
 !       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
                IF(LASCNT.EQ.2) THEN
-                  OUTLYNE=&
-                  &'GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
+                  OUTLYNE='GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
                   CALL SHOWIT(1)
                   OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
                   CALL SHOWIT(1)
@@ -2874,8 +2592,7 @@ SUBROUTINE GLSRIN
 !
             ELSE
 !       CATALOG REQUESTED NOT YET INSTALLED.
-               OUTLYNE=&
-               &WC//' GLASS CATALOG NOT YET INSTALLED'
+               OUTLYNE=WC//' GLASS CATALOG NOT YET INSTALLED'
                CALL SHOWIT(1)
                OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
                CALL SHOWIT(1)
@@ -2891,8 +2608,7 @@ SUBROUTINE GLSRIN
          INQUIRE(FILE=FLNAME,EXIST=EXIS36)
          IF(EXIS36) THEN
 !               PROCEED
-            OPEN(UNIT=36,ACCESS='SEQUENTIAL',FILE=FLNAME,&
-            &RECL=(NRECL*33),STATUS='UNKNOWN')
+            OPEN(UNIT=36,ACCESS='SEQUENTIAL',FILE=FLNAME,RECL=(NRECL*33),STATUS='UNKNOWN')
             REWIND(UNIT=36)
 15          READ(UNIT=36,FMT=*,END=9915) NAME,A0,A1,A2,A3,A4,A5
             IF(WS.EQ.NAME) THEN
@@ -2956,8 +2672,7 @@ SUBROUTINE GLSRIN
 9915        CONTINUE
             CALL CLOSE_FILE(36,1)
 !       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
-            OUTLYNE=&
-            &'GLASS NOT FOUND IN THE '//WC//' CATALOG'
+            OUTLYNE='GLASS NOT FOUND IN THE '//WC//' CATALOG'
             CALL SHOWIT(1)
             OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
             CALL SHOWIT(1)
@@ -2965,8 +2680,7 @@ SUBROUTINE GLSRIN
 !
          ELSE
 !       CATALOG REQUESTED NOT YET INSTALLED.
-            OUTLYNE=&
-            &WC//' GLASS CATALOG NOT YET INSTALLED'
+            OUTLYNE=WC//' GLASS CATALOG NOT YET INSTALLED'
             CALL SHOWIT(1)
             OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
             CALL SHOWIT(1)
@@ -3025,8 +2739,7 @@ SUBROUTINE GLSRIN
             CALL SPCGL(I,8)
             RETURN
          END IF
-         IF(WS.EQ.'SAPPHIRE'&
-         &.OR.WS.EQ.'SAPHIR') THEN
+         IF(WS.EQ.'SAPPHIRE'.OR.WS.EQ.'SAPHIR') THEN
             CALL SPCGL(I,9)
             RETURN
          END IF
@@ -3234,8 +2947,7 @@ SUBROUTINE GLSRIN
             CALL SPCGL(I,104)
             RETURN
          END IF
-         OUTLYNE=&
-         &'GLASS NOT FOUND IN THE '//GLANAM(I,1)//' CATALOG'
+         OUTLYNE='GLASS NOT FOUND IN THE '//GLANAM(I,1)//' CATALOG'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
@@ -3261,6 +2973,7 @@ SUBROUTINE GLSRES
    use glass_manager
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3281,8 +2994,7 @@ SUBROUTINE GLSRES
 !
    EXTERNAL GNUMBER1,GNUMBER2
 !
-   REAL*8 LMAX,LMIN,LAMBDA,A0,A1,&
-   &A2,A3,A4,A5,PN
+   REAL*8 LMAX,LMIN,LAMBDA,A0,A1,A2,A3,A4,A5,PN
 !
    COMMON/GLSBAD/BADGLS
 !
@@ -3305,10 +3017,8 @@ SUBROUTINE GLSRES
 !
 !
 !       DETERMINE MINIMUM AND MAX SYSTEM WAVELENGTHS
-   LMIN = minval(&
-   &sysConfig%wavelengths(1:sysConfig%numWavelengths))
-   LMAX = maxval(&
-   &sysConfig%wavelengths(1:sysConfig%numWavelengths))
+   LMIN = minval(sysConfig%wavelengths(1:sysConfig%numWavelengths))
+   LMAX = maxval(sysConfig%wavelengths(1:sysConfig%numWavelengths))
 
    !call LogTermFOR("LMIN is "//trim(real2str(LMIN)))
    !call LogTermFOR("LMAX is "//trim(real2str(LMAX)))
@@ -3322,11 +3032,9 @@ SUBROUTINE GLSRES
       IF(PIKUP(1,I,20).NE.1.0D0) THEN
 
 !       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
-         IF(gdb%isNameInCatalog(GLANAM(I,1), gdb_loc).OR.&
-         &GLANAM(I,1).EQ.'GLAK'.OR.GLANAM(I,1).EQ.'GLCAT') THEN
+         IF(gdb%isNameInCatalog(GLANAM(I,1), gdb_loc).OR.GLANAM(I,1).EQ.'GLAK'.OR.GLANAM(I,1).EQ.'GLCAT') THEN
 
-            CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,&
-            &GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+            CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
 
             if(.not.boolResult) then
 
@@ -3364,13 +3072,11 @@ SUBROUTINE GLSRES
                   DO J=1,5
                      !call LogTermFOR("Wavelength is "//
                      !1    real2str(sysConfig%wavelengths(J)))
-                     ALENS(45+J,I) = gdb%calcIndexForCurrentGlass &
-                     &(sysConfig%wavelengths(J))
+                     ALENS(45+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J))
                      !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
                   END DO
                   DO J=1,4
-                     ALENS(70+J,I) = gdb%calcIndexForCurrentGlass &
-                     &(sysConfig%wavelengths(J+5))
+                     ALENS(70+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J+5))
                      !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
 
                   END DO
@@ -3386,11 +3092,9 @@ SUBROUTINE GLSRES
 
                ELSE
 !       CATALOG REQUESTED NOT YET INSTALLED.
-                  WRITE(OUTLYNE,*)&
-                  &'WARNING: FOR SURFACE ',I
+                  WRITE(OUTLYNE,*)'WARNING: FOR SURFACE ',I
                   CALL SHOWIT(1)
-                  OUTLYNE=&
-                  &GLANAM(I,1)//' GLASS CATALOG NOT YET INSTALLED'
+                  OUTLYNE=GLANAM(I,1)//' GLASS CATALOG NOT YET INSTALLED'
                   CALL SHOWIT(1)
                   OUTLYNE='REFRACTIVE INDICES FOR SURFACE SET TO 1.0'
                   CALL SHOWIT(1)
@@ -3415,13 +3119,11 @@ SUBROUTINE GLSRES
                      DO J=1,5
                         !call LogTermFOR("Wavelength is "
                         ! 1    //real2str(sysConfig%wavelengths(J)))
-                        ALENS(45+J,I) = gdb%calcIndexForCurrentGlass &
-                        &(sysConfig%wavelengths(J))
+                        ALENS(45+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J))
                         !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
                      END DO
                      DO J=1,5
-                        ALENS(70+J,I) = gdb%calcIndexForCurrentGlass &
-                        &(sysConfig%wavelengths(J+5))
+                        ALENS(70+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J+5))
                         !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
 
                      END DO
@@ -3437,8 +3139,7 @@ SUBROUTINE GLSRES
                ! JRN
 
 !     MATL LIMITS
-               CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,&
-               &GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+               CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
 
                if(.not.boolResult) then
 
@@ -3452,11 +3153,9 @@ SUBROUTINE GLSRES
                BADGLS=.TRUE.
                WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(I,1)
                call logger%logText(OUTLYNE)
-               WRITE(OUTLYNE,*)&
-               &'WARNING: FOR SURFACE ',I
+               WRITE(OUTLYNE,*)'WARNING: FOR SURFACE ',I
                CALL SHOWIT(1)
-               OUTLYNE=&
-               &'GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
+               OUTLYNE='GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
                CALL SHOWIT(1)
                OUTLYNE='REFRACTIVE INDICES FOR SURFACE SET TO 1.0'
                CALL SHOWIT(1)
@@ -3491,6 +3190,7 @@ END
 SUBROUTINE FICTRES(I)
 !
    use DATLEN
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER I,J
@@ -3498,16 +3198,9 @@ SUBROUTINE FICTRES(I)
    REAL*8 CCEE,CBAR,XND,XNC,XNF,XNE,XV,XD,NE,DDDISS
 !
 !
-   REAL*8 PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP &
-   &,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP &
-   &,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 &
-   &,P1,P2,V1,V2,SLOPE,NEWP
+   REAL*8 PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP ,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP ,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 ,P1,P2,V1,V2,SLOPE,NEWP
 !
-   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(&
-   &((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+&
-   &((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+&
-   &((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
+   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 !
 !     FORMULA FOR GETTING THE NF-NC FROM Nd AND Vd
    DDDISS(XND,XVD)=(XND-1.0D0)/XVD
@@ -3534,8 +3227,8 @@ SUBROUTINE FICTRES(I)
 !     STANDARD SCHOTT WAVELENGTHS
 !
 !     LOAD UP THE SURFACE INPUT VALUES OF ND, VD AND DISP
-   XND=ALENS(86,I)
-   XVD=ALENS(87,I)
+   XND=surf_fict_n(I)
+   XVD=surf_fict_v(I)
    XDISP=DDDISS(XND,XVD)
 !     CALCULATE THE ND,NC,NF AND DISP VALUES FOR THE STANDARD GLASSES
    A0=A01
@@ -3592,11 +3285,11 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(46,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 1, (NEWP*XDISP)+XND)
 !     CALCULATE MODEL GLASS INDEX AT THIS WAVELENGTH
          ELSE
-            ALENS(46,I)=1.0D0
+            call set_surf_refractive_index(I, 1, 1.0D0)
          END IF
       END IF
 !                               J=2
@@ -3624,10 +3317,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(47,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 2, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(47,I)=1.0D0
+            call set_surf_refractive_index(I, 2, 1.0D0)
          END IF
       END IF
 !                               J=3
@@ -3655,10 +3348,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(48,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 3, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(48,I)=1.0D0
+            call set_surf_refractive_index(I, 3, 1.0D0)
          END IF
       END IF
 !                               J=4
@@ -3686,10 +3379,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(49,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 4, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(49,I)=1.0D0
+            call set_surf_refractive_index(I, 4, 1.0D0)
          END IF
       END IF
 !                               J=5
@@ -3717,10 +3410,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(50,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 5, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(50,I)=1.0D0
+            call set_surf_refractive_index(I, 5, 1.0D0)
          END IF
       END IF
 !                               J=6
@@ -3748,10 +3441,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(71,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 6, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(71,I)=1.0D0
+            call set_surf_refractive_index(I, 6, 1.0D0)
          END IF
       END IF
 !                               J=7
@@ -3779,10 +3472,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(72,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 7, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(72,I)=1.0D0
+            call set_surf_refractive_index(I, 7, 1.0D0)
          END IF
       END IF
 !                               J=8
@@ -3810,10 +3503,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(73,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 8, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(73,I)=1.0D0
+            call set_surf_refractive_index(I, 8, 1.0D0)
          END IF
       END IF
 !                               J=9
@@ -3841,10 +3534,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(74,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 9, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(74,I)=1.0D0
+            call set_surf_refractive_index(I, 9, 1.0D0)
          END IF
       END IF
 !                               J=10
@@ -3872,10 +3565,10 @@ SUBROUTINE FICTRES(I)
             V1=(ND1-1.0D0)/(NF1-NC1)
             V2=(ND2-1.0D0)/(NF2-NC2)
             SLOPE=(P1-P2)/(V1-V2)
-            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+ALENS(89,I)
-            ALENS(75,I)=(NEWP*XDISP)+XND
+            NEWP=SLOPE*(XVD)-(SLOPE*V2)+P2+surf_fict_w(I)
+            call set_surf_refractive_index(I, 10, (NEWP*XDISP)+XND)
          ELSE
-            ALENS(75,I)=1.0D0
+            call set_surf_refractive_index(I, 10, 1.0D0)
          END IF
       END IF
    END DO
@@ -3909,6 +3602,7 @@ SUBROUTINE FICT(I,INDEX,ND,ABBE,DPART)
 !       USED TO CONVERT CAT GLASS INTO MODEL GLASS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3919,16 +3613,9 @@ SUBROUTINE FICT(I,INDEX,ND,ABBE,DPART)
    REAL*8 ND,ABBE,DPART,INDEX
 !
 !
-   REAL*8 PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP &
-   &,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP &
-   &,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 &
-   &,P1,P2,V1,V2,SLOPE,NEWP
+   REAL*8 PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP ,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP ,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 ,P1,P2,V1,V2,SLOPE,NEWP
 !
-   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(&
-   &((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+&
-   &((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+&
-   &((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
+   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 !
 !     FORMULA FOR GETTING THE NF-NC FROM Nd AND Vd
    DDDISS(XND,XVD)=(XND-1.0D0)/XVD
@@ -4027,22 +3714,19 @@ SUBROUTINE OPENGLASSFILE(filePath, fileID, TOTAL)
 
    fileID = 36
    inquire(iolength=rec11) TOTAL
-   inquire(iolength=rec15) NAME,NUMBER,A0,A1,&
-   &A2,A3,A4,A5
+   inquire(iolength=rec15) NAME,NUMBER,A0,A1,A2,A3,A4,A5
 
    inquire(FILE=filePath, number=tstUnit, EXIST=isFile)
    if (tstUnit.EQ.fileID) close(fileID)
 
    if (isFile) then
 
-      OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,&
-      &FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN', iostat=ierr)
+      OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN', iostat=ierr)
       if(ierr == 0 ) then
          READ(UNIT=fileID,REC=1) TOTAL
          CLOSE(UNIT=fileID, STATUS='KEEP')
 
-         OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,&
-         &FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
+         OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
       end if
    end if
 
@@ -4052,9 +3736,9 @@ END SUBROUTINE
  ! This should be refactored with the next one, but
  ! save for another day..
 
-SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,&
-&NAME1, NAME2, FLNAME, LMIN, LMAX, sI)
+SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LMAX, sI)
    use DATLEN
+   use mod_surface
    use DATMAI
    logical, intent(inout) :: boolResult
    character(len=*) :: NAME1, NAME2, FLNAME
@@ -4069,25 +3753,19 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,&
    CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 !
 !       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-   IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW &
-   &.AND.LMIN.NE.0.0D0) THEN
+   IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW .AND.LMIN.NE.0.0D0) THEN
 !       STOP AND GO TO CMD LEVEL AND PRINT WARNING
       boolResult=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'GLASS DEFINITION WARNING: FOR SURFACE ',sI
+      WRITE(OUTLYNE,*)'GLASS DEFINITION WARNING: FOR SURFACE ',sI
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE GLASS - '//NAME2
+      OUTLYNE='THE GLASS - '//NAME2
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
+      OUTLYNE='IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,200) LAMLOW,LAMUPP
       CALL SHOWIT(1)
-200   FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,&
-      &' MICRON(S)')
-      OUTLYNE=&
-      &'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
+200   FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,' MICRON(S)')
+      OUTLYNE='ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
       CALL SHOWIT(1)
    END IF
 
@@ -4097,6 +3775,7 @@ END SUBROUTINE
 SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
    use type_utils, only: real2str
    use DATLEN
+   use mod_surface
    use DATMAI
 
    logical, intent(inout) :: boolResult
@@ -4138,29 +3817,23 @@ SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
 
 !
 !       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
-   IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW &
-   &.AND.LMIN.NE.0.0D0) THEN
+   IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW .AND.LMIN.NE.0.0D0) THEN
 
       boolResult = .FALSE.
 
 !       STOP AND GO TO CMD LEVEL AND PRINT WARNING
-      WRITE(OUTLYNE,*)&
-      &'GLASS DEFINITION WARNING: FOR SURFACE '
+      WRITE(OUTLYNE,*)'GLASS DEFINITION WARNING: FOR SURFACE '
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE GLASS - '//WS
+      OUTLYNE='THE GLASS - '//WS
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
+      OUTLYNE='IS NOT DEFINED ACROSS THE CURRENT SYSTEM WAVELENGTH RANGE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,200) LAMLOW,LAMUPP
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
+      OUTLYNE='ALL REFRACTIVE INDICES FOR THIS SURFACE HAVE BEEN SET TO 1.0'
       CALL SHOWIT(1)
       GPREG(1:5)=1.0D0
    END IF
-200 FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,&
-   &' MICRON(S)')
+200 FORMAT('IT IS DEFINED ONLY FROM ',F9.4,' TO ',F9.4,' MICRON(S)')
 
 END SUBROUTINE

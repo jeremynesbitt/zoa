@@ -2,6 +2,7 @@
 SUBROUTINE THERM
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -48,8 +49,7 @@ SUBROUTINE THERM
       RETURN
    END IF
 !
-   IF(WQ.NE.'SHAPE'.AND.WQ.NE.'GLASS'.AND.WQ.NE.'THICK'&
-   &.AND.WQ.NE.'SPACE') THEN
+   IF(WQ.NE.'SHAPE'.AND.WQ.NE.'GLASS'.AND.WQ.NE.'THICK'.AND.WQ.NE.'SPACE') THEN
       WRITE(OUTLYNE,*)'INVALID QUALIFIER USED WITH "THERM"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -60,8 +60,7 @@ SUBROUTINE THERM
    IF(DF1.EQ.1) W1=0.0D0
    IF(DF2.EQ.1) W2=SYSTEM(20)
    IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"THERM" REQUIRES EXPLICIT NUMERIC WORDS #3 AND #4'
+      WRITE(OUTLYNE,*)'"THERM" REQUIRES EXPLICIT NUMERIC WORDS #3 AND #4'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -77,8 +76,7 @@ SUBROUTINE THERM
       RETURN
    END IF
    IF(W2.GT.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -86,11 +84,9 @@ SUBROUTINE THERM
       RETURN
    END IF
    IF(W2.LT.W1) THEN
-      WRITE(OUTLYNE,*)&
-      &'ERROR:'
+      WRITE(OUTLYNE,*)'ERROR:'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER LESS THAN STARTING SURFACE NUMBER'
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER LESS THAN STARTING SURFACE NUMBER'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -107,23 +103,18 @@ SUBROUTINE THERM
          IF(.NOT.GONOGO) THEN
             RETURN
          END IF
-         IF(GLANAM(I,2).EQ.'REFL         '.OR.&
-         &GLANAM(I,2).EQ.'REFLTIRO     '.OR.&
-         &GLANAM(I,2).EQ.'REFLTIR      ') THEN
-            WRITE(OUTLYNE,*)&
-            &'"THERM ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
+         IF(GLANAM(I,2).EQ.'REFL         '.OR.GLANAM(I,2).EQ.'REFLTIRO     '.OR.GLANAM(I,2).EQ.'REFLTIR      ') THEN
+            WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
             CALL SHOWIT(1)
             RETURN
          END IF
          IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
-            WRITE(OUTLYNE,*)&
-            &'"THERM ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
+            WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
             CALL SHOWIT(1)
             RETURN
          END IF
          IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
-            WRITE(OUTLYNE,*)&
-            &'"THERM ',WQ,'" DID NOT MODIFY "IDEAL" SURFACE # ',I
+            WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY "IDEAL" SURFACE # ',I
             CALL SHOWIT(1)
             RETURN
          END IF
@@ -131,94 +122,53 @@ SUBROUTINE THERM
          CALL CHKGLS(GONOGO,I)
          IF(.NOT.GONOGO) THEN
          ELSE
-            IF(GLANAM(I,2).NE.'REFL         '.AND.&
-            &GLANAM(I,2).NE.'PERFECT      '.AND.&
-            &GLANAM(I,2).NE.'REFLTIR      '.AND.&
-            &GLANAM(I,2).NE.'REFLTIRO     '.AND.&
-            &GLANAM(I,2).NE.'IDEAL        ') THEN
-               IF(DABS(ALENS(46,I)).GT.1.1D0.OR.DABS(ALENS(47,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(48,I)).GT.1.1D0.OR.DABS(ALENS(49,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(50,I)).GT.1.1D0) THEN
+            IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'PERFECT      '.AND.GLANAM(I,2).NE.'REFLTIR      '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'IDEAL        ') THEN
+               IF(DABS(surf_refractive_index(I, 1)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 2)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 4)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 5)).GT.1.1D0) THEN
                   GLANAM(I,1)='MYGLASS      '
-                  IF(DABS(ALENS(46,I)).GT.1.1D0)&
-                  &ALENS(46,I)=ALENS(46,I)+(DSGN(ALENS(46,I))*W3*W4)
-                  IF(DABS(ALENS(47,I)).GT.1.1D0)&
-                  &ALENS(47,I)=ALENS(47,I)+(DSGN(ALENS(46,I))*W3*W4)
-                  IF(DABS(ALENS(48,I)).GT.1.1D0)&
-                  &ALENS(48,I)=ALENS(48,I)+(DSGN(ALENS(48,I))*W3*W4)
-                  IF(DABS(ALENS(49,I)).GT.1.1D0)&
-                  &ALENS(49,I)=ALENS(49,I)+(DSGN(ALENS(49,I))*W3*W4)
-                  IF(DABS(ALENS(50,I)).GT.1.1D0)&
-                  &ALENS(50,I)=ALENS(50,I)+(DSGN(ALENS(50,I))*W3*W4)
+                  IF(DABS(surf_refractive_index(I, 1)).GT.1.1D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 2)).GT.1.1D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 3)).GT.1.1D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 4)).GT.1.1D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 5)).GT.1.1D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
                END IF
-               IF(DABS(ALENS(71,I)).GT.1.1D0.OR.DABS(ALENS(72,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(73,I)).GT.1.1D0.OR.DABS(ALENS(74,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(75,I)).GT.1.1D0) THEN
-                  IF(DABS(ALENS(71,I)).GT.1.1D0)&
-                  &ALENS(71,I)=ALENS(71,I)+(DSGN(ALENS(71,I))*W3*W4)
-                  IF(DABS(ALENS(47,I)).GT.1.1D0)&
-                  &ALENS(72,I)=ALENS(72,I)+(DSGN(ALENS(72,I))*W3*W4)
-                  IF(DABS(ALENS(48,I)).GT.1.1D0)&
-                  &ALENS(73,I)=ALENS(73,I)+(DSGN(ALENS(73,I))*W3*W4)
-                  IF(DABS(ALENS(49,I)).GT.1.1D0)&
-                  &ALENS(74,I)=ALENS(74,I)+(DSGN(ALENS(74,I))*W3*W4)
-                  IF(DABS(ALENS(50,I)).GT.1.1D0)&
-                  &ALENS(75,I)=ALENS(75,I)+(DSGN(ALENS(75,I))*W3*W4)
+               IF(DABS(surf_refractive_index(I, 6)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 7)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 9)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 10)).GT.1.1D0) THEN
+                  IF(DABS(surf_refractive_index(I, 6)).GT.1.1D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 2)).GT.1.1D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 3)).GT.1.1D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 4)).GT.1.1D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 5)).GT.1.1D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
                END IF
             END IF
          END IF
       ELSE
          DO I=INT(W1),INT(W2)
-            IF(GLANAM(I,2).EQ.'REFL         '.OR.&
-            &GLANAM(I,2).EQ.'REFLTIRO     '.OR.&
-            &GLANAM(I,2).EQ.'REFLTIR      ') THEN
-               WRITE(OUTLYNE,*)&
-               &'"THERM ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
+            IF(GLANAM(I,2).EQ.'REFL         '.OR.GLANAM(I,2).EQ.'REFLTIRO     '.OR.GLANAM(I,2).EQ.'REFLTIR      ') THEN
+               WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
                CALL SHOWIT(1)
             END IF
             IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
-               WRITE(OUTLYNE,*)&
-               &'"THERM ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
+               WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
                CALL SHOWIT(1)
             END IF
             IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
-               WRITE(OUTLYNE,*)&
-               &'"THERM ',WQ,'" DID NOT MODIFY "IDEAL" SURFACE # ',I
+               WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY "IDEAL" SURFACE # ',I
                CALL SHOWIT(1)
             END IF
-            IF(GLANAM(I,2).NE.'REFL         '.AND.&
-            &GLANAM(I,2).NE.'PERFECT      '.AND.&
-            &GLANAM(I,2).NE.'REFLTIR      '.AND.&
-            &GLANAM(I,2).NE.'REFLTIRO     '.AND.&
-            &GLANAM(I,2).NE.'IDEAL        ') THEN
-               IF(DABS(ALENS(46,I)).GT.1.1D0.OR.DABS(ALENS(47,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(48,I)).GT.1.1D0.OR.DABS(ALENS(49,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(50,I)).GT.1.1D0) THEN
+            IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'PERFECT      '.AND.GLANAM(I,2).NE.'REFLTIR      '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'IDEAL        ') THEN
+               IF(DABS(surf_refractive_index(I, 1)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 2)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 4)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 5)).GT.1.1D0) THEN
                   GLANAM(I,1)='MYGLASS      '
-                  IF(DABS(ALENS(46,I)).GT.1.1D0)&
-                  &ALENS(46,I)=ALENS(46,I)+(DSGN(ALENS(46,I))*W3*W4)
-                  IF(DABS(ALENS(47,I)).GT.1.1D0)&
-                  &ALENS(47,I)=ALENS(47,I)+(DSGN(ALENS(47,I))*W3*W4)
-                  IF(DABS(ALENS(48,I)).GT.1.1D0)&
-                  &ALENS(48,I)=ALENS(48,I)+(DSGN(ALENS(48,I))*W3*W4)
-                  IF(DABS(ALENS(49,I)).GT.1.1D0)&
-                  &ALENS(49,I)=ALENS(49,I)+(DSGN(ALENS(49,I))*W3*W4)
-                  IF(DABS(ALENS(50,I)).GT.1.1D0)&
-                  &ALENS(50,I)=ALENS(50,I)+(DSGN(ALENS(50,I))*W3*W4)
+                  IF(DABS(surf_refractive_index(I, 1)).GT.1.1D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 2)).GT.1.1D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 3)).GT.1.1D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 4)).GT.1.1D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 5)).GT.1.1D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
                END IF
-               IF(DABS(ALENS(71,I)).GT.1.1D0.OR.DABS(ALENS(72,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(73,I)).GT.1.1D0.OR.DABS(ALENS(74,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(75,I)).GT.1.1D0) THEN
-                  IF(DABS(ALENS(71,I)).GT.1.1D0)&
-                  &ALENS(71,I)=ALENS(71,I)+(DSGN(ALENS(71,I))*W3*W4)
-                  IF(DABS(ALENS(72,I)).GT.1.1D0)&
-                  &ALENS(72,I)=ALENS(72,I)+(DSGN(ALENS(72,I))*W3*W4)
-                  IF(DABS(ALENS(73,I)).GT.1.1D0)&
-                  &ALENS(73,I)=ALENS(73,I)+(DSGN(ALENS(73,I))*W3*W4)
-                  IF(DABS(ALENS(74,I)).GT.1.1D0)&
-                  &ALENS(74,I)=ALENS(74,I)+(DSGN(ALENS(74,I))*W3*W4)
-                  IF(DABS(ALENS(75,I)).GT.1.1D0)&
-                  &ALENS(75,I)=ALENS(75,I)+(DSGN(ALENS(75,I))*W3*W4)
+               IF(DABS(surf_refractive_index(I, 6)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 7)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 9)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 10)).GT.1.1D0) THEN
+                  IF(DABS(surf_refractive_index(I, 6)).GT.1.1D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 7)).GT.1.1D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 8)).GT.1.1D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 9)).GT.1.1D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
+                  IF(DABS(surf_refractive_index(I, 10)).GT.1.1D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
                END IF
             END IF
          END DO
@@ -237,13 +187,8 @@ SUBROUTINE THERM
          IF(.NOT.GONOGO) THEN
             RETURN
          END IF
-         IF(DABS(ALENS(46,I)).LE.1.1D0.AND.DABS(ALENS(47,I)).LE.1.1D0 &
-         &.AND.DABS(ALENS(48,I)).LE.1.1D0.AND.DABS(ALENS(49,I)).LE.1.1D0 &
-         &.AND.DABS(ALENS(50,I)).LE.1.1D0.AND.&
-         &DABS(ALENS(71,I)).LE.1.1D0.AND.DABS(ALENS(72,I)).LE.1.1D0 &
-         &.AND.DABS(ALENS(73,I)).LE.1.1D0.AND.DABS(ALENS(74,I)).LE.1.1D0 &
-         &.AND.DABS(ALENS(75,I)).LE.1.1D0) THEN
-            ALENS(3,I)=ALENS(3,I)+(ALENS(3,I)*W3*W4)
+         IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
+            call set_surf_thickness(I, surf_thickness(I)+(surf_thickness(I)*W3*W4))
          END IF
       ELSE
          DO I=INT(W1),INT(W2)
@@ -251,13 +196,8 @@ SUBROUTINE THERM
             CALL CHKTHK(GONOGO,I)
             IF(.NOT.GONOGO) THEN
             ELSE
-               IF(DABS(ALENS(46,I)).LE.1.1D0.AND.DABS(ALENS(47,I)).LE.1.1D0 &
-               &.AND.DABS(ALENS(48,I)).LE.1.1D0.AND.DABS(ALENS(49,I)).LE.1.1D0 &
-               &.AND.DABS(ALENS(50,I)).LE.1.1D0.AND.&
-               &DABS(ALENS(71,I)).LE.1.1D0.AND.DABS(ALENS(72,I)).LE.1.1D0 &
-               &.AND.DABS(ALENS(73,I)).LE.1.1D0.AND.DABS(ALENS(74,I)).LE.1.1D0 &
-               &.AND.DABS(ALENS(75,I)).LE.1.1D0) THEN
-                  ALENS(3,I)=ALENS(3,I)+(ALENS(3,I)*W3*W4)
+               IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
+                  call set_surf_thickness(I, surf_thickness(I)+(surf_thickness(I)*W3*W4))
                END IF
             END IF
          END DO
@@ -276,13 +216,8 @@ SUBROUTINE THERM
          IF(.NOT.GONOGO) THEN
             RETURN
          END IF
-         IF(DABS(ALENS(46,I)).GT.1.1D0.OR.DABS(ALENS(47,I)).GT.1.1D0 &
-         &.OR.DABS(ALENS(48,I)).GT.1.1D0.OR.DABS(ALENS(49,I)).GT.1.1D0 &
-         &.OR.DABS(ALENS(50,I)).GT.1.1D0.OR.&
-         &DABS(ALENS(71,I)).GT.1.1D0.OR.DABS(ALENS(72,I)).GT.1.1D0 &
-         &.OR.DABS(ALENS(73,I)).GT.1.1D0.OR.DABS(ALENS(74,I)).GT.1.1D0 &
-         &.OR.DABS(ALENS(75,I)).GT.1.1D0) THEN
-            ALENS(3,I)=ALENS(3,I)+(ALENS(3,I)*W3*W4)
+         IF(DABS(surf_refractive_index(I, 1)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 2)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 4)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 5)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 6)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 7)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 9)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 10)).GT.1.1D0) THEN
+            call set_surf_thickness(I, surf_thickness(I)+(surf_thickness(I)*W3*W4))
          END IF
       ELSE
          DO I=INT(W1),INT(W2)
@@ -290,13 +225,8 @@ SUBROUTINE THERM
             CALL CHKTHK(GONOGO,I)
             IF(.NOT.GONOGO) THEN
             ELSE
-               IF(DABS(ALENS(46,I)).GT.1.1D0.OR.DABS(ALENS(47,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(48,I)).GT.1.1D0.OR.DABS(ALENS(49,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(50,I)).GT.1.1D0.OR.&
-               &DABS(ALENS(71,I)).GT.1.1D0.OR.DABS(ALENS(72,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(73,I)).GT.1.1D0.OR.DABS(ALENS(74,I)).GT.1.1D0 &
-               &.OR.DABS(ALENS(75,I)).GT.1.1D0) THEN
-                  ALENS(3,I)=ALENS(3,I)+(ALENS(3,I)*W3*W4)
+               IF(DABS(surf_refractive_index(I, 1)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 2)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 4)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 5)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 6)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 7)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).GT.1.1D0.OR.DABS(surf_refractive_index(I, 9)).GT.1.1D0 .OR.DABS(surf_refractive_index(I, 10)).GT.1.1D0) THEN
+                  call set_surf_thickness(I, surf_thickness(I)+(surf_thickness(I)*W3*W4))
                END IF
             END IF
          END DO
@@ -318,37 +248,37 @@ SUBROUTINE THERM
 !     CURVATURE IF NOT ZERO
          FACTOR=1.0D0+(W3*W4)
 !     AC
-         ALENS(43,I)=ALENS(43,I)/FACTOR
+         call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(I, 2)/FACTOR)
 !     AD
-         ALENS(4,I)=ALENS(4,I)/(FACTOR**3)
+         call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(I, 4)/(FACTOR**3))
 !     AE
-         ALENS(5,I)=ALENS(5,I)/(FACTOR**5)
+         call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(I, 6)/(FACTOR**5))
 !     AF
-         ALENS(6,I)=ALENS(6,I)/(FACTOR**7)
+         call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(I, 8)/(FACTOR**7))
 !     AG
-         ALENS(7,I)=ALENS(7,I)/(FACTOR**9)
+         call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(I, 10)/(FACTOR**9))
 !     AH
-         ALENS(81,I)=ALENS(81,I)/(FACTOR**11)
+         call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(I, 12)/(FACTOR**11))
 !     AI
-         ALENS(82,I)=ALENS(82,I)/(FACTOR**13)
+         call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(I, 14)/(FACTOR**13))
 !     AJ
-         ALENS(83,I)=ALENS(83,I)/(FACTOR**15)
+         call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(I, 16)/(FACTOR**15))
 !     AK
-         ALENS(84,I)=ALENS(84,I)/(FACTOR**17)
+         call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(I, 18)/(FACTOR**17))
 !     AL
-         ALENS(85,I)=ALENS(85,I)/(FACTOR**19)
+         call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(I, 20)/(FACTOR**19))
 !     ADTOR
-         ALENS(37,I)=ALENS(37,I)/(FACTOR**3)
+         call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(I, 4)/(FACTOR**3))
 !     AETOR
-         ALENS(38,I)=ALENS(38,I)/(FACTOR**5)
+         call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(I, 6)/(FACTOR**5))
 !     AFTOR
-         ALENS(39,I)=ALENS(39,I)/(FACTOR**7)
+         call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(I, 8)/(FACTOR**7))
 !     AGTOR
-         ALENS(40,I)=ALENS(40,I)/(FACTOR**9)
+         call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(I, 10)/(FACTOR**9))
 !     CV
-         ALENS(1,I)=ALENS(1,I)*(1/FACTOR)
+         call set_surf_curvature(I, surf_curvature(I)*(1/FACTOR))
 !     CVTOR
-         ALENS(24,I)=ALENS(24,I)*(1/FACTOR)
+         call set_surf_toric_curvature(I, surf_toric_curvature(I)*(1/FACTOR))
       ELSE
          DO I=INT(W1),INT(W2)
             GONOGO=.TRUE.
@@ -357,37 +287,37 @@ SUBROUTINE THERM
             ELSE
                FACTOR=1.0D0+(W3*W4)
 !     AC
-               ALENS(43,I)=ALENS(43,I)/FACTOR
+               call set_surf_asphere_coeff(I, 2, surf_asphere_coeff(I, 2)/FACTOR)
 !     AD
-               ALENS(4,I)=ALENS(4,I)/(FACTOR**3)
+               call set_surf_asphere_coeff(I, 4, surf_asphere_coeff(I, 4)/(FACTOR**3))
 !     AE
-               ALENS(5,I)=ALENS(5,I)/(FACTOR**5)
+               call set_surf_asphere_coeff(I, 6, surf_asphere_coeff(I, 6)/(FACTOR**5))
 !     AF
-               ALENS(6,I)=ALENS(6,I)/(FACTOR**7)
+               call set_surf_asphere_coeff(I, 8, surf_asphere_coeff(I, 8)/(FACTOR**7))
 !     AG
-               ALENS(7,I)=ALENS(7,I)/(FACTOR**9)
+               call set_surf_asphere_coeff(I, 10, surf_asphere_coeff(I, 10)/(FACTOR**9))
 !     AH
-               ALENS(81,I)=ALENS(81,I)/(FACTOR**11)
+               call set_surf_asphere_coeff(I, 12, surf_asphere_coeff(I, 12)/(FACTOR**11))
 !     AI
-               ALENS(82,I)=ALENS(82,I)/(FACTOR**13)
+               call set_surf_asphere_coeff(I, 14, surf_asphere_coeff(I, 14)/(FACTOR**13))
 !     AJ
-               ALENS(83,I)=ALENS(83,I)/(FACTOR**15)
+               call set_surf_asphere_coeff(I, 16, surf_asphere_coeff(I, 16)/(FACTOR**15))
 !     AK
-               ALENS(84,I)=ALENS(84,I)/(FACTOR**17)
+               call set_surf_asphere_coeff(I, 18, surf_asphere_coeff(I, 18)/(FACTOR**17))
 !     AL
-               ALENS(85,I)=ALENS(85,I)/(FACTOR**19)
+               call set_surf_asphere_coeff(I, 20, surf_asphere_coeff(I, 20)/(FACTOR**19))
 !     ADTOR
-               ALENS(37,I)=ALENS(37,I)/(FACTOR**3)
+               call set_surf_anamorphic_coeff(I, 4, surf_anamorphic_coeff(I, 4)/(FACTOR**3))
 !     AETOR
-               ALENS(38,I)=ALENS(38,I)/(FACTOR**5)
+               call set_surf_anamorphic_coeff(I, 6, surf_anamorphic_coeff(I, 6)/(FACTOR**5))
 !     AFTOR
-               ALENS(39,I)=ALENS(39,I)/(FACTOR**7)
+               call set_surf_anamorphic_coeff(I, 8, surf_anamorphic_coeff(I, 8)/(FACTOR**7))
 !     AGTOR
-               ALENS(40,I)=ALENS(40,I)/(FACTOR**9)
+               call set_surf_anamorphic_coeff(I, 10, surf_anamorphic_coeff(I, 10)/(FACTOR**9))
 !     CV
-               ALENS(1,I)=ALENS(1,I)*(1/FACTOR)
+               call set_surf_curvature(I, surf_curvature(I)*(1/FACTOR))
 !     CVTOR
-               ALENS(24,I)=ALENS(24,I)*(1/FACTOR)
+               call set_surf_toric_curvature(I, surf_toric_curvature(I)*(1/FACTOR))
             END IF
          END DO
       END IF
@@ -401,6 +331,7 @@ SUBROUTINE THERM
 END
 SUBROUTINE CHKGLS(GONOGO,I)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    LOGICAL GONOGO
@@ -408,14 +339,14 @@ SUBROUTINE CHKGLS(GONOGO,I)
    GONOGO=.TRUE.
    IF(PIKUP(1,I,20).NE.0.0D0) THEN
       GONOGO=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO GLASS PIKUP'
+      WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO GLASS PIKUP'
       CALL SHOWIT(1)
    END IF
    RETURN
 END
 SUBROUTINE CHKGLSP(GONOGO,I)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    LOGICAL GONOGO
@@ -423,14 +354,14 @@ SUBROUTINE CHKGLSP(GONOGO,I)
    GONOGO=.TRUE.
    IF(PIKUP(1,I,20).NE.0.0D0) THEN
       GONOGO=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'"PRES ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO GLASS PIKUP'
+      WRITE(OUTLYNE,*)'"PRES ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO GLASS PIKUP'
       CALL SHOWIT(1)
    END IF
    RETURN
 END
 SUBROUTINE CHKTHK(GONOGO,I)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    LOGICAL GONOGO,PIKK,SLVV
@@ -438,29 +369,27 @@ SUBROUTINE CHKTHK(GONOGO,I)
    PIKK=.FALSE.
    SLVV=.FALSE.
    GONOGO=.TRUE.
-   IF(ALENS(33,I).EQ.1.0D0) SLVV=.TRUE.
-   IF(ALENS(33,I).EQ.3.0D0) SLVV=.TRUE.
+   IF(surf_solve_flag(I).EQ.1.0D0) SLVV=.TRUE.
+   IF(surf_solve_flag(I).EQ.3.0D0) SLVV=.TRUE.
    IF(PIKUP(1,I,3).NE.0.0D0) PIKK=.TRUE.
    IF(PIKUP(1,I,32).NE.0.0D0) PIKK=.TRUE.
    IF(PIKK) THEN
       GONOGO=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I
+      WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &' DUE TO "TH" OR "THOAL" PIKUP'
+      WRITE(OUTLYNE,*)' DUE TO "TH" OR "THOAL" PIKUP'
       CALL SHOWIT(1)
    END IF
    IF(SLVV) THEN
       GONOGO=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO "TH" SOLVE'
+      WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO "TH" SOLVE'
       CALL SHOWIT(1)
    END IF
    RETURN
 END
 SUBROUTINE CHKCVR(GONOGO,I)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    LOGICAL GONOGO,PIKK,SLVV
@@ -468,8 +397,8 @@ SUBROUTINE CHKCVR(GONOGO,I)
    PIKK=.FALSE.
    SLVV=.FALSE.
    GONOGO=.TRUE.
-   IF(ALENS(33,I).EQ.2.0D0) SLVV=.TRUE.
-   IF(ALENS(33,I).EQ.3.0D0) SLVV=.TRUE.
+   IF(surf_solve_flag(I).EQ.2.0D0) SLVV=.TRUE.
+   IF(surf_solve_flag(I).EQ.3.0D0) SLVV=.TRUE.
    IF(PIKUP(1,I,2).NE.0.0D0) PIKK=.TRUE.
    IF(PIKUP(1,I,1).NE.0.0D0) PIKK=.TRUE.
    IF(PIKUP(1,I,10).NE.0.0D0) PIKK=.TRUE.
@@ -489,16 +418,12 @@ SUBROUTINE CHKCVR(GONOGO,I)
    IF(PIKUP(1,I,12).NE.0.0D0) PIKK=.TRUE.
    IF(PIKK) THEN
       GONOGO=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,&
-      &' DUE TO A SURFACE SHAPE PIKUP'
+      WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO A SURFACE SHAPE PIKUP'
       CALL SHOWIT(1)
    END IF
    IF(SLVV) THEN
       GONOGO=.FALSE.
-      WRITE(OUTLYNE,*)&
-      &'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,&
-      &' DUE TO A CURVATURE SOLVE'
+      WRITE(OUTLYNE,*)'"THERM ',WQ,'" DID NOT MODIFY SURFACE # ',I,' DUE TO A CURVATURE SOLVE'
       CALL SHOWIT(1)
    END IF
    RETURN
@@ -507,6 +432,7 @@ END
 SUBROUTINE TELAIM
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -552,15 +478,12 @@ SUBROUTINE TELAIM
       RETURN
    END IF
    IF(WQ.EQ.'ON') THEN
-      IF(DABS(ALENS(3,0)).GE.1.0D10) THEN
-         OUTLYNE=&
-         &'TELECENTRIC RAY AIMING MAY NOT BE ACTIVATED BECAUSE THE'
+      IF(DABS(surf_thickness(0)).GE.1.0D10) THEN
+         OUTLYNE='TELECENTRIC RAY AIMING MAY NOT BE ACTIVATED BECAUSE THE'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'MAGNITUDE OF THE OBJECT DISTANCE IS GREATER THAN OR EQUAL'
+         OUTLYNE='MAGNITUDE OF THE OBJECT DISTANCE IS GREATER THAN OR EQUAL'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'TO 1.0D+10'
+         OUTLYNE='TO 1.0D+10'
          CALL SHOWIT(1)
          OUTLYNE='NO ACTION TAKEN'
          CALL SHOWIT(1)
@@ -582,6 +505,7 @@ END
 SUBROUTINE NEARFARNEAR
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -591,10 +515,10 @@ SUBROUTINE NEARFARNEAR
 !
    REAL*8 AL
 !
-   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(ALENS(3,NEWOBJ))*25.4D0
-   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(ALENS(3,NEWOBJ))*10.0D0
-   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(ALENS(3,NEWOBJ))
-   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(ALENS(3,NEWOBJ))*1000.0D0
+   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
+   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
+   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
+   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
    IF(STI.EQ.1) THEN
       IF(WC.EQ.'FAR')OUTLYNE='"FAR" SETS UNITS TO LP/MRAD'
@@ -633,6 +557,7 @@ END
 SUBROUTINE OVERBOSE
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -686,6 +611,7 @@ END
 SUBROUTINE OPTMINIT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -740,6 +666,7 @@ SUBROUTINE GEOLEICA
 !
    use DATSPD
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -768,10 +695,7 @@ SUBROUTINE GEOLEICA
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W1).NE.1.AND.INT(W1).NE.2.AND.INT(W1).NE.3 &
-   &.AND.INT(W1).NE.4.AND.INT(W1).NE.5.AND.INT(W1).NE.6 &
-   &.AND.INT(W1).NE.7.AND.INT(W1).NE.8.AND.INT(W1).NE.9 &
-   &.AND.INT(W1).NE.10) THEN
+   IF(INT(W1).NE.1.AND.INT(W1).NE.2.AND.INT(W1).NE.3 .AND.INT(W1).NE.4.AND.INT(W1).NE.5.AND.INT(W1).NE.6 .AND.INT(W1).NE.7.AND.INT(W1).NE.8.AND.INT(W1).NE.9 .AND.INT(W1).NE.10) THEN
       OUTLYNE='"GEOLEICA" REQUIRES 1,2,3,4,5,6,7,8,9 OR 10'
       CALL SHOWIT(1)
       OUTLYNE='AS NUMERIC WORD #1 INPUT'
@@ -822,6 +746,7 @@ SUBROUTINE DIFLEICA
 !
    use DATSPD
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -850,10 +775,7 @@ SUBROUTINE DIFLEICA
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W1).NE.1.AND.INT(W1).NE.2.AND.INT(W1).NE.3 &
-   &.AND.INT(W1).NE.4.AND.INT(W1).NE.5.AND.INT(W1).NE.6 &
-   &.AND.INT(W1).NE.7.AND.INT(W1).NE.8.AND.INT(W1).NE.9 &
-   &.AND.INT(W1).NE.10) THEN
+   IF(INT(W1).NE.1.AND.INT(W1).NE.2.AND.INT(W1).NE.3 .AND.INT(W1).NE.4.AND.INT(W1).NE.5.AND.INT(W1).NE.6 .AND.INT(W1).NE.7.AND.INT(W1).NE.8.AND.INT(W1).NE.9 .AND.INT(W1).NE.10) THEN
       OUTLYNE='"DIFLEICA" REQUIRES 1,2,3,4,5,6,7,8,9 OR 10'
       CALL SHOWIT(1)
       OUTLYNE='AS NUMERIC WORD #1 INPUT'
@@ -903,6 +825,7 @@ END
 SUBROUTINE SWV
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -921,15 +844,13 @@ SUBROUTINE SWV
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),&
-         &SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,200)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),&
-         &SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -955,15 +876,13 @@ SUBROUTINE SWV
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),&
-      &SYSTEM(4),SYSTEM(5)
+      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),&
-      &SYSTEM(74),SYSTEM(75)
+      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -981,8 +900,7 @@ SUBROUTINE SWV
             CALL MACFAL
             RETURN
          END IF
-         IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1 &
-         &.AND.DF5.EQ.1) THEN
+         IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1 .AND.DF5.EQ.1) THEN
             OUTLYNE='"WV" REQUIRES SOME EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -1018,12 +936,10 @@ SUBROUTINE SWV
       END IF
    END IF
 2001 FORMAT('CURRENT LENS FILE WAVELENGTHS #1 TO #5 ARE:')
-3001 FORMAT(4X,'WV(1)',9X,'WV(2)',9X,'WV(3)',&
-   &9X,'WV(4)',9X,'WV(5)')
+3001 FORMAT(4X,'WV(1)',9X,'WV(2)',9X,'WV(3)',9X,'WV(4)',9X,'WV(5)')
 10001 FORMAT(G13.7,1X,G13.7,1X,G13.7,1X,G13.7,1X,G13.7)
 200 FORMAT('CURRENT LENS FILE WAVELENGTHS #6 TO #10 ARE:')
-300 FORMAT(4X,'WV(6)',9X,'WV(7)',9X,'WV(8)',&
-   &9X,'WV(9)',9X,'WV(10)')
+300 FORMAT(4X,'WV(6)',9X,'WV(7)',9X,'WV(8)',9X,'WV(9)',9X,'WV(10)')
 1000 FORMAT(G13.7,1X,G13.7,1X,G13.7,1X,G13.7,1X,G13.7)
    RETURN
 END
@@ -1031,6 +947,7 @@ END
 SUBROUTINE SWV2
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1049,15 +966,13 @@ SUBROUTINE SWV2
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),&
-         &SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,200)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),&
-         &SYSTEM(74),SYSTEM(5)
+         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(5)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -1083,15 +998,13 @@ SUBROUTINE SWV2
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),&
-      &SYSTEM(4),SYSTEM(5)
+      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),&
-      &SYSTEM(74),SYSTEM(75)
+      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -1109,8 +1022,7 @@ SUBROUTINE SWV2
             CALL MACFAL
             RETURN
          END IF
-         IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1 &
-         &.AND.DF5.EQ.1) THEN
+         IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1 .AND.DF5.EQ.1) THEN
             OUTLYNE='"WV2" REQUIRES SOME EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(0)
             OUTLYNE='RE-ENTER COMMAND'
@@ -1146,12 +1058,10 @@ SUBROUTINE SWV2
       END IF
    END IF
 2001 FORMAT('CURRENT LENS FILE WAVELENGTHS #1 TO #5 ARE:')
-3001 FORMAT(4X,'WV(1)',9X,'WV(2)',9X,'WV(3)',&
-   &9X,'WV(4)',9X,'WV(5)')
+3001 FORMAT(4X,'WV(1)',9X,'WV(2)',9X,'WV(3)',9X,'WV(4)',9X,'WV(5)')
 10001 FORMAT(G13.7,1X,G13.7,1X,G13.7,1X,G13.7,1X,G13.7)
 200 FORMAT('CURRENT LENS FILE WAVELENGTHS #6 TO #10 ARE:')
-300 FORMAT(4X,'WV(6)',9X,'WV(7)',9X,'WV(8)',&
-   &9X,'WV(9)',9X,'WV(10)')
+300 FORMAT(4X,'WV(6)',9X,'WV(7)',9X,'WV(8)',9X,'WV(9)',9X,'WV(10)')
 1000 FORMAT(G13.7,1X,G13.7,1X,G13.7,1X,G13.7,1X,G13.7)
    RETURN
 END
@@ -1159,6 +1069,7 @@ END
 SUBROUTINE SVSET
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1291,6 +1202,7 @@ END
 SUBROUTINE SUNITS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1373,8 +1285,7 @@ SUBROUTINE SUNITS
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
          IF(SST.EQ.1.OR.SN.EQ.1)THEN
-            OUTLYNE=&
-            &'"UNITS" COMMAND ONLY TAKES QUALIFIER WORD INPUT'
+            OUTLYNE='"UNITS" COMMAND ONLY TAKES QUALIFIER WORD INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1391,8 +1302,7 @@ SUBROUTINE SUNITS
             CALL SHOWIT(1)
             RETURN
          END IF
-         IF(WQ.EQ.'IN'.OR.WQ.EQ.'INCH'.OR.WQ.EQ.&
-         &'INCHES') SYSTEM(6)=1.0D0
+         IF(WQ.EQ.'IN'.OR.WQ.EQ.'INCH'.OR.WQ.EQ.'INCHES') SYSTEM(6)=1.0D0
          IF(WQ.EQ.'CM') SYSTEM(6)=2.0D0
          IF(WQ.EQ.'MM') SYSTEM(6)=3.0D0
          IF(WQ.EQ.'M') SYSTEM(6)=4.0D0
@@ -1411,8 +1321,7 @@ SUBROUTINE SUNITS
          PSIZX=1.0D0/SCFAX
 !
 !
-         IF(WQ.NE.'IN'.AND.WQ.NE.'INCH'.AND.WQ.NE.'INCHES'&
-         &.AND.WQ.NE.'CM'.AND.WQ.NE.'MM'.AND.WQ.NE.'M') THEN
+         IF(WQ.NE.'IN'.AND.WQ.NE.'INCH'.AND.WQ.NE.'INCHES'.AND.WQ.NE.'CM'.AND.WQ.NE.'MM'.AND.WQ.NE.'M') THEN
             OUTLYNE='INVALID UNITS DESCRIPTION REQUESTED'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -1432,6 +1341,7 @@ END
 SUBROUTINE STORIC
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1474,62 +1384,56 @@ SUBROUTINE STORIC
 !       IF THE SURFACE WAS NOT A TORIC BEFORE THEN JUST SET IT AS
 !       SUCH AND RETURN.
 !
-      IF(ALENS(23,SURF).EQ.0.0D0) THEN
+      IF(surf_toric_flag(SURF).EQ.0.0D0) THEN
 !       FIX PIKUP PRO AND NPRO
          IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
             PIKUP(1:6,SURF,11)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
             CALL SHOWIT(1)
          END IF
          IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
             PIKUP(1:6,SURF,12)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
             CALL SHOWIT(1)
          END IF
-         IF(WC.EQ.'YTORIC') ALENS(23,SURF)=1.0D0
-         IF(WC.EQ.'XTORIC') ALENS(23,SURF)=2.0D0
-         IF(ALENS(43,SURF).NE.0.0D0) THEN
-            ALENS(43,SURF)=0.0D0
+         IF(WC.EQ.'YTORIC')call set_surf_toric_flag(SURF, 1)
+         IF(WC.EQ.'XTORIC')call set_surf_toric_flag(SURF, 2)
+         IF(surf_asphere_coeff(SURF, 2).NE.0.0D0) THEN
+            call set_surf_asphere_coeff(SURF, 2, 0.0D0)
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'FOR SURFACE ',SURF
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "AC" TERM RESET TO 0.0D0 FOR THIS TORIC SURFACE'
+            OUTLYNE='THE "AC" TERM RESET TO 0.0D0 FOR THIS TORIC SURFACE'
             CALL SHOWIT(1)
          END IF
 !
 !       SET TORIC CURV = TO PROFILE CURVATURE
-         IF(WC.EQ.'XTORIC'.OR.WC.EQ.'YTORIC') ALENS(24,SURF)=&
-         &ALENS(1,SURF)
-         IF(ALENS(33,SURF).NE.0.0D0) THEN
+         IF(WC.EQ.'XTORIC'.OR.WC.EQ.'YTORIC')call set_surf_toric_curvature(SURF, surf_curvature(SURF))
+         IF(surf_solve_flag(SURF).NE.0.0D0) THEN
 !       THERE WERE SOLVES. PRINT MESSAGE THEN DELETE ALL SOLVES FOR
 !       SURF.
             IF(SOLVE(6,SURF).GT.0.0D0)THEN
-               OUTLYNE=&
-               &'YZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='YZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(4,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'XZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='XZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(8,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'YZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='YZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(2,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'XZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='XZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :NO SOLVES REMAIN'
                CALL SHOWIT(1)
             END IF
-            ALENS(33,SURF)=0.0D0
+            call set_surf_solve_flag(SURF, 0.0D0)
             SOLVE(0:9,SURF)=0.0D0
          ELSE
          END IF
@@ -1538,116 +1442,108 @@ SUBROUTINE STORIC
       ELSE
       END IF
 !
-!       ALENS(23,SURF) SHOULD BE EITHER 1.0D0 OR 2.0D0,ITS NOT ZER0
+!       surf_toric_flag(SURF) SHOULD BE EITHER 1.0D0 OR 2.0D0,ITS NOT ZER0
 !
-      IF(ALENS(23,SURF).NE.1.0D0.AND.ALENS(23,SURF).NE.2.0D0) THEN
+      IF(surf_toric_flag(SURF).NE.1.0D0.AND.surf_toric_flag(SURF).NE.2.0D0) THEN
          OUTLYNE='SERIOUS ERROR IN ASSIGNING TORICS'
          CALL SHOWIT(1)
          RETURN
       END IF
 !       TORIC TYPE CHANGE OR REDEFINED
 !
-      IF(WC.EQ.'YTORIC'.AND.ALENS(23,SURF).EQ.1.0D0) THEN
+      IF(WC.EQ.'YTORIC'.AND.surf_toric_flag(SURF).EQ.1.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' ALREADY DEFINED AS Y-TORIC'
          CALL SHOWIT(1)
          RETURN
       END IF
-      IF(WC.EQ.'XTORIC'.AND.ALENS(23,SURF).EQ.2.0D0) THEN
+      IF(WC.EQ.'XTORIC'.AND.surf_toric_flag(SURF).EQ.2.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' ALREADY DEFINED AS X-TORIC'
          CALL SHOWIT(1)
          RETURN
       ELSE
       END IF
-      IF(WC.EQ.'YTORIC'.AND.ALENS(23,SURF).EQ.2.0D0) THEN
+      IF(WC.EQ.'YTORIC'.AND.surf_toric_flag(SURF).EQ.2.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' X-TORIC CHANGED TO Y-TORIC'
          CALL SHOWIT(1)
          IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
             PIKUP(1:6,SURF,11)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
             CALL SHOWIT(1)
          END IF
          IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
             PIKUP(1:6,SURF,12)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
             CALL SHOWIT(1)
          END IF
-         ALENS(23,SURF)=1.0D0
-         IF(ALENS(33,SURF).NE.0.0D0) THEN
+         call set_surf_toric_flag(SURF, 1)
+         IF(surf_solve_flag(SURF).NE.0.0D0) THEN
 !       THERE WERE SOLVES. PRINT MESSAGE THEN DELETE ALL SOLVES FOR
 !       SURF.
             IF(SOLVE(6,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'YZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='YZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(4,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'XZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='XZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(8,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'YZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='YZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(2,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'XZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='XZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :NO SOLVES REMAIN'
                CALL SHOWIT(1)
             END IF
-            ALENS(33,SURF)=0.0D0
+            call set_surf_solve_flag(SURF, 0.0D0)
             SOLVE(0:9,SURF)=0.0D0
          ELSE
          END IF
          RETURN
       ELSE
       END IF
-      IF(WC.EQ.'XTORIC'.AND.ALENS(23,SURF).EQ.1.0D0) THEN
+      IF(WC.EQ.'XTORIC'.AND.surf_toric_flag(SURF).EQ.1.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' Y-TORIC CHANGED TO X-TORIC'
          CALL SHOWIT(1)
          IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
             PIKUP(1:6,SURF,11)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
             CALL SHOWIT(1)
          END IF
          IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
             PIKUP(1:6,SURF,12)=0.0D0
-            ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+            call set_surf_special_type(SURF, surf_special_type(SURF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
             CALL SHOWIT(1)
          END IF
-         ALENS(23,SURF)=2.0D0
-         IF(ALENS(33,SURF).NE.0.0D0) THEN
+         call set_surf_toric_flag(SURF, 2)
+         IF(surf_solve_flag(SURF).NE.0.0D0) THEN
 !       THERE WERE SOLVES. PRINT MESSAGE THEN DELETE ALL SOLVES FOR
 !       SURF.
             IF(SOLVE(6,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'YZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='YZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(4,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'XZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='XZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(8,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'YZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='YZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
             END IF
             IF(SOLVE(2,SURF).GT.0.0D0) THEN
-               OUTLYNE=&
-               &'XZ PLANE THICKNESS SOLVE DELETED'
+               OUTLYNE='XZ PLANE THICKNESS SOLVE DELETED'
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :NO SOLVES REMAIN'
                CALL SHOWIT(1)
             END IF
-            ALENS(33,SURF)=0.0D0
+            call set_surf_solve_flag(SURF, 0.0D0)
             SOLVE(0:9,SURF)=0.0D0
          ELSE
          END IF
@@ -1662,6 +1558,7 @@ END
 SUBROUTINE STORD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1672,11 +1569,9 @@ SUBROUTINE STORD
 !
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'"TORD" TAKES NO STRING OR QUALIFIER'
+      OUTLYNE='"TORD" TAKES NO STRING OR QUALIFIER'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'OR NUMERIC WORD #3 THROUGH #5 INPUT'
+      OUTLYNE='OR NUMERIC WORD #3 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1701,8 +1596,7 @@ SUBROUTINE STORD
       DF2=0
    END IF
    IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
-      OUTLYNE=&
-      &'"TORD" USES EITHER TWO OR ZERO NUMERIC WORDS'
+      OUTLYNE='"TORD" USES EITHER TWO OR ZERO NUMERIC WORDS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1712,8 +1606,7 @@ SUBROUTINE STORD
 !       PROCEED
    END IF
    IF(INT(W1).LT.0) THEN
-      OUTLYNE=&
-      &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
+      OUTLYNE='STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1721,9 +1614,7 @@ SUBROUTINE STORD
       RETURN
    END IF
    IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-      &INT(SYSTEM(20))
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1731,11 +1622,9 @@ SUBROUTINE STORD
       RETURN
    END IF
    IF(W1.GT.W2) THEN
-      OUTLYNE=&
-      &'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
+      OUTLYNE='THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE STARTING SURFACE #'
+      OUTLYNE='THE STARTING SURFACE #'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1749,7 +1638,7 @@ SUBROUTINE STORD
 !       IF THE SURFACE WAS NOT A TORIC BEFORE THEN JUST PRINT A
 !       MESSAGE AND RETURN.
 !
-      IF(ALENS(23,SF).EQ.0.0D0) THEN
+      IF(surf_toric_flag(SF).EQ.0.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SF,' NOT DEFINED AS TORIC'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -1762,11 +1651,9 @@ SUBROUTINE STORD
 !       SOLVES. IF X-TORIC, GET RID OF ALL YZ PLANE SOLVES
 !       SURFACE IS A TORIC
 !
-         IF(ALENS(23,SF).EQ.1.0D0) THEN
+         IF(surf_toric_flag(SF).EQ.1.0D0) THEN
 !       Y-TORIC,GET RIDE OF XZ PLANE SOLVES, ALL OF THEM
-            IF(SOLVE(4,SF).GT.0.0D0.OR.SOLVE(2,SF).GT.0.0D0 &
-            &.OR.SOLVE(4,SF).GT.0.0D0.AND.SOLVE(2,SF).GT.0.0D0)&
-            &THEN
+            IF(SOLVE(4,SF).GT.0.0D0.OR.SOLVE(2,SF).GT.0.0D0 .OR.SOLVE(4,SF).GT.0.0D0.AND.SOLVE(2,SF).GT.0.0D0)THEN
                SOLVE(4,SF)=0.0D0
                SOLVE(3,SF)=0.0D0
                SOLVE(2,SF)=0.0D0
@@ -1775,11 +1662,9 @@ SUBROUTINE STORD
                CALL SHOWIT(1)
             END IF
          END IF
-         IF(ALENS(23,SF).EQ.2.0D0) THEN
+         IF(surf_toric_flag(SF).EQ.2.0D0) THEN
 !       X-TORIC,GET RIDE OF YZ PLANE SOLVES, ALL OF THEM
-            IF(SOLVE(6,SF).GT.0.0D0.OR.SOLVE(8,SF).GT.0.0D0 &
-            &.OR.SOLVE(6,SF).GT.0.0D0.AND.SOLVE(8,SF).GT.0.0D0)&
-            &THEN
+            IF(SOLVE(6,SF).GT.0.0D0.OR.SOLVE(8,SF).GT.0.0D0 .OR.SOLVE(6,SF).GT.0.0D0.AND.SOLVE(8,SF).GT.0.0D0)THEN
                SOLVE(6,SF)=0.0D0
                SOLVE(7,SF)=0.0D0
                SOLVE(8,SF)=0.0D0
@@ -1788,8 +1673,7 @@ SUBROUTINE STORD
                CALL SHOWIT(1)
             END IF
 !       THEN MAKE ALL EXISTING XZ PLANE SOLVES INTO YZ PLANE SOLVES
-            IF(SOLVE(4,SF).GT.0.0D0.OR.SOLVE(2,SF).GT.0.0D0.OR.&
-            &SOLVE(4,SF).GT.0.0D0.AND.SOLVE(2,SF).GT.0.0D0) THEN
+            IF(SOLVE(4,SF).GT.0.0D0.OR.SOLVE(2,SF).GT.0.0D0.OR.SOLVE(4,SF).GT.0.0D0.AND.SOLVE(2,SF).GT.0.0D0) THEN
                IF(SOLVE(4,SF).EQ.4.0D0) SOLVE(6,SF)=1.0D0
                IF(SOLVE(4,SF).EQ.5.0D0) SOLVE(6,SF)=2.0D0
                IF(SOLVE(4,SF).EQ.6.0D0) SOLVE(6,SF)=3.0D0
@@ -1807,17 +1691,16 @@ SUBROUTINE STORD
                SOLVE(3,SF)=0.0D0
                SOLVE(2,SF)=0.0D0
                SOLVE(1,SF)=0.0D0
-               WRITE(OUTLYNE,*)'SURFACE',SF,&
-               &' :ALL XZ PLANE SOLVES CONVERTED TO YZ PLANE SOLVES'
+               WRITE(OUTLYNE,*)'SURFACE',SF,' :ALL XZ PLANE SOLVES CONVERTED TO YZ PLANE SOLVES'
                CALL SHOWIT(1)
             END IF
          END IF
-!       RECALCULATE ALENS(33,SF)
-         ALENS(33,SF)=0.0D0
-         IF(SOLVE(6,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+1.0D0
-         IF(SOLVE(4,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+0.1D0
-         IF(SOLVE(8,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+2.0D0
-         IF(SOLVE(2,SF).GT.0.0D0) ALENS(33,SF)=ALENS(33,SF)+0.2D0
+!       RECALCULATE surf_solve_flag(SF)
+         call set_surf_solve_flag(SF, 0.0D0)
+         IF(SOLVE(6,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+1.0D0)
+         IF(SOLVE(4,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.1D0)
+         IF(SOLVE(8,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+2.0D0)
+         IF(SOLVE(2,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.2D0)
 !
 !       IF THERE ARE RDTOR OR CVTOR PIKUPS ON THIS SURFACE THEY MUST GO
 !       ALSO TORIC CONIC AND ASPHERIC PIKUPS AND ASPHERIC TORIC
@@ -1829,60 +1712,60 @@ SUBROUTINE STORD
             PIKUP(1:6,SF,9)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (CVTOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,10).EQ.1.0D0) THEN
             PIKUP(1:6,SF,10)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (RDTOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,21).EQ.1.0D0) THEN
             PIKUP(1:6,SF,21)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (CCTOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,22).EQ.1.0D0) THEN
             PIKUP(1:6,SF,22)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (ADTOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,23).EQ.1.0D0) THEN
             PIKUP(1:6,SF,23)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (AETOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,24).EQ.1.0D0) THEN
             PIKUP(1:6,SF,24)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (AFTOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,25).EQ.1.0D0) THEN
             PIKUP(1:6,SF,25)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (AGTOR) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
          IF(PIKUP(1,SF,26).EQ.1.0D0) THEN
             PIKUP(1:6,SF,26)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (AC) DELETED'
             CALL SHOWIT(1)
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
          END IF
 !       DUMP PIKUP PRO AND NPRO IF FOUND
          IF(PIKUP(1,SF,11).GT.0.0D0) THEN
             PIKUP(1:6,SF,11)=0.0D0
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (PRO) DELETED'
             CALL SHOWIT(1)
          END IF
          IF(PIKUP(1,SF,12).GT.0.0D0) THEN
             PIKUP(1:6,SF,12)=0.0D0
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
             WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (NPRO) DELETED'
             CALL SHOWIT(1)
          END IF
@@ -1895,15 +1778,7 @@ SUBROUTINE STORD
 !
          DO 31 I=0,INT(SYSTEM(20))
 
-            IF(PIKUP(2,I,9).EQ.DBLE(SF).AND.PIKUP(1,I,9).NE.0.0D0 &
-            &.OR.PIKUP(2,I,10).EQ.DBLE(SF).AND.PIKUP(1,I,10).NE.0.0D0 &
-            &.OR.PIKUP(2,I,21).EQ.DBLE(SF).AND.PIKUP(1,I,21).NE.0.0D0 &
-            &.OR.PIKUP(2,I,22).EQ.DBLE(SF).AND.PIKUP(1,I,22).NE.0.0D0 &
-            &.OR.PIKUP(2,I,23).EQ.DBLE(SF).AND.PIKUP(1,I,23).NE.0.0D0 &
-            &.OR.PIKUP(2,I,24).EQ.DBLE(SF).AND.PIKUP(1,I,24).NE.0.0D0 &
-            &.OR.PIKUP(2,I,25).EQ.DBLE(SF).AND.PIKUP(1,I,25).NE.0.0D0 &
-            &.OR.PIKUP(2,I,27).EQ.DBLE(SF).AND.PIKUP(1,I,27).NE.0.0D0)&
-            &THEN
+            IF(PIKUP(2,I,9).EQ.DBLE(SF).AND.PIKUP(1,I,9).NE.0.0D0 .OR.PIKUP(2,I,10).EQ.DBLE(SF).AND.PIKUP(1,I,10).NE.0.0D0 .OR.PIKUP(2,I,21).EQ.DBLE(SF).AND.PIKUP(1,I,21).NE.0.0D0 .OR.PIKUP(2,I,22).EQ.DBLE(SF).AND.PIKUP(1,I,22).NE.0.0D0 .OR.PIKUP(2,I,23).EQ.DBLE(SF).AND.PIKUP(1,I,23).NE.0.0D0 .OR.PIKUP(2,I,24).EQ.DBLE(SF).AND.PIKUP(1,I,24).NE.0.0D0 .OR.PIKUP(2,I,25).EQ.DBLE(SF).AND.PIKUP(1,I,25).NE.0.0D0 .OR.PIKUP(2,I,27).EQ.DBLE(SF).AND.PIKUP(1,I,27).NE.0.0D0)THEN
 
 !
 !       SURFACE I IS PIKING UP TORIC DATA FROM SURFACE SF
@@ -1911,42 +1786,42 @@ SUBROUTINE STORD
 !
                IF(PIKUP(1,I,9).EQ.1.0D0) THEN
                   PIKUP(1:6,I,9)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,10).EQ.1.0D0) THEN
                   PIKUP(1:6,I,10)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,21).EQ.1.0D0) THEN
                   PIKUP(1:6,I,21)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,22).EQ.1.0D0) THEN
                   PIKUP(1:6,I,22)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,23).EQ.1.0D0) THEN
                   PIKUP(1:6,I,23)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,24).EQ.1.0D0) THEN
                   PIKUP(1:6,I,24)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,25).EQ.1.0D0) THEN
                   PIKUP(1:6,I,25)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                IF(PIKUP(1,I,27).EQ.1.0D0) THEN
                   PIKUP(1:6,I,27)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                ELSE
                END IF
                WRITE(OUTLYNE,*)'SURFACE',I,' :ALL TORIC PIKUPS DELETED'
@@ -1962,9 +1837,7 @@ SUBROUTINE STORD
 !
          DO 32 I=0,INT(SYSTEM(20))
 
-            IF(PIKUP(2,I,11).EQ.DBLE(SF).AND.PIKUP(1,I,11).NE.0.0D0 &
-            &.OR.PIKUP(2,I,12).EQ.DBLE(SF).AND.PIKUP(1,I,12).NE.0.0D0 &
-            &)THEN
+            IF(PIKUP(2,I,11).EQ.DBLE(SF).AND.PIKUP(1,I,11).NE.0.0D0 .OR.PIKUP(2,I,12).EQ.DBLE(SF).AND.PIKUP(1,I,12).NE.0.0D0 )THEN
 
 !
 !       SURFACE I IS PIKING UP PRO/NPRO DATA FROM SURFACE SF
@@ -1972,13 +1845,13 @@ SUBROUTINE STORD
 !
                IF(PIKUP(1,I,11).EQ.1.0D0) THEN
                   PIKUP(1:6,I,11)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                   WRITE(OUTLYNE,*)'SURFACE',I,' :PIKUP (PRO) DELETED'
                   CALL SHOWIT(1)
                END IF
                IF(PIKUP(1,I,12).EQ.1.0D0) THEN
                   PIKUP(1:6,I,12)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                   WRITE(OUTLYNE,*)'SURFACE',I,' :PIKUP (NPRO) DELETED'
                   CALL SHOWIT(1)
                END IF
@@ -2004,6 +1877,7 @@ END
 SUBROUTINE STILTD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2018,11 +1892,9 @@ SUBROUTINE STILTD
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'"TILTD" TAKES NO STRING OR QUALIFIER'
+      OUTLYNE='"TILTD" TAKES NO STRING OR QUALIFIER'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'OR NUMERIC WORD #3 THROUGH #5 INPUT'
+      OUTLYNE='OR NUMERIC WORD #3 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2038,8 +1910,7 @@ SUBROUTINE STILTD
       DF2=0
    END IF
    IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
-      OUTLYNE=&
-      &'"TILTD" USES EITHER TWO OR ZERO NUMERIC WORDS'
+      OUTLYNE='"TILTD" USES EITHER TWO OR ZERO NUMERIC WORDS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2047,8 +1918,7 @@ SUBROUTINE STILTD
       RETURN
    END IF
    IF(INT(W1).LT.0) THEN
-      OUTLYNE=&
-      &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
+      OUTLYNE='STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2056,9 +1926,7 @@ SUBROUTINE STILTD
       RETURN
    END IF
    IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-      &INT(SYSTEM(20))
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2066,11 +1934,9 @@ SUBROUTINE STILTD
       RETURN
    END IF
    IF(W1.GT.W2) THEN
-      OUTLYNE=&
-      &'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
+      OUTLYNE='THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE STARTING SURFACE #'
+      OUTLYNE='THE STARTING SURFACE #'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2091,20 +1957,20 @@ SUBROUTINE STILTD
 !       WE ARE AT THE LENS UPDATE LEVEL
 !
 !
-!       FIRST SET THE TILT STATUS FLAG ALENS(25,SF) TO ZERO
-!       AND SET ALENS(26,SF) TO ALENS(28,SF) TO ZERO
+!       FIRST SET THE TILT STATUS FLAG surf_tilt_flag(SF) TO ZERO
+!       AND SET surf_alpha(SF) TO surf_gamma(SF) TO ZERO
 !
       ALENS(25:28,SF)=0.0D0
       ALENS(118:120,SF)=0.0D0
       ALENS(90:95,SF)=0.0D0
-      ALENS(77,SF)=0.0D0
+      call set_surf_tilt_return_flag(SF, 0)
 !       WHAT IF THE SURFACE HAD ALPHA,BETA OR GAMMA PIKUPS ON IT?
 !
       DO I=15,17
          IF(PIKUP(1,SF,I).NE.0.0D0) THEN
             PIKUP(1:6,SF,I)=0.0D0
 !       FIX THE PIKUP COUNTER
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
             IF(I.EQ.15) THEN
                WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (ALPHA) DELETED'
                CALL SHOWIT(1)
@@ -2125,7 +1991,7 @@ SUBROUTINE STILTD
          IF(PIKUP(1,SF,I).NE.0.0D0) THEN
             PIKUP(1:6,SF,I)=0.0D0
 !       FIX THE PIKUP COUNTER
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
             IF(I.EQ.37) THEN
                WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (GDX) DELETED'
                CALL SHOWIT(1)
@@ -2160,7 +2026,7 @@ SUBROUTINE STILTD
          ELSE
          END IF
 503   CONTINUE
-      IF(PIKCNT.EQ.0) ALENS(32,SF)=0.0D0
+      IF(PIKCNT.EQ.0)call set_surf_special_type(SF, 0)
 
 !
 !       WHAT IF THIS SURFACE WAS THE TARGET OF AN ALPHA,BETE OR GAMMA PIKUP
@@ -2176,7 +2042,7 @@ SUBROUTINE STILTD
 !       YES IT REFERS TO THE SURFACE SF WHICH IS HAVING ITS TILT
 !       DELETED SO GET RIDE OF THE PIKUP
                   PIKUP(1:6,I,J)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                   IF(J.EQ.15) THEN
                      WRITE(OUTLYNE,*)'(ALPHA) PIKUP DELETED ON SURFACE',I
                      CALL SHOWIT(1)
@@ -2199,7 +2065,7 @@ SUBROUTINE STILTD
 !       YES IT REFERS TO THE SURFACE SF WHICH IS HAVING ITS TILT
 !       DELETED SO GET RIDE OF THE PIKUP
                   PIKUP(1:6,I,J)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                   IF(J.EQ.37) THEN
                      WRITE(OUTLYNE,*)'(GDX) PIKUP DELETED ON SURFACE',I
                      CALL SHOWIT(1)
@@ -2229,7 +2095,7 @@ SUBROUTINE STILTD
          END DO
 300   CONTINUE
 !
-!       NOW FIX ALL THE ALENS(32,K) IN THE LENS SYSTEM
+!       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
       DO 400 I=0,INT(SYSTEM(20))
 !       CHECK PIKUPS
@@ -2240,7 +2106,7 @@ SUBROUTINE STILTD
             ELSE
             END IF
 401      CONTINUE
-         IF(PIKCNT.EQ.0) ALENS(32,I)=0.0D0
+         IF(PIKCNT.EQ.0)call set_surf_special_type(I, 0)
 400   CONTINUE
    END DO
    RETURN
@@ -2249,6 +2115,7 @@ END
 SUBROUTINE STILTAD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2262,8 +2129,7 @@ SUBROUTINE STILTAD
    IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       OUTLYNE= '"TILT AUTOD"'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'TAKES NO STRING OR NUMERIC WORD #3 THROUGH #5 INPUT'
+      OUTLYNE='TAKES NO STRING OR NUMERIC WORD #3 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2281,8 +2147,7 @@ SUBROUTINE STILTAD
    IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
       OUTLYNE= '"TILT AUTOD"'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'USES EITHER TWO OR ZERO NUMERIC WORDS'
+      OUTLYNE='USES EITHER TWO OR ZERO NUMERIC WORDS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2290,8 +2155,7 @@ SUBROUTINE STILTAD
       RETURN
    END IF
    IF(INT(W1).LT.0) THEN
-      OUTLYNE=&
-      &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
+      OUTLYNE='STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2299,9 +2163,7 @@ SUBROUTINE STILTAD
       RETURN
    END IF
    IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-      &INT(SYSTEM(20))
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2309,11 +2171,9 @@ SUBROUTINE STILTAD
       RETURN
    END IF
    IF(W1.GT.W2) THEN
-      OUTLYNE=&
-      &'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
+      OUTLYNE='THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE STARTING SURFACE #'
+      OUTLYNE='THE STARTING SURFACE #'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2340,22 +2200,20 @@ SUBROUTINE STILTAD
 !                       1.0= TILT AUTOD IF IT WAS 2.0
 !                       1.0= TILT AUTOD IF IT WAS 3.0
 !
-      IF(ALENS(25,SF).NE.2.0D0.AND.ALENS(25,SF)&
-      &.NE.3.0D0) THEN
-         WRITE(OUTLYNE,*)'SURFACE',SF,&
-         &' :NOT DEFINED AS TILT AUTO OR TILT AUTOM'
+      IF(surf_tilt_flag(SF).NE.2.0D0.AND.surf_tilt_flag(SF).NE.3.0D0) THEN
+         WRITE(OUTLYNE,*)'SURFACE',SF,' :NOT DEFINED AS TILT AUTO OR TILT AUTOM'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(25,SF).EQ.2.0D0) THEN
-         ALENS(25,SF)=1.0D0
+      IF(surf_tilt_flag(SF).EQ.2.0D0) THEN
+         call set_surf_tilt_flag(SF, 1)
       ELSE
       END IF
-      IF(ALENS(25,SF).EQ.3.0D0) THEN
-         ALENS(25,SF)=1.0D0
+      IF(surf_tilt_flag(SF).EQ.3.0D0) THEN
+         call set_surf_tilt_flag(SF, 1)
       ELSE
       END IF
 !       RESOLVE PIKUPS ALPHA,BETA AND GAMMA IF THE EXIST
@@ -2368,7 +2226,7 @@ SUBROUTINE STILTAD
          IF(PIKUP(1,SF,I).NE.0.0D0) THEN
             PIKUP(1:6,SF,I)=0.0D0
 !       FIX THE PIKUP COUNTER
-            ALENS(32,SF)=ALENS(32,SF)-1.0D0
+            call set_surf_special_type(SF, surf_special_type(SF)-1)
             IF(I.EQ.15) THEN
                WRITE(OUTLYNE,*)'SURFACE',SF,' :PIKUP (ALPHA) DELETED'
                CALL SHOWIT(1)
@@ -2391,7 +2249,7 @@ SUBROUTINE STILTAD
          ELSE
          END IF
 503   CONTINUE
-      IF(PIKCNT.EQ.0) ALENS(32,SF)=0.0D0
+      IF(PIKCNT.EQ.0)call set_surf_special_type(SF, 0)
 
 !
 !       WHAT IF THIS SURFACE WAS THE TARGET OF AN ALPHA,BETA OR GAMMA PIKUP
@@ -2406,7 +2264,7 @@ SUBROUTINE STILTAD
 !       YES IT REFERS TO THE SURFACE SF WHICH IS HAVING ITS TILT
 !       DELETED SO GET RIDE OF THE PIKUP
                   PIKUP(1:6,I,J)=0.0D0
-                  ALENS(32,I)=ALENS(32,I)-1.0D0
+                  call set_surf_special_type(I, surf_special_type(I)-1)
                   IF(J.EQ.15) THEN
                      WRITE(OUTLYNE,*)'(ALPHA) PIKUP DELETED ON SURFACE',I
                      CALL SHOWIT(1)
@@ -2424,7 +2282,7 @@ SUBROUTINE STILTAD
 301      CONTINUE
 300   CONTINUE
 !
-!       NOW FIX ALL THE ALENS(32,K) IN THE LENS SYSTEM
+!       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
       DO 400 I=0,INT(SYSTEM(20))
 !       CHECK PIKUPS
@@ -2435,7 +2293,7 @@ SUBROUTINE STILTAD
             ELSE
             END IF
 401      CONTINUE
-         IF(PIKCNT.EQ.0) ALENS(32,I)=0.0D0
+         IF(PIKCNT.EQ.0)call set_surf_special_type(I, 0)
 400   CONTINUE
       RETURN
    END DO
@@ -2444,6 +2302,7 @@ END
 SUBROUTINE STH
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2455,8 +2314,7 @@ SUBROUTINE STH
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE &
-   &,NEWY1,NEWX1,Y0ANG,X0ANG
+   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2470,8 +2328,7 @@ SUBROUTINE STH
       CALL MACFAL
       RETURN
    END IF
-   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"TH" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2506,9 +2363,9 @@ SUBROUTINE STH
       RETURN
    END IF
    IF(F6.EQ.1) THEN
-!       IF(ALENS(90,SURF).NE.0.0D0.OR.ALENS(91,SURF).NE.0.0D0.OR.
-!    1ALENS(92,SURF).NE.0.0D0.OR.ALENS(93,SURF).NE.0.0D0.OR.
-!    2ALENS(94,SURF).NE.0.0D0.OR.ALENS(95,SURF).NE.0.0D0) THEN
+!       IF(surf_global_dx(SURF).NE.0.0D0.OR.surf_global_dy(SURF).NE.0.0D0.OR.
+!    1surf_global_dz(SURF).NE.0.0D0.OR.surf_global_alpha(SURF).NE.0.0D0.OR.
+!    2surf_global_beta(SURF).NE.0.0D0.OR.surf_global_gamma(SURF).NE.0.0D0) THEN
 !       WRITE(OUTLYNE,*)
 !    1'GLOBAL POSITIONING IS IN EFFECT AT THE CURRENT SURFACE'
 !       CALL SHOWIT(1)
@@ -2522,11 +2379,10 @@ SUBROUTINE STH
 !       THE CASE OF CHANGING THE THICKNESS OF THE OBJECT SURFACE
 !       IF OBJECT SURFACE, REMEMBER OLD VALUE
       IF(SURF.EQ.0.AND.SYSTEM(26).EQ.-99.0D0) THEN
-         SYSTEM(55)=ALENS(3,SURF)
-         IF(SQ.EQ.0) ALENS(3,SURF)=W1
-         IF(WQ.EQ.'DELT') ALENS(3,SURF)=ALENS(3,SURF)+W1
-         IF(WQ.EQ.'CENT')&
-         &ALENS(3,SURF)=ALENS(3,SURF)+(W1*0.01D0*ALENS(3,SURF))
+         SYSTEM(55)=surf_thickness(SURF)
+         IF(SQ.EQ.0)call set_surf_thickness(SURF, W1)
+         IF(WQ.EQ.'DELT')call set_surf_thickness(SURF, surf_thickness(SURF)+W1)
+         IF(WQ.EQ.'CENT')call set_surf_thickness(SURF, surf_thickness(SURF)+(W1*0.01D0*surf_thickness(SURF)))
 !       MUST BE NO STOP AS WELL
          IF(SYSTEM(51).NE.0.0D0.OR.SYSTEM(53).NE.0.0D0) THEN
 !       RECALCULATE Y1
@@ -2535,7 +2391,7 @@ SUBROUTINE STH
                Y00=SYSTEM(14)
                OLDY1=SYSTEM(15)
                OLDTH=SYSTEM(55)
-               TH=ALENS(3,SURF)
+               TH=surf_thickness(SURF)
                SLOPE=(OLDY1-Y00)/OLDTH
                NEWY1=Y00+(SLOPE*TH)
                SYSTEM(15)=NEWY1
@@ -2547,9 +2403,8 @@ SUBROUTINE STH
                Y0ANG=SYSTEM(21)
                OLDY1=SYSTEM(22)
                OLDTH=SYSTEM(55)
-               TH=ALENS(3,SURF)
-               Y00=-OLDTH*&
-               &DTAN((PII/180.0D0)*Y0ANG)+OLDY1
+               TH=surf_thickness(SURF)
+               Y00=-OLDTH*DTAN((PII/180.0D0)*Y0ANG)+OLDY1
                NEWY1=Y00+(DATAN((PII/180.0D0)*Y0ANG)*TH)
                SYSTEM(15)=NEWY1
                SYSTEM(22)=NEWY1
@@ -2564,7 +2419,7 @@ SUBROUTINE STH
                X00=SYSTEM(16)
                OLDX1=SYSTEM(17)
                OLDTH=SYSTEM(55)
-               TH=ALENS(3,SURF)
+               TH=surf_thickness(SURF)
                SLOPE=(OLDX1-X00)/OLDTH
                NEWY1=X00+(SLOPE*TH)
                SYSTEM(17)=NEWX1
@@ -2576,9 +2431,8 @@ SUBROUTINE STH
                X0ANG=SYSTEM(23)
                OLDX1=SYSTEM(24)
                OLDTH=SYSTEM(55)
-               TH=ALENS(3,SURF)
-               X00=-OLDTH*&
-               &DTAN((PII/180.0D0)*X0ANG)+OLDX1
+               TH=surf_thickness(SURF)
+               X00=-OLDTH*DTAN((PII/180.0D0)*X0ANG)+OLDX1
                NEWX1=X00+(DATAN((PII/180.0D0)*X0ANG)*TH)
                SYSTEM(17)=NEWX1
                SYSTEM(24)=NEWX1
@@ -2592,14 +2446,11 @@ SUBROUTINE STH
    ELSE
 !       NOT AT UPDATE LENS, NO ACTION TAKEN
    END IF
-   IF(SQ.EQ.0) ALENS(3,SURF)=W1
-   IF(WQ.EQ.'DELT') ALENS(3,SURF)=ALENS(3,SURF)+W1
-   IF(WQ.EQ.'CENT')&
-   &ALENS(3,SURF)=ALENS(3,SURF)+(W1*0.01D0*ALENS(3,SURF))
+   IF(SQ.EQ.0)call set_surf_thickness(SURF, W1)
+   IF(WQ.EQ.'DELT')call set_surf_thickness(SURF, surf_thickness(SURF)+W1)
+   IF(WQ.EQ.'CENT')call set_surf_thickness(SURF, surf_thickness(SURF)+(W1*0.01D0*surf_thickness(SURF)))
 !       CHECK FOR A SOLVE
-   IF(SOLVE(6,SURF).NE.0.0D0.OR.SOLVE(4,SURF)&
-   &.NE.0.0D0.OR.SOLVE(6,SURF).NE.0.0D0.AND. &
-   &SOLVE(4,SURF).NE.0.0D0) THEN
+   IF(SOLVE(6,SURF).NE.0.0D0.OR.SOLVE(4,SURF).NE.0.0D0.OR.SOLVE(6,SURF).NE.0.0D0.AND. SOLVE(4,SURF).NE.0.0D0) THEN
 !       THERE IS A THICKNESS SOLVE. REMOVE IT
       SOLVE(6,SURF)=0.0D0
       SOLVE(7,SURF)=0.0D0
@@ -2608,18 +2459,18 @@ SUBROUTINE STH
       call LogTermFOR("MAG SOLVE DELETED HERE?")
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      ALENS(33,SURF)=0.0D0
-      IF(SOLVE(6,SURF).GT.0.0D0)ALENS(33,SURF)=ALENS(33,SURF)+1.0D0
-      IF(SOLVE(4,SURF).GT.0.0D0)ALENS(33,SURF)=ALENS(33,SURF)+0.1D0
-      IF(SOLVE(8,SURF).GT.0.0D0)ALENS(33,SURF)=ALENS(33,SURF)+2.0D0
-      IF(SOLVE(2,SURF).GT.0.0D0)ALENS(33,SURF)=ALENS(33,SURF)+0.2D0
+      call set_surf_solve_flag(SURF, 0.0D0)
+      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
+      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
+      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
+      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    ELSE
 !       NO SOLVE TO DELETE
    END IF
 !
 !       CHECK FOR A THICKNESS PIKUP AND IF FOUND,DELETE IT
-!       THE PIKUP INDICATOR IS ALENS(32,SURF)
-   IF(ALENS(32,SURF).EQ.0.0D0) THEN
+!       THE PIKUP INDICATOR IS surf_special_type(SURF)
+   IF(surf_special_type(SURF).EQ.0.0D0) THEN
 !       NO PIKUPS OF ANY KIND, DONT DO ANYTHING,JUST RETURN
       RETURN
    ELSE
@@ -2637,11 +2488,11 @@ SUBROUTINE STH
 !
    IF(PIKUP(1,SURF,3).NE.0.0D0) THEN
       PIKUP(1:6,SURF,3)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
    END IF
    IF(PIKUP(1,SURF,32).NE.0.0D0) THEN
       PIKUP(1:6,SURF,32)=0.0D0
-      ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+      call set_surf_special_type(SURF, surf_special_type(SURF)-1)
    END IF
 !
 !       PRINT MESSAGE THAT PIKUP WAS DELETED
@@ -2659,7 +2510,7 @@ SUBROUTINE STH
       END IF
 10 CONTINUE
    IF(PIKCNT.EQ.0) THEN
-      ALENS(32,SURF)=0.0D0
+      call set_surf_special_type(SURF, 0)
    ELSE
 !       DON'T DO ANYTHING, JUST RETURN
    END IF
@@ -2671,6 +2522,7 @@ END
 SUBROUTINE SPRICE
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2679,8 +2531,7 @@ SUBROUTINE SPRICE
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE &
-   &,NEWY1,NEWX1,Y0ANG,X0ANG
+   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2694,8 +2545,7 @@ SUBROUTINE SPRICE
       CALL MACFAL
       RETURN
    END IF
-   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"PRICE" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2730,13 +2580,12 @@ SUBROUTINE SPRICE
       RETURN
    END IF
    IF(F6.EQ.1) THEN
-      IF(SQ.EQ.0) ALENS(111,SURF)=W1
-      IF(WQ.EQ.'DELT') ALENS(111,SURF)=ALENS(111,SURF)+W1
-      IF(WQ.EQ.'CENT')&
-      &ALENS(111,SURF)=ALENS(111,SURF)+(W1*0.01D0*ALENS(111,SURF))
+      IF(SQ.EQ.0)call set_surf_price(SURF, W1)
+      IF(WQ.EQ.'DELT')call set_surf_price(SURF, surf_price(SURF)+W1)
+      IF(WQ.EQ.'CENT')call set_surf_price(SURF, surf_price(SURF)+(W1*0.01D0*surf_price(SURF)))
    END IF
    IF(F5.EQ.1) THEN
-      IF(SQ.EQ.0) ALENS(111,SURF)=W1
+      IF(SQ.EQ.0)call set_surf_price(SURF, W1)
    END IF
    RETURN
 END
@@ -2744,6 +2593,7 @@ END
 SUBROUTINE STHM
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2752,8 +2602,7 @@ SUBROUTINE STHM
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE &
-   &,NEWY1,NEWX1,Y0ANG,X0ANG
+   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2767,8 +2616,7 @@ SUBROUTINE STHM
       CALL MACFAL
       RETURN
    END IF
-   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"THM" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2803,15 +2651,13 @@ SUBROUTINE STHM
       RETURN
    END IF
    IF(F5.EQ.1) THEN
-      IF(SQ.EQ.0) ALENS(110,SURF)=W1
+      IF(SQ.EQ.0)call set_surf_mirror_thickness(SURF, W1)
    END IF
    IF(F6.EQ.1) THEN
-      IF(GLANAM(SURF,1).EQ.'             '.AND.&
-      &GLANAM(SURF,2).EQ.'REFL         '.AND.F6.EQ.1) THEN
-         IF(SQ.EQ.0) ALENS(110,SURF)=W1
-         IF(WQ.EQ.'DELT') ALENS(110,SURF)=ALENS(110,SURF)+W1
-         IF(WQ.EQ.'CENT')&
-         &ALENS(110,SURF)=ALENS(110,SURF)+(W1*0.01D0*ALENS(110,SURF))
+      IF(GLANAM(SURF,1).EQ.'             '.AND.GLANAM(SURF,2).EQ.'REFL         '.AND.F6.EQ.1) THEN
+         IF(SQ.EQ.0)call set_surf_mirror_thickness(SURF, W1)
+         IF(WQ.EQ.'DELT')call set_surf_mirror_thickness(SURF, surf_mirror_thickness(SURF)+W1)
+         IF(WQ.EQ.'CENT')call set_surf_mirror_thickness(SURF, surf_mirror_thickness(SURF)+(W1*0.01D0*surf_mirror_thickness(SURF)))
       ELSE
          OUTLYNE='"THM" REQUIRES A MIRROR SURFACE AT THE UPDATE LENS LEVEL'
          CALL SHOWIT(1)
@@ -2827,6 +2673,7 @@ END
 SUBROUTINE SAUTOFUNC
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2847,8 +2694,7 @@ SUBROUTINE SAUTOFUNC
       CALL MACFAL
       RETURN
    END IF
-   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"AUTOFUNC" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2864,15 +2710,10 @@ SUBROUTINE SAUTOFUNC
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W1).NE.0.AND.INT(W1).NE.1.AND.INT(W1).NE.2 &
-   &.AND.INT(W1).NE.3.AND.INT(W1).NE.4.AND.INT(W1).NE.5 &
-   &.AND.INT(W1).NE.6.AND.INT(W1).NE.7.AND.INT(W1).NE.8 &
-   &.AND.INT(W1).NE.9.AND.INT(W1).NE.10) THEN
-      WRITE(OUTLYNE,*)&
-      &'"',WC(1:8),'" REQUIRES EXPLICIT INTEGER NUMERIC WORD #1 INPUT'
+   IF(INT(W1).NE.0.AND.INT(W1).NE.1.AND.INT(W1).NE.2 .AND.INT(W1).NE.3.AND.INT(W1).NE.4.AND.INT(W1).NE.5 .AND.INT(W1).NE.6.AND.INT(W1).NE.7.AND.INT(W1).NE.8 .AND.INT(W1).NE.9.AND.INT(W1).NE.10) THEN
+      WRITE(OUTLYNE,*)'"',WC(1:8),'" REQUIRES EXPLICIT INTEGER NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'BETWEEN 0 AND 10'
+      WRITE(OUTLYNE,*)'BETWEEN 0 AND 10'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2887,6 +2728,7 @@ END
 SUBROUTINE STASPH
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2899,7 +2741,7 @@ SUBROUTINE STASPH
 !       4TH, 6TH, 8TH AND 10TH ORDER ASPHERIC SURFACE PROFILE
 !       COEFFICIENTS. THE DEFAULT AT LENS INITIALIZATION IS
 !       ALL COEFFICIENTS = 0.0D0. IF THE SURFACE IS SET AS AN ANAMORPHIC
-!       ASPHERIC, ALENS(36,SURF) IS SET TO 1.0D0. IF NOT ALENS(36,SURF)
+!       ASPHERIC, surf_anamorphic_flag(SURF) IS SET TO 1.0D0. IF NOT surf_anamorphic_flag(SURF)
 !       IS SET BY DEFAULT TO 0.0D0. THIS IS A
 !       LABEL MARKING THE SURFACE AS AN ANAMORPHIC ASPHERIC.
 !       ALSO HANDELS ASPH AT CMD LEVEL.
@@ -2912,16 +2754,16 @@ SUBROUTINE STASPH
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
 !
       IF(STI.EQ.1) THEN
-         IF(ALENS(36,I).NE.0.0D0) THEN
+         IF(surf_anamorphic_flag(I).NE.0.0D0) THEN
             WRITE(OUTLYNE,106)SURF
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,101)ALENS(37,I)
+            WRITE(OUTLYNE,101)surf_anamorphic_coeff(I, 4)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,102)ALENS(38,I)
+            WRITE(OUTLYNE,102)surf_anamorphic_coeff(I, 6)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,103)ALENS(39,I)
+            WRITE(OUTLYNE,103)surf_anamorphic_coeff(I, 8)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,104)ALENS(40,I)
+            WRITE(OUTLYNE,104)surf_anamorphic_coeff(I, 10)
             CALL SHOWIT(0)
 106         FORMAT('"TASPH" VALUES AT SURFACE #',I3,' ARE:')
 101         FORMAT('"ADTOR = "',G23.15)
@@ -2935,10 +2777,8 @@ SUBROUTINE STASPH
             WRITE(OUTLYNE,306)
             CALL SHOWIT(0)
          END IF
-305      FORMAT('SURFACE #',I3,&
-         &' IS NOT ANAMORPHIC ASPHERIC')
-306      FORMAT(&
-         &'NO ANAMORPHIC ASPHERIC DEFORMATION TERMS EXIST')
+305      FORMAT('SURFACE #',I3,' IS NOT ANAMORPHIC ASPHERIC')
+306      FORMAT('NO ANAMORPHIC ASPHERIC DEFORMATION TERMS EXIST')
          RETURN
       ELSE
 !       NOT STI
@@ -2957,8 +2797,7 @@ SUBROUTINE STASPH
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.SQ.EQ.1.OR.DF5.EQ.0) THEN
-         OUTLYNE=&
-         &'"TASPH" ONLY TAKES NUMERIC WORD #1 THROUGH #4 INPUT'
+         OUTLYNE='"TASPH" ONLY TAKES NUMERIC WORD #1 THROUGH #4 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2971,9 +2810,8 @@ SUBROUTINE STASPH
 !       CHECK THAT THE SURFACE IS A TORIC. IF NOT PRINT MESSAGE
 !       AND RETURN, ELSE PROCEED.
 !
-      IF(ALENS(23,SURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'SURFACE',SURF,' MUST BE DEFINED AS A Y-TORIC OR'
+      IF(surf_toric_flag(SURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'SURFACE',SURF,' MUST BE DEFINED AS A Y-TORIC OR'
          CALL SHOWIT(1)
          OUTLYNE='AN X-TORIC BEFORE "TASPH" MAY BE USED.'
          CALL SHOWIT(1)
@@ -2986,28 +2824,28 @@ SUBROUTINE STASPH
       IF(DF4.EQ.1) W4=0.0D0
       IF(DF5.EQ.1) W5=0.0D0
 !
-      ALENS(36,SURF)=1.0D0
-      IF(DF1.EQ.0) ALENS(37,SURF)=W1
-      IF(DF2.EQ.0) ALENS(38,SURF)=W2
-      IF(DF3.EQ.0) ALENS(39,SURF)=W3
-      IF(DF4.EQ.0) ALENS(40,SURF)=W4
+      call set_surf_anamorphic_flag(SURF, 1)
+      IF(DF1.EQ.0)call set_surf_anamorphic_coeff(SURF, 4, W1)
+      IF(DF2.EQ.0)call set_surf_anamorphic_coeff(SURF, 6, W2)
+      IF(DF3.EQ.0)call set_surf_anamorphic_coeff(SURF, 8, W3)
+      IF(DF4.EQ.0)call set_surf_anamorphic_coeff(SURF, 10, W4)
 !       DUMP PIKUP PRO AND NPRO IF FOUND
       IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
          PIKUP(1:6,SURF,11)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
          CALL SHOWIT(1)
       END IF
       IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
          PIKUP(1:6,SURF,12)=0.0D0
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
          CALL SHOWIT(1)
       END IF
 !
 !               NOTE:
 !
-!       ANAMORPHIC CONIC CONSTANT IS STORED IN ALENS(41,SURF)
+!       ANAMORPHIC CONIC CONSTANT IS STORED IN surf_anamorphic_conic(SURF)
 !
 !
 !
@@ -3026,8 +2864,7 @@ SUBROUTINE STASPH
             RETURN
          END IF
          IF(SQ.EQ.1.AND.S1.EQ.1) THEN
-            OUTLYNE=&
-            &'AT THE CMD LEVEL, "TASPH" TAKES EITHER QUALIFIER OR'
+            OUTLYNE='AT THE CMD LEVEL, "TASPH" TAKES EITHER QUALIFIER OR'
             CALL SHOWIT(1)
             OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
             CALL SHOWIT(1)
@@ -3039,8 +2876,7 @@ SUBROUTINE STASPH
          IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
             OUTLYNE='AT THE CMD LEVEL,'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'"TASPH" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+            OUTLYNE='"TASPH" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -3065,8 +2901,8 @@ SUBROUTINE STASPH
 !       IF THE QUALIFIER "ALL" IS USED, THEN THE ASPHERIC DATA FOR
 !       THE ENTIRE LENS IS PRINTED.
 !
-!       IF ALENS(41,SURF) NOT EQUAL TO 0.0 THEN THERE IS CONIC DATA
-!       IF ALENS(36,SURF) NOT EQUAL TO 0.0 THEN THERE IS ASPHERIC DATA
+!       IF surf_anamorphic_conic(SURF) NOT EQUAL TO 0.0 THEN THERE IS CONIC DATA
+!       IF surf_anamorphic_flag(SURF) NOT EQUAL TO 0.0 THEN THERE IS ASPHERIC DATA
 !
 !       PRINT OUT FOR AN INDIVIDUAL SURFACE
 !
@@ -3092,22 +2928,22 @@ SUBROUTINE STASPH
                CALL MACFAL
                RETURN
             END IF
-            IF(ALENS(36,I).NE.0.0D0) THEN
-               CC=ALENS(41,I)
-               AD=ALENS(37,I)
-               AE=ALENS(38,I)
-               AF=ALENS(39,I)
-               AG=ALENS(40,I)
+            IF(surf_anamorphic_flag(I).NE.0.0D0) THEN
+               CC=surf_anamorphic_conic(I)
+               AD=surf_anamorphic_coeff(I, 4)
+               AE=surf_anamorphic_coeff(I, 6)
+               AF=surf_anamorphic_coeff(I, 8)
+               AG=surf_anamorphic_coeff(I, 10)
                IF(HEADIN) WRITE(OUTLYNE,500)
                IF(HEADIN) CALL SHOWIT(0)
                WRITE(OUTLYNE,100)I,CC,AD,AE,AF,AG
                CALL SHOWIT(0)
                RETURN
             ELSE
-!       ALENS(36,I)=0.0D0
+!       surf_anamorphic_flag(I)=0.0D0
             END IF
-            IF(ALENS(41,I).NE.0.0D0) THEN
-               CC=ALENS(41,I)
+            IF(surf_anamorphic_conic(I).NE.0.0D0) THEN
+               CC=surf_anamorphic_conic(I)
                IF(HEADIN) WRITE(OUTLYNE,500)
                IF(HEADIN) CALL SHOWIT(0)
                WRITE(OUTLYNE,200)I,CC
@@ -3133,8 +2969,7 @@ SUBROUTINE STASPH
 !
             J=0
             DO 20 I=0,INT(SYSTEM(20))
-               IF(ALENS(41,I).NE.0.0D0.AND.ALENS(36,I).NE.0.0D0.OR.&
-               &ALENS(41,I).NE.0.0D0.OR.ALENS(36,I).NE.0.0D0) THEN
+               IF(surf_anamorphic_conic(I).NE.0.0D0.AND.surf_anamorphic_flag(I).NE.0.0D0.OR.surf_anamorphic_conic(I).NE.0.0D0.OR.surf_anamorphic_flag(I).NE.0.0D0) THEN
                   J=J+1
                ELSE
                END IF
@@ -3158,17 +2993,17 @@ SUBROUTINE STASPH
             CALL SHOWIT(0)
 !
             DO 10 I=0,INT(SYSTEM(20))
-               IF(ALENS(41,I).NE.0.0D0.AND.ALENS(36,I).EQ.0.0D0) THEN
-                  CC=ALENS(41,I)
+               IF(surf_anamorphic_conic(I).NE.0.0D0.AND.surf_anamorphic_flag(I).EQ.0.0D0) THEN
+                  CC=surf_anamorphic_conic(I)
                   WRITE(OUTLYNE,200)I,CC
                   CALL SHOWIT(0)
                ELSE
-                  IF(ALENS(36,I).NE.0.0D0) THEN
-                     CC=ALENS(41,I)
-                     AD=ALENS(37,I)
-                     AE=ALENS(38,I)
-                     AF=ALENS(39,I)
-                     AG=ALENS(40,I)
+                  IF(surf_anamorphic_flag(I).NE.0.0D0) THEN
+                     CC=surf_anamorphic_conic(I)
+                     AD=surf_anamorphic_coeff(I, 4)
+                     AE=surf_anamorphic_coeff(I, 6)
+                     AF=surf_anamorphic_coeff(I, 8)
+                     AG=surf_anamorphic_coeff(I, 10)
                      WRITE(OUTLYNE,100)I,CC,AD,AE,AF,AG
                      CALL SHOWIT(0)
                   ELSE
@@ -3180,23 +3015,20 @@ SUBROUTINE STASPH
       ELSE
       END IF
    END IF
-100 FORMAT(I3,1X,G13.6,1X,G13.6,1X,G13.6,1X,G13.6,&
-   &1X,G13.6)
+100 FORMAT(I3,1X,G13.6,1X,G13.6,1X,G13.6,1X,G13.6,1X,G13.6)
 200 FORMAT(I3,1X,G13.6)
-300 FORMAT('SURF',1X,I3,1X,&
-   &' :NO CONIC OR ASPHERIC ANAMORPHIC DATA')
+300 FORMAT('SURF',1X,I3,1X,' :NO CONIC OR ASPHERIC ANAMORPHIC DATA')
 310 FORMAT('NO CONIC OR ASPHERIC ANAMORPHIC DATA')
 400 FORMAT('ANAMORPHIC CONIC AND ASPHERIC DATA')
 401 FORMAT(1X)
-500 FORMAT('SURF',3X,'CCTOR',9X,'ADTOR',9X,&
-   &'AETOR',9X,&
-   &'AFTOR',9X,'AGTOR')
+500 FORMAT('SURF',3X,'CCTOR',9X,'ADTOR',9X,'AETOR',9X,'AFTOR',9X,'AGTOR')
    RETURN
 END
 ! SUB STILT.FOR
 SUBROUTINE STILT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3214,8 +3046,7 @@ SUBROUTINE STILT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1) THEN
-      OUTLYNE=&
-      &'"TILT AND RTILT COMMANDS" TAKE NO STRING INPUT'
+      OUTLYNE='"TILT AND RTILT COMMANDS" TAKE NO STRING INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3231,16 +3062,14 @@ SUBROUTINE STILT
       RETURN
    END IF
    IF(GLANAM(SURF,2).EQ.'PERFECT'.OR.GLANAM(SURF,2).EQ.'IDEAL') THEN
-      OUTLYNE='"PERFECT" AND "IDEAL" SURFACES MAY NOT BE TILTED'//&
-      &' OR DECENTERED'
+      OUTLYNE='"PERFECT" AND "IDEAL" SURFACES MAY NOT BE TILTED'//' OR DECENTERED'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
-   IF(GLANAM(SURF-1,2).EQ.'PERFECT'.OR.GLANAM(SURF-1,2).EQ.'IDEAL')&
-   &THEN
+   IF(GLANAM(SURF-1,2).EQ.'PERFECT'.OR.GLANAM(SURF-1,2).EQ.'IDEAL')THEN
       OUTLYNE='THE LAST SURFACE MAY NOT BE TILTED OR DECENTERED'
       CALL SHOWIT(1)
       OUTLYNE='IF THE PREVIOUS SURFACE WAS "PERFECT" OR "IDEAL"'
@@ -3255,10 +3084,7 @@ SUBROUTINE STILT
 !
 !               CHECK FOR VALID QUALIFIERS, PROCEED
 !
-   IF(WQ.NE.'AUTO'.AND.WQ.NE.'AUTOM'.AND.WQ.NE.'BEN'.AND.WQ.NE.&
-   &'DAR'.AND.WQ.NE.'RET'.AND.WQ.NE.'RETD'.AND.WQ.NE.'BEND'.AND.&
-   &WQ.NE.'DARD'.AND.WQ.NE.'REV'.AND.WQ.NE.'REVD'&
-   &.AND.SQ.NE.0) THEN
+   IF(WQ.NE.'AUTO'.AND.WQ.NE.'AUTOM'.AND.WQ.NE.'BEN'.AND.WQ.NE.'DAR'.AND.WQ.NE.'RET'.AND.WQ.NE.'RETD'.AND.WQ.NE.'BEND'.AND.WQ.NE.'DARD'.AND.WQ.NE.'REV'.AND.WQ.NE.'REVD'.AND.SQ.NE.0) THEN
       OUTLYNE='INVALID QUALIFIER INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3266,8 +3092,7 @@ SUBROUTINE STILT
       CALL MACFAL
       RETURN
    END IF
-   IF(WQ.EQ.'BEN'.OR.WQ.EQ.&
-   &'DAR'.OR.WQ.EQ.'RET'.OR.WQ.EQ.'REV') THEN
+   IF(WQ.EQ.'BEN'.OR.WQ.EQ.'DAR'.OR.WQ.EQ.'RET'.OR.WQ.EQ.'REV') THEN
       IF(SURF.EQ.0.OR.SURF.EQ.1) THEN
          OUTLYNE='"TILT "'//WQ(1:3)//' IS DISALLOWED ON'
          CALL SHOWIT(1)
@@ -3280,7 +3105,7 @@ SUBROUTINE STILT
       END IF
    END IF
 !
-!       FIRST SET THE TILT STATUS FLAG ALENS(25,SURF)
+!       FIRST SET THE TILT STATUS FLAG surf_tilt_flag(SURF)
 !
 !                       0.0=NO TILT (DEFAULT VALUE)
 !                       1.0= TILT
@@ -3304,44 +3129,43 @@ SUBROUTINE STILT
       RETURN
    END IF
    IF(WC.EQ.'TILT'.AND.SQ.EQ.0) THEN
-      ALENS(25,SURF)=0.0D0
+      call set_surf_tilt_flag(SURF, 0)
       ALENS(90:95,SURF)=0.0D0
-      ALENS(77,SURF)=0.0D0
-      IF(DF1.EQ.1)W1=ALENS(26,SURF)
-      IF(DF2.EQ.1)W2=ALENS(27,SURF)
-      IF(DF3.EQ.1)W3=ALENS(28,SURF)
-      ALENS(25,SURF)=1.0D0
-      ALENS(26,SURF)=W1
-      ALENS(27,SURF)=W2
-      ALENS(28,SURF)=W3
-      ALENS(118,SURF)=W1
-      ALENS(119,SURF)=W2
-      ALENS(120,SURF)=W3
+      call set_surf_tilt_return_flag(SURF, 0)
+      IF(DF1.EQ.1)W1=surf_alpha(SURF)
+      IF(DF2.EQ.1)W2=surf_beta(SURF)
+      IF(DF3.EQ.1)W3=surf_gamma(SURF)
+      call set_surf_tilt_flag(SURF, 1)
+      call set_surf_alpha(SURF, W1)
+      call set_surf_beta(SURF, W2)
+      call set_surf_gamma(SURF, W3)
+      call set_surf_alpha_deg(SURF, W1)
+      call set_surf_beta_deg(SURF, W2)
+      call set_surf_gamma_deg(SURF, W3)
    ELSE
    END IF
 !
 !       THEN AN RTILT
 !
    IF(WC.EQ.'RTILT'.AND.SQ.EQ.0) THEN
-      ALENS(25,SURF)=0.0D0
+      call set_surf_tilt_flag(SURF, 0)
       ALENS(90:95,SURF)=0.0D0
-      ALENS(77,SURF)=0.0D0
-      IF(DF1.EQ.1)W1=ALENS(26,SURF)
-      IF(DF2.EQ.1)W2=ALENS(27,SURF)
-      IF(DF3.EQ.1)W3=ALENS(28,SURF)
-      ALENS(25,SURF)=-1.0D0
-      ALENS(26,SURF)=W1
-      ALENS(27,SURF)=W2
-      ALENS(28,SURF)=W3
-      ALENS(118,SURF)=W1
-      ALENS(119,SURF)=W2
-      ALENS(120,SURF)=W3
+      call set_surf_tilt_return_flag(SURF, 0)
+      IF(DF1.EQ.1)W1=surf_alpha(SURF)
+      IF(DF2.EQ.1)W2=surf_beta(SURF)
+      IF(DF3.EQ.1)W3=surf_gamma(SURF)
+      call set_surf_tilt_flag(SURF, -1)
+      call set_surf_alpha(SURF, W1)
+      call set_surf_beta(SURF, W2)
+      call set_surf_gamma(SURF, W3)
+      call set_surf_alpha_deg(SURF, W1)
+      call set_surf_beta_deg(SURF, W2)
+      call set_surf_gamma_deg(SURF, W3)
    ELSE
    END IF
 !       CHECK FOR RTILT WITH QUALIFIER
    IF(WC.EQ.'RTILT'.AND.SQ.EQ.1) THEN
-      OUTLYNE=&
-      &'"RTILT" TAKES NO QUALIFIER WORD INPUT'
+      OUTLYNE='"RTILT" TAKES NO QUALIFIER WORD INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3353,52 +3177,50 @@ SUBROUTINE STILT
 !
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'AUTO') THEN
       IF(SURF.LE.INT(SYSTEM(25)))THEN
-         OUTLYNE=&
-         &'"TILT AUTO" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
+         OUTLYNE='"TILT AUTO" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(34,SURF).EQ.24.0D0)THEN
-         OUTLYNE=&
-         &'"TILT AUTO" NOT ALLOWED ON A LENS ARRAY SURFACE'
+      IF(surf_asi_flag(SURF).EQ.24.0D0)THEN
+         OUTLYNE='"TILT AUTO" NOT ALLOWED ON A LENS ARRAY SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1)W1=ALENS(26,SURF)
-      IF(DF2.EQ.1)W2=ALENS(27,SURF)
-      IF(DF3.EQ.1)W3=ALENS(28,SURF)
-      ALENS(25,SURF)=0.0D0
+      IF(DF1.EQ.1)W1=surf_alpha(SURF)
+      IF(DF2.EQ.1)W2=surf_beta(SURF)
+      IF(DF3.EQ.1)W3=surf_gamma(SURF)
+      call set_surf_tilt_flag(SURF, 0)
       ALENS(90:95,SURF)=0.0D0
-      ALENS(77,SURF)=0.0D0
-      ALENS(25,SURF)=2.0D0
-      ALENS(26,SURF)=W1
-      ALENS(27,SURF)=W2
-      ALENS(28,SURF)=W3
-      ALENS(118,SURF)=W1
-      ALENS(119,SURF)=W2
-      ALENS(120,SURF)=W3
+      call set_surf_tilt_return_flag(SURF, 0)
+      call set_surf_tilt_flag(SURF, 2)
+      call set_surf_alpha(SURF, W1)
+      call set_surf_beta(SURF, W2)
+      call set_surf_gamma(SURF, W3)
+      call set_surf_alpha_deg(SURF, W1)
+      call set_surf_beta_deg(SURF, W2)
+      call set_surf_gamma_deg(SURF, W3)
    ELSE
    END IF
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'BEN') THEN
       IF(SN.EQ.1) THEN
-         IF(DF1.EQ.1)W1=ALENS(26,SURF)
-         IF(DF2.EQ.1)W2=ALENS(27,SURF)
-         ALENS(28,SURF)=0.0D0
-         ALENS(120,SURF)=0.0D0
-         ALENS(25,SURF)=0.0D0
+         IF(DF1.EQ.1)W1=surf_alpha(SURF)
+         IF(DF2.EQ.1)W2=surf_beta(SURF)
+         call set_surf_gamma(SURF, 0.0D0)
+         call set_surf_gamma_deg(SURF, 0.0D0)
+         call set_surf_tilt_flag(SURF, 0)
          ALENS(90:95,SURF)=0.0D0
-         ALENS(77,SURF)=0.0D0
-         ALENS(25,SURF)=4.0D0
-         ALENS(26,SURF)=W1
-         ALENS(27,SURF)=W2
-         ALENS(118,SURF)=W1
-         ALENS(119,SURF)=W2
+         call set_surf_tilt_return_flag(SURF, 0)
+         call set_surf_tilt_flag(SURF, 4)
+         call set_surf_alpha(SURF, W1)
+         call set_surf_beta(SURF, W2)
+         call set_surf_alpha_deg(SURF, W1)
+         call set_surf_beta_deg(SURF, W2)
 !     USE THE CODE-V DEFAULT GAMMA ONLY IF IT IS NOT EXPLICITLY INPUT
          RAL=(PII/180.0D0)*W1
          RBE=(PII/180.0D0)*W2
@@ -3408,53 +3230,53 @@ SUBROUTINE STILT
          IF(CGAM.GT.+1.0D0) CGAM=+1.0D0
          IF(SGAM.GE.0.0D0) RGAM=DABS(DACOS(CGAM))
          IF(SGAM.LT.0.0D0) RGAM=-DABS(DACOS(CGAM))
-         ALENS(28,SURF)=RGAM*180.0D0/PII
-         ALENS(120,SURF)=RGAM*180.0D0/PII
+         call set_surf_gamma(SURF, RGAM*180.0D0/PII)
+         call set_surf_gamma_deg(SURF, RGAM*180.0D0/PII)
       ELSE
 !       NO NUMERICS, JUST CHANGE TYPE
-         ALENS(25,SURF)=4.0D0
+         call set_surf_tilt_flag(SURF, 4)
       END IF
    ELSE
    END IF
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'DAR') THEN
       IF(SN.EQ.1) THEN
-         IF(DF1.EQ.1)W1=ALENS(26,SURF)
-         IF(DF2.EQ.1)W2=ALENS(27,SURF)
-         IF(DF3.EQ.1)W3=ALENS(28,SURF)
-         ALENS(25,SURF)=0.0D0
+         IF(DF1.EQ.1)W1=surf_alpha(SURF)
+         IF(DF2.EQ.1)W2=surf_beta(SURF)
+         IF(DF3.EQ.1)W3=surf_gamma(SURF)
+         call set_surf_tilt_flag(SURF, 0)
          ALENS(90:95,SURF)=0.0D0
-         ALENS(77,SURF)=0.0D0
-         ALENS(25,SURF)=5.0D0
-         ALENS(26,SURF)=W1
-         ALENS(27,SURF)=W2
-         ALENS(28,SURF)=W3
-         ALENS(118,SURF)=W1
-         ALENS(119,SURF)=W2
-         ALENS(120,SURF)=W3
+         call set_surf_tilt_return_flag(SURF, 0)
+         call set_surf_tilt_flag(SURF, 5)
+         call set_surf_alpha(SURF, W1)
+         call set_surf_beta(SURF, W2)
+         call set_surf_gamma(SURF, W3)
+         call set_surf_alpha_deg(SURF, W1)
+         call set_surf_beta_deg(SURF, W2)
+         call set_surf_gamma_deg(SURF, W3)
       ELSE
 !       NO NUMERICS, JUST CHANGE TO DAR
-         ALENS(25,SURF)=5.0D0
+         call set_surf_tilt_flag(SURF, 5)
       END IF
    ELSE
    END IF
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'REV') THEN
       IF(SN.EQ.1) THEN
-         IF(DF1.EQ.1)W1=ALENS(26,SURF)
-         IF(DF2.EQ.1)W2=ALENS(27,SURF)
-         IF(DF3.EQ.1)W3=ALENS(28,SURF)
-         ALENS(25,SURF)=0.0D0
+         IF(DF1.EQ.1)W1=surf_alpha(SURF)
+         IF(DF2.EQ.1)W2=surf_beta(SURF)
+         IF(DF3.EQ.1)W3=surf_gamma(SURF)
+         call set_surf_tilt_flag(SURF, 0)
          ALENS(90:95,SURF)=0.0D0
-         ALENS(77,SURF)=0.0D0
-         ALENS(25,SURF)=7.0D0
-         ALENS(26,SURF)=W1
-         ALENS(27,SURF)=W2
-         ALENS(28,SURF)=W3
-         ALENS(118,SURF)=W1
-         ALENS(119,SURF)=W2
-         ALENS(120,SURF)=W3
+         call set_surf_tilt_return_flag(SURF, 0)
+         call set_surf_tilt_flag(SURF, 7)
+         call set_surf_alpha(SURF, W1)
+         call set_surf_beta(SURF, W2)
+         call set_surf_gamma(SURF, W3)
+         call set_surf_alpha_deg(SURF, W1)
+         call set_surf_beta_deg(SURF, W2)
+         call set_surf_gamma_deg(SURF, W3)
       ELSE
 !       NO NUMERICS, JUST CHANGE TYPE
-         ALENS(25,SURF)=7.0D0
+         call set_surf_tilt_flag(SURF, 7)
       END IF
    END IF
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'RETD') THEN
@@ -3526,30 +3348,28 @@ SUBROUTINE STILT
          RETURN
       END IF
 !
-      ALENS(70,SURF)=W1
+      call set_surf_ret_surf_num(SURF, NINT(W1))
       ALENS(25:28,SURF)=0.0D0
       ALENS(118:120,SURF)=0.0D0
       ALENS(90:95,SURF)=0.0D0
-      ALENS(95,SURF)=0.0D0
-      ALENS(77,SURF)=0.0D0
+      call set_surf_global_gamma(SURF, 0.0D0)
+      call set_surf_tilt_return_flag(SURF, 0)
       ALENS(114:116,SURF)=0.0D0
       ALENS(29:31,SURF)=0.0D0
-      ALENS(69,SURF)=0.0D0
+      call set_surf_decenter_z(SURF, 0.0D0)
       ALENS(90:95,SURF)=0.0D0
       ALENS(113:116,SURF)=0.0D0
       ALENS(118:120,SURF)=0.0D0
-      ALENS(25,SURF)=6.0D0
+      call set_surf_tilt_flag(SURF, 6)
    ELSE
    END IF
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'RETD') THEN
-      IF(ALENS(25,SURF).EQ.6.0D0.OR.ALENS(25,SURF).EQ.1.0D0.AND.&
-      &ALENS(77,SURF).EQ.1.0D0) THEN
-         ALENS(25,SURF)=1.0D0
-         ALENS(77,SURF)=0.0D0
+      IF(surf_tilt_flag(SURF).EQ.6.0D0.OR.surf_tilt_flag(SURF).EQ.1.0D0.AND.surf_tilt_return_flag(SURF).EQ.1.0D0) THEN
+         call set_surf_tilt_flag(SURF, 1)
+         call set_surf_tilt_return_flag(SURF, 0)
       END IF
    END IF
-   IF(WC.EQ.'TILT'.AND.WQ.EQ.'BEND'.AND.&
-   &ALENS(25,SURF).EQ.4.0D0) THEN
+   IF(WC.EQ.'TILT'.AND.WQ.EQ.'BEND'.AND.surf_tilt_flag(SURF).EQ.4.0D0) THEN
       NEXTSURF=SURF+1
 !     CHANGE CURRENT SURFACE
       SAVE_KDP(1)=SAVEINPT(1)
@@ -3590,20 +3410,19 @@ SUBROUTINE STILT
       CALL SINS
       REST_KDP(1)=RESTINPT(1)
 !     CHANGE TILT TYPE ON CURRENT SURFACE TO "TILT"
-      ALENS(25,NEXTSURF-1)=1.0D0
-      ALENS(25,NEXTSURF)=1.0D0
-      ALENS(26,NEXTSURF)=ALENS(26,NEXTSURF-1)
-      ALENS(27,NEXTSURF)=ALENS(27,NEXTSURF-1)
-      ALENS(28,NEXTSURF)=ALENS(28,NEXTSURF-1)
-      ALENS(118,NEXTSURF)=ALENS(118,NEXTSURF-1)
-      ALENS(119,NEXTSURF)=ALENS(119,NEXTSURF-1)
-      ALENS(120,NEXTSURF)=ALENS(120,NEXTSURF-1)
+      call set_surf_tilt_flag(NEXTSURF-1, 1)
+      call set_surf_tilt_flag(NEXTSURF, 1)
+      call set_surf_alpha(NEXTSURF, surf_alpha(NEXTSURF-1))
+      call set_surf_beta(NEXTSURF, surf_beta(NEXTSURF-1))
+      call set_surf_gamma(NEXTSURF, surf_gamma(NEXTSURF-1))
+      call set_surf_alpha_deg(NEXTSURF, surf_alpha_deg(NEXTSURF-1))
+      call set_surf_beta_deg(NEXTSURF, surf_beta_deg(NEXTSURF-1))
+      call set_surf_gamma_deg(NEXTSURF, surf_gamma_deg(NEXTSURF-1))
    END IF
 !
 !       TILT REVD
 !
-   IF(WC.EQ.'TILT'.AND.WQ.EQ.'REVD'.AND.&
-   &ALENS(25,SURF).EQ.7.0D0) THEN
+   IF(WC.EQ.'TILT'.AND.WQ.EQ.'REVD'.AND.surf_tilt_flag(SURF).EQ.7.0D0) THEN
       NEXTSURF=SURF+1
 !     CHANGE CURRENT SURFACE
       SAVE_KDP(1)=SAVEINPT(1)
@@ -3644,62 +3463,56 @@ SUBROUTINE STILT
       CALL SINS
       REST_KDP(1)=RESTINPT(1)
 !     CHANGE TILT TYPE ON CURRENT SURFACE TO "TILT"
-      ALENS(25,NEXTSURF-1)=0.0D0
-      ALENS(25,NEXTSURF)=-1.0D0
-      ALENS(26,NEXTSURF)=ALENS(26,NEXTSURF-1)
-      ALENS(27,NEXTSURF)=ALENS(27,NEXTSURF-1)
-      ALENS(28,NEXTSURF)=ALENS(28,NEXTSURF-1)
-      ALENS(118,NEXTSURF)=ALENS(118,NEXTSURF-1)
-      ALENS(119,NEXTSURF)=ALENS(119,NEXTSURF-1)
-      ALENS(120,NEXTSURF)=ALENS(120,NEXTSURF-1)
-      ALENS(26,NEXTSURF-1)=0.0D0
-      ALENS(27,NEXTSURF-1)=0.0D0
-      ALENS(28,NEXTSURF-1)=0.0D0
-      ALENS(118,NEXTSURF-1)=0.0D0
-      ALENS(119,NEXTSURF-1)=0.0D0
-      ALENS(120,NEXTSURF-1)=0.0D0
-      IF(ALENS(29,NEXTSURF-1).NE.0.0D0) THEN
-         ALENS(30,NEXTSURF)=ALENS(30,NEXTSURF-1)
-         ALENS(31,NEXTSURF)=ALENS(31,NEXTSURF-1)
-         ALENS(69,NEXTSURF)=ALENS(69,NEXTSURF-1)
-         ALENS(113,NEXTSURF)=ALENS(113,NEXTSURF-1)
-         ALENS(114,NEXTSURF)=ALENS(114,NEXTSURF-1)
-         ALENS(115,NEXTSURF)=ALENS(115,NEXTSURF-1)
-         ALENS(116,NEXTSURF)=ALENS(116,NEXTSURF-1)
-         ALENS(30,NEXTSURF-1)=0.0D0
-         ALENS(31,NEXTSURF-1)=0.0D0
-         ALENS(69,NEXTSURF-1)=0.0D0
-         ALENS(113,NEXTSURF-1)=0.0D0
-         ALENS(114,NEXTSURF-1)=0.0D0
-         ALENS(115,NEXTSURF-1)=0.0D0
-         ALENS(116,NEXTSURF-1)=0.0D0
+      call set_surf_tilt_flag(NEXTSURF-1, 0)
+      call set_surf_tilt_flag(NEXTSURF, -1)
+      call set_surf_alpha(NEXTSURF, surf_alpha(NEXTSURF-1))
+      call set_surf_beta(NEXTSURF, surf_beta(NEXTSURF-1))
+      call set_surf_gamma(NEXTSURF, surf_gamma(NEXTSURF-1))
+      call set_surf_alpha_deg(NEXTSURF, surf_alpha_deg(NEXTSURF-1))
+      call set_surf_beta_deg(NEXTSURF, surf_beta_deg(NEXTSURF-1))
+      call set_surf_gamma_deg(NEXTSURF, surf_gamma_deg(NEXTSURF-1))
+      call set_surf_alpha(NEXTSURF-1, 0.0D0)
+      call set_surf_beta(NEXTSURF-1, 0.0D0)
+      call set_surf_gamma(NEXTSURF-1, 0.0D0)
+      call set_surf_alpha_deg(NEXTSURF-1, 0.0D0)
+      call set_surf_beta_deg(NEXTSURF-1, 0.0D0)
+      call set_surf_gamma_deg(NEXTSURF-1, 0.0D0)
+      IF(surf_decenter_flag(NEXTSURF-1).NE.0.0D0) THEN
+         call set_surf_decenter_y(NEXTSURF, surf_decenter_y(NEXTSURF-1))
+         call set_surf_decenter_x(NEXTSURF, surf_decenter_x(NEXTSURF-1))
+         call set_surf_decenter_z(NEXTSURF, surf_decenter_z(NEXTSURF-1))
+         call set_surf_pivot_axis(NEXTSURF, surf_pivot_axis(NEXTSURF-1))
+         call set_surf_focus_dx(NEXTSURF, surf_focus_dx(NEXTSURF-1))
+         call set_surf_focus_dy(NEXTSURF, surf_focus_dy(NEXTSURF-1))
+         call set_surf_focus_dz(NEXTSURF, surf_focus_dz(NEXTSURF-1))
+         call set_surf_decenter_y(NEXTSURF-1, 0.0D0)
+         call set_surf_decenter_x(NEXTSURF-1, 0.0D0)
+         call set_surf_decenter_z(NEXTSURF-1, 0.0D0)
+         call set_surf_pivot_axis(NEXTSURF-1, 0)
+         call set_surf_focus_dx(NEXTSURF-1, 0.0D0)
+         call set_surf_focus_dy(NEXTSURF-1, 0.0D0)
+         call set_surf_focus_dz(NEXTSURF-1, 0.0D0)
       END IF
 !     THICKNESSES
-      IF(ALENS(33,NEXTSURF-1).EQ.1.0D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.1.1D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.0.1D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.0.3D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.3.0D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.3.3D0) THEN
+      IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.1.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.3D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.3D0) THEN
 !     THICKNESS SOLVE NEEDS MOVING
-         ALENS(33,NEXTSURF)=ALENS(33,NEXTSURF-1)
+         call set_surf_solve_flag(NEXTSURF, surf_solve_flag(NEXTSURF-1))
          SOLVE(6,NEXTSURF)=SOLVE(6,NEXTSURF-1)
          SOLVE(4,NEXTSURF)=SOLVE(4,NEXTSURF-1)
          SOLVE(7,NEXTSURF)=SOLVE(7,NEXTSURF-1)
          SOLVE(3,NEXTSURF)=SOLVE(3,NEXTSURF-1)
-         IF(ALENS(33,NEXTSURF-1).EQ.0.1D0) ALENS(33,NEXTSURF-1)=0.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.1.0D0) ALENS(33,NEXTSURF-1)=0.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.1.1D0) ALENS(33,NEXTSURF-1)=0.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.0.3D0) ALENS(33,NEXTSURF-1)=0.2D0
-         IF(ALENS(33,NEXTSURF-1).EQ.3.0D0) ALENS(33,NEXTSURF-1)=2.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.3.3D0) ALENS(33,NEXTSURF-1)=2.2D0
+         IF(surf_solve_flag(NEXTSURF-1).EQ.0.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.1.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.0.3D0)call set_surf_solve_flag(NEXTSURF-1, 0.2D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.3.0D0)call set_surf_solve_flag(NEXTSURF-1, 2.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.3.3D0)call set_surf_solve_flag(NEXTSURF-1, 2.2D0)
       END IF
-      ALENS(3,NEXTSURF)=ALENS(3,NEXTSURF-1)
-      ALENS(3,NEXTSURF-1)=0.0D0
+      call set_surf_thickness(NEXTSURF, surf_thickness(NEXTSURF-1))
+      call set_surf_thickness(NEXTSURF-1, 0.0D0)
       RETURN
    END IF
-   IF(WC.EQ.'TILT'.AND.WQ.EQ.'DARD'.AND.&
-   &ALENS(25,SURF).EQ.5.0D0) THEN
+   IF(WC.EQ.'TILT'.AND.WQ.EQ.'DARD'.AND.surf_tilt_flag(SURF).EQ.5.0D0) THEN
       NEXTSURF=SURF+1
 !     CHANGE CURRENT SURFACE
       SAVE_KDP(1)=SAVEINPT(1)
@@ -3740,45 +3553,40 @@ SUBROUTINE STILT
       CALL SINS
       REST_KDP(1)=RESTINPT(1)
 !     CHANGE TILT TYPE ON CURRENT SURFACE TO "TILT"
-      ALENS(25,NEXTSURF-1)=1.0D0
-      ALENS(25,NEXTSURF)=-1.0D0
-      ALENS(26,NEXTSURF)=ALENS(26,NEXTSURF-1)
-      ALENS(27,NEXTSURF)=ALENS(27,NEXTSURF-1)
-      ALENS(28,NEXTSURF)=ALENS(28,NEXTSURF-1)
-      ALENS(118,NEXTSURF)=ALENS(118,NEXTSURF-1)
-      ALENS(119,NEXTSURF)=ALENS(119,NEXTSURF-1)
-      ALENS(120,NEXTSURF)=ALENS(120,NEXTSURF-1)
-      IF(ALENS(29,NEXTSURF-1).NE.0.0D0) THEN
-         ALENS(30,NEXTSURF)=ALENS(30,NEXTSURF-1)
-         ALENS(31,NEXTSURF)=ALENS(31,NEXTSURF-1)
-         ALENS(69,NEXTSURF)=ALENS(69,NEXTSURF-1)
-         ALENS(113,NEXTSURF)=ALENS(113,NEXTSURF-1)
-         ALENS(114,NEXTSURF)=ALENS(114,NEXTSURF-1)
-         ALENS(115,NEXTSURF)=ALENS(115,NEXTSURF-1)
-         ALENS(116,NEXTSURF)=ALENS(116,NEXTSURF-1)
+      call set_surf_tilt_flag(NEXTSURF-1, 1)
+      call set_surf_tilt_flag(NEXTSURF, -1)
+      call set_surf_alpha(NEXTSURF, surf_alpha(NEXTSURF-1))
+      call set_surf_beta(NEXTSURF, surf_beta(NEXTSURF-1))
+      call set_surf_gamma(NEXTSURF, surf_gamma(NEXTSURF-1))
+      call set_surf_alpha_deg(NEXTSURF, surf_alpha_deg(NEXTSURF-1))
+      call set_surf_beta_deg(NEXTSURF, surf_beta_deg(NEXTSURF-1))
+      call set_surf_gamma_deg(NEXTSURF, surf_gamma_deg(NEXTSURF-1))
+      IF(surf_decenter_flag(NEXTSURF-1).NE.0.0D0) THEN
+         call set_surf_decenter_y(NEXTSURF, surf_decenter_y(NEXTSURF-1))
+         call set_surf_decenter_x(NEXTSURF, surf_decenter_x(NEXTSURF-1))
+         call set_surf_decenter_z(NEXTSURF, surf_decenter_z(NEXTSURF-1))
+         call set_surf_pivot_axis(NEXTSURF, surf_pivot_axis(NEXTSURF-1))
+         call set_surf_focus_dx(NEXTSURF, surf_focus_dx(NEXTSURF-1))
+         call set_surf_focus_dy(NEXTSURF, surf_focus_dy(NEXTSURF-1))
+         call set_surf_focus_dz(NEXTSURF, surf_focus_dz(NEXTSURF-1))
       END IF
 !     THICKNESSES
-      IF(ALENS(33,NEXTSURF-1).EQ.1.0D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.1.1D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.0.1D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.0.3D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.3.0D0.OR.&
-      &ALENS(33,NEXTSURF-1).EQ.3.3D0) THEN
+      IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.1.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.3D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.3D0) THEN
 !     THICKNESS SOLVE NEEDS MOVING
-         ALENS(33,NEXTSURF)=ALENS(33,NEXTSURF-1)
+         call set_surf_solve_flag(NEXTSURF, surf_solve_flag(NEXTSURF-1))
          SOLVE(6,NEXTSURF)=SOLVE(6,NEXTSURF-1)
          SOLVE(4,NEXTSURF)=SOLVE(4,NEXTSURF-1)
          SOLVE(7,NEXTSURF)=SOLVE(7,NEXTSURF-1)
          SOLVE(3,NEXTSURF)=SOLVE(3,NEXTSURF-1)
-         IF(ALENS(33,NEXTSURF-1).EQ.0.1D0) ALENS(33,NEXTSURF-1)=0.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.1.0D0) ALENS(33,NEXTSURF-1)=0.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.1.1D0) ALENS(33,NEXTSURF-1)=0.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.0.3D0) ALENS(33,NEXTSURF-1)=0.2D0
-         IF(ALENS(33,NEXTSURF-1).EQ.3.0D0) ALENS(33,NEXTSURF-1)=2.0D0
-         IF(ALENS(33,NEXTSURF-1).EQ.3.3D0) ALENS(33,NEXTSURF-1)=2.2D0
+         IF(surf_solve_flag(NEXTSURF-1).EQ.0.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.1.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.0.3D0)call set_surf_solve_flag(NEXTSURF-1, 0.2D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.3.0D0)call set_surf_solve_flag(NEXTSURF-1, 2.0D0)
+         IF(surf_solve_flag(NEXTSURF-1).EQ.3.3D0)call set_surf_solve_flag(NEXTSURF-1, 2.2D0)
       END IF
-      ALENS(3,NEXTSURF)=ALENS(3,NEXTSURF-1)
-      ALENS(3,NEXTSURF-1)=0.0D0
+      call set_surf_thickness(NEXTSURF, surf_thickness(NEXTSURF-1))
+      call set_surf_thickness(NEXTSURF-1, 0.0D0)
       RETURN
    END IF
 !
@@ -3786,32 +3594,30 @@ SUBROUTINE STILT
 !
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'AUTOM') THEN
       IF(SURF.LE.INT(SYSTEM(25)))THEN
-         OUTLYNE=&
-         &'"TILT AUTOM" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
+         OUTLYNE='"TILT AUTOM" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          RETURN
       END IF
-      IF(ALENS(34,SURF).EQ.24.0D0)THEN
-         OUTLYNE=&
-         &'"TILT AUTOM" NOT ALLOWED ON A LENS ARRAY SURFACE'
+      IF(surf_asi_flag(SURF).EQ.24.0D0)THEN
+         OUTLYNE='"TILT AUTOM" NOT ALLOWED ON A LENS ARRAY SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1)W1=ALENS(26,SURF)
-      IF(DF2.EQ.1)W2=ALENS(27,SURF)
-      IF(DF3.EQ.1)W3=ALENS(28,SURF)
-      ALENS(25,SURF)=3.0D0
-      ALENS(26,SURF)=W1
-      ALENS(27,SURF)=W2
-      ALENS(28,SURF)=W3
-      ALENS(118,SURF)=W1
-      ALENS(119,SURF)=W2
-      ALENS(120,SURF)=W3
+      IF(DF1.EQ.1)W1=surf_alpha(SURF)
+      IF(DF2.EQ.1)W2=surf_beta(SURF)
+      IF(DF3.EQ.1)W3=surf_gamma(SURF)
+      call set_surf_tilt_flag(SURF, 3)
+      call set_surf_alpha(SURF, W1)
+      call set_surf_beta(SURF, W2)
+      call set_surf_gamma(SURF, W3)
+      call set_surf_alpha_deg(SURF, W1)
+      call set_surf_beta_deg(SURF, W2)
+      call set_surf_gamma_deg(SURF, W3)
    ELSE
    END IF
 !
@@ -3825,7 +3631,7 @@ SUBROUTINE STILT
       IF(PIKUP(1,SURF,I).NE.0.0D0) THEN
          PIKUP(1:6,SURF,I)=0.0D0
 !       FIX THE PIKUP COUNTER
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          IF(I.EQ.15) THEN
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (ALPHA) DELETED'
             CALL SHOWIT(1)
@@ -3844,7 +3650,7 @@ SUBROUTINE STILT
       IF(PIKUP(1,SURF,I).NE.0.0D0) THEN
          PIKUP(1:6,SURF,I)=0.0D0
 !       FIX THE PIKUP COUNTER
-         ALENS(32,SURF)=ALENS(32,SURF)-1.0D0
+         call set_surf_special_type(SURF, surf_special_type(SURF)-1)
          IF(I.EQ.37) THEN
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (GDX) DELETED'
             CALL SHOWIT(1)
@@ -3879,7 +3685,7 @@ SUBROUTINE STILT
       ELSE
       END IF
 503 CONTINUE
-   IF(PIKCNT.EQ.0) ALENS(32,SURF)=0.0D0
+   IF(PIKCNT.EQ.0)call set_surf_special_type(SURF, 0)
 
 !
 !       WHAT IF THIS SURFACE WAS THE TARGET OF AN ALPHA,BETA OR GAMMA PIKUP
@@ -3894,7 +3700,7 @@ SUBROUTINE STILT
 !       YES IT REFERS TO THE SURFACE SURF WHICH IS HAVING ITS TILT
 !       DELETED SO GET RIDE OF THE PIKUP
                PIKUP(1:6,I,J)=0.0D0
-               ALENS(32,I)=ALENS(32,I)-1.0D0
+               call set_surf_special_type(I, surf_special_type(I)-1)
                IF(J.EQ.15) THEN
                   WRITE(OUTLYNE,*)'(ALPHA) PIKUP DELETED ON SURFACE',I
                   CALL SHOWIT(1)
@@ -3917,7 +3723,7 @@ SUBROUTINE STILT
 !       YES IT REFERS TO THE SURFACE SURF WHICH IS HAVING ITS TILT
 !       DELETED SO GET RIDE OF THE PIKUP
                PIKUP(1:6,I,J)=0.0D0
-               ALENS(32,I)=ALENS(32,I)-1.0D0
+               call set_surf_special_type(I, surf_special_type(I)-1)
                IF(J.EQ.37) THEN
                   WRITE(OUTLYNE,*)'(GDX) PIKUP DELETED ON SURFACE',I
                   CALL SHOWIT(1)
@@ -3947,7 +3753,7 @@ SUBROUTINE STILT
       END DO
    END DO
 !
-!       NOW FIX ALL THE ALENS(32,K) IN THE LENS SYSTEM
+!       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
    DO 400 I=0,INT(SYSTEM(20))
 !       CHECK PIKUPS
@@ -3958,7 +3764,7 @@ SUBROUTINE STILT
          ELSE
          END IF
 401   CONTINUE
-      IF(PIKCNT.EQ.0) ALENS(32,I)=0.0D0
+      IF(PIKCNT.EQ.0)call set_surf_special_type(I, 0)
 400 CONTINUE
    RETURN
 END

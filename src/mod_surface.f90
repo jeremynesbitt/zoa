@@ -39,6 +39,7 @@ module mod_surface
         surf_is_paraxial,     set_surf_paraxial_flag,    &
         surf_reflection_mode, set_surf_reflection_mode,  &
         surf_asi_flag,        set_surf_asi_flag,         &
+        surf_asi_enabled,     set_surf_asi_enabled,      &
         surf_toric_flag,      set_surf_toric_flag,       &
         surf_toric_curvature, set_surf_toric_curvature,  &
         surf_pickup_count,    set_surf_pickup_count,     &
@@ -505,13 +506,24 @@ contains
         ALENS(125, s) = real(val, real64)
     end subroutine
 
-    ! asi_flag: 0=no ASI, 1=ASI (alternate surface interface)
+    ! asi_flag: ASI surface type code (0=none, or specific type 1/4/6/7/8/12/23)
     integer function surf_asi_flag(s)
         integer, intent(in) :: s
-        surf_asi_flag = nint(ALENS(35, s))
+        surf_asi_flag = nint(ALENS(34, s))
     end function
 
     subroutine set_surf_asi_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(34, s) = real(val, real64)
+    end subroutine
+
+    ! asi_enabled: binary flag 0=no ASI, 1=ASI enabled (ALENS(35))
+    integer function surf_asi_enabled(s)
+        integer, intent(in) :: s
+        surf_asi_enabled = nint(ALENS(35, s))
+    end function
+
+    subroutine set_surf_asi_enabled(s, val)
         integer, intent(in) :: s, val
         ALENS(35, s) = real(val, real64)
     end subroutine
