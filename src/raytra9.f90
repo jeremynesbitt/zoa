@@ -2,6 +2,7 @@
 SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -24,12 +25,7 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
 !     ERROR=0 IF CALCULATION WORKED
 !     ERROR=1 IF CALCULATION FAILED
 !
-   REAL*8 YFC1,XFC1,V1,VAL1,VAL2,SIG,XHT,YHT,ZFC1 &
-   &,XREAL,YREAL,SYS12,SYS13,DWORD1,DWORD2,THFINAL1,THNUM,THDEN &
-   &,MYW1,MYW2,XO,YO,ZO,LO,MO,NO,XOO,YOO,ZOO,LOO,MOO,NOO &
-   &,SAG,ARG,ARG1,X,Y,C,K,CX,CY,KX,KY,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,SAG1,SAG2,ARG2,YFC2,XFC2,ZFC2,THFINAL2,PX,PY,PUX,PUY &
-   &,PCX,PCY,PUCX,PUCY,DWORD3,DWORD4,VALUE1,VALUE2
+   REAL*8 YFC1,XFC1,V1,VAL1,VAL2,SIG,XHT,YHT,ZFC1 ,XREAL,YREAL,SYS12,SYS13,DWORD1,DWORD2,THFINAL1,THNUM,THDEN ,MYW1,MYW2,XO,YO,ZO,LO,MO,NO,XOO,YOO,ZOO,LOO,MOO,NOO ,SAG,ARG,ARG1,X,Y,C,K,CX,CY,KX,KY,DX,DY,EX,EY,FX,FY,GX,GY ,SAG1,SAG2,ARG2,YFC2,XFC2,ZFC2,THFINAL2,PX,PY,PUX,PUY ,PCX,PCY,PUCX,PUCY,DWORD3,DWORD4,VALUE1,VALUE2
 !
    EXTERNAL ARG1,ARG2
 !
@@ -119,10 +115,8 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
          LOO=DIFF(10,NEWIMG)
          MOO=DIFF(11,NEWIMG)
          NOO=DIFF(12,NEWIMG)
-         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))&
-         &+((ZO-ZOO)*(NO-NOO))
-         THDEN=((LO-LOO)**2)+((MO-MOO)**2)&
-         &+((NO-NOO)**2)
+         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))+((ZO-ZOO)*(NO-NOO))
+         THDEN=((LO-LOO)**2)+((MO-MOO)**2)+((NO-NOO)**2)
          IF(DABS(THNUM*1.0D-10).LT.DABS(THDEN)) THEN
             THFINAL1=-(-THNUM/THDEN)
          ELSE
@@ -147,10 +141,8 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
          LOO=DIFF(4,NEWIMG)
          MOO=DIFF(5,NEWIMG)
          NOO=DIFF(6,NEWIMG)
-         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))&
-         &+((ZO-ZOO)*(NO-NOO))
-         THDEN=((LO-LOO)**2)+((MO-MOO)**2)&
-         &+((NO-NOO)**2)
+         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))+((ZO-ZOO)*(NO-NOO))
+         THDEN=((LO-LOO)**2)+((MO-MOO)**2)+((NO-NOO)**2)
          IF(DABS(THNUM*1.0D-10).LT.DABS(THDEN)) THEN
             THFINAL2=-(-THNUM/THDEN)
          ELSE
@@ -167,8 +159,7 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
       IF(ORIEN.EQ.0.OR.ORIEN.EQ.2) THEN
          I=NEWIMG
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-         IF(ALENS(1,I).EQ.0.0D0 &
-         &.AND.ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I).EQ.0.0D0) THEN
             X=XFC1
             Y=YFC1
             CALL SAGFLT(I,X,Y,SAG)
@@ -177,9 +168,9 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
 !       NOT PLANO WITH ASPHERICS
          END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-         IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-            C=ALENS(1,I)
-            K=ALENS(2,I)
+         IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I).EQ.0.0D0) THEN
+            C=surf_curvature(I)
+            K=surf_conic(I)
             X=XFC1
             Y=YFC1
             ARG= ARG1(C,K,X,Y)
@@ -198,39 +189,39 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
          ELSE
 !       NOT ROTATIONALLY SYMMETRIC ASPHERIC
          END IF
-         IF(ALENS(23,I).NE.0.0D0) THEN
+         IF(surf_toric_flag(I).NE.0.0D0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-            IF(ALENS(23,I).EQ.1.0D0) THEN
+            IF(surf_toric_flag(I).EQ.1.0D0) THEN
 !       Y-TORIC
-               CY=ALENS(1,I)
-               KY=ALENS(2,I)
-               DY=ALENS(4,I)
-               EY=ALENS(5,I)
-               FY=ALENS(6,I)
-               GY=ALENS(7,I)
-               CX=ALENS(24,I)
-               KX=ALENS(41,I)
-               DX=ALENS(37,I)
-               EX=ALENS(38,I)
-               FX=ALENS(39,I)
-               GX=ALENS(40,I)
+               CY=surf_curvature(I)
+               KY=surf_conic(I)
+               DY=surf_asphere_coeff(I, 4)
+               EY=surf_asphere_coeff(I, 6)
+               FY=surf_asphere_coeff(I, 8)
+               GY=surf_asphere_coeff(I, 10)
+               CX=surf_toric_curvature(I)
+               KX=surf_anamorphic_conic(I)
+               DX=surf_anamorphic_coeff(I, 4)
+               EX=surf_anamorphic_coeff(I, 6)
+               FX=surf_anamorphic_coeff(I, 8)
+               GX=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
-            IF(ALENS(23,I).EQ.2.0D0) THEN
+            IF(surf_toric_flag(I).EQ.2.0D0) THEN
 !       X-TORIC
-               CX=ALENS(1,I)
-               KX=ALENS(2,I)
-               DX=ALENS(4,I)
-               EX=ALENS(5,I)
-               FX=ALENS(6,I)
-               GX=ALENS(7,I)
-               CY=ALENS(24,I)
-               KY=ALENS(41,I)
-               DY=ALENS(37,I)
-               EY=ALENS(38,I)
-               FY=ALENS(39,I)
-               GY=ALENS(40,I)
+               CX=surf_curvature(I)
+               KX=surf_conic(I)
+               DX=surf_asphere_coeff(I, 4)
+               EX=surf_asphere_coeff(I, 6)
+               FX=surf_asphere_coeff(I, 8)
+               GX=surf_asphere_coeff(I, 10)
+               CY=surf_toric_curvature(I)
+               KY=surf_anamorphic_conic(I)
+               DY=surf_anamorphic_coeff(I, 4)
+               EY=surf_anamorphic_coeff(I, 6)
+               FY=surf_anamorphic_coeff(I, 8)
+               GY=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
             X=XFC1
@@ -256,8 +247,7 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
       IF(ORIEN.EQ.1.OR.ORIEN.EQ.2) THEN
          I=NEWIMG
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-         IF(ALENS(1,I).EQ.0.0D0 &
-         &.AND.ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I).EQ.0.0D0) THEN
             X=XFC2
             Y=YFC2
             CALL SAGFLT(I,X,Y,SAG)
@@ -266,9 +256,9 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
 !       NOT PLANO WITH ASPHERICS
          END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-         IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-            C=ALENS(1,I)
-            K=ALENS(2,I)
+         IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I).EQ.0.0D0) THEN
+            C=surf_curvature(I)
+            K=surf_conic(I)
             X=XFC2
             Y=YFC2
             ARG= ARG1(C,K,X,Y)
@@ -287,39 +277,39 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
          ELSE
 !       NOT ROTATIONALLY SYMMETRIC ASPHERIC
          END IF
-         IF(ALENS(23,I).NE.0.0D0) THEN
+         IF(surf_toric_flag(I).NE.0.0D0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-            IF(ALENS(23,I).EQ.1.0D0) THEN
+            IF(surf_toric_flag(I).EQ.1.0D0) THEN
 !       Y-TORIC
-               CY=ALENS(1,I)
-               KY=ALENS(2,I)
-               DY=ALENS(4,I)
-               EY=ALENS(5,I)
-               FY=ALENS(6,I)
-               GY=ALENS(7,I)
-               CX=ALENS(24,I)
-               KX=ALENS(41,I)
-               DX=ALENS(37,I)
-               EX=ALENS(38,I)
-               FX=ALENS(39,I)
-               GX=ALENS(40,I)
+               CY=surf_curvature(I)
+               KY=surf_conic(I)
+               DY=surf_asphere_coeff(I, 4)
+               EY=surf_asphere_coeff(I, 6)
+               FY=surf_asphere_coeff(I, 8)
+               GY=surf_asphere_coeff(I, 10)
+               CX=surf_toric_curvature(I)
+               KX=surf_anamorphic_conic(I)
+               DX=surf_anamorphic_coeff(I, 4)
+               EX=surf_anamorphic_coeff(I, 6)
+               FX=surf_anamorphic_coeff(I, 8)
+               GX=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
-            IF(ALENS(23,I).EQ.2.0D0) THEN
+            IF(surf_toric_flag(I).EQ.2.0D0) THEN
 !       X-TORIC
-               CX=ALENS(1,I)
-               KX=ALENS(2,I)
-               DX=ALENS(4,I)
-               EX=ALENS(5,I)
-               FX=ALENS(6,I)
-               GX=ALENS(7,I)
-               CY=ALENS(24,I)
-               KY=ALENS(41,I)
-               DY=ALENS(37,I)
-               EY=ALENS(38,I)
-               FY=ALENS(39,I)
-               GY=ALENS(40,I)
+               CX=surf_curvature(I)
+               KX=surf_conic(I)
+               DX=surf_asphere_coeff(I, 4)
+               EX=surf_asphere_coeff(I, 6)
+               FX=surf_asphere_coeff(I, 8)
+               GX=surf_asphere_coeff(I, 10)
+               CY=surf_toric_curvature(I)
+               KY=surf_anamorphic_conic(I)
+               DY=surf_anamorphic_coeff(I, 4)
+               EY=surf_anamorphic_coeff(I, 6)
+               FY=surf_anamorphic_coeff(I, 8)
+               GY=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
             X=XFC2
@@ -352,8 +342,7 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
    END IF
    IF(SYSTEM(30).GE.3.0D0) THEN
       I=NEWIMG
-      CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,&
-      &DWORD1,DWORD2,DWORD3,DWORD4,0)
+      CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,DWORD1,DWORD2,DWORD3,DWORD4,0)
       IF(PUY.NE.0) THEN
          VALUE1=-PY/PUY
       ELSE
@@ -391,6 +380,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -411,12 +401,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
 !     ERROR=0 IF CALCULATION WORKED
 !     ERROR=1 IF CALCULATION FAILED
 !
-   REAL*8 YFC1,XFC1,V1,VAL1,VAL2,SIG,XHT,YHT,ZFC1 &
-   &,XREAL,YREAL,SYS12,SYS13,THFINAL1,THNUM,THDEN,VALUE1,VALUE2 &
-   &,MYW1,MYW2,XO,YO,ZO,LO,MO,NO,XOO,YOO,ZOO,LOO,MOO,NOO &
-   &,SAG,ARG,ARG1,X,Y,C,K,CX,CY,KX,KY,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,SAG1,SAG2,ARG2,YFC2,XFC2,ZFC2,THFINAL2,PX,PY,PUX,PUY &
-   &,PCX,PCY,PUCX,PUCY,DWORD1,DWORD2,MYW3,MYW4,DWORD3,DWORD4
+   REAL*8 YFC1,XFC1,V1,VAL1,VAL2,SIG,XHT,YHT,ZFC1 ,XREAL,YREAL,SYS12,SYS13,THFINAL1,THNUM,THDEN,VALUE1,VALUE2 ,MYW1,MYW2,XO,YO,ZO,LO,MO,NO,XOO,YOO,ZOO,LOO,MOO,NOO ,SAG,ARG,ARG1,X,Y,C,K,CX,CY,KX,KY,DX,DY,EX,EY,FX,FY,GX,GY ,SAG1,SAG2,ARG2,YFC2,XFC2,ZFC2,THFINAL2,PX,PY,PUX,PUY ,PCX,PCY,PUCX,PUCY,DWORD1,DWORD2,MYW3,MYW4,DWORD3,DWORD4
 !
    EXTERNAL ARG1,ARG2
 !
@@ -514,10 +499,8 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
          LOO=DIFF(10,NEWIMG)
          MOO=DIFF(11,NEWIMG)
          NOO=DIFF(12,NEWIMG)
-         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))&
-         &+((ZO-ZOO)*(NO-NOO))
-         THDEN=((LO-LOO)**2)+((MO-MOO)**2)&
-         &+((NO-NOO)**2)
+         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))+((ZO-ZOO)*(NO-NOO))
+         THDEN=((LO-LOO)**2)+((MO-MOO)**2)+((NO-NOO)**2)
          IF(DABS(THNUM*1.0D-10).LT.DABS(THDEN)) THEN
             THFINAL1=-(-THNUM/THDEN)
          ELSE
@@ -542,10 +525,8 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
          LOO=DIFF(4,NEWIMG)
          MOO=DIFF(5,NEWIMG)
          NOO=DIFF(6,NEWIMG)
-         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))&
-         &+((ZO-ZOO)*(NO-NOO))
-         THDEN=((LO-LOO)**2)+((MO-MOO)**2)&
-         &+((NO-NOO)**2)
+         THNUM=((XO-XOO)*(LO-LOO))+((YO-YOO)*(MO-MOO))+((ZO-ZOO)*(NO-NOO))
+         THDEN=((LO-LOO)**2)+((MO-MOO)**2)+((NO-NOO)**2)
          IF(DABS(THNUM*1.0D-10).LT.DABS(THDEN)) THEN
             THFINAL2=-(-THNUM/THDEN)
          ELSE
@@ -562,8 +543,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
       IF(ORIEN.EQ.0.OR.ORIEN.EQ.2) THEN
          I=NEWIMG
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-         IF(ALENS(1,I).EQ.0.0D0 &
-         &.AND.ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I).EQ.0.0D0) THEN
             X=XFC1
             Y=YFC1
             CALL SAGFLT(I,X,Y,SAG)
@@ -572,9 +552,9 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
 !       NOT PLANO WITH ASPHERICS
          END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-         IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-            C=ALENS(1,I)
-            K=ALENS(2,I)
+         IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I).EQ.0.0D0) THEN
+            C=surf_curvature(I)
+            K=surf_conic(I)
             X=XFC1
             Y=YFC1
             ARG= ARG1(C,K,X,Y)
@@ -593,39 +573,39 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
          ELSE
 !       NOT ROTATIONALLY SYMMETRIC ASPHERIC
          END IF
-         IF(ALENS(23,I).NE.0.0D0) THEN
+         IF(surf_toric_flag(I).NE.0.0D0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-            IF(ALENS(23,I).EQ.1.0D0) THEN
+            IF(surf_toric_flag(I).EQ.1.0D0) THEN
 !       Y-TORIC
-               CY=ALENS(1,I)
-               KY=ALENS(2,I)
-               DY=ALENS(4,I)
-               EY=ALENS(5,I)
-               FY=ALENS(6,I)
-               GY=ALENS(7,I)
-               CX=ALENS(24,I)
-               KX=ALENS(41,I)
-               DX=ALENS(37,I)
-               EX=ALENS(38,I)
-               FX=ALENS(39,I)
-               GX=ALENS(40,I)
+               CY=surf_curvature(I)
+               KY=surf_conic(I)
+               DY=surf_asphere_coeff(I, 4)
+               EY=surf_asphere_coeff(I, 6)
+               FY=surf_asphere_coeff(I, 8)
+               GY=surf_asphere_coeff(I, 10)
+               CX=surf_toric_curvature(I)
+               KX=surf_anamorphic_conic(I)
+               DX=surf_anamorphic_coeff(I, 4)
+               EX=surf_anamorphic_coeff(I, 6)
+               FX=surf_anamorphic_coeff(I, 8)
+               GX=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
-            IF(ALENS(23,I).EQ.2.0D0) THEN
+            IF(surf_toric_flag(I).EQ.2.0D0) THEN
 !       X-TORIC
-               CX=ALENS(1,I)
-               KX=ALENS(2,I)
-               DX=ALENS(4,I)
-               EX=ALENS(5,I)
-               FX=ALENS(6,I)
-               GX=ALENS(7,I)
-               CY=ALENS(24,I)
-               KY=ALENS(41,I)
-               DY=ALENS(37,I)
-               EY=ALENS(38,I)
-               FY=ALENS(39,I)
-               GY=ALENS(40,I)
+               CX=surf_curvature(I)
+               KX=surf_conic(I)
+               DX=surf_asphere_coeff(I, 4)
+               EX=surf_asphere_coeff(I, 6)
+               FX=surf_asphere_coeff(I, 8)
+               GX=surf_asphere_coeff(I, 10)
+               CY=surf_toric_curvature(I)
+               KY=surf_anamorphic_conic(I)
+               DY=surf_anamorphic_coeff(I, 4)
+               EY=surf_anamorphic_coeff(I, 6)
+               FY=surf_anamorphic_coeff(I, 8)
+               GY=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
             X=XFC1
@@ -651,8 +631,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
       IF(ORIEN.EQ.1.OR.ORIEN.EQ.2) THEN
          I=NEWIMG
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-         IF(ALENS(1,I).EQ.0.0D0 &
-         &.AND.ALENS(23,I).EQ.0.0D0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I).EQ.0.0D0) THEN
             X=XFC2
             Y=YFC2
             CALL SAGFLT(I,X,Y,SAG)
@@ -661,9 +640,9 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
 !       NOT PLANO WITH ASPHERICS
          END IF
 !       SPHERICAL, CONIC AND ASPHERIC ROTATIONALLY SYMMETRIC SURFACES
-         IF(ALENS(1,I).NE.0.0D0.AND.ALENS(23,I).EQ.0.0D0) THEN
-            C=ALENS(1,I)
-            K=ALENS(2,I)
+         IF(surf_curvature(I).NE.0.0D0.AND.surf_toric_flag(I).EQ.0.0D0) THEN
+            C=surf_curvature(I)
+            K=surf_conic(I)
             X=XFC2
             Y=YFC2
             ARG= ARG1(C,K,X,Y)
@@ -682,39 +661,39 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
          ELSE
 !       NOT ROTATIONALLY SYMMETRIC ASPHERIC
          END IF
-         IF(ALENS(23,I).NE.0.0D0) THEN
+         IF(surf_toric_flag(I).NE.0.0D0) THEN
 !       SURFACE I IS TOROIDAL AND MAY BE CONIC AND ANAMORPHIC
 !       ASPHERIC
-            IF(ALENS(23,I).EQ.1.0D0) THEN
+            IF(surf_toric_flag(I).EQ.1.0D0) THEN
 !       Y-TORIC
-               CY=ALENS(1,I)
-               KY=ALENS(2,I)
-               DY=ALENS(4,I)
-               EY=ALENS(5,I)
-               FY=ALENS(6,I)
-               GY=ALENS(7,I)
-               CX=ALENS(24,I)
-               KX=ALENS(41,I)
-               DX=ALENS(37,I)
-               EX=ALENS(38,I)
-               FX=ALENS(39,I)
-               GX=ALENS(40,I)
+               CY=surf_curvature(I)
+               KY=surf_conic(I)
+               DY=surf_asphere_coeff(I, 4)
+               EY=surf_asphere_coeff(I, 6)
+               FY=surf_asphere_coeff(I, 8)
+               GY=surf_asphere_coeff(I, 10)
+               CX=surf_toric_curvature(I)
+               KX=surf_anamorphic_conic(I)
+               DX=surf_anamorphic_coeff(I, 4)
+               EX=surf_anamorphic_coeff(I, 6)
+               FX=surf_anamorphic_coeff(I, 8)
+               GX=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
-            IF(ALENS(23,I).EQ.2.0D0) THEN
+            IF(surf_toric_flag(I).EQ.2.0D0) THEN
 !       X-TORIC
-               CX=ALENS(1,I)
-               KX=ALENS(2,I)
-               DX=ALENS(4,I)
-               EX=ALENS(5,I)
-               FX=ALENS(6,I)
-               GX=ALENS(7,I)
-               CY=ALENS(24,I)
-               KY=ALENS(41,I)
-               DY=ALENS(37,I)
-               EY=ALENS(38,I)
-               FY=ALENS(39,I)
-               GY=ALENS(40,I)
+               CX=surf_curvature(I)
+               KX=surf_conic(I)
+               DX=surf_asphere_coeff(I, 4)
+               EX=surf_asphere_coeff(I, 6)
+               FX=surf_asphere_coeff(I, 8)
+               GX=surf_asphere_coeff(I, 10)
+               CY=surf_toric_curvature(I)
+               KY=surf_anamorphic_conic(I)
+               DY=surf_anamorphic_coeff(I, 4)
+               EY=surf_anamorphic_coeff(I, 6)
+               FY=surf_anamorphic_coeff(I, 8)
+               GY=surf_anamorphic_coeff(I, 10)
             ELSE
             END IF
             X=XFC2
@@ -746,8 +725,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
    END IF
    IF(SYSTEM(30).GE.3.0D0) THEN
       I=NEWIMG
-      CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,&
-      &DWORD1,DWORD2,DWORD3,DWORD4,0)
+      CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,DWORD1,DWORD2,DWORD3,DWORD4,0)
       IF(PUY.NE.0) THEN
          VALUE1=-PY/PUY
       ELSE
@@ -783,6 +761,7 @@ END
 SUBROUTINE FIELDABS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -795,9 +774,7 @@ SUBROUTINE FIELDABS
 !
    COMMON/FIFI/FLDAN
 !
-   REAL*8 VALUE,DWORD1,DWORD2,WOR1(0:50),WOR2(0:50)&
-   &,WOR11,OW3,WOR12,FACTY,ORI,DTA11(0:50),DTA22(0:50)&
-   &,VI,DDTA(0:50),ADTA(0:50)
+   REAL*8 VALUE,DWORD1,DWORD2,WOR1(0:50),WOR2(0:50),WOR11,OW3,WOR12,FACTY,ORI,DTA11(0:50),DTA22(0:50),VI,DDTA(0:50),ADTA(0:50)
 !
    INTEGER I,NUM5,ERROR,PNTNUM
 !
@@ -813,14 +790,12 @@ SUBROUTINE FIELDABS
 !
    IF(WC.EQ.'FISHDIST') THEN
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"FISHDIST" CALCULATES AND DISPLAYS DISTORTION'
+         WRITE(OUTLYNE,*)'"FISHDIST" CALCULATES AND DISPLAYS DISTORTION'
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SQ.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"FISHDIST" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
+         WRITE(OUTLYNE,*)'"FISHDIST" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -831,8 +806,7 @@ SUBROUTINE FIELDABS
       IF(DF2.EQ.1) W2=1.0D0
       IF(DF3.EQ.1) W3=10.0D0
       IF(W1.LT.0.0D0.OR.W1.GT.360.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -840,8 +814,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W2.LE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -849,8 +822,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.LT.1.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -858,8 +830,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.GT.50.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -887,8 +858,7 @@ SUBROUTINE FIELDABS
          CALL FDISTOR(DWORD1,DWORD2,ERROR)
          IF(ERROR.EQ.1) THEN
             FDISEXT=.FALSE.
-            WRITE(OUTLYNE,*)&
-            &'FISHEYE DISTORION NOT CALCULABLE, NO DATA GENERATED'
+            WRITE(OUTLYNE,*)'FISHEYE DISTORION NOT CALCULABLE, NO DATA GENERATED'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -902,8 +872,7 @@ SUBROUTINE FIELDABS
       END DO
 !     GENERATE PRINTOUT
 500   FORMAT('FISHEYE DISTORTION TABLE')
-602   FORMAT('Y-FIELD POSITION',5X,'X-FIELD POSITION'&
-      &,5X,'PERCENT FISHEYE DISTORTION')
+602   FORMAT('Y-FIELD POSITION',5X,'X-FIELD POSITION',5X,'PERCENT FISHEYE DISTORTION')
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,101)
@@ -916,7 +885,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,602)
       CALL SHOWIT(0)
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D0) THEN
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D0) THEN
 !     ANGULAR FIELD POS
          WRITE(OUTLYNE,106)
          CALL SHOWIT(0)
@@ -930,7 +899,7 @@ SUBROUTINE FIELDABS
       END IF
 
       DO I=0,INT(OW3)
-         IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             WOR11=WOR1(I)*SYSTEM(21)
             WOR12=WOR2(I)*SYSTEM(23)
          ELSE
@@ -949,14 +918,12 @@ SUBROUTINE FIELDABS
    END IF
    IF(WC.EQ.'DIST') THEN
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DIST" CALCULATES AND DISPLAYS DISTORTION'
+         WRITE(OUTLYNE,*)'"DIST" CALCULATES AND DISPLAYS DISTORTION'
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SQ.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DIST" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
+         WRITE(OUTLYNE,*)'"DIST" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -967,8 +934,7 @@ SUBROUTINE FIELDABS
       IF(DF2.EQ.1) W2=1.0D0
       IF(DF3.EQ.1) W3=10.0D0
       IF(W1.LT.0.0D0.OR.W1.GT.360.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -976,8 +942,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W2.LE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -985,8 +950,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.LT.1.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -994,8 +958,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.GT.50.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1023,8 +986,7 @@ SUBROUTINE FIELDABS
          CALL DISTOR(DWORD1,DWORD2,ERROR)
          IF(ERROR.EQ.1) THEN
             DISEXT=.FALSE.
-            WRITE(OUTLYNE,*)&
-            &'DISTORION NOT CALCULABLE, NO DATA GENERATED'
+            WRITE(OUTLYNE,*)'DISTORION NOT CALCULABLE, NO DATA GENERATED'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1039,8 +1001,7 @@ SUBROUTINE FIELDABS
 !     GENERATE PRINTOUT
 100   FORMAT('DISTORTION TABLE')
 101   FORMAT(' ')
-102   FORMAT('Y-FIELD POSITION',5X,'X-FIELD POSITION'&
-      &,5X,'PERCENT DISTORTION')
+102   FORMAT('Y-FIELD POSITION',5X,'X-FIELD POSITION',5X,'PERCENT DISTORTION')
 106   FORMAT('     DEGREES    ',5X,'     DEGREES')
 107   FORMAT('      IN(S)     ',5X,'      IN(S)')
 108   FORMAT('      CM(S)     ',5X,'      CM(S)')
@@ -1062,7 +1023,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,102)
       CALL SHOWIT(0)
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D0) THEN
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D0) THEN
 !     ANGULAR FIELD POS
          WRITE(OUTLYNE,106)
          CALL SHOWIT(0)
@@ -1076,7 +1037,7 @@ SUBROUTINE FIELDABS
       END IF
 
       DO I=0,INT(OW3)
-         IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             WOR11=WOR1(I)*SYSTEM(21)
             WOR12=WOR2(I)*SYSTEM(23)
          ELSE
@@ -1095,14 +1056,12 @@ SUBROUTINE FIELDABS
    END IF
    IF(WC.EQ.'FLDCV') THEN
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"FLDCV" CALCULATES AND DISPLAYS FIELD CURVATURE'
+         WRITE(OUTLYNE,*)'"FLDCV" CALCULATES AND DISPLAYS FIELD CURVATURE'
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SQ.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"FLDCV" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
+         WRITE(OUTLYNE,*)'"FLDCV" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1113,8 +1072,7 @@ SUBROUTINE FIELDABS
       IF(DF2.EQ.1) W2=1.0D0
       IF(DF3.EQ.1) W3=10.0D0
       IF(W1.LT.0.0D0.OR.W1.GT.360.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1122,8 +1080,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W2.LE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1131,8 +1088,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.LT.1.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1140,8 +1096,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.GT.50.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1178,8 +1133,7 @@ SUBROUTINE FIELDABS
          CALL FLDCRV(0,DWORD1,DWORD2,ERROR)
          IF(ERROR.EQ.1) THEN
             FLDEXT=.FALSE.
-            WRITE(OUTLYNE,*)&
-            &'FIELD CURVATURE NOT CALCULABLE, NO DATA GENERATED'
+            WRITE(OUTLYNE,*)'FIELD CURVATURE NOT CALCULABLE, NO DATA GENERATED'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1194,8 +1148,7 @@ SUBROUTINE FIELDABS
          CALL FLDCRV(1,DWORD1,DWORD2,ERROR)
          IF(ERROR.EQ.1) THEN
             FLDEXT=.FALSE.
-            WRITE(OUTLYNE,*)&
-            &'FIELD CURVATURE NOT CALCULABLE, NO DATA GENERATED'
+            WRITE(OUTLYNE,*)'FIELD CURVATURE NOT CALCULABLE, NO DATA GENERATED'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1210,8 +1163,7 @@ SUBROUTINE FIELDABS
 !     GENERATE PRINTOUT
 200   FORMAT('FIELD CURVATURE TABLE')
 201   FORMAT(' ')
-202   FORMAT('Y-FIELD POSITION',3X,'X-FIELD POSITION'&
-      &,3X,'Y-FIELD CURV. (YZ)',3X,'X-FIELD CURV. (XZ)')
+202   FORMAT('Y-FIELD POSITION',3X,'X-FIELD POSITION',3X,'Y-FIELD CURV. (YZ)',3X,'X-FIELD CURV. (XZ)')
 206   FORMAT('     DEGREES    ',3X,'     DEGREES')
 207   FORMAT('      IN(S)     ',3X,'      IN(S)')
 208   FORMAT('      CM(S)     ',3X,'      CM(S)')
@@ -1235,7 +1187,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,202)
       CALL SHOWIT(0)
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D0) THEN
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D0) THEN
 !     ANGULAR FIELD POS
          WRITE(OUTLYNE,206)
          CALL SHOWIT(0)
@@ -1249,7 +1201,7 @@ SUBROUTINE FIELDABS
       END IF
 
       DO I=0,INT(W3)
-         IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             WOR11=WOR1(I)*SYSTEM(21)
             WOR12=WOR2(I)*SYSTEM(23)
          ELSE
@@ -1267,14 +1219,12 @@ SUBROUTINE FIELDABS
    END IF
    IF(WC.EQ.'AST') THEN
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"AST" CALCULATES AND DISPLAYS ASTIGMATISM (Y-X)'
+         WRITE(OUTLYNE,*)'"AST" CALCULATES AND DISPLAYS ASTIGMATISM (Y-X)'
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SQ.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"AST" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
+         WRITE(OUTLYNE,*)'"AST" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1285,8 +1235,7 @@ SUBROUTINE FIELDABS
       IF(DF2.EQ.1) W2=1.0D0
       IF(DF3.EQ.1) W3=10.0D0
       IF(W1.LT.0.0D0.OR.W1.GT.360.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #1 MAY RANGE FROM 0 TO 360 DEGREES'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1294,8 +1243,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W2.LE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #2 MUST BE GREATER THAN 0.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1303,8 +1251,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.LT.1.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE GREATER THAN OR EQUAL TO 1.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1312,8 +1259,7 @@ SUBROUTINE FIELDABS
          RETURN
       END IF
       IF(W3.GT.50.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE LESS THAN OR EQUAL TO 50.0'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1350,8 +1296,7 @@ SUBROUTINE FIELDABS
          CALL FLDCRV(2,DWORD1,DWORD2,ERROR)
          IF(ERROR.EQ.1) THEN
             ASTEXT=.FALSE.
-            WRITE(OUTLYNE,*)&
-            &'ASTIGMATISM NOT CALCULABLE, NO DATA GENERATED'
+            WRITE(OUTLYNE,*)'ASTIGMATISM NOT CALCULABLE, NO DATA GENERATED'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1366,8 +1311,7 @@ SUBROUTINE FIELDABS
 !     GENERATE PRINTOUT
 300   FORMAT('ASTIGMATISM TABLE (Y-X)')
 301   FORMAT(' ')
-302   FORMAT('Y-FIELD POSITION',5X,'X-FIELD POSITION'&
-      &,5X,'   ASTIGMATISM (Y-X)')
+302   FORMAT('Y-FIELD POSITION',5X,'X-FIELD POSITION',5X,'   ASTIGMATISM (Y-X)')
 306   FORMAT('     DEGREES    ',5X,'     DEGREES')
 307   FORMAT('      IN(S)     ',5X,'      IN(S)')
 308   FORMAT('      CM(S)     ',5X,'      CM(S)')
@@ -1391,7 +1335,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,302)
       CALL SHOWIT(0)
-      IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D0) THEN
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D0) THEN
 !     ANGULAR FIELD POS
          WRITE(OUTLYNE,306)
          CALL SHOWIT(0)
@@ -1405,7 +1349,7 @@ SUBROUTINE FIELDABS
       END IF
 
       DO I=0,INT(W3)
-         IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
+         IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             WOR11=WOR1(I)*SYSTEM(21)
             WOR12=WOR2(I)*SYSTEM(23)
          ELSE
@@ -1427,6 +1371,7 @@ END
 SUBROUTINE DRAWFAN
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1446,8 +1391,7 @@ SUBROUTINE DRAWFAN
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"DRAWFAN" ONLY TAKES NUMERIC WORDS #1 AND #2'
       CALL SHOWIT(1)
       CALL MACFAL
@@ -1498,6 +1442,7 @@ SUBROUTINE FALRAY
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1531,6 +1476,7 @@ END
 SUBROUTINE PLT_FAN
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1550,8 +1496,7 @@ SUBROUTINE PLT_FAN
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1.OR.S2.EQ.1) THEN
+   IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1.OR.S2.EQ.1) THEN
       OUTLYNE='"PLT_FAN" ONLY TAKES NUMERIC WORD #1'
       CALL SHOWIT(1)
       CALL MACFAL
@@ -1591,26 +1536,23 @@ END
 SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
 !     PRIMARY GRID SPSRF SUBROUTINE
 !
-   REAL*8 BA,AP,FUNC,XR,YR,REFHIT,SUBHIT &
-   &,DX,DY,MAG,LL1,MM1,RIIX,RIIY,X1,X2,Y1,Y2,FX,FY
+   REAL*8 BA,AP,FUNC,XR,YR,REFHIT,SUBHIT ,DX,DY,MAG,LL1,MM1,RIIX,RIIY,X1,X2,Y1,Y2,FX,FY
 !
-   REAL*8 XPASS,YPASS,ZPASS,V11,V12,V21,V22,DXV11,DXV12 &
-   &,DXV21,DXV22,DYV11,DYV12,DYV21,DYV22
+   REAL*8 XPASS,YPASS,ZPASS,V11,V12,V21,V22,DXV11,DXV12 ,DXV21,DXV22,DYV11,DYV12,DYV21,DYV22
 !
    COMMON/SAGPAS/XPASS,YPASS,ZPASS
 !
-   INTEGER I,J,M,IX,IY,ICODE,ALLOERR,ISURF,IX1,IX2,IY1,IY2,II &
-   &,ISF,N1,ENDIT,JJ,KK,IIX,IIY,M1,I1,I2,I3,I4,I5,I6,I7,I8,MM
+   INTEGER I,J,M,IX,IY,ICODE,ALLOERR,ISURF,IX1,IX2,IY1,IY2,II ,ISF,N1,ENDIT,JJ,KK,IIX,IIY,M1,I1,I2,I3,I4,I5,I6,I7,I8,MM
 !
    COMMON/GD1GD1/I1,I2,I3,I4,I5,I6,I7,I8
 !
-   COMMON/GD2GD2/IX1,IX2,IY1,IY2,DXV11,DXV12,DXV21,DXV22 &
-   &,DYV11,DYV12,DYV21,DYV22,V11,V12,V21,V22
+   COMMON/GD2GD2/IX1,IX2,IY1,IY2,DXV11,DXV12,DXV21,DXV22 ,DYV11,DYV12,DYV21,DYV22,V11,V12,V21,V22
 !
    COMMON/GD3GD3/IX,IY
 !
@@ -1621,78 +1563,44 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
    REAL*8 JIMRAY1,JIMRAY2,RAYENERGY
    COMMON/FOOTGRID/JIMRAY1,JIMRAY2,RAYENERGY
 !
-   REAL*8 GD001,&
-   &GD002,GD003,GD004,&
-   &GD005,GD006,GD007,GD008,GD009,&
-   &GD010,GD011,GD012,GD013,GD014,&
-   &GD015,GD016,GD017,GD018,GD019,&
-   &GD020,GD021,GD022,GD023,GD024,&
-   &GD025,GD026,GD027,GD028,GD029,&
-   &GD030,GD031,GD032,GD033,GD034,&
-   &GD035,GD036,GD037,GD038,GD039,&
-   &GD040,GD041,GD042,GD043,GD044,&
-   &GD045,GD046,GD047,GD048,GD049 &
-   &,GD050
+   REAL*8 GD001,GD002,GD003,GD004,GD005,GD006,GD007,GD008,GD009,GD010,GD011,GD012,GD013,GD014,GD015,GD016,GD017,GD018,GD019,GD020,GD021,GD022,GD023,GD024,GD025,GD026,GD027,GD028,GD029,GD030,GD031,GD032,GD033,GD034,GD035,GD036,GD037,GD038,GD039,GD040,GD041,GD042,GD043,GD044,GD045,GD046,GD047,GD048,GD049 ,GD050
 !
-   DIMENSION GD001(:,:,:),&
-   &GD002(:,:,:),GD003(:,:,:),GD004(:,:,:),&
-   &GD005(:,:,:),GD006(:,:,:),GD007(:,:,:),GD008(:,:,:),GD009(:,:,:),&
-   &GD010(:,:,:),GD011(:,:,:),GD012(:,:,:),GD013(:,:,:),GD014(:,:,:),&
-   &GD015(:,:,:),GD016(:,:,:),GD017(:,:,:),GD018(:,:,:),GD019(:,:,:),&
-   &GD020(:,:,:),GD021(:,:,:),GD022(:,:,:),GD023(:,:,:),GD024(:,:,:),&
-   &GD025(:,:,:),GD026(:,:,:),GD027(:,:,:),GD028(:,:,:),GD029(:,:,:),&
-   &GD030(:,:,:),GD031(:,:,:),GD032(:,:,:),GD033(:,:,:),GD034(:,:,:),&
-   &GD035(:,:,:),GD036(:,:,:),GD037(:,:,:),GD038(:,:,:),GD039(:,:,:),&
-   &GD040(:,:,:),GD041(:,:,:),GD042(:,:,:),GD043(:,:,:),GD044(:,:,:),&
-   &GD045(:,:,:),GD046(:,:,:),GD047(:,:,:),GD048(:,:,:),GD049(:,:,:)&
-   &,GD050(:,:,:)
+   DIMENSION GD001(:,:,:),GD002(:,:,:),GD003(:,:,:),GD004(:,:,:),GD005(:,:,:),GD006(:,:,:),GD007(:,:,:),GD008(:,:,:),GD009(:,:,:),GD010(:,:,:),GD011(:,:,:),GD012(:,:,:),GD013(:,:,:),GD014(:,:,:),GD015(:,:,:),GD016(:,:,:),GD017(:,:,:),GD018(:,:,:),GD019(:,:,:),GD020(:,:,:),GD021(:,:,:),GD022(:,:,:),GD023(:,:,:),GD024(:,:,:),GD025(:,:,:),GD026(:,:,:),GD027(:,:,:),GD028(:,:,:),GD029(:,:,:),GD030(:,:,:),GD031(:,:,:),GD032(:,:,:),GD033(:,:,:),GD034(:,:,:),GD035(:,:,:),GD036(:,:,:),GD037(:,:,:),GD038(:,:,:),GD039(:,:,:),GD040(:,:,:),GD041(:,:,:),GD042(:,:,:),GD043(:,:,:),GD044(:,:,:),GD045(:,:,:),GD046(:,:,:),GD047(:,:,:),GD048(:,:,:),GD049(:,:,:),GD050(:,:,:)
 !
-   ALLOCATABLE :: GD001,&
-   &GD002,GD003,GD004,GD005,GD006,GD007,GD008,GD009,&
-   &GD010,GD011,GD012,GD013,GD014,GD015,GD016,GD017,GD018,GD019,&
-   &GD020,GD021,GD022,GD023,GD024,GD025,GD026,GD027,GD028,GD029,&
-   &GD030,GD031,GD032,GD033,GD034,GD035,GD036,GD037,GD038,GD039,&
-   &GD040,GD041,GD042,GD043,GD044,GD045,GD046,GD047,GD048,GD049,&
-   &GD050
+   ALLOCATABLE :: GD001,GD002,GD003,GD004,GD005,GD006,GD007,GD008,GD009,GD010,GD011,GD012,GD013,GD014,GD015,GD016,GD017,GD018,GD019,GD020,GD021,GD022,GD023,GD024,GD025,GD026,GD027,GD028,GD029,GD030,GD031,GD032,GD033,GD034,GD035,GD036,GD037,GD038,GD039,GD040,GD041,GD042,GD043,GD044,GD045,GD046,GD047,GD048,GD049,GD050
 !
    SAVE
 !     IF ICODE = 1, JUST DEALLOCATE THE GD ARRAYS. THIS HAPPENS
 !     WHENEVER SPFIT OR LENNS IS CALLED. THIS FREES MEMORY
 !
 !     IF ICODE = 2, JUST ALLOCATE AND LOAD THE GRID TYPE 19 SURFACE
-!     IF ALENS(88,ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
+!     IF surf_aux88(ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
 !     APODIZATION FACTOR TO RAYRAY(25,ISURF) AND THEN RETURN
 !
 !     IF ICODE = 3, JUST ALLOCATE AND LOAD THE GRID TYPE 20 SURFACE
-!     IF ALENS(88,ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
+!     IF surf_aux88(ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
 !     PHASE AND ADJUST THE RAY DIRECTION COSINES AND THEN RETURN
 !
 !     IF ICODE = 4, JUST ALLOCATE AND LOAD THE GRID TYPE 22 SURFACE
-!     IF ALENS(88,ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
+!     IF surf_aux88(ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
 !     SAG AND ADJUST SURFACE NORMALS AND THEN RETURN
 
 !     IF ICODE = 5, USED FOR SAG CALCULATIONS OF A GRID SAG SURFACE (TYPE 22)
 !
 !     IF ICODE = 6, JUST ALLOCATE AND LOAD THE GRID TYPE 19 SURFACE
-!     IF ALENS(88,ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
+!     IF surf_aux88(ISURF).EQ.0.0D0 AND THEN CALCULATE AND APPLY THE
 !     APODIZATION FACTOR TO RAYENERGY AND THEN RETURN
 !
    N1=3
 !
    IF(ICODE.EQ.1) THEN
-      DEALLOCATE(&
-      &GD001,GD002,GD003,GD004,GD005,GD006,GD007,GD008,GD009,&
-      &GD010,GD011,GD012,GD013,GD014,GD015,GD016,GD017,GD018,GD019,&
-      &GD020,GD021,GD022,GD023,GD024,GD025,GD026,GD027,GD028,GD029,&
-      &GD030,GD031,GD032,GD033,GD034,GD035,GD036,GD037,GD038,GD039,&
-      &GD040,GD041,GD042,GD043,GD044,GD045,GD046,GD047,GD048,GD049,&
-      &GD050,STAT=ALLOERR)
+      DEALLOCATE(GD001,GD002,GD003,GD004,GD005,GD006,GD007,GD008,GD009,GD010,GD011,GD012,GD013,GD014,GD015,GD016,GD017,GD018,GD019,GD020,GD021,GD022,GD023,GD024,GD025,GD026,GD027,GD028,GD029,GD030,GD031,GD032,GD033,GD034,GD035,GD036,GD037,GD038,GD039,GD040,GD041,GD042,GD043,GD044,GD045,GD046,GD047,GD048,GD049,GD050,STAT=ALLOERR)
       GERROR=.FALSE.
       RETURN
    END IF
 !
    IF(ICODE.EQ.2.OR.ICODE.EQ.6) THEN
-      IF(ALENS(88,ISURF).EQ.0.0D0) THEN
+      IF(surf_aux88(ISURF).EQ.0.0D0) THEN
 !     ALLOCATE THE GD ARRAY FOR THIS SURFACE AND LOAD IT
 !     DOES THE FILE EXIST AND IS IT OF THE CORRECT SIZE?
 !     SET THE FILE NAME
@@ -1756,7 +1664,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
       END IF
    END IF
    IF(ICODE.EQ.3) THEN
-      IF(ALENS(88,ISURF).EQ.0.0D0) THEN
+      IF(surf_aux88(ISURF).EQ.0.0D0) THEN
 !     ALLOCATE THE GRID ARRAY FOR THIS SURFACE AND LOAD IT
 !     DOES THE FILE EXIST AND IS IT OF THE CORRECT SIZE?
 !     SET THE FILE NAME
@@ -1820,7 +1728,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
       END IF
    END IF
    IF(ICODE.EQ.4.OR.ICODE.EQ.5) THEN
-      IF(ALENS(88,ISURF).EQ.0.0D0) THEN
+      IF(surf_aux88(ISURF).EQ.0.0D0) THEN
 !     ALLOCATE THE GRID ARRAY FOR THIS SURFACE AND LOAD IT
 !     DOES THE FILE EXIST AND IS IT OF THE CORRECT SIZE?
 !     SET THE FILE NAME
@@ -1884,9 +1792,8 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
       END IF
    END IF
 
-   IF(ICODE.EQ.2.OR.ICODE.EQ.3.OR.ICODE.EQ.4.OR.ICODE.EQ.5 &
-   &.OR.ICODE.EQ.6) THEN
-      IF(ALENS(88,ISURF).EQ.0.0D0) THEN
+   IF(ICODE.EQ.2.OR.ICODE.EQ.3.OR.ICODE.EQ.4.OR.ICODE.EQ.5 .OR.ICODE.EQ.6) THEN
+      IF(surf_aux88(ISURF).EQ.0.0D0) THEN
          IF(ICODE.EQ.2.OR.ICODE.EQ.6) THEN
             WRITE(OUTLYNE,*)'FOR SURFACE # ',ISURF
             CALL SHOWIT(1)
@@ -1916,8 +1823,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
             RETURN
          END IF
 !
-         OPEN(UNIT=26,FILE=FLNAME,&
-         &STATUS='UNKNOWN')
+         OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
          M1=INT(FTFL01(2,ISURF))
          M=M1
          MM=M1**2
@@ -1930,8 +1836,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
          RETURN
 777      CONTINUE
          CALL CLOSE_FILE(26,1)
-         OPEN(UNIT=26,FILE=FLNAME,&
-         &STATUS='UNKNOWN')
+         OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
 !     IF HERE, THEN ALLOCATE THE ARRAY AND READ THE DATA AGAIN
          ISF=INT(FTFL01(1,ISURF))
          IF(ISF.EQ.1)   ALLOCATE(GD001(M1,M1,3),STAT=ALLOERR)
@@ -2260,7 +2165,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
             END DO
          END IF
 !     SET LOADED FLAG
-         ALENS(88,ISURF)=1.0D0
+         call set_surf_aux88(ISURF, 1.0D0)
          CALL CLOSE_FILE(26,1)
       ELSE
 !     IT HAS ALREADY BEEN ALLOCATED AND LOADED, NOTHING TO DO RIGHT HERE
@@ -2279,7 +2184,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
          YR=YPASS
       END IF
 !     ASSIGN THE REFHIT VALUE
-      IF(FTFL01(3,ISURF).EQ.-99.0D0) REFHIT=ALENS(76,ISURF)
+      IF(FTFL01(3,ISURF).EQ.-99.0D0) REFHIT=surf_inr_value(ISURF)
       IF(FTFL01(3,ISURF).NE.-99.0D0) REFHIT=DABS(FTFL01(3,ISURF))
 !     ORIGIN ADJUSTED RAY COORDINATES ARE:
 !     SIDE DIMENSIONS OF A SINGLE SQUARE is:
@@ -2380,19 +2285,10 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
       AP=0.0D0
       DX=0.0D0
       DY=0.0D0
-      AP=((1.0D0-FX)*(1.0D0-FY)*V11)&
-      &+((1.0D0-FX)*(FY)*V12)&
-      &+((FX)*(1.0D0-FY)*V21)&
-      &+((FX)*(FY)*V22)
+      AP=((1.0D0-FX)*(1.0D0-FY)*V11)+((1.0D0-FX)*(FY)*V12)+((FX)*(1.0D0-FY)*V21)+((FX)*(FY)*V22)
       IF(ICODE.EQ.3) THEN
-         DX=((1.0D0-FX)*(1.0D0-FY)*DXV11)&
-         &+((1.0D0-FX)*(FY)*DXV12)&
-         &+((FX)*(1.0D0-FY)*DXV21)&
-         &+((FX)*(FY)*DXV22)
-         DY=((1.0D0-FX)*(1.0D0-FY)*DYV11)&
-         &+((1.0D0-FX)*(FY)*DYV12)&
-         &+((FX)*(1.0D0-FY)*DYV21)&
-         &+((FX)*(FY)*DYV22)
+         DX=((1.0D0-FX)*(1.0D0-FY)*DXV11)+((1.0D0-FX)*(FY)*DXV12)+((FX)*(1.0D0-FY)*DXV21)+((FX)*(FY)*DXV22)
+         DY=((1.0D0-FX)*(1.0D0-FY)*DYV11)+((1.0D0-FX)*(FY)*DYV12)+((FX)*(1.0D0-FY)*DYV21)+((FX)*(FY)*DYV22)
          IF(ICODE.EQ.3) THEN
             AP=-AP
             DX=-DX
@@ -2498,7 +2394,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
       XR=JIMRAY1
       YR=JIMRAY2
 !     ASSIGN THE REFHIT VALUE
-      IF(FTFL01(3,ISURF).EQ.-99.0D0) REFHIT=ALENS(76,ISURF)
+      IF(FTFL01(3,ISURF).EQ.-99.0D0) REFHIT=surf_inr_value(ISURF)
       IF(FTFL01(3,ISURF).NE.-99.0D0) REFHIT=DABS(FTFL01(3,ISURF))
 !     ORIGIN ADJUSTED RAY COORDINATES ARE:
 !     SIDE DIMENSIONS OF A SINGLE SQUARE is:
@@ -2599,19 +2495,10 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
       AP=0.0D0
       DX=0.0D0
       DY=0.0D0
-      AP=((1.0D0-FX)*(1.0D0-FY)*V11)&
-      &+((1.0D0-FX)*(FY)*V12)&
-      &+((FX)*(1.0D0-FY)*V21)&
-      &+((FX)*(FY)*V22)
+      AP=((1.0D0-FX)*(1.0D0-FY)*V11)+((1.0D0-FX)*(FY)*V12)+((FX)*(1.0D0-FY)*V21)+((FX)*(FY)*V22)
       IF(ICODE.EQ.3) THEN
-         DX=((1.0D0-FX)*(1.0D0-FY)*DXV11)&
-         &+((1.0D0-FX)*(FY)*DXV12)&
-         &+((FX)*(1.0D0-FY)*DXV21)&
-         &+((FX)*(FY)*DXV22)
-         DY=((1.0D0-FX)*(1.0D0-FY)*DYV11)&
-         &+((1.0D0-FX)*(FY)*DYV12)&
-         &+((FX)*(1.0D0-FY)*DYV21)&
-         &+((FX)*(FY)*DYV22)
+         DX=((1.0D0-FX)*(1.0D0-FY)*DXV11)+((1.0D0-FX)*(FY)*DXV12)+((FX)*(1.0D0-FY)*DXV21)+((FX)*(FY)*DXV22)
+         DY=((1.0D0-FX)*(1.0D0-FY)*DYV11)+((1.0D0-FX)*(FY)*DYV12)+((FX)*(1.0D0-FY)*DYV21)+((FX)*(FY)*DYV22)
       END IF
       IF(ICODE.EQ.3) THEN
          AP=-AP
@@ -2632,11 +2519,9 @@ END
 SUBROUTINE GD2(GRIDER,M1,N1,ICODE)
    use DATMAI
    IMPLICIT NONE
-   REAL*8 V11,V12,V22,V21,GRIDER,DXV11,DXV12,DXV21,DXV22 &
-   &,DYV11,DYV12,DYV21,DYV22
+   REAL*8 V11,V12,V22,V21,GRIDER,DXV11,DXV12,DXV21,DXV22 ,DYV11,DYV12,DYV21,DYV22
    INTEGER M1,N1,IX1,IX2,IY1,IY2,ICODE
-   COMMON/GD2GD2/IX1,IX2,IY1,IY2,DXV11,DXV12,DXV21,DXV22 &
-   &,DYV11,DYV12,DYV21,DYV22,V11,V12,V21,V22
+   COMMON/GD2GD2/IX1,IX2,IY1,IY2,DXV11,DXV12,DXV21,DXV22 ,DYV11,DYV12,DYV21,DYV22,V11,V12,V21,V22
    DIMENSION GRIDER(M1,M1,N1)
    V11=GRIDER(IX1,IY1,1)
    V12=GRIDER(IX1,IY2,1)
@@ -2661,39 +2546,23 @@ SUBROUTINE GD3(GRIDER,M1,N1)
    COMMON/GD3GD3/IX,IY
    DIMENSION GRIDER(M1,M1,N1)
    IF(IX.GT.1.AND.IX.LT.M1) THEN
-      GRIDER(IX,IY,2)=&
-      &((GRIDER(IX-1,IY,1)&
-      &-GRIDER(IX,IY,1))+&
-      &(GRIDER(IX,IY,1)&
-      &-GRIDER(IX+1,IY,1)))/2.0D0
+      GRIDER(IX,IY,2)=((GRIDER(IX-1,IY,1)-GRIDER(IX,IY,1))+(GRIDER(IX,IY,1)-GRIDER(IX+1,IY,1)))/2.0D0
    ELSE
       IF(IX.EQ.1) THEN
-         GRIDER(IX,IY,2)=&
-         &(GRIDER(IX,IY,1)&
-         &-GRIDER(IX+1,IY,1))
+         GRIDER(IX,IY,2)=(GRIDER(IX,IY,1)-GRIDER(IX+1,IY,1))
       END IF
       IF(IX.EQ.M1) THEN
-         GRIDER(IX,IY,2)=&
-         &((GRIDER(IX-1,IY,1)&
-         &-GRIDER(IX,IY,1)))
+         GRIDER(IX,IY,2)=((GRIDER(IX-1,IY,1)-GRIDER(IX,IY,1)))
       END IF
    END IF
    IF(IY.GT.1.AND.IY.LT.M1) THEN
-      GRIDER(IX,IY,3)=&
-      &((GRIDER(IX,IY-1,1)&
-      &-GRIDER(IX,IY,1))+&
-      &( GRIDER(IX,IY,1)&
-      &- GRIDER(IX,IY+1,1)))/2.0D0
+      GRIDER(IX,IY,3)=((GRIDER(IX,IY-1,1)-GRIDER(IX,IY,1))+( GRIDER(IX,IY,1)- GRIDER(IX,IY+1,1)))/2.0D0
    ELSE
       IF(IY.EQ.1) THEN
-         GRIDER(IX,IY,3)=&
-         &(GRIDER(IX,IY,1)&
-         &-GRIDER(IX,IY+1,1))
+         GRIDER(IX,IY,3)=(GRIDER(IX,IY,1)-GRIDER(IX,IY+1,1))
       END IF
       IF(IY.EQ.M1) THEN
-         GRIDER(IX,IY,3)=&
-         &((GRIDER(IX,IY-1,1)&
-         &-GRIDER(IX,IY,1)))
+         GRIDER(IX,IY,3)=((GRIDER(IX,IY-1,1)-GRIDER(IX,IY,1)))
       END IF
    END IF
    RETURN
@@ -2702,6 +2571,7 @@ END
 
 SUBROUTINE FIXDEFORMFILE
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER I
@@ -2709,7 +2579,7 @@ SUBROUTINE FIXDEFORMFILE
    ERR1=.FALSE.
    ERR2=.FALSE.
    DO I=0,INT(SYSTEM(20))
-      IF(ALENS(103,I).EQ.1.0D0) CALL DEFGRIDS(9,I,ERR1,ERR2)
+      IF(surf_default_flag(I).EQ.1.0D0) CALL DEFGRIDS(9,I,ERR1,ERR2)
    END DO
    RETURN
 END
@@ -2719,6 +2589,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2732,22 +2603,17 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
-   REAL*8 BA,AP,FUNC,XR,YR,SUBHITX,SUBHITY,HT108,X,Y &
-   &,DX,DY,MAG,LL1,MM1,RIIX,RIIY,X1,X2,Y1,Y2,FX,FY
+   REAL*8 BA,AP,FUNC,XR,YR,SUBHITX,SUBHITY,HT108,X,Y ,DX,DY,MAG,LL1,MM1,RIIX,RIIY,X1,X2,Y1,Y2,FX,FY
 !
-   REAL*8 XPASS,YPASS,ZPASS,V11,V12,V21,V22,DXV11,DXV12 &
-   &,DXV21,DXV22,DYV11,DYV12,DYV21,DYV22,DEFVAL
+   REAL*8 XPASS,YPASS,ZPASS,V11,V12,V21,V22,DXV11,DXV12 ,DXV21,DXV22,DYV11,DYV12,DYV21,DYV22,DEFVAL
 !
    COMMON/SAGPAS/XPASS,YPASS,ZPASS
 !
-   INTEGER I,J,M,ICODE,ALLOERR,ISURF,IX1,IX2,IY1,IY2,II &
-   &,N1,ENDIT,JJ,KK,I1,I2,I3,I4,I5,I6,I7,I8,MM,IFILE &
-   &,ADIMX,ADIMY,ROWNUMBER,COLUMNNUMBER,MACT
+   INTEGER I,J,M,ICODE,ALLOERR,ISURF,IX1,IX2,IY1,IY2,II ,N1,ENDIT,JJ,KK,I1,I2,I3,I4,I5,I6,I7,I8,MM,IFILE ,ADIMX,ADIMY,ROWNUMBER,COLUMNNUMBER,MACT
 !
    COMMON/GD1GD1/I1,I2,I3,I4,I5,I6,I7,I8
 !
-   COMMON/GD2GD2/IX1,IX2,IY1,IY2,DXV11,DXV12,DXV21,DXV22 &
-   &,DYV11,DYV12,DYV21,DYV22,V11,V12,V21,V22
+   COMMON/GD2GD2/IX1,IX2,IY1,IY2,DXV11,DXV12,DXV21,DXV22 ,DYV11,DYV12,DYV21,DYV22,V11,V12,V21,V22
 !
    CHARACTER FLNAME*12
 !
@@ -2802,11 +2668,11 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 !
    SAVE
 !
-   IFILE=INT(ALENS(104,ISURF))
-   DEFGR1=ALENS(103,ISURF)
-   DEFGR2=ALENS(104,ISURF)
-   DEFGR3=ALENS(105,ISURF)
-   DEFGR4=ALENS(106,ISURF)
+   IFILE=INT(surf_mtracei_nx(ISURF))
+   DEFGR1=surf_default_flag(ISURF)
+   DEFGR2=surf_mtracei_nx(ISURF)
+   DEFGR3=surf_mtracei_ny(ISURF)
+   DEFGR4=surf_psfbin_data(ISURF)
    DEFGR5=0.0D0
    DEFGR6=0.0D0
    DEFGR7=ALENS(109,ISURF)
@@ -2834,7 +2700,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 !     VALUES
 !
    N1=1
-   MACT=INT(ALENS(105,ISURF))
+   MACT=INT(surf_mtracei_ny(ISURF))
 !
    IF(ICODE.EQ.1) THEN
       DEALLOCATE(DEFORM01,STAT=ALLOERR)
@@ -2891,8 +2757,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 !     DOES THE FILE EXIST AND IS IT OF THE CORRECT SIZE?
 !     SET THE FILE NAME
 !
-         OPEN(UNIT=26,FILE=FLNAME,&
-         &STATUS='UNKNOWN')
+         OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
 !
          MAXX=-1.0D300
          MINX=1.0D300
@@ -2905,8 +2770,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
             IF(Y.LT.MINY) MINY=Y
             IF(Y.GT.MAXY) MAXY=Y
          END DO
-         AVSPACE=DABS(MAXX-MINX)/(DSQRT(DBLE(MACT))-1.0D0)&
-         &+DABS(MAXY-MINY)/(DSQRT(DBLE(MACT))-1.0D0)
+         AVSPACE=DABS(MAXX-MINX)/(DSQRT(DBLE(MACT))-1.0D0)+DABS(MAXY-MINY)/(DSQRT(DBLE(MACT))-1.0D0)
          AVSPACE=AVSPACE/2.0D0
          GO TO 777
 778      CONTINUE
@@ -2918,8 +2782,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
             RETURN
          END IF
          CALL CLOSE_FILE(26,1)
-         OPEN(UNIT=26,FILE=FLNAME,&
-         &STATUS='UNKNOWN')
+         OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
 !     IF HERE, THEN ALLOCATE THE ARRAY AND READ THE DATA AGAIN
          IF(IFILE.EQ.1)   ALLOCATE(DEFORM01(MACT,1:3),STAT=ALLOERR)
          IF(IFILE.EQ.2)   ALLOCATE(DEFORM02(MACT,1:3),STAT=ALLOERR)
@@ -2987,8 +2850,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
             IF(Y.GT.MAXY) MAXY=Y
          END DO
 771      CONTINUE
-         AVSPACE=DABS(MAXX-MINX)/(DSQRT(DBLE(MACT))-1.0D0)&
-         &+DABS(MAXY-MINY)/(DSQRT(DBLE(MACT))-1.0D0)
+         AVSPACE=DABS(MAXX-MINX)/(DSQRT(DBLE(MACT))-1.0D0)+DABS(MAXY-MINY)/(DSQRT(DBLE(MACT))-1.0D0)
          AVSPACE=AVSPACE/2.0D0
 !     SET LOADED FLAG
          ALENS(109,ISURF)=1.0D0
@@ -3149,37 +3011,17 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
       YR=YPASS
       ERROR1=.FALSE.
       ERROR2=.FALSE.
-      HT108=DABS(ALENS(106,ISURF))
-      IF(IFILE.EQ.1)&
-      &CALL SAGGER(DEFORM01,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.2)&
-      &CALL SAGGER(DEFORM02,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.3)&
-      &CALL SAGGER(DEFORM03,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.4)&
-      &CALL SAGGER(DEFORM04,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.5)&
-      &CALL SAGGER(DEFORM05,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.6)&
-      &CALL SAGGER(DEFORM06,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.7)&
-      &CALL SAGGER(DEFORM07,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.8)&
-      &CALL SAGGER(DEFORM08,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.9)&
-      &CALL SAGGER(DEFORM09,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
-      IF(IFILE.EQ.10)&
-      &CALL SAGGER(DEFORM10,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-      &,HT108,AVSPACE,ISURF)
+      HT108=DABS(surf_psfbin_data(ISURF))
+      IF(IFILE.EQ.1)CALL SAGGER(DEFORM01,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.2)CALL SAGGER(DEFORM02,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.3)CALL SAGGER(DEFORM03,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.4)CALL SAGGER(DEFORM04,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.5)CALL SAGGER(DEFORM05,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.6)CALL SAGGER(DEFORM06,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.7)CALL SAGGER(DEFORM07,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.8)CALL SAGGER(DEFORM08,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.9)CALL SAGGER(DEFORM09,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
+      IF(IFILE.EQ.10)CALL SAGGER(DEFORM10,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
       IF(ERROR1) THEN
          CALL MACFAL
          RETURN
@@ -3193,13 +3035,13 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
       IF(ICODE.EQ.4) THEN
 !     AP IS THE SAG
 !
-         ZPASS=ALENS(106,ISURF)*AP
+         ZPASS=surf_psfbin_data(ISURF)*AP
          RETURN
       END IF
       IF(ICODE.EQ.5) THEN
 !     AP IS THE SAG
 !
-         ZPASS=ALENS(106,ISURF)*AP
+         ZPASS=surf_psfbin_data(ISURF)*AP
          RETURN
       END IF
    END IF
@@ -3222,8 +3064,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
       INQUIRE(FILE=FLNAME,EXIST=EXIS26)
       INQUIRE(FILE=FLNAME,OPENED=OPEN26)
       IF(OPEN26) CALL CLOSE_FILE(26,1)
-      OPEN(UNIT=26,FILE=FLNAME,&
-      &STATUS='UNKNOWN')
+      OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
 !     IF HERE, THEN ALLOCATE THE ARRAY AND READ THE DATA AGAIN
       IF(IFILE.EQ.1)   ALLOCATE(DEFORM01(1:MACT,1:3),STAT=ALLOERR)
       IF(IFILE.EQ.2)   ALLOCATE(DEFORM02(1:MACT,1:3),STAT=ALLOERR)
@@ -3317,31 +3158,20 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
       INQUIRE(FILE=FLNAME,EXIST=EXIS26)
       INQUIRE(FILE=FLNAME,OPENED=OPEN26)
       IF(OPEN26) CALL CLOSE_FILE(26,1)
-      OPEN(UNIT=26,FILE=FLNAME,&
-      &STATUS='UNKNOWN')
+      OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
 !     ARRAY ALREADY ALLOCATED
 !     FILL FILE WITH EXISTING ARRAY
       DO I=1,MACT
-         IF(IFILE.EQ.1) WRITE(26,FMT=*)&
-         &DEFORM01(I,1),DEFORM01(I,2),DEFORM01(I,3)
-         IF(IFILE.EQ.2) WRITE(26,FMT=*)&
-         &DEFORM02(I,1),DEFORM02(I,2),DEFORM02(I,3)
-         IF(IFILE.EQ.3) WRITE(26,FMT=*)&
-         &DEFORM03(I,1),DEFORM03(I,2),DEFORM03(I,3)
-         IF(IFILE.EQ.4) WRITE(26,FMT=*)&
-         &DEFORM04(I,1),DEFORM04(I,2),DEFORM04(I,3)
-         IF(IFILE.EQ.5) WRITE(26,FMT=*)&
-         &DEFORM05(I,1),DEFORM05(I,2),DEFORM05(I,3)
-         IF(IFILE.EQ.6) WRITE(26,FMT=*)&
-         &DEFORM06(I,1),DEFORM06(I,2),DEFORM06(I,3)
-         IF(IFILE.EQ.7) WRITE(26,FMT=*)&
-         &DEFORM07(I,1),DEFORM07(I,2),DEFORM07(I,3)
-         IF(IFILE.EQ.8) WRITE(26,FMT=*)&
-         &DEFORM08(I,1),DEFORM08(I,2),DEFORM08(I,3)
-         IF(IFILE.EQ.9) WRITE(26,FMT=*)&
-         &DEFORM09(I,1),DEFORM09(I,2),DEFORM09(I,3)
-         IF(IFILE.EQ.10) WRITE(26,FMT=*)&
-         &DEFORM10(I,1),DEFORM10(I,2),DEFORM10(I,3)
+         IF(IFILE.EQ.1) WRITE(26,FMT=*)DEFORM01(I,1),DEFORM01(I,2),DEFORM01(I,3)
+         IF(IFILE.EQ.2) WRITE(26,FMT=*)DEFORM02(I,1),DEFORM02(I,2),DEFORM02(I,3)
+         IF(IFILE.EQ.3) WRITE(26,FMT=*)DEFORM03(I,1),DEFORM03(I,2),DEFORM03(I,3)
+         IF(IFILE.EQ.4) WRITE(26,FMT=*)DEFORM04(I,1),DEFORM04(I,2),DEFORM04(I,3)
+         IF(IFILE.EQ.5) WRITE(26,FMT=*)DEFORM05(I,1),DEFORM05(I,2),DEFORM05(I,3)
+         IF(IFILE.EQ.6) WRITE(26,FMT=*)DEFORM06(I,1),DEFORM06(I,2),DEFORM06(I,3)
+         IF(IFILE.EQ.7) WRITE(26,FMT=*)DEFORM07(I,1),DEFORM07(I,2),DEFORM07(I,3)
+         IF(IFILE.EQ.8) WRITE(26,FMT=*)DEFORM08(I,1),DEFORM08(I,2),DEFORM08(I,3)
+         IF(IFILE.EQ.9) WRITE(26,FMT=*)DEFORM09(I,1),DEFORM09(I,2),DEFORM09(I,3)
+         IF(IFILE.EQ.10) WRITE(26,FMT=*)DEFORM10(I,1),DEFORM10(I,2),DEFORM10(I,3)
       END DO
 !     SET LOADED FLAG
       ALENS(109,ISURF)=1.0D0
@@ -3364,39 +3194,28 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
       OPEN26=.FALSE.
       INQUIRE(FILE=FLNAME,OPENED=OPEN26)
       IF(OPEN26) CALL CLOSE_FILE(26,1)
-      OPEN(UNIT=26,FILE=FLNAME,&
-      &STATUS='UNKNOWN')
+      OPEN(UNIT=26,FILE=FLNAME,STATUS='UNKNOWN')
 !     WRITE ARRAY TO FILE
       DO I=1,MACT
-         IF(IFILE.EQ.1) WRITE(26,FMT=*)&
-         &DEFORM01(I,1),DEFORM01(I,2),DEFORM01(I,3)
-         IF(IFILE.EQ.2) WRITE(26,FMT=*)&
-         &DEFORM02(I,1),DEFORM02(I,2),DEFORM02(I,3)
-         IF(IFILE.EQ.3) WRITE(26,FMT=*)&
-         &DEFORM03(I,1),DEFORM03(I,2),DEFORM03(I,3)
-         IF(IFILE.EQ.4) WRITE(26,FMT=*)&
-         &DEFORM04(I,1),DEFORM04(I,2),DEFORM04(I,3)
-         IF(IFILE.EQ.5) WRITE(26,FMT=*)&
-         &DEFORM05(I,1),DEFORM05(I,2),DEFORM05(I,3)
-         IF(IFILE.EQ.6) WRITE(26,FMT=*)&
-         &DEFORM06(I,1),DEFORM06(I,2),DEFORM06(I,3)
-         IF(IFILE.EQ.7) WRITE(26,FMT=*)&
-         &DEFORM07(I,1),DEFORM07(I,2),DEFORM07(I,3)
-         IF(IFILE.EQ.8) WRITE(26,FMT=*)&
-         &DEFORM08(I,1),DEFORM08(I,2),DEFORM08(I,3)
-         IF(IFILE.EQ.9) WRITE(26,FMT=*)&
-         &DEFORM09(I,1),DEFORM09(I,2),DEFORM09(I,3)
-         IF(IFILE.EQ.10) WRITE(26,FMT=*)&
-         &DEFORM10(I,1),DEFORM10(I,2),DEFORM10(I,3)
+         IF(IFILE.EQ.1) WRITE(26,FMT=*)DEFORM01(I,1),DEFORM01(I,2),DEFORM01(I,3)
+         IF(IFILE.EQ.2) WRITE(26,FMT=*)DEFORM02(I,1),DEFORM02(I,2),DEFORM02(I,3)
+         IF(IFILE.EQ.3) WRITE(26,FMT=*)DEFORM03(I,1),DEFORM03(I,2),DEFORM03(I,3)
+         IF(IFILE.EQ.4) WRITE(26,FMT=*)DEFORM04(I,1),DEFORM04(I,2),DEFORM04(I,3)
+         IF(IFILE.EQ.5) WRITE(26,FMT=*)DEFORM05(I,1),DEFORM05(I,2),DEFORM05(I,3)
+         IF(IFILE.EQ.6) WRITE(26,FMT=*)DEFORM06(I,1),DEFORM06(I,2),DEFORM06(I,3)
+         IF(IFILE.EQ.7) WRITE(26,FMT=*)DEFORM07(I,1),DEFORM07(I,2),DEFORM07(I,3)
+         IF(IFILE.EQ.8) WRITE(26,FMT=*)DEFORM08(I,1),DEFORM08(I,2),DEFORM08(I,3)
+         IF(IFILE.EQ.9) WRITE(26,FMT=*)DEFORM09(I,1),DEFORM09(I,2),DEFORM09(I,3)
+         IF(IFILE.EQ.10) WRITE(26,FMT=*)DEFORM10(I,1),DEFORM10(I,2),DEFORM10(I,3)
       END DO
       CALL CLOSE_FILE(26,1)
       RETURN
    END IF
    RETURN
 END
-SUBROUTINE SAGGER(DEFORMED,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
-&,HT108,AVSPACE,ISURF)
+SUBROUTINE SAGGER(DEFORMED,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER MACT,I,ISURF
@@ -3419,14 +3238,11 @@ SUBROUTINE SAGGER(DEFORMED,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 &
    SAG=0.0D0
    IF(AVSPACE.EQ.0.0D0) AVSPACE=1.0D0
    DO I=1,MACT
-      X1=DEFORMED(I,1)+ALENS(13,ISURF)
-      Y1=DEFORMED(I,2)+ALENS(12,ISURF)
-      XSI=(DSQRT(((X1-XR)**2)+((Y1-YR)**2))&
-      &/AVSPACE)
+      X1=DEFORMED(I,1)+surf_clap_dim(ISURF, 4)
+      Y1=DEFORMED(I,2)+surf_clap_dim(ISURF, 3)
+      XSI=(DSQRT(((X1-XR)**2)+((Y1-YR)**2))/AVSPACE)
       PSI=(XSI-A1)/A2
-      SAG=SAG+&
-      &(DEFORMED(I,3)*((A0*DEXP(-(PSI**2)/2.0D0))&
-      &+A3+(A4*XSI)+(A5*(XSI**2))))
+      SAG=SAG+(DEFORMED(I,3)*((A0*DEXP(-(PSI**2)/2.0D0))+A3+(A4*XSI)+(A5*(XSI**2))))
    END DO
    AP=SAG
 !
@@ -3439,6 +3255,7 @@ SUBROUTINE FANS
 !
    use DATHGR
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3457,14 +3274,9 @@ SUBROUTINE FANS
    COMMON/PASFAN/FANNAM,FANQAL
    INTEGER J,JJ,IX,WWRF,WWVN
 !
-   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
-   &LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,&
-   &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
-   &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
-   &JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
+   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
 !
-   LOGICAL FOBB0 &
-   &,FOBB0X,FOBB0Y
+   LOGICAL FOBB0 ,FOBB0X,FOBB0Y
 !
    COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
 !
@@ -3498,8 +3310,7 @@ SUBROUTINE FANS
 !       CHECK FOR VALID QUALIFIER INPUT
    IF(SQ.EQ.1) THEN
       IF(WQ.NE.'OPD'.AND.WQ.NE.'CD'.AND.WQ.NE.'LA') THEN
-         OUTLYNE=&
-         &'"'//WC(1:4)//'" ENTERED WITH INVALID QUALIFIER INPUT'
+         OUTLYNE='"'//WC(1:4)//'" ENTERED WITH INVALID QUALIFIER INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3514,8 +3325,7 @@ SUBROUTINE FANS
 !
    IF(.NOT.REFEXT) THEN
 !       NO CHIEF RAY EXISTS, STOP
-      OUTLYNE=&
-      &'AN "FOB" COMMAND MUST BE ISSUED BEFORE FANS CAN BE TRACED'
+      OUTLYNE='AN "FOB" COMMAND MUST BE ISSUED BEFORE FANS CAN BE TRACED'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3545,12 +3355,8 @@ SUBROUTINE FANS
    ELSE
 
 !       WAVELENGTH NUMBER NOT DEFAULT
-      IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0 &
-      &.AND.W3.NE.4.0D0.AND.W3.NE.5.0D0.AND.&
-      &W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0 &
-      &.AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
-         OUTLYNE=&
-         &'INVALID WAVELENGTH NUMBER'
+      IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0 .AND.W3.NE.4.0D0.AND.W3.NE.5.0D0.AND.W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0 .AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
+         OUTLYNE='INVALID WAVELENGTH NUMBER'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3592,8 +3398,7 @@ SUBROUTINE FANS
 !       NUMBER OF RAYS NOT OK
          OUTLYNE='INVALID NUMBER OF RAYS REQUESTED'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'NUMBER OF RAYS MUST BE AN INTEGER AND GREATER THAN 1'
+         OUTLYNE='NUMBER OF RAYS MUST BE AN INTEGER AND GREATER THAN 1'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3633,8 +3438,7 @@ SUBROUTINE FANS
    IF(W1.GE.W2) THEN
       OUTLYNE='FOR THE "'//WC(1:4)//'" COMMAND'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'NUMERIC WORD #1 MUST BE LESS THAN NUMERIC WORD #2'
+      OUTLYNE='NUMERIC WORD #1 MUST BE LESS THAN NUMERIC WORD #2'
       CALL SHOWIT(1)
       OUTLYNE= 'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3685,8 +3489,7 @@ SUBROUTINE FANS
    IF(SQ.EQ.0) THEN
       WRITE(OUTLYNE,1000) UNI
       CALL SHOWIT(0)
-1000  FORMAT('TRANSVERSE ABERRATION TABLE : UNITS = '&
-      &,A11)
+1000  FORMAT('TRANSVERSE ABERRATION TABLE : UNITS = ',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -3700,30 +3503,23 @@ SUBROUTINE FANS
          WRITE(OUTLYNE,8888)
          CALL SHOWIT(0)
       END IF
-9999  FORMAT(&
-      &'MODE IS AFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
-8888  FORMAT(&
-      &'MODE IS UAFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
+9999  FORMAT('MODE IS AFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
+8888  FORMAT('MODE IS UAFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
 1001  FORMAT('RAY FAN TRACED IS A  "YFAN"')
 1002  FORMAT('RAY FAN TRACED IS AN "XFAN"')
 1003  FORMAT('RAY FAN TRACED IS AN "NFAN"')
 1004  FORMAT('RAY FAN TRACED IS A  "PFAN"')
       WRITE(OUTLYNE,1005) OFFSET
       CALL SHOWIT(0)
-1005  FORMAT(&
-      &'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+1005  FORMAT('FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
       WRITE(OUTLYNE,2005) SYSTEM(INT(WW3))
       CALL SHOWIT(0)
-2005  FORMAT(&
-      &'WAVLENGTH = ',G14.6,' MICRONS')
+2005  FORMAT('WAVLENGTH = ',G14.6,' MICRONS')
    END IF
-   IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'&
-   &.AND.SYSTEM(30).EQ.4.0D0) THEN
-      OUTLYNE=&
-      &'THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
+   IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'.AND.SYSTEM(30).EQ.4.0D0) THEN
+      OUTLYNE='THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
+      OUTLYNE='LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3734,8 +3530,7 @@ SUBROUTINE FANS
    IF(WQ.EQ.'LA') THEN
       WRITE(OUTLYNE,1100) UNI
       CALL SHOWIT(0)
-1100  FORMAT('LONGITUDINAL ABERRATION TABLE : UNITS ='&
-      &,A11)
+1100  FORMAT('LONGITUDINAL ABERRATION TABLE : UNITS =',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -3750,9 +3545,7 @@ SUBROUTINE FANS
    IF(WQ.EQ.'CD') THEN
       WRITE(OUTLYNE,1200) UNI
       CALL SHOWIT(0)
-1200  FORMAT(&
-      &'PRIMARY/SECONDARY CHROMATIC DIFFERENCE TABLE : UNITS = '&
-      &,A11)
+1200  FORMAT('PRIMARY/SECONDARY CHROMATIC DIFFERENCE TABLE : UNITS = ',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -3766,21 +3559,16 @@ SUBROUTINE FANS
          WRITE(OUTLYNE,8885)
          CALL SHOWIT(0)
       END IF
-9995  FORMAT(&
-      &'MODE IS AFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
-8885  FORMAT(&
-      &'MODE IS UAFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
+9995  FORMAT('MODE IS AFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
+8885  FORMAT('MODE IS UAFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
       WRITE(OUTLYNE,1006) OFFSET
       CALL SHOWIT(0)
-1006  FORMAT(&
-      &'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+1006  FORMAT('FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
       WRITE(OUTLYNE,1008) LCW
       CALL SHOWIT(0)
 1008  FORMAT('CONTROL WAVELENGTH = ',G14.6,' MICRONS')
-1009  FORMAT('PRIMARY WAVELENGTH PAIR    = ',&
-      &G14.6,' AND ',G14.6,' MICRONS')
-1010  FORMAT('SECONDARY WAVELENGTH PAIR  = ',&
-      &G14.6,' AND ',G14.6,' MICRONS')
+1009  FORMAT('PRIMARY WAVELENGTH PAIR    = ',G14.6,' AND ',G14.6,' MICRONS')
+1010  FORMAT('SECONDARY WAVELENGTH PAIR  = ',G14.6,' AND ',G14.6,' MICRONS')
       WRITE(OUTLYNE,1009) LPWP1,LPWP2
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1010) LSWP1,LSWP2
@@ -3790,8 +3578,7 @@ SUBROUTINE FANS
    IF(WQ.EQ.'OPD') THEN
       WRITE(OUTLYNE,1300) UNI
       CALL SHOWIT(0)
-1300  FORMAT('OPTICAL PATH DIFFERENCE TABLE : UNITS = '&
-      &,A11)
+1300  FORMAT('OPTICAL PATH DIFFERENCE TABLE : UNITS = ',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -3799,12 +3586,10 @@ SUBROUTINE FANS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1011) OFFSET
       CALL SHOWIT(0)
-1011  FORMAT(&
-      &'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+1011  FORMAT('FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
       WRITE(OUTLYNE,2011) SYSTEM(INT(WW3))
       CALL SHOWIT(0)
-2011  FORMAT(&
-      &'OPD REFERENCE WAVLENGTH = ',G14.6,' MICRONS')
+2011  FORMAT('OPD REFERENCE WAVLENGTH = ',G14.6,' MICRONS')
    END IF
 !
 !       NOW PRINT THE COLUMN HEADINGS FOR THE OUTPUT.
@@ -3879,8 +3664,7 @@ SUBROUTINE FANS
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
-6001        FORMAT(' REL AP HT ',3X,' OPD (LENS UNITS) ',&
-            &4X,'OPD (WAVE UNITS)')
+6001        FORMAT(' REL AP HT ',3X,' OPD (LENS UNITS) ',4X,'OPD (WAVE UNITS)')
          ELSE
 !                       MODE AFOCAL
             WRITE(OUTLYNE,6001)
@@ -3934,14 +3718,12 @@ SUBROUTINE FANS
 !       MODE FOCAL
             WRITE(OUTLYNE,7001)
             CALL SHOWIT(0)
-7001        FORMAT(&
-            &' REL AP HT ',4X,'PCDX',10X,'PCDY',10X,'SCDX',10X,'SCDY')
+7001        FORMAT(' REL AP HT ',4X,'PCDX',10X,'PCDY',10X,'SCDX',10X,'SCDY')
          ELSE
 !       MODE AFOCAL
             WRITE(OUTLYNE,7002)
             CALL SHOWIT(0)
-7002        FORMAT(&
-            &' REL AP HT ',4X,'PCDXA',9X,'PCDYA',9X,'SCDXA',9X,'SCDYA')
+7002        FORMAT(' REL AP HT ',4X,'PCDXA',9X,'PCDYA',9X,'SCDXA',9X,'SCDYA')
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
@@ -3960,14 +3742,12 @@ SUBROUTINE FANS
 !       MODE FOCAL
             WRITE(OUTLYNE,7003)
             CALL SHOWIT(0)
-7003        FORMAT(&
-            &' REL AP HT ',4X,'PCDN',10X,'PCDP',10X,'SCDN',10X,'SCDP')
+7003        FORMAT(' REL AP HT ',4X,'PCDN',10X,'PCDP',10X,'SCDN',10X,'SCDP')
          ELSE
 !       MODE AFOCAL
             WRITE(OUTLYNE,7004)
             CALL SHOWIT(0)
-7004        FORMAT(&
-            &' REL AP HT ',4X,'PCDNA',9X,'PCDPA',9X,'SCDNA',9X,'SCDPA')
+7004        FORMAT(' REL AP HT ',4X,'PCDNA',9X,'PCDPA',9X,'SCDNA',9X,'SCDPA')
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
@@ -3994,8 +3774,7 @@ SUBROUTINE FANS
       IF(WC.EQ.'YFAN') THEN
          WRITE(OUTLYNE,8001)
          CALL SHOWIT(0)
-8001     FORMAT(&
-         &' REL AP HT ',4X,'LAX ',10X,'LAY ',10X,'DTX ',10X,'DTY ')
+8001     FORMAT(' REL AP HT ',4X,'LAX ',10X,'LAY ',10X,'DTX ',10X,'DTY ')
       END IF
       IF(WC.EQ.'XFAN') THEN
          WRITE(OUTLYNE,8001)
@@ -4004,8 +3783,7 @@ SUBROUTINE FANS
       IF(WC.EQ.'NFAN') THEN
          WRITE(OUTLYNE,8002)
          CALL SHOWIT(0)
-8002     FORMAT(&
-         &' REL AP HT ',4X,'LAN ',10X,'LAP ',10X,'DTN ',10X,'DTP ')
+8002     FORMAT(' REL AP HT ',4X,'LAN ',10X,'LAP ',10X,'DTN ',10X,'DTP ')
       END IF
       IF(WC.EQ.'PFAN') THEN
          WRITE(OUTLYNE,8002)
@@ -4096,22 +3874,18 @@ SUBROUTINE FANS
          RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
       ELSE
 !       MOD AFOCAL
-         XXDIF=RAYRAY(11,NEWIMG)&
-         &-REFRY(11,NEWIMG)
+         XXDIF=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
          IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII)
          IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII)
          IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0
          IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII)
-         YYDIF=RAYRAY(12,NEWIMG)&
-         &-REFRY(12,NEWIMG)
+         YYDIF=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG)
          IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII)
          IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII)
          IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0
          IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII)
 
-         COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+&
-         &(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+&
-         &(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
+         COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
          IF(COSARG.LT.0.0D0) COSARG=-COSARG
          IF(COSARG.GT.1.0D0) COSARG=1.0D0
          RRDIF=DACOS(COSARG)
@@ -4204,22 +3978,18 @@ SUBROUTINE FANS
             RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
          ELSE
 !       MOD AFOCAL
-            XXDIF=RAYRAY(11,NEWIMG)&
-            &-REFRY(11,NEWIMG)
+            XXDIF=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
             IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII) - xOffset
             IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII) - xOffset
             IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0 - xOffset
             IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII) - xOffset
-            YYDIF=RAYRAY(12,NEWIMG)&
-            &-REFRY(12,NEWIMG) - yOffset
+            YYDIF=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG) - yOffset
             IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII) - yOffset
             IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII) -yOffset
             IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0 - yOffset
             IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII) - yOffset
 
-            COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+&
-            &(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+&
-            &(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
+            COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
             IF(COSARG.LT.0.0D0) COSARG=-COSARG
             IF(COSARG.GT.1.0D0) COSARG=1.0D0
             RRDIF=DACOS(COSARG)
@@ -4240,9 +4010,7 @@ SUBROUTINE FANS
             ELSE
                WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
                CALL SHOWIT(0)
-992            FORMAT(F11.6,&
-               &' RAY FAILURE CODE = ',I2,' AT SURFACE = '&
-               &,I3)
+992            FORMAT(F11.6,' RAY FAILURE CODE = ',I2,' AT SURFACE = ',I3)
             END IF
          ELSE
 !       WC IS NFAN OR PFAN
@@ -4292,11 +4060,10 @@ SUBROUTINE FANS
             OOPD=0.0D0
             RCOR=0.0D0
             OCOR=0.0D0
-            IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
-            IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
+            IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
+            IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
             DO J=JJ,NEWIMG
-               OOPD=OOPD+RAYRAY(7,J)&
-               &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+               OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
             END DO
             IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
 !       MODE FOCAL
@@ -4305,14 +4072,12 @@ SUBROUTINE FANS
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+&
-               &(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
-               &(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
             ELSE
 !       MODE AFOCAL
 !               RCOR=0.0D0
@@ -4320,14 +4085,12 @@ SUBROUTINE FANS
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+&
-               &(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
-               &(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
             END IF
             IF(DABS(OOPD).LT.1.0D-15) OOPD=0.0D0
 
@@ -4338,8 +4101,7 @@ SUBROUTINE FANS
             IF(FANWAV.GE.6.AND.FANWAV.LE.10) THEN
                WAV=SYSTEM(FANWAV+65)
             END IF
-            IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*&
-            &((1.0D-3)/(25.4D0))
+            IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*((1.0D-3)/(25.4D0))
             IF(SYSTEM(6).EQ.2.0D0) WAV=WAV*(1.0D-4)
             IF(SYSTEM(6).EQ.3.0D0) WAV=WAV*(1.0D-3)
             IF(SYSTEM(6).EQ.4.0D0) WAV=WAV*(1.0D-6)
@@ -4653,6 +4415,7 @@ SUBROUTINE FANSOLD
 !
    use DATHGR
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -4676,14 +4439,9 @@ SUBROUTINE FANSOLD
 !
    INTEGER J,JJ,IX,WWRF,WWVN
 !
-   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
-   &LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,&
-   &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
-   &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
-   &JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
+   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
 !
-   LOGICAL FOBB0 &
-   &,FOBB0X,FOBB0Y
+   LOGICAL FOBB0 ,FOBB0X,FOBB0Y
 !
    COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
 !
@@ -4715,8 +4473,7 @@ SUBROUTINE FANSOLD
 !       CHECK FOR VALID QUALIFIER INPUT
    IF(SQ.EQ.1) THEN
       IF(WQ.NE.'OPD'.AND.WQ.NE.'CD'.AND.WQ.NE.'LA') THEN
-         OUTLYNE=&
-         &'"'//WC(1:4)//'" ENTERED WITH INVALID QUALIFIER INPUT'
+         OUTLYNE='"'//WC(1:4)//'" ENTERED WITH INVALID QUALIFIER INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4731,8 +4488,7 @@ SUBROUTINE FANSOLD
 !
    IF(.NOT.REFEXT) THEN
 !       NO CHIEF RAY EXISTS, STOP
-      OUTLYNE=&
-      &'AN "FOB" COMMAND MUST BE ISSUED BEFORE FANS CAN BE TRACED'
+      OUTLYNE='AN "FOB" COMMAND MUST BE ISSUED BEFORE FANS CAN BE TRACED'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4761,12 +4517,8 @@ SUBROUTINE FANSOLD
       IF(INT(WW3).EQ.10) WWVN=75
    ELSE
 !       WAVELENGTH NUMBER NOT DEFAULT
-      IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0 &
-      &.AND.W3.NE.4.0D0.AND.W3.NE.5.0D0.AND.&
-      &W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0 &
-      &.AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
-         OUTLYNE=&
-         &'INVALID WAVELENGTH NUMBER'
+      IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0 .AND.W3.NE.4.0D0.AND.W3.NE.5.0D0.AND.W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0 .AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
+         OUTLYNE='INVALID WAVELENGTH NUMBER'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4808,8 +4560,7 @@ SUBROUTINE FANSOLD
 !       NUMBER OF RAYS NOT OK
          OUTLYNE='INVALID NUMBER OF RAYS REQUESTED'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'NUMBER OF RAYS MUST BE AN INTEGER AND GREATER THAN 1'
+         OUTLYNE='NUMBER OF RAYS MUST BE AN INTEGER AND GREATER THAN 1'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4849,8 +4600,7 @@ SUBROUTINE FANSOLD
    IF(W1.GE.W2) THEN
       OUTLYNE='FOR THE "'//WC(1:4)//'" COMMAND'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'NUMERIC WORD #1 MUST BE LESS THAN NUMERIC WORD #2'
+      OUTLYNE='NUMERIC WORD #1 MUST BE LESS THAN NUMERIC WORD #2'
       CALL SHOWIT(1)
       OUTLYNE= 'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4901,8 +4651,7 @@ SUBROUTINE FANSOLD
    IF(SQ.EQ.0) THEN
       WRITE(OUTLYNE,1000) UNI
       CALL SHOWIT(0)
-1000  FORMAT('TRANSVERSE ABERRATION TABLE : UNITS = '&
-      &,A11)
+1000  FORMAT('TRANSVERSE ABERRATION TABLE : UNITS = ',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -4916,30 +4665,23 @@ SUBROUTINE FANSOLD
          WRITE(OUTLYNE,8888)
          CALL SHOWIT(0)
       END IF
-9999  FORMAT(&
-      &'MODE IS AFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
-8888  FORMAT(&
-      &'MODE IS UAFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
+9999  FORMAT('MODE IS AFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
+8888  FORMAT('MODE IS UAFOCAL, "DXA", "DYA" AND "DRA" UNITS ARE RADIANS')
 1001  FORMAT('RAY FAN TRACED IS A  "YFAN"')
 1002  FORMAT('RAY FAN TRACED IS AN "XFAN"')
 1003  FORMAT('RAY FAN TRACED IS AN "NFAN"')
 1004  FORMAT('RAY FAN TRACED IS A  "PFAN"')
       WRITE(OUTLYNE,1005) OFFSET
       CALL SHOWIT(0)
-1005  FORMAT(&
-      &'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+1005  FORMAT('FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
       WRITE(OUTLYNE,2005) SYSTEM(INT(WW3))
       CALL SHOWIT(0)
-2005  FORMAT(&
-      &'WAVLENGTH = ',G14.6,' MICRONS')
+2005  FORMAT('WAVLENGTH = ',G14.6,' MICRONS')
    END IF
-   IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'&
-   &.AND.SYSTEM(30).EQ.4.0D0) THEN
-      OUTLYNE=&
-      &'THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
+   IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'.AND.SYSTEM(30).EQ.4.0D0) THEN
+      OUTLYNE='THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
+      OUTLYNE='LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4950,8 +4692,7 @@ SUBROUTINE FANSOLD
    IF(WQ.EQ.'LA') THEN
       WRITE(OUTLYNE,1100) UNI
       CALL SHOWIT(0)
-1100  FORMAT('LONGITUDINAL ABERRATION TABLE : UNITS ='&
-      &,A11)
+1100  FORMAT('LONGITUDINAL ABERRATION TABLE : UNITS =',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -4966,9 +4707,7 @@ SUBROUTINE FANSOLD
    IF(WQ.EQ.'CD') THEN
       WRITE(OUTLYNE,1200) UNI
       CALL SHOWIT(0)
-1200  FORMAT(&
-      &'PRIMARY/SECONDARY CHROMATIC DIFFERENCE TABLE : UNITS = '&
-      &,A11)
+1200  FORMAT('PRIMARY/SECONDARY CHROMATIC DIFFERENCE TABLE : UNITS = ',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -4982,21 +4721,16 @@ SUBROUTINE FANSOLD
          WRITE(OUTLYNE,8885)
          CALL SHOWIT(0)
       END IF
-9995  FORMAT(&
-      &'MODE IS AFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
-8885  FORMAT(&
-      &'MODE IS UAFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
+9995  FORMAT('MODE IS AFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
+8885  FORMAT('MODE IS UAFOCAL, CHROMATIC DIFFERENCE UNITS ARE RADIANS')
       WRITE(OUTLYNE,1006) OFFSET
       CALL SHOWIT(0)
-1006  FORMAT(&
-      &'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+1006  FORMAT('FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
       WRITE(OUTLYNE,1008) LCW
       CALL SHOWIT(0)
 1008  FORMAT('CONTROL WAVELENGTH = ',G14.6,' MICRONS')
-1009  FORMAT('PRIMARY WAVELENGTH PAIR    = ',&
-      &G14.6,' AND ',G14.6,' MICRONS')
-1010  FORMAT('SECONDARY WAVELENGTH PAIR  = ',&
-      &G14.6,' AND ',G14.6,' MICRONS')
+1009  FORMAT('PRIMARY WAVELENGTH PAIR    = ',G14.6,' AND ',G14.6,' MICRONS')
+1010  FORMAT('SECONDARY WAVELENGTH PAIR  = ',G14.6,' AND ',G14.6,' MICRONS')
       WRITE(OUTLYNE,1009) LPWP1,LPWP2
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1010) LSWP1,LSWP2
@@ -5006,8 +4740,7 @@ SUBROUTINE FANSOLD
    IF(WQ.EQ.'OPD') THEN
       WRITE(OUTLYNE,1300) UNI
       CALL SHOWIT(0)
-1300  FORMAT('OPTICAL PATH DIFFERENCE TABLE : UNITS = '&
-      &,A11)
+1300  FORMAT('OPTICAL PATH DIFFERENCE TABLE : UNITS = ',A11)
       IF(WC.EQ.'YFAN') WRITE(OUTLYNE,1001)
       IF(WC.EQ.'XFAN') WRITE(OUTLYNE,1002)
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
@@ -5015,12 +4748,10 @@ SUBROUTINE FANSOLD
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1011) OFFSET
       CALL SHOWIT(0)
-1011  FORMAT(&
-      &'FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
+1011  FORMAT('FRACTIONAL FAN OFFSET = ',G14.6,' (RELATIVE TO FULL APERTURE)')
       WRITE(OUTLYNE,2011) SYSTEM(INT(WW3))
       CALL SHOWIT(0)
-2011  FORMAT(&
-      &'OPD REFERENCE WAVLENGTH = ',G14.6,' MICRONS')
+2011  FORMAT('OPD REFERENCE WAVLENGTH = ',G14.6,' MICRONS')
    END IF
 !
 !       NOW PRINT THE COLUMN HEADINGS FOR THE OUTPUT.
@@ -5095,8 +4826,7 @@ SUBROUTINE FANSOLD
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
-6001        FORMAT(' REL AP HT ',3X,' OPD (LENS UNITS) ',&
-            &4X,'OPD (WAVE UNITS)')
+6001        FORMAT(' REL AP HT ',3X,' OPD (LENS UNITS) ',4X,'OPD (WAVE UNITS)')
          ELSE
 !                       MODE AFOCAL
             WRITE(OUTLYNE,6001)
@@ -5150,14 +4880,12 @@ SUBROUTINE FANSOLD
 !       MODE FOCAL
             WRITE(OUTLYNE,7001)
             CALL SHOWIT(0)
-7001        FORMAT(&
-            &' REL AP HT ',4X,'PCDX',10X,'PCDY',10X,'SCDX',10X,'SCDY')
+7001        FORMAT(' REL AP HT ',4X,'PCDX',10X,'PCDY',10X,'SCDX',10X,'SCDY')
          ELSE
 !       MODE AFOCAL
             WRITE(OUTLYNE,7002)
             CALL SHOWIT(0)
-7002        FORMAT(&
-            &' REL AP HT ',4X,'PCDXA',9X,'PCDYA',9X,'SCDXA',9X,'SCDYA')
+7002        FORMAT(' REL AP HT ',4X,'PCDXA',9X,'PCDYA',9X,'SCDXA',9X,'SCDYA')
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
@@ -5176,14 +4904,12 @@ SUBROUTINE FANSOLD
 !       MODE FOCAL
             WRITE(OUTLYNE,7003)
             CALL SHOWIT(0)
-7003        FORMAT(&
-            &' REL AP HT ',4X,'PCDN',10X,'PCDP',10X,'SCDN',10X,'SCDP')
+7003        FORMAT(' REL AP HT ',4X,'PCDN',10X,'PCDP',10X,'SCDN',10X,'SCDP')
          ELSE
 !       MODE AFOCAL
             WRITE(OUTLYNE,7004)
             CALL SHOWIT(0)
-7004        FORMAT(&
-            &' REL AP HT ',4X,'PCDNA',9X,'PCDPA',9X,'SCDNA',9X,'SCDPA')
+7004        FORMAT(' REL AP HT ',4X,'PCDNA',9X,'PCDPA',9X,'SCDNA',9X,'SCDPA')
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
@@ -5210,8 +4936,7 @@ SUBROUTINE FANSOLD
       IF(WC.EQ.'YFAN') THEN
          WRITE(OUTLYNE,8001)
          CALL SHOWIT(0)
-8001     FORMAT(&
-         &' REL AP HT ',4X,'LAX ',10X,'LAY ',10X,'DTX ',10X,'DTY ')
+8001     FORMAT(' REL AP HT ',4X,'LAX ',10X,'LAY ',10X,'DTX ',10X,'DTY ')
       END IF
       IF(WC.EQ.'XFAN') THEN
          WRITE(OUTLYNE,8001)
@@ -5220,8 +4945,7 @@ SUBROUTINE FANSOLD
       IF(WC.EQ.'NFAN') THEN
          WRITE(OUTLYNE,8002)
          CALL SHOWIT(0)
-8002     FORMAT(&
-         &' REL AP HT ',4X,'LAN ',10X,'LAP ',10X,'DTN ',10X,'DTP ')
+8002     FORMAT(' REL AP HT ',4X,'LAN ',10X,'LAP ',10X,'DTN ',10X,'DTP ')
       END IF
       IF(WC.EQ.'PFAN') THEN
          WRITE(OUTLYNE,8002)
@@ -5294,22 +5018,18 @@ SUBROUTINE FANSOLD
             RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
          ELSE
 !       MOD AFOCAL
-            XXDIF=RAYRAY(11,NEWIMG)&
-            &-REFRY(11,NEWIMG)
+            XXDIF=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
             IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII)
             IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII)
             IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0
             IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII)
-            YYDIF=RAYRAY(12,NEWIMG)&
-            &-REFRY(12,NEWIMG)
+            YYDIF=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG)
             IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII)
             IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII)
             IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0
             IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII)
 
-            COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+&
-            &(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+&
-            &(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
+            COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
             IF(COSARG.LT.0.0D0) COSARG=-COSARG
             IF(COSARG.GT.1.0D0) COSARG=1.0D0
             RRDIF=DACOS(COSARG)
@@ -5329,9 +5049,7 @@ SUBROUTINE FANSOLD
             ELSE
                WRITE(OUTLYNE,992)XI,RAYCOD(1),RAYCOD(2)
                CALL SHOWIT(0)
-992            FORMAT(F11.6,&
-               &' RAY FAILURE CODE = ',I2,' AT SURFACE = '&
-               &,I3)
+992            FORMAT(F11.6,' RAY FAILURE CODE = ',I2,' AT SURFACE = ',I3)
             END IF
          ELSE
 !       WC IS NFAN OR PFAN
@@ -5381,11 +5099,10 @@ SUBROUTINE FANSOLD
             OOPD=0.0D0
             RCOR=0.0D0
             OCOR=0.0D0
-            IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
-            IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
+            IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
+            IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
             DO J=JJ,NEWIMG
-               OOPD=OOPD+RAYRAY(7,J)&
-               &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+               OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
             END DO
             IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
 !       MODE FOCAL
@@ -5394,14 +5111,12 @@ SUBROUTINE FANSOLD
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+&
-               &(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
-               &(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
             ELSE
 !       MODE AFOCAL
 !               RCOR=0.0D0
@@ -5409,14 +5124,12 @@ SUBROUTINE FANSOLD
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+&
-               &(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
-               &(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
             END IF
             IF(DABS(OOPD).LT.1.0D-15) OOPD=0.0D0
 
@@ -5427,8 +5140,7 @@ SUBROUTINE FANSOLD
             IF(FANWAV.GE.6.AND.FANWAV.LE.10) THEN
                WAV=SYSTEM(FANWAV+65)
             END IF
-            IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*&
-            &((1.0D-3)/(25.4D0))
+            IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*((1.0D-3)/(25.4D0))
             IF(SYSTEM(6).EQ.2.0D0) WAV=WAV*(1.0D-4)
             IF(SYSTEM(6).EQ.3.0D0) WAV=WAV*(1.0D-3)
             IF(SYSTEM(6).EQ.4.0D0) WAV=WAV*(1.0D-6)

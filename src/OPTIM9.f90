@@ -7,6 +7,7 @@ SUBROUTINE TLDMP
    use DATSPD
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -98,48 +99,32 @@ SUBROUTINE TLDMP
       CALL SHOWIT(10)
       DO I=1,TVBCNT
          II=I+MAXCMP
-         IF(VARNAM(II)(1:5).NE.'STILT'.AND.&
-         &VARNAM(II)(1:5).NE.'BTILT'.AND.&
-         &VARNAM(II)(1:4).NE.'ROLL'.AND.&
-         &VARNAM(II)(1:4).NE.'DISP') THEN
-            WRITE(OUTLYNE,11) VARNAM(II),DBLE(INT(VARABL(II,3))),&
-            &VARABL(II,8)
+         IF(VARNAM(II)(1:5).NE.'STILT'.AND.VARNAM(II)(1:5).NE.'BTILT'.AND.VARNAM(II)(1:4).NE.'ROLL'.AND.VARNAM(II)(1:4).NE.'DISP') THEN
+            WRITE(OUTLYNE,11) VARNAM(II),DBLE(INT(VARABL(II,3))),VARABL(II,8)
             CALL SHOWIT(10)
          END IF
          IF(VARNAM(II)(1:4).EQ.'DISP') THEN
-            WRITE(OUTLYNE,12) VARNAM(II),DBLE(INT(VARABL(II,3))),&
-            &DBLE(INT(VARABL(II,7))),&
-            &VARABL(II,8)
+            WRITE(OUTLYNE,12) VARNAM(II),DBLE(INT(VARABL(II,3))),DBLE(INT(VARABL(II,7))),VARABL(II,8)
             CALL SHOWIT(10)
          END IF
          IF(VARNAM(II)(1:4).EQ.'ROLL') THEN
-            WRITE(OUTLYNE,13) VARNAM(II),DBLE(INT(VARABL(II,3))),&
-            &DBLE(INT(VARABL(II,7))),&
-            &VARABL(II,8),DBLE(INT(VARABL(II,12)))
+            WRITE(OUTLYNE,13) VARNAM(II),DBLE(INT(VARABL(II,3))),DBLE(INT(VARABL(II,7))),VARABL(II,8),DBLE(INT(VARABL(II,12)))
             CALL SHOWIT(10)
          END IF
          IF(VARNAM(II)(1:5).EQ.'STILT') THEN
 !     DO PIVOT
-            IF(VARABL(II,9).NE.0.0D0.OR.VARABL(II,10).NE.0.0D0.OR.&
-            &VARABL(II,11).NE.0.0D0)&
-            &WRITE(OUTLYNE,14) VARNAM(II),DBLE(INT(VARABL(II,9)))&
-            &,DBLE(INT(VARABL(II,10))),DBLE(INT(VARABL(II,11)))
+            IF(VARABL(II,9).NE.0.0D0.OR.VARABL(II,10).NE.0.0D0.OR.VARABL(II,11).NE.0.0D0)WRITE(OUTLYNE,14) VARNAM(II),DBLE(INT(VARABL(II,9))),DBLE(INT(VARABL(II,10))),DBLE(INT(VARABL(II,11)))
             CALL SHOWIT(10)
 !     DO STILT
-            WRITE(OUTLYNE,11) VARNAM(II),DBLE(INT(VARABL(II,3))),&
-            &VARABL(II,8)
+            WRITE(OUTLYNE,11) VARNAM(II),DBLE(INT(VARABL(II,3))),VARABL(II,8)
             CALL SHOWIT(10)
          END IF
          IF(VARNAM(II)(1:5).EQ.'BTILT') THEN
 !     DO PIVOT
-            IF(VARABL(II,9).NE.0.0D0.OR.VARABL(II,10).NE.0.0D0.OR.&
-            &VARABL(II,11).NE.0.0D0)&
-            &WRITE(OUTLYNE,14) VARNAM(II),DBLE(INT(VARABL(II,9)))&
-            &,DBLE(INT(VARABL(II,10))),DBLE(INT(VARABL(II,11)))
+            IF(VARABL(II,9).NE.0.0D0.OR.VARABL(II,10).NE.0.0D0.OR.VARABL(II,11).NE.0.0D0)WRITE(OUTLYNE,14) VARNAM(II),DBLE(INT(VARABL(II,9))),DBLE(INT(VARABL(II,10))),DBLE(INT(VARABL(II,11)))
             CALL SHOWIT(10)
 !     DO BTILT
-            WRITE(OUTLYNE,12) VARNAM(II),DBLE(INT(VARABL(II,3))),&
-            &DBLE(INT(VARABL(II,7))),VARABL(II,8)
+            WRITE(OUTLYNE,12) VARNAM(II),DBLE(INT(VARABL(II,3))),DBLE(INT(VARABL(II,7))),VARABL(II,8)
             CALL SHOWIT(10)
          END IF
       END DO
@@ -174,124 +159,97 @@ SUBROUTINE TLDMP
          IF(ISCRIT(I)) THEN
 !
             IF(BWORD.EQ.'FUNC00') THEN
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,101) OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,9),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,101) OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,9),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 101            FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,102) OPNAM(I),DBLE(I),OPERND(I,9),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,102) OPNAM(I),DBLE(I),OPERND(I,9),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 102            FORMAT(A8,',',D23.15,',,',D23.15,',',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,103) OPNAM(I),DBLE(I),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,103) OPNAM(I),DBLE(I),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 103            FORMAT(A8,',',D23.15,',,,',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,104) OPNAM(I),DBLE(I)
                   CALL SHOWIT(10)
                END IF
 104            FORMAT(A8,',',D23.15,',,,,,')
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,105) OPNAM(I),DBLE(I),OPERND(I,8),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,105) OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 105            FORMAT(A8,',',D23.15,',',D23.15,',,',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,106) OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,9)
                   CALL SHOWIT(10)
                END IF
 106            FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',,,')
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,107) OPNAM(I),DBLE(I),OPERND(I,8)
                   CALL SHOWIT(10)
                END IF
 107            FORMAT(A8,',',D23.15,',',D23.15,',,,,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,108) OPNAM(I),DBLE(I),OPERND(I,9)
                   CALL SHOWIT(10)
                END IF
 108            FORMAT(A8,',',D23.15,',,',D23.15,',,,')
             ELSE
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1101) BWORD,OPNAM(I),DBLE(I),OPERND(I,8),&
-                  &OPERND(I,9),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1101) BWORD,OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,9),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
-1101           FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,','&
-               &,D23.15,',,')
+1101           FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1102) BWORD,OPNAM(I),DBLE(I),OPERND(I,9),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1102) BWORD,OPNAM(I),DBLE(I),OPERND(I,9),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 1102           FORMAT(A8,' ',A8,',',D23.15,',,',D23.15,',',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1103) BWORD,OPNAM(I),DBLE(I),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1103) BWORD,OPNAM(I),DBLE(I),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 1103           FORMAT(A8,' ',A8,',',D23.15,',,,',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,1104) BWORD,OPNAM(I),DBLE(I)
                   CALL SHOWIT(10)
                END IF
 1104           FORMAT(A8,' ',A8,',',D23.15,',,,,,')
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1105) BWORD,OPNAM(I),DBLE(I),OPERND(I,8),&
-                  &OPERND(I,10)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1105) BWORD,OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,10)
                   CALL SHOWIT(10)
                END IF
 1105           FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,',D23.15,',,')
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
-                  WRITE(OUTLYNE,1106) BWORD,OPNAM(I),DBLE(I),OPERND(I,8),&
-                  &OPERND(I,9)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+                  WRITE(OUTLYNE,1106) BWORD,OPNAM(I),DBLE(I),OPERND(I,8),OPERND(I,9)
                   CALL SHOWIT(10)
                END IF
 1106           FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',,,')
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,1107) BWORD,OPNAM(I),DBLE(I),OPERND(I,8)
                   CALL SHOWIT(10)
                END IF
 1107           FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,,,')
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,1108) BWORD,OPNAM(I),DBLE(I),OPERND(I,9)
                   CALL SHOWIT(10)
                END IF
@@ -341,132 +299,98 @@ SUBROUTINE TLDMP
          IF(ISTOP(II)) THEN
 !
             IF(BWORD.EQ.'FUNC00') THEN
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,9101) OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,9),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,9101) OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,9),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
-9101              FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,&
-                  &',',D23.15)
+9101              FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,9102) OPNAM(I),DBLE(II),OPERND(I,9),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,9102) OPNAM(I),DBLE(II),OPERND(I,9),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
 9102              FORMAT(A8,',',D23.15,',,',D23.15,',',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,9103) OPNAM(I),DBLE(II),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,9103) OPNAM(I),DBLE(II),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
 9103              FORMAT(A8,',',D23.15,',,,',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,9104) OPNAM(I),DBLE(II),OPERND(I,20)
                   CALL SHOWIT(10)
 9104              FORMAT(A8,',',D23.15,',,,,',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,9105) OPNAM(I),DBLE(II),OPERND(I,8),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,9105) OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
 9105              FORMAT(A8,',',D23.15,',',D23.15,',,',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
-                  WRITE(OUTLYNE,9106) OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,9)&
-                  &,OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+                  WRITE(OUTLYNE,9106) OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,9),OPERND(I,20)
                   CALL SHOWIT(10)
 9106              FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',,',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,9107) OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,20)
                   CALL SHOWIT(10)
 9107              FORMAT(A8,',',D23.15,',',D23.15,',,,',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,9108) OPNAM(I),DBLE(II),OPERND(I,9),OPERND(I,20)
                   CALL SHOWIT(10)
 9108              FORMAT(A8,',',D23.15,',,',D23.15,',,',D23.15)
                END IF
             ELSE
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1901) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),&
-                  &OPERND(I,9),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1901) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,9),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
-1901              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,','&
-                  &,D23.15,',',D23.15)
+1901              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1902) BWORD,OPNAM(I),DBLE(II),OPERND(I,9),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1902) BWORD,OPNAM(I),DBLE(II),OPERND(I,9),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
 1902              FORMAT(A8,' ',A8,',',D23.15,',,',D23.15,',',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1903) BWORD,OPNAM(I),DBLE(II),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1903) BWORD,OPNAM(I),DBLE(II),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
 1903              FORMAT(A8,' ',A8,',',D23.15,',,,',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,1904) BWORD,OPNAM(I),DBLE(II),OPERND(I,20)
                   CALL SHOWIT(10)
 1904              FORMAT(A8,' ',A8,',',D23.15,',,,,',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,1905) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),&
-                  &OPERND(I,10),OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+                  WRITE(OUTLYNE,1905) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,10),OPERND(I,20)
                   CALL SHOWIT(10)
-1905              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,',D23.15,','&
-                  &,D23.15)
+1905              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,',D23.15,',',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
-                  WRITE(OUTLYNE,1906) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),&
-                  &OPERND(I,9)&
-                  &,OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+                  WRITE(OUTLYNE,1906) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,9),OPERND(I,20)
                   CALL SHOWIT(10)
-1906              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',,'&
-                  &,D23.15)
+1906              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',,',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
-                  WRITE(OUTLYNE,1907) BWORD,OPNAM(I),DBLE(II),OPERND(I,8)&
-                  &,OPERND(I,20)
+               IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+                  WRITE(OUTLYNE,1907) BWORD,OPNAM(I),DBLE(II),OPERND(I,8),OPERND(I,20)
                   CALL SHOWIT(10)
 1907              FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,,',D23.15)
                END IF
 !
-               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-               &.AND.OPERND(I,12).EQ.1.0D0) THEN
-                  WRITE(OUTLYNE,1908) BWORD,OPNAM(I),DBLE(II),OPERND(I,9),&
-                  &OPERND(I,20)
+               IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+                  WRITE(OUTLYNE,1908) BWORD,OPNAM(I),DBLE(II),OPERND(I,9),OPERND(I,20)
                   CALL SHOWIT(10)
 1908              FORMAT(A8,' ',A8,',',D23.15,',,',D23.15,',,',D23.15)
                END IF
@@ -493,6 +417,7 @@ SUBROUTINE OPDMP
    use DATSPD
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -502,8 +427,7 @@ SUBROUTINE OPDMP
 !     1 SAVES VARIABLES ONLY
 !     2 SAVES MERIT ONLY
 !
-   CHARACTER OPNNMM*5,AI1*1,MNAME*8,STAMP*20,BWORD*8 &
-   &,AI2*2,AI3*3,BF1*1,BF2*2,BF3*3
+   CHARACTER OPNNMM*5,AI1*1,MNAME*8,STAMP*20,BWORD*8 ,AI2*2,AI3*3,BF1*1,BF2*2,BF3*3
 !
    INTEGER OLDMODOP,I,J,M1,M2,M3,NEXTM3,OLDCFGOP,OLDCFGVB
 !
@@ -534,8 +458,7 @@ SUBROUTINE OPDMP
 !
 !     NOW VARIABLES
 !
-         WRITE(OUTLYNE,11) VARNAM(I),VARABL(I,3),VARABL(I,7),VARABL(I,8)&
-         &,VARABL(I,9),VARABL(I,10)
+         WRITE(OUTLYNE,11) VARNAM(I),VARABL(I,3),VARABL(I,7),VARABL(I,8),VARABL(I,9),VARABL(I,10)
          CALL SHOWIT(11)
 11       FORMAT(A8,',',D15.7,',',D15.7,',',D15.7,',',D15.7,',',D15.7)
       END DO
@@ -617,128 +540,98 @@ SUBROUTINE OPDMP
          IF(INT(OPERND(I,1)).EQ.9) BWORD='FUNC09'
          IF(INT(OPERND(I,1)).EQ.10) BWORD='FUNC10'
          IF(BWORD.EQ.'FUNC00') THEN
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,101) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8)&
-               &,OPERND(I,9),OPERND(I,10)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,101) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8),OPERND(I,9),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
-101         FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,','&
-            &,D23.15)
+101         FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',',D23.15)
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,102) OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,9),OPERND(I,10)
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,102) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,9),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
 102         FORMAT(A8,',',D23.15,',',D23.15,',,',D23.15,',',D23.15)
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
                WRITE(OUTLYNE,103) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
 103         FORMAT(A8,',',D23.15,',',D23.15,',,,',D23.15)
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                WRITE(OUTLYNE,104) OPNAM(I),OPERND(I,2),OPERND(I,7)
                CALL SHOWIT(10)
             END IF
 104         FORMAT(A8,',',D23.15,',',D23.15,',,,,')
 !
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,105) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8)&
-               &,OPERND(I,10)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,105) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
 105         FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',,',D23.15)
 !
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
-               WRITE(OUTLYNE,106) OPNAM(I),OPERND(I,2),OPERND(I,7)&
-               &,OPERND(I,8),OPERND(I,9)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+               WRITE(OUTLYNE,106) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8),OPERND(I,9)
                CALL SHOWIT(10)
             END IF
 106         FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',,')
 !
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                WRITE(OUTLYNE,107) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8)
                CALL SHOWIT(10)
             END IF
 107         FORMAT(A8,',',D23.15,',',D23.15,',',D23.15,',,,')
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                WRITE(OUTLYNE,108) OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,9)
                CALL SHOWIT(10)
             END IF
 108         FORMAT(A8,',',D23.15,',',D23.15,',,',D23.15,',,')
          ELSE
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,1101) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,8),OPERND(I,9),OPERND(I,10)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,1101) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8),OPERND(I,9),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
-1101        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,','&
-            &,D23.15,',',D23.15)
+1101        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',',D23.15)
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,1102) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,9),OPERND(I,10)
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,1102) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,9),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
-1102        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,',D23.15,',',D23.15 &
-            &)
+1102        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,',D23.15,',',D23.15 )
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,1103) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,10)
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,1103) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
 1103        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,,',D23.15)
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
                WRITE(OUTLYNE,1104) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7)
                CALL SHOWIT(10)
             END IF
 1104        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,,,')
 !
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.0.0D0) THEN
-               WRITE(OUTLYNE,1105) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,8),OPERND(I,10)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.0.0D0) THEN
+               WRITE(OUTLYNE,1105) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8),OPERND(I,10)
                CALL SHOWIT(10)
             END IF
 1105        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',,',D23.15)
 !
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
-               WRITE(OUTLYNE,1106) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,8),OPERND(I,9)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+               WRITE(OUTLYNE,1106) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8),OPERND(I,9)
                CALL SHOWIT(10)
             END IF
 1106        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',',D23.15,',,')
 !
-            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
-               WRITE(OUTLYNE,1107) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,8)
+            IF(OPERND(I,18).EQ.0.0D0.AND.OPERND(I,11).EQ.1.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+               WRITE(OUTLYNE,1107) BWORD,OPNAM(I),OPERND(I,2),OPERND(I,7),OPERND(I,8)
                CALL SHOWIT(10)
             END IF
 1107        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',',D23.15,',,,')
 !
-            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 &
-            &.AND.OPERND(I,12).EQ.1.0D0) THEN
-               WRITE(OUTLYNE,1108) BWORD,OPERND(I,2),OPERND(I,7),&
-               &OPERND(I,9)
+            IF(OPERND(I,18).EQ.1.0D0.AND.OPERND(I,11).EQ.0.0D0 .AND.OPERND(I,12).EQ.1.0D0) THEN
+               WRITE(OUTLYNE,1108) BWORD,OPERND(I,2),OPERND(I,7),OPERND(I,9)
                CALL SHOWIT(10)
             END IF
 1108        FORMAT(A8,' ',A8,',',D23.15,',',D23.15,',,',D23.15,',,')
@@ -776,6 +669,7 @@ SUBROUTINE TVARBLL
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -862,18 +756,15 @@ SUBROUTINE TVARBLL
 !       NOW DO WC=DELK
    IF(WC.EQ.'DELK') THEN
       IF(F51.NE.2) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DEL" IS ONLY AVAILABLE FROM THE "UPDATE TVAR" LEVEL'
+         WRITE(OUTLYNE,*)'"DEL" IS ONLY AVAILABLE FROM THE "UPDATE TVAR" LEVEL'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'NO ACTION TAKEN'
          CALL SHOWIT(0)
          CALL MACFAL
          RETURN
       END IF
-      IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1 &
-      &) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DEL" ONLY TAKES QUALIFIER AND NUMERIC WORD #1'
+      IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1 ) THEN
+         WRITE(OUTLYNE,*)'"DEL" ONLY TAKES QUALIFIER AND NUMERIC WORD #1'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -881,8 +772,7 @@ SUBROUTINE TVARBLL
          RETURN
       END IF
       IF(DF1.EQ.1.OR.SQ.EQ.0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DEL" REQUIRES EXPLICIT QUALIFIER AND NUMERIC WORD #1 INPUT'
+         WRITE(OUTLYNE,*)'"DEL" REQUIRES EXPLICIT QUALIFIER AND NUMERIC WORD #1 INPUT'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1056,8 +946,7 @@ SUBROUTINE TVARBLL
       IF(WQ.EQ.'ROLLX   ') DELVAL=163
       IF(WQ.EQ.'ROLLY   ') DELVAL=164
       IF(DELVAL.EQ.-1) THEN
-         WRITE(OUTLYNE,*)&
-         &'INVALID QUALIFIER WORD USED WITH "DEL"'
+         WRITE(OUTLYNE,*)'INVALID QUALIFIER WORD USED WITH "DEL"'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1067,8 +956,7 @@ SUBROUTINE TVARBLL
 !     NOW CHECK FOR VALID NUMERIC WORD
       IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
       IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #1 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #1 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1080,8 +968,7 @@ SUBROUTINE TVARBLL
       J=0
       DO I=1,TVBCNT
          II=I+MAXCMP
-         IF(INT(VARABL(II,1)).EQ.DELVAL.AND.&
-         &INT(VARABL(II,3)).EQ.INT(W1)) THEN
+         IF(INT(VARABL(II,1)).EQ.DELVAL.AND.INT(VARABL(II,3)).EQ.INT(W1)) THEN
             J=J+1
             DELTAG=II
 !     FOUND A MATCH, TAG IT FOR DELETION AND GO TO 95 AND DELETE IT
@@ -1107,8 +994,7 @@ SUBROUTINE TVARBLL
          CALL TVARCLN
          RETURN
       ELSE
-         WRITE(OUTLYNE,*)&
-         &'SPECIFIED TVAR WAS NOT IN THE TVAR SUBFILE'
+         WRITE(OUTLYNE,*)'SPECIFIED TVAR WAS NOT IN THE TVAR SUBFILE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'NO DELETION PERFORMED'
          CALL SHOWIT(0)
@@ -1121,22 +1007,15 @@ SUBROUTINE TVARBLL
 !     START DOING THE VARIABLE NAMES HERE
 ! FIRST DO STILTA, STILTB, STILTG, BTILTA, BTILTB, BTILTG WITH THE PIVOT
 ! QUALIFIER
-   IF(WC.EQ.'STILTA'.OR.WC.EQ.'STILTB'.OR.WC.EQ.'STILTG'.OR.&
-   &WC.EQ.'BTILTA'.OR.WC.EQ.'BTILTB'.OR.WC.EQ.'BTILTG') THEN
+   IF(WC.EQ.'STILTA'.OR.WC.EQ.'STILTB'.OR.WC.EQ.'STILTG'.OR.WC.EQ.'BTILTA'.OR.WC.EQ.'BTILTB'.OR.WC.EQ.'BTILTG') THEN
       IF(WQ.EQ.'PIVOT') THEN
          IF(S4.EQ.1.OR.S5.EQ.1) THEN
-            IF(WC.EQ.'STILTA') WRITE(OUTLYNE,*)&
-            &'"STILTA PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            IF(WC.EQ.'STILTB') WRITE(OUTLYNE,*)&
-            &'"STILTB PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            IF(WC.EQ.'STILTG') WRITE(OUTLYNE,*)&
-            &'"STILTG PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            IF(WC.EQ.'BTILTA') WRITE(OUTLYNE,*)&
-            &'"BTILTA PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            IF(WC.EQ.'BTILTB') WRITE(OUTLYNE,*)&
-            &'"BTILTB PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            IF(WC.EQ.'BTILTG') WRITE(OUTLYNE,*)&
-            &'"BTILTG PIVOT" TAKES NO NUMERIC WORD #4 OR#5 INPUT'
+            IF(WC.EQ.'STILTA') WRITE(OUTLYNE,*)'"STILTA PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            IF(WC.EQ.'STILTB') WRITE(OUTLYNE,*)'"STILTB PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            IF(WC.EQ.'STILTG') WRITE(OUTLYNE,*)'"STILTG PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            IF(WC.EQ.'BTILTA') WRITE(OUTLYNE,*)'"BTILTA PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            IF(WC.EQ.'BTILTB') WRITE(OUTLYNE,*)'"BTILTB PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            IF(WC.EQ.'BTILTG') WRITE(OUTLYNE,*)'"BTILTG PIVOT" TAKES NO NUMERIC WORD #4 OR#5 INPUT'
             CALL SHOWIT(0)
             CALL MACFAL
             RETURN
@@ -1344,8 +1223,7 @@ SUBROUTINE TVARBLL
    IF(WC.EQ.'ROLLX   ') VALT=163
    IF(WC.EQ.'ROLLY   ') VALT=164
    IF(VALT.EQ.-1) THEN
-      WRITE(OUTLYNE,*)&
-      &'INVALID TVAR NAME'
+      WRITE(OUTLYNE,*)'INVALID TVAR NAME'
       CALL SHOWIT(0)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(0)
@@ -1355,11 +1233,9 @@ SUBROUTINE TVARBLL
 !
    IF(VALT.LE.153.OR.VALT.GE.157.AND.VALT.LE.159) THEN
       IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORDS #3, #4 AND #5 ARE NOT USED WITH THIS TVAR INPUT'
+         WRITE(OUTLYNE,*)'NUMERIC WORDS #3, #4 AND #5 ARE NOT USED WITH THIS TVAR INPUT'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'OR UPDATE'
+         WRITE(OUTLYNE,*)'OR UPDATE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1367,14 +1243,11 @@ SUBROUTINE TVARBLL
          RETURN
       END IF
    END IF
-   IF(VALT.GE.154.AND.VALT.LE.156.OR.&
-   &VALT.GE.160.AND.VALT.LE.162) THEN
+   IF(VALT.GE.154.AND.VALT.LE.156.OR.VALT.GE.160.AND.VALT.LE.162) THEN
       IF(S4.EQ.1.OR.S5.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORDS #4 AND #5 ARE NOT USED WITH THIS TVAR INPUT'
+         WRITE(OUTLYNE,*)'NUMERIC WORDS #4 AND #5 ARE NOT USED WITH THIS TVAR INPUT'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'OR UPDATE'
+         WRITE(OUTLYNE,*)'OR UPDATE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1384,11 +1257,9 @@ SUBROUTINE TVARBLL
    END IF
    IF(VALT.GE.163.AND.VALT.LE.164) THEN
       IF(S5.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #5 IS NOT USED WITH THIS TVAR INPUT'
+         WRITE(OUTLYNE,*)'NUMERIC WORD #5 IS NOT USED WITH THIS TVAR INPUT'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'OR UPDATE'
+         WRITE(OUTLYNE,*)'OR UPDATE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1405,13 +1276,10 @@ SUBROUTINE TVARBLL
       IF(S4.EQ.1) THEN
          IF(W4.EQ.W1.OR.W4.EQ.W2) THEN
          ELSE
-            WRITE(OUTLYNE,*)&
-            &'FOR "ROLLX" AND "ROLLY", THE ALTERNATE PIVOT SURFACE,'
-            WRITE(OUTLYNE,*)&
-            &'NUMERIC WORD #4, MUST BE SET EQUAL TO NUMERIC WORD #1 OR #2'
+            WRITE(OUTLYNE,*)'FOR "ROLLX" AND "ROLLY", THE ALTERNATE PIVOT SURFACE,'
+            WRITE(OUTLYNE,*)'NUMERIC WORD #4, MUST BE SET EQUAL TO NUMERIC WORD #1 OR #2'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'OR UPDATE'
+            WRITE(OUTLYNE,*)'OR UPDATE'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -1434,8 +1302,7 @@ SUBROUTINE TVARBLL
    END IF
    IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
    IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)&
-      &'NUMERIC WORD #1 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
+      WRITE(OUTLYNE,*)'NUMERIC WORD #1 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
       CALL SHOWIT(0)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(0)
@@ -1445,8 +1312,7 @@ SUBROUTINE TVARBLL
 !     NW1 OK, PROCEED
       VBSURF=INT(W1)
    END IF
-   IF(VALT.GE.154.AND.VALT.LE.156.OR.&
-   &VALT.GE.160.AND.VALT.LE.164) THEN
+   IF(VALT.GE.154.AND.VALT.LE.156.OR.VALT.GE.160.AND.VALT.LE.164) THEN
 !     NW2 IS SECOND SURFACE NUMBER
       IF(DF2.EQ.1) THEN
          WRITE(OUTLYNE,*)'VARIABLE NAME = ',WC
@@ -1459,10 +1325,8 @@ SUBROUTINE TVARBLL
          RETURN
       END IF
       IF(W2.LT.0.0D0) W2=SYSTEM(20)+W2
-      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20)).OR.&
-      &INT(W2).LT.INT(W1)) THEN
-         WRITE(OUTLYNE,*)&
-         &'NUMERIC WORD #2 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
+      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20)).OR.INT(W2).LT.INT(W1)) THEN
+         WRITE(OUTLYNE,*)'NUMERIC WORD #2 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(0)
@@ -1485,46 +1349,45 @@ SUBROUTINE TVARBLL
 !
 !       CIRCULAR CLAP
 !
-         IF(ALENS(127,NEWREF).EQ.0.0D0) THEN
-            IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(10,NEWREF)
+         IF(surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
+            IF(ABS(surf_clap_type(NEWREF)).EQ.1.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 1)
             END IF
 !        RECT CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.2.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        ELIP CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.3.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        RCTK CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.4.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        POLY CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(10,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.5.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 1)
             END IF
 !        IPOLY CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-               SYS12=ALENS(14,NEWREF)
-               SYS13=ALENS(14,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.6.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 5)
+               SYS13=surf_clap_dim(NEWREF, 5)
             END IF
          END IF
 !
 !       NO CLAP ON REF SURF.
-         IF(DABS(ALENS(9,NEWREF)).EQ.0.0D0.OR.&
-         &ALENS(127,NEWREF).NE.0.0D0) THEN
+         IF(ABS(surf_clap_type(NEWREF)).EQ.0.0D0.OR.surf_multi_clap_flag(NEWREF).NE.0.0D0) THEN
 !       NO CLAP ON REF SURF.
             SYS13=PXTRAX(1,NEWREF)
             SYS12=PXTRAY(1,NEWREF)
@@ -1719,8 +1582,7 @@ SUBROUTINE TVARBLL
          DELTTA=W2
       END IF
    END IF
-   IF(VALT.GE.154.AND.VALT.LE.156.OR.&
-   &VALT.GE.160.AND.VALT.LE.162) THEN
+   IF(VALT.GE.154.AND.VALT.LE.156.OR.VALT.GE.160.AND.VALT.LE.162) THEN
 !     NW3 IS DELTA VALUE
       DFDELTT=0
       IF(DF3.EQ.1) THEN
@@ -1732,46 +1594,45 @@ SUBROUTINE TVARBLL
 !
 !       CIRCULAR CLAP
 !
-         IF(ALENS(127,NEWREF).EQ.0.0D0) THEN
-            IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(10,NEWREF)
+         IF(surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
+            IF(ABS(surf_clap_type(NEWREF)).EQ.1.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 1)
             END IF
 !        RECT CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.2.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        ELIP CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.3.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        RCTK CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.4.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        POLY CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(10,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.5.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 1)
             END IF
 !        IPOLY CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-               SYS12=ALENS(14,NEWREF)
-               SYS13=ALENS(14,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.6.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 5)
+               SYS13=surf_clap_dim(NEWREF, 5)
             END IF
          END IF
 !
 !       NO CLAP ON REF SURF.
-         IF(DABS(ALENS(9,NEWREF)).EQ.0.0D0.OR.&
-         &ALENS(127,NEWREF).NE.0.0D0) THEN
+         IF(ABS(surf_clap_type(NEWREF)).EQ.0.0D0.OR.surf_multi_clap_flag(NEWREF).NE.0.0D0) THEN
 !       NO CLAP ON REF SURF.
             SYS13=PXTRAX(1,NEWREF)
             SYS12=PXTRAY(1,NEWREF)
@@ -1978,46 +1839,45 @@ SUBROUTINE TVARBLL
 !
 !       CIRCULAR CLAP
 !
-         IF(ALENS(127,NEWREF).EQ.0.0D0) THEN
-            IF(DABS(ALENS(9,NEWREF)).EQ.1.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(10,NEWREF)
+         IF(surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
+            IF(ABS(surf_clap_type(NEWREF)).EQ.1.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 1)
             END IF
 !        RECT CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.2.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.2.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        ELIP CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.3.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.3.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        RCTK CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.4.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(11,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.4.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 2)
             END IF
 !        POLY CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.5.0D0) THEN
-               SYS12=ALENS(10,NEWREF)
-               SYS13=ALENS(10,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.5.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 1)
+               SYS13=surf_clap_dim(NEWREF, 1)
             END IF
 !        IPOLY CLAP
 !
-            IF(DABS(ALENS(9,NEWREF)).EQ.6.0D0) THEN
-               SYS12=ALENS(14,NEWREF)
-               SYS13=ALENS(14,NEWREF)
+            IF(ABS(surf_clap_type(NEWREF)).EQ.6.0D0) THEN
+               SYS12=surf_clap_dim(NEWREF, 5)
+               SYS13=surf_clap_dim(NEWREF, 5)
             END IF
          END IF
 !
 !       NO CLAP ON REF SURF.
-         IF(DABS(ALENS(9,NEWREF)).EQ.0.0D0.OR.&
-         &ALENS(127,NEWREF).NE.0.0D0) THEN
+         IF(ABS(surf_clap_type(NEWREF)).EQ.0.0D0.OR.surf_multi_clap_flag(NEWREF).NE.0.0D0) THEN
 !       NO CLAP ON REF SURF.
             SYS13=PXTRAX(1,NEWREF)
             SYS12=PXTRAY(1,NEWREF)
@@ -2237,16 +2097,14 @@ SUBROUTINE TVARBLL
 !     CHECK FOR A POSSIBLE OVERFLOW
    IF(TVBCNT.EQ.MAXTVB) THEN
 !     NO MORE TOL VARIABLES
-      WRITE(OUTLYNE,*)&
-      &'THE MAXIMUM OF ',MAXTVB,' TVARS HAS BEEN REACHED'
+      WRITE(OUTLYNE,*)'THE MAXIMUM OF ',MAXTVB,' TVARS HAS BEEN REACHED'
       CALL SHOWIT(0)
       WRITE(OUTLYNE,*)'NO MORE MAY BE ENTERED'
       CALL SHOWIT(0)
       CALL MACFAL
       RETURN
    END IF
-   IF(VALT.GE.154.AND.VALT.LE.156.OR.VALT.GE.160.AND.&
-   &VALT.LE.164) THEN
+   IF(VALT.GE.154.AND.VALT.LE.156.OR.VALT.GE.160.AND.VALT.LE.164) THEN
       VBJK=TVBCNT+MAXCMP
       VARNAM(VBJK+1)=WC
       VARABL(VBJK+1,1) =DBLE(VALT)
@@ -2429,17 +2287,14 @@ SUBROUTINE TVARBLL
 !     IF IT IS NOT CONTROLLED BY A SOLVE, THEN PIKUPS WILL BE
 !     CHECKED FOLLOWED BY TILT AUTO ASSIGNMENTS CHECKS AS NECESSARY.
 !
-666 FORMAT(&
-   &'VARIABLE NAME = ',A8,'AT SURFACE # = ',I3)
+666 FORMAT('VARIABLE NAME = ',A8,'AT SURFACE # = ',I3)
 !
 !     FOR CV.RD,CVTOR,RDTOR, CHECK FOR FLAT SURFACES
    IF(VALT.EQ.1.OR.VALT.EQ.2) THEN
-      IF(ALENS(1,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"RD" AND "CV" TOLERANCE VARIABLES CAN NOT BE USED'
+      IF(surf_curvature(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'"RD" AND "CV" TOLERANCE VARIABLES CAN NOT BE USED'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'ON PLANO SURFACES. USE "RD_FR" OR "CV_FR"'
+         WRITE(OUTLYNE,*)'ON PLANO SURFACES. USE "RD_FR" OR "CV_FR"'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2448,12 +2303,10 @@ SUBROUTINE TVARBLL
       END IF
    END IF
    IF(VALT.EQ.134) THEN
-      IF(ALENS(1,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"RD_FR" TOLERANCE VARIABLE CAN NOT BE USED'
+      IF(surf_curvature(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'"RD_FR" TOLERANCE VARIABLE CAN NOT BE USED'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'ON PLANO SURFACES. USE "CV_FR"'
+         WRITE(OUTLYNE,*)'ON PLANO SURFACES. USE "CV_FR"'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2463,12 +2316,10 @@ SUBROUTINE TVARBLL
    END IF
 !     FOR CV.RD,CVTOR,RDTOR, CHECK FOR FLAT SURFACES
    IF(VALT.EQ.9.OR.VALT.EQ.10) THEN
-      IF(ALENS(24,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"RDTOR" AND "CVTOR" TOLERANCE VARIABLES CAN NOT BE USED'
+      IF(surf_toric_curvature(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'"RDTOR" AND "CVTOR" TOLERANCE VARIABLES CAN NOT BE USED'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'ON SURFACES WITH 0.0 TORIC CURVATURE. USE "RDTFR" OR "CVTFR"'
+         WRITE(OUTLYNE,*)'ON SURFACES WITH 0.0 TORIC CURVATURE. USE "RDTFR" OR "CVTFR"'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2477,12 +2328,10 @@ SUBROUTINE TVARBLL
       END IF
    END IF
    IF(VALT.EQ.136) THEN
-      IF(ALENS(24,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"RDTOR" TOLERANCE VARIABLE CAN NOT BE USED'
+      IF(surf_toric_curvature(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'"RDTOR" TOLERANCE VARIABLE CAN NOT BE USED'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'ON SURFACES WITH 0.0 TORIC CURVATURE. USE "CVTFR"'
+         WRITE(OUTLYNE,*)'ON SURFACES WITH 0.0 TORIC CURVATURE. USE "CVTFR"'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2496,13 +2345,8 @@ SUBROUTINE TVARBLL
 !     SURFACE IS X-TORIC WITH AN X CURVATURE SOLVE OR THE
 !     SURFACE IS Y-TORIC WITH AN Y CURVATURE SOLVE
 !     THEN DISALLOW VARIABLE
-      IF(ALENS(23,VBSURF).EQ.0.0D0.AND.ALENS(33,VBSURF).GT.1.0D0 &
-      &.OR.ALENS(23,VBSURF).EQ.1.0D0.AND.&
-      &SOLVE(8,VBSURF).GT.0.0D0.OR.&
-      &ALENS(23,VBSURF).EQ.2.0D0.AND.&
-      &SOLVE(2,VBSURF).GT.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING CURVATURE SOLVE EXISTS ON THIS SURFACE'
+      IF(surf_toric_flag(VBSURF).EQ.0.0D0.AND.surf_solve_flag(VBSURF).GT.1.0D0 .OR.surf_toric_flag(VBSURF).EQ.1.0D0.AND.SOLVE(8,VBSURF).GT.0.0D0.OR.surf_toric_flag(VBSURF).EQ.2.0D0.AND.SOLVE(2,VBSURF).GT.0.0D0) THEN
+         WRITE(OUTLYNE,*)'A CONFLICTING CURVATURE SOLVE EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2513,13 +2357,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A CV,RD,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,1).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,2).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,1).EQ.1.0D0 .OR.PIKUP(1,VBSURF,2).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2530,7 +2370,7 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP OR SOLVES EXIST, ASSIGN THE VARIABLE
 !
-         IF(ALENS(1,VBSURF).EQ.0.0D0) THEN
+         IF(surf_curvature(VBSURF).EQ.0.0D0) THEN
             IF(VALT.EQ.1) VARABL(VBJK+1,4)=0.0D0
             IF(VALT.EQ.1) VARABL(VBJK+1,5)=0.0D0
             IF(VALT.EQ.1) VARABL(VBJK+1,13)=0.0D0
@@ -2544,18 +2384,18 @@ SUBROUTINE TVARBLL
             IF(VALT.EQ.135) VARABL(VBJK+1,5)=0.0D0
             IF(VALT.EQ.135) VARABL(VBJK+1,13)=0.0D0
          ELSE
-            IF(VALT.EQ.1) VARABL(VBJK+1,4)=1.0D0/ALENS(1,VBSURF)
-            IF(VALT.EQ.1) VARABL(VBJK+1,5)=1.0D0/ALENS(1,VBSURF)
-            IF(VALT.EQ.1) VARABL(VBJK+1,13)=1.0D0/ALENS(1,VBSURF)
-            IF(VALT.EQ.2) VARABL(VBJK+1,4)=ALENS(1,VBSURF)
-            IF(VALT.EQ.2) VARABL(VBJK+1,5)=ALENS(1,VBSURF)
-            IF(VALT.EQ.2) VARABL(VBJK+1,13)=ALENS(1,VBSURF)
-            IF(VALT.EQ.134) VARABL(VBJK+1,4)=1.0D0/ALENS(1,VBSURF)
-            IF(VALT.EQ.134) VARABL(VBJK+1,5)=1.0D0/ALENS(1,VBSURF)
-            IF(VALT.EQ.134) VARABL(VBJK+1,13)=1.0D0/ALENS(1,VBSURF)
-            IF(VALT.EQ.135) VARABL(VBJK+1,4)=ALENS(1,VBSURF)
-            IF(VALT.EQ.135) VARABL(VBJK+1,5)=ALENS(1,VBSURF)
-            IF(VALT.EQ.135) VARABL(VBJK+1,13)=ALENS(1,VBSURF)
+            IF(VALT.EQ.1) VARABL(VBJK+1,4)=1.0D0/surf_curvature(VBSURF)
+            IF(VALT.EQ.1) VARABL(VBJK+1,5)=1.0D0/surf_curvature(VBSURF)
+            IF(VALT.EQ.1) VARABL(VBJK+1,13)=1.0D0/surf_curvature(VBSURF)
+            IF(VALT.EQ.2) VARABL(VBJK+1,4)=surf_curvature(VBSURF)
+            IF(VALT.EQ.2) VARABL(VBJK+1,5)=surf_curvature(VBSURF)
+            IF(VALT.EQ.2) VARABL(VBJK+1,13)=surf_curvature(VBSURF)
+            IF(VALT.EQ.134) VARABL(VBJK+1,4)=1.0D0/surf_curvature(VBSURF)
+            IF(VALT.EQ.134) VARABL(VBJK+1,5)=1.0D0/surf_curvature(VBSURF)
+            IF(VALT.EQ.134) VARABL(VBJK+1,13)=1.0D0/surf_curvature(VBSURF)
+            IF(VALT.EQ.135) VARABL(VBJK+1,4)=surf_curvature(VBSURF)
+            IF(VALT.EQ.135) VARABL(VBJK+1,5)=surf_curvature(VBSURF)
+            IF(VALT.EQ.135) VARABL(VBJK+1,13)=surf_curvature(VBSURF)
          END IF
 !
          TVBCNT=TVBCNT+1
@@ -2568,16 +2408,14 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.3) THEN
       IF(VBSURF.EQ.NEWIMG) THEN
          WRITE(OUTLYNE,999) WC
-999      FORMAT(&
-         &'VARIABLE NAME = ',A8,'NOT USABLE AT THE IMAGE SURFACE')
+999      FORMAT('VARIABLE NAME = ',A8,'NOT USABLE AT THE IMAGE SURFACE')
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(33,VBSURF).EQ.1.0D0.OR.ALENS(33,VBSURF).EQ.3.0D0) THEN
+      IF(surf_solve_flag(VBSURF).EQ.1.0D0.OR.surf_solve_flag(VBSURF).EQ.3.0D0) THEN
 !     TH SOLVE EXISTS, DISALLOW VARIABLE
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING THICKNESS SOLVE EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING THICKNESS SOLVE EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2587,11 +2425,9 @@ SUBROUTINE TVARBLL
          RETURN
       END IF
 !     PIKUP CHECK
-      IF(PIKUP(1,VBSURF,3).EQ.1.0D0.OR.PIKUP(1,VBSURF,32).EQ.1.0D0)&
-      &THEN
+      IF(PIKUP(1,VBSURF,3).EQ.1.0D0.OR.PIKUP(1,VBSURF,32).EQ.1.0D0)THEN
 !     A THICKNESS PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING THICKNESS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING THICKNESS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2602,10 +2438,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO TH PIKUP OR SOLVES EXIST, ASSIGN THE VARIABLE
 !
-         VARABL(VBJK+1,4)=ALENS(3,VBSURF)
+         VARABL(VBJK+1,4)=surf_thickness(VBSURF)
 !
-         VARABL(VBJK+1,5)=ALENS(3,VBSURF)
-         VARABL(VBJK+1,13)=ALENS(3,VBSURF)
+         VARABL(VBJK+1,5)=surf_thickness(VBSURF)
+         VARABL(VBJK+1,13)=surf_thickness(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2615,12 +2451,9 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.4) THEN
 !     PIKUP CHECK
 !     IF A CC,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,4).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,4).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2631,25 +2464,22 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.4) VARABL(VBJK+1,4)=ALENS(2,VBSURF)
+         IF(VALT.EQ.4) VARABL(VBJK+1,4)=surf_conic(VBSURF)
 !
-         IF(VALT.EQ.4) VARABL(VBJK+1,5)=ALENS(2,VBSURF)
-         IF(VALT.EQ.4) VARABL(VBJK+1,13)=ALENS(2,VBSURF)
+         IF(VALT.EQ.4) VARABL(VBJK+1,5)=surf_conic(VBSURF)
+         IF(VALT.EQ.4) VARABL(VBJK+1,13)=surf_conic(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
       RETURN
    END IF
    IF(VALT.EQ.5) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AD,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,5).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,5).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2660,10 +2490,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.5) VARABL(VBJK+1,4)=ALENS(4,VBSURF)
+         IF(VALT.EQ.5) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 4)
 !
-         IF(VALT.EQ.5) VARABL(VBJK+1,5)=ALENS(4,VBSURF)
-         IF(VALT.EQ.5) VARABL(VBJK+1,13)=ALENS(4,VBSURF)
+         IF(VALT.EQ.5) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 4)
+         IF(VALT.EQ.5) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 4)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2671,15 +2501,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.6) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AE,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,6).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,6).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2690,10 +2517,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.6) VARABL(VBJK+1,4)=ALENS(5,VBSURF)
+         IF(VALT.EQ.6) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 6)
 !
-         IF(VALT.EQ.6) VARABL(VBJK+1,5)=ALENS(5,VBSURF)
-         IF(VALT.EQ.6) VARABL(VBJK+1,13)=ALENS(5,VBSURF)
+         IF(VALT.EQ.6) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 6)
+         IF(VALT.EQ.6) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 6)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2701,15 +2528,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.7) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AF,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,7).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,7).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2720,10 +2544,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.7) VARABL(VBJK+1,4)=ALENS(6,VBSURF)
+         IF(VALT.EQ.7) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 8)
 !
-         IF(VALT.EQ.7) VARABL(VBJK+1,5)=ALENS(6,VBSURF)
-         IF(VALT.EQ.7) VARABL(VBJK+1,13)=ALENS(6,VBSURF)
+         IF(VALT.EQ.7) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 8)
+         IF(VALT.EQ.7) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 8)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2731,15 +2555,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.8) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AG,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,8).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,8).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2750,10 +2571,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.8) VARABL(VBJK+1,4)=ALENS(7,VBSURF)
+         IF(VALT.EQ.8) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 10)
 !
-         IF(VALT.EQ.8) VARABL(VBJK+1,5)=ALENS(7,VBSURF)
-         IF(VALT.EQ.8) VARABL(VBJK+1,13)=ALENS(7,VBSURF)
+         IF(VALT.EQ.8) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 10)
+         IF(VALT.EQ.8) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 10)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2766,12 +2587,8 @@ SUBROUTINE TVARBLL
 !     SURFACE IS X-TORIC WITH AN Y CURVATURE SOLVE OR THE
 !     SURFACE IS Y-TORIC WITH AN X CURVATURE SOLVE
 !     THEN DISALLOW VARIABLE
-      IF(ALENS(23,VBSURF).EQ.1.0D0.AND.&
-      &SOLVE(2,VBSURF).GT.0.0D0.OR.&
-      &ALENS(23,VBSURF).EQ.2.0D0.AND.&
-      &SOLVE(8,VBSURF).GT.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING CURVATURE SOLVE EXISTS ON THIS SURFACE'
+      IF(surf_toric_flag(VBSURF).EQ.1.0D0.AND.SOLVE(2,VBSURF).GT.0.0D0.OR.surf_toric_flag(VBSURF).EQ.2.0D0.AND.SOLVE(8,VBSURF).GT.0.0D0) THEN
+         WRITE(OUTLYNE,*)'A CONFLICTING CURVATURE SOLVE EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2782,13 +2599,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A CV,RD,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,9).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,10).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,9).EQ.1.0D0 .OR.PIKUP(1,VBSURF,10).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2799,7 +2612,7 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP OR SOLVES EXIST, ASSIGN THE VARIABLE
 !
-         IF(ALENS(24,VBSURF).EQ.0.0D0) THEN
+         IF(surf_toric_curvature(VBSURF).EQ.0.0D0) THEN
 !
             IF(VALT.EQ.9) VARABL(VBJK+1,4)=0.0D0
             IF(VALT.EQ.9) VARABL(VBJK+1,5)=0.0D0
@@ -2815,18 +2628,18 @@ SUBROUTINE TVARBLL
             IF(VALT.EQ.137) VARABL(VBJK+1,13)=0.0D0
          ELSE
 !
-            IF(VALT.EQ.9) VARABL(VBJK+1,4)=1.0D0/ALENS(24,VBSURF)
-            IF(VALT.EQ.9) VARABL(VBJK+1,5)=1.0D0/ALENS(24,VBSURF)
-            IF(VALT.EQ.9) VARABL(VBJK+1,13)=1.0D0/ALENS(24,VBSURF)
-            IF(VALT.EQ.10) VARABL(VBJK+1,4)=ALENS(24,VBSURF)
-            IF(VALT.EQ.10) VARABL(VBJK+1,5)=ALENS(24,VBSURF)
-            IF(VALT.EQ.10) VARABL(VBJK+1,13)=ALENS(24,VBSURF)
-            IF(VALT.EQ.136) VARABL(VBJK+1,4)=1.0D0/ALENS(24,VBSURF)
-            IF(VALT.EQ.136) VARABL(VBJK+1,5)=1.0D0/ALENS(24,VBSURF)
-            IF(VALT.EQ.136) VARABL(VBJK+1,13)=1.0D0/ALENS(24,VBSURF)
-            IF(VALT.EQ.137) VARABL(VBJK+1,4)=ALENS(24,VBSURF)
-            IF(VALT.EQ.137) VARABL(VBJK+1,5)=ALENS(24,VBSURF)
-            IF(VALT.EQ.137) VARABL(VBJK+1,13)=ALENS(24,VBSURF)
+            IF(VALT.EQ.9) VARABL(VBJK+1,4)=1.0D0/surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.9) VARABL(VBJK+1,5)=1.0D0/surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.9) VARABL(VBJK+1,13)=1.0D0/surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.10) VARABL(VBJK+1,4)=surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.10) VARABL(VBJK+1,5)=surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.10) VARABL(VBJK+1,13)=surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.136) VARABL(VBJK+1,4)=1.0D0/surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.136) VARABL(VBJK+1,5)=1.0D0/surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.136) VARABL(VBJK+1,13)=1.0D0/surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.137) VARABL(VBJK+1,4)=surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.137) VARABL(VBJK+1,5)=surf_toric_curvature(VBSURF)
+            IF(VALT.EQ.137) VARABL(VBJK+1,13)=surf_toric_curvature(VBSURF)
          END IF
          TVBCNT=TVBCNT+1
       END IF
@@ -2836,9 +2649,8 @@ SUBROUTINE TVARBLL
 !
 !     DO CCTOR
    IF(VALT.EQ.11) THEN
-      IF(ALENS(23,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TOROIDAL'
+      IF(surf_toric_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TOROIDAL'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2847,12 +2659,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A CCTOR,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,21).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,21).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2863,10 +2672,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.11) VARABL(VBJK+1,4)=ALENS(41,VBSURF)
+         IF(VALT.EQ.11) VARABL(VBJK+1,4)=surf_anamorphic_conic(VBSURF)
 !
-         IF(VALT.EQ.11) VARABL(VBJK+1,5)=ALENS(41,VBSURF)
-         IF(VALT.EQ.11) VARABL(VBJK+1,13)=ALENS(41,VBSURF)
+         IF(VALT.EQ.11) VARABL(VBJK+1,5)=surf_anamorphic_conic(VBSURF)
+         IF(VALT.EQ.11) VARABL(VBJK+1,13)=surf_anamorphic_conic(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2875,9 +2684,8 @@ SUBROUTINE TVARBLL
 !
 !     DO ADTOR
    IF(VALT.EQ.12) THEN
-      IF(ALENS(23,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TOROIDAL'
+      IF(surf_toric_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TOROIDAL'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2886,12 +2694,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A ADT,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,22).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,22).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2902,10 +2707,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.12) VARABL(VBJK+1,4)=ALENS(37,VBSURF)
+         IF(VALT.EQ.12) VARABL(VBJK+1,4)=surf_anamorphic_coeff(VBSURF, 4)
 !
-         IF(VALT.EQ.12) VARABL(VBJK+1,5)=ALENS(37,VBSURF)
-         IF(VALT.EQ.12) VARABL(VBJK+1,13)=ALENS(37,VBSURF)
+         IF(VALT.EQ.12) VARABL(VBJK+1,5)=surf_anamorphic_coeff(VBSURF, 4)
+         IF(VALT.EQ.12) VARABL(VBJK+1,13)=surf_anamorphic_coeff(VBSURF, 4)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2914,9 +2719,8 @@ SUBROUTINE TVARBLL
 !
 !     DO AETOR
    IF(VALT.EQ.13) THEN
-      IF(ALENS(23,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TOROIDAL'
+      IF(surf_toric_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TOROIDAL'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2925,12 +2729,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A AETOR,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,23).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,23).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2941,10 +2742,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.13) VARABL(VBJK+1,4)=ALENS(38,VBSURF)
+         IF(VALT.EQ.13) VARABL(VBJK+1,4)=surf_anamorphic_coeff(VBSURF, 6)
 !
-         IF(VALT.EQ.13) VARABL(VBJK+1,5)=ALENS(38,VBSURF)
-         IF(VALT.EQ.13) VARABL(VBJK+1,13)=ALENS(38,VBSURF)
+         IF(VALT.EQ.13) VARABL(VBJK+1,5)=surf_anamorphic_coeff(VBSURF, 6)
+         IF(VALT.EQ.13) VARABL(VBJK+1,13)=surf_anamorphic_coeff(VBSURF, 6)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2953,9 +2754,8 @@ SUBROUTINE TVARBLL
 !
 !     DO AFTOR
    IF(VALT.EQ.14) THEN
-      IF(ALENS(23,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TOROIDAL'
+      IF(surf_toric_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TOROIDAL'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -2964,12 +2764,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A AFTOR,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,24).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,24).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -2980,10 +2777,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.14) VARABL(VBJK+1,4)=ALENS(39,VBSURF)
+         IF(VALT.EQ.14) VARABL(VBJK+1,4)=surf_anamorphic_coeff(VBSURF, 8)
 !
-         IF(VALT.EQ.14) VARABL(VBJK+1,5)=ALENS(39,VBSURF)
-         IF(VALT.EQ.14) VARABL(VBJK+1,13)=ALENS(39,VBSURF)
+         IF(VALT.EQ.14) VARABL(VBJK+1,5)=surf_anamorphic_coeff(VBSURF, 8)
+         IF(VALT.EQ.14) VARABL(VBJK+1,13)=surf_anamorphic_coeff(VBSURF, 8)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -2992,9 +2789,8 @@ SUBROUTINE TVARBLL
 !
 !     DO AGTOR
    IF(VALT.EQ.15) THEN
-      IF(ALENS(23,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TOROIDAL'
+      IF(surf_toric_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TOROIDAL'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3003,12 +2799,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF A AGTOR,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,25).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,25).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3019,10 +2812,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.15) VARABL(VBJK+1,4)=ALENS(40,VBSURF)
+         IF(VALT.EQ.15) VARABL(VBJK+1,4)=surf_anamorphic_coeff(VBSURF, 10)
 !
-         IF(VALT.EQ.15) VARABL(VBJK+1,5)=ALENS(40,VBSURF)
-         IF(VALT.EQ.15) VARABL(VBJK+1,13)=ALENS(40,VBSURF)
+         IF(VALT.EQ.15) VARABL(VBJK+1,5)=surf_anamorphic_coeff(VBSURF, 10)
+         IF(VALT.EQ.15) VARABL(VBJK+1,13)=surf_anamorphic_coeff(VBSURF, 10)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3035,8 +2828,7 @@ SUBROUTINE TVARBLL
 !     IF AN GDX PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,37).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GDX PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GDX PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3047,9 +2839,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.147) VARABL(VBJK+1,4)=ALENS(90,VBSURF)
-         IF(VALT.EQ.147) VARABL(VBJK+1,5)=ALENS(90,VBSURF)
-         IF(VALT.EQ.147) VARABL(VBJK+1,13)=ALENS(90,VBSURF)
+         IF(VALT.EQ.147) VARABL(VBJK+1,4)=surf_global_dx(VBSURF)
+         IF(VALT.EQ.147) VARABL(VBJK+1,5)=surf_global_dx(VBSURF)
+         IF(VALT.EQ.147) VARABL(VBJK+1,13)=surf_global_dx(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3062,8 +2854,7 @@ SUBROUTINE TVARBLL
 !     IF AN GDY PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,38).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GDY PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GDY PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3074,9 +2865,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.148) VARABL(VBJK+1,4)=ALENS(91,VBSURF)
-         IF(VALT.EQ.148) VARABL(VBJK+1,5)=ALENS(91,VBSURF)
-         IF(VALT.EQ.148) VARABL(VBJK+1,13)=ALENS(91,VBSURF)
+         IF(VALT.EQ.148) VARABL(VBJK+1,4)=surf_global_dy(VBSURF)
+         IF(VALT.EQ.148) VARABL(VBJK+1,5)=surf_global_dy(VBSURF)
+         IF(VALT.EQ.148) VARABL(VBJK+1,13)=surf_global_dy(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3089,8 +2880,7 @@ SUBROUTINE TVARBLL
 !     IF AN GDZ PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,38).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GDZ PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GDZ PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3101,9 +2891,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.149) VARABL(VBJK+1,4)=ALENS(92,VBSURF)
-         IF(VALT.EQ.149) VARABL(VBJK+1,5)=ALENS(92,VBSURF)
-         IF(VALT.EQ.149) VARABL(VBJK+1,13)=ALENS(92,VBSURF)
+         IF(VALT.EQ.149) VARABL(VBJK+1,4)=surf_global_dz(VBSURF)
+         IF(VALT.EQ.149) VARABL(VBJK+1,5)=surf_global_dz(VBSURF)
+         IF(VALT.EQ.149) VARABL(VBJK+1,13)=surf_global_dz(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3116,8 +2906,7 @@ SUBROUTINE TVARBLL
 !     IF AN GALPHA PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,40).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GALPHA PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GALPHA PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3128,9 +2917,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.150) VARABL(VBJK+1,4)=ALENS(93,VBSURF)
-         IF(VALT.EQ.150) VARABL(VBJK+1,5)=ALENS(93,VBSURF)
-         IF(VALT.EQ.150) VARABL(VBJK+1,13)=ALENS(93,VBSURF)
+         IF(VALT.EQ.150) VARABL(VBJK+1,4)=surf_global_alpha(VBSURF)
+         IF(VALT.EQ.150) VARABL(VBJK+1,5)=surf_global_alpha(VBSURF)
+         IF(VALT.EQ.150) VARABL(VBJK+1,13)=surf_global_alpha(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3143,8 +2932,7 @@ SUBROUTINE TVARBLL
 !     IF AN GBETA PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,41).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GBETA PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GBETA PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3155,9 +2943,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.151) VARABL(VBJK+1,4)=ALENS(94,VBSURF)
-         IF(VALT.EQ.151) VARABL(VBJK+1,5)=ALENS(94,VBSURF)
-         IF(VALT.EQ.151) VARABL(VBJK+1,13)=ALENS(95,VBSURF)
+         IF(VALT.EQ.151) VARABL(VBJK+1,4)=surf_global_beta(VBSURF)
+         IF(VALT.EQ.151) VARABL(VBJK+1,5)=surf_global_beta(VBSURF)
+         IF(VALT.EQ.151) VARABL(VBJK+1,13)=surf_global_gamma(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3170,8 +2958,7 @@ SUBROUTINE TVARBLL
 !     IF AN GGAMMA PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,42).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GGAMMA PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GGAMMA PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3182,9 +2969,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.152) VARABL(VBJK+1,4)=ALENS(95,VBSURF)
-         IF(VALT.EQ.152) VARABL(VBJK+1,5)=ALENS(95,VBSURF)
-         IF(VALT.EQ.152) VARABL(VBJK+1,13)=ALENS(95,VBSURF)
+         IF(VALT.EQ.152) VARABL(VBJK+1,4)=surf_global_gamma(VBSURF)
+         IF(VALT.EQ.152) VARABL(VBJK+1,5)=surf_global_gamma(VBSURF)
+         IF(VALT.EQ.152) VARABL(VBJK+1,13)=surf_global_gamma(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3193,10 +2980,9 @@ SUBROUTINE TVARBLL
 !
 !     DO GRS
    IF(VALT.EQ.153) THEN
-      IF(ALENS(96,VBSURF).EQ.1.0D0) THEN
+      IF(surf_diffraction_flag(VBSURF).EQ.1.0D0) THEN
       ELSE
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE REQUIRES A "GRT" DEFINITION'
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE REQUIRES A "GRT" DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3207,8 +2993,7 @@ SUBROUTINE TVARBLL
 !     IF AN GRT PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,43).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GRT PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GRT PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3219,9 +3004,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.153) VARABL(VBJK+1,4)=ALENS(98,VBSURF)
-         IF(VALT.EQ.153) VARABL(VBJK+1,5)=ALENS(98,VBSURF)
-         IF(VALT.EQ.153) VARABL(VBJK+1,13)=ALENS(98,VBSURF)
+         IF(VALT.EQ.153) VARABL(VBJK+1,4)=surf_grating_spacing(VBSURF)
+         IF(VALT.EQ.153) VARABL(VBJK+1,5)=surf_grating_spacing(VBSURF)
+         IF(VALT.EQ.153) VARABL(VBJK+1,13)=surf_grating_spacing(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3290,18 +3075,16 @@ SUBROUTINE TVARBLL
 !
 !     DO ALPHA
    IF(VALT.EQ.16) THEN
-      IF(ALENS(25,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TILTED'
+      IF(surf_tilt_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TILTED'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3312,8 +3095,7 @@ SUBROUTINE TVARBLL
 !     IF AN ALPHA PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,15).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING ALPHA PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING ALPHA PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3324,10 +3106,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.16) VARABL(VBJK+1,4)=ALENS(118,VBSURF)
+         IF(VALT.EQ.16) VARABL(VBJK+1,4)=surf_alpha_deg(VBSURF)
 !
-         IF(VALT.EQ.16) VARABL(VBJK+1,5)=ALENS(118,VBSURF)
-         IF(VALT.EQ.16) VARABL(VBJK+1,13)=ALENS(118,VBSURF)
+         IF(VALT.EQ.16) VARABL(VBJK+1,5)=surf_alpha_deg(VBSURF)
+         IF(VALT.EQ.16) VARABL(VBJK+1,13)=surf_alpha_deg(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3336,18 +3118,16 @@ SUBROUTINE TVARBLL
 !
 !     DO BETA
    IF(VALT.EQ.17) THEN
-      IF(ALENS(25,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TILTED'
+      IF(surf_tilt_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TILTED'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3358,8 +3138,7 @@ SUBROUTINE TVARBLL
 !     IF AN BETA PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,16).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING BETA PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING BETA PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3370,10 +3149,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.17) VARABL(VBJK+1,4)=ALENS(119,VBSURF)
+         IF(VALT.EQ.17) VARABL(VBJK+1,4)=surf_beta_deg(VBSURF)
 !
-         IF(VALT.EQ.17) VARABL(VBJK+1,5)=ALENS(119,VBSURF)
-         IF(VALT.EQ.17) VARABL(VBJK+1,13)=ALENS(119,VBSURF)
+         IF(VALT.EQ.17) VARABL(VBJK+1,5)=surf_beta_deg(VBSURF)
+         IF(VALT.EQ.17) VARABL(VBJK+1,13)=surf_beta_deg(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3382,18 +3161,16 @@ SUBROUTINE TVARBLL
 !
 !     DO GAMMA
    IF(VALT.EQ.18) THEN
-      IF(ALENS(25,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT TILTED'
+      IF(surf_tilt_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT TILTED'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3404,8 +3181,7 @@ SUBROUTINE TVARBLL
 !     IF AN GAMMA PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,17).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GAMMA PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GAMMA PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3416,10 +3192,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.18) VARABL(VBJK+1,4)=ALENS(120,VBSURF)
+         IF(VALT.EQ.18) VARABL(VBJK+1,4)=surf_gamma_deg(VBSURF)
 !
-         IF(VALT.EQ.18) VARABL(VBJK+1,5)=ALENS(120,VBSURF)
-         IF(VALT.EQ.18) VARABL(VBJK+1,13)=ALENS(120,VBSURF)
+         IF(VALT.EQ.18) VARABL(VBJK+1,5)=surf_gamma_deg(VBSURF)
+         IF(VALT.EQ.18) VARABL(VBJK+1,13)=surf_gamma_deg(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3430,9 +3206,8 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.19) THEN
 !     PIKUP CHECK
 !     IF AN XD PIKUPS EXISTS THEN
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3441,8 +3216,7 @@ SUBROUTINE TVARBLL
       END IF
       IF(PIKUP(1,VBSURF,14).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING XD PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING XD PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3453,10 +3227,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.19) VARABL(VBJK+1,4)=ALENS(114,VBSURF)
+         IF(VALT.EQ.19) VARABL(VBJK+1,4)=surf_focus_dx(VBSURF)
 !
-         IF(VALT.EQ.19) VARABL(VBJK+1,5)=ALENS(114,VBSURF)
-         IF(VALT.EQ.19) VARABL(VBJK+1,13)=ALENS(114,VBSURF)
+         IF(VALT.EQ.19) VARABL(VBJK+1,5)=surf_focus_dx(VBSURF)
+         IF(VALT.EQ.19) VARABL(VBJK+1,13)=surf_focus_dx(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3468,9 +3242,8 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.138) THEN
 !     PIKUP CHECK
 !     IF AN XD PIKUPS EXISTS THEN
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3479,8 +3252,7 @@ SUBROUTINE TVARBLL
       END IF
       IF(PIKUP(1,VBSURF,33).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING ZD PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING ZD PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3491,10 +3263,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.138) VARABL(VBJK+1,4)=ALENS(116,VBSURF)
+         IF(VALT.EQ.138) VARABL(VBJK+1,4)=surf_focus_dz(VBSURF)
 !
-         IF(VALT.EQ.138) VARABL(VBJK+1,5)=ALENS(116,VBSURF)
-         IF(VALT.EQ.138) VARABL(VBJK+1,13)=ALENS(116,VBSURF)
+         IF(VALT.EQ.138) VARABL(VBJK+1,5)=surf_focus_dz(VBSURF)
+         IF(VALT.EQ.138) VARABL(VBJK+1,13)=surf_focus_dz(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3504,27 +3276,24 @@ SUBROUTINE TVARBLL
 !
 !     DO CLPX
    IF(VALT.EQ.145) THEN
-      IF(ALENS(127,VBSURF).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS MULTIPLE APERTURES ASSIGNED'
+      IF(surf_multi_clap_flag(VBSURF).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS MULTIPLE APERTURES ASSIGNED'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(9,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS NO CLEAR APERTURE ASSIGNED'
+      IF(surf_clap_type(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS NO CLEAR APERTURE ASSIGNED'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(9,VBSURF).EQ.1.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS A CIRCULAR CLEAR APERTURE ASSIGNED'
+      IF(surf_clap_type(VBSURF).EQ.1.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS A CIRCULAR CLEAR APERTURE ASSIGNED'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'"CLPX" VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(1)
@@ -3535,8 +3304,7 @@ SUBROUTINE TVARBLL
 !     IF A CLAP PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,18).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING CLAP PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING CLAP PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,666) WC,INT(W1),VBCFG
          CALL SHOWIT(1)
@@ -3547,9 +3315,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.145) VARABL(VBJK+1,4)=ALENS(11,VBSURF)
-         IF(VALT.EQ.145) VARABL(VBJK+1,5)=ALENS(11,VBSURF)
-         IF(VALT.EQ.145) VARABL(VBJK+1,13)=ALENS(11,VBSURF)
+         IF(VALT.EQ.145) VARABL(VBJK+1,4)=surf_clap_dim(VBSURF, 2)
+         IF(VALT.EQ.145) VARABL(VBJK+1,5)=surf_clap_dim(VBSURF, 2)
+         IF(VALT.EQ.145) VARABL(VBJK+1,13)=surf_clap_dim(VBSURF, 2)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3557,18 +3325,16 @@ SUBROUTINE TVARBLL
    END IF
 !     DO CLPY
    IF(VALT.EQ.146) THEN
-      IF(ALENS(127,VBSURF).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS MULTIPLE APERTURES ASSIGNED'
+      IF(surf_multi_clap_flag(VBSURF).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS MULTIPLE APERTURES ASSIGNED'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(1)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(9,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS NO CLEAR APERTURE ASSIGNED'
+      IF(surf_clap_type(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS NO CLEAR APERTURE ASSIGNED'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(1)
@@ -3579,8 +3345,7 @@ SUBROUTINE TVARBLL
 !     IF A CLAP PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,18).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING CLAP PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING CLAP PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,666) WC,INT(W1),VBCFG
          CALL SHOWIT(1)
@@ -3591,9 +3356,9 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.146) VARABL(VBJK+1,4)=ALENS(10,VBSURF)
-         IF(VALT.EQ.146) VARABL(VBJK+1,5)=ALENS(10,VBSURF)
-         IF(VALT.EQ.146) VARABL(VBJK+1,13)=ALENS(10,VBSURF)
+         IF(VALT.EQ.146) VARABL(VBJK+1,4)=surf_clap_dim(VBSURF, 1)
+         IF(VALT.EQ.146) VARABL(VBJK+1,5)=surf_clap_dim(VBSURF, 1)
+         IF(VALT.EQ.146) VARABL(VBJK+1,13)=surf_clap_dim(VBSURF, 1)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3604,9 +3369,8 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.141) THEN
 !     PIKUP CHECK
 !     IF AN PIVX PIKUPS EXISTS THEN
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3615,8 +3379,7 @@ SUBROUTINE TVARBLL
       END IF
       IF(PIKUP(1,VBSURF,33).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING PIVX PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING PIVX PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3627,10 +3390,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.141) VARABL(VBJK+1,4)=ALENS(78,VBSURF)
+         IF(VALT.EQ.141) VARABL(VBJK+1,4)=surf_pivot_x(VBSURF)
 !
-         IF(VALT.EQ.141) VARABL(VBJK+1,5)=ALENS(78,VBSURF)
-         IF(VALT.EQ.141) VARABL(VBJK+1,13)=ALENS(78,VBSURF)
+         IF(VALT.EQ.141) VARABL(VBJK+1,5)=surf_pivot_x(VBSURF)
+         IF(VALT.EQ.141) VARABL(VBJK+1,13)=surf_pivot_x(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3643,9 +3406,8 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.141) THEN
 !     PIKUP CHECK
 !     IF AN PIVY PIKUPS EXISTS THEN
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3654,8 +3416,7 @@ SUBROUTINE TVARBLL
       END IF
       IF(PIKUP(1,VBSURF,35).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING PIVY PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING PIVY PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3666,10 +3427,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.142) VARABL(VBJK+1,4)=ALENS(79,VBSURF)
+         IF(VALT.EQ.142) VARABL(VBJK+1,4)=surf_pivot_y(VBSURF)
 !
-         IF(VALT.EQ.142) VARABL(VBJK+1,5)=ALENS(79,VBSURF)
-         IF(VALT.EQ.142) VARABL(VBJK+1,13)=ALENS(79,VBSURF)
+         IF(VALT.EQ.142) VARABL(VBJK+1,5)=surf_pivot_y(VBSURF)
+         IF(VALT.EQ.142) VARABL(VBJK+1,13)=surf_pivot_y(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3682,9 +3443,8 @@ SUBROUTINE TVARBLL
    IF(VALT.EQ.143) THEN
 !     PIKUP CHECK
 !     IF AN PIVZ PIKUPS EXISTS THEN
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3693,8 +3453,7 @@ SUBROUTINE TVARBLL
       END IF
       IF(PIKUP(1,VBSURF,36).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING PIVZ PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING PIVZ PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3705,10 +3464,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.143) VARABL(VBJK+1,4)=ALENS(80,VBSURF)
+         IF(VALT.EQ.143) VARABL(VBJK+1,4)=surf_pivot_z(VBSURF)
 !
-         IF(VALT.EQ.143) VARABL(VBJK+1,5)=ALENS(80,VBSURF)
-         IF(VALT.EQ.143) VARABL(VBJK+1,13)=ALENS(80,VBSURF)
+         IF(VALT.EQ.143) VARABL(VBJK+1,5)=surf_pivot_z(VBSURF)
+         IF(VALT.EQ.143) VARABL(VBJK+1,13)=surf_pivot_z(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3717,9 +3476,8 @@ SUBROUTINE TVARBLL
 !
 !     DO YD
    IF(VALT.EQ.20) THEN
-      IF(ALENS(25,VBSURF).EQ.2.0D0.OR.ALENS(25,VBSURF).EQ.3.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
+      IF(surf_tilt_flag(VBSURF).EQ.2.0D0.OR.surf_tilt_flag(VBSURF).EQ.3.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE HAS AN AUTOMATIC TILT DEFINITION'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -3730,8 +3488,7 @@ SUBROUTINE TVARBLL
 !     IF AN YD PIKUPS EXISTS THEN
       IF(PIKUP(1,VBSURF,13).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING YD PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING YD PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3742,10 +3499,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.20) VARABL(VBJK+1,4)=ALENS(115,VBSURF)
+         IF(VALT.EQ.20) VARABL(VBJK+1,4)=surf_focus_dy(VBSURF)
 !
-         IF(VALT.EQ.20) VARABL(VBJK+1,5)=ALENS(115,VBSURF)
-         IF(VALT.EQ.20) VARABL(VBJK+1,13)=ALENS(115,VBSURF)
+         IF(VALT.EQ.20) VARABL(VBJK+1,5)=surf_focus_dy(VBSURF)
+         IF(VALT.EQ.20) VARABL(VBJK+1,13)=surf_focus_dy(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3755,11 +3512,9 @@ SUBROUTINE TVARBLL
 !     DO N1
    IF(VALT.EQ.21) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -3770,8 +3525,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3782,10 +3536,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.21) VARABL(VBJK+1,4)=ALENS(46,VBSURF)
+         IF(VALT.EQ.21) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 1)
 !
-         IF(VALT.EQ.21) VARABL(VBJK+1,5)=ALENS(46,VBSURF)
-         IF(VALT.EQ.21) VARABL(VBJK+1,13)=ALENS(46,VBSURF)
+         IF(VALT.EQ.21) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 1)
+         IF(VALT.EQ.21) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 1)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3795,11 +3549,9 @@ SUBROUTINE TVARBLL
 !     DO N2
    IF(VALT.EQ.22) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -3810,8 +3562,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3822,10 +3573,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.22) VARABL(VBJK+1,4)=ALENS(47,VBSURF)
+         IF(VALT.EQ.22) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 2)
 !
-         IF(VALT.EQ.22) VARABL(VBJK+1,5)=ALENS(47,VBSURF)
-         IF(VALT.EQ.22) VARABL(VBJK+1,13)=ALENS(47,VBSURF)
+         IF(VALT.EQ.22) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 2)
+         IF(VALT.EQ.22) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 2)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3835,11 +3586,9 @@ SUBROUTINE TVARBLL
 !     DO N3
    IF(VALT.EQ.23) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -3850,8 +3599,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3862,10 +3610,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.23) VARABL(VBJK+1,4)=ALENS(48,VBSURF)
+         IF(VALT.EQ.23) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 3)
 !
-         IF(VALT.EQ.23) VARABL(VBJK+1,5)=ALENS(48,VBSURF)
-         IF(VALT.EQ.23) VARABL(VBJK+1,13)=ALENS(48,VBSURF)
+         IF(VALT.EQ.23) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 3)
+         IF(VALT.EQ.23) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 3)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3875,11 +3623,9 @@ SUBROUTINE TVARBLL
 !     DO N4
    IF(VALT.EQ.24) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -3890,8 +3636,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3902,10 +3647,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.24) VARABL(VBJK+1,4)=ALENS(49,VBSURF)
+         IF(VALT.EQ.24) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 4)
 !
-         IF(VALT.EQ.24) VARABL(VBJK+1,5)=ALENS(49,VBSURF)
-         IF(VALT.EQ.24) VARABL(VBJK+1,13)=ALENS(49,VBSURF)
+         IF(VALT.EQ.24) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 4)
+         IF(VALT.EQ.24) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 4)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3915,11 +3660,9 @@ SUBROUTINE TVARBLL
 !     DO N5
    IF(VALT.EQ.25) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -3930,8 +3673,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3942,10 +3684,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.25) VARABL(VBJK+1,4)=ALENS(50,VBSURF)
+         IF(VALT.EQ.25) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 5)
 !
-         IF(VALT.EQ.25) VARABL(VBJK+1,5)=ALENS(50,VBSURF)
-         IF(VALT.EQ.25) VARABL(VBJK+1,13)=ALENS(50,VBSURF)
+         IF(VALT.EQ.25) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 5)
+         IF(VALT.EQ.25) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 5)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3955,11 +3697,9 @@ SUBROUTINE TVARBLL
 !     DO N6
    IF(VALT.EQ.124) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -3970,8 +3710,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -3982,10 +3721,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.124) VARABL(VBJK+1,4)=ALENS(71,VBSURF)
+         IF(VALT.EQ.124) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 6)
 !
-         IF(VALT.EQ.124) VARABL(VBJK+1,5)=ALENS(71,VBSURF)
-         IF(VALT.EQ.124) VARABL(VBJK+1,13)=ALENS(71,VBSURF)
+         IF(VALT.EQ.124) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 6)
+         IF(VALT.EQ.124) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 6)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -3994,11 +3733,9 @@ SUBROUTINE TVARBLL
 !     DO N7
    IF(VALT.EQ.125) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4009,8 +3746,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4021,10 +3757,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.125) VARABL(VBJK+1,4)=ALENS(72,VBSURF)
+         IF(VALT.EQ.125) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 7)
 !
-         IF(VALT.EQ.125) VARABL(VBJK+1,5)=ALENS(72,VBSURF)
-         IF(VALT.EQ.125) VARABL(VBJK+1,13)=ALENS(72,VBSURF)
+         IF(VALT.EQ.125) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 7)
+         IF(VALT.EQ.125) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 7)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4033,11 +3769,9 @@ SUBROUTINE TVARBLL
 !     DO N8
    IF(VALT.EQ.126) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4048,8 +3782,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4060,10 +3793,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.126) VARABL(VBJK+1,4)=ALENS(73,VBSURF)
+         IF(VALT.EQ.126) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 8)
 !
-         IF(VALT.EQ.126) VARABL(VBJK+1,5)=ALENS(73,VBSURF)
-         IF(VALT.EQ.126) VARABL(VBJK+1,13)=ALENS(73,VBSURF)
+         IF(VALT.EQ.126) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 8)
+         IF(VALT.EQ.126) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 8)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4072,11 +3805,9 @@ SUBROUTINE TVARBLL
 !     DO N9
    IF(VALT.EQ.127) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4087,8 +3818,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4099,10 +3829,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.127) VARABL(VBJK+1,4)=ALENS(74,VBSURF)
+         IF(VALT.EQ.127) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 9)
 !
-         IF(VALT.EQ.127) VARABL(VBJK+1,5)=ALENS(74,VBSURF)
-         IF(VALT.EQ.127) VARABL(VBJK+1,13)=ALENS(74,VBSURF)
+         IF(VALT.EQ.127) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 9)
+         IF(VALT.EQ.127) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 9)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4111,11 +3841,9 @@ SUBROUTINE TVARBLL
 !     DO N10
    IF(VALT.EQ.128) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'GLASS') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "GLASS" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4126,8 +3854,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4138,10 +3865,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.128) VARABL(VBJK+1,4)=ALENS(75,VBSURF)
+         IF(VALT.EQ.128) VARABL(VBJK+1,4)=surf_refractive_index(VBSURF, 10)
 !
-         IF(VALT.EQ.128) VARABL(VBJK+1,5)=ALENS(75,VBSURF)
-         IF(VALT.EQ.128) VARABL(VBJK+1,13)=ALENS(75,VBSURF)
+         IF(VALT.EQ.128) VARABL(VBJK+1,5)=surf_refractive_index(VBSURF, 10)
+         IF(VALT.EQ.128) VARABL(VBJK+1,13)=surf_refractive_index(VBSURF, 10)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4151,11 +3878,9 @@ SUBROUTINE TVARBLL
 !     DO INDEX
    IF(VALT.EQ.139) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'MODEL') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "MODEL" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "MODEL" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4166,8 +3891,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4178,10 +3902,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.139) VARABL(VBJK+1,4)=ALENS(86,VBSURF)
+         IF(VALT.EQ.139) VARABL(VBJK+1,4)=surf_fict_n(VBSURF)
 !
-         IF(VALT.EQ.139) VARABL(VBJK+1,5)=ALENS(86,VBSURF)
-         IF(VALT.EQ.139) VARABL(VBJK+1,13)=ALENS(86,VBSURF)
+         IF(VALT.EQ.139) VARABL(VBJK+1,5)=surf_fict_n(VBSURF)
+         IF(VALT.EQ.139) VARABL(VBJK+1,13)=surf_fict_n(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4191,11 +3915,9 @@ SUBROUTINE TVARBLL
 !     DO VNUM
    IF(VALT.EQ.140) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'MODEL') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "MODEL" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "MODEL" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4206,8 +3928,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4218,10 +3939,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.140) VARABL(VBJK+1,4)=ALENS(87,VBSURF)
+         IF(VALT.EQ.140) VARABL(VBJK+1,4)=surf_fict_v(VBSURF)
 !
-         IF(VALT.EQ.140) VARABL(VBJK+1,5)=ALENS(87,VBSURF)
-         IF(VALT.EQ.140) VARABL(VBJK+1,13)=ALENS(87,VBSURF)
+         IF(VALT.EQ.140) VARABL(VBJK+1,5)=surf_fict_v(VBSURF)
+         IF(VALT.EQ.140) VARABL(VBJK+1,13)=surf_fict_v(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4232,11 +3953,9 @@ SUBROUTINE TVARBLL
 !     DO DPART
    IF(VALT.EQ.144) THEN
       IF(GLANAM(VBSURF,1)(1:5).NE.'MODEL') THEN
-         WRITE(OUTLYNE,*)&
-         &'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
+         WRITE(OUTLYNE,*)'GLASS MUST BE CONVERTED FROM A CATALOG GLASS'
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,*)&
-         &'TO A "MODEL" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
+         WRITE(OUTLYNE,*)'TO A "MODEL" TYPE OF ENTRY BEFORE INDEX CAN BE A VARIABLE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*) 'NO-ACTION TAKEN'
          CALL SHOWIT(0)
@@ -4247,8 +3966,7 @@ SUBROUTINE TVARBLL
 !     IF AN PIKUP GLASS EXISTS THEN
       IF(PIKUP(1,VBSURF,20).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING GLASS PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4259,10 +3977,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.144) VARABL(VBJK+1,4)=ALENS(89,VBSURF)
+         IF(VALT.EQ.144) VARABL(VBJK+1,4)=surf_fict_w(VBSURF)
 !
-         IF(VALT.EQ.144) VARABL(VBJK+1,5)=ALENS(89,VBSURF)
-         IF(VALT.EQ.144) VARABL(VBJK+1,13)=ALENS(89,VBSURF)
+         IF(VALT.EQ.144) VARABL(VBJK+1,5)=surf_fict_w(VBSURF)
+         IF(VALT.EQ.144) VARABL(VBJK+1,13)=surf_fict_w(VBSURF)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4270,15 +3988,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.129) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AH,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,27).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,27).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4289,10 +4004,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.129) VARABL(VBJK+1,4)=ALENS(81,VBSURF)
+         IF(VALT.EQ.129) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 12)
 !
-         IF(VALT.EQ.129) VARABL(VBJK+1,5)=ALENS(81,VBSURF)
-         IF(VALT.EQ.129) VARABL(VBJK+1,13)=ALENS(81,VBSURF)
+         IF(VALT.EQ.129) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 12)
+         IF(VALT.EQ.129) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 12)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4300,15 +4015,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.130) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AI,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,28).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,28).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4319,10 +4031,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.130) VARABL(VBJK+1,4)=ALENS(82,VBSURF)
+         IF(VALT.EQ.130) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 14)
 !
-         IF(VALT.EQ.130) VARABL(VBJK+1,5)=ALENS(82,VBSURF)
-         IF(VALT.EQ.130) VARABL(VBJK+1,13)=ALENS(82,VBSURF)
+         IF(VALT.EQ.130) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 14)
+         IF(VALT.EQ.130) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 14)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4330,15 +4042,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.131) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AJ,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,29).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,29).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4349,10 +4058,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.131) VARABL(VBJK+1,4)=ALENS(83,VBSURF)
+         IF(VALT.EQ.131) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 16)
 !
-         IF(VALT.EQ.131) VARABL(VBJK+1,5)=ALENS(83,VBSURF)
-         IF(VALT.EQ.131) VARABL(VBJK+1,13)=ALENS(83,VBSURF)
+         IF(VALT.EQ.131) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 16)
+         IF(VALT.EQ.131) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 16)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4360,15 +4069,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.132) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AK,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,30).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,30).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4379,10 +4085,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.132) VARABL(VBJK+1,4)=ALENS(84,VBSURF)
+         IF(VALT.EQ.132) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 18)
 !
-         IF(VALT.EQ.132) VARABL(VBJK+1,5)=ALENS(84,VBSURF)
-         IF(VALT.EQ.132) VARABL(VBJK+1,13)=ALENS(84,VBSURF)
+         IF(VALT.EQ.132) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 18)
+         IF(VALT.EQ.132) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 18)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4390,15 +4096,12 @@ SUBROUTINE TVARBLL
    END IF
 !
    IF(VALT.EQ.133) THEN
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AL,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,31).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,31).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING SHAPE PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4409,10 +4112,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.133) VARABL(VBJK+1,4)=ALENS(85,VBSURF)
+         IF(VALT.EQ.133) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 20)
 !
-         IF(VALT.EQ.133) VARABL(VBJK+1,5)=ALENS(85,VBSURF)
-         IF(VALT.EQ.133) VARABL(VBJK+1,13)=ALENS(85,VBSURF)
+         IF(VALT.EQ.133) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 20)
+         IF(VALT.EQ.133) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 20)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -4422,11 +4125,9 @@ SUBROUTINE TVARBLL
 !
 !     NOW DO THE COEFFS FOR CFG1
 !
-   IF(VALT.GE.27.AND.VALT.LE.74.OR.&
-   &VALT.GE.76.AND.VALT.LE.123) THEN
+   IF(VALT.GE.27.AND.VALT.LE.74.OR.VALT.GE.76.AND.VALT.LE.123) THEN
       CNOT=.FALSE.
-      IF(DABS(ALENS(34,VBSURF)).EQ.1.0D0.OR.&
-      &DABS(ALENS(34,VBSURF)).EQ.6.0D0) THEN
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.1.0D0.OR.ABS(surf_asi_flag(VBSURF)).EQ.6.0D0) THEN
          IF(WC.EQ.'C1') CNOT=.TRUE.
          IF(WC.EQ.'C2') CNOT=.TRUE.
          IF(WC.EQ.'C3') CNOT=.TRUE.
@@ -4484,11 +4185,9 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPES 1 AND 6'
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPES 1 AND 6'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'ONLY USE COEFFICIENTS C9 THROUGH C48'
+            WRITE(OUTLYNE,*)'ONLY USE COEFFICIENTS C9 THROUGH C48'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -4496,8 +4195,7 @@ SUBROUTINE TVARBLL
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(34,VBSURF)).EQ.2.0D0.OR.&
-      &DABS(ALENS(34,VBSURF)).EQ.9.0D0) THEN
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.2.0D0.OR.ABS(surf_asi_flag(VBSURF)).EQ.9.0D0) THEN
          IF(WC.EQ.'C31') CNOT=.TRUE.
          IF(WC.EQ.'C32') CNOT=.TRUE.
          IF(WC.EQ.'C33') CNOT=.TRUE.
@@ -4565,11 +4263,9 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPES 2 AND 9'
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPES 2 AND 9'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C30'
+            WRITE(OUTLYNE,*)'ONLY USE COEFFICIENTS C1 THROUGH C30'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -4577,8 +4273,7 @@ SUBROUTINE TVARBLL
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(34,VBSURF)).EQ.3.0D0.OR.&
-      &DABS(ALENS(34,VBSURF)).EQ.10.0D0) THEN
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.3.0D0.OR.ABS(surf_asi_flag(VBSURF)).EQ.10.0D0) THEN
          IF(WC.EQ.'C38') CNOT=.TRUE.
          IF(WC.EQ.'C39') CNOT=.TRUE.
          IF(WC.EQ.'C40') CNOT=.TRUE.
@@ -4639,11 +4334,9 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPES 3 AND 10'
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPES 3 AND 10'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C37'
+            WRITE(OUTLYNE,*)'ONLY USE COEFFICIENTS C1 THROUGH C37'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -4651,14 +4344,9 @@ SUBROUTINE TVARBLL
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(34,VBSURF)).EQ.4.0D0) THEN
-         IF(WC.NE.'C1'.AND.WC.NE.'C2'.AND.WC.NE.'C3'&
-         &.AND.WC.NE.'C4'.AND.WC.NE.'C5'.AND.WC.NE.'C6'&
-         &.AND.WC.NE.'C7'.AND.WC.NE.'C8'.AND.WC.NE.'C9'&
-         &.AND.WC.NE.'C10'.AND.WC.NE.'C11'.AND.WC.NE.'C12'&
-         &.AND.WC.NE.'C13'.AND.WC.NE.'C14'.AND.WC.NE.'C15') THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPE 4 ONLY USES COEFFICIENTS C1 THROUGH C15'
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.4.0D0) THEN
+         IF(WC.NE.'C1'.AND.WC.NE.'C2'.AND.WC.NE.'C3'.AND.WC.NE.'C4'.AND.WC.NE.'C5'.AND.WC.NE.'C6'.AND.WC.NE.'C7'.AND.WC.NE.'C8'.AND.WC.NE.'C9'.AND.WC.NE.'C10'.AND.WC.NE.'C11'.AND.WC.NE.'C12'.AND.WC.NE.'C13'.AND.WC.NE.'C14'.AND.WC.NE.'C15') THEN
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPE 4 ONLY USES COEFFICIENTS C1 THROUGH C15'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -4666,15 +4354,9 @@ SUBROUTINE TVARBLL
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(34,VBSURF)).EQ.18.0D0) THEN
-         IF(WC.NE.'C1'.AND.WC.NE.'C2'.AND.WC.NE.'C3'.AND.WC.NE.'C4'&
-         &.AND.WC.NE.'C5'.AND.WC.NE.'C6'.AND.WC.NE.'C7'.AND.&
-         &WC.NE.'C8'.AND.WC.NE.'C9'.AND.WC.NE.'C10'.AND.&
-         &WC.NE.'C11'.AND.WC.NE.'C12'.AND.WC.NE.'C13'.AND.&
-         &WC.NE.'C14'.AND.WC.NE.'C15'.AND.WC.NE.'C16'.AND.&
-         &WC.NE.'C17'.AND.WC.NE.'C18') THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPE 18 ONLY USES COEFFICIENTS C1 THROUGH C18'
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.18.0D0) THEN
+         IF(WC.NE.'C1'.AND.WC.NE.'C2'.AND.WC.NE.'C3'.AND.WC.NE.'C4'.AND.WC.NE.'C5'.AND.WC.NE.'C6'.AND.WC.NE.'C7'.AND.WC.NE.'C8'.AND.WC.NE.'C9'.AND.WC.NE.'C10'.AND.WC.NE.'C11'.AND.WC.NE.'C12'.AND.WC.NE.'C13'.AND.WC.NE.'C14'.AND.WC.NE.'C15'.AND.WC.NE.'C16'.AND.WC.NE.'C17'.AND.WC.NE.'C18') THEN
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPE 18 ONLY USES COEFFICIENTS C1 THROUGH C18'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -4682,19 +4364,16 @@ SUBROUTINE TVARBLL
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(34,VBSURF)).EQ.7.0D0.OR.&
-      &DABS(ALENS(34,VBSURF)).EQ.8.0D0) THEN
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.7.0D0.OR.ABS(surf_asi_flag(VBSURF)).EQ.8.0D0) THEN
          IF(WC.EQ.'C92') CNOT=.TRUE.
          IF(WC.EQ.'C93') CNOT=.TRUE.
          IF(WC.EQ.'C94') CNOT=.TRUE.
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPES 7 AND 8'
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPES 7 AND 8'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C91'
+            WRITE(OUTLYNE,*)'ONLY USE COEFFICIENTS C1 THROUGH C91'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -4702,7 +4381,7 @@ SUBROUTINE TVARBLL
             RETURN
          END IF
       END IF
-      IF(DABS(ALENS(34,VBSURF)).EQ.12.0D0) THEN
+      IF(ABS(surf_asi_flag(VBSURF)).EQ.12.0D0) THEN
          IF(WC.EQ.'C24') CNOT=.TRUE.
          IF(WC.EQ.'C25') CNOT=.TRUE.
          IF(WC.EQ.'C26') CNOT=.TRUE.
@@ -4777,11 +4456,9 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            WRITE(OUTLYNE,*)&
-            &'SPECIAL SURFACE TYPE 12'
+            WRITE(OUTLYNE,*)'SPECIAL SURFACE TYPE 12'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'ONLY USES COEFFICIENTS C1 THROUGH C23'
+            WRITE(OUTLYNE,*)'ONLY USES COEFFICIENTS C1 THROUGH C23'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -4793,9 +4470,8 @@ SUBROUTINE TVARBLL
 
 !     DO C1 TO 96
    IF(VALT.GE.27.AND.VALT.LE.74) THEN
-      IF(ALENS(34,VBSURF).EQ.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SURFACE IS NOT DEFINED AS A SPECIAL SURFACE'
+      IF(surf_asi_flag(VBSURF).EQ.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SURFACE IS NOT DEFINED AS A SPECIAL SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
@@ -4804,11 +4480,9 @@ SUBROUTINE TVARBLL
       END IF
 !     PIKUP CHECK
 !     IF AN PIKUP GLASS EXISTS THEN
-      IF(PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CONFLICTING PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -4867,8 +4541,7 @@ SUBROUTINE TVARBLL
          IF(VALT.EQ.72) VARABL(VBJK+1,4)=FTFL01(46,VBSURF)
          IF(VALT.EQ.73) VARABL(VBJK+1,4)=FTFL01(47,VBSURF)
          IF(VALT.EQ.74) VARABL(VBJK+1,4)=FTFL01(48,VBSURF)
-         IF(VALT.GE.76.AND.VALT.LE.123)&
-         &VARABL(VBJK+1,4)=FTFL01(VALT-27,VBSURF)
+         IF(VALT.GE.76.AND.VALT.LE.123)VARABL(VBJK+1,4)=FTFL01(VALT-27,VBSURF)
 !
          IF(VALT.EQ.27) VARABL(VBJK+1,5)=FTFL01(1,VBSURF)
          IF(VALT.EQ.28) VARABL(VBJK+1,5)=FTFL01(2,VBSURF)
@@ -4918,8 +4591,7 @@ SUBROUTINE TVARBLL
          IF(VALT.EQ.72) VARABL(VBJK+1,5)=FTFL01(46,VBSURF)
          IF(VALT.EQ.73) VARABL(VBJK+1,5)=FTFL01(47,VBSURF)
          IF(VALT.EQ.74) VARABL(VBJK+1,5)=FTFL01(48,VBSURF)
-         IF(VALT.GE.76.AND.VALT.LE.123)&
-         &VARABL(VBJK+1,5)=FTFL01(VALT-27,VBSURF)
+         IF(VALT.GE.76.AND.VALT.LE.123)VARABL(VBJK+1,5)=FTFL01(VALT-27,VBSURF)
          IF(VALT.EQ.27) VARABL(VBJK+1,13)=FTFL01(1,VBSURF)
          IF(VALT.EQ.28) VARABL(VBJK+1,13)=FTFL01(2,VBSURF)
          IF(VALT.EQ.29) VARABL(VBJK+1,13)=FTFL01(3,VBSURF)
@@ -4968,8 +4640,7 @@ SUBROUTINE TVARBLL
          IF(VALT.EQ.72) VARABL(VBJK+1,13)=FTFL01(46,VBSURF)
          IF(VALT.EQ.73) VARABL(VBJK+1,13)=FTFL01(47,VBSURF)
          IF(VALT.EQ.74) VARABL(VBJK+1,13)=FTFL01(48,VBSURF)
-         IF(VALT.GE.76.AND.VALT.LE.123)&
-         &VARABL(VBJK+1,13)=FTFL01(VALT-27,VBSURF)
+         IF(VALT.GE.76.AND.VALT.LE.123)VARABL(VBJK+1,13)=FTFL01(VALT-27,VBSURF)
          IF(VALT.EQ.27) VARABL(VBJK+1,11)=1.0D0
          IF(VALT.EQ.28) VARABL(VBJK+1,11)=2.0D0
          IF(VALT.EQ.29) VARABL(VBJK+1,11)=3.0D0
@@ -5018,8 +4689,7 @@ SUBROUTINE TVARBLL
          IF(VALT.EQ.72) VARABL(VBJK+1,11)=46.0D0
          IF(VALT.EQ.73) VARABL(VBJK+1,11)=47.0D0
          IF(VALT.EQ.74) VARABL(VBJK+1,11)=48.0D0
-         IF(VALT.GE.76.AND.VALT.LE.123)&
-         &VARABL(VBJK+1,11)=DBLE(VALT-26)
+         IF(VALT.GE.76.AND.VALT.LE.123)VARABL(VBJK+1,11)=DBLE(VALT-26)
 !
          TVBCNT=TVBCNT+1
       END IF
@@ -5029,24 +4699,20 @@ SUBROUTINE TVARBLL
 !
 !     DO AC
    IF(VALT.EQ.75) THEN
-      IF(ALENS(1,VBSURF).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'THE SPECIFIED SURFACE IS NOT PLANO'
+      IF(surf_curvature(VBSURF).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'THE SPECIFIED SURFACE IS NOT PLANO'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,*)'VARIABLE ASSIGNMENT WAS NOT MADE'
          CALL SHOWIT(0)
          CALL MACFAL
          RETURN
       END IF
-      IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+      IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !     PIKUP CHECK
 !     IF A AC,PRO OR NPRO PIKUPS EXISTS THEN
-      IF(PIKUP(1,VBSURF,26).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,11).EQ.1.0D0 &
-      &.OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
+      IF(PIKUP(1,VBSURF,26).EQ.1.0D0 .OR.PIKUP(1,VBSURF,11).EQ.1.0D0 .OR.PIKUP(1,VBSURF,12).EQ.1.0D0) THEN
 !     A CV OR RD PIKUP EXISTS, DISSALLOW THE VARIABLE ASSIGNMENT
-         WRITE(OUTLYNE,*)&
-         &'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
+         WRITE(OUTLYNE,*)'A CONFLICTING SURFACE SHAPE PIKUP EXISTS ON THIS SURFACE'
          CALL SHOWIT(0)
          WRITE(OUTLYNE,666) WC,INT(W1)
          CALL SHOWIT(0)
@@ -5057,10 +4723,10 @@ SUBROUTINE TVARBLL
       ELSE
 !     NO CONFLICTING PIKUP EXISTS, ASSIGN THE VARIABLE
 !
-         IF(VALT.EQ.75) VARABL(VBJK+1,4)=ALENS(43,VBSURF)
+         IF(VALT.EQ.75) VARABL(VBJK+1,4)=surf_asphere_coeff(VBSURF, 2)
 !
-         IF(VALT.EQ.75) VARABL(VBJK+1,5)=ALENS(43,VBSURF)
-         IF(VALT.EQ.75) VARABL(VBJK+1,13)=ALENS(43,VBSURF)
+         IF(VALT.EQ.75) VARABL(VBJK+1,5)=surf_asphere_coeff(VBSURF, 2)
+         IF(VALT.EQ.75) VARABL(VBJK+1,13)=surf_asphere_coeff(VBSURF, 2)
          TVBCNT=TVBCNT+1
       END IF
       CALL TVARCLN
@@ -5077,6 +4743,7 @@ SUBROUTINE TVCHECK
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -5286,8 +4953,7 @@ SUBROUTINE TVCHECK
       IF(JKVAR(I,1).EQ.163.0D0) VNA='ROLLX'
       IF(JKVAR(I,1).EQ.164.0D0) VNA='ROLLY'
       IF(VNA(1:4).NE.'SNIT') THEN
-         IF(JKVAR(I,1).LE.153.0D0.OR.JKVAR(I,1).GE.157.0D0.AND.&
-         &JKVAR(I,1).LE.159) THEN
+         IF(JKVAR(I,1).LE.153.0D0.OR.JKVAR(I,1).GE.157.0D0.AND.JKVAR(I,1).LE.159) THEN
 !     BUILD A LINES AND ISSUE TO CONTRO
             SAVE_KDP(1)=SAVEINPT(1)
             WC=VNA

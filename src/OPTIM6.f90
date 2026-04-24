@@ -25,6 +25,7 @@ SUBROUTINE FMT
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -69,8 +70,7 @@ SUBROUTINE FMT
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.NE.'CFG') THEN
-      WRITE(OUTLYNE,*)&
-      &'"FMT" CAN ONLY TAKE "CFG" AS AN OPTIONAL QUALIFIER WORD'
+      WRITE(OUTLYNE,*)'"FMT" CAN ONLY TAKE "CFG" AS AN OPTIONAL QUALIFIER WORD'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -78,8 +78,7 @@ SUBROUTINE FMT
       RETURN
    END IF
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"FMT" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      WRITE(OUTLYNE,*)'"FMT" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -105,8 +104,7 @@ SUBROUTINE FMT
 !     CHECK FOR VALID TAGER
       IF(TAGER.GT.OPCNT) THEN
 !     OPERAND DOES NOT EXIST
-         WRITE(OUTLYNE,*)&
-         &'OPERAND NUMBER ',TAGER,'DOES NOT EXIST'
+         WRITE(OUTLYNE,*)'OPERAND NUMBER ',TAGER,'DOES NOT EXIST'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -118,8 +116,7 @@ SUBROUTINE FMT
 !     CHECK FOR TAGER GREATER THAN MAXCFG
       IF(TAGER.GT.MAXCFG) THEN
 !     CFG NOT EXISTANT
-         WRITE(OUTLYNE,*)&
-         &'CONFIG NUMBER BEYOND CURRENT PROGRAM LIMIT'
+         WRITE(OUTLYNE,*)'CONFIG NUMBER BEYOND CURRENT PROGRAM LIMIT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -134,8 +131,7 @@ SUBROUTINE FMT
 
       IF(CFGCHK.EQ.0) THEN
 !     CFG OP DATA NOT EXISTANT
-         WRITE(OUTLYNE,*)&
-         &'NO OPERANDS ARE ACTIVE IN CONFIG # ',TAGER
+         WRITE(OUTLYNE,*)'NO OPERANDS ARE ACTIVE IN CONFIG # ',TAGER
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -173,8 +169,7 @@ SUBROUTINE FMT
    IF(.NOT.ALLER.AND.CFGER) THEN
       FMTFMT1=0.0D0
       DO I=1,OPCNT
-         IF(INT(OPERND(I,16)).EQ.TAGER)&
-         &FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
+         IF(INT(OPERND(I,16)).EQ.TAGER)FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
       END DO
    END IF
 10 FORMAT('CURRENT FMT = ',G23.15)
@@ -213,6 +208,7 @@ SUBROUTINE FMT2
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -256,8 +252,7 @@ SUBROUTINE FMT2
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.NE.'CFG') THEN
-      WRITE(OUTLYNE,*)&
-      &'"FMT" CAN ONLY TAKE "CFG" AS AN OPTIONAL QUALIFIER WORD'
+      WRITE(OUTLYNE,*)'"FMT" CAN ONLY TAKE "CFG" AS AN OPTIONAL QUALIFIER WORD'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -265,8 +260,7 @@ SUBROUTINE FMT2
       RETURN
    END IF
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"FMT" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      WRITE(OUTLYNE,*)'"FMT" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -291,8 +285,7 @@ SUBROUTINE FMT2
 !     CHECK FOR VALID TAGER
       IF(TAGER.GT.OPCNT) THEN
 !     OPERAND DOES NOT EXIST
-         WRITE(OUTLYNE,*)&
-         &'OPERAND NUMBER ',TAGER,'DOES NOT EXIST'
+         WRITE(OUTLYNE,*)'OPERAND NUMBER ',TAGER,'DOES NOT EXIST'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -304,8 +297,7 @@ SUBROUTINE FMT2
 !     CHECK FOR TAGER GREATER THAN MAXCFG
       IF(TAGER.GT.MAXCFG) THEN
 !     CFG NOT EXISTANT
-         WRITE(OUTLYNE,*)&
-         &'CONFIG NUMBER BEYOND CURRENT PROGRAM LIMIT'
+         WRITE(OUTLYNE,*)'CONFIG NUMBER BEYOND CURRENT PROGRAM LIMIT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -320,8 +312,7 @@ SUBROUTINE FMT2
 
       IF(CFGCHK.EQ.0) THEN
 !     CFG OP DATA NOT EXISTANT
-         WRITE(OUTLYNE,*)&
-         &'NO OPERANDS ARE ACTIVE IN CONFIG # ',TAGER
+         WRITE(OUTLYNE,*)'NO OPERANDS ARE ACTIVE IN CONFIG # ',TAGER
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -353,8 +344,7 @@ SUBROUTINE FMT2
    IF(.NOT.ALLER.AND.CFGER) THEN
       FMTFMT1=0.0D0
       DO I=1,OPCNT
-         IF(INT(OPERND(I,16)).EQ.TAGER)&
-         &FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
+         IF(INT(OPERND(I,16)).EQ.TAGER)FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
       END DO
    END IF
    IF(ALLER) DELFMT=FMTFMT-OLDFMT
@@ -396,6 +386,7 @@ SUBROUTINE FMT4
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -437,8 +428,7 @@ SUBROUTINE FMT4
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.NE.'CFG') THEN
-      WRITE(OUTLYNE,*)&
-      &'"FMT" CAN ONLY TAKE "CFG" AS AN OPTIONAL QUALIFIER WORD'
+      WRITE(OUTLYNE,*)'"FMT" CAN ONLY TAKE "CFG" AS AN OPTIONAL QUALIFIER WORD'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -446,8 +436,7 @@ SUBROUTINE FMT4
       RETURN
    END IF
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"FMT" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      WRITE(OUTLYNE,*)'"FMT" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -472,8 +461,7 @@ SUBROUTINE FMT4
 !     CHECK FOR VALID TAGER
       IF(TAGER.GT.OPCNT) THEN
 !     OPERAND DOES NOT EXIST
-         WRITE(OUTLYNE,*)&
-         &'OPERAND NUMBER ',TAGER,'DOES NOT EXIST'
+         WRITE(OUTLYNE,*)'OPERAND NUMBER ',TAGER,'DOES NOT EXIST'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -485,8 +473,7 @@ SUBROUTINE FMT4
 !     CHECK FOR TAGER GREATER THAN MAXCFG
       IF(TAGER.GT.MAXCFG) THEN
 !     CFG NOT EXISTANT
-         WRITE(OUTLYNE,*)&
-         &'CONFIG NUMBER BEYOND CURRENT PROGRAM LIMIT'
+         WRITE(OUTLYNE,*)'CONFIG NUMBER BEYOND CURRENT PROGRAM LIMIT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -501,8 +488,7 @@ SUBROUTINE FMT4
 
       IF(CFGCHK.EQ.0) THEN
 !     CFG OP DATA NOT EXISTANT
-         WRITE(OUTLYNE,*)&
-         &'NO OPERANDS ARE ACTIVE IN CONFIG # ',TAGER
+         WRITE(OUTLYNE,*)'NO OPERANDS ARE ACTIVE IN CONFIG # ',TAGER
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -534,8 +520,7 @@ SUBROUTINE FMT4
    IF(.NOT.ALLER.AND.CFGER) THEN
       FMTFMT1=0.0D0
       DO I=1,OPCNT
-         IF(INT(OPERND(I,16)).EQ.TAGER)&
-         &FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
+         IF(INT(OPERND(I,16)).EQ.TAGER)FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
       END DO
    END IF
    IF(ALLER) DELFMT=FMTFMT-OLDFMT
@@ -562,6 +547,7 @@ SUBROUTINE FIXCVAR
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -574,361 +560,361 @@ SUBROUTINE FIXCVAR
          VBSURF=INT(VARABL(II,3))
          VALT=INT(VARABL(II,1))
          IF(VALT.EQ.2.OR.VALT.EQ.1) THEN
-            VARABL(II,4)=ALENS(1,VBSURF)
-            VARABL(II,5)=ALENS(1,VBSURF)
-            VARABL(II,13)=ALENS(1,VBSURF)
+            VARABL(II,4)=surf_curvature(VBSURF)
+            VARABL(II,5)=surf_curvature(VBSURF)
+            VARABL(II,13)=surf_curvature(VBSURF)
             VARABL(II,6)=0.0D0
          END IF
 !
 !     DO TH VARIABLE
          IF(VALT.EQ.3) THEN
 !
-            VARABL(II,4)=ALENS(3,VBSURF)
-            VARABL(II,5)=ALENS(3,VBSURF)
-            VARABL(II,13)=ALENS(3,VBSURF)
+            VARABL(II,4)=surf_thickness(VBSURF)
+            VARABL(II,5)=surf_thickness(VBSURF)
+            VARABL(II,13)=surf_thickness(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 3, NOT A THICKNESS VARIABLE
          END IF
 !     DO CC
          IF(VALT.EQ.4) THEN
 !
-            VARABL(II,4)=ALENS(2,VBSURF)
-            VARABL(II,5)=ALENS(2,VBSURF)
-            VARABL(II,13)=ALENS(2,VBSURF)
+            VARABL(II,4)=surf_conic(VBSURF)
+            VARABL(II,5)=surf_conic(VBSURF)
+            VARABL(II,13)=surf_conic(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 4, CC VARIABLE
          END IF
          IF(VALT.EQ.5) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !
-            VARABL(II,4)=ALENS(4,VBSURF)
-            VARABL(II,5)=ALENS(4,VBSURF)
-            VARABL(II,13)=ALENS(4,VBSURF)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 4)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 4)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 4)
             VARABL(II,6)=0.0D0
 !     VALT NOT 5, AD VARIABLE
          END IF
 !
          IF(VALT.EQ.6) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(5,VBSURF)
-            VARABL(II,5)=ALENS(5,VBSURF)
-            VARABL(II,13)=ALENS(5,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 6)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 6)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 6)
             VARABL(II,6)=0.0D0
 !     VALT NOT 6, AE VARIABLE
          END IF
 !
          IF(VALT.EQ.7) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(6,VBSURF)
-            VARABL(II,5)=ALENS(6,VBSURF)
-            VARABL(II,13)=ALENS(6,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 8)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 8)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 8)
             VARABL(II,6)=0.0D0
 !     VALT NOT 7, AF VARIABLE
          END IF
 !
          IF(VALT.EQ.8) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(7,VBSURF)
-            VARABL(II,5)=ALENS(7,VBSURF)
-            VARABL(II,13)=ALENS(7,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 10)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 10)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 10)
             VARABL(II,6)=0.0D0
 !     VALT NOT 8, AG VARIABLE
          END IF
          IF(VALT.EQ.129) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(81,VBSURF)
-            VARABL(II,5)=ALENS(81,VBSURF)
-            VARABL(II,13)=ALENS(81,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 12)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 12)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 12)
             VARABL(II,6)=0.0D0
          END IF
          IF(VALT.EQ.130) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(82,VBSURF)
-            VARABL(II,5)=ALENS(82,VBSURF)
-            VARABL(II,13)=ALENS(82,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 14)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 14)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 14)
             VARABL(II,6)=0.0D0
          END IF
          IF(VALT.EQ.131) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(83,VBSURF)
-            VARABL(II,5)=ALENS(83,VBSURF)
-            VARABL(II,13)=ALENS(83,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 16)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 16)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 16)
             VARABL(II,6)=0.0D0
          END IF
          IF(VALT.EQ.132) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(84,VBSURF)
-            VARABL(II,5)=ALENS(84,VBSURF)
-            VARABL(II,13)=ALENS(84,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 18)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 18)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 18)
             VARABL(II,6)=0.0D0
          END IF
          IF(VALT.EQ.133) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(II,4)=ALENS(85,VBSURF)
-            VARABL(II,5)=ALENS(85,VBSURF)
-            VARABL(II,13)=ALENS(85,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 20)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 20)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 20)
             VARABL(II,6)=0.0D0
          END IF
 !     DO ZD
          IF(VALT.EQ.134) THEN
-            VARABL(II,4)=ALENS(116,VBSURF)
-            VARABL(II,5)=ALENS(116,VBSURF)
-            VARABL(II,13)=ALENS(116,VBSURF)
+            VARABL(II,4)=surf_focus_dz(VBSURF)
+            VARABL(II,5)=surf_focus_dz(VBSURF)
+            VARABL(II,13)=surf_focus_dz(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 134, ZD VARIABLE
          END IF
 !     DO INDEX
          IF(VALT.EQ.135) THEN
-            VARABL(II,4)=ALENS(86,VBSURF)
-            VARABL(II,5)=ALENS(86,VBSURF)
-            VARABL(II,13)=ALENS(86,VBSURF)
+            VARABL(II,4)=surf_fict_n(VBSURF)
+            VARABL(II,5)=surf_fict_n(VBSURF)
+            VARABL(II,13)=surf_fict_n(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 135, INDEX VARIABLE
          END IF
 !     DO VNUM
          IF(VALT.EQ.136) THEN
-            VARABL(II,4)=ALENS(87,VBSURF)
-            VARABL(II,5)=ALENS(87,VBSURF)
-            VARABL(II,13)=ALENS(87,VBSURF)
+            VARABL(II,4)=surf_fict_v(VBSURF)
+            VARABL(II,5)=surf_fict_v(VBSURF)
+            VARABL(II,13)=surf_fict_v(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 136, VNUM VARIABLE
          END IF
 !     DO PIVX
          IF(VALT.EQ.137) THEN
-            VARABL(II,4)=ALENS(78,VBSURF)
-            VARABL(II,5)=ALENS(78,VBSURF)
-            VARABL(II,13)=ALENS(78,VBSURF)
+            VARABL(II,4)=surf_pivot_x(VBSURF)
+            VARABL(II,5)=surf_pivot_x(VBSURF)
+            VARABL(II,13)=surf_pivot_x(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 137, PIVX VARIABLE
          END IF
 !     DO PIVY
          IF(VALT.EQ.138) THEN
-            VARABL(II,4)=ALENS(79,VBSURF)
-            VARABL(II,5)=ALENS(79,VBSURF)
-            VARABL(II,13)=ALENS(79,VBSURF)
+            VARABL(II,4)=surf_pivot_y(VBSURF)
+            VARABL(II,5)=surf_pivot_y(VBSURF)
+            VARABL(II,13)=surf_pivot_y(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 138, PIVY VARIABLE
          END IF
 !     DO PIVZ
          IF(VALT.EQ.139) THEN
-            VARABL(II,4)=ALENS(80,VBSURF)
-            VARABL(II,5)=ALENS(80,VBSURF)
-            VARABL(II,13)=ALENS(80,VBSURF)
+            VARABL(II,4)=surf_pivot_z(VBSURF)
+            VARABL(II,5)=surf_pivot_z(VBSURF)
+            VARABL(II,13)=surf_pivot_z(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 139, PIVZ VARIABLE
          END IF
 !     DO DPART
          IF(VALT.EQ.140) THEN
-            VARABL(II,4)=ALENS(89,VBSURF)
-            VARABL(II,5)=ALENS(89,VBSURF)
-            VARABL(II,13)=ALENS(89,VBSURF)
+            VARABL(II,4)=surf_fict_w(VBSURF)
+            VARABL(II,5)=surf_fict_w(VBSURF)
+            VARABL(II,13)=surf_fict_w(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 140, DPART VARIABLE
          END IF
 !     DO CLPX
          IF(VALT.EQ.141) THEN
-            VARABL(II,4)=ALENS(11,VBSURF)
-            VARABL(II,5)=ALENS(11,VBSURF)
-            VARABL(II,13)=ALENS(11,VBSURF)
+            VARABL(II,4)=surf_clap_dim(VBSURF, 2)
+            VARABL(II,5)=surf_clap_dim(VBSURF, 2)
+            VARABL(II,13)=surf_clap_dim(VBSURF, 2)
             VARABL(II,6)=0.0D0
 !     VALT NOT 141, CLPX VARIABLE
          END IF
 !     DO CLPY
          IF(VALT.EQ.142) THEN
-            VARABL(II,4)=ALENS(10,VBSURF)
-            VARABL(II,5)=ALENS(10,VBSURF)
-            VARABL(II,13)=ALENS(10,VBSURF)
+            VARABL(II,4)=surf_clap_dim(VBSURF, 1)
+            VARABL(II,5)=surf_clap_dim(VBSURF, 1)
+            VARABL(II,13)=surf_clap_dim(VBSURF, 1)
             VARABL(II,6)=0.0D0
 !     VALT NOT 142, CLPY VARIABLE
          END IF
 !     DO GDX
          IF(VALT.EQ.143) THEN
-            VARABL(II,4)=ALENS(90,VBSURF)
-            VARABL(II,5)=ALENS(90,VBSURF)
-            VARABL(II,13)=ALENS(90,VBSURF)
+            VARABL(II,4)=surf_global_dx(VBSURF)
+            VARABL(II,5)=surf_global_dx(VBSURF)
+            VARABL(II,13)=surf_global_dx(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 143, GDX VARIABLE
          END IF
 !     DO GDY
          IF(VALT.EQ.144) THEN
-            VARABL(II,4)=ALENS(91,VBSURF)
-            VARABL(II,5)=ALENS(91,VBSURF)
-            VARABL(II,13)=ALENS(91,VBSURF)
+            VARABL(II,4)=surf_global_dy(VBSURF)
+            VARABL(II,5)=surf_global_dy(VBSURF)
+            VARABL(II,13)=surf_global_dy(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 144, GDY VARIABLE
          END IF
 !     DO GDZ
          IF(VALT.EQ.145) THEN
-            VARABL(II,4)=ALENS(92,VBSURF)
-            VARABL(II,5)=ALENS(92,VBSURF)
-            VARABL(II,13)=ALENS(92,VBSURF)
+            VARABL(II,4)=surf_global_dz(VBSURF)
+            VARABL(II,5)=surf_global_dz(VBSURF)
+            VARABL(II,13)=surf_global_dz(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 145, GDZ VARIABLE
          END IF
 !     DO GALPHA
          IF(VALT.EQ.146) THEN
-            VARABL(II,4)=ALENS(93,VBSURF)
-            VARABL(II,5)=ALENS(93,VBSURF)
-            VARABL(II,13)=ALENS(93,VBSURF)
+            VARABL(II,4)=surf_global_alpha(VBSURF)
+            VARABL(II,5)=surf_global_alpha(VBSURF)
+            VARABL(II,13)=surf_global_alpha(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 146, GALPHA VARIABLE
          END IF
 !     DO GBETA
          IF(VALT.EQ.147) THEN
-            VARABL(II,4)=ALENS(94,VBSURF)
-            VARABL(II,5)=ALENS(94,VBSURF)
-            VARABL(II,13)=ALENS(94,VBSURF)
+            VARABL(II,4)=surf_global_beta(VBSURF)
+            VARABL(II,5)=surf_global_beta(VBSURF)
+            VARABL(II,13)=surf_global_beta(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 147, GBETA VARIABLE
          END IF
 !     DO GGAMMA
          IF(VALT.EQ.148) THEN
-            VARABL(II,4)=ALENS(95,VBSURF)
-            VARABL(II,5)=ALENS(95,VBSURF)
-            VARABL(II,13)=ALENS(95,VBSURF)
+            VARABL(II,4)=surf_global_gamma(VBSURF)
+            VARABL(II,5)=surf_global_gamma(VBSURF)
+            VARABL(II,13)=surf_global_gamma(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 148, GGAMMA VARIABLE
          END IF
 !     DO GRS
          IF(VALT.EQ.149) THEN
-            VARABL(II,4)=ALENS(98,VBSURF)
-            VARABL(II,5)=ALENS(98,VBSURF)
-            VARABL(II,13)=ALENS(98,VBSURF)
+            VARABL(II,4)=surf_grating_spacing(VBSURF)
+            VARABL(II,5)=surf_grating_spacing(VBSURF)
+            VARABL(II,13)=surf_grating_spacing(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 149, GRS VARIABLE
          END IF
 !
 !     DO CVTOR
          IF(VALT.EQ.10.OR.VALT.EQ.9) THEN
-            VARABL(II,4)=ALENS(24,VBSURF)
-            VARABL(II,5)=ALENS(24,VBSURF)
-            VARABL(II,13)=ALENS(24,VBSURF)
+            VARABL(II,4)=surf_toric_curvature(VBSURF)
+            VARABL(II,5)=surf_toric_curvature(VBSURF)
+            VARABL(II,13)=surf_toric_curvature(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 10, NOT A RDTOR OR CVTOR VARIABLE
          END IF
 !
 !     DO CCTOR
          IF(VALT.EQ.11) THEN
-            VARABL(II,4)=ALENS(41,VBSURF)
-            VARABL(II,5)=ALENS(41,VBSURF)
-            VARABL(II,13)=ALENS(41,VBSURF)
+            VARABL(II,4)=surf_anamorphic_conic(VBSURF)
+            VARABL(II,5)=surf_anamorphic_conic(VBSURF)
+            VARABL(II,13)=surf_anamorphic_conic(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 11, CCTOR VARIABLE
          END IF
 !
 !     DO ADTOR
          IF(VALT.EQ.12) THEN
-            VARABL(II,4)=ALENS(37,VBSURF)
-            VARABL(II,5)=ALENS(37,VBSURF)
-            VARABL(II,13)=ALENS(37,VBSURF)
+            VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 4)
+            VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 4)
+            VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 4)
             VARABL(II,6)=0.0D0
 !     VALT NOT 12, ADTOR VARIABLE
          END IF
 !
 !     DO AETOR
          IF(VALT.EQ.13) THEN
-            VARABL(II,4)=ALENS(38,VBSURF)
-            VARABL(II,5)=ALENS(38,VBSURF)
-            VARABL(II,13)=ALENS(38,VBSURF)
+            VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 6)
+            VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 6)
+            VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 6)
             VARABL(II,6)=0.0D0
 !     VALT NOT 13, AETOR VARIABLE
          END IF
 !
 !     DO AFTOR
          IF(VALT.EQ.14) THEN
-            VARABL(II,4)=ALENS(39,VBSURF)
-            VARABL(II,5)=ALENS(39,VBSURF)
-            VARABL(II,13)=ALENS(39,VBSURF)
+            VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 8)
+            VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 8)
+            VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 8)
             VARABL(II,6)=0.0D0
 !     VALT NOT 14, AFTOR VARIABLE
          END IF
 !
 !     DO AGTOR
          IF(VALT.EQ.15) THEN
-            VARABL(II,4)=ALENS(40,VBSURF)
-            VARABL(II,5)=ALENS(40,VBSURF)
-            VARABL(II,13)=ALENS(40,VBSURF)
+            VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 10)
+            VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 10)
+            VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 10)
             VARABL(II,6)=0.0D0
 !     VALT NOT 15, AGTOR VARIABLE
          END IF
 !
 !     DO ALPHA
          IF(VALT.EQ.16) THEN
-            VARABL(II,4)=ALENS(118,VBSURF)
-            VARABL(II,5)=ALENS(118,VBSURF)
-            VARABL(II,13)=ALENS(118,VBSURF)
+            VARABL(II,4)=surf_alpha_deg(VBSURF)
+            VARABL(II,5)=surf_alpha_deg(VBSURF)
+            VARABL(II,13)=surf_alpha_deg(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 16, ALPHA VARIABLE
          END IF
 !
 !     DO BETA
          IF(VALT.EQ.17) THEN
-            VARABL(II,4)=ALENS(119,VBSURF)
-            VARABL(II,5)=ALENS(119,VBSURF)
-            VARABL(II,13)=ALENS(119,VBSURF)
+            VARABL(II,4)=surf_beta_deg(VBSURF)
+            VARABL(II,5)=surf_beta_deg(VBSURF)
+            VARABL(II,13)=surf_beta_deg(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 17, BETA VARIABLE
          END IF
 !
 !     DO GAMMA
          IF(VALT.EQ.18) THEN
-            VARABL(II,4)=ALENS(120,VBSURF)
-            VARABL(II,5)=ALENS(120,VBSURF)
-            VARABL(II,13)=ALENS(120,VBSURF)
+            VARABL(II,4)=surf_gamma_deg(VBSURF)
+            VARABL(II,5)=surf_gamma_deg(VBSURF)
+            VARABL(II,13)=surf_gamma_deg(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 18, GAMMA VARIABLE
          END IF
 !
 !     DO YD
          IF(VALT.EQ.20) THEN
-            VARABL(II,4)=ALENS(115,VBSURF)
-            VARABL(II,5)=ALENS(115,VBSURF)
-            VARABL(II,13)=ALENS(115,VBSURF)
+            VARABL(II,4)=surf_focus_dy(VBSURF)
+            VARABL(II,5)=surf_focus_dy(VBSURF)
+            VARABL(II,13)=surf_focus_dy(VBSURF)
             VARABL(II,6)=0.0D0
 !     VALT NOT 20, YD VARIABLE
          END IF
 !
 !     DO N1
          IF(VALT.EQ.21) THEN
-            VARABL(II,4)=ALENS(46,VBSURF)
-            VARABL(II,5)=ALENS(46,VBSURF)
-            VARABL(II,13)=ALENS(46,VBSURF)
+            VARABL(II,4)=surf_refractive_index(VBSURF, 1)
+            VARABL(II,5)=surf_refractive_index(VBSURF, 1)
+            VARABL(II,13)=surf_refractive_index(VBSURF, 1)
             VARABL(II,6)=0.0D0
 !     VALT NOT 21, N1 VARIABLE
          END IF
 !
 !     DO N2
          IF(VALT.EQ.22) THEN
-            VARABL(II,4)=ALENS(47,VBSURF)
-            VARABL(II,5)=ALENS(47,VBSURF)
-            VARABL(II,13)=ALENS(47,VBSURF)
+            VARABL(II,4)=surf_refractive_index(VBSURF, 2)
+            VARABL(II,5)=surf_refractive_index(VBSURF, 2)
+            VARABL(II,13)=surf_refractive_index(VBSURF, 2)
             VARABL(II,6)=0.0D0
 !     VALT NOT 22, N2 VARIABLE
          END IF
 !
 !     DO N3
          IF(VALT.EQ.23) THEN
-            VARABL(II,4)=ALENS(48,VBSURF)
-            VARABL(II,5)=ALENS(48,VBSURF)
-            VARABL(II,13)=ALENS(48,VBSURF)
+            VARABL(II,4)=surf_refractive_index(VBSURF, 3)
+            VARABL(II,5)=surf_refractive_index(VBSURF, 3)
+            VARABL(II,13)=surf_refractive_index(VBSURF, 3)
             VARABL(II,6)=0.0D0
 !     VALT NOT 23, N3 VARIABLE
          END IF
 !
 !     DO N4
          IF(VALT.EQ.24) THEN
-            VARABL(II,4)=ALENS(49,VBSURF)
-            VARABL(II,5)=ALENS(49,VBSURF)
-            VARABL(II,13)=ALENS(49,VBSURF)
+            VARABL(II,4)=surf_refractive_index(VBSURF, 4)
+            VARABL(II,5)=surf_refractive_index(VBSURF, 4)
+            VARABL(II,13)=surf_refractive_index(VBSURF, 4)
             VARABL(II,6)=0.0D0
 !     VALT NOT 24, N4 VARIABLE
          END IF
 !
 !     DO N5
          IF(VALT.EQ.25) THEN
-            VARABL(II,4)=ALENS(50,VBSURF)
-            VARABL(II,5)=ALENS(50,VBSURF)
-            VARABL(II,13)=ALENS(50,VBSURF)
+            VARABL(II,4)=surf_refractive_index(VBSURF, 5)
+            VARABL(II,5)=surf_refractive_index(VBSURF, 5)
+            VARABL(II,13)=surf_refractive_index(VBSURF, 5)
             VARABL(II,6)=0.0D0
 !     VALT NOT 25, N5 VARIABLE
          END IF
@@ -954,9 +940,9 @@ SUBROUTINE FIXCVAR
 !
 !     DO AC
          IF(VALT.EQ.75) THEN
-            VARABL(II,4)=ALENS(43,VBSURF)
-            VARABL(II,5)=ALENS(43,VBSURF)
-            VARABL(II,13)=ALENS(43,VBSURF)
+            VARABL(II,4)=surf_asphere_coeff(VBSURF, 2)
+            VARABL(II,5)=surf_asphere_coeff(VBSURF, 2)
+            VARABL(II,13)=surf_asphere_coeff(VBSURF, 2)
             VARABL(II,6)=0.0D0
 !     VALT NOT 75, AC VARIABLE
          END IF
@@ -973,6 +959,7 @@ SUBROUTINE FIXTVAR
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -993,238 +980,238 @@ SUBROUTINE FIXTVAR
       VBSURF=INT(VARABL(II,3))
       VALT=INT(VARABL(II,1))
       IF(VALT.EQ.1.OR.VALT.EQ.134) THEN
-         IF(ALENS(1,VBSURF).EQ.0.0D0) THEN
+         IF(surf_curvature(VBSURF).EQ.0.0D0) THEN
             VARABL(II,4)=0.0D0
             VARABL(II,5)=0.0D0
             VARABL(II,13)=0.0D0
          ELSE
-            VARABL(II,4)=1.0D0/ALENS(1,VBSURF)
-            VARABL(II,5)=1.0D0/ALENS(1,VBSURF)
-            VARABL(II,13)=1.0D0/ALENS(1,VBSURF)
+            VARABL(II,4)=1.0D0/surf_curvature(VBSURF)
+            VARABL(II,5)=1.0D0/surf_curvature(VBSURF)
+            VARABL(II,13)=1.0D0/surf_curvature(VBSURF)
          END IF
          VARABL(II,6)=0.0D0
       END IF
       IF(VALT.EQ.2.OR.VALT.EQ.135) THEN
-         VARABL(II,4)=ALENS(1,VBSURF)
-         VARABL(II,5)=ALENS(1,VBSURF)
-         VARABL(II,13)=ALENS(1,VBSURF)
+         VARABL(II,4)=surf_curvature(VBSURF)
+         VARABL(II,5)=surf_curvature(VBSURF)
+         VARABL(II,13)=surf_curvature(VBSURF)
          VARABL(II,6)=0.0D0
       END IF
 !
 !     DO TH VARIABLE
       IF(VALT.EQ.3) THEN
 !
-         VARABL(II,4)=ALENS(3,VBSURF)
-         VARABL(II,5)=ALENS(3,VBSURF)
-         VARABL(II,13)=ALENS(3,VBSURF)
+         VARABL(II,4)=surf_thickness(VBSURF)
+         VARABL(II,5)=surf_thickness(VBSURF)
+         VARABL(II,13)=surf_thickness(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 3, NOT A THICKNESS VARIABLE
       END IF
 !     DO CC
       IF(VALT.EQ.4) THEN
 !
-         VARABL(II,4)=ALENS(2,VBSURF)
-         VARABL(II,5)=ALENS(2,VBSURF)
-         VARABL(II,13)=ALENS(2,VBSURF)
+         VARABL(II,4)=surf_conic(VBSURF)
+         VARABL(II,5)=surf_conic(VBSURF)
+         VARABL(II,13)=surf_conic(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 4, CC VARIABLE
       END IF
       IF(VALT.EQ.5) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !
-         VARABL(II,4)=ALENS(4,VBSURF)
-         VARABL(II,5)=ALENS(4,VBSURF)
-         VARABL(II,13)=ALENS(4,VBSURF)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 4)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 4)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 4)
          VARABL(II,6)=0.0D0
 !     VALT NOT 5, AD VARIABLE
       END IF
 !
       IF(VALT.EQ.6) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(5,VBSURF)
-         VARABL(II,5)=ALENS(5,VBSURF)
-         VARABL(II,13)=ALENS(5,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 6)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 6)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 6)
          VARABL(II,6)=0.0D0
 !     VALT NOT 6, AE VARIABLE
       END IF
 !
       IF(VALT.EQ.7) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(6,VBSURF)
-         VARABL(II,5)=ALENS(6,VBSURF)
-         VARABL(II,13)=ALENS(6,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 8)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 8)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 8)
          VARABL(II,6)=0.0D0
 !     VALT NOT 7, AF VARIABLE
       END IF
 !
       IF(VALT.EQ.8) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(7,VBSURF)
-         VARABL(II,5)=ALENS(7,VBSURF)
-         VARABL(II,13)=ALENS(7,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 10)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 10)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 10)
          VARABL(II,6)=0.0D0
 !     VALT NOT 8, AG VARIABLE
       END IF
       IF(VALT.EQ.129) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(81,VBSURF)
-         VARABL(II,5)=ALENS(81,VBSURF)
-         VARABL(II,13)=ALENS(81,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 12)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 12)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 12)
          VARABL(II,6)=0.0D0
       END IF
       IF(VALT.EQ.130) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(82,VBSURF)
-         VARABL(II,5)=ALENS(82,VBSURF)
-         VARABL(II,13)=ALENS(82,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 14)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 14)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 14)
          VARABL(II,6)=0.0D0
       END IF
       IF(VALT.EQ.131) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(83,VBSURF)
-         VARABL(II,5)=ALENS(83,VBSURF)
-         VARABL(II,13)=ALENS(83,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 16)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 16)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 16)
          VARABL(II,6)=0.0D0
       END IF
       IF(VALT.EQ.132) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(84,VBSURF)
-         VARABL(II,5)=ALENS(84,VBSURF)
-         VARABL(II,13)=ALENS(84,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 18)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 18)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 18)
          VARABL(II,6)=0.0D0
       END IF
       IF(VALT.EQ.133) THEN
-         IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-         VARABL(II,4)=ALENS(85,VBSURF)
-         VARABL(II,5)=ALENS(85,VBSURF)
-         VARABL(II,13)=ALENS(85,VBSURF)
+         IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 20)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 20)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 20)
          VARABL(II,6)=0.0D0
       END IF
 !     DO ZD
       IF(VALT.EQ.138) THEN
-         VARABL(II,4)=ALENS(116,VBSURF)
-         VARABL(II,5)=ALENS(116,VBSURF)
-         VARABL(II,13)=ALENS(116,VBSURF)
+         VARABL(II,4)=surf_focus_dz(VBSURF)
+         VARABL(II,5)=surf_focus_dz(VBSURF)
+         VARABL(II,13)=surf_focus_dz(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 138, ZD VARIABLE
       END IF
 !     DO INDEX
       IF(VALT.EQ.139) THEN
-         VARABL(II,4)=ALENS(86,VBSURF)
-         VARABL(II,5)=ALENS(86,VBSURF)
-         VARABL(II,13)=ALENS(86,VBSURF)
+         VARABL(II,4)=surf_fict_n(VBSURF)
+         VARABL(II,5)=surf_fict_n(VBSURF)
+         VARABL(II,13)=surf_fict_n(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 139, INDEX VARIABLE
       END IF
 !     DO VNUM
       IF(VALT.EQ.140) THEN
-         VARABL(II,4)=ALENS(87,VBSURF)
-         VARABL(II,5)=ALENS(87,VBSURF)
-         VARABL(II,13)=ALENS(87,VBSURF)
+         VARABL(II,4)=surf_fict_v(VBSURF)
+         VARABL(II,5)=surf_fict_v(VBSURF)
+         VARABL(II,13)=surf_fict_v(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 140, VNUM VARIABLE
       END IF
 !     DO PIVX
       IF(VALT.EQ.141) THEN
-         VARABL(II,4)=ALENS(78,VBSURF)
-         VARABL(II,5)=ALENS(78,VBSURF)
-         VARABL(II,13)=ALENS(78,VBSURF)
+         VARABL(II,4)=surf_pivot_x(VBSURF)
+         VARABL(II,5)=surf_pivot_x(VBSURF)
+         VARABL(II,13)=surf_pivot_x(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 141, PIVX VARIABLE
       END IF
 !     DO PIVY
       IF(VALT.EQ.142) THEN
-         VARABL(II,4)=ALENS(79,VBSURF)
-         VARABL(II,5)=ALENS(79,VBSURF)
-         VARABL(II,13)=ALENS(79,VBSURF)
+         VARABL(II,4)=surf_pivot_y(VBSURF)
+         VARABL(II,5)=surf_pivot_y(VBSURF)
+         VARABL(II,13)=surf_pivot_y(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 142, PIVY VARIABLE
       END IF
 !     DO PIVZ
       IF(VALT.EQ.143) THEN
-         VARABL(II,4)=ALENS(80,VBSURF)
-         VARABL(II,5)=ALENS(80,VBSURF)
-         VARABL(II,13)=ALENS(80,VBSURF)
+         VARABL(II,4)=surf_pivot_z(VBSURF)
+         VARABL(II,5)=surf_pivot_z(VBSURF)
+         VARABL(II,13)=surf_pivot_z(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 143, PIVZ VARIABLE
       END IF
 !     DO DPART
       IF(VALT.EQ.144) THEN
-         VARABL(II,4)=ALENS(89,VBSURF)
-         VARABL(II,5)=ALENS(89,VBSURF)
-         VARABL(II,13)=ALENS(89,VBSURF)
+         VARABL(II,4)=surf_fict_w(VBSURF)
+         VARABL(II,5)=surf_fict_w(VBSURF)
+         VARABL(II,13)=surf_fict_w(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 144, DPART VARIABLE
       END IF
 !     DO CLPX
       IF(VALT.EQ.145) THEN
-         VARABL(II,4)=ALENS(11,VBSURF)
-         VARABL(II,5)=ALENS(11,VBSURF)
-         VARABL(II,13)=ALENS(11,VBSURF)
+         VARABL(II,4)=surf_clap_dim(VBSURF, 2)
+         VARABL(II,5)=surf_clap_dim(VBSURF, 2)
+         VARABL(II,13)=surf_clap_dim(VBSURF, 2)
          VARABL(II,6)=0.0D0
 !     VALT NOT 145, CLPX VARIABLE
       END IF
 !     DO CLPY
       IF(VALT.EQ.146) THEN
-         VARABL(II,4)=ALENS(10,VBSURF)
-         VARABL(II,5)=ALENS(10,VBSURF)
-         VARABL(II,13)=ALENS(10,VBSURF)
+         VARABL(II,4)=surf_clap_dim(VBSURF, 1)
+         VARABL(II,5)=surf_clap_dim(VBSURF, 1)
+         VARABL(II,13)=surf_clap_dim(VBSURF, 1)
          VARABL(II,6)=0.0D0
 !     VALT NOT 146, CLPY VARIABLE
       END IF
 !     DO GDX
       IF(VALT.EQ.147) THEN
-         VARABL(II,4)=ALENS(90,VBSURF)
-         VARABL(II,5)=ALENS(90,VBSURF)
-         VARABL(II,13)=ALENS(90,VBSURF)
+         VARABL(II,4)=surf_global_dx(VBSURF)
+         VARABL(II,5)=surf_global_dx(VBSURF)
+         VARABL(II,13)=surf_global_dx(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 147, GDX VARIABLE
       END IF
 !     DO GDY
       IF(VALT.EQ.148) THEN
-         VARABL(II,4)=ALENS(91,VBSURF)
-         VARABL(II,5)=ALENS(91,VBSURF)
-         VARABL(II,13)=ALENS(91,VBSURF)
+         VARABL(II,4)=surf_global_dy(VBSURF)
+         VARABL(II,5)=surf_global_dy(VBSURF)
+         VARABL(II,13)=surf_global_dy(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 148, GDY VARIABLE
       END IF
 !     DO GDZ
       IF(VALT.EQ.149) THEN
-         VARABL(II,4)=ALENS(92,VBSURF)
-         VARABL(II,5)=ALENS(92,VBSURF)
-         VARABL(II,13)=ALENS(92,VBSURF)
+         VARABL(II,4)=surf_global_dz(VBSURF)
+         VARABL(II,5)=surf_global_dz(VBSURF)
+         VARABL(II,13)=surf_global_dz(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 149, GDZ VARIABLE
       END IF
 !     DO GALPHA
       IF(VALT.EQ.150) THEN
-         VARABL(II,4)=ALENS(93,VBSURF)
-         VARABL(II,5)=ALENS(93,VBSURF)
-         VARABL(II,13)=ALENS(93,VBSURF)
+         VARABL(II,4)=surf_global_alpha(VBSURF)
+         VARABL(II,5)=surf_global_alpha(VBSURF)
+         VARABL(II,13)=surf_global_alpha(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 150, GALPHA VARIABLE
       END IF
 !     DO GBETA
       IF(VALT.EQ.151) THEN
-         VARABL(II,4)=ALENS(94,VBSURF)
-         VARABL(II,5)=ALENS(94,VBSURF)
-         VARABL(II,13)=ALENS(94,VBSURF)
+         VARABL(II,4)=surf_global_beta(VBSURF)
+         VARABL(II,5)=surf_global_beta(VBSURF)
+         VARABL(II,13)=surf_global_beta(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 151, GBETA VARIABLE
       END IF
 !     DO GGAMMA
       IF(VALT.EQ.152) THEN
-         VARABL(II,4)=ALENS(95,VBSURF)
-         VARABL(II,5)=ALENS(95,VBSURF)
-         VARABL(II,13)=ALENS(95,VBSURF)
+         VARABL(II,4)=surf_global_gamma(VBSURF)
+         VARABL(II,5)=surf_global_gamma(VBSURF)
+         VARABL(II,13)=surf_global_gamma(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 152, GGAMMA VARIABLE
       END IF
 !     DO GRS
       IF(VALT.EQ.153) THEN
-         VARABL(II,4)=ALENS(98,VBSURF)
-         VARABL(II,5)=ALENS(98,VBSURF)
-         VARABL(II,13)=ALENS(98,VBSURF)
+         VARABL(II,4)=surf_grating_spacing(VBSURF)
+         VARABL(II,5)=surf_grating_spacing(VBSURF)
+         VARABL(II,13)=surf_grating_spacing(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 153, GRS VARIABLE
       END IF
@@ -1336,10 +1323,10 @@ SUBROUTINE FIXTVAR
 !
 !     DO RDTOR
       IF(VALT.EQ.9.OR.VALT.EQ.136) THEN
-         IF(ALENS(24,VBSURF).NE.0.0D0) THEN
-            VARABL(II,4)=1.0D0/ALENS(24,VBSURF)
-            VARABL(II,5)=1.0D0/ALENS(24,VBSURF)
-            VARABL(II,13)=1.0D0/ALENS(24,VBSURF)
+         IF(surf_toric_curvature(VBSURF).NE.0.0D0) THEN
+            VARABL(II,4)=1.0D0/surf_toric_curvature(VBSURF)
+            VARABL(II,5)=1.0D0/surf_toric_curvature(VBSURF)
+            VARABL(II,13)=1.0D0/surf_toric_curvature(VBSURF)
          ELSE
             VARABL(II,4)=0.0D0
             VARABL(II,5)=0.0D0
@@ -1350,144 +1337,144 @@ SUBROUTINE FIXTVAR
       END IF
 !     DO CVTOR
       IF(VALT.EQ.10.OR.VALT.EQ.137) THEN
-         VARABL(II,4)=ALENS(24,VBSURF)
-         VARABL(II,5)=ALENS(24,VBSURF)
-         VARABL(II,13)=ALENS(24,VBSURF)
+         VARABL(II,4)=surf_toric_curvature(VBSURF)
+         VARABL(II,5)=surf_toric_curvature(VBSURF)
+         VARABL(II,13)=surf_toric_curvature(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 10 OR 137, NOT CVTOR VARIABLE
       END IF
 !
 !     DO CCTOR
       IF(VALT.EQ.11) THEN
-         VARABL(II,4)=ALENS(41,VBSURF)
-         VARABL(II,5)=ALENS(41,VBSURF)
-         VARABL(II,13)=ALENS(41,VBSURF)
+         VARABL(II,4)=surf_anamorphic_conic(VBSURF)
+         VARABL(II,5)=surf_anamorphic_conic(VBSURF)
+         VARABL(II,13)=surf_anamorphic_conic(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 11, CCTOR VARIABLE
       END IF
 !
 !     DO ADTOR
       IF(VALT.EQ.12) THEN
-         VARABL(II,4)=ALENS(37,VBSURF)
-         VARABL(II,5)=ALENS(37,VBSURF)
-         VARABL(II,13)=ALENS(37,VBSURF)
+         VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 4)
+         VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 4)
+         VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 4)
          VARABL(II,6)=0.0D0
 !     VALT NOT 12, ADTOR VARIABLE
       END IF
 !
 !     DO AETOR
       IF(VALT.EQ.13) THEN
-         VARABL(II,4)=ALENS(38,VBSURF)
-         VARABL(II,5)=ALENS(38,VBSURF)
-         VARABL(II,13)=ALENS(38,VBSURF)
+         VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 6)
+         VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 6)
+         VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 6)
          VARABL(II,6)=0.0D0
 !     VALT NOT 13, AETOR VARIABLE
       END IF
 !
 !     DO AFTOR
       IF(VALT.EQ.14) THEN
-         VARABL(II,4)=ALENS(39,VBSURF)
-         VARABL(II,5)=ALENS(39,VBSURF)
-         VARABL(II,13)=ALENS(39,VBSURF)
+         VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 8)
+         VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 8)
+         VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 8)
          VARABL(II,6)=0.0D0
 !     VALT NOT 14, AFTOR VARIABLE
       END IF
 !
 !     DO AGTOR
       IF(VALT.EQ.15) THEN
-         VARABL(II,4)=ALENS(40,VBSURF)
-         VARABL(II,5)=ALENS(40,VBSURF)
-         VARABL(II,13)=ALENS(40,VBSURF)
+         VARABL(II,4)=surf_anamorphic_coeff(VBSURF, 10)
+         VARABL(II,5)=surf_anamorphic_coeff(VBSURF, 10)
+         VARABL(II,13)=surf_anamorphic_coeff(VBSURF, 10)
          VARABL(II,6)=0.0D0
 !     VALT NOT 15, AGTOR VARIABLE
       END IF
 !
 !     DO ALPHA
       IF(VALT.EQ.16) THEN
-         VARABL(II,4)=ALENS(118,VBSURF)
-         VARABL(II,5)=ALENS(118,VBSURF)
-         VARABL(II,13)=ALENS(118,VBSURF)
+         VARABL(II,4)=surf_alpha_deg(VBSURF)
+         VARABL(II,5)=surf_alpha_deg(VBSURF)
+         VARABL(II,13)=surf_alpha_deg(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 16, ALPHA VARIABLE
       END IF
 !
 !     DO BETA
       IF(VALT.EQ.17) THEN
-         VARABL(II,4)=ALENS(119,VBSURF)
-         VARABL(II,5)=ALENS(119,VBSURF)
-         VARABL(II,13)=ALENS(119,VBSURF)
+         VARABL(II,4)=surf_beta_deg(VBSURF)
+         VARABL(II,5)=surf_beta_deg(VBSURF)
+         VARABL(II,13)=surf_beta_deg(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 17, BETA VARIABLE
       END IF
 !
 !     DO GAMMA
       IF(VALT.EQ.18) THEN
-         VARABL(II,4)=ALENS(120,VBSURF)
-         VARABL(II,5)=ALENS(120,VBSURF)
-         VARABL(II,13)=ALENS(120,VBSURF)
+         VARABL(II,4)=surf_gamma_deg(VBSURF)
+         VARABL(II,5)=surf_gamma_deg(VBSURF)
+         VARABL(II,13)=surf_gamma_deg(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 18, GAMMA VARIABLE
       END IF
 !
 !     DO XD
       IF(VALT.EQ.19) THEN
-         VARABL(II,4)=ALENS(114,VBSURF)
-         VARABL(II,5)=ALENS(114,VBSURF)
-         VARABL(II,13)=ALENS(114,VBSURF)
+         VARABL(II,4)=surf_focus_dx(VBSURF)
+         VARABL(II,5)=surf_focus_dx(VBSURF)
+         VARABL(II,13)=surf_focus_dx(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 19, XD VARIABLE
       END IF
 !
 !     DO YD
       IF(VALT.EQ.20) THEN
-         VARABL(II,4)=ALENS(115,VBSURF)
-         VARABL(II,5)=ALENS(115,VBSURF)
-         VARABL(II,13)=ALENS(115,VBSURF)
+         VARABL(II,4)=surf_focus_dy(VBSURF)
+         VARABL(II,5)=surf_focus_dy(VBSURF)
+         VARABL(II,13)=surf_focus_dy(VBSURF)
          VARABL(II,6)=0.0D0
 !     VALT NOT 20, YD VARIABLE
       END IF
 !
 !     DO N1
       IF(VALT.EQ.21) THEN
-         VARABL(II,4)=ALENS(46,VBSURF)
-         VARABL(II,5)=ALENS(46,VBSURF)
-         VARABL(II,13)=ALENS(46,VBSURF)
+         VARABL(II,4)=surf_refractive_index(VBSURF, 1)
+         VARABL(II,5)=surf_refractive_index(VBSURF, 1)
+         VARABL(II,13)=surf_refractive_index(VBSURF, 1)
          VARABL(II,6)=0.0D0
 !     VALT NOT 21, N1 VARIABLE
       END IF
 !
 !     DO N2
       IF(VALT.EQ.22) THEN
-         VARABL(II,4)=ALENS(47,VBSURF)
-         VARABL(II,5)=ALENS(47,VBSURF)
-         VARABL(II,13)=ALENS(47,VBSURF)
+         VARABL(II,4)=surf_refractive_index(VBSURF, 2)
+         VARABL(II,5)=surf_refractive_index(VBSURF, 2)
+         VARABL(II,13)=surf_refractive_index(VBSURF, 2)
          VARABL(II,6)=0.0D0
 !     VALT NOT 22, N2 VARIABLE
       END IF
 !
 !     DO N3
       IF(VALT.EQ.23) THEN
-         VARABL(II,4)=ALENS(48,VBSURF)
-         VARABL(II,5)=ALENS(48,VBSURF)
-         VARABL(II,13)=ALENS(48,VBSURF)
+         VARABL(II,4)=surf_refractive_index(VBSURF, 3)
+         VARABL(II,5)=surf_refractive_index(VBSURF, 3)
+         VARABL(II,13)=surf_refractive_index(VBSURF, 3)
          VARABL(II,6)=0.0D0
 !     VALT NOT 23, N3 VARIABLE
       END IF
 !
 !     DO N4
       IF(VALT.EQ.24) THEN
-         VARABL(II,4)=ALENS(49,VBSURF)
-         VARABL(II,5)=ALENS(49,VBSURF)
-         VARABL(II,13)=ALENS(49,VBSURF)
+         VARABL(II,4)=surf_refractive_index(VBSURF, 4)
+         VARABL(II,5)=surf_refractive_index(VBSURF, 4)
+         VARABL(II,13)=surf_refractive_index(VBSURF, 4)
          VARABL(II,6)=0.0D0
 !     VALT NOT 24, N4 VARIABLE
       END IF
 !
 !     DO N5
       IF(VALT.EQ.25) THEN
-         VARABL(II,4)=ALENS(50,VBSURF)
-         VARABL(II,5)=ALENS(50,VBSURF)
-         VARABL(II,13)=ALENS(50,VBSURF)
+         VARABL(II,4)=surf_refractive_index(VBSURF, 5)
+         VARABL(II,5)=surf_refractive_index(VBSURF, 5)
+         VARABL(II,13)=surf_refractive_index(VBSURF, 5)
          VARABL(II,6)=0.0D0
 !     VALT NOT 25, N5 VARIABLE
       END IF
@@ -1513,9 +1500,9 @@ SUBROUTINE FIXTVAR
 !
 !     DO AC
       IF(VALT.EQ.75) THEN
-         VARABL(II,4)=ALENS(43,VBSURF)
-         VARABL(II,5)=ALENS(43,VBSURF)
-         VARABL(II,13)=ALENS(43,VBSURF)
+         VARABL(II,4)=surf_asphere_coeff(VBSURF, 2)
+         VARABL(II,5)=surf_asphere_coeff(VBSURF, 2)
+         VARABL(II,13)=surf_asphere_coeff(VBSURF, 2)
          VARABL(II,6)=0.0D0
 !     VALT NOT 75, AC VARIABLE
       END IF
@@ -1532,6 +1519,7 @@ SUBROUTINE FIXVAR
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1557,226 +1545,226 @@ SUBROUTINE FIXVAR
       IF(VBCFG.EQ.1) THEN
 !     CONFIG 1 VARIABLES
          IF(VALT.EQ.2.OR.VALT.EQ.9) THEN
-            VARABL(I,4)=ALENS(1,VBSURF)
-            VARABL(I,5)=ALENS(1,VBSURF)
-            VARABL(I,13)=ALENS(1,VBSURF)
+            VARABL(I,4)=surf_curvature(VBSURF)
+            VARABL(I,5)=surf_curvature(VBSURF)
+            VARABL(I,13)=surf_curvature(VBSURF)
             VARABL(I,6)=0.0D0
          END IF
 !
 !     DO TH VARIABLE
          IF(VALT.EQ.3) THEN
 !
-            VARABL(I,4)=ALENS(3,VBSURF)
-            VARABL(I,5)=ALENS(3,VBSURF)
-            VARABL(I,13)=ALENS(3,VBSURF)
+            VARABL(I,4)=surf_thickness(VBSURF)
+            VARABL(I,5)=surf_thickness(VBSURF)
+            VARABL(I,13)=surf_thickness(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 3, NOT A THICKNESS VARIABLE
          END IF
 !     DO CC
          IF(VALT.EQ.4) THEN
 !
-            VARABL(I,4)=ALENS(2,VBSURF)
-            VARABL(I,5)=ALENS(2,VBSURF)
-            VARABL(I,13)=ALENS(2,VBSURF)
+            VARABL(I,4)=surf_conic(VBSURF)
+            VARABL(I,5)=surf_conic(VBSURF)
+            VARABL(I,13)=surf_conic(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 4, CC VARIABLE
          END IF
          IF(VALT.EQ.5) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
 !
-            VARABL(I,4)=ALENS(4,VBSURF)
-            VARABL(I,5)=ALENS(4,VBSURF)
-            VARABL(I,13)=ALENS(4,VBSURF)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 4)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 4)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 4)
             VARABL(I,6)=0.0D0
 !     VALT NOT 5, AD VARIABLE
          END IF
 !
          IF(VALT.EQ.6) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(5,VBSURF)
-            VARABL(I,5)=ALENS(5,VBSURF)
-            VARABL(I,13)=ALENS(5,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 6)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 6)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 6)
             VARABL(I,6)=0.0D0
 !     VALT NOT 6, AE VARIABLE
          END IF
 !
          IF(VALT.EQ.7) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(6,VBSURF)
-            VARABL(I,5)=ALENS(6,VBSURF)
-            VARABL(I,13)=ALENS(6,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 8)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 8)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 8)
             VARABL(I,6)=0.0D0
 !     VALT NOT 7, AF VARIABLE
          END IF
 !
          IF(VALT.EQ.8) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(7,VBSURF)
-            VARABL(I,5)=ALENS(7,VBSURF)
-            VARABL(I,13)=ALENS(7,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 10)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 10)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 10)
             VARABL(I,6)=0.0D0
 !     VALT NOT 8, AG VARIABLE
          END IF
          IF(VALT.EQ.129) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(81,VBSURF)
-            VARABL(I,5)=ALENS(81,VBSURF)
-            VARABL(I,13)=ALENS(81,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 12)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 12)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 12)
             VARABL(I,6)=0.0D0
          END IF
          IF(VALT.EQ.130) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(82,VBSURF)
-            VARABL(I,5)=ALENS(82,VBSURF)
-            VARABL(I,13)=ALENS(82,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 14)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 14)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 14)
             VARABL(I,6)=0.0D0
          END IF
          IF(VALT.EQ.131) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(83,VBSURF)
-            VARABL(I,5)=ALENS(83,VBSURF)
-            VARABL(I,13)=ALENS(83,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 16)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 16)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 16)
             VARABL(I,6)=0.0D0
          END IF
          IF(VALT.EQ.132) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(84,VBSURF)
-            VARABL(I,5)=ALENS(84,VBSURF)
-            VARABL(I,13)=ALENS(84,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 18)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 18)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 18)
             VARABL(I,6)=0.0D0
          END IF
          IF(VALT.EQ.133) THEN
-            IF(ALENS(8,VBSURF).NE.1.0D0) ALENS(8,VBSURF)=1.0D0
-            VARABL(I,4)=ALENS(85,VBSURF)
-            VARABL(I,5)=ALENS(85,VBSURF)
-            VARABL(I,13)=ALENS(85,VBSURF)
+            IF(.NOT.surf_is_asphere(VBSURF)) call set_surf_asphere_flag(VBSURF, .TRUE.)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 20)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 20)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 20)
             VARABL(I,6)=0.0D0
          END IF
 !     DO ZD
          IF(VALT.EQ.134) THEN
-            VARABL(I,4)=ALENS(116,VBSURF)
-            VARABL(I,5)=ALENS(116,VBSURF)
-            VARABL(I,13)=ALENS(116,VBSURF)
+            VARABL(I,4)=surf_focus_dz(VBSURF)
+            VARABL(I,5)=surf_focus_dz(VBSURF)
+            VARABL(I,13)=surf_focus_dz(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 134, ZD VARIABLE
          END IF
 !     DO INDEX
          IF(VALT.EQ.135) THEN
-            VARABL(I,4)=ALENS(86,VBSURF)
-            VARABL(I,5)=ALENS(86,VBSURF)
-            VARABL(I,13)=ALENS(86,VBSURF)
+            VARABL(I,4)=surf_fict_n(VBSURF)
+            VARABL(I,5)=surf_fict_n(VBSURF)
+            VARABL(I,13)=surf_fict_n(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 135, INDEX VARIABLE
          END IF
 !     DO VNUM
          IF(VALT.EQ.136) THEN
-            VARABL(I,4)=ALENS(87,VBSURF)
-            VARABL(I,5)=ALENS(87,VBSURF)
-            VARABL(I,13)=ALENS(87,VBSURF)
+            VARABL(I,4)=surf_fict_v(VBSURF)
+            VARABL(I,5)=surf_fict_v(VBSURF)
+            VARABL(I,13)=surf_fict_v(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 134, ZD VARIABLE
          END IF
 !     DO PIVX
          IF(VALT.EQ.137) THEN
-            VARABL(I,4)=ALENS(78,VBSURF)
-            VARABL(I,5)=ALENS(78,VBSURF)
-            VARABL(I,13)=ALENS(78,VBSURF)
+            VARABL(I,4)=surf_pivot_x(VBSURF)
+            VARABL(I,5)=surf_pivot_x(VBSURF)
+            VARABL(I,13)=surf_pivot_x(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 137, PIVX VARIABLE
          END IF
 !     DO PIVY
          IF(VALT.EQ.138) THEN
-            VARABL(I,4)=ALENS(79,VBSURF)
-            VARABL(I,5)=ALENS(79,VBSURF)
-            VARABL(I,13)=ALENS(79,VBSURF)
+            VARABL(I,4)=surf_pivot_y(VBSURF)
+            VARABL(I,5)=surf_pivot_y(VBSURF)
+            VARABL(I,13)=surf_pivot_y(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 138, PIVY VARIABLE
          END IF
 !     DO PIVZ
          IF(VALT.EQ.139) THEN
-            VARABL(I,4)=ALENS(80,VBSURF)
-            VARABL(I,5)=ALENS(80,VBSURF)
-            VARABL(I,13)=ALENS(80,VBSURF)
+            VARABL(I,4)=surf_pivot_z(VBSURF)
+            VARABL(I,5)=surf_pivot_z(VBSURF)
+            VARABL(I,13)=surf_pivot_z(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 139, PIVZ VARIABLE
          END IF
 !     DO DPART
          IF(VALT.EQ.140) THEN
-            VARABL(I,4)=ALENS(89,VBSURF)
-            VARABL(I,5)=ALENS(89,VBSURF)
-            VARABL(I,13)=ALENS(89,VBSURF)
+            VARABL(I,4)=surf_fict_w(VBSURF)
+            VARABL(I,5)=surf_fict_w(VBSURF)
+            VARABL(I,13)=surf_fict_w(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 140, DPART VARIABLE
          END IF
 !     DO CLPX
          IF(VALT.EQ.141) THEN
-            VARABL(I,4)=ALENS(11,VBSURF)
-            VARABL(I,5)=ALENS(11,VBSURF)
-            VARABL(I,13)=ALENS(11,VBSURF)
+            VARABL(I,4)=surf_clap_dim(VBSURF, 2)
+            VARABL(I,5)=surf_clap_dim(VBSURF, 2)
+            VARABL(I,13)=surf_clap_dim(VBSURF, 2)
             VARABL(I,6)=0.0D0
 !     VALT NOT 141, CLPX VARIABLE
          END IF
 !     DO CLPY
          IF(VALT.EQ.142) THEN
-            VARABL(I,4)=ALENS(10,VBSURF)
-            VARABL(I,5)=ALENS(10,VBSURF)
-            VARABL(I,13)=ALENS(10,VBSURF)
+            VARABL(I,4)=surf_clap_dim(VBSURF, 1)
+            VARABL(I,5)=surf_clap_dim(VBSURF, 1)
+            VARABL(I,13)=surf_clap_dim(VBSURF, 1)
             VARABL(I,6)=0.0D0
 !     VALT NOT 142, CLPY VARIABLE
          END IF
 !     DO GDX
          IF(VALT.EQ.143) THEN
-            VARABL(I,4)=ALENS(90,VBSURF)
-            VARABL(I,5)=ALENS(90,VBSURF)
-            VARABL(I,13)=ALENS(90,VBSURF)
+            VARABL(I,4)=surf_global_dx(VBSURF)
+            VARABL(I,5)=surf_global_dx(VBSURF)
+            VARABL(I,13)=surf_global_dx(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 143, GDX VARIABLE
          END IF
 !     DO GDY
          IF(VALT.EQ.144) THEN
-            VARABL(I,4)=ALENS(91,VBSURF)
-            VARABL(I,5)=ALENS(91,VBSURF)
-            VARABL(I,13)=ALENS(91,VBSURF)
+            VARABL(I,4)=surf_global_dy(VBSURF)
+            VARABL(I,5)=surf_global_dy(VBSURF)
+            VARABL(I,13)=surf_global_dy(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 144, GDY VARIABLE
          END IF
 !     DO GDZ
          IF(VALT.EQ.145) THEN
-            VARABL(I,4)=ALENS(92,VBSURF)
-            VARABL(I,5)=ALENS(92,VBSURF)
-            VARABL(I,13)=ALENS(92,VBSURF)
+            VARABL(I,4)=surf_global_dz(VBSURF)
+            VARABL(I,5)=surf_global_dz(VBSURF)
+            VARABL(I,13)=surf_global_dz(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 145, GDZ VARIABLE
          END IF
 !     DO GALPHA
          IF(VALT.EQ.146) THEN
-            VARABL(I,4)=ALENS(93,VBSURF)
-            VARABL(I,5)=ALENS(93,VBSURF)
-            VARABL(I,13)=ALENS(93,VBSURF)
+            VARABL(I,4)=surf_global_alpha(VBSURF)
+            VARABL(I,5)=surf_global_alpha(VBSURF)
+            VARABL(I,13)=surf_global_alpha(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 146, GALPHA VARIABLE
          END IF
 !     DO GBETA
          IF(VALT.EQ.147) THEN
-            VARABL(I,4)=ALENS(94,VBSURF)
-            VARABL(I,5)=ALENS(94,VBSURF)
-            VARABL(I,13)=ALENS(94,VBSURF)
+            VARABL(I,4)=surf_global_beta(VBSURF)
+            VARABL(I,5)=surf_global_beta(VBSURF)
+            VARABL(I,13)=surf_global_beta(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 147, GBETA VARIABLE
          END IF
 !     DO GGAMMA
          IF(VALT.EQ.148) THEN
-            VARABL(I,4)=ALENS(95,VBSURF)
-            VARABL(I,5)=ALENS(95,VBSURF)
-            VARABL(I,13)=ALENS(95,VBSURF)
+            VARABL(I,4)=surf_global_gamma(VBSURF)
+            VARABL(I,5)=surf_global_gamma(VBSURF)
+            VARABL(I,13)=surf_global_gamma(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 148, GGAMMA VARIABLE
          END IF
 !     DO GRS
          IF(VALT.EQ.149) THEN
-            VARABL(I,4)=ALENS(98,VBSURF)
-            VARABL(I,5)=ALENS(98,VBSURF)
-            VARABL(I,13)=ALENS(98,VBSURF)
+            VARABL(I,4)=surf_grating_spacing(VBSURF)
+            VARABL(I,5)=surf_grating_spacing(VBSURF)
+            VARABL(I,13)=surf_grating_spacing(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 149, GRS VARIABLE
          END IF
@@ -1875,144 +1863,144 @@ SUBROUTINE FIXVAR
 !
 !     DO CVTOR
          IF(VALT.EQ.10.OR.VALT.EQ.9) THEN
-            VARABL(I,4)=ALENS(24,VBSURF)
-            VARABL(I,5)=ALENS(24,VBSURF)
-            VARABL(I,13)=ALENS(24,VBSURF)
+            VARABL(I,4)=surf_toric_curvature(VBSURF)
+            VARABL(I,5)=surf_toric_curvature(VBSURF)
+            VARABL(I,13)=surf_toric_curvature(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 10, NOT A OR CVTOR VARIABLE
          END IF
 !
 !     DO CCTOR
          IF(VALT.EQ.11) THEN
-            VARABL(I,4)=ALENS(41,VBSURF)
-            VARABL(I,5)=ALENS(41,VBSURF)
-            VARABL(I,13)=ALENS(41,VBSURF)
+            VARABL(I,4)=surf_anamorphic_conic(VBSURF)
+            VARABL(I,5)=surf_anamorphic_conic(VBSURF)
+            VARABL(I,13)=surf_anamorphic_conic(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 11, CCTOR VARIABLE
          END IF
 !
 !     DO ADTOR
          IF(VALT.EQ.12) THEN
-            VARABL(I,4)=ALENS(37,VBSURF)
-            VARABL(I,5)=ALENS(37,VBSURF)
-            VARABL(I,13)=ALENS(37,VBSURF)
+            VARABL(I,4)=surf_anamorphic_coeff(VBSURF, 4)
+            VARABL(I,5)=surf_anamorphic_coeff(VBSURF, 4)
+            VARABL(I,13)=surf_anamorphic_coeff(VBSURF, 4)
             VARABL(I,6)=0.0D0
 !     VALT NOT 12, ADTOR VARIABLE
          END IF
 !
 !     DO AETOR
          IF(VALT.EQ.13) THEN
-            VARABL(I,4)=ALENS(38,VBSURF)
-            VARABL(I,5)=ALENS(38,VBSURF)
-            VARABL(I,13)=ALENS(38,VBSURF)
+            VARABL(I,4)=surf_anamorphic_coeff(VBSURF, 6)
+            VARABL(I,5)=surf_anamorphic_coeff(VBSURF, 6)
+            VARABL(I,13)=surf_anamorphic_coeff(VBSURF, 6)
             VARABL(I,6)=0.0D0
 !     VALT NOT 13, AETOR VARIABLE
          END IF
 !
 !     DO AFTOR
          IF(VALT.EQ.14) THEN
-            VARABL(I,4)=ALENS(39,VBSURF)
-            VARABL(I,5)=ALENS(39,VBSURF)
-            VARABL(I,13)=ALENS(39,VBSURF)
+            VARABL(I,4)=surf_anamorphic_coeff(VBSURF, 8)
+            VARABL(I,5)=surf_anamorphic_coeff(VBSURF, 8)
+            VARABL(I,13)=surf_anamorphic_coeff(VBSURF, 8)
             VARABL(I,6)=0.0D0
 !     VALT NOT 14, AFTOR VARIABLE
          END IF
 !
 !     DO AGTOR
          IF(VALT.EQ.15) THEN
-            VARABL(I,4)=ALENS(40,VBSURF)
-            VARABL(I,5)=ALENS(40,VBSURF)
-            VARABL(I,13)=ALENS(40,VBSURF)
+            VARABL(I,4)=surf_anamorphic_coeff(VBSURF, 10)
+            VARABL(I,5)=surf_anamorphic_coeff(VBSURF, 10)
+            VARABL(I,13)=surf_anamorphic_coeff(VBSURF, 10)
             VARABL(I,6)=0.0D0
 !     VALT NOT 15, AGTOR VARIABLE
          END IF
 !
 !     DO ALPHA
          IF(VALT.EQ.16) THEN
-            VARABL(I,4)=ALENS(118,VBSURF)
-            VARABL(I,5)=ALENS(118,VBSURF)
-            VARABL(I,13)=ALENS(118,VBSURF)
+            VARABL(I,4)=surf_alpha_deg(VBSURF)
+            VARABL(I,5)=surf_alpha_deg(VBSURF)
+            VARABL(I,13)=surf_alpha_deg(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 16, ALPHA VARIABLE
          END IF
 !
 !     DO BETA
          IF(VALT.EQ.17) THEN
-            VARABL(I,4)=ALENS(119,VBSURF)
-            VARABL(I,5)=ALENS(119,VBSURF)
-            VARABL(I,13)=ALENS(119,VBSURF)
+            VARABL(I,4)=surf_beta_deg(VBSURF)
+            VARABL(I,5)=surf_beta_deg(VBSURF)
+            VARABL(I,13)=surf_beta_deg(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 17, BETA VARIABLE
          END IF
 !
 !     DO GAMMA
          IF(VALT.EQ.18) THEN
-            VARABL(I,4)=ALENS(120,VBSURF)
-            VARABL(I,5)=ALENS(120,VBSURF)
-            VARABL(I,13)=ALENS(120,VBSURF)
+            VARABL(I,4)=surf_gamma_deg(VBSURF)
+            VARABL(I,5)=surf_gamma_deg(VBSURF)
+            VARABL(I,13)=surf_gamma_deg(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 18, GAMMA VARIABLE
          END IF
 !
 !     DO XD
          IF(VALT.EQ.19) THEN
-            VARABL(I,4)=ALENS(114,VBSURF)
-            VARABL(I,5)=ALENS(114,VBSURF)
-            VARABL(I,13)=ALENS(114,VBSURF)
+            VARABL(I,4)=surf_focus_dx(VBSURF)
+            VARABL(I,5)=surf_focus_dx(VBSURF)
+            VARABL(I,13)=surf_focus_dx(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 19, XD VARIABLE
          END IF
 !
 !     DO YD
          IF(VALT.EQ.20) THEN
-            VARABL(I,4)=ALENS(115,VBSURF)
-            VARABL(I,5)=ALENS(115,VBSURF)
-            VARABL(I,13)=ALENS(115,VBSURF)
+            VARABL(I,4)=surf_focus_dy(VBSURF)
+            VARABL(I,5)=surf_focus_dy(VBSURF)
+            VARABL(I,13)=surf_focus_dy(VBSURF)
             VARABL(I,6)=0.0D0
 !     VALT NOT 20, YD VARIABLE
          END IF
 !
 !     DO N1
          IF(VALT.EQ.21) THEN
-            VARABL(I,4)=ALENS(46,VBSURF)
-            VARABL(I,5)=ALENS(46,VBSURF)
-            VARABL(I,13)=ALENS(46,VBSURF)
+            VARABL(I,4)=surf_refractive_index(VBSURF, 1)
+            VARABL(I,5)=surf_refractive_index(VBSURF, 1)
+            VARABL(I,13)=surf_refractive_index(VBSURF, 1)
             VARABL(I,6)=0.0D0
 !     VALT NOT 21, N1 VARIABLE
          END IF
 !
 !     DO N2
          IF(VALT.EQ.22) THEN
-            VARABL(I,4)=ALENS(47,VBSURF)
-            VARABL(I,5)=ALENS(47,VBSURF)
-            VARABL(I,13)=ALENS(47,VBSURF)
+            VARABL(I,4)=surf_refractive_index(VBSURF, 2)
+            VARABL(I,5)=surf_refractive_index(VBSURF, 2)
+            VARABL(I,13)=surf_refractive_index(VBSURF, 2)
             VARABL(I,6)=0.0D0
 !     VALT NOT 22, N2 VARIABLE
          END IF
 !
 !     DO N3
          IF(VALT.EQ.23) THEN
-            VARABL(I,4)=ALENS(48,VBSURF)
-            VARABL(I,5)=ALENS(48,VBSURF)
-            VARABL(I,13)=ALENS(48,VBSURF)
+            VARABL(I,4)=surf_refractive_index(VBSURF, 3)
+            VARABL(I,5)=surf_refractive_index(VBSURF, 3)
+            VARABL(I,13)=surf_refractive_index(VBSURF, 3)
             VARABL(I,6)=0.0D0
 !     VALT NOT 23, N3 VARIABLE
          END IF
 !
 !     DO N4
          IF(VALT.EQ.24) THEN
-            VARABL(I,4)=ALENS(49,VBSURF)
-            VARABL(I,5)=ALENS(49,VBSURF)
-            VARABL(I,13)=ALENS(49,VBSURF)
+            VARABL(I,4)=surf_refractive_index(VBSURF, 4)
+            VARABL(I,5)=surf_refractive_index(VBSURF, 4)
+            VARABL(I,13)=surf_refractive_index(VBSURF, 4)
             VARABL(I,6)=0.0D0
 !     VALT NOT 24, N4 VARIABLE
          END IF
 !
 !     DO N5
          IF(VALT.EQ.25) THEN
-            VARABL(I,4)=ALENS(50,VBSURF)
-            VARABL(I,5)=ALENS(50,VBSURF)
-            VARABL(I,13)=ALENS(50,VBSURF)
+            VARABL(I,4)=surf_refractive_index(VBSURF, 5)
+            VARABL(I,5)=surf_refractive_index(VBSURF, 5)
+            VARABL(I,13)=surf_refractive_index(VBSURF, 5)
             VARABL(I,6)=0.0D0
 !     VALT NOT 25, N5 VARIABLE
          END IF
@@ -2038,9 +2026,9 @@ SUBROUTINE FIXVAR
 !
 !     DO AC
          IF(VALT.EQ.75) THEN
-            VARABL(I,4)=ALENS(43,VBSURF)
-            VARABL(I,5)=ALENS(43,VBSURF)
-            VARABL(I,13)=ALENS(43,VBSURF)
+            VARABL(I,4)=surf_asphere_coeff(VBSURF, 2)
+            VARABL(I,5)=surf_asphere_coeff(VBSURF, 2)
+            VARABL(I,13)=surf_asphere_coeff(VBSURF, 2)
             VARABL(I,6)=0.0D0
 !     VALT NOT 75, AC VARIABLE
          END IF
@@ -2048,20 +2036,16 @@ SUBROUTINE FIXVAR
 !     NOW BOUNDS CHECKER
          IF(VARABL(I,4).LT.VARABL(I,9)) THEN
             VARABL(I,4)=VARABL(I,9)
-            WRITE(OUTLYNE,*)&
-            &'WARNING: '
+            WRITE(OUTLYNE,*)'WARNING: '
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'VARIABLE # ',I,' HAS REACHED ITS LOWER BOUNDARY VALUE'
+            WRITE(OUTLYNE,*)'VARIABLE # ',I,' HAS REACHED ITS LOWER BOUNDARY VALUE'
             CALL SHOWIT(1)
          END IF
          IF(VARABL(I,4).GT.VARABL(I,10)) THEN
             VARABL(I,4)=VARABL(I,10)
-            WRITE(OUTLYNE,*)&
-            &'WARNING: '
+            WRITE(OUTLYNE,*)'WARNING: '
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'VARIABLE # ',I,' HAS REACHED ITS UPPER BOUNDARY VALUE'
+            WRITE(OUTLYNE,*)'VARIABLE # ',I,' HAS REACHED ITS UPPER BOUNDARY VALUE'
             CALL SHOWIT(1)
          END IF
          VARABL(I,5)=VARABL(I,4)
@@ -2088,8 +2072,7 @@ SUBROUTINE FIXVAR
 !     J IS THE LOCATION IN THE AUXCFG ARRAYS WHERE THIS VARIABLE
 !     IS LOCATED
 !
-         IF(VALT.GE.27.AND.VALT.LE.74.OR.VALT.GE.76.AND.VALT.LE.123 &
-         &.OR.VALT.EQ.141) THEN
+         IF(VALT.GE.27.AND.VALT.LE.74.OR.VALT.GE.76.AND.VALT.LE.123 .OR.VALT.EQ.141) THEN
             VARABL(I,4) =CFVAL(J,2)
             VARABL(I,5) =CFVAL(J,2)
             VARABL(I,13) =CFVAL(J,2)
@@ -2098,28 +2081,23 @@ SUBROUTINE FIXVAR
 !     BOUNDS CHECKER
             IF(VARABL(I,4).LT.VARABL(I,9)) THEN
                VARABL(I,4)=VARABL(I,9)
-               WRITE(OUTLYNE,*)&
-               &'WARNING: '
+               WRITE(OUTLYNE,*)'WARNING: '
                CALL SHOWIT(1)
-               WRITE(OUTLYNE,*)&
-               &'VARIABLE # ',I,' HAS REACHED ITS LOWER BOUNDARY VALUE'
+               WRITE(OUTLYNE,*)'VARIABLE # ',I,' HAS REACHED ITS LOWER BOUNDARY VALUE'
                CALL SHOWIT(1)
             END IF
             IF(VARABL(I,4).GT.VARABL(I,10)) THEN
                VARABL(I,4)=VARABL(I,10)
-               WRITE(OUTLYNE,*)&
-               &'WARNING: '
+               WRITE(OUTLYNE,*)'WARNING: '
                CALL SHOWIT(1)
-               WRITE(OUTLYNE,*)&
-               &'VARIABLE # ',I,' HAS REACHED ITS UPPER BOUNDARY VALUE'
+               WRITE(OUTLYNE,*)'VARIABLE # ',I,' HAS REACHED ITS UPPER BOUNDARY VALUE'
                CALL SHOWIT(1)
             END IF
             VARABL(I,5)=VARABL(I,4)
             VARABL(I,13)=VARABL(I,4)
 !
          ELSE
-            IF(CFADD(J,1).EQ.1.AND.CFVAL(J,1).NE.0.0D0.OR.&
-            &CFADD(J,1).EQ.9.AND.CFVAL(J,1).NE.0.0D0) THEN
+            IF(CFADD(J,1).EQ.1.AND.CFVAL(J,1).NE.0.0D0.OR.CFADD(J,1).EQ.9.AND.CFVAL(J,1).NE.0.0D0) THEN
                VARABL(I,4) =1.0D0/CFVAL(J,1)
                VARABL(I,5) =1.0D0/CFVAL(J,1)
                VARABL(I,13) =1.0D0/CFVAL(J,1)
@@ -2134,20 +2112,16 @@ SUBROUTINE FIXVAR
 !     BOUNDS CHECKER
             IF(VARABL(I,4).LT.VARABL(I,9)) THEN
                VARABL(I,4)=VARABL(I,9)
-               WRITE(OUTLYNE,*)&
-               &'WARNING: '
+               WRITE(OUTLYNE,*)'WARNING: '
                CALL SHOWIT(1)
-               WRITE(OUTLYNE,*)&
-               &'VARIABLE # ',I,' HAS REACHED ITS LOWER BOUNDARY VALUE'
+               WRITE(OUTLYNE,*)'VARIABLE # ',I,' HAS REACHED ITS LOWER BOUNDARY VALUE'
                CALL SHOWIT(1)
             END IF
             IF(VARABL(I,4).GT.VARABL(I,10)) THEN
                VARABL(I,4)=VARABL(I,10)
-               WRITE(OUTLYNE,*)&
-               &'WARNING: '
+               WRITE(OUTLYNE,*)'WARNING: '
                CALL SHOWIT(1)
-               WRITE(OUTLYNE,*)&
-               &'VARIABLE # ',I,' HAS REACHED ITS UPPER BOUNDARY VALUE'
+               WRITE(OUTLYNE,*)'VARIABLE # ',I,' HAS REACHED ITS UPPER BOUNDARY VALUE'
                CALL SHOWIT(1)
             END IF
             VARABL(I,5)=VARABL(I,4)
@@ -2165,6 +2139,7 @@ END
 SUBROUTINE FIELDS
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    CHARACTER AVAL3*3
@@ -2221,9 +2196,7 @@ SUBROUTINE FIELDS
       W4=SYSTEM(11)
       DF4=0
    END IF
-   IF(W4.NE.1.0D0.AND.W4.NE.2.0D0.AND.W4.NE.3.0D0.AND.W4.NE.4.0D0 &
-   &.AND.W4.NE.5.0D0.AND.W4.NE.6.0D0.AND.W4.NE.7.0D0.AND.W4.NE.&
-   &8.0D0.AND.W4.NE.9.0D0.AND.W4.NE.10.0D0) THEN
+   IF(W4.NE.1.0D0.AND.W4.NE.2.0D0.AND.W4.NE.3.0D0.AND.W4.NE.4.0D0 .AND.W4.NE.5.0D0.AND.W4.NE.6.0D0.AND.W4.NE.7.0D0.AND.W4.NE.8.0D0.AND.W4.NE.9.0D0.AND.W4.NE.10.0D0) THEN
       OUTLYNE='WAVELENGTH # MUST BE 1,2,3,4,5,6,7,8,9 OR 10'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2245,6 +2218,7 @@ SUBROUTINE MAKE_DEF_AUTO
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    INTEGER IVAL,I,J,K,DFNRD,L,LL,LLL,LLLL,DFNRAYS
    REAL*8 JK_WW1,JK_WW2,VL,XPOS,YPOS,STEP,WT1,WT2,WAY,THETA
@@ -2258,8 +2232,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !
    IF(WC.NE.'DFGRID') THEN
       IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"'//TRIM(WC)//'" TAKES NO STRING OR QUALIFIER INPUT'
+         WRITE(OUTLYNE,*)'"'//TRIM(WC)//'" TAKES NO STRING OR QUALIFIER INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2268,8 +2241,7 @@ SUBROUTINE MAKE_DEF_AUTO
       END IF
    ELSE
       IF(SST.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"'//TRIM(WC)//'" TAKES NO STRING INPUT'
+         WRITE(OUTLYNE,*)'"'//TRIM(WC)//'" TAKES NO STRING INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2283,16 +2255,12 @@ SUBROUTINE MAKE_DEF_AUTO
    IF(WC.EQ.'MONO') THEN
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"MONO" SETS AUTOMATIC MERIT FUNCTION BUILDING TO BE RESTRICTED'
+         WRITE(OUTLYNE,*)'"MONO" SETS AUTOMATIC MERIT FUNCTION BUILDING TO BE RESTRICTED'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'TO THE CONTROL WAVELENGTH ONLY. IT IS THE DEFAULT'
+         WRITE(OUTLYNE,*)'TO THE CONTROL WAVELENGTH ONLY. IT IS THE DEFAULT'
          CALL SHOWIT(1)
-         IF(CHROMATIC) WRITE(OUTLYNE,*)&
-         &'"POLY" IS CURRENTLY IN EFFECT'
-         IF(.NOT.CHROMATIC) WRITE(OUTLYNE,*)&
-         &'"MONO" IS CURRENTLY IN EFFECT'
+         IF(CHROMATIC) WRITE(OUTLYNE,*)'"POLY" IS CURRENTLY IN EFFECT'
+         IF(.NOT.CHROMATIC) WRITE(OUTLYNE,*)'"MONO" IS CURRENTLY IN EFFECT'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -2310,16 +2278,12 @@ SUBROUTINE MAKE_DEF_AUTO
    IF(WC.EQ.'POLY') THEN
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"POLY" SETS AUTOMATIC MERIT FUNCTION BUILDING TO BE RESTRICTED'
+         WRITE(OUTLYNE,*)'"POLY" SETS AUTOMATIC MERIT FUNCTION BUILDING TO BE RESTRICTED'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'TO POLYCHROMATIC MODE ONLY'
+         WRITE(OUTLYNE,*)'TO POLYCHROMATIC MODE ONLY'
          CALL SHOWIT(1)
-         IF(CHROMATIC) WRITE(OUTLYNE,*)&
-         &'"POLY" IS CURRENTLY IN EFFECT'
-         IF(.NOT.CHROMATIC) WRITE(OUTLYNE,*)&
-         &'"MONO" IS CURRENTLY IN EFFECT'
+         IF(CHROMATIC) WRITE(OUTLYNE,*)'"POLY" IS CURRENTLY IN EFFECT'
+         IF(.NOT.CHROMATIC) WRITE(OUTLYNE,*)'"MONO" IS CURRENTLY IN EFFECT'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -2341,8 +2305,7 @@ SUBROUTINE MAKE_DEF_AUTO
       IF(DFGRID.EQ.1) THEN
          WRITE(OUTLYNE,*) 'CURRENT GRID SETTING IS "HEX"'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'"DFDEL" REQUIRES THE GRID TYPE TO BE SET TO "RECT"'
+         WRITE(OUTLYNE,*)'"DFDEL" REQUIRES THE GRID TYPE TO BE SET TO "RECT"'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*) 'NO ACTION TAKEN'
          CALL SHOWIT(1)
@@ -2351,8 +2314,7 @@ SUBROUTINE MAKE_DEF_AUTO
       END IF
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFDEL" SETS DEFAULT AUTO MERIT FUNCTION RAY GRID SPACING'
+         WRITE(OUTLYNE,*)'"DFDEL" SETS DEFAULT AUTO MERIT FUNCTION RAY GRID SPACING'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'DFDEL CURRENTLY SET TO ',DFDEL
          CALL SHOWIT(1)
@@ -2375,11 +2337,9 @@ SUBROUTINE MAKE_DEF_AUTO
          RETURN
       END IF
       IF(W1.GT.1.414213D0.OR.W1.LT.0.1054D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFDEL" MAX ALLOWED VALUE IS: 1.414213'
+         WRITE(OUTLYNE,*)'"DFDEL" MAX ALLOWED VALUE IS: 1.414213'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'"DFDEL" MIN ALLOWED VALUE IS: 0.1054'
+         WRITE(OUTLYNE,*)'"DFDEL" MIN ALLOWED VALUE IS: 0.1054'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2397,8 +2357,7 @@ SUBROUTINE MAKE_DEF_AUTO
       IF(DFGRID.EQ.2) THEN
          WRITE(OUTLYNE,*) 'CURRENT GRID SETTING IS "RECT"'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'"DFHEX" REQUIRES THE GRID TYPE TO BE SET TO "HEX"'
+         WRITE(OUTLYNE,*)'"DFHEX" REQUIRES THE GRID TYPE TO BE SET TO "HEX"'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*) 'NO ACTION TAKEN'
          CALL SHOWIT(1)
@@ -2423,8 +2382,7 @@ SUBROUTINE MAKE_DEF_AUTO
       END IF
       IF(S1.EQ.1) THEN
          IF(W1.LT.1.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'MINIMUN NUMBER OF RADIAL RINGS IS 1'
+            WRITE(OUTLYNE,*)'MINIMUN NUMBER OF RADIAL RINGS IS 1'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2432,8 +2390,7 @@ SUBROUTINE MAKE_DEF_AUTO
             RETURN
          END IF
          IF(W1.GT.20.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'MAXIMUM NUMBER OF RADIAL RINGS IS 20'
+            WRITE(OUTLYNE,*)'MAXIMUM NUMBER OF RADIAL RINGS IS 20'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2443,8 +2400,7 @@ SUBROUTINE MAKE_DEF_AUTO
       END IF
       IF(S2.EQ.1) THEN
          IF(W2.LT.4.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'MINIMUN NUMBER OF PIE SECTORS IS 4'
+            WRITE(OUTLYNE,*)'MINIMUN NUMBER OF PIE SECTORS IS 4'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2452,8 +2408,7 @@ SUBROUTINE MAKE_DEF_AUTO
             RETURN
          END IF
          IF(W2.GT.32.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'MAXIMUM NUMBER OF PIE SECTORS IS 32'
+            WRITE(OUTLYNE,*)'MAXIMUM NUMBER OF PIE SECTORS IS 32'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2472,13 +2427,10 @@ SUBROUTINE MAKE_DEF_AUTO
    IF(WC.EQ.'DFGRID') THEN
 !     SYNTAX CHECK
       IF(STI.EQ.1.OR.SQ.EQ.0) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFGRID" SETS DEFAULT AUTO MERIT FUNCTION RAY GRID SHAPE'
+         WRITE(OUTLYNE,*)'"DFGRID" SETS DEFAULT AUTO MERIT FUNCTION RAY GRID SHAPE'
          CALL SHOWIT(1)
-         IF(DFGRID.EQ.1)&
-         &WRITE(OUTLYNE,*)'DFGRID CURRENTLY SET TO "HEX"'
-         IF(DFGRID.EQ.2)&
-         &WRITE(OUTLYNE,*)'DFGRID CURRENTLY SET TO "RECT"'
+         IF(DFGRID.EQ.1)WRITE(OUTLYNE,*)'DFGRID CURRENTLY SET TO "HEX"'
+         IF(DFGRID.EQ.2)WRITE(OUTLYNE,*)'DFGRID CURRENTLY SET TO "RECT"'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -2510,8 +2462,7 @@ SUBROUTINE MAKE_DEF_AUTO
    IF(WC.EQ.'DFP') THEN
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFP" SETS DEFAULT AUTO MERIT FUNCTION NUMBERS OF FIELD OF VIEW'
+         WRITE(OUTLYNE,*)'"DFP" SETS DEFAULT AUTO MERIT FUNCTION NUMBERS OF FIELD OF VIEW'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'DFP CURRENTLY SET TO ',DFPNUMB
          CALL SHOWIT(1)
@@ -2534,8 +2485,7 @@ SUBROUTINE MAKE_DEF_AUTO
          RETURN
       END IF
       IF(INT(W1).LT.1.OR.INT(W1).GT.25) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFP" MUST BE AN INTEGER FROM 1 TO 25'
+         WRITE(OUTLYNE,*)'"DFP" MUST BE AN INTEGER FROM 1 TO 25'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2551,8 +2501,7 @@ SUBROUTINE MAKE_DEF_AUTO
    IF(WC.EQ.'DFTYPE') THEN
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFTYPE" SETS DEFAULT AUTO MERIT FUNCTION OPERAND TYPE'
+         WRITE(OUTLYNE,*)'"DFTYPE" SETS DEFAULT AUTO MERIT FUNCTION OPERAND TYPE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'DFTYPE CURRENTLY SET TO ',DFTYPENUMB
          CALL SHOWIT(1)
@@ -2575,11 +2524,9 @@ SUBROUTINE MAKE_DEF_AUTO
          RETURN
       END IF
       IF(INT(W1).LT.1.OR.INT(W1).GT.2) THEN
-         WRITE(OUTLYNE,*)&
-         &'"DFTYPE" MUST BE 1(TRANSVERSE ONLY) OR '
+         WRITE(OUTLYNE,*)'"DFTYPE" MUST BE 1(TRANSVERSE ONLY) OR '
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'2(TRANSVERSE PLUS OPDS)'
+         WRITE(OUTLYNE,*)'2(TRANSVERSE PLUS OPDS)'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2601,14 +2548,12 @@ SUBROUTINE MAKE_DEF_AUTO
    IF(WC.EQ.'FP') THEN
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"FP" DEFINES FOBS FOR THE DEFAULT AUTO MERIT FUNCTION'
+         WRITE(OUTLYNE,*)'"FP" DEFINES FOBS FOR THE DEFAULT AUTO MERIT FUNCTION'
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(DF1.EQ.1.OR.DF2.EQ.1.OR.DF3.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"FP" REQUIRES EXPLICIT NUMERIC WORDS 1, 2 AND 3'
+         WRITE(OUTLYNE,*)'"FP" REQUIRES EXPLICIT NUMERIC WORDS 1, 2 AND 3'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2616,8 +2561,7 @@ SUBROUTINE MAKE_DEF_AUTO
          RETURN
       END IF
       IF(INT(W1).LT.1.OR.INT(W1).GT.DFPNUMB) THEN
-         WRITE(OUTLYNE,*)&
-         &'FIELD OF VIEW POSITION MUST BE FROM 1 TO ',DFPNUMB
+         WRITE(OUTLYNE,*)'FIELD OF VIEW POSITION MUST BE FROM 1 TO ',DFPNUMB
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2626,8 +2570,7 @@ SUBROUTINE MAKE_DEF_AUTO
       END IF
       IF(DF5.EQ.1) W5=SYSTEM(11)
       IF(INT(W5).LT.1.OR.INT(W5).GT.10) THEN
-         WRITE(OUTLYNE,*)&
-         &'WAVELENGTH NUMBER MUST BE FROM 1 TO 10'
+         WRITE(OUTLYNE,*)'WAVELENGTH NUMBER MUST BE FROM 1 TO 10'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2651,14 +2594,12 @@ SUBROUTINE MAKE_DEF_AUTO
 !       GRID SHAPE RECTANGULAR
 !     SYNTAX CHECK
          IF(STI.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"MAKEAUTO" CREATES DEFAULT AUTO MERIT FUNCTION'
+            WRITE(OUTLYNE,*)'"MAKEAUTO" CREATES DEFAULT AUTO MERIT FUNCTION'
             CALL SHOWIT(1)
             RETURN
          END IF
          IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"MAKEAUTO" ONLY TAKES NUMERIC WORD #1 INPUT'
+            WRITE(OUTLYNE,*)'"MAKEAUTO" ONLY TAKES NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2667,8 +2608,7 @@ SUBROUTINE MAKE_DEF_AUTO
          END IF
          IF(S1.EQ.0) W1=1.0D0
          IF(INT(W1).LT.1.OR.INT(W1).GT.MAXCFG) THEN
-            WRITE(OUTLYNE,*)&
-            &'CONFIGURATION NUMBER MUST BE FROM 1 TO ',MAXCFG
+            WRITE(OUTLYNE,*)'CONFIGURATION NUMBER MUST BE FROM 1 TO ',MAXCFG
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2682,9 +2622,7 @@ SUBROUTINE MAKE_DEF_AUTO
          LAST_TESTLENGTH=0.0D0
          TESTLENGTH=0.0D0
          DO I=0,200
-            TESTLENGTH=&
-            &DSQRT(((DFDEL/2.0D0)**2)+(((DFDEL/2.0D0)+&
-            &((DFDEL)*DBLE(I)))**2))
+            TESTLENGTH=DSQRT(((DFDEL/2.0D0)**2)+(((DFDEL/2.0D0)+((DFDEL)*DBLE(I)))**2))
             IF(LAST_TESTLENGTH.LE.1.0D0.AND.TESTLENGTH.GT.1.0D0) THEN
                DFNRD=((I))*2
                GO TO 10
@@ -2830,7 +2768,7 @@ SUBROUTINE MAKE_DEF_AUTO
                WT2=DFWT2*DEFAULT_FOB(3,I)
 !     TYPE ONE MERIT FUNCTION
                IF(DFTYPENUMB.EQ.1) THEN
-                  IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+                  IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
                      IF(SYSTEM(30).LE.2) THEN
 !     FOCAL
@@ -2869,7 +2807,7 @@ SUBROUTINE MAKE_DEF_AUTO
                END IF
 !     TYPE TWO MERIT FUNCTION
                IF(DFTYPENUMB.EQ.2) THEN
-                  IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+                  IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
                      IF(SYSTEM(30).LE.2) THEN
 !     FOCAL
@@ -2932,14 +2870,12 @@ SUBROUTINE MAKE_DEF_AUTO
 !     HEXAPOLAR GRID
 !     SYNTAX CHECK
       IF(STI.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"MAKEAUTO" CREATES DEFAULT AUTO MERIT FUNCTION'
+         WRITE(OUTLYNE,*)'"MAKEAUTO" CREATES DEFAULT AUTO MERIT FUNCTION'
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         WRITE(OUTLYNE,*)&
-         &'"MAKEAUTO" ONLY TAKES NUMERIC WORD #1 INPUT'
+         WRITE(OUTLYNE,*)'"MAKEAUTO" ONLY TAKES NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2948,8 +2884,7 @@ SUBROUTINE MAKE_DEF_AUTO
       END IF
       IF(S1.EQ.0) W1=1.0D0
       IF(INT(W1).LT.1.OR.INT(W1).GT.MAXCFG) THEN
-         WRITE(OUTLYNE,*)&
-         &'CONFIGURATION NUMBER MUST BE FROM 1 TO ',MAXCFG
+         WRITE(OUTLYNE,*)'CONFIGURATION NUMBER MUST BE FROM 1 TO ',MAXCFG
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3105,7 +3040,7 @@ SUBROUTINE MAKE_DEF_AUTO
             WT2=DFWT2*DEFAULT_FOB(3,I)
 !     TYPE ONE MERIT FUNCTION
             IF(DFTYPENUMB.EQ.1) THEN
-               IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+               IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
                   IF(SYSTEM(30).LE.2) THEN
 !     FOCAL
@@ -3144,7 +3079,7 @@ SUBROUTINE MAKE_DEF_AUTO
             END IF
 !     TYPE TWO MERIT FUNCTION
             IF(DFTYPENUMB.EQ.2) THEN
-               IF(ALENS(9,NEWREF).EQ.2.0D0.AND.ALENS(127,NEWREF).EQ.0.0D0) THEN
+               IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
                   IF(SYSTEM(30).LE.2) THEN
 !     FOCAL
@@ -3208,6 +3143,7 @@ SUBROUTINE TOPER
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3219,8 +3155,7 @@ SUBROUTINE TOPER
 !       THE CMD LEVEL IS DISABLED AND FLAG F53 IS SET TO 1.
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"',WC(1:5),'" TAKES NO EXPLICIT INPUT'
+      WRITE(OUTLYNE,*)'"',WC(1:5),'" TAKES NO EXPLICIT INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3254,6 +3189,7 @@ SUBROUTINE FOCRIT
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3265,8 +3201,7 @@ SUBROUTINE FOCRIT
 !       THE CMD LEVEL IS DISABLED AND FLAG F54 IS SET TO 1.
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"',WC(1:6),'" TAKES NO EXPLICIT INPUT'
+      WRITE(OUTLYNE,*)'"',WC(1:6),'" TAKES NO EXPLICIT INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3302,6 +3237,7 @@ SUBROUTINE MERIT
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3313,8 +3249,7 @@ SUBROUTINE MERIT
 !       THE CMD LEVEL IS DISABLED AND FLAG F27 IS SET TO 1.
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"',WC(1:5),'" TAKES NO EXPLICIT INPUT'
+      WRITE(OUTLYNE,*)'"',WC(1:5),'" TAKES NO EXPLICIT INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3348,6 +3283,7 @@ SUBROUTINE MDUMP(IID,JJD,MDERIV)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3359,8 +3295,7 @@ SUBROUTINE MDUMP(IID,JJD,MDERIV)
 !
    REAL*8 VAL
 !
-   CHARACTER AI1*3,AI2*3,AI3*3,AI4*3,AVAL1*13,AVAL2*13,AVAL3*13,&
-   &AVAL4*13
+   CHARACTER AI1*3,AI2*3,AI3*3,AI4*3,AVAL1*13,AVAL2*13,AVAL3*13,AVAL4*13
 !
 !       THIS IS SUBROUTINE MDUMP. THIS IS THE SUBROUTINE WHICH
 !       HANDLES AN "ITER MDUMP" COMMAND.
@@ -3370,14 +3305,11 @@ SUBROUTINE MDUMP(IID,JJD,MDERIV)
 !     OPERANDS.
 !
    IF(.NOT.DEREXT) THEN
-      WRITE(OUTLYNE,*)&
-      &'"ITER (MDUMP, MDP, MDUMPA AND MDPA)"'
+      WRITE(OUTLYNE,*)'"ITER (MDUMP, MDP, MDUMPA AND MDPA)"'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'REQUIRE A DERIVATIVE MATRIX TO EXIST'
+      WRITE(OUTLYNE,*)'REQUIRE A DERIVATIVE MATRIX TO EXIST'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'BEFORE THEY CAN FUNCTION'
+      WRITE(OUTLYNE,*)'BEFORE THEY CAN FUNCTION'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO ACTION TAKEN'
       CALL SHOWIT(1)
@@ -3393,13 +3325,9 @@ SUBROUTINE MDUMP(IID,JJD,MDERIV)
          CALL I3TOA3(I+3,AI4)
 
          IF(I.LE.VBCNT) OUTLYNE='         '//AI1
-         IF((I+1).LE.VBCNT)&
-         &OUTLYNE='         '//AI1//'           '//AI2
-         IF((I+2).LE.VBCNT)&
-         &OUTLYNE='         '//AI1//'           '//AI2//'           '//AI3
-         IF((I+3).LE.VBCNT)&
-         &OUTLYNE='         '//AI1//'           '//AI2//'           '//AI3 &
-         &//'         '//AI4
+         IF((I+1).LE.VBCNT)OUTLYNE='         '//AI1//'           '//AI2
+         IF((I+2).LE.VBCNT)OUTLYNE='         '//AI1//'           '//AI2//'           '//AI3
+         IF((I+3).LE.VBCNT)OUTLYNE='         '//AI1//'           '//AI2//'           '//AI3 //'         '//AI4
          CALL SHOWIT(0)
 
          DO J=1,OPCNT
@@ -3455,6 +3383,7 @@ SUBROUTINE FMT3
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3541,8 +3470,7 @@ SUBROUTINE FMT3
    IF(.NOT.ALLER.AND.CFGER) THEN
       FMTFMT1=0.0D0
       DO I=1,OPCNT
-         IF(INT(OPERND(I,16)).EQ.TAGER)&
-         &FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
+         IF(INT(OPERND(I,16)).EQ.TAGER)FMTFMT1=FMTFMT1+(OPERND(I,14)**2)
       END DO
    END IF
    IF(ALLER) DELFMT=FMTFMT-OLDFMT
@@ -3555,6 +3483,7 @@ SUBROUTINE ITERADJUST(IID,JJD,MDERIV,JA)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !

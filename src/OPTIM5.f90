@@ -9,6 +9,7 @@ SUBROUTINE CALCPRE
    use DATSPD
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -20,14 +21,11 @@ SUBROUTINE CALCPRE
 !
    COMMON/LOCALWQ/WQLOCAL,W2LOCAL
 !
-   REAL*8 X(1:96),NWN1,NWN2,NWN3,NWN4,JPX,TRAYY,TRAYX &
-   &,JPY,JPUX,JPUY,JPCX,JPCY,JPUCX,JPUCY,VXLO,VXHI,VYLO,VYHI &
-   &,V1,V2,VALVAL,OPDWT,GREYOP,RPOINT,FPOINT,RUN_OPT_MAC
+   REAL*8 X(1:96),NWN1,NWN2,NWN3,NWN4,JPX,TRAYY,TRAYX ,JPY,JPUX,JPUY,JPCX,JPCY,JPUCX,JPUCY,VXLO,VXHI,VYLO,VYHI ,V1,V2,VALVAL,OPDWT,GREYOP,RPOINT,FPOINT,RUN_OPT_MAC
 !
    COMMON/WTOPD/OPDWT,GREYOP
 !
-   INTEGER IAUTO,ISFI,ITYP,SF,CW,IV,PREDEFI,I,NF,IIA,JIA,SF1 &
-   &,K,II,WVNUMOP,ERROR,ISURF,CLRTYP
+   INTEGER IAUTO,ISFI,ITYP,SF,CW,IV,PREDEFI,I,NF,IIA,JIA,SF1 ,K,II,WVNUMOP,ERROR,ISURF,CLRTYP
 !
    COMMON/AUTOI/IAUTO
 !
@@ -37,9 +35,7 @@ SUBROUTINE CALCPRE
 !
    COMMON/PRCOM/WV,ITYP
 !
-   REAL*8 OLDREG9,W1A,TEMPR1,TEMPR2,TEMPSUM,TEMPDIF &
-   &,INDEX,EDGTHK,VNUM,PARTL,V,DISP,INTV,W1B,XCJ,YCJ,ZCJ,DIAX,DIAY &
-   &,ENDIST,EXDIST,AAA
+   REAL*8 OLDREG9,W1A,TEMPR1,TEMPR2,TEMPSUM,TEMPDIF ,INDEX,EDGTHK,VNUM,PARTL,V,DISP,INTV,W1B,XCJ,YCJ,ZCJ,DIAX,DIAY ,ENDIST,EXDIST,AAA
 !
    COMMON/NSIN/NF,INDEX,DISP,VNUM,PARTL
 !
@@ -51,8 +47,7 @@ SUBROUTINE CALCPRE
 !
    COMMON/PREPRE/PREDEFI
 !
-   LOGICAL FUN &
-   &,OLDLDIF,OLDLDIF2,ERRR,ERROP
+   LOGICAL FUN ,OLDLDIF,OLDLDIF2,ERRR,ERROP
 !
    EXTERNAL EDGTHK
 !
@@ -79,8 +74,7 @@ SUBROUTINE CALCPRE
 !     ONUM IS THE IDENTIFYING INTEGER FOR OPERAND I
 !
 !     TEST FOR A BAD OPERAND NUMBER
-   IF(ONUM.LT.1.OR.ONUM.GT.515.0D0.AND.ONUM.LT.801.OR.ONUM &
-   &.GT.801) THEN
+   IF(ONUM.LT.1.OR.ONUM.GT.515.0D0.AND.ONUM.LT.801.OR.ONUM .GT.801) THEN
 !     PUT IN A BAD NUMBER
       REG(9)=-666.666
       GO TO 777
@@ -192,8 +186,7 @@ SUBROUTINE CALCPRE
          FPOINT=OPERND(I,9)
          RPOINT=OPERND(I,10)
       END IF
-      IF(REFEXT.AND.INT(FPOINT).EQ.OLDF.AND.&
-      &CFNUM.EQ.OLDCFG) THEN
+      IF(REFEXT.AND.INT(FPOINT).EQ.OLDF.AND.CFNUM.EQ.OLDCFG) THEN
 !     DON'T NEED TO TRACE THE FOB AGAIN, IT ALREDY EXITS
       ELSE
 !     TRACE FOB AND RAY THEN GET VALUE
@@ -278,8 +271,7 @@ SUBROUTINE CALCPRE
 !                       RETURN
 !                     END IF
 ! NOW THE RAY
-      IF(RAYEXT.AND.&
-      &INT(RPOINT).EQ.OLDR.AND.CFNUM.EQ.OLDCFG) THEN
+      IF(RAYEXT.AND.INT(RPOINT).EQ.OLDR.AND.CFNUM.EQ.OLDCFG) THEN
 !     DON'T NEED TO TRACE THE RAY AGAIN, IT ALREDY EXITS
       ELSE
          SAVE_KDP(1)=SAVEINPT(1)
@@ -305,9 +297,7 @@ SUBROUTINE CALCPRE
          ELSE
 !     ADDING VIGNETTING OPTIONS TO TRANSVERS ABERRATIONS, THEIR DERIVATIVES
 !     AND ASSOCIATED OPD AND OPDW VALUES.
-            IF(OPERND(I,17).GE.7.0D0.AND.OPERND(I,17).LE.12.0D0.OR.&
-            &OPERND(I,17).GE.16.0D0.AND.OPERND(I,17).LE.17.0D0.OR.&
-            &OPERND(I,17).GE.35.0D0.AND.OPERND(I,17).LE.42.0D0) THEN
+            IF(OPERND(I,17).GE.7.0D0.AND.OPERND(I,17).LE.12.0D0.OR.OPERND(I,17).GE.16.0D0.AND.OPERND(I,17).LE.17.0D0.OR.OPERND(I,17).GE.35.0D0.AND.OPERND(I,17).LE.42.0D0) THEN
                IF(LVIG) CALL VIGCAL(100,VXLO,VXHI,1)
                IF(LVIG) CALL VIGCAL(100,VYLO,VYHI,2)
             ELSE
@@ -316,14 +306,10 @@ SUBROUTINE CALCPRE
                VYLO=-1.0D0
                VYHI=1.0D0
             END IF
-            IF(RAYY(INT(RPOINT)).GE.0.0D0)&
-            &TRAYY=RAYY(INT(RPOINT))*DABS(VYHI)
-            IF(RAYY(INT(RPOINT)).LT.0.0D0)&
-            &TRAYY=RAYY(INT(RPOINT))*DABS(VYLO)
-            IF(RAYX(INT(RPOINT)).GE.0.0D0)&
-            &TRAYX=RAYX(INT(RPOINT))*DABS(VXHI)
-            IF(RAYX(INT(RPOINT)).LT.0.0D0)&
-            &TRAYX=RAYX(INT(RPOINT))*DABS(VXLO)
+            IF(RAYY(INT(RPOINT)).GE.0.0D0)TRAYY=RAYY(INT(RPOINT))*DABS(VYHI)
+            IF(RAYY(INT(RPOINT)).LT.0.0D0)TRAYY=RAYY(INT(RPOINT))*DABS(VYLO)
+            IF(RAYX(INT(RPOINT)).GE.0.0D0)TRAYX=RAYX(INT(RPOINT))*DABS(VXHI)
+            IF(RAYX(INT(RPOINT)).LT.0.0D0)TRAYX=RAYX(INT(RPOINT))*DABS(VXLO)
             W1=TRAYY
             W2=TRAYX
             W3=RAYW(INT(RPOINT))
@@ -386,31 +372,23 @@ SUBROUTINE CALCPRE
 !
       IF(OPERND(I,17).EQ.7.0D0) THEN
 !     DX
-         REG(9)=&
-         &(RAYRAY(1,INT(OPERND(I,8)))-REFRY(1,INT(OPERND(I,8))))
+         REG(9)=(RAYRAY(1,INT(OPERND(I,8)))-REFRY(1,INT(OPERND(I,8))))
          GO TO 777
       END IF
 !
       IF(OPERND(I,17).EQ.8.0D0) THEN
 !     DY
-         REG(9)=&
-         &(RAYRAY(2,INT(OPERND(I,8)))-REFRY(2,INT(OPERND(I,8))))
+         REG(9)=(RAYRAY(2,INT(OPERND(I,8)))-REFRY(2,INT(OPERND(I,8))))
          GO TO 777
       END IF
 !
       IF(OPERND(I,17).EQ.9.0D0) THEN
-         REG(9)=&
-         &DABS(DSQRT((RAYRAY(1,INT(OPERND(I,8)))**2)&
-         &+(RAYRAY(2,INT(OPERND(I,8)))**2))&
-         &-DSQRT((REFRY(1,INT(OPERND(I,8)))**2)&
-         &+(REFRY(2,INT(OPERND(I,8)))**2)))
+         REG(9)=DABS(DSQRT((RAYRAY(1,INT(OPERND(I,8)))**2)+(RAYRAY(2,INT(OPERND(I,8)))**2))-DSQRT((REFRY(1,INT(OPERND(I,8)))**2)+(REFRY(2,INT(OPERND(I,8)))**2)))
          GO TO 777
       END IF
 !
       IF(OPERND(I,17).EQ.10.0D0) THEN
-         REG(9)=&
-         &RAYRAY(11,INT(OPERND(I,8)))&
-         &-REFRY(11,INT(OPERND(I,8)))
+         REG(9)=RAYRAY(11,INT(OPERND(I,8)))-REFRY(11,INT(OPERND(I,8)))
          IF(REG(9).LT.-PII) REG(9)=REG(9)+(TWOPII)
          IF(REG(9).GT.PII) REG(9)=REG(9)-(TWOPII)
          IF(REG(9).EQ.TWOPII) REG(9)=0.0D0
@@ -418,9 +396,7 @@ SUBROUTINE CALCPRE
       END IF
 !
       IF(OPERND(I,17).EQ.11.0D0) THEN
-         REG(9)=&
-         &RAYRAY(12,INT(OPERND(I,8)))&
-         &-REFRY(12,INT(OPERND(I,8)))
+         REG(9)=RAYRAY(12,INT(OPERND(I,8)))-REFRY(12,INT(OPERND(I,8)))
          IF(REG(9).LT.-PII) REG(9)=REG(9)+(TWOPII)
          IF(REG(9).GT.PII) REG(9)=REG(9)-(TWOPII)
          IF(REG(9).EQ.TWOPII) REG(9)=0.0D0
@@ -428,10 +404,7 @@ SUBROUTINE CALCPRE
       END IF
 !
       IF(OPERND(I,17).EQ.12.0D0) THEN
-         COSARG=((RAYRAY(4,INT(OPERND(I,8)))&
-         &*REFRY(4,INT(OPERND(I,8))))+&
-         &(RAYRAY(5,INT(OPERND(I,8)))*REFRY(5,INT(OPERND(I,8))))+&
-         &(RAYRAY(6,INT(OPERND(I,8)))*REFRY(6,INT(OPERND(I,8)))))
+         COSARG=((RAYRAY(4,INT(OPERND(I,8)))*REFRY(4,INT(OPERND(I,8))))+(RAYRAY(5,INT(OPERND(I,8)))*REFRY(5,INT(OPERND(I,8))))+(RAYRAY(6,INT(OPERND(I,8)))*REFRY(6,INT(OPERND(I,8)))))
          IF(COSARG.LT.0.0D0) COSARG=-COSARG
          IF(COSARG.GT.1.0D0) COSARG=1.0D0
          REG(9)=DACOS(COSARG)
@@ -512,8 +485,7 @@ SUBROUTINE CALCPRE
 !
       IF(OPERND(I,17).EQ.27.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(RFDIFF(1,INT(OPERND(I,8)))-REFRY(1,INT(OPERND(I,8))))/RFDELX
+            REG(9)=(RFDIFF(1,INT(OPERND(I,8)))-REFRY(1,INT(OPERND(I,8))))/RFDELX
          ELSE
             REG(9)=0.0D0
          END IF
@@ -521,8 +493,7 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.28.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(RFDIFF(7,INT(OPERND(I,8)))-REFRY(1,INT(OPERND(I,8))))/RFDELY
+            REG(9)=(RFDIFF(7,INT(OPERND(I,8)))-REFRY(1,INT(OPERND(I,8))))/RFDELY
          ELSE
             REG(9)=0.0D0
          END IF
@@ -530,8 +501,7 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.29.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(RFDIFF(2,INT(OPERND(I,8)))-REFRY(2,INT(OPERND(I,8))))/RFDELX
+            REG(9)=(RFDIFF(2,INT(OPERND(I,8)))-REFRY(2,INT(OPERND(I,8))))/RFDELX
          ELSE
             REG(9)=0.0D0
          END IF
@@ -539,8 +509,7 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.30.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(RFDIFF(8,INT(OPERND(I,8)))-REFRY(2,INT(OPERND(I,8))))/RFDELY
+            REG(9)=(RFDIFF(8,INT(OPERND(I,8)))-REFRY(2,INT(OPERND(I,8))))/RFDELY
          ELSE
             REG(9)=0.0D0
          END IF
@@ -549,13 +518,11 @@ SUBROUTINE CALCPRE
 !
       IF(OPERND(I,17).EQ.31.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(RFDIFF(4,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(RFDIFF(6,INT(OPERND(I,8)))))) THEN
+            IF(DABS(RFDIFF(4,INT(OPERND(I,8)))).GE.(1.0D35*DABS(RFDIFF(6,INT(OPERND(I,8)))))) THEN
                IF((RFDIFF(4,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((RFDIFF(4,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(RFDIFF(4,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(RFDIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(RFDIFF(4,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(RFDIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(RFDIFF(4,INT(OPERND(I,8))),RFDIFF(6,INT(OPERND(I,8))))
@@ -574,13 +541,11 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.32.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(RFDIFF(10,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(RFDIFF(12,INT(OPERND(I,8)))))) THEN
+            IF(DABS(RFDIFF(10,INT(OPERND(I,8)))).GE.(1.0D35*DABS(RFDIFF(12,INT(OPERND(I,8)))))) THEN
                IF((RFDIFF(10,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((RFDIFF(10,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(RFDIFF(10,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(RFDIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(RFDIFF(10,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(RFDIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(RFDIFF(10,INT(OPERND(I,8))),RFDIFF(12,INT(OPERND(I,8))))
@@ -599,13 +564,11 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.33.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(RFDIFF(5,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(RFDIFF(6,INT(OPERND(I,8)))))) THEN
+            IF(DABS(RFDIFF(5,INT(OPERND(I,8)))).GE.(1.0D35*DABS(RFDIFF(6,INT(OPERND(I,8)))))) THEN
                IF((RFDIFF(5,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((RFDIFF(5,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(RFDIFF(5,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(RFDIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(RFDIFF(5,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(RFDIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(RFDIFF(5,INT(OPERND(I,8))),RFDIFF(6,INT(OPERND(I,8))))
@@ -624,13 +587,11 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.34.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(RFDIFF(11,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(RFDIFF(12,INT(OPERND(I,8)))))) THEN
+            IF(DABS(RFDIFF(11,INT(OPERND(I,8)))).GE.(1.0D35*DABS(RFDIFF(12,INT(OPERND(I,8)))))) THEN
                IF((RFDIFF(11,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((RFDIFF(11,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(RFDIFF(11,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(RFDIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(RFDIFF(11,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(RFDIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(RFDIFF(11,INT(OPERND(I,8))),RFDIFF(12,INT(OPERND(I,8))))
@@ -650,8 +611,7 @@ SUBROUTINE CALCPRE
 !
       IF(OPERND(I,17).EQ.35.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(DIFF(1,INT(OPERND(I,8)))-RAYRAY(1,INT(OPERND(I,8))))/DELX
+            REG(9)=(DIFF(1,INT(OPERND(I,8)))-RAYRAY(1,INT(OPERND(I,8))))/DELX
          ELSE
             REG(9)=0.0D0
          END IF
@@ -659,8 +619,7 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.36.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(DIFF(7,INT(OPERND(I,8)))-RAYRAY(1,INT(OPERND(I,8))))/DELY
+            REG(9)=(DIFF(7,INT(OPERND(I,8)))-RAYRAY(1,INT(OPERND(I,8))))/DELY
          ELSE
             REG(9)=0.0D0
          END IF
@@ -668,8 +627,7 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.37.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(DIFF(2,INT(OPERND(I,8)))-RAYRAY(2,INT(OPERND(I,8))))/DELX
+            REG(9)=(DIFF(2,INT(OPERND(I,8)))-RAYRAY(2,INT(OPERND(I,8))))/DELX
          ELSE
             REG(9)=0.0D0
          END IF
@@ -677,8 +635,7 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.38.0D0) THEN
          IF(OPDIF) THEN
-            REG(9)=&
-            &(DIFF(8,INT(OPERND(I,8)))-RAYRAY(2,INT(OPERND(I,8))))/DELY
+            REG(9)=(DIFF(8,INT(OPERND(I,8)))-RAYRAY(2,INT(OPERND(I,8))))/DELY
          ELSE
             REG(9)=0.0D0
          END IF
@@ -687,13 +644,11 @@ SUBROUTINE CALCPRE
 !
       IF(OPERND(I,17).EQ.39.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(DIFF(4,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(DIFF(6,INT(OPERND(I,8)))))) THEN
+            IF(DABS(DIFF(4,INT(OPERND(I,8)))).GE.(1.0D35*DABS(DIFF(6,INT(OPERND(I,8)))))) THEN
                IF((DIFF(4,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((DIFF(4,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(DIFF(4,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(DIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(DIFF(4,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(DIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(DIFF(4,INT(OPERND(I,8))),DIFF(6,INT(OPERND(I,8))))
@@ -712,13 +667,11 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.40.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(DIFF(10,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(DIFF(12,INT(OPERND(I,8)))))) THEN
+            IF(DABS(DIFF(10,INT(OPERND(I,8)))).GE.(1.0D35*DABS(DIFF(12,INT(OPERND(I,8)))))) THEN
                IF((DIFF(10,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((DIFF(10,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(DIFF(10,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(DIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(DIFF(10,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(DIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(DIFF(10,INT(OPERND(I,8))),DIFF(12,INT(OPERND(I,8))))
@@ -737,13 +690,11 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.41.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(DIFF(5,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(DIFF(6,INT(OPERND(I,8)))))) THEN
+            IF(DABS(DIFF(5,INT(OPERND(I,8)))).GE.(1.0D35*DABS(DIFF(6,INT(OPERND(I,8)))))) THEN
                IF((DIFF(5,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((DIFF(5,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(DIFF(5,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(DIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(DIFF(5,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(DIFF(6,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(DIFF(5,INT(OPERND(I,8))),DIFF(6,INT(OPERND(I,8))))
@@ -762,13 +713,11 @@ SUBROUTINE CALCPRE
       END IF
       IF(OPERND(I,17).EQ.42.0D0) THEN
          IF(OPDIF) THEN
-            IF(DABS(DIFF(11,INT(OPERND(I,8)))).GE.&
-            &(1.0D35*DABS(DIFF(12,INT(OPERND(I,8)))))) THEN
+            IF(DABS(DIFF(11,INT(OPERND(I,8)))).GE.(1.0D35*DABS(DIFF(12,INT(OPERND(I,8)))))) THEN
                IF((DIFF(11,INT(OPERND(I,8)))).GE.0.0D0) V1=PII/2.0D0
                IF((DIFF(11,INT(OPERND(I,8)))).LT.0.0D0) V1=(3.0D0*PII)/2.0D0
             ELSE
-               IF(DABS(DIFF(11,INT(OPERND(I,8)))).EQ.0.0D0.AND.&
-               &DABS(DIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
+               IF(DABS(DIFF(11,INT(OPERND(I,8)))).EQ.0.0D0.AND.DABS(DIFF(12,INT(OPERND(I,8)))).EQ.0.0D0) THEN
                   V1=0.0D0
                ELSE
                   V1=DATAN2(DIFF(11,INT(OPERND(I,8))),DIFF(12,INT(OPERND(I,8))))
@@ -786,58 +735,47 @@ SUBROUTINE CALCPRE
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.43.0D0) THEN
-         REG(9)=&
-         &REFRY(1,INT(OPERND(I,8)))
+         REG(9)=REFRY(1,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.44.0D0) THEN
-         REG(9)=&
-         &REFRY(2,INT(OPERND(I,8)))
+         REG(9)=REFRY(2,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.45.0D0) THEN
-         REG(9)=&
-         &REFRY(3,INT(OPERND(I,8)))
+         REG(9)=REFRY(3,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.46.0D0) THEN
-         REG(9)=&
-         &REFRY(4,INT(OPERND(I,8)))
+         REG(9)=REFRY(4,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.47.0D0) THEN
-         REG(9)=&
-         &REFRY(5,INT(OPERND(I,8)))
+         REG(9)=REFRY(5,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.48.0D0) THEN
-         REG(9)=&
-         &REFRY(6,INT(OPERND(I,8)))
+         REG(9)=REFRY(6,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.49.0D0) THEN
-         REG(9)=&
-         &REFRY(19,INT(OPERND(I,8)))
+         REG(9)=REFRY(19,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.50.0D0) THEN
-         REG(9)=&
-         &REFRY(20,INT(OPERND(I,8)))
+         REG(9)=REFRY(20,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.51.0D0) THEN
-         REG(9)=&
-         &REFRY(21,INT(OPERND(I,8)))
+         REG(9)=REFRY(21,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.52.0D0) THEN
-         REG(9)=&
-         &REFRY(9,INT(OPERND(I,8)))
+         REG(9)=REFRY(9,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.53.0D0) THEN
-         REG(9)=&
-         &REFRY(10,INT(OPERND(I,8)))
+         REG(9)=REFRY(10,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.54.0D0) THEN
@@ -855,18 +793,15 @@ SUBROUTINE CALCPRE
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.56.0D0) THEN
-         REG(9)=&
-         &REFRY(13,INT(OPERND(I,8)))
+         REG(9)=REFRY(13,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.57.0D0) THEN
-         REG(9)=&
-         &REFRY(14,INT(OPERND(I,8)))
+         REG(9)=REFRY(14,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.58.0D0) THEN
-         REG(9)=&
-         &REFRY(15,INT(OPERND(I,8)))
+         REG(9)=REFRY(15,INT(OPERND(I,8)))
          GO TO 777
       END IF
 !
@@ -916,13 +851,11 @@ SUBROUTINE CALCPRE
       END IF
 !
       IF(OPERND(I,17).EQ.68.0D0) THEN
-         REG(9)=&
-         &REFRY(8,INT(OPERND(I,8)))
+         REG(9)=REFRY(8,INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.69.0D0) THEN
-         REG(9)=&
-         &REFRY(7,INT(OPERND(I,8)))
+         REG(9)=REFRY(7,INT(OPERND(I,8)))
          GO TO 777
       END IF
    END IF
@@ -931,11 +864,9 @@ SUBROUTINE CALCPRE
    IF(ONUM.EQ.514) THEN
 !     CALCULATE VALUE AND PLACE IN ACC
       CLFOB1=DABS(DBLE(INT(OPERND(I,8))))
-      CLRAY1=DBLE(NINT(DABS(DABS(OPERND(I,8))-&
-      &DBLE(INT(DABS(OPERND(I,8)))))*10000.0D0))
+      CLRAY1=DBLE(NINT(DABS(DABS(OPERND(I,8))-DBLE(INT(DABS(OPERND(I,8)))))*10000.0D0))
       CLFOB2=DABS(DBLE(INT(OPERND(I,9))))
-      CLRAY2=DBLE(NINT(DABS(DABS(OPERND(I,9))-&
-      &DBLE(INT(DABS(OPERND(I,9)))))*10000.0D0))
+      CLRAY2=DBLE(NINT(DABS(DABS(OPERND(I,9))-DBLE(INT(DABS(OPERND(I,9)))))*10000.0D0))
       WRITE(OUTLYNE,*) OPERND(I,10)
       CALL SHOWIT(1)
       CLSRF1=DABS(DBLE(INT(OPERND(I,10))))
@@ -953,11 +884,9 @@ SUBROUTINE CALCPRE
    IF(ONUM.EQ.515) THEN
 !     CALCULATE VALUE AND PLACE IN ACC
       CLFOB1=DABS(DBLE(INT(OPERND(I,8))))
-      CLRAY1=DBLE(NINT(DABS(DABS(OPERND(I,8))-&
-      &DBLE(INT(DABS(OPERND(I,8)))))*10000.0D0))
+      CLRAY1=DBLE(NINT(DABS(DABS(OPERND(I,8))-DBLE(INT(DABS(OPERND(I,8)))))*10000.0D0))
       CLFOB2=DABS(DBLE(INT(OPERND(I,9))))
-      CLRAY2=DBLE(NINT(DABS(DABS(OPERND(I,9))-&
-      &DBLE(INT(DABS(OPERND(I,9)))))*10000.0D0))
+      CLRAY2=DBLE(NINT(DABS(DABS(OPERND(I,9))-DBLE(INT(DABS(OPERND(I,9)))))*10000.0D0))
       CLSRF1=DABS(DBLE(INT(OPERND(I,10))))
       AAA=DABS(OPERND(I,10))
       CLSRF2=AAA-CLSRF1
@@ -1106,11 +1035,9 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)&
-         &VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
+         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
          IF(SYSTEM(30).GE.3.0D0) THEN
-            VALUE=RAYRAY(11,NEWIMG)&
-            &-REFRY(11,NEWIMG)
+            VALUE=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
             IF(VALUE.EQ.TWOPII) VALUE=0.0D0
@@ -1161,19 +1088,15 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)&
-         &VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
+         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
          IF(SYSTEM(30).GE.3.0D0) THEN
-            VALUE=RAYRAY(11,NEWIMG)&
-            &-REFRY(11,NEWIMG)
+            VALUE=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
             IF(VALUE.EQ.TWOPII) VALUE=0.0D0
          END IF
-         IF(OPERND(I,17).EQ.468.0D0)&
-         &REG(9)=(REG(9)-VALUE)/2.0D0
-         IF(OPERND(I,17).EQ.470.0D0)&
-         &REG(9)=(REG(9)+VALUE)/2.0D0
+         IF(OPERND(I,17).EQ.468.0D0)REG(9)=(REG(9)-VALUE)/2.0D0
+         IF(OPERND(I,17).EQ.470.0D0)REG(9)=(REG(9)+VALUE)/2.0D0
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.469.0D0.OR.OPERND(I,17).EQ.471.0D0) THEN
@@ -1226,11 +1149,9 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)&
-         &VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
+         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
          IF(SYSTEM(30).GE.3.0D0) THEN
-            VALUE=RAYRAY(12,NEWIMG)&
-            &-REFRY(12,NEWIMG)
+            VALUE=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
             IF(VALUE.EQ.TWOPII) VALUE=0.0D0
@@ -1281,25 +1202,20 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)&
-         &VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
+         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
          IF(SYSTEM(30).GE.3.0D0) THEN
-            VALUE=RAYRAY(12,NEWIMG)&
-            &-REFRY(12,NEWIMG)
+            VALUE=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
             IF(VALUE.EQ.TWOPII) VALUE=0.0D0
          END IF
-         IF(OPERND(I,17).EQ.469.0D0)&
-         &REG(9)=(REG(9)-VALUE)/2.0D0
-         IF(OPERND(I,17).EQ.471.0D0)&
-         &REG(9)=(REG(9)+VALUE)/2.0D0
+         IF(OPERND(I,17).EQ.469.0D0)REG(9)=(REG(9)-VALUE)/2.0D0
+         IF(OPERND(I,17).EQ.471.0D0)REG(9)=(REG(9)+VALUE)/2.0D0
          GO TO 777
       END IF
    END IF
 !     REAL RAY CHROMATICS
-   IF(OPERND(I,17).GE.472.0D0.AND.OPERND(I,17).LE.479.0D0.OR.&
-   &OPERND(I,17).EQ.510.0D0) THEN
+   IF(OPERND(I,17).GE.472.0D0.AND.OPERND(I,17).LE.479.0D0.OR.OPERND(I,17).EQ.510.0D0) THEN
       ERRR=.FALSE.
       IF(OPERND(I,17).NE.510.0D0) THEN
          IF(OPERND(I,17).EQ.472.0D0) CACOCH=0
@@ -1408,52 +1324,49 @@ SUBROUTINE CALCPRE
             DELLELL1=0.0D0
             DELLELL2=0.0D0
             DELLELL= 0.0D0
-            IF(SYSTEM(7).EQ.1.0D0)  DELLELL1=ALENS(46,K)
-            IF(SYSTEM(7).EQ.2.0D0)  DELLELL1=ALENS(47,K)
-            IF(SYSTEM(7).EQ.3.0D0)  DELLELL1=ALENS(48,K)
-            IF(SYSTEM(7).EQ.4.0D0)  DELLELL1=ALENS(49,K)
-            IF(SYSTEM(7).EQ.5.0D0)  DELLELL1=ALENS(50,K)
-            IF(SYSTEM(7).EQ.6.0D0)  DELLELL1=ALENS(71,K)
-            IF(SYSTEM(7).EQ.7.0D0)  DELLELL1=ALENS(72,K)
-            IF(SYSTEM(7).EQ.8.0D0)  DELLELL1=ALENS(73,K)
-            IF(SYSTEM(7).EQ.9.0D0)  DELLELL1=ALENS(74,K)
-            IF(SYSTEM(7).EQ.10.0D0) DELLELL1=ALENS(75,K)
-            IF(SYSTEM(8).EQ.1.0D0)  DELLELL2=ALENS(46,K)
-            IF(SYSTEM(8).EQ.2.0D0)  DELLELL2=ALENS(47,K)
-            IF(SYSTEM(8).EQ.3.0D0)  DELLELL2=ALENS(48,K)
-            IF(SYSTEM(8).EQ.4.0D0)  DELLELL2=ALENS(49,K)
-            IF(SYSTEM(8).EQ.5.0D0)  DELLELL2=ALENS(50,K)
-            IF(SYSTEM(8).EQ.6.0D0)  DELLELL2=ALENS(71,K)
-            IF(SYSTEM(8).EQ.7.0D0)  DELLELL2=ALENS(72,K)
-            IF(SYSTEM(8).EQ.8.0D0)  DELLELL2=ALENS(73,K)
-            IF(SYSTEM(8).EQ.9.0D0)  DELLELL2=ALENS(74,K)
-            IF(SYSTEM(8).EQ.10.0D0) DELLELL2=ALENS(75,K)
+            IF(SYSTEM(7).EQ.1.0D0)  DELLELL1=surf_refractive_index(K, 1)
+            IF(SYSTEM(7).EQ.2.0D0)  DELLELL1=surf_refractive_index(K, 2)
+            IF(SYSTEM(7).EQ.3.0D0)  DELLELL1=surf_refractive_index(K, 3)
+            IF(SYSTEM(7).EQ.4.0D0)  DELLELL1=surf_refractive_index(K, 4)
+            IF(SYSTEM(7).EQ.5.0D0)  DELLELL1=surf_refractive_index(K, 5)
+            IF(SYSTEM(7).EQ.6.0D0)  DELLELL1=surf_refractive_index(K, 6)
+            IF(SYSTEM(7).EQ.7.0D0)  DELLELL1=surf_refractive_index(K, 7)
+            IF(SYSTEM(7).EQ.8.0D0)  DELLELL1=surf_refractive_index(K, 8)
+            IF(SYSTEM(7).EQ.9.0D0)  DELLELL1=surf_refractive_index(K, 9)
+            IF(SYSTEM(7).EQ.10.0D0) DELLELL1=surf_refractive_index(K, 10)
+            IF(SYSTEM(8).EQ.1.0D0)  DELLELL2=surf_refractive_index(K, 1)
+            IF(SYSTEM(8).EQ.2.0D0)  DELLELL2=surf_refractive_index(K, 2)
+            IF(SYSTEM(8).EQ.3.0D0)  DELLELL2=surf_refractive_index(K, 3)
+            IF(SYSTEM(8).EQ.4.0D0)  DELLELL2=surf_refractive_index(K, 4)
+            IF(SYSTEM(8).EQ.5.0D0)  DELLELL2=surf_refractive_index(K, 5)
+            IF(SYSTEM(8).EQ.6.0D0)  DELLELL2=surf_refractive_index(K, 6)
+            IF(SYSTEM(8).EQ.7.0D0)  DELLELL2=surf_refractive_index(K, 7)
+            IF(SYSTEM(8).EQ.8.0D0)  DELLELL2=surf_refractive_index(K, 8)
+            IF(SYSTEM(8).EQ.9.0D0)  DELLELL2=surf_refractive_index(K, 9)
+            IF(SYSTEM(8).EQ.10.0D0) DELLELL2=surf_refractive_index(K, 10)
             DELLELL=(DELLELL1-DELLELL2)
-            IF(DELLELL.NE.0.0D0)&
-            &CONSUM=CONSUM+((RAYRAY(8,K)-ALENS(3,K-1))*DELLELL)
+            IF(DELLELL.NE.0.0D0)CONSUM=CONSUM+((RAYRAY(8,K)-surf_thickness(K-1))*DELLELL)
          END DO
          VALUE=CONSUM
       END IF
       REG(9)=VALUE
       GO TO 777
    END IF
-   IF(OPERND(I,17).GE.70.0D0.AND.OPERND(I,17).LE.206.OR.&
-   &OPERND(I,17).GE.485.0D0.AND.OPERND(I,17).LE.509.0D0.OR.&
-   &OPERND(I,17).EQ.511.0D0) THEN
+   IF(OPERND(I,17).GE.70.0D0.AND.OPERND(I,17).LE.206.OR.OPERND(I,17).GE.485.0D0.AND.OPERND(I,17).LE.509.0D0.OR.OPERND(I,17).EQ.511.0D0) THEN
 !     LENS DATABASE STUFF
       IF(OPERND(I,17).EQ.485.0D0) THEN
 !     PIVX
-         REG(9)=ALENS(78,INT(OPERND(I,8)))
+         REG(9)=surf_pivot_x(INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.486.0D0) THEN
 !     PIVY
-         REG(9)=ALENS(79,INT(OPERND(I,8)))
+         REG(9)=surf_pivot_y(INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).EQ.487.0D0) THEN
 !     PIVZ
-         REG(9)=ALENS(80,INT(OPERND(I,8)))
+         REG(9)=surf_pivot_z(INT(OPERND(I,8)))
          GO TO 777
       END IF
       IF(OPERND(I,17).GE.94.0D0.AND.OPERND(I,17).LE.105.0D0) THEN
@@ -1471,77 +1384,62 @@ SUBROUTINE CALCPRE
          END IF
 !     CALCULATIONS FOR VERTEX STUFF GO HERE
          IF(OPERND(I,17).EQ.94.0D0) THEN
-            REG(9)=&
-            &VERTEX(1,INT(OPERND(I,8)))
+            REG(9)=VERTEX(1,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.95.0D0) THEN
-            REG(9)=&
-            &VERTEX(2,INT(OPERND(I,8)))
+            REG(9)=VERTEX(2,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.96.0D0) THEN
-            REG(9)=&
-            &VERTEX(3,INT(OPERND(I,8)))
+            REG(9)=VERTEX(3,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.97.0D0) THEN
-            REG(9)=&
-            &VERTEX(4,INT(OPERND(I,8)))
+            REG(9)=VERTEX(4,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.98.0D0) THEN
-            REG(9)=&
-            &VERTEX(5,INT(OPERND(I,8)))
+            REG(9)=VERTEX(5,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.99.0D0) THEN
-            REG(9)=&
-            &VERTEX(6,INT(OPERND(I,8)))
+            REG(9)=VERTEX(6,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.100.0D0) THEN
-            REG(9)=&
-            &VERTEX(7,INT(OPERND(I,8)))
+            REG(9)=VERTEX(7,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.101.0D0) THEN
-            REG(9)=&
-            &VERTEX(8,INT(OPERND(I,8)))
+            REG(9)=VERTEX(8,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.102.0D0) THEN
-            REG(9)=&
-            &VERTEX(9,INT(OPERND(I,8)))
+            REG(9)=VERTEX(9,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.103.0D0) THEN
-            REG(9)=&
-            &VERTEX(10,INT(OPERND(I,8)))
+            REG(9)=VERTEX(10,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.104.0D0) THEN
-            REG(9)=&
-            &VERTEX(11,INT(OPERND(I,8)))
+            REG(9)=VERTEX(11,INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.105.0D0) THEN
-            REG(9)=&
-            &VERTEX(12,INT(OPERND(I,8)))
+            REG(9)=VERTEX(12,INT(OPERND(I,8)))
             GO TO 777
          END IF
       END IF
-      IF(OPERND(I,17).GE.70.0D0.AND.OPERND(I,17).LE.93.0D0.OR.&
-      &OPERND(I,17).GE.106.AND.OPERND(I,17).LE.206.0D0.OR.&
-      &OPERND(I,17).GE.488.0D0.AND.OPERND(I,17).LE.509.0D0.OR.&
-      &OPERND(I,17).EQ.511.0D0) THEN
+      IF(OPERND(I,17).GE.70.0D0.AND.OPERND(I,17).LE.93.0D0.OR.OPERND(I,17).GE.106.AND.OPERND(I,17).LE.206.0D0.OR.OPERND(I,17).GE.488.0D0.AND.OPERND(I,17).LE.509.0D0.OR.OPERND(I,17).EQ.511.0D0) THEN
 !     JUST GET VALUE AND PROCEED.
 !     CALCULATIONS FOR NON-VERTEX LENS DATABASE STUFF GOES HERE
 
 
          IF(OPERND(I,17).EQ.91.0D0) THEN
 !     INDEX
-            REG(9)=ALENS(86,INT(OPERND(I,8)))
+            REG(9)=surf_fict_n(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     N1 TO N10
@@ -1590,7 +1488,7 @@ SUBROUTINE CALCPRE
          IF(OPERND(I,17).EQ.106.0D0) THEN
             V1=0.0D0
             DO II=INT(OPERND(I,8)),(INT(OPERND(I,9))-1)
-               V1=V1+ALENS(3,II)
+               V1=V1+surf_thickness(II)
             END DO
             REG(9)=V1
             GO TO 777
@@ -1605,125 +1503,106 @@ SUBROUTINE CALCPRE
                IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
                   CW=INT(SYSTEM(11))+65
                END IF
-               V1=V1+(ALENS(3,II)*ALENS(CW,II))
+               V1=V1+(surf_thickness(II)*ALENS(CW,II))
             END DO
             REG(9)=V1
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.70.0D0) THEN
 !     RD
-            IF(ALENS(1,INT(OPERND(I,8))).EQ.0.0D0) REG(9)=1.0D300
-            IF(ALENS(1,INT(OPERND(I,8))).NE.0.0D0) REG(9)=1.0D0 &
-            &/ALENS(1,INT(OPERND(I,8)))
+            IF(surf_curvature(INT(OPERND(I,8))).EQ.0.0D0) REG(9)=1.0D300
+            IF(surf_curvature(INT(OPERND(I,8))).NE.0.0D0) REG(9)=1.0D0 /surf_curvature(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     CV
          IF(OPERND(I,17).EQ.71.0D0) THEN
-            REG(9)=&
-            &ALENS(1,INT(OPERND(I,8)))
+            REG(9)=surf_curvature(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     TH
          IF(OPERND(I,17).EQ.72.0D0) THEN
-            REG(9)=&
-            &ALENS(3,INT(OPERND(I,8)))
+            REG(9)=surf_thickness(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     CC
          IF(OPERND(I,17).EQ.73.0D0) THEN
-            REG(9)=&
-            &ALENS(2,INT(OPERND(I,8)))
+            REG(9)=surf_conic(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     AC
          IF(OPERND(I,17).EQ.74.0D0) THEN
-            REG(9)=&
-            &ALENS(43,INT(OPERND(I,8)))
+            REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 2)
             GO TO 777
          END IF
 !     AD
          IF(OPERND(I,17).EQ.75.0D0) THEN
-            REG(9)=&
-            &ALENS(4,INT(OPERND(I,8)))
+            REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 4)
             GO TO 777
          END IF
 !     AE
          IF(OPERND(I,17).EQ.76.0D0) THEN
-            REG(9)=&
-            &ALENS(5,INT(OPERND(I,8)))
+            REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 6)
             GO TO 777
          END IF
 !     AF
          IF(OPERND(I,17).EQ.77.0D0) THEN
-            REG(9)=&
-            &ALENS(6,INT(OPERND(I,8)))
+            REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 8)
             GO TO 777
          END IF
 !     AG
          IF(OPERND(I,17).EQ.78.0D0) THEN
-            REG(9)=&
-            &ALENS(7,INT(OPERND(I,8)))
+            REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 10)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.79.0D0) THEN
 !     RDTOR
-            IF(ALENS(24,INT(OPERND(I,8))).EQ.0.0D0) REG(9)=1.0D300
-            IF(ALENS(24,INT(OPERND(I,8))).NE.0.0D0) REG(9)=1.0D0 &
-            &/ALENS(24,INT(OPERND(I,8)))
+            IF(surf_toric_curvature(INT(OPERND(I,8))).EQ.0.0D0) REG(9)=1.0D300
+            IF(surf_toric_curvature(INT(OPERND(I,8))).NE.0.0D0) REG(9)=1.0D0 /surf_toric_curvature(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     CVTOR
          IF(OPERND(I,17).EQ.80.0D0) THEN
-            REG(9)=&
-            &ALENS(24,INT(OPERND(I,8)))
+            REG(9)=surf_toric_curvature(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     CCTOR
          IF(OPERND(I,17).EQ.81.0D0) THEN
-            REG(9)=&
-            &ALENS(41,INT(OPERND(I,8)))
+            REG(9)=surf_anamorphic_conic(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     ADTOR
          IF(OPERND(I,17).EQ.82.0D0) THEN
-            REG(9)=&
-            &ALENS(41,INT(OPERND(I,8)))
+            REG(9)=surf_anamorphic_conic(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     AETOR
          IF(OPERND(I,17).EQ.83.0D0) THEN
-            REG(9)=&
-            &ALENS(41,INT(OPERND(I,8)))
+            REG(9)=surf_anamorphic_conic(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     AFTOR
          IF(OPERND(I,17).EQ.84.0D0) THEN
-            REG(9)=&
-            &ALENS(41,INT(OPERND(I,8)))
+            REG(9)=surf_anamorphic_conic(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     AGTOR
          IF(OPERND(I,17).EQ.85.0D0) THEN
-            REG(9)=&
-            &ALENS(41,INT(OPERND(I,8)))
+            REG(9)=surf_anamorphic_conic(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     ALPHA
          IF(OPERND(I,17).EQ.86.0D0) THEN
-            REG(9)=&
-            &ALENS(118,INT(OPERND(I,8)))
+            REG(9)=surf_alpha_deg(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     BETA
          IF(OPERND(I,17).EQ.87.0D0) THEN
-            REG(9)=&
-            &ALENS(119,INT(OPERND(I,8)))
+            REG(9)=surf_beta_deg(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     GAMMA
          IF(OPERND(I,17).EQ.88.0D0) THEN
-            REG(9)=&
-            &ALENS(120,INT(OPERND(I,8)))
+            REG(9)=surf_gamma_deg(INT(OPERND(I,8)))
             GO TO 777
          END IF
 !     ABBE
@@ -1736,91 +1615,77 @@ SUBROUTINE CALCPRE
 !     DPART
          IF(OPERND(I,17).EQ.499.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(89,NF)
+            REG(9)=surf_fict_w(NF)
             GO TO 777
          END IF
 !     CLPX
          IF(OPERND(I,17).EQ.500.0D0) THEN
             NF=INT(OPERND(I,8))
-            IF(ALENS(9,NF).EQ.0.0D0.OR.ALENS(127,NF).NE.0.0D0)&
-            &REG(9)=0.0D0
-            IF(ALENS(127,NF).EQ.0.0D0) THEN
-               IF(ALENS(9,NF).EQ.1.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.2.0D0)&
-               &REG(9)=ALENS(11,NF)
-               IF(ALENS(9,NF).EQ.3.0D0)&
-               &REG(9)=ALENS(11,NF)
-               IF(ALENS(9,NF).EQ.4.0D0)&
-               &REG(9)=ALENS(11,NF)
-               IF(ALENS(9,NF).EQ.5.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.6.0D0)&
-               &REG(9)=ALENS(11,NF)
+            IF(surf_clap_type(NF).EQ.0.0D0.OR.surf_multi_clap_flag(NF).NE.0.0D0)REG(9)=0.0D0
+            IF(surf_multi_clap_flag(NF).EQ.0.0D0) THEN
+               IF(surf_clap_type(NF).EQ.1.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.2.0D0)REG(9)=surf_clap_dim(NF, 2)
+               IF(surf_clap_type(NF).EQ.3.0D0)REG(9)=surf_clap_dim(NF, 2)
+               IF(surf_clap_type(NF).EQ.4.0D0)REG(9)=surf_clap_dim(NF, 2)
+               IF(surf_clap_type(NF).EQ.5.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.6.0D0)REG(9)=surf_clap_dim(NF, 2)
             END IF
             GO TO 777
          END IF
 !     CLPY
          IF(OPERND(I,17).EQ.501.0D0) THEN
             NF=INT(OPERND(I,8))
-            IF(ALENS(9,NF).EQ.0.0D0.OR.ALENS(127,NF).NE.0.0D0)&
-            &REG(9)=0.0D0
-            IF(ALENS(127,NF).EQ.0.0D0) THEN
-               IF(ALENS(9,NF).EQ.1.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.2.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.3.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.4.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.5.0D0)&
-               &REG(9)=ALENS(10,NF)
-               IF(ALENS(9,NF).EQ.6.0D0)&
-               &REG(9)=ALENS(11,NF)
+            IF(surf_clap_type(NF).EQ.0.0D0.OR.surf_multi_clap_flag(NF).NE.0.0D0)REG(9)=0.0D0
+            IF(surf_multi_clap_flag(NF).EQ.0.0D0) THEN
+               IF(surf_clap_type(NF).EQ.1.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.2.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.3.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.4.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.5.0D0)REG(9)=surf_clap_dim(NF, 1)
+               IF(surf_clap_type(NF).EQ.6.0D0)REG(9)=surf_clap_dim(NF, 2)
             END IF
             GO TO 777
          END IF
 !     GDX
          IF(OPERND(I,17).EQ.502.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(90,NF)
+            REG(9)=surf_global_dx(NF)
             GO TO 777
          END IF
 !     GDY
          IF(OPERND(I,17).EQ.503.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(91,NF)
+            REG(9)=surf_global_dy(NF)
             GO TO 777
          END IF
 !     GDZ
          IF(OPERND(I,17).EQ.504.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(92,NF)
+            REG(9)=surf_global_dz(NF)
             GO TO 777
          END IF
 !     GALPHA
          IF(OPERND(I,17).EQ.505.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(93,NF)
+            REG(9)=surf_global_alpha(NF)
             GO TO 777
          END IF
 !     GBETA
          IF(OPERND(I,17).EQ.506.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(94,NF)
+            REG(9)=surf_global_beta(NF)
             GO TO 777
          END IF
 !     GGAMMA
          IF(OPERND(I,17).EQ.507.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(95,NF)
+            REG(9)=surf_global_gamma(NF)
             GO TO 777
          END IF
 !     GRS
          IF(OPERND(I,17).EQ.508.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(98,NF)
+            REG(9)=surf_grating_spacing(NF)
             GO TO 777
          END IF
 !     WEIGHT
@@ -1878,7 +1743,7 @@ SUBROUTINE CALCPRE
 !     VNUM
          IF(OPERND(I,17).EQ.89.0D0) THEN
             NF=INT(OPERND(I,8))
-            REG(9)=ALENS(87,NF)
+            REG(9)=surf_fict_v(NF)
             GO TO 777
          END IF
 !     PARTL
@@ -1890,17 +1755,17 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.92.0D0) THEN
 !     XD
-            REG(9)=ALENS(114,INT(OPERND(I,8)))
+            REG(9)=surf_focus_dx(INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.467.0D0) THEN
 !     ZD
-            REG(9)=ALENS(116,INT(OPERND(I,8)))
+            REG(9)=surf_focus_dz(INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.93.0D0) THEN
 !     YD
-            REG(9)=ALENS(115,INT(OPERND(I,8)))
+            REG(9)=surf_focus_dy(INT(OPERND(I,8)))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.108.0D0) THEN
@@ -1918,17 +1783,17 @@ SUBROUTINE CALCPRE
          IF(OPERND(I,17).EQ.110.0D0) THEN
 !     SHAPEFAC
             W1A=OPERND(I,8)
-            IF(DABS(ALENS(1,INT(W1A))).LT.1D-30) THEN
-               IF(ALENS(1,INT(W1A)).GT.0.0D0) TEMPR1=1.0D30
-               IF(ALENS(1,INT(W1A)).LT.0.0D0) TEMPR1=-1.0D30
+            IF(DABS(surf_curvature(INT(W1A))).LT.1D-30) THEN
+               IF(surf_curvature(INT(W1A)).GT.0.0D0) TEMPR1=1.0D30
+               IF(surf_curvature(INT(W1A)).LT.0.0D0) TEMPR1=-1.0D30
             ELSE
-               TEMPR1=1.0D0/ALENS(1,INT(W1A))
+               TEMPR1=1.0D0/surf_curvature(INT(W1A))
             END IF
-            IF(DABS(ALENS(1,INT(W1A)+1)).LT.1D-30) THEN
-               IF(ALENS(1,INT(W1A)+1).GT.0.0D0) TEMPR2=1.0D30
-               IF(ALENS(1,INT(W1A)+1).LT.0.0D0) TEMPR2=-1.0D30
+            IF(DABS(surf_curvature(INT(W1A)+1)).LT.1D-30) THEN
+               IF(surf_curvature(INT(W1A)+1).GT.0.0D0) TEMPR2=1.0D30
+               IF(surf_curvature(INT(W1A)+1).LT.0.0D0) TEMPR2=-1.0D30
             ELSE
-               TEMPR2=1.0D0/ALENS(1,INT(W1A)+1)
+               TEMPR2=1.0D0/surf_curvature(INT(W1A)+1)
             END IF
             TEMPSUM=TEMPR2+TEMPR1
             TEMPDIF=TEMPR2-TEMPR1
@@ -1955,8 +1820,7 @@ SUBROUTINE CALCPRE
 !
 !     PARAXIAL OPERANDS
 !
-      IF(OPERND(I,17).EQ.207.0D0.OR.OPERND(I,17).EQ.208.0D0.OR.&
-      &OPERND(I,17).EQ.209.0D0.OR.OPERND(I,17).EQ.210.0D0) THEN
+      IF(OPERND(I,17).EQ.207.0D0.OR.OPERND(I,17).EQ.208.0D0.OR.OPERND(I,17).EQ.209.0D0.OR.OPERND(I,17).EQ.210.0D0) THEN
 !       YZ AND XZ PLANE EFL CALCULATION
 !
          IF(OPERND(I,8).GT.0.0D0) THEN
@@ -1965,12 +1829,8 @@ SUBROUTINE CALCPRE
             IIA=INT(OPERND(I,8))
          END IF
          JIA=INT(OPERND(I,9))
-         EFLY=-(((PXTRAY(2,IIA)*PXTRAY(5,IIA+1))-(PXTRAY(1,IIA+1)*&
-         &PXTRAY(6,IIA &
-         &)))/((PXTRAY(2,IIA)*PXTRAY(6,JIA))-(PXTRAY(6,IIA)*PXTRAY(2,JIA))))
-         EFLX=-(((PXTRAX(2,IIA)*PXTRAX(5,IIA+1))-(PXTRAX(1,IIA+1)*&
-         &PXTRAX(6,IIA &
-         &)))/((PXTRAX(2,IIA)*PXTRAX(6,JIA))-(PXTRAX(6,IIA)*PXTRAX(2,JIA))))
+         EFLY=-(((PXTRAY(2,IIA)*PXTRAY(5,IIA+1))-(PXTRAY(1,IIA+1)*PXTRAY(6,IIA )))/((PXTRAY(2,IIA)*PXTRAY(6,JIA))-(PXTRAY(6,IIA)*PXTRAY(2,JIA))))
+         EFLX=-(((PXTRAX(2,IIA)*PXTRAX(5,IIA+1))-(PXTRAX(1,IIA+1)*PXTRAX(6,IIA )))/((PXTRAX(2,IIA)*PXTRAX(6,JIA))-(PXTRAX(6,IIA)*PXTRAX(2,JIA))))
          IF(OPERND(I,17).EQ.209.0D0) THEN
             REG(9)=EFLX
             GO TO 777
@@ -2182,17 +2042,13 @@ SUBROUTINE CALCPRE
          END IF
          INTV=1.0D0
 !       CALCULATE INTV
-         IF(OPERND(I,17).EQ.228.0D0.OR.OPERND(I,17).EQ.230.0D0.OR.&
-         &OPERND(I,17).EQ.232.0D0.OR.OPERND(I,17).EQ.234.0D0) THEN
+         IF(OPERND(I,17).EQ.228.0D0.OR.OPERND(I,17).EQ.230.0D0.OR.OPERND(I,17).EQ.232.0D0.OR.OPERND(I,17).EQ.234.0D0) THEN
 !     PACX,PLCX,SACX OR SLCX
-            INTV=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-&
-            &(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+            INTV=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
          END IF
-         IF(OPERND(I,17).EQ.227.0D0.OR.OPERND(I,17).EQ.229.0D0.OR.&
-         &OPERND(I,17).EQ.231.0D0.OR.OPERND(I,17).EQ.233.0D0) THEN
+         IF(OPERND(I,17).EQ.227.0D0.OR.OPERND(I,17).EQ.229.0D0.OR.OPERND(I,17).EQ.231.0D0.OR.OPERND(I,17).EQ.233.0D0) THEN
 !     PACY,PLCY,SACY OR SLCY
-            INTV=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-&
-            &(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
+            INTV=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
          END IF
          IF(INTV.EQ.0.0D0) THEN
 
@@ -2434,17 +2290,12 @@ SUBROUTINE CALCPRE
       END IF
    END IF
 !
-   IF(OPERND(I,17).GE.237.0D0.AND.OPERND(I,17).LE.244.0D0.OR.&
-   &OPERND(I,17).GE.460.0D0.AND.OPERND(I,17).LE.461.0D0.OR.&
-   &OPERND(I,17).GE.464.0D0.AND.OPERND(I,17).LE.465.0D0 &
-   &.OR.OPERND(I,17).EQ.513.0D0) THEN
+   IF(OPERND(I,17).GE.237.0D0.AND.OPERND(I,17).LE.244.0D0.OR.OPERND(I,17).GE.460.0D0.AND.OPERND(I,17).LE.461.0D0.OR.OPERND(I,17).GE.464.0D0.AND.OPERND(I,17).LE.465.0D0 .OR.OPERND(I,17).EQ.513.0D0) THEN
 !     SPOT DIAGRAM BASED OPERANDS
 !     CALCULATE VALUE AND PLACE IN ACC
 !     TEST IF SPOT NEEDS TO BE TRACED
 !
-      IF(OLDSPD.AND.INT(OPERND(I,8)).EQ.OLDF.AND.&
-      &OLDW.EQ.INT(OPERND(I,9)).AND.&
-      &CFNUM.EQ.OLDCFG) THEN
+      IF(OLDSPD.AND.INT(OPERND(I,8)).EQ.OLDF.AND.OLDW.EQ.INT(OPERND(I,9)).AND.CFNUM.EQ.OLDCFG) THEN
 !     DON'T NEED TO TRACE THE SPOT AGAIN, IT ALREDY EXITS
       ELSE
 !
@@ -2494,8 +2345,7 @@ SUBROUTINE CALCPRE
             RETURN
          END IF
 ! NOW THE SPOT
-         IF(OPERND(I,17).NE.464.0D0.AND.OPERND(I,17).NE.465.0D0.AND.&
-         &OPERND(I,17).NE.460.0D0.AND.OPERND(I,17).NE.461.0D0) THEN
+         IF(OPERND(I,17).NE.464.0D0.AND.OPERND(I,17).NE.465.0D0.AND.OPERND(I,17).NE.460.0D0.AND.OPERND(I,17).NE.461.0D0) THEN
 !     NOT GOTF OR RED S
             SAVE_KDP(1)=SAVEINPT(1)
 !     SET MSG TO FALSE
@@ -2827,15 +2677,13 @@ SUBROUTINE CALCPRE
       GO TO 777
    END IF
 !
-   IF(OPERND(I,17).GE.245.0D0.AND.OPERND(I,17).LE.246.0D0.OR.&
-   &OPERND(I,17).GE.462.0D0.AND.OPERND(I,17).LE.463.0D0) THEN
+   IF(OPERND(I,17).GE.245.0D0.AND.OPERND(I,17).LE.246.0D0.OR.OPERND(I,17).GE.462.0D0.AND.OPERND(I,17).LE.463.0D0) THEN
 !     CAPFN BASED OPERANDS
 !     CALCULATE VALUE AND PLACE IN ACC
 !
 !     TEST IF SPOT NEEDS TO BE TRACED
 !
-      IF(OLDCPFN.AND.INT(OPERND(I,8)).EQ.OLDF.AND.&
-      &CFNUM.EQ.OLDCFG) THEN
+      IF(OLDCPFN.AND.INT(OPERND(I,8)).EQ.OLDF.AND.CFNUM.EQ.OLDCFG) THEN
 !     DON'T NEED TO TRACE THE CAPFN AGAIN, IT ALREDY EXITS
       ELSE
 !     TRACE FOB AND SPOT THEN GET VALUE
@@ -3055,8 +2903,7 @@ SUBROUTINE CALCPRE
    END IF
 !
 !     SPECIAL OPERANDS
-   IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.296.0D0.OR.&
-   &OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
+   IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.296.0D0.OR.OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
 !     CALCULATE VALUE AND PLACE IN ACC
       CALL PRTRB
       CALL PRTRC
@@ -3123,27 +2970,11 @@ SUBROUTINE CALCPRE
 !
       END IF
 !     NEXT DO OPERANDS WHICH NOT PARAXIAL
-      IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.OR.&
-      &OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.296.0D0.OR.&
-      &OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
+      IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.OR.OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.296.0D0.OR.OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
 !     NON-PARAXIAL STUFF
 !     TEST IF FOB AND RAY O O NEED TO BE TRACED
 !
-         IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.AND.&
-         &REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.&
-         &CFNUM.EQ.OLDCFG.OR.&
-         &OPERND(I,17).GE.293.0D0.AND.OPERND(I,17).LE.296.0D0.AND.&
-         &REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.&
-         &CFNUM.EQ.OLDCFG.OR.&
-         &OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.459.0D0.AND.&
-         &REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.&
-         &CFNUM.EQ.OLDCFG.OR.&
-         &OPERND(I,17).EQ.466.0D0.AND.&
-         &REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.&
-         &CFNUM.EQ.OLDCFG.OR.&
-         &OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.292.0D0.AND.&
-         &REFEXT.AND.RAYEXT.AND.INT(OPERND(I,9)).EQ.OLDF.AND.&
-         &CFNUM.EQ.OLDCFG) THEN
+         IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.AND.REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.CFNUM.EQ.OLDCFG.OR.OPERND(I,17).GE.293.0D0.AND.OPERND(I,17).LE.296.0D0.AND.REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.CFNUM.EQ.OLDCFG.OR.OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.459.0D0.AND.REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.CFNUM.EQ.OLDCFG.OR.OPERND(I,17).EQ.466.0D0.AND.REFEXT.AND.RAYEXT.AND.INT(OPERND(I,8)).EQ.OLDF.AND.CFNUM.EQ.OLDCFG.OR.OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.292.0D0.AND.REFEXT.AND.RAYEXT.AND.INT(OPERND(I,9)).EQ.OLDF.AND.CFNUM.EQ.OLDCFG) THEN
 !
 !     DON'T NEED TO TRACE THE RAY AGAIN, IT ALREDY EXITS
          ELSE
@@ -3168,16 +2999,13 @@ SUBROUTINE CALCPRE
             SQ=0
             SST=0
             STI=0
-            IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.OR.&
-            &OPERND(I,17).GE.293.AND.OPERND(I,17).LE.296.0D0.OR.&
-            &OPERND(I,17).EQ.466.0D0) THEN
+            IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.OR.OPERND(I,17).GE.293.AND.OPERND(I,17).LE.296.0D0.OR.OPERND(I,17).EQ.466.0D0) THEN
                W1=FIELDY(INT(OPERND(I,8)))
                W2=FIELDX(INT(OPERND(I,8)))
                W3=FIELDZ(INT(OPERND(I,8)))
                W4=FIELDW(INT(OPERND(I,8)))
             END IF
-            IF(OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.292.0D0.OR.&
-            &OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
+            IF(OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.292.0D0.OR.OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
                W1=FIELDY(INT(OPERND(I,9)))
                W2=FIELDX(INT(OPERND(I,9)))
                W3=FIELDZ(INT(OPERND(I,9)))
@@ -3252,14 +3080,11 @@ SUBROUTINE CALCPRE
             CALL AUXFOB(ERRFOB)
             CALL LASTRAY(2)
 !
-            IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.OR.&
-            &OPERND(I,17).GE.293.AND.OPERND(I,17).LE.296.0D0.OR.&
-            &OPERND(I,17).EQ.466.0D0) THEN
+            IF(OPERND(I,17).GE.247.0D0.AND.OPERND(I,17).LE.278.0D0.OR.OPERND(I,17).GE.293.AND.OPERND(I,17).LE.296.0D0.OR.OPERND(I,17).EQ.466.0D0) THEN
                OLDF=INT(OPERND(I,8))
                OLDW=0
             END IF
-            IF(OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.292.0D0.OR.&
-            &OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
+            IF(OPERND(I,17).GE.285.0D0.AND.OPERND(I,17).LE.292.0D0.OR.OPERND(I,17).GE.452.0D0.AND.OPERND(I,17).LE.465.0D0) THEN
                OLDF=INT(OPERND(I,9))
                OLDW=0
                OLDW=0
@@ -3715,8 +3540,7 @@ SUBROUTINE CALCPRE
                IF(F31.EQ.1) CALL MACFAL
                RETURN
             ELSE
-               REG(9)=&
-               &-((JPX*JPUX)+(JPCX*JPUCX))/((JPUX**2)+(JPUCX**2))
+               REG(9)=-((JPX*JPUX)+(JPCX*JPUCX))/((JPUX**2)+(JPUCX**2))
             END IF
             NEWREF=OLDREF
             NEWIMG=OLDIMG
@@ -3759,8 +3583,7 @@ SUBROUTINE CALCPRE
                IF(F31.EQ.1) CALL MACFAL
                RETURN
             ELSE
-               REG(9)=&
-               &-((JPY*JPUY)+(JPCY*JPUCY))/((JPUY**2)+(JPUCY**2))
+               REG(9)=-((JPY*JPUY)+(JPCY*JPUCY))/((JPUY**2)+(JPUCY**2))
             END IF
             NEWREF=OLDREF
             NEWIMG=OLDIMG
@@ -3907,8 +3730,7 @@ SUBROUTINE CALCPRE
                IF(F31.EQ.1) CALL MACFAL
                RETURN
             END IF
-            V1=&
-            &-((JPX*JPUX)+(JPCX*JPUCX))/((JPUX**2)+(JPUCX**2))
+            V1=-((JPX*JPUX)+(JPCX*JPUCX))/((JPUX**2)+(JPUCX**2))
             REG(9)=DSQRT(((JPX+(JPUX*V1))**2)+((JPCX+(JPUCX*V1))**2))
             NEWREF=OLDREF
             NEWIMG=OLDIMG
@@ -3951,8 +3773,7 @@ SUBROUTINE CALCPRE
                IF(F31.EQ.1) CALL MACFAL
                RETURN
             END IF
-            V1=&
-            &-((JPY*JPUY)+(JPCY*JPUCY))/((JPUY**2)+(JPUCY**2))
+            V1=-((JPY*JPUY)+(JPCY*JPUCY))/((JPUY**2)+(JPUCY**2))
             REG(9)=DSQRT(((JPY+(JPUY*V1))**2)+((JPCY+(JPUCY*V1))**2))
             NEWREF=OLDREF
             NEWIMG=OLDIMG
@@ -4126,17 +3947,13 @@ SUBROUTINE CALCPRE
       INV=1.0D0
       IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-         IF(.NOT.XIS)&
-         &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-         IF(XIS)&
-         &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+         IF(.NOT.XIS)INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+         IF(XIS)INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       END IF
       IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-         IF(.NOT.XIS)&
-         &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-         IF(XIS)&
-         &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+         IF(.NOT.XIS)INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+         IF(XIS)INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       END IF
       IF(INV.EQ.0.0D0) THEN
          IF(F28.EQ.1) REG(9)=0.0D0
@@ -4229,13 +4046,11 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.317.0D0) THEN
-            REG(9)=MAB57(4,ISFI)+&
-            &MAB57(5,ISFI)+MAB57(6,ISFI)
+            REG(9)=MAB57(4,ISFI)+MAB57(5,ISFI)+MAB57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.318.0D0) THEN
-            REG(9)=XMAB57(4,ISFI)+&
-            &XMAB57(5,ISFI)+XMAB57(6,ISFI)
+            REG(9)=XMAB57(4,ISFI)+XMAB57(5,ISFI)+XMAB57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.319.0D0) THEN
@@ -4247,33 +4062,27 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.321.0D0) THEN
-            REG(9)=MAB57(7,ISFI)+&
-            &MAB57(8,ISFI)
+            REG(9)=MAB57(7,ISFI)+MAB57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.322.0D0) THEN
-            REG(9)=XMAB57(7,ISFI)+&
-            &XMAB57(8,ISFI)
+            REG(9)=XMAB57(7,ISFI)+XMAB57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.323.0D0) THEN
-            REG(9)=MAB57(10,ISFI)+&
-            &(5.0*MAB57(11,ISFI))
+            REG(9)=MAB57(10,ISFI)+(5.0*MAB57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.324.0D0) THEN
-            REG(9)=XMAB57(10,ISFI)+&
-            &(5.0*XMAB57(11,ISFI))
+            REG(9)=XMAB57(10,ISFI)+(5.0*XMAB57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.325.0D0) THEN
-            REG(9)=MAB57(10,ISFI)+&
-            &MAB57(11,ISFI)
+            REG(9)=MAB57(10,ISFI)+MAB57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.326.0D0) THEN
-            REG(9)=XMAB57(10,ISFI)+&
-            &XMAB57(11,ISFI)
+            REG(9)=XMAB57(10,ISFI)+XMAB57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.327.0D0) THEN
@@ -4366,13 +4175,11 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.349.0D0) THEN
-            REG(9)=PDF57(4,ISFI)+&
-            &PDF57(5,ISFI)+PDF57(6,ISFI)
+            REG(9)=PDF57(4,ISFI)+PDF57(5,ISFI)+PDF57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.350.0D0) THEN
-            REG(9)=XPDF57(4,ISFI)+&
-            &XPDF57(5,ISFI)+XPDF57(6,ISFI)
+            REG(9)=XPDF57(4,ISFI)+XPDF57(5,ISFI)+XPDF57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.351.0D0) THEN
@@ -4384,33 +4191,27 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.353.0D0) THEN
-            REG(9)=PDF57(7,ISFI)+&
-            &PDF57(8,ISFI)
+            REG(9)=PDF57(7,ISFI)+PDF57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.354.0D0) THEN
-            REG(9)=XPDF57(7,ISFI)+&
-            &XPDF57(8,ISFI)
+            REG(9)=XPDF57(7,ISFI)+XPDF57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.355.0D0) THEN
-            REG(9)=PDF57(10,ISFI)+&
-            &(5.0*PDF57(11,ISFI))
+            REG(9)=PDF57(10,ISFI)+(5.0*PDF57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.356.0D0) THEN
-            REG(9)=XPDF57(10,ISFI)+&
-            &(5.0*XPDF57(11,ISFI))
+            REG(9)=XPDF57(10,ISFI)+(5.0*XPDF57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.357.0D0) THEN
-            REG(9)=PDF57(10,ISFI)+&
-            &PDF57(11,ISFI)
+            REG(9)=PDF57(10,ISFI)+PDF57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.358.0D0) THEN
-            REG(9)=XPDF57(10,ISFI)+&
-            &XPDF57(11,ISFI)
+            REG(9)=XPDF57(10,ISFI)+XPDF57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.359.0D0) THEN
@@ -4503,13 +4304,11 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.381.0D0) THEN
-            REG(9)=SDF57(4,ISFI)+&
-            &SDF57(5,ISFI)+SDF57(6,ISFI)
+            REG(9)=SDF57(4,ISFI)+SDF57(5,ISFI)+SDF57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.382.0D0) THEN
-            REG(9)=XSDF57(4,ISFI)+&
-            &XSDF57(5,ISFI)+XSDF57(6,ISFI)
+            REG(9)=XSDF57(4,ISFI)+XSDF57(5,ISFI)+XSDF57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.383.0D0) THEN
@@ -4521,33 +4320,27 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.385.0D0) THEN
-            REG(9)=SDF57(7,ISFI)+&
-            &SDF57(8,ISFI)
+            REG(9)=SDF57(7,ISFI)+SDF57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.386.0D0) THEN
-            REG(9)=XSDF57(7,ISFI)+&
-            &XSDF57(8,ISFI)
+            REG(9)=XSDF57(7,ISFI)+XSDF57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.387.0D0) THEN
-            REG(9)=SDF57(10,ISFI)+&
-            &(5.0*SDF57(11,ISFI))
+            REG(9)=SDF57(10,ISFI)+(5.0*SDF57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.388.0D0) THEN
-            REG(9)=XSDF57(10,ISFI)+&
-            &(5.0*XSDF57(11,ISFI))
+            REG(9)=XSDF57(10,ISFI)+(5.0*XSDF57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.389.0D0) THEN
-            REG(9)=SDF57(10,ISFI)+&
-            &SDF57(11,ISFI)
+            REG(9)=SDF57(10,ISFI)+SDF57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.390.0D0) THEN
-            REG(9)=XSDF57(10,ISFI)+&
-            &XSDF57(11,ISFI)
+            REG(9)=XSDF57(10,ISFI)+XSDF57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.391.0D0) THEN
@@ -4600,13 +4393,11 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.403.0D0) THEN
-            REG(9)=SAB57(4,ISFI)+&
-            &SAB57(5,ISFI)+SAB57(6,ISFI)
+            REG(9)=SAB57(4,ISFI)+SAB57(5,ISFI)+SAB57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.404.0D0) THEN
-            REG(9)=XSAB57(4,ISFI)+&
-            &XSAB57(5,ISFI)+XSAB57(6,ISFI)
+            REG(9)=XSAB57(4,ISFI)+XSAB57(5,ISFI)+XSAB57(6,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.405.0D0) THEN
@@ -4618,33 +4409,27 @@ SUBROUTINE CALCPRE
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.407.0D0) THEN
-            REG(9)=SAB57(7,ISFI)+&
-            &SAB57(8,ISFI)
+            REG(9)=SAB57(7,ISFI)+SAB57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.408.0D0) THEN
-            REG(9)=XSAB57(7,ISFI)+&
-            &XSAB57(8,ISFI)
+            REG(9)=XSAB57(7,ISFI)+XSAB57(8,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.409.0D0) THEN
-            REG(9)=SAB57(10,ISFI)+&
-            &(5.0*SAB57(11,ISFI))
+            REG(9)=SAB57(10,ISFI)+(5.0*SAB57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.410.0D0) THEN
-            REG(9)=XSAB57(10,ISFI)+&
-            &(5.0*XSAB57(11,ISFI))
+            REG(9)=XSAB57(10,ISFI)+(5.0*XSAB57(11,ISFI))
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.411.0D0) THEN
-            REG(9)=SAB57(10,ISFI)+&
-            &SAB57(11,ISFI)
+            REG(9)=SAB57(10,ISFI)+SAB57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.412.0D0) THEN
-            REG(9)=XSAB57(10,ISFI)+&
-            &XSAB57(11,ISFI)
+            REG(9)=XSAB57(10,ISFI)+XSAB57(11,ISFI)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.413.0D0) THEN
@@ -4911,15 +4696,13 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.317.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+MAB57(4,IV)+&
-               &MAB57(5,IV)+MAB57(6,IV)
+               V=V+MAB57(4,IV)+MAB57(5,IV)+MAB57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.318.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XMAB57(4,IV)+&
-               &XMAB57(5,IV)+XMAB57(6,IV)
+               V=V+XMAB57(4,IV)+XMAB57(5,IV)+XMAB57(6,IV)
             END DO
             GO TO 777
          END IF
@@ -4937,43 +4720,37 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.321.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+MAB57(7,IV)+&
-               &MAB57(8,IV)
+               V=V+MAB57(7,IV)+MAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.322.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XMAB57(7,IV)+&
-               &XMAB57(8,IV)
+               V=V+XMAB57(7,IV)+XMAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.323.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+MAB57(10,IV)+&
-               &(5.0*MAB57(11,IV))
+               V=V+MAB57(10,IV)+(5.0*MAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.324.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XMAB57(10,IV)+&
-               &(5.0*XMAB57(11,IV))
+               V=V+XMAB57(10,IV)+(5.0*XMAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.325.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+MAB57(10,IV)+&
-               &MAB57(11,IV)
+               V=V+MAB57(10,IV)+MAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.326.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XMAB57(10,IV)+&
-               &XMAB57(11,IV)
+               V=V+XMAB57(10,IV)+XMAB57(11,IV)
             END DO
             GO TO 777
          END IF
@@ -5112,15 +4889,13 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.349.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+PDF57(4,IV)+&
-               &PDF57(5,IV)+PDF57(6,IV)
+               V=V+PDF57(4,IV)+PDF57(5,IV)+PDF57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.350.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XPDF57(4,IV)+&
-               &XPDF57(5,IV)+XPDF57(6,IV)
+               V=V+XPDF57(4,IV)+XPDF57(5,IV)+XPDF57(6,IV)
             END DO
             GO TO 777
          END IF
@@ -5138,43 +4913,37 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.353.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+PDF57(7,IV)+&
-               &PDF57(8,IV)
+               V=V+PDF57(7,IV)+PDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.354.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XPDF57(7,IV)+&
-               &XPDF57(8,IV)
+               V=V+XPDF57(7,IV)+XPDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.355.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+PDF57(10,IV)+&
-               &(5.0*PDF57(11,IV))
+               V=V+PDF57(10,IV)+(5.0*PDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.356.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XPDF57(10,IV)+&
-               &(5.0*XPDF57(11,IV))
+               V=V+XPDF57(10,IV)+(5.0*XPDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.357.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+PDF57(10,IV)+&
-               &PDF57(11,IV)
+               V=V+PDF57(10,IV)+PDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.358.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XPDF57(10,IV)+&
-               &XPDF57(11,IV)
+               V=V+XPDF57(10,IV)+XPDF57(11,IV)
             END DO
             GO TO 777
          END IF
@@ -5313,15 +5082,13 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.381.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SDF57(4,IV)+&
-               &SDF57(5,IV)+SDF57(6,IV)
+               V=V+SDF57(4,IV)+SDF57(5,IV)+SDF57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.382.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSDF57(4,IV)+&
-               &XSDF57(5,IV)+XSDF57(6,IV)
+               V=V+XSDF57(4,IV)+XSDF57(5,IV)+XSDF57(6,IV)
             END DO
             GO TO 777
          END IF
@@ -5339,43 +5106,37 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.385.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SDF57(7,IV)+&
-               &SDF57(8,IV)
+               V=V+SDF57(7,IV)+SDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.386.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSDF57(7,IV)+&
-               &XSDF57(8,IV)
+               V=V+XSDF57(7,IV)+XSDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.387.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SDF57(10,IV)+&
-               &(5.0*SDF57(11,IV))
+               V=V+SDF57(10,IV)+(5.0*SDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.388.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSDF57(10,IV)+&
-               &(5.0*XSDF57(11,IV))
+               V=V+XSDF57(10,IV)+(5.0*XSDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.389.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SDF57(10,IV)+&
-               &SDF57(11,IV)
+               V=V+SDF57(10,IV)+SDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.390.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSDF57(10,IV)+&
-               &XSDF57(11,IV)
+               V=V+XSDF57(10,IV)+XSDF57(11,IV)
             END DO
             GO TO 777
          END IF
@@ -5454,15 +5215,13 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.403.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SAB57(4,IV)+&
-               &SAB57(5,IV)+SAB57(6,IV)
+               V=V+SAB57(4,IV)+SAB57(5,IV)+SAB57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.404.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSAB57(4,IV)+&
-               &XSAB57(5,IV)+XSAB57(6,IV)
+               V=V+XSAB57(4,IV)+XSAB57(5,IV)+XSAB57(6,IV)
             END DO
             GO TO 777
          END IF
@@ -5480,43 +5239,37 @@ SUBROUTINE CALCPRE
          END IF
          IF(OPERND(I,17).EQ.407.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SAB57(7,IV)+&
-               &SAB57(8,IV)
+               V=V+SAB57(7,IV)+SAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.408.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSAB57(7,IV)+&
-               &XSAB57(8,IV)
+               V=V+XSAB57(7,IV)+XSAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.409.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SAB57(10,IV)+&
-               &(5.0*SAB57(11,IV))
+               V=V+SAB57(10,IV)+(5.0*SAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.410.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSAB57(10,IV)+&
-               &(5.0*XSAB57(11,IV))
+               V=V+XSAB57(10,IV)+(5.0*XSAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.411.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+SAB57(10,IV)+&
-               &SAB57(11,IV)
+               V=V+SAB57(10,IV)+SAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.412.0D0) THEN
             DO IV=0,INT(SYSTEM(20))
-               V=V+XSAB57(10,IV)+&
-               &XSAB57(11,IV)
+               V=V+XSAB57(10,IV)+XSAB57(11,IV)
             END DO
             GO TO 777
          END IF
@@ -5733,32 +5486,27 @@ SUBROUTINE CALCPRE
    END IF
    IF(OPERND(I,17).EQ.447.0D0) THEN
 !     AH
-      REG(9)=&
-      &ALENS(81,INT(OPERND(I,8)))
+      REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 12)
       GO TO 777
    END IF
    IF(OPERND(I,17).EQ.448.0D0) THEN
 !     AI
-      REG(9)=&
-      &ALENS(82,INT(OPERND(I,8)))
+      REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 14)
       GO TO 777
    END IF
    IF(OPERND(I,17).EQ.449.0D0) THEN
 !     AJ
-      REG(9)=&
-      &ALENS(83,INT(OPERND(I,8)))
+      REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 16)
       GO TO 777
    END IF
    IF(OPERND(I,17).EQ.450.0D0) THEN
 !     AK
-      REG(9)=&
-      &ALENS(84,INT(OPERND(I,8)))
+      REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 18)
       GO TO 777
    END IF
    IF(OPERND(I,17).EQ.451.0D0) THEN
 !     AL
-      REG(9)=&
-      &ALENS(85,INT(OPERND(I,8)))
+      REG(9)=surf_asphere_coeff(INT(OPERND(I,8)), 20)
       GO TO 777
    END IF
 
@@ -5802,8 +5550,7 @@ SUBROUTINE CALCPRE
 !     CURRENT OPERAND VALUE-TARGET VALUE FOR THE OPERAND
 !     MULTIPLIED BY THE SQUARE ROOT OF THE OPERAND WEIGHT
 !
-   IF(OPERND(I,13).EQ.0.0D0)&
-   &OPERND(I,14)=0.0D0
+   IF(OPERND(I,13).EQ.0.0D0)OPERND(I,14)=0.0D0
 !
    IF(OPERND(I,13).EQ.1.0D0) THEN
       OPERND(I,14)=(OPERND(I,4)-OPERND(I,2))
@@ -5817,8 +5564,7 @@ SUBROUTINE CALCPRE
          IF(OPERND(I,14).EQ.0.0D0) OPERND(I,4)=OPERND(I,2)
          OPERND(I,14)=((OPERND(I,7)))*(OPERND(I,14))
       END IF
-      IF(OPERND(I,4).GE.OPERND(I,2))&
-      &OPERND(I,14)=0.0D0
+      IF(OPERND(I,4).GE.OPERND(I,2))OPERND(I,14)=0.0D0
    END IF
 !
    IF(OPERND(I,13).EQ.2.0D0) THEN
@@ -5827,8 +5573,7 @@ SUBROUTINE CALCPRE
          IF(OPERND(I,14).EQ.0.0D0) OPERND(I,4)=OPERND(I,2)
          OPERND(I,14)=((OPERND(I,7)))*(OPERND(I,14))
       END IF
-      IF(OPERND(I,4).LE.OPERND(I,2))&
-      &OPERND(I,14)=0.0D0
+      IF(OPERND(I,4).LE.OPERND(I,2))OPERND(I,14)=0.0D0
    END IF
 !
 !     RESTORE ORIGINAL ACCUMULATOR VALUE
