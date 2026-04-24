@@ -4,6 +4,7 @@
 SUBROUTINE SLABEL
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -31,6 +32,7 @@ END
 SUBROUTINE SFNO
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -91,11 +93,9 @@ SUBROUTINE SFNO
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
       IF(STI.EQ.1) THEN
-         OUTLYNE=&
-         &'QUERRY OBJECT F-NUMBER VALUES FROM THE CMD LEVEL WITH THE'
+         OUTLYNE='QUERRY OBJECT F-NUMBER VALUES FROM THE CMD LEVEL WITH THE'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'"FNOY" OR "FNOX" COMMANDS'
+         OUTLYNE='"FNOY" OR "FNOX" COMMANDS'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -122,8 +122,7 @@ SUBROUTINE SFNO
             RETURN
          END IF
       END IF
-      IF(S2.EQ.1.OR.S3.EQ.1 &
-      &.OR.S4.EQ.1.OR.S5.EQ.1) THEN
+      IF(S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'FNOY') THEN
             OUTLYNE='"FNOY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
@@ -280,6 +279,7 @@ END
 SUBROUTINE SFNB
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -298,19 +298,16 @@ SUBROUTINE SFNB
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(STI.EQ.1) THEN
-      OUTLYNE=&
-      &'QUERRY F-NUMBER VALUES FROM THE CMD LEVEL WITH THE'
+      OUTLYNE='QUERRY F-NUMBER VALUES FROM THE CMD LEVEL WITH THE'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'"SHO" OR "GET" AND "WRITE" COMMANDS'
+      OUTLYNE='"SHO" OR "GET" AND "WRITE" COMMANDS'
       CALL SHOWIT(1)
       RETURN
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
       IF(WC.EQ.'FNBY') THEN
-         OUTLYNE=&
-         &'"FNBY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"FNBY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -318,8 +315,7 @@ SUBROUTINE SFNB
          RETURN
       END IF
       IF(WC.EQ.'FNBX') THEN
-         OUTLYNE=&
-         &'"FNBX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"FNBX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -330,8 +326,7 @@ SUBROUTINE SFNB
    IF(DF1.EQ.1) THEN
 !
       IF(WC.EQ.'FNBY') THEN
-         OUTLYNE=&
-         &'"FNBY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         OUTLYNE='"FNBY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -339,8 +334,7 @@ SUBROUTINE SFNB
          RETURN
       END IF
       IF(WC.EQ.'FNBX') THEN
-         OUTLYNE=&
-         &'"FNBX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         OUTLYNE='"FNBX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -348,8 +342,7 @@ SUBROUTINE SFNB
          RETURN
       END IF
       IF(WC.EQ.'FNBX'.AND.SYSTEM(64).NE.0.0D0) THEN
-         OUTLYNE=&
-         &'"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'
+         OUTLYNE='"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -357,8 +350,7 @@ SUBROUTINE SFNB
          RETURN
       END IF
       IF(WC.EQ.'FNBY'.AND.SYSTEM(64).NE.0.0D0) THEN
-         OUTLYNE=&
-         &'"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'
+         OUTLYNE='"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -366,8 +358,7 @@ SUBROUTINE SFNB
          RETURN
       END IF
       IF(WC.EQ.'FNBX'.AND.SYSTEM(67).NE.0.0D0) THEN
-         OUTLYNE=&
-         &'"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'
+         OUTLYNE='"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -375,8 +366,7 @@ SUBROUTINE SFNB
          RETURN
       END IF
       IF(WC.EQ.'FNBY'.AND.SYSTEM(67).NE.0.0D0) THEN
-         OUTLYNE=&
-         &'"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'
+         OUTLYNE='"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -393,11 +383,9 @@ SUBROUTINE SFNB
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.&
-   &DF4.EQ.1.AND.DF5.EQ.1) THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1.AND.DF5.EQ.1) THEN
 !       FNBY OR FNBX TYPED IN WITH NO INPUT,PRINTS OUT CURRENT VALUES
-      IF(WC.EQ.'FNBY'.AND.SYSTEM(44).NE.1.0D0.AND.&
-      &SYSTEM(44).NE.-1.0D0) THEN
+      IF(WC.EQ.'FNBY'.AND.SYSTEM(44).NE.1.0D0.AND.SYSTEM(44).NE.-1.0D0) THEN
          IF(DABS(PXTRAY(2,(INT(SYSTEM(20))))).LE.1.0D-15) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
@@ -428,8 +416,7 @@ SUBROUTINE SFNB
          END IF
          RETURN
       END IF
-      IF(WC.EQ.'FNBX'.AND.SYSTEM(45).NE.1.0D0.AND.&
-      &SYSTEM(45).NE.-1.0D0) THEN
+      IF(WC.EQ.'FNBX'.AND.SYSTEM(45).NE.1.0D0.AND.SYSTEM(45).NE.-1.0D0) THEN
          IF(DABS(PXTRAX(2,(INT(SYSTEM(20))))).LE.1.0D-15) THEN
             WRITE(OUTLYNE,101)
             CALL SHOWIT(0)
@@ -475,8 +462,7 @@ SUBROUTINE SFNB
       IF(WQ.NE.'DELK') THEN
          IF(WC.EQ.'FNBY') THEN
             IF(W1.EQ.0.0D0) THEN
-               OUTLYNE=&
-               &'F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED'
+               OUTLYNE='F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED'
                CALL SHOWIT(1)
                CALL MACFAL
                RETURN
@@ -607,8 +593,7 @@ SUBROUTINE SFNB
          ELSE
 !       WC MUST BE 'FNBX'
             IF(W1.EQ.0.0D0) THEN
-               OUTLYNE=&
-               &'F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED'
+               OUTLYNE='F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED'
                CALL SHOWIT(1)
                CALL MACFAL
                RETURN
@@ -758,6 +743,7 @@ END
 SUBROUTINE PIVAXIS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -769,10 +755,8 @@ SUBROUTINE PIVAXIS
    INTEGER AMODE
 !
    IF(STI.EQ.1.OR.SQ.EQ.0) THEN
-      IF(surf_pivot_axis(SURF) == 0)&
-      &OUTLYNE='"PIVAXIS" IS SET TO "VERTEX"'
-      IF(surf_pivot_axis(SURF) == 1)&
-      &OUTLYNE='"PIVAXIS" IS SET TO "NORMAL"'
+      IF(surf_pivot_axis(SURF) == 0)OUTLYNE='"PIVAXIS" IS SET TO "VERTEX"'
+      IF(surf_pivot_axis(SURF) == 1)OUTLYNE='"PIVAXIS" IS SET TO "NORMAL"'
       CALL SHOWIT(0)
       RETURN
    END IF
@@ -808,6 +792,7 @@ END
 SUBROUTINE SER
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -833,19 +818,16 @@ SUBROUTINE SER
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(STI.EQ.1) THEN
-      OUTLYNE=&
-      &'QUERRY EXIT PUPIL VALUES FROM THE CMD LEVEL WITH THE'
+      OUTLYNE='QUERRY EXIT PUPIL VALUES FROM THE CMD LEVEL WITH THE'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'"SHO" OR "GET" AND "WRITE" COMMANDS'
+      OUTLYNE='"SHO" OR "GET" AND "WRITE" COMMANDS'
       CALL SHOWIT(1)
       RETURN
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1) THEN
 !
       IF(WC.EQ.'ERY') THEN
-         OUTLYNE=&
-         &'"ERY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"ERY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -853,8 +835,7 @@ SUBROUTINE SER
          RETURN
       END IF
       IF(WC.EQ.'ERX') THEN
-         OUTLYNE=&
-         &'"ERX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"ERX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -866,8 +847,7 @@ SUBROUTINE SER
    IF(DF1.EQ.1) THEN
 !
       IF(WC.EQ.'ERY') THEN
-         OUTLYNE=&
-         &'"ERY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         OUTLYNE='"ERY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -875,8 +855,7 @@ SUBROUTINE SER
          RETURN
       END IF
       IF(WC.EQ.'ERX') THEN
-         OUTLYNE=&
-         &'"ERX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+         OUTLYNE='"ERX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -885,8 +864,7 @@ SUBROUTINE SER
       END IF
    END IF
    IF(WC.EQ.'ERX'.AND.SYSTEM(64).NE.0.0D0) THEN
-      OUTLYNE=&
-      &'"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'
+      OUTLYNE='"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -894,8 +872,7 @@ SUBROUTINE SER
       RETURN
    END IF
    IF(WC.EQ.'ERY'.AND.SYSTEM(64).NE.0.0D0) THEN
-      OUTLYNE=&
-      &'"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'
+      OUTLYNE='"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -903,8 +880,7 @@ SUBROUTINE SER
       RETURN
    END IF
    IF(WC.EQ.'ERX'.AND.SYSTEM(67).NE.0.0D0) THEN
-      OUTLYNE=&
-      &'"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'
+      OUTLYNE='"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -912,8 +888,7 @@ SUBROUTINE SER
       RETURN
    END IF
    IF(WC.EQ.'ERY'.AND.SYSTEM(67).NE.0.0D0) THEN
-      OUTLYNE=&
-      &'"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'
+      OUTLYNE='"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -929,15 +904,11 @@ SUBROUTINE SER
       RETURN
    END IF
 !
-   IF(SQ.EQ.0.AND.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.&
-   &DF4.EQ.1.AND.DF5.EQ.1) THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1.AND.DF5.EQ.1) THEN
 !       ERY OR ERX TYPED IN WITH NO INPUT,PRINTS OUT CURRENT VALUES
-      IF(WC.EQ.'ERY'.AND.SYSTEM(44).NE.2.0.AND.&
-      &SYSTEM(44).NE.-2.0) THEN
+      IF(WC.EQ.'ERY'.AND.SYSTEM(44).NE.2.0.AND.SYSTEM(44).NE.-2.0) THEN
 !       CALCULATE EXIT PUPIL RADIUS
-         EP=PXTRAY(1,(INT(SYSTEM(20))))-&
-         &(PXTRAY(2,(INT(SYSTEM(20))))*(PXTRAY(5,(INT(SYSTEM(20))))/&
-         &PXTRAY(6,(INT(SYSTEM(20))))))
+         EP=PXTRAY(1,(INT(SYSTEM(20))))-(PXTRAY(2,(INT(SYSTEM(20))))*(PXTRAY(5,(INT(SYSTEM(20))))/PXTRAY(6,(INT(SYSTEM(20))))))
          WRITE(OUTLYNE,200) EP,UNIT
          CALL SHOWIT(0)
          RETURN
@@ -945,9 +916,7 @@ SUBROUTINE SER
       END IF
       ABSSYS=DABS(SYSTEM(44))
       IF(WC.EQ.'ERY'.AND.ABSSYS.EQ.2.0) THEN
-         EP=PXTRAY(1,(INT(SYSTEM(20))))-&
-         &(PXTRAY(2,(INT(SYSTEM(20))))*(PXTRAY(5,(INT(SYSTEM(20))))/&
-         &PXTRAY(6,(INT(SYSTEM(20))))))
+         EP=PXTRAY(1,(INT(SYSTEM(20))))-(PXTRAY(2,(INT(SYSTEM(20))))*(PXTRAY(5,(INT(SYSTEM(20))))/PXTRAY(6,(INT(SYSTEM(20))))))
          IF(SYSTEM(44).GT.0.0D0) THEN
             WRITE(OUTLYNE,200) EP,UNIT
             CALL SHOWIT(0)
@@ -959,20 +928,15 @@ SUBROUTINE SER
          RETURN
       ELSE
       END IF
-      IF(WC.EQ.'ERX'.AND.SYSTEM(45).NE.2.0.AND.&
-      &SYSTEM(45).NE.-2.0) THEN
-         EP=PXTRAX(1,(INT(SYSTEM(20))))-&
-         &(PXTRAX(2,(INT(SYSTEM(20))))*(PXTRAX(5,(INT(SYSTEM(20))))/&
-         &PXTRAX(6,(INT(SYSTEM(20))))))
+      IF(WC.EQ.'ERX'.AND.SYSTEM(45).NE.2.0.AND.SYSTEM(45).NE.-2.0) THEN
+         EP=PXTRAX(1,(INT(SYSTEM(20))))-(PXTRAX(2,(INT(SYSTEM(20))))*(PXTRAX(5,(INT(SYSTEM(20))))/PXTRAX(6,(INT(SYSTEM(20))))))
          WRITE(OUTLYNE,201) EP,UNIT
          CALL SHOWIT(0)
          RETURN
       END IF
       ABSSYS=DABS(SYSTEM(45))
       IF(WC.EQ.'ERX'.AND.ABSSYS.EQ.2.0) THEN
-         EP=PXTRAX(1,(INT(SYSTEM(20))))-&
-         &(PXTRAX(2,(INT(SYSTEM(20))))*(PXTRAX(5,(INT(SYSTEM(20))))&
-         &/PXTRAX(6,(INT(SYSTEM(20))))))
+         EP=PXTRAX(1,(INT(SYSTEM(20))))-(PXTRAX(2,(INT(SYSTEM(20))))*(PXTRAX(5,(INT(SYSTEM(20))))/PXTRAX(6,(INT(SYSTEM(20))))))
          IF(SYSTEM(45).GT.0.0D0) THEN
             WRITE(OUTLYNE,201) EP,UNIT
             CALL SHOWIT(0)
@@ -1282,6 +1246,7 @@ END
 SUBROUTINE SDEFG
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1296,21 +1261,10 @@ SUBROUTINE SDEFG
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
-      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'&
-      &.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')&
-      &OUTLYNE=&
-      &'AC,AD,AE,AF AND AG TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
-      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'&
-      &.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')&
-      &OUTLYNE=&
-      &'AH,AI,AJ,AK AND AL TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
-      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-      &.OR.WC.EQ.'AGTOR')&
-      &OUTLYNE=&
-      &'ADTOR, AETOR, AFTOR AND AGTOR '//&
-      &'TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
+      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')OUTLYNE='AC,AD,AE,AF AND AG TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK AND AL TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
+      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')OUTLYNE='ADTOR, AETOR, AFTOR AND AGTOR '//'TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1318,19 +1272,9 @@ SUBROUTINE SDEFG
       RETURN
    END IF
    IF(SST.EQ.1) THEN
-      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'&
-      &.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')&
-      &OUTLYNE=&
-      &'AC,AD,AE,AF AND AG TAKE NO STRING INPUT'
-      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'&
-      &.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')&
-      &OUTLYNE=&
-      &'AH,AI,AJ,AK AND AL TAKE NO STRING INPUT'
-      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-      &.OR.WC.EQ.'AGTOR')&
-      &OUTLYNE=&
-      &'ADTOR, AETOR, AFTOR AND AGTOR '//&
-      &'TAKE NO STRING INPUT'
+      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')OUTLYNE='AC,AD,AE,AF AND AG TAKE NO STRING INPUT'
+      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK AND AL TAKE NO STRING INPUT'
+      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')OUTLYNE='ADTOR, AETOR, AFTOR AND AGTOR '//'TAKE NO STRING INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1338,19 +1282,9 @@ SUBROUTINE SDEFG
       RETURN
    END IF
    IF(SQ.EQ.1.AND.F5.EQ.1) THEN
-      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'&
-      &.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')&
-      &OUTLYNE=&
-      &'AC,AD,AE,AF AND AG TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
-      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'&
-      &.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')&
-      &OUTLYNE=&
-      &'AH,AI,AJ,AK AND AL TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
-      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-      &.OR.WC.EQ.'AGTOR')&
-      &OUTLYNE=&
-      &'ADTOR, AETOR, AFTOR AND AGTOR '//&
-      &'TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
+      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')OUTLYNE='AC,AD,AE,AF AND AG TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
+      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK AND AL TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
+      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')OUTLYNE='ADTOR, AETOR, AFTOR AND AGTOR '//'TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1359,20 +1293,11 @@ SUBROUTINE SDEFG
    END IF
    IF(F6.EQ.1) THEN
       IF(WQ.NE.'        '.AND.WQ.NE.'CENT'.AND.WQ.NE.'DELT') THEN
-         IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'&
-         &.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')&
-         &OUTLYNE=&
-         &'INVALID QUALIFIER WORD USED WITH AC,AD,AE,AF OR AG'
-         IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'&
-         &.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')&
-         &OUTLYNE=&
-         &'INVALID QUALIFIER WORD USED WITH AH,AI,AJ,AK OR AL'
-         IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-         &.OR.WC.EQ.'AGTOR') THEN
-            OUTLYNE=&
-            &'INVALID QUALIFIER WORD USED WITH'
-            OUTLYNE=&
-            &'ADTOR, AETOR, AFTOR OR AGTOR'
+         IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')OUTLYNE='INVALID QUALIFIER WORD USED WITH AC,AD,AE,AF OR AG'
+         IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='INVALID QUALIFIER WORD USED WITH AH,AI,AJ,AK OR AL'
+         IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR') THEN
+            OUTLYNE='INVALID QUALIFIER WORD USED WITH'
+            OUTLYNE='ADTOR, AETOR, AFTOR OR AGTOR'
          END IF
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -1382,18 +1307,10 @@ SUBROUTINE SDEFG
       END IF
    END IF
    IF(DF1.EQ.1)THEN
-      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'&
-      &.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')&
-      &OUTLYNE=&
-      &'AC,AD,AE,AF OR AG REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'&
-      &.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')&
-      &OUTLYNE=&
-      &'AH,AI,AJ,AK OR AL REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-      &.OR.WC.EQ.'AGTOR') THEN
-         OUTLYNE=&
-         &'ADTOR,AETOR,AFTOR OR AGTOR REQUIRES EXPLICIT'
+      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC')OUTLYNE='AC,AD,AE,AF OR AG REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+      IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK OR AL REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR') THEN
+         OUTLYNE='ADTOR,AETOR,AFTOR OR AGTOR REQUIRES EXPLICIT'
          OUTLYNE='NUMERIC WORD #1 INPUT'
       END IF
       CALL SHOWIT(1)
@@ -1420,9 +1337,7 @@ SUBROUTINE SDEFG
    IF(WC.EQ.'AFTOR') CT=24
    IF(WC.EQ.'AGTOR') CT=25
 !
-   IF(WC.EQ.'AD'.OR.WC.EQ.'AF'.OR.WC.EQ.'AE'.OR.&
-   &WC.EQ.'AG'.OR.WC.EQ.'AC'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'&
-   &.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL') THEN
+   IF(WC.EQ.'AD'.OR.WC.EQ.'AF'.OR.WC.EQ.'AE'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL') THEN
       IF(.NOT.surf_is_asphere(SURF)) THEN
 !       SURFACE NOT ASPHERIC, SET IT AS SUCH.
          IF(WC.EQ.'AC') THEN
@@ -1431,8 +1346,7 @@ SUBROUTINE SDEFG
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'FOR SURFACE ',SURF
                CALL SHOWIT(1)
-               OUTLYNE=&
-               &'THE "AC" TERM WILL BE IGNORED FOR THIS NON-PLANO SURFACE'
+               OUTLYNE='THE "AC" TERM WILL BE IGNORED FOR THIS NON-PLANO SURFACE'
                CALL SHOWIT(1)
             END IF
             W5=W1
@@ -1594,12 +1508,8 @@ SUBROUTINE SDEFG
             SST=0
          ELSE
          END IF
-         IF(WC.EQ.'AC'.OR.WC.EQ.'AD'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.&
-         &WC.EQ.'AE')&
-         &CALL SASPH
-         IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.&
-         &WC.EQ.'AL')&
-         &CALL SASPH
+         IF(WC.EQ.'AC'.OR.WC.EQ.'AD'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AE')CALL SASPH
+         IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')CALL SASPH
          RETURN
       ELSE
       END IF
@@ -1607,15 +1517,13 @@ SUBROUTINE SDEFG
          IF(WC.EQ.'AC') THEN
             IF(SQ.EQ.0) call set_surf_asphere_coeff(SURF, 2, W1)
             IF(WQ.EQ.'DELT') call set_surf_asphere_coeff(SURF, 2, surf_asphere_coeff(SURF, 2)+W1)
-            IF(WQ.EQ.'CENT')&
-            &call set_surf_asphere_coeff(SURF, 2, surf_asphere_coeff(SURF, 2)+(W1*0.01D0*surf_asphere_coeff(SURF, 2)))
+            IF(WQ.EQ.'CENT')call set_surf_asphere_coeff(SURF, 2, surf_asphere_coeff(SURF, 2)+(W1*0.01D0*surf_asphere_coeff(SURF, 2)))
             IF(surf_curvature(SURF).NE.0.0D0) THEN
                OUTLYNE='WARNING:'
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'FOR SURFACE ',SURF
                CALL SHOWIT(1)
-               OUTLYNE=&
-               &'THE "AC" TERM WILL BE IGNORED FOR THIS NON-PLANO SURFACE'
+               OUTLYNE='THE "AC" TERM WILL BE IGNORED FOR THIS NON-PLANO SURFACE'
                CALL SHOWIT(1)
             END IF
          END IF
@@ -1642,32 +1550,22 @@ SUBROUTINE SDEFG
             IF(WC.EQ.'AL') call set_surf_asphere_coeff(SURF, 20, surf_asphere_coeff(SURF, 20)+W1)
          END IF
          IF(WQ.EQ.'DELT') THEN
-            IF(WC.EQ.'AD')&
-            &call set_surf_asphere_coeff(SURF, 4, surf_asphere_coeff(SURF, 4)+(W1*0.01D0*surf_asphere_coeff(SURF, 4)))
-            IF(WC.EQ.'AE')&
-            &call set_surf_asphere_coeff(SURF, 6, surf_asphere_coeff(SURF, 6)+(W1*0.01D0*surf_asphere_coeff(SURF, 6)))
-            IF(WC.EQ.'AF')&
-            &call set_surf_asphere_coeff(SURF, 8, surf_asphere_coeff(SURF, 8)+(W1*0.01D0*surf_asphere_coeff(SURF, 8)))
-            IF(WC.EQ.'AG')&
-            &call set_surf_asphere_coeff(SURF, 10, surf_asphere_coeff(SURF, 10)+(W1*0.01D0*surf_asphere_coeff(SURF, 10)))
-            IF(WC.EQ.'AH')&
-            &call set_surf_asphere_coeff(SURF, 12, surf_asphere_coeff(SURF, 12)+(W1*0.01D0*surf_asphere_coeff(SURF, 12)))
-            IF(WC.EQ.'AI')&
-            &call set_surf_asphere_coeff(SURF, 14, surf_asphere_coeff(SURF, 14)+(W1*0.01D0*surf_asphere_coeff(SURF, 14)))
-            IF(WC.EQ.'AJ')&
-            &call set_surf_asphere_coeff(SURF, 16, surf_asphere_coeff(SURF, 16)+(W1*0.01D0*surf_asphere_coeff(SURF, 16)))
-            IF(WC.EQ.'AK')&
-            &call set_surf_asphere_coeff(SURF, 18, surf_asphere_coeff(SURF, 18)+(W1*0.01D0*surf_asphere_coeff(SURF, 18)))
-            IF(WC.EQ.'AL')&
-            &call set_surf_asphere_coeff(SURF, 20, surf_asphere_coeff(SURF, 20)+(W1*0.01D0*surf_asphere_coeff(SURF, 20)))
+            IF(WC.EQ.'AD')call set_surf_asphere_coeff(SURF, 4, surf_asphere_coeff(SURF, 4)+(W1*0.01D0*surf_asphere_coeff(SURF, 4)))
+            IF(WC.EQ.'AE')call set_surf_asphere_coeff(SURF, 6, surf_asphere_coeff(SURF, 6)+(W1*0.01D0*surf_asphere_coeff(SURF, 6)))
+            IF(WC.EQ.'AF')call set_surf_asphere_coeff(SURF, 8, surf_asphere_coeff(SURF, 8)+(W1*0.01D0*surf_asphere_coeff(SURF, 8)))
+            IF(WC.EQ.'AG')call set_surf_asphere_coeff(SURF, 10, surf_asphere_coeff(SURF, 10)+(W1*0.01D0*surf_asphere_coeff(SURF, 10)))
+            IF(WC.EQ.'AH')call set_surf_asphere_coeff(SURF, 12, surf_asphere_coeff(SURF, 12)+(W1*0.01D0*surf_asphere_coeff(SURF, 12)))
+            IF(WC.EQ.'AI')call set_surf_asphere_coeff(SURF, 14, surf_asphere_coeff(SURF, 14)+(W1*0.01D0*surf_asphere_coeff(SURF, 14)))
+            IF(WC.EQ.'AJ')call set_surf_asphere_coeff(SURF, 16, surf_asphere_coeff(SURF, 16)+(W1*0.01D0*surf_asphere_coeff(SURF, 16)))
+            IF(WC.EQ.'AK')call set_surf_asphere_coeff(SURF, 18, surf_asphere_coeff(SURF, 18)+(W1*0.01D0*surf_asphere_coeff(SURF, 18)))
+            IF(WC.EQ.'AL')call set_surf_asphere_coeff(SURF, 20, surf_asphere_coeff(SURF, 20)+(W1*0.01D0*surf_asphere_coeff(SURF, 20)))
          END IF
       ELSE
       END IF
    ELSE
 !       NOT AC,AD,AE,AF,AG,AH,AI,AJ,AK OR AL
    END IF
-   IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-   &.OR.WC.EQ.'AGTOR') THEN
+   IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR') THEN
       IF(surf_toric_flag(SURF) == 0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' NOT A TORIC'
          CALL SHOWIT(1)
@@ -1753,14 +1651,10 @@ SUBROUTINE SDEFG
             IF(WC.EQ.'AGTOR') call set_surf_anamorphic_coeff(SURF, 10, surf_anamorphic_coeff(SURF, 10)+W1)
          END IF
          IF(WQ.EQ.'DELT') THEN
-            IF(WC.EQ.'ADTOR')&
-            &call set_surf_anamorphic_coeff(SURF, 4, surf_anamorphic_coeff(SURF, 4)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 4)))
-            IF(WC.EQ.'AETOR')&
-            &call set_surf_anamorphic_coeff(SURF, 6, surf_anamorphic_coeff(SURF, 6)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 6)))
-            IF(WC.EQ.'AFTOR')&
-            &call set_surf_anamorphic_coeff(SURF, 8, surf_anamorphic_coeff(SURF, 8)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 8)))
-            IF(WC.EQ.'AGTOR')&
-            &call set_surf_anamorphic_coeff(SURF, 10, surf_anamorphic_coeff(SURF, 10)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 10)))
+            IF(WC.EQ.'ADTOR')call set_surf_anamorphic_coeff(SURF, 4, surf_anamorphic_coeff(SURF, 4)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 4)))
+            IF(WC.EQ.'AETOR')call set_surf_anamorphic_coeff(SURF, 6, surf_anamorphic_coeff(SURF, 6)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 6)))
+            IF(WC.EQ.'AFTOR')call set_surf_anamorphic_coeff(SURF, 8, surf_anamorphic_coeff(SURF, 8)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 8)))
+            IF(WC.EQ.'AGTOR')call set_surf_anamorphic_coeff(SURF, 10, surf_anamorphic_coeff(SURF, 10)+(W1*0.01D0*surf_anamorphic_coeff(SURF, 10)))
          END IF
       ELSE
       END IF
@@ -1778,15 +1672,8 @@ SUBROUTINE SDEFG
 !       DELETE PIKUP
       PIKUP(1:6,SURF,CT)=0.0D0
       call set_surf_pickup_count(SURF, surf_pickup_count(SURF)-1)
-      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'&
-      &.OR.WC.EQ.'AG'.OR.WC.EQ.'AC'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'&
-      &.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')&
-      &WRITE(OUTLYNE,*)&
-      &'SURFACE',SURF,' : PIKUP (',WC(1:2),') DELETED'
-      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'&
-      &.OR.WC.EQ.'AGTOR')&
-      &WRITE(OUTLYNE,*)&
-      &'SURFACE',SURF,' : PIKUP (',WC(1:5),') DELETED'
+      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AC'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')WRITE(OUTLYNE,*)'SURFACE',SURF,' : PIKUP (',WC(1:2),') DELETED'
+      IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')WRITE(OUTLYNE,*)'SURFACE',SURF,' : PIKUP (',WC(1:5),') DELETED'
       CALL SHOWIT(1)
    END IF
 !       DUMP PIKUP PRO AND NPRO IF FOUND
@@ -1821,6 +1708,7 @@ END
 SUBROUTINE SPIVOT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1965,6 +1853,7 @@ END
 SUBROUTINE SPIVOTD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -2068,6 +1957,7 @@ END
 SUBROUTINE SPIVAX
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -2093,8 +1983,7 @@ SUBROUTINE SPIVAX
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.NE.'LOCAL'.AND.WQ.NE.'NORMAL') THEN
-      OUTLYNE=&
-      &'"PIVAXIS" TAKES QUALIFIER WORDS "LOCAL" AND "NORMAL" ONLY'
+      OUTLYNE='"PIVAXIS" TAKES QUALIFIER WORDS "LOCAL" AND "NORMAL" ONLY'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2118,6 +2007,7 @@ END
 SUBROUTINE SCW
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2158,8 +2048,7 @@ SUBROUTINE SCW
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-            IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1 &
-            &.OR.S4.EQ.1.OR.S5.EQ.1) THEN
+            IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
                OUTLYNE='"CW" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
@@ -2233,11 +2122,9 @@ SUBROUTINE SCW
 !               CHECK FOR PRESENCE OF QUALIFIER OR NUMERIC WORDS
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-            IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-            &.OR.S5.EQ.1)THEN
+            IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1)THEN
 !
-               OUTLYNE=&
-               &'"PCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'
+               OUTLYNE='"PCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2245,8 +2132,7 @@ SUBROUTINE SCW
                RETURN
             END IF
             IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-               OUTLYNE=&
-               &'"PCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
+               OUTLYNE='"PCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2307,11 +2193,9 @@ SUBROUTINE SCW
 !               CHECK FOR PRESENCE OF QUALIFIER OR NUMERIC WORDS
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-            IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-            &.OR.S5.EQ.1) THEN
+            IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
 !
-               OUTLYNE=&
-               &'"SCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'
+               OUTLYNE='"SCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2320,8 +2204,7 @@ SUBROUTINE SCW
             END IF
 !
             IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-               OUTLYNE=&
-               &'"SCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
+               OUTLYNE='"SCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2339,8 +2222,7 @@ SUBROUTINE SCW
                RETURN
             ELSE
                IF(W1.LT.1.0.OR.W1.GT.10.0.OR.W2.LT.1.0.OR.W2.GT.10.0D0)THEN
-                  OUTLYNE=&
-                  &'NUMERIC INPUT TO "SCW" OUTSIDE ALLOWED BOUNDS'
+                  OUTLYNE='NUMERIC INPUT TO "SCW" OUTSIDE ALLOWED BOUNDS'
                   CALL SHOWIT(1)
                   OUTLYNE='RE-ENTER COMMAND'
                   CALL SHOWIT(1)
@@ -2369,6 +2251,7 @@ END
 SUBROUTINE SCVR
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -2437,12 +2320,10 @@ SUBROUTINE SCVR
          END IF
          RETURN
       END IF
-      IF(W2.LE.0.0D0.AND.DF2.EQ.0.OR.W3.LE.0.0D0 &
-      &.AND.DF3.EQ.0) THEN
+      IF(W2.LE.0.0D0.AND.DF2.EQ.0.OR.W3.LE.0.0D0 .AND.DF3.EQ.0) THEN
 !
          IF(WC.EQ.'CVTOR') THEN
-            OUTLYNE=&
-            &'"CVTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
+            OUTLYNE='"CVTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2450,8 +2331,7 @@ SUBROUTINE SCVR
             RETURN
          END IF
          IF(WC.EQ.'RDTOR') THEN
-            OUTLYNE=&
-            &'"RDTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
+            OUTLYNE='"RDTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -2482,9 +2362,7 @@ SUBROUTINE SCVR
       RETURN
    END IF
    IF(SQ.EQ.1.AND.F5.EQ.1) THEN
-      OUTLYNE=&
-      &'"'//WC(1:5)//&
-      &'" TAKES NO QUALIFIER INPUT DURING LENS INPUT MODE'
+      OUTLYNE='"'//WC(1:5)//'" TAKES NO QUALIFIER INPUT DURING LENS INPUT MODE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2492,10 +2370,8 @@ SUBROUTINE SCVR
       RETURN
    END IF
    IF(F6.EQ.1) THEN
-      IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT'.AND.&
-      &WQ.NE.'DELTFR') THEN
-         OUTLYNE=&
-         &'INVALID QUALIFIER USED WITH "'//WC(1:5)//'"'
+      IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT'.AND.WQ.NE.'DELTFR') THEN
+         OUTLYNE='INVALID QUALIFIER USED WITH "'//WC(1:5)//'"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2504,8 +2380,7 @@ SUBROUTINE SCVR
       END IF
    END IF
    IF(DF1.EQ.1) THEN
-      OUTLYNE=&
-      &'"'//WC(1:5)//'" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+      OUTLYNE='"'//WC(1:5)//'" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2533,8 +2408,7 @@ SUBROUTINE SCVR
       IF(WC.EQ.'CVTOR') THEN
          IF(SQ.EQ.0) call set_surf_toric_curvature(SURF, W1)
          IF(WQ.EQ.'DELT') call set_surf_toric_curvature(SURF, surf_toric_curvature(SURF)+W1)
-         IF(WQ.EQ.'CENT')&
-         &call set_surf_toric_curvature(SURF, surf_toric_curvature(SURF)+(W1*0.01D0*surf_toric_curvature(SURF)))
+         IF(WQ.EQ.'CENT')call set_surf_toric_curvature(SURF, surf_toric_curvature(SURF)+(W1*0.01D0*surf_toric_curvature(SURF)))
          IF(WQ.EQ.'DELTFR') THEN
             IF(DF2.EQ.0) WAVER=W2
             IF(DF2.EQ.1) WAVER=0.5461D0
@@ -2547,17 +2421,13 @@ SUBROUTINE SCVR
                ELSE
                   IF(surf_clap_type(SURF) == 1) THEN
 !     USE MIN CLAP DATA WITHOUT DEC OR TILTS
-                     IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                     &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
-                     IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                     &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                     IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                     IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
                   END IF
                   IF(surf_clap_type(SURF) >= 2.AND.surf_clap_type(SURF) <= 4) THEN
 !     USE MAX CLAP DATA WITHOUT DEC OR TILTS
-                     IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                     &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
-                     IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                     &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                     IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                     IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
                   END IF
                END IF
             END IF
@@ -2583,9 +2453,7 @@ SUBROUTINE SCVR
                   RETURN
                END IF
                IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
-               IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)&
-               &DR=W1*(DABS((WAVE*DSQRT(ARG1))&
-               &/(2.0D0*(DSQRT(ARG1)-RADIUS))))
+               IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)DR=W1*(DABS((WAVE*DSQRT(ARG1))/(2.0D0*(DSQRT(ARG1)-RADIUS))))
                IF(DR.EQ.0.0D0) call set_surf_toric_curvature(SURF, surf_toric_curvature(SURF))
                IF(DR.NE.0.0D0) THEN
                   NEWRAD=RAD+DR
@@ -2594,8 +2462,7 @@ SUBROUTINE SCVR
                END IF
             ELSE
 !     SURFACE WAS FLAT
-               NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))&
-               &+(W1*WAVE/4.0D0)
+               NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))+(W1*WAVE/4.0D0)
                IF(NEWRAD.EQ.0.0D0) call set_surf_toric_curvature(SURF, 0.0D0)
                IF(NEWRAD.NE.0.0D0) call set_surf_toric_curvature(SURF, 1.0D0/NEWRAD)
 !
@@ -2618,17 +2485,13 @@ SUBROUTINE SCVR
             ELSE
                IF(surf_clap_type(SURF) == 1) THEN
 !     USE MIN CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
                END IF
                IF(surf_clap_type(SURF) >= 2.AND.surf_clap_type(SURF) <= 4) THEN
 !     USE MAX CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
                END IF
             END IF
          END IF
@@ -2655,9 +2518,7 @@ SUBROUTINE SCVR
                RETURN
             END IF
             IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
-            IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)&
-            &DR=W1*(DABS((WAVE*DSQRT(ARG1))&
-            &/(2.0D0*(DSQRT(ARG1)-RADIUS))))
+            IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)DR=W1*(DABS((WAVE*DSQRT(ARG1))/(2.0D0*(DSQRT(ARG1)-RADIUS))))
             IF(DR.EQ.0.0D0) call set_surf_toric_curvature(SURF, surf_toric_curvature(SURF))
             IF(DR.NE.0.0D0) THEN
                NEWRAD=RAD+DR
@@ -2666,8 +2527,7 @@ SUBROUTINE SCVR
             END IF
          ELSE
 !     SURFACE WAS FLAT
-            NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))&
-            &+(W1*WAVE/4.0D0)
+            NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))+(W1*WAVE/4.0D0)
             IF(NEWRAD.EQ.0.0D0) call set_surf_toric_curvature(SURF, 0.0D0)
             IF(NEWRAD.NE.0.0D0) call set_surf_toric_curvature(SURF, 1.0D0/NEWRAD)
 !
@@ -2720,8 +2580,7 @@ SUBROUTINE SCVR
 !       SOLVE TO DELETE IS FOUND
             SOLVE(2,SURF)=0.0D0
             SOLVE(1,SURF)=0.0D0
-            WRITE(OUTLYNE,*)&
-            &'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVE DELETED'
+            WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVE DELETED'
             CALL SHOWIT(1)
          END IF
       END IF
@@ -2731,8 +2590,7 @@ SUBROUTINE SCVR
 !       SOLVE TO DELETE IS FOUND
             SOLVE(8,SURF)=0.0D0
             SOLVE(9,SURF)=0.0D0
-            WRITE(OUTLYNE,*)&
-            &'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVE DELETED'
+            WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVE DELETED'
             CALL SHOWIT(1)
          END IF
       END IF
@@ -2751,6 +2609,7 @@ END
 SUBROUTINE SCV
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -2762,8 +2621,7 @@ SUBROUTINE SCV
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 VAL1,WAVE,WAVER,APER,RADIUS,DR,NR,RAD &
-   &,NEWRAD,ARG1
+   REAL*8 VAL1,WAVE,WAVER,APER,RADIUS,DR,NR,RAD ,NEWRAD,ARG1
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2812,12 +2670,10 @@ SUBROUTINE SCV
             END IF
             RETURN
          END IF
-         IF(W2.LE.0.0D0.AND.DF2.EQ.0.OR.W3.LE.0.0D0 &
-         &.AND.DF3.EQ.0) THEN
+         IF(W2.LE.0.0D0.AND.DF2.EQ.0.OR.W3.LE.0.0D0 .AND.DF3.EQ.0) THEN
 !
             IF(WC.EQ.'CV') THEN
-               OUTLYNE=&
-               &'"CV DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
+               OUTLYNE='"CV DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2825,8 +2681,7 @@ SUBROUTINE SCV
                RETURN
             END IF
             IF(WC.EQ.'RD') THEN
-               OUTLYNE=&
-               &'"RD DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
+               OUTLYNE='"RD DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2857,12 +2712,10 @@ SUBROUTINE SCV
             END IF
             RETURN
          END IF
-         IF(W2.LE.0.0D0 &
-         &.AND.DF2.EQ.0) THEN
+         IF(W2.LE.0.0D0 .AND.DF2.EQ.0) THEN
 !
             IF(WC.EQ.'CV') THEN
-               OUTLYNE=&
-               &'"CV SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'
+               OUTLYNE='"CV SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2870,8 +2723,7 @@ SUBROUTINE SCV
                RETURN
             END IF
             IF(WC.EQ.'RD') THEN
-               OUTLYNE=&
-               &'"RD SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'
+               OUTLYNE='"RD SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
@@ -2904,8 +2756,7 @@ SUBROUTINE SCV
       RETURN
    END IF
    IF(F6.EQ.1) THEN
-      IF(WQ.NE.'        '.AND.WQ.NE.'CENT'.AND.WQ.NE.'DELT'&
-      &.AND.WQ.NE.'DELTFR'.AND.WQ.NE.'SAG') THEN
+      IF(WQ.NE.'        '.AND.WQ.NE.'CENT'.AND.WQ.NE.'DELT'.AND.WQ.NE.'DELTFR'.AND.WQ.NE.'SAG') THEN
 !
          IF(WC.EQ.'CV') THEN
             OUTLYNE='INVALID QUALIFIER USED WITH "CV"'
@@ -2986,17 +2837,13 @@ SUBROUTINE SCV
             ELSE
                IF(surf_clap_type(SURF) == 1) THEN
 !     USE MIN CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
                END IF
                IF(surf_clap_type(SURF) >= 2.AND.surf_clap_type(SURF) <= 4) THEN
 !     USE MAX CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
                END IF
             END IF
          END IF
@@ -3022,9 +2869,7 @@ SUBROUTINE SCV
                RETURN
             END IF
             IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
-            IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)&
-            &DR=W1*(DABS((WAVE*DSQRT(ARG1))&
-            &/(2.0D0*(DSQRT(ARG1)-RADIUS))))
+            IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)DR=W1*(DABS((WAVE*DSQRT(ARG1))/(2.0D0*(DSQRT(ARG1)-RADIUS))))
             IF(DR.EQ.0.0D0) call set_surf_curvature(SURF, surf_curvature(SURF))
             IF(DR.NE.0.0D0) THEN
                NEWRAD=RAD+DR
@@ -3033,8 +2878,7 @@ SUBROUTINE SCV
             END IF
          ELSE
 !     SURFACE WAS FLAT
-            NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))&
-            &+(W1*WAVE/4.0D0)
+            NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))+(W1*WAVE/4.0D0)
             IF(NEWRAD.EQ.0.0D0) call set_surf_curvature(SURF, 0.0D0)
             IF(NEWRAD.NE.0.0D0) call set_surf_curvature(SURF, 1.0D0/NEWRAD)
 !
@@ -3052,17 +2896,13 @@ SUBROUTINE SCV
             ELSE
                IF(surf_clap_type(SURF) == 1) THEN
 !     USE MIN CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
                END IF
                IF(surf_clap_type(SURF) >= 2.AND.surf_clap_type(SURF) <= 4) THEN
 !     USE MAX CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
                END IF
             END IF
          END IF
@@ -3077,14 +2917,12 @@ SUBROUTINE SCV
             CALL MACFAL
             RETURN
          END IF
-         call set_surf_curvature(SURF, (2.0D0*W1)/&
-         &(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2)))
+         call set_surf_curvature(SURF, (2.0D0*W1)/(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2)))
 !     DONE WITH SAG
 !
       END IF
       IF(WQ.EQ.'DELT') call set_surf_curvature(SURF, surf_curvature(SURF)+W1)
-      IF(WQ.EQ.'CENT')&
-      &call set_surf_curvature(SURF, surf_curvature(SURF)+(W1*0.01D0*surf_curvature(SURF)))
+      IF(WQ.EQ.'CENT')call set_surf_curvature(SURF, surf_curvature(SURF)+(W1*0.01D0*surf_curvature(SURF)))
    ELSE
    END IF
 !     WC MUST BE RD
@@ -3100,17 +2938,13 @@ SUBROUTINE SCV
             ELSE
                IF(surf_clap_type(SURF) == 1) THEN
 !     USE MIN CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
                END IF
                IF(surf_clap_type(SURF) >= 2.AND.surf_clap_type(SURF) <= 4) THEN
 !     USE MAX CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
                END IF
             END IF
          END IF
@@ -3137,9 +2971,7 @@ SUBROUTINE SCV
                RETURN
             END IF
             IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
-            IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)&
-            &DR=W1*(DABS((WAVE*DSQRT(ARG1))&
-            &/(2.0D0*(DSQRT(ARG1)-RADIUS))))
+            IF((DSQRT(ARG1)-RADIUS).NE.0.0D0)DR=W1*(DABS((WAVE*DSQRT(ARG1))/(2.0D0*(DSQRT(ARG1)-RADIUS))))
             IF(DR.EQ.0.0D0) call set_surf_curvature(SURF, surf_curvature(SURF))
             IF(DR.NE.0.0D0) THEN
                NEWRAD=RAD+DR
@@ -3148,8 +2980,7 @@ SUBROUTINE SCV
             END IF
          ELSE
 !     SURFACE WAS FLAT
-            NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))&
-            &+(W1*WAVE/4.0D0)
+            NEWRAD=((1.0D0/(W1*WAVE))*((APER/2.0D0)**2))+(W1*WAVE/4.0D0)
             IF(NEWRAD.EQ.0.0D0) call set_surf_curvature(SURF, 0.0D0)
             IF(NEWRAD.NE.0.0D0) call set_surf_curvature(SURF, 1.0D0/NEWRAD)
 !
@@ -3165,17 +2996,13 @@ SUBROUTINE SCV
             ELSE
                IF(surf_clap_type(SURF) == 1) THEN
 !     USE MIN CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
                END IF
                IF(surf_clap_type(SURF) >= 2.AND.surf_clap_type(SURF) <= 4) THEN
 !     USE MAX CLAP DATA WITHOUT DEC OR TILTS
-                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
-                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))&
-                  &APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
+                  IF(surf_clap_dim(SURF, 1).GT.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 1))
+                  IF(surf_clap_dim(SURF, 1).LE.surf_clap_dim(SURF, 2))APER=2.0D0*DABS(surf_clap_dim(SURF, 2))
                END IF
             END IF
          END IF
@@ -3192,8 +3019,7 @@ SUBROUTINE SCV
             CALL MACFAL
             RETURN
          END IF
-         call set_surf_curvature(SURF, (2.0D0*W1)/&
-         &(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2)))
+         call set_surf_curvature(SURF, (2.0D0*W1)/(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2)))
 !     DONE WITH SAG
 !
       END IF
@@ -3225,8 +3051,7 @@ SUBROUTINE SCV
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'FOR SURFACE ',SURF
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE CONIC CONSTANT WILL BE IGNORED FOR THIS PLANO SURFACE'
+      OUTLYNE='THE CONIC CONSTANT WILL BE IGNORED FOR THIS PLANO SURFACE'
       CALL SHOWIT(1)
    END IF
    IF(surf_curvature(SURF).NE.0.0D0.AND.surf_asphere_coeff(SURF, 2).NE.0.0D0) THEN
@@ -3235,8 +3060,7 @@ SUBROUTINE SCV
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'FOR SURFACE ',SURF
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
+      OUTLYNE='THE "AC" TERM RESET TO 0.0 FOR THIS NON-PLANO SURFACE'
       CALL SHOWIT(1)
    END IF
 !
@@ -3271,8 +3095,7 @@ SUBROUTINE SCV
          IF(SOLVE(8,SURF).NE.0.0D0) THEN
             SOLVE(8,SURF)=0.0D0
             SOLVE(9,SURF)=0.0D0
-            WRITE(OUTLYNE,*)&
-            &'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVES DELETED'
+            WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVES DELETED'
             CALL SHOWIT(1)
 !       RE-CALCULATE surf_solve_flag(SURF)
             call set_surf_solve_flag(SURF, 0.0D0)
@@ -3289,8 +3112,7 @@ SUBROUTINE SCV
             IF(SOLVE(2,SURF).NE.0.0D0) THEN
                SOLVE(2,SURF)=0.0D0
                SOLVE(1,SURF)=0.0D0
-               WRITE(OUTLYNE,*)&
-               &'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVES DELETED'
+               WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVES DELETED'
                CALL SHOWIT(1)
 !       RE-CALCULATE surf_solve_flag(SURF)
                call set_surf_solve_flag(SURF, 0.0D0)
@@ -3300,7 +3122,7 @@ SUBROUTINE SCV
                IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
             END IF
          ELSE
-            OUTLYNE='SERIOUS ERROR IN ASSIGNMENT OF ALENS(23, )'
+            OUTLYNE='SERIOUS ERROR IN ASSIGNMENT OF surf_toric_flag()'
             CALL SHOWIT(1)
             CALL MACFAL
             RETURN
@@ -3320,9 +3142,7 @@ SUBROUTINE SCV
 !       CHECK FOR CV OR RD OR PRO OR NPRO
 !       PIKUPS AND DELETE IF FOUND
 !
-   IF(PIKUP(1,SURF,1).EQ.0.0D0.AND.PIKUP(1,SURF,2).EQ.0.0D0.&
-   &AND.PIKUP(1,SURF,11).EQ.0.0D0.AND.PIKUP(1,SURF,12)&
-   &.EQ.0.0D0) THEN
+   IF(PIKUP(1,SURF,1).EQ.0.0D0.AND.PIKUP(1,SURF,2).EQ.0.0D0.AND.PIKUP(1,SURF,11).EQ.0.0D0.AND.PIKUP(1,SURF,12).EQ.0.0D0) THEN
 !
 !       NO CV RD PRO OR NPRO PIKUPS, JUST RETURN
 !
@@ -3374,6 +3194,7 @@ SUBROUTINE SINS
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -3397,8 +3218,7 @@ SUBROUTINE SINS
    INTEGER K,L,I,J,JK,II,III,IV
 !
 !
-   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"INS" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3417,8 +3237,7 @@ SUBROUTINE SINS
    ELSE
    END IF
    IF(GLANAM(INT(W1)-1,2).EQ.'PERFECT      ') THEN
-      OUTLYNE=&
-      &'A SURFACE MAY NOT BE INSERTED BEHIND A "PERFECT" SURFACE'
+      OUTLYNE='A SURFACE MAY NOT BE INSERTED BEHIND A "PERFECT" SURFACE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3426,8 +3245,7 @@ SUBROUTINE SINS
       RETURN
    END IF
    IF(GLANAM(INT(W1)-1,2).EQ.'IDEAL        ') THEN
-      OUTLYNE=&
-      &'A SURFACE MAY NOT BE INSERTED BEHIND A "IDEAL" SURFACE'
+      OUTLYNE='A SURFACE MAY NOT BE INSERTED BEHIND A "IDEAL" SURFACE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3443,8 +3261,7 @@ SUBROUTINE SINS
 !       VALUE OF NUMERIC WORD 1 AS THE LOCATION OF THE SURFACE
 !       INSERTION.
       IF(W1.EQ.0.0D0) THEN
-         OUTLYNE=&
-         &'SURFACE INSERTION INFRONT OF OBJECT SURF. NOT ALLOWED'
+         OUTLYNE='SURFACE INSERTION INFRONT OF OBJECT SURF. NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3477,8 +3294,7 @@ SUBROUTINE SINS
 !       NOT IN FRONT OF REF SURF
          END IF
 !       IS SURFACE INSERTED, INFRONT OF ASTOP SURFACE ?
-         IF(INT(W1).LE.INT(SYSTEM(26)).AND.&
-         &SYSTEM(26).NE.-99.0D0) THEN
+         IF(INT(W1).LE.INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0) THEN
             SYSTEM(26)=SYSTEM(26)+1.0D0
          ELSE
 !       NOT IN FRONT OF ASTOP SURFOR THERE IS NO ASTOP SURFACE
@@ -3577,8 +3393,7 @@ SUBROUTINE SINS
       F22=1
 !       NOW SURFACE NUMBER SURF HAS BEEN INSERTED
       DO I=0,INT(SYSTEM(20))
-         IF(surf_tilt_flag(I) == 6.OR.surf_tilt_flag(I) == 1.AND.&
-         &surf_tilt_return_flag(I).EQ.1) THEN
+         IF(surf_tilt_flag(I) == 6.OR.surf_tilt_flag(I) == 1.AND.surf_tilt_return_flag(I).EQ.1) THEN
 !       FOUND A TILT RET
             IF((surf_ret_surf_num(I)).GE.SURF) call set_surf_ret_surf_num(I, surf_ret_surf_num(I) + 1)
          END IF
@@ -3592,6 +3407,7 @@ SUBROUTINE SDEL
 !
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -3625,8 +3441,7 @@ SUBROUTINE SDEL
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"DEL" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3654,16 +3469,14 @@ SUBROUTINE SDEL
    END IF
 !
    IF(W2.LT.W1) THEN
-      OUTLYNE=&
-      &'STARTING SURFACE # MAY NOT BE GREATER THAN ENDING SURFACE #'
+      OUTLYNE='STARTING SURFACE # MAY NOT BE GREATER THAN ENDING SURFACE #'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LE.0.0D0.OR.W1.GE.SYSTEM(20).OR.W2.LE.0.0D0.OR.&
-   &W2.GE.SYSTEM(20)) THEN
+   IF(W1.LE.0.0D0.OR.W1.GE.SYSTEM(20).OR.W2.LE.0.0D0.OR.W2.GE.SYSTEM(20)) THEN
 !
 !       TRYING TO DELETE A SURFACE NUMBER LESS THAN OR EQUAL TO THE
 !       OBJECT SURFACE OR GREATER THAN OR EQUAL TO THE IMAGE SURFACE
@@ -3778,8 +3591,7 @@ SUBROUTINE SDEL
          SYSTEM(27)=0.0D0
       END IF
 !       IS SURFACE DELETED, INFRONT OF ASTOP SURFACE ?
-      IF(SURF.LT.INT(SYSTEM(26)).AND.&
-      &SYSTEM(26).NE.-99.0D0) THEN
+      IF(SURF.LT.INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0) THEN
          SYSTEM(26)=SYSTEM(26)-1.0D0
       ELSE
 !       NOT IN FRONT OF ASTOP SURF OR NO ASTOP DEFINED.
@@ -3797,16 +3609,14 @@ SUBROUTINE SDEL
 !       FIRST SOLVES
 !
       IF(surf_pickup_count(SURF) /= 0) THEN
-         OUTLYNE=&
-         &'PIKUP DATA BEING DELETED WITH SURFACE DELETION'
+         OUTLYNE='PIKUP DATA BEING DELETED WITH SURFACE DELETION'
          CALL SHOWIT(1)
       END IF
 !
 !       THEN PIKUPS
 !
       IF(surf_solve_flag(SURF) /= 0) THEN
-         OUTLYNE=&
-         &'SOLVE DATA BEING DELETED WITH SURFACE DELETION'
+         OUTLYNE='SOLVE DATA BEING DELETED WITH SURFACE DELETION'
          CALL SHOWIT(1)
       END IF
 !
@@ -3868,8 +3678,7 @@ SUBROUTINE SDEL
 405   CONTINUE
 !
       IF(surf_special_type(SURF) /= 0) THEN
-         OUTLYNE=&
-         &'SPECIAL SURFACE DATA BEING DELETED WITH SURFACE DELETION'
+         OUTLYNE='SPECIAL SURFACE DATA BEING DELETED WITH SURFACE DELETION'
          CALL SHOWIT(1)
       END IF
 !
@@ -3901,14 +3710,11 @@ SUBROUTINE SDEL
 !       IF THE SURFACE NUMBER OF THE SURFACE BEING DELETED IS
 !       NUMERICALLY LESS THAN OR EQUAL TO SURFACE NUMBER REFERENCED
 !       BY THE PIKUP (PIKUP(2,J+1,I)
-               IF(SURF.LE.INT(PIKUP(2,J+1,I)))&
-               &PIKUP(2,J+1,I)=PIKUP(2,J+1,I)-1.0D0
+               IF(SURF.LE.INT(PIKUP(2,J+1,I)))PIKUP(2,J+1,I)=PIKUP(2,J+1,I)-1.0D0
             ELSE
 !     THOAL
-               IF(SURF.LE.INT(PIKUP(2,J+1,I)))&
-               &PIKUP(2,J+1,I)=PIKUP(2,J+1,I)-1.0D0
-               IF(SURF.LE.INT(PIKUP(3,J+1,I)))&
-               &PIKUP(3,J+1,I)=PIKUP(3,J+1,I)-1.0D0
+               IF(SURF.LE.INT(PIKUP(2,J+1,I)))PIKUP(2,J+1,I)=PIKUP(2,J+1,I)-1.0D0
+               IF(SURF.LE.INT(PIKUP(3,J+1,I)))PIKUP(3,J+1,I)=PIKUP(3,J+1,I)-1.0D0
             END IF
          END DO
       END DO
@@ -3937,8 +3743,7 @@ SUBROUTINE SDEL
       CALL CFGFX3(SURF)
 !     SURF WAS DELETED
       DO I=0,INT(SYSTEM(20))
-         IF(surf_tilt_flag(I) == 6.OR.surf_tilt_flag(I) == 1.AND.&
-         &surf_tilt_return_flag(I).EQ.1) THEN
+         IF(surf_tilt_flag(I) == 6.OR.surf_tilt_flag(I) == 1.AND.surf_tilt_return_flag(I).EQ.1) THEN
 !       FOUND A TILT RET
             IF((surf_ret_surf_num(I)).GE.SURF) call set_surf_ret_surf_num(I, surf_ret_surf_num(I) - 1)
          END IF
@@ -3950,6 +3755,7 @@ END
 SUBROUTINE SDEC
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -4074,13 +3880,8 @@ SUBROUTINE SDEC
 !       RESOLVE THIS ISSUE.
 !
       DO 100 I=0,INT(SYSTEM(20))
-         IF(PIKUP(1,I,13).EQ.1.0D0.OR.&
-         &PIKUP(1,I,14).EQ.1.0D0.OR.PIKUP(1,I,33).EQ.1.0D0.OR.&
-         &PIKUP(1,I,13).EQ.1.0D0.AND.PIKUP(1,I,14).EQ.1.0D0 &
-         &.AND.PIKUP(1,I,33).EQ.1.0D0) THEN
-            IF(INT(PIKUP(2,I,13)).EQ.SURF.OR.&
-            &INT(PIKUP(2,I,14)).EQ.SURF.OR.INT(PIKUP(2,I,33)).EQ.&
-            &SURF) THEN
+         IF(PIKUP(1,I,13).EQ.1.0D0.OR.PIKUP(1,I,14).EQ.1.0D0.OR.PIKUP(1,I,33).EQ.1.0D0.OR.PIKUP(1,I,13).EQ.1.0D0.AND.PIKUP(1,I,14).EQ.1.0D0 .AND.PIKUP(1,I,33).EQ.1.0D0) THEN
+            IF(INT(PIKUP(2,I,13)).EQ.SURF.OR.INT(PIKUP(2,I,14)).EQ.SURF.OR.INT(PIKUP(2,I,33)).EQ.SURF) THEN
 !       UPDATE THE ALENS(29) ON THE PIKING SURFACE
                call set_surf_decenter_flag(I, surf_decenter_flag(SURF))
             ELSE
@@ -4094,13 +3895,10 @@ SUBROUTINE SDEC
 !       IF THE SURFACE HAS A TILT AUTO THEN REMOVE THE
 !       AUTO AND PRINT MESSAGE
 !
-      IF(surf_tilt_flag(SURF) == 2.OR.surf_tilt_flag(SURF).EQ.&
-      &3.0D0) THEN
+      IF(surf_tilt_flag(SURF) == 2.OR.surf_tilt_flag(SURF).EQ.3.0D0) THEN
          call set_surf_tilt_flag(SURF, 1)
-         IF(surf_tilt_flag(SURF) == 2) OUTLYNE=&
-         &'"AUTO" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
-         IF(surf_tilt_flag(SURF) == 3) OUTLYNE=&
-         &'"AUTOM" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
+         IF(surf_tilt_flag(SURF) == 2) OUTLYNE='"AUTO" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
+         IF(surf_tilt_flag(SURF) == 3) OUTLYNE='"AUTOM" ADJUST REMOVED FROM SURFACE TILT DEFINITION'
          CALL SHOWIT(1)
       END IF
    END IF

@@ -6,6 +6,7 @@ SUBROUTINE AUXCFG
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -138,22 +139,8 @@ SUBROUTINE AUXCFG
          DO J=1,CFGCNT(I)
 !     WE ARE INSIDE CONFIG #I NOW, THERE ARE CFGCNT(I) ENTRIES
 !     FOR CONFIG(I)
-            IF(SCRATH(J)(1:8).EQ.'U       '.AND.&
-            &SCRATH(J)(10:17).EQ.'L       '.OR.&
-            &SCRATH(J)(1:8).EQ.'UPDATE  '.AND.&
-            &SCRATH(J)(10:17).EQ.'LENS    '.OR.&
-            &SCRATH(J)(1:8).EQ.'UPDATE  '.AND.&
-            &SCRATH(J)(10:17).EQ.'L       '.OR.&
-            &SCRATH(J)(1:8).EQ.'U       '.AND.&
-            &SCRATH(J)(10:17).EQ.'LENS    ') ULON=.TRUE.
-            IF(SCRATH(J)(1:8).EQ.'U       '.AND.&
-            &SCRATH(J)(10:17).EQ.'SP      '.OR.&
-            &SCRATH(J)(1:8).EQ.'UPDATE  '.AND.&
-            &SCRATH(J)(10:17).EQ.'SPSRF   '.OR.&
-            &SCRATH(J)(1:8).EQ.'UPDATE  '.AND.&
-            &SCRATH(J)(10:17).EQ.'SP      '.OR.&
-            &SCRATH(J)(1:8).EQ.'U       '.AND.&
-            &SCRATH(J)(10:17).EQ.'SPSRF   ') USON=.TRUE.
+            IF(SCRATH(J)(1:8).EQ.'U       '.AND.SCRATH(J)(10:17).EQ.'L       '.OR.SCRATH(J)(1:8).EQ.'UPDATE  '.AND.SCRATH(J)(10:17).EQ.'LENS    '.OR.SCRATH(J)(1:8).EQ.'UPDATE  '.AND.SCRATH(J)(10:17).EQ.'L       '.OR.SCRATH(J)(1:8).EQ.'U       '.AND.SCRATH(J)(10:17).EQ.'LENS    ') ULON=.TRUE.
+            IF(SCRATH(J)(1:8).EQ.'U       '.AND.SCRATH(J)(10:17).EQ.'SP      '.OR.SCRATH(J)(1:8).EQ.'UPDATE  '.AND.SCRATH(J)(10:17).EQ.'SPSRF   '.OR.SCRATH(J)(1:8).EQ.'UPDATE  '.AND.SCRATH(J)(10:17).EQ.'SP      '.OR.SCRATH(J)(1:8).EQ.'U       '.AND.SCRATH(J)(10:17).EQ.'SPSRF   ') USON=.TRUE.
             IF(SCRATH(J)(1:8).EQ.'EOS     '.AND.ULON) ULON=.FALSE.
             IF(SCRATH(J)(1:8).EQ.'EOS     '.AND.USON) USON=.FALSE.
 !
@@ -2393,8 +2380,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2412,8 +2398,7 @@ SUBROUTINE AUXCFG
                   ELSE
 !     PROCEED
                   END IF
-                  IF(SCRATH(J)(1:8).EQ.'INDEX   '.OR.&
-                  &SCRATH(J)(1:8).EQ.'VNUM    '.OR.SCRATH(J)(1:8).EQ.'DPART   ')THEN
+                  IF(SCRATH(J)(1:8).EQ.'INDEX   '.OR.SCRATH(J)(1:8).EQ.'VNUM    '.OR.SCRATH(J)(1:8).EQ.'DPART   ')THEN
                      K=K+1
                      AUXMAX=K
                      IF(SCRATH(J)(1:8).EQ.'INDEX   ') CFADD(K,1)=135
@@ -2423,8 +2408,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2439,8 +2423,7 @@ SUBROUTINE AUXCFG
                         CFADD(K,4)=19
                         CFADD(K,5)=41
                      END IF
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(34:56)
                         CALL AUXATN
                         CFVAL(K,2)=N1
@@ -2466,8 +2449,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2493,8 +2475,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2541,13 +2522,7 @@ SUBROUTINE AUXCFG
                   ELSE
 !     PROCEED
                   END IF
-                  IF(SCRATH(J)(1:8).EQ.'CLAP    '.AND.&
-                  &SCRATH(J)(10:17).NE.'RECT     '.AND.SCRATH(J)(10:17).NE.'RCTK    '&
-                  &.AND.&
-                  &SCRATH(J)(10:17).NE.'ERASE    '.AND.SCRATH(J)(10:17).NE.'ELIPE   '&
-                  &.AND.&
-                  &SCRATH(J)(10:17).NE.'RECTE    '.AND.SCRATH(J)(10:17).NE.'RCTKE   '&
-                  &) THEN
+                  IF(SCRATH(J)(1:8).EQ.'CLAP    '.AND.SCRATH(J)(10:17).NE.'RECT     '.AND.SCRATH(J)(10:17).NE.'RCTK    '.AND.SCRATH(J)(10:17).NE.'ERASE    '.AND.SCRATH(J)(10:17).NE.'ELIPE   '.AND.SCRATH(J)(10:17).NE.'RECTE    '.AND.SCRATH(J)(10:17).NE.'RCTKE   ') THEN
 !     WE HAVE A CIRCULAR CLAP OR POLY CLAP
                      K=K+1
                      AUXMAX=K
@@ -2571,12 +2546,7 @@ SUBROUTINE AUXCFG
                   ELSE
 !     PROCEED
                   END IF
-                  IF(SCRATH(J)(1:8).EQ.'CLAP    '.AND.&
-                  &SCRATH(J)(10:17).EQ.'RECT     '.OR.&
-                  &SCRATH(J)(1:8).EQ.'CLAP    '.AND.&
-                  &SCRATH(J)(10:17).EQ.'ELIP     '.OR.&
-                  &SCRATH(J)(1:8).EQ.'CLAP    '.AND.&
-                  &SCRATH(J)(10:17).EQ.'RCTK     ') THEN
+                  IF(SCRATH(J)(1:8).EQ.'CLAP    '.AND.SCRATH(J)(10:17).EQ.'RECT     '.OR.SCRATH(J)(1:8).EQ.'CLAP    '.AND.SCRATH(J)(10:17).EQ.'ELIP     '.OR.SCRATH(J)(1:8).EQ.'CLAP    '.AND.SCRATH(J)(10:17).EQ.'RCTK     ') THEN
 !     WE HAVE A NON CIRCULAR CLAP
                      K=K+1
                      AUXMAX=K
@@ -2608,8 +2578,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2642,8 +2611,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2676,8 +2644,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2710,8 +2677,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2744,8 +2710,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2778,8 +2743,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2812,8 +2776,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2846,8 +2809,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2880,8 +2842,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2914,8 +2875,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2948,8 +2908,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -2982,8 +2941,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3016,8 +2974,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3050,8 +3007,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3084,8 +3040,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3118,8 +3073,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3152,8 +3106,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3186,8 +3139,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3220,8 +3172,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3254,8 +3205,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3288,8 +3238,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3322,8 +3271,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3356,8 +3304,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3390,8 +3337,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3424,8 +3370,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3458,8 +3403,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3492,8 +3436,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3526,8 +3469,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3560,8 +3502,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3594,8 +3535,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3628,8 +3568,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3662,8 +3601,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3696,8 +3634,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3730,8 +3667,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3764,8 +3700,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3798,8 +3733,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3832,8 +3766,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3866,8 +3799,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3900,8 +3832,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3934,8 +3865,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -3968,8 +3898,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -4002,8 +3931,7 @@ SUBROUTINE AUXCFG
                      CFADD(K,3)=I
                      CFADD(K,8)=0
                      CFADD(K,9)=J
-                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17)&
-                     &.NE.'CENT    ') THEN
+                     IF(SCRATH(J)(10:17).NE.'DELT    '.AND.SCRATH(J)(10:17).NE.'CENT    ') THEN
                         AN1=SCRATH(J)(10:32)
                         CALL AUXATN
                         CFVAL(K,1)=N1
@@ -4052,6 +3980,7 @@ END
 SUBROUTINE BLKHEAD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -4090,14 +4019,15 @@ SUBROUTINE BLKHEAD
       RETURN
    END IF
 !
-   IF(WQ.EQ.'YES'.OR.WQ.EQ.'ON') ALENS(58,SURF)=1.0D0
-   IF(WQ.EQ.'NO'.OR.WQ.EQ.'OFF') ALENS(58,SURF)=0.0D0
+   IF(WQ.EQ.'YES'.OR.WQ.EQ.'ON')call set_surf_footblok_flag(SURF, 1)
+   IF(WQ.EQ.'NO'.OR.WQ.EQ.'OFF')call set_surf_footblok_flag(SURF, 0)
    RETURN
 END
 ! SUB CVFLIP.FOR
 SUBROUTINE CVFLIP
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -4142,8 +4072,7 @@ SUBROUTINE CVFLIP
       RETURN
    END IF
    IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"FLIP" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
+      WRITE(OUTLYNE,*)'"FLIP" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4175,10 +4104,8 @@ SUBROUTINE CVFLIP
    CALL FRCCF1(1)
 !
 !     LOAD THE LENS INTO THE TEMPLEN
-   DEALLOCATE(TEMPLEN,&
-   &TEMPGLA,STAT=ALLOERR)
-   ALLOCATE(TEMPLEN(1:LSIZ,0:MAXSUR),&
-   &TEMPGLA(0:MAXSUR,1:2),STAT=ALLOERR)
+   DEALLOCATE(TEMPLEN,TEMPGLA,STAT=ALLOERR)
+   ALLOCATE(TEMPLEN(1:LSIZ,0:MAXSUR),TEMPGLA(0:MAXSUR,1:2),STAT=ALLOERR)
    TEMPLEN(1:LSIZ,0:MAXSUR)=ALENS(1:LSIZ,0:MAXSUR)
    TEMPGLA(0:MAXSUR,1:2)=GLANAM(0:MAXSUR,1:2)
 !     STEPS
@@ -4186,60 +4113,46 @@ SUBROUTINE CVFLIP
 !     1. IF THERE IS ALTERNATE CONFIG STUFF, PRINT WARNING MESSAGE
 !     THAT "FLIP" ONLY AFFECTS THE MAIN CFG #1
    IF(SYSTEM(56).GT.1.0D0) THEN
-      WRITE(OUTLYNE,*)&
-      &'WARNING:'
+      WRITE(OUTLYNE,*)'WARNING:'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'THE CURRENT LENS HAS ALTERNATE CONFIGURATIONS DEFINED'
+      WRITE(OUTLYNE,*)'THE CURRENT LENS HAS ALTERNATE CONFIGURATIONS DEFINED'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'ONLY THE MAIN CONFIGURATION DATA WILL BE FLIPPED'
+      WRITE(OUTLYNE,*)'ONLY THE MAIN CONFIGURATION DATA WILL BE FLIPPED'
       CALL SHOWIT(1)
    END IF
 !     2. IF THERE ARE TILTS OR DECENTERS IN THE I TO J RANGE
 !     PRINT MESSAGE THAT THEY WILL BE DELETED
    DO K=I,J
-      IF(ALENS(25,K).NE.0.0D0.OR.ALENS(29,K).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING:'
+      IF(surf_tilt_flag(K).NE.0.0D0.OR.surf_decenter_flag(K).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'THERE ARE TILTS AND/OR DECENTERS IN THE SURFACE NUMBER RANGE'
+         WRITE(OUTLYNE,*)'THERE ARE TILTS AND/OR DECENTERS IN THE SURFACE NUMBER RANGE'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'ALL TILTS AND/OR DECENTERS IN THE SURFACE RANGE WILL BE DELETED'
+         WRITE(OUTLYNE,*)'ALL TILTS AND/OR DECENTERS IN THE SURFACE RANGE WILL BE DELETED'
          CALL SHOWIT(1)
          GO TO 20
       END IF
    END DO
 20 CONTINUE
    DO K=I,J
-      IF(ALENS(90,K).NE.0.0D0.OR.ALENS(91,K).NE.0.0D0.OR.&
-      &ALENS(92,K).NE.0.0D0.OR.ALENS(93,K).NE.0.0D0.OR.&
-      &ALENS(94,K).NE.0.0D0.OR.ALENS(95,K).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING:'
+      IF(surf_global_dx(K).NE.0.0D0.OR.surf_global_dy(K).NE.0.0D0.OR.surf_global_dz(K).NE.0.0D0.OR.surf_global_alpha(K).NE.0.0D0.OR.surf_global_beta(K).NE.0.0D0.OR.surf_global_gamma(K).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'THERE ARE GLOBAL TILTS AND/OR DECENTERS'
+         WRITE(OUTLYNE,*)'THERE ARE GLOBAL TILTS AND/OR DECENTERS'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'IN THE SURFACE NUMBER RANGE WHICH WILL BE DELETED'
+         WRITE(OUTLYNE,*)'IN THE SURFACE NUMBER RANGE WHICH WILL BE DELETED'
          CALL SHOWIT(1)
          GO TO 21
       END IF
    END DO
 21 CONTINUE
    DO K=I,J
-      IF(ALENS(32,K).NE.0.0D0.OR.ALENS(33,K).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING:'
+      IF(surf_special_type(K).NE.0.0D0.OR.surf_solve_flag(K).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'THERE ARE PIKUPS OR TILTS IN THE SURFACE NUMBER RANGE'
+         WRITE(OUTLYNE,*)'THERE ARE PIKUPS OR TILTS IN THE SURFACE NUMBER RANGE'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'WHICH WILL BE DELETED'
+         WRITE(OUTLYNE,*)'WHICH WILL BE DELETED'
          CALL SHOWIT(1)
          GO TO 22
       END IF
@@ -4247,24 +4160,20 @@ SUBROUTINE CVFLIP
 22 CONTINUE
 !
    DO K=I,J
-      IF(ALENS(96,K).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING:'
+      IF(surf_diffraction_flag(K).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'AFTER "FLIP", CHECK DIFFRACTION GRATING DIRECTION NUMBERS'
+         WRITE(OUTLYNE,*)'AFTER "FLIP", CHECK DIFFRACTION GRATING DIRECTION NUMBERS'
          CALL SHOWIT(1)
          GO TO 23
       END IF
    END DO
 23 CONTINUE
    DO K=I,J
-      IF(ALENS(34,K).NE.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING:'
+      IF(surf_asi_flag(K).NE.0.0D0) THEN
+         WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'NO SPECIAL SURFACE DATA IS FLIPED BY "FLIP"'
+         WRITE(OUTLYNE,*)'NO SPECIAL SURFACE DATA IS FLIPED BY "FLIP"'
          CALL SHOWIT(1)
          GO TO 24
       END IF
@@ -4282,14 +4191,14 @@ SUBROUTINE CVFLIP
       ALENS(25:31,K)=0.0D0
       ALENS(33:34,K)=0.0D0
       ALENS(90:95,K)=0.0D0
-      ALENS(59,K)=0.0D0
-      ALENS(116,K)=0.0D0
-      ALENS(70,K)=0.0D0
+      call set_surf_pivot_flag(K, 0)
+      call set_surf_focus_dz(K, 0.0D0)
+      call set_surf_ret_surf_num(K, 0)
       ALENS(77:80,K)=0.0D0
 !     FLIP CURVATURE SIGNS
-      ALENS(1,K)=-ALENS(1,K)
+      call set_surf_curvature(K, -surf_curvature(K))
       ALENS(4:7,K)=-ALENS(4:7,K)
-      ALENS(24,K)=-ALENS(24,K)
+      call set_surf_toric_curvature(K, -surf_toric_curvature(K))
       ALENS(37:43,K)=-ALENS(37:43,K)
       ALENS(38:43,K)=-ALENS(38:43,K)
       ALENS(81:85,K)=-ALENS(81:85,K)
@@ -4297,7 +4206,7 @@ SUBROUTINE CVFLIP
    JJ=J-1
    DO K=I,JJ
       BCNT=I+(JJ-K)
-      ALENS(3,K)=TEMPLEN(3,BCNT)
+      call set_surf_thickness(K, TEMPLEN(3,BCNT))
       ALENS(46:50,K)=1.0D0
       ALENS(71:75,K)=1.0D0
       GLANAM(K,1:2)=TEMPGLA(BCNT,1:2)
@@ -4310,8 +4219,7 @@ SUBROUTINE CVFLIP
 !
 
 !     4. PRINT MESSGE THAT SURFACES HAVE BEEN FLIPPED
-   WRITE(OUTLYNE,*)&
-   &'THE REQUESTED "FLIP" HAS BEEN PERFORMED'
+   WRITE(OUTLYNE,*)'THE REQUESTED "FLIP" HAS BEEN PERFORMED'
    CALL SHOWIT(1)
    DEALLOCATE(TEMPLEN,TEMPGLA,STAT=ALLOERR)
    RETURN
@@ -4320,6 +4228,7 @@ END
 SUBROUTINE HEXROLL
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -4333,9 +4242,7 @@ SUBROUTINE HEXROLL
 !
    COMMON/REMSURF/SURFN
 !
-   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 &
-   &,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,&
-   &COSB,SINB,DXER,DYER,NEWALPHA,NEWBETA,TH
+   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 ,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,COSB,SINB,DXER,DYER,NEWALPHA,NEWBETA,TH
 !
 !
 !
@@ -4386,7 +4293,7 @@ SUBROUTINE HEXROLL
       CALL MACFAL
       RETURN
    END IF
-   IF(DABS(ALENS(3,INT(W1-1.0D0))).GE.1.0D10) THEN
+   IF(DABS(surf_thickness(INT(W1-1.0D0))).GE.1.0D10) THEN
       WRITE(OUTLYNE,*)'SURFACE I-1 MUST HAVE A FINITE THICKNESS'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4395,8 +4302,7 @@ SUBROUTINE HEXROLL
       RETURN
    END IF
    IF((W2).GE.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE MUST COME BEFORE THE FINAL SURFACE'
+      WRITE(OUTLYNE,*)'ENDING SURFACE MUST COME BEFORE THE FINAL SURFACE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4404,8 +4310,7 @@ SUBROUTINE HEXROLL
       RETURN
    END IF
    IF(W1.GT.W2) THEN
-      WRITE(OUTLYNE,*)&
-      &'STARTING SURFACE MUST COME BEFORE ENDING SURFACE'
+      WRITE(OUTLYNE,*)'STARTING SURFACE MUST COME BEFORE ENDING SURFACE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4477,13 +4382,11 @@ SUBROUTINE HEXROLL
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-         &ALPHA=DATAN2((D32/COSB),(D33/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)ALPHA=DATAN2((D32/COSB),(D33/COSB))
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).NE.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)&
-         &GAMMA=DATAN2((-D21/COSB),(D11/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)GAMMA=DATAN2((-D21/COSB),(D11/COSB))
          ALPHA=(180.0D0/PII)*ALPHA
          BETA=(180.0D0/PII)*BETA
          GAMMA=(180.0D0/PII)*GAMMA
@@ -4496,24 +4399,16 @@ SUBROUTINE HEXROLL
          IF(SINB.EQ.-1) BETA=-90.0D0
          GAMMA=0.0D0
          IF(SINB.EQ.1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((D12),(D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((D12),(D13))
          END IF
          IF(SINB.EQ.-1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((-D12),(-D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((-D12),(-D13))
          END IF
          ALPHA=(180.0D0/PII)*ALPHA
       END IF
@@ -4544,7 +4439,7 @@ SUBROUTINE HEXROLL
       STI=0
       W1=DBLE(I)
       CALL CONTRO
-      IF(ALENS(1,I).EQ.0.0D0) THEN
+      IF(surf_curvature(I).EQ.0.0D0) THEN
 !     FLAT, DO A DECENTER
          WC='XD'
          WQ='        '
@@ -4562,7 +4457,7 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=DXER+ALENS(114,I)
+         W1=DXER+surf_focus_dx(I)
          CALL CONTRO
          WC='YD'
          WQ='        '
@@ -4580,15 +4475,15 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=DYER+ALENS(115,I)
+         W1=DYER+surf_focus_dy(I)
          CALL CONTRO
       ELSE
 !     CALCULATE ALPHA AND BETA TILTS AND APPLY THEM
-         NEWALPHA=-(180.0D0/PII)*DATAN2(DYER,DABS(1.0D0/ALENS(1,I)))
-         NEWBETA= (180.0D0/PII)*DATAN2(DXER,DABS(1.0D0/ALENS(1,I)))
+         NEWALPHA=-(180.0D0/PII)*DATAN2(DYER,DABS(1.0D0/surf_curvature(I)))
+         NEWBETA= (180.0D0/PII)*DATAN2(DXER,DABS(1.0D0/surf_curvature(I)))
          IF(NEWALPHA.GT.180.0D0) NEWALPHA=NEWALPHA-360.0D0
          IF(NEWBETA.GT.180.0D0) NEWBETA=NEWBETA-360.0D0
-         IF(ALENS(1,I).LT.0.0D0) THEN
+         IF(surf_curvature(I).LT.0.0D0) THEN
             NEWALPHA=-NEWALPHA
             NEWBETA =-NEWBETA
          END IF
@@ -4608,7 +4503,7 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=NEWALPHA+ALENS(118,I)
+         W1=NEWALPHA+surf_alpha_deg(I)
          CALL CONTRO
          WC='BETA'
          WQ='        '
@@ -4626,11 +4521,11 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=NEWBETA+ALENS(119,I)
+         W1=NEWBETA+surf_beta_deg(I)
          CALL CONTRO
       END IF
 !     DO A PIVOT AT THE CENTER OF CURVATURE ASSUMING NO INITIAL TILTS
-      IF(ALENS(1,I).NE.0.0D0) THEN
+      IF(surf_curvature(I).NE.0.0D0) THEN
          WC='PIVOT'
          WQ='        '
          SQ=0
@@ -4649,7 +4544,7 @@ SUBROUTINE HEXROLL
          STI=0
          W1=0.0D0
          W2=0.0D0
-         W3=1.0D0/ALENS(1,I)
+         W3=1.0D0/surf_curvature(I)
          CALL CONTRO
       END IF
       INPUT='EOS'
@@ -4884,13 +4779,11 @@ SUBROUTINE HEXROLL
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-         &ALPHA=DATAN2((D32/COSB),(D33/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)ALPHA=DATAN2((D32/COSB),(D33/COSB))
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).NE.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)&
-         &GAMMA=DATAN2((-D21/COSB),(D11/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)GAMMA=DATAN2((-D21/COSB),(D11/COSB))
          ALPHA=(180.0D0/PII)*ALPHA
          BETA=(180.0D0/PII)*BETA
          GAMMA=(180.0D0/PII)*GAMMA
@@ -4903,24 +4796,16 @@ SUBROUTINE HEXROLL
          IF(SINB.EQ.-1) BETA=-90.0D0
          GAMMA=0.0D0
          IF(SINB.EQ.1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((D12),(D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((D12),(D13))
          END IF
          IF(SINB.EQ.-1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((-D12),(-D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((-D12),(-D13))
          END IF
          ALPHA=(180.0D0/PII)*ALPHA
       END IF
@@ -4951,7 +4836,7 @@ SUBROUTINE HEXROLL
       STI=0
       W1=DBLE(I)
       CALL CONTRO
-      IF(ALENS(1,K).EQ.0.0D0) THEN
+      IF(surf_curvature(K).EQ.0.0D0) THEN
 !     FLAT, DO A DECENTER
          WC='XD'
          WQ='        '
@@ -4969,7 +4854,7 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=DXER+ALENS(114,I)
+         W1=DXER+surf_focus_dx(I)
          CALL CONTRO
          WC='YD'
          WQ='        '
@@ -4987,15 +4872,15 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=DYER+ALENS(115,I)
+         W1=DYER+surf_focus_dy(I)
          CALL CONTRO
       ELSE
 !     CALCULATE ALPHA AND BETA TILTS AND APPLY THEM
-         NEWALPHA=(180.0D0/PII)*DATAN2(DYER,DABS(1.0D0/ALENS(1,K)))
-         NEWBETA= -(180.0D0/PII)*DATAN2(DXER,DABS(1.0D0/ALENS(1,K)))
+         NEWALPHA=(180.0D0/PII)*DATAN2(DYER,DABS(1.0D0/surf_curvature(K)))
+         NEWBETA= -(180.0D0/PII)*DATAN2(DXER,DABS(1.0D0/surf_curvature(K)))
          IF(NEWALPHA.GT.180.0D0) NEWALPHA=NEWALPHA-360.0D0
          IF(NEWBETA.GT.180.0D0) NEWBETA=NEWBETA-360.0D0
-         IF(ALENS(1,K).GT.0.0D0) THEN
+         IF(surf_curvature(K).GT.0.0D0) THEN
             NEWALPHA=-NEWALPHA
             NEWBETA =-NEWBETA
          END IF
@@ -5015,7 +4900,7 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=NEWALPHA+ALENS(118,I)
+         W1=NEWALPHA+surf_alpha_deg(I)
          CALL CONTRO
          WC='BETA'
          WQ='        '
@@ -5033,15 +4918,15 @@ SUBROUTINE HEXROLL
          SN=1
          SST=0
          STI=0
-         W1=NEWBETA+ALENS(119,I)
+         W1=NEWBETA+surf_beta_deg(I)
          CALL CONTRO
       END IF
 !     DO A PIVOT AT THE CENTER OF CURVATURE ASSUMING NO INITIAL TILTS
-      IF(ALENS(1,K).NE.0.0D0) THEN
+      IF(surf_curvature(K).NE.0.0D0) THEN
 !     ASSUME NO TILTS OR DECENTERS BETWEEN I AND J
          TH=0.0D0
          DO L=I,J-1
-            TH=TH+ALENS(3,L)
+            TH=TH+surf_thickness(L)
          END DO
          WC='PIVOT'
          WQ='        '
@@ -5061,7 +4946,7 @@ SUBROUTINE HEXROLL
          STI=0
          W1=0.0D0
          W2=0.0D0
-         W3=TH+(1.0D0/ALENS(1,K))
+         W3=TH+(1.0D0/surf_curvature(K))
          CALL CONTRO
       END IF
       INPUT='EOS'
@@ -5330,6 +5215,7 @@ END
 SUBROUTINE HEXSTILT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -5347,15 +5233,12 @@ SUBROUTINE HEXSTILT
 !
    COMMON/REMSURF/SURFN
 !
-   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 &
-   &,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,&
-   &COSB,SINB,DALPHA,DBETA,DGAMMA
+   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 ,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,COSB,SINB,DALPHA,DBETA,DGAMMA
 !
 !
 !     STILT PIVOT
    IF(SQ.EQ.1.AND.WQ.NE.'PIVOT'.AND.WQ.NE.'PIVAUTO') THEN
-      WRITE(OUTLYNE,*)&
-      &'"STILT" ONLY TAKES "PIVOT" AND "PIVAUTO" AS AN OPTIONAL'
+      WRITE(OUTLYNE,*)'"STILT" ONLY TAKES "PIVOT" AND "PIVAUTO" AS AN OPTIONAL'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'"QUALIFIER WORD'
       CALL SHOWIT(1)
@@ -5397,8 +5280,7 @@ SUBROUTINE HEXSTILT
       RETURN
    END IF
    IF(STI.EQ.1.AND.WQ.EQ.'PIVAUTO') THEN
-      WRITE(OUTLYNE,*)&
-      &'"STILT PIVAUTO" TAKES THE FOLLOWING OPTIONAL INPUT:'
+      WRITE(OUTLYNE,*)'"STILT PIVAUTO" TAKES THE FOLLOWING OPTIONAL INPUT:'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NUMERIC WORD #1 IS X-PIVOT OFFSET'
       CALL SHOWIT(1)
@@ -5425,7 +5307,7 @@ SUBROUTINE HEXSTILT
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
-      IF(DABS(ALENS(3,INT(W1-1.0D0))).GE.1.0D10) THEN
+      IF(DABS(surf_thickness(INT(W1-1.0D0))).GE.1.0D10) THEN
          WRITE(OUTLYNE,*)'SURFACE I-1 MUST HAVE A FINITE THICKNESS'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5434,8 +5316,7 @@ SUBROUTINE HEXSTILT
          RETURN
       END IF
       IF((W1).GE.SYSTEM(20)) THEN
-         WRITE(OUTLYNE,*)&
-         &'SURFACE MUST COME BEFORE THE FINAL SURFACE'
+         WRITE(OUTLYNE,*)'SURFACE MUST COME BEFORE THE FINAL SURFACE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -5452,8 +5333,7 @@ SUBROUTINE HEXSTILT
       RETURN
    END IF
    IF(SQ.EQ.1.AND.DF4.EQ.0.OR.SQ.EQ.1.AND.DF5.EQ.0) THEN
-      WRITE(OUTLYNE,*)&
-      &'"STILT PIVOT and PIVAUTO" TAKE NO NUMERIC WORD #4 OR #5 INPUT'
+      WRITE(OUTLYNE,*)'"STILT PIVOT and PIVAUTO" TAKE NO NUMERIC WORD #4 OR #5 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -5522,13 +5402,11 @@ SUBROUTINE HEXSTILT
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-         &ALPHA=DATAN2((D32/COSB),(D33/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)ALPHA=DATAN2((D32/COSB),(D33/COSB))
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).NE.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)&
-         &GAMMA=DATAN2((-D21/COSB),(D11/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)GAMMA=DATAN2((-D21/COSB),(D11/COSB))
          ALPHA=(180.0D0/PII)*ALPHA
          BETA=(180.0D0/PII)*BETA
          GAMMA=(180.0D0/PII)*GAMMA
@@ -5541,24 +5419,16 @@ SUBROUTINE HEXSTILT
          IF(SINB.EQ.-1) BETA=-90.0D0
          GAMMA=0.0D0
          IF(SINB.EQ.1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((D12),(D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((D12),(D13))
          END IF
          IF(SINB.EQ.-1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((-D12),(-D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((-D12),(-D13))
          END IF
          ALPHA=(180.0D0/PII)*ALPHA
       END IF
@@ -5605,7 +5475,7 @@ SUBROUTINE HEXSTILT
       SN=1
       SST=0
       STI=0
-      W1=DALPHA+ALENS(118,I)
+      W1=DALPHA+surf_alpha_deg(I)
       CALL CONTRO
       WC='BETA'
       WQ='        '
@@ -5623,7 +5493,7 @@ SUBROUTINE HEXSTILT
       SN=1
       SST=0
       STI=0
-      W1=DBETA+ALENS(119,I)
+      W1=DBETA+surf_beta_deg(I)
       CALL CONTRO
       WC='GAMMA'
       WQ='        '
@@ -5641,11 +5511,10 @@ SUBROUTINE HEXSTILT
       SN=1
       SST=0
       STI=0
-      W1=DGAMMA+ALENS(120,I)
+      W1=DGAMMA+surf_gamma_deg(I)
       CALL CONTRO
       IF(.NOT.STILTAUTO) THEN
-         IF(STILTXP.NE.0.0D0.OR.STILTYP.NE.0.0D0.OR.&
-         &STILTZP.NE.0.0D0) THEN
+         IF(STILTXP.NE.0.0D0.OR.STILTYP.NE.0.0D0.OR.STILTZP.NE.0.0D0) THEN
             WC='PIVOT'
             WQ='        '
             SQ=0
@@ -5668,9 +5537,7 @@ SUBROUTINE HEXSTILT
             CALL CONTRO
          END IF
       ELSE
-         IF(STILTXP.NE.0.0D0.OR.STILTYP.NE.0.0D0.OR.&
-         &STILTZP.NE.0.0D0.OR.REFRY(1,SURFN).NE.0.0D0.OR.&
-         &REFRY(2,SURFN).NE.0.0D0.OR.REFRY(3,SURFN).NE.0.0D0) THEN
+         IF(STILTXP.NE.0.0D0.OR.STILTYP.NE.0.0D0.OR.STILTZP.NE.0.0D0.OR.REFRY(1,SURFN).NE.0.0D0.OR.REFRY(2,SURFN).NE.0.0D0.OR.REFRY(3,SURFN).NE.0.0D0) THEN
             WC='PIVOT'
             WQ='        '
             SQ=0
@@ -5904,8 +5771,7 @@ SUBROUTINE HEXSTILT
          STILTYP=0.0D0
          STILTZP=0.0D0
          STILTAUTO=.FALSE.
-         WRITE(OUTLYNE,*)&
-         &'"STILT PIVAUTO" REQUIRES REFERENCE RAY DATA TO EXIST'
+         WRITE(OUTLYNE,*)'"STILT PIVAUTO" REQUIRES REFERENCE RAY DATA TO EXIST'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'TRACE A CHIEF RAY WITH THE "FOB" COMMAND'
          CALL SHOWIT(1)
@@ -6005,6 +5871,7 @@ END
 SUBROUTINE HEXDISP
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -6015,9 +5882,7 @@ SUBROUTINE HEXDISP
 !       DISP, I J XD YD ZD
 !
    INTEGER I,J
-   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 &
-   &,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,&
-   &COSB,SINB,XDEC,YDEC,ZDEC
+   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 ,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,COSB,SINB,XDEC,YDEC,ZDEC
 !
 !
 !
@@ -6078,7 +5943,7 @@ SUBROUTINE HEXDISP
       CALL MACFAL
       RETURN
    END IF
-   IF(DABS(ALENS(3,INT(W1-1.0D0))).GE.1.0D10) THEN
+   IF(DABS(surf_thickness(INT(W1-1.0D0))).GE.1.0D10) THEN
       WRITE(OUTLYNE,*)'SURFACE I-1 MUST HAVE A FINITE THICKNESS'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -6087,8 +5952,7 @@ SUBROUTINE HEXDISP
       RETURN
    END IF
    IF(W2.GE.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE MUST COME BEFORE THE FINAL SURFACE'
+      WRITE(OUTLYNE,*)'ENDING SURFACE MUST COME BEFORE THE FINAL SURFACE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -6156,13 +6020,11 @@ SUBROUTINE HEXDISP
       IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) ALPHA=0.0D0
       IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=0.0D0
       IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=PII/2.0D0
-      IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-      &ALPHA=DATAN2((D32/COSB),(D33/COSB))
+      IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)ALPHA=DATAN2((D32/COSB),(D33/COSB))
       IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).NE.0.0D0) GAMMA=0.0D0
       IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=0.0D0
       IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=PII/2.0D0
-      IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)&
-      &GAMMA=DATAN2((-D21/COSB),(D11/COSB))
+      IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)GAMMA=DATAN2((-D21/COSB),(D11/COSB))
       ALPHA=(180.0D0/PII)*ALPHA
       BETA=(180.0D0/PII)*BETA
       GAMMA=(180.0D0/PII)*GAMMA
@@ -6175,24 +6037,16 @@ SUBROUTINE HEXDISP
       IF(SINB.EQ.-1) BETA=-90.0D0
       GAMMA=0.0D0
       IF(SINB.EQ.1) THEN
-         IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-         &ALPHA=0.0D0
-         IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-         &ALPHA=0.0D0
-         IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-         &ALPHA=PII/2.0D0
-         IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-         &ALPHA=DATAN2((D12),(D13))
+         IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+         IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+         IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+         IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((D12),(D13))
       END IF
       IF(SINB.EQ.-1) THEN
-         IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-         &ALPHA=0.0D0
-         IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-         &ALPHA=0.0D0
-         IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-         &ALPHA=PII/2.0D0
-         IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-         &ALPHA=DATAN2((-D12),(-D13))
+         IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+         IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+         IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+         IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((-D12),(-D13))
       END IF
       ALPHA=(180.0D0/PII)*ALPHA
    END IF
@@ -6238,7 +6092,7 @@ SUBROUTINE HEXDISP
    SN=1
    SST=0
    STI=0
-   W1=XDEC+ALENS(114,I)
+   W1=XDEC+surf_focus_dx(I)
    CALL CONTRO
    WC='YD'
    WQ='        '
@@ -6256,7 +6110,7 @@ SUBROUTINE HEXDISP
    SN=1
    SST=0
    STI=0
-   W1=YDEC+ALENS(115,I)
+   W1=YDEC+surf_focus_dy(I)
    CALL CONTRO
    WC='ZD'
    WQ='        '
@@ -6274,7 +6128,7 @@ SUBROUTINE HEXDISP
    SN=1
    SST=0
    STI=0
-   W1=ZDEC+ALENS(116,I)
+   W1=ZDEC+surf_focus_dz(I)
    CALL CONTRO
    INPUT='EOS'
    CALL PROCES
@@ -6505,6 +6359,7 @@ END
 SUBROUTINE HEXBTILT
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -6522,15 +6377,12 @@ SUBROUTINE HEXBTILT
 !
    COMMON/REMSURF/SURFN
 !
-   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 &
-   &,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,&
-   &COSB,SINB,DALPHA,DBETA,DGAMMA
+   REAL*8 D11,D12,D13,D21,D22,D23,D31,D32,D33,DX1,DY1 ,DZ1,ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA,GDECX,GDECY,GDECZ,COSB,SINB,DALPHA,DBETA,DGAMMA
 !
 !
 !     BTILT PIVOT
    IF(SQ.EQ.1.AND.WQ.NE.'PIVOT'.AND.WQ.NE.'PIVAUTO') THEN
-      WRITE(OUTLYNE,*)&
-      &'"BTILT" ONLY TAKES "PIVOT" AND "PIVAUTO" AS AN OPTIONAL'
+      WRITE(OUTLYNE,*)'"BTILT" ONLY TAKES "PIVOT" AND "PIVAUTO" AS AN OPTIONAL'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'"QUALIFIER WORD'
       CALL SHOWIT(1)
@@ -6574,8 +6426,7 @@ SUBROUTINE HEXBTILT
       RETURN
    END IF
    IF(STI.EQ.1.AND.WQ.EQ.'PIVAUTO') THEN
-      WRITE(OUTLYNE,*)&
-      &'"BTILT PIVAUTO" TAKES THE FOLLOWING OPTIONAL INPUT:'
+      WRITE(OUTLYNE,*)'"BTILT PIVAUTO" TAKES THE FOLLOWING OPTIONAL INPUT:'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NUMERIC WORD #1 IS X-PIVOT OFFSET'
       CALL SHOWIT(1)
@@ -6610,7 +6461,7 @@ SUBROUTINE HEXBTILT
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
-      IF(DABS(ALENS(3,INT(W1-1.0D0))).GE.1.0D10) THEN
+      IF(DABS(surf_thickness(INT(W1-1.0D0))).GE.1.0D10) THEN
          WRITE(OUTLYNE,*)'SURFACE I-1 MUST HAVE A FINITE THICKNESS'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -6619,8 +6470,7 @@ SUBROUTINE HEXBTILT
          RETURN
       END IF
       IF((W2).GE.SYSTEM(20)) THEN
-         WRITE(OUTLYNE,*)&
-         &'ENDING SURFACE MUST COME BEFORE THE FINAL SURFACE'
+         WRITE(OUTLYNE,*)'ENDING SURFACE MUST COME BEFORE THE FINAL SURFACE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -6628,8 +6478,7 @@ SUBROUTINE HEXBTILT
          RETURN
       END IF
       IF(W1.GT.W2) THEN
-         WRITE(OUTLYNE,*)&
-         &'STARTING SURFACE MUST COME BEFORE ENDING SURFACE'
+         WRITE(OUTLYNE,*)'STARTING SURFACE MUST COME BEFORE ENDING SURFACE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -6638,8 +6487,7 @@ SUBROUTINE HEXBTILT
       END IF
    END IF
    IF(SQ.EQ.1.AND.DF4.EQ.0.OR.SQ.EQ.1.AND.DF5.EQ.0) THEN
-      WRITE(OUTLYNE,*)&
-      &'"BTILT PIVOT and PIVAUTO" TAKE NO NUMERIC WORD #4 OR #5 INPUT'
+      WRITE(OUTLYNE,*)'"BTILT PIVOT and PIVAUTO" TAKE NO NUMERIC WORD #4 OR #5 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -6709,13 +6557,11 @@ SUBROUTINE HEXBTILT
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=0.0D0
          IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-         &ALPHA=DATAN2((D32/COSB),(D33/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)ALPHA=DATAN2((D32/COSB),(D33/COSB))
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).NE.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=0.0D0
          IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).EQ.0.0D0) GAMMA=PII/2.0D0
-         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)&
-         &GAMMA=DATAN2((-D21/COSB),(D11/COSB))
+         IF((D32/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)GAMMA=DATAN2((-D21/COSB),(D11/COSB))
          ALPHA=(180.0D0/PII)*ALPHA
          BETA=(180.0D0/PII)*BETA
          GAMMA=(180.0D0/PII)*GAMMA
@@ -6728,24 +6574,16 @@ SUBROUTINE HEXBTILT
          IF(SINB.EQ.-1) BETA=-90.0D0
          GAMMA=0.0D0
          IF(SINB.EQ.1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((D12),(D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((D12),(D13))
          END IF
          IF(SINB.EQ.-1) THEN
-            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=0.0D0
-            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)&
-            &ALPHA=PII/2.0D0
-            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)&
-            &ALPHA=DATAN2((-D12),(-D13))
+            IF(D12.EQ.0.0D0.AND.D13.NE.0.0D0)ALPHA=0.0D0
+            IF(D12.EQ.0.0D0.AND.D13.EQ.0.0D0)ALPHA=0.0D0
+            IF(D12.NE.0.0D0.AND.D13.EQ.0.0D0)ALPHA=PII/2.0D0
+            IF(D12.NE.0.0D0.AND.D13.NE.0.0D0)ALPHA=DATAN2((-D12),(-D13))
          END IF
          ALPHA=(180.0D0/PII)*ALPHA
       END IF
@@ -6792,7 +6630,7 @@ SUBROUTINE HEXBTILT
       SN=1
       SST=0
       STI=0
-      W1=DALPHA+ALENS(118,I)
+      W1=DALPHA+surf_alpha_deg(I)
       CALL CONTRO
       WC='BETA'
       WQ='        '
@@ -6810,7 +6648,7 @@ SUBROUTINE HEXBTILT
       SN=1
       SST=0
       STI=0
-      W1=DBETA+ALENS(119,I)
+      W1=DBETA+surf_beta_deg(I)
       CALL CONTRO
       WC='GAMMA'
       WQ='        '
@@ -6828,11 +6666,10 @@ SUBROUTINE HEXBTILT
       SN=1
       SST=0
       STI=0
-      W1=DGAMMA+ALENS(120,I)
+      W1=DGAMMA+surf_gamma_deg(I)
       CALL CONTRO
       IF(.NOT.BTILTAUTO) THEN
-         IF(BTILTXP.NE.0.0D0.OR.BTILTYP.NE.0.0D0.OR.&
-         &BTILTZP.NE.0.0D0) THEN
+         IF(BTILTXP.NE.0.0D0.OR.BTILTYP.NE.0.0D0.OR.BTILTZP.NE.0.0D0) THEN
             WC='PIVOT'
             WQ='        '
             SQ=0
@@ -6855,9 +6692,7 @@ SUBROUTINE HEXBTILT
             CALL CONTRO
          END IF
       ELSE
-         IF(BTILTXP.NE.0.0D0.OR.BTILTYP.NE.0.0D0.OR.&
-         &BTILTZP.NE.0.0D0.OR.REFRY(1,SURFN).NE.0.0D0.OR.&
-         &REFRY(2,SURFN).NE.0.0D0.OR.REFRY(3,SURFN).NE.0.0D0) THEN
+         IF(BTILTXP.NE.0.0D0.OR.BTILTYP.NE.0.0D0.OR.BTILTZP.NE.0.0D0.OR.REFRY(1,SURFN).NE.0.0D0.OR.REFRY(2,SURFN).NE.0.0D0.OR.REFRY(3,SURFN).NE.0.0D0) THEN
             WC='PIVOT'
             WQ='        '
             SQ=0
@@ -7091,8 +6926,7 @@ SUBROUTINE HEXBTILT
          BTILTYP=0.0D0
          BTILTZP=0.0D0
          BTILTAUTO=.FALSE.
-         WRITE(OUTLYNE,*)&
-         &'"BTILT PIVAUTO" REQUIRES REFERENCE RAY DATA TO EXIST'
+         WRITE(OUTLYNE,*)'"BTILT PIVAUTO" REQUIRES REFERENCE RAY DATA TO EXIST'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'TRACE A CHIEF RAY WITH THE "FOB" COMMAND'
          CALL SHOWIT(1)

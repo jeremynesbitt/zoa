@@ -1,32 +1,24 @@
 !       TENTH FILE FOR LENS DATABASE MANAGER FILES
 
-SUBROUTINE CTOA(AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9,&
-&AM10,SYSA,ALENA,SLVA,PIKA,FT01A,LIA,LICA,GLANMA,ALBL &
-&,LLTYPEA,INNIA,MULTCLAPA,MULTCOBSA,AIPOLYX,AIPOLYY)
+SUBROUTINE CTOA(AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9,AM10,SYSA,ALENA,SLVA,PIKA,FT01A,LIA,LICA,GLANMA,ALBL ,LLTYPEA,INNIA,MULTCLAPA,MULTCOBSA,AIPOLYX,AIPOLYY)
 !     COPIES THE CURRENT LENS TO THE ARCHIEVE LENS
 !
    use DATLEN
+   use mod_surface
    IMPLICIT NONE
 !
-   INTEGER III,IIII,II,AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9 &
-   &,AM10,I,J,K,L
+   INTEGER III,IIII,II,AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9 ,AM10,I,J,K,L
 !
 !
 !     ADDED 1/1/96 FOR LENADD BUG FIX
 !       VARIABLES FOR THE ARCHIEVE LENS USED IN LENADD
-   CHARACTER LICA*80,LIA*80,GLANMA*13,LLTYPEA*80,INNIA*80 &
-   &,ALBL*80
+   CHARACTER LICA*80,LIA*80,GLANMA*13,LLTYPEA*80,INNIA*80 ,ALBL*80
 !
-   DIMENSION LICA(AM6),GLANMA(AM10:AM3,AM9)&
-   &,ALBL(AM10:AM3)
+   DIMENSION LICA(AM6),GLANMA(AM10:AM3,AM9),ALBL(AM10:AM3)
 !
-   REAL*8 SYSA,ALENA,AIPOLYX,AIPOLYY,&
-   &SLVA,PIKA,FT01A,MULTCLAPA,MULTCOBSA
+   REAL*8 SYSA,ALENA,AIPOLYX,AIPOLYY,SLVA,PIKA,FT01A,MULTCLAPA,MULTCOBSA
 !
-   DIMENSION SYSA(AM1),ALENA(AM2,AM10:AM3),&
-   &SLVA(AM5:AM6,AM10:AM3),PIKA(AM7,AM10:AM3,AM4),FT01A(AM8,AM10:AM3)&
-   &,MULTCLAPA(1:1000,1:3,0:AM3),MULTCOBSA(1:1000,1:3,0:AM3),&
-   &AIPOLYX(1:200,AM10:AM3,1:4),AIPOLYY(1:200,AM10:AM3,1:4)
+   DIMENSION SYSA(AM1),ALENA(AM2,AM10:AM3),SLVA(AM5:AM6,AM10:AM3),PIKA(AM7,AM10:AM3,AM4),FT01A(AM8,AM10:AM3),MULTCLAPA(1:1000,1:3,0:AM3),MULTCOBSA(1:1000,1:3,0:AM3),AIPOLYX(1:200,AM10:AM3,1:4),AIPOLYY(1:200,AM10:AM3,1:4)
 !
 !     DO THE MULTIPLE FIELD DEFINITIONS
 !
@@ -51,35 +43,26 @@ SUBROUTINE CTOA(AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9,&
    MULTCOBSA(1:1000,1:3,0:AM3)=MULTCOBS(1:1000,1:3,0:AM3)
    RETURN
 END
-SUBROUTINE ATOC(AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9,&
-&AM10,SYSA,ALENA,SLVA,PIKA,FT01A,LIA,LICA,GLANMA,ALBL,LLTYPEA,&
-&INNIA,MULTCLAPA,MULTCOBSA,AIPOLYX,AIPOLYY)
+SUBROUTINE ATOC(AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9,AM10,SYSA,ALENA,SLVA,PIKA,FT01A,LIA,LICA,GLANMA,ALBL,LLTYPEA,INNIA,MULTCLAPA,MULTCOBSA,AIPOLYX,AIPOLYY)
    use DATLEN
+   use mod_surface
 !     COPIES THE ARCHIEVE LENS TO THE CURRENT LENS
 !
 !      IMPLICIT NONE
 !
-   INTEGER III,IIII,II,AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9 &
-   &,AM10,I,J,K,L
+   INTEGER III,IIII,II,AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9 ,AM10,I,J,K,L
 !
 !
 !
 !     ADDED 1/1/96 FOR LENADD BUG FIX
 !       VARIABLES FOR THE ARCHIEVE LENS USED IN LENADD
-   CHARACTER LICA*80,LIA*80,GLANMA*13 &
-   &,ALBL*80,LLTYPEA*80,INNIA*80
+   CHARACTER LICA*80,LIA*80,GLANMA*13 ,ALBL*80,LLTYPEA*80,INNIA*80
 !
-   DIMENSION LICA(AM6),GLANMA(AM10:AM3,AM9)&
-   &,ALBL(AM10:AM3)
+   DIMENSION LICA(AM6),GLANMA(AM10:AM3,AM9),ALBL(AM10:AM3)
 !
-   REAL*8 SYSA,ALENA,AIPOLYX,AIPOLYY,&
-   &SLVA,PIKA,FT01A,MULTCLAPA,MULTCOBSA
+   REAL*8 SYSA,ALENA,AIPOLYX,AIPOLYY,SLVA,PIKA,FT01A,MULTCLAPA,MULTCOBSA
 !
-   DIMENSION SYSA(AM1),ALENA(AM2,AM10:AM3),&
-   &SLVA(AM5:AM6,AM10:AM3),PIKA(AM7,AM10:AM3,AM4),FT01A(AM8,AM10:AM3)&
-   &,MULTCLAPA(1:1000,1:3,0:AM3)&
-   &,MULTCOBSA(1:1000,1:3,0:AM3)&
-   &,AIPOLYX(1:200,AM10:AM3,1:4),AIPOLYY(1:200,AM10:AM3,1:4)
+   DIMENSION SYSA(AM1),ALENA(AM2,AM10:AM3),SLVA(AM5:AM6,AM10:AM3),PIKA(AM7,AM10:AM3,AM4),FT01A(AM8,AM10:AM3),MULTCLAPA(1:1000,1:3,0:AM3),MULTCOBSA(1:1000,1:3,0:AM3),AIPOLYX(1:200,AM10:AM3,1:4),AIPOLYY(1:200,AM10:AM3,1:4)
 !
 !     DO THE MULTIPLE FIELD DEFINITIONS
 !
@@ -108,6 +91,7 @@ SUBROUTINE PTOC
 !     COPIES THE PERMANENT LENS TO THE CURRENT LENS
 !
    use DATLEN
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER I,III,IIII,II,SYS20
@@ -139,6 +123,7 @@ SUBROUTINE CTOP
 !     COPIES THE CURRENT LENS TO THE PERMANENT LENS
 !
    use DATLEN
+   use mod_surface
    IMPLICIT NONE
 !
    INTEGER I,III,IIII,II,SYS20
@@ -172,6 +157,7 @@ END
 SUBROUTINE PRSLV
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface, only: surf_solve_flag, surf_thickness, surf_curvature
    IMPLICIT NONE
@@ -182,11 +168,9 @@ SUBROUTINE PRSLV
 !       THE NUMERIC ENTRY W1, IS THE SURFACE DESIGNATOR
 !       FOR PRINTOUT OF ONE SURFACE'S DATA ONLY
 !
-   CHARACTER TYPE1*4,TYPE2*2,&
-   &TYPE3*4,TYPE4*2
+   CHARACTER TYPE1*4,TYPE2*2,TYPE3*4,TYPE4*2
 !
-   INTEGER &
-   &SLVCNT,SUR,FRACPT,INTPRT,SURFF
+   INTEGER SLVCNT,SUR,FRACPT,INTPRT,SURFF
 !
    REAL*8 PARVAL,SLVVAL
 !
@@ -201,8 +185,7 @@ SUBROUTINE PRSLV
    TYPE3='    '
    TYPE4='  '
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'"SLV" TAKES NO NUMERIC WORD #2 THROUGH #5 OR STRING INPUT'
+      OUTLYNE='"SLV" TAKES NO NUMERIC WORD #2 THROUGH #5 OR STRING INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -213,11 +196,9 @@ SUBROUTINE PRSLV
       S1=0
       DF1=0
       W1=0.0D0
-      OUTLYNE=&
-      &'"SLV" TAKES EITHER QUALIFIER OR'
+      OUTLYNE='"SLV" TAKES EITHER QUALIFIER OR'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'NUMERIC WORD #1 INPUT BUT NOT BOTH'
+      OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -312,8 +293,7 @@ SUBROUTINE PRSLV
 !       NO YZ THICKNESS SOLVES
       END IF
 !       NOW HOW ABOUT XZ PLANE
-      FRACPT=INT((surf_solve_flag(SURFF)*10))-&
-      &(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
+      FRACPT=INT((surf_solve_flag(SURFF)*10))-(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
       IF(FRACPT.EQ.1.OR.FRACPT.EQ.3) THEN
 !       THERE ARE XZ PLANE THICKNESS SOLVES TO PRINT
          IF(SOLVE(4,SURFF).EQ.4.0D0) TYPE1='PX'
@@ -350,8 +330,7 @@ SUBROUTINE PRSLV
 !       NO YZ PLANE CURVATURE SOLVES TO PRINT
       END IF
 !       CHECK FOR XZ PLANE CURVATURE SOLVE
-      FRACPT=INT((surf_solve_flag(SURFF)*10))-&
-      &(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
+      FRACPT=INT((surf_solve_flag(SURFF)*10))-(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
       IF(FRACPT.EQ.2.OR.FRACPT.EQ.3) THEN
 !       XZ PLANE CURVATURE SOLVES TO PRINT
          IF(SOLVE(2,SURFF).EQ.8.0D0)  TYPE3='APX'
@@ -421,8 +400,7 @@ SUBROUTINE PRSLV
             CALL SHOWIT(0)
          ELSE
          END IF
-         FRACPT=INT((surf_solve_flag(SUR)*10))-&
-         &(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
+         FRACPT=INT((surf_solve_flag(SUR)*10))-(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
          IF(FRACPT.EQ.1.OR.FRACPT.EQ.3) THEN
 !       THERE ARE XZ PLANE THICKNESS SOLVES TO PRINT
             IF(SOLVE(4,SUR).EQ.4.0D0) TYPE1='PX'
@@ -455,8 +433,7 @@ SUBROUTINE PRSLV
 !       NO YZ PLANE CURVATURE SOLVES TO PRINT
          END IF
 !       CHECK FOR XZ PLANE CURVATURE SOLVE
-         FRACPT=INT((surf_solve_flag(SUR)*10))-&
-         &(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
+         FRACPT=INT((surf_solve_flag(SUR)*10))-(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
          IF(FRACPT.EQ.2.OR.FRACPT.EQ.3) THEN
 !       XZ PLANE CURVATURE SOLVES TO PRINT
             IF(SOLVE(2,SUR).EQ.8.0D0)  TYPE3='APX'
@@ -480,12 +457,10 @@ SUBROUTINE PRSLV
 !
 200 FORMAT(I3,2X,A4,6X,A2,8X,G12.5,4X,G12.5)
 !
-110 FORMAT('SURF',1X,I3,1X,&
-   &':NO SOLVE DATA')
+110 FORMAT('SURF',1X,I3,1X,':NO SOLVE DATA')
 100 FORMAT('NO SOLVE DATA')
 1000 FORMAT('SOLVES')
-2000 FORMAT('SURF',1X,'TYPE',3X,'PARAMETER',7X,'VALUE',11X,&
-   &'SLV DATUM')
+2000 FORMAT('SURF',1X,'TYPE',3X,'PARAMETER',7X,'VALUE',11X,'SLV DATUM')
 1500 FORMAT(1X)
    RETURN
 END
@@ -493,6 +468,7 @@ END
 SUBROUTINE PRES
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -500,8 +476,7 @@ SUBROUTINE PRES
 !
    LOGICAL GONOGO
 !
-   REAL*8 A,B,LM1,DUMA,DUMB,DUML,LA1,LA2,LA3,LA4,LA5,DSGN &
-   &,LA6,LA7,LA8,LA9,LA10
+   REAL*8 A,B,LM1,DUMA,DUMB,DUML,LA1,LA2,LA3,LA4,LA5,DSGN ,LA6,LA7,LA8,LA9,LA10
 !
    EXTERNAL DSGN
 !
@@ -535,8 +510,7 @@ SUBROUTINE PRES
    END IF
 !
    IF(S5.EQ.1.AND.WQ.EQ.'GAS'.OR.S4.EQ.1.AND.WQ.EQ.'GAS') THEN
-      WRITE(OUTLYNE,*)&
-      &'"PRES GAS" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+      WRITE(OUTLYNE,*)'"PRES GAS" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -553,9 +527,7 @@ SUBROUTINE PRES
       RETURN
    END IF
 !
-   IF(WQ.NE.'GAS'.AND.WQ.NE.'AIR'.AND.WQ.NE.'NITROGEN'&
-   &.AND.WQ.NE.'HELIUM'.AND.WQ.NE.'HYDROGEN'.AND.WQ.NE.'ARGON'&
-   &.AND.WQ.NE.'OXYGEN'.AND.WQ.NE.'METHANE'.AND.WQ.NE.'ETHANE') THEN
+   IF(WQ.NE.'GAS'.AND.WQ.NE.'AIR'.AND.WQ.NE.'NITROGEN'.AND.WQ.NE.'HELIUM'.AND.WQ.NE.'HYDROGEN'.AND.WQ.NE.'ARGON'.AND.WQ.NE.'OXYGEN'.AND.WQ.NE.'METHANE'.AND.WQ.NE.'ETHANE') THEN
       WRITE(OUTLYNE,*)'INVALID QUALIFIER USED WITH "PRES"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -590,8 +562,7 @@ SUBROUTINE PRES
       RETURN
    END IF
    IF(W2.GT.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -599,11 +570,9 @@ SUBROUTINE PRES
       RETURN
    END IF
    IF(W2.LT.W1) THEN
-      WRITE(OUTLYNE,*)&
-      &'ERROR:'
+      WRITE(OUTLYNE,*)'ERROR:'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'ENDING SURFACE NUMBER LESS THAN STARTING SURFACE NUMBER'
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER LESS THAN STARTING SURFACE NUMBER'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -620,60 +589,37 @@ SUBROUTINE PRES
          ELSE
             RETURN
          END IF
-         IF(GLANAM(2,I).EQ.'REFLTIR      '.OR.&
-         &GLANAM(2,I).EQ.'REFLTIRO     '.OR.&
-         &GLANAM(2,I).EQ.'REFL         ') THEN
-            WRITE(OUTLYNE,*)&
-            &'"PRES GAS" DID NOT MODIFY "REFL" SURFACE # ',I
+         IF(GLANAM(2,I).EQ.'REFLTIR      '.OR.GLANAM(2,I).EQ.'REFLTIRO     '.OR.GLANAM(2,I).EQ.'REFL         ') THEN
+            WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "REFL" SURFACE # ',I
             CALL SHOWIT(1)
             RETURN
          END IF
          IF(GLANAM(2,I).EQ.'PERFECT      ') THEN
-            WRITE(OUTLYNE,*)&
-            &'"PRES GAS" DID NOT MODIFY "PERFECT" SURFACE # ',I
+            WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "PERFECT" SURFACE # ',I
             CALL SHOWIT(1)
             RETURN
          END IF
          IF(GLANAM(2,I).EQ.'IDEAL        ') THEN
-            WRITE(OUTLYNE,*)&
-            &'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
+            WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
             CALL SHOWIT(1)
             RETURN
          END IF
-         IF(GLANAM(2,I).NE.'REFL         '.AND.&
-         &GLANAM(2,I).NE.'PERFECT      '.AND.&
-         &GLANAM(2,I).NE.'REFLTIR      '.AND.&
-         &GLANAM(2,I).NE.'REFLTIRO     '.AND.&
-         &GLANAM(2,I).NE.'IDEAL        ') THEN
-            IF(DABS(ALENS(46,I)).LE.1.1D0.AND.DABS(ALENS(47,I)).LE.1.1D0 &
-            &.OR.DABS(ALENS(48,I)).LE.1.1D0.AND.DABS(ALENS(49,I)).LE.1.1D0 &
-            &.AND.DABS(ALENS(50,I)).LE.1.1D0) THEN
-               IF(SYSTEM(1).NE.0.0D0)&
-               &ALENS(46,I)=ALENS(46,I)+(DSGN(ALENS(46,I))*W3*W4)
-               IF(SYSTEM(2).NE.0.0D0)&
-               &ALENS(47,I)=ALENS(47,I)+(DSGN(ALENS(47,I))*W3*W4)
-               IF(SYSTEM(3).NE.0.0D0)&
-               &ALENS(48,I)=ALENS(48,I)+(DSGN(ALENS(48,I))*W3*W4)
-               IF(SYSTEM(4).NE.0.0D0)&
-               &ALENS(49,I)=ALENS(49,I)+(DSGN(ALENS(49,I))*W3*W4)
-               IF(SYSTEM(5).NE.0.0D0)&
-               &ALENS(50,I)=ALENS(50,I)+(DSGN(ALENS(50,I))*W3*W4)
+         IF(GLANAM(2,I).NE.'REFL         '.AND.GLANAM(2,I).NE.'PERFECT      '.AND.GLANAM(2,I).NE.'REFLTIR      '.AND.GLANAM(2,I).NE.'REFLTIRO     '.AND.GLANAM(2,I).NE.'IDEAL        ') THEN
+            IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0) THEN
+               IF(SYSTEM(1).NE.0.0D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+               IF(SYSTEM(2).NE.0.0D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
+               IF(SYSTEM(3).NE.0.0D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
+               IF(SYSTEM(4).NE.0.0D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
+               IF(SYSTEM(5).NE.0.0D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
                GLANAM(1,I)='GLASS'
                GLANAM(2,I)='GAS'
             END IF
-            IF(DABS(ALENS(71,I)).LE.1.1D0.AND.DABS(ALENS(72,I)).LE.1.1D0 &
-            &.OR.DABS(ALENS(73,I)).LE.1.1D0.AND.DABS(ALENS(74,I)).LE.1.1D0 &
-            &.AND.DABS(ALENS(75,I)).LE.1.1D0) THEN
-               IF(SYSTEM(71).NE.0.0D0)&
-               &ALENS(71,I)=ALENS(71,I)+(DSGN(ALENS(71,I))*W3*W4)
-               IF(SYSTEM(72).NE.0.0D0)&
-               &ALENS(72,I)=ALENS(72,I)+(DSGN(ALENS(72,I))*W3*W4)
-               IF(SYSTEM(73).NE.0.0D0)&
-               &ALENS(73,I)=ALENS(73,I)+(DSGN(ALENS(73,I))*W3*W4)
-               IF(SYSTEM(74).NE.0.0D0)&
-               &ALENS(74,I)=ALENS(74,I)+(DSGN(ALENS(74,I))*W3*W4)
-               IF(SYSTEM(75).NE.0.0D0)&
-               &ALENS(75,I)=ALENS(75,I)+(DSGN(ALENS(75,I))*W3*W4)
+            IF(DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
+               IF(SYSTEM(71).NE.0.0D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
+               IF(SYSTEM(72).NE.0.0D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
+               IF(SYSTEM(73).NE.0.0D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
+               IF(SYSTEM(74).NE.0.0D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
+               IF(SYSTEM(75).NE.0.0D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
                GLANAM(1,I)='GLASS'
                GLANAM(2,I)='GAS'
             END IF
@@ -683,58 +629,35 @@ SUBROUTINE PRES
             CALL CHKGLSP(GONOGO,I)
             IF(.NOT.GONOGO) THEN
             ELSE
-               IF(GLANAM(2,I).EQ.'REFL         '.OR.&
-               &GLANAM(2,I).EQ.'REFLTIRO     '.OR.&
-               &GLANAM(2,I).EQ.'REFLTIR      ') THEN
-                  WRITE(OUTLYNE,*)&
-                  &'"PRES GAS" DID NOT MODIFY "REFL" SURFACE # ',I
+               IF(GLANAM(2,I).EQ.'REFL         '.OR.GLANAM(2,I).EQ.'REFLTIRO     '.OR.GLANAM(2,I).EQ.'REFLTIR      ') THEN
+                  WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "REFL" SURFACE # ',I
                   CALL SHOWIT(1)
                END IF
                IF(GLANAM(2,I).EQ.'PERFECT      ') THEN
-                  WRITE(OUTLYNE,*)&
-                  &'"PRES GAS" DID NOT MODIFY "PERFECT" SURFACE # ',I
+                  WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "PERFECT" SURFACE # ',I
                   CALL SHOWIT(1)
                END IF
                IF(GLANAM(2,I).EQ.'IDEAL        ') THEN
-                  WRITE(OUTLYNE,*)&
-                  &'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
+                  WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
                   CALL SHOWIT(1)
                   RETURN
                END IF
-               IF(GLANAM(2,I).NE.'REFL         '.AND.&
-               &GLANAM(2,I).NE.'PERFECT      '.AND.&
-               &GLANAM(2,I).NE.'REFLTIR      '.AND.&
-               &GLANAM(2,I).NE.'REFLTIRO     '.AND.&
-               &GLANAM(2,I).NE.'IDEAL        ') THEN
-                  IF(DABS(ALENS(46,I)).LE.1.1D0.AND.DABS(ALENS(47,I)).LE.1.1D0 &
-                  &.OR.DABS(ALENS(48,I)).LE.1.1D0.AND.DABS(ALENS(49,I)).LE.1.1D0 &
-                  &.AND.DABS(ALENS(50,I)).LE.1.1D0) THEN
-                     IF(SYSTEM(1).NE.0.0D0)&
-                     &ALENS(46,I)=ALENS(46,I)+(DSGN(ALENS(46,I))*W3*W4)
-                     IF(SYSTEM(2).NE.0.0D0)&
-                     &ALENS(47,I)=ALENS(47,I)+(DSGN(ALENS(47,I))*W3*W4)
-                     IF(SYSTEM(3).NE.0.0D0)&
-                     &ALENS(48,I)=ALENS(48,I)+(DSGN(ALENS(48,I))*W3*W4)
-                     IF(SYSTEM(4).NE.0.0D0)&
-                     &ALENS(49,I)=ALENS(49,I)+(DSGN(ALENS(49,I))*W3*W4)
-                     IF(SYSTEM(5).NE.0.0D0)&
-                     &ALENS(50,I)=ALENS(50,I)+(DSGN(ALENS(50,I))*W3*W4)
+               IF(GLANAM(2,I).NE.'REFL         '.AND.GLANAM(2,I).NE.'PERFECT      '.AND.GLANAM(2,I).NE.'REFLTIR      '.AND.GLANAM(2,I).NE.'REFLTIRO     '.AND.GLANAM(2,I).NE.'IDEAL        ') THEN
+                  IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0) THEN
+                     IF(SYSTEM(1).NE.0.0D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+                     IF(SYSTEM(2).NE.0.0D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
+                     IF(SYSTEM(3).NE.0.0D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
+                     IF(SYSTEM(4).NE.0.0D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
+                     IF(SYSTEM(5).NE.0.0D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
                      GLANAM(1,I)='GLASS'
                      GLANAM(2,I)='GAS'
                   END IF
-                  IF(DABS(ALENS(71,I)).LE.1.1D0.AND.DABS(ALENS(72,I)).LE.1.1D0 &
-                  &.OR.DABS(ALENS(73,I)).LE.1.1D0.AND.DABS(ALENS(74,I)).LE.1.1D0 &
-                  &.AND.DABS(ALENS(75,I)).LE.1.1D0) THEN
-                     IF(SYSTEM(71).NE.0.0D0)&
-                     &ALENS(71,I)=ALENS(71,I)+(DSGN(ALENS(71,I))*W3*W4)
-                     IF(SYSTEM(72).NE.0.0D0)&
-                     &ALENS(72,I)=ALENS(72,I)+(DSGN(ALENS(72,I))*W3*W4)
-                     IF(SYSTEM(73).NE.0.0D0)&
-                     &ALENS(73,I)=ALENS(73,I)+(DSGN(ALENS(73,I))*W3*W4)
-                     IF(SYSTEM(74).NE.0.0D0)&
-                     &ALENS(74,I)=ALENS(74,I)+(DSGN(ALENS(74,I))*W3*W4)
-                     IF(SYSTEM(75).NE.0.0D0)&
-                     &ALENS(75,I)=ALENS(75,I)+(DSGN(ALENS(75,I))*W3*W4)
+                  IF(DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
+                     IF(SYSTEM(71).NE.0.0D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
+                     IF(SYSTEM(72).NE.0.0D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
+                     IF(SYSTEM(73).NE.0.0D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
+                     IF(SYSTEM(74).NE.0.0D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
+                     IF(SYSTEM(75).NE.0.0D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
                      GLANAM(1,I)='GLASS'
                      GLANAM(2,I)='GAS'
                   END IF
@@ -792,86 +715,62 @@ SUBROUTINE PRES
          RETURN
       END IF
 !
-      IF(GLANAM(2,I).EQ.'REFLTIRO     '.OR.&
-      &GLANAM(2,I).EQ.'REFLTIR      '.OR.&
-      &GLANAM(2,I).EQ.'REFL         ') THEN
-         WRITE(OUTLYNE,*)&
-         &'"PRES ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
+      IF(GLANAM(2,I).EQ.'REFLTIRO     '.OR.GLANAM(2,I).EQ.'REFLTIR      '.OR.GLANAM(2,I).EQ.'REFL         ') THEN
+         WRITE(OUTLYNE,*)'"PRES ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(GLANAM(2,I).EQ.'PERFECT      ') THEN
-         WRITE(OUTLYNE,*)&
-         &'"PRES ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
+         WRITE(OUTLYNE,*)'"PRES ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
          CALL SHOWIT(1)
          RETURN
       END IF
       IF(GLANAM(2,I).EQ.'IDEAL        ') THEN
-         WRITE(OUTLYNE,*)&
-         &'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
+         WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
          CALL SHOWIT(1)
          RETURN
       END IF
-      IF(GLANAM(2,I).NE.'REFL         '.AND.&
-      &GLANAM(2,I).NE.'PERFECT      '.AND.&
-      &GLANAM(2,I).NE.'REFLTIR      '.AND.&
-      &GLANAM(2,I).NE.'REFLTIRO     '.AND.&
-      &GLANAM(2,I).NE.'IDEAL        ') THEN
-         IF(DABS(ALENS(46,I)).LE.1.1D0.AND.DABS(ALENS(47,I)).LE.1.1D0 &
-         &.OR.DABS(ALENS(48,I)).LE.1.1D0.AND.DABS(ALENS(49,I)).LE.1.1D0 &
-         &.AND.DABS(ALENS(50,I)).LE.1.1D0.AND.&
-         &DABS(ALENS(71,I)).LE.1.1D0.AND.DABS(ALENS(72,I)).LE.1.1D0 &
-         &.OR.DABS(ALENS(73,I)).LE.1.1D0.AND.DABS(ALENS(74,I)).LE.1.1D0 &
-         &.AND.DABS(ALENS(75,I)).LE.1.1D0) THEN
+      IF(GLANAM(2,I).NE.'REFL         '.AND.GLANAM(2,I).NE.'PERFECT      '.AND.GLANAM(2,I).NE.'REFLTIR      '.AND.GLANAM(2,I).NE.'REFLTIRO     '.AND.GLANAM(2,I).NE.'IDEAL        ') THEN
+         IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
             IF(SYSTEM(1).NE.0.0D0) THEN
                LA1=LM1(A,B,SYSTEM(1))
-               ALENS(46,I)=ALENS(46,I)+(((LA1*((W3+760.00)/760.0D0))-LA1)&
-               &*DSGN(ALENS(46,I)))
+               call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(((LA1*((W3+760.00)/760.0D0))-LA1)*DSGN(surf_refractive_index(I, 1))))
             END IF
             IF(SYSTEM(2).NE.0.0D0) THEN
                LA2=LM1(A,B,SYSTEM(2))
-               ALENS(47,I)=ALENS(47,I)+(((LA2*((W3+760.00)/760.0D0))-LA2)&
-               &*DSGN(ALENS(47,I)))
+               call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(((LA2*((W3+760.00)/760.0D0))-LA2)*DSGN(surf_refractive_index(I, 2))))
             END IF
             IF(SYSTEM(3).NE.0.0D0) THEN
                LA3=LM1(A,B,SYSTEM(3))
-               ALENS(48,I)=ALENS(48,I)+(((LA3*((W3+760.00)/760.0D0))-LA3)&
-               &*DSGN(ALENS(48,I)))
+               call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(((LA3*((W3+760.00)/760.0D0))-LA3)*DSGN(surf_refractive_index(I, 3))))
             END IF
             IF(SYSTEM(4).NE.0.0D0) THEN
                LA4=LM1(A,B,SYSTEM(4))
-               ALENS(49,I)=ALENS(49,I)+(((LA4*((W3+760.00)/760.0D0))-LA4)&
-               &*DSGN(ALENS(49,I)))
+               call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(((LA4*((W3+760.00)/760.0D0))-LA4)*DSGN(surf_refractive_index(I, 4))))
             END IF
             IF(SYSTEM(5).NE.0.0D0) THEN
                LA5=LM1(A,B,SYSTEM(5))
-               ALENS(50,I)=ALENS(50,I)+(((LA5*((W3+760.00)/760.0D0))-LA5)&
-               &*DSGN(ALENS(50,I)))
+               call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(((LA5*((W3+760.00)/760.0D0))-LA5)*DSGN(surf_refractive_index(I, 5))))
             END IF
             IF(SYSTEM(71).NE.0.0D0) THEN
                LA6=LM1(A,B,SYSTEM(71))
-               ALENS(71,I)=ALENS(71,I)+(((LA6*((W3+760.00)/760.0D0))-LA6)&
-               &*DSGN(ALENS(71,I)))
+               call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(((LA6*((W3+760.00)/760.0D0))-LA6)*DSGN(surf_refractive_index(I, 6))))
             END IF
             IF(SYSTEM(72).NE.0.0D0) THEN
                LA7=LM1(A,B,SYSTEM(72))
-               ALENS(72,I)=ALENS(72,I)+(((LA7*((W3+760.00)/760.0D0))-LA7)&
-               &*DSGN(ALENS(72,I)))
+               call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(((LA7*((W3+760.00)/760.0D0))-LA7)*DSGN(surf_refractive_index(I, 7))))
             END IF
             IF(SYSTEM(73).NE.0.0D0) THEN
                LA8=LM1(A,B,SYSTEM(73))
-               ALENS(73,I)=ALENS(73,I)+(((LA8*((W3+760.00)/760.0D0))-LA8)&
-               &*DSGN(ALENS(73,I)))
+               call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(((LA8*((W3+760.00)/760.0D0))-LA8)*DSGN(surf_refractive_index(I, 8))))
             END IF
             IF(SYSTEM(74).NE.0.0D0) THEN
                LA9=LM1(A,B,SYSTEM(74))
-               ALENS(74,I)=ALENS(74,I)+(((LA9*((W3+760.00)/760.0D0))-LA9)&
-               &*DSGN(ALENS(74,I)))
+               call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(((LA9*((W3+760.00)/760.0D0))-LA9)*DSGN(surf_refractive_index(I, 9))))
             END IF
             IF(SYSTEM(75).NE.0.0D0) THEN
                LA10=LM1(A,B,SYSTEM(75))
-               ALENS(75,I)=ALENS(75,I)+(((LA10*((W3+760.00)/760.0D0))-LA10)&
-               &*DSGN(ALENS(75,I)))
+               call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(((LA10*((W3+760.00)/760.0D0))-LA10)*DSGN(surf_refractive_index(I, 10))))
             END IF
             GLANAM(1,I)='GLASS'
             GLANAM(2,I)='WQ'
@@ -885,84 +784,60 @@ SUBROUTINE PRES
          CALL CHKGLSP(GONOGO,I)
          IF(.NOT.GONOGO) THEN
          ELSE
-            IF(GLANAM(2,I).EQ.'REFL         '.OR.&
-            &GLANAM(2,I).EQ.'REFLTIRO     '.OR.&
-            &GLANAM(2,I).EQ.'REFLTIR      ') THEN
-               WRITE(OUTLYNE,*)&
-               &'"PRES ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
+            IF(GLANAM(2,I).EQ.'REFL         '.OR.GLANAM(2,I).EQ.'REFLTIRO     '.OR.GLANAM(2,I).EQ.'REFLTIR      ') THEN
+               WRITE(OUTLYNE,*)'"PRES ',WQ,'" DID NOT MODIFY "REFL" SURFACE # ',I
                CALL SHOWIT(1)
             END IF
             IF(GLANAM(2,I).EQ.'PERFECT      ') THEN
-               WRITE(OUTLYNE,*)&
-               &'"PRES ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
+               WRITE(OUTLYNE,*)'"PRES ',WQ,'" DID NOT MODIFY "PERFECT" SURFACE # ',I
                CALL SHOWIT(1)
             END IF
             IF(GLANAM(2,I).EQ.'IDEAL        ') THEN
-               WRITE(OUTLYNE,*)&
-               &'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
+               WRITE(OUTLYNE,*)'"PRES GAS" DID NOT MODIFY "IDEAL" SURFACE # ',I
                CALL SHOWIT(1)
                RETURN
             END IF
-            IF(GLANAM(2,I).NE.'REFL         '.AND.&
-            &GLANAM(2,I).NE.'PERFECT      '.AND.&
-            &GLANAM(2,I).NE.'REFLTIR      '.AND.&
-            &GLANAM(2,I).NE.'REFLTIRO     '.AND.&
-            &GLANAM(2,I).NE.'IDEAL        ') THEN
-               IF(DABS(ALENS(46,I)).LE.1.1D0.AND.DABS(ALENS(47,I)).LE.1.1D0 &
-               &.OR.DABS(ALENS(48,I)).LE.1.1D0.AND.DABS(ALENS(49,I)).LE.1.1D0 &
-               &.AND.DABS(ALENS(50,I)).LE.1.1D0.AND.&
-               &DABS(ALENS(71,I)).LE.1.1D0.AND.DABS(ALENS(72,I)).LE.1.1D0 &
-               &.OR.DABS(ALENS(73,I)).LE.1.1D0.AND.DABS(ALENS(74,I)).LE.1.1D0 &
-               &.AND.DABS(ALENS(75,I)).LE.1.1D0) THEN
+            IF(GLANAM(2,I).NE.'REFL         '.AND.GLANAM(2,I).NE.'PERFECT      '.AND.GLANAM(2,I).NE.'REFLTIR      '.AND.GLANAM(2,I).NE.'REFLTIRO     '.AND.GLANAM(2,I).NE.'IDEAL        ') THEN
+               IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
                   IF(SYSTEM(1).NE.0.0D0) THEN
                      LA1=LM1(A,B,SYSTEM(1))
-                     ALENS(46,I)=ALENS(46,I)+(((LA1*((W3+760.00)/760.0D0))-LA1)&
-                     &*DSGN(ALENS(46,I)))
+                     call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(((LA1*((W3+760.00)/760.0D0))-LA1)*DSGN(surf_refractive_index(I, 1))))
                   END IF
                   IF(SYSTEM(2).NE.0.0D0) THEN
                      LA2=LM1(A,B,SYSTEM(2))
-                     ALENS(47,I)=ALENS(47,I)+(((LA2*((W3+760.00)/760.0D0))-LA2)&
-                     &*DSGN(ALENS(47,I)))
+                     call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(((LA2*((W3+760.00)/760.0D0))-LA2)*DSGN(surf_refractive_index(I, 2))))
                   END IF
                   IF(SYSTEM(3).NE.0.0D0) THEN
                      LA3=LM1(A,B,SYSTEM(3))
-                     ALENS(48,I)=ALENS(48,I)+(((LA3*((W3+760.00)/760.0D0))-LA3)&
-                     &*DSGN(ALENS(48,I)))
+                     call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(((LA3*((W3+760.00)/760.0D0))-LA3)*DSGN(surf_refractive_index(I, 3))))
                   END IF
                   IF(SYSTEM(4).NE.0.0D0) THEN
                      LA4=LM1(A,B,SYSTEM(4))
-                     ALENS(49,I)=ALENS(49,I)+(((LA4*((W3+760.00)/760.0D0))-LA4)&
-                     &*DSGN(ALENS(49,I)))
+                     call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(((LA4*((W3+760.00)/760.0D0))-LA4)*DSGN(surf_refractive_index(I, 4))))
                   END IF
                   IF(SYSTEM(5).NE.0.0D0) THEN
                      LA5=LM1(A,B,SYSTEM(5))
-                     ALENS(50,I)=ALENS(50,I)+(((LA5*((W3+760.00)/760.0D0))-LA5)&
-                     &*DSGN(ALENS(50,I)))
+                     call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(((LA5*((W3+760.00)/760.0D0))-LA5)*DSGN(surf_refractive_index(I, 5))))
                   END IF
                   IF(SYSTEM(71).NE.0.0D0) THEN
                      LA1=LM1(A,B,SYSTEM(71))
-                     ALENS(71,I)=ALENS(71,I)+(((LA6*((W3+760.00)/760.0D0))-LA6)&
-                     &*DSGN(ALENS(71,I)))
+                     call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(((LA6*((W3+760.00)/760.0D0))-LA6)*DSGN(surf_refractive_index(I, 6))))
                   END IF
                   IF(SYSTEM(72).NE.0.0D0) THEN
                      LA2=LM1(A,B,SYSTEM(72))
-                     ALENS(72,I)=ALENS(72,I)+(((LA7*((W3+760.00)/760.0D0))-LA7)&
-                     &*DSGN(ALENS(72,I)))
+                     call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(((LA7*((W3+760.00)/760.0D0))-LA7)*DSGN(surf_refractive_index(I, 7))))
                   END IF
                   IF(SYSTEM(73).NE.0.0D0) THEN
                      LA3=LM1(A,B,SYSTEM(73))
-                     ALENS(73,I)=ALENS(73,I)+(((LA8*((W3+760.00)/760.0D0))-LA8)&
-                     &*DSGN(ALENS(73,I)))
+                     call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(((LA8*((W3+760.00)/760.0D0))-LA8)*DSGN(surf_refractive_index(I, 8))))
                   END IF
                   IF(SYSTEM(74).NE.0.0D0) THEN
                      LA4=LM1(A,B,SYSTEM(74))
-                     ALENS(74,I)=ALENS(74,I)+(((LA9*((W3+760.00)/760.0D0))-LA9)&
-                     &*DSGN(ALENS(74,I)))
+                     call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(((LA9*((W3+760.00)/760.0D0))-LA9)*DSGN(surf_refractive_index(I, 9))))
                   END IF
                   IF(SYSTEM(75).NE.0.0D0) THEN
                      LA5=LM1(A,B,SYSTEM(75))
-                     ALENS(75,I)=ALENS(75,I)+(((LA10*((W3+760.00)/760.0D0))-LA10)&
-                     &*DSGN(ALENS(75,I)))
+                     call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(((LA10*((W3+760.00)/760.0D0))-LA10)*DSGN(surf_refractive_index(I, 10))))
                   END IF
                   GLANAM(1,I)='GLASS'
                   GLANAM(2,I)='WQ'
@@ -976,8 +851,7 @@ END
 SUBROUTINE ANGLECALC(ALPHA,BETA,LL1,MM1,NN1)
    use DATMAI
    IMPLICIT NONE
-   REAL*8 ALPHA,BETA,LL1,MM1,NN1,&
-   &D31,D32,D33,COSB,SINB
+   REAL*8 ALPHA,BETA,LL1,MM1,NN1,D31,D32,D33,COSB,SINB
 !
 !
 !     LL1,MM1,NN1 ARE THE L,M AND N-DIRECTION COSINES OF THE
@@ -998,8 +872,7 @@ SUBROUTINE ANGLECALC(ALPHA,BETA,LL1,MM1,NN1)
       IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) ALPHA=0.0D0
       IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=0.0D0
       IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) ALPHA=PII/2.0D0
-      IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-      &ALPHA=DATAN2((D32/COSB),(D33/COSB))
+      IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)ALPHA=DATAN2((D32/COSB),(D33/COSB))
    END IF
    IF(COSB.EQ.0.0D0) THEN
 !     COSINE OF BETA IS ZERO
@@ -1011,15 +884,13 @@ SUBROUTINE ANGLECALC(ALPHA,BETA,LL1,MM1,NN1)
          IF((D32).EQ.0.0D0.AND.(D33).NE.0.0D0) ALPHA=0.0D0
          IF((D32).EQ.0.0D0.AND.(D33).EQ.0.0D0) ALPHA=0.0D0
          IF((D32).NE.0.0D0.AND.(D33).EQ.0.0D0) ALPHA=PII/2.0D0
-         IF((D32).NE.0.0D0.AND.(D33).NE.0.0D0)&
-         &ALPHA=DATAN2((D32),(D33))
+         IF((D32).NE.0.0D0.AND.(D33).NE.0.0D0)ALPHA=DATAN2((D32),(D33))
       END IF
       IF(SINB.EQ.-1) THEN
          IF((D32).EQ.0.0D0.AND.(D33).NE.0.0D0) ALPHA=0.0D0
          IF((D32).EQ.0.0D0.AND.(D33).EQ.0.0D0) ALPHA=0.0D0
          IF((D32).NE.0.0D0.AND.(D33).EQ.0.0D0) ALPHA=PII/2.0D0
-         IF((D32).NE.0.0D0.AND.(D33).NE.0.0D0)&
-         &ALPHA=DATAN2((-D32),(-D33))
+         IF((D32).NE.0.0D0.AND.(D33).NE.0.0D0)ALPHA=DATAN2((-D32),(-D33))
       END IF
    END IF
 !     CONVERT TO DEGREES
@@ -1029,6 +900,7 @@ SUBROUTINE ANGLECALC(ALPHA,BETA,LL1,MM1,NN1)
 END
 SUBROUTINE NEWANGLES(AEEA,BEEB,CEEC,LX,MX,NX,LY,MY,NY,LZ,MZ,NZ)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER SINB
@@ -1056,13 +928,11 @@ SUBROUTINE NEWANGLES(AEEA,BEEB,CEEC,LX,MX,NX,LY,MY,NY,LZ,MZ,NZ)
       IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).NE.0.0D0) AEEA=0.0D0
       IF((D32/COSB).EQ.0.0D0.AND.(D33/COSB).EQ.0.0D0) AEEA=0.0D0
       IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).EQ.0.0D0) AEEA=PII/2.0D0
-      IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)&
-      &AEEA=DATAN2((D32/COSB),(D33/COSB))
+      IF((D32/COSB).NE.0.0D0.AND.(D33/COSB).NE.0.0D0)AEEA=DATAN2((D32/COSB),(D33/COSB))
       IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).NE.0.0D0) CEEC=0.0D0
       IF((D21/COSB).EQ.0.0D0.AND.(D11/COSB).EQ.0.0D0) CEEC=0.0D0
       IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).EQ.0.0D0) CEEC=PII/2.0D0
-      IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)&
-      &CEEC=DATAN2((-D21/COSB),(D11/COSB))
+      IF((D21/COSB).NE.0.0D0.AND.(D11/COSB).NE.0.0D0)CEEC=DATAN2((-D21/COSB),(D11/COSB))
    END IF
    IF(COSB.EQ.0.0D0) THEN
 !     COSINE OF BEEB IS ZERO
@@ -1075,15 +945,13 @@ SUBROUTINE NEWANGLES(AEEA,BEEB,CEEC,LX,MX,NX,LY,MY,NY,LZ,MZ,NZ)
          IF((D12).EQ.0.0D0.AND.(D13).NE.0.0D0) AEEA=0.0D0
          IF((D12).EQ.0.0D0.AND.(D13).EQ.0.0D0) AEEA=0.0D0
          IF((D12).NE.0.0D0.AND.(D13).EQ.0.0D0) AEEA=PII/2.0D0
-         IF((D12).NE.0.0D0.AND.(D13).NE.0.0D0)&
-         &AEEA=DATAN2((D12),(D13))
+         IF((D12).NE.0.0D0.AND.(D13).NE.0.0D0)AEEA=DATAN2((D12),(D13))
       END IF
       IF(SINB.EQ.-1) THEN
          IF((D12).EQ.0.0D0.AND.(D13).NE.0.0D0) AEEA=0.0D0
          IF((D12).EQ.0.0D0.AND.(D13).EQ.0.0D0) AEEA=0.0D0
          IF((D12).NE.0.0D0.AND.(D13).EQ.0.0D0) AEEA=PII/2.0D0
-         IF((D12).NE.0.0D0.AND.(D13).NE.0.0D0)&
-         &AEEA=DATAN2((-D12),(-D13))
+         IF((D12).NE.0.0D0.AND.(D13).NE.0.0D0)AEEA=DATAN2((-D12),(-D13))
       END IF
    END IF
    AEEA=(180.0D0/PII)*AEEA
@@ -1097,6 +965,7 @@ SUBROUTINE OCD
    use global_widgets
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface, only: surf_thickness, surf_pickup_count
    IMPLICIT NONE
@@ -1108,15 +977,11 @@ SUBROUTINE OCD
 !
    INTEGER I,J,K
 !
-   REAL*8 &
-   &EFLY,EFLX,BFD &
-   &,FNY,FNX,LENGTH,GIHY,GIHX,SYSP11,OAL,TMAGY,TMAGX,&
-   &ERELY,ERELX,EPY,EPX,AMAGY,AMAGX
+   REAL*8 EFLY,EFLX,BFD ,FNY,FNX,LENGTH,GIHY,GIHX,SYSP11,OAL,TMAGY,TMAGX,ERELY,ERELX,EPY,EPX,AMAGY,AMAGX
 !
 !
    IF(WC.EQ.'OCDY') THEN
-      IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-      &.OR.S5.EQ.1) THEN
+      IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          WRITE(OUTLYNE,*)'"OCDY" ONLY TAKES NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -1138,8 +1003,7 @@ SUBROUTINE OCD
       END IF
    END IF
    IF(WC.EQ.'OCDX') THEN
-      IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-      &.OR.S5.EQ.1) THEN
+      IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          WRITE(OUTLYNE,*)'"OCDX" ONLY TAKES NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -1212,12 +1076,8 @@ SUBROUTINE OCD
          I=0
          J=INT(SYSTEM(20))
          PRINT *, "J is ", J
-         EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*&
-         &PXTRAY(6,I)))/&
-         &((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
-         EFLX=-(((PXTRAX(2,I)*PXTRAX(5,I+1))-(PXTRAX(1,I+1)*&
-         &PXTRAX(6,I)))/&
-         &((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
+         EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+         EFLX=-(((PXTRAX(2,I)*PXTRAX(5,I+1))-(PXTRAX(1,I+1)*PXTRAX(6,I)))/((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
 !               BACK FOCAL DISTANCE
          BFD=surf_thickness(J-1)
 !               F-NUMBER YZ
@@ -1292,12 +1152,8 @@ SUBROUTINE OCD
 !               EFL
          I=0
          J=INT(SYSTEM(20))
-         EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*&
-         &PXTRAY(6,I)))/&
-         &((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
-         EFLX=-(((PXTRAX(2,I)*PXTRAX(5,I+1))-(PXTRAX(1,I+1)*&
-         &PXTRAX(6,I)))/&
-         &((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
+         EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+         EFLX=-(((PXTRAX(2,I)*PXTRAX(5,I+1))-(PXTRAX(1,I+1)*PXTRAX(6,I)))/((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
 !               BACK FOCAL DISTANCE
          BFD=surf_thickness(J-1)
 !               F-NUMBER YZ IN IMGAE SPACE
@@ -1466,39 +1322,25 @@ SUBROUTINE OCD
    END IF
    RETURN
 !
-100 FORMAT(2X,'EFL',10X,'BFD',10X,'F-NUM',8X &
-   &,'LENGTH',6X,'GIH')
-200 FORMAT(2X,'EFL',10X,'BFD',10X,'F-NUM',8X &
-   &,'LENGTH',6X,'GIH')
-300 FORMAT(2X,'EFL',10X,'BFD',10X,'IMG F-NUM',4X &
-   &,'LENGTH',7X,'OAL',10X,'T-MAG')
-400 FORMAT(2X,'EFL',10X,'BFD',10X,'IMG F-NUM',4X &
-   &,'LENGTH',7X,'OAL',10X,'T-MAG')
-500 FORMAT(2X,'EX PUP DIST',2X,'EX PUP RAD',4X &
-   &,'A-MAG',8X,'OAL')
-600 FORMAT(2X,'EX PUP DIST',2X,'EX PUP RAD',4X &
-   &,'A-MAG',8X,'OAL')
+100 FORMAT(2X,'EFL',10X,'BFD',10X,'F-NUM',8X ,'LENGTH',6X,'GIH')
+200 FORMAT(2X,'EFL',10X,'BFD',10X,'F-NUM',8X ,'LENGTH',6X,'GIH')
+300 FORMAT(2X,'EFL',10X,'BFD',10X,'IMG F-NUM',4X ,'LENGTH',7X,'OAL',10X,'T-MAG')
+400 FORMAT(2X,'EFL',10X,'BFD',10X,'IMG F-NUM',4X ,'LENGTH',7X,'OAL',10X,'T-MAG')
+500 FORMAT(2X,'EX PUP DIST',2X,'EX PUP RAD',4X ,'A-MAG',8X,'OAL')
+600 FORMAT(2X,'EX PUP DIST',2X,'EX PUP RAD',4X ,'A-MAG',8X,'OAL')
 !
 101 FORMAT(G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,G12.5)
-102 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED '&
-   &,1X,G12.5,1X,'NOT DEFINED')
+102 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED ',1X,G12.5,1X,'NOT DEFINED')
 201 FORMAT(G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,G12.5)
-202 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED '&
-   &,1X,G12.5,1X,'NOT DEFINED')
-301 FORMAT(G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,&
-   &G12.5,1X,G12.5)
-302 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED '&
-   &,1X,G12.5,1X,G12.5,1X,'NOT DEFINED ')
-401 FORMAT(G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,&
-   &G12.5,1X,G12.5)
-402 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED '&
-   &,1X,G12.5,1X,G12.5,1X,'NOT DEFINED ')
+202 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED ',1X,G12.5,1X,'NOT DEFINED')
+301 FORMAT(G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,G12.5)
+302 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED ',1X,G12.5,1X,G12.5,1X,'NOT DEFINED ')
+401 FORMAT(G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,G12.5,1X,G12.5)
+402 FORMAT(G12.5,1X,G12.5,1X,'NOT DEFINED ',1X,G12.5,1X,G12.5,1X,'NOT DEFINED ')
 501 FORMAT(G12.5,1X,G12.5,2X,G12.5,1X,G12.5)
-502 FORMAT('NOT DEFINED ',1X,G12.5,2X &
-   &,'NOT DEFINED ',1X,G12.5)
+502 FORMAT('NOT DEFINED ',1X,G12.5,2X ,'NOT DEFINED ',1X,G12.5)
 601 FORMAT(G12.5,1X,G12.5,2X,G12.5,1X,G12.5)
-602 FORMAT('NOT DEFINED ',1X,G12.5,2X &
-   &,'NOT DEFINED ',1X,G12.5)
+602 FORMAT('NOT DEFINED ',1X,G12.5,2X ,'NOT DEFINED ',1X,G12.5)
 99 FORMAT(1X)
 80 FORMAT('YZ-PLANE FIRST ORDER OPERATING CONDITIONS')
 90 FORMAT('XZ-PLANE FIRST ORDER OPERATING CONDITIONS')
@@ -1510,6 +1352,7 @@ END
 SUBROUTINE PRPIK
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface, only: surf_pickup_count
    IMPLICIT NONE
@@ -1534,8 +1377,7 @@ SUBROUTINE PRPIK
    B10='          '
 !
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'"PIK" TAKES NO NUMERIC WORD #2 THROUGH #5 OR STRING INPUT'
+      OUTLYNE='"PIK" TAKES NO NUMERIC WORD #2 THROUGH #5 OR STRING INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1546,8 +1388,7 @@ SUBROUTINE PRPIK
       S1=0
       DF1=0
       W1=0.0D0
-      OUTLYNE=&
-      &'"PIK" TAKES EITHER QUALIFIER OR'
+      OUTLYNE='"PIK" TAKES EITHER QUALIFIER OR'
       CALL SHOWIT(1)
       OUTLYNE='NUMERIC WORD #1 INPUT BUT NOT BOTH'
       CALL SHOWIT(1)
@@ -1639,11 +1480,9 @@ SUBROUTINE PRPIK
                TYPE='RD     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1652,11 +1491,9 @@ SUBROUTINE PRPIK
                TYPE='CV     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1665,11 +1502,9 @@ SUBROUTINE PRPIK
                TYPE='TH     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1679,11 +1514,9 @@ SUBROUTINE PRPIK
                JSURF=INT(PIKUP(2,SURF,I))
                KSURF=INT(PIKUP(3,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),&
-                  &PIKUP(5,SURF,I),B10
+                  WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),&
-                  &PIKUP(5,SURF,I),A10
+                  WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1692,11 +1525,9 @@ SUBROUTINE PRPIK
                TYPE='PIVX   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1705,11 +1536,9 @@ SUBROUTINE PRPIK
                TYPE='PIVY   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1718,11 +1547,9 @@ SUBROUTINE PRPIK
                TYPE='PIVZ   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1731,11 +1558,9 @@ SUBROUTINE PRPIK
                TYPE='CC     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1744,11 +1569,9 @@ SUBROUTINE PRPIK
                TYPE='AD     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1757,11 +1580,9 @@ SUBROUTINE PRPIK
                TYPE='AE     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1770,11 +1591,9 @@ SUBROUTINE PRPIK
                TYPE='AF     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1783,11 +1602,9 @@ SUBROUTINE PRPIK
                TYPE='AG     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1796,11 +1613,9 @@ SUBROUTINE PRPIK
                TYPE='CVTOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1809,11 +1624,9 @@ SUBROUTINE PRPIK
                TYPE='RDTOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1822,11 +1635,9 @@ SUBROUTINE PRPIK
                TYPE='PRO    '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1835,11 +1646,9 @@ SUBROUTINE PRPIK
                TYPE='NPRO   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1848,11 +1657,9 @@ SUBROUTINE PRPIK
                TYPE='GDX    '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1861,11 +1668,9 @@ SUBROUTINE PRPIK
                TYPE='GDY    '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1874,11 +1679,9 @@ SUBROUTINE PRPIK
                TYPE='GDZ    '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1887,11 +1690,9 @@ SUBROUTINE PRPIK
                TYPE='YD     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1900,11 +1701,9 @@ SUBROUTINE PRPIK
                TYPE='XD     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1913,11 +1712,9 @@ SUBROUTINE PRPIK
                TYPE='ZD     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),&
-                  &PIKUP(5,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),&
-                  &PIKUP(5,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1926,11 +1723,9 @@ SUBROUTINE PRPIK
                TYPE='ALPHA  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1939,11 +1734,9 @@ SUBROUTINE PRPIK
                TYPE='BETA   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1952,11 +1745,9 @@ SUBROUTINE PRPIK
                TYPE='GAMMA  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1965,11 +1756,9 @@ SUBROUTINE PRPIK
                TYPE='GALPHA '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1978,11 +1767,9 @@ SUBROUTINE PRPIK
                TYPE='GBETA  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -1991,11 +1778,9 @@ SUBROUTINE PRPIK
                TYPE='GGAMMA '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2004,11 +1789,9 @@ SUBROUTINE PRPIK
                TYPE='CLAP   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2017,11 +1800,9 @@ SUBROUTINE PRPIK
                TYPE='COBS   '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2029,30 +1810,24 @@ SUBROUTINE PRPIK
             IF(I.EQ.20) THEN
                TYPE='GLASS  '
                JSURF=INT(PIKUP(2,SURF,I))
-               IF(PIKUP(6,SURF,I).EQ.0.0D0)&
-               &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
-               IF(PIKUP(6,SURF,I).NE.0.0D0)&
-               &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
+               IF(PIKUP(6,SURF,I).EQ.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
+               IF(PIKUP(6,SURF,I).NE.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
                CALL SHOWIT(0)
                GO TO 11
             END IF
             IF(I.EQ.44) THEN
                TYPE='COATING'
                JSURF=INT(PIKUP(2,SURF,I))
-               IF(PIKUP(6,SURF,I).EQ.0.0D0)&
-               &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
-               IF(PIKUP(6,SURF,I).NE.0.0D0)&
-               &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
+               IF(PIKUP(6,SURF,I).EQ.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
+               IF(PIKUP(6,SURF,I).NE.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
                CALL SHOWIT(0)
                GO TO 11
             END IF
             IF(I.EQ.43) THEN
                TYPE='GRT    '
                JSURF=INT(PIKUP(2,SURF,I))
-               IF(PIKUP(6,SURF,I).EQ.0.0D0)&
-               &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
-               IF(PIKUP(6,SURF,I).NE.0.0D0)&
-               &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
+               IF(PIKUP(6,SURF,I).EQ.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
+               IF(PIKUP(6,SURF,I).NE.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
                CALL SHOWIT(0)
                GO TO 11
             END IF
@@ -2060,11 +1835,9 @@ SUBROUTINE PRPIK
                TYPE='CCTOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2073,11 +1846,9 @@ SUBROUTINE PRPIK
                TYPE='ADTOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2086,11 +1857,9 @@ SUBROUTINE PRPIK
                TYPE='AETOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2099,11 +1868,9 @@ SUBROUTINE PRPIK
                TYPE='AFTOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2112,11 +1879,9 @@ SUBROUTINE PRPIK
                TYPE='AGTOR  '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2125,11 +1890,9 @@ SUBROUTINE PRPIK
                TYPE='AH     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2138,11 +1901,9 @@ SUBROUTINE PRPIK
                TYPE='AI     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2151,11 +1912,9 @@ SUBROUTINE PRPIK
                TYPE='AJ     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2164,11 +1923,9 @@ SUBROUTINE PRPIK
                TYPE='AK     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2177,11 +1934,9 @@ SUBROUTINE PRPIK
                TYPE='AL     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2190,11 +1945,9 @@ SUBROUTINE PRPIK
                TYPE='AC     '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),B10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                ELSE
-                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                  &PIKUP(4,SURF,I),A10
+                  WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                END IF
                CALL SHOWIT(0)
                GO TO 11
@@ -2251,11 +2004,9 @@ SUBROUTINE PRPIK
                   TYPE='RD     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2264,11 +2015,9 @@ SUBROUTINE PRPIK
                   TYPE='CV     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2277,11 +2026,9 @@ SUBROUTINE PRPIK
                   TYPE='TH     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2291,11 +2038,9 @@ SUBROUTINE PRPIK
                   JSURF=INT(PIKUP(2,SURF,I))
                   KSURF=INT(PIKUP(3,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),&
-                     &PIKUP(5,SURF,I),B10
+                     WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),&
-                     &PIKUP(5,SURF,I),A10
+                     WRITE(OUTLYNE,202) SURF,TYPE,JSURF,KSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2304,11 +2049,9 @@ SUBROUTINE PRPIK
                   TYPE='PIVX   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2317,11 +2060,9 @@ SUBROUTINE PRPIK
                   TYPE='PIVY   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2330,11 +2071,9 @@ SUBROUTINE PRPIK
                   TYPE='PIVZ   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2343,11 +2082,9 @@ SUBROUTINE PRPIK
                   TYPE='CC     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2356,11 +2093,9 @@ SUBROUTINE PRPIK
                   TYPE='AD     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2369,11 +2104,9 @@ SUBROUTINE PRPIK
                   TYPE='AE     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2382,11 +2115,9 @@ SUBROUTINE PRPIK
                   TYPE='AF     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2395,11 +2126,9 @@ SUBROUTINE PRPIK
                   TYPE='AG     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2408,11 +2137,9 @@ SUBROUTINE PRPIK
                   TYPE='CVTOR  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2421,11 +2148,9 @@ SUBROUTINE PRPIK
                   TYPE='PRO    '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2434,11 +2159,9 @@ SUBROUTINE PRPIK
                   TYPE='NPRO   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2447,11 +2170,9 @@ SUBROUTINE PRPIK
                   TYPE='GDX    '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2460,11 +2181,9 @@ SUBROUTINE PRPIK
                   TYPE='GDY    '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2473,11 +2192,9 @@ SUBROUTINE PRPIK
                   TYPE='GDZ    '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2486,11 +2203,9 @@ SUBROUTINE PRPIK
                   TYPE='YD     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2499,11 +2214,9 @@ SUBROUTINE PRPIK
                   TYPE='XD     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2512,11 +2225,9 @@ SUBROUTINE PRPIK
                   TYPE='ZD     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),&
-                     &PIKUP(5,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),&
-                     &PIKUP(5,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(4,SURF,I),PIKUP(5,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2525,13 +2236,9 @@ SUBROUTINE PRPIK
                   TYPE='ALPHA  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF &
-                     &,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF ,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,&
-                     &PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2540,13 +2247,9 @@ SUBROUTINE PRPIK
                   TYPE='BETA   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,&
-                     &PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,&
-                     &PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2555,11 +2258,9 @@ SUBROUTINE PRPIK
                   TYPE='GAMMA  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2568,13 +2269,9 @@ SUBROUTINE PRPIK
                   TYPE='GALPHA '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF &
-                     &,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF ,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,&
-                     &PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2583,13 +2280,9 @@ SUBROUTINE PRPIK
                   TYPE='GBETA  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,&
-                     &PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,&
-                     &PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I)
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I)
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2598,11 +2291,9 @@ SUBROUTINE PRPIK
                   TYPE='GGAMMA '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2611,11 +2302,9 @@ SUBROUTINE PRPIK
                   TYPE='CLAP   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2624,11 +2313,9 @@ SUBROUTINE PRPIK
                   TYPE='COBS   '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2636,30 +2323,24 @@ SUBROUTINE PRPIK
                IF(I.EQ.20) THEN
                   TYPE='GLASS  '
                   JSURF=INT(PIKUP(2,SURF,I))
-                  IF(PIKUP(6,SURF,I).EQ.0.0D0)&
-                  &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
-                  IF(PIKUP(6,SURF,I).NE.0.0D0)&
-                  &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
+                  IF(PIKUP(6,SURF,I).EQ.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
+                  IF(PIKUP(6,SURF,I).NE.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
                   CALL SHOWIT(0)
                   GO TO 21
                END IF
                IF(I.EQ.44) THEN
                   TYPE='COATING'
                   JSURF=INT(PIKUP(2,SURF,I))
-                  IF(PIKUP(6,SURF,I).EQ.0.0D0)&
-                  &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
-                  IF(PIKUP(6,SURF,I).NE.0.0D0)&
-                  &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
+                  IF(PIKUP(6,SURF,I).EQ.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
+                  IF(PIKUP(6,SURF,I).NE.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
                   CALL SHOWIT(0)
                   GO TO 21
                END IF
                IF(I.EQ.43) THEN
                   TYPE='GRT    '
                   JSURF=INT(PIKUP(2,SURF,I))
-                  IF(PIKUP(6,SURF,I).EQ.0.0D0)&
-                  &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
-                  IF(PIKUP(6,SURF,I).NE.0.0D0)&
-                  &WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
+                  IF(PIKUP(6,SURF,I).EQ.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,B10
+                  IF(PIKUP(6,SURF,I).NE.0.0D0)WRITE(OUTLYNE,201) SURF,TYPE,JSURF,A10
                   CALL SHOWIT(0)
                   GO TO 21
                END IF
@@ -2667,11 +2348,9 @@ SUBROUTINE PRPIK
                   TYPE='CCTOR  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2680,11 +2359,9 @@ SUBROUTINE PRPIK
                   TYPE='ADTOR  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2693,11 +2370,9 @@ SUBROUTINE PRPIK
                   TYPE='AETOR  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2706,11 +2381,9 @@ SUBROUTINE PRPIK
                   TYPE='AFTOR  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   CALL SHOWIT(0)
                   GO TO 21
@@ -2719,11 +2392,9 @@ SUBROUTINE PRPIK
                   TYPE='AGTOR  '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2731,11 +2402,9 @@ SUBROUTINE PRPIK
                   TYPE='AH     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2743,11 +2412,9 @@ SUBROUTINE PRPIK
                   TYPE='AI     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2755,11 +2422,9 @@ SUBROUTINE PRPIK
                   TYPE='AJ     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2767,11 +2432,9 @@ SUBROUTINE PRPIK
                   TYPE='AK     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2779,11 +2442,9 @@ SUBROUTINE PRPIK
                   TYPE='AL     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2791,11 +2452,9 @@ SUBROUTINE PRPIK
                   TYPE='AC     '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),B10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
                   ELSE
-                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),&
-                     &PIKUP(4,SURF,I),A10
+                     WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),A10
                   END IF
                   GO TO 21
                END IF
@@ -2809,8 +2468,7 @@ SUBROUTINE PRPIK
 200 FORMAT(I3,3X,A7,1X,I3,3X,5X,3X,G12.5,3X,G12.5,1X,A10)
 202 FORMAT(I3,3X,A7,1X,I3,4X,I3,4X,G12.5,3X,G12.5,1X,A10)
 201 FORMAT(I3,3X,A7,1X,I3,3X,23X,3X,12X,1X,A10)
-110 FORMAT('SURF',1X,I3,1X,&
-   &':NO PIKUP DATA')
+110 FORMAT('SURF',1X,I3,1X,':NO PIKUP DATA')
 100 FORMAT('NO PIKUP DATA')
 1000 FORMAT('PIKUP DATA')
 2000 FORMAT('SURF',1X,'TYPE  ',4X,'J',6X,'K',8X,'A',14X,'B')
