@@ -85,7 +85,16 @@ module mod_surface
         surf_mtracei_nx,        set_surf_mtracei_nx,       &
         surf_mtracei_ny,        set_surf_mtracei_ny,       &
         surf_psfbin_data,       set_surf_psfbin_data,      &
-        surf_profit_data,       set_surf_profit_data
+        surf_profit_data,       set_surf_profit_data,      &
+        surf_footblok_flag,     set_surf_footblok_flag,    &
+        surf_diffraction_flag,  set_surf_diffraction_flag, &
+        surf_grating_spacing,   set_surf_grating_spacing,  &
+        surf_coating_index,     set_surf_coating_index,    &
+        surf_grating_order,     set_surf_grating_order,    &
+        surf_grating_vx,        set_surf_grating_vx,       &
+        surf_grating_vy,        set_surf_grating_vy,       &
+        surf_grating_vz,        set_surf_grating_vz,       &
+        surf_ray_error,         set_surf_ray_error
 
 contains
 
@@ -1009,6 +1018,96 @@ contains
     subroutine set_surf_profit_data(s, val)
         integer, intent(in) :: s; real(real64), intent(in) :: val
         ALENS(107, s) = val
+    end subroutine
+
+    ! ALENS(58,s): FOOTBLOK flag (1=on, 0=off)
+    integer function surf_footblok_flag(s)
+        integer, intent(in) :: s
+        surf_footblok_flag = nint(ALENS(58, s))
+    end function
+    subroutine set_surf_footblok_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(58, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(96,s): diffraction grating flag (1=active, 0=none)
+    integer function surf_diffraction_flag(s)
+        integer, intent(in) :: s
+        surf_diffraction_flag = nint(ALENS(96, s))
+    end function
+    subroutine set_surf_diffraction_flag(s, val)
+        integer, intent(in) :: s, val
+        ALENS(96, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(98,s): grating spacing
+    real(real64) function surf_grating_spacing(s)
+        integer, intent(in) :: s
+        surf_grating_spacing = ALENS(98, s)
+    end function
+    subroutine set_surf_grating_spacing(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(98, s) = val
+    end subroutine
+
+    ! ALENS(112,s): coating table index
+    integer function surf_coating_index(s)
+        integer, intent(in) :: s
+        surf_coating_index = nint(ALENS(112, s))
+    end function
+    subroutine set_surf_coating_index(s, val)
+        integer, intent(in) :: s, val
+        ALENS(112, s) = real(val, real64)
+    end subroutine
+
+    ! ALENS(97,s): diffraction grating order (GRO)
+    real(real64) function surf_grating_order(s)
+        integer, intent(in) :: s
+        surf_grating_order = ALENS(97, s)
+    end function
+    subroutine set_surf_grating_order(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(97, s) = val
+    end subroutine
+
+    ! ALENS(99,s): grating vector X component (GRX)
+    real(real64) function surf_grating_vx(s)
+        integer, intent(in) :: s
+        surf_grating_vx = ALENS(99, s)
+    end function
+    subroutine set_surf_grating_vx(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(99, s) = val
+    end subroutine
+
+    ! ALENS(100,s): grating vector Y component (GRY)
+    real(real64) function surf_grating_vy(s)
+        integer, intent(in) :: s
+        surf_grating_vy = ALENS(100, s)
+    end function
+    subroutine set_surf_grating_vy(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(100, s) = val
+    end subroutine
+
+    ! ALENS(101,s): grating vector Z component (GRZ)
+    real(real64) function surf_grating_vz(s)
+        integer, intent(in) :: s
+        surf_grating_vz = ALENS(101, s)
+    end function
+    subroutine set_surf_grating_vz(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(101, s) = val
+    end subroutine
+
+    ! ALENS(144,s): ray angular error tolerance (RAYERROR command)
+    real(real64) function surf_ray_error(s)
+        integer, intent(in) :: s
+        surf_ray_error = ALENS(144, s)
+    end function
+    subroutine set_surf_ray_error(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(144, s) = val
     end subroutine
 
 end module mod_surface

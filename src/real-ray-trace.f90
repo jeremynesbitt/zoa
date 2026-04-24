@@ -58,6 +58,7 @@ contains
 !
         use DATLEN
         use DATMAI
+        use mod_surface
         IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -245,41 +246,41 @@ contains
 !       TELECENTRIC AIMING IS OFF
       JKX=(PXTRAX(1,NEWOBJ+1))
       JKY=(PXTRAY(1,NEWOBJ+1))
-      IF(ALENS(9,NEWOBJ+1).EQ.1.0D0) THEN
+      IF(surf_clap_type(NEWOBJ+1) == 1) THEN
 !     CIRCULAR AP
-      IF(ALENS(10,NEWOBJ+1).LE.ALENS(11,NEWOBJ+1)) THEN
-      IF(DABS(ALENS(10,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(ALENS(10,NEWOBJ+1))
-      IF(DABS(ALENS(10,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(ALENS(10,NEWOBJ+1))
+      IF(surf_clap_dim(NEWOBJ+1, 1).LE.surf_clap_dim(NEWOBJ+1, 2)) THEN
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
+      JKX=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
+      JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
                            ELSE
-      IF(DABS(ALENS(11,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(ALENS(11,NEWOBJ+1))
-      IF(DABS(ALENS(11,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(ALENS(11,NEWOBJ+1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
+      JKX=DABS(surf_clap_dim(NEWOBJ+1, 2))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
+      JKY=DABS(surf_clap_dim(NEWOBJ+1, 2))
                            END IF
               END IF
-      IF(ALENS(9,NEWOBJ+1).EQ.5.0D0) THEN
+      IF(surf_clap_type(NEWOBJ+1) == 5) THEN
 !     CIRCULAR AP
-      IF(DABS(ALENS(10,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(ALENS(10,NEWOBJ+1))
-      IF(DABS(ALENS(10,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(ALENS(10,NEWOBJ+1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
+      JKX=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
+      JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
               END IF
-      IF(ALENS(9,NEWOBJ+1).EQ.6.0D0) THEN
+      IF(surf_clap_type(NEWOBJ+1) == 6) THEN
 !     CIRCULAR AP
-      IF(DABS(ALENS(14,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(ALENS(14,NEWOBJ+1))
-      IF(DABS(ALENS(14,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(ALENS(14,NEWOBJ+1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 5)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
+      JKX=DABS(surf_clap_dim(NEWOBJ+1, 5))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 5)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
+      JKY=DABS(surf_clap_dim(NEWOBJ+1, 5))
               END IF
-      IF(ALENS(9,NEWOBJ+1).GT.1.0D0.AND.ALENS(9,NEWOBJ+1) &
+      IF(surf_clap_type(NEWOBJ+1).GT.1.0D0.AND.surf_clap_type(NEWOBJ+1) &
       .LE.4.0D0) THEN
 !     OTHER AP
-      IF(DABS(ALENS(11,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(ALENS(11,NEWOBJ+1))
-      IF(DABS(ALENS(10,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(ALENS(10,NEWOBJ+1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
+      JKX=DABS(surf_clap_dim(NEWOBJ+1, 2))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
+      JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
               END IF
                         ELSE
 !       TELECENTRIC AIMING IS ON
@@ -305,9 +306,9 @@ contains
 !     TEL OFF
 !     RAY AIMING IS OFF, TELECENTRIC RAY AIMING IS OFF
         X1AIM=WW2*JKX
-        X1AIM=(X1AIM)-ALENS(31,NEWOBJ+1)
+        X1AIM=(X1AIM)-surf_decenter_x(NEWOBJ+1)
         Y1AIM=WW1*JKY
-        Y1AIM=(Y1AIM)-ALENS(30,NEWOBJ+1)
+        Y1AIM=(Y1AIM)-surf_decenter_y(NEWOBJ+1)
         Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -337,9 +338,9 @@ contains
                         ELSE
 !     RAY AIMING
         X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ+1)))+(WW2*JKX)
-        X1AIM=(X1AIM)-ALENS(31,NEWOBJ+1)
+        X1AIM=(X1AIM)-surf_decenter_x(NEWOBJ+1)
         Y1AIM=(LFOB(1)*DABS(PXTRAY(5,NEWOBJ+1)))+(WW1*JKY)
-        Y1AIM=(Y1AIM)-ALENS(30,NEWOBJ+1)
+        Y1AIM=(Y1AIM)-surf_decenter_y(NEWOBJ+1)
         Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -456,8 +457,8 @@ contains
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
 !       SURFACE POINT INTERSECTION
  9                      CONTINUE
-      IF(ALENS(3,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-      IF(ALENS(3,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+      IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+      IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
                         RV=.FALSE.
                         KKK=KKK+1
 !       IF KKK EXCEEDS 100 TRIES, PRINT RAY ITERRATION ERROR
@@ -570,8 +571,8 @@ contains
         END IF
 !     CALCULATE X1AIM,Y1AIM AND Z1AIM IN THE COORDINATE SYSTEM OBJ SURF
 !     DON'T NEED BAKONE HERE
-      X1AIM=WW2WW*ALENS(3,0)
-      Y1AIM=WW1WW*ALENS(3,0)
+      X1AIM=WW2WW*surf_thickness(0)
+      Y1AIM=WW1WW*surf_thickness(0)
       !call logger%logTextWithNum("RAYTRA Y1AIM 2209 is ",Y1AIM)
 
       Z1AIM=0.0D0
@@ -885,7 +886,7 @@ contains
       RAYRAY(8,I)=0.0D0
                        END IF
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
-      RAYRAY(8,I)=-(ALENS(121,I-1)-ALENS(3,I-1))*RAYRAY(6,I-1)
+      RAYRAY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*RAYRAY(6,I-1)
                        END IF
       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) &
       RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(45+INT(WW3),(I-1)))
@@ -959,7 +960,7 @@ contains
                         END IF
                         GLSURF=-99
                         DO IK=0,NEWIMG
-      IF(DABS(ALENS(3,IK)).LE.1.0D10) THEN
+      IF(DABS(surf_thickness(IK)).LE.1.0D10) THEN
                         GLSURF=IK
                         GO TO 8761
                         END IF
@@ -999,11 +1000,11 @@ contains
 !
         IF(I.EQ.NEWREF) THEN
 !       CALCULATE TARX AND TARY
-        IF(DABS(ALENS(9,I)).GE.1.0D0.AND. &
-        DABS(ALENS(9,I)).LE.6.0D0.AND.ALENS(127,I).EQ.0.0D0) THEN
+        IF(ABS(surf_clap_type(I)) >= 1.AND. &
+        ABS(surf_clap_type(I)) <= 6.AND.surf_multi_clap_flag(I) == 0) THEN
 !     CLAPT=TRUE FOR CLAP TILTS AND DECENTED AND FALSE OTHERWISE
       CLAPT=.FALSE.
-      IF(ALENS(12,I).NE.0.0D0.OR.ALENS(13,I).NE.0.0D0.OR.ALENS(15,I) &
+      IF(surf_clap_dim(I, 3).NE.0.0D0.OR.surf_clap_dim(I, 4).NE.0.0D0.OR.surf_clap_tilt(I) &
       .NE.0.0D0) CLAPT=.TRUE.
 !       REF SURF HAS CLAP ON IT
 !       THE VALUES OF TARY AND TARX ARE COORDINATES IN THE
@@ -1012,50 +1013,50 @@ contains
 !       MODIFIED BY ADDING THE CLAP DECENTRATIONS SINCE THE RAY
 !       IS AIMED TO THE RELATIVE REFERENCE SURFACE COORDINATES.
 !
-!       SET TARGET TO CENTER OF DECENTERED CLAP, ALENS(12,I),
-!       AND ALENS(13,I) ARE CLAP DECENTRATIONS
+!       SET TARGET TO CENTER OF DECENTERED CLAP, surf_clap_dim(I, 3),
+!       AND surf_clap_dim(I, 4) ARE CLAP DECENTRATIONS
 !
       WWW1=WW1
       WWW2=WW2
-      IF(SYSTEM(70).EQ.1.0D0.AND.ALENS(1,I).NE.0.0D0.AND. &
-      ALENS(9,I).EQ.1.0D0.AND.ALENS(12,I).EQ.0.0D0.AND. &
-      ALENS(13,I).EQ.0.0D0.AND.ALENS(15,I).EQ.0.0D0) THEN
-      IF(DABS(1.0D0/ALENS(1,I)).GE.DABS(ALENS(10,I)).AND. &
-      DABS(1.0D0/ALENS(1,I)).GE.DABS(ALENS(11,I))) &
+      IF(SYSTEM(70).EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. &
+      surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. &
+      surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
+      IF(DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 1)).AND. &
+      DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 2))) &
       CALL APLANA(I,WW1,WW2,WWW1,WWW2)
                        END IF
 !
 !       CIRCULAR CLAP
 !
-        IF(DABS(ALENS(9,I)).EQ.1.0D0) THEN
+        IF(ABS(surf_clap_type(I)) == 1) THEN
       IF(CLAPT) THEN
-      IF(ALENS(10,I).LE.ALENS(11,I)) THEN
-                TARY=(ALENS(10,I)*WWW1)
-                TARX=(ALENS(10,I)*WWW2)
+      IF(surf_clap_dim(I, 1).LE.surf_clap_dim(I, 2)) THEN
+                TARY=(surf_clap_dim(I, 1)*WWW1)
+                TARX=(surf_clap_dim(I, 1)*WWW2)
                    ELSE
-                TARY=(ALENS(12,I))+(ALENS(11,I)*WWW1)
-                TARX=(ALENS(13,I))+(ALENS(11,I)*WWW2)
+                TARY=(surf_clap_dim(I, 3))+(surf_clap_dim(I, 2)*WWW1)
+                TARX=(surf_clap_dim(I, 4))+(surf_clap_dim(I, 2)*WWW2)
                    END IF
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-                TARX=TARX+ALENS(13,I)
-                TARY=TARY+ALENS(12,I)
+                TARX=TARX+surf_clap_dim(I, 4)
+                TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
-        GAMMA=(ALENS(15,I)*(PII))/180.0D0
+        GAMMA=(surf_clap_tilt(I)*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
         TARX=TARRX
                       ELSE
 !     NO CLAP DEC OR TILTS
-                TARY=(ALENS(10,I)*WWW1)
-                TARX=(ALENS(10,I)*WWW2)
-      IF(ALENS(10,I).LE.ALENS(11,I)) THEN
-                TARY=(ALENS(10,I)*WWW1)
-                TARX=(ALENS(10,I)*WWW2)
+                TARY=(surf_clap_dim(I, 1)*WWW1)
+                TARX=(surf_clap_dim(I, 1)*WWW2)
+      IF(surf_clap_dim(I, 1).LE.surf_clap_dim(I, 2)) THEN
+                TARY=(surf_clap_dim(I, 1)*WWW1)
+                TARX=(surf_clap_dim(I, 1)*WWW2)
                    ELSE
-                TARY=(ALENS(11,I)*WWW1)
-                TARX=(ALENS(11,I)*WWW2)
+                TARY=(surf_clap_dim(I, 2)*WWW1)
+                TARX=(surf_clap_dim(I, 2)*WWW2)
                    END IF
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
@@ -1070,33 +1071,33 @@ contains
                         END IF
 !        RECT CLAP
 !
-        IF(DABS(ALENS(9,I)).EQ.2.0D0) THEN
+        IF(ABS(surf_clap_type(I)) == 2) THEN
       IF(CLAPT) THEN
       IF(ANAAIM) THEN
-                TARY=(ALENS(10,I)*WW1)
-                TARX=(ALENS(11,I)*WW2)
+                TARY=(surf_clap_dim(I, 1)*WW1)
+                TARX=(surf_clap_dim(I, 2)*WW2)
                    ELSE
-      IF(DABS(ALENS(10,I)).GT.DABS(ALENS(11,I))) THEN
-                TARY=(ALENS(10,I)*WW1)
-                TARX=(ALENS(10,I)*WW2)
+      IF(DABS(surf_clap_dim(I, 1)).GT.DABS(surf_clap_dim(I, 2))) THEN
+                TARY=(surf_clap_dim(I, 1)*WW1)
+                TARX=(surf_clap_dim(I, 1)*WW2)
                    ELSE
-                TARY=(ALENS(12,I))+(ALENS(11,I)*WW1)
-                TARX=(ALENS(13,I))+(ALENS(11,I)*WW2)
+                TARY=(surf_clap_dim(I, 3))+(surf_clap_dim(I, 2)*WW1)
+                TARX=(surf_clap_dim(I, 4))+(surf_clap_dim(I, 2)*WW2)
                    END IF
                    END IF
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-                TARX=TARX+ALENS(13,I)
-                TARY=TARY+ALENS(12,I)
+                TARX=TARX+surf_clap_dim(I, 4)
+                TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
-        GAMMA=(ALENS(15,I)*(PII))/180.0D0
+        GAMMA=(surf_clap_tilt(I)*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
         TARX=TARRX
                       ELSE
-                TARY=(ALENS(10,I)*WW1)
-                TARX=(ALENS(11,I)*WW2)
+                TARY=(surf_clap_dim(I, 1)*WW1)
+                TARX=(surf_clap_dim(I, 2)*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
         GAMMA=(SYSTEM(59)*(PII))/180.0D0
@@ -1109,19 +1110,19 @@ contains
                         END IF
 !        ELIP CLAP
 !
-                YVALUE=ALENS(10,I)
-                XVALUE=ALENS(11,I)
+                YVALUE=surf_clap_dim(I, 1)
+                XVALUE=surf_clap_dim(I, 2)
 !
-        IF(DABS(ALENS(9,I)).EQ.3.0D0) THEN
+        IF(ABS(surf_clap_type(I)) == 3) THEN
       IF(CLAPT) THEN
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-                TARX=TARX+ALENS(13,I)
-                TARY=TARY+ALENS(12,I)
+                TARX=TARX+surf_clap_dim(I, 4)
+                TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
-        GAMMA=(ALENS(15,I)*(PII))/180.0D0
+        GAMMA=(surf_clap_tilt(I)*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1141,25 +1142,25 @@ contains
                         END IF
 !        RCTK CLAP
 !
-        IF(DABS(ALENS(9,I)).EQ.4.0D0) THEN
+        IF(ABS(surf_clap_type(I)) == 4) THEN
       IF(CLAPT) THEN
-                YVALUE=ALENS(10,I)
-                XVALUE=ALENS(11,I)
+                YVALUE=surf_clap_dim(I, 1)
+                XVALUE=surf_clap_dim(I, 2)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-                TARX=TARX+ALENS(13,I)
-                TARY=TARY+ALENS(12,I)
+                TARX=TARX+surf_clap_dim(I, 4)
+                TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
-        GAMMA=(ALENS(15,I)*(PII))/180.0D0
+        GAMMA=(surf_clap_tilt(I)*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
         TARX=TARRX
                       ELSE
-                YVALUE=ALENS(10,I)
-                XVALUE=ALENS(11,I)
+                YVALUE=surf_clap_dim(I, 1)
+                XVALUE=surf_clap_dim(I, 2)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
@@ -1174,25 +1175,25 @@ contains
                         END IF
 !        POLY CLAP
 !
-        IF(DABS(ALENS(9,I)).EQ.5.0D0) THEN
+        IF(ABS(surf_clap_type(I)) == 5) THEN
       IF(CLAPT) THEN
-                YVALUE=ALENS(10,I)
-                XVALUE=ALENS(10,I)
+                YVALUE=surf_clap_dim(I, 1)
+                XVALUE=surf_clap_dim(I, 1)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-                TARX=TARX+ALENS(13,I)
-                TARY=TARY+ALENS(12,I)
+                TARX=TARX+surf_clap_dim(I, 4)
+                TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
-        GAMMA=(ALENS(15,I)*(PII))/180.0D0
+        GAMMA=(surf_clap_tilt(I)*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
         TARX=TARRX
                       ELSE
-                YVALUE=ALENS(10,I)
-                XVALUE=ALENS(10,I)
+                YVALUE=surf_clap_dim(I, 1)
+                XVALUE=surf_clap_dim(I, 1)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
@@ -1205,25 +1206,25 @@ contains
                       END IF
 !       NOT POLY CLAP
                         END IF
-        IF(DABS(ALENS(9,I)).EQ.6.0D0) THEN
+        IF(ABS(surf_clap_type(I)) == 6) THEN
       IF(CLAPT) THEN
-                YVALUE=ALENS(14,I)
-                XVALUE=ALENS(14,I)
+                YVALUE=surf_clap_dim(I, 5)
+                XVALUE=surf_clap_dim(I, 5)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-                TARX=TARX+ALENS(13,I)
-                TARY=TARY+ALENS(12,I)
+                TARX=TARX+surf_clap_dim(I, 4)
+                TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
-        GAMMA=(ALENS(15,I)*(PII))/180.0D0
+        GAMMA=(surf_clap_tilt(I)*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
         TARX=TARRX
                       ELSE
-                YVALUE=ALENS(11,I)
-                XVALUE=ALENS(11,I)
+                YVALUE=surf_clap_dim(I, 2)
+                XVALUE=surf_clap_dim(I, 2)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
@@ -1303,7 +1304,7 @@ contains
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(ALENS(1,1).NE.0.0D0) &
+      IF(surf_curvature(1).NE.0.0D0) &
       CALL GETZEE1
         X1AIM=XC
         Y1AIM=YC
@@ -1381,16 +1382,16 @@ contains
 !     DON'T CHECK ON OBJECT OR IMAGE SURFACES.
 !
                 MMSG=MSG
-      IF(DABS(ALENS(34,R_I)).NE.24.0D0) THEN
+      IF(ABS(surf_special_type(R_I)) /= 24) THEN
 !     NO CLAP/COBS CHECK FOR TYPE 24 SPECIAL SURFACE
-      IF(INT(ALENS(127,R_I)).EQ.0.AND.INT(ALENS(128,R_I)).EQ.0) THEN
+      IF(INT(surf_multi_clap_flag(R_I)).EQ.0.AND.INT(surf_multi_cobs_flag(R_I)).EQ.0) THEN
       CALL CACHEK(0.0D0,0.0D0,0.0D0,0)
                 ELSE
-            IF(INT(ALENS(127,R_I)).NE.0) THEN
-            DO JK=1,INT(ALENS(127,R_I))
+            IF(INT(surf_multi_clap_flag(R_I)).NE.0) THEN
+            DO JK=1,INT(surf_multi_clap_flag(R_I))
       IF(MMSG) THEN
       MSG=.TRUE.
-      IF(JK.LT.INT(ALENS(127,R_I))) MSG=.FALSE.
+      IF(JK.LT.INT(surf_multi_clap_flag(R_I))) MSG=.FALSE.
                         END IF
       JK1=MULTCLAP(JK,1,R_I)
       JK2=MULTCLAP(JK,2,R_I)
@@ -1406,8 +1407,8 @@ contains
                    END DO
  25                CONTINUE
                 END IF
-            IF(INT(ALENS(128,R_I)).NE.0) THEN
-            DO JK=1,INT(ALENS(128,R_I))
+            IF(INT(surf_multi_cobs_flag(R_I)).NE.0) THEN
+            DO JK=1,INT(surf_multi_cobs_flag(R_I))
       IF(MMSG) THEN
       MSG=.TRUE.
                         END IF
@@ -1469,7 +1470,7 @@ contains
                         END IF
                         GLSURF=-99
                         DO I=0,NEWIMG
-      IF(DABS(ALENS(3,I)).LE.1.0D10) THEN
+      IF(DABS(surf_thickness(I)).LE.1.0D10) THEN
                         GLSURF=I
                         GO TO 876
                         END IF
@@ -1527,7 +1528,7 @@ contains
       RN2=(ALENS(65+WA3,I))
                         END IF
                         END IF
-      IF(ALENS(34,I).EQ.19.0D0) THEN
+      IF(surf_special_type(I) == 19) THEN
 !     CALL THE GRIDS ROUTINE WITH ARG = 2
 !     THIS CAUSES THE RAY ENERGY TO BE MULTIPLIED BY THE
 !     APODIZATION REPRESENTED IN THE APGRI FILE
@@ -1581,7 +1582,7 @@ contains
       RAYRAY(25,I)=RAYRAY(25,I)*FACTOR
                 END IF
                 END IF
-      IF(ALENS(34,I).NE.19.0D0) THEN
+      IF(surf_special_type(I) /= 19) THEN
 !
 !     NOT AN APODIZATION SURFACE
       IF(DUM(I).AND.I.GT.0) THEN
@@ -1672,7 +1673,7 @@ contains
         RAYRAY(40,I)=DSIN(POLANG)*DACOS(RAYRAY(9,I))
 !       POL ANG DONE
       IF(COATSET) THEN
-      J=INT(ALENS(112,I))
+      J=INT(surf_coating_index(I))
       IF(RAYRAY(9,I).GT.1.0D0) RAYRAY(9,I)=1.0D0
       IF(RAYRAY(9,I).LT.-1.0D0) RAYRAY(9,I)=-1.0D0
       IF(RAYRAY(10,I).GT.1.0D0) RAYRAY(10,I)=1.0D0
@@ -1687,7 +1688,7 @@ contains
       ,FACT_PAR,FACT_PER,PHASE_PAR,PHASE_PER,PATHL)
       IF(I.GT.NEWOBJ) RAYRAY(25,I)=RAYRAY(25,I)*ENERGY_FACTOR
                END IF
-      IF(ALENS(96,I).EQ.1.0D0.AND.ALENS(98,I).NE.0.0D0) THEN
+      IF(surf_diffraction_flag(I) == 1.AND.surf_grating_spacing(I).NE.0.0D0) THEN
       IA=DACOS(RAYRAY(9,I))
       WA3=INT(WW3)
       ENERGY_FACTOR=1.0D0

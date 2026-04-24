@@ -133,6 +133,7 @@ END
 SUBROUTINE NR1(ERRR)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -173,27 +174,27 @@ SUBROUTINE NR1(ERRR)
    IF(MN.EQ.0.0D0) SNGY=1.0D0
    IF(NN.EQ.0.0D0) SNGZ=1.0D0
    DIFCAL=.FALSE.
-   IF(ALENS(8,R_I).NE.0.0D0) DIFCAL=.TRUE.
-   IF(ALENS(34,R_I).GT.0.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.6.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.7.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.9.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.10.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.11.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.12.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.13.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.15.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.16.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.17.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.19.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.20.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.22.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.24.0D0 &
-   &.OR.ALENS(103,R_I).EQ.1.0D0) THEN
+   IF(surf_is_asphere(R_I)) DIFCAL=.TRUE.
+   IF(surf_special_type(R_I) > 0.AND.&
+   &ABS(surf_special_type(R_I)) /= 6.AND.&
+   &ABS(surf_special_type(R_I)) /= 7.AND.&
+   &ABS(surf_special_type(R_I)) /= 9.AND.&
+   &ABS(surf_special_type(R_I)) /= 10.AND.&
+   &ABS(surf_special_type(R_I)) /= 11.AND.&
+   &ABS(surf_special_type(R_I)) /= 12.AND.&
+   &ABS(surf_special_type(R_I)) /= 13.AND.&
+   &ABS(surf_special_type(R_I)) /= 15.AND.&
+   &ABS(surf_special_type(R_I)) /= 16.AND.&
+   &ABS(surf_special_type(R_I)) /= 17.AND.&
+   &ABS(surf_special_type(R_I)) /= 19.AND.&
+   &ABS(surf_special_type(R_I)) /= 20.AND.&
+   &ABS(surf_special_type(R_I)) /= 22.AND.&
+   &ABS(surf_special_type(R_I)) /= 24 &
+   &.OR.surf_default_flag(R_I) == 1) THEN
 !     WE GOT A REAL SPECIAL SURFACE WHICH NEEDS FINITE DIFFERENCE
 !     SURFACE SLOPE CALCS IF SURFACE IS TYPE 5 OR THE COEFS ARE NOT
 !     ALL ZERO
-      IF(ALENS(34,R_I).GT.0.0D0) THEN
+      IF(surf_special_type(R_I) > 0) THEN
          IF(FTFL01(1,R_I).NE.0.0D0) DIFCAL=.TRUE.
          IF(FTFL01(2,R_I).NE.0.0D0) DIFCAL=.TRUE.
          IF(FTFL01(3,R_I).NE.0.0D0) DIFCAL=.TRUE.
@@ -295,17 +296,17 @@ SUBROUTINE NR1(ERRR)
    END IF
 
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C41=ALENS(81,R_I)
-   C42=ALENS(82,R_I)
-   C43=ALENS(83,R_I)
-   C44=ALENS(84,R_I)
-   C45=ALENS(85,R_I)
-   C5=ALENS(43,R_I)
-   A34=ALENS(34,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C41=surf_asphere_coeff(R_I, 12)
+   C42=surf_asphere_coeff(R_I, 14)
+   C43=surf_asphere_coeff(R_I, 16)
+   C44=surf_asphere_coeff(R_I, 18)
+   C45=surf_asphere_coeff(R_I, 20)
+   C5=surf_asphere_coeff(R_I, 2)
+   A34=surf_special_type(R_I)
 !
    DEL=DELSUR
 !
@@ -413,6 +414,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
    USE GLOBALS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -468,7 +470,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
 !
 !
    DA34=DABS(A34)
-   IF(A34.EQ.0.0D0.AND.ALENS(103,AR).EQ.0.0D0.OR.DA34.EQ.6.0D0.OR.&
+   IF(A34.EQ.0.0D0.AND.surf_default_flag(AR) == 0.OR.DA34.EQ.6.0D0.OR.&
    &DA34.EQ.7.0D0.OR.DA34.EQ.9.0D0.OR.DA34.EQ.10.0D0.OR.&
    &DA34.EQ.11.0D0.OR.DA34.EQ.12.0D0.OR.&
    &DA34.EQ.15.0D0.OR.DA34.EQ.16.0D0.OR.DA34.EQ.17.0D0.OR.&
@@ -592,7 +594,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
    END IF
 !     SPECIAL SURFACE TYPE 2
    IF(A34.EQ.2.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -619,7 +621,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
    END IF
 !     SPECIAL SURFACE TYPE 14
    IF(A34.EQ.14.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -646,7 +648,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
    END IF
 !     SPECIAL SURFACE TYPE 3
    IF(A34.EQ.3.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAY=AY/INR
       AAAX=AX/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -865,7 +867,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
       RETURN
    END IF
 !     DEFORM SURFACE
-   IF(ALENS(103,AR).EQ.1.0D0) THEN
+   IF(surf_default_flag(AR) == 1) THEN
 !     USE WHAT REMAINS IN THE Z-REGISTER
 !     CALL DEFGRID
       ISURF=AR
@@ -926,6 +928,7 @@ SUBROUTINE NR2(ERRR)
    USE Globals
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -958,7 +961,7 @@ SUBROUTINE NR2(ERRR)
 !
 !
    !PRINT *, "NR2 Being called"
-   !call logger%logTextWithNum("ALENS(8,R_I) = ", ALENS(8,R_I))
+   !call logger%logTextWithNum("surf_is_asphere(R_I) = ", surf_is_asphere(R_I))
    IF(LN.NE.0.0D0) SNGX=LN/DABS(LN)
    IF(MN.NE.0.0D0) SNGY=MN/DABS(MN)
    IF(NN.NE.0.0D0) SNGZ=NN/DABS(NN)
@@ -966,27 +969,27 @@ SUBROUTINE NR2(ERRR)
    IF(MN.EQ.0.0D0) SNGY=1.0D0
    IF(NN.EQ.0.0D0) SNGZ=1.0D0
    DIFCAL=.FALSE.
-   IF(ALENS(8,R_I).NE.0.0D0) DIFCAL=.TRUE.
-   IF(ALENS(34,R_I).GT.0.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.6.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.7.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.9.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.10.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.11.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.12.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.13.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.15.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.16.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.17.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.19.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.20.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.22.0D0.AND.&
-   &DABS(ALENS(34,R_I)).NE.24.0D0 &
-   &.OR.ALENS(103,R_I).EQ.1.0D0) THEN
+   IF(surf_is_asphere(R_I)) DIFCAL=.TRUE.
+   IF(surf_special_type(R_I) > 0.AND.&
+   &ABS(surf_special_type(R_I)) /= 6.AND.&
+   &ABS(surf_special_type(R_I)) /= 7.AND.&
+   &ABS(surf_special_type(R_I)) /= 9.AND.&
+   &ABS(surf_special_type(R_I)) /= 10.AND.&
+   &ABS(surf_special_type(R_I)) /= 11.AND.&
+   &ABS(surf_special_type(R_I)) /= 12.AND.&
+   &ABS(surf_special_type(R_I)) /= 13.AND.&
+   &ABS(surf_special_type(R_I)) /= 15.AND.&
+   &ABS(surf_special_type(R_I)) /= 16.AND.&
+   &ABS(surf_special_type(R_I)) /= 17.AND.&
+   &ABS(surf_special_type(R_I)) /= 19.AND.&
+   &ABS(surf_special_type(R_I)) /= 20.AND.&
+   &ABS(surf_special_type(R_I)) /= 22.AND.&
+   &ABS(surf_special_type(R_I)) /= 24 &
+   &.OR.surf_default_flag(R_I) == 1) THEN
 !     WE GOT A REAL SPECIAL SURFACE WHICH NEEDS FINIT DIFFERENCE
 !     SURFACE SLOPE CALCS IF SURFACE IS TYPE 5 OR THE COEFS ARE NOT
 !     ALL ZERO
-      IF(ALENS(34,R_I).GT.0.0D0) THEN
+      IF(surf_special_type(R_I) > 0) THEN
 
          IF(FTFL01(1,R_I).NE.0.0D0) DIFCAL=.TRUE.
          IF(FTFL01(2,R_I).NE.0.0D0) DIFCAL=.TRUE.
@@ -1086,25 +1089,25 @@ SUBROUTINE NR2(ERRR)
          IF(FTFL01(96,R_I).NE.0.0D0) DIFCAL=.TRUE.
       END IF
    END IF
-   A34=ALENS(34,R_I)
+   A34=surf_special_type(R_I)
 !
-   CV=ALENS(1,R_I)
-   CC=ALENS(2,R_I)
+   CV=surf_curvature(R_I)
+   CC=surf_conic(R_I)
    IF(CC.EQ.-1.0D0.AND.CV.GT.0.0D0) ZTEST=1.0D20
    IF(CC.EQ.-1.0D0.AND.CV.LT.0.0D0) ZTEST=-1.0D20
    IF(CC.NE.-1.0D0) ZTEST=1.0D0/((CC+1.0D0)*CV)
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C41=ALENS(81,R_I)
-   C42=ALENS(82,R_I)
-   C43=ALENS(83,R_I)
-   C44=ALENS(84,R_I)
-   C45=ALENS(85,R_I)
-   C5=ALENS(2,R_I)
-   C6=(ALENS(1,R_I))
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C41=surf_asphere_coeff(R_I, 12)
+   C42=surf_asphere_coeff(R_I, 14)
+   C43=surf_asphere_coeff(R_I, 16)
+   C44=surf_asphere_coeff(R_I, 18)
+   C45=surf_asphere_coeff(R_I, 20)
+   C5=surf_conic(R_I)
+   C6=(surf_curvature(R_I))
 
 
    !IF(DIFCAL) call logger%logText("DIFCAL ON")
@@ -1297,6 +1300,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
    USE GLOBALS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1412,7 +1416,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
 !     THEY ARE APPLIED HERE
 !
    DA34=DABS(A34)
-   IF(A34.EQ.0.0D0.AND.ALENS(103,AR).EQ.0.0D0.OR.DA34.EQ.6.0D0.OR.&
+   IF(A34.EQ.0.0D0.AND.surf_default_flag(AR) == 0.OR.DA34.EQ.6.0D0.OR.&
    &DA34.EQ.7.0D0.OR.DA34.EQ.9.0D0.OR.DA34.EQ.10.0D0.OR.&
    &DA34.EQ.11.0D0.OR.DA34.EQ.12.0D0.OR.&
    &DA34.EQ.15.0D0.OR.DA34.EQ.16.0D0.OR.DA34.EQ.17.0D0.OR.&
@@ -1536,7 +1540,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
    END IF
 !     SPECIAL SURFACE TYPE 2
    IF(A34.EQ.2.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -1563,7 +1567,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
    END IF
 !     SPECIAL SURFACE TYPE 14
    IF(A34.EQ.14.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -1590,7 +1594,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
    END IF
 !     SPECIAL SURFACE TYPE 3
    IF(A34.EQ.3.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -1810,7 +1814,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
       RETURN
    END IF
 !     DEFORM SURFACE
-   IF(ALENS(103,AR).EQ.1.0D0) THEN
+   IF(surf_default_flag(AR) == 1) THEN
 !     USE WHAT REMAINS IN THE Z-REGISTER
 !     CALL DEFGRID
       ISURF=AR
@@ -1869,6 +1873,7 @@ END
 SUBROUTINE NRPARAX
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1916,10 +1921,10 @@ SUBROUTINE NRPARAX
    IF(MN.EQ.0.0D0) SNGY=1.0D0
    IF(NN.EQ.0.0D0) SNGZ=1.0D0
 !
-   IF(DABS(ALENS(1,R_I)).GT.DABS(ALENS(24,R_I))) THEN
-      CV=ALENS(1,R_I)
+   IF(DABS(surf_curvature(R_I)).GT.DABS(surf_toric_curvature(R_I))) THEN
+      CV=surf_curvature(R_I)
    ELSE
-      CV=ALENS(24,R_I)
+      CV=surf_toric_curvature(R_I)
    END IF
 !
    IF(CV.NE.0.0D0) ZTEST=1.0D0/CV
@@ -1928,17 +1933,17 @@ SUBROUTINE NRPARAX
    DEL=DELSUR
 !
    ERRR=.FALSE.
-   IF(ALENS(1,R_I).EQ.0.0D0.AND.ALENS(24,R_I).EQ.0.0D0) THEN
+   IF(surf_curvature(R_I).EQ.0.0D0.AND.surf_toric_curvature(R_I).EQ.0.0D0) THEN
       FNXP=-DER1X(FUNC1X,R_X,DELSUR,ERRR)
       FNYP=-DER1Y(FUNC1Y,R_Y,DELSUR,ERRR)
       IF(ERRR) RETURN
    END IF
-   IF(ALENS(1,R_I).NE.0.0D0.AND.ALENS(24,R_I).EQ.0.0D0) THEN
+   IF(surf_curvature(R_I).NE.0.0D0.AND.surf_toric_curvature(R_I).EQ.0.0D0) THEN
       FNXP=-DER2X(FUNC2X,R_X,DELSUR,ERRR)
       FNYP=-DER2Y(FUNC2Y,R_Y,DELSUR,ERRR)
       IF(ERRR) RETURN
    END IF
-   IF(ALENS(24,R_I).NE.0.0D0) THEN
+   IF(surf_toric_curvature(R_I).NE.0.0D0) THEN
       FNXP=-DER3X(FUNC3X,R_X,DELSUR,ERRR)
       FNYP=-DER3Y(FUNC3Y,R_Y,DELSUR,ERRR)
       IF(ERRR) RETURN
@@ -1957,6 +1962,7 @@ END
 SUBROUTINE NR3(ERRR)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2005,35 +2011,35 @@ SUBROUTINE NR3(ERRR)
 !
 
 !     AD
-   C1=ALENS(4,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
 !     AE
-   C2=ALENS(5,R_I)
+   C2=surf_asphere_coeff(R_I, 6)
 !     AF
-   C3=ALENS(6,R_I)
+   C3=surf_asphere_coeff(R_I, 8)
 !     AG
-   C4=ALENS(7,R_I)
+   C4=surf_asphere_coeff(R_I, 10)
 !     CC
-   C5=ALENS(2,R_I)
+   C5=surf_conic(R_I)
 !     CV
-   C6=ALENS(1,R_I)
+   C6=surf_curvature(R_I)
 !     TORIC FLAG
-   C7=ALENS(23,R_I)
+   C7=surf_toric_flag(R_I)
 !     CVTOR
-   C8=ALENS(24,R_I)
+   C8=surf_toric_curvature(R_I)
 !     TASPH FLAG
-   C9=ALENS(36,R_I)
+   C9=surf_anamorphic_flag(R_I)
 !     ADTOR
-   C10=ALENS(37,R_I)
+   C10=surf_anamorphic_coeff(R_I, 4)
 !     AETOR
-   C11=ALENS(38,R_I)
+   C11=surf_anamorphic_coeff(R_I, 6)
 !     AFTOR
-   C12=ALENS(39,R_I)
+   C12=surf_anamorphic_coeff(R_I, 8)
 !     AGTOR
-   C13=ALENS(40,R_I)
+   C13=surf_anamorphic_coeff(R_I, 10)
 !     CCTOR
-   C14=ALENS(41,R_I)
+   C14=surf_anamorphic_conic(R_I)
 !     SPSRF FLAG
-   A34=ALENS(34,R_I)
+   A34=surf_special_type(R_I)
 !
 !       IF THE SURFACE IS AN Y-TORIC THE BASE CURVATURE (CV)
 !       LIES IN THE YZ PLANE. IF,HOWEVER, THE SURFACE IS A
@@ -2217,6 +2223,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
    USE GLOBALS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2268,7 +2275,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
 !     THEY ARE APPLIED HERE
 !
    DA34=DABS(A34)
-   IF(A34.EQ.0.0D0.AND.ALENS(103,AR).EQ.0.0D0.OR.DA34.EQ.6.0D0.OR.&
+   IF(A34.EQ.0.0D0.AND.surf_default_flag(AR) == 0.OR.DA34.EQ.6.0D0.OR.&
    &DA34.EQ.7.0D0.OR.DA34.EQ.9.0D0.OR.DA34.EQ.10.0D0.OR.&
    &DA34.EQ.11.0D0.OR.DA34.EQ.12.0D0.OR.&
    &DA34.EQ.15.0D0.OR.DA34.EQ.16.0D0.OR.DA34.EQ.17.0D0.OR.&
@@ -2392,7 +2399,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
    END IF
 !     SPECIAL SURFACE TYPE 2
    IF(A34.EQ.2.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -2419,7 +2426,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
    END IF
 !     SPECIAL SURFACE TYPE 14
    IF(A34.EQ.14.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -2446,7 +2453,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
    END IF
 !     SPECIAL SURFACE TYPE 3
    IF(A34.EQ.3.0D0) THEN
-      INR=ALENS(76,AR)
+      INR=surf_inr_value(AR)
       AAAX=AX/INR
       AAAY=AY/INR
       R=DSQRT((AAAX**2)+(AAAY**2))
@@ -2655,7 +2662,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
       RETURN
    END IF
 !     DEFORM SURFACE
-   IF(ALENS(103,AR).EQ.1.0D0) THEN
+   IF(surf_default_flag(AR) == 1) THEN
 !     USE WHAT REMAINS IN THE Z-REGISTER
 !     CALL GRID
       ISURF=AR
@@ -2741,6 +2748,7 @@ END
 FUNCTION FUNC1X(AX)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2750,18 +2758,18 @@ FUNCTION FUNC1X(AX)
    &,C41,C42,C43,C44,C45
 !
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C5=ALENS(43,R_I)
-   A34=ALENS(34,R_I)
-   C41=ALENS(81,R_I)
-   C42=ALENS(82,R_I)
-   C43=ALENS(83,R_I)
-   C44=ALENS(84,R_I)
-   C45=ALENS(85,R_I)
-   A34=ALENS(34,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C5=surf_asphere_coeff(R_I, 2)
+   A34=surf_special_type(R_I)
+   C41=surf_asphere_coeff(R_I, 12)
+   C42=surf_asphere_coeff(R_I, 14)
+   C43=surf_asphere_coeff(R_I, 16)
+   C44=surf_asphere_coeff(R_I, 18)
+   C45=surf_asphere_coeff(R_I, 20)
+   A34=surf_special_type(R_I)
 !
    FUNC1X=FNZ1(AX,R_Y,C1,C2,C3,C4,C5,R_I,A34,C41,C42,C43,C44,C45)
 !
@@ -2770,6 +2778,7 @@ END
 FUNCTION FUNC1Y(AY)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2779,17 +2788,17 @@ FUNCTION FUNC1Y(AY)
    &,C44,C45
 !
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C5=ALENS(43,R_I)
-   C41=ALENS(81,R_I)
-   C42=ALENS(82,R_I)
-   C43=ALENS(83,R_I)
-   C44=ALENS(84,R_I)
-   C45=ALENS(85,R_I)
-   A34=ALENS(34,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C5=surf_asphere_coeff(R_I, 2)
+   C41=surf_asphere_coeff(R_I, 12)
+   C42=surf_asphere_coeff(R_I, 14)
+   C43=surf_asphere_coeff(R_I, 16)
+   C44=surf_asphere_coeff(R_I, 18)
+   C45=surf_asphere_coeff(R_I, 20)
+   A34=surf_special_type(R_I)
 !
    FUNC1Y=FNZ1(R_X,AY,C1,C2,C3,C4,C5,R_I,A34,C41,C42,C43,C44,C45)
 !
@@ -2827,6 +2836,7 @@ END
 FUNCTION FUNC2X(AX)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2836,18 +2846,18 @@ FUNCTION FUNC2X(AX)
    &,C41,C42,C43,C44,C45
 !
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C5=ALENS(2,R_I)
-   C6=(ALENS(1,R_I))
-   C41=ALENS(81,R_I)
-   C42=ALENS(82,R_I)
-   C43=ALENS(83,R_I)
-   C44=ALENS(84,R_I)
-   C45=ALENS(85,R_I)
-   A34=ALENS(34,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C5=surf_conic(R_I)
+   C6=(surf_curvature(R_I))
+   C41=surf_asphere_coeff(R_I, 12)
+   C42=surf_asphere_coeff(R_I, 14)
+   C43=surf_asphere_coeff(R_I, 16)
+   C44=surf_asphere_coeff(R_I, 18)
+   C45=surf_asphere_coeff(R_I, 20)
+   A34=surf_special_type(R_I)
    Q=(1.0D0-((C5+1.0D0)*(C6**2)*&
    &((AX**2)+(R_Y**2))))
    Q=DSQRT(DABS(Q))
@@ -2861,6 +2871,7 @@ END
 FUNCTION FUNC2Y(AY)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2870,18 +2881,18 @@ FUNCTION FUNC2Y(AY)
    &,C41,C42,C43,C44,C45
 !
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C41=ALENS(81,R_I)
-   C42=ALENS(82,R_I)
-   C43=ALENS(83,R_I)
-   C44=ALENS(84,R_I)
-   C45=ALENS(85,R_I)
-   A34=ALENS(34,R_I)
-   C5=ALENS(2,R_I)
-   C6=(ALENS(1,R_I))
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C41=surf_asphere_coeff(R_I, 12)
+   C42=surf_asphere_coeff(R_I, 14)
+   C43=surf_asphere_coeff(R_I, 16)
+   C44=surf_asphere_coeff(R_I, 18)
+   C45=surf_asphere_coeff(R_I, 20)
+   A34=surf_special_type(R_I)
+   C5=surf_conic(R_I)
+   C6=(surf_curvature(R_I))
    Q=(1.0D0-((C5+1.0D0)*(C6**2)*&
    &((R_X**2)+(AY**2))))
    Q=DSQRT(DABS(Q))
@@ -2924,6 +2935,7 @@ END
 FUNCTION FUNC3X(AX)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2933,21 +2945,21 @@ FUNCTION FUNC3X(AX)
    &,C10,C11,C12,C13,C14,A34,CX,CY,KX,KY,DX,DY,EX,EY,FX,FY,GX,GY &
    &,QQ
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C5=ALENS(2,R_I)
-   C6=ALENS(1,R_I)
-   C7=ALENS(23,R_I)
-   C8=ALENS(24,R_I)
-   C9=ALENS(36,R_I)
-   C10=ALENS(37,R_I)
-   C11=ALENS(38,R_I)
-   C12=ALENS(39,R_I)
-   C13=ALENS(40,R_I)
-   C14=ALENS(41,R_I)
-   A34=ALENS(34,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C5=surf_conic(R_I)
+   C6=surf_curvature(R_I)
+   C7=surf_toric_flag(R_I)
+   C8=surf_toric_curvature(R_I)
+   C9=surf_anamorphic_flag(R_I)
+   C10=surf_anamorphic_coeff(R_I, 4)
+   C11=surf_anamorphic_coeff(R_I, 6)
+   C12=surf_anamorphic_coeff(R_I, 8)
+   C13=surf_anamorphic_coeff(R_I, 10)
+   C14=surf_anamorphic_conic(R_I)
+   A34=surf_special_type(R_I)
    IF(C7.EQ.1.0D0) THEN
 !       YTORIC, DO ASSIGNMENTS
       CY=C6
@@ -2990,6 +3002,7 @@ END
 FUNCTION FUNC3Y(AY)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2999,21 +3012,21 @@ FUNCTION FUNC3Y(AY)
    &,C10,C11,C12,C13,C14,A34,CX,CY,KX,KY,DX,DY,EX,EY,FX,FY,GX,GY &
    &,QQ
 !
-   C1=ALENS(4,R_I)
-   C2=ALENS(5,R_I)
-   C3=ALENS(6,R_I)
-   C4=ALENS(7,R_I)
-   C5=ALENS(2,R_I)
-   C6=ALENS(1,R_I)
-   C7=ALENS(23,R_I)
-   C8=ALENS(24,R_I)
-   C9=ALENS(36,R_I)
-   C10=ALENS(37,R_I)
-   C11=ALENS(38,R_I)
-   C12=ALENS(39,R_I)
-   C13=ALENS(40,R_I)
-   C14=ALENS(41,R_I)
-   A34=ALENS(34,R_I)
+   C1=surf_asphere_coeff(R_I, 4)
+   C2=surf_asphere_coeff(R_I, 6)
+   C3=surf_asphere_coeff(R_I, 8)
+   C4=surf_asphere_coeff(R_I, 10)
+   C5=surf_conic(R_I)
+   C6=surf_curvature(R_I)
+   C7=surf_toric_flag(R_I)
+   C8=surf_toric_curvature(R_I)
+   C9=surf_anamorphic_flag(R_I)
+   C10=surf_anamorphic_coeff(R_I, 4)
+   C11=surf_anamorphic_coeff(R_I, 6)
+   C12=surf_anamorphic_coeff(R_I, 8)
+   C13=surf_anamorphic_coeff(R_I, 10)
+   C14=surf_anamorphic_conic(R_I)
+   A34=surf_special_type(R_I)
    IF(C7.EQ.1.0D0) THEN
 !       YTORIC, DO ASSIGNMENTS
       CY=C6
@@ -3057,6 +3070,7 @@ END
 SUBROUTINE NR5
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3074,7 +3088,7 @@ SUBROUTINE NR5
    COMMON/NORMER/X,Y,Z,L,M,N
 !
 !
-   CEE=ALENS(1,R_I)
+   CEE=surf_curvature(R_I)
    IF(R_Z.LT.0.0D0.AND.CEE.GT.0.0D0.OR.&
    &R_Z.GT.0.0D0.AND.CEE.LT.0.0D0) RETURN
    Z1=FTFL01(1,R_I)
@@ -3125,6 +3139,7 @@ END
 FUNCTION FUNC()
 !     THIS IS THE SURFACE FUNCTION
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    REAL*8 FUNC,H,X,Y,Z,KAPPA,CEE,RHO,LO,MO,NO,Z3,ZM &
@@ -3141,8 +3156,8 @@ FUNCTION FUNC()
    Y=YO+(H*MO)
    Z=ZO+(H*NO)
 !
-   KAPPA=ALENS(2,R_I)
-   CEE=ALENS(1,R_I)
+   KAPPA=surf_conic(R_I)
+   CEE=surf_curvature(R_I)
    IF(Z.LT.0.0D0.AND.CEE.GT.0.0D0) THEN
       Z=0.0D0
       H=-ZO/NO
@@ -3221,6 +3236,7 @@ END
 !
 SUBROUTINE FINDNORM
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    REAL*8 L,M,N,KAPPA,X,Y,Z,CEE &
@@ -3232,8 +3248,8 @@ SUBROUTINE FINDNORM
    COMMON/NORMER/X,Y,Z,L,M,N
    COMMON/JIM/FLZEE,FLT,FLII,FLXX,FLYY
    COMMON/ZEETAA/ZETAD
-   CEE=ALENS(1,R_I)
-   KAPPA=ALENS(2,R_I)
+   CEE=surf_curvature(R_I)
+   KAPPA=surf_conic(R_I)
    RHO=DSQRT((X**2)+(Y**2))
    Z1=FTFL01(1,R_I)
    Z2=FTFL01(2,R_I)
@@ -3698,6 +3714,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    USE GLOBALS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3743,7 +3760,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    TIR=.FALSE.
 !
 !     TYPE 13 SETUP
-   IF(ALENS(34,R_I).EQ.13.0D0) THEN
+   IF(surf_special_type(R_I) == 13) THEN
 !     SET UP THE STARTING RAY COORDINATED ON THE OBJECT
 !     SURFACES IN THE TWO CFGS WHERE RAYS ARE TRACED
       HOE_X1=FTFL01(3,R_I)
@@ -3795,12 +3812,12 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    NUSUBS=DABS(NUSUBS)
    NUSUBS=DABS(NUSUBS)
    SMU=NUSUBS
-   IF(ALENS(96,R_I).EQ.1.0D0) THEN
-      GRO=ALENS(97,R_I)
-      GRS=ALENS(98,R_I)
-      GRX=ALENS(99,R_I)
-      GRY=ALENS(100,R_I)
-      GRZ=ALENS(101,R_I)
+   IF(surf_diffraction_flag(R_I) == 1) THEN
+      GRO=surf_grating_order(R_I)
+      GRS=surf_grating_spacing(R_I)
+      GRX=surf_grating_vx(R_I)
+      GRY=surf_grating_vy(R_I)
+      GRZ=surf_grating_vz(R_I)
    ELSE
       GRO=0.0D0
       GRS=0.001D0
@@ -3813,7 +3830,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !
    IF(GLANAM(R_I,2).EQ.'PERFECT      ') THEN
 !     COMPUTE THE DIRECTION COSINES OF THE RAY
-!     FOR A PERFECT LENS WITH EFL = ALENS(3,R_I)
+!     FOR A PERFECT LENS WITH EFL = surf_thickness(R_I)
       IF(R_L.EQ.0.0D0) THEN
          IF(R_N.GE.0.0D0) UX=0.0D0
          IF(R_N.LT.0.0D0) UX=PII
@@ -3856,9 +3873,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       IF(UY.LT.(-PII/2.0D0).AND.UY.GE.-PII) THEN
          UY=(PII+UY)
       END IF
-      UXP=-((R_X/(ALENS(3,R_I)))-UX)
-      UYP=-((R_Y/(ALENS(3,R_I)))-UY)
-      INEW=ALENS(3,R_I)
+      UXP=-((R_X/(surf_thickness(R_I)))-UX)
+      UYP=-((R_Y/(surf_thickness(R_I)))-UY)
+      INEW=surf_thickness(R_I)
       R_L=UXP*INEW
       R_M=UYP*INEW
       R_N=INEW
@@ -3873,7 +3890,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !
    IF(GLANAM(R_I,2).EQ.'IDEAL        ') THEN
 !     COMPUTE THE DIRECTION COSINES OF THE RAY
-!     FOR A PERFECT LENS WITH EFL = ALENS(121,R_I)
+!     FOR A PERFECT LENS WITH EFL = surf_ideal_efl(R_I)
       IF(R_L.EQ.0.0D0) THEN
          IF(R_N.GE.0.0D0) UX=0.0D0
          IF(R_N.LT.0.0D0) UX=PII
@@ -3917,9 +3934,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       IF(UY.LT.(-PII/2.0D0).AND.UY.GE.-PII) THEN
          UY=(PII+UY)
       END IF
-      UXP=-((R_X/(ALENS(121,R_I)))-UX)
-      UYP=-((R_Y/(ALENS(121,R_I)))-UY)
-      INEW=ALENS(3,R_I)
+      UXP=-((R_X/(surf_ideal_efl(R_I)))-UX)
+      UYP=-((R_Y/(surf_ideal_efl(R_I)))-UY)
+      INEW=surf_thickness(R_I)
       R_L=UXP*INEW
       R_M=UYP*INEW
       R_N=INEW
@@ -3937,7 +3954,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !       TO WITHIN THE SURTOL VALUE
 !
 !
-   IF(ALENS(96,R_I).EQ.1.0D0.AND..NOT.DUM(R_I).AND.ALENS(98,R_I)&
+   IF(surf_diffraction_flag(R_I) == 1.AND..NOT.DUM(R_I).AND.surf_grating_spacing(R_I)&
    &.NE.0.0D0) THEN
 !
 !     GRATING PRE-CALCULATIONS (A REAL LINEAR GRATING)
@@ -4014,7 +4031,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             RETURN
 !       NO RAY ERROR
          END IF
-         IF(ALENS(125,R_I).EQ.1.0D0.AND.TIRTESTER.GT.1.0D0) THEN
+         IF(surf_reflection_mode(R_I) == 1.AND.TIRTESTER.GT.1.0D0) THEN
 !       RAY ERROR OCCURRED, PRINT MESSAGE AND STOP TRACING
             IF(MSG) THEN
                WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',R_I
@@ -4105,7 +4122,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !
 !                   A REFLECTION
 !
-         IF(ALENS(125,R_I).EQ.1.0D0.AND.TIRTESTER.GT.1.0D0) THEN
+         IF(surf_reflection_mode(R_I) == 1.AND.TIRTESTER.GT.1.0D0) THEN
 !       RAY ERROR OCCURRED, PRINT MESSAGE AND STOP TRACING
             IF(MSG) THEN
                WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',R_I
@@ -4176,13 +4193,13 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    END IF
 !     ************************************************************************
 !
-   IF(ALENS(34,R_I).EQ.12.0D0.OR.ALENS(34,R_I).EQ.13.0D0) THEN
+   IF(surf_special_type(R_I) == 12.OR.surf_special_type(R_I) == 13) THEN
 !     HOE PRECALCULATIONS
       EMM=FTFL01(1,R_I)
       LAMC=FTFL01(2,R_I)
       LAMP=SYSTEM(INT(WVN))
 !
-      IF(ALENS(34,R_I).EQ.12.0D0) THEN
+      IF(surf_special_type(R_I) == 12) THEN
          LO=FTFL01(3,R_I)-R_X
          MO=FTFL01(4,R_I)-R_Y
          NO=FTFL01(5,R_I)-R_Z
@@ -4193,7 +4210,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             NO=-NO
          END IF
       END IF
-      IF(ALENS(34,R_I).EQ.13.0D0) THEN
+      IF(surf_special_type(R_I) == 13) THEN
          LO=L1HOE
          MO=M1HOE
          NO=N1HOE
@@ -4214,7 +4231,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
          NO=NO/MAGO
       END IF
 !
-      IF(ALENS(34,R_I).EQ.12.0D0) THEN
+      IF(surf_special_type(R_I) == 12) THEN
          LR=FTFL01(7,R_I)-R_X
          MR=FTFL01(8,R_I)-R_Y
          NR=FTFL01(9,R_I)-R_Z
@@ -4225,7 +4242,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             NR=-NR
          END IF
       END IF
-      IF(ALENS(34,R_I).EQ.13.0D0) THEN
+      IF(surf_special_type(R_I) == 13) THEN
          LR=L2HOE
          MR=M2HOE
          NR=N2HOE
@@ -4340,7 +4357,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             RETURN
 !       NO RAY ERROR
          END IF
-         IF(ALENS(125,R_I).EQ.1.0D0.AND.TIRTESTER.GT.1.0D0) THEN
+         IF(surf_reflection_mode(R_I) == 1.AND.TIRTESTER.GT.1.0D0) THEN
 !       RAY ERROR OCCURRED, PRINT MESSAGE AND STOP TRACING
             IF(MSG) THEN
                WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',R_I
@@ -4418,7 +4435,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !
 !                            REFLECTION
 !
-         IF(ALENS(34,R_I).NE.12.0D0.AND.ALENS(34,R_I).NE.13.0D0) THEN
+         IF(surf_special_type(R_I) /= 12.AND.surf_special_type(R_I) /= 13) THEN
 !     NO HOE
 !     GRATING
             R_L=(SMU*R_L)-(BLAM*PX)+(BGAM*LN)
@@ -4439,12 +4456,12 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             COSIP=(R_L*LN)+(R_M*MN)+(R_N*NN)
             IF(COSIP.LT.-1.0D0) COSIP=-1.0D0
             IF(COSIP.GT.+1.0D0) COSIP=+1.0D0
-            IF(ALENS(96,R_I).EQ.1.0D0.AND.ALENS(98,R_I).NE.0.0D0 &
-            &.OR.ALENS(34,R_I).EQ.12.0D0.OR.&
-            &ALENS(34,R_I).EQ.13.0D0)&
+            IF(surf_diffraction_flag(R_I) == 1.AND.surf_grating_spacing(R_I).NE.0.0D0 &
+            &.OR.surf_special_type(R_I) == 12.OR.&
+            &surf_special_type(R_I) == 13)&
             &CALL DPHASE
          END IF
-         IF(ALENS(34,R_I).EQ.12.0D0.OR.ALENS(13,R_I).EQ.13.0D0) THEN
+         IF(surf_special_type(R_I) == 12.OR.surf_clap_dim(R_I, 4).EQ.13.0D0) THEN
 !     HOE
             R_L=((SMU*R_L)-(AX)-(BLAM*PX)+(BGAM*LN))
             R_M=((SMU*R_M)-(AY)-(BLAM*PY)+(BGAM*MN))
@@ -4464,16 +4481,16 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             COSIP=(R_L*LN)+(R_M*MN)+(R_N*NN)
             IF(COSIP.LT.-1.0D0) COSIP=-1.0D0
             IF(COSIP.GT.+1.0D0) COSIP=+1.0D0
-            IF(ALENS(96,R_I).EQ.1.0D0.AND.ALENS(98,R_I).NE.0.0D0 &
-            &.OR.ALENS(34,R_I).EQ.12.0D0.OR.&
-            &ALENS(34,R_I).EQ.13.0D0)&
+            IF(surf_diffraction_flag(R_I) == 1.AND.surf_grating_spacing(R_I).NE.0.0D0 &
+            &.OR.surf_special_type(R_I) == 12.OR.&
+            &surf_special_type(R_I) == 13)&
             &CALL DPHASE
          END IF
       ELSE
 !
 !                NOT REFLECTION, PROCEED
 !
-         IF(ALENS(34,R_I).NE.12.0D0.AND.ALENS(34,R_I).NE.13.0D0) THEN
+         IF(surf_special_type(R_I) /= 12.AND.surf_special_type(R_I) /= 13) THEN
 !     NO HOE
 !     GRATING
             R_L=(SMU*R_L)-(BLAM*PX)+(BGAM*LN)
@@ -4517,12 +4534,12 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             COSIP=(R_L*LN)+(R_M*MN)+(R_N*NN)
             IF(COSIP.LT.-1.0D0) COSIP=-1.0D0
             IF(COSIP.GT.+1.0D0) COSIP=+1.0D0
-            IF(ALENS(96,R_I).EQ.1.0D0.AND.ALENS(98,R_I).NE.0.0D0 &
-            &.OR.ALENS(34,R_I).EQ.12.0D0.OR.&
-            &ALENS(34,R_I).EQ.13.0D0)&
+            IF(surf_diffraction_flag(R_I) == 1.AND.surf_grating_spacing(R_I).NE.0.0D0 &
+            &.OR.surf_special_type(R_I) == 12.OR.&
+            &surf_special_type(R_I) == 13)&
             &CALL DPHASE
          END IF
-         IF(ALENS(34,R_I).EQ.12.0D0.OR.ALENS(34,R_I).EQ.13.0D0) THEN
+         IF(surf_special_type(R_I) == 12.OR.surf_special_type(R_I) == 13) THEN
 !     HOE
             R_L=((SMU*R_L)-(AX)-(BLAM*PX)+(BGAM*LN))
             R_M=((SMU*R_M)-(AY)-(BLAM*PY)+(BGAM*MN))
@@ -4575,9 +4592,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             COSIP=(R_L*LN)+(R_M*MN)+(R_N*NN)
             IF(COSIP.LT.-1.0D0) COSIP=-1.0D0
             IF(COSIP.GT.+1.0D0) COSIP=+1.0D0
-            IF(ALENS(96,R_I).EQ.1.0D0.AND.ALENS(98,R_I).NE.0.0D0 &
-            &.OR.ALENS(34,R_I).EQ.12.0D0.OR.&
-            &ALENS(34,R_I).EQ.13.0D0)&
+            IF(surf_diffraction_flag(R_I) == 1.AND.surf_grating_spacing(R_I).NE.0.0D0 &
+            &.OR.surf_special_type(R_I) == 12.OR.&
+            &surf_special_type(R_I) == 13)&
             &CALL DPHASE
          END IF
       END IF
@@ -4587,9 +4604,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !     NOW ADD APPROPRIATE PHASE
 !
 !     IF A PHASE SURFACE, FIX THE PHASE AND DIRCOS
-   IF(ALENS(34,R_I).EQ.6.0D0.OR.ALENS(34,R_I).EQ.7.0D0 &
-   &.OR.ALENS(34,R_I).EQ.9.0D0.OR.ALENS(34,R_I).EQ.10.0D0 &
-   &.OR.ALENS(34,R_I).EQ.11.0D0.OR.ALENS(34,R_I).EQ.15.0D0) THEN
+   IF(surf_special_type(R_I) == 6.OR.surf_special_type(R_I) == 7 &
+   &.OR.surf_special_type(R_I) == 9.OR.surf_special_type(R_I) == 10 &
+   &.OR.surf_special_type(R_I) == 11.OR.surf_special_type(R_I) == 15) THEN
       R_L0=R_L
       R_M0=R_M
       R_N0=R_N
@@ -4600,7 +4617,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       MYY=R_Y
       MYI=R_I
       PHASE=0.0D0
-      INR=ALENS(76,R_I)
+      INR=surf_inr_value(R_I)
       CALL PHASOR
       R_L=RLRL
       R_M=RMRM
@@ -4610,8 +4627,8 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       IF(COSIP.GT.+1.0D0) COSIP=+1.0D0
    END IF
 !     IF A TYPE 12 SURFACE, FIX THE PHASE AND DIRCOS
-   IF(ALENS(34,R_I).EQ.12.0D0.AND.FTFL01(11,R_I).EQ.1.0D0.OR.&
-   &ALENS(34,R_I).EQ.13.0D0.AND.FTFL01(11,R_I).EQ.1.0D0) THEN
+   IF(surf_special_type(R_I) == 12.AND.FTFL01(11,R_I).EQ.1.0D0.OR.&
+   &surf_special_type(R_I) == 13.AND.FTFL01(11,R_I).EQ.1.0D0) THEN
       MYX=R_X
       MYY=R_Y
       MYI=R_I
@@ -4624,7 +4641,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       IF(FTFL01(11,R_I).EQ.7.0D0) PHASE=PHASE+PHA11
    END IF
 !     IF A PHASE SURFACE 20
-   IF(ALENS(34,R_I).EQ.20.0D0) THEN
+   IF(surf_special_type(R_I) == 20) THEN
       RLRL=R_L
       RMRM=R_M
       RNRN=R_N
@@ -4673,8 +4690,8 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(ALENS(3,R_I).GT.0.0D0.AND.ALENS(3,R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.ALENS(3,R_I).LT.0.0D0.AND.ALENS(3,R_I-1)&
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
+   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
    &.GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
@@ -4726,12 +4743,12 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 90 CONTINUE
 !     HERE IS WHERE WE ADD A RANDOM RAY ERROR IF IT IS
 !     REQUESTED IN THE LENS DATABASE USING THE RAYERROR COMMAND
-   IF(ALENS(144,R_I).NE.0.0D0.AND.FOBRUN) THEN
+   IF(surf_ray_error(R_I).NE.0.0D0.AND.FOBRUN) THEN
       FOBRUN=.FALSE.
       RETURN
    END IF
 !     NOT A FOB
-   IF(ALENS(144,R_I).NE.0.0D0.AND..NOT.FOBRUN) THEN
+   IF(surf_ray_error(R_I).NE.0.0D0.AND..NOT.FOBRUN) THEN
 !     COMPUTE THE ORIGINAL X AND Y
       ORIG_X=DATAN2(R_L,R_N)
       ORIG_Y=DATAN2(R_M,R_N)
@@ -4742,7 +4759,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
          RRR10=REG(10)
       END IF
 !     DELTAR IN RADIANS IS:
-      DELTAR=(ALENS(144,R_I)/(3600.0D0))*(PII/180.0D0)*RRR10
+      DELTAR=(surf_ray_error(R_I)/(3600.0D0))*(PII/180.0D0)*RRR10
       DELTAX=DELTAR*DCOS(2.0D0*PII*RRR9)
       DELTAY=DELTAR*DSIN(2.0D0*PII*RRR9)
       R_L=R_N*DTAN(ORIG_X+DELTAX)
