@@ -3,6 +3,7 @@
 ! SUB HOE_TRACE.FOR
 SUBROUTINE HOE_TRACE
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER CURFIG,SOUFIG,REFFIG,WAVE_NUMB
@@ -125,6 +126,7 @@ END
 SUBROUTINE HIT17
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -132,10 +134,7 @@ SUBROUTINE HIT17
 !       THIS IS SUBROUTINE HIT17.FOR. THIS SUBROUTINE IMPLEMENTS
 !       TYPE 17 SPECIAL SURFACE RAYTRACING.
 !
-   REAL*8 SIGNNU,RR_N,RR_Z,&
-   &T0,NUSUBV,C5,TESTLEN,NORM,SNINDX,SNIND2 &
-   &,MAG,J,ARG,C1,C2,C3,C4 &
-   &,FPX,FPY,FPZ,NUSUBS
+   REAL*8 SIGNNU,RR_N,RR_Z,T0,NUSUBV,C5,TESTLEN,NORM,SNINDX,SNIND2 ,MAG,J,ARG,C1,C2,C3,C4 ,FPX,FPY,FPZ,NUSUBS
 !
    LOGICAL REFLEC
    LOGICAL NOHITMES
@@ -222,8 +221,7 @@ SUBROUTINE HIT17
 !
    IF(STOPP.EQ.1) RETURN
 !
-   NUSUBS=((ALENS(WWVN,(R_I-1)))/&
-   &(ALENS(WWVN,R_I)))
+   NUSUBS=((ALENS(WWVN,(R_I-1)))/(ALENS(WWVN,R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -266,9 +264,7 @@ SUBROUTINE HIT17
          END IF
          IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
          IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-         J=((ALENS(WWVN,R_I)*COSIP)&
-         &-(ALENS(WWVN,(R_I-1))*COSI))/&
-         &(ALENS(WWVN,R_I))
+         J=((ALENS(WWVN,R_I)*COSIP)-(ALENS(WWVN,(R_I-1))*COSI))/(ALENS(WWVN,R_I))
          R_L=((NUSUBS*R_L)+(J*LN))
          R_M=((NUSUBS*R_M)+(J*MN))
          R_N=((NUSUBS*R_N)+(J*NN))
@@ -292,9 +288,7 @@ SUBROUTINE HIT17
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
-   &.GT.0.0D0.AND.DUM(R_I)) THEN
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. 0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1).GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
       ELSE
@@ -305,26 +299,15 @@ SUBROUTINE HIT17
 !     OR THE RAY HAS TRAVELED A POS DIST WITH A NEG DIR COS
 !     AND THE RAY WAS NOT REVERESED, THEN SET IT TO "REVERSED"
 !     RAY GETS "REVERSED"
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
       RV=.TRUE.
    ELSE
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
       RV=.FALSE.
       RVSTART=.FALSE.
    END IF
@@ -344,6 +327,7 @@ END
 SUBROUTINE HITSUR
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -367,14 +351,7 @@ SUBROUTINE HITSUR
 !
    PHASE=0.0D0
 !
-   IF(surf_refractive_index(R_I, 1).EQ.surf_refractive_index(R_I-1, 1).AND.surf_refractive_index(R_I, 2).EQ.&
-   &surf_refractive_index(R_I-1, 2).AND.surf_refractive_index(R_I, 3).EQ.surf_refractive_index(R_I-1, 3).AND.&
-   &surf_refractive_index(R_I, 4).EQ.surf_refractive_index(R_I-1, 4).AND.surf_refractive_index(R_I, 5).EQ.&
-   &surf_refractive_index(R_I-1, 5).AND.&
-   &surf_refractive_index(R_I, 6).EQ.surf_refractive_index(R_I-1, 6).AND.surf_refractive_index(R_I, 7).EQ.&
-   &surf_refractive_index(R_I-1, 7).AND.surf_refractive_index(R_I, 8).EQ.surf_refractive_index(R_I-1, 8).AND.&
-   &surf_refractive_index(R_I, 9).EQ.surf_refractive_index(R_I-1, 9).AND.surf_refractive_index(R_I, 10).EQ.&
-   &surf_refractive_index(R_I-1, 10)) THEN
+   IF(surf_refractive_index(R_I, 1).EQ.surf_refractive_index(R_I-1, 1).AND.surf_refractive_index(R_I, 2).EQ.surf_refractive_index(R_I-1, 2).AND.surf_refractive_index(R_I, 3).EQ.surf_refractive_index(R_I-1, 3).AND.surf_refractive_index(R_I, 4).EQ.surf_refractive_index(R_I-1, 4).AND.surf_refractive_index(R_I, 5).EQ.surf_refractive_index(R_I-1, 5).AND.surf_refractive_index(R_I, 6).EQ.surf_refractive_index(R_I-1, 6).AND.surf_refractive_index(R_I, 7).EQ.surf_refractive_index(R_I-1, 7).AND.surf_refractive_index(R_I, 8).EQ.surf_refractive_index(R_I-1, 8).AND.surf_refractive_index(R_I, 9).EQ.surf_refractive_index(R_I-1, 9).AND.surf_refractive_index(R_I, 10).EQ.surf_refractive_index(R_I-1, 10)) THEN
 !       SURFACE IS A DUMMY
       IF(surf_dummy_val(R_I) == 0) DUM(R_I)=.TRUE.
       IF(surf_dummy_val(R_I) == 1) DUM(R_I)=.FALSE.
@@ -411,17 +388,11 @@ SUBROUTINE HITSUR
 !
 !                   INTERSECT FRESNEL-1 SURFACES
 !
-   IF(surf_special_type(R_I) == 16.AND.surf_curvature(R_I).EQ.0.0D0.AND.&
-   &surf_toric_flag(R_I) == 0.OR.&
-   &surf_special_type(R_I) == 16.AND.surf_toric_flag(R_I) /= 0.AND.&
-   &surf_toric_curvature(R_I).EQ.0.0D0) THEN
+   IF(surf_special_type(R_I) == 16.AND.surf_curvature(R_I).EQ.0.0D0.AND.surf_toric_flag(R_I) == 0.OR.surf_special_type(R_I) == 16.AND.surf_toric_flag(R_I) /= 0.AND.surf_toric_curvature(R_I).EQ.0.0D0) THEN
       CALL HITFRZFL
       RETURN
    END IF
-   IF(surf_special_type(R_I) == 16.AND.surf_curvature(R_I).NE.0.0D0 &
-   &.AND.surf_toric_flag(R_I) == 0.OR.&
-   &surf_special_type(R_I) == 16.AND.surf_toric_flag(R_I) /= 0.AND.&
-   &surf_toric_curvature(R_I).NE.0.0D0) THEN
+   IF(surf_special_type(R_I) == 16.AND.surf_curvature(R_I).NE.0.0D0 .AND.surf_toric_flag(R_I) == 0.OR.surf_special_type(R_I) == 16.AND.surf_toric_flag(R_I) /= 0.AND.surf_toric_curvature(R_I).NE.0.0D0) THEN
       CALL HITFRZCV
       RETURN
    END IF
@@ -448,8 +419,7 @@ SUBROUTINE HITSUR
    IF(surf_paraxial_val(R_I) == 1) THEN
       CALL HITPARAX(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
-         &.AND.F12.NE.1) THEN
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 .AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
          END IF
@@ -476,8 +446,7 @@ SUBROUTINE HITSUR
 !       SURFACE R_I IS PLANO AND MAY CONTAIN 2ND, 4TH, 6TH, 8TH AND 10TH ORDER
 !       ASPHERIC TERMS AND SPECIAL STUFF
 !
-   IF(surf_curvature(R_I).EQ.0.0D0.AND.surf_toric_flag(R_I)&
-   &.EQ.0.0D0) THEN
+   IF(surf_curvature(R_I).EQ.0.0D0.AND.surf_toric_flag(R_I).EQ.0.0D0) THEN
 !
       IF(surf_array_parity(R_I) /= 0) THEN
 !
@@ -493,8 +462,7 @@ SUBROUTINE HITSUR
       END IF
       CALL HITFLA(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
-         &.AND.F12.NE.1) THEN
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 .AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
 !
@@ -543,8 +511,7 @@ SUBROUTINE HITSUR
       END IF
       CALL HITASP(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
-         &.AND.F12.NE.1) THEN
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 .AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
 !
@@ -593,8 +560,7 @@ SUBROUTINE HITSUR
       END IF
       CALL HITANA(OR_N,OR_Z)
       IF(STOPP.EQ.0) THEN
-         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 &
-         &.AND.F12.NE.1) THEN
+         IF(surf_special_type(R_I) /= 13.OR.surf_special_type(R_I) == 13 .AND.F12.NE.1) THEN
             CALL INTERACK(OR_N,OR_Z)
             HOE_DO_IT=0
 !
@@ -629,11 +595,11 @@ END
 !**********************************************************************
 SUBROUTINE APLANA(I,WWWW1,WWWW2,WWWWW1,WWWWW2)
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
-   REAL*8 WX,WY,PARTX,PARTY,WWWW1,WWWW2,RD,HGT,FULL &
-   &,WWWWW1,WWWWW2
+   REAL*8 WX,WY,PARTX,PARTY,WWWW1,WWWW2,RD,HGT,FULL ,WWWWW1,WWWWW2
    INTEGER I
    IF(WWWW1.GE.0.0D0) WY= 1.0D0
    IF(WWWW1.LT.0.0D0) WY=-1.0D0
@@ -659,6 +625,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
    USE GLOBALS
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -669,18 +636,11 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !       SUBROUTINE XYZSP.FOR FOR IF SPECIAL SURFACES ARE
 !       PRESENT AND SET TO "ON" AND IF THEY ARE OF A RECOGNIZED TYPE.
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,OR_Z,OR_N,&
-   &TEST1,TEST2,NUSUBS,RR_N,TESTLEN,RR_Z &
-   &,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 &
-   &,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,&
-   &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2 &
-   &,SNINDX
+   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,OR_Z,OR_N,TEST1,TEST2,NUSUBS,RR_N,TESTLEN,RR_Z ,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 ,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2 ,SNINDX
 !
    INTEGER ZPMIN,ZPMAX,ISURF
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -732,22 +692,17 @@ SUBROUTINE HITASP(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ALENS((WWVN),(R_I-1)))/(ALENS((WWVN),R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
 !       NOW INTERSECT THE SPHERE OR CONIC.
 !       THE FOLLOWING CALCULATIONS ARE INTERMEDIATE STEPS:
 !
-   A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*&
-   &(CC+1.0D0))))
-   B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-&
-   &((CV*R_Z*R_N)&
-   &*(CC+1.0D0))
+   A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*(CC+1.0D0))))
+   B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-((CV*R_Z*R_N)*(CC+1.0D0))
    B=2.0D0*B
-   C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)*&
-   &(CC+1.0D0)))
+   C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)*(CC+1.0D0)))
    C=(C+(2.0D0*R_Z))
    IF(B.NE.0.0D0) SIGNB=((DABS(B))/(B))
    IF(B.EQ.0.0D0) SIGNB=1.0D0
@@ -856,10 +811,8 @@ SUBROUTINE HITASP(OR_N,OR_Z)
       STOPP=1
       RETURN
    END IF
-   FPX=-((2.0D0*CV*X1*QQ*(QQ-1.0D0))+&
-   &((CV**3)*X1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
-   FPY=-((2.0D0*CV*Y1*QQ*(QQ-1.0D0))+&
-   &((CV**3)*Y1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+   FPX=-((2.0D0*CV*X1*QQ*(QQ-1.0D0))+((CV**3)*X1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+   FPY=-((2.0D0*CV*Y1*QQ*(QQ-1.0D0))+((CV**3)*Y1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
    IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
       IF(CC.LT.-1.0D0) THEN
@@ -909,10 +862,8 @@ SUBROUTINE HITASP(OR_N,OR_Z)
          STOPP=1
          RETURN
       END IF
-      FPX=-((2.0D0*CV*X2*QQ*(QQ-1.0D0))+&
-      &((CV**3)*X2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
-      FPY=-((2.0D0*CV*Y2*QQ*(QQ-1.0D0))+&
-      &((CV**3)*Y2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+      FPX=-((2.0D0*CV*X2*QQ*(QQ-1.0D0))+((CV**3)*X2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+      FPY=-((2.0D0*CV*Y2*QQ*(QQ-1.0D0))+((CV**3)*Y2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
       IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
          IF(CC.LT.-1.0D0) THEN
@@ -1064,9 +1015,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !       NR2 ALSO DEALS WITH SPECIAL SURFACE TYPES:
 !
    INR=surf_inr_value(R_I)
-   IF(surf_is_asphere(R_I).OR.surf_special_type(R_I) > 0.AND.&
-   &surf_special_type(R_I) /= 19.AND.&
-   &surf_special_type(R_I) /= 20.OR.surf_default_flag(R_I) == 1) THEN
+   IF(surf_is_asphere(R_I).OR.surf_special_type(R_I) > 0.AND.surf_special_type(R_I) /= 19.AND.surf_special_type(R_I) /= 20.OR.surf_default_flag(R_I) == 1) THEN
       ERR=.FALSE.
       !call logger%logTextWithNum("Call NR2 for surface ", R_I)
       CALL NR2(ERR)
@@ -1092,6 +1041,7 @@ SUBROUTINE GETZEE1
    use ieee_arithmetic
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1101,8 +1051,7 @@ SUBROUTINE GETZEE1
 !     CONIC PROFILE ON SURFACE 1
 !     USED FOR BETTER RAY AIMING
 !
-   REAL*8 A,B,C,CV,CC,ZTEST,MAG,&
-   &Q,SIGNB,ARG,HV0,HV1,HV2,XA,YA,ZA
+   REAL*8 A,B,C,CV,CC,ZTEST,MAG,Q,SIGNB,ARG,HV0,HV1,HV2,XA,YA,ZA
 !
    INTEGER JIM
 !
@@ -1148,8 +1097,7 @@ SUBROUTINE GETZEE1
    XA=R_TX
    YA=R_TY
    ZA=R_TZ
-   MAG=DSQRT(((XSTRT-XA)**2)+((YSTRT-YA)**2)&
-   &+((ZSTRT-ZA)**2))
+   MAG=DSQRT(((XSTRT-XA)**2)+((YSTRT-YA)**2)+((ZSTRT-ZA)**2))
 1235 FORMAT(G15.7, G15.7, G15.7, G15.7,G15.7, G15.7)
    !PRINT *, "MAG IN GETZEE1 is ", MAG
    !PRINT 1235, XA, XSTRT, YSTRT, YA, ZA, ZSTRT
@@ -1197,14 +1145,10 @@ SUBROUTINE GETZEE1
 !       NOW INTERSECT THE SPHERE OR CONIC AT NEWOBJ+1
 !       THE FOLLOWING CALCULATIONS ARE INTERMEDIATE STEPS:
 !
-      A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*&
-      &(CC+1.0D0))))
-      B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-&
-      &((CV*R_Z*R_N)&
-      &*(CC+1.0D0))
+      A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*(CC+1.0D0))))
+      B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-((CV*R_Z*R_N)*(CC+1.0D0))
       B=2.0D0*B
-      C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)*&
-      &(CC+1.0D0)))
+      C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)*(CC+1.0D0)))
       C=(C+(2.0D0*R_Z))
       IF(B.NE.0.0D0) SIGNB=((DABS(B))/(B))
       IF(B.EQ.0.0D0) SIGNB=1.0D0
@@ -1291,6 +1235,7 @@ END
 SUBROUTINE HITFLA(OR_N,OR_Z)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1301,14 +1246,9 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
 !       SUBROUTINE XYZSP.FOR FOR IF SPECIAL SURFACES ARE
 !       PRESENT AND SET TO "ON" AND IF THEY ARE OF A RECOGNIZED TYPE.
 !
-   REAL*8 SIGNNU,RR_N,RR_Z,OR_N,OR_Z &
-   &,T0,NUSUBV,C5,TESTLEN,SNINDX,SNIND2 &
-   &,MAG,J,ARG,C1,C2,C3,C4 &
-   &,FPX,FPY,FPZ,NUSUBS
+   REAL*8 SIGNNU,RR_N,RR_Z,OR_N,OR_Z ,T0,NUSUBV,C5,TESTLEN,SNINDX,SNIND2 ,MAG,J,ARG,C1,C2,C3,C4 ,FPX,FPY,FPZ,NUSUBS
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -1333,8 +1273,7 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
    IF(WVN.EQ.10) WWVN=75
    SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
-   NUSUBS=((ALENS(WWVN,(R_I-1)))/&
-   &(ALENS(WWVN,R_I)))
+   NUSUBS=((ALENS(WWVN,(R_I-1)))/(ALENS(WWVN,R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1428,10 +1367,7 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
 !       ALSO TAKES CARE OF SPECIAL SURFACES OF TYPES:
 !
    INR=surf_inr_value(R_I)
-   IF(surf_is_asphere(R_I).OR.surf_special_type(R_I) > 0.AND.&
-   &surf_special_type(R_I) /= 19.AND.&
-   &surf_special_type(R_I) /= 20 &
-   &.OR.surf_default_flag(R_I) == 1) THEN
+   IF(surf_is_asphere(R_I).OR.surf_special_type(R_I) > 0.AND.surf_special_type(R_I) /= 19.AND.surf_special_type(R_I) /= 20 .OR.surf_default_flag(R_I) == 1) THEN
       ERR=.FALSE.
       CALL NR1(ERR)
       IF(ERR) THEN
@@ -1455,6 +1391,7 @@ END
 SUBROUTINE DPHASE
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1464,12 +1401,7 @@ SUBROUTINE DPHASE
 !
 !
 !     INTERSECTION OF NON-DIFFRACTED RAY PLANE WITH SURFACE NORMAL
-   T1=((((R_L0*(R_X))&
-   &+(R_M0*(R_Y))&
-   &+(R_N0*(R_Z)))&
-   &-((R_L*(R_X))&
-   &+(R_M*(R_Y))&
-   &+(R_N*(R_Z)))))
+   T1=((((R_L0*(R_X))+(R_M0*(R_Y))+(R_N0*(R_Z)))-((R_L*(R_X))+(R_M*(R_Y))+(R_N*(R_Z)))))
    PHASE=PHASE-T1
 
    RETURN
@@ -1478,6 +1410,7 @@ END
 SUBROUTINE HITPARAX(OR_N,OR_Z)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1485,14 +1418,9 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
 !       THIS IS SUBROUTINE HITPARAX.FOR. THIS SUBROUTINE IMPLEMENTS
 !       INTERSECTIONS TO PARAXIAL SURFACES
 !
-   REAL*8 SIGNNU,RR_N,RR_Z,OR_N,OR_Z &
-   &,T0,NUSUBV,C5,TESTLEN,SNINDX,SNIND2 &
-   &,MAG,J,ARG,C1,C2,C3,C4 &
-   &,FPX,FPY,FPZ,NUSUBS
+   REAL*8 SIGNNU,RR_N,RR_Z,OR_N,OR_Z ,T0,NUSUBV,C5,TESTLEN,SNINDX,SNIND2 ,MAG,J,ARG,C1,C2,C3,C4 ,FPX,FPY,FPZ,NUSUBS
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -1517,8 +1445,7 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
    IF(WVN.EQ.10) WWVN=75
    SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
    SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
-   NUSUBS=((ALENS(WWVN,(R_I-1)))/&
-   &(ALENS(WWVN,R_I)))
+   NUSUBS=((ALENS(WWVN,(R_I-1)))/(ALENS(WWVN,R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1616,16 +1543,14 @@ END
 SUBROUTINE HITFRZFL
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
 !
 !     FLAT FREZNEL-1 SURFACE
 !
-   REAL*8 T0,NUSUBV,NUSUBS,TESTLEN &
-   &,MAG,J,ARG,RR_N,RR_Z &
-   &,FPX,FPY,FPZ,SIGNNU,C3,C4,C5,C6,C7,C8,C9,C10,C11 &
-   &,Q,C1,C2,SNINDX,SNIND2,RRXX,RRYY
+   REAL*8 T0,NUSUBV,NUSUBS,TESTLEN ,MAG,J,ARG,RR_N,RR_Z ,FPX,FPY,FPZ,SIGNNU,C3,C4,C5,C6,C7,C8,C9,C10,C11 ,Q,C1,C2,SNINDX,SNIND2,RRXX,RRYY
 !
    LOGICAL REFLEC
 !
@@ -1715,8 +1640,7 @@ SUBROUTINE HITFRZFL
          R_Z=0.0D0
       END IF
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ALENS((WWVN),(R_I-1)))/(ALENS((WWVN),R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1748,8 +1672,7 @@ SUBROUTINE HITFRZFL
    IF(C1.EQ.0.0D0.OR.C2.EQ.-1.0D0) THEN
       Q=1.0D0
    ELSE
-      Q=(1.0D0-((C2+1.0D0)*(C1**2)*&
-      &((RRXX**2)+(RRYY**2))))
+      Q=(1.0D0-((C2+1.0D0)*(C1**2)*((RRXX**2)+(RRYY**2))))
    END IF
    IF(Q.LE.0.0D0) THEN
       IF(MSG) THEN
@@ -1768,57 +1691,11 @@ SUBROUTINE HITFRZFL
    IF(Q.GT.0.0D0) Q=DSQRT(Q)+1.0D0
 !
    IF(C1.NE.0.0D0) THEN
-      FPX=-(&
-      &(((2.0D0*C1*RRXX*Q*(Q-1.0D0))+&
-      &((C1**3)*RRXX*((RRXX**2)+(RRYY**2))*(C2+1.0D0)))&
-      &/((Q-1.0D0)*(Q**2)))&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11)&
-      &)
-      FPY=-(&
-      &(((2.0D0*C1*RRYY*Q*(Q-1.0D0))+&
-      &((C1**3)*RRYY*((RRXX**2)+(RRYY**2))*(C1+1.0D0)))&
-      &/((Q-1.0D0)*(Q**2)))&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11)&
-      &)
+      FPX=-((((2.0D0*C1*RRXX*Q*(Q-1.0D0))+((C1**3)*RRXX*((RRXX**2)+(RRYY**2))*(C2+1.0D0)))/((Q-1.0D0)*(Q**2)))+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11))
+      FPY=-((((2.0D0*C1*RRYY*Q*(Q-1.0D0))+((C1**3)*RRYY*((RRXX**2)+(RRYY**2))*(C1+1.0D0)))/((Q-1.0D0)*(Q**2)))+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11))
    ELSE
-      FPX=-(&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11)&
-      &)
-      FPY=-(&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11)&
-      &)
+      FPX=-(+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11))
+      FPY=-(+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11))
    END IF
 !
    FPZ=1.0D0
@@ -1862,9 +1739,7 @@ SUBROUTINE HITFRZFL
          END IF
          IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
          IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-         J=((ALENS((WWVN),R_I)*COSIP)&
-         &-(ALENS((WWVN),(R_I-1))*COSI))/&
-         &(ALENS((WWVN),R_I))
+         J=((ALENS((WWVN),R_I)*COSIP)-(ALENS((WWVN),(R_I-1))*COSI))/(ALENS((WWVN),R_I))
          R_L=((NUSUBS*R_L)+(J*LN))
          R_M=((NUSUBS*R_M)+(J*MN))
          R_N=((NUSUBS*R_N)+(J*NN))
@@ -1887,9 +1762,7 @@ SUBROUTINE HITFRZFL
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
-   &.GT.0.0D0.AND.DUM(R_I)) THEN
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. 0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1).GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
       ELSE
@@ -1900,26 +1773,15 @@ SUBROUTINE HITFRZFL
 !     OR THE RAY HAS TRAVELED A POS DIST WITH A NEG DIR COS
 !     AND THE RAY WAS NOT REVERESED, THEN SET IT TO "REVERSED"
 !     RAY GETS "REVERSED"
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
       RV=.TRUE.
    ELSE
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
       RV=.FALSE.
       RVSTART=.FALSE.
    END IF
@@ -1943,24 +1805,18 @@ END
 SUBROUTINE HITFRZCV
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
 !
 !     CURVED FRESNEL-1
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,&
-   &RR_Z,TEST1,TEST2,NUSUBS,RR_N,TESTLEN &
-   &,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 &
-   &,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,&
-   &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2 &
-   &,C7,C8,C9,C10,C11,SNINDX,RRXX,RRYY
+   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,RR_Z,TEST1,TEST2,NUSUBS,RR_N,TESTLEN ,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 ,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2 ,C7,C8,C9,C10,C11,SNINDX,RRXX,RRYY
 !
    INTEGER ZPMIN,ZPMAX
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -2010,8 +1866,7 @@ SUBROUTINE HITFRZCV
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ALENS((WWVN),(R_I-1)))/(ALENS((WWVN),R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -2030,14 +1885,10 @@ SUBROUTINE HITFRZCV
       RRXX=0.0D0
       RRYY=R_Y
    END IF
-   A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*&
-   &(CC+1.0D0))))
-   B=R_N-(CV*RRXX*R_L)-(CV*RRYY*R_M)-&
-   &((CV*R_Z*R_N)&
-   &*(CC+1.0D0))
+   A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*(CC+1.0D0))))
+   B=R_N-(CV*RRXX*R_L)-(CV*RRYY*R_M)-((CV*R_Z*R_N)*(CC+1.0D0))
    B=2.0D0*B
-   C=-CV*((RRXX**2)+(RRYY**2)+((R_Z**2)*&
-   &(CC+1.0D0)))
+   C=-CV*((RRXX**2)+(RRYY**2)+((R_Z**2)*(CC+1.0D0)))
    C=(C+(2.0D0*R_Z))
    IF(B.NE.0.0D0) SIGNB=((DABS(B))/(B))
    IF(B.EQ.0.0D0) SIGNB=1.0D0
@@ -2158,12 +2009,8 @@ SUBROUTINE HITFRZCV
       STOPP=1
       RETURN
    END IF
-   FPX=-((2.0D0*CV*RRXX*QQ*(QQ-1.0D0))+&
-   &((CV**3)*RRXX*((RRXX**2)+(RRYY**2))*&
-   &(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
-   FPY=-((2.0D0*CV*RRYY*QQ*(QQ-1.0D0))+&
-   &((CV**3)*RRYY*((RRXX**2)+(RRYY**2))&
-   &*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+   FPX=-((2.0D0*CV*RRXX*QQ*(QQ-1.0D0))+((CV**3)*RRXX*((RRXX**2)+(RRYY**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+   FPY=-((2.0D0*CV*RRYY*QQ*(QQ-1.0D0))+((CV**3)*RRYY*((RRXX**2)+(RRYY**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
    IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
       IF(CC.LT.-1.0D0) THEN
@@ -2225,12 +2072,8 @@ SUBROUTINE HITFRZCV
          STOPP=1
          RETURN
       END IF
-      FPX=-((2.0D0*CV*RRXX*QQ*(QQ-1.0D0))+&
-      &((CV**3)*RRXX*((RRXX**2)+(RRYY**2))*&
-      &(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
-      FPY=-((2.0D0*CV*RRYY*QQ*(QQ-1.0D0))+&
-      &((CV**3)*RRYY*((RRXX**2)+(RRYY**2))&
-      &*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+      FPX=-((2.0D0*CV*RRXX*QQ*(QQ-1.0D0))+((CV**3)*RRXX*((RRXX**2)+(RRYY**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+      FPY=-((2.0D0*CV*RRYY*QQ*(QQ-1.0D0))+((CV**3)*RRYY*((RRXX**2)+(RRYY**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
       IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
          IF(CC.LT.-1.0D0) THEN
@@ -2406,8 +2249,7 @@ SUBROUTINE HITFRZCV
    IF(C1.EQ.0.0D0.OR.C2.EQ.-1.0D0) THEN
       Q=1.0D0
    ELSE
-      Q=(1.0D0-((C2+1.0D0)*(C1**2)*&
-      &((RRXX**2)+(RRYY**2))))
+      Q=(1.0D0-((C2+1.0D0)*(C1**2)*((RRXX**2)+(RRYY**2))))
    END IF
    IF(Q.LE.0.0D0) THEN
       IF(MSG) THEN
@@ -2427,57 +2269,11 @@ SUBROUTINE HITFRZCV
    IF(Q.GT.0.0D0) Q=DSQRT(Q)+1.0D0
 !
    IF(C1.NE.0.0D0) THEN
-      FPX=-(&
-      &(((2.0D0*C1*RRXX*Q*(Q-1.0D0))+&
-      &((C1**3)*RRXX*((RRXX**2)+(RRYY**2))*(C2+1.0D0)))&
-      &/((Q-1.0D0)*(Q**2)))&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11)&
-      &)
-      FPY=-(&
-      &(((2.0D0*C1*RRYY*Q*(Q-1.0D0))+&
-      &((C1**3)*RRYY*((RRXX**2)+(RRYY**2))*(C1+1.0D0)))&
-      &/((Q-1.0D0)*(Q**2)))&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11)&
-      &)
+      FPX=-((((2.0D0*C1*RRXX*Q*(Q-1.0D0))+((C1**3)*RRXX*((RRXX**2)+(RRYY**2))*(C2+1.0D0)))/((Q-1.0D0)*(Q**2)))+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11))
+      FPY=-((((2.0D0*C1*RRYY*Q*(Q-1.0D0))+((C1**3)*RRYY*((RRXX**2)+(RRYY**2))*(C1+1.0D0)))/((Q-1.0D0)*(Q**2)))+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11))
    ELSE
-      FPX=-(&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11)&
-      &)
-      FPY=-(&
-      &+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)&
-      &+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)&
-      &+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)&
-      &+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)&
-      &+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)&
-      &+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)&
-      &+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)&
-      &+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)&
-      &+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11)&
-      &)
+      FPX=-(+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRXX)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRXX)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRXX)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRXX)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRXX)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRXX)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRXX)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRXX)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRXX)*C11))
+      FPY=-(+((2.0D0*((RRXX**2)+(RRYY**2))*2.0D0*RRYY)*C3)+((3.0D0*(((RRXX**2)+(RRYY**2))**2)*2.0D0*RRYY)*C4)+((4.0D0*(((RRXX**2)+(RRYY**2))**3)*2.0D0*RRYY)*C5)+((5.0D0*(((RRXX**2)+(RRYY**2))**4)*2.0D0*RRYY)*C6)+((6.0D0*(((RRXX**2)+(RRYY**2))**5)*2.0D0*RRYY)*C7)+((7.0D0*(((RRXX**2)+(RRYY**2))**6)*2.0D0*RRYY)*C8)+((8.0D0*(((RRXX**2)+(RRYY**2))**7)*2.0D0*RRYY)*C9)+((9.0D0*(((RRXX**2)+(RRYY**2))**8)*2.0D0*RRYY)*C10)+((10.0D0*(((RRXX**2)+(RRYY**2))**9)*2.0D0*RRYY)*C11))
    END IF
    FPZ=1.0D0
 !
@@ -2523,9 +2319,7 @@ SUBROUTINE HITFRZCV
          END IF
          IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
          IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-         J=((ALENS((WWVN),R_I)*COSIP)&
-         &-(ALENS((WWVN),(R_I-1))*COSI))/&
-         &(ALENS((WWVN),R_I))
+         J=((ALENS((WWVN),R_I)*COSIP)-(ALENS((WWVN),(R_I-1))*COSI))/(ALENS((WWVN),R_I))
          R_L=((NUSUBS*R_L)+(J*LN))
          R_M=((NUSUBS*R_M)+(J*MN))
          R_N=((NUSUBS*R_N)+(J*NN))
@@ -2548,9 +2342,7 @@ SUBROUTINE HITFRZCV
 !     NOT RV SET TO RV
 !     IF AT A DUMMY SURFACE, THE THICKNESS CHANGES SIGN, THEN THE
 !     RAY GETS "REVERSED"
-   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. &
-   &0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1)&
-   &.GT.0.0D0.AND.DUM(R_I)) THEN
+   IF(surf_thickness(R_I).GT.0.0D0.AND.surf_thickness(R_I-1).LT. 0.0D0.AND.DUM(R_I).OR.surf_thickness(R_I).LT.0.0D0.AND.surf_thickness(R_I-1).GT.0.0D0.AND.DUM(R_I)) THEN
       IF(RV) THEN
          RV=.FALSE.
       ELSE
@@ -2561,26 +2353,15 @@ SUBROUTINE HITFRZCV
 !     OR THE RAY HAS TRAVELED A POS DIST WITH A NEG DIR COS
 !     AND THE RAY WAS NOT REVERESED, THEN SET IT TO "REVERSED"
 !     RAY GETS "REVERSED"
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
       RV=.TRUE.
    ELSE
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
       RV=.FALSE.
       RVSTART=.FALSE.
    END IF
@@ -2604,6 +2385,7 @@ END
 SUBROUTINE HITGRAZ
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -2612,18 +2394,11 @@ SUBROUTINE HITGRAZ
 !       A GRAZING INCIDENCE RAY TRACE FOR GRAZING INCIDENCE,
 !       REFLECTIVE SURFACES
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,&
-   &TEST1,TEST2,NUSUBS,RR_N,TESTLEN &
-   &,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 &
-   &,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,&
-   &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2 &
-   &,SNINDX,HV_JK,RR_Z
+   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,TEST1,TEST2,NUSUBS,RR_N,TESTLEN ,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 ,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2 ,SNINDX,HV_JK,RR_Z
 !
    INTEGER ZPMIN,ZPMAX
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -2669,22 +2444,17 @@ SUBROUTINE HITGRAZ
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ALENS((WWVN),(R_I-1)))/(ALENS((WWVN),R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
 !       NOW INTERSECT THE SPHERE OR CONIC.
 !       THE FOLLOWING CALCULATIONS ARE INTERMEDIATE STEPS:
 !
-   A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*&
-   &(CC+1.0D0))))
-   B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-&
-   &((CV*R_Z*R_N)&
-   &*(CC+1.0D0))
+   A=-(CV*((R_L**2)+(R_M**2)+((R_N**2)*(CC+1.0D0))))
+   B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-((CV*R_Z*R_N)*(CC+1.0D0))
    B=2.0D0*B
-   C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)*&
-   &(CC+1.0D0)))
+   C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)*(CC+1.0D0)))
    C=(C+(2.0D0*R_Z))
    IF(B.NE.0.0D0) SIGNB=((DABS(B))/(B))
    IF(B.EQ.0.0D0) SIGNB=1.0D0
@@ -2802,10 +2572,8 @@ SUBROUTINE HITGRAZ
       STOPP=1
       RETURN
    END IF
-   FPX=-((2.0D0*CV*X1*QQ*(QQ-1.0D0))+&
-   &((CV**3)*X1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
-   FPY=-((2.0D0*CV*Y1*QQ*(QQ-1.0D0))+&
-   &((CV**3)*Y1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+   FPX=-((2.0D0*CV*X1*QQ*(QQ-1.0D0))+((CV**3)*X1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+   FPY=-((2.0D0*CV*Y1*QQ*(QQ-1.0D0))+((CV**3)*Y1*((X1**2)+(Y1**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
    IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
       IF(CC.LT.-1.0D0) THEN
@@ -2855,10 +2623,8 @@ SUBROUTINE HITGRAZ
          STOPP=1
          RETURN
       END IF
-      FPX=-((2.0D0*CV*X2*QQ*(QQ-1.0D0))+&
-      &((CV**3)*X2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
-      FPY=-((2.0D0*CV*Y2*QQ*(QQ-1.0D0))+&
-      &((CV**3)*Y2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+      FPX=-((2.0D0*CV*X2*QQ*(QQ-1.0D0))+((CV**3)*X2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
+      FPY=-((2.0D0*CV*Y2*QQ*(QQ-1.0D0))+((CV**3)*Y2*((X2**2)+(Y2**2))*(CC+1.0D0)))/((QQ-1.0D0)*(QQ**2))
       IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
          IF(CC.LT.-1.0D0) THEN
@@ -3010,14 +2776,7 @@ SUBROUTINE HITGRAZ
 !       COSINES OF THE SURFACE NORMAL TO THE DEFORMED SURFACE.
 !       ONLY IF THERE ARE NON-ZERO FOURIER-LEGENDRE COEFFS
 !
-   IF(FTFL01(4,R_I).NE.0.0D0.OR.FTFL01(5,R_I).NE.0.0D0 &
-   &.OR.FTFL01(6,R_I).NE.0.0D0.OR.FTFL01(7,R_I).NE.0.0D0 &
-   &.OR.FTFL01(8,R_I).NE.0.0D0.OR.FTFL01(9,R_I).NE.0.0D0 &
-   &.OR.FTFL01(10,R_I).NE.0.0D0.OR.FTFL01(11,R_I).NE.0.0D0 &
-   &.OR.FTFL01(12,R_I).NE.0.0D0.OR.FTFL01(13,R_I).NE.0.0D0 &
-   &.OR.FTFL01(14,R_I).NE.0.0D0.OR.FTFL01(15,R_I).NE.0.0D0 &
-   &.OR.FTFL01(16,R_I).NE.0.0D0.OR.FTFL01(17,R_I).NE.0.0D0 &
-   &.OR.FTFL01(18,R_I).NE.0.0D0) THEN
+   IF(FTFL01(4,R_I).NE.0.0D0.OR.FTFL01(5,R_I).NE.0.0D0 .OR.FTFL01(6,R_I).NE.0.0D0.OR.FTFL01(7,R_I).NE.0.0D0 .OR.FTFL01(8,R_I).NE.0.0D0.OR.FTFL01(9,R_I).NE.0.0D0 .OR.FTFL01(10,R_I).NE.0.0D0.OR.FTFL01(11,R_I).NE.0.0D0 .OR.FTFL01(12,R_I).NE.0.0D0.OR.FTFL01(13,R_I).NE.0.0D0 .OR.FTFL01(14,R_I).NE.0.0D0.OR.FTFL01(15,R_I).NE.0.0D0 .OR.FTFL01(16,R_I).NE.0.0D0.OR.FTFL01(17,R_I).NE.0.0D0 .OR.FTFL01(18,R_I).NE.0.0D0) THEN
       INR=surf_inr_value(R_I)
       CALL NR5
    END IF
@@ -3063,26 +2822,15 @@ SUBROUTINE HITGRAZ
 !     AND THE RAY WAS NOT REVERESED, THEN SET IT TO "REVERSED"
 !     RAY GETS "REVERSED"
    TESTLEN=R_Z-RR_Z
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.&
-   &SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.SNINDX.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR.OR.SNINDX.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR) THEN
       RV=.TRUE.
    ELSE
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.RVSTART.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.RVSTART) THEN
       RV=.FALSE.
    END IF
-   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.&
-   &RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.&
-   &RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
+   IF(RR_N.GT.0.0D0.AND.TESTLEN.GT.0.0D0.AND..NOT.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.LT.0.0D0.AND..NOT.REVSTR.OR.RR_N.GT.0.0D0.AND.TESTLEN.LT.0.0D0.AND.REVSTR.OR.RR_N.LT.0.0D0.AND.TESTLEN.GT.0.0D0.AND.REVSTR) THEN
       RV=.FALSE.
       RVSTART=.FALSE.
    END IF
@@ -3105,6 +2853,7 @@ END
 !**********************************************************************
 SUBROUTINE ARRAYIN_FIX(N_X,N_Y)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    REAL*8 X,Y
@@ -3121,6 +2870,7 @@ END
 !**********************************************************************
 SUBROUTINE ARRAYOUT_FIX(N_X,N_Y)
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER I,N_X,N_Y
@@ -3136,6 +2886,7 @@ END
 !**********************************************************************
 SUBROUTINE POSARRAY1(I,X,Y,N_X,N_Y)
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -3178,6 +2929,7 @@ END
 !**********************************************************************
 SUBROUTINE POSARRAY2(I,X,Y,N_X,N_Y)
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -3207,6 +2959,7 @@ END
 SUBROUTINE HITANA_old(OR_N,OR_Z)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -3214,17 +2967,10 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
 !       SURFACE INTERSECTIONS TO ANAMORPHICS IN RAYTRACING.
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,&
-   &C7,C8,C9,C10,C11,C12,C13,C14,NUSUBS,OR_N,OR_Z,&
-   &TEST1,TEST2,RR_N,TESTLEN,ZTEST,RR_Z &
-   &,Q,SIGNB,MAG,J,ARG,SNINDX,SNIND2 &
-   &,FPX,FPY,FPZ,HV0,HV1,HV2,&
-   &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2
+   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,NUSUBS,OR_N,OR_Z,TEST1,TEST2,RR_N,TESTLEN,ZTEST,RR_Z ,Q,SIGNB,MAG,J,ARG,SNINDX,SNIND2 ,FPX,FPY,FPZ,HV0,HV1,HV2,X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2
 !
 !     DIFFRACTION GRATING STUFF
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 RD,R1,R2,LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -3275,8 +3021,7 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE SPHERE
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ALENS((WWVN),(R_I-1)))/(ALENS((WWVN),R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -3284,8 +3029,7 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
 !       THE FOLLOWING CALCULATIONS ARE INTERMEDIATE STEPS:
 !
    A=-(CV*((R_L**2)+(R_M**2)+((R_N**2))))
-   B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-&
-   &((CV*R_Z*R_N))
+   B=R_N-(CV*R_X*R_L)-(CV*R_Y*R_M)-((CV*R_Z*R_N))
    B=2.0D0*B
    C=-CV*((R_X**2)+(R_Y**2)+((R_Z**2)))
    C=(C+(2.0D0*R_Z))
@@ -3355,10 +3099,8 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
       STOPP=1
       RETURN
    END IF
-   FPX=-((2.0D0*CV*X1*QQ*(QQ-1.0D0))+&
-   &((CV**3)*X1*((X1**2)+(Y1**2))))/((QQ-1.0D0)*(QQ**2))
-   FPY=-((2.0D0*CV*Y1*QQ*(QQ-1.0D0))+&
-   &((CV**3)*Y1*((X1**2)+(Y1**2))))/((QQ-1.0D0)*(QQ**2))
+   FPX=-((2.0D0*CV*X1*QQ*(QQ-1.0D0))+((CV**3)*X1*((X1**2)+(Y1**2))))/((QQ-1.0D0)*(QQ**2))
+   FPY=-((2.0D0*CV*Y1*QQ*(QQ-1.0D0))+((CV**3)*Y1*((X1**2)+(Y1**2))))/((QQ-1.0D0)*(QQ**2))
 !
    IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
@@ -3401,10 +3143,8 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
          STOPP=1
          RETURN
       END IF
-      FPX=-((2.0D0*CV*X2*QQ*(QQ-1.0D0))+&
-      &((CV**3)*X2*((X2**2)+(Y2**2))))/((QQ-1.0D0)*(QQ**2))
-      FPY=-((2.0D0*CV*Y2*QQ*(QQ-1.0D0))+&
-      &((CV**3)*Y2*((X2**2)+(Y2**2))))/((QQ-1.0D0)*(QQ**2))
+      FPX=-((2.0D0*CV*X2*QQ*(QQ-1.0D0))+((CV**3)*X2*((X2**2)+(Y2**2))))/((QQ-1.0D0)*(QQ**2))
+      FPY=-((2.0D0*CV*Y2*QQ*(QQ-1.0D0))+((CV**3)*Y2*((X2**2)+(Y2**2))))/((QQ-1.0D0)*(QQ**2))
       IF(CV.GT.0.0D0) THEN
 !     USE INWARD NORMAL
          IF(Z2.GT.ZTEST) FPZ=-1.0D0
@@ -3571,6 +3311,7 @@ END
 SUBROUTINE HITANA(OR_N,OR_Z)
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -3578,17 +3319,10 @@ SUBROUTINE HITANA(OR_N,OR_Z)
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
 !       SURFACE INTERSECTIONS TO ANAMORPHICS IN RAYTRACING.
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,&
-   &C7,C8,C9,C10,C11,C12,C13,C14,NUSUBS,OR_N,OR_Z,&
-   &TEST1,TEST2,RR_N,TESTLEN,ZTEST,RR_Z &
-   &,Q,SIGNB,MAG,J,ARG,SNINDX,SNIND2 &
-   &,FPX,FPY,FPZ,HV0,HV1,HV2,&
-   &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2
+   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,NUSUBS,OR_N,OR_Z,TEST1,TEST2,RR_N,TESTLEN,ZTEST,RR_Z ,Q,SIGNB,MAG,J,ARG,SNINDX,SNIND2 ,FPX,FPY,FPZ,HV0,HV1,HV2,X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2
 !
 !     DIFFRACTION GRATING STUFF
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
-   &SMU,WLU,BGAM,DD,DSPACE,&
-   &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
+   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,SMU,WLU,BGAM,DD,DSPACE,QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
    REAL*8 RD,R1,R2,LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
@@ -3639,8 +3373,7 @@ SUBROUTINE HITANA(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE ANAMORPH
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ALENS((WWVN),(R_I-1)))/(ALENS((WWVN),R_I)))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !

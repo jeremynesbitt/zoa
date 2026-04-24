@@ -4,6 +4,7 @@
 SUBROUTINE PRCOL
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff
    IMPLICIT NONE
@@ -72,12 +73,7 @@ SUBROUTINE PRCOL
             CURV=surf_curvature(1)
          END IF
       END IF
-      COLY(2,1)=-CURV*COLY(1,1)*&
-      &(((ALENS(WWVN,1))-&
-      &(ALENS(WWVN,0)))/&
-      &(ALENS(WWVN,1)))+&
-      &((ALENS(WWVN,0))/&
-      &(ALENS(WWVN,1)))*COLY(2,0)
+      COLY(2,1)=-CURV*COLY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*COLY(2,0)
 !
 !       COLY(3,1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -93,8 +89,7 @@ SUBROUTINE PRCOL
       END IF
       COLY(3,1)=CURV*COLY(1,1)+COLY(2,0)
 !       COLY(4,1)
-      COLY(4,1)=((ALENS((WWVN),0))/&
-      &(ALENS((WWVN),1)))*COLY(3,1)
+      COLY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*COLY(3,1)
 !
 !       COLY(5,1)
       COLY(5,1)=PXTRAY(5,1)
@@ -111,12 +106,7 @@ SUBROUTINE PRCOL
             CURV=surf_curvature(1)
          END IF
       END IF
-      COLY(6,1)=-CURV*COLY(5,1)*&
-      &(((ALENS(WWVN,1))-&
-      &(ALENS(WWVN,0)))/&
-      &(ALENS(WWVN,1)))+&
-      &((ALENS(WWVN,0))/&
-      &(ALENS(WWVN,1)))*COLY(6,0)
+      COLY(6,1)=-CURV*COLY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*COLY(6,0)
 !
 !       COLY(7,1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -132,8 +122,7 @@ SUBROUTINE PRCOL
       END IF
       COLY(7,1)=(CURV*COLY(5,1))+COLY(6,0)
 !       COLY(8,1)
-      COLY(8,1)=((ALENS((WWVN),0))/&
-      &(ALENS((WWVN),1)))*COLY(7,1)
+      COLY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*COLY(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 !
@@ -157,12 +146,7 @@ SUBROUTINE PRCOL
                CURV=surf_curvature(L)
             END IF
          END IF
-         COLY(2,L)=-CURV*COLY(1,L)*&
-         &(((ALENS(WWVN,L))-&
-         &(ALENS(WWVN,(L-1))))/&
-         &(ALENS(WWVN,L)))+&
-         &((ALENS(WWVN,(L-1)))/&
-         &(ALENS(WWVN,L)))*COLY(2,(L-1))
+         COLY(2,L)=-CURV*COLY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*COLY(2,(L-1))
 !*****************************************************************
 !       COLY(3,L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -179,8 +163,7 @@ SUBROUTINE PRCOL
          COLY(3,L)=CURV*COLY(1,L)+COLY(2,(L-1))
 !*******************************************************************
 !       COLY(4,L)
-         COLY(4,L)=((ALENS((WWVN),(L-1)))/&
-         &(ALENS((WWVN),L)))*COLY(3,L)
+         COLY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*COLY(3,L)
 !*******************************************************************
 !       COLY(5,L)
          COLY(5,L)=COLY(5,(L-1))+(surf_thickness(L-1)*COLY(6,(L-1)))
@@ -197,12 +180,7 @@ SUBROUTINE PRCOL
                CURV=surf_curvature(L)
             END IF
          END IF
-         COLY(6,L)=-CURV*COLY(5,L)*&
-         &(((ALENS(WWVN,L))-&
-         &(ALENS(WWVN,(L-1))))/&
-         &(ALENS(WWVN,L)))+&
-         &((ALENS(WWVN,(L-1)))/&
-         &(ALENS(WWVN,L)))*COLY(6,(L-1))
+         COLY(6,L)=-CURV*COLY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*COLY(6,(L-1))
 !**************************************************************
 !       COLY(7,L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -218,8 +196,7 @@ SUBROUTINE PRCOL
          END IF
          COLY(7,L)=(CURV*COLY(5,L))+COLY(6,(L-1))
 !***************************************************************
-         COLY(8,L)=((ALENS((WWVN),(L-1)))/&
-         &(ALENS((WWVN),L)))*COLY(7,L)
+         COLY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*COLY(7,L)
 !***************************************************************
 80    CONTINUE
 !       PARAXIAL TRACE COMPLETED
@@ -263,12 +240,7 @@ SUBROUTINE PRCOL
             CURV=surf_curvature(1)
          END IF
       END IF
-      COLX(2,1)=-CURV*COLX(1,1)*&
-      &(((ALENS(WWVN,1))-&
-      &(ALENS(WWVN,0)))/&
-      &(ALENS(WWVN,1)))+&
-      &((ALENS(WWVN,0))/&
-      &(ALENS(WWVN,1)))*COLX(2,0)
+      COLX(2,1)=-CURV*COLX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*COLX(2,0)
 !
 !       COLX(3,1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -284,8 +256,7 @@ SUBROUTINE PRCOL
       END IF
       COLX(3,1)=CURV*COLX(1,1)+COLX(2,0)
 !       COLX(4,1)
-      COLX(4,1)=((ALENS((WWVN),0))/&
-      &(ALENS((WWVN),1)))*COLX(3,1)
+      COLX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*COLX(3,1)
 !
 !       COLX(5,1)
       COLX(5,1)=PXTRAX(5,1)
@@ -302,12 +273,7 @@ SUBROUTINE PRCOL
             CURV=surf_curvature(1)
          END IF
       END IF
-      COLX(6,1)=-CURV*COLX(5,1)*&
-      &(((ALENS(WWVN,1))-&
-      &(ALENS(WWVN,0)))/&
-      &(ALENS(WWVN,1)))+&
-      &((ALENS(WWVN,0))/&
-      &(ALENS(WWVN,1)))*COLX(6,0)
+      COLX(6,1)=-CURV*COLX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*COLX(6,0)
 !
 !       COLX(7,1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -323,8 +289,7 @@ SUBROUTINE PRCOL
       END IF
       COLX(7,1)=(CURV*COLX(5,1))+COLX(6,0)
 !       COLX(8,1)
-      COLX(8,1)=((ALENS((WWVN),0))/&
-      &(ALENS((WWVN),1)))*COLX(7,1)
+      COLX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*COLX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 !
@@ -348,12 +313,7 @@ SUBROUTINE PRCOL
                CURV=surf_curvature(L)
             END IF
          END IF
-         COLX(2,L)=-CURV*COLX(1,L)*&
-         &(((ALENS(WWVN,L))-&
-         &(ALENS(WWVN,(L-1))))/&
-         &(ALENS(WWVN,L)))+&
-         &((ALENS(WWVN,(L-1)))/&
-         &(ALENS(WWVN,L)))*COLX(2,(L-1))
+         COLX(2,L)=-CURV*COLX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*COLX(2,(L-1))
 !*****************************************************************
 !       COLX(3,L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -370,8 +330,7 @@ SUBROUTINE PRCOL
          COLX(3,L)=CURV*COLX(1,L)+COLX(2,(L-1))
 !*******************************************************************
 !       COLX(4,L)
-         COLX(4,L)=((ALENS((WWVN),(L-1)))/&
-         &(ALENS((WWVN),L)))*COLX(3,L)
+         COLX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*COLX(3,L)
 !*******************************************************************
 !       COLX(5,L)
          COLX(5,L)=COLX(5,(L-1))+(surf_thickness(L-1)*COLX(6,(L-1)))
@@ -388,12 +347,7 @@ SUBROUTINE PRCOL
                CURV=surf_curvature(L)
             END IF
          END IF
-         COLX(6,L)=-CURV*COLX(5,L)*&
-         &(((ALENS(WWVN,L))-&
-         &(ALENS(WWVN,(L-1))))/&
-         &(ALENS(WWVN,L)))+&
-         &((ALENS(WWVN,(L-1)))/&
-         &(ALENS(WWVN,L)))*COLX(6,(L-1))
+         COLX(6,L)=-CURV*COLX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*COLX(6,(L-1))
 !**************************************************************
 !       COLX(7,L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -409,8 +363,7 @@ SUBROUTINE PRCOL
          END IF
          COLX(7,L)=(CURV*COLX(5,L))+COLX(6,(L-1))
 !***************************************************************
-         COLX(8,L)=((ALENS((WWVN),(L-1)))/&
-         &(ALENS((WWVN),L)))*COLX(7,L)
+         COLX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*COLX(7,L)
 !***************************************************************
 800   CONTINUE
 !       PARAXIAL TRACE COMPLETED
@@ -438,6 +391,7 @@ SUBROUTINE PRTRA_OLD
 
 
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
    IMPLICIT NONE
@@ -463,8 +417,7 @@ SUBROUTINE PRTRA_OLD
    real(kind=real64) :: marPos1, marAng0
 
 !
-   REAL*8 SYS13,TMP15A,TMP15B,&
-   &CON,CURV,TMP17A,TMP17B,WV
+   REAL*8 SYS13,TMP15A,TMP15B,CON,CURV,TMP17A,TMP17B,WV
 !
    COMMON/PRCOM/WV,ITYP
 !
@@ -510,8 +463,7 @@ SUBROUTINE PRTRA_OLD
    PRINT *, "theta0 is ", thetao
    nao = sin(thetao)
    print *, "nao is ", nao
-   print *, "new chief ray pos on surf 1 is ",&
-   &tan(thetao)*curr_lens_data%thicknesses(1)
+   print *, "new chief ray pos on surf 1 is ",tan(thetao)*curr_lens_data%thicknesses(1)
 
 
 
@@ -647,8 +599,7 @@ SUBROUTINE PRTRA_OLD
                RETURN
             END IF
             PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
-            IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=&
-            &-(1.0D0-CON)/surf_thickness(0)
+            IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=-(1.0D0-CON)/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
             PXTRAY(7,0)=PXTRAY(6,0)
@@ -668,8 +619,7 @@ SUBROUTINE PRTRA_OLD
             L=1
             SLV1=L
             SLV2=1
-            IF(SOLVE(6,L).NE.0.0D0 .OR.&
-            &SOLVE(8,L).NE.0.0D0) THEN
+            IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) THEN
                CALL SLVRS
             END IF
 !               INITIAL VALUES AT SURFACE 1
@@ -705,16 +655,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAY(2,1)=-CURV*PXTRAY(1,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAY(2,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+            PXTRAY(2,1)=-CURV*PXTRAY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(2,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
@@ -732,8 +675,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
 !
 !       PIY'(1)=(N/N')*PIY(1)
-            PXTRAY(4,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAY(3,1)
+            PXTRAY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             PXTRAY(5,1)=CON
@@ -750,16 +692,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAY(6,1)=-CURV*PXTRAY(5,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAY(6,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
+            PXTRAY(6,1)=-CURV*PXTRAY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(6,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -775,12 +710,10 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
 !       PICY'(1)
-            PXTRAY(8,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAY(7,1)
+            PXTRAY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(7,1)
 
             if(DABS(marAng0).GT.001D0) then
-               PRINT *, "Finite mar0 PRTRA PXTRAY(1:8,0:1) is ",&
-               &PXTRAY(1:8,0:1)
+               PRINT *, "Finite mar0 PRTRA PXTRAY(1:8,0:1) is ",PXTRAY(1:8,0:1)
             end if
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
@@ -791,8 +724,7 @@ SUBROUTINE PRTRA_OLD
 !               VALUES AT SURFACE L
                SLV1=L
                SLV2=1
-               IF(SOLVE(6,L).NE.0.0D0 .OR.&
-               &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+               IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !       CALL PIKRES FOR THE SURFACE L
                COMI=L
                IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -812,16 +744,9 @@ SUBROUTINE PRTRA_OLD
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+               PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -838,8 +763,7 @@ SUBROUTINE PRTRA_OLD
                PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-               PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAY(3,L)
+               PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
                PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
@@ -856,16 +780,9 @@ SUBROUTINE PRTRA_OLD
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+               PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -881,8 +798,7 @@ SUBROUTINE PRTRA_OLD
                END IF
                PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-               PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAY(7,L)
+               PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
 !       WHEN ASTOP IS NOT ON SURFACE 1
@@ -896,8 +812,7 @@ SUBROUTINE PRTRA_OLD
             CALL SHOWIT(1)
             OUTLYNE='APERTURE STOP SURFACE.'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
+            OUTLYNE='PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
             CALL SHOWIT(1)
             CALL MACFAL
             RETURN
@@ -943,8 +858,7 @@ SUBROUTINE PRTRA_OLD
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
          PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=&
-         &-(1.0D0-SYSTEM(15))/surf_thickness(0)
+         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=-(1.0D0-SYSTEM(15))/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
          PXTRAY(7,0)=PXTRAY(6,0)
@@ -956,8 +870,7 @@ SUBROUTINE PRTRA_OLD
          L=1
          SLV1=L
          SLV2=1
-         IF(SOLVE(6,L).NE.0.0D0 .OR.&
-         &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !
 !               INITIAL VALUES AT SURFACE 1
 !       CALL PIKRES FOR THE SURFACE 1
@@ -990,15 +903,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1015,8 +922,7 @@ SUBROUTINE PRTRA_OLD
          PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
 !
 !       PIY'(1)=(N/N')*PIY(1)
-         PXTRAY(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(3,1)
+         PXTRAY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          PXTRAY(5,1)=SYSTEM(15)
@@ -1033,15 +939,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
+         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1057,8 +957,7 @@ SUBROUTINE PRTRA_OLD
          END IF
          PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
 !       PICY'(1)
-         PXTRAY(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(7,1)
+         PXTRAY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -1066,8 +965,7 @@ SUBROUTINE PRTRA_OLD
          DO 70 L=2,INT(SYSTEM(26))
             SLV1=L
             SLV2=1
-            IF(SOLVE(6,L).NE.0.0D0 .OR.&
-            &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -1088,16 +986,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1114,8 +1005,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(3,L)
+            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
@@ -1132,16 +1022,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1157,8 +1040,7 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(7,L)
+            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 !
 70       CONTINUE
@@ -1173,8 +1055,7 @@ SUBROUTINE PRTRA_OLD
 !       THIS IS DONE BY CALLING SUBROUTINE
          SLV1=L
          SLV2=1
-         IF(SOLVE(6,L).NE.0.0D0 .OR.&
-         &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !
 !               ALL APERTURE STOP SURFACE SOLVES NOW HANDLED.
 !               PROCEED TO NEXT SURFACES
@@ -1216,16 +1097,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1242,8 +1116,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(3,L)
+            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NO CALCULATE PCY VALUE
@@ -1264,16 +1137,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1289,16 +1155,14 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(7,L)
+            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 !                       SOLVES ON SURFACE L
 !***************************************************************************
 !       HANDLE SOLVES ON SURFACE L BY CALLING SUBROUTINE
             SLV1=L
             SLV2=1
-            IF(SOLVE(6,L).NE.0.0D0 .OR.&
-            &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !
 !               NOW ALL SOLVES ON SURFACE L HAVE BEEN HANDLED
 !
@@ -1346,12 +1210,9 @@ SUBROUTINE PRTRA_OLD
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=&
-         &-(1.0D0-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
-         &PXTRAY(6,0)=0.0D0
+         IF(SYSTEM(63).EQ.0.0D0)PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
+         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=-(1.0D0-SYSTEM(15))/surf_thickness(0)
+         IF(SYSTEM(63).EQ.1.0D0)PXTRAY(6,0)=0.0D0
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
          PXTRAY(7,0)=PXTRAY(6,0)
@@ -1390,16 +1251,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1416,8 +1270,7 @@ SUBROUTINE PRTRA_OLD
          PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
 !
 !       PIY'(1)=(N/N')*PIY(1)
-         PXTRAY(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(3,1)
+         PXTRAY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          IF(SYSTEM(63).EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
@@ -1435,16 +1288,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
+         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1460,8 +1306,7 @@ SUBROUTINE PRTRA_OLD
          END IF
          PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
 !       PICY'(1)
-         PXTRAY(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(7,1)
+         PXTRAY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 !
@@ -1474,8 +1319,7 @@ SUBROUTINE PRTRA_OLD
 !       DO THIS BY CALLING SLVRS
          SLV1=L
          SLV2=1
-         IF(SOLVE(6,L).NE.0.0D0 .OR.&
-         &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !               ALL APERTURE STOP SURFACE SOLVES NOW HANDLED.
 !               PROCEED TO NEXT SURFACES
 ! *****************************************************************************
@@ -1512,16 +1356,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1538,8 +1375,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(3,L)
+            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
 !*******************************************************************************
@@ -1561,16 +1397,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1586,16 +1415,14 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(7,L)
+            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 !                       NOW HANDLE SOLVES ON SURFACE L
 !***************************************************************************
 !       DO THIS BY CALLING SLVRS
             SLV1=L
             SLV2=1
-            IF(SOLVE(6,L).NE.0.0D0 .OR.&
-            &SOLVE(8,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(6,L).NE.0.0D0 .OR.SOLVE(8,L).NE.0.0D0) CALL SLVRS
 !       ALL SOLVES ON SURFACE L HANDLED
 !
 80       CONTINUE
@@ -1719,8 +1546,7 @@ SUBROUTINE PRTRA_OLD
                RETURN
             END IF
             PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
-            IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=&
-            &-(1.0D0-CON)/surf_thickness(0)
+            IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=-(1.0D0-CON)/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
             PXTRAX(7,0)=PXTRAX(6,0)
@@ -1732,8 +1558,7 @@ SUBROUTINE PRTRA_OLD
             L=1
             SLV1=L
             SLV2=2
-            IF(SOLVE(4,L).NE.0.0D0 .OR.&
-            &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !
 !               INITIAL VALUES AT SURFACE 1
 !       CALL PIKRES FOR THE SURFACE 1
@@ -1757,16 +1582,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAX(2,1)=-CURV*PXTRAX(1,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAX(2,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            PXTRAX(2,1)=-CURV*PXTRAX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(2,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
@@ -1784,8 +1602,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
 !
 !       PIX'(1)=(N/N')*PIX(1)
-            PXTRAX(4,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAX(3,1)
+            PXTRAX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             PXTRAX(5,1)=CON
@@ -1802,16 +1619,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAX(6,1)=-CURV*PXTRAX(5,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAX(6,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+            PXTRAX(6,1)=-CURV*PXTRAX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(6,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1827,8 +1637,7 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
 !       PICX'(1)
-            PXTRAX(8,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAX(7,1)
+            PXTRAX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -1836,8 +1645,7 @@ SUBROUTINE PRTRA_OLD
             DO 5000 L=2,INT(SYSTEM(26))
                SLV1=L
                SLV2=2
-               IF(SOLVE(4,L).NE.0.0D0 .OR.&
-               &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+               IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
                COMI=L
@@ -1858,16 +1666,9 @@ SUBROUTINE PRTRA_OLD
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+               PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1884,8 +1685,7 @@ SUBROUTINE PRTRA_OLD
                PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-               PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAX(3,L)
+               PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
                PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -1902,16 +1702,9 @@ SUBROUTINE PRTRA_OLD
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+               PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1927,8 +1720,7 @@ SUBROUTINE PRTRA_OLD
                END IF
                PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-               PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAX(7,L)
+               PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
 !       WHEN ASTOP IS NOT ON SURFACE 1
@@ -1942,8 +1734,7 @@ SUBROUTINE PRTRA_OLD
             CALL SHOWIT(1)
             OUTLYNE='APERTURE STOP SURFACE.'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
+            OUTLYNE='PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
             CALL SHOWIT(1)
             CALL MACFAL
             RETURN
@@ -1981,8 +1772,7 @@ SUBROUTINE PRTRA_OLD
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
          PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=&
-         &-(1.0D0-SYSTEM(17))/surf_thickness(0)
+         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=-(1.0D0-SYSTEM(17))/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
          PXTRAX(7,0)=PXTRAX(6,0)
@@ -1995,8 +1785,7 @@ SUBROUTINE PRTRA_OLD
 
          SLV1=L
          SLV2=2
-         IF(SOLVE(4,L).NE.0.0D0 .OR.&
-         &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !               INITIAL VALUES AT SURFACE 1
 !       CALL PIKRES FOR THE SURFACE 1
          COMI=1
@@ -2017,15 +1806,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2042,8 +1825,7 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
 !
 !       PIX'(1)=(N/N')*PIX(1)
-         PXTRAX(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(3,1)
+         PXTRAX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          PXTRAX(5,1)=SYSTEM(17)
@@ -2060,15 +1842,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2084,8 +1860,7 @@ SUBROUTINE PRTRA_OLD
          END IF
          PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
 !       PICX'(1)
-         PXTRAX(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(7,1)
+         PXTRAX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -2093,8 +1868,7 @@ SUBROUTINE PRTRA_OLD
          DO 7000 L=2,INT(SYSTEM(26))
             SLV1=L
             SLV2=2
-            IF(SOLVE(4,L).NE.0.0D0 .OR.&
-            &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -2115,16 +1889,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2141,8 +1908,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(3,L)
+            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -2159,16 +1925,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2184,8 +1943,7 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(7,L)
+            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 !
 7000     CONTINUE
@@ -2201,8 +1959,7 @@ SUBROUTINE PRTRA_OLD
 !                               SLVRS
          SLV1=L
          SLV2=2
-         IF(SOLVE(4,L).NE.0.0D0 .OR.&
-         &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !
 !               ALL APERTURE STOP SURFACE SOLVES NOW HANDLED.
 !               PROCEED TO NEXT SURFACES
@@ -2244,16 +2001,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2270,8 +2020,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(3,L)
+            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NO CALCULATE PCX VALUE
@@ -2292,16 +2041,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2317,8 +2059,7 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(7,L)
+            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 !                       SOLVES ON SURFACE L
 !***************************************************************************
@@ -2326,8 +2067,7 @@ SUBROUTINE PRTRA_OLD
 !                       SLVRS
             SLV1=L
             SLV2=2
-            IF(SOLVE(4,L).NE.0.0D0 .OR.&
-            &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !
 !               NOW ALL SOLVES ON SURFACE L HAVE BEEN HANDLED
 !
@@ -2367,12 +2107,9 @@ SUBROUTINE PRTRA_OLD
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=&
-         &-(1.0D0-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
-         &PXTRAX(6,0)=0.0D0
+         IF(SYSTEM(63).EQ.0.0D0)PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
+         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=-(1.0D0-SYSTEM(17))/surf_thickness(0)
+         IF(SYSTEM(63).EQ.1.0D0)PXTRAX(6,0)=0.0D0
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
          PXTRAX(7,0)=PXTRAX(6,0)
@@ -2385,8 +2122,7 @@ SUBROUTINE PRTRA_OLD
          L=1
          SLV1=L
          SLV2=2
-         IF(SOLVE(4,L).NE.0.0D0 .OR.&
-         &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !               INITIAL VALUES AT SURFACE 1
 !       CALL PIKRES FOR THE SURFACE 1
          COMI=1
@@ -2407,16 +2143,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2433,8 +2162,7 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
 !
 !       PIX'(1)=(N/N')*PIX(1)
-         PXTRAX(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(3,1)
+         PXTRAX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          IF(SYSTEM(63).EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
@@ -2452,16 +2180,9 @@ SUBROUTINE PRTRA_OLD
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2477,8 +2198,7 @@ SUBROUTINE PRTRA_OLD
          END IF
          PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
 !       PICX'(1)
-         PXTRAX(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(7,1)
+         PXTRAX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 !
@@ -2491,8 +2211,7 @@ SUBROUTINE PRTRA_OLD
 !       DO THIS BY CALLING SLVRS
          SLV1=L
          SLV2=2
-         IF(SOLVE(4,L).NE.0.0D0 .OR.&
-         &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+         IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !               ALL APERTURE STOP SURFACE SOLVES NOW HANDLED.
 !               PROCEED TO NEXT SURFACES
 ! *****************************************************************************
@@ -2529,16 +2248,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2555,8 +2267,7 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(3,L)
+            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
 !*******************************************************************************
@@ -2578,16 +2289,9 @@ SUBROUTINE PRTRA_OLD
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2603,16 +2307,14 @@ SUBROUTINE PRTRA_OLD
             END IF
             PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(7,L)
+            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 !                       NOW HANDLE SOLVES ON SURFACE L
 !***************************************************************************
 !       DO THIS BY CALLING SLVRS
             SLV1=L
             SLV2=2
-            IF(SOLVE(4,L).NE.0.0D0 .OR.&
-            &SOLVE(2,L).NE.0.0D0) CALL SLVRS
+            IF(SOLVE(4,L).NE.0.0D0 .OR.SOLVE(2,L).NE.0.0D0) CALL SLVRS
 !       ALL SOLVES ON SURFACE L HANDLED
 !
 !
@@ -2653,6 +2355,7 @@ END
 SUBROUTINE PRTRB
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2684,6 +2387,7 @@ END
 SUBROUTINE PRTRC
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2710,6 +2414,7 @@ END
 SUBROUTINE PRTRD
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2897,6 +2602,7 @@ SUBROUTINE PAROUT
 
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2908,11 +2614,9 @@ SUBROUTINE PAROUT
 !
 !
    IF(SST.EQ.1 .OR.S2.EQ.1 .OR.S3.EQ.1 .OR.S4.EQ.1 .OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'PARAXIAL RAYTRACE OUTPUT COMMANDS ONLY TAKE QUALIFIER OR'
+      WRITE(OUTLYNE,*)'PARAXIAL RAYTRACE OUTPUT COMMANDS ONLY TAKE QUALIFIER OR'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'NUMERIC WORD #1 INPUT'
+      WRITE(OUTLYNE,*)'NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2920,11 +2624,9 @@ SUBROUTINE PAROUT
       RETURN
    END IF
    IF(SQ.EQ.1 .AND.S1.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'PARAXIAL RAYTRACE OUTPUT COMMANDS TAKE EITHER QUALIFIER OR'
+      WRITE(OUTLYNE,*)'PARAXIAL RAYTRACE OUTPUT COMMANDS TAKE EITHER QUALIFIER OR'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'NUMERIC WORD #1 INPUT BUT NOT BOTH'
+      WRITE(OUTLYNE,*)'NUMERIC WORD #1 INPUT BUT NOT BOTH'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2974,18 +2676,12 @@ SUBROUTINE PAROUT
          END DO
       END DO
       DO 10 I=0,SF
-         IF(WC.EQ.'PXTX') WRITE(OUTLYNE,2000)I,PXTRAX(1,I),PXTRAX(2,I)&
-         &,PXTRAX(5,I),PXTRAX(6,I)
-         IF(WC.EQ.'PXTY') WRITE(OUTLYNE,2000)I,PXTRAY(1,I),PXTRAY(2,I)&
-         &,PXTRAY(5,I),PXTRAY(6,I)
-         IF(WC.EQ.'PITX') WRITE(OUTLYNE,2000)I,PXTRAX(1,I),PXTRAX(3,I)&
-         &,PXTRAX(5,I),PXTRAX(7,I)
-         IF(WC.EQ.'PITY') WRITE(OUTLYNE,2000)I,PXTRAY(1,I),PXTRAY(3,I)&
-         &,PXTRAY(5,I),PXTRAY(7,I)
-         IF(WC.EQ.'PRTX') WRITE(OUTLYNE,2000)I,PXTRAX(1,I),PXTRAX(4,I)&
-         &,PXTRAX(5,I),PXTRAX(8,I)
-         IF(WC.EQ.'PRTY') WRITE(OUTLYNE,2000)I,PXTRAY(1,I),PXTRAY(4,I)&
-         &,PXTRAY(5,I),PXTRAY(8,I)
+         IF(WC.EQ.'PXTX') WRITE(OUTLYNE,2000)I,PXTRAX(1,I),PXTRAX(2,I),PXTRAX(5,I),PXTRAX(6,I)
+         IF(WC.EQ.'PXTY') WRITE(OUTLYNE,2000)I,PXTRAY(1,I),PXTRAY(2,I),PXTRAY(5,I),PXTRAY(6,I)
+         IF(WC.EQ.'PITX') WRITE(OUTLYNE,2000)I,PXTRAX(1,I),PXTRAX(3,I),PXTRAX(5,I),PXTRAX(7,I)
+         IF(WC.EQ.'PITY') WRITE(OUTLYNE,2000)I,PXTRAY(1,I),PXTRAY(3,I),PXTRAY(5,I),PXTRAY(7,I)
+         IF(WC.EQ.'PRTX') WRITE(OUTLYNE,2000)I,PXTRAX(1,I),PXTRAX(4,I),PXTRAX(5,I),PXTRAX(8,I)
+         IF(WC.EQ.'PRTY') WRITE(OUTLYNE,2000)I,PXTRAY(1,I),PXTRAY(4,I),PXTRAY(5,I),PXTRAY(8,I)
          CALL SHOWIT(0)
 10    CONTINUE
       RETURN
@@ -2997,49 +2693,42 @@ SUBROUTINE PAROUT
          END IF
          IF(HEADIN) WRITE(OUTLYNE,6000)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(2,SF)&
-         &,PXTRAX(5,SF),PXTRAX(6,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(2,SF),PXTRAX(5,SF),PXTRAX(6,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PXTY')THEN
          IF(HEADIN) WRITE(OUTLYNE,6003)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(2,SF)&
-         &,PXTRAY(5,SF),PXTRAY(6,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(2,SF),PXTRAY(5,SF),PXTRAY(6,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PITX')THEN
          IF(HEADIN) WRITE(OUTLYNE,6006)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(3,SF)&
-         &,PXTRAX(5,SF),PXTRAX(7,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(3,SF),PXTRAX(5,SF),PXTRAX(7,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PITY')THEN
          IF(HEADIN) WRITE(OUTLYNE,6009)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(3,SF)&
-         &,PXTRAY(5,SF),PXTRAY(7,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(3,SF),PXTRAY(5,SF),PXTRAY(7,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTX')THEN
          IF(HEADIN) WRITE(OUTLYNE,6012)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(4,SF)&
-         &,PXTRAX(5,SF),PXTRAX(8,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(4,SF),PXTRAX(5,SF),PXTRAX(8,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTY')THEN
          IF(HEADIN) WRITE(OUTLYNE,6015)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(4,SF)&
-         &,PXTRAY(5,SF),PXTRAY(8,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(4,SF),PXTRAY(5,SF),PXTRAY(8,SF)
          CALL SHOWIT(0)
       END IF
       RETURN
    END IF
-   IF(SQ.EQ.1 .AND.WQ.NE.'OBJ'.OR.SQ.EQ.1 .AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1 .AND.WQ.NE.'OB') THEN
+   IF(SQ.EQ.1 .AND.WQ.NE.'OBJ'.OR.SQ.EQ.1 .AND.WQ.NE.'ALL'.OR.SQ.EQ.1 .AND.WQ.NE.'OB') THEN
       WRITE(OUTLYNE,*)'INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3053,43 +2742,37 @@ SUBROUTINE PAROUT
       IF(WC.EQ.'PXTX')THEN
          IF(HEADIN) WRITE(OUTLYNE,6000)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(2,SF)&
-         &,PXTRAX(5,SF),PXTRAX(6,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(2,SF),PXTRAX(5,SF),PXTRAX(6,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PXTY')THEN
          IF(HEADIN) WRITE(OUTLYNE,6003)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(2,SF)&
-         &,PXTRAY(5,SF),PXTRAY(6,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(2,SF),PXTRAY(5,SF),PXTRAY(6,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PITX')THEN
          IF(HEADIN) WRITE(OUTLYNE,6006)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(3,SF)&
-         &,PXTRAX(5,SF),PXTRAX(7,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(3,SF),PXTRAX(5,SF),PXTRAX(7,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PITY')THEN
          IF(HEADIN) WRITE(OUTLYNE,6009)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(3,SF)&
-         &,PXTRAY(5,SF),PXTRAY(7,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(3,SF),PXTRAY(5,SF),PXTRAY(7,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTX')THEN
          IF(HEADIN) WRITE(OUTLYNE,6012)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(4,SF)&
-         &,PXTRAX(5,SF),PXTRAX(8,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAX(1,SF),PXTRAX(4,SF),PXTRAX(5,SF),PXTRAX(8,SF)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTY')THEN
          IF(HEADIN) WRITE(OUTLYNE,6015)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(4,SF)&
-         &,PXTRAY(5,SF),PXTRAY(8,SF)
+         WRITE(OUTLYNE,1500) SF,PXTRAY(1,SF),PXTRAY(4,SF),PXTRAY(5,SF),PXTRAY(8,SF)
          CALL SHOWIT(0)
       END IF
       RETURN
@@ -3106,36 +2789,31 @@ SUBROUTINE PAROUT
       IF(WC.EQ.'PXTX') THEN
          IF(HEADIN) WRITE(OUTLYNE,6000)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500)I,PXTRAX(1,I),PXTRAX(2,I)&
-         &,PXTRAX(5,I),PXTRAX(6,I)
+         WRITE(OUTLYNE,1500)I,PXTRAX(1,I),PXTRAX(2,I),PXTRAX(5,I),PXTRAX(6,I)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PXTY') THEN
          IF(HEADIN) WRITE(OUTLYNE,6003)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500)I,PXTRAY(1,I),PXTRAY(2,I)&
-         &,PXTRAY(5,I),PXTRAY(6,I)
+         WRITE(OUTLYNE,1500)I,PXTRAY(1,I),PXTRAY(2,I),PXTRAY(5,I),PXTRAY(6,I)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PITX') THEN
          IF(HEADIN) WRITE(OUTLYNE,6006)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500)I,PXTRAX(1,I),PXTRAX(3,I)&
-         &,PXTRAX(5,I),PXTRAX(7,I)
+         WRITE(OUTLYNE,1500)I,PXTRAX(1,I),PXTRAX(3,I),PXTRAX(5,I),PXTRAX(7,I)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PITY') THEN
          IF(HEADIN) WRITE(OUTLYNE,6009)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500)I,PXTRAY(1,I),PXTRAY(3,I)&
-         &,PXTRAY(5,I),PXTRAY(7,I)
+         WRITE(OUTLYNE,1500)I,PXTRAY(1,I),PXTRAY(3,I),PXTRAY(5,I),PXTRAY(7,I)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTX') THEN
          IF(HEADIN) WRITE(OUTLYNE,6012)
          IF(HEADIN) CALL SHOWIT(0)
-         WRITE(OUTLYNE,1500)I,PXTRAX(1,I),PXTRAX(4,I)&
-         &,PXTRAX(5,I),PXTRAX(8,I)
+         WRITE(OUTLYNE,1500)I,PXTRAX(1,I),PXTRAX(4,I),PXTRAX(5,I),PXTRAX(8,I)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTY') THEN
@@ -3143,8 +2821,7 @@ SUBROUTINE PAROUT
          IF(HEADIN) CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'PRTY') THEN
-         WRITE(OUTLYNE,1500)I,PXTRAY(1,I),PXTRAY(4,I)&
-         &,PXTRAY(5,I),PXTRAY(8,I)
+         WRITE(OUTLYNE,1500)I,PXTRAY(1,I),PXTRAY(4,I),PXTRAY(5,I),PXTRAY(8,I)
          CALL SHOWIT(0)
       END IF
    END IF
@@ -3154,52 +2831,45 @@ SUBROUTINE PAROUT
 !       PXTX
 !
 6000 FORMAT('SURF',6X,'PX',12X,'PUX',13X,'PCX',11X,'PUCX')
-6001 FORMAT('PARAXIAL RAYTRACE DATA (XZ-PLANE)',&
-   &' - (CFG #',I2,')')
-6002 FORMAT(&
-   &'(PUX AND PUCX) MEASURED WITH RESPECT TO THE Z-AXIS')
+6001 FORMAT('PARAXIAL RAYTRACE DATA (XZ-PLANE)',' - (CFG #',I2,')')
+6002 FORMAT('(PUX AND PUCX) MEASURED WITH RESPECT TO THE Z-AXIS')
 !
 !       PXTY
 !
 6003 FORMAT('SURF',6X,'PY',12X,'PUY',13X,'PCY',11X,'PUCY')
-6004 FORMAT('PARAXIAL RAYTRACE DATA (YZ-PLANE)',&
-   &' - (CFG #',I2,')')
-6005 FORMAT(&
-   &'(PUY AND PUCY) MEASURED WITH RESPECT TO THE Z-AXIS')
+6004 FORMAT('PARAXIAL RAYTRACE DATA (YZ-PLANE)',' - (CFG #',I2,')')
+6005 FORMAT('(PUY AND PUCY) MEASURED WITH RESPECT TO THE Z-AXIS')
 2501 FORMAT(1X)
 !
 !       PITX
 !
 6006 FORMAT('SURF',6X,'PX',12X,'PIX',13X,'PCX',11X,'PICX')
-6007 FORMAT('PARAXIAL RAYTRACE DATA (XZ-PLANE)',&
-   &' - (CFG # ',I2,')')
+6007 FORMAT('PARAXIAL RAYTRACE DATA (XZ-PLANE)',' - (CFG # ',I2,')')
 6008 FORMAT('(PIX AND PICX) - ANGLES OF INCIDENCE')
 !
 !       PITY
 !
 6009 FORMAT('SURF',6X,'PY',12X,'PIY',13X,'PCY',11X,'PICY')
-6010 FORMAT('PARAXIAL RAYTRACE DATA (YZ-PLANE)',&
-   &' - (CFG # ',I2,')')
+6010 FORMAT('PARAXIAL RAYTRACE DATA (YZ-PLANE)',' - (CFG # ',I2,')')
 6011 FORMAT('(PIY AND PICY) - ANGLES OF INCIDENCE')
 !
 !       PRTX
 !
 6012 FORMAT('SURF',6X,'PX',12X,'PRX',13X,'PCX',11X,'PRCX')
-6013 FORMAT('PARAXIAL RAYTRACE DATA (XZ-PLANE)',&
-   &' - (CFG #',I2,')')
+6013 FORMAT('PARAXIAL RAYTRACE DATA (XZ-PLANE)',' - (CFG #',I2,')')
 6014 FORMAT('(PRX AND PRCX) - ANGLES OF REFRACTION/REFLECTION')
 !
 !       PRTY
 !
 6015 FORMAT('SURF',6X,'PY',12X,'PRY',13X,'PCY',11X,'PRCY')
-6016 FORMAT('PARAXIAL RAYTRACE DATA (YZ-PLANE)',&
-   &' - (CFG #',I2,')')
+6016 FORMAT('PARAXIAL RAYTRACE DATA (YZ-PLANE)',' - (CFG #',I2,')')
 6017 FORMAT('(PRY AND PRCY) - ANGLES OF REFRACTION/REFLECTION')
 END
 ! SUB TR.FOR
 SUBROUTINE TR
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
    IMPLICIT NONE
@@ -3252,8 +2922,7 @@ SUBROUTINE TR
 !
 !       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
 !
-      IF(SYSTEM(26).GT.0.0D0 &
-      &.AND.SYSTEM(63).EQ.0.0D0) THEN
+      IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
 !
 !       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
 !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
@@ -3346,16 +3015,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAY(2,1)=-CURV*PXTRAY(1,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAY(2,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+            PXTRAY(2,1)=-CURV*PXTRAY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(2,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
@@ -3373,8 +3035,7 @@ SUBROUTINE TR
             PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
 !
 !       PIY'(1)=(N/N')*PIY(1)
-            PXTRAY(4,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAY(3,1)
+            PXTRAY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             PXTRAY(5,1)=CON
@@ -3391,16 +3052,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAY(6,1)=-CURV*PXTRAY(5,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAY(6,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+            PXTRAY(6,1)=-CURV*PXTRAY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(6,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3416,8 +3070,7 @@ SUBROUTINE TR
             END IF
             PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
 !       PICY'(1)
-            PXTRAY(8,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAY(7,1)
+            PXTRAY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -3443,16 +3096,9 @@ SUBROUTINE TR
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+               PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
@@ -3470,8 +3116,7 @@ SUBROUTINE TR
                PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-               PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAY(3,L)
+               PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
                PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
@@ -3488,16 +3133,9 @@ SUBROUTINE TR
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+               PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3513,8 +3151,7 @@ SUBROUTINE TR
                END IF
                PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-               PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAY(7,L)
+               PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
 !
@@ -3527,8 +3164,7 @@ SUBROUTINE TR
             CALL SHOWIT(1)
             OUTLYNE='APERTURE STOP SURFACE.'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
+            OUTLYNE='PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
             CALL SHOWIT(1)
             CALL MACFAL
             RETURN
@@ -3594,15 +3230,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3619,8 +3249,7 @@ SUBROUTINE TR
          PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
 !
 !       PIY'(1)=(N/N')*PIY(1)
-         PXTRAY(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(3,1)
+         PXTRAY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          PXTRAY(5,1)=SYSTEM(15)
@@ -3637,15 +3266,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3661,8 +3284,7 @@ SUBROUTINE TR
          END IF
          PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
 !       PICY'(1)
-         PXTRAY(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(7,1)
+         PXTRAY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -3688,16 +3310,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3714,8 +3329,7 @@ SUBROUTINE TR
             PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(3,L)
+            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
@@ -3732,16 +3346,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3757,8 +3364,7 @@ SUBROUTINE TR
             END IF
             PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(7,L)
+            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 !
 70       CONTINUE
@@ -3801,16 +3407,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3827,8 +3426,7 @@ SUBROUTINE TR
             PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(3,L)
+            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NO CALCULATE PCY VALUE
@@ -3849,16 +3447,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3874,8 +3465,7 @@ SUBROUTINE TR
             END IF
             PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(7,L)
+            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 90       CONTINUE
 !       TRACE COMPLETED
@@ -3913,10 +3503,8 @@ SUBROUTINE TR
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
-         &PXTRAY(6,0)=0.0D0
+         IF(SYSTEM(63).EQ.0.0D0)PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
+         IF(SYSTEM(63).EQ.1.0D0)PXTRAY(6,0)=0.0D0
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
          PXTRAY(7,0)=PXTRAY(6,0)
@@ -3946,16 +3534,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         PXTRAY(2,1)=-CURV*PXTRAY(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3972,8 +3553,7 @@ SUBROUTINE TR
          PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
 !
 !       PIY'(1)=(N/N')*PIY(1)
-         PXTRAY(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(3,1)
+         PXTRAY(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          IF(SYSTEM(63).EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
@@ -3991,16 +3571,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAY(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+         PXTRAY(6,1)=-CURV*PXTRAY(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAY(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4016,8 +3589,7 @@ SUBROUTINE TR
          END IF
          PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
 !       PICY'(1)
-         PXTRAY(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAY(7,1)
+         PXTRAY(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAY(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 !
@@ -4055,16 +3627,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=-CURV*PXTRAY(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4081,8 +3646,7 @@ SUBROUTINE TR
             PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
 !
 !       PIY'(L)=(N/N')*PIY(L)
-            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(3,L)
+            PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
 !******************************************************************************
@@ -4104,16 +3668,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=-CURV*PXTRAY(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4129,8 +3686,7 @@ SUBROUTINE TR
             END IF
             PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
 !       PICY'(L)
-            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAY(7,L)
+            PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAY(7,L)
 !
 80       CONTINUE
 !       PARAXIAL TRACE COMPLETED
@@ -4257,16 +3813,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAX(2,1)=-CURV*PXTRAX(1,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAX(2,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            PXTRAX(2,1)=-CURV*PXTRAX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(2,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
@@ -4284,8 +3833,7 @@ SUBROUTINE TR
             PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
 !
 !       PIX'(1)=(N/N')*PIX(1)
-            PXTRAX(4,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAX(3,1)
+            PXTRAX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             PXTRAX(5,1)=CON
@@ -4302,16 +3850,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(1)
                END IF
             END IF
-            PXTRAX(6,1)=-CURV*PXTRAX(5,1)*&
-            &(((ALENS(WWVN,1))-&
-            &(ALENS(WWVN,0)))/&
-            &(ALENS(WWVN,1)))+&
-            &((ALENS(WWVN,0))/&
-            &(ALENS(WWVN,1)))*PXTRAX(6,0)
-            IF(GLANAM(1,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
-            IF(GLANAM(1,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+            PXTRAX(6,1)=-CURV*PXTRAX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(6,0)
+            IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+            IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
 !
 !       PICY(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4327,8 +3868,7 @@ SUBROUTINE TR
             END IF
             PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
 !       PICX'(1)
-            PXTRAX(8,1)=((ALENS((WWVN),0))/&
-            &(ALENS((WWVN),1)))*PXTRAX(7,1)
+            PXTRAX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -4354,16 +3894,9 @@ SUBROUTINE TR
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+               PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
@@ -4381,8 +3914,7 @@ SUBROUTINE TR
                PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-               PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAX(3,L)
+               PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
                PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -4399,16 +3931,9 @@ SUBROUTINE TR
                      CURV=surf_curvature(L)
                   END IF
                END IF
-               PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-               &(((ALENS(WWVN,L))-&
-               &(ALENS(WWVN,(L-1))))/&
-               &(ALENS(WWVN,L)))+&
-               &((ALENS(WWVN,(L-1)))/&
-               &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-               IF(GLANAM(L,2).EQ.'PERFECT      ')&
-               &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
-               IF(GLANAM(L,2).EQ.'IDEAL        ')&
-               &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+               PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+               IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+               IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4424,8 +3949,7 @@ SUBROUTINE TR
                END IF
                PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-               PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-               &(ALENS((WWVN),L)))*PXTRAX(7,L)
+               PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
 !
@@ -4438,8 +3962,7 @@ SUBROUTINE TR
             CALL SHOWIT(1)
             OUTLYNE='APERTURE STOP SURFACE.'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
+            OUTLYNE='PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
             CALL SHOWIT(1)
             CALL MACFAL
             RETURN
@@ -4505,15 +4028,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4530,8 +4047,7 @@ SUBROUTINE TR
          PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
 !
 !       PIX'(1)=(N/N')*PIX(1)
-         PXTRAX(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(3,1)
+         PXTRAX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          PXTRAX(5,1)=SYSTEM(17)
@@ -4548,15 +4064,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4572,8 +4082,7 @@ SUBROUTINE TR
          END IF
          PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
 !       PICX'(1)
-         PXTRAX(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(7,1)
+         PXTRAX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
@@ -4599,16 +4108,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4625,8 +4127,7 @@ SUBROUTINE TR
             PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(3,L)
+            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -4643,16 +4144,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4668,8 +4162,7 @@ SUBROUTINE TR
             END IF
             PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(7,L)
+            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 !
 700      CONTINUE
@@ -4708,16 +4201,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4734,8 +4220,7 @@ SUBROUTINE TR
             PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(3,L)
+            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NO CALCULATE PCX VALUE
@@ -4756,16 +4241,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4781,8 +4259,7 @@ SUBROUTINE TR
             END IF
             PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(7,L)
+            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 900      CONTINUE
 !       TRACE COMPLETED
@@ -4818,10 +4295,8 @@ SUBROUTINE TR
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
-         &PXTRAX(6,0)=0.0D0
+         IF(SYSTEM(63).EQ.0.0D0)PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
+         IF(SYSTEM(63).EQ.1.0D0)PXTRAX(6,0)=0.0D0
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
          PXTRAX(7,0)=PXTRAX(6,0)
@@ -4851,16 +4326,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(2,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         PXTRAX(2,1)=-CURV*PXTRAX(1,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(2,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4877,8 +4345,7 @@ SUBROUTINE TR
          PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
 !
 !       PIX'(1)=(N/N')*PIX(1)
-         PXTRAX(4,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(3,1)
+         PXTRAX(4,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
          IF(SYSTEM(63).EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
@@ -4896,16 +4363,9 @@ SUBROUTINE TR
                CURV=surf_curvature(1)
             END IF
          END IF
-         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*&
-         &(((ALENS(WWVN,1))-&
-         &(ALENS(WWVN,0)))/&
-         &(ALENS(WWVN,1)))+&
-         &((ALENS(WWVN,0))/&
-         &(ALENS(WWVN,1)))*PXTRAX(6,0)
-         IF(GLANAM(1,2).EQ.'PERFECT      ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
-         IF(GLANAM(1,2).EQ.'IDEAL        ')&
-         &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+         PXTRAX(6,1)=-CURV*PXTRAX(5,1)*(((ALENS(WWVN,1))-(ALENS(WWVN,0)))/(ALENS(WWVN,1)))+((ALENS(WWVN,0))/(ALENS(WWVN,1)))*PXTRAX(6,0)
+         IF(GLANAM(1,2).EQ.'PERFECT      ')PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+         IF(GLANAM(1,2).EQ.'IDEAL        ')PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
 !
 !       PICX(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4921,8 +4381,7 @@ SUBROUTINE TR
          END IF
          PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
 !       PICX'(1)
-         PXTRAX(8,1)=((ALENS((WWVN),0))/&
-         &(ALENS((WWVN),1)))*PXTRAX(7,1)
+         PXTRAX(8,1)=((ALENS((WWVN),0))/(ALENS((WWVN),1)))*PXTRAX(7,1)
 !
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 !
@@ -4955,16 +4414,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=-CURV*PXTRAX(1,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4981,8 +4433,7 @@ SUBROUTINE TR
             PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
 !
 !       PIX'(L)=(N/N')*PIX(L)
-            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(3,L)
+            PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
 !******************************************************************************
@@ -5004,16 +4455,9 @@ SUBROUTINE TR
                   CURV=surf_curvature(L)
                END IF
             END IF
-            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*&
-            &(((ALENS(WWVN,L))-&
-            &(ALENS(WWVN,(L-1))))/&
-            &(ALENS(WWVN,L)))+&
-            &((ALENS(WWVN,(L-1)))/&
-            &(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
-            IF(GLANAM(L,2).EQ.'PERFECT      ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
-            IF(GLANAM(L,2).EQ.'IDEAL        ')&
-            &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=-CURV*PXTRAX(5,L)*(((ALENS(WWVN,L))-(ALENS(WWVN,(L-1))))/(ALENS(WWVN,L)))+((ALENS(WWVN,(L-1)))/(ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            IF(GLANAM(L,2).EQ.'PERFECT      ')PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            IF(GLANAM(L,2).EQ.'IDEAL        ')PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -5029,8 +4473,7 @@ SUBROUTINE TR
             END IF
             PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
 !       PICX'(L)
-            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/&
-            &(ALENS((WWVN),L)))*PXTRAX(7,L)
+            PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/(ALENS((WWVN),L)))*PXTRAX(7,L)
 !
 800      CONTINUE
 !       PARAXIAL TRACE COMPLETED

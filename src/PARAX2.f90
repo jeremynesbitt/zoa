@@ -33,6 +33,7 @@ SUBROUTINE AB357
 !       AND IN MATTHEW RIMMER'S THESIS U OF R 1963
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -41,31 +42,19 @@ SUBROUTINE AB357
 !
    COMMON/PAS357/CW,IAB
 !
-   REAL*8 INV,SI,SIBAR,C1,C1BAR,K,N &
-   &,J_NP,TRAN1,TRAN2,TRAN4,TRAN5,TRAN6
+   REAL*8 INV,SI,SIBAR,C1,C1BAR,K,N ,J_NP,TRAN1,TRAN2,TRAN4,TRAN5,TRAN6
 !
-   REAL*8 C2,C3,C21,C22,CF16,&
-   &C31,C32,C33,C34,B,AB,F,AF,C,AC,E,AE,PIE,APIE,PIECV,&
-   &C2BAR,BBAR,FBAR,CBAR,EBAR,WI,ABBAR,AFBAR,CV,CC,&
-   &ACBAR,AEBAR,X73,X74,X75,X76,X77,X78,X42,X82,XBAR42,XBAR82,&
-   &S1P2,S2P,S3P2,S4P2,S5P,S6P2,S1Q2,L,LBAR,M,A2S1P,AS2P,A2S3P,&
-   &A2S4P,AS5P,A2S6P,AS1Q,JO,JOBAR,ALPHA,BETA,GAMMA,LAMBDA,MU,NU,&
-   &A2S1PU,AS2PU,A2S3PU,A2S4PU,AS5PU,A2S6PU,A2S1QU,SLH,ASLH
+   REAL*8 C2,C3,C21,C22,CF16,C31,C32,C33,C34,B,AB,F,AF,C,AC,E,AE,PIE,APIE,PIECV,C2BAR,BBAR,FBAR,CBAR,EBAR,WI,ABBAR,AFBAR,CV,CC,ACBAR,AEBAR,X73,X74,X75,X76,X77,X78,X42,X82,XBAR42,XBAR82,S1P2,S2P,S3P2,S4P2,S5P,S6P2,S1Q2,L,LBAR,M,A2S1P,AS2P,A2S3P,A2S4P,AS5P,A2S6P,AS1Q,JO,JOBAR,ALPHA,BETA,GAMMA,LAMBDA,MU,NU,A2S1PU,AS2PU,A2S3PU,A2S4PU,AS5PU,A2S6PU,A2S1QU,SLH,ASLH
 !
-   REAL*8 B71,B72,GAMMA1,GAMMA2,GAMMA3,G32,G33,G34,&
-   &G36,G37,L3,D3,D32,D33,D34,D35,D36,D37,D38,D39,D40,D41,D31,&
-   &BPRIME,FPRIME,CPRIME,EPRIME,PPRIME,BBPRIM,FBPRIM,CBPRIM,&
-   &EBPRIM,PBPRIM,TRAN,B5PRIM,EB5PRM,G31
+   REAL*8 B71,B72,GAMMA1,GAMMA2,GAMMA3,G32,G33,G34,G36,G37,L3,D3,D32,D33,D34,D35,D36,D37,D38,D39,D40,D41,D31,BPRIME,FPRIME,CPRIME,EPRIME,PPRIME,BBPRIM,FBPRIM,CBPRIM,EBPRIM,PBPRIM,TRAN,B5PRIM,EB5PRM,G31
 !
 !
    IF(IAB.EQ.1) THEN
 !
 !       THE CONTROL WAVELENGTH NUMBER IS STORED IN
 !       SYSTEM(11)
-      IF(CW.GE.1.AND.CW.LE.5)&
-      &CW= CW+45
-      IF(CW.GE.6.AND.CW.LE.10)&
-      &CW= CW+65
+      IF(CW.GE.1.AND.CW.LE.5)CW= CW+45
+      IF(CW.GE.6.AND.CW.LE.10)CW= CW+65
 !
 !       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
 !       surf_refractive_index(SURF, 5)
@@ -79,8 +68,7 @@ SUBROUTINE AB357
 !
       !PRINT *, "IN AB357"
       SF=INT(SYSTEM(20))
-      INV=-((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-&
-      &(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
+      INV=-((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
       !PRINT *, "INV is ", INV
       IF(DABS(INV).LE.1.00E-15) THEN
          ! Exit here.  Typically this is an intermediate failure.
@@ -123,8 +111,7 @@ SUBROUTINE AB357
          IF(surf_toric_flag(I) /= 2) THEN
 !       SURFACE IS NOT X-TORIC
             C1=(8.0D0*surf_asphere_coeff(I, 4))+(CC*(CV**3))
-            C21=((CV**3)*CC*(CC &
-            &+2.0D0))-(2.0D0*C1)
+            C21=((CV**3)*CC*(CC +2.0D0))-(2.0D0*C1)
             C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 6))
             C2=3.0D0*C22
             CF16=16.0D0*surf_asphere_coeff(I, 8)
@@ -135,12 +122,9 @@ SUBROUTINE AB357
             C3=CF16+(0.125D0*C34)
          ELSE
 !       SURFACE IS X-TORIC
-            C1=(8.0D0*((surf_anamorphic_coeff(I, 4)**2)*surf_asphere_coeff(I, 4))+&
-            &(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
-            C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)&
-            &+2.0D0))-(2.0D0*C1)
-            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 6)*&
-            &(surf_anamorphic_coeff(I, 6)**3)))
+            C1=(8.0D0*((surf_anamorphic_coeff(I, 4)**2)*surf_asphere_coeff(I, 4))+(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
+            C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)+2.0D0))-(2.0D0*C1)
+            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 6)*(surf_anamorphic_coeff(I, 6)**3)))
             C2=3.0D0*C22
             CF16=16.0D0*surf_asphere_coeff(I, 8)*(surf_anamorphic_coeff(I, 8)**4)
             C31=(surf_anamorphic_conic(I)**2)+(3.0D0*surf_anamorphic_conic(I))+3.0D0
@@ -192,9 +176,7 @@ SUBROUTINE AB357
 !
 !       THIRD ORDER DISTORTION (DIST3)
 !
-         E=(SIBAR*PXTRAY(3,I)*PXTRAY(7,I))+&
-         &(INV*(K-1.0D0)*PXTRAY(7,I))*(PXTRAY(6,I)&
-         &+PXTRAY(6,(I-1)))
+         E=(SIBAR*PXTRAY(3,I)*PXTRAY(7,I))+(INV*(K-1.0D0)*PXTRAY(7,I))*(PXTRAY(6,I)+PXTRAY(6,(I-1)))
          AE=(C1BAR*PXTRAY(1,I)*(PXTRAY(5,I)**3))
          MAB3(4,I)=E+AE
          IF(DABS(MAB3(4,I)).LT.1.0D-15) MAB3(4,I)=0.0D0
@@ -248,9 +230,7 @@ SUBROUTINE AB357
 !
 !       THIRD ORDER DISTORTION (DIST3)
 !
-         EBAR=(SI*PXTRAY(3,I)*PXTRAY(7,I))-&
-         &(INV*(K-1.0D0)*PXTRAY(3,I)*(PXTRAY(2,I)+&
-         &PXTRAY(2,(I-1))))
+         EBAR=(SI*PXTRAY(3,I)*PXTRAY(7,I))-(INV*(K-1.0D0)*PXTRAY(3,I)*(PXTRAY(2,I)+PXTRAY(2,(I-1))))
          AEBAR=(C1BAR*PXTRAY(5,I)*(PXTRAY(1,I)**3))
          MAB3(9,I)=EBAR+AEBAR
          IF(DABS(MAB3(9,I)).LT.1.0D-15) MAB3(9,I)=0.0D0
@@ -259,42 +239,27 @@ SUBROUTINE AB357
 !
          MAB3(10,I)=MAB3(5,I)
 !       WI
-         WI=0.125D0*(((PXTRAY(3,I)**2)+(PXTRAY(4,I)**2)+&
-         &(PXTRAY(2,I)**2)-(3.0D0*((PXTRAY(2,(I-1)))**2))))
+         WI=0.125D0*(((PXTRAY(3,I)**2)+(PXTRAY(4,I)**2)+(PXTRAY(2,I)**2)-(3.0D0*((PXTRAY(2,(I-1)))**2))))
 !       X73
-         X73=((3.0D0*PXTRAY(3,I)*PXTRAY(4,I))+&
-         &(2.0D0*(PXTRAY(2,I)**2))-(3.0D0*&
-         &((PXTRAY(2,(I-1)))**2)))
+         X73=((3.0D0*PXTRAY(3,I)*PXTRAY(4,I))+(2.0D0*(PXTRAY(2,I)**2))-(3.0D0*((PXTRAY(2,(I-1)))**2)))
 !       X74
-         X74=(3.0D0*PXTRAY(3,I)*PXTRAY(8,I))+&
-         &(2.0D0*PXTRAY(2,I)*PXTRAY(6,I))-&
-         &(3.0D0*PXTRAY(2,(I-1))*PXTRAY(6,(I-1)))
+         X74=(3.0D0*PXTRAY(3,I)*PXTRAY(8,I))+(2.0D0*PXTRAY(2,I)*PXTRAY(6,I))-(3.0D0*PXTRAY(2,(I-1))*PXTRAY(6,(I-1)))
 !       X75
-         X75=((3.0D0*PXTRAY(7,I)*PXTRAY(8,I))+&
-         &(2.0D0*((PXTRAY(6,I))**2))-(3.0D0*((PXTRAY(6,(I-1)))**2)))
+         X75=((3.0D0*PXTRAY(7,I)*PXTRAY(8,I))+(2.0D0*((PXTRAY(6,I))**2))-(3.0D0*((PXTRAY(6,(I-1)))**2)))
 !       X76
          X76=(PXTRAY(3,I)*((3.0D0*PXTRAY(2,(I-1)))-PXTRAY(2,I)))
 !       X77
-         X77=PXTRAY(7,I)*((2.0D0*PXTRAY(2,(I-1)))-PXTRAY(2,I))+&
-         &(PXTRAY(3,I)*PXTRAY(6,(I-1)))
+         X77=PXTRAY(7,I)*((2.0D0*PXTRAY(2,(I-1)))-PXTRAY(2,I))+(PXTRAY(3,I)*PXTRAY(6,(I-1)))
 !       X78
          X78=PXTRAY(7,I)*((3.0D0*PXTRAY(6,(I-1)))-PXTRAY(6,I))
 !       X42
-         X42=(((PXTRAY(5,I)*PXTRAY(3,I))*(PXTRAY(7,I)&
-         &-PXTRAY(6,(I-1))))+&
-         &((PXTRAY(1,I)*PXTRAY(7,I))*(PXTRAY(6,I)+PXTRAY(6,(I-1)))))
+         X42=(((PXTRAY(5,I)*PXTRAY(3,I))*(PXTRAY(7,I)-PXTRAY(6,(I-1))))+((PXTRAY(1,I)*PXTRAY(7,I))*(PXTRAY(6,I)+PXTRAY(6,(I-1)))))
 !       X82
-         X82=(((PXTRAY(5,I)*PXTRAY(2,(I-1)))*&
-         &(PXTRAY(7,I)-PXTRAY(6,(I-1))))-&
-         &((PXTRAY(1,I)*PXTRAY(8,I))*(PXTRAY(6,I)+PXTRAY(6,(I-1)))))
+         X82=(((PXTRAY(5,I)*PXTRAY(2,(I-1)))*(PXTRAY(7,I)-PXTRAY(6,(I-1))))-((PXTRAY(1,I)*PXTRAY(8,I))*(PXTRAY(6,I)+PXTRAY(6,(I-1)))))
 !       XBAR42
-         XBAR42=(((PXTRAY(1,I)*PXTRAY(7,I))*&
-         &(PXTRAY(3,I)-PXTRAY(2,(I-1))))+&
-         &((PXTRAY(5,I)*PXTRAY(3,I))*(PXTRAY(2,I)+PXTRAY(2,(I-1)))))
+         XBAR42=(((PXTRAY(1,I)*PXTRAY(7,I))*(PXTRAY(3,I)-PXTRAY(2,(I-1))))+((PXTRAY(5,I)*PXTRAY(3,I))*(PXTRAY(2,I)+PXTRAY(2,(I-1)))))
 !       XBAR82
-         XBAR82=(((PXTRAY(1,I)*PXTRAY(6,(I-1)))*&
-         &(PXTRAY(3,I)-PXTRAY(2,(I-1))))-&
-         &((PXTRAY(5,I)*PXTRAY(4,I))*(PXTRAY(2,I)+PXTRAY(2,(I-1)))))
+         XBAR82=(((PXTRAY(1,I)*PXTRAY(6,(I-1)))*(PXTRAY(3,I)-PXTRAY(2,(I-1))))-((PXTRAY(5,I)*PXTRAY(4,I))*(PXTRAY(2,I)+PXTRAY(2,(I-1)))))
 !
 !       NOW FOR THE ADDITIONAL TERMS FOR THE 5TH ORDER ABERRATIONS
 !       AND SEVENTH ORDER SPHERICAL
@@ -305,19 +270,13 @@ SUBROUTINE AB357
 !       S1P2
          S1P2=3.0D0*WI*SI*PXTRAY(3,I)
 !       S2P
-         S2P=(0.25D0*SI)*((PXTRAY(7,I)*X73)+(PXTRAY(3,I)*X74)-&
-         &(PXTRAY(6,I)*X76)-(PXTRAY(2,I)*X77))
+         S2P=(0.25D0*SI)*((PXTRAY(7,I)*X73)+(PXTRAY(3,I)*X74)-(PXTRAY(6,I)*X76)-(PXTRAY(2,I)*X77))
 !       S3P2
-         S3P2=(0.25D0*N*(K-1.0D0))*((X42*X73)+(X76*X82)+&
-         &(PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,I))*&
-         &((PXTRAY(3,I)*X75)-(PXTRAY(2,I)*X78))))
+         S3P2=(0.25D0*N*(K-1.0D0))*((X42*X73)+(X76*X82)+(PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,I))*((PXTRAY(3,I)*X75)-(PXTRAY(2,I)*X78))))
 !       S4P2
          S4P2=SI*((PXTRAY(7,I)*X74)-(PXTRAY(6,I)*X77))
 !       S5P
-         S5P=(0.25D0*N*(K-1.0D0))*&
-         &((X42*X74)+(X77*X82)+&
-         &(PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,I)))*&
-         &((PXTRAY(7,I)*X75)-(PXTRAY(6,I)*X78)))
+         S5P=(0.25D0*N*(K-1.0D0))*((X42*X74)+(X77*X82)+(PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,I)))*((PXTRAY(7,I)*X75)-(PXTRAY(6,I)*X78)))
 !       S6P2
          S6P2=(0.25D0*N*(K-1.0D0))*((X42*X75)+(X78*X82))
 !       S1Q2
@@ -326,10 +285,8 @@ SUBROUTINE AB357
 !
 !       NOW CALCULATE L,LBAR, AND M
 !
-         L=0.25D0*((3.0D0*PXTRAY(4,I))+(2.0D0*((2.0D0*K)&
-         &-1.0D0)*PXTRAY(2,I)))
-         LBAR=0.25D0*((3.0D0*PXTRAY(8,I))+(2.0D0*((2.0D0*K)&
-         &-1.0D0)*PXTRAY(6,I)))
+         L=0.25D0*((3.0D0*PXTRAY(4,I))+(2.0D0*((2.0D0*K)-1.0D0)*PXTRAY(2,I)))
+         LBAR=0.25D0*((3.0D0*PXTRAY(8,I))+(2.0D0*((2.0D0*K)-1.0D0)*PXTRAY(6,I)))
          M=(K*INV)/J_NP
 !
 !       NOW THE ASPHERIC S(HAT) TERMS
@@ -343,8 +300,7 @@ SUBROUTINE AB357
 !       A2S4P
          A2S4P=2.0D0*A2S3P
 !       AS5P
-         AS5P=(2.0D0*AE*L)+((3.0D0/2.0D0)*M*PXTRAY(1,I)*&
-         &C1BAR*(PXTRAY(5,I)**2))
+         AS5P=(2.0D0*AE*L)+((3.0D0/2.0D0)*M*PXTRAY(1,I)*C1BAR*(PXTRAY(5,I)**2))
          A2S6P=(ABBAR*L)+(C1BAR*M*(PXTRAY(5,I)**3))
 !       AS1Q
          AS1Q=(AB*LBAR)-(C1BAR*M*(PXTRAY(1,I)**3))
@@ -354,30 +310,20 @@ SUBROUTINE AB357
 !       CHECK FOR X-TORICS
          IF(surf_toric_flag(I) /= 2) THEN
 !
-            JO=(C2BAR*PXTRAY(1,I))-(0.25D0*CV*C1BAR*&
-            &((3.0D0*PXTRAY(4,I))-(5.0D0*PXTRAY(2,I))))
-            JOBAR=(C2BAR*PXTRAY(5,I))-(0.25D0*CV*C1BAR*&
-            &((3.0D0*PXTRAY(8,I))-(5.0D0*PXTRAY(6,I))))
+            JO=(C2BAR*PXTRAY(1,I))-(0.25D0*CV*C1BAR*((3.0D0*PXTRAY(4,I))-(5.0D0*PXTRAY(2,I))))
+            JOBAR=(C2BAR*PXTRAY(5,I))-(0.25D0*CV*C1BAR*((3.0D0*PXTRAY(8,I))-(5.0D0*PXTRAY(6,I))))
 !
          ELSE
 !       X-TORIC PRESENT
-            JO=(C2BAR*PXTRAY(1,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
-            &((3.0D0*PXTRAY(4,I))-(5.0D0*PXTRAY(2,I))))
-            JOBAR=(C2BAR*PXTRAY(5,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
-            &((3.0D0*PXTRAY(8,I))-(5.0D0*PXTRAY(6,I))))
+            JO=(C2BAR*PXTRAY(1,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*((3.0D0*PXTRAY(4,I))-(5.0D0*PXTRAY(2,I))))
+            JOBAR=(C2BAR*PXTRAY(5,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*((3.0D0*PXTRAY(8,I))-(5.0D0*PXTRAY(6,I))))
          END IF
 !
-         ALPHA=(0.5D0*((PXTRAY(2,I)**2)+(3.0D0*PXTRAY(3,I)&
-         &*PXTRAY(4,I))-&
-         &(2.0D0*PXTRAY(3,I)*PXTRAY(2,I))))
+         ALPHA=(0.5D0*((PXTRAY(2,I)**2)+(3.0D0*PXTRAY(3,I)*PXTRAY(4,I))-(2.0D0*PXTRAY(3,I)*PXTRAY(2,I))))
 !
-         BETA=(PXTRAY(2,I)*PXTRAY(6,I))+(3.0D0*&
-         &PXTRAY(3,I)*PXTRAY(8,I))-&
-         &(PXTRAY(3,I)*PXTRAY(6,I))-(PXTRAY(7,I)*PXTRAY(2,I))
+         BETA=(PXTRAY(2,I)*PXTRAY(6,I))+(3.0D0*PXTRAY(3,I)*PXTRAY(8,I))-(PXTRAY(3,I)*PXTRAY(6,I))-(PXTRAY(7,I)*PXTRAY(2,I))
 !
-         GAMMA=0.5D0*((PXTRAY(6,I)**2)+(3.0D0*&
-         &PXTRAY(7,I)*PXTRAY(8,I))-&
-         &(2.0D0*PXTRAY(7,I)*PXTRAY(6,I)))
+         GAMMA=0.5D0*((PXTRAY(6,I)**2)+(3.0D0*PXTRAY(7,I)*PXTRAY(8,I))-(2.0D0*PXTRAY(7,I)*PXTRAY(6,I)))
 !
          LAMBDA=(ALPHA*C1BAR)+(JO*PXTRAY(1,I))
 !
@@ -390,21 +336,17 @@ SUBROUTINE AB357
 !       A2S1PU
          A2S1PU=(PXTRAY(1,I)**3)*LAMBDA
 !       AS2PU
-         AS2PU=((PXTRAY(1,I)**2)*PXTRAY(5,I)*LAMBDA)+&
-         &(0.5D0*MU*(PXTRAY(1,I)**3))
+         AS2PU=((PXTRAY(1,I)**2)*PXTRAY(5,I)*LAMBDA)+(0.5D0*MU*(PXTRAY(1,I)**3))
 !       A2S3PU
-         A2S3PU=(PXTRAY(1,I)*(PXTRAY(5,I)**2)*LAMBDA)+&
-         &((PXTRAY(1,I)**2)*NU)
+         A2S3PU=(PXTRAY(1,I)*(PXTRAY(5,I)**2)*LAMBDA)+((PXTRAY(1,I)**2)*NU)
 !       A2S4PU
          A2S4PU=(2.0D0*MU*PXTRAY(5,I)*(PXTRAY(1,I)**2))
 !       AS5PU
-         AS5PU=(0.5D0*MU*PXTRAY(1,I)*(PXTRAY(5,I)**2))+&
-         &(PXTRAY(1,I)*PXTRAY(5,I)*NU)
+         AS5PU=(0.5D0*MU*PXTRAY(1,I)*(PXTRAY(5,I)**2))+(PXTRAY(1,I)*PXTRAY(5,I)*NU)
 !       A2S6PU
          A2S6PU=(PXTRAY(5,I)**2)*NU
 !       A2S1QU
-         A2S1QU=(PXTRAY(1,I)**2)*((ALPHA*C1BAR*PXTRAY(5,I))+&
-         &(JOBAR*(PXTRAY(1,I)**2)))
+         A2S1QU=(PXTRAY(1,I)**2)*((ALPHA*C1BAR*PXTRAY(5,I))+(JOBAR*(PXTRAY(1,I)**2)))
 !
 !
 !       5TH ORDER INTRINSIC SURFACE CONTRIBUTIONS
@@ -422,8 +364,7 @@ SUBROUTINE AB357
 !       F1SLASH+AF1SLASH
 !
          SLH=(PXTRAY(7,I)*S1P2)+(PXTRAY(3,I)*S2P)
-         ASLH=(PXTRAY(7,I)*A2S1P)+(PXTRAY(5,I)*A2S1PU)+&
-         &(PXTRAY(3,I)*AS2P)+(PXTRAY(1,I)*AS2PU)
+         ASLH=(PXTRAY(7,I)*A2S1P)+(PXTRAY(5,I)*A2S1PU)+(PXTRAY(3,I)*AS2P)+(PXTRAY(1,I)*AS2PU)
          MAB57(2,I)=SLH+ASLH
 !       WE NEED TO KEEP A PERMANENT COPY FOR SA7 CALC
 !       KEEP IT IN MAB57(16,I)
@@ -465,8 +406,7 @@ SUBROUTINE AB357
 !       N2SLASH+AN2SLASH
 !
          SLH=(PXTRAY(7,I)*S4P2)+(2.0D0*PXTRAY(3,I)*S5P)
-         ASLH=(PXTRAY(7,I)*A2S4P)+(PXTRAY(5,I)*A2S4PU)+&
-         &2.0D0*((PXTRAY(3,I)*AS5P)+(PXTRAY(1,I)*AS5PU))
+         ASLH=(PXTRAY(7,I)*A2S4P)+(PXTRAY(5,I)*A2S4PU)+2.0D0*((PXTRAY(3,I)*AS5P)+(PXTRAY(1,I)*AS5PU))
          MAB57(8,I)=SLH+ASLH
 !
 !       N3SLASH+AN3SLASH
@@ -484,8 +424,7 @@ SUBROUTINE AB357
 !       PI5SLASH+API5SLASH
 !
          SLH=(PXTRAY(3,I)*S6P2)-(0.5D0*PXTRAY(7,I)*S5P)
-         ASLH=(PXTRAY(3,I)*A2S6P)+(PXTRAY(1,I)*A2S6PU)&
-         &-0.5D0*((PXTRAY(7,I)*AS5P)+(PXTRAY(5,I)*AS5PU))
+         ASLH=(PXTRAY(3,I)*A2S6P)+(PXTRAY(1,I)*A2S6PU)-0.5D0*((PXTRAY(7,I)*AS5P)+(PXTRAY(5,I)*AS5PU))
          MAB57(11,I)=SLH+ASLH
 !
 !       E5SLASH+AE5SLSH
@@ -504,8 +443,7 @@ SUBROUTINE AB357
 !
 !       B7SLASH+AB7SLASH
 !
-         B71=((0.125D0*SI*PXTRAY(3,I))*((2.0D0*PXTRAY(2,I))&
-         &-(5.0D0*PXTRAY(2,(I-1)))))/N
+         B71=((0.125D0*SI*PXTRAY(3,I))*((2.0D0*PXTRAY(2,I))-(5.0D0*PXTRAY(2,(I-1)))))/N
          IF(surf_toric_flag(I) /= 2) THEN
 !       NO X-TORIC
             B72=(10.0D0*(WI**2))+(B71*CV)
@@ -520,26 +458,19 @@ SUBROUTINE AB357
          GAMMA1=C1*(PXTRAY(1,I)**2)
 !       CHECK IF X-TORIC
          IF(surf_toric_flag(I) /= 2) THEN
-            GAMMA2=(PXTRAY(1,I)**3)*((C2*PXTRAY(1,I))+&
-            &(0.25D0*CV*C1*(PXTRAY(3,I)+&
-            &(3.0D0*PXTRAY(2,(I-1))))))
+            GAMMA2=(PXTRAY(1,I)**3)*((C2*PXTRAY(1,I))+(0.25D0*CV*C1*(PXTRAY(3,I)+(3.0D0*PXTRAY(2,(I-1))))))
          ELSE
-            GAMMA2=(PXTRAY(1,I)**3)*((C2*PXTRAY(1,I))+&
-            &(0.25D0*surf_toric_curvature(I)*C1*(PXTRAY(3,I)+&
-            &(3.0D0*PXTRAY(2,(I-1))))))
+            GAMMA2=(PXTRAY(1,I)**3)*((C2*PXTRAY(1,I))+(0.25D0*surf_toric_curvature(I)*C1*(PXTRAY(3,I)+(3.0D0*PXTRAY(2,(I-1))))))
          END IF
          G32=C3*(PXTRAY(1,I)**2)
-         G33=((C2*PXTRAY(1,I)*(PXTRAY(3,I)+&
-         &(5.0D0*PXTRAY(2,(I-1)))))/3.0D0)
+         G33=((C2*PXTRAY(1,I)*(PXTRAY(3,I)+(5.0D0*PXTRAY(2,(I-1)))))/3.0D0)
 !       CHECK FOR X-TORIC
          IF(surf_toric_flag(I) /= 2)THEN
             G34=CV
          ELSE
             G34=surf_toric_curvature(I)
          END IF
-         G36=(0.125D0*C1)*&
-         &((PXTRAY(3,I)*(PXTRAY(3,I)+(5.0D0*PXTRAY(2,(I-1)))))-&
-         &(PXTRAY(2,(I-1))*(PXTRAY(3,I)-(5.0D0*PXTRAY(2,(I-1))))))
+         G36=(0.125D0*C1)*((PXTRAY(3,I)*(PXTRAY(3,I)+(5.0D0*PXTRAY(2,(I-1)))))-(PXTRAY(2,(I-1))*(PXTRAY(3,I)-(5.0D0*PXTRAY(2,(I-1))))))
          G37=.25D0*(C1**2)*PXTRAY(1,I)*PXTRAY(3,I)
          G31=G32+(G33*G34)+((G34**2)*G36)+G37
          GAMMA3=(PXTRAY(1,I)**4)*G31
@@ -548,34 +479,26 @@ SUBROUTINE AB357
 !       NOW CALCULATE L3 AND D3
 !
 !       L3
-         L3=(PXTRAY(1,I)*GAMMA3*(N-J_NP))+0.5D0*&
-         &((GAMMA1*(S1P2+A2S1P))+(GAMMA2*SI*PXTRAY(3,I)))
+         L3=(PXTRAY(1,I)*GAMMA3*(N-J_NP))+0.5D0*((GAMMA1*(S1P2+A2S1P))+(GAMMA2*SI*PXTRAY(3,I)))
 !
 !       D3
          D32=((C2*(PXTRAY(1,I)**2))/6.0D0)
-         D33=((4.0D0*PXTRAY(4,I))+(3.0D0*PXTRAY(2,I)&
-         &*((2.0D0*K)-1.0D0)))
+         D33=((4.0D0*PXTRAY(4,I))+(3.0D0*PXTRAY(2,I)*((2.0D0*K)-1.0D0)))
          D34=0.125D0*C1
          D35=GAMMA1*PXTRAY(1,I)*(1.0D0+(2.0D0*K*(K-1.0D0)))
 !       CHECK FOR X-TORIC
          IF(surf_toric_flag(I) /= 2) THEN
             D36=CV*PXTRAY(1,I)
-            D37=4.0D0*CV*PXTRAY(1,I)*(PXTRAY(3,I)+&
-            &PXTRAY(2,(I-1)))
+            D37=4.0D0*CV*PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,(I-1)))
          ELSE
 !       X-TORIC
             D36=surf_toric_curvature(I)*PXTRAY(1,I)
-            D37=4.0D0*surf_toric_curvature(I)*PXTRAY(1,I)*(PXTRAY(3,I)+&
-            &PXTRAY(2,(I-1)))
+            D37=4.0D0*surf_toric_curvature(I)*PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,(I-1)))
          END IF
-         D38=PXTRAY(4,I)*(5.0D0*((2.0D0*PXTRAY(2,I))+PXTRAY(3,I))&
-         &+PXTRAY(4,I))
+         D38=PXTRAY(4,I)*(5.0D0*((2.0D0*PXTRAY(2,I))+PXTRAY(3,I))+PXTRAY(4,I))
          D39=K*PXTRAY(2,I)
-         D40=PXTRAY(4,I)*(4.0D0*((2.0D0*PXTRAY(2,I))+PXTRAY(3,I)+&
-         &PXTRAY(4,I))+PXTRAY(3,I))
-         D41=D39*((3.0D0*(PXTRAY(3,I)**2))-(10.0D0 &
-         &*(PXTRAY(2,(I-1))**2))+&
-         &D40)
+         D40=PXTRAY(4,I)*(4.0D0*((2.0D0*PXTRAY(2,I))+PXTRAY(3,I)+PXTRAY(4,I))+PXTRAY(3,I))
+         D41=D39*((3.0D0*(PXTRAY(3,I)**2))-(10.0D0 *(PXTRAY(2,(I-1))**2))+D40)
          D31=(D32*D33)+D34*(D35+D36*(D37+D38)+D41)
          D3=(N-J_NP)*(PXTRAY(1,I)**4)*D31
 !
@@ -649,9 +572,7 @@ SUBROUTINE AB357
 !       [B'(PI+4C)+(5F'-4EBAR')*F-(2PI'+5CBAR')*B)
 !       F1SLASH IS IN MAB57(2,I)
 !       WHEN DONE F1 WILL REPLACE F1SLASH
-         TRAN=(BPRIME*(MAB3(5,I)+(4.0D0*MAB3(3,I))))+&
-         &(((5.0D0*FPRIME)-(4.0D0*EBPRIM))*MAB3(2,I))-&
-         &(((2.0D0*PPRIME)+(5.0D0*CBPRIM))*MAB3(1,I))
+         TRAN=(BPRIME*(MAB3(5,I)+(4.0D0*MAB3(3,I))))+(((5.0D0*FPRIME)-(4.0D0*EBPRIM))*MAB3(2,I))-(((2.0D0*PPRIME)+(5.0D0*CBPRIM))*MAB3(1,I))
          MAB57(2,I)=MAB57(2,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(2,I)).LT.1.0D-15) MAB57(2,I)=0.0D0
 !
@@ -659,9 +580,7 @@ SUBROUTINE AB357
 !       [B'(PI+2C)+2(2F'-EBAR')*F-(PI'+4CBAR')*B)
 !       F2SLASH IS IN MAB57(3,I)
 !       WHEN DONE F2 WILL REPLACE F2SLASH
-         TRAN=(BPRIME*(MAB3(5,I)+(2.0D0*MAB3(3,I))))+&
-         &(2.0D0*(((2.0D0*FPRIME)-(1.0D0*EBPRIM))*MAB3(2,I)))-&
-         &(((1.0D0*PPRIME)+(4.0D0*CBPRIM))*MAB3(1,I))
+         TRAN=(BPRIME*(MAB3(5,I)+(2.0D0*MAB3(3,I))))+(2.0D0*(((2.0D0*FPRIME)-(1.0D0*EBPRIM))*MAB3(2,I)))-(((1.0D0*PPRIME)+(4.0D0*CBPRIM))*MAB3(1,I))
          MAB57(3,I)=MAB57(3,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(3,I)).LT.1.0D-15) MAB57(3,I)=0.0D0
 !
@@ -669,10 +588,7 @@ SUBROUTINE AB357
 !       [B'E+(4F'-EBAR')C+(C'-4CBAR'-2PI')F-FBAR'B]
 !       M1SLASH IS IN MAB57(4,I)
 !       WHEN DONE M1 WILL REPLACE M1SLASH
-         TRAN=(BPRIME*MAB3(4,I))+&
-         &(MAB3(3,I)*((4.0D0*FPRIME)-EBPRIM))+&
-         &((CPRIME-(4.0D0*CBPRIM)-(2.0D0*PPRIME))*MAB3(2,I))-&
-         &(FBPRIM*MAB3(1,I))
+         TRAN=(BPRIME*MAB3(4,I))+(MAB3(3,I)*((4.0D0*FPRIME)-EBPRIM))+((CPRIME-(4.0D0*CBPRIM)-(2.0D0*PPRIME))*MAB3(2,I))-(FBPRIM*MAB3(1,I))
          MAB57(4,I)=MAB57(4,I)+((1.0D0/INV)*TRAN)
          IF(DABS(MAB57(4,I)).LT.1.0D-15) MAB57(4,I)=0.0D0
 !
@@ -680,10 +596,7 @@ SUBROUTINE AB357
 !       [B'E+(2F'-EBAR')(PI+C)+(3C'-2CBAR'+PI')F-3FBAR'B]
 !       M2SLASH IS IN MAB57(5,I)
 !       WHEN DONE M2 WILL REPLACE M2SLASH
-         TRAN=(BPRIME*MAB3(4,I))+&
-         &((MAB3(3,I)+MAB3(5,I))*((2.0D0*FPRIME)-EBPRIM))+&
-         &(((3.0D0*CPRIME)-(2.0D0*CBPRIM)+PPRIME)*MAB3(2,I))-&
-         &(3.0D0*FBPRIM*MAB3(1,I))
+         TRAN=(BPRIME*MAB3(4,I))+((MAB3(3,I)+MAB3(5,I))*((2.0D0*FPRIME)-EBPRIM))+(((3.0D0*CPRIME)-(2.0D0*CBPRIM)+PPRIME)*MAB3(2,I))-(3.0D0*FBPRIM*MAB3(1,I))
          MAB57(5,I)=MAB57(5,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(5,I)).LT.1.0D-15) MAB57(5,I)=0.0D0
 !
@@ -691,8 +604,7 @@ SUBROUTINE AB357
 !       [F'(2C+PI)+(C'-2CBAR')F-FBAR'B]
 !       M3SLASH IS IN MAB57(6,I)
 !       WHEN DONE M3 WILL REPLACE M3SLASH
-         TRAN=(FPRIME*((2.0D0*MAB3(3,I))+MAB3(5,I)))+&
-         &((CPRIME-(2.0D0*CBPRIM))*MAB3(2,I))-(FBPRIM*MAB3(1,I))
+         TRAN=(FPRIME*((2.0D0*MAB3(3,I))+MAB3(5,I)))+((CPRIME-(2.0D0*CBPRIM))*MAB3(2,I))-(FBPRIM*MAB3(1,I))
          MAB57(6,I)=MAB57(6,I)+((2.0D0/(1.0D0*INV))*TRAN)
          IF(DABS(MAB57(6,I)).LT.1.0D-15) MAB57(6,I)=0.0D0
 !
@@ -700,10 +612,7 @@ SUBROUTINE AB357
 !       [3F'E-(PI'+CBAR')(PI+C)+2(C'-CBAR')C+(E'-2FBAR')F-BBAR'*B]
 !       N1SLASH IS IN MAB57(7,I)
 !       WHEN DONE N1 WILL REPLACE N1SLASH
-         TRAN=(3.0D0*FPRIME*MAB3(4,I))-&
-         &((PPRIME+CBPRIM)*(MAB3(5,I)+MAB3(3,I)))+&
-         &(2.0D0*(CPRIME-CBPRIM)*MAB3(3,I))+&
-         &(((EPRIME-(2.0D0*FBPRIM))*MAB3(2,I))-(BBPRIM*MAB3(1,I)))
+         TRAN=(3.0D0*FPRIME*MAB3(4,I))-((PPRIME+CBPRIM)*(MAB3(5,I)+MAB3(3,I)))+(2.0D0*(CPRIME-CBPRIM)*MAB3(3,I))+(((EPRIME-(2.0D0*FBPRIM))*MAB3(2,I))-(BBPRIM*MAB3(1,I)))
          MAB57(7,I)=MAB57(7,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(7,I)).LT.1.0D-15) MAB57(7,I)=0.0D0
 !
@@ -711,11 +620,7 @@ SUBROUTINE AB357
 !       [3F'E+(PI'-CBAR'+3C')(PI+3C)-(C'+PI')C+(E'-8FBAR')F-BBAR'*B]
 !       N2SLASH IS IN MAB57(8,I)
 !       WHEN DONE N2 WILL REPLACE N2SLASH
-         TRAN=(3.0D0*FPRIME*MAB3(4,I))+&
-         &((PPRIME-CBPRIM+(3.0D0*CPRIME))*(MAB3(5,I)+(3.0D0 &
-         &*MAB3(3,I))))-&
-         &(1.0D0*(CPRIME+PPRIME)*MAB3(3,I))+&
-         &((EPRIME-(8.0D0*FBPRIM))*MAB3(2,I))-(BBPRIM*MAB3(1,I))
+         TRAN=(3.0D0*FPRIME*MAB3(4,I))+((PPRIME-CBPRIM+(3.0D0*CPRIME))*(MAB3(5,I)+(3.0D0 *MAB3(3,I))))-(1.0D0*(CPRIME+PPRIME)*MAB3(3,I))+((EPRIME-(8.0D0*FBPRIM))*MAB3(2,I))-(BBPRIM*MAB3(1,I))
          MAB57(8,I)=MAB57(8,I)+((1.0D0/(1.0D0*INV))*TRAN)
          IF(DABS(MAB57(8,I)).LT.1.0D-15) MAB57(8,I)=0.0D0
 !
@@ -723,10 +628,7 @@ SUBROUTINE AB357
 !       [F'E+(PI'-CBAR'+3C')(PI+C)+(C'+PI')C+(E'-4FBAR')F-BBAR'*B]
 !       N3SLASH IS IN MAB57(9,I)
 !       WHEN DONE N3 WILL REPLACE N3SLASH
-         TRAN=(FPRIME*MAB3(4,I))+&
-         &((PPRIME-CBPRIM+(3.0D0*CPRIME))*(MAB3(5,I)+(MAB3(3,I))))+&
-         &((CPRIME+PPRIME)*MAB3(3,I))+&
-         &((EPRIME-(4.0D0*FBPRIM))*MAB3(2,I))-(BBPRIM*MAB3(1,I))
+         TRAN=(FPRIME*MAB3(4,I))+((PPRIME-CBPRIM+(3.0D0*CPRIME))*(MAB3(5,I)+(MAB3(3,I))))+((CPRIME+PPRIME)*MAB3(3,I))+((EPRIME-(4.0D0*FBPRIM))*MAB3(2,I))-(BBPRIM*MAB3(1,I))
          MAB57(9,I)=MAB57(9,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(9,I)).LT.1.0D-15) MAB57(9,I)=0.0D0
 !
@@ -734,10 +636,7 @@ SUBROUTINE AB357
 !       [(4C'+PI')E-FBAR'PI+2(E'-2FBAR')C-2BBAR'F]
 !       C5SLASH IS IN MAB57(10,I)
 !       WHEN DONE C5 WILL REPLACE C5SLASH
-         TRAN=(((4.0D0*CPRIME)+PPRIME)*(MAB3(4,I)))-&
-         &(FBPRIM*MAB3(5,I))+&
-         &(2.0D0*(EPRIME-(2.0D0*FBPRIM))*MAB3(3,I))-&
-         &(2.0D0*BBPRIM*MAB3(2,I))
+         TRAN=(((4.0D0*CPRIME)+PPRIME)*(MAB3(4,I)))-(FBPRIM*MAB3(5,I))+(2.0D0*(EPRIME-(2.0D0*FBPRIM))*MAB3(3,I))-(2.0D0*BBPRIM*MAB3(2,I))
          MAB57(10,I)=MAB57(10,I)+((1.0D0/(4.0D0*INV))*TRAN)
          IF(DABS(MAB57(10,I)).LT.1.0D-15) MAB57(10,I)=0.0D0
 !
@@ -745,10 +644,7 @@ SUBROUTINE AB357
 !       [(PI'-2C')E+(4E'-FBAR')PI+2(E'+FBAR')C-2BBAR'F]
 !       PI5SLASH IS IN MAB57(11,I)
 !       WHEN DONE PI5 WILL REPLACE PI5SLASH
-         TRAN=((PPRIME-(2.0D0*CPRIME))*MAB3(4,I))+&
-         &(((4.0D0*EPRIME)-FBPRIM)*MAB3(5,I))+&
-         &(2.0D0*(EPRIME+FBPRIM)*MAB3(3,I))-(2.0D0*&
-         &BBPRIM*MAB3(2,I))
+         TRAN=((PPRIME-(2.0D0*CPRIME))*MAB3(4,I))+(((4.0D0*EPRIME)-FBPRIM)*MAB3(5,I))+(2.0D0*(EPRIME+FBPRIM)*MAB3(3,I))-(2.0D0*BBPRIM*MAB3(2,I))
          MAB57(11,I)=MAB57(11,I)+((1.0D0/(4.0D0*INV))*TRAN)
          IF(DABS(MAB57(11,I)).LT.1.0D-15) MAB57(11,I)=0.0D0
 !
@@ -756,8 +652,7 @@ SUBROUTINE AB357
 !       [3E'E-BBAR'(PI+3C)]
 !       E5SLASH IS IN MAB57(12,I)
 !       WHEN DONE E5 WILL REPLACE E5SLASH
-         TRAN=(3.0D0*EPRIME*MAB3(4,I))-&
-         &(BBPRIM*(MAB3(5,I)+(3.0D0*MAB3(3,I))))
+         TRAN=(3.0D0*EPRIME*MAB3(4,I))-(BBPRIM*(MAB3(5,I)+(3.0D0*MAB3(3,I))))
          MAB57(12,I)=MAB57(12,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(12,I)).LT.1.0D-15) MAB57(12,I)=0.0D0
 !
@@ -765,8 +660,7 @@ SUBROUTINE AB357
 !       [B'(PI+3CBAR)-3EBAR'EBAR)]
 !       E5BARSLASH IS IN MAB57(13,I)
 !       WHEN DONE E5BAR WILL REPLACE E5BARSLASH
-         TRAN=(BPRIME*(MAB3(5,I)+(3.0D0*MAB3(8,I))))-&
-         &(3.0D0*EBPRIM*MAB3(9,I))
+         TRAN=(BPRIME*(MAB3(5,I)+(3.0D0*MAB3(8,I))))-(3.0D0*EBPRIM*MAB3(9,I))
          MAB57(13,I)=MAB57(13,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(MAB57(13,I)).LT.1.0D-15) MAB57(13,I)=0.0D0
 !       NOW SEVENTH ORDER SPHERICAL
@@ -778,10 +672,8 @@ SUBROUTINE AB357
 !       3((1/2INV)(EBAR'**2)-EBAR5')B+
 !       B'(F1SLH+F2SLH)-
 !       5EBAR'B5SLH]
-         TRAN1=((0.5D0/INV)*(BPRIME**2)*(MAB3(5,I)+(3.0D0 &
-         &*MAB3(3,I))))
-         TRAN2=(3.0D0*(B5PRIM-((1.0D0/INV)*BPRIME*EBPRIM))&
-         &*MAB3(2,I))
+         TRAN1=((0.5D0/INV)*(BPRIME**2)*(MAB3(5,I)+(3.0D0 *MAB3(3,I))))
+         TRAN2=(3.0D0*(B5PRIM-((1.0D0/INV)*BPRIME*EBPRIM))*MAB3(2,I))
          TRAN4=(3.0D0*(((0.5D0/INV)*(EBPRIM**2))-EB5PRM)*MAB3(1,I))
          TRAN5=(BPRIME*(MAB57(16,I)+MAB57(17,I)))
          TRAN6=(5.0D0*EBPRIM*MAB57(15,I))
@@ -797,10 +689,8 @@ SUBROUTINE AB357
    IF(IAB.EQ.2) THEN
 !       THE CONTROL WAVELENGTH NUMBER IS STORED IN
 !       SYSTEM(11)
-      IF(CW.GE.1.AND.CW.LE.5)&
-      &CW= CW+45
-      IF(CW.GE.6.AND.CW.LE.10)&
-      &CW= CW+65
+      IF(CW.GE.1.AND.CW.LE.5)CW= CW+45
+      IF(CW.GE.6.AND.CW.LE.10)CW= CW+65
 !
 !       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
 !       surf_refractive_index(SURF, 5)
@@ -813,8 +703,7 @@ SUBROUTINE AB357
 !       CALCULATE THE OPTICAL INVARIANT
 !
       SF=INT(SYSTEM(20))
-      INV=-((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-&
-      &(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+      INV=-((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
       WRITE(OUTLYNE, *) "AB357 INV = ", INV
       CALL SHOWIT(19)
       IF(DABS(INV).LE.1.0D-10) THEN
@@ -854,8 +743,7 @@ SUBROUTINE AB357
          IF(surf_toric_flag(I) /= 1) THEN
 !       SURFACE IS NOT Y-TORIC
             C1=(8.0D0*surf_asphere_coeff(I, 4))+(CC*(CV**3))
-            C21=((CV**3)*CC*(CC+2.0D0))&
-            &-(2.0D0*C1)
+            C21=((CV**3)*CC*(CC+2.0D0))-(2.0D0*C1)
             C22=(0.25D0*(CV**2)*C21)+(4.0D0*surf_asphere_coeff(I, 6))
             C2=3.0D0*C22
             CF16=16.0D0*surf_asphere_coeff(I, 8)
@@ -866,12 +754,9 @@ SUBROUTINE AB357
             C3=CF16+(0.125D0*C34)
          ELSE
 !       SURFACE IS Y-TORIC
-            C1=(8.0D0*((surf_anamorphic_coeff(I, 4)**2)*surf_asphere_coeff(I, 4))+&
-            &(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
-            C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)+2.0D0))&
-            &-(2.0D0*C1)
-            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 6)*&
-            &(surf_anamorphic_coeff(I, 6)**3)))
+            C1=(8.0D0*((surf_anamorphic_coeff(I, 4)**2)*surf_asphere_coeff(I, 4))+(surf_anamorphic_conic(I)*(surf_toric_curvature(I)**3)))
+            C21=((surf_toric_curvature(I)**3)*surf_anamorphic_conic(I)*(surf_anamorphic_conic(I)+2.0D0))-(2.0D0*C1)
+            C22=(0.25D0*(surf_toric_curvature(I)**2)*C21)+(4.0D0*(surf_asphere_coeff(I, 6)*(surf_anamorphic_coeff(I, 6)**3)))
             C2=3.0D0*C22
             CF16=16.0D0*surf_asphere_coeff(I, 8)*(surf_anamorphic_coeff(I, 8)**4)
             C31=(surf_anamorphic_conic(I)**2)+(3.0D0*surf_anamorphic_conic(I))+3.0D0
@@ -911,8 +796,7 @@ SUBROUTINE AB357
          IF(DABS(XMAB3(3,I)).LT.1.0D-15) XMAB3(3,I)=0.0D0
 !       THIRD ORDER DISTORTION (DIST3)
 !
-         E=(SIBAR*PXTRAX(3,I)*PXTRAX(7,I))+&
-         &(INV*(K-1.0D0)*PXTRAX(7,I))*(PXTRAX(6,I)+PXTRAX(6,(I-1)))
+         E=(SIBAR*PXTRAX(3,I)*PXTRAX(7,I))+(INV*(K-1.0D0)*PXTRAX(7,I))*(PXTRAX(6,I)+PXTRAX(6,(I-1)))
          AE=(C1BAR*PXTRAX(1,I)*(PXTRAX(5,I)**3))
          XMAB3(4,I)=E+AE
          IF(DABS(XMAB3(4,I)).LT.1.0D-15) XMAB3(4,I)=0.0D0
@@ -965,8 +849,7 @@ SUBROUTINE AB357
 !
 !       THIRD ORDER DISTORTION (DIST3)
 !
-         EBAR=(SI*PXTRAX(3,I)*PXTRAX(7,I))-&
-         &(INV*(K-1.0D0)*PXTRAX(3,I)*(PXTRAX(2,I)+PXTRAX(2,(I-1))))
+         EBAR=(SI*PXTRAX(3,I)*PXTRAX(7,I))-(INV*(K-1.0D0)*PXTRAX(3,I)*(PXTRAX(2,I)+PXTRAX(2,(I-1))))
          AEBAR=(C1BAR*PXTRAX(5,I)*(PXTRAX(1,I)**3))
          XMAB3(9,I)=EBAR+AEBAR
          IF(DABS(XMAB3(9,I)).LT.1.0D-15) XMAB3(9,I)=0.0D0
@@ -975,40 +858,27 @@ SUBROUTINE AB357
 !
          XMAB3(10,I)=XMAB3(5,I)
 !       WI
-         WI=0.125D0*(((PXTRAX(3,I)**2)+(PXTRAX(4,I)**2)+&
-         &(PXTRAX(2,I)**2)-(3.0D0*((PXTRAX(2,(I-1)))**2))))
+         WI=0.125D0*(((PXTRAX(3,I)**2)+(PXTRAX(4,I)**2)+(PXTRAX(2,I)**2)-(3.0D0*((PXTRAX(2,(I-1)))**2))))
 !       X73
-         X73=((3.0D0*PXTRAX(3,I)*PXTRAX(4,I))+&
-         &(2.0D0*(PXTRAX(2,I)**2))-(3.0D0*((PXTRAX(2,(I-1)))**2)))
+         X73=((3.0D0*PXTRAX(3,I)*PXTRAX(4,I))+(2.0D0*(PXTRAX(2,I)**2))-(3.0D0*((PXTRAX(2,(I-1)))**2)))
 !       X74
-         X74=(3.0D0*PXTRAX(3,I)*PXTRAX(8,I))+&
-         &(2.0D0*PXTRAX(2,I)*PXTRAX(6,I))-&
-         &(3.0D0*PXTRAX(2,(I-1))*PXTRAX(6,(I-1)))
+         X74=(3.0D0*PXTRAX(3,I)*PXTRAX(8,I))+(2.0D0*PXTRAX(2,I)*PXTRAX(6,I))-(3.0D0*PXTRAX(2,(I-1))*PXTRAX(6,(I-1)))
 !       X75
-         X75=((3.0D0*PXTRAX(7,I)*PXTRAX(8,I))+&
-         &(2.0D0*((PXTRAX(6,I))**2))-(3.0D0*((PXTRAX(6,(I-1)))**2)))
+         X75=((3.0D0*PXTRAX(7,I)*PXTRAX(8,I))+(2.0D0*((PXTRAX(6,I))**2))-(3.0D0*((PXTRAX(6,(I-1)))**2)))
 !       X76
          X76=(PXTRAX(3,I)*((3.0D0*PXTRAX(2,(I-1)))-PXTRAX(2,I)))
 !       X77
-         X77=PXTRAX(7,I)*((2.0D0*PXTRAX(2,(I-1)))-PXTRAX(2,I))+&
-         &(PXTRAX(3,I)*PXTRAX(6,(I-1)))
+         X77=PXTRAX(7,I)*((2.0D0*PXTRAX(2,(I-1)))-PXTRAX(2,I))+(PXTRAX(3,I)*PXTRAX(6,(I-1)))
 !       X78
          X78=PXTRAX(7,I)*((3.0D0*PXTRAX(6,(I-1)))-PXTRAX(6,I))
 !       X42
-         X42=(((PXTRAX(5,I)*PXTRAX(3,I))*(PXTRAX(7,I)-PXTRAX(6,(I-1))))+&
-         &((PXTRAX(1,I)*PXTRAX(7,I))*(PXTRAX(6,I)+PXTRAX(6,(I-1)))))
+         X42=(((PXTRAX(5,I)*PXTRAX(3,I))*(PXTRAX(7,I)-PXTRAX(6,(I-1))))+((PXTRAX(1,I)*PXTRAX(7,I))*(PXTRAX(6,I)+PXTRAX(6,(I-1)))))
 !       X82
-         X82=(((PXTRAX(5,I)*PXTRAX(2,(I-1)))*&
-         &(PXTRAX(7,I)-PXTRAX(6,(I-1))))-&
-         &((PXTRAX(1,I)*PXTRAX(8,I))*(PXTRAX(6,I)+PXTRAX(6,(I-1)))))
+         X82=(((PXTRAX(5,I)*PXTRAX(2,(I-1)))*(PXTRAX(7,I)-PXTRAX(6,(I-1))))-((PXTRAX(1,I)*PXTRAX(8,I))*(PXTRAX(6,I)+PXTRAX(6,(I-1)))))
 !       XBAR42
-         XBAR42=(((PXTRAX(1,I)*PXTRAX(7,I))*&
-         &(PXTRAX(3,I)-PXTRAX(2,(I-1))))+&
-         &((PXTRAX(5,I)*PXTRAX(3,I))*(PXTRAX(2,I)+PXTRAX(2,(I-1)))))
+         XBAR42=(((PXTRAX(1,I)*PXTRAX(7,I))*(PXTRAX(3,I)-PXTRAX(2,(I-1))))+((PXTRAX(5,I)*PXTRAX(3,I))*(PXTRAX(2,I)+PXTRAX(2,(I-1)))))
 !       XBAR82
-         XBAR82=(((PXTRAX(1,I)*PXTRAX(6,(I-1)))*&
-         &(PXTRAX(3,I)-PXTRAX(2,(I-1))))-&
-         &((PXTRAX(5,I)*PXTRAX(4,I))*(PXTRAX(2,I)+PXTRAX(2,(I-1)))))
+         XBAR82=(((PXTRAX(1,I)*PXTRAX(6,(I-1)))*(PXTRAX(3,I)-PXTRAX(2,(I-1))))-((PXTRAX(5,I)*PXTRAX(4,I))*(PXTRAX(2,I)+PXTRAX(2,(I-1)))))
 !
 !       NOW FOR THE ADDITIONAL TERMS FOR THE 5TH ORDER ABERRATIONS
 !       AND SEVENTH ORDER SPHERICAL
@@ -1019,19 +889,13 @@ SUBROUTINE AB357
 !       S1P2
          S1P2=3.0D0*WI*SI*PXTRAX(3,I)
 !       S2P
-         S2P=(0.25D0*SI)*((PXTRAX(7,I)*X73)+(PXTRAX(3,I)*X74)-&
-         &(PXTRAX(6,I)*X76)-(PXTRAX(2,I)*X77))
+         S2P=(0.25D0*SI)*((PXTRAX(7,I)*X73)+(PXTRAX(3,I)*X74)-(PXTRAX(6,I)*X76)-(PXTRAX(2,I)*X77))
 !       S3P2
-         S3P2=(0.25D0*N*(K-1.0D0))*((X42*X73)+(X76*X82)+&
-         &(PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,I))*&
-         &((PXTRAX(3,I)*X75)-(PXTRAX(2,I)*X78))))
+         S3P2=(0.25D0*N*(K-1.0D0))*((X42*X73)+(X76*X82)+(PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,I))*((PXTRAX(3,I)*X75)-(PXTRAX(2,I)*X78))))
 !       S4P2
          S4P2=SI*((PXTRAX(7,I)*X74)-(PXTRAX(6,I)*X77))
 !       S5P
-         S5P=(0.25D0*N*(K-1.0D0))*&
-         &((X42*X74)+(X77*X82)+&
-         &(PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,I)))*&
-         &((PXTRAX(7,I)*X75)-(PXTRAX(6,I)*X78)))
+         S5P=(0.25D0*N*(K-1.0D0))*((X42*X74)+(X77*X82)+(PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,I)))*((PXTRAX(7,I)*X75)-(PXTRAX(6,I)*X78)))
 !       S6P2
          S6P2=(0.25D0*N*(K-1.0D0))*((X42*X75)+(X78*X82))
 !       S1Q2
@@ -1040,10 +904,8 @@ SUBROUTINE AB357
 !
 !       NOW CALCULATE L,LBAR, AND M
 !
-         L=0.25D0*((3.0D0*PXTRAX(4,I))+(2.0D0*((2.0D0*K)&
-         &-1.0D0)*PXTRAX(2,I)))
-         LBAR=0.25D0*((3.0D0*PXTRAX(8,I))+(2.0D0*((2.0D0*K)&
-         &-1.0D0)*PXTRAX(6,I)))
+         L=0.25D0*((3.0D0*PXTRAX(4,I))+(2.0D0*((2.0D0*K)-1.0D0)*PXTRAX(2,I)))
+         LBAR=0.25D0*((3.0D0*PXTRAX(8,I))+(2.0D0*((2.0D0*K)-1.0D0)*PXTRAX(6,I)))
          M=(K*INV)/J_NP
 !
 !       NOW THE ASPHERIC S(HAT) TERMS
@@ -1057,8 +919,7 @@ SUBROUTINE AB357
 !       A2S4P
          A2S4P=2.0D0*A2S3P
 !       AS5P
-         AS5P=(2.0D0*AE*L)+((3.0D0/2.0D0)*M*PXTRAX(1,I)*&
-         &C1BAR*(PXTRAX(5,I)**2))
+         AS5P=(2.0D0*AE*L)+((3.0D0/2.0D0)*M*PXTRAX(1,I)*C1BAR*(PXTRAX(5,I)**2))
          A2S6P=(ABBAR*L)+(C1BAR*M*(PXTRAX(5,I)**3))
 !       AS1Q
          AS1Q=(AB*LBAR)-(C1BAR*M*(PXTRAX(1,I)**3))
@@ -1068,30 +929,20 @@ SUBROUTINE AB357
 !       CHECK FOR Y-TORICS
          IF(surf_toric_flag(I) /= 1) THEN
 !
-            JO=(C2BAR*PXTRAX(1,I))-(0.25D0*CV*C1BAR*&
-            &((3.0D0*PXTRAX(4,I))-(5.0D0*PXTRAX(2,I))))
-            JOBAR=(C2BAR*PXTRAX(5,I))-(0.25D0*CV*C1BAR*&
-            &((3.0D0*PXTRAX(8,I))-(5.0D0*PXTRAX(6,I))))
+            JO=(C2BAR*PXTRAX(1,I))-(0.25D0*CV*C1BAR*((3.0D0*PXTRAX(4,I))-(5.0D0*PXTRAX(2,I))))
+            JOBAR=(C2BAR*PXTRAX(5,I))-(0.25D0*CV*C1BAR*((3.0D0*PXTRAX(8,I))-(5.0D0*PXTRAX(6,I))))
 !
          ELSE
 !       Y-TORIC PRESENT
-            JO=(C2BAR*PXTRAX(1,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
-            &((3.0D0*PXTRAX(4,I))-(5.0D0*PXTRAX(2,I))))
-            JOBAR=(C2BAR*PXTRAX(5,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*&
-            &((3.0D0*PXTRAX(8,I))-(5.0D0*PXTRAX(6,I))))
+            JO=(C2BAR*PXTRAX(1,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*((3.0D0*PXTRAX(4,I))-(5.0D0*PXTRAX(2,I))))
+            JOBAR=(C2BAR*PXTRAX(5,I))-(0.25D0*surf_toric_curvature(I)*C1BAR*((3.0D0*PXTRAX(8,I))-(5.0D0*PXTRAX(6,I))))
          END IF
 !
-         ALPHA=(0.5D0*((PXTRAX(2,I)**2)+(3.0D0*&
-         &PXTRAX(3,I)*PXTRAX(4,I))-&
-         &(2.0D0*PXTRAX(3,I)*PXTRAX(2,I))))
+         ALPHA=(0.5D0*((PXTRAX(2,I)**2)+(3.0D0*PXTRAX(3,I)*PXTRAX(4,I))-(2.0D0*PXTRAX(3,I)*PXTRAX(2,I))))
 !
-         BETA=(PXTRAX(2,I)*PXTRAX(6,I))+(3.0D0*PXTRAX(3,I)&
-         &*PXTRAX(8,I))-&
-         &(PXTRAX(3,I)*PXTRAX(6,I))-(PXTRAX(7,I)*PXTRAX(2,I))
+         BETA=(PXTRAX(2,I)*PXTRAX(6,I))+(3.0D0*PXTRAX(3,I)*PXTRAX(8,I))-(PXTRAX(3,I)*PXTRAX(6,I))-(PXTRAX(7,I)*PXTRAX(2,I))
 !
-         GAMMA=0.5D0*((PXTRAX(6,I)**2)+(3.0D0*PXTRAX(7,I)&
-         &*PXTRAX(8,I))-&
-         &(2.0D0*PXTRAX(7,I)*PXTRAX(6,I)))
+         GAMMA=0.5D0*((PXTRAX(6,I)**2)+(3.0D0*PXTRAX(7,I)*PXTRAX(8,I))-(2.0D0*PXTRAX(7,I)*PXTRAX(6,I)))
 !
          LAMBDA=(ALPHA*C1BAR)+(JO*PXTRAX(1,I))
 !
@@ -1104,21 +955,17 @@ SUBROUTINE AB357
 !       A2S1PU
          A2S1PU=(PXTRAX(1,I)**3)*LAMBDA
 !       AS2PU
-         AS2PU=((PXTRAX(1,I)**2)*PXTRAX(5,I)*LAMBDA)+&
-         &(0.5D0*MU*(PXTRAX(1,I)**3))
+         AS2PU=((PXTRAX(1,I)**2)*PXTRAX(5,I)*LAMBDA)+(0.5D0*MU*(PXTRAX(1,I)**3))
 !       A2S3PU
-         A2S3PU=(PXTRAX(1,I)*(PXTRAX(5,I)**2)*LAMBDA)+&
-         &((PXTRAX(1,I)**2)*NU)
+         A2S3PU=(PXTRAX(1,I)*(PXTRAX(5,I)**2)*LAMBDA)+((PXTRAX(1,I)**2)*NU)
 !       A2S4PU
          A2S4PU=(2.0D0*MU*PXTRAX(5,I)*(PXTRAX(1,I)**2))
 !       AS5PU
-         AS5PU=(0.5D0*MU*PXTRAX(1,I)*(PXTRAX(5,I)**2))+&
-         &(PXTRAX(1,I)*PXTRAX(5,I)*NU)
+         AS5PU=(0.5D0*MU*PXTRAX(1,I)*(PXTRAX(5,I)**2))+(PXTRAX(1,I)*PXTRAX(5,I)*NU)
 !       A2S6PU
          A2S6PU=(PXTRAX(5,I)**2)*NU
 !       A2S1QU
-         A2S1QU=(PXTRAX(1,I)**2)*((ALPHA*C1BAR*PXTRAX(5,I))+&
-         &(JOBAR*(PXTRAX(1,I)**2)))
+         A2S1QU=(PXTRAX(1,I)**2)*((ALPHA*C1BAR*PXTRAX(5,I))+(JOBAR*(PXTRAX(1,I)**2)))
 !
 !
 !       5TH ORDER INTRINSIC SURFACE CONTRIBUTIONS
@@ -1136,8 +983,7 @@ SUBROUTINE AB357
 !       F1SLASH+AF1SLASH
 !
          SLH=(PXTRAX(7,I)*S1P2)+(PXTRAX(3,I)*S2P)
-         ASLH=(PXTRAX(7,I)*A2S1P)+(PXTRAX(5,I)*A2S1PU)+&
-         &(PXTRAX(3,I)*AS2P)+(PXTRAX(1,I)*AS2PU)
+         ASLH=(PXTRAX(7,I)*A2S1P)+(PXTRAX(5,I)*A2S1PU)+(PXTRAX(3,I)*AS2P)+(PXTRAX(1,I)*AS2PU)
          XMAB57(2,I)=SLH+ASLH
 !       WE NEED TO KEEP A PERMANENT COPY FOR SA7 CALC
 !       KEEP IT IN XMAB57(16,I)
@@ -1179,8 +1025,7 @@ SUBROUTINE AB357
 !       N2SLASH+AN2SLASH
 !
          SLH=(PXTRAX(7,I)*S4P2)+(2.0D0*PXTRAX(3,I)*S5P)
-         ASLH=(PXTRAX(7,I)*A2S4P)+(PXTRAX(5,I)*A2S4PU)+&
-         &2.0D0*((PXTRAX(3,I)*AS5P)+(PXTRAX(1,I)*AS5PU))
+         ASLH=(PXTRAX(7,I)*A2S4P)+(PXTRAX(5,I)*A2S4PU)+2.0D0*((PXTRAX(3,I)*AS5P)+(PXTRAX(1,I)*AS5PU))
          XMAB57(8,I)=SLH+ASLH
 !
 !       N3SLASH+AN3SLASH
@@ -1198,8 +1043,7 @@ SUBROUTINE AB357
 !       PI5SLASH+API5SLASH
 !
          SLH=(PXTRAX(3,I)*S6P2)-(0.5D0*PXTRAX(7,I)*S5P)
-         ASLH=(PXTRAX(3,I)*A2S6P)+(PXTRAX(1,I)*A2S6PU)&
-         &-0.5D0*((PXTRAX(7,I)*AS5P)+(PXTRAX(5,I)*AS5PU))
+         ASLH=(PXTRAX(3,I)*A2S6P)+(PXTRAX(1,I)*A2S6PU)-0.5D0*((PXTRAX(7,I)*AS5P)+(PXTRAX(5,I)*AS5PU))
          XMAB57(11,I)=SLH+ASLH
 !
 !       E5SLASH+AE5SLSH
@@ -1218,8 +1062,7 @@ SUBROUTINE AB357
 !
 !       B7SLASH+AB7SLASH
 !
-         B71=((0.125D0*SI*PXTRAX(3,I))*((2.0D0*PXTRAX(2,I))&
-         &-(5.0D0*PXTRAX(2,(I-1)))))/N
+         B71=((0.125D0*SI*PXTRAX(3,I))*((2.0D0*PXTRAX(2,I))-(5.0D0*PXTRAX(2,(I-1)))))/N
          IF(surf_toric_flag(I) /= 1) THEN
 !       NO Y-TORIC
             B72=(10.0D0*(WI**2))+(B71*CV)
@@ -1234,26 +1077,19 @@ SUBROUTINE AB357
          GAMMA1=C1*(PXTRAX(1,I)**2)
 !       CHECK IF Y-TORIC
          IF(surf_toric_flag(I) /= 1) THEN
-            GAMMA2=(PXTRAX(1,I)**3)*((C2*PXTRAX(1,I))+&
-            &(0.25D0*CV*C1*(PXTRAX(3,I)+(3.0D0*&
-            &PXTRAX(2,(I-1))))))
+            GAMMA2=(PXTRAX(1,I)**3)*((C2*PXTRAX(1,I))+(0.25D0*CV*C1*(PXTRAX(3,I)+(3.0D0*PXTRAX(2,(I-1))))))
          ELSE
-            GAMMA2=(PXTRAX(1,I)**3)*((C2*PXTRAX(1,I))+&
-            &(0.25D0*surf_toric_curvature(I)*C1*(PXTRAX(3,I)+(3.0D0*&
-            &PXTRAX(2,(I-1))))))
+            GAMMA2=(PXTRAX(1,I)**3)*((C2*PXTRAX(1,I))+(0.25D0*surf_toric_curvature(I)*C1*(PXTRAX(3,I)+(3.0D0*PXTRAX(2,(I-1))))))
          END IF
          G32=C3*(PXTRAX(1,I)**2)
-         G33=((C2*PXTRAX(1,I)*(PXTRAX(3,I)+&
-         &(5.0D0*PXTRAX(2,(I-1)))))/3.0D0)
+         G33=((C2*PXTRAX(1,I)*(PXTRAX(3,I)+(5.0D0*PXTRAX(2,(I-1)))))/3.0D0)
 !       CHECK FOR Y-TORIC
          IF(surf_toric_flag(I) /= 1)THEN
             G34=CV
          ELSE
             G34=surf_toric_curvature(I)
          END IF
-         G36=(0.125D0*C1)*&
-         &((PXTRAX(3,I)*(PXTRAX(3,I)+(5.0D0*PXTRAX(2,(I-1)))))-&
-         &(PXTRAX(2,(I-1))*(PXTRAX(3,I)-(5.0D0*PXTRAX(2,(I-1))))))
+         G36=(0.125D0*C1)*((PXTRAX(3,I)*(PXTRAX(3,I)+(5.0D0*PXTRAX(2,(I-1)))))-(PXTRAX(2,(I-1))*(PXTRAX(3,I)-(5.0D0*PXTRAX(2,(I-1))))))
          G37=0.25D0*(C1**2)*PXTRAX(1,I)*PXTRAX(3,I)
          G31=G32+(G33*G34)+((G34**2)*G36)+G37
          GAMMA3=(PXTRAX(1,I)**4)*G31
@@ -1262,34 +1098,26 @@ SUBROUTINE AB357
 !       NOW CALCULATE L3 AND D3
 !
 !       L3
-         L3=(PXTRAX(1,I)*GAMMA3*(N-J_NP))+0.5D0*&
-         &((GAMMA1*(S1P2+A2S1P))+(GAMMA2*SI*PXTRAX(3,I)))
+         L3=(PXTRAX(1,I)*GAMMA3*(N-J_NP))+0.5D0*((GAMMA1*(S1P2+A2S1P))+(GAMMA2*SI*PXTRAX(3,I)))
 !
 !       D3
          D32=((C2*(PXTRAX(1,I)**2))/6.0D0)
-         D33=((4.0D0*PXTRAX(4,I))+(3.0D0*PXTRAX(2,I)*&
-         &((2.0D0*K)-1.0D0)))
+         D33=((4.0D0*PXTRAX(4,I))+(3.0D0*PXTRAX(2,I)*((2.0D0*K)-1.0D0)))
          D34=0.125D0*C1
          D35=GAMMA1*PXTRAX(1,I)*(1.0D0+(2.0D0*K*(K-1.0D0)))
 !       CHECK FOR Y-TORIC
          IF(surf_toric_flag(I) /= 1) THEN
             D36=CV*PXTRAX(1,I)
-            D37=4.0D0*CV*PXTRAX(1,I)*(PXTRAX(3,I)+&
-            &PXTRAX(2,(I-1)))
+            D37=4.0D0*CV*PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,(I-1)))
          ELSE
 !       Y-TORIC
             D36=surf_toric_curvature(I)*PXTRAX(1,I)
-            D37=4.0D0*surf_toric_curvature(I)*PXTRAX(1,I)*(PXTRAX(3,I)+&
-            &PXTRAX(2,(I-1)))
+            D37=4.0D0*surf_toric_curvature(I)*PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,(I-1)))
          END IF
-         D38=PXTRAX(4,I)*(5.0D0*((2.0D0*PXTRAX(2,I))+PXTRAX(3,I))&
-         &+PXTRAX(4,I))
+         D38=PXTRAX(4,I)*(5.0D0*((2.0D0*PXTRAX(2,I))+PXTRAX(3,I))+PXTRAX(4,I))
          D39=K*PXTRAX(2,I)
-         D40=PXTRAX(4,I)*(4.0D0*((2.0D0*PXTRAX(2,I))+PXTRAX(3,I)+&
-         &PXTRAX(4,I))+PXTRAX(3,I))
-         D41=D39*((3.0D0*(PXTRAX(3,I)**2))-(10.0D0 &
-         &*(PXTRAX(2,(I-1))**2))+&
-         &D40)
+         D40=PXTRAX(4,I)*(4.0D0*((2.0D0*PXTRAX(2,I))+PXTRAX(3,I)+PXTRAX(4,I))+PXTRAX(3,I))
+         D41=D39*((3.0D0*(PXTRAX(3,I)**2))-(10.0D0 *(PXTRAX(2,(I-1))**2))+D40)
          D31=(D32*D33)+D34*(D35+D36*(D37+D38)+D41)
          D3=(N-J_NP)*(PXTRAX(1,I)**4)*D31
 !
@@ -1363,9 +1191,7 @@ SUBROUTINE AB357
 !       [B'(PI+4C)+(5F'-4EBAR')*F-(2PI'+5CBAR')*B)
 !       F1SLASH IS IN XMAB57(2,I)
 !       WHEN DONE F1 WILL REPLACE F1SLASH
-         TRAN=(BPRIME*(XMAB3(5,I)+(4.0D0*XMAB3(3,I))))+&
-         &(((5.0D0*FPRIME)-(4.0D0*EBPRIM))*XMAB3(2,I))-&
-         &(((2.0D0*PPRIME)+(5.0D0*CBPRIM))*XMAB3(1,I))
+         TRAN=(BPRIME*(XMAB3(5,I)+(4.0D0*XMAB3(3,I))))+(((5.0D0*FPRIME)-(4.0D0*EBPRIM))*XMAB3(2,I))-(((2.0D0*PPRIME)+(5.0D0*CBPRIM))*XMAB3(1,I))
          XMAB57(2,I)=XMAB57(2,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(2,I)).LT.1.0D-15) XMAB57(2,I)=0.0D0
 !
@@ -1373,9 +1199,7 @@ SUBROUTINE AB357
 !       [B'(PI+2C)+2(2F'-EBAR')*F-(PI'+4CBAR')*B)
 !       F2SLASH IS IN XMAB57(3,I)
 !       WHEN DONE F2 WILL REPLACE F2SLASH
-         TRAN=(BPRIME*(XMAB3(5,I)+(2.0D0*XMAB3(3,I))))+&
-         &(2.0D0*(((2.0D0*FPRIME)-(1.0D0*EBPRIM))*XMAB3(2,I)))-&
-         &(((1.0D0*PPRIME)+(4.0D0*CBPRIM))*XMAB3(1,I))
+         TRAN=(BPRIME*(XMAB3(5,I)+(2.0D0*XMAB3(3,I))))+(2.0D0*(((2.0D0*FPRIME)-(1.0D0*EBPRIM))*XMAB3(2,I)))-(((1.0D0*PPRIME)+(4.0D0*CBPRIM))*XMAB3(1,I))
          XMAB57(3,I)=XMAB57(3,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(3,I)).LT.1.0D-15) XMAB57(3,I)=0.0D0
 !
@@ -1383,10 +1207,7 @@ SUBROUTINE AB357
 !       [B'E+(4F'-EBAR')C+(C'-4CBAR'-2PI')F-FBAR'B]
 !       M1SLASH IS IN XMAB57(4,I)
 !       WHEN DONE M1 WILL REPLACE M1SLASH
-         TRAN=(BPRIME*XMAB3(4,I))+&
-         &(XMAB3(3,I)*((4.0D0*FPRIME)-EBPRIM))+&
-         &((CPRIME-(4.0D0*CBPRIM)-(2.0D0*PPRIME))*XMAB3(2,I))-&
-         &(FBPRIM*XMAB3(1,I))
+         TRAN=(BPRIME*XMAB3(4,I))+(XMAB3(3,I)*((4.0D0*FPRIME)-EBPRIM))+((CPRIME-(4.0D0*CBPRIM)-(2.0D0*PPRIME))*XMAB3(2,I))-(FBPRIM*XMAB3(1,I))
          XMAB57(4,I)=XMAB57(4,I)+((1.0D0/INV)*TRAN)
          IF(DABS(XMAB57(4,I)).LT.1.0D-15) XMAB57(4,I)=0.0D0
 !
@@ -1394,10 +1215,7 @@ SUBROUTINE AB357
 !       [B'E+(2F'-EBAR')(PI+C)+(3C'-2CBAR'+PI')F-3FBAR'B]
 !       M2SLASH IS IN XMAB57(5,I)
 !       WHEN DONE M2 WILL REPLACE M2SLASH
-         TRAN=(BPRIME*XMAB3(4,I))+&
-         &((XMAB3(3,I)+XMAB3(5,I))*((2.0D0*FPRIME)-EBPRIM))+&
-         &(((3.0D0*CPRIME)-(2.0D0*CBPRIM)+PPRIME)*XMAB3(2,I))-&
-         &(3.0D0*FBPRIM*XMAB3(1,I))
+         TRAN=(BPRIME*XMAB3(4,I))+((XMAB3(3,I)+XMAB3(5,I))*((2.0D0*FPRIME)-EBPRIM))+(((3.0D0*CPRIME)-(2.0D0*CBPRIM)+PPRIME)*XMAB3(2,I))-(3.0D0*FBPRIM*XMAB3(1,I))
          XMAB57(5,I)=XMAB57(5,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(5,I)).LT.1.0D-15) XMAB57(5,I)=0.0D0
 !
@@ -1405,8 +1223,7 @@ SUBROUTINE AB357
 !       [F'(2C+PI)+(C'-2CBAR')F-FBAR'B]
 !       M3SLASH IS IN XMAB57(6,I)
 !       WHEN DONE M3 WILL REPLACE M3SLASH
-         TRAN=(FPRIME*((2.0D0*XMAB3(3,I))+XMAB3(5,I)))+&
-         &((CPRIME-(2.0D0*CBPRIM))*XMAB3(2,I))-(FBPRIM*XMAB3(1,I))
+         TRAN=(FPRIME*((2.0D0*XMAB3(3,I))+XMAB3(5,I)))+((CPRIME-(2.0D0*CBPRIM))*XMAB3(2,I))-(FBPRIM*XMAB3(1,I))
          XMAB57(6,I)=XMAB57(6,I)+((2.0D0/(1.0D0*INV))*TRAN)
          IF(DABS(XMAB57(6,I)).LT.1.0D-15) XMAB57(6,I)=0.0D0
 !
@@ -1414,10 +1231,7 @@ SUBROUTINE AB357
 !       [3F'E-(PI'+CBAR')(PI+C)+2(C'-CBAR')C+(E'-2FBAR')F-BBAR'*B]
 !       N1SLASH IS IN XMAB57(7,I)
 !       WHEN DONE N1 WILL REPLACE N1SLASH
-         TRAN=(3.0D0*FPRIME*XMAB3(4,I))-&
-         &((PPRIME+CBPRIM)*(XMAB3(5,I)+XMAB3(3,I)))+&
-         &(2.0D0*(CPRIME-CBPRIM)*XMAB3(3,I))+&
-         &(((EPRIME-(2.0D0*FBPRIM))*XMAB3(2,I))-(BBPRIM*XMAB3(1,I)))
+         TRAN=(3.0D0*FPRIME*XMAB3(4,I))-((PPRIME+CBPRIM)*(XMAB3(5,I)+XMAB3(3,I)))+(2.0D0*(CPRIME-CBPRIM)*XMAB3(3,I))+(((EPRIME-(2.0D0*FBPRIM))*XMAB3(2,I))-(BBPRIM*XMAB3(1,I)))
          XMAB57(7,I)=XMAB57(7,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(7,I)).LT.1.0D-15) XMAB57(7,I)=0.0D0
 !
@@ -1425,11 +1239,7 @@ SUBROUTINE AB357
 !       [3F'E+(PI'-CBAR'+3C')(PI+3C)-(C'+PI')C+(E'-8FBAR')F-BBAR'*B]
 !       N2SLASH IS IN XMAB57(8,I)
 !       WHEN DONE N2 WILL REPLACE N2SLASH
-         TRAN=(3.0D0*FPRIME*XMAB3(4,I))+&
-         &((PPRIME-CBPRIM+(3.0D0*CPRIME))*(XMAB3(5,I)+(3.0D0 &
-         &*XMAB3(3,I))))-&
-         &(1.0D0*(CPRIME+PPRIME)*XMAB3(3,I))+&
-         &((EPRIME-(8.0D0*FBPRIM))*XMAB3(2,I))-(BBPRIM*XMAB3(1,I))
+         TRAN=(3.0D0*FPRIME*XMAB3(4,I))+((PPRIME-CBPRIM+(3.0D0*CPRIME))*(XMAB3(5,I)+(3.0D0 *XMAB3(3,I))))-(1.0D0*(CPRIME+PPRIME)*XMAB3(3,I))+((EPRIME-(8.0D0*FBPRIM))*XMAB3(2,I))-(BBPRIM*XMAB3(1,I))
          XMAB57(8,I)=XMAB57(8,I)+((1.0D0/(1.0D0*INV))*TRAN)
          IF(DABS(XMAB57(8,I)).LT.1.0D-15) XMAB57(8,I)=0.0D0
 !
@@ -1437,10 +1247,7 @@ SUBROUTINE AB357
 !       [F'E+(PI'-CBAR'+3C')(PI+C)+(C'+PI')C+(E'-4FBAR')F-BBAR'*B]
 !       N3SLASH IS IN XMAB57(9,I)
 !       WHEN DONE N3 WILL REPLACE N3SLASH
-         TRAN=(FPRIME*XMAB3(4,I))+&
-         &((PPRIME-CBPRIM+(3.0D0*CPRIME))*(XMAB3(5,I)+(XMAB3(3,I))))+&
-         &((CPRIME+PPRIME)*XMAB3(3,I))+&
-         &((EPRIME-(4.0D0*FBPRIM))*XMAB3(2,I))-(BBPRIM*XMAB3(1,I))
+         TRAN=(FPRIME*XMAB3(4,I))+((PPRIME-CBPRIM+(3.0D0*CPRIME))*(XMAB3(5,I)+(XMAB3(3,I))))+((CPRIME+PPRIME)*XMAB3(3,I))+((EPRIME-(4.0D0*FBPRIM))*XMAB3(2,I))-(BBPRIM*XMAB3(1,I))
          XMAB57(9,I)=XMAB57(9,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(9,I)).LT.1.0D-15) XMAB57(9,I)=0.0D0
 !
@@ -1448,10 +1255,7 @@ SUBROUTINE AB357
 !       [(4C'+PI')E-FBAR'PI+2(E'-2FBAR')C-2BBAR'F]
 !       C5SLASH IS IN XMAB57(10,I)
 !       WHEN DONE C5 WILL REPLACE C5SLASH
-         TRAN=(((4.0D0*CPRIME)+PPRIME)*(XMAB3(4,I)))-&
-         &(FBPRIM*XMAB3(5,I))+&
-         &(2.0D0*(EPRIME-(2.0D0*FBPRIM))*XMAB3(3,I))-&
-         &(2.0D0*BBPRIM*XMAB3(2,I))
+         TRAN=(((4.0D0*CPRIME)+PPRIME)*(XMAB3(4,I)))-(FBPRIM*XMAB3(5,I))+(2.0D0*(EPRIME-(2.0D0*FBPRIM))*XMAB3(3,I))-(2.0D0*BBPRIM*XMAB3(2,I))
          XMAB57(10,I)=XMAB57(10,I)+((1.0D0/(4.0D0*INV))*TRAN)
          IF(DABS(XMAB57(10,I)).LT.1.0D-15) XMAB57(10,I)=0.0D0
 !
@@ -1459,10 +1263,7 @@ SUBROUTINE AB357
 !       [(PI'-2C')E+(4E'-FBAR')PI+2(E'+FBAR')C-2BBAR'F]
 !       PI5SLASH IS IN XMAB57(11,I)
 !       WHEN DONE PI5 WILL REPLACE PI5SLASH
-         TRAN=((PPRIME-(2.0D0*CPRIME))*XMAB3(4,I))+&
-         &(((4.0D0*EPRIME)-FBPRIM)*XMAB3(5,I))+&
-         &(2.0D0*(EPRIME+FBPRIM)*XMAB3(3,I))-(2.0D0 &
-         &*BBPRIM*XMAB3(2,I))
+         TRAN=((PPRIME-(2.0D0*CPRIME))*XMAB3(4,I))+(((4.0D0*EPRIME)-FBPRIM)*XMAB3(5,I))+(2.0D0*(EPRIME+FBPRIM)*XMAB3(3,I))-(2.0D0 *BBPRIM*XMAB3(2,I))
          XMAB57(11,I)=XMAB57(11,I)+((1.0D0/(4.0D0*INV))*TRAN)
          IF(DABS(XMAB57(11,I)).LT.1.0D-15) XMAB57(11,I)=0.0D0
 !
@@ -1470,8 +1271,7 @@ SUBROUTINE AB357
 !       [3E'E-BBAR'(PI+3C)]
 !       E5SLASH IS IN XMAB57(12,I)
 !       WHEN DONE E5 WILL REPLACE E5SLASH
-         TRAN=(3.0D0*EPRIME*XMAB3(4,I))-&
-         &(BBPRIM*(XMAB3(5,I)+(3.0D0*XMAB3(3,I))))
+         TRAN=(3.0D0*EPRIME*XMAB3(4,I))-(BBPRIM*(XMAB3(5,I)+(3.0D0*XMAB3(3,I))))
          XMAB57(12,I)=XMAB57(12,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(12,I)).LT.1.0D-15) XMAB57(12,I)=0.0D0
 !
@@ -1479,8 +1279,7 @@ SUBROUTINE AB357
 !       [B'(PI+3CBAR)-3EBAR'EBAR)]
 !       E5BARSLASH IS IN XMAB57(13,I)
 !       WHEN DONE E5BAR WILL REPLACE E5BARSLASH
-         TRAN=(BPRIME*(XMAB3(5,I)+(3.0D0*XMAB3(8,I))))-&
-         &(3.0D0*EBPRIM*XMAB3(9,I))
+         TRAN=(BPRIME*(XMAB3(5,I)+(3.0D0*XMAB3(8,I))))-(3.0D0*EBPRIM*XMAB3(9,I))
          XMAB57(13,I)=XMAB57(13,I)+((1.0D0/(2.0D0*INV))*TRAN)
          IF(DABS(XMAB57(13,I)).LT.1.0D-15) XMAB57(13,I)=0.0D0
 !       NOW SEVENTH ORDER SPHERICAL
@@ -1492,12 +1291,9 @@ SUBROUTINE AB357
 !       3((1/2INV)(EBAR'**2)-EBAR5')B+
 !       B'(F1SLH+F2SLH)-
 !       5EBAR'B5SLH]
-         TRAN1=((0.5D0/INV)*(BPRIME**2)*(XMAB3(5,I)+&
-         &(3.0D0*XMAB3(3,I))))
-         TRAN2=(3.0D0*(B5PRIM-((1.0D0/INV)*BPRIME*EBPRIM))&
-         &*XMAB3(2,I))
-         TRAN4=(3.0D0*(((0.5D0/INV)*&
-         &(EBPRIM**2))-EB5PRM)*XMAB3(1,I))
+         TRAN1=((0.5D0/INV)*(BPRIME**2)*(XMAB3(5,I)+(3.0D0*XMAB3(3,I))))
+         TRAN2=(3.0D0*(B5PRIM-((1.0D0/INV)*BPRIME*EBPRIM))*XMAB3(2,I))
+         TRAN4=(3.0D0*(((0.5D0/INV)*(EBPRIM**2))-EB5PRM)*XMAB3(1,I))
          TRAN5=(BPRIME*(XMAB57(16,I)+XMAB57(17,I)))
          TRAN6=(5.0D0*EBPRIM*XMAB57(15,I))
          TRAN=TRAN1+TRAN2+TRAN4+TRAN5-TRAN6
@@ -1515,6 +1311,7 @@ END
 SUBROUTINE A357I
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -1529,8 +1326,7 @@ SUBROUTINE A357I
 !
    REAL*8 C1,C2,C3
 !
-   REAL*8 INV,&
-   &C1T,C2T,C3T
+   REAL*8 INV,C1T,C2T,C3T
 !
 !
 !       THE SA357I AND XSA357I COMMAND ACCEPTS QUALIFIER OR NUMERIC
@@ -1554,8 +1350,7 @@ SUBROUTINE A357I
          RETURN
       END IF
       IF(WC.EQ.'XSA357I') THEN
-         OUTLYNE=&
-         &'"XSA357I" TAKES EITHER QUALIFIER OR NUMERIC INPUT"'
+         OUTLYNE='"XSA357I" TAKES EITHER QUALIFIER OR NUMERIC INPUT"'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -1567,8 +1362,7 @@ SUBROUTINE A357I
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'SA357I') THEN
-         OUTLYNE=&
-         &'"SA357I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"SA357I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1576,8 +1370,7 @@ SUBROUTINE A357I
          RETURN
       END IF
       IF(WC.EQ.'XSA357I') THEN
-         OUTLYNE=&
-         &'"XSA357I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XSA357I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1604,10 +1397,8 @@ SUBROUTINE A357I
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'SA357I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XSA357I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'SA357I')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XSA357I')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -1616,10 +1407,8 @@ SUBROUTINE A357I
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'SA357I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XSA357I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'SA357I')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XSA357I')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -1627,16 +1416,12 @@ SUBROUTINE A357I
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1660,8 +1445,7 @@ SUBROUTINE A357I
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'SA357I') THEN
                C1=MAB3(1,I)/INV
@@ -1680,8 +1464,7 @@ SUBROUTINE A357I
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'SA357I') THEN
                C1=MAB3(1,I)
@@ -1757,14 +1540,10 @@ SUBROUTINE A357I
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'SA357I') THEN
             C1=MAB3(1,SF)/INV
@@ -1785,8 +1564,7 @@ SUBROUTINE A357I
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'SA357I') THEN
             C1=MAB3(1,SF)
@@ -1809,10 +1587,7 @@ SUBROUTINE A357I
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -1820,8 +1595,7 @@ SUBROUTINE A357I
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -1889,8 +1663,7 @@ SUBROUTINE A357I
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'SA357I') THEN
             C1=MAB3(1,I)/INV
@@ -1911,8 +1684,7 @@ SUBROUTINE A357I
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'SA357I') THEN
             C1=MAB3(1,I)
@@ -1939,14 +1711,9 @@ SUBROUTINE A357I
 2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(G12.5,2X,G12.5,2X,G12.5)
 5000 FORMAT('SURF',5X,'SA3 ',10X,'SA5 ',10X,'SA7')
-5001 FORMAT(&
-   &'(Y-Z) PLANE SPHERICAL ABERRATION (3RD,5TH,7TH) CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
-6001 FORMAT(&
-   &'(X-Z) PLANE SPHERICAL ABERRATION (3RD,5TH,7TH) CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
-4999 FORMAT(&
-   &'WARNING: THESE ARE THE (INTRINSIC) SURFACE TERMS')
+5001 FORMAT('(Y-Z) PLANE SPHERICAL ABERRATION (3RD,5TH,7TH) CONTRIBUTIONS',' - (CFG #',I2,')')
+6001 FORMAT('(X-Z) PLANE SPHERICAL ABERRATION (3RD,5TH,7TH) CONTRIBUTIONS',' - (CFG #',I2,')')
+4999 FORMAT('WARNING: THESE ARE THE (INTRINSIC) SURFACE TERMS')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -1958,6 +1725,7 @@ END
 SUBROUTINE AB5I
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2021,10 +1789,8 @@ SUBROUTINE AB5I
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'MAB5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XMAB5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'MAB5I')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XMAB5I')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2033,10 +1799,8 @@ SUBROUTINE AB5I
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'MAB5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XMAB5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'MAB5I')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XMAB5I')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2044,16 +1808,12 @@ SUBROUTINE AB5I
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2076,8 +1836,7 @@ SUBROUTINE AB5I
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'MAB5I') THEN
                C1=SAB57(1,I)/INV
@@ -2100,8 +1859,7 @@ SUBROUTINE AB5I
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'MAB5I') THEN
                C1=SAB57(1,I)
@@ -2191,14 +1949,10 @@ SUBROUTINE AB5I
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MAB5I') THEN
             C1=SAB57(1,SF)/INV
@@ -2223,8 +1977,7 @@ SUBROUTINE AB5I
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MAB5I') THEN
             C1=SAB57(1,SF)
@@ -2251,10 +2004,7 @@ SUBROUTINE AB5I
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2262,8 +2012,7 @@ SUBROUTINE AB5I
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -2341,8 +2090,7 @@ SUBROUTINE AB5I
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MAB5I') THEN
             C1=SAB57(1,I)/INV
@@ -2367,8 +2115,7 @@ SUBROUTINE AB5I
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MAB5I') THEN
             C1=SAB57(1,I)
@@ -2395,19 +2142,13 @@ SUBROUTINE AB5I
       RETURN
    ELSE
    END IF
-1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
-2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
+1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
+2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(5X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
-5000 FORMAT('SURF',5X,'SA5 ',10X,'CMA5',10X,'AST5',&
-   &10X,'DIS5',10X,'PTZ5')
-5001 FORMAT('(Y-Z) PLANE FIFTH ORDER ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
-6001 FORMAT('(X-Z) PLANE FIFTH ORDER ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
-4999 FORMAT(&
-   &'WARNING: THESE ARE INTRINSIC SURFACE CONTRIBUTIONS ONLY!')
+5000 FORMAT('SURF',5X,'SA5 ',10X,'CMA5',10X,'AST5',10X,'DIS5',10X,'PTZ5')
+5001 FORMAT('(Y-Z) PLANE FIFTH ORDER ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
+6001 FORMAT('(X-Z) PLANE FIFTH ORDER ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
+4999 FORMAT('WARNING: THESE ARE INTRINSIC SURFACE CONTRIBUTIONS ONLY!')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -2419,6 +2160,7 @@ END
 SUBROUTINE ABX5I
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2465,8 +2207,7 @@ SUBROUTINE ABX5I
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'MABX5I') THEN
-         OUTLYNE=&
-         &'"MABX5I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"MABX5I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2474,8 +2215,7 @@ SUBROUTINE ABX5I
          RETURN
       END IF
       IF(WC.EQ.'XMABX5I') THEN
-         OUTLYNE=&
-         &'"XMABX5I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XMABX5I" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2502,10 +2242,8 @@ SUBROUTINE ABX5I
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'MABX5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XMABX5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'MABX5I')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XMABX5I')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2514,10 +2252,8 @@ SUBROUTINE ABX5I
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'MABX5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XMABX5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'MABX5I')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XMABX5I')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2525,16 +2261,12 @@ SUBROUTINE ABX5I
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2558,8 +2290,7 @@ SUBROUTINE ABX5I
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'MABX5I') THEN
                C1=(SAB57(4,I)+SAB57(5,I)+SAB57(6,I))/INV
@@ -2582,8 +2313,7 @@ SUBROUTINE ABX5I
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'MABX5I') THEN
                C1=SAB57(4,I)+SAB57(5,I)+SAB57(6,I)
@@ -2673,14 +2403,10 @@ SUBROUTINE ABX5I
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MABX5I') THEN
             C1=(SAB57(4,SF)+SAB57(5,SF)+SAB57(6,SF))/INV
@@ -2705,8 +2431,7 @@ SUBROUTINE ABX5I
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MABX5I') THEN
             C1=SAB57(4,SF)+SAB57(5,SF)+SAB57(6,SF)
@@ -2733,10 +2458,7 @@ SUBROUTINE ABX5I
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2744,8 +2466,7 @@ SUBROUTINE ABX5I
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -2823,8 +2544,7 @@ SUBROUTINE ABX5I
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MABX5I') THEN
             C1=(SAB57(4,I)+SAB57(5,I)+SAB57(6,I))/INV
@@ -2849,8 +2569,7 @@ SUBROUTINE ABX5I
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MABX5I') THEN
             C1=SAB57(4,I)+SAB57(5,I)+SAB57(6,I)
@@ -2877,21 +2596,13 @@ SUBROUTINE ABX5I
       RETURN
    ELSE
    END IF
-1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
-2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
+1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
+2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(5X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
-5000 FORMAT('SURF',5X,'TOBSA',9X,'SOBSA',9X,'ELCMA',&
-   &9X,'TAS ',10X,'SAS')
-4999 FORMAT(&
-   &'WARNING: THESE ARE INTRINSIC SURFACE COEFFICIENTS ONLY!')
-5001 FORMAT(&
-   &'(Y-Z) PLANE FIFTH ORDER (EXTENDED) ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
-6001 FORMAT(&
-   &'(X-Z) PLANE FIFTH ORDER (EXTENDED) ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
+5000 FORMAT('SURF',5X,'TOBSA',9X,'SOBSA',9X,'ELCMA',9X,'TAS ',10X,'SAS')
+4999 FORMAT('WARNING: THESE ARE INTRINSIC SURFACE COEFFICIENTS ONLY!')
+5001 FORMAT('(Y-Z) PLANE FIFTH ORDER (EXTENDED) ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
+6001 FORMAT('(X-Z) PLANE FIFTH ORDER (EXTENDED) ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -2903,6 +2614,7 @@ END
 SUBROUTINE MMAB3
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -2951,8 +2663,7 @@ SUBROUTINE MMAB3
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'MAB3') THEN
-         OUTLYNE=&
-         &'"MAB3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"MAB3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2960,8 +2671,7 @@ SUBROUTINE MMAB3
          RETURN
       END IF
       IF(WC.EQ.'XMAB3') THEN
-         OUTLYNE=&
-         &'"XMAB3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XMAB3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2988,10 +2698,8 @@ SUBROUTINE MMAB3
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'MAB3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XMAB3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'MAB3')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XMAB3')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3000,10 +2708,8 @@ SUBROUTINE MMAB3
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'MAB3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XMAB3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'MAB3')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XMAB3')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3011,16 +2717,12 @@ SUBROUTINE MMAB3
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3046,8 +2748,7 @@ SUBROUTINE MMAB3
       !                WRITE(OUTLYNE,5000)
       !CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'MAB3') THEN
                C1=MAB3(1,I)/INV
@@ -3072,8 +2773,7 @@ SUBROUTINE MMAB3
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'MAB3') THEN
                C1=MAB3(1,I)
@@ -3167,14 +2867,10 @@ SUBROUTINE MMAB3
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MAB3') THEN
             C1=MAB3(1,SF)/INV
@@ -3201,8 +2897,7 @@ SUBROUTINE MMAB3
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MAB3') THEN
             C1=MAB3(1,SF)
@@ -3231,10 +2926,7 @@ SUBROUTINE MMAB3
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3242,8 +2934,7 @@ SUBROUTINE MMAB3
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -3323,8 +3014,7 @@ SUBROUTINE MMAB3
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MAB3') THEN
             C1=MAB3(1,I)/INV
@@ -3351,8 +3041,7 @@ SUBROUTINE MMAB3
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MAB3') THEN
             C1=MAB3(1,I)/INV
@@ -3382,17 +3071,13 @@ SUBROUTINE MMAB3
       RETURN
    ELSE
    END IF
-1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
-2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
+1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
+2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(5X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
-5000 FORMAT('SURF',5X,'SA3 ',10X,'CMA3',10X,'AST3',&
-   &10X,'DIS3',10X,'PTZ3')
+5000 FORMAT('SURF',5X,'SA3 ',10X,'CMA3',10X,'AST3',10X,'DIS3',10X,'PTZ3')
 6001 FORMAT('(X-Z) PLANE, THIRD ORDER')
 5001 FORMAT('(Y-Z), PLANE THIRD ORDER')
-5002 FORMAT('ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
+5002 FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -3404,6 +3089,7 @@ END
 SUBROUTINE MMAB5
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3449,8 +3135,7 @@ SUBROUTINE MMAB5
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'MAB5') THEN
-         OUTLYNE=&
-         &'"MAB5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"MAB5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3458,8 +3143,7 @@ SUBROUTINE MMAB5
          RETURN
       END IF
       IF(WC.EQ.'XMAB5') THEN
-         OUTLYNE=&
-         &'"XMAB5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XMAB5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3486,10 +3170,8 @@ SUBROUTINE MMAB5
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'MAB5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XMAB5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'MAB5')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XMAB5')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3498,10 +3180,8 @@ SUBROUTINE MMAB5
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'MAB5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XMAB5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'MAB5')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XMAB5')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3509,16 +3189,12 @@ SUBROUTINE MMAB5
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3542,8 +3218,7 @@ SUBROUTINE MMAB5
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'MAB5') THEN
                C1=MAB57(1,I)/INV
@@ -3566,8 +3241,7 @@ SUBROUTINE MMAB5
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'MAB5') THEN
                C1=MAB57(1,I)
@@ -3657,14 +3331,10 @@ SUBROUTINE MMAB5
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MAB5') THEN
             C1=MAB57(1,SF)/INV
@@ -3689,8 +3359,7 @@ SUBROUTINE MMAB5
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MAB5') THEN
             C1=MAB57(1,SF)
@@ -3717,10 +3386,7 @@ SUBROUTINE MMAB5
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3728,8 +3394,7 @@ SUBROUTINE MMAB5
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -3807,8 +3472,7 @@ SUBROUTINE MMAB5
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MAB5') THEN
             C1=MAB57(1,I)/INV
@@ -3833,8 +3497,7 @@ SUBROUTINE MMAB5
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MAB5') THEN
             C1=MAB57(1,I)
@@ -3861,17 +3524,13 @@ SUBROUTINE MMAB5
       RETURN
    ELSE
    END IF
-1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
-2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
+1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
+2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(5X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
-5000 FORMAT('SURF',5X,'SA5 ',10X,'CMA5',10X,'AST5',&
-   &10X,'DIS5',10X,'PTZ5')
+5000 FORMAT('SURF',5X,'SA5 ',10X,'CMA5',10X,'AST5',10X,'DIS5',10X,'PTZ5')
 5001 FORMAT('(Y-Z) PLANE, FIFTH ORDER')
 6001 FORMAT('(X-Z) PLANE, FIFTH ORDER')
-5002 FORMAT('ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
+5002 FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -3883,6 +3542,7 @@ END
 SUBROUTINE MMABX5
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -3928,8 +3588,7 @@ SUBROUTINE MMABX5
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'MABX5') THEN
-         OUTLYNE=&
-         &'"MABX5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"MABX5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3937,8 +3596,7 @@ SUBROUTINE MMABX5
          RETURN
       END IF
       IF(WC.EQ.'XMABX5') THEN
-         OUTLYNE=&
-         &'"XMABX5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XMABX5" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -3965,10 +3623,8 @@ SUBROUTINE MMABX5
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'MABX5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XMABX5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'MABX5')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XMABX5')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3977,10 +3633,8 @@ SUBROUTINE MMABX5
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'MABX5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XMABX5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'MABX5')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XMABX5')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3988,16 +3642,12 @@ SUBROUTINE MMABX5
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4021,8 +3671,7 @@ SUBROUTINE MMABX5
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'MABX5') THEN
                C1=(MAB57(4,I)+MAB57(5,I)+MAB57(6,I))/INV
@@ -4045,8 +3694,7 @@ SUBROUTINE MMABX5
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'MABX5') THEN
                C1=MAB57(4,I)+MAB57(5,I)+MAB57(6,I)
@@ -4136,14 +3784,10 @@ SUBROUTINE MMABX5
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MABX5') THEN
             C1=(MAB57(4,SF)+MAB57(5,SF)+MAB57(6,SF))/INV
@@ -4168,8 +3812,7 @@ SUBROUTINE MMABX5
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MABX5') THEN
             C1=MAB57(4,SF)+MAB57(5,SF)+MAB57(6,SF)
@@ -4196,10 +3839,7 @@ SUBROUTINE MMABX5
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -4207,8 +3847,7 @@ SUBROUTINE MMABX5
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -4286,8 +3925,7 @@ SUBROUTINE MMABX5
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MABX5') THEN
             C1=(MAB57(4,I)+MAB57(5,I)+MAB57(6,I))/INV
@@ -4312,8 +3950,7 @@ SUBROUTINE MMABX5
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MABX5') THEN
             C1=MAB57(4,I)+MAB57(5,I)+MAB57(6,I)
@@ -4340,19 +3977,13 @@ SUBROUTINE MMABX5
       RETURN
    ELSE
    END IF
-1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
-2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
+1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
+2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(5X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
-5000 FORMAT('SURF',5X,'TOBSA',9X,'SOBSA',9X,'ELCMA',&
-   &9X,'TAS ',10X,'SAS')
-5001 FORMAT(&
-   &'(Y-Z), PLANE FIFTH ORDER (EXTENDED)')
-6001 FORMAT(&
-   &'(X-Z) PLANE, FIFTH ORDER (EXTENDED)')
-5002 FORMAT('ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
+5000 FORMAT('SURF',5X,'TOBSA',9X,'SOBSA',9X,'ELCMA',9X,'TAS ',10X,'SAS')
+5001 FORMAT('(Y-Z), PLANE FIFTH ORDER (EXTENDED)')
+6001 FORMAT('(X-Z) PLANE, FIFTH ORDER (EXTENDED)')
+5002 FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -4364,6 +3995,7 @@ END
 SUBROUTINE MMABP3
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -4411,8 +4043,7 @@ SUBROUTINE MMABP3
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'MABP3') THEN
-         OUTLYNE=&
-         &'"MABP3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"MABP3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4420,8 +4051,7 @@ SUBROUTINE MMABP3
          RETURN
       END IF
       IF(WC.EQ.'XMABP3') THEN
-         OUTLYNE=&
-         &'"XMABP3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XMABP3" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4448,10 +4078,8 @@ SUBROUTINE MMABP3
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'MABP3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XMABP3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'MABP3')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XMABP3')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4460,10 +4088,8 @@ SUBROUTINE MMABP3
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'MABP3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XMABP3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'MABP3')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XMABP3')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4471,16 +4097,12 @@ SUBROUTINE MMABP3
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4504,8 +4126,7 @@ SUBROUTINE MMABP3
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'MABP3') THEN
                C1=MAB3(6,I)/INV
@@ -4528,8 +4149,7 @@ SUBROUTINE MMABP3
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'MABP3') THEN
                C1=MAB3(6,I)
@@ -4619,14 +4239,10 @@ SUBROUTINE MMABP3
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MABP3') THEN
             C1=MAB3(6,SF)/INV
@@ -4651,8 +4267,7 @@ SUBROUTINE MMABP3
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MABP3') THEN
             C1=MAB3(6,SF)
@@ -4679,10 +4294,7 @@ SUBROUTINE MMABP3
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -4690,8 +4302,7 @@ SUBROUTINE MMABP3
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -4769,8 +4380,7 @@ SUBROUTINE MMABP3
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'MABP3') THEN
             C1=MAB3(6,I)/INV
@@ -4795,8 +4405,7 @@ SUBROUTINE MMABP3
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'MABP3') THEN
             C1=MAB3(6,I)
@@ -4823,19 +4432,13 @@ SUBROUTINE MMABP3
       RETURN
    ELSE
    END IF
-1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
-2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,&
-   &2X,G12.5)
+1500 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
+2000 FORMAT(I3,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
 2001 FORMAT(5X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5,2X,G12.5)
-5000 FORMAT('SURF',5X,'PSA3 ',9X,'PCMA3',9X,'PAST3',&
-   &9X,'PDIS3',9X,'PPTZ3')
-5001 FORMAT(&
-   &'(Y-Z) PLANE, EXIT PUPIL THIRD ORDER')
-6001 FORMAT(&
-   &'(X-Z) PLANE, THIRD ORDER EXIT PUPIL')
-5002 FORMAT('ABERRATION CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
+5000 FORMAT('SURF',5X,'PSA3 ',9X,'PCMA3',9X,'PAST3',9X,'PDIS3',9X,'PPTZ3')
+5001 FORMAT('(Y-Z) PLANE, EXIT PUPIL THIRD ORDER')
+6001 FORMAT('(X-Z) PLANE, THIRD ORDER EXIT PUPIL')
+5002 FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
@@ -4847,6 +4450,7 @@ END
 SUBROUTINE SA357
 !
    use DATLEN
+   use mod_surface
    use DATMAI
    IMPLICIT NONE
 !
@@ -4856,8 +4460,7 @@ SUBROUTINE SA357
 !
    REAL*8 C1,C2,C3
 !
-   REAL*8 &
-   &INV,C1T,C2T,C3T
+   REAL*8 INV,C1T,C2T,C3T
 !
 !
    CALL PRTRC
@@ -4893,8 +4496,7 @@ SUBROUTINE SA357
    END IF
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       IF(WC.EQ.'SA357') THEN
-         OUTLYNE=&
-         &'"SA357" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"SA357" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4902,8 +4504,7 @@ SUBROUTINE SA357
          RETURN
       END IF
       IF(WC.EQ.'XSA357') THEN
-         OUTLYNE=&
-         &'"XSA357" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"XSA357" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -4930,10 +4531,8 @@ SUBROUTINE SA357
    INV=1.0D0
    IF(SYSTEM(30).EQ.1.0D0) THEN
 !       MODE IS FOCAL
-      IF(WC.EQ.'SA357')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-      IF(WC.EQ.'XSA357')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      IF(WC.EQ.'SA357')INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      IF(WC.EQ.'XSA357')INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4942,10 +4541,8 @@ SUBROUTINE SA357
    END IF
    IF(SYSTEM(30).EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-      IF(WC.EQ.'SA357')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-      IF(WC.EQ.'XSA357')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      IF(WC.EQ.'SA357')INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      IF(WC.EQ.'XSA357')INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4953,16 +4550,12 @@ SUBROUTINE SA357
    ELSE
    END IF
    IF(INV.EQ.0.0D0) THEN
-      OUTLYNE=&
-      &'THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
+      OUTLYNE='THE LENS (MODE) IS NOT CONSISTENT WITH PARAXIAL VALUES'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'ABERRATIONS ARE NOT CALCULABLE'
+      OUTLYNE='ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
-      &OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
+      IF(SYSTEM(30).EQ.1.0D0)OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
+      IF(SYSTEM(30).EQ.3.0D0)OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='THEN RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -4986,8 +4579,7 @@ SUBROUTINE SA357
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'SA357') THEN
                C1=MAB3(1,I)/INV
@@ -5006,8 +4598,7 @@ SUBROUTINE SA357
             GO TO 10
          ELSE
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'SA357') THEN
                C1=MAB3(1,I)
@@ -5083,14 +4674,10 @@ SUBROUTINE SA357
    ELSE
 !       QUALIFIER NOT "ALL"
    END IF
-   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
-      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')SF=INT(SYSTEM(20))
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'SA357') THEN
             C1=MAB3(1,SF)/INV
@@ -5111,8 +4698,7 @@ SUBROUTINE SA357
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'SA357') THEN
             C1=MAB3(1,SF)
@@ -5135,10 +4721,7 @@ SUBROUTINE SA357
       END IF
    ELSE
    END IF
-   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.&
-   &WQ.NE.'IMAGE') THEN
+   IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.WQ.NE.'ALL'.OR.SQ.EQ.1.AND.WQ.NE.'OB'.OR.SQ.EQ.1.AND.WQ.NE.'I'.OR.SQ.EQ.1.AND.WQ.NE.'IM'.OR.SQ.EQ.1.AND.WQ.NE.'IMAGE') THEN
       OUTLYNE='INVALID QUALIFIER WORD'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -5146,8 +4729,7 @@ SUBROUTINE SA357
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
-   &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
+   IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       SF=INT(SYSTEM(20))
 !       OUTPUT SYSTEM TOTALS
 !
@@ -5215,8 +4797,7 @@ SUBROUTINE SA357
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'SA357') THEN
             C1=MAB3(1,I)/INV
@@ -5237,8 +4818,7 @@ SUBROUTINE SA357
          RETURN
       ELSE
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(SYSTEM(30).EQ.2.0.OR.SYSTEM(30).EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'SA357') THEN
             C1=MAB3(1,I)
@@ -5267,8 +4847,7 @@ SUBROUTINE SA357
 5000 FORMAT('SURF',5X,'SA3 ',10X,'SA5 ',10X,'SA7')
 5001 FORMAT('(Y-Z), PLANE SPHERICAL ABERRATION')
 6001 FORMAT('(X-Z), PLANE SPHERICAL ABERRATION')
-5002 FORMAT('(3RD,5TH,7TH) CONTRIBUTIONS'&
-   &,' - (CFG #',I2,')')
+5002 FORMAT('(3RD,5TH,7TH) CONTRIBUTIONS',' - (CFG #',I2,')')
 5501 FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
 5502 FORMAT('TRANSVERSE - WITHOUT FINAL SURFACE CONVERSION')
 5503 FORMAT('ANGULAR - WITH FINAL SURFACE CONVERSION')
