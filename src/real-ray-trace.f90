@@ -57,6 +57,7 @@ contains
         USE GLOBALS
 !
         use DATLEN
+   use mod_surface
         use DATMAI
         use mod_surface
         IMPLICIT NONE
@@ -73,16 +74,7 @@ contains
 !
         COMMON/COROPL/OPLXCOR,OPLYCOR,OPLZCOR
 !
-        REAL*8 X,Y,Z,L,M,N,WW1W,WW2W,LER,MER,NER,TANN1,TANN2,IA,IAP &
-      ,D21,D22,GAMMA,XXX,YYY,TWW1,TWW2,XL,XM,XN,YL,YM,YN,RN1,RN2, &
-      WWW1,WWW2,D11,D12,LS,SNINDX,SNIND2,WW1WW,WW2WW,JK1,JK2,JK3, &
-      LSTART,MSTART,NSTART,YANG,XANG,X1LAST,LARGE,ENERGY_FACTOR, &
-      Y1LAST,X1ONE,Y1ONE,RXLAST,RYLAST,RXONE,RYONE,DDELX,DDELY, &
-      XC1,YC1,ZC1,MF1,MF2,DET,TARX,TARY,XVALUE,YVALUE, &
-      TEST,MAG,VALUE,LOLD,MOLD,NOLD,TARRY,TARRX,JKX,JKY, &
-      JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2,JK_CPL,JK_CPM,JK_CPN &
-      ,SA_CPL,SA_CPM,SA_CPN,DP,POLANG,FACT_PAR,FACT_PER,PHASE_PAR &
-      ,PHASE_PER,PATHL,STEPL,STEPL1
+        REAL*8 X,Y,Z,L,M,N,WW1W,WW2W,LER,MER,NER,TANN1,TANN2,IA,IAP ,D21,D22,GAMMA,XXX,YYY,TWW1,TWW2,XL,XM,XN,YL,YM,YN,RN1,RN2, WWW1,WWW2,D11,D12,LS,SNINDX,SNIND2,WW1WW,WW2WW,JK1,JK2,JK3, LSTART,MSTART,NSTART,YANG,XANG,X1LAST,LARGE,ENERGY_FACTOR, Y1LAST,X1ONE,Y1ONE,RXLAST,RYLAST,RXONE,RYONE,DDELX,DDELY, XC1,YC1,ZC1,MF1,MF2,DET,TARX,TARY,XVALUE,YVALUE, TEST,MAG,VALUE,LOLD,MOLD,NOLD,TARRY,TARRX,JKX,JKY, JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2,JK_CPL,JK_CPM,JK_CPN ,SA_CPL,SA_CPM,SA_CPN,DP,POLANG,FACT_PAR,FACT_PER,PHASE_PAR ,PHASE_PER,PATHL,STEPL,STEPL1
 !
         COMMON/CACO/CAERAS,COERAS,LS
 !
@@ -130,8 +122,7 @@ contains
                 IF(MSG) THEN
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
       CALL SHOWIT(1)
-        OUTLYNE= &
-      'RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
+        OUTLYNE= 'RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
       CALL SHOWIT(1)
                         END IF
                 STOPP=1
@@ -149,8 +140,7 @@ contains
                 IF(MSG) THEN
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
       CALL SHOWIT(1)
-        OUTLYNE= &
-      'RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
+        OUTLYNE= 'RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
       CALL SHOWIT(1)
                         END IF
                 STOPP=1
@@ -249,38 +239,27 @@ contains
       IF(surf_clap_type(NEWOBJ+1) == 1) THEN
 !     CIRCULAR AP
       IF(surf_clap_dim(NEWOBJ+1, 1).LE.surf_clap_dim(NEWOBJ+1, 2)) THEN
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(surf_clap_dim(NEWOBJ+1, 1))
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) JKX=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
                            ELSE
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(surf_clap_dim(NEWOBJ+1, 2))
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(surf_clap_dim(NEWOBJ+1, 2))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAX(1,NEWOBJ+1))) JKX=DABS(surf_clap_dim(NEWOBJ+1, 2))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAY(1,NEWOBJ+1))) JKY=DABS(surf_clap_dim(NEWOBJ+1, 2))
                            END IF
               END IF
       IF(surf_clap_type(NEWOBJ+1) == 5) THEN
 !     CIRCULAR AP
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(surf_clap_dim(NEWOBJ+1, 1))
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAX(1,NEWOBJ+1))) JKX=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
               END IF
       IF(surf_clap_type(NEWOBJ+1) == 6) THEN
 !     CIRCULAR AP
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 5)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(surf_clap_dim(NEWOBJ+1, 5))
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 5)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(surf_clap_dim(NEWOBJ+1, 5))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 5)).LT.DABS(PXTRAX(1,NEWOBJ+1))) JKX=DABS(surf_clap_dim(NEWOBJ+1, 5))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 5)).LT.DABS(PXTRAY(1,NEWOBJ+1))) JKY=DABS(surf_clap_dim(NEWOBJ+1, 5))
               END IF
-      IF(surf_clap_type(NEWOBJ+1).GT.1.0D0.AND.surf_clap_type(NEWOBJ+1) &
-      .LE.4.0D0) THEN
+      IF(surf_clap_type(NEWOBJ+1).GT.1.0D0.AND.surf_clap_type(NEWOBJ+1) .LE.4.0D0) THEN
 !     OTHER AP
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAX(1,NEWOBJ+1))) &
-      JKX=DABS(surf_clap_dim(NEWOBJ+1, 2))
-      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) &
-      JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 2)).LT.DABS(PXTRAX(1,NEWOBJ+1))) JKX=DABS(surf_clap_dim(NEWOBJ+1, 2))
+      IF(DABS(surf_clap_dim(NEWOBJ+1, 1)).LT.DABS(PXTRAY(1,NEWOBJ+1))) JKY=DABS(surf_clap_dim(NEWOBJ+1, 1))
               END IF
                         ELSE
 !       TELECENTRIC AIMING IS ON
@@ -319,14 +298,10 @@ contains
 !
                         ELSE
 !     TEL ON
-      IF(SYSTEM(16).NE.0.0D0) &
-      X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ)))+(WW2*JKX)
-      IF(SYSTEM(16).EQ.0.0D0) &
-      X1AIM=(WW2*JKX)
-      IF(SYSTEM(14).NE.0.0D0) &
-      Y1AIM=(LFOB(1)*(PXTRAY(5,NEWOBJ)))+(WW1*JKY)
-      IF(SYSTEM(14).EQ.0.0D0) &
-      Y1AIM=(WW1*JKY)
+      IF(SYSTEM(16).NE.0.0D0) X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ)))+(WW2*JKX)
+      IF(SYSTEM(16).EQ.0.0D0) X1AIM=(WW2*JKX)
+      IF(SYSTEM(14).NE.0.0D0) Y1AIM=(LFOB(1)*(PXTRAY(5,NEWOBJ)))+(WW1*JKY)
+      IF(SYSTEM(14).EQ.0.0D0) Y1AIM=(WW1*JKY)
         Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -465,11 +440,9 @@ contains
 !       AND STOP SEARCHING.
         IF(KKK.GT.NRAITR) THEN
                         IF(MSG) THEN
-      WRITE(OUTLYNE,*) &
-        'RAY FAILURE OCCURRED AT SURFACE ',NEWREF
+      WRITE(OUTLYNE,*) 'RAY FAILURE OCCURRED AT SURFACE ',NEWREF
       CALL SHOWIT(1)
-        OUTLYNE= &
-        'RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT'
+        OUTLYNE= 'RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT'
       CALL SHOWIT(1)
                         END IF
                 RAYCOD(1)=3
@@ -496,8 +469,7 @@ contains
 !
       IF(.NOT.ITRACE) THEN
 !     NOT ILLUMINATION TRACING
-      MAG=DSQRT(((XSTRT-X1AIM)**2)+((YSTRT-Y1AIM)**2) &
-      +((ZSTRT-Z1AIM)**2))
+      MAG=DSQRT(((XSTRT-X1AIM)**2)+((YSTRT-Y1AIM)**2) +((ZSTRT-Z1AIM)**2))
 
 
         LSTART=(X1AIM-XSTRT)/MAG
@@ -532,8 +504,7 @@ contains
 !
 !     ILLUMINATION TRACING
 !
-      IF(WW1.GT.89.9999D0.AND. &
-      WW1.LT.90.0001D0)  WW1=89.9999D0
+      IF(WW1.GT.89.9999D0.AND. WW1.LT.90.0001D0)  WW1=89.9999D0
 !
 !     CONVERT TO RADIANS
       TWW1=WW1
@@ -661,11 +632,9 @@ contains
       IA=DACOS(RAYRAY(9,NEWOBJ))
       IAP=DACOS(RAYRAY(10,NEWOBJ))
                 RAYRAY(11,NEWOBJ)=XANG
-      IF((RAYRAY(11,NEWOBJ)).LT.0.0D0) RAYRAY(11,NEWOBJ)= &
-      RAYRAY(11,NEWOBJ)+(TWOPII)
+      IF((RAYRAY(11,NEWOBJ)).LT.0.0D0) RAYRAY(11,NEWOBJ)= RAYRAY(11,NEWOBJ)+(TWOPII)
                 RAYRAY(12,NEWOBJ)=YANG
-      IF((RAYRAY(12,NEWOBJ)).LT.0.0D0) RAYRAY(12,NEWOBJ)= &
-      RAYRAY(12,NEWOBJ)+(TWOPII)
+      IF((RAYRAY(12,NEWOBJ)).LT.0.0D0) RAYRAY(12,NEWOBJ)= RAYRAY(12,NEWOBJ)+(TWOPII)
                 RAYRAY(13,NEWOBJ)=0.0D0
                 RAYRAY(14,NEWOBJ)=0.0D0
                 RAYRAY(15,NEWOBJ)=1.0D0
@@ -848,9 +817,7 @@ contains
 !
 
         IF(NUMHITS(I-1).EQ.1.AND.I.GE.1) THEN
-        RAYRAY(8,I)=DSQRT( &
-        ((RAYRAY(3,I)-ZOLD)**2)+((RAYRAY(2,I)-YOLD)**2) &
-        +((RAYRAY(1,I)-XOLD)**2))
+        RAYRAY(8,I)=DSQRT( ((RAYRAY(3,I)-ZOLD)**2)+((RAYRAY(2,I)-YOLD)**2) +((RAYRAY(1,I)-XOLD)**2))
                         ELSE
 !       NUMHITS STORED ON LAST SURFACE WAS GREATER THAN 1
         RAYRAY(8,I)=0.0D0
@@ -859,11 +826,7 @@ contains
         YOLD=0.0D0
         ZOLD=0.0D0
                 DO N_HITS=1,NUMHITS(I-1)
-        STEPL=DSQRT( &
-       (((MULTIRAY_DATA(3,I-1,N_HITS))-ZOLD)**2)+ &
-       (((MULTIRAY_DATA(2,I-1,N_HITS))-YOLD)**2)+ &
-       (((MULTIRAY_DATA(1,I-1,N_HITS))-XOLD)**2) &
-      )
+        STEPL=DSQRT( (((MULTIRAY_DATA(3,I-1,N_HITS))-ZOLD)**2)+ (((MULTIRAY_DATA(2,I-1,N_HITS))-YOLD)**2)+ (((MULTIRAY_DATA(1,I-1,N_HITS))-XOLD)**2) )
         IF(N_HITS.EQ.1) STEPL1=STEPL
         RAYRAY(8,I)=RAYRAY(8,I)+STEPL
 !       CREATE NEW XOLD,YOLD,ZOLD
@@ -888,10 +851,8 @@ contains
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
       RAYRAY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*RAYRAY(6,I-1)
                        END IF
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) &
-      RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(45+INT(WW3),(I-1)))
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) &
-      RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(65+INT(WW3),(I-1)))
+      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(45+INT(WW3),(I-1)))
+      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(65+INT(WW3),(I-1)))
       IF(.NOT.RV) RAYRAY(7,I)=RAYRAY(7,I)+PHASE
       IF(RV) RAYRAY(7,I)=RAYRAY(7,I)-PHASE
 !
@@ -908,8 +869,7 @@ contains
         ELSE
         RAYRAY(11,I)=DATAN2(L,N)
         END IF
-      IF((RAYRAY(11,I)).LT.0.0D0) RAYRAY(11,I)= &
-      RAYRAY(11,I)+(TWOPII)
+      IF((RAYRAY(11,I)).LT.0.0D0) RAYRAY(11,I)= RAYRAY(11,I)+(TWOPII)
                         END IF
                         END IF
       IF(M.EQ.0.0D0) THEN
@@ -925,8 +885,7 @@ contains
         ELSE
         RAYRAY(12,I)=DATAN2(M,N)
         END IF
-      IF((RAYRAY(12,I)).LT.0.0D0) RAYRAY(12,I)= &
-      RAYRAY(12,I)+(TWOPII)
+      IF((RAYRAY(12,I)).LT.0.0D0) RAYRAY(12,I)= RAYRAY(12,I)+(TWOPII)
                         END IF
                         END IF
         RAYRAY(22,I)=RAYRAY(22,(I-1))+RAYRAY(7,I)
@@ -951,11 +910,9 @@ contains
 !     WE ARE PLANNING TO PLOT THE RAY
 !     SHUT OFF GLOBAL IF IT IS ON AND RE-ASSIGN THE GLSURF
                 IF(GLOBE) THEN
-        OUTLYNE= &
-        'GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION'
+        OUTLYNE= 'GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION'
       CALL SHOWIT(1)
-        OUTLYNE= &
-        'FOR RAY PLOTTING'
+        OUTLYNE= 'FOR RAY PLOTTING'
       CALL SHOWIT(1)
                         END IF
                         GLSURF=-99
@@ -1000,12 +957,10 @@ contains
 !
         IF(I.EQ.NEWREF) THEN
 !       CALCULATE TARX AND TARY
-        IF(ABS(surf_clap_type(I)) >= 1.AND. &
-        ABS(surf_clap_type(I)) <= 6.AND.surf_multi_clap_flag(I) == 0) THEN
+        IF(ABS(surf_clap_type(I)) >= 1.AND. ABS(surf_clap_type(I)) <= 6.AND.surf_multi_clap_flag(I) == 0) THEN
 !     CLAPT=TRUE FOR CLAP TILTS AND DECENTED AND FALSE OTHERWISE
       CLAPT=.FALSE.
-      IF(surf_clap_dim(I, 3).NE.0.0D0.OR.surf_clap_dim(I, 4).NE.0.0D0.OR.surf_clap_tilt(I) &
-      .NE.0.0D0) CLAPT=.TRUE.
+      IF(surf_clap_dim(I, 3).NE.0.0D0.OR.surf_clap_dim(I, 4).NE.0.0D0.OR.surf_clap_tilt(I) .NE.0.0D0) CLAPT=.TRUE.
 !       REF SURF HAS CLAP ON IT
 !       THE VALUES OF TARY AND TARX ARE COORDINATES IN THE
 !       LOCAL COORDINATE SYSTEM OF THE REFERENCE SYSTEM.
@@ -1018,12 +973,8 @@ contains
 !
       WWW1=WW1
       WWW2=WW2
-      IF(SYSTEM(70).EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. &
-      surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. &
-      surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
-      IF(DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 1)).AND. &
-      DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 2))) &
-      CALL APLANA(I,WW1,WW2,WWW1,WWW2)
+      IF(SYSTEM(70).EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
+      IF(DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 1)).AND. DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 2))) CALL APLANA(I,WW1,WW2,WWW1,WWW2)
                        END IF
 !
 !       CIRCULAR CLAP
@@ -1253,8 +1204,7 @@ contains
 !
         TEST=DSQRT(((TARX-X)**2)+((TARY-Y)**2))
         !call logger%logTextWithNum("RAYTRA AIMTOL CHECK IS ", TEST)
-        IF(TEST.LE.AIMTOL &
-      .OR.SYSTEM(62).EQ.0.0D0.OR.ITRACE) THEN
+        IF(TEST.LE.AIMTOL .OR.SYSTEM(62).EQ.0.0D0.OR.ITRACE) THEN
 !       AIM IS GOOD ENOUGH, PROCEED
                         AIMOK=.TRUE.
                         GO TO 100
@@ -1304,8 +1254,7 @@ contains
       XC1=XC
       YC1=YC
       ZC1=ZC
-      IF(surf_curvature(1).NE.0.0D0) &
-      CALL GETZEE1
+      IF(surf_curvature(1).NE.0.0D0) CALL GETZEE1
         X1AIM=XC
         Y1AIM=YC
         Z1AIM=ZC
@@ -1337,8 +1286,7 @@ contains
 
 
 
-      CALL RAYDERIV(X1LAST,Y1LAST,X1ONE,Y1ONE &
-      ,RXONE,RYONE,RXLAST,RYLAST,D11,D12,D21,D22)
+      CALL RAYDERIV(X1LAST,Y1LAST,X1ONE,Y1ONE ,RXONE,RYONE,RXLAST,RYLAST,D11,D12,D21,D22)
 !
 !       MF1=TARX-RXLAST, MF2=TARY-RYLAST
 !
@@ -1461,11 +1409,9 @@ contains
 !     WE ARE PLANNING TO PLOT THE RAY
 !     SHUT OFF GLOBAL IF IT IS ON AND RE-ASSIGN THE GLSURF
                 IF(GLOBE) THEN
-        OUTLYNE= &
-        'GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION'
+        OUTLYNE= 'GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION'
       CALL SHOWIT(1)
-        OUTLYNE= &
-        'FOR RAY PLOTTING'
+        OUTLYNE= 'FOR RAY PLOTTING'
       CALL SHOWIT(1)
                         END IF
                         GLSURF=-99
@@ -1543,11 +1489,9 @@ contains
                 IF(MSG) THEN
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
       CALL SHOWIT(1)
-        OUTLYNE= &
-      'GRID FILE DOES NOT EXIST FOR THIS SURFACE'
+        OUTLYNE= 'GRID FILE DOES NOT EXIST FOR THIS SURFACE'
       CALL SHOWIT(1)
-        OUTLYNE= &
-      'OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE'
+        OUTLYNE= 'OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE'
       CALL SHOWIT(1)
                         END IF
                 STOPP=1
@@ -1571,12 +1515,10 @@ contains
       D=SYSTEM(105)
       H=SYSTEM(106)
       S=SYSTEM(107)
-      IF(DCOS(AOI).EQ.0.0D0.OR. &
-      AOI.GE.DABS(SYSTEM(108))) THEN
+      IF(DCOS(AOI).EQ.0.0D0.OR. AOI.GE.DABS(SYSTEM(108))) THEN
                         FACTOR=0.0D0
                         ELSE
-      FACTOR=PII*(((D)-(H*DSIN(AOI))) &
-      *(((D)*DCOS(AOI))-(H*DSIN(AOI))))/(4.0D0*S*S*DCOS(AOI))
+      FACTOR=PII*(((D)-(H*DSIN(AOI))) *(((D)*DCOS(AOI))-(H*DSIN(AOI))))/(4.0D0*S*S*DCOS(AOI))
                         END IF
       IF(FACTOR.LT.0.0D0) FACTOR=0.0D0
       RAYRAY(25,I)=RAYRAY(25,I)*FACTOR
@@ -1606,8 +1548,7 @@ contains
       JK_M2=RAYRAY(5,I)
       JK_N2=RAYRAY(6,I)
                         END IF
-      CALL CROSS_PRODUCT(JK_CPL,JK_CPM,JK_CPN &
-      ,JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2)
+      CALL CROSS_PRODUCT(JK_CPL,JK_CPM,JK_CPN ,JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2)
       MAG=DSQRT((JK_CPL**2)+(JK_CPM**2)+(JK_CPN**2))
       JK_CPL=DABS(JK_CPL)
       JK_CPM=DABS(JK_CPM)
@@ -1629,8 +1570,7 @@ contains
       JK_L2=RAYRAY(13,I)
       JK_M2=RAYRAY(14,I)
       JK_N2=RAYRAY(15,I)
-      CALL CROSS_PRODUCT(SA_CPL,SA_CPM,SA_CPN &
-      ,JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2)
+      CALL CROSS_PRODUCT(SA_CPL,SA_CPM,SA_CPN ,JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2)
       MAG=DSQRT((SA_CPL**2)+(SA_CPM**2)+(SA_CPN**2))
       SA_CPL=DABS(SA_CPL)
       SA_CPM=DABS(SA_CPM)
@@ -1684,8 +1624,7 @@ contains
         PATHL=RAYRAY(8,I)
         IF(I.EQ.NEWOBJ) OLDABSCOEF(1:10)=0.0D0
         IF(I.EQ.NEWOBJ) ABSCOEF(1:10)=0.0D0
-      CALL ENERGY_ADJUST(ENERGY_FACTOR,I,J,IA,IAP,RN1,RN2,WA3,POLANG &
-      ,FACT_PAR,FACT_PER,PHASE_PAR,PHASE_PER,PATHL)
+      CALL ENERGY_ADJUST(ENERGY_FACTOR,I,J,IA,IAP,RN1,RN2,WA3,POLANG ,FACT_PAR,FACT_PER,PHASE_PAR,PHASE_PER,PATHL)
       IF(I.GT.NEWOBJ) RAYRAY(25,I)=RAYRAY(25,I)*ENERGY_FACTOR
                END IF
       IF(surf_diffraction_flag(I) == 1.AND.surf_grating_spacing(I).NE.0.0D0) THEN
@@ -1782,9 +1721,7 @@ subroutine adjustLastSurface_old(L, RV)
 
      
     dLen = DSQRT((angX*ldm%getSurfThi(L))**2+(angY*ldm%getSurfThi(L))**2)
-    !  dLen =DSQRT( &
-    !      ((RAYRAY(3,L)-RAYRAY(18,L))**2)+((RAYRAY(2,L)-RAYRAY(17,L))**2) &
-    !     +((RAYRAY(1,L)-RAYRAY(16,L))**2))
+    !  dLen =DSQRT( !      ((RAYRAY(3,L)-RAYRAY(18,L))**2)+((RAYRAY(2,L)-RAYRAY(17,L))**2) !     +((RAYRAY(1,L)-RAYRAY(16,L))**2))
 
       RV = .FALSE.
       if (ldm%getSurfThi(L) < 0 ) RV = .TRUE.
@@ -1793,10 +1730,8 @@ subroutine adjustLastSurface_old(L, RV)
 
       !dOPL = dLen/(sysConfig%getWavelength(INT(WW3))/1E3)
 !
-       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) &
-       dOPL=dLen*DABS(ALENS(45+INT(WW3),(L-1)))
-       IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) &
-       dOPL=dLen*DABS(ALENS(65+INT(WW3),(L-1)))
+       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) dOPL=dLen*DABS(ALENS(45+INT(WW3),(L-1)))
+       IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) dOPL=dLen*DABS(ALENS(65+INT(WW3),(L-1)))
       IF(.NOT.RV) dOPL=dOPL+PHASE
       IF(RV) dOPL=dOPL-PHASE
 
@@ -1877,10 +1812,8 @@ subroutine adjustLastSurface(L, rayData)
 
       !dOPL = dLen/(sysConfig%getWavelength(INT(WW3))/1E3)
 !
-       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) &
-       dOPL=dLen*DABS(ALENS(45+INT(WW3),(L-1)))
-       IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) &
-       dOPL=dLen*DABS(ALENS(65+INT(WW3),(L-1)))
+       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) dOPL=dLen*DABS(ALENS(45+INT(WW3),(L-1)))
+       IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) dOPL=dLen*DABS(ALENS(65+INT(WW3),(L-1)))
       IF(.NOT.RV) dOPL=dOPL+PHASE
       IF(RV) dOPL=dOPL-PHASE
 
@@ -1938,11 +1871,8 @@ subroutine adjustLastSurface_2(L, rayData)
 
 
     
-    dLen = DSQRT((angX*ldm%getSurfThi(L))**2+(angY*ldm%getSurfThi(L))**2 + &
-    & (angZ*ldm%getSurfThi(L))**2)
-    !  dLen =DSQRT( &
-    !      ((RAYRAY(3,L)-RAYRAY(18,L))**2)+((RAYRAY(2,L)-RAYRAY(17,L))**2) &
-    !     +((RAYRAY(1,L)-RAYRAY(16,L))**2))
+    dLen = DSQRT((angX*ldm%getSurfThi(L))**2+(angY*ldm%getSurfThi(L))**2 +  (angZ*ldm%getSurfThi(L))**2)
+    !  dLen =DSQRT( !      ((RAYRAY(3,L)-RAYRAY(18,L))**2)+((RAYRAY(2,L)-RAYRAY(17,L))**2) !     +((RAYRAY(1,L)-RAYRAY(16,L))**2))
 
       RV = .FALSE.
       if (ldm%getSurfThi(L) < 0 ) RV = .TRUE.
@@ -1953,10 +1883,8 @@ subroutine adjustLastSurface_2(L, rayData)
 !
        ! Tricky compared to adjustLastSurface
       ! var of interest for wavelength is WW4.
-       IF(INT(WW4).GE.1.AND.INT(WW4).LE.5) &
-       dOPL=dLen*DABS(ALENS(45+INT(WW4),(L-1)))
-       IF(INT(WW4).GE.6.AND.INT(WW4).LE.10) &
-       dOPL=dLen*DABS(ALENS(65+INT(WW4),(L-1)))
+       IF(INT(WW4).GE.1.AND.INT(WW4).LE.5) dOPL=dLen*DABS(ALENS(45+INT(WW4),(L-1)))
+       IF(INT(WW4).GE.6.AND.INT(WW4).LE.10) dOPL=dLen*DABS(ALENS(65+INT(WW4),(L-1)))
       IF(.NOT.RV) dOPL=dOPL+PHASE
       IF(RV) dOPL=dOPL-PHASE
 
