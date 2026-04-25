@@ -14,6 +14,7 @@ module lens_editor
   use gtk_hl_tree
 
   use kdp_data_types
+  use mod_surface
 
   implicit none
 
@@ -29,8 +30,7 @@ module lens_editor
   ! const char *glass,
   ! double aperture,
   ! double index)
-  function append_lens_model(store, surfaceNo, refSurf, surfaceName, surfaceType, &
-    & radius, radiusMod, thickness, thickMod, glass, aperture, index, extraParams) bind(c)
+  function append_lens_model(store, surfaceNo, refSurf, surfaceName, surfaceType,  radius, radiusMod, thickness, thickMod, glass, aperture, index, extraParams) bind(c)
     import c_ptr, c_char, c_int, c_double
     implicit none
     type(c_ptr), value    :: store
@@ -99,8 +99,7 @@ function lens_item_get_extra_param(item, index) bind(c)
 end function
   end interface
 
-  type(c_ptr) :: ihscrollcontain,ihlist, &
-       &  qbut, dbut, lbl, ibut, ihAsph, ihSolv, ihScrollAsph, ihScrollSolv
+  type(c_ptr) :: ihscrollcontain,ihlist,   qbut, dbut, lbl, ibut, ihAsph, ihSolv, ihScrollAsph, ihScrollSolv
 
   integer(kind=c_int) :: numEditorRows
   type(c_ptr) :: sbScale, sbOffset, dropDown, lblScale, lblOffset
@@ -390,7 +389,7 @@ function getExtraParams(surf, surfType) result(extraParams)
   case('Sphere')
     extraParams = 0.0d0
   case('Asphere')
-    extraParams(1) = ALENS(2,surf)
+    extraParams(1) = surf_conic(surf)
     extraParams(2:5) = ALENS(4:7,surf)
     extraParams(6:10) = ALENS(81:85,surf)
     extraParams(11:16) = 0.0d0
@@ -436,9 +435,7 @@ function buildLensEditTable() result(store)
     store = g_list_store_new(G_TYPE_OBJECT)
     do i=1,curr_lens_data%num_surfaces
       extraParams = getExtraParams(i-1,ldm%getSurfTypeName(i-1))
-    store = append_lens_model(store, surfIdx(i), isRefSurface(i), trim(surfaceLabels(i))//c_null_char, trim(ldm%getSurfTypeName(i-1))//c_null_char, &
-    & real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i), &
-    & trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8), extraParams)
+    store = append_lens_model(store, surfIdx(i), isRefSurface(i), trim(surfaceLabels(i))//c_null_char, trim(ldm%getSurfTypeName(i-1))//c_null_char,  real(curr_lens_data%radii(i),8), radPickups(i), real(curr_lens_data%thicknesses(i),8), thiPickups(i),  trim(curr_lens_data%glassnames(i))//c_null_char, clearApertures(i), real(curr_lens_data%surf_index(i),8), extraParams)
     end do
 
 
@@ -692,23 +689,9 @@ function buildLensEditTable() result(store)
       else
         pickupScale = 1.0d0 
       end if
-      sbScale = gtk_spin_button_new (gtk_adjustment_new( &
-      & value=pickupScale, &
-      & lower=-1000*1d0, &
-      & upper=1000*1d0, &
-      & step_increment=1d0, &
-      & page_increment=1d0, &
-      & page_size=0d0),climb_rate=2d0, &
-      & digits=3_c_int)
+      sbScale = gtk_spin_button_new (gtk_adjustment_new(  value=pickupScale,  lower=-1000*1d0,  upper=1000*1d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=3_c_int)
 
-      sbOffset = gtk_spin_button_new (gtk_adjustment_new( &
-      & value=curr_lens_data%pickups(4,row+1,pickup_type)*1d0, &
-      & lower=-1000*1d0, &
-      & upper=1000*1d0, &
-      & step_increment=1d0, &
-      & page_increment=1d0, &
-      & page_size=0d0),climb_rate=2d0, &
-      & digits=3_c_int)
+      sbOffset = gtk_spin_button_new (gtk_adjustment_new(  value=curr_lens_data%pickups(4,row+1,pickup_type)*1d0,  lower=-1000*1d0,  upper=1000*1d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=3_c_int)
 
       call gtk_grid_attach(table, sbScale, 1_c_int, 1_c_int, 1_c_int, 1_c_int)
       call gtk_grid_attach(table, sbOffset, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
@@ -719,13 +702,9 @@ function buildLensEditTable() result(store)
     ! It is the scrollcontainer that is placed into the box.
     call hl_gtk_box_pack(boxWin, table)
 
-    uBut = hl_gtk_button_new("Update"//c_null_char, &
-        & clicked=c_funloc(pickupUpdate_click), &
-        & data=win)
+    uBut = hl_gtk_button_new("Update"//c_null_char,  clicked=c_funloc(pickupUpdate_click),  data=win)
        
-    cBut = hl_gtk_button_new("Cancel"//c_null_char, &
-         & clicked=c_funloc(pickupCancel_click), &
-         & data=win)         
+    cBut = hl_gtk_button_new("Cancel"//c_null_char,  clicked=c_funloc(pickupCancel_click),  data=win)         
 
     if(present(btn)) then 
       call g_signal_connect(win, "destroy"//c_null_char, c_funloc(destroy_pickup), btn)
@@ -853,9 +832,7 @@ function buildLensEditTable() result(store)
       end do
       !Insanity part 2
       call g_signal_connect(dropDown, "notify::selected"//c_null_char, c_funloc(solveTypeChanged), c_loc(ID_TGT_THIC))
-      uBut = hl_gtk_button_new("Update"//c_null_char, &
-      & clicked=c_funloc(solveUpdate_click), &
-      & data=c_loc(ID_TGT_THIC))
+      uBut = hl_gtk_button_new("Update"//c_null_char,  clicked=c_funloc(solveUpdate_click),  data=c_loc(ID_TGT_THIC))
     case(ID_PICKUP_RAD)
       do ii=1,size(curv_solves)
         if (curv_solves(ii)%id_solve == sData%id_solve) then
@@ -864,9 +841,7 @@ function buildLensEditTable() result(store)
       end do
       !Insanity part 2
       call g_signal_connect(dropDown, "notify::selected"//c_null_char, c_funloc(solveTypeChanged), c_loc(ID_TGT_RAD))
-      uBut = hl_gtk_button_new("Update"//c_null_char, &
-      & clicked=c_funloc(solveUpdate_click), &
-      & data=c_loc(ID_TGT_RAD))
+      uBut = hl_gtk_button_new("Update"//c_null_char,  clicked=c_funloc(solveUpdate_click),  data=c_loc(ID_TGT_RAD))
 
     end select
 
@@ -888,23 +863,9 @@ function buildLensEditTable() result(store)
     call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
 
-    sbScale = gtk_spin_button_new (gtk_adjustment_new( &
-    & value=sData%param1*1d0, &
-    & lower=-1000*1d0, &
-    & upper=1000*1d0, &
-    & step_increment=1d0, &
-    & page_increment=1d0, &
-    & page_size=0d0),climb_rate=2d0, &
-    & digits=3_c_int)
+    sbScale = gtk_spin_button_new (gtk_adjustment_new(  value=sData%param1*1d0,  lower=-1000*1d0,  upper=1000*1d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=3_c_int)
 
-    sbOffset = gtk_spin_button_new (gtk_adjustment_new( &
-    & value=sData%param2*1d0, &
-    & lower=-1000*1d0, &
-    & upper=1000*1d0, &
-    & step_increment=1d0, &
-    & page_increment=1d0, &
-    & page_size=0d0),climb_rate=2d0, &
-    & digits=3_c_int)
+    sbOffset = gtk_spin_button_new (gtk_adjustment_new(  value=sData%param2*1d0,  lower=-1000*1d0,  upper=1000*1d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=3_c_int)
 
     call gtk_grid_attach(table, sbScale, 1_c_int, 1_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, sbOffset, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
@@ -917,9 +878,7 @@ function buildLensEditTable() result(store)
 
 
      
-  cBut = hl_gtk_button_new("Cancel"//c_null_char, &
-       & clicked=c_funloc(pickupCancel_click), &
-       & data=win_modal_solve)         
+  cBut = hl_gtk_button_new("Cancel"//c_null_char,  clicked=c_funloc(pickupCancel_click),  data=win_modal_solve)         
 
   call hl_gtk_box_pack(boxWin, uBut)
   call hl_gtk_box_pack(boxWin, cBut)
@@ -990,12 +949,10 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
   ! Update is either a solve or none.  If none, delete solve
   ! on surface
   if (sData%ID_solve == ID_SOLVE_NONE) then
-    CALL PROCESKDP('U L ; '// &
-    & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
+    CALL PROCESKDP('U L ; '//  trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
   else   
   ! It's time to update the pickup
-    CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf)) &
-    & //"; "//trim(sData%genKDPCMDToSetSolve())//";EOS")
+    CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf))  //"; "//trim(sData%genKDPCMDToSetSolve())//";EOS")
   end if
   
 
@@ -1109,8 +1066,7 @@ subroutine removeSolve(act, avalue, btn) bind(c)
     sData%solve_type = ID_PICKUP_THIC
   end select
   print *, "Hook working!"
-  CALL PROCESKDP('U L ; '// &
-  & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
+  CALL PROCESKDP('U L ; '//  trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
   call rebuildLensEditorTable()
 
 end subroutine
@@ -1135,8 +1091,7 @@ subroutine removePickup(act, avalue, btn) bind(c)
     pData%pickupTxt = "TH"
   end select
   print *, "Hook working!"
-  CALL PROCESKDP('U L ; '// &
-  & trim(pData%genKDPCMDToRemovePickup())//';EOS')
+  CALL PROCESKDP('U L ; '//  trim(pData%genKDPCMDToRemovePickup())//';EOS')
   call rebuildLensEditorTable()
 
 end subroutine
@@ -1321,7 +1276,8 @@ end function
 subroutine updateSurfaceType(widget, gdata) bind(c)
   use DATLEN, only: ALENS
   type(c_ptr), value, intent(in) :: widget, gdata
-  integer :: selection, surfIdx, oldVal
+  integer :: selection, surfIdx
+  logical :: oldVal
   character(len=100) :: rcCode
   type(c_ptr) :: cStr 
 
@@ -1332,16 +1288,16 @@ subroutine updateSurfaceType(widget, gdata) bind(c)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 
   selection = gtk_drop_down_get_selected(widget)
-  oldVal = ALENS(8,surfIdx)
+  oldVal = surf_is_asphere(surfIdx)
   select case (selection)
   case(0) ! Sphere
-    ALENS(8,surfIdx) = 0 
+    call set_surf_asphere_flag(surfIdx, .FALSE.) 
   case(1) ! Asphere
     print *, "About to set asphere"
-    ALENS(8,surfIdx) = 1 
+    call set_surf_asphere_flag(surfIdx, .TRUE.) 
   end select    
   
-  if (oldVal - ALENS(8,surfIdx) .NE. 0) then 
+  if (oldVal .NEQV. surf_is_asphere(surfIdx)) then 
     print *, "About to rebuild lens editor table"
     call rebuildLensEditorTable()
   end if
@@ -1805,16 +1761,12 @@ end subroutine
       call gtk_box_append(boxNew, swin)
 
     ! Delete selected row
-      ibut = hl_gtk_button_new("Insert row"//c_null_char, &
-      & clicked=c_funloc(ins_row), &
-      & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
+      ibut = hl_gtk_button_new("Insert row"//c_null_char,  clicked=c_funloc(ins_row),  tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
 
       call hl_gtk_box_pack(boxNew, ibut)
 
       ! Delete selected row
-      dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
-            & clicked=c_funloc(del_row), &
-            & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+      dbut = hl_gtk_button_new("Delete selected row"//c_null_char,  clicked=c_funloc(del_row),  tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
 
       call hl_gtk_box_pack(boxNew, dbut)
 

@@ -5,13 +5,13 @@
 !
 ! Usage:  use surface_params
 !
-! These replace magic numbers like ALENS(9,I) with ALENS(A_APTYPE,I),
+! These replace magic numbers like surf_clap_type(I) with ALENS(A_APTYPE,I),
 ! and SYSTEM(62) with SYSTEM(SYS_RAY_AIMING), making code self-documenting.
 !
 ! Note on refractive index access:
 !   Wavelengths 1-5:  ALENS(A_N_OFFSET + wl, surf)  gives index at wavelength wl
 !   Wavelengths 6-10: ALENS(A_N2_OFFSET + wl, surf) gives index at wavelength wl
-!   e.g. wl=1 -> ALENS(46,surf), wl=6 -> ALENS(71,surf)
+!   e.g. wl=1 -> surf_refractive_index(surf, 1), wl=6 -> surf_refractive_index(surf, 6)
 !
 ! Note on aperture parameters (ALENS 10-14):
 !   Their meaning depends on the aperture type in ALENS(A_APTYPE, surf):
@@ -90,17 +90,17 @@ module surface_params
 
   ! Refractive index (see module header note)
   integer, parameter :: A_N_OFFSET   = 45   ! base for wavelengths 1-5: ALENS(A_N_OFFSET+wl, surf)
-  !   ALENS(46,surf) = index at wl 1
-  !   ALENS(47,surf) = index at wl 2
-  !   ALENS(48,surf) = index at wl 3
-  !   ALENS(49,surf) = index at wl 4
-  !   ALENS(50,surf) = index at wl 5
+  !   surf_refractive_index(surf, 1) = index at wl 1
+  !   surf_refractive_index(surf, 2) = index at wl 2
+  !   surf_refractive_index(surf, 3) = index at wl 3
+  !   surf_refractive_index(surf, 4) = index at wl 4
+  !   surf_refractive_index(surf, 5) = index at wl 5
   integer, parameter :: A_N2_OFFSET  = 65   ! base for wavelengths 6-10: ALENS(A_N2_OFFSET+wl, surf)
-  !   ALENS(71,surf) = index at wl 6
-  !   ALENS(72,surf) = index at wl 7
-  !   ALENS(73,surf) = index at wl 8
-  !   ALENS(74,surf) = index at wl 9
-  !   ALENS(75,surf) = index at wl 10
+  !   surf_refractive_index(surf, 6) = index at wl 6
+  !   surf_refractive_index(surf, 7) = index at wl 7
+  !   surf_refractive_index(surf, 8) = index at wl 8
+  !   surf_refractive_index(surf, 9) = index at wl 9
+  !   surf_refractive_index(surf, 10) = index at wl 10
 
   ! Aperture erase
   integer, parameter :: A_CLAP_ERASE = 51   ! clear aperture erase type flag

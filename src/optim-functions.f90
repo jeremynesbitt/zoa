@@ -68,11 +68,7 @@ subroutine aut_go()
     meq = getNumberofEqualityConstraints()
 
     print *, "nV is ", nV
-    call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
-                           xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
-                           report=report_iteration,&
-                           alphamin=0.1_long, alphamax=0.5_long, &
-                           gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
+    call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,report=report_iteration,alphamin=0.1_long, alphamax=0.5_long, gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
 
     ! call solver%initialize(nV,nC,meq,max_iter,acc,test_func_spo_efl,dummy_grad,&
     !                         xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
@@ -196,8 +192,7 @@ subroutine report_iteration(me,iter,x,f,c)
         call OUTKDP("Const.   Target              Value              diff")
         do i=1,nC
             
-            write(output_line,'(*(F20.16,1X))') constraintsInUse(i)%targ, &
-            c(i)+constraintsInUse(i)%targ, c(i)
+            write(output_line,'(*(F20.16,1X))') constraintsInUse(i)%targ, c(i)+constraintsInUse(i)%targ, c(i)
             call OUTKDP(trim(constraintsInUse(i)%name//' '//trim(output_line)))
         end do
 
@@ -236,9 +231,7 @@ subroutine report_iteration_old(me,iter,x,f,c)
         ! write(output_unit,'(*(A20,1X))') 'iteration', &
         !                                  'x(1)', 'x(2)', 'x(3)', &
         !                                  'f(1)', 'c(1)', 'c(2)'
-        write(output_line,'(*(A20,1X))') 'iteration', &
-                                         'x(1)', 'x(2)', 'x(3)', &
-                                         'f(1)', 'c(1)', 'c(2)'   
+        write(output_line,'(*(A20,1X))') 'iteration', 'x(1)', 'x(2)', 'x(3)', 'f(1)', 'c(1)', 'c(2)'   
         call OUTKDP(output_line)
     end if
 
@@ -331,19 +324,18 @@ subroutine restoreLensFromVars(oldVars)
          use DATSUB
          use DATMAI
          use DATLEN
+   use mod_surface
          
 !
       IMPLICIT NONE
       real(kind=long), dimension(:) :: oldVars
       CHARACTER OOLDWQ*8
       LOGICAL ITDER,SILENT!
-      INTEGER SSN,SM,NP2,MP,N,J,I,L,M,VTYPE,ALTYPE,VADD,VCFG &
-      ,VN1,MAXCNT,IV1,VN,ALLOERR,IID,JJD, II!
+      INTEGER SSN,SM,NP2,MP,N,J,I,L,M,VTYPE,ALTYPE,VADD,VCFG ,VN1,MAXCNT,IV1,VN,ALLOERR,IID,JJD, II!
       INTEGER ISURF!
       REAL*8 NEWDEFVAL,PFACSCL!
       COMMON/DEFVALCOM/NEWDEFVAL!
-        REAL*8 &
-        X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
+        REAL*8 X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
       DIMENSION WT(:)
       ALLOCATABLE :: WT
       LOGICAL LVAL
@@ -376,14 +368,14 @@ subroutine restoreLensFromVars(oldVars)
 !     SURFACE CURVATURE
 !     NEW VALUE IS:
       V1=VARABL(I,4)
-                      ALENS(1,INT(VARABL(I,3)))=V1
+                      call set_surf_curvature(INT(VARABL(I,3)), V1)
 !                       CURVATURE DONE
                         END IF
       IF(VTYPE.EQ.10.OR.VTYPE.EQ.9) THEN
 !     SURFACE TORIC CURVATURE
 !     NEW VALUE IS:
       V1=VARABL(I,4)
-                      ALENS(24,INT(VARABL(I,3)))=V1
+                      call set_surf_toric_curvature(INT(VARABL(I,3)), V1)
 !                       TORIC CURVATURE DONE
                         END IF
       IF(VTYPE.GE.3.AND.VTYPE.LE.8) THEN
@@ -398,8 +390,7 @@ subroutine restoreLensFromVars(oldVars)
       ALENS(ALTYPE,INT(VARABL(I,3)))=V1
 !                       THESE VARIABLES DONE
                         END IF
-      IF(VTYPE.GE.11.AND.VTYPE.LE.25.OR.VTYPE.EQ.75.OR.VTYPE.GE. &
-      124.AND.VTYPE.LE.149) THEN
+      IF(VTYPE.GE.11.AND.VTYPE.LE.25.OR.VTYPE.EQ.75.OR.VTYPE.GE. 124.AND.VTYPE.LE.149) THEN
       IF(VTYPE.EQ.11) ALTYPE=41
       IF(VTYPE.EQ.12) ALTYPE=37
       IF(VTYPE.EQ.13) ALTYPE=38
@@ -457,11 +448,11 @@ subroutine restoreLensFromVars(oldVars)
       V1=VARABL(I,4)
 !     RESET THE APPRORIATE ARRAY VALUE IN THE DEFORMABLE SURFACE
       ISURF=INT(VARABL(I,3))
-      DEFGR1=ALENS(103,ISURF)
-      DEFGR2=ALENS(104,ISURF)
-      DEFGR3=ALENS(105,ISURF)
-      DEFGR4=ALENS(106,ISURF)
-      DEFGR5=ALENS(107,ISURF)
+      DEFGR1=surf_default_flag(ISURF)
+      DEFGR2=surf_mtracei_nx(ISURF)
+      DEFGR3=surf_mtracei_ny(ISURF)
+      DEFGR4=surf_psfbin_data(ISURF)
+      DEFGR5=surf_profit_data(ISURF)
       DEFGR6=0.0D0
       DEFGR7=ALENS(109,ISURF)
       DEFGR8=0.0D0
@@ -507,20 +498,16 @@ subroutine restoreLensFromVars(oldVars)
 !     THE POSITION IN THE CFADD,CFVAL AND CFCHAR ARRAYS WHERE THIS
 !     VARIABLE IS FOUND IS:
 !
-      IF(CFADD(VADD,1).GE.27.AND.CFADD(VADD,1).LE.74.OR. &
-      CFADD(VADD,1).GE.76.AND.CFADD(VADD,1).LE.123 &
-      .OR.CFADD(VADD,1).EQ.141) THEN
+      IF(CFADD(VADD,1).GE.27.AND.CFADD(VADD,1).LE.74.OR. CFADD(VADD,1).GE.76.AND.CFADD(VADD,1).LE.123 .OR.CFADD(VADD,1).EQ.141) THEN
       CFVAL(VADD,2)=V1
       CFCHAR(VADD,2)=AV1
 !     NOW UPDATE THE CONFIG ARRAY
-      CONFG(CFADD(VADD,3),CFADD(VADD,9))(CFADD(VADD,6):CFADD(VADD,7)) &
-      =AV1(1:23)
+      CONFG(CFADD(VADD,3),CFADD(VADD,9))(CFADD(VADD,6):CFADD(VADD,7)) =AV1(1:23)
                       ELSE
       CFVAL(VADD,1)=V1
       CFCHAR(VADD,1)=AV1
 !     NOW UPDATE THE CONFIG ARRAY
-      CONFG(CFADD(VADD,3),CFADD(VADD,9))(CFADD(VADD,4):CFADD(VADD,5)) &
-      =AV1(1:23)
+      CONFG(CFADD(VADD,3),CFADD(VADD,9))(CFADD(VADD,4):CFADD(VADD,5)) =AV1(1:23)
                       END IF
 !     NOW LOOK UP WHERE THIS CHARACTER REPRESENTATION OF THE NEW VALUE
 !     SHOULD BE STUFFED INTO THE CONFIG ARRAYS CONFG AND
@@ -748,7 +735,7 @@ end function
 !     !     SURFACE CURVATURE
 !     !     NEW VALUE IS:
 !           V1=VARABL(I,4)+(DINMUL*VARABL(I,8))
-!                           ALENS(1,INT(VARABL(I,3)))=V1
+!                           surf_curvature(INT(VARABL(I,3)))=V1
 !     !     UPDATE THE LENS
 !                             F6=1
 !                             F1=0
@@ -770,14 +757,14 @@ end function
 !                             END DO
 !     !     DERIVATIVES DONE FOR VARIABLE I
 !     !     RESTORE THE LENS
-!           ALENS(1,INT(VARABL(I,3)))=VARABL(I,4)
+!           surf_curvature(INT(VARABL(I,3)))=VARABL(I,4)
 !     !                       CURVATURE DONE
 !                             END IF
 !           IF(VTYPE.EQ.10.OR.VTYPE.EQ.9) THEN
 !     !     SURFACE TORIC CURVATURE
 !     !     NEW VALUE IS:
 !           V1=VARABL(I,4)+(DINMUL*VARABL(I,8))
-!                           ALENS(24,INT(VARABL(I,3)))=V1
+!                           surf_toric_curvature(INT(VARABL(I,3)))=V1
 !     !     UPDATE THE LENS
 !                             F6=1
 !                             F1=0
@@ -799,7 +786,7 @@ end function
 !                             END DO
 !     !     DERIVATIVES DONE FOR VARIABLE I
 !     !     RESTORE THE LENS
-!           ALENS(24,INT(VARABL(I,3)))=VARABL(I,4)
+!           surf_toric_curvature(INT(VARABL(I,3)))=VARABL(I,4)
 !     !                       TORIC CURVATURE DONE
 !                             END IF
 !           IF(VTYPE.GE.3.AND.VTYPE.LE.8) THEN
@@ -912,11 +899,11 @@ end function
 !           V1=VARABL(I,4)+(DINMUL*VARABL(I,8))
 !     !     SET THE APPRORIATE ARRAY VALUE IN THE DEFORMABLE SURFACE
 !           ISURF=INT(VARABL(I,3))
-!           DEFGR1=ALENS(103,ISURF)
-!           DEFGR2=ALENS(104,ISURF)
-!           DEFGR3=ALENS(105,ISURF)
-!           DEFGR4=ALENS(106,ISURF)
-!           DEFGR5=ALENS(107,ISURF)
+!           DEFGR1=surf_default_flag(ISURF)
+!           DEFGR2=surf_mtracei_nx(ISURF)
+!           DEFGR3=surf_mtracei_ny(ISURF)
+!           DEFGR4=surf_psfbin_data(ISURF)
+!           DEFGR5=surf_profit_data(ISURF)
 !           DEFGR6=0.0D0
 !           DEFGR7=ALENS(109,ISURF)
 !           DEFGR8=0.0D0
@@ -948,11 +935,11 @@ end function
 !     !     RESTORE THE LENS
 !     !     SET THE APPRORIATE ARRAY VALUE IN THE DEFORMABLE SURFACE
 !           ISURF=INT(VARABL(I,3))
-!           DEFGR1=ALENS(103,ISURF)
-!           DEFGR2=ALENS(104,ISURF)
-!           DEFGR3=ALENS(105,ISURF)
-!           DEFGR4=ALENS(106,ISURF)
-!           DEFGR5=ALENS(107,ISURF)
+!           DEFGR1=surf_default_flag(ISURF)
+!           DEFGR2=surf_mtracei_nx(ISURF)
+!           DEFGR3=surf_mtracei_ny(ISURF)
+!           DEFGR4=surf_psfbin_data(ISURF)
+!           DEFGR5=surf_profit_data(ISURF)
 !           DEFGR6=0.0D0
 !           DEFGR7=ALENS(109,ISURF)
 !           DEFGR8=0.0D0
