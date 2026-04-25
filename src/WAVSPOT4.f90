@@ -915,6 +915,7 @@ SUBROUTINE PIXAR
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIXAR.FOR.
@@ -971,7 +972,7 @@ SUBROUTINE PIXAR
          CALL SHOWIT(1)
          RETURN
       END IF
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          OUTLYNE=&
          &'"PIXEL" IS NOT OPERATIONAL WITH AFOCAL SYSTEMS'
          CALL SHOWIT(1)
@@ -1079,7 +1080,7 @@ SUBROUTINE PIXAR
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          OUTLYNE=&
          &'"CENTROID" IS NOT OPERATIONAL WITH AFOCAL SYSTEMS'
          CALL SHOWIT(1)
@@ -2174,6 +2175,7 @@ SUBROUTINE STREAK
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STREAK.FOR.
@@ -2551,10 +2553,10 @@ SUBROUTINE STREAK
          WRITE(52,9002) INT(STREAKIT)
 9002     FORMAT('CURRENT PSF.DAT DATA STREAKED BY ',I6,' SUB-PIXELS')
          WRITE(52,1003) SPGR,PGR
-         IF(SYSTEM(6).EQ.1.0D0) WRITE(52,1004)
-         IF(SYSTEM(6).EQ.2.0D0) WRITE(52,1005)
-         IF(SYSTEM(6).EQ.3.0D0) WRITE(52,1006)
-         IF(SYSTEM(6).EQ.4.0D0) WRITE(52,1007)
+         IF(sys_units().EQ.1.0D0) WRITE(52,1004)
+         IF(sys_units().EQ.2.0D0) WRITE(52,1005)
+         IF(sys_units().EQ.3.0D0) WRITE(52,1006)
+         IF(sys_units().EQ.4.0D0) WRITE(52,1007)
 1004     FORMAT('IN')
 1005     FORMAT('CM')
 1006     FORMAT('MM')
@@ -2662,6 +2664,7 @@ SUBROUTINE OLDLSF
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !     CALLED BY CMDER FOR COMMAND OLSF
@@ -2815,21 +2818,21 @@ SUBROUTINE OLDLSF
       CALL SHOWIT(0)
 30    FORMAT('SCAN ORIENTATION = ',F7.2,' DEGREE(S)')
 !
-      IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-         IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-         IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-         IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+      IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+         IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+         IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+         IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+         IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
          IF(W3.NE.0.0D0) WRITE(OUTLYNE,40) W3,J_UN
          IF(W3.NE.0.0D0) CALL SHOWIT(0)
 40       FORMAT('APPLIED DEFOCUS (Z-DIRECTION) = ',G13.6,1X,A13)
       ELSE
       END IF
-      IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-         IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-         IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-         IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+      IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+         IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+         IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+         IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+         IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
          IF(W2.NE.0.0D0) WRITE(OUTLYNE,41) W2,J_UN
          IF(W2.NE.0.0D0) CALL SHOWIT(0)
 41       FORMAT('APPLIED X-OFFSET = ',G13.6,1X,A13)
@@ -2841,10 +2844,10 @@ SUBROUTINE OLDLSF
       ELSE
       END IF
       IF(WC.EQ.'CENT') THEN
-         IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-         IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-         IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-         IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+         IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+         IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+         IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+         IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
          WRITE(OUTLYNE,50) CENTX,J_UN
          CALL SHOWIT(0)
          WRITE(OUTLYNE,60) CENTX,J_UN
@@ -2854,10 +2857,10 @@ SUBROUTINE OLDLSF
       ELSE
       END IF
       IF(WC.NE.'CENT') THEN
-         IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-         IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-         IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-         IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+         IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+         IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+         IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+         IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
          WRITE(OUTLYNE,70) REFRY(1,NEWIMG),J_UN
          CALL SHOWIT(0)
          WRITE(OUTLYNE,80) REFRY(2,NEWIMG),J_UN
@@ -2866,11 +2869,11 @@ SUBROUTINE OLDLSF
 80       FORMAT('CHIEF RAY Y-COORDINATE = ',G13.6,1X,A13)
       ELSE
       END IF
-      IF(SYSTEM(30).LT.3.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-         IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-         IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-         IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+      IF(sys_mode().LT.3.0D0) THEN
+         IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+         IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+         IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+         IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       ELSE
          J_UN='RADIAN(S)'
       END IF
@@ -3912,6 +3915,7 @@ SUBROUTINE PSFINT
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PSFINT.FOR.
@@ -4142,10 +4146,10 @@ SUBROUTINE PSFINT
 9001 FORMAT('PSFINT.DAT')
    WRITE(52,9002) PGR+1
 9002 FORMAT('PSF INTERPOLATED TO AN NxN GRID WITH N = ',I4)
-   IF(SYSTEM(6).EQ.1.0D0) WRITE(52,1004)
-   IF(SYSTEM(6).EQ.2.0D0) WRITE(52,1005)
-   IF(SYSTEM(6).EQ.3.0D0) WRITE(52,1006)
-   IF(SYSTEM(6).EQ.4.0D0) WRITE(52,1007)
+   IF(sys_units().EQ.1.0D0) WRITE(52,1004)
+   IF(sys_units().EQ.2.0D0) WRITE(52,1005)
+   IF(sys_units().EQ.3.0D0) WRITE(52,1006)
+   IF(sys_units().EQ.4.0D0) WRITE(52,1007)
 1004 FORMAT('IN')
 1005 FORMAT('CM')
 1006 FORMAT('MM')
