@@ -11,6 +11,7 @@ SUBROUTINE CALCPRE
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref, sys_wl_pri1, sys_wl_pri2
    IMPLICIT NONE
 !
    COMMON/SOLU/X
@@ -1035,8 +1036,8 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
-         IF(SYSTEM(30).GE.3.0D0) THEN
+         IF(sys_mode().LE.2.0D0)VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
+         IF(sys_mode().GE.3.0D0) THEN
             VALUE=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
@@ -1088,8 +1089,8 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
-         IF(SYSTEM(30).GE.3.0D0) THEN
+         IF(sys_mode().LE.2.0D0)VALUE=RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG)
+         IF(sys_mode().GE.3.0D0) THEN
             VALUE=RAYRAY(11,NEWIMG)-REFRY(11,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
@@ -1149,8 +1150,8 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
-         IF(SYSTEM(30).GE.3.0D0) THEN
+         IF(sys_mode().LE.2.0D0)VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
+         IF(sys_mode().GE.3.0D0) THEN
             VALUE=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
@@ -1202,8 +1203,8 @@ SUBROUTINE CALCPRE
             IF(F31.EQ.1) CALL MACFAL
             RETURN
          END IF
-         IF(SYSTEM(30).LE.2.0D0)VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
-         IF(SYSTEM(30).GE.3.0D0) THEN
+         IF(sys_mode().LE.2.0D0)VALUE=RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG)
+         IF(sys_mode().GE.3.0D0) THEN
             VALUE=RAYRAY(12,NEWIMG)-REFRY(12,NEWIMG)
             IF(VALUE.LT.-PII) VALUE=VALUE+(TWOPII)
             IF(VALUE.GT.PII) VALUE=VALUE-(TWOPII)
@@ -1261,7 +1262,7 @@ SUBROUTINE CALCPRE
          W1=0.0D0
          W2=0.0D0
          W3=0.0D0
-         W4=SYSTEM(11)
+         W4=sys_wl_ref()
          W5=0.0D0
          DF1=0
          DF2=0
@@ -1303,7 +1304,7 @@ SUBROUTINE CALCPRE
          S5=0
          SN=1
          W1=0.7D0
-         W3=SYSTEM(11)
+         W3=sys_wl_ref()
 !     SET MSG TO FALSE
          MSG=.FALSE.
          BADOPS=.FALSE.
@@ -1320,30 +1321,30 @@ SUBROUTINE CALCPRE
             RETURN
          END IF
          CONSUM=0.0D0
-         DO K=1,INT(SYSTEM(20))
+         DO K=1,INT(sys_last_surf())
             DELLELL1=0.0D0
             DELLELL2=0.0D0
             DELLELL= 0.0D0
-            IF(SYSTEM(7).EQ.1.0D0)  DELLELL1=surf_refractive_index(K, 1)
-            IF(SYSTEM(7).EQ.2.0D0)  DELLELL1=surf_refractive_index(K, 2)
-            IF(SYSTEM(7).EQ.3.0D0)  DELLELL1=surf_refractive_index(K, 3)
-            IF(SYSTEM(7).EQ.4.0D0)  DELLELL1=surf_refractive_index(K, 4)
-            IF(SYSTEM(7).EQ.5.0D0)  DELLELL1=surf_refractive_index(K, 5)
-            IF(SYSTEM(7).EQ.6.0D0)  DELLELL1=surf_refractive_index(K, 6)
-            IF(SYSTEM(7).EQ.7.0D0)  DELLELL1=surf_refractive_index(K, 7)
-            IF(SYSTEM(7).EQ.8.0D0)  DELLELL1=surf_refractive_index(K, 8)
-            IF(SYSTEM(7).EQ.9.0D0)  DELLELL1=surf_refractive_index(K, 9)
-            IF(SYSTEM(7).EQ.10.0D0) DELLELL1=surf_refractive_index(K, 10)
-            IF(SYSTEM(8).EQ.1.0D0)  DELLELL2=surf_refractive_index(K, 1)
-            IF(SYSTEM(8).EQ.2.0D0)  DELLELL2=surf_refractive_index(K, 2)
-            IF(SYSTEM(8).EQ.3.0D0)  DELLELL2=surf_refractive_index(K, 3)
-            IF(SYSTEM(8).EQ.4.0D0)  DELLELL2=surf_refractive_index(K, 4)
-            IF(SYSTEM(8).EQ.5.0D0)  DELLELL2=surf_refractive_index(K, 5)
-            IF(SYSTEM(8).EQ.6.0D0)  DELLELL2=surf_refractive_index(K, 6)
-            IF(SYSTEM(8).EQ.7.0D0)  DELLELL2=surf_refractive_index(K, 7)
-            IF(SYSTEM(8).EQ.8.0D0)  DELLELL2=surf_refractive_index(K, 8)
-            IF(SYSTEM(8).EQ.9.0D0)  DELLELL2=surf_refractive_index(K, 9)
-            IF(SYSTEM(8).EQ.10.0D0) DELLELL2=surf_refractive_index(K, 10)
+            IF(sys_wl_pri1().EQ.1.0D0)  DELLELL1=surf_refractive_index(K, 1)
+            IF(sys_wl_pri1().EQ.2.0D0)  DELLELL1=surf_refractive_index(K, 2)
+            IF(sys_wl_pri1().EQ.3.0D0)  DELLELL1=surf_refractive_index(K, 3)
+            IF(sys_wl_pri1().EQ.4.0D0)  DELLELL1=surf_refractive_index(K, 4)
+            IF(sys_wl_pri1().EQ.5.0D0)  DELLELL1=surf_refractive_index(K, 5)
+            IF(sys_wl_pri1().EQ.6.0D0)  DELLELL1=surf_refractive_index(K, 6)
+            IF(sys_wl_pri1().EQ.7.0D0)  DELLELL1=surf_refractive_index(K, 7)
+            IF(sys_wl_pri1().EQ.8.0D0)  DELLELL1=surf_refractive_index(K, 8)
+            IF(sys_wl_pri1().EQ.9.0D0)  DELLELL1=surf_refractive_index(K, 9)
+            IF(sys_wl_pri1().EQ.10.0D0) DELLELL1=surf_refractive_index(K, 10)
+            IF(sys_wl_pri2().EQ.1.0D0)  DELLELL2=surf_refractive_index(K, 1)
+            IF(sys_wl_pri2().EQ.2.0D0)  DELLELL2=surf_refractive_index(K, 2)
+            IF(sys_wl_pri2().EQ.3.0D0)  DELLELL2=surf_refractive_index(K, 3)
+            IF(sys_wl_pri2().EQ.4.0D0)  DELLELL2=surf_refractive_index(K, 4)
+            IF(sys_wl_pri2().EQ.5.0D0)  DELLELL2=surf_refractive_index(K, 5)
+            IF(sys_wl_pri2().EQ.6.0D0)  DELLELL2=surf_refractive_index(K, 6)
+            IF(sys_wl_pri2().EQ.7.0D0)  DELLELL2=surf_refractive_index(K, 7)
+            IF(sys_wl_pri2().EQ.8.0D0)  DELLELL2=surf_refractive_index(K, 8)
+            IF(sys_wl_pri2().EQ.9.0D0)  DELLELL2=surf_refractive_index(K, 9)
+            IF(sys_wl_pri2().EQ.10.0D0) DELLELL2=surf_refractive_index(K, 10)
             DELLELL=(DELLELL1-DELLELL2)
             IF(DELLELL.NE.0.0D0)CONSUM=CONSUM+((RAYRAY(8,K)-surf_thickness(K-1))*DELLELL)
          END DO
@@ -1497,11 +1498,11 @@ SUBROUTINE CALCPRE
          IF(OPERND(I,17).EQ.107.0D0) THEN
             V1=0.0D0
             DO II=INT(OPERND(I,8)),(INT(OPERND(I,9))-1)
-               IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-                  CW=INT(SYSTEM(11))+45
+               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+                  CW=INT(sys_wl_ref())+45
                END IF
-               IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-                  CW=INT(SYSTEM(11))+65
+               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+                  CW=INT(sys_wl_ref())+65
                END IF
                V1=V1+(surf_thickness(II)*ALENS(CW,II))
             END DO
@@ -1857,7 +1858,7 @@ SUBROUTINE CALCPRE
          END IF
       END IF
 !
-      IF(OPERND(I,9).EQ.SYSTEM(11)) THEN
+      IF(OPERND(I,9).EQ.sys_wl_ref()) THEN
 !     PARAXIAL VALUES AT THE CONTROL WAVELENGTH
          IF(OPERND(I,17).EQ.211.0D0) THEN
 !     PY
@@ -2032,13 +2033,13 @@ SUBROUTINE CALCPRE
       IF(OPERND(I,17).GE.227.0D0.AND.OPERND(I,17).LE.234.0D0) THEN
 !     CHROMATIC ABERRATIONS
          CALL PRTRB
-         SF=INT(SYSTEM(20))
+         SF=INT(sys_last_surf())
          IF(INT(OPERND(I,18)).EQ.0) SF1=OPERND(I,8)
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            CW=INT(SYSTEM(11))+45
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            CW=INT(sys_wl_ref())+45
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            CW=INT(SYSTEM(11))+65
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            CW=INT(sys_wl_ref())+65
          END IF
          INTV=1.0D0
 !       CALCULATE INTV
@@ -2060,7 +2061,7 @@ SUBROUTINE CALCPRE
          IF(INT(OPERND(I,18)).EQ.0) THEN
 !     SINGLE SURFACE NOT IMAGE SURFACE
 !     DO EACH CALC NOW
-            IF(SYSTEM(30).LE.2.0D0) THEN
+            IF(sys_mode().LE.2.0D0) THEN
                IF(OPERND(I,17).EQ.227.0D0) THEN
                   REG(9)=COLORY(1,SF1)/INTV
                   GO TO 777
@@ -2130,10 +2131,10 @@ SUBROUTINE CALCPRE
             END IF
          ELSE
 !     FINAL SURFACE
-            IF(SYSTEM(30).LE.2.0D0) THEN
+            IF(sys_mode().LE.2.0D0) THEN
                IF(OPERND(I,17).EQ.227.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(1,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2141,7 +2142,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.229.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(2,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2149,7 +2150,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.231.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(3,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2157,7 +2158,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.233.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(4,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2165,7 +2166,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.228.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(1,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2173,7 +2174,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.230.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(2,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2181,7 +2182,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.232.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(3,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2189,7 +2190,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.234.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(4,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2198,7 +2199,7 @@ SUBROUTINE CALCPRE
             ELSE
                IF(OPERND(I,17).EQ.227.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(5,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2206,7 +2207,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.229.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(6,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2214,7 +2215,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.231.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(7,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2222,7 +2223,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.233.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORY(8,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2230,7 +2231,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.228.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(5,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2238,7 +2239,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.230.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(6,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2246,7 +2247,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.232.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(7,IV)
                   END DO
                   REG(9)=V/INTV
@@ -2254,7 +2255,7 @@ SUBROUTINE CALCPRE
                END IF
                IF(OPERND(I,17).EQ.234.0D0) THEN
                   V=0.0D0
-                  DO IV=0,INT(SYSTEM(20))
+                  DO IV=0,INT(sys_last_surf())
                      V=V+COLORX(8,IV)
                   END DO
                   REG(9)=V/INTV
@@ -3452,7 +3453,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3481,7 +3482,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3510,7 +3511,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3553,7 +3554,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3596,7 +3597,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3648,7 +3649,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3700,7 +3701,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3743,7 +3744,7 @@ SUBROUTINE CALCPRE
             OLDIMG=NEWIMG
             OLDREF=NEWREF
             NEWREF=1
-            NEWIMG=SYSTEM(20)
+            NEWIMG=sys_last_surf()
             NEWOBJ=0
             ERRR=.FALSE.
             NWN1=FIELDY(INT(OPERND(I,9)))
@@ -3936,21 +3937,21 @@ SUBROUTINE CALCPRE
       IF(OPERND(I,17).EQ.442.0D0) XIS=.TRUE.
       IF(OPERND(I,17).EQ.444.0D0) XIS=.TRUE.
       IF(OPERND(I,17).EQ.446.0D0) XIS=.TRUE.
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       ISFI=INT(OPERND(I,8))
-      IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-         CW=INT(SYSTEM(11))+45
+      IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+         CW=INT(sys_wl_ref())+45
       END IF
-      IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-         CW=INT(SYSTEM(11))+65
+      IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+         CW=INT(sys_wl_ref())+65
       END IF
       INV=1.0D0
-      IF(SYSTEM(30).EQ.1.0D0) THEN
+      IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
          IF(.NOT.XIS)INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
          IF(XIS)INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
       END IF
-      IF(SYSTEM(30).EQ.3.0D0) THEN
+      IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
          IF(.NOT.XIS)INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
          IF(XIS)INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
@@ -3963,7 +3964,7 @@ SUBROUTINE CALCPRE
       END IF
 !
 !     PROCEED WITH CALCULATION
-      IF(INT(OPERND(I,8)).LT.INT(SYSTEM(20))) THEN
+      IF(INT(OPERND(I,8)).LT.INT(sys_last_surf())) THEN
 !     SINGLE SURFACE STUFF
          IF(OPERND(I,17).EQ.297.0D0) THEN
             REG(9)=MAB3(1,ISFI)
@@ -4575,907 +4576,907 @@ SUBROUTINE CALCPRE
          V=0.0D0
 !     FINAL SURFACE SUM
          IF(OPERND(I,17).EQ.297.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.298.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.299.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*MAB3(2,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.300.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*XMAB3(2,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.301.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.302.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.303.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(4,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.304.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(4,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.305.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.306.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.307.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.308.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.309.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(2,IV)+MAB57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.310.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(2,IV)+XMAB57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.311.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.312.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.313.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.314.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.315.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.316.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.317.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(4,IV)+MAB57(5,IV)+MAB57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.318.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(4,IV)+XMAB57(5,IV)+XMAB57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.319.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.320.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.321.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(7,IV)+MAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.322.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(7,IV)+XMAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.323.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(10,IV)+(5.0*MAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.324.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(10,IV)+(5.0*XMAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.325.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(10,IV)+MAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.326.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(10,IV)+XMAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.327.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB57(14,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.328.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB57(14,IV)
             END DO
             GO TO 777
          END IF
 !       PRIMARY CHROMATIC ABERRATION DIFFERENCES
          IF(OPERND(I,17).EQ.329.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.330.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.331.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*PDF3(2,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.332.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*XPDF3(2,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.333.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.334.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.335.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(4,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.336.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(4,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.337.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.338.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.339.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.340.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.341.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(2,IV)+PDF57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.342.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(2,IV)+XPDF57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.343.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.344.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.345.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.346.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.347.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.348.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.349.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(4,IV)+PDF57(5,IV)+PDF57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.350.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(4,IV)+XPDF57(5,IV)+XPDF57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.351.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.352.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.353.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(7,IV)+PDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.354.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(7,IV)+XPDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.355.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(10,IV)+(5.0*PDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.356.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(10,IV)+(5.0*XPDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.357.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(10,IV)+PDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.358.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(10,IV)+XPDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.359.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF57(14,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.360.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF57(14,IV)
             END DO
             GO TO 777
          END IF
 !       SECONDARY CHROMATIC ABERRATION DIFFERENCES
          IF(OPERND(I,17).EQ.361.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.362.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.363.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*SDF3(2,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.364.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*XSDF3(2,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.365.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.366.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.367.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(4,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.368.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(4,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.369.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.370.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.371.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.372.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.373.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(2,IV)+SDF57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.374.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(2,IV)+XSDF57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.375.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.376.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.377.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.378.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.379.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.380.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.381.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(4,IV)+SDF57(5,IV)+SDF57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.382.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(4,IV)+XSDF57(5,IV)+XSDF57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.383.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.384.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.385.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(7,IV)+SDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.386.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(7,IV)+XSDF57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.387.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(10,IV)+(5.0*SDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.388.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(10,IV)+(5.0*XSDF57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.389.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(10,IV)+SDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.390.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(10,IV)+XSDF57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.391.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF57(14,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.392.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF57(14,IV)
             END DO
             GO TO 777
          END IF
 !       5TH AND 7TH ORDER INTRINSIC SURFACE ABERRATIONS
          IF(OPERND(I,17).EQ.393.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.394.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(1,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.395.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(2,IV)+SAB57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.396.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(2,IV)+XSAB57(3,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.397.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.398.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.399.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.400.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(12,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.401.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.402.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.403.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(4,IV)+SAB57(5,IV)+SAB57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.404.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(4,IV)+XSAB57(5,IV)+XSAB57(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.405.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.406.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(5,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.407.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(7,IV)+SAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.408.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(7,IV)+XSAB57(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.409.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(10,IV)+(5.0*SAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.410.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(10,IV)+(5.0*XSAB57(11,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.411.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(10,IV)+SAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.412.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(10,IV)+XSAB57(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.413.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SAB57(14,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.414.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSAB57(14,IV)
             END DO
             GO TO 777
          END IF
 !       3RD ORDER PUPIL ABERRATIONS
          IF(OPERND(I,17).EQ.415.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.416.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.417.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*MAB3(7,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.418.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*XMAB3(7,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.419.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.420.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.421.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(9,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.422.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(9,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.423.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.424.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(10,IV)
             END DO
             GO TO 777
          END IF
 !       3RD ORDER PUPIL ABERRATION PRIMARY CHROMATIC DIFFERENCES
          IF(OPERND(I,17).EQ.425.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.426.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.427.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*PDF3(7,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.428.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*XPDF3(7,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.429.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.430.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.431.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(9,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.432.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(9,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.433.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+PDF3(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.434.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XPDF3(10,IV)
             END DO
             GO TO 777
          END IF
 !       3RD ORDER PUPIL ABERRATION SECONDARY CHROMATIC DIFFERENCES
          IF(OPERND(I,17).EQ.435.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.436.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(6,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.437.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*SDF3(7,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.438.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+(3.0D0*XSDF3(7,IV))
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.439.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.440.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(8,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.441.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(9,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.442.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(9,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.443.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+SDF3(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.444.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XSDF3(10,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.445.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+MAB3(11,IV)
             END DO
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.446.0D0) THEN
-            DO IV=0,INT(SYSTEM(20))
+            DO IV=0,INT(sys_last_surf())
                V=V+XMAB3(11,IV)
             END DO
             GO TO 777
@@ -5512,14 +5513,14 @@ SUBROUTINE CALCPRE
 
 777 CONTINUE
    IF(OPERND(I,17).GE.297.0D0.AND.OPERND(I,17).LE.444.0D0) THEN
-      IF(INT(OPERND(I,8)).LT.INT(SYSTEM(20))) THEN
+      IF(INT(OPERND(I,8)).LT.INT(sys_last_surf())) THEN
          REG(9)=REG(9)/INV
       ELSE
          REG(9)=V/INV
       END IF
    END IF
    IF(OPERND(I,17).EQ.445.0D0.OR.OPERND(I,17).EQ.446.0D0) THEN
-      IF(INT(OPERND(I,8)).LT.INT(SYSTEM(20))) THEN
+      IF(INT(OPERND(I,8)).LT.INT(sys_last_surf())) THEN
       ELSE
          REG(9)=V
       END IF
