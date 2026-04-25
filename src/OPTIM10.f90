@@ -4,16 +4,17 @@ SUBROUTINE VUNITS(PNAME,VUNI)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_units
    IMPLICIT NONE
    CHARACTER PNAME*8,UVAL*8,VUNI*8,ANNVAL*8,IUVAL*8,FRVAL*8
-   IF(SYSTEM(6).EQ.1.0D0) UVAL='INCH    '
-   IF(SYSTEM(6).EQ.2.0D0) UVAL='CM      '
-   IF(SYSTEM(6).EQ.3.0D0) UVAL='MM      '
-   IF(SYSTEM(6).EQ.4.0D0) UVAL='METER   '
-   IF(SYSTEM(6).EQ.1.0D0) IUVAL='(1/INCH)'
-   IF(SYSTEM(6).EQ.2.0D0) IUVAL='(1/CM)  '
-   IF(SYSTEM(6).EQ.3.0D0) IUVAL='(1/MM)  '
-   IF(SYSTEM(6).EQ.4.0D0) IUVAL='(1/M)   '
+   IF(sys_units().EQ.1.0D0) UVAL='INCH    '
+   IF(sys_units().EQ.2.0D0) UVAL='CM      '
+   IF(sys_units().EQ.3.0D0) UVAL='MM      '
+   IF(sys_units().EQ.4.0D0) UVAL='METER   '
+   IF(sys_units().EQ.1.0D0) IUVAL='(1/INCH)'
+   IF(sys_units().EQ.2.0D0) IUVAL='(1/CM)  '
+   IF(sys_units().EQ.3.0D0) IUVAL='(1/MM)  '
+   IF(sys_units().EQ.4.0D0) IUVAL='(1/M)   '
    ANNVAL='DEGREE  '
    FRVAL='FRINGE  '
    IF(PNAME.EQ.'RD      ') VUNI=UVAL
@@ -2901,6 +2902,7 @@ SUBROUTINE CVARBLL
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_units, sys_wl_ref, sys_wavelength
    IMPLICIT NONE
 !
    LOGICAL YES,GOFORIT
@@ -3245,8 +3247,8 @@ SUBROUTINE CVARBLL
       CALL MACFAL
       RETURN
    END IF
-   IF(W2.LT.0.0D0) W2=SYSTEM(20)+W2
-   IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20))) THEN
+   IF(W2.LT.0.0D0) W2=sys_last_surf()+W2
+   IF(INT(W2).LT.0.OR.INT(W2).GT.INT(sys_last_surf())) THEN
       WRITE(OUTLYNE,*)'NUMERIC WORD #2 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3341,20 +3343,20 @@ SUBROUTINE CVARBLL
          IF(GOFORIT) THEN
 !     USE SWANTNER'S ALGORITHM TO CALCULATE DINCR BASED ON 1/4 WAVE
 !     AT THE CONTROL WAVELENGTH
-            IF(SYSTEM(11).EQ.1.0D0)  WAVERCW=SYSTEM(1)/4.0D0
-            IF(SYSTEM(11).EQ.2.0D0)  WAVERCW=SYSTEM(2)/4.0D0
-            IF(SYSTEM(11).EQ.3.0D0)  WAVERCW=SYSTEM(3)/4.0D0
-            IF(SYSTEM(11).EQ.4.0D0)  WAVERCW=SYSTEM(4)/4.0D0
-            IF(SYSTEM(11).EQ.5.0D0)  WAVERCW=SYSTEM(5)/4.0D0
-            IF(SYSTEM(11).EQ.6.0D0)  WAVERCW=SYSTEM(71)/4.0D0
-            IF(SYSTEM(11).EQ.7.0D0)  WAVERCW=SYSTEM(72)/4.0D0
-            IF(SYSTEM(11).EQ.8.0D0)  WAVERCW=SYSTEM(73)/4.0D0
-            IF(SYSTEM(11).EQ.9.0D0)  WAVERCW=SYSTEM(74)/4.0D0
-            IF(SYSTEM(11).EQ.10.0D0) WAVERCW=SYSTEM(75)/4.0D0
-            IF(SYSTEM(6).EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
+            IF(sys_wl_ref().EQ.1.0D0)  WAVERCW=sys_wavelength(1)/4.0D0
+            IF(sys_wl_ref().EQ.2.0D0)  WAVERCW=sys_wavelength(2)/4.0D0
+            IF(sys_wl_ref().EQ.3.0D0)  WAVERCW=sys_wavelength(3)/4.0D0
+            IF(sys_wl_ref().EQ.4.0D0)  WAVERCW=sys_wavelength(4)/4.0D0
+            IF(sys_wl_ref().EQ.5.0D0)  WAVERCW=sys_wavelength(5)/4.0D0
+            IF(sys_wl_ref().EQ.6.0D0)  WAVERCW=sys_wavelength(6)/4.0D0
+            IF(sys_wl_ref().EQ.7.0D0)  WAVERCW=sys_wavelength(7)/4.0D0
+            IF(sys_wl_ref().EQ.8.0D0)  WAVERCW=sys_wavelength(8)/4.0D0
+            IF(sys_wl_ref().EQ.9.0D0)  WAVERCW=sys_wavelength(9)/4.0D0
+            IF(sys_wl_ref().EQ.10.0D0) WAVERCW=sys_wavelength(10)/4.0D0
+            IF(sys_units().EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
+            IF(sys_units().EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
             IF(WC.EQ.'AC') THEN
                DINCR=WAVERCW/((DABS(HM1)+DABS(HC1))**2)
             END IF
@@ -3435,20 +3437,20 @@ SUBROUTINE CVARBLL
          IF(GOFORIT) THEN
 !     USE SWANTNER'S ALGORITHM TO CALCULATE DINCR BASED ON 1/4 WAVE
 !     AT THE CONTROL WAVELENGTH
-            IF(SYSTEM(11).EQ.1.0D0)  WAVERCW=SYSTEM(1)/4.0D0
-            IF(SYSTEM(11).EQ.2.0D0)  WAVERCW=SYSTEM(2)/4.0D0
-            IF(SYSTEM(11).EQ.3.0D0)  WAVERCW=SYSTEM(3)/4.0D0
-            IF(SYSTEM(11).EQ.4.0D0)  WAVERCW=SYSTEM(4)/4.0D0
-            IF(SYSTEM(11).EQ.5.0D0)  WAVERCW=SYSTEM(5)/4.0D0
-            IF(SYSTEM(11).EQ.6.0D0)  WAVERCW=SYSTEM(71)/4.0D0
-            IF(SYSTEM(11).EQ.7.0D0)  WAVERCW=SYSTEM(72)/4.0D0
-            IF(SYSTEM(11).EQ.8.0D0)  WAVERCW=SYSTEM(73)/4.0D0
-            IF(SYSTEM(11).EQ.9.0D0)  WAVERCW=SYSTEM(74)/4.0D0
-            IF(SYSTEM(11).EQ.10.0D0) WAVERCW=SYSTEM(75)/4.0D0
-            IF(SYSTEM(6).EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
+            IF(sys_wl_ref().EQ.1.0D0)  WAVERCW=sys_wavelength(1)/4.0D0
+            IF(sys_wl_ref().EQ.2.0D0)  WAVERCW=sys_wavelength(2)/4.0D0
+            IF(sys_wl_ref().EQ.3.0D0)  WAVERCW=sys_wavelength(3)/4.0D0
+            IF(sys_wl_ref().EQ.4.0D0)  WAVERCW=sys_wavelength(4)/4.0D0
+            IF(sys_wl_ref().EQ.5.0D0)  WAVERCW=sys_wavelength(5)/4.0D0
+            IF(sys_wl_ref().EQ.6.0D0)  WAVERCW=sys_wavelength(6)/4.0D0
+            IF(sys_wl_ref().EQ.7.0D0)  WAVERCW=sys_wavelength(7)/4.0D0
+            IF(sys_wl_ref().EQ.8.0D0)  WAVERCW=sys_wavelength(8)/4.0D0
+            IF(sys_wl_ref().EQ.9.0D0)  WAVERCW=sys_wavelength(9)/4.0D0
+            IF(sys_wl_ref().EQ.10.0D0) WAVERCW=sys_wavelength(10)/4.0D0
+            IF(sys_units().EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
+            IF(sys_units().EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
             IF(WC.EQ.'ADTOR') THEN
                DINCR=WAVERCW/((DABS(HM1)+DABS(HC1))**4)
             END IF
