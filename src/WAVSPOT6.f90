@@ -196,6 +196,7 @@ SUBROUTINE DOPUPIL(KKK)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE DOPUPIL.FOR.
@@ -238,16 +239,16 @@ SUBROUTINE DOPUPIL(KKK)
    DEALLOCATE(FOEGRID1,STAT=ALLOERR)
    GPREG(101:110)=0.0D0
 !
-   PSFWV(1)=SYSTEM(1)
-   PSFWV(2)=SYSTEM(2)
-   PSFWV(3)=SYSTEM(3)
-   PSFWV(4)=SYSTEM(4)
-   PSFWV(5)=SYSTEM(5)
-   PSFWV(6)=SYSTEM(71)
-   PSFWV(7)=SYSTEM(72)
-   PSFWV(8)=SYSTEM(73)
-   PSFWV(9)=SYSTEM(74)
-   PSFWV(10)=SYSTEM(75)
+   PSFWV(1)=sys_wavelength(1)
+   PSFWV(2)=sys_wavelength(2)
+   PSFWV(3)=sys_wavelength(3)
+   PSFWV(4)=sys_wavelength(4)
+   PSFWV(5)=sys_wavelength(5)
+   PSFWV(6)=sys_wavelength(6)
+   PSFWV(7)=sys_wavelength(7)
+   PSFWV(8)=sys_wavelength(8)
+   PSFWV(9)=sys_wavelength(9)
+   PSFWV(10)=sys_wavelength(10)
 !
 !     M IS THE DIMENSION OF THE REQUESTED GRID OVER THE PUPIL
 !     THE TRANSFORM IS TWICE THIS BIG
@@ -272,58 +273,58 @@ SUBROUTINE DOPUPIL(KKK)
    END IF
 !     CALC SPTOT
    SPTOT=0.0D0
-   SPTOT=SPTOT+(SYSTEM(31))
-   SPTOT=SPTOT+(SYSTEM(32))
-   SPTOT=SPTOT+(SYSTEM(33))
-   SPTOT=SPTOT+(SYSTEM(34))
-   SPTOT=SPTOT+(SYSTEM(35))
-   SPTOT=SPTOT+(SYSTEM(76))
-   SPTOT=SPTOT+(SYSTEM(77))
-   SPTOT=SPTOT+(SYSTEM(78))
-   SPTOT=SPTOT+(SYSTEM(79))
-   SPTOT=SPTOT+(SYSTEM(80))
+   SPTOT=SPTOT+(sys_wl_weight(1))
+   SPTOT=SPTOT+(sys_wl_weight(2))
+   SPTOT=SPTOT+(sys_wl_weight(3))
+   SPTOT=SPTOT+(sys_wl_weight(4))
+   SPTOT=SPTOT+(sys_wl_weight(5))
+   SPTOT=SPTOT+(sys_wl_weight(6))
+   SPTOT=SPTOT+(sys_wl_weight(7))
+   SPTOT=SPTOT+(sys_wl_weight(8))
+   SPTOT=SPTOT+(sys_wl_weight(9))
+   SPTOT=SPTOT+(sys_wl_weight(10))
 !
 !     NOW COMPUTE THE SHORTEST WAVELENGTH IN CURENT LENS UNITS
 !     CALC THE SHRTWAVE
    SHRTWAVE=0.0D0
-   IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       GO TO 314
    END IF
-   IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       GO TO 314
    END IF
-   IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       GO TO 314
    END IF
-   IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       GO TO 314
    END IF
-   IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       GO TO 314
    END IF
-   IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       GO TO 314
    END IF
-   IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       GO TO 314
    END IF
-   IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       GO TO 314
    END IF
-   IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       GO TO 314
    END IF
-   IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       GO TO 314
    END IF
 314 CONTINUE
@@ -337,62 +338,62 @@ SUBROUTINE DOPUPIL(KKK)
       RETURN
    END IF
 !
-   IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).LE.SHRTWAVE &
-   &.AND.SYSTEM(1).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).LE.SHRTWAVE &
+   &.AND.sys_wavelength(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       SHTNM=1
    END IF
-   IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).LE.SHRTWAVE &
-   &.AND.SYSTEM(2).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).LE.SHRTWAVE &
+   &.AND.sys_wavelength(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       SHTNM=2
    END IF
-   IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).LE.SHRTWAVE &
-   &.AND.SYSTEM(3).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).LE.SHRTWAVE &
+   &.AND.sys_wavelength(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       SHTNM=3
    END IF
-   IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).LE.SHRTWAVE &
-   &.AND.SYSTEM(4).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).LE.SHRTWAVE &
+   &.AND.sys_wavelength(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       SHTNM=4
    END IF
-   IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).LE.SHRTWAVE &
-   &.AND.SYSTEM(5).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).LE.SHRTWAVE &
+   &.AND.sys_wavelength(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       SHTNM=5
    END IF
-   IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).LE.SHRTWAVE &
-   &.AND.SYSTEM(71).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).LE.SHRTWAVE &
+   &.AND.sys_wavelength(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       SHTNM=6
    END IF
-   IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).LE.SHRTWAVE &
-   &.AND.SYSTEM(72).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).LE.SHRTWAVE &
+   &.AND.sys_wavelength(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       SHTNM=7
    END IF
-   IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).LE.SHRTWAVE &
-   &.AND.SYSTEM(73).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).LE.SHRTWAVE &
+   &.AND.sys_wavelength(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       SHTNM=8
    END IF
-   IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).LE.SHRTWAVE &
-   &.AND.SYSTEM(74).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).LE.SHRTWAVE &
+   &.AND.sys_wavelength(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       SHTNM=9
    END IF
-   IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).LE.SHRTWAVE &
-   &.AND.SYSTEM(75).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).LE.SHRTWAVE &
+   &.AND.sys_wavelength(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       SHTNM=10
    END IF
 !     SHRTWAVE IS IN MICRONS, CHANGE TO LENS UNITS
    VALUE=SHRTWAVE
-   IF(SYSTEM(6).EQ.1.0D0) SHTVALUE=((VALUE*1.0D-3)/25.4D0)
-   IF(SYSTEM(6).EQ.2.0D0) SHTVALUE=(VALUE*1.0D-4)
-   IF(SYSTEM(6).EQ.3.0D0) SHTVALUE=(VALUE*1.0D-3)
-   IF(SYSTEM(6).EQ.4.0D0) SHTVALUE=(VALUE*1.0D-6)
+   IF(sys_units().EQ.1.0D0) SHTVALUE=((VALUE*1.0D-3)/25.4D0)
+   IF(sys_units().EQ.2.0D0) SHTVALUE=(VALUE*1.0D-4)
+   IF(sys_units().EQ.3.0D0) SHTVALUE=(VALUE*1.0D-3)
+   IF(sys_units().EQ.4.0D0) SHTVALUE=(VALUE*1.0D-6)
 !
 !     WE NOW HAVE THE WAVELENGTH AND WAVELENGTH NUMBER OF THE
 !     SHORTEST WAVELENGTH FOR WHICH THE SPECTRAL WEIGHTING FACTOR
@@ -411,7 +412,7 @@ SUBROUTINE DOPUPIL(KKK)
 !     GRID IN COMPAP.FOR. THESE ARE THE UNVIGNETTED ENTRANCE PUPIL
 !     VALUES. VIGNETTING IS ACCOUNTED FOR IN THE PSF RAY TRACE.
 !
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
       IF(REFEXT) THEN
          ERR=.FALSE.
          MSG=.FALSE.
@@ -442,7 +443,7 @@ SUBROUTINE DOPUPIL(KKK)
       END IF
    END IF
 !
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
       DIAM=GRNX
       IF(GRNY.LT.GRNX) DIAM=GRNY
@@ -542,7 +543,7 @@ SUBROUTINE DOPUPIL(KKK)
 !
       IF(II.LT.IWIW) GO TO 10
 !     FELL THROUGH, FINISHED READING IWIW POINTS
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
 !       FOCAL
          EXTENT=SNGL(OUTGRIDEXTENT)
          SPACING=SNGL(OUTGRIDSPACING)
@@ -565,6 +566,7 @@ SUBROUTINE NRDCALC(ERRORR)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
 !     THIS CALCULATED A NON-INTEGER NRD WHEN GRI IS SPECIFIED
@@ -580,44 +582,44 @@ SUBROUTINE NRDCALC(ERRORR)
 !     NOW COMPUTE THE SHORTEST WAVELENGTH IN CURENT LENS UNITS
 !     CALC THE SHRTWAVE
    SHRTWAVE=0.0D0
-   IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       GO TO 314
    END IF
-   IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       GO TO 314
    END IF
-   IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       GO TO 314
    END IF
-   IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       GO TO 314
    END IF
-   IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       GO TO 314
    END IF
-   IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       GO TO 314
    END IF
-   IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       GO TO 314
    END IF
-   IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       GO TO 314
    END IF
-   IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       GO TO 314
    END IF
-   IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       GO TO 314
    END IF
 314 CONTINUE
@@ -632,62 +634,62 @@ SUBROUTINE NRDCALC(ERRORR)
       RETURN
    END IF
 !
-   IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).LE.SHRTWAVE &
-   &.AND.SYSTEM(1).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).LE.SHRTWAVE &
+   &.AND.sys_wavelength(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       SHTNM=1
    END IF
-   IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).LE.SHRTWAVE &
-   &.AND.SYSTEM(2).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).LE.SHRTWAVE &
+   &.AND.sys_wavelength(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       SHTNM=2
    END IF
-   IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).LE.SHRTWAVE &
-   &.AND.SYSTEM(3).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).LE.SHRTWAVE &
+   &.AND.sys_wavelength(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       SHTNM=3
    END IF
-   IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).LE.SHRTWAVE &
-   &.AND.SYSTEM(4).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).LE.SHRTWAVE &
+   &.AND.sys_wavelength(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       SHTNM=4
    END IF
-   IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).LE.SHRTWAVE &
-   &.AND.SYSTEM(5).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).LE.SHRTWAVE &
+   &.AND.sys_wavelength(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       SHTNM=5
    END IF
-   IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).LE.SHRTWAVE &
-   &.AND.SYSTEM(71).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).LE.SHRTWAVE &
+   &.AND.sys_wavelength(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       SHTNM=6
    END IF
-   IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).LE.SHRTWAVE &
-   &.AND.SYSTEM(72).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).LE.SHRTWAVE &
+   &.AND.sys_wavelength(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       SHTNM=7
    END IF
-   IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).LE.SHRTWAVE &
-   &.AND.SYSTEM(73).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).LE.SHRTWAVE &
+   &.AND.sys_wavelength(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       SHTNM=8
    END IF
-   IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).LE.SHRTWAVE &
-   &.AND.SYSTEM(74).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).LE.SHRTWAVE &
+   &.AND.sys_wavelength(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       SHTNM=9
    END IF
-   IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).LE.SHRTWAVE &
-   &.AND.SYSTEM(75).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).LE.SHRTWAVE &
+   &.AND.sys_wavelength(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       SHTNM=10
    END IF
 !     SHRTWAVE IS IN MICRONS, CHANGE TO LENS UNITS
    VALUE=SHRTWAVE
-   IF(SYSTEM(6).EQ.1.0D0) SHTVALUE=((VALUE*1.0D-3)/25.4D0)
-   IF(SYSTEM(6).EQ.2.0D0) SHTVALUE=(VALUE*1.0D-4)
-   IF(SYSTEM(6).EQ.3.0D0) SHTVALUE=(VALUE*1.0D-3)
-   IF(SYSTEM(6).EQ.4.0D0) SHTVALUE=(VALUE*1.0D-6)
+   IF(sys_units().EQ.1.0D0) SHTVALUE=((VALUE*1.0D-3)/25.4D0)
+   IF(sys_units().EQ.2.0D0) SHTVALUE=(VALUE*1.0D-4)
+   IF(sys_units().EQ.3.0D0) SHTVALUE=(VALUE*1.0D-3)
+   IF(sys_units().EQ.4.0D0) SHTVALUE=(VALUE*1.0D-6)
 !
 !     WE NOW HAVE THE WAVELENGTH AND WAVELENGTH NUMBER OF THE
 !     SHORTEST WAVELENGTH FOR WHICH THE SPECTRAL WEIGHTING FACTOR
@@ -697,7 +699,7 @@ SUBROUTINE NRDCALC(ERRORR)
 !
 !     NOW COMPUTE THE NRD
 !
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
       IF(REFEXT) THEN
          ERR=.FALSE.
          MSG=.FALSE.
