@@ -464,6 +464,7 @@ SUBROUTINE TOPER1
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_wl_ref
    IMPLICIT NONE
 !
    INTEGER OS5,ODF5,I,II,J,K,L,OPT
@@ -1886,7 +1887,7 @@ SUBROUTINE TOPER1
 !     W5 (CALLED W4) 1 TO 10 (WAVELENGTH NUMBER)
       IF(DF5.EQ.1) THEN
          DF5=0
-         W5=SYSTEM(11)
+         W5=sys_wl_ref()
       END IF
 !     OUT OF RANGE INPUT W4
       IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
@@ -2202,11 +2203,11 @@ SUBROUTINE TOPER1
 !     SET DEFAULTS FOR LENGTH AND MLENGTH AND WEIGHT
       IF(OP17.EQ.106.0D0.OR.&
       &OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0.OR.OP17.EQ.511.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
          IF(DF3.EQ.1) W3=0.0D0
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(20)
+         IF(DF4.EQ.1) W4=sys_last_surf()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -2283,8 +2284,8 @@ SUBROUTINE TOPER1
       &108.0D0.AND.OP17.LE.206.0D0.OR.OP17.GE.447.0D0 &
       &.AND.OP17.LE.451.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0 &
       &.OR.OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -2330,10 +2331,10 @@ SUBROUTINE TOPER1
 !
       IF(OP17.EQ.106.0D0.OR.OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0 &
       &.OR.OP17.EQ.511.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.W3.GE.W4.OR.W4.LT.0.0D0 &
-         &.OR.W4.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf().OR.W3.GE.W4.OR.W4.LT.0.0D0 &
+         &.OR.W4.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBERS ISSUED FOR'
@@ -2349,8 +2350,8 @@ SUBROUTINE TOPER1
       END IF
 !
       IF(OP17.EQ.91.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -2401,11 +2402,11 @@ SUBROUTINE TOPER1
 !     SET DEFAULTS FOR PWRY,PWRX,FLCLTH OR FLCLTHY AND FLCLTHX
       IF(OP17.GE.207.0D0.AND.&
       &OP17.LE.210.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
          IF(DF3.EQ.1) W3=0.0D0
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(20)
+         IF(DF4.EQ.1) W4=sys_last_surf()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -2418,10 +2419,10 @@ SUBROUTINE TOPER1
       END IF
 !     SET DEFAULTS FOR 211 TO 226
       IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(DF3.EQ.1) W3=sys_last_surf()
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(11)
+         IF(DF4.EQ.1) W4=sys_wl_ref()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -2432,8 +2433,8 @@ SUBROUTINE TOPER1
       END IF
 !     SET DEFAULTS FOR 227 TO 234
       IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(DF3.EQ.1) W3=sys_last_surf()
          IREG=W3
          OP8=W3
          OP18=DBLE(DF3)
@@ -2458,10 +2459,10 @@ SUBROUTINE TOPER1
 !     OUT OF RANGE INPUT
 !
       IF(OP17.GE.207.0D0.AND.OP17.LE.210.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.&
-         &W4.LT.0.0D0.OR.W4.GT.SYSTEM(20).OR.&
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf().OR.&
+         &W4.LT.0.0D0.OR.W4.GT.sys_last_surf().OR.&
          &W4.LE.W3) THEN
 !     BAD SURFACE NUMBERS
             WRITE(OUTLYNE,*)&
@@ -2477,8 +2478,8 @@ SUBROUTINE TOPER1
          END IF
       END IF
       IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -2509,8 +2510,8 @@ SUBROUTINE TOPER1
          END IF
       END IF
       IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -2741,7 +2742,7 @@ SUBROUTINE TOPER1
          END IF
       END IF
       IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
-         IF(DF5.EQ.1) W5=SYSTEM(11)
+         IF(DF5.EQ.1) W5=sys_wl_ref()
          OP10 =W5
          IF(DF5.EQ.1) DF5=0
          OP12 =DBLE(DF5)
@@ -2897,8 +2898,8 @@ SUBROUTINE TOPER1
          END IF
       END IF
       IF(OP17.GE.279.0D0.AND.OP17.LE.284.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.1.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD FIELD POS NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -2969,7 +2970,7 @@ SUBROUTINE TOPER1
       IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
          IF(DF3.EQ.1) THEN
             DF3=0
-            W3=INT(SYSTEM(20))
+            W3=INT(sys_last_surf())
          END IF
       END IF
       IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
@@ -3012,8 +3013,8 @@ SUBROUTINE TOPER1
             CALL MACFAL
             RETURN
          END IF
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD FIELD SURF NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -3047,15 +3048,15 @@ SUBROUTINE TOPER1
          CALL MACFAL
          RETURN
       END IF
-      IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-      IF(DF3.EQ.1) W3=SYSTEM(20)
+      IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+      IF(DF3.EQ.1) W3=sys_last_surf()
       IF(DF3.EQ.1) DF3=0
       IREG=W3
       OP8=W3
       OP18=DBLE(DF3)
       OP19=0.0D0
 !
-      IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+      IF(W3.LT.1.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
          WRITE(OUTLYNE,*)&
          &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -3194,6 +3195,7 @@ SUBROUTINE FOCRIT1
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_wl_ref
    IMPLICIT NONE
 !
    INTEGER II,I,J,K,L,OPT
@@ -4607,7 +4609,7 @@ SUBROUTINE FOCRIT1
 !     W5 (CALLED W4) 1 TO 10 (WAVELENGTH NUMBER)
       IF(DF5.EQ.1) THEN
          DF5=0
-         W5=SYSTEM(11)
+         W5=sys_wl_ref()
       END IF
 !     OUT OF RANGE INPUT W4
       IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
@@ -4924,11 +4926,11 @@ SUBROUTINE FOCRIT1
 !     SET DEFAULTS FOR LENGTH AND MLENGTH AND WEIGHT
       IF(OP17.EQ.106.0D0.OR.&
       &OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0.OR.OP17.EQ.511.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
          IF(DF3.EQ.1) W3=0.0D0
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(20)
+         IF(DF4.EQ.1) W4=sys_last_surf()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -5005,8 +5007,8 @@ SUBROUTINE FOCRIT1
       &108.0D0.AND.OP17.LE.206.0D0.OR.OP17.GE.447.0D0 &
       &.AND.OP17.LE.451.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0 &
       &.OR.OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5052,10 +5054,10 @@ SUBROUTINE FOCRIT1
 !
       IF(OP17.EQ.106.0D0.OR.OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0 &
       &.OR.OP17.EQ.511.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.W3.GE.W4.OR.W4.LT.0.0D0 &
-         &.OR.W4.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf().OR.W3.GE.W4.OR.W4.LT.0.0D0 &
+         &.OR.W4.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBERS ISSUED FOR'
@@ -5071,8 +5073,8 @@ SUBROUTINE FOCRIT1
       END IF
 !
       IF(OP17.EQ.91.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5123,11 +5125,11 @@ SUBROUTINE FOCRIT1
 !     SET DEFAULTS FOR PWRY,PWRX,FLCLTH OR FLCLTHY AND FLCLTHX
       IF(OP17.GE.207.0D0.AND.&
       &OP17.LE.210.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
          IF(DF3.EQ.1) W3=0.0D0
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(20)
+         IF(DF4.EQ.1) W4=sys_last_surf()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -5140,10 +5142,10 @@ SUBROUTINE FOCRIT1
       END IF
 !     SET DEFAULTS FOR 211 TO 226
       IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(DF3.EQ.1) W3=sys_last_surf()
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(11)
+         IF(DF4.EQ.1) W4=sys_wl_ref()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -5154,8 +5156,8 @@ SUBROUTINE FOCRIT1
       END IF
 !     SET DEFAULTS FOR 227 TO 234
       IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(DF3.EQ.1) W3=sys_last_surf()
          IREG=W3
          OP8=W3
          OP18=DBLE(DF3)
@@ -5180,10 +5182,10 @@ SUBROUTINE FOCRIT1
 !     OUT OF RANGE INPUT
 !
       IF(OP17.GE.207.0D0.AND.OP17.LE.210.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.&
-         &W4.LT.0.0D0.OR.W4.GT.SYSTEM(20).OR.&
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf().OR.&
+         &W4.LT.0.0D0.OR.W4.GT.sys_last_surf().OR.&
          &W4.LE.W3) THEN
 !     BAD SURFACE NUMBERS
             WRITE(OUTLYNE,*)&
@@ -5199,8 +5201,8 @@ SUBROUTINE FOCRIT1
          END IF
       END IF
       IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5231,8 +5233,8 @@ SUBROUTINE FOCRIT1
          END IF
       END IF
       IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5465,7 +5467,7 @@ SUBROUTINE FOCRIT1
          END IF
       END IF
       IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
-         IF(DF5.EQ.1) W5=SYSTEM(11)
+         IF(DF5.EQ.1) W5=sys_wl_ref()
          OP10 =W5
          IF(DF5.EQ.1) DF5=0
          OP12 =DBLE(DF5)
@@ -5618,8 +5620,8 @@ SUBROUTINE FOCRIT1
          END IF
       END IF
       IF(OP17.GE.279.0D0.AND.OP17.LE.284.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.1.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD FIELD POS NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5690,7 +5692,7 @@ SUBROUTINE FOCRIT1
       IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
          IF(DF3.EQ.1) THEN
             DF3=0
-            W3=INT(SYSTEM(20))
+            W3=INT(sys_last_surf())
          END IF
       END IF
       IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
@@ -5733,8 +5735,8 @@ SUBROUTINE FOCRIT1
             CALL MACFAL
             RETURN
          END IF
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD FIELD SURF NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5768,15 +5770,15 @@ SUBROUTINE FOCRIT1
          CALL MACFAL
          RETURN
       END IF
-      IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-      IF(DF3.EQ.1) W3=SYSTEM(20)
+      IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+      IF(DF3.EQ.1) W3=sys_last_surf()
       IF(DF3.EQ.1) DF3=0
       IREG=W3
       OP8=W3
       OP18=DBLE(DF3)
       OP19=0.0D0
 !
-      IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+      IF(W3.LT.1.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
          WRITE(OUTLYNE,*)&
          &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -5912,6 +5914,7 @@ SUBROUTINE MERIT1
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_wl_ref
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,OPT
@@ -7376,7 +7379,7 @@ SUBROUTINE MERIT1
 !     W5 1 TO 10 (WAVELENGTH NUMBER)
       IF(DF5.EQ.1) THEN
          DF5=0
-         W5=SYSTEM(11)
+         W5=sys_wl_ref()
       END IF
 !     OUT OF RANGE INPUT W4
       IF(INT(W4).LT.1.OR.INT(W4).GT.200.0D0) THEN
@@ -7660,7 +7663,7 @@ SUBROUTINE MERIT1
             CALL MACFAL
             RETURN
          END IF
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
             WRITE(OUTLYNE,*)&
             &'PREDEFINED OPERAND ',OPNM
             CALL SHOWIT(1)
@@ -7733,11 +7736,11 @@ SUBROUTINE MERIT1
 !     SET DEFAULTS FOR LENGTH AND MLENGTH AND WEIGHT
       IF(OP17.EQ.106.0D0.OR.&
       &OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0.OR.OP17.EQ.511.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
          IF(DF3.EQ.1) W3=0.0D0
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(20)
+         IF(DF4.EQ.1) W4=sys_last_surf()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -7809,8 +7812,8 @@ SUBROUTINE MERIT1
       &108.0D0.AND.OP17.LE.206.0D0.OR.OP17.GE.447.0D0 &
       &.AND.OP17.LE.451.0D0.OR.OP17.GE.485.0D0.AND.OP17.LE.499.0D0.OR.&
       &OP17.GE.500.0D0.AND.OP17.LE.508.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -7856,10 +7859,10 @@ SUBROUTINE MERIT1
 !
       IF(OP17.EQ.106.0D0.OR.OP17.EQ.107.0D0.OR.OP17.EQ.509.0D0 &
       &.OR.OP17.EQ.511.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.W3.GE.W4.OR.W4.LT.0.0D0 &
-         &.OR.W4.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf().OR.W3.GE.W4.OR.W4.LT.0.0D0 &
+         &.OR.W4.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBERS ISSUED FOR'
@@ -7875,8 +7878,8 @@ SUBROUTINE MERIT1
       END IF
 !
       IF(OP17.EQ.91.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -7916,11 +7919,11 @@ SUBROUTINE MERIT1
 !     SET DEFAULTS FOR PWRY,PWRX,FLCLTH OR FLCLTHY AND FLCLTHX
       IF(OP17.GE.207.0D0.AND.&
       &OP17.LE.210.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
          IF(DF3.EQ.1) W3=0.0D0
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(20)
+         IF(DF4.EQ.1) W4=sys_last_surf()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -7932,10 +7935,10 @@ SUBROUTINE MERIT1
       END IF
 !     SET DEFAULTS FOR 211 TO 226
       IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(DF3.EQ.1) W3=sys_last_surf()
          IF(DF3.EQ.1) DF3=0
-         IF(DF4.EQ.1) W4=SYSTEM(11)
+         IF(DF4.EQ.1) W4=sys_wl_ref()
          OP9 = W4
          IF(DF4.EQ.1) DF4=0
          OP11 =DBLE(DF4)
@@ -7945,8 +7948,8 @@ SUBROUTINE MERIT1
       END IF
 !     SET DEFAULTS FOR 227 TO 234
       IF(OP17.GE.227.0D0.AND.OP17.LE.234.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(DF3.EQ.1) W3=SYSTEM(20)
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(DF3.EQ.1) W3=sys_last_surf()
          IREG=W3
          OP8=W3
          OP18=DBLE(DF3)
@@ -7970,10 +7973,10 @@ SUBROUTINE MERIT1
 !     OUT OF RANGE INPUT
 !
       IF(OP17.GE.207.0D0.AND.OP17.LE.210.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W4.LT.0.0D0) W4=SYSTEM(20)+W4
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20).OR.&
-         &W4.LT.0.0D0.OR.W4.GT.SYSTEM(20).OR.&
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W4.LT.0.0D0) W4=sys_last_surf()+W4
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf().OR.&
+         &W4.LT.0.0D0.OR.W4.GT.sys_last_surf().OR.&
          &W4.LE.W3) THEN
 !     BAD SURFACE NUMBERS
             WRITE(OUTLYNE,*)&
@@ -7989,8 +7992,8 @@ SUBROUTINE MERIT1
          END IF
       END IF
       IF(OP17.GE.211.0D0.AND.OP17.LE.226.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -8021,8 +8024,8 @@ SUBROUTINE MERIT1
          END IF
       END IF
       IF(OP17.GE.235.0D0.AND.OP17.LE.236.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -8350,7 +8353,7 @@ SUBROUTINE MERIT1
          END IF
       END IF
       IF(OP17.EQ.246.0D0.OR.OP17.EQ.484.0D0) THEN
-         IF(DF5.EQ.1) W5=SYSTEM(11)
+         IF(DF5.EQ.1) W5=sys_wl_ref()
          OP10 =W5
          IF(DF5.EQ.1) DF5=0
          OP12 =DBLE(DF5)
@@ -8482,8 +8485,8 @@ SUBROUTINE MERIT1
          END IF
       END IF
       IF(OP17.GE.279.0D0.AND.OP17.LE.284.0D0) THEN
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.1.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD FIELD POS NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -8554,7 +8557,7 @@ SUBROUTINE MERIT1
       IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
          IF(DF3.EQ.1) THEN
             DF3=0
-            W3=INT(SYSTEM(20))
+            W3=INT(sys_last_surf())
          END IF
       END IF
       IF(OP17.GE.452.0D0.AND.OP17.LE.459.0D0) THEN
@@ -8589,8 +8592,8 @@ SUBROUTINE MERIT1
             CALL MACFAL
             RETURN
          END IF
-         IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-         IF(W3.LT.0.0D0.OR.W3.GT.SYSTEM(20)) THEN
+         IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+         IF(W3.LT.0.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD FIELD SURF NUMBER
             WRITE(OUTLYNE,*)&
             &'INVALID SURFACE NUMBER ISSUED FOR'
@@ -8620,14 +8623,14 @@ SUBROUTINE MERIT1
          W4=0.0D0
          W5=0.0D0
       END IF
-      IF(W3.LT.0.0D0) W3=SYSTEM(20)+W3
-      IF(DF3.EQ.1) W3=SYSTEM(20)
+      IF(W3.LT.0.0D0) W3=sys_last_surf()+W3
+      IF(DF3.EQ.1) W3=sys_last_surf()
       IF(DF3.EQ.1) DF3=0
       IREG=W3
       OP8=W3
       OP18=DBLE(DF3)
 !
-      IF(W3.LT.1.0D0.OR.W3.GT.SYSTEM(20)) THEN
+      IF(W3.LT.1.0D0.OR.W3.GT.sys_last_surf()) THEN
 !     BAD SURFACE NUMBER
          WRITE(OUTLYNE,*)&
          &'INVALID SURFACE NUMBER ISSUED FOR'
