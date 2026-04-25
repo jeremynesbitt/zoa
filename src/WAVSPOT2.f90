@@ -9,6 +9,7 @@ SUBROUTINE SUMSPREDSQ
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SUMSPREDSQ.FOR.
@@ -161,7 +162,7 @@ SUBROUTINE SUMSPREDSQ
             IRED=IRED+1
             RED1=DSPOT(12)
 !
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
                XV=DSPOT(1)
                YV=DSPOT(2)
@@ -171,7 +172,7 @@ SUBROUTINE SUMSPREDSQ
                YV=(DSPOT(10))
             END IF
 !
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
                RED2=(XV-REDVLX)/COS_B_ANG
                RED3=(YV-REDVLY)/COS_A_ANG
             ELSE
@@ -267,6 +268,7 @@ SUBROUTINE SPREDSQ
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPREDSQ.FOR.
@@ -503,7 +505,7 @@ SUBROUTINE SPREDSQ
    END IF
 !     GET THE NEW MOVED CENTRIOD POSITIONS IF NECESSARY
    IF(WQ.EQ.'CENT'.AND.DF2.EQ.0.AND.W2.NE.0.0D0) THEN
-      IF(SYSTEM(30).GT.2.0D0) THEN
+      IF(sys_mode().GT.2.0D0) THEN
          OUTLYNE=&
          &'DEFOCUSING IS NOT ALLOWED IN MODES AFOCAL AND UAFOCAL'
          CALL SHOWIT(1)
@@ -517,7 +519,7 @@ SUBROUTINE SPREDSQ
       END IF
    END IF
    IF(WQ.NE.'CENT'.AND.DF4.EQ.0.AND.W4.NE.0.0D0) THEN
-      IF(SYSTEM(30).GT.2.0D0) THEN
+      IF(sys_mode().GT.2.0D0) THEN
          OUTLYNE=&
          &'DEFOCUSING IS NOT ALLOWED IN MODES AFOCAL AND UAFOCAL'
          CALL SHOWIT(1)
@@ -537,7 +539,7 @@ SUBROUTINE SPREDSQ
       REDVLX=CENTX
       REDVLY=CENTY
    ELSE
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
          REDVLX=REFRY(1,NEWIMG)+W2 &
          &+(DTAN(REFRY(11,NEWIMG))*W4)
@@ -591,7 +593,7 @@ SUBROUTINE SPREDSQ
             IRED=IRED+1
             RED1=DSPOT(12)
 !
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
                IF(WQ.NE.'CENT'.AND.WQ.NE.'CACC'.AND.WQ.NE.'CACCX') THEN
                   XV=(DSPOT(1))+(DTAN(DSPOT(9))*W4)
@@ -601,7 +603,7 @@ SUBROUTINE SPREDSQ
                   YV=(DSPOT(2))+(DTAN(DSPOT(10))*W2)
                END IF
 !
-               IF(SYSTEM(30).LT.3.0D0) THEN
+               IF(sys_mode().LT.3.0D0) THEN
                   RED2=(XV-REDVLX)/COS_B_ANG
                   RED3=(YV-REDVLY)/COS_A_ANG
                ELSE
@@ -618,7 +620,7 @@ SUBROUTINE SPREDSQ
                   YV=(DSPOT(10))
                END IF
 !
-               IF(SYSTEM(30).LT.3.0D0) THEN
+               IF(sys_mode().LT.3.0D0) THEN
                   RED2=(XV-REDVLX)/COS_B_ANG
                   RED3=(YV-REDVLY)/COS_A_ANG
                ELSE
@@ -758,11 +760,11 @@ SUBROUTINE SPREDSQ
 10 FORMAT('GEOMETRIC ENSQUARED ENERGY DISTRIBUTION')
 101 FORMAT('GEOMETRIC SUMMED ENSQUERD ENERGY DISTRIBUTION')
 !
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          DELZ=W3
          IF(W3.NE.0.0D0) WRITE(OUTLYNE,40) W3,J_UN
@@ -771,11 +773,11 @@ SUBROUTINE SPREDSQ
 40    FORMAT('APPLIED DEFOCUS (Z-DIRECTION) = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          IF(W2.NE.0.0D0) WRITE(OUTLYNE,41) W2,J_UN
          IF(W2.NE.0.0D0) CALL SHOWIT(0)
@@ -787,7 +789,7 @@ SUBROUTINE SPREDSQ
          IF(W3.NE.0.0D0) CALL SHOWIT(0)
       END IF
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.NE.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       IF(.NOT.NOPRINT) THEN
          IF(W2.NE.0.0D0) WRITE(OUTLYNE,43) W2,J_UN
@@ -798,11 +800,11 @@ SUBROUTINE SPREDSQ
 44       FORMAT('APPLIED Y-ANGULAR OFFSET = ',G13.6,1X,A13)
       END IF
    END IF
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          WRITE(OUTLYNE,50) CENTX,J_UN
          CALL SHOWIT(0)
@@ -812,7 +814,7 @@ SUBROUTINE SPREDSQ
 50    FORMAT('CENTROID X-COORDINATE = ',G13.6,1X,A13)
 60    FORMAT('CENTROID Y-COORDINATE = ',G13.6,1X,A13)
    END IF
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.EQ.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       IF(.NOT.NOPRINT) THEN
          WRITE(OUTLYNE,51) CENTX,J_UN
@@ -823,11 +825,11 @@ SUBROUTINE SPREDSQ
 51    FORMAT('CENTROID X-ANGULAR COORDINATE = ',G13.6,1X,A13)
 61    FORMAT('CENTROID Y-ANGULAR COORDINATE = ',G13.6,1X,A13)
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          IF(WC(1:1).NE.'S') THEN
             WRITE(OUTLYNE,70) REFRY(1,NEWIMG),J_UN
@@ -840,7 +842,7 @@ SUBROUTINE SPREDSQ
 80    FORMAT('CHIEF RAY Y-COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.NE.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       IF(.NOT.NOPRINT) THEN
          IF(WC(1:1).NE.'S') THEN
@@ -854,11 +856,11 @@ SUBROUTINE SPREDSQ
 81    FORMAT('CHIEF RAY Y-ANGULAR COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
@@ -970,6 +972,7 @@ SUBROUTINE SUMSPRED
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SUMSPRED.FOR.
@@ -1125,7 +1128,7 @@ SUBROUTINE SUMSPRED
             IRED=IRED+1
             RED1=DSPOT(12)
 !
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
                XV=DSPOT(1)
                YV=DSPOT(2)
@@ -1135,7 +1138,7 @@ SUBROUTINE SUMSPRED
                YV=(DSPOT(10))
             END IF
 !
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
                RED2=DSQRT((((XV-REDVLX)/JB)**2)+&
                &(((YV-REDVLY)/JA)**2))
             ELSE
@@ -1230,6 +1233,7 @@ SUBROUTINE SUMSTAT
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode
    IMPLICIT NONE
 !
    LOGICAL OPEN32
@@ -1336,7 +1340,7 @@ SUBROUTINE SUMSTAT
    SPD=SPD/W
    AFSPB=AFSPB/W
    AFSPD=AFSPD/W
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL OR UFOCAL
       SCENTX=SPA
       SCENTY=SPC
@@ -1360,6 +1364,7 @@ SUBROUTINE SPRED
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPRED.FOR.
@@ -1664,7 +1669,7 @@ SUBROUTINE SPRED
    END IF
 !     GET THE NEW MOVED CENTRIOD POSITIONS IF NECESSARY
    IF(WQ.EQ.'CENT'.AND.DF2.EQ.0.AND.W2.NE.0.0D0) THEN
-      IF(SYSTEM(30).GT.2.0D0) THEN
+      IF(sys_mode().GT.2.0D0) THEN
          OUTLYNE=&
          &'DEFOCUSING IS NOT ALLOWED IN MODES AFOCAL AND UAFOCAL'
          CALL SHOWIT(1)
@@ -1678,7 +1683,7 @@ SUBROUTINE SPRED
       END IF
    END IF
    IF(WQ.NE.'CENT'.AND.DF4.EQ.0.AND.W4.NE.0.0D0) THEN
-      IF(SYSTEM(30).GT.2.0D0) THEN
+      IF(sys_mode().GT.2.0D0) THEN
          OUTLYNE=&
          &'DEFOCUSING IS NOT ALLOWED IN MODES AFOCAL AND UAFOCAL'
          CALL SHOWIT(1)
@@ -1698,7 +1703,7 @@ SUBROUTINE SPRED
       REDVLX=CENTX
       REDVLY=CENTY
    ELSE
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
          REDVLX=REFRY(1,NEWIMG)+W2 &
          &+(DTAN(REFRY(11,NEWIMG))*W4)
@@ -1738,7 +1743,7 @@ SUBROUTINE SPRED
             IRED=IRED+1
             RED1=DSPOT(12)
 !
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
                IF(WC.EQ.'REDK'.OR.WC.EQ.'SRED') THEN
                   IF(WQ.NE.'CENT'.AND.WQ.NE.'CACC'.AND.WQ.NE.'CACCX') THEN
@@ -1760,7 +1765,7 @@ SUBROUTINE SPRED
                END IF
 !
                IF(WC.EQ.'REDK'.OR.WC.EQ.'SRED') THEN
-                  IF(SYSTEM(30).LT.3.0D0) THEN
+                  IF(sys_mode().LT.3.0D0) THEN
                      RED2=DSQRT((((XV-REDVLX)/JB)**2)+&
                      &(((YV-REDVLY/JA))**2))
                   ELSE
@@ -1805,7 +1810,7 @@ SUBROUTINE SPRED
                   IF(WC.EQ.'SESED'.AND.WQ.EQ.'CENT'&
                   &.OR.WC.EQ.'SESED'.AND.WQ.EQ.'CACCX'&
                   &.OR.WC.EQ.'SESED'.AND.WQ.EQ.'CACC') MTHETA=W3
-                  IF(SYSTEM(30).LT.3.0D0) THEN
+                  IF(sys_mode().LT.3.0D0) THEN
                      RED2=(DABS(((XV-REDVLX)/JB)*DCOS(THETA))+&
                      &DABS(((YV-REDVLY)/JA)*DSIN(THETA)))
                   ELSE
@@ -1838,7 +1843,7 @@ SUBROUTINE SPRED
                END IF
 !
                IF(WC.EQ.'REDK'.OR.WC.EQ.'SRED') THEN
-                  IF(SYSTEM(30).LT.3.0D0) THEN
+                  IF(sys_mode().LT.3.0D0) THEN
                      RED2=DSQRT((((XV-REDVLX)/JB)**2)+&
                      &(((YV-REDVLY)/JA)**2))
                   ELSE
@@ -1885,7 +1890,7 @@ SUBROUTINE SPRED
                   &.OR.WC.EQ.'SESED'.AND.WQ.EQ.'CACCX'&
                   &.OR.WC.EQ.'SESED'.AND.WQ.EQ.'CACC') MTHETA=W3
 !
-                  IF(SYSTEM(30).LT.3.0D0) THEN
+                  IF(sys_mode().LT.3.0D0) THEN
                      RED2=(DABS((XV-REDVLX)*DCOS(THETA))+&
                      &DABS((YV-REDVLY)*DSIN(THETA)))
                   ELSE
@@ -2053,11 +2058,11 @@ SUBROUTINE SPRED
    ELSE
    END IF
 !
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          DELZ=W3
          IF(W3.NE.0.0D0) WRITE(OUTLYNE,40) W3,J_UN
@@ -2066,11 +2071,11 @@ SUBROUTINE SPRED
 40    FORMAT('APPLIED DEFOCUS (Z-DIRECTION) = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          IF(W2.NE.0.0D0) WRITE(OUTLYNE,41) W2,J_UN
          IF(W2.NE.0.0D0) CALL SHOWIT(0)
@@ -2081,7 +2086,7 @@ SUBROUTINE SPRED
          IF(W4.NE.0.0D0) WRITE(OUTLYNE,40) W4,J_UN
          IF(W4.NE.0.0D0) CALL SHOWIT(0)
       END IF
-      IF(WQ.NE.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+      IF(WQ.NE.'CENT'.AND.sys_mode().GT.2.0D0) THEN
          J_UN='RADIAN(S)'
          IF(W2.NE.0.0D0) WRITE(OUTLYNE,43) W2,J_UN
          IF(W2.NE.0.0D0) CALL SHOWIT(0)
@@ -2092,11 +2097,11 @@ SUBROUTINE SPRED
 44    FORMAT('APPLIED Y-ANGULAR OFFSET = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          WRITE(OUTLYNE,50) CENTX,J_UN
          CALL SHOWIT(0)
@@ -2107,7 +2112,7 @@ SUBROUTINE SPRED
       END IF
    ELSE
    END IF
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.EQ.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       IF(.NOT.NOPRINT) THEN
          WRITE(OUTLYNE,51) CENTX,J_UN
@@ -2119,11 +2124,11 @@ SUBROUTINE SPRED
       END IF
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       IF(.NOT.NOPRINT) THEN
          IF(WC(1:1).NE.'S') THEN
             WRITE(OUTLYNE,70) REFRY(1,NEWIMG),J_UN
@@ -2136,7 +2141,7 @@ SUBROUTINE SPRED
 80    FORMAT('CHIEF RAY Y-COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.NE.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       IF(.NOT.NOPRINT) THEN
          IF(WC(1:1).NE.'S') THEN
@@ -2150,11 +2155,11 @@ SUBROUTINE SPRED
 81    FORMAT('CHIEF RAY Y-ANGULAR COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
@@ -2270,6 +2275,7 @@ SUBROUTINE DSPRED(MMM)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DSPRED.FOR.
@@ -2582,11 +2588,11 @@ SUBROUTINE DSPRED(MMM)
    ELSE
    END IF
 !
-   IF(SYSTEM(30).LE.2.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LE.2.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
@@ -2599,33 +2605,33 @@ SUBROUTINE DSPRED(MMM)
 42    FORMAT('APPLIED Y-OFFSET = ',G13.6,1X,A13)
    END IF
 44 FORMAT('APPLIED Y-ANGULAR OFFSET = ',G13.6,1X,A13)
-   IF(SYSTEM(30).LE.2.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LE.2.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
    IF(.NOT.NOPRINT) THEN
-      IF(SYSTEM(30).LE.2.0D0)&
+      IF(sys_mode().LE.2.0D0)&
       &WRITE(OUTLYNE,70) REFRY(1,NEWIMG),J_UN
-      IF(SYSTEM(30).GE.3.0D0)&
+      IF(sys_mode().GE.3.0D0)&
       &WRITE(OUTLYNE,70) REFRY(11,NEWIMG),J_UN
       CALL SHOWIT(0)
-      IF(SYSTEM(30).LE.2.0D0)&
+      IF(sys_mode().LE.2.0D0)&
       &WRITE(OUTLYNE,80) REFRY(2,NEWIMG),J_UN
-      IF(SYSTEM(30).GE.3.0D0)&
+      IF(sys_mode().GE.3.0D0)&
       &WRITE(OUTLYNE,80) REFRY(12,NEWIMG),J_UN
       CALL SHOWIT(0)
    END IF
 70 FORMAT('CHIEF RAY X-COORDINATE = ',G13.6,1X,A13)
 80 FORMAT('CHIEF RAY Y-COORDINATE = ',G13.6,1X,A13)
-   IF(SYSTEM(30).LE.2.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LE.2.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
@@ -2733,6 +2739,7 @@ SUBROUTINE DSPREDSQ(MMM)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DSPREDSQ.FOR.
@@ -3043,11 +3050,11 @@ SUBROUTINE DSPREDSQ(MMM)
    END IF
 10 FORMAT('GEOMETRIC ENSQUARED ENERGY DISTRIBUTION')
 !
-   IF(SYSTEM(30).LE.2.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LE.2.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
@@ -3062,24 +3069,24 @@ SUBROUTINE DSPREDSQ(MMM)
 42    FORMAT('APPLIED Y-OFFSET = ',G13.6,1X,A13)
 
    END IF
-   IF(SYSTEM(30).LE.2.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LE.2.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
    IF(.NOT.NOPRINT) THEN
       IF(WC(1:1).NE.'S') THEN
-         IF(SYSTEM(30).LE.2.0D0)&
+         IF(sys_mode().LE.2.0D0)&
          &WRITE(OUTLYNE,70) REFRY(1,NEWIMG),J_UN
-         IF(SYSTEM(30).GE.3.0D0)&
+         IF(sys_mode().GE.3.0D0)&
          &WRITE(OUTLYNE,70) REFRY(11,NEWIMG),J_UN
          CALL SHOWIT(0)
-         IF(SYSTEM(30).LE.2.0D0)&
+         IF(sys_mode().LE.2.0D0)&
          &WRITE(OUTLYNE,80) REFRY(2,NEWIMG),J_UN
-         IF(SYSTEM(30).GE.3.0D0)&
+         IF(sys_mode().GE.3.0D0)&
          &WRITE(OUTLYNE,80) REFRY(12,NEWIMG),J_UN
          CALL SHOWIT(0)
       END IF
@@ -3087,11 +3094,11 @@ SUBROUTINE DSPREDSQ(MMM)
 80    FORMAT('CHIEF RAY Y-COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(SYSTEM(30).LE.2.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LE.2.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
