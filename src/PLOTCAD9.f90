@@ -6,6 +6,7 @@ SUBROUTINE FANCD
 !
    use DATHGR
    use DATLEN
+   use mod_system, only: sys_wavelength, sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
    use DATMAI
    IMPLICIT NONE
 !
@@ -45,25 +46,25 @@ SUBROUTINE FANCD
    CALL MY_JUSTSTRING(1200,500,NNTT1,NT1ANG,NT1SIZ,3,3)
 !
 !     DO THE PLOTTING OF THE SCD DEFINITION
-   IF(SYSTEM(INT(SYSTEM(9))).GT.99.9D0) THEN
-      WRITE(B,180) REAL(SYSTEM(INT(SYSTEM(9))))
+   IF(sys_wavelength(INT(sys_wl_sec1())).GT.99.9D0) THEN
+      WRITE(B,180) REAL(sys_wavelength(INT(sys_wl_sec1())))
       READ(B,200) VALUE1
 180   FORMAT(G10.4)
 200   FORMAT(A10)
       NNTT2=VALUE1
    ELSE
-      WRITE(B,181) REAL(SYSTEM(INT(SYSTEM(9))))
+      WRITE(B,181) REAL(sys_wavelength(INT(sys_wl_sec1())))
       READ(B,200) VALUE1
 181   FORMAT(F10.5)
       NNTT2=VALUE1
    END IF
 !
-   IF(SYSTEM(INT(SYSTEM(10))).GT.99.9D0) THEN
-      WRITE(B,180) REAL(SYSTEM(INT(SYSTEM(10))))
+   IF(sys_wavelength(INT(sys_wl_sec2())).GT.99.9D0) THEN
+      WRITE(B,180) REAL(sys_wavelength(INT(sys_wl_sec2())))
       READ(B,200) VALUE1
       NNTT3=VALUE1
    ELSE
-      WRITE(B,181) REAL(SYSTEM(INT(SYSTEM(10))))
+      WRITE(B,181) REAL(sys_wavelength(INT(sys_wl_sec2())))
       READ(B,200) VALUE1
       NNTT3=VALUE1
    END IF
@@ -113,22 +114,22 @@ SUBROUTINE FANCD
 !
 !     DO THE PLOTTING OF THE PCD DEFINITION
    CALL MY_PLOT(200,900,0,0,-10,10010,-10,10010)
-   IF(SYSTEM(INT(SYSTEM(7))).GT.99.9D0) THEN
-      WRITE(B,180) REAL(SYSTEM(INT(SYSTEM(7))))
+   IF(sys_wavelength(INT(sys_wl_pri1())).GT.99.9D0) THEN
+      WRITE(B,180) REAL(sys_wavelength(INT(sys_wl_pri1())))
       READ(B,200) VALUE1
       NNTT2=VALUE1
    ELSE
-      WRITE(B,181) REAL(SYSTEM(INT(SYSTEM(7))))
+      WRITE(B,181) REAL(sys_wavelength(INT(sys_wl_pri1())))
       READ(B,200) VALUE1
       NNTT2=VALUE1
    END IF
 !
-   IF(SYSTEM(INT(SYSTEM(8))).GT.99.9D0) THEN
-      WRITE(B,180) REAL(SYSTEM(INT(SYSTEM(8))))
+   IF(sys_wavelength(INT(sys_wl_pri2())).GT.99.9D0) THEN
+      WRITE(B,180) REAL(sys_wavelength(INT(sys_wl_pri2())))
       READ(B,200) VALUE1
       NNTT3=VALUE1
    ELSE
-      WRITE(B,181) REAL(SYSTEM(INT(SYSTEM(8))))
+      WRITE(B,181) REAL(sys_wavelength(INT(sys_wl_pri2())))
       READ(B,200) VALUE1
       NNTT3=VALUE1
    END IF

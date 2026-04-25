@@ -4,6 +4,7 @@
 SUBROUTINE SPCOEF(ITP)
 !
    use DATLEN
+   use mod_system, only: sys_last_surf
    use DATMAI
    use mod_surface, only: surf_special_type, surf_pickup_count, set_surf_pickup_count
    IMPLICIT NONE
@@ -46,8 +47,8 @@ SUBROUTINE SPCOEF(ITP)
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-   IF(INT(W1).LT.1 .OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+   IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+   IF(INT(W1).LT.1 .OR.INT(W1).GT.INT(sys_last_surf())) THEN
       OUTLYNE=&
       &'SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
@@ -1338,6 +1339,7 @@ END
 SUBROUTINE ZERNREPT
 !
    use DATLEN
+   use mod_system, only: sys_last_surf
    use DATMAI
    use mod_surface, only: surf_special_type
    IMPLICIT NONE
@@ -1375,7 +1377,7 @@ SUBROUTINE ZERNREPT
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0 .OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0 .OR.W1.GT.sys_last_surf()) THEN
       WRITE(OUTLYNE,*)&
       &'SURFACE NUMBER BEYOND LEGAL RANGE '
       CALL SHOWIT(1)
@@ -1594,6 +1596,7 @@ END
 SUBROUTINE PPRSPR
 !
    use DATLEN
+   use mod_system, only: sys_last_surf, sys_units
    use DATMAI
    use mod_surface, only: surf_special_type, surf_toric_flag
    IMPLICIT NONE
@@ -1611,10 +1614,10 @@ SUBROUTINE PPRSPR
    REAL*8 COEF(1:96)
 !
 !
-   IF(SYSTEM(6).EQ.1) UN='INCHES'
-   IF(SYSTEM(6).EQ.2) UN='CM'
-   IF(SYSTEM(6).EQ.3) UN='MM'
-   IF(SYSTEM(6).EQ.4) UN='METERS'
+   IF(sys_units().EQ.1) UN='INCHES'
+   IF(sys_units().EQ.2) UN='CM'
+   IF(sys_units().EQ.3) UN='MM'
+   IF(sys_units().EQ.4) UN='METERS'
 !
 !               THIS IS A CMD LEVEL COMMAND ONLY
 !
@@ -1670,9 +1673,9 @@ SUBROUTINE PPRSPR
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.INT(SYSTEM(20))) THEN
+      IF(SURF.GT.INT(sys_last_surf())) THEN
 !       WE HAVE INVALID SURFACE #
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -3985,7 +3988,7 @@ SUBROUTINE PPRSPR
 !       HANDEL THE WHOLE LENS
       SPSCNT=0
 !
-      DO 16 JK=0,INT(SYSTEM(20))
+      DO 16 JK=0,INT(sys_last_surf())
          IF(surf_special_type(JK) /= 0) THEN
             SPSCNT=SPSCNT+1
          END IF
@@ -3995,14 +3998,14 @@ SUBROUTINE PPRSPR
          CALL SHOWIT(0)
          RETURN
       END IF
-      DO JK=0,INT(SYSTEM(20))
+      DO JK=0,INT(sys_last_surf())
          IF(surf_special_type(JK) == 13 .AND.F12.EQ.1 .OR.&
          &surf_special_type(JK) /= 13 .AND.surf_special_type(JK) /= 0) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
          END IF
       END DO
-      DO 15 JK=0,INT(SYSTEM(20))
+      DO 15 JK=0,INT(sys_last_surf())
 !
 !       SET SPECIAL SURFACE TYPE
 !
