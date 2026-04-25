@@ -3,6 +3,7 @@
 SUBROUTINE MAPFIELDOPD
    use DATSPD
    use DATLEN
+   use mod_system, only: sys_wl_ref
    use DATMAI
    IMPLICIT NONE
    INTEGER I,J,ALLOERR,II,JJ,L,K
@@ -44,7 +45,7 @@ SUBROUTINE MAPFIELDOPD
    END IF
    IF(WC.NE.'STRLMAP') THEN
       IF(DF1.EQ.1) THEN
-         W1=INT(SYSTEM(11))
+         W1=sys_wl_ref()
       END IF
       IF(W1.LT.1.0D0.OR.W1.GT.10.0D0) THEN
          WRITE(OUTLYNE,*)&
@@ -87,7 +88,7 @@ SUBROUTINE MAPFIELDOPD
       END IF
    ELSE
       IF(DF1.EQ.1) THEN
-         W1=INT(SYSTEM(11))
+         W1=sys_wl_ref()
       END IF
       IF(W1.LT.1.0D0.OR.W1.GT.10.0D0) THEN
          WRITE(OUTLYNE,*)&
@@ -192,6 +193,7 @@ SUBROUTINE PLTMAP(PCOUNT,MY_ARRAY,K,L)
    use DATHGR
    use DATSPD
    use DATLEN
+   use mod_system, only: sys_wavelength
    use DATMAI
    IMPLICIT NONE
 !
@@ -262,12 +264,7 @@ SUBROUTINE PLTMAP(PCOUNT,MY_ARRAY,K,L)
    CALL MY_PLOT(5900,1500,1,0,0,10000,0,7000)
    CALL MY_JUSTSTRING(5285,2040,'+Y',0,1,3,3)
    CALL MY_JUSTSTRING(5940,1470,'+X',0,1,3,3)
-   IF(L.GE.1.AND.L.LE.5) THEN
-      WRITE(B,180)REAL(SYSTEM(L))
-   END IF
-   IF(L.GE.6.AND.L.LE.10) THEN
-      WRITE(B,180)REAL(SYSTEM(65+L))
-   END IF
+   WRITE(B,180)REAL(sys_wavelength(L))
    READ(B,200) WAVVAL
 180 FORMAT(G10.4)
 200 FORMAT(A10)

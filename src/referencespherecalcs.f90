@@ -19,6 +19,7 @@ contains
         use DATLEN
         use DATMAI
         use mod_surface, only: surf_thickness
+        use mod_system, only: sys_last_surf, sys_mode
         IMPLICIT NONE
 
         integer :: refSphereAlgo
@@ -40,8 +41,8 @@ contains
         REFERR=.FALSE.
 !
 !       CASE OF A PERFECT LENS AT SYSTEM(20)-1,OR IDEAL
-      IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ' &
-      .OR.GLANAM(INT(SYSTEM(20))-1,2).EQ.'IDEAL        ') THEN
+      IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'PERFECT      ' &
+      .OR.GLANAM(INT(sys_last_surf())-1,2).EQ.'IDEAL        ') THEN
 !     ALWAYS ASSUME FOCAL MODE BUT THERE IS NOTHING TO SUBTRACT OFF
 !     SINCE NOTHING WAS ADDED
 !     EXCEPT FOR OFF AXIS IMAGE POINTS WHERE WAVEFRONT TILT MUST
@@ -62,7 +63,7 @@ contains
 !
 !       CASE OF AFOCAL SYSTEMS
 !
-        IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+        IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !
 !       FLAT REFERENCE PLANE
 !       THE SO-CALLED FLAT REFERENCE PLANE IS A PLANE

@@ -73,6 +73,7 @@ contains
   subroutine calcExitPupil(epRadius, epPosition)
         use iso_fortran_env
         use mod_surface
+        use mod_system, only: sys_last_surf
 
         real(kind=real64) :: epRadius, epPosition, imgAngle
         integer :: newImage
@@ -99,7 +100,7 @@ contains
         epPosition=surf_thickness(newImage-1)
                         END IF
         !epPosition = 0.0
-        imgAngle =  PXTRAY(2,INT(SYSTEM(20)))
+        imgAngle =  PXTRAY(2,INT(sys_last_surf()))
 
         epRadius = ABS(TAN(imgAngle*3.14159265/180.0)*epPosition)
 
@@ -114,8 +115,9 @@ contains
   end subroutine
 
   function calcInvariant() result(INV)
-        use ISO_FORTRAN_ENV, only: real64    
+        use ISO_FORTRAN_ENV, only: real64
         use global_widgets
+        use mod_system, only: sys_last_surf, sys_wl_ref
         !use global_widgets, only: sysConfig, curr_lens_data
         implicit none
                         
@@ -126,12 +128,12 @@ contains
         include "DATMAI.INC"   
         include "DATLEN.INC"
 
-        SF=INT(SYSTEM(20))
-        IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-                        CW=INT(SYSTEM(11))+45
+        SF=INT(sys_last_surf())
+        IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+                        CW=INT(sys_wl_ref())+45
                                 END IF
-        IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-                        CW=INT(SYSTEM(11))+65
+        IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+                        CW=INT(sys_wl_ref())+65
                                 END IF                
               
                 INV=1.0D0
@@ -177,7 +179,7 @@ contains
                 use ISO_FORTRAN_ENV, only: real64  
                 use kdp_data_types  
                 use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
-                use DATLEN, only: SYSTEM
+                use mod_system, only: sys_say
               
                 implicit none   
                 real(kind=real64) :: pos1, ang0
@@ -191,7 +193,7 @@ contains
                         ! Bacically NAO times the thickness of the object surface
                         Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
                         if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER) then
-                            thetao = ATAN(SYSTEM(12)/(Lo))
+                            thetao = ATAN(sys_say()/(Lo))
                         else
                             thetao = ATAN(curr_par_ray_trace%EPD/Lo)
                         end if
@@ -200,8 +202,8 @@ contains
                         pos1 = tan(thetao)*curr_lens_data%thicknesses(1)       
                         ang0 = nao     
                 else
-                        pos1 =(SYSTEM(12))
-                        ang0 =(SYSTEM(12))/curr_lens_data%thicknesses(1)
+                        pos1 =(sys_say())
+                        ang0 =(sys_say())/curr_lens_data%thicknesses(1)
                 end if
         
 

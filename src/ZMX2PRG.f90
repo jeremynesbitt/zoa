@@ -25,6 +25,7 @@ SUBROUTINE ZMX2PRG
    use global_widgets, only : sysConfig
 !
    use DATLEN
+   use mod_system, only: sys_units
    use DATMAI
    IMPLICIT NONE
 !
@@ -453,10 +454,10 @@ SUBROUTINE ZMX2PRG
 !
 !     PROCEED PROCESSING THE PARAMETER INPUT WITH COORDBRK SURFACE
             IF(IPAR.EQ.1) THEN
-               IF(SYSTEM(6).EQ.1.0D0) VPAR=(1.0D-3/VPAR)/25.4D0
-               IF(SYSTEM(6).EQ.2.0D0) VPAR=(1.0D-4/VPAR)
-               IF(SYSTEM(6).EQ.3.0D0) VPAR=(1.0D-3/VPAR)
-               IF(SYSTEM(6).EQ.4.0D0) VPAR=1.0D-6/VPAR
+               IF(sys_units().EQ.1.0D0) VPAR=(1.0D-3/VPAR)/25.4D0
+               IF(sys_units().EQ.2.0D0) VPAR=(1.0D-4/VPAR)
+               IF(sys_units().EQ.3.0D0) VPAR=(1.0D-3/VPAR)
+               IF(sys_units().EQ.4.0D0) VPAR=1.0D-6/VPAR
                WRITE(OUTLYNE,2091) VPAR
                SAVE_KDP(1)=SAVEINPT(1)
                INPUT(1:132)=OUTLYNE(1:132)

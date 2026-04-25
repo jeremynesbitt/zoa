@@ -3,6 +3,7 @@ SUBROUTINE NEWFIELD
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
    INTEGER I
    FIELDX(1)=0.0D0
@@ -87,7 +88,7 @@ SUBROUTINE NEWFIELD
    FIELDY(39)=0.354D0
    FIELDY(40)=-0.354D0
    FIELDY(41)=-0.354D0
-   FIELDW(1:41)=SYSTEM(11)
+   FIELDW(1:41)=sys_wl_ref()
    FIELDZ(1:41)=0.0D0
    RETURN
 END
@@ -95,12 +96,13 @@ SUBROUTINE NEWRAY
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
    IMPLICIT NONE
    INTEGER I
    I=41
-   RAYW(1:41)=SYSTEM(11)
-   RAYW(42:82)=SYSTEM(7)
-   RAYW(83:123)=SYSTEM(8)
+   RAYW(1:41)=sys_wl_ref()
+   RAYW(42:82)=sys_wl_pri1()
+   RAYW(83:123)=sys_wl_pri2()
    RAYX(1)    =0.0D0
    RAYX(1+41) =0.0D0
    RAYX(1+82) =0.0D0

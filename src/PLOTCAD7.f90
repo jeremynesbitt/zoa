@@ -182,6 +182,7 @@ END
 SUBROUTINE RIMS
 !
    use DATLEN
+   use mod_system, only: sys_wl_ref
    use DATMAI
    IMPLICIT NONE
 !
@@ -353,7 +354,7 @@ SUBROUTINE RIMS
 !
 !     NOW SET REFERENCE WAVELENGTH
 !
-   REFWV=INT(SYSTEM(11))
+   REFWV=INT(sys_wl_ref())
    REST_KDP(1)=RESTINPT(1)
 !
 !     SET TYPES
@@ -3742,6 +3743,7 @@ SUBROUTINE PLTCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
    USE GLOBALS
 !
    use DATLEN
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -3786,7 +3788,7 @@ SUBROUTINE PLTCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
       M1=0
       M2=360
       M3=3
-      M4=INT(SYSTEM(20))
+      M4=INT(sys_last_surf())
       M5=2
       DEALLOCATE(CLPDAT,STAT=ALLOERR)
       ALLOCATE(CLPDAT(M1:M2,M3,M1:M4,M5),STAT=ALLOERR)

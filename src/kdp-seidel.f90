@@ -11,6 +11,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
     
             use DATLEN
             use DATMAI
+            use mod_system, only: sys_last_surf
             IMPLICIT NONE
     
     !       THIS IS SUBROUTINE MMAB3. THIS SUBROUTINE IMPLEMENTS
@@ -112,7 +113,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
              IF(SQ.EQ.0.AND.DF1.NE.1) THEN
 
                
-                IF(INT(W1).GT.INT(SYSTEM(20)).OR.INT(W1).LT.0) THEN
+                IF(INT(W1).GT.INT(sys_last_surf()).OR.INT(W1).LT.0) THEN
                  OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
                  CALL SHOWIT(1)
                  CALL MACFAL

@@ -5,6 +5,7 @@ SUBROUTINE PIKCV
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -52,7 +53,7 @@ SUBROUTINE PIKCV
    IF(DF4.EQ.1) W4=0.0D0
    IF(DF5.EQ.1) W5=0.0D0
    IF(W1.LT.0.0D0) W1=SURF+W1
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SOURCE SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='PIKUP NOT ALLOWED'
@@ -151,6 +152,7 @@ SUBROUTINE PIKCON
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -196,7 +198,7 @@ SUBROUTINE PIKCON
    IF(DF5.EQ.1) W5=0.0D0
 !
    IF(W1.LT.0.0D0) W1=SURF+W1
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SOURCE SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='PIKUP NOT ALLOWED'
@@ -247,6 +249,7 @@ SUBROUTINE PIKASP
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -326,7 +329,7 @@ SUBROUTINE PIKASP
    IF(DF5.EQ.1) W5=0.0D0
    IF(W1.LT.0.0D0) W1=SURF+W1
 !
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SOURCE SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='PIKUP NOT ALLOWED'
@@ -429,6 +432,7 @@ SUBROUTINE PIKAPE
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -485,7 +489,7 @@ SUBROUTINE PIKAPE
       RETURN
    END IF
    IF(W1.LT.0.0D0) W1=SURF+W1
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SOURCE SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='PIKUP NOT ALLOWED'
@@ -565,6 +569,7 @@ SUBROUTINE SPIKD
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -618,8 +623,8 @@ SUBROUTINE SPIKD
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -748,6 +753,7 @@ END
 SUBROUTINE LINKIT(LERROR)
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
    INTEGER IVAL
@@ -758,9 +764,9 @@ SUBROUTINE LINKIT(LERROR)
    CALL PROCES
    REST_KDP(1)=RESTINPT(1)
    IVAL=W1
-   IF(IVAL.LT.0.OR.IVAL.GT.SYSTEM(20))OUTLYNE='INVALID TARGET SURFACE NUMBER FOR LINKING'
-   IF(IVAL.LT.0.OR.IVAL.GT.SYSTEM(20))CALL SHOWIT(1)
-   IF(IVAL.LT.0.OR.IVAL.GT.SYSTEM(20)) THEN
+   IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf())OUTLYNE='INVALID TARGET SURFACE NUMBER FOR LINKING'
+   IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf())CALL SHOWIT(1)
+   IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf()) THEN
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
    END IF
@@ -808,6 +814,7 @@ SUBROUTINE PIKANG
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -862,7 +869,7 @@ SUBROUTINE PIKANG
    IF(DF4.EQ.1) W4=0.0D0
    IF(DF5.EQ.1) W5=0.0D0
    IF(W1.LT.0.0D0) W1=SURF+W1
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SOURCE SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='PIKUP NOT ALLOWED'
@@ -943,6 +950,7 @@ SUBROUTINE SPIKUP
 !
    use DATLEN
    use mod_surface
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
