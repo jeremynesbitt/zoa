@@ -7,6 +7,7 @@ SUBROUTINE OPDIN
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !     THIS ROUTINE INPUTS THE COMPEX APERTURE FUNCTION FROM CAPFNOUT.DAT
@@ -118,16 +119,16 @@ SUBROUTINE OPDIN
    READ(73,*) REFHT,SYSWV
 !
    WV=SYSWV
-   IF(SYSTEM(6).EQ.1.0D0) THEN
+   IF(sys_units().EQ.1.0D0) THEN
       WV=WV*3.93700787402D-5
    END IF
-   IF(SYSTEM(6).EQ.2.0D0) THEN
+   IF(sys_units().EQ.2.0D0) THEN
       WV=WV*1.0D-4
    END IF
-   IF(SYSTEM(6).EQ.3.0D0) THEN
+   IF(sys_units().EQ.3.0D0) THEN
       WV=WV*1.0D-3
    END IF
-   IF(SYSTEM(6).EQ.4.0D0) THEN
+   IF(sys_units().EQ.4.0D0) THEN
       WV=WV*1.0D-6
    END IF
    IF(WC.EQ.'CAPFNIN') THEN
@@ -287,6 +288,7 @@ SUBROUTINE CAPGRID
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength
    IMPLICIT NONE
 !
 !     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION AS A PHASE
@@ -372,17 +374,12 @@ SUBROUTINE CAPGRID
    &FORM='FORMATTED',STATUS='UNKNOWN')
 !
    WVN1=INT(LFOB(4))
-   IF(WVN1.GE.1.AND.WVN1.LE.5) THEN
-      WAV=SYSTEM(WVN1)
-   END IF
-   IF(WVN1.GE.6.AND.WVN1.LE.10) THEN
-      WAV=SYSTEM(WVN1+65)
-   END IF
-   IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*&
+   WAV=sys_wavelength(WVN1)
+   IF(sys_units().EQ.1.0D0) WAV=WAV*&
    &((1.0D-3)/(25.4D0))
-   IF(SYSTEM(6).EQ.2.0D0) WAV=WAV*(1.0D-4)
-   IF(SYSTEM(6).EQ.3.0D0) WAV=WAV*(1.0D-3)
-   IF(SYSTEM(6).EQ.4.0D0) WAV=WAV*(1.0D-6)
+   IF(sys_units().EQ.2.0D0) WAV=WAV*(1.0D-4)
+   IF(sys_units().EQ.3.0D0) WAV=WAV*(1.0D-3)
+   IF(sys_units().EQ.4.0D0) WAV=WAV*(1.0D-6)
    READOK=.FALSE.
    NUMPTS=INT((DSQRT((DBLE(ITOT-1)/DBLE(NUMCOL)))))
    MAXX=-1E30
@@ -422,10 +419,10 @@ SUBROUTINE CAPGRID
       ELSE
          SPACING=(MAXY-MINY)/(DBLE(NUMPTS)-1.0D0)
       END IF
-      IF(SYSTEM(6).EQ.1.0D0) UNIS='INCHES'
-      IF(SYSTEM(6).EQ.2.0D0) UNIS='CM    '
-      IF(SYSTEM(6).EQ.3.0D0) UNIS='MM    '
-      IF(SYSTEM(6).EQ.4.0D0) UNIS='METERS'
+      IF(sys_units().EQ.1.0D0) UNIS='INCHES'
+      IF(sys_units().EQ.2.0D0) UNIS='CM    '
+      IF(sys_units().EQ.3.0D0) UNIS='MM    '
+      IF(sys_units().EQ.4.0D0) UNIS='METERS'
       REG(40)=REG(9)
       REG(9)=SPACING
       WRITE(OUTLYNE,20) SPACING,UNIS
@@ -618,6 +615,7 @@ SUBROUTINE WAMAP
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -660,7 +658,7 @@ SUBROUTINE WAMAP
    END IF
 !
 !     DEFAULT WAVELENGTH IS CONTROL WAVELENGTH
-   IF(DF1.EQ.1) W1=SYSTEM(11)
+   IF(DF1.EQ.1) W1=sys_wl_ref()
    IF(INT(W1).LT.1.OR.INT(W1).GT.10) THEN
       OUTLYNE=&
       &'NUMERIC WORD #1 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'
@@ -773,6 +771,7 @@ SUBROUTINE AMAP
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -815,7 +814,7 @@ SUBROUTINE AMAP
    END IF
 !
 !     DEFAULT WAVELENGTH IS CONTROL WAVELENGTH
-   IF(DF1.EQ.1) W1=SYSTEM(11)
+   IF(DF1.EQ.1) W1=sys_wl_ref()
    IF(INT(W1).LT.1.OR.INT(W1).GT.10) THEN
       OUTLYNE=&
       &'NUMERIC WORD #1 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'
@@ -1535,6 +1534,7 @@ SUBROUTINE OPDLOD
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -1604,7 +1604,7 @@ SUBROUTINE OPDLOD
    END IF
 !
 !     DEFAULT WAVELENGTH IS CONTROL WAVELENGTH
-   IF(DF1.EQ.1) W1=SYSTEM(11)
+   IF(DF1.EQ.1) W1=sys_wl_ref()
    IF(INT(W1).LT.1.OR.INT(W1).GT.10) THEN
       OUTLYNE=&
       &'NUMERIC WORD #1 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'
@@ -1866,6 +1866,7 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -1973,26 +1974,26 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
    SUML2=0.0D0
    SUML4=0.0D0
    LAMAVE=0.0D0
-   WEI(1)=SYSTEM(31)
-   WEI(2)=SYSTEM(32)
-   WEI(3)=SYSTEM(33)
-   WEI(4)=SYSTEM(34)
-   WEI(5)=SYSTEM(35)
-   WEI(6)=SYSTEM(76)
-   WEI(7)=SYSTEM(77)
-   WEI(8)=SYSTEM(78)
-   WEI(9)=SYSTEM(79)
-   WEI(10)=SYSTEM(80)
-   LAM(1)=SYSTEM(1)
-   LAM(2)=SYSTEM(2)
-   LAM(3)=SYSTEM(3)
-   LAM(4)=SYSTEM(4)
-   LAM(5)=SYSTEM(5)
-   LAM(6)=SYSTEM(71)
-   LAM(7)=SYSTEM(72)
-   LAM(8)=SYSTEM(73)
-   LAM(9)=SYSTEM(74)
-   LAM(10)=SYSTEM(75)
+   WEI(1)=sys_wl_weight(1)
+   WEI(2)=sys_wl_weight(2)
+   WEI(3)=sys_wl_weight(3)
+   WEI(4)=sys_wl_weight(4)
+   WEI(5)=sys_wl_weight(5)
+   WEI(6)=sys_wl_weight(6)
+   WEI(7)=sys_wl_weight(7)
+   WEI(8)=sys_wl_weight(8)
+   WEI(9)=sys_wl_weight(9)
+   WEI(10)=sys_wl_weight(10)
+   LAM(1)=sys_wavelength(1)
+   LAM(2)=sys_wavelength(2)
+   LAM(3)=sys_wavelength(3)
+   LAM(4)=sys_wavelength(4)
+   LAM(5)=sys_wavelength(5)
+   LAM(6)=sys_wavelength(6)
+   LAM(7)=sys_wavelength(7)
+   LAM(8)=sys_wavelength(8)
+   LAM(9)=sys_wavelength(9)
+   LAM(10)=sys_wavelength(10)
    WEIS=0.0D0
    DO ISS=1,10
       WEIS=WEIS+WEI(ISS)
@@ -2008,39 +2009,30 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
       END IF
    END DO
    LAMAVE=DSQRT(SUML2/SUML4)
-   IF(SYSTEM(6).EQ.1.0D0) THEN
+   IF(sys_units().EQ.1.0D0) THEN
       LAMAVE=LAMAVE*3.93700787402D-5
    END IF
-   IF(SYSTEM(6).EQ.2.0D0) THEN
+   IF(sys_units().EQ.2.0D0) THEN
       LAMAVE=LAMAVE*1.0D-4
    END IF
-   IF(SYSTEM(6).EQ.3.0D0) THEN
+   IF(sys_units().EQ.3.0D0) THEN
       LAMAVE=LAMAVE*1.0D-3
    END IF
-   IF(SYSTEM(6).EQ.4.0D0) THEN
+   IF(sys_units().EQ.4.0D0) THEN
       LAMAVE=LAMAVE*1.0D-6
    END IF
    DO IIP=1,IITOT
-      IF(DSPOTT(16,IIP).EQ.1.0D0)  WV=SYSTEM(1)
-      IF(DSPOTT(16,IIP).EQ.2.0D0)  WV=SYSTEM(2)
-      IF(DSPOTT(16,IIP).EQ.3.0D0)  WV=SYSTEM(3)
-      IF(DSPOTT(16,IIP).EQ.4.0D0)  WV=SYSTEM(4)
-      IF(DSPOTT(16,IIP).EQ.5.0D0)  WV=SYSTEM(5)
-      IF(DSPOTT(16,IIP).EQ.6.0D0)  WV=SYSTEM(71)
-      IF(DSPOTT(16,IIP).EQ.7.0D0)  WV=SYSTEM(72)
-      IF(DSPOTT(16,IIP).EQ.8.0D0)  WV=SYSTEM(73)
-      IF(DSPOTT(16,IIP).EQ.9.0D0)  WV=SYSTEM(74)
-      IF(DSPOTT(16,IIP).EQ.10.0D0) WV=SYSTEM(75)
-      IF(SYSTEM(6).EQ.1.0D0) THEN
+      WV=sys_wavelength(INT(DSPOTT(16,IIP)))
+      IF(sys_units().EQ.1.0D0) THEN
          WV=WV*3.93700787402D-5
       END IF
-      IF(SYSTEM(6).EQ.2.0D0) THEN
+      IF(sys_units().EQ.2.0D0) THEN
          WV=WV*1.0D-4
       END IF
-      IF(SYSTEM(6).EQ.3.0D0) THEN
+      IF(sys_units().EQ.3.0D0) THEN
          WV=WV*1.0D-3
       END IF
-      IF(SYSTEM(6).EQ.4.0D0) THEN
+      IF(sys_units().EQ.4.0D0) THEN
          WV=WV*1.0D-6
       END IF
       IF(DSPOTT(17,IIP).NE.0.0D0 &
@@ -2130,26 +2122,17 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
    END DO
 !     NOW COMPUTE THE TILTED PART AND SUBTRACT IT OFF
    DO IIP=1,IITOT
-      IF(DSPOTT(16,IIP).EQ.1.0D0)  WV=SYSTEM(1)
-      IF(DSPOTT(16,IIP).EQ.2.0D0)  WV=SYSTEM(2)
-      IF(DSPOTT(16,IIP).EQ.3.0D0)  WV=SYSTEM(3)
-      IF(DSPOTT(16,IIP).EQ.4.0D0)  WV=SYSTEM(4)
-      IF(DSPOTT(16,IIP).EQ.5.0D0)  WV=SYSTEM(5)
-      IF(DSPOTT(16,IIP).EQ.6.0D0)  WV=SYSTEM(71)
-      IF(DSPOTT(16,IIP).EQ.7.0D0)  WV=SYSTEM(72)
-      IF(DSPOTT(16,IIP).EQ.8.0D0)  WV=SYSTEM(73)
-      IF(DSPOTT(16,IIP).EQ.9.0D0)  WV=SYSTEM(74)
-      IF(DSPOTT(16,IIP).EQ.10.0D0) WV=SYSTEM(75)
-      IF(SYSTEM(6).EQ.1.0D0) THEN
+      WV=sys_wavelength(INT(DSPOTT(16,IIP)))
+      IF(sys_units().EQ.1.0D0) THEN
          WV=WV*3.93700787402D-5
       END IF
-      IF(SYSTEM(6).EQ.2.0D0) THEN
+      IF(sys_units().EQ.2.0D0) THEN
          WV=WV*1.0D-4
       END IF
-      IF(SYSTEM(6).EQ.3.0D0) THEN
+      IF(sys_units().EQ.3.0D0) THEN
          WV=WV*1.0D-3
       END IF
-      IF(SYSTEM(6).EQ.4.0D0) THEN
+      IF(sys_units().EQ.4.0D0) THEN
          WV=WV*1.0D-6
       END IF
       DWW1=DSPOTT(6,IIP)/REFHT
