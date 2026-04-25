@@ -391,6 +391,7 @@ SUBROUTINE LEPRT
 !
    use DATSUB
    use DATLEN
+   use mod_system, only: sys_last_surf
    use DATMAI
    IMPLICIT NONE
 !
@@ -425,7 +426,7 @@ SUBROUTINE LEPRT
       RETURN
    END IF
    IF(DF1.EQ.0) THEN
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)&
          &'"SURFACE NUMBER BEYOND LEGAL BOUNDS"'
          CALL SHOWIT(1)
@@ -569,6 +570,7 @@ SUBROUTINE LENUP
    use type_utils, only: real2str
 !
    use DATLEN
+   use mod_system, only: sys_last_surf, sys_telecentric
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -593,7 +595,7 @@ SUBROUTINE LENUP
    END IF
 !       CERTAIN COMMANDS ARE NOT ALLOWED IF SURF=SYSTEM(20)
 !       THEY ARE TH,PY,PCY,PX,PCX,CAY,CAX,PIKUP TH,
-   IF(SURF.EQ.INT(SYSTEM(20))) THEN
+   IF(SURF.EQ.INT(sys_last_surf())) THEN
       IF(WC.EQ.'PY'.OR.WC.EQ.'PCY'.OR.&
       &WC.EQ.'PX'.OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'&
       &.OR.WC.EQ.'PIKUP'.AND.WQ.EQ.'TH') THEN
@@ -857,7 +859,7 @@ SUBROUTINE LENUP
 !       COMMAND (TH)
       IF(WC.EQ.'TH') THEN
          CALL STH
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -1266,7 +1268,7 @@ SUBROUTINE LENUP
          CALL THSOLV
 
 
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -1290,7 +1292,7 @@ SUBROUTINE LENUP
 !       COMMANDS (PIKUP)
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -1387,6 +1389,7 @@ SUBROUTINE LLIBRY
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
    use DATMAI
    IMPLICIT NONE
    LOGICAL ITERROR
@@ -1923,16 +1926,16 @@ SUBROUTINE LLIBRY
             &FIELDZ(I),N3
             FIELDW(I)=DBLE(N3)
             IF(FIELDW(I).EQ.0.0D0) THEN
-               FIELDW(I)=SYSTEM(11)
+               FIELDW(I)=sys_wl_ref()
             END IF
          END DO
          DO I=1,IREND
             READ(33,*,ERR=8888,END=8888) AI4,RAYY(I),RAYX(I),N3
             RAYW(I)=DBLE(N3)
             IF(RAYW(I).EQ.0.0D0) THEN
-               IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-               IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-               IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+               IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+               IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+               IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
             END IF
          END DO
       ELSE
