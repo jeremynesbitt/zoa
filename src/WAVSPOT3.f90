@@ -10,6 +10,7 @@ SUBROUTINE SPOT
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOT.FOR. THIS DOES ALL SPOT DIAGRAMS.
@@ -786,6 +787,7 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units, sys_scx, sys_scy, sys_scx_fang, sys_scy_fang
    IMPLICIT NONE
 !
    INTEGER K,I,TOTI,J,TOTII,NSTEP,BUCKET(1:100)
@@ -811,16 +813,16 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
 !
    IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
 !     ANGULAR
-      XOBP=SYSTEM(23)*LFOB(2)
-      YOBP=SYSTEM(21)*LFOB(1)
+      XOBP=sys_scx_fang()*LFOB(2)
+      YOBP=sys_scy_fang()*LFOB(1)
       STUNI='DEGREE(S)'
    ELSE
-      XOBP=SYSTEM(16)*LFOB(2)
-      YOBP=SYSTEM(14)*LFOB(1)
-      IF(SYSTEM(6).EQ.1.0D0) STUNI='IN(S)    '
-      IF(SYSTEM(6).EQ.2.0D0) STUNI='CM(S)    '
-      IF(SYSTEM(6).EQ.3.0D0) STUNI='MM(S)    '
-      IF(SYSTEM(6).EQ.4.0D0) STUNI='M(S)    '
+      XOBP=sys_scx()*LFOB(2)
+      YOBP=sys_scy()*LFOB(1)
+      IF(sys_units().EQ.1.0D0) STUNI='IN(S)    '
+      IF(sys_units().EQ.2.0D0) STUNI='CM(S)    '
+      IF(sys_units().EQ.3.0D0) STUNI='MM(S)    '
+      IF(sys_units().EQ.4.0D0) STUNI='M(S)    '
    END IF
 !
 100 FORMAT('CALCULATING ANGLE OF INCIDENCE STATISTICS')
@@ -978,6 +980,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode, sys_wavelength
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOPD2.FOR.
@@ -1015,7 +1018,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
 !       OPD
    RCOR=0.0D0
    OCOR=0.0D0
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -1026,7 +1029,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       &+(RCOR*ALENS(WWVN,NEWOBJ))
       RCOR=0.0D0
       OCOR=0.0D0
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
 !     REFLOC=1 = CHIEF RAY
          IF(REFLOC.EQ.1) CENCEN=.FALSE.
          IF(REFLOC.EQ.3) CENCEN=.FALSE.
@@ -1055,7 +1058,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       RCOR=0.0D0
       OCOR=0.0D0
 !     REFLOC=1= CHIEF RAY
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          IF(REFLOC.EQ.1) CENCEN=.FALSE.
          IF(REFLOC.EQ.3) CENCEN=.FALSE.
          IF(REFLOC.EQ.4) CENCEN=.FALSE.
@@ -1072,17 +1075,12 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
       &+(RCOR*ALENS(WWVN,NEWIMG-1))
    END IF
-   IF(INT(CURLAM).GE.1.AND.INT(CURLAM).LE.5) THEN
-      LFOBW=SYSTEM(INT(CURLAM))
-   END IF
-   IF(INT(CURLAM).GE.6.AND.INT(CURLAM).LE.10) THEN
-      LFOBW=SYSTEM(INT(CURLAM)+65)
-   END IF
-   IF(SYSTEM(6).EQ.1.0D0) WAV=LFOBW*&
+   LFOBW=sys_wavelength(INT(CURLAM))
+   IF(sys_units().EQ.1.0D0) WAV=LFOBW*&
    &((1.0D-3)/(25.4D0))
-   IF(SYSTEM(6).EQ.2.0D0) WAV=LFOBW*(1.0D-4)
-   IF(SYSTEM(6).EQ.3.0D0) WAV=LFOBW*(1.0D-3)
-   IF(SYSTEM(6).EQ.4.0D0) WAV=LFOBW*(1.0D-6)
+   IF(sys_units().EQ.2.0D0) WAV=LFOBW*(1.0D-4)
+   IF(sys_units().EQ.3.0D0) WAV=LFOBW*(1.0D-3)
+   IF(sys_units().EQ.4.0D0) WAV=LFOBW*(1.0D-6)
    OOPD=-OOPD
    IF(REVSTR) OOPD=-OOPD
    OPDW=OOPD/WAV
@@ -1155,6 +1153,7 @@ SUBROUTINE GSPOT
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_mode, sys_wl_weight
    IMPLICIT NONE
 !
    REAL*8 SPT,V1,VALUE &
@@ -1291,8 +1290,7 @@ SUBROUTINE GSPOT
 !       IWL COUNTS THROUGH THE 10 WAVELENGTH NUMBERS
    I=0
    DO IWL=OLDLAMM,OLDLAMM
-      IF(IWL.GE.1.AND.IWL.LE.5)  SPT=SYSTEM(30+IWL)
-      IF(IWL.GE.6.AND.IWL.LE.10) SPT=SYSTEM(75+IWL-5)
+      SPT=sys_wl_weight(IWL)
       IF(SPT.GT.0.0D0) THEN
 !     ONLY TRACE RAYS FOR NON-ZERO SPECTRAL WEIGHTS
 !       TRACE RAYS AT THAT WAVELENGTH
@@ -1401,10 +1399,7 @@ SUBROUTINE GSPOT
                DSPOT(39)=RAYRAY(9,NEWIMG)
                DSPOT(44)=RAYRAY(9,NEWREF)
 !
-               IF(IWL.GE.1.AND.IWL.LE.5)&
-               &DSPOT(17)=SYSTEM(30+IWL)
-               IF(IWL.GE.6.AND.IWL.LE.10)&
-               &DSPOT(17)=SYSTEM(75+IWL-5)
+               DSPOT(17)=sys_wl_weight(IWL)
 !     WRITE DATA TO THE ARRAY INSTEAD OF TO A FILE
                OOPD=0.0D0
                IF(INT(LFOB(4)).EQ.1) WWRF=46
@@ -1437,7 +1432,7 @@ SUBROUTINE GSPOT
                      LEN=LEN+RAYRAY(7,J)&
                      &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
                   END DO
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      RCOR=0.0D0
                      OCOR=0.0D0
@@ -1471,7 +1466,7 @@ SUBROUTINE GSPOT
                END IF
                SPOTTY(4)=OOPD
                SPOTTY(5)=DBLE(IWL)
-1942           IF(SYSTEM(30).LE.2.0D0) THEN
+1942           IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
                   SPOTTY(1)=(DSPOT(1)-REFRY(1,NEWIMG))/JB
                   SPOTTY(2)=(DSPOT(2)-REFRY(2,NEWIMG))/JA
@@ -1607,6 +1602,7 @@ SUBROUTINE SPMOVE
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_mode, sys_wl_weight
    IMPLICIT NONE
 !
    CHARACTER UN*11
@@ -1631,7 +1627,7 @@ SUBROUTINE SPMOVE
    JA=COS_A_ANG
    JB=COS_B_ANG
 !
-   IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
       OUTLYNE='"SPD (MOVE OR MOVEACC)"'
       CALL SHOWIT(1)
       OUTLYNE='ONLY WORKS FOR MODES FOCAL AND UFAOCAL'
@@ -1821,8 +1817,7 @@ SUBROUTINE SPMOVE
             SPT=DSPOT(17)
             J=INT(DSPOT(16))
 !       X ONLY
-            IF(J.GE.1.AND.J.LE.5) JK_S=SYSTEM(30+J)
-            IF(J.GE.6.AND.J.LE.10) JK_S=SYSTEM(75+J-5)
+            JK_S=sys_wl_weight(J)
             SSSPX=SSSPX+&
             &(JK_S*(((LA-SPA)**2))*APFAC)
             SSSQX=SSSQX+&
@@ -1862,10 +1857,10 @@ SUBROUTINE SPMOVE
       FCSFTY=-SSSQY/SSSRY
    END IF
    FCSFT=(FCSFTX+FCSFTY)/2.0D0
-   IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-   IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0) UN='METERS'
+   IF(sys_units().EQ.1.0) UN='INCHES     '
+   IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='METERS'
    RMSX=2.0D0*(DSQRT(MSSX/W))
    RMSY=2.0D0*(DSQRT(MSSY/W))
    RMS=(RMSX+RMSY)/2.0D0
@@ -1874,7 +1869,7 @@ SUBROUTINE SPMOVE
 !       THESE CAN BE USED AS WELL AS GET FEATURES WHICH
 !       RE-PROCESS THE CURRENT SPOT DIAGRAM.
       REG(40)=REG(9)
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
          REG(11)=RMSY/JA
          REG(10)=RMSX/JB
       ELSE
@@ -2078,6 +2073,7 @@ SUBROUTINE SPOT1(TPT)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wl_weight
    IMPLICIT NONE
 !
    CHARACTER UN*11
@@ -2243,8 +2239,8 @@ SUBROUTINE SPOT1(TPT)
 !
 !     CHECK FOR VALID RANGES AND DO DEFAULTS
 !     NW1
-         IF(DF1.EQ.1) W1=SYSTEM(20)
-         IF(INT(W1).LE.0.OR.W1.GT.SYSTEM(20)) THEN
+         IF(DF1.EQ.1) W1=sys_last_surf()
+         IF(INT(W1).LE.0.OR.W1.GT.sys_last_surf()) THEN
             OUTLYNE=&
             &'SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
@@ -2617,8 +2613,7 @@ SUBROUTINE SPOT1(TPT)
 !       IWL COUNTS THROUGH THE 10 WAVELENGTH NUMBERS
    I=1
    DO IWL=1,10
-      IF(IWL.GE.1.AND.IWL.LE.5) SPT=SYSTEM(30+IWL)
-      IF(IWL.GE.6.AND.IWL.LE.10) SPT=SYSTEM(75+IWL-5)
+      SPT=sys_wl_weight(IWL)
       IF(SPT.GT.0.0D0) THEN
 !     ONLY TRACE RAYS FOR NON-ZERO SPECTRAL WEIGHTS
 !       TRACE RAYS AT THAT WAVELENGTH
@@ -2831,7 +2826,7 @@ SUBROUTINE SPOT1(TPT)
                   DSPOT(39)=RAYRAY(9,NEWIMG)
                   DSPOT(44)=RAYRAY(9,NEWREF)
                   IF(DSPOT(12).NE.0.0D0) THEN
-                     IF(SYSTEM(30).LE.2.0D0) THEN
+                     IF(sys_mode().LE.2.0D0) THEN
                         IF(DSPOT(1).GT.XUP) XUP=DSPOT(1)
                         IF(DSPOT(2).GT.YUP) YUP=DSPOT(2)
                         IF(DSPOT(1).LT.XLO) XLO=DSPOT(1)
@@ -2858,10 +2853,7 @@ SUBROUTINE SPOT1(TPT)
                   OOPD=0.0D0
                   DSPOT(4)=OOPD
                   DSPOT(16)=DBLE(IWL)
-                  IF(IWL.GE.1.AND.IWL.LE.5)&
-                  &DSPOT(17)=SYSTEM(30+IWL)
-                  IF(IWL.GE.6.AND.IWL.LE.10)&
-                  &DSPOT(17)=SYSTEM(75+IWL-5)
+                  DSPOT(17)=sys_wl_weight(IWL)
                   DSPOT(18)=RAYRAY(3,NEWOBJ+1)
                   DSPOT(19)=RAYRAY(19,NEWOBJ+1)
                   DSPOT(20)=RAYRAY(20,NEWOBJ+1)
@@ -2978,7 +2970,7 @@ SUBROUTINE SPOT1(TPT)
                   DSPOT(39)=RAYRAY(9,NEWIMG)
                   DSPOT(44)=RAYRAY(9,NEWREF)
                   IF(DSPOT(12).NE.0.0D0) THEN
-                     IF(SYSTEM(30).LE.2.0D0) THEN
+                     IF(sys_mode().LE.2.0D0) THEN
                         IF(DSPOT(1).GT.XUP) XUP=DSPOT(1)
                         IF(DSPOT(2).GT.YUP) YUP=DSPOT(2)
                         IF(DSPOT(1).LT.XLO) XLO=DSPOT(1)
@@ -3004,10 +2996,7 @@ SUBROUTINE SPOT1(TPT)
                   OOPD=0.0D0
                   DSPOT(4)=OOPD
                   DSPOT(16)=DBLE(IWL)
-                  IF(IWL.GE.1.AND.IWL.LE.5)&
-                  &DSPOT(17)=SYSTEM(30+IWL)
-                  IF(IWL.GE.6.AND.IWL.LE.10)&
-                  &DSPOT(17)=SYSTEM(75+IWL-5)
+                  DSPOT(17)=sys_wl_weight(IWL)
                   DSPOT(18)=RAYRAY(3,NEWOBJ+1)
                   DSPOT(19)=RAYRAY(19,NEWOBJ+1)
                   DSPOT(20)=RAYRAY(20,NEWOBJ+1)
@@ -3177,7 +3166,7 @@ SUBROUTINE SPOT1(TPT)
 !     NOW SPA,SPB,SPC,SPD,AFSPB AND AFSPD ARE NORMALIZED
 !
 !     CALCULATE CENTROID LOCATIONS
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL SYSTEMS
       PRINT *, "DEBUG, FOCAL SYSTEM"
       CENTX=SPA
@@ -3289,7 +3278,7 @@ SUBROUTINE SPOT1(TPT)
       AMSSX=ASSSPX
       MSSY=SSSPY
       AMSSY=ASSSPY
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
          RSSX=2.0D0*(DSQRT(MSSX/W))
          RSSY=2.0D0*(DSQRT(MSSY/W))
          RSS=(RSSX+RSSY)/2.0D0
@@ -3402,7 +3391,7 @@ SUBROUTINE SPOT1(TPT)
       AMSSX=ASSSPX
       MSSY=SSSPY
       AMSSY=ASSSPY
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL SYSTEMS ONLY
          IF(DABS(SSSRX).LT.1.0D-15.OR.DABS(SSSQX).GT.1.0D+15) THEN
             IF(SSSRX.GE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=-1.0D35
@@ -3426,14 +3415,14 @@ SUBROUTINE SPOT1(TPT)
          FCSFTX=0.0D0
          FCSFTY=0.0D0
       END IF
-      IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-      IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-      IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-      IF(SYSTEM(6).EQ.4.0) UN='METERS'
+      IF(sys_units().EQ.1.0) UN='INCHES     '
+      IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+      IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+      IF(sys_units().EQ.4.0) UN='METERS'
 
-      PRINT *, "DEBUG:  SYSTEM(30) is ", SYSTEM(30)
+      PRINT *, "DEBUG:  sys_mode() is ", sys_mode()
 
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
          RMSX=2.0D0*(DSQRT(MSSX/W))
          RMSY=2.0D0*(DSQRT(MSSY/W))
          RMS=(RMSX+RMSY)/2.0D0
@@ -3442,7 +3431,7 @@ SUBROUTINE SPOT1(TPT)
          RMSY=2.0D0*(DSQRT(AMSSY/W))
          RMS=(RMSX+RMSY)/2.0D0
       END IF
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
          RMSX=RMSX/JB
          RMSY=RMSY/JA
          RMS=(RMSX+RMSY)/2.0D0
@@ -3493,7 +3482,7 @@ SUBROUTINE SPOT1(TPT)
 !
       IF(SQ.EQ.0) THEN
 !       DO THE PRINT OUT
-         IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+         IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !       MODE AFOCAL
 
             IF(MSGSPD)WRITE(OUTLYNE,114)
