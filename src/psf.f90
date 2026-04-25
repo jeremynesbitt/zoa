@@ -19,6 +19,7 @@ module mod_psf
         use DATSP1
         use DATSPD
         use DATLEN
+        use mod_system
         use DATMAI
 !
 !
@@ -28,10 +29,7 @@ module mod_psf
 !
         CHARACTER*9 UNN,UNN1
 !
-      REAL*8 VALUE,VALVAL,SHTVALUE,GRNX,GRNY,XRANGE,YRANGE &
-      ,WVNUM,DIAM,OUTGRIDEXTENT,EXEX,EXEY,V1,APEAK, &
-      OUTGRIDSPACING,FACTER,EFFER,SEFFER,CEFFER,CVALUE &
-      ,XPL1,YPL1,CENTERX,CENTERY,SPACER1,OLDGRI,NEWGRI
+      REAL*8 VALUE,VALVAL,SHTVALUE,GRNX,GRNY,XRANGE,YRANGE ,WVNUM,DIAM,OUTGRIDEXTENT,EXEX,EXEY,V1,APEAK, OUTGRIDSPACING,FACTER,EFFER,SEFFER,CEFFER,CVALUE ,XPL1,YPL1,CENTERX,CENTERY,SPACER1,OLDGRI,NEWGRI
 !
       INTEGER IT,IA,IB,IQ,IJK,WK,IER,PCOUNT,HOLN
 !
@@ -39,23 +37,16 @@ module mod_psf
 !
       REAL*8 SCALE_FACTOR
 !
-      REAL*8 FAF,FAFF,FSUM,IIII,IV,PSFXCENT,PSFYCENT &
-      ,FACTER1,SPTT,SPTOT,FTOT,PUP,DATA &
-      ,SPACER,PEAKER,CRAYX,CRAYY,X2JK,Y2JK,F2JK,IWLIJK(1:10) &
-      ,C,F,FHOLDF,FHOLDF1
+      REAL*8 FAF,FAFF,FSUM,IIII,IV,PSFXCENT,PSFYCENT ,FACTER1,SPTT,SPTOT,FTOT,PUP,DATA ,SPACER,PEAKER,CRAYX,CRAYY,X2JK,Y2JK,F2JK,IWLIJK(1:10) ,C,F,FHOLDF,FHOLDF1
 !
       COMMON/PEPITO/IWLIJK,IJK
 !
-      REAL SPACING,EXTENT,XPLT,CNTX,CNTY,PEXTENT,PSPACING &
-      ,YPLT,FPLT,PEAKADJ
+      REAL SPACING,EXTENT,XPLT,CNTX,CNTY,PEXTENT,PSPACING ,YPLT,FPLT,PEAKADJ
       DIMENSION XPLT(:),YPLT(:),FPLT(:,:)
       ALLOCATABLE :: XPLT,YPLT,FPLT
 !
-      DIMENSION F(:,:),DATA(:),PUP(:,:,:) &
-      ,FHOLDF(:,:),FHOLDF1(:,:) &
-      ,CENTERX(:),CENTERY(:)
-      ALLOCATABLE :: F,DATA,PUP,FHOLDF,FHOLDF1 &
-      ,CENTERX,CENTERY
+      DIMENSION F(:,:),DATA(:),PUP(:,:,:) ,FHOLDF(:,:),FHOLDF1(:,:) ,CENTERX(:),CENTERY(:)
+      ALLOCATABLE :: F,DATA,PUP,FHOLDF,FHOLDF1 ,CENTERX,CENTERY
 !
       LOGICAL EXIS51,OPEN51,PSFERR,NOCOBSPSF
 !
@@ -67,8 +58,7 @@ module mod_psf
 !
 
 !
-      INTEGER IREAL,IIMAG,INDEX,SHTNM,IX,IY,II,I,J,NDAT,NDIM, &
-      MM,III,JJJ,IIX,IIY,ALLOERR,HI,MMM,IIIX,IIIY,DFLAG
+      INTEGER IREAL,IIMAG,INDEX,SHTNM,IX,IY,II,I,J,NDAT,NDIM, MM,III,JJJ,IIX,IIY,ALLOERR,HI,MMM,IIIX,IIIY,DFLAG
 !
       LOGICAL ERRR,ERRFOB
 
@@ -82,16 +72,16 @@ module mod_psf
       DEALLOCATE(F,PUP,FHOLDF,FHOLDF1,FIMG,STAT=ALLOERR)
       GPREG(101:110)=0.0D0
 !
-      PSFWV(1)=SYSTEM(1)
-      PSFWV(2)=SYSTEM(2)
-      PSFWV(3)=SYSTEM(3)
-      PSFWV(4)=SYSTEM(4)
-      PSFWV(5)=SYSTEM(5)
-      PSFWV(6)=SYSTEM(71)
-      PSFWV(7)=SYSTEM(72)
-      PSFWV(8)=SYSTEM(73)
-      PSFWV(9)=SYSTEM(74)
-      PSFWV(10)=SYSTEM(75)
+      PSFWV(1)=sys_wavelength(1)
+      PSFWV(2)=sys_wavelength(2)
+      PSFWV(3)=sys_wavelength(3)
+      PSFWV(4)=sys_wavelength(4)
+      PSFWV(5)=sys_wavelength(5)
+      PSFWV(6)=sys_wavelength(6)
+      PSFWV(7)=sys_wavelength(7)
+      PSFWV(8)=sys_wavelength(8)
+      PSFWV(9)=sys_wavelength(9)
+      PSFWV(10)=sys_wavelength(10)
 !
 !     M IS THE DIMENSION OF THE REQUESTED GRID OVER THE PUPIL
 !     THE TRANSFORM IS TWICE THIS BIG
@@ -116,58 +106,58 @@ module mod_psf
                END IF
 !     CALC SPTOT
                    SPTOT=0.0D0
-          SPTOT=SPTOT+(SYSTEM(31))
-          SPTOT=SPTOT+(SYSTEM(32))
-          SPTOT=SPTOT+(SYSTEM(33))
-          SPTOT=SPTOT+(SYSTEM(34))
-          SPTOT=SPTOT+(SYSTEM(35))
-          SPTOT=SPTOT+(SYSTEM(76))
-          SPTOT=SPTOT+(SYSTEM(77))
-          SPTOT=SPTOT+(SYSTEM(78))
-          SPTOT=SPTOT+(SYSTEM(79))
-          SPTOT=SPTOT+(SYSTEM(80))
+          SPTOT=SPTOT+(sys_wl_weight(1))
+          SPTOT=SPTOT+(sys_wl_weight(2))
+          SPTOT=SPTOT+(sys_wl_weight(3))
+          SPTOT=SPTOT+(sys_wl_weight(4))
+          SPTOT=SPTOT+(sys_wl_weight(5))
+          SPTOT=SPTOT+(sys_wl_weight(6))
+          SPTOT=SPTOT+(sys_wl_weight(7))
+          SPTOT=SPTOT+(sys_wl_weight(8))
+          SPTOT=SPTOT+(sys_wl_weight(9))
+          SPTOT=SPTOT+(sys_wl_weight(10))
 !
 !     NOW COMPUTE THE SHORTEST WAVELENGTH IN CURENT LENS UNITS
 !     CALC THE SHRTWAVE
         SHRTWAVE=0.0D0
-      IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(1)
+      IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(1)
                       GO TO 314
                       END IF
-      IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(2)
+      IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(2)
                       GO TO 314
                       END IF
-      IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(3)
+      IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(3)
                       GO TO 314
                       END IF
-      IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(4)
+      IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(4)
                       GO TO 314
                       END IF
-      IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(5)
+      IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(5)
                       GO TO 314
                       END IF
-      IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(71)
+      IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(6)
                       GO TO 314
                       END IF
-      IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(72)
+      IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(7)
                       GO TO 314
                       END IF
-      IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(73)
+      IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(8)
                       GO TO 314
                       END IF
-      IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(74)
+      IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(9)
                       GO TO 314
                       END IF
-      IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).NE.0.0D0) THEN
-                      SHRTWAVE=SYSTEM(75)
+      IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).NE.0.0D0) THEN
+                      SHRTWAVE=sys_wavelength(10)
                       GO TO 314
                       END IF
  314                  CONTINUE
@@ -181,62 +171,52 @@ module mod_psf
                         RETURN
                         END IF
 !
-      IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).LE.SHRTWAVE &
-      .AND.SYSTEM(1).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+      IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).LE.SHRTWAVE .AND.sys_wavelength(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       SHTNM=1
       END IF
-      IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).LE.SHRTWAVE &
-      .AND.SYSTEM(2).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+      IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).LE.SHRTWAVE .AND.sys_wavelength(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       SHTNM=2
       END IF
-      IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).LE.SHRTWAVE &
-      .AND.SYSTEM(3).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+      IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).LE.SHRTWAVE .AND.sys_wavelength(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       SHTNM=3
       END IF
-      IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).LE.SHRTWAVE &
-      .AND.SYSTEM(4).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+      IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).LE.SHRTWAVE .AND.sys_wavelength(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       SHTNM=4
       END IF
-      IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).LE.SHRTWAVE &
-      .AND.SYSTEM(5).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+      IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).LE.SHRTWAVE .AND.sys_wavelength(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       SHTNM=5
       END IF
-      IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).LE.SHRTWAVE &
-      .AND.SYSTEM(71).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+      IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).LE.SHRTWAVE .AND.sys_wavelength(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       SHTNM=6
       END IF
-      IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).LE.SHRTWAVE &
-      .AND.SYSTEM(72).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+      IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).LE.SHRTWAVE .AND.sys_wavelength(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       SHTNM=7
       END IF
-      IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).LE.SHRTWAVE &
-      .AND.SYSTEM(73).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+      IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).LE.SHRTWAVE .AND.sys_wavelength(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       SHTNM=8
       END IF
-      IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).LE.SHRTWAVE &
-      .AND.SYSTEM(74).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+      IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).LE.SHRTWAVE .AND.sys_wavelength(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       SHTNM=9
       END IF
-      IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).LE.SHRTWAVE &
-      .AND.SYSTEM(75).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+      IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).LE.SHRTWAVE .AND.sys_wavelength(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       SHTNM=10
       END IF
 !     SHRTWAVE IS IN MICRONS, CHANGE TO LENS UNITS
       VALUE=SHRTWAVE
-      IF(SYSTEM(6).EQ.1.0D0) SHTVALUE=((VALUE*1.0D-3)/25.4D0)
-      IF(SYSTEM(6).EQ.2.0D0) SHTVALUE=(VALUE*1.0D-4)
-      IF(SYSTEM(6).EQ.3.0D0) SHTVALUE=(VALUE*1.0D-3)
-      IF(SYSTEM(6).EQ.4.0D0) SHTVALUE=(VALUE*1.0D-6)
+      IF(sys_units().EQ.1.0D0) SHTVALUE=((VALUE*1.0D-3)/25.4D0)
+      IF(sys_units().EQ.2.0D0) SHTVALUE=(VALUE*1.0D-4)
+      IF(sys_units().EQ.3.0D0) SHTVALUE=(VALUE*1.0D-3)
+      IF(sys_units().EQ.4.0D0) SHTVALUE=(VALUE*1.0D-6)
 !
 !     WE NOW HAVE THE WAVELENGTH AND WAVELENGTH NUMBER OF THE
 !     SHORTEST WAVELENGTH FOR WHICH THE SPECTRAL WEIGHTING FACTOR
@@ -255,7 +235,7 @@ module mod_psf
 !     GRID IN COMPAP.FOR. THESE ARE THE UNVIGNETTED ENTRANCE PUPIL
 !     VALUES. VIGNETTING IS ACCOUNTED FOR IN THE PSF RAY TRACE.
 !
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
         IF(REFEXT) THEN
         ERR=.FALSE.
         MSG=.FALSE.
@@ -286,7 +266,7 @@ module mod_psf
                 END IF
                        END IF
 !
-               IF(SYSTEM(30).LE.2.0D0) THEN
+               IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
       DIAM=GRNX
       IF(GRNY.LT.GRNX) DIAM=GRNY
@@ -302,8 +282,7 @@ module mod_psf
       DIAM=EXEX
       IF(EXEY.GT.EXEX) DIAM=EXEY
       IF(DIAM.EQ.0.0D0) THEN
-      OUTLYNE= &
-      'EXIT PUPIL DIAMETER WAS ZERO, NO PSF CALCULATION POSSIBLE'
+      OUTLYNE= 'EXIT PUPIL DIAMETER WAS ZERO, NO PSF CALCULATION POSSIBLE'
       CALL SHOWIT(1)
                    CALL MACFAL
                CALL DELPSF
@@ -314,10 +293,8 @@ module mod_psf
                    END IF
                    END IF
 
-      IF(GRIFLG.EQ.1) &
-      OUTGRIDEXTENT=DIAM*(NNRD-1.0D0)*SHTVALUE
-      IF(GRIFLG.EQ.0) &
-      OUTGRIDEXTENT=DIAM*(DBLE(NRD)-1.0D0)*SHTVALUE
+      IF(GRIFLG.EQ.1) OUTGRIDEXTENT=DIAM*(NNRD-1.0D0)*SHTVALUE
+      IF(GRIFLG.EQ.0) OUTGRIDEXTENT=DIAM*(DBLE(NRD)-1.0D0)*SHTVALUE
       OUTGRIDSPACING=OUTGRIDEXTENT/DBLE(TGR-1)
       GRI=OUTGRIDSPACING
 !
@@ -325,8 +302,7 @@ module mod_psf
 !
       DEALLOCATE(F,FHOLDF,PUP,FIMG,STAT=ALLOERR)
       ALLOCATE(PUP(MM,MM,NDIM),STAT=ALLOERR)
-      ALLOCATE(F(MMM+1,MMM+1),FHOLDF(MMM+1,MMM+1),FIMG(MMM+1,MMM+1) &
-      ,STAT=ALLOERR)
+      ALLOCATE(F(MMM+1,MMM+1),FHOLDF(MMM+1,MMM+1),FIMG(MMM+1,MMM+1) ,STAT=ALLOERR)
 !
                         IWIW=IW**2
                         I=2
@@ -374,11 +350,9 @@ module mod_psf
 !     REAL PART
       DSPOT(12)=DSPOT(12)*W3
         DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
-      PUP(IIX,IIY,1)= &
-      DSQRT(DABS(DSPOT(12)))*DCOS(DSPOT(4))
+      PUP(IIX,IIY,1)= DSQRT(DABS(DSPOT(12)))*DCOS(DSPOT(4))
 !     IMAGINARY PART
-      PUP(IIX,IIY,2)= &
-      -DSQRT(DABS(DSPOT(12)))*DSIN(DSPOT(4))
+      PUP(IIX,IIY,2)= -DSQRT(DABS(DSPOT(12)))*DSIN(DSPOT(4))
       WVNUM=DSPOT(16)
 !
                    IF(II.LT.IWIW) GO TO 10
@@ -390,9 +364,7 @@ module mod_psf
                  DO III=1,MM
                  DO JJJ=1,MM
       IT=0
-      IF( &
-      (((INT(DBLE(III+JJJ)/2.0D0))*2)-(III+JJJ)).NE.0 &
-      ) IT=1
+      IF( (((INT(DBLE(III+JJJ)/2.0D0))*2)-(III+JJJ)).NE.0 ) IT=1
       IF(IT.NE.0) PUP(III,JJJ,1)=-PUP(III,JJJ,1)
       IF(IT.NE.0) PUP(III,JJJ,2)=-PUP(III,JJJ,2)
                    END DO
@@ -423,7 +395,7 @@ module mod_psf
                END DO
                END DO
       DEALLOCATE(DATA,STAT=ALLOERR)
-        IF(SYSTEM(30).LE.2.0D0) THEN
+        IF(sys_mode().LE.2.0D0) THEN
 !       FOCAL
       EXTENT=SNGL(OUTGRIDEXTENT)
       SPACING=SNGL(OUTGRIDSPACING)
@@ -437,8 +409,7 @@ module mod_psf
 !     FILL UP THE REAL INTENSITY PSF ARRAY F
                    DO III=2,MM
                    DO JJJ=2,MM
-       F(III-1,JJJ-1)= &
-       ((PUP(III,JJJ,1)**2)+(PUP(III,JJJ,2)**2))
+       F(III-1,JJJ-1)= ((PUP(III,JJJ,1)**2)+(PUP(III,JJJ,2)**2))
                    END DO
                    END DO
 !
@@ -563,13 +534,13 @@ module mod_psf
   
 
         APEAK=PEAKER
-        IF(SYSTEM(30).LE.2.0D0) THEN
-      XCENTOFF=NINT(REFRY(1,INT(SYSTEM(20)))/GRI)
-      YCENTOFF=NINT(REFRY(2,INT(SYSTEM(20)))/GRI)
+        IF(sys_mode().LE.2.0D0) THEN
+      XCENTOFF=NINT(REFRY(1,INT(sys_last_surf()))/GRI)
+      YCENTOFF=NINT(REFRY(2,INT(sys_last_surf()))/GRI)
                         ELSE
-      V1=REFRY(4,INT(SYSTEM(20))/REFRY(6,INT(SYSTEM(20))))
+      V1=REFRY(4,INT(sys_last_surf())/REFRY(6,INT(sys_last_surf())))
       XCENTOFF=NINT(DATAN(V1)/GRI)
-      V1=REFRY(5,INT(SYSTEM(20))/REFRY(6,INT(SYSTEM(20))))
+      V1=REFRY(5,INT(sys_last_surf())/REFRY(6,INT(sys_last_surf())))
       YCENTOFF=NINT(DATAN(V1)/GRI)
                         END IF
       WRITE(OUTLYNE,*)'CHIEF RAY X-OFFSET BY: ',XCENTOFF,' GRI UNITS'
@@ -595,8 +566,7 @@ module mod_psf
       SCALE_FACTOR=PEAKER
                        DO JJJ=1,MMM
                        DO III=1,MMM
-      IF(PEAKER.NE.0.0D0) F(III,JJJ)=DNINT((F(III,JJJ)/PEAKER) &
-      *32767.0D0)
+      IF(PEAKER.NE.0.0D0) F(III,JJJ)=DNINT((F(III,JJJ)/PEAKER) *32767.0D0)
       IF(PEAKER.EQ.0.0D0) F(III,JJJ)=DNINT(F(III,JJJ))
                        END DO
                        END DO
@@ -604,8 +574,7 @@ module mod_psf
                    DO III=1,MMM
                    DO JJJ=1,MMM
 !     LOG REPRESENTATION
-      IF(F(III,JJJ).LT.(10.0D0**(-PSFLOG))) &
-      F(III,JJJ)=(10.0D0**(-PSFLOG))
+      IF(F(III,JJJ).LT.(10.0D0**(-PSFLOG))) F(III,JJJ)=(10.0D0**(-PSFLOG))
       F(III,JJJ)=(DBLE(PSFLOG)+DLOG10(F(III,JJJ)))/DBLE(PSFLOG)
                    END DO
                    END DO
@@ -625,8 +594,7 @@ module mod_psf
                    IV=IV+IIII
       FSUM=0.0D0
                    DO JJJ=1,PGR
-                   FSUM=FSUM+ &
-      F((((TGR-1)-PGR)/2)+III,(((TGR-1)-PGR)/2)+JJJ)
+                   FSUM=FSUM+ F((((TGR-1)-PGR)/2)+III,(((TGR-1)-PGR)/2)+JJJ)
                    END DO
                    FTOT=FTOT+FSUM
                CENTERX(III)=FSUM
@@ -643,8 +611,7 @@ module mod_psf
                    IV=IV+IIII
       FSUM=0.0D0
                    DO III=1,PGR
-                   FSUM=FSUM+ &
-      F((((TGR-1)-PGR)/2)+III,(((TGR-1)-PGR)/2)+JJJ)
+                   FSUM=FSUM+ F((((TGR-1)-PGR)/2)+III,(((TGR-1)-PGR)/2)+JJJ)
                    END DO
                    FTOT=FTOT+FSUM
                CENTERY(JJJ)=FSUM

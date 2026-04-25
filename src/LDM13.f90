@@ -4,6 +4,7 @@
 SUBROUTINE FNDGLS
 !
    use DATLEN
+   use mod_system
    use DATMAI
    IMPLICIT NONE
 !
@@ -18,16 +19,9 @@ SUBROUTINE FNDGLS
    DIMENSION ASORTIT(:,:),ASORTIT2(:,:)
    ALLOCATABLE :: SORTIT,ASORTIT,SORTIT2,ASORTIT2
 !
-   PN(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+&
-   &(A3*(1.0D0/(LAMBDA**4)))+(A4*(1.0D0/(LAMBDA**6)))+&
-   &(A5*(1.0D0/(LAMBDA**8))))
+   PN(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+(A3*(1.0D0/(LAMBDA**4)))+(A4*(1.0D0/(LAMBDA**6)))+(A5*(1.0D0/(LAMBDA**8))))
 !
-   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(&
-   &((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+&
-   &((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+&
-   &((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
+   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 !
    DEALLOCATE(SORTIT,ASORTIT,SORTIT2,ASORTIT2,STAT=ALLOERR)
 !
@@ -50,10 +44,7 @@ SUBROUTINE FNDGLS
       SQ=1
       WQ='ALL'
    END IF
-   IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'HOYA'.AND.WQ.NE.'OHARA'&
-   &.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'ALL'&
-   &.AND.WQ.NE.'HIKARI'.AND.WQ.NE.'SCH2000'.AND.WQ.NE.'SCH2023')&
-   &THEN
+   IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'HOYA'.AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'ALL'.AND.WQ.NE.'HIKARI'.AND.WQ.NE.'SCH2000'.AND.WQ.NE.'SCH2023')THEN
       OUTLYNE='INVALID CATALOG NAME ISSUED WITH "FINDGLAS"'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -77,7 +68,7 @@ SUBROUTINE FNDGLS
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SURFACE NUMBER BEYOND LEGAL BOUNDS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -99,7 +90,7 @@ SUBROUTINE FNDGLS
       RETURN
    END IF
    NUMSRCH=INT(W2)
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       OUTLYNE='SURFACE NUMBER BEYOND LEGAL BOUNDS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -121,9 +112,7 @@ SUBROUTINE FNDGLS
 !     NOW SEARCH THE CATALOGS AND CALCULATE THE DISTANCE AND TABULATE IT
    IF(WQ.EQ.'SCHOTT') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',&
-      &FILE=trim(LIBGLA)//'SCHOTT.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=trim(LIBGLA)//'SCHOTT.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -162,10 +151,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -184,9 +171,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'SCH2000') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',&
-      &FILE=trim(LIBGLA)//'SCH2000.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=trim(LIBGLA)//'SCH2000.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -225,10 +210,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -247,8 +230,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'HOYA') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HOYA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HOYA.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -287,10 +269,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -309,8 +289,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'HIKARI') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HIKARI.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HIKARI.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -349,10 +328,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -371,8 +348,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'OHARA') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -411,10 +387,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -430,8 +404,7 @@ SUBROUTINE FNDGLS
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
 !     NOW THE SECOND OHARA FILE
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA-O.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA-O.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -470,10 +443,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -492,8 +463,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'CORNIN') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CORNIN.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CORNIN.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -532,10 +502,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -554,8 +522,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'CHANCE') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CHANCE.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CHANCE.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -594,10 +561,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -616,9 +581,7 @@ SUBROUTINE FNDGLS
    END IF
    IF(WQ.EQ.'ALL') THEN
       K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',&
-      &FILE=trim(LIBGLA)//'SCHOTT.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=trim(LIBGLA)//'SCHOTT.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -657,10 +620,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -675,8 +636,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'SCH2000.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'SCH2000.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -715,10 +675,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -733,8 +691,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HOYA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HOYA.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -773,10 +730,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -791,8 +746,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HIKARI.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HIKARI.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -831,10 +785,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -849,8 +801,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -889,10 +840,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -907,8 +856,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA-O.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA-O.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -947,10 +895,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -965,8 +911,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CORNIN.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CORNIN.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -1005,10 +950,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -1023,8 +966,7 @@ SUBROUTINE FNDGLS
       END DO
 !     FINISHED LOADING, GO TO THE SORT
       CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CHANCE.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
+      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CHANCE.BIN',FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
       READ(UNIT=99,REC=1) TOTAL
       DO J=2,TOTAL+1
          READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
@@ -1063,10 +1005,8 @@ SUBROUTINE FNDGLS
             IF(I.EQ.10) KK=75
             IF(SYSTEM(II).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               IF(JJ.GE.1.AND.JJ.LE.5)LAMBDA=SYSTEM(JJ)
+               IF(JJ.GE.6.AND.JJ.LE.10)LAMBDA=SYSTEM(65+JJ)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -1105,13 +1045,7 @@ SUBROUTINE FNDGLS
    IF(NUMSRCH.GT.5000) NUMSRCH=5000
    DO I=1,NUMSRCH
 
-      IF(ASORTIT2(1,I)(1:13).NE.'SCHOTT       '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'SCH2000      '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'OHARA        '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'HOYA         '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'CHANCE       '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'CORNIN       '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'HIKARI       ') THEN
+      IF(ASORTIT2(1,I)(1:13).NE.'SCHOTT       '.AND.ASORTIT2(1,I)(1:13).NE.'SCH2000      '.AND.ASORTIT2(1,I)(1:13).NE.'OHARA        '.AND.ASORTIT2(1,I)(1:13).NE.'HOYA         '.AND.ASORTIT2(1,I)(1:13).NE.'CHANCE       '.AND.ASORTIT2(1,I)(1:13).NE.'CORNIN       '.AND.ASORTIT2(1,I)(1:13).NE.'HIKARI       ') THEN
          GO TO 41
       ELSE
          WRITE(OUTLYNE,40) I,ASORTIT2(1,I),ASORTIT2(2,I),SORTIT2(I)
@@ -1127,6 +1061,7 @@ SUBROUTINE FNDGLS
 END
 SUBROUTINE GLASSP_RUSSIAN1
    use DATLEN
+   use mod_system
    use DATMAI
    IMPLICIT NONE
    CHARACTER*13 RNAME(1:113)
@@ -1256,6 +1191,7 @@ SUBROUTINE GLASSP_RUSSIAN1
 END
 SUBROUTINE GLASSP_RUSSIAN2
    use DATLEN
+   use mod_system
    use DATMAI
    IMPLICIT NONE
    CHARACTER*13 RNAME(1:113),NAME1,NAME2
@@ -1423,6 +1359,7 @@ SUBROUTINE GLASSP
    use command_utils, only : parseCommandIntoTokens
 !
    use DATLEN
+   use mod_system
    use DATMAI
    IMPLICIT NONE
 
@@ -1440,8 +1377,7 @@ SUBROUTINE GLASSP
 !
    REAL*8 A0,A1,A2,A3,A4,A5,LAMUPP,LAMLOW
 !
-   CHARACTER NAME*13,NUMBER*13,FLNAME*12,NAME1*13,NAME2*13 &
-   &,CATNAME*13
+   CHARACTER NAME*13,NUMBER*13,FLNAME*12,NAME1*13,NAME2*13 ,CATNAME*13
 !
 !
    LOGICAL EXIS_USER
@@ -1501,24 +1437,15 @@ SUBROUTINE GLASSP
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2083)
       CALL SHOWIT(0)
-100   FORMAT(&
-      &'THE CURRENT PROGRAM GLASS CATALOG NAMES ARE:')
+100   FORMAT('THE CURRENT PROGRAM GLASS CATALOG NAMES ARE:')
 
-106   FORMAT(&
-      &10X,'"GLCAT     (Searches all catalogs)')
-117   FORMAT(&
-      &10X,&
-      &'"GLASS     (Searches all catalogs)')
-116   FORMAT(&
-      &10X,'            [specified without giving catalog name]')
-2161  FORMAT(&
-      &10X,'              [but just by glass name or number]')
-107   FORMAT(&
-      &10X,'"MATL"     (Special IR, UV, Visual Materials and Plastics)')
-2082  FORMAT(&
-      &10X,'"USER"     (Use "EDIT USER.DAT" from the command line)')
-2083  FORMAT(&
-      &10X,'"SCH2000"  (SCHOTT POST-2000 Optical Glass Catalog)')
+106   FORMAT(10X,'"GLCAT     (Searches all catalogs)')
+117   FORMAT(10X,'"GLASS     (Searches all catalogs)')
+116   FORMAT(10X,'            [specified without giving catalog name]')
+2161  FORMAT(10X,'              [but just by glass name or number]')
+107   FORMAT(10X,'"MATL"     (Special IR, UV, Visual Materials and Plastics)')
+2082  FORMAT(10X,'"USER"     (Use "EDIT USER.DAT" from the command line)')
+2083  FORMAT(10X,'"SCH2000"  (SCHOTT POST-2000 Optical Glass Catalog)')
       RETURN
    ELSE
 !     QUALIFIER AND STRING NOT BLANK
@@ -1554,8 +1481,7 @@ SUBROUTINE GLASSP
       !call LogTermFOR("Can I use input? "//trim(glassCand))
 
 !       IS THE SURFACE CATALOG IMPLEMENTED ?
-      IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE.&
-      &.AND.WQ.NE.'GLAK'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL') THEN
+      IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE..AND.WQ.NE.'GLAK'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL') THEN
          !    IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'
          ! 1  .AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'
          ! 2  .AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'
@@ -1590,13 +1516,10 @@ SUBROUTINE GLASSP
                IF(WQ.EQ.'RADHARD')  FLNAME='RADHARD.BIN  '
                IF(WQ.EQ.'SCH2023')  FLNAME='SCH2023.BIN '
                IF(FLNAME.NE.'OHARAMULTI  ') THEN
-                  CALL READGLASSFILE(FLNAME, 1, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
+                  CALL READGLASSFILE(FLNAME, 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
                ELSE
-                  CALL READGLASSFILE('OHARA.BIN', 1, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-                  CALL READGLASSFILE('OHARA-O.BIN', 1, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
+                  CALL READGLASSFILE('OHARA.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+                  CALL READGLASSFILE('OHARA-O.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
 
                END IF
                RETURN
@@ -1610,22 +1533,14 @@ SUBROUTINE GLASSP
          END IF
          IF(WQ.EQ.'GLCAT'.OR.WQ.EQ.'GLAK') THEN
 !     GLCAT MEANS DO ALL CATALOGS
-            CALL READGLASSFILE('SCHOTT.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA-O.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('SCH2000.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HOYA.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HIKARI.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CORNIN.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CHANCE.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('SCHOTT.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('OHARA.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('OHARA-O.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('SCH2000.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('HOYA.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('HIKARI.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('CORNIN.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('CHANCE.BIN', 1, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
 
             RETURN
          END IF
@@ -1638,11 +1553,7 @@ SUBROUTINE GLASSP
 !     OPEN THE APPROPRIATE CATALOG AND DISPLAY DATA FOR THE
 !     SPECIFIED GLASS
 !       IS THE SURFACE CATALOG IMPLEMENTED ?
-      IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'&
-      &.AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'&
-      &.AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'&
-      &.AND.WQ.NE.'RUSSIAN'.AND.WQ.NE.'RADHARD'.AND.WQ.NE.'SCH2000'&
-      &.AND.WQ.NE.'SCH2023') THEN
+      IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'.AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'.AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'.AND.WQ.NE.'RUSSIAN'.AND.WQ.NE.'RADHARD'.AND.WQ.NE.'SCH2000'.AND.WQ.NE.'SCH2023') THEN
 !     NOT A VALID CATALOG
          OUTLYNE='2THE REQUESTED GLASS CATALOG WAS NOT RECOGNIZED'
          CALL SHOWIT(1)
@@ -1666,16 +1577,13 @@ SUBROUTINE GLASSP
                IF(WQ.EQ.'RADHARD') FLNAME='RADHARD.BIN  '
                IF(FLNAME.NE.'OHARAMULTI  ') THEN
 
-                  CALL READGLASSFILE(FLNAME, 2, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
+                  CALL READGLASSFILE(FLNAME, 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
 
                END IF
 !     OHARAMULTI
                IF(FLNAME.EQ.'OHARAMULTI  ') THEN
-                  CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-                  CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
+                  CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+                  CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
                END IF
 
 
@@ -1685,22 +1593,14 @@ SUBROUTINE GLASSP
             END IF
          ELSE
 !     GLCAT/GLASS SEARCH
-            CALL READGLASSFILE('SCHOTT.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('SCH2000.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HOYA.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HIKARI.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CHANCE.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CORNIN.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('SCHOTT.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('SCH2000.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('HOYA.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('HIKARI.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('CHANCE.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
+            CALL READGLASSFILE('CORNIN.BIN', 2, NAME, NUMBER, A0,A1,A2,A3,A4,A5)
 
 
          END IF
@@ -1710,8 +1610,7 @@ SUBROUTINE GLASSP
 END
 
 
-SUBROUTINE  READGLASSFILE(FLNAME, FLAG, NAME,NUMBER,A0,A1,A2,&
-&A3,A4,A5)
+SUBROUTINE  READGLASSFILE(FLNAME, FLAG, NAME,NUMBER,A0,A1,A2,A3,A4,A5)
 
 
    integer :: J, TOTAL, FLAG, uG
@@ -1746,8 +1645,7 @@ SUBROUTINE  READGLASSFILE(FLNAME, FLAG, NAME,NUMBER,A0,A1,A2,&
        CASE (2)
          IF(WS(1:13).EQ.NAME.OR.WS(1:13).EQ.NUMBER) THEN
 
-            CALL SHOWGLASSDATA(FLNAME, NAME, A0, A1, A2,&
-            &A3, A4, A5)
+            CALL SHOWGLASSDATA(FLNAME, NAME, A0, A1, A2,A3, A4, A5)
             CLOSE(UNIT=uG)
             RETURN
          END IF
@@ -1761,8 +1659,7 @@ SUBROUTINE  READGLASSFILE(FLNAME, FLAG, NAME,NUMBER,A0,A1,A2,&
 
 END SUBROUTINE
 
-SUBROUTINE SHOWGLASSDATA(FLNAME, NAME, A0, A1, A2,&
-&A3, A4, A5)
+SUBROUTINE SHOWGLASSDATA(FLNAME, NAME, A0, A1, A2,A3, A4, A5)
 
 
    CHARACTER(len=13) :: NAME,NUMBER, CATNAME, NAME1, NAME2
@@ -1861,13 +1758,13 @@ SUBROUTINE PRINTSPECIALCATALOGMATERIALS
    use zoa_output, only:  zoa_emit
    use glass_manager
    use DATLEN
+   use mod_system
    use DATMAI
 
    integer :: i
 
    do i=1,size(specCat%names)
-      call zoa_emit('SPECIAL  '&
-      &//specCat%names(i), "black")
+      call zoa_emit('SPECIAL  '//specCat%names(i), "black")
 
    end do
 
@@ -1877,262 +1774,200 @@ END SUBROUTINE
 
 SUBROUTINE PRINTMATLGLASSES
    use DATLEN
+   use mod_system
    use DATMAI
 
 
-3000 FORMAT('MATL          ACRYLIC      ',&
-   &'-   Acrylic (Lucite)')
+3000 FORMAT('MATL          ACRYLIC      ','-   Acrylic (Lucite)')
    WRITE(OUTLYNE,3000)
    CALL SHOWIT(0)
-3010 FORMAT('MATL          PLYSTY       ',&
-   &'-   Polystyrene')
+3010 FORMAT('MATL          PLYSTY       ','-   Polystyrene')
    WRITE(OUTLYNE,3010)
    CALL SHOWIT(0)
-3020 FORMAT('MATL          POLYCARB     ',&
-   &'-   Polycarbonate')
+3020 FORMAT('MATL          POLYCARB     ','-   Polycarbonate')
    WRITE(OUTLYNE,3020)
    CALL SHOWIT(0)
-3030 FORMAT('MATL          SAN          ',&
-   &'-   Copolymer Styrene-Acrylonitrile (SAN)')
+3030 FORMAT('MATL          SAN          ','-   Copolymer Styrene-Acrylonitrile (SAN)')
    WRITE(OUTLYNE,3030)
    CALL SHOWIT(0)
 
-200 FORMAT('MATL          GERMSC       ',&
-   &'-   Single Crystal Germanium')
+200 FORMAT('MATL          GERMSC       ','-   Single Crystal Germanium')
    WRITE(OUTLYNE,200)
    CALL SHOWIT(0)
-201 FORMAT('MATL          GERMPC       ',&
-   &'-   Poly-Crystalline Germanium')
+201 FORMAT('MATL          GERMPC       ','-   Poly-Crystalline Germanium')
    WRITE(OUTLYNE,201)
    CALL SHOWIT(0)
-202 FORMAT('MATL          SILICON      ',&
-   &'-   Silicon')
+202 FORMAT('MATL          SILICON      ','-   Silicon')
    WRITE(OUTLYNE,202)
    CALL SHOWIT(0)
-203 FORMAT('MATL          IRG100       ',&
-   &'-   Schott IRG100 Infrared Glass')
+203 FORMAT('MATL          IRG100       ','-   Schott IRG100 Infrared Glass')
    WRITE(OUTLYNE,203)
    CALL SHOWIT(0)
-204 FORMAT('MATL          ZNSE         ',&
-   &'-   CVD Zinc Selenide (IRTRAN4)')
+204 FORMAT('MATL          ZNSE         ','-   CVD Zinc Selenide (IRTRAN4)')
    WRITE(OUTLYNE,204)
    CALL SHOWIT(0)
-205 FORMAT('MATL          ZNS          ',&
-   &'-   CVD Zinc Sulfide (IRTRAN2)')
+205 FORMAT('MATL          ZNS          ','-   CVD Zinc Sulfide (IRTRAN2)')
    WRITE(OUTLYNE,205)
    CALL SHOWIT(0)
-1215 FORMAT('MATL          IRTRAN1      ',&
-   &'-   IRTRAN1 (Magnesium Fluoride (o) ray')
+1215 FORMAT('MATL          IRTRAN1      ','-   IRTRAN1 (Magnesium Fluoride (o) ray')
    WRITE(OUTLYNE,1215)
    CALL SHOWIT(0)
-1205 FORMAT('MATL          IRTRAN2      ',&
-   &'-   IRTRAN2 (CVD Zinc Sulfide)')
+1205 FORMAT('MATL          IRTRAN2      ','-   IRTRAN2 (CVD Zinc Sulfide)')
    WRITE(OUTLYNE,1205)
    CALL SHOWIT(0)
-1217 FORMAT('MATL          IRTRAN3      ',&
-   &'-   IRTRAN3 (Calcium Fluoride)')
+1217 FORMAT('MATL          IRTRAN3      ','-   IRTRAN3 (Calcium Fluoride)')
    WRITE(OUTLYNE,1217)
    CALL SHOWIT(0)
-1204 FORMAT('MATL          IRTRAN4      ',&
-   &'-   IRTRAN4 (CVD Zinc Selenide)')
+1204 FORMAT('MATL          IRTRAN4      ','-   IRTRAN4 (CVD Zinc Selenide)')
    WRITE(OUTLYNE,1204)
    CALL SHOWIT(0)
-1218 FORMAT('MATL          IRTRAN5      ',&
-   &'-   IRTRAN5 (Magnesium Oxide)')
+1218 FORMAT('MATL          IRTRAN5      ','-   IRTRAN5 (Magnesium Oxide)')
    WRITE(OUTLYNE,1218)
    CALL SHOWIT(0)
-1214 FORMAT('MATL          IRTRAN6      ',&
-   &'-   IRTRAN6 (Cadmium Telluride)')
+1214 FORMAT('MATL          IRTRAN6      ','-   IRTRAN6 (Cadmium Telluride)')
    WRITE(OUTLYNE,1214)
    CALL SHOWIT(0)
-206 FORMAT('MATL          CLRTRAN      ',&
-   &'-   CVD CLEARTRAN')
+206 FORMAT('MATL          CLRTRAN      ','-   CVD CLEARTRAN')
    WRITE(OUTLYNE,206)
    CALL SHOWIT(0)
-207 FORMAT('MATL          SILICA       ',&
-   &'-   Fused Silica (SiO2)')
+207 FORMAT('MATL          SILICA       ','-   Fused Silica (SiO2)')
    WRITE(OUTLYNE,1207)
    CALL SHOWIT(0)
-2071 FORMAT('MATL          SIO2         ',&
-   &'-   Fused Silica (SiO2) (SILICA equiv.)')
+2071 FORMAT('MATL          SIO2         ','-   Fused Silica (SiO2) (SILICA equiv.)')
    WRITE(OUTLYNE,1207)
    CALL SHOWIT(0)
-1207 FORMAT('MATL          SUPRASIL     ',&
-   &'-   Fused Silica (SiO2)')
+1207 FORMAT('MATL          SUPRASIL     ','-   Fused Silica (SiO2)')
    WRITE(OUTLYNE,2207)
    CALL SHOWIT(0)
-2207 FORMAT('MATL          HOMOSIL      ',&
-   &'-   Fused Silica (SiO2)')
+2207 FORMAT('MATL          HOMOSIL      ','-   Fused Silica (SiO2)')
    WRITE(OUTLYNE,207)
    CALL SHOWIT(0)
    WRITE(OUTLYNE,2071)
    CALL SHOWIT(0)
-208 FORMAT('MATL          SAPPHIRE     ',&
-   &'-  Sapphire (Al2O3) (o)rdinary ray')
+208 FORMAT('MATL          SAPPHIRE     ','-  Sapphire (Al2O3) (o)rdinary ray')
    WRITE(OUTLYNE,208)
    CALL SHOWIT(0)
-209 FORMAT('MATL          DYNASIL      ',&
-   &'-   Synthetic Fused Silica')
+209 FORMAT('MATL          DYNASIL      ','-   Synthetic Fused Silica')
    WRITE(OUTLYNE,209)
    CALL SHOWIT(0)
-210 FORMAT('MATL          AMTIR1       ',&
-   &'-   AMTIR-1')
+210 FORMAT('MATL          AMTIR1       ','-   AMTIR-1')
    WRITE(OUTLYNE,210)
    CALL SHOWIT(0)
-211 FORMAT('MATL          AMTIR3       ',&
-   &'-   AMTIR-3 (TI 1173 Equivalent)')
+211 FORMAT('MATL          AMTIR3       ','-   AMTIR-3 (TI 1173 Equivalent)')
    WRITE(OUTLYNE,211)
    CALL SHOWIT(0)
-212 FORMAT('MATL          AS2S3        ',&
-   &'-   Arsenic Trisulfide IR Glass')
+212 FORMAT('MATL          AS2S3        ','-   Arsenic Trisulfide IR Glass')
    WRITE(OUTLYNE,212)
    CALL SHOWIT(0)
-213 FORMAT('MATL          GAAS         ',&
-   &'-   Gallium Arsenide')
+213 FORMAT('MATL          GAAS         ','-   Gallium Arsenide')
    WRITE(OUTLYNE,213)
    CALL SHOWIT(0)
-214 FORMAT('MATL          CDTE         ',&
-   &'-   Cadmium Telluride (IRTRAN6)')
+214 FORMAT('MATL          CDTE         ','-   Cadmium Telluride (IRTRAN6)')
    WRITE(OUTLYNE,214)
    CALL SHOWIT(0)
-215 FORMAT('MATL          MGF2(O)      ',&
-   &'-   Magnesium Fluoride (IRTRAN1) (o) ray')
+215 FORMAT('MATL          MGF2(O)      ','-   Magnesium Fluoride (IRTRAN1) (o) ray')
    WRITE(OUTLYNE,215)
    CALL SHOWIT(0)
-2215 FORMAT('MATL          MGF2         ',&
-   &'-   Magnesium Fluoride (IRTRAN1) (o) ray')
+2215 FORMAT('MATL          MGF2         ','-   Magnesium Fluoride (IRTRAN1) (o) ray')
    WRITE(OUTLYNE,2215)
    CALL SHOWIT(0)
-216 FORMAT('MATL          MGF2(E)      ',&
-   &'-   Magnesium Fluoride (IRTRAN1) (e) ray')
+216 FORMAT('MATL          MGF2(E)      ','-   Magnesium Fluoride (IRTRAN1) (e) ray')
    WRITE(OUTLYNE,216)
    CALL SHOWIT(0)
-217 FORMAT('MATL          CAF2         ',&
-   &'-   Calcium Fluoride (IRTRAN3)')
+217 FORMAT('MATL          CAF2         ','-   Calcium Fluoride (IRTRAN3)')
    WRITE(OUTLYNE,217)
    CALL SHOWIT(0)
-218 FORMAT('MATL          MGO          ',&
-   &'-   Magnesium Oxide (IRTRAN5)')
+218 FORMAT('MATL          MGO          ','-   Magnesium Oxide (IRTRAN5)')
    WRITE(OUTLYNE,218)
    CALL SHOWIT(0)
-219 FORMAT('MATL          BAF2         ',&
-   &'-   Barium Fluoride')
+219 FORMAT('MATL          BAF2         ','-   Barium Fluoride')
    WRITE(OUTLYNE,219)
    CALL SHOWIT(0)
-220 FORMAT('MATL          KBR          ',&
-   &'-   Potassium Bromide')
+220 FORMAT('MATL          KBR          ','-   Potassium Bromide')
    WRITE(OUTLYNE,220)
    CALL SHOWIT(0)
-221 FORMAT('MATL          CSI          ',&
-   &'-   Cesium Iodide')
+221 FORMAT('MATL          CSI          ','-   Cesium Iodide')
    WRITE(OUTLYNE,221)
    CALL SHOWIT(0)
-222 FORMAT('MATL         CSBR          ',&
-   &'-   Cesium Bromide')
+222 FORMAT('MATL         CSBR          ','-   Cesium Bromide')
    WRITE(OUTLYNE,222)
    CALL SHOWIT(0)
-223 FORMAT('MATL         KRS5          ',&
-   &'-   Thallium Bromoiodide (KRS-5)')
+223 FORMAT('MATL         KRS5          ','-   Thallium Bromoiodide (KRS-5)')
    WRITE(OUTLYNE,223)
    CALL SHOWIT(0)
-224 FORMAT('MATL         SIO2O         ',&
-   &'-   Crystalline Quartz (SiO2) (o) ray')
+224 FORMAT('MATL         SIO2O         ','-   Crystalline Quartz (SiO2) (o) ray')
    WRITE(OUTLYNE,224)
    CALL SHOWIT(0)
-225 FORMAT('MATL         SIO2E         ',&
-   &'-   Crystalline Quartz (SiO2) (e) ray')
+225 FORMAT('MATL         SIO2E         ','-   Crystalline Quartz (SiO2) (e) ray')
    WRITE(OUTLYNE,225)
    CALL SHOWIT(0)
-226 FORMAT('MATL         NACL          ',&
-   &'-   Sodium Chloride')
+226 FORMAT('MATL         NACL          ','-   Sodium Chloride')
    WRITE(OUTLYNE,226)
    CALL SHOWIT(0)
-227 FORMAT('MATL         LIF           ',&
-   &'-   Lithium Fluoride')
+227 FORMAT('MATL         LIF           ','-   Lithium Fluoride')
    WRITE(OUTLYNE,227)
    CALL SHOWIT(0)
-228 FORMAT('MATL         VIR3          ',&
-   &'-   Corning VIR 3 Infrared Glass')
+228 FORMAT('MATL         VIR3          ','-   Corning VIR 3 Infrared Glass')
    WRITE(OUTLYNE,228)
    CALL SHOWIT(0)
-229 FORMAT('MATL         9754          ',&
-   &'-   Corning 9754 Infrared Glass')
+229 FORMAT('MATL         9754          ','-   Corning 9754 Infrared Glass')
    WRITE(OUTLYNE,229)
    CALL SHOWIT(0)
-230 FORMAT('MATL         ALON          ',&
-   &'-   Raytheon Aluminum Oxynitride')
+230 FORMAT('MATL         ALON          ','-   Raytheon Aluminum Oxynitride')
    WRITE(OUTLYNE,230)
    CALL SHOWIT(0)
-231 FORMAT('MATL         SPINEL        ',&
-   &'-   Magnesium Aluminate Spinel (MgAl2O4)')
+231 FORMAT('MATL         SPINEL        ','-   Magnesium Aluminate Spinel (MgAl2O4)')
    WRITE(OUTLYNE,231)
    CALL SHOWIT(0)
-232 FORMAT('MATL         CALAL         ',&
-   &'-   Calcium Aluminate Glass')
+232 FORMAT('MATL         CALAL         ','-   Calcium Aluminate Glass')
    WRITE(OUTLYNE,232)
    CALL SHOWIT(0)
-233 FORMAT('MATL         B270          ',&
-   &'-   Schott B270 Glass')
+233 FORMAT('MATL         B270          ','-   Schott B270 Glass')
    WRITE(OUTLYNE,233)
    CALL SHOWIT(0)
-234 FORMAT('MATL         IRG2          ',&
-   &'-   Schott IRG2 Glass')
+234 FORMAT('MATL         IRG2          ','-   Schott IRG2 Glass')
    WRITE(OUTLYNE,234)
    CALL SHOWIT(0)
-235 FORMAT('MATL         IRG3          ',&
-   &'-   Schott IRG3 Glass')
+235 FORMAT('MATL         IRG3          ','-   Schott IRG3 Glass')
    WRITE(OUTLYNE,235)
    CALL SHOWIT(0)
-236 FORMAT('MATL         IRGN6         ',&
-   &'-   Schott IRGN6 Glass')
+236 FORMAT('MATL         IRGN6         ','-   Schott IRGN6 Glass')
    WRITE(OUTLYNE,236)
    CALL SHOWIT(0)
-237 FORMAT('MATL         IRG7          ',&
-   &'-   Schott IRG7 Glass')
+237 FORMAT('MATL         IRG7          ','-   Schott IRG7 Glass')
    WRITE(OUTLYNE,237)
    CALL SHOWIT(0)
-238 FORMAT('MATL         IRG9          ',&
-   &'-   Schott IRG9 Glass')
+238 FORMAT('MATL         IRG9          ','-   Schott IRG9 Glass')
    WRITE(OUTLYNE,238)
    CALL SHOWIT(0)
-239 FORMAT('MATL         IRG11         ',&
-   &'-   Schott IRG11 Glass')
+239 FORMAT('MATL         IRG11         ','-   Schott IRG11 Glass')
    WRITE(OUTLYNE,239)
    CALL SHOWIT(0)
-240 FORMAT('MATL         IRG15         ',&
-   &'-   Schott IRG15 Glass')
+240 FORMAT('MATL         IRG15         ','-   Schott IRG15 Glass')
    WRITE(OUTLYNE,240)
    CALL SHOWIT(0)
-241 FORMAT('MATL         WATER          ',&
-   &'-   Distilled Water')
+241 FORMAT('MATL         WATER          ','-   Distilled Water')
    WRITE(OUTLYNE,241)
    CALL SHOWIT(0)
-242 FORMAT('MATL         VAC           ',&
-   &'-   Vacuum')
+242 FORMAT('MATL         VAC           ','-   Vacuum')
    WRITE(OUTLYNE,242)
    CALL SHOWIT(0)
-243 FORMAT('MATL         ZNS-MS        ',&
-   &'-   II-VI Multi-Spectral ZNS')
+243 FORMAT('MATL         ZNS-MS        ','-   II-VI Multi-Spectral ZNS')
    WRITE(OUTLYNE,243)
    CALL SHOWIT(0)
-244 FORMAT('MATL         CEF3          ',&
-   &'-   Cerium Flouride for coatings')
+244 FORMAT('MATL         CEF3          ','-   Cerium Flouride for coatings')
    WRITE(OUTLYNE,244)
    CALL SHOWIT(0)
-245 FORMAT('MATL         LA2O3         ',&
-   &'-   Lanthanum Oxide for coatings')
+245 FORMAT('MATL         LA2O3         ','-   Lanthanum Oxide for coatings')
    WRITE(OUTLYNE,245)
    CALL SHOWIT(0)
-246 FORMAT('MATL         THF4          ',&
-   &'-   Thorium Flouride for coatings')
+246 FORMAT('MATL         THF4          ','-   Thorium Flouride for coatings')
    WRITE(OUTLYNE,246)
    CALL SHOWIT(0)
-247 FORMAT('MATL         ZRO2          ',&
-   &'-   Zirconium Oxide for coatings')
+247 FORMAT('MATL         ZRO2          ','-   Zirconium Oxide for coatings')
    WRITE(OUTLYNE,247)
    CALL SHOWIT(0)
-248 FORMAT('MATL         DIAMOND       ',&
-   &'-   Herzberger formula')
+248 FORMAT('MATL         DIAMOND       ','-   Herzberger formula')
    WRITE(OUTLYNE,248)
    CALL SHOWIT(0)
 249 FORMAT('MATL         YAG - Yittrium Aluminum Garnet')

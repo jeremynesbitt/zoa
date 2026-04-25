@@ -4,6 +4,7 @@
 SUBROUTINE COATING
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -21,11 +22,9 @@ SUBROUTINE COATING
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"COATING" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"COATING" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'RE-ENTER COMMAND'
+         OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -33,8 +32,7 @@ SUBROUTINE COATING
          S1=0
          DF1=0
          W1=0.0D0
-         OUTLYNE=&
-         &'"COATING" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+         OUTLYNE='"COATING" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -44,7 +42,7 @@ SUBROUTINE COATING
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO SURFACE COATINGS EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -78,9 +76,9 @@ SUBROUTINE COATING
       END IF
       IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          SURF=INT(W1)
-         IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+         IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -92,10 +90,8 @@ SUBROUTINE COATING
 !
          IF(HEADIN) WRITE(OUTLYNE,2000)
          IF(HEADIN) CALL SHOWIT(0)
-         IF(surf_coating_index(SURF).NE.0.0D0)&
-         &WRITE(OUTLYNE,300) SURF,INT(surf_coating_index(SURF))
-         IF(surf_coating_index(SURF).EQ.0.0D0)&
-         &WRITE(OUTLYNE,301) SURF
+         IF(surf_coating_index(SURF).NE.0.0D0)WRITE(OUTLYNE,300) SURF,INT(surf_coating_index(SURF))
+         IF(surf_coating_index(SURF).EQ.0.0D0)WRITE(OUTLYNE,301) SURF
          CALL SHOWIT(0)
       ELSE
 !*********************************************************************
@@ -108,11 +104,9 @@ SUBROUTINE COATING
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
-         DO SURF=0,INT(SYSTEM(20))
-            IF(surf_coating_index(SURF).NE.0.0D0)&
-            &WRITE(OUTLYNE,300) SURF,INT(surf_coating_index(SURF))
-            IF(surf_coating_index(SURF).EQ.0.0D0)&
-            &WRITE(OUTLYNE,301) SURF
+         DO SURF=0,INT(sys_last_surf())
+            IF(surf_coating_index(SURF).NE.0.0D0)WRITE(OUTLYNE,300) SURF,INT(surf_coating_index(SURF))
+            IF(surf_coating_index(SURF).EQ.0.0D0)WRITE(OUTLYNE,301) SURF
             CALL SHOWIT(0)
          END DO
       END IF
@@ -131,6 +125,7 @@ END
 SUBROUTINE SNDEX
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -150,11 +145,9 @@ SUBROUTINE SNDEX
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"NDEX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"NDEX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'RE-ENTER COMMAND'
+         OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -162,8 +155,7 @@ SUBROUTINE SNDEX
          S1=0
          DF1=0
          W1=0.0D0
-         OUTLYNE=&
-         &'"NDEX" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+         OUTLYNE='"NDEX" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -173,7 +165,7 @@ SUBROUTINE SNDEX
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO REFRACTIVE INDICES EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -213,9 +205,9 @@ SUBROUTINE SNDEX
       END IF
       IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          SURF=INT(W1)
-         IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+         IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -226,11 +218,7 @@ SUBROUTINE SNDEX
 !
          IF(HEADIN) WRITE(OUTLYNE,2000)
          IF(HEADIN) CALL SHOWIT(0)
-         IF(DABS(surf_refractive_index(SURF, 1)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 2)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 3)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 4)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 5)).EQ.1.0D0) THEN
+         IF(DABS(surf_refractive_index(SURF, 1)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 2)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 3)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 4)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 5)).EQ.1.0D0) THEN
             WRITE(OUTLYNE,201) SURF
             CALL SHOWIT(0)
 201         FORMAT('FOR SURFACE ',I3,', N1 TO N5 HAVE UNIT VALUES')
@@ -240,8 +228,7 @@ SUBROUTINE SNDEX
          ELSE
             WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),&
-            &surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
+            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
             CALL SHOWIT(0)
          END IF
       ELSE
@@ -258,12 +245,8 @@ SUBROUTINE SNDEX
 
 
          PRINTIT=.FALSE.
-         DO SURF=0,INT(SYSTEM(20))
-            IF(DABS(surf_refractive_index(SURF, 1)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 2)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 3)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 4)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 5)).EQ.1.0D0) THEN
+         DO SURF=0,INT(sys_last_surf())
+            IF(DABS(surf_refractive_index(SURF, 1)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 2)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 3)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 4)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 5)).EQ.1.0D0) THEN
             ELSE
                PRINTIT=.TRUE.
             END IF
@@ -273,17 +256,12 @@ SUBROUTINE SNDEX
             CALL SHOWIT(0)
             RETURN
          END IF
-         DO SURF=0,INT(SYSTEM(20))
-            IF(DABS(surf_refractive_index(SURF, 1)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 2)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 3)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 4)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 5)).EQ.1.0D0) THEN
+         DO SURF=0,INT(sys_last_surf())
+            IF(DABS(surf_refractive_index(SURF, 1)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 2)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 3)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 4)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 5)).EQ.1.0D0) THEN
             ELSE
                WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
                CALL SHOWIT(0)
-               WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),&
-               &surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
+               WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
                CALL SHOWIT(0)
             END IF
          END DO
@@ -298,8 +276,7 @@ SUBROUTINE SNDEX
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"NDEX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"NDEX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -310,8 +287,7 @@ SUBROUTINE SNDEX
          S1=0
          DF1=0
          W1=0.0D0
-         OUTLYNE=&
-         &'"NDEX2" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+         OUTLYNE='"NDEX2" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -321,7 +297,7 @@ SUBROUTINE SNDEX
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO REFRACTIVE INDICES EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -361,9 +337,9 @@ SUBROUTINE SNDEX
       END IF
       IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          SURF=INT(W1)
-         IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+         IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -373,18 +349,13 @@ SUBROUTINE SNDEX
          END IF
          IF(HEADIN) WRITE(OUTLYNE,2002)
          IF(HEADIN) CALL SHOWIT(0)
-         IF(DABS(surf_refractive_index(SURF, 6)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 7)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 8)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 9)).EQ.1.0D0.AND.&
-         &DABS(surf_refractive_index(SURF, 10)).EQ.1.0D0) THEN
+         IF(DABS(surf_refractive_index(SURF, 6)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 7)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 8)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 9)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 10)).EQ.1.0D0) THEN
             WRITE(OUTLYNE,203) SURF
             CALL SHOWIT(0)
          ELSE
             WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),&
-            &surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
+            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
             CALL SHOWIT(0)
          END IF
       ELSE
@@ -399,12 +370,8 @@ SUBROUTINE SNDEX
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
          PRINTIT=.FALSE.
-         DO SURF=0,INT(SYSTEM(20))
-            IF(DABS(surf_refractive_index(SURF, 6)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 7)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 8)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 9)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 10)).EQ.1.0D0) THEN
+         DO SURF=0,INT(sys_last_surf())
+            IF(DABS(surf_refractive_index(SURF, 6)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 7)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 8)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 9)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 10)).EQ.1.0D0) THEN
             ELSE
                PRINTIT=.TRUE.
             END IF
@@ -414,17 +381,12 @@ SUBROUTINE SNDEX
             CALL SHOWIT(0)
             RETURN
          END IF
-         DO SURF=0,INT(SYSTEM(20))
-            IF(DABS(surf_refractive_index(SURF, 6)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 7)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 8)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 9)).EQ.1.0D0.AND.&
-            &DABS(surf_refractive_index(SURF, 10)).EQ.1.0D0) THEN
+         DO SURF=0,INT(sys_last_surf())
+            IF(DABS(surf_refractive_index(SURF, 6)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 7)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 8)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 9)).EQ.1.0D0.AND.DABS(surf_refractive_index(SURF, 10)).EQ.1.0D0) THEN
             ELSE
                WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
                CALL SHOWIT(0)
-               WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),&
-               &surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
+               WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
                CALL SHOWIT(0)
             END IF
          END DO
@@ -447,6 +409,7 @@ END
 SUBROUTINE SGRATT
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -466,11 +429,9 @@ SUBROUTINE SGRATT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE=&
-      &'"GRT" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+      OUTLYNE='"GRT" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
-      OUTLYNE=&
-      &'RE-ENTER COMMAND'
+      OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
       RETURN
    END IF
@@ -478,8 +439,7 @@ SUBROUTINE SGRATT
       S1=0
       DF1=0
       W1=0.0D0
-      OUTLYNE=&
-      &'"GRT" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+      OUTLYNE='"GRT" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='BUT NOT BOTH'
       CALL SHOWIT(1)
@@ -489,7 +449,7 @@ SUBROUTINE SGRATT
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       OUTLYNE='NO LINEAR GRATINGS EXIST'
       CALL SHOWIT(1)
       OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -529,9 +489,9 @@ SUBROUTINE SGRATT
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+      IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
          OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -542,8 +502,7 @@ SUBROUTINE SGRATT
       IF(HEADIN) WRITE(OUTLYNE,2000)
       IF(HEADIN) CALL SHOWIT(0)
       IF(surf_diffraction_flag(SURF).EQ.1.0D0) THEN
-         WRITE(OUTLYNE,200) SURF,surf_grating_order(SURF),surf_grating_spacing(SURF),&
-         &surf_grating_vx(SURF),surf_grating_vy(SURF),surf_grating_vz(SURF)
+         WRITE(OUTLYNE,200) SURF,surf_grating_order(SURF),surf_grating_spacing(SURF),surf_grating_vx(SURF),surf_grating_vy(SURF),surf_grating_vz(SURF)
          CALL SHOWIT(0)
       ELSE
          WRITE(OUTLYNE,300)
@@ -555,7 +514,7 @@ SUBROUTINE SGRATT
 !       HANDEL THE WHOLE LENS
 !       PRINT HEADING DATA
       NOGRT=.TRUE.
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
 !
          IF(surf_diffraction_flag(SURF).EQ.1.0D0) THEN
             NOGRT=.FALSE.
@@ -570,11 +529,10 @@ SUBROUTINE SGRATT
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
-         DO SURF=0,INT(SYSTEM(20))
+         DO SURF=0,INT(sys_last_surf())
 !
             IF(surf_diffraction_flag(SURF).EQ.1.0D0) THEN
-               WRITE(OUTLYNE,200) SURF,surf_grating_order(SURF),surf_grating_spacing(SURF),&
-               &surf_grating_vx(SURF),surf_grating_vy(SURF),surf_grating_vz(SURF)
+               WRITE(OUTLYNE,200) SURF,surf_grating_order(SURF),surf_grating_spacing(SURF),surf_grating_vx(SURF),surf_grating_vy(SURF),surf_grating_vz(SURF)
                CALL SHOWIT(0)
             END IF
          END DO
@@ -597,6 +555,7 @@ END
 SUBROUTINE SRIN
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -615,11 +574,9 @@ SUBROUTINE SRIN
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"RIN" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"RIN" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'RE-ENTER COMMAND'
+         OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -627,8 +584,7 @@ SUBROUTINE SRIN
          S1=0
          DF1=0
          W1=0.0D0
-         OUTLYNE=&
-         &'"RIN" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+         OUTLYNE='"RIN" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -638,7 +594,7 @@ SUBROUTINE SRIN
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO REFRACTIVE INDICES EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -678,9 +634,9 @@ SUBROUTINE SRIN
       END IF
       IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          SURF=INT(W1)
-         IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+         IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -692,8 +648,7 @@ SUBROUTINE SRIN
          IF(HEADIN) CALL SHOWIT(0)
          WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),&
-         &surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
+         WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
          CALL SHOWIT(0)
       ELSE
 !*********************************************************************
@@ -706,11 +661,10 @@ SUBROUTINE SRIN
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
-         DO SURF=0,INT(SYSTEM(20))
+         DO SURF=0,INT(sys_last_surf())
             WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),&
-            &surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
+            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 1),surf_refractive_index(SURF, 2),surf_refractive_index(SURF, 3),surf_refractive_index(SURF, 4),surf_refractive_index(SURF, 5)
             CALL SHOWIT(0)
          END DO
       END IF
@@ -724,8 +678,7 @@ SUBROUTINE SRIN
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"RIN2" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"RIN2" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -736,8 +689,7 @@ SUBROUTINE SRIN
          S1=0
          DF1=0
          W1=0.0D0
-         OUTLYNE=&
-         &'"RIN2" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+         OUTLYNE='"RIN2" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -747,7 +699,7 @@ SUBROUTINE SRIN
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO REFRACTIVE INDICES EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -787,9 +739,9 @@ SUBROUTINE SRIN
       END IF
       IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          SURF=INT(W1)
-         IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+         IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -801,8 +753,7 @@ SUBROUTINE SRIN
          IF(HEADIN) CALL SHOWIT(0)
          WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),&
-         &surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
+         WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
          CALL SHOWIT(0)
       ELSE
 !*********************************************************************
@@ -815,11 +766,10 @@ SUBROUTINE SRIN
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         DO SURF=0,INT(SYSTEM(20))
+         DO SURF=0,INT(sys_last_surf())
             WRITE(OUTLYNE,300) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),&
-            &surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
+            WRITE(OUTLYNE,200) SURF,surf_refractive_index(SURF, 6),surf_refractive_index(SURF, 7),surf_refractive_index(SURF, 8),surf_refractive_index(SURF, 9),surf_refractive_index(SURF, 10)
             CALL SHOWIT(0)
          END DO
       END IF
@@ -842,6 +792,7 @@ END
 SUBROUTINE IMAGEDIR
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -860,11 +811,9 @@ SUBROUTINE IMAGEDIR
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"IMAGEDIR" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
+         OUTLYNE='"IMAGEDIR" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE=&
-         &'RE-ENTER COMMAND'
+         OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
          RETURN
       END IF
@@ -872,8 +821,7 @@ SUBROUTINE IMAGEDIR
          S1=0
          DF1=0
          W1=0.0D0
-         OUTLYNE=&
-         &'"IMAGEDIR" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+         OUTLYNE='"IMAGEDIR" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          OUTLYNE='BUT NOT BOTH'
          CALL SHOWIT(1)
@@ -883,7 +831,7 @@ SUBROUTINE IMAGEDIR
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO IMAGE ORIENTATION DATA EXISTS'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -933,9 +881,9 @@ SUBROUTINE IMAGEDIR
       END IF
       IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          SURF=INT(W1)
-         IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+         IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -958,7 +906,7 @@ SUBROUTINE IMAGEDIR
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
-         DO SURF=0,INT(SYSTEM(20))
+         DO SURF=0,INT(sys_last_surf())
             WRITE(OUTLYNE,300) SURF,POLANGX(SURF),POLANGY(SURF)
             CALL SHOWIT(0)
          END DO
@@ -978,6 +926,7 @@ END
 SUBROUTINE SREFS
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -990,8 +939,7 @@ SUBROUTINE SREFS
 !               INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
+   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
       OUTLYNE='"REFS" ONLY TAKES NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -1029,16 +977,16 @@ SUBROUTINE SREFS
       CALL MACFAL
       RETURN
    END IF
-   SYSTEM(25)=DBLE(SURF)
-   SYSTEM(59)=W1
-   NEWREF=INT(SYSTEM(25))
+   call set_sys_ref_surf(DBLE(SURF))
+   call set_sys_ref_orient(W1)
+   NEWREF=INT(sys_ref_surf())
 !     IF THE ASTOP IS ON -99 THEN IF REFSURF IS NOT SURFACE 1
 !     SET ASTOP SURF TO BE EQUAL TO REF SURF
-   IF(SYSTEM(26).LT.0.0D0) THEN
+   IF(sys_astop().LT.0.0D0) THEN
       IF(NEWREF.NE.1) THEN
 !     RE-ASSIGN THE ASTOP TO THE REFSURF
-         SYSTEM(27)=0.0D0
-         SYSTEM(26)=SYSTEM(25)
+         call set_sys_astop_adj(0.0D0)
+         call set_sys_astop(sys_ref_surf())
          IF(F6.EQ.1) THEN
             OUTLYNE='ASTOP AUTOMATICALLY SET TO BE ON THE REFERENCE SURFACE'
             CALL SHOWIT(1)
@@ -1051,6 +999,7 @@ END
 SUBROUTINE SREF
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1081,7 +1030,7 @@ SUBROUTINE SREF
 !               WE ARE AT THE CMD LEVEL
 !
 !       WHAT IS THERE ARE NO SURFACES
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE= 'NO REFERENCE SURFACE EXISTS'
          CALL SHOWIT(1)
          OUTLYNE= 'LENS SYSTEM HAS NO SURFACES'
@@ -1095,9 +1044,7 @@ SUBROUTINE SREF
 !       WRITE STATEMENTS GO HERE
 !
 !*************************************************************
-      IF(ABS(surf_clap_type(NEWREF)).GE.1.0D0.AND.&
-      &ABS(surf_clap_type(NEWREF)).LE.6.0D0.AND.surf_multi_clap_flag(NEWREF)&
-      &.EQ.0.0D0) THEN
+      IF(ABS(surf_clap_type(NEWREF)).GE.1.0D0.AND.ABS(surf_clap_type(NEWREF)).LE.6.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !
 !       CLAP IS ON REFERENCE SURFACE
 !
@@ -1163,84 +1110,80 @@ SUBROUTINE SREF
 !*************************************************************
       WRITE(OUTLYNE,1000)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,2000) SYSTEM(14),SYSTEM(21),SYS12,&
-      &NEWOBJ,NEWREF,NEWIMG
+      WRITE(OUTLYNE,2000) sys_scy(),sys_fang_y(),SYS12,NEWOBJ,NEWREF,NEWIMG
 !
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,4000)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,2000) SYSTEM(16),SYSTEM(23),SYS13,&
-      &NEWOBJ,NEWREF,NEWIMG
+      WRITE(OUTLYNE,2000) sys_scx(),sys_fang_x(),SYS13,NEWOBJ,NEWREF,NEWIMG
       CALL SHOWIT(0)
-      IF(SYSTEM(59).NE.0.0D0) THEN
+      IF(sys_ref_orient().NE.0.0D0) THEN
          WRITE(OUTLYNE,3000)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,6000) SYSTEM(59)
+         WRITE(OUTLYNE,6000) sys_ref_orient()
          CALL SHOWIT(0)
       ELSE
       END IF
    ELSE
    END IF
-   IF(SYSTEM(94).NE.0.0D0) THEN
-      IF(SYSTEM(94).LT.0.0D0.AND.SYSTEM(6).EQ.1.0D0) UNI1='INCHES '
-      IF(SYSTEM(94).LT.0.0D0.AND.SYSTEM(6).EQ.2.0D0) UNI1='CM     '
-      IF(SYSTEM(94).LT.0.0D0.AND.SYSTEM(6).EQ.3.0D0) UNI1='MM     '
-      IF(SYSTEM(94).LT.0.0D0.AND.SYSTEM(6).EQ.4.0D0) UNI1='METERS '
-      IF(SYSTEM(94).GT.0.0D0)                        UNI1='DEGREES'
+   IF(sys_pxim_fang_set().NE.0.0D0) THEN
+      IF(sys_pxim_fang_set().LT.0.0D0.AND.sys_units().EQ.1.0D0) UNI1='INCHES '
+      IF(sys_pxim_fang_set().LT.0.0D0.AND.sys_units().EQ.2.0D0) UNI1='CM     '
+      IF(sys_pxim_fang_set().LT.0.0D0.AND.sys_units().EQ.3.0D0) UNI1='MM     '
+      IF(sys_pxim_fang_set().LT.0.0D0.AND.sys_units().EQ.4.0D0) UNI1='METERS '
+      IF(sys_pxim_fang_set().GT.0.0D0)                        UNI1='DEGREES'
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,5004) SYSTEM(92),UNI1
+      WRITE(OUTLYNE,5004) sys_pxim(),UNI1
       CALL SHOWIT(0)
    END IF
-   IF(SYSTEM(95).NE.0.0D0) THEN
-      IF(SYSTEM(95).LT.0.0D0.AND.SYSTEM(6).EQ.1.0D0) UNI1='INCHES '
-      IF(SYSTEM(95).LT.0.0D0.AND.SYSTEM(6).EQ.2.0D0) UNI1='CM     '
-      IF(SYSTEM(95).LT.0.0D0.AND.SYSTEM(6).EQ.3.0D0) UNI1='MM     '
-      IF(SYSTEM(95).LT.0.0D0.AND.SYSTEM(6).EQ.4.0D0) UNI1='METERS '
-      IF(SYSTEM(95).GT.0.0D0)                        UNI1='DEGREES'
+   IF(sys_pyim_fang_set().NE.0.0D0) THEN
+      IF(sys_pyim_fang_set().LT.0.0D0.AND.sys_units().EQ.1.0D0) UNI1='INCHES '
+      IF(sys_pyim_fang_set().LT.0.0D0.AND.sys_units().EQ.2.0D0) UNI1='CM     '
+      IF(sys_pyim_fang_set().LT.0.0D0.AND.sys_units().EQ.3.0D0) UNI1='MM     '
+      IF(sys_pyim_fang_set().LT.0.0D0.AND.sys_units().EQ.4.0D0) UNI1='METERS '
+      IF(sys_pyim_fang_set().GT.0.0D0)                        UNI1='DEGREES'
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,5005) SYSTEM(93),UNI1
+      WRITE(OUTLYNE,5005) sys_pyim(),UNI1
       CALL SHOWIT(0)
    END IF
-   IF(SYSTEM(98).NE.0.0D0) THEN
-      IF(SYSTEM(98).LT.0.0D0.AND.SYSTEM(6).EQ.1.0D0) UNI1='INCHES '
-      IF(SYSTEM(98).LT.0.0D0.AND.SYSTEM(6).EQ.2.0D0) UNI1='CM     '
-      IF(SYSTEM(98).LT.0.0D0.AND.SYSTEM(6).EQ.3.0D0) UNI1='MM     '
-      IF(SYSTEM(98).LT.0.0D0.AND.SYSTEM(6).EQ.4.0D0) UNI1='METERS '
-      IF(SYSTEM(98).GT.0.0D0)                        UNI1='DEGREES'
+   IF(sys_rxim_fang_set().NE.0.0D0) THEN
+      IF(sys_rxim_fang_set().LT.0.0D0.AND.sys_units().EQ.1.0D0) UNI1='INCHES '
+      IF(sys_rxim_fang_set().LT.0.0D0.AND.sys_units().EQ.2.0D0) UNI1='CM     '
+      IF(sys_rxim_fang_set().LT.0.0D0.AND.sys_units().EQ.3.0D0) UNI1='MM     '
+      IF(sys_rxim_fang_set().LT.0.0D0.AND.sys_units().EQ.4.0D0) UNI1='METERS '
+      IF(sys_rxim_fang_set().GT.0.0D0)                        UNI1='DEGREES'
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5002)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,5006) SYSTEM(96),UNI1
+      WRITE(OUTLYNE,5006) sys_rxim(),UNI1
       CALL SHOWIT(0)
    END IF
-   IF(SYSTEM(99).NE.0.0D0) THEN
-      IF(SYSTEM(99).LT.0.0D0.AND.SYSTEM(6).EQ.1.0D0) UNI1='INCHES '
-      IF(SYSTEM(99).LT.0.0D0.AND.SYSTEM(6).EQ.2.0D0) UNI1='CM     '
-      IF(SYSTEM(99).LT.0.0D0.AND.SYSTEM(6).EQ.3.0D0) UNI1='MM     '
-      IF(SYSTEM(99).LT.0.0D0.AND.SYSTEM(6).EQ.4.0D0) UNI1='METERS '
-      IF(SYSTEM(99).GT.0.0D0)                        UNI1='DEGREES'
+   IF(sys_ryim_fang_set().NE.0.0D0) THEN
+      IF(sys_ryim_fang_set().LT.0.0D0.AND.sys_units().EQ.1.0D0) UNI1='INCHES '
+      IF(sys_ryim_fang_set().LT.0.0D0.AND.sys_units().EQ.2.0D0) UNI1='CM     '
+      IF(sys_ryim_fang_set().LT.0.0D0.AND.sys_units().EQ.3.0D0) UNI1='MM     '
+      IF(sys_ryim_fang_set().LT.0.0D0.AND.sys_units().EQ.4.0D0) UNI1='METERS '
+      IF(sys_ryim_fang_set().GT.0.0D0)                        UNI1='DEGREES'
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5003)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,5007) SYSTEM(97),UNI1
+      WRITE(OUTLYNE,5007) sys_ryim(),UNI1
       CALL SHOWIT(0)
    END IF
-1000 FORMAT('REF OBJ Y-HT',20X,'REF AP Y-HT',9X &
-   &,'OBJ SF#  REF SF#  IMG SF#')
+1000 FORMAT('REF OBJ Y-HT',20X,'REF AP Y-HT',9X ,'OBJ SF#  REF SF#  IMG SF#')
 2000 FORMAT(G13.6,'(',G11.4,1X,'DG)',4X,G11.4,11X,I3,6X,I3,6X,I3)
 3000 FORMAT(1X)
-4000 FORMAT('REF OBJ X-HT',20X,'REF AP X-HT',9X &
-   &,'OBJ SF#  REF SF#  IMG SF#')
+4000 FORMAT('REF OBJ X-HT',20X,'REF AP X-HT',9X ,'OBJ SF#  REF SF#  IMG SF#')
 6000 FORMAT('ORIENTATION ANGLE = ',G11.4,' DEGREES')
 5000 FORMAT('X-REF OBJ. VIA PARAXIAL IMAGE HT/ANGLE SPEC.')
 5001 FORMAT('Y-REF OBJ. VIA PARAXIAL IMAGE HT/ANGLE SPEC.')
@@ -1261,149 +1204,72 @@ END
 
 SUBROUTINE SPCGLS(I,MTYPE)
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N
 !
-   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI &
-   &,YPN,YP1,GSCX(1:20),GSCY(1:20),GPCX(1:17),GPCY(1:17)&
-   &,SIL,GPLX(1:13),GPL1Y(1:13),GPL2Y(1:13),VIR3X(1:18),VIR3Y(1:18)&
-   &,GPL3Y(1:13),GPL4Y(1:13),IRGX(1:25),IRGY(1:25),ZNSEX(1:56)&
-   &,ZNSEY(1:56),ZNSX(1:59),ZNSY(1:59),CLRX(1:29),CLRY(1:29)&
-   &,SAPH,FSIL,MGF2O,MGF2E,CAF2,MGO,G9754X(1:43),G9754Y(1:43)&
-   &,AMTR1X(1:17),AMTR1Y(1:17),DYN,BAF2,KBR,CSBR,KRS5 &
-   &,AMTR3X(1:12),AMTR3Y(1:12),AS2S3,ALONX(1:14),ALONY(1:14)&
-   &,GAASX(1:13),GAASY(1:13),CDTEX(1:10),CDTEY(1:10)&
-   &,SPINX(1:11),SPINY(1:11),CALALX(1:12),CALALY(1:12)&
-   &,H2OX(1:21),H2OY(1:21),SUPX(1:60),SUPY(1:60),HOMOX(1:47),&
-   &HOMOY(1:47),ZNSMSX(1:59),ZNSMSY(1:59),YAG
+   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI ,YPN,YP1,GSCX(1:20),GSCY(1:20),GPCX(1:17),GPCY(1:17),SIL,GPLX(1:13),GPL1Y(1:13),GPL2Y(1:13),VIR3X(1:18),VIR3Y(1:18),GPL3Y(1:13),GPL4Y(1:13),IRGX(1:25),IRGY(1:25),ZNSEX(1:56),ZNSEY(1:56),ZNSX(1:59),ZNSY(1:59),CLRX(1:29),CLRY(1:29),SAPH,FSIL,MGF2O,MGF2E,CAF2,MGO,G9754X(1:43),G9754Y(1:43),AMTR1X(1:17),AMTR1Y(1:17),DYN,BAF2,KBR,CSBR,KRS5 ,AMTR3X(1:12),AMTR3Y(1:12),AS2S3,ALONX(1:14),ALONY(1:14),GAASX(1:13),GAASY(1:13),CDTEX(1:10),CDTEY(1:10),SPINX(1:11),SPINY(1:11),CALALX(1:12),CALALY(1:12),H2OX(1:21),H2OY(1:21),SUPX(1:60),SUPY(1:60),HOMOX(1:47),HOMOY(1:47),ZNSMSX(1:59),ZNSMSY(1:59),YAG
 !
-   REAL*8 SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20)&
-   &,SIO2EY(1:20),LIF,NACLX(1:60),NACLY(1:60)&
-   &,B270X(1:10),B270Y(1:10),DIAMOND &
-   &,IRG2X(1:18),IRG2Y(1:18),IRG3X(1:17),IRG3Y(1:17),IRGN6X(1:16)&
-   &,IRGN6Y(1:16),IRG7X(1:16),IRG7Y(1:16),IRG9X(1:16),IRG9Y(1:16)&
-   &,IRG11X(1:16),IRG11Y(1:16),IRG15X(1:16),IRG15Y(1:16)&
-   &,DUMA,DUMB,DUML,LM1,A,B,LA1,LA2,LA3,LA4,LA5
+   REAL*8 SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20),SIO2EY(1:20),LIF,NACLX(1:60),NACLY(1:60),B270X(1:10),B270Y(1:10),DIAMOND ,IRG2X(1:18),IRG2Y(1:18),IRG3X(1:17),IRG3Y(1:17),IRGN6X(1:16),IRGN6Y(1:16),IRG7X(1:16),IRG7Y(1:16),IRG9X(1:16),IRG9Y(1:16),IRG11X(1:16),IRG11Y(1:16),IRG15X(1:16),IRG15Y(1:16),DUMA,DUMB,DUML,LM1,A,B,LA1,LA2,LA3,LA4,LA5
 !
 !
 !     VACUME
    LM1(DUMA,DUMB,DUML)=DUMA*(1.0D0+(DUMB/(DUML**2)))
 !
 !     SILICA/SIO2 INTERPOLATION FORMULA (HANDBOOK OF OPTICS 11/14/2000)
-   FSIL(LA)=DSQRT(1.0D0+&
-   &((0.6961663*(LA**2))/((LA**2)-((0.0684043)**2)))+&
-   &((0.4079426*(LA**2))/((LA**2)-((0.1162414)**2)))+&
-   &((0.8974794*(LA**2))/((LA**2)-((9.896161)**2)))&
-   &)
+   FSIL(LA)=DSQRT(1.0D0+((0.6961663*(LA**2))/((LA**2)-((0.0684043)**2)))+((0.4079426*(LA**2))/((LA**2)-((0.1162414)**2)))+((0.8974794*(LA**2))/((LA**2)-((9.896161)**2))))
 !
 !
 !     DIAMOND INTERPOLATION FORMULA
-   DIAMOND(LA)=&
-   &2.37837D0+&
-   &((1.18897E-2)*(1.0D0/((LA**2)-0.028D0)))+&
-   &((-1.0083E-4)*((1.0D0/((LA**2)-0.028D0))**2))+&
-   &((-2.3676E-5)*(LA**2))+&
-   &((3.24263E-8)*(LA**4))
+   DIAMOND(LA)=2.37837D0+((1.18897E-2)*(1.0D0/((LA**2)-0.028D0)))+((-1.0083E-4)*((1.0D0/((LA**2)-0.028D0))**2))+((-2.3676E-5)*(LA**2))+((3.24263E-8)*(LA**4))
 !
 !     LiF INTERPOLATION FORMULA
-   LIF(LA)=&
-   &1.38761D0+(0.001796D0/((LA**2)-0.028D0))&
-   &+(0.000041D0/(((LA**2)-0.028D0)**2))-(0.0023045D0*(LA**2))&
-   &-(0.00000557D0*(LA**4))
+   LIF(LA)=1.38761D0+(0.001796D0/((LA**2)-0.028D0))+(0.000041D0/(((LA**2)-0.028D0)**2))-(0.0023045D0*(LA**2))-(0.00000557D0*(LA**4))
 !
 !     SILICON INTERPOLATION FORMULA
-   SIL(LA)=&
-   &3.41696D0+(0.138497D0/((LA**2)-0.028D0))&
-   &+(0.013924D0/(((LA**2)-0.028D0)**2))-(0.0000209D0*(LA**2))&
-   &+(0.000000148D0*(LA**4))
+   SIL(LA)=3.41696D0+(0.138497D0/((LA**2)-0.028D0))+(0.013924D0/(((LA**2)-0.028D0)**2))-(0.0000209D0*(LA**2))+(0.000000148D0*(LA**4))
 !
 !     KBr INTERPOLATION FORMULA
-   KBR(LA)=DSQRT(&
-   &2.361323D0-(3.11497D-4*(LA**2))-(5.8613D-8*(LA**4))+&
-   &(0.007676D0/(LA**2))+(0.0156569D0/((LA**2)-0.0324D0)))
+   KBR(LA)=DSQRT(2.361323D0-(3.11497D-4*(LA**2))-(5.8613D-8*(LA**4))+(0.007676D0/(LA**2))+(0.0156569D0/((LA**2)-0.0324D0)))
 !
 !     CsBr INTERPOLATION FORMULA
-   CSBR(LA)=DSQRT(&
-   &5.640752D0-(3.338D-6*(LA**2))+&
-   &(0.0018612D0/(LA**2))+(41110.49D0/((LA**2)-14390.4D0))&
-   &+(0.0290764D0/((LA**2)-0.024964D0)))
+   CSBR(LA)=DSQRT(5.640752D0-(3.338D-6*(LA**2))+(0.0018612D0/(LA**2))+(41110.49D0/((LA**2)-14390.4D0))+(0.0290764D0/((LA**2)-0.024964D0)))
 !
 !     MGO INTERPOLATION FORMULA
-   MGO(LA)=DSQRT(&
-   &2.956362D0-(0.01062387D0*(LA**2))-(0.0000204968D0*(LA**4))-&
-   &(0.02195770/((LA**2)-0.01428322D0)))
+   MGO(LA)=DSQRT(2.956362D0-(0.01062387D0*(LA**2))-(0.0000204968D0*(LA**4))-(0.02195770/((LA**2)-0.01428322D0)))
 !
 !     DYNASIL INTERPOLATION FORMULA
-   DYN(LA)=DSQRT(&
-   &((0.6961663D0*(LA**2))/((LA**2)-((0.0684043D0)**2)))+&
-   &((0.4079426D0*(LA**2))/((LA**2)-((0.1162414D0)**2)))+&
-   &((0.8974794D0*(LA**2))/((LA**2)-((9.896161D0)**2)))+1.0D0)
+   DYN(LA)=DSQRT(((0.6961663D0*(LA**2))/((LA**2)-((0.0684043D0)**2)))+((0.4079426D0*(LA**2))/((LA**2)-((0.1162414D0)**2)))+((0.8974794D0*(LA**2))/((LA**2)-((9.896161D0)**2)))+1.0D0)
 !
 !     SAPPHIRE INTERPOLATION FORMULA
-   SAPH(LA)=DSQRT(&
-   &((1.023798D0*(LA**2))/((LA**2)-(0.00377588D0)))+&
-   &((1.058264D0*(LA**2))/((LA**2)-(0.01225440D0)))+&
-   &((5.280792D0*(LA**2))/((LA**2)-(321.361600D0)))+1.0D0)
+   SAPH(LA)=DSQRT(((1.023798D0*(LA**2))/((LA**2)-(0.00377588D0)))+((1.058264D0*(LA**2))/((LA**2)-(0.01225440D0)))+((5.280792D0*(LA**2))/((LA**2)-(321.361600D0)))+1.0D0)
 !
 !     YAG INTERPOLATION FORMULA
-   YAG(LA)=DSQRT(&
-   &((2.293D0*(LA**2))/((LA**2)-(0.1095D0**2)))+&
-   &((3.705D0*(LA**2))/((LA**2)-(17.825D0**2)))+1.0D0)
+   YAG(LA)=DSQRT(((2.293D0*(LA**2))/((LA**2)-(0.1095D0**2)))+((3.705D0*(LA**2))/((LA**2)-(17.825D0**2)))+1.0D0)
 !
 !     CSI INTERPOLATION FORMULA
-   CSI(LA)=DSQRT(&
-   &((0.34617251D0*(LA**2))/((LA**2)-0.00052701D0))+&
-   &((1.0080886D0*(LA**2))/((LA**2)-0.02149156D0))+&
-   &((0.28551800D0*(LA**2))/((LA**2)-0.032761D0))+&
-   &((0.39743178D0*(LA**2))/((LA**2)-0.044944D0))+&
-   &((3.3605359D0*(LA**2))/((LA**2)-25621.0D0))+1.0D0)
+   CSI(LA)=DSQRT(((0.34617251D0*(LA**2))/((LA**2)-0.00052701D0))+((1.0080886D0*(LA**2))/((LA**2)-0.02149156D0))+((0.28551800D0*(LA**2))/((LA**2)-0.032761D0))+((0.39743178D0*(LA**2))/((LA**2)-0.044944D0))+((3.3605359D0*(LA**2))/((LA**2)-25621.0D0))+1.0D0)
 !
 !     KRS5 INTERPOLATION FORMULA
-   KRS5(LA)=DSQRT(&
-   &((1.8293958D0*(LA**2))/((LA**2)-(0.0225D0**2)))+&
-   &((1.6675593D0*(LA**2))/((LA**2)-(0.0625D0**2)))+&
-   &((1.1210424D0*(LA**2))/((LA**2)-(0.1225D0**2)))+&
-   &((0.04513366D0*(LA**2))/((LA**2)-(0.2025D0**2)))+&
-   &((12.380234D0*(LA**2))/((LA**2)-(27089.737D0**2)))+1.0D0)
+   KRS5(LA)=DSQRT(((1.8293958D0*(LA**2))/((LA**2)-(0.0225D0**2)))+((1.6675593D0*(LA**2))/((LA**2)-(0.0625D0**2)))+((1.1210424D0*(LA**2))/((LA**2)-(0.1225D0**2)))+((0.04513366D0*(LA**2))/((LA**2)-(0.2025D0**2)))+((12.380234D0*(LA**2))/((LA**2)-(27089.737D0**2)))+1.0D0)
 !
 !     As2S3 INTERPOLATION FORMULA
-   AS2S3(LA)=DSQRT(&
-   &((1.8983678D0*(LA**2))/((LA**2)-(0.15D0**2)))+&
-   &((1.9222979D0*(LA**2))/((LA**2)-(0.25D0**2)))+&
-   &((0.8765134D0*(LA**2))/((LA**2)-(0.350D0**2)))+&
-   &((0.1188704D0*(LA**2))/((LA**2)-(0.450D0**2)))+&
-   &((0.9569903D0*(LA**2))/((LA**2)-(27.3861D0**2)))+1.0D0)
+   AS2S3(LA)=DSQRT(((1.8983678D0*(LA**2))/((LA**2)-(0.15D0**2)))+((1.9222979D0*(LA**2))/((LA**2)-(0.25D0**2)))+((0.8765134D0*(LA**2))/((LA**2)-(0.350D0**2)))+((0.1188704D0*(LA**2))/((LA**2)-(0.450D0**2)))+((0.9569903D0*(LA**2))/((LA**2)-(27.3861D0**2)))+1.0D0)
 !
 !     BAF2 INTERPOLATION FORMULA
-   BAF2(LA)=DSQRT(&
-   &((0.643356D0*(LA**2))/((LA**2)-((0.057789D0)**2)))+&
-   &((0.506762D0*(LA**2))/((LA**2)-((0.10968D0)**2)))+&
-   &((3.8261D0*(LA**2))/((LA**2)-((46.3864D0)**2)))+1.0D0)
+   BAF2(LA)=DSQRT(((0.643356D0*(LA**2))/((LA**2)-((0.057789D0)**2)))+((0.506762D0*(LA**2))/((LA**2)-((0.10968D0)**2)))+((3.8261D0*(LA**2))/((LA**2)-((46.3864D0)**2)))+1.0D0)
 !
 !     CAF2 INTERPOLATION FORMULA
-   CAF2(LA)=DSQRT(&
-   &((0.5675888D0*(LA**2))/((LA**2)-((0.050263605D0)**2)))+&
-   &((0.4710914D0*(LA**2))/((LA**2)-((0.1003909D0)**2)))+&
-   &((3.8484723D0*(LA**2))/((LA**2)-((34.649040D0)**2)))+1.0D0)
+   CAF2(LA)=DSQRT(((0.5675888D0*(LA**2))/((LA**2)-((0.050263605D0)**2)))+((0.4710914D0*(LA**2))/((LA**2)-((0.1003909D0)**2)))+((3.8484723D0*(LA**2))/((LA**2)-((34.649040D0)**2)))+1.0D0)
 !
 !     MGF2o INTERPOLATION FORMULA
-   MGF2O(LA)=DSQRT(&
-   &1.0D0+&
-   &((.48755108D0*(LA**2))/((LA**2)-(0.04338408D0**2)))&
-   &+((.39875031D0*(LA**2))/((LA**2)-(0.09461442D0**2)))&
-   &+((2.3120353D0*(LA**2))/((LA**2)-(23.7936040D0**2)))&
-   &)
+   MGF2O(LA)=DSQRT(1.0D0+((.48755108D0*(LA**2))/((LA**2)-(0.04338408D0**2)))+((.39875031D0*(LA**2))/((LA**2)-(0.09461442D0**2)))+((2.3120353D0*(LA**2))/((LA**2)-(23.7936040D0**2))))
 !
 !     MGF2E INTERPOLATION FORMULA
-   MGF2E(LA)=DSQRT(&
-   &1.0D0+&
-   &((.41344023D0*(LA**2))/((LA**2)-(0.03684262D0**2)))&
-   &+((.50497499D0*(LA**2))/((LA**2)-(0.09076162D0**2)))&
-   &+((2.4904862D0*(LA**2))/((LA**2)-(12.771995D0**2)))&
-   &)
+   MGF2E(LA)=DSQRT(1.0D0+((.41344023D0*(LA**2))/((LA**2)-(0.03684262D0**2)))+((.50497499D0*(LA**2))/((LA**2)-(0.09076162D0**2)))+((2.4904862D0*(LA**2))/((LA**2)-(12.771995D0**2))))
 !
 !     THIS SUBROUTINE IS USED TO CALCULATE REFRACTIVE
 !     INDICES OF THE MATERIALS WHOSE NAMES ARE THEIR COMMANDS
@@ -1417,16 +1283,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR SINGLE CRYSTAL GERMANIUM
 !
-      DATA (GSCX(J), J = 1,20)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,&
-      &2.577D0,&
-      &2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,&
-      &8.66D0,9.72D0,11.04D0,12.20D0,13.02D0,14.21D0,15.08D0,16.0D0/
+      DATA (GSCX(J), J = 1,20)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,2.577D0,2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,8.66D0,9.72D0,11.04D0,12.20D0,13.02D0,14.21D0,15.08D0,16.0D0/
 !
-      DATA (GSCY(J), J = 1,20)/&
-      &4.1016D0,4.0919D0,4.0786D0,4.0708D0,&
-      &4.0609D0,4.0552D0,4.0452D0,4.0369D0,4.0334D0,&
-      &4.0216D0,4.0170D0,4.0094D0,4.0043D0,4.0034D0,&
-      &4.0026D0,4.0023D0,4.0021D0,4.0015D0,4.0014D0,4.0012D0/
+      DATA (GSCY(J), J = 1,20)/4.1016D0,4.0919D0,4.0786D0,4.0708D0,4.0609D0,4.0552D0,4.0452D0,4.0369D0,4.0334D0,4.0216D0,4.0170D0,4.0094D0,4.0043D0,4.0034D0,4.0026D0,4.0023D0,4.0021D0,4.0015D0,4.0014D0,4.0012D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=GSCX(1:N)
@@ -1436,53 +1295,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1497,15 +1356,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR POLY CRYSTAL GERMANIUM
 !
-      DATA (GPCX(J), J = 1,17)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,&
-      &2.577D0,&
-      &2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,&
-      &8.66D0,9.72D0,11.04D0,12.20D0,13.02D0/
+      DATA (GPCX(J), J = 1,17)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,2.577D0,2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,8.66D0,9.72D0,11.04D0,12.20D0,13.02D0/
 !
-      DATA (GPCY(J), J = 1,17)/4.1018D0,4.0919D0,4.0785D0,4.0709D0,&
-      &4.0608D0,4.0554D0,4.0452D0,4.0372D0,4.0339D0,&
-      &4.0217D0,4.0167D0,4.0095D0,4.0043D0,4.0033D0,&
-      &4.0025D0,4.0020D0,4.0018D0/
+      DATA (GPCY(J), J = 1,17)/4.1018D0,4.0919D0,4.0785D0,4.0709D0,4.0608D0,4.0554D0,4.0452D0,4.0372D0,4.0339D0,4.0217D0,4.0167D0,4.0095D0,4.0043D0,4.0033D0,4.0025D0,4.0020D0,4.0018D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=GPCX(1:N)
@@ -1515,53 +1368,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1570,53 +1423,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
    IF(MTYPE.EQ.3) THEN
 !     INTERPOLATE THE SILICON DATA
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, SIL(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, SIL(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, SIL(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, SIL(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, SIL(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, SIL(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, SIL(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, SIL(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, SIL(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, SIL(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, SIL(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, SIL(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, SIL(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, SIL(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, SIL(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, SIL(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, SIL(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, SIL(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, SIL(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, SIL(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1630,14 +1483,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG100
 !
-      DATA (IRGX(J), J = 1,25)/1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0 &
-      &,4.0D0,4.5D0,5.0D0,5.5D0,6.0D0,6.5D0,7.0D0,7.5D0,8.0D0,8.5D0 &
-      &,9.0D0,9.5D0,10.0D0,10.5D0,11.0D0,11.5D0,12.0D0,13.0D0,14.0D0/
+      DATA (IRGX(J), J = 1,25)/1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0 ,4.0D0,4.5D0,5.0D0,5.5D0,6.0D0,6.5D0,7.0D0,7.5D0,8.0D0,8.5D0 ,9.0D0,9.5D0,10.0D0,10.5D0,11.0D0,11.5D0,12.0D0,13.0D0,14.0D0/
 !
-      DATA (IRGY(J), J = 1,25)/2.7235D0,2.6577D0,2.6404D0,2.6314D0 &
-      &,2.6262D0,2.6227D0,2.6201D0,2.6181D0,2.6164D0,2.6148D0,2.6133D0 &
-      &,2.6118D0,2.6103D0,2.6088D0,2.6072D0,2.6056D0,2.6039D0,2.6022D0 &
-      &,2.6004D0,2.5985D0,2.5966D0,2.5946D0,2.5925D0,2.5880D0,2.5832D0/
+      DATA (IRGY(J), J = 1,25)/2.7235D0,2.6577D0,2.6404D0,2.6314D0 ,2.6262D0,2.6227D0,2.6201D0,2.6181D0,2.6164D0,2.6148D0,2.6133D0 ,2.6118D0,2.6103D0,2.6088D0,2.6072D0,2.6056D0,2.6039D0,2.6022D0 ,2.6004D0,2.5985D0,2.5966D0,2.5946D0,2.5925D0,2.5880D0,2.5832D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRGX(1:N)
@@ -1647,53 +1495,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1708,23 +1556,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR ZNSE
 !
-      DATA (ZNSEX(J), J = 1,56)/0.54D0,0.58D0 &
-      &,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 &
-      &,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 &
-      &,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 &
-      &,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 &
-      &,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 &
-      &,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
+      DATA (ZNSEX(J), J = 1,56)/0.54D0,0.58D0 ,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 ,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 ,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 ,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 ,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 ,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
 !
-      DATA (ZNSEY(J), J = 1,56)/2.6754D0,2.6312D0,2.5994D0,2.5755D0 &
-      &,2.5568D0,2.5418D0,2.5295D0,2.5193D0,2.5107D0,2.5034D0,2.4971D0 &
-      &,2.4916D0,2.4892D0,2.4609D0,2.4496D0,2.4437D0,2.4401D0,2.4376D0 &
-      &,2.4356D0,2.4339D0,2.4324D0,2.4309D0,2.4295D0,2.4281D0,2.4266D0 &
-      &,2.4251D0,2.4235D0,2.4218D0,2.4201D0,2.4183D0,2.4163D0,2.4143D0 &
-      &,2.4122D0,2.4100D0,2.4077D0,2.4053D0,2.4028D0,2.4001D0,2.3974D0 &
-      &,2.3945D0,2.3915D0,2.3883D0,2.3850D0,2.3816D0,2.3781D0,2.3744D0 &
-      &,2.3705D0,2.3665D0,2.3623D0,2.3579D0,2.3534D0,2.3487D0,2.3438D0 &
-      &,2.3387D0,2.3333D0,2.3278D0/
+      DATA (ZNSEY(J), J = 1,56)/2.6754D0,2.6312D0,2.5994D0,2.5755D0 ,2.5568D0,2.5418D0,2.5295D0,2.5193D0,2.5107D0,2.5034D0,2.4971D0 ,2.4916D0,2.4892D0,2.4609D0,2.4496D0,2.4437D0,2.4401D0,2.4376D0 ,2.4356D0,2.4339D0,2.4324D0,2.4309D0,2.4295D0,2.4281D0,2.4266D0 ,2.4251D0,2.4235D0,2.4218D0,2.4201D0,2.4183D0,2.4163D0,2.4143D0 ,2.4122D0,2.4100D0,2.4077D0,2.4053D0,2.4028D0,2.4001D0,2.3974D0 ,2.3945D0,2.3915D0,2.3883D0,2.3850D0,2.3816D0,2.3781D0,2.3744D0 ,2.3705D0,2.3665D0,2.3623D0,2.3579D0,2.3534D0,2.3487D0,2.3438D0 ,2.3387D0,2.3333D0,2.3278D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ZNSEX(1:N)
@@ -1734,53 +1568,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1795,22 +1629,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR ZNS
 !
-      DATA (ZNSX(J), J = 1,59)/0.42D0,0.46D0,0.5D0,0.54D0,0.58D0 &
-      &,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 &
-      &,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 &
-      &,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 &
-      &,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 &
-      &,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 &
-      &,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
+      DATA (ZNSX(J), J = 1,59)/0.42D0,0.46D0,0.5D0,0.54D0,0.58D0 ,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 ,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 ,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 ,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 ,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 ,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
 !
-      DATA (ZNSY(J), J = 1,59)/2.516D0,2.458D0,2.419D0,2.391D0,2.371D0 &
-      &,2.355D0,2.342D0,2.332D0,2.323D0,2.316D0,2.310D0,2.305D0,2.301D0 &
-      &,2.297D0,2.294D0,2.292D0,2.275D0,2.267D0,2.263D0,2.260D0,2.257D0 &
-      &,2.255D0,2.253D0,2.251D0,2.248D0,2.246D0,2.244D0,2.241D0,2.238D0 &
-      &,2.235D0,2.232D0,2.228D0,2.225D0,2.221D0,2.217D0,2.212D0,2.208D0 &
-      &,2.203D0,2.198D0,2.192D0,2.186D0,2.180D0,2.173D0,2.167D0,2.159D0 &
-      &,2.152D0,2.143D0,2.135D0,2.126D0,2.116D0,2.106D0,2.095D0,2.084D0 &
-      &,2.072D0,2.059D0,2.045D0,2.030D0,2.015D0,1.998D0/
+      DATA (ZNSY(J), J = 1,59)/2.516D0,2.458D0,2.419D0,2.391D0,2.371D0 ,2.355D0,2.342D0,2.332D0,2.323D0,2.316D0,2.310D0,2.305D0,2.301D0 ,2.297D0,2.294D0,2.292D0,2.275D0,2.267D0,2.263D0,2.260D0,2.257D0 ,2.255D0,2.253D0,2.251D0,2.248D0,2.246D0,2.244D0,2.241D0,2.238D0 ,2.235D0,2.232D0,2.228D0,2.225D0,2.221D0,2.217D0,2.212D0,2.208D0 ,2.203D0,2.198D0,2.192D0,2.186D0,2.180D0,2.173D0,2.167D0,2.159D0 ,2.152D0,2.143D0,2.135D0,2.126D0,2.116D0,2.106D0,2.095D0,2.084D0 ,2.072D0,2.059D0,2.045D0,2.030D0,2.015D0,1.998D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ZNSX(1:N)
@@ -1820,53 +1641,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1881,18 +1702,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR CLRTRAN
 !
-      DATA (CLRX(J), J = 1,29)/0.4047D0,0.4358D0,0.4678D0,0.48D0 &
-      &,0.5086D0,0.5461D0,0.5876D0,0.6438D0,0.6678D0,0.7065D0,0.78D0 &
-      &,0.7948D0,0.8521D0,0.8943D0,1.014D0,1.1287D0,1.5296D0,2.0581D0 &
-      &,3.0D0,3.5D0,4.0D0,4.5D0,5.0D0,8.0D0,9.0D0,10.0D0,11.25D0,12.0D0 &
-      &,13.0D0/
+      DATA (CLRX(J), J = 1,29)/0.4047D0,0.4358D0,0.4678D0,0.48D0 ,0.5086D0,0.5461D0,0.5876D0,0.6438D0,0.6678D0,0.7065D0,0.78D0 ,0.7948D0,0.8521D0,0.8943D0,1.014D0,1.1287D0,1.5296D0,2.0581D0 ,3.0D0,3.5D0,4.0D0,4.5D0,5.0D0,8.0D0,9.0D0,10.0D0,11.25D0,12.0D0 ,13.0D0/
 !
-      DATA (CLRY(J), J = 1,29)/2.54515D0,2.48918D0,2.44915D0,2.43691D0 &
-      &,2.41279D0,2.38838D0,2.36789D0,2.34731D0,2.34033D0,2.33073D0 &
-      &,2.31669D0,2.31438D0,2.30659D0,2.30183D0,2.29165D0,2.28485D0 &
-      &,2.27191D0,2.26442D0,2.25772D0,2.25498D0,2.25231D0,2.24955D0 &
-      &,2.24661D0,2.22334D0,2.21290D0,2.20084D0,2.18317D0,2.17101D0 &
-      &,2.15252D0/
+      DATA (CLRY(J), J = 1,29)/2.54515D0,2.48918D0,2.44915D0,2.43691D0 ,2.41279D0,2.38838D0,2.36789D0,2.34731D0,2.34033D0,2.33073D0 ,2.31669D0,2.31438D0,2.30659D0,2.30183D0,2.29165D0,2.28485D0 ,2.27191D0,2.26442D0,2.25772D0,2.25498D0,2.25231D0,2.24955D0 ,2.24661D0,2.22334D0,2.21290D0,2.20084D0,2.18317D0,2.17101D0 ,2.15252D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=CLRX(1:N)
@@ -1902,53 +1714,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -1958,53 +1770,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE WILLOW RUN FUSED SILICA/SIO2
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, FSIL(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, FSIL(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, FSIL(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, FSIL(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, FSIL(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, FSIL(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, FSIL(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, FSIL(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, FSIL(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, FSIL(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, FSIL(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, FSIL(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, FSIL(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, FSIL(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, FSIL(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, FSIL(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, FSIL(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, FSIL(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, FSIL(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, FSIL(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2013,53 +1825,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE SAPPHIRE
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, SAPH(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, SAPH(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, SAPH(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, SAPH(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, SAPH(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, SAPH(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, SAPH(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, SAPH(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, SAPH(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, SAPH(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, SAPH(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, SAPH(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, SAPH(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, SAPH(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, SAPH(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, SAPH(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, SAPH(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, SAPH(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, SAPH(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, SAPH(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2069,53 +1881,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE DYNASIL
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, DYN(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, DYN(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, DYN(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, DYN(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, DYN(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, DYN(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, DYN(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, DYN(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, DYN(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, DYN(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, DYN(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, DYN(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, DYN(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, DYN(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, DYN(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, DYN(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, DYN(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, DYN(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, DYN(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, DYN(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2130,13 +1942,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR AMTIR1
 !
-      DATA (AMTR1X(J), J = 1,17)/1.0D0,1.064D0,1.5D0,2.0D0,2.4D0 &
-      &,3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0 &
-      &,12.0D0,13.0D0,14.0D0/
+      DATA (AMTR1X(J), J = 1,17)/1.0D0,1.064D0,1.5D0,2.0D0,2.4D0 ,3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0 ,12.0D0,13.0D0,14.0D0/
 !
-      DATA (AMTR1Y(J), J = 1,17)/2.6055D0,2.5933D0,2.5469D0,2.5310D0 &
-      &,2.5250D0,2.5184D0,2.5146D0,2.5112D0,2.5086D0,2.5062D0,2.5036D0 &
-      &,2.5008D0,2.4977D0,2.4942D0,2.4902D0,2.4862D0,2.4825D0/
+      DATA (AMTR1Y(J), J = 1,17)/2.6055D0,2.5933D0,2.5469D0,2.5310D0 ,2.5250D0,2.5184D0,2.5146D0,2.5112D0,2.5086D0,2.5062D0,2.5036D0 ,2.5008D0,2.4977D0,2.4942D0,2.4902D0,2.4862D0,2.4825D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=AMTR1X(1:N)
@@ -2146,53 +1954,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2207,12 +2015,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR AMTIR3
 !
-      DATA (AMTR3X(J), J = 1,12)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0 &
-      &,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
+      DATA (AMTR3X(J), J = 1,12)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0 ,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
 !
-      DATA (AMTR3Y(J), J = 1,12)/2.6266D0,2.6210D0,2.6173D0,2.6142D0 &
-      &,2.6117D0,2.6088D0,2.6055D0,2.6023D0,2.5983D0,2.5942D0,2.5892D0 &
-      &,2.5843D0/
+      DATA (AMTR3Y(J), J = 1,12)/2.6266D0,2.6210D0,2.6173D0,2.6142D0 ,2.6117D0,2.6088D0,2.6055D0,2.6023D0,2.5983D0,2.5942D0,2.5892D0 ,2.5843D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=AMTR3X(1:N)
@@ -2222,53 +2027,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2278,53 +2083,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE As2S3
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, AS2S3(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, AS2S3(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, AS2S3(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, AS2S3(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, AS2S3(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, AS2S3(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, AS2S3(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, AS2S3(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, AS2S3(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, AS2S3(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, AS2S3(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, AS2S3(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, AS2S3(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, AS2S3(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, AS2S3(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, AS2S3(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, AS2S3(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, AS2S3(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, AS2S3(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, AS2S3(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2339,12 +2144,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR GaAs
 !
-      DATA (GAASX(J), J = 1,13)/2.5D0,3.0D0,4.0D0,5.0D0,6.0D0 &
-      &,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
+      DATA (GAASX(J), J = 1,13)/2.5D0,3.0D0,4.0D0,5.0D0,6.0D0 ,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
 !
-      DATA (GAASY(J), J = 1,13)/3.3256D0,3.3169D0,3.3069D0 &
-      &,3.3010,3.2963D0,3.2923D0,3.2878D0,3.2830D0,3.2778D0 &
-      &,3.2725D0,3.2666D0,3.2589D0,3.2509D0/
+      DATA (GAASY(J), J = 1,13)/3.3256D0,3.3169D0,3.3069D0 ,3.3010,3.2963D0,3.2923D0,3.2878D0,3.2830D0,3.2778D0 ,3.2725D0,3.2666D0,3.2589D0,3.2509D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=GAASX(1:N)
@@ -2354,53 +2156,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2415,12 +2217,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR CdTe
 !
-      DATA (CDTEX(J), J = 1,10)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0 &
-      &,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0/
+      DATA (CDTEX(J), J = 1,10)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0 ,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0/
 !
-      DATA (CDTEY(J), J = 1,10)/2.7026D0,2.6971D0,2.6922D0 &
-      &,2.6886D0,2.6865D0,2.6846D0,2.6825D0,2.6797D0,2.6766D0 &
-      &,2.6749D0/
+      DATA (CDTEY(J), J = 1,10)/2.7026D0,2.6971D0,2.6922D0 ,2.6886D0,2.6865D0,2.6846D0,2.6825D0,2.6797D0,2.6766D0 ,2.6749D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=CDTEX(1:N)
@@ -2430,53 +2229,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2486,53 +2285,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE MGF2O
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, MGF2O(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, MGF2O(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, MGF2O(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, MGF2O(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, MGF2O(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, MGF2O(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, MGF2O(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, MGF2O(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, MGF2O(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, MGF2O(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, MGF2O(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, MGF2O(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, MGF2O(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, MGF2O(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, MGF2O(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, MGF2O(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, MGF2O(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, MGF2O(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, MGF2O(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, MGF2O(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2542,53 +2341,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE MGF2E
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, MGF2E(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, MGF2E(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, MGF2E(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, MGF2E(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, MGF2E(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, MGF2E(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, MGF2E(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, MGF2E(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, MGF2E(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, MGF2E(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, MGF2E(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, MGF2E(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, MGF2E(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, MGF2E(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, MGF2E(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, MGF2E(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, MGF2E(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, MGF2E(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, MGF2E(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, MGF2E(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2598,53 +2397,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE CAF2
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, CAF2(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, CAF2(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, CAF2(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, CAF2(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, CAF2(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, CAF2(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, CAF2(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, CAF2(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, CAF2(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, CAF2(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, CAF2(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, CAF2(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, CAF2(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, CAF2(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, CAF2(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, CAF2(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, CAF2(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, CAF2(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, CAF2(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, CAF2(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2654,53 +2453,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE MGO
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, MGO(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, MGO(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, MGO(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, MGO(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, MGO(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, MGO(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, MGO(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, MGO(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, MGO(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, MGO(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, MGO(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, MGO(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, MGO(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, MGO(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, MGO(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, MGO(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, MGO(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, MGO(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, MGO(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, MGO(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2710,53 +2509,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE BAF2
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, BAF2(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, BAF2(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, BAF2(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, BAF2(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, BAF2(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, BAF2(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, BAF2(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, BAF2(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, BAF2(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, BAF2(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, BAF2(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, BAF2(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, BAF2(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, BAF2(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, BAF2(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, BAF2(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, BAF2(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, BAF2(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, BAF2(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, BAF2(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2766,53 +2565,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE KBR
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, KBR(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, KBR(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, KBR(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, KBR(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, KBR(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, KBR(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, KBR(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, KBR(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, KBR(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, KBR(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, KBR(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, KBR(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, KBR(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, KBR(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, KBR(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, KBR(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, KBR(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, KBR(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, KBR(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, KBR(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2822,53 +2621,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE CSI
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, CSI(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, CSI(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, CSI(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, CSI(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, CSI(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, CSI(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, CSI(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, CSI(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, CSI(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, CSI(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, CSI(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, CSI(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, CSI(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, CSI(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, CSI(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, CSI(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, CSI(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, CSI(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, CSI(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, CSI(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2878,53 +2677,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE CSBR
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, CSBR(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, CSBR(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, CSBR(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, CSBR(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, CSBR(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, CSBR(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, CSBR(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, CSBR(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, CSBR(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, CSBR(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, CSBR(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, CSBR(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, CSBR(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, CSBR(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, CSBR(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, CSBR(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, CSBR(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, CSBR(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, CSBR(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, CSBR(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2934,53 +2733,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE KRS5
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, KRS5(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, KRS5(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, KRS5(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, KRS5(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, KRS5(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, KRS5(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, KRS5(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, KRS5(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, KRS5(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, KRS5(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, KRS5(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, KRS5(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, KRS5(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, KRS5(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, KRS5(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, KRS5(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, KRS5(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, KRS5(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, KRS5(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, KRS5(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -2990,53 +2789,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE LiF
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, LIF(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, LIF(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, LIF(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, LIF(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, LIF(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, LIF(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, LIF(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, LIF(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, LIF(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, LIF(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, LIF(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, LIF(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, LIF(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, LIF(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, LIF(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, LIF(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, LIF(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, LIF(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, LIF(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, LIF(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3050,29 +2849,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR NaCl
 !
-      DATA (NACLX(J), J = 1,60)/0.589D0,0.64D0,0.6874D0,0.7604D0 &
-      &,0.7858D0,0.8835D0,0.9033D0,0.9724D0,1.0084D0,1.0540D0 &
-      &,1.0810D0,1.1058D0,1.1420D0,1.1786D0,1.2016D0,1.2604D0 &
-      &,1.3126D0,1.4874D0,1.5552D0,1.6368D0,1.6848D0,1.7670D0 &
-      &,2.0736D0,2.1824D0,2.2464D0,2.3560D0,2.6505D0,2.9466D0 &
-      &,3.2736D0,3.5359D0,3.6288D0,3.8192D0,4.1230D0,4.7120D0 &
-      &,5.0092D0,5.3009D0,5.8932D0,6.4825D0,6.8000D0,7.0718D0 &
-      &,7.2200D0,7.5900D0,7.6611D0,7.9558D0,8.0400D0,8.8398D0 &
-      &,9.0000D0,9.5000D0,10.0184D0,11.7864D0,12.5D0,12.9650D0 &
-      &,13.50D0,14.1436D0,14.7330D0,15.3223D0,15.9116D0,17.93D0 &
-      &,20.57D0,22.3D0/
+      DATA (NACLX(J), J = 1,60)/0.589D0,0.64D0,0.6874D0,0.7604D0 ,0.7858D0,0.8835D0,0.9033D0,0.9724D0,1.0084D0,1.0540D0 ,1.0810D0,1.1058D0,1.1420D0,1.1786D0,1.2016D0,1.2604D0 ,1.3126D0,1.4874D0,1.5552D0,1.6368D0,1.6848D0,1.7670D0 ,2.0736D0,2.1824D0,2.2464D0,2.3560D0,2.6505D0,2.9466D0 ,3.2736D0,3.5359D0,3.6288D0,3.8192D0,4.1230D0,4.7120D0 ,5.0092D0,5.3009D0,5.8932D0,6.4825D0,6.8000D0,7.0718D0 ,7.2200D0,7.5900D0,7.6611D0,7.9558D0,8.0400D0,8.8398D0 ,9.0000D0,9.5000D0,10.0184D0,11.7864D0,12.5D0,12.9650D0 ,13.50D0,14.1436D0,14.7330D0,15.3223D0,15.9116D0,17.93D0 ,20.57D0,22.3D0/
 !
-      DATA (NACLY(J), J = 1,60)/1.54427D0,1.54141D0,1.53930D0 &
-      &,1.53682D0,1.53607D0,1.53395D0,1.53361D0,1.53253D0,1.53206D0 &
-      &,1.53153D0,1.53123D0,1.53098D0,1.53063D0,1.53031D0,1.53014D0 &
-      &,1.52971D0,1.52937D0,1.52845D0,1.52815D0,1.52781D0,1.52764D0 &
-      &,1.52736D0,1.52649D0,1.52621D0,1.52606D0,1.52579D0,1.52512D0 &
-      &,1.52466D0,1.52371D0,1.52312D0,1.52286D0,1.52238D0,1.52156D0 &
-      &,1.51979D0,1.51883D0,1.51790D0,1.51593D0,1.51347D0,1.51200D0 &
-      &,1.51093D0,1.51020D0,1.50850D0,1.50822D0,1.50665D0,1.50640D0 &
-      &,1.50192D0,1.50100D0,1.49980D0,1.49462D0,1.48171D0,1.47568D0 &
-      &,1.47160D0,1.46660D0,1.46044D0,1.45427D0,1.44743D0,1.44090D0 &
-      &,1.41490D0,1.37350D0,1.34030D0/
+      DATA (NACLY(J), J = 1,60)/1.54427D0,1.54141D0,1.53930D0 ,1.53682D0,1.53607D0,1.53395D0,1.53361D0,1.53253D0,1.53206D0 ,1.53153D0,1.53123D0,1.53098D0,1.53063D0,1.53031D0,1.53014D0 ,1.52971D0,1.52937D0,1.52845D0,1.52815D0,1.52781D0,1.52764D0 ,1.52736D0,1.52649D0,1.52621D0,1.52606D0,1.52579D0,1.52512D0 ,1.52466D0,1.52371D0,1.52312D0,1.52286D0,1.52238D0,1.52156D0 ,1.51979D0,1.51883D0,1.51790D0,1.51593D0,1.51347D0,1.51200D0 ,1.51093D0,1.51020D0,1.50850D0,1.50822D0,1.50665D0,1.50640D0 ,1.50192D0,1.50100D0,1.49980D0,1.49462D0,1.48171D0,1.47568D0 ,1.47160D0,1.46660D0,1.46044D0,1.45427D0,1.44743D0,1.44090D0 ,1.41490D0,1.37350D0,1.34030D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=NACLX(1:N)
@@ -3082,53 +2861,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3143,18 +2922,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR SiO2o
 !
-      DATA (SIO2OX(J), J = 1,29)/0.185D0,0.198D0,0.231D0,0.34D0 &
-      &,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 &
-      &,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 &
-      &,1.7614D0,1.9457D0,2.0531D0,2.3D0,2.6D0,3.0D0,3.5D0,4.0D0 &
-      &,4.2D0,5.0D0,6.45D0,7.0D0/
+      DATA (SIO2OX(J), J = 1,29)/0.185D0,0.198D0,0.231D0,0.34D0 ,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 ,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 ,1.7614D0,1.9457D0,2.0531D0,2.3D0,2.6D0,3.0D0,3.5D0,4.0D0 ,4.2D0,5.0D0,6.45D0,7.0D0/
 !
-      DATA (SIO2OY(J), J = 1,29)/1.65751D0,1.65087D0,1.61395D0 &
-      &,1.56747D0,1.55846D0,1.55396D0,1.54822D0,1.54424D0,1.53903D0 &
-      &,1.53773D0,1.53514D0,1.53283D0,1.53090D0,1.52877D0,1.52865D0 &
-      &,1.52781D0,1.52583D0,1.52468D0,1.52184D0,1.52005D0,1.51561D0 &
-      &,1.50986D0,1.49953D0,1.48451D0,1.46617D0,1.4569D0,1.417D0,1.274D0 &
-      &,1.167D0/
+      DATA (SIO2OY(J), J = 1,29)/1.65751D0,1.65087D0,1.61395D0 ,1.56747D0,1.55846D0,1.55396D0,1.54822D0,1.54424D0,1.53903D0 ,1.53773D0,1.53514D0,1.53283D0,1.53090D0,1.52877D0,1.52865D0 ,1.52781D0,1.52583D0,1.52468D0,1.52184D0,1.52005D0,1.51561D0 ,1.50986D0,1.49953D0,1.48451D0,1.46617D0,1.4569D0,1.417D0,1.274D0 ,1.167D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SIO2OX(1:N)
@@ -3164,53 +2934,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3225,15 +2995,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR SiO2e
 !
-      DATA (SIO2EX(J), J = 1,20)/0.185D0,0.198D0,0.231D0,0.34D0 &
-      &,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 &
-      &,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 &
-      &,1.7614D0,1.9457D0,2.0531D0/
+      DATA (SIO2EX(J), J = 1,20)/0.185D0,0.198D0,0.231D0,0.34D0 ,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 ,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 ,1.7614D0,1.9457D0,2.0531D0/
 !
-      DATA (SIO2EY(J), J = 1,20)/1.68988D0,1.66394D0,1.62555D0 &
-      &,1.57737D0,1.56805D0,1.56339D0,1.55746D0,1.55335D0,1.54794D0 &
-      &,1.54661D0,1.54392D0,1.54152D0,1.53951D0,1.53832D0,1.53716D0 &
-      &,1.53630D0,1.53422D0,1.53301D0,1.53004D0,1.52823D0/
+      DATA (SIO2EY(J), J = 1,20)/1.68988D0,1.66394D0,1.62555D0 ,1.57737D0,1.56805D0,1.56339D0,1.55746D0,1.55335D0,1.54794D0 ,1.54661D0,1.54392D0,1.54152D0,1.53951D0,1.53832D0,1.53716D0 ,1.53630D0,1.53422D0,1.53301D0,1.53004D0,1.52823D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SIO2EX(1:N)
@@ -3243,53 +3007,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3304,13 +3068,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR VIR3
 !
-      DATA (VIR3X(J), J = 1,18)/0.4047D0,0.5461D0,0.7065D0,1.0D0 &
-      &,1.0D0,2.0D0,2.5D0,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0 &
-      &,4.5D0,4.75D0,5.0D0,5.5D0,6.0D0/
+      DATA (VIR3X(J), J = 1,18)/0.4047D0,0.5461D0,0.7065D0,1.0D0 ,1.0D0,2.0D0,2.5D0,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0 ,4.5D0,4.75D0,5.0D0,5.5D0,6.0D0/
 !
-      DATA (VIR3Y(J), J = 1,18)/1.92568D0,1.87002D0,1.84694D0 &
-      &,1.831D0,1.818D0,1.812D0,1.806D0,1.799D0,1.795D0,1.791D0 &
-      &,1.786D0,1.781D0,1.775D0,1.769D0,1.762D0,1.756D0,1.741D0,1.725D0/
+      DATA (VIR3Y(J), J = 1,18)/1.92568D0,1.87002D0,1.84694D0 ,1.831D0,1.818D0,1.812D0,1.806D0,1.799D0,1.795D0,1.791D0 ,1.786D0,1.781D0,1.775D0,1.769D0,1.762D0,1.756D0,1.741D0,1.725D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=VIR3X(1:N)
@@ -3320,53 +3080,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3381,22 +3141,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR 9754
 !
-      DATA (G9754X(J), J = 1,43)/0.4D0,0.425D0,0.45D0 &
-      &,0.475D0,0.5D0,0.525D0 &
-      &,0.55D0,0.575D0,0.6D0,0.635D0,0.65D0,0.675D0,0.7D0,0.725D0,0.75D0 &
-      &,0.775D0,0.8D0,0.825D0,0.85D0,0.875D0,0.9D0,0.925D0,0.95D0 &
-      &,0.975D0,1.0D0,1.25D0,1.5D0,1.75D0,2.0D0,2.25D0,2.5D0,2.75D0 &
-      &,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0,4.5D0,4.75D0,5.0D0 &
-      &,5.25D0,5.5D0/
+      DATA (G9754X(J), J = 1,43)/0.4D0,0.425D0,0.45D0 ,0.475D0,0.5D0,0.525D0 ,0.55D0,0.575D0,0.6D0,0.635D0,0.65D0,0.675D0,0.7D0,0.725D0,0.75D0 ,0.775D0,0.8D0,0.825D0,0.85D0,0.875D0,0.9D0,0.925D0,0.95D0 ,0.975D0,1.0D0,1.25D0,1.5D0,1.75D0,2.0D0,2.25D0,2.5D0,2.75D0 ,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0,4.5D0,4.75D0,5.0D0 ,5.25D0,5.5D0/
 !
-      DATA (G9754Y(J), J = 1,43)/1.69093D0,1.68502D0,1.68020D0 &
-      &,1.67621D0,1.67285D0,1.67000D0,1.66754D0,1.66542D0,1.66356D0 &
-      &,1.66192D0,1.66046D0,1.65916D0,1.65800D0,1.65694D0,1.65599D0 &
-      &,1.65511D0,1.65431D0,1.65358D0,1.65289D0,1.65226D0,1.65167D0 &
-      &,1.65112D0,1.65060D0,1.65011D0,1.64964D0,1.64595D0,1.64310D0 &
-      &,1.64049D0,1.63785D0,1.63505D0,1.63203D0,1.62874D0,1.62514D0 &
-      &,1.62119D0,1.61686D0,1.61214D0,1.60698D0,1.60135D0,1.59521D0 &
-      &,1.58853D0,1.58125D0,1.57332D0,1.66469D0/
+      DATA (G9754Y(J), J = 1,43)/1.69093D0,1.68502D0,1.68020D0 ,1.67621D0,1.67285D0,1.67000D0,1.66754D0,1.66542D0,1.66356D0 ,1.66192D0,1.66046D0,1.65916D0,1.65800D0,1.65694D0,1.65599D0 ,1.65511D0,1.65431D0,1.65358D0,1.65289D0,1.65226D0,1.65167D0 ,1.65112D0,1.65060D0,1.65011D0,1.64964D0,1.64595D0,1.64310D0 ,1.64049D0,1.63785D0,1.63505D0,1.63203D0,1.62874D0,1.62514D0 ,1.62119D0,1.61686D0,1.61214D0,1.60698D0,1.60135D0,1.59521D0 ,1.58853D0,1.58125D0,1.57332D0,1.66469D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=G9754X(1:N)
@@ -3406,53 +3153,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3467,13 +3214,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR ALON
 !
-      DATA (ALONX(J), J = 1,14)/0.365D0,0.405D0,0.435D0,0.546D0 &
-      &,0.852D0,1.014D0,1.53D0,1.97D0,2.325D0,2.8D0,3.39D0,4.0D0 &
-      &,4.6D0,5.0D0/
+      DATA (ALONX(J), J = 1,14)/0.365D0,0.405D0,0.435D0,0.546D0 ,0.852D0,1.014D0,1.53D0,1.97D0,2.325D0,2.8D0,3.39D0,4.0D0 ,4.6D0,5.0D0/
 !
-      DATA (ALONY(J), J = 1,14)/1.819D0,1.811D0,1.806D0,1.792D0 &
-      &,1.778D0,1.773D0,1.765D0,1.758D0,1.752D0,1.743D0,1.729D0 &
-      &,1.710D0,1.689D0,1.672D0/
+      DATA (ALONY(J), J = 1,14)/1.819D0,1.811D0,1.806D0,1.792D0 ,1.778D0,1.773D0,1.765D0,1.758D0,1.752D0,1.743D0,1.729D0 ,1.710D0,1.689D0,1.672D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ALONX(1:N)
@@ -3483,53 +3226,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3544,12 +3287,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR SPINEL
 !
-      DATA (SPINX(J), J = 1,11)/0.4047D0,0.4358D0,0.5461D0,0.8521D0 &
-      &,1.014D0,1.53D0,1.97D0,3.0D0,4.0D0,5.0D0,5.5D0/
+      DATA (SPINX(J), J = 1,11)/0.4047D0,0.4358D0,0.5461D0,0.8521D0 ,1.014D0,1.53D0,1.97D0,3.0D0,4.0D0,5.0D0,5.5D0/
 !
-      DATA (SPINY(J), J = 1,11)/1.73574D0,1.73054D0,1.71896D0 &
-      &,1.70728D0,1.703D0,1.69468D0,1.68763D0,1.6647D0,1.6414D0 &
-      &,1.5978D0,1.5719D0/
+      DATA (SPINY(J), J = 1,11)/1.73574D0,1.73054D0,1.71896D0 ,1.70728D0,1.703D0,1.69468D0,1.68763D0,1.6647D0,1.6414D0 ,1.5978D0,1.5719D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SPINX(1:N)
@@ -3559,53 +3299,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3620,12 +3360,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR CALAL
 !
-      DATA (CALALX(J), J = 1,12)/0.4861D0,0.5893D0,0.6563D0,0.8D0 &
-      &,1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0,4.0D0,4.5D0/
+      DATA (CALALX(J), J = 1,12)/0.4861D0,0.5893D0,0.6563D0,0.8D0 ,1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0,4.0D0,4.5D0/
 !
-      DATA (CALALY(J), J = 1,12)/1.6794D0,1.669D0,1.6647D0,1.6588D0 &
-      &,1.6538D0,1.6463D0,1.6403D0,1.6341D0,1.6266D0,1.6180D0 &
-      &,1.6074D0,1.5952D0/
+      DATA (CALALY(J), J = 1,12)/1.6794D0,1.669D0,1.6647D0,1.6588D0 ,1.6538D0,1.6463D0,1.6403D0,1.6341D0,1.6266D0,1.6180D0 ,1.6074D0,1.5952D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=CALALX(1:N)
@@ -3635,53 +3372,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3696,13 +3433,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR B270
 !
-      DATA (B270X(J), J = 1,8)/&
-      &0.4358343D0,0.4799914D0,0.4861327D0 &
-      &,0.5460740D0,0.5875618D0,0.5892938D0,0.6438469D0,0.6562725D0/
+      DATA (B270X(J), J = 1,8)/0.4358343D0,0.4799914D0,0.4861327D0 ,0.5460740D0,0.5875618D0,0.5892938D0,0.6438469D0,0.6562725D0/
 !
-      DATA (B270Y(J), J = 1,8)/&
-      &1.534D0,1.5297D0,1.5292D0,1.5251D0 &
-      &,1.523D0,1.5229D0,1.5207D0,1.5202D0/
+      DATA (B270Y(J), J = 1,8)/1.534D0,1.5297D0,1.5292D0,1.5251D0 ,1.523D0,1.5229D0,1.5207D0,1.5202D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=B270X(1:N)
@@ -3712,53 +3445,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3773,13 +3506,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG2
 !
-      DATA (IRG2X(J), J = 1,18)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
+      DATA (IRG2X(J), J = 1,18)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
 !
-      DATA (IRG2Y(J), J = 1,18)/1.9750D0,1.9462D0,1.9147D0,1.9129D0 &
-      &,1.8988D0,1.8918D0,1.8845D0,1.8832D0,1.8785D0,1.8692D0,1.8630D0 &
-      &,1.8526D0,1.8464D0,1.8414D0,1.8362D0,1.8253D0,1.8041D0,1.7954D0/
+      DATA (IRG2Y(J), J = 1,18)/1.9750D0,1.9462D0,1.9147D0,1.9129D0 ,1.8988D0,1.8918D0,1.8845D0,1.8832D0,1.8785D0,1.8692D0,1.8630D0 ,1.8526D0,1.8464D0,1.8414D0,1.8362D0,1.8253D0,1.8041D0,1.7954D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRG2X(1:N)
@@ -3789,53 +3518,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3850,13 +3579,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG3
 !
-      DATA (IRG3X(J), J = 1,17)/0.4047D0,0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
+      DATA (IRG3X(J), J = 1,17)/0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
 !
-      DATA (IRG3Y(J), J = 1,17)/1.8925D0,1.8649D0,1.8633D0,1.8510D0 &
-      &,1.8449D0,1.8385D0,1.8373D0,1.8331D0,1.8249D0,1.8193D0,1.8089D0 &
-      &,1.8021D0,1.7963D0,1.7900D0,1.7764D0,1.7491D0,1.7375D0/
+      DATA (IRG3Y(J), J = 1,17)/1.8925D0,1.8649D0,1.8633D0,1.8510D0 ,1.8449D0,1.8385D0,1.8373D0,1.8331D0,1.8249D0,1.8193D0,1.8089D0 ,1.8021D0,1.7963D0,1.7900D0,1.7764D0,1.7491D0,1.7375D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRG3X(1:N)
@@ -3866,53 +3591,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -3927,13 +3652,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRGN6
 !
-      DATA (IRGN6X(J), J = 1,16)/0.4047D0,0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0/
+      DATA (IRGN6X(J), J = 1,16)/0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0/
 !
-      DATA (IRGN6Y(J), J = 1,16)/1.6069D0,1.5971D0,1.5965D0,1.5915D0 &
-      &,1.5892D0,1.5863D0,1.5857D0,1.5842D0,1.5807D0,1.5777D0,1.5716D0 &
-      &,1.5667D0,1.5620D0,1.5567D0,1.5451D0,1.5209D0/
+      DATA (IRGN6Y(J), J = 1,16)/1.6069D0,1.5971D0,1.5965D0,1.5915D0 ,1.5892D0,1.5863D0,1.5857D0,1.5842D0,1.5807D0,1.5777D0,1.5716D0 ,1.5667D0,1.5620D0,1.5567D0,1.5451D0,1.5209D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRGN6X(1:N)
@@ -3943,53 +3664,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4004,13 +3725,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG7
 !
-      DATA (IRG7X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
+      DATA (IRG7X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
 !
-      DATA (IRG7Y(J), J = 1,16)/1.5983D0,1.5871D0,1.5743D0,1.5735D0 &
-      &,1.5675D0,1.5644D0,1.5612D0,1.5606D0,1.5585D0,1.5541D0,1.5509D0 &
-      &,1.5442D0,1.5389D0,1.5341D0,1.5286D0,1.5164D0/
+      DATA (IRG7Y(J), J = 1,16)/1.5983D0,1.5871D0,1.5743D0,1.5735D0 ,1.5675D0,1.5644D0,1.5612D0,1.5606D0,1.5585D0,1.5541D0,1.5509D0 ,1.5442D0,1.5389D0,1.5341D0,1.5286D0,1.5164D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRG7X(1:N)
@@ -4020,53 +3737,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4081,13 +3798,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG9
 !
-      DATA (IRG9X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
+      DATA (IRG9X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
 !
-      DATA (IRG9Y(J), J = 1,16)/1.5005D0,1.4961D0,1.4905D0,1.4902D0 &
-      &,1.4875D0,1.4861D0,1.4845D0,1.4842D0,1.4832D0,1.4810D0,1.4793D0 &
-      &,1.4755D0,1.4722D0,1.4692D0,1.4658D0,1.4583D0/
+      DATA (IRG9Y(J), J = 1,16)/1.5005D0,1.4961D0,1.4905D0,1.4902D0 ,1.4875D0,1.4861D0,1.4845D0,1.4842D0,1.4832D0,1.4810D0,1.4793D0 ,1.4755D0,1.4722D0,1.4692D0,1.4658D0,1.4583D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRG9X(1:N)
@@ -4097,53 +3810,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4158,13 +3871,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG11
 !
-      DATA (IRG11X(J), J = 1,16)/0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
+      DATA (IRG11X(J), J = 1,16)/0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
 !
-      DATA (IRG11Y(J), J = 1,16)/1.6926D0,1.6917D0,1.6845D0,1.6809D0 &
-      &,1.6770D0,1.6763D0,1.6741D0,1.6686D0,1.6650D0,1.6581D0,1.6532D0 &
-      &,1.6491D0,1.6445D0,1.6349D0,1.6158D0,1.6077D0/
+      DATA (IRG11Y(J), J = 1,16)/1.6926D0,1.6917D0,1.6845D0,1.6809D0 ,1.6770D0,1.6763D0,1.6741D0,1.6686D0,1.6650D0,1.6581D0,1.6532D0 ,1.6491D0,1.6445D0,1.6349D0,1.6158D0,1.6077D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRG11X(1:N)
@@ -4174,53 +3883,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4235,13 +3944,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR IRG15
 !
-      DATA (IRG15X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-      &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-      &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
+      DATA (IRG15X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
 !
-      DATA (IRG15Y(J), J = 1,16)/1.5883D0,1.5506D0,1.5415D0,1.5410D0 &
-      &,1.5366D0,1.5343D0,1.5318D0,1.5314D0,1.5297D0,1.5263D0,1.5237D0 &
-      &,1.5179D0,1.5131D0,1.5086D0,1.5038D0,1.4924D0/
+      DATA (IRG15Y(J), J = 1,16)/1.5883D0,1.5506D0,1.5415D0,1.5410D0 ,1.5366D0,1.5343D0,1.5318D0,1.5314D0,1.5297D0,1.5263D0,1.5237D0 ,1.5179D0,1.5131D0,1.5086D0,1.5038D0,1.4924D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRG15X(1:N)
@@ -4251,53 +3956,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4307,71 +4012,71 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE VAC GLASS
       A=28.79D-5
       B=5.67D-5
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         LA1=LM1(A,B,SYSTEM(1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         LA1=LM1(A,B,sys_wavelength(1))
          LA1=1.0D0+LA1
          call set_surf_refractive_index(I, 1, 1.0D0/LA1)
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         LA2=LM1(A,B,SYSTEM(2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         LA2=LM1(A,B,sys_wavelength(2))
          LA2=1.0D0+LA2
          call set_surf_refractive_index(I, 2, 1.0D0/LA2)
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         LA3=LM1(A,B,SYSTEM(3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         LA3=LM1(A,B,sys_wavelength(3))
          LA3=1.0D0+LA3
          call set_surf_refractive_index(I, 3, 1.0D0/LA3)
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         LA4=LM1(A,B,SYSTEM(4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         LA4=LM1(A,B,sys_wavelength(4))
          LA4=1.0D0+LA4
          call set_surf_refractive_index(I, 4, 1.0D0/LA4)
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         LA5=LM1(A,B,SYSTEM(5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         LA5=LM1(A,B,sys_wavelength(5))
          LA5=1.0D0+LA5
          call set_surf_refractive_index(I, 5, 1.0D0/LA5)
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         LA5=LM1(A,B,SYSTEM(71))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         LA5=LM1(A,B,sys_wavelength(6))
          LA5=1.0D0+LA5
          call set_surf_refractive_index(I, 6, 1.0D0/LA5)
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         LA5=LM1(A,B,SYSTEM(72))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         LA5=LM1(A,B,sys_wavelength(7))
          LA5=1.0D0+LA5
          call set_surf_refractive_index(I, 7, 1.0D0/LA5)
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         LA5=LM1(A,B,SYSTEM(73))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         LA5=LM1(A,B,sys_wavelength(8))
          LA5=1.0D0+LA5
          call set_surf_refractive_index(I, 8, 1.0D0/LA5)
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         LA5=LM1(A,B,SYSTEM(74))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         LA5=LM1(A,B,sys_wavelength(9))
          LA5=1.0D0+LA5
          call set_surf_refractive_index(I, 9, 1.0D0/LA5)
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         LA5=LM1(A,B,SYSTEM(75))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         LA5=LM1(A,B,sys_wavelength(10))
          LA5=1.0D0+LA5
          call set_surf_refractive_index(I, 10, 1.0D0/LA5)
       ELSE
@@ -4388,15 +4093,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR H2O
 !
-      DATA (H2OX(J), J = 1,21)/0.1829D0,0.20255D0,0.25020D0,0.30822D0,&
-      &0.35871D0,0.40466D0,0.44715D0,0.50157D0,0.54607D0,0.58926D0,&
-      &0.65628D0,0.70652D0,0.76820D0,0.808D0,0.871D0,0.943D0,1.028D0,&
-      &1.130D0,1.256D0,1.617D0,1.968/
+      DATA (H2OX(J), J = 1,21)/0.1829D0,0.20255D0,0.25020D0,0.30822D0,0.35871D0,0.40466D0,0.44715D0,0.50157D0,0.54607D0,0.58926D0,0.65628D0,0.70652D0,0.76820D0,0.808D0,0.871D0,0.943D0,1.028D0,1.130D0,1.256D0,1.617D0,1.968/
 !
-      DATA (H2OY(J), J = 1,21)/1.46379D0,1.41993D0,1.37734D0,1.35671D0,&
-      &1.34795D0,1.342724D0,1.339423D0,1.336363D0,1.334466D0,1.332988D0,&
-      &1.331151D0,1.330019D0,1.32890D0,1.3286D0,1.3273D0,1.3262D0,&
-      &1.3250D0,1.3234D0,1.3215D0,1.3149D0,1.3078D0/
+      DATA (H2OY(J), J = 1,21)/1.46379D0,1.41993D0,1.37734D0,1.35671D0,1.34795D0,1.342724D0,1.339423D0,1.336363D0,1.334466D0,1.332988D0,1.331151D0,1.330019D0,1.32890D0,1.3286D0,1.3273D0,1.3262D0,1.3250D0,1.3234D0,1.3215D0,1.3149D0,1.3078D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=H2OX(1:N)
@@ -4406,53 +4105,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4467,26 +4166,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR SUPRASIL
 !
-      DATA (SUPX(J), J = 1,60)/0.19D0,0.20D0,0.21D0,0.22D0,&
-      &0.23D0,0.24D0,0.25D0,0.26D0,0.27D0,0.28D0,&
-      &0.29D0,0.30D0,0.32D0,0.34D0,0.36D0,0.36548D0,0.38D0,&
-      &0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,&
-      &0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,&
-      &0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,&
-      &1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,&
-      &2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
+      DATA (SUPX(J), J = 1,60)/0.19D0,0.20D0,0.21D0,0.22D0,0.23D0,0.24D0,0.25D0,0.26D0,0.27D0,0.28D0,0.29D0,0.30D0,0.32D0,0.34D0,0.36D0,0.36548D0,0.38D0,0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
 !
-      DATA (SUPY(J), J = 1,60)/&
-      &1.56572D0,1.55051D0,1.53836D0,1.52845D0,1.52024D0,1.51333D0,&
-      &1.50745D0,1.50239D0,1.49800D0,1.49416D0,1.49079D0,1.48779D0,&
-      &1.48274D0,1.47865D0,1.47529D0,1.47447D0,1.47248D0,1.47012D0,&
-      &1.46962D0,1.46669D0,1.46557D0,1.46313D0,1.46233D0,1.46008D0,&
-      &1.45991D0,1.45846D0,1.45804D0,1.45653D0,1.45637D0,1.45529D0,&
-      &1.45424D0,1.45332D0,1.45250D0,1.45175D0,1.45042D0,1.44920D0,&
-      &1.44805D0,1.44692D0,1.44758D0,1.44462D0,1.44342D0,1.44217D0,&
-      &1.44087D0,1.43951D0,1.43809D0,1.43659D0,1.43501D0,1.43336D0,&
-      &1.43163D0,1.42980D0,1.42789D0,1.42588D0,1.42377D0,1.42156D0,&
-      &1.41925D0,1.41682D0,1.41427D0,1.41161D0,1.40881D0,1.40589D0/
+      DATA (SUPY(J), J = 1,60)/1.56572D0,1.55051D0,1.53836D0,1.52845D0,1.52024D0,1.51333D0,1.50745D0,1.50239D0,1.49800D0,1.49416D0,1.49079D0,1.48779D0,1.48274D0,1.47865D0,1.47529D0,1.47447D0,1.47248D0,1.47012D0,1.46962D0,1.46669D0,1.46557D0,1.46313D0,1.46233D0,1.46008D0,1.45991D0,1.45846D0,1.45804D0,1.45653D0,1.45637D0,1.45529D0,1.45424D0,1.45332D0,1.45250D0,1.45175D0,1.45042D0,1.44920D0,1.44805D0,1.44692D0,1.44758D0,1.44462D0,1.44342D0,1.44217D0,1.44087D0,1.43951D0,1.43809D0,1.43659D0,1.43501D0,1.43336D0,1.43163D0,1.42980D0,1.42789D0,1.42588D0,1.42377D0,1.42156D0,1.41925D0,1.41682D0,1.41427D0,1.41161D0,1.40881D0,1.40589D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SUPX(1:N)
@@ -4496,53 +4178,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4557,23 +4239,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR SUPRASIL
 !
-      DATA (HOMOX(J), J = 1,47)/&
-      &0.34D0,0.36D0,0.36548D0,0.38D0,&
-      &0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,&
-      &0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,&
-      &0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,&
-      &1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,&
-      &2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
+      DATA (HOMOX(J), J = 1,47)/0.34D0,0.36D0,0.36548D0,0.38D0,0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
 !
-      DATA (HOMOY(J), J = 1,47)/1.47881D0,1.47544D0,1.47462D0,&
-      &1.47262D0,1.47025D0,1.46975D0,1.46681D0,1.46568D0,1.46324D0,&
-      &1.46243D0,1.46018D0,1.46001D0,1.45856D0,1.45814D0,1.45663D0,&
-      &1.45646D0,1.45539D0,1.45433D0,1.45341D0,1.45259D0,1.45185D0,&
-      &1.45051D0,1.44930D0,1.44815D0,1.44702D0,1.44589D0,1.44473D0,&
-      &1.44353D0,1.44229D0,1.44099D0,1.43964D0,1.43821D0,1.43672D0,&
-      &1.43515D0,1.43350D0,1.43177D0,1.42995D0,1.42804D0,1.42604D0,&
-      &1.42393D0,1.42172D0,1.41941D0,1.41698D0,1.41444D0,1.41177D0,&
-      &1.40897D0,1.40605D0/
+      DATA (HOMOY(J), J = 1,47)/1.47881D0,1.47544D0,1.47462D0,1.47262D0,1.47025D0,1.46975D0,1.46681D0,1.46568D0,1.46324D0,1.46243D0,1.46018D0,1.46001D0,1.45856D0,1.45814D0,1.45663D0,1.45646D0,1.45539D0,1.45433D0,1.45341D0,1.45259D0,1.45185D0,1.45051D0,1.44930D0,1.44815D0,1.44702D0,1.44589D0,1.44473D0,1.44353D0,1.44229D0,1.44099D0,1.43964D0,1.43821D0,1.43672D0,1.43515D0,1.43350D0,1.43177D0,1.42995D0,1.42804D0,1.42604D0,1.42393D0,1.42172D0,1.41941D0,1.41698D0,1.41444D0,1.41177D0,1.40897D0,1.40605D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=HOMOX(1:N)
@@ -4583,53 +4251,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4644,25 +4312,9 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     DATA FOR ZNS-MS
 !
-      DATA (ZNSMSX(J), J = 1,59)/&
-      &0.42D0,0.46D0,0.50D0,0.54D0,0.58D0,0.62D0,0.66D0,0.70D0,&
-      &0.74D0,0.78D0,0.82D0,0.86D0,0.90D0,0.94D0,0.98D0,1.00D0,&
-      &1.40D0,1.80D0,2.20D0,2.60D0,3.00D0,3.40D0,3.80D0,4.20D0,&
-      &4.60D0,5.00D0,5.40D0,5.80D0,6.20D0,6.60D0,7.00D0,7.40D0,&
-      &7.80D0,8.20D0,8.60D0,9.00D0,9.40D0,9.80D0,10.20D0,10.60D0,&
-      &11.00D0,11.40D0,11.80D0,12.20D0,12.60D0,13.0D0,13.40D0,13.80D0,&
-      &14.20D0,14.60D0,15.00D0,15.40D0,15.80D0,16.2D0,16.60D0,17.00D0,&
-      &17.40D0,17.80D0,18.20D0/
+      DATA (ZNSMSX(J), J = 1,59)/0.42D0,0.46D0,0.50D0,0.54D0,0.58D0,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0,0.94D0,0.98D0,1.00D0,1.40D0,1.80D0,2.20D0,2.60D0,3.00D0,3.40D0,3.80D0,4.20D0,4.60D0,5.00D0,5.40D0,5.80D0,6.20D0,6.60D0,7.00D0,7.40D0,7.80D0,8.20D0,8.60D0,9.00D0,9.40D0,9.80D0,10.20D0,10.60D0,11.00D0,11.40D0,11.80D0,12.20D0,12.60D0,13.0D0,13.40D0,13.80D0,14.20D0,14.60D0,15.00D0,15.40D0,15.80D0,16.2D0,16.60D0,17.00D0,17.40D0,17.80D0,18.20D0/
 !
-      DATA (ZNSMSY(J), J = 1,59)/&
-      &2.516D0,2.458D0,2.419D0,2.391D0,2.371D0,2.355D0,2.342D0,2.332D0,&
-      &2.323D0,2.316D0,2.310D0,2.305D0,2.301D0,2.297D0,2.294D0,2.292D0,&
-      &2.275D0,2.267D0,2.263D0,2.260D0,2.257D0,2.255D0,2.253D0,2.251D0,&
-      &2.248D0,2.246D0,2.244D0,2.241D0,2.238D0,2.235D0,2.232D0,2.228D0,&
-      &2.225D0,2.221D0,2.217D0,2.212D0,2.208D0,2.203D0,2.198D0,2.192D0,&
-      &2.186D0,2.180D0,2.173D0,2.167D0,2.159D0,2.152D0,2.143D0,2.135D0,&
-      &2.126D0,2.116D0,2.106D0,2.095D0,2.084D0,2.072D0,2.059D0,2.045D0,&
-      &2.030D0,2.015D0,1.998D0/
+      DATA (ZNSMSY(J), J = 1,59)/2.516D0,2.458D0,2.419D0,2.391D0,2.371D0,2.355D0,2.342D0,2.332D0,2.323D0,2.316D0,2.310D0,2.305D0,2.301D0,2.297D0,2.294D0,2.292D0,2.275D0,2.267D0,2.263D0,2.260D0,2.257D0,2.255D0,2.253D0,2.251D0,2.248D0,2.246D0,2.244D0,2.241D0,2.238D0,2.235D0,2.232D0,2.228D0,2.225D0,2.221D0,2.217D0,2.212D0,2.208D0,2.203D0,2.198D0,2.192D0,2.186D0,2.180D0,2.173D0,2.167D0,2.159D0,2.152D0,2.143D0,2.135D0,2.126D0,2.116D0,2.106D0,2.095D0,2.084D0,2.072D0,2.059D0,2.045D0,2.030D0,2.015D0,1.998D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ZNSMSX(1:N)
@@ -4672,53 +4324,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4729,73 +4381,73 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE CEF3
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(1)-2.0D0))+1.59D0)
-         IF(SYSTEM(1).LE.0.55D0) call set_surf_refractive_index(I, 1, 1.63D0)
-         IF(SYSTEM(1).GE.2.00D0) call set_surf_refractive_index(I, 1, 1.59D0)
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(1)-2.0D0))+1.59D0)
+         IF(sys_wavelength(1).LE.0.55D0) call set_surf_refractive_index(I, 1, 1.63D0)
+         IF(sys_wavelength(1).GE.2.00D0) call set_surf_refractive_index(I, 1, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(2)-2.0D0))+1.59D0)
-         IF(SYSTEM(2).LE.0.55D0) call set_surf_refractive_index(I, 2, 1.63D0)
-         IF(SYSTEM(2).GE.2.00D0) call set_surf_refractive_index(I, 2, 1.59D0)
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(2)-2.0D0))+1.59D0)
+         IF(sys_wavelength(2).LE.0.55D0) call set_surf_refractive_index(I, 2, 1.63D0)
+         IF(sys_wavelength(2).GE.2.00D0) call set_surf_refractive_index(I, 2, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(3)-2.0D0))+1.59D0)
-         IF(SYSTEM(3).LE.0.55D0) call set_surf_refractive_index(I, 3, 1.63D0)
-         IF(SYSTEM(3).GE.2.00D0) call set_surf_refractive_index(I, 3, 1.59D0)
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(3)-2.0D0))+1.59D0)
+         IF(sys_wavelength(3).LE.0.55D0) call set_surf_refractive_index(I, 3, 1.63D0)
+         IF(sys_wavelength(3).GE.2.00D0) call set_surf_refractive_index(I, 3, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(4)-2.0D0))+1.59D0)
-         IF(SYSTEM(4).LE.0.55D0) call set_surf_refractive_index(I, 4, 1.63D0)
-         IF(SYSTEM(4).GE.2.00D0) call set_surf_refractive_index(I, 4, 1.59D0)
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(4)-2.0D0))+1.59D0)
+         IF(sys_wavelength(4).LE.0.55D0) call set_surf_refractive_index(I, 4, 1.63D0)
+         IF(sys_wavelength(4).GE.2.00D0) call set_surf_refractive_index(I, 4, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(5)-2.0D0))+1.59D0)
-         IF(SYSTEM(5).LE.0.55D0) call set_surf_refractive_index(I, 5, 1.63D0)
-         IF(SYSTEM(5).GE.2.00D0) call set_surf_refractive_index(I, 5, 1.59D0)
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(5)-2.0D0))+1.59D0)
+         IF(sys_wavelength(5).LE.0.55D0) call set_surf_refractive_index(I, 5, 1.63D0)
+         IF(sys_wavelength(5).GE.2.00D0) call set_surf_refractive_index(I, 5, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(71)-2.0D0))+1.590)
-         IF(SYSTEM(71).LE.0.55D0) call set_surf_refractive_index(I, 6, 1.63D0)
-         IF(SYSTEM(71).GE.2.00D0) call set_surf_refractive_index(I, 6, 1.59D0)
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(6)-2.0D0))+1.590)
+         IF(sys_wavelength(6).LE.0.55D0) call set_surf_refractive_index(I, 6, 1.63D0)
+         IF(sys_wavelength(6).GE.2.00D0) call set_surf_refractive_index(I, 6, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(72)-2.0D0))+1.590)
-         IF(SYSTEM(72).LE.0.55D0) call set_surf_refractive_index(I, 7, 1.63D0)
-         IF(SYSTEM(72).GE.2.00D0) call set_surf_refractive_index(I, 7, 1.59D0)
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(7)-2.0D0))+1.590)
+         IF(sys_wavelength(7).LE.0.55D0) call set_surf_refractive_index(I, 7, 1.63D0)
+         IF(sys_wavelength(7).GE.2.00D0) call set_surf_refractive_index(I, 7, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(73)-2.0D0))+1.590)
-         IF(SYSTEM(73).LE.0.55D0) call set_surf_refractive_index(I, 8, 1.63D0)
-         IF(SYSTEM(73).GE.2.00D0) call set_surf_refractive_index(I, 8, 1.59D0)
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(8)-2.0D0))+1.590)
+         IF(sys_wavelength(8).LE.0.55D0) call set_surf_refractive_index(I, 8, 1.63D0)
+         IF(sys_wavelength(8).GE.2.00D0) call set_surf_refractive_index(I, 8, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(74)-2.0D0))+1.590)
-         IF(SYSTEM(74).LE.0.55D0) call set_surf_refractive_index(I, 9, 1.63D0)
-         IF(SYSTEM(74).GE.2.00D0) call set_surf_refractive_index(I, 9, 1.59D0)
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(9)-2.0D0))+1.590)
+         IF(sys_wavelength(9).LE.0.55D0) call set_surf_refractive_index(I, 9, 1.63D0)
+         IF(sys_wavelength(9).GE.2.00D0) call set_surf_refractive_index(I, 9, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(SYSTEM(75)-2.0D0))+1.590)
-         IF(SYSTEM(75).LE.0.55D0) call set_surf_refractive_index(I, 10, 1.63D0)
-         IF(SYSTEM(75).GE.2.00D0) call set_surf_refractive_index(I, 10, 1.59D0)
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, (((1.63D0-1.59D0)/(0.55D0-2.0D0))*(sys_wavelength(10)-2.0D0))+1.590)
+         IF(sys_wavelength(10).LE.0.55D0) call set_surf_refractive_index(I, 10, 1.63D0)
+         IF(sys_wavelength(10).GE.2.00D0) call set_surf_refractive_index(I, 10, 1.59D0)
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -4805,71 +4457,71 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE LS203
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(1)-2.0D0))+1.86D0)
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(1)-2.0D0))+1.86D0)
          call set_surf_refractive_index(I, 1, 1.95D0)
          call set_surf_refractive_index(I, 1, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(2)-2.0D0))+1.86D0)
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(2)-2.0D0))+1.86D0)
          call set_surf_refractive_index(I, 2, 1.95D0)
          call set_surf_refractive_index(I, 2, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(3)-2.0D0))+1.86D0)
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(3)-2.0D0))+1.86D0)
          call set_surf_refractive_index(I, 3, 1.95D0)
          call set_surf_refractive_index(I, 3, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(4)-2.0D0))+1.86D0)
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(4)-2.0D0))+1.86D0)
          call set_surf_refractive_index(I, 4, 1.95D0)
          call set_surf_refractive_index(I, 4, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(5)-2.0D0))+1.86D0)
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(5)-2.0D0))+1.86D0)
          call set_surf_refractive_index(I, 5, 1.95D0)
          call set_surf_refractive_index(I, 5, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(71)-2.0D0))+1.860)
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(6)-2.0D0))+1.860)
          call set_surf_refractive_index(I, 6, 1.95D0)
          call set_surf_refractive_index(I, 6, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(72)-2.0D0))+1.860)
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(7)-2.0D0))+1.860)
          call set_surf_refractive_index(I, 7, 1.95D0)
          call set_surf_refractive_index(I, 7, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(73)-2.0D0))+1.860)
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(8)-2.0D0))+1.860)
          call set_surf_refractive_index(I, 8, 1.95D0)
          call set_surf_refractive_index(I, 8, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(74)-2.0D0))+1.860)
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(9)-2.0D0))+1.860)
          call set_surf_refractive_index(I, 9, 1.95D0)
          call set_surf_refractive_index(I, 9, 1.86D0)
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(SYSTEM(75)-2.0D0))+1.860)
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, (((1.95D0-1.86D0)/(0.55D0-2.0D0))*(sys_wavelength(10)-2.0D0))+1.860)
          call set_surf_refractive_index(I, 10, 1.95D0)
          call set_surf_refractive_index(I, 10, 1.86D0)
       ELSE
@@ -4881,71 +4533,71 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE THF4
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(1)-.75D0))+1.51D0)
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(1)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 1, 1.52D0)
          call set_surf_refractive_index(I, 1, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(2)-.75D0))+1.51D0)
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(2)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 2, 1.52D0)
          call set_surf_refractive_index(I, 2, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(3)-.75D0))+1.51D0)
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(3)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 3, 1.52D0)
          call set_surf_refractive_index(I, 3, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(4)-.75D0))+1.51D0)
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(4)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 4, 1.52D0)
          call set_surf_refractive_index(I, 4, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(5)-.75D0))+1.51D0)
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(5)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 5, 1.52D0)
          call set_surf_refractive_index(I, 5, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(71)-.75D0))+1.51D0)
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(6)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 6, 1.52D0)
          call set_surf_refractive_index(I, 6, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(72)-.75D0))+1.51D0)
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(7)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 7, 1.52D0)
          call set_surf_refractive_index(I, 7, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(73)-.75D0))+1.51D0)
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(8)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 8, 1.52D0)
          call set_surf_refractive_index(I, 8, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(74)-.75D0))+1.51D0)
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(9)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 9, 1.52D0)
          call set_surf_refractive_index(I, 9, 1.51D0)
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(SYSTEM(75)-.75D0))+1.51D0)
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, (((1.52D0-1.51D0)/(0.40D0-0.75D0))*(sys_wavelength(10)-.75D0))+1.51D0)
          call set_surf_refractive_index(I, 10, 1.52D0)
          call set_surf_refractive_index(I, 10, 1.51D0)
       ELSE
@@ -4957,71 +4609,71 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE ZRO2
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(1)-.75D0))+2.00D0)
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(1)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 1, 2.10D0)
          call set_surf_refractive_index(I, 1, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(2)-.75D0))+2.00D0)
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(2)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 2, 2.10D0)
          call set_surf_refractive_index(I, 2, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(3)-.75D0))+2.00D0)
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(3)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 3, 2.10D0)
          call set_surf_refractive_index(I, 3, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(4)-.75D0))+2.00D0)
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(4)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 4, 2.10D0)
          call set_surf_refractive_index(I, 4, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(5)-.75D0))+2.00D0)
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(5)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 5, 2.10D0)
          call set_surf_refractive_index(I, 5, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(71)-.75D0))+2.00D0)
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(6)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 6, 2.10D0)
          call set_surf_refractive_index(I, 6, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(72)-.75D0))+2.00D0)
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(7)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 7, 2.10D0)
          call set_surf_refractive_index(I, 7, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(73)-.75D0))+2.00D0)
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(8)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 8, 2.10D0)
          call set_surf_refractive_index(I, 8, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(74)-.75D0))+2.00D0)
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(9)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 9, 2.10D0)
          call set_surf_refractive_index(I, 9, 2.00D0)
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(SYSTEM(75)-.75D0))+2.00D0)
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, (((2.10D0-2.00D0)/(0.55D0-2.0D0))*(sys_wavelength(10)-.75D0))+2.00D0)
          call set_surf_refractive_index(I, 10, 2.10D0)
          call set_surf_refractive_index(I, 10, 2.00D0)
       ELSE
@@ -5033,53 +4685,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE THE DIAMOND
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, DIAMOND(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, DIAMOND(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, DIAMOND(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, DIAMOND(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, DIAMOND(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, DIAMOND(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, DIAMOND(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, DIAMOND(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, DIAMOND(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, DIAMOND(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, DIAMOND(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, DIAMOND(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, DIAMOND(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, DIAMOND(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, DIAMOND(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, DIAMOND(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, DIAMOND(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, DIAMOND(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, DIAMOND(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, DIAMOND(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -5088,53 +4740,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !     INTERPOLATE YAG
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 1, YAG(SYSTEM(1)))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 1, YAG(sys_wavelength(1)))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 2, YAG(SYSTEM(2)))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 2, YAG(sys_wavelength(2)))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 3, YAG(SYSTEM(3)))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 3, YAG(sys_wavelength(3)))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 4, YAG(SYSTEM(4)))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 4, YAG(sys_wavelength(4)))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 5, YAG(SYSTEM(5)))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 5, YAG(sys_wavelength(5)))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 6, YAG(SYSTEM(71)))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 6, YAG(sys_wavelength(6)))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 7, YAG(SYSTEM(72)))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 7, YAG(sys_wavelength(7)))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 8, YAG(SYSTEM(73)))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 8, YAG(sys_wavelength(8)))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 9, YAG(SYSTEM(74)))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 9, YAG(sys_wavelength(9)))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         call set_surf_refractive_index(I, 10, YAG(SYSTEM(75)))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call set_surf_refractive_index(I, 10, YAG(sys_wavelength(10)))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -5144,25 +4796,15 @@ SUBROUTINE SPCGLS(I,MTYPE)
 !
 !     PLASTICS
 !
-      DATA (GPLX(J), J = 1,13)/0.36501D0,0.40466D0,0.43484D0 &
-      &,0.47999D0,0.48613D0,0.54607D0,0.58756D0,0.58929D0,0.64385D0 &
-      &,0.65627D0,0.70652D0,0.85211D0,1.01398D0/
+      DATA (GPLX(J), J = 1,13)/0.36501D0,0.40466D0,0.43484D0 ,0.47999D0,0.48613D0,0.54607D0,0.58756D0,0.58929D0,0.64385D0 ,0.65627D0,0.70652D0,0.85211D0,1.01398D0/
 !
-      DATA (GPL1Y(J), J = 1,13)/1.513613D0,1.506607D0,1.502557D0 &
-      &,1.498258D0,1.497760D0,1.493795D0,1.491757D0,1.491681D0 &
-      &,1.489603D0,1.489201D0,1.487552D0,1.484965D0,1.483115D0/
+      DATA (GPL1Y(J), J = 1,13)/1.513613D0,1.506607D0,1.502557D0 ,1.498258D0,1.497760D0,1.493795D0,1.491757D0,1.491681D0 ,1.489603D0,1.489201D0,1.487552D0,1.484965D0,1.483115D0/
 !
-      DATA (GPL2Y(J), J = 1,13)/1.643126D0,1.625341D0,1.615466D0 &
-      &,1.605241D0,1.604079D0,1.595010D0,1.590481D0,1.590315D0 &
-      &,1.585808D0,1.584949D0,1.581954D0,1.576196D0,1.572553D0/
+      DATA (GPL2Y(J), J = 1,13)/1.643126D0,1.625341D0,1.615466D0 ,1.605241D0,1.604079D0,1.595010D0,1.590481D0,1.590315D0 ,1.585808D0,1.584949D0,1.581954D0,1.576196D0,1.572553D0/
 !
-      DATA (GPL3Y(J), J = 1,13)/1.643231D0,1.622447D0,1.611519D0 &
-      &,1.600654D0,1.599439D0,1.590081D0,1.585470D0,1.585302D0 &
-      &,1.580734D0,1.579864D0,1.576831D0,1.570981D0,1.567248D0/
+      DATA (GPL3Y(J), J = 1,13)/1.643231D0,1.622447D0,1.611519D0 ,1.600654D0,1.599439D0,1.590081D0,1.585470D0,1.585302D0 ,1.580734D0,1.579864D0,1.576831D0,1.570981D0,1.567248D0/
 !
-      DATA (GPL4Y(J), J = 1,13)/1.612490D0,1.597075D0,1.588640D0 &
-      &,1.579985D0,1.579000D0,1.571300D0,1.567400D0,1.567298D0 &
-      &,1.563438D0,1.562700D0,1.560119D0,1.555108D0,1.551870D0/
+      DATA (GPL4Y(J), J = 1,13)/1.612490D0,1.597075D0,1.588640D0 ,1.579985D0,1.579000D0,1.571300D0,1.567400D0,1.567298D0 ,1.563438D0,1.562700D0,1.560119D0,1.555108D0,1.551870D0/
 !
       N=13
 !
@@ -5196,53 +4838,53 @@ SUBROUTINE SPCGLS(I,MTYPE)
       CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
       ELSE
          call set_surf_refractive_index(I, 1, 1.0D0)
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
       ELSE
          call set_surf_refractive_index(I, 2, 1.0D0)
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
       ELSE
          call set_surf_refractive_index(I, 3, 1.0D0)
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
       ELSE
          call set_surf_refractive_index(I, 4, 1.0D0)
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
       ELSE
          call set_surf_refractive_index(I, 5, 1.0D0)
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
       ELSE
          call set_surf_refractive_index(I, 6, 1.0D0)
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
       ELSE
          call set_surf_refractive_index(I, 7, 1.0D0)
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
       ELSE
          call set_surf_refractive_index(I, 8, 1.0D0)
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
       ELSE
          call set_surf_refractive_index(I, 9, 1.0D0)
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
       ELSE
          call set_surf_refractive_index(I, 10, 1.0D0)
       END IF
@@ -5253,148 +4895,72 @@ END
 ! SUB SPCGL.FOR
 SUBROUTINE SPCGL(I,MTYPE)
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N
 !
-   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI &
-   &,YPN,YP1,GSCX(1:20),GSCY(1:20),GPCX(1:17),GPCY(1:17)&
-   &,SIL,GPLX(1:13),GPL1Y(1:13),GPL2Y(1:13),VIR3X(1:18),VIR3Y(1:18)&
-   &,GPL3Y(1:13),GPL4Y(1:13),IRGX(1:25),IRGY(1:25),ZNSEX(1:56)&
-   &,ZNSEY(1:56),ZNSX(1:59),ZNSY(1:59),CLRX(1:29),CLRY(1:29)&
-   &,SAPH,FSIL,MGF2O,MGF2E,CAF2,MGO,G9754X(1:43),G9754Y(1:43)&
-   &,AMTR1X(1:17),AMTR1Y(1:17),DYN,BAF2,KBR,CSBR,KRS5 &
-   &,AMTR3X(1:12),AMTR3Y(1:12),AS2S3,ALONX(1:14),ALONY(1:14)&
-   &,GAASX(1:13),GAASY(1:13),CDTEX(1:10),CDTEY(1:10)&
-   &,SPINX(1:11),SPINY(1:11),CALALX(1:12),CALALY(1:12)&
-   &,DUMA,DUMB,DUML,ZNSMSX(1:59),ZNSMSY(1:59),YAG
+   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI ,YPN,YP1,GSCX(1:20),GSCY(1:20),GPCX(1:17),GPCY(1:17),SIL,GPLX(1:13),GPL1Y(1:13),GPL2Y(1:13),VIR3X(1:18),VIR3Y(1:18),GPL3Y(1:13),GPL4Y(1:13),IRGX(1:25),IRGY(1:25),ZNSEX(1:56),ZNSEY(1:56),ZNSX(1:59),ZNSY(1:59),CLRX(1:29),CLRY(1:29),SAPH,FSIL,MGF2O,MGF2E,CAF2,MGO,G9754X(1:43),G9754Y(1:43),AMTR1X(1:17),AMTR1Y(1:17),DYN,BAF2,KBR,CSBR,KRS5 ,AMTR3X(1:12),AMTR3Y(1:12),AS2S3,ALONX(1:14),ALONY(1:14),GAASX(1:13),GAASY(1:13),CDTEX(1:10),CDTEY(1:10),SPINX(1:11),SPINY(1:11),CALALX(1:12),CALALY(1:12),DUMA,DUMB,DUML,ZNSMSX(1:59),ZNSMSY(1:59),YAG
 !
-   REAL*8 SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20)&
-   &,SIO2EY(1:20),LIF,NACLX(1:60),NACLY(1:60),DIAMOND &
-   &,B270X(1:8),B270Y(1:8),LM1,LA1,LA2,LA3,LA4,LA5,A,B,H2OX(1:21)&
-   &,H2OY(1:21),SUPX(1:60),SUPY(1:60),HOMOX(1:47),HOMOY(1:47)&
-   &,IRG2X(1:18),IRG2Y(1:18),IRG3X(1:17),IRG3Y(1:17),IRGN6X(1:16)&
-   &,IRGN6Y(1:16),IRG7X(1:16),IRG7Y(1:16),IRG9X(1:16),IRG9Y(1:16)&
-   &,IRG11X(1:16),IRG11Y(1:16),IRG15X(1:16),IRG15Y(1:16)
+   REAL*8 SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20),SIO2EY(1:20),LIF,NACLX(1:60),NACLY(1:60),DIAMOND ,B270X(1:8),B270Y(1:8),LM1,LA1,LA2,LA3,LA4,LA5,A,B,H2OX(1:21),H2OY(1:21),SUPX(1:60),SUPY(1:60),HOMOX(1:47),HOMOY(1:47),IRG2X(1:18),IRG2Y(1:18),IRG3X(1:17),IRG3Y(1:17),IRGN6X(1:16),IRGN6Y(1:16),IRG7X(1:16),IRG7Y(1:16),IRG9X(1:16),IRG9Y(1:16),IRG11X(1:16),IRG11Y(1:16),IRG15X(1:16),IRG15Y(1:16)
 !
 !
 !     VACUME
    LM1(DUMA,DUMB,DUML)=DUMA*(1.0D0+(DUMB/(DUML**2)))
 !
 !     SILICA/SIO2 INTERPOLATION FORMULA (HANDBOOK OF OPTICS 11/14/2000)
-   FSIL(LA)=DSQRT(1.0D0+&
-   &((0.6961663*(LA**2))/((LA**2)-((0.0684043)**2)))+&
-   &((0.4079426*(LA**2))/((LA**2)-((0.1162414)**2)))+&
-   &((0.8974794*(LA**2))/((LA**2)-((9.896161)**2)))&
-   &)
+   FSIL(LA)=DSQRT(1.0D0+((0.6961663*(LA**2))/((LA**2)-((0.0684043)**2)))+((0.4079426*(LA**2))/((LA**2)-((0.1162414)**2)))+((0.8974794*(LA**2))/((LA**2)-((9.896161)**2))))
 
 !
 !     DIAMOND INTERPOLATION FORMULA
-   DIAMOND(LA)=&
-   &2.37837D0+&
-   &((1.18897E-2)*(1.0D0/((LA**2)-0.028D0)))+&
-   &((-1.0083E-4)*((1.0D0/((LA**2)-0.028D0))**2))+&
-   &((-2.3676E-5)*(LA**2))+&
-   &((3.24263E-8)*(LA**4))
+   DIAMOND(LA)=2.37837D0+((1.18897E-2)*(1.0D0/((LA**2)-0.028D0)))+((-1.0083E-4)*((1.0D0/((LA**2)-0.028D0))**2))+((-2.3676E-5)*(LA**2))+((3.24263E-8)*(LA**4))
 !
 !     LiF INTERPOLATION FORMULA
-   LIF(LA)=&
-   &1.38761D0+(0.001796D0/((LA**2)-0.028D0))&
-   &+(0.000041D0/(((LA**2)-0.028D0)**2))-(0.0023045D0*(LA**2))&
-   &-(0.00000557D0*(LA**4))
+   LIF(LA)=1.38761D0+(0.001796D0/((LA**2)-0.028D0))+(0.000041D0/(((LA**2)-0.028D0)**2))-(0.0023045D0*(LA**2))-(0.00000557D0*(LA**4))
 !
 !     SILICON INTERPOLATION FORMULA
-   SIL(LA)=&
-   &3.41696D0+(0.138497D0/((LA**2)-0.028D0))&
-   &+(0.013924D0/(((LA**2)-0.028D0)**2))-(0.0000209D0*(LA**2))&
-   &+(0.000000148D0*(LA**4))
+   SIL(LA)=3.41696D0+(0.138497D0/((LA**2)-0.028D0))+(0.013924D0/(((LA**2)-0.028D0)**2))-(0.0000209D0*(LA**2))+(0.000000148D0*(LA**4))
 !
 !     KBr INTERPOLATION FORMULA
-   KBR(LA)=DSQRT(&
-   &2.361323D0-(3.11497D-4*(LA**2))-(5.8613D-8*(LA**4))+&
-   &(0.007676D0/(LA**2))+(0.0156569D0/((LA**2)-0.0324D0)))
+   KBR(LA)=DSQRT(2.361323D0-(3.11497D-4*(LA**2))-(5.8613D-8*(LA**4))+(0.007676D0/(LA**2))+(0.0156569D0/((LA**2)-0.0324D0)))
 !
 !     CsBr INTERPOLATION FORMULA
-   CSBR(LA)=DSQRT(&
-   &5.640752D0-(3.338D-6*(LA**2))+&
-   &(0.0018612D0/(LA**2))+(41110.49D0/((LA**2)-14390.4D0))&
-   &+(0.0290764D0/((LA**2)-0.024964D0)))
+   CSBR(LA)=DSQRT(5.640752D0-(3.338D-6*(LA**2))+(0.0018612D0/(LA**2))+(41110.49D0/((LA**2)-14390.4D0))+(0.0290764D0/((LA**2)-0.024964D0)))
 !
 !     MGO INTERPOLATION FORMULA
-   MGO(LA)=DSQRT(&
-   &2.956362D0-(0.01062387D0*(LA**2))-(0.0000204968D0*(LA**4))-&
-   &(0.02195770/((LA**2)-0.01428322D0)))
+   MGO(LA)=DSQRT(2.956362D0-(0.01062387D0*(LA**2))-(0.0000204968D0*(LA**4))-(0.02195770/((LA**2)-0.01428322D0)))
 !
 !     DYNASIL INTERPOLATION FORMULA
-   DYN(LA)=DSQRT(&
-   &((0.6961663D0*(LA**2))/((LA**2)-((0.0684043D0)**2)))+&
-   &((0.4079426D0*(LA**2))/((LA**2)-((0.1162414D0)**2)))+&
-   &((0.8974794D0*(LA**2))/((LA**2)-((9.896161D0)**2)))+1.0D0)
+   DYN(LA)=DSQRT(((0.6961663D0*(LA**2))/((LA**2)-((0.0684043D0)**2)))+((0.4079426D0*(LA**2))/((LA**2)-((0.1162414D0)**2)))+((0.8974794D0*(LA**2))/((LA**2)-((9.896161D0)**2)))+1.0D0)
 !
 !     SAPPHIRE INTERPOLATION FORMULA
-   SAPH(LA)=DSQRT(&
-   &((1.023798D0*(LA**2))/((LA**2)-(0.00377588D0)))+&
-   &((1.058264D0*(LA**2))/((LA**2)-(0.01225440D0)))+&
-   &((5.280792D0*(LA**2))/((LA**2)-(321.361600D0)))+1.0D0)
+   SAPH(LA)=DSQRT(((1.023798D0*(LA**2))/((LA**2)-(0.00377588D0)))+((1.058264D0*(LA**2))/((LA**2)-(0.01225440D0)))+((5.280792D0*(LA**2))/((LA**2)-(321.361600D0)))+1.0D0)
 !
 !     YAG INTERPOLATION FORMULA
-   YAG(LA)=DSQRT(&
-   &((2.293D0*(LA**2))/((LA**2)-(0.1095D0**2)))+&
-   &((3.705D0*(LA**2))/((LA**2)-(17.825D0**2)))+1.0D0)
+   YAG(LA)=DSQRT(((2.293D0*(LA**2))/((LA**2)-(0.1095D0**2)))+((3.705D0*(LA**2))/((LA**2)-(17.825D0**2)))+1.0D0)
 !
 !     CSI INTERPOLATION FORMULA
-   CSI(LA)=DSQRT(&
-   &((0.34617251D0*(LA**2))/((LA**2)-0.00052701D0))+&
-   &((1.0080886D0*(LA**2))/((LA**2)-0.02149156D0))+&
-   &((0.28551800D0*(LA**2))/((LA**2)-0.032761D0))+&
-   &((0.39743178D0*(LA**2))/((LA**2)-0.044944D0))+&
-   &((3.3605359D0*(LA**2))/((LA**2)-25621.0D0))+1.0D0)
+   CSI(LA)=DSQRT(((0.34617251D0*(LA**2))/((LA**2)-0.00052701D0))+((1.0080886D0*(LA**2))/((LA**2)-0.02149156D0))+((0.28551800D0*(LA**2))/((LA**2)-0.032761D0))+((0.39743178D0*(LA**2))/((LA**2)-0.044944D0))+((3.3605359D0*(LA**2))/((LA**2)-25621.0D0))+1.0D0)
 !
 !     KRS5 INTERPOLATION FORMULA
-   KRS5(LA)=DSQRT(&
-   &((1.8293958D0*(LA**2))/((LA**2)-(0.0225D0**2)))+&
-   &((1.6675593D0*(LA**2))/((LA**2)-(0.0625D0**2)))+&
-   &((1.1210424D0*(LA**2))/((LA**2)-(0.1225D0**2)))+&
-   &((0.04513366D0*(LA**2))/((LA**2)-(0.2025D0**2)))+&
-   &((12.380234D0*(LA**2))/((LA**2)-(27089.737D0**2)))+1.0D0)
+   KRS5(LA)=DSQRT(((1.8293958D0*(LA**2))/((LA**2)-(0.0225D0**2)))+((1.6675593D0*(LA**2))/((LA**2)-(0.0625D0**2)))+((1.1210424D0*(LA**2))/((LA**2)-(0.1225D0**2)))+((0.04513366D0*(LA**2))/((LA**2)-(0.2025D0**2)))+((12.380234D0*(LA**2))/((LA**2)-(27089.737D0**2)))+1.0D0)
 !
 !     As2S3 INTERPOLATION FORMULA
-   AS2S3(LA)=DSQRT(&
-   &((1.8983678D0*(LA**2))/((LA**2)-(0.15D0**2)))+&
-   &((1.9222979D0*(LA**2))/((LA**2)-(0.25D0**2)))+&
-   &((0.8765134D0*(LA**2))/((LA**2)-(0.350D0**2)))+&
-   &((0.1188704D0*(LA**2))/((LA**2)-(0.450D0**2)))+&
-   &((0.9569903D0*(LA**2))/((LA**2)-(27.3861D0**2)))+1.0D0)
+   AS2S3(LA)=DSQRT(((1.8983678D0*(LA**2))/((LA**2)-(0.15D0**2)))+((1.9222979D0*(LA**2))/((LA**2)-(0.25D0**2)))+((0.8765134D0*(LA**2))/((LA**2)-(0.350D0**2)))+((0.1188704D0*(LA**2))/((LA**2)-(0.450D0**2)))+((0.9569903D0*(LA**2))/((LA**2)-(27.3861D0**2)))+1.0D0)
 !
 !     BAF2 INTERPOLATION FORMULA
-   BAF2(LA)=DSQRT(&
-   &((0.643356D0*(LA**2))/((LA**2)-((0.057789D0)**2)))+&
-   &((0.506762D0*(LA**2))/((LA**2)-((0.10968D0)**2)))+&
-   &((3.8261D0*(LA**2))/((LA**2)-((46.3864D0)**2)))+1.0D0)
+   BAF2(LA)=DSQRT(((0.643356D0*(LA**2))/((LA**2)-((0.057789D0)**2)))+((0.506762D0*(LA**2))/((LA**2)-((0.10968D0)**2)))+((3.8261D0*(LA**2))/((LA**2)-((46.3864D0)**2)))+1.0D0)
 !
 !     CAF2 INTERPOLATION FORMULA
-   CAF2(LA)=DSQRT(&
-   &((0.5675888D0*(LA**2))/((LA**2)-((0.050263605D0)**2)))+&
-   &((0.4710914D0*(LA**2))/((LA**2)-((0.1003909D0)**2)))+&
-   &((3.8484723D0*(LA**2))/((LA**2)-((34.649040D0)**2)))+1.0D0)
+   CAF2(LA)=DSQRT(((0.5675888D0*(LA**2))/((LA**2)-((0.050263605D0)**2)))+((0.4710914D0*(LA**2))/((LA**2)-((0.1003909D0)**2)))+((3.8484723D0*(LA**2))/((LA**2)-((34.649040D0)**2)))+1.0D0)
 !
 !     MGF2o INTERPOLATION FORMULA
-   MGF2O(LA)=DSQRT(&
-   &1.0D0+&
-   &((.48755108D0*(LA**2))/((LA**2)-(0.04338408D0**2)))&
-   &+((.39875031D0*(LA**2))/((LA**2)-(0.09461442D0**2)))&
-   &+((2.3120353D0*(LA**2))/((LA**2)-(23.7936040D0**2)))&
-   &)
+   MGF2O(LA)=DSQRT(1.0D0+((.48755108D0*(LA**2))/((LA**2)-(0.04338408D0**2)))+((.39875031D0*(LA**2))/((LA**2)-(0.09461442D0**2)))+((2.3120353D0*(LA**2))/((LA**2)-(23.7936040D0**2))))
 !
 !     MGF2E INTERPOLATION FORMULA
-   MGF2E(LA)=DSQRT(&
-   &1.0D0+&
-   &((.41344023D0*(LA**2))/((LA**2)-(0.03684262D0**2)))&
-   &+((.50497499D0*(LA**2))/((LA**2)-(0.09076162D0**2)))&
-   &+((2.4904862D0*(LA**2))/((LA**2)-(12.771995D0**2)))&
-   &)
+   MGF2E(LA)=DSQRT(1.0D0+((.41344023D0*(LA**2))/((LA**2)-(0.03684262D0**2)))+((.50497499D0*(LA**2))/((LA**2)-(0.09076162D0**2)))+((2.4904862D0*(LA**2))/((LA**2)-(12.771995D0**2))))
 !
 !     THIS SUBROUTINE IS USED TO CALCULATE REFRACTIVE
 !     INDICES OF THE MATERIALS WHOSE NAMES ARE THEIR COMMANDS
@@ -5408,15 +4974,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR SINGLE CRYSTAL GERMANIUM
 !
-      DATA (GSCX(J), J = 1,20)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,&
-      &2.577D0,&
-      &2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,&
-      &8.66D0,9.72D0,11.04D0,12.20D0,13.02D0,14.21D0,15.08D0,16.0D0/
+      DATA (GSCX(J), J = 1,20)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,2.577D0,2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,8.66D0,9.72D0,11.04D0,12.20D0,13.02D0,14.21D0,15.08D0,16.0D0/
 !
-      DATA (GSCY(J), J = 1,20)/4.1016D0,4.0919D0,4.0786D0,4.0708D0,&
-      &4.0609D0,4.0552D0,4.0452D0,4.0369D0,4.0334D0,&
-      &4.0216D0,4.0170D0,4.0094D0,4.0043D0,4.0034D0,&
-      &4.0026D0,4.0023D0,4.0021D0,4.0015D0,4.0014D0,4.0012D0/
+      DATA (GSCY(J), J = 1,20)/4.1016D0,4.0919D0,4.0786D0,4.0708D0,4.0609D0,4.0552D0,4.0452D0,4.0369D0,4.0334D0,4.0216D0,4.0170D0,4.0094D0,4.0043D0,4.0034D0,4.0026D0,4.0023D0,4.0021D0,4.0015D0,4.0014D0,4.0012D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=GSCX(1:N)
@@ -5442,15 +5002,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR POLY CRYSTAL GERMANIUM
 !
-      DATA (GPCX(J), J = 1,17)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,&
-      &2.577D0,&
-      &2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,&
-      &8.66D0,9.72D0,11.04D0,12.20D0,13.02D0/
+      DATA (GPCX(J), J = 1,17)/2.0581D0,2.1526D0,2.3126D0,2.4374D0,2.577D0,2.7144D0,2.998D0,3.3033D0,3.4188D0,4.258D0,4.866D0,6.238D0,8.66D0,9.72D0,11.04D0,12.20D0,13.02D0/
 !
-      DATA (GPCY(J), J = 1,17)/4.1018D0,4.0919D0,4.0785D0,4.0709D0,&
-      &4.0608D0,4.0554D0,4.0452D0,4.0372D0,4.0339D0,&
-      &4.0217D0,4.0167D0,4.0095D0,4.0043D0,4.0033D0,&
-      &4.0025D0,4.0020D0,4.0018D0/
+      DATA (GPCY(J), J = 1,17)/4.1018D0,4.0919D0,4.0785D0,4.0709D0,4.0608D0,4.0554D0,4.0452D0,4.0372D0,4.0339D0,4.0217D0,4.0167D0,4.0095D0,4.0043D0,4.0033D0,4.0025D0,4.0020D0,4.0018D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=GPCX(1:N)
@@ -5485,14 +5039,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG100
 !
-      DATA (IRGX(J), J = 1,25)/1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0 &
-      &,4.0D0,4.5D0,5.0D0,5.5D0,6.0D0,6.5D0,7.0D0,7.5D0,8.0D0,8.5D0 &
-      &,9.0D0,9.5D0,10.0D0,10.5D0,11.0D0,11.5D0,12.0D0,13.0D0,14.0D0/
+      DATA (IRGX(J), J = 1,25)/1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0 ,4.0D0,4.5D0,5.0D0,5.5D0,6.0D0,6.5D0,7.0D0,7.5D0,8.0D0,8.5D0 ,9.0D0,9.5D0,10.0D0,10.5D0,11.0D0,11.5D0,12.0D0,13.0D0,14.0D0/
 !
-      DATA (IRGY(J), J = 1,25)/2.7235D0,2.6577D0,2.6404D0,2.6314D0 &
-      &,2.6262D0,2.6227D0,2.6201D0,2.6181D0,2.6164D0,2.6148D0,2.6133D0 &
-      &,2.6118D0,2.6103D0,2.6088D0,2.6072D0,2.6056D0,2.6039D0,2.6022D0 &
-      &,2.6004D0,2.5985D0,2.5966D0,2.5946D0,2.5925D0,2.5880D0,2.5832D0/
+      DATA (IRGY(J), J = 1,25)/2.7235D0,2.6577D0,2.6404D0,2.6314D0 ,2.6262D0,2.6227D0,2.6201D0,2.6181D0,2.6164D0,2.6148D0,2.6133D0 ,2.6118D0,2.6103D0,2.6088D0,2.6072D0,2.6056D0,2.6039D0,2.6022D0 ,2.6004D0,2.5985D0,2.5966D0,2.5946D0,2.5925D0,2.5880D0,2.5832D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=IRGX(1:N)
@@ -5518,23 +5067,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR ZNSE
 !
-      DATA (ZNSEX(J), J = 1,56)/0.54D0,0.58D0 &
-      &,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 &
-      &,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 &
-      &,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 &
-      &,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 &
-      &,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 &
-      &,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
+      DATA (ZNSEX(J), J = 1,56)/0.54D0,0.58D0 ,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 ,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 ,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 ,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 ,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 ,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
 !
-      DATA (ZNSEY(J), J = 1,56)/2.6754D0,2.6312D0,2.5994D0,2.5755D0 &
-      &,2.5568D0,2.5418D0,2.5295D0,2.5193D0,2.5107D0,2.5034D0,2.4971D0 &
-      &,2.4916D0,2.4892D0,2.4609D0,2.4496D0,2.4437D0,2.4401D0,2.4376D0 &
-      &,2.4356D0,2.4339D0,2.4324D0,2.4309D0,2.4295D0,2.4281D0,2.4266D0 &
-      &,2.4251D0,2.4235D0,2.4218D0,2.4201D0,2.4183D0,2.4163D0,2.4143D0 &
-      &,2.4122D0,2.4100D0,2.4077D0,2.4053D0,2.4028D0,2.4001D0,2.3974D0 &
-      &,2.3945D0,2.3915D0,2.3883D0,2.3850D0,2.3816D0,2.3781D0,2.3744D0 &
-      &,2.3705D0,2.3665D0,2.3623D0,2.3579D0,2.3534D0,2.3487D0,2.3438D0 &
-      &,2.3387D0,2.3333D0,2.3278D0/
+      DATA (ZNSEY(J), J = 1,56)/2.6754D0,2.6312D0,2.5994D0,2.5755D0 ,2.5568D0,2.5418D0,2.5295D0,2.5193D0,2.5107D0,2.5034D0,2.4971D0 ,2.4916D0,2.4892D0,2.4609D0,2.4496D0,2.4437D0,2.4401D0,2.4376D0 ,2.4356D0,2.4339D0,2.4324D0,2.4309D0,2.4295D0,2.4281D0,2.4266D0 ,2.4251D0,2.4235D0,2.4218D0,2.4201D0,2.4183D0,2.4163D0,2.4143D0 ,2.4122D0,2.4100D0,2.4077D0,2.4053D0,2.4028D0,2.4001D0,2.3974D0 ,2.3945D0,2.3915D0,2.3883D0,2.3850D0,2.3816D0,2.3781D0,2.3744D0 ,2.3705D0,2.3665D0,2.3623D0,2.3579D0,2.3534D0,2.3487D0,2.3438D0 ,2.3387D0,2.3333D0,2.3278D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ZNSEX(1:N)
@@ -5560,22 +5095,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR ZNS
 !
-      DATA (ZNSX(J), J = 1,59)/0.42D0,0.46D0,0.5D0,0.54D0,0.58D0 &
-      &,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 &
-      &,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 &
-      &,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 &
-      &,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 &
-      &,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 &
-      &,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
+      DATA (ZNSX(J), J = 1,59)/0.42D0,0.46D0,0.5D0,0.54D0,0.58D0 ,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0 ,0.94D0,0.98D0,1.0D0,1.4D0,1.8D0,2.2D0,2.6D0,3.0D0,3.4D0 ,3.8D0,4.2D0,4.6D0,5.0D0,5.4D0,5.8D0,6.2D0,6.6D0,7.0D0,7.4D0 ,7.8D0,8.2D0,8.6D0,9.0D0,9.4D0,9.8D0,10.2D0,10.6D0,11.0D0 ,11.4D0,11.8D0,12.2D0,12.6D0,13.0D0,13.4D0,13.8D0,14.2D0,14.6D0 ,15.0D0,15.4D0,15.8D0,16.2D0,16.6D0,17.0D0,17.4D0,17.8D0,18.2D0/
 !
-      DATA (ZNSY(J), J = 1,59)/2.516D0,2.458D0,2.419D0,2.391D0,2.371D0 &
-      &,2.355D0,2.342D0,2.332D0,2.323D0,2.316D0,2.310D0,2.305D0,2.301D0 &
-      &,2.297D0,2.294D0,2.292D0,2.275D0,2.267D0,2.263D0,2.260D0,2.257D0 &
-      &,2.255D0,2.253D0,2.251D0,2.248D0,2.246D0,2.244D0,2.241D0,2.238D0 &
-      &,2.235D0,2.232D0,2.228D0,2.225D0,2.221D0,2.217D0,2.212D0,2.208D0 &
-      &,2.203D0,2.198D0,2.192D0,2.186D0,2.180D0,2.173D0,2.167D0,2.159D0 &
-      &,2.152D0,2.143D0,2.135D0,2.126D0,2.116D0,2.106D0,2.095D0,2.084D0 &
-      &,2.072D0,2.059D0,2.045D0,2.030D0,2.015D0,1.998D0/
+      DATA (ZNSY(J), J = 1,59)/2.516D0,2.458D0,2.419D0,2.391D0,2.371D0 ,2.355D0,2.342D0,2.332D0,2.323D0,2.316D0,2.310D0,2.305D0,2.301D0 ,2.297D0,2.294D0,2.292D0,2.275D0,2.267D0,2.263D0,2.260D0,2.257D0 ,2.255D0,2.253D0,2.251D0,2.248D0,2.246D0,2.244D0,2.241D0,2.238D0 ,2.235D0,2.232D0,2.228D0,2.225D0,2.221D0,2.217D0,2.212D0,2.208D0 ,2.203D0,2.198D0,2.192D0,2.186D0,2.180D0,2.173D0,2.167D0,2.159D0 ,2.152D0,2.143D0,2.135D0,2.126D0,2.116D0,2.106D0,2.095D0,2.084D0 ,2.072D0,2.059D0,2.045D0,2.030D0,2.015D0,1.998D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ZNSX(1:N)
@@ -5601,18 +5123,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR CLRTRAN
 !
-      DATA (CLRX(J), J = 1,29)/0.4047D0,0.4358D0,0.4678D0,0.48D0 &
-      &,0.5086D0,0.5461D0,0.5876D0,0.6438D0,0.6678D0,0.7065D0,0.78D0 &
-      &,0.7948D0,0.8521D0,0.8943D0,1.014D0,1.1287D0,1.5296D0,2.0581D0 &
-      &,3.0D0,3.5D0,4.0D0,4.5D0,5.0D0,8.0D0,9.0D0,10.0D0,11.25D0,12.0D0 &
-      &,13.0D0/
+      DATA (CLRX(J), J = 1,29)/0.4047D0,0.4358D0,0.4678D0,0.48D0 ,0.5086D0,0.5461D0,0.5876D0,0.6438D0,0.6678D0,0.7065D0,0.78D0 ,0.7948D0,0.8521D0,0.8943D0,1.014D0,1.1287D0,1.5296D0,2.0581D0 ,3.0D0,3.5D0,4.0D0,4.5D0,5.0D0,8.0D0,9.0D0,10.0D0,11.25D0,12.0D0 ,13.0D0/
 !
-      DATA (CLRY(J), J = 1,29)/2.54515D0,2.48918D0,2.44915D0,2.43691D0 &
-      &,2.41279D0,2.38838D0,2.36789D0,2.34731D0,2.34033D0,2.33073D0 &
-      &,2.31669D0,2.31438D0,2.30659D0,2.30183D0,2.29165D0,2.28485D0 &
-      &,2.27191D0,2.26442D0,2.25772D0,2.25498D0,2.25231D0,2.24955D0 &
-      &,2.24661D0,2.22334D0,2.21290D0,2.20084D0,2.18317D0,2.17101D0 &
-      &,2.15252D0/
+      DATA (CLRY(J), J = 1,29)/2.54515D0,2.48918D0,2.44915D0,2.43691D0 ,2.41279D0,2.38838D0,2.36789D0,2.34731D0,2.34033D0,2.33073D0 ,2.31669D0,2.31438D0,2.30659D0,2.30183D0,2.29165D0,2.28485D0 ,2.27191D0,2.26442D0,2.25772D0,2.25498D0,2.25231D0,2.24955D0 ,2.24661D0,2.22334D0,2.21290D0,2.20084D0,2.18317D0,2.17101D0 ,2.15252D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=CLRX(1:N)
@@ -5670,13 +5183,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR AMTIR1
 !
-      DATA (AMTR1X(J), J = 1,17)/1.0D0,1.064D0,1.5D0,2.0D0,2.4D0 &
-      &,3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0 &
-      &,12.0D0,13.0D0,14.0D0/
+      DATA (AMTR1X(J), J = 1,17)/1.0D0,1.064D0,1.5D0,2.0D0,2.4D0 ,3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0 ,12.0D0,13.0D0,14.0D0/
 !
-      DATA (AMTR1Y(J), J = 1,17)/2.6055D0,2.5933D0,2.5469D0,2.5310D0 &
-      &,2.5250D0,2.5184D0,2.5146D0,2.5112D0,2.5086D0,2.5062D0,2.5036D0 &
-      &,2.5008D0,2.4977D0,2.4942D0,2.4902D0,2.4862D0,2.4825D0/
+      DATA (AMTR1Y(J), J = 1,17)/2.6055D0,2.5933D0,2.5469D0,2.5310D0 ,2.5250D0,2.5184D0,2.5146D0,2.5112D0,2.5086D0,2.5062D0,2.5036D0 ,2.5008D0,2.4977D0,2.4942D0,2.4902D0,2.4862D0,2.4825D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=AMTR1X(1:N)
@@ -5702,12 +5211,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR AMTIR3
 !
-      DATA (AMTR3X(J), J = 1,12)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0 &
-      &,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
+      DATA (AMTR3X(J), J = 1,12)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0,8.0D0 ,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
 !
-      DATA (AMTR3Y(J), J = 1,12)/2.6266D0,2.6210D0,2.6173D0,2.6142D0 &
-      &,2.6117D0,2.6088D0,2.6055D0,2.6023D0,2.5983D0,2.5942D0,2.5892D0 &
-      &,2.5843D0/
+      DATA (AMTR3Y(J), J = 1,12)/2.6266D0,2.6210D0,2.6173D0,2.6142D0 ,2.6117D0,2.6088D0,2.6055D0,2.6023D0,2.5983D0,2.5942D0,2.5892D0 ,2.5843D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=AMTR3X(1:N)
@@ -5744,12 +5250,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR GaAs
 !
-      DATA (GAASX(J), J = 1,13)/2.5D0,3.0D0,4.0D0,5.0D0,6.0D0 &
-      &,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
+      DATA (GAASX(J), J = 1,13)/2.5D0,3.0D0,4.0D0,5.0D0,6.0D0 ,7.0D0,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0,13.0D0,14.0D0/
 !
-      DATA (GAASY(J), J = 1,13)/3.3256D0,3.3169D0,3.3069D0 &
-      &,3.3010,3.2963D0,3.2923D0,3.2878D0,3.2830D0,3.2778D0 &
-      &,3.2725D0,3.2666D0,3.2589D0,3.2509D0/
+      DATA (GAASY(J), J = 1,13)/3.3256D0,3.3169D0,3.3069D0 ,3.3010,3.2963D0,3.2923D0,3.2878D0,3.2830D0,3.2778D0 ,3.2725D0,3.2666D0,3.2589D0,3.2509D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=GAASX(1:N)
@@ -5775,12 +5278,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR CdTe
 !
-      DATA (CDTEX(J), J = 1,10)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0 &
-      &,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0/
+      DATA (CDTEX(J), J = 1,10)/3.0D0,4.0D0,5.0D0,6.0D0,7.0D0 ,8.0D0,9.0D0,10.0D0,11.0D0,12.0D0/
 !
-      DATA (CDTEY(J), J = 1,10)/2.7026D0,2.6971D0,2.6922D0 &
-      &,2.6886D0,2.6865D0,2.6846D0,2.6825D0,2.6797D0,2.6766D0 &
-      &,2.6749D0/
+      DATA (CDTEY(J), J = 1,10)/2.7026D0,2.6971D0,2.6922D0 ,2.6886D0,2.6865D0,2.6846D0,2.6825D0,2.6797D0,2.6766D0 ,2.6749D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=CDTEX(1:N)
@@ -5915,29 +5415,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR NaCl
 !
-      DATA (NACLX(J), J = 1,60)/0.589D0,0.64D0,0.6874D0,0.7604D0 &
-      &,0.7858D0,0.8835D0,0.9033D0,0.9724D0,1.0084D0,1.0540D0 &
-      &,1.0810D0,1.1058D0,1.1420D0,1.1786D0,1.2016D0,1.2604D0 &
-      &,1.3126D0,1.4874D0,1.5552D0,1.6368D0,1.6848D0,1.7670D0 &
-      &,2.0736D0,2.1824D0,2.2464D0,2.3560D0,2.6505D0,2.9466D0 &
-      &,3.2736D0,3.5359D0,3.6288D0,3.8192D0,4.1230D0,4.7120D0 &
-      &,5.0092D0,5.3009D0,5.8932D0,6.4825D0,6.8000D0,7.0718D0 &
-      &,7.2200D0,7.5900D0,7.6611D0,7.9558D0,8.0400D0,8.8398D0 &
-      &,9.0000D0,9.5000D0,10.0184D0,11.7864D0,12.5D0,12.9650D0 &
-      &,13.50D0,14.1436D0,14.7330D0,15.3223D0,15.9116D0,17.93D0 &
-      &,20.57D0,22.3D0/
+      DATA (NACLX(J), J = 1,60)/0.589D0,0.64D0,0.6874D0,0.7604D0 ,0.7858D0,0.8835D0,0.9033D0,0.9724D0,1.0084D0,1.0540D0 ,1.0810D0,1.1058D0,1.1420D0,1.1786D0,1.2016D0,1.2604D0 ,1.3126D0,1.4874D0,1.5552D0,1.6368D0,1.6848D0,1.7670D0 ,2.0736D0,2.1824D0,2.2464D0,2.3560D0,2.6505D0,2.9466D0 ,3.2736D0,3.5359D0,3.6288D0,3.8192D0,4.1230D0,4.7120D0 ,5.0092D0,5.3009D0,5.8932D0,6.4825D0,6.8000D0,7.0718D0 ,7.2200D0,7.5900D0,7.6611D0,7.9558D0,8.0400D0,8.8398D0 ,9.0000D0,9.5000D0,10.0184D0,11.7864D0,12.5D0,12.9650D0 ,13.50D0,14.1436D0,14.7330D0,15.3223D0,15.9116D0,17.93D0 ,20.57D0,22.3D0/
 !
-      DATA (NACLY(J), J = 1,60)/1.54427D0,1.54141D0,1.53930D0 &
-      &,1.53682D0,1.53607D0,1.53395D0,1.53361D0,1.53253D0,1.53206D0 &
-      &,1.53153D0,1.53123D0,1.53098D0,1.53063D0,1.53031D0,1.53014D0 &
-      &,1.52971D0,1.52937D0,1.52845D0,1.52815D0,1.52781D0,1.52764D0 &
-      &,1.52736D0,1.52649D0,1.52621D0,1.52606D0,1.52579D0,1.52512D0 &
-      &,1.52466D0,1.52371D0,1.52312D0,1.52286D0,1.52238D0,1.52156D0 &
-      &,1.51979D0,1.51883D0,1.51790D0,1.51593D0,1.51347D0,1.51200D0 &
-      &,1.51093D0,1.51020D0,1.50850D0,1.50822D0,1.50665D0,1.50640D0 &
-      &,1.50192D0,1.50100D0,1.49980D0,1.49462D0,1.48171D0,1.47568D0 &
-      &,1.47160D0,1.46660D0,1.46044D0,1.45427D0,1.44743D0,1.44090D0 &
-      &,1.41490D0,1.37350D0,1.34030D0/
+      DATA (NACLY(J), J = 1,60)/1.54427D0,1.54141D0,1.53930D0 ,1.53682D0,1.53607D0,1.53395D0,1.53361D0,1.53253D0,1.53206D0 ,1.53153D0,1.53123D0,1.53098D0,1.53063D0,1.53031D0,1.53014D0 ,1.52971D0,1.52937D0,1.52845D0,1.52815D0,1.52781D0,1.52764D0 ,1.52736D0,1.52649D0,1.52621D0,1.52606D0,1.52579D0,1.52512D0 ,1.52466D0,1.52371D0,1.52312D0,1.52286D0,1.52238D0,1.52156D0 ,1.51979D0,1.51883D0,1.51790D0,1.51593D0,1.51347D0,1.51200D0 ,1.51093D0,1.51020D0,1.50850D0,1.50822D0,1.50665D0,1.50640D0 ,1.50192D0,1.50100D0,1.49980D0,1.49462D0,1.48171D0,1.47568D0 ,1.47160D0,1.46660D0,1.46044D0,1.45427D0,1.44743D0,1.44090D0 ,1.41490D0,1.37350D0,1.34030D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=NACLX(1:N)
@@ -5963,18 +5443,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR SiO2o
 !
-      DATA (SIO2OX(J), J = 1,29)/0.185D0,0.198D0,0.231D0,0.34D0 &
-      &,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 &
-      &,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 &
-      &,1.7614D0,1.9457D0,2.0531D0,2.3D0,2.6D0,3.0D0,3.5D0,4.0D0 &
-      &,4.2D0,5.0D0,6.45D0,7.0D0/
+      DATA (SIO2OX(J), J = 1,29)/0.185D0,0.198D0,0.231D0,0.34D0 ,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 ,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 ,1.7614D0,1.9457D0,2.0531D0,2.3D0,2.6D0,3.0D0,3.5D0,4.0D0 ,4.2D0,5.0D0,6.45D0,7.0D0/
 !
-      DATA (SIO2OY(J), J = 1,29)/1.65751D0,1.65087D0,1.61395D0 &
-      &,1.56747D0,1.55846D0,1.55396D0,1.54822D0,1.54424D0,1.53903D0 &
-      &,1.53773D0,1.53514D0,1.53283D0,1.53090D0,1.52877D0,1.52865D0 &
-      &,1.52781D0,1.52583D0,1.52468D0,1.52184D0,1.52005D0,1.51561D0 &
-      &,1.50986D0,1.49953D0,1.48451D0,1.46617D0,1.4569D0,1.417D0,1.274D0 &
-      &,1.167D0/
+      DATA (SIO2OY(J), J = 1,29)/1.65751D0,1.65087D0,1.61395D0 ,1.56747D0,1.55846D0,1.55396D0,1.54822D0,1.54424D0,1.53903D0 ,1.53773D0,1.53514D0,1.53283D0,1.53090D0,1.52877D0,1.52865D0 ,1.52781D0,1.52583D0,1.52468D0,1.52184D0,1.52005D0,1.51561D0 ,1.50986D0,1.49953D0,1.48451D0,1.46617D0,1.4569D0,1.417D0,1.274D0 ,1.167D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SIO2OX(1:N)
@@ -6000,15 +5471,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR SiO2e
 !
-      DATA (SIO2EX(J), J = 1,20)/0.185D0,0.198D0,0.231D0,0.34D0 &
-      &,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 &
-      &,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 &
-      &,1.7614D0,1.9457D0,2.0531D0/
+      DATA (SIO2EX(J), J = 1,20)/0.185D0,0.198D0,0.231D0,0.34D0 ,0.394D0,0.434D0,0.508D0,0.5893D0,0.768D0,0.8325D0,0.9914D0 ,1.1592D0,1.3070D0,1.3958D0,1.4792D0,1.5414D0,1.6815D0 ,1.7614D0,1.9457D0,2.0531D0/
 !
-      DATA (SIO2EY(J), J = 1,20)/1.68988D0,1.66394D0,1.62555D0 &
-      &,1.57737D0,1.56805D0,1.56339D0,1.55746D0,1.55335D0,1.54794D0 &
-      &,1.54661D0,1.54392D0,1.54152D0,1.53951D0,1.53832D0,1.53716D0 &
-      &,1.53630D0,1.53422D0,1.53301D0,1.53004D0,1.52823D0/
+      DATA (SIO2EY(J), J = 1,20)/1.68988D0,1.66394D0,1.62555D0 ,1.57737D0,1.56805D0,1.56339D0,1.55746D0,1.55335D0,1.54794D0 ,1.54661D0,1.54392D0,1.54152D0,1.53951D0,1.53832D0,1.53716D0 ,1.53630D0,1.53422D0,1.53301D0,1.53004D0,1.52823D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SIO2EX(1:N)
@@ -6034,13 +5499,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR VIR3
 !
-      DATA (VIR3X(J), J = 1,18)/0.4047D0,0.5461D0,0.7065D0,1.0D0 &
-      &,1.0D0,2.0D0,2.5D0,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0 &
-      &,4.5D0,4.75D0,5.0D0,5.5D0,6.0D0/
+      DATA (VIR3X(J), J = 1,18)/0.4047D0,0.5461D0,0.7065D0,1.0D0 ,1.0D0,2.0D0,2.5D0,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0 ,4.5D0,4.75D0,5.0D0,5.5D0,6.0D0/
 !
-      DATA (VIR3Y(J), J = 1,18)/1.92568D0,1.87002D0,1.84694D0 &
-      &,1.831D0,1.818D0,1.812D0,1.806D0,1.799D0,1.795D0,1.791D0 &
-      &,1.786D0,1.781D0,1.775D0,1.769D0,1.762D0,1.756D0,1.741D0,1.725D0/
+      DATA (VIR3Y(J), J = 1,18)/1.92568D0,1.87002D0,1.84694D0 ,1.831D0,1.818D0,1.812D0,1.806D0,1.799D0,1.795D0,1.791D0 ,1.786D0,1.781D0,1.775D0,1.769D0,1.762D0,1.756D0,1.741D0,1.725D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=VIR3X(1:N)
@@ -6066,22 +5527,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR 9754
 !
-      DATA (G9754X(J), J = 1,43)/0.4D0,0.425D0,0.45D0 &
-      &,0.475D0,0.5D0,0.525D0 &
-      &,0.55D0,0.575D0,0.6D0,0.635D0,0.65D0,0.675D0,0.7D0,0.725D0,0.75D0 &
-      &,0.775D0,0.8D0,0.825D0,0.85D0,0.875D0,0.9D0,0.925D0,0.95D0 &
-      &,0.975D0,1.0D0,1.25D0,1.5D0,1.75D0,2.0D0,2.25D0,2.5D0,2.75D0 &
-      &,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0,4.5D0,4.75D0,5.0D0 &
-      &,5.25D0,5.5D0/
+      DATA (G9754X(J), J = 1,43)/0.4D0,0.425D0,0.45D0 ,0.475D0,0.5D0,0.525D0 ,0.55D0,0.575D0,0.6D0,0.635D0,0.65D0,0.675D0,0.7D0,0.725D0,0.75D0 ,0.775D0,0.8D0,0.825D0,0.85D0,0.875D0,0.9D0,0.925D0,0.95D0 ,0.975D0,1.0D0,1.25D0,1.5D0,1.75D0,2.0D0,2.25D0,2.5D0,2.75D0 ,3.0D0,3.25D0,3.5D0,3.75D0,4.0D0,4.25D0,4.5D0,4.75D0,5.0D0 ,5.25D0,5.5D0/
 !
-      DATA (G9754Y(J), J = 1,43)/1.69093D0,1.68502D0,1.68020D0 &
-      &,1.67621D0,1.67285D0,1.67000D0,1.66754D0,1.66542D0,1.66356D0 &
-      &,1.66192D0,1.66046D0,1.65916D0,1.65800D0,1.65694D0,1.65599D0 &
-      &,1.65511D0,1.65431D0,1.65358D0,1.65289D0,1.65226D0,1.65167D0 &
-      &,1.65112D0,1.65060D0,1.65011D0,1.64964D0,1.64595D0,1.64310D0 &
-      &,1.64049D0,1.63785D0,1.63505D0,1.63203D0,1.62874D0,1.62514D0 &
-      &,1.62119D0,1.61686D0,1.61214D0,1.60698D0,1.60135D0,1.59521D0 &
-      &,1.58853D0,1.58125D0,1.57332D0,1.66469D0/
+      DATA (G9754Y(J), J = 1,43)/1.69093D0,1.68502D0,1.68020D0 ,1.67621D0,1.67285D0,1.67000D0,1.66754D0,1.66542D0,1.66356D0 ,1.66192D0,1.66046D0,1.65916D0,1.65800D0,1.65694D0,1.65599D0 ,1.65511D0,1.65431D0,1.65358D0,1.65289D0,1.65226D0,1.65167D0 ,1.65112D0,1.65060D0,1.65011D0,1.64964D0,1.64595D0,1.64310D0 ,1.64049D0,1.63785D0,1.63505D0,1.63203D0,1.62874D0,1.62514D0 ,1.62119D0,1.61686D0,1.61214D0,1.60698D0,1.60135D0,1.59521D0 ,1.58853D0,1.58125D0,1.57332D0,1.66469D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=G9754X(1:N)
@@ -6107,13 +5555,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR ALON
 !
-      DATA (ALONX(J), J = 1,14)/0.365D0,0.405D0,0.435D0,0.546D0 &
-      &,0.852D0,1.014D0,1.53D0,1.97D0,2.325D0,2.8D0,3.39D0,4.0D0 &
-      &,4.6D0,5.0D0/
+      DATA (ALONX(J), J = 1,14)/0.365D0,0.405D0,0.435D0,0.546D0 ,0.852D0,1.014D0,1.53D0,1.97D0,2.325D0,2.8D0,3.39D0,4.0D0 ,4.6D0,5.0D0/
 !
-      DATA (ALONY(J), J = 1,14)/1.819D0,1.811D0,1.806D0,1.792D0 &
-      &,1.778D0,1.773D0,1.765D0,1.758D0,1.752D0,1.743D0,1.729D0 &
-      &,1.710D0,1.689D0,1.672D0/
+      DATA (ALONY(J), J = 1,14)/1.819D0,1.811D0,1.806D0,1.792D0 ,1.778D0,1.773D0,1.765D0,1.758D0,1.752D0,1.743D0,1.729D0 ,1.710D0,1.689D0,1.672D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=ALONX(1:N)
@@ -6139,12 +5583,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR SPINEL
 !
-      DATA (SPINX(J), J = 1,11)/0.4047D0,0.4358D0,0.5461D0,0.8521D0 &
-      &,1.014D0,1.53D0,1.97D0,3.0D0,4.0D0,5.0D0,5.5D0/
+      DATA (SPINX(J), J = 1,11)/0.4047D0,0.4358D0,0.5461D0,0.8521D0 ,1.014D0,1.53D0,1.97D0,3.0D0,4.0D0,5.0D0,5.5D0/
 !
-      DATA (SPINY(J), J = 1,11)/1.73574D0,1.73054D0,1.71896D0 &
-      &,1.70728D0,1.703D0,1.69468D0,1.68763D0,1.6647D0,1.6414D0 &
-      &,1.5978D0,1.5719D0/
+      DATA (SPINY(J), J = 1,11)/1.73574D0,1.73054D0,1.71896D0 ,1.70728D0,1.703D0,1.69468D0,1.68763D0,1.6647D0,1.6414D0 ,1.5978D0,1.5719D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=SPINX(1:N)
@@ -6170,12 +5611,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR CALAL
 !
-      DATA (CALALX(J), J = 1,12)/0.4861D0,0.5893D0,0.6563D0,0.8D0 &
-      &,1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0,4.0D0,4.5D0/
+      DATA (CALALX(J), J = 1,12)/0.4861D0,0.5893D0,0.6563D0,0.8D0 ,1.0D0,1.5D0,2.0D0,2.5D0,3.0D0,3.5D0,4.0D0,4.5D0/
 !
-      DATA (CALALY(J), J = 1,12)/1.6794D0,1.669D0,1.6647D0,1.6588D0 &
-      &,1.6538D0,1.6463D0,1.6403D0,1.6341D0,1.6266D0,1.6180D0 &
-      &,1.6074D0,1.5952D0/
+      DATA (CALALY(J), J = 1,12)/1.6794D0,1.669D0,1.6647D0,1.6588D0 ,1.6538D0,1.6463D0,1.6403D0,1.6341D0,1.6266D0,1.6180D0 ,1.6074D0,1.5952D0/
 !
 !     MOVE TO LARGE ARRAYS
       X(1:N)=CALALX(1:N)
@@ -6200,11 +5638,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR B270
 !
-         DATA (B270X(J), J = 1,8)/0.4358343D0,0.4799914D0,0.4861327D0 &
-         &,0.5460740D0,0.5875618D0,0.5892938D0,0.6438469D0,0.6562725D0/
+         DATA (B270X(J), J = 1,8)/0.4358343D0,0.4799914D0,0.4861327D0 ,0.5460740D0,0.5875618D0,0.5892938D0,0.6438469D0,0.6562725D0/
 !
-         DATA (B270Y(J), J = 1,8)/1.534D0,1.5297D0,1.5292D0,1.5251D0 &
-         &,11.523D0,1.5229D0,1.5207D0,1.5202D0/
+         DATA (B270Y(J), J = 1,8)/1.534D0,1.5297D0,1.5292D0,1.5251D0 ,11.523D0,1.5229D0,1.5207D0,1.5202D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=B270X(1:N)
@@ -6230,13 +5666,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG2
 !
-         DATA (IRG2X(J), J = 1,18)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
+         DATA (IRG2X(J), J = 1,18)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
 !
-         DATA (IRG2Y(J), J = 1,18)/1.9750D0,1.9462D0,1.9147D0,1.9129D0 &
-         &,1.8988D0,1.8918D0,1.8845D0,1.8832D0,1.8785D0,1.8692D0,1.8630D0 &
-         &,1.8526D0,1.8464D0,1.8414D0,1.8362D0,1.8253D0,1.8041D0,1.7954D0/
+         DATA (IRG2Y(J), J = 1,18)/1.9750D0,1.9462D0,1.9147D0,1.9129D0 ,1.8988D0,1.8918D0,1.8845D0,1.8832D0,1.8785D0,1.8692D0,1.8630D0 ,1.8526D0,1.8464D0,1.8414D0,1.8362D0,1.8253D0,1.8041D0,1.7954D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRG2X(1:N)
@@ -6262,13 +5694,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG3
 !
-         DATA (IRG3X(J), J = 1,17)/0.4047D0,0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
+         DATA (IRG3X(J), J = 1,17)/0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
 !
-         DATA (IRG3Y(J), J = 1,17)/1.8925D0,1.8649D0,1.8633D0,1.8510D0 &
-         &,1.8449D0,1.8385D0,1.8373D0,1.8331D0,1.8249D0,1.8193D0,1.8089D0 &
-         &,1.8021D0,1.7963D0,1.7900D0,1.7764D0,1.7491D0,1.7375D0/
+         DATA (IRG3Y(J), J = 1,17)/1.8925D0,1.8649D0,1.8633D0,1.8510D0 ,1.8449D0,1.8385D0,1.8373D0,1.8331D0,1.8249D0,1.8193D0,1.8089D0 ,1.8021D0,1.7963D0,1.7900D0,1.7764D0,1.7491D0,1.7375D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRG3X(1:N)
@@ -6294,13 +5722,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRGN6
 !
-         DATA (IRGN6X(J), J = 1,16)/0.4047D0,0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0/
+         DATA (IRGN6X(J), J = 1,16)/0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0/
 !
-         DATA (IRGN6Y(J), J = 1,16)/1.6069D0,1.5971D0,1.5965D0,1.5915D0 &
-         &,1.5892D0,1.5863D0,1.5857D0,1.5842D0,1.5807D0,1.5777D0,1.5716D0 &
-         &,1.5667D0,1.5620D0,1.5567D0,1.5451D0,1.5209D0/
+         DATA (IRGN6Y(J), J = 1,16)/1.6069D0,1.5971D0,1.5965D0,1.5915D0 ,1.5892D0,1.5863D0,1.5857D0,1.5842D0,1.5807D0,1.5777D0,1.5716D0 ,1.5667D0,1.5620D0,1.5567D0,1.5451D0,1.5209D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRGN6X(1:N)
@@ -6326,13 +5750,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG7
 !
-         DATA (IRG7X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
+         DATA (IRG7X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
 !
-         DATA (IRG7Y(J), J = 1,16)/1.5983D0,1.5871D0,1.5743D0,1.5735D0 &
-         &,1.5675D0,1.5644D0,1.5612D0,1.5606D0,1.5585D0,1.5541D0,1.5509D0 &
-         &,1.5442D0,1.5389D0,1.5341D0,1.5286D0,1.5164D0/
+         DATA (IRG7Y(J), J = 1,16)/1.5983D0,1.5871D0,1.5743D0,1.5735D0 ,1.5675D0,1.5644D0,1.5612D0,1.5606D0,1.5585D0,1.5541D0,1.5509D0 ,1.5442D0,1.5389D0,1.5341D0,1.5286D0,1.5164D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRG7X(1:N)
@@ -6358,13 +5778,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG9
 !
-         DATA (IRG9X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
+         DATA (IRG9X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
 !
-         DATA (IRG9Y(J), J = 1,16)/1.5005D0,1.4961D0,1.4905D0,1.4902D0 &
-         &,1.4875D0,1.4861D0,1.4845D0,1.4842D0,1.4832D0,1.4810D0,1.4793D0 &
-         &,1.4755D0,1.4722D0,1.4692D0,1.4658D0,1.4583D0/
+         DATA (IRG9Y(J), J = 1,16)/1.5005D0,1.4961D0,1.4905D0,1.4902D0 ,1.4875D0,1.4861D0,1.4845D0,1.4842D0,1.4832D0,1.4810D0,1.4793D0 ,1.4755D0,1.4722D0,1.4692D0,1.4658D0,1.4583D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRG9X(1:N)
@@ -6390,13 +5806,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG11
 !
-         DATA (IRG11X(J), J = 1,16)/0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
+         DATA (IRG11X(J), J = 1,16)/0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0,4.258D0,4.586D0/
 !
-         DATA (IRG11Y(J), J = 1,16)/1.6926D0,1.6917D0,1.6845D0,1.6809D0 &
-         &,1.6770D0,1.6763D0,1.6741D0,1.6686D0,1.6650D0,1.6581D0,1.6532D0 &
-         &,1.6491D0,1.6445D0,1.6349D0,1.6158D0,1.6077D0/
+         DATA (IRG11Y(J), J = 1,16)/1.6926D0,1.6917D0,1.6845D0,1.6809D0 ,1.6770D0,1.6763D0,1.6741D0,1.6686D0,1.6650D0,1.6581D0,1.6532D0 ,1.6491D0,1.6445D0,1.6349D0,1.6158D0,1.6077D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRG11X(1:N)
@@ -6422,13 +5834,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR IRG15
 !
-         DATA (IRG15X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 &
-         &,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 &
-         &,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
+         DATA (IRG15X(J), J = 1,16)/0.365D0,0.4047D0,0.48D0,0.4861D0 ,0.5461D0,0.5876D0,0.6438D0,0.6563D0,0.7065D0,0.8521D0,1.014D0 ,1.5296D0,1.9701D0,2.3254D0,2.674D0,3.303D0/
 !
-         DATA (IRG15Y(J), J = 1,16)/1.5883D0,1.5506D0,1.5415D0,1.5410D0 &
-         &,1.5366D0,1.5343D0,1.5318D0,1.5314D0,1.5297D0,1.5263D0,1.5237D0 &
-         &,1.5179D0,1.5131D0,1.5086D0,1.5038D0,1.4924D0/
+         DATA (IRG15Y(J), J = 1,16)/1.5883D0,1.5506D0,1.5415D0,1.5410D0 ,1.5366D0,1.5343D0,1.5318D0,1.5314D0,1.5297D0,1.5263D0,1.5237D0 ,1.5179D0,1.5131D0,1.5086D0,1.5038D0,1.4924D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=IRG15X(1:N)
@@ -6493,15 +5901,9 @@ SUBROUTINE SPCGL(I,MTYPE)
          YPN=1.0D35
          N=21
 !
-         DATA (H2OX(J), J = 1,21)/0.1829D0,0.20255D0,0.25020D0,0.30822D0,&
-         &0.35871D0,0.40466D0,0.44715D0,0.50157D0,0.54607D0,0.58926D0,&
-         &0.65628D0,0.70652D0,0.76820D0,0.808D0,0.871D0,0.943D0,1.028D0,&
-         &1.130D0,1.256D0,1.617D0,1.968/
+         DATA (H2OX(J), J = 1,21)/0.1829D0,0.20255D0,0.25020D0,0.30822D0,0.35871D0,0.40466D0,0.44715D0,0.50157D0,0.54607D0,0.58926D0,0.65628D0,0.70652D0,0.76820D0,0.808D0,0.871D0,0.943D0,1.028D0,1.130D0,1.256D0,1.617D0,1.968/
 !
-         DATA (H2OY(J), J = 1,21)/1.46379D0,1.41993D0,1.37734D0,1.35671D0,&
-         &1.34795D0,1.342724D0,1.339423D0,1.336363D0,1.334466D0,1.332988D0,&
-         &1.331151D0,1.330019D0,1.32890D0,1.3286D0,1.3273D0,1.3262D0,&
-         &1.3250D0,1.3234D0,1.3215D0,1.3149D0,1.3078D0/
+         DATA (H2OY(J), J = 1,21)/1.46379D0,1.41993D0,1.37734D0,1.35671D0,1.34795D0,1.342724D0,1.339423D0,1.336363D0,1.334466D0,1.332988D0,1.331151D0,1.330019D0,1.32890D0,1.3286D0,1.3273D0,1.3262D0,1.3250D0,1.3234D0,1.3215D0,1.3149D0,1.3078D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=H2OX(1:N)
@@ -6526,26 +5928,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR SUPRASIL
 !
-         DATA (SUPX(J), J = 1,60)/0.19D0,0.20D0,0.21D0,0.22D0,&
-         &0.23D0,0.24D0,0.25D0,0.26D0,0.27D0,0.28D0,&
-         &0.29D0,0.30D0,0.32D0,0.34D0,0.36D0,0.36548D0,0.38D0,&
-         &0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,&
-         &0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,&
-         &0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,&
-         &1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,&
-         &2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
+         DATA (SUPX(J), J = 1,60)/0.19D0,0.20D0,0.21D0,0.22D0,0.23D0,0.24D0,0.25D0,0.26D0,0.27D0,0.28D0,0.29D0,0.30D0,0.32D0,0.34D0,0.36D0,0.36548D0,0.38D0,0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
 !
-         DATA (SUPY(J), J = 1,60)/&
-         &1.56572D0,1.55051D0,1.53836D0,1.52845D0,1.52024D0,1.51333D0,&
-         &1.50745D0,1.50239D0,1.49800D0,1.49416D0,1.49079D0,1.48779D0,&
-         &1.48274D0,1.47865D0,1.47529D0,1.47447D0,1.47248D0,1.47012D0,&
-         &1.46962D0,1.46669D0,1.46557D0,1.46313D0,1.46233D0,1.46008D0,&
-         &1.45991D0,1.45846D0,1.45804D0,1.45653D0,1.45637D0,1.45529D0,&
-         &1.45424D0,1.45332D0,1.45250D0,1.45175D0,1.45042D0,1.44920D0,&
-         &1.44805D0,1.44692D0,1.44758D0,1.44462D0,1.44342D0,1.44217D0,&
-         &1.44087D0,1.43951D0,1.43809D0,1.43659D0,1.43501D0,1.43336D0,&
-         &1.43163D0,1.42980D0,1.42789D0,1.42588D0,1.42377D0,1.42156D0,&
-         &1.41925D0,1.41682D0,1.41427D0,1.41161D0,1.40881D0,1.40589D0/
+         DATA (SUPY(J), J = 1,60)/1.56572D0,1.55051D0,1.53836D0,1.52845D0,1.52024D0,1.51333D0,1.50745D0,1.50239D0,1.49800D0,1.49416D0,1.49079D0,1.48779D0,1.48274D0,1.47865D0,1.47529D0,1.47447D0,1.47248D0,1.47012D0,1.46962D0,1.46669D0,1.46557D0,1.46313D0,1.46233D0,1.46008D0,1.45991D0,1.45846D0,1.45804D0,1.45653D0,1.45637D0,1.45529D0,1.45424D0,1.45332D0,1.45250D0,1.45175D0,1.45042D0,1.44920D0,1.44805D0,1.44692D0,1.44758D0,1.44462D0,1.44342D0,1.44217D0,1.44087D0,1.43951D0,1.43809D0,1.43659D0,1.43501D0,1.43336D0,1.43163D0,1.42980D0,1.42789D0,1.42588D0,1.42377D0,1.42156D0,1.41925D0,1.41682D0,1.41427D0,1.41161D0,1.40881D0,1.40589D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=SUPX(1:N)
@@ -6570,23 +5955,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR SUPRASIL
 !
-         DATA (HOMOX(J), J = 1,47)/&
-         &0.34D0,0.36D0,0.36548D0,0.38D0,&
-         &0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,&
-         &0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,&
-         &0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,&
-         &1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,&
-         &2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
+         DATA (HOMOX(J), J = 1,47)/0.34D0,0.36D0,0.36548D0,0.38D0,0.4D0,0.40465D0,0.43583D0,0.45D0,0.48613D0,0.5D0,0.54607D0,0.55D0,0.58756D0,0.6D0,0.65D0,0.65627D0,0.7D0,0.75D0,0.8D0,0.85D0,0.9D0,1.0D0,1.1D0,1.2D0,1.3D0,1.4D0,1.5D0,1.6D0,1.7D0,1.8D0,1.9D0,2.0D0,2.1D0,2.2D0,2.3D0,2.4D0,2.5D0,2.6D0,2.7D0,2.8D0,2.9D0,3.0D0,3.1D0,3.2D0,3.3D0,3.4D0,3.5D0/
 !
-         DATA (HOMOY(J), J = 1,47)/1.47881D0,1.47544D0,1.47462D0,&
-         &1.47262D0,1.47025D0,1.46975D0,1.46681D0,1.46568D0,1.46324D0,&
-         &1.46243D0,1.46018D0,1.46001D0,1.45856D0,1.45814D0,1.45663D0,&
-         &1.45646D0,1.45539D0,1.45433D0,1.45341D0,1.45259D0,1.45185D0,&
-         &1.45051D0,1.44930D0,1.44815D0,1.44702D0,1.44589D0,1.44473D0,&
-         &1.44353D0,1.44229D0,1.44099D0,1.43964D0,1.43821D0,1.43672D0,&
-         &1.43515D0,1.43350D0,1.43177D0,1.42995D0,1.42804D0,1.42604D0,&
-         &1.42393D0,1.42172D0,1.41941D0,1.41698D0,1.41444D0,1.41177D0,&
-         &1.40897D0,1.40605D0/
+         DATA (HOMOY(J), J = 1,47)/1.47881D0,1.47544D0,1.47462D0,1.47262D0,1.47025D0,1.46975D0,1.46681D0,1.46568D0,1.46324D0,1.46243D0,1.46018D0,1.46001D0,1.45856D0,1.45814D0,1.45663D0,1.45646D0,1.45539D0,1.45433D0,1.45341D0,1.45259D0,1.45185D0,1.45051D0,1.44930D0,1.44815D0,1.44702D0,1.44589D0,1.44473D0,1.44353D0,1.44229D0,1.44099D0,1.43964D0,1.43821D0,1.43672D0,1.43515D0,1.43350D0,1.43177D0,1.42995D0,1.42804D0,1.42604D0,1.42393D0,1.42172D0,1.41941D0,1.41698D0,1.41444D0,1.41177D0,1.40897D0,1.40605D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=HOMOX(1:N)
@@ -6611,25 +5982,9 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     DATA FOR ZNS-MS II-VI DATA
 !
-         DATA (ZNSMSX(J), J = 1,59)/&
-         &0.42D0,0.46D0,0.50D0,0.54D0,0.58D0,0.62D0,0.66D0,0.70D0,&
-         &0.74D0,0.78D0,0.82D0,0.86D0,0.90D0,0.94D0,0.98D0,1.00D0,&
-         &1.40D0,1.80D0,2.20D0,2.60D0,3.00D0,3.40D0,3.80D0,4.20D0,&
-         &4.60D0,5.00D0,5.40D0,5.80D0,6.20D0,6.60D0,7.00D0,7.40D0,&
-         &7.80D0,8.20D0,8.60D0,9.00D0,9.40D0,9.80D0,10.20D0,10.60D0,&
-         &11.00D0,11.40D0,11.80D0,12.20D0,12.60D0,13.0D0,13.40D0,13.80D0,&
-         &14.20D0,14.60D0,15.00D0,15.40D0,15.80D0,16.2D0,16.60D0,17.00D0,&
-         &17.40D0,17.80D0,18.20D0/
+         DATA (ZNSMSX(J), J = 1,59)/0.42D0,0.46D0,0.50D0,0.54D0,0.58D0,0.62D0,0.66D0,0.70D0,0.74D0,0.78D0,0.82D0,0.86D0,0.90D0,0.94D0,0.98D0,1.00D0,1.40D0,1.80D0,2.20D0,2.60D0,3.00D0,3.40D0,3.80D0,4.20D0,4.60D0,5.00D0,5.40D0,5.80D0,6.20D0,6.60D0,7.00D0,7.40D0,7.80D0,8.20D0,8.60D0,9.00D0,9.40D0,9.80D0,10.20D0,10.60D0,11.00D0,11.40D0,11.80D0,12.20D0,12.60D0,13.0D0,13.40D0,13.80D0,14.20D0,14.60D0,15.00D0,15.40D0,15.80D0,16.2D0,16.60D0,17.00D0,17.40D0,17.80D0,18.20D0/
 !
-         DATA (ZNSMSY(J), J = 1,59)/&
-         &2.516D0,2.458D0,2.419D0,2.391D0,2.371D0,2.355D0,2.342D0,2.332D0,&
-         &2.323D0,2.316D0,2.310D0,2.305D0,2.301D0,2.297D0,2.294D0,2.292D0,&
-         &2.275D0,2.267D0,2.263D0,2.260D0,2.257D0,2.255D0,2.253D0,2.251D0,&
-         &2.248D0,2.246D0,2.244D0,2.241D0,2.238D0,2.235D0,2.232D0,2.228D0,&
-         &2.225D0,2.221D0,2.217D0,2.212D0,2.208D0,2.203D0,2.198D0,2.192D0,&
-         &2.186D0,2.180D0,2.173D0,2.167D0,2.159D0,2.152D0,2.143D0,2.135D0,&
-         &2.126D0,2.116D0,2.106D0,2.095D0,2.084D0,2.072D0,2.059D0,2.045D0,&
-         &2.030D0,2.015D0,1.998D0/
+         DATA (ZNSMSY(J), J = 1,59)/2.516D0,2.458D0,2.419D0,2.391D0,2.371D0,2.355D0,2.342D0,2.332D0,2.323D0,2.316D0,2.310D0,2.305D0,2.301D0,2.297D0,2.294D0,2.292D0,2.275D0,2.267D0,2.263D0,2.260D0,2.257D0,2.255D0,2.253D0,2.251D0,2.248D0,2.246D0,2.244D0,2.241D0,2.238D0,2.235D0,2.232D0,2.228D0,2.225D0,2.221D0,2.217D0,2.212D0,2.208D0,2.203D0,2.198D0,2.192D0,2.186D0,2.180D0,2.173D0,2.167D0,2.159D0,2.152D0,2.143D0,2.135D0,2.126D0,2.116D0,2.106D0,2.095D0,2.084D0,2.072D0,2.059D0,2.045D0,2.030D0,2.015D0,1.998D0/
 !
 !     MOVE TO LARGE ARRAYS
          X(1:N)=ZNSMSX(1:N)
@@ -6653,40 +6008,35 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     CALCULATE THE INDICES
       IF(GLSWV(1).NE.0.0D0) THEN
-         GPREG(1)&
-         &=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(1)-2.0D0))+1.59D0
+         GPREG(1)=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(1)-2.0D0))+1.59D0
          IF(GLSWV(1).LE.0.55D0) GPREG(1)=1.63D0
          IF(GLSWV(1).GE.2.00D0) GPREG(1)=1.59D0
       ELSE
          GPREG(1)=1.0D0
       END IF
       IF(GLSWV(2).NE.0.0D0) THEN
-         GPREG(2)&
-         &=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(2)-2.0D0))+1.59D0
+         GPREG(2)=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(2)-2.0D0))+1.59D0
          IF(GLSWV(2).LE.0.55D0) GPREG(2)=1.63D0
          IF(GLSWV(2).GE.2.00D0) GPREG(2)=1.59D0
       ELSE
          GPREG(2)=1.0D0
       END IF
       IF(GLSWV(3).NE.0.0D0) THEN
-         GPREG(3)&
-         &=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(3)-2.0D0))+1.59D0
+         GPREG(3)=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(3)-2.0D0))+1.59D0
          IF(GLSWV(3).LE.0.55D0) GPREG(3)=1.63D0
          IF(GLSWV(3).GE.2.00D0) GPREG(3)=1.59D0
       ELSE
          GPREG(3)=1.0D0
       END IF
       IF(GLSWV(4).NE.0.0D0) THEN
-         GPREG(4)&
-         &=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(4)-2.0D0))+1.59D0
+         GPREG(4)=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(4)-2.0D0))+1.59D0
          IF(GLSWV(4).LE.0.55D0) GPREG(4)=1.63D0
          IF(GLSWV(4).GE.2.00D0) GPREG(4)=1.59D0
       ELSE
          GPREG(4)=1.0D0
       END IF
       IF(GLSWV(5).NE.0.0D0) THEN
-         GPREG(5)&
-         &=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(5)-2.0D0))+1.59D0
+         GPREG(5)=(((1.63D0-1.59D0)/(0.55D0-2.0D0))*(GLSWV(5)-2.0D0))+1.59D0
          IF(GLSWV(5).LE.0.55D0) GPREG(5)=1.63D0
          IF(GLSWV(5).GE.2.00D0) GPREG(5)=1.59D0
       ELSE
@@ -6699,40 +6049,35 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     CALCULATE THE INDICES
       IF(GLSWV(1).NE.0.0D0) THEN
-         GPREG(1)&
-         &=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(1)-2.0D0))+1.86D0
+         GPREG(1)=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(1)-2.0D0))+1.86D0
          IF(GLSWV(1).LE.0.55D0) GPREG(1)=1.95D0
          IF(GLSWV(1).GE.2.00D0) GPREG(1)=1.86D0
       ELSE
          GPREG(1)=1.0D0
       END IF
       IF(GLSWV(2).NE.0.0D0) THEN
-         GPREG(2)&
-         &=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(2)-2.0D0))+1.86D0
+         GPREG(2)=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(2)-2.0D0))+1.86D0
          IF(GLSWV(2).LE.0.55D0) GPREG(2)=1.95D0
          IF(GLSWV(2).GE.2.00D0) GPREG(2)=1.86D0
       ELSE
          GPREG(2)=1.0D0
       END IF
       IF(GLSWV(3).NE.0.0D0) THEN
-         GPREG(3)&
-         &=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(3)-2.0D0))+1.86D0
+         GPREG(3)=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(3)-2.0D0))+1.86D0
          IF(GLSWV(3).LE.0.55D0) GPREG(3)=1.95D0
          IF(GLSWV(3).GE.2.00D0) GPREG(3)=1.86D0
       ELSE
          GPREG(3)=1.0D0
       END IF
       IF(GLSWV(4).NE.0.0D0) THEN
-         GPREG(4)&
-         &=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(4)-2.0D0))+1.86D0
+         GPREG(4)=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(4)-2.0D0))+1.86D0
          IF(GLSWV(4).LE.0.55D0) GPREG(4)=1.95D0
          IF(GLSWV(4).GE.2.00D0) GPREG(4)=1.86D0
       ELSE
          GPREG(4)=1.0D0
       END IF
       IF(GLSWV(5).NE.0.0D0) THEN
-         GPREG(5)&
-         &=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(5)-2.0D0))+1.86D0
+         GPREG(5)=(((1.95D0-1.86D0)/(0.55D0-2.0D0))*(GLSWV(5)-2.0D0))+1.86D0
          IF(GLSWV(5).LE.0.55D0) GPREG(5)=1.95D0
          IF(GLSWV(5).GE.2.00D0) GPREG(5)=1.86D0
       ELSE
@@ -6745,40 +6090,35 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     CALCULATE THE INDICES
       IF(GLSWV(1).NE.0.0D0) THEN
-         GPREG(1)&
-         &=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(1)-.75D0))+1.51D0
+         GPREG(1)=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(1)-.75D0))+1.51D0
          IF(GLSWV(1).LE.0.40D0) GPREG(1)=1.52D0
          IF(GLSWV(1).GE.0.75D0) GPREG(1)=1.51D0
       ELSE
          GPREG(1)=1.0D0
       END IF
       IF(GLSWV(2).NE.0.0D0) THEN
-         GPREG(2)&
-         &=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(2)-.75D0))+1.51D0
+         GPREG(2)=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(2)-.75D0))+1.51D0
          IF(GLSWV(2).LE.0.40D0) GPREG(2)=1.52D0
          IF(GLSWV(2).GE.0.75D0) GPREG(2)=1.51D0
       ELSE
          GPREG(2)=1.0D0
       END IF
       IF(GLSWV(3).NE.0.0D0) THEN
-         GPREG(3)&
-         &=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(3)-.75D0))+1.51D0
+         GPREG(3)=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(3)-.75D0))+1.51D0
          IF(GLSWV(3).LE.0.40D0) GPREG(3)=1.52D0
          IF(GLSWV(3).GE.0.75D0) GPREG(3)=1.51D0
       ELSE
          GPREG(3)=1.0D0
       END IF
       IF(GLSWV(4).NE.0.0D0) THEN
-         GPREG(4)&
-         &=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(4)-.75D0))+1.51D0
+         GPREG(4)=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(4)-.75D0))+1.51D0
          IF(GLSWV(4).LE.0.40D0) GPREG(4)=1.52D0
          IF(GLSWV(4).GE.0.75D0) GPREG(4)=1.51D0
       ELSE
          GPREG(4)=1.0D0
       END IF
       IF(GLSWV(5).NE.0.0D0) THEN
-         GPREG(5)&
-         &=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(5)-.75D0))+1.51D0
+         GPREG(5)=(((1.52D0-1.51D0)/(0.40D0-0.75D0))*(GLSWV(5)-.75D0))+1.51D0
          IF(GLSWV(5).LE.0.40D0) GPREG(5)=1.52D0
          IF(GLSWV(5).GE.0.75D0) GPREG(5)=1.51D0
       ELSE
@@ -6791,40 +6131,35 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     CALCULATE THE INDICES
       IF(GLSWV(1).NE.0.0D0) THEN
-         GPREG(1)&
-         &=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(1)-.75D0))+2.00D0
+         GPREG(1)=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(1)-.75D0))+2.00D0
          IF(GLSWV(1).LE.0.55D0) GPREG(1)=2.10D0
          IF(GLSWV(1).GE..75D0) GPREG(1)=2.00D0
       ELSE
          GPREG(1)=1.0D0
       END IF
       IF(GLSWV(2).NE.0.0D0) THEN
-         GPREG(2)&
-         &=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(2)-.75D0))+2.00D0
+         GPREG(2)=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(2)-.75D0))+2.00D0
          IF(GLSWV(2).LE.0.55D0) GPREG(2)=2.10D0
          IF(GLSWV(2).GE..75D0) GPREG(2)=2.00D0
       ELSE
          GPREG(2)=1.0D0
       END IF
       IF(GLSWV(3).NE.0.0D0) THEN
-         GPREG(3)&
-         &=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(3)-.75D0))+2.00D0
+         GPREG(3)=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(3)-.75D0))+2.00D0
          IF(GLSWV(3).LE.0.55D0) GPREG(3)=2.10D0
          IF(GLSWV(3).GE..75D0) GPREG(3)=2.00D0
       ELSE
          GPREG(3)=1.0D0
       END IF
       IF(GLSWV(4).NE.0.0D0) THEN
-         GPREG(4)&
-         &=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(4)-.75D0))+2.00D0
+         GPREG(4)=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(4)-.75D0))+2.00D0
          IF(GLSWV(4).LE.0.55D0) GPREG(4)=2.10D0
          IF(GLSWV(4).GE..75D0) GPREG(4)=2.00D0
       ELSE
          GPREG(4)=1.0D0
       END IF
       IF(GLSWV(5).NE.0.0D0) THEN
-         GPREG(5)&
-         &=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(5)-.75D0))+2.00D0
+         GPREG(5)=(((2.10D0-2.00D0)/(0.55D0-2.0D0))*(GLSWV(5)-.75D0))+2.00D0
          IF(GLSWV(5).LE.0.55D0) GPREG(5)=2.10D0
          IF(GLSWV(5).GE..75D0) GPREG(5)=2.00D0
       ELSE
@@ -6856,25 +6191,15 @@ SUBROUTINE SPCGL(I,MTYPE)
 !
 !     PLASTICS
 !
-      DATA (GPLX(J), J = 1,13)/0.36501D0,0.40466D0,0.43484D0 &
-      &,0.47999D0,0.48613D0,0.54607D0,0.58756D0,0.58929D0,0.64385D0 &
-      &,0.65627D0,0.70652D0,0.85211D0,1.01398D0/
+      DATA (GPLX(J), J = 1,13)/0.36501D0,0.40466D0,0.43484D0 ,0.47999D0,0.48613D0,0.54607D0,0.58756D0,0.58929D0,0.64385D0 ,0.65627D0,0.70652D0,0.85211D0,1.01398D0/
 !
-      DATA (GPL1Y(J), J = 1,13)/1.513613D0,1.506607D0,1.502557D0 &
-      &,1.498258D0,1.497760D0,1.493795D0,1.491757D0,1.491681D0 &
-      &,1.489603D0,1.489201D0,1.487552D0,1.484965D0,1.483115D0/
+      DATA (GPL1Y(J), J = 1,13)/1.513613D0,1.506607D0,1.502557D0 ,1.498258D0,1.497760D0,1.493795D0,1.491757D0,1.491681D0 ,1.489603D0,1.489201D0,1.487552D0,1.484965D0,1.483115D0/
 !
-      DATA (GPL2Y(J), J = 1,13)/1.643126D0,1.625341D0,1.615466D0 &
-      &,1.605241D0,1.604079D0,1.595010D0,1.590481D0,1.590315D0 &
-      &,1.585808D0,1.584949D0,1.581954D0,1.576196D0,1.572553D0/
+      DATA (GPL2Y(J), J = 1,13)/1.643126D0,1.625341D0,1.615466D0 ,1.605241D0,1.604079D0,1.595010D0,1.590481D0,1.590315D0 ,1.585808D0,1.584949D0,1.581954D0,1.576196D0,1.572553D0/
 !
-      DATA (GPL3Y(J), J = 1,13)/1.643231D0,1.622447D0,1.611519D0 &
-      &,1.600654D0,1.599439D0,1.590081D0,1.585470D0,1.585302D0 &
-      &,1.580734D0,1.579864D0,1.576831D0,1.570981D0,1.567248D0/
+      DATA (GPL3Y(J), J = 1,13)/1.643231D0,1.622447D0,1.611519D0 ,1.600654D0,1.599439D0,1.590081D0,1.585470D0,1.585302D0 ,1.580734D0,1.579864D0,1.576831D0,1.570981D0,1.567248D0/
 !
-      DATA (GPL4Y(J), J = 1,13)/1.612490D0,1.597075D0,1.588640D0 &
-      &,1.579985D0,1.579000D0,1.571300D0,1.567400D0,1.567298D0 &
-      &,1.563438D0,1.562700D0,1.560119D0,1.555108D0,1.551870D0/
+      DATA (GPL4Y(J), J = 1,13)/1.612490D0,1.597075D0,1.588640D0 ,1.579985D0,1.579000D0,1.571300D0,1.567400D0,1.567298D0 ,1.563438D0,1.562700D0,1.560119D0,1.555108D0,1.551870D0/
 !
       N=13
 !

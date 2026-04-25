@@ -11,11 +11,9 @@ SUBROUTINE SETHED
 !
 !
    IF(SST.EQ.1.OR.SN.EQ.1) THEN
-      outlyne=&
-      &'"HEADINGS"'
+      outlyne='"HEADINGS"'
       CALL SHOWIT(1)
-      outlyne=&
-      &'TAKES NO STRING OR NUMERIC WORD INPUT'
+      outlyne='TAKES NO STRING OR NUMERIC WORD INPUT'
       CALL SHOWIT(1)
       outlyne='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -94,8 +92,7 @@ SUBROUTINE SET
 !
 !
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"SET" ONLY TAKES QUALIFIER, STRING AND NUMERIC WORD #1 INPUT'
+      WRITE(OUTLYNE,*)'"SET" ONLY TAKES QUALIFIER, STRING AND NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -173,8 +170,7 @@ SUBROUTINE SET
       IF(WS(1:8).EQ.'NTEST   ') SVAL=REG(28)
    END IF
    IF(SST.EQ.1.AND..NOT.GSTRING) THEN
-      WRITE(OUTLYNE,*)&
-      &'INVALID SOURCE REGISTER NAME ENTERED'
+      WRITE(OUTLYNE,*)'INVALID SOURCE REGISTER NAME ENTERED'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -276,17 +272,7 @@ SUBROUTINE SET
    IF(WQ.EQ.'NTEST') THEN
       REG(28)=W1
    END IF
-   IF(WQ.NE.'A'.AND.WQ.NE.'B'.AND.WQ.NE.'C'&
-   &.AND.WQ.NE.'D'.AND.WQ.NE.'E'.AND.WQ.NE.'F'&
-   &.AND.WQ.NE.'G'.AND.WQ.NE.'H'.AND.WQ.NE.'I'&
-   &.AND.WQ.NE.'J'.AND.WQ.NE.'ITEST'.AND.WQ.NE.'JTEST'&
-   &.AND.WQ.NE.'X'.AND.WQ.NE.'Y'.AND.WQ.NE.'Z'&
-   &.AND.WQ.NE.'T'.AND.WQ.NE.'IX'.AND.WQ.NE.'IY'&
-   &.AND.WQ.NE.'IZ'.AND.WQ.NE.'IT'&
-   &.AND.WQ.NE.'ACC'.AND.&
-   &WQ.NE.'        '.AND.WQ.NE.'K'.AND.WQ.NE.'L'.AND.WQ.NE.'M'&
-   &.AND.WQ.NE.'N'.AND.WQ.NE.'KTEST'.AND.WQ.NE.'LTEST'.AND.WQ.NE.&
-   &'MTEST'.AND.WQ.NE.'NTEST') THEN
+   IF(WQ.NE.'A'.AND.WQ.NE.'B'.AND.WQ.NE.'C'.AND.WQ.NE.'D'.AND.WQ.NE.'E'.AND.WQ.NE.'F'.AND.WQ.NE.'G'.AND.WQ.NE.'H'.AND.WQ.NE.'I'.AND.WQ.NE.'J'.AND.WQ.NE.'ITEST'.AND.WQ.NE.'JTEST'.AND.WQ.NE.'X'.AND.WQ.NE.'Y'.AND.WQ.NE.'Z'.AND.WQ.NE.'T'.AND.WQ.NE.'IX'.AND.WQ.NE.'IY'.AND.WQ.NE.'IZ'.AND.WQ.NE.'IT'.AND.WQ.NE.'ACC'.AND.WQ.NE.'        '.AND.WQ.NE.'K'.AND.WQ.NE.'L'.AND.WQ.NE.'M'.AND.WQ.NE.'N'.AND.WQ.NE.'KTEST'.AND.WQ.NE.'LTEST'.AND.WQ.NE.'MTEST'.AND.WQ.NE.'NTEST') THEN
       WRITE(OUTLYNE,*)'INVALID TARGET REGISTER NAME ENTERED'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -301,6 +287,7 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
 !
    use ieee_arithmetic, only: ieee_is_nan
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -324,16 +311,7 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
    IF(surf_array_parity(I) /= 0) CALL SAGARRAY(I,X,Y)
 !
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.1) THEN
-      SAG=((((X**2)+(Y**2)))*surf_asphere_coeff(I, 2))+&
-      &((((X**2)+(Y**2))**2)*surf_asphere_coeff(I, 4))+&
-      &((((X**2)+(Y**2))**3)*surf_asphere_coeff(I, 6))+&
-      &((((X**2)+(Y**2))**4)*surf_asphere_coeff(I, 8))+&
-      &((((X**2)+(Y**2))**5)*surf_asphere_coeff(I, 10))+&
-      &((((X**2)+(Y**2))**6)*surf_asphere_coeff(I, 12))+&
-      &((((X**2)+(Y**2))**7)*surf_asphere_coeff(I, 14))+&
-      &((((X**2)+(Y**2))**8)*surf_asphere_coeff(I, 16))+&
-      &((((X**2)+(Y**2))**9)*surf_asphere_coeff(I, 18))+&
-      &((((X**2)+(Y**2))**10)*surf_asphere_coeff(I, 20))
+      SAG=((((X**2)+(Y**2)))*surf_asphere_coeff(I, 2))+((((X**2)+(Y**2))**2)*surf_asphere_coeff(I, 4))+((((X**2)+(Y**2))**3)*surf_asphere_coeff(I, 6))+((((X**2)+(Y**2))**4)*surf_asphere_coeff(I, 8))+((((X**2)+(Y**2))**5)*surf_asphere_coeff(I, 10))+((((X**2)+(Y**2))**6)*surf_asphere_coeff(I, 12))+((((X**2)+(Y**2))**7)*surf_asphere_coeff(I, 14))+((((X**2)+(Y**2))**8)*surf_asphere_coeff(I, 16))+((((X**2)+(Y**2))**9)*surf_asphere_coeff(I, 18))+((((X**2)+(Y**2))**10)*surf_asphere_coeff(I, 20))
       ! JN - for Afocal systems this term can
       ! lead to NaN in gfortran hence this call
       if (ieee_is_nan(SAG)) SAG = 0.0D0
@@ -347,11 +325,7 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
 
 !       SPECIAL SURFACE ?
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.2) THEN
-      IF(surf_special_type(I) /= 0.AND.&
-      &surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.&
-      &surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.&
-      &surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.&
-      &surf_default_flag(I) == 1) THEN
+      IF(surf_special_type(I) /= 0.AND.surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.surf_default_flag(I) == 1) THEN
          CALL SAGSPC(I,X,Y,Z)
          IF(surf_special_type(I) == 24.AND.FTFL01(2,I).EQ.-1.0D0) THEN
             SAG=Z
@@ -364,16 +338,15 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
    RETURN
 END
 ! SUB SAGANA.FOR
-SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
-&,SAG,I)
+SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY ,SAG,I)
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
 !
-   REAL*8 CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,SAG,R,R1,R3,R2,R4,Z,XX,YY,SAG1,SAG2
+   REAL*8 CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY ,SAG,R,R1,R3,R2,R4,Z,XX,YY,SAG1,SAG2
 !
    INTEGER I
 !
@@ -389,18 +362,13 @@ SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
       RETURN
    END IF
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.1) THEN
-      SAG=((((CX*(X**2))+(CY*(Y**2)))/(1.0D0+DSQRT(R))))&
-      &+R1+R2+R3+R4
+      SAG=((((CX*(X**2))+(CY*(Y**2)))/(1.0D0+DSQRT(R))))+R1+R2+R3+R4
    ELSE
       SAG=0.0D0
    END IF
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.2) THEN
 !       SPECIAL SURFACE ?
-      IF(surf_special_type(I) /= 0.AND.&
-      &surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.&
-      &surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.&
-      &surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.&
-      &surf_default_flag(I) == 1) THEN
+      IF(surf_special_type(I) /= 0.AND.surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.surf_default_flag(I) == 1) THEN
          CALL SAGSPC(I,X,Y,Z)
          IF(surf_special_type(I) == 24.AND.FTFL01(2,I).EQ.-1.0D0) THEN
             SAG=Z
@@ -416,6 +384,7 @@ END
 SUBROUTINE SAGASP(I,X,Y,SAG)
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -437,19 +406,9 @@ SUBROUTINE SAGASP(I,X,Y,SAG)
       RETURN
    END IF
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.1) THEN
-      SAG=(surf_curvature(I)*RHO2)/&
-      &(1.0D0+DSQRT(R))
+      SAG=(surf_curvature(I)*RHO2)/(1.0D0+DSQRT(R))
       IF(surf_is_asphere(I)) THEN
-         SAG=SAG+&
-         &(surf_asphere_coeff(I, 4)*(RHO**4))&
-         &+(surf_asphere_coeff(I, 6)*(RHO**6))&
-         &+(surf_asphere_coeff(I, 8)*(RHO**8))&
-         &+(surf_asphere_coeff(I, 10)*(RHO**10))&
-         &+(surf_asphere_coeff(I, 12)*(RHO**12))&
-         &+(surf_asphere_coeff(I, 14)*(RHO**14))&
-         &+(surf_asphere_coeff(I, 16)*(RHO**16))&
-         &+(surf_asphere_coeff(I, 18)*(RHO**18))&
-         &+(surf_asphere_coeff(I, 20)*(RHO**20))
+         SAG=SAG+(surf_asphere_coeff(I, 4)*(RHO**4))+(surf_asphere_coeff(I, 6)*(RHO**6))+(surf_asphere_coeff(I, 8)*(RHO**8))+(surf_asphere_coeff(I, 10)*(RHO**10))+(surf_asphere_coeff(I, 12)*(RHO**12))+(surf_asphere_coeff(I, 14)*(RHO**14))+(surf_asphere_coeff(I, 16)*(RHO**16))+(surf_asphere_coeff(I, 18)*(RHO**18))+(surf_asphere_coeff(I, 20)*(RHO**20))
       END IF
    ELSE
       SAG=0.0D0
@@ -457,11 +416,7 @@ SUBROUTINE SAGASP(I,X,Y,SAG)
 !
 !       SPECIAL SURFACE ?
    IF(SAGCODE.EQ.0.OR.SAGCODE.EQ.2) THEN
-      IF(surf_special_type(I) /= 0.AND.&
-      &surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.&
-      &surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.&
-      &surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.&
-      &surf_default_flag(I) == 1) THEN
+      IF(surf_special_type(I) /= 0.AND.surf_special_type(I) /= 6.AND.surf_special_type(I) /= 7.AND.surf_special_type(I) /= 9.AND.surf_special_type(I) /= 10.AND.surf_special_type(I) /= 12.AND.surf_special_type(I) /= 13.OR.surf_default_flag(I) == 1) THEN
          CALL SAGSPC(I,X,Y,Z)
          IF(surf_special_type(I) == 24.AND.FTFL01(2,I).EQ.-1.0D0) THEN
             SAG=Z
@@ -478,13 +433,12 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
 !       THIS DOES SPECIAL SURFACES NOW
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
 !
-   REAL*8 C,K,Z,DELTA,ARG,MAXCLAP,DELCLAP &
-   &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,KX,KY,L1,M1,N1
+   REAL*8 C,K,Z,DELTA,ARG,MAXCLAP,DELCLAP ,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY ,KX,KY,L1,M1,N1
    REAL*8 X1,X2,Y1,Y2,Z1,Z2,ARGA,ARGB,ARGC,ARGD
 !
    INTEGER I,J,GOO,L,M,N
@@ -492,18 +446,17 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
    EXTERNAL ARG1,ARG2
 !
 !
-   IF(SYSTEM(6).EQ.1.0D0) DELTA=0.001D0/25.4
-   IF(SYSTEM(6).EQ.2.0D0) DELTA=0.0001D0
-   IF(SYSTEM(6).EQ.3.0D0) DELTA=0.001D0
-   IF(SYSTEM(6).EQ.4.0D0) DELTA=0.000001D0
+   IF(sys_units().EQ.1.0D0) DELTA=0.001D0/25.4
+   IF(sys_units().EQ.2.0D0) DELTA=0.0001D0
+   IF(sys_units().EQ.3.0D0) DELTA=0.001D0
+   IF(sys_units().EQ.4.0D0) DELTA=0.000001D0
    X1=X-DELTA
    X2=X+DELTA
    Y1=Y-DELTA
    Y2=Y+DELTA
 !
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-   IF(surf_curvature(I).EQ.0.0D0 &
-   &.AND.surf_toric_flag(I) == 0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
       CALL SAGFLT(I,X,Y,Z)
       CALL SAGFLT(I,X,Y2,Z2)
       CALL SAGFLT(I,X,Y1,Z1)
@@ -523,8 +476,7 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
       ARGB= ARG1(C,K,X2,Y)
       ARGC= ARG1(C,K,X,Y1)
       ARGD= ARG1(C,K,X,Y2)
-      IF(ARG.LT.0.0D0.OR.ARGA.LT.0.0D0.OR.ARGB.LT.0.0D0.OR.&
-      &ARGC.LT.0.0D0.OR.ARGD.LT.0.0D0) THEN
+      IF(ARG.LT.0.0D0.OR.ARGA.LT.0.0D0.OR.ARGB.LT.0.0D0.OR.ARGC.LT.0.0D0.OR.ARGD.LT.0.0D0) THEN
          Z=0.0D0
          L1=0.0D0
          M1=0.0D0
@@ -582,8 +534,7 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
       ARGB=ARG2(CX,CY,KX,KY,X2,Y)
       ARGC=ARG2(CX,CY,KX,KY,X,Y1)
       ARGD=ARG2(CX,CY,KX,KY,X,Y2)
-      IF(ARG.LT.0.0D0.OR.ARGA.LT.0.0D0.OR.ARGB.LT.0.0D0.OR.&
-      &ARGC.LT.0.0D0.OR.ARGD.LT.0.0D0) THEN
+      IF(ARG.LT.0.0D0.OR.ARGA.LT.0.0D0.OR.ARGB.LT.0.0D0.OR.ARGC.LT.0.0D0.OR.ARGD.LT.0.0D0) THEN
          Z=0.0D0
          L1=0.0D0
          M1=0.0D0
@@ -607,6 +558,7 @@ END
 SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -617,8 +569,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
 !
    LOGICAL ETERROR
 !
-   REAL*8 C,K,SAG,ARG,CA,KX,KY &
-   &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY
+   REAL*8 C,K,SAG,ARG,CA,KX,KY ,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY
 !
    INTEGER I,J
 !
@@ -636,8 +587,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
       X=CA
    END IF
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-   IF(surf_curvature(I).EQ.0.0D0 &
-   &.AND.surf_toric_flag(I) == 0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
       CALL SAGFLT(I,X,Y,SAG)
       IF(DABS(SAG).LT.1E-15) SAG=0.0D0
       IF(surf_paraxial_val(I) == 1) SAG=0.0D0
@@ -649,8 +599,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
       K=surf_conic(I)
       ARG= ARG1(C,K,X,Y)
       IF(ARG.LT.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING: EDGE THICKNESS CALCULATION ERROR'
+         WRITE(OUTLYNE,*)'WARNING: EDGE THICKNESS CALCULATION ERROR'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'EDGE THICKNESS OPERAND VALUE SET TO ZERO'
          CALL SHOWIT(1)
@@ -698,8 +647,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
       END IF
       ARG=ARG2(CX,CY,KX,KY,X,Y)
       IF(ARG.LT.0.0D0) THEN
-         WRITE(OUTLYNE,*)&
-         &'WARNING: EDGE THICKNESS CALCULATION ERROR'
+         WRITE(OUTLYNE,*)'WARNING: EDGE THICKNESS CALCULATION ERROR'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'EDGE THICKNESS OPERAND VALUE SET TO ZERO'
          CALL SHOWIT(1)
@@ -720,6 +668,7 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !     I IS SURFACE #
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -727,9 +676,7 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !       THIS IS SUBROUTINE SAGPLT. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE SAG FOR SURFACE PROFILE AND CLAP/COBS PLOTTING.
 !
-   REAL*8 C,K,SAG,ARG &
-   &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,KX,KY,VAL
+   REAL*8 C,K,SAG,ARG ,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY ,KX,KY,VAL
 !
    INTEGER I,NO
 !
@@ -737,8 +684,7 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
 !
 !
 !       FLAT SURFACE MAYBE ASPHERICS OR SPECIAL SURFACE STUFF
-   IF(surf_curvature(I).EQ.0.0D0 &
-   &.AND.surf_toric_flag(I) == 0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
       CALL SAGFLT(I,X,Y,SAG)
       IF(DABS(SAG).LT.1.0D-15) SAG=0.0D0
       IF(surf_paraxial_val(I) == 1) SAG=0.0D0
@@ -820,6 +766,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    USE GLOBALS
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -844,12 +791,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
 !
    INTEGER I,III
 !
-   REAL*8 X,Y,Z,THETA,R,FF2,FF3,FF4,XX,YY &
-   &,AAAX,AAAY,FF5,RRRHO,JK_WAVE,AMP1,OMEGA1X,OMEGA1Y &
-   &,AMP2,OMEGA2X,OMEGA2Y &
-   &,AMP3,OMEGA3X,OMEGA3Y &
-   &,AMP4,OMEGA4X,OMEGA4Y &
-   &,AMP5,OMEGA5X,OMEGA5Y
+   REAL*8 X,Y,Z,THETA,R,FF2,FF3,FF4,XX,YY ,AAAX,AAAY,FF5,RRRHO,JK_WAVE,AMP1,OMEGA1X,OMEGA1Y ,AMP2,OMEGA2X,OMEGA2Y ,AMP3,OMEGA3X,OMEGA3Y ,AMP4,OMEGA4X,OMEGA4Y ,AMP5,OMEGA5X,OMEGA5Y
 !
 !
    INR=surf_inr_value(I)
@@ -858,13 +800,10 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    Z=0.0D0
    IF(surf_special_type(I) == 1) THEN
       DO III=9,48
-         IF(FTFL01(III,I).EQ.0.0D0.OR.X.EQ.0.0D0.AND.Y.EQ.0.0D0 &
-         &.AND.(III-9).EQ.0) THEN
-            Z=Z+&
-            &FTFL01(III,I)
+         IF(FTFL01(III,I).EQ.0.0D0.OR.X.EQ.0.0D0.AND.Y.EQ.0.0D0 .AND.(III-9).EQ.0) THEN
+            Z=Z+FTFL01(III,I)
          ELSE
-            Z=Z+&
-            &(FTFL01(III,I)*(((DSQRT((X**2)+(Y**2)))**(III-9))))
+            Z=Z+(FTFL01(III,I)*(((DSQRT((X**2)+(Y**2)))**(III-9))))
          END IF
       END DO
       IF(surf_paraxial_val(I) == 1) Z=0.0D0
@@ -872,41 +811,41 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    END IF
 !     SPECIAL SURFACE TYPE 4
    IF(surf_special_type(I) == 4) THEN
-      IF(INT(SYSTEM(11)).EQ.1)  JK_WAVE=SYSTEM(1)
-      IF(INT(SYSTEM(11)).EQ.2)  JK_WAVE=SYSTEM(2)
-      IF(INT(SYSTEM(11)).EQ.3)  JK_WAVE=SYSTEM(3)
-      IF(INT(SYSTEM(11)).EQ.4)  JK_WAVE=SYSTEM(4)
-      IF(INT(SYSTEM(11)).EQ.5)  JK_WAVE=SYSTEM(5)
-      IF(INT(SYSTEM(11)).EQ.6)  JK_WAVE=SYSTEM(71)
-      IF(INT(SYSTEM(11)).EQ.7)  JK_WAVE=SYSTEM(72)
-      IF(INT(SYSTEM(11)).EQ.8)  JK_WAVE=SYSTEM(73)
-      IF(INT(SYSTEM(11)).EQ.9)  JK_WAVE=SYSTEM(74)
-      IF(INT(SYSTEM(11)).EQ.10) JK_WAVE=SYSTEM(75)
+      IF(INT(sys_wl_ref()).EQ.1)  JK_WAVE=sys_wavelength(1)
+      IF(INT(sys_wl_ref()).EQ.2)  JK_WAVE=sys_wavelength(2)
+      IF(INT(sys_wl_ref()).EQ.3)  JK_WAVE=sys_wavelength(3)
+      IF(INT(sys_wl_ref()).EQ.4)  JK_WAVE=sys_wavelength(4)
+      IF(INT(sys_wl_ref()).EQ.5)  JK_WAVE=sys_wavelength(5)
+      IF(INT(sys_wl_ref()).EQ.6)  JK_WAVE=sys_wavelength(6)
+      IF(INT(sys_wl_ref()).EQ.7)  JK_WAVE=sys_wavelength(7)
+      IF(INT(sys_wl_ref()).EQ.8)  JK_WAVE=sys_wavelength(8)
+      IF(INT(sys_wl_ref()).EQ.9)  JK_WAVE=sys_wavelength(9)
+      IF(INT(sys_wl_ref()).EQ.10) JK_WAVE=sys_wavelength(10)
       AMP1=DABS(FTFL01(1,I)*JK_WAVE*0.5D0)
       AMP2=DABS(FTFL01(4,I)*JK_WAVE*0.5D0)
       AMP3=DABS(FTFL01(7,I)*JK_WAVE*0.5D0)
       AMP4=DABS(FTFL01(10,I)*JK_WAVE*0.5D0)
       AMP5=DABS(FTFL01(13,I)*JK_WAVE*0.5D0)
-      IF(SYSTEM(6).EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP1=AMP1*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP1=AMP1*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP1=AMP1*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP2=AMP2*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP2=AMP2*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP2=AMP2*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP3=AMP3*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP3=AMP3*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP3=AMP3*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP4=AMP4*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP4=AMP4*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP4=AMP4*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP5=AMP5*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP5=AMP5*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP5=AMP5*1.0D-6
+      IF(sys_units().EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP1=AMP1*1.0D-4
+      IF(sys_units().EQ.3) AMP1=AMP1*1.0D-3
+      IF(sys_units().EQ.4) AMP1=AMP1*1.0D-6
+      IF(sys_units().EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP2=AMP2*1.0D-4
+      IF(sys_units().EQ.3) AMP2=AMP2*1.0D-3
+      IF(sys_units().EQ.4) AMP2=AMP2*1.0D-6
+      IF(sys_units().EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP3=AMP3*1.0D-4
+      IF(sys_units().EQ.3) AMP3=AMP3*1.0D-3
+      IF(sys_units().EQ.4) AMP3=AMP3*1.0D-6
+      IF(sys_units().EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP4=AMP4*1.0D-4
+      IF(sys_units().EQ.3) AMP4=AMP4*1.0D-3
+      IF(sys_units().EQ.4) AMP4=AMP4*1.0D-6
+      IF(sys_units().EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP5=AMP5*1.0D-4
+      IF(sys_units().EQ.3) AMP5=AMP5*1.0D-3
+      IF(sys_units().EQ.4) AMP5=AMP5*1.0D-6
       IF(FTFL01(2,I).EQ.0.0D0) THEN
          OMEGA1X=0.0D0
       ELSE
@@ -957,11 +896,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       ELSE
          OMEGA5Y=TWOPII/DABS(FTFL01(15,I))
       END IF
-      Z=(AMP1*(DCOS(OMEGA1X*X)*(DCOS(OMEGA1Y*Y))))&
-      &+(AMP2*(DCOS(OMEGA2X*X)*(DCOS(OMEGA2Y*Y))))&
-      &+(AMP3*(DCOS(OMEGA3X*X)*(DCOS(OMEGA3Y*Y))))&
-      &+(AMP4*(DCOS(OMEGA4X*X)*(DCOS(OMEGA4Y*Y))))&
-      &+(AMP5*(DCOS(OMEGA5X*X)*(DCOS(OMEGA5Y*Y))))
+      Z=(AMP1*(DCOS(OMEGA1X*X)*(DCOS(OMEGA1Y*Y))))+(AMP2*(DCOS(OMEGA2X*X)*(DCOS(OMEGA2Y*Y))))+(AMP3*(DCOS(OMEGA3X*X)*(DCOS(OMEGA3Y*Y))))+(AMP4*(DCOS(OMEGA4X*X)*(DCOS(OMEGA4Y*Y))))+(AMP5*(DCOS(OMEGA5X*X)*(DCOS(OMEGA5Y*Y))))
       IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
    END IF
@@ -975,22 +910,17 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       ELSE
          IF(surf_toric_flag(I) == 0) THEN
             RRRHO=DSQRT((X**2)+(Y**2))
-            Z=(surf_curvature(I)*(RRRHO**2))/&
-            &(1.0D0+DSQRT(1.0D0-(1.0D0+surf_conic(I))*(surf_curvature(I)**2)*(RRRHO**2)))
+            Z=(surf_curvature(I)*(RRRHO**2))/(1.0D0+DSQRT(1.0D0-(1.0D0+surf_conic(I))*(surf_curvature(I)**2)*(RRRHO**2)))
             IF(surf_paraxial_val(I) == 1) Z=0.0D0
          END IF
          IF(surf_toric_flag(I) == 1) THEN
             RRRHO=X
-            Z=(surf_toric_curvature(I)*(RRRHO**2))/&
-            &(1.0D0+DSQRT(1.0D0-(1.0D0+surf_anamorphic_conic(I))*(surf_toric_curvature(I)**2)&
-            &*(RRRHO**2)))
+            Z=(surf_toric_curvature(I)*(RRRHO**2))/(1.0D0+DSQRT(1.0D0-(1.0D0+surf_anamorphic_conic(I))*(surf_toric_curvature(I)**2)*(RRRHO**2)))
             IF(surf_paraxial_val(I) == 1) Z=0.0D0
          END IF
          IF(surf_toric_flag(I) == 2) THEN
             RRRHO=Y
-            Z=(surf_toric_curvature(I)*(RRRHO**2))/&
-            &(1.0D0+DSQRT(1.0D0-(1.0D0+surf_anamorphic_conic(I))*(surf_toric_curvature(I)**2)&
-            &*(RRRHO**2)))
+            Z=(surf_toric_curvature(I)*(RRRHO**2))/(1.0D0+DSQRT(1.0D0-(1.0D0+surf_anamorphic_conic(I))*(surf_toric_curvature(I)**2)*(RRRHO**2)))
             IF(surf_paraxial_val(I) == 1) Z=0.0D0
          END IF
       END IF
@@ -1016,8 +946,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       IF(R.EQ.0.0D0) THETA=0.0D0
       Z=0.0D0
       DO III=1,66
-         Z=Z+&
-         &(FTFL01(III,I)*(FF2(R,THETA,III)))
+         Z=Z+(FTFL01(III,I)*(FF2(R,THETA,III)))
       END DO
       IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
@@ -1042,8 +971,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       IF(R.EQ.0.0D0) THETA=0.0D0
       Z=0.0D0
       DO III=1,37
-         Z=Z+&
-         &(FTFL01(III,I)*(FF3(R,THETA,III)))
+         Z=Z+(FTFL01(III,I)*(FF3(R,THETA,III)))
       END DO
       IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
@@ -1132,8 +1060,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       IF(R.EQ.0.0D0) THETA=0.0D0
       Z=0.0D0
       DO III=1,48
-         Z=Z+&
-         &(FTFL01(III,I)*(FF5(R,THETA,III)))
+         Z=Z+(FTFL01(III,I)*(FF5(R,THETA,III)))
       END DO
       IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
@@ -1153,8 +1080,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       YY=Y
       Z=0.0D0
       DO III=1,91
-         Z=Z+&
-         &(FTFL01(III,I)*(FF4(XX,YY,III)))
+         Z=Z+(FTFL01(III,I)*(FF4(XX,YY,III)))
       END DO
       IF(surf_paraxial_val(I) == 1) Z=0.0D0
       RETURN
@@ -1285,8 +1211,7 @@ FUNCTION ARG1(C,K,X,Y)
    REAL*8 X,Y,C,K,RHO,ARG1
 !
    RHO=DSQRT((X**2)+(Y**2))
-   ARG1=&
-   &1.0D0-((K+1.0D0)*(C**2)*(RHO**2))
+   ARG1=1.0D0-((K+1.0D0)*(C**2)*(RHO**2))
    RETURN
 END
 ! SUB ARG2.FOR
@@ -1295,8 +1220,7 @@ FUNCTION ARG2(CX,CY,KX,KY,X,Y)
 !
    IMPLICIT NONE
 !
-   REAL*8 CX,CY,KX,KY,X,Y &
-   &,ARG2,R
+   REAL*8 CX,CY,KX,KY,X,Y ,ARG2,R
 !
    R=1.0D0-((KX+1.0D0)*(CX**2)*(X**2))-((KY+1.0D0)*(CY**2)*(Y**2))
    ARG2=R
@@ -1308,6 +1232,7 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
 !       THIS DOES SPECIAL SURFACES NOW
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1316,9 +1241,7 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
 !       HANDLES THE SAG OF SURFACES IN RAYTRACING. PUT IN TO SUPPORT
 !     NON-FLAT OBJECT SURFACES
 !
-   REAL*8 C,K,SAG,DELTA,ARG &
-   &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,KX,KY,Z
+   REAL*8 C,K,SAG,DELTA,ARG ,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY ,KX,KY,Z
 !
    LOGICAL SAGERR
 !
@@ -1335,8 +1258,7 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
    END IF
 !
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-   IF(surf_curvature(I).EQ.0.0D0 &
-   &.AND.surf_toric_flag(I) == 0) THEN
+   IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
       !PRINT *, "SAGRET CALLING SAGFLT"
       CALL SAGFLT(I,X,Y,SAG)
       !PRINT *, "SAG AFTER SAGFLG ", SAG
@@ -1414,6 +1336,7 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
 END
 SUBROUTINE MAX_CLAP_VAL(I,MAXCLAP)
    use DATLEN
+   use mod_system
    use mod_surface
    IMPLICIT NONE
    REAL*8 MAXCLAP1,MAXCLAP2,MAXCLAP
@@ -1446,8 +1369,7 @@ SUBROUTINE MAX_CLAP_VAL(I,MAXCLAP)
       IF(MAXCLAP1.GT.MAXCLAP2) MAXCLAP=MAXCLAP1
       RETURN
    END IF
-   IF(surf_clap_type(I) > 1.AND.surf_clap_type(I) <= 4.AND.&
-   &surf_array_parity(I) == 0) THEN
+   IF(surf_clap_type(I) > 1.AND.surf_clap_type(I) <= 4.AND.surf_array_parity(I) == 0) THEN
       MAXCLAP1=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
       MAXCLAP2=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
       MAXCLAP=MAXCLAP2
@@ -1460,6 +1382,7 @@ SUBROUTINE SSAAGG
 !       THIS DOES SPECIAL SURFACES NOW
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -1467,16 +1390,13 @@ SUBROUTINE SSAAGG
 !       THIS IS SUBROUTINE SSAAGG. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE SAG CMD LEVEL COMMAND.
 !
-   REAL*8 C,K,SAG,DELTA,ARG,MAXCLAP,DELCLAP,SSAG &
-   &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
-   &,KX,KY,S_L,S_M,S_N,DDD
+   REAL*8 C,K,SAG,DELTA,ARG,MAXCLAP,DELCLAP,SSAG ,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY ,KX,KY,S_L,S_M,S_N,DDD
 !
    REAL*8 VALUE
 !
    INTEGER ISAG
    REAL*8 SAGMIN,SAGMAX,SAGRMS,SAGMEAN,SAG2MEAN,SAGPTOV
-   COMMON/SAGSTUFF/SAGMIN,SAGMAX,SAGRMS,SAGMEAN,ISAG,SAG2MEAN &
-   &,SAGPTOV
+   COMMON/SAGSTUFF/SAGMIN,SAGMAX,SAGRMS,SAGMEAN,ISAG,SAG2MEAN ,SAGPTOV
 
    LOGICAL EXIS90,OPEN90,ISITIN
 !
@@ -1502,8 +1422,7 @@ SUBROUTINE SSAAGG
       IF(INT(W1).LT.NEWOBJ.OR.INT(W1).GT.NEWIMG) THEN
          WRITE(OUTLYNE,*)'FOR "GET SAG"'
          CALL SHOWIT(1)
-         WRITE(OUTLYNE,*)&
-         &'SURFACE NUMBER BEYOND LEGAL BOUNDS'
+         WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL BOUNDS'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1513,8 +1432,7 @@ SUBROUTINE SSAAGG
 !
       I=INT(W1)
 !       FLAT SURFACE (MAYBE ASPHERICS AND SPECIAL SURFACE STUFF)
-      IF(surf_curvature(I).EQ.0.0D0 &
-      &.AND.surf_toric_flag(I) == 0) THEN
+      IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
          X=W2
          Y=W3
          CALL SAGFLT(I,X,Y,SAG)
@@ -1546,8 +1464,7 @@ SUBROUTINE SSAAGG
          Y=W3
          ARG= ARG1(C,K,X,Y)
          IF(ARG.LT.0.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'NO REAL SAG VALUE EXISTS FOR THE GIVEN X AND Y VALUES'
+            WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS FOR THE GIVEN X AND Y VALUES'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1617,8 +1534,7 @@ SUBROUTINE SSAAGG
          Y=W3
          ARG=ARG2(CX,CY,KX,KY,X,Y)
          IF(ARG.LT.0.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
+            WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'SAG TABLE OUTPUT TERMINATED'
             CALL SHOWIT(1)
@@ -1656,16 +1572,14 @@ SUBROUTINE SSAAGG
 !     THE SAG COMMAND
 !
    IF(SST.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"',WC(1:3),'"',&
-      &' TAKES NO STRING INPUT'
+      WRITE(OUTLYNE,*)'"',WC(1:3),'"',' TAKES NO STRING INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -1674,14 +1588,12 @@ SUBROUTINE SSAAGG
       RETURN
    END IF
 !       CHECK QUALIFIERS
-   IF(WQ.EQ.'X'.OR.WQ.EQ.'Y'.OR.WQ.EQ.'PT'.OR.WQ.EQ.'FILE'&
-   &.OR.WQ.EQ.'PTACC') THEN
+   IF(WQ.EQ.'X'.OR.WQ.EQ.'Y'.OR.WQ.EQ.'PT'.OR.WQ.EQ.'FILE'.OR.WQ.EQ.'PTACC') THEN
 !       VALID QUALIFIERS, PROCEED
 !       DO DEFAULTS FOR SAG Y AND SAG X
       IF(WQ.EQ.'X'.OR.WQ.EQ.'Y') THEN
          IF(DF1.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"SAG X" AND "SAG Y" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
+            WRITE(OUTLYNE,*)'"SAG X" AND "SAG Y" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1690,8 +1602,7 @@ SUBROUTINE SSAAGG
          END IF
          IF(DF2.EQ.1) W2=0.0D0
          IF(DF3.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"SAG X" AND "SAG Y" REQUIRE EXPLICIT NUMERIC WORD #3 INPUT'
+            WRITE(OUTLYNE,*)'"SAG X" AND "SAG Y" REQUIRE EXPLICIT NUMERIC WORD #3 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1703,10 +1614,8 @@ SUBROUTINE SSAAGG
 !       DO DEFAULTS FOR SAG PT
       IF(WQ.EQ.'PT'.OR.WQ.EQ.'PTACC') THEN
          IF(DF1.EQ.1.OR.DF2.EQ.1.OR.DF3.EQ.1) THEN
-            IF(WQ.EQ.'PT')WRITE(OUTLYNE,*)&
-            &'"SAG PT" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
-            IF(WQ.EQ.'PTACC')WRITE(OUTLYNE,*)&
-            &'"SAG PTACC" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
+            IF(WQ.EQ.'PT')WRITE(OUTLYNE,*)'"SAG PT" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
+            IF(WQ.EQ.'PTACC')WRITE(OUTLYNE,*)'"SAG PTACC" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1716,8 +1625,7 @@ SUBROUTINE SSAAGG
          IF(DF4.EQ.1) W4 = 0.0D0
          IF(DF5.EQ.1) W5 = 0.0D0
          IF(S4.EQ.1.OR.S5.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"SAG PT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            WRITE(OUTLYNE,*)'"SAG PT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1728,17 +1636,15 @@ SUBROUTINE SSAAGG
 !       DO DEFAULTS FOR SAG FILE
       IF(WQ.EQ.'FILE') THEN
          IF(DF1.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"SAG FILE" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
+            WRITE(OUTLYNE,*)'"SAG FILE" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
             CALL MACFAL
             RETURN
          END IF
-         IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
-            WRITE(OUTLYNE,*)&
-            &'SURFACE NUMBER FOR "SAG FILE" BEYOND LEGAL BOUNDS'
+         IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
+            WRITE(OUTLYNE,*)'SURFACE NUMBER FOR "SAG FILE" BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1747,8 +1653,7 @@ SUBROUTINE SSAAGG
          END IF
          IF(DF2.EQ.1) W2=25.0D0
          IF(W2.LT.4.0D0) THEN
-            WRITE(OUTLYNE,*)&
-            &'"N" MUST BE AT LEAST 4, FOR "SAG FILE"'
+            WRITE(OUTLYNE,*)'"N" MUST BE AT LEAST 4, FOR "SAG FILE"'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1758,8 +1663,7 @@ SUBROUTINE SSAAGG
          IF(DF3.EQ.1) W3 = 0.0D0
          SAGCODE=INT(W3)
          IF(INT(W3).NE.0.AND.INT(W3).NE.1.AND.INT(W3).NE.2) THEN
-            WRITE(OUTLYNE,*)&
-            &'"CODE" MUST BE 0, 1, OR 2, FOR "SAG FILE"'
+            WRITE(OUTLYNE,*)'"CODE" MUST BE 0, 1, OR 2, FOR "SAG FILE"'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1767,8 +1671,7 @@ SUBROUTINE SSAAGG
             RETURN
          END IF
          IF(S4.EQ.1) THEN
-            WRITE(OUTLYNE,*)&
-            &'"SAG FILE" TAKES NO NUMERIC WORD #4 INPUT'
+            WRITE(OUTLYNE,*)'"SAG FILE" TAKES NO NUMERIC WORD #4 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1783,8 +1686,7 @@ SUBROUTINE SSAAGG
          IF(INT(W1).LT.NEWOBJ.OR.INT(W1).GT.NEWIMG) THEN
             WRITE(OUTLYNE,*)'FOR "SAG Y" AND "SAG X"'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'SURFACE NUMBER BEYOND LEGAL BOUNDS'
+            WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1795,8 +1697,7 @@ SUBROUTINE SSAAGG
          IF(W3.LE.W2) THEN
             WRITE(OUTLYNE,*)'FOR "SAG Y" AND "SAG X"'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'NUMERIC WORD #3 MUST BE GREATER THAN NUMERIC WORD #2'
+            WRITE(OUTLYNE,*)'NUMERIC WORD #3 MUST BE GREATER THAN NUMERIC WORD #2'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1807,11 +1708,9 @@ SUBROUTINE SSAAGG
          IF((W3-W2).LT.W4) THEN
             WRITE(OUTLYNE,*)'FOR "SAG Y" AND "SAG X"'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'NUMERIC WORD #4 MUST BE LESS THAN THE DIFFERENCE BETWEEN'
+            WRITE(OUTLYNE,*)'NUMERIC WORD #4 MUST BE LESS THAN THE DIFFERENCE BETWEEN'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'NUMERIC WORDS #3 AND #2'
+            WRITE(OUTLYNE,*)'NUMERIC WORDS #3 AND #2'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1821,8 +1720,7 @@ SUBROUTINE SSAAGG
 !
          I=INT(W1)
 !       FLAT SURFACE MAYBE ASPHERICS OR SPECIAL
-         IF(surf_curvature(I).EQ.0.0D0 &
-         &.AND.surf_toric_flag(I) == 0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
             NPOINT=INT((W3-W2)/W4)
 !       PRINT HEADING
             X=0.0D0
@@ -1830,10 +1728,10 @@ SUBROUTINE SSAAGG
             SAG=0.0D0
             WRITE(OUTLYNE,100) I
             CALL SHOWIT(0)
-            IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-            IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-            IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-            IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+            IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+            IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+            IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+            IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,11)
             CALL SHOWIT(0)
@@ -1893,10 +1791,10 @@ SUBROUTINE SSAAGG
             END IF
             WRITE(OUTLYNE,100) I
             CALL SHOWIT(0)
-            IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-            IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-            IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-            IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+            IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+            IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+            IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+            IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,11)
             CALL SHOWIT(0)
@@ -1909,8 +1807,7 @@ SUBROUTINE SSAAGG
             DO J=1,NPOINT+1
                ARG= ARG1(C,K,X,Y)
                IF(ARG.LT.0.0D0) THEN
-                  WRITE(OUTLYNE,*)&
-                  &'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
+                  WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*)'SAG TABLE OUTPUT TERMINATED'
                   CALL SHOWIT(1)
@@ -1992,10 +1889,10 @@ SUBROUTINE SSAAGG
             END IF
             WRITE(OUTLYNE,100) I
             CALL SHOWIT(0)
-            IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-            IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-            IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-            IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+            IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+            IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+            IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+            IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,11)
             CALL SHOWIT(0)
@@ -2008,8 +1905,7 @@ SUBROUTINE SSAAGG
             DO J=1,NPOINT+1
                ARG=ARG2(CX,CY,KX,KY,X,Y)
                IF(ARG.LT.0.0D0) THEN
-                  WRITE(OUTLYNE,*)&
-                  &'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
+                  WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
                   CALL SHOWIT(1)
                   WRITE(OUTLYNE,*)'SAG TABLE OUTPUT TERMINATED'
                   CALL SHOWIT(1)
@@ -2050,8 +1946,7 @@ SUBROUTINE SSAAGG
          IF(INT(W1).LT.NEWOBJ.OR.INT(W1).GT.NEWIMG) THEN
             WRITE(OUTLYNE,*)'FOR "SAG PT"'
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,*)&
-            &'SURFACE NUMBER BEYOND LEGAL BOUNDS'
+            WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(0)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(0)
@@ -2061,8 +1956,7 @@ SUBROUTINE SSAAGG
 !
          I=INT(W1)
 !       FLAT SURFACE MAYBE ASPHERICS AND SPECIAL
-         IF(surf_curvature(I).EQ.0.0D0 &
-         &.AND.surf_toric_flag(I) == 0) THEN
+         IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
             X=W2
             Y=W3
 
@@ -2085,10 +1979,10 @@ SUBROUTINE SSAAGG
             IF(WQ.NE.'PTACC') THEN
                WRITE(OUTLYNE,100) I
                CALL SHOWIT(0)
-               IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-               IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-               IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-               IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+               IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+               IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+               IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+               IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
                CALL SHOWIT(0)
                WRITE(OUTLYNE,301)X
                CALL SHOWIT(0)
@@ -2121,8 +2015,7 @@ SUBROUTINE SSAAGG
 
             ARG= ARG1(C,K,X,Y)
             IF(ARG.LT.0.0D0) THEN
-               WRITE(OUTLYNE,*)&
-               &'NO REAL SAG VALUE EXISTS FOR THE GIVEN X AND Y VALUES'
+               WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS FOR THE GIVEN X AND Y VALUES'
                CALL SHOWIT(0)
                WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
                CALL SHOWIT(0)
@@ -2149,10 +2042,10 @@ SUBROUTINE SSAAGG
                IF(WQ.NE.'PTACC') THEN
                   WRITE(OUTLYNE,100) I
                   CALL SHOWIT(0)
-                  IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-                  IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-                  IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-                  IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+                  IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+                  IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+                  IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+                  IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
                   CALL SHOWIT(0)
                   WRITE(OUTLYNE,301)X
                   CALL SHOWIT(0)
@@ -2218,8 +2111,7 @@ SUBROUTINE SSAAGG
 !       PRINT HEADING
             ARG=ARG2(CX,CY,KX,KY,X,Y)
             IF(ARG.LT.0.0D0) THEN
-               WRITE(OUTLYNE,*)&
-               &'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
+               WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'SAG TABLE OUTPUT TERMINATED'
                CALL SHOWIT(1)
@@ -2246,10 +2138,10 @@ SUBROUTINE SSAAGG
                IF(WQ.EQ.'PTACC') THEN
                   WRITE(OUTLYNE,100) I
                   CALL SHOWIT(0)
-                  IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-                  IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-                  IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-                  IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+                  IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+                  IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+                  IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+                  IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
                   CALL SHOWIT(0)
                   WRITE(OUTLYNE,301)X
                   CALL SHOWIT(0)
@@ -2292,9 +2184,7 @@ SUBROUTINE SSAAGG
 !     NO FILE TO GET RID OF
          END IF
 !     OPEN THE OUTPUT FILE
-         OPEN(UNIT=90,BLANK='NULL'&
-         &,FORM='FORMATTED',FILE='SAG.DAT'&
-         &,STATUS='UNKNOWN')
+         OPEN(UNIT=90,BLANK='NULL',FORM='FORMATTED',FILE='SAG.DAT',STATUS='UNKNOWN')
 !
          I=INT(W1)
          N=INT(W2)
@@ -2308,8 +2198,7 @@ SUBROUTINE SSAAGG
             X=-MAXCLAP
             DO L=1,N
 !       FLAT SURFACE MAYBE ASPHERICS AND SPECIAL
-               IF(surf_curvature(I).EQ.0.0D0 &
-               &.AND.surf_toric_flag(I) == 0) THEN
+               IF(surf_curvature(I).EQ.0.0D0 .AND.surf_toric_flag(I) == 0) THEN
                   CALL SAGFLT(I,X,Y,SAG)
                   IF(DABS(SAG).LT.1E-15) SAG=0.0D0
 
@@ -2320,8 +2209,7 @@ SUBROUTINE SSAAGG
                   K=surf_conic(I)
                   ARG= ARG1(C,K,X,Y)
                   IF(ARG.LT.0.0D0) THEN
-                     WRITE(OUTLYNE,*)&
-                     &'NO REAL SAG VALUE EXISTS FOR THE GIVEN X AND Y VALUES'
+                     WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS FOR THE GIVEN X AND Y VALUES'
                      CALL SHOWIT(0)
                      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
                      CALL SHOWIT(0)
@@ -2371,8 +2259,7 @@ SUBROUTINE SSAAGG
                   NPOINT=INT((W3-W2)/W4)
                   ARG=ARG2(CX,CY,KX,KY,X,Y)
                   IF(ARG.LT.0.0D0) THEN
-                     WRITE(OUTLYNE,*)&
-                     &'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
+                     WRITE(OUTLYNE,*)'NO REAL SAG VALUE EXISTS BEYOND THE RANGE ALREADY PRINTED'
                      CALL SHOWIT(1)
                      WRITE(OUTLYNE,*)'SAG TABLE OUTPUT TERMINATED'
                      CALL SHOWIT(1)
@@ -2403,25 +2290,25 @@ SUBROUTINE SSAAGG
          CALL CLOSE_FILE(90,1)
          SAGRMS=DSQRT((SAG2MEAN-((SAGMEAN**2)/DBLE(ISAG)))/(DBLE(ISAG-1)))
          SAGMEAN=SAGMEAN/DBLE(ISAG)
-         IF(SYSTEM(6).EQ.1.0D0) THEN
+         IF(sys_units().EQ.1.0D0) THEN
             SAGMIN=SAGMIN*25.4D0*1.0D3
             SAGMAX=SAGMAX*25.4D0*1.0D3
             SAGMEAN=SAGMEAN*25.4D0*1.0D3
             SAGRMS=SAGRMS*25.4D0*1.0D3
          END IF
-         IF(SYSTEM(6).EQ.2.0D0) THEN
+         IF(sys_units().EQ.2.0D0) THEN
             SAGMIN=SAGMIN*1.0D4
             SAGMAX=SAGMAX*1.0D4
             SAGMEAN=SAGMEAN*1.0D4
             SAGRMS=SAGRMS*1.0D4
          END IF
-         IF(SYSTEM(6).EQ.3.0D0) THEN
+         IF(sys_units().EQ.3.0D0) THEN
             SAGMIN=SAGMIN*1.0D3
             SAGMAX=SAGMAX*1.0D3
             SAGMEAN=SAGMEAN*1.0D3
             SAGRMS=SAGRMS*1.0D3
          END IF
-         IF(SYSTEM(6).EQ.4.0D0) THEN
+         IF(sys_units().EQ.4.0D0) THEN
             SAGMIN=SAGMIN*1.0D6
             SAGMAX=SAGMAX*1.0D6
             SAGMEAN=SAGMEAN*1.0D6
@@ -2454,8 +2341,7 @@ SUBROUTINE SSAAGG
       END IF
    ELSE
 !       INVALID QUALIFIER USED WITH SAG
-      WRITE(OUTLYNE,*)&
-      &'INVALID QUALIFIER WORD USED WITH THE "SAG" COMMAND'
+      WRITE(OUTLYNE,*)'INVALID QUALIFIER WORD USED WITH THE "SAG" COMMAND'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2480,6 +2366,7 @@ SUBROUTINE SSAAGG
 END
 SUBROUTINE SAGARRAY(I,X,Y)
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface
    IMPLICIT NONE
@@ -2526,26 +2413,15 @@ SUBROUTINE SETBLNI
 !       SETS CURRENT INSTRUCTION VALUES AND STATUS INDICATORS
 !       TO BLANK
 !
-   CHARACTER COMMWD_JK*8,QUALWD_JK*8,STRING_JK*80,&
-   &ANW_JK*140,ANW1_JK*23,ANW2_JK*23,ANW3_JK*23,&
-   &ANW4_JK*23,ANW5_JK*23
+   CHARACTER COMMWD_JK*8,QUALWD_JK*8,STRING_JK*80,ANW_JK*140,ANW1_JK*23,ANW2_JK*23,ANW3_JK*23,ANW4_JK*23,ANW5_JK*23
 !
-   REAL*8 NW1_JK,NW2_JK,NW3_JK,NW4_JK,&
-   &NW5_JK
+   REAL*8 NW1_JK,NW2_JK,NW3_JK,NW4_JK,NW5_JK
 !
-   INTEGER STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,&
-   &STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,&
-   &STATBL_JK,STBLK2_JK,STATQL_JK,STATST_JK,SI_JK
+   INTEGER STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,STATBL_JK,STBLK2_JK,STATQL_JK,STATST_JK,SI_JK
 !
-   COMMON/CBLANK_JK/NW1_JK,NW2_JK,NW3_JK,NW4_JK &
-   &,NW5_JK,STATNW_JK,STATN1_JK,STATN2_JK,&
-   &STATN3_JK,STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,&
-   &STATBL_JK,STBLK2_JK,STATQL_JK,&
-   &STATST_JK,SI_JK
+   COMMON/CBLANK_JK/NW1_JK,NW2_JK,NW3_JK,NW4_JK ,NW5_JK,STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,STATBL_JK,STBLK2_JK,STATQL_JK,STATST_JK,SI_JK
 !
-   COMMON/CCBLAN_JK/COMMWD_JK,QUALWD_JK,STRING_JK,&
-   &ANW_JK,ANW1_JK,ANW2_JK,ANW3_JK,ANW4_JK,&
-   &ANW5_JK
+   COMMON/CCBLAN_JK/COMMWD_JK,QUALWD_JK,STRING_JK,ANW_JK,ANW1_JK,ANW2_JK,ANW3_JK,ANW4_JK,ANW5_JK
 !
 !
 !
@@ -2587,26 +2463,15 @@ SUBROUTINE SETBLN_JK
 !       SETS CURRENT INSTRUCTION VALUES AND STATUS INDICATORS
 !       TO BLANK
 !
-   CHARACTER COMMWD_JK*8,QUALWD_JK*8,STRING_JK*80,&
-   &ANW_JK*140,ANW1_JK*23,ANW2_JK*23,ANW3_JK*23,&
-   &ANW4_JK*23,ANW5_JK*23
+   CHARACTER COMMWD_JK*8,QUALWD_JK*8,STRING_JK*80,ANW_JK*140,ANW1_JK*23,ANW2_JK*23,ANW3_JK*23,ANW4_JK*23,ANW5_JK*23
 !
-   REAL*8 NW1_JK,NW2_JK,NW3_JK,NW4_JK,&
-   &NW5_JK
+   REAL*8 NW1_JK,NW2_JK,NW3_JK,NW4_JK,NW5_JK
 !
-   INTEGER STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,&
-   &STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,&
-   &STATBL_JK,STBLK2_JK,STATQL_JK,STATST_JK,SI_JK
+   INTEGER STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,STATBL_JK,STBLK2_JK,STATQL_JK,STATST_JK,SI_JK
 !
-   COMMON/CBLANK_JK/NW1_JK,NW2_JK,NW3_JK,NW4_JK &
-   &,NW5_JK,STATNW_JK,STATN1_JK,STATN2_JK,&
-   &STATN3_JK,STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,&
-   &STATBL_JK,STBLK2_JK,STATQL_JK,&
-   &STATST_JK,SI_JK
+   COMMON/CBLANK_JK/NW1_JK,NW2_JK,NW3_JK,NW4_JK ,NW5_JK,STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,STATN4_JK,STATN5_JK,STATCO_JK,STATC2_JK,STATBL_JK,STBLK2_JK,STATQL_JK,STATST_JK,SI_JK
 !
-   COMMON/CCBLAN_JK/COMMWD_JK,QUALWD_JK,STRING_JK,&
-   &ANW_JK,ANW1_JK,ANW2_JK,ANW3_JK,ANW4_JK,&
-   &ANW5_JK
+   COMMON/CCBLAN_JK/COMMWD_JK,QUALWD_JK,STRING_JK,ANW_JK,ANW1_JK,ANW2_JK,ANW3_JK,ANW4_JK,ANW5_JK
 !
 !
    COMMWD_JK=BB
@@ -2800,20 +2665,7 @@ SUBROUTINE BREAKO2(REMAIN)
    IF(JK_BLANK) GO TO 201
 !
 !     IF A NON-NUMERIC CHARACTER WAS FOUND, JUMP TO 201
-   IF(REMAIN(1:1).NE.'+'.AND.&
-   &REMAIN(1:1).NE.'-'.AND.&
-   &REMAIN(1:1).NE.'0'.AND.&
-   &REMAIN(1:1).NE.'1'.AND.&
-   &REMAIN(1:1).NE.'2'.AND.&
-   &REMAIN(1:1).NE.'3'.AND.&
-   &REMAIN(1:1).NE.'4'.AND.&
-   &REMAIN(1:1).NE.'5'.AND.&
-   &REMAIN(1:1).NE.'6'.AND.&
-   &REMAIN(1:1).NE.'7'.AND.&
-   &REMAIN(1:1).NE.'8'.AND.&
-   &REMAIN(1:1).NE.'9'.AND.&
-   &REMAIN(1:1).NE.','.AND.&
-   &REMAIN(1:1).NE.'.') GO TO 201
+   IF(REMAIN(1:1).NE.'+'.AND.REMAIN(1:1).NE.'-'.AND.REMAIN(1:1).NE.'0'.AND.REMAIN(1:1).NE.'1'.AND.REMAIN(1:1).NE.'2'.AND.REMAIN(1:1).NE.'3'.AND.REMAIN(1:1).NE.'4'.AND.REMAIN(1:1).NE.'5'.AND.REMAIN(1:1).NE.'6'.AND.REMAIN(1:1).NE.'7'.AND.REMAIN(1:1).NE.'8'.AND.REMAIN(1:1).NE.'9'.AND.REMAIN(1:1).NE.','.AND.REMAIN(1:1).NE.'.') GO TO 201
 !
 !
 !     CASE OF EMBEDDED BLANK AS IN 2D 3 REPRESENTING 2D+3
@@ -2833,20 +2685,7 @@ SUBROUTINE BREAKO2(REMAIN)
       REMAIN(1:140)=JK_ANW(1:140)
 !
 !     IF A NON-NUMERIC CHARACTER WAS FOUND, JUMP TO 201
-      IF(REMAIN(1:1).NE.'+'.AND.&
-      &REMAIN(1:1).NE.'-'.AND.&
-      &REMAIN(1:1).NE.'0'.AND.&
-      &REMAIN(1:1).NE.'1'.AND.&
-      &REMAIN(1:1).NE.'2'.AND.&
-      &REMAIN(1:1).NE.'3'.AND.&
-      &REMAIN(1:1).NE.'4'.AND.&
-      &REMAIN(1:1).NE.'5'.AND.&
-      &REMAIN(1:1).NE.'6'.AND.&
-      &REMAIN(1:1).NE.'7'.AND.&
-      &REMAIN(1:1).NE.'8'.AND.&
-      &REMAIN(1:1).NE.'9'.AND.&
-      &REMAIN(1:1).NE.','.AND.&
-      &REMAIN(1:1).NE.'.') GO TO 201
+      IF(REMAIN(1:1).NE.'+'.AND.REMAIN(1:1).NE.'-'.AND.REMAIN(1:1).NE.'0'.AND.REMAIN(1:1).NE.'1'.AND.REMAIN(1:1).NE.'2'.AND.REMAIN(1:1).NE.'3'.AND.REMAIN(1:1).NE.'4'.AND.REMAIN(1:1).NE.'5'.AND.REMAIN(1:1).NE.'6'.AND.REMAIN(1:1).NE.'7'.AND.REMAIN(1:1).NE.'8'.AND.REMAIN(1:1).NE.'9'.AND.REMAIN(1:1).NE.','.AND.REMAIN(1:1).NE.'.') GO TO 201
 !
 !     IS THE NEXT VALUE A DEFAULT JK_ANW VALUE
       IF(JK_ANW(1:1).EQ.','.OR.JK_ANW(1:1).EQ.' '.OR.JK_BLANK) THEN
@@ -3008,12 +2847,7 @@ SUBROUTINE INSRTD2
 !
 !     CASE OF MISSING "D" AS IN 2-3 REPRESENTING 2D-3
    DO I=1,138
-      IF(JK_ANW(I:I).EQ.'0'.OR.JK_ANW(I:I).EQ.'1'.OR.&
-      &JK_ANW(I:I).EQ.'2'.OR.JK_ANW(I:I).EQ.'3'.OR.&
-      &JK_ANW(I:I).EQ.'4'.OR.JK_ANW(I:I).EQ.'5'.OR.&
-      &JK_ANW(I:I).EQ.'6'.OR.JK_ANW(I:I).EQ.'7'.OR.&
-      &JK_ANW(I:I).EQ.'8'.OR.JK_ANW(I:I).EQ.'9'.OR.&
-      &JK_ANW(I:I).EQ.'10') THEN
+      IF(JK_ANW(I:I).EQ.'0'.OR.JK_ANW(I:I).EQ.'1'.OR.JK_ANW(I:I).EQ.'2'.OR.JK_ANW(I:I).EQ.'3'.OR.JK_ANW(I:I).EQ.'4'.OR.JK_ANW(I:I).EQ.'5'.OR.JK_ANW(I:I).EQ.'6'.OR.JK_ANW(I:I).EQ.'7'.OR.JK_ANW(I:I).EQ.'8'.OR.JK_ANW(I:I).EQ.'9'.OR.JK_ANW(I:I).EQ.'10') THEN
          IF(JK_ANW(I+1:I+1).EQ.'-'.OR.JK_ANW(I+1:I+1).EQ.'+') THEN
             JK_ANW(1:140)=JK_ANW(1:I)//'D'//JK_ANW(I+1:140)
          END IF
@@ -3070,8 +2904,7 @@ SUBROUTINE ADDDE2
    IF(DEE) THEN
 !     EXPONENT THERE
       IF(DEEPOS.NE.1) THEN
-         JK_INP(JK_N)(1:80)=JK_INP(JK_N)(1:DEEPOS-1)//&
-         &'.0'//JK_INP(JK_N)(DEEPOS:78)
+         JK_INP(JK_N)(1:80)=JK_INP(JK_N)(1:DEEPOS-1)//'.0'//JK_INP(JK_N)(DEEPOS:78)
          JK_FLG1(JK_N)=.TRUE.
       ELSE
 !     DEEPOS=1
@@ -3243,24 +3076,15 @@ SUBROUTINE SETBLN
 !       SETS CURRENT INSTRUCTION VALUES AND STATUS INDICATORS
 !       TO BLANK
 !
-   CHARACTER COMMWD(1:20)*8,QUALWD(1:20)*8,STRING(1:20)*80,&
-   &ANW(1:20)*140,ANW1(1:20)*23,ANW2(1:20)*23,ANW3(1:20)*23,&
-   &ANW4(1:20)*23,ANW5(1:20)*23
+   CHARACTER COMMWD(1:20)*8,QUALWD(1:20)*8,STRING(1:20)*80,ANW(1:20)*140,ANW1(1:20)*23,ANW2(1:20)*23,ANW3(1:20)*23,ANW4(1:20)*23,ANW5(1:20)*23
 !
-   REAL*8 NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20),&
-   &NW5(1:20)
+   REAL*8 NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20),NW5(1:20)
 !
-   INTEGER STATNW(1:20),STATN1(1:20),STATN2(1:20),STATN3(1:20),&
-   &STATN4(1:20),STATN5(1:20),STATCO(1:20),STATC2(1:20),&
-   &STATBL(1:20),STBLK2(1:20),STATQL(1:20),STATST(1:20),SI(1:20),&
-   &BI
+   INTEGER STATNW(1:20),STATN1(1:20),STATN2(1:20),STATN3(1:20),STATN4(1:20),STATN5(1:20),STATCO(1:20),STATC2(1:20),STATBL(1:20),STBLK2(1:20),STATQL(1:20),STATST(1:20),SI(1:20),BI
 !
-   COMMON/CBLANK/NW1,NW2,NW3,NW4,NW5,STATNW,STATN1,STATN2,&
-   &STATN3,STATN4,STATN5,STATCO,STATC2,STATBL,STBLK2,STATQL,&
-   &STATST,SI,BI
+   COMMON/CBLANK/NW1,NW2,NW3,NW4,NW5,STATNW,STATN1,STATN2,STATN3,STATN4,STATN5,STATCO,STATC2,STATBL,STBLK2,STATQL,STATST,SI,BI
 !
-   COMMON/CCBLAN/COMMWD,QUALWD,STRING,ANW,ANW1,ANW2,ANW3,ANW4,&
-   &ANW5
+   COMMON/CCBLAN/COMMWD,QUALWD,STRING,ANW,ANW1,ANW2,ANW3,ANW4,ANW5
 !
    CHARACTER RA(0:6)*140
 !
@@ -3387,20 +3211,7 @@ SUBROUTINE BREAKOUT(INPUT,INP,DF,FLG1,INUM,FLG2,REMAIN)
    REMAIN(1:140)=INPUT(1:140)
    IF(BLANK) GO TO 201
 !     IF A NON-NUMERIC CHARACTER WAS FOUND, JUMP TO 201
-   IF(REMAIN(1:1).NE.'+'.AND.&
-   &REMAIN(1:1).NE.'-'.AND.&
-   &REMAIN(1:1).NE.'0'.AND.&
-   &REMAIN(1:1).NE.'1'.AND.&
-   &REMAIN(1:1).NE.'2'.AND.&
-   &REMAIN(1:1).NE.'3'.AND.&
-   &REMAIN(1:1).NE.'4'.AND.&
-   &REMAIN(1:1).NE.'5'.AND.&
-   &REMAIN(1:1).NE.'6'.AND.&
-   &REMAIN(1:1).NE.'7'.AND.&
-   &REMAIN(1:1).NE.'8'.AND.&
-   &REMAIN(1:1).NE.'9'.AND.&
-   &REMAIN(1:1).NE.','.AND.&
-   &REMAIN(1:1).NE.'.') GO TO 201
+   IF(REMAIN(1:1).NE.'+'.AND.REMAIN(1:1).NE.'-'.AND.REMAIN(1:1).NE.'0'.AND.REMAIN(1:1).NE.'1'.AND.REMAIN(1:1).NE.'2'.AND.REMAIN(1:1).NE.'3'.AND.REMAIN(1:1).NE.'4'.AND.REMAIN(1:1).NE.'5'.AND.REMAIN(1:1).NE.'6'.AND.REMAIN(1:1).NE.'7'.AND.REMAIN(1:1).NE.'8'.AND.REMAIN(1:1).NE.'9'.AND.REMAIN(1:1).NE.','.AND.REMAIN(1:1).NE.'.') GO TO 201
 !
 !     CASE OF EMBEDDED BLANK AS IN 2D 3 REPRESENTING 2D+3
    CALL INSRTP(INPUT)
@@ -3420,20 +3231,7 @@ SUBROUTINE BREAKOUT(INPUT,INP,DF,FLG1,INUM,FLG2,REMAIN)
       REMAIN(1:140)=INPUT(1:140)
 !
 !     IF A NON-NUMERIC CHARACTER WAS FOUND, JUMP TO 201
-      IF(REMAIN(1:1).NE.'+'.AND.&
-      &REMAIN(1:1).NE.'-'.AND.&
-      &REMAIN(1:1).NE.'0'.AND.&
-      &REMAIN(1:1).NE.'1'.AND.&
-      &REMAIN(1:1).NE.'2'.AND.&
-      &REMAIN(1:1).NE.'3'.AND.&
-      &REMAIN(1:1).NE.'4'.AND.&
-      &REMAIN(1:1).NE.'5'.AND.&
-      &REMAIN(1:1).NE.'6'.AND.&
-      &REMAIN(1:1).NE.'7'.AND.&
-      &REMAIN(1:1).NE.'8'.AND.&
-      &REMAIN(1:1).NE.'9'.AND.&
-      &REMAIN(1:1).NE.','.AND.&
-      &REMAIN(1:1).NE.'.') GO TO 201
+      IF(REMAIN(1:1).NE.'+'.AND.REMAIN(1:1).NE.'-'.AND.REMAIN(1:1).NE.'0'.AND.REMAIN(1:1).NE.'1'.AND.REMAIN(1:1).NE.'2'.AND.REMAIN(1:1).NE.'3'.AND.REMAIN(1:1).NE.'4'.AND.REMAIN(1:1).NE.'5'.AND.REMAIN(1:1).NE.'6'.AND.REMAIN(1:1).NE.'7'.AND.REMAIN(1:1).NE.'8'.AND.REMAIN(1:1).NE.'9'.AND.REMAIN(1:1).NE.','.AND.REMAIN(1:1).NE.'.') GO TO 201
 !
 !     IS THE NEXT VALUE A DEFAULT INPUT VALUE
       IF(INPUT(1:1).EQ.',') THEN
@@ -3613,12 +3411,7 @@ SUBROUTINE INSRTD(INPUT)
 !
 !     CASE OF MISSING "D" AS IN 2-3 REPRESENTING 2D-3
    DO I=1,138
-      IF(INPUT(I:I).EQ.'0'.OR.INPUT(I:I).EQ.'1'.OR.&
-      &INPUT(I:I).EQ.'2'.OR.INPUT(I:I).EQ.'3'.OR.&
-      &INPUT(I:I).EQ.'4'.OR.INPUT(I:I).EQ.'5'.OR.&
-      &INPUT(I:I).EQ.'6'.OR.INPUT(I:I).EQ.'7'.OR.&
-      &INPUT(I:I).EQ.'8'.OR.INPUT(I:I).EQ.'9'.OR.&
-      &INPUT(I:I).EQ.'10') THEN
+      IF(INPUT(I:I).EQ.'0'.OR.INPUT(I:I).EQ.'1'.OR.INPUT(I:I).EQ.'2'.OR.INPUT(I:I).EQ.'3'.OR.INPUT(I:I).EQ.'4'.OR.INPUT(I:I).EQ.'5'.OR.INPUT(I:I).EQ.'6'.OR.INPUT(I:I).EQ.'7'.OR.INPUT(I:I).EQ.'8'.OR.INPUT(I:I).EQ.'9'.OR.INPUT(I:I).EQ.'10') THEN
          IF(INPUT(I+1:I+1).EQ.'-'.OR.INPUT(I+1:I+1).EQ.'+') THEN
             INPUT(1:140)=INPUT(1:I)//'D'//INPUT(I+1:140)
          END IF
@@ -3817,8 +3610,7 @@ SUBROUTINE UPPER
    INTEGER I,J
    DO I=1,140
       J=ICHAR(STRUC(I:I))
-      IF(J.GE.97.AND.J.LE.122)&
-      &STRUC(I:I)=CHAR(J-32)
+      IF(J.GE.97.AND.J.LE.122)STRUC(I:I)=CHAR(J-32)
    END DO
    RETURN
 END
@@ -3828,8 +3620,7 @@ SUBROUTINE UPPER_CASE(STRUC)
    INTEGER I,J
    DO I=1,140
       J=ICHAR(STRUC(I:I))
-      IF(J.GE.97.AND.J.LE.122)&
-      &STRUC(I:I)=CHAR(J-32)
+      IF(J.GE.97.AND.J.LE.122)STRUC(I:I)=CHAR(J-32)
    END DO
    RETURN
 END
@@ -3839,8 +3630,7 @@ SUBROUTINE TOUPPER(STRUC,N)
    CHARACTER STRUC*(N)
    DO I=1,N
       J=ICHAR(STRUC(I:I))
-      IF(J.GE.97.AND.J.LE.122)&
-      &STRUC(I:I)=CHAR(J-32)
+      IF(J.GE.97.AND.J.LE.122)STRUC(I:I)=CHAR(J-32)
    END DO
    RETURN
 END
@@ -3939,8 +3729,7 @@ SUBROUTINE PRO2
 !
    COMMON/FAST7/RA
 !
-   INTEGER CVAL(1:140),VRETCT,NSTRUC,SUM,VRTRCK(1:140)&
-   &,VRPOS(1:140),I,JJ,K,J,INSS,C_VAL
+   INTEGER CVAL(1:140),VRETCT,NSTRUC,SUM,VRTRCK(1:140),VRPOS(1:140),I,JJ,K,J,INSS,C_VAL
 !
    COMMON/PRO22/INSTRC,NSTRUC
 !
@@ -4141,8 +3930,7 @@ SUBROUTINE PRO2
 !       DO THIS BY CALLING UPPER.FOR
    DO INSS=1,NSTRUC
       STRUC=INSTRC(INSS)
-      IF(STRUC(1:1).EQ.'M'.OR.STRUC(1:1).EQ.'m'.or.&
-      &STRUC(1:1).EQ.'CK'.OR.STRUC(1:1).EQ.'ck') THEN
+      IF(STRUC(1:1).EQ.'M'.OR.STRUC(1:1).EQ.'m'.or.STRUC(1:1).EQ.'CK'.OR.STRUC(1:1).EQ.'ck') THEN
          IF(STRUC(2:2).EQ.','.OR.STRUC(2:2).EQ.' ') THEN
             IF(STRUC(1:1).EQ.'m') STRUC(1:1)='M'
             IF(STRUC(1:1).EQ.'ck') STRUC(1:1)='CK'
@@ -4274,42 +4062,23 @@ SUBROUTINE PRO3
 !
 !                       DEFINE VARIABLES
 !
-   CHARACTER INSTRC(1:20)*140,COMMWD(1:20)*8,&
-   &QUALWD(1:20)*8,STRING(1:20)*80,CH*140,&
-   &ANW1(1:20)*23,ANW2(1:20)*23,ANW3(1:20)*23,&
-   &ANW4(1:20)*23,ANW5(1:20)*23,ANW(1:20)*140,&
-   &DM1*140,DM2*140,BLJK*80 &
-   &,JK_INP(1:5)*80
+   CHARACTER INSTRC(1:20)*140,COMMWD(1:20)*8,QUALWD(1:20)*8,STRING(1:20)*80,CH*140,ANW1(1:20)*23,ANW2(1:20)*23,ANW3(1:20)*23,ANW4(1:20)*23,ANW5(1:20)*23,ANW(1:20)*140,DM1*140,DM2*140,BLJK*80 ,JK_INP(1:5)*80
 !
-   CHARACTER RA(0:6)*140,REMAIN*140,AHOLD1*23,AHOLD2*23 &
-   &,AHOLD3*23,AHOLD4*23,AHOLD5*23,AHOLDWQ*6
+   CHARACTER RA(0:6)*140,REMAIN*140,AHOLD1*23,AHOLD2*23 ,AHOLD3*23,AHOLD4*23,AHOLD5*23,AHOLDWQ*6
 !
    COMMON/FAST7/RA
 !
    LOGICAL ALLB,COLREP,JJK_FLG1(1:5),JJK_FLG2
 !
-   INTEGER IQ,NSTRUC,COMTST,JK_DF(1:5),JK_I,&
-   &BLNK,BSUM,BVAL,STATQL(1:20),STATST(1:20),STATN1(1:20)&
-   &,STATN2(1:20),STATN3(1:20),STATN4(1:20),STATN5(1:20)&
-   &,QBVAL,STATCO(1:20),STATBL(1:20),STATNW(1:20)&
-   &,STATC2(1:20),STBLK2(1:20),IJK &
-   &,I,K,J,L,KKI,KI,M,K1,JKII,HOLDSQ
+   INTEGER IQ,NSTRUC,COMTST,JK_DF(1:5),JK_I,BLNK,BSUM,BVAL,STATQL(1:20),STATST(1:20),STATN1(1:20),STATN2(1:20),STATN3(1:20),STATN4(1:20),STATN5(1:20),QBVAL,STATCO(1:20),STATBL(1:20),STATNW(1:20),STATC2(1:20),STBLK2(1:20),IJK ,I,K,J,L,KKI,KI,M,K1,JKII,HOLDSQ
 !
-   INTEGER QBVL1,DFSTA1(1:20),DFSTA2(1:20)&
-   &,DFSTA3(1:20),DFSTA4(1:20),DFSTA5(1:20)&
-   &,SI(1:20),&
-   &QBVL,BI,IP
+   INTEGER QBVL1,DFSTA1(1:20),DFSTA2(1:20),DFSTA3(1:20),DFSTA4(1:20),DFSTA5(1:20),SI(1:20),QBVL,BI,IP
 !
-   REAL*8 NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20)&
-   &,NW5(1:20)&
-   &,JK_NUM(1:5),HOLD1,HOLD2,HOLD3,HOLD4,HOLD5
+   REAL*8 NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20),NW5(1:20),JK_NUM(1:5),HOLD1,HOLD2,HOLD3,HOLD4,HOLD5
 !
-   COMMON/CBLANK/NW1,NW2,NW3,NW4,NW5,STATNW,STATN1,STATN2,&
-   &STATN3,STATN4,STATN5,STATCO,STATC2,STATBL,STBLK2,STATQL,&
-   &STATST,SI,BI
+   COMMON/CBLANK/NW1,NW2,NW3,NW4,NW5,STATNW,STATN1,STATN2,STATN3,STATN4,STATN5,STATCO,STATC2,STATBL,STBLK2,STATQL,STATST,SI,BI
 !
-   COMMON/CCBLAN/COMMWD,QUALWD,STRING,ANW,ANW1,ANW2,ANW3,ANW4,&
-   &ANW5
+   COMMON/CCBLAN/COMMWD,QUALWD,STRING,ANW,ANW1,ANW2,ANW3,ANW4,ANW5
 !
    COMMON/PRO22/INSTRC,NSTRUC
 !
@@ -4495,12 +4264,7 @@ SUBROUTINE PRO3
                INSTRC(I)(1:140)='SET X,'//INSTRC(I)(1:34)
             END IF
          END IF
-         IF(INSTRC(I)(1:1).EQ.'1'.OR.INSTRC(I)(1:1).EQ.'2'.OR.&
-         &INSTRC(I)(1:1).EQ.'3'.OR.INSTRC(I)(1:1).EQ.'4'.OR.&
-         &INSTRC(I)(1:1).EQ.'5'.OR.INSTRC(I)(1:1).EQ.'6'.OR.&
-         &INSTRC(I)(1:1).EQ.'7'.OR.INSTRC(I)(1:1).EQ.'8'.OR.&
-         &INSTRC(I)(1:1).EQ.'0'.OR.INSTRC(I)(1:1).EQ.'.'.OR.&
-         &INSTRC(I)(1:1).EQ.'9') THEN
+         IF(INSTRC(I)(1:1).EQ.'1'.OR.INSTRC(I)(1:1).EQ.'2'.OR.INSTRC(I)(1:1).EQ.'3'.OR.INSTRC(I)(1:1).EQ.'4'.OR.INSTRC(I)(1:1).EQ.'5'.OR.INSTRC(I)(1:1).EQ.'6'.OR.INSTRC(I)(1:1).EQ.'7'.OR.INSTRC(I)(1:1).EQ.'8'.OR.INSTRC(I)(1:1).EQ.'0'.OR.INSTRC(I)(1:1).EQ.'.'.OR.INSTRC(I)(1:1).EQ.'9') THEN
 !     SPECIAL INPUT OF X
             INSTRC(I)(1:140)='SET X,'//INSTRC(I)(1:34)
          END IF
@@ -4721,8 +4485,7 @@ SUBROUTINE PRO3
          CALL SHOWIT(1)
          RETURN
       END IF
-      IF(QBVAL.EQ.32.AND.QBVL.EQ.44.OR.QBVAL.EQ.32.AND.&
-      &QBVL.EQ.32) THEN
+      IF(QBVAL.EQ.32.AND.QBVL.EQ.44.OR.QBVAL.EQ.32.AND.QBVL.EQ.32) THEN
          INSTRC(I)=(INSTRC(I)((KI+1):140))
          GO TO 7029
       ELSE
@@ -5011,13 +4774,7 @@ SUBROUTINE PRO3
 !       CHECK FOR SPECIAL CHARACTERS BEGINS HERE.
          QBVAL = 0
          QBVAL=ICHAR(INSTRC(I)(1:1))
-         IF(QBVAL.EQ.48.OR.QBVAL.EQ.49.OR.&
-         &QBVAL.EQ.50.OR.QBVAL.EQ.51.OR.QBVAL.EQ.&
-         &52.OR.QBVAL.EQ.53.OR.QBVAL.EQ.54.OR.&
-         &QBVAL.EQ.55.OR.QBVAL.EQ.56.OR.QBVAL.EQ.&
-         &57.OR.QBVAL.EQ.46.OR.QBVAL.EQ.43.OR.&
-         &QBVAL.EQ.45.OR.QBVAL.EQ.58.OR.QBVAL &
-         &.EQ.63.OR.QBVAL.EQ.40.OR.QBVAL.EQ.41) THEN
+         IF(QBVAL.EQ.48.OR.QBVAL.EQ.49.OR.QBVAL.EQ.50.OR.QBVAL.EQ.51.OR.QBVAL.EQ.52.OR.QBVAL.EQ.53.OR.QBVAL.EQ.54.OR.QBVAL.EQ.55.OR.QBVAL.EQ.56.OR.QBVAL.EQ.57.OR.QBVAL.EQ.46.OR.QBVAL.EQ.43.OR.QBVAL.EQ.45.OR.QBVAL.EQ.58.OR.QBVAL .EQ.63.OR.QBVAL.EQ.40.OR.QBVAL.EQ.41) THEN
 !       REFORM INSTRC(I) WITH LEADING COMMA.
             CH= (INSTRC(I)(1:139))
             INSTRC(I)=','//CH
@@ -5455,31 +5212,7 @@ SUBROUTINE PRO3
 !
 !     IF CW IS WRITE AND THE REST OF THE INSTRUCTION IS NOT BLANK,
 !     ADD A COLON
-      IF(COMMWD(I).EQ.'WRITE'.OR.COMMWD(I).EQ.'ASTO'.OR.COMMWD(I).EQ.&
-      &'ROWHD'.OR.COMMWD(I).EQ.'COLHD'.OR.COMMWD(I).EQ.'ONAME'.OR.&
-      &COMMWD(I).EQ.'LI'.OR.COMMWD(I).EQ.'LIC'.OR.COMMWD(I).EQ.'FIGURE'&
-      &.OR.COMMWD(I).EQ.'M'.OR.COMMWD(I).EQ.'CK'.OR.COMMWD(I).EQ.'PSFLI'&
-      &.OR.COMMWD(I).EQ.'ROWHD2'.OR.COMMWD(I).EQ.'COLHD2'.OR.COMMWD(I)&
-      &.EQ.'PSFTAG'.OR.COMMWD(I).EQ.'GLASSP'.OR.COMMWD(I).EQ.'LO'.OR.&
-      &COMMWD(I).EQ.'QSUB'.AND.QUALWD(I).EQ.'DV'.OR.COMMWD(I).EQ.&
-      &'SNAME'.OR.COMMWD(I).EQ.'RENAME'.OR.COMMWD(I).EQ.'DUP'&
-      &.OR.COMMWD(I).EQ.'PLOT'.AND.QUALWD(I).EQ.'NAME'&
-      &.OR.COMMWD(I).EQ.'INI'.OR.COMMWD(I).EQ.'LTYPE'.OR.&
-      &COMMWD(I).EQ.'AWRTSUM'.AND.QUALWD(I).NE.'        '.OR.&
-      &COMMWD(I).EQ.'BWRTSUM'.AND.QUALWD(I).NE.'        '.OR.&
-      &COMMWD(I).EQ.'MRENAME'.AND.QUALWD(I).NE.'        '.OR.&
-      &COMMWD(I).EQ.'MCOPY'.AND.QUALWD(I).NE.'        '&
-      &.OR.COMMWD(I).EQ.'OP_DESC'.AND.QUALWD(I).NE.'        '&
-      &.OR.COMMWD(I).EQ.'STREAK'.AND.QUALWD(I).EQ.'PLOT'.OR.COMMWD(I)&
-      &.EQ.'STREAK'.AND.QUALWD(I).EQ.'WRITE'.OR.COMMWD(I).EQ.'PLOT'.AND.&
-      &QUALWD(I).EQ.'VIGSTAT'.OR.COMMWD(I).EQ.'SSUB'.AND.QUALWD(I)&
-      &.EQ.'DV'.OR.COMMWD(I).EQ.'LBL'.OR.COMMWD(I).EQ.'LABEL'&
-      &.OR.COMMWD(I).EQ.'CV2PRG'.OR.COMMWD(I).EQ.'ZMX2PRG'&
-      &.OR.COMMWD(I).EQ.'DXF'.AND.QUALWD(I).EQ.'LAYER'.OR.COMMWD(I).EQ.&
-      &'MFG'.OR.COMMWD(I).EQ.'CATNUM'.OR.COMMWD(I).EQ.'OTOBMP'.OR.&
-      &COMMWD(I).EQ.'ITOBMP'.OR.COMMWD(I).EQ.'BMPREADR'.OR.COMMWD(I).EQ.&
-      &'CAPFNIN'.OR.COMMWD(I).EQ.'CAPFNOUT'.OR.COMMWD(I).EQ.'LENS'.OR.&
-      &COMMWD(I).EQ.'PNOTE') THEN
+      IF(COMMWD(I).EQ.'WRITE'.OR.COMMWD(I).EQ.'ASTO'.OR.COMMWD(I).EQ.'ROWHD'.OR.COMMWD(I).EQ.'COLHD'.OR.COMMWD(I).EQ.'ONAME'.OR.COMMWD(I).EQ.'LI'.OR.COMMWD(I).EQ.'LIC'.OR.COMMWD(I).EQ.'FIGURE'.OR.COMMWD(I).EQ.'M'.OR.COMMWD(I).EQ.'CK'.OR.COMMWD(I).EQ.'PSFLI'.OR.COMMWD(I).EQ.'ROWHD2'.OR.COMMWD(I).EQ.'COLHD2'.OR.COMMWD(I).EQ.'PSFTAG'.OR.COMMWD(I).EQ.'GLASSP'.OR.COMMWD(I).EQ.'LO'.OR.COMMWD(I).EQ.'QSUB'.AND.QUALWD(I).EQ.'DV'.OR.COMMWD(I).EQ.'SNAME'.OR.COMMWD(I).EQ.'RENAME'.OR.COMMWD(I).EQ.'DUP'.OR.COMMWD(I).EQ.'PLOT'.AND.QUALWD(I).EQ.'NAME'.OR.COMMWD(I).EQ.'INI'.OR.COMMWD(I).EQ.'LTYPE'.OR.COMMWD(I).EQ.'AWRTSUM'.AND.QUALWD(I).NE.'        '.OR.COMMWD(I).EQ.'BWRTSUM'.AND.QUALWD(I).NE.'        '.OR.COMMWD(I).EQ.'MRENAME'.AND.QUALWD(I).NE.'        '.OR.COMMWD(I).EQ.'MCOPY'.AND.QUALWD(I).NE.'        '.OR.COMMWD(I).EQ.'OP_DESC'.AND.QUALWD(I).NE.'        '.OR.COMMWD(I).EQ.'STREAK'.AND.QUALWD(I).EQ.'PLOT'.OR.COMMWD(I).EQ.'STREAK'.AND.QUALWD(I).EQ.'WRITE'.OR.COMMWD(I).EQ.'PLOT'.AND.QUALWD(I).EQ.'VIGSTAT'.OR.COMMWD(I).EQ.'SSUB'.AND.QUALWD(I).EQ.'DV'.OR.COMMWD(I).EQ.'LBL'.OR.COMMWD(I).EQ.'LABEL'.OR.COMMWD(I).EQ.'CV2PRG'.OR.COMMWD(I).EQ.'ZMX2PRG'.OR.COMMWD(I).EQ.'DXF'.AND.QUALWD(I).EQ.'LAYER'.OR.COMMWD(I).EQ.'MFG'.OR.COMMWD(I).EQ.'CATNUM'.OR.COMMWD(I).EQ.'OTOBMP'.OR.COMMWD(I).EQ.'ITOBMP'.OR.COMMWD(I).EQ.'BMPREADR'.OR.COMMWD(I).EQ.'CAPFNIN'.OR.COMMWD(I).EQ.'CAPFNOUT'.OR.COMMWD(I).EQ.'LENS'.OR.COMMWD(I).EQ.'PNOTE') THEN
          DO IQ=1,8
 !     STRIP OFF UP TO 8 LEADING COMMAS
             IF(INSTRC(I)(1:1).EQ.',') INSTRC(I)(1:139)=INSTRC(I)(2:139)
@@ -5488,8 +5221,7 @@ SUBROUTINE PRO3
          DO IQ=1,80
             IF(INSTRC(I)(IQ:IQ).NE.' ') ALLB=.FALSE.
          END DO
-         IF(COMMWD(I).EQ.'OUTPUT'.AND.QUALWD(I).EQ.'T        '.OR.&
-         &COMMWD(I).EQ.'OUT'.AND.QUALWD(I).EQ.'T       ') THEN
+         IF(COMMWD(I).EQ.'OUTPUT'.AND.QUALWD(I).EQ.'T        '.OR.COMMWD(I).EQ.'OUT'.AND.QUALWD(I).EQ.'T       ') THEN
             DO IQ=1,8
 !     STRIP OFF UP TO 8 LEADING COMMAS
                IF(INSTRC(I)(1:1).EQ.',') INSTRC(I)(1:139)=INSTRC(I)(2:139)
@@ -5667,8 +5399,7 @@ SUBROUTINE PRO3
 !       SPECIFIC PROGRAM CMDS.
 !
 !
-      IF(COMMWD(I)(1:8).EQ.'WRITE   '.AND.&
-      &QUALWD(I)(1:8).EQ.'        ') THEN
+      IF(COMMWD(I)(1:8).EQ.'WRITE   '.AND.QUALWD(I)(1:8).EQ.'        ') THEN
          QUALWD(I)(1:8)='X       '
          STATQL(I)=1
       END IF
@@ -5699,8 +5430,7 @@ SUBROUTINE PRO3
       S3=STATN3(I)
       S4=STATN4(I)
       S5=STATN5(I)
-      IF(S1.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-      &.OR.S5.EQ.1) THEN
+      IF(S1.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          STATNW(I)=1
       ELSE
          STATNW(I)=0
@@ -5727,8 +5457,7 @@ SUBROUTINE PRO3
       IF(DF3.EQ.1) S3=0
       IF(DF4.EQ.1) S4=0
       IF(DF5.EQ.1) S5=0
-      IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1 &
-      &.AND.DF5.EQ.1) SN=0
+      IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1 .AND.DF5.EQ.1) SN=0
 !
 !       THIS ERROR WAS FOUND ON 2/10/88 WHEN INSTALLING THE
 !       CFGCHG.FOR SUBROUTINE

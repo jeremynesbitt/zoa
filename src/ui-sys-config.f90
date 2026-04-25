@@ -7,6 +7,7 @@
 
 module ui_sys_config
   use GLOBALS
+  use mod_system
   use global_widgets
   use iso_c_binding, only: c_ptr
   use zoa_tab
@@ -126,42 +127,24 @@ contains
     integer, target :: TARGET_Y_APERTURE = ID_SYSCON_Y_APERTURE
 
 
-    call self%addListBoxTextID("Aperture ",  &
-    & sysConfig%aperOptions, c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_APERTURE))
+    call self%addListBoxTextID("Aperture ",   sysConfig%aperOptions, c_funloc(callback_sys_config_settings),  c_loc(TARGET_APERTURE))
 
     ! TODO:  Find a better way of doing this (too risky if parent changes)
     self%apertureType = self%getWidget(self%numSettings)
 
 
-    spinButton_xAperture = gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=sysConfig%refApertureValue(1)*1d0, &
-                                                               & lower=0d0, &
-                                                               & upper=10000000d0, &
-                                                               & step_increment=0.05d0, &
-                                                               & page_increment=.1d0, &
-                                                               & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=3_c_int)
+    spinButton_xAperture = gtk_spin_button_new (gtk_adjustment_new(  value=sysConfig%refApertureValue(1)*1d0,  lower=0d0,  upper=10000000d0,  step_increment=0.05d0,  page_increment=.1d0,  page_size=0d0),climb_rate=2d0,  digits=3_c_int)
 
-    call self%addSpinBox("X Aperture Value", spinButton_xAperture, &
-    & c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE), ID_SYSCON_X_APERTURE)
+    call self%addSpinBox("X Aperture Value", spinButton_xAperture,  c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE), ID_SYSCON_X_APERTURE)
 
     !call sysconfigwindow%addSpinBoxSetting("X Aperture Value", spinButton_xAperture, &
     !& c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE))
 
 
 
-    spinButton_yAperture = gtk_spin_button_new (gtk_adjustment_new(&
-                                                     & value=sysConfig%refApertureValue(2)*1d0, &
-                                                               & lower=0d0, &
-                                                               & upper=10000000d0, &
-                                                               & step_increment=0.05d0, &
-                                                               & page_increment=.1d0, &
-                                                               & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=3_c_int)
+    spinButton_yAperture = gtk_spin_button_new (gtk_adjustment_new( value=sysConfig%refApertureValue(2)*1d0,  lower=0d0,  upper=10000000d0,  step_increment=0.05d0,  page_increment=.1d0,  page_size=0d0),climb_rate=2d0,  digits=3_c_int)
 
-    call self%addSpinBox("Y Aperture Value", spinButton_yAperture, &
-    & c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE), ID_SYSCON_Y_APERTURE)
+    call self%addSpinBox("Y Aperture Value", spinButton_yAperture,  c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE), ID_SYSCON_Y_APERTURE)
 
     !call sysconfigwindow%addSpinBoxSetting("Y Aperture Value", spinButton_yAperture, &
     !& c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE))
@@ -170,8 +153,7 @@ contains
     ! & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
     ! & c_loc(TARGET_FIELD))
 
-    call self%addCheckBox("XY Symmetric", c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_XYSAME), ID_SYSCON_APERTURE_XYSAME)
+    call self%addCheckBox("XY Symmetric", c_funloc(callback_sys_config_settings),  c_loc(TARGET_XYSAME), ID_SYSCON_APERTURE_XYSAME)
     self%idxBoolXYSame = self%numSettings
 
 
@@ -183,9 +165,7 @@ contains
     integer, target :: TARGET_RAYAIM = ID_SYSCON_RAYAIM
  
 
-    call self%addListBoxTextID("Ray Aiming Method ",  &
-    & sysConfig%rayAimOptions, c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_RAYAIM))
+    call self%addListBoxTextID("Ray Aiming Method ",   sysConfig%rayAimOptions, c_funloc(callback_sys_config_settings),  c_loc(TARGET_RAYAIM))
 
     ! TODO:  Find a better way of doing this (too risky if parent changes)
     self%rayAimType = self%getWidget(self%numSettings)
@@ -224,24 +204,14 @@ subroutine createFieldSettingsUI(self)
   !integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
 
 
-  call self%addListBoxTextID("Field Type ",  &
-  & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
-  & c_loc(TARGET_FIELD))
+  call self%addListBoxTextID("Field Type ",   sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings),  c_loc(TARGET_FIELD))
 
   ! TODO:  Find a better way of doing this (too risky if parent changes)
   self%fieldType = self%getWidget(self%numSettings)
 
-  spinButton_numFields =   gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=sysConfig%numFields*1d0, &
-                                                               & lower=1d0, &
-                                                               & upper=10d0, &
-                                                               & step_increment=1d0, &
-                                                               & page_increment=1d0, &
-                                                               & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=0_c_int)
+  spinButton_numFields =   gtk_spin_button_new (gtk_adjustment_new(  value=sysConfig%numFields*1d0,  lower=1d0,  upper=10d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=0_c_int)
 
-  call self%addSpinBox("Number of Fields", spinButton_numFields, &
-   & c_funloc(callback_sys_config_settings), c_loc(TARGET_FIELD_NUM), ID_SYSCON_FIELD_NUM)
+  call self%addSpinBox("Number of Fields", spinButton_numFields,  c_funloc(callback_sys_config_settings), c_loc(TARGET_FIELD_NUM), ID_SYSCON_FIELD_NUM)
 
   call self%addListTable(self%createFieldPointSelectionTable())
 
@@ -268,15 +238,13 @@ end subroutine
    if (col /= 3 ) THEN
      ! TODO:  Make this into a sub?
     locallist = g_object_get_data(renderer, "view"//c_null_char)
-    call hl_gtk_listn_set_cell(locallist, row, col, &
-         & svalue=trim(ftext))
+    call hl_gtk_listn_set_cell(locallist, row, col,  svalue=trim(ftext))
 
     call convertCellData(text, ftext, realData=cellData)
     absFields(col,row+1) = cellData
     call sysConfig%setAbsoluteFields(reshape(absFields(col,:), [10]), col)
    else
-    call hl_gtk_listn_combo_set_by_list_id(uiFieldSettings%ihlist, row, 3_c_int, &
-    & targetValue=sysConfig%fieldColorCodes(row+1))    
+    call hl_gtk_listn_combo_set_by_list_id(uiFieldSettings%ihlist, row, 3_c_int,  targetValue=sysConfig%fieldColorCodes(row+1))    
 
   end if
   
@@ -504,13 +472,9 @@ function createFieldPointSelectionTable(self) result(base)
 
 
 
-    valsArray = [character(len=8) :: "White", "Yellow", "Magenta", "Red", "Cyan", &
-    & "Green", "Blue", "Grey", "Black"]
+    valsArray = [character(len=8) :: "White", "Yellow", "Magenta", "Red", "Cyan",  "Green", "Blue", "Grey", "Black"]
     !valsArray(2) = "Tst2"
-    refsArray = [ID_COLOR_WHITE, ID_COLOR_YELLOW, &
-    & ID_COLOR_MAGENTA, ID_COLOR_RED, ID_COLOR_CYAN, &
-    & ID_COLOR_GREEN, ID_COLOR_BLUE, ID_COLOR_GREY, &
-    & ID_COLOR_BLACK ]
+    refsArray = [ID_COLOR_WHITE, ID_COLOR_YELLOW,  ID_COLOR_MAGENTA, ID_COLOR_RED, ID_COLOR_CYAN,  ID_COLOR_GREEN, ID_COLOR_BLUE, ID_COLOR_GREY,  ID_COLOR_BLACK ]
 
   ! Create the window:
 
@@ -531,15 +495,11 @@ function createFieldPointSelectionTable(self) result(base)
 
 ! Now make a multi column list with multiple selections enabled
 
-renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, &
-     & hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
+renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text,  hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
 
 
-self%ihlist = hl_gtk_listn_new(types=ctypes, &
-     !& changed=c_funloc(list_select),&
-     & multiple=TRUE, titles=titles, width=widths, &
-     & renderers=renderers, editable=editable, &
-     & edited=c_funloc(fields_edited), & !toggled=c_funloc(cell_clicked), &
+self%ihlist = hl_gtk_listn_new(types=ctypes, !& changed=c_funloc(list_select),&
+     & multiple=TRUE, titles=titles, width=widths,  renderers=renderers, editable=editable,  edited=c_funloc(fields_edited), & !toggled=c_funloc(cell_clicked), &
      !& toggled_radio=c_funloc(rcell_clicked), &
      !& edited_combo=c_funloc(ccell_edit), &
      & changed_combo=c_funloc(fieldColorCodes_changed)) !, &
@@ -558,13 +518,10 @@ do i=1,nrows
    absFields(2,i) = sysConfig%refFieldValue(2)*sysConfig%relativeFields(2,i)
 
 
-   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 1_c_int, &
-        & fvalue=REAL(absFields(1,i),4))
-   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 2_c_int, &
-        & fvalue=REAL(absFields(2,i),4))
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 1_c_int,  fvalue=REAL(absFields(1,i),4))
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 2_c_int,  fvalue=REAL(absFields(2,i),4))
 
-   call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int, &
-        & targetValue=sysConfig%fieldColorCodes(i))
+   call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int,  targetValue=sysConfig%fieldColorCodes(i))
 
    !call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 10_c_int, logvalue= i==4)
 end do
@@ -612,54 +569,54 @@ subroutine buildApertureSettings(boxAperture)
         ! Relevant settings from LENSED.INC
 
         ! CASE (IDF_B1)
-        ! SYSTEM(60)=1.0D0
-        ! SYSTEM(61)=1.0D0
-        ! SYSTEM(18)=0.0D0
-        ! SYSTEM(94)=0.0D0
-        ! SYSTEM(95)=0.0D0
-        ! SYSTEM(98)=0.0D0
-        ! SYSTEM(99)=0.0D0
+        ! sys_scy_explicit()=1.0D0
+        ! sys_scx_explicit()=1.0D0
+        ! sys_scy_fang_set()=0.0D0
+        ! sys_pxim_fang_set()=0.0D0
+        ! sys_pyim_fang_set()=0.0D0
+        ! sys_rxim_fang_set()=0.0D0
+        ! sys_ryim_fang_set()=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
         ! CASE (IDF_B2)
-        ! SYSTEM(60)=1.0D0
-        ! SYSTEM(61)=1.0D0
-        ! SYSTEM(18)=1.0D0
-        ! SYSTEM(94)=0.0D0
-        ! SYSTEM(95)=0.0D0
-        ! SYSTEM(98)=0.0D0
-        ! SYSTEM(99)=0.0D0
+        ! sys_scy_explicit()=1.0D0
+        ! sys_scx_explicit()=1.0D0
+        ! sys_scy_fang_set()=1.0D0
+        ! sys_pxim_fang_set()=0.0D0
+        ! sys_pyim_fang_set()=0.0D0
+        ! sys_rxim_fang_set()=0.0D0
+        ! sys_ryim_fang_set()=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
         ! CASE (IDF_B3)
-        ! SYSTEM(60)=0.0D0
-        ! SYSTEM(61)=0.0D0
-        ! SYSTEM(94)=-1.0D0
-        ! SYSTEM(95)=-1.0D0
-        ! SYSTEM(98)=0.0D0
-        ! SYSTEM(99)=0.0D0
+        ! sys_scy_explicit()=0.0D0
+        ! sys_scx_explicit()=0.0D0
+        ! sys_pxim_fang_set()=-1.0D0
+        ! sys_pyim_fang_set()=-1.0D0
+        ! sys_rxim_fang_set()=0.0D0
+        ! sys_ryim_fang_set()=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
         ! CASE (IDF_B4)
-        ! SYSTEM(60)=0.0D0
-        ! SYSTEM(61)=0.0D0
-        ! SYSTEM(94)=-1.0D0
-        ! SYSTEM(95)=-1.0D0
-        ! SYSTEM(98)=0.0D0
-        ! SYSTEM(99)=0.0D0
+        ! sys_scy_explicit()=0.0D0
+        ! sys_scx_explicit()=0.0D0
+        ! sys_pxim_fang_set()=-1.0D0
+        ! sys_pyim_fang_set()=-1.0D0
+        ! sys_rxim_fang_set()=0.0D0
+        ! sys_ryim_fang_set()=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
         ! CASE (IDF_B5)
-        ! SYSTEM(60)=0.0D0
-        ! SYSTEM(61)=0.0D0
-        ! SYSTEM(98)=-1.0D0
-        ! SYSTEM(99)=-1.0D0
-        ! SYSTEM(94)=0.0D0
-        ! SYSTEM(95)=0.0D0
+        ! sys_scy_explicit()=0.0D0
+        ! sys_scx_explicit()=0.0D0
+        ! sys_rxim_fang_set()=-1.0D0
+        ! sys_ryim_fang_set()=-1.0D0
+        ! sys_pxim_fang_set()=0.0D0
+        ! sys_pyim_fang_set()=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
         ! CASE (IDF_B6)
-        ! SYSTEM(60)=0.0D0
-        ! SYSTEM(61)=0.0D0
-        ! SYSTEM(98)=1.0D0
-        ! SYSTEM(99)=1.0D0
-        ! SYSTEM(94)=0.0D0
-        ! SYSTEM(95)=0.0D0
+        ! sys_scy_explicit()=0.0D0
+        ! sys_scx_explicit()=0.0D0
+        ! sys_rxim_fang_set()=1.0D0
+        ! sys_ryim_fang_set()=1.0D0
+        ! sys_pxim_fang_set()=0.0D0
+        ! sys_pyim_fang_set()=0.0D0
         ! INCLUDE 'NONSURF3FRESH.INC'
 
       !  call sysConfig%getApertueSettings(listofNames)
@@ -833,8 +790,7 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
 case (ID_SYSCON_Y_APERTURE)
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
     if (xySame.EQ.1) then
-      call gtk_spin_button_set_value(spinButton_xAperture, &
-      & REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
+      call gtk_spin_button_set_value(spinButton_xAperture,  REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
       PRINT *, "Updating Aperture in KDP"
       call sysConfig%updateApertureSelectionByCode(int_value, yAp, yAp, xySame)
     else
@@ -847,8 +803,7 @@ case (ID_SYSCON_X_APERTURE)
     xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
     if (xySame.EQ.1) then
       ! Ignore change essentially
-      call gtk_spin_button_set_value(spinButton_xAperture, &
-      & REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
+      call gtk_spin_button_set_value(spinButton_xAperture,  REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
     else
       xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
       yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
@@ -889,31 +844,15 @@ subroutine createWavelengthSettingsUI(self)
 
   !integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
 
-  spinButton_refWavelength =   gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=sysConfig%refWavelengthIndex*1d0, &
-                                                               & lower=1d0, &
-                                                               & upper=10d0, &
-                                                               & step_increment=1d0, &
-                                                               & page_increment=1d0, &
-                                                               & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=0_c_int)
+  spinButton_refWavelength =   gtk_spin_button_new (gtk_adjustment_new(  value=sysConfig%refWavelengthIndex*1d0,  lower=1d0,  upper=10d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=0_c_int)
 
-  call self%addSpinBox("Reference Wavelength", spinButton_refWavelength, &
-   & c_funloc(callback_sys_config_settings), c_loc(TARGET_WAVELENGTH_REF), ID_SYSCON_WAVELENGTH_REF)
+  call self%addSpinBox("Reference Wavelength", spinButton_refWavelength,  c_funloc(callback_sys_config_settings), c_loc(TARGET_WAVELENGTH_REF), ID_SYSCON_WAVELENGTH_REF)
 
 
 
-  spinButton_numWavelengths =   gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=3*1d0, &
-                                                               & lower=1d0, &
-                                                               & upper=10d0, &
-                                                               & step_increment=1d0, &
-                                                               & page_increment=1d0, &
-                                                               & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=0_c_int)
+  spinButton_numWavelengths =   gtk_spin_button_new (gtk_adjustment_new(  value=3*1d0,  lower=1d0,  upper=10d0,  step_increment=1d0,  page_increment=1d0,  page_size=0d0),climb_rate=2d0,  digits=0_c_int)
 
-  call self%addSpinBox("Number of Wavelengths", spinButton_numWavelengths, &
-   & c_funloc(callback_sys_config_settings), c_loc(TARGET_WAVELENGTH_NUM), ID_SYSCON_WAVELENGTH_NUM)
+  call self%addSpinBox("Number of Wavelengths", spinButton_numWavelengths,  c_funloc(callback_sys_config_settings), c_loc(TARGET_WAVELENGTH_NUM), ID_SYSCON_WAVELENGTH_NUM)
 
   call self%addListTable(self%createWavelengthSelectionTable())
 
@@ -952,12 +891,8 @@ function createWavelengthSelectionTable(self) result(base)
 
 
   ! TODO:  Move this to it's own function since it is shared with field selection?
-  valsArray = [character(len=8) :: "White", "Yellow", "Magenta", "Red", "Cyan", &
-  & "Green", "Blue", "Grey", "Black"]
-  refsArray = [PL_PLOT_WHITE, PL_PLOT_YELLOW, &
-  & PL_PLOT_MAGENTA, PL_PLOT_RED, PL_PLOT_CYAN, &
-  & PL_PLOT_GREEN, PL_PLOT_BLUE, PL_PLOT_GREY, &
-  & PL_PLOT_BLACK ]
+  valsArray = [character(len=8) :: "White", "Yellow", "Magenta", "Red", "Cyan",  "Green", "Blue", "Grey", "Black"]
+  refsArray = [PL_PLOT_WHITE, PL_PLOT_YELLOW,  PL_PLOT_MAGENTA, PL_PLOT_RED, PL_PLOT_CYAN,  PL_PLOT_GREEN, PL_PLOT_BLUE, PL_PLOT_GREY,  PL_PLOT_BLACK ]
 
 
   ! Create the window:
@@ -980,12 +915,8 @@ function createWavelengthSelectionTable(self) result(base)
 renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
 
 
-self%ihlist = hl_gtk_listn_new(types=ctypes, &
-     !& changed=c_funloc(list_select),&
-     & multiple=TRUE, titles=titles, width=widths, &
-     & renderers=renderers, editable=editable, &
-     & edited=c_funloc(wavelength_edited), &
-     & changed_combo=c_funloc(wavelengthColorCodes_changed))
+self%ihlist = hl_gtk_listn_new(types=ctypes, !& changed=c_funloc(list_select),&
+     & multiple=TRUE, titles=titles, width=widths,  renderers=renderers, editable=editable,  edited=c_funloc(wavelength_edited),  changed_combo=c_funloc(wavelengthColorCodes_changed))
 
 
      call hl_gtk_listn_attach_combo_box_model(self%ihlist, 3_c_int, valsArray, refsArray)
@@ -996,12 +927,9 @@ do i=1,nrows
    !write(line,"('List entry number ',I0)") i
 
    call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 0_c_int, ivalue=i)
-   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 1_c_int, &
-        & fvalue=REAL(sysConfig%wavelengths(i))) 
-   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 2_c_int, &
-        & fvalue=REAL(sysConfig%spectralWeights(i)))
-   call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int, &
-        & targetValue=sysConfig%wavelengthColorCodes(i))        
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 1_c_int,  fvalue=REAL(sysConfig%wavelengths(i))) 
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 2_c_int,  fvalue=REAL(sysConfig%spectralWeights(i)))
+   call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int,  targetValue=sysConfig%wavelengthColorCodes(i))        
   end do
 
 
@@ -1024,8 +952,7 @@ end function
     call convertCellData(text, ftext, realData=cellData)
 
     locallist = g_object_get_data(renderer, "view"//c_null_char)
-    call hl_gtk_listn_set_cell(locallist, row, col, &
-         & svalue=trim(ftext))
+    call hl_gtk_listn_set_cell(locallist, row, col,  svalue=trim(ftext))
     end if
 
 
@@ -1037,8 +964,7 @@ end function
      call sysConfig%setSpectralWeights(row+1,real(cellData,4))
      !sysConfig%spectralWeights(irow+1) = cellData
    case(3)
-    call hl_gtk_listn_combo_set_by_list_id(uiWavelengthSettings%ihlist, row, 3_c_int, &
-    & targetValue=sysConfig%wavelengthColorCodes(row+1)) 
+    call hl_gtk_listn_combo_set_by_list_id(uiWavelengthSettings%ihlist, row, 3_c_int,  targetValue=sysConfig%wavelengthColorCodes(row+1)) 
 
    end select
 

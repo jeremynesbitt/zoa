@@ -25,6 +25,7 @@ SUBROUTINE FMT
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -208,6 +209,7 @@ SUBROUTINE FMT2
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -386,6 +388,7 @@ SUBROUTINE FMT4
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -547,6 +550,7 @@ SUBROUTINE FIXCVAR
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -959,6 +963,7 @@ SUBROUTINE FIXTVAR
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1519,6 +1524,7 @@ SUBROUTINE FIXVAR
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2139,6 +2145,7 @@ END
 SUBROUTINE FIELDS
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2193,7 +2200,7 @@ SUBROUTINE FIELDS
       RETURN
    END IF
    IF(DF4.EQ.1) THEN
-      W4=SYSTEM(11)
+      W4=sys_wl_ref()
       DF4=0
    END IF
    IF(W4.NE.1.0D0.AND.W4.NE.2.0D0.AND.W4.NE.3.0D0.AND.W4.NE.4.0D0 .AND.W4.NE.5.0D0.AND.W4.NE.6.0D0.AND.W4.NE.7.0D0.AND.W4.NE.8.0D0.AND.W4.NE.9.0D0.AND.W4.NE.10.0D0) THEN
@@ -2218,6 +2225,7 @@ SUBROUTINE MAKE_DEF_AUTO
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    INTEGER IVAL,I,J,K,DFNRD,L,LL,LLL,LLLL,DFNRAYS
@@ -2568,7 +2576,7 @@ SUBROUTINE MAKE_DEF_AUTO
          CALL MACFAL
          RETURN
       END IF
-      IF(DF5.EQ.1) W5=SYSTEM(11)
+      IF(DF5.EQ.1) W5=sys_wl_ref()
       IF(INT(W5).LT.1.OR.INT(W5).GT.10) THEN
          WRITE(OUTLYNE,*)'WAVELENGTH NUMBER MUST BE FROM 1 TO 10'
          CALL SHOWIT(1)
@@ -2707,7 +2715,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !       JUST DO THE CONTROL WAVELENGTH
             LLLL=1
             K=0
-            L=INT(SYSTEM(11))
+            L=INT(sys_wl_ref())
             IF(L.EQ.1)  LL=31
             IF(L.EQ.2)  LL=32
             IF(L.EQ.3)  LL=33
@@ -2770,7 +2778,7 @@ SUBROUTINE MAKE_DEF_AUTO
                IF(DFTYPENUMB.EQ.1) THEN
                   IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
-                     IF(SYSTEM(30).LE.2) THEN
+                     IF(sys_mode().LE.2) THEN
 !     FOCAL
                         WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                         CALL PROCES
@@ -2787,7 +2795,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !     CIRCULAR OPERAND PATTERN
                      IF(DSQRT(((JK_WW1)**2)+((JK_WW2)**2)).LE.1.0D0) THEN
 !     ADD OPERAND
-                        IF(SYSTEM(30).LE.2) THEN
+                        IF(sys_mode().LE.2) THEN
 !     FOCAL
                            WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                            CALL PROCES
@@ -2809,7 +2817,7 @@ SUBROUTINE MAKE_DEF_AUTO
                IF(DFTYPENUMB.EQ.2) THEN
                   IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
-                     IF(SYSTEM(30).LE.2) THEN
+                     IF(sys_mode().LE.2) THEN
 !     FOCAL
                         WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                         CALL PROCES
@@ -2830,7 +2838,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !     CIRCULAR OPERAND PATTERN
                      IF(DSQRT(((JK_WW1)**2)+((JK_WW2)**2)).LE.1.0D0) THEN
 !     ADD OPERAND
-                        IF(SYSTEM(30).LE.2) THEN
+                        IF(sys_mode().LE.2) THEN
 !     FOCAL
                            WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                            CALL PROCES
@@ -2975,7 +2983,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !       JUST DO THE CONTROL WAVELENGTH
          LLLL=1
          K=0
-         L=INT(SYSTEM(11))
+         L=INT(sys_wl_ref())
          IF(L.EQ.1)  LL=31
          IF(L.EQ.2)  LL=32
          IF(L.EQ.3)  LL=33
@@ -3042,7 +3050,7 @@ SUBROUTINE MAKE_DEF_AUTO
             IF(DFTYPENUMB.EQ.1) THEN
                IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
-                  IF(SYSTEM(30).LE.2) THEN
+                  IF(sys_mode().LE.2) THEN
 !     FOCAL
                      WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                      CALL PROCES
@@ -3059,7 +3067,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !     CIRCULAR OPERAND PATTERN
                   IF(DSQRT(((JK_WW1)**2)+((JK_WW2)**2)).LE.1.0D0) THEN
 !     ADD OPERAND
-                     IF(SYSTEM(30).LE.2) THEN
+                     IF(sys_mode().LE.2) THEN
 !     FOCAL
                         WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                         CALL PROCES
@@ -3081,7 +3089,7 @@ SUBROUTINE MAKE_DEF_AUTO
             IF(DFTYPENUMB.EQ.2) THEN
                IF(surf_clap_type(NEWREF).EQ.2.0D0.AND.surf_multi_clap_flag(NEWREF).EQ.0.0D0) THEN
 !     SQUARE OPERAND PATTERN
-                  IF(SYSTEM(30).LE.2) THEN
+                  IF(sys_mode().LE.2) THEN
 !     FOCAL
                      WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                      CALL PROCES
@@ -3102,7 +3110,7 @@ SUBROUTINE MAKE_DEF_AUTO
 !     CIRCULAR OPERAND PATTERN
                   IF(DSQRT(((JK_WW1)**2)+((JK_WW2)**2)).LE.1.0D0) THEN
 !     ADD OPERAND
-                     IF(SYSTEM(30).LE.2) THEN
+                     IF(sys_mode().LE.2) THEN
 !     FOCAL
                         WRITE(INPUT,*) 'DX,0,',WT1,',,',I,',',J
                         CALL PROCES
@@ -3143,6 +3151,7 @@ SUBROUTINE TOPER
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3189,6 +3198,7 @@ SUBROUTINE FOCRIT
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3237,6 +3247,7 @@ SUBROUTINE MERIT
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3283,6 +3294,7 @@ SUBROUTINE MDUMP(IID,JJD,MDERIV)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3383,6 +3395,7 @@ SUBROUTINE FMT3
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3483,6 +3496,7 @@ SUBROUTINE ITERADJUST(IID,JJD,MDERIV,JA)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE

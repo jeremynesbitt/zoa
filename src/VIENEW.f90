@@ -19,6 +19,7 @@ SUBROUTINE VIE_psm(psm)
       use zoa_output, only:  zoa_emit
       use ISO_FORTRAN_ENV, only: real64
       use DATLEN
+      use mod_system
       use type_utils, only: real2str, int2str
       use plot_setting_manager
 !
@@ -43,8 +44,7 @@ SUBROUTINE VIE_psm(psm)
 !
     COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
 !
-  INTEGER COLPAS,VDF1,VDF2,VDF3,VS1,VS2 &
-  ,VS3,I,J,CACOCHVIE
+  INTEGER COLPAS,VDF1,VDF2,VDF3,VS1,VS2 ,VS3,I,J,CACOCHVIE
 !
   CHARACTER VIEWQ*8
 !
@@ -199,21 +199,21 @@ SUBROUTINE VIE_psm(psm)
 !     SET UP THE SCALE FACTOR
   !PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
   !PRINT *, "VDF1 Equals ", VDF1
-  !PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
+  !PRINT *, "sys_units() Equals ", sys_units()
           IF(scaleChoice== ID_LENSDRAW_MANUALSCALE) THEN
                     AUTSL=.FALSE.
                     SCFAYP=1.0D0/scaleFactor
                     SCFAXP=1.0D0/scaleFactor
                     PSIZYP=scaleFactor
                     PSIZXP=scaleFactor
-  IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-  IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-  IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-  IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-  IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-  IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-  IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-  IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+  IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+  IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+  IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+  IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+  IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+  IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+  IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+  IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
   PSIZY=1.0D0/SCFAY
   PSIZX=1.0D0/SCFAX
                     PLSZ=.TRUE.
@@ -263,7 +263,7 @@ SUBROUTINE VIE_psm(psm)
           SAVE_KDP(1)=SAVEINPT(1)
           WW1=0.0D0
           WW2=0.0D0
-          WW3=SYSTEM(11)
+          WW3=sys_wl_ref()
           WVN=WW3
           MSG=.FALSE.
   WW4=1.0D0
@@ -302,8 +302,7 @@ SUBROUTINE VIE_psm(psm)
           REST_KDP(1)=RESTINPT(1)
    end select   
    
-  IF (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION .OR. &
-  &   plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) THEN
+  IF (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION .OR.    plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) THEN
   ! TODO refactor
 
 
@@ -400,9 +399,7 @@ SUBROUTINE VIE_psm(psm)
 !
 !     Y FIELDS OF VIEW ARE DONE WHEN VIEW IS YZ, XY OR ORTHO
 
-  IF((plotOrient == ID_LENSDRAW_YZ_PLOT_ORIENTATION) .OR. & 
-    &  (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR. &
-    &  (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN 
+  IF((plotOrient == ID_LENSDRAW_YZ_PLOT_ORIENTATION) .OR.   (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR.   (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN 
 
  !   CALL VIE_RSI(xF,yF,xA,yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE, RAYEXT)
 
@@ -429,9 +426,7 @@ end do  !  Fields
 
 
 ! X Fields (if necessesary)
-   IF((plotOrient == ID_LENSDRAW_XZ_PLOT_ORIENTATION) .OR. & 
-   &  (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR. &
-   &  (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN    
+   IF((plotOrient == ID_LENSDRAW_XZ_PLOT_ORIENTATION) .OR.   (plotOrient == ID_LENSDRAW_XY_PLOT_ORIENTATION) .OR.   (plotOrient == ID_LENSDRAW_ORTHO_PLOT_ORIENTATION)) THEN    
 
    PRINT *, "Plotting X for VIEW ", VIEWQ
 
@@ -439,8 +434,7 @@ end do  !  Fields
 
           SAVE_KDP(1)=SAVEINPT(1)
           COLRAY = sysConfig%fieldColorCodes(jj)
-          WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj) &
-          & , ' ' , sysConfig%relativeFields(1,jj)
+          WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj)  , ' ' , sysConfig%relativeFields(1,jj)
           CALL PROCES
           REST_KDP(1)=RESTINPT(1)
 
@@ -568,6 +562,7 @@ end subroutine
 subroutine VIE_PSM_TRACERAY(xA, yA, rW, Si,Sf)
       use iso_fortran_env, only: real64
       use DATLEN
+      use mod_system
       implicit none
       integer, intent(in) :: Si, Sf
       REAL(real64) ::  xA, yA
@@ -587,8 +582,7 @@ subroutine VIE_PSM_TRACERAY(xA, yA, rW, Si,Sf)
 
       ! I think the last four values here are fixed and never need to change.  Time will
       ! tell if this is a miskae.  
-      IF(RAYEXT) CALL VIERAY(REAL(Si,8) &
-      & ,REAL(Sf,8),0,0,1,1)
+      IF(RAYEXT) CALL VIERAY(REAL(Si,8)  ,REAL(Sf,8),0,0,1,1)
 
 
 end subroutine
@@ -597,6 +591,7 @@ end subroutine
 subroutine VIE_TRACERAY(xA, yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
   use ISO_FORTRAN_ENV, only: real64
   use DATLEN
+  use mod_system
   use type_utils, only: bool2str
   implicit none
   INTEGER VDF2,VDF3,VS2,VS3
@@ -628,6 +623,7 @@ SUBROUTINE PLTRAE
   use global_widgets, only: sysConfig
   use kdp_plot_gen
   use DATLEN
+  use mod_system
   use type_utils, only: real2str, int2str
 !
   use DATMAI
@@ -636,9 +632,7 @@ SUBROUTINE PLTRAE
 !
 !       THIS ROUTINE DOES THE PLOT RAY COMMAND AT THE CMD LEVEL
 !
-REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y, &
-ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
-,XNEW,YNEW,LKG,VIEPH,VIEAL
+REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y, ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI ,XNEW,YNEW,LKG,VIEPH,VIEAL
 !
 LOGICAL GGO
 !
@@ -723,8 +717,7 @@ CALL SHOWIT(1)
                   END IF
 !       CHECK SYNTAX
   IF(SST.EQ.1) THEN
-  OUTLYNE= &
-  '"PLOT RAY" TAKES NO STRING INPUT'
+  OUTLYNE= '"PLOT RAY" TAKES NO STRING INPUT'
 CALL SHOWIT(1)
   OUTLYNE='RE-ENTER COMMAND'
 CALL SHOWIT(1)
@@ -732,8 +725,7 @@ CALL SHOWIT(1)
                   RETURN
                   END IF
   IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-  OUTLYNE= &
-  '"PLOT RAY" ONLY TAKES NUMERIC WORDS #1 AND #2 INPUT'
+  OUTLYNE= '"PLOT RAY" ONLY TAKES NUMERIC WORDS #1 AND #2 INPUT'
 CALL SHOWIT(1)
   OUTLYNE='RE-ENTER COMMAND'
 CALL SHOWIT(1)
@@ -750,8 +742,8 @@ CALL SHOWIT(1)
   !call LogTermFOR("In PLTRAIE W1 is "//real2str(W1))
   !call LogTermFOR("In PLTRAIE W2 is "//real2str(W2))
 
-  IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-  IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+  IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+  IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
   IF(DF1.EQ.1) THEN
   IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
@@ -781,8 +773,7 @@ IF(STPSUR.LT.NEWOBJ) STPSUR=NEWOBJ
 !
   IF(INT(W1).LT.0) THEN
 !       INVALID NUMERIC WORD #1
-  OUTLYNE= &
-  'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
+  OUTLYNE= 'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
 CALL SHOWIT(1)
   OUTLYNE='RE-ENTER COMMAND'
 CALL SHOWIT(1)
@@ -791,8 +782,7 @@ CALL SHOWIT(1)
                   END IF
   IF(INT(W2).GT.NEWIMG) THEN
 !       INVALID NUMERIC WORD #2
-  OUTLYNE= &
-  'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
+  OUTLYNE= 'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
 CALL SHOWIT(1)
   OUTLYNE='RE-ENTER COMMAND'
 CALL SHOWIT(1)
@@ -801,8 +791,7 @@ CALL SHOWIT(1)
                   END IF
   IF(INT(W2).LE.INT(W1)) THEN
 !       W2 LESS THAN OR EQUAL TO W1
-  OUTLYNE= &
-  'NUMERIC WORD #2 MUST BE GREATER THAN NUMERIC WORD #1'
+  OUTLYNE= 'NUMERIC WORD #2 MUST BE GREATER THAN NUMERIC WORD #1'
 CALL SHOWIT(1)
   OUTLYNE='RE-ENTER COMMAND'
 CALL SHOWIT(1)
@@ -827,8 +816,7 @@ CALL SHOWIT(1)
 
 if (sysConfig%isObjectAfInf()) THEN
    GLPRAY(3,0) = MINVAL(GLPRAY(3,1:STPSUR))-2.0
-   GLPRAY(2,0) = GLPRAY(2,1) - &
-   (GLPRAY(3,1)-GLPRAY(3,0))*TAN(ACOS(GLPRAY(9,1)))
+   GLPRAY(2,0) = GLPRAY(2,1) - (GLPRAY(3,1)-GLPRAY(3,0))*TAN(ACOS(GLPRAY(9,1)))
 
    PRINT *, "GLPRAY min Z is ", GLPRAY(3,0)
 end if
@@ -1102,20 +1090,16 @@ CALL MY_COLTYP(COLPAS)
                     IF(NUMHITS(I-1).GT.1) THEN
 !                       PLOT NSS RAY DATA FIRST
                   DO J=2,NUMHITS(I-1)
-CALL PENMV1A( &
-P1ARAY(I-1,1,J+1),P1ARAY(I-1,2,J+1),P1ARAY(I-1,3,J+1))
+CALL PENMV1A( P1ARAY(I-1,1,J+1),P1ARAY(I-1,2,J+1),P1ARAY(I-1,3,J+1))
                   END DO
                   END IF
                   END IF
-IF(I.EQ.STASUR) &
-CALL PENMV1A(P1ARAY(I,1,1),P1ARAY(I,2,1),P1ARAY(I,3,1))
+IF(I.EQ.STASUR) CALL PENMV1A(P1ARAY(I,1,1),P1ARAY(I,2,1),P1ARAY(I,3,1))
 IF(I.GT.STASUR) THEN
                GGO=.TRUE.
 !     TEST IF LAST POINT IS NEW POINT, IF SO DON'T MOVE
-IF(P1ARAY(I,1,1).EQ.P1ARAY(I-1,1,1).AND.P1ARAY(I,2,1).EQ. &
-P1ARAY(I-1,2,1)) GGO=.FALSE.
-IF(P1ARAY(I,3,1).NE.0.AND.GGO) &
-CALL PENMV1A(P1ARAY(I,1,1),P1ARAY(I,2,1),P1ARAY(I,3,1))
+IF(P1ARAY(I,1,1).EQ.P1ARAY(I-1,1,1).AND.P1ARAY(I,2,1).EQ. P1ARAY(I-1,2,1)) GGO=.FALSE.
+IF(P1ARAY(I,3,1).NE.0.AND.GGO) CALL PENMV1A(P1ARAY(I,1,1),P1ARAY(I,2,1),P1ARAY(I,3,1))
                  END IF
                   END DO
 ! Add a Pen up move here to force drawing of last ray in correct c
@@ -1166,6 +1150,7 @@ NORAYPLOT=.FALSE.
         USE GLOBALS
         USE NSSMOD
         use DATLEN, only: DEVTYP, GLOBE, GRASET, SCFAX, SCFAY
+        use mod_system
 
         use DATHGR
         use DATMAI
@@ -1217,6 +1202,7 @@ NORAYPLOT=.FALSE.
         SUBROUTINE PSTART
           use kdp_plot_gen
           use DATLEN, only: COLBAC, DEVTYP, PLEXIS, PPLI, LI
+          use mod_system
 !
         use DATHGR
         use DATMAI
@@ -1274,8 +1260,7 @@ NORAYPLOT=.FALSE.
 !       PROCEED
                         END IF
 !       NOT A VALID DEVICE TYPE
-      OUTLYNE= &
-      '"PLOT NEW" MUST BE ISSUED BEFORE PLOTTING CAN PROCEED'
+      OUTLYNE= '"PLOT NEW" MUST BE ISSUED BEFORE PLOTTING CAN PROCEED'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1301,10 +1286,7 @@ NORAYPLOT=.FALSE.
 !
 !     NOW OPEN NEW FILE NEUTRAL.DAT FOR OUTPUT, IT IS CURRENTLY EMPTY
 !
-      OPEN(UNIT=28 &
-      ,FILE=trim(basePath)//'NEUTRAL.DAT' &
-      ,FORM='UNFORMATTED',ACCESS='DIRECT' &
-      ,RECL=(NRECL*42),STATUS='REPLACE')
+      OPEN(UNIT=28 ,FILE=trim(basePath)//'NEUTRAL.DAT' ,FORM='UNFORMATTED',ACCESS='DIRECT' ,RECL=(NRECL*42),STATUS='REPLACE')
 !      call OPEN_NEUTRAL_DAT(fNeut)
       I1=0
       I2=0
@@ -1332,10 +1314,8 @@ NORAYPLOT=.FALSE.
       IF(I8.LT.-9999) I8=-9999
       NEUTTOTAL=1
       STRINGER='A'
-      WRITE(NEUTLINE,1000) STRINGER &
-      ,I1,I2,I3,I4,I5,I6,I7,I8
-      IF(NEUTTOTAL+1.GE.MAXNEUTRAL/2) &
-      CALL RESIZE_NEUT
+      WRITE(NEUTLINE,1000) STRINGER ,I1,I2,I3,I4,I5,I6,I7,I8
+      IF(NEUTTOTAL+1.GE.MAXNEUTRAL/2) CALL RESIZE_NEUT
       NEUTARRAY(NEUTTOTAL+1)=NEUTLINE
  1000 FORMAT(A1,I5,I5,I5,I5,I5,I5,I5,I5)
                         RETURN
@@ -1345,6 +1325,7 @@ NORAYPLOT=.FALSE.
         use kdp_plot_gen
         USE GLOBALS
         use DATLEN, only: COLFRM
+        use mod_system
         use DATHGR
         implicit none
 !     DOES THE BIG FRAME AROUND PLOTS
@@ -1371,6 +1352,7 @@ NORAYPLOT=.FALSE.
     SUBROUTINE PLTRST1
       use kdp_plot_gen
       use DATLEN
+      use mod_system
 
       !
       use DATHGR
@@ -1642,61 +1624,61 @@ NORAYPLOT=.FALSE.
               FANWV10=.FALSE.
     JK_WAV(1:10)=0
     I=0
-    IF(SYSTEM(31).GT.0.0D0) THEN
+    IF(sys_wl_weight(1).GT.0.0D0) THEN
     FANWV1=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=1
     END IF
-    IF(SYSTEM(32).GT.0.0D0) THEN
+    IF(sys_wl_weight(2).GT.0.0D0) THEN
     FANWV2=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=2
     END IF
-    IF(SYSTEM(33).GT.0.0D0) THEN
+    IF(sys_wl_weight(3).GT.0.0D0) THEN
     FANWV3=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=3
     END IF
-    IF(SYSTEM(34).GT.0.0D0) THEN
+    IF(sys_wl_weight(4).GT.0.0D0) THEN
     FANWV4=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=4
     END IF
-    IF(SYSTEM(35).GT.0.0D0) THEN
+    IF(sys_wl_weight(5).GT.0.0D0) THEN
     FANWV5=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=5
     END IF
-    IF(SYSTEM(76).GT.0.0D0) THEN
+    IF(sys_wl_weight(6).GT.0.0D0) THEN
     FANWV6=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=6
     END IF
-    IF(SYSTEM(77).GT.0.0D0) THEN
+    IF(sys_wl_weight(7).GT.0.0D0) THEN
     FANWV7=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=7
     END IF
-    IF(SYSTEM(78).GT.0.0D0) THEN
+    IF(sys_wl_weight(8).GT.0.0D0) THEN
     FANWV8=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=8
     END IF
-    IF(SYSTEM(79).GT.0.0D0) THEN
+    IF(sys_wl_weight(9).GT.0.0D0) THEN
     FANWV9=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=9
     END IF
-    IF(SYSTEM(80).GT.0.0D0) THEN
+    IF(sys_wl_weight(10).GT.0.0D0) THEN
     FANWV10=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
@@ -1710,11 +1692,11 @@ NORAYPLOT=.FALSE.
               FANTYP=5
               QALTYP=0
               SSIFLG=.TRUE.
-              REFWV=INT(SYSTEM(11))
+              REFWV=INT(sys_wl_ref())
 !     FAN PLOTTING DEFAULT VALUES HAVE BEEN SET
               FANNOB=0
-              FANNRF=INT(SYSTEM(25))
-              FANNIM=INT(SYSTEM(20))
+              FANNRF=INT(sys_ref_surf())
+              FANNIM=INT(sys_last_surf())
               MAXFAN=20
               STEPJP=125.0D0
                     ELSE
@@ -1773,8 +1755,8 @@ NORAYPLOT=.FALSE.
                IF(FANQAL(1:2).EQ.'CD')   QALTYP=2
                IF(FANQAL(1:2).EQ.'LA')   QALTYP=3
               FANNOB=0
-              FANNRF=INT(SYSTEM(25))
-              FANNIM=INT(SYSTEM(20))
+              FANNRF=INT(sys_ref_surf())
+              FANNIM=INT(sys_last_surf())
     IF(LFOB(5).EQ.0.0D0) LFOB(5)=DBLE(NEWOBJ)
     IF(LFOB(6).EQ.0.0D0) LFOB(6)=DBLE(NEWREF)
     IF(LFOB(7).EQ.0.0D0) LFOB(7)=DBLE(NEWIMG)
@@ -1802,6 +1784,7 @@ NORAYPLOT=.FALSE.
         use type_utils, only: int2str
         USE GLOBALS
         use DATLEN
+        use mod_system
 !        USE testHDF5
         !use h5fortran
 
@@ -1815,25 +1798,17 @@ NORAYPLOT=.FALSE.
 !
 !       THIS ROUTINE DOES THE PLOT PROF COMMAND AT THE CMD LEVEL
 !
-      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
-      ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
-      ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2,AX1,AX2,AY1,AY2,ZDELZ &
-      ,X00,Y00,Z0,LX0,LY0,LZ0,ACALL1,ACALL2,XM,YM,ZCORR,ZDELZ1 &
-      ,X1,X2,Y1,Y2,SLOPE,DELXX,DELYY,MX0,MY0,MZ0,NX0,NY0,NZ0
+      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2,AX1,AX2,AY1,AY2,ZDELZ ,X00,Y00,Z0,LX0,LY0,LZ0,ACALL1,ACALL2,XM,YM,ZCORR,ZDELZ1 ,X1,X2,Y1,Y2,SLOPE,DELXX,DELYY,MX0,MY0,MZ0,NX0,NY0,NZ0
 !
-      LOGICAL ALT,VERT,INSIT,INSIDEIT,YESONE1,YESONE2,YESONE3,YESONE4 &
-      ,YESONE5,YESONE6,SECPLT(0:499)
+      LOGICAL ALT,VERT,INSIT,INSIDEIT,YESONE1,YESONE2,YESONE3,YESONE4 ,YESONE5,YESONE6,SECPLT(0:499)
 !
       COMMON/YESSIR/YESONE1,YESONE2,YESONE3,YESONE4,YESONE5,YESONE6
 !
       EXTERNAL INSIDEIT
 !
-      INTEGER M1,M2,M3,M4,CAFLG,COFLG,J,IK,III,NO,CLRR,ALLOERR &
-      ,COLPAS,KKK
+      INTEGER M1,M2,M3,M4,CAFLG,COFLG,J,IK,III,NO,CLRR,ALLOERR ,COLPAS,KKK
 !
-      REAL*8 XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,FRACRAD, &
-      XMINO,YMINO,XMAXO,YMAXO,DRAPRO,THETA &
-      ,YMIN2,XMIN2,YMAX2,XMAX2
+      REAL*8 XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,FRACRAD, XMINO,YMINO,XMAXO,YMAXO,DRAPRO,THETA ,YMIN2,XMIN2,YMAX2,XMAX2
 !
       INTEGER IX,IY,I,II,IPST
 !
@@ -1861,10 +1836,10 @@ NORAYPLOT=.FALSE.
       ROT2Z(AZ,AY,AALF)=((AZ*DCOS(AALF))+(AY*DSIN(AALF)))
       ROT2Y(AZ,AY,AALF)=((-AZ*DSIN(AALF))+(AY*DCOS(AALF)))
       DEALLOCATE (PRO,STARTPOINT,STOPPOINT,STAT=ALLOERR)
-      ALLOCATE (STARTPOINT(1:4,1:3,0:INT(SYSTEM(20))),STAT=ALLOERR)
-      ALLOCATE (STOPPOINT(1:4,1:3,0:INT(SYSTEM(20))),STAT=ALLOERR)
+      ALLOCATE (STARTPOINT(1:4,1:3,0:INT(sys_last_surf())),STAT=ALLOERR)
+      ALLOCATE (STOPPOINT(1:4,1:3,0:INT(sys_last_surf())),STAT=ALLOERR)
         LNTYPE=0
-                        I=INT(SYSTEM(20))
+                        I=INT(sys_last_surf())
         STARTPOINT(1:4,1:3,0:I)=0.0D0
         STOPPOINT(1:4,1:3,0:I)=0.0D0
 
@@ -1883,7 +1858,7 @@ NORAYPLOT=.FALSE.
       M1=360
       M2=4
       M3=0
-      M4=INT(SYSTEM(20))
+      M4=INT(sys_last_surf())
       DEALLOCATE (PRO,STAT=ALLOERR)
       ALLOCATE (PRO(M1,M2,M3:M4),STAT=ALLOERR)
 
@@ -1924,8 +1899,7 @@ NORAYPLOT=.FALSE.
 !
 !       CHECK SYNTAX
         IF(SST.EQ.1) THEN
-        OUTLYNE= &
-        '"PLOT PROF" TAKES NO STRING INPUT'
+        OUTLYNE= '"PLOT PROF" TAKES NO STRING INPUT'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1934,8 +1908,7 @@ NORAYPLOT=.FALSE.
                         RETURN
                         END IF
         IF(S4.EQ.1) THEN
-        OUTLYNE= &
-        '"PLOT PROF" ONLY TAKES NUMERIC WORDS #1, #2,#3 AND #5 INPUT'
+        OUTLYNE= '"PLOT PROF" ONLY TAKES NUMERIC WORDS #1, #2,#3 AND #5 INPUT'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1952,8 +1925,8 @@ NORAYPLOT=.FALSE.
       DEALLOCATE(STARTPOINT,STOPPOINT,PRO,STAT=ALLOERR)
                         RETURN
                         END IF
-        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
         IF(DF3.EQ.1) W3=0.0D0
       IF(W3.LT.0.0D0.OR.W3.GT.360.0D0) THEN
       OUTLYNE='THE ANGLE "THETA", NUMERIC WORD #3 MUST BE IN THE'
@@ -1980,15 +1953,14 @@ NORAYPLOT=.FALSE.
                         END IF
                 STASUR=INT(W1)
         IF(DF2.EQ.1) THEN
-                        W2=SYSTEM(20)
+                        W2=sys_last_surf()
                         ELSE
 !       DF2 NOT 1, W2 EXPLICITLY ENTERED
                         END IF
                 STPSUR=INT(W2)
         IF(INT(W1).LT.0) THEN
 !       INVALID NUMERIC WORD #1
-        OUTLYNE= &
-        'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
+        OUTLYNE= 'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1998,8 +1970,7 @@ NORAYPLOT=.FALSE.
                         END IF
         IF(INT(W2).GT.NEWIMG) THEN
 !       INVALID NUMERIC WORD #2
-        OUTLYNE= &
-        'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
+        OUTLYNE= 'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2009,8 +1980,7 @@ NORAYPLOT=.FALSE.
                         END IF
         IF(INT(W2).LT.INT(W1)) THEN
 !       W2 LESS THAN OR EQUAL TO W1
-        OUTLYNE= &
-        'NUMERIC WORD #2 MAY NOT BE LESS THAN NUMERIC WORD #1'
+        OUTLYNE= 'NUMERIC WORD #2 MAY NOT BE LESS THAN NUMERIC WORD #1'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2082,10 +2052,7 @@ NORAYPLOT=.FALSE.
 !     NOW FOR THE II SURFACE WE CALCULATE ALL THE END POINTS
 !
       ZDELZ=0.0D0
-      CALL CAOJK(YMIN,XMIN,YMAX,XMAX, &
-      YMINO,XMINO,YMAXO,XMAXO,CAFLG, &
-      COFLG,III, &
-      YMIN2,XMIN2,YMAX2,XMAX2,THETA,ZDELZ)
+      CALL CAOJK(YMIN,XMIN,YMAX,XMAX, YMINO,XMINO,YMAXO,XMAXO,CAFLG, COFLG,III, YMIN2,XMIN2,YMAX2,XMAX2,THETA,ZDELZ)
 !
 !     NOW WE HAVE THE END POINTS, CYCLE THROUGH ALL FOUR PAIRS
 !
@@ -2180,14 +2147,11 @@ NORAYPLOT=.FALSE.
       ZDELZ=0.0D0
       ZDELZ1=0.0D0
                    ELSE
-      IF(surf_clap_type(III) /= 1.OR.surf_clap_type(III) == 1.AND. &
-      surf_clap_dim(III, 3).NE.0.0D0.OR.surf_clap_type(III) == 1.AND. &
-      surf_clap_dim(III, 4).NE.0.0D0) THEN
+      IF(surf_clap_type(III) /= 1.OR.surf_clap_type(III) == 1.AND. surf_clap_dim(III, 3).NE.0.0D0.OR.surf_clap_type(III) == 1.AND. surf_clap_dim(III, 4).NE.0.0D0) THEN
                FRACRAD=0.0D0
                ELSE
       IF(surf_clap_dim(III, 1).NE.surf_clap_dim(III, 2)) THEN
-      FRACRAD=((DSQRT((X**2)+(Y**2))-surf_clap_dim(III, 2))/ &
-      (surf_clap_dim(III, 1)-surf_clap_dim(III, 2)))
+      FRACRAD=((DSQRT((X**2)+(Y**2))-surf_clap_dim(III, 2))/ (surf_clap_dim(III, 1)-surf_clap_dim(III, 2)))
       IF(FRACRAD.LE.0.0D0) FRACRAD=0.0D0
                ELSE
       FRACRAD=0.0D0
@@ -2245,8 +2209,7 @@ NORAYPLOT=.FALSE.
       IF(J.GT.1) THEN
 !     DOES THE PREVIOUS VALUE AND THE CURRENT VALUE STRADEL THE ZA AND ZB
 !     VALUES
-      IF(DABS(ZM).GT.DABS(ZA).AND.DABS(Z).LT.DABS(ZB).AND..NOT.YESONE5) &
-      THEN
+      IF(DABS(ZM).GT.DABS(ZA).AND.DABS(Z).LT.DABS(ZB).AND..NOT.YESONE5) THEN
                    PRO(J-1,1,II)=XM
                    PRO(J-1,2,II)=YM
                    PRO(J-1,3,II)=ZA
@@ -2259,8 +2222,7 @@ NORAYPLOT=.FALSE.
                    PRO(J,4,II)=1.0D0
                    YESONE5=.TRUE.
                            END IF
-      IF(DABS(ZM).LT.DABS(ZB).AND.DABS(Z).GT.DABS(ZA).AND..NOT.YESONE6) &
-       THEN
+      IF(DABS(ZM).LT.DABS(ZB).AND.DABS(Z).GT.DABS(ZA).AND..NOT.YESONE6) THEN
                    PRO(J-1,1,II)=XM
                    PRO(J-1,2,II)=YM
                    PRO(J-1,3,II)=ZB
@@ -2275,8 +2237,7 @@ NORAYPLOT=.FALSE.
                            END IF
 !     DOES THE PREVIOUS VALUE AND THE CURRENT VALUE STRADLE THE OUTER
 !     BOUNDARY VALUE AND THE CHECK WAS NOT YET MADE, THEN CHECK
-      IF(DABS(ZM).GT.DABS(ZA).AND.DABS(Z).LT.DABS(ZA).AND..NOT.YESONE3) &
-       THEN
+      IF(DABS(ZM).GT.DABS(ZA).AND.DABS(Z).LT.DABS(ZA).AND..NOT.YESONE3) THEN
 !     WE JUMPED OVER THE INSIDE BOUBDARY ON THE WAY IN
 !     SET THE CURRENT VALUE TO THE INNER BOUNDARY LIMIT AND SET TH
 !     DRAW FLAG TO 1
@@ -2285,8 +2246,7 @@ NORAYPLOT=.FALSE.
                 PRO(J,4,II)=1.0D0
                 YESONE3=.TRUE.
                END IF
-      IF(DABS(ZM).LT.DABS(ZA).AND.DABS(Z).GT.DABS(ZA).AND..NOT.YESONE2) &
-       THEN
+      IF(DABS(ZM).LT.DABS(ZA).AND.DABS(Z).GT.DABS(ZA).AND..NOT.YESONE2) THEN
 !     WE JUMPED OVER THE INSIDE BOUBDARY ON THE WAY OUT
 !     SET THE CURRENT VALUE TO THE INNER BOUNDARY LIMIT AND SET TH
 !     DRAW FLAG TO 1
@@ -2297,8 +2257,7 @@ NORAYPLOT=.FALSE.
                END IF
 !     DOES THE PREVIOUS VALUE AND THE CURRENT VALUE STRADLE THE INNER
 !     BOUNDARY VALUE AND THE CHECK WAS NOT YET MADE, THEN CHECK
-      IF(DABS(ZM).GT.DABS(ZB).AND.DABS(Z).LT.DABS(ZB).AND..NOT.YESONE1) &
-       THEN
+      IF(DABS(ZM).GT.DABS(ZB).AND.DABS(Z).LT.DABS(ZB).AND..NOT.YESONE1) THEN
 !     WE JUMPED OVER THE INSIDE BOUBDARY ON THE WAY IN
 !     SET THE CURRENT VALUE TO THE INNER BOUNDARY LIMIT AND SET TH
 !     DRAW FLAG TO 1
@@ -2307,8 +2266,7 @@ NORAYPLOT=.FALSE.
                 PRO(J,4,II)=1.0D0
                 YESONE1=.TRUE.
                END IF
-      IF(DABS(ZM).LT.DABS(ZB).AND.DABS(Z).GT.DABS(ZB).AND..NOT.YESONE2) &
-       THEN
+      IF(DABS(ZM).LT.DABS(ZB).AND.DABS(Z).GT.DABS(ZB).AND..NOT.YESONE2) THEN
 !     WE JUMPED OVER THE INSIDE BOUBDARY ON THE WAY OUT
 !     SET THE CURRENT VALUE TO THE INNER BOUNDARY LIMIT AND SET TH
 !     DRAW FLAG TO 1
@@ -2367,12 +2325,9 @@ NORAYPLOT=.FALSE.
                            END IF
         Z=PRO(I,3,II)
 !
-        X1=X00+((LX0*(X))+(LY0*(Y)) &
-        +(LZ0*(Z)))
-        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
-        +(MZ0*(Z)))
-        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
-        +(NZ0*(Z)))
+        X1=X00+((LX0*(X))+(LY0*(Y)) +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) +(NZ0*(Z)))
                 PRO(I,1,II)=X1
                 PRO(I,2,II)=Y1
                 PRO(I,3,II)=Z1
@@ -2556,8 +2511,7 @@ NORAYPLOT=.FALSE.
       LNTYPE=0
 !     DASH, SOLID OR INVISIBLE
                         CLRR=0
-      IF(DUMMMY(I).AND.surf_clap_type(I) == 0) &
-      CLRR=-1
+      IF(DUMMMY(I).AND.surf_clap_type(I) == 0) CLRR=-1
       IF(DUMMMY(I).AND.surf_clap_type(I) /= 0) THEN
       IF(DASHH) LNTYPE=2
                         ELSE
@@ -2571,8 +2525,7 @@ NORAYPLOT=.FALSE.
         IF(P1ARAY(IK,3,1).NE.0) P1ARAY(IK,3,1)=0
                         END IF
       IF(IK.GT.1.AND.IK.LE.360) THEN
-        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
-        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
                         END DO
 !
@@ -2607,11 +2560,9 @@ NORAYPLOT=.FALSE.
         IF(P1ARAY(IK,3,1).NE.0) P1ARAY(IK,3,1)=0
                         END IF
       IF(IK.GT.1.AND.IK.LE.360) THEN
-        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
-        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(I) /= 0) &
-      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(I) /= 0) CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
 !     NOW DO THE EDGES AT THE OBSCURATIONS
@@ -2697,7 +2648,7 @@ NORAYPLOT=.FALSE.
       DEALLOCATE(PRO,STAT=ALLOERR)
                         END DO
         FIXUP=.FALSE.
-                        DO I=0,INT(SYSTEM(20))
+                        DO I=0,INT(sys_last_surf())
       IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(I) /= 0) THEN
         IF(surf_mirror_thickness(I).NE.0.0D0) THEN
           !PRINT *, "LINE 5755 PLTPRO1 Executed!"
@@ -2774,6 +2725,7 @@ NORAYPLOT=.FALSE.
         SUBROUTINE PLTEDG
         USE GLOBALS
         USE DATLEN
+        use mod_system
         use kdp_plot_gen
 !
         use DATMAI
@@ -2782,17 +2734,11 @@ NORAYPLOT=.FALSE.
 !
 !       THIS ROUTINE DOES THE PLOT EDGEX/EDGEY COMMAND AT THE CMD LEVEL
 !
-      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
-      ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
-      ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2 &
-      ,X00,Y00,Z0,LX0,LY0,LZ0 &
-      ,X1,X2,Y1,Y2,MX0,MY0,MZ0,NX0,NY0,NZ0
+      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2 ,X00,Y00,Z0,LX0,LY0,LZ0 ,X1,X2,Y1,Y2,MX0,MY0,MZ0,NX0,NY0,NZ0
 !
       INTEGER M1,M2,M3,CAFLG,COFLG,IK,III,NO,ALLOERR
 !
-      REAL*8 XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT &
-      ,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO &
-      ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
+      REAL*8 XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT ,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
 !
       INTEGER COLPAS,IX,IY,I,II,IPST,J,SKIPNEXT
 !
@@ -2815,7 +2761,7 @@ NORAYPLOT=.FALSE.
 !
       M1=4
       M2=0
-      M3=INT(SYSTEM(20))
+      M3=INT(sys_last_surf())
       DEALLOCATE (EDGE,STAT=ALLOERR)
       ALLOCATE (EDGE(M1,M1,M2:M3),STAT=ALLOERR)
                 X=0.0D0
@@ -2859,10 +2805,8 @@ NORAYPLOT=.FALSE.
 !
 !       CHECK SYNTAX
         IF(SST.EQ.1) THEN
-        IF(WQ.EQ.'EDGEX')OUTLYNE= &
-        '"PLOT EDGEX" TAKES NO STRING INPUT'
-        IF(WQ.EQ.'EDGEY')OUTLYNE= &
-        '"PLOT EDGEY" TAKES NO STRING INPUT'
+        IF(WQ.EQ.'EDGEX')OUTLYNE= '"PLOT EDGEX" TAKES NO STRING INPUT'
+        IF(WQ.EQ.'EDGEY')OUTLYNE= '"PLOT EDGEY" TAKES NO STRING INPUT'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2871,10 +2815,8 @@ NORAYPLOT=.FALSE.
                         RETURN
                         END IF
         IF(S3.EQ.1.OR.S4.EQ.1) THEN
-        IF(WQ.EQ.'EDGEX')OUTLYNE= &
-        '"PLOT EDGEX" ONLY TAKES NUMERIC WORDS #1, #2 AND #5 INPUT'
-        IF(WQ.EQ.'EDGEY')OUTLYNE= &
-        '"PLOT EDGEY" ONLY TAKES NUMERIC WORDS #1, #2 AND #5 INPUT'
+        IF(WQ.EQ.'EDGEX')OUTLYNE= '"PLOT EDGEX" ONLY TAKES NUMERIC WORDS #1, #2 AND #5 INPUT'
+        IF(WQ.EQ.'EDGEY')OUTLYNE= '"PLOT EDGEY" ONLY TAKES NUMERIC WORDS #1, #2 AND #5 INPUT'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2894,8 +2836,8 @@ NORAYPLOT=.FALSE.
                         RETURN
                         ELSE
                         END IF
-        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
         IF(DF1.EQ.1) THEN
         IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
@@ -2915,8 +2857,7 @@ NORAYPLOT=.FALSE.
                 STPSUR=INT(W2)
         IF(INT(W1).LT.0) THEN
 !       INVALID NUMERIC WORD #1
-        OUTLYNE= &
-        'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
+        OUTLYNE= 'SURFACE NUMBER (NUMERIC WORD #1) IS BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2926,8 +2867,7 @@ NORAYPLOT=.FALSE.
                         END IF
         IF(INT(W2).GT.NEWIMG) THEN
 !       INVALID NUMERIC WORD #2
-        OUTLYNE= &
-        'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
+        OUTLYNE= 'SURFACE NUMBER (NUMERIC WORD #2) IS BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2937,8 +2877,7 @@ NORAYPLOT=.FALSE.
                         END IF
         IF(INT(W2).LE.INT(W1)) THEN
 !       W2 LESS THAN OR EQUAL TO W1
-        OUTLYNE= &
-        'NUMERIC WORD #2 MUST BE GREATER THAN NUMERIC WORD #1'
+        OUTLYNE= 'NUMERIC WORD #2 MUST BE GREATER THAN NUMERIC WORD #1'
       CALL SHOWIT(1)
         OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3005,10 +2944,7 @@ NORAYPLOT=.FALSE.
 !
 !     NOW FOR THE II SURFACE WE CALCULATE ALL THE END POINTS
 !
-      CALL CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT, &
-      YLFTO,XLFTO,YRHTO,XRHTO,XTOPO,YTOPO,XBOTO,YBOTO,CAFLG, &
-      COFLG,III &
-      ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ)
+      CALL CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT, YLFTO,XLFTO,YRHTO,XRHTO,XTOPO,YTOPO,XBOTO,YBOTO,CAFLG, COFLG,III ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ)
 !
 !
       IF(WQ.EQ.'EDGEY') THEN
@@ -3095,12 +3031,9 @@ NORAYPLOT=.FALSE.
                 Y=EDGE(1,2,II)
                 Z=EDGE(1,3,II)
 !
-        X1=X00+((LX0*(X))+(LY0*(Y)) &
-        +(LZ0*(Z)))
-        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
-        +(MZ0*(Z)))
-        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
-        +(NZ0*(Z)))
+        X1=X00+((LX0*(X))+(LY0*(Y)) +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) +(NZ0*(Z)))
                 EDGE(1,1,II)=REAL(X1,4)
                 EDGE(1,2,II)=REAL(Y1,4)
                 EDGE(1,3,II)=reAL(Z1,4)
@@ -3108,12 +3041,9 @@ NORAYPLOT=.FALSE.
                 Y=REAL(EDGE(2,2,II),8)
                 Z=REAL(EDGE(2,3,II),8)
 !
-        X1=X00+((LX0*(X))+(LY0*(Y)) &
-        +(LZ0*(Z)))
-        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
-        +(MZ0*(Z)))
-        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
-        +(NZ0*(Z)))
+        X1=X00+((LX0*(X))+(LY0*(Y)) +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) +(NZ0*(Z)))
                 EDGE(2,1,II)=REAL(X1,4)
                 EDGE(2,2,II)=ReAL(Y1,4)
                 EDGE(2,3,II)=REAL(Z1,4)
@@ -3121,12 +3051,9 @@ NORAYPLOT=.FALSE.
                 Y=REAL(EDGE(3,2,II),8)
                 Z=REAL(EDGE(3,3,II),8)
 !
-        X1=X00+((LX0*(X))+(LY0*(Y)) &
-        +(LZ0*(Z)))
-        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
-        +(MZ0*(Z)))
-        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
-        +(NZ0*(Z)))
+        X1=X00+((LX0*(X))+(LY0*(Y)) +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) +(NZ0*(Z)))
                 EDGE(3,1,II)=REAL(X1,4)
                 EDGE(3,2,II)=REAL(Y1,4)
                 EDGE(3,3,II)=REAL(Z1,4)
@@ -3134,12 +3061,9 @@ NORAYPLOT=.FALSE.
                 Y=REAL(EDGE(4,2,II),8)
                 Z=REAL(EDGE(4,3,II),8)
 !
-        X1=X00+((LX0*(X))+(LY0*(Y)) &
-        +(LZ0*(Z)))
-        Y1=Y00+((MX0*(X))+(MY0*(Y)) &
-        +(MZ0*(Z)))
-        Z1=Z0+((NX0*(X))+(NY0*(Y)) &
-        +(NZ0*(Z)))
+        X1=X00+((LX0*(X))+(LY0*(Y)) +(LZ0*(Z)))
+        Y1=Y00+((MX0*(X))+(MY0*(Y)) +(MZ0*(Z)))
+        Z1=Z0+((NX0*(X))+(NY0*(Y)) +(NZ0*(Z)))
                 EDGE(4,1,II)=REAL(X1,4)
                 EDGE(4,2,II)=REAL(Y1,4)
                 EDGE(4,3,II)=REAL(Z1,4)
@@ -3351,17 +3275,7 @@ NORAYPLOT=.FALSE.
 !     DRAW THE EDGE. IF THE CURRENT SURFACE MATERIAL IS AIR, DON'T
 !     DRAW THE EDGE.
 !     IN ALL OTHER CASES, DRAW THE EDGE.
-      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
-      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
-      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
-      GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. GLANAM(I-1,2).EQ.'PERFECT      '.OR. GLANAM(I-1,2).EQ.'IDEAL        '.OR. GLANAM(I-1,2).EQ.'REFLTIR      '.OR. GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. GLANAM(I-1,2).EQ.'REFL         '.AND. DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
                         IPST=1
@@ -3395,17 +3309,14 @@ NORAYPLOT=.FALSE.
                         DO IK=STASUR,STPSUR
         IF(IK.GT.STASUR) THEN
 
-      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND. &
-      surf_array_parity(IK-1) /= 0) THEN
+      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND. surf_array_parity(IK-1) /= 0) THEN
                         ELSE
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
-        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
-        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
       END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
-      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
 !     NOW DO THE EDGES OF THE COBS
@@ -3432,17 +3343,7 @@ NORAYPLOT=.FALSE.
 !     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
 !     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
 !     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
-      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
-      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
-      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
-      GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. GLANAM(I-1,2).EQ.'PERFECT      '.OR. GLANAM(I-1,2).EQ.'IDEAL        '.OR. GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. GLANAM(I-1,2).EQ.'REFLTIR      '.OR. GLANAM(I-1,2).EQ.'REFL         '.AND. DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
       IF(surf_coat_type(I) /= 0.AND.surf_coat_type(I-1) /= 0) THEN
@@ -3478,17 +3379,14 @@ NORAYPLOT=.FALSE.
         FIXUP=.FALSE.
                         DO IK=STASUR,STPSUR
       IF(IK.GT.STASUR) THEN
-      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND. &
-      surf_array_parity(IK-1) /= 0) THEN
+      IF(surf_array_parity(IK) /= 0.OR.IK.NE.STASUR.AND. surf_array_parity(IK-1) /= 0) THEN
                         ELSE
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
-        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
-        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
       END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
-      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
                         ELSE
@@ -3516,17 +3414,7 @@ NORAYPLOT=.FALSE.
 !     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
 !     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
 !     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
-      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
-      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
-      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
-      GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. GLANAM(I-1,2).EQ.'PERFECT      '.OR. GLANAM(I-1,2).EQ.'IDEAL        '.OR. GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. GLANAM(I-1,2).EQ.'REFLTIR      '.OR. GLANAM(I-1,2).EQ.'REFL         '.AND. DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
                         IPST=1
@@ -3573,11 +3461,9 @@ NORAYPLOT=.FALSE.
                         ELSE
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
-        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
-        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
-      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
 !     NOW DO THE EDGES OF THE COBS
@@ -3604,17 +3490,7 @@ NORAYPLOT=.FALSE.
 !     IF THE CURRENT SURFACE IS PRECEEDED BY AIR OR REFL
 !     AND ALL THE REFRACTIVE INDICES ARE 1 OR -1, DON'T
 !     DRAW THE EDGE. IN ALL OTHER CASES, DRAW THE EDGE.
-      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. &
-      GLANAM(I-1,2).EQ.'PERFECT      '.OR. &
-      GLANAM(I-1,2).EQ.'IDEAL        '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIR      '.OR. &
-      GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. &
-      GLANAM(I-1,2).EQ.'REFL         '.AND. &
-      DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. &
-      DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
+      IF(GLANAM(I-1,2).EQ.'AIR          '.OR. GLANAM(I-1,2).EQ.'PERFECT      '.OR. GLANAM(I-1,2).EQ.'IDEAL        '.OR. GLANAM(I-1,2).EQ.'REFLTIR      '.OR. GLANAM(I-1,2).EQ.'REFLTIRO     '.OR. GLANAM(I-1,2).EQ.'REFL         '.AND. DABS(surf_refractive_index(I-1, 1)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 2)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 3)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 4)).EQ.1.0D0.AND. DABS(surf_refractive_index(I-1, 5)).EQ.1.0D0) THEN
                         IPST=0
                         ELSE
       IF(surf_coat_type(I) /= 0.AND.surf_coat_type(I-1) /= 0) THEN
@@ -3664,12 +3540,10 @@ NORAYPLOT=.FALSE.
 !
         IF(IK.EQ.0) P1ARAY(IK,3,1)=0
         IF(IK.GT.0) THEN
-        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 &
-        .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
+        IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0 .OR.P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) P1ARAY(IK,3,1)=0
                         END IF
 !
-      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) &
-      CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
+      IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(IK) /= 0) CALL PENMV1(P1ARAY(IK,1,1),P1ARAY(IK,2,1),P1ARAY(IK,3,1))
                         END IF
                         END DO
                         ELSE

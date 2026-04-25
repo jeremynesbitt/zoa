@@ -5,6 +5,7 @@ SUBROUTINE SORDER(I)
 !
    use DATCFG
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface, only: surf_special_type
    IMPLICIT NONE
@@ -13,9 +14,7 @@ SUBROUTINE SORDER(I)
 !       IN SPECIAL SURFACE DATA WITHIN
 !       CONFIGURATION DATA FOR CONFIGURATION (I).
 
-   INTEGER SCRCNT,ULINE,ELINE,&
-   &TESTV1,TESTV2,EXSST(1:2000),I,J,III,&
-   &ALLOERR,JJ,KKK,JJJ,JK
+   INTEGER SCRCNT,ULINE,ELINE,TESTV1,TESTV2,EXSST(1:2000),I,J,III,ALLOERR,JJ,KKK,JJJ,JK
 !
    CHARACTER BLANK*140,CSTUFF*3
 !
@@ -44,10 +43,7 @@ SUBROUTINE SORDER(I)
 !
       EE12=CONFG(I,J)
       HOLDER=EE12
-      IF((HOLDER(1:11)).EQ.'U        SP'.OR.&
-      &(HOLDER(1:14)).EQ.'UPDATE   SPSRF'.OR.&
-      &(HOLDER(1:11)).EQ.'UPDATE   SP'.OR.&
-      &(HOLDER(1:14)).EQ.'U        SPSRF') THEN
+      IF((HOLDER(1:11)).EQ.'U        SP'.OR.(HOLDER(1:14)).EQ.'UPDATE   SPSRF'.OR.(HOLDER(1:11)).EQ.'UPDATE   SP'.OR.(HOLDER(1:14)).EQ.'U        SPSRF') THEN
 !       FOUND U SP, SET ULINE TO J
          ULINE=J
          GO TO 21
@@ -98,15 +94,14 @@ SUBROUTINE SORDER(I)
 !       ALLOWED PER SURFACE NUMBER
 !
 !       START CHECKING FROM END OF DATA LIST FOR EACH VALID
-!       SURFACE NUMBER FROM 1 TO INT(SYSTEM(20)
-   DO 110 III=1,INT(SYSTEM(20))
+!       SURFACE NUMBER FROM 1 TO INT(sys_last_surf()
+   DO 110 III=1,INT(sys_last_surf())
 !
       DO 120 JJ=ELINE-1,ULINE+1,-1
 !
          EE12=CONFG(I,JJ)
          HOLDER=EE12
-         IF(HOLDER(1:7).EQ.'SPECIAL'.OR.&
-         &HOLDER(1:5).EQ.'SPDEL'.OR.HOLDER(1:4).EQ.'GENL') THEN
+         IF(HOLDER(1:7).EQ.'SPECIAL'.OR.HOLDER(1:5).EQ.'SPDEL'.OR.HOLDER(1:4).EQ.'GENL') THEN
 !       CONVERT NUMERIC ENTRY TO INTEGER AND CONPARE WITH
 !       VALUE OF III. IF NO MATCH, GO TO 120
             CALL CONVR2(HOLDER(1:140),TESTV1)
@@ -132,15 +127,14 @@ SUBROUTINE SORDER(I)
 !       ALLOWED PER SURFACE NUMBER
 !
 !       START CHECKING FROM END OF DATA LIST FOR EACH VALID
-!       SURFACE NUMBER FROM 1 TO INT(SYSTEM(20)
-   DO 1105 III=1,INT(SYSTEM(20))
+!       SURFACE NUMBER FROM 1 TO INT(sys_last_surf()
+   DO 1105 III=1,INT(sys_last_surf())
 !
       DO 1205 JJ=ELINE-1,ULINE+1,-1
 !
          EE12=CONFG(I,JJ)
          HOLDER=EE12
-         IF(HOLDER(1:11).EQ.'SPSRF    ON'.OR.&
-         &HOLDER(1:12).EQ.'SPSRF    OFF') THEN
+         IF(HOLDER(1:11).EQ.'SPSRF    ON'.OR.HOLDER(1:12).EQ.'SPSRF    OFF') THEN
 !       CONVERT NUMERIC ENTRY TO INTEGER AND CONPARE WITH
 !       VALUE OF III. IF NO MATCH, GO TO 1205
             CALL CONVR1(HOLDER(1:140),TESTV1)
@@ -165,9 +159,9 @@ SUBROUTINE SORDER(I)
 !       EACH SURFACE FOR THE CURRENT CFG AND SET THE EXISTENCE
 !       FLAG EXSTT(SURF) TO 1 IF THERE IS A DEFINITION AND 0
 !       IF THERE IS NOT
-   KKK=INT(SYSTEM(20))
+   KKK=INT(sys_last_surf())
    EXSST(0:KKK)=0
-   DO 1100 KKK=1,INT(SYSTEM(20))
+   DO 1100 KKK=1,INT(sys_last_surf())
 !       FIRST IF SURFACE IS SPECIAL IN LENS DATA
       IF(surf_special_type(KKK) /= 0) THEN
 !       SURFACE IS SPECIAL IN LENS DATA.
@@ -183,8 +177,7 @@ SUBROUTINE SORDER(I)
          ELSE
 !       NOT SPDEL, CONTINUE
          END IF
-         IF(SCRATH(JJ)(1:7).EQ.'SPECIAL'.OR.&
-         &SCRATH(JJ)(1:4).EQ.'GENL') THEN
+         IF(SCRATH(JJ)(1:7).EQ.'SPECIAL'.OR.SCRATH(JJ)(1:4).EQ.'GENL') THEN
             CALL CONVR2(SCRATH(JJ)(1:140),TESTV1)
             IF(TESTV1.EQ.KKK) EXSST(KKK)=1
          ELSE
@@ -205,12 +198,12 @@ SUBROUTINE SORDER(I)
 1101  CONTINUE
 1100 CONTINUE
 !
-!       NOW THE COEFFICIENTS STARTING FROM SURFACE 1 TO SYSTEM(20)
+!       NOW THE COEFFICIENTS STARTING FROM SURFACE 1 TO sys_last_surf()
 !
 !       START CHECKING FROM END OF DATA LIST FOR EACH VALID
-!       SURFACE NUMBER FROM 1 TO INT(SYSTEM(20)
+!       SURFACE NUMBER FROM 1 TO INT(sys_last_surf()
 !
-   DO 310 III=1,INT(SYSTEM(20))
+   DO 310 III=1,INT(sys_last_surf())
 !
       DO 400 JJJ=1,96
          IF(JJJ.EQ.1) CSTUFF='C1 '
@@ -394,8 +387,7 @@ SUBROUTINE REMOVE
 !       IS REQUIRED. K MUST BE GREATER THAN J
 !       I IS VALID FOR I=2 TO K=100
 !
-   CHARACTER &
-   &A*17,B*17,C*17,D*17,E*17,F*17,G*17,H*17,AI*3
+   CHARACTER A*17,B*17,C*17,D*17,E*17,F*17,G*17,H*17,AI*3
 !
    INTEGER DELCNT,RET,I,J,RETRET,LEOS,SPEOS
 !
@@ -403,8 +395,7 @@ SUBROUTINE REMOVE
 !
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"REMOVE" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
+      WRITE(OUTLYNE,*)'"REMOVE" ONLY TAKES NUMERIC WORD #1, #2 AND #3 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -413,8 +404,7 @@ SUBROUTINE REMOVE
    END IF
 !
    IF(DF1.EQ.1.OR.DF2.EQ.1.OR.DF3.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"REMOVE" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
+      WRITE(OUTLYNE,*)'"REMOVE" REQUIRES EXPLICIT NUMERIC WORD #1, #2 AND #3 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -422,8 +412,7 @@ SUBROUTINE REMOVE
       RETURN
    END IF
    IF(W2.GT.W3) THEN
-      WRITE(OUTLYNE,*)&
-      &'NUMERIC WORD (2) MUST BE < OR = NUMERIC WORD (3)'
+      WRITE(OUTLYNE,*)'NUMERIC WORD (2) MUST BE < OR = NUMERIC WORD (3)'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -488,15 +477,7 @@ SUBROUTINE REMOVE
 10 CONTINUE
    EE12=CONFG(INT(W1),I)
    HOLDER=EE12
-   IF(HOLDER(1:17).NE.A.AND.&
-   &HOLDER(1:17).NE.B.AND.&
-   &HOLDER(1:17).NE.C.AND.&
-   &HOLDER(1:17).NE.D.AND.&
-   &HOLDER(1:17).NE.E.AND.&
-   &HOLDER(1:17).NE.F.AND.&
-   &HOLDER(1:17).NE.G.AND.&
-   &HOLDER(1:17).NE.H.AND.&
-   &HOLDER(1:3).NE.AI) THEN
+   IF(HOLDER(1:17).NE.A.AND.HOLDER(1:17).NE.B.AND.HOLDER(1:17).NE.C.AND.HOLDER(1:17).NE.D.AND.HOLDER(1:17).NE.E.AND.HOLDER(1:17).NE.F.AND.HOLDER(1:17).NE.G.AND.HOLDER(1:17).NE.H.AND.HOLDER(1:3).NE.AI) THEN
 !       DELETE THE LINE
       DO 20 J=I,(CFGCNT(INT(W1))-1)
          EE12=CONFG(INT(W1),(J+1))
@@ -544,6 +525,7 @@ SUBROUTINE CFSC1
 !
    use DATCFG
    use DATLEN
+   use mod_system
    use DATMAI
    IMPLICIT NONE
 !
@@ -552,16 +534,11 @@ SUBROUTINE CFSC1
 !       WRX,WRY (BDX AND BDY GET SCALED BY THE INVERSE OF THE SCALE FACTOR)
 !       ARE SCALED WITH SURFACE DATA.
 !
-   CHARACTER HOLD*140,AVAL1*23,&
-   &AVAL2*23,AVAL3*23,AVAL4*23,AVAL5*23,SNAME*9,&
-   &LNAME*18,AN1*23,AV1*23
+   CHARACTER HOLD*140,AVAL1*23,AVAL2*23,AVAL3*23,AVAL4*23,AVAL5*23,SNAME*9,LNAME*18,AN1*23,AV1*23
 !
-   INTEGER &
-   &ULINE,ELINE,IEND,CHG1,ISTART,ISTOP,STARL,STOPL,ISTA,&
-   &ISTO,I,J
+   INTEGER ULINE,ELINE,IEND,CHG1,ISTART,ISTOP,STARL,STOPL,ISTA,ISTO,I,J
 !
-   REAL*8 VAL1,VAL2,MM1,&
-   &VAL3,VAL4,VAL5,N1,V1
+   REAL*8 VAL1,VAL2,MM1,VAL3,VAL4,VAL5,N1,V1
 !
    COMMON/JK_NTA3/V1,AV1
 !
@@ -579,7 +556,7 @@ SUBROUTINE CFSC1
 !
 !       J TRACKS THE ENTRY NUMBER
 !
-   IEND=INT(SYSTEM(56))
+   IEND=INT(sys_high_cfg())
    DO 10 I=2,IEND
 !       LOOP THROUGH ALL NON BLANK CONFIGS
       ELINE=1
@@ -587,17 +564,13 @@ SUBROUTINE CFSC1
 !
 !       REMOVE ALL FNBY/ER/MAG ENTRIES BY CALLIN FNBDE
 !     UNLESS WRX,WRY,BDX OR BDY ENTERED
-      IF(WC.NE.'BDX'.AND.WC.NE.'BDY'.AND.WC.NE.'WRX'.AND.&
-      &WC.NE.'WRY') CALL FNBDE(I)
+      IF(WC.NE.'BDX'.AND.WC.NE.'BDY'.AND.WC.NE.'WRX'.AND.WC.NE.'WRY') CALL FNBDE(I)
 !
 !       DETERMINE LOCATION OF U L,EOS AND FIRST CHG
       DO 15 J=1,CFGCNT(I)
          EE12=CONFG(I,J)
          HOLDER=EE12
-         IF((HOLDER(1:10)).EQ.'U        L'.OR.&
-         &(HOLDER(1:13)).EQ.'UPDATE   LENS'.OR.&
-         &(HOLDER(1:10)).EQ.'UPDATE   L'.OR.&
-         &(HOLDER(1:13)).EQ.'U        LENS') ULINE=J
+         IF((HOLDER(1:10)).EQ.'U        L'.OR.(HOLDER(1:13)).EQ.'UPDATE   LENS'.OR.(HOLDER(1:10)).EQ.'UPDATE   L'.OR.(HOLDER(1:13)).EQ.'U        LENS') ULINE=J
          IF((HOLDER(1:3)).EQ.'EOS'.AND.J.GT.ULINE)THEN
             ELINE=J
             GO TO 16
@@ -629,9 +602,7 @@ SUBROUTINE CFSC1
             VAL2=0.0D0
             AVAL1='                    '
             AVAL2='                    '
-            IF((HOLDER(1:3)).EQ.'SAY'.OR.&
-            &(HOLDER(1:3)).EQ.'SAX'.OR.HOLDER(1:3).EQ.'WRX'.OR.&
-            &HOLDER(1:3).EQ.'WRY') THEN
+            IF((HOLDER(1:3)).EQ.'SAY'.OR.(HOLDER(1:3)).EQ.'SAX'.OR.HOLDER(1:3).EQ.'WRX'.OR.HOLDER(1:3).EQ.'WRY') THEN
 !       FOUND SAY, SAX, WRX OR WRY TO PROCESS
                AVAL1=(HOLDER(10:32))
                AV1=AVAL1
@@ -656,8 +627,7 @@ SUBROUTINE CFSC1
             VAL2=0.0D0
             AVAL1='                    '
             AVAL2='                    '
-            IF((HOLDER(1:3)).EQ.'BDY'.OR.&
-            &(HOLDER(1:3)).EQ.'BDX') THEN
+            IF((HOLDER(1:3)).EQ.'BDY'.OR.(HOLDER(1:3)).EQ.'BDX') THEN
 !       BDX OR BDY TO PROCESS
                AVAL1=(HOLDER(10:32))
                AV1=AVAL1
@@ -677,15 +647,13 @@ SUBROUTINE CFSC1
 !       NOT BDY OR BDX, PROCEED
             END IF
 !       NOW DO SCY AND SCX
-            IF((HOLDER(1:3)).EQ.'SCY'.OR.&
-            &(HOLDER(1:3)).EQ.'SCX') THEN
+            IF((HOLDER(1:3)).EQ.'SCY'.OR.(HOLDER(1:3)).EQ.'SCX') THEN
 !       SET DEFAULT VALUES
                VAL1=0.0D0
                VAL2=0.0D0
                AVAL1='                    '
                AVAL2='                    '
-               IF((HOLDER(1:17)).NE.'SCY      FANG    '.AND.&
-               &(HOLDER(1:17)).NE.'SCX      FANG    ')THEN
+               IF((HOLDER(1:17)).NE.'SCY      FANG    '.AND.(HOLDER(1:17)).NE.'SCX      FANG    ')THEN
 !       FOUND SCY OR SCX TO PROCESS
                   AVAL1=(HOLDER(10:32))
                   AV1=AVAL1
@@ -719,8 +687,7 @@ SUBROUTINE CFSC1
                VAL2=0.0D0
                AVAL1='                    '
                AVAL2='                    '
-               IF((HOLDER(1:17)).EQ.'SCY      FANG    '.OR.&
-               &(HOLDER(1:17)).EQ.'SCX      FANG    ')THEN
+               IF((HOLDER(1:17)).EQ.'SCY      FANG    '.OR.(HOLDER(1:17)).EQ.'SCX      FANG    ')THEN
 !       FOUND SCY FANG OR SCX FANG TO PROCESS
                   AVAL1=(HOLDER(19:41))
                   AV1=AVAL1
@@ -751,17 +718,11 @@ SUBROUTINE CFSC1
             ELSE
             END IF
 !       NOW DO PXIM AND PYIM AND RXIM AND RYIM
-            IF((HOLDER(1:4)).EQ.'PXIM'.OR.&
-            &(HOLDER(1:4)).EQ.'PYIM'.OR.&
-            &(HOLDER(1:4)).EQ.'RXIM'.OR.&
-            &(HOLDER(1:4)).EQ.'RYIM') THEN
+            IF((HOLDER(1:4)).EQ.'PXIM'.OR.(HOLDER(1:4)).EQ.'PYIM'.OR.(HOLDER(1:4)).EQ.'RXIM'.OR.(HOLDER(1:4)).EQ.'RYIM') THEN
 !       SET DEFAULT VALUES
                VAL1=0.0D0
                AVAL1='                    '
-               IF((HOLDER(1:17)).NE.'PXIM     FANG    '.AND.&
-               &(HOLDER(1:17)).NE.'PYIM     FANG    '.OR.&
-               &(HOLDER(1:17)).NE.'RXIM     FANG    '.OR.&
-               &(HOLDER(1:17)).NE.'RYIM     FANG    ')THEN
+               IF((HOLDER(1:17)).NE.'PXIM     FANG    '.AND.(HOLDER(1:17)).NE.'PYIM     FANG    '.OR.(HOLDER(1:17)).NE.'RXIM     FANG    '.OR.(HOLDER(1:17)).NE.'RYIM     FANG    ')THEN
 !       PROCESS
                   AVAL1=(HOLDER(10:32))
                   AV1=AVAL1
@@ -785,10 +746,7 @@ SUBROUTINE CFSC1
 !       SET DEFAULT VALUES
                VAL1=0.0D0
                AVAL1='                    '
-               IF((HOLDER(1:17)).EQ.'PXIM     FANG    '.OR.&
-               &(HOLDER(1:17)).EQ.'PYIM     FANG    '.OR.&
-               &(HOLDER(1:17)).EQ.'RXIM     FANG    '.OR.&
-               &(HOLDER(1:17)).EQ.'RYIM     FANG    ')THEN
+               IF((HOLDER(1:17)).EQ.'PXIM     FANG    '.OR.(HOLDER(1:17)).EQ.'PYIM     FANG    '.OR.(HOLDER(1:17)).EQ.'RXIM     FANG    '.OR.(HOLDER(1:17)).EQ.'RYIM     FANG    ')THEN
 !       PROCESS
                   AVAL1=(HOLDER(19:41))
                   AV1=AVAL1
@@ -1547,8 +1505,7 @@ SUBROUTINE CFSC1
 !       SCALE (CLAP OR COBS)
          MM1=DABS(W1)
 !
-         IF((HOLDER(1:4)).EQ.'CLAP'.OR.&
-         &(HOLDER(1:4)).EQ.'COBS') THEN
+         IF((HOLDER(1:4)).EQ.'CLAP'.OR.(HOLDER(1:4)).EQ.'COBS') THEN
 !
             IF((HOLDER(9:9)).EQ.',') THEN
                SNAME=HOLDER(1:9)
@@ -1715,8 +1672,7 @@ SUBROUTINE CFSC1
                END IF
 !
 !       LNAME(10:17)= 'ELIP    ' OR 'ELIPE'
-               IF(LNAME(10:17).EQ.'ELIP    '.OR.LNAME(10:17)&
-               &.EQ.'ELIPE   ') THEN
+               IF(LNAME(10:17).EQ.'ELIP    '.OR.LNAME(10:17).EQ.'ELIPE   ') THEN
                   IF(AVAL1.NE.',') THEN
                      AV1=AVAL1
                      CALL ATON3
@@ -1764,8 +1720,7 @@ SUBROUTINE CFSC1
 !
 !
 !       LNAME(10:17)= 'RECT    ' OR 'RECTE'
-               IF(LNAME(10:17).EQ.'RECT    '.OR.LNAME(10:17)&
-               &.EQ.'RECTE   ') THEN
+               IF(LNAME(10:17).EQ.'RECT    '.OR.LNAME(10:17).EQ.'RECTE   ') THEN
                   IF(AVAL1.NE.',') THEN
                      AV1=AVAL1
                      CALL ATON3
@@ -1812,8 +1767,7 @@ SUBROUTINE CFSC1
                END IF
 !
 !       LNAME(10:17)=RCTK OR RCTKE
-               IF(LNAME(10:17).EQ.'RCTK    '.OR.&
-               &LNAME(10:17).EQ.'RCTKE   ') THEN
+               IF(LNAME(10:17).EQ.'RCTK    '.OR.LNAME(10:17).EQ.'RCTKE   ') THEN
                   IF(AVAL1.NE.',') THEN
                      AV1=AVAL1
                      CALL ATON3
@@ -1869,8 +1823,7 @@ SUBROUTINE CFSC1
                END IF
 !
 !       LNAME(10:17)=POLY OR POLYE
-               IF(LNAME(10:17).EQ.'POLY    '.OR.&
-               &LNAME(10:17).EQ.'POLYE   ') THEN
+               IF(LNAME(10:17).EQ.'POLY    '.OR.LNAME(10:17).EQ.'POLYE   ') THEN
                   IF(AVAL1.NE.',') THEN
                      AV1=AVAL1
                      CALL ATON3
@@ -1926,8 +1879,7 @@ SUBROUTINE CFSC1
                END IF
 !
 !       LNAME(10:17)=IPOLY OR IPOLYE
-               IF(LNAME(10:17).EQ.'IPOLY   '.OR.&
-               &LNAME(10:17).EQ.'IPOLYE  ') THEN
+               IF(LNAME(10:17).EQ.'IPOLY   '.OR.LNAME(10:17).EQ.'IPOLYE  ') THEN
                   IF(AVAL1.NE.',') THEN
                      AV1=AVAL1
                      CALL ATON3
@@ -2285,12 +2237,7 @@ SUBROUTINE CFSC1
          END IF
 !
 !       SCALE (ALPHA,BETA,GAMMA,GALPHA,GBETA,GGAMMA)
-         IF((HOLDER(1:5)).EQ.'ALPHA'.OR.&
-         &(HOLDER(1:4)).EQ.'BETA'.OR.&
-         &(HOLDER(1:5)).EQ.'GAMMA'.OR.&
-         &(HOLDER(1:6)).EQ.'GALPHA'.OR.&
-         &(HOLDER(1:5)).EQ.'GBETA'.OR.&
-         &(HOLDER(1:6)).EQ.'GGAMMA') THEN
+         IF((HOLDER(1:5)).EQ.'ALPHA'.OR.(HOLDER(1:4)).EQ.'BETA'.OR.(HOLDER(1:5)).EQ.'GAMMA'.OR.(HOLDER(1:6)).EQ.'GALPHA'.OR.(HOLDER(1:5)).EQ.'GBETA'.OR.(HOLDER(1:6)).EQ.'GGAMMA') THEN
             AVAL1=(HOLDER(10:32))
             AV1=AVAL1
             CALL ATON3
@@ -2359,48 +2306,15 @@ SUBROUTINE CFSC1
 !       SCALE (PIKUP)S AS APPROPRIATE
 !
          IF((HOLDER(1:5)).EQ.'PIKUP')THEN
-            IF((HOLDER(10:17)).EQ.'RD      '.OR.&
-            &(HOLDER(10:17)).EQ.'CV      '.OR.&
-            &(HOLDER(10:17)).EQ.'TH      '.OR.&
-            &(HOLDER(10:17)).EQ.'AC      '.OR.&
-            &(HOLDER(10:17)).EQ.'AD      '.OR.&
-            &(HOLDER(10:17)).EQ.'AE      '.OR.&
-            &(HOLDER(10:17)).EQ.'AF      '.OR.&
-            &(HOLDER(10:17)).EQ.'AG      '.OR.&
-            &(HOLDER(10:17)).EQ.'AH      '.OR.&
-            &(HOLDER(10:17)).EQ.'AI      '.OR.&
-            &(HOLDER(10:17)).EQ.'AJ      '.OR.&
-            &(HOLDER(10:17)).EQ.'AK      '.OR.&
-            &(HOLDER(10:17)).EQ.'AL      ') THEN
+            IF((HOLDER(10:17)).EQ.'RD      '.OR.(HOLDER(10:17)).EQ.'CV      '.OR.(HOLDER(10:17)).EQ.'TH      '.OR.(HOLDER(10:17)).EQ.'AC      '.OR.(HOLDER(10:17)).EQ.'AD      '.OR.(HOLDER(10:17)).EQ.'AE      '.OR.(HOLDER(10:17)).EQ.'AF      '.OR.(HOLDER(10:17)).EQ.'AG      '.OR.(HOLDER(10:17)).EQ.'AH      '.OR.(HOLDER(10:17)).EQ.'AI      '.OR.(HOLDER(10:17)).EQ.'AJ      '.OR.(HOLDER(10:17)).EQ.'AK      '.OR.(HOLDER(10:17)).EQ.'AL      ') THEN
                GO TO 1000
             ELSE
             END IF
-            IF((HOLDER(10:17)).EQ.'ADTOR   '.OR.&
-            &(HOLDER(10:17)).EQ.'AETOR   '.OR.&
-            &(HOLDER(10:17)).EQ.'AFTOR   '.OR.&
-            &(HOLDER(10:17)).EQ.'AGTOR   '.OR.&
-            &(HOLDER(10:17)).EQ.'YD      '.OR.&
-            &(HOLDER(10:17)).EQ.'ZD      '.OR.&
-            &(HOLDER(10:17)).EQ.'XD      '.OR.&
-            &(HOLDER(10:17)).EQ.'GDX     '.OR.&
-            &(HOLDER(10:17)).EQ.'GDY     '.OR.&
-            &(HOLDER(10:17)).EQ.'GDZ     '.OR.&
-            &(HOLDER(10:17)).EQ.'ALPHA   '.OR.&
-            &(HOLDER(10:17)).EQ.'BETA    '.OR.&
-            &(HOLDER(10:17)).EQ.'GAMMA   '.OR.&
-            &(HOLDER(10:17)).EQ.'GALPHA  '.OR.&
-            &(HOLDER(10:17)).EQ.'GBETA   '.OR.&
-            &(HOLDER(10:17)).EQ.'GGAMMA  '.OR.&
-            &(HOLDER(10:17)).EQ.'PIVX    '.OR.&
-            &(HOLDER(10:17)).EQ.'PIVY    '.OR.&
-            &(HOLDER(10:17)).EQ.'PIVZ    ') THEN
+            IF((HOLDER(10:17)).EQ.'ADTOR   '.OR.(HOLDER(10:17)).EQ.'AETOR   '.OR.(HOLDER(10:17)).EQ.'AFTOR   '.OR.(HOLDER(10:17)).EQ.'AGTOR   '.OR.(HOLDER(10:17)).EQ.'YD      '.OR.(HOLDER(10:17)).EQ.'ZD      '.OR.(HOLDER(10:17)).EQ.'XD      '.OR.(HOLDER(10:17)).EQ.'GDX     '.OR.(HOLDER(10:17)).EQ.'GDY     '.OR.(HOLDER(10:17)).EQ.'GDZ     '.OR.(HOLDER(10:17)).EQ.'ALPHA   '.OR.(HOLDER(10:17)).EQ.'BETA    '.OR.(HOLDER(10:17)).EQ.'GAMMA   '.OR.(HOLDER(10:17)).EQ.'GALPHA  '.OR.(HOLDER(10:17)).EQ.'GBETA   '.OR.(HOLDER(10:17)).EQ.'GGAMMA  '.OR.(HOLDER(10:17)).EQ.'PIVX    '.OR.(HOLDER(10:17)).EQ.'PIVY    '.OR.(HOLDER(10:17)).EQ.'PIVZ    ') THEN
                GO TO 1000
             ELSE
             END IF
-            IF((HOLDER(10:17)).EQ.'CLAP    '.OR.&
-            &(HOLDER(10:17)).EQ.'COBS    '.OR.&
-            &(HOLDER(10:17)).EQ.'RDTOR   '.OR.&
-            &(HOLDER(10:17)).EQ.'CVTOR   ')THEN
+            IF((HOLDER(10:17)).EQ.'CLAP    '.OR.(HOLDER(10:17)).EQ.'COBS    '.OR.(HOLDER(10:17)).EQ.'RDTOR   '.OR.(HOLDER(10:17)).EQ.'CVTOR   ')THEN
 !
 !       FOUND PIKUP TO SCALE, JUMP TO 1000
                GO TO 1000
@@ -2477,44 +2391,17 @@ SUBROUTINE CFSC1
 !
 !       LNAME(10:17)= RD,TH,XD,YD,RDTOR,PIVX,PIVY,PIVZ
 !       LNAME(10:17)= OR GLOBAL TILTS AND DECENTERS
-            IF(LNAME(10:17).EQ.'RD      '.OR.&
-            &LNAME(10:17).EQ.'RDTOR   '.OR.&
-            &LNAME(10:17).EQ.'XD      '.OR.&
-            &LNAME(10:17).EQ.'ZD      '.OR.&
-            &LNAME(10:17).EQ.'YD      '.OR.&
-            &LNAME(10:17).EQ.'GDX     '.OR.&
-            &LNAME(10:17).EQ.'GDY     '.OR.&
-            &LNAME(10:17).EQ.'GDZ     '.OR.&
-            &LNAME(10:17).EQ.'ALPHA   '.OR.&
-            &LNAME(10:17).EQ.'BETA    '.OR.&
-            &LNAME(10:17).EQ.'GAMMA   '.OR.&
-            &LNAME(10:17).EQ.'GALPHA  '.OR.&
-            &LNAME(10:17).EQ.'GBETA   '.OR.&
-            &LNAME(10:17).EQ.'GGAMMA  '.OR.&
-            &LNAME(10:17).EQ.'PIVX    '.OR.&
-            &LNAME(10:17).EQ.'PIVY    '.OR.&
-            &LNAME(10:17).EQ.'PIVZ    '.OR.&
-            &LNAME(10:17).EQ.'TH      ') THEN
+            IF(LNAME(10:17).EQ.'RD      '.OR.LNAME(10:17).EQ.'RDTOR   '.OR.LNAME(10:17).EQ.'XD      '.OR.LNAME(10:17).EQ.'ZD      '.OR.LNAME(10:17).EQ.'YD      '.OR.LNAME(10:17).EQ.'GDX     '.OR.LNAME(10:17).EQ.'GDY     '.OR.LNAME(10:17).EQ.'GDZ     '.OR.LNAME(10:17).EQ.'ALPHA   '.OR.LNAME(10:17).EQ.'BETA    '.OR.LNAME(10:17).EQ.'GAMMA   '.OR.LNAME(10:17).EQ.'GALPHA  '.OR.LNAME(10:17).EQ.'GBETA   '.OR.LNAME(10:17).EQ.'GGAMMA  '.OR.LNAME(10:17).EQ.'PIVX    '.OR.LNAME(10:17).EQ.'PIVY    '.OR.LNAME(10:17).EQ.'PIVZ    '.OR.LNAME(10:17).EQ.'TH      ') THEN
 !       LINEAR SCALING
                IF(AVAL4.NE.',') THEN
                   AV1=AVAL4
                   CALL ATON3
                   VAL4=V1
-                  IF(LNAME(10:17).EQ.'XD      '.OR.&
-                  &LNAME(10:17).EQ.'YD      '.OR.&
-                  &LNAME(10:17).EQ.'PIVX    '.OR.&
-                  &LNAME(10:17).EQ.'PIVY    '.OR.&
-                  &LNAME(10:17).EQ.'GDX     '.OR.&
-                  &LNAME(10:17).EQ.'GDY     ') THEN
+                  IF(LNAME(10:17).EQ.'XD      '.OR.LNAME(10:17).EQ.'YD      '.OR.LNAME(10:17).EQ.'PIVX    '.OR.LNAME(10:17).EQ.'PIVY    '.OR.LNAME(10:17).EQ.'GDX     '.OR.LNAME(10:17).EQ.'GDY     ') THEN
                      VAL4=VAL4*DABS(W1)
                      GO TO 1001
                   END IF
-                  IF(LNAME(10:17).EQ.'ALPHA   '.OR.&
-                  &LNAME(10:17).EQ.'BETA    '.OR.&
-                  &LNAME(10:17).EQ.'GAMMA   '.OR.&
-                  &LNAME(10:17).EQ.'GALPHA  '.OR.&
-                  &LNAME(10:17).EQ.'GBETA   '.OR.&
-                  &LNAME(10:17).EQ.'GGAMMA  ') THEN
+                  IF(LNAME(10:17).EQ.'ALPHA   '.OR.LNAME(10:17).EQ.'BETA    '.OR.LNAME(10:17).EQ.'GAMMA   '.OR.LNAME(10:17).EQ.'GALPHA  '.OR.LNAME(10:17).EQ.'GBETA   '.OR.LNAME(10:17).EQ.'GGAMMA  ') THEN
                      VAL4=-VAL4
                      GO TO 1001
                   END IF
@@ -2527,8 +2414,7 @@ SUBROUTINE CFSC1
             ELSE
             END IF
 !       LNAME(10:17)= CLAP OR COBS
-            IF(LNAME(10:17).EQ.'CLAP    '.OR.&
-            &LNAME(10:17).EQ.'COBS    ') THEN
+            IF(LNAME(10:17).EQ.'CLAP    '.OR.LNAME(10:17).EQ.'COBS    ') THEN
 !       LINEAR SCALING
                IF(AVAL4.NE.',') THEN
                   AV1=AVAL4
@@ -2543,8 +2429,7 @@ SUBROUTINE CFSC1
             ELSE
             END IF
 !       LNAME(10:17)= CV,CVTOR
-            IF(LNAME(10:17).EQ.'CV      '.OR.&
-            &LNAME(10:17).EQ.'CVTOR   ')THEN
+            IF(LNAME(10:17).EQ.'CV      '.OR.LNAME(10:17).EQ.'CVTOR   ')THEN
 !       RECIPROCAL SCALING
                IF(AVAL4.NE.',') THEN
                   AV1=AVAL4
@@ -2559,20 +2444,7 @@ SUBROUTINE CFSC1
             ELSE
             END IF
 !       LNAME(10:17)= AD OR ADTOR
-            IF(LNAME(10:17).EQ.'AD      '.OR.&
-            &LNAME(10:17).EQ.'AC      '.OR.&
-            &LNAME(10:17).EQ.'AE      '.OR.&
-            &LNAME(10:17).EQ.'AF      '.OR.&
-            &LNAME(10:17).EQ.'AG      '.OR.&
-            &LNAME(10:17).EQ.'AH      '.OR.&
-            &LNAME(10:17).EQ.'AI      '.OR.&
-            &LNAME(10:17).EQ.'AO      '.OR.&
-            &LNAME(10:17).EQ.'AK      '.OR.&
-            &LNAME(10:17).EQ.'AL      '.OR.&
-            &LNAME(10:17).EQ.'ADTOR   '.OR.&
-            &LNAME(10:17).EQ.'AETOR   '.OR.&
-            &LNAME(10:17).EQ.'AFTOR   '.OR.&
-            &LNAME(10:17).EQ.'AGTOR   ') THEN
+            IF(LNAME(10:17).EQ.'AD      '.OR.LNAME(10:17).EQ.'AC      '.OR.LNAME(10:17).EQ.'AE      '.OR.LNAME(10:17).EQ.'AF      '.OR.LNAME(10:17).EQ.'AG      '.OR.LNAME(10:17).EQ.'AH      '.OR.LNAME(10:17).EQ.'AI      '.OR.LNAME(10:17).EQ.'AO      '.OR.LNAME(10:17).EQ.'AK      '.OR.LNAME(10:17).EQ.'AL      '.OR.LNAME(10:17).EQ.'ADTOR   '.OR.LNAME(10:17).EQ.'AETOR   '.OR.LNAME(10:17).EQ.'AFTOR   '.OR.LNAME(10:17).EQ.'AGTOR   ') THEN
 !       SPECIAL SCALING
                IF(AVAL4.NE.',') THEN
                   AV1=AVAL4
@@ -2582,23 +2454,19 @@ SUBROUTINE CFSC1
                      VAL4=VAL4/W1
                   ELSE
                   END IF
-                  IF(LNAME(10:17).EQ.'AD      '.OR.&
-                  &LNAME(10:17).EQ.'ADTOR   ') THEN
+                  IF(LNAME(10:17).EQ.'AD      '.OR.LNAME(10:17).EQ.'ADTOR   ') THEN
                      VAL4=VAL4/(W1**3)
                   ELSE
                   END IF
-                  IF(LNAME(10:17).EQ.'AE      '.OR.&
-                  &LNAME(10:17).EQ.'AETOR   ') THEN
+                  IF(LNAME(10:17).EQ.'AE      '.OR.LNAME(10:17).EQ.'AETOR   ') THEN
                      VAL4=VAL4/(W1**5)
                   ELSE
                   END IF
-                  IF(LNAME(10:17).EQ.'AF      '.OR.&
-                  &LNAME(10:17).EQ.'AFTOR   ') THEN
+                  IF(LNAME(10:17).EQ.'AF      '.OR.LNAME(10:17).EQ.'AFTOR   ') THEN
                      VAL4=VAL4/(W1**7)
                   ELSE
                   END IF
-                  IF(LNAME(10:17).EQ.'AG      '.OR.&
-                  &LNAME(10:17).EQ.'AGTOR   ') THEN
+                  IF(LNAME(10:17).EQ.'AG      '.OR.LNAME(10:17).EQ.'AGTOR   ') THEN
                      VAL4=VAL4/(W1**9)
                   ELSE
                   END IF
@@ -2682,8 +2550,7 @@ SUBROUTINE CFSC1
 !     TYPE 4
                VAL2=VAL2*W1
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/W1
             END IF
@@ -2754,8 +2621,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/W1
             END IF
@@ -2785,8 +2651,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/W1
             END IF
@@ -2815,8 +2680,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/W1
             END IF
@@ -2837,8 +2701,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**2)
             END IF
@@ -2867,8 +2730,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**2)
             END IF
@@ -2897,13 +2759,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2*W1
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**2)
             END IF
@@ -2932,13 +2792,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**2)
             END IF
@@ -2965,13 +2823,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/W1
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**3)
             END IF
@@ -3000,13 +2856,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**2)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**3)
             END IF
@@ -3035,13 +2889,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**3)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**3)
             END IF
@@ -3070,13 +2922,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**4)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**3)
             END IF
@@ -3105,13 +2955,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**5)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**3)
             END IF
@@ -3140,13 +2988,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**6)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**4)
             END IF
@@ -3175,13 +3021,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**7)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**4)
             END IF
@@ -3210,13 +3054,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**8)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**4)
             END IF
@@ -3245,13 +3087,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**9)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**4)
             END IF
@@ -3280,13 +3120,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**10)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**4)
             END IF
@@ -3315,13 +3153,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**11)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**4)
             END IF
@@ -3350,13 +3186,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**12)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3385,13 +3219,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**13)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3420,13 +3252,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**14)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3451,13 +3281,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**15)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3482,13 +3310,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**16)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3513,13 +3339,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**17)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3544,13 +3368,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**18)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**5)
             END IF
@@ -3575,13 +3397,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**19)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3606,13 +3426,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**20)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3637,13 +3455,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**21)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3668,13 +3484,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**22)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3699,13 +3513,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**23)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3730,13 +3542,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**24)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3761,13 +3571,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**25)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3792,13 +3600,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**26)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**6)
             END IF
@@ -3823,13 +3629,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**27)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -3854,13 +3658,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**28)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -3885,13 +3687,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**29)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -3916,13 +3716,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**30)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -3947,13 +3745,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**31)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -3978,13 +3774,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**32)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -4009,13 +3803,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**34)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -4040,13 +3832,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**35)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**7)
             END IF
@@ -4071,13 +3861,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**36)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4102,13 +3890,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**37)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4133,13 +3919,11 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.&
-            &SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
+            IF(SPECFF(I,J).EQ.1.OR.SPECF2(I,J).EQ.1.OR.SPECFF(I,J).EQ.6.OR.SPECF2(I,J).EQ.6) THEN
 !     TYPE 1 OR 6
                VAL2=VAL2/(W1**38)
             END IF
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4164,8 +3948,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4190,8 +3973,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4216,8 +3998,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4242,8 +4023,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4268,8 +4048,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4294,8 +4073,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4320,8 +4098,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**8)
             END IF
@@ -4346,8 +4123,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4372,8 +4148,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4398,8 +4173,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4424,8 +4198,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4450,8 +4223,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4476,8 +4248,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4502,8 +4273,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4528,8 +4298,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4554,8 +4323,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4580,8 +4348,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4606,8 +4373,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**9)
             END IF
@@ -4632,8 +4398,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4658,8 +4423,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4684,8 +4448,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4710,8 +4473,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4736,8 +4498,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4762,8 +4523,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4788,8 +4548,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4814,8 +4573,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4840,8 +4598,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4866,8 +4623,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4892,8 +4648,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4918,8 +4673,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**10)
             END IF
@@ -4944,8 +4698,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -4970,8 +4723,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -4996,8 +4748,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5022,8 +4773,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5048,8 +4798,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5074,8 +4823,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5100,8 +4848,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5126,8 +4873,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5152,8 +4898,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5178,8 +4923,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5204,8 +4948,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5226,8 +4969,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF
@@ -5248,8 +4990,7 @@ SUBROUTINE CFSC1
             CALL AUXATN
             VAL2=N1
 !     WHAT KIND OF SPECIAL SURFACE IS IT ?
-            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.&
-            &SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
+            IF(SPECFF(I,J).EQ.7.OR.SPECF2(I,J).EQ.7.OR.SPECFF(I,J).EQ.8.OR.SPECF2(I,J).EQ.8) THEN
 !     TYPE 7 OR 8
                VAL2=VAL2/(W1**11)
             END IF

@@ -4,6 +4,7 @@
 SUBROUTINE SNAO
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface, only: surf_thickness
@@ -32,46 +33,46 @@ SUBROUTINE SNAO
 !
       IF(STI.EQ.1.OR.STI.EQ.0) THEN
          IF(WC.EQ.'NAOY') THEN
-            IF(SYSTEM(64).NE.1.0D0.AND.SYSTEM(64).NE.3.0D0) THEN
+            IF(sys_nao_flag().NE.1.0D0.AND.sys_nao_flag().NE.3.0D0) THEN
                OUTLYNE='NOTE:'
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
-               IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-                  SYSTEM(65)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(12))/DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+                  call set_sys_nao_y((ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+                  call set_sys_say_float(0.0D0)
+                  call set_sys_sax_float(0.0D0)
                END IF
-               IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-                  SYSTEM(65)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(12))/DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+                  call set_sys_nao_y((ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+                  call set_sys_say_float(0.0D0)
+                  call set_sys_sax_float(0.0D0)
                END IF
             END IF
-            WRITE(OUTLYNE,2000) SYSTEM(65)
+            WRITE(OUTLYNE,2000) sys_nao_y()
             CALL SHOWIT(0)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            IF(SYSTEM(64).NE.2.0D0.AND.SYSTEM(64).NE.3.0D0) THEN
+            IF(sys_nao_flag().NE.2.0D0.AND.sys_nao_flag().NE.3.0D0) THEN
                OUTLYNE='NOTE:'
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
-               IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-                  SYSTEM(66)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(13))/DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+                  call set_sys_nao_x((ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+                  call set_sys_say_float(0.0D0)
+                  call set_sys_sax_float(0.0D0)
                END IF
-               IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-                  SYSTEM(66)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(13))/DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+                  call set_sys_nao_x((ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+                  call set_sys_say_float(0.0D0)
+                  call set_sys_sax_float(0.0D0)
                END IF
             END IF
             WRITE(OUTLYNE,2001)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,3000) SYSTEM(66)
+            WRITE(OUTLYNE,3000) sys_nao_x()
             CALL SHOWIT(0)
             RETURN
          END IF
@@ -216,14 +217,14 @@ SUBROUTINE SNAO
 !
       IF(S1.EQ.0) THEN
          IF(WC.EQ.'NAOY') THEN
-            WRITE(OUTLYNE,2000) SYSTEM(65)
+            WRITE(OUTLYNE,2000) sys_nao_y()
             CALL SHOWIT(0)
          END IF
          IF(WC.EQ.'NAOX') THEN
-            WRITE(OUTLYNE,3000) SYSTEM(66)
+            WRITE(OUTLYNE,3000) sys_nao_x()
             CALL SHOWIT(0)
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=1.0D0
-            IF(SYSTEM(49).EQ.2.0D0) SYSTEM(49)=3.0D0
+            call set_sys_xz_data(1.0D0)
+            call set_sys_xz_data(3.0D0)
          END IF
          RETURN
       ELSE
@@ -248,34 +249,34 @@ SUBROUTINE SNAO
          END IF
          IF(SQ.EQ.0) THEN
             IF(WC.EQ.'NAOY') THEN
-               SYSTEM(83)=0.0D0
-               SYSTEM(84)=0.0D0
-               IF(SYSTEM(64).NE.3.0D0.AND.SYSTEM(64).NE.1.0D0) THEN
-                  IF(SYSTEM(64).EQ.0.0D0) SYSTEM(64)=1.0D0
-                  IF(SYSTEM(64).EQ.2.0D0) SYSTEM(64)=3.0D0
+               call set_sys_say_float(0.0D0)
+               call set_sys_sax_float(0.0D0)
+               IF(sys_nao_flag().NE.3.0D0.AND.sys_nao_flag().NE.1.0D0) THEN
+                  call set_sys_nao_flag(1.0D0)
+                  call set_sys_nao_flag(3.0D0)
                END IF
             END IF
             IF(WC.EQ.'NAOX') THEN
-               IF(SYSTEM(64).NE.3.0D0.AND.SYSTEM(64).NE.2.0D0) THEN
-                  IF(SYSTEM(64).EQ.0.0D0) SYSTEM(64)=2.0D0
-                  IF(SYSTEM(64).EQ.1.0D0) SYSTEM(64)=3.0D0
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+               IF(sys_nao_flag().NE.3.0D0.AND.sys_nao_flag().NE.2.0D0) THEN
+                  call set_sys_nao_flag(2.0D0)
+                  call set_sys_nao_flag(3.0D0)
+                  call set_sys_say_float(0.0D0)
+                  call set_sys_sax_float(0.0D0)
                END IF
             END IF
-            SYSTEM(67)=0.0D0
-            IF(WC.EQ.'NAOY') SYSTEM(65)=DABS(W1)
-            IF(WC.EQ.'NAOX') SYSTEM(66)=DABS(W1)
+            call set_sys_fno_flag(0.0D0)
+            call set_sys_nao_y(DABS(W1))
+            call set_sys_nao_x(DABS(W1))
          END IF
          IF(WQ.EQ.'DELT') THEN
-            SYSTEM(67)=0.0D0
-            IF(WC.EQ.'NAOY') SYSTEM(65)=SYSTEM(65)+(W1)
-            IF(WC.EQ.'NAOX') SYSTEM(66)=SYSTEM(66)+(W1)
+            call set_sys_fno_flag(0.0D0)
+            call set_sys_nao_y(sys_nao_y()+(W1))
+            call set_sys_nao_x(sys_nao_x()+(W1))
          END IF
          IF(WQ.EQ.'CENT') THEN
-            SYSTEM(67)=0.0D0
-            IF(WC.EQ.'NAOY') SYSTEM(65)=SYSTEM(65)+(W1*0.0D0*SYSTEM(65))
-            IF(WC.EQ.'NAOX') SYSTEM(66)=SYSTEM(66)+(W1*0.0D0*SYSTEM(66))
+            call set_sys_fno_flag(0.0D0)
+            call set_sys_nao_y(sys_nao_y()+(W1*0.0D0*sys_nao_y()))
+            call set_sys_nao_x(sys_nao_x()+(W1*0.0D0*sys_nao_x()))
          END IF
          RETURN
       END IF
@@ -289,6 +290,7 @@ END
 SUBROUTINE SMODE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -301,7 +303,7 @@ SUBROUTINE SMODE
 !
    IF(STI.EQ.1) THEN
       IF(F5.EQ.1.OR.F6.EQ.1) THEN
-         AMODE=INT(SYSTEM(30))
+         AMODE=INT(sys_mode())
          IF(AMODE.EQ.1) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
@@ -330,7 +332,7 @@ SUBROUTINE SMODE
 !       NOT STI
    END IF
 !       BEHAVIOR AT CMD LEVEL
-   AMODE=INT(SYSTEM(30))
+   AMODE=INT(sys_mode())
    IF(F1.EQ.1) THEN
 !
 !               CHECK FOR ADDITIONAL INPUT AND
@@ -351,25 +353,25 @@ SUBROUTINE SMODE
 !
       IF(SQ.EQ.1) THEN
          IF(WQ.EQ.'FOCAL')THEN
-            SYSTEM(30)=1.0
+            call set_sys_mode(1.0)
             IF(F12.EQ.1) SYSP(30)=1.0
             RETURN
          ELSE
          END IF
          IF(WQ.EQ.'UFOCAL')THEN
-            SYSTEM(30)=2.0
+            call set_sys_mode(2.0)
             IF(F12.EQ.1) SYSP(30)=2.0
             RETURN
          ELSE
          END IF
          IF(WQ.EQ.'AFOCAL')THEN
-            SYSTEM(30)=3.0
+            call set_sys_mode(3.0)
             IF(F12.EQ.1) SYSP(30)=3.0
             RETURN
          ELSE
          END IF
          IF(WQ.EQ.'UAFOCAL')THEN
-            SYSTEM(30)=4.0
+            call set_sys_mode(4.0)
             IF(F12.EQ.1) SYSP(30)=4.0
             RETURN
          ELSE
@@ -444,22 +446,22 @@ SUBROUTINE SMODE
          RETURN
       ELSE
          IF(WQ.EQ.'FOCAL') THEN
-            SYSTEM(30)=1.0
+            call set_sys_mode(1.0)
             IF(F12.EQ.1) SYSP(30)=1.0
          ELSE
          END IF
          IF(WQ.EQ.'UFOCAL') THEN
-            SYSTEM(30)=2.0
+            call set_sys_mode(2.0)
             IF(F12.EQ.1) SYSP(30)=2.0
          ELSE
          END IF
          IF(WQ.EQ.'AFOCAL') THEN
-            SYSTEM(30)=3.0
+            call set_sys_mode(3.0)
             IF(F12.EQ.1) SYSP(30)=3.0
          ELSE
          END IF
          IF(WQ.EQ.'UAFOCAL') THEN
-            SYSTEM(30)=4.0
+            call set_sys_mode(4.0)
             IF(F12.EQ.1) SYSP(30)=4.0
          ELSE
          END IF
@@ -478,6 +480,7 @@ END
 SUBROUTINE SMAG
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -534,8 +537,8 @@ SUBROUTINE SMAG
       END IF
    END IF
    IF(DF2.EQ.1) W2=0.0D0
-   IF(DF2.EQ.1) W3=SYSTEM(20)
-   IF(W2.LT.0.0.OR.W3.GT.SYSTEM(20)) THEN
+   IF(DF2.EQ.1) W3=sys_last_surf()
+   IF(W2.LT.0.0.OR.W3.GT.sys_last_surf()) THEN
       OUTLYNE='REQUESTED SURFACES BEYOND LEGAL RANGE FOR CURRENT LENS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -547,13 +550,13 @@ SUBROUTINE SMAG
    IF(WC.EQ.'MAGY') THEN
       IF(W1.EQ.0.0D0) W1=1.0D0
       IF(W2.EQ.0.0D0) W2=0.0D0
-      IF(W3.EQ.0.0D0) W3=SYSTEM(20)
+      IF(W3.EQ.0.0D0) W3=sys_last_surf()
       GO TO 25
    ELSE
 !       WC MUST BE 'MAGX'
       IF(W1.EQ.0.0D0) W1=1.0D0
       IF(W2.EQ.0.0D0) W2=0.0D0
-      IF(W3.EQ.0.0D0) W3=SYSTEM(20)
+      IF(W3.EQ.0.0D0) W3=sys_last_surf()
    END IF
    GO TO 35
 25 CONTINUE
@@ -585,6 +588,7 @@ SUBROUTINE SLVRS
    use mod_surface, only: surf_thickness, surf_curvature, surf_conic, surf_toric_flag, surf_toric_curvature, surf_anamorphic_flag, surf_anamorphic_conic, surf_anamorphic_coeff, surf_asphere_coeff, surf_array_parity, surf_clap_type, surf_clap_dim, set_surf_curvature, set_surf_conic, set_surf_thickness, set_surf_toric_curvature, set_surf_asphere_coeff
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -610,13 +614,13 @@ SUBROUTINE SLVRS
 !       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 !       AT THE CONTROL WAVELENGTH AT L-1 AND L
       IF(L.NE.0) THEN
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            N=ALENS(45+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(45+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            N=ALENS(45+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(45+INT(sys_wl_ref()),(L))
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            N=ALENS(65+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(65+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            N=ALENS(65+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(65+INT(sys_wl_ref()),(L))
          END IF
       END IF
 !
@@ -1333,7 +1337,7 @@ SUBROUTINE SLVRS
 
          !     DO I=1,8
          !         PRINT *, "I IS ", I
-         !         PRINT *, "PXTRA ", PXTRAY(I,0:INT(SYSTEM(20)))
+         !         PRINT *, "PXTRA ", PXTRAY(I,0:INT(sys_last_surf()))
 
          !     END DO
 
@@ -1372,13 +1376,13 @@ SUBROUTINE SLVRS
 
 !       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 !       AT THE CONTROL WAVELENGTH AT L-1 AND L
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            N=ALENS(45+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(45+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            N=ALENS(45+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(45+INT(sys_wl_ref()),(L))
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            N=ALENS(65+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(65+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            N=ALENS(65+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(65+INT(sys_wl_ref()),(L))
          END IF
 
       END IF
@@ -2111,6 +2115,7 @@ END
 SUBROUTINE SLI
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2137,7 +2142,7 @@ SUBROUTINE SLI
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='LENS IDENTIFIER DOES NOT EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -2257,6 +2262,7 @@ END
 SUBROUTINE SINI
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2280,7 +2286,7 @@ SUBROUTINE SINI
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='DESIGNER INITIALS DO NOT EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -2321,6 +2327,7 @@ END
 SUBROUTINE SLTYPE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2344,7 +2351,7 @@ SUBROUTINE SLTYPE
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='LENS TYPE IDENTIFIER DOES NOT EXIST'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'

@@ -2,6 +2,7 @@
 SUBROUTINE THERM
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -58,7 +59,7 @@ SUBROUTINE THERM
       RETURN
    END IF
    IF(DF1.EQ.1) W1=0.0D0
-   IF(DF2.EQ.1) W2=SYSTEM(20)
+   IF(DF2.EQ.1) W2=sys_last_surf()
    IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
       WRITE(OUTLYNE,*)'"THERM" REQUIRES EXPLICIT NUMERIC WORDS #3 AND #4'
       CALL SHOWIT(1)
@@ -75,8 +76,8 @@ SUBROUTINE THERM
       CALL MACFAL
       RETURN
    END IF
-   IF(W2.GT.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
+   IF(W2.GT.sys_last_surf()) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(sys_last_surf()+1.0D0)
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -331,6 +332,7 @@ SUBROUTINE THERM
 END
 SUBROUTINE CHKGLS(GONOGO,I)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -346,6 +348,7 @@ SUBROUTINE CHKGLS(GONOGO,I)
 END
 SUBROUTINE CHKGLSP(GONOGO,I)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -361,6 +364,7 @@ SUBROUTINE CHKGLSP(GONOGO,I)
 END
 SUBROUTINE CHKTHK(GONOGO,I)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -389,6 +393,7 @@ SUBROUTINE CHKTHK(GONOGO,I)
 END
 SUBROUTINE CHKCVR(GONOGO,I)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -432,6 +437,7 @@ END
 SUBROUTINE TELAIM
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -465,16 +471,16 @@ SUBROUTINE TELAIM
 !     STI=1
    END IF
    IF(STI.EQ.1) THEN
-      IF(SYSTEM(63).EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_telecentric().EQ.0.0D0) WRITE(OUTLYNE,10)
       CALL SHOWIT(0)
 10    FORMAT('TELECENTRIC RAY AIMING IS CURRENTLY TURNED "OFF"')
 11    FORMAT('TELECENTRIC RAY AIMING IS CURRENTLY TURNED "ON"')
-      IF(SYSTEM(63).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_telecentric().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(63)=0.0D0
+      call set_sys_telecentric(0.0D0)
       RETURN
    END IF
    IF(WQ.EQ.'ON') THEN
@@ -490,13 +496,13 @@ SUBROUTINE TELAIM
          CALL MACFAL
          RETURN
       ELSE
-         SYSTEM(63)=1.0D0
-         SYSTEM(62)=0.0D0
-         SYSTEM(70)=0.0D0
+         call set_sys_telecentric(1.0D0)
+         call set_sys_ray_aiming(0.0D0)
+         call set_sys_aplanatic(0.0D0)
          NEWOBJ=0
-         NEWIMG=INT(SYSTEM(20))
+         NEWIMG=INT(sys_last_surf())
 !     SHUT OFF REGULAR RAY AIMING
-         SYSTEM(62)=0.0D0
+         call set_sys_ray_aiming(0.0D0)
       END IF
    END IF
    RETURN
@@ -505,6 +511,7 @@ END
 SUBROUTINE NEARFARNEAR
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -515,10 +522,10 @@ SUBROUTINE NEARFARNEAR
 !
    REAL*8 AL
 !
-   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
-   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
-   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
-   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
+   IF(sys_units().EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
+   IF(sys_units().EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
+   IF(sys_units().EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
+   IF(sys_units().EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
    IF(STI.EQ.1) THEN
       IF(WC.EQ.'FAR')OUTLYNE='"FAR" SETS UNITS TO LP/MRAD'
@@ -557,6 +564,7 @@ END
 SUBROUTINE OVERBOSE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -592,18 +600,18 @@ SUBROUTINE OVERBOSE
    IF(STI.EQ.1.OR.SQ.EQ.0) THEN
 10    FORMAT('VERBOSE OPTIMIZATION OUTPUT IS CURRENTLY "OFF"')
 11    FORMAT('VERBOSE OPTIMIZATION OUTPUT IS CURRENTLY "ON"')
-      IF(SYSTEM(101).EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_verbose_optim().EQ.0.0D0) WRITE(OUTLYNE,10)
       CALL SHOWIT(0)
-      IF(SYSTEM(101).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_verbose_optim().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(101)=0.0D0
+      call set_sys_verbose_optim(0.0D0)
       RETURN
    END IF
    IF(WQ.EQ.'ON') THEN
-      SYSTEM(101)=1.0D0
+      call set_sys_verbose_optim(1.0D0)
       RETURN
    END IF
 END
@@ -611,6 +619,7 @@ END
 SUBROUTINE OPTMINIT
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -666,6 +675,7 @@ SUBROUTINE GEOLEICA
 !
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -746,6 +756,7 @@ SUBROUTINE DIFLEICA
 !
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -825,6 +836,7 @@ END
 SUBROUTINE SWV
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -844,13 +856,13 @@ SUBROUTINE SWV
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,200)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -876,13 +888,13 @@ SUBROUTINE SWV
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+      WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+      WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -911,26 +923,26 @@ SUBROUTINE SWV
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
-         IF(DF1.EQ.0) SYSTEM(1)=W1
-         IF(DF2.EQ.0) SYSTEM(2)=W2
-         IF(DF3.EQ.0) SYSTEM(3)=W3
-         IF(DF4.EQ.0) SYSTEM(4)=W4
-         IF(DF5.EQ.0) SYSTEM(5)=W5
-         IF(DF1.EQ.0) SYSTEM(111)=W1
-         IF(DF2.EQ.0) SYSTEM(112)=W2
-         IF(DF3.EQ.0) SYSTEM(113)=W3
-         IF(DF4.EQ.0) SYSTEM(114)=W4
-         IF(DF5.EQ.0) SYSTEM(115)=W5
-         IF(SYSTEM(1).EQ.0.0D0) SYSTEM(31)=0.0D0
-         IF(SYSTEM(2).EQ.0.0D0) SYSTEM(32)=0.0D0
-         IF(SYSTEM(3).EQ.0.0D0) SYSTEM(33)=0.0D0
-         IF(SYSTEM(4).EQ.0.0D0) SYSTEM(34)=0.0D0
-         IF(SYSTEM(5).EQ.0.0D0) SYSTEM(35)=0.0D0
-         IF(SYSTEM(71).EQ.0.0D0) SYSTEM(76)=0.0D0
-         IF(SYSTEM(72).EQ.0.0D0) SYSTEM(77)=0.0D0
-         IF(SYSTEM(73).EQ.0.0D0) SYSTEM(78)=0.0D0
-         IF(SYSTEM(74).EQ.0.0D0) SYSTEM(79)=0.0D0
-         IF(SYSTEM(75).EQ.0.0D0) SYSTEM(80)=0.0D0
+         call set_sys_wavelength(1,W1)
+         call set_sys_wavelength(2,W2)
+         call set_sys_wavelength(3,W3)
+         call set_sys_wavelength(4,W4)
+         call set_sys_wavelength(5,W5)
+         call set_sys_wv(1,W1)
+         call set_sys_wv(2,W2)
+         call set_sys_wv(3,W3)
+         call set_sys_wv(4,W4)
+         call set_sys_wv(5,W5)
+         call set_sys_wl_weight(1,0.0D0)
+         call set_sys_wl_weight(2,0.0D0)
+         call set_sys_wl_weight(3,0.0D0)
+         call set_sys_wl_weight(4,0.0D0)
+         call set_sys_wl_weight(5,0.0D0)
+         call set_sys_wl_weight(6,0.0D0)
+         call set_sys_wl_weight(7,0.0D0)
+         call set_sys_wl_weight(8,0.0D0)
+         call set_sys_wl_weight(9,0.0D0)
+         call set_sys_wl_weight(10,0.0D0)
          F22=1
       ELSE
       END IF
@@ -947,6 +959,7 @@ END
 SUBROUTINE SWV2
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -966,13 +979,13 @@ SUBROUTINE SWV2
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,200)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(5)
+         WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(5)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -998,13 +1011,13 @@ SUBROUTINE SWV2
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+      WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+      WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -1033,26 +1046,26 @@ SUBROUTINE SWV2
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
-         IF(DF1.EQ.0) SYSTEM(71)=W1
-         IF(DF2.EQ.0) SYSTEM(72)=W2
-         IF(DF3.EQ.0) SYSTEM(73)=W3
-         IF(DF4.EQ.0) SYSTEM(74)=W4
-         IF(DF5.EQ.0) SYSTEM(75)=W5
-         IF(DF1.EQ.0) SYSTEM(116)=W1
-         IF(DF2.EQ.0) SYSTEM(117)=W2
-         IF(DF3.EQ.0) SYSTEM(118)=W3
-         IF(DF4.EQ.0) SYSTEM(119)=W4
-         IF(DF5.EQ.0) SYSTEM(120)=W5
-         IF(SYSTEM(1).EQ.0.0D0) SYSTEM(31)=0.0D0
-         IF(SYSTEM(2).EQ.0.0D0) SYSTEM(32)=0.0D0
-         IF(SYSTEM(3).EQ.0.0D0) SYSTEM(33)=0.0D0
-         IF(SYSTEM(4).EQ.0.0D0) SYSTEM(34)=0.0D0
-         IF(SYSTEM(5).EQ.0.0D0) SYSTEM(35)=0.0D0
-         IF(SYSTEM(71).EQ.0.0D0) SYSTEM(76)=0.0D0
-         IF(SYSTEM(72).EQ.0.0D0) SYSTEM(77)=0.0D0
-         IF(SYSTEM(73).EQ.0.0D0) SYSTEM(78)=0.0D0
-         IF(SYSTEM(74).EQ.0.0D0) SYSTEM(79)=0.0D0
-         IF(SYSTEM(75).EQ.0.0D0) SYSTEM(80)=0.0D0
+         call set_sys_wavelength(6,W1)
+         call set_sys_wavelength(7,W2)
+         call set_sys_wavelength(8,W3)
+         call set_sys_wavelength(9,W4)
+         call set_sys_wavelength(10,W5)
+         call set_sys_wv(6,W1)
+         call set_sys_wv(7,W2)
+         call set_sys_wv(8,W3)
+         call set_sys_wv(9,W4)
+         call set_sys_wv(10,W5)
+         call set_sys_wl_weight(1,0.0D0)
+         call set_sys_wl_weight(2,0.0D0)
+         call set_sys_wl_weight(3,0.0D0)
+         call set_sys_wl_weight(4,0.0D0)
+         call set_sys_wl_weight(5,0.0D0)
+         call set_sys_wl_weight(6,0.0D0)
+         call set_sys_wl_weight(7,0.0D0)
+         call set_sys_wl_weight(8,0.0D0)
+         call set_sys_wl_weight(9,0.0D0)
+         call set_sys_wl_weight(10,0.0D0)
          F22=1
       ELSE
       END IF
@@ -1069,6 +1082,7 @@ END
 SUBROUTINE SVSET
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1083,7 +1097,7 @@ SUBROUTINE SVSET
 !
 !
    IF(ITYPEP.EQ.1) THEN
-      DO 10 I=0,((INT(SYSTEM(20)))-1)
+      DO 10 I=0,((INT(sys_last_surf()))-1)
          IF(SOLVE(6,I).EQ.1.0D0) THEN
 !       PY SOLVE
             SOLVE(7,I)=PXTRAY(1,(I+1))
@@ -1141,7 +1155,7 @@ SUBROUTINE SVSET
 !
    IF(ITYPEP.EQ.2) THEN
 !
-      DO 100 I=0,((INT(SYSTEM(20)))-1)
+      DO 100 I=0,((INT(sys_last_surf()))-1)
          IF(SOLVE(6,I).EQ.1.0D0) THEN
 !       PX SOLVE
             SOLVE(7,I)=PXTRAX(1,(I+1))
@@ -1202,6 +1216,7 @@ END
 SUBROUTINE SUNITS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1212,19 +1227,19 @@ SUBROUTINE SUNITS
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
       IF(STI.EQ.1) THEN
-         IF(SYSTEM(6).EQ.1.0D0) THEN
+         IF(sys_units().EQ.1.0D0) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(6).EQ.2.0D0) THEN
+         IF(sys_units().EQ.2.0D0) THEN
             WRITE(OUTLYNE,2000)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(6).EQ.3.0D0) THEN
+         IF(sys_units().EQ.3.0D0) THEN
             WRITE(OUTLYNE,3000)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(6).EQ.4.0D0) THEN
+         IF(sys_units().EQ.4.0D0) THEN
             WRITE(OUTLYNE,4000)
             CALL SHOWIT(0)
          END IF
@@ -1248,7 +1263,7 @@ SUBROUTINE SUNITS
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='UNITS ARE NOT DEFINED'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -1258,19 +1273,19 @@ SUBROUTINE SUNITS
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(6).EQ.1.0D0) THEN
+      IF(sys_units().EQ.1.0D0) THEN
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(6).EQ.2.0D0) THEN
+      IF(sys_units().EQ.2.0D0) THEN
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(6).EQ.3.0D0) THEN
+      IF(sys_units().EQ.3.0D0) THEN
          WRITE(OUTLYNE,3000)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(6).EQ.4.0D0) THEN
+      IF(sys_units().EQ.4.0D0) THEN
          WRITE(OUTLYNE,4000)
          CALL SHOWIT(0)
       END IF
@@ -1302,21 +1317,21 @@ SUBROUTINE SUNITS
             CALL SHOWIT(1)
             RETURN
          END IF
-         IF(WQ.EQ.'IN'.OR.WQ.EQ.'INCH'.OR.WQ.EQ.'INCHES') SYSTEM(6)=1.0D0
-         IF(WQ.EQ.'CM') SYSTEM(6)=2.0D0
-         IF(WQ.EQ.'MM') SYSTEM(6)=3.0D0
-         IF(WQ.EQ.'M') SYSTEM(6)=4.0D0
+         call set_sys_units(1.0D0)
+         call set_sys_units(2.0D0)
+         call set_sys_units(3.0D0)
+         call set_sys_units(4.0D0)
 !     2/93 THE ADJUSTMENT OF THE PLOTTED SCALE FACTOR
 !
 !     THE SCALE FACTOR IS:
-         IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-         IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-         IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-         IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-         IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-         IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+         IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+         IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+         IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+         IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+         IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+         IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+         IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+         IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
          PSIZY=1.0D0/SCFAY
          PSIZX=1.0D0/SCFAX
 !
@@ -1341,6 +1356,7 @@ END
 SUBROUTINE STORIC
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1558,6 +1574,7 @@ END
 SUBROUTINE STORD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1613,8 +1630,8 @@ SUBROUTINE STORD
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1776,7 +1793,7 @@ SUBROUTINE STORD
 !       THIS SURFACE, THOSE PIKUPS MUST ALSO GO. ALL PIKED
 !       UP DATA IS FROZEN AT ITS CURRENT VALUES.
 !
-         DO 31 I=0,INT(SYSTEM(20))
+         DO 31 I=0,INT(sys_last_surf())
 
             IF(PIKUP(2,I,9).EQ.DBLE(SF).AND.PIKUP(1,I,9).NE.0.0D0 .OR.PIKUP(2,I,10).EQ.DBLE(SF).AND.PIKUP(1,I,10).NE.0.0D0 .OR.PIKUP(2,I,21).EQ.DBLE(SF).AND.PIKUP(1,I,21).NE.0.0D0 .OR.PIKUP(2,I,22).EQ.DBLE(SF).AND.PIKUP(1,I,22).NE.0.0D0 .OR.PIKUP(2,I,23).EQ.DBLE(SF).AND.PIKUP(1,I,23).NE.0.0D0 .OR.PIKUP(2,I,24).EQ.DBLE(SF).AND.PIKUP(1,I,24).NE.0.0D0 .OR.PIKUP(2,I,25).EQ.DBLE(SF).AND.PIKUP(1,I,25).NE.0.0D0 .OR.PIKUP(2,I,27).EQ.DBLE(SF).AND.PIKUP(1,I,27).NE.0.0D0)THEN
 
@@ -1835,7 +1852,7 @@ SUBROUTINE STORD
 !       THIS SURFACE, THOSE PIKUPS MUST ALSO GO. ALL PIKED
 !       UP DATA IS FROZEN AT ITS CURRENT VALUES.
 !
-         DO 32 I=0,INT(SYSTEM(20))
+         DO 32 I=0,INT(sys_last_surf())
 
             IF(PIKUP(2,I,11).EQ.DBLE(SF).AND.PIKUP(1,I,11).NE.0.0D0 .OR.PIKUP(2,I,12).EQ.DBLE(SF).AND.PIKUP(1,I,12).NE.0.0D0 )THEN
 
@@ -1877,6 +1894,7 @@ END
 SUBROUTINE STILTD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1925,8 +1943,8 @@ SUBROUTINE STILTD
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2034,7 +2052,7 @@ SUBROUTINE STILTD
 !               PIKUP(I,J,K) WHERE K IS 15,16, OR 17
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE TILT
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-      DO 300 I=0,INT(SYSTEM(20))
+      DO 300 I=0,INT(sys_last_surf())
          DO J=15,17
             IF(PIKUP(1,I,J).EQ.1.0D0) THEN
 !       DOES IT REFER TO SURFACE SF
@@ -2097,7 +2115,7 @@ SUBROUTINE STILTD
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-      DO 400 I=0,INT(SYSTEM(20))
+      DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
          PIKCNT=0
          DO 401 J=1,PSIZ
@@ -2115,6 +2133,7 @@ END
 SUBROUTINE STILTAD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2162,8 +2181,8 @@ SUBROUTINE STILTAD
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2256,7 +2275,7 @@ SUBROUTINE STILTAD
 !               PIKUP(I,J,K) WHERE K IS 15,16, OR 17
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE TILT
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-      DO 300 I=0,INT(SYSTEM(20))
+      DO 300 I=0,INT(sys_last_surf())
          DO 301 J=15,17
             IF(PIKUP(1,I,J).EQ.1.0D0) THEN
 !       DOES IT REFER TO SURFACE SF
@@ -2284,7 +2303,7 @@ SUBROUTINE STILTAD
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-      DO 400 I=0,INT(SYSTEM(20))
+      DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
          PIKCNT=0
          DO 401 J=1,PSIZ
@@ -2302,6 +2321,7 @@ END
 SUBROUTINE STH
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2378,64 +2398,64 @@ SUBROUTINE STH
 !
 !       THE CASE OF CHANGING THE THICKNESS OF THE OBJECT SURFACE
 !       IF OBJECT SURFACE, REMEMBER OLD VALUE
-      IF(SURF.EQ.0.AND.SYSTEM(26).EQ.-99.0D0) THEN
+      IF(SURF.EQ.0.AND.sys_astop().EQ.-99.0D0) THEN
          SYSTEM(55)=surf_thickness(SURF)
          IF(SQ.EQ.0)call set_surf_thickness(SURF, W1)
          IF(WQ.EQ.'DELT')call set_surf_thickness(SURF, surf_thickness(SURF)+W1)
          IF(WQ.EQ.'CENT')call set_surf_thickness(SURF, surf_thickness(SURF)+(W1*0.01D0*surf_thickness(SURF)))
 !       MUST BE NO STOP AS WELL
-         IF(SYSTEM(51).NE.0.0D0.OR.SYSTEM(53).NE.0.0D0) THEN
+         IF(sys_scy_y1_set().NE.0.0D0.OR.sys_fang_y_y1_set().NE.0.0D0) THEN
 !       RECALCULATE Y1
-            IF(SYSTEM(18).EQ.0.0D0) THEN
+            IF(sys_scy_fang_set().EQ.0.0D0) THEN
 !       CASE OF SCY INPUT Y00
-               Y00=SYSTEM(14)
-               OLDY1=SYSTEM(15)
+               Y00=sys_scy()
+               OLDY1=sys_scy_y1()
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
                SLOPE=(OLDY1-Y00)/OLDTH
                NEWY1=Y00+(SLOPE*TH)
-               SYSTEM(15)=NEWY1
-               SYSTEM(22)=NEWY1
+               call set_sys_scy_y1(NEWY1)
+               call set_sys_fang_y_y1(NEWY1)
             ELSE
             END IF
-            IF(SYSTEM(18).EQ.1.0D0) THEN
+            IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !       CASE OF SCY FANG INPUT Y0ANG
-               Y0ANG=SYSTEM(21)
-               OLDY1=SYSTEM(22)
+               Y0ANG=sys_fang_y()
+               OLDY1=sys_fang_y_y1()
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
                Y00=-OLDTH*DTAN((PII/180.0D0)*Y0ANG)+OLDY1
                NEWY1=Y00+(DATAN((PII/180.0D0)*Y0ANG)*TH)
-               SYSTEM(15)=NEWY1
-               SYSTEM(22)=NEWY1
+               call set_sys_scy_y1(NEWY1)
+               call set_sys_fang_y_y1(NEWY1)
             ELSE
             END IF
          ELSE
          END IF
-         IF(SYSTEM(52).NE.0.0D0.OR.SYSTEM(54).NE.0.0D0) THEN
+         IF(sys_scx_x1_set().NE.0.0D0.OR.sys_fang_x_x1_set().NE.0.0D0) THEN
 !       RECALCULATE X1
-            IF(SYSTEM(19).EQ.0.0D0) THEN
+            IF(sys_scx_fang_set().EQ.0.0D0) THEN
 !       CASE OF SCX INPUT X00
-               X00=SYSTEM(16)
-               OLDX1=SYSTEM(17)
+               X00=sys_scx()
+               OLDX1=sys_scx_x1()
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
                SLOPE=(OLDX1-X00)/OLDTH
                NEWY1=X00+(SLOPE*TH)
-               SYSTEM(17)=NEWX1
-               SYSTEM(24)=NEWX1
+               call set_sys_scx_x1(NEWX1)
+               call set_sys_fang_x_x1(NEWX1)
             ELSE
             END IF
-            IF(SYSTEM(19).EQ.1.0D0) THEN
+            IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !       CASE OF SCX FANG INPUT X0ANG
-               X0ANG=SYSTEM(23)
-               OLDX1=SYSTEM(24)
+               X0ANG=sys_fang_x()
+               OLDX1=sys_fang_x_x1()
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
                X00=-OLDTH*DTAN((PII/180.0D0)*X0ANG)+OLDX1
                NEWX1=X00+(DATAN((PII/180.0D0)*X0ANG)*TH)
-               SYSTEM(17)=NEWX1
-               SYSTEM(24)=NEWX1
+               call set_sys_scx_x1(NEWX1)
+               call set_sys_fang_x_x1(NEWX1)
             ELSE
             END IF
          ELSE
@@ -2522,6 +2542,7 @@ END
 SUBROUTINE SPRICE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2593,6 +2614,7 @@ END
 SUBROUTINE STHM
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2673,6 +2695,7 @@ END
 SUBROUTINE SAUTOFUNC
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2720,7 +2743,7 @@ SUBROUTINE SAUTOFUNC
       CALL MACFAL
       RETURN
    END IF
-   SYSTEM(91)=INT(W1)
+   call set_sys_autofunc(INT(W1))
    F57=1
    RETURN
 END
@@ -2728,6 +2751,7 @@ END
 SUBROUTINE STASPH
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2885,7 +2909,7 @@ SUBROUTINE STASPH
          END IF
 !
 !       WHAT IF NO SURFACES EXIST
-         IF(SYSTEM(20).EQ.0.0D0) THEN
+         IF(sys_last_surf().EQ.0.0D0) THEN
             OUTLYNE='NO ASHERIC-TORICS EXIST'
             CALL SHOWIT(1)
             OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -2918,9 +2942,9 @@ SUBROUTINE STASPH
          END IF
 !
          IF(SQ.EQ.0) THEN
-            IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+            IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
             I=INT(W1)
-            IF(I.GT.(INT(SYSTEM(20))).OR.I.LT.0) THEN
+            IF(I.GT.(INT(sys_last_surf())).OR.I.LT.0) THEN
                OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
@@ -2968,7 +2992,7 @@ SUBROUTINE STASPH
 !       CHECK FOR NO DATA
 !
             J=0
-            DO 20 I=0,INT(SYSTEM(20))
+            DO 20 I=0,INT(sys_last_surf())
                IF(surf_anamorphic_conic(I).NE.0.0D0.AND.surf_anamorphic_flag(I).NE.0.0D0.OR.surf_anamorphic_conic(I).NE.0.0D0.OR.surf_anamorphic_flag(I).NE.0.0D0) THEN
                   J=J+1
                ELSE
@@ -2992,7 +3016,7 @@ SUBROUTINE STASPH
             WRITE(OUTLYNE,500)
             CALL SHOWIT(0)
 !
-            DO 10 I=0,INT(SYSTEM(20))
+            DO 10 I=0,INT(sys_last_surf())
                IF(surf_anamorphic_conic(I).NE.0.0D0.AND.surf_anamorphic_flag(I).EQ.0.0D0) THEN
                   CC=surf_anamorphic_conic(I)
                   WRITE(OUTLYNE,200)I,CC
@@ -3028,6 +3052,7 @@ END
 SUBROUTINE STILT
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3176,7 +3201,7 @@ SUBROUTINE STILT
 !       THEN A TILT AUTO
 !
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'AUTO') THEN
-      IF(SURF.LE.INT(SYSTEM(25)))THEN
+      IF(SURF.LE.INT(sys_ref_surf()))THEN
          OUTLYNE='"TILT AUTO" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -3331,7 +3356,7 @@ SUBROUTINE STILT
          RETURN
       END IF
 !     NOW CHECK IF IT REFERS TO A PREVIOUS SURFACE
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          OUTLYNE='INVALID SURFACE NUMBER REFERED TO BY "TILT RET"'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -3593,7 +3618,7 @@ SUBROUTINE STILT
 !       THEN A TILT AUTOM
 !
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'AUTOM') THEN
-      IF(SURF.LE.INT(SYSTEM(25)))THEN
+      IF(SURF.LE.INT(sys_ref_surf()))THEN
          OUTLYNE='"TILT AUTOM" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -3692,7 +3717,7 @@ SUBROUTINE STILT
 !               PIKUP(I,J,K) WHERE K IS 15,16, OR 17
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE TILT
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       DO J=15,17
          IF(PIKUP(1,I,J).EQ.1.0D0) THEN
 !       DOES IT REFER TO SURFACE SURF
@@ -3755,7 +3780,7 @@ SUBROUTINE STILT
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-   DO 400 I=0,INT(SYSTEM(20))
+   DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
       PIKCNT=0
       DO 401 J=1,PSIZ

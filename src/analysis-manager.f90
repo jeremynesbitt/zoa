@@ -5,6 +5,7 @@
 ! radii, curvature, glass type, pickups, solves should be in LDM
 module mod_analysis_manager
     use globals, only: long
+    use mod_system
     use global_widgets, only: curr_par_ray_trace, sysConfig
     use mod_lens_data_manager
     use type_utils
@@ -66,8 +67,7 @@ module mod_analysis_manager
   
         call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex)
         ! This is conversion of the Smith definition to the CodeV definition.
-        res = 3*curr_par_ray_trace%CSeidel(3,ubound(curr_par_ray_trace%CSeidel, dim=2))- &
-        & curr_par_ray_trace%CSeidel(5,ubound(curr_par_ray_trace%CSeidel, dim=2))
+        res = 3*curr_par_ray_trace%CSeidel(3,ubound(curr_par_ray_trace%CSeidel, dim=2))-  curr_par_ray_trace%CSeidel(5,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
     end function    
 

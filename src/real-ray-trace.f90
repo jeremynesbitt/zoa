@@ -57,6 +57,7 @@ contains
         USE GLOBALS
 !
         use DATLEN
+        use mod_system
    use mod_surface
         use DATMAI
         use mod_surface
@@ -97,8 +98,8 @@ contains
 
 !
                         KKK=0
-!                       DDELX=0.001D0*SYSTEM(12)
-!                       DDELY=0.001D0*SYSTEM(13)
+!                       DDELX=0.001D0*sys_say()
+!                       DDELY=0.001D0*sys_sax()
                         DDELX=0.001D0
                         DDELY=0.001D0
 !     PROPER INITIALIZE PROCEEDURE 3/3/96
@@ -193,27 +194,27 @@ contains
         ! PRINT *, "WW1 is ", WW1
         ! PRINT *, "WW2 is ", WW2
         ! PRINT *, "WW3 is ", WW3
-        ! PRINT *, "SAY is ",  SYSTEM(12)
-        ! PRINT *, "SAX is ",  SYSTEM(13)
+        ! PRINT *, "SAY is ",  sys_say()
+        ! PRINT *, "SAX is ",  sys_sax()
         ! TODO fix this prototype code to better match
         ! pseudocode above
-        !  IF(ABS(SYSTEM(14)).GT.1E16) THEN
+        !  IF(ABS(sys_scy()).GT.1E16) THEN
         !
         !   CALL PROCESKDP("SHO ENPOSZ")
         !   PRINT *, "Entrance pupil position ", REG(9)
         !   PRINT *, "Last FOB Y is ", LFOB(1)
-        !   PRINT *, "SYSTEM(14) ", SYSTEM(14)
-        !   !PRINT *, "TST YSTRT ", LFOB(1)*REG(9)*TAND(SYSTEM(21))
-        !   !SYSTEM(14)
-        !   YSTRT = WW1*SYSTEM(12)-LFOB(1)*REG(9)*TAND(SYSTEM(21))
-        !   XSTRT = WW2*SYSTEM(13)
+        !   PRINT *, "sys_scy() ", sys_scy()
+        !   !PRINT *, "TST YSTRT ", LFOB(1)*REG(9)*TAND(sys_fang_y())
+        !   !sys_scy()
+        !   YSTRT = WW1*sys_say()-LFOB(1)*REG(9)*TAND(sys_fang_y())
+        !   XSTRT = WW2*sys_sax()
         ! END IF
         !PRINT *, "YSTRT is ", YSTRT
 
 
 !
 !       THE WAVELENGTH NUMBER FOR THE RAY TRACE IS:
-!       INT(WW3) OR INT(SYSTEM(11))
+!       INT(WW3) OR INT(sys_wl_ref())
 !
 !       NOW WHAT ARE THE STARTING DIRECTION COSINES AND HOW ARE
 !       THEY DETERMINED?
@@ -232,7 +233,7 @@ contains
 !       POINTS FOR FIRST GUESS AIMING WILL BE:
 !       THE POINT AT SURFACE NEWOBJ+1 AT WHICH THE
 !       PARAXIAL CHIEF RAY PLUS THE PARAXIAL MARGINAL RAY
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !       TELECENTRIC AIMING IS OFF
       JKX=(PXTRAX(1,NEWOBJ+1))
       JKY=(PXTRAY(1,NEWOBJ+1))
@@ -279,9 +280,9 @@ contains
       IF(.NOT.ITRACE) THEN
       IF(NULL.AND..NOT.REFEXT) THEN
 !     NULL WITH FAILED CHIEF RAY
-      IF(SYSTEM(62).EQ.0.0D0) THEN
+      IF(sys_ray_aiming().EQ.0.0D0) THEN
 !     NO RAY AIMING
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
 !     RAY AIMING IS OFF, TELECENTRIC RAY AIMING IS OFF
         X1AIM=WW2*JKX
@@ -298,10 +299,10 @@ contains
 !
                         ELSE
 !     TEL ON
-      IF(SYSTEM(16).NE.0.0D0) X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ)))+(WW2*JKX)
-      IF(SYSTEM(16).EQ.0.0D0) X1AIM=(WW2*JKX)
-      IF(SYSTEM(14).NE.0.0D0) Y1AIM=(LFOB(1)*(PXTRAY(5,NEWOBJ)))+(WW1*JKY)
-      IF(SYSTEM(14).EQ.0.0D0) Y1AIM=(WW1*JKY)
+      IF(sys_scx().NE.0.0D0) X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ)))+(WW2*JKX)
+      IF(sys_scx().EQ.0.0D0) X1AIM=(WW2*JKX)
+      IF(sys_scy().NE.0.0D0) Y1AIM=(LFOB(1)*(PXTRAY(5,NEWOBJ)))+(WW1*JKY)
+      IF(sys_scy().EQ.0.0D0) Y1AIM=(WW1*JKY)
         Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -328,9 +329,9 @@ contains
                         END IF
                         END IF
 !     CHIEF RAY EXISTS
-      IF(SYSTEM(62).EQ.0.0D0) THEN
+      IF(sys_ray_aiming().EQ.0.0D0) THEN
 !     NO RAY AIMING
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
         X1AIM=((REFRY(1,(NEWOBJ+1)))+(WW2*JKX))
         Y1AIM=((REFRY(2,(NEWOBJ+1)))+(WW1*JKY))
@@ -973,7 +974,7 @@ contains
 !
       WWW1=WW1
       WWW2=WW2
-      IF(SYSTEM(70).EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
+      IF(sys_aplanatic().EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
       IF(DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 1)).AND. DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 2))) CALL APLANA(I,WW1,WW2,WWW1,WWW2)
                        END IF
 !
@@ -988,8 +989,8 @@ contains
                 TARY=(surf_clap_dim(I, 3))+(surf_clap_dim(I, 2)*WWW1)
                 TARX=(surf_clap_dim(I, 4))+(surf_clap_dim(I, 2)*WWW2)
                    END IF
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
                 TARX=TARX+surf_clap_dim(I, 4)
                 TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1009,10 +1010,10 @@ contains
                 TARY=(surf_clap_dim(I, 2)*WWW1)
                 TARX=(surf_clap_dim(I, 2)*WWW2)
                    END IF
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
 !       NOW IS THE REF SURF ORIENTATION ANGLE ?
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1036,8 +1037,8 @@ contains
                 TARX=(surf_clap_dim(I, 4))+(surf_clap_dim(I, 2)*WW2)
                    END IF
                    END IF
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
                 TARX=TARX+surf_clap_dim(I, 4)
                 TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1049,9 +1050,9 @@ contains
                       ELSE
                 TARY=(surf_clap_dim(I, 1)*WW1)
                 TARX=(surf_clap_dim(I, 2)*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1068,8 +1069,8 @@ contains
       IF(CLAPT) THEN
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
                 TARX=TARX+surf_clap_dim(I, 4)
                 TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1081,9 +1082,9 @@ contains
                       ELSE
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1099,8 +1100,8 @@ contains
                 XVALUE=surf_clap_dim(I, 2)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
                 TARX=TARX+surf_clap_dim(I, 4)
                 TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1114,9 +1115,9 @@ contains
                 XVALUE=surf_clap_dim(I, 2)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1132,8 +1133,8 @@ contains
                 XVALUE=surf_clap_dim(I, 1)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
                 TARX=TARX+surf_clap_dim(I, 4)
                 TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1147,9 +1148,9 @@ contains
                 XVALUE=surf_clap_dim(I, 1)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1163,8 +1164,8 @@ contains
                 XVALUE=surf_clap_dim(I, 5)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
                 TARX=TARX+surf_clap_dim(I, 4)
                 TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1178,9 +1179,9 @@ contains
                 XVALUE=surf_clap_dim(I, 2)
                 TARY=(YVALUE*WW1)
                 TARX=(XVALUE*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1193,9 +1194,9 @@ contains
 !       NO CLAP ON REF SURF OR MULTI-CLAP
                         TARY=(PXTRAY(1,I)*WW1)
                         TARX=(PXTRAX(1,I)*WW2)
-        IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-        IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        IF(sys_flip_ref_x().NE.0.0D0) TARX=-TARX
+        IF(sys_flip_ref_y().NE.0.0D0) TARY=-TARY
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1204,7 +1205,7 @@ contains
 !
         TEST=DSQRT(((TARX-X)**2)+((TARY-Y)**2))
         !call logger%logTextWithNum("RAYTRA AIMTOL CHECK IS ", TEST)
-        IF(TEST.LE.AIMTOL .OR.SYSTEM(62).EQ.0.0D0.OR.ITRACE) THEN
+        IF(TEST.LE.AIMTOL .OR.sys_ray_aiming().EQ.0.0D0.OR.ITRACE) THEN
 !       AIM IS GOOD ENOUGH, PROCEED
                         AIMOK=.TRUE.
                         GO TO 100
@@ -1507,14 +1508,14 @@ contains
         PHASE_PER=0.0D0
         POLANG=0.0D0
                    END IF
-      IF(SYSTEM(103).EQ.1.0D0) THEN
+      IF(sys_screen().EQ.1.0D0) THEN
 !     SCREEN SURFACE
-      IF(I.EQ.INT(SYSTEM(104))) THEN
+      IF(I.EQ.INT(sys_screen_surf())) THEN
 !       GOT THE SCREEN SURFACE
       AOI=DABS(DACOS(RAYRAY(9,I)))
-      D=SYSTEM(105)
-      H=SYSTEM(106)
-      S=SYSTEM(107)
+      D=sys_screen_d()
+      H=sys_screen_h()
+      S=sys_screen_s()
       IF(DCOS(AOI).EQ.0.0D0.OR. AOI.GE.DABS(SYSTEM(108))) THEN
                         FACTOR=0.0D0
                         ELSE
@@ -1667,6 +1668,7 @@ end subroutine
 !       RAYRAY(15,SURF)=N DIRECTION COSINE OF SURFACE NORMAL
 subroutine adjustLastSurface_old(L, RV)
     use DATLEN, only: RAYRAY, PHASE, WW3, ALENS
+    use mod_system
     use type_utils, only: real2str, int2str
     use mod_lens_data_manager
     integer :: L
@@ -1762,6 +1764,7 @@ subroutine adjustLastSurface(L, rayData)
 ! Since we only support unity index and no curvature, the calcluation is 
 ! pretty straightforward                    
     use DATLEN, only: PHASE, WW3, ALENS
+    use mod_system
     use type_utils, only: real2str, int2str
     use mod_lens_data_manager
     integer :: L
@@ -1845,6 +1848,7 @@ end subroutine
 ! the ray tracing code presumably this problem will go away
 subroutine adjustLastSurface_2(L, rayData)
     use DATLEN, only: PHASE, WW4, ALENS
+    use mod_system
     use type_utils, only: real2str, int2str
     use mod_lens_data_manager
     implicit none

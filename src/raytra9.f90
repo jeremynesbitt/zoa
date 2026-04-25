@@ -2,6 +2,7 @@
 SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -38,13 +39,13 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
    COMMON/GV/VALUE,NUM5
 !
    DWORD3=0.0D0
-   DWORD4=SYSTEM(11)
+   DWORD4=sys_wl_ref()
 !
    ERROR=0
 !
    MYW1=DWORD1
    MYW2=DWORD2
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     MODE FOCAL
 !     TRACE THE DESIRED GUT RAY WITH DIFFERENTIAL TRACING
       SAVE_KDP(1)=SAVEINPT(1)
@@ -340,7 +341,7 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
    ELSE
 !     NOT FOCAL
    END IF
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
       I=NEWIMG
       CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,DWORD1,DWORD2,DWORD3,DWORD4,0)
       IF(PUY.NE.0) THEN
@@ -356,12 +357,12 @@ SUBROUTINE FLDCRV(ORIEN,DWORD1,DWORD2,ERROR)
 !
 !     NOW CONVERT TO DIOPTERS. CHANGE TO METER UNITS
 !
-      IF(SYSTEM(6).EQ.1.0D0) VALUE1=VALUE1/39.3700787402D0
-      IF(SYSTEM(6).EQ.2.0D0) VALUE1=VALUE1/100.0D0
-      IF(SYSTEM(6).EQ.3.0D0) VALUE1=VALUE1/1000.0D0
-      IF(SYSTEM(6).EQ.1.0D0) VALUE2=VALUE2/39.3700787402D0
-      IF(SYSTEM(6).EQ.2.0D0) VALUE2=VALUE2/100.0D0
-      IF(SYSTEM(6).EQ.3.0D0) VALUE2=VALUE2/1000.0D0
+      IF(sys_units().EQ.1.0D0) VALUE1=VALUE1/39.3700787402D0
+      IF(sys_units().EQ.2.0D0) VALUE1=VALUE1/100.0D0
+      IF(sys_units().EQ.3.0D0) VALUE1=VALUE1/1000.0D0
+      IF(sys_units().EQ.1.0D0) VALUE2=VALUE2/39.3700787402D0
+      IF(sys_units().EQ.2.0D0) VALUE2=VALUE2/100.0D0
+      IF(sys_units().EQ.3.0D0) VALUE2=VALUE2/1000.0D0
       IF(VALUE1.NE.0.0D0) VALUE1=1.0D0/VALUE1
       IF(VALUE1.EQ.0.0D0) VALUE1=0.0D0
       IF(VALUE2.NE.0.0D0) VALUE2=1.0D0/VALUE2
@@ -380,6 +381,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -425,7 +427,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
    DWORD4=FIELDW(IW1)
    MYW3=FIELDZ(IW1)
    MYW4=FIELDW(IW1)
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     MODE FOCAL
 !     TRACE THE DESIRED GUT RAY WITH DIFFERENTIAL TRACING
       SAVE_KDP(1)=SAVEINPT(1)
@@ -723,7 +725,7 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
    ELSE
 !     NOT FOCAL
    END IF
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
       I=NEWIMG
       CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,DWORD1,DWORD2,DWORD3,DWORD4,0)
       IF(PUY.NE.0) THEN
@@ -739,12 +741,12 @@ SUBROUTINE FLDOP(ORIEN,IW1,ERROR)
 !
 !     NOW CONVERT TO DIOPTERS. CHANGE TO METER UNITS
 !
-      IF(SYSTEM(6).EQ.1.0D0) VALUE1=VALUE1/39.3700787402D0
-      IF(SYSTEM(6).EQ.2.0D0) VALUE1=VALUE1/100.0D0
-      IF(SYSTEM(6).EQ.3.0D0) VALUE1=VALUE1/1000.0D0
-      IF(SYSTEM(6).EQ.1.0D0) VALUE2=VALUE2/39.3700787402D0
-      IF(SYSTEM(6).EQ.2.0D0) VALUE2=VALUE2/100.0D0
-      IF(SYSTEM(6).EQ.3.0D0) VALUE2=VALUE2/1000.0D0
+      IF(sys_units().EQ.1.0D0) VALUE1=VALUE1/39.3700787402D0
+      IF(sys_units().EQ.2.0D0) VALUE1=VALUE1/100.0D0
+      IF(sys_units().EQ.3.0D0) VALUE1=VALUE1/1000.0D0
+      IF(sys_units().EQ.1.0D0) VALUE2=VALUE2/39.3700787402D0
+      IF(sys_units().EQ.2.0D0) VALUE2=VALUE2/100.0D0
+      IF(sys_units().EQ.3.0D0) VALUE2=VALUE2/1000.0D0
       IF(VALUE1.NE.0.0D0) VALUE1=1.0D0/VALUE1
       IF(VALUE1.EQ.0.0D0) VALUE1=0.0D0
       IF(VALUE2.NE.0.0D0) VALUE2=1.0D0/VALUE2
@@ -761,6 +763,7 @@ END
 SUBROUTINE FIELDABS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -881,7 +884,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,104) W2
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(SYSTEM(11)))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,602)
       CALL SHOWIT(0)
@@ -891,20 +894,20 @@ SUBROUTINE FIELDABS
          CALL SHOWIT(0)
       ELSE
 !     SPATIAL FIELD POS
-         IF(SYSTEM(6).EQ.1.0D0) WRITE(OUTLYNE,107)
-         IF(SYSTEM(6).EQ.2.0D0) WRITE(OUTLYNE,108)
-         IF(SYSTEM(6).EQ.3.0D0) WRITE(OUTLYNE,109)
-         IF(SYSTEM(6).EQ.4.0D0) WRITE(OUTLYNE,110)
+         IF(sys_units().EQ.1.0D0) WRITE(OUTLYNE,107)
+         IF(sys_units().EQ.2.0D0) WRITE(OUTLYNE,108)
+         IF(sys_units().EQ.3.0D0) WRITE(OUTLYNE,109)
+         IF(sys_units().EQ.4.0D0) WRITE(OUTLYNE,110)
          CALL SHOWIT(0)
       END IF
 
       DO I=0,INT(OW3)
          IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            WOR11=WOR1(I)*SYSTEM(21)
-            WOR12=WOR2(I)*SYSTEM(23)
+            WOR11=WOR1(I)*sys_fang_y()
+            WOR12=WOR2(I)*sys_fang_x()
          ELSE
-            WOR11=WOR1(I)*SYSTEM(14)
-            WOR12=WOR2(I)*SYSTEM(16)
+            WOR11=WOR1(I)*sys_scy()
+            WOR12=WOR2(I)*sys_scx()
          END IF
          IF(DABS(WOR11).LT.1.0D-6) WOR11=0.0D0
          IF(DABS(WOR12).LT.1.0D-6) WOR12=0.0D0
@@ -1019,7 +1022,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,104) W2
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(SYSTEM(11)))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,102)
       CALL SHOWIT(0)
@@ -1029,20 +1032,20 @@ SUBROUTINE FIELDABS
          CALL SHOWIT(0)
       ELSE
 !     SPATIAL FIELD POS
-         IF(SYSTEM(6).EQ.1.0D0) WRITE(OUTLYNE,107)
-         IF(SYSTEM(6).EQ.2.0D0) WRITE(OUTLYNE,108)
-         IF(SYSTEM(6).EQ.3.0D0) WRITE(OUTLYNE,109)
-         IF(SYSTEM(6).EQ.4.0D0) WRITE(OUTLYNE,110)
+         IF(sys_units().EQ.1.0D0) WRITE(OUTLYNE,107)
+         IF(sys_units().EQ.2.0D0) WRITE(OUTLYNE,108)
+         IF(sys_units().EQ.3.0D0) WRITE(OUTLYNE,109)
+         IF(sys_units().EQ.4.0D0) WRITE(OUTLYNE,110)
          CALL SHOWIT(0)
       END IF
 
       DO I=0,INT(OW3)
          IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            WOR11=WOR1(I)*SYSTEM(21)
-            WOR12=WOR2(I)*SYSTEM(23)
+            WOR11=WOR1(I)*sys_fang_y()
+            WOR12=WOR2(I)*sys_fang_x()
          ELSE
-            WOR11=WOR1(I)*SYSTEM(14)
-            WOR12=WOR2(I)*SYSTEM(16)
+            WOR11=WOR1(I)*sys_scy()
+            WOR12=WOR2(I)*sys_scx()
          END IF
          IF(DABS(WOR11).LT.1.0D-6) WOR11=0.0D0
          IF(DABS(WOR12).LT.1.0D-6) WOR12=0.0D0
@@ -1110,12 +1113,12 @@ SUBROUTINE FIELDABS
       ERROR=0
       ORI=W1
       FACTY=W2
-      IF(SYSTEM(30).GT.2.0D0) UNIFC='DIOPTERS'
-      IF(SYSTEM(30).LE.2.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) UNIFC='IN(S)'
-         IF(SYSTEM(6).EQ.2.0D0) UNIFC='CM(S)'
-         IF(SYSTEM(6).EQ.3.0D0) UNIFC='MM(S)'
-         IF(SYSTEM(6).EQ.4.0D0) UNIFC=' M(S)'
+      IF(sys_mode().GT.2.0D0) UNIFC='DIOPTERS'
+      IF(sys_mode().LE.2.0D0) THEN
+         IF(sys_units().EQ.1.0D0) UNIFC='IN(S)'
+         IF(sys_units().EQ.2.0D0) UNIFC='CM(S)'
+         IF(sys_units().EQ.3.0D0) UNIFC='MM(S)'
+         IF(sys_units().EQ.4.0D0) UNIFC=' M(S)'
       END IF
       ORI=W1
       FACTY=W2
@@ -1181,7 +1184,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,204) W2
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(SYSTEM(11)))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,211) UNIFC
       CALL SHOWIT(0)
@@ -1193,20 +1196,20 @@ SUBROUTINE FIELDABS
          CALL SHOWIT(0)
       ELSE
 !     SPATIAL FIELD POS
-         IF(SYSTEM(6).EQ.1.0D0) WRITE(OUTLYNE,207)
-         IF(SYSTEM(6).EQ.2.0D0) WRITE(OUTLYNE,208)
-         IF(SYSTEM(6).EQ.3.0D0) WRITE(OUTLYNE,209)
-         IF(SYSTEM(6).EQ.4.0D0) WRITE(OUTLYNE,210)
+         IF(sys_units().EQ.1.0D0) WRITE(OUTLYNE,207)
+         IF(sys_units().EQ.2.0D0) WRITE(OUTLYNE,208)
+         IF(sys_units().EQ.3.0D0) WRITE(OUTLYNE,209)
+         IF(sys_units().EQ.4.0D0) WRITE(OUTLYNE,210)
          CALL SHOWIT(0)
       END IF
 
       DO I=0,INT(W3)
          IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            WOR11=WOR1(I)*SYSTEM(21)
-            WOR12=WOR2(I)*SYSTEM(23)
+            WOR11=WOR1(I)*sys_fang_y()
+            WOR12=WOR2(I)*sys_fang_x()
          ELSE
-            WOR11=WOR1(I)*SYSTEM(14)
-            WOR12=WOR2(I)*SYSTEM(16)
+            WOR11=WOR1(I)*sys_scy()
+            WOR12=WOR2(I)*sys_scx()
          END IF
          IF(DABS(WOR11).LT.1.0D-6) WOR11=0.0D0
          IF(DABS(WOR12).LT.1.0D-6) WOR12=0.0D0
@@ -1273,12 +1276,12 @@ SUBROUTINE FIELDABS
       ERROR=0
       ORI=W1
       FACTY=W2
-      IF(SYSTEM(30).GT.2.0D0) UNIFC='DIOPTERS'
-      IF(SYSTEM(30).LE.2.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) UNIFC='IN(S)'
-         IF(SYSTEM(6).EQ.2.0D0) UNIFC='CM(S)'
-         IF(SYSTEM(6).EQ.3.0D0) UNIFC='MM(S)'
-         IF(SYSTEM(6).EQ.4.0D0) UNIFC=' M(S)'
+      IF(sys_mode().GT.2.0D0) UNIFC='DIOPTERS'
+      IF(sys_mode().LE.2.0D0) THEN
+         IF(sys_units().EQ.1.0D0) UNIFC='IN(S)'
+         IF(sys_units().EQ.2.0D0) UNIFC='CM(S)'
+         IF(sys_units().EQ.3.0D0) UNIFC='MM(S)'
+         IF(sys_units().EQ.4.0D0) UNIFC=' M(S)'
       END IF
       ORI=W1
       FACTY=W2
@@ -1331,7 +1334,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,311) UNIFC
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(SYSTEM(11)))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,302)
       CALL SHOWIT(0)
@@ -1341,20 +1344,20 @@ SUBROUTINE FIELDABS
          CALL SHOWIT(0)
       ELSE
 !     SPATIAL FIELD POS
-         IF(SYSTEM(6).EQ.1.0D0) WRITE(OUTLYNE,307)
-         IF(SYSTEM(6).EQ.2.0D0) WRITE(OUTLYNE,308)
-         IF(SYSTEM(6).EQ.3.0D0) WRITE(OUTLYNE,309)
-         IF(SYSTEM(6).EQ.4.0D0) WRITE(OUTLYNE,310)
+         IF(sys_units().EQ.1.0D0) WRITE(OUTLYNE,307)
+         IF(sys_units().EQ.2.0D0) WRITE(OUTLYNE,308)
+         IF(sys_units().EQ.3.0D0) WRITE(OUTLYNE,309)
+         IF(sys_units().EQ.4.0D0) WRITE(OUTLYNE,310)
          CALL SHOWIT(0)
       END IF
 
       DO I=0,INT(W3)
          IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            WOR11=WOR1(I)*SYSTEM(21)
-            WOR12=WOR2(I)*SYSTEM(23)
+            WOR11=WOR1(I)*sys_fang_y()
+            WOR12=WOR2(I)*sys_fang_x()
          ELSE
-            WOR11=WOR1(I)*SYSTEM(14)
-            WOR12=WOR2(I)*SYSTEM(16)
+            WOR11=WOR1(I)*sys_scy()
+            WOR12=WOR2(I)*sys_scx()
          END IF
          IF(DABS(WOR11).LT.1.0D-6) WOR11=0.0D0
          IF(DABS(WOR12).LT.1.0D-6) WOR12=0.0D0
@@ -1371,6 +1374,7 @@ END
 SUBROUTINE DRAWFAN
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1442,6 +1446,7 @@ SUBROUTINE FALRAY
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1476,6 +1481,7 @@ END
 SUBROUTINE PLT_FAN
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1536,6 +1542,7 @@ END
 SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2309,46 +2316,46 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
          IF(INT(FTFL01(4,ISURF)).EQ.0) THEN
 !     PHASE IN FRACTION OF REF WAVELENGTH FRACTION
 !     FIRST CONVERT TO MICRONS
-            IF(SYSTEM(11).LE.5.0D0) THEN
-               AP=AP*SYSTEM(INT(SYSTEM(11)))
-               DX=DX*SYSTEM(INT(SYSTEM(11)))
-               DY=DY*SYSTEM(INT(SYSTEM(11)))
+            IF(sys_wl_ref().LE.5.0D0) THEN
+               AP=AP*sys_wavelength(INT(sys_wl_ref()))
+               DX=DX*sys_wavelength(INT(sys_wl_ref()))
+               DY=DY*sys_wavelength(INT(sys_wl_ref()))
             ELSE
-               AP=AP*SYSTEM(INT(SYSTEM(11))+65)
-               DX=DX*SYSTEM(INT(SYSTEM(11))+65)
-               DY=DY*SYSTEM(INT(SYSTEM(11))+65)
+               AP=AP*sys_wavelength(INT(sys_wl_ref()))
+               DX=DX*sys_wavelength(INT(sys_wl_ref()))
+               DY=DY*sys_wavelength(INT(sys_wl_ref()))
             END IF
 !     NOW GO FROM MICRONS TO LENS UNITS
-            IF(SYSTEM(6).EQ.1.0D0) AP=(AP*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) AP=AP*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) AP=AP*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) AP=AP*1.0D-6
-            IF(SYSTEM(6).EQ.1.0D0) DX=(DX*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) DX=DX*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) DX=DX*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) DX=DX*1.0D-6
-            IF(SYSTEM(6).EQ.1.0D0) DY=(DY*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) DY=DY*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) DY=DY*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) DY=DY*1.0D-6
+            IF(sys_units().EQ.1.0D0) AP=(AP*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) AP=AP*1.0D-4
+            IF(sys_units().EQ.3.0D0) AP=AP*1.0D-3
+            IF(sys_units().EQ.4.0D0) AP=AP*1.0D-6
+            IF(sys_units().EQ.1.0D0) DX=(DX*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) DX=DX*1.0D-4
+            IF(sys_units().EQ.3.0D0) DX=DX*1.0D-3
+            IF(sys_units().EQ.4.0D0) DX=DX*1.0D-6
+            IF(sys_units().EQ.1.0D0) DY=(DY*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) DY=DY*1.0D-4
+            IF(sys_units().EQ.3.0D0) DY=DY*1.0D-3
+            IF(sys_units().EQ.4.0D0) DY=DY*1.0D-6
          END IF
          IF(INT(FTFL01(4,ISURF)).EQ.1) THEN
 !     PHASE IN LENS UNITS, NO CONVERSIONS NEEDED
          END IF
          IF(INT(FTFL01(4,ISURF)).EQ.2) THEN
 !     PHASE IN MICRONS, CONVERT TO LENS UNITS
-            IF(SYSTEM(6).EQ.1.0D0) AP=(AP*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) AP=AP*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) AP=AP*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) AP=AP*1.0D-6
-            IF(SYSTEM(6).EQ.1.0D0) DX=(DX*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) DX=DX*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) DX=DX*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) DX=DX*1.0D-6
-            IF(SYSTEM(6).EQ.1.0D0) DY=(DY*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) DY=DY*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) DY=DY*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) DY=DY*1.0D-6
+            IF(sys_units().EQ.1.0D0) AP=(AP*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) AP=AP*1.0D-4
+            IF(sys_units().EQ.3.0D0) AP=AP*1.0D-3
+            IF(sys_units().EQ.4.0D0) AP=AP*1.0D-6
+            IF(sys_units().EQ.1.0D0) DX=(DX*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) DX=DX*1.0D-4
+            IF(sys_units().EQ.3.0D0) DX=DX*1.0D-3
+            IF(sys_units().EQ.4.0D0) DX=DX*1.0D-6
+            IF(sys_units().EQ.1.0D0) DY=(DY*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) DY=DY*1.0D-4
+            IF(sys_units().EQ.3.0D0) DY=DY*1.0D-3
+            IF(sys_units().EQ.4.0D0) DY=DY*1.0D-6
          END IF
 !     FINALLY FORM THE FULL DERIVATIVE
          DX=DX/SUBHIT
@@ -2571,6 +2578,7 @@ END
 
 SUBROUTINE FIXDEFORMFILE
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2578,7 +2586,7 @@ SUBROUTINE FIXDEFORMFILE
    LOGICAL ERR1,ERR2
    ERR1=.FALSE.
    ERR2=.FALSE.
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_default_flag(I).EQ.1.0D0) CALL DEFGRIDS(9,I,ERR1,ERR2)
    END DO
    RETURN
@@ -2589,6 +2597,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3215,6 +3224,7 @@ SUBROUTINE DEFGRIDS(ICODE,ISURF,ERROR1,ERROR2)
 END
 SUBROUTINE SAGGER(DEFORMED,MACT,ICODE,AP,XR,YR,ERROR1,ERROR2 ,HT108,AVSPACE,ISURF)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3255,6 +3265,7 @@ SUBROUTINE FANS
 !
    use DATHGR
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3339,7 +3350,7 @@ SUBROUTINE FANS
 !
    IF(DF3.EQ.1) THEN
       DF3=0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       FANWAV=INT(WW3)
       WVN=WW3
       IF(INT(WW3).EQ.1) WWVN=46
@@ -3418,7 +3429,7 @@ SUBROUTINE FANS
    IF(FOBB0) THEN
 !       ON-AXIS, GO FROM 0 TO 1 DO HALF FAN IF ROTATIONAL SYMMETRY EXISTS
 !       SYMMETRY CHECK
-      IF(SYSTEM(28).EQ.1.0D0.AND.SYSTEM(48).EQ.1.0D0) THEN
+      IF(sys_xz_sym().EQ.1.0D0.AND.sys_yz_sym().EQ.1.0D0) THEN
          IF(DF1.EQ.1) W1=0.0D0
          IF(DF4.EQ.1) W4=6.0D0
       ELSE
@@ -3476,15 +3487,15 @@ SUBROUTINE FANS
 !       REDEFINITION, WE DON'T CHANGE THE VALUE OF SAX OR A
 !       CLAPX ON THE REFERENCE SURFACE, WE JUST DON'T USE IT.
 !
-   IF(SYSTEM(6).EQ.1.0D0) UNI='INCHES     '
-   IF(SYSTEM(6).EQ.2.0D0) UNI='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0D0) UNI='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0D0) UNI='METERS     '
-   LCW=SYSTEM(INT(SYSTEM(11)))
-   LPWP1=SYSTEM(INT(SYSTEM(7)))
-   LPWP2=SYSTEM(INT(SYSTEM(8)))
-   LSWP1=SYSTEM(INT(SYSTEM(9)))
-   LSWP2=SYSTEM(INT(SYSTEM(10)))
+   IF(sys_units().EQ.1.0D0) UNI='INCHES     '
+   IF(sys_units().EQ.2.0D0) UNI='CENTIMETERS'
+   IF(sys_units().EQ.3.0D0) UNI='MILLIMETERS'
+   IF(sys_units().EQ.4.0D0) UNI='METERS     '
+   LCW=sys_wavelength(INT(sys_wl_ref()))
+   LPWP1=sys_wavelength(INT(sys_wl_pri1()))
+   LPWP2=sys_wavelength(INT(sys_wl_pri2()))
+   LSWP1=sys_wavelength(INT(sys_wl_sec1()))
+   LSWP2=sys_wavelength(INT(sys_wl_sec2()))
 !       NO QUALIFIER
    IF(SQ.EQ.0) THEN
       WRITE(OUTLYNE,1000) UNI
@@ -3495,11 +3506,11 @@ SUBROUTINE FANS
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
       IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.3.0D0) THEN
+      IF(sys_mode().EQ.3.0D0) THEN
          WRITE(OUTLYNE,9999)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.4.0D0) THEN
          WRITE(OUTLYNE,8888)
          CALL SHOWIT(0)
       END IF
@@ -3516,7 +3527,7 @@ SUBROUTINE FANS
       CALL SHOWIT(0)
 2005  FORMAT('WAVLENGTH = ',G14.6,' MICRONS')
    END IF
-   IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'.AND.SYSTEM(30).EQ.4.0D0) THEN
+   IF(WQ.EQ.'LA'.AND.sys_mode().EQ.3.0D0.OR.WQ.EQ.'LA'.AND.sys_mode().EQ.4.0D0) THEN
       OUTLYNE='THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
@@ -3551,11 +3562,11 @@ SUBROUTINE FANS
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
       IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.3.0D0) THEN
+      IF(sys_mode().EQ.3.0D0) THEN
          WRITE(OUTLYNE,9995)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.4.0D0) THEN
          WRITE(OUTLYNE,8885)
          CALL SHOWIT(0)
       END IF
@@ -3602,7 +3613,7 @@ SUBROUTINE FANS
       CALL SHOWIT(0)
 5000  FORMAT(1X)
       IF(WC.EQ.'YFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5001)
             CALL SHOWIT(0)
@@ -3615,7 +3626,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5001)
             CALL SHOWIT(0)
@@ -3626,7 +3637,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'NFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5003)
             CALL SHOWIT(0)
@@ -3639,7 +3650,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5003)
             CALL SHOWIT(0)
@@ -3660,7 +3671,7 @@ SUBROUTINE FANS
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       IF(WC.EQ.'YFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -3672,7 +3683,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -3683,7 +3694,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'NFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -3694,7 +3705,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -3714,7 +3725,7 @@ SUBROUTINE FANS
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       IF(WC.EQ.'YFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7001)
             CALL SHOWIT(0)
@@ -3727,7 +3738,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7001)
             CALL SHOWIT(0)
@@ -3738,7 +3749,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'NFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7003)
             CALL SHOWIT(0)
@@ -3751,7 +3762,7 @@ SUBROUTINE FANS
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7003)
             CALL SHOWIT(0)
@@ -3867,7 +3878,7 @@ SUBROUTINE FANS
       CALL RAYTRA
       !PRINT *, "RAYCOD after RAYTRA call is", RAYCOD(1)
       F58=0
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
          XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
          YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
@@ -3971,7 +3982,7 @@ SUBROUTINE FANS
          CALL RAYTRA
          !PRINT *, "RAYCOD after RAYTRA call is", RAYCOD(1)
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB - xOffset
             YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA - yOffset
@@ -4065,7 +4076,7 @@ SUBROUTINE FANS
             DO J=JJ,NEWIMG
                OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
             END DO
-            IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+            IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -4101,10 +4112,10 @@ SUBROUTINE FANS
             IF(FANWAV.GE.6.AND.FANWAV.LE.10) THEN
                WAV=SYSTEM(FANWAV+65)
             END IF
-            IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*((1.0D-3)/(25.4D0))
-            IF(SYSTEM(6).EQ.2.0D0) WAV=WAV*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAV=WAV*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAV=WAV*(1.0D-6)
+            IF(sys_units().EQ.1.0D0) WAV=WAV*((1.0D-3)/(25.4D0))
+            IF(sys_units().EQ.2.0D0) WAV=WAV*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAV=WAV*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAV=WAV*(1.0D-6)
             OOPD=-OOPD
             IF(REVSTR) OOPD=-OOPD
             OPDW=OOPD/WAV
@@ -4129,7 +4140,7 @@ SUBROUTINE FANS
       IF(WQ.EQ.'CD') THEN
          RAYCOD(1)=0
          RAYCOD(2)=-1
-         WW3=SYSTEM(7)
+         WW3=sys_wl_pri1()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -4139,7 +4150,7 @@ SUBROUTINE FANS
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             PW11=RAYRAY(1,NEWIMG)
             PW12=RAYRAY(2,NEWIMG)
@@ -4148,7 +4159,7 @@ SUBROUTINE FANS
             PW11=RAYRAY(11,NEWIMG)
             PW12=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(8)
+         WW3=sys_wl_pri2()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -4158,7 +4169,7 @@ SUBROUTINE FANS
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             PW21=RAYRAY(1,NEWIMG)
             PW22=RAYRAY(2,NEWIMG)
@@ -4167,7 +4178,7 @@ SUBROUTINE FANS
             PW21=RAYRAY(11,NEWIMG)
             PW22=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(9)
+         WW3=sys_wl_sec1()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -4177,7 +4188,7 @@ SUBROUTINE FANS
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             SW11=RAYRAY(1,NEWIMG)
             SW12=RAYRAY(2,NEWIMG)
@@ -4186,7 +4197,7 @@ SUBROUTINE FANS
             SW11=RAYRAY(11,NEWIMG)
             SW12=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(10)
+         WW3=sys_wl_sec2()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -4196,7 +4207,7 @@ SUBROUTINE FANS
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             SW21=RAYRAY(1,NEWIMG)
             SW22=RAYRAY(2,NEWIMG)
@@ -4208,7 +4219,7 @@ SUBROUTINE FANS
 !       PRIMARY PAIR
 !       X-VALUE
          DIF1=PW11-PW21
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
             IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
@@ -4217,7 +4228,7 @@ SUBROUTINE FANS
          END IF
 !       Y-VALUE
          DIF2=PW12-PW22
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
             IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
@@ -4227,7 +4238,7 @@ SUBROUTINE FANS
 !       SECONDARY PAIR
 !       X-VALUE
          DIF3=SW11-SW21
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
             IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
@@ -4236,7 +4247,7 @@ SUBROUTINE FANS
          END IF
 !       Y-VALUE
          DIF4=SW12-SW22
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
             IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)
@@ -4415,6 +4426,7 @@ SUBROUTINE FANSOLD
 !
    use DATHGR
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -4502,7 +4514,7 @@ SUBROUTINE FANSOLD
 !
    IF(DF3.EQ.1) THEN
       DF3=0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       FANWAV=INT(WW3)
       WVN=WW3
       IF(INT(WW3).EQ.1) WWVN=46
@@ -4580,7 +4592,7 @@ SUBROUTINE FANSOLD
    IF(FOBB0) THEN
 !       ON-AXIS, GO FROM 0 TO 1 DO HALF FAN IF ROTATIONAL SYMMETRY EXISTS
 !       SYMMETRY CHECK
-      IF(SYSTEM(28).EQ.1.0D0.AND.SYSTEM(48).EQ.1.0D0) THEN
+      IF(sys_xz_sym().EQ.1.0D0.AND.sys_yz_sym().EQ.1.0D0) THEN
          IF(DF1.EQ.1) W1=0.0D0
          IF(DF4.EQ.1) W4=6.0D0
       ELSE
@@ -4638,15 +4650,15 @@ SUBROUTINE FANSOLD
 !       REDEFINITION, WE DON'T CHANGE THE VALUE OF SAX OR A
 !       CLAPX ON THE REFERENCE SURFACE, WE JUST DON'T USE IT.
 !
-   IF(SYSTEM(6).EQ.1.0D0) UNI='INCHES     '
-   IF(SYSTEM(6).EQ.2.0D0) UNI='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0D0) UNI='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0D0) UNI='METERS     '
-   LCW=SYSTEM(INT(SYSTEM(11)))
-   LPWP1=SYSTEM(INT(SYSTEM(7)))
-   LPWP2=SYSTEM(INT(SYSTEM(8)))
-   LSWP1=SYSTEM(INT(SYSTEM(9)))
-   LSWP2=SYSTEM(INT(SYSTEM(10)))
+   IF(sys_units().EQ.1.0D0) UNI='INCHES     '
+   IF(sys_units().EQ.2.0D0) UNI='CENTIMETERS'
+   IF(sys_units().EQ.3.0D0) UNI='MILLIMETERS'
+   IF(sys_units().EQ.4.0D0) UNI='METERS     '
+   LCW=sys_wavelength(INT(sys_wl_ref()))
+   LPWP1=sys_wavelength(INT(sys_wl_pri1()))
+   LPWP2=sys_wavelength(INT(sys_wl_pri2()))
+   LSWP1=sys_wavelength(INT(sys_wl_sec1()))
+   LSWP2=sys_wavelength(INT(sys_wl_sec2()))
 !       NO QUALIFIER
    IF(SQ.EQ.0) THEN
       WRITE(OUTLYNE,1000) UNI
@@ -4657,11 +4669,11 @@ SUBROUTINE FANSOLD
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
       IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.3.0D0) THEN
+      IF(sys_mode().EQ.3.0D0) THEN
          WRITE(OUTLYNE,9999)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.4.0D0) THEN
          WRITE(OUTLYNE,8888)
          CALL SHOWIT(0)
       END IF
@@ -4678,7 +4690,7 @@ SUBROUTINE FANSOLD
       CALL SHOWIT(0)
 2005  FORMAT('WAVLENGTH = ',G14.6,' MICRONS')
    END IF
-   IF(WQ.EQ.'LA'.AND.SYSTEM(30).EQ.3.0D0.OR.WQ.EQ.'LA'.AND.SYSTEM(30).EQ.4.0D0) THEN
+   IF(WQ.EQ.'LA'.AND.sys_mode().EQ.3.0D0.OR.WQ.EQ.'LA'.AND.sys_mode().EQ.4.0D0) THEN
       OUTLYNE='THE CURRENT LENS MODE IS "AFOCAL" OR "UAFOCAL"'
       CALL SHOWIT(1)
       OUTLYNE='LONGITUDINAL ABERRATIONS ARE NOT DEFINED FOR THESE MODES'
@@ -4713,11 +4725,11 @@ SUBROUTINE FANSOLD
       IF(WC.EQ.'NFAN') WRITE(OUTLYNE,1003)
       IF(WC.EQ.'PFAN') WRITE(OUTLYNE,1004)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.3.0D0) THEN
+      IF(sys_mode().EQ.3.0D0) THEN
          WRITE(OUTLYNE,9995)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.4.0D0) THEN
          WRITE(OUTLYNE,8885)
          CALL SHOWIT(0)
       END IF
@@ -4764,7 +4776,7 @@ SUBROUTINE FANSOLD
       CALL SHOWIT(0)
 5000  FORMAT(1X)
       IF(WC.EQ.'YFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5001)
             CALL SHOWIT(0)
@@ -4777,7 +4789,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5001)
             CALL SHOWIT(0)
@@ -4788,7 +4800,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'NFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5003)
             CALL SHOWIT(0)
@@ -4801,7 +4813,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,5003)
             CALL SHOWIT(0)
@@ -4822,7 +4834,7 @@ SUBROUTINE FANSOLD
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       IF(WC.EQ.'YFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -4834,7 +4846,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -4845,7 +4857,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'NFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -4856,7 +4868,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,6001)
             CALL SHOWIT(0)
@@ -4876,7 +4888,7 @@ SUBROUTINE FANSOLD
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       IF(WC.EQ.'YFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7001)
             CALL SHOWIT(0)
@@ -4889,7 +4901,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'XFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7001)
             CALL SHOWIT(0)
@@ -4900,7 +4912,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'NFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7003)
             CALL SHOWIT(0)
@@ -4913,7 +4925,7 @@ SUBROUTINE FANSOLD
          END IF
       END IF
       IF(WC.EQ.'PFAN') THEN
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             WRITE(OUTLYNE,7003)
             CALL SHOWIT(0)
@@ -5011,7 +5023,7 @@ SUBROUTINE FANSOLD
 
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
             YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
@@ -5104,7 +5116,7 @@ SUBROUTINE FANSOLD
             DO J=JJ,NEWIMG
                OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
             END DO
-            IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+            IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -5140,10 +5152,10 @@ SUBROUTINE FANSOLD
             IF(FANWAV.GE.6.AND.FANWAV.LE.10) THEN
                WAV=SYSTEM(FANWAV+65)
             END IF
-            IF(SYSTEM(6).EQ.1.0D0) WAV=WAV*((1.0D-3)/(25.4D0))
-            IF(SYSTEM(6).EQ.2.0D0) WAV=WAV*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAV=WAV*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAV=WAV*(1.0D-6)
+            IF(sys_units().EQ.1.0D0) WAV=WAV*((1.0D-3)/(25.4D0))
+            IF(sys_units().EQ.2.0D0) WAV=WAV*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAV=WAV*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAV=WAV*(1.0D-6)
             OOPD=-OOPD
             IF(REVSTR) OOPD=-OOPD
             OPDW=OOPD/WAV
@@ -5168,7 +5180,7 @@ SUBROUTINE FANSOLD
       IF(WQ.EQ.'CD') THEN
          RAYCOD(1)=0
          RAYCOD(2)=-1
-         WW3=SYSTEM(7)
+         WW3=sys_wl_pri1()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -5178,7 +5190,7 @@ SUBROUTINE FANSOLD
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             PW11=RAYRAY(1,NEWIMG)
             PW12=RAYRAY(2,NEWIMG)
@@ -5187,7 +5199,7 @@ SUBROUTINE FANSOLD
             PW11=RAYRAY(11,NEWIMG)
             PW12=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(8)
+         WW3=sys_wl_pri2()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -5197,7 +5209,7 @@ SUBROUTINE FANSOLD
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             PW21=RAYRAY(1,NEWIMG)
             PW22=RAYRAY(2,NEWIMG)
@@ -5206,7 +5218,7 @@ SUBROUTINE FANSOLD
             PW21=RAYRAY(11,NEWIMG)
             PW22=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(9)
+         WW3=sys_wl_sec1()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -5216,7 +5228,7 @@ SUBROUTINE FANSOLD
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             SW11=RAYRAY(1,NEWIMG)
             SW12=RAYRAY(2,NEWIMG)
@@ -5225,7 +5237,7 @@ SUBROUTINE FANSOLD
             SW11=RAYRAY(11,NEWIMG)
             SW12=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(10)
+         WW3=sys_wl_sec2()
          WVN=WW3
          RV=.FALSE.
          WW4=1.0D0
@@ -5235,7 +5247,7 @@ SUBROUTINE FANSOLD
          DXFSET=.FALSE.
          CALL RAYTRA
          F58=0
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             SW21=RAYRAY(1,NEWIMG)
             SW22=RAYRAY(2,NEWIMG)
@@ -5247,7 +5259,7 @@ SUBROUTINE FANSOLD
 !       PRIMARY PAIR
 !       X-VALUE
          DIF1=PW11-PW21
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
             IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
@@ -5256,7 +5268,7 @@ SUBROUTINE FANSOLD
          END IF
 !       Y-VALUE
          DIF2=PW12-PW22
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
             IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
@@ -5266,7 +5278,7 @@ SUBROUTINE FANSOLD
 !       SECONDARY PAIR
 !       X-VALUE
          DIF3=SW11-SW21
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
             IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
@@ -5275,7 +5287,7 @@ SUBROUTINE FANSOLD
          END IF
 !       Y-VALUE
          DIF4=SW12-SW22
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
             IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)

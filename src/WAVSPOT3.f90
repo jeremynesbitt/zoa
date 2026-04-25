@@ -9,6 +9,7 @@ SUBROUTINE SPOT
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -214,42 +215,42 @@ SUBROUTINE SPOT
          CALL SPOT1(1)
          LDIF=OLDIF
       ELSE
-         OLDSP(1) =SYSTEM(31)
-         OLDSP(2) =SYSTEM(32)
-         OLDSP(3) =SYSTEM(33)
-         OLDSP(4) =SYSTEM(34)
-         OLDSP(5) =SYSTEM(35)
-         OLDSP(6) =SYSTEM(76)
-         OLDSP(7) =SYSTEM(77)
-         OLDSP(8) =SYSTEM(78)
-         OLDSP(9) =SYSTEM(79)
-         OLDSP(10)=SYSTEM(80)
+         OLDSP(1) =sys_wl_weight(1)
+         OLDSP(2) =sys_wl_weight(2)
+         OLDSP(3) =sys_wl_weight(3)
+         OLDSP(4) =sys_wl_weight(4)
+         OLDSP(5) =sys_wl_weight(5)
+         OLDSP(6) =sys_wl_weight(6)
+         OLDSP(7) =sys_wl_weight(7)
+         OLDSP(8) =sys_wl_weight(8)
+         OLDSP(9) =sys_wl_weight(9)
+         OLDSP(10)=sys_wl_weight(10)
          SYSTEM(31:35)=0.0D0
          SYSTEM(76:80)=0.0D0
-         IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
-         IF(INT(W1).EQ.2)  SYSTEM(32)=1.0D0
-         IF(INT(W1).EQ.3)  SYSTEM(33)=1.0D0
-         IF(INT(W1).EQ.4)  SYSTEM(34)=1.0D0
-         IF(INT(W1).EQ.5)  SYSTEM(35)=1.0D0
-         IF(INT(W1).EQ.6)  SYSTEM(76)=1.0D0
-         IF(INT(W1).EQ.7)  SYSTEM(77)=1.0D0
-         IF(INT(W1).EQ.8)  SYSTEM(78)=1.0D0
-         IF(INT(W1).EQ.9)  SYSTEM(79)=1.0D0
-         IF(INT(W1).EQ.10) SYSTEM(80)=1.0D0
+         call set_sys_wl_weight(1,1.0D0)
+         call set_sys_wl_weight(2,1.0D0)
+         call set_sys_wl_weight(3,1.0D0)
+         call set_sys_wl_weight(4,1.0D0)
+         call set_sys_wl_weight(5,1.0D0)
+         call set_sys_wl_weight(6,1.0D0)
+         call set_sys_wl_weight(7,1.0D0)
+         call set_sys_wl_weight(8,1.0D0)
+         call set_sys_wl_weight(9,1.0D0)
+         call set_sys_wl_weight(10,1.0D0)
          OLDIF=LDIF
          LDIF=.FALSE.
          CALL SPOT1(1)
          LDIF=OLDIF
-         SYSTEM(31)=OLDSP(1)
-         SYSTEM(32)=OLDSP(2)
-         SYSTEM(33)=OLDSP(3)
-         SYSTEM(34)=OLDSP(4)
-         SYSTEM(35)=OLDSP(5)
-         SYSTEM(76)=OLDSP(6)
-         SYSTEM(77)=OLDSP(7)
-         SYSTEM(78)=OLDSP(8)
-         SYSTEM(79)=OLDSP(9)
-         SYSTEM(80)=OLDSP(10)
+         call set_sys_wl_weight(1,OLDSP(1))
+         call set_sys_wl_weight(2,OLDSP(2))
+         call set_sys_wl_weight(3,OLDSP(3))
+         call set_sys_wl_weight(4,OLDSP(4))
+         call set_sys_wl_weight(5,OLDSP(5))
+         call set_sys_wl_weight(6,OLDSP(6))
+         call set_sys_wl_weight(7,OLDSP(7))
+         call set_sys_wl_weight(8,OLDSP(8))
+         call set_sys_wl_weight(9,OLDSP(9))
+         call set_sys_wl_weight(10,OLDSP(10))
       END IF
       SPDTYPE=TYPEOLD
       RNUMBR=OLDRNUMBR
@@ -674,42 +675,42 @@ SUBROUTINE SPOT
             CALL SPOT1(1)
             LDIF=OLDIF
          ELSE
-            OLDSP(1) =SYSTEM(31)
-            OLDSP(2) =SYSTEM(32)
-            OLDSP(3) =SYSTEM(33)
-            OLDSP(4) =SYSTEM(34)
-            OLDSP(5) =SYSTEM(35)
-            OLDSP(6) =SYSTEM(76)
-            OLDSP(7) =SYSTEM(77)
-            OLDSP(8) =SYSTEM(78)
-            OLDSP(9) =SYSTEM(79)
-            OLDSP(10)=SYSTEM(80)
+            OLDSP(1) =sys_wl_weight(1)
+            OLDSP(2) =sys_wl_weight(2)
+            OLDSP(3) =sys_wl_weight(3)
+            OLDSP(4) =sys_wl_weight(4)
+            OLDSP(5) =sys_wl_weight(5)
+            OLDSP(6) =sys_wl_weight(6)
+            OLDSP(7) =sys_wl_weight(7)
+            OLDSP(8) =sys_wl_weight(8)
+            OLDSP(9) =sys_wl_weight(9)
+            OLDSP(10)=sys_wl_weight(10)
             SYSTEM(31:35)=0.0D0
             SYSTEM(76:80)=0.0D0
-            IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
-            IF(INT(W1).EQ.2)  SYSTEM(32)=1.0D0
-            IF(INT(W1).EQ.3)  SYSTEM(33)=1.0D0
-            IF(INT(W1).EQ.4)  SYSTEM(34)=1.0D0
-            IF(INT(W1).EQ.5)  SYSTEM(35)=1.0D0
-            IF(INT(W1).EQ.6)  SYSTEM(76)=1.0D0
-            IF(INT(W1).EQ.7)  SYSTEM(77)=1.0D0
-            IF(INT(W1).EQ.8)  SYSTEM(78)=1.0D0
-            IF(INT(W1).EQ.9)  SYSTEM(79)=1.0D0
-            IF(INT(W1).EQ.10) SYSTEM(80)=1.0D0
+            call set_sys_wl_weight(1,1.0D0)
+            call set_sys_wl_weight(2,1.0D0)
+            call set_sys_wl_weight(3,1.0D0)
+            call set_sys_wl_weight(4,1.0D0)
+            call set_sys_wl_weight(5,1.0D0)
+            call set_sys_wl_weight(6,1.0D0)
+            call set_sys_wl_weight(7,1.0D0)
+            call set_sys_wl_weight(8,1.0D0)
+            call set_sys_wl_weight(9,1.0D0)
+            call set_sys_wl_weight(10,1.0D0)
             OLDIF=LDIF
             LDIF=.FALSE.
             CALL SPOT1(1)
             LDIF=OLDIF
-            SYSTEM(31)=OLDSP(1)
-            SYSTEM(32)=OLDSP(2)
-            SYSTEM(33)=OLDSP(3)
-            SYSTEM(34)=OLDSP(4)
-            SYSTEM(35)=OLDSP(5)
-            SYSTEM(76)=OLDSP(6)
-            SYSTEM(77)=OLDSP(7)
-            SYSTEM(78)=OLDSP(8)
-            SYSTEM(79)=OLDSP(9)
-            SYSTEM(80)=OLDSP(10)
+            call set_sys_wl_weight(1,OLDSP(1))
+            call set_sys_wl_weight(2,OLDSP(2))
+            call set_sys_wl_weight(3,OLDSP(3))
+            call set_sys_wl_weight(4,OLDSP(4))
+            call set_sys_wl_weight(5,OLDSP(5))
+            call set_sys_wl_weight(6,OLDSP(6))
+            call set_sys_wl_weight(7,OLDSP(7))
+            call set_sys_wl_weight(8,OLDSP(8))
+            call set_sys_wl_weight(9,OLDSP(9))
+            call set_sys_wl_weight(10,OLDSP(10))
          END IF
       ELSE
          CALL SPDQAL
@@ -737,6 +738,7 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface
@@ -764,16 +766,16 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
 !
    IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
 !     ANGULAR
-      XOBP=SYSTEM(23)*LFOB(2)
-      YOBP=SYSTEM(21)*LFOB(1)
+      XOBP=sys_fang_x()*LFOB(2)
+      YOBP=sys_fang_y()*LFOB(1)
       STUNI='DEGREE(S)'
    ELSE
-      XOBP=SYSTEM(16)*LFOB(2)
-      YOBP=SYSTEM(14)*LFOB(1)
-      IF(SYSTEM(6).EQ.1.0D0) STUNI='IN(S)    '
-      IF(SYSTEM(6).EQ.2.0D0) STUNI='CM(S)    '
-      IF(SYSTEM(6).EQ.3.0D0) STUNI='MM(S)    '
-      IF(SYSTEM(6).EQ.4.0D0) STUNI='M(S)    '
+      XOBP=sys_scx()*LFOB(2)
+      YOBP=sys_scy()*LFOB(1)
+      IF(sys_units().EQ.1.0D0) STUNI='IN(S)    '
+      IF(sys_units().EQ.2.0D0) STUNI='CM(S)    '
+      IF(sys_units().EQ.3.0D0) STUNI='MM(S)    '
+      IF(sys_units().EQ.4.0D0) STUNI='M(S)    '
    END IF
 !
 100 FORMAT('CALCULATING ANGLE OF INCIDENCE STATISTICS')
@@ -864,6 +866,7 @@ SUBROUTINE SPOPD1
 !
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface
@@ -921,6 +924,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
 !
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -960,7 +964,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
 !       OPD
    RCOR=0.0D0
    OCOR=0.0D0
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -970,7 +974,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
       RCOR=0.0D0
       OCOR=0.0D0
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
 !     REFLOC=1 = CHIEF RAY
          IF(REFLOC.EQ.1) CENCEN=.FALSE.
          IF(REFLOC.EQ.3) CENCEN=.FALSE.
@@ -997,7 +1001,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       RCOR=0.0D0
       OCOR=0.0D0
 !     REFLOC=1= CHIEF RAY
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          IF(REFLOC.EQ.1) CENCEN=.FALSE.
          IF(REFLOC.EQ.3) CENCEN=.FALSE.
          IF(REFLOC.EQ.4) CENCEN=.FALSE.
@@ -1019,10 +1023,10 @@ SUBROUTINE SPOPD2(REFERR,TPT)
    IF(INT(CURLAM).GE.6.AND.INT(CURLAM).LE.10) THEN
       LFOBW=SYSTEM(INT(CURLAM)+65)
    END IF
-   IF(SYSTEM(6).EQ.1.0D0) WAV=LFOBW*((1.0D-3)/(25.4D0))
-   IF(SYSTEM(6).EQ.2.0D0) WAV=LFOBW*(1.0D-4)
-   IF(SYSTEM(6).EQ.3.0D0) WAV=LFOBW*(1.0D-3)
-   IF(SYSTEM(6).EQ.4.0D0) WAV=LFOBW*(1.0D-6)
+   IF(sys_units().EQ.1.0D0) WAV=LFOBW*((1.0D-3)/(25.4D0))
+   IF(sys_units().EQ.2.0D0) WAV=LFOBW*(1.0D-4)
+   IF(sys_units().EQ.3.0D0) WAV=LFOBW*(1.0D-3)
+   IF(sys_units().EQ.4.0D0) WAV=LFOBW*(1.0D-6)
    OOPD=-OOPD
    IF(REVSTR) OOPD=-OOPD
    OPDW=OOPD/WAV
@@ -1093,6 +1097,7 @@ SUBROUTINE GSPOT
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface
@@ -1172,7 +1177,7 @@ SUBROUTINE GSPOT
 !
 !     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
 !
-   IF(SYSTEM(31).LE.0.0D0.AND.SYSTEM(32).LE.0.0D0 .AND.SYSTEM(33).LE.0.0D0.AND.SYSTEM(34).LE.0.0D0 .AND.SYSTEM(35).LE.0.0D0 .AND.SYSTEM(76).LE.0.0D0.AND.SYSTEM(77).LE.0.0D0 .AND.SYSTEM(78).LE.0.0D0.AND.SYSTEM(79).LE.0.0D0 .AND.SYSTEM(80).LE.0.0D0) THEN
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 .AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 .AND.sys_wl_weight(5).LE.0.0D0 .AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 .AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 .AND.sys_wl_weight(10).LE.0.0D0) THEN
 !     NO SPOT CAN EXIST, RETURN
       GSPDEXT=.FALSE.
       DEALLOCATE(SPOTTY,STAT=ALLOERR)
@@ -1363,7 +1368,7 @@ SUBROUTINE GSPOT
                   DO J=JJJ,NEWIMG
                      LEN=LEN+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
                   END DO
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      RCOR=0.0D0
                      OCOR=0.0D0
@@ -1393,7 +1398,7 @@ SUBROUTINE GSPOT
                END IF
                SPOTTY(4)=OOPD
                SPOTTY(5)=DBLE(IWL)
-1942           IF(SYSTEM(30).LE.2.0D0) THEN
+1942           IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
                   SPOTTY(1)=(DSPOT(1)-REFRY(1,NEWIMG))/JB
                   SPOTTY(2)=(DSPOT(2)-REFRY(2,NEWIMG))/JA
@@ -1517,6 +1522,7 @@ SUBROUTINE SPMOVE
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1539,7 +1545,7 @@ SUBROUTINE SPMOVE
    JA=COS_A_ANG
    JB=COS_B_ANG
 !
-   IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
       OUTLYNE='"SPD (MOVE OR MOVEACC)"'
       CALL SHOWIT(1)
       OUTLYNE='ONLY WORKS FOR MODES FOCAL AND UFAOCAL'
@@ -1759,10 +1765,10 @@ SUBROUTINE SPMOVE
       FCSFTY=-SSSQY/SSSRY
    END IF
    FCSFT=(FCSFTX+FCSFTY)/2.0D0
-   IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-   IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0) UN='METERS'
+   IF(sys_units().EQ.1.0) UN='INCHES     '
+   IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='METERS'
    RMSX=2.0D0*(DSQRT(MSSX/W))
    RMSY=2.0D0*(DSQRT(MSSY/W))
    RMS=(RMSX+RMSY)/2.0D0
@@ -1771,7 +1777,7 @@ SUBROUTINE SPMOVE
 !       THESE CAN BE USED AS WELL AS GET FEATURES WHICH
 !       RE-PROCESS THE CURRENT SPOT DIAGRAM.
       REG(40)=REG(9)
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
          REG(11)=RMSY/JA
          REG(10)=RMSX/JB
       ELSE
@@ -1882,64 +1888,67 @@ SUBROUTINE SPMOVE
 END
 SUBROUTINE FIXWV(W2)
    use DATLEN
+   use mod_system
    use mod_surface
    IMPLICIT NONE
    REAL*8 OLDWT(1:10),W2
    COMMON/OLDSTUFFWV/OLDWT
-   OLDWT(1)=SYSTEM(31)
-   OLDWT(2)=SYSTEM(32)
-   OLDWT(3)=SYSTEM(33)
-   OLDWT(4)=SYSTEM(34)
-   OLDWT(5)=SYSTEM(35)
-   OLDWT(6)=SYSTEM(76)
-   OLDWT(7)=SYSTEM(77)
-   OLDWT(8)=SYSTEM(78)
-   OLDWT(9)=SYSTEM(79)
-   OLDWT(10)=SYSTEM(80)
+   OLDWT(1)=sys_wl_weight(1)
+   OLDWT(2)=sys_wl_weight(2)
+   OLDWT(3)=sys_wl_weight(3)
+   OLDWT(4)=sys_wl_weight(4)
+   OLDWT(5)=sys_wl_weight(5)
+   OLDWT(6)=sys_wl_weight(6)
+   OLDWT(7)=sys_wl_weight(7)
+   OLDWT(8)=sys_wl_weight(8)
+   OLDWT(9)=sys_wl_weight(9)
+   OLDWT(10)=sys_wl_weight(10)
    IF(W2.GE.1.0D0.AND.W2.LE.10.0D0) THEN
-      SYSTEM(31)=0.0D0
-      SYSTEM(32)=0.0D0
-      SYSTEM(33)=0.0D0
-      SYSTEM(34)=0.0D0
-      SYSTEM(35)=0.0D0
-      SYSTEM(76)=0.0D0
-      SYSTEM(77)=0.0D0
-      SYSTEM(78)=0.0D0
-      SYSTEM(79)=0.0D0
-      SYSTEM(80)=0.0D0
+      call set_sys_wl_weight(1,0.0D0)
+      call set_sys_wl_weight(2,0.0D0)
+      call set_sys_wl_weight(3,0.0D0)
+      call set_sys_wl_weight(4,0.0D0)
+      call set_sys_wl_weight(5,0.0D0)
+      call set_sys_wl_weight(6,0.0D0)
+      call set_sys_wl_weight(7,0.0D0)
+      call set_sys_wl_weight(8,0.0D0)
+      call set_sys_wl_weight(9,0.0D0)
+      call set_sys_wl_weight(10,0.0D0)
    END IF
-   IF(INT(W2).EQ.1) SYSTEM(31)=1.0D0
-   IF(INT(W2).EQ.2) SYSTEM(32)=1.0D0
-   IF(INT(W2).EQ.3) SYSTEM(33)=1.0D0
-   IF(INT(W2).EQ.4) SYSTEM(34)=1.0D0
-   IF(INT(W2).EQ.5) SYSTEM(35)=1.0D0
-   IF(INT(W2).EQ.6) SYSTEM(76)=1.0D0
-   IF(INT(W2).EQ.7) SYSTEM(77)=1.0D0
-   IF(INT(W2).EQ.8) SYSTEM(78)=1.0D0
-   IF(INT(W2).EQ.9) SYSTEM(79)=1.0D0
-   IF(INT(W2).EQ.10) SYSTEM(80)=1.0D0
+   call set_sys_wl_weight(1,1.0D0)
+   call set_sys_wl_weight(2,1.0D0)
+   call set_sys_wl_weight(3,1.0D0)
+   call set_sys_wl_weight(4,1.0D0)
+   call set_sys_wl_weight(5,1.0D0)
+   call set_sys_wl_weight(6,1.0D0)
+   call set_sys_wl_weight(7,1.0D0)
+   call set_sys_wl_weight(8,1.0D0)
+   call set_sys_wl_weight(9,1.0D0)
+   call set_sys_wl_weight(10,1.0D0)
    RETURN
 END
 SUBROUTINE UNFIXWV
    use DATLEN
+   use mod_system
    use mod_surface
    IMPLICIT NONE
    REAL*8 OLDWT(1:10)
    COMMON/OLDSTUFFWV/OLDWT
-   SYSTEM(31)=OLDWT(1)
-   SYSTEM(32)=OLDWT(2)
-   SYSTEM(33)=OLDWT(3)
-   SYSTEM(34)=OLDWT(4)
-   SYSTEM(35)=OLDWT(5)
-   SYSTEM(76)=OLDWT(6)
-   SYSTEM(77)=OLDWT(7)
-   SYSTEM(78)=OLDWT(8)
-   SYSTEM(79)=OLDWT(9)
-   SYSTEM(80)=OLDWT(10)
+   call set_sys_wl_weight(1,OLDWT(1))
+   call set_sys_wl_weight(2,OLDWT(2))
+   call set_sys_wl_weight(3,OLDWT(3))
+   call set_sys_wl_weight(4,OLDWT(4))
+   call set_sys_wl_weight(5,OLDWT(5))
+   call set_sys_wl_weight(6,OLDWT(6))
+   call set_sys_wl_weight(7,OLDWT(7))
+   call set_sys_wl_weight(8,OLDWT(8))
+   call set_sys_wl_weight(9,OLDWT(9))
+   call set_sys_wl_weight(10,OLDWT(10))
    RETURN
 END
 SUBROUTINE REVERSECA
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1970,6 +1979,7 @@ SUBROUTINE SPOT1(TPT)
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface
@@ -2120,8 +2130,8 @@ SUBROUTINE SPOT1(TPT)
 !
 !     CHECK FOR VALID RANGES AND DO DEFAULTS
 !     NW1
-         IF(DF1.EQ.1) W1=SYSTEM(20)
-         IF(INT(W1).LE.0.OR.W1.GT.SYSTEM(20)) THEN
+         IF(DF1.EQ.1) W1=sys_last_surf()
+         IF(INT(W1).LE.0.OR.W1.GT.sys_last_surf()) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -2179,7 +2189,7 @@ SUBROUTINE SPOT1(TPT)
 !
 !     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
 !
-   IF(SYSTEM(31).LE.0.0D0.AND.SYSTEM(32).LE.0.0D0 .AND.SYSTEM(33).LE.0.0D0.AND.SYSTEM(34).LE.0.0D0 .AND.SYSTEM(35).LE.0.0D0 .AND.SYSTEM(76).LE.0.0D0.AND.SYSTEM(77).LE.0.0D0 .AND.SYSTEM(78).LE.0.0D0.AND.SYSTEM(79).LE.0.0D0 .AND.SYSTEM(80).LE.0.0D0) THEN
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 .AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 .AND.sys_wl_weight(5).LE.0.0D0 .AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 .AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 .AND.sys_wl_weight(10).LE.0.0D0) THEN
 !
       IF(TPT.EQ.1) THEN
          OUTLYNE='ALL SPECTRAL WEIGHTS ARE ZERO'
@@ -2197,16 +2207,16 @@ SUBROUTINE SPOT1(TPT)
 !
 !      OPEN FOR INPUT
 !
-      SPT1=SYSTEM(31)
-      SPT2=SYSTEM(32)
-      SPT3=SYSTEM(33)
-      SPT4=SYSTEM(34)
-      SPT5=SYSTEM(35)
-      SPT6=SYSTEM(76)
-      SPT7=SYSTEM(77)
-      SPT8=SYSTEM(78)
-      SPT9=SYSTEM(79)
-      SPT10=SYSTEM(80)
+      SPT1=sys_wl_weight(1)
+      SPT2=sys_wl_weight(2)
+      SPT3=sys_wl_weight(3)
+      SPT4=sys_wl_weight(4)
+      SPT5=sys_wl_weight(5)
+      SPT6=sys_wl_weight(6)
+      SPT7=sys_wl_weight(7)
+      SPT8=sys_wl_weight(8)
+      SPT9=sys_wl_weight(9)
+      SPT10=sys_wl_weight(10)
    END IF
 !
    IF(TPT.EQ.1) THEN
@@ -2243,16 +2253,16 @@ SUBROUTINE SPOT1(TPT)
          IWIW=OPRNUMBR
       END IF
    END IF
-   SPT1=SYSTEM(31)
-   SPT2=SYSTEM(32)
-   SPT3=SYSTEM(33)
-   SPT4=SYSTEM(34)
-   SPT5=SYSTEM(35)
-   SPT6=SYSTEM(76)
-   SPT7=SYSTEM(77)
-   SPT8=SYSTEM(78)
-   SPT9=SYSTEM(79)
-   SPT10=SYSTEM(80)
+   SPT1=sys_wl_weight(1)
+   SPT2=sys_wl_weight(2)
+   SPT3=sys_wl_weight(3)
+   SPT4=sys_wl_weight(4)
+   SPT5=sys_wl_weight(5)
+   SPT6=sys_wl_weight(6)
+   SPT7=sys_wl_weight(7)
+   SPT8=sys_wl_weight(8)
+   SPT9=sys_wl_weight(9)
+   SPT10=sys_wl_weight(10)
    TEMPHOLDER=0
    IF(SPT1.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
    IF(SPT2.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
@@ -2690,7 +2700,7 @@ SUBROUTINE SPOT1(TPT)
                   DSPOT(39)=RAYRAY(9,NEWIMG)
                   DSPOT(44)=RAYRAY(9,NEWREF)
                   IF(DSPOT(12).NE.0.0D0) THEN
-                     IF(SYSTEM(30).LE.2.0D0) THEN
+                     IF(sys_mode().LE.2.0D0) THEN
                         IF(DSPOT(1).GT.XUP) XUP=DSPOT(1)
                         IF(DSPOT(2).GT.YUP) YUP=DSPOT(2)
                         IF(DSPOT(1).LT.XLO) XLO=DSPOT(1)
@@ -2833,7 +2843,7 @@ SUBROUTINE SPOT1(TPT)
                   DSPOT(39)=RAYRAY(9,NEWIMG)
                   DSPOT(44)=RAYRAY(9,NEWREF)
                   IF(DSPOT(12).NE.0.0D0) THEN
-                     IF(SYSTEM(30).LE.2.0D0) THEN
+                     IF(sys_mode().LE.2.0D0) THEN
                         IF(DSPOT(1).GT.XUP) XUP=DSPOT(1)
                         IF(DSPOT(2).GT.YUP) YUP=DSPOT(2)
                         IF(DSPOT(1).LT.XLO) XLO=DSPOT(1)
@@ -3027,7 +3037,7 @@ SUBROUTINE SPOT1(TPT)
 !     NOW SPA,SPB,SPC,SPD,AFSPB AND AFSPD ARE NORMALIZED
 !
 !     CALCULATE CENTROID LOCATIONS
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL SYSTEMS
       PRINT *, "DEBUG, FOCAL SYSTEM"
       CENTX=SPA
@@ -3135,7 +3145,7 @@ SUBROUTINE SPOT1(TPT)
       AMSSX=ASSSPX
       MSSY=SSSPY
       AMSSY=ASSSPY
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
          RSSX=2.0D0*(DSQRT(MSSX/W))
          RSSY=2.0D0*(DSQRT(MSSY/W))
          RSS=(RSSX+RSSY)/2.0D0
@@ -3238,7 +3248,7 @@ SUBROUTINE SPOT1(TPT)
       AMSSX=ASSSPX
       MSSY=SSSPY
       AMSSY=ASSSPY
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL SYSTEMS ONLY
          IF(DABS(SSSRX).LT.1.0D-15.OR.DABS(SSSQX).GT.1.0D+15) THEN
             IF(SSSRX.GE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=-1.0D35
@@ -3262,14 +3272,14 @@ SUBROUTINE SPOT1(TPT)
          FCSFTX=0.0D0
          FCSFTY=0.0D0
       END IF
-      IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-      IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-      IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-      IF(SYSTEM(6).EQ.4.0) UN='METERS'
+      IF(sys_units().EQ.1.0) UN='INCHES     '
+      IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+      IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+      IF(sys_units().EQ.4.0) UN='METERS'
 
-      PRINT *, "DEBUG:  SYSTEM(30) is ", SYSTEM(30)
+      PRINT *, "DEBUG:  sys_mode() is ", sys_mode()
 
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
          RMSX=2.0D0*(DSQRT(MSSX/W))
          RMSY=2.0D0*(DSQRT(MSSY/W))
          RMS=(RMSX+RMSY)/2.0D0
@@ -3278,7 +3288,7 @@ SUBROUTINE SPOT1(TPT)
          RMSY=2.0D0*(DSQRT(AMSSY/W))
          RMS=(RMSX+RMSY)/2.0D0
       END IF
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
          RMSX=RMSX/JB
          RMSY=RMSY/JA
          RMS=(RMSX+RMSY)/2.0D0
@@ -3325,7 +3335,7 @@ SUBROUTINE SPOT1(TPT)
 !
       IF(SQ.EQ.0) THEN
 !       DO THE PRINT OUT
-         IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+         IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !       MODE AFOCAL
 
             IF(MSGSPD)WRITE(OUTLYNE,114)

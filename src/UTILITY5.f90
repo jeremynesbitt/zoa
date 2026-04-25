@@ -8,12 +8,7 @@ SUBROUTINE DMULTIPROCESS(WD,WDEXIS,INSTRING,N,CVERROR)
    INTEGER WDEXIS,N,I,K
    DIMENSION WD(1:N),WDEXIS(1:N)
    AA23='                       '
-   BL1024=AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//'    '
+   BL1024=AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//'    '
 !     INITIALIZE RETURN ARRAYS
    DO I=1,N
       WD(I)=0.0D0
@@ -64,12 +59,7 @@ SUBROUTINE IMULTIPROCESS(IWD,WDEXIS,INSTRING,N,CVERROR)
    INTEGER WDEXIS,N,I,K
    DIMENSION IWD(1:N),WDEXIS(1:N)
    AA23='                       '
-   BL1024=AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
-   &//AA//'    '
+   BL1024=AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//AA//AA//AA//AA//AA//AA//AA//AA//AA //AA//'    '
 !     INITIALIZE RETURN ARRAYS
    DO I=1,N
       IWD(I)=0
@@ -154,13 +144,12 @@ END
 SUBROUTINE CONTRO
    !use handlers, only: zoatabMgr
    use zoa_file_handler, only: getPermMacroDir
-   use global_widgets, only: lens_editor_window,&
-   &curr_asph_data, sysConfig, curr_lens_data
+   use global_widgets, only: lens_editor_window,curr_asph_data, sysConfig, curr_lens_data
    use lens_editor
-   use codeV_commands, only: startCodeVLensUpdateCmd,&
-   &isCodeVCommand
+   use codeV_commands, only: startCodeVLensUpdateCmd,isCodeVCommand
    use iso_c_binding, only: c_associated
    use DATLEN
+   use mod_system
 !
    use DATSUB
    use DATMAI
@@ -170,8 +159,7 @@ SUBROUTINE CONTRO
 !
    LOGICAL YESEOS,STP,IS,FNYES,FNYES1,NOGO,OHFUN,OREFEXT,ORAYEXT
 !
-   INTEGER I,NNN,NNNN,OS1,OS2,OS3,OS4,ODF1,ODF2,ODF3,ODF4 &
-   &,MACYES,RET,RETRET,SST1,FF29,FF51,FF52,SQ1,SPEOS,LEOS
+   INTEGER I,NNN,NNNN,OS1,OS2,OS3,OS4,ODF1,ODF2,ODF3,ODF4 ,MACYES,RET,RETRET,SST1,FF29,FF51,FF52,SQ1,SPEOS,LEOS
 !
    COMMON/RETIT/RET,RETRET,LEOS,SPEOS
 !
@@ -301,8 +289,7 @@ SUBROUTINE CONTRO
 !       SUBROUTINE. THE COMMON IS NAMED FLAGS COMMON.
 !
    IF(F3.NE.1.AND.F2.NE.1) THEN
-      IF(WC(1:8).EQ.'SHO     '.AND.SQ.EQ.0.OR.&
-      &WQ.EQ.'SHOW'.AND.SQ.EQ.0) THEN
+      IF(WC(1:8).EQ.'SHO     '.AND.SQ.EQ.0.OR.WQ.EQ.'SHOW'.AND.SQ.EQ.0) THEN
          IF(SQ.EQ.0.AND.S1.EQ.0) THEN
          ELSE
             CALL SHOWREG
@@ -315,8 +302,7 @@ SUBROUTINE CONTRO
    END IF
    IF(F3.NE.1.AND.F2.NE.1) THEN
 !     NOT MACRO EDITTING OR INPUT, DO A REPLACEMENT
-      IF(WC(1:8).EQ.'SHO     '.AND.SQ.EQ.1.OR.&
-      &WQ.EQ.'SHOW'.AND.SQ.EQ.1) THEN
+      IF(WC(1:8).EQ.'SHO     '.AND.SQ.EQ.1.OR.WQ.EQ.'SHOW'.AND.SQ.EQ.1) THEN
          REMWQ=WQ
          SHOW=.TRUE.
          WC='GET'
@@ -326,8 +312,7 @@ SUBROUTINE CONTRO
    END IF
    IF(F3.NE.1.AND.F2.NE.1) THEN
 !     NOT MACRO EDITTING OR INPUT, DO A REPLACEMENT
-      IF(WC(1:4).EQ.'ASHO'.AND.SQ.EQ.1.OR.&
-      &WQ.EQ.'ASHOW'.AND.SQ.EQ.1) THEN
+      IF(WC(1:4).EQ.'ASHO'.AND.SQ.EQ.1.OR.WQ.EQ.'ASHOW'.AND.SQ.EQ.1) THEN
          REMWQ=WQ
          ASHOW=.TRUE.
          WC='AGET'
@@ -339,8 +324,7 @@ SUBROUTINE CONTRO
 !     3/8/94 HERE IS THE ACTION FOR "W1" THROUGH "W5"
 !
    IF(F2.NE.1.AND.F3.NE.1) THEN
-      IF(WC.NE.'W1'.AND.WC.NE.'W2'.AND.WC.NE.'W3'.AND.WC.NE.'W4'&
-      &.AND.WC.NE.'W5'.AND.WC.NE.'GET'.AND.WC.NE.'AGET') THEN
+      IF(WC.NE.'W1'.AND.WC.NE.'W2'.AND.WC.NE.'W3'.AND.WC.NE.'W4'.AND.WC.NE.'W5'.AND.WC.NE.'GET'.AND.WC.NE.'AGET') THEN
          IF(W1CODE.NE.0) THEN
             IF(DF1.EQ.1) THEN
 !     ASSIGN A VALUE
@@ -558,8 +542,7 @@ SUBROUTINE CONTRO
       ELSE
 !     COMMAND WAS W1 THROUGH W5, CALL WWORD AND RETURN
 !     NO MATER WHAT PROGRAM LEVEL WE ARE AT
-         IF(WC.EQ.'W1'.OR.WC.EQ.'W2'.OR.WC.EQ.'W3'.OR.WC.EQ.'W4'&
-         &.OR.WC.EQ.'W5') CALL WWORD
+         IF(WC.EQ.'W1'.OR.WC.EQ.'W2'.OR.WC.EQ.'W3'.OR.WC.EQ.'W4'.OR.WC.EQ.'W5') CALL WWORD
          IF(WC.EQ.'GET') CALL GET
          IF(WC.EQ.'AGET') CALL AGET
          LASTCOMWRD=WC
@@ -567,14 +550,7 @@ SUBROUTINE CONTRO
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'A='.OR.WC.EQ.'B='.OR.WC.EQ.'KTEST='.OR.WC.EQ.'LTEST='&
-      &.OR.WC.EQ.'C='.OR.WC.EQ.'K='.OR.WC.EQ.'L='.OR.WC.EQ.'M='.OR.&
-      &WC.EQ.'D='.OR.WC.EQ.'E='.OR.WC.EQ.'F='.OR.WC.EQ.'N='.OR.&
-      &WC.EQ.'G='.OR.WC.EQ.'H='.OR.WC.EQ.'I='.OR.WC.EQ.'MTEST='.OR.&
-      &WC.EQ.'J='.OR.WC.EQ.'ITEST='.OR.WC.EQ.'JTEST='.OR.&
-      &WC.EQ.'X='.OR.WC.EQ.'Y='.OR.WC.EQ.'Z='.OR.WC.EQ.'NTEST='.OR.&
-      &WC.EQ.'T='.OR.WC.EQ.'IX='.OR.WC.EQ.'IY='.OR.&
-      &WC.EQ.'IZ='.OR.WC.EQ.'IT=') THEN
+      IF(WC.EQ.'A='.OR.WC.EQ.'B='.OR.WC.EQ.'KTEST='.OR.WC.EQ.'LTEST='.OR.WC.EQ.'C='.OR.WC.EQ.'K='.OR.WC.EQ.'L='.OR.WC.EQ.'M='.OR.WC.EQ.'D='.OR.WC.EQ.'E='.OR.WC.EQ.'F='.OR.WC.EQ.'N='.OR.WC.EQ.'G='.OR.WC.EQ.'H='.OR.WC.EQ.'I='.OR.WC.EQ.'MTEST='.OR.WC.EQ.'J='.OR.WC.EQ.'ITEST='.OR.WC.EQ.'JTEST='.OR.WC.EQ.'X='.OR.WC.EQ.'Y='.OR.WC.EQ.'Z='.OR.WC.EQ.'NTEST='.OR.WC.EQ.'T='.OR.WC.EQ.'IX='.OR.WC.EQ.'IY='.OR.WC.EQ.'IZ='.OR.WC.EQ.'IT=') THEN
          CALL AUXSET
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
@@ -620,40 +596,14 @@ SUBROUTINE CONTRO
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'PI      '.OR.WC.EQ.'INTGR   '.OR.WC.EQ.'FRAC    '.OR.&
-      &WC.EQ.'CHS     '.OR.WC.EQ.'RTD     '.OR.WC.EQ.'DTR     '.OR.&
-      &WC.EQ.'ASIN    '.OR.WC.EQ.'ACOS    '.OR.WC.EQ.'PLUS    '.OR.&
-      &WC.EQ.'MINUS   '.OR.WC.EQ.'DIV     '.OR.WC.EQ.'MPY     '.OR.&
-      &WC.EQ.'MOVE    '.OR.WC.EQ.'ATAN    '.OR.WC.EQ.'RAND    '.OR.&
-      &WC.EQ.'SIN     '.OR.WC.EQ.'COS     '.OR.WC.EQ.'TAN     '.OR.&
-      &WC.EQ.'TANH    '.OR.WC.EQ.'SINH    '.OR.WC.EQ.'COSH    '.OR.&
-      &WC.EQ.'SQRT    '.OR.WC.EQ.'ABS     '.OR.WC.EQ.'EXP     '.OR.&
-      &WC.EQ.'RECIP   '.OR.WC.EQ.'MINVAL  '.OR.WC.EQ.'LOG10   '.OR.&
-      &WC.EQ.'LN      '.OR.WC.EQ.'POW     '.OR.WC.EQ.'STORE   '.OR.&
-      &WC.EQ.'SGN     '.OR.WC.EQ.'CLREG   '.OR.WC.EQ.'MAXVAL  '.OR.&
-      &WC.EQ.'WRITE   ') THEN
+      IF(WC.EQ.'PI      '.OR.WC.EQ.'INTGR   '.OR.WC.EQ.'FRAC    '.OR.WC.EQ.'CHS     '.OR.WC.EQ.'RTD     '.OR.WC.EQ.'DTR     '.OR.WC.EQ.'ASIN    '.OR.WC.EQ.'ACOS    '.OR.WC.EQ.'PLUS    '.OR.WC.EQ.'MINUS   '.OR.WC.EQ.'DIV     '.OR.WC.EQ.'MPY     '.OR.WC.EQ.'MOVE    '.OR.WC.EQ.'ATAN    '.OR.WC.EQ.'RAND    '.OR.WC.EQ.'SIN     '.OR.WC.EQ.'COS     '.OR.WC.EQ.'TAN     '.OR.WC.EQ.'TANH    '.OR.WC.EQ.'SINH    '.OR.WC.EQ.'COSH    '.OR.WC.EQ.'SQRT    '.OR.WC.EQ.'ABS     '.OR.WC.EQ.'EXP     '.OR.WC.EQ.'RECIP   '.OR.WC.EQ.'MINVAL  '.OR.WC.EQ.'LOG10   '.OR.WC.EQ.'LN      '.OR.WC.EQ.'POW     '.OR.WC.EQ.'STORE   '.OR.WC.EQ.'SGN     '.OR.WC.EQ.'CLREG   '.OR.WC.EQ.'MAXVAL  '.OR.WC.EQ.'WRITE   ') THEN
          CALL RGMATH
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'ENT'.OR.&
-      &WC.EQ.'ENTI'.OR.&
-      &WC.EQ.'ENTC'.OR.WC.EQ.'PULL'.OR.&
-      &WC.EQ.'IPULL'.OR.WC.EQ.'CPULL'.OR.&
-      &WC.EQ.'RUP'.OR.WC.EQ.'IRUP'.OR.WC &
-      &.EQ.'CRUP'.OR.WC.EQ.'RDN'.OR.WC.EQ.&
-      &'IRDN'.OR.WC.EQ.'CRDN'.OR.WC.EQ.'LASTX'.OR.WC.EQ.&
-      &'X-Y'.OR.&
-      &WC.EQ.'LASTIX'.OR.WC.EQ.'IX-IY'.OR.WC.EQ.'RE-IM'.OR.&
-      &WC.EQ.'CLX'.OR.WC.EQ.'CLIX'.OR.WC.EQ.&
-      &'CLSTK'.OR.WC.EQ.'CLSTKI'.OR.WC.EQ.'CLSTKC'.OR.WC.EQ.&
-      &'+'.OR.WC.EQ.'-'.OR.WC.EQ.'*'.OR.WC.EQ.'/'.OR.WC.EQ.&
-      &'C+'.OR.WC.EQ.'C-'.OR.WC.EQ.'C*'.OR.WC.EQ.'C/'.OR.WC.EQ.&
-      &'I+'.OR.WC.EQ.'I-'.OR.WC.EQ.'I*'.OR.WC.EQ.'I/'.OR.&
-      &WC.EQ.'Y**X'.OR.WC.EQ.'CY**CX'.OR.&
-      &WC.EQ.'IY**IX') THEN
+      IF(WC.EQ.'ENT'.OR.WC.EQ.'ENTI'.OR.WC.EQ.'ENTC'.OR.WC.EQ.'PULL'.OR.WC.EQ.'IPULL'.OR.WC.EQ.'CPULL'.OR.WC.EQ.'RUP'.OR.WC.EQ.'IRUP'.OR.WC .EQ.'CRUP'.OR.WC.EQ.'RDN'.OR.WC.EQ.'IRDN'.OR.WC.EQ.'CRDN'.OR.WC.EQ.'LASTX'.OR.WC.EQ.'X-Y'.OR.WC.EQ.'LASTIX'.OR.WC.EQ.'IX-IY'.OR.WC.EQ.'RE-IM'.OR.WC.EQ.'CLX'.OR.WC.EQ.'CLIX'.OR.WC.EQ.'CLSTK'.OR.WC.EQ.'CLSTKI'.OR.WC.EQ.'CLSTKC'.OR.WC.EQ.'+'.OR.WC.EQ.'-'.OR.WC.EQ.'*'.OR.WC.EQ.'/'.OR.WC.EQ.'C+'.OR.WC.EQ.'C-'.OR.WC.EQ.'C*'.OR.WC.EQ.'C/'.OR.WC.EQ.'I+'.OR.WC.EQ.'I-'.OR.WC.EQ.'I*'.OR.WC.EQ.'I/'.OR.WC.EQ.'Y**X'.OR.WC.EQ.'CY**CX'.OR.WC.EQ.'IY**IX') THEN
          CALL STACK
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
@@ -674,18 +624,14 @@ SUBROUTINE CONTRO
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'CLASTO'.OR.WC.EQ.'ASTO'.OR.WC.EQ.'ARCL'.OR.&
-      &WC.EQ.'AWRITE') THEN
+      IF(WC.EQ.'CLASTO'.OR.WC.EQ.'ASTO'.OR.WC.EQ.'ARCL'.OR.WC.EQ.'AWRITE') THEN
          CALL GPRGA
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'CLGREG'.OR.WC.EQ.'CLSTREG'&
-      &.OR.WC.EQ.'STADD'.OR.WC.EQ.'STSUB'.OR.&
-      &WC.EQ.'STDEV'.OR.WC.EQ.'MEAN'&
-      &) THEN
+      IF(WC.EQ.'CLGREG'.OR.WC.EQ.'CLSTREG'.OR.WC.EQ.'STADD'.OR.WC.EQ.'STSUB'.OR.WC.EQ.'STDEV'.OR.WC.EQ.'MEAN') THEN
          CALL GGPREG
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
@@ -719,25 +665,21 @@ SUBROUTINE CONTRO
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'CLASTO'.OR.WC.EQ.'ASTO'.OR.WC.EQ.'ARCL'.OR.&
-      &WC.EQ.'AWRITE') THEN
+      IF(WC.EQ.'CLASTO'.OR.WC.EQ.'ASTO'.OR.WC.EQ.'ARCL'.OR.WC.EQ.'AWRITE') THEN
          CALL GPRGA
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'R-P'.OR.WC.EQ.'P-R'.OR.WC.EQ.'R-SP'.OR.&
-      &WC.EQ.'SP-R'.OR.WC.EQ.'R-CYL'.OR.WC.EQ.'CYL-R'.OR.&
-      &WC.EQ.'H-HMS'.OR.WC.EQ.'HMS-H') THEN
+      IF(WC.EQ.'R-P'.OR.WC.EQ.'P-R'.OR.WC.EQ.'R-SP'.OR.WC.EQ.'SP-R'.OR.WC.EQ.'R-CYL'.OR.WC.EQ.'CYL-R'.OR.WC.EQ.'H-HMS'.OR.WC.EQ.'HMS-H') THEN
          CALL COORD
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'IN-MM'.OR.WC.EQ.'IN-CM'.OR.WC.EQ.'IN-M'.OR.&
-      &WC.EQ.'MM-IN'.OR.WC.EQ.'CM-IN'.OR.WC.EQ.'M-IN') THEN
+      IF(WC.EQ.'IN-MM'.OR.WC.EQ.'IN-CM'.OR.WC.EQ.'IN-M'.OR.WC.EQ.'MM-IN'.OR.WC.EQ.'CM-IN'.OR.WC.EQ.'M-IN') THEN
          CALL COORD
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
@@ -2874,8 +2816,7 @@ SUBROUTINE CONTRO
 !       EVEN WITHOUT A MATCH.)
 !
 !
-      IF(IN.NE.5.AND.IN.NE.8.AND.IN.NE.9.AND.IN.NE.97.AND.IN.NE.96)&
-      &GO TO 3001
+      IF(IN.NE.5.AND.IN.NE.8.AND.IN.NE.9.AND.IN.NE.97.AND.IN.NE.96)GO TO 3001
 !     BINARY MACRO SYSTEM REMOVED - TEXT .ZOA FILES USED INSTEAD
       IF(F1.EQ.1.AND.F4.EQ.0.AND.F17.EQ.0) THEN
          CALL SHOW_INVALID_CMD('INVALID CMD LEVEL COMMAND')
@@ -3875,8 +3816,7 @@ SUBROUTINE CONTRO
 !       IF F1=1 AND F4=1 (MACRO EXECUTION) FEWER COMMAND ARE
 !       DISALLOWED.
 !
-   IF(F1.EQ.1.AND.F4.EQ.1.AND.F17.EQ.0.AND.F10.EQ.0 &
-   &.OR.F1.EQ.1.AND.F4.EQ.1.AND.F17.EQ.0.AND.F11.EQ.0) THEN
+   IF(F1.EQ.1.AND.F4.EQ.1.AND.F17.EQ.0.AND.F10.EQ.0 .OR.F1.EQ.1.AND.F4.EQ.1.AND.F17.EQ.0.AND.F11.EQ.0) THEN
 !
 !       THESE ARE THE COMMANDS NOT ALLOWED AT THE CMD LEVEL
 !       DURING MACRO EXECUTION
@@ -4116,7 +4056,7 @@ SUBROUTINE CONTRO
          IF(WC.EQ.'EOS') YESEOS=.TRUE.
          IF(WC.NE.'EOS') YESEOS=.FALSE.
          call curr_lens_data%update()
-         call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
+         call curr_asph_data%updateAsphereTable(INT(sys_last_surf())+1)
          call sysConfig%updateParameters()
          ! CALL RE_DISPLAY_LENS(YESEOS
 
@@ -4544,20 +4484,18 @@ SUBROUTINE CONTRO
             ODF3=DF3
             ODF2=DF2
             ODF1=DF1
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(WC.EQ.'CV'.AND.I.EQ.0.OR.WC.EQ.'CVTOR'.AND.I.EQ.0) GO TO 67
                IF(WC.EQ.'RD'.AND.I.EQ.0) GO TO 67
                IF(WC.EQ.'RDTOR'.AND.I.EQ.0) GO TO 67
-               IF(WC.EQ.'CV'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 67
-               IF(WC.EQ.'RD'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 67
+               IF(WC.EQ.'CV'.AND.I.EQ.INT(sys_last_surf()).OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 67
+               IF(WC.EQ.'RD'.AND.I.EQ.INT(sys_last_surf()).OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'TH') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'CV') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'RD') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'CVTOR') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'RDTOR') GO TO 67
-               IF(WC.EQ.'TH'.AND.I.EQ.INT(SYSTEM(20))) GO TO 67
+               IF(WC.EQ.'TH'.AND.I.EQ.INT(sys_last_surf())) GO TO 67
                IF(WC.EQ.'TH'.AND.I.EQ.0) GO TO 67
                IF(WC.EQ.'N1'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 67
                IF(WC.EQ.'N2'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 67
@@ -4572,13 +4510,13 @@ SUBROUTINE CONTRO
                IF(WC.EQ.'INDEX'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 67
                IF(WC.EQ.'VNUM'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 67
                IF(WC.EQ.'DPART'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 67
-               IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
+               IF(sys_astop_adj().EQ.1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
                   IF(I.EQ.1.OR.I.EQ.2) THEN
                      IF(WC.EQ.'TH') GO TO 67
                   END IF
                END IF
-               IF(SYSTEM(27).EQ.-1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
-                  IF(I.EQ.INT(SYSTEM(20))-1.OR.I.EQ.INT(SYSTEM(20))-2) THEN
+               IF(sys_astop_adj().EQ.-1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
+                  IF(I.EQ.INT(sys_last_surf())-1.OR.I.EQ.INT(sys_last_surf())-2) THEN
                      IF(WC.EQ.'TH') GO TO 67
                   END IF
                END IF
@@ -4627,21 +4565,19 @@ SUBROUTINE CONTRO
             ODF3=DF3
             ODF2=DF2
             ODF1=DF1
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(WC.EQ.'CV'.AND.I.EQ.0.OR.WC.EQ.'CVTOR'.AND.I.EQ.0) GO TO 68
                IF(WC.EQ.'RD'.AND.I.EQ.0) GO TO 68
                IF(WC.EQ.'RDTOR'.AND.I.EQ.0) GO TO 68
-               IF(WC.EQ.'CV'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 68
-               IF(WC.EQ.'RD'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 68
+               IF(WC.EQ.'CV'.AND.I.EQ.INT(sys_last_surf()).OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 68
+               IF(WC.EQ.'RD'.AND.I.EQ.INT(sys_last_surf()).OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'TH') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'CV') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'RD') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'CVTOR') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'RDTOR') GO TO 68
                IF(WC.EQ.'TH'.AND.I.EQ.0) GO TO 68
-               IF(WC.EQ.'TH'.AND.I.EQ.INT(SYSTEM(20))) GO TO 68
+               IF(WC.EQ.'TH'.AND.I.EQ.INT(sys_last_surf())) GO TO 68
                IF(WC.EQ.'N1'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 68
                IF(WC.EQ.'N2'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 68
                IF(WC.EQ.'N3'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 68
@@ -4655,13 +4591,13 @@ SUBROUTINE CONTRO
                IF(WC.EQ.'INDEX'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 68
                IF(WC.EQ.'VNUM'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 68
                IF(WC.EQ.'DPART'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 68
-               IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
+               IF(sys_astop_adj().EQ.1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
                   IF(I.EQ.1.OR.I.EQ.2) THEN
                      IF(WC.EQ.'TH') GO TO 68
                   END IF
                END IF
-               IF(SYSTEM(27).EQ.-1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
-                  IF(I.EQ.INT(SYSTEM(20))-1.OR.I.EQ.INT(SYSTEM(20))-2) THEN
+               IF(sys_astop_adj().EQ.-1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
+                  IF(I.EQ.INT(sys_last_surf())-1.OR.I.EQ.INT(sys_last_surf())-2) THEN
                      IF(WC.EQ.'TH') GO TO 68
                   END IF
                END IF
@@ -4924,13 +4860,7 @@ SUBROUTINE CONTRO
 !       ISSUED AT THE CMD LEVEL
    IF(F1.EQ.1.AND.F17.EQ.0.AND.WC.EQ.'U') THEN
       !PRINT *, "CHECK FOR VALID QUALIFIERS"
-      IF(WQ.NE.'LENS'.AND.WQ.NE.'SPSRF'.AND.&
-      &WQ.NE.'CONFIGS'.AND.WQ.NE.'CONFIG'.AND.WQ &
-      &.NE.'VARIABLE'.AND.WQ.NE.'MERIT'.AND.WQ.NE.&
-      &'TVAR'.AND.WQ.NE.'COMPVAR'.AND.WQ.NE.'TOPER'.AND.WQ.NE.'FOCRIT'&
-      &.AND.WQ.NE.'L'.AND.WQ.NE.'SP'.AND.WQ.NE.'VB'.AND.&
-      &WQ.NE.'CF'.AND.WQ.NE.'RS'.AND.WQ.NE.'M'.AND.WQ.NE.'TVB'&
-      &.AND.WQ.NE.'CMP'.AND.WQ.NE.'TOP'.AND.WQ.NE.'FC') THEN
+      IF(WQ.NE.'LENS'.AND.WQ.NE.'SPSRF'.AND.WQ.NE.'CONFIGS'.AND.WQ.NE.'CONFIG'.AND.WQ .NE.'VARIABLE'.AND.WQ.NE.'MERIT'.AND.WQ.NE.'TVAR'.AND.WQ.NE.'COMPVAR'.AND.WQ.NE.'TOPER'.AND.WQ.NE.'FOCRIT'.AND.WQ.NE.'L'.AND.WQ.NE.'SP'.AND.WQ.NE.'VB'.AND.WQ.NE.'CF'.AND.WQ.NE.'RS'.AND.WQ.NE.'M'.AND.WQ.NE.'TVB'.AND.WQ.NE.'CMP'.AND.WQ.NE.'TOP'.AND.WQ.NE.'FC') THEN
          OUTLYNE='INVALID CMD LEVEL COMMAND'
          CALL SHOWIT(1)
          CALL MACFAL
@@ -4945,13 +4875,7 @@ SUBROUTINE CONTRO
    END IF
    IF(F1.EQ.1..AND.F17.EQ.0.AND.WC.EQ.'UPDATE') THEN
       !PRINT *, "UPDATE"
-      IF(WQ.NE.'LENS'.AND.WQ.NE.'SPSRF'.AND.&
-      &WQ.NE.'CONFIGS'.AND.WQ.NE.'CONFIG'.AND.WQ &
-      &.NE.'VARIABLE'.AND.WQ.NE.'MERIT'.AND.WQ.NE.&
-      &'TVAR'.AND.WQ.NE.'COMPVAR'.AND.WQ.NE.'TOPER'.AND.WQ.NE.'FOCRIT'&
-      &.AND.WQ.NE.'L'.AND.WQ.NE.'SP'.AND.WQ.NE.'VB'.AND.&
-      &WQ.NE.'CF'.AND.WQ.NE.'RS'.AND.WQ.NE.'M'.AND.WQ.NE.'TVB'&
-      &.AND.WQ.NE.'CMP'.AND.WQ.NE.'TOP'.AND.WQ.NE.'FC') THEN
+      IF(WQ.NE.'LENS'.AND.WQ.NE.'SPSRF'.AND.WQ.NE.'CONFIGS'.AND.WQ.NE.'CONFIG'.AND.WQ .NE.'VARIABLE'.AND.WQ.NE.'MERIT'.AND.WQ.NE.'TVAR'.AND.WQ.NE.'COMPVAR'.AND.WQ.NE.'TOPER'.AND.WQ.NE.'FOCRIT'.AND.WQ.NE.'L'.AND.WQ.NE.'SP'.AND.WQ.NE.'VB'.AND.WQ.NE.'CF'.AND.WQ.NE.'RS'.AND.WQ.NE.'M'.AND.WQ.NE.'TVB'.AND.WQ.NE.'CMP'.AND.WQ.NE.'TOP'.AND.WQ.NE.'FC') THEN
          OUTLYNE='INVALID CMD LEVEL COMMAND'
          CALL SHOWIT(1)
          CALL MACFAL

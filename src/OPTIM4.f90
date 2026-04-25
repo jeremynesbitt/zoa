@@ -6,6 +6,7 @@ SUBROUTINE TOLREST
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -151,6 +152,7 @@ END
 SUBROUTINE RAYS
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -193,7 +195,7 @@ SUBROUTINE RAYS
       CALL MACFAL
       RETURN
    END IF
-   IF(DF3.EQ.1) W3=SYSTEM(11)
+   IF(DF3.EQ.1) W3=sys_wl_ref()
    IF(DF3.EQ.1) DF3=0
    IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0.AND.W3.NE.4.0D0 .AND.W3.NE.5.0D0.AND.W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0.AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
       OUTLYNE='WAVELENGTH # MUST BE 1,2,3,4,5,6,7,8,9 OR 10'
@@ -213,6 +215,7 @@ END
 SUBROUTINE QRRYFL
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -309,6 +312,7 @@ SUBROUTINE RFRESET
    use zoa_file_handler
    use GLOBALS
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -346,6 +350,7 @@ SUBROUTINE AUTO
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -578,6 +583,7 @@ SUBROUTINE RECURSIVEITER(IFUNCTION,ICHK,ITERROR)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -594,6 +600,7 @@ SUBROUTINE RESTOR(LCODE)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1167,6 +1174,7 @@ SUBROUTINE ITER(IFUNCTION,ICHK,ITERROR)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2084,6 +2092,7 @@ SUBROUTINE DERIVATIVES(MAXCNT,DERIV)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE

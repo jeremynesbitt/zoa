@@ -61,6 +61,7 @@ module mod_lens_data_manager
 
     function getGlassName(self, idx) result(strGlassName)
         use DATLEN, only: GLANAM
+        use mod_system
         use type_utils, only: blankStr
         implicit none
         class(lens_data_manager) :: self
@@ -79,6 +80,7 @@ module mod_lens_data_manager
 
     function isGlassSurf(self, idx) result(boolResult)
         use DATLEN, only: GLANAM
+        use mod_system
         class(lens_data_manager) :: self
         integer :: idx
         logical :: boolResult
@@ -114,6 +116,7 @@ module mod_lens_data_manager
  
     function getSurfLabel(self, idx) result(strLabel)
         use DATLEN, only : LBL
+        use mod_system
         class(lens_data_manager) :: self
         integer, intent(in) :: idx
         character(len=80) :: strLabel
@@ -175,6 +178,7 @@ module mod_lens_data_manager
 
     function getSurfacePointer(self) result(idx)
         use DATLEN, only: SURF
+        use mod_system
         implicit none
         class(lens_data_manager) :: self 
         integer :: idx
@@ -185,6 +189,7 @@ module mod_lens_data_manager
 
     subroutine incrementSurfacePointer(self) 
         use DATLEN, only: SURF
+        use mod_system
         implicit none
         class(lens_data_manager) :: self 
 
@@ -227,6 +232,7 @@ module mod_lens_data_manager
 
     function isThiSolveOnSurf(self, surfIdx) result(boolResult)
         use DATLEN, only: SOLVE
+        use mod_system
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical :: boolResult
@@ -238,6 +244,7 @@ module mod_lens_data_manager
 
     function isYZCurvSolveOnSurf(self, surfIdx) result(boolResult)
         use DATLEN, only: SOLVE
+        use mod_system
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical :: boolResult
@@ -258,8 +265,7 @@ module mod_lens_data_manager
     end function
 
     function getSurfCurv(self, surfIdx, useXZPlane) result(curv)
-        use mod_surface, only: surf_toric_flag, surf_toric_curvature, &
-                               surf_curvature, surf_asphere_coeff
+        use mod_surface, only: surf_toric_flag, surf_toric_curvature, surf_curvature, surf_asphere_coeff
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical, optional :: useXZPlane
@@ -272,8 +278,7 @@ module mod_lens_data_manager
             curv = surf_toric_curvature(surfIdx)
         else
             ! Plano surfaces with a 2nd-order aspheric term store effective curvature there
-            if (surf_curvature(surfIdx) == 0.0_real64 .and. &
-                surf_asphere_coeff(surfIdx, 2) /= 0.0_real64) then
+            if (surf_curvature(surfIdx) == 0.0_real64 .and. surf_asphere_coeff(surfIdx, 2) /= 0.0_real64) then
                 curv = surf_asphere_coeff(surfIdx, 2) * 2.0_real64
             else
                 curv = surf_curvature(surfIdx)
@@ -305,6 +310,7 @@ module mod_lens_data_manager
     
     function getSurfIndex(self, surfIdx, lambdaIdx) result(index)        
         use DATLEN, only: ALENS
+        use mod_system
         class(lens_data_manager) :: self
         integer :: surfIdx
         integer, optional :: lambdaIdx
@@ -393,6 +399,7 @@ module mod_lens_data_manager
     ! TODO:  Refactor with solve?
     function isPikupOnSurf(self, sur, var_code) result(boolResult)
         use DATLEN
+        use mod_system
         implicit none
         class(lens_data_manager) :: self
         integer, intent(in) :: sur, var_code
@@ -503,6 +510,7 @@ module mod_lens_data_manager
 
     function genSurfPikupSavText(self, surf, var_code) result(outTxt)
         use DATLEN, only: PIKUP
+        use mod_system
         use type_utils
         class(lens_data_manager) :: self
         integer :: surf, var_code, si, sf
@@ -531,8 +539,7 @@ module mod_lens_data_manager
                 surfTxt = 'S'//trim(int2str(si))//'..'//trim(int2str(sf))
             end if
 
-            outTxt = 'PIK '//trim(pType)//' S'//trim(int2str(surf))//' '//trim(pType)//' '// &
-            & trim(surfTxt)//' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+            outTxt = 'PIK '//trim(pType)//' S'//trim(int2str(surf))//' '//trim(pType)//' '//  trim(surfTxt)//' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
            
         end if
 
@@ -564,17 +571,14 @@ module mod_lens_data_manager
       
         if (rdmFlag) then
           if (curr_lens_data%thicknesses(1) > 1e11) then
-          strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
-          & trim(strTHI), trim(curr_lens_data%glassnames(1)))
+          strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy),  trim(strTHI), trim(curr_lens_data%glassnames(1)))
           else 
-            strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
-            & trim(strTHI), trim(curr_lens_data%glassnames(1)))  
+            strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy),  trim(strTHI), trim(curr_lens_data%glassnames(1)))  
           end if
           !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
           !& trim(real2str(self%thicknesses(1),sci=.TRUE.))//blankStr(1)//trim(self%glassnames(1))
         else
-          strSurfLine = 'SO'//blankStr(3)//real2str(curr_lens_data%curvatures(1),4)//blankStr(5)//real2str(curr_lens_data%thicknesses(1))// &
-          & blankStr(5)//curr_lens_data%glassnames(1)    
+          strSurfLine = 'SO'//blankStr(3)//real2str(curr_lens_data%curvatures(1),4)//blankStr(5)//real2str(curr_lens_data%thicknesses(1))//  blankStr(5)//curr_lens_data%glassnames(1)    
         end if
         write(fID, *) trim(strSurfLine)
       
@@ -591,16 +595,12 @@ module mod_lens_data_manager
             write(strRdy, '(D23.15)') surf_radius(ii-1)
           end if
           if(rdmFlag) then
-            strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
-            & trim(strRdy), trim(strTHI), & 
-            & trim(curr_lens_data%glassnames(ii)))      
+            strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr),  trim(strRdy), trim(strTHI),  trim(curr_lens_data%glassnames(ii)))      
             !strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
             !& blankStr(5)//real2str(self%thicknesses(ii),4)// &
             !& blankStr(5)//self%glassnames(ii)
           else
-            strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(curr_lens_data%curvatures(ii),9)// &
-            & blankStr(5)//trim(strTHI)// &
-            & blankStr(5)//curr_lens_data%glassnames(ii)    
+            strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(curr_lens_data%curvatures(ii),9)//  blankStr(5)//trim(strTHI)//  blankStr(5)//curr_lens_data%glassnames(ii)    
           end if      
           write(fID, *) trim(strSurfLine)
           ! Check for ref stop
@@ -642,11 +642,9 @@ module mod_lens_data_manager
         ! Do Image SUrface.  
         write(strTHI, '(D23.15)') curr_lens_data%thicknesses(curr_lens_data%num_surfaces)
         if (rdmFlag) then
-          strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%radii(curr_lens_data%num_surfaces),4))//blankStr(3)// &
-          & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)
+          strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%radii(curr_lens_data%num_surfaces),4))//blankStr(3)//  trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)
         else
-          strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%curvatures(curr_lens_data%num_surfaces),4))//blankStr(3)// &
-          & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
+          strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%curvatures(curr_lens_data%num_surfaces),4))//blankStr(3)//  trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
         end if
         write(fID, *) trim(strSurfLine)
         if (curr_lens_data%clearAps(curr_lens_data%num_surfaces)%userDefined) then

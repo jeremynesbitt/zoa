@@ -231,8 +231,7 @@ end type
 type lens_data
 
 integer num_surfaces, ref_stop
-real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
-& curvatures(:), pickups(:,:,:), solves(:,:)
+real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:),  curvatures(:), pickups(:,:,:), solves(:,:)
 character(:), allocatable :: glassnames(:)
 character(:), allocatable :: catalognames(:)
 type(surface_aperture), allocatable, dimension(:) :: clearAps
@@ -269,9 +268,7 @@ end type
 !TODO:  Not sure it makes sense for this to extend lens_Data.  perhaps change move all this to parax_calcs.f90?
 type, extends(lens_data) :: paraxial_ray_trace_data
         !integer, allocatable :: surface(:)
-        real(kind=real64), allocatable ::  marginal_ray_height(:), marginal_ray_angle(:), &
-        & chief_ray_height(:), chief_ray_angle(:), marginal_ray_aoi(:), &
-        & chief_ray_aoi(:)
+        real(kind=real64), allocatable ::  marginal_ray_height(:), marginal_ray_angle(:),  chief_ray_height(:), chief_ray_angle(:), marginal_ray_aoi(:),  chief_ray_aoi(:)
         real(kind=real64) :: t_mag = 0
         real :: EPD = 0 ! EPD = entrance pupil diameter
         real(kind=real64) :: EFL, BFL, FFL, FNUM, imageDistance, OAL, ENPUPDIA, EXPUPDIA, ENPUPPOS, EXPUPPOS
@@ -322,6 +319,7 @@ end function lens_data_constructor
 
 subroutine getImageSurface(self, intSurf)
  use DATLEN, only: NEWIMG
+ use mod_system
   class(sys_config), intent(inout) :: self
  integer, intent(inout) :: intSurf
 
@@ -406,8 +404,8 @@ function imageSurfaceIsIdeal(self) result(boolResult)
  class(lens_data) :: self
  logical :: boolResult
 
- !  IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ' &
- !  .OR.GLANAM(INT(SYSTEM(20))-1,2).EQ.'IDEAL        ') THEN
+ !  IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'PERFECT      ' &
+ !  .OR.GLANAM(INT(sys_last_surf())-1,2).EQ.'IDEAL        ') THEN
 
  boolResult = .FALSE.
 
@@ -428,7 +426,7 @@ logical :: boolResult
 include "DATLEN.INC"
 
 boolResult = .FALSE.  
-IF(SYSTEM(30).EQ.2.0D0.OR.SYSTEM(30).EQ.4.0D0) boolResult = .TRUE.
+IF(sys_mode().EQ.2.0D0.OR.sys_mode().EQ.4.0D0) boolResult = .TRUE.
 
 
 end function
@@ -441,7 +439,7 @@ logical :: boolResult
 include "DATLEN.INC"
 
 boolResult = .FALSE.
-IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) boolResult = .TRUE.
+IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) boolResult = .TRUE.
 
 end function
 
@@ -496,16 +494,7 @@ do I = 0,maxSurf-1
   ! &  surf_asphere_coeff(I, 20).EQ.0.0D0.AND.surf_asphere_coeff(I, 2).EQ.0.0D0) THEN
   !                    surf_is_asphere(I)=0.0D0
   !                    END IF
-     IF(surf_toric_flag(I) /= 0.OR.surf_is_asphere(I).OR.      &
-  &  surf_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 4).NE.0.0D0.OR.          &
-  &  surf_asphere_coeff(I, 6).NE.0.0D0.OR.surf_asphere_coeff(I, 8).NE.0.0D0.OR.          &
-  &  surf_asphere_coeff(I, 10).NE.0.0D0.OR.surf_anamorphic_flag(I) /= 0.OR.         &
-  &  surf_anamorphic_coeff(I, 4).NE.0.0D0.OR.surf_anamorphic_coeff(I, 6).NE.0.0D0.OR.        &
-  &  surf_anamorphic_coeff(I, 8).NE.0.0D0.OR.surf_anamorphic_coeff(I, 10).NE.0.0D0.OR.        &
-  &  surf_anamorphic_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 2).NE.0.0D0.OR.        &
-  &  surf_asphere_coeff(I, 12).NE.0.0D0.OR.surf_asphere_coeff(I, 14).NE.0.0D0.OR.        &
-  &  surf_asphere_coeff(I, 16).NE.0.0D0.OR.surf_asphere_coeff(I, 20).NE.0.0D0.OR.        &
-  &  surf_asphere_coeff(I, 20).NE.0.0D0) THEN
+     IF(surf_toric_flag(I) /= 0.OR.surf_is_asphere(I).OR.        surf_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 4).NE.0.0D0.OR.            surf_asphere_coeff(I, 6).NE.0.0D0.OR.surf_asphere_coeff(I, 8).NE.0.0D0.OR.            surf_asphere_coeff(I, 10).NE.0.0D0.OR.surf_anamorphic_flag(I) /= 0.OR.           surf_anamorphic_coeff(I, 4).NE.0.0D0.OR.surf_anamorphic_coeff(I, 6).NE.0.0D0.OR.          surf_anamorphic_coeff(I, 8).NE.0.0D0.OR.surf_anamorphic_coeff(I, 10).NE.0.0D0.OR.          surf_anamorphic_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 2).NE.0.0D0.OR.          surf_asphere_coeff(I, 12).NE.0.0D0.OR.surf_asphere_coeff(I, 14).NE.0.0D0.OR.          surf_asphere_coeff(I, 16).NE.0.0D0.OR.surf_asphere_coeff(I, 20).NE.0.0D0.OR.          surf_asphere_coeff(I, 20).NE.0.0D0) THEN
      self%conic_constant(I+1) = surf_conic(I)
      self%asphereTerms(I+1,1:4) = ALENS(4:7,I)
      self%asphereTerms(I+1,5:8) = ALENS(81:84,I)
@@ -582,14 +571,10 @@ type(sys_config) function sys_config_constructor() result(self)
   ! & ID_COLOR_BLACK ]
   ! Defaults
   ! Field color codes here are really using the KDP colors cheme
-  self%fieldColorCodes = [ID_COLOR_BLUE, ID_COLOR_RED, ID_COLOR_GREEN, &
-  & ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
-  & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
+  self%fieldColorCodes = [ID_COLOR_BLUE, ID_COLOR_RED, ID_COLOR_GREEN,  ID_COLOR_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK,  ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
 
   ! WL plots using the PL plot scheme
-  self%wavelengthColorCodes = [PL_PLOT_RED, PL_PLOT_GREEN, PL_PLOT_BLUE, &
-  & PL_PLOT_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK, &
-  & ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
+  self%wavelengthColorCodes = [PL_PLOT_RED, PL_PLOT_GREEN, PL_PLOT_BLUE,  PL_PLOT_MAGENTA, ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK,  ID_COLOR_BLACK, ID_COLOR_BLACK, ID_COLOR_BLACK]
 
 
 
@@ -679,12 +664,12 @@ subroutine updateParameters(self)
 
   case (APER_ENTR_PUPIL_DIAMETER)
 
-    self%refApertureValue(1) = (2.0D0*SYSTEM(13))
-    self%refApertureValue(2) = (2.0D0*SYSTEM(12))
+    self%refApertureValue(1) = (2.0D0*sys_sax())
+    self%refApertureValue(2) = (2.0D0*sys_say())
 
   case (APER_OBJECT_NA)
-     self%refApertureValue(1) = SYSTEM(66)
-     self%refApertureValue(2) = SYSTEM(65)
+     self%refApertureValue(1) = sys_nao_x()
+     self%refApertureValue(2) = sys_nao_y()
 
   end select
 
@@ -698,28 +683,28 @@ subroutine updateParameters(self)
 
   case (FIELD_OBJECT_HEIGHT)
 
-    self%refFieldValue(1) = SYSTEM(16)
-    self%refFieldValue(2) = SYSTEM(14)
+    self%refFieldValue(1) = sys_scx()
+    self%refFieldValue(2) = sys_scy()
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
-    self%refFieldValue(1) = SYSTEM(23) !SYSTEM(16)
-    self%refFieldValue(2) = SYSTEM(21) !SYSTEM(14)
+    self%refFieldValue(1) = sys_fang_x() !sys_scx()
+    self%refFieldValue(2) = sys_fang_y() !sys_scy()
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
-        self%refFieldValue(1) = SYSTEM(92) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(93) !SYSTEM(14)
+        self%refFieldValue(1) = sys_pxim() !sys_scx()
+        self%refFieldValue(2) = sys_pyim() !sys_scy()
 
   case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-        self%refFieldValue(1) = SYSTEM(92) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(93) !SYSTEM(14)
+        self%refFieldValue(1) = sys_pxim() !sys_scx()
+        self%refFieldValue(2) = sys_pyim() !sys_scy()
 
   case (FIELD_REAL_IMAGE_HEIGHT)
-        self%refFieldValue(1) = SYSTEM(96) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
+        self%refFieldValue(1) = sys_rxim() !sys_scx()
+        self%refFieldValue(2) = sys_ryim() !sys_scy()
   case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-        self%refFieldValue(1) = SYSTEM(96) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
+        self%refFieldValue(1) = sys_rxim() !sys_scx()
+        self%refFieldValue(2) = sys_ryim() !sys_scy()
 
   end select ! Reference Field
 
@@ -731,10 +716,10 @@ subroutine updateParameters(self)
   self%wavelengths(6:10) = SYSTEM(71:75)
   self%spectralWeights(1:5) = SYSTEM(31:35)
   self%spectralWeights(6:10) = SYSTEM(76:80)
-  self%refWavelengthIndex = INT(SYSTEM(11))
+  self%refWavelengthIndex = INT(sys_wl_ref())
 
 
-  self%currLensUnitsID = SYSTEM(6)
+  self%currLensUnitsID = sys_units()
 
 
   call self%setNumberofWavelengths()
@@ -812,9 +797,9 @@ subroutine setRefFieldKDP(self)
 
   case (FIELD_OBJECT_HEIGHT)
 
-    !SYSTEM(16) = self%refFieldValue(1)
-    SYSTEM(16) = self%refFieldValue(1)
-    SYSTEM(14) = self%refFieldValue(2)
+    !sys_scx() = self%refFieldValue(1)
+    call set_sys_scx(self%refFieldValue(1))
+    call set_sys_scy(self%refFieldValue(2))
     
     ! TODO:  For symmetric fields the value is the same.  If I want to support
     ! asymmetric field settings need to change this
@@ -830,8 +815,8 @@ subroutine setRefFieldKDP(self)
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
-    SYSTEM(23) = self%refFieldValue(1)
-    SYSTEM(21) = self%refFieldValue(2)
+    call set_sys_fang_x(self%refFieldValue(1))
+    call set_sys_fang_y(self%refFieldValue(2))
 
 
     call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
@@ -840,19 +825,19 @@ subroutine setRefFieldKDP(self)
     !call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
-        SYSTEM(92) = self%refFieldValue(1)
-        SYSTEM(93) = self%refFieldValue(2)
+        call set_sys_pxim(self%refFieldValue(1))
+        call set_sys_pyim(self%refFieldValue(2))
 
   case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-        SYSTEM(92) = self%refFieldValue(1)
-        SYSTEM(93) = self%refFieldValue(2)
+        call set_sys_pxim(self%refFieldValue(1))
+        call set_sys_pyim(self%refFieldValue(2))
 
   case (FIELD_REAL_IMAGE_HEIGHT)
-        SYSTEM(96) = self%refFieldValue(1)
-        SYSTEM(97) = self%refFieldValue(2)
+        call set_sys_rxim(self%refFieldValue(1))
+        call set_sys_ryim(self%refFieldValue(2))
   case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-        SYSTEM(96) = self%refFieldValue(1)
-        SYSTEM(97) = self%refFieldValue(2)
+        call set_sys_rxim(self%refFieldValue(1))
+        call set_sys_ryim(self%refFieldValue(2))
 
   end select ! Reference Field
 
@@ -864,26 +849,26 @@ subroutine getRayAimFromSystemArr(self)
  include "DATLEN.INC"
 
  ! Aplanatic on 
- !SYSTEM(70)=1.0D0
- !SYSTEM(62)=0.0D0
- !SYSTEM(63)=0.0D0
+ !sys_aplanatic()=1.0D0
+ !sys_ray_aiming()=0.0D0
+ !sys_telecentric()=0.0D0
 
  !FROM LDM1.FOR
 
  !SET  RAY AIMING ON
- !SYSTEM(62)=1.0D0
+ !sys_ray_aiming()=1.0D0
  !SET TEL OFF
- !SYSTEM(63)=0.0D0
+ !sys_telecentric()=0.0D0
  !SET AIMAPL OFF
- !SYSTEM(70)=0.0D0
+ !sys_aplanatic()=0.0D0
 
- if (SYSTEM(70).EQ.1.AND.SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.0) then
+ if (sys_aplanatic().EQ.1.AND.sys_ray_aiming().EQ.0.AND.sys_telecentric().EQ.0) then
    self%currRayAimID = RAYAIM_APLANATIC
- else if (SYSTEM(62).EQ.1.AND.SYSTEM(63).EQ.0.AND.SYSTEM(70).EQ.0) then
+ else if (sys_ray_aiming().EQ.1.AND.sys_telecentric().EQ.0.AND.sys_aplanatic().EQ.0) then
    self%currRayAimID = RAYAIM_REAL
- else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.0.AND.SYSTEM(70).EQ.0) then
+ else if (sys_ray_aiming().EQ.0.AND.sys_telecentric().EQ.0.AND.sys_aplanatic().EQ.0) then
    self%currRayAimID = RAYAIM_PARAX
- else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.1.AND.SYSTEM(70).EQ.0) then
+ else if (sys_ray_aiming().EQ.0.AND.sys_telecentric().EQ.1.AND.sys_aplanatic().EQ.0) then
    self%currRayAimID = RAYAIM_TELE
  end if
 
@@ -915,19 +900,19 @@ subroutine getApertureFromSystemArr(self)
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
 
-  if (SYSTEM(64).EQ.0.AND.SYSTEM(67).EQ.0.AND.SYSTEM(83).EQ.0) then
+  if (sys_nao_flag().EQ.0.AND.sys_fno_flag().EQ.0.AND.sys_say_float().EQ.0) then
     self%currApertureID = APER_ENTR_PUPIL_DIAMETER
-  else if (SYSTEM(64).EQ.1) then
+  else if (sys_nao_flag().EQ.1) then
     self%currApertureID = APER_OBJECT_NA
-  else if (SYSTEM(83).EQ.1) then
+  else if (sys_say_float().EQ.1) then
     self%currApertureID = APER_STOP_SURFACE
-  else if (SYSTEM(67).EQ.1) then
+  else if (sys_fno_flag().EQ.1) then
     self%currApertureID = APER_FNO
   end if
 
-        ! PRINT *, "SYSTEM(64) is ", SYSTEM(64) ! NAOY
-        ! PRINT *, "SYSTEM(67) is ", SYSTEM(67) ! F-number
-        ! PRINT *, "SYSTEM(83) is ", SYSTEM(83) ! FLOAT
+        ! PRINT *, "sys_nao_flag() is ", sys_nao_flag() ! NAOY
+        ! PRINT *, "sys_fno_flag() is ", sys_fno_flag() ! F-number
+        ! PRINT *, "sys_say_float() is ", sys_say_float() ! FLOAT
         !
 end subroutine
 
@@ -937,98 +922,98 @@ subroutine getFieldRefFromSystemArr(self)
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
 
-     if (SYSTEM(18).EQ.0.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
+     if (sys_scy_fang_set().EQ.0.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
        self%currFieldID = FIELD_OBJECT_HEIGHT
        !self%currApertureName = "Object Height"
-     else if (SYSTEM(18).EQ.1.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
+     else if (sys_scy_fang_set().EQ.1.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
          self%currFieldID = FIELD_OBJECT_ANGLE_DEG
         !self%currApertureName = "Object Angle"
-     else if (SYSTEM(94).EQ.-1.AND.SYSTEM(95).EQ.-1) THEN
+     else if (sys_pxim_fang_set().EQ.-1.AND.sys_pyim_fang_set().EQ.-1) THEN
        self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT
        !self%currApertureName = "Paraxial Image Height"
-     else if (SYSTEM(98).EQ.-1.AND.SYSTEM(99).EQ.-1) THEN
+     else if (sys_rxim_fang_set().EQ.-1.AND.sys_ryim_fang_set().EQ.-1) THEN
        self%currFieldID = FIELD_REAL_IMAGE_HEIGHT
        !self%currApertureName = "Real Image Height"
 
      end if
 !      C       FIELDS
-!      IF(SYSTEM(92).EQ.0.0D0.AND.SYSTEM(93).EQ.0.0D0.AND.
-!   1  SYSTEM(96).EQ.0.0D0.AND.SYSTEM(97).EQ.0.0D0) THEN
+!      IF(sys_pxim().EQ.0.0D0.AND.sys_pyim().EQ.0.0D0.AND.
+!   1  sys_rxim().EQ.0.0D0.AND.sys_ryim().EQ.0.0D0) THEN
 ! C       NOT PYIM,PXIM,RYIM OR RXIM
 ! C
-! C       FIX SYSTEM(49)
-!      IF(SYSTEM(18).EQ.0.0D0.AND.SYSTEM(18).EQ.SYSTEM(19)) THEN
+! C       FIX sys_xz_data()
+!      IF(sys_scy_fang_set().EQ.0.0D0.AND.sys_scy_fang_set().EQ.sys_scx_fang_set()) THEN
 ! C       OBJ HT SAME MODE
-! C       WRITE(OUTLYNE,*) SYSTEM(14),SYSTEM(16)
+! C       WRITE(OUTLYNE,*) sys_scy(),sys_scx()
 ! C       CALL SHOWIT(1)
-! C       WRITE(OUTLYNE,*) SYSTEM(15),SYSTEM(17)
+! C       WRITE(OUTLYNE,*) sys_scy_y1(),sys_scx_x1()
 ! C       CALL SHOWIT(1)
-!      IF(SYSTEM(14).EQ.SYSTEM(16).AND.SYSTEM(15).EQ.SYSTEM(17).AND.
-!   1  SYSTEM(49).EQ.2.0D0.OR.
-!   1  SYSTEM(14).EQ.SYSTEM(16).AND.SYSTEM(15).EQ.SYSTEM(17).AND.
-!   1  SYSTEM(49).EQ.3.0D0) SYSTEM(49)=SYSTEM(49)-1.0D0
+!      IF(sys_scy().EQ.sys_scx().AND.sys_scy_y1().EQ.sys_scx_x1().AND.
+!   1  sys_xz_data().EQ.2.0D0.OR.
+!   1  sys_scy().EQ.sys_scx().AND.sys_scy_y1().EQ.sys_scx_x1().AND.
+!   1  sys_xz_data().EQ.3.0D0) sys_xz_data()=sys_xz_data()-1.0D0
 !                      END IF
-!      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(18).EQ.SYSTEM(19)) THEN
+!      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang_set().EQ.sys_scx_fang_set()) THEN
 ! C       OBJ ANG SAME MODE
-! C       WRITE(OUTLYNE,*) SYSTEM(21),SYSTEM(23)
+! C       WRITE(OUTLYNE,*) sys_fang_y(),sys_fang_x()
 ! C       CALL SHOWIT(1)
-! C       WRITE(OUTLYNE,*) SYSTEM(22),SYSTEM(24)
+! C       WRITE(OUTLYNE,*) sys_fang_y_y1(),sys_fang_x_x1()
 ! C       CALL SHOWIT(1)
-!      IF(SYSTEM(21).EQ.SYSTEM(23).AND.SYSTEM(22).EQ.SYSTEM(24).AND.
-!   1  SYSTEM(49).EQ.2.0D0.OR.
-!   1  SYSTEM(21).EQ.SYSTEM(23).AND.SYSTEM(22).EQ.SYSTEM(24).AND.
-!   1  SYSTEM(49).EQ.3.0D0) SYSTEM(49)=SYSTEM(49)-1.0D0
+!      IF(sys_fang_y().EQ.sys_fang_x().AND.sys_fang_y_y1().EQ.sys_fang_x_x1().AND.
+!   1  sys_xz_data().EQ.2.0D0.OR.
+!   1  sys_fang_y().EQ.sys_fang_x().AND.sys_fang_y_y1().EQ.sys_fang_x_x1().AND.
+!   1  sys_xz_data().EQ.3.0D0) sys_xz_data()=sys_xz_data()-1.0D0
 !                      END IF
 !                      ELSE
-!      IF(SYSTEM(92).NE.0.0D0.AND.SYSTEM(93).NE.0.0D0.AND.
-!   1SYSTEM(92).EQ.SYSTEM(93).AND.SYSTEM(49).EQ.2.0D0.OR.
-!   1SYSTEM(92).NE.0.0D0.AND.SYSTEM(93).NE.0.0D0.AND.
-!   1SYSTEM(92).EQ.SYSTEM(93).AND.SYSTEM(49).EQ.3.0D0)
-!   4SYSTEM(49)=SYSTEM(49)-1.0D0
-!      IF(SYSTEM(96).NE.0.0D0.AND.SYSTEM(97).NE.0.0D0.AND.
-!   1SYSTEM(96).EQ.SYSTEM(97).AND.SYSTEM(49).EQ.2.0D0.OR.
-!   1SYSTEM(96).NE.0.0D0.AND.SYSTEM(97).NE.0.0D0.AND.
-!   1SYSTEM(96).EQ.SYSTEM(97).AND.SYSTEM(49).EQ.3.0D0)
-!   4SYSTEM(49)=SYSTEM(49)-1.0D0
+!      IF(sys_pxim().NE.0.0D0.AND.sys_pyim().NE.0.0D0.AND.
+!   1SYSTEM(92).EQ.sys_pyim().AND.sys_xz_data().EQ.2.0D0.OR.
+!   1SYSTEM(92).NE.0.0D0.AND.sys_pyim().NE.0.0D0.AND.
+!   1SYSTEM(92).EQ.sys_pyim().AND.sys_xz_data().EQ.3.0D0)
+!   4SYSTEM(49)=sys_xz_data()-1.0D0
+!      IF(sys_rxim().NE.0.0D0.AND.sys_ryim().NE.0.0D0.AND.
+!   1SYSTEM(96).EQ.sys_ryim().AND.sys_xz_data().EQ.2.0D0.OR.
+!   1SYSTEM(96).NE.0.0D0.AND.sys_ryim().NE.0.0D0.AND.
+!   1SYSTEM(96).EQ.sys_ryim().AND.sys_xz_data().EQ.3.0D0)
+!   4SYSTEM(49)=sys_xz_data()-1.0D0
 !                      END IF
 ! C
-!      IF(SYSTEM(49).NE.2.0D0.AND.SYSTEM(49).NE.3.0D0) THEN
+!      IF(sys_xz_data().NE.2.0D0.AND.sys_xz_data().NE.3.0D0) THEN
 !      CALL WDIALOGPUTCHECKBOX(IDF_SAMEFIELD,1)
 !                      ELSE
 !      CALL WDIALOGPUTCHECKBOX(IDF_SAMEFIELD,0)
 !                      END IF
-!      IF(SYSTEM(60).EQ.1.0D0.OR.SYSTEM(61).EQ.1.0D0) THEN
-!      SYSTEM(60)=1.0D0
-!      SYSTEM(61)=1.0D0
+!      IF(sys_scy_explicit().EQ.1.0D0.OR.sys_scx_explicit().EQ.1.0D0) THEN
+!      sys_scy_explicit()=1.0D0
+!      sys_scx_explicit()=1.0D0
 !      END IF
 ! C       SCY/SCX OR SCY FANG/SCX FANG EXPLICITLY
-!      IF(SYSTEM(18).EQ.0.0D0) THEN
+!      IF(sys_scy_fang_set().EQ.0.0D0) THEN
 ! C       SCY/SCX
 !      CALL WDIALOGPUTRADIOBUTTON(IDF_F1)
-!      CALL WDIALOGPUTDOUBLE(IDF_XREF,SYSTEM(16))
-!      CALL WDIALOGPUTDOUBLE(IDF_YREF,SYSTEM(14))
+!      CALL WDIALOGPUTDOUBLE(IDF_XREF,sys_scx())
+!      CALL WDIALOGPUTDOUBLE(IDF_YREF,sys_scy())
 !      CALL WDIALOGFIELDSTATE(IDF_CX,1)
 !      CALL WDIALOGFIELDSTATE(IDF_CY,1)
-!      CALL WDIALOGPUTDOUBLE(IDF_CX,SYSTEM(17))
-!      CALL WDIALOGPUTDOUBLE(IDF_CY,SYSTEM(15))
+!      CALL WDIALOGPUTDOUBLE(IDF_CX,sys_scx_x1())
+!      CALL WDIALOGPUTDOUBLE(IDF_CY,sys_scy_y1())
 !                      ELSE
 ! C       SCY FANG/SCX FANG
 !      CALL WDIALOGPUTRADIOBUTTON(IDF_F2)
-!      CALL WDIALOGPUTDOUBLE(IDF_XREF,SYSTEM(23))
-!      CALL WDIALOGPUTDOUBLE(IDF_YREF,SYSTEM(21))
+!      CALL WDIALOGPUTDOUBLE(IDF_XREF,sys_fang_x())
+!      CALL WDIALOGPUTDOUBLE(IDF_YREF,sys_fang_y())
 !      CALL WDIALOGFIELDSTATE(IDF_CX,1)
 !      CALL WDIALOGFIELDSTATE(IDF_CY,1)
-!      CALL WDIALOGPUTDOUBLE(IDF_CX,SYSTEM(24))
-!      CALL WDIALOGPUTDOUBLE(IDF_CY,SYSTEM(22))
+!      CALL WDIALOGPUTDOUBLE(IDF_CX,sys_fang_x_x1())
+!      CALL WDIALOGPUTDOUBLE(IDF_CY,sys_fang_y_y1())
 !                      END IF
-!      IF(SYSTEM(94).NE.0.0D0.OR.SYSTEM(95).NE.0.0D0) THEN
-!      SYSTEM(94)=SYSTEM(95)
+!      IF(sys_pxim_fang_set().NE.0.0D0.OR.sys_pyim_fang_set().NE.0.0D0) THEN
+!      sys_pxim_fang_set()=sys_pyim_fang_set()
 ! C       PYIM AND PXIM
-!      IF(SYSTEM(94).EQ.-1.0D0) THEN
+!      IF(sys_pxim_fang_set().EQ.-1.0D0) THEN
 ! C       PXIM/PYIM
 !      CALL WDIALOGPUTRADIOBUTTON(IDF_F3)
-!      CALL WDIALOGPUTDOUBLE(IDF_XREF,SYSTEM(92))
-!      CALL WDIALOGPUTDOUBLE(IDF_YREF,SYSTEM(93))
+!      CALL WDIALOGPUTDOUBLE(IDF_XREF,sys_pxim())
+!      CALL WDIALOGPUTDOUBLE(IDF_YREF,sys_pyim())
 !      CALL WDIALOGCLEARFIELD(IDF_CX)
 !      CALL WDIALOGCLEARFIELD(IDF_CY)
 !      CALL WDIALOGFIELDSTATE(IDF_CX,2)
@@ -1036,22 +1021,22 @@ subroutine getFieldRefFromSystemArr(self)
 !                      ELSE
 ! C       PXIM FANG, PXIM FANG
 !      CALL WDIALOGPUTRADIOBUTTON(IDF_F4)
-!      CALL WDIALOGPUTDOUBLE(IDF_XREF,SYSTEM(92))
-!      CALL WDIALOGPUTDOUBLE(IDF_YREF,SYSTEM(93))
+!      CALL WDIALOGPUTDOUBLE(IDF_XREF,sys_pxim())
+!      CALL WDIALOGPUTDOUBLE(IDF_YREF,sys_pyim())
 !      CALL WDIALOGCLEARFIELD(IDF_CX)
 !      CALL WDIALOGCLEARFIELD(IDF_CY)
 !      CALL WDIALOGFIELDSTATE(IDF_CX,2)
 !      CALL WDIALOGFIELDSTATE(IDF_CY,2)
 !                      END IF
 !                      END IF
-!      IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
-!      SYSTEM(98)=SYSTEM(99)
+!      IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
+!      sys_rxim_fang_set()=sys_ryim_fang_set()
 ! C       RYIM AND RXIM
-!      IF(SYSTEM(98).EQ.-1.0D0) THEN
+!      IF(sys_rxim_fang_set().EQ.-1.0D0) THEN
 ! C       RXIM/RYIM
 !      CALL WDIALOGPUTRADIOBUTTON(IDF_F5)
-!      CALL WDIALOGPUTDOUBLE(IDF_XREF,SYSTEM(96))
-!      CALL WDIALOGPUTDOUBLE(IDF_YREF,SYSTEM(97))
+!      CALL WDIALOGPUTDOUBLE(IDF_XREF,sys_rxim())
+!      CALL WDIALOGPUTDOUBLE(IDF_YREF,sys_ryim())
 !      CALL WDIALOGCLEARFIELD(IDF_CX)
 !      CALL WDIALOGCLEARFIELD(IDF_CY)
 !      CALL WDIALOGFIELDSTATE(IDF_CX,2)
@@ -1059,8 +1044,8 @@ subroutine getFieldRefFromSystemArr(self)
 !                      ELSE
 ! C       RXIM FANG, RXIM FANG
 !      CALL WDIALOGPUTRADIOBUTTON(IDF_F6)
-!      CALL WDIALOGPUTDOUBLE(IDF_XREF,SYSTEM(96))
-!      CALL WDIALOGPUTDOUBLE(IDF_YREF,SYSTEM(97))
+!      CALL WDIALOGPUTDOUBLE(IDF_XREF,sys_rxim())
+!      CALL WDIALOGPUTDOUBLE(IDF_YREF,sys_ryim())
 !      CALL WDIALOGCLEARFIELD(IDF_CX)
 !      CALL WDIALOGCLEARFIELD(IDF_CY)
 !      CALL WDIALOGFIELDSTATE(IDF_CX,2)
@@ -1274,7 +1259,7 @@ subroutine setRefWavelengthIndex(self, refWavelengthIdx)
   include "DATLEN.INC"
 
   self%refWavelengthIndex = refWavelengthIdx
-  SYSTEM(11) = REAL(self%refWavelengthIndex)
+  call set_sys_wl_ref(REAL(self%refWavelengthIndex))
 
 end subroutine
 
@@ -1311,8 +1296,7 @@ subroutine setNumberofWavelengths(self)
   integer, dimension(10) :: nonzerowavelengths
   !self%numWavelengths = 0
   self%numWavelengths = size(pack(self%spectralWeights, self%spectralWeights /= 0))
-  self%wavelengthIndices(1:self%numWavelengths) =  &
-  & pack([(i,i=1,size(self%spectralWeights))],self%spectralWeights /= 0)
+  self%wavelengthIndices(1:self%numWavelengths) =   pack([(i,i=1,size(self%spectralWeights))],self%spectralWeights /= 0)
   self%wavelengthIndices(self%numWavelengths+1:size(self%wavelengthIndices)) = 0
 
 end subroutine
@@ -1564,60 +1548,60 @@ subroutine updateFieldSelectionByCode(self, ID_SELECTION)
  select case (ID_SELECTION)
  case (FIELD_OBJECT_HEIGHT)
 
-   SYSTEM(16) = self%refFieldValue(1)
-   SYSTEM(14) = self%refFieldValue(2) 
-   SYSTEM(60)=1.0D0
-   SYSTEM(61)=1.0D0
-   SYSTEM(18)=0.0D0
-   SYSTEM(94)=0.0D0
-   SYSTEM(95)=0.0D0
-   SYSTEM(98)=0.0D0
-   SYSTEM(99)=0.0D0
+   call set_sys_scx(self%refFieldValue(1))
+   call set_sys_scy(self%refFieldValue(2))
+   call set_sys_scy_explicit(1.0D0)
+   call set_sys_scx_explicit(1.0D0)
+   call set_sys_scy_fang_set(0.0D0)
+   call set_sys_pxim_fang_set(0.0D0)
+   call set_sys_pyim_fang_set(0.0D0)
+   call set_sys_rxim_fang_set(0.0D0)
+   call set_sys_ryim_fang_set(0.0D0)
  case (FIELD_OBJECT_ANGLE_DEG)
 
-   SYSTEM(23) = self%refFieldValue(1) 
-   SYSTEM(21) = self%refFieldValue(2) 
-   SYSTEM(60)=1.0D0
-   SYSTEM(61)=1.0D0
-   SYSTEM(18)=1.0D0
-   SYSTEM(94)=0.0D0
-   SYSTEM(95)=0.0D0
-   SYSTEM(98)=0.0D0
-   SYSTEM(99)=0.0D0      
+   call set_sys_fang_x(self%refFieldValue(1))
+   call set_sys_fang_y(self%refFieldValue(2))
+   call set_sys_scy_explicit(1.0D0)
+   call set_sys_scx_explicit(1.0D0)
+   call set_sys_scy_fang_set(1.0D0)
+   call set_sys_pxim_fang_set(0.0D0)
+   call set_sys_pyim_fang_set(0.0D0)
+   call set_sys_rxim_fang_set(0.0D0)
+   call set_sys_ryim_fang_set(0.0D0)
 
  case (FIELD_PARAX_IMAGE_HEIGHT)
-   SYSTEM(92) = self%refFieldValue(1)  
-   SYSTEM(93) = self%refFieldValue(2)      
-   SYSTEM(60)=1.0D0
-   SYSTEM(61)=1.0D0
-   SYSTEM(94)=-1.0D0
-   SYSTEM(95)=-1.0D0
+   call set_sys_pxim(self%refFieldValue(1))
+   call set_sys_pyim(self%refFieldValue(2))
+   call set_sys_scy_explicit(1.0D0)
+   call set_sys_scx_explicit(1.0D0)
+   call set_sys_pxim_fang_set(-1.0D0)
+   call set_sys_pyim_fang_set(-1.0D0)
    SYSTEM(96:99)=0.0D0
 
  case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-   SYSTEM(92) = self%refFieldValue(1) 
-   SYSTEM(93) = self%refFieldValue(2)
-   SYSTEM(14) = 0.0D0
-   SYSTEM(16) = 0.0D0
-   SYSTEM(21) = 0.0D0
-   SYSTEM(23) = 0.0D0    
+   call set_sys_pxim(self%refFieldValue(1))
+   call set_sys_pyim(self%refFieldValue(2))
+   call set_sys_scy(0.0D0)
+   call set_sys_scx(0.0D0)
+   call set_sys_fang_y(0.0D0)
+   call set_sys_fang_x(0.0D0)
    SYSTEM(96:97) = 0.0D0  
 
  case (FIELD_REAL_IMAGE_HEIGHT)
-   SYSTEM(96) = self%refFieldValue(1) 
-   SYSTEM(97) =  self%refFieldValue(2) 
-   SYSTEM(14) = 0.0D0
-   SYSTEM(16) = 0.0D0
-   SYSTEM(21) = 0.0D0
-   SYSTEM(23) = 0.0D0    
+   call set_sys_rxim(self%refFieldValue(1))
+   call set_sys_ryim(self%refFieldValue(2))
+   call set_sys_scy(0.0D0)
+   call set_sys_scx(0.0D0)
+   call set_sys_fang_y(0.0D0)
+   call set_sys_fang_x(0.0D0)
    SYSTEM(92:93) = 0.0D0    
  case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-   SYSTEM(96) = self%refFieldValue(1) 
-   SYSTEM(97) = self%refFieldValue(2) 
-   SYSTEM(14) = 0.0D0
-   SYSTEM(16) = 0.0D0
-   SYSTEM(21) = 0.0D0
-   SYSTEM(23) = 0.0D0    
+   call set_sys_rxim(self%refFieldValue(1))
+   call set_sys_ryim(self%refFieldValue(2))
+   call set_sys_scy(0.0D0)
+   call set_sys_scx(0.0D0)
+   call set_sys_fang_y(0.0D0)
+   call set_sys_fang_x(0.0D0)
    SYSTEM(92:93) = 0.0D0  
  end select 
 
@@ -1633,28 +1617,28 @@ subroutine updateRayAimSelectionByCode(self, ID_SELECTION)
  ! !FROM LDM1.FOR
 
  ! !SET  RAY AIMING ON
- ! !SYSTEM(62)=1.0D0
+ ! !sys_ray_aiming()=1.0D0
  ! !SET TEL OFF
- ! !SYSTEM(63)=0.0D0
+ ! !sys_telecentric()=0.0D0
  ! !SET AIMAPL OFF
- ! !SYSTEM(70)=0.0D0
+ ! !sys_aplanatic()=0.0D0
 
   case (RAYAIM_PARAX)
-    SYSTEM(62) = 0.0D0
-    SYSTEM(63) = 0.0D0
-    SYSTEM(70) = 0.0D0
+    call set_sys_ray_aiming(0.0D0)
+    call set_sys_telecentric(0.0D0)
+    call set_sys_aplanatic(0.0D0)
   case (RAYAIM_REAL)
-   SYSTEM(62) = 1.0D0
-   SYSTEM(63) = 0.0D0
-   SYSTEM(70) = 0.0D0      
+   call set_sys_ray_aiming(1.0D0)
+   call set_sys_telecentric(0.0D0)
+   call set_sys_aplanatic(0.0D0)
  case (RAYAIM_APLANATIC)
-   SYSTEM(62) = 0.0D0
-   SYSTEM(63) = 0.0D0
-   SYSTEM(70) = 1.0D0      
+   call set_sys_ray_aiming(0.0D0)
+   call set_sys_telecentric(0.0D0)
+   call set_sys_aplanatic(1.0D0)
   case (RAYAIM_TELE)
-   SYSTEM(62) = 0.0D0
-   SYSTEM(63) = 1.0D0
-   SYSTEM(70) = 0.0D0 
+   call set_sys_ray_aiming(0.0D0)
+   call set_sys_telecentric(1.0D0)
+   call set_sys_aplanatic(0.0D0)
   end select    
 
   self%currRayAimID = ID_SELECTION
@@ -1713,9 +1697,7 @@ function genKDPCMD(self) result(outTxt)
  class(pickup) :: self
  character(len=280) :: outTxt
 
- outTxt = "PIKUP "//trim(self%pickupTxt)//","// &
- & trim(int2str(self%surf_ref))//","//trim(real2str(self%scale))// &
- & ","//trim(real2str(self%offset))//","//"0.0,"    
+ outTxt = "PIKUP "//trim(self%pickupTxt)//","//  trim(int2str(self%surf_ref))//","//trim(real2str(self%scale))//  ","//trim(real2str(self%offset))//","//"0.0,"    
 end function
 
 function genKDPCMDToRemovePickup(self) result(outTxt)
@@ -1723,8 +1705,7 @@ function genKDPCMDToRemovePickup(self) result(outTxt)
  class(pickup) :: self
  character(len=280) :: outTxt
 
- outTxt = "PIKD "//trim(self%pickupTxt)//","// &
- & trim(int2str(self%surf))//","    
+ outTxt = "PIKD "//trim(self%pickupTxt)//","//  trim(int2str(self%surf))//","    
 
 
 
@@ -1846,8 +1827,8 @@ subroutine updateLensData(self)
   include "DATLEN.INC"
 
   JJ = 0
-  call self%set_num_surfaces(INT(SYSTEM(20)) + 1)
-  self%ref_stop = INT(SYSTEM(25)+1)
+  call self%set_num_surfaces(INT(sys_last_surf()) + 1)
+  self%ref_stop = INT(sys_ref_surf()+1)
   DO JJ=0,self%num_surfaces-1
     CALL SINDEXJN(JJ, INDEX, VNUM)
     IF(surf_curvature(JJ).EQ.0.0D0) THEN
@@ -1923,8 +1904,7 @@ subroutine calculateFirstOrderParameters(self, lData)
   !PRINT *, "J is ", J
 
    IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
-   self%BFL=-(((PXTRAY(2,I)*PXTRAY(5,J))-(PXTRAY(6,I)*PXTRAY(1,J)))/ &
-   & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+   self%BFL=-(((PXTRAY(2,I)*PXTRAY(5,J))-(PXTRAY(6,I)*PXTRAY(1,J)))/  ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
                   ELSE
    self%BFL=1.0D20
                   END IF      
@@ -1938,8 +1918,7 @@ subroutine calculateFirstOrderParameters(self, lData)
                     END IF       
                     
     IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
-    self%EFL=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/ &
-    & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+    self%EFL=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/  ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
       ELSE
     self%EFL=1.0D20
       END IF                    
@@ -2020,8 +1999,7 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   u01 = self%marginal_ray_angle(s1)
 
   
-  mag = lData%surf_index(s2)*self%marginal_ray_angle(s2) / &
-  & (lData%surf_index(s1)*self%marginal_ray_angle(s1))
+  mag = lData%surf_index(s2)*self%marginal_ray_angle(s2) /  (lData%surf_index(s1)*self%marginal_ray_angle(s1))
 
 
 
@@ -2094,6 +2072,7 @@ end function
 
 function isAsphereOnSurface(self, surf) result(boolResult)
   use DATLEN, only: ALENS
+  use mod_system
    use mod_surface
   class(lens_data) :: self
   integer :: surf
@@ -2109,6 +2088,7 @@ end function
 
 function isConicConstantOnSurface(self, surf) result(boolResult)
   use DATLEN, only: ALENS
+  use mod_system
    use mod_surface
   class(lens_data) :: self
   integer :: surf
@@ -2124,6 +2104,7 @@ end function
 function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   use type_utils, only: real2str, blankStr
   use DATLEN, only: ALENS
+  use mod_system
   class(lens_data) :: self
   integer :: surf, ii
   integer :: fID
@@ -2143,8 +2124,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   !ALENS(6,surf#) -- 8th order aspheric coefficient
   !ALENS(7,surf#) -- 10th order aspheric coefficient      
   do ii = 1,4
-      strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart1(ii)//blankStr(1)// &
-      & trim(real2str(ALENS(ii+3,surf),sci=.TRUE.))//' ;'
+      strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart1(ii)//blankStr(1)//  trim(real2str(ALENS(ii+3,surf),sci=.TRUE.))//' ;'
   end do
   write(fID, *) strSurfLine(1:len_trim(strSurfLine)-1)
   strSurfLine = ' '
@@ -2153,8 +2133,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   !     ALENS(83,surf#) -- 16th order aspheric coefficient
   !     ALENS(84,surf#) -- 18th order aspheric coefficient  
   do ii = 1,4
-      strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart2(ii)//blankStr(1)// &
-      & trim(real2str(ALENS(ii+80,surf),sci=.TRUE.))//' ;'
+      strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart2(ii)//blankStr(1)//  trim(real2str(ALENS(ii+80,surf),sci=.TRUE.))//' ;'
   end do  
   ! Remove last semicolon
   strSurfLine(len_trim(strSurfLine):len_trim(strSurfLine)) = ' '
@@ -2217,6 +2196,7 @@ SUBROUTINE check_clear_apertures(lData)
   use type_utils ! DEBUG
 !
   use DATLEN
+  use mod_system
   use DATMAI
   use mod_surface
   IMPLICIT NONE
@@ -2229,8 +2209,7 @@ SUBROUTINE check_clear_apertures(lData)
 !
 LOGICAL OLDLDIF,OLDLDIF2
 !
-REAL*8 HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
-,XFFIX,YFFIX,XRFIX,YRFIX,XCENPOS,YCENPOS,RMAX,XLO,XHI,YLO,YHI
+REAL*8 HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN ,XFFIX,YFFIX,XRFIX,YRFIX,XCENPOS,YCENPOS,RMAX,XLO,XHI,YLO,YHI
 
 REAL*8 VERARRAY,XRAD,YRAD,RRAD
 DIMENSION VERARRAY(:,:)
@@ -2243,11 +2222,11 @@ ALLOCATE(VERARRAY(1:220,0:MAXSUR),STAT=ALLOERR)
 
 ! Here we want to do all surfaces, 
 W1 = 1.0
-W2 = SYSTEM(20)
+W2 = sys_last_surf()
 
 
 !       HANDLE NO SURFACES
-          IF(SYSTEM(20).EQ.0.0) THEN
+          IF(sys_last_surf().EQ.0.0) THEN
   WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
 CALL SHOWIT(1)
   WRITE(OUTLYNE,*)'NO PARAXIAL DATA EXISTS'
@@ -2270,8 +2249,7 @@ FWARN=0
 !     EIGHT PLACES AROUND THE FULL FOV
                  KK=0
                  DO K=0,8
-IF(surf_clap_type(NEWOBJ) /= 2.AND.surf_clap_type(NEWOBJ) /= 4 &
-.AND.surf_array_parity(NEWOBJ) == 0) THEN
+IF(surf_clap_type(NEWOBJ) /= 2.AND.surf_clap_type(NEWOBJ) /= 4 .AND.surf_array_parity(NEWOBJ) == 0) THEN
 IF(K.EQ.0) THEN
 YF=0.0D0
 XF=1.0D0
@@ -2410,7 +2388,7 @@ SN=1
 W1=YF
 W2=XF
 W3=0.0D0
-W4=SYSTEM(11)
+W4=sys_wl_ref()
 !     SET MSG TO FALSE
   MSG=.FALSE.
   CALL FFOB
@@ -2431,8 +2409,7 @@ CALL VIGCAL(N,YLO,YHI,2)
                  DO L=0,7
                  KK=KK+1
                  M=(3*KK)-2
-IF(surf_clap_type(NEWREF) /= 2.AND.surf_clap_type(NEWREF) /= 4 &
-.AND.surf_array_parity(NEWREF) == 0) THEN
+IF(surf_clap_type(NEWREF) /= 2.AND.surf_clap_type(NEWREF) /= 4 .AND.surf_array_parity(NEWREF) == 0) THEN
 IF(L.EQ.0) THEN
 YR=0.0D0
 XR=XHI
@@ -2556,13 +2533,13 @@ SAVE_KDP(1)=SAVEINPT(1)
   SN=1
   W1=YR
   W2=XR
-  W3=SYSTEM(11)
+  W3=sys_wl_ref()
   WC='RAY     '
   CALL RRAY
 IF(.NOT.RAYEXT) RWARN=1
   REST_KDP(1)=RESTINPT(1)
 !     SAVE RAY DATA
-                 DO I=0,INT(SYSTEM(20))
+                 DO I=0,INT(sys_last_surf())
           IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
              VERARRAY(M,I)=RAYRAY(1,I)
              VERARRAY(M+1,I)=RAYRAY(2,I)
@@ -2575,7 +2552,7 @@ LDIF2=OLDLDIF2
 LDIF=OLDLDIF
 !
 !     PROCESS DATA
-DO I=0,INT(SYSTEM(20))
+DO I=0,INT(sys_last_surf())
 IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
           IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
 HXMAX=-1.0D10
@@ -2594,7 +2571,7 @@ END DO
                   END IF
          END DO
 !
-DO I=0,INT(SYSTEM(20))
+DO I=0,INT(sys_last_surf())
 IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
           ! Dummy includes stop surfaced
       IF(.NOT.DUMMMY(I)) THEN !.OR.DF1.EQ.0.AND.DF2.EQ.0) THEN

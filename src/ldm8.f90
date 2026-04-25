@@ -4,6 +4,7 @@
 SUBROUTINE SASTOP
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -33,7 +34,7 @@ SUBROUTINE SASTOP
          RETURN
       END IF
 
-      IF(SYSTEM(26).EQ.-99.0D0) THEN
+      IF(sys_astop().EQ.-99.0D0) THEN
 !       THERE IS NO APERTURE STOP DEFINED
          WRITE(OUTLYNE,100)
          CALL SHOWIT(0)
@@ -41,20 +42,20 @@ SUBROUTINE SASTOP
       ELSE
 !       THERE IS AN APERTURE STOP DEFINED
       END IF
-      ASURF=INT(SYSTEM(26))
+      ASURF=INT(sys_astop())
       WRITE(OUTLYNE,1000) ASURF
       CALL SHOWIT(0)
-      IF(SYSTEM(27).EQ.1.0)  THEN
+      IF(sys_astop_adj().EQ.1.0)  THEN
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
       ELSE
       END IF
-      IF(SYSTEM(27).EQ.-1.0) THEN
+      IF(sys_astop_adj().EQ.-1.0) THEN
          WRITE(OUTLYNE,3000)
          CALL SHOWIT(0)
       ELSE
       END IF
-      IF(SYSTEM(27).EQ.2.0)  THEN
+      IF(sys_astop_adj().EQ.2.0)  THEN
          WRITE(OUTLYNE,4000)
          CALL SHOWIT(0)
       ELSE
@@ -84,11 +85,11 @@ SUBROUTINE SASTOP
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
 !       IF (ASTOP DEL) IS ENTERED, REMOVE THE APERTURE STOP DEFINITION
-!       BY STORING -99 IN SYSTEM(26) AND 0.0 IN SYSTEM(27)
+!       BY STORING -99 IN sys_astop() AND 0.0 IN sys_astop_adj()
 !
       IF(WQ.EQ.'DELK') THEN
-         SYSTEM(26)=-99.0D0
-         SYSTEM(27)=0.0
+         call set_sys_astop(-99.0D0)
+         call set_sys_astop_adj(0.0)
          RETURN
       ELSE
 !       NOT REMOVING THE APERTURE STOP
@@ -149,11 +150,11 @@ SUBROUTINE SASTOP
          END IF
       END DO
 !
-      SYSTEM(26)=DBLE(SURF)
+      call set_sys_astop(DBLE(SURF))
 !       SO Y1 AND X1 WON'T BE READJUSTED IF EXPLICITLY INPUT
 !       SET EN/EX FLAG TO 0.0 (NO ADJUSTMENT)
-      SYSTEM(27)=0.0
-!       SET EN/EX FLAG IN SYSTEM(27)
+      call set_sys_astop_adj(0.0)
+!       SET EN/EX FLAG IN sys_astop_adj()
 !
 !       CHECK FOR VALID QUALIFIERS
 !
@@ -165,9 +166,9 @@ SUBROUTINE SASTOP
          CALL MACFAL
          RETURN
       END IF
-      IF(WQ.EQ.'EN') SYSTEM(27)=1.0
-      IF(WQ.EQ.'EX') SYSTEM(27)=-1.0
-      IF(WQ.EQ.'EN/EX'.OR.WQ.EQ.'ENEX') SYSTEM(27)=2.0
+      call set_sys_astop_adj(1.0)
+      call set_sys_astop_adj(-1.0)
+      call set_sys_astop_adj(2.0)
    ELSE
       OUTLYNE='"ASTOP" NOT VALID AT THIS PROGRAM LEVEL'
       CALL SHOWIT(1)
@@ -184,6 +185,7 @@ END
 SUBROUTINE SASPHD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -239,8 +241,8 @@ SUBROUTINE SASPHD
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -351,7 +353,7 @@ SUBROUTINE SASPHD
             END DO
 !
             PIKCNT=0
-            DO 502 I=0,INT(SYSTEM(20))
+            DO 502 I=0,INT(sys_last_surf())
                IF(surf_special_type(I).NE.0.0D0) THEN
                   DO 503 J=1,PSIZ
                      IF(PIKUP(1,I,J).NE.0.0D0) THEN
@@ -371,7 +373,7 @@ SUBROUTINE SASPHD
 !               PIKUP(I,J,K) WHERE K IS 5,6,7 OR 8
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE ASPHERIC
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(surf_special_type(I).NE.0.0D0) THEN
 !       FOUND A PIKUP,IS IT FOR ASPHERICS
                   DO J=5,9
@@ -410,7 +412,7 @@ SUBROUTINE SASPHD
                   END DO
                END IF
             END DO
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(surf_special_type(I).NE.0.0D0) THEN
 !       FOUND A PIKUP,IS IT FOR ASPHERICS
                   DO J=27,31
@@ -451,7 +453,7 @@ SUBROUTINE SASPHD
 !       WHAT IF THIS SURFACE WAS THE TARGET OF A PIKUP PRO OR NPRO
 !               PIKUP(I,J,K) WHERE K IS 11 OR 12
 !       IF SO THEN THE PIKUP MUST BE DELETED
-            DO 330 I=0,INT(SYSTEM(20))
+            DO 330 I=0,INT(sys_last_surf())
                IF(surf_special_type(I).NE.0.0D0) THEN
 !       FOUND A PIKUP,IS IT FOR PRO OR NPRO
                   DO 331 J=11,12
@@ -479,7 +481,7 @@ SUBROUTINE SASPHD
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-            DO 400 I=0,INT(SYSTEM(20))
+            DO 400 I=0,INT(sys_last_surf())
                IF(surf_special_type(I).NE.1) THEN
 !       CHECK PIKUPS
                   PIKCNT=0
@@ -582,7 +584,7 @@ SUBROUTINE SASPHD
 !       THIS SURFACE, THOSE PIKUPS MUST ALSO GO. ALL PIKED
 !       UP DATA IS FROZEN AT ITS CURRENT VALUES.
 !
-         DO 31 I=0,INT(SYSTEM(20))
+         DO 31 I=0,INT(sys_last_surf())
             IF(PIKUP(2,I,22).EQ.DBLE(SF).AND.PIKUP(1,I,22).NE.0.0D0.OR.PIKUP(2,I,23).EQ.DBLE(SF).AND.PIKUP(1,I,23).NE.0.0D0.OR.PIKUP(2,I,24).EQ.DBLE(SF).AND.PIKUP(1,I,24).NE.0.0D0.OR.PIKUP(2,I,25).EQ.DBLE(SF).AND.PIKUP(1,I,25).NE.0.0D0.OR.PIKUP(2,I,26).EQ.DBLE(SF).AND.PIKUP(1,I,26).NE.0.0D0)THEN
 !
 !       SURFACE I IS PIKING UP ANAMORPHIC ASPHERIC
@@ -637,7 +639,7 @@ SUBROUTINE SASPHD
 !       THIS SURFACE, THOSE PIKUPS MUST ALSO GO. ALL PIKED
 !       UP DATA IS FROZEN AT ITS CURRENT VALUES.
 !
-         DO 32 I=0,INT(SYSTEM(20))
+         DO 32 I=0,INT(sys_last_surf())
             IF(PIKUP(2,I,11).EQ.DBLE(SF).AND.PIKUP(1,I,11).NE.0.0D0.OR.PIKUP(2,I,12).EQ.DBLE(SF).AND.PIKUP(1,I,12).NE.0.0D0) THEN
 !
 !       SURFACE I IS PIKING UP PRO OR NPRO
@@ -671,6 +673,7 @@ END
 SUBROUTINE DELDEFIT
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -721,8 +724,8 @@ SUBROUTINE DELDEFIT
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -765,6 +768,7 @@ END
 SUBROUTINE SARRAYD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -812,8 +816,8 @@ SUBROUTINE SARRAYD
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -868,7 +872,7 @@ SUBROUTINE SARRAYD
 !       WHAT IF THIS SURFACE WAS THE TARGET OF A PIKUP PRO OR NPRO
 !               PIKUP(I,J,K) WHERE K IS 11 OR 12
 !       IF SO THEN THE PIKUP MUST BE DELETED
-   DO 330 I=0,INT(SYSTEM(20))
+   DO 330 I=0,INT(sys_last_surf())
       IF(surf_special_type(I).NE.0.0D0) THEN
 !       FOUND A PIKUP,IS IT FOR PRO OR NPRO
          DO 331 J=11,12
@@ -896,7 +900,7 @@ SUBROUTINE SARRAYD
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-   DO 400 I=0,INT(SYSTEM(20))
+   DO 400 I=0,INT(sys_last_surf())
       IF(surf_special_type(I).NE.1) THEN
 !       CHECK PIKUPS
          PIKCNT=0
@@ -919,6 +923,7 @@ END
 SUBROUTINE DEFIT
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1085,7 +1090,7 @@ SUBROUTINE DEFIT
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO DEFORMABLE SURFACE DATA EXISTS'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -1114,10 +1119,10 @@ SUBROUTINE DEFIT
       END IF
 !
       IF(SQ.EQ.0) THEN
-         IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          I=INT(W1)
-         IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+         IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -1156,7 +1161,7 @@ SUBROUTINE DEFIT
 !
 !
          J=0
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_default_flag(I).EQ.1.0D0) THEN
                J=J+1
             ELSE
@@ -1172,7 +1177,7 @@ SUBROUTINE DEFIT
 !       THERE WAS DATA, WRITE IT
 !
          JK=0
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_default_flag(I).EQ.1.0D0) JK=1
          END DO
 !       PRINT HEADER MESSAGE
@@ -1186,7 +1191,7 @@ SUBROUTINE DEFIT
          ELSE
          END IF
 !
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_default_flag(I).NE.0.0D0) THEN
                D1=surf_mtracei_nx(I)
                D2=surf_mtracei_ny(I)
@@ -1211,6 +1216,7 @@ END
 SUBROUTINE SASPH
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1507,7 +1513,7 @@ SUBROUTINE SASPH
          ELSE
          END IF
 !       WHAT IF NO SURFACES EXIST
-         IF(SYSTEM(20).EQ.0.0D0) THEN
+         IF(sys_last_surf().EQ.0.0D0) THEN
             OUTLYNE='NO ASPHERIC DATA EXISTS'
             CALL SHOWIT(1)
             OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -1538,10 +1544,10 @@ SUBROUTINE SASPH
          END IF
 !
          IF(SQ.EQ.0) THEN
-            IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-            IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+            IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+            IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
             I=INT(W1)
-            IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+            IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
                OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
                CALL SHOWIT(1)
                OUTLYNE='RE-ENTER COMMAND'
@@ -1646,7 +1652,7 @@ SUBROUTINE SASPH
 !
             IF(WC.EQ.'ASPH') THEN
                J=0
-               DO I=0,INT(SYSTEM(20))
+               DO I=0,INT(sys_last_surf())
                   IF(surf_conic(I).NE.0.0D0.AND.surf_is_asphere(I).OR.surf_conic(I).NE.0.0D0.OR.surf_is_asphere(I)) THEN
                      J=J+1
                   ELSE
@@ -1662,7 +1668,7 @@ SUBROUTINE SASPH
 !       THERE WAS DATA, WRITE IT
 !
                JK=0
-               DO I=0,INT(SYSTEM(20))
+               DO I=0,INT(sys_last_surf())
                   IF(surf_is_asphere(I)) JK=1
                END DO
 !       PRINT HEADER MESSAGE
@@ -1685,7 +1691,7 @@ SUBROUTINE SASPH
                ELSE
                END IF
 !
-               DO I=0,INT(SYSTEM(20))
+               DO I=0,INT(sys_last_surf())
                   IF(surf_conic(I).NE.0.0D0.AND..NOT.surf_is_asphere(I)) THEN
                      CC=surf_conic(I)
                      WRITE(OUTLYNE,200)I,CC
@@ -1714,7 +1720,7 @@ SUBROUTINE SASPH
          END IF
          IF(WC.EQ.'ASPH2') THEN
             J=0
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(surf_asphere_coeff(I, 12).NE.0.0D0.OR.surf_asphere_coeff(I, 14).NE.0.0D0.OR.surf_asphere_coeff(I, 16).NE.0.0D0.OR.surf_asphere_coeff(I, 18).NE.0.0D0.OR.surf_asphere_coeff(I, 20).NE.0.0D0) THEN
                   J=J+1
                ELSE
@@ -1731,7 +1737,7 @@ SUBROUTINE SASPH
 !       THERE WAS DATA, WRITE IT
 !
             JK=0
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(surf_is_asphere(I)) JK=1
             END DO
 !       PRINT HEADER MESSAGE
@@ -1745,7 +1751,7 @@ SUBROUTINE SASPH
             ELSE
             END IF
 !
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(surf_is_asphere(I)) THEN
                   AH=surf_asphere_coeff(I, 12)
                   AI=surf_asphere_coeff(I, 14)
@@ -1785,6 +1791,7 @@ END
 SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1943,7 +1950,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='NO ARRAY LENS SURFACE DATA EXISTS'
          CALL SHOWIT(1)
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -1972,10 +1979,10 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
       END IF
 !
       IF(SQ.EQ.0) THEN
-         IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          I=INT(W1)
-         IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+         IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
             OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -2016,7 +2023,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
 !
 !
          J=0
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_array_parity(I).NE.0.0D0) THEN
                J=J+1
             ELSE
@@ -2034,7 +2041,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
 !       THERE WAS DATA, WRITE IT
 !
          JK=0
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_array_parity(I).NE.0.0D0) JK=1
          END DO
          IF(JK.EQ.0) THEN
@@ -2052,7 +2059,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
          WRITE(OUTLYNE,500)
          CALL SHOWIT(0)
 !
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_array_parity(I).NE.0.0D0) THEN
                D1=surf_array_dx(I)
                D2=surf_array_dy(I)
@@ -2078,6 +2085,7 @@ END
 SUBROUTINE SNODUM
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2135,6 +2143,7 @@ END
 SUBROUTINE SURF_TYPE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2164,6 +2173,7 @@ END
 SUBROUTINE ZERO
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2192,6 +2202,7 @@ END
 SUBROUTINE SAPED
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2243,8 +2254,8 @@ SUBROUTINE SAPED
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -2300,7 +2311,7 @@ SUBROUTINE SAPED
          END IF
 !
          PIKCNT=0
-         DO 502 I=0,INT(SYSTEM(20))
+         DO 502 I=0,INT(sys_last_surf())
             DO 503 J=1,PSIZ
                IF(PIKUP(1,I,J).NE.0.0D0) THEN
                   PIKCNT=PIKCNT+1
@@ -2316,7 +2327,7 @@ SUBROUTINE SAPED
 !
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE CLAP
 !       DATA FROZEN ON THE PIKUP SURFACE AT ITS CURRENT VALUE.
-         DO 300 I=0,INT(SYSTEM(20))
+         DO 300 I=0,INT(sys_last_surf())
             IF(PIKUP(1,I,18).EQ.1.0D0) THEN
 !       FOUND A CLAP PIKUP
 !       DOES IT REFER TO SURFACE SF
@@ -2335,7 +2346,7 @@ SUBROUTINE SAPED
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-         DO 400 I=0,INT(SYSTEM(20))
+         DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
             PIKCNT=0
             DO 401 J=1,PSIZ
@@ -2362,7 +2373,7 @@ SUBROUTINE SAPED
          END IF
 !
          PIKCNT=0
-         DO 5021 I=0,INT(SYSTEM(20))
+         DO 5021 I=0,INT(sys_last_surf())
             DO 5031 J=1,PSIZ
                IF(PIKUP(1,I,J).NE.0.0D0) THEN
                   PIKCNT=PIKCNT+1
@@ -2378,7 +2389,7 @@ SUBROUTINE SAPED
 !
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE COBS
 !       DATA FROZEN ON THE PIKUP SURFACE AT ITS CURRENT VALUE.
-         DO 3001 I=0,INT(SYSTEM(20))
+         DO 3001 I=0,INT(sys_last_surf())
             IF(PIKUP(1,I,19).EQ.1.0D0) THEN
 !       FOUND A COBS PIKUP
 !       DOES IT REFER TO SURFACE SF
@@ -2397,7 +2408,7 @@ SUBROUTINE SAPED
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-         DO 4001 I=0,INT(SYSTEM(20))
+         DO 4001 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
             PIKCNT=0
             DO 4011 J=1,PSIZ
@@ -2417,6 +2428,7 @@ END
 SUBROUTINE SAPE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3388,6 +3400,7 @@ END
 SUBROUTINE MULT_CLAP
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3459,7 +3472,7 @@ SUBROUTINE MULT_CLAP
       CALL MACFAL
       RETURN
    END IF
-   IF(SURF.EQ.INT(SYSTEM(25))) THEN
+   IF(SURF.EQ.INT(sys_ref_surf())) THEN
       OUTLYNE='"MULTCLAP" MAY NOT BE ASSIGNED TO THE REFERENCE SURFACE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3467,7 +3480,7 @@ SUBROUTINE MULT_CLAP
       CALL MACFAL
       RETURN
    END IF
-   IF(SURF.EQ.INT(SYSTEM(26))) THEN
+   IF(SURF.EQ.INT(sys_astop())) THEN
       OUTLYNE='"MULTCLAP" MAY NOT BE ASSIGNED TO THE ASTOP SURFACE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3499,6 +3512,7 @@ END
 SUBROUTINE MULT_COBS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3595,6 +3609,7 @@ END
 SUBROUTINE SSPIDER
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3707,6 +3722,7 @@ END
 SUBROUTINE SANGLE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3878,6 +3894,7 @@ END
 SUBROUTINE SGANGLE
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -4026,6 +4043,7 @@ END
 SUBROUTINE FICTCHG
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -4215,6 +4233,7 @@ END
 SUBROUTINE RNCHG
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE

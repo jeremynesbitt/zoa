@@ -60,6 +60,7 @@ END
 SUBROUTINE CVSOLV
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -175,7 +176,7 @@ SUBROUTINE CVSOLV
       END IF
       IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
          W1=0.0
-         W2=SYSTEM(20)
+         W2=sys_last_surf()
          S1=1
          S2=1
          DF1=0
@@ -210,8 +211,8 @@ SUBROUTINE CVSOLV
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-         WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+      IF(INT(W2).GT.INT(sys_last_surf())) THEN
+         WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -475,7 +476,7 @@ SUBROUTINE CVSOLV
 !       OR ON SURFACE 1
 !
    IF(WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PICX'.OR.WC.EQ.'APCX'.OR.WC.EQ.'APCY') THEN
-      IF(SURF.LT.1.AND.SYSTEM(26).EQ.-99.0D0.OR.SURF.LT.INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0) THEN
+      IF(SURF.LT.1.AND.sys_astop().EQ.-99.0D0.OR.SURF.LT.INT(sys_astop()).AND.sys_astop().NE.-99.0D0) THEN
          OUTLYNE='             CHIEF RAY SOLVES ARE NOT ALLOWED'
          CALL SHOWIT(1)
          OUTLYNE='                       OBJECT SURFACE'
@@ -605,8 +606,8 @@ SUBROUTINE CVSOLV
       PRINT *, "DEBUG:SOLVE(8,SURF) IS ", SOLVE(8,SURF)
       PRINT *, "DEBUG:SURF IS ", SURF
       PRINT *, "DEBUG:SOLVE(9,SURF) IS ", SOLVE(9,SURF)
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(WC.EQ.'COCY'.AND.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(WC.EQ.'COCY'.AND.W1.GT.sys_last_surf()) THEN
          OUTLYNE='(COCY) SOLVE REFERED TO A SURFACE BEYOND'
          CALL SHOWIT(1)
          OUTLYNE='       THE IMAGE SURFACE. SOLVE IGNORED'
@@ -618,8 +619,8 @@ SUBROUTINE CVSOLV
             OUTLYNE='SOLVE IGNORED'
             CALL SHOWIT(1)
          ELSE
-            IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-            IF(WC.EQ.'COCY'.AND.W1.LE.SYSTEM(20)) THEN
+            IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+            IF(WC.EQ.'COCY'.AND.W1.LE.sys_last_surf()) THEN
                SOLVE(8,SURF)=7.0D0
                SOLVE(9,SURF)=W1
             ELSE
@@ -673,8 +674,8 @@ SUBROUTINE CVSOLV
                SOLVE(1,SURF)=W1
             ELSE
             END IF
-            IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-            IF(WC.EQ.'COCX'.AND.W1.GT.SYSTEM(20)) THEN
+            IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+            IF(WC.EQ.'COCX'.AND.W1.GT.sys_last_surf()) THEN
                OUTLYNE='(COCX) SOLVE REFERED TO A SURFACE BEYOND'
                CALL SHOWIT(1)
                OUTLYNE='       THE IMAGE SURFACE. SOLVE IGNORED'
@@ -686,8 +687,8 @@ SUBROUTINE CVSOLV
                   OUTLYNE='SOLVE IGNORED'
                   CALL SHOWIT(1)
                ELSE
-                  IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-                  IF(WC.EQ.'COCX'.AND.W1.LE.SYSTEM(20)) THEN
+                  IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+                  IF(WC.EQ.'COCX'.AND.W1.LE.sys_last_surf()) THEN
                      SOLVE(8,SURF)=14.0D0
                      SOLVE(9,SURF)=W1
                   ELSE
@@ -718,6 +719,7 @@ END
 SUBROUTINE COERRS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1102,6 +1104,7 @@ END
 SUBROUTINE CAERRS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1599,6 +1602,7 @@ SUBROUTINE GLSWVL
    USE NSSMOD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1626,16 +1630,16 @@ SUBROUTINE GLSWVL
    END IF
    IF(WQ.EQ.'LENS') THEN
       GLSWV(1:10)=0.0D0
-      GLSWV(1)=SYSTEM(1)
-      GLSWV(2)=SYSTEM(2)
-      GLSWV(3)=SYSTEM(3)
-      GLSWV(4)=SYSTEM(4)
-      GLSWV(5)=SYSTEM(5)
-      GLSWV(6)=SYSTEM(71)
-      GLSWV(7)=SYSTEM(72)
-      GLSWV(8)=SYSTEM(73)
-      GLSWV(9)=SYSTEM(74)
-      GLSWV(10)=SYSTEM(75)
+      GLSWV(1)=sys_wavelength(1)
+      GLSWV(2)=sys_wavelength(2)
+      GLSWV(3)=sys_wavelength(3)
+      GLSWV(4)=sys_wavelength(4)
+      GLSWV(5)=sys_wavelength(5)
+      GLSWV(6)=sys_wavelength(6)
+      GLSWV(7)=sys_wavelength(7)
+      GLSWV(8)=sys_wavelength(8)
+      GLSWV(9)=sys_wavelength(9)
+      GLSWV(10)=sys_wavelength(10)
    END IF
    IF(WQ.EQ.'NSSLENS') THEN
       IF(NEXISTN) THEN
@@ -1712,6 +1716,7 @@ SUBROUTINE GLSRIN
    use type_utils, only: real2str
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2973,6 +2978,7 @@ SUBROUTINE GLSRES
    use glass_manager
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3023,7 +3029,7 @@ SUBROUTINE GLSRES
    !call LogTermFOR("LMIN is "//trim(real2str(LMIN)))
    !call LogTermFOR("LMAX is "//trim(real2str(LMAX)))
 
-   DO 10 I=0,INT(SYSTEM(20))
+   DO 10 I=0,INT(sys_last_surf())
       IF(LNSTYP.NE.1.AND.GLANAM(I,1).NE.'MODEL') GO TO 10
 !
 !       IF THE SURFACE HAS A GLASS PIKUP, SKIP AND GO TO NEXT
@@ -3190,6 +3196,7 @@ END
 SUBROUTINE FICTRES(I)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    IMPLICIT NONE
 !
@@ -3263,14 +3270,14 @@ SUBROUTINE FICTRES(I)
    DO J=1,10
 !                               J=1
       IF(J.EQ.1) THEN
-         IF(SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
+         IF(sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
             A0=A01
             A1=A11
             A2=A21
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(1)
+            LAMBDA=sys_wavelength(1)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3278,7 +3285,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(1)
+            LAMBDA=sys_wavelength(1)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3294,7 +3301,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=2
       IF(J.EQ.2) THEN
-         IF(SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
+         IF(sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3302,7 +3309,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(2)
+            LAMBDA=sys_wavelength(2)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3310,7 +3317,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(2)
+            LAMBDA=sys_wavelength(2)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3325,7 +3332,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=3
       IF(J.EQ.3) THEN
-         IF(SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
+         IF(sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3333,7 +3340,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(3)
+            LAMBDA=sys_wavelength(3)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3341,7 +3348,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(3)
+            LAMBDA=sys_wavelength(3)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3356,7 +3363,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=4
       IF(J.EQ.4) THEN
-         IF(SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
+         IF(sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3364,7 +3371,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(4)
+            LAMBDA=sys_wavelength(4)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3372,7 +3379,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(4)
+            LAMBDA=sys_wavelength(4)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3387,7 +3394,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=5
       IF(J.EQ.5) THEN
-         IF(SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
+         IF(sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3395,7 +3402,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(5)
+            LAMBDA=sys_wavelength(5)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3403,7 +3410,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(5)
+            LAMBDA=sys_wavelength(5)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3418,7 +3425,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=6
       IF(J.EQ.6) THEN
-         IF(SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
+         IF(sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3426,7 +3433,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(71)
+            LAMBDA=sys_wavelength(6)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3434,7 +3441,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(71)
+            LAMBDA=sys_wavelength(6)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3449,7 +3456,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=7
       IF(J.EQ.7) THEN
-         IF(SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
+         IF(sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3457,7 +3464,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(72)
+            LAMBDA=sys_wavelength(7)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3465,7 +3472,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(72)
+            LAMBDA=sys_wavelength(7)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3480,7 +3487,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=8
       IF(J.EQ.8) THEN
-         IF(SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
+         IF(sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3488,7 +3495,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(73)
+            LAMBDA=sys_wavelength(8)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3496,7 +3503,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(73)
+            LAMBDA=sys_wavelength(8)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3511,7 +3518,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=9
       IF(J.EQ.9) THEN
-         IF(SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
+         IF(sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3519,7 +3526,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(74)
+            LAMBDA=sys_wavelength(9)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3527,7 +3534,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(74)
+            LAMBDA=sys_wavelength(9)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3542,7 +3549,7 @@ SUBROUTINE FICTRES(I)
       END IF
 !                               J=10
       IF(J.EQ.10) THEN
-         IF(SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
+         IF(sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
 !     CALCULATE CBAR
             A0=A01
             A1=A11
@@ -3550,7 +3557,7 @@ SUBROUTINE FICTRES(I)
             A3=A31
             A4=A41
             A5=A51
-            LAMBDA=SYSTEM(75)
+            LAMBDA=sys_wavelength(10)
             NX1=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             A0=A02
             A1=A12
@@ -3558,7 +3565,7 @@ SUBROUTINE FICTRES(I)
             A3=A32
             A4=A42
             A5=A52
-            LAMBDA=SYSTEM(75)
+            LAMBDA=sys_wavelength(10)
             NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
             P1=(NX1-ND1)/(NF1-NC1)
             P2=(NX2-ND2)/(NF2-NC2)
@@ -3602,6 +3609,7 @@ SUBROUTINE FICT(I,INDEX,ND,ABBE,DPART)
 !       USED TO CONVERT CAT GLASS INTO MODEL GLASS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3689,7 +3697,7 @@ SUBROUTINE FICT(I,INDEX,ND,ABBE,DPART)
    A3=A32
    A4=A42
    A5=A52
-   LAMBDA=SYSTEM(1)
+   LAMBDA=sys_wavelength(1)
    NX2=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
    P1=(NX1-ND1)/(NF1-NC1)
    P2=(NX2-ND2)/(NF2-NC2)
@@ -3738,6 +3746,7 @@ END SUBROUTINE
 
 SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LMAX, sI)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    logical, intent(inout) :: boolResult
@@ -3775,6 +3784,7 @@ END SUBROUTINE
 SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
    use type_utils, only: real2str
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
 

@@ -8,6 +8,7 @@ SUBROUTINE CMDER
    use codeV_commands, only: startCodeVLensUpdateCmd,newLens, setLens, execSav
    use global_widgets, only: ioConfig, ID_TERMINAL_DEFAULT,ID_TERMINAL_KDPDUMP, sysConfig
    use DATLEN
+   use mod_system
    use mod_surface
 
 !
@@ -446,7 +447,7 @@ SUBROUTINE CMDER
             CPFNEXT=.FALSE.
             CALL DELPSF
          END IF
-         II=INT(SYSTEM(20))
+         II=INT(sys_last_surf())
          ALENS(88,1:II)=0.0D0
          LPASS1=.FALSE.
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
@@ -468,7 +469,7 @@ SUBROUTINE CMDER
             CPFNEXT=.FALSE.
             CALL DELPSF
          END IF
-         II=INT(SYSTEM(20))
+         II=INT(sys_last_surf())
          ALENS(88,1:II)=0.0D0
          LPASS1=.FALSE.
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
@@ -488,7 +489,7 @@ SUBROUTINE CMDER
             CPFNEXT=.FALSE.
             CALL DELPSF
          END IF
-         II=INT(SYSTEM(20))
+         II=INT(sys_last_surf())
          ALENS(88,1:II)=0.0D0
          LPASS1=.FALSE.
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
@@ -592,7 +593,7 @@ SUBROUTINE CMDER
 !                PLOT LIBRARY COMMANDS (PLIB/PLLIB removed)
 !
       IF(WC.EQ.'PRSPR') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PPRSPR
          RETURN
       END IF
@@ -650,7 +651,7 @@ SUBROUTINE CMDER
          testc=1.0d-200
          testd=1.0d200
          TESTE=-4.0D0
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          LBT=.FALSE.
          RTGERROR=.FALSE.
          CALL SRTG(LBT,RTGERROR)
@@ -661,7 +662,7 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'CTGLBL'.OR.WC.EQ.'RTGLBL') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          LBT=.TRUE.
          CALL SRTG(LBT,RTGERROR)
          OWC=WC
@@ -714,7 +715,7 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'ASPH') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SASPH
          WC='ASPH2'
          CALL SASPH
@@ -722,53 +723,53 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'ASPH2') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SASPH
          RETURN
       END IF
       IF(WC.EQ.'SURTYPE') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SURFTYPE
          RETURN
       END IF
       IF(WC.EQ.'FOOTBLOK') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL BLKOUT
          RETURN
       END IF
       IF(WC.EQ.'DUMOUT') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL DUMOUT
          RETURN
       END IF
       IF(WC.EQ.'TASPH') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL STASPH
          RETURN
       END IF
       IF(WC.EQ.'REFS') THEN
-         WRITE(OUTLYNE,100) INT(SYSTEM(25))
+         WRITE(OUTLYNE,100) INT(sys_ref_surf())
 100      FORMAT('THE CURRENT REFERENCE SURFACE I SURFACE # ',I3)
          CALL SHOWIT(0)
          RETURN
       END IF
       IF(WC.EQ.'CAOB') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SCAOB
          RETURN
       END IF
       IF(WC.EQ.'SPIDER') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SPIDEROUT
          RETURN
       END IF
       IF(WC.EQ.'ARRAY') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SARRAY(.TRUE.)
          RETURN
       END IF
       IF(WC.EQ.'TAD') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL STAD
          RETURN
       END IF
@@ -777,32 +778,32 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'COATING') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL COATING
          RETURN
       END IF
       IF(WC.EQ.'PIVOT') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SPIV
          RETURN
       END IF
       IF(WC.EQ.'RIN'.OR.WC.EQ.'RIN2') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SRIN
          RETURN
       END IF
       IF(WC.EQ.'GRT') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SGRATT
          RETURN
       END IF
       IF(WC.EQ.'NDEX'.OR.WC.EQ.'NDEX2') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL SNDEX
          RETURN
       END IF
       IF(WC.EQ.'TORIC'.OR.WC.EQ.'RTORIC'.OR.WC.EQ.'TR'.OR.WC.EQ.'TC'.OR.WC.EQ.'CTORIC') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PTORIC
          RETURN
       END IF
@@ -823,32 +824,32 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'SLV') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRSLV
          RETURN
       END IF
       IF(WC.EQ.'PIKK') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRPIK
          RETURN
       END IF
       IF(WC.EQ.'PXTX'.OR.WC.EQ.'PXTY'.OR.WC.EQ.'PITX'.OR.WC.EQ.'PITY'.OR.WC.EQ.'PRTX'.OR.WC.EQ.'PRTY') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PAROUT
          RETURN
       END IF
       IF(WC.EQ.'PRREF') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRREF
          RETURN
       END IF
       IF(WC.EQ.'PRDIFFXM'.OR.WC.EQ.'PRDIFFYM'.OR.WC.EQ.'PRDIFFXR'.OR.WC.EQ.'PRDIFFYR') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRDIFF
          RETURN
       END IF
       IF(WC.EQ.'MAB3'.OR.WC.EQ.'XMAB3') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL MMAB3
          !IF(WC.EQ.'MAB3') CALL MMAB3_NEW(1)
@@ -856,79 +857,79 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'MAB5'.OR.WC.EQ.'XMAB5') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL MMAB5
          RETURN
       END IF
       IF(WC.EQ.'MABX5'.OR.WC.EQ.'XMABX5') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL MMABX5
          RETURN
       END IF
       IF(WC.EQ.'SA357'.OR.WC.EQ.'XSA357') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL SA357
          RETURN
       END IF
       IF(WC.EQ.'MABP3'.OR.WC.EQ.'XMABP3') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL MMABP3
          RETURN
       END IF
       IF(WC.EQ.'SA357I'.OR.WC.EQ.'XSA357I') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL A357I
          RETURN
       END IF
       IF(WC.EQ.'MAB5I'.OR.WC.EQ.'XMAB5I') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL AB5I
          RETURN
       END IF
       IF(WC.EQ.'MABX5I'.OR.WC.EQ.'XMABX5I') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRC
          CALL ABX5I
          RETURN
       END IF
       IF(WC.EQ.'PCD3'.OR.WC.EQ.'XPCD3'.OR.WC.EQ.'SCD3'.OR.WC.EQ.'XSCD3') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRD
          CALL PCD3
          RETURN
       END IF
       IF(WC.EQ.'PCD5'.OR.WC.EQ.'XPCD5'.OR.WC.EQ.'SCD5'.OR.WC.EQ.'XSCD5') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRD
          CALL PCD5
          RETURN
       END IF
       IF(WC.EQ.'PCDX5'.OR.WC.EQ.'XPCDX5'.OR.WC.EQ.'SCDX5'.OR.WC.EQ.'XSCDX5') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRD
          CALL PCDX5
          RETURN
       END IF
       IF(WC.EQ.'PCDP3'.OR.WC.EQ.'XPCDP3'.OR.WC.EQ.'SCDP3'.OR.WC.EQ.'XSCDP3') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRD
          CALL PCDP3
          RETURN
       END IF
       IF(WC.EQ.'PCDSA'.OR.WC.EQ.'XPCDSA'.OR.WC.EQ.'SCDSA'.OR.WC.EQ.'XSCDSA') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRD
          CALL PCDSA
          RETURN
       END IF
       IF(WC.EQ.'FCHY'.OR.WC.EQ.'FCHX') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRTRB
          CALL FCH
          RETURN
@@ -983,7 +984,7 @@ SUBROUTINE CMDER
             CPFNEXT=.FALSE.
             CALL DELPSF
          END IF
-         II=INT(SYSTEM(20))
+         II=INT(sys_last_surf())
          ALENS(88,1:II)=0.0D0
          ALENS(109,1:II)=0.0D0
          LPASS1=.FALSE.
@@ -1530,11 +1531,11 @@ SUBROUTINE CMDER
          LDIF2=.TRUE.
          OLDREF=NEWREF
          NEWREF=1
-         OLDSTOP=INT(SYSTEM(26))
-         OLDSTOP2=INT(SYSTEM(27))
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         OLDSTOP=INT(sys_astop())
+         OLDSTOP2=INT(sys_astop_adj())
+         call set_sys_ref_surf(1.0D0)
+         call set_sys_astop(1.0D0)
+         call set_sys_astop_adj(0.0D0)
 !     IF VIE, MSG OFF
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
@@ -1548,29 +1549,29 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call set_sys_ref_surf(DBLE(NEWREF))
+         call set_sys_astop(DBLE(OLDSTOP))
+         call set_sys_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
          RETURN
       END IF
       IF(WC.EQ.'IRAYA')  THEN
-         OS62=SYSTEM(62)
-         OS63=SYSTEM(63)
-         SYSTEM(62)=0.0D0
-         SYSTEM(63)=0.0D0
+         OS62=sys_ray_aiming()
+         OS63=sys_telecentric()
+         call set_sys_ray_aiming(0.0D0)
+         call set_sys_telecentric(0.0D0)
          OLDIF=LDIF
          OLDIF2=LDIF2
          LDIF=.FALSE.
          LDIF2=.TRUE.
          OLDREF=NEWREF
          NEWREF=1
-         OLDSTOP=INT(SYSTEM(26))
-         OLDSTOP2=INT(SYSTEM(27))
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         OLDSTOP=INT(sys_astop())
+         OLDSTOP2=INT(sys_astop_adj())
+         call set_sys_ref_surf(1.0D0)
+         call set_sys_astop(1.0D0)
+         call set_sys_astop_adj(0.0D0)
          ITRACE=.TRUE.
 !     IF VIE, MSG OFF
          IF(F34.EQ.1) MSG=.FALSE.
@@ -1582,13 +1583,13 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call set_sys_ref_surf(DBLE(NEWREF))
+         call set_sys_astop(DBLE(OLDSTOP))
+         call set_sys_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
-         SYSTEM(62)=OS62
-         SYSTEM(63)=OS63
+         call set_sys_ray_aiming(OS62)
+         call set_sys_telecentric(OS63)
          ITRACE=.FALSE.
          RETURN
       END IF
@@ -1597,8 +1598,8 @@ SUBROUTINE CMDER
 !     AND IF SUCCESSFUL, IT EXECUTES THE FOB, ELSE IT DOES NOT
          CALL FOBA
          NEWOBJ=0
-         NEWREF=INT(SYSTEM(25))
-         NEWIMG=INT(SYSTEM(20))
+         NEWREF=INT(sys_ref_surf())
+         NEWIMG=INT(sys_last_surf())
          RETURN
       END IF
       IF(WC.EQ.'FOB'.OR.WC.EQ.'FOBH')  THEN
@@ -1616,8 +1617,8 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWOBJ=0
-         NEWREF=INT(SYSTEM(25))
-         NEWIMG=INT(SYSTEM(20))
+         NEWREF=INT(sys_ref_surf())
+         NEWIMG=INT(sys_last_surf())
          IF(WC.EQ.'FOB     ') THEN
             CALL FFOB
          END IF
@@ -1695,11 +1696,11 @@ SUBROUTINE CMDER
          LDIF2=.TRUE.
          OLDREF=NEWREF
          NEWREF=1
-         OLDSTOP=INT(SYSTEM(26))
-         OLDSTOP2=INT(SYSTEM(27))
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         OLDSTOP=INT(sys_astop())
+         OLDSTOP2=INT(sys_astop_adj())
+         call set_sys_ref_surf(1.0D0)
+         call set_sys_astop(1.0D0)
+         call set_sys_astop_adj(0.0D0)
 !     NO LINE SPREAD FUNCTIONS MAY EXIST NOW
          LSF=.FALSE.
 !     NO SPOTS EXIST
@@ -1715,9 +1716,9 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call set_sys_ref_surf(DBLE(NEWREF))
+         call set_sys_astop(DBLE(OLDSTOP))
+         call set_sys_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
          RETURN
@@ -2101,57 +2102,57 @@ SUBROUTINE CMDER
       END IF
       IF(WC.EQ.'GLOBAL'.OR.WC.EQ.'OFFSET'.OR.WC.EQ.'VERTEX')THEN
          IF(WC.EQ.'GLOBAL') GRASET=.FALSE.
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL GLOBAL
          RETURN
       END IF
       IF(WC.EQ.'PRGLOBAL')THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRGLBL
          RETURN
       END IF
       IF(WC.EQ.'PRXYZ'.OR.WC.EQ.'PRXYI'.OR.WC.EQ.'PRXYIP') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRRAY
          RETURN
       END IF
       IF(WC.EQ.'PRNSS') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRNSS
          RETURN
       END IF
       IF(WC.EQ.'PRFLUX') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRFLUX
          RETURN
       END IF
       IF(WC.EQ.'PRPOL') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRPOL
          RETURN
       END IF
       IF(WC.EQ.'PRLMN') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRLMN
          RETURN
       END IF
       IF(WC.EQ.'PRX'.OR.WC.EQ.'PRY') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRXY
          RETURN
       END IF
       IF(WC.EQ.'PRZ') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRZ
          RETURN
       END IF
       IF(WC.EQ.'PRR') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRR
          RETURN
       END IF
       IF(WC.EQ.'PRXYD') THEN
-         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
+         IF(SQ.EQ.0.AND.DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
          CALL PRXYD
          RETURN
       END IF
@@ -2357,11 +2358,11 @@ SUBROUTINE CMDER
          LDIF2=.TRUE.
          OLDREF=NEWREF
          NEWREF=1
-         OLDSTOP=INT(SYSTEM(26))
-         OLDSTOP2=INT(SYSTEM(27))
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         OLDSTOP=INT(sys_astop())
+         OLDSTOP2=INT(sys_astop_adj())
+         call set_sys_ref_surf(1.0D0)
+         call set_sys_astop(1.0D0)
+         call set_sys_astop_adj(0.0D0)
          GRASET=.FALSE.
          SPDEXT=.FALSE.
          MSGSPD=.TRUE.
@@ -2373,9 +2374,9 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call set_sys_ref_surf(DBLE(NEWREF))
+         call set_sys_astop(DBLE(OLDSTOP))
+         call set_sys_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
          RETURN
@@ -2384,21 +2385,21 @@ SUBROUTINE CMDER
          GRASET=.FALSE.
          SPDEXT=.FALSE.
          MSGSPD=.TRUE.
-         OS62=SYSTEM(62)
-         OS63=SYSTEM(63)
-         SYSTEM(62)=0.0D0
-         SYSTEM(63)=0.0D0
+         OS62=sys_ray_aiming()
+         OS63=sys_telecentric()
+         call set_sys_ray_aiming(0.0D0)
+         call set_sys_telecentric(0.0D0)
          OLDIF=LDIF
          OLDIF2=LDIF2
          LDIF=.FALSE.
          LDIF2=.TRUE.
          OLDREF=NEWREF
          NEWREF=1
-         OLDSTOP=INT(SYSTEM(26))
-         OLDSTOP2=INT(SYSTEM(27))
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         OLDSTOP=INT(sys_astop())
+         OLDSTOP2=INT(sys_astop_adj())
+         call set_sys_ref_surf(1.0D0)
+         call set_sys_astop(1.0D0)
+         call set_sys_astop_adj(0.0D0)
          ITRACE=.TRUE.
 !     IF VIE, MSG OFF
          IF(F34.EQ.1) MSG=.FALSE.
@@ -2410,13 +2411,13 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call set_sys_ref_surf(DBLE(NEWREF))
+         call set_sys_astop(DBLE(OLDSTOP))
+         call set_sys_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
-         SYSTEM(62)=OS62
-         SYSTEM(63)=OS63
+         call set_sys_ray_aiming(OS62)
+         call set_sys_telecentric(OS63)
          ITRACE=.FALSE.
 !     DONE, MSG BACK ON
          IF(F34.EQ.1) MSG=.FALSE.
@@ -2559,7 +2560,7 @@ SUBROUTINE CMDER
                   ITERROR=.FALSE.
                   EXIT
                END IF
-               IF(SYSTEM(101).NE.0.0D0) THEN
+               IF(sys_verbose_optim().NE.0.0D0) THEN
                   SAVE_KDP(1)=SAVEINPT(1)
                   INPUT='VB'
                   CALL PROCES
@@ -2593,7 +2594,7 @@ SUBROUTINE CMDER
             IF(ITERROR) THEN
                ITERROR=.FALSE.
             END IF
-            IF(SYSTEM(101).NE.0.0D0) THEN
+            IF(sys_verbose_optim().NE.0.0D0) THEN
                SAVE_KDP(1)=SAVEINPT(1)
                INPUT='VB'
                CALL PROCES
@@ -2634,7 +2635,7 @@ SUBROUTINE CMDER
          IF(ITERROR) THEN
             ITERROR=.FALSE.
          END IF
-         IF(SYSTEM(101).NE.0.0D0) THEN
+         IF(sys_verbose_optim().NE.0.0D0) THEN
             SAVE_KDP(1)=SAVEINPT(1)
             INPUT='VB'
             CALL PROCES
@@ -2674,7 +2675,7 @@ SUBROUTINE CMDER
          IF(ITERROR) THEN
             ITERROR=.FALSE.
          END IF
-         IF(SYSTEM(101).NE.0.0D0) THEN
+         IF(sys_verbose_optim().NE.0.0D0) THEN
             SAVE_KDP(1)=SAVEINPT(1)
             INPUT='VB'
             CALL PROCES
@@ -3501,6 +3502,7 @@ SUBROUTINE DELPSF
    use DATSPD
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    INTEGER ALLOERR

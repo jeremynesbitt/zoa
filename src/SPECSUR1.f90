@@ -4,6 +4,7 @@
 SUBROUTINE SPSUP
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -62,6 +63,7 @@ END
 SUBROUTINE SPSRF2(ITP)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -240,6 +242,7 @@ SUBROUTINE SPSTAT
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -256,7 +259,7 @@ SUBROUTINE SPSTAT
    JA=COS_A_ANG
    JB=COS_B_ANG
 !
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
       IF(STI.EQ.1) THEN
          OUTLYNE='"SPDSTATS" DOES STATISTICS ON SUMMED SPOTS'
@@ -390,7 +393,7 @@ SUBROUTINE SPSTAT
    SPD=SPD/W
    AFSPB=AFSPB/W
    AFSPD=AFSPD/W
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL OR UFOCAL
       SCENTX=SPA
       SCENTY=SPC
@@ -481,7 +484,7 @@ SUBROUTINE SPSTAT
    AMSSX=ASSSPX
    MSSY=SSSPY+(2.0D0*DELTA*SSSQY)+((DELTA**2)*SSSRY)
    AMSSY=ASSSPY
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       FOCAL, DO FOCUS SHIFT CALCS
       IF(DABS(SSSRX).LT.1.0D-15.OR.DABS(SSSQX).GT.1.0D+15) THEN
          IF(SSSRX.GE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=-1.0D35
@@ -507,11 +510,11 @@ SUBROUTINE SPSTAT
    END IF
    IF(DABS(SCENTX).LT.1.0D-15) SCENTX=0.0D0
    IF(DABS(SCENTY).LT.1.0D-15) SCENTY=0.0D0
-   IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-   IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0) UN='METERS'
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_units().EQ.1.0) UN='INCHES     '
+   IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='METERS'
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
       RMSX=2.0D0*(DSQRT(MSSX/W))
       RMSY=2.0D0*(DSQRT(MSSY/W))
       RMS=(RMSX+RMSY)/2.0D0
@@ -520,7 +523,7 @@ SUBROUTINE SPSTAT
       RMSY=2.0D0*(DSQRT(AMSSY/W))
       RMS=(RMSX+RMSY)/2.0D0
    END IF
-   IF(SYSTEM(30).LT.3.0D0) THEN
+   IF(sys_mode().LT.3.0D0) THEN
       RMSX=RMSX/JB
       RMSY=RMSY/JA
       RMS=(RMSX+RMSY)/2.0D0
@@ -549,7 +552,7 @@ SUBROUTINE SPSTAT
 222 FORMAT('FOCUS SHIFT FOR BEST RMS SPOT LENGTH (Y) = ',G17.10,1X,A11)
 220 FORMAT('FOCUS SHIFT FOR BEST RMS SPOT DIAMETER   = ',G17.10,1X,A11)
 !       DO THE PRINT OUT
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
       WRITE(OUTLYNE,114)
       CALL SHOWIT(0)
@@ -605,6 +608,7 @@ END
 SUBROUTINE SPSIN
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -652,7 +656,7 @@ SUBROUTINE SPSIN
 !       INITIALIZE ALL SPECIAL SURFACE DATA
 
 !
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    ALENS(34,1:I)=0.0D0
 !
 !
@@ -666,6 +670,7 @@ SUBROUTINE SPSPEC(ITP)
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface
@@ -744,8 +749,8 @@ SUBROUTINE SPSPEC(ITP)
       RETURN
    END IF
 !       SURFACE NUMBER CHECK
-   IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-   IF(INT((W1)).LT.1.OR.INT((W1)).GT.INT(SYSTEM(20))) THEN
+   IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+   IF(INT((W1)).LT.1.OR.INT((W1)).GT.INT(sys_last_surf())) THEN
       OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -835,8 +840,8 @@ SUBROUTINE SPSPEC(ITP)
 !     SET DEFAULTS FOR TYPE 12
    IF(INT(W2).EQ.12) THEN
       FTFL01(1,INT(W1))=0.0D0
-      IF(SYSTEM(11).LE.5.0D0)FTFL01(2,INT(W1))=SYSTEM(INT(SYSTEM(11)))
-      IF(SYSTEM(11).GT.5.0D0)FTFL01(2,INT(W1))=SYSTEM(65+INT(SYSTEM(11)))
+      IF(sys_wl_ref().LE.5.0D0)FTFL01(2,INT(W1))=sys_wavelength(INT(sys_wl_ref()))
+      IF(sys_wl_ref().GT.5.0D0)FTFL01(2,INT(W1))=sys_wavelength(INT(sys_wl_ref()))
       FTFL01(3,INT(W1))=0.0D0
       FTFL01(4,INT(W1))=0.0D0
       FTFL01(5,INT(W1))=0.0D0
@@ -850,8 +855,8 @@ SUBROUTINE SPSPEC(ITP)
    IF(INT(W2).EQ.13) THEN
 !     SET DEFAULTS FOR TYPE 13
       FTFL01(1,INT(W1))=0.0D0
-      IF(SYSTEM(11).LE.5.0D0)FTFL01(2,INT(W1))=SYSTEM(INT(SYSTEM(11)))
-      IF(SYSTEM(11).GT.5.0D0)FTFL01(2,INT(W1))=SYSTEM(65+INT(SYSTEM(11)))
+      IF(sys_wl_ref().LE.5.0D0)FTFL01(2,INT(W1))=sys_wavelength(INT(sys_wl_ref()))
+      IF(sys_wl_ref().GT.5.0D0)FTFL01(2,INT(W1))=sys_wavelength(INT(sys_wl_ref()))
       FTFL01(3,INT(W1))=0.0D0
       FTFL01(4,INT(W1))=0.0D0
       FTFL01(5,INT(W1))=0.0D0
@@ -903,6 +908,7 @@ END
 SUBROUTINE SPSEOS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -936,7 +942,7 @@ SUBROUTINE SPSEOS
 !***************************************************************************
    IF(F12.EQ.1) THEN
 !       SINCE surf_asi_flag(I) MGHT HAVE BEEN CHANGED
-      III=INT(SYSTEM(20))
+      III=INT(sys_last_surf())
       FT01P(1:96,0:III)=FTFL01(1:96,0:III)
       IIII=LSIZ
       ALENP(1:IIII,0:III)=ALENS(1:IIII,0:III)
@@ -958,6 +964,7 @@ END
 SUBROUTINE SPONOF
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1015,6 +1022,7 @@ END
 SUBROUTINE SPFIT2
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1190,6 +1198,7 @@ END
 SUBROUTINE SPFIT
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2848,6 +2857,7 @@ END
 SUBROUTINE SPDEL
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2883,8 +2893,8 @@ SUBROUTINE SPDEL
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-   IF(INT(W1).LT.1.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+   IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+   IF(INT(W1).LT.1.OR.INT(W1).GT.INT(sys_last_surf())) THEN
       OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'

@@ -9,6 +9,7 @@ SUBROUTINE LNSEOS
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -36,8 +37,8 @@ SUBROUTINE LNSEOS
       CFLDS(2,3)=1.0D0
    END IF
 !     RESTORE DECENTERS TO CONVER PIVOTS
-   IF(SYSTEM(20).GT.DBLE(MAXSUR)) SYSTEM(20)=DBLE(MAXSUR)
-   I=INT(SYSTEM(20))
+   call set_sys_last_surf(DBLE(MAXSUR))
+   I=INT(sys_last_surf())
    ALENS(29,1:I) = 0.0D0
    ALENS(30,1:I) = ALENS(114,1:I)
    ALENS(31,1:I) = ALENS(115,1:I)
@@ -45,17 +46,17 @@ SUBROUTINE LNSEOS
    ALENS(26,1:I) = ALENS(118,1:I)
    ALENS(27,1:I) = ALENS(119,1:I)
    ALENS(28,1:I) = ALENS(120,1:I)
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_decenter_x(I).NE.0.0D0.OR.surf_decenter_y(I).NE.0.0D0.OR.surf_decenter_z(I).NE.0.0D0) call set_surf_decenter_flag(I, 1)
    END DO
 !
-   IF(INT(SYSTEM(91)).EQ.0) F57=0
+   IF(INT(sys_autofunc()).EQ.0) F57=0
 !
    IF(F57.EQ.0) THEN
 !       ALLOCATE THE MULTIHIT ARRAYS AND P1ARAY
       DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,MULTI_DATA,P1ARAY,STAT=ALLOERR)
       IF(.NOT.ALLOCATED(MULTIRAY_DATA)) THEN
-         IF(SYSTEM(102).EQ.1.0D0) THEN
+         IF(sys_nss().EQ.1.0D0) THEN
 !       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
             DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,MULTI_DATA,P1ARAY,STAT=ALLOERR)
             ALLOCATE(GLOBAL_MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),GLOBAL_MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTI_DATA(1:50,0:MAXSUR,1:MRAYS),P1ARAY(0:360,1:3,1:MRAYS),STAT=ALLOERR)
@@ -98,7 +99,7 @@ SUBROUTINE LNSEOS
 !       ALLOCATE THE MULTIHIT ARRAYS AND P1ARAY
       DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,MULTI_DATA,P1ARAY,STAT=ALLOERR)
       IF(.NOT.ALLOCATED(MULTIRAY_DATA)) THEN
-         IF(SYSTEM(102).EQ.1.0D0) THEN
+         IF(sys_nss().EQ.1.0D0) THEN
 !       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
             DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,P1ARAY,MULTI_DATA,STAT=ALLOERR)
             ALLOCATE(GLOBAL_MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),GLOBAL_MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTI_DATA(1:50,0:MAXSUR,1:MRAYS),P1ARAY(0:360,1:3,1:MRAYS),STAT=ALLOERR)
@@ -134,7 +135,7 @@ SUBROUTINE LNSEOS
 !       ALLOCATE THE MULTIHIT ARRAYS AND P1ARAY
          DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,MULTI_DATA,P1ARAY,STAT=ALLOERR)
          IF(.NOT.ALLOCATED(MULTIRAY_DATA)) THEN
-            IF(SYSTEM(102).EQ.1.0D0) THEN
+            IF(sys_nss().EQ.1.0D0) THEN
 !       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
                DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,P1ARAY,MULTI_DATA,STAT=ALLOERR)
                ALLOCATE(GLOBAL_MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),GLOBAL_MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTI_DATA(1:50,0:MAXSUR,1:MRAYS),P1ARAY(0:360,1:3,1:MRAYS),STAT=ALLOERR)
@@ -173,7 +174,7 @@ SUBROUTINE LNSEOS
          DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,MULTI_DATA,P1ARAY,STAT=ALLOERR)
 !       DO WE NEED TO ALLOCATE THE MULTIHIT ARRAYS
          IF(.NOT.ALLOCATED(MULTIRAY_DATA)) THEN
-            IF(SYSTEM(102).EQ.1.0D0) THEN
+            IF(sys_nss().EQ.1.0D0) THEN
 !       AN NSS TUBE SURFACE IS PRESENT, ALLOCATE MEMORY
                DEALLOCATE(GLOBAL_MULTIRAY_DATA,GLOBAL_MULTIREF_DATA,MULTIRAY_DATA,MULTIREF_DATA,MULTI_DATA,P1ARAY,STAT=ALLOERR)
                ALLOCATE(GLOBAL_MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),GLOBAL_MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIRAY_DATA(1:50,0:MAXSUR,1:MRAYS),MULTIREF_DATA(1:50,0:MAXSUR,1:MRAYS),MULTI_DATA(1:50,0:MAXSUR,1:MRAYS),P1ARAY(0:360,1:3,1:MRAYS),STAT=ALLOERR)
@@ -206,13 +207,14 @@ END
 SUBROUTINE TILT_RETURN(ERCODE,TRYES)
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER I,J
    LOGICAL ERCODE,TRYES
 !     TEST FOR NESTED TILT RETS
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_tilt_flag(I) == 6) THEN
          TRYES=.TRUE.
 !     FOUND A TILT RET ON SURFACE I
@@ -241,7 +243,7 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
 !     NO TILT RET ON SURFACE I
       END IF
    END DO
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_tilt_flag(I) == 6) THEN
 !     TILT RET
          DO J=0,I
@@ -269,7 +271,7 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
 !     NO TILT RET
       END IF
    END DO
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_tilt_flag(I) == 6) THEN
 !     TILT RET
          IF(INT(surf_ret_surf_num(I)).GE.I) THEN
@@ -301,6 +303,7 @@ SUBROUTINE LNSEOS1
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -340,23 +343,23 @@ SUBROUTINE LNSEOS1
 !       AND ASTOP ASSIGNMENT
       NOSTOP=.TRUE.
       NOREF=.TRUE.
-      IF(INT(SYSTEM(25)).GE.0.AND.INT(SYSTEM(25)).LE.INT(SYSTEM(20)))NOREF=.FALSE.
-      IF(INT(SYSTEM(26)).GE.0.AND.INT(SYSTEM(26)).LE.INT(SYSTEM(20)))NOSTOP=.FALSE.
+      IF(INT(sys_ref_surf()).GE.0.AND.INT(sys_ref_surf()).LE.INT(sys_last_surf()))NOREF=.FALSE.
+      IF(INT(sys_astop()).GE.0.AND.INT(sys_astop()).LE.INT(sys_last_surf()))NOSTOP=.FALSE.
 !       IF NO REF SURF AND NO STOP, MAKE REF SURF = SURFACE 1
       IF(NOREF.AND.NOSTOP) THEN
-         SYSTEM(25)=1.0D0
+         call set_sys_ref_surf(1.0D0)
       END IF
 !       IF NO REF SURF BUT THERE IS A STOP, MAKE REF SURF = STOP SURF
       IF(.NOT.NOSTOP.AND.NOREF) THEN
-         SYSTEM(25)=SYSTEM(26)
+         call set_sys_ref_surf(sys_astop())
       END IF
       IF(.NOT.NOSTOP) THEN
 !       THERE IS A STOP SURFACE, ZERO OUT SECOND NUMERIC WORDS OF
 !       SCY,SCX,SCY FANG AND SCX FANG
-         SYSTEM(15)=0.0D0
-         SYSTEM(17)=0.0D0
-         SYSTEM(22)=0.0D0
-         SYSTEM(24)=0.0D0
+         call set_sys_scy_y1(0.0D0)
+         call set_sys_scx_x1(0.0D0)
+         call set_sys_fang_y_y1(0.0D0)
+         call set_sys_fang_x_x1(0.0D0)
       END IF
 !
    END SELECT
@@ -389,7 +392,7 @@ SUBROUTINE LNSEOS1
 !       CHECK FOR SURFACE THICKNESS MAG GREATER THAN 1E200
 !     OR LESS THAN 1.0D-20
 !       THIS HELPS OVERFLOWING ON MACHINES.
-      DO KIL=0,INT(SYSTEM(20))
+      DO KIL=0,INT(sys_last_surf())
          IF(surf_thickness(KIL).GT.1.0D200)call set_surf_thickness(KIL, 1.0D200)
          IF(surf_thickness(KIL).LT.-1.0D200)call set_surf_thickness(KIL, -1.0D200)
          IF(DABS(surf_thickness(KIL)).LT.1.0D-20)call set_surf_thickness(KIL, 0.0D0)
@@ -399,8 +402,8 @@ SUBROUTINE LNSEOS1
       !OUTLYNE = "JUST FINISHED RESSUR"
       !CALL SHOWIT(19)
 !
-      IF(SYSTEM(18).EQ.1.0D0) SYSTEM(19)=1.0D0
-      IF(SYSTEM(18).EQ.0.0D0) SYSTEM(19)=0.0D0
+      call set_sys_scx_fang_set(1.0D0)
+      call set_sys_scx_fang_set(0.0D0)
 !
 !       SET REFEXT TO FALSE AND NULL TO TRUE
       IF(RAYCLEAR) THEN
@@ -418,7 +421,7 @@ SUBROUTINE LNSEOS1
          CALL SHOWIT(19)
       END IF
    END SELECT
-   II=INT(SYSTEM(20))
+   II=INT(sys_last_surf())
    ALENS(109,1:II)=0.0D0
    IF(F5.EQ.1) THEN
 !       LENS INPUT, UNLOAD THE GRID FILES
@@ -441,7 +444,7 @@ SUBROUTINE LNSEOS1
 !       GLASS CATALOG SEARCHES
 !
 !     FIX LEADING COLON IN GLASS NAME
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(GLANAM(I,2)(1:1).EQ.':') GLANAM(I,2)(1:13)=GLANAM(I,2)(2:13)
          IF(GLANMP(I,2)(1:1).EQ.':') GLANMP(I,2)(1:13)=GLANMP(I,2)(2:13)
       END DO
@@ -464,7 +467,7 @@ SUBROUTINE LNSEOS1
 !       PROCEED TO CHECK CATALOGS
 !
 !     FIX LEADING COLON IN GLASS NAME
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(GLANAM(I,2)(1:1).EQ.':') GLANAM(I,2)(1:13)=GLANAM(I,2)(2:13)
          IF(GLANMP(I,2)(1:1).EQ.':') GLANMP(I,2)(1:13)=GLANMP(I,2)(2:13)
       END DO
@@ -493,19 +496,19 @@ SUBROUTINE LNSEOS1
 !       BY 1.0 AND ONLY IF THERE ARE NO SOLVES OR THICKNESS
 !     PIKUPS ON THIS LAST SURFACE
       IF(F5.EQ.1) THEN
-!     IS THERE A THICKNESS SOLVE OR PIKUP ON SURF INT(SYSTEM(20))-1?
-         IF(surf_pickup_count(INT(SYSTEM(20))-1).NE.0.0D0.OR.surf_solve_flag(INT(SYSTEM(20))-1).NE.0.0D0.OR.surf_thickness(INT(SYSTEM(20))).NE.0.0D0) THEN
+!     IS THERE A THICKNESS SOLVE OR PIKUP ON SURF INT(sys_last_surf())-1?
+         IF(surf_pickup_count(INT(sys_last_surf())-1).NE.0.0D0.OR.surf_solve_flag(INT(sys_last_surf())-1).NE.0.0D0.OR.surf_thickness(INT(sys_last_surf())).NE.0.0D0) THEN
 !     HAS SOLVES OR PIKUPS OR THICKNESS ON I-1, DON'T REDUCE THE COUNT
          ELSE
 !     NO SOLVES, PIKUPS OR THICKNESS ON I-1, DELETE THE SURFACE I
-            SYSTEM(20)=SYSTEM(20)-1.0D0
+            call set_sys_last_surf(sys_last_surf()-1.0D0)
          END IF
       END IF
 !
-      NEWIMG=SYSTEM(20)
-      IF(SYSTEM(20).LT.0.0D0) SYSTEM(20)=0.0D0
-      NEWIMG=SYSTEM(20)
-      IF(F5.EQ.1.AND.SYSTEM(20).EQ.0.0D0) THEN
+      NEWIMG=sys_last_surf()
+      call set_sys_last_surf(0.0D0)
+      NEWIMG=sys_last_surf()
+      IF(F5.EQ.1.AND.sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
          CALL SHOWIT(1)
          OUTLYNE='RETURNED TO CMD LEVEL'
@@ -513,14 +516,14 @@ SUBROUTINE LNSEOS1
          F1=1
          F5=0
          F22=0
-         SYSTEM(25)=0.0D0
-         NEWREF=SYSTEM(25)
+         call set_sys_ref_surf(0.0D0)
+         NEWREF=sys_ref_surf()
          OUTLYNE = "ABOUT TO CALL MACFAL "
          CALL SHOWIT(19)
          CALL MACFAL
          RETURN
       END IF
-      IF(F6.EQ.1.AND.SYSTEM(20).EQ.0.0D0) THEN
+      IF(F6.EQ.1.AND.sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
          CALL SHOWIT(1)
          OUTLYNE='RETURNED TO CMD LEVEL'
@@ -528,8 +531,8 @@ SUBROUTINE LNSEOS1
          F1=1
          F6=0
          F22=0
-         SYSTEM(25)=0.0D0
-         NEWREF=SYSTEM(25)
+         call set_sys_ref_surf(0.0D0)
+         NEWREF=sys_ref_surf()
          OUTLYNE = "ABOUT TO CALL MACFAL "
          CALL SHOWIT(19)
          CALL MACFAL
@@ -543,20 +546,20 @@ SUBROUTINE LNSEOS1
 !       APPROPRIATE PARAXIAL TRACES. THE REFRACIVE INDEX
 !       OF SURFACE NEWIMG IS NOW NOT USED IN ANY CALCULATION OF
 !       PARAXIAL OR REAL RAY TRACING. FOR NEATNESS, THE NAME OF THE
-!       GLASS TYPE OF SURFACE SYSTEM(20) IS SET TO "IMAGE SURFACE"
-!       AND THE INDEX OF REFRACTION IS SET = TO SURFACE SYSTEM(20)-1
-      call set_surf_refractive_index(INT(SYSTEM(20)), 1, surf_refractive_index(INT(SYSTEM(20))-1, 1))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 2, surf_refractive_index(INT(SYSTEM(20))-1, 2))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 3, surf_refractive_index(INT(SYSTEM(20))-1, 3))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 4, surf_refractive_index(INT(SYSTEM(20))-1, 4))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 5, surf_refractive_index(INT(SYSTEM(20))-1, 5))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 6, surf_refractive_index(INT(SYSTEM(20))-1, 6))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 7, surf_refractive_index(INT(SYSTEM(20))-1, 7))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 8, surf_refractive_index(INT(SYSTEM(20))-1, 8))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 9, surf_refractive_index(INT(SYSTEM(20))-1, 9))
-      call set_surf_refractive_index(INT(SYSTEM(20)), 10, surf_refractive_index(INT(SYSTEM(20))-1, 10))
-      GLANAM(INT(SYSTEM(20)),1)=' '
-      GLANAM(INT(SYSTEM(20)),2)='LAST SURFACE'
+!       GLASS TYPE OF SURFACE sys_last_surf() IS SET TO "IMAGE SURFACE"
+!       AND THE INDEX OF REFRACTION IS SET = TO SURFACE sys_last_surf()-1
+      call set_surf_refractive_index(INT(sys_last_surf()), 1, surf_refractive_index(INT(sys_last_surf())-1, 1))
+      call set_surf_refractive_index(INT(sys_last_surf()), 2, surf_refractive_index(INT(sys_last_surf())-1, 2))
+      call set_surf_refractive_index(INT(sys_last_surf()), 3, surf_refractive_index(INT(sys_last_surf())-1, 3))
+      call set_surf_refractive_index(INT(sys_last_surf()), 4, surf_refractive_index(INT(sys_last_surf())-1, 4))
+      call set_surf_refractive_index(INT(sys_last_surf()), 5, surf_refractive_index(INT(sys_last_surf())-1, 5))
+      call set_surf_refractive_index(INT(sys_last_surf()), 6, surf_refractive_index(INT(sys_last_surf())-1, 6))
+      call set_surf_refractive_index(INT(sys_last_surf()), 7, surf_refractive_index(INT(sys_last_surf())-1, 7))
+      call set_surf_refractive_index(INT(sys_last_surf()), 8, surf_refractive_index(INT(sys_last_surf())-1, 8))
+      call set_surf_refractive_index(INT(sys_last_surf()), 9, surf_refractive_index(INT(sys_last_surf())-1, 9))
+      call set_surf_refractive_index(INT(sys_last_surf()), 10, surf_refractive_index(INT(sys_last_surf())-1, 10))
+      GLANAM(INT(sys_last_surf()),1)=' '
+      GLANAM(INT(sys_last_surf()),2)='LAST SURFACE'
    ELSE
 !       LNSTYP NOT 1
    END IF
@@ -566,64 +569,24 @@ SUBROUTINE LNSEOS1
 !***************************************************************
 !
 !       DOES SAX GET THE VALUE OF SAY?
-      IF(SYSTEM(49).NE.1.0D0.AND.SYSTEM(49).NE.3.0D0) THEN
+      IF(sys_xz_data().NE.1.0D0.AND.sys_xz_data().NE.3.0D0) THEN
 !               YES IT DOES
-         SYSTEM(13)=SYSTEM(12)
+         call set_sys_sax(sys_say())
 !               DON'T RESET SAX EQUAL TO SAY
       END IF
-      IF(SYSTEM(13).EQ.0.0D0.AND.SYSTEM(12).NE.0.0D0) THEN
+      IF(sys_sax().EQ.0.0D0.AND.sys_say().NE.0.0D0) THEN
 !               YES IT DOES
-         SYSTEM(13)=SYSTEM(12)
+         call set_sys_sax(sys_say())
 !               DON'T RESET SAX EQUAL TO SAY
       END IF
 !     NOW CALCULATE SAY AND SAX FROM NAO OR FNO IF NECESSARY
 !
-      IF(SYSTEM(64).EQ.1.0D0) THEN
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            YTERM=(SYSTEM(65))/(ALENS(45+INT(SYSTEM(11)),0))
+      IF(sys_nao_flag().EQ.1.0D0) THEN
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            YTERM=(sys_nao_y())/(ALENS(45+INT(sys_wl_ref()),0))
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            YTERM=(SYSTEM(65))/(ALENS(65+INT(SYSTEM(11)),0))
-         END IF
-         IF(DABS(YTERM).GT.1.0D0) THEN
-            OUTLYNE='NEW "NAOY" VALUE WAS NOT REALISTIC'
-            CALL SHOWIT(1)
-            OUTLYNE= '"NAOY" SETTING TURNED OFF'
-            CALL SHOWIT(1)
-            YTERM=1.0D0
-            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
-            SYSTEM(64)=0.0D0
-         ELSE
-            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
-         END IF
-      END IF
-      IF(SYSTEM(64).EQ.2.0D0) THEN
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            XTERM=(SYSTEM(66))/(ALENS(45+INT(SYSTEM(11)),0))
-         END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            XTERM=(SYSTEM(66))/(ALENS(65+INT(SYSTEM(11)),0))
-         END IF
-         IF(DABS(XTERM).GT.1.0D0) THEN
-            OUTLYNE='NEW "NAOX" VALUE WAS NOT REALISTIC'
-            CALL SHOWIT(1)
-            OUTLYNE= '"NAOX" SETTING TURNED OFF'
-            CALL SHOWIT(1)
-            XTERM=1.0D0
-            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
-            SYSTEM(64)=0.0D0
-         ELSE
-            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
-         END IF
-      END IF
-      IF(SYSTEM(64).EQ.3.0D0) THEN
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            YTERM=(SYSTEM(65))/(ALENS(45+INT(SYSTEM(11)),0))
-            XTERM=(SYSTEM(66))/(ALENS(45+INT(SYSTEM(11)),0))
-         END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            YTERM=(SYSTEM(65))/(ALENS(65+INT(SYSTEM(11)),0))
-            XTERM=(SYSTEM(66))/(ALENS(65+INT(SYSTEM(11)),0))
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            YTERM=(sys_nao_y())/(ALENS(65+INT(sys_wl_ref()),0))
          END IF
          IF(DABS(YTERM).GT.1.0D0) THEN
             OUTLYNE='NEW "NAOY" VALUE WAS NOT REALISTIC'
@@ -631,10 +594,18 @@ SUBROUTINE LNSEOS1
             OUTLYNE= '"NAOY" SETTING TURNED OFF'
             CALL SHOWIT(1)
             YTERM=1.0D0
-            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
-            SYSTEM(64)=0.0D0
+            call set_sys_say(surf_thickness(0)*DTAN(DASIN(YTERM)))
+            call set_sys_nao_flag(0.0D0)
          ELSE
-            SYSTEM(12)=surf_thickness(0)*DTAN(DASIN(YTERM))
+            call set_sys_say(surf_thickness(0)*DTAN(DASIN(YTERM)))
+         END IF
+      END IF
+      IF(sys_nao_flag().EQ.2.0D0) THEN
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            XTERM=(sys_nao_x())/(ALENS(45+INT(sys_wl_ref()),0))
+         END IF
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            XTERM=(sys_nao_x())/(ALENS(65+INT(sys_wl_ref()),0))
          END IF
          IF(DABS(XTERM).GT.1.0D0) THEN
             OUTLYNE='NEW "NAOX" VALUE WAS NOT REALISTIC'
@@ -642,69 +613,101 @@ SUBROUTINE LNSEOS1
             OUTLYNE= '"NAOX" SETTING TURNED OFF'
             CALL SHOWIT(1)
             XTERM=1.0D0
-            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
-            SYSTEM(64)=0.0D0
+            call set_sys_sax(surf_thickness(0)*DTAN(DASIN(XTERM)))
+            call set_sys_nao_flag(0.0D0)
          ELSE
-            SYSTEM(13)=surf_thickness(0)*DTAN(DASIN(XTERM))
+            call set_sys_sax(surf_thickness(0)*DTAN(DASIN(XTERM)))
+         END IF
+      END IF
+      IF(sys_nao_flag().EQ.3.0D0) THEN
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            YTERM=(sys_nao_y())/(ALENS(45+INT(sys_wl_ref()),0))
+            XTERM=(sys_nao_x())/(ALENS(45+INT(sys_wl_ref()),0))
+         END IF
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            YTERM=(sys_nao_y())/(ALENS(65+INT(sys_wl_ref()),0))
+            XTERM=(sys_nao_x())/(ALENS(65+INT(sys_wl_ref()),0))
+         END IF
+         IF(DABS(YTERM).GT.1.0D0) THEN
+            OUTLYNE='NEW "NAOY" VALUE WAS NOT REALISTIC'
+            CALL SHOWIT(1)
+            OUTLYNE= '"NAOY" SETTING TURNED OFF'
+            CALL SHOWIT(1)
+            YTERM=1.0D0
+            call set_sys_say(surf_thickness(0)*DTAN(DASIN(YTERM)))
+            call set_sys_nao_flag(0.0D0)
+         ELSE
+            call set_sys_say(surf_thickness(0)*DTAN(DASIN(YTERM)))
+         END IF
+         IF(DABS(XTERM).GT.1.0D0) THEN
+            OUTLYNE='NEW "NAOX" VALUE WAS NOT REALISTIC'
+            CALL SHOWIT(1)
+            OUTLYNE= '"NAOX" SETTING TURNED OFF'
+            CALL SHOWIT(1)
+            XTERM=1.0D0
+            call set_sys_sax(surf_thickness(0)*DTAN(DASIN(XTERM)))
+            call set_sys_nao_flag(0.0D0)
+         ELSE
+            call set_sys_sax(surf_thickness(0)*DTAN(DASIN(XTERM)))
          END IF
       END IF
 
-      IF(SYSTEM(67).EQ.1.0D0) THEN
-         SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+      IF(sys_fno_flag().EQ.1.0D0) THEN
+         call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
       END IF
-      IF(SYSTEM(67).EQ.2.0D0) THEN
-         SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+      IF(sys_fno_flag().EQ.2.0D0) THEN
+         call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
       END IF
-      IF(SYSTEM(67).EQ.3.0D0) THEN
-         SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-         SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+      IF(sys_fno_flag().EQ.3.0D0) THEN
+         call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+         call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
       END IF
 !
-      IF(SYSTEM(49).NE.2.0D0.AND.SYSTEM(49).NE.3.0D0) THEN
+      IF(sys_xz_data().NE.2.0D0.AND.sys_xz_data().NE.3.0D0) THEN
 !     SCX NOT ENTERED EXPLICITLY
-         IF(SYSTEM(18).EQ.1.0D0) SYSTEM(19)=1.0D0
-         IF(SYSTEM(18).EQ.0.0D0) SYSTEM(19)=0.0D0
+         call set_sys_scx_fang_set(1.0D0)
+         call set_sys_scx_fang_set(0.0D0)
 !       NO FIX IS NECESARRY
       END IF
 !
-      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10.AND.SYSTEM(60).EQ.0.0D0 .AND.SYSTEM(61).EQ.0.0D0) THEN
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10.AND.sys_scy_explicit().EQ.0.0D0 .AND.sys_scx_explicit().EQ.0.0D0) THEN
 !     OBJECT AT INFINITY, NO SCY (FANG) OR SCX (FANG) COMMANDS ISSED
 !     SET SCY FANG AND SCX FANG TO 1.0 DEGREES
-         SYSTEM(14)=0.0D0
-         SYSTEM(15)=0.0D0
-         SYSTEM(16)=0.0D0
-         SYSTEM(17)=0.0D0
-         SYSTEM(21)=1.0D0
-         SYSTEM(22)=0.0D0
-         SYSTEM(23)=1.0D0
-         SYSTEM(24)=0.0D0
-         SYSTEM(18)=1.0D0
-         SYSTEM(19)=1.0D0
-         SYSTEM(51)=0.0D0
-         SYSTEM(52)=0.0D0
-         SYSTEM(53)=1.0D0
-         SYSTEM(54)=1.0D0
+         call set_sys_scy(0.0D0)
+         call set_sys_scy_y1(0.0D0)
+         call set_sys_scx(0.0D0)
+         call set_sys_scx_x1(0.0D0)
+         call set_sys_fang_y(1.0D0)
+         call set_sys_fang_y_y1(0.0D0)
+         call set_sys_fang_x(1.0D0)
+         call set_sys_fang_x_x1(0.0D0)
+         call set_sys_scy_fang_set(1.0D0)
+         call set_sys_scx_fang_set(1.0D0)
+         call set_sys_scy_y1_set(0.0D0)
+         call set_sys_scx_x1_set(0.0D0)
+         call set_sys_fang_y_y1_set(1.0D0)
+         call set_sys_fang_x_x1_set(1.0D0)
       END IF
-      IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10.AND.SYSTEM(60).EQ.0.0D0 .AND.SYSTEM(61).EQ.0.0D0) THEN
+      IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10.AND.sys_scy_explicit().EQ.0.0D0 .AND.sys_scx_explicit().EQ.0.0D0) THEN
 !     OBJECT NEAR, NO SCY (FANG) OR SCX (FANG) COMMANDS ISSED
 !     SET SCY AND SCX TO 1.0 LENS UNIT
-         SYSTEM(14)=1.0D0
-         SYSTEM(15)=0.0D0
-         SYSTEM(16)=1.0D0
-         SYSTEM(17)=0.0D0
-         SYSTEM(21)=0.0D0
-         SYSTEM(22)=0.0D0
-         SYSTEM(23)=0.0D0
-         SYSTEM(24)=0.0D0
-         SYSTEM(18)=0.0D0
-         SYSTEM(19)=0.0D0
-         SYSTEM(51)=1.0D0
-         SYSTEM(52)=1.0D0
-         SYSTEM(53)=0.0D0
-         SYSTEM(54)=0.0D0
+         call set_sys_scy(1.0D0)
+         call set_sys_scy_y1(0.0D0)
+         call set_sys_scx(1.0D0)
+         call set_sys_scx_x1(0.0D0)
+         call set_sys_fang_y(0.0D0)
+         call set_sys_fang_y_y1(0.0D0)
+         call set_sys_fang_x(0.0D0)
+         call set_sys_fang_x_x1(0.0D0)
+         call set_sys_scy_fang_set(0.0D0)
+         call set_sys_scx_fang_set(0.0D0)
+         call set_sys_scy_y1_set(1.0D0)
+         call set_sys_scx_x1_set(1.0D0)
+         call set_sys_fang_y_y1_set(0.0D0)
+         call set_sys_fang_x_x1_set(0.0D0)
       END IF
 !
-      IF(SYSTEM(18).EQ.0.0D0) THEN
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
 !       CALCULATE SCY FANG FROM SCY BUT SINCE THE DENOMINATOR IN
 !       THE CALCULATION IS THE OBJECT THICKNESS, IF IT IS ZERO,
 !       SKIP THE CALCULATION AND SET SCY FANG TO 1.0. PRINT
@@ -718,69 +721,69 @@ SUBROUTINE LNSEOS1
             CALL SHOWIT(1)
             OUTLYNE=' OBJECT THICKNESS RESET TO 1.0D20'
             CALL SHOWIT(1)
-            SYSTEM(21)=1.0D0
+            call set_sys_fang_y(1.0D0)
             call set_surf_thickness(0, 1.0D20)
          ELSE
 !     OBJECT THICKNESS NOT ZERO
 !       PROCEED WITH SCY FANG CALCULATION
 !
-            IF(SYSTEM(26).NE.-99.0D0) THEN
-               IF(DABS(SYSTEM(14)).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
+            IF(sys_astop().NE.-99.0D0) THEN
+               IF(DABS(sys_scy()).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2(SYSTEM(14),surf_thickness(0))
+                  JK_TEMP=DATAN2(sys_scy(),surf_thickness(0))
                END IF
-               SYSTEM(21)=JK_TEMP
+               call set_sys_fang_y(JK_TEMP)
 
                IF(surf_thickness(0).GT.0.0D0) THEN
-                  IF(SYSTEM(14).GT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
-                  IF(SYSTEM(14).LT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
-                  IF(SYSTEM(14).EQ.0.0D0) SYSTEM(21)=0.0D0
+                  call set_sys_fang_y(-DABS(sys_fang_y()))
+                  call set_sys_fang_y(DABS(sys_fang_y()))
+                  call set_sys_fang_y(0.0D0)
                END IF
                IF(surf_thickness(0).LT.0.0D0) THEN
-                  IF(SYSTEM(14).GT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
-                  IF(SYSTEM(14).LT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
-                  IF(SYSTEM(14).EQ.0.0D0) SYSTEM(21)=0.0D0
+                  call set_sys_fang_y(DABS(sys_fang_y()))
+                  call set_sys_fang_y(-DABS(sys_fang_y()))
+                  call set_sys_fang_y(0.0D0)
                END IF
             END IF
 !
-            IF(SYSTEM(26).EQ.-99.0D0) THEN
-               IF(DABS(SYSTEM(14)-SYSTEM(15)).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
+            IF(sys_astop().EQ.-99.0D0) THEN
+               IF(DABS(sys_scy()-sys_scy_y1()).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2((SYSTEM(14)-SYSTEM(15)),surf_thickness(0))
+                  JK_TEMP=DATAN2((sys_scy()-sys_scy_y1()),surf_thickness(0))
                END IF
-               SYSTEM(21)=JK_TEMP
+               call set_sys_fang_y(JK_TEMP)
                IF(surf_thickness(0).GT.0.0D0) THEN
-                  IF((SYSTEM(14)-SYSTEM(15)).GT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
-                  IF((SYSTEM(14)-SYSTEM(15)).LT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
-                  IF((SYSTEM(14)-SYSTEM(15)).EQ.0.0D0) SYSTEM(21)=0.0D0
+                  call set_sys_fang_y(-DABS(sys_fang_y()))
+                  call set_sys_fang_y(DABS(sys_fang_y()))
+                  call set_sys_fang_y(0.0D0)
                END IF
                IF(surf_thickness(0).LT.0.0D0) THEN
-                  IF((SYSTEM(14)-SYSTEM(15)).GT.0.0D0) SYSTEM(21)=DABS(SYSTEM(21))
-                  IF((SYSTEM(14)-SYSTEM(15)).LT.0.0D0) SYSTEM(21)=-DABS(SYSTEM(21))
-                  IF((SYSTEM(14)-SYSTEM(15)).EQ.0.0D0) SYSTEM(21)=0.0D0
+                  call set_sys_fang_y(DABS(sys_fang_y()))
+                  call set_sys_fang_y(-DABS(sys_fang_y()))
+                  call set_sys_fang_y(0.0D0)
                END IF
             END IF
-! SYSTEM(18)=0 AND OBJECT THICKNESS NOT ZERO
-            SYSTEM(21)=(180.0D0/PII)*SYSTEM(21)
+! sys_scy_fang_set()=0 AND OBJECT THICKNESS NOT ZERO
+            call set_sys_fang_y((180.0D0/PII)*sys_fang_y())
 !     END OF LOOP FOR OBJECT THICKNESS TEST
          END IF
       ELSE
-!       SYSTEM(18) NOT EQUAL TO 0.0
+!       sys_scy_fang_set() NOT EQUAL TO 0.0
       END IF
 !C
-      IF(SYSTEM(19).EQ.0.0D0) THEN
+      IF(sys_scx_fang_set().EQ.0.0D0) THEN
 !       CALCULATE SCX FANG FROM SCX BUT SINCE THE DENOMINATOR IN
 !       THE CALCULATION IS THE OBJECT THICKNESS, IF IT IS ZERO,
 !       SKIP THE CALCULATION AND SET SCX FANG TO 1.0. PRINT
 !       A WARNING MESSAGE AS WELL.
 !
 !       SHOULD SCX EQUAL SCY?
-         IF(SYSTEM(49).NE.2.0D0.AND.SYSTEM(49).NE.3.0D0) THEN
+         IF(sys_xz_data().NE.2.0D0.AND.sys_xz_data().NE.3.0D0) THEN
 !       YES IT SHOULD
-            SYSTEM(16)=SYSTEM(14)
-            SYSTEM(17)=SYSTEM(15)
+            call set_sys_scx(sys_scy())
+            call set_sys_scx_x1(sys_scy_y1())
 !       NO, DON'T SET SCX = SCY
          END IF
 !
@@ -792,81 +795,81 @@ SUBROUTINE LNSEOS1
             CALL SHOWIT(1)
             OUTLYNE=' OBJECT THICKNESS RESET TO 1.0D20'
             CALL SHOWIT(1)
-            SYSTEM(23)=1.0D0
+            call set_sys_fang_x(1.0D0)
             call set_surf_thickness(0, 1.0D20)
          ELSE
 !       PROCEED WITH SCX FANG CALCULATION
 !
-            IF(SYSTEM(26).NE.-99.0D0)THEN
-               IF(DABS(SYSTEM(16)).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
+            IF(sys_astop().NE.-99.0D0)THEN
+               IF(DABS(sys_scx()).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2(SYSTEM(16),surf_thickness(0))
+                  JK_TEMP=DATAN2(sys_scx(),surf_thickness(0))
                END IF
-               SYSTEM(23)=JK_TEMP
+               call set_sys_fang_x(JK_TEMP)
                IF(surf_thickness(0).GT.0.0D0) THEN
-                  IF(SYSTEM(16).GT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
-                  IF(SYSTEM(16).LT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
-                  IF(SYSTEM(16).EQ.0.0D0) SYSTEM(23)=0.0D0
+                  call set_sys_fang_x(-DABS(sys_fang_x()))
+                  call set_sys_fang_x(DABS(sys_fang_x()))
+                  call set_sys_fang_x(0.0D0)
                END IF
                IF(surf_thickness(0).LT.0.0D0) THEN
-                  IF(SYSTEM(16).GT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
-                  IF(SYSTEM(16).LT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
-                  IF(SYSTEM(16).EQ.0.0D0) SYSTEM(23)=0.0D0
+                  call set_sys_fang_x(DABS(sys_fang_x()))
+                  call set_sys_fang_x(-DABS(sys_fang_x()))
+                  call set_sys_fang_x(0.0D0)
                END IF
             END IF
-            IF(SYSTEM(26).EQ.-99.0D0)THEN
-               IF(DABS(SYSTEM(16)-SYSTEM(17)).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
+            IF(sys_astop().EQ.-99.0D0)THEN
+               IF(DABS(sys_scx()-sys_scx_x1()).LE.1.0D-15.AND.DABS(surf_thickness(0)).LE.1.0D-15) THEN
                   JK_TEMP=0.0D0
                ELSE
-                  JK_TEMP=DATAN2((SYSTEM(16)-SYSTEM(17)),surf_thickness(0))
+                  JK_TEMP=DATAN2((sys_scx()-sys_scx_x1()),surf_thickness(0))
                END IF
-               SYSTEM(23)=JK_TEMP
+               call set_sys_fang_x(JK_TEMP)
                IF(surf_thickness(0).GT.0.0D0) THEN
-                  IF((SYSTEM(16)-SYSTEM(17)).GT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
-                  IF((SYSTEM(16)-SYSTEM(17)).LT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
-                  IF((SYSTEM(16)-SYSTEM(17)).EQ.0.0D0) SYSTEM(23)=0.0D0
+                  call set_sys_fang_x(-DABS(sys_fang_x()))
+                  call set_sys_fang_x(DABS(sys_fang_x()))
+                  call set_sys_fang_x(0.0D0)
                END IF
                IF(surf_thickness(0).LT.0.0D0) THEN
-                  IF((SYSTEM(16)-SYSTEM(17)).GT.0.0D0) SYSTEM(23)=DABS(SYSTEM(23))
-                  IF((SYSTEM(16)-SYSTEM(17)).LT.0.0D0) SYSTEM(23)=-DABS(SYSTEM(23))
-                  IF((SYSTEM(16)-SYSTEM(17)).EQ.0.0D0) SYSTEM(23)=0.0D0
+                  call set_sys_fang_x(DABS(sys_fang_x()))
+                  call set_sys_fang_x(-DABS(sys_fang_x()))
+                  call set_sys_fang_x(0.0D0)
                END IF
             END IF
-            SYSTEM(23)=(180.0D0/PII)*SYSTEM(23)
+            call set_sys_fang_x((180.0D0/PII)*sys_fang_x())
          END IF
       ELSE
-!       SYSTEM(19) NOT EQUAL TO 0.0
+!       sys_scx_fang_set() NOT EQUAL TO 0.0
       END IF
 !
-      IF(SYSTEM(18).EQ.1.0D0) THEN
+      IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !
 !*****************************************************************
 !
 !       CALCULATE SCY FROM SCY FANG IF REQUIRED
 !
          I=0
-         SYSTEM(14)=-surf_thickness(0)*DTAN((PII/180.0D0)*SYSTEM(21))
-         IF(SYSTEM(26).EQ.-99.0D0) SYSTEM(14)=SYSTEM(14)+SYSTEM(15)
+         call set_sys_scy(-surf_thickness(0)*DTAN((PII/180.0D0)*sys_fang_y()))
+         call set_sys_scy(sys_scy()+sys_scy_y1())
       END IF
 !
 !******************************************************************
 !
-      IF(SYSTEM(19).EQ.1.0D0) THEN
+      IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !
 !       CALCULATE SCX FROM SCX FANG IF REQUIRED
 !
 !       SHOULD SCX FANG EQUAL SCY FANG?
-         IF(SYSTEM(49).NE.2.0D0.AND.SYSTEM(49).NE.3.0D0) THEN
+         IF(sys_xz_data().NE.2.0D0.AND.sys_xz_data().NE.3.0D0) THEN
 !       YES IT SHOULD
-            SYSTEM(23)=SYSTEM(21)
-            SYSTEM(24)=SYSTEM(22)
+            call set_sys_fang_x(sys_fang_y())
+            call set_sys_fang_x_x1(sys_fang_y_y1())
 !       NO, DON'T SET SCX FANG = SCY FANG
          END IF
 
          I=0
-         SYSTEM(16)=-surf_thickness(0)*DTAN((PII/180.0D0)*SYSTEM(23))
-         IF(SYSTEM(26).EQ.-99.0D0) SYSTEM(16)=SYSTEM(16)+SYSTEM(17)
+         call set_sys_scx(-surf_thickness(0)*DTAN((PII/180.0D0)*sys_fang_x()))
+         call set_sys_scx(sys_scx()+sys_scx_x1())
       END IF
    ELSE
 !     LNSTYP NOT 1
@@ -876,7 +879,7 @@ SUBROUTINE LNSEOS1
 !       SET FLAGS FOR A RETURN TO CMD LEVEL
 !
    IF(F5.EQ.1) THEN
-      TFSURF=INT(SYSTEM(20))
+      TFSURF=INT(sys_last_surf())
       TFTMIN=-0.005D0
       TFTMAX=0.005D0
       TFDELT=0.001D0
@@ -904,7 +907,7 @@ SUBROUTINE LNSEOS1
 !       1.
 !**********************************************************************
 !
-      SLVMRK=INT(SYSTEM(26))-1
+      SLVMRK=INT(sys_astop())-1
 !       IF NO ASTOP DEFINED, SLVMRK WILL BE LESS THAN ZERO
 !       SET IT TO 1
       IF(SLVMRK.LT.0) SLVMRK=1
@@ -960,7 +963,7 @@ SUBROUTINE LNSEOS1
             END IF
 !     IF SAY FLOAT IS IN OPERATION, NO MARGINAL RAY SOLVES ARE ALLOWED
 !     IN FRONT OF THE STOP
-            IF(SYSTEM(83).EQ.1.0D0) THEN
+            IF(sys_say_float().EQ.1.0D0) THEN
 !     SAY FLOAT IN EFFECT
                IF(SOLVE(6,I).EQ.1.0D0) THEN
                   WRITE(OUTLYNE,*)'SAY FLOAT IS IN EFFECT'
@@ -1011,7 +1014,7 @@ SUBROUTINE LNSEOS1
             END IF
 !     IF SAX FLOAT IS IN OPERATION, NO MARGINAL RAY SOLVES ARE ALLOWED
 !     IN FRONT OF THE STOP
-            IF(SYSTEM(84).EQ.1.0D0) THEN
+            IF(sys_sax_float().EQ.1.0D0) THEN
 !     SAX FLOAT IN EFFECT
                IF(SOLVE(4,I).EQ.4.0D0) THEN
                   WRITE(OUTLYNE,*)'SAX FLOAT IS IN EFFECT'
@@ -1091,7 +1094,7 @@ SUBROUTINE LNSEOS1
 !       ALGEBRAIC SIGN TO THE REFRACTIVE INDICES OF SUFACE
 !       I. AT THIS POINT THE LENS IS SEARCHED FROM SURFACE 0
 !       TO THE (IMAGE SURFACE NUMBER )
-!       (SURFACE NUMBER = INT(SYSTEM(20))-1).
+!       (SURFACE NUMBER = INT(sys_last_surf())-1).
 !       IF A SURFACE IS FOUND TO HAVE A GLANAM(SURF,1)='REFL'
 !       THEN FOR THAT SURFACE THE INDICES STORED IN
 !       surf_refractive_index(SURF, 1) THROUGH surf_refractive_index(SURF, 5) ARE SET EQUAL TO BUT
@@ -1108,12 +1111,12 @@ SUBROUTINE LNSEOS1
 !       POSITIVE. BY RE-SETTING ALL INDICES POSITIVE, THE SUBROUTINE
 !       LNSEOS COULD THEN GIVE THE CORRECT SIGNS TO ALL REFRACTIVE
 !       INDICES.
-      K=INT(SYSTEM(20))
+      K=INT(sys_last_surf())
       ALENS(46:50,1:K)=DABS(ALENS(46:50,1:K))
       ALENS(71:75,1:K)=DABS(ALENS(71:75,1:K))
 !
       F21=0
-      DO 10 I=1,INT(SYSTEM(20))
+      DO 10 I=1,INT(sys_last_surf())
          IF(GLANAM(I,2).EQ.'REFL'.OR.GLANAM(I,2).EQ.'REFLTIRO') THEN
             IF(F21.EQ.1.OR.F21.EQ.0) THEN
                F21=-1
@@ -1162,7 +1165,7 @@ SUBROUTINE LNSEOS1
 !       PAXAXIAL THICKNESS SOLVES. IF ANY ARE FOUND, REMOVE THE
 !       COCY OF COCX SOLVE AND PRINT A WARNING MESSAGE.
 !
-      DO 803 I=1,INT(SYSTEM(20))
+      DO 803 I=1,INT(sys_last_surf())
          IF(SOLVE(8,I).EQ.7.0D0.OR.SOLVE(2,I).EQ.14.0D0) THEN
 !       FOUND A COCY OR COCX SOLVE
 !       DOES IT REFER TO A FOLLOWING SURFACE?
@@ -1218,16 +1221,16 @@ SUBROUTINE LNSEOS1
 !       NOW CHECK FOR FNBY AND FNBX HOLDS AND CHECK THE MODE.
 !       IF NOT FOCAL OR UFOCAL, PRINT MESSAGE THAT HOLD WAS IGNORED.
 !       CHECK FOR FNBY OR FNBX HOLD
-   IF(SYSTEM(44).EQ.-1.0D0.AND.SYSTEM(83).EQ.0.0D0.AND.SYSTEM(84).EQ.0.0D0) THEN
+   IF(sys_fno_hold_y().EQ.-1.0D0.AND.sys_say_float().EQ.0.0D0.AND.sys_sax_float().EQ.0.0D0) THEN
 !               THERE IS AN F NUMBER HOLD (YZ PLANE)
 !       CHECK LENS MODE, MUST BE FOCAL OR UFOCAL
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       HOLD PERFORMED. FIRST PERFORM A PARAXIAL TRACE TO
 !       GET STARTING VARLUES
          ITYPEP=1
 !       TELECENTRIC STUFF, 11/12/2000
-         IF(SYSTEM(63).EQ.1.0D0) THEN
-            IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+         IF(sys_telecentric().EQ.1.0D0) THEN
+            IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
                OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
                CALL SHOWIT(1)
                OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1239,25 +1242,25 @@ SUBROUTINE LNSEOS1
                CALL MACFAL
                RETURN
             ELSE
-               IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               IF(sys_nao_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               IF(sys_fno_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
                END IF
-               IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
-               IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
             END IF
          END IF
@@ -1278,11 +1281,11 @@ SUBROUTINE LNSEOS1
             CALL SHOWIT(1)
             OUTLYNE='"FNBY HLD" REQUIRES THE FOCAL OR UFOCAL MODES.'
             CALL SHOWIT(1)
-            IF(SYSTEM(30).EQ.3.0D0) THEN
+            IF(sys_mode().EQ.3.0D0) THEN
                OUTLYNE='CURRENT MODE IS AFOCAL.'
                CALL SHOWIT(1)
             END IF
-            IF(SYSTEM(30).EQ.4.0D0) THEN
+            IF(sys_mode().EQ.4.0D0) THEN
                OUTLYNE='CURRENT MODE IS UAFOCAL'
                CALL SHOWIT(1)
             END IF
@@ -1292,16 +1295,16 @@ SUBROUTINE LNSEOS1
       END IF
 !       NO FNBY HLD IN EFFECT
    END IF
-   IF(SYSTEM(45).EQ.-1.0D0.AND.SYSTEM(83).EQ.0.0D0.AND.SYSTEM(84).EQ.0.0D0) THEN
+   IF(sys_fno_hold_x().EQ.-1.0D0.AND.sys_say_float().EQ.0.0D0.AND.sys_sax_float().EQ.0.0D0) THEN
 !               THERE IS AN F NUMBER HOLD (XZ PLANE)
 !       CHECK LENS MODE, MUST BE FOCAL OR UFOCAL
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       HOLD PERFORMED. FIRST PERFORM A PARAXIAL TRACE TO
 !       GET STARTING VALUES.
          ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-         IF(SYSTEM(63).EQ.1.0D0) THEN
-            IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+         IF(sys_telecentric().EQ.1.0D0) THEN
+            IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
                OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
                CALL SHOWIT(1)
                OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1313,25 +1316,25 @@ SUBROUTINE LNSEOS1
                CALL MACFAL
                RETURN
             ELSE
-               IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               IF(sys_nao_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               IF(sys_fno_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
                END IF
-               IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
-               IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
             END IF
          END IF
@@ -1352,11 +1355,11 @@ SUBROUTINE LNSEOS1
             CALL SHOWIT(1)
             OUTLYNE='"FNBX HLD" REQUIRES THE FOCAL OR UFOCAL MODES.'
             CALL SHOWIT(1)
-            IF(SYSTEM(30).EQ.3.0D0) THEN
+            IF(sys_mode().EQ.3.0D0) THEN
                OUTLYNE='CURRENT MODE IS AFOCAL.'
                CALL SHOWIT(1)
             END IF
-            IF(SYSTEM(30).EQ.4.0D0) THEN
+            IF(sys_mode().EQ.4.0D0) THEN
                OUTLYNE='CURRENT MODE IS UAFOCAL'
                CALL SHOWIT(1)
             END IF
@@ -1369,16 +1372,16 @@ SUBROUTINE LNSEOS1
 !       NOW CHECK FOR ERY AND ERX HOLDS AND CHECK THE MODE.
 !       IF NOT FOCAL OR UFOCAL, PRINT MESSAGE THAT HOLD WAS IGNORED.
 !       CHECK FOR FNBY OR FNBX HOLD
-   IF(SYSTEM(44).EQ.-2.0D0.AND.SYSTEM(83).EQ.0.0D0.AND.SYSTEM(84).EQ.0.0D0) THEN
+   IF(sys_fno_hold_y().EQ.-2.0D0.AND.sys_say_float().EQ.0.0D0.AND.sys_sax_float().EQ.0.0D0) THEN
 !               THERE IS AN EXIT PUPIL RADIUS HOLD (YZ PLANE)
 !       CHECK LENS MODE, MUST BE AFOCAL OR UAFOCAL
-      IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !       HOLD PERFORMED. FIRST PERFORM A PARAXIAL TRACE TO GET
 !       STATRING VALUES.
          ITYPEP=1
 !       TELECENTRIC STUFF, 11/12/2000
-         IF(SYSTEM(63).EQ.1.0D0) THEN
-            IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+         IF(sys_telecentric().EQ.1.0D0) THEN
+            IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
                OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
                CALL SHOWIT(1)
                OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1390,25 +1393,25 @@ SUBROUTINE LNSEOS1
                CALL MACFAL
                RETURN
             ELSE
-               IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               IF(sys_nao_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               IF(sys_fno_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
                END IF
-               IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
-               IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
             END IF
          END IF
@@ -1429,11 +1432,11 @@ SUBROUTINE LNSEOS1
             CALL SHOWIT(1)
             OUTLYNE='"ERY HLD" REQUIRES THE AFOCAL OR UAFOCAL MODES.'
             CALL SHOWIT(1)
-            IF(SYSTEM(30).EQ.1.0D0) THEN
+            IF(sys_mode().EQ.1.0D0) THEN
                OUTLYNE='CURRENT MODE IS FOCAL.'
                CALL SHOWIT(1)
             END IF
-            IF(SYSTEM(30).EQ.2.0D0) THEN
+            IF(sys_mode().EQ.2.0D0) THEN
                OUTLYNE='CURRENT MODE IS UFOCAL'
                CALL SHOWIT(1)
             END IF
@@ -1443,16 +1446,16 @@ SUBROUTINE LNSEOS1
       END IF
 !       NO ERY HLD IN EFFECT
    END IF
-   IF(SYSTEM(45).EQ.-2.0D0.AND.SYSTEM(83).EQ.0.0D0.AND.SYSTEM(84).EQ.0.0D0) THEN
+   IF(sys_fno_hold_x().EQ.-2.0D0.AND.sys_say_float().EQ.0.0D0.AND.sys_sax_float().EQ.0.0D0) THEN
 !               THERE IS AN EXIT PUPIL RADIUS HOLD (XZ PLANE)
 !       CHECK LENS MODE, MUST BE AFOCAL OR UAFOCAL
-      IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !       HOLD PERFORMED. FIRST PERFORM A PARAXIAL TRACE TO GET
 !       STARTING VALUES.
          ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-         IF(SYSTEM(63).EQ.1.0D0) THEN
-            IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+         IF(sys_telecentric().EQ.1.0D0) THEN
+            IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
                OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
                CALL SHOWIT(1)
                OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1464,25 +1467,25 @@ SUBROUTINE LNSEOS1
                CALL MACFAL
                RETURN
             ELSE
-               IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               IF(sys_nao_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               IF(sys_fno_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
                END IF
-               IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
-               IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
             END IF
          END IF
@@ -1503,11 +1506,11 @@ SUBROUTINE LNSEOS1
             CALL SHOWIT(1)
             OUTLYNE='"ERX HLD" REQUIRES THE AFOCAL OR UAFOCAL MODES.'
             CALL SHOWIT(1)
-            IF(SYSTEM(30).EQ.1.0D0) THEN
+            IF(sys_mode().EQ.1.0D0) THEN
                OUTLYNE='CURRENT MODE IS AFOCAL.'
                CALL SHOWIT(1)
             END IF
-            IF(SYSTEM(30).EQ.2.0D0) THEN
+            IF(sys_mode().EQ.2.0D0) THEN
                OUTLYNE='CURRENT MODE IS UAFOCAL'
                CALL SHOWIT(1)
             END IF
@@ -1538,8 +1541,8 @@ SUBROUTINE LNSEOS1
 !       IS TAKEN FROM WITHIN THE PARAXIAL RAYTRACE SUBROUTINES.
    ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-   IF(SYSTEM(63).EQ.1.0D0) THEN
-      IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+   IF(sys_telecentric().EQ.1.0D0) THEN
+      IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
          OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
          CALL SHOWIT(1)
          OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1551,25 +1554,25 @@ SUBROUTINE LNSEOS1
          CALL MACFAL
          RETURN
       ELSE
-         IF(SYSTEM(64).EQ.1.0D0) THEN
-            SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+         IF(sys_nao_flag().EQ.1.0D0) THEN
+            call set_sys_say(surf_thickness(0)*sys_nao_y())
          END IF
-         IF(SYSTEM(64).EQ.2.0D0) THEN
-            SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+         IF(sys_nao_flag().EQ.2.0D0) THEN
+            call set_sys_sax(surf_thickness(0)*sys_nao_x())
          END IF
-         IF(SYSTEM(64).EQ.3.0D0) THEN
-            SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-            SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+         IF(sys_nao_flag().EQ.3.0D0) THEN
+            call set_sys_say(surf_thickness(0)*sys_nao_y())
+            call set_sys_sax(surf_thickness(0)*sys_nao_x())
          END IF
-         IF(SYSTEM(67).EQ.1.0D0) THEN
-            SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+         IF(sys_fno_flag().EQ.1.0D0) THEN
+            call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
          END IF
-         IF(SYSTEM(67).EQ.2.0D0) THEN
-            SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+         IF(sys_fno_flag().EQ.2.0D0) THEN
+            call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
          END IF
-         IF(SYSTEM(67).EQ.3.0D0) THEN
-            SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-            SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+         IF(sys_fno_flag().EQ.3.0D0) THEN
+            call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+            call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
          END IF
       END IF
    END IF
@@ -1581,38 +1584,38 @@ SUBROUTINE LNSEOS1
    OUTLYNE = "JUST CALLED PRTRA"
    CALL SHOWIT(19)
 !
-   IF(SYSTEM(83).NE.0.0D0.AND.SYSTEM(26).NE.-99.0D0.OR.SYSTEM(84).NE.0.0D0.AND.SYSTEM(26).NE.-99.0D0) THEN
-      IF(surf_clap_type(INT(SYSTEM(26))).EQ.0.0D0.OR.surf_multi_clap_flag(INT(SYSTEM(26))).NE.0.0D0) THEN
+   IF(sys_say_float().NE.0.0D0.AND.sys_astop().NE.-99.0D0.OR.sys_sax_float().NE.0.0D0.AND.sys_astop().NE.-99.0D0) THEN
+      IF(surf_clap_type(INT(sys_astop())).EQ.0.0D0.OR.surf_multi_clap_flag(INT(sys_astop())).NE.0.0D0) THEN
 !     NO ADJUSTMENTS TO SAY AND SAX ARE DONE, NO CLAP IS ON
 !     STOP SURFACE
       ELSE
-         IF(surf_clap_type(INT(SYSTEM(26))).EQ.1.0D0.AND.surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
-            IF(surf_clap_dim(INT(SYSTEM(26)), 1).LE.surf_clap_dim(INT(SYSTEM(26)), 2)) THEN
-               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(sys_astop())).EQ.1.0D0.AND.surf_multi_clap_flag(INT(sys_astop())).EQ.0.0D0) THEN
+            IF(surf_clap_dim(INT(sys_astop()), 1).LE.surf_clap_dim(INT(sys_astop()), 2)) THEN
+               YCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAY(1,INT(sys_astop())))
+               XCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAX(1,INT(sys_astop())))
             ELSE
-               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+               YCLAP=surf_clap_dim(INT(sys_astop()), 2)/DABS(PXTRAY(1,INT(sys_astop())))
+               XCLAP=surf_clap_dim(INT(sys_astop()), 2)/DABS(PXTRAX(1,INT(sys_astop())))
             END IF
          END IF
-         IF(surf_clap_type(INT(SYSTEM(26))).EQ.5.0D0.AND.surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(sys_astop())).EQ.5.0D0.AND.surf_multi_clap_flag(INT(sys_astop())).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAY(1,INT(sys_astop())))
+            XCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAX(1,INT(sys_astop())))
          END IF
-         IF(surf_clap_type(INT(SYSTEM(26))).GT.1.0D0.AND.surf_clap_type(INT(SYSTEM(26))).LE.4.0D0.AND.surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(sys_astop())).GT.1.0D0.AND.surf_clap_type(INT(sys_astop())).LE.4.0D0.AND.surf_multi_clap_flag(INT(sys_astop())).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAY(1,INT(sys_astop())))
+            XCLAP=surf_clap_dim(INT(sys_astop()), 2)/DABS(PXTRAX(1,INT(sys_astop())))
          END IF
-         IF(SYSTEM(83).NE.0.0D0) THEN
-            SYSTEM(12)=SYSTEM(12)*YCLAP
+         IF(sys_say_float().NE.0.0D0) THEN
+            call set_sys_say(sys_say()*YCLAP)
          END IF
-         IF(SYSTEM(83).NE.0.0D0) THEN
-            SYSTEM(13)=SYSTEM(13)*XCLAP
+         IF(sys_say_float().NE.0.0D0) THEN
+            call set_sys_sax(sys_sax()*XCLAP)
          END IF
          ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-         IF(SYSTEM(63).EQ.1.0D0) THEN
-            IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+         IF(sys_telecentric().EQ.1.0D0) THEN
+            IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
                OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
                CALL SHOWIT(1)
                OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1624,25 +1627,25 @@ SUBROUTINE LNSEOS1
                CALL MACFAL
                RETURN
             ELSE
-               IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               IF(sys_nao_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               IF(sys_fno_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
                END IF
-               IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
-               IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
             END IF
          END IF
@@ -1651,33 +1654,33 @@ SUBROUTINE LNSEOS1
          OUTLYNE = "JUST CALLED PRTRA"
          CALL SHOWIT(19)
 
-         IF(surf_clap_type(INT(SYSTEM(26))).EQ.1.0D0.AND.surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
-            IF(surf_clap_dim(INT(SYSTEM(26)), 1).LE.surf_clap_dim(INT(SYSTEM(26)), 2)) THEN
-               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(sys_astop())).EQ.1.0D0.AND.surf_multi_clap_flag(INT(sys_astop())).EQ.0.0D0) THEN
+            IF(surf_clap_dim(INT(sys_astop()), 1).LE.surf_clap_dim(INT(sys_astop()), 2)) THEN
+               YCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAY(1,INT(sys_astop())))
+               XCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAX(1,INT(sys_astop())))
             ELSE
-               YCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-               XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+               YCLAP=surf_clap_dim(INT(sys_astop()), 2)/DABS(PXTRAY(1,INT(sys_astop())))
+               XCLAP=surf_clap_dim(INT(sys_astop()), 2)/DABS(PXTRAX(1,INT(sys_astop())))
             END IF
          END IF
-         IF(surf_clap_type(INT(SYSTEM(26))).EQ.5.0D0.AND.surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(sys_astop())).EQ.5.0D0.AND.surf_multi_clap_flag(INT(sys_astop())).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAY(1,INT(sys_astop())))
+            XCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAX(1,INT(sys_astop())))
          END IF
-         IF(surf_clap_type(INT(SYSTEM(26))).GT.1.0D0.AND.surf_clap_type(INT(SYSTEM(26))).LE.4.0D0.AND.surf_multi_clap_flag(INT(SYSTEM(26))).EQ.0.0D0) THEN
-            YCLAP=surf_clap_dim(INT(SYSTEM(26)), 1)/DABS(PXTRAY(1,INT(SYSTEM(26))))
-            XCLAP=surf_clap_dim(INT(SYSTEM(26)), 2)/DABS(PXTRAX(1,INT(SYSTEM(26))))
+         IF(surf_clap_type(INT(sys_astop())).GT.1.0D0.AND.surf_clap_type(INT(sys_astop())).LE.4.0D0.AND.surf_multi_clap_flag(INT(sys_astop())).EQ.0.0D0) THEN
+            YCLAP=surf_clap_dim(INT(sys_astop()), 1)/DABS(PXTRAY(1,INT(sys_astop())))
+            XCLAP=surf_clap_dim(INT(sys_astop()), 2)/DABS(PXTRAX(1,INT(sys_astop())))
          END IF
-         IF(SYSTEM(83).NE.0.0D0) THEN
-            SYSTEM(12)=SYSTEM(12)*YCLAP
+         IF(sys_say_float().NE.0.0D0) THEN
+            call set_sys_say(sys_say()*YCLAP)
          END IF
-         IF(SYSTEM(83).NE.0.0D0) THEN
-            SYSTEM(13)=SYSTEM(13)*XCLAP
+         IF(sys_say_float().NE.0.0D0) THEN
+            call set_sys_sax(sys_sax()*XCLAP)
          END IF
          ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-         IF(SYSTEM(63).EQ.1.0D0) THEN
-            IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+         IF(sys_telecentric().EQ.1.0D0) THEN
+            IF(sys_nao_flag().EQ.0.0D0.AND.sys_fno_flag().EQ.0.0D0) THEN
                OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
                CALL SHOWIT(1)
                OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
@@ -1689,25 +1692,25 @@ SUBROUTINE LNSEOS1
                CALL MACFAL
                RETURN
             ELSE
-               IF(SYSTEM(64).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+               IF(sys_nao_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
                END IF
-               IF(SYSTEM(64).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(64).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                  SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+               IF(sys_nao_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)*sys_nao_y())
+                  call set_sys_sax(surf_thickness(0)*sys_nao_x())
                END IF
-               IF(SYSTEM(67).EQ.1.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
+               IF(sys_fno_flag().EQ.1.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
                END IF
-               IF(SYSTEM(67).EQ.2.0D0) THEN
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.2.0D0) THEN
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
-               IF(SYSTEM(67).EQ.3.0D0) THEN
-                  SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-                  SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+               IF(sys_fno_flag().EQ.3.0D0) THEN
+                  call set_sys_say(surf_thickness(0)/(2.0D0*sys_fno_y()))
+                  call set_sys_sax(surf_thickness(0)/(2.0D0*sys_fno_x()))
                END IF
             END IF
          END IF
@@ -1724,50 +1727,50 @@ SUBROUTINE LNSEOS1
 !***************************************************************
 !       NOW RESOLVE THE  SYMMETRY SWITCH SETTING
 !     XZ-PLANE
-!       SYSTEM(28)=1.0D0 MEANS XZ SYMMETRY
-!       SYSTEM(28)=0.0D0 MEANS NO XZ SYMMETRY
-   SYSTEM(28)=1.0D0
+!       sys_xz_sym()=1.0D0 MEANS XZ SYMMETRY
+!       sys_xz_sym()=0.0D0 MEANS NO XZ SYMMETRY
+   call set_sys_xz_sym(1.0D0)
 !       A SETTING OF 1.0 MEANS ROTATIONAL SYMMETRY. 0 MEAN
 !       NO ROTATIONAL SYMMETRY.
-   DO III=0,INT(SYSTEM(20))
+   DO III=0,INT(sys_last_surf())
 !
 !       IF THERE IS AN XD, BETA OR GAMMA NON-ZERO
-!       SET SYSTEM(28)=0.0D0
+!       SET sys_xz_sym()=0.0D0
       IF(surf_beta(III).NE.0.0D0.OR.surf_gamma(III).NE.0.0D0.OR.surf_decenter_x(III).NE.0.0D0) THEN
-         SYSTEM(28)=0.0D0
+         call set_sys_xz_sym(0.0D0)
          GO TO 628
       END IF
 !       IF A NON-ROTATIONALLY SYMMETRIC SPECIAL SURFACE EXISTS
 !       AT THIS TIME (SEPT 1989) ONLY TYPE 0 (NONE) AND TYPE 1
 !       (ROTATIONAL POLYNOMIAL) ARE ROTATIONALLY SYMMETRIC.
       IF(ABS(surf_special_type(III)) /= 0.AND.ABS(surf_special_type(III)) /= 1) THEN
-         SYSTEM(28)=0.0D0
+         call set_sys_xz_sym(0.0D0)
          GO TO 628
       END IF
    END DO
 !       REFS ORIENTATION NOT 0.0 OR CLAP TILT EXITS ON THE
 !       REFERENCE SURFACE
-   IF(surf_clap_type(NEWREF) /= 0.AND.surf_clap_tilt(NEWREF).NE.0.0D0 .AND.surf_multi_clap_flag(NEWREF) == 0.OR.surf_multi_clap_flag(NEWREF) == 0 .AND.SYSTEM(59).NE.0.0D0) SYSTEM(28)=0.0D0
+   call set_sys_xz_sym(0.0D0)
 628 CONTINUE
 !     YZ-PLANE
-!       SYSTEM(48)=1.0D0 MEANS YZ SYMMETRY
-!       SYSTEM(48)=0.0D0 MEANS NO YZ SYMMETRY
-   SYSTEM(48)=1.0D0
+!       sys_yz_sym()=1.0D0 MEANS YZ SYMMETRY
+!       sys_yz_sym()=0.0D0 MEANS NO YZ SYMMETRY
+   call set_sys_yz_sym(1.0D0)
 !       A SETTING OF 1.0 MEANS ROTATIONAL SYMMETRY. 0 MEAN
 !       NO ROTATIONAL SYMMETRY.
-   DO III=0,INT(SYSTEM(20))
+   DO III=0,INT(sys_last_surf())
 !
 !       IF THERE IS AN YD, ALPHA OR GAMMA NON-ZERO
-!       SET SYSTEM(48)=0.0D0
+!       SET sys_yz_sym()=0.0D0
       IF(surf_alpha_deg(III).NE.0.0D0.OR.surf_gamma_deg(III).NE.0.0D0.OR.surf_focus_dy(III).NE.0.0D0) THEN
-         SYSTEM(48)=0.0D0
+         call set_sys_yz_sym(0.0D0)
          GO TO 629
       END IF
 !       IF A NON-ROTATIONALLY SYMMETRIC SPECIAL SURFACE EXISTS
 !       AT THIS TIME (SEPT 1989) ONLY TYPE 0 (NONE) AND TYPE 1
 !       (ROTATIONAL POLYNOMIAL) ARE ROTATIONALLY SYMMETRIC.
       IF(ABS(surf_special_type(III)) /= 0.AND.ABS(surf_special_type(III)) /= 1) THEN
-         SYSTEM(48)=0.0D0
+         call set_sys_yz_sym(0.0D0)
          GO TO 629
       END IF
    END DO
@@ -1787,11 +1790,11 @@ SUBROUTINE LNSEOS1
       END IF
    END IF
 !     NOW UPDATE DUMMM
-!     SURFACES 0 AND INT(SYSTEM(20)) ARE NEVER DUMMIES
+!     SURFACES 0 AND INT(sys_last_surf()) ARE NEVER DUMMIES
    DUMMMY(0)=.FALSE.
-   DUMMMY(INT(SYSTEM(20)))=.FALSE.
+   DUMMMY(INT(sys_last_surf()))=.FALSE.
 !
-   DO ZZTOP=1,INT(SYSTEM(20))-1
+   DO ZZTOP=1,INT(sys_last_surf())-1
       DUMMMY(ZZTOP)=.FALSE.
       IF(GLANAM(ZZTOP,1).EQ.GLANAM((ZZTOP-1),1).AND.GLANAM(ZZTOP,2).EQ.GLANAM((ZZTOP-1),2).AND.GLANAM(ZZTOP,2).NE.'REFL'.AND.GLANAM(ZZTOP,2).NE.'REFLTIRO'.AND.GLANAM(ZZTOP,2).NE.'IDEAL'.AND.GLANAM(ZZTOP,2).NE.'PERFECT      ') DUMMMY(ZZTOP)=.TRUE.
       IF(GLANAM(ZZTOP,1).EQ.'MODEL        ') DUMMMY(ZZTOP)=.FALSE.
@@ -1806,7 +1809,7 @@ SUBROUTINE LNSEOS1
    END DO
 !
 !     RESOLVE CHARACTERISTICS OF PERFECT LENSES
-   I=INT(SYSTEM(20))-1
+   I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
       call set_surf_curvature(I, 0.0D0)
       call set_surf_conic(I, 0.0D0)
@@ -1885,7 +1888,7 @@ SUBROUTINE LNSEOS1
       call set_surf_alpha_deg(I, 0.0D0)
       call set_surf_beta_deg(I, 0.0D0)
       call set_surf_gamma_deg(I, 0.0D0)
-      I=INT(SYSTEM(20))
+      I=INT(sys_last_surf())
       call set_surf_curvature(I, 0.0D0)
       call set_surf_conic(I, 0.0D0)
       call set_surf_asphere_coeff(I, 4, 0.0D0)
@@ -1964,20 +1967,20 @@ SUBROUTINE LNSEOS1
       call set_surf_beta_deg(I, 0.0D0)
       call set_surf_gamma_deg(I, 0.0D0)
    END IF
-   I=INT(SYSTEM(20))-1
+   I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
-      IF(SYSTEM(30).GE.3.0D0) THEN
-         IF(SYSTEM(30).EQ.3.0D0) SYSTEM(30)=1.0D0
-         IF(SYSTEM(30).EQ.4.0D0) SYSTEM(30)=2.0D0
+      IF(sys_mode().GE.3.0D0) THEN
+         call set_sys_mode(1.0D0)
+         call set_sys_mode(2.0D0)
          OUTLYNE='"PERFECT" SURFACE IN USE. LENS MODE HAS BEEN'
          CALL SHOWIT(1)
-         IF(SYSTEM(30).EQ.1.0D0) OUTLYNE='RESET TO THE "FOCAL" MODE'
-         IF(SYSTEM(30).EQ.2.0D0) OUTLYNE='RESET TO THE "UFOCAL" MODE'
+         IF(sys_mode().EQ.1.0D0) OUTLYNE='RESET TO THE "FOCAL" MODE'
+         IF(sys_mode().EQ.2.0D0) OUTLYNE='RESET TO THE "UFOCAL" MODE'
          CALL SHOWIT(1)
       END IF
    END IF
 !     RESOLVE CHARACTERISTICS OF IDEAL LENSES
-   I=INT(SYSTEM(20))-1
+   I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
       ALENS(1:2,I)=0.0D0
       ALENS(4:9,I)=0.0D0
@@ -1995,7 +1998,7 @@ SUBROUTINE LNSEOS1
       ALENS(77:110,I)=0.0D0
       ALENS(25:28,I)=0.0D0
       ALENS(114:120,I)=0.0D0
-      I=INT(SYSTEM(20))
+      I=INT(sys_last_surf())
       ALENS(1:2,I)=0.0D0
       ALENS(4:9,I)=0.0D0
       call set_surf_multi_clap_flag(I, 0)
@@ -2014,15 +2017,15 @@ SUBROUTINE LNSEOS1
       ALENS(25:28,I)=0.0D0
       ALENS(118:120,I)=0.0D0
    END IF
-   I=INT(SYSTEM(20))-1
+   I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
-      IF(SYSTEM(30).GE.3.0D0) THEN
-         IF(SYSTEM(30).EQ.3.0D0) SYSTEM(30)=1.0D0
-         IF(SYSTEM(30).EQ.4.0D0) SYSTEM(30)=2.0D0
+      IF(sys_mode().GE.3.0D0) THEN
+         call set_sys_mode(1.0D0)
+         call set_sys_mode(2.0D0)
          OUTLYNE='"IDEAL" SURFACE IN USE. LENS MODE HAS BEEN'
          CALL SHOWIT(1)
-         IF(SYSTEM(30).EQ.1.0D0) OUTLYNE='RESET TO THE "FOCAL" MODE'
-         IF(SYSTEM(30).EQ.2.0D0) OUTLYNE='RESET TO THE "UFOCAL" MODE'
+         IF(sys_mode().EQ.1.0D0) OUTLYNE='RESET TO THE "FOCAL" MODE'
+         IF(sys_mode().EQ.2.0D0) OUTLYNE='RESET TO THE "UFOCAL" MODE'
          CALL SHOWIT(1)
       END IF
    END IF
@@ -2032,7 +2035,7 @@ SUBROUTINE LNSEOS1
 !     SET UP THE FAST ACCESS CFG ARRAYS FOR OPTIMIZATION
 !     IF THERE ARE CONFIGS
 
-   IF(INT(SYSTEM(56)).GT.1.AND.LNSTYP.NE.3) CALL AUXCFG
+   IF(INT(sys_high_cfg()).GT.1.AND.LNSTYP.NE.3) CALL AUXCFG
    OUTLYNE = "JUST FINISHED AUXCFG CHECK"
    CALL SHOWIT(19)
 !
@@ -2160,15 +2163,15 @@ SUBROUTINE LNSEOS1
    ENPUY=0.0D0
    ENPUZ=(ENPOSX+ENPOSY)/2.0D0
 !     NOW THE EXIT PUPIL POSITIONS
-   IF(DABS(PXTRAY(6,INT(SYSTEM(20)))).EQ.0.0D0) THEN
+   IF(DABS(PXTRAY(6,INT(sys_last_surf()))).EQ.0.0D0) THEN
       EXPOSY=surf_thickness(0)
    ELSE
-      EXPOSY=(-PXTRAY(5,INT(SYSTEM(20)))/PXTRAY(6,INT(SYSTEM(20))))
+      EXPOSY=(-PXTRAY(5,INT(sys_last_surf()))/PXTRAY(6,INT(sys_last_surf())))
    END IF
-   IF(DABS(PXTRAX(6,INT(SYSTEM(20)))).EQ.0.0D0) THEN
+   IF(DABS(PXTRAX(6,INT(sys_last_surf()))).EQ.0.0D0) THEN
       EXPOSX=surf_thickness(0)
    ELSE
-      EXPOSX=(-PXTRAX(5,INT(SYSTEM(20)))/PXTRAX(6,INT(SYSTEM(20))))
+      EXPOSX=(-PXTRAX(5,INT(sys_last_surf()))/PXTRAX(6,INT(sys_last_surf())))
    END IF
    EXPUX=0.0D0
    EXPUY=0.0D0
@@ -2176,8 +2179,8 @@ SUBROUTINE LNSEOS1
 !     NOW THE ENTRANCE AND EXIT PUPIL DIAMETERS
    ENDIAX=2.0D0*DABS(PXTRAX(1,1)+(ENPUZ*PXTRAX(2,0)))
    ENDIAY=2.0D0*DABS(PXTRAY(1,1)+(ENPUZ*PXTRAY(2,0)))
-   EXDIAX=2.0D0*DABS(PXTRAX(1,INT(SYSTEM(20)))+(EXPUZ *PXTRAX(2,INT(SYSTEM(20)))))
-   EXDIAY=2.0D0*DABS(PXTRAY(1,INT(SYSTEM(20)))+(EXPUZ *PXTRAY(2,INT(SYSTEM(20)))))
+   EXDIAX=2.0D0*DABS(PXTRAX(1,INT(sys_last_surf()))+(EXPUZ *PXTRAX(2,INT(sys_last_surf()))))
+   EXDIAY=2.0D0*DABS(PXTRAY(1,INT(sys_last_surf()))+(EXPUZ *PXTRAY(2,INT(sys_last_surf()))))
 
    !JN:  Now that we have the entrance and exit pupils, call
    ! RATRA one more time such that we can properly trace
@@ -2190,7 +2193,7 @@ SUBROUTINE LNSEOS1
 !     X-CLAP PLUS X-CLAP OFFSET OR THE Y-CLAP PLUS Y-CLAP OFFSET
 !     IF THERE IS A CLAP. IF NO CLAP, IT IS THE SUM OF THE ABSOLUTE
 !     VALUES OF THE PY PLUS PCY AT THAT SURFACE
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_inr_flag(I).EQ.0.0D0) THEN
 !     MAKE A DEFAULT ASSIGNMENT
          IF(surf_clap_type(I) /= 0.AND.surf_multi_clap_flag(I) == 0) THEN
@@ -2223,8 +2226,8 @@ SUBROUTINE LNSEOS1
 !     11/04/96
 !     RESOLVE ALL TILT RETURNS AND APPLY ALL TILT RETURN RULES
 !     BY CALLING TILT_RETURN
-   SYSTEM(90)=0.0D0
-   DO I=0,INT(SYSTEM(20))
+   call set_sys_tilt_ret(0.0D0)
+   DO I=0,INT(sys_last_surf())
 !     IF THE TILT RET FLAG RES WAS ON, SET THE TILT TYPE TO TILT RET
 !     THEN SET RESOLUTION FLAG TO OFF OR ZERO
       IF(surf_tilt_return_flag(I) == 1) call set_surf_tilt_flag(I, 6)
@@ -2232,7 +2235,7 @@ SUBROUTINE LNSEOS1
    END DO
 !     RESOLVE ALL PIVOTS WHICH BY THEIR NATURE DEFINE NEW DECENTERS
 !     ON THE AFFECTED SURFACES
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_tilt_flag(I) == 1.OR.surf_tilt_flag(I).EQ.-1.0D0.OR.surf_tilt_flag(I) == 5) THEN
          OUTLYNE = "ABOUT TO CHECK PIVDEC"
          CALL SHOWIT(19)
@@ -2268,23 +2271,23 @@ SUBROUTINE LNSEOS1
 !       CHECK FOR LAST SURFACE THICKNESS NOT ZERO
 !     THE FINAL SURFACE ALWAYS HAS ZERO THICKNESS
    ! JN:  test violating this
-!       IF(surf_thickness(INT(SYSTEM(20))).NE.0.0D0) THEN
-!       surf_thickness(INT(SYSTEM(20)))=0.0D0
+!       IF(surf_thickness(INT(sys_last_surf())).NE.0.0D0) THEN
+!       surf_thickness(INT(sys_last_surf()))=0.0D0
 !         OUTLYNE=
 !      1  'WARNING: FINAL SURFACE THICKNESS WAS RESET TO ZERO'
 !       CALL SHOWIT(1)
 !                         END IF
-   DO I=1,INT(SYSTEM(20))
+   DO I=1,INT(sys_last_surf())
       call set_surf_decenter_flag(I, 0)
       IF(surf_decenter_y(I).NE.0.0D0.OR.surf_decenter_x(I).NE.0.0D0.OR.surf_decenter_z(I).NE.0.0D0) call set_surf_decenter_flag(I, 1)
    END DO
    IF(.NOT.REDOLNSEOS) THEN
-      IF(SYSTEM(94).NE.0.0D0.OR.SYSTEM(98).NE.0.0D0) THEN
+      IF(sys_pxim_fang_set().NE.0.0D0.OR.sys_rxim_fang_set().NE.0.0D0) THEN
          CALL REDOXOBJ(REDOLNSEOS)
          OUTLYNE = "REDOXOBJ FINISHED"
          CALL SHOWIT(19)
       END IF
-      IF(SYSTEM(95).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+      IF(sys_pyim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
          CALL REDOYOBJ(REDOLNSEOS)
          OUTLYNE = "REDOYOBJ FINISHED"
          CALL SHOWIT(19)
@@ -2301,13 +2304,14 @@ SUBROUTINE LNSEOS1
    END IF
    ! Update the NEW data structures
    call check_clear_apertures(curr_lens_data)
-   call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
+   call curr_asph_data%updateAsphereTable(INT(sys_last_surf())+1)
    call sysConfig%updateParameters()
 
    RETURN
 END
 SUBROUTINE REDOXOBJ(REDOLNSEOS)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2315,33 +2319,34 @@ SUBROUTINE REDOXOBJ(REDOLNSEOS)
    LOGICAL REDOLNSEOS
 !
    JK_FACTOR=1.0D0
-   IF(SYSTEM(94).EQ.1.0D0.OR.SYSTEM(98).EQ.1.0D0) THEN
+   IF(sys_pxim_fang_set().EQ.1.0D0.OR.sys_rxim_fang_set().EQ.1.0D0) THEN
 !     IMAGE ANGLES SCALE
-      B=PXTRAX(6,INT(SYSTEM(20)))
+      B=PXTRAX(6,INT(sys_last_surf()))
       IF(B.NE.0.0D0) THEN
-         IF(SYSTEM(94).EQ.1.0D0)JK_FACTOR=DTAN(PII*SYSTEM(92)/180.0D0)/B
-         IF(SYSTEM(98).EQ.1.0D0)JK_FACTOR=DTAN(PII*SYSTEM(96)/180.0D0)/B
+         IF(sys_pxim_fang_set().EQ.1.0D0)JK_FACTOR=DTAN(PII*sys_pxim()/180.0D0)/B
+         IF(sys_rxim_fang_set().EQ.1.0D0)JK_FACTOR=DTAN(PII*sys_rxim()/180.0D0)/B
       END IF
    ELSE
 !     IMAGE HT SCALE
-      B=PXTRAX(5,INT(SYSTEM(20)))
+      B=PXTRAX(5,INT(sys_last_surf()))
       IF(B.NE.0.0D0) THEN
-         IF(SYSTEM(94).EQ.-1.0D0)JK_FACTOR=SYSTEM(92)/B
-         IF(SYSTEM(98).EQ.-1.0D0)JK_FACTOR=SYSTEM(96)/B
+         IF(sys_pxim_fang_set().EQ.-1.0D0)JK_FACTOR=sys_pxim()/B
+         IF(sys_rxim_fang_set().EQ.-1.0D0)JK_FACTOR=sys_rxim()/B
       END IF
    END IF
 !     SET SCX
-   SYSTEM(16)=SYSTEM(16)*JK_FACTOR
-   SYSTEM(17)=0.0D0
-   SYSTEM(19)=0.0D0
-   SYSTEM(52)=1.0D0
-   SYSTEM(54)=0.0D0
-   SYSTEM(61)=1.0D0
+   call set_sys_scx(sys_scx()*JK_FACTOR)
+   call set_sys_scx_x1(0.0D0)
+   call set_sys_scx_fang_set(0.0D0)
+   call set_sys_scx_x1_set(1.0D0)
+   call set_sys_fang_x_x1_set(0.0D0)
+   call set_sys_scx_explicit(1.0D0)
    REDOLNSEOS=.TRUE.
    RETURN
 END
 SUBROUTINE REDOYOBJ(REDOLNSEOS)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2349,38 +2354,39 @@ SUBROUTINE REDOYOBJ(REDOLNSEOS)
    LOGICAL REDOLNSEOS
 !
    JK_FACTOR=1.0D0
-   IF(SYSTEM(95).EQ.1.0D0.OR.SYSTEM(99).EQ.1.0D0) THEN
+   IF(sys_pyim_fang_set().EQ.1.0D0.OR.sys_ryim_fang_set().EQ.1.0D0) THEN
 !     IMAGE ANGLES SCALE
-      B=PXTRAY(6,INT(SYSTEM(20)))
+      B=PXTRAY(6,INT(sys_last_surf()))
       IF(B.NE.0.0D0) THEN
-         IF(SYSTEM(95).EQ.1.0D0)JK_FACTOR=DTAN(PII*SYSTEM(93)/180.0D0)/B
-         IF(SYSTEM(99).EQ.1.0D0)JK_FACTOR=DTAN(PII*SYSTEM(97)/180.0D0)/B
+         IF(sys_pyim_fang_set().EQ.1.0D0)JK_FACTOR=DTAN(PII*sys_pyim()/180.0D0)/B
+         IF(sys_ryim_fang_set().EQ.1.0D0)JK_FACTOR=DTAN(PII*sys_ryim()/180.0D0)/B
       END IF
    ELSE
 !     IMAGE HT SCALE
-      B=PXTRAY(5,INT(SYSTEM(20)))
+      B=PXTRAY(5,INT(sys_last_surf()))
       IF(B.NE.0.0D0) THEN
-         IF(SYSTEM(95).EQ.-1.0D0)JK_FACTOR=SYSTEM(93)/B
-         IF(SYSTEM(99).EQ.-1.0D0)JK_FACTOR=SYSTEM(97)/B
+         IF(sys_pyim_fang_set().EQ.-1.0D0)JK_FACTOR=sys_pyim()/B
+         IF(sys_ryim_fang_set().EQ.-1.0D0)JK_FACTOR=sys_ryim()/B
       END IF
    END IF
 !     SET SCY
-   SYSTEM(14)=SYSTEM(14)*JK_FACTOR
-   SYSTEM(15)=0.0D0
-   SYSTEM(18)=0.0D0
-   SYSTEM(51)=1.0D0
-   SYSTEM(53)=0.0D0
-   SYSTEM(60)=1.0D0
+   call set_sys_scy(sys_scy()*JK_FACTOR)
+   call set_sys_scy_y1(0.0D0)
+   call set_sys_scy_fang_set(0.0D0)
+   call set_sys_scy_y1_set(1.0D0)
+   call set_sys_fang_y_y1_set(0.0D0)
+   call set_sys_scy_explicit(1.0D0)
    REDOLNSEOS=.TRUE.
    RETURN
 END
 SUBROUTINE RERROR
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
    INTEGER I
-   DO I=1,INT(SYSTEM(20))
+   DO I=1,INT(sys_last_surf())
       IF(surf_ray_error(I).NE.0.0D0) THEN
          WRITE(OUTLYNE,10) surf_ray_error(I),I
          CALL SHOWIT(0)

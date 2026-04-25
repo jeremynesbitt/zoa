@@ -10,6 +10,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
             use mod_lens_data_manager
     
             use DATLEN
+            use mod_system
             use DATMAI
             IMPLICIT NONE
     
@@ -37,11 +38,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
     !       THE VALID NUMERIC INPUT IS THE SURFACE NUMBER FOR
     !       WHICH IT IS DESIRED TO PRODUCE OUTPUT.
     !       
-            if (.not.checkCommandInput( &
-            & ID_CMD_TYPE= [ID_CMD_QUAL, ID_CMD_NUM], &
-            & qual_words=[character(len=6) :: "ALL", "I"], &
-            & qual_only_err_msg = "Test error message", & 
-            & max_num_terms = 1)) then 
+            if (.not.checkCommandInput(  ID_CMD_TYPE= [ID_CMD_QUAL, ID_CMD_NUM],  qual_words=[character(len=6) :: "ALL", "I"],  qual_only_err_msg = "Test error message",  max_num_terms = 1)) then 
                  CALL MACFAL
                  return
              end if
@@ -75,8 +72,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
             ! CXS is same as C but X-Z plane
 
             call OUTKDP(trim(sysConfig%lensTitle))
-            call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "// &
-            & trim(real2str(1000.0*sysConfig%getWavelength(idxWV),1)) //" nm")
+            call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "//  trim(real2str(1000.0*sysConfig%getWavelength(idxWV),1)) //" nm")
 
 ! 5002   FORMAT('ABERRATION CONTRIBUTIONS',' - (CFG #',I2,')')            
 ! 5501   FORMAT('TRANSVERSE - WITH FINAL SURFACE CONVERSION')
@@ -86,10 +82,10 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
                         
 !             WRITE(OUTLYNE,5002) INT(F12)
 !             CALL SHOWIT(0)
-!             IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-!             IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-!             IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-!             IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+!             IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+!             IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+!             IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+!             IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
 !             CALL SHOWIT(0)
             !WRITE(OUTLYNE,2501)
             !CALL SHOWIT(0)
@@ -112,7 +108,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
              IF(SQ.EQ.0.AND.DF1.NE.1) THEN
 
                
-                IF(INT(W1).GT.INT(SYSTEM(20)).OR.INT(W1).LT.0) THEN
+                IF(INT(W1).GT.INT(sys_last_surf()).OR.INT(W1).LT.0) THEN
                  OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
                  CALL SHOWIT(1)
                  CALL MACFAL

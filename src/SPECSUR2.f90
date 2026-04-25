@@ -4,6 +4,7 @@
 SUBROUTINE SPCOEF(ITP)
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface, only: surf_special_type, surf_pickup_count, set_surf_pickup_count
    IMPLICIT NONE
@@ -18,8 +19,7 @@ SUBROUTINE SPCOEF(ITP)
 !
 !
    IF(SST.EQ.1 .OR.SQ.EQ.1 .OR.S3.EQ.1 .OR.S4.EQ.1 .OR.S5.EQ.1) THEN
-      OUTLYNE='" '//WC//&
-      &' " ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
+      OUTLYNE='" '//WC//' " ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER DATA'
       CALL SHOWIT(1)
@@ -27,9 +27,7 @@ SUBROUTINE SPCOEF(ITP)
       RETURN
    END IF
    IF(DF1.EQ.1 .OR.DF2.EQ.1) THEN
-      OUTLYNE=&
-      &'" '//WC//&
-      &' " REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
+      OUTLYNE='" '//WC//' " REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -46,10 +44,9 @@ SUBROUTINE SPCOEF(ITP)
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-   IF(INT(W1).LT.1 .OR.INT(W1).GT.INT(SYSTEM(20))) THEN
-      OUTLYNE=&
-      &'SURFACE NUMBER BEYOND LEGAL RANGE'
+   IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+   IF(INT(W1).LT.1 .OR.INT(W1).GT.INT(sys_last_surf())) THEN
+      OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -57,8 +54,7 @@ SUBROUTINE SPCOEF(ITP)
       RETURN
    END IF
    IF(surf_special_type(INT(W1)).EQ.0.0D0) THEN
-      WRITE(OUTLYNE,*)&
-      &'WARNING: SURFACE ',INT(W1),' NOT A SPECIAL SURFACE TYPE'
+      WRITE(OUTLYNE,*)'WARNING: SURFACE ',INT(W1),' NOT A SPECIAL SURFACE TYPE'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -72,8 +68,7 @@ SUBROUTINE SPCOEF(ITP)
 !     CHECK FOR THINGS NOT ALLOWED
       CNOT=.FALSE.
 !
-      IF(surf_special_type(INT(W1)) == 1 .OR.&
-      &surf_special_type(INT(W1)) == 6) THEN
+      IF(surf_special_type(INT(W1)) == 1 .OR.surf_special_type(INT(W1)) == 6) THEN
          IF(WC.EQ.'C1') CNOT=.TRUE.
          IF(WC.EQ.'C2') CNOT=.TRUE.
          IF(WC.EQ.'C3') CNOT=.TRUE.
@@ -131,11 +126,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPES 1 AND 6'
+            OUTLYNE='SPECIAL SURFACE TYPES 1 AND 6'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C9 THROUGH C48'
+            OUTLYNE='ONLY USE COEFFICIENTS C9 THROUGH C48'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -237,11 +230,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 24'
+            OUTLYNE='SPECIAL SURFACE TYPE 24'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USES COEFFICIENTS C1 THROUGH C4'
+            OUTLYNE='ONLY USES COEFFICIENTS C1 THROUGH C4'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -249,8 +240,7 @@ SUBROUTINE SPCOEF(ITP)
             RETURN
          END IF
       END IF
-      IF(surf_special_type(INT(W1)) == 2 .OR.&
-      &surf_special_type(INT(W1)) == 9) THEN
+      IF(surf_special_type(INT(W1)) == 2 .OR.surf_special_type(INT(W1)) == 9) THEN
          IF(WC.EQ.'C67') CNOT=.TRUE.
          IF(WC.EQ.'C68') CNOT=.TRUE.
          IF(WC.EQ.'C69') CNOT=.TRUE.
@@ -282,11 +272,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPES 2 AND 9'
+            OUTLYNE='SPECIAL SURFACE TYPES 2 AND 9'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C66'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C66'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -294,8 +282,7 @@ SUBROUTINE SPCOEF(ITP)
             RETURN
          END IF
       END IF
-      IF(surf_special_type(INT(W1)) == 14 .OR.&
-      &surf_special_type(INT(W1)) == 15) THEN
+      IF(surf_special_type(INT(W1)) == 14 .OR.surf_special_type(INT(W1)) == 15) THEN
          IF(WC.EQ.'C49') CNOT=.TRUE.
          IF(WC.EQ.'C50') CNOT=.TRUE.
          IF(WC.EQ.'C51') CNOT=.TRUE.
@@ -345,11 +332,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPES 14 AND 15'
+            OUTLYNE='SPECIAL SURFACE TYPES 14 AND 15'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C48'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C48'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -445,11 +430,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 16'
+            OUTLYNE='SPECIAL SURFACE TYPE 16'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USES COEFFICIENTS C1 THROUGH C11'
+            OUTLYNE='ONLY USES COEFFICIENTS C1 THROUGH C11'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -538,11 +521,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 18'
+            OUTLYNE='SPECIAL SURFACE TYPE 18'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USES COEFFICIENTS C1 THROUGH C18'
+            OUTLYNE='ONLY USES COEFFICIENTS C1 THROUGH C18'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -550,8 +531,7 @@ SUBROUTINE SPCOEF(ITP)
             RETURN
          END IF
       END IF
-      IF(surf_special_type(INT(W1)) == 3 .OR.&
-      &surf_special_type(INT(W1)) == 10) THEN
+      IF(surf_special_type(INT(W1)) == 3 .OR.surf_special_type(INT(W1)) == 10) THEN
          IF(WC.EQ.'C38') CNOT=.TRUE.
          IF(WC.EQ.'C39') CNOT=.TRUE.
          IF(WC.EQ.'C40') CNOT=.TRUE.
@@ -612,11 +592,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPES 3 AND 10'
+            OUTLYNE='SPECIAL SURFACE TYPES 3 AND 10'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C37'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C37'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -718,11 +696,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 19'
+            OUTLYNE='SPECIAL SURFACE TYPE 19'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C4'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C4'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -856,11 +832,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 20'
+            OUTLYNE='SPECIAL SURFACE TYPE 20'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C5'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C5'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1004,11 +978,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 22'
+            OUTLYNE='SPECIAL SURFACE TYPE 22'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C4'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C4'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1049,13 +1021,8 @@ SUBROUTINE SPCOEF(ITP)
          END IF
       END IF
       IF(surf_special_type(INT(W1)) == 4) THEN
-         IF(WC.NE.'C1'.AND.WC.NE.'C2'.AND.WC.NE.'C3'&
-         &.AND.WC.NE.'C4'.AND.WC.NE.'C5'.AND.WC.NE.'C6'&
-         &.AND.WC.NE.'C7'.AND.WC.NE.'C8'.AND.WC.NE.'C9'&
-         &.AND.WC.NE.'C10'.AND.WC.NE.'C11'.AND.WC.NE.'C12'&
-         &.AND.WC.NE.'C13'.AND.WC.NE.'C14'.AND.WC.NE.'C15')THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 4 ONLY USES COEFFICIENTS C1 THROUGH C15'
+         IF(WC.NE.'C1'.AND.WC.NE.'C2'.AND.WC.NE.'C3'.AND.WC.NE.'C4'.AND.WC.NE.'C5'.AND.WC.NE.'C6'.AND.WC.NE.'C7'.AND.WC.NE.'C8'.AND.WC.NE.'C9'.AND.WC.NE.'C10'.AND.WC.NE.'C11'.AND.WC.NE.'C12'.AND.WC.NE.'C13'.AND.WC.NE.'C14'.AND.WC.NE.'C15')THEN
+            OUTLYNE='SPECIAL SURFACE TYPE 4 ONLY USES COEFFICIENTS C1 THROUGH C15'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1063,18 +1030,15 @@ SUBROUTINE SPCOEF(ITP)
             RETURN
          END IF
       END IF
-      IF(surf_special_type(INT(W1)) == 7 .OR.&
-      &surf_special_type(INT(W1)) == 8) THEN
+      IF(surf_special_type(INT(W1)) == 7 .OR.surf_special_type(INT(W1)) == 8) THEN
          IF(WC.EQ.'C93') CNOT=.TRUE.
          IF(WC.EQ.'C94') CNOT=.TRUE.
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPES 7 AND 8'
+            OUTLYNE='SPECIAL SURFACE TYPES 7 AND 8'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USE COEFFICIENTS C1 THROUGH C91'
+            OUTLYNE='ONLY USE COEFFICIENTS C1 THROUGH C91'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1091,11 +1055,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 12'
+            OUTLYNE='SPECIAL SURFACE TYPE 12'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USES COEFFICIENTS C1 THROUGH C89'
+            OUTLYNE='ONLY USES COEFFICIENTS C1 THROUGH C89'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1187,11 +1149,9 @@ SUBROUTINE SPCOEF(ITP)
          IF(WC.EQ.'C95') CNOT=.TRUE.
          IF(WC.EQ.'C96') CNOT=.TRUE.
          IF(CNOT) THEN
-            OUTLYNE=&
-            &'SPECIAL SURFACE TYPE 13'
+            OUTLYNE='SPECIAL SURFACE TYPE 13'
             CALL SHOWIT(1)
-            OUTLYNE=&
-            &'ONLY USES COEFFICIENTS C1 THROUGH C14'
+            OUTLYNE='ONLY USES COEFFICIENTS C1 THROUGH C14'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1338,14 +1298,14 @@ END
 SUBROUTINE ZERNREPT
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface, only: surf_special_type
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ZERNREPT THAT DOES THE ZERNREPT COMMAND
 !
-   REAL*8 HIGHORD,VCF(1:37),EMN,NV &
-   &,VC1,VC2,VC3,VC4,VC5,VC6,VC7,VC8,VC9
+   REAL*8 HIGHORD,VCF(1:37),EMN,NV ,VC1,VC2,VC3,VC4,VC5,VC6,VC7,VC8,VC9
 !
    INTEGER I
 !
@@ -1357,37 +1317,30 @@ SUBROUTINE ZERNREPT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(STI.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"ZERNREPT" GENERATES A REPORT FOR 37-TERM FRINGE ZERNIKE'
+      WRITE(OUTLYNE,*)'"ZERNREPT" GENERATES A REPORT FOR 37-TERM FRINGE ZERNIKE'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'SURFACES (TYPE 3 AND TYPE 10 SPECIAL SURFACES)'
+      WRITE(OUTLYNE,*)'SURFACES (TYPE 3 AND TYPE 10 SPECIAL SURFACES)'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SST.EQ.1 .OR.S2.EQ.1 .OR.S3.EQ.1 .OR.S4.EQ.1 .OR.S5.EQ.1 &
-   &.OR.SQ.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"ZERNREPT" ONLY TAKES NUMERIC WORD #1 INPUT'
+   IF(SST.EQ.1 .OR.S2.EQ.1 .OR.S3.EQ.1 .OR.S4.EQ.1 .OR.S5.EQ.1 .OR.SQ.EQ.1) THEN
+      WRITE(OUTLYNE,*)'"ZERNREPT" ONLY TAKES NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0 .OR.W1.GT.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)&
-      &'SURFACE NUMBER BEYOND LEGAL RANGE '
+   IF(W1.LT.0.0D0 .OR.W1.GT.sys_last_surf()) THEN
+      WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE '
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
       RETURN
    END IF
-   IF(surf_special_type(INT(W1)).NE.3.0D0 .AND.surf_special_type(INT(W1))&
-   &.NE.10.0D0) THEN
-      WRITE(OUTLYNE,*)&
-      &'SPECIFIED SURFACE IS NOT A TYPE 3 OR TYPE 10 SPECIAL SURFACE'
+   IF(surf_special_type(INT(W1)).NE.3.0D0 .AND.surf_special_type(INT(W1)).NE.10.0D0) THEN
+      WRITE(OUTLYNE,*)'SPECIFIED SURFACE IS NOT A TYPE 3 OR TYPE 10 SPECIAL SURFACE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO ZERN REPORT WILL BE GENERATED'
       CALL SHOWIT(1)
@@ -1594,6 +1547,7 @@ END
 SUBROUTINE PPRSPR
 !
    use DATLEN
+   use mod_system
    use DATMAI
    use mod_surface, only: surf_special_type, surf_toric_flag
    IMPLICIT NONE
@@ -1611,10 +1565,10 @@ SUBROUTINE PPRSPR
    REAL*8 COEF(1:96)
 !
 !
-   IF(SYSTEM(6).EQ.1) UN='INCHES'
-   IF(SYSTEM(6).EQ.2) UN='CM'
-   IF(SYSTEM(6).EQ.3) UN='MM'
-   IF(SYSTEM(6).EQ.4) UN='METERS'
+   IF(sys_units().EQ.1) UN='INCHES'
+   IF(sys_units().EQ.2) UN='CM'
+   IF(sys_units().EQ.3) UN='MM'
+   IF(sys_units().EQ.4) UN='METERS'
 !
 !               THIS IS A CMD LEVEL COMMAND ONLY
 !
@@ -1622,8 +1576,7 @@ SUBROUTINE PPRSPR
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1 .OR.S2.EQ.1 .OR.S3.EQ.1 .OR.S4.EQ.1 .OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"PRSPR" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'
+      WRITE(OUTLYNE,*)'"PRSPR" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1631,11 +1584,9 @@ SUBROUTINE PPRSPR
       RETURN
    END IF
    IF(SQ.EQ.1 .AND.S1.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"PRSPR" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
+      WRITE(OUTLYNE,*)'"PRSPR" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)&
-      &'BUT NOT BOTH'
+      WRITE(OUTLYNE,*)'BUT NOT BOTH'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -1670,9 +1621,9 @@ SUBROUTINE PPRSPR
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.INT(SYSTEM(20))) THEN
+      IF(SURF.GT.INT(sys_last_surf())) THEN
 !       WE HAVE INVALID SURFACE #
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -1693,70 +1644,38 @@ SUBROUTINE PPRSPR
       END IF
       TYPE2=AA//AA//AA//AA
 !       THERE IS SPECIAL SURFACE DATA
-      IF(surf_special_type(SURF) == 1)&
-      &TYPE2='RADIAL POLYNOMIAL SURFACE'
-      IF(surf_special_type(SURF) == 2)&
-      &TYPE2='30 TERM ZERNIKE POLYNOMIAL SURFACE'
-      IF(surf_special_type(SURF) == 3)&
-      &TYPE2='37 TERM FRINGE ZERNIKE POLYNOMIAL SURFACE'
-      IF(surf_special_type(SURF) == 4)&
-      &TYPE2='SINUSOIDAL ERROR SURFACE'
-      IF(surf_special_type(SURF) == 5)&
-      &TYPE2='USER DEFINED SURFACE #1'
-      IF(surf_special_type(SURF) == 6)&
-      &TYPE2='RADIAL POLYNOMIAL PHASE SURFACE'
-      IF(surf_special_type(SURF) == 7)&
-      &TYPE2='RECTANGULAR POLYNOMIAL PHASE SURFACE'
-      IF(surf_special_type(SURF) == 8)&
-      &TYPE2='RECTANGULAR POLYNOMIAL SURFACE'
-      IF(surf_special_type(SURF) == 9)&
-      &TYPE2='30 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
-      IF(surf_special_type(SURF) == 10)&
-      &TYPE2='37 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
-      IF(surf_special_type(SURF) == 11)&
-      &TYPE2='37 USER DEFINED PHASE SURFACE'
-      IF(surf_special_type(SURF) == 13 .AND.F12.EQ.1)&
-      &TYPE2='REAL RAY HOE'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.0.0D0)&
-      &TYPE2='HOE WITHOUT ADDITIONAL PHASE TERMS'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.1.0D0)&
-      &TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (R)'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.2.0D0)&
-      &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XY)'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.3.0D0)&
-      &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (AXY)'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.4.0D0)&
-      &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XAY)'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.5.0D0)&
-      &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XYA)'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.6.0D0)&
-      &TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (AR)'
-      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.7.0D0)&
-      &TYPE2='HOE WITH USER DEFINED PHASE (MACRO FUNCTION-FUN09)'
-      IF(surf_special_type(SURF) == 14)&
-      &TYPE2='ABERRATION POLYNOMIAL SURFACE'
-      IF(surf_special_type(SURF) == 15)&
-      &TYPE2='ABERRATION POLYNOMIAL PHASE SURFACE'
-      IF(surf_special_type(SURF) == 16 .AND.surf_toric_flag(SURF) == 0)&
-      &TYPE2='FRESNEL-1 SURFACE (ROTATIONALLY SYMMETRIC TYPE)'
-      IF(surf_special_type(SURF) == 16 .AND.surf_toric_flag(SURF) == 1)&
-      &TYPE2='FRESNEL-1 SURFACE (Y-TORIC CYLINDER TYPE)'
-      IF(surf_special_type(SURF) == 16 .AND.surf_toric_flag(SURF) == 2)&
-      &TYPE2='FRESNEL-1 SURFACE (X-TORIC CYLINDER TYPE)'
-      IF(surf_special_type(SURF) == 17)&
-      &TYPE2='USER DEFINED SURFACE #2'
-      IF(surf_special_type(SURF) == 18)&
-      &TYPE2='GRAZING INCIDENCE SURFACE'
-      IF(surf_special_type(SURF) == 19)&
-      &TYPE2='GRID APODIZATION SURFACE'
-      IF(surf_special_type(SURF) == 20)&
-      &TYPE2='GRID PHASE SURFACE'
-      IF(surf_special_type(SURF) == 21)&
-      &TYPE2='USER DEFINED SUBROUTINE SURFACE'
-      IF(surf_special_type(SURF) == 22)&
-      &TYPE2='GRID SAG SURFACE'
-      IF(surf_special_type(SURF) == 23)&
-      &TYPE2='NORMAL SYMMETRIC CUBIC SPLINE SURFACE'
+      IF(surf_special_type(SURF) == 1)TYPE2='RADIAL POLYNOMIAL SURFACE'
+      IF(surf_special_type(SURF) == 2)TYPE2='30 TERM ZERNIKE POLYNOMIAL SURFACE'
+      IF(surf_special_type(SURF) == 3)TYPE2='37 TERM FRINGE ZERNIKE POLYNOMIAL SURFACE'
+      IF(surf_special_type(SURF) == 4)TYPE2='SINUSOIDAL ERROR SURFACE'
+      IF(surf_special_type(SURF) == 5)TYPE2='USER DEFINED SURFACE #1'
+      IF(surf_special_type(SURF) == 6)TYPE2='RADIAL POLYNOMIAL PHASE SURFACE'
+      IF(surf_special_type(SURF) == 7)TYPE2='RECTANGULAR POLYNOMIAL PHASE SURFACE'
+      IF(surf_special_type(SURF) == 8)TYPE2='RECTANGULAR POLYNOMIAL SURFACE'
+      IF(surf_special_type(SURF) == 9)TYPE2='30 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
+      IF(surf_special_type(SURF) == 10)TYPE2='37 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
+      IF(surf_special_type(SURF) == 11)TYPE2='37 USER DEFINED PHASE SURFACE'
+      IF(surf_special_type(SURF) == 13 .AND.F12.EQ.1)TYPE2='REAL RAY HOE'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.0.0D0)TYPE2='HOE WITHOUT ADDITIONAL PHASE TERMS'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.1.0D0)TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (R)'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.2.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XY)'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.3.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (AXY)'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.4.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XAY)'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.5.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XYA)'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.6.0D0)TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (AR)'
+      IF(surf_special_type(SURF) == 12 .AND.FTFL01(11,SURF).EQ.7.0D0)TYPE2='HOE WITH USER DEFINED PHASE (MACRO FUNCTION-FUN09)'
+      IF(surf_special_type(SURF) == 14)TYPE2='ABERRATION POLYNOMIAL SURFACE'
+      IF(surf_special_type(SURF) == 15)TYPE2='ABERRATION POLYNOMIAL PHASE SURFACE'
+      IF(surf_special_type(SURF) == 16 .AND.surf_toric_flag(SURF) == 0)TYPE2='FRESNEL-1 SURFACE (ROTATIONALLY SYMMETRIC TYPE)'
+      IF(surf_special_type(SURF) == 16 .AND.surf_toric_flag(SURF) == 1)TYPE2='FRESNEL-1 SURFACE (Y-TORIC CYLINDER TYPE)'
+      IF(surf_special_type(SURF) == 16 .AND.surf_toric_flag(SURF) == 2)TYPE2='FRESNEL-1 SURFACE (X-TORIC CYLINDER TYPE)'
+      IF(surf_special_type(SURF) == 17)TYPE2='USER DEFINED SURFACE #2'
+      IF(surf_special_type(SURF) == 18)TYPE2='GRAZING INCIDENCE SURFACE'
+      IF(surf_special_type(SURF) == 19)TYPE2='GRID APODIZATION SURFACE'
+      IF(surf_special_type(SURF) == 20)TYPE2='GRID PHASE SURFACE'
+      IF(surf_special_type(SURF) == 21)TYPE2='USER DEFINED SUBROUTINE SURFACE'
+      IF(surf_special_type(SURF) == 22)TYPE2='GRID SAG SURFACE'
+      IF(surf_special_type(SURF) == 23)TYPE2='NORMAL SYMMETRIC CUBIC SPLINE SURFACE'
       ITY=surf_special_type(SURF)
       IF(surf_special_type(SURF).EQ.1.0)  TYPE='1- ON    '
       IF(surf_special_type(SURF).EQ.2.0)  TYPE='2- ON    '
@@ -1819,101 +1738,76 @@ SUBROUTINE PPRSPR
 !        SET PRINTING ARRAY COEF TO PROPER VALUES
 !
       DO 9000 I=1,96
-         IF(surf_special_type(SURF) >= 1 .AND.&
-         &surf_special_type(SURF) <= 30) THEN
+         IF(surf_special_type(SURF) >= 1 .AND.surf_special_type(SURF) <= 30) THEN
             COEF(I)=FTFL01(I,SURF)
          END IF
 9000  CONTINUE
-      IF(surf_special_type(SURF) /= 13 .OR.&
-      &surf_special_type(SURF) == 13 .AND.F12.EQ.1) THEN
+      IF(surf_special_type(SURF) /= 13 .OR.surf_special_type(SURF) == 13 .AND.F12.EQ.1) THEN
          WRITE(OUTLYNE,101) SURF,TYPE
          CALL SHOWIT(0)
          WRITE(OUTLYNE,102) TYPE2(1:79)
          CALL SHOWIT(0)
       END IF
       IF(ITY.EQ.1 .OR.ITY.EQ.6) THEN
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,7041) COEF(37),COEF(38),COEF(39)
          CALL SHOWIT(0)
       END IF
       IF(ITY.EQ.2 .OR.ITY.EQ.9) THEN
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
@@ -1929,72 +1823,63 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
@@ -2063,24 +1948,21 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,5004) COEF(4),COEF(5),COEF(6),&
-         &COEF(7)
+         WRITE(OUTLYNE,5004) COEF(4),COEF(5),COEF(6),COEF(7)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,5005) COEF(8),COEF(9),COEF(10),&
-         &COEF(11)
+         WRITE(OUTLYNE,5005) COEF(8),COEF(9),COEF(10),COEF(11)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,5006) COEF(12),COEF(13),COEF(14),&
-         &COEF(15)
+         WRITE(OUTLYNE,5006) COEF(12),COEF(13),COEF(14),COEF(15)
          CALL SHOWIT(0)
 
 
@@ -2172,192 +2054,168 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-         &COEF(68)
+         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-         &COEF(72)
+         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-         &COEF(76)
+         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-         &COEF(80)
+         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-         &COEF(84)
+         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-         &COEF(87)
+         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-         &COEF(92)
+         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-         &COEF(96)
+         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
          CALL SHOWIT(0)
       END IF
 !
@@ -2394,14 +2252,10 @@ SUBROUTINE PPRSPR
          IF(COEF(4).EQ.1.0D0)WRITE(OUTLYNE,9008) UN
          IF(COEF(4).EQ.2.0D0)WRITE(OUTLYNE,9009)
          IF(COEF(4).GT.3.0D0)WRITE(OUTLYNE,9010)
-9007     FORMAT &
-         &('INPUT PHASE(OPD) IN WAVES AT THE CURRENT REF. WAVELENGTH')
-9008     FORMAT &
-         &('INPUT PHASE(OPD) UNITS ARE CURRENT LENS UNITS = ',A6)
-9009     FORMAT &
-         &('INPUT PHASE(OPD) UNITS ARE MICRONS')
-9010     FORMAT &
-         &('INVALID UNITS CODE FOUND IN TYPE 20 SPECIAL SURFACE')
+9007     FORMAT ('INPUT PHASE(OPD) IN WAVES AT THE CURRENT REF. WAVELENGTH')
+9008     FORMAT ('INPUT PHASE(OPD) UNITS ARE CURRENT LENS UNITS = ',A6)
+9009     FORMAT ('INPUT PHASE(OPD) UNITS ARE MICRONS')
+9010     FORMAT ('INVALID UNITS CODE FOUND IN TYPE 20 SPECIAL SURFACE')
          CALL SHOWIT(0)
 
 
@@ -2419,192 +2273,168 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-         &COEF(68)
+         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-         &COEF(72)
+         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-         &COEF(76)
+         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-         &COEF(80)
+         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-         &COEF(84)
+         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-         &COEF(87)
+         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-         &COEF(92)
+         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-         &COEF(96)
+         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
          CALL SHOWIT(0)
       END IF
       IF(ITY.EQ.21) THEN
@@ -2613,192 +2443,168 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-         &COEF(68)
+         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-         &COEF(72)
+         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-         &COEF(76)
+         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-         &COEF(80)
+         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-         &COEF(84)
+         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-         &COEF(87)
+         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-         &COEF(92)
+         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-         &COEF(96)
+         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
          CALL SHOWIT(0)
       END IF
       IF(ITY.EQ.14 .OR.ITY.EQ.15) THEN
@@ -2807,96 +2613,84 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
       END IF
       IF(ITY.EQ.16) THEN
@@ -2905,16 +2699,14 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
@@ -2931,176 +2723,154 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-         &COEF(4)
+         WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-         &COEF(8)
+         WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-         &COEF(12)
+         WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-         &COEF(68)
+         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-         &COEF(72)
+         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-         &COEF(76)
+         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-         &COEF(80)
+         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-         &COEF(84)
+         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-         &COEF(87)
+         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
          CALL SHOWIT(0)
 
 
@@ -3368,32 +3138,28 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,7001) COEF(21),COEF(22),COEF(23)&
-         &,COEF(24)
+         WRITE(OUTLYNE,7001) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,7002) COEF(25),COEF(26),COEF(27)&
-         &,COEF(28)
+         WRITE(OUTLYNE,7002) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
@@ -3489,16 +3255,14 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
@@ -3594,175 +3358,151 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
 
-         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-         &COEF(24)
-         CALL SHOWIT(0)
-
-
-
-
-
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-         &COEF(68)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-         &COEF(72)
+         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-         &COEF(76)
+         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-         &COEF(80)
+         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-         &COEF(84)
+         WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-         &COEF(87)
+         WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-         &COEF(92)
+         WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-         &COEF(96)
+         WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
+         CALL SHOWIT(0)
+
+
+
+
+
+         WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
          CALL SHOWIT(0)
 
 
 
       END IF
-      IF(ITY.EQ.12 .AND.COEF(11).EQ.2.0D0 .OR.&
-      &ITY.EQ.12 .AND.COEF(11).EQ.3.0D0 .OR.&
-      &ITY.EQ.12 .AND.COEF(11).EQ.4.0D0 .OR.&
-      &ITY.EQ.12 .AND.COEF(11).EQ.5.0D0) THEN
+      IF(ITY.EQ.12 .AND.COEF(11).EQ.2.0D0 .OR.ITY.EQ.12 .AND.COEF(11).EQ.3.0D0 .OR.ITY.EQ.12 .AND.COEF(11).EQ.4.0D0 .OR.ITY.EQ.12 .AND.COEF(11).EQ.5.0D0) THEN
 
 
 
@@ -3848,16 +3588,14 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-         &COEF(16)
+         WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-         &COEF(20)
+         WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
          CALL SHOWIT(0)
 
 
@@ -3871,104 +3609,91 @@ SUBROUTINE PPRSPR
 
 
 
-         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-         &COEF(28)
+         WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-         &COEF(32)
+         WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-         &COEF(36)
+         WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-         &COEF(40)
+         WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-         &COEF(44)
+         WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-         &COEF(48)
+         WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-         &COEF(52)
+         WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-         &COEF(56)
+         WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-         &COEF(60)
+         WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-         &COEF(64)
+         WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-         &COEF(68)
+         WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-         &COEF(72)
+         WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
          CALL SHOWIT(0)
 
 
 
 
 
-         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-         &COEF(76)
+         WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
          CALL SHOWIT(0)
 
 
@@ -3985,7 +3710,7 @@ SUBROUTINE PPRSPR
 !       HANDEL THE WHOLE LENS
       SPSCNT=0
 !
-      DO 16 JK=0,INT(SYSTEM(20))
+      DO 16 JK=0,INT(sys_last_surf())
          IF(surf_special_type(JK) /= 0) THEN
             SPSCNT=SPSCNT+1
          END IF
@@ -3995,14 +3720,13 @@ SUBROUTINE PPRSPR
          CALL SHOWIT(0)
          RETURN
       END IF
-      DO JK=0,INT(SYSTEM(20))
-         IF(surf_special_type(JK) == 13 .AND.F12.EQ.1 .OR.&
-         &surf_special_type(JK) /= 13 .AND.surf_special_type(JK) /= 0) THEN
+      DO JK=0,INT(sys_last_surf())
+         IF(surf_special_type(JK) == 13 .AND.F12.EQ.1 .OR.surf_special_type(JK) /= 13 .AND.surf_special_type(JK) /= 0) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
          END IF
       END DO
-      DO 15 JK=0,INT(SYSTEM(20))
+      DO 15 JK=0,INT(sys_last_surf())
 !
 !       SET SPECIAL SURFACE TYPE
 !
@@ -4013,66 +3737,36 @@ SUBROUTINE PPRSPR
          END IF
          TYPE2=AA//AA//AA//AA
 !       THERE IS SPECIAL SURFACE DATA
-         IF(surf_special_type(JK) == 1)&
-         &TYPE2='RADIAL POLYNOMIAL SURFACE'
-         IF(surf_special_type(JK) == 2)&
-         &TYPE2='30 TERM ZERNIKE POLYNOMIAL SURFACE'
-         IF(surf_special_type(JK) == 3)&
-         &TYPE2='37 TERM FRINGE ZERNIKE POLYNOMIAL SURFACE'
-         IF(surf_special_type(JK) == 4)&
-         &TYPE2='SINUSOIDAL ERROR SURFACE'
-         IF(surf_special_type(JK) == 5)&
-         &TYPE2='USER DEFINED SURFACE #1'
-         IF(surf_special_type(JK) == 6)&
-         &TYPE2='RADIAL POLYNOMIAL PHASE SURFACE'
-         IF(surf_special_type(JK) == 7)&
-         &TYPE2='RECTANGULAR POLYNOMIAL PHASE SURFACE'
-         IF(surf_special_type(JK) == 8)&
-         &TYPE2='RECTANGULAR POLYNOMIAL SURFACE'
-         IF(surf_special_type(JK) == 9)&
-         &TYPE2='30 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
-         IF(surf_special_type(JK) == 10)&
-         &TYPE2='37 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
-         IF(surf_special_type(JK) == 11)&
-         &TYPE2='37 USER DEFINED PHASE SURFACE'
-         IF(surf_special_type(SURF) == 13 .AND.F12.EQ.1)&
-         &TYPE2='REAL RAY HOE'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.0.0D0)&
-         &TYPE2='HOE WITHOUT ADDITIONAL PHASE TERMS'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.1.0D0)&
-         &TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (R)'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.2.0D0)&
-         &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XY)'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.3.0D0)&
-         &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (AXY)'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.4.0D0)&
-         &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XAY)'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.5.0D0)&
-         &TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XYA)'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.6.0D0)&
-         &TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (AR)'
-         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,SURF).EQ.7.0D0)&
-         &TYPE2='HOE WITH USER DEFINED PHASE (MACRO FUNCTION-FUN09)'
-         IF(surf_special_type(JK) == 14)&
-         &TYPE2='STANDARD ABERRATION POLYNOMIAL PHASE TERMS'
-         IF(surf_special_type(JK) == 15)&
-         &TYPE2='ABERRATION POLYNOMIAL PHASE SURFACE'
-         IF(surf_special_type(JK) == 16)&
-         &TYPE2='FRESNEL-1 SURFACE'
-         IF(surf_special_type(JK) == 17)&
-         &TYPE2='USER DEFINED SURFACE #2'
-         IF(surf_special_type(JK) == 18)&
-         &TYPE2='GRAZING INCIDENCE SURFACE'
-         IF(surf_special_type(JK) == 19)&
-         &TYPE2='GRID APODIZATION SURFACE'
-         IF(surf_special_type(JK) == 20)&
-         &TYPE2='GRID PHASE SURFACE'
-         IF(surf_special_type(JK) == 21)&
-         &TYPE2='USER DEFINED SUBROUTINE SURFACE'
-         IF(surf_special_type(JK) == 22)&
-         &TYPE2='GRID SAG SURFACE'
-         IF(surf_special_type(JK) == 23)&
-         &TYPE2='NORMAL SYMMETRIC CUBIC SPLINE SURFACE'
+         IF(surf_special_type(JK) == 1)TYPE2='RADIAL POLYNOMIAL SURFACE'
+         IF(surf_special_type(JK) == 2)TYPE2='30 TERM ZERNIKE POLYNOMIAL SURFACE'
+         IF(surf_special_type(JK) == 3)TYPE2='37 TERM FRINGE ZERNIKE POLYNOMIAL SURFACE'
+         IF(surf_special_type(JK) == 4)TYPE2='SINUSOIDAL ERROR SURFACE'
+         IF(surf_special_type(JK) == 5)TYPE2='USER DEFINED SURFACE #1'
+         IF(surf_special_type(JK) == 6)TYPE2='RADIAL POLYNOMIAL PHASE SURFACE'
+         IF(surf_special_type(JK) == 7)TYPE2='RECTANGULAR POLYNOMIAL PHASE SURFACE'
+         IF(surf_special_type(JK) == 8)TYPE2='RECTANGULAR POLYNOMIAL SURFACE'
+         IF(surf_special_type(JK) == 9)TYPE2='30 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
+         IF(surf_special_type(JK) == 10)TYPE2='37 TERM ZERNIKE POLYNOMIAL PHASE SURFACE'
+         IF(surf_special_type(JK) == 11)TYPE2='37 USER DEFINED PHASE SURFACE'
+         IF(surf_special_type(SURF) == 13 .AND.F12.EQ.1)TYPE2='REAL RAY HOE'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.0.0D0)TYPE2='HOE WITHOUT ADDITIONAL PHASE TERMS'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.1.0D0)TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (R)'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.2.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XY)'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.3.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (AXY)'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.4.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XAY)'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.5.0D0)TYPE2='HOE WITH RECTANGULAR POLYNOMIAL PHASE TERMS (XYA)'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,JK).EQ.6.0D0)TYPE2='HOE WITH RADIAL POLYNOMIAL PHASE TERMS (AR)'
+         IF(surf_special_type(JK) == 12 .AND.FTFL01(11,SURF).EQ.7.0D0)TYPE2='HOE WITH USER DEFINED PHASE (MACRO FUNCTION-FUN09)'
+         IF(surf_special_type(JK) == 14)TYPE2='STANDARD ABERRATION POLYNOMIAL PHASE TERMS'
+         IF(surf_special_type(JK) == 15)TYPE2='ABERRATION POLYNOMIAL PHASE SURFACE'
+         IF(surf_special_type(JK) == 16)TYPE2='FRESNEL-1 SURFACE'
+         IF(surf_special_type(JK) == 17)TYPE2='USER DEFINED SURFACE #2'
+         IF(surf_special_type(JK) == 18)TYPE2='GRAZING INCIDENCE SURFACE'
+         IF(surf_special_type(JK) == 19)TYPE2='GRID APODIZATION SURFACE'
+         IF(surf_special_type(JK) == 20)TYPE2='GRID PHASE SURFACE'
+         IF(surf_special_type(JK) == 21)TYPE2='USER DEFINED SUBROUTINE SURFACE'
+         IF(surf_special_type(JK) == 22)TYPE2='GRID SAG SURFACE'
+         IF(surf_special_type(JK) == 23)TYPE2='NORMAL SYMMETRIC CUBIC SPLINE SURFACE'
          ITY=surf_special_type(JK)
          IF(surf_special_type(JK).EQ.1.0)  TYPE='1- ON    '
          IF(surf_special_type(JK).EQ.2.0)  TYPE='2- ON    '
@@ -4139,13 +3833,11 @@ SUBROUTINE PPRSPR
 !        SET PRINTING ARRAY COEF TO PROPER VALUES
 !
          DO I=1,96
-            IF(surf_special_type(JK) >= 1 .AND.&
-            &surf_special_type(JK) <= 30) THEN
+            IF(surf_special_type(JK) >= 1 .AND.surf_special_type(JK) <= 30) THEN
                COEF(I)=FTFL01(I,JK)
             END IF
          END DO
-         IF(surf_special_type(JK) /= 13 .OR.&
-         &surf_special_type(JK) == 13 .AND.F12.EQ.1) THEN
+         IF(surf_special_type(JK) /= 13 .OR.surf_special_type(JK) == 13 .AND.F12.EQ.1) THEN
             WRITE(OUTLYNE,101) JK,TYPE
             CALL SHOWIT(0)
          END IF
@@ -4162,56 +3854,49 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
@@ -4227,128 +3912,112 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
@@ -4364,72 +4033,63 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
@@ -4498,24 +4158,21 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,5004) COEF(4),COEF(5),COEF(6),&
-            &COEF(7)
+            WRITE(OUTLYNE,5004) COEF(4),COEF(5),COEF(6),COEF(7)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,5005) COEF(8),COEF(9),COEF(10),&
-            &COEF(11)
+            WRITE(OUTLYNE,5005) COEF(8),COEF(9),COEF(10),COEF(11)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,5006) COEF(12),COEF(13),COEF(14),&
-            &COEF(15)
+            WRITE(OUTLYNE,5006) COEF(12),COEF(13),COEF(14),COEF(15)
             CALL SHOWIT(0)
 
 
@@ -4597,192 +4254,168 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-            &COEF(68)
+            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-            &COEF(72)
+            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-            &COEF(76)
+            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-            &COEF(80)
+            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-            &COEF(84)
+            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-            &COEF(87)
+            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-            &COEF(92)
+            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-            &COEF(96)
+            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
             CALL SHOWIT(0)
          END IF
          IF(ITY.EQ.20) THEN
@@ -4829,192 +4462,168 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-            &COEF(68)
+            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-            &COEF(72)
+            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-            &COEF(76)
+            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-            &COEF(80)
+            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-            &COEF(84)
+            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-            &COEF(87)
+            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-            &COEF(92)
+            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-            &COEF(96)
+            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
             CALL SHOWIT(0)
          END IF
          IF(ITY.EQ.21) THEN
@@ -5023,192 +4632,168 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-            &COEF(68)
+            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-            &COEF(72)
+            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-            &COEF(76)
+            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-            &COEF(80)
+            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-            &COEF(84)
+            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-            &COEF(87)
+            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-            &COEF(92)
+            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-            &COEF(96)
+            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
             CALL SHOWIT(0)
          END IF
          IF(ITY.EQ.14 .OR.ITY.EQ.15) THEN
@@ -5217,96 +4802,84 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
          END IF
          IF(ITY.EQ.16) THEN
@@ -5315,16 +4888,14 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
@@ -5341,176 +4912,154 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),&
-            &COEF(4)
+            WRITE(OUTLYNE,200) COEF(1),COEF(2),COEF(3),COEF(4)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),&
-            &COEF(8)
+            WRITE(OUTLYNE,300) COEF(5),COEF(6),COEF(7),COEF(8)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),&
-            &COEF(12)
+            WRITE(OUTLYNE,400) COEF(9),COEF(10),COEF(11),COEF(12)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-            &COEF(68)
+            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-            &COEF(72)
+            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-            &COEF(76)
+            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-            &COEF(80)
+            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-            &COEF(84)
+            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-            &COEF(87)
+            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
             CALL SHOWIT(0)
 
 
@@ -5778,16 +5327,14 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
@@ -5883,16 +5430,14 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
@@ -5988,175 +5533,151 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
 
-            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),&
-            &COEF(24)
-            CALL SHOWIT(0)
-
-
-
-
-
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,700) COEF(21),COEF(22),COEF(23),COEF(24)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-            &COEF(68)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-            &COEF(72)
+            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-            &COEF(76)
+            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),&
-            &COEF(80)
+            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),&
-            &COEF(84)
+            WRITE(OUTLYNE,714) COEF(77),COEF(78),COEF(79),COEF(80)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),&
-            &COEF(87)
+            WRITE(OUTLYNE,715) COEF(81),COEF(82),COEF(83),COEF(84)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),&
-            &COEF(92)
+            WRITE(OUTLYNE,716) COEF(84),COEF(85),COEF(86),COEF(87)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),&
-            &COEF(96)
+            WRITE(OUTLYNE,717) COEF(89),COEF(90),COEF(91),COEF(92)
+            CALL SHOWIT(0)
+
+
+
+
+
+            WRITE(OUTLYNE,718) COEF(93),COEF(94),COEF(95),COEF(96)
             CALL SHOWIT(0)
 
 
 
          END IF
-         IF(ITY.EQ.12 .AND.COEF(11).EQ.2.0D0 .OR.&
-         &ITY.EQ.12 .AND.COEF(11).EQ.3.0D0 .OR.&
-         &ITY.EQ.12 .AND.COEF(11).EQ.4.0D0 .OR.&
-         &ITY.EQ.12 .AND.COEF(11).EQ.5.0D0) THEN
+         IF(ITY.EQ.12 .AND.COEF(11).EQ.2.0D0 .OR.ITY.EQ.12 .AND.COEF(11).EQ.3.0D0 .OR.ITY.EQ.12 .AND.COEF(11).EQ.4.0D0 .OR.ITY.EQ.12 .AND.COEF(11).EQ.5.0D0) THEN
 
 
 
@@ -6242,16 +5763,14 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),&
-            &COEF(16)
+            WRITE(OUTLYNE,500) COEF(13),COEF(14),COEF(15),COEF(16)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),&
-            &COEF(20)
+            WRITE(OUTLYNE,600) COEF(17),COEF(18),COEF(19),COEF(20)
             CALL SHOWIT(0)
 
 
@@ -6265,104 +5784,91 @@ SUBROUTINE PPRSPR
 
 
 
-            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),&
-            &COEF(28)
+            WRITE(OUTLYNE,701) COEF(25),COEF(26),COEF(27),COEF(28)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),&
-            &COEF(32)
+            WRITE(OUTLYNE,702) COEF(29),COEF(30),COEF(31),COEF(32)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),&
-            &COEF(36)
+            WRITE(OUTLYNE,703) COEF(33),COEF(34),COEF(35),COEF(36)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),&
-            &COEF(40)
+            WRITE(OUTLYNE,704) COEF(37),COEF(38),COEF(39),COEF(40)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),&
-            &COEF(44)
+            WRITE(OUTLYNE,705) COEF(41),COEF(42),COEF(43),COEF(44)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),&
-            &COEF(48)
+            WRITE(OUTLYNE,706) COEF(45),COEF(46),COEF(47),COEF(48)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),&
-            &COEF(52)
+            WRITE(OUTLYNE,707) COEF(49),COEF(50),COEF(51),COEF(52)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),&
-            &COEF(56)
+            WRITE(OUTLYNE,708) COEF(53),COEF(54),COEF(55),COEF(56)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),&
-            &COEF(60)
+            WRITE(OUTLYNE,709) COEF(57),COEF(58),COEF(59),COEF(60)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),&
-            &COEF(64)
+            WRITE(OUTLYNE,710) COEF(61),COEF(62),COEF(63),COEF(64)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),&
-            &COEF(68)
+            WRITE(OUTLYNE,711) COEF(65),COEF(66),COEF(67),COEF(68)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),&
-            &COEF(72)
+            WRITE(OUTLYNE,712) COEF(69),COEF(70),COEF(71),COEF(72)
             CALL SHOWIT(0)
 
 
 
 
 
-            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),&
-            &COEF(76)
+            WRITE(OUTLYNE,713) COEF(73),COEF(74),COEF(75),COEF(76)
             CALL SHOWIT(0)
 
 
@@ -6375,11 +5881,9 @@ SUBROUTINE PPRSPR
 15    CONTINUE
    END IF
 !
-101 FORMAT('SURFACE =',I3,2X,&
-   &'SPECIAL SURFACE TYPE =',1X,A9)
+101 FORMAT('SURFACE =',I3,2X,'SPECIAL SURFACE TYPE =',1X,A9)
 102 FORMAT(A79)
-200 FORMAT('C(01)=',G12.5,1X,'C(02)=',&
-   &G12.5,1X,'C(03)=',G12.5,1X,'C(04)=',G12.5)
+200 FORMAT('C(01)=',G12.5,1X,'C(02)=',G12.5,1X,'C(03)=',G12.5,1X,'C(04)=',G12.5)
 2001 FORMAT('HOE ORDER NUMBER      (C1) = ',G15.8)
 2002 FORMAT('CONST. WAVELENGTH     (C2) = ',G15.8,' MICRONS')
 2003 FORMAT('X-COORD. SOURCE POINT (C3) = ',G15.8,1X,A6)
@@ -6405,8 +5909,7 @@ SUBROUTINE PPRSPR
 2212 FORMAT('REFERENCE REALITY    (C12) = ',I2,1X,A8)
 2213 FORMAT('SOURCE CFG#          (C13) = ',I2,1X,A8)
 2214 FORMAT('REFERENCE CFG#       (C14) = ',I2,1X,A8)
-300 FORMAT('C(05)=',G12.5,1X,'C(06)=',&
-   &G12.5,1X,'C(07)=',G12.5,1X,'C(08)=',G12.5)
+300 FORMAT('C(05)=',G12.5,1X,'C(06)=',G12.5,1X,'C(07)=',G12.5,1X,'C(08)=',G12.5)
 31001 FORMAT('1ST PEAK TO VALLY ERROR (WAVES)  = ',G15.8)
 31002 FORMAT('1ST X-PERIOD (SPATIAL FREQUENCY) = ',G15.8,1X,A6)
 31003 FORMAT('1ST Y-PERIOD (SPATIAL FREQUENCY) = ',G15.8,1X,A6)
@@ -6425,84 +5928,47 @@ SUBROUTINE PPRSPR
 5001 FORMAT('FORWARD Z-COORDINATE  = ',G15.8,1X,A6)
 5002 FORMAT('    AFT Z-COORDINATE  = ',G15.8,1X,A6)
 5003 FORMAT('CENTRAL Z-COORDINATE  = ',G15.8,1X,A6)
-5004 FORMAT('F(01)=',G12.5,1X,'F(02)=',&
-   &G12.5,1X,'F(03)=',G12.5,1X,'F(04)=',G12.5)
-5005 FORMAT('F(05)=',G12.5,1X,'F(06)=',&
-   &G12.5,1X,'F(07)=',G12.5,1X,'F(08)=',G12.5)
-5006 FORMAT('F(09)=',G12.5,1X,'F(10)=',&
-   &G12.5,1X,'F(11)=',G12.5,1X,'F(12)=',G12.5)
-5007 FORMAT('F(13)=',G12.5,1X,'F(14)=',&
-   &G12.5,1X,'F(15)=',G12.5)
-400 FORMAT('C(09)=',G12.5,1X,'C(10)=',&
-   &G12.5,1X,'C(11)=',G12.5,1X,'C(12)=',G12.5)
-401 FORMAT('C(09)=',G12.5,1X,'C(10)=',&
-   &G12.5,1X,'C(11)=',G12.5)
+5004 FORMAT('F(01)=',G12.5,1X,'F(02)=',G12.5,1X,'F(03)=',G12.5,1X,'F(04)=',G12.5)
+5005 FORMAT('F(05)=',G12.5,1X,'F(06)=',G12.5,1X,'F(07)=',G12.5,1X,'F(08)=',G12.5)
+5006 FORMAT('F(09)=',G12.5,1X,'F(10)=',G12.5,1X,'F(11)=',G12.5,1X,'F(12)=',G12.5)
+5007 FORMAT('F(13)=',G12.5,1X,'F(14)=',G12.5,1X,'F(15)=',G12.5)
+400 FORMAT('C(09)=',G12.5,1X,'C(10)=',G12.5,1X,'C(11)=',G12.5,1X,'C(12)=',G12.5)
+401 FORMAT('C(09)=',G12.5,1X,'C(10)=',G12.5,1X,'C(11)=',G12.5)
 4001 FORMAT('C(11)=',G12.5,1X,'C(12)=',G12.5)
-500 FORMAT('C(13)=',G12.5,1X,'C(14)=',&
-   &G12.5,1X,'C(15)=',G12.5,1X,'C(16)=',G12.5)
-5011 FORMAT('C(09)=',G12.5,1X,'C(10)=',&
-   &G12.5,1X,'C(11)=',G12.5)
-600 FORMAT('C(17)=',G12.5,1X,'C(18)=',&
-   &G12.5,1X,'C(19)=',G12.5,1X,'C(20)=',G12.5)
-700 FORMAT('C(21)=',G12.5,1X,'C(22)=',&
-   &G12.5,1X,'C(23)=',G12.5,1X,'C(24)=',G12.5)
-7001 FORMAT('C(21)=',G12.5,1X,'C(22)=',&
-   &G12.5,1X,'C(23)=',G12.5,1X,'C(24)=',G12.5)
-7002 FORMAT('C(25)=',G12.5,1X,'C(26)=',&
-   &G12.5,1X,'C(27)=',G12.5,1X,'C(28)=',G12.5)
-7003 FORMAT('C(29)=',G12.5,1X,'C(30)=',&
-   &G12.5,1X,'C(31)=',G12.5)
-7004 FORMAT('C(65)=',G12.5,1X,'C(66)=',&
-   &G12.5)
+500 FORMAT('C(13)=',G12.5,1X,'C(14)=',G12.5,1X,'C(15)=',G12.5,1X,'C(16)=',G12.5)
+5011 FORMAT('C(09)=',G12.5,1X,'C(10)=',G12.5,1X,'C(11)=',G12.5)
+600 FORMAT('C(17)=',G12.5,1X,'C(18)=',G12.5,1X,'C(19)=',G12.5,1X,'C(20)=',G12.5)
+700 FORMAT('C(21)=',G12.5,1X,'C(22)=',G12.5,1X,'C(23)=',G12.5,1X,'C(24)=',G12.5)
+7001 FORMAT('C(21)=',G12.5,1X,'C(22)=',G12.5,1X,'C(23)=',G12.5,1X,'C(24)=',G12.5)
+7002 FORMAT('C(25)=',G12.5,1X,'C(26)=',G12.5,1X,'C(27)=',G12.5,1X,'C(28)=',G12.5)
+7003 FORMAT('C(29)=',G12.5,1X,'C(30)=',G12.5,1X,'C(31)=',G12.5)
+7004 FORMAT('C(65)=',G12.5,1X,'C(66)=',G12.5)
 7005 FORMAT('C(21)=',G12.5)
 7006 FORMAT('C(32)=',G12.5)
-701 FORMAT('C(25)=',G12.5,1X,'C(26)=',&
-   &G12.5,1X,'C(27)=',G12.5,1X,'C(28)=',G12.5)
-702 FORMAT('C(29)=',G12.5,1X,'C(30)=',&
-   &G12.5,1X,'C(31)=',G12.5,1X,'C(32)=',G12.5)
-7021 FORMAT('C(29)=',G12.5,1X,'C(30)=',&
-   &G12.5)
-703 FORMAT('C(33)=',G12.5,1X,'C(34)=',&
-   &G12.5,1X,'C(35)=',G12.5,1X,'C(36)=',G12.5)
-704 FORMAT('C(37)=',G12.5,1X,'C(38)=',&
-   &G12.5,1X,'C(39)=',G12.5,1X,'C(40)=',G12.5)
-7041 FORMAT('C(37)=',G12.5,1X,'C(38)=',&
-   &G12.5,1X,'C(39)=',G12.5)
+701 FORMAT('C(25)=',G12.5,1X,'C(26)=',G12.5,1X,'C(27)=',G12.5,1X,'C(28)=',G12.5)
+702 FORMAT('C(29)=',G12.5,1X,'C(30)=',G12.5,1X,'C(31)=',G12.5,1X,'C(32)=',G12.5)
+7021 FORMAT('C(29)=',G12.5,1X,'C(30)=',G12.5)
+703 FORMAT('C(33)=',G12.5,1X,'C(34)=',G12.5,1X,'C(35)=',G12.5,1X,'C(36)=',G12.5)
+704 FORMAT('C(37)=',G12.5,1X,'C(38)=',G12.5,1X,'C(39)=',G12.5,1X,'C(40)=',G12.5)
+7041 FORMAT('C(37)=',G12.5,1X,'C(38)=',G12.5,1X,'C(39)=',G12.5)
 7042 FORMAT('C(37)=',G12.5)
-705 FORMAT('C(41)=',G12.5,1X,'C(42)=',&
-   &G12.5,1X,'C(43)=',G12.5,1X,'C(44)=',G12.5)
-706 FORMAT('C(45)=',G12.5,1X,'C(46)=',&
-   &G12.5,1X,'C(47)=',G12.5,1X,'C(48)=',G12.5)
-707 FORMAT('C(49)=',G12.5,1X,'C(50)=',&
-   &G12.5,1X,'C(51)=',G12.5,1X,'C(52)=',G12.5)
-708 FORMAT('C(53)=',G12.5,1X,'C(54)=',&
-   &G12.5,1X,'C(55)=',G12.5,1X,'C(56)=',G12.5)
-709 FORMAT('C(57)=',G12.5,1X,'C(58)=',&
-   &G12.5,1X,'C(59)=',G12.5,1X,'C(60)=',G12.5)
-710 FORMAT('C(61)=',G12.5,1X,'C(62)=',&
-   &G12.5,1X,'C(63)=',G12.5,1X,'C(64)=',G12.5)
-711 FORMAT('C(65)=',G12.5,1X,'C(66)=',&
-   &G12.5,1X,'C(67)=',G12.5,1X,'C(68)=',G12.5)
-712 FORMAT('C(69)=',G12.5,1X,'C(70)=',&
-   &G12.5,1X,'C(71)=',G12.5,1X,'C(72)=',G12.5)
-713 FORMAT('C(73)=',G12.5,1X,'C(74)=',&
-   &G12.5,1X,'C(75)=',G12.5,1X,'C(76)=',G12.5)
-714 FORMAT('C(77)=',G12.5,1X,'C(78)=',&
-   &G12.5,1X,'C(79)=',G12.5,1X,'C(80)=',G12.5)
-7141 FORMAT('C(81)=',G12.5,1X,'C(82)=',&
-   &G12.5,1X,'C(83)=',G12.5)
-715 FORMAT('C(81)=',G12.5,1X,'C(82)=',&
-   &G12.5,1X,'C(83)=',G12.5,1X,'C(84)=',G12.5)
-716 FORMAT('C(85)=',G12.5,1X,'C(86)=',&
-   &G12.5,1X,'C(87)=',G12.5,1X,'C(88)=',G12.5)
-717 FORMAT('C(89)=',G12.5,1X,'C(90)=',&
-   &G12.5,1X,'C(91)=',G12.5,1X,'C(92)=',G12.5)
-7171 FORMAT('C(89)=',G12.5,1X,'C(90)=',&
-   &G12.5,1X,'C(91)=',G12.5)
-718 FORMAT('C(93)=',G12.5,1X,'C(94)=',&
-   &G12.5,1X,'C(95)=',G12.5,1X,'C(96)=',G12.5)
-110 FORMAT('SURF',1X,I3,1X,&
-   &':NO SPECIAL SURFACE DATA')
+705 FORMAT('C(41)=',G12.5,1X,'C(42)=',G12.5,1X,'C(43)=',G12.5,1X,'C(44)=',G12.5)
+706 FORMAT('C(45)=',G12.5,1X,'C(46)=',G12.5,1X,'C(47)=',G12.5,1X,'C(48)=',G12.5)
+707 FORMAT('C(49)=',G12.5,1X,'C(50)=',G12.5,1X,'C(51)=',G12.5,1X,'C(52)=',G12.5)
+708 FORMAT('C(53)=',G12.5,1X,'C(54)=',G12.5,1X,'C(55)=',G12.5,1X,'C(56)=',G12.5)
+709 FORMAT('C(57)=',G12.5,1X,'C(58)=',G12.5,1X,'C(59)=',G12.5,1X,'C(60)=',G12.5)
+710 FORMAT('C(61)=',G12.5,1X,'C(62)=',G12.5,1X,'C(63)=',G12.5,1X,'C(64)=',G12.5)
+711 FORMAT('C(65)=',G12.5,1X,'C(66)=',G12.5,1X,'C(67)=',G12.5,1X,'C(68)=',G12.5)
+712 FORMAT('C(69)=',G12.5,1X,'C(70)=',G12.5,1X,'C(71)=',G12.5,1X,'C(72)=',G12.5)
+713 FORMAT('C(73)=',G12.5,1X,'C(74)=',G12.5,1X,'C(75)=',G12.5,1X,'C(76)=',G12.5)
+714 FORMAT('C(77)=',G12.5,1X,'C(78)=',G12.5,1X,'C(79)=',G12.5,1X,'C(80)=',G12.5)
+7141 FORMAT('C(81)=',G12.5,1X,'C(82)=',G12.5,1X,'C(83)=',G12.5)
+715 FORMAT('C(81)=',G12.5,1X,'C(82)=',G12.5,1X,'C(83)=',G12.5,1X,'C(84)=',G12.5)
+716 FORMAT('C(85)=',G12.5,1X,'C(86)=',G12.5,1X,'C(87)=',G12.5,1X,'C(88)=',G12.5)
+717 FORMAT('C(89)=',G12.5,1X,'C(90)=',G12.5,1X,'C(91)=',G12.5,1X,'C(92)=',G12.5)
+7171 FORMAT('C(89)=',G12.5,1X,'C(90)=',G12.5,1X,'C(91)=',G12.5)
+718 FORMAT('C(93)=',G12.5,1X,'C(94)=',G12.5,1X,'C(95)=',G12.5,1X,'C(96)=',G12.5)
+110 FORMAT('SURF',1X,I3,1X,':NO SPECIAL SURFACE DATA')
 100 FORMAT('NO SPECIAL SURFACE DATA')
 1000 FORMAT('SPECIAL SURFACE DATA')
    RETURN

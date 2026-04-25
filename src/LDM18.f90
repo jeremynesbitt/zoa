@@ -3,6 +3,7 @@
 SUBROUTINE FLUSHNEXT
    USE GLOBALS
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -33,6 +34,7 @@ SUBROUTINE LENIN
    use glass_manager
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface
@@ -186,8 +188,8 @@ SUBROUTINE LENIN
 !       COMMAND (TH)
       IF(WC.EQ.'TH') THEN
          CALL STH
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+            call set_sys_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -509,8 +511,8 @@ SUBROUTINE LENIN
       IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCY'.OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'.OR.WC.EQ.'REDSLV') THEN
          !call LogTermFOR("Got to THSOLV call from LENIN!")
          CALL THSOLV
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+            call set_sys_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -527,8 +529,8 @@ SUBROUTINE LENIN
 !       COMMAND (PIKUP)
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+            call set_sys_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -547,6 +549,7 @@ SUBROUTINE LENADD
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -683,11 +686,11 @@ SUBROUTINE LENADD
    DF2=1
    DF3=1
 !       NOW DELETE ALL BUT THE MAIN CFG
-   SYSTEM(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   sys_curr_cfg()=1.0D0
+   call set_sys_high_cfg(1.0D0)
 !
-   IMAGE1=SYSTEM(20)
-   UNI1=SYSTEM(6)
+   IMAGE1=sys_last_surf()
+   UNI1=sys_units()
 !
 !       NOW SAVE LENS 1, CURRENT CONFIG, TO THE ACHIEVE LENS STORAGE
    CALL CTOA(AM1,AM2,AM3,AM4,AM5,AM6,AM7,AM8,AM9,AM10 ,SYSA,ALENA,SLVA,PIKA,FT01A,LIA,LICA,GLANMA,ALBL,LLTYPEA,INNIA,MULTCLAPA,MULTCOBSA,AIPOLYX,AIPOLYY)
@@ -695,14 +698,14 @@ SUBROUTINE LENADD
 !       OK WE ARE DONE WITH THE CURRENT LENS, IT IS IN ARCHIEVE STORAGE.
 !
 !     GET RID OF "LAST SURFACE" GLASS NAMES
-   IS=INT(SYSTEM(20))
+   IS=INT(sys_last_surf())
    GLANAM(IS,1:2)(1:13)=GLANAM(IS-1,1:2)(1:13)
    GLANMP(IS,1:2)(1:13)=GLANMP(IS-1,1:2)(1:13)
    GLANMA(IS,1:2)(1:13)=GLANMA(IS-1,1:2)(1:13)
 !
 !       NOW GET THE LIBRARY
 !       LENS
-   J=INT(SYSTEM(20))
+   J=INT(sys_last_surf())
 !
 !       NOW DETERMINE WHICH OF THE 999 LENS LIBRARY FILES
 !       TO USE
@@ -775,16 +778,16 @@ SUBROUTINE LENADD
          READ(22,*) AI,FIELDY(I),FIELDX(I),FIELDZ(I),N3
          FIELDW(I)=DBLE(N3)
          IF(FIELDW(I).EQ.0.0D0) THEN
-            FIELDW(I)=SYSTEM(11)
+            FIELDW(I)=sys_wl_ref()
          END IF
       END DO
       DO I=1,IREND
          READ(22,*,ERR=8888,END=8888) AI4,RAYY(I),RAYX(I),N3
          RAYW(I)=DBLE(N3)
          IF(RAYW(I).EQ.0.0D0) THEN
-            IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-            IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-            IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+            IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+            IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+            IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
          END IF
       END DO
    ELSE
@@ -807,10 +810,10 @@ SUBROUTINE LENADD
 !
    CALL CLOSE_FILE(uLIB,1)
 !
-   UNI2=SYSTEM(6)
-   ASTOP2=SYSTEM(26)
-   REFS2=SYSTEM(25)
-   IMAGE2=SYSTEM(20)
+   UNI2=sys_units()
+   ASTOP2=sys_astop()
+   REFS2=sys_ref_surf()
+   IMAGE2=sys_last_surf()
 !
 !       ARE THE LENSES OF SIMILAR UNITS
    IF(UNI1.NE.UNI2)THEN
@@ -855,8 +858,8 @@ SUBROUTINE LENADD
 !       FOR LENS 2
 !       DELETE LENS 2 CONFIGS
 !       NOW DELETE ALL BUT THE MAIN CFG
-   SYSTEM(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   sys_curr_cfg()=1.0D0
+   call set_sys_high_cfg(1.0D0)
 !       GET RID OF LENS 1 SOLVES
    ALENS(33,0:MAXSUR)=0.0D0
 !
@@ -921,8 +924,8 @@ SUBROUTINE LENADD
    CALL CTOP
 !     SET NEW OBJ,REF AND IMAGE FLAGE.
    NEWOBJ=0.0D0
-   NEWREF=SYSTEM(25)
-   NEWIMG=SYSTEM(20)
+   NEWREF=sys_ref_surf()
+   NEWIMG=sys_last_surf()
 !       I DO BELIEVE WE JUST ADDED 2 LENSES CORRECTLY !
 !     FINAL UPDATE
    F1=0
@@ -1323,6 +1326,7 @@ SUBROUTINE LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 END
 SUBROUTINE LOADIPOLY(J,SUR)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    use mod_surface

@@ -3,6 +3,7 @@ SUBROUTINE HITEX1
 !
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -34,7 +35,7 @@ SUBROUTINE HITEX1
    M0=V5
    N0=V6
 !
-   IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !
 !       FLAT REFERENCE PLANE
 !       THE SO-CALLED FLAT REFERENCE PLANE IS A PLANE
@@ -83,7 +84,7 @@ SUBROUTINE HITEX1
 !
 !
 !
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !
 !       SYSTEM FOCAL.
       IF(.NOT.EXPAUT.OR.EXPAUT.AND..NOT.LDIF2) THEN
@@ -280,6 +281,7 @@ SUBROUTINE APSTREHL
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -403,26 +405,26 @@ SUBROUTINE APSTREHL
       SUML2=0.0D0
       SUML4=0.0D0
       LAMAVE=0.0D0
-      WEI(1)=SYSTEM(31)
-      WEI(2)=SYSTEM(32)
-      WEI(3)=SYSTEM(33)
-      WEI(4)=SYSTEM(34)
-      WEI(5)=SYSTEM(35)
-      WEI(6)=SYSTEM(76)
-      WEI(7)=SYSTEM(77)
-      WEI(8)=SYSTEM(78)
-      WEI(9)=SYSTEM(79)
-      WEI(10)=SYSTEM(80)
-      LAM(1)=SYSTEM(1)
-      LAM(2)=SYSTEM(2)
-      LAM(3)=SYSTEM(3)
-      LAM(4)=SYSTEM(4)
-      LAM(5)=SYSTEM(5)
-      LAM(6)=SYSTEM(71)
-      LAM(7)=SYSTEM(72)
-      LAM(8)=SYSTEM(73)
-      LAM(9)=SYSTEM(74)
-      LAM(10)=SYSTEM(75)
+      WEI(1)=sys_wl_weight(1)
+      WEI(2)=sys_wl_weight(2)
+      WEI(3)=sys_wl_weight(3)
+      WEI(4)=sys_wl_weight(4)
+      WEI(5)=sys_wl_weight(5)
+      WEI(6)=sys_wl_weight(6)
+      WEI(7)=sys_wl_weight(7)
+      WEI(8)=sys_wl_weight(8)
+      WEI(9)=sys_wl_weight(9)
+      WEI(10)=sys_wl_weight(10)
+      LAM(1)=sys_wavelength(1)
+      LAM(2)=sys_wavelength(2)
+      LAM(3)=sys_wavelength(3)
+      LAM(4)=sys_wavelength(4)
+      LAM(5)=sys_wavelength(5)
+      LAM(6)=sys_wavelength(6)
+      LAM(7)=sys_wavelength(7)
+      LAM(8)=sys_wavelength(8)
+      LAM(9)=sys_wavelength(9)
+      LAM(10)=sys_wavelength(10)
       WEIS=0.0D0
       DO I=1,10
          WEIS=WEIS+WEI(I)
@@ -468,6 +470,7 @@ SUBROUTINE TSTREHL(STERROR,STVALUE)
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -531,6 +534,7 @@ SUBROUTINE TFDOTF
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -545,10 +549,10 @@ SUBROUTINE TFDOTF
    LOGICAL REFERR,ERROR
 !
 !
-   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
-   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
-   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
-   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
+   IF(sys_units().EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
+   IF(sys_units().EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
+   IF(sys_units().EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
+   IF(sys_units().EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
 !     DETERMINE NEAR FOR FAR
    IF(NEAR_FAR.EQ.0) NEAR=.TRUE.
@@ -826,6 +830,7 @@ SUBROUTINE SPACER
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -883,6 +888,7 @@ SUBROUTINE CUTOFF
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -933,44 +939,44 @@ SUBROUTINE CUTOFF
    END IF
 !       CALC THE SHRTWAVE
    SHRTWAVE=0.0D0
-   IF(SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       GO TO 314
    END IF
-   IF(SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       GO TO 314
    END IF
-   IF(SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       GO TO 314
    END IF
-   IF(SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       GO TO 314
    END IF
-   IF(SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       GO TO 314
    END IF
-   IF(SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       GO TO 314
    END IF
-   IF(SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       GO TO 314
    END IF
-   IF(SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       GO TO 314
    END IF
-   IF(SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       GO TO 314
    END IF
-   IF(SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       GO TO 314
    END IF
 314 CONTINUE
@@ -991,44 +997,44 @@ SUBROUTINE CUTOFF
          CALL MACFAL
       END IF
 !
-      IF(SYSTEM(1).LE.SHRTWAVE .AND.SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(1)
+      IF(sys_wavelength(1).LE.SHRTWAVE .AND.sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(1)
          SHTNM=1
       END IF
-      IF(SYSTEM(2).LE.SHRTWAVE .AND.SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(2)
+      IF(sys_wavelength(2).LE.SHRTWAVE .AND.sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(2)
          SHTNM=2
       END IF
-      IF(SYSTEM(3).LE.SHRTWAVE .AND.SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(3)
+      IF(sys_wavelength(3).LE.SHRTWAVE .AND.sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(3)
          SHTNM=3
       END IF
-      IF(SYSTEM(4).LE.SHRTWAVE .AND.SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(4)
+      IF(sys_wavelength(4).LE.SHRTWAVE .AND.sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(4)
          SHTNM=4
       END IF
-      IF(SYSTEM(5).LE.SHRTWAVE .AND.SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(5)
+      IF(sys_wavelength(5).LE.SHRTWAVE .AND.sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(5)
          SHTNM=5
       END IF
-      IF(SYSTEM(71).LE.SHRTWAVE .AND.SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(71)
+      IF(sys_wavelength(6).LE.SHRTWAVE .AND.sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(6)
          SHTNM=6
       END IF
-      IF(SYSTEM(72).LE.SHRTWAVE .AND.SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(72)
+      IF(sys_wavelength(7).LE.SHRTWAVE .AND.sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(7)
          SHTNM=7
       END IF
-      IF(SYSTEM(73).LE.SHRTWAVE .AND.SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(73)
+      IF(sys_wavelength(8).LE.SHRTWAVE .AND.sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(8)
          SHTNM=8
       END IF
-      IF(SYSTEM(74).LE.SHRTWAVE .AND.SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(74)
+      IF(sys_wavelength(9).LE.SHRTWAVE .AND.sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(9)
          SHTNM=9
       END IF
-      IF(SYSTEM(75).LE.SHRTWAVE .AND.SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
-         SHRTWAVE=SYSTEM(75)
+      IF(sys_wavelength(10).LE.SHRTWAVE .AND.sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
+         SHRTWAVE=sys_wavelength(10)
          SHTNM=10
       END IF
 !
@@ -1063,21 +1069,21 @@ SUBROUTINE CUTOFF
 !     DO THE CALCULATION FOR IMAGE SPACE
    IF(WQ.EQ.'I'.OR.WQ.EQ.'IACC') THEN
 !     IMAGE SPACE
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
 !     AFOCAL
 !     GET THE X AND Y EPDSx0.001 AND DIVIDE BY THE SHORTEST WAVELENGTH
 !
          GRNX=EXDIAX
          GRNY=EXDIAY
 !
-         IF(SYSTEM(6).EQ.1.0D0) GRNX=GRNX*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNX=GRNX*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNX=GRNX
-         IF(SYSTEM(6).EQ.4.0D0) GRNX=GRNX*1000.0D0
-         IF(SYSTEM(6).EQ.1.0D0) GRNY=GRNY*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNY=GRNY*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNY=GRNY
-         IF(SYSTEM(6).EQ.4.0D0) GRNY=GRNY*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNX=GRNX*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNX=GRNX*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNX=GRNX
+         IF(sys_units().EQ.4.0D0) GRNX=GRNX*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNY=GRNY*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNY=GRNY*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNY=GRNY
+         IF(sys_units().EQ.4.0D0) GRNY=GRNY*1000.0D0
          CUTFRX=DABS((0.001D0*(GRNX))/SHRTWAVE)
          CUTFRY=DABS((0.001D0*(GRNY))/SHRTWAVE)
          CUTFRY=CUTFRY
@@ -1106,11 +1112,11 @@ SUBROUTINE CUTOFF
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(SYSTEM(11).GE.1.0D0.AND.SYSTEM(11).LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(SYSTEM(11)),NEWIMG-1)
+         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
+            REFIN=ALENS(45+INT(sys_wl_ref()),NEWIMG-1)
          END IF
-         IF(SYSTEM(11).GE.6.0D0.AND.SYSTEM(11).LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(SYSTEM(11)),NEWIMG-1)
+         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
+            REFIN=ALENS(65+INT(sys_wl_ref()),NEWIMG-1)
          END IF
          IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
             NREFIN=ALENS(45+SHTNM,NEWIMG-1)
@@ -1153,11 +1159,11 @@ SUBROUTINE CUTOFF
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(SYSTEM(11).GE.1.0D0.AND.SYSTEM(11).LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(SYSTEM(11)),NEWOBJ)
+         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
+            REFIN=ALENS(45+INT(sys_wl_ref()),NEWOBJ)
          END IF
-         IF(SYSTEM(11).GE.6.0D0.AND.SYSTEM(11).LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(SYSTEM(11)),NEWOBJ)
+         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
+            REFIN=ALENS(65+INT(sys_wl_ref()),NEWOBJ)
          END IF
          IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
             NREFIN=ALENS(45+SHTNM,NEWOBJ)
@@ -1188,14 +1194,14 @@ SUBROUTINE CUTOFF
          GRNX=ENDIAX
          GRNY=ENDIAY
 !
-         IF(SYSTEM(6).EQ.1.0D0) GRNX=GRNX*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNX=GRNX*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNX=GRNX
-         IF(SYSTEM(6).EQ.4.0D0) GRNX=GRNX*1000.0D0
-         IF(SYSTEM(6).EQ.1.0D0) GRNY=GRNY*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNY=GRNY*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNY=GRNY
-         IF(SYSTEM(6).EQ.4.0D0) GRNY=GRNY*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNX=GRNX*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNX=GRNX*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNX=GRNX
+         IF(sys_units().EQ.4.0D0) GRNX=GRNX*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNY=GRNY*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNY=GRNY*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNY=GRNY
+         IF(sys_units().EQ.4.0D0) GRNY=GRNY*1000.0D0
 !
          CUTFRX=DABS((0.001D0*GRNX)/(SHRTWAVE))
          CUTFRY=DABS((0.001D0*GRNY)/(SHRTWAVE))
@@ -1223,6 +1229,7 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1237,44 +1244,44 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
    ERROR=.FALSE.
 !       CALC THE SHRTWAVE
    SHRTWAVE=0.0D0
-   IF(SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       GO TO 314
    END IF
-   IF(SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       GO TO 314
    END IF
-   IF(SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       GO TO 314
    END IF
-   IF(SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       GO TO 314
    END IF
-   IF(SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       GO TO 314
    END IF
-   IF(SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       GO TO 314
    END IF
-   IF(SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       GO TO 314
    END IF
-   IF(SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       GO TO 314
    END IF
-   IF(SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       GO TO 314
    END IF
-   IF(SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       GO TO 314
    END IF
 314 CONTINUE
@@ -1283,44 +1290,44 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
       RETURN
    END IF
 !
-   IF(SYSTEM(1).LE.SHRTWAVE .AND.SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wavelength(1).LE.SHRTWAVE .AND.sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       SHTNM=1
    END IF
-   IF(SYSTEM(2).LE.SHRTWAVE .AND.SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wavelength(2).LE.SHRTWAVE .AND.sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       SHTNM=2
    END IF
-   IF(SYSTEM(3).LE.SHRTWAVE .AND.SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wavelength(3).LE.SHRTWAVE .AND.sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       SHTNM=3
    END IF
-   IF(SYSTEM(4).LE.SHRTWAVE .AND.SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wavelength(4).LE.SHRTWAVE .AND.sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       SHTNM=4
    END IF
-   IF(SYSTEM(5).LE.SHRTWAVE .AND.SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wavelength(5).LE.SHRTWAVE .AND.sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       SHTNM=5
    END IF
-   IF(SYSTEM(71).LE.SHRTWAVE .AND.SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wavelength(6).LE.SHRTWAVE .AND.sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       SHTNM=6
    END IF
-   IF(SYSTEM(72).LE.SHRTWAVE .AND.SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wavelength(7).LE.SHRTWAVE .AND.sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       SHTNM=7
    END IF
-   IF(SYSTEM(73).LE.SHRTWAVE .AND.SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wavelength(8).LE.SHRTWAVE .AND.sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       SHTNM=8
    END IF
-   IF(SYSTEM(74).LE.SHRTWAVE .AND.SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wavelength(9).LE.SHRTWAVE .AND.sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       SHTNM=9
    END IF
-   IF(SYSTEM(75).LE.SHRTWAVE .AND.SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wavelength(10).LE.SHRTWAVE .AND.sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       SHTNM=10
    END IF
 !
@@ -1336,21 +1343,21 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
    TYPE=1
    IF(TYPE.EQ.1) THEN
 !     IMAGE SPACE
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
 !     AFOCAL
 !     GET THE X AND Y EPDSx0.001 AND DIVIDE BY THE SHORTEST WAVELENGTH
 !
          GRNX=EXDIAX
          GRNY=EXDIAY
 !
-         IF(SYSTEM(6).EQ.1.0D0) GRNX=GRNX*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNX=GRNX*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNX=GRNX
-         IF(SYSTEM(6).EQ.4.0D0) GRNX=GRNX*1000.0D0
-         IF(SYSTEM(6).EQ.1.0D0) GRNY=GRNY*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNY=GRNY*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNY=GRNY
-         IF(SYSTEM(6).EQ.4.0D0) GRNY=GRNY*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNX=GRNX*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNX=GRNX*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNX=GRNX
+         IF(sys_units().EQ.4.0D0) GRNX=GRNX*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNY=GRNY*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNY=GRNY*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNY=GRNY
+         IF(sys_units().EQ.4.0D0) GRNY=GRNY*1000.0D0
          CUTFRX=DABS((0.001D0*(GRNX))/SHRTWAVE)
          CUTFRY=DABS((0.001D0*(GRNY))/SHRTWAVE)
          CUTFRY=CUTFRY
@@ -1368,11 +1375,11 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(SYSTEM(11).GE.1.0D0.AND.SYSTEM(11).LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(SYSTEM(11)),NEWIMG-1)
+         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
+            REFIN=ALENS(45+INT(sys_wl_ref()),NEWIMG-1)
          END IF
-         IF(SYSTEM(11).GE.6.0D0.AND.SYSTEM(11).LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(SYSTEM(11)),NEWIMG-1)
+         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
+            REFIN=ALENS(65+INT(sys_wl_ref()),NEWIMG-1)
          END IF
          IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
             NREFIN=ALENS(45+SHTNM,NEWIMG-1)
@@ -1409,11 +1416,11 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(SYSTEM(11).GE.1.0D0.AND.SYSTEM(11).LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(SYSTEM(11)),NEWOBJ)
+         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
+            REFIN=ALENS(45+INT(sys_wl_ref()),NEWOBJ)
          END IF
-         IF(SYSTEM(11).GE.6.0D0.AND.SYSTEM(11).LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(SYSTEM(11)),NEWOBJ)
+         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
+            REFIN=ALENS(65+INT(sys_wl_ref()),NEWOBJ)
          END IF
          IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
             NREFIN=ALENS(45+SHTNM,NEWOBJ)
@@ -1436,14 +1443,14 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
          GRNX=ENDIAX
          GRNY=ENDIAY
 !
-         IF(SYSTEM(6).EQ.1.0D0) GRNX=GRNX*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNX=GRNX*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNX=GRNX
-         IF(SYSTEM(6).EQ.4.0D0) GRNX=GRNX*1000.0D0
-         IF(SYSTEM(6).EQ.1.0D0) GRNY=GRNY*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) GRNY=GRNY*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) GRNY=GRNY
-         IF(SYSTEM(6).EQ.4.0D0) GRNY=GRNY*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNX=GRNX*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNX=GRNX*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNX=GRNX
+         IF(sys_units().EQ.4.0D0) GRNX=GRNX*1000.0D0
+         IF(sys_units().EQ.1.0D0) GRNY=GRNY*25.4D0
+         IF(sys_units().EQ.2.0D0) GRNY=GRNY*10.0D0
+         IF(sys_units().EQ.3.0D0) GRNY=GRNY
+         IF(sys_units().EQ.4.0D0) GRNY=GRNY*1000.0D0
 !
          CUTFRX=DABS((0.001D0*GRNX)/(SHRTWAVE))
          CUTFRY=DABS((0.001D0*GRNY)/(SHRTWAVE))
@@ -1464,6 +1471,7 @@ SUBROUTINE COMPAP(REFERR,TPT)
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1543,26 +1551,26 @@ SUBROUTINE COMPAP(REFERR,TPT)
    SUML2=0.0D0
    SUML4=0.0D0
    LAMAVE=0.0D0
-   WEI(1)=SYSTEM(31)
-   WEI(2)=SYSTEM(32)
-   WEI(3)=SYSTEM(33)
-   WEI(4)=SYSTEM(34)
-   WEI(5)=SYSTEM(35)
-   WEI(6)=SYSTEM(76)
-   WEI(7)=SYSTEM(77)
-   WEI(8)=SYSTEM(78)
-   WEI(9)=SYSTEM(79)
-   WEI(10)=SYSTEM(80)
-   LAM(1)=SYSTEM(1)
-   LAM(2)=SYSTEM(2)
-   LAM(3)=SYSTEM(3)
-   LAM(4)=SYSTEM(4)
-   LAM(5)=SYSTEM(5)
-   LAM(6)=SYSTEM(71)
-   LAM(7)=SYSTEM(72)
-   LAM(8)=SYSTEM(73)
-   LAM(9)=SYSTEM(74)
-   LAM(10)=SYSTEM(75)
+   WEI(1)=sys_wl_weight(1)
+   WEI(2)=sys_wl_weight(2)
+   WEI(3)=sys_wl_weight(3)
+   WEI(4)=sys_wl_weight(4)
+   WEI(5)=sys_wl_weight(5)
+   WEI(6)=sys_wl_weight(6)
+   WEI(7)=sys_wl_weight(7)
+   WEI(8)=sys_wl_weight(8)
+   WEI(9)=sys_wl_weight(9)
+   WEI(10)=sys_wl_weight(10)
+   LAM(1)=sys_wavelength(1)
+   LAM(2)=sys_wavelength(2)
+   LAM(3)=sys_wavelength(3)
+   LAM(4)=sys_wavelength(4)
+   LAM(5)=sys_wavelength(5)
+   LAM(6)=sys_wavelength(6)
+   LAM(7)=sys_wavelength(7)
+   LAM(8)=sys_wavelength(8)
+   LAM(9)=sys_wavelength(9)
+   LAM(10)=sys_wavelength(10)
    WEIS=0.0D0
    DO ISS=1,10
       WEIS=WEIS+WEI(ISS)
@@ -1728,7 +1736,7 @@ SUBROUTINE COMPAP(REFERR,TPT)
 !
 !     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
 !
-   IF(SYSTEM(31).LE.0.0D0.AND.SYSTEM(32).LE.0.0D0 .AND.SYSTEM(33).LE.0.0D0.AND.SYSTEM(34).LE.0.0D0 .AND.SYSTEM(76).LE.0.0D0.AND.SYSTEM(77).LE.0.0D0 .AND.SYSTEM(78).LE.0.0D0.AND.SYSTEM(79).LE.0.0D0 .AND.SYSTEM(80).LE.0.0D0.AND.SYSTEM(35).LE.0.0D0) THEN
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 .AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 .AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 .AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 .AND.sys_wl_weight(10).LE.0.0D0.AND.sys_wl_weight(5).LE.0.0D0) THEN
       IF(TPT.EQ.1) THEN
          call printMSG('ALL SPECTRAL WEIGHTS ARE ZERO', 1)
          call printMSG('NO COMPLEX APERTURE FUNCTION WAS GENERATED',1)
@@ -1744,16 +1752,16 @@ SUBROUTINE COMPAP(REFERR,TPT)
 !       NOT ALL SPECTRAL WEIGHTS ZERO, CALCULATE NUMBER OF RAYS MAXIMUM
 !       PER WAVELENGTH ASSUMING SPECTRAL WEIGHTS NOT ZERO
 !
-      SPT1=SYSTEM(31)
-      SPT2=SYSTEM(32)
-      SPT3=SYSTEM(33)
-      SPT4=SYSTEM(34)
-      SPT5=SYSTEM(35)
-      SPT6=SYSTEM(76)
-      SPT7=SYSTEM(77)
-      SPT8=SYSTEM(78)
-      SPT9=SYSTEM(79)
-      SPT10=SYSTEM(80)
+      SPT1=sys_wl_weight(1)
+      SPT2=sys_wl_weight(2)
+      SPT3=sys_wl_weight(3)
+      SPT4=sys_wl_weight(4)
+      SPT5=sys_wl_weight(5)
+      SPT6=sys_wl_weight(6)
+      SPT7=sys_wl_weight(7)
+      SPT8=sys_wl_weight(8)
+      SPT9=sys_wl_weight(9)
+      SPT10=sys_wl_weight(10)
       TEMPHOLDER=0
       IF(SPT1.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
       IF(SPT2.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
@@ -2229,7 +2237,7 @@ SUBROUTINE COMPAP(REFERR,TPT)
 !     NOW SPA,SPC,AFSPB AND AFSPD ARE NORMALIZED
 !
 !     CALCULATE CENTROID LOCATIONS
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL SYSTEMS
       CENTX=SPA
       CENTY=SPC
@@ -2293,7 +2301,7 @@ SUBROUTINE COMPAP(REFERR,TPT)
    DSPOT(12)=DSPOT(12)*DSPOT(34)
    DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
 !
-   IF(SYSTEM(30).LE.2.0D0.AND.REFLOC.EQ.3.OR.SYSTEM(30).LE.2.0D0.AND.REFLOC.EQ.4) THEN
+   IF(sys_mode().LE.2.0D0.AND.REFLOC.EQ.3.OR.sys_mode().LE.2.0D0.AND.REFLOC.EQ.4) THEN
       ALLOCATE(DSPO(1:35,1:ITOT-1),STAT=ALLOERR)
       DO IJ=1,ITOT-1
 !     LOAD DSPOT(*) WITH DSPOTT(*,ID)
@@ -2705,6 +2713,7 @@ SUBROUTINE DOTF
    use DATSP1
    use DATSPD
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2745,10 +2754,10 @@ SUBROUTINE DOTF
 !
    COFACT=COHERENCE_FACTOR
    CALL SORTFIELDS
-   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
-   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
-   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
-   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
+   IF(sys_units().EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
+   IF(sys_units().EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
+   IF(sys_units().EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
+   IF(sys_units().EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
 !     DETERMINE NEAR FOR FAR
    IF(NEAR_FAR.EQ.0) NEAR=.TRUE.
@@ -2941,44 +2950,44 @@ SUBROUTINE DOTF
 !
 !     CALC THE SHRTWAVE
    SHRTWAVE=0.0D0
-   IF(SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       GO TO 314
    END IF
-   IF(SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       GO TO 314
    END IF
-   IF(SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       GO TO 314
    END IF
-   IF(SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       GO TO 314
    END IF
-   IF(SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       GO TO 314
    END IF
-   IF(SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       GO TO 314
    END IF
-   IF(SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       GO TO 314
    END IF
-   IF(SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       GO TO 314
    END IF
-   IF(SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       GO TO 314
    END IF
-   IF(SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       GO TO 314
    END IF
 314 CONTINUE
@@ -2991,44 +3000,44 @@ SUBROUTINE DOTF
       RETURN
    END IF
 !
-   IF(SYSTEM(1).LE.SHRTWAVE .AND.SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(1)
+   IF(sys_wavelength(1).LE.SHRTWAVE .AND.sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(1)
       SHTNM=1
    END IF
-   IF(SYSTEM(2).LE.SHRTWAVE .AND.SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(2)
+   IF(sys_wavelength(2).LE.SHRTWAVE .AND.sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(2)
       SHTNM=2
    END IF
-   IF(SYSTEM(3).LE.SHRTWAVE .AND.SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(3)
+   IF(sys_wavelength(3).LE.SHRTWAVE .AND.sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(3)
       SHTNM=3
    END IF
-   IF(SYSTEM(4).LE.SHRTWAVE .AND.SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(4)
+   IF(sys_wavelength(4).LE.SHRTWAVE .AND.sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(4)
       SHTNM=4
    END IF
-   IF(SYSTEM(5).LE.SHRTWAVE .AND.SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(5)
+   IF(sys_wavelength(5).LE.SHRTWAVE .AND.sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(5)
       SHTNM=5
    END IF
-   IF(SYSTEM(71).LE.SHRTWAVE .AND.SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(71)
+   IF(sys_wavelength(6).LE.SHRTWAVE .AND.sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(6)
       SHTNM=6
    END IF
-   IF(SYSTEM(72).LE.SHRTWAVE .AND.SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(72)
+   IF(sys_wavelength(7).LE.SHRTWAVE .AND.sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(7)
       SHTNM=7
    END IF
-   IF(SYSTEM(73).LE.SHRTWAVE .AND.SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(73)
+   IF(sys_wavelength(8).LE.SHRTWAVE .AND.sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(8)
       SHTNM=8
    END IF
-   IF(SYSTEM(74).LE.SHRTWAVE .AND.SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(74)
+   IF(sys_wavelength(9).LE.SHRTWAVE .AND.sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(9)
       SHTNM=9
    END IF
-   IF(SYSTEM(75).LE.SHRTWAVE .AND.SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
-      SHRTWAVE=SYSTEM(75)
+   IF(sys_wavelength(10).LE.SHRTWAVE .AND.sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
+      SHRTWAVE=sys_wavelength(10)
       SHTNM=10
    END IF
    SHRTWV=SHRTWAVE
@@ -3288,15 +3297,15 @@ SUBROUTINE DOTF
             CALL SHOWIT(0)
          END IF
          IF(SPACEBALL.EQ.1.AND.NEAR)                WRITE(OUTLYNE,202)
-         IF(SPACEBALL.EQ.2.AND.SYSTEM(30).LE.2.0D0) WRITE(OUTLYNE,201)
+         IF(SPACEBALL.EQ.2.AND.sys_mode().LE.2.0D0) WRITE(OUTLYNE,201)
          IF(SPACEBALL.EQ.1.AND..NOT.NEAR)           WRITE(OUTLYNE,204)
-         IF(SPACEBALL.EQ.2.AND.SYSTEM(30).GT.2.0D0) WRITE(OUTLYNE,203)
+         IF(SPACEBALL.EQ.2.AND.sys_mode().GT.2.0D0) WRITE(OUTLYNE,203)
          CALL SHOWIT(0)
          IF(WQ(1:1).EQ.'Y') WRITE(OUTLYNE,205)
          IF(WQ(1:1).EQ.'X') WRITE(OUTLYNE,206)
          CALL SHOWIT(0)
-         IF(SPACEBALL.EQ.1.AND.NEAR.OR.SPACEBALL.EQ.2.AND.SYSTEM(30).LE.2.0D0) WRITE(OUTLYNE,507)
-         IF(SPACEBALL.EQ.1.AND..NOT.NEAR.OR.SPACEBALL.EQ.2.AND.SYSTEM(30).GT.2.0D0) WRITE(OUTLYNE,508)
+         IF(SPACEBALL.EQ.1.AND.NEAR.OR.SPACEBALL.EQ.2.AND.sys_mode().LE.2.0D0) WRITE(OUTLYNE,507)
+         IF(SPACEBALL.EQ.1.AND..NOT.NEAR.OR.SPACEBALL.EQ.2.AND.sys_mode().GT.2.0D0) WRITE(OUTLYNE,508)
          CALL SHOWIT(0)
 !     DO A RANGE OF VALUES
          IF(WQ.EQ.'Y'.AND.IG.EQ.1) DORI1=0
@@ -3390,9 +3399,9 @@ SUBROUTINE DOTF
             IF(WQ(1:1).EQ.'Y') WRITE(OUTLYNE,205)
             CALL SHOWIT(0)
             IF(SPACEBALL.EQ.1.AND.NEAR)WRITE(OUTLYNE,102) XFR
-            IF(SPACEBALL.EQ.2.AND.SYSTEM(30).LE.2.0D0)WRITE(OUTLYNE,101) XFR
+            IF(SPACEBALL.EQ.2.AND.sys_mode().LE.2.0D0)WRITE(OUTLYNE,101) XFR
             IF(SPACEBALL.EQ.1.AND..NOT.NEAR)WRITE(OUTLYNE,104) XFR
-            IF(SPACEBALL.EQ.2.AND.SYSTEM(30).GT.2.0D0)WRITE(OUTLYNE,103) XFR
+            IF(SPACEBALL.EQ.2.AND.sys_mode().GT.2.0D0)WRITE(OUTLYNE,103) XFR
             CALL SHOWIT(0)
             WRITE(OUTLYNE,111) DOTFM1
             CALL SHOWIT(0)

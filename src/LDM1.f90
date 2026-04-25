@@ -6,6 +6,7 @@ SUBROUTINE LENNS
 !
    use DATCFG
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -69,7 +70,7 @@ SUBROUTINE LENNS
 !
    SYSTEM(1:SSIZ)=0.0D0
 !
-!       SYSTEM(31) TO SYSTEM(35) REPRESENT THE SPTWT VALUES
+!       sys_wl_weight(1) TO sys_wl_weight(5) REPRESENT THE SPTWT VALUES
 !       WHICH DEFAULT TO 1.0 AT LENS START UP.
 !
    SYSTEM(31:35)=1.0D0
@@ -106,8 +107,8 @@ SUBROUTINE LENNS
 !
    SURF=0
 !       EACH AND EVERY TIME THE VARIABLE SURF IS CHANGED,
-!       A FLOATING POINT REPRESENTATION IS STORED IN SYSTEM(20)
-   SYSTEM(20)=DBLE(SURF)
+!       A FLOATING POINT REPRESENTATION IS STORED IN sys_last_surf()
+   call set_sys_last_surf(DBLE(SURF))
 !
 !       SET DEFAULT WAVLENGTHS TO:
 !
@@ -122,73 +123,73 @@ SUBROUTINE LENNS
 !                       WV4=0.43584
 !                       WV5=0.70652
 !
-!       WV1 THROUGH WV5 ARE STORED IN SYSTEM(1) THROUGH
-!       SYSTEM(5) IN THE SYSTEM ARRAY.
+!       WV1 THROUGH WV5 ARE STORED IN sys_wavelength(1) THROUGH
+!       sys_wavelength(5) IN THE SYSTEM ARRAY.
 !
 !       SET THE DEFAULT WAVELENGTH VALUES.
 !
-   SYSTEM(1)=0.58756D0
-   SYSTEM(2)=0.48613D0
-   SYSTEM(3)=0.65627D0
-   SYSTEM(4)=0.43584D0
-   SYSTEM(5)=0.70652D0
+   call set_sys_wavelength(1,0.58756D0)
+   call set_sys_wavelength(2,0.48613D0)
+   call set_sys_wavelength(3,0.65627D0)
+   call set_sys_wavelength(4,0.43584D0)
+   call set_sys_wavelength(5,0.70652D0)
 !     SET WAVELENGTHS 6 TO 10 TO ZERO AND WEIGHTS TO ZERO
    SYSTEM(71:80)=0.0D0
-   SYSTEM(111)=0.58756D0
-   SYSTEM(112)=0.48613D0
-   SYSTEM(113)=0.65627D0
-   SYSTEM(114)=0.43584D0
-   SYSTEM(115)=0.70652D0
+   call set_sys_wv(1,0.58756D0)
+   call set_sys_wv(2,0.48613D0)
+   call set_sys_wv(3,0.65627D0)
+   call set_sys_wv(4,0.43584D0)
+   call set_sys_wv(5,0.70652D0)
 !     SET WAVELENGTHS 6 TO 10 TO ZERO AND WEIGHTS TO ZERO
    SYSTEM(116:120)=0.0D0
 !
 !       THE PROGRAM DEFAULT UNITS ARE INCHES. THE UNIT CODE IS:
 !
-!                       INCHES=SYSTEM(6)=1
-!                       CM    =SYSTEM(6)=2
-!                       MM    =SYSTEM(6)=3
+!                       INCHES=sys_units()=1
+!                       CM    =sys_units()=2
+!                       MM    =sys_units()=3
 !
-   SYSTEM(6)=1.0D0
+   call set_sys_units(1.0D0)
 !
 !       SET THE DEFAULT VALUES FOR THE PRIMARY WAVELENGTH PAIRS
-!       STORED IN SYSTEM(7) AND SYSTEM(8).
+!       STORED IN sys_wl_pri1() AND sys_wl_pri2().
 !
 !       THESE PERTAIN TO THE COMMAND PCW.
-   SYSTEM(7)=2.0D0
-   SYSTEM(8)=3.0D0
+   call set_sys_wl_pri1(2.0D0)
+   call set_sys_wl_pri2(3.0D0)
 !
 !       SET THE DEFAULT VALUES FOR THE SECONDARY WAVELENGTH PAIRS
-!       STORED IN SYSTEM(9) AND SYSTEM(10).
+!       STORED IN sys_wl_sec1() AND sys_wl_sec2().
 !
 !       THESE PERTAIN TO THE COMMAND SCW.
-   SYSTEM(9)=2.0D0
-   SYSTEM(10)=1.0D0
+   call set_sys_wl_sec1(2.0D0)
+   call set_sys_wl_sec2(1.0D0)
 !
 !
 !       SET THE DEFAULT VALUE FOR THE CONTROL WAVELENGTH
-!       STORED IN SYSTEM(11).
+!       STORED IN sys_wl_ref().
 !
 !       THESE PERTAIN TO THE COMMAND SCW.
-   SYSTEM(11)=1.0D0
+   call set_sys_wl_ref(1.0D0)
 !
 !       SET THE DEFAULT VALUE FOR THE SAY AND SAX TO 1.0
-!       STORED IN SYSTEM(12) AND SYSTEM(13).
+!       STORED IN sys_say() AND sys_sax().
 !
 !       THESE PERTAIN TO THE COMMANDS SAY AND SAX AND WRX,WRY.
-   SYSTEM(64)=0.0D0
-   SYSTEM(67)=0.0D0
-   SYSTEM(12)=1.0D0
-   SYSTEM(13)=1.0D0
-   SYSTEM(83)=1.0D0
-   SYSTEM(84)=1.0D0
+   call set_sys_nao_flag(0.0D0)
+   call set_sys_fno_flag(0.0D0)
+   call set_sys_say(1.0D0)
+   call set_sys_sax(1.0D0)
+   call set_sys_say_float(1.0D0)
+   call set_sys_sax_float(1.0D0)
    SYSTEM(85:86)=1.0D0
    SYSTEM(87:88)=0.001D0
 !     SET  RAY AIMING ON
-   SYSTEM(62)=1.0D0
+   call set_sys_ray_aiming(1.0D0)
 !     SET TEL OFF
-   SYSTEM(63)=0.0D0
+   call set_sys_telecentric(0.0D0)
 !     SET AIMAPL OFF
-   SYSTEM(70)=0.0D0
+   call set_sys_aplanatic(0.0D0)
 !
 !       SET THE DEFAULT VALUES FOR SCY AND SCX.
 !       EACH HAS TWO VALUES. SCY HAS Y0 AND Y1
@@ -197,10 +198,10 @@ SUBROUTINE LENNS
 !       X0=1.0,X1=0.0. THESE FOUR VALUES ARE STORED IN SYSTEM
 !       14,15,16,AND 17
 !
-   SYSTEM(14)=1.0D0
-   SYSTEM(15)=0.0D0
-   SYSTEM(16)=1.0D0
-   SYSTEM(17)=0.0D0
+   call set_sys_scy(1.0D0)
+   call set_sys_scy_y1(0.0D0)
+   call set_sys_scx(1.0D0)
+   call set_sys_scx_x1(0.0D0)
 !       NOTE:
 !       THE ALTERNATE FORMS OF SCY AND SCX ARE THE ANGULAR FORMS
 !       SCY FANG AND SCX FANG.
@@ -209,14 +210,14 @@ SUBROUTINE LENNS
 !       0 (OBJECT) AND 1 INORDER TO CALCULATE SCY,Y0 Y1 AND
 !       SCX,X0 X1.
 !
-!       IF THESE ALTERNATE ANGULAR FORMS ARE USED, SYSTEM(18)
-!       FOR SCY FANG AND SYSTEM(19) FOR SCX FANG ARE SET TO 1.0.
+!       IF THESE ALTERNATE ANGULAR FORMS ARE USED, sys_scy_fang_set()
+!       FOR SCY FANG AND sys_scx_fang_set() FOR SCX FANG ARE SET TO 1.0.
 !       OTHERWISE THEY REMAIN SET TO 0.0 AS A DEFAULT.
 !
    SYSTEM(18:19)=0.0D0
 !
 !       DEFAULT FOR IMAGE SURFACE NUMBER IS 1.0
-   SYSTEM(20)=1.0D0
+   call set_sys_last_surf(1.0D0)
 !
 !       THE DEFAULT VALUES FOR SCY FANG AND SCX FANG AUTOMATICALLY
 !       ARE ASSIGNED FROM LENS DATA AND SCY AND SCX VALUES AT "EOS".
@@ -224,50 +225,50 @@ SUBROUTINE LENNS
 !       SYSTEM(21 THROUGH24)
    SYSTEM(21:24)=0.0D0
 !
-!       SYSTEM(49) TRACKS IF SCX/SCX FANG OR SAX HAVE BEEN ENTERED
+!       sys_xz_data() TRACKS IF SCX/SCX FANG OR SAX HAVE BEEN ENTERED
 !       EXPLICITLY.
 !       IT IS ASSUMED THAT THEY HAVE NOT IN WHICH CASE
-!       SYSTEM(49)=0.0, PUPIL AND FIELD ARE CIRCULAR
+!       sys_xz_data()=0.0, PUPIL AND FIELD ARE CIRCULAR
 !
-   SYSTEM(49)=0.0D0
+   call set_sys_xz_data(0.0D0)
 !
 !       ALL SURFACES ARE ASSUMED TO BE FLAT,SPHERICAL OR CONIC
 !               FOR ASPHERICS  -  ALENS(8,SURF)=1.0
 !
 !       THE DEFAULT REFERENCE SURFACE IS SURFACE 1
-!       TRACKER BY THE VALUE IN SYSTEM(25)
+!       TRACKER BY THE VALUE IN sys_ref_surf()
 !
-   SYSTEM(25)=1.0D0
+   call set_sys_ref_surf(1.0D0)
 !
 !       THE DEFAULT APERTURE STOP CONDITION IS "NO"
-!       AND IS INDICATED BY THE VALUE IN SYSTEM(26) OF -99
-!       THIS IS THE DEFAULT. WHEN ASTOP NO IS ISSUED, SYSTEM(26)
+!       AND IS INDICATED BY THE VALUE IN sys_astop() OF -99
+!       THIS IS THE DEFAULT. WHEN ASTOP NO IS ISSUED, sys_astop()
 !       IS ALWAYS SET TO THIS DEFAULT VALUE, OTHERWISE IT IS
 !       SET EQUAL TO THE FLOATING POINT REPRESENTATION OF THE SURFACE
 !       NUMBER WHICH IS TO BE THE APERTURE STOP
 !
-   SYSTEM(26)=-99.0D0
+   call set_sys_astop(-99.0D0)
 !
-!       THE ASTOP ADJUSTMENT IS TRACKED IN SYSTEM(27)
+!       THE ASTOP ADJUSTMENT IS TRACKED IN sys_astop_adj()
 !                       DEFAULT IS NO ADJUSTMENT = 0.0
-!       EN ADJUST = SYSTEM(27)=1.0
-!       EX ADJUSTMENT = SYSTEM(27)=-1.0
+!       EN ADJUST = sys_astop_adj()=1.0
+!       EX ADJUSTMENT = sys_astop_adj()=-1.0
 !
-   SYSTEM(27)=0.0D0
+   call set_sys_astop_adj(0.0D0)
 !
 !
 !       THE LENS EVALUATION MODE (FOCAL,UFOCAL,AFOCAL OR UAFOCAL)
-!       STATUS IS STORED IN SYSTEM(30) AS 1.0,2.0,3.0 OR 4.0
+!       STATUS IS STORED IN sys_mode() AS 1.0,2.0,3.0 OR 4.0
 !       RESPECTIVELY. FOCAL IS THE DEFAULT MODE SET HERE.
 !
-   SYSTEM(30)=1.0D0
+   call set_sys_mode(1.0D0)
 !
-!       SET SYSTEM(50) TO ITS DEFAULT OF 1.00
+!       SET sys_curr_cfg() TO ITS DEFAULT OF 1.00
 !
-   SYSTEM(50)=1.00D0
-!       SET SYSTEM(56) TO ITS DEFAULT OF 1.00
+   sys_curr_cfg()=1.00D0
+!       SET sys_high_cfg() TO ITS DEFAULT OF 1.00
 !
-   SYSTEM(56)=1.00D0
+   call set_sys_high_cfg(1.00D0)
 !
 !
 !       NOTE:
@@ -286,6 +287,7 @@ END
 SUBROUTINE XYGAMA
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -359,6 +361,7 @@ SUBROUTINE ULQUER
 !
    use DATCFG
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -556,10 +559,10 @@ SUBROUTINE ULQUER
       END IF
    END IF
    IF(WC.EQ.'UNITS') THEN
-      IF(SYSTEM(6).EQ.1.0D0) VALWS1='INCHES'
-      IF(SYSTEM(6).EQ.2.0D0) VALWS1='CM    '
-      IF(SYSTEM(6).EQ.3.0D0) VALWS1='MM    '
-      IF(SYSTEM(6).EQ.4.0D0) VALWS1='METERS'
+      IF(sys_units().EQ.1.0D0) VALWS1='INCHES'
+      IF(sys_units().EQ.2.0D0) VALWS1='CM    '
+      IF(sys_units().EQ.3.0D0) VALWS1='MM    '
+      IF(sys_units().EQ.4.0D0) VALWS1='METERS'
       VA1WS1=1
       VAL='CURRENT SYSTEM UNITS ARE:'
       VA1=1
@@ -654,9 +657,9 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT REFERENCE SURFACE NUMBER AND ORIENTATION ANGLE(DEG) ARE:'
       V1=1
-      VALUE1=SYSTEM(25)
+      VALUE1=sys_ref_surf()
       V2=1
-      VALUE2=SYSTEM(59)
+      VALUE2=sys_ref_orient()
       GO TO 200
    ELSE
    END IF
@@ -668,34 +671,34 @@ SUBROUTINE ULQUER
       IF(WC.EQ.'BDY') VAL='CURRENT "BDY" VALUE IS:'
       IF(WC.EQ.'BDX') VAL='CURRENT "BDX" VALUE IS:'
       V1=1
-      IF(WC.EQ.'WRX') VALUE1=SYSTEM(85)
-      IF(WC.EQ.'WRY') VALUE1=SYSTEM(86)
-      IF(WC.EQ.'BDX') VALUE1=SYSTEM(87)
-      IF(WC.EQ.'BDY') VALUE1=SYSTEM(88)
+      IF(WC.EQ.'WRX') VALUE1=sys_wrx()
+      IF(WC.EQ.'WRY') VALUE1=sys_wry()
+      IF(WC.EQ.'BDX') VALUE1=sys_bdx()
+      IF(WC.EQ.'BDY') VALUE1=sys_bdy()
       GO TO 200
    ELSE
    END IF
    IF(WC.EQ.'SAY'.OR.WC.EQ.'SAX') THEN
-      IF(SYSTEM(64).NE.0.0D0) THEN
+      IF(sys_nao_flag().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"'//WC(1:3)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'BUT IS HELD WITH AN "NAO(X OR Y)" ASSIGNMENT'
          CALL SHOWIT(1)
       ELSE
       END IF
-      IF(SYSTEM(67).NE.0.0D0) THEN
+      IF(sys_fno_flag().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"'//WC(1:3)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'BUT IS HELD WITH AN "FNO(X OR Y)" ASSIGNMENT'
          CALL SHOWIT(1)
       ELSE
       END IF
-      IF(SYSTEM(83).NE.0.0D0) THEN
+      IF(sys_say_float().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"SAY" IS CURRENTLY FLOATING'
          CALL SHOWIT(1)
       ELSE
       END IF
-      IF(SYSTEM(84).NE.0.0D0) THEN
+      IF(sys_sax_float().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"SAX" IS CURRENTLY FLOATING'
          CALL SHOWIT(1)
       ELSE
@@ -704,28 +707,28 @@ SUBROUTINE ULQUER
       IF(WC.EQ.'SAY') VAL='CURRENT "SAY" VALUE IS:'
       IF(WC.EQ.'SAX') VAL='CURRENT "SAX" VALUE IS:'
       V1=1
-      IF(WC.EQ.'SAY') VALUE1=SYSTEM(12)
-      IF(WC.EQ.'SAX') VALUE1=SYSTEM(13)
+      IF(WC.EQ.'SAY') VALUE1=sys_say()
+      IF(WC.EQ.'SAX') VALUE1=sys_sax()
       GO TO 200
    ELSE
    END IF
    IF(WC.EQ.'NAOY'.OR.WC.EQ.'NAOX') THEN
-      IF(SYSTEM(64).NE.1.0D0) THEN
+      IF(sys_nao_flag().NE.1.0D0) THEN
          WRITE(OUTLYNE,*)'NOTE:'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.6) THEN
-            SYSTEM(65)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(12))/DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
-            SYSTEM(66)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(13))/DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
-            SYSTEM(83)=0.0D0
-            SYSTEM(84)=0.0D0
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.6) THEN
+            call set_sys_nao_y((ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+            call set_sys_nao_x((ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+            call set_sys_say_float(0.0D0)
+            call set_sys_sax_float(0.0D0)
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            SYSTEM(65)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(12))/DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
-            SYSTEM(66)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(13))/DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
-            SYSTEM(83)=0.0D0
-            SYSTEM(84)=0.0D0
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            call set_sys_nao_y((ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+            call set_sys_nao_x((ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+            call set_sys_say_float(0.0D0)
+            call set_sys_sax_float(0.0D0)
          END IF
       ELSE
       END IF
@@ -733,58 +736,58 @@ SUBROUTINE ULQUER
       IF(WC.EQ.'NAOY') VAL='CURRENT "NAOY" VALUE IS:'
       IF(WC.EQ.'NAOX') VAL='CURRENT "NAOX" VALUE IS:'
       V1=1
-      IF(WC.EQ.'NAOY') VALUE1=SYSTEM(65)
-      IF(WC.EQ.'NAOX') VALUE1=SYSTEM(66)
+      IF(WC.EQ.'NAOY') VALUE1=sys_nao_y()
+      IF(WC.EQ.'NAOX') VALUE1=sys_nao_x()
       GO TO 200
    ELSE
    END IF
    IF(WC.EQ.'FNOY'.OR.WC.EQ.'FNOX') THEN
-      IF(SYSTEM(67).NE.1.0D0) THEN
+      IF(sys_fno_flag().NE.1.0D0) THEN
          WRITE(OUTLYNE,*)'NOTE:'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
-         SYSTEM(68)=1.0D0/((2.0D0*SYSTEM(12))/surf_thickness(0))
-         SYSTEM(69)=1.0D0/((2.0D0*SYSTEM(13))/surf_thickness(0))
-         SYSTEM(83)=0.0D0
-         SYSTEM(84)=0.0D0
+         call set_sys_fno_y(1.0D0/((2.0D0*sys_say())/surf_thickness(0)))
+         call set_sys_fno_x(1.0D0/((2.0D0*sys_sax())/surf_thickness(0)))
+         call set_sys_say_float(0.0D0)
+         call set_sys_sax_float(0.0D0)
       ELSE
       END IF
       VA1=1
       IF(WC.EQ.'FNOY') VAL='CURRENT "FNOY" VALUE IS:'
       IF(WC.EQ.'FNOX') VAL='CURRENT "FNOX" VALUE IS:'
       V1=1
-      IF(WC.EQ.'FNOY') VALUE1=SYSTEM(68)
-      IF(WC.EQ.'FNOX') VALUE1=SYSTEM(69)
+      IF(WC.EQ.'FNOY') VALUE1=sys_fno_y()
+      IF(WC.EQ.'FNOX') VALUE1=sys_fno_x()
       GO TO 200
    ELSE
    END IF
    IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
       VA1=1
-      IF(WC.EQ.'SCY'.AND.SYSTEM(18).EQ.0.0D0)VAL='CURRENT "SCY" VALUES ARE:'
-      IF(WC.EQ.'SCY'.AND.SYSTEM(18).EQ.1.0D0)VAL='CURRENT "SCY FANG" VALUES ARE:'
-      IF(WC.EQ.'SCX'.AND.SYSTEM(19).EQ.0.0D0)VAL='CURRENT "SCX" VALUES ARE:'
-      IF(WC.EQ.'SCX'.AND.SYSTEM(19).EQ.1.0D0)VAL='CURRENT "SCX FANG" VALUES ARE:'
+      IF(WC.EQ.'SCY'.AND.sys_scy_fang_set().EQ.0.0D0)VAL='CURRENT "SCY" VALUES ARE:'
+      IF(WC.EQ.'SCY'.AND.sys_scy_fang_set().EQ.1.0D0)VAL='CURRENT "SCY FANG" VALUES ARE:'
+      IF(WC.EQ.'SCX'.AND.sys_scx_fang_set().EQ.0.0D0)VAL='CURRENT "SCX" VALUES ARE:'
+      IF(WC.EQ.'SCX'.AND.sys_scx_fang_set().EQ.1.0D0)VAL='CURRENT "SCX FANG" VALUES ARE:'
       V1=1
       V2=1
-      IF(WC.EQ.'SCY'.AND.SYSTEM(18).EQ.0.0D0) THEN
-         VALUE1=SYSTEM(14)
-         VALUE2=SYSTEM(15)
+      IF(WC.EQ.'SCY'.AND.sys_scy_fang_set().EQ.0.0D0) THEN
+         VALUE1=sys_scy()
+         VALUE2=sys_scy_y1()
       ELSE
       END IF
-      IF(WC.EQ.'SCY'.AND.SYSTEM(18).EQ.1.0D0) THEN
-         VALUE1=SYSTEM(21)
-         VALUE2=SYSTEM(22)
+      IF(WC.EQ.'SCY'.AND.sys_scy_fang_set().EQ.1.0D0) THEN
+         VALUE1=sys_fang_y()
+         VALUE2=sys_fang_y_y1()
       ELSE
       END IF
-      IF(WC.EQ.'SCX'.AND.SYSTEM(19).EQ.0.0D0) THEN
-         VALUE1=SYSTEM(16)
-         VALUE2=SYSTEM(17)
+      IF(WC.EQ.'SCX'.AND.sys_scx_fang_set().EQ.0.0D0) THEN
+         VALUE1=sys_scx()
+         VALUE2=sys_scx_x1()
       ELSE
       END IF
-      IF(WC.EQ.'SCX'.AND.SYSTEM(19).EQ.1.0D0) THEN
-         VALUE1=SYSTEM(23)
-         VALUE2=SYSTEM(24)
+      IF(WC.EQ.'SCX'.AND.sys_scx_fang_set().EQ.1.0D0) THEN
+         VALUE1=sys_fang_x()
+         VALUE2=sys_fang_x_x1()
       ELSE
       END IF
       GO TO 200
@@ -792,17 +795,17 @@ SUBROUTINE ULQUER
    END IF
    IF(WC.EQ.'PXIM'.OR.WC.EQ.'PYIM') THEN
       VA1=1
-      IF(WC.EQ.'PXIM'.AND.SYSTEM(94).EQ.0.0D0)VAL='CURRENT "PXIM" VALUES ARE:'
-      IF(WC.EQ.'PXIM'.AND.SYSTEM(94).EQ.1.0D0)VAL='CURRENT "PXIM FANG" VALUES ARE:'
-      IF(WC.EQ.'PYIM'.AND.SYSTEM(95).EQ.0.0D0)VAL='CURRENT "PYIM" VALUES ARE:'
-      IF(WC.EQ.'PYIM'.AND.SYSTEM(95).EQ.1.0D0)VAL='CURRENT "PYIM FANG" VALUES ARE:'
+      IF(WC.EQ.'PXIM'.AND.sys_pxim_fang_set().EQ.0.0D0)VAL='CURRENT "PXIM" VALUES ARE:'
+      IF(WC.EQ.'PXIM'.AND.sys_pxim_fang_set().EQ.1.0D0)VAL='CURRENT "PXIM FANG" VALUES ARE:'
+      IF(WC.EQ.'PYIM'.AND.sys_pyim_fang_set().EQ.0.0D0)VAL='CURRENT "PYIM" VALUES ARE:'
+      IF(WC.EQ.'PYIM'.AND.sys_pyim_fang_set().EQ.1.0D0)VAL='CURRENT "PYIM FANG" VALUES ARE:'
       V1=1
       IF(WC.EQ.'PXIM') THEN
-         VALUE1=SYSTEM(92)
+         VALUE1=sys_pxim()
       ELSE
       END IF
       IF(WC.EQ.'PYIM') THEN
-         VALUE1=SYSTEM(93)
+         VALUE1=sys_pyim()
       ELSE
       END IF
       GO TO 200
@@ -810,17 +813,17 @@ SUBROUTINE ULQUER
    END IF
    IF(WC.EQ.'RXIM'.OR.WC.EQ.'RYIM') THEN
       VA1=1
-      IF(WC.EQ.'RXIM'.AND.SYSTEM(98).EQ.0.0D0)VAL='CURRENT "RXIM" VALUES ARE:'
-      IF(WC.EQ.'RXIM'.AND.SYSTEM(98).EQ.1.0D0)VAL='CURRENT "RXIM FANG" VALUES ARE:'
-      IF(WC.EQ.'RYIM'.AND.SYSTEM(99).EQ.0.0D0)VAL='CURRENT "RYIM" VALUES ARE:'
-      IF(WC.EQ.'RXIM'.AND.SYSTEM(99).EQ.1.0D0)VAL='CURRENT "RYIM FANG" VALUES ARE:'
+      IF(WC.EQ.'RXIM'.AND.sys_rxim_fang_set().EQ.0.0D0)VAL='CURRENT "RXIM" VALUES ARE:'
+      IF(WC.EQ.'RXIM'.AND.sys_rxim_fang_set().EQ.1.0D0)VAL='CURRENT "RXIM FANG" VALUES ARE:'
+      IF(WC.EQ.'RYIM'.AND.sys_ryim_fang_set().EQ.0.0D0)VAL='CURRENT "RYIM" VALUES ARE:'
+      IF(WC.EQ.'RXIM'.AND.sys_ryim_fang_set().EQ.1.0D0)VAL='CURRENT "RYIM FANG" VALUES ARE:'
       V1=1
       IF(WC.EQ.'RXIM') THEN
-         VALUE1=SYSTEM(96)
+         VALUE1=sys_rxim()
       ELSE
       END IF
       IF(WC.EQ.'RYIM') THEN
-         VALUE1=SYSTEM(97)
+         VALUE1=sys_ryim()
       ELSE
       END IF
       GO TO 200
@@ -830,7 +833,7 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT APERTURE STOP SURFACE NUMBER IS:'
       V1=1
-      VALUE1=SYSTEM(26)
+      VALUE1=sys_astop()
       GO TO 200
    ELSE
    END IF
@@ -838,7 +841,7 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT AUTOFUNC FUNCTION NUMBER IS:'
       V1=1
-      VALUE1=SYSTEM(91)
+      VALUE1=sys_autofunc()
       GO TO 200
    ELSE
    END IF
@@ -863,15 +866,15 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT SPECTRAL WEIGHTING FACTORS (1-5) ARE:'
       V1=1
-      VALUE1=SYSTEM(31)
+      VALUE1=sys_wl_weight(1)
       V2=1
-      VALUE2=SYSTEM(32)
+      VALUE2=sys_wl_weight(2)
       V3=1
-      VALUE3=SYSTEM(33)
+      VALUE3=sys_wl_weight(3)
       V4=1
-      VALUE4=SYSTEM(34)
+      VALUE4=sys_wl_weight(4)
       V5=1
-      VALUE5=SYSTEM(35)
+      VALUE5=sys_wl_weight(5)
       GO TO 200
    ELSE
    END IF
@@ -879,15 +882,15 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT SPECTRAL WEIGHTING FACTORS (6-10) ARE:'
       V1=1
-      VALUE1=SYSTEM(76)
+      VALUE1=sys_wl_weight(6)
       V2=1
-      VALUE2=SYSTEM(77)
+      VALUE2=sys_wl_weight(7)
       V3=1
-      VALUE3=SYSTEM(78)
+      VALUE3=sys_wl_weight(8)
       V4=1
-      VALUE4=SYSTEM(79)
+      VALUE4=sys_wl_weight(9)
       V5=1
-      VALUE5=SYSTEM(80)
+      VALUE5=sys_wl_weight(10)
       GO TO 200
    ELSE
    END IF
@@ -895,7 +898,7 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT CONTROL WAVELENGTH NUMBER IS:'
       V1=1
-      VALUE1=SYSTEM(11)
+      VALUE1=sys_wl_ref()
       GO TO 200
    ELSE
    END IF
@@ -903,9 +906,9 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT PRIMARY WAVELENGTH PAIR NUMBERS ARE:'
       V1=1
-      VALUE1=SYSTEM(7)
+      VALUE1=sys_wl_pri1()
       V2=1
-      VALUE2=SYSTEM(8)
+      VALUE2=sys_wl_pri2()
       GO TO 200
    ELSE
    END IF
@@ -913,18 +916,18 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT SECONDARY WAVELENGTH PAIR NUMBERS ARE:'
       V1=1
-      VALUE1=SYSTEM(9)
+      VALUE1=sys_wl_sec1()
       V1=2
-      VALUE1=SYSTEM(10)
+      VALUE1=sys_wl_sec2()
       GO TO 200
    ELSE
    END IF
    IF(WC.EQ.'MODE') THEN
       VA1=1
-      IF(SYSTEM(30).EQ.1) VAL='CURRENT MODE IS "FOCAL"'
-      IF(SYSTEM(30).EQ.2) VAL='CURRENT MODE IS "UFOCAL"'
-      IF(SYSTEM(30).EQ.3) VAL='CURRENT MODE IS "AFOCAL"'
-      IF(SYSTEM(30).EQ.4) VAL='CURRENT MODE IS "UAFOCAL"'
+      IF(sys_mode().EQ.1) VAL='CURRENT MODE IS "FOCAL"'
+      IF(sys_mode().EQ.2) VAL='CURRENT MODE IS "UFOCAL"'
+      IF(sys_mode().EQ.3) VAL='CURRENT MODE IS "AFOCAL"'
+      IF(sys_mode().EQ.4) VAL='CURRENT MODE IS "UAFOCAL"'
       GO TO 200
    ELSE
    END IF
@@ -1638,15 +1641,15 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT OPTICAL SYSTEM WAVELENGTHS (1-5) ARE:'
       V1=1
-      VALUE1=SYSTEM(1)
+      VALUE1=sys_wavelength(1)
       V2=1
-      VALUE2=SYSTEM(2)
+      VALUE2=sys_wavelength(2)
       V3=1
-      VALUE3=SYSTEM(3)
+      VALUE3=sys_wavelength(3)
       V4=1
-      VALUE4=SYSTEM(4)
+      VALUE4=sys_wavelength(4)
       V5=1
-      VALUE5=SYSTEM(5)
+      VALUE5=sys_wavelength(5)
       GO TO 200
    ELSE
    END IF
@@ -1654,15 +1657,15 @@ SUBROUTINE ULQUER
       VA1=1
       VAL='CURRENT OPTICAL SYSTEM WAVELENGTHS (6-10) ARE:'
       V1=1
-      VALUE1=SYSTEM(71)
+      VALUE1=sys_wavelength(6)
       V2=1
-      VALUE2=SYSTEM(72)
+      VALUE2=sys_wavelength(7)
       V3=1
-      VALUE3=SYSTEM(73)
+      VALUE3=sys_wavelength(8)
       V4=1
-      VALUE4=SYSTEM(74)
+      VALUE4=sys_wavelength(9)
       V5=1
-      VALUE5=SYSTEM(75)
+      VALUE5=sys_wavelength(10)
       GO TO 200
    ELSE
    END IF
@@ -2518,6 +2521,7 @@ END
 SUBROUTINE ULENNS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2577,6 +2581,7 @@ SUBROUTINE THSOLV
    use type_utils, only: real2str
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2692,7 +2697,7 @@ SUBROUTINE THSOLV
 !       CHECK THAT THICKNESS SOLVES NOT ASSIGNED TO OBJECT SURF
 !
       IF(WC.EQ.'PCY'.OR.WC.EQ.'PCX') THEN
-         IF(SURF.LT.1.AND.SYSTEM(26).EQ.-99.0D0.OR.SURF.LT.INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0)THEN
+         IF(SURF.LT.1.AND.sys_astop().EQ.-99.0D0.OR.SURF.LT.INT(sys_astop()).AND.sys_astop().NE.-99.0D0)THEN
             OUTLYNE='             CHIEF RAY SOLVES ARE NOT ALLOWED'
             CALL SHOWIT(1)
             OUTLYNE='                       OBJECT SURFACE'
@@ -2825,7 +2830,7 @@ SUBROUTINE THSOLV
       END IF
       IF(WQ.EQ.'ALL') THEN
          W1=0.0D0
-         W2=SYSTEM(20)
+         W2=sys_last_surf()
          S1=1
          S2=1
          DF1=0
@@ -2857,8 +2862,8 @@ SUBROUTINE THSOLV
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-         WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+      IF(INT(W2).GT.INT(sys_last_surf())) THEN
+         WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2913,6 +2918,7 @@ END
 SUBROUTINE THERMGAS
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -2964,7 +2970,7 @@ SUBROUTINE THERMGAS
    END IF
 !
    IF(DF1.EQ.1) W1=0.0D0
-   IF(DF2.EQ.1) W2=SYSTEM(20)
+   IF(DF2.EQ.1) W2=sys_last_surf()
    IF(WQ.EQ.'GAS') THEN
       IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
          WRITE(OUTLYNE,*)'"THERM GAS" REQUIRES EXPLICIT NUMERIC WORDS #3 AND #4'
@@ -2992,8 +2998,8 @@ SUBROUTINE THERMGAS
       CALL MACFAL
       RETURN
    END IF
-   IF(W2.GT.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
+   IF(W2.GT.sys_last_surf()) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(sys_last_surf()+1.0D0)
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -3037,20 +3043,20 @@ SUBROUTINE THERMGAS
          IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'PERFECT      '.AND.GLANAM(I,2).NE.'REFLTIR      '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'IDEAL        ') THEN
             IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0) THEN
                GLANAM(I,1)='GLASS      '
-               IF(SYSTEM(1).NE.0.0D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
-               IF(SYSTEM(2).NE.0.0D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
-               IF(SYSTEM(3).NE.0.0D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
-               IF(SYSTEM(4).NE.0.0D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
-               IF(SYSTEM(5).NE.0.0D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
+               IF(sys_wavelength(1).NE.0.0D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+               IF(sys_wavelength(2).NE.0.0D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
+               IF(sys_wavelength(3).NE.0.0D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
+               IF(sys_wavelength(4).NE.0.0D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
+               IF(sys_wavelength(5).NE.0.0D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
                GLANAM(I,1)(1:13)='GLASS'
                GLANAM(I,2)(1:13)='GAS'
             END IF
             IF(DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
-               IF(SYSTEM(71).NE.0.0D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
-               IF(SYSTEM(72).NE.0.0D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
-               IF(SYSTEM(73).NE.0.0D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
-               IF(SYSTEM(74).NE.0.0D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
-               IF(SYSTEM(75).NE.0.0D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
+               IF(sys_wavelength(6).NE.0.0D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
+               IF(sys_wavelength(7).NE.0.0D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
+               IF(sys_wavelength(8).NE.0.0D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
+               IF(sys_wavelength(9).NE.0.0D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
+               IF(sys_wavelength(10).NE.0.0D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
                GLANAM(I,1)(1:13)='GLASS'
                GLANAM(I,2)(1:13)='GAS'
             END IF
@@ -3081,20 +3087,20 @@ SUBROUTINE THERMGAS
                IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'PERFECT      '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'REFLTIR      '.AND.GLANAM(I,2).NE.'IDEAL        ') THEN
                   IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0) THEN
                      GLANAM(I,1)='GLASS      '
-                     IF(SYSTEM(1).NE.0.0D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
-                     IF(SYSTEM(2).NE.0.0D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
-                     IF(SYSTEM(3).NE.0.0D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
-                     IF(SYSTEM(4).NE.0.0D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
-                     IF(SYSTEM(5).NE.0.0D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
+                     IF(sys_wavelength(1).NE.0.0D0)call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(DSGN(surf_refractive_index(I, 1))*W3*W4))
+                     IF(sys_wavelength(2).NE.0.0D0)call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(DSGN(surf_refractive_index(I, 2))*W3*W4))
+                     IF(sys_wavelength(3).NE.0.0D0)call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(DSGN(surf_refractive_index(I, 3))*W3*W4))
+                     IF(sys_wavelength(4).NE.0.0D0)call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(DSGN(surf_refractive_index(I, 4))*W3*W4))
+                     IF(sys_wavelength(5).NE.0.0D0)call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(DSGN(surf_refractive_index(I, 5))*W3*W4))
                      GLANAM(I,1)(1:13)='GLASS'
                      GLANAM(I,2)(1:13)='GAS'
                   END IF
                   IF(DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
-                     IF(SYSTEM(71).NE.0.0D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
-                     IF(SYSTEM(72).NE.0.0D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
-                     IF(SYSTEM(73).NE.0.0D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
-                     IF(SYSTEM(74).NE.0.0D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
-                     IF(SYSTEM(75).NE.0.0D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
+                     IF(sys_wavelength(6).NE.0.0D0)call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(DSGN(surf_refractive_index(I, 6))*W3*W4))
+                     IF(sys_wavelength(7).NE.0.0D0)call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(DSGN(surf_refractive_index(I, 7))*W3*W4))
+                     IF(sys_wavelength(8).NE.0.0D0)call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(DSGN(surf_refractive_index(I, 8))*W3*W4))
+                     IF(sys_wavelength(9).NE.0.0D0)call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(DSGN(surf_refractive_index(I, 9))*W3*W4))
+                     IF(sys_wavelength(10).NE.0.0D0)call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(DSGN(surf_refractive_index(I, 10))*W3*W4))
                      GLANAM(I,1)(1:13)='GLASS'
                      GLANAM(I,2)(1:13)='GAS'
                   END IF
@@ -3168,44 +3174,44 @@ SUBROUTINE THERMGAS
       IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'PERFECT      '.AND.GLANAM(I,2).NE.'REFLTIR      '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'IDEAL        ') THEN
          IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
             GLANAM(I,1)='GLASS      '
-            IF(SYSTEM(1).NE.0.0D0) THEN
-               LA1=LM1(A,B,SYSTEM(1))
+            IF(sys_wavelength(1).NE.0.0D0) THEN
+               LA1=LM1(A,B,sys_wavelength(1))
                call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(((LA1*((293.00)/(W3+273.0D0)))-LA1)*DSGN(surf_refractive_index(I, 1))))
             END IF
-            IF(SYSTEM(2).NE.0.0D0) THEN
-               LA2=LM1(A,B,SYSTEM(2))
+            IF(sys_wavelength(2).NE.0.0D0) THEN
+               LA2=LM1(A,B,sys_wavelength(2))
                call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(((LA2*((293.00)/(W3+273.0D0)))-LA2)*DSGN(surf_refractive_index(I, 2))))
             END IF
-            IF(SYSTEM(3).NE.0.0D0) THEN
-               LA3=LM1(A,B,SYSTEM(3))
+            IF(sys_wavelength(3).NE.0.0D0) THEN
+               LA3=LM1(A,B,sys_wavelength(3))
                call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(((LA3*((293.00)/(W3+273.0D0)))-LA3)*DSGN(surf_refractive_index(I, 3))))
             END IF
-            IF(SYSTEM(4).NE.0.0D0) THEN
-               LA4=LM1(A,B,SYSTEM(4))
+            IF(sys_wavelength(4).NE.0.0D0) THEN
+               LA4=LM1(A,B,sys_wavelength(4))
                call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(((LA4*((293.00)/(W3+273.0D0)))-LA4)*DSGN(surf_refractive_index(I, 4))))
             END IF
-            IF(SYSTEM(5).NE.0.0D0) THEN
-               LA5=LM1(A,B,SYSTEM(5))
+            IF(sys_wavelength(5).NE.0.0D0) THEN
+               LA5=LM1(A,B,sys_wavelength(5))
                call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(((LA5*((293.00)/(W3+273.0D0)))-LA5)*DSGN(surf_refractive_index(I, 5))))
             END IF
-            IF(SYSTEM(71).NE.0.0D0) THEN
-               LA6=LM1(A,B,SYSTEM(71))
+            IF(sys_wavelength(6).NE.0.0D0) THEN
+               LA6=LM1(A,B,sys_wavelength(6))
                call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(((LA6*((293.00)/(W3+273.0D0)))-LA6)*DSGN(surf_refractive_index(I, 6))))
             END IF
-            IF(SYSTEM(72).NE.0.0D0) THEN
-               LA7=LM1(A,B,SYSTEM(72))
+            IF(sys_wavelength(7).NE.0.0D0) THEN
+               LA7=LM1(A,B,sys_wavelength(7))
                call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(((LA7*((293.00)/(W3+273.0D0)))-LA7)*DSGN(surf_refractive_index(I, 7))))
             END IF
-            IF(SYSTEM(73).NE.0.0D0) THEN
-               LA8=LM1(A,B,SYSTEM(73))
+            IF(sys_wavelength(8).NE.0.0D0) THEN
+               LA8=LM1(A,B,sys_wavelength(8))
                call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(((LA8*((293.00)/(W3+273.0D0)))-LA8)*DSGN(surf_refractive_index(I, 8))))
             END IF
-            IF(SYSTEM(74).NE.0.0D0) THEN
-               LA9=LM1(A,B,SYSTEM(74))
+            IF(sys_wavelength(9).NE.0.0D0) THEN
+               LA9=LM1(A,B,sys_wavelength(9))
                call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(((LA9*((293.00)/(W3+273.0D0)))-LA9)*DSGN(surf_refractive_index(I, 9))))
             END IF
-            IF(SYSTEM(75).NE.0.0D0) THEN
-               LA10=LM1(A,B,SYSTEM(75))
+            IF(sys_wavelength(10).NE.0.0D0) THEN
+               LA10=LM1(A,B,sys_wavelength(10))
                call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(((LA10*((293.00)/(W3+273.0D0)))-LA10)*DSGN(surf_refractive_index(I, 10))))
             END IF
             GLANAM(1,I)='GLASS'
@@ -3235,44 +3241,44 @@ SUBROUTINE THERMGAS
             IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'PERFECT      '.AND.GLANAM(I,2).NE.'REFLTIR      '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'IDEAL        ') THEN
                IF(DABS(surf_refractive_index(I, 1)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 2)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 3)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 4)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 5)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 6)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 7)).LE.1.1D0 .OR.DABS(surf_refractive_index(I, 8)).LE.1.1D0.AND.DABS(surf_refractive_index(I, 9)).LE.1.1D0 .AND.DABS(surf_refractive_index(I, 10)).LE.1.1D0) THEN
                   GLANAM(I,2)='GLASS      '
-                  IF(SYSTEM(71).NE.0.0D0) THEN
-                     LA1=LM1(A,B,SYSTEM(1))
+                  IF(sys_wavelength(6).NE.0.0D0) THEN
+                     LA1=LM1(A,B,sys_wavelength(1))
                      call set_surf_refractive_index(I, 1, surf_refractive_index(I, 1)+(((LA1*((293.00)/(W3+273.0D0)))-LA1)*DSGN(surf_refractive_index(I, 1))))
                   END IF
-                  IF(SYSTEM(72).NE.0.0D0) THEN
-                     LA2=LM1(A,B,SYSTEM(2))
+                  IF(sys_wavelength(7).NE.0.0D0) THEN
+                     LA2=LM1(A,B,sys_wavelength(2))
                      call set_surf_refractive_index(I, 2, surf_refractive_index(I, 2)+(((LA2*((293.00)/(W3+273.0D0)))-LA2)*DSGN(surf_refractive_index(I, 2))))
                   END IF
-                  IF(SYSTEM(73).NE.0.0D0) THEN
-                     LA3=LM1(A,B,SYSTEM(3))
+                  IF(sys_wavelength(8).NE.0.0D0) THEN
+                     LA3=LM1(A,B,sys_wavelength(3))
                      call set_surf_refractive_index(I, 3, surf_refractive_index(I, 3)+(((LA3*((293.00)/(W3+273.0D0)))-LA3)*DSGN(surf_refractive_index(I, 3))))
                   END IF
-                  IF(SYSTEM(74).NE.0.0D0) THEN
-                     LA4=LM1(A,B,SYSTEM(4))
+                  IF(sys_wavelength(9).NE.0.0D0) THEN
+                     LA4=LM1(A,B,sys_wavelength(4))
                      call set_surf_refractive_index(I, 4, surf_refractive_index(I, 4)+(((LA4*((293.00)/(W3+273.0D0)))-LA4)*DSGN(surf_refractive_index(I, 4))))
                   END IF
-                  IF(SYSTEM(75).NE.0.0D0) THEN
-                     LA5=LM1(A,B,SYSTEM(5))
+                  IF(sys_wavelength(10).NE.0.0D0) THEN
+                     LA5=LM1(A,B,sys_wavelength(5))
                      call set_surf_refractive_index(I, 5, surf_refractive_index(I, 5)+(((LA5*((293.00)/(W3+273.0D0)))-LA5)*DSGN(surf_refractive_index(I, 5))))
                   END IF
-                  IF(SYSTEM(71).NE.0.0D0) THEN
-                     LA6=LM1(A,B,SYSTEM(71))
+                  IF(sys_wavelength(6).NE.0.0D0) THEN
+                     LA6=LM1(A,B,sys_wavelength(6))
                      call set_surf_refractive_index(I, 6, surf_refractive_index(I, 6)+(((LA6*((293.00)/(W3+273.0D0)))-LA6)*DSGN(surf_refractive_index(I, 6))))
                   END IF
-                  IF(SYSTEM(72).NE.0.0D0) THEN
-                     LA7=LM1(A,B,SYSTEM(72))
+                  IF(sys_wavelength(7).NE.0.0D0) THEN
+                     LA7=LM1(A,B,sys_wavelength(7))
                      call set_surf_refractive_index(I, 7, surf_refractive_index(I, 7)+(((LA7*((293.00)/(W3+273.0D0)))-LA7)*DSGN(surf_refractive_index(I, 7))))
                   END IF
-                  IF(SYSTEM(73).NE.0.0D0) THEN
-                     LA8=LM1(A,B,SYSTEM(73))
+                  IF(sys_wavelength(8).NE.0.0D0) THEN
+                     LA8=LM1(A,B,sys_wavelength(8))
                      call set_surf_refractive_index(I, 8, surf_refractive_index(I, 8)+(((LA8*((293.00)/(W3+273.0D0)))-LA8)*DSGN(surf_refractive_index(I, 8))))
                   END IF
-                  IF(SYSTEM(74).NE.0.0D0) THEN
-                     LA9=LM1(A,B,SYSTEM(74))
+                  IF(sys_wavelength(9).NE.0.0D0) THEN
+                     LA9=LM1(A,B,sys_wavelength(9))
                      call set_surf_refractive_index(I, 9, surf_refractive_index(I, 9)+(((LA9*((293.00)/(W3+273.0D0)))-LA9)*DSGN(surf_refractive_index(I, 9))))
                   END IF
-                  IF(SYSTEM(75).NE.0.0D0) THEN
-                     LA10=LM1(A,B,SYSTEM(75))
+                  IF(sys_wavelength(10).NE.0.0D0) THEN
+                     LA10=LM1(A,B,sys_wavelength(10))
                      call set_surf_refractive_index(I, 10, surf_refractive_index(I, 10)+(((LA10*((293.00)/(W3+273.0D0)))-LA10)*DSGN(surf_refractive_index(I, 10))))
                   END IF
                   GLANAM(I,1)='GLASS'
@@ -3298,6 +3304,7 @@ END
 SUBROUTINE SXYD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3440,7 +3447,7 @@ SUBROUTINE SXYD
 !
 !       RESOLVE THIS
 !
-   DO 100 I=0,INT(SYSTEM(20))
+   DO 100 I=0,INT(sys_last_surf())
       IF(PIKUP(1,I,CT).EQ.1.0D0) THEN
          IF(INT(PIKUP(2,I,CT)).EQ.SURF) THEN
             call set_surf_decenter_flag(I, surf_decenter_flag(SURF))
@@ -3466,6 +3473,7 @@ END
 SUBROUTINE SPIVXYD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3596,7 +3604,7 @@ SUBROUTINE SPIVXYD
 !
 !       RESOLVE THIS
 !
-   DO 100 I=0,INT(SYSTEM(20))
+   DO 100 I=0,INT(sys_last_surf())
       IF(PIKUP(1,I,CT).EQ.1.0D0) THEN
          IF(INT(PIKUP(2,I,CT)).EQ.SURF) THEN
             call set_surf_pivot_flag(I, surf_pivot_flag(SURF))
@@ -3622,6 +3630,7 @@ END
 SUBROUTINE SGXYD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3755,6 +3764,7 @@ END
 SUBROUTINE SGRAT
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3832,7 +3842,7 @@ SUBROUTINE SGRAT
       CALL MACFAL
       RETURN
    END IF
-   IF(F6.EQ.1.AND.SURF.EQ.INT(SYSTEM(20))) THEN
+   IF(F6.EQ.1.AND.SURF.EQ.INT(sys_last_surf())) THEN
       OUTLYNE='FINAL SURFACE MAY NOT BE A DIFFRACTION GRATING'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -3882,6 +3892,7 @@ END
 SUBROUTINE SGRTD
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3936,6 +3947,7 @@ END
 SUBROUTINE ABSORB
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE

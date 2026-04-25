@@ -2,18 +2,19 @@
 
 SUBROUTINE VUNITS(PNAME,VUNI)
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
    CHARACTER PNAME*8,UVAL*8,VUNI*8,ANNVAL*8,IUVAL*8,FRVAL*8
-   IF(SYSTEM(6).EQ.1.0D0) UVAL='INCH    '
-   IF(SYSTEM(6).EQ.2.0D0) UVAL='CM      '
-   IF(SYSTEM(6).EQ.3.0D0) UVAL='MM      '
-   IF(SYSTEM(6).EQ.4.0D0) UVAL='METER   '
-   IF(SYSTEM(6).EQ.1.0D0) IUVAL='(1/INCH)'
-   IF(SYSTEM(6).EQ.2.0D0) IUVAL='(1/CM)  '
-   IF(SYSTEM(6).EQ.3.0D0) IUVAL='(1/MM)  '
-   IF(SYSTEM(6).EQ.4.0D0) IUVAL='(1/M)   '
+   IF(sys_units().EQ.1.0D0) UVAL='INCH    '
+   IF(sys_units().EQ.2.0D0) UVAL='CM      '
+   IF(sys_units().EQ.3.0D0) UVAL='MM      '
+   IF(sys_units().EQ.4.0D0) UVAL='METER   '
+   IF(sys_units().EQ.1.0D0) IUVAL='(1/INCH)'
+   IF(sys_units().EQ.2.0D0) IUVAL='(1/CM)  '
+   IF(sys_units().EQ.3.0D0) IUVAL='(1/MM)  '
+   IF(sys_units().EQ.4.0D0) IUVAL='(1/M)   '
    ANNVAL='DEGREE  '
    FRVAL='FRINGE  '
    IF(PNAME.EQ.'RD      ') VUNI=UVAL
@@ -182,6 +183,7 @@ END
 SUBROUTINE INVSENSIOUT(IV)
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -466,6 +468,7 @@ END
 SUBROUTINE SENSIOUT
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -690,6 +693,7 @@ END
 SUBROUTINE SENSIHDR
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -721,6 +725,7 @@ END
 SUBROUTINE INVSENSIHDR
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -753,6 +758,7 @@ END
 SUBROUTINE SENSIEND
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -782,6 +788,7 @@ END
 SUBROUTINE INVSENSIEND
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -809,6 +816,7 @@ END
 SUBROUTINE FOCOMP
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -890,6 +898,7 @@ SUBROUTINE SENSI(ITY)
 !
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -982,8 +991,8 @@ SUBROUTINE SENSI(ITY)
    GLANMA(AM10:AM3,1:AM9)='             '
 !
 !       NOW DELETE ALL BUT THE MAIN CFG
-   SYSTEM(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   sys_curr_cfg()=1.0D0
+   call set_sys_high_cfg(1.0D0)
 !
 !
 !       NOW SAVE LENS 1, MAIN CONFIG, TO THE ACHIEVE LENS STORAGE
@@ -2899,6 +2908,7 @@ SUBROUTINE CVARBLL
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -3245,8 +3255,8 @@ SUBROUTINE CVARBLL
       CALL MACFAL
       RETURN
    END IF
-   IF(W2.LT.0.0D0) W2=SYSTEM(20)+W2
-   IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20))) THEN
+   IF(W2.LT.0.0D0) W2=sys_last_surf()+W2
+   IF(INT(W2).LT.0.OR.INT(W2).GT.INT(sys_last_surf())) THEN
       WRITE(OUTLYNE,*)'NUMERIC WORD #2 (SURFACE NUMBER) BEYOND LEGAL BOUNDS'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3341,20 +3351,20 @@ SUBROUTINE CVARBLL
          IF(GOFORIT) THEN
 !     USE SWANTNER'S ALGORITHM TO CALCULATE DINCR BASED ON 1/4 WAVE
 !     AT THE CONTROL WAVELENGTH
-            IF(SYSTEM(11).EQ.1.0D0)  WAVERCW=SYSTEM(1)/4.0D0
-            IF(SYSTEM(11).EQ.2.0D0)  WAVERCW=SYSTEM(2)/4.0D0
-            IF(SYSTEM(11).EQ.3.0D0)  WAVERCW=SYSTEM(3)/4.0D0
-            IF(SYSTEM(11).EQ.4.0D0)  WAVERCW=SYSTEM(4)/4.0D0
-            IF(SYSTEM(11).EQ.5.0D0)  WAVERCW=SYSTEM(5)/4.0D0
-            IF(SYSTEM(11).EQ.6.0D0)  WAVERCW=SYSTEM(71)/4.0D0
-            IF(SYSTEM(11).EQ.7.0D0)  WAVERCW=SYSTEM(72)/4.0D0
-            IF(SYSTEM(11).EQ.8.0D0)  WAVERCW=SYSTEM(73)/4.0D0
-            IF(SYSTEM(11).EQ.9.0D0)  WAVERCW=SYSTEM(74)/4.0D0
-            IF(SYSTEM(11).EQ.10.0D0) WAVERCW=SYSTEM(75)/4.0D0
-            IF(SYSTEM(6).EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
+            IF(sys_wl_ref().EQ.1.0D0)  WAVERCW=sys_wavelength(1)/4.0D0
+            IF(sys_wl_ref().EQ.2.0D0)  WAVERCW=sys_wavelength(2)/4.0D0
+            IF(sys_wl_ref().EQ.3.0D0)  WAVERCW=sys_wavelength(3)/4.0D0
+            IF(sys_wl_ref().EQ.4.0D0)  WAVERCW=sys_wavelength(4)/4.0D0
+            IF(sys_wl_ref().EQ.5.0D0)  WAVERCW=sys_wavelength(5)/4.0D0
+            IF(sys_wl_ref().EQ.6.0D0)  WAVERCW=sys_wavelength(6)/4.0D0
+            IF(sys_wl_ref().EQ.7.0D0)  WAVERCW=sys_wavelength(7)/4.0D0
+            IF(sys_wl_ref().EQ.8.0D0)  WAVERCW=sys_wavelength(8)/4.0D0
+            IF(sys_wl_ref().EQ.9.0D0)  WAVERCW=sys_wavelength(9)/4.0D0
+            IF(sys_wl_ref().EQ.10.0D0) WAVERCW=sys_wavelength(10)/4.0D0
+            IF(sys_units().EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
+            IF(sys_units().EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
             IF(WC.EQ.'AC') THEN
                DINCR=WAVERCW/((DABS(HM1)+DABS(HC1))**2)
             END IF
@@ -3435,20 +3445,20 @@ SUBROUTINE CVARBLL
          IF(GOFORIT) THEN
 !     USE SWANTNER'S ALGORITHM TO CALCULATE DINCR BASED ON 1/4 WAVE
 !     AT THE CONTROL WAVELENGTH
-            IF(SYSTEM(11).EQ.1.0D0)  WAVERCW=SYSTEM(1)/4.0D0
-            IF(SYSTEM(11).EQ.2.0D0)  WAVERCW=SYSTEM(2)/4.0D0
-            IF(SYSTEM(11).EQ.3.0D0)  WAVERCW=SYSTEM(3)/4.0D0
-            IF(SYSTEM(11).EQ.4.0D0)  WAVERCW=SYSTEM(4)/4.0D0
-            IF(SYSTEM(11).EQ.5.0D0)  WAVERCW=SYSTEM(5)/4.0D0
-            IF(SYSTEM(11).EQ.6.0D0)  WAVERCW=SYSTEM(71)/4.0D0
-            IF(SYSTEM(11).EQ.7.0D0)  WAVERCW=SYSTEM(72)/4.0D0
-            IF(SYSTEM(11).EQ.8.0D0)  WAVERCW=SYSTEM(73)/4.0D0
-            IF(SYSTEM(11).EQ.9.0D0)  WAVERCW=SYSTEM(74)/4.0D0
-            IF(SYSTEM(11).EQ.10.0D0) WAVERCW=SYSTEM(75)/4.0D0
-            IF(SYSTEM(6).EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
+            IF(sys_wl_ref().EQ.1.0D0)  WAVERCW=sys_wavelength(1)/4.0D0
+            IF(sys_wl_ref().EQ.2.0D0)  WAVERCW=sys_wavelength(2)/4.0D0
+            IF(sys_wl_ref().EQ.3.0D0)  WAVERCW=sys_wavelength(3)/4.0D0
+            IF(sys_wl_ref().EQ.4.0D0)  WAVERCW=sys_wavelength(4)/4.0D0
+            IF(sys_wl_ref().EQ.5.0D0)  WAVERCW=sys_wavelength(5)/4.0D0
+            IF(sys_wl_ref().EQ.6.0D0)  WAVERCW=sys_wavelength(6)/4.0D0
+            IF(sys_wl_ref().EQ.7.0D0)  WAVERCW=sys_wavelength(7)/4.0D0
+            IF(sys_wl_ref().EQ.8.0D0)  WAVERCW=sys_wavelength(8)/4.0D0
+            IF(sys_wl_ref().EQ.9.0D0)  WAVERCW=sys_wavelength(9)/4.0D0
+            IF(sys_wl_ref().EQ.10.0D0) WAVERCW=sys_wavelength(10)/4.0D0
+            IF(sys_units().EQ.1.0D0) WAVERCW=WAVERCW*(1.0D-3)/25.4D0
+            IF(sys_units().EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
             IF(WC.EQ.'ADTOR') THEN
                DINCR=WAVERCW/((DABS(HM1)+DABS(HC1))**4)
             END IF
@@ -5839,6 +5849,7 @@ SUBROUTINE CVCHECK
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -6102,6 +6113,7 @@ SUBROUTINE DINCIT
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -7077,6 +7089,7 @@ END
 SUBROUTINE POWELL(V,VN,PCNT,P)
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -7130,6 +7143,7 @@ END
 SUBROUTINE LINMIN(V,VN,K,PCNT,P,XXI)
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -7179,6 +7193,7 @@ END
 FUNCTION JACME(NUB,PCOM,XICOM)
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -7302,6 +7317,7 @@ FUNCTION FUNCIP()
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -7734,6 +7750,7 @@ SUBROUTINE ITERIP(VN,IITTPP,ITERROR)
    use DATCFG
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE

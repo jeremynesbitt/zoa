@@ -329,6 +329,7 @@ END
 SUBROUTINE DODODO
 !
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -811,6 +812,7 @@ SUBROUTINE AGET
    use DATSPD
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -892,9 +894,9 @@ SUBROUTINE AGET
       END IF
    END IF
    IF(WQ.EQ.'CATNAME'.OR.WQ.EQ.'GLANAME'.OR.WQ.EQ.'SURFLBL') THEN
-      IF(DF1.EQ.1) W1=SYSTEM(20)
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(DF1.EQ.1) W1=sys_last_surf()
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL BOUNDS'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -976,6 +978,7 @@ END
 FUNCTION EDGTHK(I,K)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    IMPLICIT NONE
 !
@@ -1080,6 +1083,7 @@ END
 FUNCTION SAGIT(I,CA,K,ETERROR)
 !
    use DATLEN
+   use mod_system
    use mod_surface
    IMPLICIT NONE
 !
@@ -1117,6 +1121,7 @@ SUBROUTINE GET
    use DATSPD
    use DATSUB
    use DATLEN
+   use mod_system
    use mod_surface
    use DATMAI
    IMPLICIT NONE
@@ -1993,63 +1998,63 @@ SUBROUTINE GET
       END IF
       IF(WQ.EQ.'SHRTWAVE') THEN
          VALUE=0.0D0
-         IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).NE.0.0D0) THEN
-            VALUE=SYSTEM(1)
+         IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).NE.0.0D0) THEN
+            VALUE=sys_wavelength(1)
             GO TO 314
          END IF
-         IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).NE.0.0D0) THEN
-            VALUE=SYSTEM(2)
+         IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).NE.0.0D0) THEN
+            VALUE=sys_wavelength(2)
             GO TO 314
          END IF
-         IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).NE.0.0D0) THEN
-            VALUE=SYSTEM(3)
+         IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).NE.0.0D0) THEN
+            VALUE=sys_wavelength(3)
             GO TO 314
          END IF
-         IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).NE.0.0D0) THEN
-            VALUE=SYSTEM(4)
+         IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).NE.0.0D0) THEN
+            VALUE=sys_wavelength(4)
             GO TO 314
          END IF
-         IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).NE.0.0D0) THEN
-            VALUE=SYSTEM(5)
+         IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).NE.0.0D0) THEN
+            VALUE=sys_wavelength(5)
             GO TO 314
          END IF
-         IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).NE.0.0D0) THEN
-            VALUE=SYSTEM(71)
+         IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).NE.0.0D0) THEN
+            VALUE=sys_wavelength(6)
             GO TO 314
          END IF
-         IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).NE.0.0D0) THEN
-            VALUE=SYSTEM(72)
+         IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).NE.0.0D0) THEN
+            VALUE=sys_wavelength(7)
             GO TO 314
          END IF
-         IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).NE.0.0D0) THEN
-            VALUE=SYSTEM(73)
+         IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).NE.0.0D0) THEN
+            VALUE=sys_wavelength(8)
             GO TO 314
          END IF
-         IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).NE.0.0D0) THEN
-            VALUE=SYSTEM(74)
+         IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).NE.0.0D0) THEN
+            VALUE=sys_wavelength(9)
             GO TO 314
          END IF
-         IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).NE.0.0D0) THEN
-            VALUE=SYSTEM(75)
+         IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).NE.0.0D0) THEN
+            VALUE=sys_wavelength(10)
             GO TO 314
          END IF
 314      CONTINUE
          IF(VALUE.EQ.0.0D0) GO TO 200
 !
-         IF(SYSTEM(31).NE.0.0D0.AND.SYSTEM(1).LT.VALUE .AND.SYSTEM(1).NE.0.0D0) VALUE=SYSTEM(1)
-         IF(SYSTEM(32).NE.0.0D0.AND.SYSTEM(2).LT.VALUE .AND.SYSTEM(2).NE.0.0D0) VALUE=SYSTEM(2)
-         IF(SYSTEM(33).NE.0.0D0.AND.SYSTEM(3).LT.VALUE .AND.SYSTEM(3).NE.0.0D0) VALUE=SYSTEM(3)
-         IF(SYSTEM(34).NE.0.0D0.AND.SYSTEM(4).LT.VALUE .AND.SYSTEM(4).NE.0.0D0) VALUE=SYSTEM(4)
-         IF(SYSTEM(35).NE.0.0D0.AND.SYSTEM(5).LT.VALUE .AND.SYSTEM(5).NE.0.0D0) VALUE=SYSTEM(5)
-         IF(SYSTEM(76).NE.0.0D0.AND.SYSTEM(71).LT.VALUE .AND.SYSTEM(71).NE.0.0D0) VALUE=SYSTEM(71)
-         IF(SYSTEM(77).NE.0.0D0.AND.SYSTEM(72).LT.VALUE .AND.SYSTEM(72).NE.0.0D0) VALUE=SYSTEM(72)
-         IF(SYSTEM(78).NE.0.0D0.AND.SYSTEM(73).LT.VALUE .AND.SYSTEM(73).NE.0.0D0) VALUE=SYSTEM(73)
-         IF(SYSTEM(79).NE.0.0D0.AND.SYSTEM(74).LT.VALUE .AND.SYSTEM(74).NE.0.0D0) VALUE=SYSTEM(74)
-         IF(SYSTEM(80).NE.0.0D0.AND.SYSTEM(75).LT.VALUE .AND.SYSTEM(75).NE.0.0D0) VALUE=SYSTEM(75)
-         IF(SYSTEM(6).EQ.1.0D0) VALUE=((VALUE*1.0D-3)/25.4D0)
-         IF(SYSTEM(6).EQ.2.0D0) VALUE=(VALUE*1.0D-4)
-         IF(SYSTEM(6).EQ.3.0D0) VALUE=(VALUE*1.0D-3)
-         IF(SYSTEM(6).EQ.4.0D0) VALUE=(VALUE*1.0D-6)
+         IF(sys_wl_weight(1).NE.0.0D0.AND.sys_wavelength(1).LT.VALUE .AND.sys_wavelength(1).NE.0.0D0) VALUE=sys_wavelength(1)
+         IF(sys_wl_weight(2).NE.0.0D0.AND.sys_wavelength(2).LT.VALUE .AND.sys_wavelength(2).NE.0.0D0) VALUE=sys_wavelength(2)
+         IF(sys_wl_weight(3).NE.0.0D0.AND.sys_wavelength(3).LT.VALUE .AND.sys_wavelength(3).NE.0.0D0) VALUE=sys_wavelength(3)
+         IF(sys_wl_weight(4).NE.0.0D0.AND.sys_wavelength(4).LT.VALUE .AND.sys_wavelength(4).NE.0.0D0) VALUE=sys_wavelength(4)
+         IF(sys_wl_weight(5).NE.0.0D0.AND.sys_wavelength(5).LT.VALUE .AND.sys_wavelength(5).NE.0.0D0) VALUE=sys_wavelength(5)
+         IF(sys_wl_weight(6).NE.0.0D0.AND.sys_wavelength(6).LT.VALUE .AND.sys_wavelength(6).NE.0.0D0) VALUE=sys_wavelength(6)
+         IF(sys_wl_weight(7).NE.0.0D0.AND.sys_wavelength(7).LT.VALUE .AND.sys_wavelength(7).NE.0.0D0) VALUE=sys_wavelength(7)
+         IF(sys_wl_weight(8).NE.0.0D0.AND.sys_wavelength(8).LT.VALUE .AND.sys_wavelength(8).NE.0.0D0) VALUE=sys_wavelength(8)
+         IF(sys_wl_weight(9).NE.0.0D0.AND.sys_wavelength(9).LT.VALUE .AND.sys_wavelength(9).NE.0.0D0) VALUE=sys_wavelength(9)
+         IF(sys_wl_weight(10).NE.0.0D0.AND.sys_wavelength(10).LT.VALUE .AND.sys_wavelength(10).NE.0.0D0) VALUE=sys_wavelength(10)
+         IF(sys_units().EQ.1.0D0) VALUE=((VALUE*1.0D-3)/25.4D0)
+         IF(sys_units().EQ.2.0D0) VALUE=(VALUE*1.0D-4)
+         IF(sys_units().EQ.3.0D0) VALUE=(VALUE*1.0D-3)
+         IF(sys_units().EQ.4.0D0) VALUE=(VALUE*1.0D-6)
          GO TO 200
       END IF
       IF(WQ.EQ.'PACM'.OR.WQ.EQ.'PACZ'.OR.WQ.EQ.'SACM'.OR.WQ.EQ.'SACZ'.OR.WQ.EQ.'PLCM'.OR.WQ.EQ.'PLCZ'.OR.WQ.EQ.'SLCM'.OR.WQ.EQ.'SLCZ')THEN
@@ -2083,59 +2088,59 @@ SUBROUTINE GET
          GO TO 200
       END IF
       IF(WQ.EQ.'AUTOFUNC') THEN
-         VALUE=SYSTEM(91)
+         VALUE=sys_autofunc()
          GO TO 200
       END IF
       IF(WQ.EQ.'SAY') THEN
-         VALUE=SYSTEM(12)
+         VALUE=sys_say()
          GO TO 200
       END IF
       IF(WQ.EQ.'SAX') THEN
-         VALUE=SYSTEM(13)
+         VALUE=sys_sax()
          GO TO 200
       END IF
       IF(WQ.EQ.'SCY') THEN
-         VALUE=SYSTEM(14)
+         VALUE=sys_scy()
          GO TO 200
       END IF
       IF(WQ.EQ.'SCX') THEN
-         VALUE=SYSTEM(16)
+         VALUE=sys_scx()
          GO TO 200
       END IF
       IF(WQ.EQ.'PXIM') THEN
-         VALUE=SYSTEM(92)
+         VALUE=sys_pxim()
          GO TO 200
       END IF
       IF(WQ.EQ.'PYIM') THEN
-         VALUE=SYSTEM(93)
+         VALUE=sys_pyim()
          GO TO 200
       END IF
       IF(WQ.EQ.'RXIM') THEN
-         VALUE=SYSTEM(96)
+         VALUE=sys_rxim()
          GO TO 200
       END IF
       IF(WQ.EQ.'RYIM') THEN
-         VALUE=SYSTEM(97)
+         VALUE=sys_ryim()
          GO TO 200
       END IF
       IF(WQ.EQ.'WRX') THEN
-         VALUE=SYSTEM(85)
+         VALUE=sys_wrx()
          GO TO 200
       END IF
       IF(WQ.EQ.'WRY') THEN
-         VALUE=SYSTEM(86)
+         VALUE=sys_wry()
          GO TO 200
       END IF
       IF(WQ.EQ.'BDX') THEN
-         VALUE=SYSTEM(87)
+         VALUE=sys_bdx()
          GO TO 200
       END IF
       IF(WQ.EQ.'BDY') THEN
-         VALUE=SYSTEM(88)
+         VALUE=sys_bdy()
          GO TO 200
       END IF
       IF(WQ.EQ.'UNITS') THEN
-         VALUE=SYSTEM(6)
+         VALUE=sys_units()
          GO TO 200
       END IF
       IF(WQ.EQ.'OSN') THEN
@@ -2151,11 +2156,11 @@ SUBROUTINE GET
          GO TO 200
       END IF
       IF(WQ.EQ.'ASTOP') THEN
-         VALUE=SYSTEM(26)
+         VALUE=sys_astop()
          GO TO 200
       END IF
       IF(WQ.EQ.'CW') THEN
-         VALUE=SYSTEM(11)
+         VALUE=sys_wl_ref()
          GO TO 200
       END IF
       IF(WQ.EQ.'CENTX') THEN
@@ -2201,7 +2206,7 @@ SUBROUTINE GET
                CALL MACFAL
                RETURN
             END IF
-            IF(SYSTEM(30).GE.3.0D0) THEN
+            IF(sys_mode().GE.3.0D0) THEN
                WRITE(OUTLYNE,*)WQ(1:6),'" IS NOT DEFINED IN MODES AFOCAL AND UAFOCAL'
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -2330,7 +2335,7 @@ SUBROUTINE GET
          GO TO 200
       END IF
       IF(WQ.EQ.'MODE') THEN
-         VALUE=SYSTEM(30)
+         VALUE=sys_mode()
          GO TO 200
       END IF
       IF(WQ.EQ.'XPEN') THEN
@@ -2846,8 +2851,8 @@ SUBROUTINE GET
    IF(WQ.EQ.'PUPDISY')       TF357=.TRUE.
    IF(TF357) THEN
       IF(W1.LT.0.0D0) NEG=.TRUE.
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -2855,7 +2860,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       CALL G357
       TF357=.FALSE.
       GO TO 200
@@ -2961,8 +2966,8 @@ SUBROUTINE GET
    IF(WQ.EQ.'C96') COEFJK=.TRUE.
    IF(COEFJK) THEN
       IF(W1.LT.0.0D0) NEG=.TRUE.
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -2970,7 +2975,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(WQ.EQ.'C1') VALUE=FTFL01(1,INT(W1))
       IF(WQ.EQ.'C2') VALUE=FTFL01(2,INT(W1))
       IF(WQ.EQ.'C3') VALUE=FTFL01(3,INT(W1))
@@ -3111,16 +3116,16 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.EQ.1.0D0) VALUE=SYSTEM(31)
-      IF(W1.EQ.2.0D0) VALUE=SYSTEM(32)
-      IF(W1.EQ.3.0D0) VALUE=SYSTEM(33)
-      IF(W1.EQ.4.0D0) VALUE=SYSTEM(34)
-      IF(W1.EQ.5.0D0) VALUE=SYSTEM(35)
-      IF(W1.EQ.6.0D0) VALUE=SYSTEM(76)
-      IF(W1.EQ.7.0D0) VALUE=SYSTEM(77)
-      IF(W1.EQ.8.0D0) VALUE=SYSTEM(78)
-      IF(W1.EQ.9.0D0) VALUE=SYSTEM(79)
-      IF(W1.EQ.10.0D0) VALUE=SYSTEM(80)
+      IF(W1.EQ.1.0D0) VALUE=sys_wl_weight(1)
+      IF(W1.EQ.2.0D0) VALUE=sys_wl_weight(2)
+      IF(W1.EQ.3.0D0) VALUE=sys_wl_weight(3)
+      IF(W1.EQ.4.0D0) VALUE=sys_wl_weight(4)
+      IF(W1.EQ.5.0D0) VALUE=sys_wl_weight(5)
+      IF(W1.EQ.6.0D0) VALUE=sys_wl_weight(6)
+      IF(W1.EQ.7.0D0) VALUE=sys_wl_weight(7)
+      IF(W1.EQ.8.0D0) VALUE=sys_wl_weight(8)
+      IF(W1.EQ.9.0D0) VALUE=sys_wl_weight(9)
+      IF(W1.EQ.10.0D0) VALUE=sys_wl_weight(10)
       GO TO 200
    END IF
    IF(WQ.EQ.'RMSOPD') THEN
@@ -3820,7 +3825,7 @@ SUBROUTINE GET
       OLDREF=NEWREF
       OLDOBJ=NEWOBJ
       OLDIMG=NEWIMG
-      NEWIMG=INT(SYSTEM(20))
+      NEWIMG=INT(sys_last_surf())
       NEWOBJ=0
       NEWREF=1
 !     CALCULATE THE GPX,GPUX,GPCX AND GPUCX
@@ -3834,7 +3839,7 @@ SUBROUTINE GET
          NWN1=0.0D0
          NWN2=0.0D0
          NWN3=0.0D0
-         NWN4=SYSTEM(11)
+         NWN4=sys_wl_ref()
       END IF
       CALL GNPR2(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
       JPX=VALUE
@@ -3858,7 +3863,7 @@ SUBROUTINE GET
       OLDREF=NEWREF
       OLDOBJ=NEWOBJ
       OLDIMG=NEWIMG
-      NEWIMG=INT(SYSTEM(20))
+      NEWIMG=INT(sys_last_surf())
       NEWOBJ=0
       NEWREF=1
 !     CALCULATE THE GPY,GPUY,GPCY AND GPUCY
@@ -3872,7 +3877,7 @@ SUBROUTINE GET
          NWN1=0.0D0
          NWN2=0.0D0
          NWN3=0.0D0
-         NWN4=SYSTEM(11)
+         NWN4=sys_wl_ref()
       END IF
       CALL GNPR1(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
       JPY=VALUE
@@ -3896,7 +3901,7 @@ SUBROUTINE GET
       OLDREF=NEWREF
       OLDOBJ=NEWOBJ
       OLDIMG=NEWIMG
-      NEWIMG=INT(SYSTEM(20))
+      NEWIMG=INT(sys_last_surf())
       NEWOBJ=0
       NEWREF=1
 !     CALCULATE THE GPX,GPUX,GPCX AND GPUCX
@@ -3910,7 +3915,7 @@ SUBROUTINE GET
          NWN1=0.0D0
          NWN2=0.0D0
          NWN3=0.0D0
-         NWN4=SYSTEM(11)
+         NWN4=sys_wl_ref()
       END IF
       CALL GNPR2(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
       JPX=VALUE
@@ -3937,7 +3942,7 @@ SUBROUTINE GET
       OLDREF=NEWREF
       OLDOBJ=NEWOBJ
       OLDIMG=NEWIMG
-      NEWIMG=INT(SYSTEM(20))
+      NEWIMG=INT(sys_last_surf())
       NEWOBJ=0
       NEWREF=1
 !     CALCULATE THE GPY,GPUY,GPCY AND GPUCY
@@ -3951,7 +3956,7 @@ SUBROUTINE GET
          NWN1=0.0D0
          NWN2=0.0D0
          NWN3=0.0D0
-         NWN4=SYSTEM(11)
+         NWN4=sys_wl_ref()
       END IF
       CALL GNPR1(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
       JPY=VALUE
@@ -3976,8 +3981,8 @@ SUBROUTINE GET
    END IF
 !
    IF(WQ.EQ.'CV') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3985,13 +3990,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_curvature(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'ET'.OR.WQ.EQ.'ETY') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.(SYSTEM(20)-1.0D0)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.(sys_last_surf()-1.0D0)) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4012,8 +4017,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'ETX') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.(SYSTEM(20)-1.0D0)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.(sys_last_surf()-1.0D0)) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4034,8 +4039,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CVTOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4043,13 +4048,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_toric_curvature(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'TH') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4057,13 +4062,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_thickness(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'THM') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4071,13 +4076,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_mirror_thickness(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'PRICE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4085,7 +4090,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_price(INT(W1))
       GO TO 200
    END IF
@@ -4098,8 +4103,8 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4107,7 +4112,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_grating_spacing(INT(W1))
       GO TO 200
    END IF
@@ -4120,8 +4125,8 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4129,7 +4134,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_grating_order(INT(W1))
       GO TO 200
    END IF
@@ -4142,8 +4147,8 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4151,7 +4156,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_grating_vx(INT(W1))
       GO TO 200
    END IF
@@ -4164,8 +4169,8 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4173,7 +4178,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_grating_vy(INT(W1))
       GO TO 200
    END IF
@@ -4186,8 +4191,8 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4195,13 +4200,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_grating_vz(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'INR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4209,13 +4214,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_inr_value(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'AC') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4223,13 +4228,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 2)
       GO TO 200
    END IF
    IF(WQ.EQ.'AD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4237,13 +4242,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 4)
       GO TO 200
    END IF
    IF(WQ.EQ.'AE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4251,13 +4256,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 6)
       GO TO 200
    END IF
    IF(WQ.EQ.'AF') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4265,13 +4270,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 8)
       GO TO 200
    END IF
    IF(WQ.EQ.'AG') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4279,13 +4284,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 10)
       GO TO 200
    END IF
    IF(WQ.EQ.'AH') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4293,13 +4298,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 12)
       GO TO 200
    END IF
    IF(WQ.EQ.'AI') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4307,13 +4312,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 14)
       GO TO 200
    END IF
    IF(WQ.EQ.'AJ') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4321,13 +4326,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 16)
       GO TO 200
    END IF
    IF(WQ.EQ.'AK') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4335,13 +4340,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 18)
       GO TO 200
    END IF
    IF(WQ.EQ.'AL') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4349,13 +4354,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_asphere_coeff(INT(W1), 20)
       GO TO 200
    END IF
    IF(WQ.EQ.'CC') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4363,13 +4368,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_conic(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'ALPHA') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4377,13 +4382,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_alpha_deg(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'BETA') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4391,13 +4396,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_beta_deg(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GAMMA') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4405,13 +4410,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_gamma_deg(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'MCODE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4421,7 +4426,7 @@ SUBROUTINE GET
       END IF
 !
 !       CALCULATE MCODE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(INT(W1).EQ.0) THEN
 !       AT OBJECT.
          VALUE=2.0D0
@@ -4449,8 +4454,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'TCODE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4459,7 +4464,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
 !       CALCULATE TCODE
       VALUE=0.0D0
       VALUE=surf_tilt_flag(INT(W1))
@@ -4467,8 +4472,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CCTOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4476,13 +4481,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_anamorphic_conic(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'ADTOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4490,13 +4495,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_anamorphic_coeff(INT(W1), 4)
       GO TO 200
    END IF
    IF(WQ.EQ.'AETOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4504,13 +4509,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_anamorphic_coeff(INT(W1), 6)
       GO TO 200
    END IF
    IF(WQ.EQ.'AFTOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4518,13 +4523,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_anamorphic_coeff(INT(W1), 8)
       GO TO 200
    END IF
    IF(WQ.EQ.'AGTOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4532,13 +4537,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_anamorphic_coeff(INT(W1), 10)
       GO TO 200
    END IF
    IF(WQ.EQ.'XD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4546,13 +4551,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_focus_dx(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'ZD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4560,13 +4565,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_focus_dz(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'YD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4574,13 +4579,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_focus_dy(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GDX') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4588,13 +4593,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_global_dx(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GDY') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4602,13 +4607,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_global_dy(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GDZ') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4616,13 +4621,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_global_dz(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GALPHA') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4630,13 +4635,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_global_alpha(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GBETA') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4644,13 +4649,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_global_beta(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'GGAMMA') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4658,13 +4663,13 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_global_gamma(INT(W1))
       GO TO 200
    END IF
    IF(WQ.EQ.'RD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4672,7 +4677,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(DABS(surf_curvature(INT(W1))).EQ.0.0D0) THEN
          VALUE=1.0D300
       ELSE
@@ -4707,8 +4712,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'SHAPEFAC') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.(SYSTEM(20)-1.0D0)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.(sys_last_surf()-1.0D0)) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4750,8 +4755,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'RDTOR') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4759,7 +4764,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(DABS(surf_toric_curvature(INT(W1))).EQ.0.0D0) THEN
          VALUE=1.0D300
       ELSE
@@ -4768,8 +4773,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COATING') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4777,7 +4782,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       VALUE=surf_coating_index(INT(W1))
       GO TO 200
    END IF
@@ -4791,22 +4796,22 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(11)
-      IF(INT(W1).EQ.1) VALUE=SYSTEM(1)
-      IF(INT(W1).EQ.2) VALUE=SYSTEM(2)
-      IF(INT(W1).EQ.3) VALUE=SYSTEM(3)
-      IF(INT(W1).EQ.4) VALUE=SYSTEM(4)
-      IF(INT(W1).EQ.5) VALUE=SYSTEM(5)
-      IF(INT(W1).EQ.6) VALUE=SYSTEM(71)
-      IF(INT(W1).EQ.7) VALUE=SYSTEM(72)
-      IF(INT(W1).EQ.8) VALUE=SYSTEM(73)
-      IF(INT(W1).EQ.9) VALUE=SYSTEM(74)
-      IF(INT(W1).EQ.10) VALUE=SYSTEM(75)
+      IF(DF1.EQ.1) W1=sys_wl_ref()
+      IF(INT(W1).EQ.1) VALUE=sys_wavelength(1)
+      IF(INT(W1).EQ.2) VALUE=sys_wavelength(2)
+      IF(INT(W1).EQ.3) VALUE=sys_wavelength(3)
+      IF(INT(W1).EQ.4) VALUE=sys_wavelength(4)
+      IF(INT(W1).EQ.5) VALUE=sys_wavelength(5)
+      IF(INT(W1).EQ.6) VALUE=sys_wavelength(6)
+      IF(INT(W1).EQ.7) VALUE=sys_wavelength(7)
+      IF(INT(W1).EQ.8) VALUE=sys_wavelength(8)
+      IF(INT(W1).EQ.9) VALUE=sys_wavelength(9)
+      IF(INT(W1).EQ.10) VALUE=sys_wavelength(10)
       GO TO 200
    END IF
    IF(WQ.EQ.'ABBE'.OR.WQ.EQ.'PARTL'.OR.WQ.EQ.'INDEX'.OR.WQ.EQ.'VNUM'.OR.WQ.EQ.'DPART') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4814,7 +4819,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       NF=INT(W1)
       CALL SINDEX
       IF(WQ.EQ.'ABBE') VALUE=VNUM
@@ -4825,8 +4830,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLAP') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4835,7 +4840,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_clap_type(INT(W1)).EQ.1.0D0) THEN
          VALUE=surf_clap_dim(INT(W1), 1)
       ELSE
@@ -4847,8 +4852,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLAPE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4857,7 +4862,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_cobs_ape_type(INT(W1)).EQ.1.0D0) THEN
          VALUE=surf_cobs_ape_data(INT(W1), 1)
       ELSE
@@ -4869,8 +4874,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLRAD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4879,7 +4884,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_clap_type(INT(W1)).EQ.4.0D0) VALUE=surf_clap_dim(INT(W1), 5)
       IF(surf_clap_type(INT(W1)).LT.4.0D0) THEN
       ELSE
@@ -4891,8 +4896,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLRADE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
 
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -4902,7 +4907,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_cobs_ape_type(INT(W1)).EQ.4.0D0) VALUE=surf_cobs_ape_data(INT(W1), 5)
       IF(surf_cobs_ape_type(INT(W1)).LT.4.0D0) THEN
       ELSE
@@ -4914,8 +4919,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'C0RAD') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4924,7 +4929,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_coat_type(INT(W1)).EQ.4.0D0) VALUE=surf_cobs_poly(INT(W1), 5)
       IF(surf_coat_type(INT(W1)).LT.4.0D0)THEN
       ELSE
@@ -4936,8 +4941,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CORADE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4946,7 +4951,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(ABS(surf_cobs_era_type(INT(W1))).EQ.4.0D0) VALUE=surf_cobs_era_data(INT(W1), 5)
       IF(ABS(surf_coat_type(INT(W1))).LT.4.0D0)THEN
       ELSE
@@ -4958,8 +4963,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLDECX'.OR.WQ.EQ.'CLDECY'.OR.WQ.EQ.'CLTILT'.OR.WQ.EQ.'CODECX'.OR.WQ.EQ.'CODECY'.OR.WQ.EQ.'COTILT') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -4969,7 +4974,7 @@ SUBROUTINE GET
       END IF
 !       CALCULATE VALUE
       IF(surf_clap_type(INT(W1)).NE.0.0D0.OR.surf_coat_type(INT(W1)).NE.0.0D0) THEN
-         IF(DF1.EQ.1) W1=SYSTEM(20)
+         IF(DF1.EQ.1) W1=sys_last_surf()
          IF(surf_clap_type(INT(W1)).NE.0.0D0) THEN
             IF(WQ.EQ.'CLDECX') VALUE=surf_clap_dim(INT(W1), 4)
             IF(WQ.EQ.'CLDECY') VALUE=surf_clap_dim(INT(W1), 3)
@@ -4993,8 +4998,8 @@ SUBROUTINE GET
       END IF
    END IF
    IF(WQ.EQ.'CLDECXE'.OR.WQ.EQ.'CLDECYE'.OR.WQ.EQ.'CLTILTE'.OR.WQ.EQ.'CODECXE'.OR.WQ.EQ.'CODECYE'.OR.WQ.EQ.'COTILTE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5004,7 +5009,7 @@ SUBROUTINE GET
       END IF
 !       CALCULATE VALUE
       IF(surf_cobs_ape_type(INT(W1)).NE.0.0D0.AND.surf_cobs_era_type(INT(W1)).NE.0.0D0) THEN
-         IF(DF1.EQ.1) W1=SYSTEM(20)
+         IF(DF1.EQ.1) W1=sys_last_surf()
          IF(surf_cobs_ape_type(INT(W1)).NE.0.0D0) THEN
             IF(WQ.EQ.'CLDECXE') VALUE=surf_cobs_ape_data(INT(W1), 4)
             IF(WQ.EQ.'CLDECYE') VALUE=surf_cobs_ape_data(INT(W1), 3)
@@ -5027,8 +5032,8 @@ SUBROUTINE GET
       END IF
    END IF
    IF(WQ.EQ.'CLAPY') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5037,7 +5042,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_clap_type(INT(W1)).EQ.2.0D0.OR.surf_clap_type(INT(W1)).EQ.3.0D0.OR.surf_clap_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_clap_dim(INT(W1), 1)
       ELSE
@@ -5049,8 +5054,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLAPYE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5059,7 +5064,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_cobs_ape_type(INT(W1)).EQ.2.0D0.OR.surf_clap_type(INT(W1)).EQ.3.0D0.OR.surf_clap_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_cobs_ape_data(INT(W1), 1)
       ELSE
@@ -5071,8 +5076,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLAPX') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5081,7 +5086,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_clap_type(INT(W1)).EQ.2.0D0.OR.surf_clap_type(INT(W1)).EQ.3.0D0.OR.surf_clap_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_clap_dim(INT(W1), 2)
       ELSE
@@ -5093,8 +5098,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'CLAPXE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5103,7 +5108,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_cobs_ape_type(INT(W1)).EQ.2.0D0.OR.surf_clap_type(INT(W1)).EQ.3.0D0.OR.surf_clap_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_cobs_ape_data(INT(W1), 2)
       ELSE
@@ -5115,8 +5120,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COBS') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5125,7 +5130,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_coat_type(INT(W1)).EQ.1.0D0) THEN
          VALUE=surf_cobs_poly(INT(W1), 1)
       ELSE
@@ -5137,8 +5142,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COBSE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5147,7 +5152,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_coat_type(INT(W1)).EQ.1.0D0) THEN
          VALUE=surf_cobs_era_data(INT(W1), 1)
       ELSE
@@ -5159,8 +5164,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COBSY') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5169,7 +5174,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_coat_type(INT(W1)).EQ.2.0D0.OR.surf_coat_type(INT(W1)).EQ.3.0D0.OR.surf_coat_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_cobs_poly(INT(W1), 1)
       ELSE
@@ -5181,8 +5186,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COBSYE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5191,7 +5196,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_cobs_era_type(INT(W1)).EQ.2.0D0.OR.surf_coat_type(INT(W1)).EQ.3.0D0.OR.surf_coat_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_cobs_era_data(INT(W1), 1)
       ELSE
@@ -5203,8 +5208,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COBSX') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5213,7 +5218,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_coat_type(INT(W1)).EQ.2.0D0.OR.surf_coat_type(INT(W1)).EQ.3.0D0.OR.surf_coat_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_cobs_poly(INT(W1), 2)
       ELSE
@@ -5225,8 +5230,8 @@ SUBROUTINE GET
       GO TO 200
    END IF
    IF(WQ.EQ.'COBSXE') THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5235,7 +5240,7 @@ SUBROUTINE GET
          RETURN
       END IF
 !       CALCULATE VALUE
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_cobs_era_type(INT(W1)).EQ.2.0D0.OR.surf_cobs_era_type(INT(W1)).EQ.3.0D0.OR.surf_cobs_era_type(INT(W1)).EQ.4.0D0) THEN
          VALUE=surf_cobs_era_data(INT(W1), 2)
       ELSE
@@ -5259,8 +5264,8 @@ SUBROUTINE GET
          RETURN
       END IF
       IF(W1.LT.0.0D0) NEG=.TRUE.
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5268,7 +5273,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(DF1.EQ.1) W1=SYSTEM(20)
+      IF(DF1.EQ.1) W1=sys_last_surf()
       IF(surf_default_flag(INT(W1)).NE.1.0D0) THEN
          WRITE(OUTLYNE,*)'SURFACE NOT DEFORMABLE'
          CALL SHOWIT(1)
@@ -5307,7 +5312,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'STARTING SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5315,7 +5320,7 @@ SUBROUTINE GET
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5435,8 +5440,8 @@ SUBROUTINE GET
    END IF
    IF(WQ.EQ.'N1'.OR.WQ.EQ.'N2'.OR.WQ.EQ.'N3'.OR.WQ.EQ.'N4'.OR.WQ.EQ.'N5'.OR.WQ.EQ.'N6'.OR.WQ.EQ.'N7'.OR.WQ.EQ.'N8'.OR.WQ.EQ.'N9'.OR.WQ.EQ.'N10') THEN
       IF(DF1.EQ.1) W1=0.0D0
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5470,8 +5475,8 @@ SUBROUTINE GET
 !     SURF NUMBER AND Z-OFFSET
       IF(DF1.EQ.1) W1=0.0D0
       IF(DF2.EQ.1) W2=0.0D0
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5493,7 +5498,7 @@ SUBROUTINE GET
          OLDREF=NEWREF
          OLDOBJ=NEWOBJ
          OLDIMG=NEWIMG
-         NEWIMG=INT(SYSTEM(20))
+         NEWIMG=INT(sys_last_surf())
          NEWOBJ=0
          NEWREF=1
 !     CALCULATE THE GPX,GPUX,GPCX AND GPUCX
@@ -5507,7 +5512,7 @@ SUBROUTINE GET
             NWN1=0.0D0
             NWN2=0.0D0
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
          END IF
          CALL GNPR2(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
          JPX=VALUE
@@ -5528,7 +5533,7 @@ SUBROUTINE GET
          OLDREF=NEWREF
          OLDOBJ=NEWOBJ
          OLDIMG=NEWIMG
-         NEWIMG=INT(SYSTEM(20))
+         NEWIMG=INT(sys_last_surf())
          NEWOBJ=0
          NEWREF=1
 !     CALCULATE THE GPY,GPUY,GPCY AND GPUCY
@@ -5542,7 +5547,7 @@ SUBROUTINE GET
             NWN1=0.0D0
             NWN2=0.0D0
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
          END IF
          CALL GNPR1(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
          JPY=VALUE
@@ -5563,7 +5568,7 @@ SUBROUTINE GET
          OLDREF=NEWREF
          OLDOBJ=NEWOBJ
          OLDIMG=NEWIMG
-         NEWIMG=INT(SYSTEM(20))
+         NEWIMG=INT(sys_last_surf())
          NEWOBJ=0
          NEWREF=1
 !     CALCULATE THE GPX,GPUX,GPCX AND GPUCX
@@ -5577,7 +5582,7 @@ SUBROUTINE GET
             NWN1=0.0D0
             NWN2=0.0D0
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
          END IF
          CALL GNPR2(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
          JPX=VALUE
@@ -5612,7 +5617,7 @@ SUBROUTINE GET
          OLDREF=NEWREF
          OLDOBJ=NEWOBJ
          OLDIMG=NEWIMG
-         NEWIMG=INT(SYSTEM(20))
+         NEWIMG=INT(sys_last_surf())
          NEWOBJ=0
          NEWREF=1
 !     CALCULATE THE GPY,GPUY,GPCY AND GPUCY
@@ -5626,7 +5631,7 @@ SUBROUTINE GET
             NWN1=0.0D0
             NWN2=0.0D0
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
          END IF
          CALL GNPR1(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,1)
          JPY=VALUE
@@ -5724,15 +5729,15 @@ SUBROUTINE GET
 !
    IF(WQ.EQ.'PWRY'.OR.WQ.EQ.'PWRX'.OR.WQ.EQ.'LENGTH'.OR.WQ.EQ.'MLENGTH'.OR.WQ.EQ.'OAL'.OR.WQ.EQ.'OPTLEN'.OR.WQ.EQ.'FLCLTHY'.OR.WQ.EQ.'FLCLTHX'.OR.WQ.EQ.'FLCLTH'.OR.WQ.EQ.'WEIGHT')THEN
       IF(DF1.EQ.1) W1=0.0D0
-      IF(DF2.EQ.1) W2=SYSTEM(20)
+      IF(DF2.EQ.1) W2=sys_last_surf()
       IF(DF1.EQ.1) S1=1
       IF(DF2.EQ.1) S2=1
       IF(DF1.EQ.1) DF1=0
       IF(DF2.EQ.1) DF2=0
 
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W2.LT.0.0D0) W2=SYSTEM(20)+W2
-      IF(W1.LT.0.0D0.OR.W2.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W2.LT.0.0D0) W2=sys_last_surf()+W2
+      IF(W1.LT.0.0D0.OR.W2.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5939,8 +5944,8 @@ SUBROUTINE GET
    END IF
 !
    IF(WQ.EQ.'PY'.OR.WQ.EQ.'PUY'.OR.WQ.EQ.'PIY'.OR.WQ.EQ.'PCY'.OR.WQ.EQ.'PUCY'.OR.WQ.EQ.'PICY'.OR.WQ.EQ.'PX'.OR.WQ.EQ.'PUX'.OR.WQ.EQ.'PIX'.OR.WQ.EQ.'PCX'.OR.WQ.EQ.'PUCX'.OR.WQ.EQ.'PICX'.OR.WQ.EQ.'PICYP'.OR.WQ.EQ.'PICXP'.OR.WQ.EQ.'PIYP'.OR.WQ.EQ.'PIXP') THEN
-      IF(DF1.EQ.1) W1=SYSTEM(20)
-      IF(DF2.EQ.1) W2=SYSTEM(11)
+      IF(DF1.EQ.1) W1=sys_last_surf()
+      IF(DF2.EQ.1) W2=sys_wl_ref()
       IF(DF3.EQ.0.OR.DF4.EQ.0) THEN
          WRITE(OUTLYNE,*)'"GET ',WQ,'" ONLY USES NUMERIC WORDS #1, #2 AND #5'
          CALL SHOWIT(1)
@@ -5950,8 +5955,8 @@ SUBROUTINE GET
          RETURN
       END IF
       IF(WQ.EQ.'PY'.OR.WQ.EQ.'PUY'.OR.WQ.EQ.'PIY'.OR.WQ.EQ.'PCY'.OR.WQ.EQ.'PUCY'.OR.WQ.EQ.'PICY'.OR.WQ.EQ.'PX'.OR.WQ.EQ.'PUX'.OR.WQ.EQ.'PIX'.OR.WQ.EQ.'PCX'.OR.WQ.EQ.'PUCX'.OR.WQ.EQ.'PICX'.OR.WQ.EQ.'PICYP'.OR.WQ.EQ.'PICXP'.OR.WQ.EQ.'PIYP'.OR.WQ.EQ.'PIXP') THEN
-         IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-         IF(W1.LT.0.0.OR.W1.GT.SYSTEM(20))THEN
+         IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+         IF(W1.LT.0.0.OR.W1.GT.sys_last_surf())THEN
             WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -5968,7 +5973,7 @@ SUBROUTINE GET
             RETURN
          END IF
 !
-         IF(W2.EQ.SYSTEM(11)) THEN
+         IF(W2.EQ.sys_wl_ref()) THEN
             IF(WQ.EQ.'PY')VALUE=PXTRAY(1,INT(W1))
             IF(WQ.EQ.'PUY')VALUE=PXTRAY(2,INT(W1))
             IF(WQ.EQ.'PIY')VALUE=PXTRAY(3,INT(W1))
@@ -5987,7 +5992,7 @@ SUBROUTINE GET
             IF(WQ.EQ.'PICXP')VALUE=PXTRAX(8,INT(W1))
             GO TO 200
          END IF
-         IF(W2.NE.SYSTEM(11)) THEN
+         IF(W2.NE.sys_wl_ref()) THEN
             WV=W2
             ITYP=1
             CALL PRCOL
@@ -6059,7 +6064,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR1(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6067,7 +6072,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR2(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6075,7 +6080,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR3(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6083,7 +6088,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR4(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6091,7 +6096,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR5(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6099,7 +6104,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR6(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6107,7 +6112,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR7(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
          ERROR=0
@@ -6115,7 +6120,7 @@ SUBROUTINE GET
             NWN1=W2
             NWN2=W3
             NWN3=0.0D0
-            NWN4=SYSTEM(11)
+            NWN4=sys_wl_ref()
             CALL GNPR8(INT(W1),NWN1,NWN2,NWN3,NWN4,ERROR,0)
          END IF
 !
