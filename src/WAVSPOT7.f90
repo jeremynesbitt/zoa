@@ -187,6 +187,7 @@ SUBROUTINE TFMOTION
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "TFMOTION" COMMAND
@@ -260,7 +261,7 @@ SUBROUTINE TFMOTION
       CALL MACFAL
       RETURN
    END IF
-   IF(DF1.EQ.1) W1=SYSTEM(20)
+   IF(DF1.EQ.1) W1=sys_last_surf()
    IF(INT(W1).LT.1) THEN
       OUTLYNE=&
       &'SURFACE NUMBER, NUMERIC WORD #1, MUST BE GREATER THAN 1'
@@ -271,10 +272,10 @@ SUBROUTINE TFMOTION
       CALL MACFAL
       RETURN
    END IF
-   IF(INT(W1).GT.INT(SYSTEM(20))) THEN
+   IF(INT(W1).GT.INT(sys_last_surf())) THEN
       WRITE(OUTLYNE,*)&
       &'SURFACE NUMBER, NUMERIC WORD #1, MUST BE LESS THAN '&
-      &,INT(SYSTEM(20))
+      &,INT(sys_last_surf())
       CALL SHOWIT(1)
       OUTLYNE=&
       &'RE-ENTER COMMAND'
@@ -441,6 +442,7 @@ SUBROUTINE GOTF
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use mod_system, only: sys_mode, sys_units
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE GOTF.FOR.
@@ -478,10 +480,10 @@ SUBROUTINE GOTF
 
 !
    CALL SORTFIELDS
-   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
-   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
-   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
-   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
+   IF(sys_units().EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
+   IF(sys_units().EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
+   IF(sys_units().EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
+   IF(sys_units().EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
 !     DETERMINE NEAR FOR FAR
    IF(NEAR_FAR.EQ.0) NEAR=.TRUE.
@@ -870,7 +872,7 @@ SUBROUTINE GOTF
       END IF
    END IF
 !
-   IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !     MODE AFOCAL OR UAFOCAL
       IF(WQ.EQ.'TFOCUS') THEN
          OUTLYNE=&
@@ -944,10 +946,10 @@ SUBROUTINE GOTF
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(6).EQ.1.0D0) UNIT='INCHES'
-   IF(SYSTEM(6).EQ.2.0D0) UNIT='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0D0) UNIT='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0D0) UNIT='METERS'
+   IF(sys_units().EQ.1.0D0) UNIT='INCHES'
+   IF(sys_units().EQ.2.0D0) UNIT='CENTIMETERS'
+   IF(sys_units().EQ.3.0D0) UNIT='MILLIMETERS'
+   IF(sys_units().EQ.4.0D0) UNIT='METERS'
 !
 !     NOW FIRST DO THE CASE OF WQ = ACC
 !
@@ -1049,22 +1051,22 @@ SUBROUTINE GOTF
 !     LINE SPREAD FUNCTION EXISTS NOW. NOW CALCULATE THE MTF
 !     AT FREQUENCY F.
 !
-      IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ*1000.0D0
-      IF(SYSTEM(30).LE.2.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ*25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ*10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-         IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ*1000.0D0
+      IF(sys_mode().GE.3.0D0) FREQ=FREQ*1000.0D0
+      IF(sys_mode().LE.2.0D0) THEN
+         IF(sys_units().EQ.1.0D0) FREQ=FREQ*25.4D0
+         IF(sys_units().EQ.2.0D0) FREQ=FREQ*10.0D0
+         IF(sys_units().EQ.3.0D0) FREQ=FREQ
+         IF(sys_units().EQ.4.0D0) FREQ=FREQ*1000.0D0
       ELSE
       END IF
       CALL GEOMTF(FREQ,MTF,PPHAS)
 !
-      IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ/1000.0D0
-      IF(SYSTEM(30).LE.2.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ/25.4D0
-         IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ/10.0D0
-         IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-         IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ/1000.0D0
+      IF(sys_mode().GE.3.0D0) FREQ=FREQ/1000.0D0
+      IF(sys_mode().LE.2.0D0) THEN
+         IF(sys_units().EQ.1.0D0) FREQ=FREQ/25.4D0
+         IF(sys_units().EQ.2.0D0) FREQ=FREQ/10.0D0
+         IF(sys_units().EQ.3.0D0) FREQ=FREQ
+         IF(sys_units().EQ.4.0D0) FREQ=FREQ/1000.0D0
       ELSE
       END IF
 !
@@ -1212,7 +1214,7 @@ SUBROUTINE GOTF
          CALL SHOWIT(0)
          WRITE(OUTLYNE,100)
          CALL SHOWIT(0)
-         IF(DELZ.NE.0.0D0.AND.SYSTEM(30).LE.2.0D0) THEN
+         IF(DELZ.NE.0.0D0.AND.sys_mode().LE.2.0D0) THEN
             WRITE(OUTLYNE,105) DELZ,UNIT
             CALL SHOWIT(0)
          END IF
@@ -1224,12 +1226,12 @@ SUBROUTINE GOTF
             WRITE(OUTLYNE,106) MTHETA2
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(30).LE.2.0D0.AND.SPACEBALL.EQ.2.OR.&
+         IF(sys_mode().LE.2.0D0.AND.SPACEBALL.EQ.2.OR.&
          &SPACEBALL.EQ.1.AND.NEAR) THEN
             WRITE(OUTLYNE,102)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(30).GE.3.0D0.AND.SPACEBALL.EQ.2.OR.&
+         IF(sys_mode().GE.3.0D0.AND.SPACEBALL.EQ.2.OR.&
          &SPACEBALL.EQ.1.AND..NOT.NEAR) THEN
             WRITE(OUTLYNE,103)
             CALL SHOWIT(0)
@@ -1244,24 +1246,24 @@ SUBROUTINE GOTF
          allocate(curr_mtf(ENN+1,3))
          DO I=0,ENN
 !
-            IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ*1000.0D0
-            IF(SYSTEM(30).LE.2.0D0) THEN
-               IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ*25.4D0
-               IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ*10.0D0
-               IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-               IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ*1000.0D0
+            IF(sys_mode().GE.3.0D0) FREQ=FREQ*1000.0D0
+            IF(sys_mode().LE.2.0D0) THEN
+               IF(sys_units().EQ.1.0D0) FREQ=FREQ*25.4D0
+               IF(sys_units().EQ.2.0D0) FREQ=FREQ*10.0D0
+               IF(sys_units().EQ.3.0D0) FREQ=FREQ
+               IF(sys_units().EQ.4.0D0) FREQ=FREQ*1000.0D0
             ELSE
             END IF
 
             CALL GEOMTF(FREQ,MTF,PPHAS)
 !     REMEMBER DATA FOR PLOTS
 !
-            IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ/1000.0D0
-            IF(SYSTEM(30).LE.2.0D0) THEN
-               IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ/25.4D0
-               IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ/10.0D0
-               IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-               IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ/1000.0D0
+            IF(sys_mode().GE.3.0D0) FREQ=FREQ/1000.0D0
+            IF(sys_mode().LE.2.0D0) THEN
+               IF(sys_units().EQ.1.0D0) FREQ=FREQ/25.4D0
+               IF(sys_units().EQ.2.0D0) FREQ=FREQ/10.0D0
+               IF(sys_units().EQ.3.0D0) FREQ=FREQ
+               IF(sys_units().EQ.4.0D0) FREQ=FREQ/1000.0D0
             ELSE
             END IF
 !
@@ -1392,18 +1394,18 @@ SUBROUTINE GOTF
       CALL SHOWIT(0)
       WRITE(OUTLYNE,100)
       CALL SHOWIT(0)
-      IF(DELZ.NE.0.0D0.AND.SYSTEM(30).LE.2.0D0) THEN
+      IF(DELZ.NE.0.0D0.AND.sys_mode().LE.2.0D0) THEN
          WRITE(OUTLYNE,105) DELZ,UNIT
          CALL SHOWIT(0)
       END IF
       WRITE(OUTLYNE,106) MTHETA1
       CALL SHOWIT(0)
-      IF(SYSTEM(30).LE.2.0D0.AND.SPACEBALL.EQ.2.OR.&
+      IF(sys_mode().LE.2.0D0.AND.SPACEBALL.EQ.2.OR.&
       &SPACEBALL.EQ.1.AND.NEAR) THEN
          WRITE(OUTLYNE,102)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(30).GE.3.0D0.AND.SPACEBALL.EQ.2.OR.&
+      IF(sys_mode().GE.3.0D0.AND.SPACEBALL.EQ.2.OR.&
       &SPACEBALL.EQ.1.AND..NOT.NEAR) THEN
          WRITE(OUTLYNE,103)
          CALL SHOWIT(0)
@@ -1412,23 +1414,23 @@ SUBROUTINE GOTF
       FREQ=MINFREQ
       DO I=0,ENN
 !
-         IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ*1000.0D0
-         IF(SYSTEM(30).LE.2.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ*25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ*10.0D0
-            IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-            IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ*1000.0D0
+         IF(sys_mode().GE.3.0D0) FREQ=FREQ*1000.0D0
+         IF(sys_mode().LE.2.0D0) THEN
+            IF(sys_units().EQ.1.0D0) FREQ=FREQ*25.4D0
+            IF(sys_units().EQ.2.0D0) FREQ=FREQ*10.0D0
+            IF(sys_units().EQ.3.0D0) FREQ=FREQ
+            IF(sys_units().EQ.4.0D0) FREQ=FREQ*1000.0D0
          ELSE
          END IF
 
          CALL GEOMTF(FREQ,MTF,PPHAS)
 !
-         IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ/1000.0D0
-         IF(SYSTEM(30).LE.2.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ/25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ/10.0D0
-            IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-            IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ/1000.0D0
+         IF(sys_mode().GE.3.0D0) FREQ=FREQ/1000.0D0
+         IF(sys_mode().LE.2.0D0) THEN
+            IF(sys_units().EQ.1.0D0) FREQ=FREQ/25.4D0
+            IF(sys_units().EQ.2.0D0) FREQ=FREQ/10.0D0
+            IF(sys_units().EQ.3.0D0) FREQ=FREQ
+            IF(sys_units().EQ.4.0D0) FREQ=FREQ/1000.0D0
          ELSE
          END IF
 !
@@ -1454,13 +1456,13 @@ SUBROUTINE GOTF
       CALL SHOWIT(0)
       WRITE(OUTLYNE,106) MTHETA1
       CALL SHOWIT(0)
-      IF(SYSTEM(6).EQ.1.0D0) WRITE(OUTLYNE,108)
+      IF(sys_units().EQ.1.0D0) WRITE(OUTLYNE,108)
       CALL SHOWIT(0)
-      IF(SYSTEM(6).EQ.2.0D0) WRITE(OUTLYNE,109)
+      IF(sys_units().EQ.2.0D0) WRITE(OUTLYNE,109)
       CALL SHOWIT(0)
-      IF(SYSTEM(6).EQ.3.0D0) WRITE(OUTLYNE,110)
+      IF(sys_units().EQ.3.0D0) WRITE(OUTLYNE,110)
       CALL SHOWIT(0)
-      IF(SYSTEM(6).EQ.4.0D0) WRITE(OUTLYNE,111)
+      IF(sys_units().EQ.4.0D0) WRITE(OUTLYNE,111)
       CALL SHOWIT(0)
       DELTAZ=DELZ
       DELZ=ZMIN
@@ -1563,23 +1565,23 @@ SUBROUTINE GOTF
 !     FREQUENCY Fmin TO Fmax
 !
 !
-         IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ*1000.0D0
-         IF(SYSTEM(30).LE.2.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ*25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ*10.0D0
-            IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-            IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ*1000.0D0
+         IF(sys_mode().GE.3.0D0) FREQ=FREQ*1000.0D0
+         IF(sys_mode().LE.2.0D0) THEN
+            IF(sys_units().EQ.1.0D0) FREQ=FREQ*25.4D0
+            IF(sys_units().EQ.2.0D0) FREQ=FREQ*10.0D0
+            IF(sys_units().EQ.3.0D0) FREQ=FREQ
+            IF(sys_units().EQ.4.0D0) FREQ=FREQ*1000.0D0
          ELSE
          END IF
 
          CALL GEOMTF(FREQ,MTF,PPHAS)
 !
-         IF(SYSTEM(30).GE.3.0D0) FREQ=FREQ/1000.0D0
-         IF(SYSTEM(30).LE.2.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) FREQ=FREQ/25.4D0
-            IF(SYSTEM(6).EQ.2.0D0) FREQ=FREQ/10.0D0
-            IF(SYSTEM(6).EQ.3.0D0) FREQ=FREQ
-            IF(SYSTEM(6).EQ.4.0D0) FREQ=FREQ/1000.0D0
+         IF(sys_mode().GE.3.0D0) FREQ=FREQ/1000.0D0
+         IF(sys_mode().LE.2.0D0) THEN
+            IF(sys_units().EQ.1.0D0) FREQ=FREQ/25.4D0
+            IF(sys_units().EQ.2.0D0) FREQ=FREQ/10.0D0
+            IF(sys_units().EQ.3.0D0) FREQ=FREQ
+            IF(sys_units().EQ.4.0D0) FREQ=FREQ/1000.0D0
          END IF
 !
          IF(DABS(PPHAS).LT.1.0D-6) PPHAS=0.0D0
@@ -1817,6 +1819,7 @@ SUBROUTINE LSFLSF
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units
    IMPLICIT NONE
 !
 !     CALLED BY CMDER FOR COMMAND LSF
@@ -1986,7 +1989,7 @@ SUBROUTINE LSFLSF
 !
 !     GET THE NEW MOVED CENTRIOD POSITIONS IF NECESSARY
    IF(WQ.EQ.'CENT'.AND.DF2.EQ.0.AND.W2.NE.0.0D0) THEN
-      IF(SYSTEM(30).GT.2.0D0) THEN
+      IF(sys_mode().GT.2.0D0) THEN
          OUTLYNE=&
          &'DEFOCUSING IS NOT ALLOWED IN MODES AFOCAL AND UAFOCAL'
          CALL SHOWIT(1)
@@ -2000,7 +2003,7 @@ SUBROUTINE LSFLSF
       END IF
    END IF
    IF(WQ.NE.'CENT'.AND.DF4.EQ.0.AND.W4.NE.0.0D0) THEN
-      IF(SYSTEM(30).GT.2.0D0) THEN
+      IF(sys_mode().GT.2.0D0) THEN
          OUTLYNE=&
          &'DEFOCUSING IS NOT ALLOWED IN MODES AFOCAL AND UAFOCAL'
          CALL SHOWIT(1)
@@ -2022,7 +2025,7 @@ SUBROUTINE LSFLSF
       SPDELX=0.0D0
       SPDELY=0.0D0
    ELSE
-      IF(SYSTEM(30).LT.3.0D0) THEN
+      IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
          REDVLX=REFRY(1,NEWIMG)+W2 &
          &+(DTAN(REFRY(11,NEWIMG))*W4)
@@ -2059,7 +2062,7 @@ SUBROUTINE LSFLSF
          IF(DSPOT(12).NE.0.0D0) THEN
             ILSF=ILSF+1
             LSF1=DSPOT(12)
-            IF(SYSTEM(30).LT.3.0D0) THEN
+            IF(sys_mode().LT.3.0D0) THEN
 !     FOCAL
                IF(WQ.NE.'CENT'.AND.WQ.NE.'CACC') THEN
                   XV=((DSPOT(1))+(DTAN(DSPOT(9))*W4))
@@ -2077,7 +2080,7 @@ SUBROUTINE LSFLSF
                &.OR.WQ.EQ.'CACC')THETA=W3*(PII/180.0D0)
                IF(WQ.EQ.'CENT'&
                &.OR.WQ.EQ.'CACC') MTHETA=W3
-               IF(SYSTEM(30).LT.3.0D0) THEN
+               IF(sys_mode().LT.3.0D0) THEN
                   LSF2=((((XV-REDVLX)/JB)*DCOS(THETA))+&
                   &(((YV-REDVLY)/JA)*DSIN(THETA)))
                ELSE
@@ -2102,7 +2105,7 @@ SUBROUTINE LSFLSF
                &.OR.WQ.EQ.'CACC') THETA=W3*(PII/180.0D0)
                IF(WQ.EQ.'CENT'&
                &.OR.WQ.EQ.'CACC') MTHETA=W3
-               IF(SYSTEM(30).LT.3.0D0) THEN
+               IF(sys_mode().LT.3.0D0) THEN
                   LSF2=((((XV-REDVLX)/JB)*DCOS(THETA))+&
                   &(((YV-REDVLY)/JA)*DSIN(THETA)))
                ELSE
@@ -2212,22 +2215,22 @@ SUBROUTINE LSFLSF
    CALL SHOWIT(0)
 30 FORMAT('SCAN ORIENTATION = ',F7.2,' DEGREE(S)')
 !
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
 
       IF(W3.NE.0.0D0) WRITE(OUTLYNE,40) W3,J_UN
       IF(W3.NE.0.0D0) CALL SHOWIT(0)
 40    FORMAT('APPLIED DEFOCUS (Z-DIRECTION) = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
 
       IF(W2.NE.0.0D0) WRITE(OUTLYNE,41) W2,J_UN
       IF(W2.NE.0.0D0) CALL SHOWIT(0)
@@ -2241,7 +2244,7 @@ SUBROUTINE LSFLSF
       IF(W3.NE.0.0D0) CALL SHOWIT(0)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.NE.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       IF(W2.NE.0.0D0) WRITE(OUTLYNE,43) W2,J_UN
       IF(W2.NE.0.0D0) CALL SHOWIT(0)
@@ -2251,11 +2254,11 @@ SUBROUTINE LSFLSF
 44    FORMAT('APPLIED Y-ANGULAR OFFSET = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.EQ.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       WRITE(OUTLYNE,50) CENTX,J_UN
       CALL SHOWIT(0)
       WRITE(OUTLYNE,60) CENTX,J_UN
@@ -2264,7 +2267,7 @@ SUBROUTINE LSFLSF
 60    FORMAT('CENTROID Y-COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.EQ.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.EQ.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIANS(S)'
       WRITE(OUTLYNE,51) CENTX,J_UN
       CALL SHOWIT(0)
@@ -2274,11 +2277,11 @@ SUBROUTINE LSFLSF
 61    FORMAT('CENTROID Y-ANGULAR COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(WQ.NE.'CENT'.AND.sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
       WRITE(OUTLYNE,70) REFRY(1,NEWIMG),J_UN
       CALL SHOWIT(0)
       WRITE(OUTLYNE,80) REFRY(2,NEWIMG),J_UN
@@ -2287,7 +2290,7 @@ SUBROUTINE LSFLSF
 80    FORMAT('CHIEF RAY Y-COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(WQ.NE.'CENT'.AND.SYSTEM(30).GT.2.0D0) THEN
+   IF(WQ.NE.'CENT'.AND.sys_mode().GT.2.0D0) THEN
       J_UN='RADIAN(S)'
       WRITE(OUTLYNE,71) REFRY(11,NEWIMG),J_UN
       CALL SHOWIT(0)
@@ -2297,11 +2300,11 @@ SUBROUTINE LSFLSF
 81    FORMAT('CHIEF RAY Y-ANGULAR COORDINATE = ',G13.6,1X,A13)
    ELSE
    END IF
-   IF(SYSTEM(30).LT.3.0D0) THEN
-      IF(SYSTEM(6).EQ.1.0D0) J_UN='INCH(S)'
-      IF(SYSTEM(6).EQ.2.0D0) J_UN='CENTIMETER(S)'
-      IF(SYSTEM(6).EQ.3.0D0) J_UN='MILLIMETER(S)'
-      IF(SYSTEM(6).EQ.4.0D0) J_UN='METER(S)'
+   IF(sys_mode().LT.3.0D0) THEN
+      IF(sys_units().EQ.1.0D0) J_UN='INCH(S)'
+      IF(sys_units().EQ.2.0D0) J_UN='CENTIMETER(S)'
+      IF(sys_units().EQ.3.0D0) J_UN='MILLIMETER(S)'
+      IF(sys_units().EQ.4.0D0) J_UN='METER(S)'
    ELSE
       J_UN='RADIAN(S)'
    END IF
