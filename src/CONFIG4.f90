@@ -6,6 +6,7 @@ SUBROUTINE CFDFLT
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED BY CFGOUT AND
@@ -339,10 +340,10 @@ SUBROUTINE CFDFLT
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W2).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)&
          &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-         &INT(SYSTEM(20))
+         &INT(sys_last_surf())
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -792,10 +793,10 @@ SUBROUTINE CFDFLT
          DF1=0
       END IF
       IF(DF2.EQ.1) THEN
-         W2=SYSTEM(20)
+         W2=sys_last_surf()
          DF2=0
       END IF
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)&
          &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
          CALL SHOWIT(1)
@@ -805,9 +806,9 @@ SUBROUTINE CFDFLT
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)&
-         &'ENDING SURFACE NUMBER MUST BE LESS THAN ',INT(SYSTEM(20))
+         &'ENDING SURFACE NUMBER MUST BE LESS THAN ',INT(sys_last_surf())
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -898,10 +899,10 @@ SUBROUTINE CFDFLT
          DF1=0
       END IF
       IF(DF2.EQ.1) THEN
-         W2=SYSTEM(20)
+         W2=sys_last_surf()
          DF2=0
       END IF
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)&
          &'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
          CALL SHOWIT(1)
@@ -911,9 +912,9 @@ SUBROUTINE CFDFLT
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W2).LT.0.OR.INT(W2).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)&
-         &'ENDING SURFACE NUMBER MUST BE LESS THAN ',INT(SYSTEM(20))
+         &'ENDING SURFACE NUMBER MUST BE LESS THAN ',INT(sys_last_surf())
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -1301,8 +1302,8 @@ SUBROUTINE CFDFLT
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -2557,10 +2558,10 @@ SUBROUTINE CFDFLT
          CALL MACFAL
          RETURN
       END IF
-      IF(INT(W2).GT.INT(SYSTEM(20))) THEN
+      IF(INT(W2).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)&
          &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-         &INT(SYSTEM(20))
+         &INT(sys_last_surf())
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -2929,8 +2930,8 @@ SUBROUTINE CFDFLT
          DF1=0
          W1=0.0
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(INT(W1).LT.1.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(INT(W1).LT.1.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3013,8 +3014,8 @@ SUBROUTINE CFDFLT
       &.OR.WQ.EQ.'NPRO'.OR.WC.EQ.'AL'.OR.WQ.EQ.'PIVX'.OR.WQ.EQ.'PIVY'&
       &.OR.WQ.EQ.'PIVZ'.OR.WQ.EQ.'GDX'.OR.WQ.EQ.'GDY'.OR.WQ.EQ.'GDZ'&
       &.OR.WQ.EQ.'GALPHA'.OR.WQ.EQ.'GBETA'.OR.WQ.EQ.'GGAMMA') THEN
-         IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-         IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+         IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+         IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
             WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3025,8 +3026,8 @@ SUBROUTINE CFDFLT
          END IF
       END IF
       IF(WQ.EQ.'THOAL') THEN
-         IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20)).OR.&
-         &INT(W2).LT.0.OR.INT(W2).GT.INT(SYSTEM(20)).OR.INT(W2)&
+         IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf()).OR.&
+         &INT(W2).LT.0.OR.INT(W2).GT.INT(sys_last_surf()).OR.INT(W2)&
          &.LT.INT(W1)) THEN
             WRITE(OUTLYNE,*)'SURFACE NUMBERS BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
@@ -3108,8 +3109,8 @@ SUBROUTINE CFDFLT
          CALL MACFAL
          RETURN
       END IF
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(SYSTEM(20))) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(INT(W1).LT.0.OR.INT(W1).GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3183,10 +3184,10 @@ SUBROUTINE CFDFLT
             CALL MACFAL
             RETURN
          END IF
-         IF(INT(W2).GT.INT(SYSTEM(20))) THEN
+         IF(INT(W2).GT.INT(sys_last_surf())) THEN
             WRITE(OUTLYNE,*)&
             &'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',&
-            &INT(SYSTEM(20))
+            &INT(sys_last_surf())
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -3602,9 +3603,9 @@ SUBROUTINE CFDFLT
          RETURN
       END IF
 !       CHECK SURFACE NUMBER RANGE
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
       IF(INT(W1).LT.1.OR.INT(W1)&
-      &.GT.INT(SYSTEM(20))) THEN
+      &.GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3644,9 +3645,9 @@ SUBROUTINE CFDFLT
          RETURN
       END IF
 !       CHECK SURFACE NUMBER RANGE
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
       IF(INT((W1)).LT.1.OR.INT((W1))&
-      &.GT.INT(SYSTEM(20))) THEN
+      &.GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3689,9 +3690,9 @@ SUBROUTINE CFDFLT
          RETURN
       END IF
 !       CHECK SURFACE NUMBER RANGE
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
       IF(INT((W1)).LT.1.OR.INT((W1))&
-      &.GT.INT(SYSTEM(20))) THEN
+      &.GT.INT(sys_last_surf())) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -3739,6 +3740,7 @@ SUBROUTINE LORDER(I)
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM CFGCLN. IT CLEANS
@@ -3820,7 +3822,7 @@ SUBROUTINE LORDER(I)
 !
 !       INITIALIZE THE FLCHG FLAGS WHICH TRACK THE CURRENT
 !       LINE NUMBERS REFERENCED BY CHG COMMANDS
-   FLCHG(0:INT(SYSTEM(20)))=0
+   FLCHG(0:INT(sys_last_surf()))=0
 !
    ULINE=0
    ELINE=1
@@ -3997,7 +3999,7 @@ SUBROUTINE LORDER(I)
 !
 !       NUM COUNTS THE NUMBER OF SIMILAR "CHG" PROCESSED
 !       IN THE "33" LOOP
-   DO 32 XK=0.0D0,SYSTEM(20),1.0D0
+   DO 32 XK=0.0D0,sys_last_surf(),1.0D0
       NUM=0
 !
 !       CHECK FOR NO ENTRY IN FLCHG AND IF NONE, PROCEED
@@ -4281,6 +4283,7 @@ SUBROUTINE LCLEAN
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LCLEAN. IT REMOVES INCONSISTENCIES
@@ -4316,7 +4319,7 @@ SUBROUTINE LCLEAN
 !       LOOP THROUGH ALL NON-BLANK CONFIGS
 !
 !       IEND IS THE LAST NON-BLANK CONFIG
-   IEND=INT(SYSTEM(56))
+   IEND=INT(sys_high_cfg())
 !
    DO I=2,IEND
 !
@@ -4401,8 +4404,8 @@ SUBROUTINE LCLEAN
             IF((HOLDER(1:5)).EQ.'PIKUP') THEN
                AVAL1=HOLDER(19:41)
                CALL ATON3
-               IF(VAL1.LT.0.0D0) VAL1=SYSTEM(20)-VAL1
-               IF(VAL1.LT.0.0.OR.VAL1.GT.SYSTEM(20)) THEN
+               IF(VAL1.LT.0.0D0) VAL1=sys_last_surf()-VAL1
+               IF(VAL1.LT.0.0.OR.VAL1.GT.sys_last_surf()) THEN
 !       PIKUP REFERS TO A NON-EXISTING SURFACE
                   WRITE(OUTLYNE,*)'PIKUP REFERENCE TO A NON-EXISTING SURFACE'
                   CALL SHOWIT(1)
