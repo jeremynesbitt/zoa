@@ -5,6 +5,7 @@ SUBROUTINE FANTP
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF FAN TYPE AND UNITS
@@ -126,20 +127,20 @@ SUBROUTINE FANTP
    IF(FANTYP.EQ.6.AND.QALTYP.EQ.3)&
    &NNT=36
 !
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL OR UFOCAL
-      IF(SYSTEM(6).EQ.1.0D0) UNN='UNITS = in(s)'
-      IF(SYSTEM(6).EQ.2.0D0) UNN='UNITS = cm(s)'
-      IF(SYSTEM(6).EQ.3.0D0) UNN='UNITS = mm(s)'
-      IF(SYSTEM(6).EQ.4.0D0) UNN='UNITS = meter(s)'
-      IF(SYSTEM(6).EQ.1.0D0) NUNN=13
-      IF(SYSTEM(6).EQ.2.0D0) NUNN=13
-      IF(SYSTEM(6).EQ.3.0D0) NUNN=13
-      IF(SYSTEM(6).EQ.4.0D0) NUNN=16
+      IF(sys_units().EQ.1.0D0) UNN='UNITS = in(s)'
+      IF(sys_units().EQ.2.0D0) UNN='UNITS = cm(s)'
+      IF(sys_units().EQ.3.0D0) UNN='UNITS = mm(s)'
+      IF(sys_units().EQ.4.0D0) UNN='UNITS = meter(s)'
+      IF(sys_units().EQ.1.0D0) NUNN=13
+      IF(sys_units().EQ.2.0D0) NUNN=13
+      IF(sys_units().EQ.3.0D0) NUNN=13
+      IF(sys_units().EQ.4.0D0) NUNN=16
    ELSE
 !     NOT FOCAL
    END IF
-   IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !     AFOCAL OR UAFOCAL
       UNN='UNITS = radian(s)'
       NUNN=17
@@ -197,6 +198,7 @@ SUBROUTINE FANRWV
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE REFERENCE WAVELENGTH LEGEND
@@ -220,12 +222,12 @@ SUBROUTINE FANRWV
    CALL MY_JUSTSTRING(3200,550,NNTT4(1:20),NT1ANG,NT1SIZ,3,3)
 !
 !     DO THE PLOTTING OF THE LEGEND FOR THE REFERENCE WAVELENGTH
-   IF(SYSTEM(REFWV).GT.99.9D0) THEN
+   IF(sys_wavelength(REFWV).GT.99.9D0) THEN
       IF(REFWV.GE.1.AND.REFWV.LE.5) THEN
-         WRITE(B,180)REAL(SYSTEM(REFWV))
+         WRITE(B,180)REAL(sys_wavelength(REFWV))
       END IF
       IF(REFWV.GE.6.AND.REFWV.LE.10) THEN
-         WRITE(B,180)REAL(SYSTEM(65+REFWV))
+         WRITE(B,180)REAL(sys_wavelength(REFWV))
       END IF
       READ(B,200) VALUE1
 180   FORMAT(G10.4)
@@ -236,10 +238,10 @@ SUBROUTINE FANRWV
       CALL MY_JUSTSTRING(3200,350,NNTT3(1:10),NT1ANG,NT1SIZ,3,3)
    ELSE
       IF(REFWV.GE.1.AND.REFWV.LE.5) THEN
-         WRITE(B,181)REAL(SYSTEM(REFWV))
+         WRITE(B,181)REAL(sys_wavelength(REFWV))
       END IF
       IF(REFWV.GE.6.AND.REFWV.LE.10) THEN
-         WRITE(B,181)REAL(SYSTEM(65+REFWV))
+         WRITE(B,181)REAL(sys_wavelength(REFWV))
       END IF
       READ(B,201) VALUE
 181   FORMAT(F8.5)
