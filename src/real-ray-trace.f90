@@ -60,6 +60,9 @@ contains
    use mod_surface
         use DATMAI
         use mod_surface
+        use mod_system, only: sys_scy, sys_scx, sys_ref_orient, sys_ray_aiming, &
+                              sys_telecentric, sys_aplanatic_aim, sys_wavelength, &
+                              sys_screen, sys_screen_surf, sys_screen_d, sys_screen_h, sys_screen_s
         IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -118,7 +121,7 @@ contains
 !
 !
       IF(WW3.GE.1.0D0.AND.WW3.LE.5.0D0) THEN
-      IF(SYSTEM(INT(WW3)).EQ.0.0D0) THEN
+      IF(sys_wavelength(INT(WW3)).EQ.0.0D0) THEN
                 IF(MSG) THEN
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
       CALL SHOWIT(1)
@@ -136,7 +139,7 @@ contains
 !       PROCEED
                         END IF
       IF(WW3.GE.6.0D0.AND.WW3.LE.10.0D0) THEN
-      IF(SYSTEM(65+INT(WW3)).EQ.0.0D0) THEN
+      IF(sys_wavelength(INT(WW3)).EQ.0.0D0) THEN
                 IF(MSG) THEN
       WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
       CALL SHOWIT(1)
@@ -197,14 +200,14 @@ contains
         ! PRINT *, "SAX is ",  SYSTEM(13)
         ! TODO fix this prototype code to better match
         ! pseudocode above
-        !  IF(ABS(SYSTEM(14)).GT.1E16) THEN
+        !  IF(ABS(sys_scy()).GT.1E16) THEN
         !
         !   CALL PROCESKDP("SHO ENPOSZ")
         !   PRINT *, "Entrance pupil position ", REG(9)
         !   PRINT *, "Last FOB Y is ", LFOB(1)
-        !   PRINT *, "SYSTEM(14) ", SYSTEM(14)
+        !   PRINT *, "sys_scy() ", sys_scy()
         !   !PRINT *, "TST YSTRT ", LFOB(1)*REG(9)*TAND(SYSTEM(21))
-        !   !SYSTEM(14)
+        !   !sys_scy()
         !   YSTRT = WW1*SYSTEM(12)-LFOB(1)*REG(9)*TAND(SYSTEM(21))
         !   XSTRT = WW2*SYSTEM(13)
         ! END IF
@@ -232,7 +235,7 @@ contains
 !       POINTS FOR FIRST GUESS AIMING WILL BE:
 !       THE POINT AT SURFACE NEWOBJ+1 AT WHICH THE
 !       PARAXIAL CHIEF RAY PLUS THE PARAXIAL MARGINAL RAY
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !       TELECENTRIC AIMING IS OFF
       JKX=(PXTRAX(1,NEWOBJ+1))
       JKY=(PXTRAY(1,NEWOBJ+1))
@@ -279,9 +282,9 @@ contains
       IF(.NOT.ITRACE) THEN
       IF(NULL.AND..NOT.REFEXT) THEN
 !     NULL WITH FAILED CHIEF RAY
-      IF(SYSTEM(62).EQ.0.0D0) THEN
+      IF(sys_ray_aiming().EQ.0.0D0) THEN
 !     NO RAY AIMING
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
 !     RAY AIMING IS OFF, TELECENTRIC RAY AIMING IS OFF
         X1AIM=WW2*JKX
@@ -298,10 +301,10 @@ contains
 !
                         ELSE
 !     TEL ON
-      IF(SYSTEM(16).NE.0.0D0) X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ)))+(WW2*JKX)
-      IF(SYSTEM(16).EQ.0.0D0) X1AIM=(WW2*JKX)
-      IF(SYSTEM(14).NE.0.0D0) Y1AIM=(LFOB(1)*(PXTRAY(5,NEWOBJ)))+(WW1*JKY)
-      IF(SYSTEM(14).EQ.0.0D0) Y1AIM=(WW1*JKY)
+      IF(sys_scx().NE.0.0D0) X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ)))+(WW2*JKX)
+      IF(sys_scx().EQ.0.0D0) X1AIM=(WW2*JKX)
+      IF(sys_scy().NE.0.0D0) Y1AIM=(LFOB(1)*(PXTRAY(5,NEWOBJ)))+(WW1*JKY)
+      IF(sys_scy().EQ.0.0D0) Y1AIM=(WW1*JKY)
         Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -328,9 +331,9 @@ contains
                         END IF
                         END IF
 !     CHIEF RAY EXISTS
-      IF(SYSTEM(62).EQ.0.0D0) THEN
+      IF(sys_ray_aiming().EQ.0.0D0) THEN
 !     NO RAY AIMING
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
         X1AIM=((REFRY(1,(NEWOBJ+1)))+(WW2*JKX))
         Y1AIM=((REFRY(2,(NEWOBJ+1)))+(WW1*JKY))
@@ -960,7 +963,7 @@ contains
 !
       WWW1=WW1
       WWW2=WW2
-      IF(SYSTEM(70).EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
+      IF(sys_aplanatic_aim().EQ.1.0D0.AND.surf_curvature(I).NE.0.0D0.AND. surf_clap_type(I) == 1.AND.surf_clap_dim(I, 3).EQ.0.0D0.AND. surf_clap_dim(I, 4).EQ.0.0D0.AND.surf_clap_tilt(I).EQ.0.0D0) THEN
       IF(DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 1)).AND. DABS(1.0D0/surf_curvature(I)).GE.DABS(surf_clap_dim(I, 2))) CALL APLANA(I,WW1,WW2,WWW1,WWW2)
                        END IF
 !
@@ -999,7 +1002,7 @@ contains
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
 !       NOW IS THE REF SURF ORIENTATION ANGLE ?
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1038,7 +1041,7 @@ contains
                 TARX=(surf_clap_dim(I, 2)*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1070,7 +1073,7 @@ contains
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1103,7 +1106,7 @@ contains
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1136,7 +1139,7 @@ contains
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1167,7 +1170,7 @@ contains
                 TARX=(XVALUE*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1182,7 +1185,7 @@ contains
                         TARX=(PXTRAX(1,I)*WW2)
         IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
         IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
-        GAMMA=(SYSTEM(59)*(PII))/180.0D0
+        GAMMA=(sys_ref_orient()*(PII))/180.0D0
         TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
         TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
         TARY=TARRY
@@ -1191,7 +1194,7 @@ contains
 !
         TEST=DSQRT(((TARX-X)**2)+((TARY-Y)**2))
         !call logger%logTextWithNum("RAYTRA AIMTOL CHECK IS ", TEST)
-        IF(TEST.LE.AIMTOL .OR.SYSTEM(62).EQ.0.0D0.OR.ITRACE) THEN
+        IF(TEST.LE.AIMTOL .OR.sys_ray_aiming().EQ.0.0D0.OR.ITRACE) THEN
 !       AIM IS GOOD ENOUGH, PROCEED
                         AIMOK=.TRUE.
                         GO TO 100
@@ -1494,14 +1497,14 @@ contains
         PHASE_PER=0.0D0
         POLANG=0.0D0
                    END IF
-      IF(SYSTEM(103).EQ.1.0D0) THEN
+      IF(sys_screen().EQ.1.0D0) THEN
 !     SCREEN SURFACE
-      IF(I.EQ.INT(SYSTEM(104))) THEN
+      IF(I.EQ.INT(sys_screen_surf())) THEN
 !       GOT THE SCREEN SURFACE
       AOI=DABS(DACOS(RAYRAY(9,I)))
-      D=SYSTEM(105)
-      H=SYSTEM(106)
-      S=SYSTEM(107)
+      D=sys_screen_d()
+      H=sys_screen_h()
+      S=sys_screen_s()
       IF(DCOS(AOI).EQ.0.0D0.OR. AOI.GE.DABS(SYSTEM(108))) THEN
                         FACTOR=0.0D0
                         ELSE
