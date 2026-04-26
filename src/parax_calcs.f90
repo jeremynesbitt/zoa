@@ -161,11 +161,9 @@ contains
         IF(sysConfig%isFocalSystem()) THEN
         OUTLYNE='CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
         ELSE
-        OUTLYNE='CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
-        CALL SHOWIT(1)
-        OUTLYNE='THEN RE-ENTER COMMAND'
-        CALL SHOWIT(1)
-        CALL MACFAL
+        CALL REPORT_ERROR_AND_FAIL(&
+        & 'CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'//'\n'//&
+        & 'THEN RE-ENTER COMMAND', 1)
         RETURN
         END IF
         END IF                

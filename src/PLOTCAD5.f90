@@ -21,22 +21,18 @@ SUBROUTINE MAKEPNOTE
 !       SET PLOT NAME
 !       CHECK SYNTAX
    IF(SN.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"PNOTE" TAKES NO QUALIFIER OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PNOTE" TAKES NO QUALIFIER OR NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    ELSE
    END IF
 !       STI
    IF(STI.EQ.1) THEN
       IF(PLOTNOTE.EQ.BLNOTE) THEN
-         OUTLYNE='THE CURRENT PLOT NOTE IS BLANK'
-         CALL SHOWIT(1)
-         OUTLYNE='AND WILL NOT BE PLOTTED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'THE CURRENT PLOT NOTE IS BLANK'//'\n'//&
+         & 'AND WILL NOT BE PLOTTED', 1)
          RETURN
       ELSE
 !       PRINT OUT THE CURRENT PLOT NOTE
@@ -73,13 +69,10 @@ SUBROUTINE PLNOTE
 !       SET PLOT NAME
 !       CHECK SYNTAX
    IF(W3.NE.0.0D0.OR.W4.NE.0.0D0.OR.W5.NE.0.0D0.OR.SST.EQ.1) THEN
-      OUTLYNE='"PLOT NOTE" TAKES NO STRING OR '
-      CALL SHOWIT(1)
-      OUTLYNE='NUMERIC WORD #3, #4 OR #5 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PLOT NOTE" TAKES NO STRING OR '//'\n'//&
+      & 'NUMERIC WORD #3, #4 OR #5 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    ELSE
    END IF
@@ -87,20 +80,16 @@ SUBROUTINE PLNOTE
       OUTLYNE=&
       &'"PLOT NOTE" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    ELSE
    END IF
 !       STI
    IF(STI.EQ.1) THEN
       IF(PLOTNOTE.EQ.BLNOTE) THEN
-         OUTLYNE='THE CURRENT PLOT NOTE IS BLANK'
-         CALL SHOWIT(1)
-         OUTLYNE='AND WILL NOT BE PLOTTED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'THE CURRENT PLOT NOTE IS BLANK'//'\n'//&
+         & 'AND WILL NOT BE PLOTTED', 1)
          RETURN
       ELSE
 !       PRINT OUT THE CURRENT PLOT NOTE
@@ -254,11 +243,9 @@ SUBROUTINE PLFANS
 !
 !       CHECK FOR STRING INPUT
    IF(SST.EQ.1) THEN
-      OUTLYNE='"'//WC(1:8)//'" TAKES NO STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"'//WC(1:8)//'" TAKES NO STRING INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    ELSE
 !       PROCEED
@@ -274,9 +261,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"'//WC(1:8)//'" ENTERED WITH INVALID QUALIFIER INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
 !       QUALIFIERS ARE VALID, PROCEED
@@ -285,9 +270,7 @@ SUBROUTINE PLFANS
          OUTLYNE=&
          &'"'//WC(1:8)//'" REQUIRES EXPLICIT QUALIFIER INPUT'
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
 !       NO QUALIFIERS
       END IF
@@ -304,9 +287,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"'//WC(1:8)//'" ENTERED WITH INVALID QUALIFIER INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
 !       QUALIFIERS ARE VALID, PROCEED
@@ -326,9 +307,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS SSI" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -336,9 +315,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS SSI" ONLY TAKES NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -351,9 +328,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS OFFSET" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -361,9 +336,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS OFFSET" ONLY TAKES NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -376,9 +349,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS GO" TAKES NO EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -391,9 +362,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS RESET" TAKES NO EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -407,9 +376,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS REFWV" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -417,9 +384,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS REFWV" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -432,9 +397,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS NEWOBJ" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -442,9 +405,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS NEWOBJ" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -457,9 +418,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS NEWREF" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -467,9 +426,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS NEWREF" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -482,9 +439,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS NEWIMG" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -492,9 +447,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS NEWIMG" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -508,9 +461,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS YFOB" REQUIRES SOME EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -518,9 +469,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS YFOB" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -534,9 +483,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS XFOB" REQUIRES SOME EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -544,9 +491,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS XFOB" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -560,9 +505,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS WV" REQUIRES SOME EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -575,9 +518,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLOTFANS WV2" REQUIRES SOME EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -590,9 +531,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLTXFAN" TAKES NO EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -606,9 +545,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLTYFAN" TAKES NO EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -622,9 +559,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLTNFAN" TAKES NO EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -638,9 +573,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'"PLTPFAN" TAKES NO EXPLICIT NUMERIC INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
          END IF
@@ -803,9 +736,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -823,9 +754,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -843,9 +772,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -863,9 +790,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -883,9 +808,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -1129,9 +1052,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -1149,9 +1070,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -1169,9 +1088,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -1189,9 +1106,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -1209,9 +1124,7 @@ SUBROUTINE PLFANS
                OUTLYNE=&
                &'+/-6, +/-7, +/-8, +/-9 OR +/-10'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             ELSE
             END IF
@@ -1448,9 +1361,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'THE "SSI" VALUE MUST BE GREATER THAN ZERO'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
             SSI=W1/2.0D0
@@ -1478,9 +1389,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'1, 2, 3, 4, 5, 6, 7, 8, 9 0R 10'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
             REFWV=INT(W1)
@@ -1497,9 +1406,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'NEW OBJECT SURFACE LOCATION IS BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
             OLDOBJ=NEWOBJ
@@ -1516,9 +1423,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'NEW REFERENCE SURFACE LOCATION IS BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
             OLDREF=NEWREF
@@ -1535,9 +1440,7 @@ SUBROUTINE PLFANS
             OUTLYNE=&
             &'NEW IMAGE SURFACE LOCATION IS BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          ELSE
             OLDIMG=NEWIMG
@@ -1863,11 +1766,9 @@ SUBROUTINE PLFANS
       &.AND..NOT.FANWV4.AND..NOT.FANWV5.AND..NOT.FANWV6 &
       &.AND..NOT.FANWV7.AND..NOT.FANWV8.AND..NOT.FANWV9 &
       &.AND..NOT.FANWV10) THEN
-         OUTLYNE='ALL WAVELENGTHS WERE SHUT OFF'
-         CALL SHOWIT(1)
-         OUTLYNE='NO FANS COULD BE TRACED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'ALL WAVELENGTHS WERE SHUT OFF'//'\n'//&
+         & 'NO FANS COULD BE TRACED', 1)
          RETURN
       ELSE
       END IF
@@ -1928,9 +1829,7 @@ SUBROUTINE PLFANS
          OUTLYNE=&
          &'A CHIEF RAY FAILURE HAS CAUSED THE CURRENT FAN PLOT TO ABORT'
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       ELSE
 !     FANS ARE OK, DO REST OF PLOT

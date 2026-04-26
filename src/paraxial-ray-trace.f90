@@ -156,13 +156,10 @@ module paraxial_ray_trace_test
         IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
             END DO ! Trace at two slightly different stop positions
             IF(TMP15A.EQ.TMP15B) THEN
-               OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
-               CALL SHOWIT(1)
-               OUTLYNE='APERTURE STOP SURFACE.'
-               CALL SHOWIT(1)
-               OUTLYNE= 'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
-               CALL SHOWIT(1)
-                CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'//'\n'//&
+               & 'APERTURE STOP SURFACE.'//'\n'//&
+               & 'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM', 1)
                 RETURN
             ELSE
                 SYSTEM(15)=((-.1D0*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
@@ -391,9 +388,7 @@ module paraxial_ray_trace_test
     !       PUX(0)=SAX/TH(0)
     !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-           OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-          CALL SHOWIT(1)
-                            CALL MACFAL
+           CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
                     PXTRAX(2,0)=(SYS13)/surf_thickness(0)
@@ -413,9 +408,7 @@ module paraxial_ray_trace_test
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
     !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-           OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-          CALL SHOWIT(1)
-                            CALL MACFAL
+           CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
             PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
@@ -1503,9 +1496,7 @@ module paraxial_ray_trace_test
     !       PUY(0)=SAY/TH(0)
     !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-           OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-          CALL SHOWIT(1)
-                            CALL MACFAL
+           CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
                     
@@ -1532,9 +1523,7 @@ module paraxial_ray_trace_test
           ! if (ldm%getSurfaceThickness(0))
           IF(ldm%getSurfThi(0).EQ.0.0D0) THEN  
           !IF(surf_thickness(0).EQ.0.0D0) THEN
-            OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
             RETURN
            END IF
             PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
@@ -1693,13 +1682,10 @@ module paraxial_ray_trace_test
                     IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
             END DO ! Trace at two slightly different stop positions
             IF(TMP15A.EQ.TMP15B) THEN
-               OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
-               CALL SHOWIT(1)
-               OUTLYNE='APERTURE STOP SURFACE.'
-               CALL SHOWIT(1)
-               OUTLYNE= 'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM'
-               CALL SHOWIT(1)
-                CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'//'\n'//&
+               & 'APERTURE STOP SURFACE.'//'\n'//&
+               & 'PARAXIAL RAYS CAN NOT BE TRACED IN THIS SYSTEM', 1)
                 RETURN
             ELSE
             SYSTEM(15)=((-.1D0*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
@@ -2481,9 +2467,7 @@ module paraxial_ray_trace_test
     !       PUX(0)=SAX/TH(0)
     !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-           OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-          CALL SHOWIT(1)
-                            CALL MACFAL
+           CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
                     PXTRAX(2,0)=(SYS13)/surf_thickness(0)
@@ -2503,9 +2487,7 @@ module paraxial_ray_trace_test
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
     !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-           OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-          CALL SHOWIT(1)
-                            CALL MACFAL
+           CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
             PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
@@ -3612,9 +3594,7 @@ function setInitialParaxialRays(CON) result(initialRays)
 !       PUY(0)=SAY/TH(0)
 !
     IF(ldm%getSurfThi(0).EQ.0.0D0) THEN
-        OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-        CALL SHOWIT(1)
-        CALL MACFAL
+        CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
         RETURN
     END IF
     initialRays(2,0) = marAng0
@@ -3636,9 +3616,7 @@ function setInitialParaxialRays(CON) result(initialRays)
   ! if (ldm%getSurfaceThickness(0))
   IF(ldm%getSurfThi(0).EQ.0.0D0) THEN  
   !IF(surf_thickness(0).EQ.0.0D0) THEN
-    OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-    CALL SHOWIT(1)
-    CALL MACFAL
+    CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
     RETURN
    END IF
     initialRays(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)

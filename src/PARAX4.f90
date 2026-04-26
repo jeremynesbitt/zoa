@@ -44,15 +44,11 @@ SUBROUTINE FADJ
 !       TELECENTRIC STUFF, 11/12/2000
       IF(SYSTEM(63).EQ.1.0D0) THEN
          IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-            OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-            CALL SHOWIT(1)
-            OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-            CALL SHOWIT(1)
-            OUTLYNE='VALUES'
-            CALL SHOWIT(1)
-            OUTLYNE='PARAXIAL TRACE STOPPED'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+            & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+            & 'VALUES'//'\n'//&
+            & 'PARAXIAL TRACE STOPPED', 1)
             RETURN
          ELSE
             IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -113,15 +109,11 @@ SUBROUTINE FADJ
 !       TELECENTRIC STUFF, 11/12/2000
       IF(SYSTEM(63).EQ.1.0D0) THEN
          IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-            OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-            CALL SHOWIT(1)
-            OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-            CALL SHOWIT(1)
-            OUTLYNE='VALUES'
-            CALL SHOWIT(1)
-            OUTLYNE='PARAXIAL TRACE STOPPED'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+            & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+            & 'VALUES'//'\n'//&
+            & 'PARAXIAL TRACE STOPPED', 1)
             RETURN
          ELSE
             IF(SYSTEM(64).EQ.1.0D0) THEN

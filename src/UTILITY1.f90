@@ -258,11 +258,9 @@ SUBROUTINE PRNLP
 !
 !
    IF(SN.EQ.1.OR.SST.EQ.1) THEN
-      OUTLYNE='"PRINT" TAKES NO NUMERIC OR STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PRINT" TAKES NO NUMERIC OR STRING INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
@@ -270,11 +268,9 @@ SUBROUTINE PRNLP
       WQ='P       '
    END IF
    IF(SQ.EQ.1.AND.WQ(1:1).NE.'P'.AND.WQ(1:1).NE.'L') THEN
-      OUTLYNE='"PRINT" ONLY TAKES "P" AND "L" AS OPTIONAL QUALIFIERS'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PRINT" ONLY TAKES "P" AND "L" AS OPTIONAL QUALIFIERS'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    EXIS7=.FALSE.
@@ -300,28 +296,18 @@ SUBROUTINE PRNLP
       END IF
    ELSE
 !     FILE DOES NOT EXIST
-      OUTLYNE='NO PRINTER FILE WAS FOUND'
-      CALL SHOWIT(1)
-      OUTLYNE='NO ACTION TAKEN'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('NO PRINTER FILE WAS FOUND'//'\n'//'NO ACTION TAKEN', 1)
       RETURN
    END IF
    RETURN
 9875 CONTINUE
    CALL CLOSE_FILE(7,1)
-   OUTLYNE='PRINTER FILE CAN NOT BE READ'
-   CALL SHOWIT(1)
-   OUTLYNE='NO PRINTING WILL BE PERFORMED'
-   CALL SHOWIT(1)
-   CALL MACFAL
+   CALL REPORT_ERROR_AND_FAIL(&
+   & 'PRINTER FILE CAN NOT BE READ'//'\n'//&
+   & 'NO PRINTING WILL BE PERFORMED', 1)
    RETURN
 8989 CONTINUE
-   OUTLYNE='PRINTER IS BUSY'
-   CALL SHOWIT(1)
-   OUTLYNE='TRY AGAIN AFTER THE PRINTER IS DONE'
-   CALL SHOWIT(1)
-   CALL MACFAL
+   CALL REPORT_ERROR_AND_FAIL('PRINTER IS BUSY'//'\n'//'TRY AGAIN AFTER THE PRINTER IS DONE', 1)
    RETURN
 END
 ! SUB NEWSEED.FOR
@@ -375,29 +361,23 @@ SUBROUTINE PM
       &WQ.NE.'SERLIM'.AND.WQ.NE.'SHORT'.AND.WQ.NE.'MEDIUM'.AND.WQ.NE.&
       &'LONG'.AND.WQ.NE.'SELDELAY'.AND.WQ.NE.'BUYDELAY'&
       &.AND.WQ.NE.'SAGDEL'.AND.WQ.NE.'MAXREG'.AND.WQ.NE.'MAXOPT') THEN
-         OUTLYNE='INVALID QUALIFIER USED WITH "PM" COMMAND'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID QUALIFIER USED WITH "PM" COMMAND'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(DF1.EQ.1) THEN
          OUTLYNE=&
          &'PM '//WQ//'REQUIRES NUMERIC EXPLICIT WORD #1 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
          OUTLYNE=&
          &'PM '//WQ//'ONLY TAKES QUALIFIER AND NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WQ.EQ.'NRAITR') THEN
@@ -420,9 +400,7 @@ SUBROUTINE PM
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*) 'GREATER THAN 30'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ.EQ.'DAYS') PDAYS=INT(W1)
@@ -468,27 +446,21 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM AIMTOL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LT.1.0D-25) THEN
                OUTLYNE=&
                &'THE "AIMTOL" VALUE MAY NOT BE LESS THAN 1.0D-25'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.1.0D0) THEN
                OUTLYNE=&
                &'THE "AIMTOL" VALUE MUST BE LESS THAN 1.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             AIMTOL=W1
@@ -501,27 +473,21 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM CAIMTOL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT >= 0.000001'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LT.0.000001D0) THEN
                OUTLYNE=&
                &'THE "CAIMTOL" VALUE MAY NOT BE LESS THAN 1.0D-6'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.1.0D0) THEN
                OUTLYNE=&
                &'THE "CAIMTOL" VALUE MUST BE LESS THAN 1.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             CAIMTOL=W1
@@ -534,9 +500,7 @@ SUBROUTINE PM
                OUTLYNE=&
                &'THE "MRAYS" VALUE MUST BE LESS THAN GREATER THAN OR EQUAL TO 1'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             MRAYS=INT(W1)
@@ -552,18 +516,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'EQUAL TO 4000'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(INT(W1).GT.100000) THEN
                OUTLYNE=&
                &'THE "MAXREG" VALUE MAY NOT BE GREATER THAN 100000'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             MAXREG=W1
@@ -579,18 +539,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'EQUAL TO 4000'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(INT(W1).GT.100000) THEN
                OUTLYNE=&
                &'THE "MAXOPT" VALUE MAY NOT BE GREATER THAN 100000'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             MAXOPT=INT(W1)
@@ -607,18 +563,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM SAGDEL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LT.1.0D-15) THEN
                OUTLYNE=&
                &'THE "SAGDEL" VALUE MAY NOT BE LESS THAN 1.0D-15'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             SAGDEL=W1
@@ -631,27 +583,21 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM SERINC" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LT.1.0D-15) THEN
                OUTLYNE=&
                &'THE "SERINC" VALUE MAY NOT BE LESS THAN 1.0D-15'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.(0.5D0*SERLIM)) THEN
                OUTLYNE=&
                &'THE "SERINC" VALUE MUST BE LESS THAN ONE HALF OF SERLIM'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             SERINC=W1
@@ -663,18 +609,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM SERLIM" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LE.(2.0D0*SERINC)) THEN
                OUTLYNE=&
                &'THE "SERLIM" VALUE MUST BE GREATER THAN 2 TIMES SERINC'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             SERLIM=W1
@@ -686,27 +628,21 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM DELSUR" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LT.1.0D-15) THEN
                OUTLYNE=&
                &'THE "DELSUR" VALUE MAY NOT BE LESS THAN 1.0D-15'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.10.0D0) THEN
                OUTLYNE=&
                &'THE "DELSUR" VALUE MUST BE LESS THAN 10.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             DELSUR=W1
@@ -718,18 +654,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM DINMUL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.LT.1.0D-15) THEN
                OUTLYNE=&
                &'THE "DINMUL" VALUE MAY NOT BE LESS THAN 1.0D-15'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             DINMUL=W1
@@ -742,18 +674,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM DIFTOL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.1.0D0) THEN
                OUTLYNE=&
                &'THE "DIFTOL" VALUE MUST BE LESS THAN 1.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             DIFTOL=W1
@@ -768,9 +696,7 @@ SUBROUTINE PM
                OUTLYNE=&
                &'GREATER THAN 0.0 AND LESS THAN OR EQUAL TO 1.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             LINTOL=W1
@@ -782,18 +708,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM ONTOL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.1.0D0) THEN
                OUTLYNE=&
                &'THE "ONTOL" VALUE MUST BE LESS THAN 1.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             ONTOL=W1
@@ -805,18 +727,14 @@ SUBROUTINE PM
                OUTLYNE=&
                &'"PM SINGTOL" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(W1.GE.1.0D0) THEN
                OUTLYNE=&
                &'THE "SINGTOL" VALUE MUST BE LESS THAN 1.0'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
             SINGTOL=W1
@@ -845,19 +763,15 @@ SUBROUTINE PM
       &.AND.WQ.NE.'BUYDELAY'.AND.WQ.NE.'DAYS'.AND.&
       &WQ.NE.'SERLIM'.AND.WQ.NE.'SAGDEL'.AND.WQ.NE.'MAXREG'.AND.&
       &WQ.NE.'MAXOPT') THEN
-         OUTLYNE='INVALID QUALIFIER USED WITH "PMP" COMMAND'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID QUALIFIER USED WITH "PMP" COMMAND'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SN.EQ.1.OR.SST.EQ.1) THEN
-         OUTLYNE='PMP '//WQ//'TAKES NO NUMERIC OR STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'PMP '//WQ//'TAKES NO NUMERIC OR STRING INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WQ.EQ.'NRAITR') THEN
@@ -1016,9 +930,7 @@ SUBROUTINE OUTPUT2
 !
 !
    IF(SQ.EQ.1.AND.SST.EQ.0) THEN
-      OUTLYNE='A FILE NAME IS REQUIRED FOR THIS FORM OF "OUTPUT"'
-      CALL SHOWIT(5)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('A FILE NAME IS REQUIRED FOR THIS FORM OF "OUTPUT"', 5)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.SST.EQ.1) THEN
@@ -1163,9 +1075,7 @@ SUBROUTINE OUTPUT
    &WQ.NE.'ED'.AND.WQ.NE.'CP'&
    &.AND.WQ.NE.'PU'.AND.WQ.NE.'TP'.AND.SQ.NE.0 &
    &.AND.WQ.NE.'NULL') THEN
-      OUTLYNE='INVALID OUTPUT DEVICE NAME'
-      CALL SHOWIT(5)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('INVALID OUTPUT DEVICE NAME', 5)
       RETURN
    END IF
    IF(SQ.EQ.0.OR.STI.EQ.1) THEN
@@ -1478,18 +1388,14 @@ SUBROUTINE WWORD
       OUTLYNE=&
       &'"'//WC(1:2)//'" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SST.EQ.1) THEN
       OUTLYNE=&
       &'"'//WC(1:2)//'" TAKES NO STRING INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.S1.EQ.1) THEN
@@ -1499,9 +1405,7 @@ SUBROUTINE WWORD
       OUTLYNE=&
       &'BUT NOT BOTH'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -1538,11 +1442,9 @@ SUBROUTINE WWORD
       IF(WQ.EQ.'IT') QQ=.TRUE.
       IF(WQ.EQ.'ACC') QQ=.TRUE.
       IF(.NOT.QQ) THEN
-         OUTLYNE='INVALID QUALIFIER USED WITH "'//WC(1:2)//'" COMMAND'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID QUALIFIER USED WITH "'//WC(1:2)//'" COMMAND'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    ELSE
@@ -1554,9 +1456,7 @@ SUBROUTINE WWORD
          WRITE(OUTLYNE,99) INT(VALW)
 99       FORMAT('GENERAL PURPOSE STORAGE REGISTER ',I6,' DOES NOT EXIST')
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -2105,11 +2005,9 @@ SUBROUTINE TABLE
 !       PRINT2
       IF(WQ.EQ.'PRINT2') THEN
          IF(OUT.EQ.6.OR.OUT.EQ.7) THEN
-            OUTLYNE='"TABLE PRINT2" IS FOR USE WHEN OUTPUTING TO A DISK'
-            CALL SHOWIT(1)
-            OUTLYNE='FILE ONLY'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"TABLE PRINT2" IS FOR USE WHEN OUTPUTING TO A DISK'//'\n'//&
+            & 'FILE ONLY', 1)
             RETURN
          END IF
 !       DATA DOES EXIST TO PRINT
@@ -2174,11 +2072,9 @@ SUBROUTINE TABLE
 !        PRINT 3
       IF(WQ.EQ.'PRINT3') THEN
          IF(OUT.NE.97) THEN
-            OUTLYNE='"TABLE PRINT3" IS FOR USE WHEN OUTPUTING TO A'
-            CALL SHOWIT(1)
-            OUTLYNE='NAMED DISK FILE AS IN "OUT FILE (FILE NAME)"'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"TABLE PRINT3" IS FOR USE WHEN OUTPUTING TO A'//'\n'//&
+            & 'NAMED DISK FILE AS IN "OUT FILE (FILE NAME)"', 1)
             RETURN
          END IF
 !       DATA DOES EXIST TO PRINT

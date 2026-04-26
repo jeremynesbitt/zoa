@@ -27,22 +27,17 @@ SUBROUTINE STAD
 !
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
-      OUTLYNE='"TAD" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"TAD" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.S1.EQ.1) THEN
 !
-      OUTLYNE='"TAD" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='BUT NOT BOTH'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"TAD" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'BUT NOT BOTH'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
@@ -76,11 +71,7 @@ SUBROUTINE STAD
    IF(SQ.EQ.1.AND.WQ.NE.'ALL') THEN
 !
 !       WE HAVE INVALID QUALIFIER
-      OUTLYNE='INVALID QUALIFIER INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
@@ -88,11 +79,9 @@ SUBROUTINE STAD
       IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
       SURF=INT(W1)
       IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
-         OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 ! SET DEC AND TAD APPROPRIATELY
@@ -392,22 +381,17 @@ SUBROUTINE SPIV
 !
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
-      OUTLYNE='"PIVOT" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVOT" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.S1.EQ.1) THEN
 !
-      OUTLYNE='"PIVOT" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='BUT NOT BOTH'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVOT" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'BUT NOT BOTH'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
@@ -441,11 +425,7 @@ SUBROUTINE SPIV
    IF(SQ.EQ.1.AND.WQ.NE.'ALL') THEN
 !
 !       WE HAVE INVALID QUALIFIER
-      OUTLYNE='INVALID QUALIFIER INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
@@ -453,11 +433,9 @@ SUBROUTINE SPIV
       IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
       SURF=INT(W1)
       IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
-         OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 ! SET PIV APPROPRIATELY
@@ -588,22 +566,17 @@ SUBROUTINE SPIDEROUT
 !
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
-      OUTLYNE='"SPIDER" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"SPIDER" ONLY TAKES QUALIFIER OR NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.S1.EQ.1) THEN
 !
-      OUTLYNE='"SPIDER" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='BUT NOT BOTH'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"SPIDER" TAKES EITHER QUALIFIER OR NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'BUT NOT BOTH'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
@@ -637,11 +610,7 @@ SUBROUTINE SPIDEROUT
    IF(SQ.EQ.1.AND.WQ.NE.'ALL') THEN
 !
 !       WE HAVE INVALID QUALIFIER
-      OUTLYNE='INVALID QUALIFIER INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
@@ -649,11 +618,9 @@ SUBROUTINE SPIDEROUT
       IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
       SURF=INT(W1)
       IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
-         OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 ! SET SPID APPROPRIATELY
@@ -778,11 +745,9 @@ SUBROUTINE SSPTWT
 !       NOT STI
       END IF
       IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-         OUTLYNE='"SPTWT" TAKES NO QUALIFIER OR STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"SPTWT" TAKES NO QUALIFIER OR STRING INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -818,11 +783,9 @@ SUBROUTINE SSPTWT
          IF(DF5.EQ.1) DF5=0
       END IF
       IF(W1.LT.0.0D0.OR.W2.LT.0.0D0.OR.W3.LT.0.0D0.OR.W4.LT.0.0D0.OR.W5.LT.0.0D0) THEN
-         OUTLYNE='SPECTRAL WEIGHTS MUST BE GREATER THAN ZERO'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'SPECTRAL WEIGHTS MUST BE GREATER THAN ZERO'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SYSTEM(1).NE.0.0D0) THEN
@@ -914,11 +877,9 @@ SUBROUTINE SSPTWT
 !       NOT STI
       END IF
       IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-         OUTLYNE='"SPTWT2" TAKES NO QUALIFIER OR STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"SPTWT2" TAKES NO QUALIFIER OR STRING INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -954,11 +915,9 @@ SUBROUTINE SSPTWT
          IF(DF5.EQ.1) DF5=0
       END IF
       IF(W1.LT.0.0D0.OR.W2.LT.0.0D0.OR.W3.LT.0.0D0.OR.W4.LT.0.0D0.OR.W5.LT.0.0D0) THEN
-         OUTLYNE='SPECTRAL WEIGHTS MUST BE GREATER THAN ZERO'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'SPECTRAL WEIGHTS MUST BE GREATER THAN ZERO'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SYSTEM(71).NE.0.0D0) THEN
@@ -1057,23 +1016,16 @@ SUBROUTINE SSPC
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1.OR.SN.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"SPC" TAKES NO EXPLICIT INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('"SPC" TAKES NO EXPLICIT INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
 !       WHAT IF NO SURFACES EXIST
    IF(SYSTEM(20).EQ.0.0D0) THEN
-      OUTLYNE='SPECIAL CONDITIONS NOT DEFINED'
-      CALL SHOWIT(1)
-      OUTLYNE='LENS SYSTEM HAS NO SURFACES'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'SPECIAL CONDITIONS NOT DEFINED'//'\n'//&
+      & 'LENS SYSTEM HAS NO SURFACES'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !       PRINT SPECIAL CONDITION HEADER
@@ -1152,23 +1104,17 @@ SUBROUTINE SSC
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SQ.EQ.1.AND.WQ.NE.'FANG') THEN
-      OUTLYNE='INVALID QUALIFIER WORD USED WITH "'//WC(1:3)//'" COMMAND.'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'INVALID QUALIFIER WORD USED WITH "'//WC(1:3)//'" COMMAND.'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SST.EQ.1.OR.SN.EQ.1.AND.F1.EQ.1) THEN
-      OUTLYNE='AT THE CMD LEVEL, "SCY" AND "SCX"'
-      CALL SHOWIT(1)
-      OUTLYNE='OR "SCY FANG" AND "SCX FANG"'
-      CALL SHOWIT(1)
-      OUTLYNE='TAKE NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'AT THE CMD LEVEL, "SCY" AND "SCX"'//'\n'//&
+      & 'OR "SCY FANG" AND "SCX FANG"'//'\n'//&
+      & 'TAKE NO STRING OR NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -1234,66 +1180,48 @@ SUBROUTINE SSC
       IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'SCY'.AND.WQ.EQ.'FANG'.AND.DABS(surf_thickness(NEWOBJ)).LE.1.0D10) THEN
-            OUTLYNE='"SCY FANG" REQUIRES AN OBJECT DISTANCE'
-            CALL SHOWIT(1)
-            OUTLYNE='TO BE GREATER THAN 1.0D10 LENS UNITS IN MAGNITUDE'
-            CALL SHOWIT(1)
-            OUTLYNE='NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCY FANG" REQUIRES AN OBJECT DISTANCE'//'\n'//&
+            & 'TO BE GREATER THAN 1.0D10 LENS UNITS IN MAGNITUDE'//'\n'//&
+            & 'NO ACTION TAKEN', 1)
             RETURN
          END IF
          IF(WC.EQ.'SCX'.AND.WQ.EQ.'FANG'.AND.DABS(surf_thickness(NEWOBJ)).LE.1.0D10) THEN
-            OUTLYNE='"SCX FANG" REQUIRES AN OBJECT DISTANCE'
-            CALL SHOWIT(1)
-            OUTLYNE='TO BE GREATER THAN 1.0D10 LENS UNITS IN MAGNITUDE'
-            CALL SHOWIT(1)
-            OUTLYNE='NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCX FANG" REQUIRES AN OBJECT DISTANCE'//'\n'//&
+            & 'TO BE GREATER THAN 1.0D10 LENS UNITS IN MAGNITUDE'//'\n'//&
+            & 'NO ACTION TAKEN', 1)
             RETURN
          END IF
          IF(WC.EQ.'SCY') THEN
-            OUTLYNE='"SCY AND SCY FANG" TAKE NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='OR NUMERIC WORD #3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCY AND SCY FANG" TAKE NO STRING INPUT'//'\n'//&
+            & 'OR NUMERIC WORD #3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'SCX') THEN
-            OUTLYNE='"SCX AND SCX FANG" TAKE NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='OR NUMERIC WORD #3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCX AND SCX FANG" TAKE NO STRING INPUT'//'\n'//&
+            & 'OR NUMERIC WORD #3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(DF1.EQ.1) THEN
 !
          IF(WC.EQ.'SCY') THEN
-            OUTLYNE='"SCY AND SCY FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='AND ACCEPT OPTIONAL NUMERIC WORD #2 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCY AND SCY FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'AND ACCEPT OPTIONAL NUMERIC WORD #2 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'SCX') THEN
-            OUTLYNE='"SCX AND SCX FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='AND ACCEPT OPTIONAL NUMERIC WORD #2 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCX AND SCX FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'AND ACCEPT OPTIONAL NUMERIC WORD #2 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -1307,23 +1235,17 @@ SUBROUTINE SSC
             IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
 !       YES EN ADJUSTMENT, DON'T ALLOW FANG ENTRIES
                IF(WC.EQ.'SCY') THEN
-                  OUTLYNE='AN ASTOP (EN) ADJUSTMENT IS IN EFFECT'
-                  CALL SHOWIT(1)
-                  OUTLYNE='"SCY FANG" INPUT IS NOT ALLOWED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='RE-ENTER OBJECT DATA WITH AN "SCY" VALUE'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'AN ASTOP (EN) ADJUSTMENT IS IN EFFECT'//'\n'//&
+                  & '"SCY FANG" INPUT IS NOT ALLOWED'//'\n'//&
+                  & 'RE-ENTER OBJECT DATA WITH AN "SCY" VALUE', 1)
                   RETURN
                END IF
                IF(WC.EQ.'SCX') THEN
-                  OUTLYNE='AN ASTOP (EN) ADJUSTMENT IS IN EFFECT'
-                  CALL SHOWIT(1)
-                  OUTLYNE='"SCX FANG" INPUT IS NOT ALLOWED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='RE-ENTER OBJECT DATA WITH AN "SCX" VALUE'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'AN ASTOP (EN) ADJUSTMENT IS IN EFFECT'//'\n'//&
+                  & '"SCX FANG" INPUT IS NOT ALLOWED'//'\n'//&
+                  & 'RE-ENTER OBJECT DATA WITH AN "SCX" VALUE', 1)
                   RETURN
                END IF
                RETURN
@@ -1337,11 +1259,9 @@ SUBROUTINE SSC
 !       FANG IS USED HERE
          IF(WC.EQ.'SCY') THEN
             IF(DABS(W1).GE.90.0D0) THEN
-               OUTLYNE='THE MAGNITUDE OF THE "SCY FANG" VALUE'
-               CALL SHOWIT(1)
-               OUTLYNE='MUST BE LESS THAN 90 DEGREES'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'THE MAGNITUDE OF THE "SCY FANG" VALUE'//'\n'//&
+               & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
             SYSTEM(21)=(W1)
@@ -1359,11 +1279,9 @@ SUBROUTINE SSC
          END IF
          IF(WC.EQ.'SCX') THEN
             IF(DABS(W1).GE.90.0D0) THEN
-               OUTLYNE='THE MAGNITUDE OF THE "SCX FANG" VALUE'
-               CALL SHOWIT(1)
-               OUTLYNE='MUST BE LESS THAN 90 DEGREES'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'THE MAGNITUDE OF THE "SCX FANG" VALUE'//'\n'//&
+               & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
             SYSTEM(23)=(W1)
@@ -1445,23 +1363,17 @@ SUBROUTINE PXYIM
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SQ.EQ.1.AND.WQ.NE.'FANG') THEN
-      OUTLYNE='INVALID QUALIFIER WORD USED WITH "'//WC(1:4)//'" COMMAND.'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'INVALID QUALIFIER WORD USED WITH "'//WC(1:4)//'" COMMAND.'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SST.EQ.1.OR.SN.EQ.1.AND.F1.EQ.1) THEN
-      OUTLYNE='AT THE CMD LEVEL, "PXIM" AND "PYIM"'
-      CALL SHOWIT(1)
-      OUTLYNE='OR "PXIM FANG" AND "PYIM FANG"'
-      CALL SHOWIT(1)
-      OUTLYNE='TAKE NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'AT THE CMD LEVEL, "PXIM" AND "PYIM"'//'\n'//&
+      & 'OR "PXIM FANG" AND "PYIM FANG"'//'\n'//&
+      & 'TAKE NO STRING OR NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -1537,42 +1449,32 @@ SUBROUTINE PXYIM
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'PYIM') THEN
-            OUTLYNE='"PYIM AND PYIM FANG" TAKE NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PYIM AND PYIM FANG" TAKE NO STRING INPUT'//'\n'//&
+            & 'OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PXIM') THEN
-            OUTLYNE='"PXIM AND PXIM FANG" TAKE NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PXIM AND PXIM FANG" TAKE NO STRING INPUT'//'\n'//&
+            & 'OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(DF1.EQ.1) THEN
 !
          IF(WC.EQ.'PYIM') THEN
-            OUTLYNE='"PYIM AND PYIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PYIM AND PYIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PXIM') THEN
-            OUTLYNE='"PXIM AND PXIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PXIM AND PXIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -1582,11 +1484,9 @@ SUBROUTINE PXYIM
 !       FANG IS USED HERE
          IF(WC.EQ.'PYIM') THEN
             IF(DABS(W1).GE.90.0D0) THEN
-               OUTLYNE='THE MAGNITUDE OF THE "PYIM FANG" VALUE'
-               CALL SHOWIT(1)
-               OUTLYNE='MUST BE LESS THAN 90 DEGREES'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'THE MAGNITUDE OF THE "PYIM FANG" VALUE'//'\n'//&
+               & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
             SYSTEM(93)=(W1)
@@ -1598,11 +1498,9 @@ SUBROUTINE PXYIM
          END IF
          IF(WC.EQ.'PXIM') THEN
             IF(DABS(W1).GE.90.0D0) THEN
-               OUTLYNE='THE MAGNITUDE OF THE "PXIM FANG" VALUE'
-               CALL SHOWIT(1)
-               OUTLYNE='MUST BE LESS THAN 90 DEGREES'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'THE MAGNITUDE OF THE "PXIM FANG" VALUE'//'\n'//&
+               & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
             SYSTEM(96:99)=0.0D0
@@ -1680,23 +1578,17 @@ SUBROUTINE RXYIM
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SQ.EQ.1.AND.WQ.NE.'FANG') THEN
-      OUTLYNE='INVALID QUALIFIER WORD USED WITH "'//WC(1:4)//'" COMMAND.'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'INVALID QUALIFIER WORD USED WITH "'//WC(1:4)//'" COMMAND.'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SST.EQ.1.OR.SN.EQ.1.AND.F1.EQ.1) THEN
-      OUTLYNE='AT THE CMD LEVEL, "RXIM" AND "RYIM"'
-      CALL SHOWIT(1)
-      OUTLYNE='OR "RXIM FANG" AND "RYIM FANG"'
-      CALL SHOWIT(1)
-      OUTLYNE='TAKE NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'AT THE CMD LEVEL, "RXIM" AND "RYIM"'//'\n'//&
+      & 'OR "RXIM FANG" AND "RYIM FANG"'//'\n'//&
+      & 'TAKE NO STRING OR NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -1772,42 +1664,32 @@ SUBROUTINE RXYIM
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'RYIM') THEN
-            OUTLYNE='"RYIM AND RYIM FANG" TAKE NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RYIM AND RYIM FANG" TAKE NO STRING INPUT'//'\n'//&
+            & 'OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RXIM') THEN
-            OUTLYNE='"RXIM AND RXIM FANG" TAKE NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RXIM AND RXIM FANG" TAKE NO STRING INPUT'//'\n'//&
+            & 'OR NUMERIC WORD #2, #3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(DF1.EQ.1) THEN
 !
          IF(WC.EQ.'RYIM') THEN
-            OUTLYNE='"RYIM AND RYIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RYIM AND RYIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RXIM') THEN
-            OUTLYNE='"RXIM AND RXIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RXIM AND RXIM FANG" REQUIRE EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -1817,11 +1699,9 @@ SUBROUTINE RXYIM
 !       FANG IS USED HERE
          IF(WC.EQ.'RYIM') THEN
             IF(DABS(W1).GE.90.0D0) THEN
-               OUTLYNE='THE MAGNITUDE OF THE "RYIM FANG" VALUE'
-               CALL SHOWIT(1)
-               OUTLYNE='MUST BE LESS THAN 90 DEGREES'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'THE MAGNITUDE OF THE "RYIM FANG" VALUE'//'\n'//&
+               & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
             SYSTEM(97)=(W1)
@@ -1833,11 +1713,9 @@ SUBROUTINE RXYIM
          END IF
          IF(WC.EQ.'RXIM') THEN
             IF(DABS(W1).GE.90.0D0) THEN
-               OUTLYNE='THE MAGNITUDE OF THE "RXIM FANG" VALUE'
-               CALL SHOWIT(1)
-               OUTLYNE='MUST BE LESS THAN 90 DEGREES'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'THE MAGNITUDE OF THE "RXIM FANG" VALUE'//'\n'//&
+               & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
             SYSTEM(96)=(W1)
@@ -1919,13 +1797,10 @@ SUBROUTINE SBD
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
-         OUTLYNE='AT THE CMD LEVEL, "BDY" AND "BDX"'
-         CALL SHOWIT(1)
-         OUTLYNE='TAKE NO EXPLICIT INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'AT THE CMD LEVEL, "BDY" AND "BDX"'//'\n'//&
+         & 'TAKE NO EXPLICIT INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -1961,57 +1836,41 @@ SUBROUTINE SBD
       IF(SST.EQ.1) THEN
 !
          IF(WC.EQ.'BDY') THEN
-            OUTLYNE='"BDY" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"BDY" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'BDX') THEN
-            OUTLYNE='"BDX" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"BDX" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'BDY') THEN
-            OUTLYNE='"BDY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'BDX') THEN
-            OUTLYNE='"BDX" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDX" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SQ.EQ.1.AND.WQ.NE.'TEM00') THEN
 !
          IF(WC.EQ.'BDY') THEN
-            OUTLYNE='"BDY" ONLY TAKES "TEM00" AS AN OPTIONAL QUALIFIER INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDY" ONLY TAKES "TEM00" AS AN OPTIONAL QUALIFIER INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'BDX') THEN
-            OUTLYNE='"BDX" ONLY TAKES "TEM00" AS AN OPTIONAL QUALIFIER INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDX" ONLY TAKES "TEM00" AS AN OPTIONAL QUALIFIER INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -2021,36 +1880,27 @@ SUBROUTINE SBD
       IF(DF1.EQ.1.AND.SQ.EQ.0) THEN
 !
          IF(WC.EQ.'BDY') THEN
-            OUTLYNE='"BDY" WITH NO QUALIFIER WORD'
-            CALL SHOWIT(1)
-            OUTLYNE='"REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDY" WITH NO QUALIFIER WORD'//'\n'//&
+            & '"REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'BDX') THEN
-            OUTLYNE='"BDX" WITH NO QUALIFIER WORD'
-            CALL SHOWIT(1)
-            OUTLYNE='"REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDX" WITH NO QUALIFIER WORD'//'\n'//&
+            & '"REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(DF1.EQ.1.AND.SQ.EQ.1) W1=SYSTEM(11)
       IF(SQ.EQ.1) THEN
          IF(W1.NE.1.0D0.AND.W1.NE.2.0D0.AND.W1.NE.3.0D0.AND.W1.NE.4.0D0 .AND.W1.NE.5.0D0.AND.W1.NE.6.0D0.AND.W1.NE.7.0D0.AND.W1.NE.8.0D0.AND.W1.NE.9.0D0.AND.W1.NE.10.0D0) THEN
-            OUTLYNE='"BDX TEM00" AND "BDY TEM00"'
-            CALL SHOWIT(1)
-            OUTLYNE='"REQUIRE A WAVELENGTH NUMBER FROM 1 TO 10'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDX TEM00" AND "BDY TEM00"'//'\n'//&
+            & '"REQUIRE A WAVELENGTH NUMBER FROM 1 TO 10'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W1.EQ.1.0D0)  WAVER=SYSTEM(1)
@@ -2071,23 +1921,17 @@ SUBROUTINE SBD
 !
       IF(SQ.EQ.0) THEN
          IF(F6.EQ.1.AND.W1.LE.0.0D0.AND.WC.EQ.'BDX') THEN
-            OUTLYNE='"BDX" WITH NO QUALIFIER WORD'
-            CALL SHOWIT(1)
-            OUTLYNE='"REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDX" WITH NO QUALIFIER WORD'//'\n'//&
+            & '"REQUIRES POSITIVE NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(F6.EQ.1.AND.W1.LE.0.0D0.AND.WQ.EQ.'BDY') THEN
-            OUTLYNE='"BDY" WITH NO QUALIFIER WORD'
-            CALL SHOWIT(1)
-            OUTLYNE='"REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"BDY" WITH NO QUALIFIER WORD'//'\n'//&
+            & '"REQUIRES POSITIVE NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'BDX') SYSTEM(87)=W1
@@ -2123,13 +1967,10 @@ SUBROUTINE SWR
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
-         OUTLYNE='AT THE CMD LEVEL, "WRY" AND "WRX"'
-         CALL SHOWIT(1)
-         OUTLYNE='TAKE NO EXPLICIT INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'AT THE CMD LEVEL, "WRY" AND "WRX"'//'\n'//&
+         & 'TAKE NO EXPLICIT INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -2165,38 +2006,26 @@ SUBROUTINE SWR
       IF(SST.EQ.1) THEN
 !
          IF(WC.EQ.'WRY') THEN
-            OUTLYNE='"WRY" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"WRY" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'WRX') THEN
-            OUTLYNE='"WRX" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"WRX" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1.OR.SQ.EQ.1) THEN
 !
          IF(WC.EQ.'WRY') THEN
-            OUTLYNE='"WRY" TAKES NO QUALIFIER OR NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"WRY" TAKES NO QUALIFIER OR NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'WRX') THEN
-            OUTLYNE='"WRX" TAKES NO QUALIFIER OR NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"WRX" TAKES NO QUALIFIER OR NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -2206,38 +2035,30 @@ SUBROUTINE SWR
       IF(DF1.EQ.1) THEN
 !
          IF(WC.EQ.'WRY') THEN
-            OUTLYNE='"WRY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"WRY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'WRX') THEN
-            OUTLYNE='"WRX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"WRX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
 !
       IF(W1.LE.0.0D0) THEN
          IF(WC.EQ.'WRY') THEN
-            OUTLYNE='"WRY" MAY NOT BE SET TO LESS THAN ZERO'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"WRY" MAY NOT BE SET TO LESS THAN ZERO'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'WRX') THEN
-            OUTLYNE='"WRX" MAY NOT BE SET TO LESS THAN ZERO'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"WRX" MAY NOT BE SET TO LESS THAN ZERO'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -2269,13 +2090,10 @@ SUBROUTINE SSA
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
-         OUTLYNE='AT THE CMD LEVEL, "SAY" AND "SAX"'
-         CALL SHOWIT(1)
-         OUTLYNE='TAKE NO EXPLICIT INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'AT THE CMD LEVEL, "SAY" AND "SAX"'//'\n'//&
+         & 'TAKE NO EXPLICIT INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -2340,29 +2158,22 @@ SUBROUTINE SSA
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1) THEN
-         OUTLYNE='"'//WC(1:3)//'" TAKES NO STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"'//WC(1:3)//'" TAKES NO STRING INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE='"'//WC(1:3)//'" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"'//WC(1:3)//'" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WQ.EQ.'FLOAT'.AND.SYSTEM(44).NE.0.0D0.OR.WQ.EQ.'FLOAT'.AND.SYSTEM(45).NE.0.0D0) THEN
-         OUTLYNE='"FLOAT" MAY NOT BE USED SINCE THERE ARE EXIT PUPIL'
-         CALL SHOWIT(1)
-         OUTLYNE='OR F-NUMBER HOLDS PRESENT'
-         CALL SHOWIT(1)
-         OUTLYNE='NO ACTION TAKEN'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FLOAT" MAY NOT BE USED SINCE THERE ARE EXIT PUPIL'//'\n'//&
+         & 'OR F-NUMBER HOLDS PRESENT'//'\n'//&
+         & 'NO ACTION TAKEN', 1)
          RETURN
       END IF
 !
@@ -2372,44 +2183,33 @@ SUBROUTINE SSA
          IF(WQ.EQ.'FLOAT') THEN
             IF(SYSTEM(26).LE.0.0D0) THEN
 !     NO ASTOP ASSIGNED
-               OUTLYNE='NO APERTURE STOP IS DEFINED, "FLOAT" MAY NOT BE USED'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NO APERTURE STOP IS DEFINED, "FLOAT" MAY NOT BE USED'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(surf_clap_type(INT(SYSTEM(26))).EQ.0.0D0) THEN
-               OUTLYNE='NO CLEAR APERTURE EXISTS ON THE APERTURE STOP SURFACE'
-               CALL SHOWIT(1)
-               OUTLYNE='"FLOAT" MAY NOT BE USED'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NO CLEAR APERTURE EXISTS ON THE APERTURE STOP SURFACE'//'\n'//&
+               & '"FLOAT" MAY NOT BE USED'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
 !     NO CLAP ON ASTOP, RETURN
                RETURN
             END IF
          END IF
 !
          IF(WC.EQ.'SAY') THEN
-            OUTLYNE='"FLOAT" AND "NOFLOAT" ARE THE ONLY VALID QUALIFIER'
-            CALL SHOWIT(1)
-            OUTLYNE='WORDS FOR "SAY" IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FLOAT" AND "NOFLOAT" ARE THE ONLY VALID QUALIFIER'//'\n'//&
+            & 'WORDS FOR "SAY" IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'SAX') THEN
-            OUTLYNE='"FLOAT" AND "NOFLOAT" ARE THE ONLY VALID QUALIFIER'
-            CALL SHOWIT(1)
-            OUTLYNE='WORDS FOR "SAX" IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FLOAT" AND "NOFLOAT" ARE THE ONLY VALID QUALIFIER'//'\n'//&
+            & 'WORDS FOR "SAX" IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -2417,23 +2217,17 @@ SUBROUTINE SSA
          IF(WQ.NE.'        '.AND.WQ.NE.'FLOAT'.AND.WQ.NE.'NOFLOAT') THEN
 !
             IF(WC.EQ.'SAY') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "SAY"'
-               CALL SHOWIT(1)
-               OUTLYNE='AT THE LENS INPUT LEVEL'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "SAY"'//'\n'//&
+               & 'AT THE LENS INPUT LEVEL'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'SAX') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "SAX"'
-               CALL SHOWIT(1)
-               OUTLYNE='AT THE LENS INPUT LEVEL'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "SAX"'//'\n'//&
+               & 'AT THE LENS INPUT LEVEL'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -2442,23 +2236,17 @@ SUBROUTINE SSA
          IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT'.AND.WQ.NE.'FLOAT'.AND.WQ.NE.'NOFLOAT') THEN
 !
             IF(WC.EQ.'SAY') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "SAY"'
-               CALL SHOWIT(1)
-               OUTLYNE='AT THE LENS UPDATE LEVEL'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "SAY"'//'\n'//&
+               & 'AT THE LENS UPDATE LEVEL'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'SAX') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "SAX"'
-               CALL SHOWIT(1)
-               OUTLYNE='AT THE LENS UPDATE LEVEL'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "SAX"'//'\n'//&
+               & 'AT THE LENS UPDATE LEVEL'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -2475,19 +2263,15 @@ SUBROUTINE SSA
 !
       IF(DF1.EQ.1.AND.WQ.NE.'FLOAT'.AND.WQ.NE.'NOFLOAT') THEN
          IF(WC.EQ.'SAY') THEN
-            OUTLYNE='"SAY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SAY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'SAX') THEN
-            OUTLYNE='"SAX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SAX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -2496,19 +2280,11 @@ SUBROUTINE SSA
 !
       IF(W1.EQ.0.0.AND.WQ.NE.'FLOAT'.AND.WQ.NE.'NOFLOAT') THEN
          IF(WC.EQ.'SAY') THEN
-            OUTLYNE='"SAY" MAY NOT BE SET TO ZERO'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"SAY" MAY NOT BE SET TO ZERO'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'SAX') THEN
-            OUTLYNE='"SAX" MAY NOT BE SET TO ZERO'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"SAX" MAY NOT BE SET TO ZERO'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN

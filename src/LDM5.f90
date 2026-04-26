@@ -20,13 +20,10 @@ SUBROUTINE SNAO
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
-         OUTLYNE='AT THE CMD LEVEL, "NAOY" AND "NAOX"'
-         CALL SHOWIT(1)
-         OUTLYNE='TAKE NO EXPLICIT INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'AT THE CMD LEVEL, "NAOY" AND "NAOX"'//'\n'//&
+         & 'TAKE NO EXPLICIT INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -94,57 +91,41 @@ SUBROUTINE SNAO
       IF(SST.EQ.1) THEN
 !
          IF(WC.EQ.'NAOY') THEN
-            OUTLYNE='"NAOY" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"NAOY" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            OUTLYNE='"NAOX" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"NAOX" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'NAOY') THEN
-            OUTLYNE='"NAOY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NAOY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            OUTLYNE='"NAOX" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NAOX" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SQ.EQ.1.AND.F5.EQ.1) THEN
 !
          IF(WC.EQ.'NAOY') THEN
-            OUTLYNE='"NAOY" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NAOY" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            OUTLYNE='"NAOX" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NAOX" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -152,19 +133,15 @@ SUBROUTINE SNAO
          IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT') THEN
 !
             IF(WC.EQ.'NAOY') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "NAOY"'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "NAOY"'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'NAOX') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "NAOX"'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "NAOX"'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -172,42 +149,32 @@ SUBROUTINE SNAO
       IF(DF1.EQ.1) THEN
 !
          IF(WC.EQ.'NAOY') THEN
-            OUTLYNE='"NAOY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NAOY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            OUTLYNE='"NAOX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NAOX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(DABS(surf_thickness(0)).GE.1.0D10) THEN
 !     INFINITE OBJECT THICKNESS, DON'T ALLOW
          IF(WC.EQ.'NAOY') THEN
-            OUTLYNE='OBJECT DISTANCE IS GREATER THAN +/-1.0D10'
-            CALL SHOWIT(1)
-            OUTLYNE='"NAOY" MAY NOT BE USED'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'OBJECT DISTANCE IS GREATER THAN +/-1.0D10'//'\n'//&
+            & '"NAOY" MAY NOT BE USED'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            OUTLYNE='OBJECT DISTANCE IS GREATER THAN +/-1.0D10'
-            CALL SHOWIT(1)
-            OUTLYNE='"NAOX" MAY NOT BE USED'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'OBJECT DISTANCE IS GREATER THAN +/-1.0D10'//'\n'//&
+            & '"NAOX" MAY NOT BE USED'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -229,19 +196,15 @@ SUBROUTINE SNAO
       ELSE
          IF(W1.EQ.0.0D0) THEN
             IF(WC.EQ.'NAOY') THEN
-               OUTLYNE='"NAOY" MAY NOT BE SET TO ZERO'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"NAOY" MAY NOT BE SET TO ZERO'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'NAOX') THEN
-               OUTLYNE='"NAOX" MAY NOT BE SET TO ZERO'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"NAOX" MAY NOT BE SET TO ZERO'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             RETURN
@@ -337,11 +300,9 @@ SUBROUTINE SMODE
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.SN.EQ.1) THEN
-         OUTLYNE='"MODE" TAKES NO STRING OR NUMERIC INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"MODE" TAKES NO STRING OR NUMERIC INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -374,11 +335,7 @@ SUBROUTINE SMODE
             RETURN
          ELSE
          END IF
-         OUTLYNE='INVALID QUALIFIER INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -417,11 +374,9 @@ SUBROUTINE SMODE
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SST.EQ.1.OR.SN.EQ.1) THEN
-         OUTLYNE='"MODE" ACCEPTS NO STRING OR NUMERIC INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"MODE" ACCEPTS NO STRING OR NUMERIC INPUT'//'\n'//&
+         & 'RE-ENER COMMAND', 1)
          RETURN
       END IF
 !
@@ -436,11 +391,7 @@ SUBROUTINE SMODE
       END IF
 !
       IF(WQ.NE.'FOCAL'.AND.WQ.NE.'UFOCAL'.AND.WQ.NE.'AFOCAL'.AND.WQ.NE.'UAFOCAL'.AND.WQ.NE.' ') THEN
-         OUTLYNE='INVALID QUALIFIER WORD'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER WORD'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       ELSE
          IF(WQ.EQ.'FOCAL') THEN
@@ -496,51 +447,41 @@ SUBROUTINE SMAG
    IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
       IF(WC.EQ.'MAGY') THEN
-         OUTLYNE='"MAGY" TAKES ONLY NUMERIC WORDS #1,#2 AND #3 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"MAGY" TAKES ONLY NUMERIC WORDS #1,#2 AND #3 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       ELSE
       END IF
       IF(WC.EQ.'MAGX') THEN
-         OUTLYNE='"MAGX" TAKES ONLY NUMERIC WORD #1, #2 AND #3 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"MAGX" TAKES ONLY NUMERIC WORD #1, #2 AND #3 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
    IF(DF1.EQ.1) THEN
       IF(WC.EQ.'MAGY') THEN
-         OUTLYNE='"MAGY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"MAGY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       ELSE
       END IF
       IF(WC.EQ.'MAGX') THEN
 
-         OUTLYNE='"MAGX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"MAGX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
    IF(DF2.EQ.1) W2=0.0D0
    IF(DF2.EQ.1) W3=SYSTEM(20)
    IF(W2.LT.0.0.OR.W3.GT.SYSTEM(20)) THEN
-      OUTLYNE='REQUESTED SURFACES BEYOND LEGAL RANGE FOR CURRENT LENS'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'REQUESTED SURFACES BEYOND LEGAL RANGE FOR CURRENT LENS'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !       NUMERIC INPUT NOT DEFAULT
@@ -2130,19 +2071,15 @@ SUBROUTINE SLI
    PRINT *, "SLI SUBROUTINE"
    IF(F1.EQ.1) THEN
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1)THEN
-         OUTLYNE='"LI" AND "LIC" TAKE NO EXPLICIT INPUT AT THE CMD LEVEL"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"LI" AND "LIC" TAKE NO EXPLICIT INPUT AT THE CMD LEVEL"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SYSTEM(20).EQ.0.0D0) THEN
-         OUTLYNE='LENS IDENTIFIER DOES NOT EXIST'
-         CALL SHOWIT(1)
-         OUTLYNE='LENS SYSTEM HAS NO SURFACES'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'LENS IDENTIFIER DOES NOT EXIST'//'\n'//&
+         & 'LENS SYSTEM HAS NO SURFACES', 1)
          RETURN
       END IF
 
@@ -2213,11 +2150,9 @@ SUBROUTINE SLI
 !
          IF(WC.EQ.'LIC'.OR.WC.EQ.'LI') THEN
             IF(SST.EQ.0) THEN
-               OUTLYNE='"LI" AND "LIC" REQUIRE STRING INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"LI" AND "LIC" REQUIRE STRING INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -2273,19 +2208,15 @@ SUBROUTINE SINI
 !
    IF(F1.EQ.1) THEN
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1)THEN
-         OUTLYNE='"INI" TAKES NO EXPLICIT INPUT AT THE CMD LEVEL"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"INI" TAKES NO EXPLICIT INPUT AT THE CMD LEVEL"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SYSTEM(20).EQ.0.0D0) THEN
-         OUTLYNE='DESIGNER INITIALS DO NOT EXIST'
-         CALL SHOWIT(1)
-         OUTLYNE='LENS SYSTEM HAS NO SURFACES'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'DESIGNER INITIALS DO NOT EXIST'//'\n'//&
+         & 'LENS SYSTEM HAS NO SURFACES', 1)
          RETURN
       END IF
       IF(INNI.EQ.CNULL) WRITE(OUTLYNE,1001)
@@ -2303,11 +2234,7 @@ SUBROUTINE SINI
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
       IF(SST.EQ.0) THEN
-         OUTLYNE='"INI" REQUIRES STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"INI" REQUIRES STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       INNI(1:80)=WS(1:70)
@@ -2337,19 +2264,15 @@ SUBROUTINE SLTYPE
 !
    IF(F1.EQ.1) THEN
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1)THEN
-         OUTLYNE='"LTYPE" TAKES NO EXPLICIT INPUT AT THE CMD LEVEL"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"LTYPE" TAKES NO EXPLICIT INPUT AT THE CMD LEVEL"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SYSTEM(20).EQ.0.0D0) THEN
-         OUTLYNE='LENS TYPE IDENTIFIER DOES NOT EXIST'
-         CALL SHOWIT(1)
-         OUTLYNE='LENS SYSTEM HAS NO SURFACES'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'LENS TYPE IDENTIFIER DOES NOT EXIST'//'\n'//&
+         & 'LENS SYSTEM HAS NO SURFACES', 1)
          RETURN
       END IF
       IF(LLTYPE(1:5).EQ.CNULL(1:5)) WRITE(OUTLYNE,1001)
@@ -2367,11 +2290,7 @@ SUBROUTINE SLTYPE
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
       IF(SST.EQ.0) THEN
-         OUTLYNE='"LTYPE" REQUIRES STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"LTYPE" REQUIRES STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       LLTYPE(1:80)=WS(1:5)

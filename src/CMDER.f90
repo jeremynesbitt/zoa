@@ -133,11 +133,9 @@ SUBROUTINE CMDER
          IF(WC.EQ.'ILF') THEN
             IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
 !
-               OUTLYNE='"ILF" TAKES NO EXPLICIT INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"ILF" TAKES NO EXPLICIT INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             F48=1
@@ -172,11 +170,9 @@ SUBROUTINE CMDER
 !       ITF
          IF(WC.EQ.'ITF') THEN
             IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-               OUTLYNE='"ITF" TAKES NO EXPLICIT INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"ITF" TAKES NO EXPLICIT INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             OUTLYNE='WARNING:'
@@ -211,11 +207,9 @@ SUBROUTINE CMDER
 !       IPF
          IF(WC.EQ.'IPF') THEN
             IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-               OUTLYNE='"IPF" TAKES NO EXPLICIT INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"IPF" TAKES NO EXPLICIT INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             OUTLYNE='WARNING:'
@@ -589,11 +583,9 @@ SUBROUTINE CMDER
 !       CALL TO LSTAT( LENS LIBRARY STATUS)
       IF(WC.EQ.'LSTAT')  THEN
          IF(SN.EQ.1.OR.SST.EQ.1.OR.SQ.EQ.1) THEN
-            OUTLYNE='"LSTAT" TAKES NO EXPLICIT INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"LSTAT" TAKES NO EXPLICIT INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
 
@@ -614,9 +606,7 @@ SUBROUTINE CMDER
             OUTLYNE=&
             &'"PSTAT" TAKES NO EXPLICIT INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          CALL PLSTAT
@@ -2636,9 +2626,7 @@ SUBROUTINE CMDER
             OUTLYNE=&
             &'NO DIFFRACTION PSF EXISTS, NO PSF SPOT FILE WAS CREATED'
             CALL SHOWIT(1)
-            OUTLYNE='NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('NO ACTION TAKEN', 1)
             RETURN
          END IF
          CALL DSPRED(MMM)
@@ -2651,9 +2639,7 @@ SUBROUTINE CMDER
             OUTLYNE=&
             &'NO DIFFRACTION PSF EXISTS, "DREDSQ" CAN NOT PROCEED'
             CALL SHOWIT(1)
-            OUTLYNE='NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('NO ACTION TAKEN', 1)
             RETURN
          END IF
          CALL DSPREDSQ(MMM)

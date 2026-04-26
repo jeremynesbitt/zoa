@@ -48,13 +48,10 @@ SUBROUTINE SFNO
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
       IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
-         OUTLYNE='AT THE CMD LEVEL, "FNOY" AND "FNOX"'
-         CALL SHOWIT(1)
-         OUTLYNE='TAKE NO EXPLICIT INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'AT THE CMD LEVEL, "FNOY" AND "FNOX"'//'\n'//&
+         & 'TAKE NO EXPLICIT INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -106,57 +103,41 @@ SUBROUTINE SFNO
       IF(SST.EQ.1) THEN
 !
          IF(WC.EQ.'FNOY') THEN
-            OUTLYNE='"FNOY" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"FNOY" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'FNOX') THEN
-            OUTLYNE='"FNOX" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"FNOX" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'FNOY') THEN
-            OUTLYNE='"FNOY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FNOY" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'FNOX') THEN
-            OUTLYNE='"FNOX" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FNOX" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SQ.EQ.1.AND.F5.EQ.1) THEN
 !
          IF(WC.EQ.'FNOY') THEN
-            OUTLYNE='"FNOY" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FNOY" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'FNOX') THEN
-            OUTLYNE='"FNOX" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FNOX" TAKES NO QUALIFIER WORD IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -164,19 +145,15 @@ SUBROUTINE SFNO
          IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT') THEN
 !
             IF(WC.EQ.'FNOY') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "FNOY"'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "FNOY"'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'FNOX') THEN
-               OUTLYNE='INVALID QUALIFIER WORD USED WITH "FNOX"'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'INVALID QUALIFIER WORD USED WITH "FNOX"'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -184,19 +161,15 @@ SUBROUTINE SFNO
       IF(DF1.EQ.1) THEN
 !
          IF(WC.EQ.'FNOY') THEN
-            OUTLYNE='"FNOY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FNOY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'FNOX') THEN
-            OUTLYNE='"FNOX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"FNOX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -220,19 +193,15 @@ SUBROUTINE SFNO
       ELSE
          IF(W1.EQ.0.0D0) THEN
             IF(WC.EQ.'FNOY') THEN
-               OUTLYNE='"FNOY" MAY NOT BE SET TO ZERO'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"FNOY" MAY NOT BE SET TO ZERO'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'FNOX') THEN
-               OUTLYNE='"FNOX" MAY NOT BE SET TO ZERO'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"FNOX" MAY NOT BE SET TO ZERO'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             RETURN
@@ -307,80 +276,62 @@ SUBROUTINE SFNB
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
       IF(WC.EQ.'FNBY') THEN
-         OUTLYNE='"FNBY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'FNBX') THEN
-         OUTLYNE='"FNBX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
    IF(DF1.EQ.1) THEN
 !
       IF(WC.EQ.'FNBY') THEN
-         OUTLYNE='"FNBY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'FNBX') THEN
-         OUTLYNE='"FNBX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'FNBX'.AND.SYSTEM(64).NE.0.0D0) THEN
-         OUTLYNE='"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'FNBY'.AND.SYSTEM(64).NE.0.0D0) THEN
-         OUTLYNE='"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'FNBX'.AND.SYSTEM(67).NE.0.0D0) THEN
-         OUTLYNE='"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'FNBY'.AND.SYSTEM(67).NE.0.0D0) THEN
-         OUTLYNE='"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
    END IF
    IF(SYSTEM(83).NE.0.0D0.OR.SYSTEM(84).NE.0.0D0) THEN
-      OUTLYNE='SAY OR SAX IS CURRENTLY FLOATING'
-      CALL SHOWIT(1)
-      OUTLYNE='"FNBY/FNBX" ADJUSTMENT NOT ALLOWED'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'SAY OR SAX IS CURRENTLY FLOATING'//'\n'//&
+      & '"FNBY/FNBX" ADJUSTMENT NOT ALLOWED', 1)
       RETURN
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1.AND.DF4.EQ.1.AND.DF5.EQ.1) THEN
@@ -452,19 +403,13 @@ SUBROUTINE SFNB
    ELSE
 !       NUMERIC INPUT AND QUALIFIER INPUT NOT DEFAULT
       IF(WQ.NE.'DELK'.AND.WQ.NE.'HLD'.AND.SQ.NE.0) THEN
-         OUTLYNE='INVALID QUALIFIER INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WQ.NE.'DELK') THEN
          IF(WC.EQ.'FNBY') THEN
             IF(W1.EQ.0.0D0) THEN
-               OUTLYNE='F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED', 1)
                RETURN
             END IF
 !       CHECK LENS MODE, MUST BE FOCAL OR UFOCAL
@@ -480,9 +425,7 @@ SUBROUTINE SFNB
                      OUTLYNE='CURRENT MODE IS UAFOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  OUTLYNE='"FNBY" ADJUSTMENT NOT PERFORMED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL('"FNBY" ADJUSTMENT NOT PERFORMED', 1)
                   RETURN
                END IF
                IF(WC.EQ.'FNBX') THEN
@@ -496,9 +439,7 @@ SUBROUTINE SFNB
                      OUTLYNE='CURRENT MODE IS UAFOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  OUTLYNE='"FNBX" ADJUSTMENT NOT PERFORMED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL('"FNBX" ADJUSTMENT NOT PERFORMED', 1)
                   RETURN
                END IF
             ELSE
@@ -513,15 +454,11 @@ SUBROUTINE SFNB
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -554,15 +491,11 @@ SUBROUTINE SFNB
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -593,9 +526,7 @@ SUBROUTINE SFNB
          ELSE
 !       WC MUST BE 'FNBX'
             IF(W1.EQ.0.0D0) THEN
-               OUTLYNE='F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('F/0.0 IS MEANINGLESS, ADJUSTMENT NOT PERFORMED', 1)
                RETURN
             END IF
             IF(WQ.NE.'HLD') SYSTEM(45)=1.0D0
@@ -607,15 +538,11 @@ SUBROUTINE SFNB
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -648,15 +575,11 @@ SUBROUTINE SFNB
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -762,20 +685,16 @@ SUBROUTINE PIVAXIS
    END IF
 !
    IF(SST.EQ.1.OR.SN.EQ.1) THEN
-      OUTLYNE='"PIVAXIS" TAKES NO STRING OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVAXIS" TAKES NO STRING OR NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1) THEN
       IF(WQ.NE.'VERTEX'.AND.WQ.NE.'NORMAL') THEN
-         OUTLYNE='INVALID QUALIFIER INPUT USED WITH "PIVAXIS"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID QUALIFIER INPUT USED WITH "PIVAXIS"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -827,19 +746,15 @@ SUBROUTINE SER
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1) THEN
 !
       IF(WC.EQ.'ERY') THEN
-         OUTLYNE='"ERY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"ERY" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'ERX') THEN
-         OUTLYNE='"ERX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"ERX" TAKES NO STRING OR NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -847,60 +762,46 @@ SUBROUTINE SER
    IF(DF1.EQ.1) THEN
 !
       IF(WC.EQ.'ERY') THEN
-         OUTLYNE='"ERY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"ERY" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'ERX') THEN
-         OUTLYNE='"ERX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"ERX" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
    IF(WC.EQ.'ERX'.AND.SYSTEM(64).NE.0.0D0) THEN
-      OUTLYNE='"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "NAOX"'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(WC.EQ.'ERY'.AND.SYSTEM(64).NE.0.0D0) THEN
-      OUTLYNE='"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "NAOY"'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(WC.EQ.'ERX'.AND.SYSTEM(67).NE.0.0D0) THEN
-      OUTLYNE='"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(WC.EQ.'ERY'.AND.SYSTEM(67).NE.0.0D0) THEN
-      OUTLYNE='"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SYSTEM(83).NE.0.0D0.OR.SYSTEM(84).NE.0.0D0) THEN
-      OUTLYNE='SAY OR SAX IS CURRENTLY FLOATING'
-      CALL SHOWIT(1)
-      OUTLYNE='"ERY/ERX" ADJUSTMENT NOT ALLOWED'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'SAY OR SAX IS CURRENTLY FLOATING'//'\n'//&
+      & '"ERY/ERX" ADJUSTMENT NOT ALLOWED', 1)
       RETURN
    END IF
 !
@@ -952,21 +853,15 @@ SUBROUTINE SER
    ELSE
 !       NUMERIC INPUT AND QUALIFIER INPUT NOT DEFAULT
       IF(WQ.NE.'DELK'.AND.WQ.NE.'HLD'.AND.SQ.NE.0) THEN
-         OUTLYNE='INVALID QUALIFIER INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WQ.NE.'DELK') THEN
          IF(WC.EQ.'ERY') THEN
             IF(W1.EQ.0.0D0) THEN
-               OUTLYNE='ZERO DIAMETER EXIT PUPIL RADIUS IS MEANINGLESS'
-               CALL SHOWIT(1)
-               OUTLYNE='EXIT PUPIL ADJUSTMENT NOT PERFORMED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'ZERO DIAMETER EXIT PUPIL RADIUS IS MEANINGLESS'//'\n'//&
+               & 'EXIT PUPIL ADJUSTMENT NOT PERFORMED', 1)
                RETURN
             END IF
 !       CHECK LENS MODE, MUST BE AFOCAL OR UAFOCAL
@@ -983,9 +878,7 @@ SUBROUTINE SER
                      OUTLYNE='CURRENT MODE IS UFOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  OUTLYNE='"ERY" ADJUSTMENT NOT PERFORMED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL('"ERY" ADJUSTMENT NOT PERFORMED', 1)
                   RETURN
                ELSE
                END IF
@@ -1000,9 +893,7 @@ SUBROUTINE SER
                      OUTLYNE='CURRENT MODE IS UFOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  OUTLYNE='"ERX" ADJUSTMENT NOT PERFORMED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL('"ERX" ADJUSTMENT NOT PERFORMED', 1)
                   RETURN
                ELSE
                END IF
@@ -1017,15 +908,11 @@ SUBROUTINE SER
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -1057,15 +944,11 @@ SUBROUTINE SER
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -1096,11 +979,9 @@ SUBROUTINE SER
          ELSE
 !       WC MUST BE 'ERX'
             IF(W1.EQ.0.0D0) THEN
-               OUTLYNE='ZERO DIAMETER EXIT PUPIL RADIUS IS MEANINGLESS'
-               CALL SHOWIT(1)
-               OUTLYNE='ADJUSTMENT NOT PERFORMED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'ZERO DIAMETER EXIT PUPIL RADIUS IS MEANINGLESS'//'\n'//&
+               & 'ADJUSTMENT NOT PERFORMED', 1)
                RETURN
             END IF
 !       CHECK LENS MODE, MUST BE AFOCAL OR UAFOCAL
@@ -1113,15 +994,11 @@ SUBROUTINE SER
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -1153,15 +1030,11 @@ SUBROUTINE SER
 !       TELECENTRIC STUFF, 11/12/2000
             IF(SYSTEM(63).EQ.1.0D0) THEN
                IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-                  OUTLYNE='WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'
-                  CALL SHOWIT(1)
-                  OUTLYNE='VALUES'
-                  CALL SHOWIT(1)
-                  OUTLYNE='PARAXIAL TRACE STOPPED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
+                  & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
+                  & 'VALUES'//'\n'//&
+                  & 'PARAXIAL TRACE STOPPED', 1)
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
@@ -1266,9 +1139,7 @@ SUBROUTINE SDEFG
       IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK AND AL TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
       IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')OUTLYNE='ADTOR, AETOR, AFTOR AND AGTOR '//'TAKE NO NUMERIC WORD #2 THROUGH #5 INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SST.EQ.1) THEN
@@ -1276,9 +1147,7 @@ SUBROUTINE SDEFG
       IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK AND AL TAKE NO STRING INPUT'
       IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')OUTLYNE='ADTOR, AETOR, AFTOR AND AGTOR '//'TAKE NO STRING INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.F5.EQ.1) THEN
@@ -1286,9 +1155,7 @@ SUBROUTINE SDEFG
       IF(WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL')OUTLYNE='AH,AI,AJ,AK AND AL TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
       IF(WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR')OUTLYNE='ADTOR, AETOR, AFTOR AND AGTOR '//'TAKE NO QUALIFIER WORD IN LENS INPUT MODE'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(F6.EQ.1) THEN
@@ -1300,9 +1167,7 @@ SUBROUTINE SDEFG
             OUTLYNE='ADTOR, AETOR, AFTOR OR AGTOR'
          END IF
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -1314,9 +1179,7 @@ SUBROUTINE SDEFG
          OUTLYNE='NUMERIC WORD #1 INPUT'
       END IF
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -1569,11 +1432,9 @@ SUBROUTINE SDEFG
       IF(surf_toric_flag(SURF) == 0) THEN
          WRITE(OUTLYNE,*)'SURFACE',SURF,' NOT A TORIC'
          CALL SHOWIT(1)
-         OUTLYNE='RE-DEFINE SURFACE TYPE AS X OR Y-TORIC AND THEN'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'RE-DEFINE SURFACE TYPE AS X OR Y-TORIC AND THEN'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(surf_anamorphic_flag(SURF) /= 1) THEN
@@ -1726,37 +1587,29 @@ SUBROUTINE SPIVOT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"PIVOT" TAKES NO QUALIFIER OR STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVOT" TAKES NO QUALIFIER OR STRING INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE='"PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVOT" TAKES NO NUMERIC WORD #4 OR #5 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1) THEN
-      OUTLYNE='"PIVOT" REQUIRES SOME EXPLICIT NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVOT" REQUIRES SOME EXPLICIT NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
       IF(SURF.EQ.0) THEN
-         OUTLYNE='OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -1869,21 +1722,15 @@ SUBROUTINE SPIVOTD
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-      OUTLYNE='"PIVOTD" TAKES NO ADDITIONAL INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('"PIVOTD" TAKES NO ADDITIONAL INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
       IF(SURF.EQ.0) THEN
-         OUTLYNE='OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -1975,28 +1822,22 @@ SUBROUTINE SPIVAX
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1.OR.SN.EQ.1) THEN
-      OUTLYNE='"PIVAXIS" TAKES NO NUMERIC OR STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVAXIS" TAKES NO NUMERIC OR STRING INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.NE.'LOCAL'.AND.WQ.NE.'NORMAL') THEN
-      OUTLYNE='"PIVAXIS" TAKES QUALIFIER WORDS "LOCAL" AND "NORMAL" ONLY'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PIVAXIS" TAKES QUALIFIER WORDS "LOCAL" AND "NORMAL" ONLY'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
    IF(SURF.EQ.0) THEN
-      OUTLYNE='OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(WQ.EQ.'LOCAL') call set_surf_pivot_axis(SURF, 0)
@@ -2028,11 +1869,9 @@ SUBROUTINE SCW
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
          IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='AT THE CMD LEVEL, "CW" TAKES NO EXPLICIT INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'AT THE CMD LEVEL, "CW" TAKES NO EXPLICIT INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          WRITE(OUTLYNE,1000)
@@ -2050,20 +1889,16 @@ SUBROUTINE SCW
 !
             IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1 .OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
-               OUTLYNE='"CW" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"CW" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
 !
             IF(DF1.EQ.1) THEN
-               OUTLYNE='"CW" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"CW" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
 !
@@ -2077,11 +1912,9 @@ SUBROUTINE SCW
                RETURN
             ELSE
                IF(W1.LT.1.0.OR.W1.GT.10.0D0)THEN
-                  OUTLYNE='NUMERIC INPUT TO "CW" OUTSIDE ALLOWED BOUNDS'
-                  CALL SHOWIT(1)
-                  OUTLYNE='RE-ENTER COMMAND'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC INPUT TO "CW" OUTSIDE ALLOWED BOUNDS'//'\n'//&
+                  & 'RE-ENTER COMMAND', 1)
                   RETURN
                ELSE
                   SYSTEM(11)=W1
@@ -2102,11 +1935,9 @@ SUBROUTINE SCW
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
          IF(SN.EQ.1.OR.SQ.EQ.1.OR.SST.EQ.1) THEN
-            OUTLYNE='AT THE CMD LEVEL, "PCW" TAKES NO INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'AT THE CMD LEVEL, "PCW" TAKES NO INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          WRITE(OUTLYNE,3000)
@@ -2124,19 +1955,15 @@ SUBROUTINE SCW
 !
             IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1)THEN
 !
-               OUTLYNE='"PCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"PCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-               OUTLYNE='"PCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"PCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
 !
@@ -2150,11 +1977,9 @@ SUBROUTINE SCW
                RETURN
             ELSE
                IF(W1.LT.1.0.OR.W1.GT.10.0.OR.W2.LT.1.0.OR.W2.GT.10.0D0)THEN
-                  OUTLYNE='NUMERIC INPUT TO "PCW" OUTSIDE ALLOWED BOUNDS'
-                  CALL SHOWIT(1)
-                  OUTLYNE='RE-ENTER COMMAND'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC INPUT TO "PCW" OUTSIDE ALLOWED BOUNDS'//'\n'//&
+                  & 'RE-ENTER COMMAND', 1)
                   RETURN
                ELSE
                   SYSTEM(7)=W1
@@ -2173,11 +1998,9 @@ SUBROUTINE SCW
 !               CHECK FOR PRESENCE OF ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
          IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='AT THE CMD LEVEL, "SCW" TAKES NO INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'AT THE CMD LEVEL, "SCW" TAKES NO INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          WRITE(OUTLYNE,5000)
@@ -2195,20 +2018,16 @@ SUBROUTINE SCW
 !
             IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
 !
-               OUTLYNE='"SCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"SCW" ONLY ACCEPTS NUMERIC WORD #1 AND #2 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
 !
             IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-               OUTLYNE='"SCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"SCW" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
 !
@@ -2222,11 +2041,9 @@ SUBROUTINE SCW
                RETURN
             ELSE
                IF(W1.LT.1.0.OR.W1.GT.10.0.OR.W2.LT.1.0.OR.W2.GT.10.0D0)THEN
-                  OUTLYNE='NUMERIC INPUT TO "SCW" OUTSIDE ALLOWED BOUNDS'
-                  CALL SHOWIT(1)
-                  OUTLYNE='RE-ENTER COMMAND'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC INPUT TO "SCW" OUTSIDE ALLOWED BOUNDS'//'\n'//&
+                  & 'RE-ENTER COMMAND', 1)
                   RETURN
                ELSE
                   SYSTEM(9)=W1
@@ -2267,11 +2084,7 @@ SUBROUTINE SCVR
 !
 !
    IF(SURF.EQ.0) THEN
-      OUTLYNE='OBJECT SURFACE MAY NOT BE A TORIC'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('OBJECT SURFACE MAY NOT BE A TORIC'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -2281,19 +2094,15 @@ SUBROUTINE SCVR
       IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'CVTOR') THEN
-            OUTLYNE='"CVTOR" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"CVTOR" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RDTOR') THEN
-            OUTLYNE='"RDTOR" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RDTOR" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN
@@ -2303,19 +2112,15 @@ SUBROUTINE SCVR
       IF(S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'CVTOR') THEN
-            OUTLYNE='"CVTOR DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"CVTOR DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RDTOR') THEN
-            OUTLYNE='"RDTOR DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RDTOR DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN
@@ -2323,19 +2128,15 @@ SUBROUTINE SCVR
       IF(W2.LE.0.0D0.AND.DF2.EQ.0.OR.W3.LE.0.0D0 .AND.DF3.EQ.0) THEN
 !
          IF(WC.EQ.'CVTOR') THEN
-            OUTLYNE='"CVTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"CVTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RDTOR') THEN
-            OUTLYNE='"RDTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RDTOR DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN
@@ -2344,47 +2145,33 @@ SUBROUTINE SCVR
    IF(SST.EQ.1) THEN
 !
       IF(WC.EQ.'CVTOR') THEN
-         OUTLYNE='"CVTOR" TAKES NO STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"CVTOR" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'RDTOR') THEN
-         OUTLYNE='"RDTOR" TAKES NO STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"RDTOR" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       RETURN
    END IF
    IF(SQ.EQ.1.AND.F5.EQ.1) THEN
-      OUTLYNE='"'//WC(1:5)//'" TAKES NO QUALIFIER INPUT DURING LENS INPUT MODE'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"'//WC(1:5)//'" TAKES NO QUALIFIER INPUT DURING LENS INPUT MODE'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(F6.EQ.1) THEN
       IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT'.AND.WQ.NE.'DELTFR') THEN
-         OUTLYNE='INVALID QUALIFIER USED WITH "'//WC(1:5)//'"'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID QUALIFIER USED WITH "'//WC(1:5)//'"'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
    IF(DF1.EQ.1) THEN
-      OUTLYNE='"'//WC(1:5)//'" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"'//WC(1:5)//'" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 
@@ -2393,13 +2180,10 @@ SUBROUTINE SCVR
 !       IF THE SURFACE WAS NOT A TORIC THEN SAY SO AND RETURN
 !
       IF(surf_toric_flag(SURF) == 0) THEN
-         OUTLYNE='A "YTORIC" OR "XTORIC" COMMAND MUST BE ENTERED'
-         CALL SHOWIT(1)
-         OUTLYNE='PRIOR TO TORIC DATA BEING ENTERED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'A "YTORIC" OR "XTORIC" COMMAND MUST BE ENTERED'//'\n'//&
+         & 'PRIOR TO TORIC DATA BEING ENTERED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !       surf_toric_flag(SURF) NOT ZERO, MUST BE 1.0 (Y-TORIC)
@@ -2445,11 +2229,9 @@ SUBROUTINE SCVR
                RADIUS=DABS(1.0D0/surf_toric_curvature(SURF))
                ARG1=(RADIUS**2)-((APER/2.0D0)**2)
                IF(ARG1.LT.0.0D0) THEN
-                  OUTLYNE='RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'
-                  CALL SHOWIT(1)
-                  OUTLYNE='RE-ENTER COMMAND'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'//'\n'//&
+                  & 'RE-ENTER COMMAND', 1)
                   RETURN
                END IF
                IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
@@ -2510,11 +2292,9 @@ SUBROUTINE SCVR
 !     CURVED SURFACE
             ARG1=(RADIUS**2)-((APER/2.0D0)**2)
             IF(ARG1.LT.0.0D0) THEN
-               OUTLYNE='RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
@@ -2630,19 +2410,15 @@ SUBROUTINE SCV
       IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
          IF(WC.EQ.'CV') THEN
-            OUTLYNE='"CV" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"CV" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RD') THEN
-            OUTLYNE='"RD" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RD" TAKES NO NUMERIC WORD #3 THROUGH #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN
@@ -2653,19 +2429,15 @@ SUBROUTINE SCV
          IF(S4.EQ.1.OR.S5.EQ.1) THEN
 !
             IF(WC.EQ.'CV') THEN
-               OUTLYNE='"CV DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"CV DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'RD') THEN
-               OUTLYNE='"RD DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"RD DELTFR" TAKES NO NUMERIC WORD #4 OR #5 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             RETURN
@@ -2673,19 +2445,15 @@ SUBROUTINE SCV
          IF(W2.LE.0.0D0.AND.DF2.EQ.0.OR.W3.LE.0.0D0 .AND.DF3.EQ.0) THEN
 !
             IF(WC.EQ.'CV') THEN
-               OUTLYNE='"CV DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"CV DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'RD') THEN
-               OUTLYNE='"RD DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"RD DELTFR" REQUIRES POSITIVE NUMERIC WORD #2 AND #3 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             RETURN
@@ -2695,19 +2463,15 @@ SUBROUTINE SCV
          IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
 !
             IF(WC.EQ.'CV') THEN
-               OUTLYNE='"CV SAG" TAKES NO NUMERIC WORD #3, #4 OR #5 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"CV SAG" TAKES NO NUMERIC WORD #3, #4 OR #5 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'RD') THEN
-               OUTLYNE='"RD SAG" TAKES NO NUMERIC WORD #3, #4 OR #5 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"RD SAG" TAKES NO NUMERIC WORD #3, #4 OR #5 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             RETURN
@@ -2715,19 +2479,15 @@ SUBROUTINE SCV
          IF(W2.LE.0.0D0 .AND.DF2.EQ.0) THEN
 !
             IF(WC.EQ.'CV') THEN
-               OUTLYNE='"CV SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"CV SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF(WC.EQ.'RD') THEN
-               OUTLYNE='"RD SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"RD SAG" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             RETURN
@@ -2738,19 +2498,11 @@ SUBROUTINE SCV
    IF(SST.EQ.1) THEN
 !
       IF(WC.EQ.'CV') THEN
-         OUTLYNE='"CV" TAKES NO STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"CV" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'RD') THEN
-         OUTLYNE='"RD" TAKES NO STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"RD" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       RETURN
@@ -2759,19 +2511,15 @@ SUBROUTINE SCV
       IF(WQ.NE.'        '.AND.WQ.NE.'CENT'.AND.WQ.NE.'DELT'.AND.WQ.NE.'DELTFR'.AND.WQ.NE.'SAG') THEN
 !
          IF(WC.EQ.'CV') THEN
-            OUTLYNE='INVALID QUALIFIER USED WITH "CV"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'INVALID QUALIFIER USED WITH "CV"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RD') THEN
-            OUTLYNE='INVALID QUALIFIER USED WITH "RD"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'INVALID QUALIFIER USED WITH "RD"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN
@@ -2781,19 +2529,15 @@ SUBROUTINE SCV
       IF(SQ.EQ.1) THEN
 !
          IF(WC.EQ.'CV') THEN
-            OUTLYNE='"CV" TAKES NO QUALIFIER WORDS IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"CV" TAKES NO QUALIFIER WORDS IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'RD') THEN
-            OUTLYNE='"RD" TAKES NO QUALIFIER WORDS IN LENS INPUT MODE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"RD" TAKES NO QUALIFIER WORDS IN LENS INPUT MODE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          RETURN
@@ -2802,19 +2546,15 @@ SUBROUTINE SCV
    IF(DF1.EQ.1) THEN
 !
       IF(WC.EQ.'CV') THEN
-         OUTLYNE='"CV" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"CV" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WC.EQ.'RD') THEN
-         OUTLYNE='"RD" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"RD" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       RETURN
@@ -2861,11 +2601,9 @@ SUBROUTINE SCV
             RAD=1.0D0/surf_curvature(SURF)
             ARG1=(RADIUS**2)-((APER/2.0D0)**2)
             IF(ARG1.LT.0.0D0) THEN
-               OUTLYNE='RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
@@ -2910,11 +2648,9 @@ SUBROUTINE SCV
 !       APER=PART DIAMETER IN CURRENT LENS UNITS (REQUIRED)
          ARG1=(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2))
          IF(ARG1.LT.0.0D0) THEN
-            OUTLYNE='RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          call set_surf_curvature(SURF, (2.0D0*W1)/(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2)))
@@ -2963,11 +2699,9 @@ SUBROUTINE SCV
 !     CURVED SURFACE
             ARG1=(RADIUS**2)-((APER/2.0D0)**2)
             IF(ARG1.LT.0.0D0) THEN
-               OUTLYNE='RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
             IF((DSQRT(ARG1)-RADIUS).EQ.0.0D0) DR=0.0D0
@@ -3012,11 +2746,9 @@ SUBROUTINE SCV
 !       APER=PART DIAMETER IN CURRENT LENS UNITS (REQUIRED)
          ARG1=(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2))
          IF(ARG1.LT.0.0D0) THEN
-            OUTLYNE='RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'RADIUS OR CURVATURE CHANGE CAN NOT BE DETERMINED'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          call set_surf_curvature(SURF, (2.0D0*W1)/(((W1**2)*(surf_conic(SURF)+1.0D0))+((APER/2.0D0)**2)))
@@ -3122,9 +2854,7 @@ SUBROUTINE SCV
                IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
             END IF
          ELSE
-            OUTLYNE='SERIOUS ERROR IN ASSIGNMENT OF surf_toric_flag()'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('SERIOUS ERROR IN ASSIGNMENT OF surf_toric_flag()', 1)
             RETURN
          END IF
       END IF
@@ -3219,11 +2949,9 @@ SUBROUTINE SINS
 !
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
-      OUTLYNE='"INS" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"INS" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(DF1.EQ.1) THEN
@@ -3237,19 +2965,15 @@ SUBROUTINE SINS
    ELSE
    END IF
    IF(GLANAM(INT(W1)-1,2).EQ.'PERFECT      ') THEN
-      OUTLYNE='A SURFACE MAY NOT BE INSERTED BEHIND A "PERFECT" SURFACE'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'A SURFACE MAY NOT BE INSERTED BEHIND A "PERFECT" SURFACE'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(GLANAM(INT(W1)-1,2).EQ.'IDEAL        ') THEN
-      OUTLYNE='A SURFACE MAY NOT BE INSERTED BEHIND A "IDEAL" SURFACE'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'A SURFACE MAY NOT BE INSERTED BEHIND A "IDEAL" SURFACE'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -3261,11 +2985,9 @@ SUBROUTINE SINS
 !       VALUE OF NUMERIC WORD 1 AS THE LOCATION OF THE SURFACE
 !       INSERTION.
       IF(W1.EQ.0.0D0) THEN
-         OUTLYNE='SURFACE INSERTION INFRONT OF OBJECT SURF. NOT ALLOWED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'SURFACE INSERTION INFRONT OF OBJECT SURF. NOT ALLOWED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !
@@ -3276,11 +2998,9 @@ SUBROUTINE SINS
 !       OBJECT SURFACE OR AFTER THE IMAGE SURFACE. THIS OPERATION
 !       IS NOT ALLOWED.
 !       PRINT ERROR AND RETURN.
-         OUTLYNE='INVALID LOCATION FOR INSERTED SURFACE'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID LOCATION FOR INSERTED SURFACE'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       ELSE
 !       SURFACE NUMBER WITHIN VALID RANGE.
@@ -3442,11 +3162,9 @@ SUBROUTINE SDEL
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
-      OUTLYNE='"DEL" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"DEL" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -3469,11 +3187,9 @@ SUBROUTINE SDEL
    END IF
 !
    IF(W2.LT.W1) THEN
-      OUTLYNE='STARTING SURFACE # MAY NOT BE GREATER THAN ENDING SURFACE #'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'STARTING SURFACE # MAY NOT BE GREATER THAN ENDING SURFACE #'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(W1.LE.0.0D0.OR.W1.GE.SYSTEM(20).OR.W2.LE.0.0D0.OR.W2.GE.SYSTEM(20)) THEN
@@ -3484,19 +3200,15 @@ SUBROUTINE SDEL
 !       PRINT ERROR AND RETURN.
 !
       IF(W1.EQ.0.0.OR.W2.EQ.0.0D0) THEN
-         OUTLYNE='OBJECT SURFACE DELETION NOT ALLOWED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'OBJECT SURFACE DELETION NOT ALLOWED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(W1.EQ.SYSTEM(20).OR.W2.EQ.SYSTEM(20)) THEN
-         OUTLYNE='IMAGE SURFACE DELETION NOT ALLOWED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'IMAGE SURFACE DELETION NOT ALLOWED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -3773,37 +3485,29 @@ SUBROUTINE SDEC
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
    IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-      OUTLYNE='"DEC" TAKES NO QUALIFIER OR STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"DEC" TAKES NO QUALIFIER OR STRING INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(S4.EQ.1.OR.S5.EQ.1) THEN
-      OUTLYNE='"DEC" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"DEC" TAKES NO NUMERIC WORD #4 OR #5 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1) THEN
-      OUTLYNE='"DEC" REQUIRES SOME EXPLICIT NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"DEC" REQUIRES SOME EXPLICIT NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
       IF(SURF.EQ.0) THEN
-         OUTLYNE='OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'OBJECT SURFACE MAY NOT BE TILTED OR DECENTERED'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
 !

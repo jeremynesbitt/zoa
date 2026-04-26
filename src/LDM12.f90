@@ -150,25 +150,19 @@ SUBROUTINE CVSOLV
    END IF
    IF(WC.EQ.'CSD'.OR.WC.EQ.'CSDX'.OR.WC.EQ.'CSDY') THEN
       IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE='"CSD", "CSDX" AND "CSDY" TAKE NO STRING'
-         CALL SHOWIT(1)
-         OUTLYNE='OR NUMERIC WORD #3 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"CSD", "CSDX" AND "CSDY" TAKE NO STRING'//'\n'//&
+         & 'OR NUMERIC WORD #3 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       ELSE
 !       PROCEED
       END IF
       IF(SQ.EQ.1.AND.WQ.NE.'ALL     ') THEN
-         OUTLYNE='"CSD", "CSDX" AND "CSDY" ONLY ACCEPT "ALL" AS'
-         CALL SHOWIT(1)
-         OUTLYNE='VALID QUALIFIER INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"CSD", "CSDX" AND "CSDY" ONLY ACCEPT "ALL" AS'//'\n'//&
+         & 'VALID QUALIFIER INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       ELSE
 !       PROCEED
@@ -193,39 +187,28 @@ SUBROUTINE CVSOLV
          DF2=0
       END IF
       IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
-         OUTLYNE='"CSD", "CSDX" AND "CSDY"'
-         CALL SHOWIT(1)
-         OUTLYNE='USE EITHER TWO OR ZERO NUMERIC WORDS OR QUALIFIER INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"CSD", "CSDX" AND "CSDY"'//'\n'//&
+         & 'USE EITHER TWO OR ZERO NUMERIC WORDS OR QUALIFIER INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(INT(W1).LT.0) THEN
-         OUTLYNE='STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(INT(W2).GT.INT(SYSTEM(20))) THEN
          WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(W1.GT.W2) THEN
          WRITE(OUTLYNE,*)'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'
          CALL SHOWIT(1)
-         OUTLYNE='THE STARTING SURFACE #'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('THE STARTING SURFACE #'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       DO SF=INT(W1),INT(W2)
@@ -295,177 +278,133 @@ SUBROUTINE CVSOLV
 !
 !
          IF(WC.EQ.'APY') THEN
-            OUTLYNE='APY" TAKES NO EXPLICIT INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('APY" TAKES NO EXPLICIT INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'APX') THEN
-            OUTLYNE='"APX" TAKES NO EXPLICIT INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"APX" TAKES NO EXPLICIT INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          IF(WC.EQ.'PIY') THEN
-            OUTLYNE='"PIY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PIY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PIX') THEN
-            OUTLYNE='"PIX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PIX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE='"PUY" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUY" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE='"PUX" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUX" ONLY ACCEPTS QUALIFIER AND NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SQ.EQ.1.AND.WQ.NE.'FN') THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE='INVALID UALIFIER USED WITH "PUY"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'INVALID UALIFIER USED WITH "PUY"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE='INVALID QUALIFIER USED WITH "PUX"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'INVALID QUALIFIER USED WITH "PUX"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(WQ.EQ.'FN'.AND.DF1.EQ.1) THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE='"PUY FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUY FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE='"PUX FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUX FN" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(WQ.EQ.'FN'.AND.W1.EQ.0.0D0) THEN
          IF(WC.EQ.'PUY') THEN
-            OUTLYNE='"PUY FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUY FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PUX') THEN
-            OUTLYNE='"PUX FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUX FN" REQUIRES NON-ZERO NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
          IF(WC.EQ.'APCY') THEN
-            OUTLYNE='"APCY" TAKES NO EXPLICIT INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"APCY" TAKES NO EXPLICIT INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'APCX') THEN
-            OUTLYNE='"APCX" TAKES NO EXPLICIT INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"APCX" TAKES NO EXPLICIT INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(SST.EQ.1.OR.SQ.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 .OR.S5.EQ.1) THEN
          IF(WC.EQ.'PICY') THEN
-            OUTLYNE='"PICY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PICY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PICX') THEN
-            OUTLYNE='"PICX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PICX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PUCY') THEN
-            OUTLYNE='"PUCY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUCY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'PUCX') THEN
-            OUTLYNE='"PUCX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"PUCX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'COCY') THEN
-            OUTLYNE='"COCY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"COCY" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WC.EQ.'COCX') THEN
-            OUTLYNE='"COCX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"COCX" ONLY ACCEPTS NUMERIC WORD #1 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
@@ -476,17 +415,12 @@ SUBROUTINE CVSOLV
 !
    IF(WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PICX'.OR.WC.EQ.'APCX'.OR.WC.EQ.'APCY') THEN
       IF(SURF.LT.1.AND.SYSTEM(26).EQ.-99.0D0.OR.SURF.LT.INT(SYSTEM(26)).AND.SYSTEM(26).NE.-99.0D0) THEN
-         OUTLYNE='             CHIEF RAY SOLVES ARE NOT ALLOWED'
-         CALL SHOWIT(1)
-         OUTLYNE='                       OBJECT SURFACE'
-         CALL SHOWIT(1)
-         OUTLYNE='                            OR'
-         CALL SHOWIT(1)
-         OUTLYNE='               BEFORE THE APERTURE STOP SURFACE.'
-         CALL SHOWIT(1)
-         OUTLYNE='                       RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '             CHIEF RAY SOLVES ARE NOT ALLOWED'//'\n'//&
+         & '                       OBJECT SURFACE'//'\n'//&
+         & '                            OR'//'\n'//&
+         & '               BEFORE THE APERTURE STOP SURFACE.'//'\n'//&
+         & '                       RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -1783,19 +1717,15 @@ SUBROUTINE GLSRIN
 !
 !
    IF(SST.EQ.0) THEN
-      OUTLYNE='"'//WC//'" REQUIRES AN EXPLICIT GLASS NAME'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"'//WC//'" REQUIRES AN EXPLICIT GLASS NAME'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.1.OR.SN.EQ.1) THEN
-      OUTLYNE='"'//WC//'" TAKES NO QUALIFIER OR NUMERIC INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"'//WC//'" TAKES NO QUALIFIER OR NUMERIC INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(STI.EQ.1) THEN
@@ -2947,9 +2877,7 @@ SUBROUTINE GLSRIN
             CALL SPCGL(I,104)
             RETURN
          END IF
-         OUTLYNE='GLASS NOT FOUND IN THE '//GLANAM(I,1)//' CATALOG'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('GLASS NOT FOUND IN THE '//GLANAM(I,1)//' CATALOG', 1)
          RETURN
       END IF
    END IF

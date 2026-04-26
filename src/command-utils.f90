@@ -53,6 +53,70 @@ module command_utils
 
 contains
 
+  subroutine report_error_and_fail(message, show_code)
+    implicit none
+    character(len=*), intent(in) :: message
+    integer, intent(in) :: show_code
+    include "DATMAI.INC"
+    integer :: start_pos, split_pos
+    character(len=1) :: lf
+    EXTERNAL SHOWIT
+    EXTERNAL MACFAL
+
+    lf = new_line('a')
+    start_pos = 1
+
+    do
+      split_pos = find_message_break(message(start_pos:))
+      if (split_pos == 0) then
+        call show_message_line(message(start_pos:), show_code)
+        exit
+      end if
+
+      call show_message_line(message(start_pos:start_pos + split_pos - 2), show_code)
+
+      if (message(start_pos + split_pos - 1:start_pos + split_pos - 1) == lf) then
+        start_pos = start_pos + split_pos
+      else
+        start_pos = start_pos + split_pos + 1
+      end if
+
+      if (start_pos > len(message)) then
+        call show_message_line('', show_code)
+        exit
+      end if
+    end do
+
+    call MACFAL
+
+  contains
+
+    integer function find_message_break(text)
+      character(len=*), intent(in) :: text
+      integer :: actual_newline, slash_newline
+
+      actual_newline = index(text, lf)
+      slash_newline = index(text, '\n')
+
+      if (actual_newline == 0) then
+        find_message_break = slash_newline
+      else if (slash_newline == 0) then
+        find_message_break = actual_newline
+      else
+        find_message_break = min(actual_newline, slash_newline)
+      end if
+    end function
+
+    subroutine show_message_line(line, code)
+      character(len=*), intent(in) :: line
+      integer, intent(in) :: code
+
+      OUTLYNE = line
+      call SHOWIT(code)
+    end subroutine
+
+  end subroutine
+
   function hasAlphaNumericInput(self) result(flag)
     implicit none
     class(command_parser) :: self
@@ -493,3 +557,12 @@ contains
   end function
 
 end module
+
+subroutine report_error_and_fail(message, show_code)
+  use command_utils, only: report_error_and_fail_impl => report_error_and_fail
+  implicit none
+  character(len=*), intent(in) :: message
+  integer, intent(in) :: show_code
+
+  call report_error_and_fail_impl(message, show_code)
+end subroutine

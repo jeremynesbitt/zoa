@@ -38,11 +38,9 @@ SUBROUTINE MACOUT
    EXISJK=.FALSE.
    INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=EXISJK)
    IF(.NOT.EXISJK) THEN
-      OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-      OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"MACRO FILES DO NOT YET EXIST'//'\n'//&
+      & 'TO INITIALIZE IT, USE "IMF" AND "PROCEED"', 1)
       RETURN
    END IF
 !       ***************************************************************
@@ -622,11 +620,9 @@ subroutine does_mac_dat_exist(boolResult)
 
    INQUIRE(FILE=trim(LIBMAC)//'MAC.DAT',EXIST=boolResult)
    IF(.NOT.boolResult) THEN
-      OUTLYNE='"MACRO FILES DO NOT YET EXIST'
-      CALL SHOWIT(1)
-      OUTLYNE='TO INITIALIZE IT, USE "IMF" AND "PROCEED"'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"MACRO FILES DO NOT YET EXIST'//'\n'//&
+      & 'TO INITIALIZE IT, USE "IMF" AND "PROCEED"', 1)
       RETURN
    END IF
 

@@ -114,9 +114,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV)
 
                
                 IF(INT(W1).GT.INT(sys_last_surf()).OR.INT(W1).LT.0) THEN
-                 OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
-                 CALL SHOWIT(1)
-                 CALL MACFAL
+                 CALL REPORT_ERROR_AND_FAIL('SURFACE NUMBER BEYOND LEGAL RANGE', 1)
                  RETURN
                 END IF
 

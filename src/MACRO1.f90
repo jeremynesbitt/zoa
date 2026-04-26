@@ -39,9 +39,7 @@ SUBROUTINE SORTA(AKK)
       ELSE
 !       IF AKK LT 0 ERROR
          IF(AKK.LT.0) THEN
-            OUTLYNE='ERROR- NEGATIVE ITEMS TO SORT'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('ERROR- NEGATIVE ITEMS TO SORT', 1)
             RETURN
          ELSE
 !       IF AKK GT MAXMAC ERROR
@@ -187,11 +185,7 @@ SUBROUTINE RELOAD
    INCLUDE 'DATMAC.INC'
 !
    IF(SQ.EQ.1.OR.SN.EQ.1.OR.SST.EQ.1) THEN
-      OUTLYNE='"RELOAD" TAKES NO EXPLICIT INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('"RELOAD" TAKES NO EXPLICIT INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    REG(1:25)=SREG(NEST,1:25)
@@ -375,9 +369,7 @@ SUBROUTINE EEOM
       OUTLYNE=&
       &'"EOM" TAKES NO EXPLICIT INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    ELSE
    END IF
@@ -958,28 +950,20 @@ SUBROUTINE FUNNAME
 !
    INCLUDE 'DATMAC.INC'
    IF(SST.EQ.1) THEN
-      OUTLYNE='"FUNNAME" TAKES NO STRING INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('"FUNNAME" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
       OUTLYNE=&
       &'"FUNNAME" ONLY TAKES QUALIFIER AND NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(DF1.EQ.1) THEN
-      OUTLYNE='"FUNNAME" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"FUNNAME" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(W1.NE.1.0D0.AND.W1.NE.2.0D0.AND.W1.NE.3.0D0.AND.W1.NE.4.0D0 &
@@ -990,25 +974,19 @@ SUBROUTINE FUNNAME
    &.AND.W1.NE.15.0D0.AND.W1.NE.16.0D0 &
    &.AND.W1.NE.17.0D0.AND.W1.NE.18.0D0 &
    &.AND.W1.NE.19.0D0.AND.W1.NE.20.0D0) THEN
-      OUTLYNE='"VALID FUNCTION NUMBERS ARE 1 THROUGHT 20'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"VALID FUNCTION NUMBERS ARE 1 THROUGHT 20'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(STI.EQ.1) THEN
-      OUTLYNE='NO INFORMATION AVLAILABLE'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('NO INFORMATION AVLAILABLE', 1)
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
-      OUTLYNE='"FUNNAME" REQUIRES EXPLICIT QUALIFIER INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"FUNNAME" REQUIRES EXPLICIT QUALIFIER INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    FNAMED(INT(W1))=WQ(1:8)
@@ -1178,11 +1156,9 @@ SUBROUTINE FUNEXC
       IF(FUNCW(NF,I).EQ.FCDIR1(K)) THEN
 !
 !       WE JUST CALLED A FUNCTION
-         OUTLYNE='A FUNCTION IS NOT ALLOWED TO CALL A FUNCTION'
-         CALL SHOWIT(1)
-         OUTLYNE='WHEN USED IN SPECIAL SURFACES OR OPTIMIZATION'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'A FUNCTION IS NOT ALLOWED TO CALL A FUNCTION'//'\n'//&
+         & 'WHEN USED IN SPECIAL SURFACES OR OPTIMIZATION', 1)
          RETURN
       END IF
    END DO
@@ -1190,11 +1166,9 @@ SUBROUTINE FUNEXC
       IF(FUNCW(NF,I).EQ.MCDIR1(K)) THEN
 !
 !       THE FUNCTION CALLED A MACRO
-         OUTLYNE='A FUNCTION IS NOT ALLOWED TO CALL A MACRO'
-         CALL SHOWIT(1)
-         OUTLYNE='WHEN USED IN SPECIAL SURFACES OR OPTIMIZATION'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'A FUNCTION IS NOT ALLOWED TO CALL A MACRO'//'\n'//&
+         & 'WHEN USED IN SPECIAL SURFACES OR OPTIMIZATION', 1)
          RETURN
       END IF
 40 CONTINUE
@@ -1363,11 +1337,9 @@ SUBROUTINE FUNEXC
       IF(WQ.EQ.'MTEST') MOVEYES=.TRUE.
       IF(WQ.EQ.'NTEST') MOVEYES=.TRUE.
       IF(.NOT.MOVEYES) THEN
-         OUTLYNE='INVALID REGISTER NAME USED WITH THE "MOVE" COMMAND'
-         CALL SHOWIT(1)
-         OUTLYNE='MACRO EXECUTION ABORTED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INVALID REGISTER NAME USED WITH THE "MOVE" COMMAND'//'\n'//&
+         & 'MACRO EXECUTION ABORTED', 1)
          RETURN
       ELSE
          REG(40)=REG(9)
@@ -1586,11 +1558,9 @@ SUBROUTINE FUNEXC
       ELSE
          CT=CT+1
          IF(CT.GT.10) THEN
-            OUTLYNE='MAXIMUM NUMBER OF CONSECUTIVE NSUBS = 10'
-            CALL SHOWIT(1)
-            OUTLYNE='HAS BEEN REACHED, FUNCTION EXECUTION ABORTED'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'MAXIMUM NUMBER OF CONSECUTIVE NSUBS = 10'//'\n'//&
+            & 'HAS BEEN REACHED, FUNCTION EXECUTION ABORTED', 1)
             RETURN
          ELSE
             H(1,CT)=FUNNW(NF,1,I)
@@ -1607,11 +1577,9 @@ SUBROUTINE FUNEXC
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
 !
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1640,11 +1608,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1673,11 +1639,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1706,11 +1670,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1735,11 +1697,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1764,11 +1724,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1793,11 +1751,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -1823,11 +1779,9 @@ SUBROUTINE FUNEXC
 !
          IF(INT(DABS(H(1,CT))).EQ.0) THEN
             IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-               OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-               CALL SHOWIT(1)
-               OUTLYNE='FUNCTION EXECUTION ABORTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+               & 'FUNCTION EXECUTION ABORTED', 1)
                RETURN
             END IF
             IF(INT(DABS(H(2,CT))).EQ.1) REG(9)=FMNW(1)
@@ -2055,11 +2009,9 @@ SUBROUTINE FUNEXC
    IF(NSUB.EQ.1) THEN
       CTF=CT
       IF(CT.GT.10) THEN
-         OUTLYNE='MAXIMUM NUMBER OF CONSECUTIVE NSUBS = 10'
-         CALL SHOWIT(1)
-         OUTLYNE='HAS BEEN REACHED, FUNCTION EXECUTION ABORTED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'MAXIMUM NUMBER OF CONSECUTIVE NSUBS = 10'//'\n'//&
+         & 'HAS BEEN REACHED, FUNCTION EXECUTION ABORTED', 1)
          RETURN
 !       PROCEED
       END IF
@@ -2071,11 +2023,9 @@ SUBROUTINE FUNEXC
 !                THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2089,11 +2039,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2107,11 +2055,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2125,11 +2071,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2143,11 +2087,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2180,11 +2122,9 @@ SUBROUTINE FUNEXC
 !                THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2198,11 +2138,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2216,11 +2154,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2234,11 +2170,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2252,11 +2186,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2289,11 +2221,9 @@ SUBROUTINE FUNEXC
 !                THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2307,11 +2237,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2325,11 +2253,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2343,11 +2269,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2361,11 +2285,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2398,11 +2320,9 @@ SUBROUTINE FUNEXC
 !               THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2416,11 +2336,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2434,11 +2352,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2452,11 +2368,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2470,11 +2384,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2503,11 +2415,9 @@ SUBROUTINE FUNEXC
 !               THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2521,11 +2431,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2539,11 +2447,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2557,11 +2463,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2575,11 +2479,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2608,11 +2510,9 @@ SUBROUTINE FUNEXC
 !               THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2626,11 +2526,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2644,11 +2542,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2662,11 +2558,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2680,11 +2574,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2713,11 +2605,9 @@ SUBROUTINE FUNEXC
 !               THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2731,11 +2621,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2749,11 +2637,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2767,11 +2653,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2785,11 +2669,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2819,11 +2701,9 @@ SUBROUTINE FUNEXC
 !               THIS CASE HANDELED EARLIER
             IF(INT(DABS(H(1,CT))).EQ.1) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2837,11 +2717,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.2) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2855,11 +2733,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.3) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2873,11 +2749,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.4) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -2891,11 +2765,9 @@ SUBROUTINE FUNEXC
             END IF
             IF(INT(DABS(H(1,CT))).EQ.5) THEN
                IF(INT(DABS(H(1,CT))).GT.5.OR.INT(DABS(H(2,CT))).GT.5) THEN
-                  OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-                  CALL SHOWIT(1)
-                  OUTLYNE='FUNCTION EXECUTION ABORTED'
-                  CALL SHOWIT(1)
-                  CALL MACFAL
+                  CALL REPORT_ERROR_AND_FAIL(&
+                  & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+                  & 'FUNCTION EXECUTION ABORTED', 1)
                   RETURN
                END IF
                CALL FACC1(CT)
@@ -3134,11 +3006,9 @@ SUBROUTINE FUNEXC
 !
    IF(FUNCW(NF,I).EQ.'BRANCH') THEN
       IF(INT(DABS(FUNNW(NF,1,I))).GT.5) THEN
-         OUTLYNE='NUMERIC WORD NUMBER OUT OF RANGE'
-         CALL SHOWIT(1)
-         OUTLYNE='FUNCTION EXECUTION ABORTED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NUMERIC WORD NUMBER OUT OF RANGE'//'\n'//&
+         & 'FUNCTION EXECUTION ABORTED', 1)
          RETURN
       END IF
       IF(FMNW(INT(DABS(FUNNW(NF,1,I)))).EQ.FUNNW(NF,2,I)) THEN
@@ -3178,9 +3048,7 @@ SUBROUTINE FUNEXC
 !       PRINT ERROR AND TERMINATE MACRO EXECUTION.
             WRITE(OUTLYNE,*)'BRANCH POINT ',FUNQW(NF,I),' NOT FOUND'
             CALL SHOWIT(1)
-            OUTLYNE='FUNCTION EXECUTION TERMINATING'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('FUNCTION EXECUTION TERMINATING', 1)
             RETURN
          END IF
       ELSE
@@ -3225,9 +3093,7 @@ SUBROUTINE FUNEXC
 !       PRINT ERROR AND TERMINATE MACRO EXECUTION.
       WRITE(OUTLYNE,*)'BRANCH POINT ',FUNQW(NF,I),' NOT FOUND'
       CALL SHOWIT(1)
-      OUTLYNE='FUNCTION EXECUTION TERMINATING'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('FUNCTION EXECUTION TERMINATING', 1)
       RETURN
    ELSE
 !       IS THE BRQ COMMAND HERE WITH NO JUMP TO BE MADE?
@@ -3249,11 +3115,9 @@ SUBROUTINE FUNEXC
       &FUNNW(NF,3,I).LT.0.0D0.OR.&
       &FUNNW(NF,4,I).LT.0.0D0.OR.&
       &FUNNW(NF,5,I).LT.0.0D0) THEN
-         OUTLYNE='INPUT TO BRT OR BRF MUST BE POSITIVE'
-         CALL SHOWIT(1)
-         OUTLYNE='FUNCTION EXECUTION TERMINATING'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'INPUT TO BRT OR BRF MUST BE POSITIVE'//'\n'//&
+         & 'FUNCTION EXECUTION TERMINATING', 1)
          RETURN
       END IF
 !       INPUT NOT NEGATIVE,PROCEED
@@ -3300,9 +3164,7 @@ SUBROUTINE FUNEXC
 !       PRINT ERROR AND TERMINATE MACRO EXECUTION.
          WRITE(OUTLYNE,*)'BRANCH POINT ',FUNQW(NF,I),' NOT FOUND'
          CALL SHOWIT(1)
-         OUTLYNE='FUNCTION EXECUTION TERMINATING'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('FUNCTION EXECUTION TERMINATING', 1)
          RETURN
       ELSE
 !       BRANCHING DID NOT OCCUR,WHY

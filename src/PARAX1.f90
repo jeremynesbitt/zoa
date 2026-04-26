@@ -600,9 +600,7 @@ SUBROUTINE PRTRA_OLD
 !       PUY(0)=SAY/TH(0)
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             ! Experimental code !  go back to original and fix it correctly!
@@ -641,9 +639,7 @@ SUBROUTINE PRTRA_OLD
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
@@ -1691,9 +1687,7 @@ SUBROUTINE PRTRA_OLD
 !       PUX(0)=SAX/TH(0)
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAX(2,0)=(SYS13)/surf_thickness(0)
@@ -1713,9 +1707,7 @@ SUBROUTINE PRTRA_OLD
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
@@ -3288,9 +3280,7 @@ SUBROUTINE TR
 !       PUY(0)=SAY/TH(0)
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
@@ -3309,9 +3299,7 @@ SUBROUTINE TR
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
@@ -4199,9 +4187,7 @@ SUBROUTINE TR
 !       PUX(0)=SAX/TH(0)
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAX(2,0)=(SYS13)/surf_thickness(0)
@@ -4220,9 +4206,7 @@ SUBROUTINE TR
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
 !
             IF(surf_thickness(0).EQ.0.0D0) THEN
-               OUTLYNE='OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
             PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)

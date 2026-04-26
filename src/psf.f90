@@ -106,11 +106,9 @@ module mod_psf
                IF(S1.EQ.0) DFLAG=0
 !
       IF(.NOT.CPFNEXT) THEN
-               OUTLYNE='NO COMPLEX APERTURE FUNCTION EXISTS'
-               CALL SHOWIT(1)
-               OUTLYNE='NO PSF CALCULATION IS POSSIBLE'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NO COMPLEX APERTURE FUNCTION EXISTS'//'\n'//&
+               & 'NO PSF CALCULATION IS POSSIBLE', 1)
                CALL DELPSF
                RETURN
                END IF
@@ -172,11 +170,9 @@ module mod_psf
                       END IF
  314                  CONTINUE
       IF(SHRTWAVE.EQ.0.0D0) THEN
-        OUTLYNE='WAVELENGTHS ARE ALL ZERO'
-      CALL SHOWIT(1)
-        OUTLYNE='NO "PSF" CAN BE CALCULATED'
-      CALL SHOWIT(1)
-                        CALL MACFAL
+        CALL REPORT_ERROR_AND_FAIL(&
+        & 'WAVELENGTHS ARE ALL ZERO'//'\n'//&
+        & 'NO "PSF" CAN BE CALCULATED', 1)
                CALL DELPSF
                         RETURN
                         END IF
@@ -291,9 +287,7 @@ module mod_psf
       DIAM=GRNX
       IF(GRNY.LT.GRNX) DIAM=GRNY
       IF(DIAM.EQ.0.0D0) THEN
-      OUTLYNE='F/NUMBER WAS ZERO, NO PSF CALCULATION POSSIBLE'
-      CALL SHOWIT(1)
-                   CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('F/NUMBER WAS ZERO, NO PSF CALCULATION POSSIBLE', 1)
                CALL DELPSF
                    RETURN
                    END IF

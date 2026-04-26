@@ -1460,36 +1460,28 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSORINT" TAKES NO QUALIFIER OR STRING INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
             OUTLYNE=&
             &'"NSSORINT" ONLY TAKES NUMERIC WORDS #1 AND #2 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(DF1.EQ.1) THEN
             OUTLYNE=&
             &'"NSSORINT" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W1.LT.0.0D0.OR.W1.GT.LASTSUR) THEN
             OUTLYNE=&
             &'NUMERIC WORD #1, SURFACE #, BEYOND LEGAL RANGE'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V2=DBLE(DF2)
@@ -1517,22 +1509,17 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"NSSPOL" ONLY TAKES QUALIFIER INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSPOL" ONLY TAKES QUALIFIER INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.WQ.NE.'YES'.AND.&
          &WQ.NE.'NO') THEN
-            OUTLYNE='"NSSPOL" ONLY TAKES "YES", "NO", "ON" OR "OFF"'
-            CALL SHOWIT(1)
-            OUTLYNE='AS VALID QUALIFIERS'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSPOL" ONLY TAKES "YES", "NO", "ON" OR "OFF"'//'\n'//&
+            & 'AS VALID QUALIFIERS'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ.EQ.'YES') NSSSYSTEM(39)=1.0D0
@@ -1541,11 +1528,9 @@ SUBROUTINE NSSCALL
          IF(WQ.EQ.'OFF') NSSSYSTEM(39)=0.0D0
          RETURN
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS'
-         CALL SHOWIT(1)
-         OUTLYNE='NO POLARIZATION SETTING CAN BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS'//'\n'//&
+         & 'NO POLARIZATION SETTING CAN BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -1577,29 +1562,21 @@ SUBROUTINE NSSCALL
       END IF
       IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.&
       &S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE='"NSSINTER" ONLY TAKES QUALIFIER AND NUMERIC'
-         CALL SHOWIT(1)
-         OUTLYNE='WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSINTER" ONLY TAKES QUALIFIER AND NUMERIC'//'\n'//&
+         & 'WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(WQ.NE.'T'.AND.WQ.NE.'R'.AND.WQ.NE.'A') THEN
-         OUTLYNE='"NSSINTER" ONLY TAKES "T", "R" OR "A"'
-         CALL SHOWIT(1)
-         OUTLYNE='AS VALID QUALIFIERS'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSINTER" ONLY TAKES "T", "R" OR "A"'//'\n'//&
+         & 'AS VALID QUALIFIERS'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(W1.NE.1.0D0.AND.W1.NE.2.0D0) THEN
-         OUTLYNE='"NSSINTER" REQUIRES A 1 OR 2 FOR NUMERIC WORD 1'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"NSSINTER" REQUIRES A 1 OR 2 FOR NUMERIC WORD 1', 1)
          RETURN
       END IF
       IF(WQ.EQ.'T'.AND.W1.EQ.1.0D0) NSSALENS(8,SFID)=1.0D0
@@ -1643,60 +1620,42 @@ SUBROUTINE NSSCALL
          RETURN
       END IF
       IF(SST.EQ.1) THEN
-         OUTLYNE='"NSSLINK TAKES NO STRING INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('"NSSLINK TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SQ.EQ.0) THEN
-         OUTLYNE='"NSSLINK REQUIRES EXPLICIT QUALIFIER INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSLINK REQUIRES EXPLICIT QUALIFIER INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(SQ.EQ.1) THEN
          IF(WQ.NE.'SPROFILE'.AND.WQ.NE.'SMEDIA'.AND.&
          &WQ.NE.'SCOATING'.AND.WQ.NE.'SINTERAC') THEN
-            OUTLYNE='"NSSLINK ONLY ACCEPTS QUALIFIERS:'
-            CALL SHOWIT(1)
-            OUTLYNE='             SPROFILE'
-            CALL SHOWIT(1)
-            OUTLYNE='             SMEDIA'
-            CALL SHOWIT(1)
-            OUTLYNE='             SCOATING'
-            CALL SHOWIT(1)
-            OUTLYNE='             SINTERAC'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSLINK ONLY ACCEPTS QUALIFIERS:'//'\n'//&
+            & '             SPROFILE'//'\n'//&
+            & '             SMEDIA'//'\n'//&
+            & '             SCOATING'//'\n'//&
+            & '             SINTERAC'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
       END IF
       IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE='"NSSLINK TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSLINK TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(S1.EQ.0) THEN
-         OUTLYNE='"NSSLINK REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSLINK REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(.NOT.NEXISTN) THEN
-         OUTLYNE='NO NSS DATABASE EXISTS'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS', 1)
          RETURN
       END IF
       V1=W1
@@ -1714,11 +1673,9 @@ SUBROUTINE NSSCALL
          RETURN
       END IF
       IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-         OUTLYNE='"NSSEOS TAKES NO ADDITIONAL INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSEOS TAKES NO ADDITIONAL INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       CALL NSSEOS
@@ -1734,25 +1691,19 @@ SUBROUTINE NSSCALL
       END IF
       IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1 &
       &.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE='"NSSCOAT1" ONLY TAKES NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSCOAT1" ONLY TAKES NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(W1.LT.0.0D0.AND.W1.GT.1000.0D0) THEN
-         OUTLYNE='VALID COATING FILE NUMBERS RANGE FROM 0 TO 1000'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'VALID COATING FILE NUMBERS RANGE FROM 0 TO 1000'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(.NOT.NEXISTN) THEN
-         OUTLYNE='NO NSS DATABASE EXISTS'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS', 1)
          RETURN
       END IF
       IV1=INT(W1)
@@ -1769,25 +1720,19 @@ SUBROUTINE NSSCALL
       END IF
       IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1 &
       &.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE='"NSSCOAT2" ONLY TAKES NUMERIC WORD #1 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSCOAT2" ONLY TAKES NUMERIC WORD #1 INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(W1.LT.0.0D0.AND.W1.GT.1000.0D0) THEN
-         OUTLYNE='VALID COATING FILE NUMBERS RANGE FROM 0 TO 1000'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'VALID COATING FILE NUMBERS RANGE FROM 0 TO 1000'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(.NOT.NEXISTN) THEN
-         OUTLYNE='NO NSS DATABASE EXISTS'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS', 1)
          RETURN
       END IF
       IV1=INT(W1)
@@ -1802,20 +1747,16 @@ SUBROUTINE NSSCALL
          RETURN
       END IF
       IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-         OUTLYNE='"NSSDEL" TAKES NO ADDITIONAL INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSDEL" TAKES NO ADDITIONAL INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(NEXISTN) THEN
          CALL DEL_NSS
          RETURN
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS TO BE DELETED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS TO BE DELETED', 1)
       END IF
       RETURN
    END IF
@@ -1829,11 +1770,9 @@ SUBROUTINE NSSCALL
          RETURN
       END IF
       IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-         OUTLYNE='"NSSDET" TAKES NO ADDITIONAL INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSDET" TAKES NO ADDITIONAL INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       IF(NEXISTN) THEN
@@ -1841,11 +1780,9 @@ SUBROUTINE NSSCALL
          DETSNUM=SFID
          RETURN
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS'
-         CALL SHOWIT(1)
-         OUTLYNE='NO DETECTOR SURFACE CAN BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS'//'\n'//&
+         & 'NO DETECTOR SURFACE CAN BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -1858,11 +1795,9 @@ SUBROUTINE NSSCALL
          RETURN
       END IF
       IF(SQ.EQ.1.OR.SST.EQ.1.OR.SN.EQ.1) THEN
-         OUTLYNE='"NSSNEW" TAKES NO ADDITIONAL INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"NSSNEW" TAKES NO ADDITIONAL INPUT'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
       CALL NEW_NSS
@@ -1884,22 +1819,17 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"NSSUNITS" TAKES NO STRING OR NUMERIC WORD INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSUNITS" TAKES NO STRING OR NUMERIC WORD INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ(1:2).NE.'IN'.AND.WQ(1:2).NE.'CM'.AND.WQ(1:2).NE.'MM'&
          &.AND.WQ(1:2).NE.'M ') THEN
-            OUTLYNE='"NSSUNITS" TAKES EITHER "IN", "CM", "MM OR "M "'
-            CALL SHOWIT(1)
-            OUTLYNE='AS VALID QUALIFIER INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSUNITS" TAKES EITHER "IN", "CM", "MM OR "M "'//'\n'//&
+            & 'AS VALID QUALIFIER INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          ELSE
             IF(WQ(1:2).EQ.'IN') IUNIT=1
@@ -1910,9 +1840,7 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NSS UNITS CAN NOT BE SET'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS. NSS UNITS CAN NOT BE SET', 1)
       END IF
       RETURN
    END IF
@@ -1947,35 +1875,28 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-            OUTLYNE='"NSSWV" TAKES NO STRING, QUALIFIER OR NUMERIC WORD'
-            CALL SHOWIT(1)
-            OUTLYNE='#3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSWV" TAKES NO STRING, QUALIFIER OR NUMERIC WORD'//'\n'//&
+            & '#3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(INT(W1).NE.1.AND.INT(W1).NE.2.AND.&
          &INT(W1).NE.3.AND.INT(W1).NE.4.AND.INT(W1).NE.5.AND.&
          &INT(W1).NE.6.AND.INT(W1).NE.7.AND.INT(W1).NE.8.AND.&
          &INT(W1).NE.9.AND.INT(W1).NE.10) THEN
-            OUTLYNE='NUMERIC WORD #1 MUST BE 1,2,3,4,5,6,7,8,9 OR 10'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'NUMERIC WORD #1 MUST BE 1,2,3,4,5,6,7,8,9 OR 10'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          V2=W2
          CALL NSS_WV(V1,V2)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NSS WAVELENGTHS'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN NOT BE SET'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NSS WAVELENGTHS'//'\n'//&
+         & 'CAN NOT BE SET', 1)
       END IF
       RETURN
    END IF
@@ -2009,35 +1930,28 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-            OUTLYNE='"NSSWT" TAKES NO STRING, QUALIFIER OR NUMERIC WORD'
-            CALL SHOWIT(1)
-            OUTLYNE='#3, #4 OR #5 INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSWT" TAKES NO STRING, QUALIFIER OR NUMERIC WORD'//'\n'//&
+            & '#3, #4 OR #5 INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(INT(W1).NE.1.AND.INT(W1).NE.2.AND.&
          &INT(W1).NE.3.AND.INT(W1).NE.4.AND.INT(W1).NE.5.AND.&
          &INT(W1).NE.6.AND.INT(W1).NE.7.AND.INT(W1).NE.8.AND.&
          &INT(W1).NE.9.AND.INT(W1).NE.10) THEN
-            OUTLYNE='NUMERIC WORD #1 MUST BE 1,2,3,4,5,6,7,8,9 OR 10'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'NUMERIC WORD #1 MUST BE 1,2,3,4,5,6,7,8,9 OR 10'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          V2=W2
          CALL NSS_WT(V1,V2)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NSS WAVELENGTH'
-         CALL SHOWIT(1)
-         OUTLYNE='WEIGHTS CAN NOT BE SET'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NSS WAVELENGTH'//'\n'//&
+         & 'WEIGHTS CAN NOT BE SET', 1)
       END IF
       RETURN
    END IF
@@ -2059,19 +1973,15 @@ SUBROUTINE NSSCALL
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S5.EQ.1.OR.S4.EQ.1.OR.S3.EQ.1 &
          &.OR.S2.EQ.1) THEN
-            OUTLYNE='"UNIVERSE" ONLY TAKES NUMERIC WORD #1'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"UNIVERSE" ONLY TAKES NUMERIC WORD #1'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W1.LT.0.0D0) THEN
-            OUTLYNE='TERMINAL RAY DISTANCE MUST BE GREATER OR EQUAL TO ZERO'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'TERMINAL RAY DISTANCE MUST BE GREATER OR EQUAL TO ZERO'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W1.GE.0.0D0) THEN
@@ -2112,11 +2022,9 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S5.EQ.1) THEN
-            OUTLYNE='"SPOS" ONLY TAKES NUMERIC WORDS #1, #2, #3 AND #4'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SPOS" ONLY TAKES NUMERIC WORDS #1, #2, #3 AND #4'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2126,11 +2034,9 @@ SUBROUTINE NSSCALL
          IF(DF4.EQ.1) V4=-1.0D0
          CALL NSS_SPOS(V1,V2,V3,V4)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE POSITION CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE POSITION CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2153,11 +2059,9 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S5.EQ.1) THEN
-            OUTLYNE='"SROT" ONLY TAKES NUMERIC WORDS #1, #2, #3 AND #4'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SROT" ONLY TAKES NUMERIC WORDS #1, #2, #3 AND #4'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2165,11 +2069,9 @@ SUBROUTINE NSSCALL
          V3=W3
          CALL NSS_SROT(V1,V2,V3)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE ROTATION CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE ROTATION CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2204,19 +2106,15 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1) THEN
-            OUTLYNE='"SGRT" TAKES NO QUALIFIER OR STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SGRT" TAKES NO QUALIFIER OR STRING INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-            OUTLYNE='"SGRT" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SGRT" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2235,11 +2133,9 @@ SUBROUTINE NSSCALL
          NSSALENS(145,SFID)=V5
          NSSALENS(146,SFID)=1.0D0
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO DIFFRACTION GRATING CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO DIFFRACTION GRATING CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2249,20 +2145,14 @@ SUBROUTINE NSSCALL
    IF(WC.EQ.'SGRTD') THEN
       IF(NEXISTN) THEN
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"SGRTD" TAKES NO INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"SGRTD" TAKES NO INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          NSSALENS(141:146,SFID)=0.0D0
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO DIFFRACTION GRATING'
-         CALL SHOWIT(1)
-         OUTLYNE='DELETION BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO DIFFRACTION GRATING'//'\n'//&
+         & 'DELETION BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2282,22 +2172,18 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1) THEN
-            OUTLYNE='"SBOUNDX" ONLY TAKES NUMERIC WORDS #1 AND #2'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SBOUNDX" ONLY TAKES NUMERIC WORDS #1 AND #2'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          V2=W2
          CALL NSS_SBOUNDX(V1,V2)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE X-BOUNDS CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE X-BOUNDS CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2317,22 +2203,18 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1) THEN
-            OUTLYNE='"SBOUNDY" ONLY TAKES NUMERIC WORDS #1 AND #2'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SBOUNDY" ONLY TAKES NUMERIC WORDS #1 AND #2'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          V2=W2
          CALL NSS_SBOUNDY(V1,V2)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE Y-BOUNDS CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE Y-BOUNDS CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2352,22 +2234,18 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1) THEN
-            OUTLYNE='"SBOUNDZ" ONLY TAKES NUMERIC WORDS #1 AND #2'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SBOUNDZ" ONLY TAKES NUMERIC WORDS #1 AND #2'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          V2=W2
          CALL NSS_SBOUNDZ(V1,V2)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE Z-BOUNDS CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE Z-BOUNDS CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2383,19 +2261,15 @@ SUBROUTINE NSSCALL
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1 &
          &.OR.S2.EQ.1.OR.S3.EQ.1) THEN
-            OUTLYNE='"SURFACE" ONLY TAKES NUMERIC WORD #1'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SURFACE" ONLY TAKES NUMERIC WORD #1'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W1.LT.1.0D0) THEN
-            OUTLYNE='"SURFACE" NUMBER MUST BE GREATER THAN OR EQUAL TO 1'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SURFACE" NUMBER MUST BE GREATER THAN OR EQUAL TO 1'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2431,11 +2305,9 @@ SUBROUTINE NSSCALL
 4310        FORMAT('SURFACE NUMBER IS ',I10)
          END IF
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2452,21 +2324,17 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SN.EQ.1.OR.SQ.EQ.1) THEN
-            OUTLYNE='"SNAME" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SNAME" ONLY TAKES STRING INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          NSTRING=WS
          CALL NSS_SNAM(NSTRING)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE NAME CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE NAME CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2526,11 +2394,9 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1) THEN
-            OUTLYNE='"SPROFILE" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SPROFILE" TAKES NO STRING INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.1) THEN
@@ -2551,9 +2417,7 @@ SUBROUTINE NSSCALL
                CALL SHOWIT(1)
                WRITE(OUTLYNE,*)'TUBE'
                CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -2569,9 +2433,7 @@ SUBROUTINE NSSCALL
          V4=W4
          V5=W5
          IF(WQ.EQ.'USER') THEN
-            OUTLYNE='THE NSS USER DEFINED SURFACE IS NOT YET OPERATIONAL'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('THE NSS USER DEFINED SURFACE IS NOT YET OPERATIONAL', 1)
             RETURN
          END IF
          CALL NSS_SPROFILE(V0,V1,V2,V3,V4,V5)
@@ -2624,11 +2486,9 @@ SUBROUTINE NSSCALL
             NSSBOUNDS(6,J)=DABS(NSSALENS(11,SFID))+NUDGE(MYX)
          END IF
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE NAME CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE NAME CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2646,21 +2506,16 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-            OUTLYNE='"SPARAM" ONLY USES NUMERIC WORDS #1 AND #2'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SPARAM" ONLY USES NUMERIC WORDS #1 AND #2'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(INT(W1).LT.1.OR.INT(W1).GT.200) THEN
-            OUTLYNE='INVALID PARAMERTER NUMBER INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='VALID PARAMETER NUMBERS RANGE FROM 1 TO 200'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'INVALID PARAMERTER NUMBER INPUT'//'\n'//&
+            & 'VALID PARAMETER NUMBERS RANGE FROM 1 TO 200'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2668,11 +2523,9 @@ SUBROUTINE NSSCALL
          CALL NSS_SPARAM(V1,V2)
 !       CLEAR BOUNDS ASSIGNMENTS SINCE SURFACE PARAMETERS CHANGE
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE PARAMETERS CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SURFACE PARAMETERS CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2688,18 +2541,14 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"SCLEAR" TAKES NO ADDITIONAL INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SCLEAR" TAKES NO ADDITIONAL INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          CALL NSS_SCLEAR
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE CAN BE MODIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS. NO SURFACE CAN BE MODIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2715,18 +2564,14 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"SUNCLEAR" TAKES NO ADDITIONAL INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"SUNCLEAR" TAKES NO ADDITIONAL INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          CALL NSS_SUNCLEAR
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SURFACE CAN BE MODIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE EXISTS. NO SURFACE CAN BE MODIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2744,21 +2589,17 @@ SUBROUTINE NSSCALL
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1 &
          &.OR.S2.EQ.1) THEN
-            OUTLYNE='"NSSMINE" ONLY USES NUMERIC WORD #1'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSMINE" ONLY USES NUMERIC WORD #1'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          CALL NSS_MINE(V1)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO MIN ENERGY PARAMETER CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO MIN ENERGY PARAMETER CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2778,11 +2619,9 @@ SUBROUTINE NSSCALL
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1 &
          &.OR.S2.EQ.1) THEN
-            OUTLYNE='"NSSMHIT" ONLY USES NUMERIC WORD #1'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSMHIT" ONLY USES NUMERIC WORD #1'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2791,9 +2630,7 @@ SUBROUTINE NSSCALL
          OUTLYNE='NO NSS DATABASE EXISTS. NO MAX RAY/SURFACE &
          & PARAMETER CAN'
          CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2812,31 +2649,25 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"NSSSPLIT" ONLY USES QUALIFIER INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSSPLIT" ONLY USES QUALIFIER INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.WQ.NE.'YES'&
          &.AND.WQ.NE.'NO') THEN
-            OUTLYNE='"NSSSPLIT" ONLY TAKES "ON", "OFF", "YES" OR "NO"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSSPLIT" ONLY TAKES "ON", "OFF", "YES" OR "NO"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ.EQ.'ON'.OR.WQ.EQ.'YES') V1=1.0D0
          IF(WQ.EQ.'OFF'.OR.WQ.EQ.'NO') V1=0.0D0
          CALL NSS_SPLIT(V1)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS RAY SPLITTING CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS RAY SPLITTING CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2862,9 +2693,7 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSOBJ" ONLY USES QUALIFIER AND NUMERIC WORDS #1, #2 AND #3'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0) WQ='REAL'
@@ -2872,9 +2701,7 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSOBJ" ONLY TAKES "REAL" AND "VIRTUAL" AS VALID QUALIFIERS'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2883,11 +2710,9 @@ SUBROUTINE NSSCALL
          VQ=WQ
          CALL NSS_OBJ(VQ,V1,V2,V3)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SOURCE POSITION CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SOURCE POSITION CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2913,9 +2738,7 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSREF" ONLY USES NUMERIC WORDS #1, #2 AND #3'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2923,11 +2746,9 @@ SUBROUTINE NSSCALL
          V3=W3
          CALL NSS_REF(V1,V2,V3)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO REFERENCE GRID POSITION CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO REFERENCE GRID POSITION CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -2961,9 +2782,7 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSGRIDS" ONLY USES QUALIFIER AND NUMERIC WORDS #1 and #2'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0) THEN
@@ -2974,9 +2793,7 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSGRIDS" ONLY "CIRC" AND "RECT" AS QUALIFIER WORDS'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -2984,11 +2801,9 @@ SUBROUTINE NSSCALL
          VQ=WQ
          CALL NSS_GRIDS(V1,V2,VQ)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO SOURCE GRID CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO SOURCE GRID CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3022,18 +2837,14 @@ SUBROUTINE NSSCALL
             OUTLYNE=&
             &'"NSSGRIDR" ONLY USES QUALIFIER AND NUMERIC WORDS #1 AND #2'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(WQ.NE.'CIRC'.AND.WQ.NE.'RECT') THEN
             OUTLYNE=&
             &'"NSSGRIDR" ONLY TAKES "CIRC" AND "RECT" AS QUALIFIERS'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -3041,11 +2852,9 @@ SUBROUTINE NSSCALL
          VQ=WQ
          CALL NSS_GRIDR(V1,V2,VQ)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO REFERENCE GRID CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO REFERENCE GRID CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3064,21 +2873,17 @@ SUBROUTINE NSSCALL
          END IF
          IF(SST.EQ.1.OR.SQ.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.S3.EQ.1.OR.&
          &S2.EQ.1) THEN
-            OUTLYNE='"NSSAPODR" ONLY USES NUMERIC WORD #1'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSAPODR" ONLY USES NUMERIC WORD #1'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
          CALL NSS_GRIDRAPOD(V1)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO APODIZATION CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO APODIZATION CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3099,11 +2904,9 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SN.EQ.1) THEN
-            OUTLYNE='"OBJMEDIA" TAKES NO NUMERIC INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"OBJMEDIA" TAKES NO NUMERIC INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0.AND.SST.EQ.0) THEN
@@ -3115,22 +2918,18 @@ SUBROUTINE NSSCALL
             WS(1:13)='AIR          '
          END IF
          IF(WQ(1:4).EQ.'REFL') THEN
-            OUTLYNE='"OBJMEDIA" MAY NOT BE SET TO "REFL"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"OBJMEDIA" MAY NOT BE SET TO "REFL"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          QWORD=WQ//'     '
          SWORD=WS(1:13)
          CALL NSS_OBJMEDIA(QWORD,SWORD)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO OBJMEDIA MATERIAL TYPE CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO OBJMEDIA MATERIAL TYPE CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3152,11 +2951,9 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SN.EQ.1) THEN
-            OUTLYNE='"MEDIA1" TAKES NO NUMERIC INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"MEDIA1" TAKES NO NUMERIC INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0.AND.SST.EQ.0) THEN
@@ -3168,22 +2965,18 @@ SUBROUTINE NSSCALL
             WS(1:13)='AIR          '
          END IF
          IF(WQ(1:4).EQ.'REFL') THEN
-            OUTLYNE='MEDIA1 MAY NOT BE SET TO "REFL"'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'MEDIA1 MAY NOT BE SET TO "REFL"'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          QWORD=WQ//'     '
          SWORD=WS(1:13)
          CALL NSS_MEDIA1(QWORD,SWORD)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO MEDIA1 MATERIAL TYPE CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO MEDIA1 MATERIAL TYPE CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3204,11 +2997,9 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SN.EQ.1) THEN
-            OUTLYNE='"MEDIA2" TAKES NO NUMERIC INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"MEDIA2" TAKES NO NUMERIC INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0.AND.SST.EQ.0) THEN
@@ -3227,11 +3018,9 @@ SUBROUTINE NSSCALL
          SWORD=WS(1:13)
          CALL NSS_MEDIA2(QWORD,SWORD)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO MEDIA1 MATERIAL TYPE CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO MEDIA1 MATERIAL TYPE CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3249,29 +3038,23 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SQ.EQ.1.OR.SST.EQ.1.OR.S5.EQ.1) THEN
-            OUTLYNE='"NSSN" ONLY TAKES NUMERIC WORDS 1 TO 4'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSN" ONLY TAKES NUMERIC WORDS 1 TO 4'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W1.NE.1.0D0.AND.W1.NE.2.0D0) THEN
-            OUTLYNE='NUMERIC WORD #1 MUST BE 1 OR 2'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'NUMERIC WORD #1 MUST BE 1 OR 2'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(W2.NE.1.0D0.AND.W2.NE.2.0D0.AND.W2.NE.3.0D0.AND.W2.NE.4.0D0 &
          &.AND.W2.NE.5.0D0.AND.W2.NE.6.0D0.AND.W2.NE.7.0D0 &
          &.AND.W2.NE.8.0D0.AND.W2.NE.9.0D0.AND.W2.NE.10.0D0) THEN
-            OUTLYNE='NUMERIC WORD #2 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'NUMERIC WORD #2 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V3=1.0D0
@@ -3282,11 +3065,9 @@ SUBROUTINE NSSCALL
          IF(DF4.EQ.0) V4=W4
          CALL NSS_NSSN(V1,V2,V3,V4)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO INDEX DATA CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO INDEX DATA CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3322,21 +3103,15 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1) THEN
-            OUTLYNE='"SCLAP" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"SCLAP" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0) V0=1.0D0
          IF(SQ.EQ.1) THEN
             IF(WQ.NE.'RECT'.AND.WQ.NE.'NONE'.AND.WQ.NE.'ELIP') THEN
-               OUTLYNE='NONE, RECT AND ELIP ARE THE ONLY VALID QUALIFIERS'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NONE, RECT AND ELIP ARE THE ONLY VALID QUALIFIERS'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -3344,11 +3119,9 @@ SUBROUTINE NSSCALL
          IF(WQ.EQ.'RECT') V0=2.0D0
          IF(WQ.EQ.'ELIP') V0=3.0D0
          IF(W1.LT.0.0D0.OR.W2.LT.0.0D0) THEN
-            OUTLYNE='NUMERIC WORDS #1 AND #2 MAY BOTH BE NEGATIVE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'NUMERIC WORDS #1 AND #2 MAY BOTH BE NEGATIVE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -3358,11 +3131,9 @@ SUBROUTINE NSSCALL
          V5=W5
          CALL NSS_SCLAP(V0,V1,V2,V3,V4,V5)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO CLEAR APERTURE DATA CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO CLEAR APERTURE DATA CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3397,21 +3168,15 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1) THEN
-            OUTLYNE='"SHOLE" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('"SHOLE" TAKES NO STRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.0) V0=1.0D0
          IF(SQ.EQ.1) THEN
             IF(WQ.NE.'RECT'.AND.WQ.NE.'NONE'.AND.WQ.NE.'ELIP') THEN
-               OUTLYNE='NONE, RECT AND ELIP ARE THE ONLY VALID QUALIFIERS'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & 'NONE, RECT AND ELIP ARE THE ONLY VALID QUALIFIERS'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
          END IF
@@ -3419,11 +3184,9 @@ SUBROUTINE NSSCALL
          IF(WQ.EQ.'RECT') V0=2.0D0
          IF(WQ.EQ.'ELIP') V0=3.0D0
          IF(W1.LT.0.0D0.OR.W2.LT.0.0D0) THEN
-            OUTLYNE='NUMERIC WORDS #1 AND #2 MAY BOTH BE NEGATIVE'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & 'NUMERIC WORDS #1 AND #2 MAY BOTH BE NEGATIVE'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          V1=W1
@@ -3433,11 +3196,9 @@ SUBROUTINE NSSCALL
          V5=W5
          CALL NSS_SHOLE(V0,V1,V2,V3,V4,V5)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO HOLE DATA CAN'
-         CALL SHOWIT(1)
-         OUTLYNE='BE SPECIFIED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO HOLE DATA CAN'//'\n'//&
+         & 'BE SPECIFIED', 1)
       END IF
       RETURN
    END IF
@@ -3451,30 +3212,24 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1) THEN
-            OUTLYNE='"NSSLIST" TAKES NO STRING INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSLIST" TAKES NO STRING INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.1.AND.WQ.NE.'NOSURF') THEN
             OUTLYNE=&
             &'"NSSLIST" ONLY TAKES "NOSURF" AS OPTIONAL QUALIFIER WORD INPUT'
             CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
             RETURN
          END IF
          CALL NSSEOS
          CALL NSS_LIST
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS DATABASE'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN BE DISPLAYED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS DATABASE'//'\n'//&
+         & 'CAN BE DISPLAYED', 1)
       END IF
       RETURN
    END IF
@@ -3490,24 +3245,18 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SN.EQ.1) THEN
-            OUTLYNE='"NSSTRACE" TAKES NO STRING OR NUMERIC INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSTRACE" TAKES NO STRING OR NUMERIC INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          IF(SQ.EQ.1) THEN
             IF(WQ.NE.'SPOT'.AND.WQ.NE.'SPOTADD') THEN
-               OUTLYNE='"NSSTRACE" ONLY TAKES OPTIONAL QUALIFIERS:'
-               CALL SHOWIT(1)
-               OUTLYNE='SPOT'
-               CALL SHOWIT(1)
-               OUTLYNE='SPOTADD'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               CALL MACFAL
+               CALL REPORT_ERROR_AND_FAIL(&
+               & '"NSSTRACE" ONLY TAKES OPTIONAL QUALIFIERS:'//'\n'//&
+               & 'SPOT'//'\n'//&
+               & 'SPOTADD'//'\n'//&
+               & 'RE-ENTER COMMAND', 1)
                RETURN
             ELSE
                IF(SQ.EQ.0)         NSSSPOTTYPE=0
@@ -3522,11 +3271,9 @@ SUBROUTINE NSSCALL
 !       CLOSE THE SPOT DIAGRAM FILES IF NECESSARY
          IF(NSSSPOTTYPE.NE.0) CALL CLOSE_FILE(65,1)
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS RAY TRACE'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN BE PERFORMED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS RAY TRACE'//'\n'//&
+         & 'CAN BE PERFORMED', 1)
       END IF
       RETURN
    END IF
@@ -3566,11 +3313,9 @@ SUBROUTINE NSSCALL
          RETURN
       ELSE
          NSSSPOTEXIST=.FALSE.
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS SPOT CAN GE GENERATED'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN BE PERFORMED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS SPOT CAN GE GENERATED'//'\n'//&
+         & 'CAN BE PERFORMED', 1)
          RETURN
       END IF
    END IF
@@ -3584,21 +3329,17 @@ SUBROUTINE NSSCALL
             RETURN
          END IF
          IF(SST.EQ.1.OR.SN.EQ.1.OR.SQ.EQ.1) THEN
-            OUTLYNE='"NSSLENO" TAKES NO ADDITIONAL INPUT'
-            CALL SHOWIT(1)
-            OUTLYNE='RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            CALL MACFAL
+            CALL REPORT_ERROR_AND_FAIL(&
+            & '"NSSLENO" TAKES NO ADDITIONAL INPUT'//'\n'//&
+            & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
          CALL NSSEOS
          CALL NSSLENO
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS DATABASE'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN BE OUTPUT'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS DATABASE'//'\n'//&
+         & 'CAN BE OUTPUT', 1)
       END IF
       RETURN
    END IF
@@ -3609,11 +3350,9 @@ SUBROUTINE NSSCALL
          CALL NSSEOS
          CALL NSSSAVE
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS DATABASE'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN BE SAVED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS DATABASE'//'\n'//&
+         & 'CAN BE SAVED', 1)
       END IF
       RETURN
    END IF
@@ -3630,11 +3369,9 @@ SUBROUTINE NSSCALL
          CALL NSSEOS
          CALL NSS_LIST_VERTEX
       ELSE
-         OUTLYNE='NO NSS DATABASE EXISTS. NO NSS DATABASE'
-         CALL SHOWIT(1)
-         OUTLYNE='CAN BE DISPLAYED'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO NSS DATABASE EXISTS. NO NSS DATABASE'//'\n'//&
+         & 'CAN BE DISPLAYED', 1)
       END IF
       RETURN
    END IF
@@ -4226,9 +3963,7 @@ SUBROUTINE NSSSAVE
       OUTLYNE=&
       &'"NSSSAVE" TAKES NO NUMERIC OR STRING INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
 !
@@ -4286,18 +4021,14 @@ SUBROUTINE NSSREST
       OUTLYNE=&
       &'"NSSREST" RESTORES THE NSS DATABASE FROM AN ASCII FILE'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SN.EQ.1.OR.SST.EQ.1) THEN
       OUTLYNE=&
       &'"NSSREST" TAKES NO NUMERIC OR STRING INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SQ.EQ.0) THEN
@@ -4323,9 +4054,7 @@ SUBROUTINE NSSREST
       OUTLYNE=&
       &'NSS FILE NAMED '//NSSDIR//LFILENAME(1:WSCNT)//' DOES NOT EXIST'
       CALL SHOWIT(1)
-      OUTLYNE='NO NSS DATABASE RESTORATION WAS PERFORMED'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('NO NSS DATABASE RESTORATION WAS PERFORMED', 1)
       RETURN
    END IF
 
@@ -5688,18 +5417,14 @@ SUBROUTINE NSSPLTSZ
       OUTLYNE=&
       &'"PLOT NSSSCALE" TAKES NO NUMERIC WORD #2, #3, #4 OR #5 INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(SST.EQ.1) THEN
       OUTLYNE=&
       &'"PLOT NSSSCALE" TAKES NO STRING INPUT'
       CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
    IF(STI.EQ.0) THEN
@@ -5707,9 +5432,7 @@ SUBROUTINE NSSPLTSZ
          OUTLYNE=&
          &'"PLOT NSSSCALE REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         CALL MACFAL
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
    END IF
@@ -5727,11 +5450,9 @@ SUBROUTINE NSSPLTSZ
    &' OF FULL SIZE')
 !       CHECK FOR ZERO VALUES AND DIS-ALLOW
    IF(W1.LE.0.0D0) THEN
-      OUTLYNE='"PLOT NSSSCALE" REQUIRES NON-ZERO, POSTIVE INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"PLOT NSSSCALE" REQUIRES NON-ZERO, POSTIVE INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
    NSSSCFAP=1.0D0/W1
