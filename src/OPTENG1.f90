@@ -232,6 +232,7 @@ SUBROUTINE OUTFLT
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OUTFLT. THIS SUBROUTINE IMPLEMENTS THE
@@ -251,10 +252,10 @@ SUBROUTINE OUTFLT
    REAL*8 CURVE,WAVE
 !
 !
-   IF(SYSTEM(6).EQ.1.0) UN='/INCHES     '
-   IF(SYSTEM(6).EQ.2.0) UN='/CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0) UN='/MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0) UN='/METERS'
+   IF(sys_units().EQ.1.0) UN='/INCHES     '
+   IF(sys_units().EQ.2.0) UN='/CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='/MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='/METERS'
 !
 !
    IF(SST.EQ.1) THEN
@@ -317,10 +318,10 @@ SUBROUTINE OUTFLT
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(6).EQ.1.0) WAVE=(W3*1.0D-3)/(25.4D0)
-   IF(SYSTEM(6).EQ.2.0) WAVE=W3*1.0D-4
-   IF(SYSTEM(6).EQ.3.0) WAVE=W3*1.0D-3
-   IF(SYSTEM(6).EQ.4.0) WAVE=W3*1.0D-6
+   IF(sys_units().EQ.1.0) WAVE=(W3*1.0D-3)/(25.4D0)
+   IF(sys_units().EQ.2.0) WAVE=W3*1.0D-4
+   IF(sys_units().EQ.3.0) WAVE=W3*1.0D-3
+   IF(sys_units().EQ.4.0) WAVE=W3*1.0D-6
    CURVE=1.0D0/DABS((W2**2)/(4.0D0*W1*WAVE))
    IF(WQ.EQ.'ACC') THEN
       REG(40)=REG(9)
@@ -694,6 +695,7 @@ END
 SUBROUTINE SCE(VALVAL,TYPE,V1,ERROR)
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
    IMPLICIT NONE
    INTEGER ERROR,TYPE,I,J,K,JJ
    REAL*8 VALVAL,VALVAL1(1:3),V1,YMAX,YMIN,YV1,YV2,YV3 &
@@ -706,7 +708,7 @@ SUBROUTINE SCE(VALVAL,TYPE,V1,ERROR)
    YV2=0.0D0
    YV3=0.0D0
 !     FOCAL AND UFOCAL ONLY
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
       ERROR=1
       RETURN
    END IF
@@ -724,16 +726,16 @@ SUBROUTINE SCE(VALVAL,TYPE,V1,ERROR)
          DO 10 I=1,10
             VV1=DBLE(I)
 !     CHECK WAVELENGTH
-            IF(VV1.EQ.1.0D0.AND.SYSTEM(1).EQ.0.0D0.OR.&
-            &VV1.EQ.2.0D0.AND.SYSTEM(2).EQ.0.0D0.OR.&
-            &VV1.EQ.3.0D0.AND.SYSTEM(3).EQ.0.0D0.OR.&
-            &VV1.EQ.4.0D0.AND.SYSTEM(4).EQ.0.0D0.OR.&
-            &VV1.EQ.5.0D0.AND.SYSTEM(5).EQ.0.0D0.OR.&
-            &VV1.EQ.6.0D0.AND.SYSTEM(71).EQ.0.0D0.OR.&
-            &VV1.EQ.7.0D0.AND.SYSTEM(72).EQ.0.0D0.OR.&
-            &VV1.EQ.8.0D0.AND.SYSTEM(73).EQ.0.0D0.OR.&
-            &VV1.EQ.9.0D0.AND.SYSTEM(74).EQ.0.0D0.OR.&
-            &VV1.EQ.10.0D0.AND.SYSTEM(75).EQ.0.0D0) GO TO 10
+            IF(VV1.EQ.1.0D0.AND.sys_wavelength(1).EQ.0.0D0.OR.&
+            &VV1.EQ.2.0D0.AND.sys_wavelength(2).EQ.0.0D0.OR.&
+            &VV1.EQ.3.0D0.AND.sys_wavelength(3).EQ.0.0D0.OR.&
+            &VV1.EQ.4.0D0.AND.sys_wavelength(4).EQ.0.0D0.OR.&
+            &VV1.EQ.5.0D0.AND.sys_wavelength(5).EQ.0.0D0.OR.&
+            &VV1.EQ.6.0D0.AND.sys_wavelength(6).EQ.0.0D0.OR.&
+            &VV1.EQ.7.0D0.AND.sys_wavelength(7).EQ.0.0D0.OR.&
+            &VV1.EQ.8.0D0.AND.sys_wavelength(8).EQ.0.0D0.OR.&
+            &VV1.EQ.9.0D0.AND.sys_wavelength(9).EQ.0.0D0.OR.&
+            &VV1.EQ.10.0D0.AND.sys_wavelength(10).EQ.0.0D0) GO TO 10
 !     Y COMPONENTS OF XFOB AT DESIGNATED WAVELENGTH
             J=J+1
 !
@@ -834,16 +836,16 @@ SUBROUTINE SCE(VALVAL,TYPE,V1,ERROR)
          DO 20 I=1,10
             VV1=DBLE(I)
 !     CHECK WAVELENGTH
-            IF(VV1.EQ.1.0D0.AND.SYSTEM(1).EQ.0.0D0.OR.&
-            &VV1.EQ.2.0D0.AND.SYSTEM(2).EQ.0.0D0.OR.&
-            &VV1.EQ.3.0D0.AND.SYSTEM(3).EQ.0.0D0.OR.&
-            &VV1.EQ.4.0D0.AND.SYSTEM(4).EQ.0.0D0.OR.&
-            &VV1.EQ.5.0D0.AND.SYSTEM(5).EQ.0.0D0.OR.&
-            &VV1.EQ.6.0D0.AND.SYSTEM(71).EQ.0.0D0.OR.&
-            &VV1.EQ.7.0D0.AND.SYSTEM(72).EQ.0.0D0.OR.&
-            &VV1.EQ.8.0D0.AND.SYSTEM(73).EQ.0.0D0.OR.&
-            &VV1.EQ.9.0D0.AND.SYSTEM(74).EQ.0.0D0.OR.&
-            &VV1.EQ.10.0D0.AND.SYSTEM(75).EQ.0.0D0) GO TO 20
+            IF(VV1.EQ.1.0D0.AND.sys_wavelength(1).EQ.0.0D0.OR.&
+            &VV1.EQ.2.0D0.AND.sys_wavelength(2).EQ.0.0D0.OR.&
+            &VV1.EQ.3.0D0.AND.sys_wavelength(3).EQ.0.0D0.OR.&
+            &VV1.EQ.4.0D0.AND.sys_wavelength(4).EQ.0.0D0.OR.&
+            &VV1.EQ.5.0D0.AND.sys_wavelength(5).EQ.0.0D0.OR.&
+            &VV1.EQ.6.0D0.AND.sys_wavelength(6).EQ.0.0D0.OR.&
+            &VV1.EQ.7.0D0.AND.sys_wavelength(7).EQ.0.0D0.OR.&
+            &VV1.EQ.8.0D0.AND.sys_wavelength(8).EQ.0.0D0.OR.&
+            &VV1.EQ.9.0D0.AND.sys_wavelength(9).EQ.0.0D0.OR.&
+            &VV1.EQ.10.0D0.AND.sys_wavelength(10).EQ.0.0D0) GO TO 20
 !     Y COMPONENTS OF XFOB AT DESIGNATED WAVELENGTH
             J=J+1
 !
@@ -1039,6 +1041,7 @@ SUBROUTINE RAYLEIGH
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYLEIGH. THIS SUBROUTINE IMPLEMENTS THE
@@ -1057,14 +1060,14 @@ SUBROUTINE RAYLEIGH
 
 !
 !
-   IF(SYSTEM(6).EQ.1.0) CFAC=1.0D-3/25.4D0
-   IF(SYSTEM(6).EQ.2.0) CFAC=1.0D-4
-   IF(SYSTEM(6).EQ.3.0) CFAC=1.0D-3
-   IF(SYSTEM(6).EQ.4.0) CFAC=1.0D-6
-   IF(SYSTEM(6).EQ.1.0) UN='INCH(ES)'
-   IF(SYSTEM(6).EQ.2.0) UN='CM(S)'
-   IF(SYSTEM(6).EQ.3.0) UN='MM(S)'
-   IF(SYSTEM(6).EQ.4.0) UN='METER(S)'
+   IF(sys_units().EQ.1.0) CFAC=1.0D-3/25.4D0
+   IF(sys_units().EQ.2.0) CFAC=1.0D-4
+   IF(sys_units().EQ.3.0) CFAC=1.0D-3
+   IF(sys_units().EQ.4.0) CFAC=1.0D-6
+   IF(sys_units().EQ.1.0) UN='INCH(ES)'
+   IF(sys_units().EQ.2.0) UN='CM(S)'
+   IF(sys_units().EQ.3.0) UN='MM(S)'
+   IF(sys_units().EQ.4.0) UN='METER(S)'
 !
    IF(SST.EQ.1) THEN
       WRITE(OUTLYNE,*)'"RAYLEIGH" TAKES NO ALPHANUMERIC STRING INPUT'
@@ -1093,16 +1096,12 @@ SUBROUTINE RAYLEIGH
    END IF
 !
    IF(DF1.EQ.1) THEN
-      W0=2.0D0*SYSTEM(86)
+      W0=2.0D0*sys_wry()
    ELSE
       W0=W1
    END IF
    IF(DF2.EQ.1) THEN
-      IF(SYSTEM(11).LE.5.0D0) THEN
-         LAMBDA=SYSTEM(INT(SYSTEM(11)))
-      ELSE
-         LAMBDA=SYSTEM(65+INT(SYSTEM(11)))
-      END IF
+      LAMBDA=sys_wavelength(INT(sys_wl_ref()))
    ELSE
       LAMBDA=W2
    END IF
@@ -1160,6 +1159,7 @@ SUBROUTINE COST
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE COST. THIS SUBROUTINE IMPLEMENTS THE
@@ -1177,10 +1177,10 @@ SUBROUTINE COST
    &SIGNIT2,THMFACTOR
 !
 !
-   IF(SYSTEM(6).EQ.1.0) CFAC=(2.54D0)**3
-   IF(SYSTEM(6).EQ.2.0) CFAC=1.0D0
-   IF(SYSTEM(6).EQ.3.0) CFAC=0.1D0**3
-   IF(SYSTEM(6).EQ.4.0) CFAC=100.D0**3
+   IF(sys_units().EQ.1.0) CFAC=(2.54D0)**3
+   IF(sys_units().EQ.2.0) CFAC=1.0D0
+   IF(sys_units().EQ.3.0) CFAC=0.1D0**3
+   IF(sys_units().EQ.4.0) CFAC=100.D0**3
 !
 !
    IF(SST.EQ.1) THEN
@@ -1218,7 +1218,7 @@ SUBROUTINE COST
       CALL MACFAL
       RETURN
    END IF
-   IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
       WRITE(OUTLYNE,*)&
       &'NUMERIC WORD #1, SURFACE NUMBER BEYOND LEGAL BOUNDS'
       CALL SHOWIT(1)
@@ -1228,7 +1228,7 @@ SUBROUTINE COST
       RETURN
    END IF
    IF(S2.EQ.1) THEN
-      IF(W2.LT.0.0D0.OR.W2.GT.SYSTEM(20)) THEN
+      IF(W2.LT.0.0D0.OR.W2.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)&
          &'NUMERIC WORD #2, SURFACE NUMBER BEYOND LEGAL BOUNDS'
          CALL SHOWIT(1)
@@ -1417,6 +1417,7 @@ SUBROUTINE WEIGHT
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE WEIGHT. THIS SUBROUTINE IMPLEMENTS THE
@@ -1434,10 +1435,10 @@ SUBROUTINE WEIGHT
    &SIGNIT2,THMFACTOR
 !
 !
-   IF(SYSTEM(6).EQ.1.0) CFAC=(2.54D0)**3
-   IF(SYSTEM(6).EQ.2.0) CFAC=1.0D0
-   IF(SYSTEM(6).EQ.3.0) CFAC=0.1D0**3
-   IF(SYSTEM(6).EQ.4.0) CFAC=100.D0**3
+   IF(sys_units().EQ.1.0) CFAC=(2.54D0)**3
+   IF(sys_units().EQ.2.0) CFAC=1.0D0
+   IF(sys_units().EQ.3.0) CFAC=0.1D0**3
+   IF(sys_units().EQ.4.0) CFAC=100.D0**3
 !
 !
    IF(SST.EQ.1) THEN
@@ -1476,7 +1477,7 @@ SUBROUTINE WEIGHT
       RETURN
    END IF
    IF(S2.EQ.1) THEN
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)&
          &'NUMERIC WORD #1, SURFACE NUMBER BEYOND LEGAL BOUNDS'
          CALL SHOWIT(1)
@@ -1485,7 +1486,7 @@ SUBROUTINE WEIGHT
          CALL MACFAL
          RETURN
       END IF
-      IF(W2.LT.0.0D0.OR.W2.GT.SYSTEM(20)) THEN
+      IF(W2.LT.0.0D0.OR.W2.GT.sys_last_surf()) THEN
          WRITE(OUTLYNE,*)&
          &'NUMERIC WORD #2, SURFACE NUMBER BEYOND LEGAL BOUNDS'
          CALL SHOWIT(1)
@@ -1673,6 +1674,7 @@ SUBROUTINE DLRPFR
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DLRPFR. THIS SUBROUTINE IMPLEMENTS THE
@@ -1689,10 +1691,10 @@ SUBROUTINE DLRPFR
    REAL*8 DR,WAVE,ARG1
 !
 !
-   IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-   IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0) UN='METERS'
+   IF(sys_units().EQ.1.0) UN='INCHES     '
+   IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='METERS'
 !
 !
    IF(SST.EQ.1) THEN
@@ -1765,10 +1767,10 @@ SUBROUTINE DLRPFR
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(6).EQ.1.0) WAVE=(W3*1.0D-3)/(25.4D0)
-   IF(SYSTEM(6).EQ.2.0) WAVE=W3*1.0D-4
-   IF(SYSTEM(6).EQ.3.0) WAVE=W3*1.0D-3
-   IF(SYSTEM(6).EQ.4.0) WAVE=W3*1.0D-6
+   IF(sys_units().EQ.1.0) WAVE=(W3*1.0D-3)/(25.4D0)
+   IF(sys_units().EQ.2.0) WAVE=W3*1.0D-4
+   IF(sys_units().EQ.3.0) WAVE=W3*1.0D-3
+   IF(sys_units().EQ.4.0) WAVE=W3*1.0D-6
    DR=DABS((WAVE*DSQRT(ARG1))&
    &/(2.0D0*(DSQRT(ARG1)-DABS(W1))))
    IF(WQ.EQ.'ACC') THEN
