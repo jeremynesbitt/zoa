@@ -14,6 +14,7 @@ SUBROUTINE PLTRST
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_last_surf, sys_ref_surf, sys_wl_weight
    IMPLICIT NONE
 !
 !       THIS ROUTINE RESETS PLOT PARAMETERS TO STARTING VALES
@@ -280,61 +281,61 @@ SUBROUTINE PLTRST
       FANWV10=.FALSE.
       JK_WAV(1:10)=0
       I=0
-      IF(SYSTEM(31).GT.0.0D0) THEN
+      IF(sys_wl_weight(1).GT.0.0D0) THEN
          FANWV1=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=1
       END IF
-      IF(SYSTEM(32).GT.0.0D0) THEN
+      IF(sys_wl_weight(2).GT.0.0D0) THEN
          FANWV2=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=2
       END IF
-      IF(SYSTEM(33).GT.0.0D0) THEN
+      IF(sys_wl_weight(3).GT.0.0D0) THEN
          FANWV3=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=3
       END IF
-      IF(SYSTEM(34).GT.0.0D0) THEN
+      IF(sys_wl_weight(4).GT.0.0D0) THEN
          FANWV4=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=4
       END IF
-      IF(SYSTEM(35).GT.0.0D0) THEN
+      IF(sys_wl_weight(5).GT.0.0D0) THEN
          FANWV5=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=5
       END IF
-      IF(SYSTEM(76).GT.0.0D0) THEN
+      IF(sys_wl_weight(6).GT.0.0D0) THEN
          FANWV6=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=6
       END IF
-      IF(SYSTEM(77).GT.0.0D0) THEN
+      IF(sys_wl_weight(7).GT.0.0D0) THEN
          FANWV7=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=7
       END IF
-      IF(SYSTEM(78).GT.0.0D0) THEN
+      IF(sys_wl_weight(8).GT.0.0D0) THEN
          FANWV8=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=8
       END IF
-      IF(SYSTEM(79).GT.0.0D0) THEN
+      IF(sys_wl_weight(9).GT.0.0D0) THEN
          FANWV9=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
          JK_WAV(I)=9
       END IF
-      IF(SYSTEM(80).GT.0.0D0) THEN
+      IF(sys_wl_weight(10).GT.0.0D0) THEN
          FANWV10=.TRUE.
          I=I+1
          IF(I.GT.10) GO TO 900
@@ -348,11 +349,11 @@ SUBROUTINE PLTRST
       FANTYP=5
       QALTYP=0
       SSIFLG=.TRUE.
-      REFWV=INT(SYSTEM(11))
+      REFWV=INT(sys_wl_ref())
 !     FAN PLOTTING DEFAULT VALUES HAVE BEEN SET
       FANNOB=0
-      FANNRF=INT(SYSTEM(25))
-      FANNIM=INT(SYSTEM(20))
+      FANNRF=INT(sys_ref_surf())
+      FANNIM=INT(sys_last_surf())
       MAXFAN=20
       STEPJP=125.0D0
    ELSE
@@ -411,8 +412,8 @@ SUBROUTINE PLTRST
       IF(FANQAL(1:2).EQ.'CD')   QALTYP=2
       IF(FANQAL(1:2).EQ.'LA')   QALTYP=3
       FANNOB=0
-      FANNRF=INT(SYSTEM(25))
-      FANNIM=INT(SYSTEM(20))
+      FANNRF=INT(sys_ref_surf())
+      FANNIM=INT(sys_last_surf())
       IF(LFOB(5).EQ.0.0D0) LFOB(5)=DBLE(NEWOBJ)
       IF(LFOB(6).EQ.0.0D0) LFOB(6)=DBLE(NEWREF)
       IF(LFOB(7).EQ.0.0D0) LFOB(7)=DBLE(NEWIMG)
@@ -440,6 +441,7 @@ SUBROUTINE PLTRED
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units, sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, sys_mode
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT RED AT THE CMD LEVEL
@@ -643,48 +645,48 @@ SUBROUTINE PLTRED
    RDELA=ULIM
 !
    IF(ROUND) THEN
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          LABX='SEMI-DIAMETER (mrad)                    '
          NX=20
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABX='SEMI-DIAMETER (in)                      '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABX='SEMI-DIAMETER (cm)                      '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABX='SEMI-DIAMETER (mm)                      '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABX='SEMI-DIAMETER (meter)                   '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NX=18
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NX=18
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NX=18
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NX=21
       END IF
    END IF
    IF(SQUARE) THEN
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          LABX='SQUARE SIDE LENGTH (mrad)               '
          NX=25
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABX='SQUARE SIDE LENGTH (in)                 '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABX='SQUARE SIDE LENGTH (cm)                 '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABX='SQUARE SIDE LENGTH (mm)                 '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABX='SQUARE SIDE LENGTH (meter)              '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NX=23
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NX=23
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NX=23
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NX=26
       END IF
    END IF
@@ -750,21 +752,21 @@ SUBROUTINE PLTRED
    COLPAS=COLLBL
    CALL MY_COLTYP(COLPAS)
 !     FIELD OF VIEW DATA
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL OR UFOCAL
-      IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-      IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-      IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-      IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+      IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+      IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+      IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+      IF(sys_units().EQ.4.0D0) UNN='meter(s) '
    END IF
 !
    IF(.NOT.SUMMS) THEN
       IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
 !     SCX FANG
-         RANGE=SYSTEM(23)*LFOB(2)
+         RANGE=sys_scx_fang()*LFOB(2)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(16)*LFOB(2)
+         RANGE=sys_scx()*LFOB(2)
          UNN1(1:9)=UNN(1:9)
 !     SCX
       END IF
@@ -780,10 +782,10 @@ SUBROUTINE PLTRED
 !
       IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) THEN
 !     SCY FANG
-         RANGE=SYSTEM(21)*LFOB(1)
+         RANGE=sys_scy_fang()*LFOB(1)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(14)*LFOB(1)
+         RANGE=sys_scy()*LFOB(1)
          UNN1(1:9)=UNN(1:9)
 !     SCY
       END IF
@@ -824,7 +826,7 @@ SUBROUTINE PLTRED
       END IF
    END IF
    IF(.NOT.SUMMS) THEN
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL OR UFOCAL, PRINT THE DEFOCUS
          IF(DELZ.NE.0.0D0) THEN
             RANGE=DELZ
@@ -1201,6 +1203,7 @@ SUBROUTINE VERTLINE
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT LINE CONNECTING SURFACE VERTICES
@@ -1277,8 +1280,8 @@ SUBROUTINE VERTLINE
       RETURN
    ELSE
    END IF
-   IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-   IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+   IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+   IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
    IF(DF1.EQ.1) THEN
       IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
@@ -1508,8 +1511,8 @@ SUBROUTINE VIE(CACOCHVIE)
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units, sys_wl_ref, sys_last_surf
    IMPLICIT NONE
-
 !
 !       THIS PROGRAM CONTROLS THE "VIE" AND "VIECO" COMMANDS
 !
@@ -1618,7 +1621,7 @@ SUBROUTINE VIE(CACOCHVIE)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(DF2.EQ.0.AND.W2.GT.SYSTEM(20)) THEN
+   IF(DF2.EQ.0.AND.W2.GT.sys_last_surf()) THEN
       OUTLYNE=&
       &'THE FIRST SURFACE CAN NOT BE BEYOND THE IMAGE SURFACE'
       CALL SHOWIT(1)
@@ -1632,7 +1635,7 @@ SUBROUTINE VIE(CACOCHVIE)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(DF3.EQ.0.AND.W3.GT.SYSTEM(20)) THEN
+   IF(DF3.EQ.0.AND.W3.GT.sys_last_surf()) THEN
       OUTLYNE=&
       &'THE LAST SURFACE CAN NOT BE BEYOND THE IMAGE SURFACE'
       CALL SHOWIT(1)
@@ -1760,21 +1763,21 @@ SUBROUTINE VIE(CACOCHVIE)
 !     SET UP THE SCALE FACTOR
    !PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
    !PRINT *, "VDF1 Equals ", VDF1
-   !PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
+   !PRINT *, "sys_units() Equals ", sys_units()
    IF(VDF1.EQ.0) THEN
       AUTSL=.FALSE.
       SCFAYP=1.0D0/VIEW1
       SCFAXP=1.0D0/VIEW1
       PSIZYP=VIEW1
       PSIZXP=VIEW1
-      IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-      IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-      IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-      IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-      IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-      IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-      IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-      IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+      IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+      IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+      IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+      IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+      IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+      IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+      IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+      IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
       PSIZY=1.0D0/SCFAY
       PSIZX=1.0D0/SCFAX
       PLSZ=.TRUE.
@@ -1825,7 +1828,7 @@ SUBROUTINE VIE(CACOCHVIE)
    SAVE_KDP(1)=SAVEINPT(1)
    WW1=0.0D0
    WW2=0.0D0
-   WW3=SYSTEM(11)
+   WW3=sys_wl_ref()
    WVN=WW3
    MSG=.FALSE.
    WW4=1.0D0
@@ -2040,7 +2043,7 @@ SUBROUTINE VIE(CACOCHVIE)
 !     GUT RAY A SECOND TIME
       WW1=0.0D0
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2057,7 +2060,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=YVHI
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2074,7 +2077,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=YVLO
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2092,7 +2095,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=0.0D0
          WW2=XVHI
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2109,7 +2112,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=0.0D0
          WW2=XVLO
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2151,7 +2154,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2170,7 +2173,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=YVHI
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2187,7 +2190,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=YVLO
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2205,7 +2208,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=0.0D0
          WW2=XVHI
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2222,7 +2225,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=0.0D0
          WW2=XVLO
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2265,7 +2268,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2284,7 +2287,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=YVHI
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2301,7 +2304,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=YVLO
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2319,7 +2322,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=0.0D0
          WW2=XVHI
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2336,7 +2339,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=0.0D0
          WW2=XVLO
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2383,7 +2386,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=YVHI
          WW2=0.0D0
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2400,7 +2403,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=YVLO
          WW2=0.0D0
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2418,7 +2421,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=XVHI
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2435,7 +2438,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=XVLO
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2476,7 +2479,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2495,7 +2498,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=YVHI
          WW2=0.0D0
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2512,7 +2515,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=YVLO
          WW2=0.0D0
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2530,7 +2533,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=XVHI
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2547,7 +2550,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=XVLO
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2589,7 +2592,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=0.0D0
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2609,7 +2612,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=YVHI
          WW2=0.0D0
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2627,7 +2630,7 @@ SUBROUTINE VIE(CACOCHVIE)
          SAVE_KDP(1)=SAVEINPT(1)
          WW1=YVLO
          WW2=0.0D0
-         WW3=SYSTEM(11)
+         WW3=sys_wl_ref()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -2645,7 +2648,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=XVHI
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -2662,7 +2665,7 @@ SUBROUTINE VIE(CACOCHVIE)
       SAVE_KDP(1)=SAVEINPT(1)
       WW1=0.0D0
       WW2=XVLO
-      WW3=SYSTEM(11)
+      WW3=sys_wl_ref()
       WVN=WW3
       MSG=.FALSE.
       WW4=1.0D0
@@ -3283,6 +3286,7 @@ SUBROUTINE PLTPRAE(K)
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT PRAY COMMAND AT THE CMD LEVEL
@@ -3392,8 +3396,8 @@ SUBROUTINE PLTPRAE(K)
       RETURN
    ELSE
    END IF
-   IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-   IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+   IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+   IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
    IF(DF1.EQ.1) THEN
       IF(DABS(ALENS(3,0)).GT.1.0D10) THEN
@@ -3658,6 +3662,7 @@ SUBROUTINE PLTRAYS(CACOCHVIE)
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_wl_ref, sys_last_surf
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE "PLOT RAYS"
@@ -3738,14 +3743,14 @@ SUBROUTINE PLTRAYS(CACOCHVIE)
    W3=INT(W3)
    IF(W3.LE.3.0D0) W3=11.0D0
    IF(DF4.EQ.1) THEN
-      W4=SYSTEM(11)
+      W4=sys_wl_ref()
       DF4=0
       S4=1
    ELSE
 !       DF4 NOT 1, W4 EXPLICITLY ENTERED
    END IF
    W4=INT(W4)
-   IF(W4.LT.1.0D0.OR.W4.GT.10.0D0) W4=SYSTEM(11)
+   IF(W4.LT.1.0D0.OR.W4.GT.10.0D0) W4=sys_wl_ref()
 !
    IF(is_command_query()) THEN
       OUTLYNE= '"PLOT RAYS" PERFOMS AUTOMATED RAY FAN PLOTTING'
@@ -3759,7 +3764,7 @@ SUBROUTINE PLTRAYS(CACOCHVIE)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(DF1.EQ.0.AND.W1.GT.SYSTEM(20)) THEN
+   IF(DF1.EQ.0.AND.W1.GT.sys_last_surf()) THEN
       OUTLYNE=&
       &'THE FIRST SURFACE CAN NOT BE BEYOND THE IMAGE SURFACE'
       CALL SHOWIT(1)
@@ -3773,7 +3778,7 @@ SUBROUTINE PLTRAYS(CACOCHVIE)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(DF2.EQ.0.AND.W2.GT.SYSTEM(20)) THEN
+   IF(DF2.EQ.0.AND.W2.GT.sys_last_surf()) THEN
       OUTLYNE=&
       &'THE LAST SURFACE CAN NOT BE BEYOND THE IMAGE SURFACE'
       CALL SHOWIT(1)
