@@ -634,6 +634,7 @@ SUBROUTINE PLTRAE
   use DATMAI
   use mod_surface
   use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
   IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT RAY COMMAND AT THE CMD LEVEL
@@ -736,7 +737,7 @@ CALL SHOWIT(1)
   CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
                   RETURN
                   END IF
-  IF(STI.EQ.1) THEN
+  IF(is_command_query()) THEN
            WRITE(OUTLYNE,800)
 CALL SHOWIT(1)
 800    FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT RAY"')
@@ -1798,6 +1799,7 @@ NORAYPLOT=.FALSE.
         use DATMAI
         use mod_surface
         use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
         IMPLICIT NONE
 
        !type(hdf5_file) :: h5f
@@ -1929,7 +1931,7 @@ NORAYPLOT=.FALSE.
                         END IF
                         NOPLOT=.FALSE.
                         IF(DF5.EQ.0) NOPLOT=.TRUE.
-        IF(STI.EQ.1) THEN
+        IF(is_command_query()) THEN
                  WRITE(OUTLYNE,801)
       CALL SHOWIT(1)
  801    FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT PROF"')
@@ -2755,6 +2757,7 @@ NORAYPLOT=.FALSE.
         use DATMAI
         use mod_surface
         use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
         IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT EDGEX/EDGEY COMMAND AT THE CMD LEVEL
@@ -2855,7 +2858,7 @@ NORAYPLOT=.FALSE.
                         END IF
                         NOPLOT=.FALSE.
                         IF(DF5.EQ.0) NOPLOT=.TRUE.
-        IF(STI.EQ.1) THEN
+        IF(is_command_query()) THEN
                  IF(WQ.EQ.'EDGEX')WRITE(OUTLYNE,800)
                  IF(WQ.EQ.'EDGEY')WRITE(OUTLYNE,801)
       CALL SHOWIT(1)

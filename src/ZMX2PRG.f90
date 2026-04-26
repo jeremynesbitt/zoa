@@ -27,6 +27,7 @@ SUBROUTINE ZMX2PRG
    use DATLEN
    use mod_system, only: sys_units
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER ZMXFILENAME*80,KDPFILENAME*80,ZMX_INPUT_STRING*1024 &
@@ -112,7 +113,7 @@ SUBROUTINE ZMX2PRG
    &//AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
    &//AA//'    '
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"ZMX2PRG" CONVERTS THE NAMED FILE (STRING INPUT)'
       CALL SHOWIT(1)
       OUTLYNE='FROM ZEMAX TO PROGRAM FORMAT'

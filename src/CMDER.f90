@@ -19,6 +19,7 @@ SUBROUTINE CMDER
    use DATSPD
    use DATSUB
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    LOGICAL ITERROR
 
@@ -1170,7 +1171,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL PFAC OPERATION
       IF(WC.EQ.'PFAC')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='PFAC    '
             SQ=1
@@ -1184,7 +1185,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL DAYS OPERATION
       IF(WC.EQ.'DAYS')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='DAYS    '
             SQ=1
@@ -1198,7 +1199,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL SHORT OPERATION
       IF(WC.EQ.'SHORT')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SHORT   '
             SQ=1
@@ -1212,7 +1213,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL MEDIUM OPERATION
       IF(WC.EQ.'MEDIUM')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='MEDIUM  '
             SQ=1
@@ -1226,7 +1227,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL LONG OPERATION
       IF(WC.EQ.'LONG')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='LONG    '
             SQ=1
@@ -1240,7 +1241,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL BUYDELAY OPERATION
       IF(WC.EQ.'BUYDELAY')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='BUYDELAY'
             SQ=1
@@ -1254,7 +1255,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL SELDEALY OPERATION
       IF(WC.EQ.'SELDELAY')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SELDELAY'
             SQ=1
@@ -1268,7 +1269,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL DINMUL OPERATION
       IF(WC.EQ.'DINMUL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='DINMUL  '
             SQ=1
@@ -1282,7 +1283,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL LINTOL OPERATION
       IF(WC.EQ.'LINTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='LINTOL  '
             SQ=1
@@ -1296,7 +1297,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL ONTOL OPERATION
       IF(WC.EQ.'ONTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='ONTOL   '
             SQ=1
@@ -1310,7 +1311,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL SINGTOL OPERATION
       IF(WC.EQ.'SINGTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SINGTOL '
             SQ=1
@@ -1324,7 +1325,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL SURTOL OPERATION
       IF(WC.EQ.'SURTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SURTOL  '
             SQ=1
@@ -1338,7 +1339,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL SAGDEL OPERATION
       IF(WC.EQ.'SAGDEL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SAGDEL  '
             SQ=1
@@ -1352,7 +1353,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL AIMTOL OPERATION
       IF(WC.EQ.'AIMTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='AIMTOL  '
             SQ=1
@@ -1366,7 +1367,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL CAIMTOL OPERATION
       IF(WC.EQ.'CAIMTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='CAIMTOL  '
             SQ=1
@@ -1380,7 +1381,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL MAXOPT OPERATION
       IF(WC.EQ.'MAXOPT')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='MAXOPT  '
             SQ=1
@@ -1394,7 +1395,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL MAXREG OPERATION
       IF(WC.EQ.'MAXREG')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='MAXREG  '
             SQ=1
@@ -1407,7 +1408,7 @@ SUBROUTINE CMDER
          END IF
       END IF
       IF(WC.EQ.'SERINC')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SERINC  '
             SQ=1
@@ -1420,7 +1421,7 @@ SUBROUTINE CMDER
          END IF
       END IF
       IF(WC.EQ.'SERLIM')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='SERLIM  '
             SQ=1
@@ -1434,7 +1435,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL NRAITR OPERATION
       IF(WC.EQ.'NRAITR')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='NRAITR  '
             SQ=1
@@ -1448,7 +1449,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL DFTOL OPERATION
       IF(WC.EQ.'DIFTOL')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='DIFTOL  '
             SQ=1
@@ -1462,7 +1463,7 @@ SUBROUTINE CMDER
       END IF
 !     SPECIAL DELSUR OPERATION
       IF(WC.EQ.'DELSUR')  THEN
-         IF(SQ.EQ.0.AND.SN.EQ.0.OR.STI.EQ.1) THEN
+         IF(SQ.EQ.0.AND.SN.EQ.0.OR.is_command_query()) THEN
             WC='PMP     '
             WQ='DELSUR  '
             SQ=1
@@ -1706,7 +1707,7 @@ SUBROUTINE CMDER
             CALL FFOB
          END IF
          IF(WC.EQ.'FOBH    ')CALL FFOBH
-         IF(STI.EQ.1) RETURN
+         IF(is_command_query()) RETURN
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          IF(.NOT.REFEXT) RETURN
@@ -1799,7 +1800,7 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          CALL FFOB
-         IF(STI.EQ.1) RETURN
+         IF(is_command_query()) RETURN
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
@@ -1951,9 +1952,9 @@ SUBROUTINE CMDER
          IF(WQ.EQ.'NO')  WQ='OFF'
          IF(WQ.EQ.'ON')  CARTMAN=.TRUE.
          IF(WQ.EQ.'OFF') CARTMAN=.FALSE.
-         IF(STI.EQ.1.AND.CARTMAN) OUTLYNE='CARTMAN IS TRUE'
-         IF(STI.EQ.1.AND..NOT.CARTMAN) OUTLYNE='CARTMAN IS FALSE'
-         IF(STI.EQ.1) CALL SHOWIT(1)
+         IF(is_command_query().AND.CARTMAN) OUTLYNE='CARTMAN IS TRUE'
+         IF(is_command_query().AND..NOT.CARTMAN) OUTLYNE='CARTMAN IS FALSE'
+         IF(is_command_query()) CALL SHOWIT(1)
          RETURN
       END IF
       IF(WC.EQ.'REVRAY')  THEN

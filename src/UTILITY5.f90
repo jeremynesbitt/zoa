@@ -164,6 +164,7 @@ SUBROUTINE CONTRO
 !
    use DATSUB
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER WCC(1:16000)*8,WC1*8,WQ1*8,WS1*80
@@ -236,7 +237,7 @@ SUBROUTINE CONTRO
    IF(LASTWASFOB) RAYEXT=ORAYEXT
 !
    IF(ALLSET) THEN
-      IF(SN.EQ.0.AND.STI.EQ.0.AND.SQ.EQ.0.AND.SST.EQ.0) THEN
+      IF(SN.EQ.0.AND..not. is_command_query().AND.SQ.EQ.0.AND.SST.EQ.0) THEN
          IF(WC.EQ.'RTG') GO TO 5
          IF(WC.EQ.'RTGLBL') GO TO 5
          IF(WC.EQ.'CTG') GO TO 5

@@ -215,6 +215,7 @@ SUBROUTINE FFRAME
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOFRAME.FOR. THIS SUBROUTINE CONTROLS
@@ -228,7 +229,7 @@ SUBROUTINE FFRAME
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO" ARE THE ONLY'//'\n'//&
@@ -238,7 +239,7 @@ SUBROUTINE FFRAME
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(.NOT.FRAME) WRITE(OUTLYNE,10)
       IF(FRAME) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)

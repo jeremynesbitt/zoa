@@ -6,6 +6,7 @@ SUBROUTINE FOBA
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FOBA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -27,7 +28,7 @@ SUBROUTINE FOBA
    DLLZ=0.0D0
 !
 !     IS ANGLE INPUT NODE ON OR NOT?
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"FOBA" DEFINES AN OBJECT POSITION BY ANGULAR INPUT'
       CALL SHOWIT(1)
       OUTLYNE='IN DEGREES'
@@ -216,6 +217,7 @@ SUBROUTINE FFOBH
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOBH.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -275,7 +277,7 @@ SUBROUTINE FFOBH
 !     FRACTIONALS WHICH CAN BE PROCESSED
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"FOB" TYPE COMMANDS DEFINE AN OBJECT POSITION FOR RAY TRACING'
       CALL SHOWIT(1)
@@ -4220,6 +4222,7 @@ SUBROUTINE MFFOBS
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MFFOBS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4229,7 +4232,7 @@ SUBROUTINE MFFOBS
    REAL*8 XSTEP,YSTEP,SW1,SW2
 !
 !       SET DEFAULT NUMERICS
-   IF(STI.NE.1) THEN
+   IF(.not. is_command_query()) THEN
       IF(DF1.EQ.1) W1=0.0D0
       IF(DF2.EQ.1) W2=0.0D0
       IF(DF3.EQ.1) W3=SYSTEM(11)
@@ -4243,7 +4246,7 @@ SUBROUTINE MFFOBS
       IF(DF4.EQ.1) FW4=1.0D0
       IF(FW4.LE.1.0D0) FW4=1.0D0
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'MFOBS',FW1,FW2,FW3
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)FW4
@@ -4306,6 +4309,7 @@ SUBROUTINE FFOB
    use mod_surface, only: surf_thickness, surf_curvature, surf_clap_type, &
       surf_clap_dim, surf_special_type, surf_array_parity, surf_decenter_y, &
       surf_decenter_x, surf_tilt_flag
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4372,7 +4376,7 @@ SUBROUTINE FFOB
    !PRINT *, "YSTRT FOBBS BEGINNING IS ", YSTRT
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"FOB" TYPE COMMANDS DEFINE AN OBJECT POSITION FOR RAY TRACING'
       CALL SHOWIT(1)

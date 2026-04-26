@@ -5,6 +5,7 @@ SUBROUTINE FLDS
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF MULTIPLE FIELDS OF VIEW
@@ -14,7 +15,7 @@ SUBROUTINE FLDS
 !
 !
 !
-   IF(STI.EQ.1.OR.SQ.EQ.0.AND.SN.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0.AND.SN.EQ.0) THEN
       OUTLYNE=&
       &'"FLDS" SETS AND QUERRIES THE STATUS OF MULTIPLE FIELDS OF VIEW'
       CALL SHOWIT(1)
@@ -121,6 +122,7 @@ SUBROUTINE FLDSARE
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE FLDSARE COMMAND
@@ -130,7 +132,7 @@ SUBROUTINE FLDSARE
 !
    CALL SORTFIELDS
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"FLDSARE" QUERRIES THE STATUS OF MULTIPLE FIELDS OF VIEW'
       CALL SHOWIT(1)
@@ -172,6 +174,7 @@ SUBROUTINE TFMOTION
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "TFMOTION" COMMAND
@@ -181,7 +184,7 @@ SUBROUTINE TFMOTION
 !
 !
 !
-   IF(STI.EQ.1.OR.SQ.EQ.0.AND.SN.EQ.0.AND.SST.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0.AND.SN.EQ.0.AND.SST.EQ.0) THEN
       OUTLYNE=&
       &'"TFMOTION" SETS UP THE FOCUS MOTION CHARACTERISTICS FOR'
       CALL SHOWIT(1)
@@ -427,6 +430,7 @@ SUBROUTINE GOTF
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_mode, sys_units
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE GOTF.FOR.
@@ -526,7 +530,7 @@ SUBROUTINE GOTF
       MFREQ=.FALSE.
    END IF
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       CALL REPORT_ERROR_AND_FAIL('"?" HAS NO MEANING WITH "GOTF"'//'\n'//'NO ACTION TAKEN', 1)
       RETURN
    END IF

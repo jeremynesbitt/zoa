@@ -4,6 +4,7 @@ SUBROUTINE THERM
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER I
@@ -24,7 +25,7 @@ SUBROUTINE THERM
       RETURN
    END IF
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'NO ADDITIONAL INFORMATION'
       CALL SHOWIT(1)
       CALL MACFAL
@@ -434,6 +435,7 @@ SUBROUTINE TELAIM
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TELAIM.FOR. THIS SUBROUTINE CONTROLS
@@ -447,7 +449,7 @@ SUBROUTINE TELAIM
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -458,7 +460,7 @@ SUBROUTINE TELAIM
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(SYSTEM(63).EQ.0.0D0) WRITE(OUTLYNE,10)
       CALL SHOWIT(0)
 10    FORMAT('TELECENTRIC RAY AIMING IS CURRENTLY TURNED "OFF"')
@@ -497,6 +499,7 @@ SUBROUTINE NEARFARNEAR
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NEARFAR.FOR. THIS SUBROUTINE CONTROLS
@@ -510,7 +513,7 @@ SUBROUTINE NEARFARNEAR
    IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
    IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'FAR')OUTLYNE='"FAR" SETS UNITS TO LP/MRAD'
       IF(WC.EQ.'NEAR')OUTLYNE='"NEAR" SETS UNITS TO LP/MM'
       CALL SHOWIT(1)
@@ -549,6 +552,7 @@ SUBROUTINE OVERBOSE
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPTMINIT.FOR. THIS SUBROUTINE CONTROLS
@@ -562,7 +566,7 @@ SUBROUTINE OVERBOSE
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.SQ.EQ.1) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -573,7 +577,7 @@ SUBROUTINE OVERBOSE
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1.OR.SQ.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0) THEN
 10    FORMAT('VERBOSE OPTIMIZATION OUTPUT IS CURRENTLY "OFF"')
 11    FORMAT('VERBOSE OPTIMIZATION OUTPUT IS CURRENTLY "ON"')
       IF(SYSTEM(101).EQ.0.0D0) WRITE(OUTLYNE,10)
@@ -597,6 +601,7 @@ SUBROUTINE OPTMINIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPTMINIT.FOR. THIS SUBROUTINE CONTROLS
@@ -610,7 +615,7 @@ SUBROUTINE OPTMINIT
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.SQ.EQ.1) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -621,7 +626,7 @@ SUBROUTINE OPTMINIT
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1.OR.SQ.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0) THEN
 10    FORMAT('AUTOMATIC OPERAND INITIALIZATION IS CURRENTLY "OFF"')
 11    FORMAT('AUTOMATIC OPERAND INITIALIZATION IS CURRENTLY "ON"')
       IF(OPTM_INIT.EQ.0) WRITE(OUTLYNE,10)
@@ -646,6 +651,7 @@ SUBROUTINE GEOLEICA
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GEOLEICA.FOR. THIS SUBROUTINE CONTROLS
@@ -654,7 +660,7 @@ SUBROUTINE GEOLEICA
    INTEGER I
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       DO I=1,10
          IF(GLEICA(I)) WRITE(OUTLYNE,10) I
          IF(.NOT.GLEICA(I)) WRITE(OUTLYNE,11) I
@@ -678,7 +684,7 @@ SUBROUTINE GEOLEICA
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -714,6 +720,7 @@ SUBROUTINE DIFLEICA
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DIFLEICA.FOR. THIS SUBROUTINE CONTROLS
@@ -722,7 +729,7 @@ SUBROUTINE DIFLEICA
    INTEGER I
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       DO I=1,10
          IF(DLEICA(I)) WRITE(OUTLYNE,10) I
          IF(.NOT.DLEICA(I)) WRITE(OUTLYNE,11) I
@@ -746,7 +753,7 @@ SUBROUTINE DIFLEICA
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -781,6 +788,7 @@ SUBROUTINE SWV
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF WAVELENGTHS.
@@ -793,7 +801,7 @@ SUBROUTINE SWV
 !       WITH THE WV COMMAND IS IGNORED.
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,2001)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
@@ -897,6 +905,7 @@ SUBROUTINE SWV2
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF WAVELENGTHS.
@@ -909,7 +918,7 @@ SUBROUTINE SWV2
 !       WITH THE WV COMMAND IS IGNORED.
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,2001)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
@@ -1146,6 +1155,7 @@ SUBROUTINE SUNITS
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE UNITS COMMAND BOTH AT
@@ -1153,7 +1163,7 @@ SUBROUTINE SUNITS
 !
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(SYSTEM(6).EQ.1.0D0) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
@@ -2564,6 +2574,7 @@ SUBROUTINE STASPH
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STASPH WHICH IMPLEMENTS THE TASPH
@@ -2587,7 +2598,7 @@ SUBROUTINE STASPH
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(surf_anamorphic_flag(I).NE.0.0D0) THEN
             WRITE(OUTLYNE,106)SURF
             CALL SHOWIT(0)

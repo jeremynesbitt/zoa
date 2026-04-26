@@ -318,6 +318,7 @@ SUBROUTINE PLTFIG
    use DATHGR
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE FIG
@@ -332,7 +333,7 @@ SUBROUTINE PLTFIG
 !
 !     MOVE TO THE STARTING POSITION FOR THE FIG
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"PLOT FIGURE" PLOTS A FIGURE NAME'
       CALL SHOWIT(1)

@@ -3035,8 +3035,9 @@ SUBROUTINE ROO
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"ROO" SETS UP A SINGLE SURFACE OPTICAL ROOF'
       CALL SHOWIT(1)
       RETURN
@@ -3064,8 +3065,9 @@ SUBROUTINE CCR
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"CCR" SETS UP A SINGLE SURFACE CORNER CUBE'
       CALL SHOWIT(1)
       RETURN
@@ -3103,10 +3105,11 @@ SUBROUTINE SHOWNSS
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    LOGICAL NONSS
    INTEGER I
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"SHOWNSS" LISTS ALL ROOFS AND CORNER CUBES IN'
       CALL SHOWIT(1)
       OUTLYNE='THE CURRENT LENS CONFIGURATION'
@@ -3748,8 +3751,9 @@ SUBROUTINE RAYERROR
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"RAYERROR" SETS A RAYDOM RAY/SURFACE ANGLE ERROR'
       CALL SHOWIT(1)
       RETURN

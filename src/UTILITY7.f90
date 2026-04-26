@@ -4,6 +4,7 @@
 SUBROUTINE LWRITE
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO WRITE OUT A LINE OF 5
@@ -17,7 +18,7 @@ SUBROUTINE LWRITE
    REAL*8 V(1:5)
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*) 'NO ADDITIONAL INFORMATION AVAILABLE'
       CALL SHOWIT(1)
       RETURN
@@ -962,12 +963,13 @@ END
 SUBROUTINE LFORMER
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS DOES THE "LFORMAT" COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,100)
       CALL SHOWIT(0)
 100   FORMAT('THE CURRENT LINE FORMAT IS : ')
@@ -1276,10 +1278,11 @@ END
 SUBROUTINE FIGURE
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='THE CURRENT FIGURE HEADING IS:'
       CALL SHOWIT(1)
       OUTLYNE=FIGTITLE
@@ -1297,13 +1300,14 @@ END
 SUBROUTINE VECTOROP
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    DOUBLE PRECISION AX,AY,AZ,BX,BY,BZ,DP,PX,PY,PZ
 !
 
 !
-   IF(STI.EQ.1.OR.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1) THEN
+   IF(is_command_query().OR.DF1.EQ.1.AND.DF2.EQ.1.AND.DF3.EQ.1) THEN
       IF(WC.EQ.'AVEC') THEN
          OUTLYNE='CURRENT AVEC IS:'
          CALL SHOWIT(1)
@@ -1327,7 +1331,7 @@ SUBROUTINE VECTOROP
          RETURN
       END IF
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'DOT') THEN
          OUTLYNE='DOT RETURNS THE DOT PRODUCT OF AVEC AND BVEC'
          CALL SHOWIT(1)

@@ -1239,6 +1239,7 @@ SUBROUTINE INPUTT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    LOGICAL EXIS8,EXIS9,OPEN8,OPEN9,EXIS97,OPEN97
@@ -1293,27 +1294,27 @@ SUBROUTINE INPUTT
    END IF
 !                IF SQ.EQ.0
 ! HANDEL PRINTING OF NAME OF CURRENT DEVICE
-   IF(SQ.EQ.0.AND.IN.EQ.5.OR.IN.EQ.5.AND.STI.EQ.1) THEN
+   IF(SQ.EQ.0.AND.IN.EQ.5.OR.IN.EQ.5.AND.is_command_query()) THEN
       OUTLYNE='INPUT IS "TP"'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.IN.EQ.96.OR.IN.EQ.96.AND.STI.EQ.1) THEN
+   IF(SQ.EQ.0.AND.IN.EQ.96.OR.IN.EQ.96.AND.is_command_query()) THEN
       OUTLYNE='INPUT IS "TP"'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.IN.EQ.8.OR.IN.EQ.8.AND.STI.EQ.1) THEN
+   IF(SQ.EQ.0.AND.IN.EQ.8.OR.IN.EQ.8.AND.is_command_query()) THEN
       OUTLYNE='INPUT IS "CP"'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.IN.EQ.9.OR.IN.EQ.9.AND.STI.EQ.1) THEN
+   IF(SQ.EQ.0.AND.IN.EQ.9.OR.IN.EQ.9.AND.is_command_query()) THEN
       OUTLYNE='INPUT IS "ED"'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(SQ.EQ.0.AND.IN.EQ.97.OR.IN.EQ.97.AND.STI.EQ.1) THEN
+   IF(SQ.EQ.0.AND.IN.EQ.97.OR.IN.EQ.97.AND.is_command_query()) THEN
       OUTLYNE='INPUT IS "FILE" NAMED '//OFILN
       CALL SHOWIT(1)
       RETURN
@@ -1667,10 +1668,11 @@ END
 SUBROUTINE STOAX
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"STOAX" PLACES THE LAST PROMPT READ STRING INTO'
       CALL SHOWIT(1)
@@ -1757,6 +1759,7 @@ END
 SUBROUTINE PREAD
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER ASTRING*80,PMTVAL*80,KKDP*3
@@ -1774,7 +1777,7 @@ SUBROUTINE PREAD
 !
    CALL CBREAK
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"PREAD" INITIATES A PROMPTED STRING READ'
       CALL SHOWIT(1)
       OUTLYNE='FROM THE KEYBOARD'
@@ -3044,6 +3047,7 @@ SUBROUTINE GCONVERT
    use DATMAI
    use mod_surface, only: set_surf_thickness
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    REAL*8 LOCAL_XVERT,LOCAL_YVERT,LOCAL_ZVERT
    REAL*8 LOCAL_LXVERT,LOCAL_MXVERT,LOCAL_NXVERT
    REAL*8 LOCAL_LYVERT,LOCAL_MYVERT,LOCAL_NYVERT
@@ -3073,7 +3077,7 @@ SUBROUTINE GCONVERT
    ALLOCATE(LOCAL_NXVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
    ALLOCATE(LOCAL_NYVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
    ALLOCATE(LOCAL_NZVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"GCONVERT" CONVERTS THE CURRENT LENS INTO A "GLOBAL" LENS WITH'
       CALL SHOWIT(1)
@@ -4240,6 +4244,7 @@ END
 SUBROUTINE GGPREG_SAVE
    use DATSUB
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
 !       THIS SUBROUTINE IS USED FOR OUTPUTING OF GENERAL REGISTER VALUES
@@ -4248,7 +4253,7 @@ SUBROUTINE GGPREG_SAVE
    INTEGER I
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"SAVEREG" OUTPUTS THE VALUES OF THE GENERAL PURPOSE'
       CALL SHOWIT(1)
       OUTLYNE='REGISTERS FROM INT(W1) TO INT(W2) IN A FORMAT WHICH MAY'

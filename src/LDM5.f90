@@ -7,6 +7,7 @@ SUBROUTINE SNAO
    use mod_surface
    use DATMAI
    use mod_surface, only: surf_thickness
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNAO WHICH IMPLEMENTS THE NAO(X OR Y) COMMAND
@@ -27,7 +28,7 @@ SUBROUTINE SNAO
          RETURN
       END IF
 !
-      IF(STI.EQ.1.OR.STI.EQ.0) THEN
+      IF(is_command_query().OR..not. is_command_query()) THEN
          IF(WC.EQ.'NAOY') THEN
             IF(SYSTEM(64).NE.1.0D0.AND.SYSTEM(64).NE.3.0D0) THEN
                OUTLYNE='NOTE:'
@@ -77,7 +78,7 @@ SUBROUTINE SNAO
    END IF
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='QUERRY OBJECT N.A. VALUES FROM THE CMD LEVEL WITH THE'
          CALL SHOWIT(1)
          OUTLYNE='"NAOY" OR "NAOX" COMMANDS'
@@ -254,6 +255,7 @@ SUBROUTINE SMODE
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SMODE WHICH IMPLEMENTS THE MODE
@@ -262,7 +264,7 @@ SUBROUTINE SMODE
    INTEGER AMODE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(F5.EQ.1.OR.F6.EQ.1) THEN
          AMODE=INT(SYSTEM(30))
          IF(AMODE.EQ.1) THEN

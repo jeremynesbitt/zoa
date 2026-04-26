@@ -11,6 +11,7 @@ SUBROUTINE SPOT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_mode
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOT.FOR. THIS DOES ALL SPOT DIAGRAMS.
@@ -112,7 +113,7 @@ SUBROUTINE SPOT
          CALL MACFAL
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(WC.EQ.'ISPD')THEN
             OUTLYNE='"ISPD" PERFORMS AN ILLUMINATION SPOT DIAGRAM RAY TRACE'
             CALL SHOWIT(1)
@@ -353,7 +354,7 @@ SUBROUTINE SPOT
       CALL MACFAL
       RETURN
    END IF
-   IF(WC.EQ.'CAPFN'.AND.STI.EQ.1) THEN
+   IF(WC.EQ.'CAPFN'.AND.is_command_query()) THEN
       OUTLYNE=&
       &'"CAPFN" CREATES A COMPLEX APERTURE FUNCTION'
       CALL SHOWIT(1)
@@ -379,19 +380,19 @@ SUBROUTINE SPOT
       CALL MACFAL
       RETURN
    END IF
-   IF(WC.EQ.'PSFK'.AND.STI.EQ.1) THEN
+   IF(WC.EQ.'PSFK'.AND.is_command_query()) THEN
       OUTLYNE=&
       &'"PSF" CREATES A DIFFRACTION POINT SPREAD FUNCTION'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(WC.EQ.'PSFK'.AND.STI.EQ.1) THEN
+   IF(WC.EQ.'PSFK'.AND.is_command_query()) THEN
       OUTLYNE=&
       &'"PSF" CREATES A PUPIL FUNCTION IN FOE MEMORY'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(WC.EQ.'SPD'.AND.STI.EQ.1) THEN
+   IF(WC.EQ.'SPD'.AND.is_command_query()) THEN
       OUTLYNE=&
       &'"SPD" CREATES A SPOT DIAGRAM'
       CALL SHOWIT(1)
@@ -2039,6 +2040,7 @@ SUBROUTINE SPOT1(TPT)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wl_weight
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER UN*11
@@ -2129,7 +2131,7 @@ SUBROUTINE SPOT1(TPT)
    XLO=1.0D10
    YLO=1.0D10
 !
-   IF(STI.EQ.1.AND.TPT.EQ.1) THEN
+   IF(is_command_query().AND.TPT.EQ.1) THEN
       OUTLYNE=&
       &'"SPD" IS THE SPOT DIAGRAM COMMAND'
       CALL SHOWIT(1)

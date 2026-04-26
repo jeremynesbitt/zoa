@@ -717,6 +717,7 @@ SUBROUTINE SSPTWT
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPTWT WHICH IMPLEMENTS THE SPTWT
@@ -727,7 +728,7 @@ SUBROUTINE SSPTWT
 !               PRINT ERROR AND RETURN IF DISCOVERED.
    IF(WC.EQ.'SPTWT') THEN
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2000) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
@@ -859,7 +860,7 @@ SUBROUTINE SSPTWT
    END IF
    IF(WC.EQ.'SPTWT2') THEN
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2000) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)

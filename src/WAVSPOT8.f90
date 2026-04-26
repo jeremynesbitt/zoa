@@ -5,6 +5,7 @@ SUBROUTINE MAPFIELDOPD
    use DATLEN
    use mod_system, only: sys_wl_ref
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    INTEGER I,J,ALLOERR,II,JJ,L,K
    REAL*8 DW1,DW2,DW3,DW4,DI,DJ
@@ -12,7 +13,7 @@ SUBROUTINE MAPFIELDOPD
    DIMENSION OPDARRAY(:,:,:)
    ALLOCATABLE :: OPDARRAY
    CHARACTER*8 OWC
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'RMSMAP') THEN
          OUTLYNE='"RMSMAP" PERFORMS FOV RMS OPD ANALYSIS'
          CALL SHOWIT(1)

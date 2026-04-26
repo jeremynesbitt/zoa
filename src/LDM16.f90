@@ -183,12 +183,13 @@ SUBROUTINE OOPDIF
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE OOPDIF COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(OPDIF) WRITE(OUTLYNE,100)
       IF(.NOT.OPDIF) WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
@@ -228,12 +229,13 @@ SUBROUTINE LLDDFF
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE LDIF SETTING VIA THE DIFRAY COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(LDIF) WRITE(OUTLYNE,100)
       IF(.NOT.LDIF) WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
@@ -273,12 +275,13 @@ SUBROUTINE LLDDF2
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE LDIF2 SETTING VIA THE DIFFOB COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(LDIF2) WRITE(OUTLYNE,100)
       IF(.NOT.LDIF2) WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
@@ -318,12 +321,13 @@ SUBROUTINE LLDDF3
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE SETTING OR NOVIRT VIA THE VIRTRAY COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(NOVIRT) WRITE(OUTLYNE,100)
       IF(.NOT.NOVIRT) WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
@@ -365,6 +369,7 @@ SUBROUTINE LEPRT
    use DATLEN
    use mod_system, only: sys_last_surf
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LEPRT. THIS SUBROUTINE IMPLEMENTS
@@ -390,7 +395,7 @@ SUBROUTINE LEPRT
       CALL MACFAL
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"LEPRT/LIS" LISTS ALL LENS DATA'
       CALL SHOWIT(1)
@@ -545,6 +550,7 @@ SUBROUTINE LENUP
    use mod_system, only: sys_last_surf, sys_telecentric
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENUP. THIS IS THE SUBROUTINE WHICH
@@ -561,7 +567,7 @@ SUBROUTINE LENUP
    END IF
 !       HERE IS WERE THE ? FOLLOWING A LENS ULPATE COMMAND
 !       IS HANDLED
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       CALL ULQUER
       RETURN
    END IF
@@ -865,7 +871,7 @@ SUBROUTINE LENUP
       END IF
 !       COMMAND (MODEL [INDENTIFICATION],N V])
       IF(WC.EQ.'MODEL') THEN
-         IF(STI.EQ.1) THEN
+         IF(is_command_query()) THEN
             WRITE(OUTLYNE,100) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
             RETURN
@@ -875,7 +881,7 @@ SUBROUTINE LENUP
       END IF
 !       COMMAND (GLASS [INDENTIFICATION],N1 N2 N3 N4 N5])
       IF(WC.EQ.'GLASS') THEN
-         IF(STI.EQ.1) THEN
+         IF(is_command_query()) THEN
             WRITE(OUTLYNE,100) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
 100         FORMAT('GLASS TYPE FOR SURFACE # ',I3,' IS: ',&

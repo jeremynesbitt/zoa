@@ -185,11 +185,12 @@ END SUBROUTINE SORT_JK1
 SUBROUTINE LENSSAVE_NOOPT
    USE GLOBALS
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    CHARACTER LFILENAME*80
    INTEGER WSCNT
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LSAVE" SAVES THE CURRENT LENS IN AN ASCII FILE'
       CALL SHOWIT(1)
@@ -245,11 +246,12 @@ END SUBROUTINE LENSSAVE_NOOPT
 SUBROUTINE LENSSAVE
    USE GLOBALS
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    CHARACTER LFILENAME*80
    INTEGER WSCNT
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LENSSAVE" SAVES THE CURRENT LENS IN AN ASCII FILE'
       CALL SHOWIT(1)
@@ -303,12 +305,13 @@ END SUBROUTINE LENSSAVE
 ! ---------------------------------------------------------------------------
 SUBROUTINE LENSREST
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    CHARACTER LFILENAME*80
    INTEGER WSCNT
    LOGICAL EXISJK
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LENSREST" RESTORES THE CURRENT LENS FROM AN ASCII FILE'
       CALL SHOWIT(1)

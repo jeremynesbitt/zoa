@@ -36,6 +36,7 @@ SUBROUTINE LENIN
    use mod_surface
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENIN. THIS IS THE SUBROUTINE WHICH
@@ -52,7 +53,7 @@ SUBROUTINE LENIN
    END IF
 !       HERE IS WERE THE ? FOLLOWING A LENS ULPATE COMMAND
 !       IS HANDLED
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       CALL LQUERY
       RETURN
    END IF
@@ -239,7 +240,7 @@ SUBROUTINE LENIN
       END IF
 !       COMMAND (MODEL [INDENTIFICATION],N V])
       IF(WC.EQ.'MODEL') THEN
-         IF(STI.EQ.1) THEN
+         IF(is_command_query()) THEN
             WRITE(OUTLYNE,100) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
             RETURN
@@ -250,7 +251,7 @@ SUBROUTINE LENIN
       END IF
 !       COMMAND (GLASS [INDENTIFICATION],N1 N2 N3 N4 N5])
       IF(WC.EQ.'GLASS') THEN
-         IF(STI.EQ.1) THEN
+         IF(is_command_query()) THEN
             WRITE(OUTLYNE,100) SURF,GLANAM(SURF,1),GLANAM(SURF,2)
             CALL SHOWIT(0)
 100         FORMAT('GLASS TYPE FOR SURFACE # ',I3,' IS: ',A8,1X,A8)

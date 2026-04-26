@@ -9,6 +9,7 @@ SUBROUTINE PLTINTEN
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE PLOT INTEN COMMAND
@@ -33,7 +34,7 @@ SUBROUTINE PLTINTEN
 !
 !
    AUTOZSCALE=.TRUE.
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE= '"PLOT INTEN" PLOTS THE EXISTING MULTI-RAY INTENSITY'
       CALL SHOWIT(1)
       OUTLYNE= 'RE-ENTER COMMAND'

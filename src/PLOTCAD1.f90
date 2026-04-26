@@ -8,6 +8,7 @@ SUBROUTINE PPLOTT
    use DATLEN
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL PLOTTING PROCEDURES.
@@ -134,13 +135,13 @@ SUBROUTINE PPLOTT
 !       INITIALIZE PLOTTING
 !       CHECK SYNTAX
       IF(SN.EQ.1 &
-      &.OR.SST.EQ.1.AND.STI.NE.1) THEN
+      &.OR.SST.EQ.1.AND..not. is_command_query()) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"PLOT NEW" TAKES NO ADDITIONAL INPUT'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='"PLOT NEW ?" HAS NO MEANING'
          CALL SHOWIT(1)
          RETURN
@@ -638,7 +639,7 @@ SUBROUTINE PPLOTT
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,800)
          CALL SHOWIT(1)
 800      FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT CLAP"')
@@ -739,7 +740,7 @@ SUBROUTINE PPLOTT
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,801)
          CALL SHOWIT(1)
 801      FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT COBS"')
@@ -849,8 +850,9 @@ END
 SUBROUTINE STAMPER
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'STAMPD') THEN
          OUTLYNE=&
          &'"STAMPD" TURNS DATE STAMPING "ON" AND "OFF"'
@@ -912,6 +914,7 @@ SUBROUTINE PLTVIE
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT VIEW" COMMAND AT THE CMD LEVEL
@@ -924,7 +927,7 @@ SUBROUTINE PLTVIE
    IF(WC.EQ.'PLOT'.AND.WQ.EQ.'VIEW') THEN
 !       CHECK SYNTAX
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          RA=VIEALF
          RF=VIEPHI
          IF(DABS(RA).LT.1.0D-10) RA=0.0D0
@@ -978,7 +981,7 @@ SUBROUTINE PLTVIE
 !
    IF(WQ.EQ.'YESVIEW') THEN
 !       CHECK SYNTAX
-      IF(STI.EQ.0) THEN
+      IF(.not. is_command_query()) THEN
          IF(SN.EQ.1.OR.SST.EQ.1) THEN
             OUTLYNE=&
             &'"PLOT YESVIEW" TAKES NO STRING OR NUMERIC INPUT'
@@ -996,7 +999,7 @@ SUBROUTINE PLTVIE
 !
    IF(WQ.EQ.'NOVIEW') THEN
 !       CHECK SYNTAX
-      IF(STI.EQ.0) THEN
+      IF(.not. is_command_query()) THEN
          IF(SN.EQ.1.OR.SST.EQ.1) THEN
             OUTLYNE=&
             &'"PLOT NOVIEW" TAKES NO STRING OR NUMERIC INPUT'
@@ -1018,6 +1021,7 @@ SUBROUTINE PLTSZ
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT SCALE, PLOT NOSCALE AND PLOT YESCALE
@@ -1047,7 +1051,7 @@ SUBROUTINE PLTSZ
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.0) THEN
+      IF(.not. is_command_query()) THEN
          IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
             OUTLYNE=&
             &'"PLOT SCALE REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
@@ -1056,7 +1060,7 @@ SUBROUTINE PLTSZ
             RETURN
          END IF
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(SYSTEM(6).EQ.1.0D0) PU2='INCHES'
          IF(SYSTEM(6).EQ.2.0D0) PU1='CENTIMETERS'
          IF(SYSTEM(6).EQ.3.0D0) PU1='MILLIMETERS'
@@ -1111,7 +1115,7 @@ SUBROUTINE PLTSZ
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(DRASZZ) THEN
             WRITE(OUTLYNE,379)
             CALL SHOWIT(1)
@@ -1140,7 +1144,7 @@ SUBROUTINE PLTSZ
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(DRASZZ) THEN
             WRITE(OUTLYNE,379)
             CALL SHOWIT(1)
@@ -1193,6 +1197,7 @@ SUBROUTINE PLTSTL
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIE ROUTINE DOES THE PLOT LSTYLE COMMAND AT THE CMD LEVEL
@@ -1218,14 +1223,14 @@ SUBROUTINE PLTSTL
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(DF1.EQ.1.AND.STI.EQ.0) THEN
+      IF(DF1.EQ.1.AND..not. is_command_query()) THEN
          OUTLYNE=&
          &'"PLOT LSTYLE" REQUIRES EXPLICIT NUMERIC WORD #1 INPUT'
          CALL SHOWIT(1)
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(LNTYPE.EQ.0) LSTY='TYPE 0'
          IF(LNTYPE.EQ.1) LSTY='TYPE 1'
          IF(LNTYPE.EQ.2) LSTY='TYPE 2'
@@ -1260,6 +1265,7 @@ SUBROUTINE PLTSCL
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT SIZE, PLOT NOSIZE AND PLOT YESIZE
@@ -1289,7 +1295,7 @@ SUBROUTINE PLTSCL
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.0) THEN
+      IF(.not. is_command_query()) THEN
          IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
             OUTLYNE=&
             &'"PLOT SIZE" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
@@ -1298,7 +1304,7 @@ SUBROUTINE PLTSCL
             RETURN
          END IF
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(SYSTEM(6).EQ.1.0D0) PU2='INCHES'
          IF(SYSTEM(6).EQ.2.0D0) PU1='CENTIMETERS'
          IF(SYSTEM(6).EQ.3.0D0) PU1='MILLIMETERS'
@@ -1354,7 +1360,7 @@ SUBROUTINE PLTSCL
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(DRASCL) THEN
             WRITE(OUTLYNE,379)
             CALL SHOWIT(1)
@@ -1382,7 +1388,7 @@ SUBROUTINE PLTSCL
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(DRASCL) THEN
             WRITE(OUTLYNE,379)
             CALL SHOWIT(1)
@@ -3122,6 +3128,7 @@ SUBROUTINE PLT_SAGFILE
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE PLOT SAGFILE COMMAND
@@ -3147,7 +3154,7 @@ SUBROUTINE PLT_SAGFILE
 !
    DEALLOCATE(SAGARRAY1,SAGARRAY2,SAGARRAY3,STAT=ALLOERR)
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE= '"PLOT SAGFILE" PLOTS THE EXISTING SAG.DAT FILE'
       CALL SHOWIT(1)
       OUTLYNE= 'RE-ENTER COMMAND'

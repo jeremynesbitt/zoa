@@ -1824,6 +1824,7 @@ END
 SUBROUTINE PART_DRAW
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER N,I
@@ -1876,7 +1877,7 @@ SUBROUTINE PART_DRAW
    END DO
 10 CONTINUE
 !
-   IF(STI.NE.1) THEN
+   IF(.not. is_command_query()) THEN
 !
 !     QUALIFIER CHECK
       IF(SQ.EQ.1) THEN
@@ -1936,7 +1937,7 @@ SUBROUTINE PART_DRAW
 !
 !     PARTDRAW
    IF(WC.EQ.'PARTDRAW') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE=&
          &'"PARTDRAW" INITIALIZES THE LENS DRAWING FEATURE'
          CALL SHOWIT(1)
@@ -2348,6 +2349,7 @@ SUBROUTINE GREYSPOT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE GREYSPOT COMMAND
@@ -2356,7 +2358,7 @@ SUBROUTINE GREYSPOT
    INTEGER IW1
    SAVE IW1
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,800) GRSPT
       CALL SHOWIT(1)
 800   FORMAT('"GREYSPOT" IS CURRENTLY SET = ',I2)
@@ -2462,6 +2464,7 @@ SUBROUTINE VIEOFF
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    REAL*8 VIEROT
@@ -2471,7 +2474,7 @@ SUBROUTINE VIEOFF
    COMMON/OFFVIE/VIEXOF,VIEYOF,VIEROT
 !
 !
-   IF(STI.EQ.1.OR.SQ.EQ.0.AND.SN.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0.AND.SN.EQ.0) THEN
       OUTLYNE=&
       &'"VIEOFF" SETS UP OFFSETS AND A ROTATION FOR "VIE"'
       CALL SHOWIT(1)
@@ -2511,10 +2514,11 @@ SUBROUTINE VIEVIG
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
-   IF(STI.EQ.1.OR.SQ.EQ.0.AND.SN.EQ.0.AND.SST.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0.AND.SN.EQ.0.AND.SST.EQ.0) THEN
       OUTLYNE=&
       &'"VIEVIG" SETS VIGNETTING IN "VIE" PLOTS TO "ON" OR "OFF"'
       CALL SHOWIT(1)
@@ -2548,10 +2552,11 @@ SUBROUTINE VIEOVER
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"VIEOVER" SETS VIE OVERLAY "ON" FOR THE NEXT "VIE"'
       CALL SHOWIT(1)
@@ -2572,10 +2577,11 @@ SUBROUTINE VIESYM
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
-   IF(STI.EQ.1.OR.SQ.EQ.0.AND.SN.EQ.0.AND.SST.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0.AND.SN.EQ.0.AND.SST.EQ.0) THEN
       OUTLYNE=&
       &'"VIESYM" SETS RAY SYMMETRY IN "VIE" PLOTS TO "ON" OR "OFF"'
       CALL SHOWIT(1)
@@ -2606,12 +2612,13 @@ SUBROUTINE VIGGER
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE VIG ON OR OFF SETTING VIA THE VIG COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(LVIG) WRITE(OUTLYNE,100)
       IF(.NOT.LVIG) WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
@@ -2649,8 +2656,9 @@ END
 SUBROUTINE TSTPLATE
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
-   IF(STI.EQ.1.OR.SST.EQ.0.AND.SN.EQ.0.AND.WQ.EQ.'LIST') THEN
+   IF(is_command_query().OR.SST.EQ.0.AND.SN.EQ.0.AND.WQ.EQ.'LIST') THEN
       OUTLYNE='THE CURRENTLY INSTALLED TESTPLATE LISTS ARE:'
       CALL SHOWIT(0)
       OUTLYNE=' '
@@ -2805,11 +2813,12 @@ END
 SUBROUTINE TEST_PLATE_IT
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    INTEGER SFNUMBER
    REAL*8 TPVALUE
    CHARACTER INLINE*40
-   IF(STI.EQ.1.AND.WC.EQ.'TESTRD') THEN
+   IF(is_command_query().AND.WC.EQ.'TESTRD') THEN
       OUTLYNE='"TESTRD" ASSIGNS A TEST PLATE RADIUS AND REMOVES ALL'
       CALL SHOWIT(0)
       OUTLYNE='SOLVES, PIKUPS AND VARIABLES WHICH WOULD CONFLICT WITH'
@@ -2818,7 +2827,7 @@ SUBROUTINE TEST_PLATE_IT
       CALL SHOWIT(0)
       RETURN
    END IF
-   IF(STI.EQ.1.AND.WC.EQ.'TESTCYL') THEN
+   IF(is_command_query().AND.WC.EQ.'TESTCYL') THEN
       OUTLYNE=&
       &'"TESTCYL" ASSIGNS A TEST PLATE CYLINDER RADIUS AND REMOVES ALL'
       CALL SHOWIT(0)
@@ -2979,12 +2988,13 @@ SUBROUTINE SPDSSI
 !
    use DATSPD
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS DOES THE SPDSSI COMMAND AT THE CMD LEVEL
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'CURRENT SPOT DIAGRAM PLOTTING SSI = ',SPDSSIVAL
       CALL SHOWIT(1)
@@ -3033,12 +3043,13 @@ SUBROUTINE DETECTOR
 !
    use DATSPD
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS DOES THE DET COMMAND AT THE CMD LEVEL
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'CURRENT SPOT DIAGRAM DETECTOR SETTINGS:'
       CALL SHOWIT(1)
@@ -3224,6 +3235,7 @@ SUBROUTINE ORIENT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE ORIENT COMMAND
@@ -3238,7 +3250,7 @@ SUBROUTINE ORIENT
    IF(WC.EQ.'ORIENT') THEN
 !
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,800)
          CALL SHOWIT(1)
          WRITE(OUTLYNE,801)
@@ -3382,7 +3394,7 @@ SUBROUTINE ORIENT
          RETURN
       END IF
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,1800)
          CALL SHOWIT(1)
          WRITE(OUTLYNE,1801)

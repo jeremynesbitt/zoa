@@ -2,6 +2,7 @@
  ! STI is 1 when ? is after command
 LOGICAL FUNCTION COMMANDINFOCHECK(OUTTXT)
 
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
    INTEGER STI
@@ -13,7 +14,7 @@ LOGICAL FUNCTION COMMANDINFOCHECK(OUTTXT)
 
    COMMANDINFOCHECK = .FALSE.
 
-   IF (STI.EQ.1) THEN
+   IF (is_command_query()) THEN
       COMMANDINFOCHECK = .TRUE.
       OUTLYNE=OUTTXT
       CALL SHOWIT(1)

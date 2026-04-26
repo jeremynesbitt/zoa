@@ -893,6 +893,7 @@ SUBROUTINE SENSI(ITY)
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER PNAME*8
@@ -993,7 +994,7 @@ SUBROUTINE SENSI(ITY)
 !     NOW WE CHECK FOR VALID INPUT
 !     SENSI TAKES NO INPUT
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(ITY.EQ.0) WRITE(OUTLYNE,*)'"SENSI" INITIATES A SENSITIVITY ANALYSIS'
       IF(ITY.EQ.1) WRITE(OUTLYNE,*)'"INVSENSI" INITIATES AN INVERSE SENSITIVITY ANALYSIS'
       CALL SHOWIT(1)
@@ -6106,6 +6107,7 @@ SUBROUTINE DINCIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    LOGICAL DINO
@@ -6113,14 +6115,14 @@ SUBROUTINE DINCIT
    REAL*8 D
 !
 !
-   IF(STI.EQ.1.AND.SQ.EQ.0) THEN
+   IF(is_command_query().AND.SQ.EQ.0) THEN
       WRITE(OUTLYNE,*)'"DINCR" SETS DEFAULT DINCR VALUES FOR CLASSES OF VARIABLES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'AND TAKES QUALIFIER AND NUMERIC WORD #1 INPUT'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(STI.EQ.1.AND.SQ.EQ.1) THEN
+   IF(is_command_query().AND.SQ.EQ.1) THEN
       IF(WQ.EQ.'CV      ') D=DINC2
       IF(WQ.EQ.'TH      ') D=DINC3
       IF(WQ.EQ.'CLPX    ') D=DINC3

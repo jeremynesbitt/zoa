@@ -117,6 +117,159 @@ contains
 
   end subroutine
 
+  logical function has_string_input()
+    implicit none
+    include "DATMAI.INC"
+
+    has_string_input = SST .EQ. 1
+  end function
+
+  logical function has_qualifier_input()
+    implicit none
+    include "DATMAI.INC"
+
+    has_qualifier_input = SQ .EQ. 1
+  end function
+
+  logical function is_command_query()
+    implicit none
+    include "DATMAI.INC"
+
+    is_command_query = STI .EQ. 1
+  end function
+
+  logical function has_numeric_input(word_number)
+    implicit none
+    integer, intent(in) :: word_number
+    include "DATMAI.INC"
+
+    select case (word_number)
+    case (1)
+      has_numeric_input = S1 .EQ. 1
+    case (2)
+      has_numeric_input = S2 .EQ. 1
+    case (3)
+      has_numeric_input = S3 .EQ. 1
+    case (4)
+      has_numeric_input = S4 .EQ. 1
+    case (5)
+      has_numeric_input = S5 .EQ. 1
+    case default
+      has_numeric_input = .FALSE.
+    end select
+  end function
+
+  logical function is_default_numeric(word_number)
+    implicit none
+    integer, intent(in) :: word_number
+    include "DATMAI.INC"
+
+    select case (word_number)
+    case (1)
+      is_default_numeric = DF1 .EQ. 1
+    case (2)
+      is_default_numeric = DF2 .EQ. 1
+    case (3)
+      is_default_numeric = DF3 .EQ. 1
+    case (4)
+      is_default_numeric = DF4 .EQ. 1
+    case (5)
+      is_default_numeric = DF5 .EQ. 1
+    case default
+      is_default_numeric = .TRUE.
+    end select
+  end function
+
+  logical function has_numeric_input_after(max_word)
+    implicit none
+    integer, intent(in) :: max_word
+
+    has_numeric_input_after = .FALSE.
+    if (max_word < 1 .and. has_numeric_input(1)) has_numeric_input_after = .TRUE.
+    if (max_word < 2 .and. has_numeric_input(2)) has_numeric_input_after = .TRUE.
+    if (max_word < 3 .and. has_numeric_input(3)) has_numeric_input_after = .TRUE.
+    if (max_word < 4 .and. has_numeric_input(4)) has_numeric_input_after = .TRUE.
+    if (max_word < 5 .and. has_numeric_input(5)) has_numeric_input_after = .TRUE.
+  end function
+
+  logical function has_any_numeric_input()
+    implicit none
+
+    has_any_numeric_input = has_numeric_input_after(0)
+  end function
+
+  logical function reject_string_input(command_name)
+    implicit none
+    character(len=*), intent(in) :: command_name
+
+    reject_string_input = has_string_input()
+    if (reject_string_input) then
+      call report_error_and_fail(command_name//' TAKES NO STRING INPUT\nRE-ENTER COMMAND', 1)
+    end if
+  end function
+
+  logical function reject_numeric_input_after(command_name, max_word)
+    implicit none
+    character(len=*), intent(in) :: command_name
+    integer, intent(in) :: max_word
+    character(len=80) :: numeric_range
+
+    reject_numeric_input_after = has_numeric_input_after(max_word)
+    if (reject_numeric_input_after) then
+      select case (max_word)
+      case (0)
+        numeric_range = 'NUMERIC INPUT'
+      case (1)
+        numeric_range = 'NUMERIC WORD #2 THROUGH #5 INPUT'
+      case (2)
+        numeric_range = 'NUMERIC WORD #3 THROUGH #5 INPUT'
+      case (3)
+        numeric_range = 'NUMERIC WORD #4 OR #5 INPUT'
+      case (4)
+        numeric_range = 'NUMERIC WORD #5 INPUT'
+      case default
+        numeric_range = 'NUMERIC INPUT'
+      end select
+      call report_error_and_fail(command_name//' TAKES NO '//trim(numeric_range)//'\nRE-ENTER COMMAND', 1)
+    end if
+  end function
+
+  logical function require_numeric_input(command_name, word_number)
+    implicit none
+    character(len=*), intent(in) :: command_name
+    integer, intent(in) :: word_number
+    character(len=80) :: word_label
+
+    require_numeric_input = is_default_numeric(word_number)
+    if (require_numeric_input) then
+      select case (word_number)
+      case (1)
+        word_label = 'NUMERIC WORD #1'
+      case (2)
+        word_label = 'NUMERIC WORD #2'
+      case (3)
+        word_label = 'NUMERIC WORD #3'
+      case (4)
+        word_label = 'NUMERIC WORD #4'
+      case (5)
+        word_label = 'NUMERIC WORD #5'
+      case default
+        word_label = 'NUMERIC INPUT'
+      end select
+      call report_error_and_fail(command_name//' REQUIRES EXPLICIT '//trim(word_label)//' INPUT\nRE-ENTER COMMAND', 1)
+    end if
+  end function
+
+  logical function reject_qualifier_or_numeric_input(command_name)
+    implicit none
+    character(len=*), intent(in) :: command_name
+
+    reject_qualifier_or_numeric_input = has_qualifier_input() .or. has_any_numeric_input()
+    if (reject_qualifier_or_numeric_input) then
+      call report_error_and_fail(command_name//' TAKES NO EXPLICIT INPUT\nRE-ENTER COMMAND', 1)
+    end if
+  end function
+
   function hasAlphaNumericInput(self) result(flag)
     implicit none
     class(command_parser) :: self

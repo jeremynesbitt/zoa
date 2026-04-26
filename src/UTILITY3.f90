@@ -2197,12 +2197,13 @@ END
 SUBROUTINE FORMER
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
    INTEGER I,LL
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       LL=0
       DO I=80,1,-1
          IF(WFORM(I:I).NE.' ') THEN
@@ -2302,13 +2303,14 @@ SUBROUTINE ALLDEF
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS DOES THE "ALL" COMMAND
 !
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(ALLSET) OUTLYNE='"ALL" IS SET TO "ON"'
       IF(.NOT.ALLSET) OUTLYNE='"ALL" IS SET TO "OFF"'
       CALL SHOWIT(1)
@@ -2335,13 +2337,14 @@ SUBROUTINE SETCOAT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS DOES THE "COATINGS" COMMAND
 !
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(COATSET) OUTLYNE='"COATINGS" IS SET TO "ON"'
       IF(.NOT.COATSET) OUTLYNE='"COATINGS" IS SET TO "OFF"'
       CALL SHOWIT(1)
@@ -2415,6 +2418,7 @@ END
 SUBROUTINE WRITE
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO WRITE OUT THE CONTENTS
@@ -2441,7 +2445,7 @@ SUBROUTINE WRITE
 !               PRINT FIRST 40 CHARACTERS IN THE
 !               STRING FOLLOWED BY AN EQUAL SIGN.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE= 'NO ADDITIONAL INFORMATION AVAILABLE'
       CALL SHOWIT(1)
       RETURN

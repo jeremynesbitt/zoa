@@ -8,7 +8,7 @@ SUBROUTINE LENNS
    use DATLEN
    use mod_surface
    use DATMAI
-   use command_utils, only: report_error_and_fail
+   use command_utils, only: reject_qualifier_or_numeric_input
    IMPLICIT NONE
 !
    INTEGER I,K,J
@@ -27,10 +27,7 @@ SUBROUTINE LENNS
    ZFOBB0=0.0D0
    NUMHITS(0:MAXSUR)=1
 !
-   IF(SQ.EQ.1.OR.SN.EQ.1) THEN
-      call report_error_and_fail('"LENS" TAKES NO EXPLICIT INPUT\nRE-ENTER COMMAND', 1)
-      RETURN
-   END IF
+   IF(reject_qualifier_or_numeric_input('"LENS"')) RETURN
    MFG(1:75)='Manufacturer Name'
    CATNUM(1:75)='Lens Catalog Number'
    F1=0
@@ -285,28 +282,18 @@ SUBROUTINE XYGAMA
    use DATLEN
    use mod_surface
    use DATMAI
-   use command_utils, only: report_error_and_fail
+   use command_utils, only: reject_string_input, reject_numeric_input_after, require_numeric_input, &
+   & is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT XSHIFT,YSHIFT AND GAMMA COMMANDS
 !
 !
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
 !       CHECK SYNTAX
-      IF(SST.EQ.1) THEN
-         call report_error_and_fail('"PLOT "'//WQ(1:6)//'" TAKES NO STRING INPUT\nRE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-      IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         call report_error_and_fail(&
-         & '"PLOT "'//WQ(1:6)//'" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT\nRE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-      IF(DF1.EQ.1) THEN
-         call report_error_and_fail(&
-         & '"PLOT "'//WQ(1:6)//' REQUIRES EXPLICIT NUMERIC WORD #1 INPUT\nRE-ENTER COMMAND', 1)
-         RETURN
-      END IF
+      IF(reject_string_input('"PLOT "'//WQ(1:6)//'"')) RETURN
+      IF(reject_numeric_input_after('"PLOT "'//WQ(1:6)//'"', 1)) RETURN
+      IF(require_numeric_input('"PLOT "'//WQ(1:6), 1)) RETURN
 !
       IF(WQ.EQ.'XSHIFT') PXSHFT=INT(W1)
       IF(WQ.EQ.'XSHIFT') LORIENT=.FALSE.
@@ -327,9 +314,9 @@ SUBROUTINE XYGAMA
       END IF
       RETURN
    ELSE
-!     STI=1
+!     Command query mode
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WQ.EQ."XSHIFT") WRITE(OUTLYNE,801) PXSHFT
       IF(WQ.EQ."YSHIFT") WRITE(OUTLYNE,802) PYSHFT
       IF(WQ.EQ."GAMMA") WRITE(OUTLYNE,803) PGAMMA
@@ -2561,6 +2548,7 @@ SUBROUTINE THSOLV
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE THSOLV WHICH IMPLEMENTS THE
@@ -2572,7 +2560,7 @@ SUBROUTINE THSOLV
 !
    IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCY'.OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'.OR.WC.EQ.'REDSLV') THEN
 !       COMMANDS WHICH MIGHT HAVE QUERRY
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
 !
          IF(WC.EQ.'PY') THEN
             IF(SOLVE(6,SURF).EQ.1.0D0)WRITE(OUTLYNE,101)SOLVE(7,SURF),SURF
@@ -2864,6 +2852,7 @@ SUBROUTINE THERMGAS
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER I
@@ -2887,7 +2876,7 @@ SUBROUTINE THERMGAS
       RETURN
    END IF
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'NO ADDITIONAL INFORMATION'
       CALL SHOWIT(1)
       CALL MACFAL
@@ -3828,6 +3817,7 @@ SUBROUTINE ABSORB
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ABSORB WHICH IMPLEMENTS CMD LEVEL COMMAND ABSORB
@@ -3843,7 +3833,7 @@ SUBROUTINE ABSORB
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(DF1.EQ.1) THEN
 !       DISPLAY ALL COEFS
       ELSE

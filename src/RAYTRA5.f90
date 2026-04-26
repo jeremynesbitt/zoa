@@ -7,6 +7,7 @@ SUBROUTINE QRRAY
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE QRRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -33,7 +34,7 @@ SUBROUTINE QRRAY
 !
 !     CHECK INPUT
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"FOOT" CAUSES A FOOTPRINT RAY GRID TO BE TRACED'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -294,6 +295,7 @@ SUBROUTINE FTGRID
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER FOTLIM
@@ -302,7 +304,7 @@ SUBROUTINE FTGRID
 !
 !     CHECK INPUT
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"FOOT GRID" CAUSES A FOOTPRINT GRID SIZE TO BE SET'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'CURRENT FOOT RAY GRID  IS : ',(2*FOTLIM+1),' x ',(2*FOTLIM)+1

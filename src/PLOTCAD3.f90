@@ -6,6 +6,7 @@ SUBROUTINE PLTORG
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
 !
@@ -21,7 +22,7 @@ SUBROUTINE PLTORG
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,873)ORX,ORY
          CALL SHOWIT(1)
 873      FORMAT('CURRENT PLOT ORIGIN IS AT:'/&
@@ -67,6 +68,7 @@ SUBROUTINE PLTNAM
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT NAME" COMMAND AT THE CMD LEVEL
@@ -86,7 +88,7 @@ SUBROUTINE PLTNAM
          RETURN
       END IF
 !       STI
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(PPLI(1:10).EQ.BL10) THEN
             CALL REPORT_ERROR_AND_FAIL('THE CURRENT PLOT NAME IS BLANK', 1)
             RETURN
@@ -116,6 +118,7 @@ SUBROUTINE PLTDOTF
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT DOTF AT THE CMD LEVEL
@@ -155,7 +158,7 @@ SUBROUTINE PLTDOTF
 !
    MYJK=0
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"PLTDOTF" PLOTS EXISTING DOTF VALUES'
       CALL SHOWIT(1)
@@ -570,6 +573,7 @@ SUBROUTINE PLTGOTF
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT GOTF AT THE CMD LEVEL
@@ -610,7 +614,7 @@ SUBROUTINE PLTGOTF
 !
    MYJK=0
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"PLTGOTF" PLOTS EXISTING GOTF VALUES'
       CALL SHOWIT(1)
@@ -1050,6 +1054,7 @@ SUBROUTINE PLTLSF
    use DATHGR
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT GEO LSF AT THE CMD LEVEL
@@ -1077,7 +1082,7 @@ SUBROUTINE PLTLSF
 !
    MYJK=0
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"PLTLSF" PLOTS EXISTING GEOMETRICAL LSF VALUES'
       CALL SHOWIT(1)
@@ -1393,6 +1398,7 @@ SUBROUTINE PLTLOK
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    REAL*8 MAG
@@ -1407,7 +1413,7 @@ SUBROUTINE PLTLOK
 !
    IF(WQ.EQ.'LOOK') THEN
 !       CHECK SYNTAX
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          RLOOKX=LOOKX
          RLOOKY=LOOKY
          RLOOKZ=LOOKZ
@@ -1495,7 +1501,7 @@ SUBROUTINE PLTLOK
 !
    IF(WQ.EQ.'YESLOOK') THEN
 !       CHECK SYNTAX
-      IF(STI.EQ.0) THEN
+      IF(.not. is_command_query()) THEN
          IF(SN.EQ.1.OR.SST.EQ.1) THEN
             OUTLYNE=&
             &'"PLOT YESLOOK" TAKES NO STRING OR NUMERIC INPUT'
@@ -1504,7 +1510,7 @@ SUBROUTINE PLTLOK
             RETURN
          END IF
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          RLOOKX=LOOKX
          RLOOKY=LOOKY
          RLOOKZ=LOOKZ
@@ -1533,7 +1539,7 @@ SUBROUTINE PLTLOK
 !
    IF(WQ.EQ.'NOLOOK') THEN
 !       CHECK SYNTAX
-      IF(STI.EQ.0) THEN
+      IF(.not. is_command_query()) THEN
          IF(SN.EQ.1.OR.SST.EQ.1) THEN
             OUTLYNE=&
             &'"PLOT NOLOOK" TAKES NO STRING OR NUMERIC INPUT'
@@ -1542,7 +1548,7 @@ SUBROUTINE PLTLOK
             RETURN
          END IF
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          RLOOKX=LOOKX
          RLOOKY=LOOKY
          RLOOKZ=LOOKZ
@@ -1575,6 +1581,7 @@ SUBROUTINE PLTLI
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT LI" AND "PLOT NOLI" COMMANDS
@@ -1594,7 +1601,7 @@ SUBROUTINE PLTLI
          RETURN
       ELSE
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(PLTLLI) OUTLYNE= 'LI PLOTTING IS CURRENTLY ENABLED'
          IF(.NOT.PLTLLI)&
          &OUTLYNE= 'LI PLOTTING IS NOT CURRENTLY ENABLED'
@@ -1616,6 +1623,7 @@ SUBROUTINE PLTLBLL
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT LBL"
@@ -1625,7 +1633,7 @@ SUBROUTINE PLTLBLL
 !       PLOT LBL
 !
 !       CHECK SYNTAX
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(PLTLBL) OUTLYNE= 'LBL PLOTTING IS CURRENTLY ENABLED'
       IF(.NOT.PLTLBL)&
       &OUTLYNE= 'LBL PLOTTING IS NOT CURRENTLY ENABLED'
@@ -1681,6 +1689,7 @@ SUBROUTINE PLTJUS
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT RIGHT, LEFT AND CENTER COMMANDS
@@ -1695,7 +1704,7 @@ SUBROUTINE PLTJUS
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(RCL.EQ.1.OR.RCL.EQ.-1) WRITE(OUTLYNE,801)
          IF(RCL.EQ.2.OR.RCL.EQ.-2) WRITE(OUTLYNE,802)
          IF(RCL.EQ.3.OR.RCL.EQ.-3) WRITE(OUTLYNE,803)
@@ -1715,7 +1724,7 @@ SUBROUTINE PLTJUS
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(RCL.EQ.1.OR.RCL.EQ.-1) WRITE(OUTLYNE,801)
          IF(RCL.EQ.2.OR.RCL.EQ.-2) WRITE(OUTLYNE,802)
          IF(RCL.EQ.3.OR.RCL.EQ.-3) WRITE(OUTLYNE,803)
@@ -1732,7 +1741,7 @@ SUBROUTINE PLTJUS
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(RCL.EQ.1.OR.RCL.EQ.-1) WRITE(OUTLYNE,801)
          IF(RCL.EQ.2.OR.RCL.EQ.-2) WRITE(OUTLYNE,802)
          IF(RCL.EQ.3.OR.RCL.EQ.-3) WRITE(OUTLYNE,803)
@@ -1760,6 +1769,7 @@ SUBROUTINE PLTFRM
    use DATHGR
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    REAL*8 MAG
@@ -1771,7 +1781,7 @@ SUBROUTINE PLTFRM
 !
 !
 !       CHECK SYNTAX
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,100)
       CALL SHOWIT(1)
       WRITE(OUTLYNE,200)
@@ -1837,6 +1847,7 @@ SUBROUTINE FOOTSANG
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE FOOTSANG COMMAND
@@ -1879,7 +1890,7 @@ SUBROUTINE FOOTSANG
 !
 !
 !       CHECK SYNTAX
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'FOOTAREA" CALCULATES THE SOLID ANGLE SUBTENDED BY THE'
       CALL SHOWIT(1)
@@ -2009,6 +2020,7 @@ SUBROUTINE FOOTAREA
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE FOOTAREA COMMAND
@@ -2053,7 +2065,7 @@ SUBROUTINE FOOTAREA
 !
 !
 !       CHECK SYNTAX
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'FOOTAREA" CALCULATES THE AREA OF THE CURRENT BEAM FOOTPRINT'
       CALL SHOWIT(1)
@@ -2135,6 +2147,7 @@ SUBROUTINE PLTFOOT
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT FOOT COMMAND
@@ -2226,7 +2239,7 @@ SUBROUTINE PLTFOOT
       DEALLOCATE(CLPDAT,STAT=ALLOERR)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,800)
       CALL SHOWIT(1)
 800   FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT FOOT"')
@@ -2634,6 +2647,7 @@ SUBROUTINE PLTFIELD
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS PLOTS FIELD ABERATIONS
@@ -3027,7 +3041,7 @@ SUBROUTINE PLTFIELD
       RETURN
    END IF
    IF(WC.EQ.'PLTAST') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE=&
          &'"PLTAST" PLOTS EXISTING ASTIGMATISM VALUES'
          CALL SHOWIT(1)
@@ -3244,7 +3258,7 @@ SUBROUTINE PLTFIELD
       RETURN
    END IF
    IF(WC.EQ.'PLTFLDCV') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE=&
          &'"PLTFLDCV" PLOTS EXISTING FIELD CURVATURE VALUES'
          CALL SHOWIT(1)
@@ -3864,6 +3878,7 @@ SUBROUTINE PLTDSH
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT DASH COMMAND AT THE CMD LEVEL
@@ -3881,7 +3896,7 @@ SUBROUTINE PLTDSH
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
 !     QUERRY
          IF(DASHH) THEN
             OUTLYNE='"PLOT DASH" IS CURRENTLY IN EFFECT FOR PLOTTING'
@@ -3909,7 +3924,7 @@ SUBROUTINE PLTDSH
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
 !     QUERRY
          IF(.NOT.DASHH) THEN
             OUTLYNE=&
@@ -4380,6 +4395,7 @@ SUBROUTINE PLTRHFOOT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    LOGICAL EXIS103,OPEN103
    REAL*8 XFTVAL,YFTVAL,XNEW,YNEW,X,Y,LKG
@@ -4388,7 +4404,7 @@ SUBROUTINE PLTRHFOOT
    INTEGER ALLOERR,NUMBER_OF_RAYS,IX,IY,I,COLPAS
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"PLOT RHFOOT" PLOTS THE RAY HISTORY FOOT PRINT FILE'
       CALL SHOWIT(1)

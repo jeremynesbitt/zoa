@@ -455,6 +455,7 @@ SUBROUTINE PRES
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER I
@@ -478,7 +479,7 @@ SUBROUTINE PRES
       RETURN
    END IF
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'NO ADDITIONAL INFORMATION'
       CALL SHOWIT(1)
       CALL MACFAL

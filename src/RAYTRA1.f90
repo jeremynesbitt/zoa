@@ -157,6 +157,7 @@ SUBROUTINE SIZES
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIZES
@@ -175,7 +176,7 @@ SUBROUTINE SIZES
    ALLOCATE(VERARRAY(1:220,0:MAXSUR),STAT=ALLOERR)
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"LIMRAYS" CALCULATES YZ AND XZ-PLANE LIMIT RAYS'
       CALL SHOWIT(1)
       OUTLYNE='QUALIFIERS ARE "REAL", "VREAL" OR "PARAX"'
@@ -666,6 +667,7 @@ SUBROUTINE SETCLAP
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, surf_array_parity, &
       set_surf_clap_type, set_surf_clap_dim, set_surf_clap_tilt
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SETCLAP
@@ -683,7 +685,7 @@ SUBROUTINE SETCLAP
    ALLOCATE(VERARRAY(1:220,0:MAXSUR),STAT=ALLOERR)
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"SETCLAP" SETS CLAPS ON SURFACES'
       CALL SHOWIT(1)
       OUTLYNE='QUALIFIERS ARE "REAL", "VREAL" OR "PARAX"'
@@ -2220,6 +2222,7 @@ SUBROUTINE SIZES2
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIZES2
@@ -2230,7 +2233,7 @@ SUBROUTINE SIZES2
 !
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"BLKRAYS" CALCULATES YZ AND XZ-PLANE RAY BLOCKAGE'
       CALL SHOWIT(1)
       OUTLYNE='FOR THE CURRENT "FOB"'
@@ -2434,6 +2437,7 @@ SUBROUTINE MRRAYS
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MRRAYS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2442,7 +2446,7 @@ SUBROUTINE MRRAYS
    INTEGER I,J,N
    REAL*8 XSTEP,YSTEP,SW1,SW2
 !
-   IF(STI.NE.1) THEN
+   IF(.not. is_command_query()) THEN
 !       SET DEFAULT NUMERICS
       IF(DF1.EQ.1) W1=0.0D0
       IF(DF2.EQ.1) W2=0.0D0
@@ -2459,7 +2463,7 @@ SUBROUTINE MRRAYS
       IF(DF5.EQ.1) RW5=1.0D0
       IF(RW5.LE.1.0D0) RW5=1.0D0
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'MRAYS',RW1,RW2,RW3
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)RW4,RW5

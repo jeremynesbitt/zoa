@@ -132,6 +132,7 @@ SUBROUTINE DDXFF
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL DXF PROCEDURES.
@@ -169,13 +170,13 @@ SUBROUTINE DDXFF
 !       INITIALIZE DXF OUTPUT
 !       CHECK SYNTAX
       IF(SN.EQ.1 &
-      &.OR.SST.EQ.1.AND.STI.NE.1) THEN
+      &.OR.SST.EQ.1.AND..not. is_command_query()) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"DXF NEW" TAKES NO ADDITIONAL INPUT'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='"DXF NEW ?" HAS NO MEANING'
          CALL SHOWIT(1)
          RETURN
@@ -290,7 +291,7 @@ SUBROUTINE DDXFF
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,800)
          CALL SHOWIT(1)
 800      FORMAT('QUERRY (?) HAS NO MEANING WITH "DXF CLAP"')
@@ -418,9 +419,10 @@ END
 SUBROUTINE DXFLAYER
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    CHARACTER*8 LAYERNAME
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='THE CURRENT DXF LAYER NAME IS :'//LAYER
       CALL SHOWIT(1)
       RETURN
@@ -451,8 +453,9 @@ SUBROUTINE GLBSURF
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*) 'THE DXF GLOBAL SURFACE IS :', GLSURF
       CALL SHOWIT(1)
       RETURN
@@ -529,6 +532,7 @@ SUBROUTINE DXFLINE
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXFLINE COMMAND AT THE CMD LEVEL
@@ -552,7 +556,7 @@ SUBROUTINE DXFLINE
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,800)
       CALL SHOWIT(1)
 800   FORMAT('QUERRY (?) HAS NO MEANING WITH "DXF LINE"')
@@ -596,6 +600,7 @@ SUBROUTINE DXFPRO1
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF PROF COMMAND AT THE CMD LEVEL
@@ -675,7 +680,7 @@ SUBROUTINE DXFPRO1
       DEALLOCATE(PRO,VIS,STAT=ALLOERR)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,801)
       CALL SHOWIT(1)
 801   FORMAT('QUERRY (?) HAS NO MEANING WITH "DXF PROF"')
@@ -1133,6 +1138,7 @@ SUBROUTINE DXFRAE
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXFRAY COMMAND AT THE CMD LEVEL
@@ -1195,7 +1201,7 @@ SUBROUTINE DXFRAE
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,800)
       CALL SHOWIT(1)
 800   FORMAT('QUERRY (?) HAS NO MEANING WITH "DXF RAY"')
@@ -1303,6 +1309,7 @@ SUBROUTINE DXFVERTLINE
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT LINE CONNECTING SURFACE VERTICES
@@ -1342,7 +1349,7 @@ SUBROUTINE DXFVERTLINE
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,800)
       CALL SHOWIT(1)
 800   FORMAT('QUERRY (?) HAS NO MEANING WITH "PLOT VERTLINE"')
@@ -1438,6 +1445,7 @@ SUBROUTINE DXFEDG
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF EDGEX/EDGEY COMMAND AT THE CMD LEVEL
@@ -1517,7 +1525,7 @@ SUBROUTINE DXFEDG
       DEALLOCATE(IPX,STAT=ALLOERR)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WQ.EQ.'EDGEX')WRITE(OUTLYNE,800)
       IF(WQ.EQ.'EDGEY')WRITE(OUTLYNE,801)
       CALL SHOWIT(1)

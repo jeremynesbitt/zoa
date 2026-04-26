@@ -375,12 +375,13 @@ SUBROUTINE NODRAWW
 !
    use DATHGR
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
 !
 !       CHECK SYNTAX
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(NODRAW)&
       &OUTLYNE='DRAWING TO THE SCREEN IS CURRENTLY TURNED "OFF"'
       IF(.NOT.NODRAW)&
@@ -405,12 +406,13 @@ SUBROUTINE NOWMFF
 !
    use DATHGR
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
 !
 !       CHECK SYNTAX
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(NOWMF)&
       &OUTLYNE='DRAWING TO PRG.WMF IS CURENTLY TURNED "OFF"'
       IF(.NOT.NOWMF)&
@@ -1760,6 +1762,7 @@ SUBROUTINE PLTSYM
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT SYMBOL COMMAND AT THE CMD LEVEL
@@ -1787,7 +1790,7 @@ SUBROUTINE PLTSYM
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(SYMB.EQ.1)  SYM='+'
          IF(SYMB.EQ.2)  SYM='x'
          IF(SYMB.EQ.3)  SYM='SQUARE'
@@ -1884,6 +1887,7 @@ SUBROUTINE COLORS
    use DATHGR
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE COLORS. THIS IS THE SUBROUTINE WHICH
@@ -1894,7 +1898,7 @@ SUBROUTINE COLORS
    CHARACTER JK_AICOL*2,COLCMD*11
 !
 !
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
 !     NO QUERRY
       IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1.OR.SST.EQ.1) THEN
          OUTLYNE=&

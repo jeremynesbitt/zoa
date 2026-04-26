@@ -3,9 +3,10 @@
 SUBROUTINE SHOWREG
    use DATSUB
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    INTEGER I
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"SHOW" SHOWS A REGISTER VALUE'
       CALL SHOWIT(1)
       OUTLYNE='OR SHOWS A "GOTTEN" PARAMETER VALUE'
@@ -85,6 +86,7 @@ END
 SUBROUTINE CHADIR
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER DIRNAMM*80
@@ -105,7 +107,7 @@ SUBROUTINE CHADIR
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'LENDIR') THEN
          WRITE(OUTLYNE,10) LIBLEN
          CALL SHOWIT(0)
@@ -200,6 +202,7 @@ SUBROUTINE LENSLOC
    use zoa_file_handler, only: getFileSep
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER DIRNAMM*80
@@ -215,7 +218,7 @@ SUBROUTINE LENSLOC
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'LENSLOC') THEN
          WRITE(OUTLYNE,10)
          CALL SHOWIT(0)
@@ -255,6 +258,7 @@ END
 SUBROUTINE LENSDIR
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER DIRNAMM*80
@@ -267,7 +271,7 @@ SUBROUTINE LENSDIR
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'LENSDIR') THEN
          WRITE(OUTLYNE,10)
          CALL SHOWIT(0)
@@ -296,6 +300,7 @@ SUBROUTINE DODODO
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO DO THE "DO" STATEMENT
@@ -313,7 +318,7 @@ SUBROUTINE DODODO
       RETURN
    END IF
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'NO ADDITIONAL INFORMATION'
       CALL SHOWIT(1)
       CALL MACFAL
@@ -583,6 +588,7 @@ END
 ! SUB SETPMT.FOR
 SUBROUTINE SETPMT
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
 !       THIS SUBROUTINE IS USED TO SET THE USER PROMPT
@@ -592,7 +598,7 @@ SUBROUTINE SETPMT
    COMMON/TELPRM/PMTVAL
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'"PROMPT" IS USED TO SET THE PROMPT STRING FOR PROMPTED INPUT'
       CALL SHOWIT(1)
       IF(PMTVAL(1:10).EQ.'          ')WRITE(OUTLYNE,*) 'THE CURRENT PROMPT IS : (BLANK)'
@@ -623,6 +629,7 @@ END
 SUBROUTINE GPRGA
    use DATSUB
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
 !       THIS SUBROUTINE IS USED FOR GENERAL CHARACTER REGISTERS
@@ -632,7 +639,7 @@ SUBROUTINE GPRGA
    CHARACTER AAD*20,B*7
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)'"ASTO", "ARCL", "CLASTO" AND "AWRITE" MANIPULATE'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'ALPHA STORAGE REGISTERS'

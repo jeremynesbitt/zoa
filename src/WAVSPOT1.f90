@@ -8,6 +8,7 @@ SUBROUTINE OPDIN
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS ROUTINE INPUTS THE COMPEX APERTURE FUNCTION FROM CAPFNOUT.DAT
@@ -37,7 +38,7 @@ SUBROUTINE OPDIN
 !
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'CAPFNIN') OUTLYNE=&
       &'"CAPFNIN" INPUTS A CAPFN FROM AN ASCII FILE'
       IF(WC.EQ.'CAPFNIN') OUTLYNE=&
@@ -283,6 +284,7 @@ SUBROUTINE CAPGRID
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION AS A PHASE
@@ -297,7 +299,7 @@ SUBROUTINE CAPGRID
    REAL*8 SPACING,WAV,MAXX,MAXY,MINX,MINY
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"CAPGRID" OUTPUTS THE CURRENT CAPFN TO AN ASCII FILES'
       CALL SHOWIT(1)
@@ -434,6 +436,7 @@ SUBROUTINE OPDOUT
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION TO AN ASCII FILE
@@ -447,7 +450,7 @@ SUBROUTINE OPDOUT
 !
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"CAPFNOUT" OUTPUTS THE CURRENT CAPFN TO AN ASCII FILE'
       CALL SHOWIT(1)
@@ -594,6 +597,7 @@ SUBROUTINE WAMAP
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use mod_system, only: sys_wl_ref
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -605,7 +609,7 @@ SUBROUTINE WAMAP
    REAL*8 REFHT,WVAL
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"WAMAP" GENERATES A WAVEFRONT MAP USING CAPFN DATA'
       CALL SHOWIT(1)
@@ -737,6 +741,7 @@ SUBROUTINE AMAP
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use mod_system, only: sys_wl_ref
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
@@ -748,7 +753,7 @@ SUBROUTINE AMAP
    REAL*8 REFHT,WVAL
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"AMAP" GENERATES AN APERTURE APODIZATION FILE USING CAPFN DATA'
       CALL SHOWIT(1)
@@ -2376,6 +2381,7 @@ SUBROUTINE WRTREPORT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS DOES THE LISTREPT COMMAND
@@ -2399,7 +2405,7 @@ SUBROUTINE WRTREPORT
 !               CHECK FOR ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"LISTREPT" GENERATES A REPORT FOR 37-TERM FRINGE ZERNIKE'
       CALL SHOWIT(1)
@@ -2626,6 +2632,7 @@ SUBROUTINE AWRTSUM
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE AWRTSUM.FOR.
@@ -2640,7 +2647,7 @@ SUBROUTINE AWRTSUM
    CHARACTER NAMER*8,FNAMER*8
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"AWRTSUM" WRITES A SUMMED SPOT DIAGRAM TO AN ASCII FILE'
       CALL SHOWIT(1)
@@ -2759,6 +2766,7 @@ SUBROUTINE BWRTSUM
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE BWRTSUM.FOR.
@@ -2773,7 +2781,7 @@ SUBROUTINE BWRTSUM
    CHARACTER NAMER*8,FNAMER*8
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"BWRTSUM" WRITES A SUMMED SPOT DIAGRAM TO A BINARY FILE'
       CALL SHOWIT(1)
@@ -2881,6 +2889,7 @@ SUBROUTINE AWRTSPOT
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE AWRTSPOT.FOR.
@@ -2895,7 +2904,7 @@ SUBROUTINE AWRTSPOT
    CHARACTER NAMER*8
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"AWRTSPOT" WRITES THE CURRENT SPOT DIAGRAM TO AN ASCII FILE'
       CALL SHOWIT(1)
@@ -2999,6 +3008,7 @@ SUBROUTINE BWRTSPOT
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE BWRTSPOT.FOR.
@@ -3013,7 +3023,7 @@ SUBROUTINE BWRTSPOT
    CHARACTER NAMER*8
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"BWRTSPOT" WRITES THE CURRENT SPOT DIAGRAM TO A BINARY FILE'
       CALL SHOWIT(1)
@@ -3093,6 +3103,7 @@ SUBROUTINE STATT
 !
    use DATSP1
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STATT.FOR.
@@ -3108,7 +3119,7 @@ SUBROUTINE STATT
       CALL MACFAL
       RETURN
    END IF
-   IF(SQ.EQ.0.OR.STI.EQ.1) THEN
+   IF(SQ.EQ.0.OR.is_command_query()) THEN
       IF(STATSP)       WRITE(OUTLYNE,100)
       IF(.NOT. STATSP) WRITE(OUTLYNE,200)
       CALL SHOWIT(0)

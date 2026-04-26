@@ -1304,6 +1304,7 @@ SUBROUTINE ZERNREPT
    use mod_system, only: sys_last_surf
    use DATMAI
    use mod_surface, only: surf_special_type
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ZERNREPT THAT DOES THE ZERNREPT COMMAND
@@ -1320,7 +1321,7 @@ SUBROUTINE ZERNREPT
 !               CHECK FOR ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"ZERNREPT" GENERATES A REPORT FOR 37-TERM FRINGE ZERNIKE'
       CALL SHOWIT(1)

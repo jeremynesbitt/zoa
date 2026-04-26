@@ -184,6 +184,7 @@ SUBROUTINE RIMS
    use DATLEN
    use mod_system, only: sys_wl_ref
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE "FANS" COMMAND
@@ -274,7 +275,7 @@ SUBROUTINE RIMS
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE= '"FANS" PERFOMS AUTOMATED FAN PLOTTING'
       CALL SHOWIT(1)
       RETURN
@@ -394,6 +395,7 @@ SUBROUTINE CHSIZE
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT CHNOTE, PLOT CHSYM AND
@@ -416,7 +418,7 @@ SUBROUTINE CHSIZE
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,100)NTSIZ
          CALL SHOWIT(1)
          WRITE(OUTLYNE,200)NTANG
@@ -473,7 +475,7 @@ SUBROUTINE CHSIZE
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,300)SYMSIZ
          CALL SHOWIT(1)
          WRITE(OUTLYNE,400)SYMANG
@@ -527,7 +529,7 @@ SUBROUTINE CHSIZE
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,500)LABSIZ
          CALL SHOWIT(1)
          WRITE(OUTLYNE,600)LABANG

@@ -2099,13 +2099,14 @@ SUBROUTINE EXPUP
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS CONTROLS THE OPERATION OF THE "EXPUP (AUTO or NOAUTO)
 !       COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(EXPAUT) THEN
 !     AUTO IS SET
 100      FORMAT('AUTOMATIC EXIT PUPIL LOCATION CALCULATION IS IN EFFECT')
@@ -2135,7 +2136,7 @@ SUBROUTINE EXPUP
          RETURN
       END IF
    END IF
-   IF(SQ.EQ.0.AND.STI.EQ.0) THEN
+   IF(SQ.EQ.0.AND..not. is_command_query()) THEN
       WRITE(OUTLYNE,*)'"EXPUP" REQUIRES EXPLICIT QUALIFIER INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'

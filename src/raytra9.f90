@@ -763,6 +763,7 @@ SUBROUTINE FIELDABS
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FIELDABS. THIS SUBROUTINE IMPLEMENTS
@@ -789,7 +790,7 @@ SUBROUTINE FIELDABS
 !
 !
    IF(WC.EQ.'FISHDIST') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)'"FISHDIST" CALCULATES AND DISPLAYS DISTORTION'
          CALL SHOWIT(1)
          RETURN
@@ -917,7 +918,7 @@ SUBROUTINE FIELDABS
 !
    END IF
    IF(WC.EQ.'DIST') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)'"DIST" CALCULATES AND DISPLAYS DISTORTION'
          CALL SHOWIT(1)
          RETURN
@@ -1055,7 +1056,7 @@ SUBROUTINE FIELDABS
 !
    END IF
    IF(WC.EQ.'FLDCV') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)'"FLDCV" CALCULATES AND DISPLAYS FIELD CURVATURE'
          CALL SHOWIT(1)
          RETURN
@@ -1218,7 +1219,7 @@ SUBROUTINE FIELDABS
       RETURN
    END IF
    IF(WC.EQ.'AST') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)'"AST" CALCULATES AND DISPLAYS ASTIGMATISM (Y-X)'
          CALL SHOWIT(1)
          RETURN
@@ -1373,6 +1374,7 @@ SUBROUTINE DRAWFAN
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUB DOES THE DRAWFAN COMMAND
@@ -1386,7 +1388,7 @@ SUBROUTINE DRAWFAN
    INTEGER SA1
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"DRAWFAN" DRAWS THE LAST FAN TRACED'
       CALL SHOWIT(1)
       RETURN
@@ -1472,6 +1474,7 @@ SUBROUTINE PLT_FAN
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUB DOES THE PLT_FAN COMMAND
@@ -1485,7 +1488,7 @@ SUBROUTINE PLT_FAN
    INTEGER SA1
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"PLT_FAN" PLOTS WITHOUT DRAWING THE LAST FAN TRACED'
       CALL SHOWIT(1)
       RETURN

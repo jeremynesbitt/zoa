@@ -5,6 +5,7 @@ SUBROUTINE GBEAM
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GBEAM. THIS SUBROUTINE IMPLEMENTS
@@ -33,7 +34,7 @@ SUBROUTINE GBEAM
    DWORD4=W4
    DWORD5=W5
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"BEA" OR "BEAM" OUTPUTS GAUSSIAN BEAM PROPERTIES'
       CALL SHOWIT(1)
@@ -2593,6 +2594,7 @@ SUBROUTINE GPXT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GPXT. THIS SUBROUTINE IMPLEMENTS
@@ -2615,7 +2617,7 @@ SUBROUTINE GPXT
    DWORD4=W4
    DWORD5=W5
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"GPXT(XorY)" OUTPUT GENERALIZED PARAXIAL DATA'
       CALL SHOWIT(1)

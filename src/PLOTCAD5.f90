@@ -6,6 +6,7 @@ SUBROUTINE MAKEPNOTE
    use DATHGR
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PNOTE" COMMAND AT THE CMD LEVEL
@@ -28,7 +29,7 @@ SUBROUTINE MAKEPNOTE
    ELSE
    END IF
 !       STI
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(PLOTNOTE.EQ.BLNOTE) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'THE CURRENT PLOT NOTE IS BLANK'//'\n'//&
@@ -54,6 +55,7 @@ SUBROUTINE PLNOTE
    use DATHGR
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT NOTE" COMMAND AT THE CMD LEVEL
@@ -85,7 +87,7 @@ SUBROUTINE PLNOTE
    ELSE
    END IF
 !       STI
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(PLOTNOTE.EQ.BLNOTE) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'THE CURRENT PLOT NOTE IS BLANK'//'\n'//&
@@ -206,6 +208,7 @@ SUBROUTINE PLFANS
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PLFANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -299,7 +302,7 @@ SUBROUTINE PLFANS
 !     NOT PLTYFAN,PLTXFAN,PLTPFAN OR PLTNFAN
    END IF
 !
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
 !
 !     CHECK FOR VALID NUMERIC INPUT NEXT
       IF(WC.EQ.'PLOTFANS'.AND.WQ.EQ.'SSI') THEN
@@ -1572,7 +1575,7 @@ SUBROUTINE PLFANS
    END IF
 !
 !     NOW DO THE WORK FOR STI = 1 (QUERRY)
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'PLTXFAN'.OR.WC.EQ.'PLTXFAN'.OR.WC.EQ.'PLTNFAN'.OR.&
       &WC.EQ.'PLTPFAN') THEN
          IF(FANTYP.EQ.1) A1VAL1=' YFAN'

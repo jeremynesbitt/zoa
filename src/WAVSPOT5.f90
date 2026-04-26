@@ -284,6 +284,7 @@ SUBROUTINE APSTREHL
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wavelength, sys_wl_weight
+   use command_utils, only: is_command_query
    IMPLICIT NONE
    REAL*8 STREHLR,SUML2,SUML4,SUMSIG,WEI(1:10),WEIS ,SIG,LAM(1:10),STVALUE
    INTEGER I
@@ -292,7 +293,7 @@ SUBROUTINE APSTREHL
    COMMON/PSFCOBS/NOCOBSPSF
 !
    IF(WC.EQ.'STREHL') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='"STREHL" CALCULATES EXACT STREHL RATIO FOR CURRENT LEN'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -340,7 +341,7 @@ SUBROUTINE APSTREHL
 9000  FORMAT('THE CURRENT EXACT STREHL RATIO = ',G15.8)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'VAR')OUTLYNE='"VAR" RETURNS WAVEFRONT VARIENCE FOR CURRENT CAPFN'
       IF(WC.EQ.'APSTREHL')OUTLYNE='"APSTREHL" CALCULATES APPROX. STREHL RATIO FOR CURRENT CAPFN'
       CALL SHOWIT(1)
@@ -515,6 +516,7 @@ SUBROUTINE TFDOTF
    use mod_surface
    use DATMAI
    use mod_system, only: sys_units
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TFDOTF.FOR. IT DOES THRU-FOCUS DOTF
@@ -571,7 +573,7 @@ SUBROUTINE TFDOTF
    CUTFR=CUTFR
 !     CUTFR HAS BEEN COMPUTED
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"TFDOTF" PERFORMS A THRU-FOCUS DOTF AT THE SPATIAL'
       CALL SHOWIT(1)
       OUTLYNE='FREQUENCY CALLED OUT IN NUMERIC WORD #1'
@@ -789,6 +791,7 @@ SUBROUTINE SPACER
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPACER.FOR.
@@ -796,7 +799,7 @@ SUBROUTINE SPACER
 !     THIS SETS THE SPACE FOR DIFFRACTION CALCULATIONS
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"SPACE" SETS DIFFRACTION CALCULATION SPACE TO'
       CALL SHOWIT(1)
       OUTLYNE='"O" FOR OBJECT SPACE OR "I" FOR IMAGE SPACE'
@@ -841,6 +844,7 @@ SUBROUTINE CUTOFF
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wl_ref, sys_wavelength, sys_wl_weight
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CUTOFF.FOR.
@@ -854,7 +858,7 @@ SUBROUTINE CUTOFF
    INTEGER SHTNM
 !
 !
-   IF(STI.EQ.1.OR.SN.EQ.0) THEN
+   IF(is_command_query().OR.SN.EQ.0) THEN
       OUTLYNE='"CUTOFF" CALCULATES "CUTOFF" FREQ.'
       CALL SHOWIT(1)
       RETURN
@@ -2634,6 +2638,7 @@ SUBROUTINE DOTF
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_weight
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DOTF.FOR.
@@ -2715,7 +2720,7 @@ SUBROUTINE DOTF
    CUTFR=CUTFR
 !     CUTFR HAS BEEN COMPUTED
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"DOTF" CALCULATES A DIFFRACTION OTF'
       CALL SHOWIT(1)
       RETURN

@@ -35,6 +35,7 @@ SUBROUTINE SFNO
    use mod_surface
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SFNO WHICH IMPLEMENTS THE FNO(X OR Y) COMMAND
@@ -55,7 +56,7 @@ SUBROUTINE SFNO
          RETURN
       END IF
 !
-      IF(STI.EQ.1.OR.STI.EQ.0) THEN
+      IF(is_command_query().OR..not. is_command_query()) THEN
          IF(WC.EQ.'FNOY') THEN
             IF(SYSTEM(67).NE.1.0D0.AND.SYSTEM(67).NE.3.0D0) THEN
                OUTLYNE='NOTE:'
@@ -89,7 +90,7 @@ SUBROUTINE SFNO
    END IF
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='QUERRY OBJECT F-NUMBER VALUES FROM THE CMD LEVEL WITH THE'
          CALL SHOWIT(1)
          OUTLYNE='"FNOY" OR "FNOX" COMMANDS'
@@ -251,6 +252,7 @@ SUBROUTINE SFNB
    use mod_surface
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SFNB WHICH IMPLEMENTS THE FNBY AND FNBX
@@ -266,7 +268,7 @@ SUBROUTINE SFNB
 !               CHECK FOR ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='QUERRY F-NUMBER VALUES FROM THE CMD LEVEL WITH THE'
       CALL SHOWIT(1)
       OUTLYNE='"SHO" OR "GET" AND "WRITE" COMMANDS'
@@ -669,6 +671,7 @@ SUBROUTINE PIVAXIS
    use mod_surface
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIVAXIS WHICH IMPLEMENTS THE
@@ -677,7 +680,7 @@ SUBROUTINE PIVAXIS
 !
    INTEGER AMODE
 !
-   IF(STI.EQ.1.OR.SQ.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0) THEN
       IF(surf_pivot_axis(SURF) == 0)OUTLYNE='"PIVAXIS" IS SET TO "VERTEX"'
       IF(surf_pivot_axis(SURF) == 1)OUTLYNE='"PIVAXIS" IS SET TO "NORMAL"'
       CALL SHOWIT(0)
@@ -714,6 +717,7 @@ SUBROUTINE SER
    use mod_surface
    use DATMAI
    use mod_surface
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SER WHICH IMPLEMENTS THE ERY AND ERX
@@ -736,7 +740,7 @@ SUBROUTINE SER
 !               CHECK FOR ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='QUERRY EXIT PUPIL VALUES FROM THE CMD LEVEL WITH THE'
       CALL SHOWIT(1)
       OUTLYNE='"SHO" OR "GET" AND "WRITE" COMMANDS'

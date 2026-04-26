@@ -7,6 +7,7 @@ SUBROUTINE USER_CONTOUR(IIU)
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    REAL REFHT
@@ -31,7 +32,7 @@ SUBROUTINE USER_CONTOUR(IIU)
    IF(DF2.EQ.1) IIU=0
    IF(DF2.EQ.0) IIU=1
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE= '"USERCONT" PLOTS THE EXISTING USER-DEFINED CONTOUR PLOT'
       CALL SHOWIT(1)
       OUTLYNE= '"AS A CONTOUR PLOT'

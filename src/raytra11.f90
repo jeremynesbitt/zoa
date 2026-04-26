@@ -5,6 +5,7 @@ SUBROUTINE SAVE_RAY_DATA
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS COMMAND, "SAVERAY" CAUSES ALL OF THE DATA ASSOCIATED WITH THE
@@ -14,7 +15,7 @@ SUBROUTINE SAVE_RAY_DATA
 !     COMPLETED TO THE FINAL SURFACE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"SAVERAY" SAVES EXISTING RAY AND REFERENCE RAY DATA FOR'
       CALL SHOWIT(1)
@@ -54,6 +55,7 @@ SUBROUTINE REST_RAY_DATA
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS COMMAND, "RESTRAY" CAUSES ALL OF THE DATA ASSOCIATED WITH THE
@@ -63,7 +65,7 @@ SUBROUTINE REST_RAY_DATA
 !     COMPLETED TO THE FINAL SURFACE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"RESTRAY" RESTORES SAVED RAY AND REFERENCE RAY DATA'
       CALL SHOWIT(1)
@@ -103,6 +105,7 @@ SUBROUTINE CLEAR_RAY_DATA
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     THIS COMMAND, "CLEARRAY" CAUSES ALL OF THE DATA ASSOCIATED WITH THE
@@ -110,7 +113,7 @@ SUBROUTINE CLEAR_RAY_DATA
 !     ARRAY MEMORY TO BE CLEARED AND DEALLOCATED
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"CLEARRAY" CLEARS SAVED RAY AND REFERENCE RAY DATA MEMORY'
       CALL SHOWIT(1)
@@ -231,6 +234,7 @@ SUBROUTINE OLDREFDAT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OLDREFDAT.FOR. THIS SUBROUTINE
@@ -238,7 +242,7 @@ SUBROUTINE OLDREFDAT
 !
 !
 !       CHECK FOR STRING INPUT
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(.NOT.USEOLREF) WRITE(OUTLYNE,10)
       IF(USEOLREF) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -259,7 +263,7 @@ SUBROUTINE OLDREFDAT
          RETURN
       END IF
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES", "NO" AND "OFF"ARE THE ONLY'//'\n'//&
@@ -283,13 +287,14 @@ SUBROUTINE SAVEREFDATA
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAVEREF.FOR. THIS SUBROUTINE
 !       CAUSES ALL REFERENCE RAY DATA TO BE SAVED
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"SAVEREF" SAVES EXISTING REFERENCE RAY DATA FOR'//'\n'//&
       & 'USE IN FUTURE CAPFN CALCULATIONS', 1)
@@ -316,6 +321,7 @@ SUBROUTINE NOAIMM
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMM.FOR. THIS SUBROUTINE STOPS ALL
@@ -347,7 +353,7 @@ SUBROUTINE NOAIMM
          RETURN
       END IF
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.WQ.NE.'OFFSET') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES", "NO", "OFF" AND "OFFSET" ARE THE ONLY'//'\n'//&
@@ -357,7 +363,7 @@ SUBROUTINE NOAIMM
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(SYSTEM(62).EQ.0.0D0) WRITE(OUTLYNE,10)
       IF(SYSTEM(62).EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -403,13 +409,14 @@ SUBROUTINE MTFGRID
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTFGRID.FOR. THIS SUBROUTINE
 !     SETS THE FLAG THAT CAUSES A GRID TO BE DRAWN ON MTF PLOTS
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(.NOT.MTFGRIDS) WRITE(OUTLYNE,10)
       IF(MTFGRIDS) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -446,6 +453,7 @@ SUBROUTINE NOAIMAPL
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMAPL.FOR.
@@ -468,7 +476,7 @@ SUBROUTINE NOAIMAPL
          RETURN
       END IF
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES", "NO" AND "OFF" ARE THE ONLY'//'\n'//&
@@ -478,7 +486,7 @@ SUBROUTINE NOAIMAPL
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(SYSTEM(70).EQ.0.0D0) WRITE(OUTLYNE,10)
       IF(SYSTEM(70).EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -503,6 +511,7 @@ SUBROUTINE SET_REVRAY
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SET_REVRAY.FOR. THIS SUBROUTINE
@@ -510,7 +519,7 @@ SUBROUTINE SET_REVRAY
 !       IT ONLY WORKS IF RXIM/YRIM ARE IN EFFECT
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(SYSTEM(100).EQ.0.0D0) WRITE(OUTLYNE,10)
       IF(SYSTEM(100).EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -533,7 +542,7 @@ SUBROUTINE SET_REVRAY
       & 'NO ACTION TAKEN', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES", "NO" AND "OFF" ARE THE ONLY'//'\n'//&
@@ -557,6 +566,7 @@ END
 SUBROUTINE MACFAIL
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MACFAIL.FOR. THIS SUBROUTINE CONTROLS
@@ -579,7 +589,7 @@ SUBROUTINE MACFAIL
          RETURN
       END IF
    END IF
-   IF(STI.EQ.1.OR.SQ.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0) THEN
       IF(MACFAILURE)      WRITE(OUTLYNE,10)
       IF(.NOT.MACFAILURE) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -597,6 +607,7 @@ END
 SUBROUTINE OBJLEV
    USE GLOBALS
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       SETS AN INTENSITY LEVEL FOR THE CHIEF RAY AT THE OBJECT SURFACE
@@ -609,7 +620,7 @@ SUBROUTINE OBJLEV
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1.OR.SQ.EQ.0) THEN
+   IF(is_command_query().OR.SQ.EQ.0) THEN
       WRITE(OUTLYNE,*) OBJLEVEL
       CALL SHOWIT(0)
 10    FORMAT('OBJECT LEVEL IS: ',G15.7)
@@ -636,6 +647,7 @@ SUBROUTINE RHISTORY
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RHIST.FOR. THIS SUBROUTINE STARTS
@@ -660,7 +672,7 @@ SUBROUTINE RHISTORY
          RETURN
       END IF
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF'.AND.WQ.NE.'WRITE'.AND.&
       &WQ.NE.'SWRITE') THEN
          OUTLYNE='"ON", "YES", "NO", "OFF", "WRITE" AND "SWRITE"'//&
@@ -673,7 +685,7 @@ SUBROUTINE RHISTORY
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(.NOT.RAY_HIST_FLAG) WRITE(OUTLYNE,10)
       IF(RAY_HIST_FLAG) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -1126,12 +1138,13 @@ SUBROUTINE SCREENIT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCREENIT. THIS SETS ONE SURFACE'S SCREEN PROPERTY TO "ON" OR "OFF"
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(SYSTEM(103).EQ.1.0D0) THEN
          WRITE(OUTLYNE,11)
          CALL SHOWIT(0)
@@ -1218,6 +1231,7 @@ SUBROUTINE FLIPREF
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FLIPREF.FOR.
@@ -1239,7 +1253,7 @@ SUBROUTINE FLIPREF
          RETURN
       END IF
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES", "NO" AND "OFF" ARE THE ONLY'//'\n'//&
@@ -1249,7 +1263,7 @@ SUBROUTINE FLIPREF
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'FLIPREFX') THEN
          IF(SYSTEM(128).EQ.0.0D0) WRITE(OUTLYNE,10)
          IF(SYSTEM(128).EQ.1.0D0) WRITE(OUTLYNE,11)

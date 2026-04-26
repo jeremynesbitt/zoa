@@ -239,6 +239,7 @@ SUBROUTINE SPSTAT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_mode, sys_units
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER UN*11
@@ -258,7 +259,7 @@ SUBROUTINE SPSTAT
 !
    IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='"SPDSTATS" DOES STATISTICS ON SUMMED SPOTS'
          CALL SHOWIT(1)
          RETURN
@@ -691,6 +692,7 @@ SUBROUTINE SPSPEC(ITP)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_wl_ref, sys_wavelength
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSPEC. THIS IS THE SUBROUTINE WHICH
@@ -701,7 +703,7 @@ SUBROUTINE SPSPEC(ITP)
    LOGICAL DM
 !
 !
-   IF(STI.NE.1) THEN
+   IF(.not. is_command_query()) THEN
       IF(SST.EQ.1.OR.SQ.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
       &.OR.S5.EQ.1) THEN
          OUTLYNE=&

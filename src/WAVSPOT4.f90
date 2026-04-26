@@ -189,13 +189,14 @@ SUBROUTINE RSPH
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS CONTROLS THE OPERATION OF THE "RSPH (CHIEF or NOTILT or BEST)
 !       COMMAND
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(REFLOC.EQ.1) THEN
 !     CHIEF IS SET
 100      FORMAT(&
@@ -246,7 +247,7 @@ SUBROUTINE RSPH
          RETURN
       END IF
    END IF
-   IF(SQ.EQ.0.AND.STI.EQ.0) THEN
+   IF(SQ.EQ.0.AND..not. is_command_query()) THEN
       WRITE(OUTLYNE,*)'"RSPH" REQUIRES EXPLICIT QUALIFIER INPUT'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -501,6 +502,7 @@ SUBROUTINE CAPFNROT
    use DATSPD
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CAPFNROT.FOR. THIS SUBROUTINE CONTROLS
@@ -514,7 +516,7 @@ SUBROUTINE CAPFNROT
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -525,7 +527,7 @@ SUBROUTINE CAPFNROT
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(.NOT.ROTCAPFN) WRITE(OUTLYNE,10)
       IF(ROTCAPFN) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -549,6 +551,7 @@ SUBROUTINE SSAGFLROT
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    LOGICAL ROTSAGFL
@@ -566,7 +569,7 @@ SUBROUTINE SSAGFLROT
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.0) THEN
+   IF(.not. is_command_query()) THEN
       IF(WQ.NE.'ON'.AND.WQ.NE.'OFF') THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"ON", "YES","OFF" AND "NO"'//'\n'//&
@@ -577,7 +580,7 @@ SUBROUTINE SSAGFLROT
       END IF
 !     STI=1
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(.NOT.ROTSAGFL) WRITE(OUTLYNE,10)
       IF(ROTSAGFL) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
@@ -602,12 +605,13 @@ SUBROUTINE PSFLINLOG
 !
    use DATSPD
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PSFLINLOG (DOES PSFLIN AND PSFLOG COMMANDS)
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(PSFLIN.EQ.1) THEN
          OUTLYNE='CURRENT "PSFLIN" IS CURRENTLY IN EFFECT'
          CALL SHOWIT(1)
@@ -658,13 +662,14 @@ SUBROUTINE PSFTAGG
 !
    use DATSPD
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PSFTAGG (DOES PSFTAG AND PSFLI COMMANDS)
 !
 !
    IF(WC.EQ.'PSFTAG') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='CURRENT "PSFTAG" IS SET TO : '//PSFTAG
          CALL SHOWIT(1)
          RETURN
@@ -686,7 +691,7 @@ SUBROUTINE PSFTAGG
    END IF
 !
    IF(WC.EQ.'PSFLI') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='CURRENT "PSFLI" IS SET TO : '
          CALL SHOWIT(1)
          OUTLYNE=PSFLI(1:80)
@@ -716,13 +721,14 @@ SUBROUTINE CAPFNTAGG
 !
    use DATSPD
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CAPFNTAGG (DOES CAPFNTAG AND CAPFNLI COMMANDS)
 !
 !
    IF(WC.EQ.'CAPFNTAG') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='CURRENT "CAPFNTAG" IS SET TO : '//CAPFNTAG
          CALL SHOWIT(1)
          RETURN
@@ -744,7 +750,7 @@ SUBROUTINE CAPFNTAGG
    END IF
 !
    IF(WC.EQ.'CAPFNLI') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE='CURRENT "CAPFNLI" IS SET TO : '
          CALL SHOWIT(1)
          OUTLYNE=CAPFNLI(1:80)
@@ -871,6 +877,7 @@ SUBROUTINE PIXAR
    use DATLEN
    use DATMAI
    use mod_system, only: sys_mode
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIXAR.FOR.
@@ -909,7 +916,7 @@ SUBROUTINE PIXAR
 !
 !     WC='PIXEL'
    IF(WC.EQ.'PIXEL') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE=&
          &'"PIXEL" SETS UP PARAMETERS FOR PIXEL LINEARITY ANALYSIS'
          CALL SHOWIT(1)
@@ -1000,7 +1007,7 @@ SUBROUTINE PIXAR
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          OUTLYNE=&
          &'"CENTROID" PERFORMS A COMPLETE LINEARITY ANALYSIS'
          CALL SHOWIT(1)
@@ -2097,6 +2104,7 @@ SUBROUTINE STREAK
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STREAK.FOR.
@@ -2135,7 +2143,7 @@ SUBROUTINE STREAK
    PRG=TGR-1
 !
    IF(WQ.NE.'X'.AND.WQ.NE.'Y'.AND.WQ.NE.'XY'.AND.WQ.NE.'WRITE'&
-   &.AND.WQ.NE.'PLOT'.AND.STI.NE.1) THEN
+   &.AND.WQ.NE.'PLOT'.AND..not. is_command_query()) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'INVALID QUALIFIER USED WITH "STREAK"'//'\n'//&
       & '"STREAK" REQUIRES "X", "Y", "XY", "WRITE" OR "PLOT"'//'\n'//&
@@ -2143,7 +2151,7 @@ SUBROUTINE STREAK
       RETURN
    END IF
    IF(WQ.EQ.'WRITE'.OR.WQ.EQ.'PLOT') THEN
-      IF(WS(1:2).NE.'ON'.AND.WS(1:3).NE.'OFF'.AND.STI.NE.1) THEN
+      IF(WS(1:2).NE.'ON'.AND.WS(1:3).NE.'OFF'.AND..not. is_command_query()) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"STREAK PLOT" AND "STREAK WRITE" REQUIRE STRING INPUT'//'\n'//&
          & '"ON" OR "OFF"'//'\n'//&
@@ -2160,7 +2168,7 @@ SUBROUTINE STREAK
             & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
-         IF(STI.EQ.1) THEN
+         IF(is_command_query()) THEN
             OUTLYNE='"STREAK PLOT" TURNS STREAKED PSF PLOTTING "ON" OR "OFF"'
             CALL SHOWIT(1)
             IF(STKPLT) OUTLYNE='"STREAK PSF PLOTTING IS CURRENTLY "ON"'
@@ -2179,7 +2187,7 @@ SUBROUTINE STREAK
             & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
-         IF(STI.EQ.1) THEN
+         IF(is_command_query()) THEN
             OUTLYNE=&
             &'"STREAK WRITE" TURNS STREAKED PSF PLOTTING "ON" OR "OFF"'
             CALL SHOWIT(1)
@@ -2198,7 +2206,7 @@ SUBROUTINE STREAK
    END IF
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"STREAK" STREAKS THE STORED PSF IN THE X OR Y DIRECTION'
       CALL SHOWIT(1)
@@ -3800,6 +3808,7 @@ SUBROUTINE PSFINT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PSFINT.FOR.
@@ -3828,7 +3837,7 @@ SUBROUTINE PSFINT
    LOGICAL EXIS51,OPEN51
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ.'PSFINT')&
       &OUTLYNE='"PSFINT" INTERPOLATES THE CURRENT PSF TO AN'
       IF(WC.EQ.'PSFINTS')&

@@ -336,6 +336,7 @@ SUBROUTINE MONTE
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_toric_flag, surf_toric_curvature
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER K,KKK,I,J,L,VTYPE,ALTYPE,VADD,II,JJ
@@ -439,7 +440,7 @@ SUBROUTINE MONTE
 !     NOW WE CHECK FOR VALID INPUT
 !     MONTE TAKES NO INPUT
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"MONTE" INITIATES A MONTE-CARLO ANALYSIS'
       CALL SHOWIT(1)
@@ -1145,6 +1146,7 @@ SUBROUTINE THRDLIM
    use DATSUB
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SETS GLOBAL TH AND RD LIMITS FOR OPTIMIZATION
@@ -1163,7 +1165,7 @@ SUBROUTINE THRDLIM
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(S1.EQ.0.OR.STI.EQ.1) THEN
+   IF(S1.EQ.0.OR.is_command_query()) THEN
       IF(WC.EQ.'MNT')&
       &WRITE(OUTLYNE,10) WC(1:3),THMINLIM
       IF(WC.EQ.'MXT')&

@@ -195,6 +195,7 @@ END
 SUBROUTINE MYNEWSEED
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
 !
@@ -204,7 +205,7 @@ SUBROUTINE MYNEWSEED
    REAL MSEED
    COMMON/SEEDER/MSEED
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE= '"SEED" SETS THE RANDOM NUMBER SEED TO NUMERIC WORD #1'
       CALL SHOWIT(1)
       RESLT=(MSEED-1618033.)/1000.

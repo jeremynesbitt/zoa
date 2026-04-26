@@ -911,6 +911,7 @@ SUBROUTINE SPIKUP
    use mod_surface
    use mod_system, only: sys_last_surf
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIKUP. THIS IS THE SUBROUTINE WHICH
@@ -920,7 +921,7 @@ SUBROUTINE SPIKUP
    INTEGER I
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
 200   FORMAT('FROM SURFACE #',I3)
 300   FORMAT('A(MULT) = ',G23.15)
 400   FORMAT('B(ADD) = ',G23.15)

@@ -62,6 +62,7 @@ SUBROUTINE CVSOLV
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CVSOLV WHICH IMPLEMENTS THE
@@ -72,7 +73,7 @@ SUBROUTINE CVSOLV
 !
 !
    IF(WC.EQ.'APY'.OR.WC.EQ.'APX'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PIX'.OR.WC.EQ.'PUY'.OR.WC.EQ.'PUX'.OR.WC.EQ.'APCY'.OR.WC.EQ.'APCX'.OR.WC.EQ.'PICY'.OR.WC.EQ.'PICX'.OR.WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'COCY'.OR.WC.EQ.'COCX') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
 !
          IF(WC.EQ.'APY') THEN
             IF(SOLVE(8,SURF).EQ.1.0D0)WRITE(OUTLYNE,101)SOLVE(9,SURF),SURF
@@ -1535,6 +1536,7 @@ SUBROUTINE GLSWVL
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS CONTROLS THE OPERATION OF THE "GLASSWV" COMMAND
@@ -1593,7 +1595,7 @@ SUBROUTINE GLSWVL
          RETURN
       END IF
    END IF
-   IF(STI.EQ.1.OR.SN.EQ.0.AND.SQ.EQ.0.AND.SST.EQ.0) THEN
+   IF(is_command_query().OR.SN.EQ.0.AND.SQ.EQ.0.AND.SST.EQ.0) THEN
 100   FORMAT('THE TEN GLASS EVALUATION WAVELENGTHS IN MICRONS CURRENTLY ARE:')
 101   FORMAT('WAVELENGTH #1  = ',G13.6,'MICRONS')
 102   FORMAT('WAVELENGTH #2  = ',G13.6,'MICRONS')
@@ -1648,6 +1650,7 @@ SUBROUTINE GLSRIN
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       IMPLICIT NONE
@@ -1728,7 +1731,7 @@ SUBROUTINE GLSRIN
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='NO ADDITIONAL INFORMATION AVAILABLE'
       CALL SHOWIT(1)
       RETURN

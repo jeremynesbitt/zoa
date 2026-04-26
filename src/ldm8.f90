@@ -863,6 +863,7 @@ SUBROUTINE DEFIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DEFIT WHICH IMPLEMENTS THE DEFOR
@@ -879,7 +880,7 @@ SUBROUTINE DEFIT
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
 !     NOT CMD LEVEL
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(surf_default_flag(SURF).EQ.1.0D0) THEN
             WRITE(OUTLYNE,106)SURF
             CALL SHOWIT(0)
@@ -1122,6 +1123,7 @@ SUBROUTINE SASPH
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASPH WHICH IMPLEMENTS THE ASPH
@@ -1148,7 +1150,7 @@ SUBROUTINE SASPH
          RETURN
       END IF
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(surf_is_asphere(I)) THEN
             WRITE(OUTLYNE,106)SURF
             CALL SHOWIT(0)
@@ -1684,6 +1686,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SARRAY WHICH IMPLEMENTS THE ARRAY
@@ -1700,7 +1703,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
 !     NOT CMD LEVEL
 !
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(surf_array_parity(SURF).NE.0.0D0) THEN
             WRITE(OUTLYNE,106)SURF
             CALL SHOWIT(0)
@@ -1944,6 +1947,7 @@ SUBROUTINE SNODUM
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNODUM WHICH IMPLEMENTS THE NODUM COMMAND
@@ -1953,7 +1957,7 @@ SUBROUTINE SNODUM
 !               OR NUMERIC INPUT.
 !               PRINT ERROR AND RETURN IF DISCOVERED.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"NODUM" FORCES A SURFACE TO BE NON-DUMMY'
       CALL SHOWIT(1)
       OUTLYNE='WITH A "YES" OR "ON" QUALIFIER INPUT'
@@ -2260,6 +2264,7 @@ SUBROUTINE SAPE
    use DATLEN
    use mod_surface
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAPE WHICH IMPLEMENTS THE CLAP
@@ -2277,7 +2282,7 @@ SUBROUTINE SAPE
 !
 !               CHECK FOR ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       IF(WC.EQ."CLAP") THEN
          IF(surf_clap_type(SURF).NE.0.0D0) THEN
             IF(surf_clap_type(SURF).EQ.1.0D0) CLTYPE ='    CIRC'

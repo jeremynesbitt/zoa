@@ -5,6 +5,7 @@ SUBROUTINE FNDGLS
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FNDGLS WHICH IMPLEMENTS THE FINDGLAS
@@ -31,7 +32,7 @@ SUBROUTINE FNDGLS
 !
    DEALLOCATE(SORTIT,ASORTIT,SORTIT2,ASORTIT2,STAT=ALLOERR)
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"FINDGLAS" SEARCHES FOR GLASSES CLOSE TO A "MODEL" GLASS'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -1396,6 +1397,7 @@ SUBROUTINE GLASSP
 !
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 
    character(len=80) :: tokens(40)
@@ -1435,7 +1437,7 @@ SUBROUTINE GLASSP
 !
 !     SYNTAX OK, PROCEED
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"GLASSP" INTERROGATES GLASS CATALOGS'//'\n'//&
       & 'RE-ENTER COMMAND', 1)

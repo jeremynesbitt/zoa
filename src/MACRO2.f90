@@ -145,6 +145,7 @@ SUBROUTINE MREFRESH
    USE GLOBALS
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !     USED TO REFRESH A MACRO BEING EDITTED
@@ -156,7 +157,7 @@ SUBROUTINE MREFRESH
    COMMON/TOFROM/TO,FROM
 !
 !       "MREFRESH" COMMAND
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE='"MREFRESH" REFRESHES A MACRO BEING EDITTED'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -1663,6 +1664,7 @@ SUBROUTINE LENSSAVE_NOOPT
    USE GLOBALS
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER LFILENAME*80
@@ -1671,7 +1673,7 @@ SUBROUTINE LENSSAVE_NOOPT
 !
    INCLUDE 'DATMAC.INC'
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LSAVE" SAVES THE CURRENT LENS IN AN ASCII FILE'
       CALL SHOWIT(1)
@@ -1724,6 +1726,7 @@ SUBROUTINE LENSSAVE
    USE GLOBALS
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER LFILENAME*80
@@ -1733,7 +1736,7 @@ SUBROUTINE LENSSAVE
    INCLUDE 'DATMAC.INC'
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LENSSAVE" SAVES THE CURRENT LENS IN AN ASCII FILE'
       CALL SHOWIT(1)
@@ -1784,6 +1787,7 @@ END
 SUBROUTINE LENSREST
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER LFILENAME*80
@@ -1794,7 +1798,7 @@ SUBROUTINE LENSREST
 !
    INCLUDE 'DATMAC.INC'
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LENSREST" RESTORES THE CURRENT LENS FROM AN ASCII FILE'
       CALL SHOWIT(1)
@@ -1860,6 +1864,7 @@ END
 SUBROUTINE MACSAV
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER FILECONTENTS*140
@@ -1871,7 +1876,7 @@ SUBROUTINE MACSAV
 !
    PRINT *, "IN MACSAV ROUTINE!"
 
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"MACSAVE" SAVES THE CURRENT MACRO LIBRARY FILES'
       CALL SHOWIT(1)
@@ -1910,6 +1915,7 @@ END
 SUBROUTINE MACRES
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER FILECONTENTS*140
@@ -1919,7 +1925,7 @@ SUBROUTINE MACRES
 !
    INCLUDE 'DATMAC.INC'
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"MACREST" RESTORES THE CURRENT MACRO LIBRARY FILES'
       CALL SHOWIT(1)
@@ -1985,6 +1991,7 @@ SUBROUTINE LIBSAV
    use zoa_file_handler
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    CHARACTER AI*3,FILECONTENTS*140
@@ -1997,7 +2004,7 @@ SUBROUTINE LIBSAV
 !
    INCLUDE 'DATMAC.INC'
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LIBSAVE" SAVES THE CURRENT LENS LIBRARY FILES'
       CALL SHOWIT(1)
@@ -2061,6 +2068,7 @@ SUBROUTINE LIBRES
    use zoa_file_handler
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !
@@ -2071,7 +2079,7 @@ SUBROUTINE LIBRES
 !
    INCLUDE 'DATMAC.INC'
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       OUTLYNE=&
       &'"LIBREST" SAVES THE CURRENT LENS LIBRARY FILES'
       CALL SHOWIT(1)

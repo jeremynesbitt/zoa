@@ -356,6 +356,7 @@ SUBROUTINE SCHWARTZ
 !       MAY THE SCHWARTZ BE WITH YOU
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "RADUNITS", "WIEN", "PLANK"
@@ -380,7 +381,7 @@ SUBROUTINE SCHWARTZ
 !
 !     WC IS RADUNITS
    IF(WC.EQ.'RADUNITS') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(RADUNI.EQ.1) WRITE(OUTLYNE,10)
          IF(RADUNI.EQ.2) WRITE(OUTLYNE,20)
          CALL SHOWIT(0)
@@ -1802,6 +1803,7 @@ END
 SUBROUTINE DTOR
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DTOR. THIS SUBROUTINE IMPLEMENTS
@@ -1812,7 +1814,7 @@ SUBROUTINE DTOR
 !       DTOR , DVALUE ,EVALUE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"DTOR" CONVERTS D TO R USING THE (e) VALUE'
       CALL SHOWIT(1)
@@ -1884,6 +1886,7 @@ END
 SUBROUTINE RTOD
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RTOD. THIS SUBROUTINE IMPLEMENTS
@@ -1894,7 +1897,7 @@ SUBROUTINE RTOD
 !       RTOD , RVALUE ,EVALUE
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"RTOD" CONVERTS R TO D USING THE (e) VALUE'
       CALL SHOWIT(1)
@@ -1966,6 +1969,7 @@ END
 SUBROUTINE ETOCC
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ETOCC. THIS SUBROUTINE IMPLEMENTS
@@ -1976,7 +1980,7 @@ SUBROUTINE ETOCC
 !       ETOCC , (e) , (-1.0 IF e IS IMAGINARY)
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"ETOCC" CONVERTS (e) TO CC'
       CALL SHOWIT(1)
@@ -2054,6 +2058,7 @@ END
 SUBROUTINE CCTOE
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CCTOE. THIS SUBROUTINE IMPLEMENTS
@@ -2064,7 +2069,7 @@ SUBROUTINE CCTOE
 !       CCTOE , CC
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"CCTOE" CONVERTS CC TO (e)'
       CALL SHOWIT(1)
@@ -2124,6 +2129,7 @@ END
 SUBROUTINE ZZEEOO
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ZZEEOO. THIS SUBROUTINE IMPLEMENTS
@@ -2138,7 +2144,7 @@ SUBROUTINE ZZEEOO
    REAL*8 RHO,CEE,Z1,Z2,AC,KAPPA
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"Z0" COMPUTES AND DISPLAYS CONIC SECTION Z POSITIONS'
       CALL SHOWIT(1)
@@ -2279,6 +2285,7 @@ END
 SUBROUTINE RRHHOO
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RRHHOO. THIS SUBROUTINE IMPLEMENTS
@@ -2293,7 +2300,7 @@ SUBROUTINE RRHHOO
    REAL*8 RHO2,RHO,CEE,ZEE,KAPPA
 !
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"RHO" COMPUTES AND DISPLAYS CONIC SECTION RHO HEIGHTS'
       CALL SHOWIT(1)
@@ -2396,6 +2403,7 @@ END
 SUBROUTINE FOCII
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FOCII. THIS SUBROUTINE IMPLEMENTS
@@ -2416,7 +2424,7 @@ SUBROUTINE FOCII
 !       INPUT . IT DOES NOT ACCEPT STING OR QUALIFIER
 !       INPUT.
 !
-   IF(STI.EQ.1) THEN
+   IF(is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"FOCI" COMPUTES AND DISPLAYS CONIC SECTION FOCI POSITIONS'
       CALL SHOWIT(1)
@@ -2574,6 +2582,7 @@ END
 SUBROUTINE APOVERT
 !
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "K0" AND "CVG"
@@ -2594,14 +2603,14 @@ SUBROUTINE APOVERT
       CALL MACFAL
       RETURN
    END IF
-   IF(WC.EQ.'K0'.AND.STI.EQ.1) THEN
+   IF(WC.EQ.'K0'.AND.is_command_query()) THEN
       WRITE(OUTLYNE,*)'"K0" DOES A K0, APO-VERTEXT CALCULATION'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
       RETURN
    END IF
-   IF(WC.EQ.'CVG'.AND.STI.EQ.1) THEN
+   IF(WC.EQ.'CVG'.AND.is_command_query()) THEN
       WRITE(OUTLYNE,*)&
       &'"CVG" DOES A CURVATURE, APO-VERTEXT CALCULATION'
       CALL SHOWIT(1)

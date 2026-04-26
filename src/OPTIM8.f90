@@ -8,6 +8,7 @@ SUBROUTINE MERIT2
    use DATSUB
    use DATLEN
    use DATMAI
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,OPT,SHTNM
@@ -28,7 +29,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'NRD') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"NRD" SETS PUPIL RAY GRID FOR CAPFN CALCULATIONS IN PSF'
          CALL SHOWIT(1)
@@ -90,7 +91,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'CAPFNNRD') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"CAPFNNRD" SETS PUPIL RAY GRID FOR CAPFN CALCULATIONS'
          CALL SHOWIT(1)
@@ -145,7 +146,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'GRI') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"GRI" SETS GRID SPACING IN THE PSF'
          CALL SHOWIT(1)
@@ -195,7 +196,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'EXTENT') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"EXTENT" SETS GRID SPACING/EXTENT IN THE PSF'
          CALL SHOWIT(1)
@@ -245,7 +246,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'TGR') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"TGR" SETS TRANSFORM GRID FOR PSF'
          CALL SHOWIT(1)
@@ -312,7 +313,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'PGR') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"PGR" SETS PLOTTING GRID FOR PSF'
          CALL SHOWIT(1)
@@ -363,7 +364,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'OPNRD') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"OPNRD" SETS GRID FOR CAPFN CALCULATIONS IN OPTIMIZATION'
          CALL SHOWIT(1)
@@ -410,7 +411,7 @@ SUBROUTINE MERIT2
 !
    IF(WC.EQ.'TOLNRD') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"TOLNRD" SETS GRID FOR CAPFN CALCULATIONS IN TOLERANCING'
          CALL SHOWIT(1)
@@ -5915,6 +5916,7 @@ SUBROUTINE MERIT1
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_wl_ref
+   use command_utils, only: is_command_query
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,OPT
@@ -6421,7 +6423,7 @@ SUBROUTINE MERIT1
 !
    IF(WC.EQ.'CFG') THEN
 !     SYNTAX CHECK
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          WRITE(OUTLYNE,*)&
          &'"CFG" SETS THE CONFIGURATION FOR PREDEFINED OPERANDS'
          CALL SHOWIT(1)
@@ -6612,7 +6614,7 @@ SUBROUTINE MERIT1
 !     WC = COR,BLO,BHI,HLD,BYP
    IF(WC.EQ.'COR'.OR.WC.EQ.'BYP'.OR.WC.EQ.'BHI'.OR.WC.EQ.'BLO'&
    &.OR.WC.EQ.'HLD'.OR.WC.EQ.'GTE'.OR.WC.EQ.'LTE') THEN
-      IF(STI.EQ.1) THEN
+      IF(is_command_query()) THEN
          IF(CORMOD.EQ.0) CORNAM='BYP'
          IF(CORMOD.EQ.1) CORNAM='COR'
          IF(CORMOD.EQ.-2) CORNAM='GTE'
