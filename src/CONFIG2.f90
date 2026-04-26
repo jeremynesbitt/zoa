@@ -6,6 +6,7 @@ SUBROUTINE CFSC2
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CFSC2 DOES SCALING OF CONFIG
@@ -37,7 +38,7 @@ SUBROUTINE CFSC2
 !
 !       J TRACKS THE ENTRY NUMBER
 !
-   IEND=INT(SYSTEM(56))
+   IEND=INT(sys_high_cfg())
    DO 10 I=2,IEND
 !       LOOP THROUGH ALL NON BLANK CONFIGS
       ELINE=1

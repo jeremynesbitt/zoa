@@ -91,12 +91,13 @@ SUBROUTINE getOpticalSystemLastSurface(res)
    USE GLOBALS
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 
    INTEGER, intent(inout) :: res
 
 
-   res = INT(SYSTEM(20))
+   res = INT(sys_last_surf())
 
    !PRINT *, "Last Surface index TSTKDP is ", res
 

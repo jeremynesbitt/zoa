@@ -1071,6 +1071,7 @@ SUBROUTINE MACEXC
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_autofunc
    IMPLICIT NONE
 !
 !       THIS IS THE SUBROUTINE THAT REALLY DOES IT. YES BOYS AND GIRLS
@@ -3878,7 +3879,7 @@ SUBROUTINE MACEXC
       W4=W4OLD
       W5=W5OLD
       F4=0
-      IF(INT(SYSTEM(91)).NE.0) F57=1
+      IF(INT(sys_autofunc()).NE.0) F57=1
       RETURN
 !       NEST NOT -1, PROCEED
    ELSE
