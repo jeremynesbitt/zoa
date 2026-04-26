@@ -770,6 +770,7 @@ FUNCTION WVWT(IIX,IIY,ERROR)
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
 !       THIS FUNCTION PLACES A WAVELENGTH/SPECTRAL WEIGHT
@@ -813,46 +814,8 @@ FUNCTION WVWT(IIX,IIY,ERROR)
    CALL MY_COLTYP(COLPAS)
 !
    DO I=1,10
-      IF(I.EQ.1) THEN
-         WAVER=REAL(SYSTEM(1))
-         WAITR=REAL(SYSTEM(31))
-      END IF
-      IF(I.EQ.2) THEN
-         WAVER=REAL(SYSTEM(2))
-         WAITR=REAL(SYSTEM(32))
-      END IF
-      IF(I.EQ.3) THEN
-         WAVER=REAL(SYSTEM(3))
-         WAITR=REAL(SYSTEM(33))
-      END IF
-      IF(I.EQ.4) THEN
-         WAVER=REAL(SYSTEM(4))
-         WAITR=REAL(SYSTEM(34))
-      END IF
-      IF(I.EQ.5) THEN
-         WAVER=REAL(SYSTEM(5))
-         WAITR=REAL(SYSTEM(35))
-      END IF
-      IF(I.EQ.6) THEN
-         WAVER=REAL(SYSTEM(71))
-         WAITR=REAL(SYSTEM(76))
-      END IF
-      IF(I.EQ.7) THEN
-         WAVER=REAL(SYSTEM(72))
-         WAITR=REAL(SYSTEM(77))
-      END IF
-      IF(I.EQ.8) THEN
-         WAVER=REAL(SYSTEM(73))
-         WAITR=REAL(SYSTEM(78))
-      END IF
-      IF(I.EQ.9) THEN
-         WAVER=REAL(SYSTEM(74))
-         WAITR=REAL(SYSTEM(79))
-      END IF
-      IF(I.EQ.10) THEN
-         WAVER=REAL(SYSTEM(75))
-         WAITR=REAL(SYSTEM(80))
-      END IF
+      WAVER=REAL(sys_wavelength(I))
+      WAITR=REAL(sys_wl_weight(I))
 !     CREATE CHARACTER VALUES
       IF(WAVER.GT.99.9) THEN
          WRITE(B,180) WAVER
