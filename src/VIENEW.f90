@@ -25,6 +25,7 @@ SUBROUTINE VIE_psm(psm)
 
     use DATMAI
       use mod_surface
+      use mod_system, only: sys_units, sys_wl_ref
     IMPLICIT NONE
 
        type(zoaplot_setting_manager) :: psm
@@ -199,21 +200,21 @@ SUBROUTINE VIE_psm(psm)
 !     SET UP THE SCALE FACTOR
   !PRINT *, "BEFORE SETTING SCALE FACTOR IN VIE, IT IS ", SCFAY
   !PRINT *, "VDF1 Equals ", VDF1
-  !PRINT *, "SYSTEM(6) Equals ", SYSTEM(6)
+  !PRINT *, "sys_units() Equals ", sys_units()
           IF(scaleChoice== ID_LENSDRAW_MANUALSCALE) THEN
                     AUTSL=.FALSE.
                     SCFAYP=1.0D0/scaleFactor
                     SCFAXP=1.0D0/scaleFactor
                     PSIZYP=scaleFactor
                     PSIZXP=scaleFactor
-  IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-  IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-  IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-  IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-  IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-  IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-  IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-  IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+  IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+  IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+  IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+  IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+  IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+  IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+  IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+  IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
   PSIZY=1.0D0/SCFAY
   PSIZX=1.0D0/SCFAX
                     PLSZ=.TRUE.
@@ -263,7 +264,7 @@ SUBROUTINE VIE_psm(psm)
           SAVE_KDP(1)=SAVEINPT(1)
           WW1=0.0D0
           WW2=0.0D0
-          WW3=SYSTEM(11)
+          WW3=sys_wl_ref()
           WVN=WW3
           MSG=.FALSE.
   WW4=1.0D0
@@ -632,6 +633,7 @@ SUBROUTINE PLTRAE
 !
   use DATMAI
   use mod_surface
+  use mod_system, only: sys_last_surf
   IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT RAY COMMAND AT THE CMD LEVEL
@@ -750,8 +752,8 @@ CALL SHOWIT(1)
   !call LogTermFOR("In PLTRAIE W1 is "//real2str(W1))
   !call LogTermFOR("In PLTRAIE W2 is "//real2str(W2))
 
-  IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-  IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+  IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+  IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
   IF(DF1.EQ.1) THEN
   IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
@@ -1376,6 +1378,7 @@ NORAYPLOT=.FALSE.
       use DATHGR
       use DATSPD
       use DATMAI
+      use mod_system, only: sys_last_surf, sys_wl_ref, sys_ref_surf, sys_wl_weight
       IMPLICIT NONE
 !
 !       THIS ROUTINE RESETS PLOT PARAMETERS TO STARTING VALES
@@ -1642,61 +1645,61 @@ NORAYPLOT=.FALSE.
               FANWV10=.FALSE.
     JK_WAV(1:10)=0
     I=0
-    IF(SYSTEM(31).GT.0.0D0) THEN
+    IF(sys_wl_weight(1).GT.0.0D0) THEN
     FANWV1=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=1
     END IF
-    IF(SYSTEM(32).GT.0.0D0) THEN
+    IF(sys_wl_weight(2).GT.0.0D0) THEN
     FANWV2=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=2
     END IF
-    IF(SYSTEM(33).GT.0.0D0) THEN
+    IF(sys_wl_weight(3).GT.0.0D0) THEN
     FANWV3=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=3
     END IF
-    IF(SYSTEM(34).GT.0.0D0) THEN
+    IF(sys_wl_weight(4).GT.0.0D0) THEN
     FANWV4=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=4
     END IF
-    IF(SYSTEM(35).GT.0.0D0) THEN
+    IF(sys_wl_weight(5).GT.0.0D0) THEN
     FANWV5=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=5
     END IF
-    IF(SYSTEM(76).GT.0.0D0) THEN
+    IF(sys_wl_weight(6).GT.0.0D0) THEN
     FANWV6=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=6
     END IF
-    IF(SYSTEM(77).GT.0.0D0) THEN
+    IF(sys_wl_weight(7).GT.0.0D0) THEN
     FANWV7=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=7
     END IF
-    IF(SYSTEM(78).GT.0.0D0) THEN
+    IF(sys_wl_weight(8).GT.0.0D0) THEN
     FANWV8=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=8
     END IF
-    IF(SYSTEM(79).GT.0.0D0) THEN
+    IF(sys_wl_weight(9).GT.0.0D0) THEN
     FANWV9=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
     JK_WAV(I)=9
     END IF
-    IF(SYSTEM(80).GT.0.0D0) THEN
+    IF(sys_wl_weight(10).GT.0.0D0) THEN
     FANWV10=.TRUE.
     I=I+1
     IF(I.GT.10) GO TO 900
@@ -1710,11 +1713,11 @@ NORAYPLOT=.FALSE.
               FANTYP=5
               QALTYP=0
               SSIFLG=.TRUE.
-              REFWV=INT(SYSTEM(11))
+              REFWV=INT(sys_wl_ref())
 !     FAN PLOTTING DEFAULT VALUES HAVE BEEN SET
               FANNOB=0
-              FANNRF=INT(SYSTEM(25))
-              FANNIM=INT(SYSTEM(20))
+              FANNRF=INT(sys_ref_surf())
+              FANNIM=INT(sys_last_surf())
               MAXFAN=20
               STEPJP=125.0D0
                     ELSE
@@ -1773,8 +1776,8 @@ NORAYPLOT=.FALSE.
                IF(FANQAL(1:2).EQ.'CD')   QALTYP=2
                IF(FANQAL(1:2).EQ.'LA')   QALTYP=3
               FANNOB=0
-              FANNRF=INT(SYSTEM(25))
-              FANNIM=INT(SYSTEM(20))
+              FANNRF=INT(sys_ref_surf())
+              FANNIM=INT(sys_last_surf())
     IF(LFOB(5).EQ.0.0D0) LFOB(5)=DBLE(NEWOBJ)
     IF(LFOB(6).EQ.0.0D0) LFOB(6)=DBLE(NEWREF)
     IF(LFOB(7).EQ.0.0D0) LFOB(7)=DBLE(NEWIMG)
@@ -1808,6 +1811,7 @@ NORAYPLOT=.FALSE.
 !
         use DATMAI
         use mod_surface
+        use mod_system, only: sys_last_surf
         IMPLICIT NONE
 
        !type(hdf5_file) :: h5f
@@ -1861,10 +1865,10 @@ NORAYPLOT=.FALSE.
       ROT2Z(AZ,AY,AALF)=((AZ*DCOS(AALF))+(AY*DSIN(AALF)))
       ROT2Y(AZ,AY,AALF)=((-AZ*DSIN(AALF))+(AY*DCOS(AALF)))
       DEALLOCATE (PRO,STARTPOINT,STOPPOINT,STAT=ALLOERR)
-      ALLOCATE (STARTPOINT(1:4,1:3,0:INT(SYSTEM(20))),STAT=ALLOERR)
-      ALLOCATE (STOPPOINT(1:4,1:3,0:INT(SYSTEM(20))),STAT=ALLOERR)
+      ALLOCATE (STARTPOINT(1:4,1:3,0:INT(sys_last_surf())),STAT=ALLOERR)
+      ALLOCATE (STOPPOINT(1:4,1:3,0:INT(sys_last_surf())),STAT=ALLOERR)
         LNTYPE=0
-                        I=INT(SYSTEM(20))
+                        I=INT(sys_last_surf())
         STARTPOINT(1:4,1:3,0:I)=0.0D0
         STOPPOINT(1:4,1:3,0:I)=0.0D0
 
@@ -1883,7 +1887,7 @@ NORAYPLOT=.FALSE.
       M1=360
       M2=4
       M3=0
-      M4=INT(SYSTEM(20))
+      M4=INT(sys_last_surf())
       DEALLOCATE (PRO,STAT=ALLOERR)
       ALLOCATE (PRO(M1,M2,M3:M4),STAT=ALLOERR)
 
@@ -1952,8 +1956,8 @@ NORAYPLOT=.FALSE.
       DEALLOCATE(STARTPOINT,STOPPOINT,PRO,STAT=ALLOERR)
                         RETURN
                         END IF
-        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
         IF(DF3.EQ.1) W3=0.0D0
       IF(W3.LT.0.0D0.OR.W3.GT.360.0D0) THEN
       OUTLYNE='THE ANGLE "THETA", NUMERIC WORD #3 MUST BE IN THE'
@@ -1980,7 +1984,7 @@ NORAYPLOT=.FALSE.
                         END IF
                 STASUR=INT(W1)
         IF(DF2.EQ.1) THEN
-                        W2=SYSTEM(20)
+                        W2=sys_last_surf()
                         ELSE
 !       DF2 NOT 1, W2 EXPLICITLY ENTERED
                         END IF
@@ -2697,7 +2701,7 @@ NORAYPLOT=.FALSE.
       DEALLOCATE(PRO,STAT=ALLOERR)
                         END DO
         FIXUP=.FALSE.
-                        DO I=0,INT(SYSTEM(20))
+                        DO I=0,INT(sys_last_surf())
       IF(.NOT.NOPLOT.OR.NOPLOT.AND.surf_clap_type(I) /= 0) THEN
         IF(surf_mirror_thickness(I).NE.0.0D0) THEN
           !PRINT *, "LINE 5755 PLTPRO1 Executed!"
@@ -2778,6 +2782,7 @@ NORAYPLOT=.FALSE.
 !
         use DATMAI
         use mod_surface
+        use mod_system, only: sys_last_surf
         IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT EDGEX/EDGEY COMMAND AT THE CMD LEVEL
@@ -2815,7 +2820,7 @@ NORAYPLOT=.FALSE.
 !
       M1=4
       M2=0
-      M3=INT(SYSTEM(20))
+      M3=INT(sys_last_surf())
       DEALLOCATE (EDGE,STAT=ALLOERR)
       ALLOCATE (EDGE(M1,M1,M2:M3),STAT=ALLOERR)
                 X=0.0D0
@@ -2894,8 +2899,8 @@ NORAYPLOT=.FALSE.
                         RETURN
                         ELSE
                         END IF
-        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+        IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+        IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
         IF(DF1.EQ.1) THEN
         IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
