@@ -474,6 +474,7 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
    REAL*8 C,K,Z,DELTA,ARG,MAXCLAP,DELCLAP &
@@ -486,10 +487,10 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
    EXTERNAL ARG1,ARG2
 !
 !
-   IF(SYSTEM(6).EQ.1.0D0) DELTA=0.001D0/25.4
-   IF(SYSTEM(6).EQ.2.0D0) DELTA=0.0001D0
-   IF(SYSTEM(6).EQ.3.0D0) DELTA=0.001D0
-   IF(SYSTEM(6).EQ.4.0D0) DELTA=0.000001D0
+   IF(sys_units().EQ.1.0D0) DELTA=0.001D0/25.4
+   IF(sys_units().EQ.2.0D0) DELTA=0.0001D0
+   IF(sys_units().EQ.3.0D0) DELTA=0.001D0
+   IF(sys_units().EQ.4.0D0) DELTA=0.000001D0
    X1=X-DELTA
    X2=X+DELTA
    Y1=Y-DELTA
@@ -816,6 +817,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units, sys_last_surf, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE SAGSPC.FOR CALCULATES SAG FOR A SPECIAL SURFACE
@@ -866,41 +868,32 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    END IF
 !     SPECIAL SURFACE TYPE 4
    IF(surf_special_type(I) == 4) THEN
-      IF(INT(SYSTEM(11)).EQ.1)  JK_WAVE=SYSTEM(1)
-      IF(INT(SYSTEM(11)).EQ.2)  JK_WAVE=SYSTEM(2)
-      IF(INT(SYSTEM(11)).EQ.3)  JK_WAVE=SYSTEM(3)
-      IF(INT(SYSTEM(11)).EQ.4)  JK_WAVE=SYSTEM(4)
-      IF(INT(SYSTEM(11)).EQ.5)  JK_WAVE=SYSTEM(5)
-      IF(INT(SYSTEM(11)).EQ.6)  JK_WAVE=SYSTEM(71)
-      IF(INT(SYSTEM(11)).EQ.7)  JK_WAVE=SYSTEM(72)
-      IF(INT(SYSTEM(11)).EQ.8)  JK_WAVE=SYSTEM(73)
-      IF(INT(SYSTEM(11)).EQ.9)  JK_WAVE=SYSTEM(74)
-      IF(INT(SYSTEM(11)).EQ.10) JK_WAVE=SYSTEM(75)
+      JK_WAVE=sys_wavelength(INT(sys_wl_ref()))
       AMP1=DABS(FTFL01(1,I)*JK_WAVE*0.5D0)
       AMP2=DABS(FTFL01(4,I)*JK_WAVE*0.5D0)
       AMP3=DABS(FTFL01(7,I)*JK_WAVE*0.5D0)
       AMP4=DABS(FTFL01(10,I)*JK_WAVE*0.5D0)
       AMP5=DABS(FTFL01(13,I)*JK_WAVE*0.5D0)
-      IF(SYSTEM(6).EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP1=AMP1*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP1=AMP1*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP1=AMP1*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP2=AMP2*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP2=AMP2*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP2=AMP2*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP3=AMP3*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP3=AMP3*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP3=AMP3*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP4=AMP4*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP4=AMP4*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP4=AMP4*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP5=AMP5*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP5=AMP5*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP5=AMP5*1.0D-6
+      IF(sys_units().EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP1=AMP1*1.0D-4
+      IF(sys_units().EQ.3) AMP1=AMP1*1.0D-3
+      IF(sys_units().EQ.4) AMP1=AMP1*1.0D-6
+      IF(sys_units().EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP2=AMP2*1.0D-4
+      IF(sys_units().EQ.3) AMP2=AMP2*1.0D-3
+      IF(sys_units().EQ.4) AMP2=AMP2*1.0D-6
+      IF(sys_units().EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP3=AMP3*1.0D-4
+      IF(sys_units().EQ.3) AMP3=AMP3*1.0D-3
+      IF(sys_units().EQ.4) AMP3=AMP3*1.0D-6
+      IF(sys_units().EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP4=AMP4*1.0D-4
+      IF(sys_units().EQ.3) AMP4=AMP4*1.0D-3
+      IF(sys_units().EQ.4) AMP4=AMP4*1.0D-6
+      IF(sys_units().EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP5=AMP5*1.0D-4
+      IF(sys_units().EQ.3) AMP5=AMP5*1.0D-3
+      IF(sys_units().EQ.4) AMP5=AMP5*1.0D-6
       IF(FTFL01(2,I).EQ.0.0D0) THEN
          OMEGA1X=0.0D0
       ELSE
@@ -1450,6 +1443,7 @@ SUBROUTINE SSAAGG
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units, sys_last_surf, sys_wavelength
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSAAGG. THIS IS THE SUBROUTINE WHICH
@@ -1653,7 +1647,7 @@ SUBROUTINE SSAAGG
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
@@ -1724,7 +1718,7 @@ SUBROUTINE SSAAGG
             CALL MACFAL
             RETURN
          END IF
-         IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+         IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
             WRITE(OUTLYNE,*)&
             &'SURFACE NUMBER FOR "SAG FILE" BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
@@ -1818,10 +1812,10 @@ SUBROUTINE SSAAGG
             SAG=0.0D0
             WRITE(OUTLYNE,100) I
             CALL SHOWIT(0)
-            IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-            IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-            IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-            IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+            IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+            IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+            IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+            IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,11)
             CALL SHOWIT(0)
@@ -1881,10 +1875,10 @@ SUBROUTINE SSAAGG
             END IF
             WRITE(OUTLYNE,100) I
             CALL SHOWIT(0)
-            IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-            IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-            IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-            IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+            IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+            IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+            IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+            IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,11)
             CALL SHOWIT(0)
@@ -1980,10 +1974,10 @@ SUBROUTINE SSAAGG
             END IF
             WRITE(OUTLYNE,100) I
             CALL SHOWIT(0)
-            IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-            IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-            IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-            IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+            IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+            IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+            IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+            IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,11)
             CALL SHOWIT(0)
@@ -2073,10 +2067,10 @@ SUBROUTINE SSAAGG
             IF(WQ.NE.'PTACC') THEN
                WRITE(OUTLYNE,100) I
                CALL SHOWIT(0)
-               IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-               IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-               IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-               IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+               IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+               IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+               IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+               IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
                CALL SHOWIT(0)
                WRITE(OUTLYNE,301)X
                CALL SHOWIT(0)
@@ -2137,10 +2131,10 @@ SUBROUTINE SSAAGG
                IF(WQ.NE.'PTACC') THEN
                   WRITE(OUTLYNE,100) I
                   CALL SHOWIT(0)
-                  IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-                  IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-                  IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-                  IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+                  IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+                  IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+                  IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+                  IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
                   CALL SHOWIT(0)
                   WRITE(OUTLYNE,301)X
                   CALL SHOWIT(0)
@@ -2234,10 +2228,10 @@ SUBROUTINE SSAAGG
                IF(WQ.EQ.'PTACC') THEN
                   WRITE(OUTLYNE,100) I
                   CALL SHOWIT(0)
-                  IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-                  IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-                  IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-                  IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+                  IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+                  IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+                  IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+                  IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
                   CALL SHOWIT(0)
                   WRITE(OUTLYNE,301)X
                   CALL SHOWIT(0)
@@ -2391,25 +2385,25 @@ SUBROUTINE SSAAGG
          CALL CLOSE_FILE(90,1)
          SAGRMS=DSQRT((SAG2MEAN-((SAGMEAN**2)/DBLE(ISAG)))/(DBLE(ISAG-1)))
          SAGMEAN=SAGMEAN/DBLE(ISAG)
-         IF(SYSTEM(6).EQ.1.0D0) THEN
+         IF(sys_units().EQ.1.0D0) THEN
             SAGMIN=SAGMIN*25.4D0*1.0D3
             SAGMAX=SAGMAX*25.4D0*1.0D3
             SAGMEAN=SAGMEAN*25.4D0*1.0D3
             SAGRMS=SAGRMS*25.4D0*1.0D3
          END IF
-         IF(SYSTEM(6).EQ.2.0D0) THEN
+         IF(sys_units().EQ.2.0D0) THEN
             SAGMIN=SAGMIN*1.0D4
             SAGMAX=SAGMAX*1.0D4
             SAGMEAN=SAGMEAN*1.0D4
             SAGRMS=SAGRMS*1.0D4
          END IF
-         IF(SYSTEM(6).EQ.3.0D0) THEN
+         IF(sys_units().EQ.3.0D0) THEN
             SAGMIN=SAGMIN*1.0D3
             SAGMAX=SAGMAX*1.0D3
             SAGMEAN=SAGMEAN*1.0D3
             SAGRMS=SAGRMS*1.0D3
          END IF
-         IF(SYSTEM(6).EQ.4.0D0) THEN
+         IF(sys_units().EQ.4.0D0) THEN
             SAGMIN=SAGMIN*1.0D6
             SAGMAX=SAGMAX*1.0D6
             SAGMEAN=SAGMEAN*1.0D6
