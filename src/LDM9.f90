@@ -5,6 +5,7 @@ SUBROUTINE RGLASS2(I,MTYPE)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N,K
@@ -306,53 +307,53 @@ SUBROUTINE RGLASS2(I,MTYPE)
    CALL SPLINE(X,Y,N,YP1,YPN,Y2)
 !
 !     CALCULATE THE INDICES
-   IF(SYSTEM(1).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(1),surf_refractive_index(I, 1))
+   IF(sys_wavelength(1).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(1),surf_refractive_index(I, 1))
    ELSE
       call set_surf_refractive_index(I, 1, 1.0D0)
    END IF
-   IF(SYSTEM(2).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(2),surf_refractive_index(I, 2))
+   IF(sys_wavelength(2).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(2),surf_refractive_index(I, 2))
    ELSE
       call set_surf_refractive_index(I, 2, 1.0D0)
    END IF
-   IF(SYSTEM(3).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(3),surf_refractive_index(I, 3))
+   IF(sys_wavelength(3).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(3),surf_refractive_index(I, 3))
    ELSE
       call set_surf_refractive_index(I, 3, 1.0D0)
    END IF
-   IF(SYSTEM(4).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(4),surf_refractive_index(I, 4))
+   IF(sys_wavelength(4).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(4),surf_refractive_index(I, 4))
    ELSE
       call set_surf_refractive_index(I, 4, 1.0D0)
    END IF
-   IF(SYSTEM(5).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(5),surf_refractive_index(I, 5))
+   IF(sys_wavelength(5).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(5),surf_refractive_index(I, 5))
    ELSE
       call set_surf_refractive_index(I, 5, 1.0D0)
    END IF
-   IF(SYSTEM(71).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(71),surf_refractive_index(I, 6))
+   IF(sys_wavelength(6).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(6),surf_refractive_index(I, 6))
    ELSE
       call set_surf_refractive_index(I, 6, 1.0D0)
    END IF
-   IF(SYSTEM(72).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(72),surf_refractive_index(I, 7))
+   IF(sys_wavelength(7).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(7),surf_refractive_index(I, 7))
    ELSE
       call set_surf_refractive_index(I, 7, 1.0D0)
    END IF
-   IF(SYSTEM(73).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(73),surf_refractive_index(I, 8))
+   IF(sys_wavelength(8).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(8),surf_refractive_index(I, 8))
    ELSE
       call set_surf_refractive_index(I, 8, 1.0D0)
    END IF
-   IF(SYSTEM(74).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(74),surf_refractive_index(I, 9))
+   IF(sys_wavelength(9).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(9),surf_refractive_index(I, 9))
    ELSE
       call set_surf_refractive_index(I, 9, 1.0D0)
    END IF
-   IF(SYSTEM(75).NE.0.0D0) THEN
-      CALL SPLINT(X,Y,Y2,N,SYSTEM(75),surf_refractive_index(I, 10))
+   IF(sys_wavelength(10).NE.0.0D0) THEN
+      CALL SPLINT(X,Y,Y2,N,sys_wavelength(10),surf_refractive_index(I, 10))
    ELSE
       call set_surf_refractive_index(I, 10, 1.0D0)
    END IF
@@ -675,6 +676,7 @@ SUBROUTINE RETRES
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
    INTEGER I,RETSURF,SINB
    REAL*8 D11,D12,D13
@@ -683,7 +685,7 @@ SUBROUTINE RETRES
 !
 !
 !
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_tilt_flag(I).EQ.6.0D0) THEN
 !     THERE IS A TILT RETURN TO RESOLVE WITH A RETURN TO SURFACE
          RETSURF=INT(surf_ret_surf_num(I))
@@ -1084,6 +1086,7 @@ SUBROUTINE PTORIC
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PTORIC WHICH IMPLEMENTS THE TORIC,TR,TC,
@@ -1131,7 +1134,7 @@ SUBROUTINE PTORIC
    END IF
 !
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       OUTLYNE='NO TORICS EXIST'
       CALL SHOWIT(1)
       OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -1168,10 +1171,10 @@ SUBROUTINE PTORIC
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.INT(SYSTEM(20)).OR.SURF.LT.0) THEN
+      IF(SURF.GT.INT(sys_last_surf()).OR.SURF.LT.0) THEN
          OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -1233,7 +1236,7 @@ SUBROUTINE PTORIC
 !       HANDEL THE WHOLE LENS
       TORCNT=0
 !
-      DO 16 I=0,INT(SYSTEM(20))
+      DO 16 I=0,INT(sys_last_surf())
          IF(surf_toric_flag(I).NE.0.0D0) THEN
             TORCNT=TORCNT+1
          ELSE
@@ -1264,7 +1267,7 @@ SUBROUTINE PTORIC
          CALL SHOWIT(0)
       END IF
 !
-      DO 15 I=0,INT(SYSTEM(20))
+      DO 15 I=0,INT(sys_last_surf())
 !
 !       SET TORIC TYPE
 !
