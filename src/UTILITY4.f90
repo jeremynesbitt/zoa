@@ -217,6 +217,7 @@ SUBROUTINE BASOP
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
 !       SUBROUTINE GET SERVES TO GET LENGTH,MLENGTH,PWRY,PWRX
@@ -261,11 +262,11 @@ SUBROUTINE BASOP
    IF(WQ.EQ.'MLENGTH'.OR.WQ.EQ.'OPTLEN') THEN
       VALUE=0.0D0
       DO I=INT(W1),INT(W2)-1
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            CW=INT(SYSTEM(11))+45
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            CW=INT(sys_wl_ref())+45
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            CW=INT(SYSTEM(11))+65
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            CW=INT(sys_wl_ref())+65
          END IF
          VALUE=VALUE+(surf_thickness(I)*ALENS(CW,I))
       END DO
@@ -1256,6 +1257,7 @@ SUBROUTINE INPUTT
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
    IMPLICIT NONE
 !
    LOGICAL EXIS8,EXIS9,OPEN8,OPEN9,EXIS97,OPEN97
@@ -1406,16 +1408,16 @@ SUBROUTINE INPUTT
                      &FIELDZ(I),N3
                      FIELDW(I)=DBLE(N3)
                      IF(FIELDW(I).EQ.0.0D0) THEN
-                        FIELDW(I)=SYSTEM(11)
+                        FIELDW(I)=sys_wl_ref()
                      END IF
                   END DO
                   DO J=1,IREND
                      READ(IN,*,ERR=9999,END=9999) AI4,RAYY(I),RAYX(I),N3
                      RAYW(I)=DBLE(N3)
                      IF(RAYW(I).EQ.0.0D0) THEN
-                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
                      END IF
                   END DO
                ELSE
@@ -1507,16 +1509,16 @@ SUBROUTINE INPUTT
                      &FIELDZ(I),N3
                      FIELDW(I)=DBLE(N3)
                      IF(FIELDW(I).EQ.0.0D0) THEN
-                        FIELDW(I)=SYSTEM(11)
+                        FIELDW(I)=sys_wl_ref()
                      END IF
                   END DO
                   DO J=1,IREND
                      READ(IN,*,ERR=9991,END=9991) AI4,RAYY(I),RAYX(I),N3
                      RAYW(I)=DBLE(N3)
                      IF(RAYW(I).EQ.0.0D0) THEN
-                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
                      END IF
                   END DO
                ELSE
@@ -1589,16 +1591,16 @@ SUBROUTINE INPUTT
                      &FIELDZ(I),N3
                      FIELDW(I)=DBLE(N3)
                      IF(FIELDW(I).EQ.0.0D0) THEN
-                        FIELDW(I)=SYSTEM(11)
+                        FIELDW(I)=sys_wl_ref()
                      END IF
                   END DO
                   DO J=1,IREND
                      READ(IN,*,ERR=9992,END=9992) AI4,RAYY(I),RAYX(I),N3
                      RAYW(I)=DBLE(N3)
                      IF(RAYW(I).EQ.0.0D0) THEN
-                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
                      END IF
                   END DO
                ELSE
@@ -3077,6 +3079,7 @@ SUBROUTINE GCONVERT
    use DATLEN
    use DATMAI
    use mod_surface, only: set_surf_thickness
+   use mod_system, only: sys_last_surf
    REAL*8 LOCAL_XVERT,LOCAL_YVERT,LOCAL_ZVERT
    REAL*8 LOCAL_LXVERT,LOCAL_MXVERT,LOCAL_NXVERT
    REAL*8 LOCAL_LYVERT,LOCAL_MYVERT,LOCAL_NYVERT
@@ -3094,18 +3097,18 @@ SUBROUTINE GCONVERT
    CHARACTER*23 AALPHA,ABETA,AGAMMA,AXDEC,AYDEC,AZDEC
    INTEGER IV,ALLOERR,I
    CHARACTER*3 AIV1,AIV2,AIV3
-   ALLOCATE(LOCAL_XVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_YVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_ZVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_LXVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_LYVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_LZVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_MXVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_MYVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_MZVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_NXVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_NYVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
-   ALLOCATE(LOCAL_NZVERT(0:INT(SYSTEM(20))),STAT=ALLOERR)
+   ALLOCATE(LOCAL_XVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_YVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_ZVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_LXVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_LYVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_LZVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_MXVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_MYVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_MZVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_NXVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_NYVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
+   ALLOCATE(LOCAL_NZVERT(0:INT(sys_last_surf())),STAT=ALLOERR)
    IF(STI.EQ.1) THEN
       WRITE(OUTLYNE,*)&
       &'"GCONVERT" CONVERTS THE CURRENT LENS INTO A "GLOBAL" LENS WITH'
@@ -3157,7 +3160,7 @@ SUBROUTINE GCONVERT
 !
 !       GET GLOBAL VERTEX DATA FOR ALL SURFACES
 !
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
 !
 !       SET GLOBAL SURFACE TO INT(W1)
       IV=I
@@ -3234,7 +3237,7 @@ SUBROUTINE GCONVERT
       LOCAL_NZVERT(I)=REG(9)
       REST_KDP(20)=RESTINPT(20)
    END DO
-   DO I=INT(W1)+1,INT(SYSTEM(20))
+   DO I=INT(W1)+1,INT(sys_last_surf())
       IV=I
       CALL NTOAN1(IV,AIV1)
       XDEC=LOCAL_XVERT(I)
