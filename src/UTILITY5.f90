@@ -165,6 +165,7 @@ SUBROUTINE CONTRO
    use DATSUB
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf, sys_astop_adj
    IMPLICIT NONE
 !
    CHARACTER WCC(1:16000)*8,WC1*8,WQ1*8,WS1*80
@@ -4105,7 +4106,7 @@ SUBROUTINE CONTRO
          IF(WC.EQ.'EOS') YESEOS=.TRUE.
          IF(WC.NE.'EOS') YESEOS=.FALSE.
          call curr_lens_data%update()
-         call curr_asph_data%updateAsphereTable(INT(SYSTEM(20))+1)
+         call curr_asph_data%updateAsphereTable(INT(sys_last_surf())+1)
          call sysConfig%updateParameters()
          ! CALL RE_DISPLAY_LENS(YESEOS
 
@@ -4513,20 +4514,20 @@ SUBROUTINE CONTRO
             ODF3=DF3
             ODF2=DF2
             ODF1=DF1
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(WC.EQ.'CV'.AND.I.EQ.0.OR.WC.EQ.'CVTOR'.AND.I.EQ.0) GO TO 67
                IF(WC.EQ.'RD'.AND.I.EQ.0) GO TO 67
                IF(WC.EQ.'RDTOR'.AND.I.EQ.0) GO TO 67
-               IF(WC.EQ.'CV'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 67
-               IF(WC.EQ.'RD'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 67
+               IF(WC.EQ.'CV'.AND.I.EQ.INT(sys_last_surf())&
+               &.OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 67
+               IF(WC.EQ.'RD'.AND.I.EQ.INT(sys_last_surf())&
+               &.OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'TH') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'CV') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'RD') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'CVTOR') GO TO 67
                IF(DUMMMY(I).AND.WC.EQ.'RDTOR') GO TO 67
-               IF(WC.EQ.'TH'.AND.I.EQ.INT(SYSTEM(20))) GO TO 67
+               IF(WC.EQ.'TH'.AND.I.EQ.INT(sys_last_surf())) GO TO 67
                IF(WC.EQ.'TH'.AND.I.EQ.0) GO TO 67
                IF(WC.EQ.'N1'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 67
                IF(WC.EQ.'N2'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 67
@@ -4541,13 +4542,13 @@ SUBROUTINE CONTRO
                IF(WC.EQ.'INDEX'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 67
                IF(WC.EQ.'VNUM'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 67
                IF(WC.EQ.'DPART'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 67
-               IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
+               IF(sys_astop_adj().EQ.1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
                   IF(I.EQ.1.OR.I.EQ.2) THEN
                      IF(WC.EQ.'TH') GO TO 67
                   END IF
                END IF
-               IF(SYSTEM(27).EQ.-1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
-                  IF(I.EQ.INT(SYSTEM(20))-1.OR.I.EQ.INT(SYSTEM(20))-2) THEN
+               IF(sys_astop_adj().EQ.-1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
+                  IF(I.EQ.INT(sys_last_surf())-1.OR.I.EQ.INT(sys_last_surf())-2) THEN
                      IF(WC.EQ.'TH') GO TO 67
                   END IF
                END IF
@@ -4596,21 +4597,21 @@ SUBROUTINE CONTRO
             ODF3=DF3
             ODF2=DF2
             ODF1=DF1
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(WC.EQ.'CV'.AND.I.EQ.0.OR.WC.EQ.'CVTOR'.AND.I.EQ.0) GO TO 68
                IF(WC.EQ.'RD'.AND.I.EQ.0) GO TO 68
                IF(WC.EQ.'RDTOR'.AND.I.EQ.0) GO TO 68
-               IF(WC.EQ.'CV'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 68
-               IF(WC.EQ.'RD'.AND.I.EQ.INT(SYSTEM(20))&
-               &.OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(SYSTEM(20))) GO TO 68
+               IF(WC.EQ.'CV'.AND.I.EQ.INT(sys_last_surf())&
+               &.OR.WC.EQ.'CVTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 68
+               IF(WC.EQ.'RD'.AND.I.EQ.INT(sys_last_surf())&
+               &.OR.WC.EQ.'RDTOR'.AND.I.EQ.INT(sys_last_surf())) GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'TH') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'CV') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'RD') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'CVTOR') GO TO 68
                IF(DUMMMY(I).AND.WC.EQ.'RDTOR') GO TO 68
                IF(WC.EQ.'TH'.AND.I.EQ.0) GO TO 68
-               IF(WC.EQ.'TH'.AND.I.EQ.INT(SYSTEM(20))) GO TO 68
+               IF(WC.EQ.'TH'.AND.I.EQ.INT(sys_last_surf())) GO TO 68
                IF(WC.EQ.'N1'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 68
                IF(WC.EQ.'N2'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 68
                IF(WC.EQ.'N3'.AND.GLANAM(I,1).NE.'GLASS      ') GO TO 68
@@ -4624,13 +4625,13 @@ SUBROUTINE CONTRO
                IF(WC.EQ.'INDEX'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 68
                IF(WC.EQ.'VNUM'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 68
                IF(WC.EQ.'DPART'.AND.GLANAM(I,1).NE.'MODEL        ') GO TO 68
-               IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
+               IF(sys_astop_adj().EQ.1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
                   IF(I.EQ.1.OR.I.EQ.2) THEN
                      IF(WC.EQ.'TH') GO TO 68
                   END IF
                END IF
-               IF(SYSTEM(27).EQ.-1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
-                  IF(I.EQ.INT(SYSTEM(20))-1.OR.I.EQ.INT(SYSTEM(20))-2) THEN
+               IF(sys_astop_adj().EQ.-1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
+                  IF(I.EQ.INT(sys_last_surf())-1.OR.I.EQ.INT(sys_last_surf())-2) THEN
                      IF(WC.EQ.'TH') GO TO 68
                   END IF
                END IF
