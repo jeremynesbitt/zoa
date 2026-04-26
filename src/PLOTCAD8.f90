@@ -120,6 +120,7 @@ SUBROUTINE DOSC
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE "SIZE FACTORS"
@@ -148,13 +149,13 @@ SUBROUTINE DOSC
 10    CONTINUE
 180   FORMAT(G10.3)
 200   FORMAT(A10)
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &NNTT1='(X-SIZE) ONE INCH = '//VALUE//' in(s)'
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &NNTT1='(X-SIZE) ONE INCH = '//VALUE//' cm(s)'
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &NNTT1='(X-SIZE) ONE INCH = '//VALUE//' mm(s)'
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &NNTT1='(X-SIZE) ONE INCH = '//VALUE//' m(s) '
       CALL MY_SETCHARASPECT(1.5,1.5)
       COLPAS=COLLBL
@@ -171,13 +172,13 @@ SUBROUTINE DOSC
          VALUE(I:I)='0'
       END DO
 11    CONTINUE
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &NNTT1='(Y-SIZE) ONE INCH = '//VALUE//' in(s)'
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &NNTT1='(Y-SIZE) ONE INCH = '//VALUE//' cm(s)'
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &NNTT1='(Y-SIZE) ONE INCH = '//VALUE//' mm(s)'
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &NNTT1='(Y-SIZE) ONE INCH = '//VALUE//' m(s) '
       CALL MY_SETCHARASPECT(1.5,1.5)
       COLPAS=COLLBL
@@ -195,13 +196,13 @@ SUBROUTINE DOSC
          VALUE(I:I)='0'
       END DO
 13    CONTINUE
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &NNTT1='(SIZE) ONE INCH = '//VALUE//' in(s)'
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &NNTT1='(SIZE) ONE INCH = '//VALUE//' cm(s)'
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &NNTT1='(SIZE) ONE INCH = '//VALUE//' mm(s)'
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &NNTT1='(SIZE) ONE INCH = '//VALUE//' m(s) '
       CALL MY_SETCHARASPECT(1.5,1.5)
       COLPAS=COLLBL
@@ -958,6 +959,7 @@ SUBROUTINE FRMBOX
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use mod_system, only: sys_units, sys_scy, sys_scy_fang, sys_mode
    IMPLICIT NONE
 !
 !       THIS ROUTINE DRAWS THE BOX FRAMING FOR ALL RAY FAN
@@ -1091,79 +1093,79 @@ SUBROUTINE FRMBOX
 !
    IF(abs(surf_thickness(NEWOBJ)) >= 1.0D10) THEN
 !     FIELD ANGLE
-      VAA=XFOB1*SYSTEM(21)
+      VAA=XFOB1*sys_scy_fang()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
       XN1='X-F.O.V. (DEG) = '//VALUE1
-      VAA=YFOB1*SYSTEM(21)
+      VAA=YFOB1*sys_scy_fang()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
       YN1='Y-F.O.V. (DEG) = '//VALUE1
 !
-      VAA=XFOB2*SYSTEM(21)
+      VAA=XFOB2*sys_scy_fang()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
       XN2='X-F.O.V. (DEG) = '//VALUE1
-      VAA=YFOB2*SYSTEM(21)
+      VAA=YFOB2*sys_scy_fang()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
       YN2='Y-F.O.V. (DEG) = '//VALUE1
 !
-      VAA=XFOB3*SYSTEM(21)
+      VAA=XFOB3*sys_scy_fang()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
       XN3='X-F.O.V. (DEG) = '//VALUE1
-      VAA=YFOB3*SYSTEM(21)
+      VAA=YFOB3*sys_scy_fang()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
       YN3='Y-F.O.V. (DEG) = '//VALUE1
 !
    ELSE
 !     FIELD HEIGHT
-      VAA=XFOB1*SYSTEM(14)
+      VAA=XFOB1*sys_scy()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
-      IF(SYSTEM(6).EQ.1.0D0) XN1='X-OBJ. HT. (IN) = '//VALUE1
-      IF(SYSTEM(6).EQ.2.0D0) XN1='X-OBJ. HT. (CM) = '//VALUE1
-      IF(SYSTEM(6).EQ.3.0D0) XN1='X-OBJ. HT. (MM) = '//VALUE1
-      IF(SYSTEM(6).EQ.4.0D0) XN1='X-OBJ. HT. (M)  = '//VALUE1
-      VAA=YFOB1*SYSTEM(14)
+      IF(sys_units().EQ.1.0D0) XN1='X-OBJ. HT. (IN) = '//VALUE1
+      IF(sys_units().EQ.2.0D0) XN1='X-OBJ. HT. (CM) = '//VALUE1
+      IF(sys_units().EQ.3.0D0) XN1='X-OBJ. HT. (MM) = '//VALUE1
+      IF(sys_units().EQ.4.0D0) XN1='X-OBJ. HT. (M)  = '//VALUE1
+      VAA=YFOB1*sys_scy()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
-      IF(SYSTEM(6).EQ.1.0D0) YN1='Y-OBJ. HT. (IN) = '//VALUE1
-      IF(SYSTEM(6).EQ.2.0D0) YN1='Y-OBJ. HT. (CM) = '//VALUE1
-      IF(SYSTEM(6).EQ.3.0D0) YN1='Y-OBJ. HT. (MM) = '//VALUE1
-      IF(SYSTEM(6).EQ.4.0D0) YN1='Y-OBJ. HT. (M)  = '//VALUE1
+      IF(sys_units().EQ.1.0D0) YN1='Y-OBJ. HT. (IN) = '//VALUE1
+      IF(sys_units().EQ.2.0D0) YN1='Y-OBJ. HT. (CM) = '//VALUE1
+      IF(sys_units().EQ.3.0D0) YN1='Y-OBJ. HT. (MM) = '//VALUE1
+      IF(sys_units().EQ.4.0D0) YN1='Y-OBJ. HT. (M)  = '//VALUE1
 !
-      VAA=XFOB2*SYSTEM(14)
+      VAA=XFOB2*sys_scy()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
-      IF(SYSTEM(6).EQ.1.0D0) XN2='X-OBJ. HT. (IN) = '//VALUE1
-      IF(SYSTEM(6).EQ.2.0D0) XN2='X-OBJ. HT. (CM) = '//VALUE1
-      IF(SYSTEM(6).EQ.3.0D0) XN2='X-OBJ. HT. (MM) = '//VALUE1
-      IF(SYSTEM(6).EQ.4.0D0) XN2='X-OBJ. HT. (M)  = '//VALUE1
-      VAA=YFOB2*SYSTEM(14)
+      IF(sys_units().EQ.1.0D0) XN2='X-OBJ. HT. (IN) = '//VALUE1
+      IF(sys_units().EQ.2.0D0) XN2='X-OBJ. HT. (CM) = '//VALUE1
+      IF(sys_units().EQ.3.0D0) XN2='X-OBJ. HT. (MM) = '//VALUE1
+      IF(sys_units().EQ.4.0D0) XN2='X-OBJ. HT. (M)  = '//VALUE1
+      VAA=YFOB2*sys_scy()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
-      IF(SYSTEM(6).EQ.1.0D0) YN2='Y-OBJ. HT. (IN) = '//VALUE1
-      IF(SYSTEM(6).EQ.2.0D0) YN2='Y-OBJ. HT. (CM) = '//VALUE1
-      IF(SYSTEM(6).EQ.3.0D0) YN2='Y-OBJ. HT. (MM) = '//VALUE1
-      IF(SYSTEM(6).EQ.4.0D0) YN2='Y-OBJ. HT. (M)  = '//VALUE1
+      IF(sys_units().EQ.1.0D0) YN2='Y-OBJ. HT. (IN) = '//VALUE1
+      IF(sys_units().EQ.2.0D0) YN2='Y-OBJ. HT. (CM) = '//VALUE1
+      IF(sys_units().EQ.3.0D0) YN2='Y-OBJ. HT. (MM) = '//VALUE1
+      IF(sys_units().EQ.4.0D0) YN2='Y-OBJ. HT. (M)  = '//VALUE1
 !
-      VAA=XFOB3*SYSTEM(14)
+      VAA=XFOB3*sys_scy()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
-      IF(SYSTEM(6).EQ.1.0D0) XN3='X-OBJ. HT. (IN) = '//VALUE1
-      IF(SYSTEM(6).EQ.2.0D0) XN3='X-OBJ. HT. (CM) = '//VALUE1
-      IF(SYSTEM(6).EQ.3.0D0) XN3='X-OBJ. HT. (MM) = '//VALUE1
-      IF(SYSTEM(6).EQ.4.0D0) XN3='X-OBJ. HT. (M)  = '//VALUE1
-      VAA=YFOB3*SYSTEM(14)
+      IF(sys_units().EQ.1.0D0) XN3='X-OBJ. HT. (IN) = '//VALUE1
+      IF(sys_units().EQ.2.0D0) XN3='X-OBJ. HT. (CM) = '//VALUE1
+      IF(sys_units().EQ.3.0D0) XN3='X-OBJ. HT. (MM) = '//VALUE1
+      IF(sys_units().EQ.4.0D0) XN3='X-OBJ. HT. (M)  = '//VALUE1
+      VAA=YFOB3*sys_scy()
       WRITE(B,180)REAL(VAA)
       READ(B,200) VALUE1
-      IF(SYSTEM(6).EQ.1.0D0) YN3='Y-OBJ. HT. (IN) = '//VALUE1
-      IF(SYSTEM(6).EQ.2.0D0) YN3='Y-OBJ. HT. (CM) = '//VALUE1
-      IF(SYSTEM(6).EQ.3.0D0) YN3='Y-OBJ. HT. (MM) = '//VALUE1
-      IF(SYSTEM(6).EQ.4.0D0) YN3='Y-OBJ. HT. (M)  = '//VALUE1
+      IF(sys_units().EQ.1.0D0) YN3='Y-OBJ. HT. (IN) = '//VALUE1
+      IF(sys_units().EQ.2.0D0) YN3='Y-OBJ. HT. (CM) = '//VALUE1
+      IF(sys_units().EQ.3.0D0) YN3='Y-OBJ. HT. (MM) = '//VALUE1
+      IF(sys_units().EQ.4.0D0) YN3='Y-OBJ. HT. (M)  = '//VALUE1
 !
    END IF
 
@@ -1173,7 +1175,7 @@ SUBROUTINE FRMBOX
       YTOPLB=CS4
    ELSE
 !     NOT OPD SINGLE FAN
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL
          XTOPLB=CS5
          YTOPLB=CS6
