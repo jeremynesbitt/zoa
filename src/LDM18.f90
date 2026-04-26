@@ -37,6 +37,7 @@ SUBROUTINE LENIN
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_system, only: sys_telecentric
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENIN. THIS IS THE SUBROUTINE WHICH
@@ -183,7 +184,7 @@ SUBROUTINE LENIN
 !       COMMAND (TH)
       IF(WC.EQ.'TH') THEN
          CALL STH
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -504,7 +505,7 @@ SUBROUTINE LENIN
       IF(WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCY'.OR.WC.EQ.'PCX'.OR.WC.EQ.'CAY'.OR.WC.EQ.'CAX'.OR.WC.EQ.'REDSLV') THEN
          !call LogTermFOR("Got to THSOLV call from LENIN!")
          CALL THSOLV
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
@@ -522,7 +523,7 @@ SUBROUTINE LENIN
 !       COMMAND (PIKUP)
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
-         IF(SYSTEM(63).NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+         IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
             SYSTEM(63)=0.0D0
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
