@@ -1772,20 +1772,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
    ISYS20=INT(SYSTEM(20))
    I=0
    DO 10 I=(1),ISYS20
-      R_X=X
-      R_Y=Y
-      R_Z=Z
-      R_L=L
-      R_M=M
-      R_N=N
-      R_I=I
-      CALL TRNSF2
-      X=R_X
-      Y=R_Y
-      Z=R_Z
-      L=R_L
-      M=R_M
-      N=R_N
+      CALL TRNSF2_ARGS(I, X, Y, Z, L, M, N)
       XOLD=X
       YOLD=Y
       ZOLD=Z

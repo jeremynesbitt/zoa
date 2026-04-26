@@ -239,20 +239,7 @@ SUBROUTINE FRFDIF_AIM
    RFDIFF(15,NEWOBJ)=NOLD
    DO 10 I=NEWOBJ+1,NEWIMG
 
-      R_X=X
-      R_Y=Y
-      R_Z=Z
-      R_L=L
-      R_M=M
-      R_N=N
-      R_I=I
-      CALL TRNSF2
-      X=R_X
-      Y=R_Y
-      Z=R_Z
-      L=R_L
-      M=R_M
-      N=R_N
+      CALL TRNSF2_ARGS(I, X, Y, Z, L, M, N)
       STOPP=0
       REFEXT=.TRUE.
       R_X=X
@@ -576,20 +563,7 @@ SUBROUTINE FRFDIF_AIM
    RFDIFF(18,NEWOBJ)=NOLD
    DO 20 I=NEWOBJ+1,NEWIMG
 
-      R_X=X
-      R_Y=Y
-      R_Z=Z
-      R_L=L
-      R_M=M
-      R_N=N
-      R_I=I
-      CALL TRNSF2
-      X=R_X
-      Y=R_Y
-      Z=R_Z
-      L=R_L
-      M=R_M
-      N=R_N
+      CALL TRNSF2_ARGS(I, X, Y, Z, L, M, N)
       STOPP=0
       REFEXT=.TRUE.
 !
@@ -1124,20 +1098,7 @@ SUBROUTINE DIFRAY_AIM
    DIFF(15,NEWOBJ)=NOLD
    DO 10 I=NEWOBJ+1,NEWIMG
 
-      R_X=X
-      R_Y=Y
-      R_Z=Z
-      R_L=L
-      R_M=M
-      R_N=N
-      R_I=I
-      CALL TRNSF2
-      X=R_X
-      Y=R_Y
-      Z=R_Z
-      L=R_L
-      M=R_M
-      N=R_N
+      CALL TRNSF2_ARGS(I, X, Y, Z, L, M, N)
       STOPP=0
       RAYEXT=.TRUE.
       FAIL=.FALSE.
@@ -1452,20 +1413,7 @@ SUBROUTINE DIFRAY_AIM
    DIFF(18,NEWOBJ)=NOLD
    DO 20 I=NEWOBJ+1,NEWIMG
 
-      R_X=X
-      R_Y=Y
-      R_Z=Z
-      R_L=L
-      R_M=M
-      R_N=N
-      R_I=I
-      CALL TRNSF2
-      X=R_X
-      Y=R_Y
-      Z=R_Z
-      L=R_L
-      M=R_M
-      N=R_N
+      CALL TRNSF2_ARGS(I, X, Y, Z, L, M, N)
       STOPP=0
       RAYEXT=.TRUE.
       FAIL=.FALSE.

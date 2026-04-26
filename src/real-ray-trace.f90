@@ -678,20 +678,7 @@ contains
 !       CALLING TRNSF2.FOR TRANSFORMS THE X,Y,Z,L,M AND N INTO
 !       THE COORDINATE SYSTEM OF SURFACE I,FOB0 TRACKS IF FOB 0 IS
 !       USED OR FOB (SOMETHING NON-ZERO)
-                R_X=X
-                R_Y=Y
-                R_Z=Z
-                R_L=L
-                R_M=M
-                R_N=N
-                R_I=I
-        CALL TRNSF2
-                X=R_X
-                Y=R_Y
-                Z=R_Z
-                L=R_L
-                M=R_M
-                N=R_N
+                CALL TRNSF2_ARGS(I, X, Y, Z, L, M, N)
         XOLD=X
         YOLD=Y
         ZOLD=Z
