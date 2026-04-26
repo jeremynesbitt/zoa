@@ -8,6 +8,7 @@ SUBROUTINE SNAO
    use DATMAI
    use mod_surface, only: surf_thickness
    use command_utils, only: is_command_query
+   use mod_system, only: sys_wl_ref, sys_say, sys_sax, sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNAO WHICH IMPLEMENTS THE NAO(X OR Y) COMMAND
@@ -35,13 +36,13 @@ SUBROUTINE SNAO
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
-               IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-                  SYSTEM(65)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(12))/DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
+               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+                  SYSTEM(65)=(ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
-               IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-                  SYSTEM(65)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(12))/DSQRT((surf_thickness(0)**2)+(SYSTEM(12)**2))
+               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+                  SYSTEM(65)=(ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
@@ -56,13 +57,13 @@ SUBROUTINE SNAO
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
-               IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-                  SYSTEM(66)=(ALENS(45+INT(SYSTEM(11)),0)*SYSTEM(13))/DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
+               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+                  SYSTEM(66)=(ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
-               IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-                  SYSTEM(66)=(ALENS(70-5+INT(SYSTEM(11)),0)*SYSTEM(13))/DSQRT((surf_thickness(0)**2)+(SYSTEM(13)**2))
+               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+                  SYSTEM(66)=(ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2))
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
@@ -433,6 +434,7 @@ SUBROUTINE SMAG
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_say, sys_sax, sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SMAG WHICH IMPLEMENTS THE MAGY AND MAGX
@@ -479,8 +481,8 @@ SUBROUTINE SMAG
       END IF
    END IF
    IF(DF2.EQ.1) W2=0.0D0
-   IF(DF2.EQ.1) W3=SYSTEM(20)
-   IF(W2.LT.0.0.OR.W3.GT.SYSTEM(20)) THEN
+   IF(DF2.EQ.1) W3=sys_last_surf()
+   IF(W2.LT.0.0.OR.W3.GT.sys_last_surf()) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'REQUESTED SURFACES BEYOND LEGAL RANGE FOR CURRENT LENS'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
@@ -490,13 +492,13 @@ SUBROUTINE SMAG
    IF(WC.EQ.'MAGY') THEN
       IF(W1.EQ.0.0D0) W1=1.0D0
       IF(W2.EQ.0.0D0) W2=0.0D0
-      IF(W3.EQ.0.0D0) W3=SYSTEM(20)
+      IF(W3.EQ.0.0D0) W3=sys_last_surf()
       GO TO 25
    ELSE
 !       WC MUST BE 'MAGX'
       IF(W1.EQ.0.0D0) W1=1.0D0
       IF(W2.EQ.0.0D0) W2=0.0D0
-      IF(W3.EQ.0.0D0) W3=SYSTEM(20)
+      IF(W3.EQ.0.0D0) W3=sys_last_surf()
    END IF
    GO TO 35
 25 CONTINUE
@@ -530,6 +532,7 @@ SUBROUTINE SLVRS
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLVRS . IT IS USED TO HANDLE
@@ -553,13 +556,13 @@ SUBROUTINE SLVRS
 !       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 !       AT THE CONTROL WAVELENGTH AT L-1 AND L
       IF(L.NE.0) THEN
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            N=ALENS(45+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(45+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            N=ALENS(45+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(45+INT(sys_wl_ref()),(L))
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            N=ALENS(65+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(65+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            N=ALENS(65+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(65+INT(sys_wl_ref()),(L))
          END IF
       END IF
 !
@@ -1276,7 +1279,7 @@ SUBROUTINE SLVRS
 
          !     DO I=1,8
          !         PRINT *, "I IS ", I
-         !         PRINT *, "PXTRA ", PXTRAY(I,0:INT(SYSTEM(20)))
+         !         PRINT *, "PXTRA ", PXTRAY(I,0:INT(sys_last_surf()))
 
          !     END DO
 
@@ -1315,13 +1318,13 @@ SUBROUTINE SLVRS
 
 !       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 !       AT THE CONTROL WAVELENGTH AT L-1 AND L
-         IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-            N=ALENS(45+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(45+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+            N=ALENS(45+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(45+INT(sys_wl_ref()),(L))
          END IF
-         IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-            N=ALENS(65+INT(SYSTEM(11)),(L-1))
-            J_NP=ALENS(65+INT(SYSTEM(11)),(L))
+         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+            N=ALENS(65+INT(sys_wl_ref()),(L-1))
+            J_NP=ALENS(65+INT(sys_wl_ref()),(L))
          END IF
 
       END IF
@@ -2056,6 +2059,7 @@ SUBROUTINE SLI
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLI WHICH IMPLEMENTS THE LI AND LIC
@@ -2078,7 +2082,7 @@ SUBROUTINE SLI
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'LENS IDENTIFIER DOES NOT EXIST'//'\n'//&
          & 'LENS SYSTEM HAS NO SURFACES', 1)
@@ -2196,6 +2200,7 @@ SUBROUTINE SINI
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SINI WHICH IMPLEMENTS THE INI
@@ -2215,7 +2220,7 @@ SUBROUTINE SINI
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'DESIGNER INITIALS DO NOT EXIST'//'\n'//&
          & 'LENS SYSTEM HAS NO SURFACES', 1)
@@ -2252,6 +2257,7 @@ SUBROUTINE SLTYPE
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLTYPE WHICH IMPLEMENTS THE LTYPE
@@ -2271,7 +2277,7 @@ SUBROUTINE SLTYPE
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'LENS TYPE IDENTIFIER DOES NOT EXIST'//'\n'//&
          & 'LENS SYSTEM HAS NO SURFACES', 1)
