@@ -10,6 +10,10 @@ SUBROUTINE REFRAY(WPAS)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_scx, sys_scy, sys_scy_fang, sys_scx_fang, &
+      sys_ray_aiming, sys_telecentric, sys_aim_offset_x, sys_aim_offset_y, &
+      sys_aim_offset_z, sys_scy_fang_set, sys_scx_fang_set, &
+      sys_rxim_fang_set, sys_ryim_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE REFRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -56,18 +60,18 @@ SUBROUTINE REFRAY(WPAS)
    ZAIMOL=0.0D0
    DDELX=0.001D0
    DDELY=0.001D0
-   CDDELX=0.0001D0*SYSTEM(16)
-   CDDELY=0.0001D0*SYSTEM(14)
+   CDDELX=0.0001D0*sys_scx()
+   CDDELY=0.0001D0*sys_scy()
    IF(WC.EQ.'FOB') THEN
-      IF(SYSTEM(21).EQ.0.0D0) THEN
+      IF(sys_scy_fang().EQ.0.0D0) THEN
          SCLFACY=1.0D0
       ELSE
-         SCLFACY=(1.0D0/SYSTEM(21))
+         SCLFACY=(1.0D0/sys_scy_fang())
       END IF
-      IF(SYSTEM(23).EQ.0.0D0) THEN
+      IF(sys_scx_fang().EQ.0.0D0) THEN
          SCLFACX=1.0D0
       ELSE
-         SCLFACX=(1.0D0/SYSTEM(23))
+         SCLFACX=(1.0D0/sys_scx_fang())
       END IF
       AWW1=WW1/SCLFACY
       AWW2=WW2/SCLFACX
@@ -145,8 +149,8 @@ SUBROUTINE REFRAY(WPAS)
       SYSTEM(18)=0.0D0
       SYSTEM(19)=0.0D0
    END IF
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
 !     OBJECT ANGLES INPUT
       ANGIN=.TRUE.
 !     REF OBJ HT INPUT AS ANGLE
@@ -213,24 +217,24 @@ SUBROUTINE REFRAY(WPAS)
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 !     OBJECT ANGLES NOT INPUT
       ANGIN=.FALSE.
 !
-      IF(surf_clap_type(NEWOBJ) == 0.OR.SYSTEM(98).NE.0.0D0 &
-      &.OR.SYSTEM(99).NE.0.0D0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
+      IF(surf_clap_type(NEWOBJ) == 0.OR.sys_rxim_fang_set().NE.0.0D0 &
+      &.OR.sys_ryim_fang_set().NE.0.0D0.OR.surf_array_parity(NEWOBJ) /= 0) THEN
 !     THE STARTING RAY COORDINATES ON THE OBJECT SURAFCE
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=WW2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=WW1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_scx().NE.0.0D0) XSTRT=WW2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=WW1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XSTRT=XSTRT+XRAYER
             YSTRT=YSTRT+YRAYER
          END IF
@@ -298,16 +302,16 @@ SUBROUTINE REFRAY(WPAS)
 !       THE WAVELENGTH NUMBER FOR THE REFERENCE RAY TRACE IS:
 !       INT(WW4) OR INT(SYSTEM(11))
 !     CALC AIM POINTS IF RYIM OR RXIM ARE IN EFFECT
-   IF(SYSTEM(99).NE.SYSTEM(98))&
-   &SYSTEM(98)=SYSTEM(99)
-   IF(SYSTEM(99).NE.SYSTEM(98))&
+   IF(sys_ryim_fang_set().NE.sys_rxim_fang_set())&
+   &SYSTEM(98)=sys_ryim_fang_set()
+   IF(sys_ryim_fang_set().NE.sys_rxim_fang_set())&
    &SYSTEM(96)=SYSTEM(97)
    XCHIEF_TARGET=0.0D0
    YCHIEF_TARGET=0.0D0
-   IF(SYSTEM(98).NE.0.0D0) THEN
+   IF(sys_rxim_fang_set().NE.0.0D0) THEN
       XCHIEF_TARGET=(WW2*SYSTEM(96))
    END IF
-   IF(SYSTEM(99).NE.0.0D0) THEN
+   IF(sys_ryim_fang_set().NE.0.0D0) THEN
       YCHIEF_TARGET=(WW1*SYSTEM(97))
    END IF
 
@@ -328,22 +332,22 @@ SUBROUTINE REFRAY(WPAS)
 !     STARTING POINTS AT SURFACE NEWOBJ+1 ARE THE PARAXIAL VALUES
 !     MODULATED BY ANY DECENTER OR TILT ON NEWOBJ+1
 !
-   IF(SYSTEM(62).EQ.0.0D0) THEN
+   IF(sys_ray_aiming().EQ.0.0D0) THEN
 !     RAY AIMING IS OFF
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          X1AIM=PXTRAX(5,(NEWOBJ+1))
-         X1AIM=(X1AIM*WW2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+         X1AIM=(X1AIM*WW2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
          Y1AIM=PXTRAY(5,(NEWOBJ+1))
-         Y1AIM=(Y1AIM*WW1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-         Z1AIM=SYSTEM(89)
+         Y1AIM=(Y1AIM*WW1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+         Z1AIM=sys_aim_offset_z()
       ELSE
 !     TEL ON,ALL RAYS ARE PARALLEL
          call logger%logText("Telecentric Ray Aiming On!")
-         IF(SYSTEM(16).NE.0.0D0) X1AIM=XSTRT
-         IF(SYSTEM(16).EQ.0.0D0) X1AIM=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) Y1AIM=YSTRT
-         IF(SYSTEM(14).EQ.0.0D0) Y1AIM=0.0D0
+         IF(sys_scx().NE.0.0D0) X1AIM=XSTRT
+         IF(sys_scx().EQ.0.0D0) X1AIM=0.0D0
+         IF(sys_scy().NE.0.0D0) Y1AIM=YSTRT
+         IF(sys_scy().EQ.0.0D0) Y1AIM=0.0D0
          Z1AIM=0.0D0
       END IF
    ELSE
@@ -929,7 +933,7 @@ SUBROUTINE REFRAY(WPAS)
 !
 
          IF(DSQRT(((TARX-X)**2)+((TARY-Y)**2)).LE.AIMTOL &
-         &.OR.SYSTEM(62).EQ.0.0D0) THEN
+         &.OR.sys_ray_aiming().EQ.0.0D0) THEN
             !call logger%logTextWithNum("Within Aiming Tolerance for Surf",I)
 
 
@@ -1060,9 +1064,9 @@ SUBROUTINE REFRAY(WPAS)
 
 !     NOW IF RYIM OR RXIM ARE IN EFFECT, ITERATE THE CHEIF RAY
 !     TO HIT THE IMAGE SURFACE AT THE CORRECT POINT
-   !call logger%logTextWithNum("System(98) is ", SYSTEM(98))
+   !call logger%logTextWithNum("System(98) is ", sys_rxim_fang_set())
 
-   IF(SYSTEM(98).LT.0.0D0) THEN
+   IF(sys_rxim_fang_set().LT.0.0D0) THEN
       CX=REFRY(1,NEWIMG)
       CY=REFRY(2,NEWIMG)
    ELSE
@@ -1070,11 +1074,11 @@ SUBROUTINE REFRAY(WPAS)
       CY=REFRY(12,NEWIMG)*180.0D0/PII
    END IF
    ERRORVEC=DSQRT(((CX-XCHIEF_TARGET)**2)+((CY-YCHIEF_TARGET)**2))
-   IF(SYSTEM(98).NE.0.0D0.AND.SYSTEM(99).NE.0.0D0.AND.&
+   IF(sys_rxim_fang_set().NE.0.0D0.AND.sys_ryim_fang_set().NE.0.0D0.AND.&
    &ERRORVEC.GT.CAIMTOL) THEN
       PRINT *, "Error Vector too big?"
       IF(KKKK.EQ.1) THEN
-         IF(SYSTEM(98).LT.0.0D0) THEN
+         IF(sys_rxim_fang_set().LT.0.0D0) THEN
             OLDCX=REFRY(1,NEWIMG)
             OLDCY=REFRY(2,NEWIMG)
          ELSE
@@ -1102,13 +1106,13 @@ SUBROUTINE REFRAY(WPAS)
          CRXONE=OLDCX
          CRYONE=OLDCY
 !     CURRENT X AND Y VALUES ON IMAGE SURFACE
-         IF(SYSTEM(98).EQ.-1.0D0)&
+         IF(sys_rxim_fang_set().EQ.-1.0D0)&
          &CRXLAST=REFRY(1,NEWIMG)
-         IF(SYSTEM(98).EQ.1.0D0)&
+         IF(sys_rxim_fang_set().EQ.1.0D0)&
          &CRXLAST=REFRY(11,NEWIMG)*180.0D0/PII
-         IF(SYSTEM(99).EQ.-1.0D0)&
+         IF(sys_ryim_fang_set().EQ.-1.0D0)&
          &CRYLAST=REFRY(2,NEWIMG)
-         IF(SYSTEM(99).EQ.1.0D0)&
+         IF(sys_ryim_fang_set().EQ.1.0D0)&
          &CRYLAST=REFRY(12,NEWIMG)*180.0D0/PII
          OLDCX=CRXLAST
          OLDCY=CRYLAST
