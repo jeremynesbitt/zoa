@@ -323,6 +323,8 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_scy, sys_scx, &
+                         sys_scy_fang, sys_scx_fang, sys_scy_fang_set, sys_scx_fang_set
    IMPLICIT NONE
 !     F IS THE FUNTION FPLT(X,Y),XPLT AND YPLT ARE THE POINT COORDINATES
 !     PCOUNT=NUMBER OF POINTS IN THE CAPFN FILE
@@ -613,10 +615,10 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
    END IF
 !
 !     DO THE PLOTTING OF THE EXTENT
-   IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-   IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-   IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-   IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+   IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+   IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+   IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+   IF(sys_units().EQ.4.0D0) UNN='meter(s) '
 !     UNITS ARE NOW SET
 !
 !     NOW WRITE = "VALUE" UNN
@@ -646,8 +648,7 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
       CALL MY_JUSTSTRING(200,5700,NNTT1(1:45),NT1ANG,NT1SIZ,3,3)
    END IF
 !
-   IF(WVNUMB.GE.1.AND.WVNUMB.LE.5) RANGE=SYSTEM(WVNUMB)
-   IF(WVNUMB.GE.6.AND.WVNUMB.LE.10) RANGE=SYSTEM(WVNUMB+65)
+   RANGE=sys_wavelength(WVNUMB)
    WRITE(B,101) RANGE
    READ(B,200) CRANGE
    NNTT1='WAVELENGTH = '//CRANGE//' MICRONS'
@@ -656,16 +657,7 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
 !
 !
 !     NOW WRITE = "VALUE" UNN
-   IF(WVNUMB.EQ.1) RANGE=SYSTEM(1)
-   IF(WVNUMB.EQ.2) RANGE=SYSTEM(2)
-   IF(WVNUMB.EQ.3) RANGE=SYSTEM(3)
-   IF(WVNUMB.EQ.4) RANGE=SYSTEM(4)
-   IF(WVNUMB.EQ.5) RANGE=SYSTEM(5)
-   IF(WVNUMB.EQ.6) RANGE=SYSTEM(71)
-   IF(WVNUMB.EQ.7) RANGE=SYSTEM(72)
-   IF(WVNUMB.EQ.8) RANGE=SYSTEM(73)
-   IF(WVNUMB.EQ.9) RANGE=SYSTEM(74)
-   IF(WVNUMB.EQ.10) RANGE=SYSTEM(75)
+   RANGE=sys_wavelength(WVNUMB)
    WRITE(B,101) RANGE
    READ(B,200) CRANGE
    NNTT1='REFERENCE WAVELENGTH = '//CRANGE//' MICRON(S)'
@@ -675,10 +667,10 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
    IF(.NOT.SUMMOR) THEN
       IF(IJ.EQ.1) THEN
 !     DO REF SPHERE SHIFTS IF NOT ZERO
-         IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+         IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN='meter(s) '
          IF(DABS(DLLX).GT.1.0D-14) THEN
             WRITE(B,101) DLLX
             READ(B,200) CRANGE
@@ -711,16 +703,16 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
 !     NOT SUMMED CAPFN, DO FOV STUFF
 !     FIELD OF VIEW DATA
 !
-      IF(SYSTEM(19).EQ.1.0D0) THEN
+      IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !     SCX FANG
-         RANGE=SYSTEM(23)*LFOB(2)
+         RANGE=sys_scx_fang()*LFOB(2)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(16)*LFOB(2)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scx()*LFOB(2)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCX
       END IF
       WRITE(B,101) RANGE
@@ -733,16 +725,16 @@ SUBROUTINE PLOTINTEN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
       CALL MY_JUSTSTRING(1500,6500,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
 !
 !
-      IF(SYSTEM(18).EQ.1.0D0) THEN
+      IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !     SCY FANG
-         RANGE=SYSTEM(21)*LFOB(1)
+         RANGE=sys_scy_fang()*LFOB(1)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(14)*LFOB(1)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scy()*LFOB(1)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCY
       END IF
       WRITE(B,101) RANGE
