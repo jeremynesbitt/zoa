@@ -9,6 +9,7 @@ SUBROUTINE PPLOTT
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL PLOTTING PROCEDURES.
@@ -647,8 +648,8 @@ SUBROUTINE PPLOTT
       ELSE
       END IF
 
-      IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+      IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
       IF(DF3.EQ.1) W3=1.0D0
 !       DEFAULT VALUES
       IF(DF1.EQ.1) THEN
@@ -748,8 +749,8 @@ SUBROUTINE PPLOTT
       ELSE
       END IF
 
-      IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=SYSTEM(20)+W2
+      IF(DF1.EQ.0.AND.W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF2.EQ.0.AND.W2.LT.0.0D0) W2=sys_last_surf()+W2
 !       DEFAULT VALUES
       IF(DF1.EQ.1) THEN
          IF(DABS(surf_thickness(0)).GT.1.0D10) THEN
@@ -1022,6 +1023,7 @@ SUBROUTINE PLTSZ
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT SCALE, PLOT NOSCALE AND PLOT YESCALE
@@ -1061,10 +1063,10 @@ SUBROUTINE PLTSZ
          END IF
       END IF
       IF(is_command_query()) THEN
-         IF(SYSTEM(6).EQ.1.0D0) PU2='INCHES'
-         IF(SYSTEM(6).EQ.2.0D0) PU1='CENTIMETERS'
-         IF(SYSTEM(6).EQ.3.0D0) PU1='MILLIMETERS'
-         IF(SYSTEM(6).EQ.4.0D0) PU2='METERS'
+         IF(sys_units().EQ.1.0D0) PU2='INCHES'
+         IF(sys_units().EQ.2.0D0) PU1='CENTIMETERS'
+         IF(sys_units().EQ.3.0D0) PU1='MILLIMETERS'
+         IF(sys_units().EQ.4.0D0) PU2='METERS'
          WRITE(OUTLYNE,189) PSIZXP
          CALL SHOWIT(1)
          WRITE(OUTLYNE,179) PSIZYP
@@ -1088,14 +1090,14 @@ SUBROUTINE PLTSZ
       SCFAYP=1.0D0/W2
       PSIZXP=W1
       PSIZYP=W2
-      IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-      IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-      IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-      IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-      IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-      IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-      IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-      IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+      IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+      IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+      IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+      IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+      IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+      IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+      IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+      IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
       PSIZY=1.0D0/SCFAY
       PSIZX=1.0D0/SCFAX
       PLSZ=.TRUE.
@@ -1266,6 +1268,7 @@ SUBROUTINE PLTSCL
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT SIZE, PLOT NOSIZE AND PLOT YESIZE
@@ -1305,10 +1308,10 @@ SUBROUTINE PLTSCL
          END IF
       END IF
       IF(is_command_query()) THEN
-         IF(SYSTEM(6).EQ.1.0D0) PU2='INCHES'
-         IF(SYSTEM(6).EQ.2.0D0) PU1='CENTIMETERS'
-         IF(SYSTEM(6).EQ.3.0D0) PU1='MILLIMETERS'
-         IF(SYSTEM(6).EQ.4.0D0) PU2='METERS'
+         IF(sys_units().EQ.1.0D0) PU2='INCHES'
+         IF(sys_units().EQ.2.0D0) PU1='CENTIMETERS'
+         IF(sys_units().EQ.3.0D0) PU1='MILLIMETERS'
+         IF(sys_units().EQ.4.0D0) PU2='METERS'
          WRITE(OUTLYNE,189) SCFAXP,PU2
          CALL SHOWIT(1)
          WRITE(OUTLYNE,179) SCFAYP,PU2
@@ -1332,14 +1335,14 @@ SUBROUTINE PLTSCL
       SCFAYP=W2
       PSIZXP=1.0D0/W1
       PSIZYP=1.0D0/W2
-      IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-      IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-      IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-      IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-      IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-      IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-      IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-      IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+      IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+      IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+      IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+      IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+      IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+      IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+      IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+      IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
       PSIZY=1.0D0/SCFAY
       PSIZX=1.0D0/SCFAX
       PLSC=.TRUE.
@@ -1412,6 +1415,7 @@ SUBROUTINE PLTSC5(XMINI,XMAXI,YMINI,YMAXI,JJ &
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -1570,14 +1574,14 @@ SUBROUTINE PLTSC5(XMINI,XMAXI,YMINI,YMAXI,JJ &
          SCFAX=SCFAY
          PSIZY=1.0D0/SCFAY
          PSIZX=1.0D0/SCFAX
-         IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-         IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-         IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-         IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-         IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254
-         IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254
+         IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+         IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+         IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+         IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+         IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+         IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+         IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254
+         IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254
          PSIZYP=1.0D0/SCFAYP
          PSIZXP=1.0D0/SCFAXP
          IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -1674,6 +1678,7 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -1830,14 +1835,14 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
             SCFAX=DABS(MAXI-MINI)/6.0D0
             PSIZY=1.0D0/SCFAY
             PSIZX=1.0D0/SCFAX
-            IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-            IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-            IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-            IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
+            IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+            IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+            IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+            IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+            IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+            IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+            IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
+            IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
             PSIZYP=1.0D0/SCFAYP
             PSIZXP=1.0D0/SCFAXP
             IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -2035,14 +2040,14 @@ SUBROUTINE PLTSC4(XMINI,XMAXI,YMINI,YMAXI,JJ &
             SCFAX=SCFAY
             PSIZY=1.0D0/SCFAY
             PSIZX=1.0D0/SCFAX
-            IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-            IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-            IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-            IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254
-            IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254
+            IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+            IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+            IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+            IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+            IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+            IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+            IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254
+            IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254
             PSIZYP=1.0D0/SCFAYP
             PSIZXP=1.0D0/SCFAXP
             IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -2140,6 +2145,7 @@ SUBROUTINE PLTSC3(XMINI,XMAXI,YMINI,YMAXI,JJ &
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -2263,14 +2269,14 @@ SUBROUTINE PLTSC3(XMINI,XMAXI,YMINI,YMAXI,JJ &
             SCFAX=DABS(MAXI-MINI)/6.0D0
             PSIZY=1.0D0/SCFAY
             PSIZX=1.0D0/SCFAX
-            IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-            IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-            IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-            IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
+            IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+            IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+            IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+            IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+            IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+            IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+            IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
+            IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
             PSIZYP=1.0D0/SCFAYP
             PSIZXP=1.0D0/SCFAXP
             IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -2452,14 +2458,14 @@ SUBROUTINE PLTSC3(XMINI,XMAXI,YMINI,YMAXI,JJ &
             SCFAX=SCFAY
             PSIZY=1.0D0/SCFAY
             PSIZX=1.0D0/SCFAX
-            IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-            IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-            IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-            IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254
-            IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254
+            IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+            IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+            IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+            IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+            IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+            IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+            IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254
+            IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254
             PSIZYP=1.0D0/SCFAYP
             PSIZXP=1.0D0/SCFAXP
             IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -2556,6 +2562,7 @@ SUBROUTINE PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR THE
@@ -2694,14 +2701,14 @@ SUBROUTINE PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
             SCFAX=DABS(MAXI-MINI)/6.0D0
             PSIZY=1.0D0/SCFAY
             PSIZX=1.0D0/SCFAX
-            IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-            IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-            IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-            IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
+            IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+            IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+            IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+            IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+            IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+            IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+            IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
+            IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
             PSIZYP=1.0D0/SCFAYP
             PSIZXP=1.0D0/SCFAXP
             IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -2847,14 +2854,14 @@ SUBROUTINE PLTSC2(XMINI,XMAXI,YMINI,YMAXI,PRO,M1,M2,M3,M4)
             !, "SCFAY = ", SCFAY
             PSIZY=1.0D0/SCFAY
             PSIZX=1.0D0/SCFAX
-            IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-            IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-            IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-            IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-            IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-            IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254
-            IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254
+            IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+            IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+            IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+            IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+            IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+            IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+            IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254
+            IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254
             PSIZYP=1.0D0/SCFAYP
             PSIZXP=1.0D0/SCFAXP
             IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -2911,6 +2918,7 @@ SUBROUTINE PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE AUTO SCALE FACTOR FOR PLOT RAY
@@ -3049,14 +3057,14 @@ SUBROUTINE PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
          !SCFAX=DABS(MAXI-MINI)/10D0
          PSIZY=1.0D0/SCFAY
          PSIZX=1.0D0/SCFAX
-         IF(SYSTEM(6).EQ.1.0D0) SCFAYP=SCFAY
-         IF(SYSTEM(6).EQ.1.0D0) SCFAXP=SCFAX
-         IF(SYSTEM(6).EQ.2.0D0) SCFAYP=SCFAY/2.54D0
-         IF(SYSTEM(6).EQ.2.0D0) SCFAXP=SCFAX/2.54D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAYP=SCFAY/25.4D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAXP=SCFAX/25.4D0
-         IF(SYSTEM(6).EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
-         IF(SYSTEM(6).EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
+         IF(sys_units().EQ.1.0D0) SCFAYP=SCFAY
+         IF(sys_units().EQ.1.0D0) SCFAXP=SCFAX
+         IF(sys_units().EQ.2.0D0) SCFAYP=SCFAY/2.54D0
+         IF(sys_units().EQ.2.0D0) SCFAXP=SCFAX/2.54D0
+         IF(sys_units().EQ.3.0D0) SCFAYP=SCFAY/25.4D0
+         IF(sys_units().EQ.3.0D0) SCFAXP=SCFAX/25.4D0
+         IF(sys_units().EQ.4.0D0) SCFAYP=SCFAY/0.0254D0
+         IF(sys_units().EQ.4.0D0) SCFAXP=SCFAX/0.0254D0
          PSIZYP=1.0D0/SCFAYP
          PSIZXP=1.0D0/SCFAXP
          IF(SCFAY.EQ.0.0D0.OR.SCFAX.EQ.0.0D0) THEN
@@ -3386,6 +3394,7 @@ SUBROUTINE PLOTSAGFL(NNN,XPLT,YPLT,FPLT,FTF1 &
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !     F IS THE FUNTION FPLT(X,Y),XPLT AND YPLT ARE THE POINT COORDINATES
 !     NNN=NUMBER OF POINTS IN THE CAPFN FILE
@@ -3417,10 +3426,10 @@ SUBROUTINE PLOTSAGFL(NNN,XPLT,YPLT,FPLT,FTF1 &
    ALLOCATABLE :: XX,YY,F_JK,X_JK,Y_JK,XY2,H
 !
 !     DO THE PLOTTING OF THE EXTENT
-   IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-   IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-   IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-   IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+   IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+   IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+   IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+   IF(sys_units().EQ.4.0D0) UNN='meter(s) '
 !     UNITS ARE NOW SET
 !
    DEALLOCATE(XX,YY,F_JK,X_JK,Y_JK,XY2,H,STAT=ALLOERR)
