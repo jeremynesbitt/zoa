@@ -140,6 +140,7 @@ END
 SUBROUTINE LASTRAY(ICODE)
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
    INTEGER ICODE,I,J
 !     ICODE = 1, SAVE RAY DATA
@@ -172,12 +173,12 @@ SUBROUTINE LASTRAY(ICODE)
          DO I=1,3
             LFOBA(I)=SLFOBA(I)
          END DO
-         DO J=0,INT(SYSTEM(20))
+         DO J=0,INT(sys_last_surf())
             DO I=1,35
                REFRY(I,J)=OLD_REF(I,J)
             END DO
          END DO
-         DO J=0,INT(SYSTEM(20))
+         DO J=0,INT(sys_last_surf())
             DO I=1,18
                RFDIFF(I,J)=OLD_REF_DIF(I,J)
             END DO
@@ -185,7 +186,7 @@ SUBROUTINE LASTRAY(ICODE)
       END IF
       IF(SRAYEXT) THEN
          RAYEXT=.TRUE.
-         DO J=0,INT(SYSTEM(20))
+         DO J=0,INT(sys_last_surf())
             DO I=1,35
                RAYRAY(I,J)=OLD_RAY(I,J)
             END DO
@@ -194,7 +195,7 @@ SUBROUTINE LASTRAY(ICODE)
                PXTRAX(I,J)=O_PXTRAX(I,J)
             END DO
          END DO
-         DO J=0,INT(SYSTEM(20))
+         DO J=0,INT(sys_last_surf())
             DO I=1,18
                DIFF(I,J)=OLD_RAY_DIF(I,J)
             END DO
@@ -454,6 +455,7 @@ SUBROUTINE NOAIMAPL
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_ryim_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMAPL.FOR.
@@ -512,6 +514,7 @@ SUBROUTINE SET_REVRAY
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_ryim_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SET_REVRAY.FOR. THIS SUBROUTINE
@@ -536,7 +539,7 @@ SUBROUTINE SET_REVRAY
       CALL REPORT_ERROR_AND_FAIL('"REVRAY" TAKES NO NUMERIC INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(SYSTEM(98).EQ.0.0D0.OR.SYSTEM(99).EQ.0.0D0) THEN
+   IF(SYSTEM(98).EQ.0.0D0.OR.sys_ryim_fang_set().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"REVRAY" REQUIRES "RXIM" AND "RYIM" TO BE EXPLICITLY SET'//'\n'//&
       & 'NO ACTION TAKEN', 1)
@@ -648,6 +651,7 @@ SUBROUTINE RHISTORY
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RHIST.FOR. THIS SUBROUTINE STARTS
@@ -706,9 +710,9 @@ SUBROUTINE RHISTORY
       LONGHIST=.FALSE.
       RAY_HIST_NUM=0
       DEALLOCATE(RHIST,STAT=ALLOERR)
-      ALLOCATE(RHIST(1:93,1:RHIST_MAXRAYS,0:INT(SYSTEM(20))),&
+      ALLOCATE(RHIST(1:93,1:RHIST_MAXRAYS,0:INT(sys_last_surf())),&
       &STAT=ALLOERR)
-      RHIST(1:93,1:RHIST_MAXRAYS,0:INT(SYSTEM(20)))=0.0D0
+      RHIST(1:93,1:RHIST_MAXRAYS,0:INT(sys_last_surf()))=0.0D0
    END IF
    IF(WQ.EQ.'WRITE'.AND..NOT.RAY_HIST_FLAG) THEN
       OUTLYNE='NO RAY HISTORY DATA EXISTS TO BE WRITTEN TO RAYHIST.DAT'
@@ -723,9 +727,9 @@ SUBROUTINE RHISTORY
       OPEN(UNIT=48,FILE='RAYHIST.DAT')
       OUTLYNE='WRITTING LONG LIST RAY HISTORIES TO RAYHIST.DAT...'
       CALL SHOWIT(1)
-      WRITE(UNIT=48,FMT=121) RAY_HIST_NUM,INT(SYSTEM(20)),FOBNUMBER
+      WRITE(UNIT=48,FMT=121) RAY_HIST_NUM,INT(sys_last_surf()),FOBNUMBER
       DO K=1,RAY_HIST_NUM
-         DO J=1,INT(SYSTEM(20))
+         DO J=1,INT(sys_last_surf())
             WRITE(UNIT=48,FMT=12) J,K,RHIST(1:93,K,J)
          END DO
       END DO
@@ -744,9 +748,9 @@ SUBROUTINE RHISTORY
       OPEN(UNIT=48,FILE='RAYHIST.DAT')
       OUTLYNE='WRITTING SHORT LIST RAY HISTORIES TO RAYHIST.DAT...'
       CALL SHOWIT(1)
-      WRITE(UNIT=48,FMT=131) RAY_HIST_NUM,INT(SYSTEM(20)),FOBNUMBER
+      WRITE(UNIT=48,FMT=131) RAY_HIST_NUM,INT(sys_last_surf()),FOBNUMBER
       DO K=1,RAY_HIST_NUM
-         DO J=1,INT(SYSTEM(20))
+         DO J=1,INT(sys_last_surf())
             WRITE(UNIT=48,FMT=13) J,K,&
             &RHIST(1,K,J),&
             &RHIST(2,K,J),&
