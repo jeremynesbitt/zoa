@@ -11,7 +11,7 @@ SUBROUTINE CALCPRE
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref, sys_wl_pri1, sys_wl_pri2
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref, sys_wl_pri1, sys_wl_pri2, sys_wl_weight
    IMPLICIT NONE
 !
    COMMON/SOLU/X
@@ -2358,16 +2358,16 @@ SUBROUTINE CALCPRE
                CALL SPOT1(2)
                LDIF=OLDIF
             ELSE
-               OLDSP(1) =SYSTEM(31)
-               OLDSP(2) =SYSTEM(32)
-               OLDSP(3) =SYSTEM(33)
-               OLDSP(4) =SYSTEM(34)
-               OLDSP(5) =SYSTEM(35)
-               OLDSP(6) =SYSTEM(76)
-               OLDSP(7) =SYSTEM(77)
-               OLDSP(8) =SYSTEM(78)
-               OLDSP(9) =SYSTEM(79)
-               OLDSP(10)=SYSTEM(80)
+               OLDSP(1) =sys_wl_weight(1)
+               OLDSP(2) =sys_wl_weight(2)
+               OLDSP(3) =sys_wl_weight(3)
+               OLDSP(4) =sys_wl_weight(4)
+               OLDSP(5) =sys_wl_weight(5)
+               OLDSP(6) =sys_wl_weight(6)
+               OLDSP(7) =sys_wl_weight(7)
+               OLDSP(8) =sys_wl_weight(8)
+               OLDSP(9) =sys_wl_weight(9)
+               OLDSP(10)=sys_wl_weight(10)
                SYSTEM(31:35)=0.0D0
                SYSTEM(76:80)=0.0D0
                IF(INT(OPERND(I,9)).EQ.1)  SYSTEM(31)=1.0D0
@@ -2745,16 +2745,16 @@ SUBROUTINE CALCPRE
                CALL COMPAP(REFERR,2)
                LDIF=OLDIF
             ELSE
-               OLDSP(1) =SYSTEM(31)
-               OLDSP(2) =SYSTEM(32)
-               OLDSP(3) =SYSTEM(33)
-               OLDSP(4) =SYSTEM(34)
-               OLDSP(5) =SYSTEM(35)
-               OLDSP(6) =SYSTEM(76)
-               OLDSP(7) =SYSTEM(77)
-               OLDSP(8) =SYSTEM(78)
-               OLDSP(9) =SYSTEM(79)
-               OLDSP(10)=SYSTEM(80)
+               OLDSP(1) =sys_wl_weight(1)
+               OLDSP(2) =sys_wl_weight(2)
+               OLDSP(3) =sys_wl_weight(3)
+               OLDSP(4) =sys_wl_weight(4)
+               OLDSP(5) =sys_wl_weight(5)
+               OLDSP(6) =sys_wl_weight(6)
+               OLDSP(7) =sys_wl_weight(7)
+               OLDSP(8) =sys_wl_weight(8)
+               OLDSP(9) =sys_wl_weight(9)
+               OLDSP(10)=sys_wl_weight(10)
                SYSTEM(31:35)=0.0D0
                SYSTEM(76:80)=0.0D0
                IF(INT(OPERND(I,9)).EQ.1)  SYSTEM(31)=1.0D0
