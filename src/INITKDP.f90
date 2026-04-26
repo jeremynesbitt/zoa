@@ -16,6 +16,7 @@ SUBROUTINE INITKDP
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -1349,16 +1350,16 @@ SUBROUTINE INITKDP
             &FIELDZ(I),N3
             FIELDW(I)=DBLE(N3)
             IF(FIELDW(I).EQ.0.0D0) THEN
-               FIELDW(I)=SYSTEM(11)
+               FIELDW(I)=sys_wl_ref()
             END IF
          END DO
          DO I=1,IREND
             READ(89,*,ERR=8887,END=8887) AI4,RAYY(I),RAYX(I),N3
             RAYW(I)=DBLE(N3)
             IF(RAYW(I).EQ.0.0D0) THEN
-               IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-               IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-               IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+               IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+               IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+               IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
             END IF
          END DO
       ELSE
@@ -1415,21 +1416,21 @@ SUBROUTINE INITKDP
    DEFAULT_FOB(1,1:25)=0.0D0
    DEFAULT_FOB(2,1:25)=0.0D0
    DEFAULT_FOB(3,1:25)=1.0D0
-   DEFAULT_FOB(4,1:25)=SYSTEM(11)
+   DEFAULT_FOB(4,1:25)=sys_wl_ref()
    DEFAULT_FOB(1,1)=0.0D0
    DEFAULT_FOB(2,1)=0.0D0
    DEFAULT_FOB(3,1)=1.0D0
-   DEFAULT_FOB(4,1)=SYSTEM(11)
+   DEFAULT_FOB(4,1)=sys_wl_ref()
    DEFAULT_FOB(1,2)=0.7D0
    DEFAULT_FOB(2,2)=0.0D0
    DEFAULT_FOB(3,2)=1.0D0
-   DEFAULT_FOB(4,2)=SYSTEM(11)
+   DEFAULT_FOB(4,2)=sys_wl_ref()
    DEFAULT_FOB(1,3)=1.0D0
    DEFAULT_FOB(2,3)=0.0D0
    DEFAULT_FOB(3,3)=1.0D0
-   DEFAULT_FOB(4,3)=SYSTEM(11)
+   DEFAULT_FOB(4,3)=sys_wl_ref()
    DFPNUMB=3
-   DFWAVENUMB=INT(SYSTEM(11))
+   DFWAVENUMB=INT(sys_wl_ref())
    DFTYPENUMB=1
    DF_CFG=1
    IN=5
@@ -1503,16 +1504,16 @@ SUBROUTINE INITKDP
                      &FIELDZ(I),N3
                      FIELDW(I)=DBLE(N3)
                      IF(FIELDW(I).EQ.0.0D0) THEN
-                        FIELDW(I)=SYSTEM(11)
+                        FIELDW(I)=sys_wl_ref()
                      END IF
                   END DO
                   DO J=1,IREND
                      READ(44,*,ERR=9678,END=9678) AI4,RAYY(I),RAYX(I),N3
                      RAYW(I)=DBLE(N3)
                      IF(RAYW(I).EQ.0.0D0) THEN
-                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=SYSTEM(11)
-                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=SYSTEM(7)
-                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=SYSTEM(8)
+                        IF(I.GE.1.AND.I.LE.41) RAYW(I)=sys_wl_ref()
+                        IF(I.GE.42.AND.I.LE.82) RAYW(I)=sys_wl_pri1()
+                        IF(I.GE.83.AND.I.LE.123) RAYW(I)=sys_wl_pri2()
                      END IF
                   END DO
                ELSE
