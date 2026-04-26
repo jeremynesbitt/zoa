@@ -7,6 +7,7 @@ SUBROUTINE CFGUP
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_special_type
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
    INTEGER I,J
@@ -46,7 +47,7 @@ SUBROUTINE CFGUP
    F11=1
    F12=2
    DO J=2,MAXCFG
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          SPECF2(J,I)=abs(surf_special_type(I))
       END DO
    END DO
@@ -59,6 +60,7 @@ SUBROUTINE CFGPRT
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL
@@ -76,7 +78,7 @@ SUBROUTINE CFGPRT
    BL1=AA//AA//'                  '
 !
 !       IEND IS THE LAST NON-BLANK CONFIG
-   IEND=INT(SYSTEM(56))
+   IEND=INT(sys_high_cfg())
 !
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
    &.OR.S5.EQ.1) THEN
@@ -199,6 +201,7 @@ SUBROUTINE CFGOUT(LINE1,LINE2,LINE3,LINE4,&
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED BY CFGIN2 AND
@@ -716,6 +719,7 @@ SUBROUTINE CFGIN3
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       SPECIAL VERSION OF CFGIN2 FOR USE BY "REMOVE"
@@ -731,7 +735,7 @@ SUBROUTINE CFGIN3
       IF(CFGCNT(K).GT.0) KEND=K
    END DO
    SYSTEM(56)=DBLE(KEND)
-   SYSP(56)=SYSTEM(56)
+   SYSP(56)=sys_high_cfg()
 !
    CALL CFGCLN
    CALL LCLEAN
@@ -757,6 +761,7 @@ SUBROUTINE CFGIN2
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CONFIGS INPUT OR
@@ -896,13 +901,13 @@ SUBROUTINE CFGIN2
 !               IS EOS W/O LEOS OR SPEOS
 !       RETURN TO CMD LEVEL
 !
-!       CALCULATE THE CORRECT VALUE FOR SYSTEM(56)
+!       CALCULATE THE CORRECT VALUE FOR sys_high_cfg()
       KEND=1
       DO K=2,MAXCFG
          IF(CFGCNT(K).GT.0) KEND=K
       END DO
       SYSTEM(56)=DBLE(KEND)
-      SYSP(56)=SYSTEM(56)
+      SYSP(56)=sys_high_cfg()
 !
 !       THIS IS SERIOUS, WE ARE LEAVING THE CONFIG SUBFILE!
 !       WE MUST CLEAN UP FIRST
@@ -1433,6 +1438,7 @@ SUBROUTINE CFGFX1(I)
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
    INTEGER K,I,J
@@ -1449,10 +1455,10 @@ SUBROUTINE CFGFX1(I)
 !       THIS IS SUBROUTINE CFGFX1. IT FIXES CONFIGS DATA
 !     AFTER SURFACE INSERTION AT SURFACE I (OLD SURFACE I BECOMES
 !     SURFACE I+1)
-   IF(SYSTEM(56).LE.1.0D0) RETURN
+   IF(sys_high_cfg().LE.1.0D0) RETURN
 !     SINCE NO CONFIGS DATA EXISTED
-!     SYSTEM(56) NOT 1, PROCEED
-   DO K=2,INT(SYSTEM(56))
+!     sys_high_cfg() NOT 1, PROCEED
+   DO K=2,INT(sys_high_cfg())
 !     FIX CONFIG K
       DO J=1,CFGCNT(K)
          IF(CONFG(K,J)(1:3).EQ.'CHG') THEN
@@ -1683,6 +1689,7 @@ SUBROUTINE CFGFX2(I)
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
    INTEGER K,I,J,L,CNTER,LL
@@ -1703,10 +1710,10 @@ SUBROUTINE CFGFX2(I)
 !
 !       THIS IS SUBROUTINE CFGFX2. IT FIXES CONFIGS DATA
 !     AFTER SURFACE DELETION OF SURFACE I (PART 1)
-   IF(SYSTEM(56).LE.1.0D0) RETURN
+   IF(sys_high_cfg().LE.1.0D0) RETURN
 !     SINCE NO CONFIGS DATA EXISTED
-!     SYSTEM(56) NOT 1, PROCEED
-   DO K=2,INT(SYSTEM(56))
+!     sys_high_cfg() NOT 1, PROCEED
+   DO K=2,INT(sys_high_cfg())
 !     FIX CONFIG K
       DO J=1,CFGCNT(K)
          IF(CONFG(K,J)(1:3).EQ.'CHG') THEN
@@ -1957,6 +1964,7 @@ SUBROUTINE CFGFX3(I)
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
    INTEGER K,I,J
@@ -1972,10 +1980,10 @@ SUBROUTINE CFGFX3(I)
 !
 !       THIS IS SUBROUTINE CFGFX3. IT FIXES CONFIGS DATA
 !     AFTER SURFACE DELETION OF SURFACE I (PART 2)
-   IF(SYSTEM(56).LE.1.0D0) RETURN
+   IF(sys_high_cfg().LE.1.0D0) RETURN
 !     SINCE NO CONFIGS DATA EXISTED
-!     SYSTEM(56) NOT 1, PROCEED
-   DO K=2,INT(SYSTEM(56))
+!     sys_high_cfg() NOT 1, PROCEED
+   DO K=2,INT(sys_high_cfg())
 !     FIX CONFIG K
       DO J=1,CFGCNT(K)
          IF(CONFG(K,J)(1:3).EQ.'CHG') THEN
@@ -2191,6 +2199,7 @@ SUBROUTINE CFGCLN
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CLEANS UP AND STREAMLINES
@@ -2223,7 +2232,7 @@ SUBROUTINE CFGCLN
       SCRATH(IL)=BLANK
    END DO
 !       IEND IS THE LAST NON-BLANK CONFIG
-   IEND=INT(SYSTEM(56))
+   IEND=INT(sys_high_cfg())
 !
 !       BLANK OUT ALL BUT THE LAST ASTOP AND REFS IN THE CONFIG
 !
@@ -3204,7 +3213,7 @@ SUBROUTINE CFGCLN
 !
 !       START CHECKING FROM END OF DATA LIST FOR EACH VALID
 !       SURFACE NUMBER FROM 1 TO INT(STSEM(20)
-         DO 1131 JK=1,INT(SYSTEM(20))
+         DO 1131 JK=1,INT(sys_last_surf())
 !
             DO 1231 JJ=CFGCNT(I),1,-1
                EE12=CONFG(I,JJ)
@@ -3274,6 +3283,7 @@ SUBROUTINE CFGIN
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO CREATE THE
@@ -3316,7 +3326,7 @@ SUBROUTINE CFGIN
 !                      END DO
 !     INITIALIZE THE ARRAY THAT KEEPS TRACK OF SPECIAL SURFACES
    DO J=2,MAXCFG
-      I=INT(SYSTEM(20))
+      I=INT(sys_last_surf())
       SPECFF(J,0:I)=0
       SPECF2(J,0:I)=INT(DABS(ALENS(34,0:I)))
    END DO
@@ -3333,6 +3343,7 @@ SUBROUTINE CFGCHG2
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE CFG
@@ -3356,13 +3367,13 @@ SUBROUTINE CFGCHG2
          F12=I
       END IF
 
-!       DECIDE IF THE INTEGER PART OF SYSTEM(56) SHOULD
+!       DECIDE IF THE INTEGER PART OF sys_high_cfg() SHOULD
 !       BE INCREMENTED.
-      IEND=INT(SYSTEM(56))
+      IEND=INT(sys_high_cfg())
       IF(I.GT.IEND) THEN
 !       CHANGE IEND AND FRAC SYSTEM(50)
-         SYSTEM(56)=SYSTEM(56)+1.0D0
-         SYSP(56)=SYSTEM(56)
+         SYSTEM(56)=sys_high_cfg()+1.0D0
+         SYSP(56)=sys_high_cfg()
       END IF
 !
 !       RETURN TO CFG 1
@@ -3436,6 +3447,7 @@ SUBROUTINE CFGCHG
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE CFG
@@ -3514,13 +3526,13 @@ SUBROUTINE CFGCHG
             F12=INT(W1)
          END IF
 
-!       DECIDE IF THE INTEGER PART OF SYSTEM(56) SHOULD
+!       DECIDE IF THE INTEGER PART OF sys_high_cfg() SHOULD
 !       BE INCREMENTED.
-         IEND=INT(SYSTEM(56))
+         IEND=INT(sys_high_cfg())
          IF(INT(W1).GT.IEND) THEN
 !       CHANGE IEND AND FRAC SYSTEM(50)
-            SYSTEM(56)=SYSTEM(56)+1.0D0
-            SYSP(56)=SYSTEM(56)
+            SYSTEM(56)=sys_high_cfg()+1.0D0
+            SYSP(56)=sys_high_cfg()
          END IF
 !
 !       RETURN TO CFG 1
@@ -3615,6 +3627,7 @@ SUBROUTINE DEZOOM
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE DEZOOM
@@ -3751,6 +3764,7 @@ SUBROUTINE DELCFG
    use DATCFG
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL
@@ -3825,6 +3839,7 @@ SUBROUTINE FRCCF1(I)
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_high_cfg
    IMPLICIT NONE
    INTEGER I
 !
