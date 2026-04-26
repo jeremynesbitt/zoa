@@ -6,13 +6,15 @@ SUBROUTINE SCHG
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCHG WHICH IMPLEMENTS THE CHG
 !       COMMANDS AT THE UPDATE LENS LEVEL.
 !       THE FIRST NUMERIC WORD IS THE SURFACE TO WHICH WE WISH TO
 !       CHANGE SURF TO. VALID VALUES ARE FROM 0 TO THE INTEGER VALUE
-!       STORED IN SYSTEM(20)
+!       STORED IN sys_last_surf()
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -36,8 +38,8 @@ SUBROUTINE SCHG
 !
 !               WE ARE AT LENS UPDATE LEVEL
 !
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
 !
 !       TRYING TO CHANGE A SURFACE NUMBER OUTSIDE THE VALID SURFACE
 !       NUMBER RANGE FOR THIS LENS.
@@ -60,6 +62,8 @@ SUBROUTINE SCC
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCC WHICH IMPLEMENTS THE CC
@@ -229,6 +233,8 @@ SUBROUTINE SCASPC(SCW1)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCALE WHICH IMPLEMENTS ALL SC
@@ -240,7 +246,7 @@ SUBROUTINE SCASPC(SCW1)
    INTEGER I,J
 !
 !
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
 !     TYPE 1 AND 6
       IF(ABS(surf_asi_flag(I)).EQ.1.0D0.OR.ABS(surf_asi_flag(I)).EQ.6.0D0) THEN
          IF(FTFL01(9,I).NE.0.0D0) FTFL01(9,I)= FTFL01(9,I)*SCW1
@@ -403,6 +409,7 @@ SUBROUTINE AUTOFUNC
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_system, only: sys_autofunc
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE AUTOFUNC WHICH IMPLEMENTS THE AUTOFUNC
@@ -415,8 +422,8 @@ SUBROUTINE AUTOFUNC
    IF(SST.EQ.0.AND.SN.EQ.0.AND.SQ.EQ.0.OR.is_command_query()) THEN
       IF(HEADIN) WRITE(OUTLYNE,401)
       IF(HEADIN) CALL SHOWIT(0)
-      IF(SYSTEM(91).NE.0.0D0) WRITE(OUTLYNE,100)INT(SYSTEM(91))
-      IF(SYSTEM(91).EQ.0.0D0) WRITE(OUTLYNE,101)
+      IF(sys_autofunc().NE.0.0D0) WRITE(OUTLYNE,100)INT(sys_autofunc())
+      IF(sys_autofunc().EQ.0.0D0) WRITE(OUTLYNE,101)
       CALL SHOWIT(0)
       RETURN
    END IF
@@ -438,6 +445,8 @@ SUBROUTINE TTHM
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TTHM WHICH IMPLEMENTS THE THM
@@ -468,7 +477,7 @@ SUBROUTINE TTHM
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'NO MIRROR THICKNESS DATA EXISTS'//'\n'//&
       & 'LENS SYSTEM HAS NO SURFACES', 1)
@@ -494,11 +503,11 @@ SUBROUTINE TTHM
    END IF
 !
    IF(SQ.EQ.0) THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       I=INT(W1)
       SURF=I
-      IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+      IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -522,7 +531,7 @@ SUBROUTINE TTHM
 !
 !       CHECK FOR NO DATA
       CLCNT=0
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
          IF(surf_mirror_thickness(SURF).NE.0.0D0) THEN
             CLCNT=CLCNT+1
          ELSE
@@ -544,7 +553,7 @@ SUBROUTINE TTHM
       CALL SHOWIT(0)
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
 
          IF(GLANAM(I,2).NE.'REFL         '.AND.GLANAM(I,2).NE.'REFLTIRO     '.AND.GLANAM(I,2).NE.'REFLTIR      ') THEN
             WRITE(OUTLYNE,101)I
@@ -572,6 +581,8 @@ SUBROUTINE PPRICE
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PPRIC WHICH IMPLEMENTS THE PRICE
@@ -602,7 +613,7 @@ SUBROUTINE PPRICE
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL('NO "PRICE" DATA EXISTS'//'\n'//'LENS SYSTEM HAS NO SURFACES', 1)
       RETURN
    END IF
@@ -626,11 +637,11 @@ SUBROUTINE PPRICE
    END IF
 !
    IF(SQ.EQ.0) THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       I=INT(W1)
       SURF=I
-      IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+      IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -650,7 +661,7 @@ SUBROUTINE PPRICE
 !
 !       CHECK FOR NO DATA
       CLCNT=0
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
          IF(surf_price(SURF).NE.0.0D0) THEN
             CLCNT=CLCNT+1
          ELSE
@@ -672,7 +683,7 @@ SUBROUTINE PPRICE
       CALL SHOWIT(0)
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(surf_price(I).NE.0.0D0) THEN
             WRITE(OUTLYNE,100)I,DABS(surf_price(I))
             CALL SHOWIT(0)
@@ -692,6 +703,8 @@ SUBROUTINE INRINR
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE INRINR WHICH IMPLEMENTS THE INR
@@ -769,7 +782,7 @@ SUBROUTINE INRINR
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL('NO "INR" DATA EXISTS'//'\n'//'LENS SYSTEM HAS NO SURFACES', 1)
          RETURN
       END IF
@@ -793,11 +806,11 @@ SUBROUTINE INRINR
       END IF
 !
       IF(SQ.EQ.0) THEN
-         IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          I=INT(W1)
          SURF=I
-         IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+         IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
             & 'RE-ENTER COMMAND', 1)
@@ -828,7 +841,7 @@ SUBROUTINE INRINR
          CALL SHOWIT(0)
          WRITE(OUTLYNE,500)
          CALL SHOWIT(0)
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             WRITE(OUTLYNE,100)I,surf_inr_value(I)
             CALL SHOWIT(0)
          END DO
@@ -848,6 +861,8 @@ SUBROUTINE INRINRD
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE INRINRD WHICH IMPLEMENTS THE INRD
@@ -886,8 +901,8 @@ SUBROUTINE INRINRD
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
@@ -920,6 +935,8 @@ SUBROUTINE SPGR
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPGR WHICH IMPLEMENTS THE SPGR
@@ -994,7 +1011,7 @@ SUBROUTINE SPGR
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL('NO "SPGR" DATA EXISTS'//'\n'//'LENS SYSTEM HAS NO SURFACES', 1)
          RETURN
       END IF
@@ -1018,11 +1035,11 @@ SUBROUTINE SPGR
       END IF
 !
       IF(SQ.EQ.0) THEN
-         IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-         IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+         IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+         IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
          I=INT(W1)
          SURF=I
-         IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+         IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
             & 'RE-ENTER COMMAND', 1)
@@ -1051,7 +1068,7 @@ SUBROUTINE SPGR
          CALL SHOWIT(0)
          WRITE(OUTLYNE,500)
          CALL SHOWIT(0)
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             WRITE(OUTLYNE,100)I,DABS(surf_spgr(I))
             CALL SHOWIT(0)
          END DO
@@ -1070,6 +1087,8 @@ SUBROUTINE SCAOB
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCAOB WHICH IMPLEMENTS THE CAOB
@@ -1112,7 +1131,7 @@ SUBROUTINE SCAOB
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'NO CLEAR APERTURES OR OBSCURATIONS EXIST'//'\n'//&
       & 'LENS SYSTEM HAS NO SURFACES', 1)
@@ -1145,9 +1164,9 @@ SUBROUTINE SCAOB
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+      IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -1426,7 +1445,7 @@ SUBROUTINE SCAOB
       CLCNT=0
 !       PRINT HEADING DATA
 !
-      DO 15 SURF=0,INT(SYSTEM(20))
+      DO 15 SURF=0,INT(sys_last_surf())
          IF(surf_clap_type(SURF).NE.0.0.AND.surf_coat_type(SURF).NE.0.0 .OR.surf_clap_type(SURF).NE.0.0.OR.surf_coat_type(SURF).NE.0.0D0) THEN
             CLCNT=CLCNT+1
          ELSE
@@ -1448,7 +1467,7 @@ SUBROUTINE SCAOB
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
-      DO 5 SURF=0,INT(SYSTEM(20))
+      DO 5 SURF=0,INT(sys_last_surf())
          CLAP=0
          CLAPE=0
          COBS=0
@@ -1647,7 +1666,7 @@ SUBROUTINE SCAOB
 5     CONTINUE
    END IF
    NOHEAD=.TRUE.
-   DO SURF=1,INT(SYSTEM(20))
+   DO SURF=1,INT(sys_last_surf())
       IF(surf_multi_clap_flag(SURF).NE.0.0D0) THEN
          NOHEAD=.FALSE.
       END IF
@@ -1658,7 +1677,7 @@ SUBROUTINE SCAOB
       WRITE(OUTLYNE,2010)
       CALL SHOWIT(0)
    END IF
-   DO SURF=1,INT(SYSTEM(20))
+   DO SURF=1,INT(sys_last_surf())
       IF(surf_multi_clap_flag(SURF).NE.0.0D0) THEN
          DO I=1,INT(surf_multi_clap_flag(SURF))
             WRITE(OUTLYNE,2008) SURF,I,MULTCLAP(I,1,SURF),MULTCLAP(I,2,SURF),MULTCLAP(I,3,SURF)
@@ -1667,7 +1686,7 @@ SUBROUTINE SCAOB
       END IF
    END DO
    NOHEAD=.TRUE.
-   DO SURF=1,INT(SYSTEM(20))
+   DO SURF=1,INT(sys_last_surf())
       IF(surf_multi_cobs_flag(SURF).NE.0.0D0) THEN
          NOHEAD=.FALSE.
       END IF
@@ -1678,7 +1697,7 @@ SUBROUTINE SCAOB
       WRITE(OUTLYNE,2010)
       CALL SHOWIT(0)
    END IF
-   DO SURF=1,INT(SYSTEM(20))
+   DO SURF=1,INT(sys_last_surf())
       IF(surf_multi_cobs_flag(SURF).NE.0.0D0) THEN
          DO I=1,INT(surf_multi_cobs_flag(SURF))
             WRITE(OUTLYNE,2008) SURF,I,MULTCOBS(I,1,SURF),MULTCOBS(I,2,SURF),MULTCOBS(I,3,SURF)
@@ -1709,6 +1728,8 @@ SUBROUTINE SCALLE
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCALE WHICH IMPLEMENTS THE SC AND WSC
@@ -1986,6 +2007,8 @@ SUBROUTINE SCALEA1
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !     THIS DOES SC WITHOUT FY
@@ -2009,16 +2032,16 @@ SUBROUTINE SCALEA1
 !       AT THE END OF SCALING WHEN LNSEOS IS CALLED
 !
    IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-      SYSTEM(12)=SYSTEM(12)*W1
-      SYSTEM(13)=SYSTEM(13)*W1
+      SYSTEM(12)=sys_say()*W1
+      SYSTEM(13)=sys_sax()*W1
    END IF
-   SYSTEM(14)=SYSTEM(14)*W1
+   SYSTEM(14)=sys_scy()*W1
    SYSTEM(15)=SYSTEM(15)*W1
-   SYSTEM(16)=SYSTEM(16)*W1
+   SYSTEM(16)=sys_scx()*W1
    SYSTEM(17)=SYSTEM(17)*W1
 !     FIELD ANGLES DO NOT GET SCALED !
-   SYSTEM(21)=SYSTEM(21)
-   SYSTEM(23)=SYSTEM(23)
+   SYSTEM(21)=sys_scy_fang()
+   SYSTEM(23)=sys_scx_fang()
 !
    SYSTEM(22)=SYSTEM(22)*W1
    SYSTEM(24)=SYSTEM(24)*W1
@@ -2402,6 +2425,8 @@ SUBROUTINE SCALEA2
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITHOUT FY
@@ -2800,6 +2825,8 @@ SUBROUTINE SCALEA3
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !     THIS DOES SC WITH FY
@@ -2851,16 +2878,16 @@ SUBROUTINE SCALEA3
 !       AT THE END OF SCALING WHEN LNSEOS IS CALLED
 !
    IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-      SYSTEM(12)=SYSTEM(12)*W1
-      SYSTEM(13)=SYSTEM(13)*W1
+      SYSTEM(12)=sys_say()*W1
+      SYSTEM(13)=sys_sax()*W1
    END IF
-   SYSTEM(14)=SYSTEM(14)*W1
+   SYSTEM(14)=sys_scy()*W1
    SYSTEM(15)=SYSTEM(15)*W1
-   SYSTEM(16)=SYSTEM(16)*W1
+   SYSTEM(16)=sys_scx()*W1
    SYSTEM(17)=SYSTEM(17)*W1
 !     FIELD ANGLES DO NOT GET SCALED !
-   SYSTEM(21)=SYSTEM(21)
-   SYSTEM(23)=SYSTEM(23)
+   SYSTEM(21)=sys_scy_fang()
+   SYSTEM(23)=sys_scx_fang()
 !
    SYSTEM(22)=SYSTEM(22)*W1
    SYSTEM(24)=SYSTEM(24)*W1
@@ -3244,6 +3271,8 @@ SUBROUTINE SCALEA4
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITH FY
