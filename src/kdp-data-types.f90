@@ -406,8 +406,8 @@ function imageSurfaceIsIdeal(self) result(boolResult)
  class(lens_data) :: self
  logical :: boolResult
 
- !  IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ' &
- !  .OR.GLANAM(INT(SYSTEM(20))-1,2).EQ.'IDEAL        ') THEN
+ !  IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'PERFECT      ' &
+ !  .OR.GLANAM(INT(sys_last_surf())-1,2).EQ.'IDEAL        ') THEN
 
  boolResult = .FALSE.
 
@@ -421,6 +421,7 @@ end function
 !(i.e., they remain the direct sum of surface contribution coefficients).  
 function isUSystem(self) result(boolResult)
    use mod_surface
+   use mod_system, only: sys_mode
 implicit none
 class(sys_config) :: self
 logical :: boolResult
@@ -428,12 +429,13 @@ logical :: boolResult
 include "DATLEN.INC"
 
 boolResult = .FALSE.  
-IF(SYSTEM(30).EQ.2.0D0.OR.SYSTEM(30).EQ.4.0D0) boolResult = .TRUE.
+IF(sys_mode().EQ.2.0D0.OR.sys_mode().EQ.4.0D0) boolResult = .TRUE.
 
 
 end function
 
 function isFocalSystem(self) result(boolResult)
+   use mod_system, only: sys_mode
 
 class(sys_config) :: self
 logical :: boolResult
@@ -441,7 +443,7 @@ logical :: boolResult
 include "DATLEN.INC"
 
 boolResult = .FALSE.
-IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) boolResult = .TRUE.
+IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) boolResult = .TRUE.
 
 end function
 
@@ -668,6 +670,7 @@ subroutine setTextView(self, idTextView)
 end subroutine
 
 subroutine updateParameters(self)
+  use mod_system, only: sys_naox, sys_naoy, sys_say, sys_sax, sys_units
   implicit none
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
@@ -679,12 +682,12 @@ subroutine updateParameters(self)
 
   case (APER_ENTR_PUPIL_DIAMETER)
 
-    self%refApertureValue(1) = (2.0D0*SYSTEM(13))
-    self%refApertureValue(2) = (2.0D0*SYSTEM(12))
+    self%refApertureValue(1) = (2.0D0*sys_sax())
+    self%refApertureValue(2) = (2.0D0*sys_say())
 
   case (APER_OBJECT_NA)
-     self%refApertureValue(1) = SYSTEM(66)
-     self%refApertureValue(2) = SYSTEM(65)
+     self%refApertureValue(1) = sys_naox()
+     self%refApertureValue(2) = sys_naoy()
 
   end select
 
@@ -734,7 +737,7 @@ subroutine updateParameters(self)
   self%refWavelengthIndex = INT(SYSTEM(11))
 
 
-  self%currLensUnitsID = SYSTEM(6)
+  self%currLensUnitsID = sys_units()
 
 
   call self%setNumberofWavelengths()
@@ -912,22 +915,23 @@ end select
 end subroutine
 
 subroutine getApertureFromSystemArr(self)
+  use mod_system, only: sys_fno_val_set, sys_na_set, sys_say_float
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
 
-  if (SYSTEM(64).EQ.0.AND.SYSTEM(67).EQ.0.AND.SYSTEM(83).EQ.0) then
+  if (sys_na_set().EQ.0.AND.sys_fno_val_set().EQ.0.AND.sys_say_float().EQ.0) then
     self%currApertureID = APER_ENTR_PUPIL_DIAMETER
-  else if (SYSTEM(64).EQ.1) then
+  else if (sys_na_set().EQ.1) then
     self%currApertureID = APER_OBJECT_NA
-  else if (SYSTEM(83).EQ.1) then
+  else if (sys_say_float().EQ.1) then
     self%currApertureID = APER_STOP_SURFACE
-  else if (SYSTEM(67).EQ.1) then
+  else if (sys_fno_val_set().EQ.1) then
     self%currApertureID = APER_FNO
   end if
 
-        ! PRINT *, "SYSTEM(64) is ", SYSTEM(64) ! NAOY
-        ! PRINT *, "SYSTEM(67) is ", SYSTEM(67) ! F-number
-        ! PRINT *, "SYSTEM(83) is ", SYSTEM(83) ! FLOAT
+        ! PRINT *, "sys_na_set() is ", sys_na_set() ! NAOY
+        ! PRINT *, "sys_fno_val_set() is ", sys_fno_val_set() ! F-number
+        ! PRINT *, "sys_say_float() is ", sys_say_float() ! FLOAT
         !
 end subroutine
 
@@ -1838,6 +1842,7 @@ subroutine updateLensData(self)
   use iso_fortran_env, only: real64
   use command_utils, only: isInputNumber
   use mod_surface
+  use mod_system, only: sys_last_surf, sys_ref_surf
   implicit none
   class(lens_data) :: self
   integer :: JJ
@@ -1846,8 +1851,8 @@ subroutine updateLensData(self)
   include "DATLEN.INC"
 
   JJ = 0
-  call self%set_num_surfaces(INT(SYSTEM(20)) + 1)
-  self%ref_stop = INT(SYSTEM(25)+1)
+  call self%set_num_surfaces(INT(sys_last_surf()) + 1)
+  self%ref_stop = INT(sys_ref_surf()+1)
   DO JJ=0,self%num_surfaces-1
     CALL SINDEXJN(JJ, INDEX, VNUM)
     IF(surf_curvature(JJ).EQ.0.0D0) THEN
@@ -2213,12 +2218,13 @@ end function
 
 SUBROUTINE check_clear_apertures(lData)
   !use global_widgets, only: curr_lens_data
-  
+
   use type_utils ! DEBUG
 !
   use DATLEN
   use DATMAI
   use mod_surface
+  use mod_system, only: sys_last_surf
   IMPLICIT NONE
   class(lens_data), intent(inout) :: lData
 
@@ -2243,11 +2249,11 @@ ALLOCATE(VERARRAY(1:220,0:MAXSUR),STAT=ALLOERR)
 
 ! Here we want to do all surfaces, 
 W1 = 1.0
-W2 = SYSTEM(20)
+W2 = sys_last_surf()
 
 
 !       HANDLE NO SURFACES
-          IF(SYSTEM(20).EQ.0.0) THEN
+          IF(sys_last_surf().EQ.0.0) THEN
   WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
 CALL SHOWIT(1)
   WRITE(OUTLYNE,*)'NO PARAXIAL DATA EXISTS'
@@ -2562,7 +2568,7 @@ SAVE_KDP(1)=SAVEINPT(1)
 IF(.NOT.RAYEXT) RWARN=1
   REST_KDP(1)=RESTINPT(1)
 !     SAVE RAY DATA
-                 DO I=0,INT(SYSTEM(20))
+                 DO I=0,INT(sys_last_surf())
           IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
              VERARRAY(M,I)=RAYRAY(1,I)
              VERARRAY(M+1,I)=RAYRAY(2,I)
@@ -2575,7 +2581,7 @@ LDIF2=OLDLDIF2
 LDIF=OLDLDIF
 !
 !     PROCESS DATA
-DO I=0,INT(SYSTEM(20))
+DO I=0,INT(sys_last_surf())
 IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
           IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
 HXMAX=-1.0D10
@@ -2594,7 +2600,7 @@ END DO
                   END IF
          END DO
 !
-DO I=0,INT(SYSTEM(20))
+DO I=0,INT(sys_last_surf())
 IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
           ! Dummy includes stop surfaced
       IF(.NOT.DUMMMY(I)) THEN !.OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
