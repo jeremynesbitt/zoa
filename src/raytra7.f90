@@ -749,6 +749,7 @@ SUBROUTINE FDISTOP(IW1,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FDISTOP. THIS SUBROUTINE IMPLEMENTS
@@ -769,8 +770,8 @@ SUBROUTINE FDISTOP(IW1,ERROR)
    COMMON/GV/VALUE,NUM5
 !
    GRASET=.FALSE.
-   O18=SYSTEM(18)
-   O19=SYSTEM(19)
+   O18=sys_scy_fang_set()
+   O19=sys_scx_fang_set()
    SYSTEM(18)=0.0D0
    SYSTEM(19)=0.0D0
 !
@@ -828,7 +829,7 @@ SUBROUTINE FDISTOP(IW1,ERROR)
       SYSTEM(19)=O19
       RETURN
    END IF
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     MODE FOCAL
 !     PARAX IMAGE POSITION IS JUST
       HP=DSQRT(((MYW1*PCY)**2)+((PCX*MYW2)**2))
@@ -850,7 +851,7 @@ SUBROUTINE FDISTOP(IW1,ERROR)
       END IF
       IF(FACTOR2.EQ.0.0D0) VALUE=0.0D0
    END IF
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
 !     PROCEED WITH FISHDIST CALC.
 !     PARAX IMAGE SLOPE IS JUST
       HP=DATAN(DSQRT(((MYW1*PUCY)**2)+((PUCX*MYW2)**2)))
@@ -875,6 +876,7 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_scy_fang_set, sys_scx_fang_set, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DISTOR. THIS SUBROUTINE IMPLEMENTS
@@ -897,8 +899,8 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
    INTEGER NUM5
    COMMON/GV/VALUE,NUM5
 !
-   O18=SYSTEM(18)
-   O19=SYSTEM(19)
+   O18=sys_scy_fang_set()
+   O19=sys_scx_fang_set()
    SYSTEM(18)=0.0D0
    SYSTEM(19)=0.0D0
 !
@@ -910,7 +912,7 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
    MYW1=DWORD1
    MYW2=DWORD2
    MYW3=0.0D0
-   MYW4=SYSTEM(11)
+   MYW4=sys_wl_ref()
    CALL GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,0.0D0,0.0D0,0.0D0,MYW4,0)
 
    IF(ERROR.EQ.1) THEN
@@ -959,7 +961,7 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
       SYSTEM(19)=O19
       RETURN
    END IF
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     MODE FOCAL
 !     PARAX IMAGE POSITION IS JUST
       HP=DSQRT(((MYW1*PCY)**2)+((PCX*MYW2)**2))
@@ -980,7 +982,7 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
       END IF
       IF(FACTOR2.EQ.0.0D0) VALUE=0.0D0
    END IF
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
 !     PROCEED WITH FISHDIST CALC.
 !     PARAX IMAGE SLOPE IS JUST
       HP=DATAN(DSQRT(((MYW1*PUCY)**2)+((PUCX*MYW2)**2)))
@@ -1006,6 +1008,7 @@ SUBROUTINE DISTOP(IW1,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DISTOP. THIS SUBROUTINE IMPLEMENTS
@@ -1026,8 +1029,8 @@ SUBROUTINE DISTOP(IW1,ERROR)
    COMMON/GV/VALUE,NUM5
 !
    GRASET=.FALSE.
-   O18=SYSTEM(18)
-   O19=SYSTEM(19)
+   O18=sys_scy_fang_set()
+   O19=sys_scx_fang_set()
    SYSTEM(18)=0.0D0
    SYSTEM(19)=0.0D0
 !
@@ -1086,7 +1089,7 @@ SUBROUTINE DISTOP(IW1,ERROR)
       RETURN
    END IF
 !     PROCEED WITH DIST CALC.
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     MODE FOCAL
 !     PARAX IMAGE POSITION IS JUST
       HP=DSQRT(((MYW1*PCY)**2)+((PCX*MYW2)**2))
@@ -1097,7 +1100,7 @@ SUBROUTINE DISTOP(IW1,ERROR)
       IF(HP.NE.0.0D0) VALUE=((HR-HP)/HP)*100.0D0
       IF(HP.EQ.0.0D0) VALUE=0.0D0
    END IF
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
 !     MODE AFOCAL
 !     PARAX IMAGE SLOPE IS JUST
       HP=DSQRT(((MYW1*PUCY)**2)+((PUCX*MYW2)**2))
@@ -1120,6 +1123,7 @@ SUBROUTINE GNPR1(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1145,10 +1149,10 @@ SUBROUTINE GNPR1(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -1158,7 +1162,7 @@ SUBROUTINE GNPR1(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -1252,6 +1256,7 @@ SUBROUTINE GNPR2(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1277,10 +1282,10 @@ SUBROUTINE GNPR2(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -1289,7 +1294,7 @@ SUBROUTINE GNPR2(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -1383,6 +1388,7 @@ SUBROUTINE GNPR3(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1408,10 +1414,10 @@ SUBROUTINE GNPR3(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -1420,7 +1426,7 @@ SUBROUTINE GNPR3(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -1542,6 +1548,7 @@ SUBROUTINE GNPR4(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1567,10 +1574,10 @@ SUBROUTINE GNPR4(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -1581,7 +1588,7 @@ SUBROUTINE GNPR4(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
 !
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -1703,6 +1710,7 @@ SUBROUTINE GNPR5(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1728,10 +1736,10 @@ SUBROUTINE GNPR5(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -1742,7 +1750,7 @@ SUBROUTINE GNPR5(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
 !
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -1839,6 +1847,7 @@ SUBROUTINE GNPR6(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1864,10 +1873,10 @@ SUBROUTINE GNPR6(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -1877,7 +1886,7 @@ SUBROUTINE GNPR6(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -1973,6 +1982,7 @@ SUBROUTINE GNPR7(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -1998,10 +2008,10 @@ SUBROUTINE GNPR7(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -2011,7 +2021,7 @@ SUBROUTINE GNPR7(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -2133,6 +2143,7 @@ SUBROUTINE GNPR8(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -2158,10 +2169,10 @@ SUBROUTINE GNPR8(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -2171,7 +2182,7 @@ SUBROUTINE GNPR8(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -2292,6 +2303,7 @@ SUBROUTINE GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,MYW1,MYW2,MYW3,MYW4,GFL
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,PX,PY,PUX,PUY,PCX,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,PCY,PUCX,PUCY,MYW1,MYW2,MYW3,MYW4
@@ -2321,10 +2333,10 @@ SUBROUTINE GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,MYW1,MYW2,MYW3,MYW4,GFL
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -2334,7 +2346,7 @@ SUBROUTINE GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR,MYW1,MYW2,MYW3,MYW4,GFL
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -2607,6 +2619,7 @@ SUBROUTINE GNPRTGEN(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,DWORD1,DWORD2,DWORD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,PX,PY,PUX,PUY,PCX,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,PCY,PUCX,PUCY,DWORD1,DWORD2,DWORD3,DWORD4
@@ -2641,10 +2654,10 @@ SUBROUTINE GNPRTGEN(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,DWORD1,DWORD2,DWORD
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -2654,7 +2667,7 @@ SUBROUTINE GNPRTGEN(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,DWORD1,DWORD2,DWORD
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -2929,6 +2942,7 @@ SUBROUTINE GNPR12345678(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_telecentric, sys_wrx, sys_wry, sys_bdx, sys_bdy
    IMPLICIT NONE
 !
    REAL*8 V1,VAL1,VAL2,SIG,XHT,YHT ,SYS12,SYS13,NWN1,NWN2,NWN3,NWN4
@@ -2956,10 +2970,10 @@ SUBROUTINE GNPR12345678(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
          OLDREF=NEWREF
          NEWREF=1
       END IF
-      XHT=SYSTEM(87)*0.001D0*surf_thickness(0)
-      YHT=SYSTEM(88)*0.001D0*surf_thickness(0)
-      SYS13=SYSTEM(85)
-      SYS12=SYSTEM(86)
+      XHT=sys_bdx()*0.001D0*surf_thickness(0)
+      YHT=sys_bdy()*0.001D0*surf_thickness(0)
+      SYS13=sys_wrx()
+      SYS12=sys_wry()
    END IF
    IF(GFLAG.EQ.0) THEN
 !     NON-GAUSSIAN CALC
@@ -2969,7 +2983,7 @@ SUBROUTINE GNPR12345678(K,NWN1,NWN2,NWN3,NWN4,ERROR,GFLAG)
       YHT=PXTRAY(5,NEWOBJ)
 !     SET REF AP HT
 !
-      IF(SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
          SYS13=PXTRAX(1,NEWREF)
          SYS12=PXTRAY(1,NEWREF)
@@ -3243,6 +3257,7 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wl_ref, sys_scy_fang_set, sys_scx_fang_set, sys_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DISTOR. THIS SUBROUTINE IMPLEMENTS
@@ -3265,8 +3280,8 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
    INTEGER NUM5
    COMMON/GV/VALUE,NUM5
 !
-   O18=SYSTEM(18)
-   O19=SYSTEM(19)
+   O18=sys_scy_fang_set()
+   O19=sys_scx_fang_set()
    SYSTEM(18)=0.0D0
    SYSTEM(19)=0.0D0
 !
@@ -3278,7 +3293,7 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
    MYW1=DWORD1
    MYW2=DWORD2
    MYW3=0.0D0
-   MYW4=SYSTEM(11)
+   MYW4=sys_wl_ref()
    CALL GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,0.0D0,0.0D0,0.0D0,MYW4,0)
 
    IF(ERROR.EQ.1) THEN
@@ -3330,7 +3345,7 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
       RETURN
    END IF
 !     PROCEED WITH DIST CALC.
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     MODE FOCAL
 !     PARAX IMAGE POSITION IS JUST
       HPX=DSQRT((PCX*MYW2)**2)
@@ -3349,7 +3364,7 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
       IF(HP.EQ.0.0D0) VALUE=0.0D0
       IF(HP.NE.0.0D0) VALUE=((HR-HP)/HP)*100.0D0
    END IF
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
 !     MODE AFOCAL
 !     PARAX IMAGE SLOPE IS JUST
       HP=DSQRT(((MYW1*PUCY)**2)+((PUCX*MYW2)**2))
