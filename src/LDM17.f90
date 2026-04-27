@@ -9,6 +9,7 @@ SUBROUTINE LENOUT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       IT IS WITHIN THIS SUBROUTINE THAT (LENO) COMMANDS
@@ -85,12 +86,12 @@ SUBROUTINE LENOUT
       IF(ISKDP) CALL LENHD
       IF(ISAC) CALL LENHDAC
       IF(ISKDP) THEN
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             CALL LENSF(I,RDOUT)
          END DO
       END IF
       IF(ISAC) THEN
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             CALL LENSFAC(I)
          END DO
       END IF
@@ -102,7 +103,7 @@ SUBROUTINE LENOUT
       IF(ISKDP) THEN
 !     PLANE LENO ONLY
          CAL=.FALSE.
-         DO I=0,INT(SYSTEM(20))
+         DO I=0,INT(sys_last_surf())
             IF(surf_special_type(I).NE.0.0D0.OR.surf_solve_flag(I).NE.0.0D0) CAL=.TRUE.
          END DO
          IF(CAL) THEN
@@ -110,7 +111,7 @@ SUBROUTINE LENOUT
             WRITE(OUTLYNE,10)
             CALL SHOWIT(10)
 10          FORMAT('U        L')
-            DO I=0,INT(SYSTEM(20))
+            DO I=0,INT(sys_last_surf())
                IF(surf_special_type(I).NE.0.0D0.OR.surf_solve_flag(I).NE.0.0D0) THEN
 !       SOLVES AND/OR PIKUPS EXITS, CALL PIKSLV
                   WRITE(OUTLYNE,11) DBLE(I)
@@ -189,7 +190,7 @@ SUBROUTINE LENOUT
 !       ALL PIKUPS, SOLVES, TILTS, DECENTRATIONS, AND ALTERNATE
 !       CONFIGURATIONS. THE REVERSED DESIGN MAY NOT BE TRACABLE.
       CALL RLENHD
-      DO 20 I=INT(SYSTEM(20)),0,-1
+      DO 20 I=INT(sys_last_surf()),0,-1
          CALL RLENSF(I)
 20    CONTINUE
 !       LENO REVERSE COMPLETED.
@@ -202,7 +203,7 @@ SUBROUTINE LENOUT
 !       CONFIGURATIONS.
       PRINT *, "LENO CV Being executed..."
       CALL LENHDCV
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          CALL LENSFCV(I)
       END DO
       OUTLYNE='GO'
@@ -218,6 +219,7 @@ SUBROUTINE LENOCSV
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    INTEGER I
    REAL*8 RD,TH
    CHARACTER*13 GLNAME
@@ -227,7 +229,7 @@ SUBROUTINE LENOCSV
 !     HERE IS WHERE WE OUTPUT THE LENS DATABASE TO A CSV FILE
 !     OUTPUT OF SURF #,RADIUS, THICKNESS, GLASS NAME
    WRITE(84,*)'SURF#,RADIUS,THICKNESS,GLASS NAME'
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_curvature(I).EQ.0.0D0) THEN
          RD=0.0D0
       ELSE
@@ -277,6 +279,8 @@ SUBROUTINE LENED
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_aim_offset_z, sys_last_surf, sys_mode, sys_ray_aiming, &
+      & sys_screen, sys_telecentric, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -292,15 +296,15 @@ SUBROUTINE LENED
    CALL SHOWIT(10)
 !
 !**********************************************************
-   IF(SYSTEM(62).EQ.1.0D0) THEN
+   IF(sys_ray_aiming().EQ.1.0D0) THEN
 !     RAY AIMING YES
       WRITE(OUTLYNE,1000)
       CALL SHOWIT(10)
-      WRITE(OUTLYNE,4000) SYSTEM(81),SYSTEM(82),SYSTEM(89)
+      WRITE(OUTLYNE,4000) SYSTEM(81),SYSTEM(82),sys_aim_offset_z()
       CALL SHOWIT(10)
 4000  FORMAT('AIMRAY  OFFSET  ,',G23.15,',',G23.15,',',G23.15)
    ELSE
-      IF(SYSTEM(63).EQ.1.0D0) THEN
+      IF(sys_telecentric().EQ.1.0D0) THEN
 !     TEL YES
          WRITE(OUTLYNE,1002)
          CALL SHOWIT(10)
@@ -331,7 +335,7 @@ SUBROUTINE LENED
    END IF
 !**********************************************************
 !**********************************************************
-   IF(SYSTEM(103).EQ.1.0D0) THEN
+   IF(sys_screen().EQ.1.0D0) THEN
 !     SCREEN ON
       WRITE(OUTLYNE,1003) SYSTEM(104),SYSTEM(105),SYSTEM(106),SYSTEM(107),SYSTEM(108)
       CALL SHOWIT(10)
@@ -341,10 +345,10 @@ SUBROUTINE LENED
 
 !       MODE SETTING
 
-   IF(SYSTEM(30).EQ.1) WRITE(OUTLYNE,33)
-   IF(SYSTEM(30).EQ.2) WRITE(OUTLYNE,34)
-   IF(SYSTEM(30).EQ.3) WRITE(OUTLYNE,35)
-   IF(SYSTEM(30).EQ.4) WRITE(OUTLYNE,36)
+   IF(sys_mode().EQ.1) WRITE(OUTLYNE,33)
+   IF(sys_mode().EQ.2) WRITE(OUTLYNE,34)
+   IF(sys_mode().EQ.3) WRITE(OUTLYNE,35)
+   IF(sys_mode().EQ.4) WRITE(OUTLYNE,36)
    CALL SHOWIT(10)
 33 FORMAT('MODE     FOCAL')
 34 FORMAT('MODE     UFOCAL')
@@ -353,19 +357,19 @@ SUBROUTINE LENED
 !
 !       SPTWT
 
-   WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+   WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
    CALL SHOWIT(10)
 3000 FORMAT('SPTWT   ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
 !       SPTWT2
 
 3003 FORMAT('SPTWT2  ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
-   WRITE(OUTLYNE,3003) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),SYSTEM(80)
+   WRITE(OUTLYNE,3003) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),sys_wl_weight(10)
    CALL SHOWIT(10)
 !     *****************************************************************
 !       NOW IS THERE ANY SPSRF DATA
 !
    SS=0
-   DO 20 I=0,INT(SYSTEM(20))
+   DO 20 I=0,INT(sys_last_surf())
       IF(surf_asi_flag(I).NE.0.0) THEN
 !       FOUND SPECIAL SURFACE DATA
          SS=SS+1
@@ -376,7 +380,7 @@ SUBROUTINE LENED
       WRITE(OUTLYNE,200)
       CALL SHOWIT(10)
 200   FORMAT('SPSRF')
-      DO 21  I=0,INT(SYSTEM(20))
+      DO 21  I=0,INT(sys_last_surf())
          IF(surf_asi_flag(I).NE.0.0) THEN
             WRITE(OUTLYNE,210) DBLE(I),surf_asi_flag(I)
             CALL SHOWIT(10)
@@ -860,6 +864,7 @@ SUBROUTINE RLENED
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_aim_offset_z, sys_last_surf, sys_mode, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -880,7 +885,7 @@ SUBROUTINE RLENED
    WRITE(OUTLYNE,1000)
    CALL SHOWIT(10)
    CALL SHOWIT(10)
-   WRITE(OUTLYNE,4000) SYSTEM(81),SYSTEM(82),SYSTEM(89)
+   WRITE(OUTLYNE,4000) SYSTEM(81),SYSTEM(82),sys_aim_offset_z()
    CALL SHOWIT(10)
 4000 FORMAT('AIMRAY  OFFSET  ,',G23.15,',',G23.15,',',G23.15)
 1000 FORMAT('AIMRAY   ON')
@@ -902,22 +907,22 @@ SUBROUTINE RLENED
 !**********************************************************
 
 !       MODE SETTING
-   IF(SYSTEM(30).EQ.1) WRITE(OUTLYNE,33)
-   IF(SYSTEM(30).EQ.2) WRITE(OUTLYNE,34)
-   IF(SYSTEM(30).EQ.3) WRITE(OUTLYNE,35)
-   IF(SYSTEM(30).EQ.4) WRITE(OUTLYNE,36)
+   IF(sys_mode().EQ.1) WRITE(OUTLYNE,33)
+   IF(sys_mode().EQ.2) WRITE(OUTLYNE,34)
+   IF(sys_mode().EQ.3) WRITE(OUTLYNE,35)
+   IF(sys_mode().EQ.4) WRITE(OUTLYNE,36)
    CALL SHOWIT(10)
 33 FORMAT('MODE     FOCAL')
 34 FORMAT('MODE     UFOCAL')
 35 FORMAT('MODE     AFOCAL')
 36 FORMAT('MODE     UAFOCAL')
 !       SPTWT
-   WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+   WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
    CALL SHOWIT(10)
 3000 FORMAT('SPTWT   ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
 !       SPTWT2
 3003 FORMAT('SPTWT2  ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
-   WRITE(OUTLYNE,3003) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),SYSTEM(80)
+   WRITE(OUTLYNE,3003) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),sys_wl_weight(10)
    CALL SHOWIT(10)
 !
 !       IF THE LENS FILE HAS ANY CONFIGURATION DATA
@@ -926,7 +931,7 @@ SUBROUTINE RLENED
 !       IS THERE ANY SPSRF DATA
 !
    SS=0
-   DO 20 I=0,INT(SYSTEM(20))
+   DO 20 I=0,INT(sys_last_surf())
       IF(surf_asi_flag(I).NE.0.0) THEN
 !       FOUND SPECIAL SURFACE DATA
          SS=SS+1
@@ -937,8 +942,8 @@ SUBROUTINE RLENED
       WRITE(OUTLYNE,200)
       CALL SHOWIT(10)
 200   FORMAT('SPSRF')
-      DO 21  I=INT(SYSTEM(20)),0
-         J=INT(SYSTEM(20))-I
+      DO 21  I=INT(sys_last_surf()),0
+         J=INT(sys_last_surf())-I
          IF(surf_asi_flag(I).NE.0.0) THEN
             WRITE(OUTLYNE,210) DBLE(J),surf_asi_flag(I)
             CALL SHOWIT(10)
@@ -1268,6 +1273,7 @@ SUBROUTINE DOGTAG
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_units, sys_wl_pri2, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DOGTAG WHICH CREATES THE IDTAG FOR A LENS
@@ -1303,19 +1309,19 @@ SUBROUTINE DOGTAG
    SAVE_KDP(25)=SAVEINPT(25)
    INPUT='FIRD QUIET'
    CALL PROCES
-   WRITE(OUTLYNE,*) 'GET OAL 1',INT(SYSTEM(20))-1
+   WRITE(OUTLYNE,*) 'GET OAL 1',INT(sys_last_surf())-1
    INPUT(1:75)=OUTLYNE(1:75)
    CALL PROCES
    REST_KDP(25)=RESTINPT(25)
-   WRITE(IDTAG(4),100) GPREG(1),INT(SYSTEM(20)),REG(9)
+   WRITE(IDTAG(4),100) GPREG(1),INT(sys_last_surf()),REG(9)
 100 FORMAT(G23.15,I3,G23.15)
 !       LINE FIVE IS THE MODE CODE 1=FOCAL,2=UFOCAL,3=AFOCAL, 4=UAFOCAL IN I1 FOLLOWED BY
 !       THE UNITS CODE 1=IN, 2= CM, 3= MM, 4=METERS IN I1 FORMAT FOLLOWED BY THE CONTROL
 !       WAVELENGTH IN G23.15,FOLLOWED BY THE PRIMARY WAVELENGTH PAIR EACH IN G23.15 FORMAT
-   WRITE(IDTAG(5),101) INT(SYSTEM(30)),INT(SYSTEM(6)),SYSTEM(INT(SYSTEM(11))+110),SYSTEM(INT(SYSTEM(7))+110),SYSTEM(INT(SYSTEM(8))+110)
+   WRITE(IDTAG(5),101) INT(sys_mode()),INT(sys_units()),SYSTEM(INT(sys_wl_ref())+110),SYSTEM(INT(SYSTEM(7))+110),SYSTEM(INT(sys_wl_pri2())+110)
 101 FORMAT(I1,I1,G23.15,G23.15,G23.15)
 !       LINE SIX IS SECONDARY WAVELENGTH PAIR WAVELENGTHS IN G23.15 FORMAT (EACH)
-   WRITE(IDTAG(6),102) SYSTEM(INT(SYSTEM(9))+110),SYSTEM(INT(SYSTEM(8))+110)
+   WRITE(IDTAG(6),102) SYSTEM(INT(SYSTEM(9))+110),SYSTEM(INT(sys_wl_pri2())+110)
 102 FORMAT(G23.15,G23.15)
 !       LINE SEVEN FULL NAME OF THE FIRST NON-AIR, NON-REFLECTIVE GLASS
 !       FOLLOWED BY THE SECOND FULL GLASS NAME EACH IN 2(A13) FORMAT
@@ -1323,7 +1329,7 @@ SUBROUTINE DOGTAG
    L=0
    M=0
    N=0
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(GLANAM(I,1).EQ.'SCHOTT'.OR.GLANAM(I,1).EQ.'HOYA'.OR.GLANAM(I,1).EQ.'CORNIN'.OR.GLANAM(I,1).EQ.'CHANCE'.OR.GLANAM(I,1).EQ.'SCH2000'.OR.GLANAM(I,1).EQ.'HIKARI'.OR.GLANAM(I,1).EQ.'GLCAT'.OR.GLANAM(I,1).EQ.'MATL'.OR.GLANAM(I,1).EQ.'RUSSIAN'.OR.GLANAM(I,1).EQ.'GLAK'.OR.GLANAM(I,1).EQ.'RADHARD'.OR.GLANAM(I,1).EQ.'USER'.OR.GLANAM(I,1).EQ.'OHARA') THEN
          IF(GLANAM(I,2).NE.'AIR'.AND.GLANAM(I,2).NE.'REFL'.AND.GLANAM(I,2).NE.'REFLTIRO') THEN
             IF(N.EQ.0) THEN
@@ -1399,6 +1405,8 @@ SUBROUTINE RLENHD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_autofunc, sys_last_surf, sys_units, sys_verbose_optim, &
+      & sys_wavelength, sys_wl_pri2, sys_wl_ref, sys_wl_sec2, sys_wrx, sys_wry
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1408,7 +1416,7 @@ SUBROUTINE RLENHD
 !
 !
 !     OVERBOSE
-   IF(SYSTEM(101).EQ.1.0D0)WRITE(OUTLYNE,*)'OVERBOSE ON'
+   IF(sys_verbose_optim().EQ.1.0D0)WRITE(OUTLYNE,*)'OVERBOSE ON'
 !
 !       OUTPUT THE HEADER COMMAND (LENS)
    WRITE(OUTLYNE,10)
@@ -1432,21 +1440,21 @@ SUBROUTINE RLENHD
    IF(LLTYPE(1:5).NE.'     ') WRITE(OUTLYNE,1212) LLTYPE(1:5)
    IF(LLTYPE(1:5).NE.'     ') CALL SHOWIT(10)
 !
-   IF(INT(SYSTEM(91)).NE.0) THEN
+   IF(INT(sys_autofunc()).NE.0) THEN
 !       NOW AUTOFUNC
-      WRITE(OUTLYNE,50) DBLE(INT(SYSTEM(91)))
+      WRITE(OUTLYNE,50) DBLE(INT(sys_autofunc()))
 50    FORMAT('AUTOFUNC,',G23.15)
       CALL SHOWIT(10)
    END IF
 !
 !       NOW WV
 !
-   WRITE(OUTLYNE,22)SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+   WRITE(OUTLYNE,22)sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
    CALL SHOWIT(10)
 !
 !       NOW WV2
 !
-   WRITE(OUTLYNE,221)SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+   WRITE(OUTLYNE,221)SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),sys_wavelength(10)
    CALL SHOWIT(10)
 !
 6661 FORMAT('WV      ,',G23.15,',',G23.15)
@@ -1454,31 +1462,31 @@ SUBROUTINE RLENHD
 6663 FORMAT(G23.15,',',G23.15,',',G23.15)
 !
 !       NOW UNITS
-   IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-   IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-   IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-   IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+   IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+   IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+   IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+   IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
    CALL SHOWIT(10)
 !
 !       NOW PRIMARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(SYSTEM(8))
+   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(sys_wl_pri2())
    CALL SHOWIT(10)
 !
 !       SECONDARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(SYSTEM(10))
+   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(sys_wl_sec2())
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
-   WRITE(OUTLYNE,28) INT(SYSTEM(11))
+   WRITE(OUTLYNE,28) INT(sys_wl_ref())
    CALL SHOWIT(10)
 !
 !       WRX
-   WRITE(OUTLYNE,2992) SYSTEM(85)
+   WRITE(OUTLYNE,2992) sys_wrx()
    CALL SHOWIT(10)
 2992 FORMAT('WRX     ,',G23.15)
 !
 !       WRY
-   WRITE(OUTLYNE,2993) SYSTEM(86)
+   WRITE(OUTLYNE,2993) sys_wry()
    CALL SHOWIT(10)
 2993 FORMAT('WRY     ,',G23.15)
 !
@@ -1495,23 +1503,23 @@ SUBROUTINE RLENHD
    CALL SHOWIT(10)
 2995 FORMAT('BDY     ,',G23.15)
 !
-!       SAY, THIS IS THE PY VALUE AT SURFACE SYSTEM(20)-1
-   WRITE(OUTLYNE,29) PXTRAY(1,(INT(SYSTEM(20)-1.0D0)))
+!       SAY, THIS IS THE PY VALUE AT SURFACE sys_last_surf()-1
+   WRITE(OUTLYNE,29) PXTRAY(1,(INT(sys_last_surf()-1.0D0)))
    CALL SHOWIT(10)
 !
-!       SAX, THIS IS THE PX VALUE AT SURFACE SYSTEM(20)-1
-   WRITE(OUTLYNE,30) PXTRAX(1,(INT(SYSTEM(20)-1.0D0)))
+!       SAX, THIS IS THE PX VALUE AT SURFACE sys_last_surf()-1
+   WRITE(OUTLYNE,30) PXTRAX(1,(INT(sys_last_surf()-1.0D0)))
    CALL SHOWIT(10)
 !
 !       SCY (SCY FANG IS NOT DIRECTLY PASSED BY LENO)
 !       THIS IS THE PCY
-   WRITE(OUTLYNE,31) PXTRAY(5,INT(SYSTEM(20)))
+   WRITE(OUTLYNE,31) PXTRAY(5,INT(sys_last_surf()))
    CALL SHOWIT(10)
 !
-   IF(PXTRAY(5,INT(SYSTEM(20))).NE.PXTRAX(5,INT(SYSTEM(20)))) THEN
+   IF(PXTRAY(5,INT(sys_last_surf())).NE.PXTRAX(5,INT(sys_last_surf()))) THEN
 !     DO SCX
 !       SCX (SCX FANG IS NOT DIRECTLY PASSED BY LENO)
-      WRITE(OUTLYNE,32) PXTRAX(5,INT(SYSTEM(20)))
+      WRITE(OUTLYNE,32) PXTRAX(5,INT(sys_last_surf()))
       CALL SHOWIT(10)
    END IF
    RETURN
@@ -1541,6 +1549,9 @@ SUBROUTINE LENHDCV
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_pxim_fang_set, sys_pyim_fang_set, sys_rxim_fang_set, &
+      & sys_ryim_fang_set, sys_say, sys_scy, sys_scy_fang, sys_scy_fang_set, &
+      & sys_units, sys_wavelength, sys_wl_ref, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1570,25 +1581,25 @@ SUBROUTINE LENHDCV
 !       NOW WV
 !
    IV=0
-   IF(SYSTEM(1).NE.0.0D0) THEN
+   IF(sys_wavelength(1).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(1)*1000.0D0
+      VW(IV)=sys_wavelength(1)*1000.0D0
    END IF
-   IF(SYSTEM(2).NE.0.0D0) THEN
+   IF(sys_wavelength(2).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(2)*1000.0D0
+      VW(IV)=sys_wavelength(2)*1000.0D0
    END IF
-   IF(SYSTEM(3).NE.0.0D0) THEN
+   IF(sys_wavelength(3).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(3)*1000.0D0
+      VW(IV)=sys_wavelength(3)*1000.0D0
    END IF
-   IF(SYSTEM(4).NE.0.0D0) THEN
+   IF(sys_wavelength(4).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(4)*1000.0D0
+      VW(IV)=sys_wavelength(4)*1000.0D0
    END IF
-   IF(SYSTEM(5).NE.0.0D0) THEN
+   IF(sys_wavelength(5).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(5)*1000.0D0
+      VW(IV)=sys_wavelength(5)*1000.0D0
    END IF
    IF(IV.EQ.1) THEN
       WRITE(OUTLYNE,41) VW(1)
@@ -1615,25 +1626,25 @@ SUBROUTINE LENHDCV
 !       NOW SPTWT
 !
    IV=0
-   IF(SYSTEM(31).NE.0.0D0) THEN
+   IF(sys_wl_weight(1).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(31)*100.0D0
+      VW(IV)=sys_wl_weight(1)*100.0D0
    END IF
-   IF(SYSTEM(32).NE.0.0D0) THEN
+   IF(sys_wl_weight(2).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(32)*100.0D0
+      VW(IV)=sys_wl_weight(2)*100.0D0
    END IF
-   IF(SYSTEM(33).NE.0.0D0) THEN
+   IF(sys_wl_weight(3).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(33)*100.0D0
+      VW(IV)=sys_wl_weight(3)*100.0D0
    END IF
-   IF(SYSTEM(34).NE.0.0D0) THEN
+   IF(sys_wl_weight(4).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(34)*100.0D0
+      VW(IV)=sys_wl_weight(4)*100.0D0
    END IF
-   IF(SYSTEM(35).NE.0.0D0) THEN
+   IF(sys_wl_weight(5).NE.0.0D0) THEN
       IV=IV+1
-      VW(IV)=SYSTEM(35)*100.0D0
+      VW(IV)=sys_wl_weight(5)*100.0D0
    END IF
    IF(IV.EQ.1) THEN
       WRITE(OUTLYNE,61) VW(1)
@@ -1658,29 +1669,29 @@ SUBROUTINE LENHDCV
 65 FORMAT('WTW ',G15.7,1X,G15.7,1X,G15.7,1X,G15.7,1X,G15.7)
 !
 !       NOW UNITS
-   IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-   IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-   IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
+   IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+   IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+   IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
-   WRITE(OUTLYNE,28) INT(SYSTEM(11))
+   WRITE(OUTLYNE,28) INT(sys_wl_ref())
    CALL SHOWIT(10)
 !
 !       SAY
 
-   WRITE(OUTLYNE,29) DABS(2.0D0*SYSTEM(12))
+   WRITE(OUTLYNE,29) DABS(2.0D0*sys_say())
    CALL SHOWIT(10)
 !
-   IF(SYSTEM(94).EQ.0.0D0.AND.SYSTEM(95).EQ.0.0D0.AND.SYSTEM(98).EQ.0.0D0.AND.SYSTEM(99).EQ.0.0D0) THEN
+   IF(sys_pxim_fang_set().EQ.0.0D0.AND.sys_pyim_fang_set().EQ.0.0D0.AND.sys_rxim_fang_set().EQ.0.0D0.AND.sys_ryim_fang_set().EQ.0.0D0) THEN
 !     NOT IMAGE SPACE FIELD SPEC
-      IF(SYSTEM(18).NE.1.0D0) THEN
+      IF(sys_scy_fang_set().NE.1.0D0) THEN
 !       SCY (SCY FANG IS NOT DIRECTLY PASSED BY LENO)
-         WRITE(OUTLYNE,31) (0.0D0*SYSTEM(14)),(0.7D0*SYSTEM(14)),SYSTEM(14)
+         WRITE(OUTLYNE,31) (0.0D0*sys_scy()),(0.7D0*sys_scy()),sys_scy()
          CALL SHOWIT(10)
       ELSE
 !     SCY FANG
-         WRITE(OUTLYNE,32) (0.0D0*SYSTEM(21)),(0.7D0*SYSTEM(21)),SYSTEM(21)
+         WRITE(OUTLYNE,32) (0.0D0*sys_scy_fang()),(0.7D0*sys_scy_fang()),sys_scy_fang()
          CALL SHOWIT(10)
       END IF
    ELSE
@@ -1708,6 +1719,14 @@ SUBROUTINE LENHD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_autofunc, sys_fno_val_set, sys_fno_val_x, sys_fno_val_y, &
+      & sys_na_set, sys_naox, sys_naoy, sys_pxim, sys_pxim_fang_set, &
+      & sys_pyim, sys_pyim_fang_set, sys_reverse_trace, sys_rxim, sys_rxim_fang_set, &
+      & sys_ryim, sys_ryim_fang_set, sys_sax, sys_sax_float, sys_say, sys_say_float, &
+      & sys_scx, sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
+      & sys_scy_fang_set, sys_units, sys_verbose_optim, sys_wavelength, &
+      & sys_wl_pri2, sys_wl_ref, sys_wl_sec2, sys_wrx, sys_wry, &
+      & sys_x1_scx, sys_x1_scx_fang, sys_y1_scy, sys_y1_scy_fang
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1717,7 +1736,7 @@ SUBROUTINE LENHD
 !
 !
 !     OVERBOSE
-   IF(SYSTEM(101).EQ.1.0D0)WRITE(OUTLYNE,*)'OVERBOSE ON'
+   IF(sys_verbose_optim().EQ.1.0D0)WRITE(OUTLYNE,*)'OVERBOSE ON'
 !
 !       OUTPUT THE HEADER COMMAND (LENS)
 !
@@ -1761,10 +1780,10 @@ SUBROUTINE LENHD
    IF(LLTYPE(1:5).NE.'     ') WRITE(OUTLYNE,1212) LLTYPE(1:5)
    IF(LLTYPE(1:5).NE.'     ') CALL SHOWIT(10)
 !
-   IF(INT(SYSTEM(91)).NE.0) THEN
+   IF(INT(sys_autofunc()).NE.0) THEN
 !       NOW AUTOFUNC
 !
-      WRITE(OUTLYNE,50) DBLE(INT(SYSTEM(91)))
+      WRITE(OUTLYNE,50) DBLE(INT(sys_autofunc()))
 50    FORMAT('AUTOFUNC,',G23.15)
       CALL SHOWIT(10)
    END IF
@@ -1772,41 +1791,41 @@ SUBROUTINE LENHD
 !
 !       NOW WV
 !
-   WRITE(OUTLYNE,22)SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+   WRITE(OUTLYNE,22)sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
    CALL SHOWIT(10)
 !
 !       NOW WV2
 !
-   WRITE(OUTLYNE,221)SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+   WRITE(OUTLYNE,221)SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),sys_wavelength(10)
    CALL SHOWIT(10)
 !
 !       NOW UNITS
-   IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-   IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-   IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-   IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+   IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+   IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+   IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+   IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
    CALL SHOWIT(10)
 !
 !       NOW PRIMARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(SYSTEM(8))
+   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(sys_wl_pri2())
    CALL SHOWIT(10)
 !
 !       SECONDARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(SYSTEM(10))
+   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(sys_wl_sec2())
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
-   WRITE(OUTLYNE,28) INT(SYSTEM(11))
+   WRITE(OUTLYNE,28) INT(sys_wl_ref())
    CALL SHOWIT(10)
 !
 !       WRX
-   WRITE(OUTLYNE,2992) SYSTEM(85)
+   WRITE(OUTLYNE,2992) sys_wrx()
    CALL SHOWIT(10)
 2992 FORMAT('WRX     ,',G23.15)
 !
 !
 !       WRY
-   WRITE(OUTLYNE,2993) SYSTEM(86)
+   WRITE(OUTLYNE,2993) sys_wry()
    CALL SHOWIT(10)
 2993 FORMAT('WRY     ,',G23.15)
 !
@@ -1825,99 +1844,99 @@ SUBROUTINE LENHD
 !
 !
 !       SAY
-   IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-      IF(SYSTEM(83).EQ.0.0D0) WRITE(OUTLYNE,29) SYSTEM(12)
-      IF(SYSTEM(83).NE.0.0D0) WRITE(OUTLYNE,292)
+   IF(sys_na_set().EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
+      IF(sys_say_float().EQ.0.0D0) WRITE(OUTLYNE,29) sys_say()
+      IF(sys_say_float().NE.0.0D0) WRITE(OUTLYNE,292)
       CALL SHOWIT(10)
    ELSE
-      IF(SYSTEM(64).EQ.1.0D0.OR.SYSTEM(64).EQ.3.0D0)WRITE(OUTLYNE,2929) SYSTEM(65)
-      IF(SYSTEM(64).EQ.1.0D0.OR.SYSTEM(64).EQ.3.0D0)CALL SHOWIT(10)
-      IF(SYSTEM(67).EQ.1.0D0.OR.SYSTEM(67).EQ.3.0D0)WRITE(OUTLYNE,2930) SYSTEM(68)
-      IF(SYSTEM(67).EQ.1.0D0.OR.SYSTEM(67).EQ.3.0D0)CALL SHOWIT(10)
+      IF(sys_na_set().EQ.1.0D0.OR.sys_na_set().EQ.3.0D0)WRITE(OUTLYNE,2929) sys_naoy()
+      IF(sys_na_set().EQ.1.0D0.OR.sys_na_set().EQ.3.0D0)CALL SHOWIT(10)
+      IF(sys_fno_val_set().EQ.1.0D0.OR.sys_fno_val_set().EQ.3.0D0)WRITE(OUTLYNE,2930) sys_fno_val_y()
+      IF(sys_fno_val_set().EQ.1.0D0.OR.sys_fno_val_set().EQ.3.0D0)CALL SHOWIT(10)
    END IF
 !
 !       SAX
-   IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-      IF(SYSTEM(13).NE.SYSTEM(12)) THEN
-         IF(SYSTEM(84).EQ.0.0D0) WRITE(OUTLYNE,30) SYSTEM(13)
-         IF(SYSTEM(84).EQ.0.0D0) CALL SHOWIT(10)
-         IF(SYSTEM(84).NE.0.0D0) WRITE(OUTLYNE,3022)
-         IF(SYSTEM(84).NE.0.0D0) CALL SHOWIT(10)
+   IF(sys_na_set().EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
+      IF(sys_sax().NE.sys_say()) THEN
+         IF(sys_sax_float().EQ.0.0D0) WRITE(OUTLYNE,30) sys_sax()
+         IF(sys_sax_float().EQ.0.0D0) CALL SHOWIT(10)
+         IF(sys_sax_float().NE.0.0D0) WRITE(OUTLYNE,3022)
+         IF(sys_sax_float().NE.0.0D0) CALL SHOWIT(10)
       END IF
    ELSE
-      IF(SYSTEM(64).EQ.2.0D0.OR.SYSTEM(64).EQ.3.0D0)WRITE(OUTLYNE,3030) SYSTEM(66)
-      IF(SYSTEM(64).EQ.2.0D0.OR.SYSTEM(64).EQ.3.0D0)CALL SHOWIT(10)
-      IF(SYSTEM(67).EQ.2.0D0.OR.SYSTEM(67).EQ.3.0D0)WRITE(OUTLYNE,3031) SYSTEM(69)
-      IF(SYSTEM(67).EQ.2.0D0.OR.SYSTEM(67).EQ.3.0D0)CALL SHOWIT(10)
+      IF(sys_na_set().EQ.2.0D0.OR.sys_na_set().EQ.3.0D0)WRITE(OUTLYNE,3030) sys_naox()
+      IF(sys_na_set().EQ.2.0D0.OR.sys_na_set().EQ.3.0D0)CALL SHOWIT(10)
+      IF(sys_fno_val_set().EQ.2.0D0.OR.sys_fno_val_set().EQ.3.0D0)WRITE(OUTLYNE,3031) sys_fno_val_x()
+      IF(sys_fno_val_set().EQ.2.0D0.OR.sys_fno_val_set().EQ.3.0D0)CALL SHOWIT(10)
    END IF
 !
-   IF(SYSTEM(94).EQ.0.0D0.AND.SYSTEM(95).EQ.0.0D0.AND.SYSTEM(98).EQ.0.0D0.AND.SYSTEM(99).EQ.0.0D0) THEN
-      IF(SYSTEM(18).NE.1.0D0) THEN
+   IF(sys_pxim_fang_set().EQ.0.0D0.AND.sys_pyim_fang_set().EQ.0.0D0.AND.sys_rxim_fang_set().EQ.0.0D0.AND.sys_ryim_fang_set().EQ.0.0D0) THEN
+      IF(sys_scy_fang_set().NE.1.0D0) THEN
 !       SCY (SCY FANG IS NOT DIRECTLY PASSED BY LENO)
-         WRITE(OUTLYNE,31) SYSTEM(14),SYSTEM(15)
+         WRITE(OUTLYNE,31) sys_scy(),sys_y1_scy()
          CALL SHOWIT(10)
       ELSE
 !     SCY FANG
-         WRITE(OUTLYNE,1319) SYSTEM(21),SYSTEM(22)
+         WRITE(OUTLYNE,1319) sys_scy_fang(),sys_y1_scy_fang()
 1319     FORMAT('SCY FANG,',G23.15,',',G23.15)
          CALL SHOWIT(10)
       END IF
 !
-      IF(SYSTEM(19).NE.1.0D0) THEN
-         IF(SYSTEM(14).NE.SYSTEM(16).OR.SYSTEM(15).NE.SYSTEM(17)) THEN
+      IF(sys_scx_fang_set().NE.1.0D0) THEN
+         IF(sys_scy().NE.sys_scx().OR.sys_y1_scy().NE.sys_x1_scx()) THEN
 !     DO SCX
 !       SCX (SCX FANG IS NOT DIRECTLY PASSED BY LENO)
-            WRITE(OUTLYNE,32) SYSTEM(16),SYSTEM(17)
+            WRITE(OUTLYNE,32) sys_scx(),sys_x1_scx()
             CALL SHOWIT(10)
          END IF
       ELSE
 !     PASS SCX FANG
-         IF(SYSTEM(21).NE.SYSTEM(23).OR.SYSTEM(22).NE.SYSTEM(24)) THEN
+         IF(sys_scy_fang().NE.sys_scx_fang().OR.sys_y1_scy_fang().NE.sys_x1_scx_fang()) THEN
 !     DO SCX FANG
 1320        FORMAT('SCX FANG,',G23.15,',',G23.15)
-            WRITE(OUTLYNE,1320) SYSTEM(23),SYSTEM(24)
+            WRITE(OUTLYNE,1320) sys_scx_fang(),sys_x1_scx_fang()
             CALL SHOWIT(10)
          END IF
       END IF
    ELSE
-      IF(SYSTEM(94).NE.0.0D0) THEN
+      IF(sys_pxim_fang_set().NE.0.0D0) THEN
 !     PXIM OR PXIM FANG
-         IF(SYSTEM(94).EQ.-1.0D0) THEN
-            WRITE(OUTLYNE,331) SYSTEM(92)
+         IF(sys_pxim_fang_set().EQ.-1.0D0) THEN
+            WRITE(OUTLYNE,331) sys_pxim()
          ELSE
-            WRITE(OUTLYNE,332) SYSTEM(92)
+            WRITE(OUTLYNE,332) sys_pxim()
          END IF
          CALL SHOWIT(10)
       END IF
-      IF(SYSTEM(95).NE.0.0D0) THEN
+      IF(sys_pyim_fang_set().NE.0.0D0) THEN
 !     PYIM OR PYIM FANG
-         IF(SYSTEM(95).EQ.-1.0D0) THEN
-            WRITE(OUTLYNE,341) SYSTEM(93)
+         IF(sys_pyim_fang_set().EQ.-1.0D0) THEN
+            WRITE(OUTLYNE,341) sys_pyim()
          ELSE
-            WRITE(OUTLYNE,342) SYSTEM(93)
+            WRITE(OUTLYNE,342) sys_pyim()
          END IF
          CALL SHOWIT(10)
       END IF
-      IF(SYSTEM(98).NE.0.0D0) THEN
+      IF(sys_rxim_fang_set().NE.0.0D0) THEN
 !     RXIM OR RXIM FANG
-         IF(SYSTEM(98).EQ.-1.0D0) THEN
-            WRITE(OUTLYNE,351) SYSTEM(96)
+         IF(sys_rxim_fang_set().EQ.-1.0D0) THEN
+            WRITE(OUTLYNE,351) sys_rxim()
          ELSE
-            WRITE(OUTLYNE,352) SYSTEM(96)
+            WRITE(OUTLYNE,352) sys_rxim()
          END IF
          CALL SHOWIT(10)
       END IF
-      IF(SYSTEM(99).NE.0.0D0) THEN
+      IF(sys_ryim_fang_set().NE.0.0D0) THEN
 !     RYIM OR RYIM FANG
-         IF(SYSTEM(99).EQ.-1.0D0) THEN
-            WRITE(OUTLYNE,361) SYSTEM(97)
+         IF(sys_ryim_fang_set().EQ.-1.0D0) THEN
+            WRITE(OUTLYNE,361) sys_ryim()
          ELSE
-            WRITE(OUTLYNE,362) SYSTEM(97)
+            WRITE(OUTLYNE,362) sys_ryim()
          END IF
          CALL SHOWIT(10)
       END IF
    END IF
-   IF(SYSTEM(99).NE.0.0D0.AND.SYSTEM(98).NE.0.0D0.AND.SYSTEM(100).NE.0.0D0) THEN
+   IF(sys_ryim_fang_set().NE.0.0D0.AND.sys_rxim_fang_set().NE.0.0D0.AND.sys_reverse_trace().NE.0.0D0) THEN
       WRITE(OUTLYNE,363)
 363   FORMAT('REVRAY ON')
       CALL SHOWIT(10)
@@ -2551,6 +2570,7 @@ SUBROUTINE LENSFCV(I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_ref_surf
    IMPLICIT NONE
 !
 !       SUBROUTINE LENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -2959,12 +2979,12 @@ SUBROUTINE LENSFCV(I)
 !
 !
 !       NOW ASTOP AND REF
-   IF(I.EQ.INT(SYSTEM(26))) THEN
+   IF(I.EQ.INT(sys_astop())) THEN
 !       I IS THE ASTOP SURFACE, IS THERE AN ADJUSTMENT ?
       WRITE(OUTLYNE,95)
 95    FORMAT('STOP')
    END IF
-   IF(I.EQ.INT(SYSTEM(25))) THEN
+   IF(I.EQ.INT(sys_ref_surf())) THEN
 !       SURFACE SHOULD BE THE REFERENCE SURFACE
       WRITE(OUTLYNE,95)
       CALL SHOWIT(10)
@@ -2978,6 +2998,9 @@ SUBROUTINE LENHDAC
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_sax, sys_say, sys_scx, sys_scx_fang_set, sys_scy, &
+      & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_pri2, sys_wl_ref, &
+      & sys_wl_sec2, sys_x1_scx, sys_y1_scy
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHDAC HANDEL LENS HEADER INFO OUTPUT
@@ -3011,57 +3034,57 @@ SUBROUTINE LENHDAC
 !       NOW WV
 !
 
-   WRITE(OUTLYNE,22)SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+   WRITE(OUTLYNE,22)sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
    CALL SHOWIT(10)
 !
 !
 !       NOW UNITS
 
-   IF(SYSTEM(6).EQ.1.0) WRITE(OUTLYNE,23)
-   IF(SYSTEM(6).EQ.2.0) WRITE(OUTLYNE,24)
-   IF(SYSTEM(6).EQ.3.0) WRITE(OUTLYNE,25)
-   IF(SYSTEM(6).EQ.4.0) WRITE(OUTLYNE,33)
+   IF(sys_units().EQ.1.0) WRITE(OUTLYNE,23)
+   IF(sys_units().EQ.2.0) WRITE(OUTLYNE,24)
+   IF(sys_units().EQ.3.0) WRITE(OUTLYNE,25)
+   IF(sys_units().EQ.4.0) WRITE(OUTLYNE,33)
    CALL SHOWIT(10)
 !
 !       NOW PRIMARY WAVELENGTH PAIR
 
-   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(SYSTEM(8))
+   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(sys_wl_pri2())
    CALL SHOWIT(10)
 !
 !       SECONDARY WAVELENGTH PAIR
 
-   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(SYSTEM(10))
+   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(sys_wl_sec2())
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
 
-   WRITE(OUTLYNE,28) INT(SYSTEM(11))
+   WRITE(OUTLYNE,28) INT(sys_wl_ref())
    CALL SHOWIT(10)
 !
 !
 !       SAY
 
-   WRITE(OUTLYNE,29) SYSTEM(12)
+   WRITE(OUTLYNE,29) sys_say()
    CALL SHOWIT(10)
 !
 !       SAX
-   IF(SYSTEM(13).NE.SYSTEM(12)) THEN
-      WRITE(OUTLYNE,29) SYSTEM(13)
+   IF(sys_sax().NE.sys_say()) THEN
+      WRITE(OUTLYNE,29) sys_sax()
       CALL SHOWIT(10)
-      WRITE(OUTLYNE,30) SYSTEM(13)
+      WRITE(OUTLYNE,30) sys_sax()
       CALL SHOWIT(10)
    END IF
 !
 !       SCY (SCY FANG IS NOT DIRECTLY PASSED BY LENO)
-   WRITE(OUTLYNE,31) SYSTEM(14),SYSTEM(15)
+   WRITE(OUTLYNE,31) sys_scy(),sys_y1_scy()
    CALL SHOWIT(10)
 !
-   IF(SYSTEM(14).NE.SYSTEM(16).OR.SYSTEM(15).NE.SYSTEM(17)) THEN
+   IF(sys_scy().NE.sys_scx().OR.sys_y1_scy().NE.sys_x1_scx()) THEN
 !     DO SCX
 !       SCX (SCX FANG IS NOT DIRECTLY PASSED BY LENO)
-      WRITE(OUTLYNE,31) SYSTEM(16),SYSTEM(17)
+      WRITE(OUTLYNE,31) sys_scx(),sys_x1_scx()
       CALL SHOWIT(10)
-      WRITE(OUTLYNE,32) SYSTEM(16),SYSTEM(17)
+      WRITE(OUTLYNE,32) sys_scx(),sys_x1_scx()
       CALL SHOWIT(10)
    END IF
 !
@@ -3092,6 +3115,7 @@ SUBROUTINE LENEDAC
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_mode, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -3109,10 +3133,10 @@ SUBROUTINE LENEDAC
 !**********************************************************
 
 !       MODE SETTING
-   IF(SYSTEM(30).EQ.1) WRITE(OUTLYNE,33)
-   IF(SYSTEM(30).EQ.2) WRITE(OUTLYNE,34)
-   IF(SYSTEM(30).EQ.3) WRITE(OUTLYNE,35)
-   IF(SYSTEM(30).EQ.4) WRITE(OUTLYNE,36)
+   IF(sys_mode().EQ.1) WRITE(OUTLYNE,33)
+   IF(sys_mode().EQ.2) WRITE(OUTLYNE,34)
+   IF(sys_mode().EQ.3) WRITE(OUTLYNE,35)
+   IF(sys_mode().EQ.4) WRITE(OUTLYNE,36)
    CALL SHOWIT(10)
 33 FORMAT('MODE FOCAL')
 34 FORMAT('MODE UFOCAL')
@@ -3121,7 +3145,7 @@ SUBROUTINE LENEDAC
 !
 !       SPTWT
 
-   WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+   WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
    CALL SHOWIT(10)
 3000 FORMAT('SPTWT,',E15.7,',',E15.7,',',E15.7,',',E15.7,',',E15.7)
    RETURN
@@ -3132,6 +3156,7 @@ SUBROUTINE LENSFAC(I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_astop_adj, sys_ref_surf
    IMPLICIT NONE
 !
 !       SUBROUTINE LENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -3272,20 +3297,20 @@ SUBROUTINE LENSFAC(I)
    END IF
 !
 !       NOW ASTOP AND REF
-   IF(I.EQ.INT(SYSTEM(25))) THEN
+   IF(I.EQ.INT(sys_ref_surf())) THEN
 !       SURFACE SHOULD BE THE REFERENCE SURFACE
 
       WRITE(OUTLYNE,94)
       CALL SHOWIT(10)
    END IF
-   IF(I.EQ.INT(SYSTEM(26))) THEN
+   IF(I.EQ.INT(sys_astop())) THEN
 !       I IS THE ASTOP SURFACE, IS THERE AN ADJUSTMENT ?
 
-      IF(SYSTEM(27).EQ.0.0)  WRITE(OUTLYNE,95)
-      IF(SYSTEM(27).EQ.1.0)  WRITE(OUTLYNE,96)
-      IF(SYSTEM(27).EQ.-1.0) WRITE(OUTLYNE,97)
-      IF(SYSTEM(27).EQ.2.0)  WRITE(OUTLYNE,98)
-      IF(SYSTEM(27).GE.-1.0D0.AND.SYSTEM(27).LE.2.0D0) CALL SHOWIT(10)
+      IF(sys_astop_adj().EQ.0.0)  WRITE(OUTLYNE,95)
+      IF(sys_astop_adj().EQ.1.0)  WRITE(OUTLYNE,96)
+      IF(sys_astop_adj().EQ.-1.0) WRITE(OUTLYNE,97)
+      IF(sys_astop_adj().EQ.2.0)  WRITE(OUTLYNE,98)
+      IF(sys_astop_adj().GE.-1.0D0.AND.sys_astop_adj().LE.2.0D0) CALL SHOWIT(10)
 94    FORMAT('REFS')
 95    FORMAT('ASTOP')
 96    FORMAT('ASTOP    EN')
@@ -3337,6 +3362,7 @@ SUBROUTINE RLENSF(I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_astop_adj, sys_ref_surf
    IMPLICIT NONE
 !
 !       SUBROUTINE RLENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -3813,18 +3839,18 @@ SUBROUTINE RLENSF(I)
 475   FORMAT('INR     ,',G23.15)
    END IF
 !       NOW ASTOP AND REF
-   IF(I.EQ.INT(SYSTEM(25))) THEN
+   IF(I.EQ.INT(sys_ref_surf())) THEN
 !       SURFACE SHOULD BE THE REFERENCE SURFACE
       WRITE(OUTLYNE,94)
       CALL SHOWIT(10)
    END IF
-   IF(I.EQ.INT(SYSTEM(26))) THEN
+   IF(I.EQ.INT(sys_astop())) THEN
 !       I IS THE ASTOP SURFACE, IS THERE AN ADJUSTMENT ?
-      IF(SYSTEM(27).EQ.0.0)  WRITE(OUTLYNE,95)
-      IF(SYSTEM(27).EQ.1.0)  WRITE(OUTLYNE,96)
-      IF(SYSTEM(27).EQ.-1.0) WRITE(OUTLYNE,97)
-      IF(SYSTEM(27).EQ.2.0)  WRITE(OUTLYNE,98)
-      IF(SYSTEM(27).GE.-1.0D0.AND.SYSTEM(27).LE.2.0D0) CALL SHOWIT(10)
+      IF(sys_astop_adj().EQ.0.0)  WRITE(OUTLYNE,95)
+      IF(sys_astop_adj().EQ.1.0)  WRITE(OUTLYNE,96)
+      IF(sys_astop_adj().EQ.-1.0) WRITE(OUTLYNE,97)
+      IF(sys_astop_adj().EQ.2.0)  WRITE(OUTLYNE,98)
+      IF(sys_astop_adj().GE.-1.0D0.AND.sys_astop_adj().LE.2.0D0) CALL SHOWIT(10)
 94    FORMAT('REFS')
 95    FORMAT('ASTOP')
 96    FORMAT('ASTOP    EN')
@@ -3976,6 +4002,7 @@ SUBROUTINE LENSF(I,RDOUT)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_astop_adj, sys_ref_surf
    IMPLICIT NONE
 !
 !       SUBROUTINE LENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -4608,18 +4635,18 @@ SUBROUTINE LENSF(I,RDOUT)
 475   FORMAT('INR     ,',G23.15)
    END IF
 !       NOW ASTOP AND REF
-   IF(I.EQ.INT(SYSTEM(25))) THEN
+   IF(I.EQ.INT(sys_ref_surf())) THEN
 !       SURFACE SHOULD BE THE REFERENCE SURFACE
       WRITE(OUTLYNE,94)
       CALL SHOWIT(10)
    END IF
-   IF(I.EQ.INT(SYSTEM(26))) THEN
+   IF(I.EQ.INT(sys_astop())) THEN
 !       I IS THE ASTOP SURFACE, IS THERE AN ADJUSTMENT ?
-      IF(SYSTEM(27).EQ.0.0)  WRITE(OUTLYNE,95)
-      IF(SYSTEM(27).EQ.1.0)  WRITE(OUTLYNE,96)
-      IF(SYSTEM(27).EQ.-1.0) WRITE(OUTLYNE,97)
-      IF(SYSTEM(27).EQ.2.0)  WRITE(OUTLYNE,98)
-      IF(SYSTEM(27).GE.-1.0D0.AND.SYSTEM(27).LE.2.0D0) CALL SHOWIT(10)
+      IF(sys_astop_adj().EQ.0.0)  WRITE(OUTLYNE,95)
+      IF(sys_astop_adj().EQ.1.0)  WRITE(OUTLYNE,96)
+      IF(sys_astop_adj().EQ.-1.0) WRITE(OUTLYNE,97)
+      IF(sys_astop_adj().EQ.2.0)  WRITE(OUTLYNE,98)
+      IF(sys_astop_adj().GE.-1.0D0.AND.sys_astop_adj().LE.2.0D0) CALL SHOWIT(10)
 94    FORMAT('REFS')
 95    FORMAT('ASTOP')
 96    FORMAT('ASTOP    EN')
