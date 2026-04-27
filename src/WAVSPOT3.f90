@@ -10,7 +10,7 @@ SUBROUTINE SPOT
    use DATSPD
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_mode
+   use mod_system, only: sys_mode, sys_wl_weight
    use command_utils, only: is_command_query
    IMPLICIT NONE
 !
@@ -210,16 +210,16 @@ SUBROUTINE SPOT
          CALL SPOT1(1)
          LDIF=OLDIF
       ELSE
-         OLDSP(1) =SYSTEM(31)
-         OLDSP(2) =SYSTEM(32)
-         OLDSP(3) =SYSTEM(33)
-         OLDSP(4) =SYSTEM(34)
-         OLDSP(5) =SYSTEM(35)
-         OLDSP(6) =SYSTEM(76)
-         OLDSP(7) =SYSTEM(77)
-         OLDSP(8) =SYSTEM(78)
-         OLDSP(9) =SYSTEM(79)
-         OLDSP(10)=SYSTEM(80)
+         OLDSP(1) =sys_wl_weight(1)
+         OLDSP(2) =sys_wl_weight(2)
+         OLDSP(3) =sys_wl_weight(3)
+         OLDSP(4) =sys_wl_weight(4)
+         OLDSP(5) =sys_wl_weight(5)
+         OLDSP(6) =sys_wl_weight(6)
+         OLDSP(7) =sys_wl_weight(7)
+         OLDSP(8) =sys_wl_weight(8)
+         OLDSP(9) =sys_wl_weight(9)
+         OLDSP(10)=sys_wl_weight(10)
          SYSTEM(31:35)=0.0D0
          SYSTEM(76:80)=0.0D0
          IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
@@ -701,16 +701,16 @@ SUBROUTINE SPOT
             CALL SPOT1(1)
             LDIF=OLDIF
          ELSE
-            OLDSP(1) =SYSTEM(31)
-            OLDSP(2) =SYSTEM(32)
-            OLDSP(3) =SYSTEM(33)
-            OLDSP(4) =SYSTEM(34)
-            OLDSP(5) =SYSTEM(35)
-            OLDSP(6) =SYSTEM(76)
-            OLDSP(7) =SYSTEM(77)
-            OLDSP(8) =SYSTEM(78)
-            OLDSP(9) =SYSTEM(79)
-            OLDSP(10)=SYSTEM(80)
+            OLDSP(1) =sys_wl_weight(1)
+            OLDSP(2) =sys_wl_weight(2)
+            OLDSP(3) =sys_wl_weight(3)
+            OLDSP(4) =sys_wl_weight(4)
+            OLDSP(5) =sys_wl_weight(5)
+            OLDSP(6) =sys_wl_weight(6)
+            OLDSP(7) =sys_wl_weight(7)
+            OLDSP(8) =sys_wl_weight(8)
+            OLDSP(9) =sys_wl_weight(9)
+            OLDSP(10)=sys_wl_weight(10)
             SYSTEM(31:35)=0.0D0
             SYSTEM(76:80)=0.0D0
             IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
@@ -1215,12 +1215,12 @@ SUBROUTINE GSPOT
 !
 !     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
 !
-   IF(SYSTEM(31).LE.0.0D0.AND.SYSTEM(32).LE.0.0D0 &
-   &.AND.SYSTEM(33).LE.0.0D0.AND.SYSTEM(34).LE.0.0D0 &
-   &.AND.SYSTEM(35).LE.0.0D0 &
-   &.AND.SYSTEM(76).LE.0.0D0.AND.SYSTEM(77).LE.0.0D0 &
-   &.AND.SYSTEM(78).LE.0.0D0.AND.SYSTEM(79).LE.0.0D0 &
-   &.AND.SYSTEM(80).LE.0.0D0) THEN
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 &
+   &.AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 &
+   &.AND.sys_wl_weight(5).LE.0.0D0 &
+   &.AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 &
+   &.AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 &
+   &.AND.sys_wl_weight(10).LE.0.0D0) THEN
 !     NO SPOT CAN EXIST, RETURN
       GSPDEXT=.FALSE.
       DEALLOCATE(SPOTTY,STAT=ALLOERR)
@@ -1952,19 +1952,20 @@ SUBROUTINE SPMOVE
 END
 SUBROUTINE FIXWV(W2)
    use DATLEN
+   use mod_system, only: sys_wl_weight
    IMPLICIT NONE
    REAL*8 OLDWT(1:10),W2
    COMMON/OLDSTUFFWV/OLDWT
-   OLDWT(1)=SYSTEM(31)
-   OLDWT(2)=SYSTEM(32)
-   OLDWT(3)=SYSTEM(33)
-   OLDWT(4)=SYSTEM(34)
-   OLDWT(5)=SYSTEM(35)
-   OLDWT(6)=SYSTEM(76)
-   OLDWT(7)=SYSTEM(77)
-   OLDWT(8)=SYSTEM(78)
-   OLDWT(9)=SYSTEM(79)
-   OLDWT(10)=SYSTEM(80)
+   OLDWT(1)=sys_wl_weight(1)
+   OLDWT(2)=sys_wl_weight(2)
+   OLDWT(3)=sys_wl_weight(3)
+   OLDWT(4)=sys_wl_weight(4)
+   OLDWT(5)=sys_wl_weight(5)
+   OLDWT(6)=sys_wl_weight(6)
+   OLDWT(7)=sys_wl_weight(7)
+   OLDWT(8)=sys_wl_weight(8)
+   OLDWT(9)=sys_wl_weight(9)
+   OLDWT(10)=sys_wl_weight(10)
    IF(W2.GE.1.0D0.AND.W2.LE.10.0D0) THEN
       SYSTEM(31)=0.0D0
       SYSTEM(32)=0.0D0
@@ -1991,6 +1992,7 @@ SUBROUTINE FIXWV(W2)
 END
 SUBROUTINE UNFIXWV
    use DATLEN
+   use mod_system, only: sys_wl_weight
    IMPLICIT NONE
    REAL*8 OLDWT(1:10)
    COMMON/OLDSTUFFWV/OLDWT
@@ -2258,12 +2260,12 @@ SUBROUTINE SPOT1(TPT)
 !
 !     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
 !
-   IF(SYSTEM(31).LE.0.0D0.AND.SYSTEM(32).LE.0.0D0 &
-   &.AND.SYSTEM(33).LE.0.0D0.AND.SYSTEM(34).LE.0.0D0 &
-   &.AND.SYSTEM(35).LE.0.0D0 &
-   &.AND.SYSTEM(76).LE.0.0D0.AND.SYSTEM(77).LE.0.0D0 &
-   &.AND.SYSTEM(78).LE.0.0D0.AND.SYSTEM(79).LE.0.0D0 &
-   &.AND.SYSTEM(80).LE.0.0D0) THEN
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 &
+   &.AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 &
+   &.AND.sys_wl_weight(5).LE.0.0D0 &
+   &.AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 &
+   &.AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 &
+   &.AND.sys_wl_weight(10).LE.0.0D0) THEN
 !
       IF(TPT.EQ.1) THEN
          OUTLYNE='ALL SPECTRAL WEIGHTS ARE ZERO'
@@ -2281,16 +2283,16 @@ SUBROUTINE SPOT1(TPT)
 !
 !      OPEN FOR INPUT
 !
-      SPT1=SYSTEM(31)
-      SPT2=SYSTEM(32)
-      SPT3=SYSTEM(33)
-      SPT4=SYSTEM(34)
-      SPT5=SYSTEM(35)
-      SPT6=SYSTEM(76)
-      SPT7=SYSTEM(77)
-      SPT8=SYSTEM(78)
-      SPT9=SYSTEM(79)
-      SPT10=SYSTEM(80)
+      SPT1=sys_wl_weight(1)
+      SPT2=sys_wl_weight(2)
+      SPT3=sys_wl_weight(3)
+      SPT4=sys_wl_weight(4)
+      SPT5=sys_wl_weight(5)
+      SPT6=sys_wl_weight(6)
+      SPT7=sys_wl_weight(7)
+      SPT8=sys_wl_weight(8)
+      SPT9=sys_wl_weight(9)
+      SPT10=sys_wl_weight(10)
    END IF
 !
    IF(TPT.EQ.1) THEN
@@ -2327,16 +2329,16 @@ SUBROUTINE SPOT1(TPT)
          IWIW=OPRNUMBR
       END IF
    END IF
-   SPT1=SYSTEM(31)
-   SPT2=SYSTEM(32)
-   SPT3=SYSTEM(33)
-   SPT4=SYSTEM(34)
-   SPT5=SYSTEM(35)
-   SPT6=SYSTEM(76)
-   SPT7=SYSTEM(77)
-   SPT8=SYSTEM(78)
-   SPT9=SYSTEM(79)
-   SPT10=SYSTEM(80)
+   SPT1=sys_wl_weight(1)
+   SPT2=sys_wl_weight(2)
+   SPT3=sys_wl_weight(3)
+   SPT4=sys_wl_weight(4)
+   SPT5=sys_wl_weight(5)
+   SPT6=sys_wl_weight(6)
+   SPT7=sys_wl_weight(7)
+   SPT8=sys_wl_weight(8)
+   SPT9=sys_wl_weight(9)
+   SPT10=sys_wl_weight(10)
    TEMPHOLDER=0
    IF(SPT1.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
    IF(SPT2.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
