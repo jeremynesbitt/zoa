@@ -36,6 +36,7 @@ SUBROUTINE SFNO
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_system, only: sys_fno_val_set, sys_xz_data_flag
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SFNO WHICH IMPLEMENTS THE FNO(X OR Y) COMMAND
@@ -58,7 +59,7 @@ SUBROUTINE SFNO
 !
       IF(is_command_query().OR..not. is_command_query()) THEN
          IF(WC.EQ.'FNOY') THEN
-            IF(SYSTEM(67).NE.1.0D0.AND.SYSTEM(67).NE.3.0D0) THEN
+            IF(sys_fno_val_set().NE.1.0D0.AND.sys_fno_val_set().NE.3.0D0) THEN
                OUTLYNE='NOTE:'
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
@@ -73,7 +74,7 @@ SUBROUTINE SFNO
             RETURN
          END IF
          IF(WC.EQ.'FNOX') THEN
-            IF(SYSTEM(67).NE.2.0D0.AND.SYSTEM(67).NE.3.0D0) THEN
+            IF(sys_fno_val_set().NE.2.0D0.AND.sys_fno_val_set().NE.3.0D0) THEN
                OUTLYNE='NOTE:'
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
@@ -186,8 +187,8 @@ SUBROUTINE SFNO
          IF(WC.EQ.'FNOX') THEN
             WRITE(OUTLYNE,3000) SYSTEM(69)
             CALL SHOWIT(0)
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=1.0D0
-            IF(SYSTEM(49).EQ.2.0D0) SYSTEM(49)=3.0D0
+            IF(sys_xz_data_flag().EQ.0.0D0) SYSTEM(49)=1.0D0
+            IF(sys_xz_data_flag().EQ.2.0D0) SYSTEM(49)=3.0D0
          ELSE
          END IF
          RETURN
@@ -209,17 +210,17 @@ SUBROUTINE SFNO
          END IF
          IF(SQ.EQ.0) THEN
             IF(WC.EQ.'FNOY') THEN
-               IF(SYSTEM(67).NE.3.0D0.AND.SYSTEM(67).NE.1.0D0) THEN
-                  IF(SYSTEM(67).EQ.0.0D0) SYSTEM(67)=1.0D0
-                  IF(SYSTEM(67).EQ.2.0D0) SYSTEM(67)=3.0D0
+               IF(sys_fno_val_set().NE.3.0D0.AND.sys_fno_val_set().NE.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.0.0D0) SYSTEM(67)=1.0D0
+                  IF(sys_fno_val_set().EQ.2.0D0) SYSTEM(67)=3.0D0
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
             END IF
             IF(WC.EQ.'FNOX') THEN
-               IF(SYSTEM(67).NE.3.0D0.AND.SYSTEM(67).NE.2.0D0) THEN
-                  IF(SYSTEM(67).EQ.0.0D0) SYSTEM(67)=2.0D0
-                  IF(SYSTEM(67).EQ.1.0D0) SYSTEM(67)=3.0D0
+               IF(sys_fno_val_set().NE.3.0D0.AND.sys_fno_val_set().NE.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.0.0D0) SYSTEM(67)=2.0D0
+                  IF(sys_fno_val_set().EQ.1.0D0) SYSTEM(67)=3.0D0
                   SYSTEM(83)=0.0D0
                   SYSTEM(84)=0.0D0
                END IF
@@ -253,6 +254,7 @@ SUBROUTINE SFNB
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_system, only: sys_fno_val_set, sys_mode, sys_naox, sys_naoy, sys_telecentric
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SFNB WHICH IMPLEMENTS THE FNBY AND FNBX
@@ -316,13 +318,13 @@ SUBROUTINE SFNB
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(WC.EQ.'FNBX'.AND.SYSTEM(67).NE.0.0D0) THEN
+      IF(WC.EQ.'FNBX'.AND.sys_fno_val_set().NE.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"FNBX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(WC.EQ.'FNBY'.AND.SYSTEM(67).NE.0.0D0) THEN
+      IF(WC.EQ.'FNBY'.AND.sys_fno_val_set().NE.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"FNBY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -415,15 +417,15 @@ SUBROUTINE SFNB
                RETURN
             END IF
 !       CHECK LENS MODE, MUST BE FOCAL OR UFOCAL
-            IF(SYSTEM(30).EQ.3.0.OR.SYSTEM(30).EQ.4.0) THEN
+            IF(sys_mode().EQ.3.0.OR.sys_mode().EQ.4.0) THEN
                IF(WC.EQ.'FNBY') THEN
                   OUTLYNE='"FNBY" REQUIRES THE FOCAL OR UFOCAL MODES'
                   CALL SHOWIT(1)
-                  IF(SYSTEM(30).EQ.3.0) THEN
+                  IF(sys_mode().EQ.3.0) THEN
                      OUTLYNE='CURRENT MODE IS AFOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  IF(SYSTEM(30).EQ.4.0) THEN
+                  IF(sys_mode().EQ.4.0) THEN
                      OUTLYNE='CURRENT MODE IS UAFOCAL'
                      CALL SHOWIT(1)
                   END IF
@@ -433,11 +435,11 @@ SUBROUTINE SFNB
                IF(WC.EQ.'FNBX') THEN
                   OUTLYNE='"FNBX" REQUIRES THE FOCAL OR UFOCAL MODES'
                   CALL SHOWIT(1)
-                  IF(SYSTEM(30).EQ.3.0) THEN
+                  IF(sys_mode().EQ.3.0) THEN
                      OUTLYNE='CURRENT MODE IS AFOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  IF(SYSTEM(30).EQ.4.0) THEN
+                  IF(sys_mode().EQ.4.0) THEN
                      OUTLYNE='CURRENT MODE IS UAFOCAL'
                      CALL SHOWIT(1)
                   END IF
@@ -454,8 +456,8 @@ SUBROUTINE SFNB
 !       DO A PARAXIAL TRACE TO GET STARTING VALUES
             ITYPEP=1
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -464,22 +466,22 @@ SUBROUTINE SFNB
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -491,8 +493,8 @@ SUBROUTINE SFNB
             CALL FADJ
             ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -501,22 +503,22 @@ SUBROUTINE SFNB
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -538,8 +540,8 @@ SUBROUTINE SFNB
 !       DO A PARAXIAL TRACE TO GET STARTING VALUES.
             ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -548,22 +550,22 @@ SUBROUTINE SFNB
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -575,8 +577,8 @@ SUBROUTINE SFNB
             CALL FADJ
             ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -585,22 +587,22 @@ SUBROUTINE SFNB
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -718,6 +720,8 @@ SUBROUTINE SER
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_system, only: sys_fno_val_set, sys_mode, sys_naox, sys_naoy, sys_telecentric, &
+      & sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SER WHICH IMPLEMENTS THE ERY AND ERX
@@ -732,10 +736,10 @@ SUBROUTINE SER
    COMMON/PTYPER/ITYPEP
 !
 !
-   IF(SYSTEM(6).EQ.1.0) UNIT='IN   '
-   IF(SYSTEM(6).EQ.2.0) UNIT='CM   '
-   IF(SYSTEM(6).EQ.3.0) UNIT='MM'
-   IF(SYSTEM(6).EQ.4.0) UNIT='M    '
+   IF(sys_units().EQ.1.0) UNIT='IN   '
+   IF(sys_units().EQ.2.0) UNIT='CM   '
+   IF(sys_units().EQ.3.0) UNIT='MM'
+   IF(sys_units().EQ.4.0) UNIT='M    '
 !
 !               CHECK FOR ADDITIONAL INPUT AND
 !               PRINT ERROR AND RETURN IF DISCOVERED.
@@ -790,13 +794,13 @@ SUBROUTINE SER
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(WC.EQ.'ERX'.AND.SYSTEM(67).NE.0.0D0) THEN
+   IF(WC.EQ.'ERX'.AND.sys_fno_val_set().NE.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"ERX" CAN NOT BE USED WHEN "SAX" IS SPECIFIED BY "FNOX"'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(WC.EQ.'ERY'.AND.SYSTEM(67).NE.0.0D0) THEN
+   IF(WC.EQ.'ERY'.AND.sys_fno_val_set().NE.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"ERY" CAN NOT BE USED WHEN "SAY" IS SPECIFIED BY "FNOY"'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
@@ -869,16 +873,16 @@ SUBROUTINE SER
                RETURN
             END IF
 !       CHECK LENS MODE, MUST BE AFOCAL OR UAFOCAL
-            IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.2.0) THEN
+            IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.2.0) THEN
                IF(WC.EQ.'ERY') THEN
                   OUTLYNE='"ERY" REQUIRES THE AFOCAL OR UAFOCAL MODES'
                   CALL SHOWIT(1)
-                  IF(SYSTEM(30).EQ.1.0) THEN
+                  IF(sys_mode().EQ.1.0) THEN
                      CALL SHOWIT(1)
                      OUTLYNE='CURRENT MODE IS FOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  IF(SYSTEM(30).EQ.2.0) THEN
+                  IF(sys_mode().EQ.2.0) THEN
                      OUTLYNE='CURRENT MODE IS UFOCAL'
                      CALL SHOWIT(1)
                   END IF
@@ -889,11 +893,11 @@ SUBROUTINE SER
                IF(WC.EQ.'ERX') THEN
                   OUTLYNE='"ERX" REQUIRES THE AFOCAL OR UAFOCAL MODES'
                   CALL SHOWIT(1)
-                  IF(SYSTEM(30).EQ.1.0) THEN
+                  IF(sys_mode().EQ.1.0) THEN
                      OUTLYNE='CURRENT MODE IS FOCAL'
                      CALL SHOWIT(1)
                   END IF
-                  IF(SYSTEM(30).EQ.2.0) THEN
+                  IF(sys_mode().EQ.2.0) THEN
                      OUTLYNE='CURRENT MODE IS UFOCAL'
                      CALL SHOWIT(1)
                   END IF
@@ -910,8 +914,8 @@ SUBROUTINE SER
 !       FIRST DO A PARAXIAL TRACE FOR STARTING VALUES
             ITYPEP=1
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -920,22 +924,22 @@ SUBROUTINE SER
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -946,8 +950,8 @@ SUBROUTINE SER
             CALL ERADJ
             ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -956,22 +960,22 @@ SUBROUTINE SER
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -996,8 +1000,8 @@ SUBROUTINE SER
 !       FIRST DO A PARAXIAL TRACE FOR STARTING VALUES
             ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -1006,22 +1010,22 @@ SUBROUTINE SER
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -1032,8 +1036,8 @@ SUBROUTINE SER
             CALL ERADJ
             ITYPEP=3
 !       TELECENTRIC STUFF, 11/12/2000
-            IF(SYSTEM(63).EQ.1.0D0) THEN
-               IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
+               IF(SYSTEM(64).EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
                   CALL REPORT_ERROR_AND_FAIL(&
                   & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
                   & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -1042,22 +1046,22 @@ SUBROUTINE SER
                   RETURN
                ELSE
                   IF(SYSTEM(64).EQ.1.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
                   END IF
                   IF(SYSTEM(64).EQ.2.0D0) THEN
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
                   IF(SYSTEM(64).EQ.3.0D0) THEN
-                     SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-                     SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+                     SYSTEM(12)=surf_thickness(0)*sys_naoy()
+                     SYSTEM(13)=surf_thickness(0)*sys_naox()
                   END IF
-                  IF(SYSTEM(67).EQ.1.0D0) THEN
+                  IF(sys_fno_val_set().EQ.1.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                   END IF
-                  IF(SYSTEM(67).EQ.2.0D0) THEN
+                  IF(sys_fno_val_set().EQ.2.0D0) THEN
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
-                  IF(SYSTEM(67).EQ.3.0D0) THEN
+                  IF(sys_fno_val_set().EQ.3.0D0) THEN
                      SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
                      SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
                   END IF
@@ -2075,6 +2079,7 @@ SUBROUTINE SCVR
    use mod_surface
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCVR WHICH IMPLEMENTS THE CVTOR AND RDTOR
@@ -2222,10 +2227,10 @@ SUBROUTINE SCVR
 !
 !       APER=PART DIAMETER IN CURRENT LENS UNITS (REQUIRED)
 !       WAVER=WAVELENGTH IN MICRONS (DEFAULT = 0.5461)
-            IF(SYSTEM(6).EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
-            IF(SYSTEM(6).EQ.2.0D0) WAVE=WAVER*1.0D-4
-            IF(SYSTEM(6).EQ.3.0D0) WAVE=WAVER*1.0D-3
-            IF(SYSTEM(6).EQ.4.0D0) WAVE=WAVER*1.0D-6
+            IF(sys_units().EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
+            IF(sys_units().EQ.2.0D0) WAVE=WAVER*1.0D-4
+            IF(sys_units().EQ.3.0D0) WAVE=WAVER*1.0D-3
+            IF(sys_units().EQ.4.0D0) WAVE=WAVER*1.0D-6
 !
             IF(surf_toric_curvature(SURF).NE.0.0D0) THEN
 !     CURVED SURFACE
@@ -2284,10 +2289,10 @@ SUBROUTINE SCVR
 !
 !       APER=PART DIAMETER IN CURRENT LENS UNITS (REQUIRED)
 !       WAVER=WAVELENGTH IN MICRONS (DEFAULT = 0.5461)
-         IF(SYSTEM(6).EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
-         IF(SYSTEM(6).EQ.2.0D0) WAVE=WAVER*1.0D-4
-         IF(SYSTEM(6).EQ.3.0D0) WAVE=WAVER*1.0D-3
-         IF(SYSTEM(6).EQ.4.0D0) WAVE=WAVER*1.0D-6
+         IF(sys_units().EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
+         IF(sys_units().EQ.2.0D0) WAVE=WAVER*1.0D-4
+         IF(sys_units().EQ.3.0D0) WAVE=WAVER*1.0D-3
+         IF(sys_units().EQ.4.0D0) WAVE=WAVER*1.0D-6
          IF(surf_toric_curvature(SURF).NE.0.0D0) RADIUS=DABS(1.0D0/surf_toric_curvature(SURF))
          IF(surf_toric_curvature(SURF).NE.0.0D0) RAD=1.0D0/surf_toric_curvature(SURF)
          IF(surf_toric_curvature(SURF).EQ.0.0D0) RADIUS=0.0D0
@@ -2396,6 +2401,7 @@ SUBROUTINE SCV
    use mod_surface
    use DATMAI
    use mod_surface
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCV WHICH IMPLEMENTS THE CV AND RD
@@ -2594,10 +2600,10 @@ SUBROUTINE SCV
 !
 !       APER=PART DIAMETER IN CURRENT LENS UNITS (REQUIRED)
 !       WAVER=WAVELENGTH IN MICRONS (DEFAULT = 0.5461)
-         IF(SYSTEM(6).EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
-         IF(SYSTEM(6).EQ.2.0D0) WAVE=WAVER*1.0D-4
-         IF(SYSTEM(6).EQ.3.0D0) WAVE=WAVER*1.0D-3
-         IF(SYSTEM(6).EQ.4.0D0) WAVE=WAVER*1.0D-6
+         IF(sys_units().EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
+         IF(sys_units().EQ.2.0D0) WAVE=WAVER*1.0D-4
+         IF(sys_units().EQ.3.0D0) WAVE=WAVER*1.0D-3
+         IF(sys_units().EQ.4.0D0) WAVE=WAVER*1.0D-6
 !
          IF(surf_curvature(SURF).NE.0.0D0) THEN
 !     CURVED SURFACE
@@ -2691,10 +2697,10 @@ SUBROUTINE SCV
 !
 !       APER=PART DIAMETER IN CURRENT LENS UNITS (REQUIRED)
 !       WAVER=WAVELENGTH IN MICRONS (DEFAULT = 0.5461)
-         IF(SYSTEM(6).EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
-         IF(SYSTEM(6).EQ.2.0D0) WAVE=WAVER*1.0D-4
-         IF(SYSTEM(6).EQ.3.0D0) WAVE=WAVER*1.0D-3
-         IF(SYSTEM(6).EQ.4.0D0) WAVE=WAVER*1.0D-6
+         IF(sys_units().EQ.1.0D0) WAVE=(WAVER*1.0D-3)/(25.4D0)
+         IF(sys_units().EQ.2.0D0) WAVE=WAVER*1.0D-4
+         IF(sys_units().EQ.3.0D0) WAVE=WAVER*1.0D-3
+         IF(sys_units().EQ.4.0D0) WAVE=WAVER*1.0D-6
          IF(surf_curvature(SURF).NE.0.0D0) RADIUS=DABS(1.0D0/surf_curvature(SURF))
          IF(surf_curvature(SURF).NE.0.0D0) RAD=1.0D0/surf_curvature(SURF)
          IF(surf_curvature(SURF).EQ.0.0D0) RADIUS=0.0D0
