@@ -16,6 +16,8 @@ module paraxial_ray_trace_test
     
             use DATMAI
             use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
+            use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
+               & sys_telecentric, sys_wl_ref
             IMPLICIT NONE
     !
     !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -46,16 +48,16 @@ module paraxial_ray_trace_test
     !
             !INCLUDE 'DATLEN.INC'
           INTEGER WWVN
-          IF(INT(SYSTEM(11)).EQ.1) WWVN=46
-          IF(INT(SYSTEM(11)).EQ.2) WWVN=47
-          IF(INT(SYSTEM(11)).EQ.3) WWVN=48
-          IF(INT(SYSTEM(11)).EQ.4) WWVN=49
-          IF(INT(SYSTEM(11)).EQ.5) WWVN=50
-          IF(INT(SYSTEM(11)).EQ.6) WWVN=71
-          IF(INT(SYSTEM(11)).EQ.7) WWVN=72
-          IF(INT(SYSTEM(11)).EQ.8) WWVN=73
-          IF(INT(SYSTEM(11)).EQ.9) WWVN=74
-          IF(INT(SYSTEM(11)).EQ.10) WWVN=75
+          IF(INT(sys_wl_ref()).EQ.1) WWVN=46
+          IF(INT(sys_wl_ref()).EQ.2) WWVN=47
+          IF(INT(sys_wl_ref()).EQ.3) WWVN=48
+          IF(INT(sys_wl_ref()).EQ.4) WWVN=49
+          IF(INT(sys_wl_ref()).EQ.5) WWVN=50
+          IF(INT(sys_wl_ref()).EQ.6) WWVN=71
+          IF(INT(sys_wl_ref()).EQ.7) WWVN=72
+          IF(INT(sys_wl_ref()).EQ.8) WWVN=73
+          IF(INT(sys_wl_ref()).EQ.9) WWVN=74
+          IF(INT(sys_wl_ref()).EQ.10) WWVN=75
     !
     
           !call LogTermDebug"NEW PRTRA ROUTINE STARTED! ")
@@ -106,7 +108,7 @@ module paraxial_ray_trace_test
     !
     !       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
     !
-            IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+            IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
     !
     !       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
     !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
@@ -138,22 +140,22 @@ module paraxial_ray_trace_test
             PXTRAY(1:8,0:1) = setInitialParaxialRays(CON) 
     
     
-            DO L=2,INT(SYSTEM(26))
+            DO L=2,INT(sys_astop())
     !               VALUES AT SURFACE L
                 call resolveSolve(L)
     !       CALL PIKRES FOR THE SURFACE L
                 call resolvePikup(L)      
 
-            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(SYSTEM(11)))
-            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(SYSTEM(11)))
+            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(sys_wl_ref()))
+            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(sys_wl_ref()))
 
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
     !       WHEN ASTOP IS NOT ON SURFACE 1
     !
                 END DO ! Trace to surface stop
-        IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(SYSTEM(26))))
-        IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
+        IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(sys_astop())))
+        IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(sys_astop())))
             END DO ! Trace at two slightly different stop positions
             IF(TMP15A.EQ.TMP15B) THEN
                CALL REPORT_ERROR_AND_FAIL(&
@@ -171,7 +173,7 @@ module paraxial_ray_trace_test
  
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-            DO L=2,INT(SYSTEM(26))
+            DO L=2,INT(sys_astop())
 
             call resolveSolve(L)
 
@@ -179,8 +181,8 @@ module paraxial_ray_trace_test
     !       CALL PIKRES FOR THE SURFACE L
             call resolvePikup(L)    
 
-            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(SYSTEM(11)))
-            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(SYSTEM(11)))            
+            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(sys_wl_ref()))
+            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(sys_wl_ref()))            
 
             END DO
     !
@@ -189,7 +191,7 @@ module paraxial_ray_trace_test
     !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
     !       HERE. WE HAVE DEFINED. THIS IS THE
     !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-            L=INT(SYSTEM(26))
+            L=INT(sys_astop())
     !       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
     !       THIS IS DONE BY CALLING SUBROUTINE
             call resolveSolve(L)
@@ -206,13 +208,13 @@ module paraxial_ray_trace_test
     !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
     !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
     !
-    !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM(26)+1)
+    !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (sys_astop()+1)
     !       TO THE IMAGE SURFACE  WHERE:
-            DO L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+            DO L=((INT(sys_astop()))+1),INT(sys_last_surf())
     !       CALL PIKRES FOR THE SURFACE L
             call resolvePikup(L)    
-            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(SYSTEM(11)))
-            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(SYSTEM(11)))            
+            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(sys_wl_ref()))
+            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(sys_wl_ref()))            
 
     !
     !                       SOLVES ON SURFACE L
@@ -222,10 +224,10 @@ module paraxial_ray_trace_test
     !
     !               NOW ALL SOLVES ON SURFACE L HAVE BEEN HANDLED
           
-            if(L.EQ.INT(SYSTEM(20)).AND.surf_thickness(L).NE.0) then 
+            if(L.EQ.INT(sys_last_surf()).AND.surf_thickness(L).NE.0) then 
                 
-                PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L),L+1, INT(SYSTEM(11)))
-                PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L),L+1, INT(SYSTEM(11)))                    
+                PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L),L+1, INT(sys_wl_ref()))
+                PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L),L+1, INT(sys_wl_ref()))                    
             end if
     !
             END DO
@@ -245,16 +247,16 @@ module paraxial_ray_trace_test
 
             ! TODO:  Test this and clean it up.  Too confusing to read
     !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-            IF(SYSTEM(63).EQ.0.0D0) THEN
+            IF(sys_telecentric().EQ.0.0D0) THEN
                 PXTRAY(1:8,0:1) = setInitialParaxialRays(SYSTEM(15)) 
             END IF
-            IF(SYSTEM(63).EQ.1.0D0) THEN
+            IF(sys_telecentric().EQ.1.0D0) THEN
                 
-            IF(SYSTEM(14).EQ.0.0D0) THEN
+            IF(sys_scy().EQ.0.0D0) THEN
                    
                 PXTRAY(1:8,0:1) = setInitialParaxialRays(1.0D0)
             ELSE 
-                PXTRAY(1:8,0:1) = setInitialParaxialRays(SYSTEM(14))
+                PXTRAY(1:8,0:1) = setInitialParaxialRays(sys_scy())
             END IF   
         END IF
             call resolvePikup(1)
@@ -284,12 +286,12 @@ module paraxial_ray_trace_test
     !       THICKNESS SOLVES AFFECT THE DISTANCE FROM THE SURFACE THAT THE
     !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
     !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
-                            DO L=2,INT(SYSTEM(20))
+                            DO L=2,INT(sys_last_surf())
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
             call resolvePikup(L)
-            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(SYSTEM(11)))
-            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(SYSTEM(11)))  
+            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(sys_wl_ref()))
+            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(sys_wl_ref()))  
             call resolveSolve(L)  
     !
     !       ALL SOLVES ON SURFACE L HANDLED
@@ -321,7 +323,7 @@ module paraxial_ray_trace_test
     !       SUBROUTINE. THE XZ PLANE CROMATIC SURFACE COEFICIENTS
     !       ARE CALCULATED WITH A CALL TO CCOLX.FOR
     !
-                            SYS13=SYSTEM(13)
+                            SYS13=sys_sax()
     !
     !       THIS IS THE FIRST OF THE PARAXIAL RAY TRACING SUBROUTINES
     !       IT IS AUTOMATICALLY CALLED FROM LNSEOS AFTER LENS INPUT
@@ -354,7 +356,7 @@ module paraxial_ray_trace_test
     !
     !       SYSTEM(17)=((-.1D0*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
     !
-            IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+            IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
     !
     !       RECALCULATE THE CORRECT VALUE OF SYSTEM(17)
     !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(17)
@@ -400,8 +402,8 @@ module paraxial_ray_trace_test
                             PXTRAX(4,0)=PXTRAX(3,0)
     !
     !       PCX(0) =-SCX
-                            PXTRAX(5,0)=(SYSTEM(16))
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+                            PXTRAX(5,0)=(sys_scx())
+          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
     !
     !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -411,8 +413,8 @@ module paraxial_ray_trace_test
            CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
-            PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)= &
+            PXTRAX(6,0)=-((sys_scx())-CON)/surf_thickness(0)
+          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)= &
           -(1.0D0-CON)/surf_thickness(0)
     !
     !       PICX(0) AT OBJECT, PICX = PUCX
@@ -533,7 +535,7 @@ module paraxial_ray_trace_test
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-           DO 5000 L=2,INT(SYSTEM(26))
+           DO 5000 L=2,INT(sys_astop())
                            SLV1=L
                            SLV2=2
           IF(SOLVE(4,L).NE.0.0D0 .OR. &
@@ -634,8 +636,8 @@ module paraxial_ray_trace_test
     !       WHEN ASTOP IS NOT ON SURFACE 1
     !
      5000                     CONTINUE
-                    IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(SYSTEM(26))))
-                    IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(SYSTEM(26))))
+                    IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(sys_astop())))
+                    IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(sys_astop())))
      6000                     CONTINUE
             IF(TMP17A.EQ.TMP17B) THEN
             OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
@@ -674,14 +676,14 @@ module paraxial_ray_trace_test
                             PXTRAX(4,0)=PXTRAX(3,0)
     !
     !       PCX(0) =-SCX
-                            PXTRAX(5,0)=(SYSTEM(16))
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+                            PXTRAX(5,0)=(sys_scx())
+          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
     !
     !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-            PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)= &
+            PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)= &
           -(1.0D0-SYSTEM(17))/surf_thickness(0)
     !
     !       PICX(0) AT OBJECT, PICX = PUCX
@@ -790,7 +792,7 @@ module paraxial_ray_trace_test
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-                            DO 7000 L=2,INT(SYSTEM(26))
+                            DO 7000 L=2,INT(sys_astop())
                            SLV1=L
                            SLV2=2
           IF(SOLVE(4,L).NE.0.0D0 .OR. &
@@ -895,7 +897,7 @@ module paraxial_ray_trace_test
     !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
     !       HERE. WE HAVE DEFINED . THIS IS THE
     !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-                            L=INT(SYSTEM(26))
+                            L=INT(sys_astop())
     !       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
     !       THIS IS DONE BY CALLING SUBROUTINE
     !                               SLVRS
@@ -918,7 +920,7 @@ module paraxial_ray_trace_test
     !
     !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM+1)
     !       TO THE IMAGE SURFACE  WHERE:
-            DO 9000 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+            DO 9000 L=((INT(sys_astop()))+1),INT(sys_last_surf())
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -1061,17 +1063,17 @@ module paraxial_ray_trace_test
                             PXTRAX(4,0)=PXTRAX(3,0)
     !
     !       PCX(0) =-SCX
-                            PXTRAX(5,0)=(SYSTEM(16))
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+                            PXTRAX(5,0)=(sys_scx())
+          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
     !
     !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-          IF(SYSTEM(63).EQ.0.0D0) &
-          PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)= &
+          IF(sys_telecentric().EQ.0.0D0) &
+          PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)= &
           -(1.0D0-SYSTEM(17))/surf_thickness(0)
-          IF(SYSTEM(63).EQ.1.0D0) &
+          IF(sys_telecentric().EQ.1.0D0) &
           PXTRAX(6,0)=0.0D0
     !
     !       PICX(0) AT OBJECT, PICX = PUCX
@@ -1137,8 +1139,8 @@ module paraxial_ray_trace_test
                     (ALENS((WWVN),1)))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-            IF(SYSTEM(63).EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
-            IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
+            IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
+            IF(sys_telecentric().EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1203,7 +1205,7 @@ module paraxial_ray_trace_test
     !       THICKNESS SOLVES AFFECT THE DISTANCE FROM THE SURFACE THAT THE
     !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
     !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
-                            DO 8000 L=2,INT(SYSTEM(20))
+                            DO 8000 L=2,INT(sys_last_surf())
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
@@ -1322,7 +1324,7 @@ module paraxial_ray_trace_test
     !    Populate data object
     !     Dump data to paraxial ray trace interface
     
-          SF = INT(SYSTEM(20))
+          SF = INT(sys_last_surf())
           call curr_par_ray_trace%add_lens_data(curr_lens_data)
           PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
     
@@ -1362,6 +1364,8 @@ module paraxial_ray_trace_test
     
             use DATMAI
             use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
+            use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
+               & sys_telecentric, sys_wl_ref
             IMPLICIT NONE
     !
     !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -1392,16 +1396,16 @@ module paraxial_ray_trace_test
     !
             !INCLUDE 'DATLEN.INC'
           INTEGER WWVN
-          IF(INT(SYSTEM(11)).EQ.1) WWVN=46
-          IF(INT(SYSTEM(11)).EQ.2) WWVN=47
-          IF(INT(SYSTEM(11)).EQ.3) WWVN=48
-          IF(INT(SYSTEM(11)).EQ.4) WWVN=49
-          IF(INT(SYSTEM(11)).EQ.5) WWVN=50
-          IF(INT(SYSTEM(11)).EQ.6) WWVN=71
-          IF(INT(SYSTEM(11)).EQ.7) WWVN=72
-          IF(INT(SYSTEM(11)).EQ.8) WWVN=73
-          IF(INT(SYSTEM(11)).EQ.9) WWVN=74
-          IF(INT(SYSTEM(11)).EQ.10) WWVN=75
+          IF(INT(sys_wl_ref()).EQ.1) WWVN=46
+          IF(INT(sys_wl_ref()).EQ.2) WWVN=47
+          IF(INT(sys_wl_ref()).EQ.3) WWVN=48
+          IF(INT(sys_wl_ref()).EQ.4) WWVN=49
+          IF(INT(sys_wl_ref()).EQ.5) WWVN=50
+          IF(INT(sys_wl_ref()).EQ.6) WWVN=71
+          IF(INT(sys_wl_ref()).EQ.7) WWVN=72
+          IF(INT(sys_wl_ref()).EQ.8) WWVN=73
+          IF(INT(sys_wl_ref()).EQ.9) WWVN=74
+          IF(INT(sys_wl_ref()).EQ.10) WWVN=75
     !
     
           OUTLYNE = "NEW PRTRA ROUTINE STARTED! "
@@ -1455,7 +1459,7 @@ module paraxial_ray_trace_test
     !
     !       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
     !
-            IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+            IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
     !
     !       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
     !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
@@ -1513,8 +1517,8 @@ module paraxial_ray_trace_test
             PXTRAY(4,0)=PXTRAY(3,0)
     !
     !       PCY(0) =-SCY
-            PXTRAY(5,0)=(SYSTEM(14))
-          IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
+            PXTRAY(5,0)=(sys_scy())
+          IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
     !
     !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -1526,8 +1530,8 @@ module paraxial_ray_trace_test
             CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
             RETURN
            END IF
-            PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
-          IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)= &
+            PXTRAY(6,0)=-((sys_scy())-CON)/surf_thickness(0)
+          IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)= &
           -(1.0D0-CON)/surf_thickness(0)
     !
     !       PICY(0) AT OBJECT, PICY = PUCY
@@ -1659,7 +1663,7 @@ module paraxial_ray_trace_test
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
     
-            DO L=2,INT(SYSTEM(26))
+            DO L=2,INT(sys_astop())
     !               VALUES AT SURFACE L
                            SLV1=L
                            SLV2=1 !TODO;  Move this to new SOLVRS routine as this is an input
@@ -1670,16 +1674,16 @@ module paraxial_ray_trace_test
                    COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 
-            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(SYSTEM(11)))
-            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(SYSTEM(11)))
+            PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L-1),L, INT(sys_wl_ref()))
+            PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L-1),L, INT(sys_wl_ref()))
 
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
     !       WHEN ASTOP IS NOT ON SURFACE 1
     !
                 END DO ! Trace to surface stop
-                    IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(SYSTEM(26))))
-                    IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
+                    IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(sys_astop())))
+                    IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(sys_astop())))
             END DO ! Trace at two slightly different stop positions
             IF(TMP15A.EQ.TMP15B) THEN
                CALL REPORT_ERROR_AND_FAIL(&
@@ -1706,14 +1710,14 @@ module paraxial_ray_trace_test
             PXTRAY(2,0) = marAng0
             ! Experimental code !  go back to original and fix it correctly!
             ! if (ENPUZ == 0) then
-            !         PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+            !         PXTRAY(2,0)=(sys_say())/surf_thickness(0)
             ! else
             !         PXTRAY(2,0)=nao
             ! end if
     
     !
     !       PUY(0)=SAY/TH(0)
-            !        PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+            !        PXTRAY(2,0)=(sys_say())/surf_thickness(0)
     !
     !       PIY(0) =PUY(0)
             PXTRAY(3,0)=PXTRAY(2,0)
@@ -1722,14 +1726,14 @@ module paraxial_ray_trace_test
             PXTRAY(4,0)=PXTRAY(3,0)
     !
     !       PCY(0) =-SCY
-            PXTRAY(5,0)=(SYSTEM(14))
-          IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
+            PXTRAY(5,0)=(sys_scy())
+          IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
     !
     !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-            PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-          IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)= &
+            PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+          IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)= &
           -(1.0D0-SYSTEM(15))/surf_thickness(0)
     !
     !       PICY(0) AT OBJECT, PICY = PUCY
@@ -1838,7 +1842,7 @@ module paraxial_ray_trace_test
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-                            DO 70 L=2,INT(SYSTEM(26))
+                            DO 70 L=2,INT(sys_astop())
                            SLV1=L
                            SLV2=1
           IF(SOLVE(6,L).NE.0.0D0 .OR. &
@@ -1943,7 +1947,7 @@ module paraxial_ray_trace_test
     !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
     !       HERE. WE HAVE DEFINED. THIS IS THE
     !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-                            L=INT(SYSTEM(26))
+                            L=INT(sys_astop())
     !       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
     !       THIS IS DONE BY CALLING SUBROUTINE
                            SLV1=L
@@ -1963,9 +1967,9 @@ module paraxial_ray_trace_test
     !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
     !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
     !
-    !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM(26)+1)
+    !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (sys_astop()+1)
     !       TO THE IMAGE SURFACE  WHERE:
-            DO 90 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+            DO 90 L=((INT(sys_astop()))+1),INT(sys_last_surf())
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -2100,13 +2104,13 @@ module paraxial_ray_trace_test
             ! Experimental code !  go back to original and fix it correctly!
             PXTRAY(2,0) = marAng0
             ! if (ENPUZ == 0) then
-            !         PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+            !         PXTRAY(2,0)=(sys_say())/surf_thickness(0)
             ! else
             !         PXTRAY(2,0)=nao
             ! end if
     
     !       PUY(0)=SAY/TH(0)
-                    !PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+                    !PXTRAY(2,0)=(sys_say())/surf_thickness(0)
     !
     !       PIY(0) =PUY(0)
                             PXTRAY(3,0)=PXTRAY(2,0)
@@ -2115,17 +2119,17 @@ module paraxial_ray_trace_test
                             PXTRAY(4,0)=PXTRAY(3,0)
     !
     !       PCY(0) =-SCY
-                            PXTRAY(5,0)=(SYSTEM(14))
-          IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
+                            PXTRAY(5,0)=(sys_scy())
+          IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
     !
     !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-          IF(SYSTEM(63).EQ.0.0D0) &
-          PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-          IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)= &
+          IF(sys_telecentric().EQ.0.0D0) &
+          PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+          IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)= &
           -(1.0D0-SYSTEM(15))/surf_thickness(0)
-          IF(SYSTEM(63).EQ.1.0D0) &
+          IF(sys_telecentric().EQ.1.0D0) &
           PXTRAY(6,0)=0.0D0
     !
     !       PICY(0) AT OBJECT, PICY = PUCY
@@ -2144,14 +2148,14 @@ module paraxial_ray_trace_test
             ! Experimental code !  go back to original and fix it correctly!
             PXTRAY(1,1) = marPos1
     !         if (ENPUZ == 0) then
-    !                 PXTRAY(1,1)=(SYSTEM(12))
+    !                 PXTRAY(1,1)=(sys_say())
     !         else
     !                 PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
     !         end if
     !         PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
     ! C
-    !       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-                            !PXTRAY(1,1)=(SYSTEM(12))
+    !       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+                            !PXTRAY(1,1)=(sys_say())
     !
     !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
     !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2195,8 +2199,8 @@ module paraxial_ray_trace_test
                     (ALENS((WWVN),1)))*PXTRAY(3,1)
     !
     !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-            IF(SYSTEM(63).EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
-            IF(SYSTEM(63).EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
+            IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
+            IF(sys_telecentric().EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
     !
     !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
     !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2261,7 +2265,7 @@ module paraxial_ray_trace_test
     !       THICKNESS SOLVES AFFECT THE DISTANCE FROM THE SURFACE THAT THE
     !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
     !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
-                            DO 80 L=2,INT(SYSTEM(20))
+                            DO 80 L=2,INT(sys_last_surf())
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
@@ -2400,7 +2404,7 @@ module paraxial_ray_trace_test
     !       SUBROUTINE. THE XZ PLANE CROMATIC SURFACE COEFICIENTS
     !       ARE CALCULATED WITH A CALL TO CCOLX.FOR
     !
-                            SYS13=SYSTEM(13)
+                            SYS13=sys_sax()
     !
     !       THIS IS THE FIRST OF THE PARAXIAL RAY TRACING SUBROUTINES
     !       IT IS AUTOMATICALLY CALLED FROM LNSEOS AFTER LENS INPUT
@@ -2433,7 +2437,7 @@ module paraxial_ray_trace_test
     !
     !       SYSTEM(17)=((-.1D0*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
     !
-            IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+            IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
     !
     !       RECALCULATE THE CORRECT VALUE OF SYSTEM(17)
     !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(17)
@@ -2479,8 +2483,8 @@ module paraxial_ray_trace_test
                             PXTRAX(4,0)=PXTRAX(3,0)
     !
     !       PCX(0) =-SCX
-                            PXTRAX(5,0)=(SYSTEM(16))
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+                            PXTRAX(5,0)=(sys_scx())
+          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
     !
     !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -2490,8 +2494,8 @@ module paraxial_ray_trace_test
            CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
-            PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)= &
+            PXTRAX(6,0)=-((sys_scx())-CON)/surf_thickness(0)
+          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)= &
           -(1.0D0-CON)/surf_thickness(0)
     !
     !       PICX(0) AT OBJECT, PICX = PUCX
@@ -2605,7 +2609,7 @@ module paraxial_ray_trace_test
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-           DO 5000 L=2,INT(SYSTEM(26))
+           DO 5000 L=2,INT(sys_astop())
                            SLV1=L
                            SLV2=2
           IF(SOLVE(4,L).NE.0.0D0 .OR. &
@@ -2706,8 +2710,8 @@ module paraxial_ray_trace_test
     !       WHEN ASTOP IS NOT ON SURFACE 1
     !
      5000                     CONTINUE
-                    IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(SYSTEM(26))))
-                    IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(SYSTEM(26))))
+                    IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(sys_astop())))
+                    IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(sys_astop())))
      6000                     CONTINUE
             IF(TMP17A.EQ.TMP17B) THEN
             OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
@@ -2746,14 +2750,14 @@ module paraxial_ray_trace_test
                             PXTRAX(4,0)=PXTRAX(3,0)
     !
     !       PCX(0) =-SCX
-                            PXTRAX(5,0)=(SYSTEM(16))
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+                            PXTRAX(5,0)=(sys_scx())
+          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
     !
     !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-            PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)= &
+            PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)= &
           -(1.0D0-SYSTEM(17))/surf_thickness(0)
     !
     !       PICX(0) AT OBJECT, PICX = PUCX
@@ -2862,7 +2866,7 @@ module paraxial_ray_trace_test
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
     !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-                            DO 7000 L=2,INT(SYSTEM(26))
+                            DO 7000 L=2,INT(sys_astop())
                            SLV1=L
                            SLV2=2
           IF(SOLVE(4,L).NE.0.0D0 .OR. &
@@ -2967,7 +2971,7 @@ module paraxial_ray_trace_test
     !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
     !       HERE. WE HAVE DEFINED . THIS IS THE
     !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-                            L=INT(SYSTEM(26))
+                            L=INT(sys_astop())
     !       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
     !       THIS IS DONE BY CALLING SUBROUTINE
     !                               SLVRS
@@ -2990,7 +2994,7 @@ module paraxial_ray_trace_test
     !
     !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM+1)
     !       TO THE IMAGE SURFACE  WHERE:
-            DO 9000 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+            DO 9000 L=((INT(sys_astop()))+1),INT(sys_last_surf())
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -3133,17 +3137,17 @@ module paraxial_ray_trace_test
                             PXTRAX(4,0)=PXTRAX(3,0)
     !
     !       PCX(0) =-SCX
-                            PXTRAX(5,0)=(SYSTEM(16))
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+                            PXTRAX(5,0)=(sys_scx())
+          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
     !
     !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
     !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
     !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-          IF(SYSTEM(63).EQ.0.0D0) &
-          PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-          IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)= &
+          IF(sys_telecentric().EQ.0.0D0) &
+          PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)= &
           -(1.0D0-SYSTEM(17))/surf_thickness(0)
-          IF(SYSTEM(63).EQ.1.0D0) &
+          IF(sys_telecentric().EQ.1.0D0) &
           PXTRAX(6,0)=0.0D0
     !
     !       PICX(0) AT OBJECT, PICX = PUCX
@@ -3209,8 +3213,8 @@ module paraxial_ray_trace_test
                     (ALENS((WWVN),1)))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-            IF(SYSTEM(63).EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
-            IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
+            IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
+            IF(sys_telecentric().EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
     !
     !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3275,7 +3279,7 @@ module paraxial_ray_trace_test
     !       THICKNESS SOLVES AFFECT THE DISTANCE FROM THE SURFACE THAT THE
     !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
     !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
-                            DO 8000 L=2,INT(SYSTEM(20))
+                            DO 8000 L=2,INT(sys_last_surf())
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
@@ -3394,7 +3398,7 @@ module paraxial_ray_trace_test
     !    Populate data object
     !     Dump data to paraxial ray trace interface
     
-          SF = INT(SYSTEM(20))
+          SF = INT(sys_last_surf())
           call curr_par_ray_trace%add_lens_data(curr_lens_data)
           PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
     
@@ -3548,6 +3552,7 @@ end subroutine
 function setInitialParaxialRays(CON) result(initialRays)
     use DATLEN, only: SYSTEM
     use DATMAI, only: OUTLYNE
+    use mod_system, only: sys_scy, sys_wl_ref
     use mod_surface, only: surf_pickup_count, surf_thickness
     use mod_lens_data_manager
     use parax_calcs
@@ -3606,8 +3611,8 @@ function setInitialParaxialRays(CON) result(initialRays)
     initialRays(4,0)=initialRays(3,0)
 !
 !       PCY(0) =-SCY
-    initialRays(5,0)=(SYSTEM(14))
-    IF(SYSTEM(14).EQ.0.0D0) initialRays(5,0)=1.0D0
+    initialRays(5,0)=(sys_scy())
+    IF(sys_scy().EQ.0.0D0) initialRays(5,0)=1.0D0
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -3619,8 +3624,8 @@ function setInitialParaxialRays(CON) result(initialRays)
     CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
     RETURN
    END IF
-    initialRays(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
-  IF(SYSTEM(14).EQ.0.0D0) initialRays(6,0)= &
+    initialRays(6,0)=-((sys_scy())-CON)/surf_thickness(0)
+  IF(sys_scy().EQ.0.0D0) initialRays(6,0)= &
   -(1.0D0-CON)/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
@@ -3651,8 +3656,8 @@ function setInitialParaxialRays(CON) result(initialRays)
     IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
 
-    initialRays(1:4,1) = traNextSurf(initialRays(1:4,0),1,INT(SYSTEM(11)))
-    initialRays(5:8,1) = traNextSurf(initialRays(5:8,0),1,INT(SYSTEM(11)), overridePos=CON)
+    initialRays(1:4,1) = traNextSurf(initialRays(1:4,0),1,INT(sys_wl_ref()))
+    initialRays(5:8,1) = traNextSurf(initialRays(5:8,0),1,INT(sys_wl_ref()), overridePos=CON)
  
 
 
