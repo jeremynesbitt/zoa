@@ -416,6 +416,7 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref
    IMPLICIT NONE
 !
    EXTERNAL FF2,FF3,FF4,FF5
@@ -492,41 +493,32 @@ FUNCTION FNZ1(AX,AY,AC1,AC2,AC3,AC4,AC5,AR,A34,AC41,AC42,AC43,&
    END IF
 !     SPECIAL SURFACE TYPE 4
    IF(A34.EQ.4.0D0) THEN
-      IF(INT(SYSTEM(11)).EQ.1)  JK_WAVE=SYSTEM(1)
-      IF(INT(SYSTEM(11)).EQ.2)  JK_WAVE=SYSTEM(2)
-      IF(INT(SYSTEM(11)).EQ.3)  JK_WAVE=SYSTEM(3)
-      IF(INT(SYSTEM(11)).EQ.4)  JK_WAVE=SYSTEM(4)
-      IF(INT(SYSTEM(11)).EQ.5)  JK_WAVE=SYSTEM(5)
-      IF(INT(SYSTEM(11)).EQ.6)  JK_WAVE=SYSTEM(71)
-      IF(INT(SYSTEM(11)).EQ.7)  JK_WAVE=SYSTEM(72)
-      IF(INT(SYSTEM(11)).EQ.8)  JK_WAVE=SYSTEM(73)
-      IF(INT(SYSTEM(11)).EQ.9)  JK_WAVE=SYSTEM(74)
-      IF(INT(SYSTEM(11)).EQ.10) JK_WAVE=SYSTEM(75)
+      JK_WAVE=sys_wavelength(INT(sys_wl_ref()))
       AMP1=DABS(FTFL01(1,AR)*JK_WAVE*0.5D0)
       AMP2=DABS(FTFL01(4,AR)*JK_WAVE*0.5D0)
       AMP3=DABS(FTFL01(7,AR)*JK_WAVE*0.5D0)
       AMP4=DABS(FTFL01(10,AR)*JK_WAVE*0.5D0)
       AMP5=DABS(FTFL01(13,AR)*JK_WAVE*0.5D0)
-      IF(SYSTEM(6).EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP1=AMP1*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP1=AMP1*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP1=AMP1*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP2=AMP2*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP2=AMP2*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP2=AMP2*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP3=AMP3*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP3=AMP3*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP3=AMP3*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP4=AMP4*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP4=AMP4*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP4=AMP4*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP5=AMP5*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP5=AMP5*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP5=AMP5*1.0D-6
+      IF(sys_units().EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP1=AMP1*1.0D-4
+      IF(sys_units().EQ.3) AMP1=AMP1*1.0D-3
+      IF(sys_units().EQ.4) AMP1=AMP1*1.0D-6
+      IF(sys_units().EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP2=AMP2*1.0D-4
+      IF(sys_units().EQ.3) AMP2=AMP2*1.0D-3
+      IF(sys_units().EQ.4) AMP2=AMP2*1.0D-6
+      IF(sys_units().EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP3=AMP3*1.0D-4
+      IF(sys_units().EQ.3) AMP3=AMP3*1.0D-3
+      IF(sys_units().EQ.4) AMP3=AMP3*1.0D-6
+      IF(sys_units().EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP4=AMP4*1.0D-4
+      IF(sys_units().EQ.3) AMP4=AMP4*1.0D-3
+      IF(sys_units().EQ.4) AMP4=AMP4*1.0D-6
+      IF(sys_units().EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP5=AMP5*1.0D-4
+      IF(sys_units().EQ.3) AMP5=AMP5*1.0D-3
+      IF(sys_units().EQ.4) AMP5=AMP5*1.0D-6
       AMP1=FTFL01(1,AR)/2.0D0
       AMP2=FTFL01(4,AR)/2.0D0
       AMP3=FTFL01(7,AR)/2.0D0
@@ -1302,6 +1294,7 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref
    IMPLICIT NONE
 !
    EXTERNAL FF2,FF3,FF4,FF5
@@ -1438,41 +1431,32 @@ FUNCTION FNZ2(AX,AY,AC1,AC2,AC3,AC4,AC6,AR,A34,Q &
    END IF
 !     SPECIAL SURFACE TYPE 4
    IF(A34.EQ.4.0D0) THEN
-      IF(INT(SYSTEM(11)).EQ.1)  JK_WAVE=SYSTEM(1)
-      IF(INT(SYSTEM(11)).EQ.2)  JK_WAVE=SYSTEM(2)
-      IF(INT(SYSTEM(11)).EQ.3)  JK_WAVE=SYSTEM(3)
-      IF(INT(SYSTEM(11)).EQ.4)  JK_WAVE=SYSTEM(4)
-      IF(INT(SYSTEM(11)).EQ.5)  JK_WAVE=SYSTEM(5)
-      IF(INT(SYSTEM(11)).EQ.6)  JK_WAVE=SYSTEM(71)
-      IF(INT(SYSTEM(11)).EQ.7)  JK_WAVE=SYSTEM(72)
-      IF(INT(SYSTEM(11)).EQ.8)  JK_WAVE=SYSTEM(73)
-      IF(INT(SYSTEM(11)).EQ.9)  JK_WAVE=SYSTEM(74)
-      IF(INT(SYSTEM(11)).EQ.10) JK_WAVE=SYSTEM(75)
+      JK_WAVE=sys_wavelength(INT(sys_wl_ref()))
       AMP1=DABS(FTFL01(1,AR)*JK_WAVE*0.5D0)
       AMP2=DABS(FTFL01(4,AR)*JK_WAVE*0.5D0)
       AMP3=DABS(FTFL01(7,AR)*JK_WAVE*0.5D0)
       AMP4=DABS(FTFL01(10,AR)*JK_WAVE*0.5D0)
       AMP5=DABS(FTFL01(13,AR)*JK_WAVE*0.5D0)
-      IF(SYSTEM(6).EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP1=AMP1*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP1=AMP1*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP1=AMP1*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP2=AMP2*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP2=AMP2*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP2=AMP2*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP3=AMP3*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP3=AMP3*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP3=AMP3*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP4=AMP4*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP4=AMP4*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP4=AMP4*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP5=AMP5*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP5=AMP5*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP5=AMP5*1.0D-6
+      IF(sys_units().EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP1=AMP1*1.0D-4
+      IF(sys_units().EQ.3) AMP1=AMP1*1.0D-3
+      IF(sys_units().EQ.4) AMP1=AMP1*1.0D-6
+      IF(sys_units().EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP2=AMP2*1.0D-4
+      IF(sys_units().EQ.3) AMP2=AMP2*1.0D-3
+      IF(sys_units().EQ.4) AMP2=AMP2*1.0D-6
+      IF(sys_units().EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP3=AMP3*1.0D-4
+      IF(sys_units().EQ.3) AMP3=AMP3*1.0D-3
+      IF(sys_units().EQ.4) AMP3=AMP3*1.0D-6
+      IF(sys_units().EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP4=AMP4*1.0D-4
+      IF(sys_units().EQ.3) AMP4=AMP4*1.0D-3
+      IF(sys_units().EQ.4) AMP4=AMP4*1.0D-6
+      IF(sys_units().EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP5=AMP5*1.0D-4
+      IF(sys_units().EQ.3) AMP5=AMP5*1.0D-3
+      IF(sys_units().EQ.4) AMP5=AMP5*1.0D-6
       AMP1=FTFL01(1,AR)
       AMP2=FTFL01(4,AR)
       AMP3=FTFL01(7,AR)
@@ -2225,6 +2209,7 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wavelength, sys_units, sys_wl_ref
    IMPLICIT NONE
 !
    EXTERNAL FF2,FF3,FF4,FF5
@@ -2297,41 +2282,32 @@ FUNCTION FNZ3(AX,AY,ACX,ACY,ADX,ADY,AEX,AEY,AFX,AFY,AGX,AGY,&
    END IF
 !     SPECIAL SURFACE TYPE 4
    IF(A34.EQ.4.0D0) THEN
-      IF(INT(SYSTEM(11)).EQ.1)  JK_WAVE=SYSTEM(1)
-      IF(INT(SYSTEM(11)).EQ.2)  JK_WAVE=SYSTEM(2)
-      IF(INT(SYSTEM(11)).EQ.3)  JK_WAVE=SYSTEM(3)
-      IF(INT(SYSTEM(11)).EQ.4)  JK_WAVE=SYSTEM(4)
-      IF(INT(SYSTEM(11)).EQ.5)  JK_WAVE=SYSTEM(5)
-      IF(INT(SYSTEM(11)).EQ.6)  JK_WAVE=SYSTEM(71)
-      IF(INT(SYSTEM(11)).EQ.7)  JK_WAVE=SYSTEM(72)
-      IF(INT(SYSTEM(11)).EQ.8)  JK_WAVE=SYSTEM(73)
-      IF(INT(SYSTEM(11)).EQ.9)  JK_WAVE=SYSTEM(74)
-      IF(INT(SYSTEM(11)).EQ.10) JK_WAVE=SYSTEM(75)
+      JK_WAVE=sys_wavelength(INT(sys_wl_ref()))
       AMP1=DABS(FTFL01(1,AR)*JK_WAVE*0.5D0)
       AMP2=DABS(FTFL01(4,AR)*JK_WAVE*0.5D0)
       AMP3=DABS(FTFL01(7,AR)*JK_WAVE*0.5D0)
       AMP4=DABS(FTFL01(10,AR)*JK_WAVE*0.5D0)
       AMP5=DABS(FTFL01(13,AR)*JK_WAVE*0.5D0)
-      IF(SYSTEM(6).EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP1=AMP1*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP1=AMP1*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP1=AMP1*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP2=AMP2*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP2=AMP2*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP2=AMP2*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP3=AMP3*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP3=AMP3*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP3=AMP3*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP4=AMP4*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP4=AMP4*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP4=AMP4*1.0D-6
-      IF(SYSTEM(6).EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
-      IF(SYSTEM(6).EQ.2) AMP5=AMP5*1.0D-4
-      IF(SYSTEM(6).EQ.3) AMP5=AMP5*1.0D-3
-      IF(SYSTEM(6).EQ.4) AMP5=AMP5*1.0D-6
+      IF(sys_units().EQ.1) AMP1=(AMP1*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP1=AMP1*1.0D-4
+      IF(sys_units().EQ.3) AMP1=AMP1*1.0D-3
+      IF(sys_units().EQ.4) AMP1=AMP1*1.0D-6
+      IF(sys_units().EQ.1) AMP2=(AMP2*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP2=AMP2*1.0D-4
+      IF(sys_units().EQ.3) AMP2=AMP2*1.0D-3
+      IF(sys_units().EQ.4) AMP2=AMP2*1.0D-6
+      IF(sys_units().EQ.1) AMP3=(AMP3*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP3=AMP3*1.0D-4
+      IF(sys_units().EQ.3) AMP3=AMP3*1.0D-3
+      IF(sys_units().EQ.4) AMP3=AMP3*1.0D-6
+      IF(sys_units().EQ.1) AMP4=(AMP4*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP4=AMP4*1.0D-4
+      IF(sys_units().EQ.3) AMP4=AMP4*1.0D-3
+      IF(sys_units().EQ.4) AMP4=AMP4*1.0D-6
+      IF(sys_units().EQ.1) AMP5=(AMP5*1.0D-4/2.54D0)
+      IF(sys_units().EQ.2) AMP5=AMP5*1.0D-4
+      IF(sys_units().EQ.3) AMP5=AMP5*1.0D-3
+      IF(sys_units().EQ.4) AMP5=AMP5*1.0D-6
       AMP1=FTFL01(1,AR)
       AMP2=FTFL01(4,AR)
       AMP3=FTFL01(7,AR)
@@ -3716,6 +3692,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength
    IMPLICIT NONE
 !
 !     ERROR RAY VARIABLES 3/5/2006
@@ -3995,14 +3972,14 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       IF(DABS(FACTOR).LE.1E-6) DSPACE=1.0D20
 !     NOW CALC BIG GAMMA AND SMALL MU
 !      WLU=WAVELENGTH IN MICRONS*(LENS UNITS/MICRON)
-      IF(SYSTEM(6).EQ.1.0D0)&
-      &WLU=SYSTEM(INT(WVN))*3.93700787402D-5
-      IF(SYSTEM(6).EQ.2.0D0)&
-      &WLU=SYSTEM(INT(WVN))*1.0D-4
-      IF(SYSTEM(6).EQ.3.0D0)&
-      &WLU=SYSTEM(INT(WVN))*1.0D-3
-      IF(SYSTEM(6).EQ.4.0D0)&
-      &WLU=SYSTEM(INT(WVN))*1.0D-6
+      IF(sys_units().EQ.1.0D0)&
+      &WLU=sys_wavelength(INT(WVN))*3.93700787402D-5
+      IF(sys_units().EQ.2.0D0)&
+      &WLU=sys_wavelength(INT(WVN))*1.0D-4
+      IF(sys_units().EQ.3.0D0)&
+      &WLU=sys_wavelength(INT(WVN))*1.0D-3
+      IF(sys_units().EQ.4.0D0)&
+      &WLU=sys_wavelength(INT(WVN))*1.0D-6
 !
       BLAM=-(GRO*WLU)/((DSPACE)*DABS(ALENS((WWVN),R_I)))
 !
@@ -4197,7 +4174,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !     HOE PRECALCULATIONS
       EMM=FTFL01(1,R_I)
       LAMC=FTFL01(2,R_I)
-      LAMP=SYSTEM(INT(WVN))
+      LAMP=sys_wavelength(INT(WVN))
 !
       IF(surf_special_type(R_I) == 12) THEN
          LO=FTFL01(3,R_I)-R_X
@@ -4312,13 +4289,13 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !
 !     NOW CALC BIG GAMMA AND SMALL MU
 !      WLU=WAVELENGTH IN MICRONS*(LENS UNITS/MICRON)
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &WLU=FTFL01(2,R_I)*3.93700787402D-5
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &WLU=FTFL01(2,R_I)*1.0D-4
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &WLU=FTFL01(2,R_I)*1.0D-3
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &WLU=FTFL01(2,R_I)*1.0D-6
 !
          GRS=WLU/CHINOR
