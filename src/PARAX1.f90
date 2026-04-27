@@ -6,6 +6,7 @@ SUBROUTINE PRCOL
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRCOL. THIS DOES A PARAXIAL
@@ -139,7 +140,7 @@ SUBROUTINE PRCOL
 !
 !       HERE ALL PARAXIAL VALUES HAVE BEEN CALCULATED FOR THE
 !       OBJECT THROUGH SURFACE 1 IN THE ABSCENSE OF ANY SOLVES.
-      DO 80 L=2,INT(SYSTEM(20))
+      DO 80 L=2,INT(sys_last_surf())
 !               VALUES AT SURFACE L
 !******************************************************************************
 !       NOW CALCULATE COLY(1,L) VALUE
@@ -330,7 +331,7 @@ SUBROUTINE PRCOL
 !
 !       HERE ALL PARAXIAL VALUES HAVE BEEN CALCULATED FOR THE
 !       OBJECT THROUGH SURFACE 1 IN THE ABSCENSE OF ANY SOLVES.
-      DO 800 L=2,INT(SYSTEM(20))
+      DO 800 L=2,INT(sys_last_surf())
 !               VALUES AT SURFACE L
 !******************************************************************************
 !       NOW CALCULATE COLX(1,L) VALUE
@@ -440,6 +441,8 @@ SUBROUTINE PRTRA_OLD
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
+   use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
+      & sys_telecentric, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -471,16 +474,16 @@ SUBROUTINE PRTRA_OLD
    COMMON/PIKCOM/COMI
 !
    INTEGER WWVN
-   IF(INT(SYSTEM(11)).EQ.1) WWVN=46
-   IF(INT(SYSTEM(11)).EQ.2) WWVN=47
-   IF(INT(SYSTEM(11)).EQ.3) WWVN=48
-   IF(INT(SYSTEM(11)).EQ.4) WWVN=49
-   IF(INT(SYSTEM(11)).EQ.5) WWVN=50
-   IF(INT(SYSTEM(11)).EQ.6) WWVN=71
-   IF(INT(SYSTEM(11)).EQ.7) WWVN=72
-   IF(INT(SYSTEM(11)).EQ.8) WWVN=73
-   IF(INT(SYSTEM(11)).EQ.9) WWVN=74
-   IF(INT(SYSTEM(11)).EQ.10) WWVN=75
+   IF(INT(sys_wl_ref()).EQ.1) WWVN=46
+   IF(INT(sys_wl_ref()).EQ.2) WWVN=47
+   IF(INT(sys_wl_ref()).EQ.3) WWVN=48
+   IF(INT(sys_wl_ref()).EQ.4) WWVN=49
+   IF(INT(sys_wl_ref()).EQ.5) WWVN=50
+   IF(INT(sys_wl_ref()).EQ.6) WWVN=71
+   IF(INT(sys_wl_ref()).EQ.7) WWVN=72
+   IF(INT(sys_wl_ref()).EQ.8) WWVN=73
+   IF(INT(sys_wl_ref()).EQ.9) WWVN=74
+   IF(INT(sys_wl_ref()).EQ.10) WWVN=75
 !
 
    OUTLYNE = "PRTRA ROUTINE STARTED! "
@@ -503,9 +506,9 @@ SUBROUTINE PRTRA_OLD
    PRINT *, "thick1 is ", curr_lens_data%thicknesses(1)
    PRINT *, "ENPUPOS is ", ENPUZ
    PRINT *, "Lo is ", Lo
-   PRINT *, "SYSTEM(12) is ", SYSTEM(12)
+   PRINT *, "sys_say() is ", sys_say()
    print *, "2*Lo is ", (2*Lo)
-   thetao = ATAN(SYSTEM(12)/(Lo))
+   thetao = ATAN(sys_say()/(Lo))
 
    PRINT *, "theta0 is ", thetao
    nao = sin(thetao)
@@ -565,7 +568,7 @@ SUBROUTINE PRTRA_OLD
 !
 !       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
 !
-      IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
 !
 !       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
 !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
@@ -606,7 +609,7 @@ SUBROUTINE PRTRA_OLD
             ! Experimental code !  go back to original and fix it correctly!
             PXTRAY(2,0) = marAng0
 !         if (ENPUZ == 0) then
-!                 PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+!                 PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !                 call LogTermFOR("PRTRA LN 593 isDataValid " //
 !      1 bool2str(curr_par_ray_trace%isFirstOrderDataValid()))
 
@@ -622,7 +625,7 @@ SUBROUTINE PRTRA_OLD
 !         end if
 
             ! Original Code!!
-            !        PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+            !        PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !
 !       PIY(0) =PUY(0)
             PXTRAY(3,0)=PXTRAY(2,0)
@@ -631,8 +634,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAY(4,0)=PXTRAY(3,0)
 !
 !       PCY(0) =-SCY
-            PXTRAY(5,0)=(SYSTEM(14))
-            IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
+            PXTRAY(5,0)=(sys_scy())
+            IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -642,8 +645,8 @@ SUBROUTINE PRTRA_OLD
                CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
-            PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
-            IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=&
+            PXTRAY(6,0)=-((sys_scy())-CON)/surf_thickness(0)
+            IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)=&
             &-(1.0D0-CON)/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
@@ -678,14 +681,14 @@ SUBROUTINE PRTRA_OLD
             ! Experimental code !  go back to original and fix it correctly!
             PXTRAY(1,1) = marPos1
             ! if (ENPUZ == 0) then
-            !         PXTRAY(1,1)=(SYSTEM(12))
+            !         PXTRAY(1,1)=(sys_say())
             ! else
             !         PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
             ! end if
             ! PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
             ! Original code
-!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-            ! PXTRAY(1,1)=(SYSTEM(12))
+!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+            ! PXTRAY(1,1)=(sys_say())
 !
 
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
@@ -783,7 +786,7 @@ SUBROUTINE PRTRA_OLD
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
 
-            DO 50 L=2,INT(SYSTEM(26))
+            DO 50 L=2,INT(sys_astop())
 !               VALUES AT SURFACE L
                SLV1=L
                SLV2=1
@@ -884,8 +887,8 @@ SUBROUTINE PRTRA_OLD
 !       WHEN ASTOP IS NOT ON SURFACE 1
 !
 50          CONTINUE
-            IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(SYSTEM(26))))
-            IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
+            IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(sys_astop())))
+            IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(sys_astop())))
 60       CONTINUE
          IF(TMP15A.EQ.TMP15B) THEN
             OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
@@ -916,14 +919,14 @@ SUBROUTINE PRTRA_OLD
          PXTRAY(2,0) = marAng0
          ! Experimental code !  go back to original and fix it correctly!
          ! if (ENPUZ == 0) then
-         !         PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+         !         PXTRAY(2,0)=(sys_say())/surf_thickness(0)
          ! else
          !         PXTRAY(2,0)=nao
          ! end if
 
 !
 !       PUY(0)=SAY/TH(0)
-         !        PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+         !        PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !
 !       PIY(0) =PUY(0)
          PXTRAY(3,0)=PXTRAY(2,0)
@@ -932,14 +935,14 @@ SUBROUTINE PRTRA_OLD
          PXTRAY(4,0)=PXTRAY(3,0)
 !
 !       PCY(0) =-SCY
-         PXTRAY(5,0)=(SYSTEM(14))
-         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
+         PXTRAY(5,0)=(sys_scy())
+         IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=&
+         PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)=&
          &-(1.0D0-SYSTEM(15))/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
@@ -964,15 +967,15 @@ SUBROUTINE PRTRA_OLD
          ! Experimental code !  go back to original and fix it correctly!
 
          ! if (ENPUZ == 0) then
-         !         PXTRAY(1,1)=(SYSTEM(12))
+         !         PXTRAY(1,1)=(sys_say())
          ! else
          !         PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
          ! end if
          ! PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
 !
 !       Original Code
-!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-         !PXTRAY(1,1)=(SYSTEM(12))
+!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+         !PXTRAY(1,1)=(sys_say())
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1059,7 +1062,7 @@ SUBROUTINE PRTRA_OLD
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-         DO 70 L=2,INT(SYSTEM(26))
+         DO 70 L=2,INT(sys_astop())
             SLV1=L
             SLV2=1
             IF(SOLVE(6,L).NE.0.0D0 .OR.&
@@ -1164,7 +1167,7 @@ SUBROUTINE PRTRA_OLD
 !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
 !       HERE. WE HAVE DEFINED. THIS IS THE
 !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-         L=INT(SYSTEM(26))
+         L=INT(sys_astop())
 !       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
 !       THIS IS DONE BY CALLING SUBROUTINE
          SLV1=L
@@ -1184,9 +1187,9 @@ SUBROUTINE PRTRA_OLD
 !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
 !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
 !
-!       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM(26)+1)
+!       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (sys_astop()+1)
 !       TO THE IMAGE SURFACE  WHERE:
-         DO 90 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+         DO 90 L=((INT(sys_astop()))+1),INT(sys_last_surf())
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -1321,13 +1324,13 @@ SUBROUTINE PRTRA_OLD
          ! Experimental code !  go back to original and fix it correctly!
          PXTRAY(2,0) = marAng0
          ! if (ENPUZ == 0) then
-         !         PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+         !         PXTRAY(2,0)=(sys_say())/surf_thickness(0)
          ! else
          !         PXTRAY(2,0)=nao
          ! end if
 
 !       PUY(0)=SAY/TH(0)
-         !PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+         !PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !
 !       PIY(0) =PUY(0)
          PXTRAY(3,0)=PXTRAY(2,0)
@@ -1336,17 +1339,17 @@ SUBROUTINE PRTRA_OLD
          PXTRAY(4,0)=PXTRAY(3,0)
 !
 !       PCY(0) =-SCY
-         PXTRAY(5,0)=(SYSTEM(14))
-         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(5,0)=1.0D0
+         PXTRAY(5,0)=(sys_scy())
+         IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(14).EQ.0.0D0) PXTRAY(6,0)=&
+         IF(sys_telecentric().EQ.0.0D0)&
+         &PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)=&
          &-(1.0D0-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
+         IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAY(6,0)=0.0D0
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
@@ -1365,14 +1368,14 @@ SUBROUTINE PRTRA_OLD
          ! Experimental code !  go back to original and fix it correctly!
          PXTRAY(1,1) = marPos1
 !         if (ENPUZ == 0) then
-!                 PXTRAY(1,1)=(SYSTEM(12))
+!                 PXTRAY(1,1)=(sys_say())
 !         else
 !                 PXTRAY(1,1)=tan(thetao)*curr_lens_data%thicknesses(1)
 !         end if
 !         PRINT *, "PXTRAY(1,1) i ", PXTRAY(1,1)
 ! C
-!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-         !PXTRAY(1,1)=(SYSTEM(12))
+!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+         !PXTRAY(1,1)=(sys_say())
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1416,8 +1419,8 @@ SUBROUTINE PRTRA_OLD
          &(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(SYSTEM(63).EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
-         IF(SYSTEM(63).EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
+         IF(sys_telecentric().EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1482,7 +1485,7 @@ SUBROUTINE PRTRA_OLD
 !       THICKNESS SOLVES AFFECT THE DISTANCE FROM THE SURFACE THAT THE
 !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
 !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
-         DO 80 L=2,INT(SYSTEM(20))
+         DO 80 L=2,INT(sys_last_surf())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -1620,7 +1623,7 @@ SUBROUTINE PRTRA_OLD
 !       SUBROUTINE. THE XZ PLANE CROMATIC SURFACE COEFICIENTS
 !       ARE CALCULATED WITH A CALL TO CCOLX.FOR
 !
-      SYS13=SYSTEM(13)
+      SYS13=sys_sax()
 !
 !       THIS IS THE FIRST OF THE PARAXIAL RAY TRACING SUBROUTINES
 !       IT IS AUTOMATICALLY CALLED FROM LNSEOS AFTER LENS INPUT
@@ -1653,7 +1656,7 @@ SUBROUTINE PRTRA_OLD
 !
 !       SYSTEM(17)=((-.1D0*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
 !
-      IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
 !
 !       RECALCULATE THE CORRECT VALUE OF SYSTEM(17)
 !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(17)
@@ -1699,8 +1702,8 @@ SUBROUTINE PRTRA_OLD
             PXTRAX(4,0)=PXTRAX(3,0)
 !
 !       PCX(0) =-SCX
-            PXTRAX(5,0)=(SYSTEM(16))
-            IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+            PXTRAX(5,0)=(sys_scx())
+            IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -1710,8 +1713,8 @@ SUBROUTINE PRTRA_OLD
                CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
-            PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
-            IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=&
+            PXTRAX(6,0)=-((sys_scx())-CON)/surf_thickness(0)
+            IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)=&
             &-(1.0D0-CON)/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
@@ -1825,7 +1828,7 @@ SUBROUTINE PRTRA_OLD
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-            DO 5000 L=2,INT(SYSTEM(26))
+            DO 5000 L=2,INT(sys_astop())
                SLV1=L
                SLV2=2
                IF(SOLVE(4,L).NE.0.0D0 .OR.&
@@ -1926,8 +1929,8 @@ SUBROUTINE PRTRA_OLD
 !       WHEN ASTOP IS NOT ON SURFACE 1
 !
 5000        CONTINUE
-            IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(SYSTEM(26))))
-            IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(SYSTEM(26))))
+            IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(sys_astop())))
+            IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(sys_astop())))
 6000     CONTINUE
          IF(TMP17A.EQ.TMP17B) THEN
             OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
@@ -1966,14 +1969,14 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(4,0)=PXTRAX(3,0)
 !
 !       PCX(0) =-SCX
-         PXTRAX(5,0)=(SYSTEM(16))
-         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+         PXTRAX(5,0)=(sys_scx())
+         IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=&
+         PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)=&
          &-(1.0D0-SYSTEM(17))/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
@@ -2082,7 +2085,7 @@ SUBROUTINE PRTRA_OLD
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-         DO 7000 L=2,INT(SYSTEM(26))
+         DO 7000 L=2,INT(sys_astop())
             SLV1=L
             SLV2=2
             IF(SOLVE(4,L).NE.0.0D0 .OR.&
@@ -2187,7 +2190,7 @@ SUBROUTINE PRTRA_OLD
 !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
 !       HERE. WE HAVE DEFINED . THIS IS THE
 !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-         L=INT(SYSTEM(26))
+         L=INT(sys_astop())
 !       NOW HANDLE ALL SOLVES ON THE APERTURE STOP SURFACE.
 !       THIS IS DONE BY CALLING SUBROUTINE
 !                               SLVRS
@@ -2210,7 +2213,7 @@ SUBROUTINE PRTRA_OLD
 !
 !       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM+1)
 !       TO THE IMAGE SURFACE  WHERE:
-         DO 9000 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+         DO 9000 L=((INT(sys_astop()))+1),INT(sys_last_surf())
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -2353,17 +2356,17 @@ SUBROUTINE PRTRA_OLD
          PXTRAX(4,0)=PXTRAX(3,0)
 !
 !       PCX(0) =-SCX
-         PXTRAX(5,0)=(SYSTEM(16))
-         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(5,0)=1.0D0
+         PXTRAX(5,0)=(sys_scx())
+         IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(16).EQ.0.0D0) PXTRAX(6,0)=&
+         IF(sys_telecentric().EQ.0.0D0)&
+         &PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)=&
          &-(1.0D0-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
+         IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAX(6,0)=0.0D0
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
@@ -2429,8 +2432,8 @@ SUBROUTINE PRTRA_OLD
          &(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(SYSTEM(63).EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
-         IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
+         IF(sys_telecentric().EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2495,7 +2498,7 @@ SUBROUTINE PRTRA_OLD
 !       THICKNESS SOLVES AFFECT THE DISTANCE FROM THE SURFACE THAT THE
 !       SOLVES ARE ON TO THE NEXT SURFACE. BECAUSE OF THIS, CURVATURE
 !       SOLVES MUST BE HANDLED FIRST FOLLOWED BY THICKNESS SOLVES.
-         DO 8000 L=2,INT(SYSTEM(20))
+         DO 8000 L=2,INT(sys_last_surf())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -2614,7 +2617,7 @@ SUBROUTINE PRTRA_OLD
 !    Populate data object
 !     Dump data to paraxial ray trace interface
 
-      SF = INT(SYSTEM(20))
+      SF = INT(sys_last_surf())
       call curr_par_ray_trace%add_lens_data(curr_lens_data)
       PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
 
@@ -2677,6 +2680,7 @@ SUBROUTINE PRTRC
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRC. THIS IS THE
@@ -2689,11 +2693,11 @@ SUBROUTINE PRTRC
 !
 !
 
-   CW=INT(SYSTEM(11))
+   CW=INT(sys_wl_ref())
    AITYPE=1
    CALL AB357
 !
-   CW=INT(SYSTEM(11))
+   CW=INT(sys_wl_ref())
    AITYPE=2
    CALL AB357
    RETURN
@@ -2703,6 +2707,8 @@ SUBROUTINE PRTRD
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, &
+      & sys_wl_sec1, sys_wl_sec2
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRD. THIS IS THE
@@ -2722,38 +2728,38 @@ SUBROUTINE PRTRD
 !       AND THE CHROMATIC ABERRATION DIFFERENCES.
 !
 !       SAVE THE ORIGINAL PARAXIAL DATA
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    SAVE(1:8,0:I)=PXTRAY(1:8,0:I)
 !
-!       NOW CALL PRCOL(SYSTEM(7),1)
-   WV=SYSTEM(7)
+!       NOW CALL PRCOL(sys_wl_pri1(),1)
+   WV=sys_wl_pri1()
    ITYP=1
    CALL PRCOL
 !       SWAP COLY INTO PXTRAY
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAY(1:8,0:I)=COLY(1:8,0:I)
-   CW=INT(SYSTEM(7))
+   CW=INT(sys_wl_pri1())
    AITYPE=1
    CALL AB357
 !
 !       SAVE THE DATA IN PDF3 AND PDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PDF3(1:10,0:I)=MAB3(1:10,0:I)
    PDF57(1:20,0:I)=MAB57(1:20,0:I)
 !
-!       NOW CALL PRCOL(SYSTEM(8),1)
-   WV=SYSTEM(8)
+!       NOW CALL PRCOL(sys_wl_pri2(),1)
+   WV=sys_wl_pri2()
    ITYP=1
    CALL PRCOL
 !       SWAP COLY INTO PXTRAY
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAY(1:8,0:I)=COLY(1:8,0:I)
 !       CALL AB357 AGAIN
-   CW=INT(SYSTEM(8))
+   CW=INT(sys_wl_pri2())
    AITYPE=1
    CALL AB357
 !       SUBTRACT THE DATA IN PDF3 AND PDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PDF3(1:10,0:I)=PDF3(1:10,0:I)-MAB3(1:10,0:I)
    PDF57(1:20,0:I)=PDF57(1:20,0:I)-MAB57(1:20,0:I)
 !       ALL OF THE PRIMARY CHROMATIC DIFFERENCES IN THE
@@ -2761,35 +2767,35 @@ SUBROUTINE PRTRD
 !
 !       NOW FOR THE SECONDARY DIFFERENCES
 !
-!       NOW CALL PRCOL(SYSTEM(9),1)
-   WV=SYSTEM(9)
+!       NOW CALL PRCOL(sys_wl_sec1(),1)
+   WV=sys_wl_sec1()
    ITYP=1
    CALL PRCOL
 !       SWAP COLY INTO PXTRAY
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAY(1:8,0:I)=COLY(1:8,0:I)
-   CW=INT(SYSTEM(9))
+   CW=INT(sys_wl_sec1())
    AITYPE=1
    CALL AB357
 !
 !       SAVE THE DATA IN SDF3 AND SDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    SDF3(1:10,0:I)=MAB3(1:10,0:I)
    SDF57(1:20,0:I)=MAB57(1:20,0:I)
 !
-!       NOW CALL PRCOL(SYSTEM(10),1)
-   WV=SYSTEM(10)
+!       NOW CALL PRCOL(sys_wl_sec2(),1)
+   WV=sys_wl_sec2()
    ITYP=1
    CALL PRCOL
 !       SWAP COLY INTO PXTRAY
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAY(1:8,I)=COLY(1:8,I)
 !       CALL AB357 AGAIN
-   CW=INT(SYSTEM(10))
+   CW=INT(sys_wl_sec2())
    AITYPE=1
    CALL AB357
 !       SUBTRACT THE DATA IN PDF3 AND PDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    SDF3(1:10,0:I)=SDF3(1:10,0:I)-MAB3(1:10,0:I)
    SDF57(1:20,0:I)=SDF57(1:20,0:I)-MAB57(1:20,0:I)
 !       ALL OF THE PRIMARY CHROMATIC DIFFERENCES IN THE
@@ -2797,43 +2803,43 @@ SUBROUTINE PRTRD
 !
 !       RESTORE OLD YZ PARAXIAL TRACE DATA
 !
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAY(1:8,0:I)=SAVE(1:8,0:I)
-   CW=INT(SYSTEM(11))
+   CW=INT(sys_wl_ref())
 !
 !       SAVE THE ORIGINAL PARAXIAL DATA
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    SAVE(1:8,0:I)=PXTRAX(1:8,0:I)
 !
-!       NOW CALL PRCOL(SYSTEM(7),2)
-   WV=SYSTEM(7)
+!       NOW CALL PRCOL(sys_wl_pri1(),2)
+   WV=sys_wl_pri1()
    ITYP=2
    CALL PRCOL
 !       SWAP COLX INTO PXTRAX
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAX(1:8,0:I)=COLX(1:8,0:I)
-   CW=INT(SYSTEM(7))
+   CW=INT(sys_wl_pri1())
    AITYPE=2
    CALL AB357
 !
 !       SAVE THE DATA IN XPDF3 AND XPDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    XPDF3(1:10,0:I)=XMAB3(1:10,0:I)
    XPDF57(1:20,0:I)=XMAB57(1:20,0:I)
 !
-!       NOW CALL PRCOL(SYSTEM(8),2)
-   WV=SYSTEM(8)
+!       NOW CALL PRCOL(sys_wl_pri2(),2)
+   WV=sys_wl_pri2()
    ITYP=2
    CALL PRCOL
 !       SWAP COLX INTO PXTRAX
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAX(1:8,0:I)=COLX(1:8,0:I)
 !             CALL AB357 AGAIN
-   CW=INT(SYSTEM(8))
+   CW=INT(sys_wl_pri2())
    AITYPE=2
    CALL AB357
 !       SUBTRACT THE DATA IN PDF3 AND PDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    XPDF3(1:10,0:I)=XPDF3(1:10,0:I)-XMAB3(1:10,0:I)
    XPDF57(1:20,0:I)=XPDF57(1:20,0:I)-XMAB57(1:20,0:I)
 !       ALL OF THE PRIMARY CHROMATIC DIFFERENCES IN THE
@@ -2841,34 +2847,34 @@ SUBROUTINE PRTRD
 !
 !       NOW FOR THE SECONDARY DIFFERENCES
 !
-!       NOW CALL PRCOL(SYSTEM(9)2)
-   WV=SYSTEM(9)
+!       NOW CALL PRCOL(sys_wl_sec1()2)
+   WV=sys_wl_sec1()
    ITYP=2
    CALL PRCOL
 !       SWAP COLY INTO PXTRAX
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAX(1:8,0:I)=COLX(1:8,0:I)
-   CW=INT(SYSTEM(9))
+   CW=INT(sys_wl_sec1())
    AITYPE=2
    CALL AB357
 !       SAVE THE DATA IN XSDF3 AND XSDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    XSDF3(1:10,0:I)=XMAB3(1:10,0:I)
    XSDF57(1:20,0:I)=XMAB57(1:20,0:I)
 !
-!       NOW CALL PRCOL(SYSTEM(10),2)
-   WV=SYSTEM(10)
+!       NOW CALL PRCOL(sys_wl_sec2(),2)
+   WV=sys_wl_sec2()
    ITYP=2
    CALL PRCOL
 !       SWAP COLX INTO PXTRAX
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAX(1:8,0:I)=COLX(1:8,0:I)
 !       CALL AB357 AGAIN
-   CW=INT(SYSTEM(10))
+   CW=INT(sys_wl_sec2())
    AITYPE=2
    CALL AB357
 !       SUBTRACT THE DATA IN XPDF3 AND XPDF57
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    XSDF3(1:10,0:I)=XSDF3(1:10,0:I)-XMAB3(1:10,0:I)
    XSDF57(1:20,0:I)=XSDF57(1:20,0:I)-XMAB57(1:20,0:I)
 !       ALL OF THE PRIMARY CHROMATIC DIFFERENCES IN THE
@@ -2877,9 +2883,9 @@ SUBROUTINE PRTRD
 !       RESTORE OLD XZ PARAXIAL TRACE DATA AND CALL
 !       AB357 FOR THE LAST TIME
 !
-   I=INT(SYSTEM(20))
+   I=INT(sys_last_surf())
    PXTRAX(1:8,0:I)=SAVE(1:8,0:I)
-   CW=INT(SYSTEM(11))
+   CW=INT(sys_wl_ref())
    AITYPE=1
    CALL AB357
    RETURN
@@ -2890,6 +2896,7 @@ SUBROUTINE PAROUT
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PAROUT. THIS SUBROUTINE IMPLEMENTS
@@ -2923,7 +2930,7 @@ SUBROUTINE PAROUT
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL DATA EXISTS'
@@ -2932,7 +2939,7 @@ SUBROUTINE PAROUT
       RETURN
    END IF
    IF(SQ.EQ.1 .AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PXTX') WRITE(OUTLYNE,6001) INT(F12)
       IF(WC.EQ.'PXTY') WRITE(OUTLYNE,6004) INT(F12)
       IF(WC.EQ.'PITX') WRITE(OUTLYNE,6007) INT(F12)
@@ -3041,7 +3048,7 @@ SUBROUTINE PAROUT
    END IF
    IF(SQ.EQ.0 .AND.DF1.EQ.1) THEN
 !       OUTPUT IMAGE SURFACE
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PXTX')THEN
          IF(HEADIN) WRITE(OUTLYNE,6000)
          IF(HEADIN) CALL SHOWIT(0)
@@ -3088,7 +3095,7 @@ SUBROUTINE PAROUT
    END IF
    IF(SQ.EQ.0 .AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -3194,6 +3201,8 @@ SUBROUTINE TR
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
+   use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
+      & sys_telecentric, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS CALLED BY SUBROUTINE FADJ AND ERADJ.
@@ -3210,16 +3219,16 @@ SUBROUTINE TR
    REAL*8 TMP15A,TMP15B,CON,CURV,SYS13,TMP17A,TMP17B
 !
    INTEGER WWVN
-   IF(INT(SYSTEM(11)).EQ.1) WWVN=46
-   IF(INT(SYSTEM(11)).EQ.2) WWVN=47
-   IF(INT(SYSTEM(11)).EQ.3) WWVN=48
-   IF(INT(SYSTEM(11)).EQ.4) WWVN=49
-   IF(INT(SYSTEM(11)).EQ.5) WWVN=50
-   IF(INT(SYSTEM(11)).EQ.6) WWVN=71
-   IF(INT(SYSTEM(11)).EQ.7) WWVN=72
-   IF(INT(SYSTEM(11)).EQ.8) WWVN=73
-   IF(INT(SYSTEM(11)).EQ.9) WWVN=74
-   IF(INT(SYSTEM(11)).EQ.10) WWVN=75
+   IF(INT(sys_wl_ref()).EQ.1) WWVN=46
+   IF(INT(sys_wl_ref()).EQ.2) WWVN=47
+   IF(INT(sys_wl_ref()).EQ.3) WWVN=48
+   IF(INT(sys_wl_ref()).EQ.4) WWVN=49
+   IF(INT(sys_wl_ref()).EQ.5) WWVN=50
+   IF(INT(sys_wl_ref()).EQ.6) WWVN=71
+   IF(INT(sys_wl_ref()).EQ.7) WWVN=72
+   IF(INT(sys_wl_ref()).EQ.8) WWVN=73
+   IF(INT(sys_wl_ref()).EQ.9) WWVN=74
+   IF(INT(sys_wl_ref()).EQ.10) WWVN=75
    CON=SYSTEM(15)
 !
    IF(ITYPEP.EQ.1) THEN
@@ -3244,8 +3253,8 @@ SUBROUTINE TR
 !
 !       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
 !
-      IF(SYSTEM(26).GT.0.0D0 &
-      &.AND.SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_astop().GT.0.0D0 &
+      &.AND.sys_telecentric().EQ.0.0D0) THEN
 !
 !       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
 !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
@@ -3283,7 +3292,7 @@ SUBROUTINE TR
                CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
-            PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+            PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !
 !       PIY(0) =PUY(0)
             PXTRAY(3,0)=PXTRAY(2,0)
@@ -3292,7 +3301,7 @@ SUBROUTINE TR
             PXTRAY(4,0)=PXTRAY(3,0)
 !
 !       PCY(0) =-SCY
-            PXTRAY(5,0)=-(SYSTEM(14))
+            PXTRAY(5,0)=-(sys_scy())
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -3302,7 +3311,7 @@ SUBROUTINE TR
                CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
-            PXTRAY(6,0)=-((SYSTEM(14))-CON)/surf_thickness(0)
+            PXTRAY(6,0)=-((sys_scy())-CON)/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
             PXTRAY(7,0)=PXTRAY(6,0)
@@ -3317,8 +3326,8 @@ SUBROUTINE TR
             COMI=1
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
-!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-            PXTRAY(1,1)=(SYSTEM(12))
+!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+            PXTRAY(1,1)=(sys_say())
 !
 
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
@@ -3410,7 +3419,7 @@ SUBROUTINE TR
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-            DO 50 L=2,INT(SYSTEM(26))
+            DO 50 L=2,INT(sys_astop())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
                COMI=L
@@ -3507,8 +3516,8 @@ SUBROUTINE TR
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
 !
 50          CONTINUE
-            IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(SYSTEM(26))))
-            IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(SYSTEM(26))))
+            IF(JK.EQ.1) TMP15A=PXTRAY(5,(INT(sys_astop())))
+            IF(JK.EQ.2) TMP15B=PXTRAY(5,(INT(sys_astop())))
 60       CONTINUE
          IF(TMP15A.EQ.TMP15B) THEN
             OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
@@ -3538,7 +3547,7 @@ SUBROUTINE TR
          PXTRAY(1,0)=0.0D0
 !
 !       PUY(0)=SAY/TH(0)
-         PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+         PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !
 !       PIY(0) =PUY(0)
          PXTRAY(3,0)=PXTRAY(2,0)
@@ -3547,12 +3556,12 @@ SUBROUTINE TR
          PXTRAY(4,0)=PXTRAY(3,0)
 !
 !       PCY(0) =-SCY
-         PXTRAY(5,0)=-(SYSTEM(14))
+         PXTRAY(5,0)=-(sys_scy())
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
+         PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
          PXTRAY(7,0)=PXTRAY(6,0)
@@ -3567,8 +3576,8 @@ SUBROUTINE TR
          COMI=1
          IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
-!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-         PXTRAY(1,1)=(SYSTEM(12))
+!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+         PXTRAY(1,1)=(sys_say())
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3655,7 +3664,7 @@ SUBROUTINE TR
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE WHERE:
-         DO 70 L=2,INT(SYSTEM(26))
+         DO 70 L=2,INT(sys_astop())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -3756,14 +3765,14 @@ SUBROUTINE TR
 !       THERE CAN BE SOLVES ON THE APERTURE STOP SURFACE. HANDLE THESE
 !       HERE. THIS IS THE
 !       APERTURE STOP SURFACE. REDEFINE IT AS L.
-         L=INT(SYSTEM(26))
+         L=INT(sys_astop())
 !       PROCEED TO NEXT SURFACES
 !
 !       NOW TRACE FROM SURFACE AFTER THE ASTOP TO IMAGE PLANE,
 !       AND PIKUPS ALONG THE WAY. THEN PROCEED.
-!       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (SYSTEM(26)+1)
+!       NOW TRACE FROM THE APERTURE STOP SURFACE+1  (sys_astop()+1)
 !       TO THE IMAGE SURFACE  WHERE:
-         DO 90 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+         DO 90 L=((INT(sys_astop()))+1),INT(sys_last_surf())
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -3887,7 +3896,7 @@ SUBROUTINE TR
          PXTRAY(1,0)=0.0D0
 !
 !       PUY(0)=SAY/TH(0)
-         PXTRAY(2,0)=(SYSTEM(12))/surf_thickness(0)
+         PXTRAY(2,0)=(sys_say())/surf_thickness(0)
 !
 !       PIY(0) =PUY(0)
          PXTRAY(3,0)=PXTRAY(2,0)
@@ -3896,14 +3905,14 @@ SUBROUTINE TR
          PXTRAY(4,0)=PXTRAY(3,0)
 !
 !       PCY(0) =-SCY
-         PXTRAY(5,0)=-(SYSTEM(14))
+         PXTRAY(5,0)=-(sys_scy())
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAY(6,0)=-((SYSTEM(14))-SYSTEM(15))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
+         IF(sys_telecentric().EQ.0.0D0)&
+         &PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAY(6,0)=0.0D0
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
@@ -3919,8 +3928,8 @@ SUBROUTINE TR
          COMI=1
          IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
-!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN SYSTEM(12)
-         PXTRAY(1,1)=(SYSTEM(12))
+!       PY(1) IS EQUAL TO THE SPECIFIED SAY VALUE IN sys_say()
+         PXTRAY(1,1)=(sys_say())
 !
 !       PUY(1) =-CV(1)*PY(1)*((N'-N)/N')+(N/N')*PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3964,8 +3973,8 @@ SUBROUTINE TR
          &(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(SYSTEM(63).EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
-         IF(SYSTEM(63).EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
+         IF(sys_telecentric().EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4017,7 +4026,7 @@ SUBROUTINE TR
 !       NOW TRACE FROM SURFACE 2 TO IMAGE PLANE,
 !       CORRECTLY HANDLING SOLVES
 !       AND PIKUPS ALONG THE WAY. THEN PROCEED.
-         DO 80 L=2,INT(SYSTEM(20))
+         DO 80 L=2,INT(sys_last_surf())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -4130,7 +4139,7 @@ SUBROUTINE TR
    CON=SYSTEM(17)
    IF(ITYPEP.EQ.2) THEN
 !
-      SYS13=SYSTEM(13)
+      SYS13=sys_sax()
 !
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
@@ -4153,7 +4162,7 @@ SUBROUTINE TR
 !
 !       SYSTEM(17)=((-.1*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
 !
-      IF(SYSTEM(26).GT.0.0D0 .AND.SYSTEM(63).EQ.0.0D0) THEN
+      IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
 !
 !       RECALCULATE THE CORRECT VALUE OF SYSTEM(17)
 !       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(17)
@@ -4199,7 +4208,7 @@ SUBROUTINE TR
             PXTRAX(4,0)=PXTRAX(3,0)
 !
 !       PCX(0) =-SCX
-            PXTRAX(5,0)=-(SYSTEM(16))
+            PXTRAX(5,0)=-(sys_scx())
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       CON IS CHIEF RAY POSITION ON SURFACE 1
@@ -4209,7 +4218,7 @@ SUBROUTINE TR
                CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                RETURN
             END IF
-            PXTRAX(6,0)=-((SYSTEM(16))-CON)/surf_thickness(0)
+            PXTRAX(6,0)=-((sys_scx())-CON)/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
             PXTRAX(7,0)=PXTRAX(6,0)
@@ -4317,7 +4326,7 @@ SUBROUTINE TR
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE WHERE:
-            DO 500 L=2,INT(SYSTEM(26))
+            DO 500 L=2,INT(sys_astop())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
                COMI=L
@@ -4414,8 +4423,8 @@ SUBROUTINE TR
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
 !
 500         CONTINUE
-            IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(SYSTEM(26))))
-            IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(SYSTEM(26))))
+            IF(JK.EQ.1) TMP17A=PXTRAX(5,(INT(sys_astop())))
+            IF(JK.EQ.2) TMP17B=PXTRAX(5,(INT(sys_astop())))
 600      CONTINUE
          IF(TMP17A.EQ.TMP17B) THEN
             OUTLYNE='PARAXIAL CHIEF RAY CAN NOT INTERSECT CURRENT'
@@ -4454,12 +4463,12 @@ SUBROUTINE TR
          PXTRAX(4,0)=PXTRAX(3,0)
 !
 !       PCX(0) =-SCX
-         PXTRAX(5,0)=-(SYSTEM(16))
+         PXTRAX(5,0)=-(sys_scx())
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
+         PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
          PXTRAX(7,0)=PXTRAX(6,0)
@@ -4562,7 +4571,7 @@ SUBROUTINE TR
 !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
 ! *****************************************************************************
 !       NOW TRACE TO THE APERTURE STOP SURFACE  WHERE:
-         DO 700 L=2,INT(SYSTEM(26))
+         DO 700 L=2,INT(sys_astop())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
@@ -4666,7 +4675,7 @@ SUBROUTINE TR
 !
 !       NOW TRACE FROM THE APERTURE STOP SURFACE+1
 !       TO THE IMAGE SURFACE  WHERE:
-         DO 900 L=((INT(SYSTEM(26)))+1),INT(SYSTEM(20))
+         DO 900 L=((INT(sys_astop()))+1),INT(sys_last_surf())
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
@@ -4797,14 +4806,14 @@ SUBROUTINE TR
          PXTRAX(4,0)=PXTRAX(3,0)
 !
 !       PCX(0) =-SCX
-         PXTRAX(5,0)=-(SYSTEM(16))
+         PXTRAX(5,0)=-(sys_scx())
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
 !       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         IF(SYSTEM(63).EQ.0.0D0)&
-         &PXTRAX(6,0)=-((SYSTEM(16))-SYSTEM(17))/surf_thickness(0)
-         IF(SYSTEM(63).EQ.1.0D0)&
+         IF(sys_telecentric().EQ.0.0D0)&
+         &PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAX(6,0)=0.0D0
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
@@ -4865,8 +4874,8 @@ SUBROUTINE TR
          &(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(SYSTEM(63).EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
-         IF(SYSTEM(63).EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
+         IF(sys_telecentric().EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4913,7 +4922,7 @@ SUBROUTINE TR
 !       HERE ALL PARAXIAL VALUES HAVE BEEN CALCULATED FOR THE
 !       OBJECT THROUGH SURFACE 1 IN THE ABSCENSE OF ANY SOLVES.
 !       NOW TRACE FROM SURFACE 2 TO IMAGE PLANE,
-         DO 800 L=2,INT(SYSTEM(20))
+         DO 800 L=2,INT(sys_last_surf())
 !               VALUES AT SURFACE L
 !       CALL PIKRES FOR THE SURFACE L
             COMI=L
