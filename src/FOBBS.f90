@@ -7,6 +7,8 @@ SUBROUTINE FOBA
    use DATMAI
    use mod_surface, only: surf_thickness
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf, sys_ref_surf, sys_scx, sys_scx_fang, &
+      & sys_scx_fang_set, sys_scy, sys_scy_fang, sys_scy_fang_set, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FOBA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -63,7 +65,7 @@ SUBROUTINE FOBA
 !       CHECK FOR LEGAL WAVELENGTH BOUNDS
    IF(DF1.EQ.1) W1=0.0D0
    IF(DF2.EQ.1) W2=0.0D0
-   IF(DF3.EQ.1) W3=SYSTEM(11)
+   IF(DF3.EQ.1) W3=sys_wl_ref()
    IF(INT(W3).NE.1.AND.&
    &INT(W3).NE.2.AND.&
    &INT(W3).NE.3.AND.&
@@ -82,7 +84,7 @@ SUBROUTINE FOBA
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(19).EQ.1.0D0) THEN
+   IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scx_fang_set().EQ.1.0D0) THEN
       IF(DABS(W1).GT.180.0D0) THEN
          OUTLYNE='Y-INPUT ANGLE MAY NOT EXCEED +/- 180 DEGREES'
          CALL SHOWIT(1)
@@ -106,7 +108,7 @@ SUBROUTINE FOBA
          RETURN
       END IF
    END IF
-   IF(SYSTEM(18).EQ.0.0D0.AND.SYSTEM(19).EQ.0.0D0) THEN
+   IF(sys_scy_fang_set().EQ.0.0D0.AND.sys_scx_fang_set().EQ.0.0D0) THEN
       IF(DABS(W1).GE.90.0D0) THEN
          OUTLYNE='Y-INPUT ANGLE MUST BE LESS THAN 90 DEGREES'
          CALL SHOWIT(1)
@@ -137,30 +139,30 @@ SUBROUTINE FOBA
    LFOBA(1)=W1
    LFOBA(2)=W2
    LFOBA(3)=W3
-   IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(19).EQ.1.0D0) THEN
+   IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scx_fang_set().EQ.1.0D0) THEN
 !     ANGLE INPUT MODE
-      IF(SYSTEM(21).NE.0.0D0) THEN
-         W1=W1/SYSTEM(21)
+      IF(sys_scy_fang().NE.0.0D0) THEN
+         W1=W1/sys_scy_fang()
       ELSE
          W1=0.0D0
       END IF
-      IF(SYSTEM(23).NE.0.0D0) THEN
-         W2=W2/SYSTEM(23)
+      IF(sys_scx_fang().NE.0.0D0) THEN
+         W2=W2/sys_scx_fang()
       ELSE
          W2=0.0D0
       END IF
    END IF
-   IF(SYSTEM(18).EQ.0.0D0.AND.SYSTEM(19).EQ.0.0D0) THEN
+   IF(sys_scy_fang_set().EQ.0.0D0.AND.sys_scx_fang_set().EQ.0.0D0) THEN
 !     LINEAR INPUT MODE
       IF(W1.NE.0.0D0.AND.surf_thickness(NEWOBJ).NE.0.0D0) THEN
          YAYA=DTAN(W1*PII/180.0D0)*surf_thickness(NEWOBJ)
-         W1=-YAYA/SYSTEM(14)
+         W1=-YAYA/sys_scy()
       ELSE
          W1=0.0D0
       END IF
       IF(W2.NE.0.0D0.AND.surf_thickness(NEWOBJ).NE.0.0D0) THEN
          YAYA=DTAN(W2*PII/180.0D0)*surf_thickness(NEWOBJ)
-         W2=-YAYA/SYSTEM(16)
+         W2=-YAYA/sys_scx()
       ELSE
          W2=0.0D0
       END IF
@@ -187,8 +189,8 @@ SUBROUTINE FOBA
    LFOB(3)=W3
    LFOB(4)=W4
    LFOB(5)=0.0D0
-   LFOB(6)=SYSTEM(25)
-   LFOB(7)=SYSTEM(20)
+   LFOB(6)=sys_ref_surf()
+   LFOB(7)=sys_last_surf()
    CALL FFOB
    WC='FOBA'
    SST=0
@@ -218,6 +220,9 @@ SUBROUTINE FFOBH
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
    use command_utils, only: is_command_query
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_last_surf, sys_scx, sys_scy, sys_scy_fang_set, sys_telecentric, &
+      & sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOBH.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -271,8 +276,8 @@ SUBROUTINE FFOBH
    NWW1=W1
    NWW2=W2
    NWW3=W3
-   W1=W1/SYSTEM(14)
-   W2=W2/SYSTEM(16)
+   W1=W1/sys_scy()
+   W2=W2/sys_scx()
    W3=W3/surf_thickness(NEWOBJ)
 !     FRACTIONALS WHICH CAN BE PROCESSED
 !
@@ -326,10 +331,10 @@ SUBROUTINE FFOBH
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-      IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-      IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-      IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-      IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+      IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+      IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
@@ -382,9 +387,9 @@ SUBROUTINE FFOBH
    END IF
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    X1AIM=PXTRAX(5,(NEWOBJ+1))
-   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
    Y1AIM=PXTRAY(5,(NEWOBJ+1))
-   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
    IISURF=NEWOBJ+1
    CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -401,7 +406,7 @@ SUBROUTINE FFOBH
       CALL MACFAL
       RETURN
    END IF
-   Z1AIM=SYSTEM(89)+ZSAG
+   Z1AIM=sys_aim_offset_z()+ZSAG
    TRYX=X1AIM
    TRYY=Y1AIM
    TRYZ=Z1AIM
@@ -434,7 +439,7 @@ SUBROUTINE FFOBH
    GSPDEXT=.FALSE.
    CPFNEXT=.FALSE.
    CALL DELPSF
-   IF(SYSTEM(63).EQ.1.AND.S5.EQ.1) THEN
+   IF(sys_telecentric().EQ.1.AND.S5.EQ.1) THEN
       OUTLYNE='"FOB" TAKES NO NUMERIC WORD #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='WHEN TELECENTRIC RAY AIMING IS "ON"'
@@ -451,8 +456,8 @@ SUBROUTINE FFOBH
    IF(DF2.EQ.1) W2=0.0D0
    IF(DF3.EQ.1) W3=0.0D0
 !       THE CONTROL WAVELENGTH
-   IF(DF4.EQ.1) W4=SYSTEM(11)
-   IF(DF4.EQ.1) WVN=SYSTEM(11)
+   IF(DF4.EQ.1) W4=sys_wl_ref()
+   IF(DF4.EQ.1) WVN=sys_wl_ref()
    IF(DF5.EQ.0) THEN
       OUTLYNE='"FOBH" TAKES NO NUMERIC WORD #5 INPUT'
       CALL SHOWIT(1)
@@ -505,7 +510,7 @@ SUBROUTINE FFOBH
       RETURN
    END IF
    IF(W4.GE.1.0D0.AND.W4.LE.5.0D0) THEN
-      IF(SYSTEM(INT(W4)).EQ.0.0D0) THEN
+      IF(sys_wavelength(INT(W4)).EQ.0.0D0) THEN
          IF(MSG) THEN
             WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
             CALL SHOWIT(1)
@@ -552,7 +557,7 @@ SUBROUTINE FFOBH
    WVN=WW4
    WW5=W5
    IF(WW4.GE.1.0D0.AND.WW4.LE.5.0D0)&
-   &LAMBDA=SYSTEM(INT(WW4))
+   &LAMBDA=sys_wavelength(INT(WW4))
    IF(WW4.GE.6.0D0.AND.WW4.LE.10.0D0)&
    &LAMBDA=SYSTEM(65+INT(WW4))
    Y00=NWW1
@@ -703,7 +708,7 @@ SUBROUTINE FFOBH
          XMN=0.0D0
          XNN=1.0D0
       END IF
-      DO J=0,INT(SYSTEM(20))
+      DO J=0,INT(sys_last_surf())
          IF(surf_special_type(J) == 18) LDIF2=.FALSE.
          IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
@@ -743,11 +748,11 @@ SUBROUTINE FFOBH
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -775,11 +780,11 @@ SUBROUTINE FFOBH
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -835,11 +840,11 @@ SUBROUTINE FFOBH
             CALL SHOWIT(0)
             WRITE(OUTLYNE,300) LAMBDA
             CALL SHOWIT(0)
-            IF(SYSTEM(18).EQ.0.0D0) THEN
-               IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-               IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-               IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-               IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+            IF(sys_scy_fang_set().EQ.0.0D0) THEN
+               IF(sys_units().EQ.1.0D0) LUNI='IN '
+               IF(sys_units().EQ.2.0D0) LUNI='CM '
+               IF(sys_units().EQ.3.0D0) LUNI='MM '
+               IF(sys_units().EQ.4.0D0) LUNI='M  '
                WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
                CALL SHOWIT(0)
                WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -902,10 +907,10 @@ SUBROUTINE FFOBH
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-      IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-      IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-      IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-      IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+      IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+      IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
       IISURF=NEWOBJ
       CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -998,9 +1003,9 @@ SUBROUTINE FFOBH
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
 !     NOT ANGIN
    X1AIM=PXTRAX(5,(NEWOBJ+1))
-   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
    Y1AIM=PXTRAY(5,(NEWOBJ+1))
-   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
    IISURF=NEWOBJ+1
    CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -1017,7 +1022,7 @@ SUBROUTINE FFOBH
       CALL MACFAL
       RETURN
    END IF
-   Z1AIM=SYSTEM(89)+ZSAG
+   Z1AIM=sys_aim_offset_z()+ZSAG
    TRYX=X1AIM
    TRYY=Y1AIM
    TRYZ=Z1AIM
@@ -1141,7 +1146,7 @@ SUBROUTINE FFOBH
    STOPP=0
    REFEXT=.TRUE.
    FOBYES=.TRUE.
-   DO J=0,INT(SYSTEM(20))
+   DO J=0,INT(sys_last_surf())
       IF(surf_special_type(J) == 18) LDIF2=.FALSE.
       IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
@@ -1185,11 +1190,11 @@ SUBROUTINE FFOBH
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300) LAMBDA
       CALL SHOWIT(0)
-      IF(SYSTEM(18).EQ.0.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-         IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-         IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-         IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
+         IF(sys_units().EQ.1.0D0) LUNI='IN '
+         IF(sys_units().EQ.2.0D0) LUNI='CM '
+         IF(sys_units().EQ.3.0D0) LUNI='MM '
+         IF(sys_units().EQ.4.0D0) LUNI='M  '
          WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -1217,11 +1222,11 @@ SUBROUTINE FFOBH
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300) LAMBDA
       CALL SHOWIT(0)
-      IF(SYSTEM(18).EQ.0.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-         IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-         IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-         IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
+         IF(sys_units().EQ.1.0D0) LUNI='IN '
+         IF(sys_units().EQ.2.0D0) LUNI='CM '
+         IF(sys_units().EQ.3.0D0) LUNI='MM '
+         IF(sys_units().EQ.4.0D0) LUNI='M  '
          WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -1278,11 +1283,11 @@ SUBROUTINE FFOBH
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -1338,6 +1343,10 @@ SUBROUTINE FFOB2
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_tilt_flag, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_last_surf, sys_ref_surf, sys_rxim_fang_set, sys_ryim_fang_set, &
+      & sys_scx, sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
+      & sys_scy_fang_set, sys_telecentric, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB2.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1377,21 +1386,21 @@ SUBROUTINE FFOB2
    DLLY=0.0D0
    DLLZ=0.0D0
 !     SET UP ANGLE FACTERS
-   IF(SYSTEM(21).EQ.0.0D0) THEN
+   IF(sys_scy_fang().EQ.0.0D0) THEN
       SCLFACY=1.0D0
    ELSE
-      SCLFACY=DABS(1.0D0/SYSTEM(21))
+      SCLFACY=DABS(1.0D0/sys_scy_fang())
    END IF
-   IF(SYSTEM(23).EQ.0.0D0) THEN
+   IF(sys_scx_fang().EQ.0.0D0) THEN
       SCLFACX=1.0D0
    ELSE
-      SCLFACX=DABS(1.0D0/SYSTEM(23))
+      SCLFACX=DABS(1.0D0/sys_scx_fang())
    END IF
    AWW1=W1/SCLFACY
    AWW2=W2/SCLFACX
 !
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
       IF(DF3.EQ.0.AND.W3.NE.0.0D0) THEN
          W3=0.0D0
          DF3=1
@@ -1502,8 +1511,8 @@ SUBROUTINE FFOB2
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 !     OBJECT ANGLES NOT INPUT
@@ -1514,10 +1523,10 @@ SUBROUTINE FFOB2
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -1587,16 +1596,16 @@ SUBROUTINE FFOB2
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -1607,7 +1616,7 @@ SUBROUTINE FFOB2
          CALL MACFAL
          RETURN
       END IF
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    TRYX=X1AIM
    TRYY=Y1AIM
@@ -1640,7 +1649,7 @@ SUBROUTINE FFOB2
    GSPDEXT=.FALSE.
    CPFNEXT=.FALSE.
    CALL DELPSF
-   IF(SYSTEM(63).EQ.1.AND.S5.EQ.1) THEN
+   IF(sys_telecentric().EQ.1.AND.S5.EQ.1) THEN
       OUTLYNE='"FOB" TAKES NO NUMERIC WORD #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='WHEN TELECENTRIC RAY AIMING IS "ON"'
@@ -1657,8 +1666,8 @@ SUBROUTINE FFOB2
    IF(DF2.EQ.1) W2=0.0D0
    IF(DF3.EQ.1) W3=0.0D0
 !       THE CONTROL WAVELENGTH
-   IF(DF4.EQ.1) W4=SYSTEM(11)
-   IF(DF4.EQ.1) WVN=SYSTEM(11)
+   IF(DF4.EQ.1) W4=sys_wl_ref()
+   IF(DF4.EQ.1) WVN=sys_wl_ref()
    IF(DF5.EQ.1) THEN
       IF(WC.EQ.'FOB') THEN
          FT=0.0D0
@@ -1666,7 +1675,7 @@ SUBROUTINE FFOB2
       END IF
    END IF
    IF(DF5.EQ.0) THEN
-      IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ') THEN
+      IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'PERFECT      ') THEN
          OUTLYNE='OBJECT, REFERENCE AND IMAGE SURFACES MAY NOT BE'
          CALL SHOWIT(1)
          OUTLYNE='REASSIGNED WHEN THE "PERFECT" SURFACE IS BEING USED'
@@ -1677,7 +1686,7 @@ SUBROUTINE FFOB2
          CALL MACFAL
          RETURN
       END IF
-      IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'IDEAL        ') THEN
+      IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'IDEAL        ') THEN
          OUTLYNE='OBJECT, REFERENCE AND IMAGE SURFACES MAY NOT BE'
          CALL SHOWIT(1)
          OUTLYNE='REASSIGNED WHEN THE "IDEAL" SURFACE IS BEING USED'
@@ -1727,7 +1736,7 @@ SUBROUTINE FFOB2
       RETURN
    END IF
    IF(W4.GE.1.0D0.AND.W4.LE.5.0D0) THEN
-      IF(SYSTEM(INT(W4)).EQ.0.0D0) THEN
+      IF(sys_wavelength(INT(W4)).EQ.0.0D0) THEN
          STOPP=1
          RAYCOD(1)=11
          RAYCOD(2)=NEWOBJ
@@ -1777,46 +1786,46 @@ SUBROUTINE FFOB2
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
                NEWOBJ=0
-               NEWREF=INT(SYSTEM(25))
-               NEWIMG=INT(SYSTEM(20))
+               NEWREF=INT(sys_ref_surf())
+               NEWIMG=INT(sys_last_surf())
                REFEXT=.FALSE.
                CALL MACFAL
                RETURN
             END IF
          END DO
 !
-         IF(NEWREF.LT.0.OR.NEWREF.GT.INT(SYSTEM(20)))THEN
+         IF(NEWREF.LT.0.OR.NEWREF.GT.INT(sys_last_surf()))THEN
             OUTLYNE='NEW REFERENCE SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
          END IF
-         IF(NEWIMG.LT.0.OR.NEWIMG.GT.INT(SYSTEM(20))) THEN
+         IF(NEWIMG.LT.0.OR.NEWIMG.GT.INT(sys_last_surf())) THEN
             OUTLYNE='NEW IMAGE SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
          END IF
-         IF(NEWOBJ.LT.0.OR.NEWOBJ.GT.INT(SYSTEM(20)))THEN
+         IF(NEWOBJ.LT.0.OR.NEWOBJ.GT.INT(sys_last_surf()))THEN
             OUTLYNE='NEW OBJECT SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
@@ -1829,8 +1838,8 @@ SUBROUTINE FFOB2
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
@@ -1861,7 +1870,7 @@ SUBROUTINE FFOB2
    WVN=WW4
    WW5=W5
    IF(WW4.GE.1.0D0.AND.WW4.LE.5.0D0)&
-   &LAMBDA=SYSTEM(INT(WW4))
+   &LAMBDA=sys_wavelength(INT(WW4))
    IF(WW4.GE.6.0D0.AND.WW4.LE.10.0D0)&
    &LAMBDA=SYSTEM(65+INT(WW4))
    Y00=WW1
@@ -1940,7 +1949,7 @@ SUBROUTINE FFOB2
          STOPP=0
          REFEXT=.TRUE.
          IF(.NOT.NULL) FOBYES=.FALSE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -1991,7 +2000,7 @@ SUBROUTINE FFOB2
       ELSE
          STOPP=0
          REFEXT=.TRUE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -2002,7 +2011,7 @@ SUBROUTINE FFOB2
          XMN=0.0D0
          XNN=1.0D0
       END IF
-      DO J=0,INT(SYSTEM(20))
+      DO J=0,INT(sys_last_surf())
          IF(surf_special_type(J) == 18) LDIF2=.FALSE.
          IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
@@ -2086,8 +2095,8 @@ SUBROUTINE FFOB2
    WVN=WW4
    WW5=W5
 !
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
 !     OBJECT ANGLES INPUT
       ANGIN=.TRUE.
 !     REF OBJ HT INPUT AS ANGLE
@@ -2120,7 +2129,7 @@ SUBROUTINE FFOB2
       IF(ANGJK2.GT.-270.0001D0.AND.&
       &ANGJK2.LT.-269.9999D0) ANGJK2=89.9999D0
 
-      IF((W2*SYSTEM(23)).GT.269.9999D0.AND.&
+      IF((W2*sys_scx_fang()).GT.269.9999D0.AND.&
       &ANGJK2.LT.270.0001D0) ANGJK2=-89.9999D0
 
 !     ANGLES IN RADIANS ARE:
@@ -2176,8 +2185,8 @@ SUBROUTINE FFOB2
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 !     OBJECT ANGLES NOT INPUT
@@ -2188,10 +2197,10 @@ SUBROUTINE FFOB2
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -2261,16 +2270,16 @@ SUBROUTINE FFOB2
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -2281,7 +2290,7 @@ SUBROUTINE FFOB2
          CALL MACFAL
          RETURN
       END IF
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    TRYX=X1AIM
    TRYY=Y1AIM
@@ -2396,7 +2405,7 @@ SUBROUTINE FFOB2
    STOPP=0
    REFEXT=.TRUE.
    FOBYES=.TRUE.
-   DO J=0,INT(SYSTEM(20))
+   DO J=0,INT(sys_last_surf())
       IF(surf_special_type(J) == 18) LDIF2=.FALSE.
       IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
@@ -2463,6 +2472,8 @@ SUBROUTINE FASTFFOB(WPAS)
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_decenter_y, surf_decenter_x
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_rxim_fang_set, sys_ryim_fang_set, sys_scx, sys_scy, sys_wavelength
    IMPLICIT NONE
 !
    INTEGER IISURF,FFT,FFS,I,J,ICNT,ICNTEST
@@ -2522,10 +2533,10 @@ SUBROUTINE FASTFFOB(WPAS)
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-   IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-   IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-   IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-   IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+   IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+   IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+   IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+   IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
    IISURF=NEWOBJ
    CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -2540,9 +2551,9 @@ SUBROUTINE FASTFFOB(WPAS)
 !
 !     NOT ANGIN
    X1AIM=PXTRAX(5,(NEWOBJ+1))
-   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+   X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
    Y1AIM=PXTRAY(5,(NEWOBJ+1))
-   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+   Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
    IISURF=NEWOBJ+1
    CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -2553,7 +2564,7 @@ SUBROUTINE FASTFFOB(WPAS)
       CALL MACFAL
       RETURN
    END IF
-   Z1AIM=SYSTEM(89)+ZSAG
+   Z1AIM=sys_aim_offset_z()+ZSAG
    TRYX=X1AIM
    TRYY=Y1AIM
    TRYZ=Z1AIM
@@ -2604,7 +2615,7 @@ SUBROUTINE FASTFFOB(WPAS)
    WVN=WW4
    WW5=W5
    IF(WW4.GE.1.0D0.AND.WW4.LE.5.0D0)&
-   &LAMBDA=SYSTEM(INT(WW4))
+   &LAMBDA=sys_wavelength(INT(WW4))
    IF(WW4.GE.6.0D0.AND.WW4.LE.10.0D0)&
    &LAMBDA=SYSTEM(65+INT(WW4))
    Y00=WW1
@@ -2682,7 +2693,7 @@ SUBROUTINE FASTFFOB(WPAS)
          STOPP=0
          REFEXT=.TRUE.
          IF(.NOT.NULL) FOBYES=.FALSE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -2732,7 +2743,7 @@ SUBROUTINE FASTFFOB(WPAS)
       ELSE
          STOPP=0
          REFEXT=.TRUE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -2777,10 +2788,10 @@ SUBROUTINE FASTFFOB(WPAS)
 !     OBJECT ANGLES NOT INPUT
    ANGIN=.FALSE.
 !
-   IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-   IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-   IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-   IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+   IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+   IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+   IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+   IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
    IISURF=NEWOBJ
    CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
    IF(SAGERR) THEN
@@ -2795,16 +2806,16 @@ SUBROUTINE FASTFFOB(WPAS)
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -2815,7 +2826,7 @@ SUBROUTINE FASTFFOB(WPAS)
          CALL MACFAL
          RETURN
       END IF
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    TRYX=X1AIM
    TRYY=Y1AIM
@@ -2951,6 +2962,10 @@ SUBROUTINE SLOWFFOB(WPAS)
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_clap_type, surf_clap_dim, surf_decenter_y, surf_decenter_x, surf_special_type, surf_array_parity
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_last_surf, sys_rxim_fang_set, sys_ryim_fang_set, sys_scx, &
+      & sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
+      & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !       SLOWFFOB IS USED BY IMTRACE3 FOR IMAGE CREATION
@@ -2992,20 +3007,20 @@ SUBROUTINE SLOWFFOB(WPAS)
    DLLY=0.0D0
    DLLZ=0.0D0
 !     SET UP ANGLE FACTERS
-   IF(SYSTEM(21).EQ.0.0D0) THEN
+   IF(sys_scy_fang().EQ.0.0D0) THEN
       SCLFACY=1.0D0
    ELSE
-      SCLFACY=DABS(1.0D0/SYSTEM(21))
+      SCLFACY=DABS(1.0D0/sys_scy_fang())
    END IF
-   IF(SYSTEM(23).EQ.0.0D0) THEN
+   IF(sys_scx_fang().EQ.0.0D0) THEN
       SCLFACX=1.0D0
    ELSE
-      SCLFACX=DABS(1.0D0/SYSTEM(23))
+      SCLFACX=DABS(1.0D0/sys_scx_fang())
    END IF
    AWW1=W1/SCLFACY
    AWW2=W2/SCLFACX
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
       IF(DF3.EQ.0.AND.W3.NE.0.0D0) THEN
          W3=0.0D0
          DF3=1
@@ -3116,8 +3131,8 @@ SUBROUTINE SLOWFFOB(WPAS)
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 !     OBJECT ANGLES NOT INPUT
@@ -3128,10 +3143,10 @@ SUBROUTINE SLOWFFOB(WPAS)
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -3225,16 +3240,16 @@ SUBROUTINE SLOWFFOB(WPAS)
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -3251,7 +3266,7 @@ SUBROUTINE SLOWFFOB(WPAS)
          CALL MACFAL
          RETURN
       END IF
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    TRYX=X1AIM
    TRYY=Y1AIM
@@ -3290,8 +3305,8 @@ SUBROUTINE SLOWFFOB(WPAS)
    IF(DF2.EQ.1) W2=0.0D0
    IF(DF3.EQ.1) W3=0.0D0
 !       THE CONTROL WAVELENGTH
-   IF(DF4.EQ.1) W4=SYSTEM(11)
-   IF(DF4.EQ.1) WVN=SYSTEM(11)
+   IF(DF4.EQ.1) W4=sys_wl_ref()
+   IF(DF4.EQ.1) WVN=sys_wl_ref()
    IF(DF5.EQ.1) THEN
       IF(WC.EQ.'FOB') THEN
          FT=0.0D0
@@ -3324,7 +3339,7 @@ SUBROUTINE SLOWFFOB(WPAS)
    WVN=WW4
    WW5=W5
    IF(WW4.GE.1.0D0.AND.WW4.LE.5.0D0)&
-   &LAMBDA=SYSTEM(INT(WW4))
+   &LAMBDA=sys_wavelength(INT(WW4))
    IF(WW4.GE.6.0D0.AND.WW4.LE.10.0D0)&
    &LAMBDA=SYSTEM(65+INT(WW4))
    Y00=WW1
@@ -3416,7 +3431,7 @@ SUBROUTINE SLOWFFOB(WPAS)
          STOPP=0
          REFEXT=.TRUE.
          IF(.NOT.NULL) FOBYES=.FALSE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -3477,7 +3492,7 @@ SUBROUTINE SLOWFFOB(WPAS)
       ELSE
          STOPP=0
          REFEXT=.TRUE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -3488,7 +3503,7 @@ SUBROUTINE SLOWFFOB(WPAS)
          XMN=0.0D0
          XNN=1.0D0
       END IF
-      DO J=0,INT(SYSTEM(20))
+      DO J=0,INT(sys_last_surf())
          IF(surf_special_type(J) == 18) LDIF2=.FALSE.
          IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
@@ -3528,11 +3543,11 @@ SUBROUTINE SLOWFFOB(WPAS)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -3560,11 +3575,11 @@ SUBROUTINE SLOWFFOB(WPAS)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -3620,11 +3635,11 @@ SUBROUTINE SLOWFFOB(WPAS)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,300) LAMBDA
             CALL SHOWIT(0)
-            IF(SYSTEM(18).EQ.0.0D0) THEN
-               IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-               IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-               IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-               IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+            IF(sys_scy_fang_set().EQ.0.0D0) THEN
+               IF(sys_units().EQ.1.0D0) LUNI='IN '
+               IF(sys_units().EQ.2.0D0) LUNI='CM '
+               IF(sys_units().EQ.3.0D0) LUNI='MM '
+               IF(sys_units().EQ.4.0D0) LUNI='M  '
                WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
                CALL SHOWIT(0)
                WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -3678,8 +3693,8 @@ SUBROUTINE SLOWFFOB(WPAS)
    WVN=WW4
    WW5=W5
 !
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
 !     OBJECT ANGLES INPUT
       ANGIN=.TRUE.
 !     REF OBJ HT INPUT AS ANGLE
@@ -3712,7 +3727,7 @@ SUBROUTINE SLOWFFOB(WPAS)
       IF(ANGJK2.GT.-270.0001D0.AND.&
       &ANGJK2.LT.-269.9999D0) ANGJK2=89.9999D0
 
-      IF((W2*SYSTEM(23)).GT.269.9999D0.AND.&
+      IF((W2*sys_scx_fang()).GT.269.9999D0.AND.&
       &ANGJK2.LT.270.0001D0) ANGJK2=-89.9999D0
 
 !     ANGLES IN RADIANS ARE:
@@ -3768,8 +3783,8 @@ SUBROUTINE SLOWFFOB(WPAS)
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 !     OBJECT ANGLES NOT INPUT
@@ -3780,10 +3795,10 @@ SUBROUTINE SLOWFFOB(WPAS)
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
          IF(SAGERR) THEN
@@ -3877,16 +3892,16 @@ SUBROUTINE SLOWFFOB(WPAS)
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) THEN
@@ -3903,7 +3918,7 @@ SUBROUTINE SLOWFFOB(WPAS)
          CALL MACFAL
          RETURN
       END IF
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    TRYX=X1AIM
    TRYY=Y1AIM
@@ -4028,7 +4043,7 @@ SUBROUTINE SLOWFFOB(WPAS)
    STOPP=0
    REFEXT=.TRUE.
    FOBYES=.TRUE.
-   DO J=0,INT(SYSTEM(20))
+   DO J=0,INT(sys_last_surf())
       IF(surf_special_type(J) == 18) LDIF2=.FALSE.
       IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
@@ -4072,11 +4087,11 @@ SUBROUTINE SLOWFFOB(WPAS)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300) LAMBDA
       CALL SHOWIT(0)
-      IF(SYSTEM(18).EQ.0.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-         IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-         IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-         IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
+         IF(sys_units().EQ.1.0D0) LUNI='IN '
+         IF(sys_units().EQ.2.0D0) LUNI='CM '
+         IF(sys_units().EQ.3.0D0) LUNI='MM '
+         IF(sys_units().EQ.4.0D0) LUNI='M  '
          WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -4104,11 +4119,11 @@ SUBROUTINE SLOWFFOB(WPAS)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300) LAMBDA
       CALL SHOWIT(0)
-      IF(SYSTEM(18).EQ.0.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-         IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-         IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-         IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
+         IF(sys_units().EQ.1.0D0) LUNI='IN '
+         IF(sys_units().EQ.2.0D0) LUNI='CM '
+         IF(sys_units().EQ.3.0D0) LUNI='MM '
+         IF(sys_units().EQ.4.0D0) LUNI='M  '
          WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -4164,11 +4179,11 @@ SUBROUTINE SLOWFFOB(WPAS)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -4223,6 +4238,7 @@ SUBROUTINE MFFOBS
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MFFOBS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4235,13 +4251,13 @@ SUBROUTINE MFFOBS
    IF(.not. is_command_query()) THEN
       IF(DF1.EQ.1) W1=0.0D0
       IF(DF2.EQ.1) W2=0.0D0
-      IF(DF3.EQ.1) W3=SYSTEM(11)
+      IF(DF3.EQ.1) W3=sys_wl_ref()
       IF(DF3.EQ.1) WW3=W3
       IF(DF4.EQ.1) W4=1.0D0
       IF(W4.LE.1.0D0) W4=1.0D0
       IF(DF1.EQ.1) FW1=0.0D0
       IF(DF2.EQ.1) FW2=0.0D0
-      IF(DF3.EQ.1) FW3=SYSTEM(11)
+      IF(DF3.EQ.1) FW3=sys_wl_ref()
       IF(DF3.EQ.1) WW3=W3
       IF(DF4.EQ.1) FW4=1.0D0
       IF(FW4.LE.1.0D0) FW4=1.0D0
@@ -4310,6 +4326,10 @@ SUBROUTINE FFOB
       surf_clap_dim, surf_special_type, surf_array_parity, surf_decenter_y, &
       surf_decenter_x, surf_tilt_flag
    use command_utils, only: is_command_query
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_last_surf, sys_rxim_fang_set, sys_ryim_fang_set, sys_scx, &
+      & sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
+      & sys_scy_fang_set, sys_telecentric, sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4357,15 +4377,15 @@ SUBROUTINE FFOB
    DLLY=0.0D0
    DLLZ=0.0D0
 !     SET UP ANGLE FACTERS
-   IF(SYSTEM(21).EQ.0.0D0) THEN
+   IF(sys_scy_fang().EQ.0.0D0) THEN
       SCLFACY=1.0D0
    ELSE
-      SCLFACY=DABS(1.0D0/SYSTEM(21))
+      SCLFACY=DABS(1.0D0/sys_scy_fang())
    END IF
-   IF(SYSTEM(23).EQ.0.0D0) THEN
+   IF(sys_scx_fang().EQ.0.0D0) THEN
       SCLFACX=1.0D0
    ELSE
-      SCLFACX=DABS(1.0D0/SYSTEM(23))
+      SCLFACX=DABS(1.0D0/sys_scx_fang())
    END IF
    AWW1=W1/SCLFACY
    AWW2=W2/SCLFACX
@@ -4417,8 +4437,8 @@ SUBROUTINE FFOB
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
 
       !call logger%logText("FFOB Object Angle Loop ")
 
@@ -4507,8 +4527,8 @@ SUBROUTINE FFOB
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 
@@ -4521,13 +4541,13 @@ SUBROUTINE FFOB
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
          !PRINT *, "YSTRT =", YSTRT
          !PRINT *, "XSTRT =", YSTRT
-         !PRINT *, "SYSTEM(14) ",SYSTEM(14),"SYSTEM(16) ",SYSTEM(16)
+         !PRINT *, "sys_scy() ",sys_scy(),"sys_scx() ",sys_scx()
          !PRINT *, "PXTRAY(5,NEWOBJ) ", PXTRAY(5,NEWOBJ)
          !PRINT *, "NEWOBJ ", NEWOBJ
          IISURF=NEWOBJ
@@ -4582,16 +4602,16 @@ SUBROUTINE FFOB
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       !call logger%logTextWithNum("Surf = ", IISURF)
       !call logger%logTextWithReal("X1 Aim = ", X1AIM)
       !call logger%logTextWithReal("Y1 Aim = ", X1AIM)
@@ -4601,7 +4621,7 @@ SUBROUTINE FFOB
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
 
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    !PRINT *, "TRYY 4710 IS ", TRYY
    TRYX=X1AIM
@@ -4638,7 +4658,7 @@ SUBROUTINE FFOB
    CPFNEXT=.FALSE.
    CALL DELPSF
    ! JN why is this here?  why can't you check validity earlier?
-   IF(SYSTEM(63).EQ.1.AND.S5.EQ.1) THEN
+   IF(sys_telecentric().EQ.1.AND.S5.EQ.1) THEN
       OUTLYNE='"FOB" TAKES NO NUMERIC WORD #5 INPUT'
       CALL SHOWIT(1)
       OUTLYNE='WHEN TELECENTRIC RAY AIMING IS "ON"'
@@ -4655,8 +4675,8 @@ SUBROUTINE FFOB
    IF(DF2.EQ.1) W2=0.0D0
    IF(DF3.EQ.1) W3=0.0D0
 !       THE CONTROL WAVELENGTH
-   IF(DF4.EQ.1) W4=SYSTEM(11)
-   IF(DF4.EQ.1) WVN=SYSTEM(11)
+   IF(DF4.EQ.1) W4=sys_wl_ref()
+   IF(DF4.EQ.1) WVN=sys_wl_ref()
    IF(DF5.EQ.1) THEN
       IF(WC.EQ.'FOB') THEN
          FT=0.0D0
@@ -4665,7 +4685,7 @@ SUBROUTINE FFOB
    END IF
    ! JN:  Same as above.  Can this be checked before now?
    IF(DF5.EQ.0) THEN
-      IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'PERFECT      ') THEN
+      IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'PERFECT      ') THEN
          OUTLYNE='OBJECT, REFERENCE AND IMAGE SURFACES MAY NOT BE'
          CALL SHOWIT(1)
          OUTLYNE='REASSIGNED WHEN THE "PERFECT" SURFACE IS BEING USED'
@@ -4676,7 +4696,7 @@ SUBROUTINE FFOB
          CALL MACFAL
          RETURN
       END IF
-      IF(GLANAM(INT(SYSTEM(20))-1,2).EQ.'IDEAL        ') THEN
+      IF(GLANAM(INT(sys_last_surf())-1,2).EQ.'IDEAL        ') THEN
          OUTLYNE='OBJECT, REFERENCE AND IMAGE SURFACES MAY NOT BE'
          CALL SHOWIT(1)
          OUTLYNE='REASSIGNED WHEN THE "IDEAL" SURFACE IS BEING USED'
@@ -4724,7 +4744,7 @@ SUBROUTINE FFOB
    WVN=WW4
    WW5=W5
    IF(WW4.GE.1.0D0.AND.WW4.LE.5.0D0)&
-   &LAMBDA=SYSTEM(INT(WW4))
+   &LAMBDA=sys_wavelength(INT(WW4))
    IF(WW4.GE.6.0D0.AND.WW4.LE.10.0D0)&
    &LAMBDA=SYSTEM(65+INT(WW4))
    Y00=WW1
@@ -4819,7 +4839,7 @@ SUBROUTINE FFOB
          STOPP=0
          REFEXT=.TRUE.
          IF(.NOT.NULL) FOBYES=.FALSE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -4880,7 +4900,7 @@ SUBROUTINE FFOB
       ELSE
          STOPP=0
          REFEXT=.TRUE.
-         IF(SYSTEM(98).NE.0.0D0.OR.SYSTEM(99).NE.0.0D0) THEN
+         IF(sys_rxim_fang_set().NE.0.0D0.OR.sys_ryim_fang_set().NE.0.0D0) THEN
             XRAYER=REFRY(1,NEWOBJ)
             YRAYER=REFRY(2,NEWOBJ)
             ZRAYER=REFRY(3,NEWOBJ)
@@ -4891,7 +4911,7 @@ SUBROUTINE FFOB
          XMN=0.0D0
          XNN=1.0D0
       END IF
-      DO J=0,INT(SYSTEM(20))
+      DO J=0,INT(sys_last_surf())
          IF(surf_special_type(J) == 18) LDIF2=.FALSE.
          IF(surf_special_type(J) == 18) LDIF=.FALSE.
       END DO
@@ -4931,11 +4951,11 @@ SUBROUTINE FFOB
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -4963,11 +4983,11 @@ SUBROUTINE FFOB
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -5023,11 +5043,11 @@ SUBROUTINE FFOB
             CALL SHOWIT(0)
             WRITE(OUTLYNE,300) LAMBDA
             CALL SHOWIT(0)
-            IF(SYSTEM(18).EQ.0.0D0) THEN
-               IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-               IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-               IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-               IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+            IF(sys_scy_fang_set().EQ.0.0D0) THEN
+               IF(sys_units().EQ.1.0D0) LUNI='IN '
+               IF(sys_units().EQ.2.0D0) LUNI='CM '
+               IF(sys_units().EQ.3.0D0) LUNI='MM '
+               IF(sys_units().EQ.4.0D0) LUNI='M  '
                WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
                CALL SHOWIT(0)
                WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -5081,8 +5101,8 @@ SUBROUTINE FFOB
    WVN=WW4
    WW5=W5
 !
-   IF(SYSTEM(18).EQ.1.AND.NEWOBJ.EQ.0.OR.&
-   &SYSTEM(19).EQ.1.AND.NEWOBJ.EQ.0) THEN
+   IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
+   &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
 !     OBJECT ANGLES INPUT
       ANGIN=.TRUE.
 !     REF OBJ HT INPUT AS ANGLE
@@ -5115,7 +5135,7 @@ SUBROUTINE FFOB
       IF(ANGJK2.GT.-270.0001D0.AND.&
       &ANGJK2.LT.-269.9999D0) ANGJK2=89.9999D0
 
-      IF((W2*SYSTEM(23)).GT.269.9999D0.AND.&
+      IF((W2*sys_scx_fang()).GT.269.9999D0.AND.&
       &ANGJK2.LT.270.0001D0) ANGJK2=-89.9999D0
 
 !     ANGLES IN RADIANS ARE:
@@ -5172,8 +5192,8 @@ SUBROUTINE FFOB
             ZSTRT=0.0D0
          END IF
       END IF
-      IF(SYSTEM(18).EQ.1.0D0.AND.SYSTEM(21).EQ.0.0D0) YSTRT=0.0D0
-      IF(SYSTEM(19).EQ.1.0D0.AND.SYSTEM(23).EQ.0.0D0) XSTRT=0.0D0
+      IF(sys_scy_fang_set().EQ.1.0D0.AND.sys_scy_fang().EQ.0.0D0) YSTRT=0.0D0
+      IF(sys_scx_fang_set().EQ.1.0D0.AND.sys_scx_fang().EQ.0.0D0) XSTRT=0.0D0
       IF(XSTRT.EQ.0.0D0.AND.YSTRT.EQ.0.0D0) ZSTRT=0.0D0
    ELSE
 !     OBJECT ANGLES NOT INPUT
@@ -5184,10 +5204,10 @@ SUBROUTINE FFOB
 !     ARE NOT DETERMINED BY THE CLAP ON THE OBJECT SURFACE
 !     USING SCY AND SCX, FOB REPRESENTS FRACTIONS OF IMAGE HEIGHT
 !     AND DEPTH.
-         IF(SYSTEM(16).NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
-         IF(SYSTEM(16).EQ.0.0D0) XSTRT=0.0D0
-         IF(SYSTEM(14).NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
-         IF(SYSTEM(14).EQ.0.0D0) YSTRT=0.0D0
+         IF(sys_scx().NE.0.0D0) XSTRT=W2*PXTRAX(5,NEWOBJ)
+         IF(sys_scx().EQ.0.0D0) XSTRT=0.0D0
+         IF(sys_scy().NE.0.0D0) YSTRT=W1*PXTRAY(5,NEWOBJ)
+         IF(sys_scy().EQ.0.0D0) YSTRT=0.0D0
          !PRINT *, "YSTRT FOBBS 5444 =", YSTRT
          IISURF=NEWOBJ
          CALL SAGRET(IISURF,XSTRT,YSTRT,ZSAG,SAGERR)
@@ -5244,20 +5264,20 @@ SUBROUTINE FFOB
 !     NOW THE INITIAL AIMING POINT AT NEWOBJ+1
    IF(ANGIN) THEN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
-      Z1AIM=SYSTEM(89)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
+      Z1AIM=sys_aim_offset_z()
    ELSE
 !     NOT ANGIN
       X1AIM=PXTRAX(5,(NEWOBJ+1))
-      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+SYSTEM(81)
+      X1AIM=(X1AIM*W2)-surf_decenter_x(NEWOBJ+1)+sys_aim_offset_x()
       Y1AIM=PXTRAY(5,(NEWOBJ+1))
-      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+SYSTEM(82)
+      Y1AIM=(Y1AIM*W1)-surf_decenter_y(NEWOBJ+1)+sys_aim_offset_y()
       IISURF=NEWOBJ+1
       CALL SAGRET(IISURF,X1AIM,Y1AIM,ZSAG,SAGERR)
       IF(SAGERR) CALL HANDLESAGRETFAILURE(MSG, NEWOBJ)
-      Z1AIM=SYSTEM(89)+ZSAG
+      Z1AIM=sys_aim_offset_z()+ZSAG
    END IF
    TRYX=X1AIM
    TRYY=Y1AIM
@@ -5448,7 +5468,7 @@ SUBROUTINE FFOB
    STOPP=0
    REFEXT=.TRUE.
    FOBYES=.TRUE.
-   DO J=0,INT(SYSTEM(20))
+   DO J=0,INT(sys_last_surf())
       IF(surf_special_type(J) == 18) LDIF2=.FALSE.
       IF(surf_special_type(J) == 18) LDIF=.FALSE.
    END DO
@@ -5492,11 +5512,11 @@ SUBROUTINE FFOB
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300) LAMBDA
       CALL SHOWIT(0)
-      IF(SYSTEM(18).EQ.0.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-         IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-         IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-         IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
+         IF(sys_units().EQ.1.0D0) LUNI='IN '
+         IF(sys_units().EQ.2.0D0) LUNI='CM '
+         IF(sys_units().EQ.3.0D0) LUNI='MM '
+         IF(sys_units().EQ.4.0D0) LUNI='M  '
          WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -5524,11 +5544,11 @@ SUBROUTINE FFOB
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300) LAMBDA
       CALL SHOWIT(0)
-      IF(SYSTEM(18).EQ.0.0D0) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-         IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-         IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-         IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+      IF(sys_scy_fang_set().EQ.0.0D0) THEN
+         IF(sys_units().EQ.1.0D0) LUNI='IN '
+         IF(sys_units().EQ.2.0D0) LUNI='CM '
+         IF(sys_units().EQ.3.0D0) LUNI='MM '
+         IF(sys_units().EQ.4.0D0) LUNI='M  '
          WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -5584,11 +5604,11 @@ SUBROUTINE FFOB
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300) LAMBDA
          CALL SHOWIT(0)
-         IF(SYSTEM(18).EQ.0.0D0) THEN
-            IF(SYSTEM(6).EQ.1.0D0) LUNI='IN '
-            IF(SYSTEM(6).EQ.2.0D0) LUNI='CM '
-            IF(SYSTEM(6).EQ.3.0D0) LUNI='MM '
-            IF(SYSTEM(6).EQ.4.0D0) LUNI='M  '
+         IF(sys_scy_fang_set().EQ.0.0D0) THEN
+            IF(sys_units().EQ.1.0D0) LUNI='IN '
+            IF(sys_units().EQ.2.0D0) LUNI='CM '
+            IF(sys_units().EQ.3.0D0) LUNI='MM '
+            IF(sys_units().EQ.4.0D0) LUNI='M  '
             WRITE(OUTLYNE,3302) REFRY(1,NEWOBJ),LUNI
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3303) REFRY(2,NEWOBJ),LUNI
@@ -5721,6 +5741,7 @@ subroutine CHECKWAVELENGTHBOUNDS()
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    implicit none
 
 
@@ -5743,7 +5764,7 @@ subroutine CHECKWAVELENGTHBOUNDS()
       RETURN
    END IF
    IF(W4.GE.1.0D0.AND.W4.LE.5.0D0) THEN
-      IF(SYSTEM(INT(W4)).EQ.0.0D0) THEN
+      IF(sys_wavelength(INT(W4)).EQ.0.0D0) THEN
          IF(MSG) THEN
             WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',NEWOBJ
             CALL SHOWIT(1)
@@ -5787,6 +5808,7 @@ SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_tilt_flag
+   use mod_system, only: sys_last_surf, sys_ref_surf
    implicit none
 
    integer :: I
@@ -5825,46 +5847,46 @@ SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
                OUTLYNE='RE-ENTER COMMAND'
                CALL SHOWIT(1)
                NEWOBJ=0
-               NEWREF=INT(SYSTEM(25))
-               NEWIMG=INT(SYSTEM(20))
+               NEWREF=INT(sys_ref_surf())
+               NEWIMG=INT(sys_last_surf())
                REFEXT=.FALSE.
                CALL MACFAL
                RETURN
             END IF
          END DO
 !
-         IF(NEWREF.LT.0.OR.NEWREF.GT.INT(SYSTEM(20)))THEN
+         IF(NEWREF.LT.0.OR.NEWREF.GT.INT(sys_last_surf()))THEN
             OUTLYNE='NEW REFERENCE SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
          END IF
-         IF(NEWIMG.LT.0.OR.NEWIMG.GT.INT(SYSTEM(20))) THEN
+         IF(NEWIMG.LT.0.OR.NEWIMG.GT.INT(sys_last_surf())) THEN
             OUTLYNE='NEW IMAGE SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
          END IF
-         IF(NEWOBJ.LT.0.OR.NEWOBJ.GT.INT(SYSTEM(20)))THEN
+         IF(NEWOBJ.LT.0.OR.NEWOBJ.GT.INT(sys_last_surf()))THEN
             OUTLYNE='NEW OBJECT SURFACE NUMBER BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
@@ -5877,8 +5899,8 @@ SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
             NEWOBJ=0
-            NEWREF=INT(SYSTEM(25))
-            NEWIMG=INT(SYSTEM(20))
+            NEWREF=INT(sys_ref_surf())
+            NEWIMG=INT(sys_last_surf())
             REFEXT=.FALSE.
             CALL MACFAL
             RETURN
