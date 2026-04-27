@@ -6,6 +6,7 @@ SUBROUTINE PHASOR
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_special_type
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
    REAL*8 L1,M1,MAG
@@ -168,14 +169,14 @@ SUBROUTINE PHASOR
       L1=0.0D0
       M1=0.0D0
 !     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
-      IF(SYSTEM(6).EQ.4.0D0)&
-      &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-      IF(SYSTEM(6).EQ.3.0D0)&
-      &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-      IF(SYSTEM(6).EQ.2.0D0)&
-      &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-      IF(SYSTEM(6).EQ.1.0D0)&
-      &PHASE=(PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+      IF(sys_units().EQ.4.0D0)&
+      &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+      IF(sys_units().EQ.3.0D0)&
+      &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+      IF(sys_units().EQ.2.0D0)&
+      &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+      IF(sys_units().EQ.1.0D0)&
+      &PHASE=(PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
       RETURN
    END IF
 END
@@ -186,6 +187,7 @@ SUBROUTINE PHAS6
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX6,DERY6,&
@@ -215,33 +217,33 @@ SUBROUTINE PHAS6
    DEL=DELSUR
    L1=DERX6(MMYX,MMYY,DEL,ERR)
    M1=DERY6(MMYX,MMYY,DEL,ERR)
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &L1=(L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &M1=(M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &L1=(L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &M1=(M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    CALL ADDPHASE(RLRL,RMRM,RNRN,L1,M1,LN,MN,NN,PHASE)
 !
 !     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &PHASE=(PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &PHASE=(PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    RETURN
 END
 FUNCTION FAZE6(ARG1,ARG2)
@@ -354,6 +356,7 @@ SUBROUTINE PHAS9
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX9,DERY9,&
@@ -383,32 +386,32 @@ SUBROUTINE PHAS9
    DEL=DELSUR
    L1=DERX9(MMYX,MMYY,DEL,ERR)
    M1=DERY9(MMYX,MMYY,DEL,ERR)
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &L1=(L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &M1=(M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &L1=(L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &M1=(M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    CALL ADDPHASE(RLRL,RMRM,RNRN,L1,M1,LN,MN,NN,PHASE)
 !     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &PHASE=(PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &PHASE=(PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    RETURN
 END
 FUNCTION FAZE9(ARG1,ARG2)
@@ -537,6 +540,7 @@ SUBROUTINE PHAS10
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX10,DERY10,&
@@ -565,34 +569,34 @@ SUBROUTINE PHAS10
 !
    DEL=DELSUR
    L1=DERX10(MMYX,MMYY,DEL,ERR)
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &L1=(L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &M1=(M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &L1=(L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &M1=(M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    M1=DERY10(MMYX,MMYY,DEL,ERR)
    CALL ADDPHASE(RLRL,RMRM,RNRN,L1,M1,LN,MN,NN,PHASE)
 !
 !     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &PHASE=(PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &PHASE=(PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    RETURN
 END
 FUNCTION FAZE10(ARG1,ARG2)
@@ -721,6 +725,7 @@ SUBROUTINE PHAS7
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX7,DERY7,&
@@ -750,33 +755,33 @@ SUBROUTINE PHAS7
    DEL=DELSUR
    L1=DERX7(MMYX,MMYY,DEL,ERR)
    M1=DERY7(MMYX,MMYY,DEL,ERR)
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &L1=(L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &M1=(M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &L1=(L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &M1=(M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    CALL ADDPHASE(RLRL,RMRM,RNRN,L1,M1,LN,MN,NN,PHASE)
 !
 !     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &PHASE=(PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &PHASE=(PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    RETURN
 END
 FUNCTION FAZE7(ARG1,ARG2)
@@ -885,6 +890,7 @@ SUBROUTINE PHAS15
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX15,DERY15,&
@@ -914,33 +920,33 @@ SUBROUTINE PHAS15
    DEL=DELSUR
    L1=DERX15(MMYX,MMYY,DEL,ERR)
    M1=DERY15(MMYX,MMYY,DEL,ERR)
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &L1=L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &L1=(L1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &M1=M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &M1=(M1*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &L1=L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &L1=(L1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &M1=M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &M1=(M1*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    CALL ADDPHASE(RLRL,RMRM,RNRN,L1,M1,LN,MN,NN,PHASE)
 !
 !     NOW MULTIPLY BY THE CONTROL WAVELENGTH IN LENS UNITS
-   IF(SYSTEM(6).EQ.4.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-6
-   IF(SYSTEM(6).EQ.3.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-3
-   IF(SYSTEM(6).EQ.2.0D0)&
-   &PHASE=PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4
-   IF(SYSTEM(6).EQ.1.0D0)&
-   &PHASE=(PHASE*SYSTEM(INT(SYSTEM(11)))*1.0D-4)/2.54D0
+   IF(sys_units().EQ.4.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-6
+   IF(sys_units().EQ.3.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-3
+   IF(sys_units().EQ.2.0D0)&
+   &PHASE=PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4
+   IF(sys_units().EQ.1.0D0)&
+   &PHASE=(PHASE*sys_wavelength(INT(sys_wl_ref()))*1.0D-4)/2.54D0
    RETURN
 END
 FUNCTION FAZE15(ARG1,ARG2)
@@ -1144,6 +1150,7 @@ SUBROUTINE PH11(L1,M1,XX,YY,PHA)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
    REAL*8 WAVEY,L1,M1,PHA,XX,YY
@@ -1159,16 +1166,16 @@ SUBROUTINE PH11(L1,M1,XX,YY,PHA)
 !
    INTEGER WWVN
    COMMON/WVPASS/WWVN
-   IF(WVN.EQ.1) WAVEY=SYSTEM(1)
-   IF(WVN.EQ.2) WAVEY=SYSTEM(2)
-   IF(WVN.EQ.3) WAVEY=SYSTEM(3)
-   IF(WVN.EQ.4) WAVEY=SYSTEM(4)
-   IF(WVN.EQ.5) WAVEY=SYSTEM(5)
-   IF(WVN.EQ.6) WAVEY=SYSTEM(71)
-   IF(WVN.EQ.7) WAVEY=SYSTEM(72)
-   IF(WVN.EQ.8) WAVEY=SYSTEM(73)
-   IF(WVN.EQ.9) WAVEY=SYSTEM(74)
-   IF(WVN.EQ.10) WAVEY=SYSTEM(75)
+   IF(WVN.EQ.1) WAVEY=sys_wavelength(1)
+   IF(WVN.EQ.2) WAVEY=sys_wavelength(2)
+   IF(WVN.EQ.3) WAVEY=sys_wavelength(3)
+   IF(WVN.EQ.4) WAVEY=sys_wavelength(4)
+   IF(WVN.EQ.5) WAVEY=sys_wavelength(5)
+   IF(WVN.EQ.6) WAVEY=sys_wavelength(6)
+   IF(WVN.EQ.7) WAVEY=sys_wavelength(7)
+   IF(WVN.EQ.8) WAVEY=sys_wavelength(8)
+   IF(WVN.EQ.9) WAVEY=sys_wavelength(9)
+   IF(WVN.EQ.10) WAVEY=sys_wavelength(10)
    REG(40)=REG(9)
    REG(9)=XX
    REG(10)=YY
@@ -1291,6 +1298,7 @@ SUBROUTINE PHAS13
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX13,DERY13,&
@@ -1304,16 +1312,16 @@ SUBROUTINE PHAS13
 !
    INTEGER WWVN
    COMMON/WVPASS/WWVN
-   IF(WVN.EQ.1) WAVEY=SYSTEM(1)
-   IF(WVN.EQ.2) WAVEY=SYSTEM(2)
-   IF(WVN.EQ.3) WAVEY=SYSTEM(3)
-   IF(WVN.EQ.4) WAVEY=SYSTEM(4)
-   IF(WVN.EQ.5) WAVEY=SYSTEM(5)
-   IF(WVN.EQ.6) WAVEY=SYSTEM(71)
-   IF(WVN.EQ.7) WAVEY=SYSTEM(72)
-   IF(WVN.EQ.8) WAVEY=SYSTEM(73)
-   IF(WVN.EQ.9) WAVEY=SYSTEM(74)
-   IF(WVN.EQ.10) WAVEY=SYSTEM(75)
+   IF(WVN.EQ.1) WAVEY=sys_wavelength(1)
+   IF(WVN.EQ.2) WAVEY=sys_wavelength(2)
+   IF(WVN.EQ.3) WAVEY=sys_wavelength(3)
+   IF(WVN.EQ.4) WAVEY=sys_wavelength(4)
+   IF(WVN.EQ.5) WAVEY=sys_wavelength(5)
+   IF(WVN.EQ.6) WAVEY=sys_wavelength(6)
+   IF(WVN.EQ.7) WAVEY=sys_wavelength(7)
+   IF(WVN.EQ.8) WAVEY=sys_wavelength(8)
+   IF(WVN.EQ.9) WAVEY=sys_wavelength(9)
+   IF(WVN.EQ.10) WAVEY=sys_wavelength(10)
 !
 !     RECTANGULAR PHASE SURFACE
 !
@@ -1454,6 +1462,7 @@ SUBROUTINE PH12(PX,PY,XX,YY)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
    REAL*8 PX,PY,XX,YY,DERX12,DERY12 &
@@ -1463,16 +1472,16 @@ SUBROUTINE PH12(PX,PY,XX,YY)
 !
    INTEGER WWVN
    COMMON/WVPASS/WWVN
-   IF(WVN.EQ.1) WAVEY=SYSTEM(1)
-   IF(WVN.EQ.2) WAVEY=SYSTEM(2)
-   IF(WVN.EQ.3) WAVEY=SYSTEM(3)
-   IF(WVN.EQ.4) WAVEY=SYSTEM(4)
-   IF(WVN.EQ.5) WAVEY=SYSTEM(5)
-   IF(WVN.EQ.6) WAVEY=SYSTEM(71)
-   IF(WVN.EQ.7) WAVEY=SYSTEM(72)
-   IF(WVN.EQ.8) WAVEY=SYSTEM(73)
-   IF(WVN.EQ.9) WAVEY=SYSTEM(74)
-   IF(WVN.EQ.10) WAVEY=SYSTEM(75)
+   IF(WVN.EQ.1) WAVEY=sys_wavelength(1)
+   IF(WVN.EQ.2) WAVEY=sys_wavelength(2)
+   IF(WVN.EQ.3) WAVEY=sys_wavelength(3)
+   IF(WVN.EQ.4) WAVEY=sys_wavelength(4)
+   IF(WVN.EQ.5) WAVEY=sys_wavelength(5)
+   IF(WVN.EQ.6) WAVEY=sys_wavelength(6)
+   IF(WVN.EQ.7) WAVEY=sys_wavelength(7)
+   IF(WVN.EQ.8) WAVEY=sys_wavelength(8)
+   IF(WVN.EQ.9) WAVEY=sys_wavelength(9)
+   IF(WVN.EQ.10) WAVEY=sys_wavelength(10)
 !
 !     RADIAL PHASE SURFACE
 !
@@ -1488,6 +1497,7 @@ SUBROUTINE PH13(PX,PY,XX,YY)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
    REAL*8 PX,PY,XX,YY,DERX13,DERY13 &
@@ -1497,16 +1507,16 @@ SUBROUTINE PH13(PX,PY,XX,YY)
 !
    INTEGER WWVN
    COMMON/WVPASS/WWVN
-   IF(WVN.EQ.1) WAVEY=SYSTEM(1)
-   IF(WVN.EQ.2) WAVEY=SYSTEM(2)
-   IF(WVN.EQ.3) WAVEY=SYSTEM(3)
-   IF(WVN.EQ.4) WAVEY=SYSTEM(4)
-   IF(WVN.EQ.5) WAVEY=SYSTEM(5)
-   IF(WVN.EQ.6) WAVEY=SYSTEM(71)
-   IF(WVN.EQ.7) WAVEY=SYSTEM(72)
-   IF(WVN.EQ.8) WAVEY=SYSTEM(73)
-   IF(WVN.EQ.9) WAVEY=SYSTEM(74)
-   IF(WVN.EQ.10) WAVEY=SYSTEM(75)
+   IF(WVN.EQ.1) WAVEY=sys_wavelength(1)
+   IF(WVN.EQ.2) WAVEY=sys_wavelength(2)
+   IF(WVN.EQ.3) WAVEY=sys_wavelength(3)
+   IF(WVN.EQ.4) WAVEY=sys_wavelength(4)
+   IF(WVN.EQ.5) WAVEY=sys_wavelength(5)
+   IF(WVN.EQ.6) WAVEY=sys_wavelength(6)
+   IF(WVN.EQ.7) WAVEY=sys_wavelength(7)
+   IF(WVN.EQ.8) WAVEY=sys_wavelength(8)
+   IF(WVN.EQ.9) WAVEY=sys_wavelength(9)
+   IF(WVN.EQ.10) WAVEY=sys_wavelength(10)
 !
 !     RECT PHASE SURFACE
 !
@@ -1522,6 +1532,7 @@ SUBROUTINE PHAS12
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
    REAL*8 L1,M1,DERX12,DERY12,N1 &
@@ -1535,16 +1546,16 @@ SUBROUTINE PHAS12
 !
    INTEGER WWVN
    COMMON/WVPASS/WWVN
-   IF(WVN.EQ.1) WAVEY=SYSTEM(1)
-   IF(WVN.EQ.2) WAVEY=SYSTEM(2)
-   IF(WVN.EQ.3) WAVEY=SYSTEM(3)
-   IF(WVN.EQ.4) WAVEY=SYSTEM(4)
-   IF(WVN.EQ.5) WAVEY=SYSTEM(5)
-   IF(WVN.EQ.6) WAVEY=SYSTEM(71)
-   IF(WVN.EQ.7) WAVEY=SYSTEM(72)
-   IF(WVN.EQ.8) WAVEY=SYSTEM(73)
-   IF(WVN.EQ.9) WAVEY=SYSTEM(74)
-   IF(WVN.EQ.10) WAVEY=SYSTEM(75)
+   IF(WVN.EQ.1) WAVEY=sys_wavelength(1)
+   IF(WVN.EQ.2) WAVEY=sys_wavelength(2)
+   IF(WVN.EQ.3) WAVEY=sys_wavelength(3)
+   IF(WVN.EQ.4) WAVEY=sys_wavelength(4)
+   IF(WVN.EQ.5) WAVEY=sys_wavelength(5)
+   IF(WVN.EQ.6) WAVEY=sys_wavelength(6)
+   IF(WVN.EQ.7) WAVEY=sys_wavelength(7)
+   IF(WVN.EQ.8) WAVEY=sys_wavelength(8)
+   IF(WVN.EQ.9) WAVEY=sys_wavelength(9)
+   IF(WVN.EQ.10) WAVEY=sys_wavelength(10)
 !
 !     RADIAL PHASE SURFACE
 !
@@ -1702,6 +1713,7 @@ SUBROUTINE RESSUR
 !     SO THEY CAN BE RESTORED LATER
 !
    use DATLEN
+   use mod_system, only: sys_last_surf, sys_ref_surf
    IMPLICIT NONE
 !
 !
@@ -1709,8 +1721,8 @@ SUBROUTINE RESSUR
    OLDREF=NEWREF
    OLDIMG=NEWIMG
    NEWOBJ=0
-   NEWREF=INT(SYSTEM(25))
-   NEWIMG=INT(SYSTEM(20))
+   NEWREF=INT(sys_ref_surf())
+   NEWIMG=INT(sys_last_surf())
 !
    RETURN
 END
@@ -1721,6 +1733,7 @@ SUBROUTINE REALCOLR(I,ERRR)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2
    IMPLICIT NONE
 !
    REAL*8 VALUE,NUM5,XRAY(1:4),YRAY(1:4)&
@@ -1733,19 +1746,19 @@ SUBROUTINE REALCOLR(I,ERRR)
    COMMON/GV/VALUE,NUM5
 !
 !
-   LAMCW=SYSTEM(11)
+   LAMCW=sys_wl_ref()
 !     SET COLORS PRIMARY
    IF(I.EQ.1.OR.I.EQ.2.OR.I.EQ.5.OR.I.EQ.6) THEN
 !     PRIMARY COLOR
-      LAM(1)=SYSTEM(7)
-      LAM(2)=SYSTEM(8)
+      LAM(1)=sys_wl_pri1()
+      LAM(2)=sys_wl_pri2()
    END IF
 !
 !     SET COLORS SECONDARY
    IF(I.EQ.3.OR.I.EQ.4.OR.I.EQ.7.OR.I.EQ.8) THEN
 !     SECONDARY COLOR
-      LAM(1)=SYSTEM(9)
-      LAM(2)=SYSTEM(10)
+      LAM(1)=sys_wl_sec1()
+      LAM(2)=sys_wl_sec2()
    END IF
 !
 !     SET FIELDS AND RAYS FOR AXIAL COLOR
@@ -1876,7 +1889,7 @@ SUBROUTINE REALCOLR(I,ERRR)
          DXFSET=.FALSE.
          CALL RRAY
          REST_KDP(1)=RESTINPT(1)
-         IF(SYSTEM(30).LE.2.0D0) THEN
+         IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
             DDF1(II)=DABS(RAYRAY(1,NEWIMG))
             DDF2(II)=DABS(RAYRAY(2,NEWIMG))
@@ -1914,7 +1927,7 @@ SUBROUTINE REALCOLR(I,ERRR)
          DXFSET=.FALSE.
          CALL RRAY
          REST_KDP(1)=RESTINPT(1)
-         IF(SYSTEM(30).LE.2.0D0) THEN
+         IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
             DDF1(II)=DABS(DDF1(II)-DABS(RAYRAY(1,NEWIMG)))
             DDF2(II)=DABS(DDF2(II)-DABS(RAYRAY(2,NEWIMG)))
@@ -1997,7 +2010,7 @@ SUBROUTINE REALCOLR(I,ERRR)
          DXFSET=.FALSE.
          CALL RRAY
          REST_KDP(1)=RESTINPT(1)
-         IF(SYSTEM(30).LE.2.0D0) THEN
+         IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
             DDF1(II)=DABS(RAYRAY(1,NEWIMG))
             DDF2(II)=DABS(RAYRAY(2,NEWIMG))
@@ -2035,7 +2048,7 @@ SUBROUTINE REALCOLR(I,ERRR)
          DXFSET=.FALSE.
          CALL RRAY
          REST_KDP(1)=RESTINPT(1)
-         IF(SYSTEM(30).LE.2.0D0) THEN
+         IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
             DDF1(II)=DABS(DDF1(II)-DABS(RAYRAY(1,NEWIMG)))
             DDF2(II)=DABS(DDF2(II)-DABS(RAYRAY(2,NEWIMG)))
@@ -2072,6 +2085,7 @@ SUBROUTINE PRREF
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRREF. THIS SUBROUTINE IMPLEMENTS
@@ -2123,7 +2137,7 @@ SUBROUTINE PRREF
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO REFERENCE RAY DATA EXISTS'
@@ -2254,6 +2268,7 @@ SUBROUTINE PRDIFF
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRDIFF. THIS SUBROUTINE IMPLEMENTS
@@ -2309,7 +2324,7 @@ SUBROUTINE PRDIFF
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO REFERENCE RAY DATA EXISTS'
@@ -2492,6 +2507,7 @@ SUBROUTINE PRLMN
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRLMN. THIS SUBROUTINE IMPLEMENTS
@@ -2534,7 +2550,7 @@ SUBROUTINE PRLMN
       RETURN
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -2656,6 +2672,7 @@ SUBROUTINE PRXY
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRXY. THIS SUBROUTINE IMPLEMENTS
@@ -2716,7 +2733,7 @@ SUBROUTINE PRXY
       AMODE='TANGENT '
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -3107,6 +3124,7 @@ SUBROUTINE PRR
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRR. THIS SUBROUTINE IMPLEMENTS
@@ -3167,7 +3185,7 @@ SUBROUTINE PRR
       AMODE='TANGENT '
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -3382,6 +3400,7 @@ SUBROUTINE PRXYD
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_wavelength
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRXYD. THIS SUBROUTINE IMPLEMENTS
@@ -3441,7 +3460,7 @@ SUBROUTINE PRXYD
       AMODE='TANGENT '
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -3495,7 +3514,7 @@ SUBROUTINE PRXYD
 !
 !       OUTPUT OPD OF CURRENT RAY AND WAVELENGTH IN MICRONS
          IF(.NOT.OPDERROR) THEN
-            WRITE(OUTLYNE,1650) OPD,SYSTEM(IWAVNM)
+            WRITE(OUTLYNE,1650) OPD,sys_wavelength(IWAVNM)
             CALL SHOWIT(0)
          END IF
       END IF
@@ -3711,6 +3730,7 @@ SUBROUTINE PRRAY
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRRAY. THIS SUBROUTINE IMPLEMENTS
@@ -3818,7 +3838,7 @@ SUBROUTINE PRRAY
       AMODE='TANGENT '
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -4533,6 +4553,7 @@ SUBROUTINE PRZ
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_wavelength
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRY. THIS SUBROUTINE IMPLEMENTS
@@ -4594,7 +4615,7 @@ SUBROUTINE PRZ
       AMODE='TANGENT '
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -4627,7 +4648,7 @@ SUBROUTINE PRZ
 !
 !       OUTPUT OPD OF CURRENT RAY AND WAVELENGTH IN MICRONS
          IF(.NOT.OPDERROR) THEN
-            WRITE(OUTLYNE,1650) OPD,SYSTEM(IWAVNM)
+            WRITE(OUTLYNE,1650) OPD,sys_wavelength(IWAVNM)
             CALL SHOWIT(0)
          END IF
       END IF
@@ -4731,6 +4752,7 @@ SUBROUTINE PRFLUX
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRFLUX. THIS SUBROUTINE IMPLEMENTS
@@ -4774,7 +4796,7 @@ SUBROUTINE PRFLUX
       RETURN
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -4906,6 +4928,7 @@ SUBROUTINE PRPOL
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRPOL. THIS SUBROUTINE IMPLEMENTS
@@ -4948,7 +4971,7 @@ SUBROUTINE PRPOL
       RETURN
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -5094,6 +5117,7 @@ SUBROUTINE PROPD
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use mod_system, only: sys_mode, sys_units, sys_wavelength
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PROPD WHICH IMPLEMENTS THE OPD
@@ -5145,7 +5169,7 @@ SUBROUTINE PROPD
          LEN=LEN+RAYRAY(7,J)&
          &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
       END DO
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
          RCOR=0.0D0
          OCOR=0.0D0
@@ -5180,24 +5204,24 @@ SUBROUTINE PROPD
       CALL SHOWIT(0)
 101   FORMAT(1X)
       IF(INT(CURLAM).GE.1.AND.INT(CURLAM).LE.5) THEN
-         WW=SYSTEM(INT(CURLAM))
+         WW=sys_wavelength(INT(CURLAM))
       END IF
       IF(INT(CURLAM).GE.6.AND.INT(CURLAM).LE.10) THEN
-         WW=SYSTEM(INT(CURLAM)+65)
+         WW=sys_wavelength(INT(CURLAM))
       END IF
-      IF(SYSTEM(6).EQ.1.0) WAVE=(WW*1.0D-3)/(25.4D0)
-      IF(SYSTEM(6).EQ.2.0) WAVE=WW*1.0D-4
-      IF(SYSTEM(6).EQ.3.0) WAVE=WW*1.0D-3
-      IF(SYSTEM(6).EQ.4.0) WAVE=WW*1.0D-6
+      IF(sys_units().EQ.1.0) WAVE=(WW*1.0D-3)/(25.4D0)
+      IF(sys_units().EQ.2.0) WAVE=WW*1.0D-4
+      IF(sys_units().EQ.3.0) WAVE=WW*1.0D-3
+      IF(sys_units().EQ.4.0) WAVE=WW*1.0D-6
       LEN=-LEN
       IF(REVSTR) LEN=-LEN
       LENW=LEN/WAVE
       IF(INT(CURLAM).GE.1.AND.INT(CURLAM).LE.5) THEN
-         WRITE(OUTLYNE,102) LENW,SYSTEM(INT(CURLAM))
+         WRITE(OUTLYNE,102) LENW,sys_wavelength(INT(CURLAM))
          CALL SHOWIT(0)
       END IF
       IF(INT(CURLAM).GE.6.AND.INT(CURLAM).LE.10) THEN
-         WRITE(OUTLYNE,102) LENW,SYSTEM(INT(CURLAM)+65)
+         WRITE(OUTLYNE,102) LENW,sys_wavelength(INT(CURLAM))
          CALL SHOWIT(0)
       END IF
 102   FORMAT('OPD FOR LAST RAY TRACED = ',G18.10,&
@@ -5227,6 +5251,7 @@ SUBROUTINE PRGLBL
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use mod_system, only: sys_last_surf, sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRGLBL. THIS SUBROUTINE IMPLEMENTS
@@ -5237,10 +5262,10 @@ SUBROUTINE PRGLBL
    INTEGER SF,I,JK
 !
 !
-   IF(SYSTEM(6).EQ.1.0D0) UNIT='INCHES'
-   IF(SYSTEM(6).EQ.2.0D0) UNIT='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0D0) UNIT='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0D0) UNIT='METERS'
+   IF(sys_units().EQ.1.0D0) UNIT='INCHES'
+   IF(sys_units().EQ.2.0D0) UNIT='CENTIMETERS'
+   IF(sys_units().EQ.3.0D0) UNIT='MILLIMETERS'
+   IF(sys_units().EQ.4.0D0) UNIT='METERS'
    IF(.NOT.GLOBE) THEN
 !       NO VERTEX DATA TO OUTPUT
       WRITE(OUTLYNE,*)&
@@ -5278,7 +5303,7 @@ SUBROUTINE PRGLBL
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO GLOBAL RAY DATA CAN EXIST'
@@ -5540,6 +5565,7 @@ SUBROUTINE PRNSS
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRNSS. THIS SUBROUTINE IMPLEMENTS
@@ -5564,7 +5590,7 @@ SUBROUTINE PRNSS
       CALL SHOWIT(1)
    END IF
 !
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO RAY DATA CAN EXIST'
@@ -5579,7 +5605,7 @@ SUBROUTINE PRNSS
       RETURN
    END IF
    DATAIS=.FALSE.
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(NUMHITS(I).GT.1) THEN
          DATAIS=.TRUE.
          EXIT
