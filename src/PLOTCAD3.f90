@@ -119,6 +119,8 @@ SUBROUTINE PLTDOTF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT DOTF AT THE CMD LEVEL
@@ -298,7 +300,7 @@ SUBROUTINE PLTDOTF
 !     AT X=200, Y=250
    NT1SIZ=1
    NT1ANG=0
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
       IF(REFLOC.EQ.1)&
       &NNTT1(1:80)='IMAGE POINT LOCATED AT SPOT CENTROID         '
       IF(REFLOC.EQ.3)&
@@ -358,22 +360,22 @@ SUBROUTINE PLTDOTF
    IF(SQ.EQ.0) THEN
 !     NON-LEICA PLOTS
       IF(SPACEBALL.EQ.1.AND.NEAR.OR.&
-      &SPACEBALL.EQ.2.AND.SYSTEM(30).LE.2.0D0) THEN
+      &SPACEBALL.EQ.2.AND.sys_mode().LE.2.0D0) THEN
          LABX='SPATIAL FREQUENCY (lp/mm)             '
          NX=25
       END IF
       IF(SPACEBALL.EQ.1.AND..NOT.NEAR.OR.&
-      &SPACEBALL.EQ.2.AND.SYSTEM(30).GT.2.0D0) THEN
+      &SPACEBALL.EQ.2.AND.sys_mode().GT.2.0D0) THEN
          LABX='SPATIAL FREQUENCY (lp/mrad)             '
          NX=27
       END IF
    ELSE
 !     LEICA TYPE PLOTS
       IF(NEAR) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LABX='OBJECT HEIGHT (in)'
-         IF(SYSTEM(6).EQ.2.0D0) LABX='OBJECT HEIGHT (cm)'
-         IF(SYSTEM(6).EQ.3.0D0) LABX='OBJECT HEIGHT (mm)'
-         IF(SYSTEM(6).EQ.4.0D0) LABX='OBJECT HEIGHT (m) '
+         IF(sys_units().EQ.1.0D0) LABX='OBJECT HEIGHT (in)'
+         IF(sys_units().EQ.2.0D0) LABX='OBJECT HEIGHT (cm)'
+         IF(sys_units().EQ.3.0D0) LABX='OBJECT HEIGHT (mm)'
+         IF(sys_units().EQ.4.0D0) LABX='OBJECT HEIGHT (m) '
          NX=18
       ELSE
          LABX='OBJECT FIELD OF VIEW (degrees)'
@@ -505,16 +507,16 @@ SUBROUTINE PLTDOTF
    IF(.NOT.MULTIOTF) THEN
       IF(.NOT.SUMMOR) THEN
 !
-         IF(SYSTEM(19).EQ.1.0D0) THEN
+         IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !     SCX FANG
-            RANGE=SYSTEM(23)*LFOB(2)
+            RANGE=sys_scx_fang()*LFOB(2)
             UNN1='DEGREE(S)'
          ELSE
-            RANGE=SYSTEM(16)*LFOB(2)
-            IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-            IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-            IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-            IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+            RANGE=sys_scx()*LFOB(2)
+            IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+            IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+            IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+            IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCX
          END IF
          WRITE(B,101) RANGE
@@ -529,16 +531,16 @@ SUBROUTINE PLTDOTF
          CALL MY_JUSTSTRING(2700,6300,NNTT1(1:21),NT1ANG,NT1SIZ,3,3)
 !
 !
-         IF(SYSTEM(18).EQ.1.0D0) THEN
+         IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !     SCY FANG
-            RANGE=SYSTEM(21)*LFOB(1)
+            RANGE=sys_scy_fang()*LFOB(1)
             UNN1='DEGREE(S)'
          ELSE
-            RANGE=SYSTEM(14)*LFOB(1)
-            IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-            IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-            IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-            IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+            RANGE=sys_scy()*LFOB(1)
+            IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+            IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+            IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+            IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCY
          END IF
          WRITE(B,101) RANGE
@@ -574,6 +576,8 @@ SUBROUTINE PLTGOTF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT GOTF AT THE CMD LEVEL
@@ -727,7 +731,7 @@ SUBROUTINE PLTGOTF
 !     AT X=200, Y=250
    NT1SIZ=1
    NT1ANG=0
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
       IF(REFLOC.EQ.1)&
       &NNTT1(1:80)='IMAGE POINT LOCATED AT SPOT CENTROID         '
       IF(REFLOC.EQ.3)&
@@ -828,22 +832,22 @@ SUBROUTINE PLTGOTF
    IF(SQ.EQ.0) THEN
 !     NON-LEICA PLOTS
       IF(SPACEBALL.EQ.1.AND.NEAR.OR.&
-      &SPACEBALL.EQ.2.AND.SYSTEM(30).LE.2.0D0) THEN
+      &SPACEBALL.EQ.2.AND.sys_mode().LE.2.0D0) THEN
          LABX='SPATIAL FREQUENCY (lp/mm)             '
          NX=25
       END IF
       IF(SPACEBALL.EQ.1.AND..NOT.NEAR.OR.&
-      &SPACEBALL.EQ.2.AND.SYSTEM(30).GT.2.0D0) THEN
+      &SPACEBALL.EQ.2.AND.sys_mode().GT.2.0D0) THEN
          LABX='SPATIAL FREQUENCY (lp/mrad)             '
          NX=27
       END IF
    ELSE
 !     LEICA TYPE PLOTS
       IF(NEAR) THEN
-         IF(SYSTEM(6).EQ.1.0D0) LABX='OBJECT HEIGHT (in)'
-         IF(SYSTEM(6).EQ.2.0D0) LABX='OBJECT HEIGHT (cm)'
-         IF(SYSTEM(6).EQ.3.0D0) LABX='OBJECT HEIGHT (mm)'
-         IF(SYSTEM(6).EQ.4.0D0) LABX='OBJECT HEIGHT (m) '
+         IF(sys_units().EQ.1.0D0) LABX='OBJECT HEIGHT (in)'
+         IF(sys_units().EQ.2.0D0) LABX='OBJECT HEIGHT (cm)'
+         IF(sys_units().EQ.3.0D0) LABX='OBJECT HEIGHT (mm)'
+         IF(sys_units().EQ.4.0D0) LABX='OBJECT HEIGHT (m) '
          NX=18
       ELSE
          LABX='OBJECT FIELD OF VIEW (degrees)'
@@ -974,16 +978,16 @@ SUBROUTINE PLTGOTF
 !
    IF(.NOT.MULTIOTF) THEN
 !
-      IF(SYSTEM(19).EQ.1.0D0) THEN
+      IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !     SCX FANG
-         RANGE=SYSTEM(23)*LFOB(2)
+         RANGE=sys_scx_fang()*LFOB(2)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(16)*LFOB(2)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scx()*LFOB(2)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCX
       END IF
       WRITE(B,101) RANGE
@@ -996,16 +1000,16 @@ SUBROUTINE PLTGOTF
       CALL MY_JUSTSTRING(2700,6300,NNTT1(1:21),NT1ANG,NT1SIZ,3,3)
 !
 !
-      IF(SYSTEM(18).EQ.1.0D0) THEN
+      IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !     SCY FANG
-         RANGE=SYSTEM(21)*LFOB(1)
+         RANGE=sys_scy_fang()*LFOB(1)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(14)*LFOB(1)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scy()*LFOB(1)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCY
       END IF
       WRITE(B,101) RANGE
@@ -1017,14 +1021,14 @@ SUBROUTINE PLTGOTF
 !
       CALL MY_JUSTSTRING(2700,6100,NNTT1(1:21),NT1ANG,NT1SIZ,3,3)
 !
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL OR UFOCAL, PRINT THE DEFOCUS
          IF(DELZ.NE.0.0D0) THEN
             RANGE=DELZ
-            IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-            IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-            IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-            IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+            IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+            IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+            IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+            IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
             WRITE(B,101) RANGE
             READ(B,200) CRANGE
             NNTT1='DE-FOCUS IN  Z'
@@ -1055,6 +1059,8 @@ SUBROUTINE PLTLSF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT GEO LSF AT THE CMD LEVEL
@@ -1238,27 +1244,27 @@ SUBROUTINE PLTLSF
    NY=15
 !     X-AXIS LABELS RANGE
 !
-   IF(SYSTEM(30).GE.3.0D0) THEN
+   IF(sys_mode().GE.3.0D0) THEN
       LABX='LSF Extent (mrad)                       '
       NX=17
    ELSE
       COLPAS=COLFRM
       CALL MY_COLTYP(COLPAS)
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &LABX='LSF Extent (in)                         '
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &LABX='LSF Extent (cm)                         '
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &LABX='LSF Extent (mm)                         '
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &LABX='LSF Extent (meter)                      '
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &NX=15
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &NX=15
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &NX=15
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &NX=18
    END IF
 !
@@ -1291,16 +1297,16 @@ SUBROUTINE PLTLSF
    COLPAS=COLLBL
    CALL MY_COLTYP(COLPAS)
 !
-   IF(SYSTEM(19).EQ.1.0D0) THEN
+   IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !     SCX FANG
-      RANGE=SYSTEM(23)*LFOB(2)
+      RANGE=sys_scx_fang()*LFOB(2)
       UNN1='DEGREE(S)'
    ELSE
-      RANGE=SYSTEM(16)*LFOB(2)
-      IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-      IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-      IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-      IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+      RANGE=sys_scx()*LFOB(2)
+      IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+      IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+      IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+      IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCX
    END IF
    WRITE(B,101) RANGE
@@ -1312,16 +1318,16 @@ SUBROUTINE PLTLSF
 !
    CALL MY_JUSTSTRING(2700,6500,NNTT1(1:21),NT1ANG,NT1SIZ,3,3)
 !
-   IF(SYSTEM(18).EQ.1.0D0) THEN
+   IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !     SCY FANG
-      RANGE=SYSTEM(21)*LFOB(1)
+      RANGE=sys_scy_fang()*LFOB(1)
       UNN1='DEGREE(S)'
    ELSE
-      RANGE=SYSTEM(14)*LFOB(1)
-      IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-      IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-      IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-      IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+      RANGE=sys_scy()*LFOB(1)
+      IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+      IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+      IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+      IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCY
    END IF
    WRITE(B,101) RANGE
@@ -1335,10 +1341,10 @@ SUBROUTINE PLTLSF
 !
    IF(SPDELX.NE.0.0D0) THEN
       RANGE=SPDELX
-      IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-      IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-      IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-      IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+      IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+      IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+      IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+      IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
       WRITE(B,101) RANGE
       READ(B,200) CRANGE
       NNTT1='OFFSET  IN   X'
@@ -1350,10 +1356,10 @@ SUBROUTINE PLTLSF
    END IF
    IF(SPDELY.NE.0.0D0) THEN
       RANGE=SPDELY
-      IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-      IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-      IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-      IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+      IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+      IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+      IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+      IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
       WRITE(B,101) RANGE
       READ(B,200) CRANGE
       NNTT1='OFFSET  IN   Y'
@@ -1363,14 +1369,14 @@ SUBROUTINE PLTLSF
 !
       CALL MY_JUSTSTRING(2700,5700,NNTT1(1:21),NT1ANG,NT1SIZ,3,3)
    END IF
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL OR UFOCAL, PRINT THE DEFOCUS
       IF(DELZ.NE.0.0D0) THEN
          RANGE=DELZ
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
          WRITE(B,101) RANGE
          READ(B,200) CRANGE
          NNTT1='DE-FOCUS IN  Z'
@@ -1624,6 +1630,7 @@ SUBROUTINE PLTLBLL
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT LBL"
@@ -1668,7 +1675,7 @@ SUBROUTINE PLTLBLL
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          IF(WQ.EQ.'LBL')&
          &OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE FOR "PLOT LBL"'
          CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
@@ -2021,6 +2028,7 @@ SUBROUTINE FOOTAREA
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE FOOTAREA COMMAND
@@ -2127,10 +2135,10 @@ SUBROUTINE FOOTAREA
       REG(9)=TOTAREA
       WRITE(OUTLYNE,80) KSF
       CALL SHOWIT(0)
-      IF(SYSTEM(6).EQ.1) WRITE(OUTLYNE,81) TOTAREA
-      IF(SYSTEM(6).EQ.2) WRITE(OUTLYNE,82) TOTAREA
-      IF(SYSTEM(6).EQ.3) WRITE(OUTLYNE,83) TOTAREA
-      IF(SYSTEM(6).EQ.4) WRITE(OUTLYNE,84) TOTAREA
+      IF(sys_units().EQ.1) WRITE(OUTLYNE,81) TOTAREA
+      IF(sys_units().EQ.2) WRITE(OUTLYNE,82) TOTAREA
+      IF(sys_units().EQ.3) WRITE(OUTLYNE,83) TOTAREA
+      IF(sys_units().EQ.4) WRITE(OUTLYNE,84) TOTAREA
       CALL SHOWIT(0)
 80    FORMAT('BEAM FOOTPRINT ON SURFACE # ',I3)
 81    FORMAT('CURRENT BEAM FOOTPRINT AREA = ',G23.15,' SQUARE IN')
@@ -2148,6 +2156,7 @@ SUBROUTINE PLTFOOT
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT FOOT COMMAND
@@ -2192,7 +2201,7 @@ SUBROUTINE PLTFOOT
    M1=0
    M2=360
    M3=3
-   M4=INT(SYSTEM(20))
+   M4=INT(sys_last_surf())
    M5=2
    DEALLOCATE(CLPDAT,STAT=ALLOERR)
    ALLOCATE(CLPDAT(M1:M2,M3,M1:M4,M5),STAT=ALLOERR)
@@ -2648,6 +2657,7 @@ SUBROUTINE PLTFIELD
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode, sys_units
    IMPLICIT NONE
 !
 !     THIS PLOTS FIELD ABERATIONS
@@ -2798,21 +2808,21 @@ SUBROUTINE PLTFIELD
          LABY='F.O.V.(deg)                             '
          NY=11
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABY='OBJECT HT.(in)                          '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABY='OBJECT HT.(cm)                          '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABY='OBJECT HT.(mm)                          '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABY='OBJECT HT.(meter)                       '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NY=17
       END IF
 
@@ -2976,21 +2986,21 @@ SUBROUTINE PLTFIELD
          LABY='F.O.V.(deg)                             '
          NY=25
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABY='OBJECT HT.(in)                          '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABY='OBJECT HT.(cm)                          '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABY='OBJECT HT.(mm)                          '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABY='OBJECT HT.(meter)                       '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NY=17
       END IF
 
@@ -3169,45 +3179,45 @@ SUBROUTINE PLTFIELD
          LABY='F.O.V.(deg)                             '
          NY=11
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABY='OBJECT HT.(in)                          '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABY='OBJECT HT.(cm)                          '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABY='OBJECT HT.(mm)                          '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABY='OBJECT HT.(meter)                       '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NY=17
       END IF
 
 !     X-AXIS LABELS RANGE
 !
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          LABX='ASTIGMATISM [YZ-XZ] (diopter)           '
          NX=29
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (in)                '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (cm)                '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (mm)                '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (meter)             '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NX=24
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NX=24
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NX=24
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NX=26
       END IF
       COLPAS=COLFRM
@@ -3398,45 +3408,45 @@ SUBROUTINE PLTFIELD
          LABY='F.O.V.(deg)                             '
          NY=11
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABY='OBJECT HT.(in)                          '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABY='OBJECT HT.(cm)                          '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABY='OBJECT HT.(mm)                          '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABY='OBJECT HT.(meter)                       '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NY=14
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NY=17
       END IF
 
 !     X-AXIS LABELS RANGE
 !
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          LABX='FIELD CURVATURE [YZ-XZ] (diopter)       '
          NX=33
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABX='FIELD CURVATURE [YZ-XZ] (in)            '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABX='FIELD CURVATURE [YZ-XZ] (cm)            '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABX='FIELD CURVATURE [YZ-XZ] (mm)            '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABX='FIELD CURVATURE[YZ-XZ] (meter)          '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NX=28
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NX=28
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NX=28
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NX=29
       END IF
       COLPAS=COLFRM
@@ -3507,6 +3517,7 @@ SUBROUTINE PLTFIELDNEW
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_mode, sys_units
    IMPLICIT NONE
 !
 !     THIS PLOTS FIELD ABERATIONS
@@ -3648,21 +3659,21 @@ SUBROUTINE PLTFIELDNEW
       LABY='F.O.V.(deg)                             '
       NY=11
    ELSE
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &LABY='OBJECT HT.(in)                          '
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &LABY='OBJECT HT.(cm)                          '
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &LABY='OBJECT HT.(mm)                          '
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &LABY='OBJECT HT.(meter)                       '
-      IF(SYSTEM(6).EQ.1.0D0)&
+      IF(sys_units().EQ.1.0D0)&
       &NY=14
-      IF(SYSTEM(6).EQ.2.0D0)&
+      IF(sys_units().EQ.2.0D0)&
       &NY=14
-      IF(SYSTEM(6).EQ.3.0D0)&
+      IF(sys_units().EQ.3.0D0)&
       &NY=14
-      IF(SYSTEM(6).EQ.4.0D0)&
+      IF(sys_units().EQ.4.0D0)&
       &NY=17
    END IF
 
@@ -3676,49 +3687,49 @@ SUBROUTINE PLTFIELDNEW
       NX=20
     CASE ('PLTAST')
 
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          LABX='ASTIGMATISM [YZ-XZ] (diopter)           '
          NX=29
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (in)                '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (cm)                '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (mm)                '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABX='ASTIGMATISM [YZ-XZ] (meter)             '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NX=24
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NX=24
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NX=24
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NX=26
       END IF
       COLPAS=COLFRM
       CALL MY_COLTYP(COLPAS)
     CASE ('PLTFLDCV')
-      IF(SYSTEM(30).GE.3.0D0) THEN
+      IF(sys_mode().GE.3.0D0) THEN
          LABX='FIELD CURVATURE [YZ-XZ] (diopter)       '
          NX=33
       ELSE
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &LABX='FIELD CURVATURE [YZ-XZ] (in)            '
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &LABX='FIELD CURVATURE [YZ-XZ] (cm)            '
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &LABX='FIELD CURVATURE [YZ-XZ] (mm)            '
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &LABX='FIELD CURVATURE[YZ-XZ] (meter)          '
-         IF(SYSTEM(6).EQ.1.0D0)&
+         IF(sys_units().EQ.1.0D0)&
          &NX=28
-         IF(SYSTEM(6).EQ.2.0D0)&
+         IF(sys_units().EQ.2.0D0)&
          &NX=28
-         IF(SYSTEM(6).EQ.3.0D0)&
+         IF(sys_units().EQ.3.0D0)&
          &NX=28
-         IF(SYSTEM(6).EQ.4.0D0)&
+         IF(sys_units().EQ.4.0D0)&
          &NX=29
       END IF
       COLPAS=COLFRM
@@ -4005,6 +4016,7 @@ SUBROUTINE PLTCOB(SURFACEI,MDX,MDY,GAMGAM)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT COBS COMMAND
@@ -4035,7 +4047,7 @@ SUBROUTINE PLTCOB(SURFACEI,MDX,MDY,GAMGAM)
    M1=0
    M2=360
    M3=3
-   M4=INT(SYSTEM(20))
+   M4=INT(sys_last_surf())
    M5=2
    DEALLOCATE(CLPDAT,STAT=ALLOERR)
    ALLOCATE(CLPDAT(M1:M2,M3,M1:M4,M5),STAT=ALLOERR)
