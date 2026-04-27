@@ -5,6 +5,7 @@ SUBROUTINE THERM
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
    INTEGER I
@@ -59,7 +60,7 @@ SUBROUTINE THERM
       RETURN
    END IF
    IF(DF1.EQ.1) W1=0.0D0
-   IF(DF2.EQ.1) W2=SYSTEM(20)
+   IF(DF2.EQ.1) W2=sys_last_surf()
    IF(DF3.EQ.1.OR.DF4.EQ.1) THEN
       WRITE(OUTLYNE,*)'"THERM" REQUIRES EXPLICIT NUMERIC WORDS #3 AND #4'
       CALL SHOWIT(1)
@@ -76,8 +77,8 @@ SUBROUTINE THERM
       CALL MACFAL
       RETURN
    END IF
-   IF(W2.GT.SYSTEM(20)) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(SYSTEM(20)+1.0D0)
+   IF(W2.GT.sys_last_surf()) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN',INT(sys_last_surf()+1.0D0)
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
@@ -436,6 +437,7 @@ SUBROUTINE TELAIM
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TELAIM.FOR. THIS SUBROUTINE CONTROLS
@@ -486,7 +488,7 @@ SUBROUTINE TELAIM
          SYSTEM(62)=0.0D0
          SYSTEM(70)=0.0D0
          NEWOBJ=0
-         NEWIMG=INT(SYSTEM(20))
+         NEWIMG=INT(sys_last_surf())
 !     SHUT OFF REGULAR RAY AIMING
          SYSTEM(62)=0.0D0
       END IF
@@ -1022,6 +1024,7 @@ SUBROUTINE SVSET
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SVSET .
@@ -1034,7 +1037,7 @@ SUBROUTINE SVSET
 !
 !
    IF(ITYPEP.EQ.1) THEN
-      DO 10 I=0,((INT(SYSTEM(20)))-1)
+      DO 10 I=0,((INT(sys_last_surf()))-1)
          IF(SOLVE(6,I).EQ.1.0D0) THEN
 !       PY SOLVE
             SOLVE(7,I)=PXTRAY(1,(I+1))
@@ -1092,7 +1095,7 @@ SUBROUTINE SVSET
 !
    IF(ITYPEP.EQ.2) THEN
 !
-      DO 100 I=0,((INT(SYSTEM(20)))-1)
+      DO 100 I=0,((INT(sys_last_surf()))-1)
          IF(SOLVE(6,I).EQ.1.0D0) THEN
 !       PX SOLVE
             SOLVE(7,I)=PXTRAX(1,(I+1))
@@ -1156,6 +1159,7 @@ SUBROUTINE SUNITS
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE UNITS COMMAND BOTH AT
@@ -1198,7 +1202,7 @@ SUBROUTINE SUNITS
          RETURN
       END IF
 !       WHAT IF NO SURFACES EXIST
-      IF(SYSTEM(20).EQ.0.0D0) THEN
+      IF(sys_last_surf().EQ.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'UNITS ARE NOT DEFINED'//'\n'//&
          & 'LENS SYSTEM HAS NO SURFACES'//'\n'//&
@@ -1501,6 +1505,7 @@ SUBROUTINE STORD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STORD WHICH IMPLEMENTS THE TORD
@@ -1543,8 +1548,8 @@ SUBROUTINE STORD
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
@@ -1699,7 +1704,7 @@ SUBROUTINE STORD
 !       THIS SURFACE, THOSE PIKUPS MUST ALSO GO. ALL PIKED
 !       UP DATA IS FROZEN AT ITS CURRENT VALUES.
 !
-         DO 31 I=0,INT(SYSTEM(20))
+         DO 31 I=0,INT(sys_last_surf())
 
             IF(PIKUP(2,I,9).EQ.DBLE(SF).AND.PIKUP(1,I,9).NE.0.0D0 .OR.PIKUP(2,I,10).EQ.DBLE(SF).AND.PIKUP(1,I,10).NE.0.0D0 .OR.PIKUP(2,I,21).EQ.DBLE(SF).AND.PIKUP(1,I,21).NE.0.0D0 .OR.PIKUP(2,I,22).EQ.DBLE(SF).AND.PIKUP(1,I,22).NE.0.0D0 .OR.PIKUP(2,I,23).EQ.DBLE(SF).AND.PIKUP(1,I,23).NE.0.0D0 .OR.PIKUP(2,I,24).EQ.DBLE(SF).AND.PIKUP(1,I,24).NE.0.0D0 .OR.PIKUP(2,I,25).EQ.DBLE(SF).AND.PIKUP(1,I,25).NE.0.0D0 .OR.PIKUP(2,I,27).EQ.DBLE(SF).AND.PIKUP(1,I,27).NE.0.0D0)THEN
 
@@ -1758,7 +1763,7 @@ SUBROUTINE STORD
 !       THIS SURFACE, THOSE PIKUPS MUST ALSO GO. ALL PIKED
 !       UP DATA IS FROZEN AT ITS CURRENT VALUES.
 !
-         DO 32 I=0,INT(SYSTEM(20))
+         DO 32 I=0,INT(sys_last_surf())
 
             IF(PIKUP(2,I,11).EQ.DBLE(SF).AND.PIKUP(1,I,11).NE.0.0D0 .OR.PIKUP(2,I,12).EQ.DBLE(SF).AND.PIKUP(1,I,12).NE.0.0D0 )THEN
 
@@ -1802,6 +1807,7 @@ SUBROUTINE STILTD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILTD WHICH IMPLEMENTS THE TILTD COMMAND
@@ -1841,8 +1847,8 @@ SUBROUTINE STILTD
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
@@ -1941,7 +1947,7 @@ SUBROUTINE STILTD
 !               PIKUP(I,J,K) WHERE K IS 15,16, OR 17
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE TILT
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-      DO 300 I=0,INT(SYSTEM(20))
+      DO 300 I=0,INT(sys_last_surf())
          DO J=15,17
             IF(PIKUP(1,I,J).EQ.1.0D0) THEN
 !       DOES IT REFER TO SURFACE SF
@@ -2004,7 +2010,7 @@ SUBROUTINE STILTD
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-      DO 400 I=0,INT(SYSTEM(20))
+      DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
          PIKCNT=0
          DO 401 J=1,PSIZ
@@ -2024,6 +2030,7 @@ SUBROUTINE STILTAD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILT WHICH IMPLEMENTS THE TILT COMMANDS
@@ -2061,8 +2068,8 @@ SUBROUTINE STILTAD
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(W2).GT.INT(SYSTEM(20))) THEN
-      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(SYSTEM(20))
+   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+      WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
@@ -2146,7 +2153,7 @@ SUBROUTINE STILTAD
 !               PIKUP(I,J,K) WHERE K IS 15,16, OR 17
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE TILT
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-      DO 300 I=0,INT(SYSTEM(20))
+      DO 300 I=0,INT(sys_last_surf())
          DO 301 J=15,17
             IF(PIKUP(1,I,J).EQ.1.0D0) THEN
 !       DOES IT REFER TO SURFACE SF
@@ -2174,7 +2181,7 @@ SUBROUTINE STILTAD
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-      DO 400 I=0,INT(SYSTEM(20))
+      DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
          PIKCNT=0
          DO 401 J=1,PSIZ
@@ -2194,6 +2201,8 @@ SUBROUTINE STH
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_scx, sys_scx_fang, sys_scx_fang_set, &
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_x1_scx_fang_set, sys_y1_scy_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STH WHICH IMPLEMENTS THE TH
@@ -2256,17 +2265,17 @@ SUBROUTINE STH
 !
 !       THE CASE OF CHANGING THE THICKNESS OF THE OBJECT SURFACE
 !       IF OBJECT SURFACE, REMEMBER OLD VALUE
-      IF(SURF.EQ.0.AND.SYSTEM(26).EQ.-99.0D0) THEN
+      IF(SURF.EQ.0.AND.sys_astop().EQ.-99.0D0) THEN
          SYSTEM(55)=surf_thickness(SURF)
          IF(SQ.EQ.0)call set_surf_thickness(SURF, W1)
          IF(WQ.EQ.'DELT')call set_surf_thickness(SURF, surf_thickness(SURF)+W1)
          IF(WQ.EQ.'CENT')call set_surf_thickness(SURF, surf_thickness(SURF)+(W1*0.01D0*surf_thickness(SURF)))
 !       MUST BE NO STOP AS WELL
-         IF(SYSTEM(51).NE.0.0D0.OR.SYSTEM(53).NE.0.0D0) THEN
+         IF(SYSTEM(51).NE.0.0D0.OR.sys_y1_scy_fang_set().NE.0.0D0) THEN
 !       RECALCULATE Y1
-            IF(SYSTEM(18).EQ.0.0D0) THEN
+            IF(sys_scy_fang_set().EQ.0.0D0) THEN
 !       CASE OF SCY INPUT Y00
-               Y00=SYSTEM(14)
+               Y00=sys_scy()
                OLDY1=SYSTEM(15)
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
@@ -2276,9 +2285,9 @@ SUBROUTINE STH
                SYSTEM(22)=NEWY1
             ELSE
             END IF
-            IF(SYSTEM(18).EQ.1.0D0) THEN
+            IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !       CASE OF SCY FANG INPUT Y0ANG
-               Y0ANG=SYSTEM(21)
+               Y0ANG=sys_scy_fang()
                OLDY1=SYSTEM(22)
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
@@ -2290,11 +2299,11 @@ SUBROUTINE STH
             END IF
          ELSE
          END IF
-         IF(SYSTEM(52).NE.0.0D0.OR.SYSTEM(54).NE.0.0D0) THEN
+         IF(SYSTEM(52).NE.0.0D0.OR.sys_x1_scx_fang_set().NE.0.0D0) THEN
 !       RECALCULATE X1
-            IF(SYSTEM(19).EQ.0.0D0) THEN
+            IF(sys_scx_fang_set().EQ.0.0D0) THEN
 !       CASE OF SCX INPUT X00
-               X00=SYSTEM(16)
+               X00=sys_scx()
                OLDX1=SYSTEM(17)
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
@@ -2304,9 +2313,9 @@ SUBROUTINE STH
                SYSTEM(24)=NEWX1
             ELSE
             END IF
-            IF(SYSTEM(19).EQ.1.0D0) THEN
+            IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !       CASE OF SCX FANG INPUT X0ANG
-               X0ANG=SYSTEM(23)
+               X0ANG=sys_scx_fang()
                OLDX1=SYSTEM(24)
                OLDTH=SYSTEM(55)
                TH=surf_thickness(SURF)
@@ -2575,6 +2584,7 @@ SUBROUTINE STASPH
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STASPH WHICH IMPLEMENTS THE TASPH
@@ -2716,7 +2726,7 @@ SUBROUTINE STASPH
          END IF
 !
 !       WHAT IF NO SURFACES EXIST
-         IF(SYSTEM(20).EQ.0.0D0) THEN
+         IF(sys_last_surf().EQ.0.0D0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'NO ASHERIC-TORICS EXIST'//'\n'//&
             & 'LENS SYSTEM HAS NO SURFACES'//'\n'//&
@@ -2746,9 +2756,9 @@ SUBROUTINE STASPH
          END IF
 !
          IF(SQ.EQ.0) THEN
-            IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+            IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
             I=INT(W1)
-            IF(I.GT.(INT(SYSTEM(20))).OR.I.LT.0) THEN
+            IF(I.GT.(INT(sys_last_surf())).OR.I.LT.0) THEN
                CALL REPORT_ERROR_AND_FAIL(&
                & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
                & 'RE-ENTER COMMAND', 1)
@@ -2794,7 +2804,7 @@ SUBROUTINE STASPH
 !       CHECK FOR NO DATA
 !
             J=0
-            DO 20 I=0,INT(SYSTEM(20))
+            DO 20 I=0,INT(sys_last_surf())
                IF(surf_anamorphic_conic(I).NE.0.0D0.AND.surf_anamorphic_flag(I).NE.0.0D0.OR.surf_anamorphic_conic(I).NE.0.0D0.OR.surf_anamorphic_flag(I).NE.0.0D0) THEN
                   J=J+1
                ELSE
@@ -2818,7 +2828,7 @@ SUBROUTINE STASPH
             WRITE(OUTLYNE,500)
             CALL SHOWIT(0)
 !
-            DO 10 I=0,INT(SYSTEM(20))
+            DO 10 I=0,INT(sys_last_surf())
                IF(surf_anamorphic_conic(I).NE.0.0D0.AND.surf_anamorphic_flag(I).EQ.0.0D0) THEN
                   CC=surf_anamorphic_conic(I)
                   WRITE(OUTLYNE,200)I,CC
@@ -2856,6 +2866,7 @@ SUBROUTINE STILT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_ref_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILT WHICH IMPLEMENTS THE TILT COMMANDS
@@ -2981,7 +2992,7 @@ SUBROUTINE STILT
 !       THEN A TILT AUTO
 !
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'AUTO') THEN
-      IF(SURF.LE.INT(SYSTEM(25)))THEN
+      IF(SURF.LE.INT(sys_ref_surf()))THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"TILT AUTO" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -3121,7 +3132,7 @@ SUBROUTINE STILT
          RETURN
       END IF
 !     NOW CHECK IF IT REFERS TO A PREVIOUS SURFACE
-      IF(W1.LT.0.0D0.OR.W1.GT.SYSTEM(20)) THEN
+      IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'INVALID SURFACE NUMBER REFERED TO BY "TILT RET"'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -3379,7 +3390,7 @@ SUBROUTINE STILT
 !       THEN A TILT AUTOM
 !
    IF(WC.EQ.'TILT'.AND.WQ.EQ.'AUTOM') THEN
-      IF(SURF.LE.INT(SYSTEM(25)))THEN
+      IF(SURF.LE.INT(sys_ref_surf()))THEN
          OUTLYNE='"TILT AUTOM" NOT ALLOWED BEFORE OR ON THE REFERENCE SURFACE'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
@@ -3476,7 +3487,7 @@ SUBROUTINE STILT
 !               PIKUP(I,J,K) WHERE K IS 15,16, OR 17
 !       IF SO THEN THE PIKUP MUST BE DELETED AND THE TILT
 !       DATA FROZEN ON THE PIKUP SURFACE AT THEIR CURRENT VALUES.
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       DO J=15,17
          IF(PIKUP(1,I,J).EQ.1.0D0) THEN
 !       DOES IT REFER TO SURFACE SURF
@@ -3539,7 +3550,7 @@ SUBROUTINE STILT
 !
 !       NOW FIX ALL THE surf_special_type(K) IN THE LENS SYSTEM
 !
-   DO 400 I=0,INT(SYSTEM(20))
+   DO 400 I=0,INT(sys_last_surf())
 !       CHECK PIKUPS
       PIKCNT=0
       DO 401 J=1,PSIZ
