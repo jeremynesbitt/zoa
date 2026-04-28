@@ -749,7 +749,8 @@ SUBROUTINE FDISTOP(IW1,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_mode
+   use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_mode, &
+      & sys_set_scy_fang_set, sys_set_scx_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FDISTOP. THIS SUBROUTINE IMPLEMENTS
@@ -772,8 +773,8 @@ SUBROUTINE FDISTOP(IW1,ERROR)
    GRASET=.FALSE.
    O18=sys_scy_fang_set()
    O19=sys_scx_fang_set()
-   SYSTEM(18)=0.0D0
-   SYSTEM(19)=0.0D0
+   call sys_set_scy_fang_set(0.0D0)
+   call sys_set_scx_fang_set(0.0D0)
 !
    ERROR=0
    K=NEWIMG
@@ -784,8 +785,8 @@ SUBROUTINE FDISTOP(IW1,ERROR)
    CALL GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,0.0D0,0.0D0,0.0D0,MYW4,0)
 
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
 !     PROCEED WITH DISTORTION CALCULATION USING PCY AND PCX
@@ -825,8 +826,8 @@ SUBROUTINE FDISTOP(IW1,ERROR)
    LDIF=OLDLDIF
    REST_KDP(1)=RESTINPT(1)
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
    IF(sys_mode().LE.2.0D0) THEN
@@ -866,8 +867,8 @@ SUBROUTINE FDISTOP(IW1,ERROR)
       IF(HP.NE.0.0D0) VALUE=((HR-HP)/HP)*100.0D0
       IF(HP.EQ.0.0D0) VALUE=0.0D0
    END IF
-   SYSTEM(18)=O18
-   SYSTEM(19)=O19
+   call sys_set_scy_fang_set(O18)
+   call sys_set_scx_fang_set(O19)
    RETURN
 END
 ! SUB FDISTOR.FOR
@@ -876,7 +877,8 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_wl_ref, sys_scy_fang_set, sys_scx_fang_set, sys_mode
+   use mod_system, only: sys_wl_ref, sys_scy_fang_set, sys_scx_fang_set, sys_mode, &
+      & sys_set_scy_fang_set, sys_set_scx_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DISTOR. THIS SUBROUTINE IMPLEMENTS
@@ -901,8 +903,8 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
 !
    O18=sys_scy_fang_set()
    O19=sys_scx_fang_set()
-   SYSTEM(18)=0.0D0
-   SYSTEM(19)=0.0D0
+   call sys_set_scy_fang_set(0.0D0)
+   call sys_set_scx_fang_set(0.0D0)
 !
    ERROR=0
    K=NEWIMG
@@ -916,8 +918,8 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
    CALL GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,0.0D0,0.0D0,0.0D0,MYW4,0)
 
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
 !     PROCEED WITH DISTORTION CALCULATION USING PCY AND PCX
@@ -957,8 +959,8 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
    LDIF=OLDLDIF
    REST_KDP(1)=RESTINPT(1)
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
    IF(sys_mode().LE.2.0D0) THEN
@@ -997,8 +999,8 @@ SUBROUTINE FDISTOR(DWORD1,DWORD2,ERROR)
       IF(HP.NE.0.0D0) VALUE=((HR-HP)/HP)*100.0D0
       IF(HP.EQ.0.0D0) VALUE=0.0D0
    END IF
-   SYSTEM(18)=O18
-   SYSTEM(19)=O19
+   call sys_set_scy_fang_set(O18)
+   call sys_set_scx_fang_set(O19)
    RETURN
 END
 ! SUB DISTOP.FOR
@@ -1008,7 +1010,8 @@ SUBROUTINE DISTOP(IW1,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_mode
+   use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_mode, &
+      & sys_set_scy_fang_set, sys_set_scx_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DISTOP. THIS SUBROUTINE IMPLEMENTS
@@ -1031,8 +1034,8 @@ SUBROUTINE DISTOP(IW1,ERROR)
    GRASET=.FALSE.
    O18=sys_scy_fang_set()
    O19=sys_scx_fang_set()
-   SYSTEM(18)=0.0D0
-   SYSTEM(19)=0.0D0
+   call sys_set_scy_fang_set(0.0D0)
+   call sys_set_scx_fang_set(0.0D0)
 !
    ERROR=0
    K=NEWIMG
@@ -1043,8 +1046,8 @@ SUBROUTINE DISTOP(IW1,ERROR)
    CALL GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,0.0D0,0.0D0,0.0D0,MYW4,0)
 
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
 !     PROCEED WITH DISTORTION CALCULATION USING PCY AND PCX
@@ -1084,8 +1087,8 @@ SUBROUTINE DISTOP(IW1,ERROR)
    LDIF=OLDLDIF
    REST_KDP(1)=RESTINPT(1)
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
 !     PROCEED WITH DIST CALC.
@@ -1111,8 +1114,8 @@ SUBROUTINE DISTOP(IW1,ERROR)
       IF(HP.NE.0.0D0) VALUE=((HR-HP)/HP)*100.0D0
       IF(HP.EQ.0.0D0) VALUE=0.0D0
    END IF
-   SYSTEM(18)=O18
-   SYSTEM(19)=O19
+   call sys_set_scy_fang_set(O18)
+   call sys_set_scx_fang_set(O19)
    RETURN
 END
 ! SUB GNPR1.FOR
@@ -3257,7 +3260,8 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_wl_ref, sys_scy_fang_set, sys_scx_fang_set, sys_mode
+   use mod_system, only: sys_wl_ref, sys_scy_fang_set, sys_scx_fang_set, sys_mode, &
+      & sys_set_scy_fang_set, sys_set_scx_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DISTOR. THIS SUBROUTINE IMPLEMENTS
@@ -3282,8 +3286,8 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
 !
    O18=sys_scy_fang_set()
    O19=sys_scx_fang_set()
-   SYSTEM(18)=0.0D0
-   SYSTEM(19)=0.0D0
+   call sys_set_scy_fang_set(0.0D0)
+   call sys_set_scx_fang_set(0.0D0)
 !
    ERROR=0
    K=NEWIMG
@@ -3297,8 +3301,8 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
    CALL GNPRT(K,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR ,0.0D0,0.0D0,0.0D0,MYW4,0)
 
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
 !     PROCEED WITH DISTORTION CALCULATION USING PCY AND PCX
@@ -3340,8 +3344,8 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
    LDIF=OLDLDIF
    REST_KDP(1)=RESTINPT(1)
    IF(ERROR.EQ.1) THEN
-      SYSTEM(18)=O18
-      SYSTEM(19)=O19
+      call sys_set_scy_fang_set(O18)
+      call sys_set_scx_fang_set(O19)
       RETURN
    END IF
 !     PROCEED WITH DIST CALC.
@@ -3383,8 +3387,8 @@ SUBROUTINE DISTOR(DWORD1,DWORD2,ERROR)
       IF(HP.NE.0.0D0) VALUE=((HR-HP)/HP)*100.0D0
       IF(HP.EQ.0.0D0) VALUE=0.0D0
    END IF
-   SYSTEM(18)=O18
-   SYSTEM(19)=O19
+   call sys_set_scy_fang_set(O18)
+   call sys_set_scx_fang_set(O19)
    RETURN
 END
 ! SUB CACHEK.FOR
