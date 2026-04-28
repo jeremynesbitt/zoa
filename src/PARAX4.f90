@@ -6,8 +6,11 @@ SUBROUTINE FADJ
    use DATLEN
    use DATMAI
    use mod_surface
-   use mod_system, only: sys_fno_val_set, sys_fno_val_x, sys_fno_val_y, sys_last_surf, &
-      & sys_na_set, sys_naox, sys_naoy, sys_telecentric
+   use mod_system, only: sys_fno_flag_x, sys_fno_flag_y, sys_fno_hold_x, sys_fno_hold_y, &
+      & sys_fno_val_set, sys_fno_val_x, sys_fno_val_y, sys_last_surf, &
+      & sys_na_set, sys_naox, sys_naoy, sys_sax, sys_say, sys_telecentric, &
+      & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
+      & sys_set_sax, sys_set_say
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FADJ. THIS IS THE SUBROUTINE
@@ -25,8 +28,8 @@ SUBROUTINE FADJ
          CALL SHOWIT(1)
          OUTLYNE='"FNBY" ADJUSTMENT NOT PERFORMED AND WILL BE REMOVED'
          CALL SHOWIT(1)
-         SYSTEM(44)=0.0D0
-         SYSTEM(46)=0.0D0
+         call sys_set_fno_flag_y(0.0D0)
+         call sys_set_fno_hold_y(0.0D0)
          RETURN
       ELSE
 !       PUY(FINAL) NOT ZERO, PROCEED
@@ -38,8 +41,8 @@ SUBROUTINE FADJ
 !
 !       CURRENT F-NUMBER/NEW F-NUMBER
 !
-      SYSTEM(12)=SYSTEM(12)*(-(1.0D0/(2.0D0*&
-      &PXTRAY(2,(INT(sys_last_surf())))))/SYSTEM(46))
+      call sys_set_say(sys_say()*(-(1.0D0/(2.0D0*&
+      &PXTRAY(2,(INT(sys_last_surf())))))/sys_fno_hold_y()))
 !
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
@@ -54,12 +57,12 @@ SUBROUTINE FADJ
             RETURN
          ELSE
             IF(sys_na_set().EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)*sys_naoy()
-               SYSTEM(13)=surf_thickness(0)*sys_naox()
+               call sys_set_say(surf_thickness(0)*sys_naoy())
+               call sys_set_sax(surf_thickness(0)*sys_naox())
             END IF
             IF(sys_fno_val_set().EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)/(2.0D0*sys_fno_val_y())
-               SYSTEM(13)=surf_thickness(0)/(2.0D0*sys_fno_val_x())
+               call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
+               call sys_set_sax(surf_thickness(0)/(2.0D0*sys_fno_val_x()))
             END IF
          END IF
       END IF
@@ -90,8 +93,8 @@ SUBROUTINE FADJ
          CALL SHOWIT(1)
          OUTLYNE='"FNBX" ADJUSTMENT NOT PERFORMED AND WILL BE REMOVED'
          CALL SHOWIT(1)
-         SYSTEM(45)=0.0D0
-         SYSTEM(47)=0.0D0
+         call sys_set_fno_flag_x(0.0D0)
+         call sys_set_fno_hold_x(0.0D0)
          RETURN
       ELSE
 !       PUX(FINAL) NOT ZERO, PROCEED
@@ -103,8 +106,8 @@ SUBROUTINE FADJ
 !
 !       CURRENT F-NUMBER/NEW F-NUMBER
 !
-      SYSTEM(13)=SYSTEM(13)*(-(1.0D0/(2.0D0*&
-      &PXTRAX(2,(INT(sys_last_surf())))))/SYSTEM(47))
+      call sys_set_sax(sys_sax()*(-(1.0D0/(2.0D0*&
+      &PXTRAX(2,(INT(sys_last_surf())))))/sys_fno_hold_x()))
 !
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
@@ -119,12 +122,12 @@ SUBROUTINE FADJ
             RETURN
          ELSE
             IF(sys_na_set().EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)*sys_naoy()
-               SYSTEM(13)=surf_thickness(0)*sys_naox()
+               call sys_set_say(surf_thickness(0)*sys_naoy())
+               call sys_set_sax(surf_thickness(0)*sys_naox())
             END IF
             IF(sys_fno_val_set().EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)/(2.0D0*sys_fno_val_y())
-               SYSTEM(13)=surf_thickness(0)/(2.0D0*sys_fno_val_x())
+               call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
+               call sys_set_sax(surf_thickness(0)/(2.0D0*sys_fno_val_x()))
             END IF
          END IF
       END IF
