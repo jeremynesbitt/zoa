@@ -89,6 +89,7 @@ SUBROUTINE SREFL
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SREFL WHICH IMPLEMENTS THE REFL
@@ -100,11 +101,11 @@ SUBROUTINE SREFL
 !
 !       "REFL" IS A SURFACE TERMINAL COMMAND. IN THE LENS INPUT
 !       ROUTINE F5=1, "REFL" CAUSES THE SURFACE COUNTING VARIABLE
-!       (SURF) AND SYSTEM(20) TO BE INCREMENTED BY 1 AND 1.0
+!       (SURF) AND sys_last_surf() TO BE INCREMENTED BY 1 AND 1.0
 !       AND CAUSES THE NEXT SURFACE DATA TO BE STORED FOR THE NEXT
 !       SURFACE. AT F6=1 (UPDATE ROUTINE) THIS INCREMENTING DOES
 !       NO OCCUR. THE LAST SURFACE FOR WHICH DATA MAY BE ENTERED
-!       IS SURFACE MAXSUR. SURF AND SYSTEM(20) ARE NOT INCREMENTED
+!       IS SURFACE MAXSUR. SURF AND sys_last_surf() ARE NOT INCREMENTED
 !       PASSED MAXSUR SO IF AN ATTEMPT IS MADE TO INPUT PASSED
 !       SURFACE MAXSUR IN THE LENS INPUT MODE, THE DATA FOR SURFACE
 !       MAXSUR WILL BE OVERWRITTEN.
@@ -167,9 +168,9 @@ SUBROUTINE SREFL
          IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
             SURF=SURF+1
             ALENS(1:LSIZ,SURF)=0.0D0
-            SYSTEM(20)=DBLE(SURF)
-         ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
          END IF
          F22=1
          RETURN
@@ -200,9 +201,9 @@ SUBROUTINE SREFL
       IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
          SURF=SURF+1
          ALENS(1:LSIZ,SURF)=0.0D0
-         SYSTEM(20)=DBLE(SURF)
-      ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
       END IF
 !
    ELSE
@@ -220,6 +221,7 @@ SUBROUTINE SAIR
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAIR WHICH IMPLEMENTS THE AIR
@@ -230,11 +232,11 @@ SUBROUTINE SAIR
 !
 !       "AIR" IS A SURFACE TERMINAL COMMAND. IN THE LENS INPUT
 !       ROUTINE F5=1, "AIR" CAUSES THE SURFACE COUNTING VARIABLE
-!       (SURF) AND SYSTEM(20) TO BE INCREMENTED BY 1 AND 1.0
+!       (SURF) AND sys_last_surf() TO BE INCREMENTED BY 1 AND 1.0
 !       AND CAUSES THE NEXT SURFACE DATA TO BE STORED FOR THE NEXT
 !       SURFACE. AT F6=1 (UPDATE ROUTINE) THIS INCREMENTING DOES
 !       NO OCCUR. THE LAST SURFACE FOR WHICH DATA MAY BE ENTERED
-!       IS SURFACE MAXSUR. SURF AND SYSTEM(20) ARE NOT INCREMENTED
+!       IS SURFACE MAXSUR. SURF AND sys_last_surf() ARE NOT INCREMENTED
 !       PASSED MAXSUR SO IF AN ATTEMPT IS MADE TO INPUT PASSED
 !       SURFACE MAXSUR IN THE LENS INPUT MODE, THE DATA FOR SURFACE
 !       MAXSUR WILL BE OVERWRITTEN.
@@ -271,9 +273,9 @@ SUBROUTINE SAIR
          IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
             SURF=SURF+1
             ALENS(1:LSIZ,SURF)=0.0D0
-            SYSTEM(20)=DBLE(SURF)
-         ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
          END IF
          RETURN
       ELSE
@@ -300,9 +302,9 @@ SUBROUTINE SAIR
       IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
          SURF=SURF+1
          ALENS(1:LSIZ,SURF)=0.0D0
-         SYSTEM(20)=DBLE(SURF)
-      ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
       END IF
 !
       F22=1
@@ -319,6 +321,7 @@ SUBROUTINE GLSCAT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLSCAT WHICH IMPLEMENTS THE SCHOTT
@@ -330,11 +333,11 @@ SUBROUTINE GLSCAT
 !
 !       THIS IS A SURFACE TERMINAL COMMAND. IN THE LENS INPUT
 !       ROUTINE F5=1, AND CAUSES THE SURFACE COUNTING VARIABLE
-!       (SURF) AND SYSTEM(20) TO BE INCREMENTED BY 1 AND 1.0
+!       (SURF) AND sys_last_surf() TO BE INCREMENTED BY 1 AND 1.0
 !       AND CAUSES THE NEXT SURFACE DATA TO BE STORED FOR THE NEXT
 !       SURFACE. AT F6=1 (UPDATE ROUTINE) THIS INCREMENTING DOES
 !       NO OCCUR. THE LAST SURFACE FOR WHICH DATA MAY BE ENTERED
-!       IS SURFACE MAXSUR. SURF AND SYSTEM(20) ARE NOT INCREMENTED
+!       IS SURFACE MAXSUR. SURF AND sys_last_surf() ARE NOT INCREMENTED
 !       PASSED MAXSUR SO IF AN ATTEMPT IS MADE TO INPUT PASSED
 !       SURFACE MAXSUR IN THE LENS INPUT MODE, THE DATA FOR SURFACE
 !       MAXSUR WILL BE OVERWRITTEN.
@@ -371,9 +374,9 @@ SUBROUTINE GLSCAT
       IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
          SURF=SURF+1
          ALENS(1:LSIZ,SURF)=0.0D0
-         SYSTEM(20)=DBLE(SURF)
-      ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
       END IF
 !
       RETURN
@@ -401,9 +404,9 @@ SUBROUTINE GLSCAT
    IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
       SURF=SURF+1
       ALENS(1:LSIZ,SURF)=0.0D0
-      SYSTEM(20)=DBLE(SURF)
-   ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
    END IF
 !
 END
@@ -557,6 +560,7 @@ SUBROUTINE SPERFECT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPERFECT WHICH IMPLEMENTS THE PERFECT
@@ -589,9 +593,9 @@ SUBROUTINE SPERFECT
       IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
          SURF=SURF+1
          ALENS(1:LSIZ,SURF)=0.0D0
-         SYSTEM(20)=DBLE(SURF)
-      ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
       END IF
       RETURN
    ELSE
@@ -618,9 +622,9 @@ SUBROUTINE SPERFECT
    IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
       SURF=SURF+1
       ALENS(1:LSIZ,SURF)=0.0D0
-      SYSTEM(20)=DBLE(SURF)
-   ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
    END IF
 !
    F22=1
@@ -633,6 +637,7 @@ SUBROUTINE SIDEAL
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIDEAL WHICH IMPLEMENTS THE IDEAL
@@ -688,9 +693,9 @@ SUBROUTINE SIDEAL
       IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
          SURF=SURF+1
          ALENS(1:LSIZ,SURF)=0.0D0
-         SYSTEM(20)=DBLE(SURF)
-      ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
       END IF
       RETURN
    ELSE
@@ -717,9 +722,9 @@ SUBROUTINE SIDEAL
    IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
       SURF=SURF+1
       ALENS(1:LSIZ,SURF)=0.0D0
-      SYSTEM(20)=DBLE(SURF)
-   ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
    END IF
 !
    F22=1
@@ -733,15 +738,18 @@ SUBROUTINE LQUERY
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_astop, sys_autofunc, sys_mode, sys_na_set, &
-      & sys_pxim, sys_pxim_fang_set, sys_pyim, sys_pyim_fang_set, &
-      & sys_ref_orient, sys_ref_surf, sys_rxim, sys_rxim_fang_set, &
-      & sys_ryim, sys_ryim_fang_set, sys_sax, sys_say, sys_scx, &
+   use mod_system, only: sys_astop, sys_autofunc, sys_bdx, sys_bdy, &
+      & sys_fno_val_set, sys_fno_val_x, sys_fno_val_y, sys_mode, sys_na_set, &
+      & sys_naox, sys_naoy, sys_pxim, sys_pxim_fang_set, sys_pyim, &
+      & sys_pyim_fang_set, sys_ref_orient, sys_ref_surf, sys_rxim, &
+      & sys_rxim_fang_set, sys_ryim, sys_ryim_fang_set, sys_sax, sys_say, &
+      & sys_sax_float, sys_say_float, sys_scx, &
       & sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
       & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_pri1, &
       & sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_wl_weight, &
       & sys_wrx, sys_wry, sys_x1_scx, sys_x1_scx_fang, sys_y1_scy, &
-      & sys_y1_scy_fang
+      & sys_y1_scy_fang, sys_set_fno_val_x, sys_set_fno_val_y, &
+      & sys_set_naox, sys_set_naoy, sys_set_sax_float, sys_set_say_float
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE DISPLAYS THE CURRENT VALUE OF A LENS
@@ -1083,19 +1091,19 @@ SUBROUTINE LQUERY
          CALL SHOWIT(1)
       ELSE
       END IF
-      IF(SYSTEM(67).NE.0.0D0) THEN
+      IF(sys_fno_val_set().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"'//WC(1:3)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'BUT IS HELD WITH AN "FNO(X OR Y)" ASSIGNMENT'
          CALL SHOWIT(1)
       ELSE
       END IF
-      IF(SYSTEM(83).NE.0.0D0) THEN
+      IF(sys_say_float().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"SAY" IS CURRENTLY FLOATING'
          CALL SHOWIT(1)
       ELSE
       END IF
-      IF(SYSTEM(84).NE.0.0D0) THEN
+      IF(sys_sax_float().NE.0.0D0) THEN
          WRITE(OUTLYNE,*)'"SAX" IS CURRENTLY FLOATING'
          CALL SHOWIT(1)
       ELSE
@@ -1119,8 +1127,8 @@ SUBROUTINE LQUERY
       V1=1
       IF(WC.EQ.'WRX') VALUE1=sys_wrx()
       IF(WC.EQ.'WRY') VALUE1=sys_wry()
-      IF(WC.EQ.'BDX') VALUE1=SYSTEM(87)
-      IF(WC.EQ.'BDY') VALUE1=SYSTEM(88)
+      IF(WC.EQ.'BDX') VALUE1=sys_bdx()
+      IF(WC.EQ.'BDY') VALUE1=sys_bdy()
       GO TO 200
    ELSE
    END IF
@@ -1129,16 +1137,16 @@ SUBROUTINE LQUERY
          OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
          IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-            SYSTEM(65)=(ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2))
-            SYSTEM(66)=(ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2))
-            SYSTEM(83)=0.0D0
-            SYSTEM(84)=0.0D0
+            call sys_set_naoy((ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+            call sys_set_naox((ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+            call sys_set_say_float(0.0D0)
+            call sys_set_sax_float(0.0D0)
          END IF
          IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-            SYSTEM(65)=(ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2))
-            SYSTEM(66)=(ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2))
-            SYSTEM(83)=0.0D0
-            SYSTEM(84)=0.0D0
+            call sys_set_naoy((ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+            call sys_set_naox((ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+            call sys_set_say_float(0.0D0)
+            call sys_set_sax_float(0.0D0)
          END IF
       ELSE
       END IF
@@ -1146,27 +1154,27 @@ SUBROUTINE LQUERY
       IF(WC.EQ.'NAOY') VAL='CURRENT "NAOY" VALUE IS:'
       IF(WC.EQ.'NAOX') VAL='CURRENT "NAOX" VALUE IS:'
       V1=1
-      IF(WC.EQ.'NAOY') VALUE1=SYSTEM(65)
-      IF(WC.EQ.'NAOX') VALUE1=SYSTEM(66)
+      IF(WC.EQ.'NAOY') VALUE1=sys_naoy()
+      IF(WC.EQ.'NAOX') VALUE1=sys_naox()
       GO TO 200
    ELSE
    END IF
    IF(WC.EQ.'FNOY'.OR.WC.EQ.'FNOX') THEN
-      IF(SYSTEM(67).NE.1.0D0) THEN
+      IF(sys_fno_val_set().NE.1.0D0) THEN
          OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
-         SYSTEM(68)=1.0D0/((2.0D0*sys_say())/surf_thickness(0))
-         SYSTEM(69)=1.0D0/((2.0D0*sys_sax())/surf_thickness(0))
-         SYSTEM(83)=0.0D0
-         SYSTEM(84)=0.0D0
+         call sys_set_fno_val_y(1.0D0/((2.0D0*sys_say())/surf_thickness(0)))
+         call sys_set_fno_val_x(1.0D0/((2.0D0*sys_sax())/surf_thickness(0)))
+         call sys_set_say_float(0.0D0)
+         call sys_set_sax_float(0.0D0)
       ELSE
       END IF
       VA1=1
       IF(WC.EQ.'FNOY') VAL='CURRENT "FNOY" VALUE IS:'
       IF(WC.EQ.'FNOX') VAL='CURRENT "FNOX" VALUE IS:'
       V1=1
-      IF(WC.EQ.'FNOY') VALUE1=SYSTEM(68)
-      IF(WC.EQ.'FNOX') VALUE1=SYSTEM(69)
+      IF(WC.EQ.'FNOY') VALUE1=sys_fno_val_y()
+      IF(WC.EQ.'FNOX') VALUE1=sys_fno_val_x()
       GO TO 200
    ELSE
    END IF
@@ -3116,6 +3124,7 @@ SUBROUTINE SHOWNSS
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
    IMPLICIT NONE
    LOGICAL NONSS
@@ -3134,7 +3143,7 @@ SUBROUTINE SHOWNSS
       RETURN
    END IF
    NONSS=.TRUE.
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_ccr_flag(I).NE.0D0) NONSS=.FALSE.
    END DO
    IF(NONSS) THEN
@@ -3148,7 +3157,7 @@ SUBROUTINE SHOWNSS
    CALL SHOWIT(0)
    OUTLYNE='                 '
    CALL SHOWIT(0)
-   DO I=0,INT(SYSTEM(20))
+   DO I=0,INT(sys_last_surf())
       IF(surf_ccr_flag(I).EQ.1.0D0) THEN
          WRITE(OUTLYNE,*)'ROOF/CCR DATA FOR SURFACE NUMBER: ',I
          CALL SHOWIT(0)
@@ -3187,6 +3196,7 @@ SUBROUTINE DUMOUT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
    INTEGER I
@@ -3217,7 +3227,7 @@ SUBROUTINE DUMOUT
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL('NO NODUM DATA EXISTS'//'\n'//'LENS SYSTEM HAS NO SURFACES', 1)
       RETURN
    END IF
@@ -3241,10 +3251,10 @@ SUBROUTINE DUMOUT
    END IF
 !
    IF(SQ.EQ.0) THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       I=INT(W1)
-      IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+      IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -3273,7 +3283,7 @@ SUBROUTINE DUMOUT
       CALL SHOWIT(0)
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(surf_dummy_val(I).EQ.0.0D0) WRITE(OUTLYNE,100)I,'NO/OFF '
          IF(surf_dummy_val(I).EQ.1.0D0) WRITE(OUTLYNE,100)I,'YES/ON '
          CALL SHOWIT(0)
@@ -3292,6 +3302,7 @@ SUBROUTINE BLKOUT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
    INTEGER I
@@ -3322,7 +3333,7 @@ SUBROUTINE BLKOUT
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL('NO FOOTBLOK DATA EXISTS'//'\n'//'LENS SYSTEM HAS NO SURFACES', 1)
       RETURN
    END IF
@@ -3346,10 +3357,10 @@ SUBROUTINE BLKOUT
    END IF
 !
    IF(SQ.EQ.0) THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       I=INT(W1)
-      IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+      IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -3377,7 +3388,7 @@ SUBROUTINE BLKOUT
       CALL SHOWIT(0)
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(surf_footblok_flag(I).EQ.0.0D0) WRITE(OUTLYNE,100)I,'OFF     '
          IF(surf_footblok_flag(I).EQ.1.0D0) WRITE(OUTLYNE,100)I,'ON      '
          CALL SHOWIT(0)
@@ -3396,6 +3407,7 @@ SUBROUTINE PIVAXOUT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
    INTEGER I
@@ -3427,7 +3439,7 @@ SUBROUTINE PIVAXOUT
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL('NO PIVAXIS DATA EXISTS'//'\n'//'LENS SYSTEM HAS NO SURFACES', 1)
       RETURN
    END IF
@@ -3451,10 +3463,10 @@ SUBROUTINE PIVAXOUT
    END IF
 !
    IF(SQ.EQ.0) THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       I=INT(W1)
-      IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+      IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -3482,7 +3494,7 @@ SUBROUTINE PIVAXOUT
       CALL SHOWIT(0)
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(surf_pivot_axis(I).EQ.0.0D0) WRITE(OUTLYNE,100)I,'VERTEX  '
          IF(surf_pivot_axis(I).EQ.1.0D0) WRITE(OUTLYNE,100)I,'NORMAL  '
          CALL SHOWIT(0)
@@ -3501,6 +3513,7 @@ SUBROUTINE SURFTYPE
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
    INTEGER I
@@ -3532,7 +3545,7 @@ SUBROUTINE SURFTYPE
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'NO SURFACE TYPE DATA EXISTS'//'\n'//&
       & 'LENS SYSTEM HAS NO SURFACES', 1)
@@ -3558,10 +3571,10 @@ SUBROUTINE SURFTYPE
    END IF
 !
    IF(SQ.EQ.0) THEN
-      IF(W1.LT.0.0D0) W1=SYSTEM(20)+W1
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(W1.LT.0.0D0) W1=sys_last_surf()+W1
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       I=INT(W1)
-      IF(I.GT.INT(SYSTEM(20)).OR.I.LT.0) THEN
+      IF(I.GT.INT(sys_last_surf()).OR.I.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -3589,7 +3602,7 @@ SUBROUTINE SURFTYPE
       CALL SHOWIT(0)
       WRITE(OUTLYNE,500)
       CALL SHOWIT(0)
-      DO I=0,INT(SYSTEM(20))
+      DO I=0,INT(sys_last_surf())
          IF(surf_paraxial_val(I).EQ.0.0D0) WRITE(OUTLYNE,100)I,'REAL    '
          IF(surf_paraxial_val(I).EQ.1.0D0) WRITE(OUTLYNE,100)I,'PARAXIAL'
          CALL SHOWIT(0)
@@ -3608,6 +3621,7 @@ SUBROUTINE SGLASS
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGLASS WHICH IMPLEMENTS THE GLASS
@@ -3618,11 +3632,11 @@ SUBROUTINE SGLASS
 !
 !       "GLASS" IS A SURFACE TERMINAL COMMAND. IN THE LENS INPUT
 !       ROUTINE F5=1, "GLASS" CAUSES THE SURFACE COUNTING VARIABLE
-!       (SURF) AND SYSTEM(20) TO BE INCREMENTED BY 1 AND 1.0
+!       (SURF) AND sys_last_surf() TO BE INCREMENTED BY 1 AND 1.0
 !       AND CAUSES THE NEXT SURFACE DATA TO BE STORED FOR THE NEXT
 !       SURFACE. AT F6=1 (UPDATE ROUTINE) THIS INCREMENTING DOES
 !       NO OCCUR. THE LAST SURFACE FOR WHICH DATA MAY BE ENTERED
-!       IS SURFACE MAXSUR. SURF AND SYSTEM(20) ARE NOT INCREMENTED
+!       IS SURFACE MAXSUR. SURF AND sys_last_surf() ARE NOT INCREMENTED
 !       PASSED MAXSUR SO IF AN ATTEMPT IS MADE TO INPUT PASSED
 !       SURFACE MAXSUR IN THE LENS INPUT MODE, THE DATA FOR SURFACE
 !       MAXSUR WILL BE OVERWRITTEN.
@@ -3720,9 +3734,9 @@ SUBROUTINE SGLASS
       IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
          SURF=SURF+1
          ALENS(1:LSIZ,SURF)=0.0D0
-         SYSTEM(20)=DBLE(SURF)
-      ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
       END IF
       F22=1
       RETURN
@@ -3750,9 +3764,9 @@ SUBROUTINE SGLASS
    IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
       SURF=SURF+1
       ALENS(1:LSIZ,SURF)=0.0D0
-      SYSTEM(20)=DBLE(SURF)
-   ELSE
-!       DON'T INCREMENT SURF AND SYSTEM(20)
+            call sys_set_last_surf(DBLE(SURF))
+ELSE
+!       DON'T INCREMENT SURF AND sys_last_surf()
    END IF
 !
    F22=1
