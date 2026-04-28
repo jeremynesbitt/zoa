@@ -437,7 +437,8 @@ SUBROUTINE TELAIM
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
-   use mod_system, only: sys_last_surf
+   use mod_system, only: sys_last_surf, sys_telecentric, sys_ray_aiming, sys_aplanatic_aim, &
+      & sys_set_telecentric, sys_set_ray_aiming, sys_set_aplanatic_aim
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TELAIM.FOR. THIS SUBROUTINE CONTROLS
@@ -463,16 +464,16 @@ SUBROUTINE TELAIM
 !     STI=1
    END IF
    IF(is_command_query()) THEN
-      IF(SYSTEM(63).EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_telecentric().EQ.0.0D0) WRITE(OUTLYNE,10)
       CALL SHOWIT(0)
 10    FORMAT('TELECENTRIC RAY AIMING IS CURRENTLY TURNED "OFF"')
 11    FORMAT('TELECENTRIC RAY AIMING IS CURRENTLY TURNED "ON"')
-      IF(SYSTEM(63).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_telecentric().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(63)=0.0D0
+      call sys_set_telecentric(0.0D0)
       RETURN
    END IF
    IF(WQ.EQ.'ON') THEN
@@ -484,13 +485,13 @@ SUBROUTINE TELAIM
          & 'NO ACTION TAKEN', 1)
          RETURN
       ELSE
-         SYSTEM(63)=1.0D0
-         SYSTEM(62)=0.0D0
-         SYSTEM(70)=0.0D0
+         call sys_set_telecentric(1.0D0)
+         call sys_set_ray_aiming(0.0D0)
+         call sys_set_aplanatic_aim(0.0D0)
          NEWOBJ=0
          NEWIMG=INT(sys_last_surf())
 !     SHUT OFF REGULAR RAY AIMING
-         SYSTEM(62)=0.0D0
+         call sys_set_ray_aiming(0.0D0)
       END IF
    END IF
    RETURN
@@ -502,6 +503,7 @@ SUBROUTINE NEARFARNEAR
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NEARFAR.FOR. THIS SUBROUTINE CONTROLS
@@ -510,10 +512,10 @@ SUBROUTINE NEARFARNEAR
 !
    REAL*8 AL
 !
-   IF(SYSTEM(6).EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
-   IF(SYSTEM(6).EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
-   IF(SYSTEM(6).EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
-   IF(SYSTEM(6).EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
+   IF(sys_units().EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
+   IF(sys_units().EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
+   IF(sys_units().EQ.3.0D0) AL=DABS(surf_thickness(NEWOBJ))
+   IF(sys_units().EQ.4.0D0) AL=DABS(surf_thickness(NEWOBJ))*1000.0D0
 !
    IF(is_command_query()) THEN
       IF(WC.EQ.'FAR')OUTLYNE='"FAR" SETS UNITS TO LP/MRAD'
@@ -555,6 +557,7 @@ SUBROUTINE OVERBOSE
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_verbose_optim, sys_set_verbose_optim
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPTMINIT.FOR. THIS SUBROUTINE CONTROLS
@@ -582,18 +585,18 @@ SUBROUTINE OVERBOSE
    IF(is_command_query().OR.SQ.EQ.0) THEN
 10    FORMAT('VERBOSE OPTIMIZATION OUTPUT IS CURRENTLY "OFF"')
 11    FORMAT('VERBOSE OPTIMIZATION OUTPUT IS CURRENTLY "ON"')
-      IF(SYSTEM(101).EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_verbose_optim().EQ.0.0D0) WRITE(OUTLYNE,10)
       CALL SHOWIT(0)
-      IF(SYSTEM(101).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_verbose_optim().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(101)=0.0D0
+      call sys_set_verbose_optim(0.0D0)
       RETURN
    END IF
    IF(WQ.EQ.'ON') THEN
-      SYSTEM(101)=1.0D0
+      call sys_set_verbose_optim(1.0D0)
       RETURN
    END IF
 END
@@ -791,6 +794,7 @@ SUBROUTINE SWV
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_wavelength, sys_set_wavelength, sys_set_wl_weight, sys_set_wv_default
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF WAVELENGTHS.
@@ -808,13 +812,13 @@ SUBROUTINE SWV
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,200)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -838,13 +842,13 @@ SUBROUTINE SWV
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+      WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+      WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -869,26 +873,26 @@ SUBROUTINE SWV
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
-         IF(DF1.EQ.0) SYSTEM(1)=W1
-         IF(DF2.EQ.0) SYSTEM(2)=W2
-         IF(DF3.EQ.0) SYSTEM(3)=W3
-         IF(DF4.EQ.0) SYSTEM(4)=W4
-         IF(DF5.EQ.0) SYSTEM(5)=W5
-         IF(DF1.EQ.0) SYSTEM(111)=W1
-         IF(DF2.EQ.0) SYSTEM(112)=W2
-         IF(DF3.EQ.0) SYSTEM(113)=W3
-         IF(DF4.EQ.0) SYSTEM(114)=W4
-         IF(DF5.EQ.0) SYSTEM(115)=W5
-         IF(SYSTEM(1).EQ.0.0D0) SYSTEM(31)=0.0D0
-         IF(SYSTEM(2).EQ.0.0D0) SYSTEM(32)=0.0D0
-         IF(SYSTEM(3).EQ.0.0D0) SYSTEM(33)=0.0D0
-         IF(SYSTEM(4).EQ.0.0D0) SYSTEM(34)=0.0D0
-         IF(SYSTEM(5).EQ.0.0D0) SYSTEM(35)=0.0D0
-         IF(SYSTEM(71).EQ.0.0D0) SYSTEM(76)=0.0D0
-         IF(SYSTEM(72).EQ.0.0D0) SYSTEM(77)=0.0D0
-         IF(SYSTEM(73).EQ.0.0D0) SYSTEM(78)=0.0D0
-         IF(SYSTEM(74).EQ.0.0D0) SYSTEM(79)=0.0D0
-         IF(SYSTEM(75).EQ.0.0D0) SYSTEM(80)=0.0D0
+         IF(DF1.EQ.0) call sys_set_wavelength(1,W1)
+         IF(DF2.EQ.0) call sys_set_wavelength(2,W2)
+         IF(DF3.EQ.0) call sys_set_wavelength(3,W3)
+         IF(DF4.EQ.0) call sys_set_wavelength(4,W4)
+         IF(DF5.EQ.0) call sys_set_wavelength(5,W5)
+         IF(DF1.EQ.0) call sys_set_wv_default(1,W1)
+         IF(DF2.EQ.0) call sys_set_wv_default(2,W2)
+         IF(DF3.EQ.0) call sys_set_wv_default(3,W3)
+         IF(DF4.EQ.0) call sys_set_wv_default(4,W4)
+         IF(DF5.EQ.0) call sys_set_wv_default(5,W5)
+         IF(sys_wavelength(1).EQ.0.0D0) call sys_set_wl_weight(1,0.0D0)
+         IF(sys_wavelength(2).EQ.0.0D0) call sys_set_wl_weight(2,0.0D0)
+         IF(sys_wavelength(3).EQ.0.0D0) call sys_set_wl_weight(3,0.0D0)
+         IF(sys_wavelength(4).EQ.0.0D0) call sys_set_wl_weight(4,0.0D0)
+         IF(sys_wavelength(5).EQ.0.0D0) call sys_set_wl_weight(5,0.0D0)
+         IF(sys_wavelength(6).EQ.0.0D0) call sys_set_wl_weight(6,0.0D0)
+         IF(sys_wavelength(7).EQ.0.0D0) call sys_set_wl_weight(7,0.0D0)
+         IF(sys_wavelength(8).EQ.0.0D0) call sys_set_wl_weight(8,0.0D0)
+         IF(sys_wavelength(9).EQ.0.0D0) call sys_set_wl_weight(9,0.0D0)
+         IF(sys_wavelength(10).EQ.0.0D0) call sys_set_wl_weight(10,0.0D0)
          F22=1
       ELSE
       END IF
@@ -908,6 +912,7 @@ SUBROUTINE SWV2
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_wavelength, sys_set_wavelength, sys_set_wl_weight, sys_set_wv_default
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF WAVELENGTHS.
@@ -925,13 +930,13 @@ SUBROUTINE SWV2
          CALL SHOWIT(0)
          WRITE(OUTLYNE,3001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,200)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,300)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(5)
+         WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(5)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -955,13 +960,13 @@ SUBROUTINE SWV2
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3001)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,10001) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+      WRITE(OUTLYNE,10001) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,200)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,300)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,1000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+      WRITE(OUTLYNE,1000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
       CALL SHOWIT(0)
       RETURN
    ELSE
@@ -986,26 +991,26 @@ SUBROUTINE SWV2
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
-         IF(DF1.EQ.0) SYSTEM(71)=W1
-         IF(DF2.EQ.0) SYSTEM(72)=W2
-         IF(DF3.EQ.0) SYSTEM(73)=W3
-         IF(DF4.EQ.0) SYSTEM(74)=W4
-         IF(DF5.EQ.0) SYSTEM(75)=W5
-         IF(DF1.EQ.0) SYSTEM(116)=W1
-         IF(DF2.EQ.0) SYSTEM(117)=W2
-         IF(DF3.EQ.0) SYSTEM(118)=W3
-         IF(DF4.EQ.0) SYSTEM(119)=W4
-         IF(DF5.EQ.0) SYSTEM(120)=W5
-         IF(SYSTEM(1).EQ.0.0D0) SYSTEM(31)=0.0D0
-         IF(SYSTEM(2).EQ.0.0D0) SYSTEM(32)=0.0D0
-         IF(SYSTEM(3).EQ.0.0D0) SYSTEM(33)=0.0D0
-         IF(SYSTEM(4).EQ.0.0D0) SYSTEM(34)=0.0D0
-         IF(SYSTEM(5).EQ.0.0D0) SYSTEM(35)=0.0D0
-         IF(SYSTEM(71).EQ.0.0D0) SYSTEM(76)=0.0D0
-         IF(SYSTEM(72).EQ.0.0D0) SYSTEM(77)=0.0D0
-         IF(SYSTEM(73).EQ.0.0D0) SYSTEM(78)=0.0D0
-         IF(SYSTEM(74).EQ.0.0D0) SYSTEM(79)=0.0D0
-         IF(SYSTEM(75).EQ.0.0D0) SYSTEM(80)=0.0D0
+         IF(DF1.EQ.0) call sys_set_wavelength(6,W1)
+         IF(DF2.EQ.0) call sys_set_wavelength(7,W2)
+         IF(DF3.EQ.0) call sys_set_wavelength(8,W3)
+         IF(DF4.EQ.0) call sys_set_wavelength(9,W4)
+         IF(DF5.EQ.0) call sys_set_wavelength(10,W5)
+         IF(DF1.EQ.0) call sys_set_wv_default(6,W1)
+         IF(DF2.EQ.0) call sys_set_wv_default(7,W2)
+         IF(DF3.EQ.0) call sys_set_wv_default(8,W3)
+         IF(DF4.EQ.0) call sys_set_wv_default(9,W4)
+         IF(DF5.EQ.0) call sys_set_wv_default(10,W5)
+         IF(sys_wavelength(1).EQ.0.0D0) call sys_set_wl_weight(1,0.0D0)
+         IF(sys_wavelength(2).EQ.0.0D0) call sys_set_wl_weight(2,0.0D0)
+         IF(sys_wavelength(3).EQ.0.0D0) call sys_set_wl_weight(3,0.0D0)
+         IF(sys_wavelength(4).EQ.0.0D0) call sys_set_wl_weight(4,0.0D0)
+         IF(sys_wavelength(5).EQ.0.0D0) call sys_set_wl_weight(5,0.0D0)
+         IF(sys_wavelength(6).EQ.0.0D0) call sys_set_wl_weight(6,0.0D0)
+         IF(sys_wavelength(7).EQ.0.0D0) call sys_set_wl_weight(7,0.0D0)
+         IF(sys_wavelength(8).EQ.0.0D0) call sys_set_wl_weight(8,0.0D0)
+         IF(sys_wavelength(9).EQ.0.0D0) call sys_set_wl_weight(9,0.0D0)
+         IF(sys_wavelength(10).EQ.0.0D0) call sys_set_wl_weight(10,0.0D0)
          F22=1
       ELSE
       END IF
@@ -1159,7 +1164,7 @@ SUBROUTINE SUNITS
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
-   use mod_system, only: sys_last_surf
+   use mod_system, only: sys_last_surf, sys_units, sys_set_units
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE UNITS COMMAND BOTH AT
@@ -1168,19 +1173,19 @@ SUBROUTINE SUNITS
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
       IF(is_command_query()) THEN
-         IF(SYSTEM(6).EQ.1.0D0) THEN
+         IF(sys_units().EQ.1.0D0) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(6).EQ.2.0D0) THEN
+         IF(sys_units().EQ.2.0D0) THEN
             WRITE(OUTLYNE,2000)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(6).EQ.3.0D0) THEN
+         IF(sys_units().EQ.3.0D0) THEN
             WRITE(OUTLYNE,3000)
             CALL SHOWIT(0)
          END IF
-         IF(SYSTEM(6).EQ.4.0D0) THEN
+         IF(sys_units().EQ.4.0D0) THEN
             WRITE(OUTLYNE,4000)
             CALL SHOWIT(0)
          END IF
@@ -1209,19 +1214,19 @@ SUBROUTINE SUNITS
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(SYSTEM(6).EQ.1.0D0) THEN
+      IF(sys_units().EQ.1.0D0) THEN
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(6).EQ.2.0D0) THEN
+      IF(sys_units().EQ.2.0D0) THEN
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(6).EQ.3.0D0) THEN
+      IF(sys_units().EQ.3.0D0) THEN
          WRITE(OUTLYNE,3000)
          CALL SHOWIT(0)
       END IF
-      IF(SYSTEM(6).EQ.4.0D0) THEN
+      IF(sys_units().EQ.4.0D0) THEN
          WRITE(OUTLYNE,4000)
          CALL SHOWIT(0)
       END IF
@@ -1251,21 +1256,21 @@ SUBROUTINE SUNITS
             CALL SHOWIT(1)
             RETURN
          END IF
-         IF(WQ.EQ.'IN'.OR.WQ.EQ.'INCH'.OR.WQ.EQ.'INCHES') SYSTEM(6)=1.0D0
-         IF(WQ.EQ.'CM') SYSTEM(6)=2.0D0
-         IF(WQ.EQ.'MM') SYSTEM(6)=3.0D0
-         IF(WQ.EQ.'M') SYSTEM(6)=4.0D0
+         IF(WQ.EQ.'IN'.OR.WQ.EQ.'INCH'.OR.WQ.EQ.'INCHES') call sys_set_units(1.0D0)
+         IF(WQ.EQ.'CM') call sys_set_units(2.0D0)
+         IF(WQ.EQ.'MM') call sys_set_units(3.0D0)
+         IF(WQ.EQ.'M') call sys_set_units(4.0D0)
 !     2/93 THE ADJUSTMENT OF THE PLOTTED SCALE FACTOR
 !
 !     THE SCALE FACTOR IS:
-         IF(SYSTEM(6).EQ.1.0D0) SCFAY=SCFAYP
-         IF(SYSTEM(6).EQ.1.0D0) SCFAX=SCFAXP
-         IF(SYSTEM(6).EQ.2.0D0) SCFAY=SCFAYP*2.54D0
-         IF(SYSTEM(6).EQ.2.0D0) SCFAX=SCFAXP*2.54D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAY=SCFAYP*25.4D0
-         IF(SYSTEM(6).EQ.3.0D0) SCFAX=SCFAXP*25.4D0
-         IF(SYSTEM(6).EQ.4.0D0) SCFAY=SCFAYP*0.0254
-         IF(SYSTEM(6).EQ.4.0D0) SCFAX=SCFAXP*0.0254
+         IF(sys_units().EQ.1.0D0) SCFAY=SCFAYP
+         IF(sys_units().EQ.1.0D0) SCFAX=SCFAXP
+         IF(sys_units().EQ.2.0D0) SCFAY=SCFAYP*2.54D0
+         IF(sys_units().EQ.2.0D0) SCFAX=SCFAXP*2.54D0
+         IF(sys_units().EQ.3.0D0) SCFAY=SCFAYP*25.4D0
+         IF(sys_units().EQ.3.0D0) SCFAX=SCFAXP*25.4D0
+         IF(sys_units().EQ.4.0D0) SCFAY=SCFAYP*0.0254
+         IF(sys_units().EQ.4.0D0) SCFAX=SCFAXP*0.0254
          PSIZY=1.0D0/SCFAY
          PSIZX=1.0D0/SCFAX
 !
@@ -2202,7 +2207,10 @@ SUBROUTINE STH
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_scx, sys_scx_fang, sys_scx_fang_set, &
-      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_x1_scx_fang_set, sys_y1_scy_fang_set
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_x1_scx_fang_set, sys_y1_scy_fang_set, &
+      & sys_sth_temp, sys_set_sth_temp, sys_y1_scy_set, sys_x1_scx_set, &
+      & sys_y1_scy, sys_set_y1_scy, sys_x1_scx, sys_set_x1_scx, &
+      & sys_y1_scy_fang, sys_set_y1_scy_fang, sys_x1_scx_fang, sys_set_x1_scx_fang
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STH WHICH IMPLEMENTS THE TH
@@ -2266,63 +2274,63 @@ SUBROUTINE STH
 !       THE CASE OF CHANGING THE THICKNESS OF THE OBJECT SURFACE
 !       IF OBJECT SURFACE, REMEMBER OLD VALUE
       IF(SURF.EQ.0.AND.sys_astop().EQ.-99.0D0) THEN
-         SYSTEM(55)=surf_thickness(SURF)
+         call sys_set_sth_temp(surf_thickness(SURF))
          IF(SQ.EQ.0)call set_surf_thickness(SURF, W1)
          IF(WQ.EQ.'DELT')call set_surf_thickness(SURF, surf_thickness(SURF)+W1)
          IF(WQ.EQ.'CENT')call set_surf_thickness(SURF, surf_thickness(SURF)+(W1*0.01D0*surf_thickness(SURF)))
 !       MUST BE NO STOP AS WELL
-         IF(SYSTEM(51).NE.0.0D0.OR.sys_y1_scy_fang_set().NE.0.0D0) THEN
+         IF(sys_y1_scy_set().NE.0.0D0.OR.sys_y1_scy_fang_set().NE.0.0D0) THEN
 !       RECALCULATE Y1
             IF(sys_scy_fang_set().EQ.0.0D0) THEN
 !       CASE OF SCY INPUT Y00
                Y00=sys_scy()
-               OLDY1=SYSTEM(15)
-               OLDTH=SYSTEM(55)
+               OLDY1=sys_y1_scy()
+               OLDTH=sys_sth_temp()
                TH=surf_thickness(SURF)
                SLOPE=(OLDY1-Y00)/OLDTH
                NEWY1=Y00+(SLOPE*TH)
-               SYSTEM(15)=NEWY1
-               SYSTEM(22)=NEWY1
+               call sys_set_y1_scy(NEWY1)
+               call sys_set_y1_scy_fang(NEWY1)
             ELSE
             END IF
             IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !       CASE OF SCY FANG INPUT Y0ANG
                Y0ANG=sys_scy_fang()
-               OLDY1=SYSTEM(22)
-               OLDTH=SYSTEM(55)
+               OLDY1=sys_y1_scy_fang()
+               OLDTH=sys_sth_temp()
                TH=surf_thickness(SURF)
                Y00=-OLDTH*DTAN((PII/180.0D0)*Y0ANG)+OLDY1
                NEWY1=Y00+(DATAN((PII/180.0D0)*Y0ANG)*TH)
-               SYSTEM(15)=NEWY1
-               SYSTEM(22)=NEWY1
+               call sys_set_y1_scy(NEWY1)
+               call sys_set_y1_scy_fang(NEWY1)
             ELSE
             END IF
          ELSE
          END IF
-         IF(SYSTEM(52).NE.0.0D0.OR.sys_x1_scx_fang_set().NE.0.0D0) THEN
+         IF(sys_x1_scx_set().NE.0.0D0.OR.sys_x1_scx_fang_set().NE.0.0D0) THEN
 !       RECALCULATE X1
             IF(sys_scx_fang_set().EQ.0.0D0) THEN
 !       CASE OF SCX INPUT X00
                X00=sys_scx()
-               OLDX1=SYSTEM(17)
-               OLDTH=SYSTEM(55)
+               OLDX1=sys_x1_scx()
+               OLDTH=sys_sth_temp()
                TH=surf_thickness(SURF)
                SLOPE=(OLDX1-X00)/OLDTH
                NEWY1=X00+(SLOPE*TH)
-               SYSTEM(17)=NEWX1
-               SYSTEM(24)=NEWX1
+               call sys_set_x1_scx(NEWX1)
+               call sys_set_x1_scx_fang(NEWX1)
             ELSE
             END IF
             IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !       CASE OF SCX FANG INPUT X0ANG
                X0ANG=sys_scx_fang()
-               OLDX1=SYSTEM(24)
-               OLDTH=SYSTEM(55)
+               OLDX1=sys_x1_scx_fang()
+               OLDTH=sys_sth_temp()
                TH=surf_thickness(SURF)
                X00=-OLDTH*DTAN((PII/180.0D0)*X0ANG)+OLDX1
                NEWX1=X00+(DATAN((PII/180.0D0)*X0ANG)*TH)
-               SYSTEM(17)=NEWX1
-               SYSTEM(24)=NEWX1
+               call sys_set_x1_scx(NEWX1)
+               call sys_set_x1_scx_fang(NEWX1)
             ELSE
             END IF
          ELSE
@@ -2536,6 +2544,7 @@ SUBROUTINE SAUTOFUNC
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_set_autofunc
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAUTOFUNC WHICH IMPLEMENTS THE AUTOFUNC
@@ -2573,7 +2582,7 @@ SUBROUTINE SAUTOFUNC
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   SYSTEM(91)=INT(W1)
+   call sys_set_autofunc(DBLE(INT(W1)))
    F57=1
    RETURN
 END
