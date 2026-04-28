@@ -16,7 +16,8 @@ SUBROUTINE INITKDP
    use DATSUB
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
+   use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2, &
+      & sys_set_nss_present, sys_set_wl_ref, sys_set_wl_pri1, sys_set_wl_pri2
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -170,7 +171,7 @@ SUBROUTINE INITKDP
    !  close(1)
 !
 !     NO NSS SURFACES
-   SYSTEM(102)=0.0D0
+   call sys_set_nss_present(0.0D0)
 !
 
 991 FORMAT(A79)
@@ -213,9 +214,9 @@ SUBROUTINE INITKDP
    GUIERROR=.FALSE.
    NUMCOLORS=1
    OBJLEVEL=1.0D0
-   SYSTEM(11)=1.0D0
-   SYSTEM(7)=2.0D0
-   SYSTEM(8)=3.0D0
+   call sys_set_wl_ref(1.0D0)
+   call sys_set_wl_pri1(2.0D0)
+   call sys_set_wl_pri2(3.0D0)
 !
 !       SET ITERROR TO FALSE
    ITERROR=.FALSE.

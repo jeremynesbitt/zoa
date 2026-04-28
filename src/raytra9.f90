@@ -767,7 +767,7 @@ SUBROUTINE FIELDABS
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, &
-      & sys_units, sys_wl_ref
+      & sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FIELDABS. THIS SUBROUTINE IMPLEMENTS
@@ -886,7 +886,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,104) W2
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(sys_wl_ref()))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,602)
       CALL SHOWIT(0)
@@ -1024,7 +1024,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,104) W2
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(sys_wl_ref()))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,102)
       CALL SHOWIT(0)
@@ -1186,7 +1186,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,204) W2
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(sys_wl_ref()))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,211) UNIFC
       CALL SHOWIT(0)
@@ -1336,7 +1336,7 @@ SUBROUTINE FIELDABS
       CALL SHOWIT(0)
       WRITE(OUTLYNE,311) UNIFC
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,111) SYSTEM(INT(sys_wl_ref()))
+      WRITE(OUTLYNE,111) sys_wavelength(INT(sys_wl_ref()))
       CALL SHOWIT(0)
       WRITE(OUTLYNE,302)
       CALL SHOWIT(0)
@@ -1533,7 +1533,7 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_units, sys_wl_ref
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !     PRIMARY GRID SPSRF SUBROUTINE
@@ -2306,13 +2306,13 @@ SUBROUTINE GRIDS(ICODE,ISURF,GERROR)
 !     PHASE IN FRACTION OF REF WAVELENGTH FRACTION
 !     FIRST CONVERT TO MICRONS
             IF(sys_wl_ref().LE.5.0D0) THEN
-               AP=AP*SYSTEM(INT(sys_wl_ref()))
-               DX=DX*SYSTEM(INT(sys_wl_ref()))
-               DY=DY*SYSTEM(INT(sys_wl_ref()))
+               AP=AP*sys_wavelength(INT(sys_wl_ref()))
+               DX=DX*sys_wavelength(INT(sys_wl_ref()))
+               DY=DY*sys_wavelength(INT(sys_wl_ref()))
             ELSE
-               AP=AP*SYSTEM(INT(sys_wl_ref())+65)
-               DX=DX*SYSTEM(INT(sys_wl_ref())+65)
-               DY=DY*SYSTEM(INT(sys_wl_ref())+65)
+               AP=AP*sys_wavelength(INT(sys_wl_ref()))
+               DX=DX*sys_wavelength(INT(sys_wl_ref()))
+               DY=DY*sys_wavelength(INT(sys_wl_ref()))
             END IF
 !     NOW GO FROM MICRONS TO LENS UNITS
             IF(sys_units().EQ.1.0D0) AP=(AP*1.0D-3)/(25.4D0)
@@ -3255,7 +3255,7 @@ SUBROUTINE FANS
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_pri1, sys_wl_pri2, &
-      & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_yz_bilateral
+      & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_xz_bilateral, sys_yz_bilateral
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3404,7 +3404,7 @@ SUBROUTINE FANS
    IF(FOBB0) THEN
 !       ON-AXIS, GO FROM 0 TO 1 DO HALF FAN IF ROTATIONAL SYMMETRY EXISTS
 !       SYMMETRY CHECK
-      IF(SYSTEM(28).EQ.1.0D0.AND.sys_yz_bilateral().EQ.1.0D0) THEN
+      IF(sys_xz_bilateral().EQ.1.0D0.AND.sys_yz_bilateral().EQ.1.0D0) THEN
          IF(DF1.EQ.1) W1=0.0D0
          IF(DF4.EQ.1) W4=6.0D0
       ELSE
@@ -3463,11 +3463,11 @@ SUBROUTINE FANS
    IF(sys_units().EQ.2.0D0) UNI='CENTIMETERS'
    IF(sys_units().EQ.3.0D0) UNI='MILLIMETERS'
    IF(sys_units().EQ.4.0D0) UNI='METERS     '
-   LCW=SYSTEM(INT(sys_wl_ref()))
-   LPWP1=SYSTEM(INT(sys_wl_pri1()))
-   LPWP2=SYSTEM(INT(sys_wl_pri2()))
-   LSWP1=SYSTEM(INT(sys_wl_sec1()))
-   LSWP2=SYSTEM(INT(sys_wl_sec2()))
+   LCW=sys_wavelength(INT(sys_wl_ref()))
+   LPWP1=sys_wavelength(INT(sys_wl_pri1()))
+   LPWP2=sys_wavelength(INT(sys_wl_pri2()))
+   LSWP1=sys_wavelength(INT(sys_wl_sec1()))
+   LSWP2=sys_wavelength(INT(sys_wl_sec2()))
 !       NO QUALIFIER
    IF(SQ.EQ.0) THEN
       WRITE(OUTLYNE,1000) UNI
@@ -4398,7 +4398,7 @@ SUBROUTINE FANSOLD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_pri1, sys_wl_pri2, &
-      & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_yz_bilateral
+      & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_xz_bilateral, sys_yz_bilateral
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4549,7 +4549,7 @@ SUBROUTINE FANSOLD
    IF(FOBB0) THEN
 !       ON-AXIS, GO FROM 0 TO 1 DO HALF FAN IF ROTATIONAL SYMMETRY EXISTS
 !       SYMMETRY CHECK
-      IF(SYSTEM(28).EQ.1.0D0.AND.sys_yz_bilateral().EQ.1.0D0) THEN
+      IF(sys_xz_bilateral().EQ.1.0D0.AND.sys_yz_bilateral().EQ.1.0D0) THEN
          IF(DF1.EQ.1) W1=0.0D0
          IF(DF4.EQ.1) W4=6.0D0
       ELSE
@@ -4608,11 +4608,11 @@ SUBROUTINE FANSOLD
    IF(sys_units().EQ.2.0D0) UNI='CENTIMETERS'
    IF(sys_units().EQ.3.0D0) UNI='MILLIMETERS'
    IF(sys_units().EQ.4.0D0) UNI='METERS     '
-   LCW=SYSTEM(INT(sys_wl_ref()))
-   LPWP1=SYSTEM(INT(sys_wl_pri1()))
-   LPWP2=SYSTEM(INT(sys_wl_pri2()))
-   LSWP1=SYSTEM(INT(sys_wl_sec1()))
-   LSWP2=SYSTEM(INT(sys_wl_sec2()))
+   LCW=sys_wavelength(INT(sys_wl_ref()))
+   LPWP1=sys_wavelength(INT(sys_wl_pri1()))
+   LPWP2=sys_wavelength(INT(sys_wl_pri2()))
+   LSWP1=sys_wavelength(INT(sys_wl_sec1()))
+   LSWP2=sys_wavelength(INT(sys_wl_sec2()))
 !       NO QUALIFIER
    IF(SQ.EQ.0) THEN
       WRITE(OUTLYNE,1000) UNI

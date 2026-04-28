@@ -547,7 +547,7 @@ SUBROUTINE LENUP
    use type_utils, only: real2str
 !
    use DATLEN
-   use mod_system, only: sys_last_surf, sys_telecentric
+   use mod_system, only: sys_last_surf, sys_set_telecentric, sys_telecentric
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
@@ -802,7 +802,7 @@ SUBROUTINE LENUP
       IF(WC.EQ.'TH') THEN
          CALL STH
          IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+            call sys_set_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -1203,7 +1203,7 @@ SUBROUTINE LENUP
 
 
          IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+            call sys_set_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -1227,7 +1227,7 @@ SUBROUTINE LENUP
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
          IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+            call sys_set_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'

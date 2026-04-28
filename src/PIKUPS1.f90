@@ -2984,7 +2984,7 @@ SUBROUTINE PIKGLS
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_last_surf
+   use mod_system, only: sys_last_surf, sys_set_last_surf
    IMPLICIT NONE
 !
    INTEGER I
@@ -3066,7 +3066,7 @@ SUBROUTINE PIKGLS
    IF(F5.EQ.1.AND.SURF.LT.MAXSUR) THEN
       SURF=SURF+1
       ALENS(1:LSIZ,SURF)=0.0D0
-      SYSTEM(20)=DBLE(SURF)
+      call sys_set_last_surf(DBLE(SURF))
    ELSE
 !       DON'T INCREMENT SURF AND sys_last_surf()
    END IF

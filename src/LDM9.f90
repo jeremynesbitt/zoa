@@ -676,7 +676,7 @@ SUBROUTINE RETRES
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_last_surf
+   use mod_system, only: sys_last_surf, sys_set_tilt_ret
    IMPLICIT NONE
    INTEGER I,RETSURF,SINB
    REAL*8 D11,D12,D13
@@ -796,7 +796,7 @@ SUBROUTINE RETRES
       END IF
    END DO
 !     SET TILT RET FLAG TO RESOLVED FOR THE LENS
-   SYSTEM(90)=1.0D0
+   call sys_set_tilt_ret(1.0D0)
 !     TURN OFF GLOBAL MODE
    IF(RAYCLEAR) THEN
       FOBYES=.FALSE.

@@ -603,6 +603,7 @@ SUBROUTINE EXITT(CLSCODE)
    use DATSUB
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_current_cfg, sys_high_cfg, sys_set_current_cfg, sys_set_high_cfg
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -701,10 +702,10 @@ SUBROUTINE EXITT(CLSCODE)
 !       IEND IS THE NUMBER OF THE HIGHEST NUMBERED NON-EMPTY CONFIG
    SYS56=DBLE(IEND)
    SYS50=1.0
-   SYSTEM(50)=SYS50
-   SYSP(50)=SYSTEM(50)
-   SYSTEM(56)=SYS56
-   SYSP(56)=SYSTEM(56)
+   call sys_set_current_cfg(SYS50)
+   SYSP(50)=sys_current_cfg()
+   call sys_set_high_cfg(SYS56)
+   SYSP(56)=sys_high_cfg()
 !
 !       DUMP THE PERMANENT LENS INTO THE ASCII STORAGE FILE
 !       LENSTEXT.DATA

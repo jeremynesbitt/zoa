@@ -336,6 +336,7 @@ SUBROUTINE MONTE
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_toric_flag, surf_toric_curvature
+   use mod_system, only: sys_set_current_cfg, sys_set_high_cfg
    use command_utils, only: is_command_query
    IMPLICIT NONE
 !
@@ -428,8 +429,8 @@ SUBROUTINE MONTE
    GLANMA(AM10:AM3,1:AM9)='             '
 !
 !       NOW DELETE ALL BUT THE MAIN CFG
-   SYSTEM(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   call sys_set_current_cfg(1.0D0)
+   call sys_set_high_cfg(1.0D0)
 !
 !
 !       NOW SAVE LENS 1, MAIN CONFIG, TO THE ACHIEVE LENS STORAGE
