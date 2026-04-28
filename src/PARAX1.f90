@@ -442,7 +442,8 @@ SUBROUTINE PRTRA_OLD
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
    use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
-      & sys_telecentric, sys_wl_ref
+      & sys_telecentric, sys_wl_ref, sys_x1_scx, sys_y1_scy, &
+      & sys_set_x1_scx, sys_set_y1_scy
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -534,7 +535,7 @@ SUBROUTINE PRTRA_OLD
    !PRINT *, "c_Ass ", c_associated(lens_editor_window)
 
 
-   CON=SYSTEM(15)
+   CON=sys_y1_scy()
    IF(ITYPEP.EQ.1 .OR.ITYPEP.EQ.3) THEN
 !
 !       THIS IS THE FIRST OF THE PARAXIAL RAY TRACING SUBROUTINES
@@ -548,30 +549,30 @@ SUBROUTINE PRTRA_OLD
 !       THE PARAXIAL RAYTRACE PERFORMED HERE HANDLES
 !       ALL YZ- PLANE SOLVES THROUGH A CALL TO SUBROUTINE
 !       SLVRSY.
-!       7/23/91 SET CON = SYSTEM(15) FOR THE YZ PLANE TRACE
+!       7/23/91 SET CON = sys_y1_scy() FOR THE YZ PLANE TRACE
 !
 !       IF AN APERTURE STOP IS DEFINED ON ANY SURFACE
-!       THE VALUE OF SYSTEM(15) NEEDS TO BE REFINED.
+!       THE VALUE OF sys_y1_scy() NEEDS TO BE REFINED.
 !
 !       THE FIRST STEP IS TO PERFORM THE PARAXIAL RAY TRACE
 !       UP TO THE APERTURE STOP SURFACE (UNLESS THERE IS NO
 !       APERTURE STOP DEFINED) USING TWO DIFFERENT VALUES
-!       OF SYSTEM(15) [HEIGTH OF CHIEF RAY AT SURF 1]
+!       OF sys_y1_scy() [HEIGTH OF CHIEF RAY AT SURF 1]
 !
 !       THE TWO VALUES USED ARE 0.0 AND 0.1
 !
-!       THE CORRECET VALUE OF SYSTEM(15) WHICH MAKES PCY ON THE
+!       THE CORRECET VALUE OF sys_y1_scy() WHICH MAKES PCY ON THE
 !       APERTURE STOP EQUAL TO ZERO IS GIVEN BY:
 !
-!       PCY(AT ASTOP FOR SYSTEM(15)=0.0) IS CALLED TMP15A
-!       PCY(AT ASTOP FOR SYSTEM(15)=0.1) IS CALLED TMP15B
+!       PCY(AT ASTOP FOR sys_y1_scy()=0.0) IS CALLED TMP15A
+!       PCY(AT ASTOP FOR sys_y1_scy()=0.1) IS CALLED TMP15B
 !
-!       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
+!       sys_y1_scy()=((-.1*TMP15A)/(TMP15B-TMP15A))+sys_y1_scy()
 !
       IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
 !
-!       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
-!       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
+!       RECALCULATE THE CORRECT VALUE OF sys_y1_scy()
+!       OTHERWISE, USE THE USER PROVIDED VALUE OF sys_y1_scy()
 !
 !                       RAY TARGETING INFORMATION
 !
@@ -901,11 +902,11 @@ SUBROUTINE PRTRA_OLD
             CALL MACFAL
             RETURN
          ELSE
-            SYSTEM(15)=((-.1D0*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
+            call sys_set_y1_scy(((-0.1D0*TMP15A)/(TMP15B-TMP15A))+sys_y1_scy())
          END IF
 !
 !       NOW TRACE FROM THE OBJECT SURFACE TO THE ASTOP SURFACE
-!       USING THIS VALUE OF SYSTEM(15)
+!       USING THIS VALUE OF sys_y1_scy()
 !
 !               INITIAL VALUES AT SURFACE 0
 !***************************************************************
@@ -939,11 +940,11 @@ SUBROUTINE PRTRA_OLD
          IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_y1_scy() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         PXTRAY(6,0)=-((sys_scy())-sys_y1_scy())/surf_thickness(0)
          IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)=&
-         &-(1.0D0-SYSTEM(15))/surf_thickness(0)
+         &-(1.0D0-sys_y1_scy())/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
          PXTRAY(7,0)=PXTRAY(6,0)
@@ -1018,7 +1019,7 @@ SUBROUTINE PRTRA_OLD
          &(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         PXTRAY(5,1)=SYSTEM(15)
+         PXTRAY(5,1)=sys_y1_scy()
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1306,7 +1307,7 @@ SUBROUTINE PRTRA_OLD
 !*******************************************************************************
       ELSE
 !
-!       NO ASTOP OR TEL SET, USE THE EXISTING VALUE OF SYSTEM(15)
+!       NO ASTOP OR TEL SET, USE THE EXISTING VALUE OF sys_y1_scy()
 !
 !*******************************************************************************
 !       TRACE FROM THE OBJECT TO THE IMAGE, PROPERLY HANDLING ALL PIKUPS
@@ -1343,12 +1344,12 @@ SUBROUTINE PRTRA_OLD
          IF(sys_scy().EQ.0.0D0) PXTRAY(5,0)=1.0D0
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_y1_scy() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
          IF(sys_telecentric().EQ.0.0D0)&
-         &PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         &PXTRAY(6,0)=-((sys_scy())-sys_y1_scy())/surf_thickness(0)
          IF(sys_scy().EQ.0.0D0) PXTRAY(6,0)=&
-         &-(1.0D0-SYSTEM(15))/surf_thickness(0)
+         &-(1.0D0-sys_y1_scy())/surf_thickness(0)
          IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAY(6,0)=0.0D0
 !
@@ -1419,7 +1420,7 @@ SUBROUTINE PRTRA_OLD
          &(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=sys_y1_scy()
          IF(sys_telecentric().EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
@@ -1610,8 +1611,8 @@ SUBROUTINE PRTRA_OLD
 !       ITYPEP NOT 1 OR 3
    END IF
 !
-!       SET CON = SYSTEM(17)
-   CON=SYSTEM(17)
+!       SET CON = sys_x1_scx()
+   CON=sys_x1_scx()
 !
    IF(ITYPEP.EQ.2 .OR.ITYPEP.EQ.3) THEN
 !
@@ -1638,28 +1639,28 @@ SUBROUTINE PRTRA_OLD
 !       THIS COULD BE AN ALTERNATE CONFIGURATION.
 !
 !       IF AN APERTURE STOP IS DEFINED ON ANY SURFACE
-!       THE VALUE OF SYSTEM(17) NEEDS TO BE
+!       THE VALUE OF sys_x1_scx() NEEDS TO BE
 !       REFINED.
 !
 !       THE FIRST STEP IS TO PERFORM THE PARAXIAL RAY TRACE
 !       UP TO THE APERTURE STOP SURFACE (WHEN THE APERTURE STOP
 !       IS NOT ON SURFACE 1) USING TWO DIFFERENT VALUES
-!       OF SYSTEM(17) [HEIGTH OF CHIEF RAY AT SURF 1]
+!       OF sys_x1_scx() [HEIGTH OF CHIEF RAY AT SURF 1]
 !
 !       THE TWO VALUES USED ARE 0.0 AND 0.1
 !
-!       THE CORRECET VALUE OF SYSTEM(17) WHICH MAKES PCX ON THE
+!       THE CORRECET VALUE OF sys_x1_scx() WHICH MAKES PCX ON THE
 !       APERTURE STOP EQUAL TO ZERO IS GIVEN BY:
 !
-!       PCX(AT ASTOP FOR SYSTEM(17)=0.0) IS CALLED TMP17A
-!       PCX(AT ASTOP FOR SYSTEM(17)=0.1) IS CALLED TMP17B
+!       PCX(AT ASTOP FOR sys_x1_scx()=0.0) IS CALLED TMP17A
+!       PCX(AT ASTOP FOR sys_x1_scx()=0.1) IS CALLED TMP17B
 !
-!       SYSTEM(17)=((-.1D0*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
+!       sys_x1_scx()=((-.1D0*TMP17A)/(TMP17B-TMP17A))+sys_x1_scx()
 !
       IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
 !
-!       RECALCULATE THE CORRECT VALUE OF SYSTEM(17)
-!       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(17)
+!       RECALCULATE THE CORRECT VALUE OF sys_x1_scx()
+!       OTHERWISE, USE THE USER PROVIDED VALUE OF sys_x1_scx()
 !
 !                       RAY
          DO 6000 JK=1,2
@@ -1943,11 +1944,11 @@ SUBROUTINE PRTRA_OLD
             CALL MACFAL
             RETURN
          ELSE
-            SYSTEM(17)=((-.1D0*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
+            call sys_set_x1_scx(((-0.1D0*TMP17A)/(TMP17B-TMP17A))+sys_x1_scx())
          END IF
 !
 !       NOW TRACE FROM THE OBJECT SURFACE TO THE ASTOP SURFACE
-!       USING THIS VALUE OF SYSTEM(17)
+!       USING THIS VALUE OF sys_x1_scx()
 !
 !               INITIAL VALUES AT SURFACE 0
 !***************************************************************
@@ -1973,11 +1974,11 @@ SUBROUTINE PRTRA_OLD
          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_x1_scx() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         PXTRAX(6,0)=-((sys_scx())-sys_x1_scx())/surf_thickness(0)
          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)=&
-         &-(1.0D0-SYSTEM(17))/surf_thickness(0)
+         &-(1.0D0-sys_x1_scx())/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
          PXTRAX(7,0)=PXTRAX(6,0)
@@ -2041,7 +2042,7 @@ SUBROUTINE PRTRA_OLD
          &(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         PXTRAX(5,1)=SYSTEM(17)
+         PXTRAX(5,1)=sys_x1_scx()
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2331,7 +2332,7 @@ SUBROUTINE PRTRA_OLD
 !*******************************************************************************
       ELSE
 !
-!       NO ASTOP ASSIGNED OR TEL ON, USE THE EXISTING VALUE OF SYSTEM(17)
+!       NO ASTOP ASSIGNED OR TEL ON, USE THE EXISTING VALUE OF sys_x1_scx()
 !
 !*******************************************************************************
 !       TRACE FROM THE OBJECT TO THE IMAGE, PROPERLY HANDLING ALL PIKUPS
@@ -2360,12 +2361,12 @@ SUBROUTINE PRTRA_OLD
          IF(sys_scx().EQ.0.0D0) PXTRAX(5,0)=1.0D0
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_x1_scx() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
          IF(sys_telecentric().EQ.0.0D0)&
-         &PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         &PXTRAX(6,0)=-((sys_scx())-sys_x1_scx())/surf_thickness(0)
          IF(sys_scx().EQ.0.0D0) PXTRAX(6,0)=&
-         &-(1.0D0-SYSTEM(17))/surf_thickness(0)
+         &-(1.0D0-sys_x1_scx())/surf_thickness(0)
          IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAX(6,0)=0.0D0
 !
@@ -2432,7 +2433,7 @@ SUBROUTINE PRTRA_OLD
          &(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=sys_x1_scx()
          IF(sys_telecentric().EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
@@ -3202,7 +3203,8 @@ SUBROUTINE TR
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
    use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
-      & sys_telecentric, sys_wl_ref
+      & sys_telecentric, sys_wl_ref, sys_x1_scx, sys_y1_scy, &
+      & sys_set_x1_scx, sys_set_y1_scy
    IMPLICIT NONE
 !
 !       THIS IS CALLED BY SUBROUTINE FADJ AND ERADJ.
@@ -3229,35 +3231,35 @@ SUBROUTINE TR
    IF(INT(sys_wl_ref()).EQ.8) WWVN=73
    IF(INT(sys_wl_ref()).EQ.9) WWVN=74
    IF(INT(sys_wl_ref()).EQ.10) WWVN=75
-   CON=SYSTEM(15)
+   CON=sys_y1_scy()
 !
    IF(ITYPEP.EQ.1) THEN
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
 !       IF AN APERTURE STOP IS DEFINED,
-!       THE VALUE OF SYSTEM(15) NEEDS TO BE
+!       THE VALUE OF sys_y1_scy() NEEDS TO BE
 !       REFINED.
 !
 !       THE FIRST STEP IS TO PERFORM THE PARAXIAL RAY TRACE
 !       UP TO THE APERTURE STOP SURFACE
 !       USING TWO DIFFERENT VALUES
-!       OF SYSTEM(15) [HEIGTH OF CHIEF RAY AT SURF 1]
+!       OF sys_y1_scy() [HEIGTH OF CHIEF RAY AT SURF 1]
 !
 !       THE TWO VALUES USED ARE 0.0 AND 0.1
 !
-!       THE CORRECET VALUE OF SYSTEM(15) WHICH MAKES PCY ON THE
+!       THE CORRECET VALUE OF sys_y1_scy() WHICH MAKES PCY ON THE
 !       APERTURE STOP EQUAL TO ZERO IS GIVEN BY:
 !
-!       PCY(AT ASTOP FOR SYSTEM(15)=0.0) IS CALLED TMP15A
-!       PCY(AT ASTOP FOR SYSTEM(15)=0.1) IS CALLED TMP15B
+!       PCY(AT ASTOP FOR sys_y1_scy()=0.0) IS CALLED TMP15A
+!       PCY(AT ASTOP FOR sys_y1_scy()=0.1) IS CALLED TMP15B
 !
-!       SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
+!       sys_y1_scy()=((-.1*TMP15A)/(TMP15B-TMP15A))+sys_y1_scy()
 !
       IF(sys_astop().GT.0.0D0 &
       &.AND.sys_telecentric().EQ.0.0D0) THEN
 !
-!       RECALCULATE THE CORRECT VALUE OF SYSTEM(15)
-!       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(15)
+!       RECALCULATE THE CORRECT VALUE OF sys_y1_scy()
+!       OTHERWISE, USE THE USER PROVIDED VALUE OF sys_y1_scy()
 !
 !                       RAY TARGETING INFORMATION
 !
@@ -3530,11 +3532,11 @@ SUBROUTINE TR
             CALL MACFAL
             RETURN
          ELSE
-            SYSTEM(15)=((-.1*TMP15A)/(TMP15B-TMP15A))+SYSTEM(15)
+            call sys_set_y1_scy(((-0.1D0*TMP15A)/(TMP15B-TMP15A))+sys_y1_scy())
          END IF
 !
 !       NOW TRACE FROM THE OBJECT SURFACE TO THE ASTOP SURFACE
-!       USING THIS VALUE OF SYSTEM(15)
+!       USING THIS VALUE OF sys_y1_scy()
 !
 !               INITIAL VALUES AT SURFACE 0
 !***************************************************************
@@ -3559,9 +3561,9 @@ SUBROUTINE TR
          PXTRAY(5,0)=-(sys_scy())
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_y1_scy() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         PXTRAY(6,0)=-((sys_scy())-sys_y1_scy())/surf_thickness(0)
 !
 !       PICY(0) AT OBJECT, PICY = PUCY
          PXTRAY(7,0)=PXTRAY(6,0)
@@ -3620,7 +3622,7 @@ SUBROUTINE TR
          &(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         PXTRAY(5,1)=SYSTEM(15)
+         PXTRAY(5,1)=sys_y1_scy()
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -3880,7 +3882,7 @@ SUBROUTINE TR
       ELSE
 !
 !       NO ASTOP WAS DEFINED OR TEL ON.
-!       IF NO ASTOP IS DEFINED, SYSTEM(15) IS USED AS IT WAS STORED
+!       IF NO ASTOP IS DEFINED, sys_y1_scy() IS USED AS IT WAS STORED
 !       DURING LENS INPUT.
 !******************************************************************************
 !       TRACE FROM THE OBJECT TO THE IMAGE, PROPERLY HANDLING ALL PIKUPS
@@ -3908,10 +3910,10 @@ SUBROUTINE TR
          PXTRAY(5,0)=-(sys_scy())
 !
 !       PUCY(0)=(SCY-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(15) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_y1_scy() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
          IF(sys_telecentric().EQ.0.0D0)&
-         &PXTRAY(6,0)=-((sys_scy())-SYSTEM(15))/surf_thickness(0)
+         &PXTRAY(6,0)=-((sys_scy())-sys_y1_scy())/surf_thickness(0)
          IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAY(6,0)=0.0D0
 !
@@ -3973,7 +3975,7 @@ SUBROUTINE TR
          &(ALENS((WWVN),1)))*PXTRAY(3,1)
 !
 !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=SYSTEM(15)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=sys_y1_scy()
          IF(sys_telecentric().EQ.1.0D0) PXTRAY(5,1)=PXTRAY(5,0)
 !
 !       PUCY(1) =-CV(1)*PCY(1)*((N'-N)/N')+(N/N')*PUCY(0)
@@ -4136,7 +4138,7 @@ SUBROUTINE TR
    ELSE
 !       ITYPEP NOT 1
    END IF
-   CON=SYSTEM(17)
+   CON=sys_x1_scx()
    IF(ITYPEP.EQ.2) THEN
 !
       SYS13=sys_sax()
@@ -4144,28 +4146,28 @@ SUBROUTINE TR
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
 !       IF AN APERTURE STOP IS DEFINED
-!       , THE VALUE OF SYSTEM(17) NEEDS TO BE
+!       , THE VALUE OF sys_x1_scx() NEEDS TO BE
 !       REFINED.
 !
 !       THE FIRST STEP IS TO PERFORM THE PARAXIAL RAY TRACE
 !       UP TO THE APERTURE STOP SURFACE
 !       USING TWO DIFFERENT VALUES
-!       OF SYSTEM(17) [HEIGTH OF CHIEF RAY AT SURF 1]
+!       OF sys_x1_scx() [HEIGTH OF CHIEF RAY AT SURF 1]
 !
 !       THE TWO VALUES USED ARE 0.0 AND 0.1
 !
-!       THE CORRECET VALUE OF SYSTEM(17) WHICH MAKES PCX ON THE
+!       THE CORRECET VALUE OF sys_x1_scx() WHICH MAKES PCX ON THE
 !       APERTURE STOP EQUAL TO ZERO IS GIVEN BY:
 !
-!       PCX(AT ASTOP FOR SYSTEM(17)=0.0) IS CALLED TMP17A
-!       PCX(AT ASTOP FOR SYSTEM(17)=0.1) IS CALLED TMP17B
+!       PCX(AT ASTOP FOR sys_x1_scx()=0.0) IS CALLED TMP17A
+!       PCX(AT ASTOP FOR sys_x1_scx()=0.1) IS CALLED TMP17B
 !
-!       SYSTEM(17)=((-.1*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
+!       sys_x1_scx()=((-.1*TMP17A)/(TMP17B-TMP17A))+sys_x1_scx()
 !
       IF(sys_astop().GT.0.0D0 .AND.sys_telecentric().EQ.0.0D0) THEN
 !
-!       RECALCULATE THE CORRECT VALUE OF SYSTEM(17)
-!       OTHERWISE, USE THE USER PROVIDED VALUE OF SYSTEM(17)
+!       RECALCULATE THE CORRECT VALUE OF sys_x1_scx()
+!       OTHERWISE, USE THE USER PROVIDED VALUE OF sys_x1_scx()
 !
 !                       RAY
          DO 600 JK=1,2
@@ -4437,11 +4439,11 @@ SUBROUTINE TR
             CALL MACFAL
             RETURN
          ELSE
-            SYSTEM(17)=((-.1*TMP17A)/(TMP17B-TMP17A))+SYSTEM(17)
+            call sys_set_x1_scx(((-0.1D0*TMP17A)/(TMP17B-TMP17A))+sys_x1_scx())
          END IF
 !
 !       NOW TRACE FROM THE OBJECT SURFACE TO THE ASTOP SURFACE
-!       USING THIS VALUE OF SYSTEM(17)
+!       USING THIS VALUE OF sys_x1_scx()
 !
 !               INITIAL VALUES AT SURFACE 0
 !***************************************************************
@@ -4466,9 +4468,9 @@ SUBROUTINE TR
          PXTRAX(5,0)=-(sys_scx())
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_x1_scx() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
-         PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         PXTRAX(6,0)=-((sys_scx())-sys_x1_scx())/surf_thickness(0)
 !
 !       PICX(0) AT OBJECT, PICX = PUCX
          PXTRAX(7,0)=PXTRAX(6,0)
@@ -4527,7 +4529,7 @@ SUBROUTINE TR
          &(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         PXTRAX(5,1)=SYSTEM(17)
+         PXTRAX(5,1)=sys_x1_scx()
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -4783,7 +4785,7 @@ SUBROUTINE TR
       ELSE
 !
 !       NO ASTOP WAS DEFINED OR TEL ON.
-!       IF NO ASTOP IS DEFINED, SYSTEM(17) IS USED AS IT WAS STORED
+!       IF NO ASTOP IS DEFINED, sys_x1_scx() IS USED AS IT WAS STORED
 !       DURING LENS INPUT.
 !******************************************************************************
 !       TRACE FROM THE OBJECT TO THE IMAGE.
@@ -4809,10 +4811,10 @@ SUBROUTINE TR
          PXTRAX(5,0)=-(sys_scx())
 !
 !       PUCX(0)=(SCX-ADJUSTMENT ON SURFACE 1)/TH(0)
-!       SYSTEM(17) IS CHIEF RAY POSITION ON SURFACE 1
+!       sys_x1_scx() IS CHIEF RAY POSITION ON SURFACE 1
 !       ENTERED BY THE DESIGNER IF IT IS NOT TO BE ZERO
          IF(sys_telecentric().EQ.0.0D0)&
-         &PXTRAX(6,0)=-((sys_scx())-SYSTEM(17))/surf_thickness(0)
+         &PXTRAX(6,0)=-((sys_scx())-sys_x1_scx())/surf_thickness(0)
          IF(sys_telecentric().EQ.1.0D0)&
          &PXTRAX(6,0)=0.0D0
 !
@@ -4874,7 +4876,7 @@ SUBROUTINE TR
          &(ALENS((WWVN),1)))*PXTRAX(3,1)
 !
 !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
-         IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=SYSTEM(17)
+         IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=sys_x1_scx()
          IF(sys_telecentric().EQ.1.0D0) PXTRAX(5,1)=PXTRAX(5,0)
 !
 !       PUCX(1) =-CV(1)*PCX(1)*((N'-N)/N')+(N/N')*PUCX(0)
