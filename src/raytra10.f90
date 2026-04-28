@@ -6,7 +6,8 @@ SUBROUTINE GBEAM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
-   use mod_system, only: sys_wl_ref, sys_last_surf, sys_wrx, sys_wry, sys_bdx, sys_bdy
+   use mod_system, only: sys_wl_ref, sys_last_surf, sys_wrx, sys_wry, sys_bdx, sys_bdy, &
+      & sys_astop, sys_ref_surf, sys_set_astop, sys_set_ref_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GBEAM. THIS SUBROUTINE IMPLEMENTS
@@ -81,10 +82,10 @@ SUBROUTINE GBEAM
       RETURN
    END IF
 !
-   OLDSTOP=SYSTEM(26)
-   OLDREF2=SYSTEM(25)
-   SYSTEM(25)=1.0D0
-   SYSTEM(26)=1.0D0
+   OLDSTOP=INT(sys_astop())
+   OLDREF2=INT(sys_ref_surf())
+   call sys_set_ref_surf(1.0D0)
+   call sys_set_astop(1.0D0)
 !
 !
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
@@ -98,8 +99,8 @@ SUBROUTINE GBEAM
          WRITE(OUTLYNE,*)'NO ACTION TAKEN'
          CALL SHOWIT(1)
          CALL MACFAL
-         SYSTEM(25)=OLDREF2
-         SYSTEM(26)=OLDSTOP
+         call sys_set_ref_surf(DBLE(OLDREF2))
+         call sys_set_astop(DBLE(OLDSTOP))
          RETURN
       END IF
       SF=INT(sys_last_surf())
@@ -189,8 +190,8 @@ SUBROUTINE GBEAM
          WRITE(OUTLYNE,1500)I,V5,V6,V7,V8
          CALL SHOWIT(0)
       END DO
-      SYSTEM(25)=OLDREF2
-      SYSTEM(26)=OLDSTOP
+      call sys_set_ref_surf(DBLE(OLDREF2))
+      call sys_set_astop(DBLE(OLDSTOP))
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'OBJ'.OR.SQ.EQ.1.AND.WQ.EQ.'OB') THEN
@@ -205,8 +206,8 @@ SUBROUTINE GBEAM
          WRITE(OUTLYNE,*)'NO ACTION TAKEN'
          CALL SHOWIT(1)
          CALL MACFAL
-         SYSTEM(25)=OLDREF2
-         SYSTEM(26)=OLDSTOP
+         call sys_set_ref_surf(DBLE(OLDREF2))
+         call sys_set_astop(DBLE(OLDSTOP))
          RETURN
       END IF
       V1=DSQRT((PX**2)+(PCX**2))
@@ -285,8 +286,8 @@ SUBROUTINE GBEAM
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1500) SF,V5,V6,V7,V8
       CALL SHOWIT(0)
-      SYSTEM(25)=OLDREF2
-      SYSTEM(26)=OLDSTOP
+      call sys_set_ref_surf(DBLE(OLDREF2))
+      call sys_set_astop(DBLE(OLDSTOP))
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.NE.'OBJ'.OR.SQ.EQ.1.AND.&
@@ -296,8 +297,8 @@ SUBROUTINE GBEAM
       WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
       CALL SHOWIT(1)
       CALL MACFAL
-      SYSTEM(25)=OLDREF2
-      SYSTEM(26)=OLDSTOP
+      call sys_set_ref_surf(DBLE(OLDREF2))
+      call sys_set_astop(DBLE(OLDSTOP))
       RETURN
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1) THEN
@@ -313,8 +314,8 @@ SUBROUTINE GBEAM
          WRITE(OUTLYNE,*)'NO ACTION TAKEN'
          CALL SHOWIT(1)
          CALL MACFAL
-         SYSTEM(25)=OLDREF2
-         SYSTEM(26)=OLDSTOP
+         call sys_set_ref_surf(DBLE(OLDREF2))
+         call sys_set_astop(DBLE(OLDSTOP))
          RETURN
       END IF
       V1=DSQRT((PX**2)+(PCX**2))
@@ -393,8 +394,8 @@ SUBROUTINE GBEAM
       CALL SHOWIT(0)
       WRITE(OUTLYNE,1500) SF,V5,V6,V7,V8
       CALL SHOWIT(0)
-      SYSTEM(25)=OLDREF2
-      SYSTEM(26)=OLDSTOP
+      call sys_set_ref_surf(DBLE(OLDREF2))
+      call sys_set_astop(DBLE(OLDSTOP))
       RETURN
    END IF
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
@@ -404,8 +405,8 @@ SUBROUTINE GBEAM
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          CALL MACFAL
-         SYSTEM(25)=OLDREF2
-         SYSTEM(26)=OLDSTOP
+         call sys_set_ref_surf(DBLE(OLDREF2))
+         call sys_set_astop(DBLE(OLDSTOP))
          RETURN
       END IF
       CALL GNPRTGEN(I,PY,PX,PUY,PUX,PCY,PCX,PUCY,PUCX,ERROR &
@@ -418,8 +419,8 @@ SUBROUTINE GBEAM
          WRITE(OUTLYNE,*)'NO ACTION TAKEN'
          CALL SHOWIT(1)
          CALL MACFAL
-         SYSTEM(25)=OLDREF2
-         SYSTEM(26)=OLDSTOP
+         call sys_set_ref_surf(DBLE(OLDREF2))
+         call sys_set_astop(DBLE(OLDSTOP))
          RETURN
       END IF
       V1=DSQRT((PX**2)+(PCX**2))
@@ -1435,7 +1436,7 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
-   use mod_system, only: sys_units, sys_mode, sys_last_surf
+   use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wavelength
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GETOPD WHICH IMPLEMENTS THE GET OPD
@@ -1529,11 +1530,8 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
          &+(RCOR*(ALENS(WWVN,NEWIMG-1)))
       END IF
 !     CALCULATE LEN IN WAVES AT THE REFERENCE RAY WAVELENGTH
-      IF(INT(CURLAM).GE.1.AND.INT(CURLAM).LE.5) THEN
-         WW=SYSTEM(INT(CURLAM))
-      END IF
-      IF(INT(CURLAM).GE.6.AND.INT(CURLAM).LE.10) THEN
-         WW=SYSTEM(INT(CURLAM)+65)
+      IF(INT(CURLAM).GE.1.AND.INT(CURLAM).LE.10) THEN
+         WW=sys_wavelength(INT(CURLAM))
       END IF
       IF(sys_units().EQ.1.0) WAVE=(WW*1.0D-3)/(25.4D0)
       IF(sys_units().EQ.2.0) WAVE=WW*1.0D-4
