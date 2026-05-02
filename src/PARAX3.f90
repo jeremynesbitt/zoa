@@ -6,6 +6,7 @@ SUBROUTINE ENEXRS
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness, surf_refractive_index, set_surf_thickness
+   use mod_system, only: sys_astop, sys_astop_adj, sys_last_surf, sys_set_astop_adj, sys_telecentric
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ENEXRS. IT IS CALLED FROM PRTRA1
@@ -19,22 +20,22 @@ SUBROUTINE ENEXRS
 !
 !
 !       IS THERE AN ASTOP DEFINED OR IS TEL ON?
-   IF(SYSTEM(26).LT.0.0D0.OR.SYSTEM(63).EQ.1.0D0) THEN
+   IF(sys_astop().LT.0.0D0.OR.sys_telecentric().EQ.1.0D0) THEN
 !       NO ASTOP, RETURN ONLY
       RETURN
    ELSE
 !       ASTOP EXISTS
    END IF
 !       IS THERE AN ADJUSTMENT?
-   IF(SYSTEM(27).EQ.0.0D0) THEN
+   IF(sys_astop_adj().EQ.0.0D0) THEN
 !       NO ADJUSTMENT, JUST RETURN
       RETURN
    ELSE
 !       THERE IS AN ADJUSTMENT REQUESTED
    END IF
-   IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
+   IF(sys_astop_adj().EQ.1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
 !       ASTOP EN OR ASTOP ENEX REQUESTED
-      IF(SYSTEM(26).EQ.1.0D0) THEN
+      IF(sys_astop().EQ.1.0D0) THEN
 !       ASTOP IS ON SURFACE 1, NO EN ADJUSTMENT IS NECESSARY
          GO TO 100
       ELSE
@@ -66,8 +67,8 @@ SUBROUTINE ENEXRS
             CALL SHOWIT(1)
             OUTLYNE='THE (EN) ADJUSTMENT IS BEING CANCELLED'
             CALL SHOWIT(1)
-            IF(SYSTEM(27).EQ.1.0D0) SYSTEM(27)=0.0D0
-            IF(SYSTEM(27).EQ.2.0D0) SYSTEM(27)=-1.0D0
+            call sys_set_astop_adj(0.0D0)
+            call sys_set_astop_adj(-1.0D0)
             GO TO 100
          ELSE
 !       PROCEED
@@ -103,8 +104,8 @@ SUBROUTINE ENEXRS
          CALL SHOWIT(1)
          OUTLYNE='THE (EN) ADJUSTMENT IS BEING CANCELLED'
          CALL SHOWIT(1)
-         IF(SYSTEM(27).EQ.1.0D0) SYSTEM(27)=0.0D0
-         IF(SYSTEM(27).EQ.2.0D0) SYSTEM(27)=-1.0D0
+         call sys_set_astop_adj(0.0D0)
+         call sys_set_astop_adj(-1.0D0)
          GO TO 100
       END IF
 !
@@ -140,8 +141,8 @@ SUBROUTINE ENEXRS
    ELSE
 !        NO EN ADJUSTMENT WAS REQUESTED, PROCEED WITH PROCESSING
    END IF
-100 IF(SYSTEM(27).EQ.-1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
-      IF(SYSTEM(26).EQ.(SYSTEM(20)-1.0D0))THEN
+100 IF(sys_astop_adj().EQ.-1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
+      IF(sys_astop().EQ.(sys_last_surf()-1.0D0))THEN
 !       ASTOP IS ON SURFACE IMAGE-1, NO ADJUSTMENT IS NECESSARY
          GO TO 200
       ELSE
@@ -161,7 +162,7 @@ SUBROUTINE ENEXRS
 !       SURFACE (IMAGE-2) OR SURFACE (IMAGE-1)
 !       IS THIS THE CASE
 !               IS THIS THE CASE?
-      DO 44 J=(INT(SYSTEM(20))-2),(INT(SYSTEM(20))-1)
+      DO 44 J=(INT(sys_last_surf())-2),(INT(sys_last_surf())-1)
          IF(PIKUP(1,J,3).NE.0.0D0.OR.PIKUP(1,J,32).NE.0.0D0) THEN
 !       FOUND A THICKNESS PIKUP,CAN'T DO THE
 !       ADJUSTMENT
@@ -172,14 +173,14 @@ SUBROUTINE ENEXRS
             CALL SHOWIT(1)
             OUTLYNE='THE (EX) ADJUSTMENT IS BEING CANCELLED'
             CALL SHOWIT(1)
-            IF(SYSTEM(27).EQ.-1.0D0) SYSTEM(27)=0.0D0
-            IF(SYSTEM(27).EQ.2.0D0) SYSTEM(27)=1.0D0
+            call sys_set_astop_adj(0.0D0)
+            call sys_set_astop_adj(1.0D0)
             GO TO 200
          ELSE
 !       PROCEED
          END IF
 44    CONTINUE
-      IMSUR=INT(SYSTEM(20))
+      IMSUR=INT(sys_last_surf())
       IM2=IMSUR-2
       IM1=IMSUR-1
       IF(SOLVE(4,IM1).EQ.0.0D0.AND.SOLVE(2,IM1).EQ.0.0D0 &
@@ -214,8 +215,8 @@ SUBROUTINE ENEXRS
          CALL SHOWIT(1)
          OUTLYNE='THE (EX) ADJUSTMENT IS BEING CANCELLED'
          CALL SHOWIT(1)
-         IF(SYSTEM(27).EQ.-1.0D0) SYSTEM(27)=0.0D0
-         IF(SYSTEM(27).EQ.2.0D0) SYSTEM(27)=1.0D0
+         call sys_set_astop_adj(0.0D0)
+         call sys_set_astop_adj(1.0D0)
          GO TO 200
       END IF
 !
@@ -259,6 +260,10 @@ SUBROUTINE ERADJ
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness, set_surf_thickness
+   use mod_system, only: sys_fno_hold_y, sys_fno_val_set, sys_fno_val_x, sys_fno_val_y, &
+      & sys_last_surf, sys_na_set, sys_naox, sys_naoy, sys_sax, sys_say, sys_telecentric, &
+      & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
+      & sys_set_sax, sys_set_say
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ERADJ. THIS IS THE SUBROUTINE
@@ -272,15 +277,15 @@ SUBROUTINE ERADJ
    IF(ITYPEP.EQ.1) THEN
 !
 !       FIRST CHECK FOR PUY (NOT ) =0 AT IMAGE PLANE
-      IF(DABS(PXTRAY(2,(INT(SYSTEM(20))))).GT.1.0D-15) THEN
+      IF(DABS(PXTRAY(2,(INT(sys_last_surf())))).GT.1.0D-15) THEN
          OUTLYNE='FINAL "PUY" VALUE IS NOT ZERO'
          CALL SHOWIT(1)
          OUTLYNE='"ERY" ADJUSTMENT NOT DEFINED AND WILL BE REMOVED'
          CALL SHOWIT(1)
          OUTLYNE='NOT ADJUSTMENT PERFORMED'
          CALL SHOWIT(1)
-         SYSTEM(44)=0.0D0
-         SYSTEM(46)=0.0D0
+         call sys_set_fno_flag_y(0.0D0)
+         call sys_set_fno_hold_y(0.0D0)
          RETURN
       ELSE
 !       PUY(FINAL) IS ZERO, PROCEED
@@ -291,27 +296,27 @@ SUBROUTINE ERADJ
 !       IS REALIZED BY SCALING THE SAY VALUE BY:
 !
 !               NEW DESIRED EXIT PUPIL RADIUS/OLD EXIT PUPIL RADIUS
-      IF(DABS(PXTRAY(1,(INT(SYSTEM(20))))).LT.1.0D-15) THEN
+      IF(DABS(PXTRAY(1,(INT(sys_last_surf())))).LT.1.0D-15) THEN
          OUTLYNE='CURRENT EXIT PUPIL RADIUS IS ZERO'
          CALL SHOWIT(1)
          OUTLYNE='"ERY" ADJUSTMENT NOT DEFINED AND WILL BE REMOVED'
          CALL SHOWIT(1)
          OUTLYNE='NO ADJUSTMENT PERFORMED'
          CALL SHOWIT(1)
-         SYSTEM(44)=0.0D0
-         SYSTEM(46)=0.0D0
+         call sys_set_fno_flag_y(0.0D0)
+         call sys_set_fno_hold_y(0.0D0)
          RETURN
       ELSE
       END IF
 !
-      SYSTEM(12)=SYSTEM(12)*(SYSTEM(46)/&
-      &PXTRAY(1,(INT(SYSTEM(20)))))
+      call sys_set_say(sys_say()*(sys_fno_hold_y()/&
+      &PXTRAY(1,(INT(sys_last_surf())))))
 !
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
 !       TELECENTRIC STUFF, 11/12/2000
-      IF(SYSTEM(63).EQ.1.0D0) THEN
-         IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.1.0D0) THEN
+         IF(sys_na_set().EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
             & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -319,13 +324,13 @@ SUBROUTINE ERADJ
             & 'PARAXIAL TRACE STOPPED', 1)
             RETURN
          ELSE
-            IF(SYSTEM(64).EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-               SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+            IF(sys_na_set().EQ.1.0D0) THEN
+               call sys_set_say(surf_thickness(0)*sys_naoy())
+               call sys_set_sax(surf_thickness(0)*sys_naox())
             END IF
-            IF(SYSTEM(67).EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-               SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+            IF(sys_fno_val_set().EQ.1.0D0) THEN
+               call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
+               call sys_set_sax(surf_thickness(0)/(2.0D0*sys_fno_val_x()))
             END IF
          END IF
       END IF
@@ -351,15 +356,15 @@ SUBROUTINE ERADJ
    IF(ITYPEP.EQ.2) THEN
 !
 !       FIRST CHECK FOR PUX (NOT ) =0 AT IMAGE PLANE
-      IF(DABS(PXTRAX(2,(INT(SYSTEM(20))))).GT.1.0D-15) THEN
+      IF(DABS(PXTRAX(2,(INT(sys_last_surf())))).GT.1.0D-15) THEN
          OUTLYNE= 'FINAL "PUX" VALUE IS NOT ZERO'
          CALL SHOWIT(1)
          OUTLYNE= '"ERX" ADJUSTMENT NOT DEFINED AND WILL BE REMOVED'
          CALL SHOWIT(1)
          OUTLYNE= 'NOT ADJUSTMENT PERFORMED'
          CALL SHOWIT(1)
-         SYSTEM(45)=0.0D0
-         SYSTEM(47)=0.0D0
+         call sys_set_fno_flag_x(0.0D0)
+         call sys_set_fno_hold_x(0.0D0)
          RETURN
       ELSE
 !       PUX(FINAL) IS ZERO, PROCEED
@@ -370,27 +375,27 @@ SUBROUTINE ERADJ
 !       IS REALIZED BY SCALING THE SAX VALUE BY:
 !
 !               NEW DESIRED EXIT PUPIL RADIUS/OLD EXIT PUPIL RADIUS
-      IF(DABS(PXTRAX(1,(INT(SYSTEM(20))))).LT.1.0D-15) THEN
+      IF(DABS(PXTRAX(1,(INT(sys_last_surf())))).LT.1.0D-15) THEN
          OUTLYNE= 'CURRENT EXIT PUPIL RADIUS IS ZERO'
          CALL SHOWIT(1)
          OUTLYNE= '"ERX" ADJUSTMENT NOT DEFINED AND WILL BE REMOVED'
          CALL SHOWIT(1)
          OUTLYNE= 'NO ADJUSTMENT PERFORMED'
          CALL SHOWIT(1)
-         SYSTEM(45)=0.0D0
-         SYSTEM(47)=0.0D0
+         call sys_set_fno_flag_x(0.0D0)
+         call sys_set_fno_hold_x(0.0D0)
          RETURN
       ELSE
       END IF
 !
-      SYSTEM(13)=SYSTEM(13)*(SYSTEM(46)/&
-      &PXTRAX(1,(INT(SYSTEM(20)))))
+      call sys_set_sax(sys_sax()*(sys_fno_hold_y()/&
+      &PXTRAX(1,(INT(sys_last_surf())))))
 !
 !       NOW WE PERFORM A PARAXIAL RAY TRACE WITHOUT AND SOLVES
 !
 !       TELECENTRIC STUFF, 11/12/2000
-      IF(SYSTEM(63).EQ.1.0D0) THEN
-         IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
+      IF(sys_telecentric().EQ.1.0D0) THEN
+         IF(sys_na_set().EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'WHEN "TEL ON" IS SET, NAO OR FNO MUST BE USED'//'\n'//&
             & 'TO SPECIFY THE MARGINAL PARAXIAL RAY STARTING'//'\n'//&
@@ -398,13 +403,13 @@ SUBROUTINE ERADJ
             & 'PARAXIAL TRACE STOPPED', 1)
             RETURN
          ELSE
-            IF(SYSTEM(64).EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)*SYSTEM(65)
-               SYSTEM(13)=surf_thickness(0)*SYSTEM(66)
+            IF(sys_na_set().EQ.1.0D0) THEN
+               call sys_set_say(surf_thickness(0)*sys_naoy())
+               call sys_set_sax(surf_thickness(0)*sys_naox())
             END IF
-            IF(SYSTEM(67).EQ.1.0D0) THEN
-               SYSTEM(12)=surf_thickness(0)/(2.0D0*SYSTEM(68))
-               SYSTEM(13)=surf_thickness(0)/(2.0D0*SYSTEM(69))
+            IF(sys_fno_val_set().EQ.1.0D0) THEN
+               call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
+               call sys_set_sax(surf_thickness(0)/(2.0D0*sys_fno_val_x()))
             END IF
          END IF
       END IF
@@ -440,6 +445,7 @@ SUBROUTINE INVAR
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_wl_ref
    IMPLICIT NONE
 !
    INTEGER CW,SF
@@ -457,7 +463,7 @@ SUBROUTINE INVAR
       RETURN
    END IF
 !       HANDLE NO SURFACES
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL DATA EXISTS'
@@ -470,12 +476,12 @@ SUBROUTINE INVAR
 !
 !       CALCULATE THE OPTICAL INVARIANT
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    INVY=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))&
    &-(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
@@ -498,6 +504,7 @@ SUBROUTINE PCD3
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCD3. THIS SUBROUTINE IMPLEMENTS
@@ -565,7 +572,7 @@ SUBROUTINE PCD3
          RETURN
       END IF
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL OR THIRD ORDER DATA EXISTS'
@@ -574,22 +581,22 @@ SUBROUTINE PCD3
       RETURN
    END IF
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    INV=1.0D0
-   IF(SYSTEM(30).EQ.1.0D0) THEN
+   IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCD3'.OR.WC.EQ.'SCD3')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCD3'.OR.WC.EQ.'XSCD3')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
    END IF
-   IF(SYSTEM(30).EQ.3.0D0) THEN
+   IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCD3'.OR.WC.EQ.'SCD3')&
       &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
@@ -603,9 +610,9 @@ SUBROUTINE PCD3
       WRITE(OUTLYNE,*)&
       &'ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
+      IF(sys_mode().EQ.1.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
+      IF(sys_mode().EQ.3.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'THEN RE-ENTER COMMAND'
@@ -614,7 +621,7 @@ SUBROUTINE PCD3
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PCD3'.OR.WC.EQ.'SCD3')WRITE(OUTLYNE,5001)
       IF(WC.EQ.'XPCD3'.OR.WC.EQ.'XSCD3')WRITE(OUTLYNE,6001)
       CALL SHOWIT(0)
@@ -623,18 +630,18 @@ SUBROUTINE PCD3
       IF(WC.EQ.'SCD3'.OR.WC.EQ.'XSCD3')&
       &WRITE(OUTLYNE,6002) INT(F12)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-      IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-      IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-      IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+      IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+      IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+      IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+      IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2501)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(sys_mode().EQ.1.0.OR.&
+         &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'PCD3') THEN
                C1=PDF3(1,I)/INV
@@ -668,8 +675,8 @@ SUBROUTINE PCD3
             CALL SHOWIT(0)
             GO TO 10
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.2.0.OR.&
+         &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'PCD3') THEN
                C1=PDF3(1,I)
@@ -743,17 +750,17 @@ SUBROUTINE PCD3
 20    CONTINUE
 !       NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -781,9 +788,9 @@ SUBROUTINE PCD3
    &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
       IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      &SF=INT(sys_last_surf())
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCD3') THEN
             C1=PDF3(1,SF)/INV
@@ -819,8 +826,8 @@ SUBROUTINE PCD3
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCD3') THEN
             C1=PDF3(1,SF)
@@ -870,7 +877,7 @@ SUBROUTINE PCD3
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
    &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
 !       OUTPUT SYSTEM TOTALS
 !
 !       THE SURFACE CONTRIBUTIONS MUST BE SUMMED
@@ -911,17 +918,17 @@ SUBROUTINE PCD3
 220   CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -947,7 +954,7 @@ SUBROUTINE PCD3
 !
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -956,8 +963,8 @@ SUBROUTINE PCD3
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCD3') THEN
             C1=PDF3(1,I)/INV
@@ -993,8 +1000,8 @@ SUBROUTINE PCD3
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCD3') THEN
             C1=PDF3(1,I)
@@ -1058,6 +1065,7 @@ SUBROUTINE PCD5
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCD5. THIS SUBROUTINE IMPLEMENTS
@@ -1124,7 +1132,7 @@ SUBROUTINE PCD5
       END IF
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL OR FIFTH ORDER DATA EXISTS'
@@ -1133,22 +1141,22 @@ SUBROUTINE PCD5
       RETURN
    END IF
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    INV=1.0D0
-   IF(SYSTEM(30).EQ.1.0D0) THEN
+   IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCD5'.OR.WC.EQ.'SCD5')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCD5'.OR.WC.EQ.'XSCD5')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
    END IF
-   IF(SYSTEM(30).EQ.3.0D0) THEN
+   IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCD5'.OR.WC.EQ.'SCD5')&
       &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
@@ -1162,9 +1170,9 @@ SUBROUTINE PCD5
       WRITE(OUTLYNE,*)&
       &'ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
+      IF(sys_mode().EQ.1.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
+      IF(sys_mode().EQ.3.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'THEN RE-ENTER COMMAND'
@@ -1173,7 +1181,7 @@ SUBROUTINE PCD5
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PCD5'.OR.WC.EQ.'SCD5')WRITE(OUTLYNE,5001)
       IF(WC.EQ.'XPCD5'.OR.WC.EQ.'XSCD5')WRITE(OUTLYNE,6001)
       CALL SHOWIT(0)
@@ -1182,18 +1190,18 @@ SUBROUTINE PCD5
       IF(WC.EQ.'SCD5'.OR.WC.EQ.'XSCD5')&
       &WRITE(OUTLYNE,6002) INT(F12)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-      IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-      IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-      IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+      IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+      IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+      IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+      IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2501)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(sys_mode().EQ.1.0.OR.&
+         &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'PCD5') THEN
                C1=PDF57(1,I)/INV
@@ -1227,8 +1235,8 @@ SUBROUTINE PCD5
             CALL SHOWIT(0)
             GO TO 10
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.2.0.OR.&
+         &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'PCD5') THEN
                C1=PDF57(1,I)
@@ -1302,17 +1310,17 @@ SUBROUTINE PCD5
 20    CONTINUE
 !       NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -1340,9 +1348,9 @@ SUBROUTINE PCD5
    &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
       IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      &SF=INT(sys_last_surf())
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCD5') THEN
             C1=PDF57(1,SF)/INV
@@ -1378,8 +1386,8 @@ SUBROUTINE PCD5
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCD5') THEN
             C1=PDF57(1,SF)
@@ -1429,7 +1437,7 @@ SUBROUTINE PCD5
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
    &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
 !       OUTPUT SYSTEM TOTALS
 !
 !       THE SURFACE CONTRIBUTIONS MUST BE SUMMED
@@ -1470,17 +1478,17 @@ SUBROUTINE PCD5
 220   CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -1506,7 +1514,7 @@ SUBROUTINE PCD5
 !
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -1515,8 +1523,8 @@ SUBROUTINE PCD5
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCD5') THEN
             C1=PDF57(1,I)/INV
@@ -1552,8 +1560,8 @@ SUBROUTINE PCD5
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCD5') THEN
             C1=PDF57(1,I)
@@ -1617,6 +1625,7 @@ SUBROUTINE PCDX5
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDX5. THIS SUBROUTINE IMPLEMENTS
@@ -1682,7 +1691,7 @@ SUBROUTINE PCDX5
          RETURN
       END IF
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL OR FIFTH ORDER DATA EXISTS'
@@ -1691,22 +1700,22 @@ SUBROUTINE PCDX5
       RETURN
    END IF
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    INV=1.0D0
-   IF(SYSTEM(30).EQ.1.0D0) THEN
+   IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCDX5'.OR.WC.EQ.'SCDX5')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCDX5'.OR.WC.EQ.'XSCDX5')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
    END IF
-   IF(SYSTEM(30).EQ.3.0D0) THEN
+   IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCDX5'.OR.WC.EQ.'SCDX5')&
       &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
@@ -1720,9 +1729,9 @@ SUBROUTINE PCDX5
       WRITE(OUTLYNE,*)&
       &'ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
+      IF(sys_mode().EQ.1.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
+      IF(sys_mode().EQ.3.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'THEN RE-ENTER COMMAND'
@@ -1731,7 +1740,7 @@ SUBROUTINE PCDX5
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PCDX5'.OR.WC.EQ.'SCDX5')&
       &WRITE(OUTLYNE,5001)
       IF(WC.EQ.'XPCDX5'.OR.WC.EQ.'XSCDX5')&
@@ -1742,18 +1751,18 @@ SUBROUTINE PCDX5
       IF(WC.EQ.'SCDX5'.OR.WC.EQ.'XSCDX5')&
       &WRITE(OUTLYNE,5002) INT(F12)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-      IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-      IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-      IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+      IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+      IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+      IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+      IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2501)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(sys_mode().EQ.1.0.OR.&
+         &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'PCDX5') THEN
                C1=(PDF57(4,I)+PDF57(5,I)+PDF57(6,I))/INV
@@ -1787,8 +1796,8 @@ SUBROUTINE PCDX5
             CALL SHOWIT(0)
             GO TO 10
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.2.0.OR.&
+         &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'PCDX5') THEN
                C1=PDF57(4,I)+PDF57(5,I)+PDF57(6,I)
@@ -1862,17 +1871,17 @@ SUBROUTINE PCDX5
 20    CONTINUE
 !       NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -1902,9 +1911,9 @@ SUBROUTINE PCDX5
    &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
       IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      &SF=INT(sys_last_surf())
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCDX5') THEN
             C1=(PDF57(4,SF)+PDF57(5,SF)+PDF57(6,SF))/INV
@@ -1940,8 +1949,8 @@ SUBROUTINE PCDX5
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCDX5') THEN
             C1=PDF57(4,SF)+PDF57(5,SF)+PDF57(6,SF)
@@ -1991,7 +2000,7 @@ SUBROUTINE PCDX5
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
    &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
 !       OUTPUT SYSTEM TOTALS
 !
 !       THE SURFACE CONTRIBUTIONS MUST BE SUMMED
@@ -2032,17 +2041,17 @@ SUBROUTINE PCDX5
 220   CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -2069,7 +2078,7 @@ SUBROUTINE PCDX5
 !
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -2078,8 +2087,8 @@ SUBROUTINE PCDX5
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCDX5') THEN
             C1=(PDF57(4,I)+PDF57(5,I)+PDF57(6,I))/INV
@@ -2115,8 +2124,8 @@ SUBROUTINE PCDX5
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCDX5') THEN
             C1=PDF57(4,I)+PDF57(5,I)+PDF57(6,I)
@@ -2180,6 +2189,7 @@ SUBROUTINE PCDP3
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDP3. THIS SUBROUTINE IMPLEMENTS
@@ -2245,7 +2255,7 @@ SUBROUTINE PCDP3
          RETURN
       END IF
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL OR THIRD ORDER DATA EXISTS'
@@ -2254,22 +2264,22 @@ SUBROUTINE PCDP3
       RETURN
    END IF
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    INV=1.0D0
-   IF(SYSTEM(30).EQ.1.0D0) THEN
+   IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCDP3'.OR.WC.EQ.'SCDP3')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCDP3'.OR.WC.EQ.'XSCDP3')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
    END IF
-   IF(SYSTEM(30).EQ.3.0D0) THEN
+   IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCDP3'.OR.WC.EQ.'SCDP3')&
       &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
@@ -2283,9 +2293,9 @@ SUBROUTINE PCDP3
       WRITE(OUTLYNE,*)&
       &'ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
+      IF(sys_mode().EQ.1.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
+      IF(sys_mode().EQ.3.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'THEN RE-ENTER COMMAND'
@@ -2294,7 +2304,7 @@ SUBROUTINE PCDP3
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PCDP3'.OR.WC.EQ.'SCDP3')&
       &WRITE(OUTLYNE,5001)
       IF(WC.EQ.'XPCDP3'.OR.WC.EQ.'XSCDP3')&
@@ -2305,18 +2315,18 @@ SUBROUTINE PCDP3
       IF(WC.EQ.'SCDP3'.OR.WC.EQ.'XSCDP3')&
       &WRITE(OUTLYNE,6002) INT(F12)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-      IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-      IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-      IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+      IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+      IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+      IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+      IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2501)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(sys_mode().EQ.1.0.OR.&
+         &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'PCDP3')THEN
                C1=PDF3(6,I)/INV
@@ -2350,8 +2360,8 @@ SUBROUTINE PCDP3
             CALL SHOWIT(0)
             GO TO 10
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.2.0.OR.&
+         &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'PCDP3')THEN
                C1=PDF3(6,I)
@@ -2425,17 +2435,17 @@ SUBROUTINE PCDP3
 20    CONTINUE
 !       NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -2463,9 +2473,9 @@ SUBROUTINE PCDP3
    &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
       IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      &SF=INT(sys_last_surf())
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCDP3') THEN
             C1=PDF3(6,SF)/INV
@@ -2501,8 +2511,8 @@ SUBROUTINE PCDP3
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCDP3') THEN
             C1=PDF3(6,SF)
@@ -2552,7 +2562,7 @@ SUBROUTINE PCDP3
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
    &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
 !       OUTPUT SYSTEM TOTALS
 !
 !       THE SURFACE CONTRIBUTIONS MUST BE SUMMED
@@ -2593,17 +2603,17 @@ SUBROUTINE PCDP3
 220   CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -2629,7 +2639,7 @@ SUBROUTINE PCDP3
 !
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -2638,8 +2648,8 @@ SUBROUTINE PCDP3
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCDP3') THEN
             C1=PDF3(6,I)/INV
@@ -2675,8 +2685,8 @@ SUBROUTINE PCDP3
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCDP3') THEN
             C1=PDF3(6,I)
@@ -2740,6 +2750,7 @@ SUBROUTINE PCDSA
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDSA. THIS SUBROUTINE IMPLEMENTS
@@ -2805,7 +2816,7 @@ SUBROUTINE PCDSA
          RETURN
       END IF
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL,3RD, 5TH OR 7TH  ORDER DATA EXISTS'
@@ -2814,22 +2825,22 @@ SUBROUTINE PCDSA
       RETURN
    END IF
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    INV=1.0D0
-   IF(SYSTEM(30).EQ.1.0D0) THEN
+   IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCDSA'.OR.WC.EQ.'SCDSA')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCDSA'.OR.WC.EQ.'XSCDSA')&
       &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
    END IF
-   IF(SYSTEM(30).EQ.3.0D0) THEN
+   IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCDSA'.OR.WC.EQ.'SCDSA')&
       &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
@@ -2843,9 +2854,9 @@ SUBROUTINE PCDSA
       WRITE(OUTLYNE,*)&
       &'ABERRATIONS ARE NOT CALCULABLE'
       CALL SHOWIT(1)
-      IF(SYSTEM(30).EQ.1.0D0)&
+      IF(sys_mode().EQ.1.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE FOCAL" TO "MODE AFOCAL"'
-      IF(SYSTEM(30).EQ.3.0D0)&
+      IF(sys_mode().EQ.3.0D0)&
       &WRITE(OUTLYNE,*)'CHANGE FROM "MODE AFOCAL" TO "MODE FOCAL"'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'THEN RE-ENTER COMMAND'
@@ -2854,7 +2865,7 @@ SUBROUTINE PCDSA
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'PCDSA'.OR.WC.EQ.'SCDSA')&
       &WRITE(OUTLYNE,5001)
       IF(WC.EQ.'XPCDSA'.OR.WC.EQ.'XSCDSA')&
@@ -2865,18 +2876,18 @@ SUBROUTINE PCDSA
       IF(WC.EQ.'SCDSA'.OR.WC.EQ.'XSCDSA')&
       &WRITE(OUTLYNE,6002) INT(F12)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-      IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-      IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-      IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+      IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+      IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+      IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+      IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2501)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,5000)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.&
-         &SYSTEM(30).EQ.3.0) THEN
+         IF(sys_mode().EQ.1.0.OR.&
+         &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
             IF(WC.EQ.'PCDSA') THEN
                C1=PDF3(1,I)/INV
@@ -2902,8 +2913,8 @@ SUBROUTINE PCDSA
             CALL SHOWIT(0)
             GO TO 10
          END IF
-         IF(SYSTEM(30).EQ.2.0.OR.&
-         &SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.2.0.OR.&
+         &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'PCDSA') THEN
                C1=PDF3(1,I)
@@ -2959,17 +2970,17 @@ SUBROUTINE PCDSA
 20    CONTINUE
 !       NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -2995,9 +3006,9 @@ SUBROUTINE PCDSA
    &SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
       IF(WQ.EQ.'OB'.OR.WQ.EQ.'OBJ') SF=0
       IF(WQ.EQ.'I'.OR.WQ.EQ.'IM'.OR.WQ.EQ.'IMAGE')&
-      &SF=INT(SYSTEM(20))
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      &SF=INT(sys_last_surf())
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCDSA') THEN
             C1=PDF3(1,SF)/INV
@@ -3025,8 +3036,8 @@ SUBROUTINE PCDSA
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCDSA') THEN
             C1=PDF3(1,SF)
@@ -3068,7 +3079,7 @@ SUBROUTINE PCDSA
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1.OR.SQ.EQ.1.AND.WQ.EQ.'IM'.OR.&
    &SQ.EQ.1.AND.WQ.EQ.'I'.OR.SQ.EQ.1.AND.WQ.EQ.'IMAGE') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
 !       OUTPUT SYSTEM TOTALS
 !
 !       THE SURFACE CONTRIBUTIONS MUST BE SUMMED
@@ -3099,17 +3110,17 @@ SUBROUTINE PCDSA
 220   CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.3.0) THEN
 !       MODE IS FOCAL OR AFOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          C1T=C1T/INV
@@ -3131,7 +3142,7 @@ SUBROUTINE PCDSA
 !
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -3140,8 +3151,8 @@ SUBROUTINE PCDSA
          CALL MACFAL
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.&
-      &SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.1.0.OR.&
+      &sys_mode().EQ.3.0) THEN
 !               FOCAL OR AFOCAL, CONVERT
          IF(WC.EQ.'PCDSA') THEN
             C1=PDF3(1,I)/INV
@@ -3169,8 +3180,8 @@ SUBROUTINE PCDSA
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.2.0.OR.&
-      &SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.2.0.OR.&
+      &sys_mode().EQ.4.0) THEN
 !               UFOCAL OR UAFOCAL, DON'T CONVERT
          IF(WC.EQ.'PCDSA') THEN
             C1=PDF3(1,I)
@@ -3224,6 +3235,7 @@ SUBROUTINE CCOL
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_refractive_index
+   use mod_system, only: sys_last_surf, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CALCULATES THE YZ PLANE (ITYPEP=1)
@@ -3259,30 +3271,30 @@ SUBROUTINE CCOL
 !       WAVELENGTH PAIRS ARE STORED IN SYSTEM(9) AND SYSTEM(10)
 !
 
-      IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5)&
-      &CW= (INT(SYSTEM(11))+45)
-      IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10)&
-      &CW= (INT(SYSTEM(11))+65)
+      IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5)&
+      &CW= (INT(sys_wl_ref())+45)
+      IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10)&
+      &CW= (INT(sys_wl_ref())+65)
 !
-      IF(INT(SYSTEM(7)).GE.1.AND.INT(SYSTEM(7)).LE.5)&
-      &PW1= (INT(SYSTEM(7))+45)
-      IF(INT(SYSTEM(7)).GE.6.AND.INT(SYSTEM(7)).LE.10)&
-      &PW1= (INT(SYSTEM(7))+65)
+      IF(INT(sys_wl_pri1()).GE.1.AND.INT(sys_wl_pri1()).LE.5)&
+      &PW1= (INT(sys_wl_pri1())+45)
+      IF(INT(sys_wl_pri1()).GE.6.AND.INT(sys_wl_pri1()).LE.10)&
+      &PW1= (INT(sys_wl_pri1())+65)
 !
-      IF(INT(SYSTEM(8)).GE.1.AND.INT(SYSTEM(8)).LE.5)&
-      &PW2= (INT(SYSTEM(8))+45)
-      IF(INT(SYSTEM(8)).GE.6.AND.INT(SYSTEM(8)).LE.10)&
-      &PW2= (INT(SYSTEM(8))+65)
+      IF(INT(sys_wl_pri2()).GE.1.AND.INT(sys_wl_pri2()).LE.5)&
+      &PW2= (INT(sys_wl_pri2())+45)
+      IF(INT(sys_wl_pri2()).GE.6.AND.INT(sys_wl_pri2()).LE.10)&
+      &PW2= (INT(sys_wl_pri2())+65)
 !
-      IF(INT(SYSTEM(9)).GE.1.AND.INT(SYSTEM(9)).LE.5)&
-      &SW1= (INT(SYSTEM(9))+45)
-      IF(INT(SYSTEM(9)).GE.6.AND.INT(SYSTEM(9)).LE.10)&
-      &SW1= (INT(SYSTEM(9))+65)
+      IF(INT(sys_wl_sec1()).GE.1.AND.INT(sys_wl_sec1()).LE.5)&
+      &SW1= (INT(sys_wl_sec1())+45)
+      IF(INT(sys_wl_sec1()).GE.6.AND.INT(sys_wl_sec1()).LE.10)&
+      &SW1= (INT(sys_wl_sec1())+65)
 !
-      IF(INT(SYSTEM(10)).GE.1.AND.INT(SYSTEM(10)).LE.5)&
-      &SW2= (INT(SYSTEM(10))+45)
-      IF(INT(SYSTEM(10)).GE.6.AND.INT(SYSTEM(10)).LE.10)&
-      &SW2= (INT(SYSTEM(10))+65)
+      IF(INT(sys_wl_sec2()).GE.1.AND.INT(sys_wl_sec2()).LE.5)&
+      &SW2= (INT(sys_wl_sec2())+45)
+      IF(INT(sys_wl_sec2()).GE.6.AND.INT(sys_wl_sec2()).LE.10)&
+      &SW2= (INT(sys_wl_sec2())+65)
 !
 !       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
 !       surf_refractive_index(SURF, 5)
@@ -3296,7 +3308,7 @@ SUBROUTINE CCOL
 !
 !       AT OBJECT SURFACE
       COLORY(1:8,0)=0.0D0
-      DO I=1,INT(SYSTEM(20))
+      DO I=1,INT(sys_last_surf())
 !
 !       PRIMARY AXIAL  AND LATERAL COLOR
 !
@@ -3307,8 +3319,8 @@ SUBROUTINE CCOL
          DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
          DNP=ALENS(PW1,I)-ALENS(PW2,I)
 !       AXIAL COLOR (PRIMARY)
-         COLORY(1,I)=((PXTRAY(1,(INT(SYSTEM(20))))*PXTRAY(5,I))-&
-         &(PXTRAY(5,(INT(SYSTEM(20))))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*&
+         COLORY(1,I)=((PXTRAY(1,(INT(sys_last_surf())))*PXTRAY(5,I))-&
+         &(PXTRAY(5,(INT(sys_last_surf())))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
          ! PRINT *, "Color Seidel Debug"
          ! PRINT *, "DN is ", DN
@@ -3333,8 +3345,8 @@ SUBROUTINE CCOL
          DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
          DNP=ALENS(SW1,I)-ALENS(SW2,I)
 !       AXIAL  COLOR (SECONDARY)
-         COLORY(3,I)=((PXTRAY(1,(INT(SYSTEM(20))))*PXTRAY(5,I))-&
-         &(PXTRAY(5,(INT(SYSTEM(20))))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*&
+         COLORY(3,I)=((PXTRAY(1,(INT(sys_last_surf())))*PXTRAY(5,I))-&
+         &(PXTRAY(5,(INT(sys_last_surf())))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (SECONDARY)
          IF(PXTRAY(3,I).EQ.0.0D0) THEN
@@ -3350,8 +3362,8 @@ SUBROUTINE CCOL
          DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
          DNP=ALENS(PW1,I)-ALENS(PW2,I)
 !       AXIAL COLOR (PRIMARY)
-         COLORY(5,I)=((PXTRAY(5,I)*PXTRAY(2,((INT(SYSTEM(20)))-1)))-&
-         &(PXTRAY(1,I)*PXTRAY(6,((INT(SYSTEM(20)))-1))))*PXTRAY(3,I)*PN*&
+         COLORY(5,I)=((PXTRAY(5,I)*PXTRAY(2,((INT(sys_last_surf()))-1)))-&
+         &(PXTRAY(1,I)*PXTRAY(6,((INT(sys_last_surf()))-1))))*PXTRAY(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (PRIMARY)
          IF(PXTRAY(3,I).EQ.0.0D0) THEN
@@ -3365,8 +3377,8 @@ SUBROUTINE CCOL
          DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
          DNP=ALENS(SW1,I)-ALENS(SW2,I)
 !       AXIAL  COLOR (SECONDARY)
-         COLORY(7,I)=((PXTRAY(5,I)*PXTRAY(2,((INT(SYSTEM(20)))-1)))-&
-         &(PXTRAY(1,I)*PXTRAY(6,((INT(SYSTEM(20)))-1))))*PXTRAY(3,I)*PN*&
+         COLORY(7,I)=((PXTRAY(5,I)*PXTRAY(2,((INT(sys_last_surf()))-1)))-&
+         &(PXTRAY(1,I)*PXTRAY(6,((INT(sys_last_surf()))-1))))*PXTRAY(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (SECONDARY)
          IF(PXTRAY(3,I).EQ.0.0D0) THEN
@@ -3390,30 +3402,30 @@ SUBROUTINE CCOL
 !       ARE STORED IN SYSTEM(7) AND SYSTEM(8), AND THE SECONDARY
 !       WAVELENGTH PAIRS ARE STORED IN SYSTEM(9) AND SYSTEM(10)
 !
-      IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5)&
-      &CW= (INT(SYSTEM(11))+45)
-      IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10)&
-      &CW= (INT(SYSTEM(11))+65)
+      IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5)&
+      &CW= (INT(sys_wl_ref())+45)
+      IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10)&
+      &CW= (INT(sys_wl_ref())+65)
 !
-      IF(INT(SYSTEM(7)).GE.1.AND.INT(SYSTEM(7)).LE.5)&
-      &PW1= (INT(SYSTEM(7))+45)
-      IF(INT(SYSTEM(7)).GE.6.AND.INT(SYSTEM(7)).LE.10)&
-      &PW1= (INT(SYSTEM(7))+65)
+      IF(INT(sys_wl_pri1()).GE.1.AND.INT(sys_wl_pri1()).LE.5)&
+      &PW1= (INT(sys_wl_pri1())+45)
+      IF(INT(sys_wl_pri1()).GE.6.AND.INT(sys_wl_pri1()).LE.10)&
+      &PW1= (INT(sys_wl_pri1())+65)
 !
-      IF(INT(SYSTEM(8)).GE.1.AND.INT(SYSTEM(8)).LE.5)&
-      &PW2= (INT(SYSTEM(8))+45)
-      IF(INT(SYSTEM(8)).GE.6.AND.INT(SYSTEM(8)).LE.10)&
-      &PW2= (INT(SYSTEM(8))+65)
+      IF(INT(sys_wl_pri2()).GE.1.AND.INT(sys_wl_pri2()).LE.5)&
+      &PW2= (INT(sys_wl_pri2())+45)
+      IF(INT(sys_wl_pri2()).GE.6.AND.INT(sys_wl_pri2()).LE.10)&
+      &PW2= (INT(sys_wl_pri2())+65)
 !
-      IF(INT(SYSTEM(9)).GE.1.AND.INT(SYSTEM(9)).LE.5)&
-      &SW1= (INT(SYSTEM(9))+45)
-      IF(INT(SYSTEM(9)).GE.6.AND.INT(SYSTEM(9)).LE.10)&
-      &SW1= (INT(SYSTEM(9))+65)
+      IF(INT(sys_wl_sec1()).GE.1.AND.INT(sys_wl_sec1()).LE.5)&
+      &SW1= (INT(sys_wl_sec1())+45)
+      IF(INT(sys_wl_sec1()).GE.6.AND.INT(sys_wl_sec1()).LE.10)&
+      &SW1= (INT(sys_wl_sec1())+65)
 !
-      IF(INT(SYSTEM(10)).GE.1.AND.INT(SYSTEM(10)).LE.5)&
-      &SW2= (INT(SYSTEM(10))+45)
-      IF(INT(SYSTEM(10)).GE.6.AND.INT(SYSTEM(10)).LE.10)&
-      &SW2= (INT(SYSTEM(10))+65)
+      IF(INT(sys_wl_sec2()).GE.1.AND.INT(sys_wl_sec2()).LE.5)&
+      &SW2= (INT(sys_wl_sec2())+45)
+      IF(INT(sys_wl_sec2()).GE.6.AND.INT(sys_wl_sec2()).LE.10)&
+      &SW2= (INT(sys_wl_sec2())+65)
 !
 !       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
 !       surf_refractive_index(SURF, 5)
@@ -3427,7 +3439,7 @@ SUBROUTINE CCOL
 !
 !       AT THE OBJECT ALL IS 0.0
       COLORX(1:8,0)=0.0D0
-      DO I=1,INT(SYSTEM(20))
+      DO I=1,INT(sys_last_surf())
 !
 !       PRIMARY AXIAL  AND LATERAL COLOR
 !
@@ -3438,8 +3450,8 @@ SUBROUTINE CCOL
          DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
          DNP=ALENS(PW1,I)-ALENS(PW2,I)
 !       AXIAL COLOR (PRIMARY)
-         COLORX(1,I)=((PXTRAX(1,(INT(SYSTEM(20))))*PXTRAX(5,I))-&
-         &(PXTRAX(5,(INT(SYSTEM(20))))*PXTRAX(1,I)))*PXTRAX(3,I)*PN*&
+         COLORX(1,I)=((PXTRAX(1,(INT(sys_last_surf())))*PXTRAX(5,I))-&
+         &(PXTRAX(5,(INT(sys_last_surf())))*PXTRAX(1,I)))*PXTRAX(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (PRIMARY)
          IF(PXTRAX(3,I).EQ.0.0D0) THEN
@@ -3453,8 +3465,8 @@ SUBROUTINE CCOL
          DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
          DNP=ALENS(SW1,I)-ALENS(SW2,I)
 !       AXIAL  COLOR (SECONDARY)
-         COLORX(3,I)=((PXTRAX(1,(INT(SYSTEM(20))))*PXTRAX(5,I))-&
-         &(PXTRAX(5,(INT(SYSTEM(20))))*PXTRAX(1,I)))*PXTRAX(3,I)*PN*&
+         COLORX(3,I)=((PXTRAX(1,(INT(sys_last_surf())))*PXTRAX(5,I))-&
+         &(PXTRAX(5,(INT(sys_last_surf())))*PXTRAX(1,I)))*PXTRAX(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (SECONDARY)
          IF(PXTRAX(3,I).EQ.0.0D0) THEN
@@ -3470,8 +3482,8 @@ SUBROUTINE CCOL
          DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
          DNP=ALENS(PW1,I)-ALENS(PW2,I)
 !       AXIAL COLOR (PRIMARY)
-         COLORX(5,I)=((PXTRAX(5,I)*PXTRAX(2,((INT(SYSTEM(20)))-1)))-&
-         &(PXTRAX(1,I)*PXTRAX(6,((INT(SYSTEM(20)))-1))))*PXTRAX(3,I)*PN*&
+         COLORX(5,I)=((PXTRAX(5,I)*PXTRAX(2,((INT(sys_last_surf()))-1)))-&
+         &(PXTRAX(1,I)*PXTRAX(6,((INT(sys_last_surf()))-1))))*PXTRAX(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (PRIMARY)
          IF(PXTRAX(3,I).EQ.0.0D0) THEN
@@ -3485,8 +3497,8 @@ SUBROUTINE CCOL
          DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
          DNP=ALENS(SW1,I)-ALENS(SW2,I)
 !       AXIAL  COLOR (SECONDARY)
-         COLORX(7,I)=((PXTRAX(5,I)*PXTRAX(2,((INT(SYSTEM(20)))-1)))-&
-         &(PXTRAX(1,I)*PXTRAX(6,((INT(SYSTEM(20)))-1))))*PXTRAX(3,I)*PN*&
+         COLORX(7,I)=((PXTRAX(5,I)*PXTRAX(2,((INT(sys_last_surf()))-1)))-&
+         &(PXTRAX(1,I)*PXTRAX(6,((INT(sys_last_surf()))-1))))*PXTRAX(3,I)*PN*&
          &((DN/PN)-(DNP/J_NP))
 !       LATERAL COLOR (SECONDARY)
          IF(PXTRAX(3,I).EQ.0.0D0) THEN
@@ -3508,6 +3520,7 @@ SUBROUTINE FIRD
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_set_wavelength, sys_units, sys_wavelength, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FIRD. THIS SUBROUTINE IMPLEMENTS
@@ -3533,10 +3546,10 @@ SUBROUTINE FIRD
 !       THE FIRD COMMAND ACCEPTS ONLY NW1 AND NW2 NUMERIC
 !       INPUT . IT DOES NOT ACCEPT STING OR QUALIFIER
 !       INPUT.
-   IF(SYSTEM(6).EQ.1.0) UN='INCHES     '
-   IF(SYSTEM(6).EQ.2.0) UN='CENTIMETERS'
-   IF(SYSTEM(6).EQ.3.0) UN='MILLIMETERS'
-   IF(SYSTEM(6).EQ.4.0) UN='METERS'
+   IF(sys_units().EQ.1.0) UN='INCHES     '
+   IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='METERS'
 !
 !
    IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
@@ -3568,9 +3581,9 @@ SUBROUTINE FIRD
    IF(W1.EQ.0.0) THEN
       W1=1.0
    END IF
-   IF(DF2.EQ.1) W2=SYSTEM(20)-1.0D0
-   IF(W2.EQ.0.0) W2=SYSTEM(20)
-   IF(W1.LT.0.0D0.OR.W2.GT.SYSTEM(20).OR.&
+   IF(DF2.EQ.1) W2=sys_last_surf()-1.0D0
+   IF(W2.EQ.0.0) W2=sys_last_surf()
+   IF(W1.LT.0.0D0.OR.W2.GT.sys_last_surf().OR.&
    &W2.LE.W1) THEN
       WRITE(OUTLYNE,*)'SURFACE NUMBER(S) BEYOND LEGAL RANGE'
       CALL SHOWIT(1)
@@ -3581,7 +3594,7 @@ SUBROUTINE FIRD
    END IF
 
 !       HANDLE NO SURFACES
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL DATA EXISTS'
@@ -3600,8 +3613,8 @@ SUBROUTINE FIRD
       ELSE
 !     EXPLICIT WAVELEGTH ENTERED
          NEWWAVE=W3
-         OLDWAVE=SYSTEM(INT(SYSTEM(11)))
-         SYSTEM(INT(SYSTEM(11)))=NEWWAVE
+         OLDWAVE=sys_wavelength(INT(sys_wl_ref()))
+         call sys_set_wavelength(INT(sys_wl_ref()), NEWWAVE)
          F1=0
          F6=1
          F22=1
@@ -3683,7 +3696,7 @@ SUBROUTINE FIRD
       IF(DF3.EQ.0) THEN
 !     EXPLICIT WAVELEGTH ENTERED
          NEWWAVE=OLDWAVE
-         SYSTEM(INT(SYSTEM(11)))=NEWWAVE
+         call sys_set_wavelength(INT(sys_wl_ref()), NEWWAVE)
          F1=0
          F6=1
          F22=1
@@ -3710,10 +3723,7 @@ SUBROUTINE FIRD
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2001) INT(W1),INT(W2)
       CALL SHOWIT(0)
-      IF(SYSTEM(11).GE.1.0D0.AND.SYSTEM(11).LE.5.0D0)&
-      &LAMBDA=SYSTEM((INT(SYSTEM(11))))
-      IF(SYSTEM(11).GE.6.0D0.AND.SYSTEM(11).LE.10.0D0)&
-      &LAMBDA=SYSTEM((65+INT(SYSTEM(11))))
+      LAMBDA=sys_wavelength(INT(sys_wl_ref()))
       WRITE(OUTLYNE,2002) LAMBDA
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2003) F12
@@ -3736,7 +3746,7 @@ SUBROUTINE FIRD
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2001) INT(W1),INT(W2)
       CALL SHOWIT(0)
-      LAMBDA=SYSTEM((INT(SYSTEM(11))))
+      LAMBDA=sys_wavelength(INT(sys_wl_ref()))
       WRITE(OUTLYNE,2002) LAMBDA
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2003) F12
@@ -3791,7 +3801,7 @@ SUBROUTINE FIRD
    IF(DF3.EQ.0) THEN
 !     EXPLICIT WAVELEGTH ENTERED
       NEWWAVE=OLDWAVE
-      SYSTEM(INT(SYSTEM(11)))=NEWWAVE
+      call sys_set_wavelength(INT(sys_wl_ref()), NEWWAVE)
       F1=0
       F6=1
       F22=1
@@ -3806,6 +3816,7 @@ SUBROUTINE FINIYZ
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIYZ. THIS IS THE
@@ -3825,16 +3836,16 @@ SUBROUTINE FINIYZ
 !
    COMI=FINY
    K=FINY
-   IF(INT(SYSTEM(11)).EQ.1) WWVN=46
-   IF(INT(SYSTEM(11)).EQ.2) WWVN=47
-   IF(INT(SYSTEM(11)).EQ.3) WWVN=48
-   IF(INT(SYSTEM(11)).EQ.4) WWVN=49
-   IF(INT(SYSTEM(11)).EQ.5) WWVN=50
-   IF(INT(SYSTEM(11)).EQ.6) WWVN=71
-   IF(INT(SYSTEM(11)).EQ.7) WWVN=72
-   IF(INT(SYSTEM(11)).EQ.8) WWVN=73
-   IF(INT(SYSTEM(11)).EQ.9) WWVN=74
-   IF(INT(SYSTEM(11)).EQ.10) WWVN=75
+   IF(INT(sys_wl_ref()).EQ.1) WWVN=46
+   IF(INT(sys_wl_ref()).EQ.2) WWVN=47
+   IF(INT(sys_wl_ref()).EQ.3) WWVN=48
+   IF(INT(sys_wl_ref()).EQ.4) WWVN=49
+   IF(INT(sys_wl_ref()).EQ.5) WWVN=50
+   IF(INT(sys_wl_ref()).EQ.6) WWVN=71
+   IF(INT(sys_wl_ref()).EQ.7) WWVN=72
+   IF(INT(sys_wl_ref()).EQ.8) WWVN=73
+   IF(INT(sys_wl_ref()).EQ.9) WWVN=74
+   IF(INT(sys_wl_ref()).EQ.10) WWVN=75
 !
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
@@ -3924,6 +3935,7 @@ SUBROUTINE FINIXZ
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
+   use mod_system, only: sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIXZ. THIS IS THE
@@ -3941,16 +3953,16 @@ SUBROUTINE FINIXZ
    INTEGER WWVN
    K=FINY
    COMI=FINY
-   IF(INT(SYSTEM(11)).EQ.1) WWVN=46
-   IF(INT(SYSTEM(11)).EQ.2) WWVN=47
-   IF(INT(SYSTEM(11)).EQ.3) WWVN=48
-   IF(INT(SYSTEM(11)).EQ.4) WWVN=49
-   IF(INT(SYSTEM(11)).EQ.5) WWVN=50
-   IF(INT(SYSTEM(11)).EQ.6) WWVN=71
-   IF(INT(SYSTEM(11)).EQ.7) WWVN=72
-   IF(INT(SYSTEM(11)).EQ.8) WWVN=73
-   IF(INT(SYSTEM(11)).EQ.9) WWVN=74
-   IF(INT(SYSTEM(11)).EQ.10) WWVN=75
+   IF(INT(sys_wl_ref()).EQ.1) WWVN=46
+   IF(INT(sys_wl_ref()).EQ.2) WWVN=47
+   IF(INT(sys_wl_ref()).EQ.3) WWVN=48
+   IF(INT(sys_wl_ref()).EQ.4) WWVN=49
+   IF(INT(sys_wl_ref()).EQ.5) WWVN=50
+   IF(INT(sys_wl_ref()).EQ.6) WWVN=71
+   IF(INT(sys_wl_ref()).EQ.7) WWVN=72
+   IF(INT(sys_wl_ref()).EQ.8) WWVN=73
+   IF(INT(sys_wl_ref()).EQ.9) WWVN=74
+   IF(INT(sys_wl_ref()).EQ.10) WWVN=75
 !
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
@@ -4036,6 +4048,7 @@ SUBROUTINE FCH
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FCH. THIS SUBROUTINE IMPLEMENTS
@@ -4057,12 +4070,12 @@ SUBROUTINE FCH
 !       THE VALID NUMERIC INPUT IS THE SURFACE NUMBER FOR
 !       WHICH IT IS DESIRED TO PRODUCE OUTPUT.
 !
-   SF=INT(SYSTEM(20))
-   IF(INT(SYSTEM(11)).GE.1.AND.INT(SYSTEM(11)).LE.5) THEN
-      CW=INT(SYSTEM(11))+45
+   SF=INT(sys_last_surf())
+   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
+      CW=INT(sys_wl_ref())+45
    END IF
-   IF(INT(SYSTEM(11)).GE.6.AND.INT(SYSTEM(11)).LE.10) THEN
-      CW=INT(SYSTEM(11))+65
+   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
+      CW=INT(sys_wl_ref())+65
    END IF
    IF(WC.EQ.'FCHX') THEN
       INV=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-&
@@ -4099,7 +4112,7 @@ SUBROUTINE FCH
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0) THEN
+   IF(sys_last_surf().EQ.0.0) THEN
       WRITE(OUTLYNE,*)'LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       WRITE(OUTLYNE,*)'NO PARAXIAL DATA EXISTS'
@@ -4108,14 +4121,14 @@ SUBROUTINE FCH
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'FCHX')WRITE(OUTLYNE,5001) INT(F12)
       IF(WC.EQ.'FCHY')WRITE(OUTLYNE,5006) INT(F12)
       CALL SHOWIT(0)
-      IF(SYSTEM(30).EQ.1.0) WRITE(OUTLYNE,5501)
-      IF(SYSTEM(30).EQ.2.0) WRITE(OUTLYNE,5502)
-      IF(SYSTEM(30).EQ.3.0) WRITE(OUTLYNE,5503)
-      IF(SYSTEM(30).EQ.4.0) WRITE(OUTLYNE,5504)
+      IF(sys_mode().EQ.1.0) WRITE(OUTLYNE,5501)
+      IF(sys_mode().EQ.2.0) WRITE(OUTLYNE,5502)
+      IF(sys_mode().EQ.3.0) WRITE(OUTLYNE,5503)
+      IF(sys_mode().EQ.4.0) WRITE(OUTLYNE,5504)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2501)
       CALL SHOWIT(0)
@@ -4123,9 +4136,9 @@ SUBROUTINE FCH
       IF(WC.EQ.'FCHY')WRITE(OUTLYNE,5005)
       CALL SHOWIT(0)
       DO 10 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.2.0) THEN
+         IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.2.0) THEN
 !       MODE FOCAL OR UFOCAL
-            IF(SYSTEM(30).EQ.1.0) THEN
+            IF(sys_mode().EQ.1.0) THEN
 !       FOCAL, CONVERT
                IF(WC.EQ.'FCHX') THEN
                   C1=COLORX(1,I)/INV
@@ -4143,7 +4156,7 @@ SUBROUTINE FCH
                CALL SHOWIT(0)
                GO TO 10
             END IF
-            IF(SYSTEM(30).EQ.2.0) THEN
+            IF(sys_mode().EQ.2.0) THEN
 !       UFOCAL, DON'T CONVERT
                IF(WC.EQ.'FCHX') THEN
                   C1=COLORX(1,I)
@@ -4162,9 +4175,9 @@ SUBROUTINE FCH
                GO TO 10
             END IF
          END IF
-         IF(SYSTEM(30).EQ.3.0.OR.SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.3.0.OR.sys_mode().EQ.4.0) THEN
 !       MODE AFOCAL OR UAFOCAL
-            IF(SYSTEM(30).EQ.3.0) THEN
+            IF(sys_mode().EQ.3.0) THEN
 !       AFOCAL, CONVERT
                IF(WC.EQ.'FCHX') THEN
                   C1=COLORX(5,I)/INV
@@ -4182,7 +4195,7 @@ SUBROUTINE FCH
                CALL SHOWIT(0)
                GO TO 10
             END IF
-            IF(SYSTEM(30).EQ.4.0) THEN
+            IF(sys_mode().EQ.4.0) THEN
 !       UAFOCAL, DON'T CONVERT
                IF(WC.EQ.'FCHX') THEN
                   C1=COLORX(5,I)
@@ -4210,7 +4223,7 @@ SUBROUTINE FCH
       TSAC=0.0
       TSLC=0.0
       DO 20 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.2.0) THEN
+         IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.2.0) THEN
             IF(WC.EQ.'FCHX') THEN
                TPAC=TPAC+COLORX(1,I)
                TPLC=TPLC+COLORX(2,I)
@@ -4224,7 +4237,7 @@ SUBROUTINE FCH
                TSLC=TSLC+COLORY(4,I)
             END IF
          END IF
-         IF(SYSTEM(30).EQ.3.0.OR.SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.3.0.OR.sys_mode().EQ.4.0) THEN
             IF(WC.EQ.'FCHX') THEN
                TPAC=TPAC+COLORX(5,I)
                TPLC=TPLC+COLORX(6,I)
@@ -4241,17 +4254,17 @@ SUBROUTINE FCH
 20    CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 25
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0) THEN
+      IF(sys_mode().EQ.1.0) THEN
 !       MODE IS FOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          TPAC=TPAC*(1.0D0/INV)
@@ -4261,7 +4274,7 @@ SUBROUTINE FCH
          GO TO 25
       END IF
 !       MODE AFOCAL
-      IF(SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.3.0) THEN
 !       MODE IS AFOCAL
          TPAC=TPAC*(1.0D0/INV)
          TPLC=TPLC*(1.0D0/INV)
@@ -4303,7 +4316,7 @@ SUBROUTINE FCH
       RETURN
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1) THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
 !       OUTPUT TOTALS
 !
 !       IN ANY CASE, THE SURFACE CONTRIBUTIONS MUST BE SUMMED
@@ -4312,7 +4325,7 @@ SUBROUTINE FCH
       TSAC=0.0
       TSLC=0.0
       DO 220 I=0,SF
-         IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.2.0) THEN
+         IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.2.0) THEN
             IF(WC.EQ.'FCHX') THEN
                TPAC=TPAC+COLORX(1,I)
                TPLC=TPLC+COLORX(2,I)
@@ -4326,7 +4339,7 @@ SUBROUTINE FCH
                TSLC=TSLC+COLORY(4,I)
             END IF
          END IF
-         IF(SYSTEM(30).EQ.3.0.OR.SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.3.0.OR.sys_mode().EQ.4.0) THEN
             IF(WC.EQ.'FCHX') THEN
                TPAC=TPAC+COLORX(5,I)
                TPLC=TPLC+COLORX(6,I)
@@ -4343,17 +4356,17 @@ SUBROUTINE FCH
 220   CONTINUE
 ! NOW FOR CONVERSIONS
 !       MODE UFOCAL
-      IF(SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.2.0) THEN
 !       MODE IS UFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE UAFOCAL
-      IF(SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.4.0) THEN
 !       MODE IS UAFOCAL, NO CONVERSIONS
          GO TO 250
       END IF
 !       MODE FOCAL
-      IF(SYSTEM(30).EQ.1.0) THEN
+      IF(sys_mode().EQ.1.0) THEN
 !       MODE IS FOCAL, CONVERT SUMS TO TRANSVERSE
 !       CHROMATIC ABERRATION
          TPAC=TPAC*(1.0D0/INV)
@@ -4363,7 +4376,7 @@ SUBROUTINE FCH
          GO TO 250
       END IF
 !       MODE AFOCAL
-      IF(SYSTEM(30).EQ.3.0) THEN
+      IF(sys_mode().EQ.3.0) THEN
 !       MODE IS AFOCAL
          TPAC=TPAC/(INV)
          TPLC=TPLC/(INV)
@@ -4389,15 +4402,15 @@ SUBROUTINE FCH
 !
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          WRITE(OUTLYNE,*)'SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
          RETURN
       END IF
-      IF(SYSTEM(30).EQ.1.0.OR.SYSTEM(30).EQ.2.0) THEN
+      IF(sys_mode().EQ.1.0.OR.sys_mode().EQ.2.0) THEN
 !       MODE FOCAL OR UFOCAL
-         IF(SYSTEM(30).EQ.1.0) THEN
+         IF(sys_mode().EQ.1.0) THEN
 !       FOCAL, CONVERT
             IF(WC.EQ.'FCHX') THEN
                C1=COLORX(1,I)/INV
@@ -4423,7 +4436,7 @@ SUBROUTINE FCH
             CALL SHOWIT(0)
             RETURN
          END IF
-         IF(SYSTEM(30).EQ.2.0) THEN
+         IF(sys_mode().EQ.2.0) THEN
 !       UFOCAL, DON'T CONVERT
             IF(WC.EQ.'FCHX') THEN
                C1=COLORX(1,I)
@@ -4450,9 +4463,9 @@ SUBROUTINE FCH
             RETURN
          END IF
       END IF
-      IF(SYSTEM(30).EQ.3.0.OR.SYSTEM(30).EQ.4.0) THEN
+      IF(sys_mode().EQ.3.0.OR.sys_mode().EQ.4.0) THEN
 !       MODE AFOCAL OR UAFOCAL
-         IF(SYSTEM(30).EQ.3.0) THEN
+         IF(sys_mode().EQ.3.0) THEN
 !       AFOCAL, CONVERT
             IF(WC.EQ.'FCHX') THEN
                C1=COLORX(5,I)/INV
@@ -4478,7 +4491,7 @@ SUBROUTINE FCH
             CALL SHOWIT(0)
             RETURN
          END IF
-         IF(SYSTEM(30).EQ.4.0) THEN
+         IF(sys_mode().EQ.4.0) THEN
 !       UAFOCAL, DON'T CONVERT
             IF(WC.EQ.'FCHX') THEN
                C1=COLORX(5,I)
