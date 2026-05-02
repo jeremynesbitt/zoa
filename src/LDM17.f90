@@ -279,8 +279,9 @@ SUBROUTINE LENED
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_aim_offset_z, sys_last_surf, sys_mode, sys_ray_aiming, &
-      & sys_screen, sys_telecentric, sys_wl_weight
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_last_surf, sys_mode, sys_ray_aiming, sys_screen, sys_screen_d, &
+      & sys_screen_h, sys_screen_s, sys_screen_surf, sys_telecentric, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -300,7 +301,7 @@ SUBROUTINE LENED
 !     RAY AIMING YES
       WRITE(OUTLYNE,1000)
       CALL SHOWIT(10)
-      WRITE(OUTLYNE,4000) SYSTEM(81),SYSTEM(82),sys_aim_offset_z()
+      WRITE(OUTLYNE,4000) sys_aim_offset_x(),sys_aim_offset_y(),sys_aim_offset_z()
       CALL SHOWIT(10)
 4000  FORMAT('AIMRAY  OFFSET  ,',G23.15,',',G23.15,',',G23.15)
    ELSE
@@ -337,7 +338,7 @@ SUBROUTINE LENED
 !**********************************************************
    IF(sys_screen().EQ.1.0D0) THEN
 !     SCREEN ON
-      WRITE(OUTLYNE,1003) SYSTEM(104),SYSTEM(105),SYSTEM(106),SYSTEM(107),SYSTEM(108)
+      WRITE(OUTLYNE,1003) sys_screen_surf(),sys_screen_d(),sys_screen_h(),sys_screen_s(),SYSTEM(108)
       CALL SHOWIT(10)
 1003  FORMAT('SCREEN   ON      ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
    END IF
@@ -363,7 +364,7 @@ SUBROUTINE LENED
 !       SPTWT2
 
 3003 FORMAT('SPTWT2  ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
-   WRITE(OUTLYNE,3003) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),sys_wl_weight(10)
+   WRITE(OUTLYNE,3003) sys_wl_weight(6),sys_wl_weight(7),sys_wl_weight(8),sys_wl_weight(9),sys_wl_weight(10)
    CALL SHOWIT(10)
 !     *****************************************************************
 !       NOW IS THERE ANY SPSRF DATA
@@ -864,7 +865,8 @@ SUBROUTINE RLENED
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_aim_offset_z, sys_last_surf, sys_mode, sys_wl_weight
+   use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_last_surf, sys_mode, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -885,7 +887,7 @@ SUBROUTINE RLENED
    WRITE(OUTLYNE,1000)
    CALL SHOWIT(10)
    CALL SHOWIT(10)
-   WRITE(OUTLYNE,4000) SYSTEM(81),SYSTEM(82),sys_aim_offset_z()
+   WRITE(OUTLYNE,4000) sys_aim_offset_x(),sys_aim_offset_y(),sys_aim_offset_z()
    CALL SHOWIT(10)
 4000 FORMAT('AIMRAY  OFFSET  ,',G23.15,',',G23.15,',',G23.15)
 1000 FORMAT('AIMRAY   ON')
@@ -922,7 +924,7 @@ SUBROUTINE RLENED
 3000 FORMAT('SPTWT   ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
 !       SPTWT2
 3003 FORMAT('SPTWT2  ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
-   WRITE(OUTLYNE,3003) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),sys_wl_weight(10)
+   WRITE(OUTLYNE,3003) sys_wl_weight(6),sys_wl_weight(7),sys_wl_weight(8),sys_wl_weight(9),sys_wl_weight(10)
    CALL SHOWIT(10)
 !
 !       IF THE LENS FILE HAS ANY CONFIGURATION DATA
@@ -1273,7 +1275,7 @@ SUBROUTINE DOGTAG
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_mode, sys_units, sys_wl_pri2, sys_wl_ref
+   use mod_system, only: sys_last_surf, sys_mode, sys_units, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DOGTAG WHICH CREATES THE IDTAG FOR A LENS
@@ -1318,10 +1320,10 @@ SUBROUTINE DOGTAG
 !       LINE FIVE IS THE MODE CODE 1=FOCAL,2=UFOCAL,3=AFOCAL, 4=UAFOCAL IN I1 FOLLOWED BY
 !       THE UNITS CODE 1=IN, 2= CM, 3= MM, 4=METERS IN I1 FORMAT FOLLOWED BY THE CONTROL
 !       WAVELENGTH IN G23.15,FOLLOWED BY THE PRIMARY WAVELENGTH PAIR EACH IN G23.15 FORMAT
-   WRITE(IDTAG(5),101) INT(sys_mode()),INT(sys_units()),SYSTEM(INT(sys_wl_ref())+110),SYSTEM(INT(SYSTEM(7))+110),SYSTEM(INT(sys_wl_pri2())+110)
+   WRITE(IDTAG(5),101) INT(sys_mode()),INT(sys_units()),SYSTEM(INT(sys_wl_ref())+110),SYSTEM(INT(sys_wl_pri1())+110),SYSTEM(INT(sys_wl_pri2())+110)
 101 FORMAT(I1,I1,G23.15,G23.15,G23.15)
 !       LINE SIX IS SECONDARY WAVELENGTH PAIR WAVELENGTHS IN G23.15 FORMAT (EACH)
-   WRITE(IDTAG(6),102) SYSTEM(INT(SYSTEM(9))+110),SYSTEM(INT(sys_wl_pri2())+110)
+   WRITE(IDTAG(6),102) SYSTEM(INT(sys_wl_sec1())+110),SYSTEM(INT(sys_wl_pri2())+110)
 102 FORMAT(G23.15,G23.15)
 !       LINE SEVEN FULL NAME OF THE FIRST NON-AIR, NON-REFLECTIVE GLASS
 !       FOLLOWED BY THE SECOND FULL GLASS NAME EACH IN 2(A13) FORMAT
@@ -1405,8 +1407,9 @@ SUBROUTINE RLENHD
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_autofunc, sys_last_surf, sys_units, sys_verbose_optim, &
-      & sys_wavelength, sys_wl_pri2, sys_wl_ref, sys_wl_sec2, sys_wrx, sys_wry
+   use mod_system, only: sys_autofunc, sys_bdx, sys_bdy, sys_last_surf, sys_units, &
+      & sys_verbose_optim, sys_wavelength, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, &
+      & sys_wl_sec1, sys_wl_sec2, sys_wrx, sys_wry, sys_set_bdx, sys_set_bdy
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1454,7 +1457,7 @@ SUBROUTINE RLENHD
 !
 !       NOW WV2
 !
-   WRITE(OUTLYNE,221)SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),sys_wavelength(10)
+   WRITE(OUTLYNE,221)sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
    CALL SHOWIT(10)
 !
 6661 FORMAT('WV      ,',G23.15,',',G23.15)
@@ -1469,11 +1472,11 @@ SUBROUTINE RLENHD
    CALL SHOWIT(10)
 !
 !       NOW PRIMARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(sys_wl_pri2())
+   WRITE(OUTLYNE,26) INT(sys_wl_pri1()),INT(sys_wl_pri2())
    CALL SHOWIT(10)
 !
 !       SECONDARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(sys_wl_sec2())
+   WRITE(OUTLYNE,27) INT(sys_wl_sec1()),INT(sys_wl_sec2())
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
@@ -1491,15 +1494,15 @@ SUBROUTINE RLENHD
 2993 FORMAT('WRY     ,',G23.15)
 !
 !       BDX
-   IF(SYSTEM(87).EQ.0.0D0) SYSTEM(87)=0.001D0
-   WRITE(OUTLYNE,2994) SYSTEM(87)
+   IF(sys_bdx().EQ.0.0D0) call sys_set_bdx(0.001D0)
+   WRITE(OUTLYNE,2994) sys_bdx()
    CALL SHOWIT(10)
 2994 FORMAT('BDX     ,',G23.15)
 !
 !
 !       BDY
-   IF(SYSTEM(88).EQ.0.0D0) SYSTEM(88)=0.001D0
-   WRITE(OUTLYNE,2995) SYSTEM(88)
+   IF(sys_bdy().EQ.0.0D0) call sys_set_bdy(0.001D0)
+   WRITE(OUTLYNE,2995) sys_bdy()
    CALL SHOWIT(10)
 2995 FORMAT('BDY     ,',G23.15)
 !
@@ -1725,8 +1728,9 @@ SUBROUTINE LENHD
       & sys_ryim, sys_ryim_fang_set, sys_sax, sys_sax_float, sys_say, sys_say_float, &
       & sys_scx, sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
       & sys_scy_fang_set, sys_units, sys_verbose_optim, sys_wavelength, &
-      & sys_wl_pri2, sys_wl_ref, sys_wl_sec2, sys_wrx, sys_wry, &
-      & sys_x1_scx, sys_x1_scx_fang, sys_y1_scy, sys_y1_scy_fang
+      & sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_wrx, sys_wry, &
+      & sys_x1_scx, sys_x1_scx_fang, sys_y1_scy, sys_y1_scy_fang, &
+      & sys_bdx, sys_bdy, sys_set_bdx, sys_set_bdy
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1796,7 +1800,7 @@ SUBROUTINE LENHD
 !
 !       NOW WV2
 !
-   WRITE(OUTLYNE,221)SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),sys_wavelength(10)
+   WRITE(OUTLYNE,221)sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
    CALL SHOWIT(10)
 !
 !       NOW UNITS
@@ -1807,11 +1811,11 @@ SUBROUTINE LENHD
    CALL SHOWIT(10)
 !
 !       NOW PRIMARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(sys_wl_pri2())
+   WRITE(OUTLYNE,26) INT(sys_wl_pri1()),INT(sys_wl_pri2())
    CALL SHOWIT(10)
 !
 !       SECONDARY WAVELENGTH PAIR
-   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(sys_wl_sec2())
+   WRITE(OUTLYNE,27) INT(sys_wl_sec1()),INT(sys_wl_sec2())
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
@@ -1830,15 +1834,15 @@ SUBROUTINE LENHD
 2993 FORMAT('WRY     ,',G23.15)
 !
 !       BDX
-   IF(SYSTEM(87).EQ.0.0D0) SYSTEM(87)=0.001D0
-   WRITE(OUTLYNE,2994) SYSTEM(87)
+   IF(sys_bdx().EQ.0.0D0) call sys_set_bdx(0.001D0)
+   WRITE(OUTLYNE,2994) sys_bdx()
    CALL SHOWIT(10)
 2994 FORMAT('BDX     ,',G23.15)
 !
 !
 !       BDY
-   IF(SYSTEM(88).EQ.0.0D0) SYSTEM(88)=0.001D0
-   WRITE(OUTLYNE,2995) SYSTEM(88)
+   IF(sys_bdy().EQ.0.0D0) call sys_set_bdy(0.001D0)
+   WRITE(OUTLYNE,2995) sys_bdy()
    CALL SHOWIT(10)
 2995 FORMAT('BDY     ,',G23.15)
 !
@@ -2999,8 +3003,8 @@ SUBROUTINE LENHDAC
    use mod_surface
    use DATMAI
    use mod_system, only: sys_sax, sys_say, sys_scx, sys_scx_fang_set, sys_scy, &
-      & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_pri2, sys_wl_ref, &
-      & sys_wl_sec2, sys_x1_scx, sys_y1_scy
+      & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_pri1, sys_wl_pri2, &
+      & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_x1_scx, sys_y1_scy
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHDAC HANDEL LENS HEADER INFO OUTPUT
@@ -3048,12 +3052,12 @@ SUBROUTINE LENHDAC
 !
 !       NOW PRIMARY WAVELENGTH PAIR
 
-   WRITE(OUTLYNE,26) INT(SYSTEM(7)),INT(sys_wl_pri2())
+   WRITE(OUTLYNE,26) INT(sys_wl_pri1()),INT(sys_wl_pri2())
    CALL SHOWIT(10)
 !
 !       SECONDARY WAVELENGTH PAIR
 
-   WRITE(OUTLYNE,27) INT(SYSTEM(9)),INT(sys_wl_sec2())
+   WRITE(OUTLYNE,27) INT(sys_wl_sec1()),INT(sys_wl_sec2())
    CALL SHOWIT(10)
 !
 !       CONTROL WAVELENGTH
