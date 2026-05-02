@@ -21,7 +21,9 @@ SUBROUTINE CMDER
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_ref_surf, sys_astop, sys_astop_adj, &
-      &sys_ray_aiming, sys_telecentric, sys_verbose_optim
+      &sys_ray_aiming, sys_telecentric, sys_verbose_optim, &
+      &sys_set_ref_surf, sys_set_astop, sys_set_astop_adj, &
+      &sys_set_ray_aiming, sys_set_telecentric
    IMPLICIT NONE
    LOGICAL ITERROR
 
@@ -1619,9 +1621,9 @@ SUBROUTINE CMDER
          NEWREF=1
          OLDSTOP=INT(sys_astop())
          OLDSTOP2=INT(sys_astop_adj())
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         call sys_set_ref_surf(1.0D0)
+         call sys_set_astop(1.0D0)
+         call sys_set_astop_adj(0.0D0)
 !     IF VIE, MSG OFF
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
@@ -1635,9 +1637,9 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call sys_set_ref_surf(DBLE(NEWREF))
+         call sys_set_astop(DBLE(OLDSTOP))
+         call sys_set_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
          RETURN
@@ -1645,8 +1647,8 @@ SUBROUTINE CMDER
       IF(WC.EQ.'IRAYA')  THEN
          OS62=sys_ray_aiming()
          OS63=sys_telecentric()
-         SYSTEM(62)=0.0D0
-         SYSTEM(63)=0.0D0
+         call sys_set_ray_aiming(0.0D0)
+         call sys_set_telecentric(0.0D0)
          OLDIF=LDIF
          OLDIF2=LDIF2
          LDIF=.FALSE.
@@ -1655,9 +1657,9 @@ SUBROUTINE CMDER
          NEWREF=1
          OLDSTOP=INT(sys_astop())
          OLDSTOP2=INT(sys_astop_adj())
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         call sys_set_ref_surf(1.0D0)
+         call sys_set_astop(1.0D0)
+         call sys_set_astop_adj(0.0D0)
          ITRACE=.TRUE.
 !     IF VIE, MSG OFF
          IF(F34.EQ.1) MSG=.FALSE.
@@ -1669,13 +1671,13 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call sys_set_ref_surf(DBLE(NEWREF))
+         call sys_set_astop(DBLE(OLDSTOP))
+         call sys_set_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
-         SYSTEM(62)=OS62
-         SYSTEM(63)=OS63
+         call sys_set_ray_aiming(OS62)
+         call sys_set_telecentric(OS63)
          ITRACE=.FALSE.
          RETURN
       END IF
@@ -1788,9 +1790,9 @@ SUBROUTINE CMDER
          NEWREF=1
          OLDSTOP=INT(sys_astop())
          OLDSTOP2=INT(sys_astop_adj())
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         call sys_set_ref_surf(1.0D0)
+         call sys_set_astop(1.0D0)
+         call sys_set_astop_adj(0.0D0)
 !     NO LINE SPREAD FUNCTIONS MAY EXIST NOW
          LSF=.FALSE.
 !     NO SPOTS EXIST
@@ -1806,9 +1808,9 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call sys_set_ref_surf(DBLE(NEWREF))
+         call sys_set_astop(DBLE(OLDSTOP))
+         call sys_set_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
          RETURN
@@ -2529,9 +2531,9 @@ SUBROUTINE CMDER
          NEWREF=1
          OLDSTOP=INT(sys_astop())
          OLDSTOP2=INT(sys_astop_adj())
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         call sys_set_ref_surf(1.0D0)
+         call sys_set_astop(1.0D0)
+         call sys_set_astop_adj(0.0D0)
          GRASET=.FALSE.
          SPDEXT=.FALSE.
          MSGSPD=.TRUE.
@@ -2543,9 +2545,9 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call sys_set_ref_surf(DBLE(NEWREF))
+         call sys_set_astop(DBLE(OLDSTOP))
+         call sys_set_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
          RETURN
@@ -2556,8 +2558,8 @@ SUBROUTINE CMDER
          MSGSPD=.TRUE.
          OS62=sys_ray_aiming()
          OS63=sys_telecentric()
-         SYSTEM(62)=0.0D0
-         SYSTEM(63)=0.0D0
+         call sys_set_ray_aiming(0.0D0)
+         call sys_set_telecentric(0.0D0)
          OLDIF=LDIF
          OLDIF2=LDIF2
          LDIF=.FALSE.
@@ -2566,9 +2568,9 @@ SUBROUTINE CMDER
          NEWREF=1
          OLDSTOP=INT(sys_astop())
          OLDSTOP2=INT(sys_astop_adj())
-         SYSTEM(25)=1.0D0
-         SYSTEM(26)=1.0D0
-         SYSTEM(27)=0.0D0
+         call sys_set_ref_surf(1.0D0)
+         call sys_set_astop(1.0D0)
+         call sys_set_astop_adj(0.0D0)
          ITRACE=.TRUE.
 !     IF VIE, MSG OFF
          IF(F34.EQ.1) MSG=.FALSE.
@@ -2580,13 +2582,13 @@ SUBROUTINE CMDER
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          NEWREF=OLDREF
-         SYSTEM(25)=DBLE(NEWREF)
-         SYSTEM(26)=DBLE(OLDSTOP)
-         SYSTEM(27)=DBLE(OLDSTOP2)
+         call sys_set_ref_surf(DBLE(NEWREF))
+         call sys_set_astop(DBLE(OLDSTOP))
+         call sys_set_astop_adj(DBLE(OLDSTOP2))
          LDIF=OLDIF
          LDIF2=OLDIF2
-         SYSTEM(62)=OS62
-         SYSTEM(63)=OS63
+         call sys_set_ray_aiming(OS62)
+         call sys_set_telecentric(OS63)
          ITRACE=.FALSE.
 !     DONE, MSG BACK ON
          IF(F34.EQ.1) MSG=.FALSE.
