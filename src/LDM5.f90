@@ -8,7 +8,10 @@ SUBROUTINE SNAO
    use DATMAI
    use mod_surface, only: surf_thickness
    use command_utils, only: is_command_query
-   use mod_system, only: sys_wl_ref, sys_say, sys_sax, sys_last_surf
+   use mod_system, only: sys_wl_ref, sys_say, sys_sax, sys_last_surf, &
+      sys_na_set, sys_naoy, sys_naox, sys_xz_data_flag, &
+      sys_set_na_set, sys_set_naoy, sys_set_naox, sys_set_fno_val_set, &
+      sys_set_say_float, sys_set_sax_float, sys_set_xz_data_flag
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNAO WHICH IMPLEMENTS THE NAO(X OR Y) COMMAND
@@ -31,46 +34,46 @@ SUBROUTINE SNAO
 !
       IF(is_command_query().OR..not. is_command_query()) THEN
          IF(WC.EQ.'NAOY') THEN
-            IF(SYSTEM(64).NE.1.0D0.AND.SYSTEM(64).NE.3.0D0) THEN
+            IF(sys_na_set().NE.1.0D0.AND.sys_na_set().NE.3.0D0) THEN
                OUTLYNE='NOTE:'
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
                IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-                  SYSTEM(65)=(ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+                  call sys_set_naoy((ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+                  call sys_set_say_float(0.0D0)
+                  call sys_set_sax_float(0.0D0)
                END IF
                IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-                  SYSTEM(65)=(ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+                  call sys_set_naoy((ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+                  call sys_set_say_float(0.0D0)
+                  call sys_set_sax_float(0.0D0)
                END IF
             END IF
-            WRITE(OUTLYNE,2000) SYSTEM(65)
+            WRITE(OUTLYNE,2000) sys_naoy()
             CALL SHOWIT(0)
             RETURN
          END IF
          IF(WC.EQ.'NAOX') THEN
-            IF(SYSTEM(64).NE.2.0D0.AND.SYSTEM(64).NE.3.0D0) THEN
+            IF(sys_na_set().NE.2.0D0.AND.sys_na_set().NE.3.0D0) THEN
                OUTLYNE='NOTE:'
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
                IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-                  SYSTEM(66)=(ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+                  call sys_set_naox((ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+                  call sys_set_say_float(0.0D0)
+                  call sys_set_sax_float(0.0D0)
                END IF
                IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-                  SYSTEM(66)=(ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2))
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+                  call sys_set_naox((ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+                  call sys_set_say_float(0.0D0)
+                  call sys_set_sax_float(0.0D0)
                END IF
             END IF
             WRITE(OUTLYNE,2001)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,3000) SYSTEM(66)
+            WRITE(OUTLYNE,3000) sys_naox()
             CALL SHOWIT(0)
             RETURN
          END IF
@@ -185,14 +188,14 @@ SUBROUTINE SNAO
 !
       IF(S1.EQ.0) THEN
          IF(WC.EQ.'NAOY') THEN
-            WRITE(OUTLYNE,2000) SYSTEM(65)
+            WRITE(OUTLYNE,2000) sys_naoy()
             CALL SHOWIT(0)
          END IF
          IF(WC.EQ.'NAOX') THEN
-            WRITE(OUTLYNE,3000) SYSTEM(66)
+            WRITE(OUTLYNE,3000) sys_naox()
             CALL SHOWIT(0)
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=1.0D0
-            IF(SYSTEM(49).EQ.2.0D0) SYSTEM(49)=3.0D0
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(1.0D0)
+            IF(sys_xz_data_flag().EQ.2.0D0) call sys_set_xz_data_flag(3.0D0)
          END IF
          RETURN
       ELSE
@@ -213,34 +216,34 @@ SUBROUTINE SNAO
          END IF
          IF(SQ.EQ.0) THEN
             IF(WC.EQ.'NAOY') THEN
-               SYSTEM(83)=0.0D0
-               SYSTEM(84)=0.0D0
-               IF(SYSTEM(64).NE.3.0D0.AND.SYSTEM(64).NE.1.0D0) THEN
-                  IF(SYSTEM(64).EQ.0.0D0) SYSTEM(64)=1.0D0
-                  IF(SYSTEM(64).EQ.2.0D0) SYSTEM(64)=3.0D0
+               call sys_set_say_float(0.0D0)
+               call sys_set_sax_float(0.0D0)
+               IF(sys_na_set().NE.3.0D0.AND.sys_na_set().NE.1.0D0) THEN
+                  IF(sys_na_set().EQ.0.0D0) call sys_set_na_set(1.0D0)
+                  IF(sys_na_set().EQ.2.0D0) call sys_set_na_set(3.0D0)
                END IF
             END IF
             IF(WC.EQ.'NAOX') THEN
-               IF(SYSTEM(64).NE.3.0D0.AND.SYSTEM(64).NE.2.0D0) THEN
-                  IF(SYSTEM(64).EQ.0.0D0) SYSTEM(64)=2.0D0
-                  IF(SYSTEM(64).EQ.1.0D0) SYSTEM(64)=3.0D0
-                  SYSTEM(83)=0.0D0
-                  SYSTEM(84)=0.0D0
+               IF(sys_na_set().NE.3.0D0.AND.sys_na_set().NE.2.0D0) THEN
+                  IF(sys_na_set().EQ.0.0D0) call sys_set_na_set(2.0D0)
+                  IF(sys_na_set().EQ.1.0D0) call sys_set_na_set(3.0D0)
+                  call sys_set_say_float(0.0D0)
+                  call sys_set_sax_float(0.0D0)
                END IF
             END IF
-            SYSTEM(67)=0.0D0
-            IF(WC.EQ.'NAOY') SYSTEM(65)=DABS(W1)
-            IF(WC.EQ.'NAOX') SYSTEM(66)=DABS(W1)
+            call sys_set_fno_val_set(0.0D0)
+            IF(WC.EQ.'NAOY') call sys_set_naoy(DABS(W1))
+            IF(WC.EQ.'NAOX') call sys_set_naox(DABS(W1))
          END IF
          IF(WQ.EQ.'DELT') THEN
-            SYSTEM(67)=0.0D0
-            IF(WC.EQ.'NAOY') SYSTEM(65)=SYSTEM(65)+(W1)
-            IF(WC.EQ.'NAOX') SYSTEM(66)=SYSTEM(66)+(W1)
+            call sys_set_fno_val_set(0.0D0)
+            IF(WC.EQ.'NAOY') call sys_set_naoy(sys_naoy()+(W1))
+            IF(WC.EQ.'NAOX') call sys_set_naox(sys_naox()+(W1))
          END IF
          IF(WQ.EQ.'CENT') THEN
-            SYSTEM(67)=0.0D0
-            IF(WC.EQ.'NAOY') SYSTEM(65)=SYSTEM(65)+(W1*0.0D0*SYSTEM(65))
-            IF(WC.EQ.'NAOX') SYSTEM(66)=SYSTEM(66)+(W1*0.0D0*SYSTEM(66))
+            call sys_set_fno_val_set(0.0D0)
+            IF(WC.EQ.'NAOY') call sys_set_naoy(sys_naoy()+(W1*0.0D0*sys_naoy()))
+            IF(WC.EQ.'NAOX') call sys_set_naox(sys_naox()+(W1*0.0D0*sys_naox()))
          END IF
          RETURN
       END IF
@@ -257,6 +260,7 @@ SUBROUTINE SMODE
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode, sys_set_mode
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SMODE WHICH IMPLEMENTS THE MODE
@@ -267,7 +271,7 @@ SUBROUTINE SMODE
 !
    IF(is_command_query()) THEN
       IF(F5.EQ.1.OR.F6.EQ.1) THEN
-         AMODE=INT(SYSTEM(30))
+         AMODE=INT(sys_mode())
          IF(AMODE.EQ.1) THEN
             WRITE(OUTLYNE,1000)
             CALL SHOWIT(0)
@@ -296,7 +300,7 @@ SUBROUTINE SMODE
 !       NOT STI
    END IF
 !       BEHAVIOR AT CMD LEVEL
-   AMODE=INT(SYSTEM(30))
+   AMODE=INT(sys_mode())
    IF(F1.EQ.1) THEN
 !
 !               CHECK FOR ADDITIONAL INPUT AND
@@ -315,25 +319,25 @@ SUBROUTINE SMODE
 !
       IF(SQ.EQ.1) THEN
          IF(WQ.EQ.'FOCAL')THEN
-            SYSTEM(30)=1.0
+            call sys_set_mode(1.0D0)
             IF(F12.EQ.1) SYSP(30)=1.0
             RETURN
          ELSE
          END IF
          IF(WQ.EQ.'UFOCAL')THEN
-            SYSTEM(30)=2.0
+            call sys_set_mode(2.0D0)
             IF(F12.EQ.1) SYSP(30)=2.0
             RETURN
          ELSE
          END IF
          IF(WQ.EQ.'AFOCAL')THEN
-            SYSTEM(30)=3.0
+            call sys_set_mode(3.0D0)
             IF(F12.EQ.1) SYSP(30)=3.0
             RETURN
          ELSE
          END IF
          IF(WQ.EQ.'UAFOCAL')THEN
-            SYSTEM(30)=4.0
+            call sys_set_mode(4.0D0)
             IF(F12.EQ.1) SYSP(30)=4.0
             RETURN
          ELSE
@@ -398,22 +402,22 @@ SUBROUTINE SMODE
          RETURN
       ELSE
          IF(WQ.EQ.'FOCAL') THEN
-            SYSTEM(30)=1.0
+            call sys_set_mode(1.0D0)
             IF(F12.EQ.1) SYSP(30)=1.0
          ELSE
          END IF
          IF(WQ.EQ.'UFOCAL') THEN
-            SYSTEM(30)=2.0
+            call sys_set_mode(2.0D0)
             IF(F12.EQ.1) SYSP(30)=2.0
          ELSE
          END IF
          IF(WQ.EQ.'AFOCAL') THEN
-            SYSTEM(30)=3.0
+            call sys_set_mode(3.0D0)
             IF(F12.EQ.1) SYSP(30)=3.0
          ELSE
          END IF
          IF(WQ.EQ.'UAFOCAL') THEN
-            SYSTEM(30)=4.0
+            call sys_set_mode(4.0D0)
             IF(F12.EQ.1) SYSP(30)=4.0
          ELSE
          END IF
