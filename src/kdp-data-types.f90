@@ -670,7 +670,8 @@ subroutine setTextView(self, idTextView)
 end subroutine
 
 subroutine updateParameters(self)
-  use mod_system, only: sys_naox, sys_naoy, sys_say, sys_sax, sys_units
+  use mod_system, only: sys_naox, sys_naoy, sys_pxim, sys_pyim, sys_rxim, sys_ryim, &
+     & sys_sax, sys_say, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units, sys_wl_ref
   implicit none
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
@@ -701,28 +702,28 @@ subroutine updateParameters(self)
 
   case (FIELD_OBJECT_HEIGHT)
 
-    self%refFieldValue(1) = SYSTEM(16)
-    self%refFieldValue(2) = SYSTEM(14)
+    self%refFieldValue(1) = sys_scx()
+    self%refFieldValue(2) = sys_scy()
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
-    self%refFieldValue(1) = SYSTEM(23) !SYSTEM(16)
-    self%refFieldValue(2) = SYSTEM(21) !SYSTEM(14)
+    self%refFieldValue(1) = sys_scx_fang() !sys_scx()
+    self%refFieldValue(2) = sys_scy_fang() !sys_scy()
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
-        self%refFieldValue(1) = SYSTEM(92) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(93) !SYSTEM(14)
+        self%refFieldValue(1) = sys_pxim() !sys_scx()
+        self%refFieldValue(2) = sys_pyim() !sys_scy()
 
   case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-        self%refFieldValue(1) = SYSTEM(92) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(93) !SYSTEM(14)
+        self%refFieldValue(1) = sys_pxim() !sys_scx()
+        self%refFieldValue(2) = sys_pyim() !sys_scy()
 
   case (FIELD_REAL_IMAGE_HEIGHT)
-        self%refFieldValue(1) = SYSTEM(96) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
+        self%refFieldValue(1) = sys_rxim() !sys_scx()
+        self%refFieldValue(2) = sys_ryim() !sys_scy()
   case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-        self%refFieldValue(1) = SYSTEM(96) !SYSTEM(16)
-        self%refFieldValue(2) = SYSTEM(97) !SYSTEM(14)
+        self%refFieldValue(1) = sys_rxim() !sys_scx()
+        self%refFieldValue(2) = sys_ryim() !sys_scy()
 
   end select ! Reference Field
 
@@ -734,7 +735,7 @@ subroutine updateParameters(self)
   self%wavelengths(6:10) = SYSTEM(71:75)
   self%spectralWeights(1:5) = SYSTEM(31:35)
   self%spectralWeights(6:10) = SYSTEM(76:80)
-  self%refWavelengthIndex = INT(SYSTEM(11))
+  self%refWavelengthIndex = INT(sys_wl_ref())
 
 
   self%currLensUnitsID = sys_units()
@@ -807,6 +808,8 @@ subroutine setRefFieldKDP(self)
   ! hopefully temporary interface to set KDP system
   ! vars based on ref field value and field type
   use type_utils, only: real2str
+  use mod_system, only: sys_set_pxim, sys_set_pyim, sys_set_rxim, sys_set_ryim, &
+     & sys_set_scx, sys_set_scx_fang, sys_set_scy, sys_set_scy_fang
   implicit none
   class(sys_config) :: self
   include "DATLEN.INC"
@@ -816,8 +819,8 @@ subroutine setRefFieldKDP(self)
   case (FIELD_OBJECT_HEIGHT)
 
     !SYSTEM(16) = self%refFieldValue(1)
-    SYSTEM(16) = self%refFieldValue(1)
-    SYSTEM(14) = self%refFieldValue(2)
+    call sys_set_scx( self%refFieldValue(1))
+    call sys_set_scy( self%refFieldValue(2))
     
     ! TODO:  For symmetric fields the value is the same.  If I want to support
     ! asymmetric field settings need to change this
@@ -833,8 +836,8 @@ subroutine setRefFieldKDP(self)
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
-    SYSTEM(23) = self%refFieldValue(1)
-    SYSTEM(21) = self%refFieldValue(2)
+    call sys_set_scx_fang( self%refFieldValue(1))
+    call sys_set_scy_fang( self%refFieldValue(2))
 
 
     call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
@@ -843,19 +846,19 @@ subroutine setRefFieldKDP(self)
     !call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
-        SYSTEM(92) = self%refFieldValue(1)
-        SYSTEM(93) = self%refFieldValue(2)
+        call sys_set_pxim( self%refFieldValue(1))
+        call sys_set_pyim( self%refFieldValue(2))
 
   case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-        SYSTEM(92) = self%refFieldValue(1)
-        SYSTEM(93) = self%refFieldValue(2)
+        call sys_set_pxim( self%refFieldValue(1))
+        call sys_set_pyim( self%refFieldValue(2))
 
   case (FIELD_REAL_IMAGE_HEIGHT)
-        SYSTEM(96) = self%refFieldValue(1)
-        SYSTEM(97) = self%refFieldValue(2)
+        call sys_set_rxim( self%refFieldValue(1))
+        call sys_set_ryim( self%refFieldValue(2))
   case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-        SYSTEM(96) = self%refFieldValue(1)
-        SYSTEM(97) = self%refFieldValue(2)
+        call sys_set_rxim( self%refFieldValue(1))
+        call sys_set_ryim( self%refFieldValue(2))
 
   end select ! Reference Field
 
@@ -863,6 +866,7 @@ subroutine setRefFieldKDP(self)
 end subroutine
 
 subroutine getRayAimFromSystemArr(self)
+ use mod_system, only: sys_aplanatic_aim, sys_ray_aiming, sys_telecentric
  class(sys_config), intent(inout) :: self
  include "DATLEN.INC"
 
@@ -880,13 +884,13 @@ subroutine getRayAimFromSystemArr(self)
  !SET AIMAPL OFF
  !SYSTEM(70)=0.0D0
 
- if (SYSTEM(70).EQ.1.AND.SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.0) then
+ if (sys_aplanatic_aim().EQ.1.AND.sys_ray_aiming().EQ.0.AND.sys_telecentric().EQ.0) then
    self%currRayAimID = RAYAIM_APLANATIC
- else if (SYSTEM(62).EQ.1.AND.SYSTEM(63).EQ.0.AND.SYSTEM(70).EQ.0) then
+ else if (sys_ray_aiming().EQ.1.AND.sys_telecentric().EQ.0.AND.sys_aplanatic_aim().EQ.0) then
    self%currRayAimID = RAYAIM_REAL
- else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.0.AND.SYSTEM(70).EQ.0) then
+ else if (sys_ray_aiming().EQ.0.AND.sys_telecentric().EQ.0.AND.sys_aplanatic_aim().EQ.0) then
    self%currRayAimID = RAYAIM_PARAX
- else if (SYSTEM(62).EQ.0.AND.SYSTEM(63).EQ.1.AND.SYSTEM(70).EQ.0) then
+ else if (sys_ray_aiming().EQ.0.AND.sys_telecentric().EQ.1.AND.sys_aplanatic_aim().EQ.0) then
    self%currRayAimID = RAYAIM_TELE
  end if
 
@@ -937,20 +941,21 @@ end subroutine
 
 subroutine getFieldRefFromSystemArr(self)
  !use handlers
-
+ use mod_system, only: sys_pxim_fang_set, sys_pyim_fang_set, sys_rxim_fang_set, &
+    & sys_ryim_fang_set, sys_scy_fang_set
   class(sys_config), intent(inout) :: self
   include "DATLEN.INC"
 
-     if (SYSTEM(18).EQ.0.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
+     if (sys_scy_fang_set().EQ.0.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
        self%currFieldID = FIELD_OBJECT_HEIGHT
        !self%currApertureName = "Object Height"
-     else if (SYSTEM(18).EQ.1.AND.SYSTEM(94).EQ.0.AND.SYSTEM(95).EQ.0) THEN
+     else if (sys_scy_fang_set().EQ.1.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
          self%currFieldID = FIELD_OBJECT_ANGLE_DEG
         !self%currApertureName = "Object Angle"
-     else if (SYSTEM(94).EQ.-1.AND.SYSTEM(95).EQ.-1) THEN
+     else if (sys_pxim_fang_set().EQ.-1.AND.sys_pyim_fang_set().EQ.-1) THEN
        self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT
        !self%currApertureName = "Paraxial Image Height"
-     else if (SYSTEM(98).EQ.-1.AND.SYSTEM(99).EQ.-1) THEN
+     else if (sys_rxim_fang_set().EQ.-1.AND.sys_ryim_fang_set().EQ.-1) THEN
        self%currFieldID = FIELD_REAL_IMAGE_HEIGHT
        !self%currApertureName = "Real Image Height"
 
@@ -1273,12 +1278,13 @@ subroutine setNumFields(self, numFields)
 end subroutine
 
 subroutine setRefWavelengthIndex(self, refWavelengthIdx)
+  use mod_system, only: sys_set_wl_ref
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: refWavelengthIdx
   include "DATLEN.INC"
 
   self%refWavelengthIndex = refWavelengthIdx
-  SYSTEM(11) = REAL(self%refWavelengthIndex)
+  call sys_set_wl_ref( DBLE(self%refWavelengthIndex))
 
 end subroutine
 
@@ -1561,6 +1567,10 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
 end subroutine
 
 subroutine updateFieldSelectionByCode(self, ID_SELECTION)
+ use mod_system, only: sys_set_pxim, sys_set_pxim_fang_set, sys_set_pyim, sys_set_pyim_fang_set, &
+    & sys_set_rxim, sys_set_rxim_fang_set, sys_set_ryim, sys_set_ryim_fang_set, &
+    & sys_set_scx, sys_set_scx_fang, sys_set_scx_set, sys_set_scy, sys_set_scy_fang, &
+    & sys_set_scy_fang_set, sys_set_scy_set
  class(sys_config), intent(inout) :: self
  integer, intent(in) :: ID_SELECTION
  include "DATLEN.INC"
@@ -1568,66 +1578,67 @@ subroutine updateFieldSelectionByCode(self, ID_SELECTION)
  select case (ID_SELECTION)
  case (FIELD_OBJECT_HEIGHT)
 
-   SYSTEM(16) = self%refFieldValue(1)
-   SYSTEM(14) = self%refFieldValue(2) 
-   SYSTEM(60)=1.0D0
-   SYSTEM(61)=1.0D0
-   SYSTEM(18)=0.0D0
-   SYSTEM(94)=0.0D0
-   SYSTEM(95)=0.0D0
-   SYSTEM(98)=0.0D0
-   SYSTEM(99)=0.0D0
+   call sys_set_scx( self%refFieldValue(1))
+   call sys_set_scy( self%refFieldValue(2))
+   call sys_set_scy_set(1.0D0)
+   call sys_set_scx_set(1.0D0)
+   call sys_set_scy_fang_set(0.0D0)
+   call sys_set_pxim_fang_set(0.0D0)
+   call sys_set_pyim_fang_set(0.0D0)
+   call sys_set_rxim_fang_set(0.0D0)
+   call sys_set_ryim_fang_set(0.0D0)
  case (FIELD_OBJECT_ANGLE_DEG)
 
-   SYSTEM(23) = self%refFieldValue(1) 
-   SYSTEM(21) = self%refFieldValue(2) 
-   SYSTEM(60)=1.0D0
-   SYSTEM(61)=1.0D0
-   SYSTEM(18)=1.0D0
-   SYSTEM(94)=0.0D0
-   SYSTEM(95)=0.0D0
-   SYSTEM(98)=0.0D0
-   SYSTEM(99)=0.0D0      
+   call sys_set_scx_fang( self%refFieldValue(1))
+   call sys_set_scy_fang( self%refFieldValue(2))
+   call sys_set_scy_set(1.0D0)
+   call sys_set_scx_set(1.0D0)
+   call sys_set_scy_fang_set(1.0D0)
+   call sys_set_pxim_fang_set(0.0D0)
+   call sys_set_pyim_fang_set(0.0D0)
+   call sys_set_rxim_fang_set(0.0D0)
+   call sys_set_ryim_fang_set(0.0D0)
 
  case (FIELD_PARAX_IMAGE_HEIGHT)
-   SYSTEM(92) = self%refFieldValue(1)  
-   SYSTEM(93) = self%refFieldValue(2)      
-   SYSTEM(60)=1.0D0
-   SYSTEM(61)=1.0D0
-   SYSTEM(94)=-1.0D0
-   SYSTEM(95)=-1.0D0
+   call sys_set_pxim( self%refFieldValue(1))
+   call sys_set_pyim( self%refFieldValue(2))
+   call sys_set_scy_set(1.0D0)
+   call sys_set_scx_set(1.0D0)
+   call sys_set_pxim_fang_set(-1.0D0)
+   call sys_set_pyim_fang_set(-1.0D0)
    SYSTEM(96:99)=0.0D0
 
  case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-   SYSTEM(92) = self%refFieldValue(1) 
-   SYSTEM(93) = self%refFieldValue(2)
-   SYSTEM(14) = 0.0D0
-   SYSTEM(16) = 0.0D0
-   SYSTEM(21) = 0.0D0
-   SYSTEM(23) = 0.0D0    
+   call sys_set_pxim( self%refFieldValue(1))
+   call sys_set_pyim( self%refFieldValue(2))
+   call sys_set_scy( 0.0D0)
+   call sys_set_scx( 0.0D0)
+   call sys_set_scy_fang( 0.0D0)
+   call sys_set_scx_fang( 0.0D0)
    SYSTEM(96:97) = 0.0D0  
 
  case (FIELD_REAL_IMAGE_HEIGHT)
-   SYSTEM(96) = self%refFieldValue(1) 
-   SYSTEM(97) =  self%refFieldValue(2) 
-   SYSTEM(14) = 0.0D0
-   SYSTEM(16) = 0.0D0
-   SYSTEM(21) = 0.0D0
-   SYSTEM(23) = 0.0D0    
+   call sys_set_rxim( self%refFieldValue(1))
+   call sys_set_ryim(  self%refFieldValue(2))
+   call sys_set_scy( 0.0D0)
+   call sys_set_scx( 0.0D0)
+   call sys_set_scy_fang( 0.0D0)
+   call sys_set_scx_fang( 0.0D0)
    SYSTEM(92:93) = 0.0D0    
  case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-   SYSTEM(96) = self%refFieldValue(1) 
-   SYSTEM(97) = self%refFieldValue(2) 
-   SYSTEM(14) = 0.0D0
-   SYSTEM(16) = 0.0D0
-   SYSTEM(21) = 0.0D0
-   SYSTEM(23) = 0.0D0    
+   call sys_set_rxim( self%refFieldValue(1))
+   call sys_set_ryim( self%refFieldValue(2))
+   call sys_set_scy( 0.0D0)
+   call sys_set_scx( 0.0D0)
+   call sys_set_scy_fang( 0.0D0)
+   call sys_set_scx_fang( 0.0D0)
    SYSTEM(92:93) = 0.0D0  
  end select 
 
 end subroutine
 
 subroutine updateRayAimSelectionByCode(self, ID_SELECTION)
+ use mod_system, only: sys_set_aplanatic_aim, sys_set_ray_aiming, sys_set_telecentric
  class(sys_config), intent(inout) :: self
  integer, intent(in) :: ID_SELECTION
  include "DATLEN.INC"
@@ -1644,21 +1655,21 @@ subroutine updateRayAimSelectionByCode(self, ID_SELECTION)
  ! !SYSTEM(70)=0.0D0
 
   case (RAYAIM_PARAX)
-    SYSTEM(62) = 0.0D0
-    SYSTEM(63) = 0.0D0
-    SYSTEM(70) = 0.0D0
+    call sys_set_ray_aiming( 0.0D0)
+    call sys_set_telecentric( 0.0D0)
+    call sys_set_aplanatic_aim( 0.0D0)
   case (RAYAIM_REAL)
-   SYSTEM(62) = 1.0D0
-   SYSTEM(63) = 0.0D0
-   SYSTEM(70) = 0.0D0      
+   call sys_set_ray_aiming( 1.0D0)
+   call sys_set_telecentric( 0.0D0)
+   call sys_set_aplanatic_aim( 0.0D0)
  case (RAYAIM_APLANATIC)
-   SYSTEM(62) = 0.0D0
-   SYSTEM(63) = 0.0D0
-   SYSTEM(70) = 1.0D0      
+   call sys_set_ray_aiming( 0.0D0)
+   call sys_set_telecentric( 0.0D0)
+   call sys_set_aplanatic_aim( 1.0D0)
   case (RAYAIM_TELE)
-   SYSTEM(62) = 0.0D0
-   SYSTEM(63) = 1.0D0
-   SYSTEM(70) = 0.0D0 
+   call sys_set_ray_aiming( 0.0D0)
+   call sys_set_telecentric( 1.0D0)
+   call sys_set_aplanatic_aim( 0.0D0)
   end select    
 
   self%currRayAimID = ID_SELECTION
@@ -2224,6 +2235,7 @@ SUBROUTINE check_clear_apertures(lData)
   use DATLEN
   use DATMAI
   use mod_surface
+  use mod_system, only: sys_wl_ref
   use mod_system, only: sys_last_surf
   IMPLICIT NONE
   class(lens_data), intent(inout) :: lData
@@ -2416,7 +2428,7 @@ SN=1
 W1=YF
 W2=XF
 W3=0.0D0
-W4=SYSTEM(11)
+W4=sys_wl_ref()
 !     SET MSG TO FALSE
   MSG=.FALSE.
   CALL FFOB
@@ -2562,7 +2574,7 @@ SAVE_KDP(1)=SAVEINPT(1)
   SN=1
   W1=YR
   W2=XR
-  W3=SYSTEM(11)
+  W3=sys_wl_ref()
   WC='RAY     '
   CALL RRAY
 IF(.NOT.RAYEXT) RWARN=1
