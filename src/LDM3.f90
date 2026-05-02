@@ -6,6 +6,7 @@ SUBROUTINE STAD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STAD WHICH IMPLEMENTS THE TAD
@@ -41,7 +42,7 @@ SUBROUTINE STAD
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       OUTLYNE='NO TILTS OR DECENTERS EXIST'
       CALL SHOWIT(1)
       OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -76,9 +77,9 @@ SUBROUTINE STAD
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+      IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -193,7 +194,7 @@ SUBROUTINE STAD
       TADCNT=0
       DCNT=0
       TCNT=0
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
          IF(surf_tilt_flag(SURF).NE.0.0.AND.surf_decenter_flag(SURF).NE.0.0 .OR.surf_tilt_flag(SURF).NE.0.0.OR.surf_decenter_flag(SURF).NE.0.0D0) THEN
             IF(surf_tilt_flag(SURF).NE.0.0D0) TCNT=TCNT+1
             IF(surf_decenter_flag(SURF).NE.0.0D0) DCNT=DCNT+1
@@ -210,7 +211,7 @@ SUBROUTINE STAD
       CALL SHOWIT(0)
       WRITE(OUTLYNE,2000)
       CALL SHOWIT(0)
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
 !
 ! SET DEC AND TAD APPROPRIATELY
 !
@@ -278,7 +279,7 @@ SUBROUTINE STAD
          WRITE(OUTLYNE,3000)
          CALL SHOWIT(0)
 !
-         DO SURF=0,INT(SYSTEM(20))
+         DO SURF=0,INT(sys_last_surf())
 !
 ! SET DEC
 !
@@ -315,7 +316,7 @@ SUBROUTINE STAD
 16          CONTINUE
          END DO
       END IF
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
 !     GLOBAL DECENTERS AND TILTS
          IF(surf_global_dx(SURF).NE.0.0D0.OR.surf_global_dy(SURF).NE.0.0D0.OR.surf_global_dz(SURF).NE.0.0D0.OR.surf_global_alpha(SURF).NE.0.0D0.OR.surf_global_beta(SURF).NE.0.0D0.OR.surf_global_gamma(SURF).NE.0.0D0) THEN
             WRITE(OUTLYNE,9000) SURF
@@ -361,6 +362,7 @@ SUBROUTINE SPIV
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIV WHICH IMPLEMENTS THE PIV
@@ -395,7 +397,7 @@ SUBROUTINE SPIV
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       OUTLYNE='NO PIVOT DEFINITIONS EXIST'
       CALL SHOWIT(1)
       OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -430,9 +432,9 @@ SUBROUTINE SPIV
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+      IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -483,7 +485,7 @@ SUBROUTINE SPIV
 !       THE CASE OF NO PIVOT IN A LENS
       PIVCNT=0
       PCNT=0
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
          IF(surf_pivot_flag(SURF).NE.0.0D0) THEN
             IF(surf_pivot_flag(SURF).NE.0.0D0) PCNT=PCNT+1
             PIVCNT=PIVCNT+1
@@ -501,7 +503,7 @@ SUBROUTINE SPIV
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
 !
 ! SET PIVAPPROPRIATELY
 !
@@ -548,6 +550,7 @@ SUBROUTINE SPIDEROUT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIDEROUT WHICH IMPLEMENTS THE SPIDER
@@ -580,7 +583,7 @@ SUBROUTINE SPIDEROUT
       RETURN
    END IF
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       OUTLYNE='NO SPIDER DEFINITIONS EXIST'
       CALL SHOWIT(1)
       OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -615,9 +618,9 @@ SUBROUTINE SPIDEROUT
    END IF
    IF(SQ.EQ.0) THEN
 !       HANDEL AN INDIVIDUAL SURFACE INCLUDING "OB" AND "OBJ"
-      IF(DF1.EQ.1) W1=DBLE(INT(SYSTEM(20)))
+      IF(DF1.EQ.1) W1=DBLE(INT(sys_last_surf()))
       SURF=INT(W1)
-      IF(SURF.GT.(INT(SYSTEM(20))).OR.SURF.LT.0) THEN
+      IF(SURF.GT.(INT(sys_last_surf())).OR.SURF.LT.0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & 'SURFACE NUMBER BEYOND LEGAL RANGE'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
@@ -662,7 +665,7 @@ SUBROUTINE SPIDEROUT
 !       THE CASE OF NO PIVOT IN A LENS
       SPIDCNT=0
       SCNT=0
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
          IF(surf_spider_flag(SURF).NE.0.0D0) THEN
             IF(surf_spider_flag(SURF).NE.0.0D0) SCNT=SCNT+1
             SPIDCNT=SPIDCNT+1
@@ -680,7 +683,7 @@ SUBROUTINE SPIDEROUT
       CALL SHOWIT(0)
       WRITE(OUTLYNE,3000)
       CALL SHOWIT(0)
-      DO SURF=0,INT(SYSTEM(20))
+      DO SURF=0,INT(sys_last_surf())
 !
          IF(surf_spider_flag(SURF).NE.0.0D0) THEN
             SPID=1
@@ -718,6 +721,7 @@ SUBROUTINE SSPTWT
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_wavelength, sys_wl_weight, sys_set_wl_weight
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPTWT WHICH IMPLEMENTS THE SPTWT
@@ -731,15 +735,15 @@ SUBROUTINE SSPTWT
       IF(is_command_query()) THEN
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,2000) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+         WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,1001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,2000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),SYSTEM(80)
+         WRITE(OUTLYNE,3000) sys_wl_weight(6),sys_wl_weight(7),sys_wl_weight(8),sys_wl_weight(9),sys_wl_weight(10)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -756,15 +760,15 @@ SUBROUTINE SSPTWT
 !       SPTWT TYPED IN WITH NO INPUT SO PRINT OUT CURRENT VALUES
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,2000) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+         WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,1001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,2000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),SYSTEM(80)
+         WRITE(OUTLYNE,3000) sys_wl_weight(6),sys_wl_weight(7),sys_wl_weight(8),sys_wl_weight(9),sys_wl_weight(10)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -772,11 +776,11 @@ SUBROUTINE SSPTWT
 !       THE ASSOCIATED VALUES AS THEY WERE BEFORE.
 !       SET VALUES
 !
-         IF(DF1.EQ.1) W1=SYSTEM(31)
-         IF(DF2.EQ.1) W2=SYSTEM(32)
-         IF(DF3.EQ.1) W3=SYSTEM(33)
-         IF(DF4.EQ.1) W4=SYSTEM(34)
-         IF(DF5.EQ.1) W5=SYSTEM(35)
+         IF(DF1.EQ.1) W1=sys_wl_weight(1)
+         IF(DF2.EQ.1) W2=sys_wl_weight(2)
+         IF(DF3.EQ.1) W3=sys_wl_weight(3)
+         IF(DF4.EQ.1) W4=sys_wl_weight(4)
+         IF(DF5.EQ.1) W5=sys_wl_weight(5)
          IF(DF1.EQ.1) DF1=0
          IF(DF2.EQ.1) DF2=0
          IF(DF3.EQ.1) DF3=0
@@ -789,55 +793,55 @@ SUBROUTINE SSPTWT
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(SYSTEM(1).NE.0.0D0) THEN
-         SYSTEM(31)=W1
+      IF(sys_wavelength(1).NE.0.0D0) THEN
+         call sys_set_wl_weight(1,W1)
       ELSE
-         IF(SYSTEM(31).NE.0.0D0) THEN
-            SYSTEM(31)=0.0D0
+         IF(sys_wl_weight(1).NE.0.0D0) THEN
+            call sys_set_wl_weight(1,0.0D0)
             OUTLYNE='WAVELENGTH #1 WAS 0.0 SO SPECTRAL WEIGHT #1 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(2).NE.0.0D0) THEN
-         SYSTEM(32)=W2
+      IF(sys_wavelength(2).NE.0.0D0) THEN
+         call sys_set_wl_weight(2,W2)
       ELSE
-         IF(SYSTEM(32).NE.0.0D0) THEN
-            SYSTEM(32)=0.0D0
+         IF(sys_wl_weight(2).NE.0.0D0) THEN
+            call sys_set_wl_weight(2,0.0D0)
             OUTLYNE='WAVELENGTH #2 WAS 0.0 SO SPECTRAL WEIGHT #2 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(3).NE.0.0D0) THEN
-         SYSTEM(33)=W3
+      IF(sys_wavelength(3).NE.0.0D0) THEN
+         call sys_set_wl_weight(3,W3)
       ELSE
-         IF(SYSTEM(33).NE.0.0D0) THEN
-            SYSTEM(33)=0.0D0
+         IF(sys_wl_weight(3).NE.0.0D0) THEN
+            call sys_set_wl_weight(3,0.0D0)
             OUTLYNE='WAVELENGTH #3 WAS 0.0 SO SPECTRAL WEIGHT #3 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(4).NE.0.0D0) THEN
-         SYSTEM(34)=W4
+      IF(sys_wavelength(4).NE.0.0D0) THEN
+         call sys_set_wl_weight(4,W4)
       ELSE
-         IF(SYSTEM(34).NE.0.0D0) THEN
-            SYSTEM(34)=0.0D0
+         IF(sys_wl_weight(4).NE.0.0D0) THEN
+            call sys_set_wl_weight(4,0.0D0)
             OUTLYNE='WAVELENGTH #4 WAS 0.0 SO SPECTRAL WEIGHT #4 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(5).NE.0.0D0) THEN
-         SYSTEM(35)=W5
+      IF(sys_wavelength(5).NE.0.0D0) THEN
+         call sys_set_wl_weight(5,W5)
       ELSE
-         IF(SYSTEM(35).NE.0.0D0) THEN
-            SYSTEM(35)=0.0D0
+         IF(sys_wl_weight(5).NE.0.0D0) THEN
+            call sys_set_wl_weight(5,0.0D0)
             OUTLYNE='WAVELENGTH #5 WAS 0.0 SO SPECTRAL WEIGHT #5 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -846,11 +850,11 @@ SUBROUTINE SSPTWT
       END IF
       IF(F12.EQ.1) THEN
 !       UPDATE PERMANENT FILES AS WELL
-         SYSP(31)=SYSTEM(31)
-         SYSP(32)=SYSTEM(32)
-         SYSP(33)=SYSTEM(33)
-         SYSP(34)=SYSTEM(34)
-         SYSP(35)=SYSTEM(35)
+         SYSP(31)=sys_wl_weight(1)
+         SYSP(32)=sys_wl_weight(2)
+         SYSP(33)=sys_wl_weight(3)
+         SYSP(34)=sys_wl_weight(4)
+         SYSP(35)=sys_wl_weight(5)
       ELSE
 !       DON'T
       END IF
@@ -863,15 +867,15 @@ SUBROUTINE SSPTWT
       IF(is_command_query()) THEN
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,2000) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+         WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,1001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,2000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),SYSTEM(80)
+         WRITE(OUTLYNE,3000) sys_wl_weight(6),sys_wl_weight(7),sys_wl_weight(8),sys_wl_weight(9),sys_wl_weight(10)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -888,15 +892,15 @@ SUBROUTINE SSPTWT
 !       SPTWT2 TYPED IN WITH NO INPUT SO PRINT OUT CURRENT VALUES
          WRITE(OUTLYNE,1000)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(1),SYSTEM(2),SYSTEM(3),SYSTEM(4),SYSTEM(5)
+         WRITE(OUTLYNE,2000) sys_wavelength(1),sys_wavelength(2),sys_wavelength(3),sys_wavelength(4),sys_wavelength(5)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(31),SYSTEM(32),SYSTEM(33),SYSTEM(34),SYSTEM(35)
+         WRITE(OUTLYNE,3000) sys_wl_weight(1),sys_wl_weight(2),sys_wl_weight(3),sys_wl_weight(4),sys_wl_weight(5)
          CALL SHOWIT(0)
          WRITE(OUTLYNE,1001)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(71),SYSTEM(72),SYSTEM(73),SYSTEM(74),SYSTEM(75)
+         WRITE(OUTLYNE,2000) sys_wavelength(6),sys_wavelength(7),sys_wavelength(8),sys_wavelength(9),sys_wavelength(10)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(76),SYSTEM(77),SYSTEM(78),SYSTEM(79),SYSTEM(80)
+         WRITE(OUTLYNE,3000) sys_wl_weight(6),sys_wl_weight(7),sys_wl_weight(8),sys_wl_weight(9),sys_wl_weight(10)
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -904,11 +908,11 @@ SUBROUTINE SSPTWT
 !       THE ASSOCIATED VALUES AS THEY WERE BEFORE.
 !       SET VALUES
 !
-         IF(DF1.EQ.1) W1=SYSTEM(76)
-         IF(DF2.EQ.1) W2=SYSTEM(77)
-         IF(DF3.EQ.1) W3=SYSTEM(78)
-         IF(DF4.EQ.1) W4=SYSTEM(79)
-         IF(DF5.EQ.1) W5=SYSTEM(80)
+         IF(DF1.EQ.1) W1=sys_wl_weight(6)
+         IF(DF2.EQ.1) W2=sys_wl_weight(7)
+         IF(DF3.EQ.1) W3=sys_wl_weight(8)
+         IF(DF4.EQ.1) W4=sys_wl_weight(9)
+         IF(DF5.EQ.1) W5=sys_wl_weight(10)
          IF(DF1.EQ.1) DF1=0
          IF(DF2.EQ.1) DF2=0
          IF(DF3.EQ.1) DF3=0
@@ -921,55 +925,55 @@ SUBROUTINE SSPTWT
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(SYSTEM(71).NE.0.0D0) THEN
-         SYSTEM(76)=W1
+      IF(sys_wavelength(6).NE.0.0D0) THEN
+         call sys_set_wl_weight(6,W1)
       ELSE
-         IF(SYSTEM(76).NE.0.0D0) THEN
-            SYSTEM(76)=0.0D0
+         IF(sys_wl_weight(6).NE.0.0D0) THEN
+            call sys_set_wl_weight(6,0.0D0)
             OUTLYNE='WAVELENGTH #6 WAS 0.0 SO SPECTRAL WEIGHT #6 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(72).NE.0.0D0) THEN
-         SYSTEM(77)=W2
+      IF(sys_wavelength(7).NE.0.0D0) THEN
+         call sys_set_wl_weight(7,W2)
       ELSE
-         IF(SYSTEM(77).NE.0.0D0) THEN
-            SYSTEM(77)=0.0D0
+         IF(sys_wl_weight(7).NE.0.0D0) THEN
+            call sys_set_wl_weight(7,0.0D0)
             OUTLYNE='WAVELENGTH #7 WAS 0.0 SO SPECTRAL WEIGHT #7 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(73).NE.0.0D0) THEN
-         SYSTEM(78)=W3
+      IF(sys_wavelength(8).NE.0.0D0) THEN
+         call sys_set_wl_weight(8,W3)
       ELSE
-         IF(SYSTEM(78).NE.0.0D0) THEN
-            SYSTEM(78)=0.0D0
+         IF(sys_wl_weight(8).NE.0.0D0) THEN
+            call sys_set_wl_weight(8,0.0D0)
             OUTLYNE='WAVELENGTH #8 WAS 0.0 SO SPECTRAL WEIGHT #8 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(74).NE.0.0D0) THEN
-         SYSTEM(79)=W4
+      IF(sys_wavelength(9).NE.0.0D0) THEN
+         call sys_set_wl_weight(9,W4)
       ELSE
-         IF(SYSTEM(79).NE.0.0D0) THEN
-            SYSTEM(79)=0.0D0
+         IF(sys_wl_weight(9).NE.0.0D0) THEN
+            call sys_set_wl_weight(9,0.0D0)
             OUTLYNE='WAVELENGTH #9 WAS 0.0 SO SPECTRAL WEIGHT #9 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
             CALL SHOWIT(1)
          END IF
       END IF
-      IF(SYSTEM(75).NE.0.0D0) THEN
-         SYSTEM(80)=W5
+      IF(sys_wavelength(10).NE.0.0D0) THEN
+         call sys_set_wl_weight(10,W5)
       ELSE
-         IF(SYSTEM(80).NE.0.0D0) THEN
-            SYSTEM(80)=0.0D0
+         IF(sys_wl_weight(10).NE.0.0D0) THEN
+            call sys_set_wl_weight(10,0.0D0)
             OUTLYNE='WAVELENGTH #10 WAS 0.0 SO SPECTRAL WEIGHT #10 SET TO 0.0 ALSO'
             CALL SHOWIT(1)
             OUTLYNE='RE-ENTER COMMAND'
@@ -978,11 +982,11 @@ SUBROUTINE SSPTWT
       END IF
       IF(F12.EQ.1) THEN
 !       UPDATE PERMANENT FILES AS WELL
-         SYSP(76)=SYSTEM(76)
-         SYSP(77)=SYSTEM(77)
-         SYSP(78)=SYSTEM(78)
-         SYSP(79)=SYSTEM(79)
-         SYSP(80)=SYSTEM(80)
+         SYSP(76)=sys_wl_weight(6)
+         SYSP(77)=sys_wl_weight(7)
+         SYSP(78)=sys_wl_weight(8)
+         SYSP(79)=sys_wl_weight(9)
+         SYSP(80)=sys_wl_weight(10)
       ELSE
 !       DON'T
       END IF
@@ -1002,6 +1006,7 @@ SUBROUTINE SSPC
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_fno_flag_x, sys_fno_flag_y, sys_fno_hold_x, sys_fno_hold_y, sys_last_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPC WHICH IMPLEMENTS THE SPC
@@ -1022,7 +1027,7 @@ SUBROUTINE SSPC
    END IF
 !
 !       WHAT IF NO SURFACES EXIST
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'SPECIAL CONDITIONS NOT DEFINED'//'\n'//&
       & 'LENS SYSTEM HAS NO SURFACES'//'\n'//&
@@ -1034,28 +1039,28 @@ SUBROUTINE SSPC
    CALL SHOWIT(0)
 !
 !       NOW DO THE FNBY AND FNBX
-   IF(SYSTEM(44).EQ.-1.0) THEN
+   IF(sys_fno_flag_y().EQ.-1.0) THEN
 !       THERE IS FNBY HOLD ASSIGNMENT
-      WRITE(OUTLYNE,601) SYSTEM(46)
+      WRITE(OUTLYNE,601) sys_fno_hold_y()
       CALL SHOWIT(0)
    END IF
-   IF(SYSTEM(45).EQ.-1.0) THEN
+   IF(sys_fno_flag_x().EQ.-1.0) THEN
 !       THERE IS FNBX HOLD ASSIGNMENT
-      WRITE(OUTLYNE,701) SYSTEM(47)
+      WRITE(OUTLYNE,701) sys_fno_hold_x()
       CALL SHOWIT(0)
       WRITE(OUTLYNE,7000)
       CALL SHOWIT(0)
    END IF
 !
 !       NOW DO THE ERY AND ERX
-   IF(SYSTEM(44).EQ.-2.0) THEN
+   IF(sys_fno_flag_y().EQ.-2.0) THEN
 !       THERE IS ERY HOLD ASSIGNMENT
-      WRITE(OUTLYNE,801) SYSTEM(46)
+      WRITE(OUTLYNE,801) sys_fno_hold_y()
       CALL SHOWIT(0)
    END IF
-   IF(SYSTEM(45).EQ.-2.0) THEN
+   IF(sys_fno_flag_x().EQ.-2.0) THEN
 !       THERE IS ERX HOLD ASSIGNMENT
-      WRITE(OUTLYNE,901) SYSTEM(47)
+      WRITE(OUTLYNE,901) sys_fno_hold_x()
       CALL SHOWIT(0)
       WRITE(OUTLYNE,9000)
       CALL SHOWIT(0)
@@ -1084,6 +1089,14 @@ SUBROUTINE SSC
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_astop_adj, sys_reverse_trace, sys_scx, sys_scx_fang, &
+      & sys_scx_fang_set, sys_scy, sys_scy_fang, sys_scy_fang_set, sys_x1_scx, sys_x1_scx_fang, &
+      & sys_y1_scy, sys_y1_scy_fang, &
+      & sys_set_reverse_trace, sys_set_scx, sys_set_scx_fang, sys_set_scx_fang_set, &
+      & sys_set_scx_set, sys_set_scy, sys_set_scy_fang, sys_set_scy_fang_set, sys_set_scy_set, &
+      & sys_set_x1_scx, sys_set_x1_scx_fang, sys_set_x1_scx_fang_set, sys_set_x1_scx_set, &
+      & sys_set_xz_data_flag, sys_set_y1_scy, sys_set_y1_scy_fang, sys_set_y1_scy_fang_set, &
+      & sys_set_y1_scy_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSC WHICH IMPLEMENTS THE SCY/SCX
@@ -1124,10 +1137,10 @@ SUBROUTINE SSC
          IF(WC.EQ.'SCY') THEN
             WRITE(OUTLYNE,2002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,2000) SYSTEM(14),SYSTEM(15)
+            WRITE(OUTLYNE,2000) sys_scy(),sys_y1_scy()
             CALL SHOWIT(0)
-            IF(SYSTEM(18).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
-            IF(SYSTEM(18).EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
+            IF(sys_scy_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
+            IF(sys_scy_fang_set().EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
@@ -1136,10 +1149,10 @@ SUBROUTINE SSC
             CALL SHOWIT(0)
             WRITE(OUTLYNE,2002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,4000) SYSTEM(16),SYSTEM(17)
+            WRITE(OUTLYNE,4000) sys_scx(),sys_x1_scx()
             CALL SHOWIT(0)
-            IF(SYSTEM(19).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
-            IF(SYSTEM(19).EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
+            IF(sys_scx_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
+            IF(sys_scx_fang_set().EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
@@ -1151,10 +1164,10 @@ SUBROUTINE SSC
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,3000) SYSTEM(21),SYSTEM(22)
+            WRITE(OUTLYNE,3000) sys_scy_fang(),sys_y1_scy_fang()
             CALL SHOWIT(0)
-            IF(SYSTEM(18).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
-            IF(SYSTEM(18).EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
+            IF(sys_scy_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
+            IF(sys_scy_fang_set().EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
@@ -1163,10 +1176,10 @@ SUBROUTINE SSC
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,5000) SYSTEM(23),SYSTEM(24)
+            WRITE(OUTLYNE,5000) sys_scx_fang(),sys_x1_scx_fang()
             CALL SHOWIT(0)
-            IF(SYSTEM(19).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
-            IF(SYSTEM(19).EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
+            IF(sys_scx_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT ANGLE'
+            IF(sys_scx_fang_set().EQ.0.0D0)OUTLYNE='REF. OBJ. HT. SET BY OBJECT HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
@@ -1230,10 +1243,10 @@ SUBROUTINE SSC
 !
       IF(WQ.EQ.'FANG') THEN
 !       MAKE SURE YOU DON'T STEP ON AN ENTRANCE PUPIL ADJUSTMENT
-         IF(SYSTEM(26).NE.-99.0D0) THEN
+         IF(sys_astop().NE.-99.0D0) THEN
 !       THERE IS AN ASTOP
 !       IS THERE AN EN ADJUSTMENT
-            IF(SYSTEM(27).EQ.1.0D0.OR.SYSTEM(27).EQ.2.0D0) THEN
+            IF(sys_astop_adj().EQ.1.0D0.OR.sys_astop_adj().EQ.2.0D0) THEN
 !       YES EN ADJUSTMENT, DON'T ALLOW FANG ENTRIES
                IF(WC.EQ.'SCY') THEN
                   CALL REPORT_ERROR_AND_FAIL(&
@@ -1255,8 +1268,8 @@ SUBROUTINE SSC
 !
 !     ASSIGN VALUES
 !
-         IF(WC.EQ.'SCY') SYSTEM(18)=1.0D0
-         IF(WC.EQ.'SCX') SYSTEM(19)=1.0D0
+         call sys_set_scy_fang_set(1.0D0)
+         call sys_set_scx_fang_set(1.0D0)
 !       FANG IS USED HERE
          IF(WC.EQ.'SCY') THEN
             IF(DABS(W1).GE.90.0D0) THEN
@@ -1265,16 +1278,16 @@ SUBROUTINE SSC
                & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
-            SYSTEM(21)=(W1)
+            call sys_set_scy_fang((W1))
             SYSTEM(92:99)=0.0D0
             IF(DF2.EQ.1) W2=0.0D0
-            IF(DF2.EQ.0) SYSTEM(51)=1.0D0
-            IF(DF2.EQ.0) SYSTEM(53)=1.0D0
-            SYSTEM(22)=W2
-            SYSTEM(15)=W2
+            call sys_set_y1_scy_set(1.0D0)
+            call sys_set_y1_scy_fang_set(1.0D0)
+            call sys_set_y1_scy_fang(W2)
+            call sys_set_y1_scy(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
-               SYSTEM(60)=1.0D0
-               SYSTEM(61)=1.0D0
+               call sys_set_scy_set(1.0D0)
+               call sys_set_scx_set(1.0D0)
             END IF
          ELSE
          END IF
@@ -1285,59 +1298,59 @@ SUBROUTINE SSC
                & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
-            SYSTEM(23)=(W1)
+            call sys_set_scx_fang((W1))
             SYSTEM(92:99)=0.0D0
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=2.0D0
-            IF(SYSTEM(49).EQ.1.0D0) SYSTEM(49)=3.0D0
+            call sys_set_xz_data_flag(2.0D0)
+            call sys_set_xz_data_flag(3.0D0)
             IF(DF2.EQ.1) W2=0.0D0
-            IF(DF2.EQ.0) SYSTEM(52)=1.0D0
-            IF(DF2.EQ.0) SYSTEM(54)=1.0D0
-            SYSTEM(24)=W2
-            SYSTEM(17)=W2
+            call sys_set_x1_scx_set(1.0D0)
+            call sys_set_x1_scx_fang_set(1.0D0)
+            call sys_set_x1_scx_fang(W2)
+            call sys_set_x1_scx(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
-               SYSTEM(60)=1.0D0
-               SYSTEM(61)=1.0D0
+               call sys_set_scy_set(1.0D0)
+               call sys_set_scx_set(1.0D0)
             END IF
          ELSE
          END IF
       ELSE
 !     NOT FANG
          IF(WC.EQ.'SCY') THEN
-            SYSTEM(18)=0.0D0
+            call sys_set_scy_fang_set(0.0D0)
             IF(DF2.EQ.1) W2=0.0D0
-            IF(DF2.EQ.0) SYSTEM(51)=1.0D0
-            IF(DF2.EQ.0) SYSTEM(53)=1.0D0
-            SYSTEM(14)=W1
+            call sys_set_y1_scy_set(1.0D0)
+            call sys_set_y1_scy_fang_set(1.0D0)
+            call sys_set_scy(W1)
             SYSTEM(92:99)=0.0D0
-            SYSTEM(15)=W2
-            SYSTEM(22)=W2
+            call sys_set_y1_scy(W2)
+            call sys_set_y1_scy_fang(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
-               SYSTEM(60)=1.0D0
-               SYSTEM(61)=1.0D0
+               call sys_set_scy_set(1.0D0)
+               call sys_set_scx_set(1.0D0)
             END IF
          ELSE
          END IF
          IF(WC.EQ.'SCX') THEN
-            SYSTEM(19)=0.0D0
+            call sys_set_scx_fang_set(0.0D0)
             IF(DF2.EQ.1) W2=0.0D0
-            IF(DF2.EQ.0) SYSTEM(52)=1.0D0
-            IF(DF2.EQ.0) SYSTEM(54)=1.0D0
-            SYSTEM(16)=W1
+            call sys_set_x1_scx_set(1.0D0)
+            call sys_set_x1_scx_fang_set(1.0D0)
+            call sys_set_scx(W1)
             SYSTEM(92:99)=0.0D0
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=2.0D0
-            IF(SYSTEM(49).EQ.1.0D0) SYSTEM(49)=3.0D0
-            SYSTEM(17)=W2
-            SYSTEM(24)=W2
+            call sys_set_xz_data_flag(2.0D0)
+            call sys_set_xz_data_flag(3.0D0)
+            call sys_set_x1_scx(W2)
+            call sys_set_x1_scx_fang(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
-               SYSTEM(60)=1.0D0
-               SYSTEM(61)=1.0D0
+               call sys_set_scy_set(1.0D0)
+               call sys_set_scx_set(1.0D0)
             END IF
          ELSE
          END IF
       END IF
 !     GET RID OF REVRAY SETTING IF IN EFFECT
-      IF(SYSTEM(100).NE.0.0D0) THEN
-         SYSTEM(100)=0.0D0
+      IF(sys_reverse_trace().NE.0.0D0) THEN
+         call sys_set_reverse_trace(0.0D0)
          OUTLYNE='"REVRAY" SETTING HAS BEEN AUTOMATICALLY CANCELLED'
          CALL SHOWIT(1)
       END IF
@@ -1357,6 +1370,10 @@ SUBROUTINE PXYIM
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_pxim, sys_pxim_fang_set, sys_pyim, sys_pyim_fang_set, &
+      & sys_reverse_trace, &
+      & sys_set_pxim, sys_set_pxim_fang_set, sys_set_pyim, sys_set_pyim_fang_set, &
+      & sys_set_reverse_trace, sys_set_scx_set, sys_set_scy_set, sys_set_xz_data_flag
    IMPLICIT NONE
 !
 !
@@ -1379,63 +1396,63 @@ SUBROUTINE PXYIM
    END IF
 !
    IF(F1.EQ.1) THEN
-      IF(WC.EQ.'PXIM'.AND.SYSTEM(94).EQ.0.0D0) THEN
+      IF(WC.EQ.'PXIM'.AND.sys_pxim_fang_set().EQ.0.0D0) THEN
          OUTLYNE='REF. OBJ. HT. NOT SET BY PARAXIAL IMAGE SPACE HT OR ANGLE'
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(WC.EQ.'PYIM'.AND.SYSTEM(95).EQ.0.0D0) THEN
+      IF(WC.EQ.'PYIM'.AND.sys_pyim_fang_set().EQ.0.0D0) THEN
          OUTLYNE='REF. OBJ. HT. NOT SET BY PARAXIAL IMAGE SPACE HT OR ANGLE'
          CALL SHOWIT(0)
          RETURN
       END IF
       IF(WQ.NE.'FANG') THEN
-         IF(WC.EQ.'PYIM'.AND.SYSTEM(95).NE.0.0D0) THEN
+         IF(WC.EQ.'PYIM'.AND.sys_pyim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,2002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,2000) SYSTEM(93)
+            WRITE(OUTLYNE,2000) sys_pyim()
             CALL SHOWIT(0)
-            IF(SYSTEM(94).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(94).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE HEIGHT'
+            IF(sys_pxim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE ANGLE'
+            IF(sys_pxim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
-         IF(WC.EQ.'PXIM'.AND.SYSTEM(94).NE.0.0D0) THEN
+         IF(WC.EQ.'PXIM'.AND.sys_pxim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,2002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,4000) SYSTEM(92)
+            WRITE(OUTLYNE,4000) sys_pxim()
             CALL SHOWIT(0)
-            IF(SYSTEM(95).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(95).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE HEIGHT'
+            IF(sys_pyim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE ANGLE'
+            IF(sys_pyim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
       ELSE
       END IF
       IF(WQ.EQ.'FANG') THEN
-         IF(WC.EQ.'PYIM'.AND.SYSTEM(95).NE.0.0D0) THEN
+         IF(WC.EQ.'PYIM'.AND.sys_pyim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,3000) SYSTEM(93)
+            WRITE(OUTLYNE,3000) sys_pyim()
             CALL SHOWIT(0)
-            IF(SYSTEM(94).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(94).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE HEIGHT'
+            IF(sys_pxim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE ANGLE'
+            IF(sys_pxim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
-         IF(WC.EQ.'PXIM'.AND.SYSTEM(94).NE.0.0D0) THEN
+         IF(WC.EQ.'PXIM'.AND.sys_pxim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,5000) SYSTEM(92)
+            WRITE(OUTLYNE,5000) sys_pxim()
             CALL SHOWIT(0)
-            IF(SYSTEM(95).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PAXAXIAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(95).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE HEIGHT'
+            IF(sys_pyim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PAXAXIAL IMAGE SPACE ANGLE'
+            IF(sys_pyim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY PARAXIAL IMAGE SPACE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
@@ -1490,11 +1507,11 @@ SUBROUTINE PXYIM
                & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
-            SYSTEM(93)=(W1)
-            SYSTEM(95)=1.0D0
+            call sys_set_pyim((W1))
+            call sys_set_pyim_fang_set(1.0D0)
             SYSTEM(96:99)=0.0D0
-            SYSTEM(60)=1.0D0
-            SYSTEM(61)=1.0D0
+            call sys_set_scy_set(1.0D0)
+            call sys_set_scx_set(1.0D0)
          ELSE
          END IF
          IF(WC.EQ.'PXIM') THEN
@@ -1505,55 +1522,55 @@ SUBROUTINE PXYIM
                RETURN
             END IF
             SYSTEM(96:99)=0.0D0
-            SYSTEM(92)=(W1)
-            SYSTEM(94)=1.0D0
-            SYSTEM(61)=1.0D0
-            SYSTEM(60)=1.0D0
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=2.0D0
-            IF(SYSTEM(49).EQ.1.0D0) SYSTEM(49)=3.0D0
+            call sys_set_pxim((W1))
+            call sys_set_pxim_fang_set(1.0D0)
+            call sys_set_scx_set(1.0D0)
+            call sys_set_scy_set(1.0D0)
+            call sys_set_xz_data_flag(2.0D0)
+            call sys_set_xz_data_flag(3.0D0)
          ELSE
          END IF
       ELSE
 !     NOT FANG
          IF(WC.EQ.'PXIM') THEN
-            SYSTEM(94)=-1.0D0
-            SYSTEM(92)=W1
+            call sys_set_pxim_fang_set(-1.0D0)
+            call sys_set_pxim(W1)
             SYSTEM(96:99)=0.0D0
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=2.0D0
-            IF(SYSTEM(49).EQ.1.0D0) SYSTEM(49)=3.0D0
-            SYSTEM(61)=1.0D0
-            SYSTEM(60)=1.0D0
+            call sys_set_xz_data_flag(2.0D0)
+            call sys_set_xz_data_flag(3.0D0)
+            call sys_set_scx_set(1.0D0)
+            call sys_set_scy_set(1.0D0)
          ELSE
          END IF
          IF(WC.EQ.'PYIM') THEN
-            SYSTEM(95)=-1.0D0
-            SYSTEM(93)=W1
+            call sys_set_pyim_fang_set(-1.0D0)
+            call sys_set_pyim(W1)
             SYSTEM(96:99)=0.0D0
-            SYSTEM(60)=1.0D0
-            SYSTEM(61)=1.0D0
+            call sys_set_scy_set(1.0D0)
+            call sys_set_scx_set(1.0D0)
          ELSE
          END IF
       END IF
 !     GET RID OF REVRAY SETTING IF IN EFFECT
-      IF(SYSTEM(100).NE.0.0D0) THEN
-         SYSTEM(100)=0.0D0
+      IF(sys_reverse_trace().NE.0.0D0) THEN
+         call sys_set_reverse_trace(0.0D0)
          OUTLYNE='"REVRAY" SETTING HAS BEEN AUTOMATICALLY CANCELLED'
          CALL SHOWIT(1)
       END IF
       IF(WC.EQ.'PYIM') THEN
-         IF(SYSTEM(94).EQ.0.0D0) THEN
-            SYSTEM(94)=SYSTEM(95)
-            SYSTEM(92)=SYSTEM(93)
+         IF(sys_pxim_fang_set().EQ.0.0D0) THEN
+            call sys_set_pxim_fang_set(sys_pyim_fang_set())
+            call sys_set_pxim(sys_pyim())
          ELSE
-            SYSTEM(94)=SYSTEM(95)
+            call sys_set_pxim_fang_set(sys_pyim_fang_set())
          END IF
       END IF
       IF(WC.EQ.'PXIM') THEN
-         IF(SYSTEM(95).EQ.0.0D0) THEN
-            SYSTEM(95)=SYSTEM(94)
-            SYSTEM(93)=SYSTEM(92)
+         IF(sys_pyim_fang_set().EQ.0.0D0) THEN
+            call sys_set_pyim_fang_set(sys_pxim_fang_set())
+            call sys_set_pyim(sys_pxim())
          ELSE
-            SYSTEM(95)=SYSTEM(94)
+            call sys_set_pyim_fang_set(sys_pxim_fang_set())
          END IF
       END IF
       RETURN
@@ -1572,6 +1589,10 @@ SUBROUTINE RXYIM
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_pyim_fang_set, sys_rxim, sys_rxim_fang_set, sys_ryim, &
+      & sys_ryim_fang_set, &
+      & sys_set_rxim, sys_set_rxim_fang_set, sys_set_ryim, sys_set_ryim_fang_set, &
+      & sys_set_scx_set, sys_set_scy_set, sys_set_xz_data_flag
    IMPLICIT NONE
 !
 !
@@ -1594,63 +1615,63 @@ SUBROUTINE RXYIM
    END IF
 !
    IF(F1.EQ.1) THEN
-      IF(WC.EQ.'RXIM'.AND.SYSTEM(98).EQ.0.0D0) THEN
+      IF(WC.EQ.'RXIM'.AND.sys_rxim_fang_set().EQ.0.0D0) THEN
          OUTLYNE='REF. OBJ. HT. NOT SET BY REAL IMAGE SPACE HT OR ANGLE'
          CALL SHOWIT(0)
          RETURN
       END IF
-      IF(WC.EQ.'RYIM'.AND.SYSTEM(99).EQ.0.0D0) THEN
+      IF(WC.EQ.'RYIM'.AND.sys_ryim_fang_set().EQ.0.0D0) THEN
          OUTLYNE='REF. OBJ. HT. NOT SET BY REAL IMAGE SPACE HT OR ANGLE'
          CALL SHOWIT(0)
          RETURN
       END IF
       IF(WQ.NE.'FANG') THEN
-         IF(WC.EQ.'RYIM'.AND.SYSTEM(99).NE.0.0D0) THEN
+         IF(WC.EQ.'RYIM'.AND.sys_ryim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,2002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,2000) SYSTEM(97)
+            WRITE(OUTLYNE,2000) sys_ryim()
             CALL SHOWIT(0)
-            IF(SYSTEM(98).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(98).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE HEIGHT'
+            IF(sys_rxim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
+            IF(sys_rxim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
-         IF(WC.EQ.'RXIM'.AND.SYSTEM(98).NE.0.0D0) THEN
+         IF(WC.EQ.'RXIM'.AND.sys_rxim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,2002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,4000) SYSTEM(96)
+            WRITE(OUTLYNE,4000) sys_rxim()
             CALL SHOWIT(0)
-            IF(SYSTEM(99).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(99).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE HEIGHT'
+            IF(sys_ryim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
+            IF(sys_ryim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
       ELSE
       END IF
       IF(WQ.EQ.'FANG') THEN
-         IF(WC.EQ.'RYIM'.AND.SYSTEM(99).NE.0.0D0) THEN
+         IF(WC.EQ.'RYIM'.AND.sys_ryim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,3000) SYSTEM(97)
+            WRITE(OUTLYNE,3000) sys_ryim()
             CALL SHOWIT(0)
-            IF(SYSTEM(98).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(98).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE HEIGHT'
+            IF(sys_rxim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
+            IF(sys_rxim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
-         IF(WC.EQ.'RXIM'.AND.SYSTEM(98).NE.0.0D0) THEN
+         IF(WC.EQ.'RXIM'.AND.sys_rxim_fang_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,100)
             CALL SHOWIT(0)
             WRITE(OUTLYNE,3002)
             CALL SHOWIT(0)
-            WRITE(OUTLYNE,5000) SYSTEM(96)
+            WRITE(OUTLYNE,5000) sys_rxim()
             CALL SHOWIT(0)
-            IF(SYSTEM(99).EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
-            IF(SYSTEM(95).EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE HEIGHT'
+            IF(sys_ryim_fang_set().EQ.1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE ANGLE'
+            IF(sys_pyim_fang_set().EQ.-1.0D0)OUTLYNE='REF. OBJ. HT. SET BY REAL IMAGE SPACE HEIGHT'
             CALL SHOWIT(0)
          ELSE
          END IF
@@ -1705,11 +1726,11 @@ SUBROUTINE RXYIM
                & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
-            SYSTEM(97)=(W1)
+            call sys_set_ryim((W1))
             SYSTEM(92:95)=0.0D0
-            SYSTEM(99)=1.0D0
-            SYSTEM(60)=1.0D0
-            SYSTEM(61)=1.0D0
+            call sys_set_ryim_fang_set(1.0D0)
+            call sys_set_scy_set(1.0D0)
+            call sys_set_scx_set(1.0D0)
          ELSE
          END IF
          IF(WC.EQ.'RXIM') THEN
@@ -1719,50 +1740,50 @@ SUBROUTINE RXYIM
                & 'MUST BE LESS THAN 90 DEGREES', 1)
                RETURN
             END IF
-            SYSTEM(96)=(W1)
+            call sys_set_rxim((W1))
             SYSTEM(92:95)=0.0D0
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=2.0D0
-            IF(SYSTEM(49).EQ.1.0D0) SYSTEM(49)=3.0D0
-            SYSTEM(98)=1.0D0
-            SYSTEM(61)=1.0D0
-            SYSTEM(60)=1.0D0
+            call sys_set_xz_data_flag(2.0D0)
+            call sys_set_xz_data_flag(3.0D0)
+            call sys_set_rxim_fang_set(1.0D0)
+            call sys_set_scx_set(1.0D0)
+            call sys_set_scy_set(1.0D0)
          ELSE
          END IF
       ELSE
 !     NOT FANG
          IF(WC.EQ.'RXIM') THEN
-            SYSTEM(98)=-1.0D0
-            SYSTEM(96)=W1
+            call sys_set_rxim_fang_set(-1.0D0)
+            call sys_set_rxim(W1)
             SYSTEM(92:95)=0.0D0
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=2.0D0
-            IF(SYSTEM(49).EQ.1.0D0) SYSTEM(49)=3.0D0
-            SYSTEM(61)=1.0D0
-            SYSTEM(60)=1.0D0
+            call sys_set_xz_data_flag(2.0D0)
+            call sys_set_xz_data_flag(3.0D0)
+            call sys_set_scx_set(1.0D0)
+            call sys_set_scy_set(1.0D0)
          ELSE
          END IF
          IF(WC.EQ.'RYIM') THEN
-            SYSTEM(99)=-1.0D0
-            SYSTEM(97)=W1
+            call sys_set_ryim_fang_set(-1.0D0)
+            call sys_set_ryim(W1)
             SYSTEM(92:95)=0.0D0
-            SYSTEM(60)=1.0D0
-            SYSTEM(61)=1.0D0
+            call sys_set_scy_set(1.0D0)
+            call sys_set_scx_set(1.0D0)
          ELSE
          END IF
       END IF
       IF(WC.EQ.'RYIM') THEN
-         IF(SYSTEM(98).EQ.0.0D0) THEN
-            SYSTEM(98)=SYSTEM(99)
-            SYSTEM(96)=SYSTEM(97)
+         IF(sys_rxim_fang_set().EQ.0.0D0) THEN
+            call sys_set_rxim_fang_set(sys_ryim_fang_set())
+            call sys_set_rxim(sys_ryim())
          ELSE
-            SYSTEM(98)=SYSTEM(99)
+            call sys_set_rxim_fang_set(sys_ryim_fang_set())
          END IF
       END IF
       IF(WC.EQ.'RXIM') THEN
-         IF(SYSTEM(99).EQ.0.0D0) THEN
-            SYSTEM(99)=SYSTEM(98)
-            SYSTEM(97)=SYSTEM(96)
+         IF(sys_ryim_fang_set().EQ.0.0D0) THEN
+            call sys_set_ryim_fang_set(sys_rxim_fang_set())
+            call sys_set_ryim(sys_rxim())
          ELSE
-            SYSTEM(99)=SYSTEM(98)
+            call sys_set_ryim_fang_set(sys_rxim_fang_set())
          END IF
       END IF
       RETURN
@@ -1783,6 +1804,8 @@ SUBROUTINE SBD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_bdx, sys_bdy, sys_units, sys_wavelength, sys_wl_ref, &
+      & sys_wrx, sys_wry, sys_set_bdx, sys_set_bdy
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SBD WHICH IMPLEMENTS THE BDX,BDY COMMANDS
@@ -1808,7 +1831,7 @@ SUBROUTINE SBD
       IF(WC.EQ.'BDY') THEN
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(88)
+         WRITE(OUTLYNE,2000) sys_bdy()
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -1819,7 +1842,7 @@ SUBROUTINE SBD
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(87)
+         WRITE(OUTLYNE,3000) sys_bdx()
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -1895,7 +1918,7 @@ SUBROUTINE SBD
             RETURN
          END IF
       END IF
-      IF(DF1.EQ.1.AND.SQ.EQ.1) W1=SYSTEM(11)
+      IF(DF1.EQ.1.AND.SQ.EQ.1) W1=sys_wl_ref()
       IF(SQ.EQ.1) THEN
          IF(W1.NE.1.0D0.AND.W1.NE.2.0D0.AND.W1.NE.3.0D0.AND.W1.NE.4.0D0 .AND.W1.NE.5.0D0.AND.W1.NE.6.0D0.AND.W1.NE.7.0D0.AND.W1.NE.8.0D0.AND.W1.NE.9.0D0.AND.W1.NE.10.0D0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
@@ -1904,20 +1927,20 @@ SUBROUTINE SBD
             & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
-         IF(W1.EQ.1.0D0)  WAVER=SYSTEM(1)
-         IF(W1.EQ.2.0D0)  WAVER=SYSTEM(2)
-         IF(W1.EQ.3.0D0)  WAVER=SYSTEM(3)
-         IF(W1.EQ.4.0D0)  WAVER=SYSTEM(4)
-         IF(W1.EQ.5.0D0)  WAVER=SYSTEM(5)
-         IF(W1.EQ.6.0D0)  WAVER=SYSTEM(71)
-         IF(W1.EQ.7.0D0)  WAVER=SYSTEM(72)
-         IF(W1.EQ.8.0D0)  WAVER=SYSTEM(73)
-         IF(W1.EQ.9.0D0)  WAVER=SYSTEM(74)
-         IF(W1.EQ.10.0D0) WAVER=SYSTEM(75)
-         IF(SYSTEM(6).EQ.1.0D0) WAVER=WAVER*(1.0D-3/25.4D0)
-         IF(SYSTEM(6).EQ.2.0D0) WAVER=WAVER*1.0D-4
-         IF(SYSTEM(6).EQ.3.0D0) WAVER=WAVER*1.0D-3
-         IF(SYSTEM(6).EQ.4.0D0) WAVER=WAVER*1.0D-6
+         IF(W1.EQ.1.0D0)  WAVER=sys_wavelength(1)
+         IF(W1.EQ.2.0D0)  WAVER=sys_wavelength(2)
+         IF(W1.EQ.3.0D0)  WAVER=sys_wavelength(3)
+         IF(W1.EQ.4.0D0)  WAVER=sys_wavelength(4)
+         IF(W1.EQ.5.0D0)  WAVER=sys_wavelength(5)
+         IF(W1.EQ.6.0D0)  WAVER=sys_wavelength(6)
+         IF(W1.EQ.7.0D0)  WAVER=sys_wavelength(7)
+         IF(W1.EQ.8.0D0)  WAVER=sys_wavelength(8)
+         IF(W1.EQ.9.0D0)  WAVER=sys_wavelength(9)
+         IF(W1.EQ.10.0D0) WAVER=sys_wavelength(10)
+         IF(sys_units().EQ.1.0D0) WAVER=WAVER*(1.0D-3/25.4D0)
+         IF(sys_units().EQ.2.0D0) WAVER=WAVER*1.0D-4
+         IF(sys_units().EQ.3.0D0) WAVER=WAVER*1.0D-3
+         IF(sys_units().EQ.4.0D0) WAVER=WAVER*1.0D-6
       END IF
 !
       IF(SQ.EQ.0) THEN
@@ -1935,12 +1958,12 @@ SUBROUTINE SBD
             & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
-         IF(WC.EQ.'BDX') SYSTEM(87)=W1
-         IF(WC.EQ.'BDY') SYSTEM(88)=W1
+         call sys_set_bdx(W1)
+         call sys_set_bdy(W1)
       END IF
       IF(SQ.EQ.1) THEN
-         IF(WC.EQ.'BDX') SYSTEM(87)=1000.0D0*(WAVER)/(PII*SYSTEM(85))
-         IF(WC.EQ.'BDY') SYSTEM(88)=1000.0D0*(WAVER)/(PII*SYSTEM(86))
+         call sys_set_bdx(1000.0D0*(WAVER)/(PII*sys_wrx()))
+         call sys_set_bdy(1000.0D0*(WAVER)/(PII*sys_wry()))
       END IF
       RETURN
    END IF
@@ -1955,6 +1978,7 @@ SUBROUTINE SWR
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_wrx, sys_wry, sys_set_wrx, sys_set_wry
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SWR WHICH IMPLEMENTS THE WRX,WRY COMMANDS
@@ -1978,7 +2002,7 @@ SUBROUTINE SWR
       IF(WC.EQ.'WRY') THEN
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(86)
+         WRITE(OUTLYNE,2000) sys_wry()
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -1989,7 +2013,7 @@ SUBROUTINE SWR
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(85)
+         WRITE(OUTLYNE,3000) sys_wrx()
          CALL SHOWIT(0)
          RETURN
       ELSE
@@ -2063,8 +2087,8 @@ SUBROUTINE SWR
             RETURN
          END IF
       END IF
-      IF(WC.EQ.'WRX') SYSTEM(85)=W1
-      IF(WC.EQ.'WRY') SYSTEM(86)=W1
+      call sys_set_wrx(W1)
+      call sys_set_wry(W1)
       RETURN
    END IF
 2001 FORMAT(1X)
@@ -2078,6 +2102,10 @@ SUBROUTINE SSA
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_fno_flag_x, sys_fno_flag_y, sys_fno_val_set, &
+      & sys_na_set, sys_sax, sys_sax_float, sys_say, sys_say_float, &
+      & sys_set_fno_val_set, sys_set_na_set, sys_set_sax, sys_set_sax_float, &
+      & sys_set_say, sys_set_say_float, sys_set_xz_data_flag
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSAY WHICH IMPLEMENTS THE SAY COMMAND
@@ -2101,19 +2129,19 @@ SUBROUTINE SSA
       IF(WC.EQ.'SAY') THEN
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,2000) SYSTEM(12)
+         WRITE(OUTLYNE,2000) sys_say()
          CALL SHOWIT(0)
-         IF(SYSTEM(64).NE.0.0D0) THEN
+         IF(sys_na_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,2010)
             CALL SHOWIT(0)
 2010        FORMAT('"SAY" IS BEING HELD WITH AN "NAOY" ASSIGNMENT')
          END IF
-         IF(SYSTEM(67).NE.0.0D0) THEN
+         IF(sys_fno_val_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,2020)
             CALL SHOWIT(0)
 2020        FORMAT('"SAY" IS BEING HELD WITH AN "FNOY" ASSIGNMENT')
          END IF
-         IF(SYSTEM(83).NE.0.0D0) THEN
+         IF(sys_say_float().NE.0.0D0) THEN
             WRITE(OUTLYNE,2050)
             CALL SHOWIT(0)
 2050        FORMAT('"SAY" IS CURRENTLY FLOATING')
@@ -2127,20 +2155,20 @@ SUBROUTINE SSA
          CALL SHOWIT(0)
          WRITE(OUTLYNE,2002)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,3000) SYSTEM(13)
+         WRITE(OUTLYNE,3000) sys_sax()
          CALL SHOWIT(0)
 !
-         IF(SYSTEM(64).NE.0.0D0) THEN
+         IF(sys_na_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,2030)
             CALL SHOWIT(0)
 2030        FORMAT('"SAX" IS BEING HELD WITH AN "NAOX" ASSIGNMENT')
          END IF
-         IF(SYSTEM(67).NE.0.0D0) THEN
+         IF(sys_fno_val_set().NE.0.0D0) THEN
             WRITE(OUTLYNE,2040)
             CALL SHOWIT(0)
 2040        FORMAT('"SAX" IS BEING HELD WITH AN "FNOX" ASSIGNMENT')
          END IF
-         IF(SYSTEM(84).NE.0.0D0) THEN
+         IF(sys_sax_float().NE.0.0D0) THEN
             WRITE(OUTLYNE,2060)
             CALL SHOWIT(0)
 2060        FORMAT('"SAX" IS CURRENTLY FLOATING')
@@ -2170,7 +2198,7 @@ SUBROUTINE SSA
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(WQ.EQ.'FLOAT'.AND.SYSTEM(44).NE.0.0D0.OR.WQ.EQ.'FLOAT'.AND.SYSTEM(45).NE.0.0D0) THEN
+      IF(WQ.EQ.'FLOAT'.AND.sys_fno_flag_y().NE.0.0D0.OR.WQ.EQ.'FLOAT'.AND.sys_fno_flag_x().NE.0.0D0) THEN
          CALL REPORT_ERROR_AND_FAIL(&
          & '"FLOAT" MAY NOT BE USED SINCE THERE ARE EXIT PUPIL'//'\n'//&
          & 'OR F-NUMBER HOLDS PRESENT'//'\n'//&
@@ -2182,14 +2210,14 @@ SUBROUTINE SSA
 !
 !     CHECK FOR CLAP ON ASTOP IF FLOAT
          IF(WQ.EQ.'FLOAT') THEN
-            IF(SYSTEM(26).LE.0.0D0) THEN
+            IF(sys_astop().LE.0.0D0) THEN
 !     NO ASTOP ASSIGNED
                CALL REPORT_ERROR_AND_FAIL(&
                & 'NO APERTURE STOP IS DEFINED, "FLOAT" MAY NOT BE USED'//'\n'//&
                & 'RE-ENTER COMMAND', 1)
                RETURN
             END IF
-            IF(surf_clap_type(INT(SYSTEM(26))).EQ.0.0D0) THEN
+            IF(surf_clap_type(INT(sys_astop())).EQ.0.0D0) THEN
                CALL REPORT_ERROR_AND_FAIL(&
                & 'NO CLEAR APERTURE EXISTS ON THE APERTURE STOP SURFACE'//'\n'//&
                & '"FLOAT" MAY NOT BE USED'//'\n'//&
@@ -2252,14 +2280,14 @@ SUBROUTINE SSA
             END IF
          END IF
       END IF
-      IF(WQ.EQ.'FLOAT')   SYSTEM(83)=1.0D0
-      IF(WQ.EQ.'FLOAT')   SYSTEM(84)=1.0D0
-      IF(WQ.EQ.'NOFLOAT') SYSTEM(83)=0.0D0
-      IF(WQ.EQ.'NOFLOAT') SYSTEM(84)=0.0D0
+      call sys_set_say_float(1.0D0)
+      call sys_set_sax_float(1.0D0)
+      call sys_set_say_float(0.0D0)
+      call sys_set_sax_float(0.0D0)
 !     IF NUMERIC INPUT, SHUT OFF FLOAT
       IF(DF1.EQ.0.AND.WC.EQ.'SAY'.OR.DF1.EQ.0.AND.WC.EQ.'SAX') THEN
-         SYSTEM(83)=0.0D0
-         SYSTEM(84)=0.0D0
+         call sys_set_say_float(0.0D0)
+         call sys_set_sax_float(0.0D0)
       END IF
 !
       IF(DF1.EQ.1.AND.WQ.NE.'FLOAT'.AND.WQ.NE.'NOFLOAT') THEN
@@ -2291,40 +2319,40 @@ SUBROUTINE SSA
          RETURN
       END IF
       IF(SQ.EQ.0) THEN
-         SYSTEM(64)=0.0D0
-         SYSTEM(67)=0.0D0
-         IF(WC.EQ.'SAY') SYSTEM(12)=(W1)
-         IF(WC.EQ.'SAX') SYSTEM(13)=(W1)
+         call sys_set_na_set(0.0D0)
+         call sys_set_fno_val_set(0.0D0)
+         call sys_set_say((W1))
+         call sys_set_sax((W1))
 !     IF NUMERIC INPUT, SHUT OFF FLOAT
-         IF(WC.EQ.'SAY') SYSTEM(83)=0.0D0
-         IF(WC.EQ.'SAX') SYSTEM(84)=0.0D0
+         call sys_set_say_float(0.0D0)
+         call sys_set_sax_float(0.0D0)
          IF(WC.EQ.'SAX') THEN
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=1.0D0
-            IF(SYSTEM(49).EQ.2.0D0) SYSTEM(49)=3.0D0
+            call sys_set_xz_data_flag(1.0D0)
+            call sys_set_xz_data_flag(3.0D0)
          END IF
       END IF
       IF(WQ.EQ.'DELT') THEN
-         SYSTEM(64)=0.0D0
-         SYSTEM(67)=0.0D0
-         IF(WC.EQ.'SAY') SYSTEM(12)=SYSTEM(12)+(W1)
-         IF(WC.EQ.'SAX') SYSTEM(13)=SYSTEM(13)+(W1)
-         IF(WC.EQ.'SAY') SYSTEM(83)=0.0D0
-         IF(WC.EQ.'SAX') SYSTEM(84)=0.0D0
+         call sys_set_na_set(0.0D0)
+         call sys_set_fno_val_set(0.0D0)
+         call sys_set_say(sys_say()+(W1))
+         call sys_set_sax(sys_sax()+(W1))
+         call sys_set_say_float(0.0D0)
+         call sys_set_sax_float(0.0D0)
          IF(WC.EQ.'SAX') THEN
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=1.0D0
-            IF(SYSTEM(49).EQ.2.0D0) SYSTEM(49)=3.0D0
+            call sys_set_xz_data_flag(1.0D0)
+            call sys_set_xz_data_flag(3.0D0)
          END IF
       END IF
       IF(WQ.EQ.'CENT') THEN
-         SYSTEM(64)=0.0D0
-         SYSTEM(67)=0.0D0
-         IF(WC.EQ.'SAY') SYSTEM(12)=SYSTEM(12)+(W1*0.01D0*SYSTEM(12))
-         IF(WC.EQ.'SAX') SYSTEM(13)=SYSTEM(13)+(W1*0.01D0*SYSTEM(13))
-         IF(WC.EQ.'SAY') SYSTEM(83)=0.0D0
-         IF(WC.EQ.'SAX') SYSTEM(84)=0.0D0
+         call sys_set_na_set(0.0D0)
+         call sys_set_fno_val_set(0.0D0)
+         call sys_set_say(sys_say()+(W1*0.01D0*sys_say()))
+         call sys_set_sax(sys_sax()+(W1*0.01D0*sys_sax()))
+         call sys_set_say_float(0.0D0)
+         call sys_set_sax_float(0.0D0)
          IF(WC.EQ.'SAX') THEN
-            IF(SYSTEM(49).EQ.0.0D0) SYSTEM(49)=1.0D0
-            IF(SYSTEM(49).EQ.2.0D0) SYSTEM(49)=3.0D0
+            call sys_set_xz_data_flag(1.0D0)
+            call sys_set_xz_data_flag(3.0D0)
          END IF
       END IF
       RETURN
@@ -2342,6 +2370,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_last_surf, sys_ref_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SRTG. THIS IS THE SUBROUTINE WHICH
@@ -2393,7 +2422,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
       CALL MACFAL
       RETURN
    END IF
-   IF(SYSTEM(20).EQ.0.0D0) THEN
+   IF(sys_last_surf().EQ.0.0D0) THEN
       OUTLYNE='LENS SYSTEM HAS NO SURFACES'
       CALL SHOWIT(1)
       OUTLYNE='RE-ENTER COMMAND'
@@ -2403,7 +2432,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
       RETURN
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'ALL') THEN
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(WC.EQ.'RTG'.OR.WC.EQ.'RTGLBL') THEN
          WRITE(OUTLYNE,5001)
          CALL SHOWIT(0)
@@ -2426,7 +2455,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 
 
 
-      DO 10 I=0,INT(SYSTEM(20))
+      DO 10 I=0,INT(sys_last_surf())
          NF=I
          CALL SINDEX
          IF(WC.EQ.'RTG'.OR.WC.EQ.'RTGLBL') THEN
@@ -2466,9 +2495,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
             IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-            IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+            IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-            IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+            IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       GRATING
             IF(surf_diffraction_flag(I).EQ.1.0D0) SPEC='*'
 !       CONIC
@@ -2488,9 +2517,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
             IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-            IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+            IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-            IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+            IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
             IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -2738,9 +2767,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
             IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-            IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+            IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-            IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+            IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
             IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -2758,9 +2787,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
             IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-            IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+            IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-            IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+            IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
             IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -3011,9 +3040,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+         IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+         IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
          IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -3031,9 +3060,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+         IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+         IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
          IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -3109,9 +3138,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+         IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+         IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
          IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -3129,9 +3158,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+         IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+         IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
          IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -3197,7 +3226,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
    END IF
    IF(SQ.EQ.0.AND.DF1.EQ.1) THEN
 !       OUTPUT IMAGE SURFACE
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       NF=SF
       CALL SINDEX
       IF(WC.EQ.'RTG'.OR.WC.EQ.'RTGLBL') THEN
@@ -3228,9 +3257,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+         IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+         IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
          IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -3248,9 +3277,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+         IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+         IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
          IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -3297,9 +3326,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+         IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+         IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
          IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -3317,9 +3346,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+         IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+         IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
          IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -3347,7 +3376,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
    END IF
    IF(SQ.EQ.0.AND.DF1.NE.1) THEN
       I=INT(W1)
-      SF=INT(SYSTEM(20))
+      SF=INT(sys_last_surf())
       IF(I.GT.SF.OR.I.LT.0) THEN
          OUTLYNE='SURFACE NUMBER BEYOND LEGAL RANGE'
          CALL SHOWIT(1)
@@ -3386,9 +3415,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+         IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+         IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
          IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -3406,9 +3435,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+         IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+         IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
          IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
@@ -3483,9 +3512,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPEC='*'
+         IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPEC='*'
+         IF(INT(sys_astop()).EQ.I) SPEC='*'
 !       CONIC
          IF(surf_conic(I).NE.0.0D0) SPECC(1:5)='Conic'
 !       ASPHERIC
@@ -3503,9 +3532,9 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       SOLVES
          IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
 !       REFS
-         IF(INT(SYSTEM(25)).EQ.I) SPECC(55:58)='REFS'
+         IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
-         IF(INT(SYSTEM(26)).EQ.I) SPECC(60:63)='STOP'
+         IF(INT(sys_astop()).EQ.I) SPECC(60:63)='STOP'
 !       GRT
          IF(surf_diffraction_flag(I).EQ.1.0D0) SPECC(65:67)='GRT'
 !       DEFORMABLE SURFACE
