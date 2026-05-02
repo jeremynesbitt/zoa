@@ -336,7 +336,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_aplanatic_aim, sys_ray_aiming, sys_ref_orient, &
+   use mod_system, only: sys_aplanatic_aim, sys_fliprefx, sys_fliprefy, &
+      & sys_ray_aiming, sys_ref_orient, &
       & sys_scx, sys_scy, sys_telecentric, sys_wavelength
    IMPLICIT NONE
 !
@@ -861,8 +862,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                      TARY=(surf_clap_dim(I, 2)*WWW1)
                      TARX=(surf_clap_dim(I, 2)*WWW2)
                   END IF
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -880,8 +881,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                      TARY=(surf_clap_dim(I, 2)*WWW1)
                      TARX=(surf_clap_dim(I, 2)*WWW2)
                   END IF
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
 !       NOW IS THE REF SURF ORIENTATION ANGLE ?
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
@@ -897,8 +898,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                IF(CLAPT) THEN
                   TARY=(surf_clap_dim(I, 1)*WW1)
                   TARX=(surf_clap_dim(I, 2)*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -910,8 +911,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                ELSE
                   TARY=(surf_clap_dim(I, 1)*WW1)
                   TARX=(surf_clap_dim(I, 2)*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -929,8 +930,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                IF(CLAPT) THEN
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -942,8 +943,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                ELSE
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -960,8 +961,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                   XVALUE=surf_clap_dim(I, 2)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -975,8 +976,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                   XVALUE=surf_clap_dim(I, 2)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -993,8 +994,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                   XVALUE=surf_clap_dim(I, 1)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1008,8 +1009,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                   XVALUE=surf_clap_dim(I, 1)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -1024,8 +1025,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                   XVALUE=surf_clap_dim(I, 5)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -1039,8 +1040,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
                   XVALUE=surf_clap_dim(I, 2)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -1054,8 +1055,8 @@ SUBROUTINE QTRA1(FOOT_TRACE)
 !       NO CLAP ON REF SURF.
             TARY=(PXTRAY(1,I)*WW1)
             TARX=(PXTRAX(1,I)*WW2)
-            IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-            IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+            IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+            IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
             GAMMA=(sys_ref_orient()*(PII))/180.0D0
             TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
             TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -1641,8 +1642,9 @@ SUBROUTINE RAYTRA_OLD
       & A_IDEAL_FL, A_MULTICLAP, A_MULTICOBS, A_N2_OFFSET, A_N_OFFSET, &
       & A_SURFTYPE, A_THI, A_XDEC, A_YDEC
    use mod_system, only: sys_aplanatic_aim, sys_ray_aiming, sys_ref_orient, &
-      & sys_scx, sys_scy, sys_screen, sys_screen_d, sys_screen_h, sys_screen_s, &
-      & sys_screen_surf, sys_telecentric, sys_wavelength
+      & sys_scx, sys_scy, sys_screen, sys_screen_d, &
+      & sys_screen_h, sys_screen_s, sys_screen_surf, sys_telecentric, sys_wavelength
+   use mod_system, only: sys_screen_excl_angle
 !
    use DATLEN
    use mod_surface
@@ -2823,7 +2825,8 @@ subroutine compute_ray_energy
    use DATMAI, only: PII, OUTLYNE
    use surface_params, only: A_COATING, A_GRATING, A_GRAT_SPACE, &
       & A_N2_OFFSET, A_N_OFFSET, A_SURFTYPE
-   use mod_system, only: sys_screen, sys_screen_d, sys_screen_h, sys_screen_s, sys_screen_surf
+   use mod_system, only: sys_screen, sys_screen_d, sys_screen_excl_angle, &
+      sys_screen_h, sys_screen_s, sys_screen_surf
    implicit none
    integer  :: I, J, ISURF, IPASS1, WA3
    real(8)  :: RN1, RN2, POLANG, FACT_PAR, FACT_PER, PHASE_PAR, PHASE_PER
@@ -2913,7 +2916,7 @@ subroutine compute_ray_energy
             D=sys_screen_d()
             H=sys_screen_h()
             S=sys_screen_s()
-            IF(DCOS(AOI).EQ.0.0D0.OR.AOI.GE.DABS(SYSTEM(108))) THEN
+            IF(DCOS(AOI).EQ.0.0D0.OR.AOI.GE.DABS(sys_screen_excl_angle())) THEN
                FACTOR=0.0D0
             ELSE
                FACTOR=PII*(((D)-(H*DSIN(AOI)))*(((D)*DCOS(AOI))-(H*DSIN(AOI))))/(4.0D0*S*S*DCOS(AOI))
@@ -3236,9 +3239,10 @@ SUBROUTINE RAYTRA2
    USE GLOBALS
    use mod_lens_data_manager
    use real_ray_trace
-   use mod_system, only: sys_aplanatic_aim, sys_ray_aiming, sys_ref_orient, &
-      & sys_scx, sys_scy, sys_screen, sys_screen_d, sys_screen_h, sys_screen_s, &
-      & sys_screen_surf, sys_telecentric
+   use mod_system, only: sys_aplanatic_aim, sys_fliprefx, sys_fliprefy, &
+      & sys_ray_aiming, sys_ref_orient, &
+      & sys_scx, sys_scy, sys_screen, sys_screen_d, sys_screen_excl_angle, &
+      & sys_screen_h, sys_screen_s, sys_screen_surf, sys_telecentric
 !
    use DATLEN
    use mod_surface
@@ -3986,8 +3990,8 @@ SUBROUTINE RAYTRA2
                      TARY=(surf_clap_dim(I, 2)*WWW1)
                      TARX=(surf_clap_dim(I, 2)*WWW2)
                   END IF
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -4007,8 +4011,8 @@ SUBROUTINE RAYTRA2
                      TARY=(surf_clap_dim(I, 2)*WWW1)
                      TARX=(surf_clap_dim(I, 2)*WWW2)
                   END IF
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
 !       NOW IS THE REF SURF ORIENTATION ANGLE ?
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
@@ -4034,8 +4038,8 @@ SUBROUTINE RAYTRA2
                         TARX=(surf_clap_dim(I, 2)*WW2)
                      END IF
                   END IF
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -4047,8 +4051,8 @@ SUBROUTINE RAYTRA2
                ELSE
                   TARY=(surf_clap_dim(I, 1)*WW1)
                   TARX=(surf_clap_dim(I, 2)*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -4066,8 +4070,8 @@ SUBROUTINE RAYTRA2
                IF(CLAPT) THEN
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -4079,8 +4083,8 @@ SUBROUTINE RAYTRA2
                ELSE
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -4097,8 +4101,8 @@ SUBROUTINE RAYTRA2
                   XVALUE=surf_clap_dim(I, 2)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -4112,8 +4116,8 @@ SUBROUTINE RAYTRA2
                   XVALUE=surf_clap_dim(I, 2)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -4130,8 +4134,8 @@ SUBROUTINE RAYTRA2
                   XVALUE=surf_clap_dim(I, 1)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -4145,8 +4149,8 @@ SUBROUTINE RAYTRA2
                   XVALUE=surf_clap_dim(I, 1)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -4161,8 +4165,8 @@ SUBROUTINE RAYTRA2
                   XVALUE=surf_clap_dim(I, 5)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   TARX=TARX+surf_clap_dim(I, 4)
                   TARY=TARY+surf_clap_dim(I, 3)
 !       NOW IS THE CLAP TILTED ?
@@ -4176,8 +4180,8 @@ SUBROUTINE RAYTRA2
                   XVALUE=surf_clap_dim(I, 2)
                   TARY=(YVALUE*WW1)
                   TARX=(XVALUE*WW2)
-                  IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-                  IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+                  IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+                  IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
                   GAMMA=(sys_ref_orient()*(PII))/180.0D0
                   TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
                   TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -4191,8 +4195,8 @@ SUBROUTINE RAYTRA2
 !       NO CLAP ON REF SURF OR MULTI-CLAP
             TARY=(PXTRAY(1,I)*WW1)
             TARX=(PXTRAX(1,I)*WW2)
-            IF(SYSTEM(128).NE.0.0D0) TARX=-TARX
-            IF(SYSTEM(129).NE.0.0D0) TARY=-TARY
+            IF(sys_fliprefx().NE.0.0D0) TARX=-TARX
+            IF(sys_fliprefy().NE.0.0D0) TARY=-TARY
             GAMMA=(sys_ref_orient()*(PII))/180.0D0
             TARRX=((TARX*DCOS(GAMMA))-(TARY*DSIN(GAMMA)))
             TARRY=((TARX*DSIN(GAMMA))+(TARY*DCOS(GAMMA)))
@@ -4467,7 +4471,7 @@ SUBROUTINE RAYTRA2
             D=sys_screen_d()
             H=sys_screen_h()
             S=sys_screen_s()
-            IF(DCOS(AOI).EQ.0.0D0.OR.AOI.GE.DABS(SYSTEM(108))) THEN
+            IF(DCOS(AOI).EQ.0.0D0.OR.AOI.GE.DABS(sys_screen_excl_angle())) THEN
                FACTOR=0.0D0
             ELSE
                FACTOR=PII*(((D)-(H*DSIN(AOI)))*(((D)*DCOS(AOI))-(H*DSIN(AOI))))/(4.0D0*S*S*DCOS(AOI))
