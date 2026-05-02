@@ -2008,7 +2008,12 @@ SUBROUTINE SCALEA1
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
-      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, &
+      sys_y1_scy, sys_x1_scx, sys_y1_scy_fang, sys_x1_scx_fang, &
+      sys_fno_flag_y, sys_fno_hold_x, sys_fno_val_set, sys_na_set, &
+      sys_set_say, sys_set_sax, sys_set_scy, sys_set_scx, &
+      sys_set_scy_fang, sys_set_scx_fang, &
+      sys_set_y1_scy, sys_set_x1_scx, sys_set_y1_scy_fang, sys_set_x1_scx_fang
    IMPLICIT NONE
 !
 !     THIS DOES SC WITHOUT FY
@@ -2031,29 +2036,29 @@ SUBROUTINE SCALEA1
 !       ANY CONFLICT WITH SCY AND SCY FANG WILL BE RESOLVED
 !       AT THE END OF SCALING WHEN LNSEOS IS CALLED
 !
-   IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-      SYSTEM(12)=sys_say()*W1
-      SYSTEM(13)=sys_sax()*W1
+   IF(sys_na_set().EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
+      call sys_set_say(sys_say()*W1)
+      call sys_set_sax(sys_sax()*W1)
    END IF
-   SYSTEM(14)=sys_scy()*W1
-   SYSTEM(15)=SYSTEM(15)*W1
-   SYSTEM(16)=sys_scx()*W1
-   SYSTEM(17)=SYSTEM(17)*W1
+   call sys_set_scy(sys_scy()*W1)
+   call sys_set_y1_scy(sys_y1_scy()*W1)
+   call sys_set_scx(sys_scx()*W1)
+   call sys_set_x1_scx(sys_x1_scx()*W1)
 !     FIELD ANGLES DO NOT GET SCALED !
-   SYSTEM(21)=sys_scy_fang()
-   SYSTEM(23)=sys_scx_fang()
+   call sys_set_scy_fang(sys_scy_fang())
+   call sys_set_scx_fang(sys_scx_fang())
 !
-   SYSTEM(22)=SYSTEM(22)*W1
-   SYSTEM(24)=SYSTEM(24)*W1
+   call sys_set_y1_scy_fang(sys_y1_scy_fang()*W1)
+   call sys_set_x1_scx_fang(sys_x1_scx_fang()*W1)
 !
 !       REMOVE FNBY HLD OR ER HOLD IF PRESENT
 !
-   IF(SYSTEM(44).EQ.-1.0D0.OR.SYSTEM(45).EQ.-1.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-1.0D0.OR.sys_fno_hold_x().EQ.-1.0D0)THEN
       OUTLYNE='REMOVING F/# HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
    END IF
-   IF(SYSTEM(44).EQ.-2.0D0.OR.SYSTEM(45).EQ.-2.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-2.0D0.OR.sys_fno_hold_x().EQ.-2.0D0)THEN
       OUTLYNE='REMOVING EXIT PUPIL RADIUS HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
@@ -2426,7 +2431,8 @@ SUBROUTINE SCALEA2
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
-      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, &
+      sys_fno_flag_y, sys_fno_hold_x
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITHOUT FY
@@ -2448,12 +2454,12 @@ SUBROUTINE SCALEA2
 !
 !       REMOVE FNBY HLD OR ER HOLD IF PRESENT
 !
-   IF(SYSTEM(44).EQ.-1.0D0.OR.SYSTEM(45).EQ.-1.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-1.0D0.OR.sys_fno_hold_x().EQ.-1.0D0)THEN
       OUTLYNE='REMOVING F/# HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
    END IF
-   IF(SYSTEM(44).EQ.-2.0D0.OR.SYSTEM(45).EQ.-2.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-2.0D0.OR.sys_fno_hold_x().EQ.-2.0D0)THEN
       OUTLYNE='REMOVING EXIT PUPIL RADIUS HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
@@ -2826,7 +2832,12 @@ SUBROUTINE SCALEA3
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
-      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, &
+      sys_y1_scy, sys_x1_scx, sys_y1_scy_fang, sys_x1_scx_fang, &
+      sys_fno_flag_y, sys_fno_hold_x, sys_fno_val_set, sys_na_set, &
+      sys_set_say, sys_set_sax, sys_set_scy, sys_set_scx, &
+      sys_set_scy_fang, sys_set_scx_fang, &
+      sys_set_y1_scy, sys_set_x1_scx, sys_set_y1_scy_fang, sys_set_x1_scx_fang
    IMPLICIT NONE
 !
 !     THIS DOES SC WITH FY
@@ -2877,29 +2888,29 @@ SUBROUTINE SCALEA3
 !       ANY CONFLICT WITH SCY AND SCY FANG WILL BE RESOLVED
 !       AT THE END OF SCALING WHEN LNSEOS IS CALLED
 !
-   IF(SYSTEM(64).EQ.0.0D0.AND.SYSTEM(67).EQ.0.0D0) THEN
-      SYSTEM(12)=sys_say()*W1
-      SYSTEM(13)=sys_sax()*W1
+   IF(sys_na_set().EQ.0.0D0.AND.sys_fno_val_set().EQ.0.0D0) THEN
+      call sys_set_say(sys_say()*W1)
+      call sys_set_sax(sys_sax()*W1)
    END IF
-   SYSTEM(14)=sys_scy()*W1
-   SYSTEM(15)=SYSTEM(15)*W1
-   SYSTEM(16)=sys_scx()*W1
-   SYSTEM(17)=SYSTEM(17)*W1
+   call sys_set_scy(sys_scy()*W1)
+   call sys_set_y1_scy(sys_y1_scy()*W1)
+   call sys_set_scx(sys_scx()*W1)
+   call sys_set_x1_scx(sys_x1_scx()*W1)
 !     FIELD ANGLES DO NOT GET SCALED !
-   SYSTEM(21)=sys_scy_fang()
-   SYSTEM(23)=sys_scx_fang()
+   call sys_set_scy_fang(sys_scy_fang())
+   call sys_set_scx_fang(sys_scx_fang())
 !
-   SYSTEM(22)=SYSTEM(22)*W1
-   SYSTEM(24)=SYSTEM(24)*W1
+   call sys_set_y1_scy_fang(sys_y1_scy_fang()*W1)
+   call sys_set_x1_scx_fang(sys_x1_scx_fang()*W1)
 !
 !       REMOVE FNBY HLD OR ER HOLD IF PRESENT
 !
-   IF(SYSTEM(44).EQ.-1.0D0.OR.SYSTEM(45).EQ.-1.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-1.0D0.OR.sys_fno_hold_x().EQ.-1.0D0)THEN
       OUTLYNE='REMOVING F/# HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
    END IF
-   IF(SYSTEM(44).EQ.-2.0D0.OR.SYSTEM(45).EQ.-2.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-2.0D0.OR.sys_fno_hold_x().EQ.-2.0D0)THEN
       OUTLYNE='REMOVING EXIT PUPIL RADIUS HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
@@ -3272,7 +3283,8 @@ SUBROUTINE SCALEA4
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
-      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+      sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, &
+      sys_fno_flag_y, sys_fno_hold_x
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITH FY
@@ -3319,12 +3331,12 @@ SUBROUTINE SCALEA4
 !
 !       REMOVE FNBY HLD OR ER HOLD IF PRESENT
 !
-   IF(SYSTEM(44).EQ.-1.0D0.OR.SYSTEM(45).EQ.-1.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-1.0D0.OR.sys_fno_hold_x().EQ.-1.0D0)THEN
       OUTLYNE='REMOVING F/# HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
    END IF
-   IF(SYSTEM(44).EQ.-2.0D0.OR.SYSTEM(45).EQ.-2.0D0)THEN
+   IF(sys_fno_flag_y().EQ.-2.0D0.OR.sys_fno_hold_x().EQ.-2.0D0)THEN
       OUTLYNE='REMOVING EXIT PUPIL RADIUS HOLD'
       CALL SHOWIT(1)
       SYSTEM(44:47)=0.0D0
