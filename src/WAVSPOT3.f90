@@ -10,7 +10,7 @@ SUBROUTINE SPOT
    use DATSPD
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_mode, sys_wl_weight
+   use mod_system, only: sys_mode, sys_wl_weight, sys_set_wl_weight
    use command_utils, only: is_command_query
    IMPLICIT NONE
 !
@@ -222,30 +222,30 @@ SUBROUTINE SPOT
          OLDSP(10)=sys_wl_weight(10)
          SYSTEM(31:35)=0.0D0
          SYSTEM(76:80)=0.0D0
-         IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
-         IF(INT(W1).EQ.2)  SYSTEM(32)=1.0D0
-         IF(INT(W1).EQ.3)  SYSTEM(33)=1.0D0
-         IF(INT(W1).EQ.4)  SYSTEM(34)=1.0D0
-         IF(INT(W1).EQ.5)  SYSTEM(35)=1.0D0
-         IF(INT(W1).EQ.6)  SYSTEM(76)=1.0D0
-         IF(INT(W1).EQ.7)  SYSTEM(77)=1.0D0
-         IF(INT(W1).EQ.8)  SYSTEM(78)=1.0D0
-         IF(INT(W1).EQ.9)  SYSTEM(79)=1.0D0
-         IF(INT(W1).EQ.10) SYSTEM(80)=1.0D0
+         IF(INT(W1).EQ.1)  call sys_set_wl_weight(1,1.0D0)
+         IF(INT(W1).EQ.2)  call sys_set_wl_weight(2,1.0D0)
+         IF(INT(W1).EQ.3)  call sys_set_wl_weight(3,1.0D0)
+         IF(INT(W1).EQ.4)  call sys_set_wl_weight(4,1.0D0)
+         IF(INT(W1).EQ.5)  call sys_set_wl_weight(5,1.0D0)
+         IF(INT(W1).EQ.6)  call sys_set_wl_weight(6,1.0D0)
+         IF(INT(W1).EQ.7)  call sys_set_wl_weight(7,1.0D0)
+         IF(INT(W1).EQ.8)  call sys_set_wl_weight(8,1.0D0)
+         IF(INT(W1).EQ.9)  call sys_set_wl_weight(9,1.0D0)
+         IF(INT(W1).EQ.10) call sys_set_wl_weight(10,1.0D0)
          OLDIF=LDIF
          LDIF=.FALSE.
          CALL SPOT1(1)
          LDIF=OLDIF
-         SYSTEM(31)=OLDSP(1)
-         SYSTEM(32)=OLDSP(2)
-         SYSTEM(33)=OLDSP(3)
-         SYSTEM(34)=OLDSP(4)
-         SYSTEM(35)=OLDSP(5)
-         SYSTEM(76)=OLDSP(6)
-         SYSTEM(77)=OLDSP(7)
-         SYSTEM(78)=OLDSP(8)
-         SYSTEM(79)=OLDSP(9)
-         SYSTEM(80)=OLDSP(10)
+         call sys_set_wl_weight(1,OLDSP(1))
+         call sys_set_wl_weight(2,OLDSP(2))
+         call sys_set_wl_weight(3,OLDSP(3))
+         call sys_set_wl_weight(4,OLDSP(4))
+         call sys_set_wl_weight(5,OLDSP(5))
+         call sys_set_wl_weight(6,OLDSP(6))
+         call sys_set_wl_weight(7,OLDSP(7))
+         call sys_set_wl_weight(8,OLDSP(8))
+         call sys_set_wl_weight(9,OLDSP(9))
+         call sys_set_wl_weight(10,OLDSP(10))
       END IF
       SPDTYPE=TYPEOLD
       RNUMBR=OLDRNUMBR
@@ -713,30 +713,30 @@ SUBROUTINE SPOT
             OLDSP(10)=sys_wl_weight(10)
             SYSTEM(31:35)=0.0D0
             SYSTEM(76:80)=0.0D0
-            IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
-            IF(INT(W1).EQ.2)  SYSTEM(32)=1.0D0
-            IF(INT(W1).EQ.3)  SYSTEM(33)=1.0D0
-            IF(INT(W1).EQ.4)  SYSTEM(34)=1.0D0
-            IF(INT(W1).EQ.5)  SYSTEM(35)=1.0D0
-            IF(INT(W1).EQ.6)  SYSTEM(76)=1.0D0
-            IF(INT(W1).EQ.7)  SYSTEM(77)=1.0D0
-            IF(INT(W1).EQ.8)  SYSTEM(78)=1.0D0
-            IF(INT(W1).EQ.9)  SYSTEM(79)=1.0D0
-            IF(INT(W1).EQ.10) SYSTEM(80)=1.0D0
+            IF(INT(W1).EQ.1)  call sys_set_wl_weight(1,1.0D0)
+            IF(INT(W1).EQ.2)  call sys_set_wl_weight(2,1.0D0)
+            IF(INT(W1).EQ.3)  call sys_set_wl_weight(3,1.0D0)
+            IF(INT(W1).EQ.4)  call sys_set_wl_weight(4,1.0D0)
+            IF(INT(W1).EQ.5)  call sys_set_wl_weight(5,1.0D0)
+            IF(INT(W1).EQ.6)  call sys_set_wl_weight(6,1.0D0)
+            IF(INT(W1).EQ.7)  call sys_set_wl_weight(7,1.0D0)
+            IF(INT(W1).EQ.8)  call sys_set_wl_weight(8,1.0D0)
+            IF(INT(W1).EQ.9)  call sys_set_wl_weight(9,1.0D0)
+            IF(INT(W1).EQ.10) call sys_set_wl_weight(10,1.0D0)
             OLDIF=LDIF
             LDIF=.FALSE.
             CALL SPOT1(1)
             LDIF=OLDIF
-            SYSTEM(31)=OLDSP(1)
-            SYSTEM(32)=OLDSP(2)
-            SYSTEM(33)=OLDSP(3)
-            SYSTEM(34)=OLDSP(4)
-            SYSTEM(35)=OLDSP(5)
-            SYSTEM(76)=OLDSP(6)
-            SYSTEM(77)=OLDSP(7)
-            SYSTEM(78)=OLDSP(8)
-            SYSTEM(79)=OLDSP(9)
-            SYSTEM(80)=OLDSP(10)
+            call sys_set_wl_weight(1,OLDSP(1))
+            call sys_set_wl_weight(2,OLDSP(2))
+            call sys_set_wl_weight(3,OLDSP(3))
+            call sys_set_wl_weight(4,OLDSP(4))
+            call sys_set_wl_weight(5,OLDSP(5))
+            call sys_set_wl_weight(6,OLDSP(6))
+            call sys_set_wl_weight(7,OLDSP(7))
+            call sys_set_wl_weight(8,OLDSP(8))
+            call sys_set_wl_weight(9,OLDSP(9))
+            call sys_set_wl_weight(10,OLDSP(10))
          END IF
       ELSE
          CALL SPDQAL
@@ -1952,7 +1952,7 @@ SUBROUTINE SPMOVE
 END
 SUBROUTINE FIXWV(W2)
    use DATLEN
-   use mod_system, only: sys_wl_weight
+   use mod_system, only: sys_wl_weight, sys_set_wl_weight
    IMPLICIT NONE
    REAL*8 OLDWT(1:10),W2
    COMMON/OLDSTUFFWV/OLDWT
@@ -1967,45 +1967,45 @@ SUBROUTINE FIXWV(W2)
    OLDWT(9)=sys_wl_weight(9)
    OLDWT(10)=sys_wl_weight(10)
    IF(W2.GE.1.0D0.AND.W2.LE.10.0D0) THEN
-      SYSTEM(31)=0.0D0
-      SYSTEM(32)=0.0D0
-      SYSTEM(33)=0.0D0
-      SYSTEM(34)=0.0D0
-      SYSTEM(35)=0.0D0
-      SYSTEM(76)=0.0D0
-      SYSTEM(77)=0.0D0
-      SYSTEM(78)=0.0D0
-      SYSTEM(79)=0.0D0
-      SYSTEM(80)=0.0D0
+      call sys_set_wl_weight(1,0.0D0)
+      call sys_set_wl_weight(2,0.0D0)
+      call sys_set_wl_weight(3,0.0D0)
+      call sys_set_wl_weight(4,0.0D0)
+      call sys_set_wl_weight(5,0.0D0)
+      call sys_set_wl_weight(6,0.0D0)
+      call sys_set_wl_weight(7,0.0D0)
+      call sys_set_wl_weight(8,0.0D0)
+      call sys_set_wl_weight(9,0.0D0)
+      call sys_set_wl_weight(10,0.0D0)
    END IF
-   IF(INT(W2).EQ.1) SYSTEM(31)=1.0D0
-   IF(INT(W2).EQ.2) SYSTEM(32)=1.0D0
-   IF(INT(W2).EQ.3) SYSTEM(33)=1.0D0
-   IF(INT(W2).EQ.4) SYSTEM(34)=1.0D0
-   IF(INT(W2).EQ.5) SYSTEM(35)=1.0D0
-   IF(INT(W2).EQ.6) SYSTEM(76)=1.0D0
-   IF(INT(W2).EQ.7) SYSTEM(77)=1.0D0
-   IF(INT(W2).EQ.8) SYSTEM(78)=1.0D0
-   IF(INT(W2).EQ.9) SYSTEM(79)=1.0D0
-   IF(INT(W2).EQ.10) SYSTEM(80)=1.0D0
+   IF(INT(W2).EQ.1) call sys_set_wl_weight(1,1.0D0)
+   IF(INT(W2).EQ.2) call sys_set_wl_weight(2,1.0D0)
+   IF(INT(W2).EQ.3) call sys_set_wl_weight(3,1.0D0)
+   IF(INT(W2).EQ.4) call sys_set_wl_weight(4,1.0D0)
+   IF(INT(W2).EQ.5) call sys_set_wl_weight(5,1.0D0)
+   IF(INT(W2).EQ.6) call sys_set_wl_weight(6,1.0D0)
+   IF(INT(W2).EQ.7) call sys_set_wl_weight(7,1.0D0)
+   IF(INT(W2).EQ.8) call sys_set_wl_weight(8,1.0D0)
+   IF(INT(W2).EQ.9) call sys_set_wl_weight(9,1.0D0)
+   IF(INT(W2).EQ.10) call sys_set_wl_weight(10,1.0D0)
    RETURN
 END
 SUBROUTINE UNFIXWV
    use DATLEN
-   use mod_system, only: sys_wl_weight
+   use mod_system, only: sys_wl_weight, sys_set_wl_weight
    IMPLICIT NONE
    REAL*8 OLDWT(1:10)
    COMMON/OLDSTUFFWV/OLDWT
-   SYSTEM(31)=OLDWT(1)
-   SYSTEM(32)=OLDWT(2)
-   SYSTEM(33)=OLDWT(3)
-   SYSTEM(34)=OLDWT(4)
-   SYSTEM(35)=OLDWT(5)
-   SYSTEM(76)=OLDWT(6)
-   SYSTEM(77)=OLDWT(7)
-   SYSTEM(78)=OLDWT(8)
-   SYSTEM(79)=OLDWT(9)
-   SYSTEM(80)=OLDWT(10)
+   call sys_set_wl_weight(1,OLDWT(1))
+   call sys_set_wl_weight(2,OLDWT(2))
+   call sys_set_wl_weight(3,OLDWT(3))
+   call sys_set_wl_weight(4,OLDWT(4))
+   call sys_set_wl_weight(5,OLDWT(5))
+   call sys_set_wl_weight(6,OLDWT(6))
+   call sys_set_wl_weight(7,OLDWT(7))
+   call sys_set_wl_weight(8,OLDWT(8))
+   call sys_set_wl_weight(9,OLDWT(9))
+   call sys_set_wl_weight(10,OLDWT(10))
    RETURN
 END
 SUBROUTINE REVERSECA
