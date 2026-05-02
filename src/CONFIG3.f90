@@ -7,7 +7,7 @@ SUBROUTINE CFGUP
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_special_type
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
    INTEGER I,J
@@ -60,7 +60,7 @@ SUBROUTINE CFGPRT
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL
@@ -201,7 +201,7 @@ SUBROUTINE CFGOUT(LINE1,LINE2,LINE3,LINE4,&
 !
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED BY CFGIN2 AND
@@ -719,7 +719,7 @@ SUBROUTINE CFGIN3
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       SPECIAL VERSION OF CFGIN2 FOR USE BY "REMOVE"
@@ -734,7 +734,7 @@ SUBROUTINE CFGIN3
    DO K=2,MAXCFG
       IF(CFGCNT(K).GT.0) KEND=K
    END DO
-   SYSTEM(56)=DBLE(KEND)
+   call sys_set_high_cfg(DBLE(KEND))
    SYSP(56)=sys_high_cfg()
 !
    CALL CFGCLN
@@ -761,7 +761,7 @@ SUBROUTINE CFGIN2
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CONFIGS INPUT OR
@@ -906,7 +906,7 @@ SUBROUTINE CFGIN2
       DO K=2,MAXCFG
          IF(CFGCNT(K).GT.0) KEND=K
       END DO
-      SYSTEM(56)=DBLE(KEND)
+      call sys_set_high_cfg(DBLE(KEND))
       SYSP(56)=sys_high_cfg()
 !
 !       THIS IS SERIOUS, WE ARE LEAVING THE CONFIG SUBFILE!
@@ -1438,7 +1438,7 @@ SUBROUTINE CFGFX1(I)
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
    INTEGER K,I,J
@@ -1689,7 +1689,7 @@ SUBROUTINE CFGFX2(I)
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
    INTEGER K,I,J,L,CNTER,LL
@@ -1964,7 +1964,7 @@ SUBROUTINE CFGFX3(I)
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
    INTEGER K,I,J
@@ -2199,7 +2199,7 @@ SUBROUTINE CFGCLN
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CLEANS UP AND STREAMLINES
@@ -3283,7 +3283,7 @@ SUBROUTINE CFGIN
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO CREATE THE
@@ -3316,7 +3316,7 @@ SUBROUTINE CFGIN
 !       INITIALIZE SYSTEM(50) AND SYSP(50) AND SYTEM(56) AND SYSP(56)
    SYSTEM(50)=1.0D0
    SYSP(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   call sys_set_high_cfg(1.0D0)
    SYSP(56)=1.0D0
 !
 !       INITIALIZE THE ARRAY CONFIGS
@@ -3343,7 +3343,7 @@ SUBROUTINE CFGCHG2
    use DATSUB
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE CFG
@@ -3372,7 +3372,7 @@ SUBROUTINE CFGCHG2
       IEND=INT(sys_high_cfg())
       IF(I.GT.IEND) THEN
 !       CHANGE IEND AND FRAC SYSTEM(50)
-         SYSTEM(56)=sys_high_cfg()+1.0D0
+         call sys_set_high_cfg(sys_high_cfg()+1.0D0)
          SYSP(56)=sys_high_cfg()
       END IF
 !
@@ -3447,7 +3447,7 @@ SUBROUTINE CFGCHG
    use DATSUB
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE CFG
@@ -3531,7 +3531,7 @@ SUBROUTINE CFGCHG
          IEND=INT(sys_high_cfg())
          IF(INT(W1).GT.IEND) THEN
 !       CHANGE IEND AND FRAC SYSTEM(50)
-            SYSTEM(56)=sys_high_cfg()+1.0D0
+            call sys_set_high_cfg(sys_high_cfg()+1.0D0)
             SYSP(56)=sys_high_cfg()
          END IF
 !
@@ -3627,7 +3627,7 @@ SUBROUTINE DEZOOM
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE DEZOOM
@@ -3764,7 +3764,7 @@ SUBROUTINE DELCFG
    use DATCFG
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL
@@ -3839,7 +3839,7 @@ SUBROUTINE FRCCF1(I)
    use DATSUB
    use DATLEN
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_high_cfg
+   use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
    IMPLICIT NONE
    INTEGER I
 !

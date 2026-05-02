@@ -13,7 +13,8 @@ SUBROUTINE REFRAY(WPAS)
    use mod_system, only: sys_scx, sys_scy, sys_scy_fang, sys_scx_fang, &
       sys_ray_aiming, sys_telecentric, sys_aim_offset_x, sys_aim_offset_y, &
       sys_aim_offset_z, sys_scy_fang_set, sys_scx_fang_set, &
-      sys_rxim_fang_set, sys_ryim_fang_set
+      sys_rxim, sys_rxim_fang_set, sys_ryim, sys_ryim_fang_set, &
+      sys_set_rxim, sys_set_rxim_fang_set, sys_set_scx_fang_set, sys_set_scy_fang_set
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE REFRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -146,8 +147,8 @@ SUBROUTINE REFRAY(WPAS)
 !
    IF(WC.EQ.'FOBH') THEN
 !       OBJ ANGLES CANT BE INPUT
-      SYSTEM(18)=0.0D0
-      SYSTEM(19)=0.0D0
+      call sys_set_scy_fang_set(0.0D0)
+      call sys_set_scx_fang_set(0.0D0)
    END IF
    IF(sys_scy_fang_set().EQ.1.AND.NEWOBJ.EQ.0.OR.&
    &sys_scx_fang_set().EQ.1.AND.NEWOBJ.EQ.0) THEN
@@ -303,16 +304,16 @@ SUBROUTINE REFRAY(WPAS)
 !       INT(WW4) OR INT(SYSTEM(11))
 !     CALC AIM POINTS IF RYIM OR RXIM ARE IN EFFECT
    IF(sys_ryim_fang_set().NE.sys_rxim_fang_set())&
-   &SYSTEM(98)=sys_ryim_fang_set()
+   &call sys_set_rxim_fang_set(sys_ryim_fang_set())
    IF(sys_ryim_fang_set().NE.sys_rxim_fang_set())&
-   &SYSTEM(96)=SYSTEM(97)
+   &call sys_set_rxim(sys_ryim())
    XCHIEF_TARGET=0.0D0
    YCHIEF_TARGET=0.0D0
    IF(sys_rxim_fang_set().NE.0.0D0) THEN
-      XCHIEF_TARGET=(WW2*SYSTEM(96))
+      XCHIEF_TARGET=(WW2*sys_rxim())
    END IF
    IF(sys_ryim_fang_set().NE.0.0D0) THEN
-      YCHIEF_TARGET=(WW1*SYSTEM(97))
+      YCHIEF_TARGET=(WW1*sys_ryim())
    END IF
 
 
