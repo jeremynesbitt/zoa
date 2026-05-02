@@ -6,6 +6,7 @@ SUBROUTINE PLTCHRSH
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode
    IMPLICIT NONE
    CHARACTER*11 AXMIN,AXMAX,AYMIN,AYMAX,YHIGHH,XHIGHH
    LOGICAL TABEXIST
@@ -106,7 +107,7 @@ SUBROUTINE PLTCHRSH
    CALL PROCES
    REST_KDP(1)=RESTINPT(1)
    SAVE_KDP(1)=SAVEINPT(1)
-   IF(SYSTEM(30).LE.2.0D0) THEN
+   IF(sys_mode().LE.2.0D0) THEN
 !     FOCAL
       INPUT='PLOT UXAXISLB FOCAL SHIFT IN MICRONS'
       CALL PROCES
@@ -235,6 +236,7 @@ SUBROUTINE CHRSHIFT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_ref, sys_wl_weight
    IMPLICIT NONE
    LOGICAL AF,TABEXIST
    INTEGER WVCOUNT,I,J,K
@@ -275,20 +277,20 @@ SUBROUTINE CHRSHIFT
    END IF
 !     AFOCAL OR NOT
    AF=.FALSE.
-   IF(SYSTEM(30).GE.3.0D0) AF=.TRUE.
+   IF(sys_mode().GE.3.0D0) AF=.TRUE.
 !     ENOUGH WAVELENGTHS ?
    WVCOUNT=0
    TABEXIST=.FALSE.
-   IF(SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) WVCOUNT=WVCOUNT+1
-   IF(SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) WVCOUNT=WVCOUNT+1
+   IF(sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) WVCOUNT=WVCOUNT+1
 !
    IF(WVCOUNT.LE.1) THEN
       WRITE(OUTLYNE,*)&
@@ -306,54 +308,54 @@ SUBROUTINE CHRSHIFT
    SHIFT_TABLE(1:10,1:6)=0.0D0
 !     SORT ACTIVE WAVELENGTS AND COUNT MAXIMUM ACTIVE WAVELENGTHS
    J=0
-   IF(SYSTEM(1).NE.0.0D0.AND.SYSTEM(31).NE.0.0D0) THEN
+   IF(sys_wavelength(1).NE.0.0D0.AND.sys_wl_weight(1).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=1.0D0
-      LAM_TABLE(J,2)=SYSTEM(1)
+      LAM_TABLE(J,2)=sys_wavelength(1)
    END IF
-   IF(SYSTEM(2).NE.0.0D0.AND.SYSTEM(32).NE.0.0D0) THEN
+   IF(sys_wavelength(2).NE.0.0D0.AND.sys_wl_weight(2).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=2.0D0
-      LAM_TABLE(J,2)=SYSTEM(2)
+      LAM_TABLE(J,2)=sys_wavelength(2)
    END IF
-   IF(SYSTEM(3).NE.0.0D0.AND.SYSTEM(33).NE.0.0D0) THEN
+   IF(sys_wavelength(3).NE.0.0D0.AND.sys_wl_weight(3).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=3.0D0
-      LAM_TABLE(J,2)=SYSTEM(3)
+      LAM_TABLE(J,2)=sys_wavelength(3)
    END IF
-   IF(SYSTEM(4).NE.0.0D0.AND.SYSTEM(34).NE.0.0D0) THEN
+   IF(sys_wavelength(4).NE.0.0D0.AND.sys_wl_weight(4).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=4.0D0
-      LAM_TABLE(J,2)=SYSTEM(4)
+      LAM_TABLE(J,2)=sys_wavelength(4)
    END IF
-   IF(SYSTEM(5).NE.0.0D0.AND.SYSTEM(35).NE.0.0D0) THEN
+   IF(sys_wavelength(5).NE.0.0D0.AND.sys_wl_weight(5).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=5.0D0
-      LAM_TABLE(J,2)=SYSTEM(5)
+      LAM_TABLE(J,2)=sys_wavelength(5)
    END IF
-   IF(SYSTEM(71).NE.0.0D0.AND.SYSTEM(76).NE.0.0D0) THEN
+   IF(sys_wavelength(6).NE.0.0D0.AND.sys_wl_weight(6).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=6.0D0
-      LAM_TABLE(J,2)=SYSTEM(71)
+      LAM_TABLE(J,2)=sys_wavelength(6)
    END IF
-   IF(SYSTEM(72).NE.0.0D0.AND.SYSTEM(77).NE.0.0D0) THEN
+   IF(sys_wavelength(7).NE.0.0D0.AND.sys_wl_weight(7).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=7.0D0
-      LAM_TABLE(J,2)=SYSTEM(72)
+      LAM_TABLE(J,2)=sys_wavelength(7)
    END IF
-   IF(SYSTEM(73).NE.0.0D0.AND.SYSTEM(78).NE.0.0D0) THEN
+   IF(sys_wavelength(8).NE.0.0D0.AND.sys_wl_weight(8).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=8.0D0
-      LAM_TABLE(J,2)=SYSTEM(73)
+      LAM_TABLE(J,2)=sys_wavelength(8)
    END IF
-   IF(SYSTEM(74).NE.0.0D0.AND.SYSTEM(79).NE.0.0D0) THEN
+   IF(sys_wavelength(9).NE.0.0D0.AND.sys_wl_weight(9).NE.0.0D0) THEN
       LAM_TABLE(J,1)=9.0D0
-      LAM_TABLE(J,2)=SYSTEM(74)
+      LAM_TABLE(J,2)=sys_wavelength(9)
    END IF
-   IF(SYSTEM(75).NE.0.0D0.AND.SYSTEM(80).NE.0.0D0) THEN
+   IF(sys_wavelength(10).NE.0.0D0.AND.sys_wl_weight(10).NE.0.0D0) THEN
       J=J+1
       LAM_TABLE(J,1)=10.0D0
-      LAM_TABLE(J,2)=SYSTEM(75)
+      LAM_TABLE(J,2)=sys_wavelength(10)
    END IF
    NUMWAVE=J
 !     WE NOW HAVE NUMWAVE ENTRIES IN LAM_TABLE TO SORT BY
@@ -384,16 +386,16 @@ SUBROUTINE CHRSHIFT
       IF(SHIFT_TABLE(I,1).EQ.10.0D0) LAM_CHAR(I)='10'
    END DO
    DO I=1,NUMWAVE
-      IF(SYSTEM(11).EQ.1.0D0)   CW_CHAR=' 1'
-      IF(SYSTEM(11).EQ.2.0D0)   CW_CHAR=' 2'
-      IF(SYSTEM(11).EQ.3.0D0)   CW_CHAR=' 3'
-      IF(SYSTEM(11).EQ.4.0D0)   CW_CHAR=' 4'
-      IF(SYSTEM(11).EQ.5.0D0)   CW_CHAR=' 5'
-      IF(SYSTEM(11).EQ.6.0D0)   CW_CHAR=' 6'
-      IF(SYSTEM(11).EQ.7.0D0)   CW_CHAR=' 7'
-      IF(SYSTEM(11).EQ.8.0D0)   CW_CHAR=' 8'
-      IF(SYSTEM(11).EQ.9.0D0)   CW_CHAR=' 9'
-      IF(SYSTEM(11).EQ.10.0D0)  CW_CHAR='10'
+      IF(sys_wl_ref().EQ.1.0D0)   CW_CHAR=' 1'
+      IF(sys_wl_ref().EQ.2.0D0)   CW_CHAR=' 2'
+      IF(sys_wl_ref().EQ.3.0D0)   CW_CHAR=' 3'
+      IF(sys_wl_ref().EQ.4.0D0)   CW_CHAR=' 4'
+      IF(sys_wl_ref().EQ.5.0D0)   CW_CHAR=' 5'
+      IF(sys_wl_ref().EQ.6.0D0)   CW_CHAR=' 6'
+      IF(sys_wl_ref().EQ.7.0D0)   CW_CHAR=' 7'
+      IF(sys_wl_ref().EQ.8.0D0)   CW_CHAR=' 8'
+      IF(sys_wl_ref().EQ.9.0D0)   CW_CHAR=' 9'
+      IF(sys_wl_ref().EQ.10.0D0)  CW_CHAR='10'
    END DO
    SAVE_KDP(13)=SAVEINPT(13)
    INPUT='GET PY,,'//CW_CHAR
@@ -522,13 +524,13 @@ SUBROUTINE CHRSHIFT
          SHIFT_TABLE(I,5)=(-SPX*SPUX)-ZERO(3)
          SHIFT_TABLE(I,6)=(SPCX)-ZERO(4)
          DO K=3,6
-            IF(SYSTEM(6).EQ.1.0D0)&
+            IF(sys_units().EQ.1.0D0)&
             &SHIFT_TABLE(I,K)=(SHIFT_TABLE(I,K)/25.4D0)*1.0D3
-            IF(SYSTEM(6).EQ.2.0D0)&
+            IF(sys_units().EQ.2.0D0)&
             &SHIFT_TABLE(I,K)=SHIFT_TABLE(I,K)*1.0D4
-            IF(SYSTEM(6).EQ.3.0D0)&
+            IF(sys_units().EQ.3.0D0)&
             &SHIFT_TABLE(I,K)=SHIFT_TABLE(I,K)*1.0D3
-            IF(SYSTEM(6).EQ.4.0D0)&
+            IF(sys_units().EQ.4.0D0)&
             &SHIFT_TABLE(I,K)=SHIFT_TABLE(I,K)*1.0D6
          END DO
       ELSE
@@ -562,6 +564,7 @@ SUBROUTINE CAPFIX
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim
    use command_utils, only: is_command_query
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE BEST AND NOTILT COMMANDS
@@ -590,26 +593,26 @@ SUBROUTINE CAPFIX
    SUML2=0.0D0
    SUML4=0.0D0
    LAMAVE=0.0D0
-   WEI(1)=SYSTEM(31)
-   WEI(2)=SYSTEM(32)
-   WEI(3)=SYSTEM(33)
-   WEI(4)=SYSTEM(34)
-   WEI(5)=SYSTEM(35)
-   WEI(6)=SYSTEM(76)
-   WEI(7)=SYSTEM(77)
-   WEI(8)=SYSTEM(78)
-   WEI(9)=SYSTEM(79)
-   WEI(10)=SYSTEM(80)
-   LAM(1)=SYSTEM(1)
-   LAM(2)=SYSTEM(2)
-   LAM(3)=SYSTEM(3)
-   LAM(4)=SYSTEM(4)
-   LAM(5)=SYSTEM(5)
-   LAM(6)=SYSTEM(71)
-   LAM(7)=SYSTEM(72)
-   LAM(8)=SYSTEM(73)
-   LAM(9)=SYSTEM(74)
-   LAM(10)=SYSTEM(75)
+   WEI(1)=sys_wl_weight(1)
+   WEI(2)=sys_wl_weight(2)
+   WEI(3)=sys_wl_weight(3)
+   WEI(4)=sys_wl_weight(4)
+   WEI(5)=sys_wl_weight(5)
+   WEI(6)=sys_wl_weight(6)
+   WEI(7)=sys_wl_weight(7)
+   WEI(8)=sys_wl_weight(8)
+   WEI(9)=sys_wl_weight(9)
+   WEI(10)=sys_wl_weight(10)
+   LAM(1)=sys_wavelength(1)
+   LAM(2)=sys_wavelength(2)
+   LAM(3)=sys_wavelength(3)
+   LAM(4)=sys_wavelength(4)
+   LAM(5)=sys_wavelength(5)
+   LAM(6)=sys_wavelength(6)
+   LAM(7)=sys_wavelength(7)
+   LAM(8)=sys_wavelength(8)
+   LAM(9)=sys_wavelength(9)
+   LAM(10)=sys_wavelength(10)
    WEIS=0.0D0
    DO I=1,10
       WEIS=WEIS+WEI(I)
@@ -625,16 +628,16 @@ SUBROUTINE CAPFIX
       END IF
    END DO
    LAMAVE=DSQRT(SUML2/SUML4)
-   IF(SYSTEM(6).EQ.1.0D0) THEN
+   IF(sys_units().EQ.1.0D0) THEN
       LAMAVE=LAMAVE*3.93700787402D-5
    END IF
-   IF(SYSTEM(6).EQ.2.0D0) THEN
+   IF(sys_units().EQ.2.0D0) THEN
       LAMAVE=LAMAVE*1.0D-4
    END IF
-   IF(SYSTEM(6).EQ.3.0D0) THEN
+   IF(sys_units().EQ.3.0D0) THEN
       LAMAVE=LAMAVE*1.0D-3
    END IF
-   IF(SYSTEM(6).EQ.4.0D0) THEN
+   IF(sys_units().EQ.4.0D0) THEN
       LAMAVE=LAMAVE*1.0D-6
    END IF
 !
@@ -1064,6 +1067,7 @@ SUBROUTINE CAPFIX1(FTYPE,REFHT)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_units, sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -1109,26 +1113,26 @@ SUBROUTINE CAPFIX1(FTYPE,REFHT)
    SUML2=0.0D0
    SUML4=0.0D0
    LAMAVE=0.0D0
-   WEI(1)=SYSTEM(31)
-   WEI(2)=SYSTEM(32)
-   WEI(3)=SYSTEM(33)
-   WEI(4)=SYSTEM(34)
-   WEI(5)=SYSTEM(35)
-   WEI(6)=SYSTEM(76)
-   WEI(7)=SYSTEM(77)
-   WEI(8)=SYSTEM(78)
-   WEI(9)=SYSTEM(79)
-   WEI(10)=SYSTEM(80)
-   LAM(1)=SYSTEM(1)
-   LAM(2)=SYSTEM(2)
-   LAM(3)=SYSTEM(3)
-   LAM(4)=SYSTEM(4)
-   LAM(5)=SYSTEM(5)
-   LAM(6)=SYSTEM(71)
-   LAM(7)=SYSTEM(72)
-   LAM(8)=SYSTEM(73)
-   LAM(9)=SYSTEM(74)
-   LAM(10)=SYSTEM(75)
+   WEI(1)=sys_wl_weight(1)
+   WEI(2)=sys_wl_weight(2)
+   WEI(3)=sys_wl_weight(3)
+   WEI(4)=sys_wl_weight(4)
+   WEI(5)=sys_wl_weight(5)
+   WEI(6)=sys_wl_weight(6)
+   WEI(7)=sys_wl_weight(7)
+   WEI(8)=sys_wl_weight(8)
+   WEI(9)=sys_wl_weight(9)
+   WEI(10)=sys_wl_weight(10)
+   LAM(1)=sys_wavelength(1)
+   LAM(2)=sys_wavelength(2)
+   LAM(3)=sys_wavelength(3)
+   LAM(4)=sys_wavelength(4)
+   LAM(5)=sys_wavelength(5)
+   LAM(6)=sys_wavelength(6)
+   LAM(7)=sys_wavelength(7)
+   LAM(8)=sys_wavelength(8)
+   LAM(9)=sys_wavelength(9)
+   LAM(10)=sys_wavelength(10)
    WEIS=0.0D0
    DO ISS=1,10
       WEIS=WEIS+WEI(ISS)
@@ -1144,16 +1148,16 @@ SUBROUTINE CAPFIX1(FTYPE,REFHT)
       END IF
    END DO
    LAMAVE=DSQRT(SUML2/SUML4)
-   IF(SYSTEM(6).EQ.1.0D0) THEN
+   IF(sys_units().EQ.1.0D0) THEN
       LAMAVE=LAMAVE*3.93700787402D-5
    END IF
-   IF(SYSTEM(6).EQ.2.0D0) THEN
+   IF(sys_units().EQ.2.0D0) THEN
       LAMAVE=LAMAVE*1.0D-4
    END IF
-   IF(SYSTEM(6).EQ.3.0D0) THEN
+   IF(sys_units().EQ.3.0D0) THEN
       LAMAVE=LAMAVE*1.0D-3
    END IF
-   IF(SYSTEM(6).EQ.4.0D0) THEN
+   IF(sys_units().EQ.4.0D0) THEN
       LAMAVE=LAMAVE*1.0D-6
    END IF
 !
@@ -1171,16 +1175,16 @@ SUBROUTINE CAPFIX1(FTYPE,REFHT)
 !     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP
       CALL SPOTIT(4)
-      IF(DSPOT(16).EQ.1.0D0)  WV=SYSTEM(1)
-      IF(DSPOT(16).EQ.2.0D0)  WV=SYSTEM(2)
-      IF(DSPOT(16).EQ.3.0D0)  WV=SYSTEM(3)
-      IF(DSPOT(16).EQ.4.0D0)  WV=SYSTEM(4)
-      IF(DSPOT(16).EQ.5.0D0)  WV=SYSTEM(5)
-      IF(DSPOT(16).EQ.6.0D0)  WV=SYSTEM(71)
-      IF(DSPOT(16).EQ.7.0D0)  WV=SYSTEM(72)
-      IF(DSPOT(16).EQ.8.0D0)  WV=SYSTEM(73)
-      IF(DSPOT(16).EQ.9.0D0)  WV=SYSTEM(74)
-      IF(DSPOT(16).EQ.10.0D0) WV=SYSTEM(75)
+      IF(DSPOT(16).EQ.1.0D0)  WV=sys_wavelength(1)
+      IF(DSPOT(16).EQ.2.0D0)  WV=sys_wavelength(2)
+      IF(DSPOT(16).EQ.3.0D0)  WV=sys_wavelength(3)
+      IF(DSPOT(16).EQ.4.0D0)  WV=sys_wavelength(4)
+      IF(DSPOT(16).EQ.5.0D0)  WV=sys_wavelength(5)
+      IF(DSPOT(16).EQ.6.0D0)  WV=sys_wavelength(6)
+      IF(DSPOT(16).EQ.7.0D0)  WV=sys_wavelength(7)
+      IF(DSPOT(16).EQ.8.0D0)  WV=sys_wavelength(8)
+      IF(DSPOT(16).EQ.9.0D0)  WV=sys_wavelength(9)
+      IF(DSPOT(16).EQ.10.0D0) WV=sys_wavelength(10)
       IF(DSPOT(16).EQ.1.0D0)  WWVN=46
       IF(DSPOT(16).EQ.2.0D0)  WWVN=47
       IF(DSPOT(16).EQ.3.0D0)  WWVN=48
@@ -1191,16 +1195,16 @@ SUBROUTINE CAPFIX1(FTYPE,REFHT)
       IF(DSPOT(16).EQ.8.0D0)  WWVN=73
       IF(DSPOT(16).EQ.9.0D0)  WWVN=74
       IF(DSPOT(16).EQ.10.0D0) WWVN=75
-      IF(SYSTEM(6).EQ.1.0D0) THEN
+      IF(sys_units().EQ.1.0D0) THEN
          WV=WV*3.93700787402D-5
       END IF
-      IF(SYSTEM(6).EQ.2.0D0) THEN
+      IF(sys_units().EQ.2.0D0) THEN
          WV=WV*1.0D-4
       END IF
-      IF(SYSTEM(6).EQ.3.0D0) THEN
+      IF(sys_units().EQ.3.0D0) THEN
          WV=WV*1.0D-3
       END IF
-      IF(SYSTEM(6).EQ.4.0D0) THEN
+      IF(sys_units().EQ.4.0D0) THEN
          WV=WV*1.0D-6
       END IF
       DWW1=DSPOT(6)/REFHT
@@ -1283,26 +1287,26 @@ SUBROUTINE CAPFIX1(FTYPE,REFHT)
 !     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP
       CALL SPOTIT(4)
-      IF(DSPOT(16).EQ.1.0D0)  WV=SYSTEM(1)
-      IF(DSPOT(16).EQ.2.0D0)  WV=SYSTEM(2)
-      IF(DSPOT(16).EQ.3.0D0)  WV=SYSTEM(3)
-      IF(DSPOT(16).EQ.4.0D0)  WV=SYSTEM(4)
-      IF(DSPOT(16).EQ.5.0D0)  WV=SYSTEM(5)
-      IF(DSPOT(16).EQ.6.0D0)  WV=SYSTEM(71)
-      IF(DSPOT(16).EQ.7.0D0)  WV=SYSTEM(72)
-      IF(DSPOT(16).EQ.8.0D0)  WV=SYSTEM(73)
-      IF(DSPOT(16).EQ.9.0D0)  WV=SYSTEM(74)
-      IF(DSPOT(16).EQ.10.0D0) WV=SYSTEM(75)
-      IF(SYSTEM(6).EQ.1.0D0) THEN
+      IF(DSPOT(16).EQ.1.0D0)  WV=sys_wavelength(1)
+      IF(DSPOT(16).EQ.2.0D0)  WV=sys_wavelength(2)
+      IF(DSPOT(16).EQ.3.0D0)  WV=sys_wavelength(3)
+      IF(DSPOT(16).EQ.4.0D0)  WV=sys_wavelength(4)
+      IF(DSPOT(16).EQ.5.0D0)  WV=sys_wavelength(5)
+      IF(DSPOT(16).EQ.6.0D0)  WV=sys_wavelength(6)
+      IF(DSPOT(16).EQ.7.0D0)  WV=sys_wavelength(7)
+      IF(DSPOT(16).EQ.8.0D0)  WV=sys_wavelength(8)
+      IF(DSPOT(16).EQ.9.0D0)  WV=sys_wavelength(9)
+      IF(DSPOT(16).EQ.10.0D0) WV=sys_wavelength(10)
+      IF(sys_units().EQ.1.0D0) THEN
          WV=WV*3.93700787402D-5
       END IF
-      IF(SYSTEM(6).EQ.2.0D0) THEN
+      IF(sys_units().EQ.2.0D0) THEN
          WV=WV*1.0D-4
       END IF
-      IF(SYSTEM(6).EQ.3.0D0) THEN
+      IF(sys_units().EQ.3.0D0) THEN
          WV=WV*1.0D-3
       END IF
-      IF(SYSTEM(6).EQ.4.0D0) THEN
+      IF(sys_units().EQ.4.0D0) THEN
          WV=WV*1.0D-6
       END IF
       DWW1=DSPOT(6)/REFHT
@@ -1727,6 +1731,8 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_scx, sys_scx_fang, sys_scx_fang_set, &
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units, sys_wavelength
    IMPLICIT NONE
 !     F IS THE FUNTION FPLT(X,Y),XPLT AND YPLT ARE THE POINT COORDINATES
 !     PCOUNT=NUMBER OF POINTS IN THE CAPFN FILE
@@ -2017,10 +2023,10 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
    END IF
 !
 !     DO THE PLOTTING OF THE EXTENT
-   IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-   IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-   IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-   IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+   IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+   IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+   IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+   IF(sys_units().EQ.4.0D0) UNN='meter(s) '
 !     UNITS ARE NOW SET
 !
 !     NOW WRITE = "VALUE" UNN
@@ -2050,8 +2056,7 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
       CALL MY_JUSTSTRING(200,5700,NNTT1(1:45),NT1ANG,NT1SIZ,3,3)
    END IF
 !
-   IF(WVNUMB.GE.1.AND.WVNUMB.LE.5) RANGE=SYSTEM(WVNUMB)
-   IF(WVNUMB.GE.6.AND.WVNUMB.LE.10) RANGE=SYSTEM(WVNUMB+65)
+   RANGE=sys_wavelength(WVNUMB)
    WRITE(B,101) RANGE
    READ(B,200) CRANGE
    NNTT1='WAVELENGTH = '//CRANGE//' MICRONS'
@@ -2060,16 +2065,16 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
 !
 !
 !     NOW WRITE = "VALUE" UNN
-   IF(WVNUMB.EQ.1) RANGE=SYSTEM(1)
-   IF(WVNUMB.EQ.2) RANGE=SYSTEM(2)
-   IF(WVNUMB.EQ.3) RANGE=SYSTEM(3)
-   IF(WVNUMB.EQ.4) RANGE=SYSTEM(4)
-   IF(WVNUMB.EQ.5) RANGE=SYSTEM(5)
-   IF(WVNUMB.EQ.6) RANGE=SYSTEM(71)
-   IF(WVNUMB.EQ.7) RANGE=SYSTEM(72)
-   IF(WVNUMB.EQ.8) RANGE=SYSTEM(73)
-   IF(WVNUMB.EQ.9) RANGE=SYSTEM(74)
-   IF(WVNUMB.EQ.10) RANGE=SYSTEM(75)
+   IF(WVNUMB.EQ.1) RANGE=sys_wavelength(1)
+   IF(WVNUMB.EQ.2) RANGE=sys_wavelength(2)
+   IF(WVNUMB.EQ.3) RANGE=sys_wavelength(3)
+   IF(WVNUMB.EQ.4) RANGE=sys_wavelength(4)
+   IF(WVNUMB.EQ.5) RANGE=sys_wavelength(5)
+   IF(WVNUMB.EQ.6) RANGE=sys_wavelength(6)
+   IF(WVNUMB.EQ.7) RANGE=sys_wavelength(7)
+   IF(WVNUMB.EQ.8) RANGE=sys_wavelength(8)
+   IF(WVNUMB.EQ.9) RANGE=sys_wavelength(9)
+   IF(WVNUMB.EQ.10) RANGE=sys_wavelength(10)
    WRITE(B,101) RANGE
    READ(B,200) CRANGE
    NNTT1='REFERENCE WAVELENGTH = '//CRANGE//' MICRON(S)'
@@ -2079,10 +2084,10 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
    IF(.NOT.SUMMOR) THEN
       IF(IJ.EQ.1) THEN
 !     DO REF SPHERE SHIFTS IF NOT ZERO
-         IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+         IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN='meter(s) '
          IF(DABS(DLLX).GT.1.0D-14) THEN
             WRITE(B,101) DLLX
             READ(B,200) CRANGE
@@ -2115,16 +2120,16 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
 !     NOT SUMMED CAPFN, DO FOV STUFF
 !     FIELD OF VIEW DATA
 !
-      IF(SYSTEM(19).EQ.1.0D0) THEN
+      IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !     SCX FANG
-         RANGE=SYSTEM(23)*LFOB(2)
+         RANGE=sys_scx_fang()*LFOB(2)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(16)*LFOB(2)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scx()*LFOB(2)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCX
       END IF
       WRITE(B,101) RANGE
@@ -2137,16 +2142,16 @@ SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
       CALL MY_JUSTSTRING(1500,6500,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
 !
 !
-      IF(SYSTEM(18).EQ.1.0D0) THEN
+      IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !     SCY FANG
-         RANGE=SYSTEM(21)*LFOB(1)
+         RANGE=sys_scy_fang()*LFOB(1)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(14)*LFOB(1)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scy()*LFOB(1)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCY
       END IF
       WRITE(B,101) RANGE
@@ -2561,6 +2566,8 @@ SUBROUTINE PLOTSPD
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
+      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
    IMPLICIT NONE
 !
 !       THIS PLOTS THE SPOT DIAGRAM
@@ -2653,7 +2660,7 @@ SUBROUTINE PLOTSPD
    IF(.NOT.SPOTSSI) THEN
       SPOTSSI=.TRUE.
       IF(MAXX.GT.MAXY) THEN
-         IF(SYSTEM(30).LE.2.0D0) THEN
+         IF(sys_mode().LE.2.0D0) THEN
             SPDSSIVAL=(MAXX+(2.0D0*&
             &DABS((CENTXX-REFRY(1,NEWIMG))/JB)))/3.6D0
          ELSE
@@ -2664,7 +2671,7 @@ SUBROUTINE PLOTSPD
             &)))/3.6D0
          END IF
       ELSE
-         IF(SYSTEM(30).LE.2.0D0) THEN
+         IF(sys_mode().LE.2.0D0) THEN
             SPDSSIVAL=(MAXY+(2.0D0*&
             &DABS((CENTYY-REFRY(2,NEWIMG))/JA)))/3.6D0
          ELSE
@@ -2680,7 +2687,7 @@ SUBROUTINE PLOTSPD
    END IF
 !
 !     NOW PLOT THE DETECTOR IF NEEDED, FOCAL MODE ONLY
-   IF(DETTYP.EQ.1.AND.DETER.AND.SYSTEM(30).LE.2.0D0) THEN
+   IF(DETTYP.EQ.1.AND.DETER.AND.sys_mode().LE.2.0D0) THEN
 !     CIRCULAR DETECTOR
       XCENTER=DETDELX
       YCENTER=DETDELY
@@ -2698,7 +2705,7 @@ SUBROUTINE PLOTSPD
          &CALL MY_PLOT(XPOINT,YPOINT,1,2,3000,7000,1500,5500)
       END DO
    END IF
-   IF(DETTYP.EQ.2.AND.DETER.AND.SYSTEM(30).LE.2.0D0) THEN
+   IF(DETTYP.EQ.2.AND.DETER.AND.sys_mode().LE.2.0D0) THEN
 !     RECTANGULAR DETECTOR
       XCENTER=DETDELX
       YCENTER=DETDELY
@@ -2758,7 +2765,7 @@ SUBROUTINE PLOTSPD
       YCENTER=CENTYY
    END IF
    IF(SPDCHIEF) THEN
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          XCENTER=REFRY(1,NEWIMG)
          YCENTER=REFRY(2,NEWIMG)
       ELSE
@@ -2801,7 +2808,7 @@ SUBROUTINE PLOTSPD
       &,DSPOT(36),DSPOT(37),DSPOT(38),DSPOT(39),DSPOT(40),DSPOT(41)&
       &,DSPOT(42),DSPOT(43),DSPOT(44),DSPOT(45),DSPOT(46),DSPOT(47)&
       &,DSPOT(48),DSPOT(49),DSPOT(50)
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          XPOINT=INT((DSPOT(1)-XCENTER)*1000.0D0/SPDSSIVAL)+5000
          XPOINT=XPOINT/JB
          YPOINT=INT((DSPOT(2)-YCENTER)*1000.0D0/SPDSSIVAL)+3500
@@ -2834,7 +2841,7 @@ SUBROUTINE PLOTSPD
    END DO
    IF(SPDCHIEF.AND.WQ.NE.'SUM'.AND.WQ.NE.'ZERO') THEN
 !     PLOT CENT LOCATION
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          XPOINT=INT(((CENTXX-REFRY(1,NEWIMG))*1000.0D0)/SPDSSIVAL)+5000
          YPOINT=INT(((CENTYY-REFRY(2,NEWIMG))*1000.0D0)/SPDSSIVAL)+3500
       ELSE
@@ -2856,7 +2863,7 @@ SUBROUTINE PLOTSPD
    END IF
    IF(SPDCENT.AND.WQ.NE.'SUM'.AND.WQ.NE.'ZERO') THEN
 !     PLOT CHIEF RAY LOCATION
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          XPOINT=INT(((REFRY(1,NEWIMG)-CENTXX)*1000.0D0)/SPDSSIVAL)+5000
          YPOINT=INT(((REFRY(2,NEWIMG)-CENTYY)*1000.0D0)/SPDSSIVAL)+3500
       ELSE
@@ -2917,14 +2924,14 @@ SUBROUTINE PLOTSPD
 !     DO THE PLOTTING OF THE SPOT PLOT SSI
    NT1SIZ=1
    NT1ANG=0
-   IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL OR UFOCAL
-      IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-      IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-      IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-      IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+      IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+      IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+      IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+      IF(sys_units().EQ.4.0D0) UNN='meter(s) '
    END IF
-   IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !     AFOCAL OR UAFOCAL
       UNN='RADIAN(S)'
    END IF
@@ -2956,14 +2963,14 @@ SUBROUTINE PLOTSPD
 !     AT X=200, Y=6500
       NT1SIZ=1
       NT1ANG=0
-      IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL OR UFOCAL
-         IF(SYSTEM(6).EQ.1.0D0) UNN='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN='meter(s) '
+         IF(sys_units().EQ.1.0D0) UNN='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN='meter(s) '
       END IF
-      IF(SYSTEM(30).EQ.3.0D0.OR.SYSTEM(30).EQ.4.0D0) THEN
+      IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
 !     AFOCAL OR UAFOCAL
          UNN='RADIAN(S)'
       END IF
@@ -2997,7 +3004,7 @@ SUBROUTINE PLOTSPD
       CALL MY_JUSTSTRING(1600,6300,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
 !
 !
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          RANGE=REFRY(1,NEWIMG)
       ELSE
          IF(REFRY(11,NEWIMG).LE.PII)RANGE=REFRY(11,NEWIMG)
@@ -3012,7 +3019,7 @@ SUBROUTINE PLOTSPD
 !
       CALL MY_JUSTSTRING(1600,6100,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
 !
-      IF(SYSTEM(30).LE.2.0D0) THEN
+      IF(sys_mode().LE.2.0D0) THEN
          RANGE=REFRY(2,NEWIMG)
       ELSE
          IF(REFRY(12,NEWIMG).LE.PII)RANGE=REFRY(12,NEWIMG)
@@ -3029,16 +3036,16 @@ SUBROUTINE PLOTSPD
 !
 !     FIELD OF VIEW DATA
 !
-      IF(SYSTEM(19).EQ.1.0D0) THEN
+      IF(sys_scx_fang_set().EQ.1.0D0) THEN
 !     SCX FANG
-         RANGE=SYSTEM(23)*LFOB(2)
+         RANGE=sys_scx_fang()*LFOB(2)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(16)*LFOB(2)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scx()*LFOB(2)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCX
       END IF
       WRITE(B,101) RANGE
@@ -3051,16 +3058,16 @@ SUBROUTINE PLOTSPD
       CALL MY_JUSTSTRING(7300,6500,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
 !
 !
-      IF(SYSTEM(18).EQ.1.0D0) THEN
+      IF(sys_scy_fang_set().EQ.1.0D0) THEN
 !     SCY FANG
-         RANGE=SYSTEM(21)*LFOB(1)
+         RANGE=sys_scy_fang()*LFOB(1)
          UNN1='DEGREE(S)'
       ELSE
-         RANGE=SYSTEM(14)*LFOB(1)
-         IF(SYSTEM(6).EQ.1.0D0) UNN1='in(s)    '
-         IF(SYSTEM(6).EQ.2.0D0) UNN1='cm(s)    '
-         IF(SYSTEM(6).EQ.3.0D0) UNN1='mm(s)    '
-         IF(SYSTEM(6).EQ.4.0D0) UNN1='meter(s) '
+         RANGE=sys_scy()*LFOB(1)
+         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
+         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
+         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
+         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
 !     SCY
       END IF
       WRITE(B,101) RANGE
@@ -4294,6 +4301,7 @@ SUBROUTINE FOVCAPTION2(CT,J,IX,IY,MAXFREQ)
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode
    IMPLICIT NONE
    INTEGER CT,J,IX,IY,I
    INTEGER NT1SIZ,NT1ANG
@@ -4302,7 +4310,7 @@ SUBROUTINE FOVCAPTION2(CT,J,IX,IY,MAXFREQ)
    REAL FRQ
    CHARACTER CRANGE1*9,B*40,BTYPE*8
    CALL MY_SETFONT(1,0)
-   IF(SPACEBALL.EQ.2.AND.SYSTEM(30).LE.2.0D0) THEN
+   IF(SPACEBALL.EQ.2.AND.sys_mode().LE.2.0D0) THEN
       FRQQ='lp/mm  '
    END IF
    IF(SPACEBALL.EQ.1.AND.NEAR) THEN
@@ -4311,7 +4319,7 @@ SUBROUTINE FOVCAPTION2(CT,J,IX,IY,MAXFREQ)
    IF(SPACEBALL.EQ.1.AND..NOT.NEAR) THEN
       FRQQ='lp/mrad'
    END IF
-   IF(SPACEBALL.EQ.2.AND.SYSTEM(30).GE.3.0D0) THEN
+   IF(SPACEBALL.EQ.2.AND.sys_mode().GE.3.0D0) THEN
       FRQQ='lp/mrad'
    END IF
 !     SET LETTER SIZE AND ANGLE
@@ -5294,6 +5302,7 @@ SUBROUTINE PLTCONT(PCOUNT,F1PLT,F2PLT,REFHT,IJ &
    use DATSPD
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
    REAL SPACER
    INTEGER ROT,I,J,ALLOERR,PCOUNT,COLPAS,IJ,WVNUMB,NSTEP,IU
@@ -5379,12 +5388,7 @@ SUBROUTINE PLTCONT(PCOUNT,F1PLT,F2PLT,REFHT,IJ &
    CALL MY_PLOT(5900,1500,1,0,0,10000,0,7000)
    CALL MY_JUSTSTRING(5285,2040,'+Y',0,1,3,3)
    CALL MY_JUSTSTRING(5940,1470,'+X',0,1,3,3)
-   IF(WVNUMB.GE.1.AND.WVNUMB.LE.5) THEN
-      WRITE(B,180)REAL(SYSTEM(WVNUMB))
-   END IF
-   IF(WVNUMB.GE.6.AND.WVNUMB.LE.10) THEN
-      WRITE(B,180)REAL(SYSTEM(65+WVNUMB))
-   END IF
+   WRITE(B,180)REAL(sys_wavelength(WVNUMB))
    READ(B,200) WAVVAL
 180 FORMAT(G10.4)
 200 FORMAT(A10)

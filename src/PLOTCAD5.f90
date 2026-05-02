@@ -209,6 +209,8 @@ SUBROUTINE PLFANS
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_last_surf, sys_ref_surf, sys_units, sys_wavelength, &
+      & sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_wl_weight
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PLFANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -601,61 +603,61 @@ SUBROUTINE PLFANS
          FANWV9=.FALSE.
          FANWV10=.FALSE.
          I=0
-         IF(SYSTEM(31).GT.0.0D0) THEN
+         IF(sys_wl_weight(1).GT.0.0D0) THEN
             FANWV1=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=1
          END IF
-         IF(SYSTEM(32).GT.0.0D0) THEN
+         IF(sys_wl_weight(2).GT.0.0D0) THEN
             FANWV2=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=2
          END IF
-         IF(SYSTEM(33).GT.0.0D0) THEN
+         IF(sys_wl_weight(3).GT.0.0D0) THEN
             FANWV3=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=3
          END IF
-         IF(SYSTEM(34).GT.0.0D0) THEN
+         IF(sys_wl_weight(4).GT.0.0D0) THEN
             FANWV4=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=4
          END IF
-         IF(SYSTEM(35).GT.0.0D0) THEN
+         IF(sys_wl_weight(5).GT.0.0D0) THEN
             FANWV5=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=5
          END IF
-         IF(SYSTEM(76).GT.0.0D0) THEN
+         IF(sys_wl_weight(6).GT.0.0D0) THEN
             FANWV6=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=6
          END IF
-         IF(SYSTEM(77).GT.0.0D0) THEN
+         IF(sys_wl_weight(7).GT.0.0D0) THEN
             FANWV7=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=7
          END IF
-         IF(SYSTEM(78).GT.0.0D0) THEN
+         IF(sys_wl_weight(8).GT.0.0D0) THEN
             FANWV8=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=8
          END IF
-         IF(SYSTEM(79).GT.0.0D0) THEN
+         IF(sys_wl_weight(9).GT.0.0D0) THEN
             FANWV9=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
             JK_WAV(I)=9
          END IF
-         IF(SYSTEM(80).GT.0.0D0) THEN
+         IF(sys_wl_weight(10).GT.0.0D0) THEN
             FANWV10=.TRUE.
             I=I+1
             IF(I.GT.10) GO TO 900
@@ -683,12 +685,12 @@ SUBROUTINE PLFANS
 !     LA     QALTYP=3
 !
 !     RESTORE FAN REFWV VALUES
-         REFWV=INT(SYSTEM(11))
+         REFWV=INT(sys_wl_ref())
 !
 !     RESTORE IMG,REF AND OBJ SURF NUMBERS
          FANNOB=0
-         FANNRF=INT(SYSTEM(25))
-         FANNIM=INT(SYSTEM(20))
+         FANNRF=INT(sys_ref_surf())
+         FANNIM=INT(sys_last_surf())
 !
 !     RESTORE FAN YFOB VALUES
          YFOB1=0.0
@@ -1404,7 +1406,7 @@ SUBROUTINE PLFANS
 !
 !     PLOTFANS NEWOBJ
       IF(WC.EQ.'PLOTFANS'.AND.WQ.EQ.'NEWOBJ') THEN
-         IF(W1.LT.0.0D0.OR.W1.GE.SYSTEM(20).OR.W1.GE.SYSTEM(25)&
+         IF(W1.LT.0.0D0.OR.W1.GE.sys_last_surf().OR.W1.GE.sys_ref_surf()&
          &.OR.W1.GE.DBLE(NEWREF).OR.W1.GE.DBLE(NEWIMG)) THEN
             OUTLYNE=&
             &'NEW OBJECT SURFACE LOCATION IS BEYOND LEGAL BOUNDS'
@@ -1421,7 +1423,7 @@ SUBROUTINE PLFANS
 !
 !     PLOTFANS NEWREF
       IF(WC.EQ.'PLOTFANS'.AND.WQ.EQ.'NEWREF') THEN
-         IF(W1.LE.0.0D0.OR.W1.LE.DBLE(NEWOBJ).OR.W1.GE.SYSTEM(20)&
+         IF(W1.LE.0.0D0.OR.W1.LE.DBLE(NEWOBJ).OR.W1.GE.sys_last_surf()&
          &.OR.W1.GE.DBLE(NEWIMG)) THEN
             OUTLYNE=&
             &'NEW REFERENCE SURFACE LOCATION IS BEYOND LEGAL BOUNDS'
@@ -1438,8 +1440,8 @@ SUBROUTINE PLFANS
 !
 !     PLOTFANS NEWIMG
       IF(WC.EQ.'PLOTFANS'.AND.WQ.EQ.'NEWIMG') THEN
-         IF(W1.LE.0.0D0.OR.W1.LE.DBLE(NEWOBJ).OR.W1.LE.SYSTEM(25)&
-         &.OR.W1.LE.DBLE(NEWREF).OR.W1.GT.SYSTEM(20)) THEN
+         IF(W1.LE.0.0D0.OR.W1.LE.DBLE(NEWOBJ).OR.W1.LE.sys_ref_surf()&
+         &.OR.W1.LE.DBLE(NEWREF).OR.W1.GT.sys_last_surf()) THEN
             OUTLYNE=&
             &'NEW IMAGE SURFACE LOCATION IS BEYOND LEGAL BOUNDS'
             CALL SHOWIT(1)
@@ -1839,16 +1841,16 @@ SUBROUTINE PLFANS
       END IF
 !
 !     SET UP A CHARACTER VALUE FOR THE SYSTEM UNITS
-      IF(SYSTEM(6).EQ.1.0D0) UNI='INCHES     '
-      IF(SYSTEM(6).EQ.2.0D0) UNI='CENTIMETERS'
-      IF(SYSTEM(6).EQ.3.0D0) UNI='MILLIMETERS'
-      IF(SYSTEM(6).EQ.4.0D0) UNI='METERS     '
+      IF(sys_units().EQ.1.0D0) UNI='INCHES     '
+      IF(sys_units().EQ.2.0D0) UNI='CENTIMETERS'
+      IF(sys_units().EQ.3.0D0) UNI='MILLIMETERS'
+      IF(sys_units().EQ.4.0D0) UNI='METERS     '
 
-      LCW=SYSTEM(INT(SYSTEM(11)))
-      LPWP1=SYSTEM(INT(SYSTEM(7)))
-      LPWP2=SYSTEM(INT(SYSTEM(8)))
-      LSWP1=SYSTEM(INT(SYSTEM(9)))
-      LSWP2=SYSTEM(INT(SYSTEM(10)))
+      LCW=sys_wavelength(INT(sys_wl_ref()))
+      LPWP1=sys_wavelength(INT(sys_wl_pri1()))
+      LPWP2=sys_wavelength(INT(sys_wl_pri2()))
+      LSWP1=sys_wavelength(INT(sys_wl_sec1()))
+      LSWP2=sys_wavelength(INT(sys_wl_sec2()))
 !
 !     PLOT THE FAN DATA AND THE SCALE FACTOR DATA AND CAPTION
       CALL FANDO0
@@ -1880,6 +1882,8 @@ SUBROUTINE PLFAN2(ABORT,IFA)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units, sys_wavelength, &
+      & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
    IMPLICIT NONE
 !
 !     DOES FAN CALCULATIONS FOR FAN PLOTTING (FANTYP 5 6)
@@ -2136,7 +2140,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   DXFSET=.FALSE.
                   CALL RAYTRA
                   MSG=.TRUE.
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
                      YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
@@ -2232,7 +2236,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                         OOPD=OOPD+RAYRAY(7,J)&
                         &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
                      END DO
-                     IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                     IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -2263,11 +2267,11 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                         OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
                         &+(RCOR*ALENS(WWVN,NEWIMG-1))
                      END IF
-                     IF(SYSTEM(6).EQ.1.0D0) WAV=SYSTEM(INT(WW3))*&
+                     IF(sys_units().EQ.1.0D0) WAV=sys_wavelength(INT(WW3))*&
                      &((1.0D-3)/(25.4D0))
-                     IF(SYSTEM(6).EQ.2.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-4)
-                     IF(SYSTEM(6).EQ.3.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-3)
-                     IF(SYSTEM(6).EQ.4.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-6)
+                     IF(sys_units().EQ.2.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-4)
+                     IF(sys_units().EQ.3.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-3)
+                     IF(sys_units().EQ.4.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-6)
                      OOPD=-OOPD
                      IF(REVSTR) OOPD=-OOPD
                      OPDW=OOPD/WAV
@@ -2309,7 +2313,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
 !       CD
                   RAYCOD(1)=0
                   RAYCOD(2)=-1
-                  WW3=SYSTEM(7)
+                  WW3=sys_wl_pri1()
                   WVN=WW3
                   MSG=.FALSE.
                   WW4=1.0D0
@@ -2318,7 +2322,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   DXFSET=.FALSE.
                   CALL RAYTRA
                   MSG=.TRUE.
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      PW11=RAYRAY(1,NEWIMG)
                      PW12=RAYRAY(2,NEWIMG)
@@ -2327,7 +2331,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                      PW11=RAYRAY(11,NEWIMG)
                      PW12=RAYRAY(12,NEWIMG)
                   END IF
-                  WW3=SYSTEM(8)
+                  WW3=sys_wl_pri2()
                   WVN=WW3
                   MSG=.FALSE.
                   WW4=1.0D0
@@ -2336,7 +2340,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   DXFSET=.FALSE.
                   CALL RAYTRA
                   MSG=.TRUE.
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      PW21=RAYRAY(1,NEWIMG)
                      PW22=RAYRAY(2,NEWIMG)
@@ -2345,7 +2349,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                      PW21=RAYRAY(11,NEWIMG)
                      PW22=RAYRAY(12,NEWIMG)
                   END IF
-                  WW3=SYSTEM(9)
+                  WW3=sys_wl_sec1()
                   WVN=WW3
                   MSG=.FALSE.
                   WW4=1.0D0
@@ -2354,7 +2358,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   DXFSET=.FALSE.
                   CALL RAYTRA
                   MSG=.TRUE.
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      SW11=RAYRAY(1,NEWIMG)
                      SW12=RAYRAY(2,NEWIMG)
@@ -2363,7 +2367,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                      SW11=RAYRAY(11,NEWIMG)
                      SW12=RAYRAY(12,NEWIMG)
                   END IF
-                  WW3=SYSTEM(10)
+                  WW3=sys_wl_sec2()
                   WVN=WW3
                   MSG=.FALSE.
                   WW4=1.0D0
@@ -2372,7 +2376,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   DXFSET=.FALSE.
                   CALL RAYTRA
                   MSG=.TRUE.
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      SW21=RAYRAY(1,NEWIMG)
                      SW22=RAYRAY(2,NEWIMG)
@@ -2384,7 +2388,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
 !       PRIMARY PAIR
 !       X-VALUE
                   DIF1=PW11-PW21
-                  IF(SYSTEM(30).GT.2.0D0) THEN
+                  IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                      IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
                      IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
@@ -2393,7 +2397,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   END IF
 !       Y-VALUE
                   DIF2=PW12-PW22
-                  IF(SYSTEM(30).GT.2.0D0) THEN
+                  IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                      IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
                      IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
@@ -2403,7 +2407,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
 !       SECONDARY PAIR
 !       X-VALUE
                   DIF3=SW11-SW21
-                  IF(SYSTEM(30).GT.2.0D0) THEN
+                  IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                      IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
                      IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
@@ -2412,7 +2416,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
                   END IF
 !       Y-VALUE
                   DIF4=SW12-SW22
-                  IF(SYSTEM(30).GT.2.0D0) THEN
+                  IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                      IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
                      IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)
@@ -2567,6 +2571,8 @@ SUBROUTINE PLFAN1(ABORT,IFA)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units, sys_wavelength, &
+      & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
    IMPLICIT NONE
 !
 !     DOES FAN CALCULATIONS FOR FAN PLOTTING (FANTYP 1 2 3 4)
@@ -2840,7 +2846,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                CALL RAYTRA
                F58=0
                MSG=.TRUE.
-               IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+               IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                   XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
                   YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
@@ -2964,7 +2970,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                      OOPD=OOPD+RAYRAY(7,J)&
                      &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
                   END DO
-                  IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -2995,11 +3001,11 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
                      &+(RCOR*ALENS(WWVN,NEWIMG-1))
                   END IF
-                  IF(SYSTEM(6).EQ.1.0D0) WAV=SYSTEM(INT(WW3))*&
+                  IF(sys_units().EQ.1.0D0) WAV=sys_wavelength(INT(WW3))*&
                   &((1.0D-3)/(25.4D0))
-                  IF(SYSTEM(6).EQ.2.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-4)
-                  IF(SYSTEM(6).EQ.3.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-3)
-                  IF(SYSTEM(6).EQ.4.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-6)
+                  IF(sys_units().EQ.2.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-4)
+                  IF(sys_units().EQ.3.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-3)
+                  IF(sys_units().EQ.4.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-6)
                   OOPD=-OOPD
                   IF(REVSTR) OOPD=-OOPD
                   OPDW=OOPD/WAV
@@ -3041,7 +3047,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
 !       CD
                RAYCOD(1)=0
                RAYCOD(2)=-1
-               WW3=SYSTEM(7)
+               WW3=sys_wl_pri1()
                WVN=WW3
                MSG=.FALSE.
                WW4=1.0D0
@@ -3052,7 +3058,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                CALL RAYTRA
                F58=0
                MSG=.TRUE.
-               IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+               IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                   PW11=RAYRAY(1,NEWIMG)
                   PW12=RAYRAY(2,NEWIMG)
@@ -3061,7 +3067,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                   PW11=RAYRAY(11,NEWIMG)
                   PW12=RAYRAY(12,NEWIMG)
                END IF
-               WW3=SYSTEM(8)
+               WW3=sys_wl_pri2()
                WVN=WW3
                MSG=.FALSE.
                WW4=1.0D0
@@ -3072,7 +3078,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                CALL RAYTRA
                F58=0
                MSG=.TRUE.
-               IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+               IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                   PW21=RAYRAY(1,NEWIMG)
                   PW22=RAYRAY(2,NEWIMG)
@@ -3081,7 +3087,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                   PW21=RAYRAY(11,NEWIMG)
                   PW22=RAYRAY(12,NEWIMG)
                END IF
-               WW3=SYSTEM(9)
+               WW3=sys_wl_sec1()
                WVN=WW3
                MSG=.FALSE.
                WW4=1.0D0
@@ -3092,7 +3098,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                CALL RAYTRA
                F58=0
                MSG=.TRUE.
-               IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+               IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                   SW11=RAYRAY(1,NEWIMG)
                   SW12=RAYRAY(2,NEWIMG)
@@ -3101,7 +3107,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                   SW11=RAYRAY(11,NEWIMG)
                   SW12=RAYRAY(12,NEWIMG)
                END IF
-               WW3=SYSTEM(10)
+               WW3=sys_wl_sec2()
                WVN=WW3
                MSG=.FALSE.
                WW4=1.0D0
@@ -3112,7 +3118,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                CALL RAYTRA
                F58=0
                MSG=.TRUE.
-               IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+               IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                   SW21=RAYRAY(1,NEWIMG)
                   SW22=RAYRAY(2,NEWIMG)
@@ -3124,7 +3130,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
 !       PRIMARY PAIR
 !       X-VALUE
                DIF1=PW11-PW21
-               IF(SYSTEM(30).GT.2.0D0) THEN
+               IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                   IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
                   IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
@@ -3133,7 +3139,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                END IF
 !       Y-VALUE
                DIF2=PW12-PW22
-               IF(SYSTEM(30).GT.2.0D0) THEN
+               IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                   IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
                   IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
@@ -3143,7 +3149,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
 !       SECONDARY PAIR
 !       X-VALUE
                DIF3=SW11-SW21
-               IF(SYSTEM(30).GT.2.0D0) THEN
+               IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                   IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
                   IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
@@ -3152,7 +3158,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
                END IF
 !       Y-VALUE
                DIF4=SW12-SW22
-               IF(SYSTEM(30).GT.2.0D0) THEN
+               IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
                   IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
                   IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)
@@ -3354,6 +3360,8 @@ SUBROUTINE PLFAN3(ICOMP)
 !
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_mode, sys_units, sys_wavelength, &
+      & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
    IMPLICIT NONE
 !
 !     DOES FAN CALCULATIONS FOR USER-DEFINED FAN PLOTTING
@@ -3519,7 +3527,7 @@ SUBROUTINE PLFAN3(ICOMP)
          CALL RAYTRA
          F58=0
          MSG=.TRUE.
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
             YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
@@ -3628,7 +3636,7 @@ SUBROUTINE PLFAN3(ICOMP)
                OOPD=OOPD+RAYRAY(7,J)&
                &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
             END DO
-            IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+            IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
 !               RCOR=0.0D0
 !               OCOR=0.0D0
@@ -3659,11 +3667,11 @@ SUBROUTINE PLFAN3(ICOMP)
                OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
                &+(RCOR*ALENS(WWVN,NEWIMG-1))
             END IF
-            IF(SYSTEM(6).EQ.1.0D0) WAV=SYSTEM(INT(WW3))*&
+            IF(sys_units().EQ.1.0D0) WAV=sys_wavelength(INT(WW3))*&
             &((1.0D-3)/(25.4D0))
-            IF(SYSTEM(6).EQ.2.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-4)
-            IF(SYSTEM(6).EQ.3.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-3)
-            IF(SYSTEM(6).EQ.4.0D0) WAV=SYSTEM(INT(WW3))*(1.0D-6)
+            IF(sys_units().EQ.2.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-4)
+            IF(sys_units().EQ.3.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-3)
+            IF(sys_units().EQ.4.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-6)
             OOPD=-OOPD
             IF(REVSTR) OOPD=-OOPD
             OPDW=OOPD/WAV
@@ -3695,7 +3703,7 @@ SUBROUTINE PLFAN3(ICOMP)
 !       CD
          RAYCOD(1)=0
          RAYCOD(2)=-1
-         WW3=SYSTEM(7)
+         WW3=sys_wl_pri1()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -3706,7 +3714,7 @@ SUBROUTINE PLFAN3(ICOMP)
          CALL RAYTRA
          F58=0
          MSG=.TRUE.
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             PW11=RAYRAY(1,NEWIMG)
             PW12=RAYRAY(2,NEWIMG)
@@ -3715,7 +3723,7 @@ SUBROUTINE PLFAN3(ICOMP)
             PW11=RAYRAY(11,NEWIMG)
             PW12=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(8)
+         WW3=sys_wl_pri2()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -3726,7 +3734,7 @@ SUBROUTINE PLFAN3(ICOMP)
          CALL RAYTRA
          F58=0
          MSG=.TRUE.
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             PW21=RAYRAY(1,NEWIMG)
             PW22=RAYRAY(2,NEWIMG)
@@ -3735,7 +3743,7 @@ SUBROUTINE PLFAN3(ICOMP)
             PW21=RAYRAY(11,NEWIMG)
             PW22=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(9)
+         WW3=sys_wl_sec1()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -3746,7 +3754,7 @@ SUBROUTINE PLFAN3(ICOMP)
          CALL RAYTRA
          F58=0
          MSG=.TRUE.
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             SW11=RAYRAY(1,NEWIMG)
             SW12=RAYRAY(2,NEWIMG)
@@ -3755,7 +3763,7 @@ SUBROUTINE PLFAN3(ICOMP)
             SW11=RAYRAY(11,NEWIMG)
             SW12=RAYRAY(12,NEWIMG)
          END IF
-         WW3=SYSTEM(10)
+         WW3=sys_wl_sec2()
          WVN=WW3
          MSG=.FALSE.
          WW4=1.0D0
@@ -3766,7 +3774,7 @@ SUBROUTINE PLFAN3(ICOMP)
          CALL RAYTRA
          F58=0
          MSG=.TRUE.
-         IF(SYSTEM(30).EQ.1.0D0.OR.SYSTEM(30).EQ.2.0D0) THEN
+         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
             SW21=RAYRAY(1,NEWIMG)
             SW22=RAYRAY(2,NEWIMG)
@@ -3778,7 +3786,7 @@ SUBROUTINE PLFAN3(ICOMP)
 !       PRIMARY PAIR
 !       X-VALUE
          DIF1=PW11-PW21
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
             IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
@@ -3787,7 +3795,7 @@ SUBROUTINE PLFAN3(ICOMP)
          END IF
 !       Y-VALUE
          DIF2=PW12-PW22
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
             IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
@@ -3797,7 +3805,7 @@ SUBROUTINE PLFAN3(ICOMP)
 !       SECONDARY PAIR
 !       X-VALUE
          DIF3=SW11-SW21
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
             IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
@@ -3806,7 +3814,7 @@ SUBROUTINE PLFAN3(ICOMP)
          END IF
 !       Y-VALUE
          DIF4=SW12-SW22
-         IF(SYSTEM(30).GT.2.0D0) THEN
+         IF(sys_mode().GT.2.0D0) THEN
 !     AFOCAL
             IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
             IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)
@@ -3973,6 +3981,7 @@ SUBROUTINE FANWV
    use DATHGR
    use DATLEN
    use DATMAI
+   use mod_system, only: sys_wavelength
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE WAVELENGTH LEGEND
@@ -4021,43 +4030,43 @@ SUBROUTINE FANWV
       FAN9=0
       FAN10=0
       IF(FANWAV.EQ.1) THEN
-         WAVE1=SYSTEM(1)
+         WAVE1=sys_wavelength(1)
          FAN1=1
       END IF
       IF(FANWAV.EQ.2) THEN
-         WAVE1=SYSTEM(2)
+         WAVE1=sys_wavelength(2)
          FAN1=2
       END IF
       IF(FANWAV.EQ.3) THEN
-         WAVE1=SYSTEM(3)
+         WAVE1=sys_wavelength(3)
          FAN1=3
       END IF
       IF(FANWAV.EQ.4) THEN
-         WAVE1=SYSTEM(4)
+         WAVE1=sys_wavelength(4)
          FAN1=4
       END IF
       IF(FANWAV.EQ.5) THEN
-         WAVE1=SYSTEM(5)
+         WAVE1=sys_wavelength(5)
          FAN1=5
       END IF
       IF(FANWAV.EQ.6) THEN
-         WAVE1=SYSTEM(71)
+         WAVE1=sys_wavelength(6)
          FAN1=6
       END IF
       IF(FANWAV.EQ.7) THEN
-         WAVE1=SYSTEM(72)
+         WAVE1=sys_wavelength(7)
          FAN1=7
       END IF
       IF(FANWAV.EQ.8) THEN
-         WAVE1=SYSTEM(73)
+         WAVE1=sys_wavelength(8)
          FAN1=8
       END IF
       IF(FANWAV.EQ.9) THEN
-         WAVE1=SYSTEM(74)
+         WAVE1=sys_wavelength(9)
          FAN1=9
       END IF
       IF(FANWAV.EQ.10) THEN
-         WAVE1=SYSTEM(75)
+         WAVE1=sys_wavelength(10)
          FAN1=10
       END IF
    ELSE
@@ -4077,7 +4086,7 @@ SUBROUTINE FANWV
 !     FANWV1 IS THE FIRST FAN
             FAN1=1
             FANLAST=FAN1
-            WAVE1=SYSTEM(1)
+            WAVE1=sys_wavelength(1)
             GO TO 10
          ELSE
 !     FANWV1 IS NOT THE FIRST FAN
@@ -4086,7 +4095,7 @@ SUBROUTINE FANWV
 !     FANWV2 IS THE FIRST FAN
             FAN1=2
             FANLAST=FAN1
-            WAVE1=SYSTEM(2)
+            WAVE1=sys_wavelength(2)
             GO TO 10
          ELSE
 !     FANWV2 IS NOT THE FIRST FAN
@@ -4095,7 +4104,7 @@ SUBROUTINE FANWV
 !     FANWV3 IS THE FIRST FAN
             FAN1=3
             FANLAST=FAN1
-            WAVE1=SYSTEM(3)
+            WAVE1=sys_wavelength(3)
             GO TO 10
          ELSE
 !     FANWV3 IS NOT THE FIRST FAN
@@ -4104,7 +4113,7 @@ SUBROUTINE FANWV
 !     FANWV4 IS THE FIRST FAN
             FAN1=4
             FANLAST=FAN1
-            WAVE1=SYSTEM(4)
+            WAVE1=sys_wavelength(4)
             GO TO 10
          ELSE
 !     FANWV4 IS NOT THE FIRST FAN
@@ -4113,7 +4122,7 @@ SUBROUTINE FANWV
 !     FANWV5 IS THE FIRST FAN
             FAN1=5
             FANLAST=FAN1
-            WAVE1=SYSTEM(5)
+            WAVE1=sys_wavelength(5)
             GO TO 10
          ELSE
 !     FANWV5 IS NOT THE FIRST FAN
@@ -4122,7 +4131,7 @@ SUBROUTINE FANWV
 !     FANWV6 IS THE FIRST FAN
             FAN1=6
             FANLAST=FAN1
-            WAVE1=SYSTEM(71)
+            WAVE1=sys_wavelength(6)
             GO TO 10
          ELSE
 !     FANWV6 IS NOT THE FIRST FAN
@@ -4131,7 +4140,7 @@ SUBROUTINE FANWV
 !     FANWV7 IS THE FIRST FAN
             FAN1=7
             FANLAST=FAN1
-            WAVE1=SYSTEM(72)
+            WAVE1=sys_wavelength(7)
             GO TO 10
          ELSE
 !     FANWV7 IS NOT THE FIRST FAN
@@ -4140,7 +4149,7 @@ SUBROUTINE FANWV
 !     FANWV8 IS THE FIRST FAN
             FAN1=8
             FANLAST=FAN1
-            WAVE1=SYSTEM(73)
+            WAVE1=sys_wavelength(8)
             GO TO 10
          ELSE
 !     FANWV8 IS NOT THE FIRST FAN
@@ -4149,7 +4158,7 @@ SUBROUTINE FANWV
 !     FANWV2 IS THE FIRST FAN
             FAN1=9
             FANLAST=FAN1
-            WAVE1=SYSTEM(74)
+            WAVE1=sys_wavelength(9)
             GO TO 10
          ELSE
 !     FANWV9 IS NOT THE FIRST FAN
@@ -4158,7 +4167,7 @@ SUBROUTINE FANWV
 !     FANWV10 IS THE FIRST FAN
             FAN1=10
             FANLAST=FAN1
-            WAVE1=SYSTEM(75)
+            WAVE1=sys_wavelength(10)
             GO TO 10
          ELSE
 !     FANWV10 IS NOT THE FIRST FAN
@@ -4170,7 +4179,7 @@ SUBROUTINE FANWV
 !     FANWV1 IS THE SECOND FAN
             FAN2=1
             FANLAST=FAN2
-            WAVE2=SYSTEM(1)
+            WAVE2=sys_wavelength(1)
             GO TO 20
          ELSE
 !     FANWV1 IS NOT THE SECOND FAN
@@ -4179,7 +4188,7 @@ SUBROUTINE FANWV
 !     FANWV2 IS THE SECOND FAN
             FAN2=2
             FANLAST=FAN2
-            WAVE2=SYSTEM(2)
+            WAVE2=sys_wavelength(2)
             GO TO 20
          ELSE
 !     FANWV2 IS NOT THE SECOND FAN
@@ -4188,7 +4197,7 @@ SUBROUTINE FANWV
 !     FANWV3 IS THE SECOND FAN
             FAN2=3
             FANLAST=FAN2
-            WAVE2=SYSTEM(3)
+            WAVE2=sys_wavelength(3)
             GO TO 20
          ELSE
 !     FANWV3 IS NOT THE SECOND FAN
@@ -4197,7 +4206,7 @@ SUBROUTINE FANWV
 !     FANWV1 IS THE SECOND FAN
             FAN2=4
             FANLAST=FAN2
-            WAVE2=SYSTEM(4)
+            WAVE2=sys_wavelength(4)
             GO TO 20
          ELSE
 !     FANWV4 IS NOT THE SECOND FAN
@@ -4206,7 +4215,7 @@ SUBROUTINE FANWV
 !     FANWV5 IS THE SECOND FAN
             FAN2=5
             FANLAST=FAN2
-            WAVE2=SYSTEM(5)
+            WAVE2=sys_wavelength(5)
             GO TO 20
          ELSE
 !     FANWV5 IS NOT THE SECOND FAN
@@ -4215,7 +4224,7 @@ SUBROUTINE FANWV
 !     FANWV1 IS THE SECOND FAN
             FAN2=6
             FANLAST=FAN2
-            WAVE2=SYSTEM(71)
+            WAVE2=sys_wavelength(6)
             GO TO 20
          ELSE
 !     FANWV6 IS NOT THE SECOND FAN
@@ -4224,7 +4233,7 @@ SUBROUTINE FANWV
 !     FANWV1 IS THE SECOND FAN
             FAN2=7
             FANLAST=FAN2
-            WAVE2=SYSTEM(72)
+            WAVE2=sys_wavelength(7)
             GO TO 20
          ELSE
 !     FANWV7 IS NOT THE SECOND FAN
@@ -4233,7 +4242,7 @@ SUBROUTINE FANWV
 !     FANWV8 IS THE SECOND FAN
             FAN2=8
             FANLAST=FAN2
-            WAVE2=SYSTEM(73)
+            WAVE2=sys_wavelength(8)
             GO TO 20
          ELSE
 !     FANWV8 IS NOT THE SECOND FAN
@@ -4242,7 +4251,7 @@ SUBROUTINE FANWV
 !     FANWV9 IS THE SECOND FAN
             FAN2=9
             FANLAST=FAN2
-            WAVE2=SYSTEM(74)
+            WAVE2=sys_wavelength(9)
             GO TO 20
          ELSE
 !     FANWV9 IS NOT THE SECOND FAN
@@ -4251,7 +4260,7 @@ SUBROUTINE FANWV
 !     FANWV10 IS THE DECOND FAN
             FAN2=10
             FANLAST=FAN2
-            WAVE2=SYSTEM(75)
+            WAVE2=sys_wavelength(10)
             GO TO 20
          ELSE
 !     FANWV10 IS NOT THE SECOND FAN
@@ -4262,70 +4271,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN3=1
             FANLAST=FAN3
-            WAVE3=SYSTEM(1)
+            WAVE3=sys_wavelength(1)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN3=2
             FANLAST=FAN3
-            WAVE3=SYSTEM(2)
+            WAVE3=sys_wavelength(2)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN3=3
             FANLAST=FAN3
-            WAVE3=SYSTEM(3)
+            WAVE3=sys_wavelength(3)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN3=4
             FANLAST=FAN3
-            WAVE3=SYSTEM(4)
+            WAVE3=sys_wavelength(4)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN3=5
             FANLAST=FAN3
-            WAVE3=SYSTEM(5)
+            WAVE3=sys_wavelength(5)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN3=6
             FANLAST=FAN3
-            WAVE3=SYSTEM(71)
+            WAVE3=sys_wavelength(6)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN3=7
             FANLAST=FAN3
-            WAVE3=SYSTEM(72)
+            WAVE3=sys_wavelength(7)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN3=8
             FANLAST=FAN3
-            WAVE3=SYSTEM(73)
+            WAVE3=sys_wavelength(8)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN3=9
             FANLAST=FAN3
-            WAVE3=SYSTEM(74)
+            WAVE3=sys_wavelength(9)
             GO TO 30
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN3=10
             FANLAST=FAN3
-            WAVE3=SYSTEM(75)
+            WAVE3=sys_wavelength(10)
             GO TO 30
          ELSE
          END IF
@@ -4335,70 +4344,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN4=1
             FANLAST=FAN4
-            WAVE4=SYSTEM(1)
+            WAVE4=sys_wavelength(1)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN4=2
             FANLAST=FAN4
-            WAVE4=SYSTEM(2)
+            WAVE4=sys_wavelength(2)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN4=3
             FANLAST=FAN4
-            WAVE4=SYSTEM(3)
+            WAVE4=sys_wavelength(3)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN4=4
             FANLAST=FAN4
-            WAVE4=SYSTEM(4)
+            WAVE4=sys_wavelength(4)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN4=5
             FANLAST=FAN4
-            WAVE4=SYSTEM(5)
+            WAVE4=sys_wavelength(5)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN4=6
             FANLAST=FAN4
-            WAVE4=SYSTEM(71)
+            WAVE4=sys_wavelength(6)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN4=7
             FANLAST=FAN4
-            WAVE4=SYSTEM(72)
+            WAVE4=sys_wavelength(7)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN4=8
             FANLAST=FAN4
-            WAVE4=SYSTEM(73)
+            WAVE4=sys_wavelength(8)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN4=9
             FANLAST=FAN4
-            WAVE4=SYSTEM(74)
+            WAVE4=sys_wavelength(9)
             GO TO 40
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN4=10
             FANLAST=FAN4
-            WAVE4=SYSTEM(75)
+            WAVE4=sys_wavelength(10)
             GO TO 40
          ELSE
          END IF
@@ -4408,70 +4417,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN5=1
             FANLAST=FAN5
-            WAVE5=SYSTEM(1)
+            WAVE5=sys_wavelength(1)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN5=2
             FANLAST=FAN5
-            WAVE5=SYSTEM(2)
+            WAVE5=sys_wavelength(2)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN5=3
             FANLAST=FAN5
-            WAVE5=SYSTEM(3)
+            WAVE5=sys_wavelength(3)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN5=4
             FANLAST=FAN5
-            WAVE5=SYSTEM(4)
+            WAVE5=sys_wavelength(4)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN5=5
             FANLAST=FAN5
-            WAVE5=SYSTEM(5)
+            WAVE5=sys_wavelength(5)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN5=6
             FANLAST=FAN5
-            WAVE5=SYSTEM(71)
+            WAVE5=sys_wavelength(6)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN5=7
             FANLAST=FAN5
-            WAVE5=SYSTEM(72)
+            WAVE5=sys_wavelength(7)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN5=8
             FANLAST=FAN5
-            WAVE5=SYSTEM(73)
+            WAVE5=sys_wavelength(8)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN5=9
             FANLAST=FAN5
-            WAVE5=SYSTEM(74)
+            WAVE5=sys_wavelength(9)
             GO TO 50
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN5=10
             FANLAST=FAN5
-            WAVE5=SYSTEM(75)
+            WAVE5=sys_wavelength(10)
             GO TO 50
          ELSE
          END IF
@@ -4481,70 +4490,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN6=1
             FANLAST=FAN6
-            WAVE6=SYSTEM(1)
+            WAVE6=sys_wavelength(1)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN6=2
             FANLAST=FAN6
-            WAVE6=SYSTEM(2)
+            WAVE6=sys_wavelength(2)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN6=3
             FANLAST=FAN6
-            WAVE6=SYSTEM(3)
+            WAVE6=sys_wavelength(3)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN6=4
             FANLAST=FAN6
-            WAVE6=SYSTEM(4)
+            WAVE6=sys_wavelength(4)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN6=5
             FANLAST=FAN6
-            WAVE6=SYSTEM(5)
+            WAVE6=sys_wavelength(5)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN6=6
             FANLAST=FAN6
-            WAVE6=SYSTEM(71)
+            WAVE6=sys_wavelength(6)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN6=7
             FANLAST=FAN6
-            WAVE6=SYSTEM(72)
+            WAVE6=sys_wavelength(7)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN6=8
             FANLAST=FAN6
-            WAVE6=SYSTEM(73)
+            WAVE6=sys_wavelength(8)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN6=9
             FANLAST=FAN6
-            WAVE6=SYSTEM(74)
+            WAVE6=sys_wavelength(9)
             GO TO 60
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN6=10
             FANLAST=FAN6
-            WAVE6=SYSTEM(75)
+            WAVE6=sys_wavelength(10)
             GO TO 60
          ELSE
          END IF
@@ -4554,70 +4563,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN7=1
             FANLAST=FAN7
-            WAVE7=SYSTEM(1)
+            WAVE7=sys_wavelength(1)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN7=2
             FANLAST=FAN7
-            WAVE7=SYSTEM(2)
+            WAVE7=sys_wavelength(2)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN7=3
             FANLAST=FAN7
-            WAVE7=SYSTEM(3)
+            WAVE7=sys_wavelength(3)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN7=4
             FANLAST=FAN7
-            WAVE7=SYSTEM(4)
+            WAVE7=sys_wavelength(4)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN7=5
             FANLAST=FAN7
-            WAVE7=SYSTEM(5)
+            WAVE7=sys_wavelength(5)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN7=6
             FANLAST=FAN7
-            WAVE7=SYSTEM(71)
+            WAVE7=sys_wavelength(6)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN7=7
             FANLAST=FAN7
-            WAVE7=SYSTEM(72)
+            WAVE7=sys_wavelength(7)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN7=8
             FANLAST=FAN7
-            WAVE7=SYSTEM(73)
+            WAVE7=sys_wavelength(8)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN7=9
             FANLAST=FAN7
-            WAVE7=SYSTEM(74)
+            WAVE7=sys_wavelength(9)
             GO TO 70
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN7=10
             FANLAST=FAN7
-            WAVE7=SYSTEM(75)
+            WAVE7=sys_wavelength(10)
             GO TO 70
          ELSE
          END IF
@@ -4627,70 +4636,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN8=1
             FANLAST=FAN8
-            WAVE8=SYSTEM(1)
+            WAVE8=sys_wavelength(1)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN8=2
             FANLAST=FAN8
-            WAVE8=SYSTEM(2)
+            WAVE8=sys_wavelength(2)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN8=3
             FANLAST=FAN8
-            WAVE8=SYSTEM(3)
+            WAVE8=sys_wavelength(3)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN8=4
             FANLAST=FAN8
-            WAVE8=SYSTEM(4)
+            WAVE8=sys_wavelength(4)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN8=5
             FANLAST=FAN8
-            WAVE8=SYSTEM(5)
+            WAVE8=sys_wavelength(5)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN8=6
             FANLAST=FAN8
-            WAVE8=SYSTEM(71)
+            WAVE8=sys_wavelength(6)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN8=7
             FANLAST=FAN8
-            WAVE8=SYSTEM(72)
+            WAVE8=sys_wavelength(7)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN8=8
             FANLAST=FAN8
-            WAVE8=SYSTEM(73)
+            WAVE8=sys_wavelength(8)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN8=9
             FANLAST=FAN8
-            WAVE8=SYSTEM(74)
+            WAVE8=sys_wavelength(9)
             GO TO 80
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN8=10
             FANLAST=FAN8
-            WAVE8=SYSTEM(75)
+            WAVE8=sys_wavelength(10)
             GO TO 80
          ELSE
          END IF
@@ -4700,70 +4709,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN9=1
             FANLAST=FAN9
-            WAVE9=SYSTEM(1)
+            WAVE9=sys_wavelength(1)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN9=2
             FANLAST=FAN9
-            WAVE9=SYSTEM(2)
+            WAVE9=sys_wavelength(2)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN9=3
             FANLAST=FAN9
-            WAVE9=SYSTEM(3)
+            WAVE9=sys_wavelength(3)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN9=4
             FANLAST=FAN9
-            WAVE9=SYSTEM(4)
+            WAVE9=sys_wavelength(4)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN9=5
             FANLAST=FAN9
-            WAVE9=SYSTEM(5)
+            WAVE9=sys_wavelength(5)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN9=6
             FANLAST=FAN9
-            WAVE9=SYSTEM(71)
+            WAVE9=sys_wavelength(6)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN9=7
             FANLAST=FAN9
-            WAVE9=SYSTEM(72)
+            WAVE9=sys_wavelength(7)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN9=8
             FANLAST=FAN9
-            WAVE9=SYSTEM(73)
+            WAVE9=sys_wavelength(8)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN9=9
             FANLAST=FAN9
-            WAVE9=SYSTEM(74)
+            WAVE9=sys_wavelength(9)
             GO TO 90
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN9=10
             FANLAST=FAN9
-            WAVE9=SYSTEM(75)
+            WAVE9=sys_wavelength(10)
             GO TO 90
          ELSE
          END IF
@@ -4773,70 +4782,70 @@ SUBROUTINE FANWV
          IF(I.EQ.1.AND.FANWV1) THEN
             FAN10=1
             FANLAST=FAN10
-            WAVE10=SYSTEM(1)
+            WAVE10=sys_wavelength(1)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.2.AND.FANWV2) THEN
             FAN10=2
             FANLAST=FAN10
-            WAVE10=SYSTEM(2)
+            WAVE10=sys_wavelength(2)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.3.AND.FANWV3) THEN
             FAN10=3
             FANLAST=FAN10
-            WAVE10=SYSTEM(3)
+            WAVE10=sys_wavelength(3)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.4.AND.FANWV4) THEN
             FAN10=4
             FANLAST=FAN10
-            WAVE10=SYSTEM(4)
+            WAVE10=sys_wavelength(4)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.5.AND.FANWV5) THEN
             FAN10=5
             FANLAST=FAN10
-            WAVE10=SYSTEM(5)
+            WAVE10=sys_wavelength(5)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.6.AND.FANWV6) THEN
             FAN10=6
             FANLAST=FAN10
-            WAVE10=SYSTEM(71)
+            WAVE10=sys_wavelength(6)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.7.AND.FANWV7) THEN
             FAN10=7
             FANLAST=FAN10
-            WAVE10=SYSTEM(72)
+            WAVE10=sys_wavelength(7)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.8.AND.FANWV8) THEN
             FAN10=8
             FANLAST=FAN10
-            WAVE10=SYSTEM(73)
+            WAVE10=sys_wavelength(8)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.9.AND.FANWV9) THEN
             FAN10=9
             FANLAST=FAN10
-            WAVE10=SYSTEM(74)
+            WAVE10=sys_wavelength(9)
             GO TO 100
          ELSE
          END IF
          IF(I.EQ.10.AND.FANWV10) THEN
             FAN10=10
             FANLAST=FAN10
-            WAVE10=SYSTEM(75)
+            WAVE10=sys_wavelength(10)
             GO TO 100
          ELSE
          END IF
