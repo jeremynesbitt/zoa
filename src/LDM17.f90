@@ -280,8 +280,10 @@ SUBROUTINE LENED
    use mod_surface
    use DATMAI
    use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      & sys_fliprefx, sys_fliprefy, &
       & sys_last_surf, sys_mode, sys_ray_aiming, sys_screen, sys_screen_d, &
-      & sys_screen_h, sys_screen_s, sys_screen_surf, sys_telecentric, sys_wl_weight
+      & sys_screen_excl_angle, sys_screen_h, sys_screen_s, sys_screen_surf, &
+      & sys_telecentric, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -320,7 +322,7 @@ SUBROUTINE LENED
    END IF
 !**********************************************************
 !**********************************************************
-   IF(SYSTEM(128).EQ.1.0D0) THEN
+   IF(sys_fliprefx().EQ.1.0D0) THEN
 !     FLIPREFY
       WRITE(OUTLYNE,4001)
       CALL SHOWIT(10)
@@ -328,7 +330,7 @@ SUBROUTINE LENED
    END IF
 !**********************************************************
 !**********************************************************
-   IF(SYSTEM(129).EQ.1.0D0) THEN
+   IF(sys_fliprefy().EQ.1.0D0) THEN
 !     FLIPREFY
       WRITE(OUTLYNE,4002)
       CALL SHOWIT(10)
@@ -338,7 +340,7 @@ SUBROUTINE LENED
 !**********************************************************
    IF(sys_screen().EQ.1.0D0) THEN
 !     SCREEN ON
-      WRITE(OUTLYNE,1003) sys_screen_surf(),sys_screen_d(),sys_screen_h(),sys_screen_s(),SYSTEM(108)
+      WRITE(OUTLYNE,1003) sys_screen_surf(),sys_screen_d(),sys_screen_h(),sys_screen_s(),sys_screen_excl_angle()
       CALL SHOWIT(10)
 1003  FORMAT('SCREEN   ON      ,',G23.15,',',G23.15,',',G23.15,',',G23.15,',',G23.15)
    END IF
@@ -866,7 +868,7 @@ SUBROUTINE RLENED
    use mod_surface
    use DATMAI
    use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
-      & sys_last_surf, sys_mode, sys_wl_weight
+      & sys_fliprefx, sys_fliprefy, sys_last_surf, sys_mode, sys_wl_weight
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -892,7 +894,7 @@ SUBROUTINE RLENED
 4000 FORMAT('AIMRAY  OFFSET  ,',G23.15,',',G23.15,',',G23.15)
 1000 FORMAT('AIMRAY   ON')
 !**********************************************************
-   IF(SYSTEM(128).EQ.1.0D0) THEN
+   IF(sys_fliprefx().EQ.1.0D0) THEN
 !     FLIPREFY
       WRITE(OUTLYNE,4001)
       CALL SHOWIT(10)
@@ -900,7 +902,7 @@ SUBROUTINE RLENED
    END IF
 !**********************************************************
 !**********************************************************
-   IF(SYSTEM(129).EQ.1.0D0) THEN
+   IF(sys_fliprefy().EQ.1.0D0) THEN
 !     FLIPREFY
       WRITE(OUTLYNE,4002)
       CALL SHOWIT(10)
