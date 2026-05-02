@@ -37,7 +37,7 @@ SUBROUTINE LENIN
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
-   use mod_system, only: sys_telecentric
+   use mod_system, only: sys_telecentric, sys_set_telecentric
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENIN. THIS IS THE SUBROUTINE WHICH
@@ -185,7 +185,7 @@ SUBROUTINE LENIN
       IF(WC.EQ.'TH') THEN
          CALL STH
          IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+            call sys_set_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -506,7 +506,7 @@ SUBROUTINE LENIN
          !call LogTermFOR("Got to THSOLV call from LENIN!")
          CALL THSOLV
          IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+            call sys_set_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -524,7 +524,7 @@ SUBROUTINE LENIN
       IF(WC.EQ.'PIKUP') THEN
          CALL SPIKUP
          IF(sys_telecentric().NE.0.0D0.AND.DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
-            SYSTEM(63)=0.0D0
+            call sys_set_telecentric(0.0D0)
             OUTLYNE='OBJECT THICKNESS EQUALS OR EXCEEDS 1.0D+10 LENS UNITS'
             CALL SHOWIT(1)
             OUTLYNE='TELECENTRIC AIMING HAS BEEN SHUT OFF'
@@ -545,7 +545,7 @@ SUBROUTINE LENADD
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_units, sys_wl_ref, sys_wl_pri1, sys_wl_pri2, sys_ref_surf, sys_astop
+   use mod_system, only: sys_last_surf, sys_units, sys_wl_ref, sys_wl_pri1, sys_wl_pri2, sys_ref_surf, sys_astop, sys_set_high_cfg
    IMPLICIT NONE
 !
 !       IT IS WITHIN THIS SUBROUTINE THAT MAKE LENADD WORK
@@ -681,7 +681,7 @@ SUBROUTINE LENADD
    DF3=1
 !       NOW DELETE ALL BUT THE MAIN CFG
    SYSTEM(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   call sys_set_high_cfg(1.0D0)
 !
    IMAGE1=sys_last_surf()
    UNI1=sys_units()
@@ -849,7 +849,7 @@ SUBROUTINE LENADD
 !       DELETE LENS 2 CONFIGS
 !       NOW DELETE ALL BUT THE MAIN CFG
    SYSTEM(50)=1.0D0
-   SYSTEM(56)=1.0D0
+   call sys_set_high_cfg(1.0D0)
 !       GET RID OF LENS 1 SOLVES
    ALENS(33,0:MAXSUR)=0.0D0
 !

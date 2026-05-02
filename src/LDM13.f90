@@ -6,7 +6,7 @@ SUBROUTINE FNDGLS
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
-   use mod_system, only: sys_last_surf
+   use mod_system, only: sys_last_surf, sys_wavelength, sys_wl_weight
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FNDGLS WHICH IMPLEMENTS THE FINDGLAS
@@ -138,12 +138,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -201,12 +198,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -263,12 +257,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -325,12 +316,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -387,12 +375,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -446,12 +431,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -508,12 +490,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -570,12 +549,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -633,12 +609,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -691,12 +664,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -749,12 +719,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -807,12 +774,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -865,12 +829,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -923,12 +884,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -981,12 +939,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS
@@ -1039,12 +994,9 @@ SUBROUTINE FNDGLS
             IF(I.EQ.8)  KK=73
             IF(I.EQ.9)  KK=74
             IF(I.EQ.10) KK=75
-            IF(SYSTEM(II).NE.0.0D0) THEN
+            IF(sys_wl_weight(I).NE.0.0D0) THEN
 !     SPECTRAL WEIGHT NOT ZERO
-               IF(JJ.GE.1.AND.JJ.LE.5)&
-               &LAMBDA=SYSTEM(JJ)
-               IF(JJ.GE.6.AND.JJ.LE.10)&
-               &LAMBDA=SYSTEM(65+JJ)
+               LAMBDA=sys_wavelength(I)
 !     GET INDEX OF MODEL GLASS
                NMOD=ALENS(KK,INT(W1))
 !     GET INDEX OF CAT GLASS

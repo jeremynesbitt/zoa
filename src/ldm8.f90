@@ -6,6 +6,7 @@ SUBROUTINE SASTOP
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_system, only: sys_astop, sys_astop_adj, sys_set_astop, sys_set_astop_adj
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASTOP WHICH IMPLEMENTS THE ASTOP
@@ -31,7 +32,7 @@ SUBROUTINE SASTOP
          RETURN
       END IF
 
-      IF(SYSTEM(26).EQ.-99.0D0) THEN
+      IF(sys_astop().EQ.-99.0D0) THEN
 !       THERE IS NO APERTURE STOP DEFINED
          WRITE(OUTLYNE,100)
          CALL SHOWIT(0)
@@ -39,20 +40,20 @@ SUBROUTINE SASTOP
       ELSE
 !       THERE IS AN APERTURE STOP DEFINED
       END IF
-      ASURF=INT(SYSTEM(26))
+      ASURF=INT(sys_astop())
       WRITE(OUTLYNE,1000) ASURF
       CALL SHOWIT(0)
-      IF(SYSTEM(27).EQ.1.0)  THEN
+      IF(sys_astop_adj().EQ.1.0)  THEN
          WRITE(OUTLYNE,2000)
          CALL SHOWIT(0)
       ELSE
       END IF
-      IF(SYSTEM(27).EQ.-1.0) THEN
+      IF(sys_astop_adj().EQ.-1.0) THEN
          WRITE(OUTLYNE,3000)
          CALL SHOWIT(0)
       ELSE
       END IF
-      IF(SYSTEM(27).EQ.2.0)  THEN
+      IF(sys_astop_adj().EQ.2.0)  THEN
          WRITE(OUTLYNE,4000)
          CALL SHOWIT(0)
       ELSE
@@ -83,8 +84,8 @@ SUBROUTINE SASTOP
 !       BY STORING -99 IN SYSTEM(26) AND 0.0 IN SYSTEM(27)
 !
       IF(WQ.EQ.'DELK') THEN
-         SYSTEM(26)=-99.0D0
-         SYSTEM(27)=0.0
+         call sys_set_astop(-99.0D0)
+         call sys_set_astop_adj(0.0D0)
          RETURN
       ELSE
 !       NOT REMOVING THE APERTURE STOP
@@ -143,10 +144,10 @@ SUBROUTINE SASTOP
          END IF
       END DO
 !
-      SYSTEM(26)=DBLE(SURF)
+      call sys_set_astop(DBLE(SURF))
 !       SO Y1 AND X1 WON'T BE READJUSTED IF EXPLICITLY INPUT
 !       SET EN/EX FLAG TO 0.0 (NO ADJUSTMENT)
-      SYSTEM(27)=0.0
+      call sys_set_astop_adj(0.0D0)
 !       SET EN/EX FLAG IN SYSTEM(27)
 !
 !       CHECK FOR VALID QUALIFIERS
@@ -157,9 +158,9 @@ SUBROUTINE SASTOP
          & 'RE-ENTER COMMAND', 1)
          RETURN
       END IF
-      IF(WQ.EQ.'EN') SYSTEM(27)=1.0
-      IF(WQ.EQ.'EX') SYSTEM(27)=-1.0
-      IF(WQ.EQ.'EN/EX'.OR.WQ.EQ.'ENEX') SYSTEM(27)=2.0
+      IF(WQ.EQ.'EN') call sys_set_astop_adj(1.0D0)
+      IF(WQ.EQ.'EX') call sys_set_astop_adj(-1.0D0)
+      IF(WQ.EQ.'EN/EX'.OR.WQ.EQ.'ENEX') call sys_set_astop_adj(2.0D0)
    ELSE
       OUTLYNE='"ASTOP" NOT VALID AT THIS PROGRAM LEVEL'
       CALL SHOWIT(1)
@@ -3142,7 +3143,7 @@ SUBROUTINE MULT_CLAP
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_last_surf, sys_ref_surf
+   use mod_system, only: sys_astop, sys_last_surf, sys_ref_surf
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MULTCLAP WHICH IMPLEMENTS THE MULTCLAP
@@ -3205,7 +3206,7 @@ SUBROUTINE MULT_CLAP
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(SURF.EQ.INT(SYSTEM(26))) THEN
+   IF(SURF.EQ.INT(sys_astop())) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"MULTCLAP" MAY NOT BE ASSIGNED TO THE ASTOP SURFACE'//'\n'//&
       & 'RE-ENTER COMMAND', 1)

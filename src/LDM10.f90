@@ -958,7 +958,7 @@ SUBROUTINE OCD
    use mod_surface
    use DATMAI
    use mod_surface, only: surf_thickness, surf_pickup_count
-   use mod_system, only: sys_wl_ref, sys_last_surf, sys_mode
+   use mod_system, only: sys_wl_ref, sys_last_surf, sys_mode, sys_set_wl_ref
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OCD. THIS SUBROUTINE IMPLEMENTS
@@ -1029,7 +1029,7 @@ SUBROUTINE OCD
    IF(INT(W1).NE.INT(sys_wl_ref())) THEN
 !       CHANGE CW AND RECALC ALL PARAX QUANTITIES
       SYSP11=sys_wl_ref()
-      SYSTEM(11)=DABS(W1)
+      call sys_set_wl_ref(DABS(W1))
       F1=0
       F6=1
       F22=0
@@ -1100,7 +1100,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,101)EFLY,BFD,FNY,LENGTH,GIHY
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
                RETURN
             ELSE
                WRITE(OUTLYNE,99)
@@ -1111,7 +1111,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,102)EFLY,BFD,LENGTH
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
             END IF
             RETURN
          END IF
@@ -1123,7 +1123,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,201)EFLX,BFD,FNX,LENGTH,GIHX
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
                RETURN
             ELSE
                WRITE(OUTLYNE,99)
@@ -1134,7 +1134,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,202)EFLX,BFD,LENGTH
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
             END IF
             RETURN
          END IF
@@ -1190,7 +1190,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,301)EFLY,BFD,FNY,LENGTH,OAL,TMAGY
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
                RETURN
             ELSE
                WRITE(OUTLYNE,99)
@@ -1201,7 +1201,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,302)EFLY,BFD,LENGTH,OAL
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
             END IF
             RETURN
          END IF
@@ -1213,7 +1213,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,401)EFLX,BFD,FNX,LENGTH,OAL,TMAGX
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
                RETURN
             ELSE
                WRITE(OUTLYNE,99)
@@ -1224,7 +1224,7 @@ SUBROUTINE OCD
                CALL SHOWIT(0)
                WRITE(OUTLYNE,402)EFLX,BFD,LENGTH,OAL
                CALL SHOWIT(0)
-               SYSTEM(11)=SYSP11
+               call sys_set_wl_ref(SYSP11)
             END IF
             RETURN
          END IF
@@ -1272,7 +1272,7 @@ SUBROUTINE OCD
             CALL SHOWIT(0)
             WRITE(OUTLYNE,501)ERELY,EPY,AMAGY,LENGTH
             CALL SHOWIT(0)
-            SYSTEM(11)=SYSP11
+            call sys_set_wl_ref(SYSP11)
             RETURN
          ELSE
             WRITE(OUTLYNE,99)
@@ -1283,7 +1283,7 @@ SUBROUTINE OCD
             CALL SHOWIT(0)
             WRITE(OUTLYNE,502) EPY,LENGTH
             CALL SHOWIT(0)
-            SYSTEM(11)=SYSP11
+            call sys_set_wl_ref(SYSP11)
          END IF
          RETURN
       END IF
@@ -1295,7 +1295,7 @@ SUBROUTINE OCD
             CALL SHOWIT(0)
             WRITE(OUTLYNE,601)ERELX,EPX,AMAGX,LENGTH
             CALL SHOWIT(0)
-            SYSTEM(11)=SYSP11
+            call sys_set_wl_ref(SYSP11)
             RETURN
          ELSE
             WRITE(OUTLYNE,99)
@@ -1306,7 +1306,7 @@ SUBROUTINE OCD
             CALL SHOWIT(0)
             WRITE(OUTLYNE,602)EPX,LENGTH
             CALL SHOWIT(0)
-            SYSTEM(11)=SYSP11
+            call sys_set_wl_ref(SYSP11)
          END IF
          RETURN
       END IF
