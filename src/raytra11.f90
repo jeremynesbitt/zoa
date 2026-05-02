@@ -323,6 +323,10 @@ SUBROUTINE NOAIMM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_ray_aiming, sys_set_ray_aiming, sys_set_telecentric, &
+      sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
+      sys_set_aim_offset_x, sys_set_aim_offset_y, sys_set_aim_offset_z, &
+      sys_set_aplanatic_aim
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMM.FOR. THIS SUBROUTINE STOPS ALL
@@ -365,16 +369,16 @@ SUBROUTINE NOAIMM
 !     STI=1
    END IF
    IF(is_command_query()) THEN
-      IF(SYSTEM(62).EQ.0.0D0) WRITE(OUTLYNE,10)
-      IF(SYSTEM(62).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_ray_aiming().EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_ray_aiming().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
 10    FORMAT('RAY AIMING IS CURRENTLY TURNED "OFF"')
 11    FORMAT('RAY AIMING IS CURRENTLY TURNED "ON"')
-      WRITE(OUTLYNE,12) SYSTEM(81)
+      WRITE(OUTLYNE,12) sys_aim_offset_x()
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,13) SYSTEM(82)
+      WRITE(OUTLYNE,13) sys_aim_offset_y()
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,14) SYSTEM(89)
+      WRITE(OUTLYNE,14) sys_aim_offset_z()
       CALL SHOWIT(0)
 12    FORMAT('CURRENT RAY AIMING X-OFFSET = ',D23.15,' LENS UNITS')
 13    FORMAT('CURRENT RAY AIMING Y-OFFSET = ',D23.15,' LENS UNITS')
@@ -382,13 +386,13 @@ SUBROUTINE NOAIMM
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(62)=0.0D0
+      call sys_set_ray_aiming(0.0D0)
       IF(F12.EQ.1) SYSP(62)=0.0D0
    END IF
    IF(WQ.EQ.'ON') THEN
-      SYSTEM(62)=1.0D0
-      SYSTEM(70)=0.0D0
-      SYSTEM(63)=0.0D0
+      call sys_set_ray_aiming(1.0D0)
+      call sys_set_aplanatic_aim(0.0D0)
+      call sys_set_telecentric(0.0D0)
       IF(F12.EQ.1) SYSP(62)=1.0D0
       IF(F12.EQ.1) SYSP(63)=0.0D0
    END IF
@@ -396,9 +400,9 @@ SUBROUTINE NOAIMM
       IF(DF1.EQ.1)W1=0.0D0
       IF(DF2.EQ.1)W2=0.0D0
       IF(DF3.EQ.1)W3=0.0D0
-      SYSTEM(81)=W1
-      SYSTEM(82)=W2
-      SYSTEM(89)=W3
+      call sys_set_aim_offset_x(W1)
+      call sys_set_aim_offset_y(W2)
+      call sys_set_aim_offset_z(W3)
       IF(F12.EQ.1) SYSP(81)=W1
       IF(F12.EQ.1) SYSP(82)=W2
       IF(F12.EQ.1) SYSP(89)=W3
@@ -455,7 +459,8 @@ SUBROUTINE NOAIMAPL
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
-   use mod_system, only: sys_ryim_fang_set
+   use mod_system, only: sys_ryim_fang_set, sys_aplanatic_aim, &
+      sys_set_aplanatic_aim, sys_set_ray_aiming, sys_set_telecentric
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMAPL.FOR.
@@ -489,21 +494,21 @@ SUBROUTINE NOAIMAPL
 !     STI=1
    END IF
    IF(is_command_query()) THEN
-      IF(SYSTEM(70).EQ.0.0D0) WRITE(OUTLYNE,10)
-      IF(SYSTEM(70).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_aplanatic_aim().EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_aplanatic_aim().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
 10    FORMAT('APLANATIC RAY AIMING IS CURRENTLY TURNED "OFF"')
 11    FORMAT('APLANATIC RAY AIMING IS CURRENTLY TURNED "ON"')
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(70)=0.0D0
+      call sys_set_aplanatic_aim(0.0D0)
       IF(F12.EQ.1) SYSP(70)=0.0D0
    END IF
    IF(WQ.EQ.'ON') THEN
-      SYSTEM(70)=1.0D0
-      SYSTEM(62)=0.0D0
-      SYSTEM(63)=0.0D0
+      call sys_set_aplanatic_aim(1.0D0)
+      call sys_set_ray_aiming(0.0D0)
+      call sys_set_telecentric(0.0D0)
       IF(F12.EQ.1) SYSP(70)=1.0D0
    END IF
    RETURN
@@ -514,7 +519,8 @@ SUBROUTINE SET_REVRAY
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
-   use mod_system, only: sys_ryim_fang_set
+   use mod_system, only: sys_ryim_fang_set, sys_rxim_fang_set, &
+      sys_reverse_trace, sys_set_reverse_trace
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SET_REVRAY.FOR. THIS SUBROUTINE
@@ -523,8 +529,8 @@ SUBROUTINE SET_REVRAY
 !
 !
    IF(is_command_query()) THEN
-      IF(SYSTEM(100).EQ.0.0D0) WRITE(OUTLYNE,10)
-      IF(SYSTEM(100).EQ.1.0D0) WRITE(OUTLYNE,11)
+      IF(sys_reverse_trace().EQ.0.0D0) WRITE(OUTLYNE,10)
+      IF(sys_reverse_trace().EQ.1.0D0) WRITE(OUTLYNE,11)
       CALL SHOWIT(0)
 10    FORMAT('SIMULATED REVERSE RAY TRACING IS CURRENTLY TURNED "OFF"')
 11    FORMAT('SIMULATED REVERSE RAY TRACING IS CURRENTLY TURNED "ON"')
@@ -539,7 +545,7 @@ SUBROUTINE SET_REVRAY
       CALL REPORT_ERROR_AND_FAIL('"REVRAY" TAKES NO NUMERIC INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(SYSTEM(98).EQ.0.0D0.OR.sys_ryim_fang_set().EQ.0.0D0) THEN
+   IF(sys_rxim_fang_set().EQ.0.0D0.OR.sys_ryim_fang_set().EQ.0.0D0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"REVRAY" REQUIRES "RXIM" AND "RYIM" TO BE EXPLICITLY SET'//'\n'//&
       & 'NO ACTION TAKEN', 1)
@@ -556,11 +562,11 @@ SUBROUTINE SET_REVRAY
 !     STI=1
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(100)=0.0D0
+      call sys_set_reverse_trace(0.0D0)
       IF(F12.EQ.1) SYSP(100)=0.0D0
    END IF
    IF(WQ.EQ.'ON') THEN
-      SYSTEM(100)=1.0D0
+      call sys_set_reverse_trace(1.0D0)
       IF(F12.EQ.1) SYSP(100)=1.0D0
    END IF
    RETURN
@@ -1143,24 +1149,27 @@ SUBROUTINE SCREENIT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_screen, sys_screen_surf, sys_screen_d, sys_screen_h, &
+      sys_screen_s, sys_screen_excl_angle, sys_set_screen, sys_set_screen_surf, &
+      sys_set_screen_d, sys_set_screen_h, sys_set_screen_s, sys_set_screen_excl_angle
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCREENIT. THIS SETS ONE SURFACE'S SCREEN PROPERTY TO "ON" OR "OFF"
 !
 !
    IF(is_command_query()) THEN
-      IF(SYSTEM(103).EQ.1.0D0) THEN
+      IF(sys_screen().EQ.1.0D0) THEN
          WRITE(OUTLYNE,11)
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,12) INT(SYSTEM(104))
+         WRITE(OUTLYNE,12) INT(sys_screen_surf())
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,13) SYSTEM(105)
+         WRITE(OUTLYNE,13) sys_screen_d()
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,14) SYSTEM(106)
+         WRITE(OUTLYNE,14) sys_screen_h()
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,15) SYSTEM(107)
+         WRITE(OUTLYNE,15) sys_screen_s()
          CALL SHOWIT(0)
-         WRITE(OUTLYNE,16) SYSTEM(108)
+         WRITE(OUTLYNE,16) sys_screen_excl_angle()
          CALL SHOWIT(0)
       ELSE
          WRITE(OUTLYNE,10)
@@ -1206,20 +1215,20 @@ SUBROUTINE SCREENIT
       RETURN
    END IF
    IF(WQ.EQ.'OFF') THEN
-      SYSTEM(103)=0.0D0
-      SYSTEM(104)=0.0D0
-      SYSTEM(105)=0.0D0
-      SYSTEM(106)=0.0D0
-      SYSTEM(107)=0.0D0
-      SYSTEM(108)=0.0D0
+      call sys_set_screen(0.0D0)
+      call sys_set_screen_surf(0.0D0)
+      call sys_set_screen_d(0.0D0)
+      call sys_set_screen_h(0.0D0)
+      call sys_set_screen_s(0.0D0)
+      call sys_set_screen_excl_angle(0.0D0)
    END IF
    IF(WQ.EQ.'ON') THEN
-      SYSTEM(103)=1.0D0
-      SYSTEM(104)=W1
-      SYSTEM(105)=W2
-      SYSTEM(106)=W3
-      SYSTEM(107)=W4
-      SYSTEM(108)=W5
+      call sys_set_screen(1.0D0)
+      call sys_set_screen_surf(W1)
+      call sys_set_screen_d(W2)
+      call sys_set_screen_h(W3)
+      call sys_set_screen_s(W4)
+      call sys_set_screen_excl_angle(W5)
    END IF
    RETURN
 10 FORMAT('"SCREEN" IS CURRENTLY TURNED "OFF"')
@@ -1236,6 +1245,7 @@ SUBROUTINE FLIPREF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_system, only: sys_fliprefx, sys_fliprefy, sys_set_fliprefx, sys_set_fliprefy
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FLIPREF.FOR.
@@ -1269,31 +1279,31 @@ SUBROUTINE FLIPREF
    END IF
    IF(is_command_query()) THEN
       IF(WC.EQ.'FLIPREFX') THEN
-         IF(SYSTEM(128).EQ.0.0D0) WRITE(OUTLYNE,10)
-         IF(SYSTEM(128).EQ.1.0D0) WRITE(OUTLYNE,11)
+         IF(sys_fliprefx().EQ.0.0D0) WRITE(OUTLYNE,10)
+         IF(sys_fliprefx().EQ.1.0D0) WRITE(OUTLYNE,11)
          CALL SHOWIT(0)
       END IF
       IF(WC.EQ.'FLIPREFY') THEN
-         IF(SYSTEM(129).EQ.0.0D0) WRITE(OUTLYNE,12)
-         IF(SYSTEM(129).EQ.1.0D0) WRITE(OUTLYNE,13)
+         IF(sys_fliprefy().EQ.0.0D0) WRITE(OUTLYNE,12)
+         IF(sys_fliprefy().EQ.1.0D0) WRITE(OUTLYNE,13)
          CALL SHOWIT(0)
       END IF
       RETURN
    END IF
    IF(WC.EQ.'FLIPREFX') THEN
       IF(WQ.EQ.'OFF') THEN
-         SYSTEM(128)=0.0D0
+         call sys_set_fliprefx(0.0D0)
       END IF
       IF(WQ.EQ.'ON') THEN
-         SYSTEM(128)=1.0D0
+         call sys_set_fliprefx(1.0D0)
       END IF
    END IF
    IF(WC.EQ.'FLIPREFY') THEN
       IF(WQ.EQ.'OFF') THEN
-         SYSTEM(129)=0.0D0
+         call sys_set_fliprefy(0.0D0)
       END IF
       IF(WQ.EQ.'ON') THEN
-         SYSTEM(129)=1.0D0
+         call sys_set_fliprefy(1.0D0)
       END IF
    END IF
 10 FORMAT('FLIPREFX IS CURRENTLY TURNED "OFF"')
