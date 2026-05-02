@@ -37,7 +37,7 @@ SUBROUTINE LNSEOS
       CFLDS(2,3)=1.0D0
    END IF
 !     RESTORE DECENTERS TO CONVER PIVOTS
-   IF(SYSTEM(20).GT.DBLE(MAXSUR)) call sys_set_last_surf(DBLE(MAXSUR))
+   IF(sys_last_surf().GT.DBLE(MAXSUR)) call sys_set_last_surf(DBLE(MAXSUR))
    I=INT(sys_last_surf())
    ALENS(29,1:I) = 0.0D0
    ALENS(30,1:I) = ALENS(114,1:I)
@@ -315,7 +315,7 @@ SUBROUTINE LNSEOS1
       & sys_set_scy, sys_set_scy_fang, sys_set_scy_fang_set, sys_set_tilt_ret, &
       & sys_set_x1_scx, sys_set_x1_scx_fang, sys_set_x1_scx_fang_set, sys_set_x1_scx_set, &
       & sys_set_xz_bilateral, sys_set_y1_scy, sys_set_y1_scy_fang, &
-      & sys_set_y1_scy_fang_set, sys_set_y1_scy_set, sys_set_yz_bilateral
+      & sys_ref_orient, sys_set_y1_scy_fang_set, sys_set_y1_scy_set, sys_set_yz_bilateral
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LNSEOS. THIS IS THE SUBROUTINE WHICH
@@ -516,7 +516,7 @@ SUBROUTINE LNSEOS1
       END IF
 !
       NEWIMG=sys_last_surf()
-      IF(SYSTEM(20).LT.0.0D0) call sys_set_last_surf(0.0D0)
+      IF(sys_last_surf().LT.0.0D0) call sys_set_last_surf(0.0D0)
       NEWIMG=sys_last_surf()
       IF(F5.EQ.1.AND.sys_last_surf().EQ.0.0D0) THEN
          OUTLYNE='LENS SYSTEM HAS NO SURFACES'
@@ -1728,7 +1728,7 @@ SUBROUTINE LNSEOS1
    END DO
 !       REFS ORIENTATION NOT 0.0 OR CLAP TILT EXITS ON THE
 !       REFERENCE SURFACE
-   IF(surf_clap_type(NEWREF) /= 0.AND.surf_clap_tilt(NEWREF).NE.0.0D0 .AND.surf_multi_clap_flag(NEWREF) == 0.OR.surf_multi_clap_flag(NEWREF) == 0 .AND.SYSTEM(59).NE.0.0D0) call sys_set_xz_bilateral(0.0D0)
+   IF(surf_clap_type(NEWREF) /= 0.AND.surf_clap_tilt(NEWREF).NE.0.0D0 .AND.surf_multi_clap_flag(NEWREF) == 0.OR.surf_multi_clap_flag(NEWREF) == 0 .AND.sys_ref_orient().NE.0.0D0) call sys_set_xz_bilateral(0.0D0)
 628 CONTINUE
 !     YZ-PLANE
 !       SYSTEM(48)=1.0D0 MEANS YZ SYMMETRY
@@ -1948,8 +1948,8 @@ SUBROUTINE LNSEOS1
    I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'PERFECT      ') THEN
       IF(sys_mode().GE.3.0D0) THEN
-         IF(SYSTEM(30).EQ.3.0D0) call sys_set_mode(1.0D0)
-         IF(SYSTEM(30).EQ.4.0D0) call sys_set_mode(2.0D0)
+         IF(sys_mode().EQ.3.0D0) call sys_set_mode(1.0D0)
+         IF(sys_mode().EQ.4.0D0) call sys_set_mode(2.0D0)
          OUTLYNE='"PERFECT" SURFACE IN USE. LENS MODE HAS BEEN'
          CALL SHOWIT(1)
          IF(sys_mode().EQ.1.0D0) OUTLYNE='RESET TO THE "FOCAL" MODE'
@@ -1998,8 +1998,8 @@ SUBROUTINE LNSEOS1
    I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
       IF(sys_mode().GE.3.0D0) THEN
-         IF(SYSTEM(30).EQ.3.0D0) call sys_set_mode(1.0D0)
-         IF(SYSTEM(30).EQ.4.0D0) call sys_set_mode(2.0D0)
+         IF(sys_mode().EQ.3.0D0) call sys_set_mode(1.0D0)
+         IF(sys_mode().EQ.4.0D0) call sys_set_mode(2.0D0)
          OUTLYNE='"IDEAL" SURFACE IN USE. LENS MODE HAS BEEN'
          CALL SHOWIT(1)
          IF(sys_mode().EQ.1.0D0) OUTLYNE='RESET TO THE "FOCAL" MODE'
